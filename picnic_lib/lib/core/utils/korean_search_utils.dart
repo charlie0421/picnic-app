@@ -30,7 +30,7 @@ class KoreanSearchUtils {
     'ㅋ',
     'ㅌ',
     'ㅍ',
-    'ㅎ'
+    'ㅎ',
   ];
 
   /// 한국어 텍스트에서 초성을 추출합니다.
@@ -102,7 +102,9 @@ class KoreanSearchUtils {
 
   /// 부분 초성 매칭 확인 (정확한 순서와 연속성 확인)
   static bool _matchesPartialInitials(
-      String textInitials, String queryInitials) {
+    String textInitials,
+    String queryInitials,
+  ) {
     // 검색어의 초성이 텍스트의 초성에 정확히 순서대로 연속으로 포함되는지 확인
     if (queryInitials.isEmpty || textInitials.isEmpty) {
       return false;
@@ -166,21 +168,22 @@ class KoreanSearchUtils {
       while (index != -1) {
         // 하이라이트 이전 텍스트 추가
         if (index > start) {
-          spans.add(TextSpan(
-            text: text.substring(start, index),
-            style: baseStyle,
-          ));
+          spans.add(
+            TextSpan(text: text.substring(start, index), style: baseStyle),
+          );
         }
 
         // 하이라이트 효과
-        spans.add(TextSpan(
-          text: text.substring(index, index + query.length),
-          style: (baseStyle ?? const TextStyle()).copyWith(
-            backgroundColor: effectiveHighlightColor,
-            fontWeight: FontWeight.bold,
-            color: baseStyle?.color ?? AppColors.grey900,
+        spans.add(
+          TextSpan(
+            text: text.substring(index, index + query.length),
+            style: (baseStyle ?? const TextStyle()).copyWith(
+              backgroundColor: effectiveHighlightColor,
+              fontWeight: FontWeight.bold,
+              color: baseStyle?.color ?? AppColors.grey900,
+            ),
           ),
-        ));
+        );
 
         start = index + query.length;
         index = lowerText.indexOf(lowerQuery, start);
@@ -188,24 +191,23 @@ class KoreanSearchUtils {
 
       // 남은 텍스트 추가
       if (start < text.length) {
-        spans.add(TextSpan(
-          text: text.substring(start),
-          style: baseStyle,
-        ));
+        spans.add(TextSpan(text: text.substring(start), style: baseStyle));
       }
     } else {
       // 초성 검색인지 확인
       final textInitials = extractKoreanInitials(text).toLowerCase();
       if (textInitials.contains(lowerQuery)) {
         // 초성 검색의 경우 전체 텍스트를 하이라이트
-        spans.add(TextSpan(
-          text: text,
-          style: (baseStyle ?? const TextStyle()).copyWith(
-            backgroundColor: effectiveHighlightColor,
-            fontWeight: FontWeight.bold,
-            color: baseStyle?.color ?? AppColors.grey900,
+        spans.add(
+          TextSpan(
+            text: text,
+            style: (baseStyle ?? const TextStyle()).copyWith(
+              backgroundColor: effectiveHighlightColor,
+              fontWeight: FontWeight.bold,
+              color: baseStyle?.color ?? AppColors.grey900,
+            ),
           ),
-        ));
+        );
       } else {
         // 매칭되지 않는 경우 일반 텍스트
         spans.add(TextSpan(text: text, style: baseStyle));
@@ -250,6 +252,10 @@ class KoreanSearchUtils {
     }
 
     // 중국어에서 검색어 찾기
+    final zhCnText = nameMap['zh_CN']?.toString() ?? '';
+    if (zhCnText.toLowerCase().contains(lowerQuery)) {
+      return zhCnText;
+    }
     final zhText = nameMap['zh']?.toString() ?? '';
     if (zhText.toLowerCase().contains(lowerQuery)) {
       return zhText;

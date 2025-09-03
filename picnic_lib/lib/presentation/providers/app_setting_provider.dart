@@ -59,31 +59,42 @@ class Setting with _$Setting {
   }) = _Setting;
 
   /// 지원되는 언어 목록 (AppLocalizations.supportedLocales 기반, 단일 소스)
-  static List<String> get supportedLanguages =>
-      AppLocalizations.supportedLocales.map((e) => e.languageCode).toList();
+  /// zh 지역 분기(zh_CN/zh_TW)를 포함하기 위해 countryCode를 결합한 코드 사용
+  static List<String> get supportedLanguages => AppLocalizations
+      .supportedLocales
+      .map(
+        (locale) => (locale.countryCode == null || locale.countryCode!.isEmpty)
+            ? locale.languageCode
+            : '${locale.languageCode}_${locale.countryCode}',
+      )
+      .toList();
 
   Future<Setting> load() async {
     final language = await globalStorage.loadData('language', 'ko');
     final area = await globalStorage.loadData('area', 'all');
 
     // 언어 유효성 검사: 빈 값이거나 지원되지 않는 언어일 경우 'ko'로 설정
-    final fixedLanguage = (language == null ||
-            language.isEmpty ||
-            !supportedLanguages.contains(language))
+    // 마이그레이션: 과거에 저장된 'zh'는 기본적으로 'zh_CN'으로 전환
+    String normalizedLanguage = language ?? 'ko';
+    if (normalizedLanguage == 'zh') {
+      normalizedLanguage = 'zh_CN';
+    }
+
+    final fixedLanguage =
+        (normalizedLanguage.isEmpty ||
+            !supportedLanguages.contains(normalizedLanguage))
         ? 'ko'
-        : language;
+        : normalizedLanguage;
     final fixedArea = area == null || area.isEmpty ? 'all' : area;
 
     if (fixedLanguage != language) {
       logger.i(
-          '언어 설정 수정: $language → $fixedLanguage (지원되는 언어: ${supportedLanguages.join(', ')})');
+        '언어 설정 수정: $language → $fixedLanguage (지원되는 언어: ${supportedLanguages.join(', ')})',
+      );
       await globalStorage.debugSaveLanguage(fixedLanguage);
     }
 
-    return Setting(
-      language: fixedLanguage,
-      area: fixedArea,
-    );
+    return Setting(language: fixedLanguage, area: fixedArea);
   }
 }
 

@@ -1,541 +1,509 @@
 {
-  "achieve": "성과",
+  "@@locale": "zh_CN",
+  "achieve": "成就",
   "@achieve": {
     "description": "Auto-generated metadata for key 'achieve'."
   },
-  "ads_available_time": "다음 광고 시청 가능 시간",
+  "ads_available_time": "下次可观看广告时间",
   "@ads_available_time": {
     "description": "Auto-generated metadata for key 'ads_available_time'."
   },
-  "anonymous": "익명",
+  "anonymous": "匿名",
   "@anonymous": {
     "description": "Auto-generated metadata for key 'anonymous'."
   },
-  "anonymous_mode": "익명 모드",
+  "anonymous_mode": "匿名模式",
   "@anonymous_mode": {
     "description": "Auto-generated metadata for key 'anonymous_mode'."
   },
-  "ban_contact": "문의사항이 있으시면 고객센터로 연락해주세요.",
-  "@ban_contact": {
-    "description": "Contact information for banned users"
-  },
-  "ban_message": "부적절한 활동으로 인해 계정이 일시 정지되었습니다.",
-  "@ban_message": {
-    "description": "Message explaining the ban"
-  },
-  "ban_title": "계정이 일시 정지되었습니다",
-  "@ban_title": {
-    "description": "Title for ban screen"
-  },
-  "block_user_label": "사용자 차단",
+  "block_user_label": "屏蔽用户",
   "@block_user_label": {
     "description": "Auto-generated metadata for key 'block_user_label'."
   },
-  "button_cancel": "취소",
+  "button_cancel": "取消",
   "@button_cancel": {
     "description": "Auto-generated metadata for key 'button_cancel'."
   },
-  "button_complete": "완료",
+  "button_complete": "完成",
   "@button_complete": {
     "description": "Auto-generated metadata for key 'button_complete'."
   },
-  "button_login": "로그인",
+  "button_login": "登录",
   "@button_login": {
     "description": "Auto-generated metadata for key 'button_login'."
   },
-  "button_ok": "확인",
+  "button_ok": "确认",
   "@button_ok": {
     "description": "Auto-generated metadata for key 'button_ok'."
   },
-  "cancel": "취소",
-  "@cancel": {
-    "description": "Auto-generated metadata for key 'cancel'."
-  },
-  "capture_failed": "캡처 실패",
-  "@capture_failed": {
-    "description": "Auto-generated metadata for key 'capture_failed'."
-  },
-  "comments": "댓글",
+  "comments": "评论",
   "@comments": {
     "description": "Auto-generated metadata for key 'comments'."
   },
-  "common_all": "전체",
+  "common_all": "全部",
   "@common_all": {
     "description": "Auto-generated metadata for key 'common_all'."
   },
-  "common_fail": "실패",
+  "common_fail": "失败",
   "@common_fail": {
     "description": "Auto-generated metadata for key 'common_fail'."
   },
-  "common_retry_label": "다시 시도",
+  "common_retry_label": "再次尝试",
   "@common_retry_label": {
     "description": "Auto-generated metadata for key 'common_retry_label'."
   },
-  "common_success": "성공",
+  "common_success": "成功",
   "@common_success": {
     "description": "Auto-generated metadata for key 'common_success'."
   },
-  "common_text_no_data": "이용 가능한 데이터가 없습니다.",
+  "common_text_no_data": "没有相关数据。",
   "@common_text_no_data": {
     "description": "Auto-generated metadata for key 'common_text_no_data'."
   },
-  "common_text_no_search_result": "검색 결과가 없습니다.",
+  "common_text_no_search_result": "未找到搜索结果。",
   "@common_text_no_search_result": {
     "description": "Auto-generated metadata for key 'common_text_no_search_result'."
   },
-  "common_text_search_error": "검색 중 오류가 발생했습니다.",
+  "common_text_search_error": "搜索过程中出现错误。",
   "@common_text_search_error": {
     "description": "Auto-generated metadata for key 'common_text_search_error'."
   },
-  "common_text_search_recent_label": "최근 검색",
+  "common_text_search_recent_label": "最近的搜索",
   "@common_text_search_recent_label": {
     "description": "Auto-generated metadata for key 'common_text_search_recent_label'."
   },
-  "common_text_search_result_label": "검색 결과",
+  "common_text_search_result_label": "搜索结果",
   "@common_text_search_result_label": {
     "description": "Auto-generated metadata for key 'common_text_search_result_label'."
   },
-  "compatibility_activities_title": "추천 활동",
+  "compatibility_activities_title": "建议开展的活动",
   "@compatibility_activities_title": {
     "description": "Auto-generated metadata for key 'compatibility_activities_title'."
   },
-  "compatibility_agree_checkbox": "내 프로필에 성별과 생년월일 정보 저장에 동의합니다.",
+  "compatibility_agree_checkbox": "我同意在个人档案中存储我的性别和生日信息。",
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
   },
-  "compatibility_analyze_start": "궁합 분석 시작",
+  "compatibility_analyze_start": "开始兼容性分析",
   "@compatibility_analyze_start": {
     "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
   },
-  "compatibility_analyzing": "궁합 분석 중",
+  "compatibility_analyzing": "分析兼容性。",
   "@compatibility_analyzing": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing'."
   },
-  "compatibility_analyzing_prepare": "준비 중",
+  "compatibility_analyzing_prepare": "准备工作",
   "@compatibility_analyzing_prepare": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing_prepare'."
   },
-  "compatibility_birthday": "생년월일",
+  "compatibility_birthday": "出生日期",
   "@compatibility_birthday": {
     "description": "Auto-generated metadata for key 'compatibility_birthday'."
   },
-  "compatibility_birthtime": "출생 시간",
+  "compatibility_birthtime": "出生时间",
   "@compatibility_birthtime": {
     "description": "Auto-generated metadata for key 'compatibility_birthtime'."
   },
-  "compatibility_couple_style": "커플 스타일",
+  "compatibility_couple_style": "情侣款式",
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
   },
-  "compatibility_duplicate_data_title": "이미 존재하는 궁합 데이터",
+  "compatibility_duplicate_data_title": "已有的兼容性数据",
   "@compatibility_duplicate_data_title": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
   },
-  "compatibility_empty_state_subtitle": "첫 번째 궁합을 만들어보세요!",
-  "@compatibility_empty_state_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
-  },
-  "compatibility_empty_state_title": "궁합 정보가 없습니다",
-  "@compatibility_empty_state_title": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
-  },
-  "compatibility_gender": "성별",
+  "compatibility_gender": "性别",
   "@compatibility_gender": {
     "description": "Auto-generated metadata for key 'compatibility_gender'."
   },
-  "compatibility_gender_female": "여성",
+  "compatibility_gender_female": "女性",
   "@compatibility_gender_female": {
     "description": "Auto-generated metadata for key 'compatibility_gender_female'."
   },
-  "compatibility_gender_male": "남성",
+  "compatibility_gender_male": "男",
   "@compatibility_gender_male": {
     "description": "Auto-generated metadata for key 'compatibility_gender_male'."
   },
-  "compatibility_idol_style": "아이돌 스타일",
+  "compatibility_idol_style": "偶像风格",
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "새 궁합 계산",
+  "compatibility_new_compatibility": "计算新宫合",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_page_title": "궁합",
+  "compatibility_page_title": "兼容性",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
-  "compatibility_purchase_confirm_message": "스타캔디 100개를 사용하여 궁합 결과를 확인합니다.",
+  "compatibility_purchase_confirm_message": "使用100个星星糖果查看Goong-Hap结果。",
   "@compatibility_purchase_confirm_message": {
     "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
   },
-  "compatibility_remain_star_candy": "남은 스타캔디",
+  "compatibility_remain_star_candy": "剩余的糖果",
   "@compatibility_remain_star_candy": {
     "description": "Auto-generated metadata for key 'compatibility_remain_star_candy'."
   },
-  "compatibility_result_not_found": "궁합이 맞지 않네요 😔",
+  "compatibility_result_not_found": "这不是 Goong-Hap😔。",
   "@compatibility_result_not_found": {
     "description": "Auto-generated metadata for key 'compatibility_result_not_found'."
   },
-  "compatibility_share_hashtag": "#피크닉 #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
+  "compatibility_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
   "@compatibility_share_hashtag": {
     "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
   },
-  "compatibility_share_message": "{artistName}과 나의 빛나는 케미 궁합은 몇 퍼센트일까? 두근두근!",
+  "compatibility_share_message": "我的闪亮化学兼容性与 {artistName} 的百分比是多少？?我的心在狂跳",
   "@compatibility_share_message": {
-    "description": "Auto-generated metadata for key 'compatibility_share_message'."
+    "placeholders": {
+      "artistName": {
+        "type": "String"
+      }
+    }
   },
-  "compatibility_snackbar_error": "오류가 발생했습니다.",
+  "compatibility_snackbar_error": "出现错误。",
   "@compatibility_snackbar_error": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
   },
-  "compatibility_snackbar_need_gender": "성별을 선택해주세요.",
+  "compatibility_snackbar_need_gender": "请选择性别。",
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "궁합 분석을 시작합니다.",
+  "compatibility_snackbar_start": "开始分析兼容性。",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_style_title": "궁합 스타일",
+  "compatibility_style_title": "兼容性样式",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
-  "compatibility_time_slot1": "자시|(23:30-01:29)|🐀",
+  "compatibility_time_slot1": "老鼠的时刻|(23:30-01:29)|🐀",
   "@compatibility_time_slot1": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
   },
-  "compatibility_time_slot10": "유시|(17:30-19:29)|🐔",
+  "compatibility_time_slot10": "鸡鸣时刻|(17:30-19:29)|🐔|(17:30-19:29)",
   "@compatibility_time_slot10": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
   },
-  "compatibility_time_slot11": "술시|(19:30-21:29)|🐕",
+  "compatibility_time_slot11": "狗的时刻|(19:30-21:29)|🐕",
   "@compatibility_time_slot11": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
   },
-  "compatibility_time_slot12": "해시|(21:30-23:29)|🐖",
+  "compatibility_time_slot12": "野猪的时刻|(21:30-23:29)|🐖",
   "@compatibility_time_slot12": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
   },
-  "compatibility_time_slot2": "축시|(01:30-03:29)|🐂",
+  "compatibility_time_slot2": "牛的时刻|(01:30-03:29)|🐂",
   "@compatibility_time_slot2": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
   },
-  "compatibility_time_slot3": "인시|(03:30-05:29)|🐅",
+  "compatibility_time_slot3": "虎啸龙吟|(03:30-05:29)|🐅|(03:30-05:29)",
   "@compatibility_time_slot3": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
   },
-  "compatibility_time_slot4": "묘시|(05:30-07:29)|🐇",
+  "compatibility_time_slot4": "兔子的时刻|(05:30-07:29)|🐇🐇",
   "@compatibility_time_slot4": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
   },
-  "compatibility_time_slot5": "진시|(07:30-09:29)|🐉",
+  "compatibility_time_slot5": "龙的时刻|(07:30-09:29)|🐉🐉",
   "@compatibility_time_slot5": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
   },
-  "compatibility_time_slot6": "사시|(09:30-11:29)|🐍",
+  "compatibility_time_slot6": "蛇的时刻|(09:30-11:29)|🐍🐍",
   "@compatibility_time_slot6": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
   },
-  "compatibility_time_slot7": "오시|(11:30-13:29)|🐎",
+  "compatibility_time_slot7": "马的时刻|(11:30-13:29)|🐎",
   "@compatibility_time_slot7": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
   },
-  "compatibility_time_slot8": "미시|(13:30-15:29)|🐑",
+  "compatibility_time_slot8": "羊的时刻|(13:30-15:29)|🐑",
   "@compatibility_time_slot8": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
   },
-  "compatibility_time_slot9": "신시|(15:30-17:29)|🐒",
+  "compatibility_time_slot9": "猴年春节|(15:30-17:29)|🐒|(15:30-17:29)",
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_tips_title": "궁합 팁",
+  "compatibility_tips_title": "兼容性提示",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
   },
-  "compatibility_user_style": "사용자 스타일",
+  "compatibility_user_style": "用户风格",
   "@compatibility_user_style": {
     "description": "Auto-generated metadata for key 'compatibility_user_style'."
   },
-  "compatibility_waiting_message": "잠시만 기다려주세요.",
+  "compatibility_waiting_message": "请稍候。",
   "@compatibility_waiting_message": {
     "description": "Auto-generated metadata for key 'compatibility_waiting_message'."
   },
-  "compatibility_warning_exit": "화면을 나가시면 분석을 다시 해야 합니다.",
+  "compatibility_warning_exit": "如果离开屏幕，则需要重新进行分析。",
   "@compatibility_warning_exit": {
     "description": "Auto-generated metadata for key 'compatibility_warning_exit'."
   },
-  "confirm": "확인",
-  "@confirm": {
-    "description": "Auto-generated metadata for key 'confirm'."
-  },
-  "days_ago": "일 전",
-  "@days_ago": {
-    "description": "Auto-generated metadata for key 'days_ago'."
-  },
-  "dialog_button_cancel": "취소",
+  "dialog_button_cancel": "取消",
   "@dialog_button_cancel": {
     "description": "Auto-generated metadata for key 'dialog_button_cancel'."
   },
-  "dialog_button_ok": "확인",
+  "dialog_button_ok": "确认",
   "@dialog_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_button_ok'."
   },
-  "dialog_caution": "🚫 Caution 🚫",
+  "dialog_caution": "注意事项 🚫",
   "@dialog_caution": {
     "description": "Auto-generated metadata for key 'dialog_caution'."
   },
-  "dialog_content_ads_exhausted": "모든 광고가 소진되었습니다. 다음에 다시 시도해주세요.",
+  "dialog_content_ads_exhausted": "所有广告已用尽。请下次再试。",
   "@dialog_content_ads_exhausted": {
     "description": "Auto-generated metadata for key 'dialog_content_ads_exhausted'."
   },
-  "dialog_content_login_required": "로그인이 필요합니다",
+  "dialog_content_login_required": "需要登录",
   "@dialog_content_login_required": {
     "description": "Auto-generated metadata for key 'dialog_content_login_required'."
   },
-  "dialog_message_can_resignup": "지금 탈퇴하면 언제 다시 가입할 수 있나요?",
+  "dialog_message_can_resignup": "如果现在取消会员资格，何时可以重新加入？",
   "@dialog_message_can_resignup": {
     "description": "Auto-generated metadata for key 'dialog_message_can_resignup'."
   },
-  "dialog_message_purchase_failed": "구매 중 오류가 발생했습니다. 나중에 다시 시도해주세요.",
+  "dialog_message_purchase_failed": "您的购买出现错误，请稍后再试。",
   "@dialog_message_purchase_failed": {
     "description": "Auto-generated metadata for key 'dialog_message_purchase_failed'."
   },
-  "dialog_message_purchase_success": "구매가 성공적으로 완료되었습니다.",
+  "dialog_message_purchase_success": "您的购买已成功完成。",
   "@dialog_message_purchase_success": {
     "description": "Auto-generated metadata for key 'dialog_message_purchase_success'."
   },
-  "dialog_title_ads_exhausted": "모든 광고 소진",
+  "dialog_title_ads_exhausted": "用尽所有广告",
   "@dialog_title_ads_exhausted": {
     "description": "Auto-generated metadata for key 'dialog_title_ads_exhausted'."
   },
-  "dialog_title_vote_fail": "투표 실패",
+  "dialog_title_vote_fail": "投票失败",
   "@dialog_title_vote_fail": {
     "description": "Auto-generated metadata for key 'dialog_title_vote_fail'."
   },
-  "dialog_will_delete_star_candy": "삭제될 스타캔디",
+  "dialog_will_delete_star_candy": "将删除的星星糖果",
   "@dialog_will_delete_star_candy": {
     "description": "Auto-generated metadata for key 'dialog_will_delete_star_candy'."
   },
-  "dialog_withdraw_message": "탈퇴하시면 피크닠의 스타캔디와 계정 정보가 즉시 삭제되며, 재가입 시 기존 정보와 데이터는 복구되지 않습니다.",
+  "dialog_withdraw_message": "如果您取消会员资格，您在 Picnic 上的星星糖果和账户信息将被立即删除，重新加入时将无法恢复您的现有信息和数据。",
   "@dialog_withdraw_message": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_message'."
   },
-  "dialog_withdraw_title": "정말 떠나시겠습니까?",
+  "dialog_withdraw_title": "你确定要离开吗？",
   "@dialog_withdraw_title": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_title'."
   },
-  "error": "오류",
-  "@error": {
-    "description": "Auto-generated metadata for key 'error'."
-  },
-  "error_action_failed": "작업 수행 중 오류가 발생했습니다.",
+  "error_action_failed": "执行操作时发生错误。",
   "@error_action_failed": {
     "description": "Auto-generated metadata for key 'error_action_failed'."
   },
-  "error_content_parse": "콘텐츠 파싱 중 오류가 발생했습니다.",
+  "error_content_parse": "解析内容时发生错误。",
   "@error_content_parse": {
     "description": "Auto-generated metadata for key 'error_content_parse'."
   },
-  "error_invalid_data": "잘못된 데이터.",
+  "error_invalid_data": "数据无效。",
   "@error_invalid_data": {
     "description": "Auto-generated metadata for key 'error_invalid_data'."
   },
-  "error_network_connection": "네트워크 연결을 확인하세요.",
+  "error_network_connection": "检查网络连接。",
   "@error_network_connection": {
     "description": "Auto-generated metadata for key 'error_network_connection'."
   },
-  "error_request_timeout": "요청이 시간 초과되었습니다.",
+  "error_request_timeout": "请求超时。",
   "@error_request_timeout": {
     "description": "Auto-generated metadata for key 'error_request_timeout'."
   },
-  "error_title": "오류",
+  "error_title": "错误",
   "@error_title": {
     "description": "Auto-generated metadata for key 'error_title'."
   },
-  "error_unknown": "알 수 없는 오류가 발생했습니다.",
+  "error_unknown": "出现未知错误。",
   "@error_unknown": {
     "description": "Auto-generated metadata for key 'error_unknown'."
   },
-  "faq_category_all": "전체",
+  "faq_category_all": "全部",
   "@faq_category_all": {
     "description": "Auto-generated metadata for key 'faq_category_all'."
   },
-  "fortune_advice": "조언",
+  "fortune_advice": "建议",
   "@fortune_advice": {
     "description": "Auto-generated metadata for key 'fortune_advice'."
   },
-  "fortune_button_title": "내 아티스트의 운세",
+  "fortune_button_title": "我的艺术家算命先生",
   "@fortune_button_title": {
     "description": "Auto-generated metadata for key 'fortune_button_title'."
   },
-  "fortune_career": "사업운",
+  "fortune_career": "商业财富",
   "@fortune_career": {
     "description": "Auto-generated metadata for key 'fortune_career'."
   },
-  "fortune_health": "건강운",
+  "fortune_health": "健康运势",
   "@fortune_health": {
     "description": "Auto-generated metadata for key 'fortune_health'."
   },
-  "fortune_honor": "명예",
+  "fortune_honor": "荣誉",
   "@fortune_honor": {
     "description": "Auto-generated metadata for key 'fortune_honor'."
   },
-  "fortune_lack_of_star_candy_message": "리워드 스타캔디는 여기서 사용할 수 없습니다. 😥",
+  "fortune_lack_of_star_candy_message": "奖励星星糖果不能在此使用。😥",
   "@fortune_lack_of_star_candy_message": {
     "description": "Auto-generated metadata for key 'fortune_lack_of_star_candy_message'."
   },
-  "fortune_lack_of_star_candy_title": "스타캔디가 부족합니다. 상점 화면으로 이동합니다.",
+  "fortune_lack_of_star_candy_title": "您没有足够的星糖。进入商店界面。",
   "@fortune_lack_of_star_candy_title": {
     "description": "Auto-generated metadata for key 'fortune_lack_of_star_candy_title'."
   },
-  "fortune_lucky_color": "행운의 색깔",
+  "fortune_lucky_color": "幸运颜色",
   "@fortune_lucky_color": {
     "description": "Auto-generated metadata for key 'fortune_lucky_color'."
   },
-  "fortune_lucky_days": "행운의 요일",
+  "fortune_lucky_days": "一周中的幸运日",
   "@fortune_lucky_days": {
     "description": "Auto-generated metadata for key 'fortune_lucky_days'."
   },
-  "fortune_lucky_keyword": "행운의 키워드",
+  "fortune_lucky_keyword": "幸运关键词",
   "@fortune_lucky_keyword": {
     "description": "Auto-generated metadata for key 'fortune_lucky_keyword'."
   },
-  "fortune_lucky_number": "행운의 숫자",
+  "fortune_lucky_number": "幸运数字",
   "@fortune_lucky_number": {
     "description": "Auto-generated metadata for key 'fortune_lucky_number'."
   },
-  "fortune_money": "재물운",
+  "fortune_money": "算命",
   "@fortune_money": {
     "description": "Auto-generated metadata for key 'fortune_money'."
   },
-  "fortune_month1": "1월 운세",
+  "fortune_month1": "一月份的财富",
   "@fortune_month1": {
     "description": "Auto-generated metadata for key 'fortune_month1'."
   },
-  "fortune_month10": "10월 운세",
+  "fortune_month10": "十月财富",
   "@fortune_month10": {
     "description": "Auto-generated metadata for key 'fortune_month10'."
   },
-  "fortune_month11": "11월 운세",
+  "fortune_month11": "十一月的财富",
   "@fortune_month11": {
     "description": "Auto-generated metadata for key 'fortune_month11'."
   },
-  "fortune_month12": "12월 운세",
+  "fortune_month12": "十二月财富",
   "@fortune_month12": {
     "description": "Auto-generated metadata for key 'fortune_month12'."
   },
-  "fortune_month2": "2월 운세",
+  "fortune_month2": "二月财富",
   "@fortune_month2": {
     "description": "Auto-generated metadata for key 'fortune_month2'."
   },
-  "fortune_month3": "3월 운세",
+  "fortune_month3": "三月财富",
   "@fortune_month3": {
     "description": "Auto-generated metadata for key 'fortune_month3'."
   },
-  "fortune_month4": "4월 운세",
+  "fortune_month4": "四月财富",
   "@fortune_month4": {
     "description": "Auto-generated metadata for key 'fortune_month4'."
   },
-  "fortune_month5": "5월 운세",
+  "fortune_month5": "五月财富",
   "@fortune_month5": {
     "description": "Auto-generated metadata for key 'fortune_month5'."
   },
-  "fortune_month6": "6월 운세",
+  "fortune_month6": "六月财富",
   "@fortune_month6": {
     "description": "Auto-generated metadata for key 'fortune_month6'."
   },
-  "fortune_month7": "7월 운세",
+  "fortune_month7": "七月财富",
   "@fortune_month7": {
     "description": "Auto-generated metadata for key 'fortune_month7'."
   },
-  "fortune_month8": "8월 운세",
+  "fortune_month8": "八月财富",
   "@fortune_month8": {
     "description": "Auto-generated metadata for key 'fortune_month8'."
   },
-  "fortune_month9": "9월 운세",
+  "fortune_month9": "九月财富",
   "@fortune_month9": {
     "description": "Auto-generated metadata for key 'fortune_month9'."
   },
-  "fortune_monthly": "월별 운세",
+  "fortune_monthly": "财富》月刊",
   "@fortune_monthly": {
     "description": "Auto-generated metadata for key 'fortune_monthly'."
   },
-  "fortune_relationship": "인간관계",
+  "fortune_relationship": "人际关系",
   "@fortune_relationship": {
     "description": "Auto-generated metadata for key 'fortune_relationship'."
   },
-  "fortune_total_title": "종합 운세",
+  "fortune_total_title": "综合财富",
   "@fortune_total_title": {
     "description": "Auto-generated metadata for key 'fortune_total_title'."
   },
-  "fortune_with_me": "나와의 궁합",
+  "fortune_with_me": "Goong-Hap with me",
   "@fortune_with_me": {
     "description": "Auto-generated metadata for key 'fortune_with_me'."
   },
-  "hint_library_add": "앨범명",
+  "hint_library_add": "专辑名称",
   "@hint_library_add": {
     "description": "Auto-generated metadata for key 'hint_library_add'."
   },
-  "hint_nickname_input": "닉네임을 입력해주세요.",
+  "hint_nickname_input": "请输入昵称。",
   "@hint_nickname_input": {
     "description": "Auto-generated metadata for key 'hint_nickname_input'."
   },
-  "hours_ago": "시간 전",
-  "@hours_ago": {
-    "description": "Auto-generated metadata for key 'hours_ago'."
-  },
-  "image_save_success": "이미지가 저장되었습니다.",
+  "image_save_success": "图像已保存。",
   "@image_save_success": {
     "description": "Auto-generated metadata for key 'image_save_success'."
   },
-  "label_ads_exceeded": "이 버튼의 광고 시청 횟수를 초과했습니다.",
+  "label_ads_exceeded": "您已超过此按钮的广告观看次数。",
   "@label_ads_exceeded": {
     "description": "Auto-generated metadata for key 'label_ads_exceeded'."
   },
-  "label_ads_get_star_candy": "광고에서 스타캔디 받기",
+  "label_ads_get_star_candy": "从广告中获取星星糖果",
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
-  "label_ads_limits": "시간당 {hourly}회, 일일 {daily}회",
+  "label_ads_limits": "{hourly} 每小时， {daily} 每天",
   "@label_ads_limits": {
-    "description": "Auto-generated metadata for key 'label_ads_limits'."
+    "placeholders": {
+      "hourly": {
+        "type": "int"
+      },
+      "daily": {
+        "type": "int"
+      }
+    }
   },
-  "label_ads_load_fail": "광고 로드에 실패했습니다. 다시 시도해주세요.",
+  "label_ads_load_fail": "广告加载失败。请重试。",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
-  "label_ads_sdk_init_fail": "SDK 초기화에 실패했습니다. 다시 시도해주세요.",
+  "label_ads_sdk_init_fail": "SDK 初始化失败。请重试。",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."
   },
-  "label_ads_show_fail": "광고 표시에 실패했습니다. 다시 시도해주세요.",
+  "label_ads_show_fail": "显示广告失败。请重试。",
   "@label_ads_show_fail": {
     "description": "Auto-generated metadata for key 'label_ads_show_fail'."
   },
-  "label_agreement_privacy": "개인정보 수집 및 이용 동의",
+  "label_agreement_privacy": "同意收集和使用个人信息",
   "@label_agreement_privacy": {
     "description": "Auto-generated metadata for key 'label_agreement_privacy'."
   },
-  "label_agreement_terms": "이용약관 동의",
+  "label_agreement_terms": "接受使用条款",
   "@label_agreement_terms": {
     "description": "Auto-generated metadata for key 'label_agreement_terms'."
   },
-  "label_album_add": "새 앨범 추가",
+  "label_album_add": "添加新相册",
   "@label_album_add": {
     "description": "Auto-generated metadata for key 'label_album_add'."
   },
-  "label_article_comment_empty": "첫 번째 댓글을 남겨보세요!",
+  "label_article_comment_empty": "成为第一个发表评论的人！",
   "@label_article_comment_empty": {
     "description": "Auto-generated metadata for key 'label_article_comment_empty'."
   },
-  "label_asia_recommendation": "아시아 픽",
+  "label_asia_recommendation": "亚洲精选",
   "@label_asia_recommendation": {
     "description": "Auto-generated metadata for key 'label_asia_recommendation'."
   },
-  "label_bonus": "보너스",
+  "label_bonus": "奖金",
   "@label_bonus": {
     "description": "Auto-generated metadata for key 'label_bonus'."
   },
-  "label_button_agreement": "동의",
+  "label_button_agreement": "接受",
   "@label_button_agreement": {
     "description": "Auto-generated metadata for key 'label_button_agreement'."
   },
@@ -543,71 +511,71 @@
   "@label_button_close": {
     "description": "Auto-generated metadata for key 'label_button_close'."
   },
-  "label_button_recharge": "충전",
+  "label_button_recharge": "充电",
   "@label_button_recharge": {
     "description": "Auto-generated metadata for key 'label_button_recharge'."
   },
-  "label_button_view_policy": "정책보기",
+  "label_button_view_policy": "查看政策",
   "@label_button_view_policy": {
     "description": "Auto-generated metadata for key 'label_button_view_policy'."
   },
-  "label_button_vote": "투표",
+  "label_button_vote": "投票",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
   },
-  "label_celeb_gallery": "아티스트 갤러리",
+  "label_celeb_gallery": "艺术家画廊",
   "@label_celeb_gallery": {
     "description": "Auto-generated metadata for key 'label_celeb_gallery'."
   },
-  "label_celeb_recommend": "아티스트 추천",
+  "label_celeb_recommend": "艺术家推荐",
   "@label_celeb_recommend": {
     "description": "Auto-generated metadata for key 'label_celeb_recommend'."
   },
-  "label_checkbox_entire_use": "전체 사용",
+  "label_checkbox_entire_use": "全面使用",
   "@label_checkbox_entire_use": {
     "description": "Auto-generated metadata for key 'label_checkbox_entire_use'."
   },
-  "label_draw_image": "랜덤 이미지 당첨 기회",
+  "label_draw_image": "赢取随机图片的机会",
   "@label_draw_image": {
     "description": "Auto-generated metadata for key 'label_draw_image'."
   },
-  "label_dropdown_oldest": "오래된순",
+  "label_dropdown_oldest": "最老",
   "@label_dropdown_oldest": {
     "description": "Auto-generated metadata for key 'label_dropdown_oldest'."
   },
-  "label_dropdown_recent": "최신순",
+  "label_dropdown_recent": "最新",
   "@label_dropdown_recent": {
     "description": "Auto-generated metadata for key 'label_dropdown_recent'."
   },
-  "label_global_recommendation": "글로벌 픽",
+  "label_global_recommendation": "全球精选",
   "@label_global_recommendation": {
     "description": "Auto-generated metadata for key 'label_global_recommendation'."
   },
-  "label_hint_comment": "댓글을 남겨주세요.",
+  "label_hint_comment": "发表评论。",
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
-  "label_input_input": "입력",
+  "label_input_input": "输入",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
   },
-  "label_korean_recommendation": "한국 픽",
+  "label_korean_recommendation": "韩国精选",
   "@label_korean_recommendation": {
     "description": "Auto-generated metadata for key 'label_korean_recommendation'."
   },
-  "label_last_provider": "최근",
+  "label_last_provider": "最近",
   "@label_last_provider": {
     "description": "Auto-generated metadata for key 'label_last_provider'."
   },
-  "label_library_save": "라이브러리 저장",
+  "label_library_save": "拯救图书馆",
   "@label_library_save": {
     "description": "Auto-generated metadata for key 'label_library_save'."
   },
-  "label_library_tab_ai_photo": "AI 사진",
+  "label_library_tab_ai_photo": "人工智能照片",
   "@label_library_tab_ai_photo": {
     "description": "Auto-generated metadata for key 'label_library_tab_ai_photo'."
   },
-  "label_library_tab_library": "라이브러리",
+  "label_library_tab_library": "图书馆",
   "@label_library_tab_library": {
     "description": "Auto-generated metadata for key 'label_library_tab_library'."
   },
@@ -615,1304 +583,1285 @@
   "@label_library_tab_pic": {
     "description": "Auto-generated metadata for key 'label_library_tab_pic'."
   },
-  "label_loading_ads": "광고 로딩 중",
+  "label_loading_ads": "加载广告",
   "@label_loading_ads": {
     "description": "Auto-generated metadata for key 'label_loading_ads'."
   },
-  "label_mission_get_star_candy": "미션에서 스타캔디 받기",
+  "label_mission_get_star_candy": "从任务中获取星星糖果",
   "@label_mission_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
-  "label_mission_short": "미션",
+  "label_mission_short": "使命",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
   },
-  "label_moveto_celeb_gallery": "아티스트 갤러리로 이동",
+  "label_moveto_celeb_gallery": "前往艺术家画廊",
   "@label_moveto_celeb_gallery": {
     "description": "Auto-generated metadata for key 'label_moveto_celeb_gallery'."
   },
-  "label_mypage_faq": "자주 묻는 질문",
+  "label_mypage_faq": "常见问答（FAQ）",
   "@label_mypage_faq": {
     "description": "Auto-generated metadata for key 'label_mypage_faq'."
   },
-  "label_mypage_logout": "Log out",
+  "label_mypage_logout": "退出登录",
   "@label_mypage_logout": {
     "description": "Auto-generated metadata for key 'label_mypage_logout'."
   },
-  "label_mypage_my_artist": "내 아티스트",
+  "label_mypage_my_artist": "我的艺术家",
   "@label_mypage_my_artist": {
     "description": "Auto-generated metadata for key 'label_mypage_my_artist'."
   },
-  "label_mypage_no_artist": "아티스트 없음",
+  "label_mypage_no_artist": "无艺术家",
   "@label_mypage_no_artist": {
     "description": "Auto-generated metadata for key 'label_mypage_no_artist'."
   },
-  "label_mypage_notice": "공지사항",
+  "label_mypage_notice": "公告",
   "@label_mypage_notice": {
     "description": "Auto-generated metadata for key 'label_mypage_notice'."
   },
-  "label_mypage_picnic_id": "피크닠 ID",
+  "label_mypage_picnic_id": "ID",
   "@label_mypage_picnic_id": {
     "description": "Auto-generated metadata for key 'label_mypage_picnic_id'."
   },
-  "label_mypage_privacy_policy": "개인정보처리방침",
+  "label_mypage_privacy_policy": "隐私政策",
   "@label_mypage_privacy_policy": {
     "description": "Auto-generated metadata for key 'label_mypage_privacy_policy'."
   },
-  "label_mypage_setting": "설정",
+  "label_mypage_setting": "设置",
   "@label_mypage_setting": {
     "description": "Auto-generated metadata for key 'label_mypage_setting'."
   },
-  "label_mypage_should_login": "로그인해 주세요",
+  "label_mypage_should_login": "请登录",
   "@label_mypage_should_login": {
     "description": "Auto-generated metadata for key 'label_mypage_should_login'."
   },
-  "label_mypage_terms_of_use": "이용약관",
+  "label_mypage_terms_of_use": "使用条款",
   "@label_mypage_terms_of_use": {
     "description": "Auto-generated metadata for key 'label_mypage_terms_of_use'."
   },
-  "label_mypage_vote_history": "스타캔디 투표 이력",
+  "label_mypage_vote_history": "星星糖投票历史",
   "@label_mypage_vote_history": {
     "description": "Auto-generated metadata for key 'label_mypage_vote_history'."
   },
-  "label_mypage_withdrawal": "회원탈퇴",
+  "label_mypage_withdrawal": "退出",
   "@label_mypage_withdrawal": {
     "description": "Auto-generated metadata for key 'label_mypage_withdrawal'."
   },
-  "label_no_celeb": "아직 북마크한 아티스트가 없습니다!",
+  "label_no_celeb": "您还没有收藏任何艺术家！",
   "@label_no_celeb": {
     "description": "Auto-generated metadata for key 'label_no_celeb'."
   },
-  "label_pic_chart": "핔차트",
+  "label_pic_chart": "PIC 图表",
   "@label_pic_chart": {
     "description": "Auto-generated metadata for key 'label_pic_chart'."
   },
-  "label_pic_pic_save_gallery": "갤러리에 저장",
+  "label_pic_pic_save_gallery": "保存到图库",
   "@label_pic_pic_save_gallery": {
     "description": "Auto-generated metadata for key 'label_pic_pic_save_gallery'."
   },
-  "label_read_more_comment": "댓글 더보기",
+  "label_read_more_comment": "更多评论",
   "@label_read_more_comment": {
     "description": "Auto-generated metadata for key 'label_read_more_comment'."
   },
-  "label_reply": "답글에 답글",
+  "label_reply": "回复",
   "@label_reply": {
     "description": "Auto-generated metadata for key 'label_reply'."
   },
-  "label_retry": "재시도",
+  "label_retry": "重试",
   "@label_retry": {
     "description": "Auto-generated metadata for key 'label_retry'."
   },
-  "label_setting_alarm": "알림",
+  "label_setting_alarm": "通知",
   "@label_setting_alarm": {
     "description": "Auto-generated metadata for key 'label_setting_alarm'."
   },
-  "label_setting_appinfo": "앱 정보",
+  "label_setting_appinfo": "应用程序信息",
   "@label_setting_appinfo": {
     "description": "Auto-generated metadata for key 'label_setting_appinfo'."
   },
-  "label_setting_current_version": "현재 버전",
+  "label_setting_current_version": "当前版本",
   "@label_setting_current_version": {
     "description": "Auto-generated metadata for key 'label_setting_current_version'."
   },
-  "label_setting_event_alarm": "이벤트 알림",
+  "label_setting_event_alarm": "活动通知",
   "@label_setting_event_alarm": {
     "description": "Auto-generated metadata for key 'label_setting_event_alarm'."
   },
-  "label_setting_event_alarm_desc": "이벤트 및 소식.",
+  "label_setting_event_alarm_desc": "活动和事件。",
   "@label_setting_event_alarm_desc": {
     "description": "Auto-generated metadata for key 'label_setting_event_alarm_desc'."
   },
-  "label_setting_language": "언어 설정",
+  "label_setting_language": "语言设置",
   "@label_setting_language": {
     "description": "Auto-generated metadata for key 'label_setting_language'."
   },
-  "label_setting_push_alarm": "푸시 알림",
+  "label_setting_push_alarm": "推送通知",
   "@label_setting_push_alarm": {
     "description": "Auto-generated metadata for key 'label_setting_push_alarm'."
   },
-  "label_setting_recent_version": "최신 버전",
+  "label_setting_recent_version": "最新版本",
   "@label_setting_recent_version": {
     "description": "Auto-generated metadata for key 'label_setting_recent_version'."
   },
-  "label_setting_recent_version_up_to_date": "최신 버전",
+  "label_setting_recent_version_up_to_date": "最新版本",
   "@label_setting_recent_version_up_to_date": {
     "description": "Auto-generated metadata for key 'label_setting_recent_version_up_to_date'."
   },
-  "label_setting_remove_cache": "캐시 메모리 삭제",
+  "label_setting_remove_cache": "删除高速缓冲存储器",
   "@label_setting_remove_cache": {
     "description": "Auto-generated metadata for key 'label_setting_remove_cache'."
   },
-  "label_setting_storage": "저장소 관리",
+  "label_setting_storage": "管理存储",
   "@label_setting_storage": {
     "description": "Auto-generated metadata for key 'label_setting_storage'."
   },
-  "label_star_candy_pouch": "스타캔디 파우치",
+  "label_star_candy_pouch": "星形糖果袋",
   "@label_star_candy_pouch": {
     "description": "Auto-generated metadata for key 'label_star_candy_pouch'."
   },
-  "label_tabbar_vote_active": "진행중",
+  "label_tabbar_vote_active": "进行中",
   "@label_tabbar_vote_active": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_active'."
   },
-  "label_tabbar_vote_end": "종료됨",
+  "label_tabbar_vote_end": "退出",
   "@label_tabbar_vote_end": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_end'."
   },
-  "label_time_ago_day": "{day}일 전",
+  "label_time_ago_day": "{day} 日前",
   "@label_time_ago_day": {
-    "description": "Auto-generated metadata for key 'label_time_ago_day'."
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
   },
-  "label_time_ago_hour": "{hour}시간 전",
+  "label_time_ago_hour": "{hour} 小时前",
   "@label_time_ago_hour": {
-    "description": "Auto-generated metadata for key 'label_time_ago_hour'."
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
   },
-  "label_time_ago_right_now": "방금 전",
+  "label_time_ago_right_now": "就在刚才",
   "@label_time_ago_right_now": {
     "description": "Auto-generated metadata for key 'label_time_ago_right_now'."
   },
-  "label_title_report": "신고하기",
+  "label_title_report": "提交报告",
   "@label_title_report": {
     "description": "Auto-generated metadata for key 'label_title_report'."
   },
-  "label_unlimited_rewards": "무제한 리워드",
+  "label_unlimited_rewards": "无限奖励",
   "@label_unlimited_rewards": {
     "description": "Auto-generated metadata for key 'label_unlimited_rewards'."
   },
-  "label_vote_end": "투표 마감",
+  "label_vote_end": "关闭投票",
   "@label_vote_end": {
     "description": "Auto-generated metadata for key 'label_vote_end'."
   },
-  "label_vote_reward_list": "리워드 목록",
+  "label_vote_reward_list": "奖励清单",
   "@label_vote_reward_list": {
     "description": "Auto-generated metadata for key 'label_vote_reward_list'."
   },
-  "label_vote_screen_title": "투표",
+  "label_vote_screen_title": "投票",
   "@label_vote_screen_title": {
     "description": "Auto-generated metadata for key 'label_vote_screen_title'."
   },
-  "label_vote_upcoming": "투표 시작까지",
+  "label_vote_upcoming": "投票开始前",
   "@label_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_vote_upcoming'."
   },
-  "label_watch_ads_short": "시청",
+  "label_watch_ads_short": "观看",
   "@label_watch_ads_short": {
     "description": "Auto-generated metadata for key 'label_watch_ads_short'."
   },
-  "lable_my_celeb": "내 아티스트",
+  "lable_my_celeb": "我的艺术家",
   "@lable_my_celeb": {
     "description": "Auto-generated metadata for key 'lable_my_celeb'."
   },
-  "loading": "로딩 중...",
-  "@loading": {
-    "description": "Auto-generated metadata for key 'loading'."
-  },
-  "message_error_occurred": "오류가 발생했습니다.",
+  "message_error_occurred": "出现错误。",
   "@message_error_occurred": {
     "description": "Auto-generated metadata for key 'message_error_occurred'."
   },
-  "message_noitem_vote_active": "현재 진행 중인 투표가 없습니다.",
+  "message_noitem_vote_active": "目前没有正在进行的投票。",
   "@message_noitem_vote_active": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_active'."
   },
-  "message_noitem_vote_end": "현재 마감된 투표가 없습니다.",
+  "message_noitem_vote_end": "目前没有已结束的投票。",
   "@message_noitem_vote_end": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_end'."
   },
-  "message_noitem_vote_upcoming": "현재 예정된 투표가 없습니다.",
+  "message_noitem_vote_upcoming": "目前没有即将进行的投票。",
   "@message_noitem_vote_upcoming": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_upcoming'."
   },
-  "message_pic_pic_save_fail": "이미지 저장에 실패했습니다.",
+  "message_pic_pic_save_fail": "保存图像失败。",
   "@message_pic_pic_save_fail": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_fail'."
   },
-  "message_pic_pic_save_success": "이미지가 저장되었습니다.",
+  "message_pic_pic_save_success": "图像已保存。",
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
-  "message_vote_is_ended": "투표 마감됨",
+  "message_vote_is_ended": "投票结束",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
   },
-  "message_vote_is_upcoming": "예정된 투표입니다.",
+  "message_vote_is_upcoming": "这是一次即将进行的投票。",
   "@message_vote_is_upcoming": {
     "description": "Auto-generated metadata for key 'message_vote_is_upcoming'."
   },
-  "minutes_ago": "분 전",
-  "@minutes_ago": {
-    "description": "Auto-generated metadata for key 'minutes_ago'."
-  },
-  "my_info": "내 정보",
+  "my_info": "我的信息",
   "@my_info": {
     "description": "Auto-generated metadata for key 'my_info'."
   },
-  "mypage_setting": "설정",
+  "mypage_setting": "设置",
   "@mypage_setting": {
     "description": "Auto-generated metadata for key 'mypage_setting'."
   },
-  "nav_media": "미디어",
+  "nav_media": "媒体",
   "@nav_media": {
     "description": "Auto-generated metadata for key 'nav_media'."
   },
-  "network_error_message": "인터넷 연결을 확인해주세요.",
-  "@network_error_message": {
-    "description": "Auto-generated metadata for key 'network_error_message'."
-  },
-  "network_error_title": "네트워크 오류",
-  "@network_error_title": {
-    "description": "Auto-generated metadata for key 'network_error_title'."
-  },
-  "nickname_validation_error": "특수문자 제외 20자 이하.",
+  "nickname_validation_error": "20 个字符或更少，不包括特殊字符。",
   "@nickname_validation_error": {
     "description": "Auto-generated metadata for key 'nickname_validation_error'."
   },
-  "notice_pinned": "고정",
-  "@notice_pinned": {
-    "description": "Auto-generated metadata for key 'notice_pinned'."
-  },
-  "page_title_mypage": "내 페이지",
+  "page_title_mypage": "我的页面",
   "@page_title_mypage": {
     "description": "Auto-generated metadata for key 'page_title_mypage'."
   },
-  "page_title_post_write": "게시글 작성",
+  "page_title_post_write": "创建一个职位",
   "@page_title_post_write": {
     "description": "Auto-generated metadata for key 'page_title_post_write'."
   },
-  "page_title_vote_detail": "투표",
+  "page_title_vote_detail": "投票",
   "@page_title_vote_detail": {
     "description": "Auto-generated metadata for key 'page_title_vote_detail'."
   },
-  "popup_label_delete": "삭제",
+  "popup_label_delete": "删除",
   "@popup_label_delete": {
     "description": "Auto-generated metadata for key 'popup_label_delete'."
   },
-  "post_anonymous": "익명 게시",
+  "post_anonymous": "匿名张贴",
   "@post_anonymous": {
     "description": "Auto-generated metadata for key 'post_anonymous'."
   },
-  "post_board_already_exist": "이미 존재하는 게시판입니다.",
+  "post_board_already_exist": "一个已经存在的董事会。",
   "@post_board_already_exist": {
     "description": "Auto-generated metadata for key 'post_board_already_exist'."
   },
-  "post_board_create_request_complete": "게시판 개설 요청이 완료되었습니다.",
+  "post_board_create_request_complete": "您的开设留言板申请已完成。",
   "@post_board_create_request_complete": {
     "description": "Auto-generated metadata for key 'post_board_create_request_complete'."
   },
-  "post_board_create_request_condition": "*ID당 하나의 소게시판만 신청 가능합니다.",
+  "post_board_create_request_condition": "*每个 ID 只能申请一个未成年人板。",
   "@post_board_create_request_condition": {
     "description": "Auto-generated metadata for key 'post_board_create_request_condition'."
   },
-  "post_board_request_label": "개설 요청",
+  "post_board_request_label": "公开申请",
   "@post_board_request_label": {
     "description": "Auto-generated metadata for key 'post_board_request_label'."
   },
-  "post_comment_action_translate": "번역",
+  "post_comment_action_translate": "翻译",
   "@post_comment_action_translate": {
     "description": "Auto-generated metadata for key 'post_comment_action_translate'."
   },
-  "post_comment_content_more": "더보기",
+  "post_comment_content_more": "更多信息",
   "@post_comment_content_more": {
     "description": "Auto-generated metadata for key 'post_comment_content_more'."
   },
-  "post_comment_delete_confirm": "댓글을 삭제하시겠습니까?",
+  "post_comment_delete_confirm": "您确定要删除评论吗？",
   "@post_comment_delete_confirm": {
     "description": "Auto-generated metadata for key 'post_comment_delete_confirm'."
   },
-  "post_comment_delete_fail": "댓글 삭제에 실패했습니다.",
+  "post_comment_delete_fail": "评论删除失败。",
   "@post_comment_delete_fail": {
     "description": "Auto-generated metadata for key 'post_comment_delete_fail'."
   },
-  "post_comment_deleted_comment": "삭제된 댓글입니다.",
+  "post_comment_deleted_comment": "这是一条已删除的评论。",
   "@post_comment_deleted_comment": {
     "description": "Auto-generated metadata for key 'post_comment_deleted_comment'."
   },
-  "post_comment_like_processing_fail": "좋아요 처리에 실패했습니다.",
+  "post_comment_like_processing_fail": "处理失败。",
   "@post_comment_like_processing_fail": {
     "description": "Auto-generated metadata for key 'post_comment_like_processing_fail'."
   },
-  "post_comment_loading_fail": "댓글 로드에 실패했습니다.",
+  "post_comment_loading_fail": "评论加载失败。",
   "@post_comment_loading_fail": {
     "description": "Auto-generated metadata for key 'post_comment_loading_fail'."
   },
-  "post_comment_register_fail": "댓글 등록에 실패했습니다.",
+  "post_comment_register_fail": "评论注册失败。",
   "@post_comment_register_fail": {
     "description": "Auto-generated metadata for key 'post_comment_register_fail'."
   },
-  "post_comment_registered_comment": "댓글이 등록되었습니다.",
+  "post_comment_registered_comment": "您的评论已被注册。",
   "@post_comment_registered_comment": {
     "description": "Auto-generated metadata for key 'post_comment_registered_comment'."
   },
-  "post_comment_reported_comment": "신고된 댓글입니다.",
+  "post_comment_reported_comment": "这是据报道的评论。",
   "@post_comment_reported_comment": {
     "description": "Auto-generated metadata for key 'post_comment_reported_comment'."
   },
-  "post_comment_translate_fail": "번역에 실패했습니다.",
+  "post_comment_translate_fail": "翻译失败。",
   "@post_comment_translate_fail": {
     "description": "Auto-generated metadata for key 'post_comment_translate_fail'."
   },
-  "post_comment_translated": "번역됨",
+  "post_comment_translated": "已翻译",
   "@post_comment_translated": {
     "description": "Auto-generated metadata for key 'post_comment_translated'."
   },
-  "post_comment_write_label": "댓글 쓰기",
+  "post_comment_write_label": "写评论",
   "@post_comment_write_label": {
     "description": "Auto-generated metadata for key 'post_comment_write_label'."
   },
-  "post_content_placeholder": "내용을 입력해주세요.",
+  "post_content_placeholder": "请输入内容。",
   "@post_content_placeholder": {
     "description": "Auto-generated metadata for key 'post_content_placeholder'."
   },
-  "post_delete_scrap_confirm": "스크랩을 삭제하시겠습니까?",
+  "post_delete_scrap_confirm": "您想删除废料吗？",
   "@post_delete_scrap_confirm": {
     "description": "Auto-generated metadata for key 'post_delete_scrap_confirm'."
   },
-  "post_delete_scrap_title": "스크랩 삭제",
+  "post_delete_scrap_title": "删除废料",
   "@post_delete_scrap_title": {
     "description": "Auto-generated metadata for key 'post_delete_scrap_title'."
   },
-  "post_flagged": "부적절한 내용 포함",
+  "post_flagged": "包含不当内容",
   "@post_flagged": {
     "description": "Auto-generated metadata for key 'post_flagged'."
   },
-  "post_go_to_boards": "게시판으로 이동",
+  "post_go_to_boards": "进入董事会",
   "@post_go_to_boards": {
     "description": "Auto-generated metadata for key 'post_go_to_boards'."
   },
-  "post_header_publish": "게시",
+  "post_header_publish": "出版",
   "@post_header_publish": {
     "description": "Auto-generated metadata for key 'post_header_publish'."
   },
-  "post_header_temporary_save": "임시저장",
+  "post_header_temporary_save": "草稿",
   "@post_header_temporary_save": {
     "description": "Auto-generated metadata for key 'post_header_temporary_save'."
   },
-  "post_hint_title": "제목을 입력해주세요.",
+  "post_hint_title": "请输入标题。",
   "@post_hint_title": {
     "description": "Auto-generated metadata for key 'post_hint_title'."
   },
-  "post_hyperlink": "하이퍼링크",
+  "post_hyperlink": "超链接",
   "@post_hyperlink": {
     "description": "Auto-generated metadata for key 'post_hyperlink'."
   },
-  "post_insert_link": "링크 삽입",
+  "post_insert_link": "插入链接",
   "@post_insert_link": {
     "description": "Auto-generated metadata for key 'post_insert_link'."
   },
-  "post_minor_board_condition": "5자 이상 20자 이하로 설명을 입력해주세요.",
+  "post_minor_board_condition": "请输入至少 5 个字符、不超过 20 个字符的描述。",
   "@post_minor_board_condition": {
     "description": "Auto-generated metadata for key 'post_minor_board_condition'."
   },
-  "post_minor_board_description": "소게시판 설명",
+  "post_minor_board_description": "小公告栏说明",
   "@post_minor_board_description": {
     "description": "Auto-generated metadata for key 'post_minor_board_description'."
   },
-  "post_minor_board_description_input": "소게시판 설명을 입력해주세요.",
+  "post_minor_board_description_input": "请为您的未成年人板输入描述。",
   "@post_minor_board_description_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_description_input'."
   },
-  "post_minor_board_name": "소게시판 이름",
+  "post_minor_board_name": "小板名称",
   "@post_minor_board_name": {
     "description": "Auto-generated metadata for key 'post_minor_board_name'."
   },
-  "post_minor_board_name_input": "소게시판 이름을 입력해주세요.",
+  "post_minor_board_name_input": "请输入未成年人板的名称。",
   "@post_minor_board_name_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_name_input'."
   },
-  "post_my_compatibilities": "내 궁합",
+  "post_my_compatibilities": "我的兼容性",
   "@post_my_compatibilities": {
     "description": "Auto-generated metadata for key 'post_my_compatibilities'."
   },
-  "post_my_written_post": "내가 쓴 글",
+  "post_my_written_post": "我撰写的文章",
   "@post_my_written_post": {
     "description": "Auto-generated metadata for key 'post_my_written_post'."
   },
-  "post_my_written_reply": "내가 쓴 댓글",
+  "post_my_written_reply": "我写的评论",
   "@post_my_written_reply": {
     "description": "Auto-generated metadata for key 'post_my_written_reply'."
   },
-  "post_my_written_scrap": "내 스크랩",
+  "post_my_written_scrap": "我的废品",
   "@post_my_written_scrap": {
     "description": "Auto-generated metadata for key 'post_my_written_scrap'."
   },
-  "post_no_comment": "댓글이 없습니다.",
+  "post_no_comment": "无评论。",
   "@post_no_comment": {
     "description": "Auto-generated metadata for key 'post_no_comment'."
   },
-  "post_not_found": "게시글을 찾을 수 없습니다.",
+  "post_not_found": "未找到任何帖子。",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."
   },
-  "post_report_fail": "신고에 실패했습니다.",
+  "post_report_fail": "报告没有通过。",
   "@post_report_fail": {
     "description": "Auto-generated metadata for key 'post_report_fail'."
   },
-  "post_report_label": "신고하기",
+  "post_report_label": "提交报告",
   "@post_report_label": {
     "description": "Auto-generated metadata for key 'post_report_label'."
   },
-  "post_report_other_input": "기타 사유를 입력해주세요.",
+  "post_report_other_input": "请输入任何其他原因。",
   "@post_report_other_input": {
     "description": "Auto-generated metadata for key 'post_report_other_input'."
   },
-  "post_report_reason_1": "불쾌한 게시글",
+  "post_report_reason_1": "不雅帖子",
   "@post_report_reason_1": {
     "description": "Auto-generated metadata for key 'post_report_reason_1'."
   },
-  "post_report_reason_2": "성차별적, 인종차별적 게시글",
+  "post_report_reason_2": "性别歧视和种族主义帖子",
   "@post_report_reason_2": {
     "description": "Auto-generated metadata for key 'post_report_reason_2'."
   },
-  "post_report_reason_3": "모욕적인 욕설이 포함된 게시글",
+  "post_report_reason_3": "包含冒犯性亵渎语言的帖子",
   "@post_report_reason_3": {
     "description": "Auto-generated metadata for key 'post_report_reason_3'."
   },
-  "post_report_reason_4": "광고/홍보성 게시글",
+  "post_report_reason_4": "广告/宣传职位",
   "@post_report_reason_4": {
     "description": "Auto-generated metadata for key 'post_report_reason_4'."
   },
-  "post_report_reason_5": "기타",
+  "post_report_reason_5": "其他",
   "@post_report_reason_5": {
     "description": "Auto-generated metadata for key 'post_report_reason_5'."
   },
-  "post_report_reason_input": "신고 사유를 선택해주세요.",
+  "post_report_reason_input": "请选择报告原因。",
   "@post_report_reason_input": {
     "description": "Auto-generated metadata for key 'post_report_reason_input'."
   },
-  "post_report_reason_label": "신고 사유",
+  "post_report_reason_label": "报告原因",
   "@post_report_reason_label": {
     "description": "Auto-generated metadata for key 'post_report_reason_label'."
   },
-  "post_report_success": "신고가 완료되었습니다.",
+  "post_report_success": "报告已完成。",
   "@post_report_success": {
     "description": "Auto-generated metadata for key 'post_report_success'."
   },
-  "post_title_placeholder": "제목을 입력해주세요.",
+  "post_title_placeholder": "请输入标题。",
   "@post_title_placeholder": {
     "description": "Auto-generated metadata for key 'post_title_placeholder'."
   },
-  "post_youtube_link": "유튜브 링크",
+  "post_youtube_link": "YouTube 链接",
   "@post_youtube_link": {
     "description": "Auto-generated metadata for key 'post_youtube_link'."
   },
-  "purchase_confirm_button": "구매",
+  "purchase_confirm_button": "购买",
   "@purchase_confirm_button": {
     "description": "Auto-generated metadata for key 'purchase_confirm_button'."
   },
-  "purchase_confirm_message": "다음 항목을 구매하시겠습니까?",
+  "purchase_confirm_message": "您要购买以下商品吗？",
   "@purchase_confirm_message": {
     "description": "Auto-generated metadata for key 'purchase_confirm_message'."
   },
-  "purchase_confirm_title": "구매 확인",
+  "purchase_confirm_title": "购买确认",
   "@purchase_confirm_title": {
     "description": "Auto-generated metadata for key 'purchase_confirm_title'."
   },
-  "previousTransactionPendingError": "이전 결제가 스토어에서 처리 중입니다. 잠시 후 다시 시도해 주세요.",
+  "previousTransactionPendingError": "您之前的付款仍在由商店处理。请稍后重试。",
   "@previousTransactionPendingError": {
     "description": "Auto-generated metadata for key 'previousTransactionPendingError'."
   },
-  "purchase_in_progress_message": "구매가 진행 중입니다. 잠시만 기다려주세요.",
+  "purchase_in_progress_message": "购买正在进行中。请稍等。",
   "@purchase_in_progress_message": {
     "description": "Auto-generated metadata for key 'purchase_in_progress_message'."
   },
-  "purchase_initializing_message": "초기화 중입니다. 잠시 후 다시 시도해주세요.",
+  "purchase_initializing_message": "购买正在进行中。请稍等。",
   "@purchase_initializing_message": {
     "description": "Auto-generated metadata for key 'purchase_initializing_message'."
   },
-  "purchase_cancelled_message": "구매가 취소되었습니다.",
+  "purchase_cancelled_message": "购买已取消。",
   "@purchase_cancelled_message": {
     "description": "Auto-generated metadata for key 'purchase_cancelled_message'."
   },
-  "purchase_payment_amount": "결제 금액",
+  "purchase_payment_amount": "支付金额",
   "@purchase_payment_amount": {
     "description": "Auto-generated metadata for key 'purchase_payment_amount'."
   },
-  "purchase_web_message": "앱에서 결제할 수 없는 분들을 위한 결제 창입니다.\n미리 랜덤 ID를 복사해주세요.\n복사 후 아래 버튼을 눌러 결제를 진행해주세요.",
+  "purchase_web_message": "这是为无法使用应用程序付款的用户提供的付款窗口。\n 请提前复制随机 ID。\n 复制后，点击下面的按钮进行支付。",
   "@purchase_web_message": {
     "description": "Auto-generated metadata for key 'purchase_web_message'."
   },
-  "qna_content": "내용",
+  "qna_content": "Content",
   "@qna_content": {
-    "description": "QnA content field"
+    "description": "Auto-generated metadata for key 'qna_content'."
   },
-  "qna_create_first": "첫 번째 질문을 작성해보세요",
-  "@qna_create_first": {
-    "description": "Auto-generated metadata for key 'qna_create_first'."
-  },
-  "qna_create_page_title": "문의 작성",
+  "qna_create_page_title": "创建咨询",
   "@qna_create_page_title": {
-    "description": "QnA create page title"
+    "description": "Auto-generated metadata for key 'qna_create_page_title'."
   },
-  "qna_empty_description": "첫 번째 질문을 작성해보세요",
-  "@qna_empty_description": {
-    "description": "Auto-generated metadata for key 'qna_empty_description'."
-  },
-  "qna_empty_list": "문의 내역이 없습니다",
-  "@qna_empty_list": {
-    "description": "Auto-generated metadata for key 'qna_empty_list'."
-  },
-  "qna_error_message": "오류가 발생했습니다",
-  "@qna_error_message": {
-    "description": "Auto-generated metadata for key 'qna_error_message'."
-  },
-  "qna_list_title": "문의 내역",
-  "@qna_list_title": {
-    "description": "Auto-generated metadata for key 'qna_list_title'."
-  },
-  "qna_no_inquiries": "문의 내역이 없습니다",
+  "qna_no_inquiries": "没有找到咨询。按+按钮创建一个新的。",
   "@qna_no_inquiries": {
-    "description": "No inquiries message"
+    "description": "Auto-generated metadata for key 'qna_no_inquiries'."
   },
-  "qna_create_title": "새 문의 작성",
-  "@qna_create_title": {
-    "description": "Auto-generated metadata for key 'qna_create_title'."
-  },
-  "qna_submit_success": "문의가 성공적으로 등록되었습니다.",
-  "@qna_submit_success": {
-    "description": "QnA submit success message"
-  },
-  "qna_form_title": "제목",
-  "@qna_form_title": {
-    "description": "Auto-generated metadata for key 'qna_form_title'."
-  },
-  "qna_form_title_empty": "제목을 입력해주세요.",
-  "@qna_form_title_empty": {
-    "description": "Auto-generated metadata for key 'qna_form_title_empty'."
-  },
-  "qna_form_content": "내용",
-  "@qna_form_content": {
-    "description": "Auto-generated metadata for key 'qna_form_content'."
-  },
-  "qna_form_content_empty": "문의 내용을 입력해주세요.",
-  "@qna_form_content_empty": {
-    "description": "Auto-generated metadata for key 'qna_form_content_empty'."
-  },
-  "qna_message_hint": "메시지를 입력하세요",
-  "@qna_message_hint": {
-    "description": "Auto-generated metadata for key 'qna_message_hint'."
-  },
-  "qna_load_error": "데이터를 불러오는 중 오류가 발생했습니다",
-  "@qna_load_error": {
-    "description": "Auto-generated metadata for key 'qna_load_error'."
-  },
-  "qna_no_answer_yet": "아직 답변이 없습니다. 잠시만 기다려주세요.",
-  "@qna_no_answer_yet": {
-    "description": "Auto-generated metadata for key 'qna_no_answer_yet'."
-  },
-  "qna_private": "비공개",
-  "@qna_private": {
-    "description": "Auto-generated metadata for key 'qna_private'."
-  },
-  "qna_public": "공개",
-  "@qna_public": {
-    "description": "Auto-generated metadata for key 'qna_public'."
-  },
-  "qna_public_option": "공개 문의",
-  "@qna_public_option": {
-    "description": "QnA public option label"
-  },
-  "qna_public_status": "공개 여부",
-  "@qna_public_status": {
-    "description": "Auto-generated metadata for key 'qna_public_status'."
-  },
-  "qna_status": "상태",
-  "@qna_status": {
-    "description": "Auto-generated metadata for key 'qna_status'."
-  },
-  "qna_status_closed": "종료",
+  "qna_status_closed": "已关闭",
   "@qna_status_closed": {
     "description": "Auto-generated metadata for key 'qna_status_closed'."
   },
-  "qna_status_open": "진행중",
+  "qna_status_open": "Open",
   "@qna_status_open": {
     "description": "Auto-generated metadata for key 'qna_status_open'."
   },
-  "qna_submit_button": "문의 등록",
+  "qna_submit_button": "提交咨询",
   "@qna_submit_button": {
-    "description": "QnA submit button"
+    "description": "Auto-generated metadata for key 'qna_submit_button'."
   },
-  "qna_title": "제목",
+  "qna_title": "标题",
   "@qna_title": {
-    "description": "QnA title field"
+    "description": "Auto-generated metadata for key 'qna_title'."
   },
-  "qna_updated_at": "수정일",
-  "@qna_updated_at": {
-    "description": "Auto-generated metadata for key 'qna_updated_at'."
-  },
-  "replies": "댓글",
+  "replies": "评论",
   "@replies": {
     "description": "Auto-generated metadata for key 'replies'."
   },
-  "retry": "재시도",
-  "@retry": {
-    "description": "Auto-generated metadata for key 'retry'."
-  },
-  "reward": "리워드",
+  "reward": "奖励",
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "저장",
+  "save": "节省",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
-  "seconds": "초",
+  "seconds": "秒钟",
   "@seconds": {
     "description": "Auto-generated metadata for key 'seconds'."
   },
-  "share": "공유",
+  "share": "分享",
   "@share": {
     "description": "Auto-generated metadata for key 'share'."
   },
-  "starCandy100": "스타캔디 100개",
-  "@starCandy100": {
-    "description": "Auto-generated metadata for key 'starCandy100'."
-  },
-  "starCandy1000": "스타캔디 1000개",
-  "@starCandy1000": {
-    "description": "Auto-generated metadata for key 'starCandy1000'."
-  },
-  "starCandy200": "스타캔디 200개",
-  "@starCandy200": {
-    "description": "Auto-generated metadata for key 'starCandy200'."
-  },
-  "starCandy2000": "스타캔디 2000개",
-  "@starCandy2000": {
-    "description": "Auto-generated metadata for key 'starCandy2000'."
-  },
-  "starCandy3000": "스타캔디 3000개",
-  "@starCandy3000": {
-    "description": "Auto-generated metadata for key 'starCandy3000'."
-  },
-  "starCandy4000": "스타캔디 4000개",
-  "@starCandy4000": {
-    "description": "Auto-generated metadata for key 'starCandy4000'."
-  },
-  "starCandy5000": "스타캔디 5000개",
-  "@starCandy5000": {
-    "description": "Auto-generated metadata for key 'starCandy5000'."
-  },
-  "starCandy600": "스타캔디 600개",
-  "@starCandy600": {
-    "description": "Auto-generated metadata for key 'starCandy600'."
-  },
-  "text_community_board_search": "아티스트 게시판 검색",
+  "text_community_board_search": "搜索艺术家板",
   "@text_community_board_search": {
     "description": "Auto-generated metadata for key 'text_community_board_search'."
   },
-  "text_community_post_search": "검색",
+  "text_community_post_search": "搜索",
   "@text_community_post_search": {
     "description": "Auto-generated metadata for key 'text_community_post_search'."
   },
-  "text_copied_address": "주소가 복사되었습니다.",
+  "text_copied_address": "地址已复制。",
   "@text_copied_address": {
     "description": "Auto-generated metadata for key 'text_copied_address'."
   },
-  "text_draw_image": "전체 갤러리에서 이미지 1개 소유권을 확인했습니다.",
+  "text_draw_image": "确认整个图库中 1 张图片的所有权。",
   "@text_draw_image": {
     "description": "Auto-generated metadata for key 'text_draw_image'."
   },
-  "text_hint_search": "아티스트 검색",
+  "text_hint_search": "搜索艺术家",
   "@text_hint_search": {
     "description": "Auto-generated metadata for key 'text_hint_search'."
   },
-  "text_moveto_celeb_gallery": "선택한 아티스트의 홈으로 이동.",
+  "text_moveto_celeb_gallery": "导航至所选艺术家的主页。",
   "@text_moveto_celeb_gallery": {
     "description": "Auto-generated metadata for key 'text_moveto_celeb_gallery'."
   },
-  "text_need_recharge": "충전이 필요합니다.",
+  "text_need_recharge": "需要充电。",
   "@text_need_recharge": {
     "description": "Auto-generated metadata for key 'text_need_recharge'."
   },
-  "text_no_search_result": "검색 결과가 없습니다.",
+  "text_no_search_result": "没有搜索结果。",
   "@text_no_search_result": {
     "description": "Auto-generated metadata for key 'text_no_search_result'."
   },
-  "text_purchase_vat_included": "*부가세 포함 가격",
+  "text_purchase_vat_included": "*价格包含增值税。",
   "@text_purchase_vat_included": {
     "description": "Auto-generated metadata for key 'text_purchase_vat_included'."
   },
-  "text_vote_complete": "투표 완료",
+  "text_vote_complete": "投票结束",
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
-  "text_vote_rank": "순위 {rank}",
+  "text_vote_rank": "排名 {rank}",
   "@text_vote_rank": {
-    "description": "Auto-generated metadata for key 'text_vote_rank'."
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
   },
-  "text_vote_rank_in_reward": "리워드 순위",
+  "text_vote_rank_in_reward": "奖励排名",
   "@text_vote_rank_in_reward": {
     "description": "Auto-generated metadata for key 'text_vote_rank_in_reward'."
   },
-  "text_vote_where_is_my_bias": "내 최애는 어디에?",
+  "text_vote_where_is_my_bias": "我的最爱在哪？",
   "@text_vote_where_is_my_bias": {
     "description": "Auto-generated metadata for key 'text_vote_where_is_my_bias'."
   },
-  "title_dialog_error": "오류",
-  "@title_dialog_error": {
-    "description": "Auto-generated metadata for key 'title_dialog_error'."
-  },
-  "title_dialog_library_add": "새 앨범 추가",
+  "title_dialog_library_add": "添加新相册",
   "@title_dialog_library_add": {
     "description": "Auto-generated metadata for key 'title_dialog_library_add'."
   },
-  "title_select_language": "언어 선택",
+  "title_select_language": "选择语言",
   "@title_select_language": {
     "description": "Auto-generated metadata for key 'title_select_language'."
   },
-  "toast_max_five_celeb": "최대 5명의 아티스트를 추가할 수 있습니다.",
+  "toast_max_five_celeb": "您最多可以添加五位自己的艺术家。",
   "@toast_max_five_celeb": {
     "description": "Auto-generated metadata for key 'toast_max_five_celeb'."
   },
-  "update": "업데이트",
-  "@update": {
-    "description": "Auto-generated metadata for key 'update'."
-  },
-  "update_button": "업데이트",
+  "update_button": "更新",
   "@update_button": {
     "description": "Auto-generated metadata for key 'update_button'."
   },
-  "update_cannot_open_appstore": "앱 스토어를 열 수 없습니다.",
+  "update_cannot_open_appstore": "我无法打开应用程序商店。",
   "@update_cannot_open_appstore": {
     "description": "Auto-generated metadata for key 'update_cannot_open_appstore'."
   },
-  "update_required_message": "앱 업데이트가 필요합니다",
-  "@update_required_message": {
-    "description": "Auto-generated metadata for key 'update_required_message'."
-  },
-  "update_required_title": "업데이트가 필요합니다.",
+  "update_required_title": "需要更新。",
   "@update_required_title": {
     "description": "Auto-generated metadata for key 'update_required_title'."
   },
-  "views": "조회수",
+  "views": "意见",
   "@views": {
     "description": "Auto-generated metadata for key 'views'."
   },
-  "vote_item_request_application_count": "신청 {count}개",
-  "@vote_item_request_application_count": {
-    "description": "Auto-generated metadata for key 'vote_item_request_application_count'."
-  },
-  "vote_item_request_can_apply": "신청 가능",
+  "vote_item_request_can_apply": "可申请",
   "@vote_item_request_can_apply": {
     "description": "Auto-generated metadata for key 'vote_item_request_can_apply'."
   },
-  "vote_item_request_current_applications": "현재 신청 목록",
-  "@vote_item_request_current_applications": {
-    "description": "Auto-generated metadata for key 'vote_item_request_current_applications'."
-  },
-  "vote_item_request_error": "투표 신청 중 오류가 발생했습니다.",
-  "@vote_item_request_error": {
-    "description": "Auto-generated metadata for key 'vote_item_request_error'."
-  },
-  "vote_item_request_my_list": "내 신청",
-  "@vote_item_request_my_list": {
-    "description": "Auto-generated metadata for key 'vote_item_request_my_list'."
-  },
-  "vote_item_request_new": "새 신청",
-  "@vote_item_request_new": {
-    "description": "Auto-generated metadata for key 'vote_item_request_new'."
-  },
-  "vote_item_request_no_applications": "아직 신청한 내역이 없습니다.",
-  "@vote_item_request_no_applications": {
-    "description": "Auto-generated metadata for key 'vote_item_request_no_applications'."
-  },
-  "vote_item_request_no_applications_yet": "아직 신청된 항목이 없습니다",
-  "@vote_item_request_no_applications_yet": {
-    "description": "Auto-generated metadata for key 'vote_item_request_no_applications_yet'."
-  },
-  "vote_item_request_no_search_results": "투표 신청 검색 결과가 없습니다",
-  "@vote_item_request_no_search_results": {
-    "description": "Auto-generated metadata for key 'vote_item_request_no_search_results'."
-  },
-  "vote_item_request_reason": "신청 사유 (선택)",
-  "@vote_item_request_reason": {
-    "description": "Auto-generated metadata for key 'vote_item_request_reason'."
-  },
-  "vote_item_request_reason_hint": "이 아티스트를 추천하는 이유를 적어주세요...",
-  "@vote_item_request_reason_hint": {
-    "description": "Auto-generated metadata for key 'vote_item_request_reason_hint'."
-  },
-  "vote_item_request_search_artist": "아티스트 검색",
+  "vote_item_request_search_artist": "搜索艺术家",
   "@vote_item_request_search_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_search_artist'."
   },
-  "vote_item_request_status": "요청 상태",
+  "vote_item_request_status": "申请状态",
   "@vote_item_request_status": {
     "description": "Auto-generated metadata for key 'vote_item_request_status'."
   },
-  "vote_item_request_status_approved": "승인됨",
+  "vote_item_request_status_approved": "已批准",
   "@vote_item_request_status_approved": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_approved'."
   },
-  "vote_item_request_status_pending": "대기중",
+  "vote_item_request_status_pending": "待处理",
   "@vote_item_request_status_pending": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_pending'."
   },
-  "vote_item_request_status_rejected": "거절됨",
+  "vote_item_request_status_rejected": "已拒绝",
   "@vote_item_request_status_rejected": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_rejected'."
   },
-  "vote_item_request_submit": "신청",
+  "vote_item_request_submit": "提交",
   "@vote_item_request_submit": {
     "description": "Auto-generated metadata for key 'vote_item_request_submit'."
   },
-  "vote_item_request_success": "투표 신청이 완료되었습니다!",
-  "@vote_item_request_success": {
-    "description": "Auto-generated metadata for key 'vote_item_request_success'."
-  },
-  "vote_item_request_title": "투표 후보 신청",
+  "vote_item_request_title": "投票艺术家请求",
   "@vote_item_request_title": {
-    "description": "Title for vote application dialog"
+    "description": "Auto-generated metadata for key 'vote_item_request_title'."
   },
-  "vote_item_request_total_applications": "총 신청 {count}개",
-  "@vote_item_request_total_applications": {
-    "description": "Auto-generated metadata for key 'vote_item_request_total_applications'."
-  },
-  "vote_item_request_waiting": "대기 중",
-  "@vote_item_request_waiting": {
-    "description": "Auto-generated metadata for key 'vote_item_request_waiting'."
-  },
-  "vote_share_message": "투표했습니다!",
+  "vote_share_message": "投了赞成票！",
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
-  "voting_share_benefit_text": "100표마다 보너스 스타캔디 1개 획득 및 공유!",
+  "voting_share_benefit_text": "每 100 次投票和分享可获得 1 颗奖励星星糖果！",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
-  "jma_voting_my_star_candy": "나의 별사탕",
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Auto-generated metadata for key 'cancel'."
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Auto-generated metadata for key 'confirm'."
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Auto-generated metadata for key 'loading'."
+  },
+  "retry": "重试",
+  "@retry": {
+    "description": "Auto-generated metadata for key 'retry'."
+  },
+  "update": "Update",
+  "@update": {
+    "description": "Auto-generated metadata for key 'update'."
+  },
+  "ban_title": "Account Suspended",
+  "@ban_title": {
+    "description": "Auto-generated metadata for key 'ban_title'."
+  },
+  "ban_message": "Your account has been temporarily suspended due to inappropriate activity.",
+  "@ban_message": {
+    "description": "Auto-generated metadata for key 'ban_message'."
+  },
+  "ban_contact": "Please contact customer service if you have any questions.",
+  "@ban_contact": {
+    "description": "Auto-generated metadata for key 'ban_contact'."
+  },
+  "compatibility_empty_state_title": "No compatibility information",
+  "@compatibility_empty_state_title": {
+    "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
+  },
+  "compatibility_empty_state_subtitle": "Create your first compatibility!",
+  "@compatibility_empty_state_subtitle": {
+    "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
+  },
+  "network_error_title": "Network Error",
+  "@network_error_title": {
+    "description": "Auto-generated metadata for key 'network_error_title'."
+  },
+  "network_error_message": "Please check your internet connection.",
+  "@network_error_message": {
+    "description": "Auto-generated metadata for key 'network_error_message'."
+  },
+  "notice_pinned": "Pinned",
+  "@notice_pinned": {
+    "description": "Auto-generated metadata for key 'notice_pinned'."
+  },
+  "title_dialog_error": "错误",
+  "@title_dialog_error": {
+    "description": "Auto-generated metadata for key 'title_dialog_error'."
+  },
+  "vote_item_request_waiting": "Waiting",
+  "@vote_item_request_waiting": {
+    "description": "Auto-generated metadata for key 'vote_item_request_waiting'."
+  },
+  "capture_failed": "截图失败",
+  "@capture_failed": {
+    "description": "Auto-generated metadata for key 'capture_failed'."
+  },
+  "qna_submit_success": "Your inquiry has been successfully submitted",
+  "@qna_submit_success": {
+    "description": "Auto-generated metadata for key 'qna_submit_success'."
+  },
+  "qna_list_title": "咨询列表",
+  "@qna_list_title": {
+    "description": "Auto-generated metadata for key 'qna_list_title'."
+  },
+  "starCandy100": "100 Star Candy",
+  "@starCandy100": {
+    "description": "Auto-generated metadata for key 'starCandy100'."
+  },
+  "starCandy200": "200 Star Candy",
+  "@starCandy200": {
+    "description": "Auto-generated metadata for key 'starCandy200'."
+  },
+  "starCandy600": "600 Star Candy",
+  "@starCandy600": {
+    "description": "Auto-generated metadata for key 'starCandy600'."
+  },
+  "starCandy1000": "1,000 Star Candy",
+  "@starCandy1000": {
+    "description": "Auto-generated metadata for key 'starCandy1000'."
+  },
+  "starCandy2000": "2,000 Star Candy",
+  "@starCandy2000": {
+    "description": "Auto-generated metadata for key 'starCandy2000'."
+  },
+  "starCandy3000": "3,000 Star Candy",
+  "@starCandy3000": {
+    "description": "Auto-generated metadata for key 'starCandy3000'."
+  },
+  "starCandy4000": "4,000 Star Candy",
+  "@starCandy4000": {
+    "description": "Auto-generated metadata for key 'starCandy4000'."
+  },
+  "starCandy5000": "5,000 Star Candy",
+  "@starCandy5000": {
+    "description": "Auto-generated metadata for key 'starCandy5000'."
+  },
+  "update_required_message": "App update required",
+  "@update_required_message": {
+    "description": "Auto-generated metadata for key 'update_required_message'."
+  },
+  "vote_item_request_no_search_results": "No search results",
+  "@vote_item_request_no_search_results": {
+    "description": "Auto-generated metadata for key 'vote_item_request_no_search_results'."
+  },
+  "jma_voting_my_star_candy": "My Star Candy",
   "@jma_voting_my_star_candy": {
     "description": "Auto-generated metadata for key 'jma_voting_my_star_candy'."
   },
-  "jma_voting_usable_jma_votes": "사용가능 JMA 투표권",
+  "jma_voting_usable_jma_votes": "Available JMA Votes",
   "@jma_voting_usable_jma_votes": {
     "description": "Auto-generated metadata for key 'jma_voting_usable_jma_votes'."
   },
-  "jma_voting_use_all": "전체 사용",
+  "jma_voting_use_all": "Use All",
   "@jma_voting_use_all": {
     "description": "Auto-generated metadata for key 'jma_voting_use_all'."
   },
-  "jma_voting_input_amount": "별사탕 수량을 입력해주세요.",
+  "jma_voting_input_amount": "Please enter the amount of Star Candy.",
   "@jma_voting_input_amount": {
     "description": "Auto-generated metadata for key 'jma_voting_input_amount'."
   },
-  "jma_voting_daily_limit_error": "하루 최대 5번까지 투표할 수 있습니다.",
+  "jma_voting_daily_limit_error": "You can vote up to 5 times per day.",
   "@jma_voting_daily_limit_error": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_error'."
   },
-  "jma_voting_exchange_failed": "별사탕 교환 중 오류가 발생했습니다. 다시 시도해주세요.",
+  "jma_voting_exchange_failed": "An error occurred while exchanging Star Candy. Please try again.",
   "@jma_voting_exchange_failed": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed'."
   },
-  "jma_voting_daily_limit_title": "투표 제한",
+  "jma_voting_daily_limit_title": "Voting Limit",
   "@jma_voting_daily_limit_title": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_title'."
   },
-  "jma_voting_exchange_failed_title": "교환 실패",
+  "jma_voting_exchange_failed_title": "Exchange Failed",
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "소멸 예정 보너스 안내",
+  "expiring_bonus_candy_guide": "Expiring Bonus Guide",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
-  "qna_form_title_hint": "제목을 5자 이상 입력해주세요.",
+  "qna_form_title_hint": "Please enter a title of at least 5 characters.",
   "@qna_form_title_hint": {
     "description": "Auto-generated metadata for key 'qna_form_title_hint'."
   },
-  "qna_form_content_hint": "내용을 10자 이상 입력해주세요.",
+  "qna_form_content_hint": "Please enter content of at least 10 characters.",
   "@qna_form_content_hint": {
     "description": "Auto-generated metadata for key 'qna_form_content_hint'."
   },
-  "qna_attach_media": "사진/동영상 첨부",
+  "qna_attach_media": "Attach Photo/Video",
   "@qna_attach_media": {
     "description": "Auto-generated metadata for key 'qna_attach_media'."
   },
-  "file_too_large_message": "{fileName} 파일은 {maxSize}MB 크기를 초과할 수 없습니다.",
+  "file_too_large_message": "{fileName} exceeds the {maxSize}MB size limit.",
   "@file_too_large_message": {
-    "description": "Auto-generated metadata for key 'file_too_large_message'."
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "maxSize": {
+        "type": "int"
+      }
+    }
   },
-  "qna_submit_fail": "문의 등록에 실패했습니다",
+  "qna_submit_fail": "提交查询失败",
   "@qna_submit_fail": {
     "description": "Auto-generated metadata for key 'qna_submit_fail'."
   },
-  "qna_file_size_limit_notice": "최대 {maxSize}MB까지 파일을 첨부할 수 있습니다.",
+  "qna_file_size_limit_notice": "最大可附加{maxSize}MB的文件。",
   "@qna_file_size_limit_notice": {
-    "description": "Auto-generated metadata for key 'qna_file_size_limit_notice'."
+    "placeholders": {
+      "maxSize": {
+        "type": "int"
+      }
+    }
   },
-  "qna_cannot_send_message_closed": "문의가 종료되어 더 이상 메시지를 보낼 수 없습니다.",
+  "qna_cannot_send_message_closed": "此查询已关闭，您不能再发送消息。",
   "@qna_cannot_send_message_closed": {
     "description": "Auto-generated metadata for key 'qna_cannot_send_message_closed'."
   },
-  "qna_message_sent_success": "메시지를 성공적으로 보냈습니다.",
+  "qna_message_sent_success": "消息已成功发送。",
   "@qna_message_sent_success": {
     "description": "Auto-generated metadata for key 'qna_message_sent_success'."
   },
-  "qna_message_sent_fail": "메시지 전송에 실패했습니다",
+  "qna_message_sent_fail": "发送消息失败",
   "@qna_message_sent_fail": {
     "description": "Auto-generated metadata for key 'qna_message_sent_fail'."
   },
-  "qna_add_media_tooltip": "미디어 추가",
+  "qna_no_answer_yet": "还没有答案。请稍等。",
+  "@qna_no_answer_yet": {
+    "description": "Auto-generated metadata for key 'qna_no_answer_yet'."
+  },
+  "qna_add_media_tooltip": "添加媒体",
   "@qna_add_media_tooltip": {
     "description": "Auto-generated metadata for key 'qna_add_media_tooltip'."
   },
-  "qna_load_fail_title": "문의 내역을 불러오는데 실패했습니다",
+  "qna_load_fail_title": "加载查询失败",
   "@qna_load_fail_title": {
     "description": "Auto-generated metadata for key 'qna_load_fail_title'."
   },
-  "label_my_vote_history": "나의 투표 이력",
+  "qna_message_hint": "输入消息",
+  "@qna_message_hint": {
+    "description": "Auto-generated metadata for key 'qna_message_hint'."
+  },
+  "label_my_vote_history": "我的投票历史",
   "@label_my_vote_history": {
     "description": "Auto-generated metadata for key 'label_my_vote_history'."
   },
-  "@@locale": "ko",
-  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__월 15일 00:00(KST)",
+  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)",
   "@bonus_candy_example_2_expire": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
   },
-  "bonus_candy_example_earn_date": "적립일",
+  "bonus_candy_example_earn_date": "Earn Date",
   "@bonus_candy_example_earn_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
   },
-  "vote_item_request_status_unknown": "알 수 없음",
+  "vote_item_request_status_unknown": "未知",
   "@vote_item_request_status_unknown": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
   },
-  "bonus_candy_expiration_policy_load_fail": "소멸 예정 보너스 정보를 불러오는데 실패했습니다.",
+  "bonus_candy_expiration_policy_load_fail": "Failed to load expiring bonus information.",
   "@bonus_candy_expiration_policy_load_fail": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
   },
-  "bonus_candy_example_1_expire": "__NEXT_MONTH__월 15일 00:00(KST)",
+  "bonus_candy_example_1_expire": "__NEXT_MONTH__ 15th 00:00(KST)",
   "@bonus_candy_example_1_expire": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
   },
-  "vote_item_request_status_in_progress": "진행중",
+  "vote_item_request_status_in_progress": "正在处理中",
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- 스타캔디 사용 시, 소멸일이 임박한 보너스 스타캔디부터 순서대로 차감됩니다.",
+  "bonus_candy_policy_2": "- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "compatibility_purchase_message": "{artistName}과 나의 궁합 점수를 알고 싶다면?",
+  "compatibility_purchase_message": "如果我想知道我和 {artistName}之间的 Goong-hap 分数？",
   "@compatibility_purchase_message": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_message'."
+    "placeholders": {
+      "artistName": {
+        "type": "String"
+      }
+    }
   },
-  "label_mypage_charge_history": "충전 내역 (관리자)",
+  "label_mypage_charge_history": "收费 (Admin)",
   "@label_mypage_charge_history": {
     "description": "Charge history menu for admin users"
   },
-  "compatibility_time_slot_unknown": "모름",
+  "compatibility_time_slot_unknown": "不知道",
   "@compatibility_time_slot_unknown": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
   },
-  "label_popup_hide_7days": "7일간 보지 않기",
+  "label_popup_hide_7days": "不查看 7 天",
   "@label_popup_hide_7days": {
     "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
   },
-  "expiring_soon_bonus_candy": "소멸 예정 보너스 스타캔디",
+  "expiring_soon_bonus_candy": "Expiring Bonus Star Candy",
   "@expiring_soon_bonus_candy": {
     "description": "Auto-generated metadata for key 'expiring_soon_bonus_candy'."
   },
-  "bonus_candy_expiration_policy_earn_period": "적립 기간",
+  "bonus_candy_expiration_policy_earn_period": "Earn Period",
   "@bonus_candy_expiration_policy_earn_period": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
   },
-  "message_setting_remove_cache": "캐시 메모리 삭제가 완료되었습니다.",
+  "message_setting_remove_cache": "缓存删除完成。",
   "@message_setting_remove_cache": {
     "description": "Auto-generated metadata for key 'message_setting_remove_cache'."
   },
-  "error_loading_more_comments": "댓글 로딩 중 오류가 발생했습니다.",
+  "error_loading_more_comments": "加载评论时出现错误。",
   "@error_loading_more_comments": {
     "description": "Auto-generated metadata for key 'error_loading_more_comments'."
   },
-  "purchase_timeout_message": "구매 처리 시간이 너무 오래 걸리고 있습니다.\n나중에 다시 시도해주세요.",
+  "purchase_timeout_message": "购买处理时间过长。\\n请稍后重试。",
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
-  "label_tabbar_vote_upcoming": "예정됨",
+  "label_tabbar_vote_upcoming": "即将推出",
   "@label_tabbar_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
   },
-  "bonus_candy_example_1_earn": "__MONTH__월 10일 14:00(KST)",
+  "bonus_candy_example_1_earn": "__MONTH__ 10th 14:00(KST)",
   "@bonus_candy_example_1_earn": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
   },
-  "error_receipt_verification_failed": "영수증 검증에 실패했습니다.",
+  "error_receipt_verification_failed": "收据验证失败。",
   "@error_receipt_verification_failed": {
     "description": "Auto-generated metadata for key 'error_receipt_verification_failed'."
   },
-  "vote_item_request_status_cancelled": "취소됨",
+  "vote_item_request_status_cancelled": "已取消",
   "@vote_item_request_status_cancelled": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_cancelled'."
   },
-  "post_write_board_post": "게시글 작성",
+  "post_write_board_post": "创建一个职位",
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- 소멸된 보너스 스타캔디는 복구되지 않으니, 기간 내에 꼭 사용해 주세요.",
+  "bonus_candy_policy_3": "- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
-  "message_update_nickname_fail": "닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요.",
+  "message_update_nickname_fail": "昵称更改失败。\n请选择其他昵称。",
   "@message_update_nickname_fail": {
     "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
   },
-  "bonus_candy_expiration_time_title": "소멸 시점 안내",
+  "bonus_candy_expiration_time_title": "Expiration Time",
   "@bonus_candy_expiration_time_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_time_title'."
   },
-  "post_comment_action_show_translation": "번역 보기",
+  "post_comment_action_show_translation": "查看翻译",
   "@post_comment_action_show_translation": {
     "description": "Auto-generated metadata for key 'post_comment_action_show_translation'."
   },
-  "fortune_lucky_direction": "행운의 방향",
+  "fortune_lucky_direction": "财富的方向",
   "@fortune_lucky_direction": {
     "description": "Auto-generated metadata for key 'fortune_lucky_direction'."
   },
-  "error_message_login_failed": "로그인 중 오류가 발생했습니다.",
+  "error_message_login_failed": "登录时发生错误。",
   "@error_message_login_failed": {
     "description": "Auto-generated metadata for key 'error_message_login_failed'."
   },
-  "dialog_withdraw_button_ok": "탈퇴하기",
+  "dialog_withdraw_button_ok": "退订",
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "compatibility_birthtime_subtitle": "정확도 향상!",
+  "compatibility_birthtime_subtitle": "提高准确性！",
   "@compatibility_birthtime_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
   },
-  "title_dialog_success": "성공",
+  "title_dialog_success": "成功",
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "보너스 스타캔디 정책",
+  "bonus_candy_policy_title": "Bonus Star Candy Policy",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
-  "bonus_candy_example_expiration_date": "소멸일",
+  "bonus_candy_example_expiration_date": "Expiration Date",
   "@bonus_candy_example_expiration_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
   },
-  "label_tab_free_charge_station": "무료 충전소",
+  "label_tab_free_charge_station": "免费充电站",
   "@label_tab_free_charge_station": {
     "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
   },
-  "error_user_not_authenticated": "사용자 인증이 필요합니다. 다시 로그인해주세요.",
+  "error_user_not_authenticated": "需要登录。请重新登录。",
   "@error_user_not_authenticated": {
     "description": "Auto-generated metadata for key 'error_user_not_authenticated'."
   },
-  "text_dialog_vote_amount_should_not_zero": "투표 수는 0이 될 수 없습니다.",
+  "text_dialog_vote_amount_should_not_zero": "票数不能为零。",
   "@text_dialog_vote_amount_should_not_zero": {
     "description": "Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'."
   },
-  "message_agreement_success": "약관 동의가 완료되었습니다.",
+  "message_agreement_success": "条款接受完毕。",
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
-  "bonus_candy_earn_period_1_to_15": "01일 00:00:00(KST) ~ 14일 23:59:59(KST)",
+  "bonus_candy_earn_period_1_to_15": "1st 00:00:00 ~ 15th 23:59:59",
   "@bonus_candy_earn_period_1_to_15": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
   },
-  "compatibility_snackbar_need_birthday": "생년월일을 입력해주세요.",
+  "compatibility_snackbar_need_birthday": "请输入您的出生日期。",
   "@compatibility_snackbar_need_birthday": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
   },
-  "update_recommend_text": "새 버전 ({version})이 사용 가능합니다.",
+  "update_recommend_text": "新版本 ({version}) 已发布。",
   "@update_recommend_text": {
-    "description": "Auto-generated metadata for key 'update_recommend_text'."
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
-  "error_product_not_found": "구매한 상품을 찾을 수 없습니다.",
+  "error_product_not_found": "我们找不到已购买的产品。",
   "@error_product_not_found": {
     "description": "Auto-generated metadata for key 'error_product_not_found'."
   },
-  "label_popup_close": "닫기",
+  "label_popup_close": "关闭",
   "@label_popup_close": {
     "description": "Auto-generated metadata for key 'label_popup_close'."
   },
-  "jma_voting_info_text": "-보너스 스타캔디는 1일 최대 5개까지 JMA 투표에 사용 가능합니다.\n-필요한 스타캔디는 자동으로 변환됩니다.(30star Candy = 1JMA Vote)\n-투표 참여 시 자카르타 콘서트에 자동 응모됩니다.",
+  "jma_voting_info_text": "-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.",
   "@jma_voting_info_text": {
     "description": "Auto-generated metadata for key 'jma_voting_info_text'."
   },
-  "vote_item_request_search_artist_hint": "아티스트나 그룹을 검색하세요",
+  "vote_item_request_search_artist_hint": "搜索艺术家或乐队",
   "@vote_item_request_search_artist_hint": {
-    "description": "Hint text for artist search field"
+    "description": "Auto-generated metadata for key 'vote_item_request_search_artist_hint'."
   },
-  "bonus_candy_expiration_month_after_next": "다다음달 15일 00:00:00(KST)",
+  "bonus_candy_expiration_month_after_next": "Month after next 15th 00:00:00",
   "@bonus_candy_expiration_month_after_next": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'."
   },
-  "post_comment_action_show_original": "원문 보기",
+  "post_comment_action_show_original": "查看全文",
   "@post_comment_action_show_original": {
     "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
   },
-  "compatibility_snackbar_need_profile_save_agree": "프로필 저장에 동의해주세요.",
+  "compatibility_snackbar_need_profile_save_agree": "同意保存您的个人资料。",
   "@compatibility_snackbar_need_profile_save_agree": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
   },
-  "qna_content_min_length": "내용은 최소 10자 이상 입력해주세요.",
+  "qna_content_min_length": "咨询内容至少需要10个字符",
   "@qna_content_min_length": {
     "description": "Auto-generated metadata for key 'qna_content_min_length'."
   },
-  "post_ask_go_to_temporary_save_list": "임시저장 목록으로 가시겠습니까?",
+  "post_ask_go_to_temporary_save_list": "想进入草稿列表吗？",
   "@post_ask_go_to_temporary_save_list": {
     "description": "Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'."
   },
-  "label_pic_pic_synthesizing_image": "이미지 합성 중...",
+  "label_pic_pic_synthesizing_image": "合成图像...",
   "@label_pic_pic_synthesizing_image": {
     "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
   },
-  "label_tab_buy_star_candy": "스타캔디 구매",
+  "label_tab_buy_star_candy": "购买星星糖",
   "@label_tab_buy_star_candy": {
     "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
   },
-  "jma_voting_max_votes_exceeded": "현재 최대 가능 투표수는 {maxVotes}개 입니다.",
+  "jma_voting_max_votes_exceeded": "The current maximum possible votes is {maxVotes}.",
   "@jma_voting_max_votes_exceeded": {
-    "description": "Auto-generated metadata for key 'jma_voting_max_votes_exceeded'."
+    "placeholders": {
+      "maxVotes": {
+        "type": "int"
+      }
+    }
   },
-  "jma_voting_daily_limit_remaining": "오늘 남은 보너스 투표 갯수: {remaining}회 (최대 {max}회)",
+  "jma_voting_daily_limit_remaining": "Today's remaining bonus votes: {remaining} times (max {max} times)",
   "@jma_voting_daily_limit_remaining": {
-    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_remaining'."
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
   },
-  "post_temporary_save_complete": "임시저장 완료",
+  "post_temporary_save_complete": "草案完成。",
   "@post_temporary_save_complete": {
     "description": "Auto-generated metadata for key 'post_temporary_save_complete'."
   },
-  "bonus_candy_example_title": "예시",
+  "bonus_candy_example_title": "Example",
   "@bonus_candy_example_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_title'."
   },
-  "label_pic_pic_initializing_camera": "카메라 초기화 중...",
+  "label_pic_pic_initializing_camera": "初始化摄像机...",
   "@label_pic_pic_initializing_camera": {
     "description": "Auto-generated metadata for key 'label_pic_pic_initializing_camera'."
   },
-  "post_write_post_recommend_write": "Please create a post.",
+  "post_write_post_recommend_write": "请创建一个帖子。",
   "@post_write_post_recommend_write": {
     "description": "Auto-generated metadata for key 'post_write_post_recommend_write'."
   },
-  "jma_voting_daily_limit_exhausted": "오늘 보너스 투표 갯수를 모두 사용했습니다.",
+  "jma_voting_daily_limit_exhausted": "You have used all bonus votes for today.",
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- 무료 충전소 적립 보너스 별사탕, 구매 시 추가로 지급된 보너스 별사탕은 소멸 기한이 정해져 있습니다.",
+  "bonus_candy_policy_1": "- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
-  "compatibility_perfect_score_exists_title": "이미 우승한 궁합 데이터",
+  "compatibility_perfect_score_exists_title": "已获胜比赛数据",
   "@compatibility_perfect_score_exists_title": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "동일한 조건의 궁합 데이터가 이미 존재합니다.",
+  "compatibility_duplicate_data_message": "相同条件下的兼容性数据已经存在。",
   "@compatibility_duplicate_data_message": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
-  "label_time_ago_minute": "{minute}분 전",
+  "label_time_ago_minute": "{minute} 分钟前",
   "@label_time_ago_minute": {
-    "description": "Auto-generated metadata for key 'label_time_ago_minute'."
+    "placeholders": {
+      "minute": {
+        "type": "int"
+      }
+    }
   },
-  "update_required_text": "새 버전 ({version})으로 업데이트해야 합니다.",
+  "update_required_text": "您需要更新到新版本 ({version})。",
   "@update_required_text": {
-    "description": "Auto-generated metadata for key 'update_required_text'."
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
-  "jma_voting_star_candy_shortage": "별사탕이 {shortage}개 부족합니다.",
+  "jma_voting_star_candy_shortage": "You need {shortage} more star candies.",
   "@jma_voting_star_candy_shortage": {
-    "description": "Auto-generated metadata for key 'jma_voting_star_candy_shortage'."
+    "placeholders": {
+      "shortage": {
+        "type": "int"
+      }
+    }
   },
-  "bonus_candy_earn_period_16_to_end": "15일 00:00:00(KST) ~ 말일 23:59:59(KST)",
+  "bonus_candy_earn_period_16_to_end": "16th 00:00:00 ~ end of month 23:59:59",
   "@bonus_candy_earn_period_16_to_end": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
   },
-  "error_message_withdrawal": "탈퇴한 회원입니다.",
+  "error_message_withdrawal": "已取消订阅的会员。",
   "@error_message_withdrawal": {
     "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
-  "text_achievement": "🎉 지금까지 ${count}개의 목표를 달성했습니다! 🎉",
+  "text_achievement": "到目前为止，您已实现 {count} 目标！🎉",
   "@text_achievement": {
-    "description": "Auto-generated metadata for key 'text_achievement'."
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-  "label_login_with_wechat": "WeChat으로 로그인",
+  "label_login_with_wechat": "使用微信登录",
   "@label_login_with_wechat": {
     "description": "Auto-generated metadata for key 'label_login_with_wechat'."
   },
-  "withdrawal_success": "회원탈퇴가 성공적으로 처리되었습니다.",
+  "withdrawal_success": "退订已成功处理。",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
   },
-  "vote_item_request_already_applied_artist": "이미 해당 아티스트에 대해 신청하셨습니다.",
+  "vote_item_request_already_applied_artist": "您已为该艺术家提交过申请。",
   "@vote_item_request_already_applied_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
   },
-  "bonus_candy_expiration_policy_expiration_date": "소멸 시점",
+  "bonus_candy_expiration_policy_expiration_date": "Expiration Date",
   "@bonus_candy_expiration_policy_expiration_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
   },
-  "bonus_candy_example_2_earn": "__MONTH__월 20일 14:00(KST)",
+  "bonus_candy_example_2_earn": "__MONTH__ 20th 14:00(KST)",
   "@bonus_candy_example_2_earn": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
   },
-  "message_agreement_fail": "약관 동의가 필요합니다",
+  "message_agreement_fail": "Terms agreement required",
   "@message_agreement_fail": {
     "description": "Auto-generated metadata for key 'message_agreement_fail'."
   },
-  "vote_item_request_button": "투표 신청하기",
+  "vote_item_request_button": "申请投票候选人",
   "@vote_item_request_button": {
     "description": "Auto-generated metadata for key 'vote_item_request_button'."
   },
-  "bonus_candy_expiration_next_month": "다음달 15일 00:00:00(KST)",
+  "bonus_candy_expiration_next_month": "Next month 15th 00:00:00",
   "@bonus_candy_expiration_next_month": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_next_month'."
   },
-  "error_delete_post": "게시글 삭제 중 오류가 발생했습니다.",
+  "error_delete_post": "删除帖子时出现错误。",
   "@error_delete_post": {
     "description": "Auto-generated metadata for key 'error_delete_post'."
   },
-  "qna_title_min_length": "제목은 최소 5자 이상 입력해주세요.",
+  "qna_title_min_length": "标题至少需要5个字符",
   "@qna_title_min_length": {
     "description": "Auto-generated metadata for key 'qna_title_min_length'."
   },
-  "message_update_nickname_success": "닉네임이 성공적으로 변경되었습니다.",
+  "message_update_nickname_success": "您的昵称已成功更改。",
   "@message_update_nickname_success": {
     "description": "Auto-generated metadata for key 'message_update_nickname_success'."
   },
-  "compatibility_new_compatibility_ask": "새로운 궁합을 보고 싶나요?",
+  "compatibility_new_compatibility_ask": "想看看新的配对吗？",
   "@compatibility_new_compatibility_ask": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
   },
-  "post_replying_comment": "{nickname}님에게 답글 중...",
+  "post_replying_comment": "回复 {nickname}...",
   "@post_replying_comment": {
-    "description": "Auto-generated metadata for key 'post_replying_comment'."
+    "placeholders": {
+      "nickname": {
+        "type": "String"
+      }
+    }
   },
-  "button_pic_pic_save": "저장",
+  "button_pic_pic_save": "保存",
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "이 조건의 궁합 데이터는 이미 리워드를 받았으므로 추가 리워드를 지급할 수 없습니다.",
+  "compatibility_perfect_score_exists": "请注意，此条件的兼容性数据已获得奖励，因此我们无法再颁发额外奖励。",
   "@compatibility_perfect_score_exists": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
   },
-  "post_minor_board_create_request_message_input": "게시판 개설 요청 메시지를 입력하세요.",
+  "post_minor_board_create_request_message_input": "输入要求打开留言板的信息。",
   "@post_minor_board_create_request_message_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_input'."
   },
-  "fortune_purchase_by_star_candy": "스타캔디로 확인",
+  "fortune_purchase_by_star_candy": "请向 Star Candy 查询",
   "@fortune_purchase_by_star_candy": {
     "description": "Auto-generated metadata for key 'fortune_purchase_by_star_candy'."
   },
-  "post_minor_board_create_request_message_condition": "게시판 개설 요청 메시지를 10자 이상 포함해주세요.",
+  "post_minor_board_create_request_message_condition": "请在申请开设留言板的信息中至少包含 10 个字符。",
   "@post_minor_board_create_request_message_condition": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_condition'."
   },
-  "post_board_create_request_reviewing": "게시판 개설 요청 검토 중",
+  "post_board_create_request_reviewing": "审查开板申请",
   "@post_board_create_request_reviewing": {
     "description": "Auto-generated metadata for key 'post_board_create_request_reviewing'."
   },
-  "post_minor_board_create_request_message": "* 게시판 개설 요청 메시지",
+  "post_minor_board_create_request_message": "* 请求开设留言板的信息。",
   "@post_minor_board_create_request_message": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
   },
-  "compatibility_purchase_confirm_title": "스타캔디로 구매",
+  "compatibility_purchase_confirm_title": "用星星糖果购买",
   "@compatibility_purchase_confirm_title": {
     "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
   },
-  "post_board_create_request_label": "게시판 개설 요청",
+  "post_board_create_request_label": "申请开设一个板块",
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
   }

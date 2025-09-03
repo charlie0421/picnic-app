@@ -75,16 +75,18 @@ class SearchService {
         'ㅋ',
         'ㅌ',
         'ㅍ',
-        'ㅎ'
+        'ㅎ',
       ];
-      final isKoreanInitials = supportKoreanInitials &&
+      final isKoreanInitials =
+          supportKoreanInitials &&
           query.isNotEmpty &&
           query.split('').every((char) => koreanInitials.contains(char));
 
       dynamic queryBuilder = supabase
           .from('artist')
           .select(
-              'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
+            'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)',
+          )
           .neq('id', 0) // artist id 0 제외
           .eq('is_kpop', true); // K-pop 아티스트만 검색
 
@@ -99,8 +101,10 @@ class SearchService {
 
         // 모든 아티스트 가져오기 (초성 검색은 로컬에서 처리)
         // 북마크 정보도 함께 가져오기
-        final response =
-            await queryBuilder.order('name->>$language', ascending: true);
+        final response = await queryBuilder.order(
+          'name->>$language',
+          ascending: true,
+        );
 
         if (response == null) {
           return <ArtistModel>[];
@@ -109,18 +113,20 @@ class SearchService {
         final allArtists = (response as List<dynamic>)
             .where((data) => data != null)
             .map((data) {
-          final artistData = data as Map<String, dynamic>;
-          // 북마크 정보 확인 (artist_user_bookmark 배열이 비어있지 않으면 북마크됨)
-          final bookmarkData = artistData['artist_user_bookmark'] as List?;
-          final isBookmarked = bookmarkData != null && bookmarkData.isNotEmpty;
+              final artistData = data as Map<String, dynamic>;
+              // 북마크 정보 확인 (artist_user_bookmark 배열이 비어있지 않으면 북마크됨)
+              final bookmarkData = artistData['artist_user_bookmark'] as List?;
+              final isBookmarked =
+                  bookmarkData != null && bookmarkData.isNotEmpty;
 
-          // 북마크 정보를 제거하고 아티스트 데이터만 추출
-          final cleanArtistData = Map<String, dynamic>.from(artistData);
-          cleanArtistData.remove('artist_user_bookmark');
-          cleanArtistData['isBookmarked'] = isBookmarked;
+              // 북마크 정보를 제거하고 아티스트 데이터만 추출
+              final cleanArtistData = Map<String, dynamic>.from(artistData);
+              cleanArtistData.remove('artist_user_bookmark');
+              cleanArtistData['isBookmarked'] = isBookmarked;
 
-          return ArtistModel.fromJson(cleanArtistData);
-        }).toList();
+              return ArtistModel.fromJson(cleanArtistData);
+            })
+            .toList();
 
         // 로컬에서 초성 필터링 (KoreanSearchUtils 사용)
         final filteredResults = allArtists.where((artist) {
@@ -180,16 +186,20 @@ class SearchService {
         var artistQuery = supabase
             .from('artist')
             .select(
-                'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
+              'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)',
+            )
             .neq('id', 0)
             .eq('is_kpop', true); // K-pop 아티스트만 검색
 
         // 검색어가 있는 경우에만 필터 적용
         if (query.isNotEmpty) {
-          artistQuery = artistQuery.or('name->>ko.ilike.%$query%,'
-              'name->>en.ilike.%$query%,'
-              'name->>ja.ilike.%$query%,'
-              'name->>zh.ilike.%$query%');
+          artistQuery = artistQuery.or(
+            'name->>ko.ilike.%$query%,'
+            'name->>en.ilike.%$query%,'
+            'name->>ja.ilike.%$query%,'
+            'name->>zh.ilike.%$query%,'
+            'name->>zh_CN.ilike.%$query%',
+          );
         }
 
         // 제외할 ID가 있는 경우
@@ -205,31 +215,37 @@ class SearchService {
         artistResults = (artistResponse as List<dynamic>)
             .where((data) => data != null)
             .map((data) {
-          final artistData = data as Map<String, dynamic>;
-          final bookmarkData = artistData['artist_user_bookmark'] as List?;
-          final isBookmarked =
-              bookmarkData != null && bookmarkData.isNotEmpty;
+              final artistData = data as Map<String, dynamic>;
+              final bookmarkData = artistData['artist_user_bookmark'] as List?;
+              final isBookmarked =
+                  bookmarkData != null && bookmarkData.isNotEmpty;
 
-          final cleanArtistData = Map<String, dynamic>.from(artistData);
-          cleanArtistData.remove('artist_user_bookmark');
-          cleanArtistData['isBookmarked'] = isBookmarked;
+              final cleanArtistData = Map<String, dynamic>.from(artistData);
+              cleanArtistData.remove('artist_user_bookmark');
+              cleanArtistData['isBookmarked'] = isBookmarked;
 
-          return ArtistModel.fromJson(cleanArtistData);
-        }).toList();
-        
+              return ArtistModel.fromJson(cleanArtistData);
+            })
+            .toList();
+
         // 2. 그룹명으로 검색 (검색어가 있을 때만, 빈 검색어일 때는 이미 전체 결과가 있으므로 생략)
         if (query.isNotEmpty) {
           try {
             var groupQuery = supabase
                 .from('artist_group')
                 .select('id,name,image')
-                .or('name->>ko.ilike.%$query%,'
-                    'name->>en.ilike.%$query%,'
-                    'name->>ja.ilike.%$query%,'
-                    'name->>zh.ilike.%$query%');
+                .or(
+                  'name->>ko.ilike.%$query%,'
+                  'name->>en.ilike.%$query%,'
+                  'name->>ja.ilike.%$query%,'
+                  'name->>zh.ilike.%$query%,'
+                  'name->>zh_CN.ilike.%$query%',
+                );
 
-            final groupResponse =
-                await groupQuery.order('name->>$language', ascending: true);
+            final groupResponse = await groupQuery.order(
+              'name->>$language',
+              ascending: true,
+            );
 
             final matchingGroupIds = (groupResponse as List<dynamic>)
                 .where((data) => data != null)
@@ -241,38 +257,42 @@ class SearchService {
               var groupArtistQuery = supabase
                   .from('artist')
                   .select(
-                      'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
+                    'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)',
+                  )
                   .neq('id', 0)
                   .eq('is_kpop', true) // K-pop 아티스트만 검색
                   .filter('artist_group.id', 'in', matchingGroupIds);
 
               // 제외할 ID가 있는 경우
               if (excludeIds.isNotEmpty) {
-                groupArtistQuery =
-                    groupArtistQuery.not('id', 'in', excludeIds);
+                groupArtistQuery = groupArtistQuery.not('id', 'in', excludeIds);
               }
 
-              final groupArtistResponse = await groupArtistQuery
-                  .order('name->>$language', ascending: true);
+              final groupArtistResponse = await groupArtistQuery.order(
+                'name->>$language',
+                ascending: true,
+              );
 
               // ignore: unnecessary_null_comparison
               if (groupArtistResponse != null) {
                 groupResults = (groupArtistResponse as List<dynamic>)
                     .where((data) => data != null)
                     .map((data) {
-                  final artistData = data as Map<String, dynamic>;
-                  final bookmarkData =
-                      artistData['artist_user_bookmark'] as List?;
-                  final isBookmarked =
-                      bookmarkData != null && bookmarkData.isNotEmpty;
+                      final artistData = data as Map<String, dynamic>;
+                      final bookmarkData =
+                          artistData['artist_user_bookmark'] as List?;
+                      final isBookmarked =
+                          bookmarkData != null && bookmarkData.isNotEmpty;
 
-                  final cleanArtistData =
-                      Map<String, dynamic>.from(artistData);
-                  cleanArtistData.remove('artist_user_bookmark');
-                  cleanArtistData['isBookmarked'] = isBookmarked;
+                      final cleanArtistData = Map<String, dynamic>.from(
+                        artistData,
+                      );
+                      cleanArtistData.remove('artist_user_bookmark');
+                      cleanArtistData['isBookmarked'] = isBookmarked;
 
-                  return ArtistModel.fromJson(cleanArtistData);
-                }).toList();
+                      return ArtistModel.fromJson(cleanArtistData);
+                    })
+                    .toList();
               }
             }
           } catch (e) {
@@ -305,7 +325,9 @@ class SearchService {
 
         // 빈 검색어의 경우 페이지네이션이 이미 적용되었으므로 그대로 반환
         // 검색어가 있는 경우에만 추가 페이지네이션 적용
-        final results = query.isEmpty ? allResults : allResults.take(limit).toList();
+        final results = query.isEmpty
+            ? allResults
+            : allResults.take(limit).toList();
 
         // 결과를 캐시에 저장
         if (useCache && results.isNotEmpty) {
@@ -363,7 +385,8 @@ class SearchService {
       final cachedResult = _cache.get<List<T>>(cacheKey);
       if (cachedResult != null) {
         logger.d(
-            'Returning cached search results for table $table, query: $query');
+          'Returning cached search results for table $table, query: $query',
+        );
         return cachedResult;
       }
     }
@@ -377,8 +400,9 @@ class SearchService {
 
       // 검색어가 있는 경우 지정된 필드들에서 검색
       if (query.isNotEmpty && searchFields.isNotEmpty) {
-        final searchConditions =
-            searchFields.map((field) => '$field.ilike.%$query%').join(',');
+        final searchConditions = searchFields
+            .map((field) => '$field.ilike.%$query%')
+            .join(',');
         queryBuilder = queryBuilder.or(searchConditions);
       }
 
@@ -436,8 +460,11 @@ class SearchService {
 
       return results;
     } catch (e, s) {
-      logger.e('Error searching entities in table $table:',
-          error: e, stackTrace: s);
+      logger.e(
+        'Error searching entities in table $table:',
+        error: e,
+        stackTrace: s,
+      );
       Sentry.captureException(e, stackTrace: s);
       rethrow;
     }
@@ -558,7 +585,8 @@ class SearchService {
       final cachedResult = _cache.get<List<T>>(cacheKey);
       if (cachedResult != null) {
         logger.d(
-            'Returning cached advanced search results for table $table, query: $query');
+          'Returning cached advanced search results for table $table, query: $query',
+        );
         return cachedResult;
       }
     }
@@ -589,8 +617,9 @@ class SearchService {
         for (final order in orderBy) {
           final parts = order.split(' ');
           final field = parts[0];
-          final ascending =
-              parts.length > 1 ? parts[1].toLowerCase() != 'desc' : true;
+          final ascending = parts.length > 1
+              ? parts[1].toLowerCase() != 'desc'
+              : true;
           queryBuilder = queryBuilder.order(field, ascending: ascending);
         }
       }
@@ -617,8 +646,11 @@ class SearchService {
 
       return results;
     } catch (e, s) {
-      logger.e('Error in advanced search for table $table:',
-          error: e, stackTrace: s);
+      logger.e(
+        'Error in advanced search for table $table:',
+        error: e,
+        stackTrace: s,
+      );
       Sentry.captureException(e, stackTrace: s);
       rethrow;
     }
@@ -626,7 +658,9 @@ class SearchService {
 
   /// 필터 조건을 쿼리 빌더에 적용하는 헬퍼 메서드
   static dynamic _applyFilters(
-      dynamic queryBuilder, Map<String, dynamic> filters) {
+    dynamic queryBuilder,
+    Map<String, dynamic> filters,
+  ) {
     for (final entry in filters.entries) {
       final key = entry.key;
       final value = entry.value;
@@ -791,14 +825,21 @@ class SearchService {
       final response = await supabase
           .from('boards')
           .select(
-              'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))')
-          .or('name->>ko.ilike.%$query%,'
-              'name->>en.ilike.%$query%,'
-              'name->>ja.ilike.%$query%,'
-              'name->>zh.ilike.%$query%')
+            'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))',
+          )
+          .or(
+            'name->>ko.ilike.%$query%,'
+            'name->>en.ilike.%$query%,'
+            'name->>ja.ilike.%$query%,'
+            'name->>zh.ilike.%$query%,'
+            'name->>zh_CN.ilike.%$query%',
+          )
           .neq('artist_id', 0)
           .eq('status', 'approved')
-          .order('name->>$language', ascending: true)
+          .order(
+            'name->>${language == 'zh' ? 'zh_CN' : language}',
+            ascending: true,
+          )
           .order('is_official', ascending: false)
           .order('order', ascending: true)
           .range(page * limit, (page + 1) * limit - 1);

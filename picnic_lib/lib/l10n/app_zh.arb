@@ -15,45 +15,9 @@
   "@anonymous_mode": {
     "description": "Auto-generated metadata for key 'anonymous_mode'."
   },
-  "appTitle": "Picnic",
-  "@appTitle": {
-    "description": "Auto-generated metadata for key 'appTitle'."
-  },
-  "app_name": "野餐",
-  "@app_name": {
-    "description": "Auto-generated metadata for key 'app_name'."
-  },
-  "application_reason_hint": "Enter application reason (optional)",
-  "@application_reason_hint": {
-    "description": "Auto-generated metadata for key 'application_reason_hint'."
-  },
-  "application_reason_label": "Application Reason",
-  "@application_reason_label": {
-    "description": "Auto-generated metadata for key 'application_reason_label'."
-  },
-  "application_success": "Vote candidate application has been completed.",
-  "@application_success": {
-    "description": "Auto-generated metadata for key 'application_success'."
-  },
-  "artist_name_hint": "Enter artist name",
-  "@artist_name_hint": {
-    "description": "Auto-generated metadata for key 'artist_name_hint'."
-  },
-  "artist_name_label": "Artist Name",
-  "@artist_name_label": {
-    "description": "Auto-generated metadata for key 'artist_name_label'."
-  },
   "block_user_label": "屏蔽用户",
   "@block_user_label": {
     "description": "Auto-generated metadata for key 'block_user_label'."
-  },
-  "bonus_candy_awarded": "已奖励星星糖果。",
-  "@bonus_candy_awarded": {
-    "description": "Auto-generated metadata for key 'bonus_candy_awarded'."
-  },
-  "button_apply_as_candidate": "候选人申请",
-  "@button_apply_as_candidate": {
-    "description": "Auto-generated metadata for key 'button_apply_as_candidate'."
   },
   "button_cancel": "取消",
   "@button_cancel": {
@@ -70,26 +34,6 @@
   "button_ok": "确认",
   "@button_ok": {
     "description": "Auto-generated metadata for key 'button_ok'."
-  },
-  "button_pic_pic_save": "保存",
-  "@button_pic_pic_save": {
-    "description": "Auto-generated metadata for key 'button_pic_pic_save'."
-  },
-  "candy_disappear_next_month": "过期的奖励星星糖果 😢",
-  "@candy_disappear_next_month": {
-    "description": "Auto-generated metadata for key 'candy_disappear_next_month'."
-  },
-  "candy_usage_policy_contents": "当月获得的奖励星级糖果将于下月 15 日过期。",
-  "@candy_usage_policy_contents": {
-    "description": "Auto-generated metadata for key 'candy_usage_policy_contents'."
-  },
-  "candy_usage_policy_contents2": "使用星星糖果时，优先使用即将过期的。",
-  "@candy_usage_policy_contents2": {
-    "description": "Auto-generated metadata for key 'candy_usage_policy_contents2'."
-  },
-  "candy_usage_policy_title": "星尘使用政策",
-  "@candy_usage_policy_title": {
-    "description": "Auto-generated metadata for key 'candy_usage_policy_title'."
   },
   "comments": "评论",
   "@comments": {
@@ -159,17 +103,9 @@
   "@compatibility_birthtime": {
     "description": "Auto-generated metadata for key 'compatibility_birthtime'."
   },
-  "compatibility_birthtime_subtitle": "提高准确性！",
-  "@compatibility_birthtime_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
-  },
   "compatibility_couple_style": "情侣款式",
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
-  },
-  "compatibility_duplicate_data_message": "相同条件下的兼容性数据已经存在。",
-  "@compatibility_duplicate_data_message": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
   "compatibility_duplicate_data_title": "已有的兼容性数据",
   "@compatibility_duplicate_data_title": {
@@ -195,37 +131,13 @@
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_new_compatibility_ask": "想看看新的配对吗？",
-  "@compatibility_new_compatibility_ask": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
-  },
   "compatibility_page_title": "兼容性",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
-  "compatibility_perfect_score_exists": "请注意，此条件的兼容性数据已获得奖励，因此我们无法再颁发额外奖励。",
-  "@compatibility_perfect_score_exists": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
-  },
-  "compatibility_perfect_score_exists_title": "已获胜比赛数据",
-  "@compatibility_perfect_score_exists_title": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
-  },
   "compatibility_purchase_confirm_message": "使用100个星星糖果查看Goong-Hap结果。",
   "@compatibility_purchase_confirm_message": {
     "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
-  },
-  "compatibility_purchase_confirm_title": "用星星糖果购买",
-  "@compatibility_purchase_confirm_title": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
-  },
-  "compatibility_purchase_message": "如果我想知道我和 {artistName}之间的 Goong-hap 分数？",
-  "@compatibility_purchase_message": {
-    "placeholders": {
-      "artistName": {
-        "type": "String"
-      }
-    }
   },
   "compatibility_remain_star_candy": "剩余的糖果",
   "@compatibility_remain_star_candy": {
@@ -251,49 +163,17 @@
   "@compatibility_snackbar_error": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
   },
-  "compatibility_snackbar_need_birthday": "请输入您的出生日期。",
-  "@compatibility_snackbar_need_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
-  },
-  "compatibility_snackbar_need_birthtime": "请输入您的出生时间。",
-  "@compatibility_snackbar_need_birthtime": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthtime'."
-  },
   "compatibility_snackbar_need_gender": "请选择性别。",
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
-  },
-  "compatibility_snackbar_need_profile_save_agree": "同意保存您的个人资料。",
-  "@compatibility_snackbar_need_profile_save_agree": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
   },
   "compatibility_snackbar_start": "开始分析兼容性。",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_status_completed": "已完成",
-  "@compatibility_status_completed": {
-    "description": "Auto-generated metadata for key 'compatibility_status_completed'."
-  },
-  "compatibility_status_error": "错误",
-  "@compatibility_status_error": {
-    "description": "Auto-generated metadata for key 'compatibility_status_error'."
-  },
-  "compatibility_status_input": "打字",
-  "@compatibility_status_input": {
-    "description": "Auto-generated metadata for key 'compatibility_status_input'."
-  },
-  "compatibility_status_pending": "分析",
-  "@compatibility_status_pending": {
-    "description": "Auto-generated metadata for key 'compatibility_status_pending'."
-  },
   "compatibility_style_title": "兼容性样式",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
-  },
-  "compatibility_summary_title": "兼容性概述",
-  "@compatibility_summary_title": {
-    "description": "Auto-generated metadata for key 'compatibility_summary_title'."
   },
   "compatibility_time_slot1": "老鼠的时刻|(23:30-01:29)|🐀",
   "@compatibility_time_slot1": {
@@ -343,10 +223,6 @@
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_time_slot_unknown": "不知道",
-  "@compatibility_time_slot_unknown": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
-  },
   "compatibility_tips_title": "兼容性提示",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
@@ -379,29 +255,13 @@
   "@dialog_content_ads_exhausted": {
     "description": "Auto-generated metadata for key 'dialog_content_ads_exhausted'."
   },
-  "dialog_content_ads_loading": "广告正在加载。",
-  "@dialog_content_ads_loading": {
-    "description": "Auto-generated metadata for key 'dialog_content_ads_loading'."
-  },
-  "dialog_content_ads_retrying": "广告正在重新加载。请稍后再试。",
-  "@dialog_content_ads_retrying": {
-    "description": "Auto-generated metadata for key 'dialog_content_ads_retrying'."
-  },
   "dialog_content_login_required": "需要登录",
   "@dialog_content_login_required": {
     "description": "Auto-generated metadata for key 'dialog_content_login_required'."
   },
-  "dialog_login_required_description": "使用此功能需要登录。您要登录吗？",
-  "@dialog_login_required_description": {
-    "description": "Auto-generated metadata for key 'dialog_login_required_description'."
-  },
   "dialog_message_can_resignup": "如果现在取消会员资格，何时可以重新加入？",
   "@dialog_message_can_resignup": {
     "description": "Auto-generated metadata for key 'dialog_message_can_resignup'."
-  },
-  "dialog_message_purchase_canceled": "您的购买已被取消。",
-  "@dialog_message_purchase_canceled": {
-    "description": "Auto-generated metadata for key 'dialog_message_purchase_canceled'."
   },
   "dialog_message_purchase_failed": "您的购买出现错误，请稍后再试。",
   "@dialog_message_purchase_failed": {
@@ -415,10 +275,6 @@
   "@dialog_purchses_fail": {
     "description": "Auto-generated metadata for key 'dialog_purchses_fail'."
   },
-  "dialog_purchases_success": "购买完成。",
-  "@dialog_purchases_success": {
-    "description": "Auto-generated metadata for key 'dialog_purchases_success'."
-  },
   "dialog_title_ads_exhausted": "用尽所有广告",
   "@dialog_title_ads_exhausted": {
     "description": "Auto-generated metadata for key 'dialog_title_ads_exhausted'."
@@ -431,133 +287,25 @@
   "@dialog_will_delete_star_candy": {
     "description": "Auto-generated metadata for key 'dialog_will_delete_star_candy'."
   },
-  "dialog_withdraw_button_cancel": "让我再想一想。",
-  "@dialog_withdraw_button_cancel": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_button_cancel'."
-  },
-  "dialog_withdraw_button_ok": "退订",
-  "@dialog_withdraw_button_ok": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
-  },
-  "dialog_withdraw_error": "取消订阅时发生错误。",
-  "@dialog_withdraw_error": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_error'."
-  },
   "dialog_withdraw_message": "如果您取消会员资格，您在 Picnic 上的星星糖果和账户信息将被立即删除，重新加入时将无法恢复您的现有信息和数据。",
   "@dialog_withdraw_message": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_message'."
-  },
-  "dialog_withdraw_success": "退订已成功处理。",
-  "@dialog_withdraw_success": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_success'."
   },
   "dialog_withdraw_title": "你确定要离开吗？",
   "@dialog_withdraw_title": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_title'."
   },
-  "download_android_button": "在 Google Play 上获取",
-  "@download_android_button": {
-    "description": "Auto-generated metadata for key 'download_android_button'."
-  },
-  "download_apk_button": "直接下载APK文件",
-  "@download_apk_button": {
-    "description": "Auto-generated metadata for key 'download_apk_button'."
-  },
-  "download_coming_soon": "即将推出",
-  "@download_coming_soon": {
-    "description": "Auto-generated metadata for key 'download_coming_soon'."
-  },
-  "download_description": "K-Pop艺人投票与媒体平台",
-  "@download_description": {
-    "description": "Auto-generated metadata for key 'download_description'."
-  },
-  "download_feature_media": "媒体库",
-  "@download_feature_media": {
-    "description": "Auto-generated metadata for key 'download_feature_media'."
-  },
-  "download_feature_rewards": "奖励系统",
-  "@download_feature_rewards": {
-    "description": "Auto-generated metadata for key 'download_feature_rewards'."
-  },
-  "download_feature_voting": "艺术家投票",
-  "@download_feature_voting": {
-    "description": "Auto-generated metadata for key 'download_feature_voting'."
-  },
-  "download_features_title": "野餐核心功能",
-  "@download_features_title": {
-    "description": "Auto-generated metadata for key 'download_features_title'."
-  },
-  "download_ios_button": "在 App Store 下载",
-  "@download_ios_button": {
-    "description": "Auto-generated metadata for key 'download_ios_button'."
-  },
-  "download_link_copied": "已复制！",
-  "@download_link_copied": {
-    "description": "Auto-generated metadata for key 'download_link_copied'."
-  },
-  "download_link_copy": "复制链接",
-  "@download_link_copy": {
-    "description": "Auto-generated metadata for key 'download_link_copy'."
-  },
-  "download_page_title": "下载 Picnic 应用程序",
-  "@download_page_title": {
-    "description": "Auto-generated metadata for key 'download_page_title'."
-  },
-  "download_qr_description": "使用智能手机扫描二维码",
-  "@download_qr_description": {
-    "description": "Auto-generated metadata for key 'download_qr_description'."
-  },
-  "download_qr_title": "快速下载二维码",
-  "@download_qr_title": {
-    "description": "Auto-generated metadata for key 'download_qr_title'."
-  },
-  "download_subtitle": "立即下载Picnic应用，支持你最喜欢的K-Pop艺人！",
-  "@download_subtitle": {
-    "description": "Auto-generated metadata for key 'download_subtitle'."
-  },
   "error_action_failed": "执行操作时发生错误。",
   "@error_action_failed": {
     "description": "Auto-generated metadata for key 'error_action_failed'."
-  },
-  "error_application_reason_required": "Application reason is required",
-  "@error_application_reason_required": {
-    "description": "Auto-generated metadata for key 'error_application_reason_required'."
-  },
-  "error_artist_not_selected": "Please select an artist",
-  "@error_artist_not_selected": {
-    "description": "Auto-generated metadata for key 'error_artist_not_selected'."
   },
   "error_content_parse": "解析内容时发生错误。",
   "@error_content_parse": {
     "description": "Auto-generated metadata for key 'error_content_parse'."
   },
-  "error_delete_post": "删除帖子时出现错误。",
-  "@error_delete_post": {
-    "description": "Auto-generated metadata for key 'error_delete_post'."
-  },
   "error_invalid_data": "数据无效。",
   "@error_invalid_data": {
     "description": "Auto-generated metadata for key 'error_invalid_data'."
-  },
-  "error_loading_more_comments": "加载评论时出现错误。",
-  "@error_loading_more_comments": {
-    "description": "Auto-generated metadata for key 'error_loading_more_comments'."
-  },
-  "error_loading_page": "加载页面时出现错误。",
-  "@error_loading_page": {
-    "description": "Auto-generated metadata for key 'error_loading_page'."
-  },
-  "error_message_login_failed": "登录时发生错误。",
-  "@error_message_login_failed": {
-    "description": "Auto-generated metadata for key 'error_message_login_failed'."
-  },
-  "error_message_no_user": "会员信息不存在。",
-  "@error_message_no_user": {
-    "description": "Auto-generated metadata for key 'error_message_no_user'."
-  },
-  "error_message_withdrawal": "已取消订阅的会员。",
-  "@error_message_withdrawal": {
-    "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
   "error_network_connection": "检查网络连接。",
   "@error_network_connection": {
@@ -575,65 +323,9 @@
   "@error_unknown": {
     "description": "Auto-generated metadata for key 'error_unknown'."
   },
-  "exception_auth_message_apple_invalid_response": "我们收到来自 Apple 服务器的无效响应。\n请重试。",
-  "@exception_auth_message_apple_invalid_response": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_apple_invalid_response'."
-  },
-  "exception_auth_message_apple_sign_in_failed": "Apple 登录失败。\n请重试。",
-  "@exception_auth_message_apple_sign_in_failed": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_apple_sign_in_failed'."
-  },
-  "exception_auth_message_common_cancel": "您的登录已被取消。",
-  "@exception_auth_message_common_cancel": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_cancel'."
-  },
-  "exception_auth_message_common_invalid_token": "验证令牌无效。\n请重试。",
-  "@exception_auth_message_common_invalid_token": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_invalid_token'."
-  },
-  "exception_auth_message_common_network": "检查网络连接。",
-  "@exception_auth_message_common_network": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_network'."
-  },
-  "exception_auth_message_common_unknown": "登录过程中出现未知错误。\n请稍后再试。",
-  "@exception_auth_message_common_unknown": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_unknown'."
-  },
-  "exception_auth_message_common_unsupported_provider": "不支持该登录方法。",
-  "@exception_auth_message_common_unsupported_provider": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_unsupported_provider'."
-  },
-  "exception_auth_message_google_google_play_service": "Google Play 服务出现错误。\n请更新 Google Play 服务或重启设备。",
-  "@exception_auth_message_google_google_play_service": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_google_google_play_service'."
-  },
-  "exception_auth_message_kakao_not_supported": "我无法使用 KakaoTalk 应用程序登录。\n请尝试使用您的 Kakao 帐户登录。",
-  "@exception_auth_message_kakao_not_supported": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_kakao_not_supported'."
-  },
-  "faq_category_account": "账户",
-  "@faq_category_account": {
-    "description": "Auto-generated metadata for key 'faq_category_account'."
-  },
   "faq_category_all": "全部",
   "@faq_category_all": {
     "description": "Auto-generated metadata for key 'faq_category_all'."
-  },
-  "faq_category_etc": "其他",
-  "@faq_category_etc": {
-    "description": "Auto-generated metadata for key 'faq_category_etc'."
-  },
-  "faq_category_general": "一般",
-  "@faq_category_general": {
-    "description": "Auto-generated metadata for key 'faq_category_general'."
-  },
-  "faq_category_payment": "支付",
-  "@faq_category_payment": {
-    "description": "Auto-generated metadata for key 'faq_category_payment'."
-  },
-  "faq_category_service": "服务",
-  "@faq_category_service": {
-    "description": "Auto-generated metadata for key 'faq_category_service'."
   },
   "fortune_advice": "建议",
   "@fortune_advice": {
@@ -670,10 +362,6 @@
   "fortune_lucky_days": "一周中的幸运日",
   "@fortune_lucky_days": {
     "description": "Auto-generated metadata for key 'fortune_lucky_days'."
-  },
-  "fortune_lucky_direction": "财富的方向",
-  "@fortune_lucky_direction": {
-    "description": "Auto-generated metadata for key 'fortune_lucky_direction'."
   },
   "fortune_lucky_keyword": "幸运关键词",
   "@fortune_lucky_keyword": {
@@ -739,37 +427,9 @@
   "@fortune_monthly": {
     "description": "Auto-generated metadata for key 'fortune_monthly'."
   },
-  "fortune_purchase_by_one_click": "立即付款",
-  "@fortune_purchase_by_one_click": {
-    "description": "Auto-generated metadata for key 'fortune_purchase_by_one_click'."
-  },
-  "fortune_purchase_by_star_candy": "请向 Star Candy 查询",
-  "@fortune_purchase_by_star_candy": {
-    "description": "Auto-generated metadata for key 'fortune_purchase_by_star_candy'."
-  },
   "fortune_relationship": "人际关系",
   "@fortune_relationship": {
     "description": "Auto-generated metadata for key 'fortune_relationship'."
-  },
-  "fortune_share_hashtag": "#picnic #신년운세 #Fourtuneteller",
-  "@fortune_share_hashtag": {
-    "description": "Auto-generated metadata for key 'fortune_share_hashtag'."
-  },
-  "fortune_share_message": "对 {artistName}的 2025 年财富感到好奇？现在就来 #피크닠！让我们一起探索那闪耀的命运！",
-  "@fortune_share_message": {
-    "placeholders": {
-      "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "fortune_title": "{year}财富",
-  "@fortune_title": {
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
   },
   "fortune_total_title": "综合财富",
   "@fortune_total_title": {
@@ -778,14 +438,6 @@
   "fortune_with_me": "Goong-Hap with me",
   "@fortune_with_me": {
     "description": "Auto-generated metadata for key 'fortune_with_me'."
-  },
-  "group_name_hint": "Enter group name (optional)",
-  "@group_name_hint": {
-    "description": "Auto-generated metadata for key 'group_name_hint'."
-  },
-  "group_name_label": "Group Name",
-  "@group_name_label": {
-    "description": "Auto-generated metadata for key 'group_name_label'."
   },
   "hint_library_add": "专辑名称",
   "@hint_library_add": {
@@ -822,18 +474,6 @@
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
-  "label_ads_load_timeout": "广告加载超时。请重试。",
-  "@label_ads_load_timeout": {
-    "description": "Auto-generated metadata for key 'label_ads_load_timeout'."
-  },
-  "label_ads_next_available_time": "下一则广告何时发布。",
-  "@label_ads_next_available_time": {
-    "description": "Auto-generated metadata for key 'label_ads_next_available_time'."
-  },
-  "label_ads_reward_fail": "获取奖励失败。请重试。",
-  "@label_ads_reward_fail": {
-    "description": "Auto-generated metadata for key 'label_ads_reward_fail'."
-  },
   "label_ads_sdk_init_fail": "SDK 初始化失败。请重试。",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."
@@ -853,18 +493,6 @@
   "label_album_add": "添加新相册",
   "@label_album_add": {
     "description": "Auto-generated metadata for key 'label_album_add'."
-  },
-  "label_area_filter_all": "All",
-  "@label_area_filter_all": {
-    "description": "Auto-generated metadata for key 'label_area_filter_all'."
-  },
-  "label_area_filter_kpop": "K-POP",
-  "@label_area_filter_kpop": {
-    "description": "Auto-generated metadata for key 'label_area_filter_kpop'."
-  },
-  "label_area_filter_musical": "K-MUSICAL",
-  "@label_area_filter_musical": {
-    "description": "Auto-generated metadata for key 'label_area_filter_musical'."
   },
   "label_article_comment_empty": "成为第一个发表评论的人！",
   "@label_article_comment_empty": {
@@ -886,25 +514,9 @@
   "@label_button_close": {
     "description": "Auto-generated metadata for key 'label_button_close'."
   },
-  "label_button_disagreement": "未经同意",
-  "@label_button_disagreement": {
-    "description": "Auto-generated metadata for key 'label_button_disagreement'."
-  },
-  "label_button_mission_and_charge": "使命和职责",
-  "@label_button_mission_and_charge": {
-    "description": "Auto-generated metadata for key 'label_button_mission_and_charge'."
-  },
   "label_button_recharge": "充电",
   "@label_button_recharge": {
     "description": "Auto-generated metadata for key 'label_button_recharge'."
-  },
-  "label_button_save_vote_paper": "保存您的选票",
-  "@label_button_save_vote_paper": {
-    "description": "Auto-generated metadata for key 'label_button_save_vote_paper'."
-  },
-  "label_button_share": "分享",
-  "@label_button_share": {
-    "description": "Auto-generated metadata for key 'label_button_share'."
   },
   "label_button_view_policy": "查看政策",
   "@label_button_view_policy": {
@@ -913,22 +525,6 @@
   "label_button_vote": "投票",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
-  },
-  "label_button_vote_ended": "投票结束",
-  "@label_button_vote_ended": {
-    "description": "Auto-generated metadata for key 'label_button_vote_ended'."
-  },
-  "label_button_vote_upcoming": "即将投票",
-  "@label_button_vote_upcoming": {
-    "description": "Auto-generated metadata for key 'label_button_vote_upcoming'."
-  },
-  "label_button_watch_and_charge": "查看广告并收取费用",
-  "@label_button_watch_and_charge": {
-    "description": "Auto-generated metadata for key 'label_button_watch_and_charge'."
-  },
-  "label_celeb_ask_to_you": "艺术家问你!",
-  "@label_celeb_ask_to_you": {
-    "description": "Auto-generated metadata for key 'label_celeb_ask_to_you'."
   },
   "label_celeb_gallery": "艺术家画廊",
   "@label_celeb_gallery": {
@@ -942,10 +538,6 @@
   "@label_checkbox_entire_use": {
     "description": "Auto-generated metadata for key 'label_checkbox_entire_use'."
   },
-  "label_current_language": "当前语言",
-  "@label_current_language": {
-    "description": "Auto-generated metadata for key 'label_current_language'."
-  },
   "label_draw_image": "赢取随机图片的机会",
   "@label_draw_image": {
     "description": "Auto-generated metadata for key 'label_draw_image'."
@@ -957,18 +549,6 @@
   "label_dropdown_recent": "最新",
   "@label_dropdown_recent": {
     "description": "Auto-generated metadata for key 'label_dropdown_recent'."
-  },
-  "label_find_celeb": "寻找更多艺术家",
-  "@label_find_celeb": {
-    "description": "Auto-generated metadata for key 'label_find_celeb'."
-  },
-  "label_gallery_tab_article": "文章",
-  "@label_gallery_tab_article": {
-    "description": "Auto-generated metadata for key 'label_gallery_tab_article'."
-  },
-  "label_gallery_tab_chat": "聊天",
-  "@label_gallery_tab_chat": {
-    "description": "Auto-generated metadata for key 'label_gallery_tab_chat'."
   },
   "label_global_recommendation": "全球精选",
   "@label_global_recommendation": {
@@ -1006,37 +586,9 @@
   "@label_library_tab_pic": {
     "description": "Auto-generated metadata for key 'label_library_tab_pic'."
   },
-  "label_list_more": "更多信息",
-  "@label_list_more": {
-    "description": "Auto-generated metadata for key 'label_list_more'."
-  },
   "label_loading_ads": "加载广告",
   "@label_loading_ads": {
     "description": "Auto-generated metadata for key 'label_loading_ads'."
-  },
-  "label_loading_ads_fail": "广告无法加载",
-  "@label_loading_ads_fail": {
-    "description": "Auto-generated metadata for key 'label_loading_ads_fail'."
-  },
-  "label_login_with_apple": "使用Apple登录",
-  "@label_login_with_apple": {
-    "description": "Auto-generated metadata for key 'label_login_with_apple'."
-  },
-  "label_login_with_google": "使用Google登录",
-  "@label_login_with_google": {
-    "description": "Auto-generated metadata for key 'label_login_with_google'."
-  },
-  "label_login_with_kakao": "使用Kakao登录",
-  "@label_login_with_kakao": {
-    "description": "Auto-generated metadata for key 'label_login_with_kakao'."
-  },
-  "label_login_with_wechat": "使用微信登录",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
-  "label_mission": "使命",
-  "@label_mission": {
-    "description": "Auto-generated metadata for key 'label_mission'."
   },
   "label_mission_get_star_candy": "从任务中获取星星糖果",
   "@label_mission_get_star_candy": {
@@ -1050,14 +602,6 @@
   "@label_moveto_celeb_gallery": {
     "description": "Auto-generated metadata for key 'label_moveto_celeb_gallery'."
   },
-  "label_mypage_charge_history": "收费 (Admin)",
-  "@label_mypage_charge_history": {
-    "description": "Charge history menu for admin users"
-  },
-  "label_mypage_customer_center": "帮助中心",
-  "@label_mypage_customer_center": {
-    "description": "Auto-generated metadata for key 'label_mypage_customer_center'."
-  },
   "label_mypage_faq": "常见问答（FAQ）",
   "@label_mypage_faq": {
     "description": "Auto-generated metadata for key 'label_mypage_faq'."
@@ -1065,10 +609,6 @@
   "label_mypage_logout": "退出登录",
   "@label_mypage_logout": {
     "description": "Auto-generated metadata for key 'label_mypage_logout'."
-  },
-  "label_mypage_membership_history": "会员历史",
-  "@label_mypage_membership_history": {
-    "description": "Auto-generated metadata for key 'label_mypage_membership_history'."
   },
   "label_mypage_my_artist": "我的艺术家",
   "@label_mypage_my_artist": {
@@ -1110,10 +650,6 @@
   "@label_mypage_withdrawal": {
     "description": "Auto-generated metadata for key 'label_mypage_withdrawal'."
   },
-  "label_no_ads": "无广告",
-  "@label_no_ads": {
-    "description": "Auto-generated metadata for key 'label_no_ads'."
-  },
   "label_no_celeb": "您还没有收藏任何艺术家！",
   "@label_no_celeb": {
     "description": "Auto-generated metadata for key 'label_no_celeb'."
@@ -1122,29 +658,9 @@
   "@label_pic_chart": {
     "description": "Auto-generated metadata for key 'label_pic_chart'."
   },
-  "label_pic_image_cropping": "裁剪图像",
-  "@label_pic_image_cropping": {
-    "description": "Auto-generated metadata for key 'label_pic_image_cropping'."
-  },
-  "label_pic_pic_initializing_camera": "初始化摄像机...",
-  "@label_pic_pic_initializing_camera": {
-    "description": "Auto-generated metadata for key 'label_pic_pic_initializing_camera'."
-  },
   "label_pic_pic_save_gallery": "保存到图库",
   "@label_pic_pic_save_gallery": {
     "description": "Auto-generated metadata for key 'label_pic_pic_save_gallery'."
-  },
-  "label_pic_pic_synthesizing_image": "合成图像...",
-  "@label_pic_pic_synthesizing_image": {
-    "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
-  },
-  "label_popup_close": "关闭",
-  "@label_popup_close": {
-    "description": "Auto-generated metadata for key 'label_popup_close'."
-  },
-  "label_popup_hide_7days": "不查看 7 天",
-  "@label_popup_hide_7days": {
-    "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
   },
   "label_read_more_comment": "更多评论",
   "@label_read_more_comment": {
@@ -1157,22 +673,6 @@
   "label_retry": "重试",
   "@label_retry": {
     "description": "Auto-generated metadata for key 'label_retry'."
-  },
-  "label_reward_location": "位置信息服务",
-  "@label_reward_location": {
-    "description": "Auto-generated metadata for key 'label_reward_location'."
-  },
-  "label_reward_overview": "概述",
-  "@label_reward_overview": {
-    "description": "Auto-generated metadata for key 'label_reward_overview'."
-  },
-  "label_reward_size": "大小",
-  "@label_reward_size": {
-    "description": "Auto-generated metadata for key 'label_reward_size'."
-  },
-  "label_screen_title_agreement": "接受条款",
-  "@label_screen_title_agreement": {
-    "description": "Auto-generated metadata for key 'label_screen_title_agreement'."
   },
   "label_setting_alarm": "通知",
   "@label_setting_alarm": {
@@ -1214,69 +714,21 @@
   "@label_setting_remove_cache": {
     "description": "Auto-generated metadata for key 'label_setting_remove_cache'."
   },
-  "label_setting_remove_cache_complete": "已完成",
-  "@label_setting_remove_cache_complete": {
-    "description": "Auto-generated metadata for key 'label_setting_remove_cache_complete'."
-  },
   "label_setting_storage": "管理存储",
   "@label_setting_storage": {
     "description": "Auto-generated metadata for key 'label_setting_storage'."
-  },
-  "label_setting_update": "更新",
-  "@label_setting_update": {
-    "description": "Auto-generated metadata for key 'label_setting_update'."
   },
   "label_star_candy_pouch": "星形糖果袋",
   "@label_star_candy_pouch": {
     "description": "Auto-generated metadata for key 'label_star_candy_pouch'."
   },
-  "label_tab_buy_star_candy": "购买星星糖",
-  "@label_tab_buy_star_candy": {
-    "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
-  },
-  "label_tab_free_charge_station": "免费充电站",
-  "@label_tab_free_charge_station": {
-    "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
-  },
-  "label_tab_my_artist": "我的艺术家",
-  "@label_tab_my_artist": {
-    "description": "Auto-generated metadata for key 'label_tab_my_artist'."
-  },
-  "label_tab_search_my_artist": "查找我的艺术家",
-  "@label_tab_search_my_artist": {
-    "description": "Auto-generated metadata for key 'label_tab_search_my_artist'."
-  },
-  "label_tabbar_picchart_daily": "每日图表",
-  "@label_tabbar_picchart_daily": {
-    "description": "Auto-generated metadata for key 'label_tabbar_picchart_daily'."
-  },
-  "label_tabbar_picchart_monthly": "月度图表",
-  "@label_tabbar_picchart_monthly": {
-    "description": "Auto-generated metadata for key 'label_tabbar_picchart_monthly'."
-  },
-  "label_tabbar_picchart_weekly": "每周图表",
-  "@label_tabbar_picchart_weekly": {
-    "description": "Auto-generated metadata for key 'label_tabbar_picchart_weekly'."
-  },
   "label_tabbar_vote_active": "进行中",
   "@label_tabbar_vote_active": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_active'."
   },
-  "label_tabbar_vote_all": "全部",
-  "@label_tabbar_vote_all": {
-    "description": "Auto-generated metadata for key 'label_tabbar_vote_all'."
-  },
   "label_tabbar_vote_end": "退出",
   "@label_tabbar_vote_end": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_end'."
-  },
-  "label_tabbar_vote_image": "Image Vote",
-  "@label_tabbar_vote_image": {
-    "description": "Auto-generated metadata for key 'label_tabbar_vote_image'."
-  },
-  "label_tabbar_vote_upcoming": "即将推出",
-  "@label_tabbar_vote_upcoming": {
-    "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
   },
   "label_time_ago_day": "{day} 日前",
   "@label_time_ago_day": {
@@ -1294,21 +746,9 @@
       }
     }
   },
-  "label_time_ago_minute": "{minute} 分钟前",
-  "@label_time_ago_minute": {
-    "placeholders": {
-      "minute": {
-        "type": "int"
-      }
-    }
-  },
   "label_time_ago_right_now": "就在刚才",
   "@label_time_ago_right_now": {
     "description": "Auto-generated metadata for key 'label_time_ago_right_now'."
-  },
-  "label_title_comment": "评论",
-  "@label_title_comment": {
-    "description": "Auto-generated metadata for key 'label_title_comment'."
   },
   "label_title_report": "提交报告",
   "@label_title_report": {
@@ -1318,33 +758,9 @@
   "@label_unlimited_rewards": {
     "description": "Auto-generated metadata for key 'label_unlimited_rewards'."
   },
-  "label_various_rewards": "各种奖励",
-  "@label_various_rewards": {
-    "description": "Auto-generated metadata for key 'label_various_rewards'."
-  },
-  "label_vote_achieve": "成就投票",
-  "@label_vote_achieve": {
-    "description": "Auto-generated metadata for key 'label_vote_achieve'."
-  },
-  "label_vote_birthday": "生日",
-  "@label_vote_birthday": {
-    "description": "Auto-generated metadata for key 'label_vote_birthday'."
-  },
-  "label_vote_comback": "复出投票",
-  "@label_vote_comback": {
-    "description": "Auto-generated metadata for key 'label_vote_comback'."
-  },
-  "label_vote_debut": "首次亮相",
-  "@label_vote_debut": {
-    "description": "Auto-generated metadata for key 'label_vote_debut'."
-  },
   "label_vote_end": "关闭投票",
   "@label_vote_end": {
     "description": "Auto-generated metadata for key 'label_vote_end'."
-  },
-  "label_vote_image": "图片",
-  "@label_vote_image": {
-    "description": "Auto-generated metadata for key 'label_vote_image'."
   },
   "label_vote_reward_list": "奖励清单",
   "@label_vote_reward_list": {
@@ -1354,29 +770,9 @@
   "@label_vote_screen_title": {
     "description": "Auto-generated metadata for key 'label_vote_screen_title'."
   },
-  "label_vote_shining": "获得投票",
-  "@label_vote_shining": {
-    "description": "Auto-generated metadata for key 'label_vote_shining'."
-  },
-  "label_vote_tab_birthday": "生日投票",
-  "@label_vote_tab_birthday": {
-    "description": "Auto-generated metadata for key 'label_vote_tab_birthday'."
-  },
-  "label_vote_tab_pic": "事先知情同意投票",
-  "@label_vote_tab_pic": {
-    "description": "Auto-generated metadata for key 'label_vote_tab_pic'."
-  },
   "label_vote_upcoming": "投票开始前",
   "@label_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_vote_upcoming'."
-  },
-  "label_vote_vote_gather": "收集选票",
-  "@label_vote_vote_gather": {
-    "description": "Auto-generated metadata for key 'label_vote_vote_gather'."
-  },
-  "label_watch_ads": "查看广告",
-  "@label_watch_ads": {
-    "description": "Auto-generated metadata for key 'label_watch_ads'."
   },
   "label_watch_ads_short": "观看",
   "@label_watch_ads_short": {
@@ -1385,22 +781,6 @@
   "lable_my_celeb": "我的艺术家",
   "@lable_my_celeb": {
     "description": "Auto-generated metadata for key 'lable_my_celeb'."
-  },
-  "login_simple_login": "便捷登录",
-  "@login_simple_login": {
-    "description": "Auto-generated metadata for key 'login_simple_login'."
-  },
-  "login_simple_login_guide": "还没有账户？您将使用上面的社交登录名自动注册",
-  "@login_simple_login_guide": {
-    "description": "Auto-generated metadata for key 'login_simple_login_guide'."
-  },
-  "login_title": "在野餐中发现特别时刻",
-  "@login_title": {
-    "description": "Auto-generated metadata for key 'login_title'."
-  },
-  "message_agreement_success": "条款接受完毕。",
-  "@message_agreement_success": {
-    "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
   "message_error_occurred": "出现错误。",
   "@message_error_occurred": {
@@ -1426,26 +806,6 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
-  "message_report_confirm": "要报告吗？",
-  "@message_report_confirm": {
-    "description": "Auto-generated metadata for key 'message_report_confirm'."
-  },
-  "message_report_ok": "报告已完成。",
-  "@message_report_ok": {
-    "description": "Auto-generated metadata for key 'message_report_ok'."
-  },
-  "message_setting_remove_cache": "缓存删除完成。",
-  "@message_setting_remove_cache": {
-    "description": "Auto-generated metadata for key 'message_setting_remove_cache'."
-  },
-  "message_update_nickname_fail": "昵称更改失败。\n请选择其他昵称。",
-  "@message_update_nickname_fail": {
-    "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
-  },
-  "message_update_nickname_success": "您的昵称已成功更改。",
-  "@message_update_nickname_success": {
-    "description": "Auto-generated metadata for key 'message_update_nickname_success'."
-  },
   "message_vote_is_ended": "投票结束",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1458,141 +818,29 @@
   "@my_info": {
     "description": "Auto-generated metadata for key 'my_info'."
   },
-  "mypage_comment": "管理评论",
-  "@mypage_comment": {
-    "description": "Auto-generated metadata for key 'mypage_comment'."
-  },
-  "mypage_language": "语言设置",
-  "@mypage_language": {
-    "description": "Auto-generated metadata for key 'mypage_language'."
-  },
-  "mypage_purchases": "我的采购",
-  "@mypage_purchases": {
-    "description": "Auto-generated metadata for key 'mypage_purchases'."
-  },
   "mypage_setting": "设置",
   "@mypage_setting": {
     "description": "Auto-generated metadata for key 'mypage_setting'."
-  },
-  "mypage_subscription": "订阅信息",
-  "@mypage_subscription": {
-    "description": "Auto-generated metadata for key 'mypage_subscription'."
-  },
-  "nav_ads": "广告",
-  "@nav_ads": {
-    "description": "Auto-generated metadata for key 'nav_ads'."
-  },
-  "nav_board": "执行局",
-  "@nav_board": {
-    "description": "Auto-generated metadata for key 'nav_board'."
-  },
-  "nav_gallery": "画廊",
-  "@nav_gallery": {
-    "description": "Auto-generated metadata for key 'nav_gallery'."
-  },
-  "nav_home": "首页",
-  "@nav_home": {
-    "description": "Auto-generated metadata for key 'nav_home'."
-  },
-  "nav_library": "图书馆",
-  "@nav_library": {
-    "description": "Auto-generated metadata for key 'nav_library'."
   },
   "nav_media": "媒体",
   "@nav_media": {
     "description": "Auto-generated metadata for key 'nav_media'."
   },
-  "nav_my": "我的",
-  "@nav_my": {
-    "description": "Auto-generated metadata for key 'nav_my'."
-  },
-  "nav_picchart": "PIC 图表",
-  "@nav_picchart": {
-    "description": "Auto-generated metadata for key 'nav_picchart'."
-  },
-  "nav_purchases": "购买",
-  "@nav_purchases": {
-    "description": "Auto-generated metadata for key 'nav_purchases'."
-  },
-  "nav_rewards": "奖励",
-  "@nav_rewards": {
-    "description": "Auto-generated metadata for key 'nav_rewards'."
-  },
-  "nav_setting": "设置",
-  "@nav_setting": {
-    "description": "Auto-generated metadata for key 'nav_setting'."
-  },
-  "nav_store": "商店",
-  "@nav_store": {
-    "description": "Auto-generated metadata for key 'nav_store'."
-  },
-  "nav_subscription": "订阅",
-  "@nav_subscription": {
-    "description": "Auto-generated metadata for key 'nav_subscription'."
-  },
-  "nav_vote": "投票",
-  "@nav_vote": {
-    "description": "Auto-generated metadata for key 'nav_vote'."
-  },
   "nickname_validation_error": "20 个字符或更少，不包括特殊字符。",
   "@nickname_validation_error": {
     "description": "Auto-generated metadata for key 'nickname_validation_error'."
-  },
-  "no_search_results": "No search results found",
-  "@no_search_results": {
-    "description": "Auto-generated metadata for key 'no_search_results'."
-  },
-  "optional": "可选",
-  "@optional": {
-    "description": "Auto-generated metadata for key 'optional'."
   },
   "page_title_mypage": "我的页面",
   "@page_title_mypage": {
     "description": "Auto-generated metadata for key 'page_title_mypage'."
   },
-  "page_title_myprofile": "我的简介",
-  "@page_title_myprofile": {
-    "description": "Auto-generated metadata for key 'page_title_myprofile'."
-  },
   "page_title_post_write": "创建一个职位",
   "@page_title_post_write": {
     "description": "Auto-generated metadata for key 'page_title_post_write'."
   },
-  "page_title_privacy": "隐私政策",
-  "@page_title_privacy": {
-    "description": "Auto-generated metadata for key 'page_title_privacy'."
-  },
-  "page_title_setting": "首选项",
-  "@page_title_setting": {
-    "description": "Auto-generated metadata for key 'page_title_setting'."
-  },
-  "page_title_terms_of_use": "使用条款",
-  "@page_title_terms_of_use": {
-    "description": "Auto-generated metadata for key 'page_title_terms_of_use'."
-  },
   "page_title_vote_detail": "投票",
   "@page_title_vote_detail": {
     "description": "Auto-generated metadata for key 'page_title_vote_detail'."
-  },
-  "page_title_vote_gather": "收集选票",
-  "@page_title_vote_gather": {
-    "description": "Auto-generated metadata for key 'page_title_vote_gather'."
-  },
-  "patch_check": "检查补丁",
-  "@patch_check": {
-    "description": "Auto-generated metadata for key 'patch_check'."
-  },
-  "patch_error": "补丁失败",
-  "@patch_error": {
-    "description": "Auto-generated metadata for key 'patch_error'."
-  },
-  "patch_install": "安装补丁",
-  "@patch_install": {
-    "description": "Auto-generated metadata for key 'patch_install'."
-  },
-  "patch_restart_app": "重启应用程序",
-  "@patch_restart_app": {
-    "description": "Auto-generated metadata for key 'patch_restart_app'."
   },
   "popup_label_delete": "删除",
   "@popup_label_delete": {
@@ -1601,10 +849,6 @@
   "post_anonymous": "匿名张贴",
   "@post_anonymous": {
     "description": "Auto-generated metadata for key 'post_anonymous'."
-  },
-  "post_ask_go_to_temporary_save_list": "想进入草稿列表吗？",
-  "@post_ask_go_to_temporary_save_list": {
-    "description": "Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'."
   },
   "post_board_already_exist": "一个已经存在的董事会。",
   "@post_board_already_exist": {
@@ -1618,29 +862,9 @@
   "@post_board_create_request_condition": {
     "description": "Auto-generated metadata for key 'post_board_create_request_condition'."
   },
-  "post_board_create_request_label": "申请开设一个板块",
-  "@post_board_create_request_label": {
-    "description": "Auto-generated metadata for key 'post_board_create_request_label'."
-  },
-  "post_board_create_request_reviewing": "审查开板申请",
-  "@post_board_create_request_reviewing": {
-    "description": "Auto-generated metadata for key 'post_board_create_request_reviewing'."
-  },
   "post_board_request_label": "公开申请",
   "@post_board_request_label": {
     "description": "Auto-generated metadata for key 'post_board_request_label'."
-  },
-  "post_cannot_open_youtube": "我打不开 Youtube。",
-  "@post_cannot_open_youtube": {
-    "description": "Auto-generated metadata for key 'post_cannot_open_youtube'."
-  },
-  "post_comment_action_show_original": "查看全文",
-  "@post_comment_action_show_original": {
-    "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
-  },
-  "post_comment_action_show_translation": "查看翻译",
-  "@post_comment_action_show_translation": {
-    "description": "Auto-generated metadata for key 'post_comment_action_show_translation'."
   },
   "post_comment_action_translate": "翻译",
   "@post_comment_action_translate": {
@@ -1681,10 +905,6 @@
   "post_comment_reported_comment": "这是据报道的评论。",
   "@post_comment_reported_comment": {
     "description": "Auto-generated metadata for key 'post_comment_reported_comment'."
-  },
-  "post_comment_translate_complete": "翻译工作已经完成。",
-  "@post_comment_translate_complete": {
-    "description": "Auto-generated metadata for key 'post_comment_translate_complete'."
   },
   "post_comment_translate_fail": "翻译失败。",
   "@post_comment_translate_fail": {
@@ -1738,25 +958,9 @@
   "@post_insert_link": {
     "description": "Auto-generated metadata for key 'post_insert_link'."
   },
-  "post_loading_post_fail": "帖子加载失败。",
-  "@post_loading_post_fail": {
-    "description": "Auto-generated metadata for key 'post_loading_post_fail'."
-  },
   "post_minor_board_condition": "请输入至少 5 个字符、不超过 20 个字符的描述。",
   "@post_minor_board_condition": {
     "description": "Auto-generated metadata for key 'post_minor_board_condition'."
-  },
-  "post_minor_board_create_request_message": "* 请求开设留言板的信息。",
-  "@post_minor_board_create_request_message": {
-    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
-  },
-  "post_minor_board_create_request_message_condition": "请在申请开设留言板的信息中至少包含 10 个字符。",
-  "@post_minor_board_create_request_message_condition": {
-    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_condition'."
-  },
-  "post_minor_board_create_request_message_input": "输入要求打开留言板的信息。",
-  "@post_minor_board_create_request_message_input": {
-    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_input'."
   },
   "post_minor_board_description": "小公告栏说明",
   "@post_minor_board_description": {
@@ -1797,14 +1001,6 @@
   "post_not_found": "未找到任何帖子。",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."
-  },
-  "post_replying_comment": "回复 {nickname}...",
-  "@post_replying_comment": {
-    "placeholders": {
-      "nickname": {
-        "type": "String"
-      }
-    }
   },
   "post_report_fail": "报告没有通过。",
   "@post_report_fail": {
@@ -1850,21 +1046,9 @@
   "@post_report_success": {
     "description": "Auto-generated metadata for key 'post_report_success'."
   },
-  "post_temporary_save_complete": "草案完成。",
-  "@post_temporary_save_complete": {
-    "description": "Auto-generated metadata for key 'post_temporary_save_complete'."
-  },
   "post_title_placeholder": "请输入标题。",
   "@post_title_placeholder": {
     "description": "Auto-generated metadata for key 'post_title_placeholder'."
-  },
-  "post_write_board_post": "创建一个职位",
-  "@post_write_board_post": {
-    "description": "Auto-generated metadata for key 'post_write_board_post'."
-  },
-  "post_write_post_recommend_write": "请创建一个帖子。",
-  "@post_write_post_recommend_write": {
-    "description": "Auto-generated metadata for key 'post_write_post_recommend_write'."
   },
   "post_youtube_link": "YouTube 链接",
   "@post_youtube_link": {
@@ -1882,37 +1066,9 @@
   "@purchase_confirm_title": {
     "description": "Auto-generated metadata for key 'purchase_confirm_title'."
   },
-  "purchase_cooldown_message": "请稍后重试。",
-  "@purchase_cooldown_message": {
-    "description": "Auto-generated metadata for key 'purchase_cooldown_message'."
-  },
   "previousTransactionPendingError": "您之前的付款仍在由商店处理。请稍后重试。",
   "@previousTransactionPendingError": {
     "description": "Auto-generated metadata for key 'previousTransactionPendingError'."
-  },
-  "error_user_not_authenticated": "需要登录。请重新登录。",
-  "@error_user_not_authenticated": {
-    "description": "Auto-generated metadata for key 'error_user_not_authenticated'."
-  },
-  "error_product_not_found": "我们找不到已购买的产品。",
-  "@error_product_not_found": {
-    "description": "Auto-generated metadata for key 'error_product_not_found'."
-  },
-  "error_receipt_verification_failed": "收据验证失败。",
-  "@error_receipt_verification_failed": {
-    "description": "Auto-generated metadata for key 'error_receipt_verification_failed'."
-  },
-  "error_duplicate_purchase": "此购买已被处理。",
-  "@error_duplicate_purchase": {
-    "description": "Auto-generated metadata for key 'error_duplicate_purchase'."
-  },
-  "error_initializing": "正在初始化。请稍后再试。",
-  "@error_initializing": {
-    "description": "Auto-generated metadata for key 'error_initializing'."
-  },
-  "error_purchase_in_progress": "正在处理购买。请稍候。",
-  "@error_purchase_in_progress": {
-    "description": "Auto-generated metadata for key 'error_purchase_in_progress'."
   },
   "purchase_in_progress_message": "购买正在进行中。请稍等。",
   "@purchase_in_progress_message": {
@@ -1930,221 +1086,17 @@
   "@purchase_payment_amount": {
     "description": "Auto-generated metadata for key 'purchase_payment_amount'."
   },
-  "purchase_restore_success_message": "购买恢复完成。\\n请检查您的星糖余额。",
-  "@purchase_restore_success_message": {
-    "description": "Auto-generated metadata for key 'purchase_restore_success_message'."
-  },
-  "purchase_restore_wait_message": "购买正在进行中。完成后请重试。",
-  "@purchase_restore_wait_message": {
-    "description": "Auto-generated metadata for key 'purchase_restore_wait_message'."
-  },
-  "purchase_timeout_message": "购买处理时间过长。\\n请稍后重试。",
-  "@purchase_timeout_message": {
-    "description": "Auto-generated metadata for key 'purchase_timeout_message'."
-  },
   "purchase_web_message": "这是为无法使用应用程序付款的用户提供的付款窗口。\n 请提前复制随机 ID。\n 复制后，点击下面的按钮进行支付。",
   "@purchase_web_message": {
     "description": "Auto-generated metadata for key 'purchase_web_message'."
-  },
-  "qna_actions": "Actions",
-  "@qna_actions": {
-    "description": "Auto-generated metadata for key 'qna_actions'."
-  },
-  "qna_answer": "Answer",
-  "@qna_answer": {
-    "description": "Auto-generated metadata for key 'qna_answer'."
-  },
-  "qna_answered_at": "Answered at",
-  "@qna_answered_at": {
-    "description": "Auto-generated metadata for key 'qna_answered_at'."
-  },
-  "qna_answered_by": "Answered by",
-  "@qna_answered_by": {
-    "description": "Auto-generated metadata for key 'qna_answered_by'."
-  },
-  "qna_attached_files": "附加文件",
-  "@qna_attached_files": {
-    "description": "Auto-generated metadata for key 'qna_attached_files'."
-  },
-  "qna_attachments": "Attachments",
-  "@qna_attachments": {
-    "description": "Auto-generated metadata for key 'qna_attachments'."
-  },
-  "qna_cancel": "取消",
-  "@qna_cancel": {
-    "description": "Auto-generated metadata for key 'qna_cancel'."
   },
   "qna_content": "Content",
   "@qna_content": {
     "description": "Auto-generated metadata for key 'qna_content'."
   },
-  "qna_content_hint": "请详细输入咨询内容",
-  "@qna_content_hint": {
-    "description": "Auto-generated metadata for key 'qna_content_hint'."
-  },
-  "qna_content_min_length": "咨询内容至少需要10个字符",
-  "@qna_content_min_length": {
-    "description": "Auto-generated metadata for key 'qna_content_min_length'."
-  },
-  "qna_content_required": "请输入咨询内容",
-  "@qna_content_required": {
-    "description": "Auto-generated metadata for key 'qna_content_required'."
-  },
-  "qna_create_failed": "咨询提交失败：",
-  "@qna_create_failed": {
-    "description": "Auto-generated metadata for key 'qna_create_failed'."
-  },
   "qna_create_page_title": "创建咨询",
   "@qna_create_page_title": {
     "description": "Auto-generated metadata for key 'qna_create_page_title'."
-  },
-  "qna_create_success": "咨询已成功提交",
-  "@qna_create_success": {
-    "description": "Auto-generated metadata for key 'qna_create_success'."
-  },
-  "qna_delete": "删除",
-  "@qna_delete": {
-    "description": "Auto-generated metadata for key 'qna_delete'."
-  },
-  "qna_delete_confirm": "删除",
-  "@qna_delete_confirm": {
-    "description": "Auto-generated metadata for key 'qna_delete_confirm'."
-  },
-  "qna_delete_confirm_content": "是否删除此咨询？\n删除后无法恢复。",
-  "@qna_delete_confirm_content": {
-    "description": "Auto-generated metadata for key 'qna_delete_confirm_content'."
-  },
-  "qna_delete_confirm_title": "Delete Inquiry",
-  "@qna_delete_confirm_title": {
-    "description": "Auto-generated metadata for key 'qna_delete_confirm_title'."
-  },
-  "qna_delete_failed": "删除失败",
-  "@qna_delete_failed": {
-    "description": "Auto-generated metadata for key 'qna_delete_failed'."
-  },
-  "qna_delete_success": "咨询已删除",
-  "@qna_delete_success": {
-    "description": "Auto-generated metadata for key 'qna_delete_success'."
-  },
-  "qna_detail_page_title": "咨询详情",
-  "@qna_detail_page_title": {
-    "description": "Auto-generated metadata for key 'qna_detail_page_title'."
-  },
-  "qna_download_file": "Download File",
-  "@qna_download_file": {
-    "description": "Auto-generated metadata for key 'qna_download_file'."
-  },
-  "qna_edit": "编辑",
-  "@qna_edit": {
-    "description": "Auto-generated metadata for key 'qna_edit'."
-  },
-  "qna_file_attach_label": "附加文件",
-  "@qna_file_attach_label": {
-    "description": "Auto-generated metadata for key 'qna_file_attach_label'."
-  },
-  "qna_file_select": "选择文件",
-  "@qna_file_select": {
-    "description": "Auto-generated metadata for key 'qna_file_select'."
-  },
-  "qna_file_type_document": "Document",
-  "@qna_file_type_document": {
-    "description": "Auto-generated metadata for key 'qna_file_type_document'."
-  },
-  "qna_file_type_image": "Image",
-  "@qna_file_type_image": {
-    "description": "Auto-generated metadata for key 'qna_file_type_image'."
-  },
-  "qna_file_type_other": "Other",
-  "@qna_file_type_other": {
-    "description": "Auto-generated metadata for key 'qna_file_type_other'."
-  },
-  "qna_file_upload_info": "• 最大可上传10MB\n• 支持格式：图片（jpg、png、gif）、文档（pdf、doc、txt）",
-  "@qna_file_upload_info": {
-    "description": "Auto-generated metadata for key 'qna_file_upload_info'."
-  },
-  "qna_file_uploading_button": "文件上传中...",
-  "@qna_file_uploading_button": {
-    "description": "Auto-generated metadata for key 'qna_file_uploading_button'."
-  },
-  "qna_loading_error": "Error occurred while loading",
-  "@qna_loading_error": {
-    "description": "Auto-generated metadata for key 'qna_loading_error'."
-  },
-  "qna_login_required": "需要登录",
-  "@qna_login_required": {
-    "description": "Auto-generated metadata for key 'qna_login_required'."
-  },
-  "qna_login_required_create": "创建QnA需要\n先进行登录",
-  "@qna_login_required_create": {
-    "description": "Auto-generated metadata for key 'qna_login_required_create'."
-  },
-  "qna_login_required_detail": "查看QnA详细信息需要\n先进行登录",
-  "@qna_login_required_detail": {
-    "description": "Auto-generated metadata for key 'qna_login_required_detail'."
-  },
-  "qna_login_required_service": "使用QnA服务需要\n先进行登录",
-  "@qna_login_required_service": {
-    "description": "Auto-generated metadata for key 'qna_login_required_service'."
-  },
-  "qna_mark_resolved": "标记为已解决",
-  "@qna_mark_resolved": {
-    "description": "Auto-generated metadata for key 'qna_mark_resolved'."
-  },
-  "qna_mark_resolved_failed": "Failed to change status",
-  "@qna_mark_resolved_failed": {
-    "description": "Auto-generated metadata for key 'qna_mark_resolved_failed'."
-  },
-  "qna_mark_resolved_success": "Changed to resolved",
-  "@qna_mark_resolved_success": {
-    "description": "Auto-generated metadata for key 'qna_mark_resolved_success'."
-  },
-  "qna_no_inquiries_subtitle": "If you have any questions\nfeel free to contact us anytime",
-  "@qna_no_inquiries_subtitle": {
-    "description": "Auto-generated metadata for key 'qna_no_inquiries_subtitle'."
-  },
-  "qna_page_title": "QnA 咨询 (Admin)",
-  "@qna_page_title": {
-    "description": "Auto-generated metadata for key 'qna_page_title'."
-  },
-  "qna_privacy_notice": "为处理咨询，将收集并使用您输入的信息。详情请查看隐私政策。",
-  "@qna_privacy_notice": {
-    "description": "Auto-generated metadata for key 'qna_privacy_notice'."
-  },
-  "qna_question": "Question",
-  "@qna_question": {
-    "description": "Auto-generated metadata for key 'qna_question'."
-  },
-  "qna_refresh_pull": "Pull to refresh",
-  "@qna_refresh_pull": {
-    "description": "Auto-generated metadata for key 'qna_refresh_pull'."
-  },
-  "qna_statistics_answered": "Answered",
-  "@qna_statistics_answered": {
-    "description": "Auto-generated metadata for key 'qna_statistics_answered'."
-  },
-  "qna_statistics_pending": "Awaiting Response",
-  "@qna_statistics_pending": {
-    "description": "Auto-generated metadata for key 'qna_statistics_pending'."
-  },
-  "qna_statistics_resolved": "Resolved",
-  "@qna_statistics_resolved": {
-    "description": "Auto-generated metadata for key 'qna_statistics_resolved'."
-  },
-  "qna_statistics_title": "Inquiry Status",
-  "@qna_statistics_title": {
-    "description": "Auto-generated metadata for key 'qna_statistics_title'."
-  },
-  "qna_status_answered": "已回答",
-  "@qna_status_answered": {
-    "description": "Auto-generated metadata for key 'qna_status_answered'."
-  },
-  "qna_status_pending": "等待回答",
-  "@qna_status_pending": {
-    "description": "Auto-generated metadata for key 'qna_status_pending'."
-  },
-  "qna_status_resolved": "已解决",
-  "@qna_status_resolved": {
-    "description": "Auto-generated metadata for key 'qna_status_resolved'."
   },
   "qna_status_closed": "已关闭",
   "@qna_status_closed": {
@@ -2158,38 +1110,6 @@
   "@qna_title": {
     "description": "Auto-generated metadata for key 'qna_title'."
   },
-  "qna_title_hint": "请简洁地输入咨询概要",
-  "@qna_title_hint": {
-    "description": "Auto-generated metadata for key 'qna_title_hint'."
-  },
-  "qna_title_min_length": "标题至少需要5个字符",
-  "@qna_title_min_length": {
-    "description": "Auto-generated metadata for key 'qna_title_min_length'."
-  },
-  "qna_title_required": "请输入标题",
-  "@qna_title_required": {
-    "description": "Auto-generated metadata for key 'qna_title_required'."
-  },
-  "qna_upload_complete": "上传完成",
-  "@qna_upload_complete": {
-    "description": "Auto-generated metadata for key 'qna_upload_complete'."
-  },
-  "qna_upload_waiting": "等待上传",
-  "@qna_upload_waiting": {
-    "description": "Auto-generated metadata for key 'qna_upload_waiting'."
-  },
-  "qna_uploading": "上传中...",
-  "@qna_uploading": {
-    "description": "Auto-generated metadata for key 'qna_uploading'."
-  },
-  "qna_validation_failed": "请检查输入内容。",
-  "@qna_validation_failed": {
-    "description": "Auto-generated metadata for key 'qna_validation_failed'."
-  },
-  "qna_write_inquiry": "New Inquiry",
-  "@qna_write_inquiry": {
-    "description": "Auto-generated metadata for key 'qna_write_inquiry'."
-  },
   "replies": "评论",
   "@replies": {
     "description": "Auto-generated metadata for key 'replies'."
@@ -2202,10 +1122,6 @@
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
-  "searching": "搜索中...",
-  "@searching": {
-    "description": "Auto-generated metadata for key 'searching'."
-  },
   "seconds": "秒钟",
   "@seconds": {
     "description": "Auto-generated metadata for key 'seconds'."
@@ -2213,70 +1129,6 @@
   "share": "分享",
   "@share": {
     "description": "Auto-generated metadata for key 'share'."
-  },
-  "share_image_fail": "图像共享失败",
-  "@share_image_fail": {
-    "description": "Auto-generated metadata for key 'share_image_fail'."
-  },
-  "share_image_success": "成功共享图像",
-  "@share_image_success": {
-    "description": "Auto-generated metadata for key 'share_image_success'."
-  },
-  "share_no_twitter": "X 应用程序丢失。",
-  "@share_no_twitter": {
-    "description": "Auto-generated metadata for key 'share_no_twitter'."
-  },
-  "share_twitter": "在 Twitter 上分享",
-  "@share_twitter": {
-    "description": "Auto-generated metadata for key 'share_twitter'."
-  },
-  "submit_application": "Submit Application",
-  "@submit_application": {
-    "description": "Auto-generated metadata for key 'submit_application'."
-  },
-  "success": "成功",
-  "@success": {
-    "description": "Auto-generated metadata for key 'success'."
-  },
-  "text_achievement": "到目前为止，您已实现 {count} 目标！🎉",
-  "@text_achievement": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "text_ads_random": "查看广告并收集随机图片。",
-  "@text_ads_random": {
-    "description": "Auto-generated metadata for key 'text_ads_random'."
-  },
-  "text_bonus": "奖金",
-  "@text_bonus": {
-    "description": "Auto-generated metadata for key 'text_bonus'."
-  },
-  "text_bookmark_failed": "取消书签失败",
-  "@text_bookmark_failed": {
-    "description": "Auto-generated metadata for key 'text_bookmark_failed'."
-  },
-  "text_bookmark_over_5": "您最多可以拥有五个书签",
-  "@text_bookmark_over_5": {
-    "description": "Auto-generated metadata for key 'text_bookmark_over_5'."
-  },
-  "text_comming_soon_pic_chart1": "欢迎访问 Peek Charts！\n2024 年 11 月再见！",
-  "@text_comming_soon_pic_chart1": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart1'."
-  },
-  "text_comming_soon_pic_chart2": "饼图是 Peeknick 独有的新图表，可反映每日、每周和每月的分数。\nPeeknick 反映每日、每周和每月得分的新图表。",
-  "@text_comming_soon_pic_chart2": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart2'."
-  },
-  "text_comming_soon_pic_chart3": "实时反映\n艺术家的品牌声誉！",
-  "@text_comming_soon_pic_chart3": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart3'."
-  },
-  "text_comming_soon_pic_chart_title": "什么是饼图？",
-  "@text_comming_soon_pic_chart_title": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart_title'."
   },
   "text_community_board_search": "搜索艺术家板",
   "@text_community_board_search": {
@@ -2289,22 +1141,6 @@
   "text_copied_address": "地址已复制。",
   "@text_copied_address": {
     "description": "Auto-generated metadata for key 'text_copied_address'."
-  },
-  "text_dialog_ad_dismissed": "广告中途停止了。",
-  "@text_dialog_ad_dismissed": {
-    "description": "Auto-generated metadata for key 'text_dialog_ad_dismissed'."
-  },
-  "text_dialog_ad_failed_to_show": "加载广告失败。",
-  "@text_dialog_ad_failed_to_show": {
-    "description": "Auto-generated metadata for key 'text_dialog_ad_failed_to_show'."
-  },
-  "text_dialog_star_candy_received": "已颁发星形糖果。",
-  "@text_dialog_star_candy_received": {
-    "description": "Auto-generated metadata for key 'text_dialog_star_candy_received'."
-  },
-  "text_dialog_vote_amount_should_not_zero": "票数不能为零。",
-  "@text_dialog_vote_amount_should_not_zero": {
-    "description": "Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'."
   },
   "text_draw_image": "确认整个图库中 1 张图片的所有权。",
   "@text_draw_image": {
@@ -2322,10 +1158,6 @@
   "@text_need_recharge": {
     "description": "Auto-generated metadata for key 'text_need_recharge'."
   },
-  "text_no_artist": "无艺术家",
-  "@text_no_artist": {
-    "description": "Auto-generated metadata for key 'text_no_artist'."
-  },
   "text_no_search_result": "没有搜索结果。",
   "@text_no_search_result": {
     "description": "Auto-generated metadata for key 'text_no_search_result'."
@@ -2334,37 +1166,9 @@
   "@text_purchase_vat_included": {
     "description": "Auto-generated metadata for key 'text_purchase_vat_included'."
   },
-  "text_star_candy": "星形糖果",
-  "@text_star_candy": {
-    "description": "Auto-generated metadata for key 'text_star_candy'."
-  },
-  "text_star_candy_with_bonus": "{num1} + {num1} 奖金",
-  "@text_star_candy_with_bonus": {
-    "placeholders": {
-      "num1": {
-        "type": "int"
-      }
-    }
-  },
-  "text_this_time_vote": "本次投票",
-  "@text_this_time_vote": {
-    "description": "Auto-generated metadata for key 'text_this_time_vote'."
-  },
   "text_vote_complete": "投票结束",
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
-  },
-  "text_vote_countdown_end": "距离结束",
-  "@text_vote_countdown_end": {
-    "description": "Auto-generated metadata for key 'text_vote_countdown_end'."
-  },
-  "text_vote_countdown_start": "距离开始",
-  "@text_vote_countdown_start": {
-    "description": "Auto-generated metadata for key 'text_vote_countdown_start'."
-  },
-  "text_vote_ended": "已结束",
-  "@text_vote_ended": {
-    "description": "Auto-generated metadata for key 'text_vote_ended'."
   },
   "text_vote_rank": "排名 {rank}",
   "@text_vote_rank": {
@@ -2378,57 +1182,13 @@
   "@text_vote_rank_in_reward": {
     "description": "Auto-generated metadata for key 'text_vote_rank_in_reward'."
   },
-  "text_vote_reward": "{count} 奖励",
-  "@text_vote_reward": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "text_vote_where_is_my_bias": "我的最爱在哪？",
   "@text_vote_where_is_my_bias": {
     "description": "Auto-generated metadata for key 'text_vote_where_is_my_bias'."
   },
-  "time_days_ago": "天前",
-  "@time_days_ago": {
-    "description": "Auto-generated metadata for key 'time_days_ago'."
-  },
-  "time_hours_ago": "小时前",
-  "@time_hours_ago": {
-    "description": "Auto-generated metadata for key 'time_hours_ago'."
-  },
-  "time_just_now": "刚刚",
-  "@time_just_now": {
-    "description": "Auto-generated metadata for key 'time_just_now'."
-  },
-  "time_minutes_ago": "分钟前",
-  "@time_minutes_ago": {
-    "description": "Auto-generated metadata for key 'time_minutes_ago'."
-  },
-  "time_unit_day": "日",
-  "@time_unit_day": {
-    "description": "Auto-generated metadata for key 'time_unit_day'."
-  },
-  "time_unit_hour": "小时",
-  "@time_unit_hour": {
-    "description": "Auto-generated metadata for key 'time_unit_hour'."
-  },
-  "time_unit_minute": "分",
-  "@time_unit_minute": {
-    "description": "Auto-generated metadata for key 'time_unit_minute'."
-  },
-  "time_unit_second": "秒",
-  "@time_unit_second": {
-    "description": "Auto-generated metadata for key 'time_unit_second'."
-  },
   "title_dialog_library_add": "添加新相册",
   "@title_dialog_library_add": {
     "description": "Auto-generated metadata for key 'title_dialog_library_add'."
-  },
-  "title_dialog_success": "成功",
-  "@title_dialog_success": {
-    "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
   "title_select_language": "选择语言",
   "@title_select_language": {
@@ -2446,22 +1206,6 @@
   "@update_cannot_open_appstore": {
     "description": "Auto-generated metadata for key 'update_cannot_open_appstore'."
   },
-  "update_recommend_text": "新版本 ({version}) 已发布。",
-  "@update_recommend_text": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "update_required_text": "您需要更新到新版本 ({version})。",
-  "@update_required_text": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "update_required_title": "需要更新。",
   "@update_required_title": {
     "description": "Auto-generated metadata for key 'update_required_title'."
@@ -2470,61 +1214,13 @@
   "@views": {
     "description": "Auto-generated metadata for key 'views'."
   },
-  "vote_item_request_addition_request": "投票项添加请求",
-  "@vote_item_request_addition_request": {
-    "description": "Auto-generated metadata for key 'vote_item_request_addition_request'."
-  },
-  "vote_item_request_already_applied_artist": "您已为该艺术家提交过申请。",
-  "@vote_item_request_already_applied_artist": {
-    "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
-  },
-  "vote_item_request_already_registered": "已经注册",
-  "@vote_item_request_already_registered": {
-    "description": "Auto-generated metadata for key 'vote_item_request_already_registered'."
-  },
-  "vote_item_request_artist_name_missing": "艺术家名称缺失",
-  "@vote_item_request_artist_name_missing": {
-    "description": "Auto-generated metadata for key 'vote_item_request_artist_name_missing'."
-  },
-  "vote_item_request_button": "申请投票候选人",
-  "@vote_item_request_button": {
-    "description": "Auto-generated metadata for key 'vote_item_request_button'."
-  },
   "vote_item_request_can_apply": "可申请",
   "@vote_item_request_can_apply": {
     "description": "Auto-generated metadata for key 'vote_item_request_can_apply'."
   },
-  "vote_item_request_count": "申请数量",
-  "@vote_item_request_count": {
-    "description": "Auto-generated metadata for key 'vote_item_request_count'."
-  },
-  "vote_item_request_current_item_request": "当前项目请求",
-  "@vote_item_request_current_item_request": {
-    "description": "Auto-generated metadata for key 'vote_item_request_current_item_request'."
-  },
-  "vote_item_request_item_request_count": "{count} 项目请求",
-  "@vote_item_request_item_request_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "vote_item_request_no_item_request_yet": "尚未收到任何项目请求",
-  "@vote_item_request_no_item_request_yet": {
-    "description": "Auto-generated metadata for key 'vote_item_request_no_item_request_yet'."
-  },
   "vote_item_request_search_artist": "搜索艺术家",
   "@vote_item_request_search_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_search_artist'."
-  },
-  "vote_item_request_search_artist_hint": "搜索艺术家或乐队",
-  "@vote_item_request_search_artist_hint": {
-    "description": "Auto-generated metadata for key 'vote_item_request_search_artist_hint'."
-  },
-  "vote_item_request_search_artist_prompt": "搜索要申请的艺术家",
-  "@vote_item_request_search_artist_prompt": {
-    "description": "Auto-generated metadata for key 'vote_item_request_search_artist_prompt'."
   },
   "vote_item_request_status": "申请状态",
   "@vote_item_request_status": {
@@ -2534,14 +1230,6 @@
   "@vote_item_request_status_approved": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_approved'."
   },
-  "vote_item_request_status_cancelled": "已取消",
-  "@vote_item_request_status_cancelled": {
-    "description": "Auto-generated metadata for key 'vote_item_request_status_cancelled'."
-  },
-  "vote_item_request_status_in_progress": "正在处理中",
-  "@vote_item_request_status_in_progress": {
-    "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
-  },
   "vote_item_request_status_pending": "待处理",
   "@vote_item_request_status_pending": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_pending'."
@@ -2549,10 +1237,6 @@
   "vote_item_request_status_rejected": "已拒绝",
   "@vote_item_request_status_rejected": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_rejected'."
-  },
-  "vote_item_request_status_unknown": "未知",
-  "@vote_item_request_status_unknown": {
-    "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
   },
   "vote_item_request_submit": "提交",
   "@vote_item_request_submit": {
@@ -2562,49 +1246,13 @@
   "@vote_item_request_title": {
     "description": "Auto-generated metadata for key 'vote_item_request_title'."
   },
-  "vote_item_request_total_item_requests": "总 {count} 项请求",
-  "@vote_item_request_total_item_requests": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "vote_item_request_user_info_not_found": "用户信息未找到。",
-  "@vote_item_request_user_info_not_found": {
-    "description": "Auto-generated metadata for key 'vote_item_request_user_info_not_found'."
-  },
-  "vote_period": "Vote Period",
-  "@vote_period": {
-    "description": "Auto-generated metadata for key 'vote_period'."
-  },
-  "vote_result_save_button": "保存结果",
-  "@vote_result_save_button": {
-    "description": "Auto-generated metadata for key 'vote_result_save_button'."
-  },
-  "vote_result_share_button": "分享您的成果",
-  "@vote_result_share_button": {
-    "description": "Auto-generated metadata for key 'vote_result_share_button'."
-  },
   "vote_share_message": "投了赞成票！",
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
-  "voting_limit_text": "为防止流量激增，每次使用总量限制为 10,000 次。",
-  "@voting_limit_text": {
-    "description": "Auto-generated metadata for key 'voting_limit_text'."
-  },
-  "voting_limit_warning": "最多只允许 10 000 人。",
-  "@voting_limit_warning": {
-    "description": "Auto-generated metadata for key 'voting_limit_warning'."
-  },
   "voting_share_benefit_text": "每 100 次投票和分享可获得 1 颗奖励星星糖果！",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
-  },
-  "withdrawal_success": "退订已成功处理。",
-  "@withdrawal_success": {
-    "description": "Auto-generated metadata for key 'withdrawal_success'."
   },
   "title_dialog_error": "错误",
   "@title_dialog_error": {
@@ -2613,10 +1261,6 @@
   "capture_failed": "截图失败",
   "@capture_failed": {
     "description": "Auto-generated metadata for key 'capture_failed'."
-  },
-  "qna_submit_error": "提交咨询失败，请重试。",
-  "@qna_submit_error": {
-    "description": "Auto-generated metadata for key 'qna_submit_error'."
   },
   "qna_list_title": "咨询列表",
   "@qna_list_title": {
@@ -2645,14 +1289,6 @@
   "qna_form_content_empty": "请输入您的查询内容。",
   "@qna_form_content_empty": {
     "description": "Auto-generated metadata for key 'qna_form_content_empty'."
-  },
-  "qna_attach_image": "附上图片",
-  "@qna_attach_image": {
-    "description": "Auto-generated metadata for key 'qna_attach_image'."
-  },
-  "qna_attach_file": "附上文件",
-  "@qna_attach_file": {
-    "description": "Auto-generated metadata for key 'qna_attach_file'."
   },
   "qna_submit_fail": "提交查询失败",
   "@qna_submit_fail": {
@@ -2698,65 +1334,13 @@
   "@retry": {
     "description": "Auto-generated metadata for key 'retry'."
   },
-  "voteTypeJma": "JMA",
-  "@voteTypeJma": {
-    "description": "Auto-generated metadata for key 'voteTypeJma'."
-  },
   "label_my_vote_history": "我的投票历史",
   "@label_my_vote_history": {
     "description": "Auto-generated metadata for key 'label_my_vote_history'."
   },
-  "voteTypePicnic": "Picnic",
-  "@voteTypePicnic": {
-    "description": "Auto-generated metadata for key 'voteTypePicnic'."
-  },
-  "jmaVoteTicket": "JMA Vote Ticket",
-  "@jmaVoteTicket": {
-    "description": "Auto-generated metadata for key 'jmaVoteTicket'."
-  },
-  "paid": "Paid",
-  "@paid": {
-    "description": "Auto-generated metadata for key 'paid'."
-  },
-  "bonus": "Bonus",
-  "@bonus": {
-    "description": "Auto-generated metadata for key 'bonus'."
-  },
-  "qna_answer_title": "Answer",
-  "@qna_answer_title": {
-    "description": "Auto-generated metadata for key 'qna_answer_title'."
-  },
-  "qna_created_at": "Created at",
-  "@qna_created_at": {
-    "description": "Auto-generated metadata for key 'qna_created_at'."
-  },
-  "qna_info_title": "Inquiry Info",
-  "@qna_info_title": {
-    "description": "Auto-generated metadata for key 'qna_info_title'."
-  },
-  "qna_empty_message": "No inquiries",
-  "@qna_empty_message": {
-    "description": "Auto-generated metadata for key 'qna_empty_message'."
-  },
-  "search_artist_hint": "Search for artist or group",
-  "@search_artist_hint": {
-    "description": "Auto-generated metadata for key 'search_artist_hint'."
-  },
-  "dialog_purchases_fail": "The purchase failed.",
-  "@dialog_purchases_fail": {
-    "description": "Auto-generated metadata for key 'dialog_purchases_fail'."
-  },
   "qna_status_open": "Open",
   "@qna_status_open": {
     "description": "Auto-generated metadata for key 'qna_status_open'."
-  },
-  "qna_status_in_progress": "In Progress",
-  "@qna_status_in_progress": {
-    "description": "Auto-generated metadata for key 'qna_status_in_progress'."
-  },
-  "text_jma_vote_ticket": "JMA Vote Ticket",
-  "@text_jma_vote_ticket": {
-    "description": "Auto-generated metadata for key 'text_jma_vote_ticket'."
   },
   "cancel": "Cancel",
   "@cancel": {
@@ -2769,10 +1353,6 @@
   "loading": "Loading...",
   "@loading": {
     "description": "Auto-generated metadata for key 'loading'."
-  },
-  "just_now": "Just now",
-  "@just_now": {
-    "description": "Auto-generated metadata for key 'just_now'."
   },
   "update": "Update",
   "@update": {
@@ -2809,10 +1389,6 @@
   "notice_pinned": "Pinned",
   "@notice_pinned": {
     "description": "Auto-generated metadata for key 'notice_pinned'."
-  },
-  "message_agreement_fail": "Terms agreement required",
-  "@message_agreement_fail": {
-    "description": "Auto-generated metadata for key 'message_agreement_fail'."
   },
   "vote_item_request_waiting": "Waiting",
   "@vote_item_request_waiting": {
@@ -2894,37 +1470,6 @@
   "@vote_item_request_no_search_results": {
     "description": "Auto-generated metadata for key 'vote_item_request_no_search_results'."
   },
-  "jma_voting_star_candy_shortage": "You need {shortage} more star candies.",
-  "@jma_voting_star_candy_shortage": {
-    "placeholders": {
-      "shortage": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_max_votes_exceeded": "The current maximum possible votes is {maxVotes}.",
-  "@jma_voting_max_votes_exceeded": {
-    "placeholders": {
-      "maxVotes": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_daily_limit_remaining": "Today's remaining bonus votes: {remaining} times (max {max} times)",
-  "@jma_voting_daily_limit_remaining": {
-    "placeholders": {
-      "remaining": {
-        "type": "int"
-      },
-      "max": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_daily_limit_exhausted": "You have used all bonus votes for today.",
-  "@jma_voting_daily_limit_exhausted": {
-    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
-  },
   "jma_voting_my_star_candy": "My Star Candy",
   "@jma_voting_my_star_candy": {
     "description": "Auto-generated metadata for key 'jma_voting_my_star_candy'."
@@ -2937,57 +1482,9 @@
   "@jma_voting_use_all": {
     "description": "Auto-generated metadata for key 'jma_voting_use_all'."
   },
-  "jma_voting_max_usable": "Maximum {amount} available",
-  "@jma_voting_max_usable": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_bonus_only": "Use {amount} bonus Star Candy → {votes} votes",
-  "@jma_voting_bonus_only": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      },
-      "votes": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_bonus_plus_regular": "Bonus {bonus} + Star Candy {regular} → {votes} votes",
-  "@jma_voting_bonus_plus_regular": {
-    "placeholders": {
-      "bonus": {
-        "type": "int"
-      },
-      "regular": {
-        "type": "int"
-      },
-      "votes": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_regular_only": "Star Candy {amount} → {votes} votes",
-  "@jma_voting_regular_only": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      },
-      "votes": {
-        "type": "int"
-      }
-    }
-  },
   "jma_voting_input_amount": "Please enter the amount of Star Candy.",
   "@jma_voting_input_amount": {
     "description": "Auto-generated metadata for key 'jma_voting_input_amount'."
-  },
-  "jma_voting_info_text": "-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.",
-  "@jma_voting_info_text": {
-    "description": "Auto-generated metadata for key 'jma_voting_info_text'."
   },
   "jma_voting_daily_limit_error": "You can vote up to 5 times per day.",
   "@jma_voting_daily_limit_error": {
@@ -3020,125 +1517,13 @@
       }
     }
   },
-  "error_verification_timeout": "Purchase processing timed out. Please check your network connection and try again.",
-  "@error_verification_timeout": {
-    "description": "Auto-generated metadata for key 'error_verification_timeout'."
-  },
-  "error_authentication_timeout": "Touch ID/Face ID authentication timed out. Please try again.",
-  "@error_authentication_timeout": {
-    "description": "Auto-generated metadata for key 'error_authentication_timeout'."
-  },
-  "search_input_text_hint": "Search",
-  "@search_input_text_hint": {
-    "description": "Auto-generated metadata for key 'search_input_text_hint'."
-  },
   "qna_submit_success": "Your inquiry has been successfully submitted",
   "@qna_submit_success": {
     "description": "Auto-generated metadata for key 'qna_submit_success'."
   },
-  "qna_title_too_short": "Please enter at least 2 characters for the title",
-  "@qna_title_too_short": {
-    "description": "Auto-generated metadata for key 'qna_title_too_short'."
-  },
-  "qna_content_too_short": "Please enter at least 10 characters for the content",
-  "@qna_content_too_short": {
-    "description": "Auto-generated metadata for key 'qna_content_too_short'."
-  },
-  "submit": "Submit",
-  "@submit": {
-    "description": "Auto-generated metadata for key 'submit'."
-  },
-  "next": "Next",
-  "@next": {
-    "description": "Auto-generated metadata for key 'next'."
-  },
-  "bonus_candy_expiration_policy_title": "Bonus Star Candy Expiration Policy",
-  "@bonus_candy_expiration_policy_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_title'."
-  },
-  "expiring_soon_bonus_candy": "Expiring Bonus Star Candy",
-  "@expiring_soon_bonus_candy": {
-    "description": "Auto-generated metadata for key 'expiring_soon_bonus_candy'."
-  },
   "expiring_bonus_candy_guide": "Expiring Bonus Guide",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
-  },
-  "bonus_candy_expiration_policy_load_fail": "Failed to load expiring bonus information.",
-  "@bonus_candy_expiration_policy_load_fail": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
-  },
-  "bonus_candy_expiration_time_title": "Expiration Time",
-  "@bonus_candy_expiration_time_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_time_title'."
-  },
-  "bonus_candy_policy_title": "Bonus Star Candy Policy",
-  "@bonus_candy_policy_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
-  },
-  "bonus_candy_policy_1": "- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.",
-  "@bonus_candy_policy_1": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
-  },
-  "bonus_candy_policy_2": "- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.",
-  "@bonus_candy_policy_2": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
-  },
-  "bonus_candy_policy_3": "- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.",
-  "@bonus_candy_policy_3": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
-  },
-  "bonus_candy_expiration_policy_earn_period": "Earn Period",
-  "@bonus_candy_expiration_policy_earn_period": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
-  },
-  "bonus_candy_expiration_policy_expiration_date": "Expiration Date",
-  "@bonus_candy_expiration_policy_expiration_date": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
-  },
-  "bonus_candy_earn_period_1_to_15": "1st 00:00:00 ~ 15th 23:59:59",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
-  },
-  "bonus_candy_earn_period_16_to_end": "16th 00:00:00 ~ end of month 23:59:59",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
-  },
-  "bonus_candy_expiration_next_month": "Next month 15th 00:00:00",
-  "@bonus_candy_expiration_next_month": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_next_month'."
-  },
-  "bonus_candy_expiration_month_after_next": "Month after next 15th 00:00:00",
-  "@bonus_candy_expiration_month_after_next": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'."
-  },
-  "bonus_candy_example_title": "Example",
-  "@bonus_candy_example_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_title'."
-  },
-  "bonus_candy_example_earn_date": "Earn Date",
-  "@bonus_candy_example_earn_date": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
-  },
-  "bonus_candy_example_expiration_date": "Expiration Date",
-  "@bonus_candy_example_expiration_date": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
-  },
-  "bonus_candy_example_1_earn": "__MONTH__ 10th 14:00(KST)",
-  "@bonus_candy_example_1_earn": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
-  },
-  "bonus_candy_example_1_expire": "__NEXT_MONTH__ 15th 00:00(KST)",
-  "@bonus_candy_example_1_expire": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
-  },
-  "bonus_candy_example_2_earn": "__MONTH__ 20th 14:00(KST)",
-  "@bonus_candy_example_2_earn": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
-  },
-  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)",
-  "@bonus_candy_example_2_expire": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
   },
   "qna_form_title_hint": "Please enter a title of at least 5 characters.",
   "@qna_form_title_hint": {
@@ -3148,5 +1533,396 @@
   "@qna_form_content_hint": {
     "description": "Auto-generated metadata for key 'qna_form_content_hint'."
   },
-  "@@locale": "zh"
+  "@@locale": "zh",
+  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)",
+  "@bonus_candy_example_2_expire": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
+  },
+  "bonus_candy_example_earn_date": "Earn Date",
+  "@bonus_candy_example_earn_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
+  },
+  "vote_item_request_status_unknown": "未知",
+  "@vote_item_request_status_unknown": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
+  },
+  "bonus_candy_expiration_policy_load_fail": "Failed to load expiring bonus information.",
+  "@bonus_candy_expiration_policy_load_fail": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
+  },
+  "bonus_candy_example_1_expire": "__NEXT_MONTH__ 15th 00:00(KST)",
+  "@bonus_candy_example_1_expire": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
+  },
+  "vote_item_request_status_in_progress": "正在处理中",
+  "@vote_item_request_status_in_progress": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
+  },
+  "bonus_candy_policy_2": "- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.",
+  "@bonus_candy_policy_2": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
+  },
+  "compatibility_purchase_message": "如果我想知道我和 {artistName}之间的 Goong-hap 分数？",
+  "@compatibility_purchase_message": {
+    "placeholders": {
+      "artistName": {
+        "type": "String"
+      }
+    }
+  },
+  "label_mypage_charge_history": "收费 (Admin)",
+  "@label_mypage_charge_history": {
+    "description": "Charge history menu for admin users"
+  },
+  "compatibility_time_slot_unknown": "不知道",
+  "@compatibility_time_slot_unknown": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
+  },
+  "label_popup_hide_7days": "不查看 7 天",
+  "@label_popup_hide_7days": {
+    "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
+  },
+  "expiring_soon_bonus_candy": "Expiring Bonus Star Candy",
+  "@expiring_soon_bonus_candy": {
+    "description": "Auto-generated metadata for key 'expiring_soon_bonus_candy'."
+  },
+  "bonus_candy_expiration_policy_earn_period": "Earn Period",
+  "@bonus_candy_expiration_policy_earn_period": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
+  },
+  "message_setting_remove_cache": "缓存删除完成。",
+  "@message_setting_remove_cache": {
+    "description": "Auto-generated metadata for key 'message_setting_remove_cache'."
+  },
+  "error_loading_more_comments": "加载评论时出现错误。",
+  "@error_loading_more_comments": {
+    "description": "Auto-generated metadata for key 'error_loading_more_comments'."
+  },
+  "purchase_timeout_message": "购买处理时间过长。\\n请稍后重试。",
+  "@purchase_timeout_message": {
+    "description": "Auto-generated metadata for key 'purchase_timeout_message'."
+  },
+  "label_tabbar_vote_upcoming": "即将推出",
+  "@label_tabbar_vote_upcoming": {
+    "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
+  },
+  "bonus_candy_example_1_earn": "__MONTH__ 10th 14:00(KST)",
+  "@bonus_candy_example_1_earn": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
+  },
+  "error_receipt_verification_failed": "收据验证失败。",
+  "@error_receipt_verification_failed": {
+    "description": "Auto-generated metadata for key 'error_receipt_verification_failed'."
+  },
+  "vote_item_request_status_cancelled": "已取消",
+  "@vote_item_request_status_cancelled": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_cancelled'."
+  },
+  "post_write_board_post": "创建一个职位",
+  "@post_write_board_post": {
+    "description": "Auto-generated metadata for key 'post_write_board_post'."
+  },
+  "bonus_candy_policy_3": "- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.",
+  "@bonus_candy_policy_3": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
+  },
+  "message_update_nickname_fail": "昵称更改失败。\n请选择其他昵称。",
+  "@message_update_nickname_fail": {
+    "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
+  },
+  "bonus_candy_expiration_time_title": "Expiration Time",
+  "@bonus_candy_expiration_time_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_time_title'."
+  },
+  "post_comment_action_show_translation": "查看翻译",
+  "@post_comment_action_show_translation": {
+    "description": "Auto-generated metadata for key 'post_comment_action_show_translation'."
+  },
+  "fortune_lucky_direction": "财富的方向",
+  "@fortune_lucky_direction": {
+    "description": "Auto-generated metadata for key 'fortune_lucky_direction'."
+  },
+  "error_message_login_failed": "登录时发生错误。",
+  "@error_message_login_failed": {
+    "description": "Auto-generated metadata for key 'error_message_login_failed'."
+  },
+  "dialog_withdraw_button_ok": "退订",
+  "@dialog_withdraw_button_ok": {
+    "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
+  },
+  "compatibility_birthtime_subtitle": "提高准确性！",
+  "@compatibility_birthtime_subtitle": {
+    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
+  },
+  "title_dialog_success": "成功",
+  "@title_dialog_success": {
+    "description": "Auto-generated metadata for key 'title_dialog_success'."
+  },
+  "bonus_candy_policy_title": "Bonus Star Candy Policy",
+  "@bonus_candy_policy_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
+  },
+  "bonus_candy_example_expiration_date": "Expiration Date",
+  "@bonus_candy_example_expiration_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
+  },
+  "label_tab_free_charge_station": "免费充电站",
+  "@label_tab_free_charge_station": {
+    "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
+  },
+  "error_user_not_authenticated": "需要登录。请重新登录。",
+  "@error_user_not_authenticated": {
+    "description": "Auto-generated metadata for key 'error_user_not_authenticated'."
+  },
+  "text_dialog_vote_amount_should_not_zero": "票数不能为零。",
+  "@text_dialog_vote_amount_should_not_zero": {
+    "description": "Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'."
+  },
+  "message_agreement_success": "条款接受完毕。",
+  "@message_agreement_success": {
+    "description": "Auto-generated metadata for key 'message_agreement_success'."
+  },
+  "bonus_candy_earn_period_1_to_15": "1st 00:00:00 ~ 15th 23:59:59",
+  "@bonus_candy_earn_period_1_to_15": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  },
+  "compatibility_snackbar_need_birthday": "请输入您的出生日期。",
+  "@compatibility_snackbar_need_birthday": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
+  },
+  "update_recommend_text": "新版本 ({version}) 已发布。",
+  "@update_recommend_text": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "error_product_not_found": "我们找不到已购买的产品。",
+  "@error_product_not_found": {
+    "description": "Auto-generated metadata for key 'error_product_not_found'."
+  },
+  "label_popup_close": "关闭",
+  "@label_popup_close": {
+    "description": "Auto-generated metadata for key 'label_popup_close'."
+  },
+  "jma_voting_info_text": "-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.",
+  "@jma_voting_info_text": {
+    "description": "Auto-generated metadata for key 'jma_voting_info_text'."
+  },
+  "vote_item_request_search_artist_hint": "搜索艺术家或乐队",
+  "@vote_item_request_search_artist_hint": {
+    "description": "Auto-generated metadata for key 'vote_item_request_search_artist_hint'."
+  },
+  "bonus_candy_expiration_month_after_next": "Month after next 15th 00:00:00",
+  "@bonus_candy_expiration_month_after_next": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'."
+  },
+  "post_comment_action_show_original": "查看全文",
+  "@post_comment_action_show_original": {
+    "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
+  },
+  "compatibility_snackbar_need_profile_save_agree": "同意保存您的个人资料。",
+  "@compatibility_snackbar_need_profile_save_agree": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
+  },
+  "qna_content_min_length": "咨询内容至少需要10个字符",
+  "@qna_content_min_length": {
+    "description": "Auto-generated metadata for key 'qna_content_min_length'."
+  },
+  "post_ask_go_to_temporary_save_list": "想进入草稿列表吗？",
+  "@post_ask_go_to_temporary_save_list": {
+    "description": "Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'."
+  },
+  "label_pic_pic_synthesizing_image": "合成图像...",
+  "@label_pic_pic_synthesizing_image": {
+    "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
+  },
+  "label_tab_buy_star_candy": "购买星星糖",
+  "@label_tab_buy_star_candy": {
+    "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
+  },
+  "jma_voting_max_votes_exceeded": "The current maximum possible votes is {maxVotes}.",
+  "@jma_voting_max_votes_exceeded": {
+    "placeholders": {
+      "maxVotes": {
+        "type": "int"
+      }
+    }
+  },
+  "jma_voting_daily_limit_remaining": "Today's remaining bonus votes: {remaining} times (max {max} times)",
+  "@jma_voting_daily_limit_remaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "post_temporary_save_complete": "草案完成。",
+  "@post_temporary_save_complete": {
+    "description": "Auto-generated metadata for key 'post_temporary_save_complete'."
+  },
+  "bonus_candy_example_title": "Example",
+  "@bonus_candy_example_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_title'."
+  },
+  "label_pic_pic_initializing_camera": "初始化摄像机...",
+  "@label_pic_pic_initializing_camera": {
+    "description": "Auto-generated metadata for key 'label_pic_pic_initializing_camera'."
+  },
+  "post_write_post_recommend_write": "请创建一个帖子。",
+  "@post_write_post_recommend_write": {
+    "description": "Auto-generated metadata for key 'post_write_post_recommend_write'."
+  },
+  "jma_voting_daily_limit_exhausted": "You have used all bonus votes for today.",
+  "@jma_voting_daily_limit_exhausted": {
+    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
+  },
+  "bonus_candy_policy_1": "- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.",
+  "@bonus_candy_policy_1": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
+  },
+  "compatibility_perfect_score_exists_title": "已获胜比赛数据",
+  "@compatibility_perfect_score_exists_title": {
+    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
+  },
+  "compatibility_duplicate_data_message": "相同条件下的兼容性数据已经存在。",
+  "@compatibility_duplicate_data_message": {
+    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
+  },
+  "label_time_ago_minute": "{minute} 分钟前",
+  "@label_time_ago_minute": {
+    "placeholders": {
+      "minute": {
+        "type": "int"
+      }
+    }
+  },
+  "update_required_text": "您需要更新到新版本 ({version})。",
+  "@update_required_text": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "jma_voting_star_candy_shortage": "You need {shortage} more star candies.",
+  "@jma_voting_star_candy_shortage": {
+    "placeholders": {
+      "shortage": {
+        "type": "int"
+      }
+    }
+  },
+  "bonus_candy_earn_period_16_to_end": "16th 00:00:00 ~ end of month 23:59:59",
+  "@bonus_candy_earn_period_16_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  },
+  "error_message_withdrawal": "已取消订阅的会员。",
+  "@error_message_withdrawal": {
+    "description": "Auto-generated metadata for key 'error_message_withdrawal'."
+  },
+  "text_achievement": "到目前为止，您已实现 {count} 目标！🎉",
+  "@text_achievement": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "label_login_with_wechat": "使用微信登录",
+  "@label_login_with_wechat": {
+    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
+  },
+  "withdrawal_success": "退订已成功处理。",
+  "@withdrawal_success": {
+    "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "vote_item_request_already_applied_artist": "您已为该艺术家提交过申请。",
+  "@vote_item_request_already_applied_artist": {
+    "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
+  },
+  "bonus_candy_expiration_policy_expiration_date": "Expiration Date",
+  "@bonus_candy_expiration_policy_expiration_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
+  },
+  "bonus_candy_example_2_earn": "__MONTH__ 20th 14:00(KST)",
+  "@bonus_candy_example_2_earn": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
+  },
+  "message_agreement_fail": "Terms agreement required",
+  "@message_agreement_fail": {
+    "description": "Auto-generated metadata for key 'message_agreement_fail'."
+  },
+  "vote_item_request_button": "申请投票候选人",
+  "@vote_item_request_button": {
+    "description": "Auto-generated metadata for key 'vote_item_request_button'."
+  },
+  "bonus_candy_expiration_next_month": "Next month 15th 00:00:00",
+  "@bonus_candy_expiration_next_month": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_next_month'."
+  },
+  "error_delete_post": "删除帖子时出现错误。",
+  "@error_delete_post": {
+    "description": "Auto-generated metadata for key 'error_delete_post'."
+  },
+  "qna_title_min_length": "标题至少需要5个字符",
+  "@qna_title_min_length": {
+    "description": "Auto-generated metadata for key 'qna_title_min_length'."
+  },
+  "message_update_nickname_success": "您的昵称已成功更改。",
+  "@message_update_nickname_success": {
+    "description": "Auto-generated metadata for key 'message_update_nickname_success'."
+  },
+  "compatibility_new_compatibility_ask": "想看看新的配对吗？",
+  "@compatibility_new_compatibility_ask": {
+    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
+  },
+  "post_replying_comment": "回复 {nickname}...",
+  "@post_replying_comment": {
+    "placeholders": {
+      "nickname": {
+        "type": "String"
+      }
+    }
+  },
+  "button_pic_pic_save": "保存",
+  "@button_pic_pic_save": {
+    "description": "Auto-generated metadata for key 'button_pic_pic_save'."
+  },
+  "compatibility_perfect_score_exists": "请注意，此条件的兼容性数据已获得奖励，因此我们无法再颁发额外奖励。",
+  "@compatibility_perfect_score_exists": {
+    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
+  },
+  "post_minor_board_create_request_message_input": "输入要求打开留言板的信息。",
+  "@post_minor_board_create_request_message_input": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_input'."
+  },
+  "fortune_purchase_by_star_candy": "请向 Star Candy 查询",
+  "@fortune_purchase_by_star_candy": {
+    "description": "Auto-generated metadata for key 'fortune_purchase_by_star_candy'."
+  },
+  "post_minor_board_create_request_message_condition": "请在申请开设留言板的信息中至少包含 10 个字符。",
+  "@post_minor_board_create_request_message_condition": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_condition'."
+  },
+  "post_board_create_request_reviewing": "审查开板申请",
+  "@post_board_create_request_reviewing": {
+    "description": "Auto-generated metadata for key 'post_board_create_request_reviewing'."
+  },
+  "post_minor_board_create_request_message": "* 请求开设留言板的信息。",
+  "@post_minor_board_create_request_message": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
+  },
+  "compatibility_purchase_confirm_title": "用星星糖果购买",
+  "@compatibility_purchase_confirm_title": {
+    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
+  },
+  "post_board_create_request_label": "申请开设一个板块",
+  "@post_board_create_request_label": {
+    "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  }
 }

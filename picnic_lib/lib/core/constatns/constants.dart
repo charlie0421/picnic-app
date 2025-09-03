@@ -28,11 +28,26 @@ extension LocalStorageLanguageExtension on LocalStorage {
   }
 }
 
+/// 언어 코드 문자열을 Locale로 변환 (예: 'zh_CN' -> Locale('zh','CN'))
+Locale parseLocale(String code) {
+  if (code.contains('_')) {
+    final parts = code.split('_');
+    final lang = parts[0];
+    final country = parts.length > 1 ? parts[1] : '';
+    if (country.isNotEmpty) {
+      return Locale.fromSubtags(languageCode: lang, countryCode: country);
+    }
+    return Locale(lang);
+  }
+  return Locale(code);
+}
+
 Map<String, String> countryMap = {
   'en': 'US',
   'ko': 'KR',
   'ja': 'JP',
-  'zh': 'CN',
+  'zh_CN': 'CN',
+  'zh_TW': 'TW',
   'id': 'ID',
 };
 
@@ -40,7 +55,8 @@ Map<String, String> languageMap = {
   'ko': '한국어',
   'en': 'English',
   'ja': '日本語',
-  'zh': '中文',
+  'zh_CN': '简体中文',
+  'zh_TW': '繁體中文',
   'id': 'Bahasa Indonesia',
 };
 
