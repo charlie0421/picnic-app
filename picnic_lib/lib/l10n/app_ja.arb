@@ -1853,7 +1853,7 @@
   "@message_agreement_fail": {
     "description": "Auto-generated metadata for key 'message_agreement_fail'."
   },
-  "vote_item_request_button": "投票候補者への応募",
+  "vote_item_request_button": "候補を推薦する",
   "@vote_item_request_button": {
     "description": "Auto-generated metadata for key 'vote_item_request_button'."
   },

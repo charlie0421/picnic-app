@@ -1853,7 +1853,7 @@
   "@message_agreement_fail": {
     "description": "Auto-generated metadata for key 'message_agreement_fail'."
   },
-  "vote_item_request_button": "Ajukan Permohonan untuk Calon Pemilih",
+  "vote_item_request_button": "Rekomendasikan Kandidat",
   "@vote_item_request_button": {
     "description": "Auto-generated metadata for key 'vote_item_request_button'."
   },

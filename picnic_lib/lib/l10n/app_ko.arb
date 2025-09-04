@@ -1852,7 +1852,7 @@
   "@message_agreement_fail": {
     "description": "Auto-generated metadata for key 'message_agreement_fail'."
   },
-  "vote_item_request_button": "투표 신청하기",
+  "vote_item_request_button": "후보 추천하기",
   "@vote_item_request_button": {
     "description": "Auto-generated metadata for key 'vote_item_request_button'."
   },
