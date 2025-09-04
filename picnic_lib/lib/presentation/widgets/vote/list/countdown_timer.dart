@@ -10,8 +10,12 @@ class CountdownTimer extends StatefulWidget {
   final VoteStatus status;
   final VoidCallback? onRefresh;
 
-  const CountdownTimer(
-      {super.key, required this.endTime, required this.status, this.onRefresh});
+  const CountdownTimer({
+    super.key,
+    required this.endTime,
+    required this.status,
+    this.onRefresh,
+  });
 
   @override
   State<CountdownTimer> createState() => _CountdownTimerState();
@@ -48,9 +52,14 @@ class _CountdownTimerState extends State<CountdownTimer> {
           if (_timeLeft.isNegative) {
             _timeLeft = Duration.zero;
             _timer?.cancel();
+            // 타이머가 끝나는 즉시 새로고침 트리거 (프레임 종료 후 안전 호출)
+            if (widget.onRefresh != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                widget.onRefresh!.call();
+              });
+            }
           }
           _updateColor();
-          // widget.onRefresh?.call();
         });
       }
     });
@@ -82,13 +91,19 @@ class _CountdownTimerState extends State<CountdownTimer> {
             height: 20,
             margin: const EdgeInsets.only(bottom: 16),
             alignment: Alignment.center,
-            child: Text(AppLocalizations.of(context).label_vote_upcoming,
-                style: getTextStyle(AppTypo.caption12B, _color)),
+            child: Text(
+              AppLocalizations.of(context).label_vote_upcoming,
+              style: getTextStyle(AppTypo.caption12B, _color),
+            ),
           ),
         if (widget.status == VoteStatus.end)
-          Text(AppLocalizations.of(context).label_vote_end,
-              style: getTextStyle(AppTypo.body14B, AppColors.primary500)
-                  .copyWith(decoration: TextDecoration.underline)),
+          Text(
+            AppLocalizations.of(context).label_vote_end,
+            style: getTextStyle(
+              AppTypo.body14B,
+              AppColors.primary500,
+            ).copyWith(decoration: TextDecoration.underline),
+          ),
         if (widget.status != VoteStatus.end)
           SizedBox(
             height: 18,
@@ -97,11 +112,15 @@ class _CountdownTimerState extends State<CountdownTimer> {
               children: <Widget>[
                 ..._buildTimeUnit(totalDays, 'D'),
                 ..._buildTimeUnit(hours),
-                Text(' : ',
-                    style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
+                Text(
+                  ' : ',
+                  style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
+                ),
                 ..._buildTimeUnit(minutes),
-                Text(' : ',
-                    style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
+                Text(
+                  ' : ',
+                  style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
+                ),
                 ..._buildTimeUnit(seconds),
               ],
             ),
@@ -117,8 +136,10 @@ class _CountdownTimerState extends State<CountdownTimer> {
         return _buildTimeCircle(digits[index]);
       }),
       if (unit != null)
-        Text(' $unit ',
-            style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
+        Text(
+          ' $unit ',
+          style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
+        ),
     ];
   }
 
@@ -133,8 +154,10 @@ class _CountdownTimerState extends State<CountdownTimer> {
         color: _color,
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(time,
-          style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
+      child: Text(
+        time,
+        style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
+      ),
     );
   }
 }

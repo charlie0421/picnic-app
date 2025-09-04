@@ -29,8 +29,10 @@ import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_with_icon.dart';
+import 'package:picnic_lib/presentation/common/underlined_text.dart';
 
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
@@ -138,6 +140,24 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     if (items != null) {
       _updateRanks(items);
     }
+  }
+
+  Future<void> _handleTimerRefresh() async {
+    // 상세와 아이템 리스트 모두 새로고침하여 상태 전환을 즉시 반영
+    // ignore: unused_result
+    await ref.refresh(
+      asyncVoteDetailProvider(
+        voteId: widget.voteId,
+        votePortal: widget.votePortal,
+      ).future,
+    );
+    // ignore: unused_result
+    await ref.refresh(
+      asyncVoteItemListProvider(
+        voteId: widget.voteId,
+        votePortal: widget.votePortal,
+      ).future,
+    );
   }
 
   void _updateRanks(List<VoteItemModel?> items) {
@@ -519,7 +539,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               memCacheWidth: width.toInt(),
             ),
           ),
-        const SizedBox(height: 20),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 57.w),
           child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
@@ -534,59 +553,126 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
             style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
           ),
         ),
+        const SizedBox(height: 8),
+        // 진행/예정 상태에 따른 카운트다운 타이머 노출
+        Builder(
+          builder: (_) {
+            final VoteStatus status = isEnded
+                ? VoteStatus.end
+                : (isUpcoming ? VoteStatus.upcoming : VoteStatus.active);
+            final DateTime endTime = status == VoteStatus.upcoming
+                ? voteModel.startAt!
+                : voteModel.stopAt!;
+            return CountdownTimer(
+              endTime: endTime.toUtc(),
+              status: status,
+              onRefresh: _handleTimerRefresh,
+            );
+          },
+        ),
+        const SizedBox(height: 12),
         if (voteModel.reward != null && widget.votePortal == VotePortal.vote)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                AppLocalizations.of(context).text_vote_rank_in_reward,
-                style: getTextStyle(AppTypo.body14B, AppColors.primary500),
-              ),
-              ...voteModel.reward!.map(
-                (rewardModel) => GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => showRewardDialog(context, rewardModel),
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4.0),
-                    padding: const EdgeInsets.all(8),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        IntrinsicWidth(
-                          child: Column(
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 16.w),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.primary500, width: 1),
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+            ),
+            child: SizedBox(
+              height: 44,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    ...voteModel.reward!.map((rewardModel) {
+                      final thumbnailUrl = rewardModel.thumbnail ?? '';
+                      return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => showRewardDialog(context, rewardModel),
+                        child: Container(
+                          height: 36,
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                getLocaleTextFromJson(rewardModel.title!),
-                                style: getTextStyle(
-                                  AppTypo.caption12R,
-                                  AppColors.grey900,
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: SizedBox(
+                                  width: 28,
+                                  height: 28,
+                                  child: thumbnailUrl.isNotEmpty
+                                      ? PicnicCachedNetworkImage(
+                                          imageUrl: thumbnailUrl,
+                                          fit: BoxFit.cover,
+                                          width: 28,
+                                          height: 28,
+                                          memCacheWidth: 56,
+                                          memCacheHeight: 56,
+                                          placeholder: Container(
+                                            width: 28,
+                                            height: 28,
+                                            color: AppColors.grey200,
+                                            child: Icon(
+                                              Icons.card_giftcard,
+                                              size: 12,
+                                              color: AppColors.grey500,
+                                            ),
+                                          ),
+                                          lazyLoadingStrategy:
+                                              LazyLoadingStrategy.none,
+                                          priority: ImagePriority.high,
+                                          timeout: const Duration(seconds: 10),
+                                          maxRetries: 1,
+                                        )
+                                      : Container(
+                                          width: 28,
+                                          height: 28,
+                                          color: AppColors.grey200,
+                                          child: Icon(
+                                            Icons.card_giftcard,
+                                            size: 12,
+                                            color: AppColors.grey500,
+                                          ),
+                                        ),
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 2),
-                              Container(
-                                height: 0.5,
-                                width: double.infinity,
-                                color: AppColors.grey700,
+                              const SizedBox(width: 6),
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 150,
+                                ),
+                                child: UnderlinedText(
+                                  text: getLocaleTextFromJson(
+                                    rewardModel.title ?? {},
+                                    context,
+                                  ),
+                                  textStyle: getTextStyle(
+                                    AppTypo.caption12R,
+                                    AppColors.grey900,
+                                  ),
+                                  underlineHeight: 1,
+                                  underlineGap: 1,
+                                  maxLines: 1,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
+                      );
+                    }).toList(),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         // 신청 버튼 추가 (예정된 투표와 진행 중인 투표에만 표시)
         if (!isEnded && !_isSaving)
           Padding(
-            padding: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.only(top: 4),
             child: Center(child: _buildApplicationButton(context)),
           ),
         if (isEnded && !_isSaving)
@@ -1370,21 +1456,21 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         return Transform.scale(
           scale: scale,
           child: Container(
-            height: 36,
+            height: 30,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.primary500.withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
                   spreadRadius: 0,
                 ),
                 BoxShadow(
                   color: AppColors.primary500.withValues(alpha: 0.2),
-                  blurRadius: 40,
-                  offset: const Offset(0, 16),
-                  spreadRadius: -8,
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
+                  spreadRadius: -6,
                 ),
               ],
             ),
@@ -1412,7 +1498,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                         1.0,
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.3),
                       width: 1,
@@ -1421,7 +1507,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(20),
                       onTap: () async {
                         logger.d('🔥 투표 신청 버튼 클릭됨!');
 
@@ -1458,8 +1544,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                         }
                       },
                       child: Container(
-                        height: 36,
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        height: 30,
+                        padding: EdgeInsets.symmetric(horizontal: 12.w),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -1472,7 +1558,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                 return Transform.scale(
                                   scale: iconScale,
                                   child: Container(
-                                    padding: const EdgeInsets.all(6),
+                                    padding: const EdgeInsets.all(5),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withValues(
                                         alpha: 0.2,
@@ -1482,7 +1568,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                     child: Icon(
                                       Icons.how_to_vote_rounded,
                                       color: Colors.white,
-                                      size: 16,
+                                      size: 14,
                                     ),
                                   ),
                                 );
@@ -1507,7 +1593,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                           AppTypo.body14B,
                                           AppColors.grey00,
                                         ).copyWith(
-                                          fontSize: 13.sp,
+                                          fontSize: 12.sp,
                                           fontWeight: FontWeight.w600,
                                           letterSpacing: 0.3,
                                           shadows: [
