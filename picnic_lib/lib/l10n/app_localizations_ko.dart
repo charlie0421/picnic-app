@@ -1354,7 +1354,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get message_agreement_fail => '약관 동의가 필요합니다';
 
   @override
-  String get vote_item_request_button => '투표 신청하기';
+  String get vote_item_request_button => '후보 추천하기';
 
   @override
   String get bonus_candy_expiration_next_month => '다음달 15일 00:00:00(KST)';

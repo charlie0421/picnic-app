@@ -1417,8 +1417,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get message_agreement_fail => 'Terms agreement required';
 
   @override
-  String get vote_item_request_button =>
-      'Ajukan Permohonan untuk Calon Pemilih';
+  String get vote_item_request_button => 'Rekomendasikan Kandidat';
 
   @override
   String get bonus_candy_expiration_next_month =>

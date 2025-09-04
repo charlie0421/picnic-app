@@ -1357,7 +1357,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get message_agreement_fail => 'Terms agreement required';
 
   @override
-  String get vote_item_request_button => '投票候補者への応募';
+  String get vote_item_request_button => '候補を推薦する';
 
   @override
   String get bonus_candy_expiration_next_month => '翌月15日 00:00:00';

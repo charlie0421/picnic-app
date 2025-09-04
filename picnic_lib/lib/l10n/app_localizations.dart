@@ -2701,7 +2701,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'vote_item_request_button'.
   ///
   /// In en, this message translates to:
-  /// **'Apply for Vote Candidate'**
+  /// **'Recommend Candidate'**
   String get vote_item_request_button;
 
   /// Auto-generated metadata for key 'bonus_candy_expiration_next_month'.

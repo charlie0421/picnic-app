@@ -1357,7 +1357,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get message_agreement_fail => 'Terms agreement required';
 
   @override
-  String get vote_item_request_button => '申请投票候选人';
+  String get vote_item_request_button => '推荐候选人';
 
   @override
   String get bonus_candy_expiration_next_month => 'Next month 15th 00:00:00';
@@ -2762,7 +2762,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get message_agreement_fail => 'Terms agreement required';
 
   @override
-  String get vote_item_request_button => '申请投票候选人';
+  String get vote_item_request_button => '推荐候选人';
 
   @override
   String get bonus_candy_expiration_next_month => 'Next month 15th 00:00:00';
@@ -4166,7 +4166,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get message_agreement_fail => 'Terms agreement required';
 
   @override
-  String get vote_item_request_button => '申请投票候选人';
+  String get vote_item_request_button => '推薦候選人';
 
   @override
   String get bonus_candy_expiration_next_month => 'Next month 15th 00:00:00';
