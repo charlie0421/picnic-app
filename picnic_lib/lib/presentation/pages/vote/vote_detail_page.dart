@@ -683,7 +683,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                           ),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),
