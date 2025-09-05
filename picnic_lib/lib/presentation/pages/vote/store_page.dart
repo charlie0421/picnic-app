@@ -25,17 +25,37 @@ class _StorePageState extends ConsumerState<StorePage>
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true, showTopMenu: true, showBottomNavigation: true);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: true,
+            showTopMenu: false,
+            showBottomNavigation: true,
+          );
+      _setPageTitleForIndex(_tabController?.index ?? 0);
     });
 
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController!.addListener(() {
+      if (!_tabController!.indexIsChanging) {
+        _setPageTitleForIndex(_tabController!.index);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return _buildTabBar();
+  }
+
+  void _setPageTitleForIndex(int index) {
+    final notifier = ref.read(navigationInfoProvider.notifier);
+    final loc = AppLocalizations.of(context);
+    final title = index == 0
+        ? loc.label_tab_buy_star_candy
+        : loc.label_tab_free_charge_station;
+    notifier.setPageTitle(pageTitle: title);
   }
 
   Widget _buildTabBar() {
@@ -48,20 +68,22 @@ class _StorePageState extends ConsumerState<StorePage>
                 indicatorWeight: 3,
                 tabs: [
                   Tab(
-                      text: AppLocalizations.of(context)
-                          .label_tab_buy_star_candy),
+                    text: AppLocalizations.of(context).label_tab_buy_star_candy,
+                  ),
                   if (!kIsWeb)
                     Tab(
-                        text: AppLocalizations.of(context)
-                            .label_tab_free_charge_station),
+                      text: AppLocalizations.of(
+                        context,
+                      ).label_tab_free_charge_station,
+                    ),
                 ],
               ),
               Expanded(
-                  child:
-                      TabBarView(controller: _tabController, children: const [
-                PurchaseStarCandy(),
-                FreeChargeStation(),
-              ])),
+                child: TabBarView(
+                  controller: _tabController,
+                  children: const [PurchaseStarCandy(), FreeChargeStation()],
+                ),
+              ),
             ],
           );
   }

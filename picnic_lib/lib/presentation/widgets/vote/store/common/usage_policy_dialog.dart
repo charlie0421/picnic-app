@@ -3,10 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 
 Future<void> showUsagePolicyDialog(BuildContext context) {
   return showGeneralDialog(
@@ -42,7 +43,7 @@ class UsagePolicyPopup extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context);
-    final expireBonusResult = ref.watch(expireBonusProvider);
+    final isLoggedIn = isSupabaseLoggedSafely;
 
     return LargePopupWidget(
       titleWidget: VoteCommonTitle(
@@ -52,24 +53,32 @@ class UsagePolicyPopup extends ConsumerWidget {
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.75,
         ),
-        child: expireBonusResult.when(
-          data: (data) => _buildPolicyContent(context, data),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(
-              child:
-                  Text(localizations.bonus_candy_expiration_policy_load_fail)),
-        ),
+        child: isLoggedIn
+            ? ref
+                  .watch(expireBonusProvider)
+                  .when(
+                    data: (data) => _buildPolicyContent(context, data),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (error, stack) => Center(
+                      child: Text(
+                        localizations.bonus_candy_expiration_policy_load_fail,
+                      ),
+                    ),
+                  )
+            : _buildPolicyContent(context, null),
       ),
     );
   }
 
   Widget _buildPolicyContent(
-      BuildContext context, List<Map<String, dynamic>?>? expiringData) {
+    BuildContext context,
+    List<Map<String, dynamic>?>? expiringData,
+  ) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 24.w).copyWith(
-        top: 60.h,
-        bottom: 24.h,
-      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: 24.w,
+      ).copyWith(top: 60.h, bottom: 24.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -88,7 +97,9 @@ class UsagePolicyPopup extends ConsumerWidget {
   }
 
   Widget _buildExpiringBonusSection(
-      BuildContext context, List<Map<String, dynamic>?> expiringData) {
+    BuildContext context,
+    List<Map<String, dynamic>?> expiringData,
+  ) {
     final localizations = AppLocalizations.of(context);
     final numberFormat = NumberFormat('#,###');
 
@@ -112,10 +123,7 @@ class UsagePolicyPopup extends ConsumerWidget {
               SizedBox(width: 8.w),
               Text(
                 localizations.expiring_soon_bonus_candy,
-                style: getTextStyle(
-                  AppTypo.body14B,
-                  AppColors.primary500,
-                ),
+                style: getTextStyle(AppTypo.body14B, AppColors.primary500),
               ),
             ],
           ),
@@ -130,10 +138,7 @@ class UsagePolicyPopup extends ConsumerWidget {
                 children: [
                   Text(
                     '${e['prediction_month']}-15 (KST)',
-                    style: getTextStyle(
-                      AppTypo.caption12M,
-                      AppColors.grey700,
-                    ),
+                    style: getTextStyle(AppTypo.caption12M, AppColors.grey700),
                   ),
                   Text(
                     numberFormat.format(amount),
@@ -218,10 +223,7 @@ class UsagePolicyPopup extends ConsumerWidget {
   }
 
   Widget _buildCustomTableRow(BuildContext context, String left, String right) {
-    final style = getTextStyle(
-      AppTypo.caption10SB,
-      AppColors.grey800,
-    );
+    final style = getTextStyle(AppTypo.caption10SB, AppColors.grey800);
     final boldStyle = style.copyWith(fontWeight: FontWeight.bold);
 
     Widget buildRichText(String text) {
@@ -235,10 +237,7 @@ class UsagePolicyPopup extends ConsumerWidget {
         final textWithSpace = i < parts.length - 1 ? '$part ' : part;
 
         spans.add(
-          TextSpan(
-            text: textWithSpace,
-            style: isDatePart ? boldStyle : style,
-          ),
+          TextSpan(text: textWithSpace, style: isDatePart ? boldStyle : style),
         );
       }
       return RichText(
@@ -284,12 +283,16 @@ class UsagePolicyPopup extends ConsumerWidget {
     final nextMonth = (now.month % 12 + 1).toString();
     final afterNextMonth = (now.month % 12 + 2).toString();
 
-    final example1Earn = localizations.bonus_candy_example_1_earn
-        .replaceAll('__MONTH__', currentMonth);
+    final example1Earn = localizations.bonus_candy_example_1_earn.replaceAll(
+      '__MONTH__',
+      currentMonth,
+    );
     final example1Expire = localizations.bonus_candy_example_1_expire
         .replaceAll('__NEXT_MONTH__', nextMonth);
-    final example2Earn = localizations.bonus_candy_example_2_earn
-        .replaceAll('__MONTH__', currentMonth);
+    final example2Earn = localizations.bonus_candy_example_2_earn.replaceAll(
+      '__MONTH__',
+      currentMonth,
+    );
     final example2Expire = localizations.bonus_candy_example_2_expire
         .replaceAll('__THE_MONTH_AFTER_NEXT__', afterNextMonth);
 
@@ -308,24 +311,19 @@ class UsagePolicyPopup extends ConsumerWidget {
             isHeader: true,
           ),
           Divider(color: AppColors.grey300, height: 12.h),
-          _buildExampleTableRow(
-            context,
-            example1Earn,
-            example1Expire,
-          ),
+          _buildExampleTableRow(context, example1Earn, example1Expire),
           Divider(color: AppColors.grey300, height: 12.h),
-          _buildExampleTableRow(
-            context,
-            example2Earn,
-            example2Expire,
-          ),
+          _buildExampleTableRow(context, example2Earn, example2Expire),
         ],
       ),
     );
   }
 
   Widget _buildExampleTableRow(
-      BuildContext context, String left, String right) {
+    BuildContext context,
+    String left,
+    String right,
+  ) {
     Widget buildRichText(String text) {
       final parts = text.split(' ');
       final spans = <TextSpan>[];
@@ -339,9 +337,7 @@ class UsagePolicyPopup extends ConsumerWidget {
             style: getTextStyle(
               AppTypo.caption10SB,
               AppColors.grey800,
-            ).copyWith(
-              fontWeight: isDate ? FontWeight.bold : null,
-            ),
+            ).copyWith(fontWeight: isDate ? FontWeight.bold : null),
           ),
         );
       }
@@ -360,22 +356,33 @@ class UsagePolicyPopup extends ConsumerWidget {
     );
   }
 
-  Widget _buildTableRow(BuildContext context, String left, String right,
-      {bool isHeader = false}) {
+  Widget _buildTableRow(
+    BuildContext context,
+    String left,
+    String right, {
+    bool isHeader = false,
+  }) {
     final style = getTextStyle(
       isHeader ? AppTypo.body14B : AppTypo.caption12M,
       AppColors.grey800,
     );
     return Row(
       children: [
-        Expanded(child: Text(left, style: style, textAlign: TextAlign.center)),
-        Expanded(child: Text(right, style: style, textAlign: TextAlign.center)),
+        Expanded(
+          child: Text(left, style: style, textAlign: TextAlign.center),
+        ),
+        Expanded(
+          child: Text(right, style: style, textAlign: TextAlign.center),
+        ),
       ],
     );
   }
 
-  Widget _buildPolicyItem(BuildContext context, String text,
-      {bool isTitle = false}) {
+  Widget _buildPolicyItem(
+    BuildContext context,
+    String text, {
+    bool isTitle = false,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 8.h),
       child: Text(
@@ -383,9 +390,7 @@ class UsagePolicyPopup extends ConsumerWidget {
         style: getTextStyle(
           isTitle ? AppTypo.body14B : AppTypo.caption10SB,
           isTitle ? AppColors.grey800 : AppColors.grey700,
-        ).copyWith(
-          fontWeight: isTitle ? FontWeight.bold : null,
-        ),
+        ).copyWith(fontWeight: isTitle ? FontWeight.bold : null),
       ),
     );
   }

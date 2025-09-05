@@ -115,7 +115,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     final initStartTime = DateTime.now();
     final platform = Theme.of(context).platform;
     logger.i(
-        '[PurchaseStarCandyState] Starting initialization with proactive restore cleanup (${platform.name})');
+      '[PurchaseStarCandyState] Starting initialization with proactive restore cleanup (${platform.name})',
+    );
 
     if (!mounted) return;
 
@@ -127,7 +128,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       final initEndTime = DateTime.now();
       final initDuration = initEndTime.difference(initStartTime);
       logger.i(
-          '[PurchaseStarCandyState] Initialization completed - Duration: ${initDuration.inMilliseconds}ms');
+        '[PurchaseStarCandyState] Initialization completed - Duration: ${initDuration.inMilliseconds}ms',
+      );
 
       if (mounted) {
         setState(() {
@@ -203,7 +205,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         'payment cancelled',
         'cancelled transaction',
         'user cancellation',
-        'cancelled by user'
+        'cancelled by user',
       ];
 
       final cancelErrorCodes = [
@@ -258,13 +260,14 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         'platform_cancelled',
         'platform_user_cancelled',
         'ios_purchase_cancelled',
-        'ios_user_cancelled'
+        'ios_user_cancelled',
       ];
 
       for (final keyword in cancelKeywords) {
         if (errorMessage.contains(keyword)) {
           logger.i(
-              '[PurchaseStarCandyState] Cancel keyword detected: $keyword in "$errorMessage"');
+            '[PurchaseStarCandyState] Cancel keyword detected: $keyword in "$errorMessage"',
+          );
           return true;
         }
       }
@@ -272,16 +275,18 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       for (final code in cancelErrorCodes) {
         if (errorCode.contains(code) || errorMessage.contains(code)) {
           logger.i(
-              '[PurchaseStarCandyState] Cancel error code detected: $code (errorCode: "$errorCode", errorMessage: "$errorMessage")');
+            '[PurchaseStarCandyState] Cancel error code detected: $code (errorCode: "$errorCode", errorMessage: "$errorMessage")',
+          );
           return true;
         }
       }
       logger.w(
-          '''[PurchaseStarCandyState] ⚠️ UNDETECTED ERROR - Please check if this should be treated as cancellation:
+        '''[PurchaseStarCandyState] ⚠️ UNDETECTED ERROR - Please check if this should be treated as cancellation:
 Error Code: "$errorCode"
 Error Message: "$errorMessage"
 Full Error: ${purchaseDetails.error}
-''');
+''',
+      );
     }
 
     return false;
@@ -290,9 +295,11 @@ Full Error: ${purchaseDetails.error}
   void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) async {
     final statusCounts = _getStatusCounts(purchaseDetailsList);
 
-    logger.d('''[PurchaseStarCandyState] Purchase update received:
+    logger.d(
+      '''[PurchaseStarCandyState] Purchase update received:
 Total: ${purchaseDetailsList.length} | Active: $_isActivePurchasing | Cleared: $_transactionsCleared
-Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Purchased: ${statusCounts['purchased']} | Error: ${statusCounts['error']} | Canceled: ${statusCounts['canceled']}''');
+Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Purchased: ${statusCounts['purchased']} | Error: ${statusCounts['error']} | Canceled: ${statusCounts['canceled']}''',
+    );
 
     try {
       for (final purchaseDetails in purchaseDetailsList) {
@@ -300,7 +307,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         if (purchaseID != null &&
             _currentlyProcessingIDs.contains(purchaseID)) {
           logger.w(
-              '[PurchaseStarCandyState] Skipping already processing purchase: $purchaseID');
+            '[PurchaseStarCandyState] Skipping already processing purchase: $purchaseID',
+          );
           continue;
         }
 
@@ -317,14 +325,19 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         }
       }
     } catch (e, s) {
-      logger.e('[PurchaseStarCandyState] Error handling purchase update: $e',
-          error: e, stackTrace: s);
+      logger.e(
+        '[PurchaseStarCandyState] Error handling purchase update: $e',
+        error: e,
+        stackTrace: s,
+      );
       _resetPurchaseState();
       _loadingKey.currentState?.hide();
       if (navigatorKey.currentContext != null) {
         await _dialogHandler.showErrorDialog(
-            AppLocalizations.of(navigatorKey.currentContext!)
-                .dialog_message_purchase_failed);
+          AppLocalizations.of(
+            navigatorKey.currentContext!,
+          ).dialog_message_purchase_failed,
+        );
       }
       rethrow;
     }
@@ -354,7 +367,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   /// 개별 구매 상세 처리
   Future<void> _processPurchaseDetail(PurchaseDetails purchaseDetails) async {
     logger.d(
-        '[PurchaseStarCandyState] Processing: ${purchaseDetails.status} for ${purchaseDetails.productID}');
+      '[PurchaseStarCandyState] Processing: ${purchaseDetails.status} for ${purchaseDetails.productID}',
+    );
 
     if (_shouldForceCompletePending(purchaseDetails)) {
       await _forceCompletePendingPurchase(purchaseDetails);
@@ -364,13 +378,15 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     if (purchaseDetails.status == PurchaseStatus.pending &&
         !_isActivePurchasing) {
       logger.i(
-          '[PurchaseStarCandyState] Purchase pending for ${purchaseDetails.productID}');
+        '[PurchaseStarCandyState] Purchase pending for ${purchaseDetails.productID}',
+      );
       return;
     }
 
     if (_shouldIgnoreDuringInit(purchaseDetails)) {
       logger.i(
-          '[PurchaseStarCandyState] Ignoring ${purchaseDetails.status} during initialization: ${purchaseDetails.productID}');
+        '[PurchaseStarCandyState] Ignoring ${purchaseDetails.status} during initialization: ${purchaseDetails.productID}',
+      );
       return;
     }
 
@@ -434,8 +450,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         !_isActivePurchasing &&
         (purchaseDetails.status == PurchaseStatus.purchased ||
             purchaseDetails.status == PurchaseStatus.restored)) {
-      final timeSinceTimeout =
-          DateTime.now().difference(_safetyManager.safetyTimeoutTime!);
+      final timeSinceTimeout = DateTime.now().difference(
+        _safetyManager.safetyTimeoutTime!,
+      );
 
       if (timeSinceTimeout.inMinutes <= 2) {
         final isActual = _safetyManager.isActualPurchase(
@@ -445,8 +462,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         );
 
         if (isActual) {
-          logger
-              .w('[iOS] 🍎 2단계: 늦은 구매 성공 감지 (${timeSinceTimeout.inSeconds}초)');
+          logger.w(
+            '[iOS] 🍎 2단계: 늦은 구매 성공 감지 (${timeSinceTimeout.inSeconds}초)',
+          );
           return true;
         }
       }
@@ -490,8 +508,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         !_isActivePurchasing &&
         purchaseDetails.status == PurchaseStatus.purchased) {
       // restored 제외
-      final timeSinceTimeout =
-          DateTime.now().difference(_safetyManager.safetyTimeoutTime!);
+      final timeSinceTimeout = DateTime.now().difference(
+        _safetyManager.safetyTimeoutTime!,
+      );
 
       // 🤖 Android는 1분만 허용 (더 엄격)
       if (timeSinceTimeout.inMinutes <= 1) {
@@ -502,8 +521,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         );
 
         if (isActual) {
-          logger
-              .w('[Android] 🤖 2단계: 짧은 지연 허용 (${timeSinceTimeout.inSeconds}초)');
+          logger.w(
+            '[Android] 🤖 2단계: 짧은 지연 허용 (${timeSinceTimeout.inSeconds}초)',
+          );
           return true;
         }
       }
@@ -516,20 +536,25 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 초기화 중 pending 구매 강제 완료
   Future<void> _forceCompletePendingPurchase(
-      PurchaseDetails purchaseDetails) async {
+    PurchaseDetails purchaseDetails,
+  ) async {
     logger.i(
-        '[PurchaseStarCandyState] Force completing pending purchase: ${purchaseDetails.productID}');
+      '[PurchaseStarCandyState] Force completing pending purchase: ${purchaseDetails.productID}',
+    );
 
     try {
       final startTime = DateTime.now();
-      await _purchaseService.inAppPurchaseService
-          .completePurchase(purchaseDetails);
+      await _purchaseService.inAppPurchaseService.completePurchase(
+        purchaseDetails,
+      );
       final duration = DateTime.now().difference(startTime).inMilliseconds;
       logger.i(
-          '[PurchaseStarCandyState] Pending purchase completed: ${duration}ms');
+        '[PurchaseStarCandyState] Pending purchase completed: ${duration}ms',
+      );
     } catch (e) {
       logger.e(
-          '[PurchaseStarCandyState] Failed to complete pending purchase: $e');
+        '[PurchaseStarCandyState] Failed to complete pending purchase: $e',
+      );
     }
   }
 
@@ -548,7 +573,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     final isLatePurchase = _safetyManager.isLatePurchase(_isActivePurchasing);
 
     logger.i(
-        '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase)');
+      '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase)',
+    );
 
     await _purchaseService.handleOptimizedPurchase(
       purchaseDetails,
@@ -562,7 +588,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         _cleanupAllTimersOnSuccess(purchaseDetails.productID);
 
         // 🧹 구매 완료 후 클린 작업 수행 (동기 처리로 완전성 보장)
-        final transactionId = purchaseDetails.purchaseID ??
+        final transactionId =
+            purchaseDetails.purchaseID ??
             '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
 
         // 🧹 동기로 클린 작업 실행 - 완료까지 기다림 (확실성 우선)
@@ -596,8 +623,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             setState(() => _isPurchasing = false);
             if (navigatorKey.currentContext != null) {
               showSimpleDialog(
-                content: AppLocalizations.of(navigatorKey.currentContext!)
-                    .previousTransactionPendingError,
+                content: AppLocalizations.of(
+                  navigatorKey.currentContext!,
+                ).previousTransactionPendingError,
               );
             }
             // iOS JWS 반복 중복 완화: 강제 쿨다운(상품별) 60초 적용하여 루프 차단
@@ -612,8 +640,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             setState(() => _isPurchasing = false);
             if (navigatorKey.currentContext != null) {
               showSimpleDialog(
-                content: AppLocalizations.of(navigatorKey.currentContext!)
-                    .previousTransactionPendingError,
+                content: AppLocalizations.of(
+                  navigatorKey.currentContext!,
+                ).previousTransactionPendingError,
               );
             }
           } else if (_isDuplicateError(error)) {
@@ -686,7 +715,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   Future<void> _processErrorAndCancel(PurchaseDetails purchaseDetails) async {
     if (purchaseDetails.status == PurchaseStatus.error) {
       logger.e(
-          '[PurchaseStarCandyState] Purchase error: ${purchaseDetails.error?.message}');
+        '[PurchaseStarCandyState] Purchase error: ${purchaseDetails.error?.message}',
+      );
 
       final isCanceled = _isPurchaseCanceled(purchaseDetails);
 
@@ -697,13 +727,16 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
         if (!isCanceled) {
           logger.e(
-              '[PurchaseStarCandyState] Actual purchase error - showing dialog');
+            '[PurchaseStarCandyState] Actual purchase error - showing dialog',
+          );
           await _dialogHandler.showErrorDialog(
-              AppLocalizations.of(context).dialog_message_purchase_failed);
+            AppLocalizations.of(context).dialog_message_purchase_failed,
+          );
         } else {
           // ✅ 취소: 쿨타임 적용하지 않음
           logger.i(
-              '[PurchaseStarCandyState] Purchase canceled - no error dialog');
+            '[PurchaseStarCandyState] Purchase canceled - no error dialog',
+          );
         }
       }
     }
@@ -711,9 +744,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     // 🔥 중요: 에러가 발생하거나 취소된 경우에도 트랜잭션을 완료하여 반복적인 팝업을 방지합니다.
     if (purchaseDetails.pendingCompletePurchase) {
       logger.i(
-          '[PurchaseStarCandyState] Completing failed/canceled transaction to prevent re-delivery.');
-      await _purchaseService.inAppPurchaseService
-          .completePurchase(purchaseDetails);
+        '[PurchaseStarCandyState] Completing failed/canceled transaction to prevent re-delivery.',
+      );
+      await _purchaseService.inAppPurchaseService.completePurchase(
+        purchaseDetails,
+      );
     }
   }
 
@@ -738,8 +773,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       _restoreHandler.cleanupTimersOnPurchaseSuccess();
 
       // 3️⃣ InAppPurchaseService 타이머 정리
-      _purchaseService.inAppPurchaseService
-          .cleanupTimersOnPurchaseSuccess(productId);
+      _purchaseService.inAppPurchaseService.cleanupTimersOnPurchaseSuccess(
+        productId,
+      );
 
       logger.i('[PurchaseStarCandyState] 🧹 ✅ 모든 타이머 정리 완료: $productId');
     } catch (e) {
@@ -776,10 +812,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     if (_isInitializing) {
-      logger
-          .w('[PurchaseStarCandyState] Purchase blocked during initialization');
+      logger.w(
+        '[PurchaseStarCandyState] Purchase blocked during initialization',
+      );
       showSimpleDialog(
-          content: AppLocalizations.of(context).purchase_initializing_message);
+        content: AppLocalizations.of(context).purchase_initializing_message,
+      );
       return;
     }
 
@@ -819,7 +857,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
     try {
       logger.i(
-          '[PurchaseStarCandyState] Starting purchase for: ${serverProduct['id']} (복원 정리 완료 확인됨)');
+        '[PurchaseStarCandyState] Starting purchase for: ${serverProduct['id']} (복원 정리 완료 확인됨)',
+      );
       final purchaseStartTime = DateTime.now();
 
       if (!context.mounted) return;
@@ -827,11 +866,13 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
       // 즉시 구매 시작
       logger.i(
-          '[PurchaseStarCandyState] Starting purchase immediately - no pre-processing');
+        '[PurchaseStarCandyState] Starting purchase immediately - no pre-processing',
+      );
       final preparationTime = DateTime.now();
       final preparationDuration = preparationTime.difference(purchaseStartTime);
       logger.i(
-          '[PurchaseStarCandyState] Purchase preparation completed - Duration: ${preparationDuration.inMilliseconds}ms');
+        '[PurchaseStarCandyState] Purchase preparation completed - Duration: ${preparationDuration.inMilliseconds}ms',
+      );
 
       _isActivePurchasing = true;
       _pendingProductId = serverProduct['id'];
@@ -844,8 +885,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           setState(() => _isPurchasing = false);
         },
         onError: (message) async {
-          logger
-              .e('[PurchaseStarCandyState] Purchase error callback: $message');
+          logger.e(
+            '[PurchaseStarCandyState] Purchase error callback: $message',
+          );
           _resetPurchaseState();
           if (mounted) {
             _loadingKey.currentState?.hide();
@@ -856,15 +898,20 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
       await _handlePurchaseResult(purchaseResult);
     } catch (e, s) {
-      logger.e('[PurchaseStarCandyState] Error starting purchase: $e',
-          error: e, stackTrace: s);
+      logger.e(
+        '[PurchaseStarCandyState] Error starting purchase: $e',
+        error: e,
+        stackTrace: s,
+      );
       _resetPurchaseState();
       if (mounted) {
         _loadingKey.currentState?.hide();
         if (navigatorKey.currentContext != null) {
           await _dialogHandler.showErrorDialog(
-              AppLocalizations.of(navigatorKey.currentContext!)
-                  .dialog_message_purchase_failed);
+            AppLocalizations.of(
+              navigatorKey.currentContext!,
+            ).dialog_message_purchase_failed,
+          );
         }
       }
       rethrow;
@@ -876,17 +923,19 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     if (_isPurchasing) {
       logger.w('[PurchaseStarCandyState] Purchase already in progress');
       showSimpleDialog(
-          content: AppLocalizations.of(context).purchase_in_progress_message);
+        content: AppLocalizations.of(context).purchase_in_progress_message,
+      );
       return false;
     }
 
     if (!_safetyManager.canAttemptPurchaseForProduct(productId)) {
-      logger
-          .w('[PurchaseStarCandyState] Purchase cooldown active (per product)');
+      logger.w(
+        '[PurchaseStarCandyState] Purchase cooldown active (per product)',
+      );
       // 일반 쿨다운 문구 제거 → 스토어 처리 중 문구로 통일
       showSimpleDialog(
-          content:
-              AppLocalizations.of(context).previousTransactionPendingError);
+        content: AppLocalizations.of(context).previousTransactionPendingError,
+      );
       return false;
     }
 
@@ -904,14 +953,16 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 구매 결과 처리 - 취소와 에러를 구분
   Future<void> _handlePurchaseResult(
-      Map<String, dynamic> purchaseResult) async {
+    Map<String, dynamic> purchaseResult,
+  ) async {
     if (purchaseResult['wasCancelled'] == true) {
       if (mounted) {
         _resetPurchaseState();
         _loadingKey.currentState?.hide();
         // 사용자가 직접 취소한 경우 팝업 표시
         showSimpleDialog(
-            content: AppLocalizations.of(context).purchase_cancelled_message);
+          content: AppLocalizations.of(context).purchase_cancelled_message,
+        );
       }
       return;
     }
@@ -952,16 +1003,16 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: ListView(
             children: [
+              const SizedBox(height: 16),
               if (isLoggedIn) ...[
-                const SizedBox(height: 16),
                 _buildHeaderSection(),
                 const SizedBox(height: 8),
-                StorePointInfo(
-                  title: AppLocalizations.of(context).label_star_candy_pouch,
-                  width: double.infinity,
-                  height: 120,
-                ),
               ],
+              StorePointInfo(
+                title: AppLocalizations.of(context).label_star_candy_pouch,
+                width: double.infinity,
+                height: 120,
+              ),
               const SizedBox(height: 12),
               const Divider(color: AppColors.grey200, height: 32),
               _buildProductsList(),
@@ -979,9 +1030,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   Widget _buildHeaderSection() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        _buildRefreshButton(),
-      ],
+      children: [_buildRefreshButton()],
     );
   }
 
@@ -1062,8 +1111,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     );
   }
 
-  Widget _buildProductList(List<Map<String, dynamic>> serverProducts,
-      List<ProductDetails> storeProducts) {
+  Widget _buildProductList(
+    List<Map<String, dynamic>> serverProducts,
+    List<ProductDetails> storeProducts,
+  ) {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -1076,7 +1127,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   }
 
   Widget _buildProductItem(
-      Map<String, dynamic> serverProduct, List<ProductDetails> storeProducts) {
+    Map<String, dynamic> serverProduct,
+    List<ProductDetails> storeProducts,
+  ) {
     final isButtonEnabled = !_isInitializing && !_isPurchasing;
     final isCurrentProductLoading =
         _isPurchasing && _pendingProductId == serverProduct['id'];
@@ -1088,8 +1141,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         width: 48.w,
         height: 48,
       ),
-      title: Text(serverProduct['id'],
-          style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
+      title: Text(
+        serverProduct['id'],
+        style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+      ),
       subtitle: Text.rich(
         TextSpan(
           children: [
@@ -1122,8 +1177,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Debug & Simulation Tools',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(
+            'Debug & Simulation Tools',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           SizedBox(height: 12),
           Container(
             padding: EdgeInsets.all(12),
@@ -1135,20 +1192,26 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Force Timeout (100% Guaranteed)',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.red[700])),
+                Text(
+                  'Force Timeout (100% Guaranteed)',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red[700],
+                  ),
+                ),
                 SizedBox(height: 8),
                 Text(
-                    'Does not send actual purchase request, only triggers timeout after 3 seconds:',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                  'Does not send actual purchase request, only triggers timeout after 3 seconds:',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                ),
                 SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red[600]),
+                        backgroundColor: Colors.red[600],
+                      ),
                       onPressed: () {
                         _purchaseService.enableForceTimeout();
                         SnackbarUtil().warning(
@@ -1156,12 +1219,15 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                           context: context,
                         );
                       },
-                      child: Text('Force Timeout ON',
-                          style: TextStyle(fontSize: 12, color: Colors.white)),
+                      child: Text(
+                        'Force Timeout ON',
+                        style: TextStyle(fontSize: 12, color: Colors.white),
+                      ),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[600]),
+                        backgroundColor: Colors.grey[600],
+                      ),
                       onPressed: () {
                         _purchaseService.disableForceTimeout();
                         SnackbarUtil().info(
@@ -1169,8 +1235,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                           context: context,
                         );
                       },
-                      child: Text('Force Timeout OFF',
-                          style: TextStyle(fontSize: 12, color: Colors.white)),
+                      child: Text(
+                        'Force Timeout OFF',
+                        style: TextStyle(fontSize: 12, color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
@@ -1178,11 +1246,15 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             ),
           ),
           SizedBox(height: 12),
-          Text('Timeout Settings',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            'Timeout Settings',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           SizedBox(height: 8),
-          Text('Proceed with actual purchase but adjust timeout duration:',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+          Text(
+            'Proceed with actual purchase but adjust timeout duration:',
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          ),
           SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -1192,18 +1264,23 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 onPressed: () {
                   _purchaseService.setTimeoutMode('instant');
-                  SnackbarUtil()
-                      .info('Instant Timeout (100ms)', context: context);
+                  SnackbarUtil().info(
+                    'Instant Timeout (100ms)',
+                    context: context,
+                  );
                 },
                 child: Text('100ms', style: TextStyle(fontSize: 12)),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepOrange),
+                  backgroundColor: Colors.deepOrange,
+                ),
                 onPressed: () {
                   _purchaseService.setTimeoutMode('ultrafast');
-                  SnackbarUtil()
-                      .info('Ultra Fast Timeout (500ms)', context: context);
+                  SnackbarUtil().info(
+                    'Ultra Fast Timeout (500ms)',
+                    context: context,
+                  );
                 },
                 child: Text('500ms', style: TextStyle(fontSize: 12)),
               ),
@@ -1211,8 +1288,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
                 onPressed: () {
                   _purchaseService.setTimeoutMode('debug');
-                  SnackbarUtil()
-                      .info('Debug Timeout (3 seconds)', context: context);
+                  SnackbarUtil().info(
+                    'Debug Timeout (3 seconds)',
+                    context: context,
+                  );
                 },
                 child: Text('3sec', style: TextStyle(fontSize: 12)),
               ),
@@ -1220,19 +1299,25 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                 onPressed: () {
                   _purchaseService.setTimeoutMode('normal');
-                  SnackbarUtil()
-                      .info('Normal Timeout (30 seconds)', context: context);
+                  SnackbarUtil().info(
+                    'Normal Timeout (30 seconds)',
+                    context: context,
+                  );
                 },
                 child: Text('30sec', style: TextStyle(fontSize: 12)),
               ),
             ],
           ),
           SizedBox(height: 12),
-          Text('Purchase Delay Simulation',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            'Purchase Delay Simulation',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           SizedBox(height: 8),
-          Text('Delay the purchase request itself to induce timeout:',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+          Text(
+            'Delay the purchase request itself to induce timeout:',
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          ),
           SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -1241,8 +1326,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
                 onPressed: () {
                   _purchaseService.enableSlowPurchase();
-                  SnackbarUtil().warning('Purchase Delay ON - 5 second delay',
-                      context: context);
+                  SnackbarUtil().warning(
+                    'Purchase Delay ON - 5 second delay',
+                    context: context,
+                  );
                 },
                 // TODO: i18n - 국제화 적용 필요
                 child: Text('Delay ON', style: TextStyle(fontSize: 12)),
@@ -1259,8 +1346,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             ],
           ),
           SizedBox(height: 12),
-          Text('Purchase State Management',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            'Purchase State Management',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -1275,11 +1364,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   final platformEmoji = platform == TargetPlatform.iOS
                       ? '📱'
                       : platform == TargetPlatform.android
-                          ? '🤖'
-                          : '🖥️';
+                      ? '🤖'
+                      : '🖥️';
 
                   logger.d(
-                      '복원 디버그 버튼 눌림 ($platformEmoji ${platform.name}) - 조용히 무시');
+                    '복원 디버그 버튼 눌림 ($platformEmoji ${platform.name}) - 조용히 무시',
+                  );
 
                   if (kDebugMode) {
                     SnackbarUtil().info(
@@ -1294,8 +1384,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.visibility_off, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('Ignore Restore',
-                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                    Text(
+                      'Ignore Restore',
+                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    ),
                   ],
                 ),
               ),
@@ -1307,8 +1399,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.fingerprint, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('Auth Reset',
-                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                    Text(
+                      'Auth Reset',
+                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    ),
                   ],
                 ),
               ),
@@ -1320,8 +1414,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.healing, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('Diagnosis',
-                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                    Text(
+                      'Diagnosis',
+                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    ),
                   ],
                 ),
               ),
@@ -1333,8 +1429,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.dangerous, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('Nuclear Reset',
-                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                    Text(
+                      'Nuclear Reset',
+                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    ),
                   ],
                 ),
               ),
@@ -1346,19 +1444,25 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.analytics, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('Check Pending',
-                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                    Text(
+                      'Check Pending',
+                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
           SizedBox(height: 12),
-          Text('Authentication Troubleshooting',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            'Authentication Troubleshooting',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           SizedBox(height: 8),
-          Text('Solve issues where authentication dialog does not appear:',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+          Text(
+            'Solve issues where authentication dialog does not appear:',
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          ),
           SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -1372,22 +1476,27 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.search, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('Auth Diagnosis',
-                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                    Text(
+                      'Auth Diagnosis',
+                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    ),
                   ],
                 ),
               ),
               ElevatedButton(
-                style:
-                    ElevatedButton.styleFrom(backgroundColor: Colors.red[800]),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[800],
+                ),
                 onPressed: _debugHandler.handleUltimateAuthReset,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.warning, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('Ultimate Reset',
-                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                    Text(
+                      'Ultimate Reset',
+                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    ),
                   ],
                 ),
               ),

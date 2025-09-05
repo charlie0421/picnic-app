@@ -9,6 +9,7 @@ import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/supabase_options.dart';
 
 class StorePointInfo extends ConsumerStatefulWidget {
   const StorePointInfo({
@@ -17,12 +18,14 @@ class StorePointInfo extends ConsumerStatefulWidget {
     this.width = 48,
     this.height = 36,
     this.titlePadding,
+    this.topMargin = 20,
   });
 
   final double? width;
   final double? height;
   final String title;
   final double? titlePadding;
+  final double topMargin;
 
   @override
   ConsumerState<StorePointInfo> createState() => _StorePointInfoState();
@@ -36,13 +39,14 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
         Container(
           height: widget.height,
           width: widget.width,
-          margin: EdgeInsets.only(top: 20, left: 16.w, right: 16.w),
+          margin: EdgeInsets.only(
+            top: widget.topMargin,
+            left: 16.w,
+            right: 16.w,
+          ),
           padding: const EdgeInsets.only(top: 16),
           decoration: BoxDecoration(
-            border: Border.all(
-              color: AppColors.primary500,
-              width: 1.5.r,
-            ),
+            border: Border.all(color: AppColors.primary500, width: 1.5.r),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(40.r),
               topRight: Radius.circular(40.r),
@@ -55,20 +59,53 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const StarCandyInfoText(),
-              GestureDetector(
-                onTap: () {
-                  logger.d('보너스 캔디 소멸 로직 안내');
-                  showUsagePolicyDialog(context);
-                },
-                child: UnderlinedText(
-                  text: AppLocalizations.of(context).expiring_bonus_candy_guide,
-                  textStyle:
-                      getTextStyle(AppTypo.caption12B, AppColors.primary500),
-                  underlineColor: AppColors.primary500,
-                  underlineGap: 0,
+              if (isSupabaseLoggedSafely) ...[
+                const StarCandyInfoText(),
+                GestureDetector(
+                  onTap: () {
+                    logger.d('보너스 캔디 소멸 로직 안내');
+                    showUsagePolicyDialog(context);
+                  },
+                  child: UnderlinedText(
+                    text: AppLocalizations.of(
+                      context,
+                    ).expiring_bonus_candy_guide,
+                    textStyle: getTextStyle(
+                      AppTypo.caption12B,
+                      AppColors.primary500,
+                    ),
+                    underlineColor: AppColors.primary500,
+                    underlineGap: 0,
+                  ),
                 ),
-              ),
+              ] else ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(
+                    AppLocalizations.of(context).label_mypage_should_login,
+                    textAlign: TextAlign.center,
+                    style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+                  ),
+                ),
+                SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () {
+                    logger.d('보너스 캔디 소멸 로직 안내');
+                    showUsagePolicyDialog(context);
+                  },
+                  child: UnderlinedText(
+                    text: AppLocalizations.of(
+                      context,
+                    ).expiring_bonus_candy_guide,
+                    textStyle: getTextStyle(
+                      AppTypo.caption12B,
+                      AppColors.primary500,
+                    ),
+                    underlineColor: AppColors.primary500,
+                    underlineGap: 0,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
