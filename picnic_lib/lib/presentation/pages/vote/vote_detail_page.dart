@@ -528,6 +528,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   Widget _buildVoteInfo(BuildContext context, VoteModel voteModel) {
     final width = getPlatformScreenSize(context).width;
+    final horizontalPadding = 57.w; // 타이틀과 동일 기준 패딩
+    final contentMaxWidth = width - (horizontalPadding * 2);
     return Column(
       children: [
         if (voteModel.mainImage != null && voteModel.mainImage!.isNotEmpty)
@@ -540,17 +542,30 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
             ),
           ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 57.w),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
         ),
         const SizedBox(height: 12),
-        SizedBox(
-          height: 18,
-          child: Text(
-            '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.startAt!.toLocal())} ~ '
-            '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.stopAt!.toLocal())} '
-            '(${getShortTimeZoneIdentifier()})',
-            style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
+        // 투표 기간 텍스트: 타이틀 가로 너비를 기준으로 축소/압축 표시
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: SizedBox(
+            height: 18,
+            width: contentMaxWidth,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
+                '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.startAt!.toLocal())} ~ '
+                '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.stopAt!.toLocal())} '
+                '(${getShortTimeZoneIdentifier()})',
+                style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
+                maxLines: 1,
+                overflow: TextOverflow.visible,
+                softWrap: false,
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -572,19 +587,24 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         ),
         const SizedBox(height: 12),
         if (voteModel.reward != null && widget.votePortal == VotePortal.vote)
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.w),
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.primary500, width: 1),
-              borderRadius: BorderRadius.circular(8),
-              color: Colors.white,
-            ),
-            child: SizedBox(
-              height: 44,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
+          // 리워드 컨테이너: 타이틀과 동일한 좌우 패딩을 적용해 동일 폭으로 고정
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppColors.primary500,
+                  width: 1,
+                ), // 타이틀과 동일 두께
+                borderRadius: BorderRadius.circular(24), // 타이틀과 동일 라운드
+                color: Colors.white,
+              ),
+              child: SizedBox(
+                height: 42,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ...voteModel.reward!.map((rewardModel) {
                       final thumbnailUrl = rewardModel.thumbnail ?? '';
@@ -672,7 +692,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         // 신청 버튼 추가 (예정된 투표와 진행 중인 투표에만 표시)
         if (!isEnded && !_isSaving)
           Padding(
-            padding: const EdgeInsets.only(top: 4),
+            padding: const EdgeInsets.only(top: 12),
             child: Center(child: _buildApplicationButton(context)),
           ),
         if (isEnded && !_isSaving)
