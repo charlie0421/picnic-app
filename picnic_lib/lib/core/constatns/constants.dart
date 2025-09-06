@@ -44,6 +44,7 @@ Locale parseLocale(String code) {
 
 Map<String, String> countryMap = {
   'en': 'US',
+  'es': 'ES',
   'ko': 'KR',
   'ja': 'JP',
   'zh_CN': 'CN',
@@ -54,6 +55,7 @@ Map<String, String> countryMap = {
 Map<String, String> languageMap = {
   'ko': '한국어',
   'en': 'English',
+  'es': 'Español',
   'ja': '日本語',
   'zh_CN': '简体中文',
   'zh_TW': '繁體中文',
