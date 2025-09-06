@@ -14,6 +14,19 @@ const pool = new Pool(databaseUrl, poolSize, true);
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+// 사용자 단위 중복 요청 뮤텍스 (인스턴스 로컬)
+const userMutex = new Map();
+const USER_MUTEX_TTL_MS = parseInt(Deno.env.get('USER_MUTEX_TTL_MS') ?? '1000', 10);
+function tryAcquireUserMutex(userId) {
+  const now = Date.now();
+  const until = userMutex.get(userId) ?? 0;
+  if (until > now) return false;
+  userMutex.set(userId, now + USER_MUTEX_TTL_MS);
+  return true;
+}
+function releaseUserMutex(userId) {
+  userMutex.delete(userId);
+}
 async function withRetryOnDeadlock(fn, options = {}) {
   const {
     retries = 9,
@@ -28,10 +41,12 @@ async function withRetryOnDeadlock(fn, options = {}) {
       const pgCode = err?.fields?.code;
       const isDeadlock = pgCode === '40P01';
       const isLockTimeout = pgCode === '55P03' || /lock timeout/i.test(String(err?.message ?? ''));
-      if ((isDeadlock || isLockTimeout) && attempt < retries) {
+      const msg = String(err?.message ?? '');
+      const isOccConflict = msg.includes('USER_BALANCE_CHANGED') || msg.includes('USER_BUSY');
+      if ((isDeadlock || isLockTimeout || isOccConflict) && attempt < retries) {
         const delay = Math.min(maxDelayMs, baseDelayMs * Math.pow(2, attempt)) + Math.floor(Math.random() * 50);
         attempt += 1;
-        console.warn(`[voting-v2] retrying due to ${isDeadlock ? 'deadlock' : 'lock timeout'} (attempt ${attempt}/${retries}) after ${delay}ms`);
+        console.warn(`[voting-v2] retrying due to ${isDeadlock ? 'deadlock' : (isLockTimeout ? 'lock timeout' : 'occ conflict')} (attempt ${attempt}/${retries}) after ${delay}ms`);
         await sleep(delay);
         continue;
       }
@@ -62,9 +77,7 @@ async function queryDatabase(query, ...args) {
 }
 // 트랜잭션 범위 advisory lock (vote_item 단위 직렬화)
 async function acquireVoteItemAdvisoryLock(client, vote_item_id) {
-  // 동일 vote_item_id에 대한 동시 트랜잭션을 직렬화하여 교착을 원천 차단
-  // 두 인자 버전: (namespace int4, key int4)
-  // 옵션 B에서는 advisory lock을 제거하여 전체 처리량을 높임 (함수 남겨두되 미사용)
+  // 큐 기반 집계로 전환되어 행 경합이 크게 줄었으므로 advisory lock은 비활성화
   return;
 }
 // Execute a query using an existing transaction/client
@@ -115,7 +128,7 @@ async function spendBonusBuckets(client, user_id, bonusToUse, vote_pick_id) {
     await queryWithClient(client, `
       INSERT INTO star_candy_bonus_history (user_id, amount, remain_amount, parent_id, vote_pick_id)
       VALUES ($1, $2, 0, $3, $4)
-    `, user_id, use, bucketId, vote_pick_id);
+    `, user_id, use, bucketId, (vote_pick_id ?? null));
     remaining -= use;
     consumed += use;
   }
@@ -235,44 +248,42 @@ async function deductStarCandyBonus(client, user_id, amount, bonusId, vote_pick_
 // 투표 가능 여부 확인 및 차감 (분리된 사용량 반환) — 트랜잭션 내 수행
 async function canVoteAndDeduct(client, user_id, vote_amount, vote_pick_id) {
   try {
-    // 원자 차감: 단일 UPDATE에서 보너스 우선 사용을 계산하고 동시에 차감
-    const updateRes = await queryWithClient(client, `
-      WITH orig AS (
-        SELECT u.star_candy AS star_candy, u.star_candy_bonus AS star_candy_bonus
-        FROM user_profiles u
-        WHERE u.id = $1
-        FOR UPDATE
-      )
-      UPDATE user_profiles u
-      SET 
-        star_candy_bonus = u.star_candy_bonus - LEAST(orig.star_candy_bonus, $2),
-        star_candy       = u.star_candy - GREATEST($2 - LEAST(orig.star_candy_bonus, $2), 0),
-        updated_at       = NOW()
-      FROM orig
-      WHERE u.id = $1
-        AND (orig.star_candy + orig.star_candy_bonus) >= $2
-      RETURNING 
-        GREATEST($2 - LEAST(orig.star_candy_bonus, $2), 0)::int AS star_candy_used,
-        LEAST(orig.star_candy_bonus, $2)::int                  AS star_candy_bonus_used
-    `, user_id, vote_amount);
-    if (updateRes.rows.length === 0) {
+    // 1) 현재 잔액 조회 (락 없이)
+    const sel = await queryWithClient(client, `
+      SELECT star_candy::int AS star_candy, star_candy_bonus::int AS star_candy_bonus
+      FROM user_profiles
+      WHERE id = $1
+    `, user_id);
+    if (sel.rows.length === 0) {
+      throw new Error('User not found');
+    }
+    const origStar = Number(sel.rows[0].star_candy) || 0;
+    const origBonus = Number(sel.rows[0].star_candy_bonus) || 0;
+    const total = origStar + origBonus;
+    if (total < vote_amount) {
       return { success: false, star_candy_used: 0, star_candy_bonus_used: 0 };
     }
-    const star_candy_used = updateRes.rows[0].star_candy_used;
-    const star_candy_bonus_used = updateRes.rows[0].star_candy_bonus_used;
-    // 히스토리 기록(경량)
-    if (star_candy_bonus_used > 0) {
-      await queryWithClient(client, `
-        INSERT INTO star_candy_bonus_history (user_id, amount, remain_amount, parent_id, vote_pick_id)
-        VALUES ($1, $2, 0, NULL, $3)
-      `, user_id, star_candy_bonus_used, vote_pick_id);
+    // 2) 사용량 계산 (보너스 우선)
+    const useBonus = Math.min(origBonus, vote_amount);
+    const useRegular = Math.max(vote_amount - useBonus, 0);
+    // 3) 낙관적 갱신: 원본 값이 그대로일 때만 차감
+    const upd = await queryWithClient(client, `
+      UPDATE user_profiles u
+      SET
+        star_candy_bonus = u.star_candy_bonus - $2,
+        star_candy       = u.star_candy - $3,
+        updated_at       = NOW()
+      WHERE u.id = $1
+        AND u.star_candy = $4
+        AND u.star_candy_bonus = $5
+      RETURNING $3::int AS star_candy_used, $2::int AS star_candy_bonus_used
+    `, user_id, useBonus, useRegular, origStar, origBonus);
+    if (upd.rows.length === 0) {
+      // 동시 변경으로 실패 → 상위 재시도 로직으로 넘겨 빠르게 재시도
+      throw new Error('USER_BALANCE_CHANGED');
     }
-    if (star_candy_used > 0) {
-      await queryWithClient(client, `
-        INSERT INTO star_candy_history (type, user_id, amount, vote_pick_id)
-        VALUES ('VOTE', $1, $2, $3)
-      `, user_id, star_candy_used, vote_pick_id);
-    }
+    const star_candy_used = upd.rows[0].star_candy_used;
+    const star_candy_bonus_used = upd.rows[0].star_candy_bonus_used;
     return { success: true, star_candy_used, star_candy_bonus_used };
   } catch (error) {
     console.error('Error in canVoteAndDeduct function:', error);
@@ -284,42 +295,67 @@ async function performTransaction(connection, vote_id, vote_item_id, amount, use
     await connection.queryObject('BEGIN');
     try {
       // 빠른 실패 설정 + 약간 여유를 두고 재시도 유도
-      await connection.queryObject(`SET LOCAL lock_timeout = '10000ms'`);
+      await connection.queryObject(`SET LOCAL lock_timeout = '2000ms'`);
+      // 동일 vote_item_id 단위로 직렬화하여 트리거의 vote_item 갱신 경합을 완화
+      await acquireVoteItemAdvisoryLock(connection, vote_item_id);
+      // 사용자 행 사전 잠금 제거 (표준 FOR UPDATE 경합은 재시도 로직이 처리)
       // 옵션 B: advisory lock 사용 안 함
+      // 0. 인스턴스 간 분산 뮤텍스: user_id 기반 트랜잭션 범위 advisory try-lock (즉시 실패)
+      {
+        const lockRes = await queryWithClient(connection, `
+          SELECT pg_try_advisory_xact_lock((('x' || substr(md5($1), 1, 16))::bit(64))::bigint) AS ok
+        `, user_id);
+        const ok = Boolean(lockRes.rows?.[0]?.ok);
+        if (!ok) {
+          throw new Error('USER_BUSY');
+        }
+      }
       // 1. 먼저 vote_pick INSERT로 레코드 생성 (사용량은 일단 요청값, 실제는 뒤에서 확정)
       const votePickResult = await queryWithClient(connection, `
         INSERT INTO vote_pick (vote_id, vote_item_id, amount, user_id, star_candy_usage, star_candy_bonus_usage)
         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
       `, vote_id, vote_item_id, amount, user_id, star_candy_usage, star_candy_bonus_usage);
       const vote_pick_id = votePickResult.rows[0].id;
-      // 2. 잔액 차감 및 실제 사용량 확정 (NOWAIT/ SKIP LOCKED 적용됨)
+      // 2. 잔액 차감 및 실제 사용량 확정 (행 잠금은 표준 FOR UPDATE로 처리)
       const voteResult = await canVoteAndDeduct(connection, user_id, amount, vote_pick_id);
       if (!voteResult.success) {
         throw new Error('Insufficient star_candy and star_candy_bonus to vote');
       }
-      // 보너스 사용이 있었다면 보너스 버킷(만료일 기준)에서 실제 차감 내역을 남긴다
-      if (voteResult.star_candy_bonus_used > 0) {
-        await spendBonusBuckets(connection, user_id, voteResult.star_candy_bonus_used, vote_pick_id);
-      }
-      await queryWithClient(connection, `
-        UPDATE vote_pick
-        SET star_candy_usage = $1,
-            star_candy_bonus_usage = $2
-        WHERE id = $3
-      `, voteResult.star_candy_used, voteResult.star_candy_bonus_used, vote_pick_id);
-      // 3. 트리거 반영은 결국 같은 트랜잭션 내에서 이뤄짐. 합계 조회는 COMMIT 이후 일반 SELECT로 수행
+      // 3. COMMIT 이후: 현재 집계값을 조회하고, 응답은 "예측값"(현재값 + 이번 투표량)으로 반환
       await connection.queryObject('COMMIT');
-      const updatedTotalsAfter = await queryWithClient(connection, `
+      // 보너스 버킷 차감 및 vote_pick 사용량 업데이트는 커밋 후에 비차단으로 처리하여 user_profiles 락 보유 시간을 단축
+      try {
+        if (voteResult.star_candy_bonus_used > 0) {
+          await spendBonusBuckets(connection, user_id, voteResult.star_candy_bonus_used, vote_pick_id);
+        }
+        await queryWithClient(connection, `
+          UPDATE vote_pick
+          SET star_candy_usage = $1,
+              star_candy_bonus_usage = $2
+          WHERE id = $3
+        `, voteResult.star_candy_used, voteResult.star_candy_bonus_used, vote_pick_id);
+      } catch (_) {}
+
+      const currentTotals = await queryWithClient(connection, `
         SELECT vote_total, star_candy_total, star_candy_bonus_total
         FROM vote_item
         WHERE id = $1
       `, vote_item_id);
-      const updatedVoteTotal = updatedTotalsAfter.rows.length > 0 ? updatedTotalsAfter.rows[0].vote_total : 0;
-      const existingVoteTotal = updatedVoteTotal - amount;
+      const currentVoteTotal = currentTotals.rows.length > 0 ? (Number(currentTotals.rows[0].vote_total) || 0) : 0;
+      const predictedUpdatedVoteTotal = currentVoteTotal + amount;
+
+      // 4. Lazy flush: 1초 대기 후 집계 실행 (요청당 ~1.1s 추가 지연)
+      try {
+        await sleep(1100);
+        await queryWithClient(connection, 'SELECT public.process_vote_item_queue($1)', vote_item_id);
+      } catch (e) {
+        console.warn('[voting-v2] process_vote_item_queue warn (ignored):', String(e?.message ?? e));
+      }
+
       return {
-        existingVoteTotal,
+        existingVoteTotal: currentVoteTotal,
         addedVoteTotal: amount,
-        updatedVoteTotal,
+        updatedVoteTotal: predictedUpdatedVoteTotal,
         starCandyUsed: voteResult.star_candy_used,
         starCandyBonusUsed: voteResult.star_candy_bonus_used,
         updatedAt: new Date().toISOString()
@@ -348,6 +384,8 @@ Deno.serve(async (req)=>{
   try {
     const ip = getClientIp(req);
     const { vote_id, vote_item_id, amount, user_id, star_candy_usage, star_candy_bonus_usage } = await req.json();
+    let __mutexAcquired = false;
+    try {
     console.log('Request data:', {
       vote_id,
       vote_item_id,
@@ -407,6 +445,14 @@ Deno.serve(async (req)=>{
         status: 400
       });
     }
+    // 사용자 단위 중복 요청 뮤텍스 (1초 TTL, 대기 없이 즉시 거절)
+    if (!tryAcquireUserMutex(user_id)) {
+      return new Response(JSON.stringify({ error: 'Too many requests. Please retry shortly.' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 429
+      });
+    }
+    __mutexAcquired = true;
     // 사용자 확인
     const { user_profiles, error: userError } = await getUserProfiles(supabaseClient, user_id);
     if (userError || !user_profiles) {
@@ -487,6 +533,11 @@ Deno.serve(async (req)=>{
         connection.release();
       } catch (_) {
       // ignore release errors
+      }
+    }
+    } finally {
+      if (__mutexAcquired) {
+        releaseUserMutex(user_id);
       }
     }
   } catch (error) {
