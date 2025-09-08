@@ -1405,4 +1405,8 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get post_board_create_request_label => '게시판 개설 요청';
+
+  @override
+  String get qna_auto_close_after_14_days_notice =>
+      '14일간 추가 대화가 없을 경우 문의가 자동으로 종료됩니다.';
 }

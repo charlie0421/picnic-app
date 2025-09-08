@@ -17,3 +17,8 @@ class QnaThread with _$QnaThread {
   factory QnaThread.fromJson(Map<String, dynamic> json) =>
       _$QnaThreadFromJson(json);
 }
+
+extension QnaThreadStatusX on QnaThread {
+  bool get isOpen => status.toUpperCase() == 'OPEN';
+  bool get isClosed => status.toUpperCase() == 'CLOSED';
+}

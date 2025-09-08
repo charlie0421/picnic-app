@@ -407,7 +407,6 @@ class _MyPageState extends ConsumerState<MyPage> {
 
   // 언어 선택기 위젯
   Widget _buildLanguageSelector() {
-    // 현재 언어를 미리 읽어둠
     final currentLanguage = ref.read(appSettingProvider).language;
 
     return GestureDetector(
@@ -418,30 +417,22 @@ class _MyPageState extends ConsumerState<MyPage> {
           backgroundColor: AppColors.grey00,
           useSafeArea: true,
           builder: (context) {
-            // 바텀시트 내에서 현재 언어 값을 상태로 관리
             return StatefulBuilder(
               builder: (context, setState) {
-                // 로컬 상태로 현재 선택된 언어 관리
-                String selectedLanguage = currentLanguage;
+                final entries = languageMap.entries.toList();
+                final isWide = MediaQuery.of(context).size.width > 480;
 
-                void onLanguageSelected(String langCode) {
-                  // 같은 언어 선택 시 무시
+                void handleSelect(String langCode) {
                   if (langCode == currentLanguage) {
                     Navigator.of(context).pop();
                     return;
                   }
-
-                  // 바텀시트를 닫고 언어 변경만 수행 (재시작은 App.dart에서 처리)
                   try {
-                    // 바텀시트 먼저 닫기
                     Navigator.of(context).pop();
-
-                    // 언어 변경 - App.dart의 ref.listen이 감지하여 재시작 처리
                     ref.read(appSettingProvider.notifier).setLanguage(langCode);
                     Phoenix.rebirth(context);
                   } catch (e, stackTrace) {
                     logger.e('언어 변경 중 오류 발생', error: e, stackTrace: stackTrace);
-
                     if (mounted && context.mounted) {
                       SnackbarUtil().error(
                         '언어 변경 중 오류가 발생했습니다.',
@@ -463,49 +454,55 @@ class _MyPageState extends ConsumerState<MyPage> {
                       ),
                     ),
                     Divider(height: 1, color: AppColors.grey100),
-                    _buildLanguageOptionItem(
-                      context,
-                      'ko',
-                      '한국어',
-                      selectedLanguage,
-                      onLanguageSelected,
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        child: isWide
+                            ? GridView.builder(
+                                shrinkWrap: true,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 4,
+                                      crossAxisSpacing: 4,
+                                      childAspectRatio: 3.8,
+                                    ),
+                                itemCount: entries.length,
+                                itemBuilder: (context, index) {
+                                  final e = entries[index];
+                                  return _buildLanguageOptionItem(
+                                    context,
+                                    e.key,
+                                    e.value,
+                                    currentLanguage,
+                                    handleSelect,
+                                  );
+                                },
+                              )
+                            : ListView.separated(
+                                shrinkWrap: true,
+                                itemCount: entries.length,
+                                separatorBuilder: (_, _) => const Divider(
+                                  height: 1,
+                                  color: AppColors.grey100,
+                                ),
+                                itemBuilder: (context, index) {
+                                  final e = entries[index];
+                                  return _buildLanguageOptionItem(
+                                    context,
+                                    e.key,
+                                    e.value,
+                                    currentLanguage,
+                                    handleSelect,
+                                  );
+                                },
+                              ),
+                      ),
                     ),
-                    _buildLanguageOptionItem(
-                      context,
-                      'en',
-                      'English',
-                      selectedLanguage,
-                      onLanguageSelected,
-                    ),
-                    _buildLanguageOptionItem(
-                      context,
-                      'ja',
-                      '日本語',
-                      selectedLanguage,
-                      onLanguageSelected,
-                    ),
-                    _buildLanguageOptionItem(
-                      context,
-                      'zh_CN',
-                      '简体中文',
-                      selectedLanguage,
-                      onLanguageSelected,
-                    ),
-                    _buildLanguageOptionItem(
-                      context,
-                      'zh_TW',
-                      '繁體中文',
-                      selectedLanguage,
-                      onLanguageSelected,
-                    ),
-                    _buildLanguageOptionItem(
-                      context,
-                      'id',
-                      'Indonesia',
-                      selectedLanguage,
-                      onLanguageSelected,
-                    ),
-                    SizedBox(height: 32),
+                    const SizedBox(height: 8),
                   ],
                 );
               },
@@ -547,7 +544,7 @@ class _MyPageState extends ConsumerState<MyPage> {
       onTap: () => onSelect(langCode),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         color: isSelected ? AppColors.grey100 : Colors.transparent,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

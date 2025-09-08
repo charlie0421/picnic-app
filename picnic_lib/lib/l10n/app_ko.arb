@@ -2011,4 +2011,9 @@
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
   }
+  ,
+  "qna_auto_close_after_14_days_notice": "14일간 추가 대화가 없을 경우 문의가 자동으로 종료됩니다.",
+  "@qna_auto_close_after_14_days_notice": {
+    "description": "QnA 스레드에서 마지막 메시지가 관리자일 때 노출되는 안내 문구"
+  }
 }

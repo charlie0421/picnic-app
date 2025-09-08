@@ -5,11 +5,15 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_bn.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
+import 'app_localizations_fil.dart';
 import 'app_localizations_id.dart';
 import 'app_localizations_ja.dart';
 import 'app_localizations_ko.dart';
+import 'app_localizations_th.dart';
+import 'app_localizations_vi.dart';
 import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
@@ -98,11 +102,16 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('bn'),
+    Locale('bn', 'BD'),
     Locale('en'),
     Locale('es'),
+    Locale('fil'),
     Locale('id'),
     Locale('ja'),
     Locale('ko'),
+    Locale('th'),
+    Locale('vi'),
     Locale('zh'),
     Locale('zh', 'CN'),
     Locale('zh', 'TW'),
@@ -2795,6 +2804,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Request to open a board'**
   String get post_board_create_request_label;
+
+  /// Notice shown when the last message is from admin in QnA thread.
+  ///
+  /// In en, this message translates to:
+  /// **'If there is no additional conversation for 14 days, the inquiry will be closed automatically.'**
+  String get qna_auto_close_after_14_days_notice;
 }
 
 class _AppLocalizationsDelegate
@@ -2808,11 +2823,15 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) => <String>[
+    'bn',
     'en',
     'es',
+    'fil',
     'id',
     'ja',
     'ko',
+    'th',
+    'vi',
     'zh',
   ].contains(locale.languageCode);
 
@@ -2823,6 +2842,14 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when language+country codes are specified.
   switch (locale.languageCode) {
+    case 'bn':
+      {
+        switch (locale.countryCode) {
+          case 'BD':
+            return AppLocalizationsBnBd();
+        }
+        break;
+      }
     case 'zh':
       {
         switch (locale.countryCode) {
@@ -2837,16 +2864,24 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
 
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'bn':
+      return AppLocalizationsBn();
     case 'en':
       return AppLocalizationsEn();
     case 'es':
       return AppLocalizationsEs();
+    case 'fil':
+      return AppLocalizationsFil();
     case 'id':
       return AppLocalizationsId();
     case 'ja':
       return AppLocalizationsJa();
     case 'ko':
       return AppLocalizationsKo();
+    case 'th':
+      return AppLocalizationsTh();
+    case 'vi':
+      return AppLocalizationsVi();
     case 'zh':
       return AppLocalizationsZh();
   }

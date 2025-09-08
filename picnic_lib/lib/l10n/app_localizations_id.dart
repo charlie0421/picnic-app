@@ -1474,4 +1474,8 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get post_board_create_request_label =>
       'Permintaan untuk membuka papan';
+
+  @override
+  String get qna_auto_close_after_14_days_notice =>
+      'If there is no additional conversation for 14 days, the inquiry will be closed automatically.';
 }

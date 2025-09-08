@@ -1,157 +1,158 @@
 {
-  "achieve": "Achievement",
+  "@@locale": "bn_BD",
+  "achieve": "অর্জন",
   "@achieve": {
     "description": "Auto-generated metadata for key 'achieve'."
   },
-  "ads_available_time": "Next available time to watch ads",
+  "ads_available_time": "বিজ্ঞাপনগুলি দেখার জন্য পরবর্তী উপলভ্য সময়",
   "@ads_available_time": {
     "description": "Auto-generated metadata for key 'ads_available_time'."
   },
-  "anonymous": "Anonymous",
+  "anonymous": "বেনামে",
   "@anonymous": {
     "description": "Auto-generated metadata for key 'anonymous'."
   },
-  "anonymous_mode": "Anonymous Mode",
+  "anonymous_mode": "বেনাম মোড",
   "@anonymous_mode": {
     "description": "Auto-generated metadata for key 'anonymous_mode'."
   },
-  "block_user_label": "Blocking users",
+  "block_user_label": "ব্যবহারকারীদের অবরুদ্ধ করা",
   "@block_user_label": {
     "description": "Auto-generated metadata for key 'block_user_label'."
   },
-  "button_cancel": "Cancel",
+  "button_cancel": "বাতিল",
   "@button_cancel": {
     "description": "Auto-generated metadata for key 'button_cancel'."
   },
-  "button_complete": "Done",
+  "button_complete": "সম্পন্ন",
   "@button_complete": {
     "description": "Auto-generated metadata for key 'button_complete'."
   },
-  "button_login": "Sign in",
+  "button_login": "সাইন ইন",
   "@button_login": {
     "description": "Auto-generated metadata for key 'button_login'."
   },
-  "button_ok": "Confirm",
+  "button_ok": "নিশ্চিত করুন",
   "@button_ok": {
     "description": "Auto-generated metadata for key 'button_ok'."
   },
-  "comments": "Comments",
+  "comments": "মন্তব্য",
   "@comments": {
     "description": "Auto-generated metadata for key 'comments'."
   },
-  "common_all": "All",
+  "common_all": "সব",
   "@common_all": {
     "description": "Auto-generated metadata for key 'common_all'."
   },
-  "common_fail": "Failed",
+  "common_fail": "ব্যর্থ",
   "@common_fail": {
     "description": "Auto-generated metadata for key 'common_fail'."
   },
-  "common_retry_label": "Try again",
+  "common_retry_label": "আবার চেষ্টা করুন",
   "@common_retry_label": {
     "description": "Auto-generated metadata for key 'common_retry_label'."
   },
-  "common_success": "Success",
+  "common_success": "সাফল্য",
   "@common_success": {
     "description": "Auto-generated metadata for key 'common_success'."
   },
-  "common_text_no_data": "No data is available.",
+  "common_text_no_data": "কোনও ডেটা পাওয়া যায় না।",
   "@common_text_no_data": {
     "description": "Auto-generated metadata for key 'common_text_no_data'."
   },
-  "common_text_no_search_result": "No search results found.",
+  "common_text_no_search_result": "কোনও অনুসন্ধানের ফলাফল পাওয়া যায় নি।",
   "@common_text_no_search_result": {
     "description": "Auto-generated metadata for key 'common_text_no_search_result'."
   },
-  "common_text_search_error": "An error occurred during the search.",
+  "common_text_search_error": "অনুসন্ধানের সময় একটি ত্রুটি ঘটেছে।",
   "@common_text_search_error": {
     "description": "Auto-generated metadata for key 'common_text_search_error'."
   },
-  "common_text_search_recent_label": "Recent searches",
+  "common_text_search_recent_label": "সাম্প্রতিক অনুসন্ধান",
   "@common_text_search_recent_label": {
     "description": "Auto-generated metadata for key 'common_text_search_recent_label'."
   },
-  "common_text_search_result_label": "Search results",
+  "common_text_search_result_label": "অনুসন্ধান ফলাফল",
   "@common_text_search_result_label": {
     "description": "Auto-generated metadata for key 'common_text_search_result_label'."
   },
-  "compatibility_activities_title": "Suggested activities",
+  "compatibility_activities_title": "প্রস্তাবিত ক্রিয়াকলাপ",
   "@compatibility_activities_title": {
     "description": "Auto-generated metadata for key 'compatibility_activities_title'."
   },
-  "compatibility_agree_checkbox": "I agree to store my gender and birthday information in my profile.",
+  "compatibility_agree_checkbox": "আমি আমার প্রোফাইলে আমার লিঙ্গ এবং জন্মদিনের তথ্য সংরক্ষণ করতে সম্মত।",
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
   },
-  "compatibility_analyze_start": "Start compatibility analysis",
+  "compatibility_analyze_start": "সামঞ্জস্যতা বিশ্লেষণ শুরু করুন",
   "@compatibility_analyze_start": {
     "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
   },
-  "compatibility_analyzing": "Analyzing compatibility.",
+  "compatibility_analyzing": "সামঞ্জস্য বিশ্লেষণ।",
   "@compatibility_analyzing": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing'."
   },
-  "compatibility_analyzing_prepare": "Preparing",
+  "compatibility_analyzing_prepare": "প্রস্তুতি",
   "@compatibility_analyzing_prepare": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing_prepare'."
   },
-  "compatibility_birthday": "Date of birth",
+  "compatibility_birthday": "জন্মের তারিখ",
   "@compatibility_birthday": {
     "description": "Auto-generated metadata for key 'compatibility_birthday'."
   },
-  "compatibility_birthtime": "Birth time",
+  "compatibility_birthtime": "জন্ম সময়",
   "@compatibility_birthtime": {
     "description": "Auto-generated metadata for key 'compatibility_birthtime'."
   },
-  "compatibility_couple_style": "Couple styles",
+  "compatibility_couple_style": "দম্পতি শৈলী",
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
   },
-  "compatibility_duplicate_data_title": "Compatibility data that already exists",
+  "compatibility_duplicate_data_title": "ইতিমধ্যে বিদ্যমান সামঞ্জস্যতা ডেটা",
   "@compatibility_duplicate_data_title": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
   },
-  "compatibility_gender": "Gender",
+  "compatibility_gender": "লিঙ্গ",
   "@compatibility_gender": {
     "description": "Auto-generated metadata for key 'compatibility_gender'."
   },
-  "compatibility_gender_female": "Female",
+  "compatibility_gender_female": "মহিলা",
   "@compatibility_gender_female": {
     "description": "Auto-generated metadata for key 'compatibility_gender_female'."
   },
-  "compatibility_gender_male": "Male",
+  "compatibility_gender_male": "পুরুষ",
   "@compatibility_gender_male": {
     "description": "Auto-generated metadata for key 'compatibility_gender_male'."
   },
-  "compatibility_idol_style": "Idol Styles",
+  "compatibility_idol_style": "প্রতিমা শৈলী",
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "Calculate New Goong-Hap",
+  "compatibility_new_compatibility": "নতুন গং-হ্যাপ গণনা করুন",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_page_title": "Compatibility",
+  "compatibility_page_title": "সামঞ্জস্যতা",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
-  "compatibility_purchase_confirm_message": "Use 100 Star Candy to check Goong-Hap results.",
+  "compatibility_purchase_confirm_message": "গং-হ্যাপের ফলাফলগুলি পরীক্ষা করতে 100 স্টার ক্যান্ডি ব্যবহার করুন।",
   "@compatibility_purchase_confirm_message": {
     "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
   },
-  "compatibility_remain_star_candy": "Remaining Star Candy",
+  "compatibility_remain_star_candy": "অবশিষ্ট তারকা ক্যান্ডি",
   "@compatibility_remain_star_candy": {
     "description": "Auto-generated metadata for key 'compatibility_remain_star_candy'."
   },
-  "compatibility_result_not_found": "It's not Goong-Hap 😔.",
+  "compatibility_result_not_found": "এটি গং-হ্যাপ নয় 😔",
   "@compatibility_result_not_found": {
     "description": "Auto-generated metadata for key 'compatibility_result_not_found'."
   },
-  "compatibility_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
+  "compatibility_share_hashtag": "#পিকনিক #피크닠 #아이돌궁합 #GONGHAP #피크닠궁합",
   "@compatibility_share_hashtag": {
     "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
   },
-  "compatibility_share_message": "What percentage is my shining chemistry compatibility with {artistName} ? My heart is racing!",
+  "compatibility_share_message": "{artistName} এর সাথে আমার চকচকে রসায়ন সামঞ্জস্যতা কত শতাংশ? আমার হৃদয় দৌড়!",
   "@compatibility_share_message": {
     "placeholders": {
       "artistName": {
@@ -159,303 +160,303 @@
       }
     }
   },
-  "compatibility_snackbar_error": "An error occurred.",
+  "compatibility_snackbar_error": "একটি ত্রুটি ঘটেছে।",
   "@compatibility_snackbar_error": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
   },
-  "compatibility_snackbar_need_gender": "Please select a gender.",
+  "compatibility_snackbar_need_gender": "একটি লিঙ্গ নির্বাচন করুন।",
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "Start analyzing compatibility.",
+  "compatibility_snackbar_start": "সামঞ্জস্য বিশ্লেষণ শুরু করুন।",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_style_title": "Compatibility styles",
+  "compatibility_style_title": "সামঞ্জস্যতা শৈলী",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
-  "compatibility_time_slot1": "Hour of the Rat|(23:30-01:29)|🐀",
+  "compatibility_time_slot1": "ইঁদুরের ঘন্টা | (23: 30-01: 29) | 🐀",
   "@compatibility_time_slot1": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
   },
-  "compatibility_time_slot10": "Hour of the Rooster|(17:30-19:29)|🐔",
+  "compatibility_time_slot10": "মোরগের সময় | (17: 30-19: 29) | 🐔",
   "@compatibility_time_slot10": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
   },
-  "compatibility_time_slot11": "Hour of the Dog|(19:30-21:29)|🐕",
+  "compatibility_time_slot11": "কুকুরের ঘন্টা | (19: 30-21: 29) | 🐕",
   "@compatibility_time_slot11": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
   },
-  "compatibility_time_slot12": "Hour of the Boar|(21:30-23:29)|🐖",
+  "compatibility_time_slot12": "শুয়োরের সময় | (21: 30-23: 29) | 🐖",
   "@compatibility_time_slot12": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
   },
-  "compatibility_time_slot2": "Hour of the Ox|(01:30-03:29)|🐂",
+  "compatibility_time_slot2": "ষাঁড়ের ঘন্টা | (01: 30-03: 29) | 🐂",
   "@compatibility_time_slot2": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
   },
-  "compatibility_time_slot3": "Hour of the Tiger|(03:30-05:29)|🐅",
+  "compatibility_time_slot3": "বাঘের ঘন্টা | (03: 30-05: 29) | 🐅",
   "@compatibility_time_slot3": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
   },
-  "compatibility_time_slot4": "Hour of the Rabbit|(05:30-07:29)|🐇",
+  "compatibility_time_slot4": "খরগোশের সময় | (05: 30-07: 29) | 🐇",
   "@compatibility_time_slot4": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
   },
-  "compatibility_time_slot5": "Hour of the Dragon|(07:30-09:29)|🐉",
+  "compatibility_time_slot5": "ড্রাগনের সময় | (07: 30-09: 29) | 🐉",
   "@compatibility_time_slot5": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
   },
-  "compatibility_time_slot6": "Hour of the Snake|(09:30-11:29)|🐍",
+  "compatibility_time_slot6": "সাপের সময় | (09: 30-11: 29) | 🐍",
   "@compatibility_time_slot6": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
   },
-  "compatibility_time_slot7": "Hour of the Horse|(11:30-13:29)|🐎",
+  "compatibility_time_slot7": "ঘোড়ার ঘন্টা | (11: 30-13: 29) | 🐎",
   "@compatibility_time_slot7": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
   },
-  "compatibility_time_slot8": "Hour of the Sheep|(13:30-15:29)|🐑",
+  "compatibility_time_slot8": "ভেড়ার ঘন্টা | (13: 30-15: 29) | 🐑",
   "@compatibility_time_slot8": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
   },
-  "compatibility_time_slot9": "Hour of the Monkey|(15:30-17:29)|🐒",
+  "compatibility_time_slot9": "বানরের সময় | (15: 30-17: 29) | 🐒",
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_tips_title": "Compatibility tips",
+  "compatibility_tips_title": "সামঞ্জস্যতার টিপস",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
   },
-  "compatibility_user_style": "User Styles",
+  "compatibility_user_style": "ব্যবহারকারী শৈলী",
   "@compatibility_user_style": {
     "description": "Auto-generated metadata for key 'compatibility_user_style'."
   },
-  "compatibility_waiting_message": "Please wait a moment.",
+  "compatibility_waiting_message": "দয়া করে এক মুহুর্ত অপেক্ষা করুন।",
   "@compatibility_waiting_message": {
     "description": "Auto-generated metadata for key 'compatibility_waiting_message'."
   },
-  "compatibility_warning_exit": "If you leave the screen, you'll need to do the analysis again.",
+  "compatibility_warning_exit": "আপনি যদি স্ক্রিনটি ছেড়ে যান তবে আপনাকে আবার বিশ্লেষণ করতে হবে।",
   "@compatibility_warning_exit": {
     "description": "Auto-generated metadata for key 'compatibility_warning_exit'."
   },
-  "dialog_button_cancel": "Cancel",
+  "dialog_button_cancel": "বাতিল",
   "@dialog_button_cancel": {
     "description": "Auto-generated metadata for key 'dialog_button_cancel'."
   },
-  "dialog_button_ok": "Confirm",
+  "dialog_button_ok": "নিশ্চিত করুন",
   "@dialog_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_button_ok'."
   },
-  "dialog_caution": "🚫 Caution 🚫",
+  "dialog_caution": "🚫 সতর্কতা 🚫",
   "@dialog_caution": {
     "description": "Auto-generated metadata for key 'dialog_caution'."
   },
-  "dialog_content_ads_exhausted": "All ads have been exhausted. Please try again next time.",
+  "dialog_content_ads_exhausted": "সমস্ত বিজ্ঞাপন ক্লান্ত হয়ে গেছে। পরের বার আবার চেষ্টা করুন।",
   "@dialog_content_ads_exhausted": {
     "description": "Auto-generated metadata for key 'dialog_content_ads_exhausted'."
   },
-  "dialog_content_login_required": "Login required",
+  "dialog_content_login_required": "লগইন প্রয়োজন",
   "@dialog_content_login_required": {
     "description": "Auto-generated metadata for key 'dialog_content_login_required'."
   },
-  "dialog_message_can_resignup": "When you can rejoin if you cancel your membership now?",
+  "dialog_message_can_resignup": "আপনি এখনই আপনার সদস্যপদ বাতিল করলে আবার যোগদান করতে পারবেন?",
   "@dialog_message_can_resignup": {
     "description": "Auto-generated metadata for key 'dialog_message_can_resignup'."
   },
-  "dialog_message_purchase_failed": "There was an error with your purchase, please try again later.",
+  "dialog_message_purchase_failed": "আপনার ক্রয়ের সাথে একটি ত্রুটি ছিল, দয়া করে পরে আবার চেষ্টা করুন।",
   "@dialog_message_purchase_failed": {
     "description": "Auto-generated metadata for key 'dialog_message_purchase_failed'."
   },
-  "dialog_message_purchase_success": "Your purchase has been successfully completed.",
+  "dialog_message_purchase_success": "আপনার ক্রয় সফলভাবে সম্পন্ন হয়েছে।",
   "@dialog_message_purchase_success": {
     "description": "Auto-generated metadata for key 'dialog_message_purchase_success'."
   },
-  "dialog_title_ads_exhausted": "Exhausted all ads",
+  "dialog_title_ads_exhausted": "সমস্ত বিজ্ঞাপন ক্লান্ত",
   "@dialog_title_ads_exhausted": {
     "description": "Auto-generated metadata for key 'dialog_title_ads_exhausted'."
   },
-  "dialog_title_vote_fail": "Voting Failed",
+  "dialog_title_vote_fail": "ভোটদান ব্যর্থ",
   "@dialog_title_vote_fail": {
     "description": "Auto-generated metadata for key 'dialog_title_vote_fail'."
   },
-  "dialog_will_delete_star_candy": "Star Candies to be deleted",
+  "dialog_will_delete_star_candy": "স্টার ক্যান্ডি মুছে ফেলা হবে",
   "@dialog_will_delete_star_candy": {
     "description": "Auto-generated metadata for key 'dialog_will_delete_star_candy'."
   },
-  "dialog_withdraw_message": "If you cancel your membership, your star candy and account information on Picnic will be deleted immediately, and your existing information and data will not be restored when you rejoin.",
+  "dialog_withdraw_message": "আপনি যদি আপনার সদস্যতা বাতিল করেন তবে পিকনিকের উপর আপনার তারকা ক্যান্ডি এবং অ্যাকাউন্টের তথ্য অবিলম্বে মুছে ফেলা হবে এবং আপনি আবার যোগদানের সময় আপনার বিদ্যমান তথ্য এবং ডেটা পুনরুদ্ধার করা হবে না।",
   "@dialog_withdraw_message": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_message'."
   },
-  "dialog_withdraw_title": "Are you sure you want to leave?",
+  "dialog_withdraw_title": "আপনি কি নিশ্চিত যে আপনি চলে যেতে চান?",
   "@dialog_withdraw_title": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_title'."
   },
-  "error_action_failed": "An error occurred while performing the operation.",
+  "error_action_failed": "অপারেশন করার সময় একটি ত্রুটি ঘটেছে।",
   "@error_action_failed": {
     "description": "Auto-generated metadata for key 'error_action_failed'."
   },
-  "error_content_parse": "An error occurred while parsing the content.",
+  "error_content_parse": "সামগ্রীটি পার্স করার সময় একটি ত্রুটি ঘটেছে।",
   "@error_content_parse": {
     "description": "Auto-generated metadata for key 'error_content_parse'."
   },
-  "error_invalid_data": "Invalid data.",
+  "error_invalid_data": "অবৈধ ডেটা।",
   "@error_invalid_data": {
     "description": "Auto-generated metadata for key 'error_invalid_data'."
   },
-  "error_network_connection": "Check your network connection.",
+  "error_network_connection": "আপনার নেটওয়ার্ক সংযোগ পরীক্ষা করুন।",
   "@error_network_connection": {
     "description": "Auto-generated metadata for key 'error_network_connection'."
   },
-  "error_request_timeout": "The request timed out.",
+  "error_request_timeout": "অনুরোধ সময়সীমা শেষ।",
   "@error_request_timeout": {
     "description": "Auto-generated metadata for key 'error_request_timeout'."
   },
-  "error_title": "Errors",
+  "error_title": "ত্রুটি",
   "@error_title": {
     "description": "Auto-generated metadata for key 'error_title'."
   },
-  "error_unknown": "An unknown error occurred.",
+  "error_unknown": "একটি অজানা ত্রুটি ঘটেছে।",
   "@error_unknown": {
     "description": "Auto-generated metadata for key 'error_unknown'."
   },
-  "faq_category_all": "All",
+  "faq_category_all": "সব",
   "@faq_category_all": {
     "description": "Auto-generated metadata for key 'faq_category_all'."
   },
-  "fortune_advice": "Advice",
+  "fortune_advice": "পরামর্শ",
   "@fortune_advice": {
     "description": "Auto-generated metadata for key 'fortune_advice'."
   },
-  "fortune_button_title": "My Artist's Fortune teller",
+  "fortune_button_title": "আমার শিল্পীর ভাগ্য টেলার",
   "@fortune_button_title": {
     "description": "Auto-generated metadata for key 'fortune_button_title'."
   },
-  "fortune_career": "Business fortunes",
+  "fortune_career": "ব্যবসায়ের ভাগ্য",
   "@fortune_career": {
     "description": "Auto-generated metadata for key 'fortune_career'."
   },
-  "fortune_health": "Health fortunes",
+  "fortune_health": "স্বাস্থ্য ভাগ্য",
   "@fortune_health": {
     "description": "Auto-generated metadata for key 'fortune_health'."
   },
-  "fortune_honor": "Honor",
+  "fortune_honor": "সম্মান",
   "@fortune_honor": {
     "description": "Auto-generated metadata for key 'fortune_honor'."
   },
-  "fortune_lack_of_star_candy_message": "Reward Star Candies cannot be used here. 😥",
+  "fortune_lack_of_star_candy_message": "পুরষ্কার তারকা ক্যান্ডিস এখানে ব্যবহার করা যাবে না। 😥",
   "@fortune_lack_of_star_candy_message": {
     "description": "Auto-generated metadata for key 'fortune_lack_of_star_candy_message'."
   },
-  "fortune_lack_of_star_candy_title": "You don't have enough Star Candy. Moving to the shop screen.",
+  "fortune_lack_of_star_candy_title": "আপনার কাছে পর্যাপ্ত স্টার ক্যান্ডি নেই। দোকানের স্ক্রিনে সরানো।",
   "@fortune_lack_of_star_candy_title": {
     "description": "Auto-generated metadata for key 'fortune_lack_of_star_candy_title'."
   },
-  "fortune_lucky_color": "Lucky colors",
+  "fortune_lucky_color": "ভাগ্যবান রঙ",
   "@fortune_lucky_color": {
     "description": "Auto-generated metadata for key 'fortune_lucky_color'."
   },
-  "fortune_lucky_days": "Lucky days of the week",
+  "fortune_lucky_days": "সপ্তাহের ভাগ্যবান দিনগুলি",
   "@fortune_lucky_days": {
     "description": "Auto-generated metadata for key 'fortune_lucky_days'."
   },
-  "fortune_lucky_keyword": "Lucky keywords",
+  "fortune_lucky_keyword": "ভাগ্যবান কীওয়ার্ড",
   "@fortune_lucky_keyword": {
     "description": "Auto-generated metadata for key 'fortune_lucky_keyword'."
   },
-  "fortune_lucky_number": "Lucky numbers",
+  "fortune_lucky_number": "ভাগ্যবান সংখ্যা",
   "@fortune_lucky_number": {
     "description": "Auto-generated metadata for key 'fortune_lucky_number'."
   },
-  "fortune_money": "Fortune Telling",
+  "fortune_money": "ভাগ্য বলছি",
   "@fortune_money": {
     "description": "Auto-generated metadata for key 'fortune_money'."
   },
-  "fortune_month1": "Fortune for January",
+  "fortune_month1": "ভাগ্য জানুয়ারির জন্য",
   "@fortune_month1": {
     "description": "Auto-generated metadata for key 'fortune_month1'."
   },
-  "fortune_month10": "Fortune for October",
+  "fortune_month10": "অক্টোবরের জন্য ভাগ্য",
   "@fortune_month10": {
     "description": "Auto-generated metadata for key 'fortune_month10'."
   },
-  "fortune_month11": "Fortune for November",
+  "fortune_month11": "নভেম্বরের জন্য ভাগ্য",
   "@fortune_month11": {
     "description": "Auto-generated metadata for key 'fortune_month11'."
   },
-  "fortune_month12": "Fortune for December",
+  "fortune_month12": "ডিসেম্বরের জন্য ভাগ্য",
   "@fortune_month12": {
     "description": "Auto-generated metadata for key 'fortune_month12'."
   },
-  "fortune_month2": "Fortune for February",
+  "fortune_month2": "ফেব্রুয়ারির জন্য ভাগ্য",
   "@fortune_month2": {
     "description": "Auto-generated metadata for key 'fortune_month2'."
   },
-  "fortune_month3": "Fortune for March",
+  "fortune_month3": "মার্চ জন্য ভাগ্য",
   "@fortune_month3": {
     "description": "Auto-generated metadata for key 'fortune_month3'."
   },
-  "fortune_month4": "Fortune for April",
+  "fortune_month4": "ভাগ্য এপ্রিলের জন্য",
   "@fortune_month4": {
     "description": "Auto-generated metadata for key 'fortune_month4'."
   },
-  "fortune_month5": "Fortune for May",
+  "fortune_month5": "সৌভাগ্য মে জন্য",
   "@fortune_month5": {
     "description": "Auto-generated metadata for key 'fortune_month5'."
   },
-  "fortune_month6": "Fortune for June",
+  "fortune_month6": "ভাগ্য জুনের জন্য",
   "@fortune_month6": {
     "description": "Auto-generated metadata for key 'fortune_month6'."
   },
-  "fortune_month7": "Fortune for July",
+  "fortune_month7": "জুলাইয়ের জন্য ভাগ্য",
   "@fortune_month7": {
     "description": "Auto-generated metadata for key 'fortune_month7'."
   },
-  "fortune_month8": "Fortune for August",
+  "fortune_month8": "আগস্টের জন্য ভাগ্য",
   "@fortune_month8": {
     "description": "Auto-generated metadata for key 'fortune_month8'."
   },
-  "fortune_month9": "Fortune for September",
+  "fortune_month9": "ভাগ্য সেপ্টেম্বরের জন্য",
   "@fortune_month9": {
     "description": "Auto-generated metadata for key 'fortune_month9'."
   },
-  "fortune_monthly": "Monthly Fortune",
+  "fortune_monthly": "মাসিক ভাগ্য",
   "@fortune_monthly": {
     "description": "Auto-generated metadata for key 'fortune_monthly'."
   },
-  "fortune_relationship": "Interpersonal",
+  "fortune_relationship": "আন্তঃব্যক্তিক",
   "@fortune_relationship": {
     "description": "Auto-generated metadata for key 'fortune_relationship'."
   },
-  "fortune_total_title": "Comprehensive Fortune",
+  "fortune_total_title": "বিস্তৃত ভাগ্য",
   "@fortune_total_title": {
     "description": "Auto-generated metadata for key 'fortune_total_title'."
   },
-  "fortune_with_me": "Goong-Hap with me",
+  "fortune_with_me": "আমার সাথে গং-হ্যাপ",
   "@fortune_with_me": {
     "description": "Auto-generated metadata for key 'fortune_with_me'."
   },
-  "hint_library_add": "Album name",
+  "hint_library_add": "অ্যালবামের নাম",
   "@hint_library_add": {
     "description": "Auto-generated metadata for key 'hint_library_add'."
   },
-  "hint_nickname_input": "Please enter a nickname.",
+  "hint_nickname_input": "দয়া করে একটি ডাক নাম লিখুন।",
   "@hint_nickname_input": {
     "description": "Auto-generated metadata for key 'hint_nickname_input'."
   },
-  "image_save_success": "The image has been saved.",
+  "image_save_success": "চিত্রটি সংরক্ষণ করা হয়েছে।",
   "@image_save_success": {
     "description": "Auto-generated metadata for key 'image_save_success'."
   },
-  "label_ads_exceeded": "You have exceeded the number of times you can watch ads for this button.",
+  "label_ads_exceeded": "আপনি এই বোতামটির জন্য বিজ্ঞাপনগুলি দেখতে পারেন তার সংখ্যা ছাড়িয়ে গেছেন।",
   "@label_ads_exceeded": {
     "description": "Auto-generated metadata for key 'label_ads_exceeded'."
   },
-  "label_ads_get_star_candy": "Get Star Candy from Ads",
+  "label_ads_get_star_candy": "বিজ্ঞাপন থেকে স্টার ক্যান্ডি পান",
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
-  "label_ads_limits": "{hourly} per hour, {daily} per day",
+  "label_ads_limits": "{hourly} প্রতি ঘন্টা, {daily} প্রতিদিন",
   "@label_ads_limits": {
     "placeholders": {
       "hourly": {
@@ -466,135 +467,135 @@
       }
     }
   },
-  "label_ads_load_fail": "Failed to load ad. Please try again.",
+  "label_ads_load_fail": "বিজ্ঞাপন লোড করতে ব্যর্থ। আবার চেষ্টা করুন।",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
-  "label_ads_sdk_init_fail": "SDK initialization failed. Please try again.",
+  "label_ads_sdk_init_fail": "এসডিকে সূচনা ব্যর্থ হয়েছে। আবার চেষ্টা করুন।",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."
   },
-  "label_ads_show_fail": "Failed to show ad. Please try again.",
+  "label_ads_show_fail": "বিজ্ঞাপন দেখাতে ব্যর্থ। আবার চেষ্টা করুন।",
   "@label_ads_show_fail": {
     "description": "Auto-generated metadata for key 'label_ads_show_fail'."
   },
-  "label_agreement_privacy": "Consent to the collection and use of personal information",
+  "label_agreement_privacy": "ব্যক্তিগত তথ্য সংগ্রহ এবং ব্যবহারের সম্মতি",
   "@label_agreement_privacy": {
     "description": "Auto-generated metadata for key 'label_agreement_privacy'."
   },
-  "label_agreement_terms": "Accept the Terms of Use",
+  "label_agreement_terms": "ব্যবহারের শর্তাদি গ্রহণ করুন",
   "@label_agreement_terms": {
     "description": "Auto-generated metadata for key 'label_agreement_terms'."
   },
-  "label_album_add": "Add a new album",
+  "label_album_add": "একটি নতুন অ্যালবাম যুক্ত করুন",
   "@label_album_add": {
     "description": "Auto-generated metadata for key 'label_album_add'."
   },
-  "label_article_comment_empty": "Be the first to comment!",
+  "label_article_comment_empty": "প্রথম মন্তব্য করুন!",
   "@label_article_comment_empty": {
     "description": "Auto-generated metadata for key 'label_article_comment_empty'."
   },
-  "label_asia_recommendation": "Asia Pick",
+  "label_asia_recommendation": "এশিয়া বাছাই",
   "@label_asia_recommendation": {
     "description": "Auto-generated metadata for key 'label_asia_recommendation'."
   },
-  "label_bonus": "Bonuses",
+  "label_bonus": "বোনাস",
   "@label_bonus": {
     "description": "Auto-generated metadata for key 'label_bonus'."
   },
-  "label_button_agreement": "Accept",
+  "label_button_agreement": "গ্রহণ",
   "@label_button_agreement": {
     "description": "Auto-generated metadata for key 'label_button_agreement'."
   },
-  "label_button_close": "Close",
+  "label_button_close": "বন্ধ",
   "@label_button_close": {
     "description": "Auto-generated metadata for key 'label_button_close'."
   },
-  "label_button_recharge": "Charging",
+  "label_button_recharge": "চার্জিং",
   "@label_button_recharge": {
     "description": "Auto-generated metadata for key 'label_button_recharge'."
   },
-  "label_button_view_policy": "View Policy",
+  "label_button_view_policy": "নীতি দেখুন",
   "@label_button_view_policy": {
     "description": "Auto-generated metadata for key 'label_button_view_policy'."
   },
-  "label_button_vote": "Vote",
+  "label_button_vote": "ভোট",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
   },
-  "label_celeb_gallery": "Artist Gallery",
+  "label_celeb_gallery": "শিল্পী গ্যালারী",
   "@label_celeb_gallery": {
     "description": "Auto-generated metadata for key 'label_celeb_gallery'."
   },
-  "label_celeb_recommend": "Artist recommendations",
+  "label_celeb_recommend": "শিল্পী সুপারিশ",
   "@label_celeb_recommend": {
     "description": "Auto-generated metadata for key 'label_celeb_recommend'."
   },
-  "label_checkbox_entire_use": "Full Use",
+  "label_checkbox_entire_use": "সম্পূর্ণ ব্যবহার",
   "@label_checkbox_entire_use": {
     "description": "Auto-generated metadata for key 'label_checkbox_entire_use'."
   },
-  "label_draw_image": "Chance to win a random image",
+  "label_draw_image": "একটি এলোমেলো চিত্র জয়ের সুযোগ",
   "@label_draw_image": {
     "description": "Auto-generated metadata for key 'label_draw_image'."
   },
-  "label_dropdown_oldest": "Oldest",
+  "label_dropdown_oldest": "প্রাচীনতম",
   "@label_dropdown_oldest": {
     "description": "Auto-generated metadata for key 'label_dropdown_oldest'."
   },
-  "label_dropdown_recent": "Newest",
+  "label_dropdown_recent": "নতুন",
   "@label_dropdown_recent": {
     "description": "Auto-generated metadata for key 'label_dropdown_recent'."
   },
-  "label_global_recommendation": "Global Pick",
+  "label_global_recommendation": "গ্লোবাল পিক",
   "@label_global_recommendation": {
     "description": "Auto-generated metadata for key 'label_global_recommendation'."
   },
-  "label_hint_comment": "Leave a comment.",
+  "label_hint_comment": "একটি মন্তব্য দিন।",
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
-  "label_input_input": "Input",
+  "label_input_input": "ইনপুট",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
   },
-  "label_korean_recommendation": "Korean Pick",
+  "label_korean_recommendation": "কোরিয়ান বাছাই",
   "@label_korean_recommendation": {
     "description": "Auto-generated metadata for key 'label_korean_recommendation'."
   },
-  "label_last_provider": "Recent",
+  "label_last_provider": "সাম্প্রতিক",
   "@label_last_provider": {
     "description": "Auto-generated metadata for key 'label_last_provider'."
   },
-  "label_library_save": "Save the library",
+  "label_library_save": "গ্রন্থাগার সংরক্ষণ করুন",
   "@label_library_save": {
     "description": "Auto-generated metadata for key 'label_library_save'."
   },
-  "label_library_tab_ai_photo": "AI Photos",
+  "label_library_tab_ai_photo": "এআই ফটো",
   "@label_library_tab_ai_photo": {
     "description": "Auto-generated metadata for key 'label_library_tab_ai_photo'."
   },
-  "label_library_tab_library": "Libraries",
+  "label_library_tab_library": "গ্রন্থাগার",
   "@label_library_tab_library": {
     "description": "Auto-generated metadata for key 'label_library_tab_library'."
   },
-  "label_library_tab_pic": "PIC",
+  "label_library_tab_pic": "ছবি",
   "@label_library_tab_pic": {
     "description": "Auto-generated metadata for key 'label_library_tab_pic'."
   },
-  "label_loading_ads": "Loading ad",
+  "label_loading_ads": "বিজ্ঞাপন লোড হচ্ছে",
   "@label_loading_ads": {
     "description": "Auto-generated metadata for key 'label_loading_ads'."
   },
-  "label_mission_get_star_candy": "Get Star Candy from Missions",
+  "label_mission_get_star_candy": "মিশনগুলি থেকে স্টার ক্যান্ডি পান",
   "@label_mission_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
-  "label_mission_short": "Mission",
+  "label_mission_short": "মিশন",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
   },
-  "label_moveto_celeb_gallery": "Go to the Artist Gallery",
+  "label_moveto_celeb_gallery": "শিল্পী গ্যালারী যান",
   "@label_moveto_celeb_gallery": {
     "description": "Auto-generated metadata for key 'label_moveto_celeb_gallery'."
   },
@@ -602,131 +603,131 @@
   "@label_mypage_faq": {
     "description": "Auto-generated metadata for key 'label_mypage_faq'."
   },
-  "label_mypage_logout": "Log out",
+  "label_mypage_logout": "লগ আউট",
   "@label_mypage_logout": {
     "description": "Auto-generated metadata for key 'label_mypage_logout'."
   },
-  "label_mypage_my_artist": "My Artists",
+  "label_mypage_my_artist": "আমার শিল্পী",
   "@label_mypage_my_artist": {
     "description": "Auto-generated metadata for key 'label_mypage_my_artist'."
   },
-  "label_mypage_no_artist": "No Artist",
+  "label_mypage_no_artist": "কোন শিল্পী নেই",
   "@label_mypage_no_artist": {
     "description": "Auto-generated metadata for key 'label_mypage_no_artist'."
   },
-  "label_mypage_notice": "Notice",
+  "label_mypage_notice": "বিজ্ঞপ্তি",
   "@label_mypage_notice": {
     "description": "Auto-generated metadata for key 'label_mypage_notice'."
   },
-  "label_mypage_picnic_id": "Picnic ID",
+  "label_mypage_picnic_id": "পিকনিক আইডি",
   "@label_mypage_picnic_id": {
     "description": "Auto-generated metadata for key 'label_mypage_picnic_id'."
   },
-  "label_mypage_privacy_policy": "Privacy Policy",
+  "label_mypage_privacy_policy": "গোপনীয়তা নীতি",
   "@label_mypage_privacy_policy": {
     "description": "Auto-generated metadata for key 'label_mypage_privacy_policy'."
   },
-  "label_mypage_setting": "Settings",
+  "label_mypage_setting": "সেটিংস",
   "@label_mypage_setting": {
     "description": "Auto-generated metadata for key 'label_mypage_setting'."
   },
-  "label_mypage_should_login": "Please sign in",
+  "label_mypage_should_login": "সাইন ইন করুন",
   "@label_mypage_should_login": {
     "description": "Auto-generated metadata for key 'label_mypage_should_login'."
   },
-  "label_mypage_terms_of_use": "Terms of Use",
+  "label_mypage_terms_of_use": "ব্যবহারের শর্তাদি",
   "@label_mypage_terms_of_use": {
     "description": "Auto-generated metadata for key 'label_mypage_terms_of_use'."
   },
-  "label_mypage_vote_history": "StarCandy Voting History",
+  "label_mypage_vote_history": "স্টারক্যান্ডি ভোটদানের ইতিহাস",
   "@label_mypage_vote_history": {
     "description": "Auto-generated metadata for key 'label_mypage_vote_history'."
   },
-  "label_mypage_withdrawal": "Withdrawal",
+  "label_mypage_withdrawal": "প্রত্যাহার",
   "@label_mypage_withdrawal": {
     "description": "Auto-generated metadata for key 'label_mypage_withdrawal'."
   },
-  "label_no_celeb": "You don't have any artists bookmarked yet!",
+  "label_no_celeb": "আপনার কাছে এখনও কোনও শিল্পী বুকমার্ক নেই!",
   "@label_no_celeb": {
     "description": "Auto-generated metadata for key 'label_no_celeb'."
   },
-  "label_pic_chart": "Pic Chart",
+  "label_pic_chart": "ছবি চার্ট",
   "@label_pic_chart": {
     "description": "Auto-generated metadata for key 'label_pic_chart'."
   },
-  "label_pic_pic_save_gallery": "Save to Gallery",
+  "label_pic_pic_save_gallery": "গ্যালারী সংরক্ষণ করুন",
   "@label_pic_pic_save_gallery": {
     "description": "Auto-generated metadata for key 'label_pic_pic_save_gallery'."
   },
-  "label_read_more_comment": "More comments",
+  "label_read_more_comment": "আরও মন্তব্য",
   "@label_read_more_comment": {
     "description": "Auto-generated metadata for key 'label_read_more_comment'."
   },
-  "label_reply": "Replying to a reply",
+  "label_reply": "একটি উত্তর জবাব",
   "@label_reply": {
     "description": "Auto-generated metadata for key 'label_reply'."
   },
-  "label_retry": "Retrying",
+  "label_retry": "পুনরায় চেষ্টা করা",
   "@label_retry": {
     "description": "Auto-generated metadata for key 'label_retry'."
   },
-  "label_setting_alarm": "Notifications",
+  "label_setting_alarm": "বিজ্ঞপ্তি",
   "@label_setting_alarm": {
     "description": "Auto-generated metadata for key 'label_setting_alarm'."
   },
-  "label_setting_appinfo": "App info",
+  "label_setting_appinfo": "অ্যাপ্লিকেশন তথ্য",
   "@label_setting_appinfo": {
     "description": "Auto-generated metadata for key 'label_setting_appinfo'."
   },
-  "label_setting_current_version": "Current version",
+  "label_setting_current_version": "বর্তমান সংস্করণ",
   "@label_setting_current_version": {
     "description": "Auto-generated metadata for key 'label_setting_current_version'."
   },
-  "label_setting_event_alarm": "Event notifications",
+  "label_setting_event_alarm": "ইভেন্ট বিজ্ঞপ্তি",
   "@label_setting_event_alarm": {
     "description": "Auto-generated metadata for key 'label_setting_event_alarm'."
   },
-  "label_setting_event_alarm_desc": "Events and happenings.",
+  "label_setting_event_alarm_desc": "ঘটনা এবং ঘটনা।",
   "@label_setting_event_alarm_desc": {
     "description": "Auto-generated metadata for key 'label_setting_event_alarm_desc'."
   },
-  "label_setting_language": "Language settings",
+  "label_setting_language": "ভাষা সেটিংস",
   "@label_setting_language": {
     "description": "Auto-generated metadata for key 'label_setting_language'."
   },
-  "label_setting_push_alarm": "Push notifications",
+  "label_setting_push_alarm": "বিজ্ঞপ্তিগুলি ধাক্কা",
   "@label_setting_push_alarm": {
     "description": "Auto-generated metadata for key 'label_setting_push_alarm'."
   },
-  "label_setting_recent_version": "Latest version",
+  "label_setting_recent_version": "সর্বশেষ সংস্করণ",
   "@label_setting_recent_version": {
     "description": "Auto-generated metadata for key 'label_setting_recent_version'."
   },
-  "label_setting_recent_version_up_to_date": "Latest version",
+  "label_setting_recent_version_up_to_date": "সর্বশেষ সংস্করণ",
   "@label_setting_recent_version_up_to_date": {
     "description": "Auto-generated metadata for key 'label_setting_recent_version_up_to_date'."
   },
-  "label_setting_remove_cache": "Delete cache memory",
+  "label_setting_remove_cache": "ক্যাশে মেমরি মুছুন",
   "@label_setting_remove_cache": {
     "description": "Auto-generated metadata for key 'label_setting_remove_cache'."
   },
-  "label_setting_storage": "Manage storage",
+  "label_setting_storage": "স্টোরেজ পরিচালনা করুন",
   "@label_setting_storage": {
     "description": "Auto-generated metadata for key 'label_setting_storage'."
   },
-  "label_star_candy_pouch": "Star Candy Pouch",
+  "label_star_candy_pouch": "স্টার ক্যান্ডি থলি",
   "@label_star_candy_pouch": {
     "description": "Auto-generated metadata for key 'label_star_candy_pouch'."
   },
-  "label_tabbar_vote_active": "In Progress",
+  "label_tabbar_vote_active": "অগ্রগতি",
   "@label_tabbar_vote_active": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_active'."
   },
-  "label_tabbar_vote_end": "Closed",
+  "label_tabbar_vote_end": "বন্ধ",
   "@label_tabbar_vote_end": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_end'."
   },
-  "label_time_ago_day": "{day} days ago",
+  "label_time_ago_day": "{day} দিন আগে",
   "@label_time_ago_day": {
     "placeholders": {
       "day": {
@@ -734,7 +735,7 @@
       }
     }
   },
-  "label_time_ago_hour": "{hour} hours ago",
+  "label_time_ago_hour": "{hour} ঘন্টা আগে",
   "@label_time_ago_hour": {
     "placeholders": {
       "hour": {
@@ -742,439 +743,439 @@
       }
     }
   },
-  "label_time_ago_right_now": "Just a moment ago",
+  "label_time_ago_right_now": "ঠিক এক মুহুর্ত আগে",
   "@label_time_ago_right_now": {
     "description": "Auto-generated metadata for key 'label_time_ago_right_now'."
   },
-  "label_title_report": "Make a report",
+  "label_title_report": "একটি প্রতিবেদন করুন",
   "@label_title_report": {
     "description": "Auto-generated metadata for key 'label_title_report'."
   },
-  "label_unlimited_rewards": "Unlimited rewards",
+  "label_unlimited_rewards": "সীমাহীন পুরষ্কার",
   "@label_unlimited_rewards": {
     "description": "Auto-generated metadata for key 'label_unlimited_rewards'."
   },
-  "label_vote_end": "Close the poll",
+  "label_vote_end": "জরিপ বন্ধ করুন",
   "@label_vote_end": {
     "description": "Auto-generated metadata for key 'label_vote_end'."
   },
-  "label_vote_reward_list": "Rewards list",
+  "label_vote_reward_list": "পুরষ্কার তালিকা",
   "@label_vote_reward_list": {
     "description": "Auto-generated metadata for key 'label_vote_reward_list'."
   },
-  "label_vote_screen_title": "Voting",
+  "label_vote_screen_title": "ভোট",
   "@label_vote_screen_title": {
     "description": "Auto-generated metadata for key 'label_vote_screen_title'."
   },
-  "label_vote_upcoming": "Until voting begins",
+  "label_vote_upcoming": "ভোটদান শুরু না হওয়া পর্যন্ত",
   "@label_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_vote_upcoming'."
   },
-  "label_watch_ads_short": "Watch",
+  "label_watch_ads_short": "দেখুন",
   "@label_watch_ads_short": {
     "description": "Auto-generated metadata for key 'label_watch_ads_short'."
   },
-  "lable_my_celeb": "My Artists",
+  "lable_my_celeb": "আমার শিল্পী",
   "@lable_my_celeb": {
     "description": "Auto-generated metadata for key 'lable_my_celeb'."
   },
-  "message_error_occurred": "An error occurred.",
+  "message_error_occurred": "একটি ত্রুটি ঘটেছে।",
   "@message_error_occurred": {
     "description": "Auto-generated metadata for key 'message_error_occurred'."
   },
-  "message_noitem_vote_active": "There are currently no active polls.",
+  "message_noitem_vote_active": "বর্তমানে কোনও সক্রিয় পোল নেই।",
   "@message_noitem_vote_active": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_active'."
   },
-  "message_noitem_vote_end": "There are currently no closed polls.",
+  "message_noitem_vote_end": "বর্তমানে কোনও বন্ধ পোল নেই।",
   "@message_noitem_vote_end": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_end'."
   },
-  "message_noitem_vote_upcoming": "There are currently no upcoming polls.",
+  "message_noitem_vote_upcoming": "বর্তমানে আসন্ন কোনও পোল নেই।",
   "@message_noitem_vote_upcoming": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_upcoming'."
   },
-  "message_pic_pic_save_fail": "Saving the image failed.",
+  "message_pic_pic_save_fail": "চিত্র সংরক্ষণ ব্যর্থ হয়েছে।",
   "@message_pic_pic_save_fail": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_fail'."
   },
-  "message_pic_pic_save_success": "The image has been saved.",
+  "message_pic_pic_save_success": "চিত্রটি সংরক্ষণ করা হয়েছে।",
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
-  "message_vote_is_ended": "Poll closed",
+  "message_vote_is_ended": "পোল বন্ধ",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
   },
-  "message_vote_is_upcoming": "This is an upcoming vote.",
+  "message_vote_is_upcoming": "এটি একটি আসন্ন ভোট।",
   "@message_vote_is_upcoming": {
     "description": "Auto-generated metadata for key 'message_vote_is_upcoming'."
   },
-  "my_info": "My Information",
+  "my_info": "আমার তথ্য",
   "@my_info": {
     "description": "Auto-generated metadata for key 'my_info'."
   },
-  "mypage_setting": "Settings",
+  "mypage_setting": "সেটিংস",
   "@mypage_setting": {
     "description": "Auto-generated metadata for key 'mypage_setting'."
   },
-  "nav_media": "Media",
+  "nav_media": "মিডিয়া",
   "@nav_media": {
     "description": "Auto-generated metadata for key 'nav_media'."
   },
-  "nickname_validation_error": "20 characters or less, excluding special characters.",
+  "nickname_validation_error": "20 টি অক্ষর বা তার চেয়ে কম, বিশেষ অক্ষরগুলি বাদ দিয়ে।",
   "@nickname_validation_error": {
     "description": "Auto-generated metadata for key 'nickname_validation_error'."
   },
-  "page_title_mypage": "My Page",
+  "page_title_mypage": "আমার পৃষ্ঠা",
   "@page_title_mypage": {
     "description": "Auto-generated metadata for key 'page_title_mypage'."
   },
-  "page_title_post_write": "Create a post",
+  "page_title_post_write": "একটি পোস্ট তৈরি করুন",
   "@page_title_post_write": {
     "description": "Auto-generated metadata for key 'page_title_post_write'."
   },
-  "page_title_vote_detail": "Vote",
+  "page_title_vote_detail": "ভোট",
   "@page_title_vote_detail": {
     "description": "Auto-generated metadata for key 'page_title_vote_detail'."
   },
-  "popup_label_delete": "Delete",
+  "popup_label_delete": "মুছুন",
   "@popup_label_delete": {
     "description": "Auto-generated metadata for key 'popup_label_delete'."
   },
-  "post_anonymous": "Anonymous posting",
+  "post_anonymous": "বেনামে পোস্টিং",
   "@post_anonymous": {
     "description": "Auto-generated metadata for key 'post_anonymous'."
   },
-  "post_board_already_exist": "A board that already exists.",
+  "post_board_already_exist": "ইতিমধ্যে বিদ্যমান একটি বোর্ড।",
   "@post_board_already_exist": {
     "description": "Auto-generated metadata for key 'post_board_already_exist'."
   },
-  "post_board_create_request_complete": "Your request to open a board is complete.",
+  "post_board_create_request_complete": "বোর্ড খোলার জন্য আপনার অনুরোধটি সম্পূর্ণ।",
   "@post_board_create_request_complete": {
     "description": "Auto-generated metadata for key 'post_board_create_request_complete'."
   },
-  "post_board_create_request_condition": "*Only one minor board can be applied per ID.",
+  "post_board_create_request_condition": "*প্রতি আইডি প্রতি কেবলমাত্র একটি ছোটখাটো বোর্ড প্রয়োগ করা যেতে পারে।",
   "@post_board_create_request_condition": {
     "description": "Auto-generated metadata for key 'post_board_create_request_condition'."
   },
-  "post_board_request_label": "Open requests",
+  "post_board_request_label": "অনুরোধ খোলা",
   "@post_board_request_label": {
     "description": "Auto-generated metadata for key 'post_board_request_label'."
   },
-  "post_comment_action_translate": "Translation",
+  "post_comment_action_translate": "অনুবাদ",
   "@post_comment_action_translate": {
     "description": "Auto-generated metadata for key 'post_comment_action_translate'."
   },
-  "post_comment_content_more": "More",
+  "post_comment_content_more": "আরও",
   "@post_comment_content_more": {
     "description": "Auto-generated metadata for key 'post_comment_content_more'."
   },
-  "post_comment_delete_confirm": "Are you sure you want to delete the comment?",
+  "post_comment_delete_confirm": "আপনি কি মন্তব্যটি মুছতে চান তা নিশ্চিত?",
   "@post_comment_delete_confirm": {
     "description": "Auto-generated metadata for key 'post_comment_delete_confirm'."
   },
-  "post_comment_delete_fail": "Comment deletion failed.",
+  "post_comment_delete_fail": "মন্তব্য মুছে ফেলা ব্যর্থ।",
   "@post_comment_delete_fail": {
     "description": "Auto-generated metadata for key 'post_comment_delete_fail'."
   },
-  "post_comment_deleted_comment": "This is a deleted comment.",
+  "post_comment_deleted_comment": "এটি একটি মুছে ফেলা মন্তব্য।",
   "@post_comment_deleted_comment": {
     "description": "Auto-generated metadata for key 'post_comment_deleted_comment'."
   },
-  "post_comment_like_processing_fail": "Failed to process like.",
+  "post_comment_like_processing_fail": "মত প্রক্রিয়া করতে ব্যর্থ।",
   "@post_comment_like_processing_fail": {
     "description": "Auto-generated metadata for key 'post_comment_like_processing_fail'."
   },
-  "post_comment_loading_fail": "Comment failed to load.",
+  "post_comment_loading_fail": "মন্তব্য লোড করতে ব্যর্থ।",
   "@post_comment_loading_fail": {
     "description": "Auto-generated metadata for key 'post_comment_loading_fail'."
   },
-  "post_comment_register_fail": "Comment registration failed.",
+  "post_comment_register_fail": "মন্তব্য নিবন্ধকরণ ব্যর্থ।",
   "@post_comment_register_fail": {
     "description": "Auto-generated metadata for key 'post_comment_register_fail'."
   },
-  "post_comment_registered_comment": "Your comment has been registered.",
+  "post_comment_registered_comment": "আপনার মন্তব্য নিবন্ধিত হয়েছে।",
   "@post_comment_registered_comment": {
     "description": "Auto-generated metadata for key 'post_comment_registered_comment'."
   },
-  "post_comment_reported_comment": "This is a reported comment.",
+  "post_comment_reported_comment": "এটি একটি প্রতিবেদন মন্তব্য।",
   "@post_comment_reported_comment": {
     "description": "Auto-generated metadata for key 'post_comment_reported_comment'."
   },
-  "post_comment_translate_fail": "The translation failed.",
+  "post_comment_translate_fail": "অনুবাদ ব্যর্থ হয়েছে।",
   "@post_comment_translate_fail": {
     "description": "Auto-generated metadata for key 'post_comment_translate_fail'."
   },
-  "post_comment_translated": "Translated",
+  "post_comment_translated": "অনুবাদ",
   "@post_comment_translated": {
     "description": "Auto-generated metadata for key 'post_comment_translated'."
   },
-  "post_comment_write_label": "Write a comment",
+  "post_comment_write_label": "একটি মন্তব্য লিখুন",
   "@post_comment_write_label": {
     "description": "Auto-generated metadata for key 'post_comment_write_label'."
   },
-  "post_content_placeholder": "Please enter something.",
+  "post_content_placeholder": "কিছু লিখুন দয়া করে।",
   "@post_content_placeholder": {
     "description": "Auto-generated metadata for key 'post_content_placeholder'."
   },
-  "post_delete_scrap_confirm": "Do you want to delete the scrap?",
+  "post_delete_scrap_confirm": "আপনি কি স্ক্র্যাপটি মুছতে চান?",
   "@post_delete_scrap_confirm": {
     "description": "Auto-generated metadata for key 'post_delete_scrap_confirm'."
   },
-  "post_delete_scrap_title": "Delete a scrap",
+  "post_delete_scrap_title": "একটি স্ক্র্যাপ মুছুন",
   "@post_delete_scrap_title": {
     "description": "Auto-generated metadata for key 'post_delete_scrap_title'."
   },
-  "post_flagged": "Contains inappropriate content",
+  "post_flagged": "অনুপযুক্ত সামগ্রী রয়েছে",
   "@post_flagged": {
     "description": "Auto-generated metadata for key 'post_flagged'."
   },
-  "post_go_to_boards": "Go to the board",
+  "post_go_to_boards": "বোর্ডে যান",
   "@post_go_to_boards": {
     "description": "Auto-generated metadata for key 'post_go_to_boards'."
   },
-  "post_header_publish": "Publishing",
+  "post_header_publish": "প্রকাশনা",
   "@post_header_publish": {
     "description": "Auto-generated metadata for key 'post_header_publish'."
   },
-  "post_header_temporary_save": "Drafts",
+  "post_header_temporary_save": "খসড়া",
   "@post_header_temporary_save": {
     "description": "Auto-generated metadata for key 'post_header_temporary_save'."
   },
-  "post_hint_title": "Please enter a title.",
+  "post_hint_title": "একটি শিরোনাম লিখুন দয়া করে।",
   "@post_hint_title": {
     "description": "Auto-generated metadata for key 'post_hint_title'."
   },
-  "post_hyperlink": "Hyperlinks",
+  "post_hyperlink": "হাইপারলিঙ্কস",
   "@post_hyperlink": {
     "description": "Auto-generated metadata for key 'post_hyperlink'."
   },
-  "post_insert_link": "Inserting links",
+  "post_insert_link": "লিঙ্কগুলি সন্নিবেশ করা",
   "@post_insert_link": {
     "description": "Auto-generated metadata for key 'post_insert_link'."
   },
-  "post_minor_board_condition": "Please enter a description of at least 5 characters and no more than 20 characters.",
+  "post_minor_board_condition": "দয়া করে কমপক্ষে 5 টি অক্ষরের একটি বিবরণ লিখুন এবং 20 টিরও বেশি অক্ষরের বেশি নেই।",
   "@post_minor_board_condition": {
     "description": "Auto-generated metadata for key 'post_minor_board_condition'."
   },
-  "post_minor_board_description": "Minor bulletin board descriptions",
+  "post_minor_board_description": "মাইনর বুলেটিন বোর্ডের বিবরণ",
   "@post_minor_board_description": {
     "description": "Auto-generated metadata for key 'post_minor_board_description'."
   },
-  "post_minor_board_description_input": "Please enter a description for your minor board.",
+  "post_minor_board_description_input": "আপনার ছোটখাটো বোর্ডের জন্য একটি বিবরণ লিখুন।",
   "@post_minor_board_description_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_description_input'."
   },
-  "post_minor_board_name": "Minor board name",
+  "post_minor_board_name": "মাইনর বোর্ডের নাম",
   "@post_minor_board_name": {
     "description": "Auto-generated metadata for key 'post_minor_board_name'."
   },
-  "post_minor_board_name_input": "Please enter a name for your minor board.",
+  "post_minor_board_name_input": "আপনার ছোটখাটো বোর্ডের জন্য একটি নাম লিখুন।",
   "@post_minor_board_name_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_name_input'."
   },
-  "post_my_compatibilities": "My compatibility",
+  "post_my_compatibilities": "আমার সামঞ্জস্য",
   "@post_my_compatibilities": {
     "description": "Auto-generated metadata for key 'post_my_compatibilities'."
   },
-  "post_my_written_post": "Posts I've written",
+  "post_my_written_post": "আমি লিখেছি পোস্ট",
   "@post_my_written_post": {
     "description": "Auto-generated metadata for key 'post_my_written_post'."
   },
-  "post_my_written_reply": "Comments I wrote",
+  "post_my_written_reply": "মন্তব্য আমি লিখেছি",
   "@post_my_written_reply": {
     "description": "Auto-generated metadata for key 'post_my_written_reply'."
   },
-  "post_my_written_scrap": "My Scraps",
+  "post_my_written_scrap": "আমার স্ক্র্যাপস",
   "@post_my_written_scrap": {
     "description": "Auto-generated metadata for key 'post_my_written_scrap'."
   },
-  "post_no_comment": "No comments.",
+  "post_no_comment": "কোন মন্তব্য।",
   "@post_no_comment": {
     "description": "Auto-generated metadata for key 'post_no_comment'."
   },
-  "post_not_found": "No posts were found.",
+  "post_not_found": "কোনও পোস্ট পাওয়া যায় নি।",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."
   },
-  "post_report_fail": "The report failed.",
+  "post_report_fail": "প্রতিবেদন ব্যর্থ হয়েছে।",
   "@post_report_fail": {
     "description": "Auto-generated metadata for key 'post_report_fail'."
   },
-  "post_report_label": "Make a report",
+  "post_report_label": "একটি প্রতিবেদন করুন",
   "@post_report_label": {
     "description": "Auto-generated metadata for key 'post_report_label'."
   },
-  "post_report_other_input": "Please enter any other reason.",
+  "post_report_other_input": "দয়া করে অন্য কোনও কারণে লিখুন।",
   "@post_report_other_input": {
     "description": "Auto-generated metadata for key 'post_report_other_input'."
   },
-  "post_report_reason_1": "Unsavory posts",
+  "post_report_reason_1": "অযৌক্তিক পোস্ট",
   "@post_report_reason_1": {
     "description": "Auto-generated metadata for key 'post_report_reason_1'."
   },
-  "post_report_reason_2": "Sexist, racist posts",
+  "post_report_reason_2": "যৌনতাবাদী, বর্ণবাদী পোস্ট",
   "@post_report_reason_2": {
     "description": "Auto-generated metadata for key 'post_report_reason_2'."
   },
-  "post_report_reason_3": "Posts containing offensive profanity",
+  "post_report_reason_3": "আপত্তিকর অশ্লীলতাযুক্ত পোস্ট",
   "@post_report_reason_3": {
     "description": "Auto-generated metadata for key 'post_report_reason_3'."
   },
-  "post_report_reason_4": "Advertising/Promotional Posts",
+  "post_report_reason_4": "বিজ্ঞাপন/প্রচারমূলক পোস্ট",
   "@post_report_reason_4": {
     "description": "Auto-generated metadata for key 'post_report_reason_4'."
   },
-  "post_report_reason_5": "Other",
+  "post_report_reason_5": "অন্য",
   "@post_report_reason_5": {
     "description": "Auto-generated metadata for key 'post_report_reason_5'."
   },
-  "post_report_reason_input": "Please select a reason for your report.",
+  "post_report_reason_input": "আপনার প্রতিবেদনের জন্য একটি কারণ নির্বাচন করুন।",
   "@post_report_reason_input": {
     "description": "Auto-generated metadata for key 'post_report_reason_input'."
   },
-  "post_report_reason_label": "Reasons for reporting",
+  "post_report_reason_label": "রিপোর্টিংয়ের কারণ",
   "@post_report_reason_label": {
     "description": "Auto-generated metadata for key 'post_report_reason_label'."
   },
-  "post_report_success": "The report is complete.",
+  "post_report_success": "প্রতিবেদন সম্পূর্ণ।",
   "@post_report_success": {
     "description": "Auto-generated metadata for key 'post_report_success'."
   },
-  "post_title_placeholder": "Please enter a title.",
+  "post_title_placeholder": "একটি শিরোনাম লিখুন দয়া করে।",
   "@post_title_placeholder": {
     "description": "Auto-generated metadata for key 'post_title_placeholder'."
   },
-  "post_youtube_link": "YouTube link",
+  "post_youtube_link": "ইউটিউব লিঙ্ক",
   "@post_youtube_link": {
     "description": "Auto-generated metadata for key 'post_youtube_link'."
   },
-  "purchase_confirm_button": "Purchase",
+  "purchase_confirm_button": "ক্রয়",
   "@purchase_confirm_button": {
     "description": "Auto-generated metadata for key 'purchase_confirm_button'."
   },
-  "purchase_confirm_message": "Would you like to purchase the following item?",
+  "purchase_confirm_message": "আপনি কি নিম্নলিখিত আইটেমটি কিনতে চান?",
   "@purchase_confirm_message": {
     "description": "Auto-generated metadata for key 'purchase_confirm_message'."
   },
-  "purchase_confirm_title": "Purchase Confirmation",
+  "purchase_confirm_title": "ক্রয় নিশ্চিতকরণ",
   "@purchase_confirm_title": {
     "description": "Auto-generated metadata for key 'purchase_confirm_title'."
   },
-  "previousTransactionPendingError": "Your previous payment is still being processed by the Store. Please try again shortly.",
+  "previousTransactionPendingError": "আপনার আগের অর্থ প্রদান এখনও স্টোর দ্বারা প্রক্রিয়া করা হচ্ছে। শীঘ্রই আবার চেষ্টা করুন।",
   "@previousTransactionPendingError": {
     "description": "Auto-generated metadata for key 'previousTransactionPendingError'."
   },
-  "purchase_in_progress_message": "Purchase is in progress. Please wait a moment.",
+  "purchase_in_progress_message": "ক্রয় চলছে। দয়া করে এক মুহুর্ত অপেক্ষা করুন।",
   "@purchase_in_progress_message": {
     "description": "Auto-generated metadata for key 'purchase_in_progress_message'."
   },
-  "purchase_initializing_message": "Initializing. Please try again in a moment.",
+  "purchase_initializing_message": "সূচনা এক মুহুর্তে আবার চেষ্টা করুন।",
   "@purchase_initializing_message": {
     "description": "Auto-generated metadata for key 'purchase_initializing_message'."
   },
-  "purchase_cancelled_message": "Purchase has been cancelled.",
+  "purchase_cancelled_message": "ক্রয় বাতিল করা হয়েছে।",
   "@purchase_cancelled_message": {
     "description": "Auto-generated metadata for key 'purchase_cancelled_message'."
   },
-  "purchase_payment_amount": "Payment Amount",
+  "purchase_payment_amount": "অর্থ প্রদানের পরিমাণ",
   "@purchase_payment_amount": {
     "description": "Auto-generated metadata for key 'purchase_payment_amount'."
   },
-  "purchase_web_message": "This is the payment window for those who can't pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.",
+  "purchase_web_message": "যারা অ্যাপটি দিয়ে অর্থ প্রদান করতে পারবেন না তাদের জন্য এটি অর্থ প্রদানের উইন্ডো।\n আগে থেকে এলোমেলো আইডি অনুলিপি করুন।\n এটি অনুলিপি করার পরে, অর্থ প্রদানের সাথে এগিয়ে যেতে নীচের বোতামটি ক্লিক করুন।",
   "@purchase_web_message": {
     "description": "Auto-generated metadata for key 'purchase_web_message'."
   },
-  "qna_content": "Content",
+  "qna_content": "বিষয়বস্তু",
   "@qna_content": {
     "description": "Auto-generated metadata for key 'qna_content'."
   },
-  "qna_create_page_title": "Create Inquiry",
+  "qna_create_page_title": "তদন্ত তৈরি করুন",
   "@qna_create_page_title": {
     "description": "Auto-generated metadata for key 'qna_create_page_title'."
   },
-  "qna_no_inquiries": "No inquiry history",
+  "qna_no_inquiries": "কোনও তদন্তের ইতিহাস নেই",
   "@qna_no_inquiries": {
     "description": "Auto-generated metadata for key 'qna_no_inquiries'."
   },
-  "qna_status_closed": "Closed",
+  "qna_status_closed": "বন্ধ",
   "@qna_status_closed": {
     "description": "Auto-generated metadata for key 'qna_status_closed'."
   },
-  "qna_status_open": "Open",
+  "qna_status_open": "খোলা",
   "@qna_status_open": {
     "description": "Auto-generated metadata for key 'qna_status_open'."
   },
-  "qna_submit_button": "Submit Inquiry",
+  "qna_submit_button": "তদন্ত জমা দিন",
   "@qna_submit_button": {
     "description": "Auto-generated metadata for key 'qna_submit_button'."
   },
-  "qna_title": "Title",
+  "qna_title": "শিরোনাম",
   "@qna_title": {
     "description": "Auto-generated metadata for key 'qna_title'."
   },
-  "replies": "Comments",
+  "replies": "মন্তব্য",
   "@replies": {
     "description": "Auto-generated metadata for key 'replies'."
   },
-  "reward": "Rewards",
+  "reward": "পুরষ্কার",
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "Save",
+  "save": "সংরক্ষণ করুন",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
-  "seconds": "seconds",
+  "seconds": "সেকেন্ড",
   "@seconds": {
     "description": "Auto-generated metadata for key 'seconds'."
   },
-  "share": "Share",
+  "share": "ভাগ",
   "@share": {
     "description": "Auto-generated metadata for key 'share'."
   },
-  "text_community_board_search": "Searching the Artist Board",
+  "text_community_board_search": "শিল্পী বোর্ড অনুসন্ধান",
   "@text_community_board_search": {
     "description": "Auto-generated metadata for key 'text_community_board_search'."
   },
-  "text_community_post_search": "Search",
+  "text_community_post_search": "অনুসন্ধান",
   "@text_community_post_search": {
     "description": "Auto-generated metadata for key 'text_community_post_search'."
   },
-  "text_copied_address": "The address has been copied.",
+  "text_copied_address": "ঠিকানাটি অনুলিপি করা হয়েছে।",
   "@text_copied_address": {
     "description": "Auto-generated metadata for key 'text_copied_address'."
   },
-  "text_draw_image": "Confirmed ownership of 1 image from the entire gallery.",
+  "text_draw_image": "পুরো গ্যালারী থেকে 1 টি চিত্রের মালিকানা নিশ্চিত করেছে।",
   "@text_draw_image": {
     "description": "Auto-generated metadata for key 'text_draw_image'."
   },
-  "text_hint_search": "Search for artists",
+  "text_hint_search": "শিল্পীদের জন্য অনুসন্ধান করুন",
   "@text_hint_search": {
     "description": "Auto-generated metadata for key 'text_hint_search'."
   },
-  "text_moveto_celeb_gallery": "Navigate to the selected artist's home.",
+  "text_moveto_celeb_gallery": "নির্বাচিত শিল্পীর বাড়িতে নেভিগেট করুন।",
   "@text_moveto_celeb_gallery": {
     "description": "Auto-generated metadata for key 'text_moveto_celeb_gallery'."
   },
-  "text_need_recharge": "Requires charging.",
+  "text_need_recharge": "চার্জিং প্রয়োজন।",
   "@text_need_recharge": {
     "description": "Auto-generated metadata for key 'text_need_recharge'."
   },
-  "text_no_search_result": "No search results.",
+  "text_no_search_result": "কোনও অনুসন্ধানের ফলাফল নেই।",
   "@text_no_search_result": {
     "description": "Auto-generated metadata for key 'text_no_search_result'."
   },
-  "text_purchase_vat_included": "*Price includes VAT.",
+  "text_purchase_vat_included": "*দাম ভ্যাট অন্তর্ভুক্ত।",
   "@text_purchase_vat_included": {
     "description": "Auto-generated metadata for key 'text_purchase_vat_included'."
   },
-  "text_vote_complete": "Voting complete",
+  "text_vote_complete": "ভোট সম্পূর্ণ",
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
-  "text_vote_rank": "Rank {rank}",
+  "text_vote_rank": "র‌্যাঙ্ক {rank}",
   "@text_vote_rank": {
     "placeholders": {
       "rank": {
@@ -1182,243 +1183,243 @@
       }
     }
   },
-  "text_vote_rank_in_reward": "Rank in Rewards",
+  "text_vote_rank_in_reward": "পুরষ্কারে র‌্যাঙ্ক",
   "@text_vote_rank_in_reward": {
     "description": "Auto-generated metadata for key 'text_vote_rank_in_reward'."
   },
-  "text_vote_where_is_my_bias": "Where's My Favorite?",
+  "text_vote_where_is_my_bias": "আমার প্রিয় কোথায়?",
   "@text_vote_where_is_my_bias": {
     "description": "Auto-generated metadata for key 'text_vote_where_is_my_bias'."
   },
-  "title_dialog_library_add": "Add a new album",
+  "title_dialog_library_add": "একটি নতুন অ্যালবাম যুক্ত করুন",
   "@title_dialog_library_add": {
     "description": "Auto-generated metadata for key 'title_dialog_library_add'."
   },
-  "title_select_language": "Select a language",
+  "title_select_language": "একটি ভাষা নির্বাচন করুন",
   "@title_select_language": {
     "description": "Auto-generated metadata for key 'title_select_language'."
   },
-  "toast_max_five_celeb": "You can add up to five of your own artists.",
+  "toast_max_five_celeb": "আপনি আপনার নিজের পাঁচটি শিল্পী যুক্ত করতে পারেন।",
   "@toast_max_five_celeb": {
     "description": "Auto-generated metadata for key 'toast_max_five_celeb'."
   },
-  "update_button": "Update",
+  "update_button": "আপডেট",
   "@update_button": {
     "description": "Auto-generated metadata for key 'update_button'."
   },
-  "update_cannot_open_appstore": "I can't open the app store.",
+  "update_cannot_open_appstore": "আমি অ্যাপ স্টোরটি খুলতে পারি না।",
   "@update_cannot_open_appstore": {
     "description": "Auto-generated metadata for key 'update_cannot_open_appstore'."
   },
-  "update_required_title": "An update is required.",
+  "update_required_title": "একটি আপডেট প্রয়োজন।",
   "@update_required_title": {
     "description": "Auto-generated metadata for key 'update_required_title'."
   },
-  "views": "Views",
+  "views": "ভিউ",
   "@views": {
     "description": "Auto-generated metadata for key 'views'."
   },
-  "vote_item_request_can_apply": "Can apply",
+  "vote_item_request_can_apply": "প্রয়োগ করতে পারেন",
   "@vote_item_request_can_apply": {
     "description": "Auto-generated metadata for key 'vote_item_request_can_apply'."
   },
-  "vote_item_request_search_artist": "Search Artist",
+  "vote_item_request_search_artist": "অনুসন্ধান শিল্পী",
   "@vote_item_request_search_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_search_artist'."
   },
-  "vote_item_request_status": "Request status",
+  "vote_item_request_status": "অনুরোধ স্থিতি",
   "@vote_item_request_status": {
     "description": "Auto-generated metadata for key 'vote_item_request_status'."
   },
-  "vote_item_request_status_approved": "Approved",
+  "vote_item_request_status_approved": "অনুমোদিত",
   "@vote_item_request_status_approved": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_approved'."
   },
-  "vote_item_request_status_pending": "Pending",
+  "vote_item_request_status_pending": "মুলতুবি",
   "@vote_item_request_status_pending": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_pending'."
   },
-  "vote_item_request_status_rejected": "Rejected",
+  "vote_item_request_status_rejected": "প্রত্যাখ্যান",
   "@vote_item_request_status_rejected": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_rejected'."
   },
-  "vote_item_request_submit": "Submit",
+  "vote_item_request_submit": "জমা দিন",
   "@vote_item_request_submit": {
     "description": "Auto-generated metadata for key 'vote_item_request_submit'."
   },
-  "vote_item_request_title": "Vote Artist Request",
+  "vote_item_request_title": "ভোট শিল্পীর অনুরোধ",
   "@vote_item_request_title": {
     "description": "Auto-generated metadata for key 'vote_item_request_title'."
   },
-  "vote_share_message": "Voted!",
+  "vote_share_message": "ভোট!",
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
-  "voting_share_benefit_text": "Get 1 bonus star candy for every 100 votes and share!",
+  "voting_share_benefit_text": "প্রতি 100 ভোটের জন্য 1 বোনাস স্টার ক্যান্ডি পান এবং ভাগ করুন!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
-  "cancel": "Cancel",
+  "cancel": "বাতিল",
   "@cancel": {
     "description": "Auto-generated metadata for key 'cancel'."
   },
-  "confirm": "Confirm",
+  "confirm": "নিশ্চিত করুন",
   "@confirm": {
     "description": "Auto-generated metadata for key 'confirm'."
   },
-  "loading": "Loading...",
+  "loading": "লোড হচ্ছে ...",
   "@loading": {
     "description": "Auto-generated metadata for key 'loading'."
   },
-  "retry": "Retry",
+  "retry": "পুনরায় চেষ্টা করুন",
   "@retry": {
     "description": "Auto-generated metadata for key 'retry'."
   },
-  "update": "Update",
+  "update": "আপডেট",
   "@update": {
     "description": "Auto-generated metadata for key 'update'."
   },
-  "ban_title": "Account Suspended",
+  "ban_title": "অ্যাকাউন্ট স্থগিত",
   "@ban_title": {
     "description": "Auto-generated metadata for key 'ban_title'."
   },
-  "ban_message": "Your account has been temporarily suspended due to inappropriate activity.",
+  "ban_message": "অনুপযুক্ত ক্রিয়াকলাপের কারণে আপনার অ্যাকাউন্টটি সাময়িকভাবে স্থগিত করা হয়েছে।",
   "@ban_message": {
     "description": "Auto-generated metadata for key 'ban_message'."
   },
-  "ban_contact": "Please contact customer service if you have any questions.",
+  "ban_contact": "আপনার যদি কোনও প্রশ্ন থাকে তবে দয়া করে গ্রাহক পরিষেবার সাথে যোগাযোগ করুন।",
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
-  "compatibility_empty_state_title": "No compatibility information",
+  "compatibility_empty_state_title": "কোনও সামঞ্জস্যতার তথ্য নেই",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "Create your first compatibility!",
+  "compatibility_empty_state_subtitle": "আপনার প্রথম সামঞ্জস্যতা তৈরি করুন!",
   "@compatibility_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
   },
-  "network_error_title": "Network Error",
+  "network_error_title": "নেটওয়ার্ক ত্রুটি",
   "@network_error_title": {
     "description": "Auto-generated metadata for key 'network_error_title'."
   },
-  "network_error_message": "Please check your internet connection.",
+  "network_error_message": "আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।",
   "@network_error_message": {
     "description": "Auto-generated metadata for key 'network_error_message'."
   },
-  "notice_pinned": "Pinned",
+  "notice_pinned": "পিনড",
   "@notice_pinned": {
     "description": "Auto-generated metadata for key 'notice_pinned'."
   },
-  "title_dialog_error": "Error",
+  "title_dialog_error": "ত্রুটি",
   "@title_dialog_error": {
     "description": "Auto-generated metadata for key 'title_dialog_error'."
   },
-  "vote_item_request_waiting": "Waiting",
+  "vote_item_request_waiting": "অপেক্ষা করছি",
   "@vote_item_request_waiting": {
     "description": "Auto-generated metadata for key 'vote_item_request_waiting'."
   },
-  "capture_failed": "Capture failed",
+  "capture_failed": "ক্যাপচার ব্যর্থ",
   "@capture_failed": {
     "description": "Auto-generated metadata for key 'capture_failed'."
   },
-  "qna_submit_success": "Your inquiry has been successfully submitted",
+  "qna_submit_success": "আপনার তদন্ত সফলভাবে জমা দেওয়া হয়েছে",
   "@qna_submit_success": {
     "description": "Auto-generated metadata for key 'qna_submit_success'."
   },
-  "qna_list_title": "My Inquiries",
+  "qna_list_title": "আমার অনুসন্ধান",
   "@qna_list_title": {
     "description": "Auto-generated metadata for key 'qna_list_title'."
   },
-  "starCandy100": "100 Star Candy",
+  "starCandy100": "100 তারকা ক্যান্ডি",
   "@starCandy100": {
     "description": "Auto-generated metadata for key 'starCandy100'."
   },
-  "starCandy200": "200 Star Candy",
+  "starCandy200": "200 তারকা ক্যান্ডি",
   "@starCandy200": {
     "description": "Auto-generated metadata for key 'starCandy200'."
   },
-  "starCandy600": "600 Star Candy",
+  "starCandy600": "600 স্টার ক্যান্ডি",
   "@starCandy600": {
     "description": "Auto-generated metadata for key 'starCandy600'."
   },
-  "starCandy1000": "1,000 Star Candy",
+  "starCandy1000": "1000 স্টার ক্যান্ডি",
   "@starCandy1000": {
     "description": "Auto-generated metadata for key 'starCandy1000'."
   },
-  "starCandy2000": "2,000 Star Candy",
+  "starCandy2000": "2,000 তারা ক্যান্ডি",
   "@starCandy2000": {
     "description": "Auto-generated metadata for key 'starCandy2000'."
   },
-  "starCandy3000": "3,000 Star Candy",
+  "starCandy3000": "3,000 তারা ক্যান্ডি",
   "@starCandy3000": {
     "description": "Auto-generated metadata for key 'starCandy3000'."
   },
-  "starCandy4000": "4,000 Star Candy",
+  "starCandy4000": "4,000 তারা ক্যান্ডি",
   "@starCandy4000": {
     "description": "Auto-generated metadata for key 'starCandy4000'."
   },
-  "starCandy5000": "5,000 Star Candy",
+  "starCandy5000": "5,000 স্টার ক্যান্ডি",
   "@starCandy5000": {
     "description": "Auto-generated metadata for key 'starCandy5000'."
   },
-  "update_required_message": "App update required",
+  "update_required_message": "অ্যাপ্লিকেশন আপডেট প্রয়োজন",
   "@update_required_message": {
     "description": "Auto-generated metadata for key 'update_required_message'."
   },
-  "vote_item_request_no_search_results": "No search results",
+  "vote_item_request_no_search_results": "কোনও অনুসন্ধানের ফলাফল নেই",
   "@vote_item_request_no_search_results": {
     "description": "Auto-generated metadata for key 'vote_item_request_no_search_results'."
   },
-  "jma_voting_my_star_candy": "My Star Candy",
+  "jma_voting_my_star_candy": "আমার তারকা ক্যান্ডি",
   "@jma_voting_my_star_candy": {
     "description": "Auto-generated metadata for key 'jma_voting_my_star_candy'."
   },
-  "jma_voting_usable_jma_votes": "Available JMA Votes",
+  "jma_voting_usable_jma_votes": "উপলব্ধ জেএমএ ভোট",
   "@jma_voting_usable_jma_votes": {
     "description": "Auto-generated metadata for key 'jma_voting_usable_jma_votes'."
   },
-  "jma_voting_use_all": "Use All",
+  "jma_voting_use_all": "সব ব্যবহার করুন",
   "@jma_voting_use_all": {
     "description": "Auto-generated metadata for key 'jma_voting_use_all'."
   },
-  "jma_voting_input_amount": "Please enter the amount of Star Candy.",
+  "jma_voting_input_amount": "দয়া করে স্টার ক্যান্ডির পরিমাণ লিখুন।",
   "@jma_voting_input_amount": {
     "description": "Auto-generated metadata for key 'jma_voting_input_amount'."
   },
-  "jma_voting_daily_limit_error": "You can vote up to 5 times per day.",
+  "jma_voting_daily_limit_error": "আপনি প্রতিদিন 5 বার পর্যন্ত ভোট দিতে পারেন।",
   "@jma_voting_daily_limit_error": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_error'."
   },
-  "jma_voting_exchange_failed": "An error occurred while exchanging Star Candy. Please try again.",
+  "jma_voting_exchange_failed": "স্টার ক্যান্ডি বিনিময় করার সময় একটি ত্রুটি ঘটেছে। আবার চেষ্টা করুন।",
   "@jma_voting_exchange_failed": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed'."
   },
-  "jma_voting_daily_limit_title": "Voting Limit",
+  "jma_voting_daily_limit_title": "ভোটের সীমা",
   "@jma_voting_daily_limit_title": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_title'."
   },
-  "jma_voting_exchange_failed_title": "Exchange Failed",
+  "jma_voting_exchange_failed_title": "এক্সচেঞ্জ ব্যর্থ হয়েছে",
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "Expiring Bonus Guide",
+  "expiring_bonus_candy_guide": "বোনাস গাইড মেয়াদোত্তীর্ণ",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
-  "qna_form_title_hint": "Please enter a title of at least 5 characters.",
+  "qna_form_title_hint": "কমপক্ষে 5 টি অক্ষরের একটি শিরোনাম লিখুন।",
   "@qna_form_title_hint": {
     "description": "Auto-generated metadata for key 'qna_form_title_hint'."
   },
-  "qna_form_content_hint": "Please enter content of at least 10 characters.",
+  "qna_form_content_hint": "কমপক্ষে 10 টি অক্ষরের সামগ্রী লিখুন দয়া করে।",
   "@qna_form_content_hint": {
     "description": "Auto-generated metadata for key 'qna_form_content_hint'."
   },
-  "qna_attach_media": "Attach Photo/Video",
+  "qna_attach_media": "ফটো/ভিডিও সংযুক্ত করুন",
   "@qna_attach_media": {
     "description": "Auto-generated metadata for key 'qna_attach_media'."
   },
-  "file_too_large_message": "{fileName} exceeds the {maxSize}MB size limit.",
+  "file_too_large_message": "{fileName}__ {maxSize}mb আকারের সীমা ছাড়িয়ে গেছে।",
   "@file_too_large_message": {
     "placeholders": {
       "fileName": {
@@ -1429,11 +1430,11 @@
       }
     }
   },
-  "qna_submit_fail": "Failed to submit inquiry",
+  "qna_submit_fail": "তদন্ত জমা দিতে ব্যর্থ",
   "@qna_submit_fail": {
     "description": "Auto-generated metadata for key 'qna_submit_fail'."
   },
-  "qna_file_size_limit_notice": "You can attach files up to {maxSize}MB.",
+  "qna_file_size_limit_notice": "আপনি {maxSize}mb পর্যন্ত ফাইলগুলি সংযুক্ত করতে পারেন।",
   "@qna_file_size_limit_notice": {
     "placeholders": {
       "maxSize": {
@@ -1441,68 +1442,67 @@
       }
     }
   },
-  "qna_cannot_send_message_closed": "This inquiry has been closed and you can no longer send messages.",
+  "qna_cannot_send_message_closed": "এই তদন্তটি বন্ধ হয়ে গেছে এবং আপনি আর বার্তা প্রেরণ করতে পারবেন না।",
   "@qna_cannot_send_message_closed": {
     "description": "Auto-generated metadata for key 'qna_cannot_send_message_closed'."
   },
-  "qna_message_sent_success": "Message sent successfully.",
+  "qna_message_sent_success": "বার্তা সফলভাবে প্রেরণ।",
   "@qna_message_sent_success": {
     "description": "Auto-generated metadata for key 'qna_message_sent_success'."
   },
-  "qna_message_sent_fail": "Failed to send message",
+  "qna_message_sent_fail": "বার্তা পাঠাতে ব্যর্থ",
   "@qna_message_sent_fail": {
     "description": "Auto-generated metadata for key 'qna_message_sent_fail'."
   },
-  "qna_no_answer_yet": "No answer yet",
+  "qna_no_answer_yet": "এখনও কোন উত্তর",
   "@qna_no_answer_yet": {
     "description": "Auto-generated metadata for key 'qna_no_answer_yet'."
   },
-  "qna_add_media_tooltip": "Add Media",
+  "qna_add_media_tooltip": "মিডিয়া যোগ করুন",
   "@qna_add_media_tooltip": {
     "description": "Auto-generated metadata for key 'qna_add_media_tooltip'."
   },
-  "qna_load_fail_title": "Failed to load inquiries",
+  "qna_load_fail_title": "অনুসন্ধান লোড করতে ব্যর্থ",
   "@qna_load_fail_title": {
     "description": "Auto-generated metadata for key 'qna_load_fail_title'."
   },
-  "qna_message_hint": "Enter message",
+  "qna_message_hint": "বার্তা লিখুন",
   "@qna_message_hint": {
     "description": "Auto-generated metadata for key 'qna_message_hint'."
   },
-  "label_my_vote_history": "My Vote History",
+  "label_my_vote_history": "আমার ভোটের ইতিহাস",
   "@label_my_vote_history": {
     "description": "Auto-generated metadata for key 'label_my_vote_history'."
   },
-  "@@locale": "en",
-  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)",
+  "bonus_candy_example_2_expire": "__The_month_after_next__ 15 তম 00:00 (কেএসটি)",
   "@bonus_candy_example_2_expire": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
   },
-  "bonus_candy_example_earn_date": "Earn Date",
+  "bonus_candy_example_earn_date": "তারিখ উপার্জন",
   "@bonus_candy_example_earn_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
   },
-  "vote_item_request_status_unknown": "Unknown",
+  "vote_item_request_status_unknown": "অজানা",
   "@vote_item_request_status_unknown": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
   },
-  "bonus_candy_expiration_policy_load_fail": "Failed to load expiring bonus information.",
+  "bonus_candy_expiration_policy_load_fail": "মেয়াদোত্তীর্ণ বোনাস তথ্য লোড করতে ব্যর্থ।",
   "@bonus_candy_expiration_policy_load_fail": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
   },
-  "bonus_candy_example_1_expire": "__NEXT_MONTH__ 15th 00:00(KST)",
+  "bonus_candy_example_1_expire": "__NEXT_MONTH__ 15 তম 00:00 (কেএসটি)",
   "@bonus_candy_example_1_expire": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
   },
-  "vote_item_request_status_in_progress": "In Progress",
+  "vote_item_request_status_in_progress": "অগ্রগতি",
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.",
+  "bonus_candy_policy_2": "- স্টার ক্যান্ডি ব্যবহার করার সময়, নিকটতম মেয়াদোত্তীর্ণের তারিখ সহ বোনাস স্টার ক্যান্ডি প্রথমে কেটে নেওয়া হবে।",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "compatibility_purchase_message": "If I want to know the Goong-hap score between me and the {artistName}?",
+  "compatibility_purchase_message": "আমি যদি আমার এবং {artistName} এর মধ্যে গং-হ্যাপ স্কোর জানতে চাই?",
   "@compatibility_purchase_message": {
     "placeholders": {
       "artistName": {
@@ -1510,127 +1510,127 @@
       }
     }
   },
-  "label_mypage_charge_history": "Charges (Admin)",
+  "label_mypage_charge_history": "চার্জ (অ্যাডমিন)",
   "@label_mypage_charge_history": {
     "description": "Charge history menu for admin users"
   },
-  "compatibility_time_slot_unknown": "Don't know",
+  "compatibility_time_slot_unknown": "জানি না",
   "@compatibility_time_slot_unknown": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
   },
-  "label_popup_hide_7days": "Don't view for 7 days",
+  "label_popup_hide_7days": "7 দিনের জন্য দেখুন না",
   "@label_popup_hide_7days": {
     "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
   },
-  "expiring_soon_bonus_candy": "Expiring Bonus Star Candy",
+  "expiring_soon_bonus_candy": "বোনাস স্টার ক্যান্ডি মেয়াদোত্তীর্ণ",
   "@expiring_soon_bonus_candy": {
     "description": "Auto-generated metadata for key 'expiring_soon_bonus_candy'."
   },
-  "bonus_candy_expiration_policy_earn_period": "Earn Period",
+  "bonus_candy_expiration_policy_earn_period": "সময়কাল উপার্জন",
   "@bonus_candy_expiration_policy_earn_period": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
   },
-  "message_setting_remove_cache": "Cache memory deletion is complete.",
+  "message_setting_remove_cache": "ক্যাশে মেমরি মোছা সম্পূর্ণ।",
   "@message_setting_remove_cache": {
     "description": "Auto-generated metadata for key 'message_setting_remove_cache'."
   },
-  "error_loading_more_comments": "There was an error loading the comment.",
+  "error_loading_more_comments": "মন্তব্যটি লোড করার একটি ত্রুটি ছিল।",
   "@error_loading_more_comments": {
     "description": "Auto-generated metadata for key 'error_loading_more_comments'."
   },
-  "purchase_timeout_message": "Purchase processing is taking too long.\nPlease try again later.",
+  "purchase_timeout_message": "ক্রয় প্রসেসিং খুব বেশি সময় নিচ্ছে।\nপরে আবার চেষ্টা করুন।",
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
-  "label_tabbar_vote_upcoming": "Upcoming",
+  "label_tabbar_vote_upcoming": "আসন্ন",
   "@label_tabbar_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
   },
-  "bonus_candy_example_1_earn": "__MONTH__ 10th 14:00(KST)",
+  "bonus_candy_example_1_earn": "__Month__ 10 তম 14:00 (কেএসটি)",
   "@bonus_candy_example_1_earn": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
   },
-  "error_receipt_verification_failed": "Receipt verification failed.",
+  "error_receipt_verification_failed": "রসিদ যাচাইকরণ ব্যর্থ হয়েছে।",
   "@error_receipt_verification_failed": {
     "description": "Auto-generated metadata for key 'error_receipt_verification_failed'."
   },
-  "vote_item_request_status_cancelled": "Cancelled",
+  "vote_item_request_status_cancelled": "বাতিল",
   "@vote_item_request_status_cancelled": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_cancelled'."
   },
-  "post_write_board_post": "Create a post",
+  "post_write_board_post": "একটি পোস্ট তৈরি করুন",
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.",
+  "bonus_candy_policy_3": "- মেয়াদোত্তীর্ণ বোনাস স্টার ক্যান্ডি পুনরুদ্ধার করা যায় না, সুতরাং দয়া করে পিরিয়ডের মধ্যে এটি ব্যবহার করতে ভুলবেন না।",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
-  "message_update_nickname_fail": "Nickname change failed.\nPlease select a different nickname.",
+  "message_update_nickname_fail": "ডাকনাম পরিবর্তন ব্যর্থ হয়েছে।\nদয়া করে একটি আলাদা ডাক নাম নির্বাচন করুন।",
   "@message_update_nickname_fail": {
     "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
   },
-  "bonus_candy_expiration_time_title": "Expiration Time",
+  "bonus_candy_expiration_time_title": "মেয়াদোত্তীর্ণ সময়",
   "@bonus_candy_expiration_time_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_time_title'."
   },
-  "post_comment_action_show_translation": "View translations",
+  "post_comment_action_show_translation": "অনুবাদ দেখুন",
   "@post_comment_action_show_translation": {
     "description": "Auto-generated metadata for key 'post_comment_action_show_translation'."
   },
-  "fortune_lucky_direction": "Direction of Fortune",
+  "fortune_lucky_direction": "ভাগ্যের দিকনির্দেশ",
   "@fortune_lucky_direction": {
     "description": "Auto-generated metadata for key 'fortune_lucky_direction'."
   },
-  "error_message_login_failed": "An error occurred during login.",
+  "error_message_login_failed": "লগইন চলাকালীন একটি ত্রুটি ঘটেছে।",
   "@error_message_login_failed": {
     "description": "Auto-generated metadata for key 'error_message_login_failed'."
   },
-  "dialog_withdraw_button_ok": "Unsubscribing",
+  "dialog_withdraw_button_ok": "সাবস্ক্রাইব করা",
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "compatibility_birthtime_subtitle": "Increase accuracy!",
+  "compatibility_birthtime_subtitle": "নির্ভুলতা বৃদ্ধি!",
   "@compatibility_birthtime_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
   },
-  "title_dialog_success": "Success",
+  "title_dialog_success": "সাফল্য",
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "Bonus Star Candy Policy",
+  "bonus_candy_policy_title": "বোনাস তারকা ক্যান্ডি নীতি",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
-  "bonus_candy_example_expiration_date": "Expiration Date",
+  "bonus_candy_example_expiration_date": "মেয়াদ শেষ হওয়ার তারিখ",
   "@bonus_candy_example_expiration_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
   },
-  "label_tab_free_charge_station": "Free charging stations",
+  "label_tab_free_charge_station": "বিনামূল্যে চার্জিং স্টেশন",
   "@label_tab_free_charge_station": {
     "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
   },
-  "error_user_not_authenticated": "You need to sign in. Please log in again.",
+  "error_user_not_authenticated": "আপনার সাইন ইন করতে হবে। আবার লগ ইন করুন।",
   "@error_user_not_authenticated": {
     "description": "Auto-generated metadata for key 'error_user_not_authenticated'."
   },
-  "text_dialog_vote_amount_should_not_zero": "The number of votes cannot be zero.",
+  "text_dialog_vote_amount_should_not_zero": "ভোটের সংখ্যা শূন্য হতে পারে না।",
   "@text_dialog_vote_amount_should_not_zero": {
     "description": "Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'."
   },
-  "message_agreement_success": "Acceptance of the terms is complete.",
+  "message_agreement_success": "শর্তাদি গ্রহণ সম্পূর্ণ।",
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
-  "bonus_candy_earn_period_1_to_15": "1st 00:00:00 ~ 15th 23:59:59",
+  "bonus_candy_earn_period_1_to_15": "1 ম 00:00:00 ~ 15 ম 23:59:59",
   "@bonus_candy_earn_period_1_to_15": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
   },
-  "compatibility_snackbar_need_birthday": "Please enter your date of birth.",
+  "compatibility_snackbar_need_birthday": "আপনার জন্ম তারিখ লিখুন দয়া করে।",
   "@compatibility_snackbar_need_birthday": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
   },
-  "update_recommend_text": "A new version ({version}) is available.",
+  "update_recommend_text": "একটি নতুন সংস্করণ ({version}) উপলব্ধ।",
   "@update_recommend_text": {
     "placeholders": {
       "version": {
@@ -1638,51 +1638,51 @@
       }
     }
   },
-  "error_product_not_found": "We couldn't find the purchased product.",
+  "error_product_not_found": "আমরা কেনা পণ্যটি খুঁজে পাইনি।",
   "@error_product_not_found": {
     "description": "Auto-generated metadata for key 'error_product_not_found'."
   },
-  "label_popup_close": "Close",
+  "label_popup_close": "বন্ধ",
   "@label_popup_close": {
     "description": "Auto-generated metadata for key 'label_popup_close'."
   },
-  "jma_voting_info_text": "-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.",
+  "jma_voting_info_text": "-বোনাস স্টার ক্যান্ডি জেএমএর জন্য দিনে 5 বার ভোট দেওয়ার জন্য ব্যবহার করা যেতে পারে।\n-প্রয়োজনীয় তারা ক্যান্ডি স্বয়ংক্রিয়ভাবে রূপান্তরিত হয়। (30 তারা ক্যান্ডি = 1 জেএমএ ভোট)\nভোটে অংশগ্রহণ স্বয়ংক্রিয়ভাবে আপনাকে জাকার্তা কনসার্টে প্রবেশ করবে।",
   "@jma_voting_info_text": {
     "description": "Auto-generated metadata for key 'jma_voting_info_text'."
   },
-  "vote_item_request_search_artist_hint": "Search for artist or group",
+  "vote_item_request_search_artist_hint": "শিল্পী বা গোষ্ঠীর জন্য অনুসন্ধান করুন",
   "@vote_item_request_search_artist_hint": {
     "description": "Auto-generated metadata for key 'vote_item_request_search_artist_hint'."
   },
-  "bonus_candy_expiration_month_after_next": "Month after next 15th 00:00:00",
+  "bonus_candy_expiration_month_after_next": "পরের 15 তম 00:00:00 এর পরে মাস",
   "@bonus_candy_expiration_month_after_next": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'."
   },
-  "post_comment_action_show_original": "View full text",
+  "post_comment_action_show_original": "সম্পূর্ণ পাঠ্য দেখুন",
   "@post_comment_action_show_original": {
     "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
   },
-  "compatibility_snackbar_need_profile_save_agree": "Give your consent to save your profile.",
+  "compatibility_snackbar_need_profile_save_agree": "আপনার প্রোফাইল সংরক্ষণ করতে আপনার সম্মতি দিন।",
   "@compatibility_snackbar_need_profile_save_agree": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
   },
-  "qna_content_min_length": "Inquiry content must be at least 10 characters",
+  "qna_content_min_length": "তদন্ত সামগ্রী কমপক্ষে 10 টি অক্ষর হতে হবে",
   "@qna_content_min_length": {
     "description": "Auto-generated metadata for key 'qna_content_min_length'."
   },
-  "post_ask_go_to_temporary_save_list": "Want to go to the Drafts list?",
+  "post_ask_go_to_temporary_save_list": "খসড়া তালিকায় যেতে চান?",
   "@post_ask_go_to_temporary_save_list": {
     "description": "Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'."
   },
-  "label_pic_pic_synthesizing_image": "Compositing an image...",
+  "label_pic_pic_synthesizing_image": "একটি চিত্র কম্পোজিং ...",
   "@label_pic_pic_synthesizing_image": {
     "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
   },
-  "label_tab_buy_star_candy": "Buy star candy",
+  "label_tab_buy_star_candy": "স্টার ক্যান্ডি কিনুন",
   "@label_tab_buy_star_candy": {
     "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
   },
-  "jma_voting_max_votes_exceeded": "The current maximum possible votes is {maxVotes}.",
+  "jma_voting_max_votes_exceeded": "বর্তমান সর্বোচ্চ সম্ভাব্য ভোটগুলি হ'ল {maxVotes}।",
   "@jma_voting_max_votes_exceeded": {
     "placeholders": {
       "maxVotes": {
@@ -1690,7 +1690,7 @@
       }
     }
   },
-  "jma_voting_daily_limit_remaining": "Today's remaining bonus votes: {remaining} times (max {max} times)",
+  "jma_voting_daily_limit_remaining": "আজকের অবশিষ্ট বোনাস ভোট: {remaining} বার (সর্বোচ্চ {max} বার)",
   "@jma_voting_daily_limit_remaining": {
     "placeholders": {
       "remaining": {
@@ -1701,39 +1701,39 @@
       }
     }
   },
-  "post_temporary_save_complete": "Draft complete.",
+  "post_temporary_save_complete": "খসড়া সম্পূর্ণ।",
   "@post_temporary_save_complete": {
     "description": "Auto-generated metadata for key 'post_temporary_save_complete'."
   },
-  "bonus_candy_example_title": "Example",
+  "bonus_candy_example_title": "উদাহরণ",
   "@bonus_candy_example_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_title'."
   },
-  "label_pic_pic_initializing_camera": "Initializing camera...",
+  "label_pic_pic_initializing_camera": "শুরু ক্যামেরা ...",
   "@label_pic_pic_initializing_camera": {
     "description": "Auto-generated metadata for key 'label_pic_pic_initializing_camera'."
   },
-  "post_write_post_recommend_write": "Please create a post.",
+  "post_write_post_recommend_write": "একটি পোস্ট তৈরি করুন।",
   "@post_write_post_recommend_write": {
     "description": "Auto-generated metadata for key 'post_write_post_recommend_write'."
   },
-  "jma_voting_daily_limit_exhausted": "You have used all bonus votes for today.",
+  "jma_voting_daily_limit_exhausted": "আপনি আজকের জন্য সমস্ত বোনাস ভোট ব্যবহার করেছেন।",
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.",
+  "bonus_candy_policy_1": "- ফ্রি চার্জিং স্টেশন থেকে বোনাস তারকা ক্যান্ডির এবং ক্রয়ের থেকে বোনাস তারকা ক্যান্ডির মেয়াদ শেষ হওয়ার তারিখ রয়েছে।",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
-  "compatibility_perfect_score_exists_title": "Already Winning Matches Data",
+  "compatibility_perfect_score_exists_title": "ইতিমধ্যে জিতেছে ডেটা মেলে",
   "@compatibility_perfect_score_exists_title": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "Compatibility data with the same conditions already exists.",
+  "compatibility_duplicate_data_message": "ইতিমধ্যে একই শর্তগুলির সাথে সামঞ্জস্যতা ডেটা ইতিমধ্যে বিদ্যমান।",
   "@compatibility_duplicate_data_message": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
-  "label_time_ago_minute": "{minute} minutes ago",
+  "label_time_ago_minute": "{minute} মিনিট আগে",
   "@label_time_ago_minute": {
     "placeholders": {
       "minute": {
@@ -1741,7 +1741,7 @@
       }
     }
   },
-  "update_required_text": "You need to update to a new version ({version}).",
+  "update_required_text": "আপনাকে একটি নতুন সংস্করণে আপডেট করতে হবে ({version})।",
   "@update_required_text": {
     "placeholders": {
       "version": {
@@ -1749,7 +1749,7 @@
       }
     }
   },
-  "jma_voting_star_candy_shortage": "You need {shortage} more star candies.",
+  "jma_voting_star_candy_shortage": "আপনার {shortage} আরও স্টার ক্যান্ডিজ দরকার।",
   "@jma_voting_star_candy_shortage": {
     "placeholders": {
       "shortage": {
@@ -1757,15 +1757,15 @@
       }
     }
   },
-  "bonus_candy_earn_period_16_to_end": "16th 00:00:00 ~ end of month 23:59:59",
+  "bonus_candy_earn_period_16_to_end": "16 তম 00:00:00 ~ মাসের শেষ 23:59:59",
   "@bonus_candy_earn_period_16_to_end": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
   },
-  "error_message_withdrawal": "A member who has unsubscribed.",
+  "error_message_withdrawal": "একজন সদস্য যিনি সাবস্ক্রাইব করেছেন।",
   "@error_message_withdrawal": {
     "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
-  "text_achievement": "🎉 You've reached {count} goals so far! 🎉",
+  "text_achievement": "🎉 আপনি এ পর্যন্ত {count} গোলে পৌঁছেছেন! 🎉",
   "@text_achievement": {
     "placeholders": {
       "count": {
@@ -1773,55 +1773,55 @@
       }
     }
   },
-  "label_login_with_wechat": "Login with WeChat",
+  "label_login_with_wechat": "ওয়েচ্যাট দিয়ে লগইন করুন",
   "@label_login_with_wechat": {
     "description": "Auto-generated metadata for key 'label_login_with_wechat'."
   },
-  "withdrawal_success": "The unsubscribe was processed successfully.",
+  "withdrawal_success": "সাবস্ক্রাইবটি সফলভাবে প্রক্রিয়া করা হয়েছিল।",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
   },
-  "vote_item_request_already_applied_artist": "You have already applied for this artist.",
+  "vote_item_request_already_applied_artist": "আপনি ইতিমধ্যে এই শিল্পীর জন্য আবেদন করেছেন।",
   "@vote_item_request_already_applied_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
   },
-  "bonus_candy_expiration_policy_expiration_date": "Expiration Date",
+  "bonus_candy_expiration_policy_expiration_date": "মেয়াদ শেষ হওয়ার তারিখ",
   "@bonus_candy_expiration_policy_expiration_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
   },
-  "bonus_candy_example_2_earn": "__MONTH__ 20th 14:00(KST)",
+  "bonus_candy_example_2_earn": "__Month__ 20 তম 14:00 (কেএসটি)",
   "@bonus_candy_example_2_earn": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
   },
-  "message_agreement_fail": "Terms agreement required",
+  "message_agreement_fail": "শর্তাদি চুক্তি প্রয়োজন",
   "@message_agreement_fail": {
     "description": "Auto-generated metadata for key 'message_agreement_fail'."
   },
-  "vote_item_request_button": "Recommend Candidate",
+  "vote_item_request_button": "প্রার্থী সুপারিশ করুন",
   "@vote_item_request_button": {
     "description": "Auto-generated metadata for key 'vote_item_request_button'."
   },
-  "bonus_candy_expiration_next_month": "Next month 15th 00:00:00",
+  "bonus_candy_expiration_next_month": "পরের মাসে 15 তম 00:00:00",
   "@bonus_candy_expiration_next_month": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_next_month'."
   },
-  "error_delete_post": "An error occurred while deleting the post.",
+  "error_delete_post": "পোস্টটি মুছে ফেলার সময় একটি ত্রুটি ঘটেছে।",
   "@error_delete_post": {
     "description": "Auto-generated metadata for key 'error_delete_post'."
   },
-  "qna_title_min_length": "Title must be at least 5 characters",
+  "qna_title_min_length": "শিরোনাম অবশ্যই কমপক্ষে 5 টি অক্ষর হতে হবে",
   "@qna_title_min_length": {
     "description": "Auto-generated metadata for key 'qna_title_min_length'."
   },
-  "message_update_nickname_success": "Your nickname has been successfully changed.",
+  "message_update_nickname_success": "আপনার ডাক নাম সফলভাবে পরিবর্তন করা হয়েছে।",
   "@message_update_nickname_success": {
     "description": "Auto-generated metadata for key 'message_update_nickname_success'."
   },
-  "compatibility_new_compatibility_ask": "Want to see a new Goong-Hap?",
+  "compatibility_new_compatibility_ask": "একটি নতুন গং-হ্যাপ দেখতে চান?",
   "@compatibility_new_compatibility_ask": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
   },
-  "post_replying_comment": "Replying to {nickname}...",
+  "post_replying_comment": "{nickname}...",
   "@post_replying_comment": {
     "placeholders": {
       "nickname": {
@@ -1829,45 +1829,40 @@
       }
     }
   },
-  "button_pic_pic_save": "Save",
+  "button_pic_pic_save": "সংরক্ষণ করুন",
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards.",
+  "compatibility_perfect_score_exists": "দয়া করে নোট করুন যে এই শর্তের জন্য সামঞ্জস্যতা ডেটা ইতিমধ্যে পুরষ্কার অর্জন করেছে, তাই আমরা অতিরিক্ত পুরষ্কার প্রদান করতে অক্ষম।",
   "@compatibility_perfect_score_exists": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
   },
-  "post_minor_board_create_request_message_input": "Enter a message requesting to open a board.",
+  "post_minor_board_create_request_message_input": "একটি বোর্ড খোলার জন্য অনুরোধ করে একটি বার্তা লিখুন।",
   "@post_minor_board_create_request_message_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_input'."
   },
-  "fortune_purchase_by_star_candy": "Check with StarCandy",
+  "fortune_purchase_by_star_candy": "স্টারক্যান্ডির সাথে চেক করুন",
   "@fortune_purchase_by_star_candy": {
     "description": "Auto-generated metadata for key 'fortune_purchase_by_star_candy'."
   },
-  "post_minor_board_create_request_message_condition": "Please include at least 10 characters in your message requesting to open a board.",
+  "post_minor_board_create_request_message_condition": "আপনার বার্তায় কমপক্ষে 10 টি অক্ষর অন্তর্ভুক্ত করুন একটি বোর্ড খোলার জন্য অনুরোধ করুন।",
   "@post_minor_board_create_request_message_condition": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_condition'."
   },
-  "post_board_create_request_reviewing": "Reviewing a request to open a board",
+  "post_board_create_request_reviewing": "একটি বোর্ড খোলার জন্য একটি অনুরোধ পর্যালোচনা",
   "@post_board_create_request_reviewing": {
     "description": "Auto-generated metadata for key 'post_board_create_request_reviewing'."
   },
-  "post_minor_board_create_request_message": "* Message requesting to open a board.",
+  "post_minor_board_create_request_message": "* একটি বোর্ড খোলার জন্য বার্তা বার্তা।",
   "@post_minor_board_create_request_message": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
   },
-  "compatibility_purchase_confirm_title": "Purchase with Star Candy",
+  "compatibility_purchase_confirm_title": "স্টার ক্যান্ডি দিয়ে ক্রয় করুন",
   "@compatibility_purchase_confirm_title": {
     "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
   },
-  "post_board_create_request_label": "Request to open a board",
+  "post_board_create_request_label": "একটি বোর্ড খোলার অনুরোধ",
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
-  }
-  ,
-  "qna_auto_close_after_14_days_notice": "If there is no additional conversation for 14 days, the inquiry will be closed automatically.",
-  "@qna_auto_close_after_14_days_notice": {
-    "description": "Notice shown when the last message is from admin in QnA thread."
   }
 }

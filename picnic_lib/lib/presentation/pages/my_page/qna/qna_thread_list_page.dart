@@ -381,7 +381,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
   }
 
   Widget _buildStatusChip(String status) {
-    bool isClosed = status.toLowerCase() == 'closed';
+    final isClosed = status.toUpperCase() == 'CLOSED';
     Color chipColor = isClosed ? AppColors.secondary500 : AppColors.primary500;
     Color textColor = isClosed ? AppColors.grey900 : Colors.white;
     String statusText = isClosed

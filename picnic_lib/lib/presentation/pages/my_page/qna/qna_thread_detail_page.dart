@@ -55,8 +55,9 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         _errorMessage = null;
       });
 
-      final threadWithMessages =
-          await _repository.getQaThreadById(widget.thread.id);
+      final threadWithMessages = await _repository.getQaThreadById(
+        widget.thread.id,
+      );
       setState(() {
         _messages = threadWithMessages.messages;
         _isLoading = false;
@@ -176,8 +177,10 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                     backgroundColor: widget.thread.status == 'OPEN'
                         ? AppColors.primary500
                         : AppColors.secondary500,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide.none,
@@ -189,9 +192,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
             ),
             body: Column(
               children: [
-                Expanded(
-                  child: _buildBody(),
-                ),
+                Expanded(child: _buildBody()),
                 _buildMessageInput(),
               ],
             ),
@@ -199,9 +200,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           if (_isSending || _isAttaching)
             Container(
               color: Colors.black.withAlpha(128),
-              child: const Center(
-                child: LoadingView(),
-              ),
+              child: const Center(child: LoadingView()),
             ),
         ],
       ),
@@ -262,8 +261,10 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Text(
-          DateFormat('yyyy년 M월 d일', AppLocalizations.of(context).localeName)
-              .format(date),
+          DateFormat(
+            'yyyy년 M월 d일',
+            AppLocalizations.of(context).localeName,
+          ).format(date),
           style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
         ),
       ),
@@ -286,8 +287,9 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
             maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
           child: Column(
-            crossAxisAlignment:
-                isMyMessage ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            crossAxisAlignment: isMyMessage
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: attachments,
           ),
@@ -306,8 +308,9 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           ),
           color: isMyMessage ? AppColors.primary500 : AppColors.grey200,
           child: Column(
-            crossAxisAlignment:
-                isMyMessage ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            crossAxisAlignment: isMyMessage
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               if (hasText)
@@ -315,8 +318,10 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     message.content!,
-                    style: getTextStyle(AppTypo.body14R,
-                        isMyMessage ? AppColors.grey00 : AppColors.grey900),
+                    style: getTextStyle(
+                      AppTypo.body14R,
+                      isMyMessage ? AppColors.grey00 : AppColors.grey900,
+                    ),
                   ),
                 ),
               ...attachments,
@@ -326,10 +331,11 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                   child: Text(
                     formatTimeAgo(context, message.createdAt.toLocal()),
                     style: getTextStyle(
-                        AppTypo.caption12R,
-                        isMyMessage
-                            ? AppColors.grey00.withAlpha(204)
-                            : AppColors.grey400),
+                      AppTypo.caption12R,
+                      isMyMessage
+                          ? AppColors.grey00.withAlpha(204)
+                          : AppColors.grey400,
+                    ),
                   ),
                 ),
             ],
@@ -340,17 +346,28 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   List<Widget> _buildAttachments(
-      QnaMessage message, bool hasText, bool isMyMessage) {
+    QnaMessage message,
+    bool hasText,
+    bool isMyMessage,
+  ) {
     return message.attachments.map((att) {
       final isImageByMime = att.fileType?.startsWith('image/') ?? false;
-      final isImageByExtension = ['jpg', 'jpeg', 'png', 'gif']
-          .any((ext) => att.fileName.toLowerCase().endsWith('.$ext'));
+      final isImageByExtension = [
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+      ].any((ext) => att.fileName.toLowerCase().endsWith('.$ext'));
       final isImage = isImageByMime || isImageByExtension;
       final isVideo = att.fileType?.startsWith('video/') ?? false;
 
       if (isImage) {
-        final imageWidget =
-            _buildImageAttachment(att, message, hasText, isMyMessage);
+        final imageWidget = _buildImageAttachment(
+          att,
+          message,
+          hasText,
+          isMyMessage,
+        );
         return hasText
             ? Padding(
                 padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
@@ -386,7 +403,11 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   Widget _buildImageAttachment(
-      QnaAttachment att, QnaMessage message, bool hasText, bool isMyMessage) {
+    QnaAttachment att,
+    QnaMessage message,
+    bool hasText,
+    bool isMyMessage,
+  ) {
     final imageUrl = _getPublicUrl(att.filePath);
     return ClipRRect(
       borderRadius: BorderRadius.circular(12.0),
@@ -399,12 +420,13 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
               'jpg',
               'jpeg',
               'png',
-              'gif'
+              'gif',
             ].any((ext) => attachment.fileName.toLowerCase().endsWith('.$ext'));
             return isImageByMime || isImageByExtension;
           }).toList();
-          final imageUrls =
-              imageAttachments.map((a) => _getPublicUrl(a.filePath)).toList();
+          final imageUrls = imageAttachments
+              .map((a) => _getPublicUrl(a.filePath))
+              .toList();
           final currentIndex = imageAttachments.indexOf(att);
 
           Navigator.of(context).push(
@@ -419,17 +441,16 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            ImageThumbnailFromUrl(
-              imageUrl: imageUrl,
-              fit: BoxFit.cover,
-            ),
+            ImageThumbnailFromUrl(imageUrl: imageUrl, fit: BoxFit.cover),
             if (!hasText)
               Positioned(
                 bottom: 4,
                 right: 4,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black.withAlpha(178),
                     borderRadius: BorderRadius.circular(8),
@@ -437,7 +458,9 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                   child: Text(
                     formatTimeAgo(context, message.createdAt.toLocal()),
                     style: getTextStyle(
-                        AppTypo.caption12R, AppColors.grey00.withAlpha(204)),
+                      AppTypo.caption12R,
+                      AppColors.grey00.withAlpha(204),
+                    ),
                   ),
                 ),
               ),
@@ -466,7 +489,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   Widget _buildMessageInput() {
-    final isThreadOpen = widget.thread.status == 'OPEN';
+    final isThreadOpen = widget.thread.isOpen;
 
     if (!isThreadOpen) {
       return Container(
@@ -507,6 +530,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (_shouldShowAutoCloseNotice()) _buildAutoCloseNotice(),
             if (_attachments.isNotEmpty)
               SizedBox(
                 height: 70,
@@ -517,10 +541,10 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                     final file = _attachments[index];
                     final isImage =
                         lookupMimeType(file.path)?.startsWith('image/') ??
-                            false;
+                        false;
                     final isVideo =
                         lookupMimeType(file.path)?.startsWith('video/') ??
-                            false;
+                        false;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0, top: 8.0),
                       child: Stack(
@@ -541,21 +565,21 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                                     ),
                                   )
                                 : isVideo
-                                    ? VideoThumbnailFromFile(
-                                        file: file,
-                                        width: 60,
-                                        height: 60,
-                                      )
-                                    : Container(
-                                        decoration: BoxDecoration(
-                                          color: AppColors.grey200,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(
-                                            Icons.insert_drive_file,
-                                            color: AppColors.grey500),
-                                      ),
+                                ? VideoThumbnailFromFile(
+                                    file: file,
+                                    width: 60,
+                                    height: 60,
+                                  )
+                                : Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.grey200,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.insert_drive_file,
+                                      color: AppColors.grey500,
+                                    ),
+                                  ),
                           ),
                           Positioned(
                             top: -10,
@@ -567,8 +591,11 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                                   color: Colors.black54,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.close,
-                                    color: Colors.white, size: 16),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
                               ),
                             ),
                           ),
@@ -608,6 +635,43 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  bool _shouldShowAutoCloseNotice() {
+    if (widget.thread.status != 'OPEN') return false;
+    if (_messages.isEmpty) return false;
+    // Find the latest message by createdAt to be safe
+    final latest = _messages.reduce(
+      (a, b) => a.createdAt.isAfter(b.createdAt) ? a : b,
+    );
+    return latest.isAdminMessage;
+  }
+
+  Widget _buildAutoCloseNotice() {
+    final loc = AppLocalizations.of(context);
+    final text = loc.qna_auto_close_after_14_days_notice;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: AppColors.grey100,
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withAlpha(25),
+            spreadRadius: 1,
+            blurRadius: 5,
+          ),
+        ],
+      ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
       ),
     );
   }

@@ -50,6 +50,10 @@ Map<String, String> countryMap = {
   'zh_CN': 'CN',
   'zh_TW': 'TW',
   'id': 'ID',
+  'bn_BD': 'BD',
+  'fil': 'PH',
+  'th': 'TH',
+  'vi': 'VN',
 };
 
 Map<String, String> languageMap = {
@@ -60,6 +64,10 @@ Map<String, String> languageMap = {
   'zh_CN': '简体中文',
   'zh_TW': '繁體中文',
   'id': 'Bahasa Indonesia',
+  'bn_BD': 'বাংলা',
+  'fil': 'Filipino',
+  'th': 'ไทย',
+  'vi': 'Tiếng Việt',
 };
 
 const Size webDesignSize = Size(600, 800);

@@ -161,8 +161,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       autoplay: true,
       pagination: SwiperPagination(builder: CustomPaginationBuilder()),
       itemBuilder: (BuildContext context, int index) {
+        final lang = Localizations.localeOf(context).languageCode;
+        final candidate = 'assets/login/${lang}_${index + 1}.png';
+        final fallback = 'assets/login/en_${index + 1}.png';
         return Image.asset(
-          'assets/login/${Localizations.localeOf(context).languageCode}_${index + 1}.png',
+          candidate,
+          errorBuilder: (context, error, stackTrace) {
+            return Image.asset(fallback);
+          },
         );
       },
     );
