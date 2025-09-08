@@ -8,6 +8,7 @@ import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
+import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
@@ -79,15 +80,28 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
                   ),
                 ),
               ] else ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(
-                    AppLocalizations.of(context).label_mypage_should_login,
-                    textAlign: TextAlign.center,
-                    style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    logger.d('로그인 필요 다이얼로그 표시');
+                    showRequireLoginDialog();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: UnderlinedText(
+                      text: AppLocalizations.of(
+                        context,
+                      ).label_mypage_should_login,
+                      textStyle: getTextStyle(
+                        AppTypo.body14M,
+                        AppColors.primary500,
+                      ),
+                      underlineColor: AppColors.primary500,
+                      underlineGap: 0,
+                    ),
                   ),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {
                     logger.d('보너스 캔디 소멸 로직 안내');
