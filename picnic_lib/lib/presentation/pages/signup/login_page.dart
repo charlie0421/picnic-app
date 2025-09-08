@@ -181,38 +181,49 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       onTap: () {
         showModalBottomSheet(
           context: context,
-          useSafeArea: false,
+          useSafeArea: true,
+          isScrollControlled: true,
+          showDragHandle: true,
+          backgroundColor: AppColors.grey00,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
           builder: (context) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: languageMap.entries.map((entry) {
-                  return GestureDetector(
+            final entries = languageMap.entries.toList();
+            final selectedCode = Localizations.localeOf(context).languageCode;
+            final maxHeight = MediaQuery.of(context).size.height * 0.7;
+            return ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: maxHeight),
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: entries.length,
+                separatorBuilder: (_, __) =>
+                    const Divider(height: 1, color: AppColors.grey100),
+                itemBuilder: (context, index) {
+                  final entry = entries[index];
+                  final isSelected = selectedCode == entry.key;
+                  return ListTile(
                     onTap: () {
                       if (appSettingState.language == entry.key) {
+                        Navigator.of(context).pop();
                         return;
                       }
                       appSettingNotifier.setLanguage(entry.key);
                       Navigator.of(context).pop();
                     },
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: double.infinity,
-                      height: 61,
-                      child: Text(
-                        entry.value,
-                        style: getTextStyle(
-                          AppTypo.body14B,
-                          Localizations.localeOf(context).languageCode ==
-                                  entry.key
-                              ? AppColors.grey800
-                              : AppColors.grey400,
-                        ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                    title: Text(
+                      entry.value,
+                      style: getTextStyle(
+                        AppTypo.body16M,
+                        isSelected ? AppColors.primary500 : AppColors.grey800,
                       ),
                     ),
+                    trailing: isSelected
+                        ? Icon(Icons.check, color: AppColors.primary500)
+                        : null,
                   );
-                }).toList(),
+                },
               ),
             );
           },
