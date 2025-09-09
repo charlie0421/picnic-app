@@ -1864,5 +1864,21 @@
   "post_board_create_request_label": "ขอเปิดบอร์ด",
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  },
+  "qna_auto_close_after_14_days_notice": "หากไม่มีการสนทนาเพิ่มเติมภายใน 14 วัน คำถามจะถูกปิดโดยอัตโนมัติ",
+  "@qna_auto_close_after_14_days_notice": {
+    "description": "Notice shown when the last message is from admin in QnA thread."
+  },
+  "qna_status_received": "ได้รับแล้ว",
+  "@qna_status_received": {
+    "description": "QnA status when inquiry is received (waiting for admin)"
+  },
+  "qna_status_in_progress": "กำลังดำเนินการ",
+  "@qna_status_in_progress": {
+    "description": "QnA status when processing is ongoing"
+  },
+  "qna_status_resolved": "แก้ไขแล้ว",
+  "@qna_status_resolved": {
+    "description": "QnA status when resolved/closed"
   }
 }

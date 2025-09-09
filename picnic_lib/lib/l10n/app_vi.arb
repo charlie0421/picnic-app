@@ -1864,5 +1864,21 @@
   "post_board_create_request_label": "Yêu cầu mở một bảng",
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  },
+  "qna_auto_close_after_14_days_notice": "Nếu không có trao đổi thêm trong 14 ngày, yêu cầu sẽ tự động đóng.",
+  "@qna_auto_close_after_14_days_notice": {
+    "description": "Notice shown when the last message is from admin in QnA thread."
+  },
+  "qna_status_received": "Đã tiếp nhận",
+  "@qna_status_received": {
+    "description": "QnA status when inquiry is received (waiting for admin)"
+  },
+  "qna_status_in_progress": "Đang xử lý",
+  "@qna_status_in_progress": {
+    "description": "QnA status when processing is ongoing"
+  },
+  "qna_status_resolved": "Đã giải quyết",
+  "@qna_status_resolved": {
+    "description": "QnA status when resolved/closed"
   }
 }

@@ -1920,5 +1920,21 @@
   "post_board_create_request_label": "掲示板オープンリクエスト",
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  },
+  "qna_auto_close_after_14_days_notice": "14日間追加のやり取りがない場合、お問い合わせは自動的に終了します。",
+  "@qna_auto_close_after_14_days_notice": {
+    "description": "Notice shown when the last message is from admin in QnA thread."
+  },
+  "qna_status_received": "受付済み",
+  "@qna_status_received": {
+    "description": "QnA status when inquiry is received (waiting for admin)"
+  },
+  "qna_status_in_progress": "処理中",
+  "@qna_status_in_progress": {
+    "description": "QnA status when processing is ongoing"
+  },
+  "qna_status_resolved": "解決済み",
+  "@qna_status_resolved": {
+    "description": "QnA status when resolved/closed"
   }
 }

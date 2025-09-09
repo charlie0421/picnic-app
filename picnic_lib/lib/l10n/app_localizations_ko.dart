@@ -1409,4 +1409,13 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get qna_auto_close_after_14_days_notice =>
       '14일간 추가 대화가 없을 경우 문의가 자동으로 종료됩니다.';
+
+  @override
+  String get qna_status_received => '접수됨';
+
+  @override
+  String get qna_status_in_progress => '처리중';
+
+  @override
+  String get qna_status_resolved => '해결됨';
 }

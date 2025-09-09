@@ -1864,5 +1864,21 @@
   "post_board_create_request_label": "একটি বোর্ড খোলার অনুরোধ",
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  },
+  "qna_auto_close_after_14_days_notice": "১৪ দিনের মধ্যে অতিরিক্ত কথোপকথন না হলে অনুসন্ধানটি স্বয়ংক্রিয়ভাবে বন্ধ হবে।",
+  "@qna_auto_close_after_14_days_notice": {
+    "description": "Notice shown when the last message is from admin in QnA thread."
+  },
+  "qna_status_received": "গ্রহণ করা হয়েছে",
+  "@qna_status_received": {
+    "description": "QnA status when inquiry is received (waiting for admin)"
+  },
+  "qna_status_in_progress": "চলমান",
+  "@qna_status_in_progress": {
+    "description": "QnA status when processing is ongoing"
+  },
+  "qna_status_resolved": "সমাধান সম্পন্ন",
+  "@qna_status_resolved": {
+    "description": "QnA status when resolved/closed"
   }
 }

@@ -1870,4 +1870,17 @@
   "@qna_auto_close_after_14_days_notice": {
     "description": "Notice shown when the last message is from admin in QnA thread."
   }
+  ,
+  "qna_status_received": "Received",
+  "@qna_status_received": {
+    "description": "QnA status when inquiry is received (waiting for admin)"
+  },
+  "qna_status_in_progress": "In progress",
+  "@qna_status_in_progress": {
+    "description": "QnA status when processing is ongoing"
+  },
+  "qna_status_resolved": "Resolved",
+  "@qna_status_resolved": {
+    "description": "QnA status when resolved/closed"
+  }
 }

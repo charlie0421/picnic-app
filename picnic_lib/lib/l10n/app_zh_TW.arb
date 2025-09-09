@@ -1864,5 +1864,21 @@
   "post_board_create_request_label": "申请开设一个板块",
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  },
+  "qna_auto_close_after_14_days_notice": "若14日內無進一步對話，詢問將自動結束。",
+  "@qna_auto_close_after_14_days_notice": {
+    "description": "Notice shown when the last message is from admin in QnA thread."
+  },
+  "qna_status_received": "已受理",
+  "@qna_status_received": {
+    "description": "QnA status when inquiry is received (waiting for admin)"
+  },
+  "qna_status_in_progress": "處理中",
+  "@qna_status_in_progress": {
+    "description": "QnA status when processing is ongoing"
+  },
+  "qna_status_resolved": "已解決",
+  "@qna_status_resolved": {
+    "description": "QnA status when resolved/closed"
   }
 }

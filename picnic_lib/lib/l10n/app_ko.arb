@@ -2016,4 +2016,17 @@
   "@qna_auto_close_after_14_days_notice": {
     "description": "QnA 스레드에서 마지막 메시지가 관리자일 때 노출되는 안내 문구"
   }
+  ,
+  "qna_status_received": "접수됨",
+  "@qna_status_received": {
+    "description": "문의 접수 상태 (관리자 답변 대기)"
+  },
+  "qna_status_in_progress": "처리중",
+  "@qna_status_in_progress": {
+    "description": "문의 처리 진행중"
+  },
+  "qna_status_resolved": "해결됨",
+  "@qna_status_resolved": {
+    "description": "문의 해결/종료"
+  }
 }

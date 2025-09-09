@@ -381,12 +381,26 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
   }
 
   Widget _buildStatusChip(String status) {
-    final isClosed = status.toUpperCase() == 'CLOSED';
-    Color chipColor = isClosed ? AppColors.secondary500 : AppColors.primary500;
-    Color textColor = isClosed ? AppColors.grey900 : Colors.white;
-    String statusText = isClosed
-        ? AppLocalizations.of(context).qna_status_closed
-        : AppLocalizations.of(context).qna_status_open;
+    final s = status.toUpperCase();
+    late Color chipColor;
+    late Color textColor;
+    late String statusText;
+
+    // Reuse existing open/closed labels for simplicity
+    if (s == 'RESOLVED') {
+      chipColor = AppColors.secondary500;
+      textColor = AppColors.grey900;
+      statusText = AppLocalizations.of(context).qna_status_closed;
+    } else if (s == 'IN_PROGRESS') {
+      chipColor = AppColors.primary500;
+      textColor = Colors.white;
+      statusText = AppLocalizations.of(context).qna_status_open;
+    } else {
+      // RECEIVED (default)
+      chipColor = AppColors.sub500;
+      textColor = Colors.white;
+      statusText = AppLocalizations.of(context).qna_status_open;
+    }
 
     return Chip(
       label: Text(

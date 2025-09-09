@@ -2810,6 +2810,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If there is no additional conversation for 14 days, the inquiry will be closed automatically.'**
   String get qna_auto_close_after_14_days_notice;
+
+  /// QnA status when inquiry is received (waiting for admin)
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get qna_status_received;
+
+  /// QnA status when processing is ongoing
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get qna_status_in_progress;
+
+  /// QnA status when resolved/closed
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get qna_status_resolved;
 }
 
 class _AppLocalizationsDelegate

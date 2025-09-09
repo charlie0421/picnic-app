@@ -167,26 +167,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: Chip(
-                    label: Text(
-                      widget.thread.status == 'OPEN'
-                          ? AppLocalizations.of(context).qna_status_open
-                          : AppLocalizations.of(context).qna_status_closed,
-                      style: getTextStyle(AppTypo.caption12M, AppColors.grey00),
-                    ),
-                    backgroundColor: widget.thread.status == 'OPEN'
-                        ? AppColors.primary500
-                        : AppColors.secondary500,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide.none,
-                    ),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
+                  child: _buildStatusChip(),
                 ),
               ],
             ),
@@ -204,6 +185,41 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
             ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatusChip() {
+    final s = widget.thread.status.toUpperCase();
+    late Color chipColor;
+    late Color textColor;
+    // Reuse existing i18n: open for RECEIVED/IN_PROGRESS, closed for RESOLVED
+    final statusText = s == 'RESOLVED'
+        ? AppLocalizations.of(context).qna_status_closed
+        : AppLocalizations.of(context).qna_status_open;
+
+    if (s == 'RESOLVED') {
+      chipColor = AppColors.secondary500;
+      textColor = AppColors.grey900;
+    } else if (s == 'IN_PROGRESS') {
+      chipColor = AppColors.primary500;
+      textColor = Colors.white;
+    } else {
+      chipColor = AppColors.sub500;
+      textColor = Colors.white;
+    }
+
+    return Chip(
+      label: Text(
+        statusText,
+        style: getTextStyle(AppTypo.caption12M, textColor),
+      ),
+      backgroundColor: chipColor,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide.none,
+      ),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 
@@ -640,7 +656,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   bool _shouldShowAutoCloseNotice() {
-    if (widget.thread.status != 'OPEN') return false;
+    if (widget.thread.isResolved) return false;
     if (_messages.isEmpty) return false;
     // Find the latest message by createdAt to be safe
     final latest = _messages.reduce(

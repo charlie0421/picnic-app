@@ -1409,8 +1409,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get post_board_create_request_label => '申请开设一个板块';
 
   @override
-  String get qna_auto_close_after_14_days_notice =>
-      'If there is no additional conversation for 14 days, the inquiry will be closed automatically.';
+  String get qna_auto_close_after_14_days_notice => '14天内如无进一步交流，咨询将自动关闭。';
+
+  @override
+  String get qna_status_received => '已接收';
+
+  @override
+  String get qna_status_in_progress => '处理中';
+
+  @override
+  String get qna_status_resolved => '已解决';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -2816,6 +2824,18 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get post_board_create_request_label => '申请开设一个板块';
+
+  @override
+  String get qna_auto_close_after_14_days_notice => '14天内如无进一步交流，咨询将自动关闭。';
+
+  @override
+  String get qna_status_received => '已接收';
+
+  @override
+  String get qna_status_in_progress => '处理中';
+
+  @override
+  String get qna_status_resolved => '已解决';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4220,4 +4240,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get post_board_create_request_label => '申请开设一个板块';
+
+  @override
+  String get qna_auto_close_after_14_days_notice => '若14日內無進一步對話，詢問將自動結束。';
+
+  @override
+  String get qna_status_received => '已受理';
+
+  @override
+  String get qna_status_in_progress => '處理中';
+
+  @override
+  String get qna_status_resolved => '已解決';
 }

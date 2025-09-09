@@ -1532,7 +1532,16 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get qna_auto_close_after_14_days_notice =>
-      'If there is no additional conversation for 14 days, the inquiry will be closed automatically.';
+      '১৪ দিনের মধ্যে অতিরিক্ত কথোপকথন না হলে, অনুসন্ধানটি স্বয়ংক্রিয়ভাবে বন্ধ হয়ে যাবে।';
+
+  @override
+  String get qna_status_received => 'গৃহীত';
+
+  @override
+  String get qna_status_in_progress => 'প্রক্রিয়াধীন';
+
+  @override
+  String get qna_status_resolved => 'সমাধান হয়েছে';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -2997,4 +3006,17 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get post_board_create_request_label => 'একটি বোর্ড খোলার অনুরোধ';
+
+  @override
+  String get qna_auto_close_after_14_days_notice =>
+      '১৪ দিনের মধ্যে অতিরিক্ত কথোপকথন না হলে অনুসন্ধানটি স্বয়ংক্রিয়ভাবে বন্ধ হবে।';
+
+  @override
+  String get qna_status_received => 'গ্রহণ করা হয়েছে';
+
+  @override
+  String get qna_status_in_progress => 'চলমান';
+
+  @override
+  String get qna_status_resolved => 'সমাধান সম্পন্ন';
 }

@@ -1507,5 +1507,14 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get qna_auto_close_after_14_days_notice =>
-      'If there is no additional conversation for 14 days, the inquiry will be closed automatically.';
+      'Kung walang karagdagang usapan sa loob ng 14 na araw, awtomatikong isasara ang pagtatanong.';
+
+  @override
+  String get qna_status_received => 'Natanggap';
+
+  @override
+  String get qna_status_in_progress => 'Pinoproseso';
+
+  @override
+  String get qna_status_resolved => 'Nalutas';
 }

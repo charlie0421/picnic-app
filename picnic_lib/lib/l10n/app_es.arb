@@ -1864,5 +1864,21 @@
   "post_board_create_request_label": "Solicitar para abrir una junta",
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  },
+  "qna_auto_close_after_14_days_notice": "Si no hay conversaciones adicionales durante 14 días, la consulta se cerrará automáticamente.",
+  "@qna_auto_close_after_14_days_notice": {
+    "description": "Notice shown when the last message is from admin in QnA thread."
+  },
+  "qna_status_received": "Recibido",
+  "@qna_status_received": {
+    "description": "QnA status when inquiry is received (waiting for admin)"
+  },
+  "qna_status_in_progress": "En curso",
+  "@qna_status_in_progress": {
+    "description": "QnA status when processing is ongoing"
+  },
+  "qna_status_resolved": "Resuelto",
+  "@qna_status_resolved": {
+    "description": "QnA status when resolved/closed"
   }
 }

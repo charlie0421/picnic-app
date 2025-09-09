@@ -1920,5 +1920,21 @@
   "post_board_create_request_label": "Permintaan untuk membuka papan",
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  },
+  "qna_auto_close_after_14_days_notice": "Jika tidak ada percakapan tambahan selama 14 hari, konsultasi akan ditutup secara otomatis.",
+  "@qna_auto_close_after_14_days_notice": {
+    "description": "Notice shown when the last message is from admin in QnA thread."
+  },
+  "qna_status_received": "Diterima",
+  "@qna_status_received": {
+    "description": "QnA status when inquiry is received (waiting for admin)"
+  },
+  "qna_status_in_progress": "Sedang diproses",
+  "@qna_status_in_progress": {
+    "description": "QnA status when processing is ongoing"
+  },
+  "qna_status_resolved": "Selesai",
+  "@qna_status_resolved": {
+    "description": "QnA status when resolved/closed"
   }
 }
