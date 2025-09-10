@@ -20,6 +20,7 @@ workflows:
         BUNDLE_ID: "io.iconcasting.picnic.app"
         # 명시적 Flutter 버전 고정 (Shorebird 호환성)
         FLUTTER_VERSION: "3.35.2"
+        ENABLE_SHOREBIRD: "false"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -65,6 +66,10 @@ workflows:
 
       - name: Install Shorebird CLI
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Shorebird (disabled in Codemagic)"
+            exit 0
+          fi
           echo "=== Shorebird CLI 설치 시작 ==="
           
           # 기존 Shorebird 설치 강제 제거 (충돌 방지)
@@ -383,6 +388,10 @@ workflows:
 
       - name: Shorebird iOS Release (Optional)
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Shorebird (disabled in Codemagic)"
+            exit 0
+          fi
           export PATH="$HOME/.shorebird/bin:$PATH"
           cd picnic_app
 
@@ -452,7 +461,6 @@ workflows:
       # 단일 IPA 파일 (중복 publishing 방지)
       - picnic_app.ipa                                    # 워크스페이스 루트 (가장 확실한 위치)
       - picnic_app/build/ios/archive/Runner.xcarchive    # Archive 파일
-      - picnic_app/shorebird.yaml
       - picnic_app/flutter_drive.log
       - picnic_app/build/ios/**/Runner.app
 
@@ -497,6 +505,7 @@ workflows:
         FLUTTER_BUILD_MODE: "release"
         # 명시적 Flutter 버전 고정 (Shorebird 호환성)
         FLUTTER_VERSION: "3.35.2"
+        ENABLE_SHOREBIRD: "false"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -516,6 +525,10 @@ workflows:
     scripts:
       - name: Install Shorebird CLI
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Shorebird (disabled in Codemagic)"
+            exit 0
+          fi
           echo "=== Shorebird CLI 설치 시작 ==="
           
           # 기존 Shorebird 설치 강제 제거 (충돌 방지)
@@ -676,6 +689,10 @@ workflows:
 
       - name: Shorebird Android Release (Optional)
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Shorebird (disabled in Codemagic)"
+            exit 0
+          fi
           export PATH="$HOME/.shorebird/bin:$PATH"
           cd picnic_app
 
@@ -900,7 +917,6 @@ workflows:
       - picnic_app/build/**/outputs/**/*.apk
       - picnic_app/flutter_drive.log
       - picnic_app/build/app/outputs/**/mapping.txt
-      - picnic_app/shorebird.yaml
 
     publishing:
       # 조건부 Google Play 배포 (환경변수로 제어)
@@ -942,6 +958,7 @@ workflows:
         BUNDLE_ID: "io.iconcasting.picnic.app"
         # 명시적 Flutter 버전 고정 (Shorebird 호환성)
         FLUTTER_VERSION: "3.35.2"
+        ENABLE_SHOREBIRD: "false"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -957,6 +974,10 @@ workflows:
     scripts:
       - name: Install Shorebird CLI
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Shorebird (disabled in Codemagic)"
+            exit 0
+          fi
           echo "=== Shorebird CLI 설치 시작 ==="
           
           # 기존 Shorebird 설치 강제 제거 (충돌 방지)
@@ -990,6 +1011,10 @@ workflows:
 
       - name: Get Flutter packages and prepare iOS
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Patch workflow (Shorebird disabled)"
+            exit 0
+          fi
           cd picnic_app
           echo "=== Flutter 패키지 설치 ==="
           flutter packages pub get
@@ -1000,6 +1025,10 @@ workflows:
 
       - name: Install CocoaPods dependencies
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Patch workflow (Shorebird disabled)"
+            exit 0
+          fi
           cd picnic_app
           
           echo "=== Generated.xcconfig 파일 확인 ==="
@@ -1017,6 +1046,10 @@ workflows:
 
       - name: Install Shorebird CLI
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Shorebird (disabled in Codemagic)"
+            exit 0
+          fi
           echo "=== Shorebird CLI 설치 시작 ==="
           
           # 기존 Shorebird 설치 강제 제거 (충돌 방지)
@@ -1046,6 +1079,10 @@ workflows:
 
       - name: Verify iOS Signing Configuration
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Patch workflow (Shorebird disabled)"
+            exit 0
+          fi
           echo "=== iOS 서명 환경 확인 ==="
           echo "DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM:-'24SL34R9HR'}"
           
@@ -1089,6 +1126,10 @@ workflows:
 
       - name: Configure Xcode Project Signing Strategy
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Patch workflow (Shorebird disabled)"
+            exit 0
+          fi
           cd picnic_app/ios
           
           echo "=== Xcode 프로젝트 Automatic Signing 설정 (패치용) ==="
@@ -1131,6 +1172,10 @@ workflows:
 
       - name: Shorebird iOS Patch
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Patch workflow (Shorebird disabled)"
+            exit 0
+          fi
           cd picnic_app
           
           # 환경 파일에서 PATH 설정 로드
@@ -1266,6 +1311,7 @@ workflows:
         APP_NAME: "picnic_app"
         # 명시적 Flutter 버전 고정 (Shorebird 호환성)
         FLUTTER_VERSION: "3.32.5"
+        ENABLE_SHOREBIRD: "false"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -1284,6 +1330,10 @@ workflows:
     scripts:
       - name: Install Shorebird CLI
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Shorebird (disabled in Codemagic)"
+            exit 0
+          fi
           echo "=== Shorebird CLI 설치 시작 ==="
           
           # 기존 Shorebird 설치 강제 제거 (충돌 방지)
@@ -1313,6 +1363,10 @@ workflows:
 
       - name: Verify Android Signing Configuration  
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Patch workflow (Shorebird disabled)"
+            exit 0
+          fi
           cd picnic_app
           
           echo "=== Android 서명 환경 확인 ==="
@@ -1323,6 +1377,10 @@ workflows:
 
       - name: Flutter Environment Setup
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Patch workflow (Shorebird disabled)"
+            exit 0
+          fi
           cd picnic_app
           echo "=== Flutter 환경 준비 ==="
           echo "🎯 Shorebird Android 패치 시스템"
@@ -1336,6 +1394,10 @@ workflows:
 
       - name: Shorebird Android Patch
         script: |
+          if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
+            echo "⏭️ Skipping Patch workflow (Shorebird disabled)"
+            exit 0
+          fi
           cd picnic_app
           
           # PATH를 명시적으로 설정
