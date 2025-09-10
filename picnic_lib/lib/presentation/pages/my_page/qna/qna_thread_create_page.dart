@@ -9,6 +9,9 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
+import 'package:picnic_lib/data/models/qna/qna_category.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
 
 class QnaThreadCreatePage extends StatefulWidget {
   final String userId;
@@ -30,6 +33,9 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
   bool _isSubmitting = false;
   bool _isAttaching = false;
   static const int _maxFileSizeInBytes = 10 * 1024 * 1024; // 10MB
+  List<QnaCategory> _categories = [];
+  QnaCategory? _selectedCategory;
+  bool _categoryError = false;
 
   @override
   void dispose() {
@@ -37,6 +43,24 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
     _contentController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final cats = await _repository.getCategories();
+      if (!mounted) return;
+      setState(() {
+        _categories = cats;
+      });
+    } catch (_) {
+      // 카테고리 로드는 실패해도 폼 사용은 가능해야 함
+    }
   }
 
   Future<void> _pickMedia() async {
@@ -71,6 +95,20 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
 
   Future<void> _submitThread() async {
     FocusScope.of(context).unfocus();
+
+    // 카테고리 필수: 카테고리 목록이 있는 경우 반드시 선택
+    if (_categories.isNotEmpty &&
+        (_selectedCategory == null || _selectedCategory!.code.isEmpty)) {
+      setState(() {
+        _categoryError = true;
+      });
+      SnackbarUtil().error(
+        AppLocalizations.of(context).qna_category_required,
+        context: context,
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isSubmitting = true;
@@ -81,6 +119,7 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
           userId: widget.userId,
           title: _titleController.text,
           initialMessage: _contentController.text,
+          categoryCode: _selectedCategory?.code,
           attachments: _attachments,
         );
 
@@ -135,23 +174,41 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: FilledButton.icon(
-                    onPressed: _isSubmitting ? null : _submitThread,
-                    icon: const Icon(Icons.check, size: 18),
-                    label: Text(AppLocalizations.of(context).qna_submit_button),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primary500,
-                      foregroundColor: Colors.white,
-                      textStyle: getTextStyle(
-                        AppTypo.caption12M,
-                        AppColors.grey00,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary500,
+                          AppColors.primary500.withValues(alpha: 0.85),
+                        ],
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                      borderRadius: BorderRadius.circular(10.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary500.withValues(alpha: 0.25),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton.icon(
+                      onPressed: _isSubmitting ? null : _submitThread,
+                      icon: const Icon(Icons.check, size: 18),
+                      label: Text(
+                        AppLocalizations.of(context).qna_submit_button,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.transparent,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 8.h,
+                        ),
+                        minimumSize: Size(64.w, 36.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
                       ),
                     ),
                   ),
@@ -166,15 +223,76 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (_categories.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomDropdown(
+                            value: (_selectedCategory?.code ?? ''),
+                            onChanged: (value) {
+                              setState(() {
+                                if (value == null || value.isEmpty) {
+                                  _selectedCategory = null;
+                                  _categoryError = true;
+                                  _contentController.clear();
+                                } else {
+                                  final found = _categories.firstWhere(
+                                    (c) => c.code == value,
+                                    orElse: () => _categories.first,
+                                  );
+                                  _selectedCategory = found;
+                                  _categoryError = false;
+                                  final tmpl = found.questionTemplate;
+                                  // 템플릿이 없더라도 입력창을 항상 업데이트 (없으면 빈 문자열로 초기화)
+                                  _contentController.text = (tmpl ?? '');
+                                }
+                              });
+                            },
+                            items: [
+                              CustomDropdownMenuItem(
+                                value: '',
+                                text: AppLocalizations.of(
+                                  context,
+                                ).qna_category_label,
+                              ),
+                              ..._categories.map(
+                                (c) => CustomDropdownMenuItem(
+                                  value: c.code,
+                                  text: c.label,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (_categoryError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 6.0),
+                              child: Text(
+                                AppLocalizations.of(
+                                  context,
+                                ).qna_category_required,
+                                style: getTextStyle(
+                                  AppTypo.caption12R,
+                                  AppColors.statusError,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _titleController,
                       decoration: InputDecoration(
                         labelText: AppLocalizations.of(context).qna_title,
-                        hintText:
-                            AppLocalizations.of(context).qna_form_title_hint,
+                        hintText: AppLocalizations.of(
+                          context,
+                        ).qna_form_title_hint,
+                        labelStyle: getTextStyle(
+                          AppTypo.caption12R,
+                          AppColors.grey400,
+                        ),
                         hintStyle: getTextStyle(
                           AppTypo.caption12R,
-                          AppColors.grey500,
+                          AppColors.grey300,
                         ),
                         border: const OutlineInputBorder(),
                       ),
@@ -193,11 +311,16 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                       maxLines: 10,
                       decoration: InputDecoration(
                         labelText: AppLocalizations.of(context).qna_content,
-                        hintText:
-                            AppLocalizations.of(context).qna_form_content_hint,
+                        hintText: AppLocalizations.of(
+                          context,
+                        ).qna_form_content_hint,
+                        labelStyle: getTextStyle(
+                          AppTypo.caption12R,
+                          AppColors.grey400,
+                        ),
                         hintStyle: getTextStyle(
                           AppTypo.caption12R,
-                          AppColors.grey500,
+                          AppColors.grey300,
                         ),
                         alignLabelWithHint: true,
                         border: const OutlineInputBorder(),
@@ -267,27 +390,26 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                         child: SizedBox(
                           width: 80,
                           height: 80,
-                          child:
-                              isImage
-                                  ? ImageThumbnailFromFile(
-                                    file: file,
-                                    width: 80,
-                                    height: 80,
-                                    borderRadius: 8,
-                                    fit: BoxFit.cover,
-                                  )
-                                  : isVideo
-                                  ? VideoThumbnailFromFile(file: file)
-                                  : Container(
-                                    decoration: BoxDecoration(
-                                      color: AppColors.grey200,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      Icons.insert_drive_file,
-                                      color: AppColors.grey500,
-                                    ),
+                          child: isImage
+                              ? ImageThumbnailFromFile(
+                                  file: file,
+                                  width: 80,
+                                  height: 80,
+                                  borderRadius: 8,
+                                  fit: BoxFit.cover,
+                                )
+                              : isVideo
+                              ? VideoThumbnailFromFile(file: file)
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.grey200,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
+                                  child: Icon(
+                                    Icons.insert_drive_file,
+                                    color: AppColors.grey500,
+                                  ),
+                                ),
                         ),
                       ),
                       Positioned(

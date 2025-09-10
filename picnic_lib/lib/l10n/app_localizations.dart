@@ -2265,6 +2265,18 @@ abstract class AppLocalizations {
   /// **'Failed to load inquiries'**
   String get qna_load_fail_title;
 
+  /// QnA category label
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get qna_category_label;
+
+  /// Error message when category is required
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a category'**
+  String get qna_category_required;
+
   /// Auto-generated metadata for key 'qna_message_hint'.
   ///
   /// In en, this message translates to:

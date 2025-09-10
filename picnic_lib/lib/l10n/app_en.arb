@@ -1465,6 +1465,14 @@
   "@qna_load_fail_title": {
     "description": "Auto-generated metadata for key 'qna_load_fail_title'."
   },
+  "qna_category_label": "Category",
+  "@qna_category_label": {
+    "description": "QnA category label"
+  },
+  "qna_category_required": "Please select a category",
+  "@qna_category_required": {
+    "description": "Error message when category is required"
+  },
   "qna_message_hint": "Enter message",
   "@qna_message_hint": {
     "description": "Auto-generated metadata for key 'qna_message_hint'."

@@ -26,14 +26,20 @@ class CustomDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasSelection =
+        value.isNotEmpty && items.any((i) => i.value == value);
+    final Color borderColor = hasSelection
+        ? AppColors.primary500
+        : AppColors.grey300;
+
     return IntrinsicWidth(
       child: Container(
-        height: 26,
+        height: 32,
         alignment: Alignment.centerRight,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.grey300, width: 1),
+          border: Border.all(color: borderColor, width: 1),
         ),
         child: DropdownButtonFormField<String>(
           key: key,
@@ -44,7 +50,7 @@ class CustomDropdown extends StatelessWidget {
               package: 'picnic_lib',
               'assets/icons/play_style=fill.svg',
               colorFilter: const ColorFilter.mode(
-                AppColors.grey400,
+                AppColors.grey600,
                 BlendMode.srcIn,
               ),
               height: 16,
@@ -60,15 +66,15 @@ class CustomDropdown extends StatelessWidget {
           dropdownColor: AppColors.grey00,
           borderRadius: BorderRadius.circular(8),
           items: items.map((item) {
+            final bool isSelected = value == item.value;
+            final bool isPlaceholder = item.value.isEmpty;
+            final TextStyle style = (!isPlaceholder && isSelected)
+                ? getTextStyle(AppTypo.caption12B, AppColors.grey800)
+                : getTextStyle(AppTypo.caption12M, AppColors.grey600);
             return DropdownMenuItem(
               alignment: Alignment.center,
               value: item.value,
-              child: Text(
-                item.text,
-                style: value == item.value
-                    ? getTextStyle(AppTypo.caption12R, AppColors.grey700)
-                    : getTextStyle(AppTypo.caption12R, AppColors.grey400),
-              ),
+              child: Text(item.text, style: style),
             );
           }).toList(),
           onChanged: onChanged,

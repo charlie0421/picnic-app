@@ -1170,6 +1170,12 @@ class AppLocalizationsFil extends AppLocalizations {
   String get qna_load_fail_title => 'Nabigong mag -load ng mga katanungan';
 
   @override
+  String get qna_category_label => 'Kategorya';
+
+  @override
+  String get qna_category_required => 'Pumili ng kategorya';
+
+  @override
   String get qna_message_hint => 'Ipasok ang mensahe';
 
   @override

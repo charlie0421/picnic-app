@@ -1917,6 +1917,14 @@
   "@post_minor_board_create_request_message": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
   },
+  "qna_category_label": "分类",
+  "@qna_category_label": {
+    "description": "QnA category label"
+  },
+  "qna_category_required": "请选择分类",
+  "@qna_category_required": {
+    "description": "Error message when category is required"
+  },
   "compatibility_purchase_confirm_title": "用星星糖果购买",
   "@compatibility_purchase_confirm_title": {
     "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."

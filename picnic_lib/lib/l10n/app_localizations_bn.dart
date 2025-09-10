@@ -1191,6 +1191,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get qna_load_fail_title => '[MISSING] Failed to load inquiries';
 
   @override
+  String get qna_category_label => 'বিভাগ';
+
+  @override
+  String get qna_category_required => 'অনুগ্রহ করে বিভাগ নির্বাচন করুন';
+
+  @override
   String get qna_message_hint => '[MISSING] Enter message';
 
   @override
@@ -2684,6 +2690,12 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get qna_load_fail_title => 'অনুসন্ধান লোড করতে ব্যর্থ';
+
+  @override
+  String get qna_category_label => 'বিভাগ';
+
+  @override
+  String get qna_category_required => 'অনুগ্রহ করে বিভাগ নির্বাচন করুন';
 
   @override
   String get qna_message_hint => 'বার্তা লিখুন';

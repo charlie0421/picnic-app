@@ -40,6 +40,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   bool _isSending = false;
   bool _isAttaching = false;
   String? _errorMessage;
+  String? _categoryLabel;
   static const int _maxFileSizeInBytes = 10 * 1024 * 1024; // 10MB
 
   @override
@@ -60,6 +61,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
       );
       setState(() {
         _messages = threadWithMessages.messages;
+        _categoryLabel = threadWithMessages.categoryLabel;
         _isLoading = false;
       });
     } catch (e) {
@@ -173,6 +175,40 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
             ),
             body: Column(
               children: [
+                if (_categoryLabel != null && _categoryLabel!.isNotEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.point500,
+                              AppColors.point500.withValues(alpha: 0.85),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.point500.withValues(alpha: 0.25),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          _categoryLabel!,
+                          style: getTextStyle(AppTypo.caption12B, Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
                 Expanded(child: _buildBody()),
                 _buildMessageInput(),
               ],

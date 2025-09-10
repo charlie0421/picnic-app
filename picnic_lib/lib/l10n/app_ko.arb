@@ -1603,6 +1603,10 @@
     "description": "Auto-generated metadata for key 'qna_add_media_tooltip'."
   },
   "qna_load_fail_title": "문의 내역을 불러오는데 실패했습니다",
+  "qna_category_label": "카테고리",
+  "@qna_category_label": {
+    "description": "QnA 질문 카테고리 라벨"
+  },
   "@qna_load_fail_title": {
     "description": "Auto-generated metadata for key 'qna_load_fail_title'."
   },
@@ -2028,5 +2032,9 @@
   "qna_status_resolved": "해결됨",
   "@qna_status_resolved": {
     "description": "문의 해결/종료"
+  },
+  "qna_category_required": "카테고리를 선택해 주세요",
+  "@qna_category_required": {
+    "description": "QnA 카테고리 필수 선택 에러 메시지"
   }
 }

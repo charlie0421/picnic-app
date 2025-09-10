@@ -1150,6 +1150,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_load_fail_title => 'Gagal memuat konsultasi';
 
   @override
+  String get qna_category_label => 'Kategori';
+
+  @override
+  String get qna_category_required => 'Silakan pilih kategori';
+
+  @override
   String get qna_message_hint => 'Masukkan pesan';
 
   @override

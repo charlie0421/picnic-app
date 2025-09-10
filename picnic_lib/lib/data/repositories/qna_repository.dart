@@ -1,14 +1,24 @@
 import 'dart:io';
+import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:mime/mime.dart';
 import 'package:uuid/uuid.dart';
 import 'package:picnic_lib/data/models/qna/qna_message.dart';
+import 'package:picnic_lib/data/models/qna/qna_category.dart';
 import 'package:picnic_lib/data/models/qna/qna_attachment.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as p;
+import 'package:picnic_lib/l10n.dart';
 
 class QnaRepository {
   final SupabaseClient _client = Supabase.instance.client;
+
+  void _logDebug(String message) {
+    if (kDebugMode) {
+      debugPrint('[QNA-I18N] $message');
+    }
+  }
 
   /// Q&A 스레드 목록 조회
   Future<List<QnaThread>> getQaThreadList({
@@ -32,10 +42,18 @@ class QnaRepository {
         );
       }
 
-      final response =
-          await query.order('created_at', ascending: false).limit(limit);
+      final response = await query
+          .order('created_at', ascending: false)
+          .limit(limit);
 
-      return (response).map((item) => QnaThread.fromJson(item)).toList();
+      return (response).map((item) {
+        final map = Map<String, dynamic>.from(item as Map);
+        final status = (map['status'] as String?)?.trim();
+        if (status == null || status.isEmpty) {
+          map['status'] = 'RECEIVED';
+        }
+        return QnaThread.fromJson(map);
+      }).toList();
     } catch (e) {
       throw Exception('Q&A 스레드 목록 조회 실패: $e');
     }
@@ -61,9 +79,41 @@ class QnaRepository {
           .map((item) => QnaMessage.fromJson(item as Map<String, dynamic>))
           .toList();
 
-      return QaThreadWithMessages(thread: thread, messages: messages);
+      String? categoryLabel;
+      final categoryCode = threadResponse['category_code'] as String?;
+      if (categoryCode != null && categoryCode.isNotEmpty) {
+        categoryLabel = await _getCategoryLabelByCode(categoryCode);
+      }
+
+      return QaThreadWithMessages(
+        thread: thread,
+        messages: messages,
+        categoryLabel: categoryLabel,
+      );
     } catch (e) {
       throw Exception('Q&A 스레드 조회 실패: $e');
+    }
+  }
+
+  // 기존 _resolveLocalized는 더 이상 사용하지 않고, 공통 유틸(getLocaleTextFromJson)을 사용합니다.
+
+  Future<String?> _getCategoryLabelByCode(String code) async {
+    try {
+      final row = await _client
+          .from('qna_categories')
+          .select('label')
+          .eq('code', code)
+          .maybeSingle();
+      if (row == null) return null;
+      final dynamic labelField = row['label'];
+      if (labelField is Map<String, dynamic>) {
+        final resolved = getLocaleTextFromJson(labelField);
+        return resolved.isEmpty ? null : resolved;
+      }
+      return null;
+    } catch (e) {
+      _logDebug('error fetching label for code=$code: $e');
+      return null;
     }
   }
 
@@ -72,13 +122,19 @@ class QnaRepository {
     required String userId,
     required String title,
     required String initialMessage,
+    String? categoryCode,
     List<File>? attachments,
   }) async {
     try {
       // 1. 스레드 생성
+      final insertData = <String, dynamic>{'user_id': userId, 'title': title};
+      if (categoryCode != null) {
+        insertData['category_code'] = categoryCode;
+      }
+
       final threadResponse = await _client
           .from('qna_threads')
-          .insert({'user_id': userId, 'title': title})
+          .insert(insertData)
           .select()
           .single();
 
@@ -95,6 +151,52 @@ class QnaRepository {
       return newThread;
     } catch (e) {
       throw Exception('Q&A 스레드 생성 실패: $e');
+    }
+  }
+
+  /// Q&A 카테고리 목록 조회
+  Future<List<QnaCategory>> getCategories() async {
+    try {
+      final response = await _client
+          .from('qna_categories')
+          .select(
+            'code,label,question_template,answer_template,order_number,active',
+          )
+          .eq('active', true)
+          .order('order_number', ascending: true);
+
+      final list = (response as List<dynamic>).map((raw) {
+        final Map<String, dynamic> row = raw as Map<String, dynamic>;
+        final Map<String, dynamic>? labelJson =
+            row['label'] as Map<String, dynamic>?;
+        final Map<String, dynamic>? qJson =
+            row['question_template'] as Map<String, dynamic>?;
+        final Map<String, dynamic>? aJson =
+            row['answer_template'] as Map<String, dynamic>?;
+
+        final label = labelJson != null ? getLocaleTextFromJson(labelJson) : '';
+        final qTmpl = qJson != null ? getLocaleTextFromJson(qJson) : null;
+        final aTmpl = aJson != null ? getLocaleTextFromJson(aJson) : null;
+
+        if (kDebugMode &&
+            ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase() ==
+                'en') {
+          _logDebug(
+            'code=${row['code']} label="$label" qTmplPreview="${(qTmpl ?? '').toString().substring(0, (qTmpl ?? '').length.clamp(0, 30))}"',
+          );
+        }
+
+        return QnaCategory(
+          code: row['code'] as String,
+          label: label,
+          questionTemplate: qTmpl,
+          answerTemplate: aTmpl,
+        );
+      }).toList();
+
+      return list;
+    } catch (e) {
+      throw Exception('Q&A 카테고리 조회 실패: $e');
     }
   }
 
@@ -126,7 +228,9 @@ class QnaRepository {
           final safeName = _generateUuidName(p.extension(file.path));
           final filePath = 'qna/$userId/${newMessage.id}/$safeName';
 
-          await _client.storage.from('qna_attachments').upload(
+          await _client.storage
+              .from('qna_attachments')
+              .upload(
                 filePath,
                 file,
                 fileOptions: FileOptions(
@@ -171,8 +275,9 @@ class QnaRepository {
   /// 스토리지 파일의 공개 URL 가져오기
   String getPublicUrl(String path) {
     try {
-      final response =
-          _client.storage.from('qna_attachments').getPublicUrl(path);
+      final response = _client.storage
+          .from('qna_attachments')
+          .getPublicUrl(path);
       return response;
     } catch (e) {
       throw Exception('공개 URL 가져오기 실패: $e');
@@ -202,6 +307,11 @@ class QnaRepository {
 class QaThreadWithMessages {
   final QnaThread thread;
   final List<QnaMessage> messages;
+  final String? categoryLabel;
 
-  QaThreadWithMessages({required this.thread, required this.messages});
+  QaThreadWithMessages({
+    required this.thread,
+    required this.messages,
+    this.categoryLabel,
+  });
 }

@@ -1110,6 +1110,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_load_fail_title => '加载查询失败';
 
   @override
+  String get qna_category_label => '分类';
+
+  @override
+  String get qna_category_required => '请选择分类';
+
+  @override
   String get qna_message_hint => '输入消息';
 
   @override
@@ -2527,6 +2533,12 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get qna_load_fail_title => '加载查询失败';
 
   @override
+  String get qna_category_label => '分类';
+
+  @override
+  String get qna_category_required => '请选择分类';
+
+  @override
   String get qna_message_hint => '输入消息';
 
   @override
@@ -3941,6 +3953,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get qna_load_fail_title => '加载查询失敗';
+
+  @override
+  String get qna_category_label => '分類';
+
+  @override
+  String get qna_category_required => '請選擇分類';
 
   @override
   String get qna_message_hint => '输入消息';

@@ -1152,6 +1152,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get qna_load_fail_title => 'Không tải được yêu cầu';
 
   @override
+  String get qna_category_label => 'Danh mục';
+
+  @override
+  String get qna_category_required => 'Vui lòng chọn danh mục';
+
+  @override
   String get qna_message_hint => 'Nhập tin nhắn';
 
   @override

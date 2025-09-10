@@ -1937,4 +1937,9 @@
   "@qna_status_resolved": {
     "description": "QnA status when resolved/closed"
   }
+,
+  "qna_category_label": "カテゴリ",
+  "@qna_category_label": {"description": "QnA category label"},
+  "qna_category_required": "カテゴリを選択してください",
+  "@qna_category_required": {"description": "Error message when category is required"}
 }

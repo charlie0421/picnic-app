@@ -1103,6 +1103,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_load_fail_title => '문의 내역을 불러오는데 실패했습니다';
 
   @override
+  String get qna_category_label => '카테고리';
+
+  @override
+  String get qna_category_required => '카테고리를 선택해 주세요';
+
+  @override
   String get qna_message_hint => '메시지를 입력하세요';
 
   @override

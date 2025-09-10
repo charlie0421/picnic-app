@@ -1881,4 +1881,9 @@
   "@qna_status_resolved": {
     "description": "QnA status when resolved/closed"
   }
+,
+  "qna_category_label": "বিভাগ",
+  "@qna_category_label": {"description": "QnA category label"},
+  "qna_category_required": "অনুগ্রহ করে বিভাগ নির্বাচন করুন",
+  "@qna_category_required": {"description": "Error message when category is required"}
 }

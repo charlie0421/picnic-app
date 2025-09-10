@@ -1109,6 +1109,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_load_fail_title => 'お問い合わせの読み込みに失敗しました';
 
   @override
+  String get qna_category_label => 'カテゴリ';
+
+  @override
+  String get qna_category_required => 'カテゴリを選択してください';
+
+  @override
   String get qna_message_hint => 'メッセージを入力';
 
   @override

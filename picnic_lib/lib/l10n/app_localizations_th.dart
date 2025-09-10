@@ -1137,6 +1137,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get qna_load_fail_title => 'โหลดสอบถามข้อมูลไม่ได้';
 
   @override
+  String get qna_category_label => 'หมวดหมู่';
+
+  @override
+  String get qna_category_required => 'โปรดเลือกหมวดหมู่';
+
+  @override
   String get qna_message_hint => 'ป้อนข้อความ';
 
   @override

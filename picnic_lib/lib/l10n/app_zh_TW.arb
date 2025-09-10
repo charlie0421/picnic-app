@@ -1857,6 +1857,14 @@
   "@post_minor_board_create_request_message": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
   },
+  "qna_category_label": "分類",
+  "@qna_category_label": {
+    "description": "QnA category label (Traditional)"
+  },
+  "qna_category_required": "請選擇分類",
+  "@qna_category_required": {
+    "description": "Error message when category is required (Traditional)"
+  },
   "compatibility_purchase_confirm_title": "用星星糖果購買",
   "@compatibility_purchase_confirm_title": {
     "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."

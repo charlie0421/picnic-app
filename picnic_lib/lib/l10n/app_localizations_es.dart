@@ -1169,6 +1169,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get qna_load_fail_title => 'No se pudo cargar consultas';
 
   @override
+  String get qna_category_label => 'Categoría';
+
+  @override
+  String get qna_category_required => 'Seleccione una categoría';
+
+  @override
   String get qna_message_hint => 'Ingrese el mensaje';
 
   @override
