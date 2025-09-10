@@ -135,6 +135,11 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
         backgroundColor: AppColors.primary500,
         foregroundColor: Colors.white,
         elevation: 6,
+        extendedPadding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 8.0,
+        ),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         icon: const Icon(Icons.edit),
         label: Text(
           AppLocalizations.of(context).qna_create_page_title,
