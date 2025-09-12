@@ -867,7 +867,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get text_community_post_search => '検索';
 
   @override
-  String get text_copied_address => 'アドレスがコピーされました。';
+  String get text_copied => 'コピーしました。';
+
+  @override
+  String get ban_support_instruction => '下のログをコピーしてサポートにお問い合わせください。';
+
+  @override
+  String get action_copy => 'コピー';
 
   @override
   String get text_draw_image => '全ギャラリーのうち、1枚の画像を確定的に所蔵';
@@ -969,15 +975,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get update => 'Update';
 
   @override
-  String get ban_title => 'Account Suspended';
+  String get ban_title => '端末の利用停止';
 
   @override
-  String get ban_message =>
-      'Your account has been temporarily suspended due to inappropriate activity.';
+  String get ban_message => 'ポリシー違反が確認されたため、この端末の利用を一時的に停止しました。';
 
   @override
-  String get ban_contact =>
-      'Please contact customer service if you have any questions.';
+  String get ban_contact => '誤検知と思われる場合はカスタマーサポートへお問い合わせください。';
 
   @override
   String get compatibility_empty_state_title => 'No compatibility information';

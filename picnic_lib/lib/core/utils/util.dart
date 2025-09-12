@@ -9,12 +9,13 @@ import 'package:picnic_lib/supabase_options.dart';
 void copyToClipboard(BuildContext context, String text) {
   Clipboard.setData(ClipboardData(text: text));
   showSimpleDialog(
-      content: AppLocalizations.of(context).text_copied_address,
-      onOk: () {
-        if (context.mounted) {
-          Navigator.of(context).pop();
-        }
-      });
+    content: AppLocalizations.of(context).text_copied,
+    onOk: () {
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+    },
+  );
 }
 
 final numberFormatter = NumberFormat('#,###');

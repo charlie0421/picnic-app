@@ -1,5 +1,5 @@
 {
-  "achieve": "Achievement",
+  "achieve": "Achievements",
   "@achieve": {
     "description": "Auto-generated metadata for key 'achieve'."
   },
@@ -1142,9 +1142,17 @@
   "@text_community_post_search": {
     "description": "Auto-generated metadata for key 'text_community_post_search'."
   },
-  "text_copied_address": "The address has been copied.",
-  "@text_copied_address": {
-    "description": "Auto-generated metadata for key 'text_copied_address'."
+  "text_copied": "Copied.",
+  "@text_copied": {
+    "description": "Shown after copying text to clipboard"
+  },
+  "ban_support_instruction": "Please copy the logs below and contact support.",
+  "@ban_support_instruction": {
+    "description": "Instruction text on ban screen to contact support with logs"
+  },
+  "action_copy": "Copy",
+  "@action_copy": {
+    "description": "Copy button label"
   },
   "text_draw_image": "Confirmed ownership of 1 image from the entire gallery.",
   "@text_draw_image": {
@@ -1278,15 +1286,15 @@
   "@update": {
     "description": "Auto-generated metadata for key 'update'."
   },
-  "ban_title": "Account Suspended",
+  "ban_title": "Device Suspended",
   "@ban_title": {
     "description": "Auto-generated metadata for key 'ban_title'."
   },
-  "ban_message": "Your account has been temporarily suspended due to inappropriate activity.",
+  "ban_message": "This device has been temporarily suspended due to policy violations.",
   "@ban_message": {
     "description": "Auto-generated metadata for key 'ban_message'."
   },
-  "ban_contact": "Please contact customer service if you have any questions.",
+  "ban_contact": "If you believe this is a mistake, please contact customer support.",
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },

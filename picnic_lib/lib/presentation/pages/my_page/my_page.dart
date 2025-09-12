@@ -415,6 +415,10 @@ class _MyPageState extends ConsumerState<MyPage> {
         showModalBottomSheet(
           context: context,
           backgroundColor: AppColors.grey00,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          clipBehavior: Clip.antiAlias,
           useSafeArea: true,
           builder: (context) {
             return StatefulBuilder(
@@ -445,6 +449,15 @@ class _MyPageState extends ConsumerState<MyPage> {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.grey100,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       alignment: Alignment.center,
@@ -511,7 +524,19 @@ class _MyPageState extends ConsumerState<MyPage> {
         );
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12),
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        decoration: BoxDecoration(
+          color: AppColors.grey00,
+          border: Border.all(color: AppColors.grey200),
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x14000000), // subtle shadow
+              blurRadius: 6,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -545,7 +570,13 @@ class _MyPageState extends ConsumerState<MyPage> {
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-        color: isSelected ? AppColors.grey100 : Colors.transparent,
+        decoration: BoxDecoration(
+          color: AppColors.grey00,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? AppColors.grey200 : AppColors.grey100,
+          ),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

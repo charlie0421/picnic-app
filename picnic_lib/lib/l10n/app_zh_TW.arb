@@ -1279,18 +1279,24 @@
   "@update": {
     "description": "Auto-generated metadata for key 'update'."
   },
-  "ban_title": "Account Suspended",
+  "ban_title": "帳號已被暫停",
   "@ban_title": {
     "description": "Auto-generated metadata for key 'ban_title'."
   },
-  "ban_message": "Your account has been temporarily suspended due to inappropriate activity.",
+  "ban_message": "由於偵測到不當行為，您的帳號已被暫時停用。",
   "@ban_message": {
     "description": "Auto-generated metadata for key 'ban_message'."
   },
-  "ban_contact": "Please contact customer service if you have any questions.",
+  "ban_contact": "如有疑問，請聯絡客服支援。",
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
+  "action_copy": "複製",
+  "@action_copy": {"description": "Copy button label"},
+  "text_copied": "已複製。",
+  "@text_copied": {"description": "Shown after copying text to clipboard"},
+  "ban_support_instruction": "請複製以下日誌並聯絡客服。",
+  "@ban_support_instruction": {"description": "Instruction to copy logs and contact support"},
   "compatibility_empty_state_title": "No compatibility information",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."

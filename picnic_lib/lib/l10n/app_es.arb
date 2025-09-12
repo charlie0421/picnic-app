@@ -1291,6 +1291,12 @@
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
+  "action_copy": "Copiar",
+  "@action_copy": {"description": "Copy button label"},
+  "text_copied": "Copiado.",
+  "@text_copied": {"description": "Shown after copying text to clipboard"},
+  "ban_support_instruction": "Copie los registros a continuación y póngase en contacto con el soporte.",
+  "@ban_support_instruction": {"description": "Instruction to copy logs and contact support"},
   "compatibility_empty_state_title": "Sin información de compatibilidad",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."

@@ -915,7 +915,14 @@ class AppLocalizationsFil extends AppLocalizations {
   String get text_community_post_search => 'Maghanap';
 
   @override
-  String get text_copied_address => 'Kinopya ang address.';
+  String get text_copied => 'Nakopya.';
+
+  @override
+  String get ban_support_instruction =>
+      'Pakikopya ang mga log sa ibaba at makipag-ugnayan sa suporta.';
+
+  @override
+  String get action_copy => 'Kopyahin';
 
   @override
   String get text_draw_image =>

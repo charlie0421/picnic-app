@@ -194,11 +194,7 @@ class SearchService {
         // 검색어가 있는 경우에만 필터 적용
         if (query.isNotEmpty) {
           artistQuery = artistQuery.or(
-            'name->>ko.ilike.%$query%,'
-            'name->>en.ilike.%$query%,'
-            'name->>ja.ilike.%$query%,'
-            'name->>zh.ilike.%$query%,'
-            'name->>zh_CN.ilike.%$query%',
+            'name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh_CN.ilike.%$query%',
           );
         }
 
@@ -235,11 +231,7 @@ class SearchService {
                 .from('artist_group')
                 .select('id,name,image')
                 .or(
-                  'name->>ko.ilike.%$query%,'
-                  'name->>en.ilike.%$query%,'
-                  'name->>ja.ilike.%$query%,'
-                  'name->>zh.ilike.%$query%,'
-                  'name->>zh_CN.ilike.%$query%',
+                  'name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh_CN.ilike.%$query%',
                 );
 
             final groupResponse = await groupQuery.order(
@@ -729,7 +721,7 @@ class SearchService {
   /// 다국어 검색 조건을 생성하는 헬퍼 메서드
   static List<String> createMultiLanguageSearchConditions(
     String fieldName, {
-    List<String> languages = const ['ko', 'en', 'ja', 'zh'],
+    List<String> languages = const ['ko', 'en', 'ja', 'zh_CN'],
     String operator = 'ilike',
     String pattern = '%{query}%',
   }) {
@@ -742,7 +734,7 @@ class SearchService {
   static List<String> createJoinedMultiLanguageSearchConditions(
     String joinTable,
     String fieldName, {
-    List<String> languages = const ['ko', 'en', 'ja', 'zh'],
+    List<String> languages = const ['ko', 'en', 'ja', 'zh_CN'],
     String operator = 'ilike',
     String pattern = '%{query}%',
   }) {
@@ -828,18 +820,11 @@ class SearchService {
             'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))',
           )
           .or(
-            'name->>ko.ilike.%$query%,'
-            'name->>en.ilike.%$query%,'
-            'name->>ja.ilike.%$query%,'
-            'name->>zh.ilike.%$query%,'
-            'name->>zh_CN.ilike.%$query%',
+            'name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh_CN.ilike.%$query%',
           )
           .neq('artist_id', 0)
           .eq('status', 'approved')
-          .order(
-            'name->>${language == 'zh' ? 'zh_CN' : language}',
-            ascending: true,
-          )
+          .order('name->>$language', ascending: true)
           .order('is_official', ascending: false)
           .order('order', ascending: true)
           .range(page * limit, (page + 1) * limit - 1);

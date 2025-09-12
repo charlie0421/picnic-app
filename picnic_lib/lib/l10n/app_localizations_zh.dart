@@ -9,116 +9,118 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get achieve => '成就';
+  String get achieve => 'Achievements';
 
   @override
-  String get ads_available_time => '下次可观看广告时间';
+  String get ads_available_time => 'Next available time to watch ads';
 
   @override
-  String get anonymous => '匿名';
+  String get anonymous => 'Anonymous';
 
   @override
-  String get anonymous_mode => '匿名模式';
+  String get anonymous_mode => 'Anonymous Mode';
 
   @override
-  String get block_user_label => '屏蔽用户';
+  String get block_user_label => 'Blocking users';
 
   @override
-  String get button_cancel => '取消';
+  String get button_cancel => 'Cancel';
 
   @override
-  String get button_complete => '完成';
+  String get button_complete => 'Done';
 
   @override
-  String get button_login => '登录';
+  String get button_login => 'Sign in';
 
   @override
-  String get button_ok => '确认';
+  String get button_ok => 'Confirm';
 
   @override
-  String get comments => '评论';
+  String get comments => 'Comments';
 
   @override
-  String get common_all => '全部';
+  String get common_all => 'All';
 
   @override
-  String get common_fail => '失败';
+  String get common_fail => 'Failed';
 
   @override
-  String get common_retry_label => '再次尝试';
+  String get common_retry_label => 'Try again';
 
   @override
-  String get common_success => '成功';
+  String get common_success => 'Success';
 
   @override
-  String get common_text_no_data => '没有相关数据。';
+  String get common_text_no_data => 'No data is available.';
 
   @override
-  String get common_text_no_search_result => '未找到搜索结果。';
+  String get common_text_no_search_result => 'No search results found.';
 
   @override
-  String get common_text_search_error => '搜索过程中出现错误。';
+  String get common_text_search_error => 'An error occurred during the search.';
 
   @override
-  String get common_text_search_recent_label => '最近的搜索';
+  String get common_text_search_recent_label => 'Recent searches';
 
   @override
-  String get common_text_search_result_label => '搜索结果';
+  String get common_text_search_result_label => 'Search results';
 
   @override
-  String get compatibility_activities_title => '建议开展的活动';
+  String get compatibility_activities_title => 'Suggested activities';
 
   @override
-  String get compatibility_agree_checkbox => '我同意在个人档案中存储我的性别和生日信息。';
+  String get compatibility_agree_checkbox =>
+      'I agree to store my gender and birthday information in my profile.';
 
   @override
-  String get compatibility_analyze_start => '开始兼容性分析';
+  String get compatibility_analyze_start => 'Start compatibility analysis';
 
   @override
-  String get compatibility_analyzing => '分析兼容性。';
+  String get compatibility_analyzing => 'Analyzing compatibility.';
 
   @override
-  String get compatibility_analyzing_prepare => '准备工作';
+  String get compatibility_analyzing_prepare => 'Preparing';
 
   @override
-  String get compatibility_birthday => '出生日期';
+  String get compatibility_birthday => 'Date of birth';
 
   @override
-  String get compatibility_birthtime => '出生时间';
+  String get compatibility_birthtime => 'Birth time';
 
   @override
-  String get compatibility_couple_style => '情侣款式';
+  String get compatibility_couple_style => 'Couple styles';
 
   @override
-  String get compatibility_duplicate_data_title => '已有的兼容性数据';
+  String get compatibility_duplicate_data_title =>
+      'Compatibility data that already exists';
 
   @override
-  String get compatibility_gender => '性别';
+  String get compatibility_gender => 'Gender';
 
   @override
-  String get compatibility_gender_female => '女性';
+  String get compatibility_gender_female => 'Female';
 
   @override
-  String get compatibility_gender_male => '男';
+  String get compatibility_gender_male => 'Male';
 
   @override
-  String get compatibility_idol_style => '偶像风格';
+  String get compatibility_idol_style => 'Idol Styles';
 
   @override
-  String get compatibility_new_compatibility => '计算新宫合';
+  String get compatibility_new_compatibility => 'Calculate New Goong-Hap';
 
   @override
-  String get compatibility_page_title => '兼容性';
+  String get compatibility_page_title => 'Compatibility';
 
   @override
   String get compatibility_purchase_confirm_message =>
-      '使用100个星星糖果查看Goong-Hap结果。';
+      'Use 100 Star Candy to check Goong-Hap results.';
 
   @override
-  String get compatibility_remain_star_candy => '剩余的糖果';
+  String get compatibility_remain_star_candy => 'Remaining Star Candy';
 
   @override
-  String get compatibility_result_not_found => '这不是 Goong-Hap😔。';
+  String get compatibility_result_not_found => 'It\'s not Goong-Hap 😔.';
 
   @override
   String get compatibility_share_hashtag =>
@@ -126,828 +128,868 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String compatibility_share_message(String artistName) {
-    return '我的闪亮化学兼容性与 $artistName 的百分比是多少？?我的心在狂跳';
+    return 'What percentage is my shining chemistry compatibility with $artistName ? My heart is racing!';
   }
 
   @override
-  String get compatibility_snackbar_error => '出现错误。';
+  String get compatibility_snackbar_error => 'An error occurred.';
 
   @override
-  String get compatibility_snackbar_need_gender => '请选择性别。';
+  String get compatibility_snackbar_need_gender => 'Please select a gender.';
 
   @override
-  String get compatibility_snackbar_start => '开始分析兼容性。';
+  String get compatibility_snackbar_start => 'Start analyzing compatibility.';
 
   @override
-  String get compatibility_style_title => '兼容性样式';
+  String get compatibility_style_title => 'Compatibility styles';
 
   @override
-  String get compatibility_time_slot1 => '老鼠的时刻|(23:30-01:29)|🐀';
+  String get compatibility_time_slot1 => 'Hour of the Rat|(23:30-01:29)|🐀';
 
   @override
-  String get compatibility_time_slot10 => '鸡鸣时刻|(17:30-19:29)|🐔|(17:30-19:29)';
+  String get compatibility_time_slot10 =>
+      'Hour of the Rooster|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 => '狗的时刻|(19:30-21:29)|🐕';
+  String get compatibility_time_slot11 => 'Hour of the Dog|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 => '野猪的时刻|(21:30-23:29)|🐖';
+  String get compatibility_time_slot12 => 'Hour of the Boar|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => '牛的时刻|(01:30-03:29)|🐂';
+  String get compatibility_time_slot2 => 'Hour of the Ox|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 => '虎啸龙吟|(03:30-05:29)|🐅|(03:30-05:29)';
+  String get compatibility_time_slot3 => 'Hour of the Tiger|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 => '兔子的时刻|(05:30-07:29)|🐇🐇';
+  String get compatibility_time_slot4 => 'Hour of the Rabbit|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 => '龙的时刻|(07:30-09:29)|🐉🐉';
+  String get compatibility_time_slot5 => 'Hour of the Dragon|(07:30-09:29)|🐉';
 
   @override
-  String get compatibility_time_slot6 => '蛇的时刻|(09:30-11:29)|🐍🐍';
+  String get compatibility_time_slot6 => 'Hour of the Snake|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 => '马的时刻|(11:30-13:29)|🐎';
+  String get compatibility_time_slot7 => 'Hour of the Horse|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 => '羊的时刻|(13:30-15:29)|🐑';
+  String get compatibility_time_slot8 => 'Hour of the Sheep|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 => '猴年春节|(15:30-17:29)|🐒|(15:30-17:29)';
+  String get compatibility_time_slot9 => 'Hour of the Monkey|(15:30-17:29)|🐒';
 
   @override
-  String get compatibility_tips_title => '兼容性提示';
+  String get compatibility_tips_title => 'Compatibility tips';
 
   @override
-  String get compatibility_user_style => '用户风格';
+  String get compatibility_user_style => 'User Styles';
 
   @override
-  String get compatibility_waiting_message => '请稍候。';
+  String get compatibility_waiting_message => 'Please wait a moment.';
 
   @override
-  String get compatibility_warning_exit => '如果离开屏幕，则需要重新进行分析。';
+  String get compatibility_warning_exit =>
+      'If you leave the screen, you\'ll need to do the analysis again.';
 
   @override
-  String get dialog_button_cancel => '取消';
+  String get dialog_button_cancel => 'Cancel';
 
   @override
-  String get dialog_button_ok => '确认';
+  String get dialog_button_ok => 'Confirm';
 
   @override
-  String get dialog_caution => '注意事项 🚫';
+  String get dialog_caution => '🚫 Caution 🚫';
 
   @override
-  String get dialog_content_ads_exhausted => '所有广告已用尽。请下次再试。';
+  String get dialog_content_ads_exhausted =>
+      'All ads have been exhausted. Please try again next time.';
 
   @override
-  String get dialog_content_login_required => '需要登录';
+  String get dialog_content_login_required => 'Login required';
 
   @override
-  String get dialog_message_can_resignup => '如果现在取消会员资格，何时可以重新加入？';
+  String get dialog_message_can_resignup =>
+      'When you can rejoin if you cancel your membership now?';
 
   @override
-  String get dialog_message_purchase_failed => '您的购买出现错误，请稍后再试。';
+  String get dialog_message_purchase_failed =>
+      'There was an error with your purchase, please try again later.';
 
   @override
-  String get dialog_message_purchase_success => '您的购买已成功完成。';
+  String get dialog_message_purchase_success =>
+      'Your purchase has been successfully completed.';
 
   @override
-  String get dialog_title_ads_exhausted => '用尽所有广告';
+  String get dialog_title_ads_exhausted => 'Exhausted all ads';
 
   @override
-  String get dialog_title_vote_fail => '投票失败';
+  String get dialog_title_vote_fail => 'Voting Failed';
 
   @override
-  String get dialog_will_delete_star_candy => '将删除的星星糖果';
+  String get dialog_will_delete_star_candy => 'Star Candies to be deleted';
 
   @override
   String get dialog_withdraw_message =>
-      '如果您取消会员资格，您在 Picnic 上的星星糖果和账户信息将被立即删除，重新加入时将无法恢复您的现有信息和数据。';
+      'If you cancel your membership, your star candy and account information on Picnic will be deleted immediately, and your existing information and data will not be restored when you rejoin.';
 
   @override
-  String get dialog_withdraw_title => '你确定要离开吗？';
+  String get dialog_withdraw_title => 'Are you sure you want to leave?';
 
   @override
-  String get error_action_failed => '执行操作时发生错误。';
+  String get error_action_failed =>
+      'An error occurred while performing the operation.';
 
   @override
-  String get error_content_parse => '解析内容时发生错误。';
+  String get error_content_parse =>
+      'An error occurred while parsing the content.';
 
   @override
-  String get error_invalid_data => '数据无效。';
+  String get error_invalid_data => 'Invalid data.';
 
   @override
-  String get error_network_connection => '检查网络连接。';
+  String get error_network_connection => 'Check your network connection.';
 
   @override
-  String get error_request_timeout => '请求超时。';
+  String get error_request_timeout => 'The request timed out.';
 
   @override
-  String get error_title => '错误';
+  String get error_title => 'Errors';
 
   @override
-  String get error_unknown => '出现未知错误。';
+  String get error_unknown => 'An unknown error occurred.';
 
   @override
-  String get faq_category_all => '全部';
+  String get faq_category_all => 'All';
 
   @override
-  String get fortune_advice => '建议';
+  String get fortune_advice => 'Advice';
 
   @override
-  String get fortune_button_title => '我的艺术家算命先生';
+  String get fortune_button_title => 'My Artist\'s Fortune teller';
 
   @override
-  String get fortune_career => '商业财富';
+  String get fortune_career => 'Business fortunes';
 
   @override
-  String get fortune_health => '健康运势';
+  String get fortune_health => 'Health fortunes';
 
   @override
-  String get fortune_honor => '荣誉';
+  String get fortune_honor => 'Honor';
 
   @override
-  String get fortune_lack_of_star_candy_message => '奖励星星糖果不能在此使用。😥';
+  String get fortune_lack_of_star_candy_message =>
+      'Reward Star Candies cannot be used here. 😥';
 
   @override
-  String get fortune_lack_of_star_candy_title => '您没有足够的星糖。进入商店界面。';
+  String get fortune_lack_of_star_candy_title =>
+      'You don\'t have enough Star Candy. Moving to the shop screen.';
 
   @override
-  String get fortune_lucky_color => '幸运颜色';
+  String get fortune_lucky_color => 'Lucky colors';
 
   @override
-  String get fortune_lucky_days => '一周中的幸运日';
+  String get fortune_lucky_days => 'Lucky days of the week';
 
   @override
-  String get fortune_lucky_keyword => '幸运关键词';
+  String get fortune_lucky_keyword => 'Lucky keywords';
 
   @override
-  String get fortune_lucky_number => '幸运数字';
+  String get fortune_lucky_number => 'Lucky numbers';
 
   @override
-  String get fortune_money => '算命';
+  String get fortune_money => 'Fortune Telling';
 
   @override
-  String get fortune_month1 => '一月份的财富';
+  String get fortune_month1 => 'Fortune for January';
 
   @override
-  String get fortune_month10 => '十月财富';
+  String get fortune_month10 => 'Fortune for October';
 
   @override
-  String get fortune_month11 => '十一月的财富';
+  String get fortune_month11 => 'Fortune for November';
 
   @override
-  String get fortune_month12 => '十二月财富';
+  String get fortune_month12 => 'Fortune for December';
 
   @override
-  String get fortune_month2 => '二月财富';
+  String get fortune_month2 => 'Fortune for February';
 
   @override
-  String get fortune_month3 => '三月财富';
+  String get fortune_month3 => 'Fortune for March';
 
   @override
-  String get fortune_month4 => '四月财富';
+  String get fortune_month4 => 'Fortune for April';
 
   @override
-  String get fortune_month5 => '五月财富';
+  String get fortune_month5 => 'Fortune for May';
 
   @override
-  String get fortune_month6 => '六月财富';
+  String get fortune_month6 => 'Fortune for June';
 
   @override
-  String get fortune_month7 => '七月财富';
+  String get fortune_month7 => 'Fortune for July';
 
   @override
-  String get fortune_month8 => '八月财富';
+  String get fortune_month8 => 'Fortune for August';
 
   @override
-  String get fortune_month9 => '九月财富';
+  String get fortune_month9 => 'Fortune for September';
 
   @override
-  String get fortune_monthly => '财富》月刊';
+  String get fortune_monthly => 'Monthly Fortune';
 
   @override
-  String get fortune_relationship => '人际关系';
+  String get fortune_relationship => 'Interpersonal';
 
   @override
-  String get fortune_total_title => '综合财富';
+  String get fortune_total_title => 'Comprehensive Fortune';
 
   @override
   String get fortune_with_me => 'Goong-Hap with me';
 
   @override
-  String get hint_library_add => '专辑名称';
+  String get hint_library_add => 'Album name';
 
   @override
-  String get hint_nickname_input => '请输入昵称。';
+  String get hint_nickname_input => 'Please enter a nickname.';
 
   @override
-  String get image_save_success => '图像已保存。';
+  String get image_save_success => 'The image has been saved.';
 
   @override
-  String get label_ads_exceeded => '您已超过此按钮的广告观看次数。';
+  String get label_ads_exceeded =>
+      'You have exceeded the number of times you can watch ads for this button.';
 
   @override
-  String get label_ads_get_star_candy => '从广告中获取星星糖果';
+  String get label_ads_get_star_candy => 'Get Star Candy from Ads';
 
   @override
   String label_ads_limits(int hourly, int daily) {
-    return '$hourly 每小时， $daily 每天';
+    return '$hourly per hour, $daily per day';
   }
 
   @override
-  String get label_ads_load_fail => '广告加载失败。请重试。';
+  String get label_ads_load_fail => 'Failed to load ad. Please try again.';
 
   @override
-  String get label_ads_sdk_init_fail => 'SDK 初始化失败。请重试。';
+  String get label_ads_sdk_init_fail =>
+      'SDK initialization failed. Please try again.';
 
   @override
-  String get label_ads_show_fail => '显示广告失败。请重试。';
+  String get label_ads_show_fail => 'Failed to show ad. Please try again.';
 
   @override
-  String get label_agreement_privacy => '同意收集和使用个人信息';
+  String get label_agreement_privacy =>
+      'Consent to the collection and use of personal information';
 
   @override
-  String get label_agreement_terms => '接受使用条款';
+  String get label_agreement_terms => 'Accept the Terms of Use';
 
   @override
-  String get label_album_add => '添加新相册';
+  String get label_album_add => 'Add a new album';
 
   @override
-  String get label_article_comment_empty => '成为第一个发表评论的人！';
+  String get label_article_comment_empty => 'Be the first to comment!';
 
   @override
-  String get label_asia_recommendation => '亚洲精选';
+  String get label_asia_recommendation => 'Asia Pick';
 
   @override
-  String get label_bonus => '奖金';
+  String get label_bonus => 'Bonuses';
 
   @override
-  String get label_button_agreement => '接受';
+  String get label_button_agreement => 'Accept';
 
   @override
-  String get label_button_close => '닫기';
+  String get label_button_close => 'Close';
 
   @override
-  String get label_button_recharge => '充电';
+  String get label_button_recharge => 'Charging';
 
   @override
-  String get label_button_view_policy => '查看政策';
+  String get label_button_view_policy => 'View Policy';
 
   @override
-  String get label_button_vote => '投票';
+  String get label_button_vote => 'Vote';
 
   @override
-  String get label_celeb_gallery => '艺术家画廊';
+  String get label_celeb_gallery => 'Artist Gallery';
 
   @override
-  String get label_celeb_recommend => '艺术家推荐';
+  String get label_celeb_recommend => 'Artist recommendations';
 
   @override
-  String get label_checkbox_entire_use => '全面使用';
+  String get label_checkbox_entire_use => 'Full Use';
 
   @override
-  String get label_draw_image => '赢取随机图片的机会';
+  String get label_draw_image => 'Chance to win a random image';
 
   @override
-  String get label_dropdown_oldest => '最老';
+  String get label_dropdown_oldest => 'Oldest';
 
   @override
-  String get label_dropdown_recent => '最新';
+  String get label_dropdown_recent => 'Newest';
 
   @override
-  String get label_global_recommendation => '全球精选';
+  String get label_global_recommendation => 'Global Pick';
 
   @override
-  String get label_hint_comment => '发表评论。';
+  String get label_hint_comment => 'Leave a comment.';
 
   @override
-  String get label_input_input => '输入';
+  String get label_input_input => 'Input';
 
   @override
-  String get label_korean_recommendation => '韩国精选';
+  String get label_korean_recommendation => 'Korean Pick';
 
   @override
-  String get label_last_provider => '最近';
+  String get label_last_provider => 'Recent';
 
   @override
-  String get label_library_save => '拯救图书馆';
+  String get label_library_save => 'Save the library';
 
   @override
-  String get label_library_tab_ai_photo => '人工智能照片';
+  String get label_library_tab_ai_photo => 'AI Photos';
 
   @override
-  String get label_library_tab_library => '图书馆';
+  String get label_library_tab_library => 'Libraries';
 
   @override
   String get label_library_tab_pic => 'PIC';
 
   @override
-  String get label_loading_ads => '加载广告';
+  String get label_loading_ads => 'Loading ad';
 
   @override
-  String get label_mission_get_star_candy => '从任务中获取星星糖果';
+  String get label_mission_get_star_candy => 'Get Star Candy from Missions';
 
   @override
-  String get label_mission_short => '使命';
+  String get label_mission_short => 'Mission';
 
   @override
-  String get label_moveto_celeb_gallery => '前往艺术家画廊';
+  String get label_moveto_celeb_gallery => 'Go to the Artist Gallery';
 
   @override
-  String get label_mypage_faq => '常见问答（FAQ）';
+  String get label_mypage_faq => 'FAQ';
 
   @override
-  String get label_mypage_logout => '退出登录';
+  String get label_mypage_logout => 'Log out';
 
   @override
-  String get label_mypage_my_artist => '我的艺术家';
+  String get label_mypage_my_artist => 'My Artists';
 
   @override
-  String get label_mypage_no_artist => '无艺术家';
+  String get label_mypage_no_artist => 'No Artist';
 
   @override
-  String get label_mypage_notice => '公告';
+  String get label_mypage_notice => 'Notice';
 
   @override
-  String get label_mypage_picnic_id => 'ID';
+  String get label_mypage_picnic_id => 'Picnic ID';
 
   @override
-  String get label_mypage_privacy_policy => '隐私政策';
+  String get label_mypage_privacy_policy => 'Privacy Policy';
 
   @override
-  String get label_mypage_setting => '设置';
+  String get label_mypage_setting => 'Settings';
 
   @override
-  String get label_mypage_should_login => '请登录';
+  String get label_mypage_should_login => 'Please sign in';
 
   @override
-  String get label_mypage_terms_of_use => '使用条款';
+  String get label_mypage_terms_of_use => 'Terms of Use';
 
   @override
-  String get label_mypage_vote_history => '星星糖投票历史';
+  String get label_mypage_vote_history => 'StarCandy Voting History';
 
   @override
-  String get label_mypage_withdrawal => '退出';
+  String get label_mypage_withdrawal => 'Withdrawal';
 
   @override
-  String get label_no_celeb => '您还没有收藏任何艺术家！';
+  String get label_no_celeb => 'You don\'t have any artists bookmarked yet!';
 
   @override
-  String get label_pic_chart => 'PIC 图表';
+  String get label_pic_chart => 'Pic Chart';
 
   @override
-  String get label_pic_pic_save_gallery => '保存到图库';
+  String get label_pic_pic_save_gallery => 'Save to Gallery';
 
   @override
-  String get label_read_more_comment => '更多评论';
+  String get label_read_more_comment => 'More comments';
 
   @override
-  String get label_reply => '回复';
+  String get label_reply => 'Replying to a reply';
 
   @override
-  String get label_retry => '重试';
+  String get label_retry => 'Retrying';
 
   @override
-  String get label_setting_alarm => '通知';
+  String get label_setting_alarm => 'Notifications';
 
   @override
-  String get label_setting_appinfo => '应用程序信息';
+  String get label_setting_appinfo => 'App info';
 
   @override
-  String get label_setting_current_version => '当前版本';
+  String get label_setting_current_version => 'Current version';
 
   @override
-  String get label_setting_event_alarm => '活动通知';
+  String get label_setting_event_alarm => 'Event notifications';
 
   @override
-  String get label_setting_event_alarm_desc => '活动和事件。';
+  String get label_setting_event_alarm_desc => 'Events and happenings.';
 
   @override
-  String get label_setting_language => '语言设置';
+  String get label_setting_language => 'Language settings';
 
   @override
-  String get label_setting_push_alarm => '推送通知';
+  String get label_setting_push_alarm => 'Push notifications';
 
   @override
-  String get label_setting_recent_version => '最新版本';
+  String get label_setting_recent_version => 'Latest version';
 
   @override
-  String get label_setting_recent_version_up_to_date => '最新版本';
+  String get label_setting_recent_version_up_to_date => 'Latest version';
 
   @override
-  String get label_setting_remove_cache => '删除高速缓冲存储器';
+  String get label_setting_remove_cache => 'Delete cache memory';
 
   @override
-  String get label_setting_storage => '管理存储';
+  String get label_setting_storage => 'Manage storage';
 
   @override
-  String get label_star_candy_pouch => '星形糖果袋';
+  String get label_star_candy_pouch => 'Star Candy Pouch';
 
   @override
-  String get label_tabbar_vote_active => '进行中';
+  String get label_tabbar_vote_active => 'In Progress';
 
   @override
-  String get label_tabbar_vote_end => '退出';
+  String get label_tabbar_vote_end => 'Closed';
 
   @override
   String label_time_ago_day(int day) {
-    return '$day 日前';
+    return '$day days ago';
   }
 
   @override
   String label_time_ago_hour(int hour) {
-    return '$hour 小时前';
+    return '$hour hours ago';
   }
 
   @override
-  String get label_time_ago_right_now => '就在刚才';
+  String get label_time_ago_right_now => 'Just a moment ago';
 
   @override
-  String get label_title_report => '提交报告';
+  String get label_title_report => 'Make a report';
 
   @override
-  String get label_unlimited_rewards => '无限奖励';
+  String get label_unlimited_rewards => 'Unlimited rewards';
 
   @override
-  String get label_vote_end => '关闭投票';
+  String get label_vote_end => 'Close the poll';
 
   @override
-  String get label_vote_reward_list => '奖励清单';
+  String get label_vote_reward_list => 'Rewards list';
 
   @override
-  String get label_vote_screen_title => '投票';
+  String get label_vote_screen_title => 'Voting';
 
   @override
-  String get label_vote_upcoming => '投票开始前';
+  String get label_vote_upcoming => 'Until voting begins';
 
   @override
-  String get label_watch_ads_short => '观看';
+  String get label_watch_ads_short => 'Watch';
 
   @override
-  String get lable_my_celeb => '我的艺术家';
+  String get lable_my_celeb => 'My Artists';
 
   @override
-  String get message_error_occurred => '出现错误。';
+  String get message_error_occurred => 'An error occurred.';
 
   @override
-  String get message_noitem_vote_active => '目前没有正在进行的投票。';
+  String get message_noitem_vote_active =>
+      'There are currently no active polls.';
 
   @override
-  String get message_noitem_vote_end => '目前没有已结束的投票。';
+  String get message_noitem_vote_end => 'There are currently no closed polls.';
 
   @override
-  String get message_noitem_vote_upcoming => '目前没有即将进行的投票。';
+  String get message_noitem_vote_upcoming =>
+      'There are currently no upcoming polls.';
 
   @override
-  String get message_pic_pic_save_fail => '保存图像失败。';
+  String get message_pic_pic_save_fail => 'Saving the image failed.';
 
   @override
-  String get message_pic_pic_save_success => '图像已保存。';
+  String get message_pic_pic_save_success => 'The image has been saved.';
 
   @override
-  String get message_vote_is_ended => '投票结束';
+  String get message_vote_is_ended => 'Poll closed';
 
   @override
-  String get message_vote_is_upcoming => '这是一次即将进行的投票。';
+  String get message_vote_is_upcoming => 'This is an upcoming vote.';
 
   @override
-  String get my_info => '我的信息';
+  String get my_info => 'My Information';
 
   @override
-  String get mypage_setting => '设置';
+  String get mypage_setting => 'Settings';
 
   @override
-  String get nav_media => '媒体';
+  String get nav_media => 'Media';
 
   @override
-  String get nickname_validation_error => '20 个字符或更少，不包括特殊字符。';
+  String get nickname_validation_error =>
+      '20 characters or less, excluding special characters.';
 
   @override
-  String get page_title_mypage => '我的页面';
+  String get page_title_mypage => 'My Page';
 
   @override
-  String get page_title_post_write => '创建一个职位';
+  String get page_title_post_write => 'Create a post';
 
   @override
-  String get page_title_vote_detail => '投票';
+  String get page_title_vote_detail => 'Vote';
 
   @override
-  String get popup_label_delete => '删除';
+  String get popup_label_delete => 'Delete';
 
   @override
-  String get post_anonymous => '匿名张贴';
+  String get post_anonymous => 'Anonymous posting';
 
   @override
-  String get post_board_already_exist => '一个已经存在的董事会。';
+  String get post_board_already_exist => 'A board that already exists.';
 
   @override
-  String get post_board_create_request_complete => '您的开设留言板申请已完成。';
+  String get post_board_create_request_complete =>
+      'Your request to open a board is complete.';
 
   @override
-  String get post_board_create_request_condition => '*每个 ID 只能申请一个未成年人板。';
+  String get post_board_create_request_condition =>
+      '*Only one minor board can be applied per ID.';
 
   @override
-  String get post_board_request_label => '公开申请';
+  String get post_board_request_label => 'Open requests';
 
   @override
-  String get post_comment_action_translate => '翻译';
+  String get post_comment_action_translate => 'Translation';
 
   @override
-  String get post_comment_content_more => '更多信息';
+  String get post_comment_content_more => 'More';
 
   @override
-  String get post_comment_delete_confirm => '您确定要删除评论吗？';
+  String get post_comment_delete_confirm =>
+      'Are you sure you want to delete the comment?';
 
   @override
-  String get post_comment_delete_fail => '评论删除失败。';
+  String get post_comment_delete_fail => 'Comment deletion failed.';
 
   @override
-  String get post_comment_deleted_comment => '这是一条已删除的评论。';
+  String get post_comment_deleted_comment => 'This is a deleted comment.';
 
   @override
-  String get post_comment_like_processing_fail => '处理失败。';
+  String get post_comment_like_processing_fail => 'Failed to process like.';
 
   @override
-  String get post_comment_loading_fail => '评论加载失败。';
+  String get post_comment_loading_fail => 'Comment failed to load.';
 
   @override
-  String get post_comment_register_fail => '评论注册失败。';
+  String get post_comment_register_fail => 'Comment registration failed.';
 
   @override
-  String get post_comment_registered_comment => '您的评论已被注册。';
+  String get post_comment_registered_comment =>
+      'Your comment has been registered.';
 
   @override
-  String get post_comment_reported_comment => '这是据报道的评论。';
+  String get post_comment_reported_comment => 'This is a reported comment.';
 
   @override
-  String get post_comment_translate_fail => '翻译失败。';
+  String get post_comment_translate_fail => 'The translation failed.';
 
   @override
-  String get post_comment_translated => '已翻译';
+  String get post_comment_translated => 'Translated';
 
   @override
-  String get post_comment_write_label => '写评论';
+  String get post_comment_write_label => 'Write a comment';
 
   @override
-  String get post_content_placeholder => '请输入内容。';
+  String get post_content_placeholder => 'Please enter something.';
 
   @override
-  String get post_delete_scrap_confirm => '您想删除废料吗？';
+  String get post_delete_scrap_confirm => 'Do you want to delete the scrap?';
 
   @override
-  String get post_delete_scrap_title => '删除废料';
+  String get post_delete_scrap_title => 'Delete a scrap';
 
   @override
-  String get post_flagged => '包含不当内容';
+  String get post_flagged => 'Contains inappropriate content';
 
   @override
-  String get post_go_to_boards => '进入董事会';
+  String get post_go_to_boards => 'Go to the board';
 
   @override
-  String get post_header_publish => '出版';
+  String get post_header_publish => 'Publishing';
 
   @override
-  String get post_header_temporary_save => '草稿';
+  String get post_header_temporary_save => 'Drafts';
 
   @override
-  String get post_hint_title => '请输入标题。';
+  String get post_hint_title => 'Please enter a title.';
 
   @override
-  String get post_hyperlink => '超链接';
+  String get post_hyperlink => 'Hyperlinks';
 
   @override
-  String get post_insert_link => '插入链接';
+  String get post_insert_link => 'Inserting links';
 
   @override
-  String get post_minor_board_condition => '请输入至少 5 个字符、不超过 20 个字符的描述。';
+  String get post_minor_board_condition =>
+      'Please enter a description of at least 5 characters and no more than 20 characters.';
 
   @override
-  String get post_minor_board_description => '小公告栏说明';
+  String get post_minor_board_description =>
+      'Minor bulletin board descriptions';
 
   @override
-  String get post_minor_board_description_input => '请为您的未成年人板输入描述。';
+  String get post_minor_board_description_input =>
+      'Please enter a description for your minor board.';
 
   @override
-  String get post_minor_board_name => '小板名称';
+  String get post_minor_board_name => 'Minor board name';
 
   @override
-  String get post_minor_board_name_input => '请输入未成年人板的名称。';
+  String get post_minor_board_name_input =>
+      'Please enter a name for your minor board.';
 
   @override
-  String get post_my_compatibilities => '我的兼容性';
+  String get post_my_compatibilities => 'My compatibility';
 
   @override
-  String get post_my_written_post => '我撰写的文章';
+  String get post_my_written_post => 'Posts I\'ve written';
 
   @override
-  String get post_my_written_reply => '我写的评论';
+  String get post_my_written_reply => 'Comments I wrote';
 
   @override
-  String get post_my_written_scrap => '我的废品';
+  String get post_my_written_scrap => 'My Scraps';
 
   @override
-  String get post_no_comment => '无评论。';
+  String get post_no_comment => 'No comments.';
 
   @override
-  String get post_not_found => '未找到任何帖子。';
+  String get post_not_found => 'No posts were found.';
 
   @override
-  String get post_report_fail => '报告没有通过。';
+  String get post_report_fail => 'The report failed.';
 
   @override
-  String get post_report_label => '提交报告';
+  String get post_report_label => 'Make a report';
 
   @override
-  String get post_report_other_input => '请输入任何其他原因。';
+  String get post_report_other_input => 'Please enter any other reason.';
 
   @override
-  String get post_report_reason_1 => '不雅帖子';
+  String get post_report_reason_1 => 'Unsavory posts';
 
   @override
-  String get post_report_reason_2 => '性别歧视和种族主义帖子';
+  String get post_report_reason_2 => 'Sexist, racist posts';
 
   @override
-  String get post_report_reason_3 => '包含冒犯性亵渎语言的帖子';
+  String get post_report_reason_3 => 'Posts containing offensive profanity';
 
   @override
-  String get post_report_reason_4 => '广告/宣传职位';
+  String get post_report_reason_4 => 'Advertising/Promotional Posts';
 
   @override
-  String get post_report_reason_5 => '其他';
+  String get post_report_reason_5 => 'Other';
 
   @override
-  String get post_report_reason_input => '请选择报告原因。';
+  String get post_report_reason_input =>
+      'Please select a reason for your report.';
 
   @override
-  String get post_report_reason_label => '报告原因';
+  String get post_report_reason_label => 'Reasons for reporting';
 
   @override
-  String get post_report_success => '报告已完成。';
+  String get post_report_success => 'The report is complete.';
 
   @override
-  String get post_title_placeholder => '请输入标题。';
+  String get post_title_placeholder => 'Please enter a title.';
 
   @override
-  String get post_youtube_link => 'YouTube 链接';
+  String get post_youtube_link => 'YouTube link';
 
   @override
-  String get purchase_confirm_button => '购买';
+  String get purchase_confirm_button => 'Purchase';
 
   @override
-  String get purchase_confirm_message => '您要购买以下商品吗？';
+  String get purchase_confirm_message =>
+      'Would you like to purchase the following item?';
 
   @override
-  String get purchase_confirm_title => '购买确认';
+  String get purchase_confirm_title => 'Purchase Confirmation';
 
   @override
-  String get previousTransactionPendingError => '您之前的付款仍在由商店处理。请稍后重试。';
+  String get previousTransactionPendingError =>
+      'Your previous payment is still being processed by the Store. Please try again shortly.';
 
   @override
-  String get purchase_in_progress_message => '购买正在进行中。请稍等。';
+  String get purchase_in_progress_message =>
+      'Purchase is in progress. Please wait a moment.';
 
   @override
-  String get purchase_initializing_message => '购买正在进行中。请稍等。';
+  String get purchase_initializing_message =>
+      'Initializing. Please try again in a moment.';
 
   @override
-  String get purchase_cancelled_message => '购买已取消。';
+  String get purchase_cancelled_message => 'Purchase has been cancelled.';
 
   @override
-  String get purchase_payment_amount => '支付金额';
+  String get purchase_payment_amount => 'Payment Amount';
 
   @override
   String get purchase_web_message =>
-      '这是为无法使用应用程序付款的用户提供的付款窗口。\n 请提前复制随机 ID。\n 复制后，点击下面的按钮进行支付。';
+      'This is the payment window for those who can\'t pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.';
 
   @override
   String get qna_content => 'Content';
 
   @override
-  String get qna_create_page_title => '创建咨询';
+  String get qna_create_page_title => 'Create Inquiry';
 
   @override
-  String get qna_no_inquiries => '没有找到咨询。按+按钮创建一个新的。';
+  String get qna_no_inquiries => 'No inquiry history';
 
   @override
-  String get qna_status_closed => '已关闭';
+  String get qna_status_closed => 'Closed';
 
   @override
   String get qna_status_open => 'Open';
 
   @override
-  String get qna_submit_button => '提交咨询';
+  String get qna_submit_button => 'Submit Inquiry';
 
   @override
-  String get qna_title => '标题';
+  String get qna_title => 'Title';
 
   @override
-  String get replies => '评论';
+  String get replies => 'Comments';
 
   @override
-  String get reward => '奖励';
+  String get reward => 'Rewards';
 
   @override
-  String get save => '节省';
+  String get save => 'Save';
 
   @override
-  String get seconds => '秒钟';
+  String get seconds => 'seconds';
 
   @override
-  String get share => '分享';
+  String get share => 'Share';
 
   @override
-  String get text_community_board_search => '搜索艺术家板';
+  String get text_community_board_search => 'Searching the Artist Board';
 
   @override
-  String get text_community_post_search => '搜索';
+  String get text_community_post_search => 'Search';
 
   @override
-  String get text_copied_address => '地址已复制。';
+  String get text_copied => 'Copied.';
 
   @override
-  String get text_draw_image => '确认整个图库中 1 张图片的所有权。';
+  String get ban_support_instruction =>
+      'Please copy the logs below and contact support.';
 
   @override
-  String get text_hint_search => '搜索艺术家';
+  String get action_copy => 'Copy';
 
   @override
-  String get text_moveto_celeb_gallery => '导航至所选艺术家的主页。';
+  String get text_draw_image =>
+      'Confirmed ownership of 1 image from the entire gallery.';
 
   @override
-  String get text_need_recharge => '需要充电。';
+  String get text_hint_search => 'Search for artists';
 
   @override
-  String get text_no_search_result => '没有搜索结果。';
+  String get text_moveto_celeb_gallery =>
+      'Navigate to the selected artist\'s home.';
 
   @override
-  String get text_purchase_vat_included => '*价格包含增值税。';
+  String get text_need_recharge => 'Requires charging.';
 
   @override
-  String get text_vote_complete => '投票结束';
+  String get text_no_search_result => 'No search results.';
+
+  @override
+  String get text_purchase_vat_included => '*Price includes VAT.';
+
+  @override
+  String get text_vote_complete => 'Voting complete';
 
   @override
   String text_vote_rank(int rank) {
-    return '排名 $rank';
+    return 'Rank $rank';
   }
 
   @override
-  String get text_vote_rank_in_reward => '奖励排名';
+  String get text_vote_rank_in_reward => 'Rank in Rewards';
 
   @override
-  String get text_vote_where_is_my_bias => '我的最爱在哪？';
+  String get text_vote_where_is_my_bias => 'Where\'s My Favorite?';
 
   @override
-  String get title_dialog_library_add => '添加新相册';
+  String get title_dialog_library_add => 'Add a new album';
 
   @override
-  String get title_select_language => '选择语言';
+  String get title_select_language => 'Select a language';
 
   @override
-  String get toast_max_five_celeb => '您最多可以添加五位自己的艺术家。';
+  String get toast_max_five_celeb =>
+      'You can add up to five of your own artists.';
 
   @override
-  String get update_button => '更新';
+  String get update_button => 'Update';
 
   @override
-  String get update_cannot_open_appstore => '我无法打开应用程序商店。';
+  String get update_cannot_open_appstore => 'I can\'t open the app store.';
 
   @override
-  String get update_required_title => '需要更新。';
+  String get update_required_title => 'An update is required.';
 
   @override
-  String get views => '意见';
+  String get views => 'Views';
 
   @override
-  String get vote_item_request_can_apply => '可申请';
+  String get vote_item_request_can_apply => 'Can apply';
 
   @override
-  String get vote_item_request_search_artist => '搜索艺术家';
+  String get vote_item_request_search_artist => 'Search Artist';
 
   @override
-  String get vote_item_request_status => '申请状态';
+  String get vote_item_request_status => 'Request status';
 
   @override
-  String get vote_item_request_status_approved => '已批准';
+  String get vote_item_request_status_approved => 'Approved';
 
   @override
-  String get vote_item_request_status_pending => '待处理';
+  String get vote_item_request_status_pending => 'Pending';
 
   @override
-  String get vote_item_request_status_rejected => '已拒绝';
+  String get vote_item_request_status_rejected => 'Rejected';
 
   @override
-  String get vote_item_request_submit => '提交';
+  String get vote_item_request_submit => 'Submit';
 
   @override
-  String get vote_item_request_title => '投票艺术家请求';
+  String get vote_item_request_title => 'Vote Artist Request';
 
   @override
-  String get vote_share_message => '投了赞成票！';
+  String get vote_share_message => 'Voted!';
 
   @override
-  String get voting_share_benefit_text => '每 100 次投票和分享可获得 1 颗奖励星星糖果！';
+  String get voting_share_benefit_text =>
+      'Get 1 bonus star candy for every 100 votes and share!';
 
   @override
   String get cancel => 'Cancel';
@@ -959,21 +1001,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loading => 'Loading...';
 
   @override
-  String get retry => '重试';
+  String get retry => 'Retry';
 
   @override
   String get update => 'Update';
 
   @override
-  String get ban_title => 'Account Suspended';
+  String get ban_title => 'Device Suspended';
 
   @override
   String get ban_message =>
-      'Your account has been temporarily suspended due to inappropriate activity.';
+      'This device has been temporarily suspended due to policy violations.';
 
   @override
   String get ban_contact =>
-      'Please contact customer service if you have any questions.';
+      'If you believe this is a mistake, please contact customer support.';
 
   @override
   String get compatibility_empty_state_title => 'No compatibility information';
@@ -992,20 +1034,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notice_pinned => 'Pinned';
 
   @override
-  String get title_dialog_error => '错误';
+  String get title_dialog_error => 'Error';
 
   @override
   String get vote_item_request_waiting => 'Waiting';
 
   @override
-  String get capture_failed => '截图失败';
+  String get capture_failed => 'Capture failed';
 
   @override
   String get qna_submit_success =>
       'Your inquiry has been successfully submitted';
 
   @override
-  String get qna_list_title => '咨询列表';
+  String get qna_list_title => 'My Inquiries';
 
   @override
   String get starCandy100 => '100 Star Candy';
@@ -1084,42 +1126,43 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get qna_submit_fail => '提交查询失败';
+  String get qna_submit_fail => 'Failed to submit inquiry';
 
   @override
   String qna_file_size_limit_notice(int maxSize) {
-    return '最大可附加${maxSize}MB的文件。';
+    return 'You can attach files up to ${maxSize}MB.';
   }
 
   @override
-  String get qna_cannot_send_message_closed => '此查询已关闭，您不能再发送消息。';
+  String get qna_cannot_send_message_closed =>
+      'This inquiry has been closed and you can no longer send messages.';
 
   @override
-  String get qna_message_sent_success => '消息已成功发送。';
+  String get qna_message_sent_success => 'Message sent successfully.';
 
   @override
-  String get qna_message_sent_fail => '发送消息失败';
+  String get qna_message_sent_fail => 'Failed to send message';
 
   @override
-  String get qna_no_answer_yet => '还没有答案。请稍等。';
+  String get qna_no_answer_yet => 'No answer yet';
 
   @override
-  String get qna_add_media_tooltip => '添加媒体';
+  String get qna_add_media_tooltip => 'Add Media';
 
   @override
-  String get qna_load_fail_title => '加载查询失败';
+  String get qna_load_fail_title => 'Failed to load inquiries';
 
   @override
-  String get qna_category_label => '分类';
+  String get qna_category_label => 'Category';
 
   @override
-  String get qna_category_required => '请选择分类';
+  String get qna_category_required => 'Please select a category';
 
   @override
-  String get qna_message_hint => '输入消息';
+  String get qna_message_hint => 'Enter message';
 
   @override
-  String get label_my_vote_history => '我的投票历史';
+  String get label_my_vote_history => 'My Vote History';
 
   @override
   String get bonus_candy_example_2_expire =>
@@ -1129,7 +1172,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bonus_candy_example_earn_date => 'Earn Date';
 
   @override
-  String get vote_item_request_status_unknown => '未知';
+  String get vote_item_request_status_unknown => 'Unknown';
 
   @override
   String get bonus_candy_expiration_policy_load_fail =>
@@ -1139,7 +1182,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bonus_candy_example_1_expire => '__NEXT_MONTH__ 15th 00:00(KST)';
 
   @override
-  String get vote_item_request_status_in_progress => '正在处理中';
+  String get vote_item_request_status_in_progress => 'In Progress';
 
   @override
   String get bonus_candy_policy_2 =>
@@ -1147,17 +1190,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String compatibility_purchase_message(String artistName) {
-    return '如果我想知道我和 $artistName之间的 Goong-hap 分数？';
+    return 'If I want to know the Goong-hap score between me and the $artistName?';
   }
 
   @override
-  String get label_mypage_charge_history => '收费 (Admin)';
+  String get label_mypage_charge_history => 'Charges (Admin)';
 
   @override
-  String get compatibility_time_slot_unknown => '不知道';
+  String get compatibility_time_slot_unknown => 'Don\'t know';
 
   @override
-  String get label_popup_hide_7days => '不查看 7 天';
+  String get label_popup_hide_7days => 'Don\'t view for 7 days';
 
   @override
   String get expiring_soon_bonus_candy => 'Expiring Bonus Star Candy';
@@ -1166,56 +1209,61 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bonus_candy_expiration_policy_earn_period => 'Earn Period';
 
   @override
-  String get message_setting_remove_cache => '缓存删除完成。';
+  String get message_setting_remove_cache =>
+      'Cache memory deletion is complete.';
 
   @override
-  String get error_loading_more_comments => '加载评论时出现错误。';
+  String get error_loading_more_comments =>
+      'There was an error loading the comment.';
 
   @override
-  String get purchase_timeout_message => '购买处理时间过长。\\n请稍后重试。';
+  String get purchase_timeout_message =>
+      'Purchase processing is taking too long.\nPlease try again later.';
 
   @override
-  String get label_tabbar_vote_upcoming => '即将推出';
+  String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
   String get bonus_candy_example_1_earn => '__MONTH__ 10th 14:00(KST)';
 
   @override
-  String get error_receipt_verification_failed => '收据验证失败。';
+  String get error_receipt_verification_failed =>
+      'Receipt verification failed.';
 
   @override
-  String get vote_item_request_status_cancelled => '已取消';
+  String get vote_item_request_status_cancelled => 'Cancelled';
 
   @override
-  String get post_write_board_post => '创建一个职位';
+  String get post_write_board_post => 'Create a post';
 
   @override
   String get bonus_candy_policy_3 =>
       '- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.';
 
   @override
-  String get message_update_nickname_fail => '昵称更改失败。\n请选择其他昵称。';
+  String get message_update_nickname_fail =>
+      'Nickname change failed.\nPlease select a different nickname.';
 
   @override
   String get bonus_candy_expiration_time_title => 'Expiration Time';
 
   @override
-  String get post_comment_action_show_translation => '查看翻译';
+  String get post_comment_action_show_translation => 'View translations';
 
   @override
-  String get fortune_lucky_direction => '财富的方向';
+  String get fortune_lucky_direction => 'Direction of Fortune';
 
   @override
-  String get error_message_login_failed => '登录时发生错误。';
+  String get error_message_login_failed => 'An error occurred during login.';
 
   @override
-  String get dialog_withdraw_button_ok => '退订';
+  String get dialog_withdraw_button_ok => 'Unsubscribing';
 
   @override
-  String get compatibility_birthtime_subtitle => '提高准确性！';
+  String get compatibility_birthtime_subtitle => 'Increase accuracy!';
 
   @override
-  String get title_dialog_success => '成功';
+  String get title_dialog_success => 'Success';
 
   @override
   String get bonus_candy_policy_title => 'Bonus Star Candy Policy';
@@ -1224,62 +1272,71 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bonus_candy_example_expiration_date => 'Expiration Date';
 
   @override
-  String get label_tab_free_charge_station => '免费充电站';
+  String get label_tab_free_charge_station => 'Free charging stations';
 
   @override
-  String get error_user_not_authenticated => '需要登录。请重新登录。';
+  String get error_user_not_authenticated =>
+      'You need to sign in. Please log in again.';
 
   @override
-  String get text_dialog_vote_amount_should_not_zero => '票数不能为零。';
+  String get text_dialog_vote_amount_should_not_zero =>
+      'The number of votes cannot be zero.';
 
   @override
-  String get message_agreement_success => '条款接受完毕。';
+  String get message_agreement_success =>
+      'Acceptance of the terms is complete.';
 
   @override
   String get bonus_candy_earn_period_1_to_15 => '1st 00:00:00 ~ 15th 23:59:59';
 
   @override
-  String get compatibility_snackbar_need_birthday => '请输入您的出生日期。';
+  String get compatibility_snackbar_need_birthday =>
+      'Please enter your date of birth.';
 
   @override
   String update_recommend_text(String version) {
-    return '新版本 ($version) 已发布。';
+    return 'A new version ($version) is available.';
   }
 
   @override
-  String get error_product_not_found => '我们找不到已购买的产品。';
+  String get error_product_not_found =>
+      'We couldn\'t find the purchased product.';
 
   @override
-  String get label_popup_close => '关闭';
+  String get label_popup_close => 'Close';
 
   @override
   String get jma_voting_info_text =>
       '-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.';
 
   @override
-  String get vote_item_request_search_artist_hint => '搜索艺术家或乐队';
+  String get vote_item_request_search_artist_hint =>
+      'Search for artist or group';
 
   @override
   String get bonus_candy_expiration_month_after_next =>
       'Month after next 15th 00:00:00';
 
   @override
-  String get post_comment_action_show_original => '查看全文';
+  String get post_comment_action_show_original => 'View full text';
 
   @override
-  String get compatibility_snackbar_need_profile_save_agree => '同意保存您的个人资料。';
+  String get compatibility_snackbar_need_profile_save_agree =>
+      'Give your consent to save your profile.';
 
   @override
-  String get qna_content_min_length => '咨询内容至少需要10个字符';
+  String get qna_content_min_length =>
+      'Inquiry content must be at least 10 characters';
 
   @override
-  String get post_ask_go_to_temporary_save_list => '想进入草稿列表吗？';
+  String get post_ask_go_to_temporary_save_list =>
+      'Want to go to the Drafts list?';
 
   @override
-  String get label_pic_pic_synthesizing_image => '合成图像...';
+  String get label_pic_pic_synthesizing_image => 'Compositing an image...';
 
   @override
-  String get label_tab_buy_star_candy => '购买星星糖';
+  String get label_tab_buy_star_candy => 'Buy star candy';
 
   @override
   String jma_voting_max_votes_exceeded(int maxVotes) {
@@ -1292,16 +1349,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get post_temporary_save_complete => '草案完成。';
+  String get post_temporary_save_complete => 'Draft complete.';
 
   @override
   String get bonus_candy_example_title => 'Example';
 
   @override
-  String get label_pic_pic_initializing_camera => '初始化摄像机...';
+  String get label_pic_pic_initializing_camera => 'Initializing camera...';
 
   @override
-  String get post_write_post_recommend_write => '请创建一个帖子。';
+  String get post_write_post_recommend_write => 'Please create a post.';
 
   @override
   String get jma_voting_daily_limit_exhausted =>
@@ -1312,19 +1369,21 @@ class AppLocalizationsZh extends AppLocalizations {
       '- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.';
 
   @override
-  String get compatibility_perfect_score_exists_title => '已获胜比赛数据';
+  String get compatibility_perfect_score_exists_title =>
+      'Already Winning Matches Data';
 
   @override
-  String get compatibility_duplicate_data_message => '相同条件下的兼容性数据已经存在。';
+  String get compatibility_duplicate_data_message =>
+      'Compatibility data with the same conditions already exists.';
 
   @override
   String label_time_ago_minute(int minute) {
-    return '$minute 分钟前';
+    return '$minute minutes ago';
   }
 
   @override
   String update_required_text(String version) {
-    return '您需要更新到新版本 ($version)。';
+    return 'You need to update to a new version ($version).';
   }
 
   @override
@@ -1337,21 +1396,23 @@ class AppLocalizationsZh extends AppLocalizations {
       '16th 00:00:00 ~ end of month 23:59:59';
 
   @override
-  String get error_message_withdrawal => '已取消订阅的会员。';
+  String get error_message_withdrawal => 'A member who has unsubscribed.';
 
   @override
   String text_achievement(int count) {
-    return '到目前为止，您已实现 $count 目标！🎉';
+    return '🎉 You\'ve reached $count goals so far! 🎉';
   }
 
   @override
-  String get label_login_with_wechat => '使用微信登录';
+  String get label_login_with_wechat => 'Login with WeChat';
 
   @override
-  String get withdrawal_success => '退订已成功处理。';
+  String get withdrawal_success =>
+      'The unsubscribe was processed successfully.';
 
   @override
-  String get vote_item_request_already_applied_artist => '您已为该艺术家提交过申请。';
+  String get vote_item_request_already_applied_artist =>
+      'You have already applied for this artist.';
 
   @override
   String get bonus_candy_expiration_policy_expiration_date => 'Expiration Date';
@@ -1363,68 +1424,74 @@ class AppLocalizationsZh extends AppLocalizations {
   String get message_agreement_fail => 'Terms agreement required';
 
   @override
-  String get vote_item_request_button => '推荐候选人';
+  String get vote_item_request_button => 'Recommend Candidate';
 
   @override
   String get bonus_candy_expiration_next_month => 'Next month 15th 00:00:00';
 
   @override
-  String get error_delete_post => '删除帖子时出现错误。';
+  String get error_delete_post => 'An error occurred while deleting the post.';
 
   @override
-  String get qna_title_min_length => '标题至少需要5个字符';
+  String get qna_title_min_length => 'Title must be at least 5 characters';
 
   @override
-  String get message_update_nickname_success => '您的昵称已成功更改。';
+  String get message_update_nickname_success =>
+      'Your nickname has been successfully changed.';
 
   @override
-  String get compatibility_new_compatibility_ask => '想看看新的配对吗？';
+  String get compatibility_new_compatibility_ask =>
+      'Want to see a new Goong-Hap?';
 
   @override
   String post_replying_comment(String nickname) {
-    return '回复 $nickname...';
+    return 'Replying to $nickname...';
   }
 
   @override
-  String get button_pic_pic_save => '保存';
+  String get button_pic_pic_save => 'Save';
 
   @override
   String get compatibility_perfect_score_exists =>
-      '请注意，此条件的兼容性数据已获得奖励，因此我们无法再颁发额外奖励。';
+      'Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards.';
 
   @override
-  String get post_minor_board_create_request_message_input => '输入要求打开留言板的信息。';
+  String get post_minor_board_create_request_message_input =>
+      'Enter a message requesting to open a board.';
 
   @override
-  String get fortune_purchase_by_star_candy => '请向 Star Candy 查询';
+  String get fortune_purchase_by_star_candy => 'Check with StarCandy';
 
   @override
   String get post_minor_board_create_request_message_condition =>
-      '请在申请开设留言板的信息中至少包含 10 个字符。';
+      'Please include at least 10 characters in your message requesting to open a board.';
 
   @override
-  String get post_board_create_request_reviewing => '审查开板申请';
+  String get post_board_create_request_reviewing =>
+      'Reviewing a request to open a board';
 
   @override
-  String get post_minor_board_create_request_message => '* 请求开设留言板的信息。';
+  String get post_minor_board_create_request_message =>
+      '* Message requesting to open a board.';
 
   @override
-  String get compatibility_purchase_confirm_title => '用星星糖果购买';
+  String get compatibility_purchase_confirm_title => 'Purchase with Star Candy';
 
   @override
-  String get post_board_create_request_label => '申请开设一个板块';
+  String get post_board_create_request_label => 'Request to open a board';
 
   @override
-  String get qna_auto_close_after_14_days_notice => '14天内如无进一步交流，咨询将自动关闭。';
+  String get qna_auto_close_after_14_days_notice =>
+      'If there is no additional conversation for 14 days, the inquiry will be closed automatically.';
 
   @override
-  String get qna_status_received => '已接收';
+  String get qna_status_received => 'Received';
 
   @override
-  String get qna_status_in_progress => '处理中';
+  String get qna_status_in_progress => 'In progress';
 
   @override
-  String get qna_status_resolved => '已解决';
+  String get qna_status_resolved => 'Resolved';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -2287,7 +2354,13 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get text_community_post_search => '搜索';
 
   @override
-  String get text_copied_address => '地址已复制。';
+  String get text_copied => '已复制。';
+
+  @override
+  String get ban_support_instruction => '请复制下面的日志并联系客户支持。';
+
+  @override
+  String get action_copy => '复制';
 
   @override
   String get text_draw_image => '确认整个图库中 1 张图片的所有权。';
@@ -2388,15 +2461,13 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get update => 'Update';
 
   @override
-  String get ban_title => 'Account Suspended';
+  String get ban_title => '设备已被暂停使用';
 
   @override
-  String get ban_message =>
-      'Your account has been temporarily suspended due to inappropriate activity.';
+  String get ban_message => '因违反政策，该设备的使用已被暂时停用。';
 
   @override
-  String get ban_contact =>
-      'Please contact customer service if you have any questions.';
+  String get ban_contact => '如认为为误判，请联系客户支持。';
 
   @override
   String get compatibility_empty_state_title => 'No compatibility information';
@@ -3709,7 +3780,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get text_community_post_search => '搜尋';
 
   @override
-  String get text_copied_address => '地址已复制。';
+  String get text_copied => '已複製。';
+
+  @override
+  String get ban_support_instruction => '請複製以下日誌並聯絡客服。';
+
+  @override
+  String get action_copy => '複製';
 
   @override
   String get text_draw_image => '確認整个相簿中 1 张图片的所有权。';
@@ -3810,15 +3887,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get update => 'Update';
 
   @override
-  String get ban_title => 'Account Suspended';
+  String get ban_title => '帳號已被暫停';
 
   @override
-  String get ban_message =>
-      'Your account has been temporarily suspended due to inappropriate activity.';
+  String get ban_message => '由於偵測到不當行為，您的帳號已被暫時停用。';
 
   @override
-  String get ban_contact =>
-      'Please contact customer service if you have any questions.';
+  String get ban_contact => '如有疑問，請聯絡客服支援。';
 
   @override
   String get compatibility_empty_state_title => 'No compatibility information';

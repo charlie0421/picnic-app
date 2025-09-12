@@ -866,7 +866,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get text_community_post_search => '검색';
 
   @override
-  String get text_copied_address => '주소가 복사되었습니다.';
+  String get text_copied => '복사 되었습니다.';
+
+  @override
+  String get ban_support_instruction => '아래 로그를 복사해서 고객센터로 문의 바랍니다';
+
+  @override
+  String get action_copy => '복사하기';
 
   @override
   String get text_draw_image => '전체 갤러리에서 이미지 1개 소유권을 확인했습니다.';
@@ -967,13 +973,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get update => '업데이트';
 
   @override
-  String get ban_title => '계정이 일시 정지되었습니다';
+  String get ban_title => '기기 이용이 일시 정지되었습니다';
 
   @override
-  String get ban_message => '부적절한 활동으로 인해 계정이 일시 정지되었습니다.';
+  String get ban_message => '정책 위반이 확인되어 이 기기 이용이 일시 정지되었습니다.';
 
   @override
-  String get ban_contact => '문의사항이 있으시면 고객센터로 연락해주세요.';
+  String get ban_contact => '오탐으로 판단되면 고객센터로 문의해주세요.';
 
   @override
   String get compatibility_empty_state_title => '궁합 정보가 없습니다';

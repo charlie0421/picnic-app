@@ -899,7 +899,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_community_post_search => 'Pencarian';
 
   @override
-  String get text_copied_address => 'Alamat telah disalin.';
+  String get text_copied => 'Disalin.';
+
+  @override
+  String get ban_support_instruction =>
+      'Silakan salin log di bawah ini dan hubungi dukungan.';
+
+  @override
+  String get action_copy => 'Salin';
 
   @override
   String get text_draw_image =>
@@ -1006,15 +1013,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get update => 'Update';
 
   @override
-  String get ban_title => 'Account Suspended';
+  String get ban_title => 'Akun Ditangguhkan';
 
   @override
   String get ban_message =>
-      'Your account has been temporarily suspended due to inappropriate activity.';
+      'Akun Anda telah ditangguhkan sementara karena aktivitas yang tidak semestinya.';
 
   @override
   String get ban_contact =>
-      'Please contact customer service if you have any questions.';
+      'Jika ada pertanyaan, silakan hubungi layanan pelanggan.';
 
   @override
   String get compatibility_empty_state_title => 'No compatibility information';

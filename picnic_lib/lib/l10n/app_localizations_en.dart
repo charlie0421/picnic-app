@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get achieve => 'Achievement';
+  String get achieve => 'Achievements';
 
   @override
   String get ads_available_time => 'Next available time to watch ads';
@@ -895,7 +895,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_community_post_search => 'Search';
 
   @override
-  String get text_copied_address => 'The address has been copied.';
+  String get text_copied => 'Copied.';
+
+  @override
+  String get ban_support_instruction =>
+      'Please copy the logs below and contact support.';
+
+  @override
+  String get action_copy => 'Copy';
 
   @override
   String get text_draw_image =>
@@ -1000,15 +1007,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get update => 'Update';
 
   @override
-  String get ban_title => 'Account Suspended';
+  String get ban_title => 'Device Suspended';
 
   @override
   String get ban_message =>
-      'Your account has been temporarily suspended due to inappropriate activity.';
+      'This device has been temporarily suspended due to policy violations.';
 
   @override
   String get ban_contact =>
-      'Please contact customer service if you have any questions.';
+      'If you believe this is a mistake, please contact customer support.';
 
   @override
   String get compatibility_empty_state_title => 'No compatibility information';

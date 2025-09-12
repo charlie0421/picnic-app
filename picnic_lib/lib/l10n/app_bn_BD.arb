@@ -1291,6 +1291,12 @@
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
+  "action_copy": "কপি",
+  "@action_copy": {"description": "Copy button label"},
+  "text_copied": "কপি করা হয়েছে।",
+  "@text_copied": {"description": "Shown after copying text to clipboard"},
+  "ban_support_instruction": "নীচের লগগুলি অনুলিপি করুন এবং সহায়তার সাথে যোগাযোগ করুন।",
+  "@ban_support_instruction": {"description": "Instruction to copy logs and contact support"},
   "compatibility_empty_state_title": "কোনও সামঞ্জস্যতার তথ্য নেই",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."

@@ -1291,6 +1291,12 @@
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
+  "action_copy": "คัดลอก",
+  "@action_copy": {"description": "Copy button label"},
+  "text_copied": "คัดลอกแล้ว",
+  "@text_copied": {"description": "Shown after copying text to clipboard"},
+  "ban_support_instruction": "คัดลอกล็อกด้านล่างแล้วติดต่อฝ่ายสนับสนุน",
+  "@ban_support_instruction": {"description": "Instruction to copy logs and contact support"},
   "compatibility_empty_state_title": "ไม่มีข้อมูลความเข้ากันได้",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."

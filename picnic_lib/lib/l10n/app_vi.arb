@@ -1291,6 +1291,12 @@
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
+  "action_copy": "Sao chép",
+  "@action_copy": {"description": "Copy button label"},
+  "text_copied": "Đã sao chép.",
+  "@text_copied": {"description": "Shown after copying text to clipboard"},
+  "ban_support_instruction": "Vui lòng sao chép nhật ký bên dưới và liên hệ với hỗ trợ.",
+  "@ban_support_instruction": {"description": "Instruction to copy logs and contact support"},
   "compatibility_empty_state_title": "Không có thông tin tương thích",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."

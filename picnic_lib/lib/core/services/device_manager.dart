@@ -8,6 +8,10 @@ import 'package:universal_platform/universal_platform.dart';
 class DeviceManager {
   static final _deviceInfo = DeviceInfoPlugin();
 
+  static Future<Map<String, dynamic>> getDeviceInfo() async {
+    return _getDeviceInfo();
+  }
+
   static Future<Map<String, dynamic>> _getDeviceInfo() async {
     try {
       if (UniversalPlatform.isAndroid) {
@@ -45,7 +49,7 @@ class DeviceManager {
           'utsname': {
             'machine': iosInfo.utsname.machine,
             'release': iosInfo.utsname.release,
-          }
+          },
         };
       }
 
@@ -101,7 +105,8 @@ class DeviceManager {
 
       await supabase
           .from('devices')
-          .update({'last_seen': now}).eq('device_id', deviceId);
+          .update({'last_seen': now})
+          .eq('device_id', deviceId);
     } catch (e, s) {
       logger.e('Error updating last seen', error: e, stackTrace: s);
     }

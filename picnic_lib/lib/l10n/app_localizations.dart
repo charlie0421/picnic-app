@@ -120,7 +120,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'achieve'.
   ///
   /// In en, this message translates to:
-  /// **'Achievement'**
+  /// **'Achievements'**
   String get achieve;
 
   /// Auto-generated metadata for key 'ads_available_time'.
@@ -1803,11 +1803,23 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get text_community_post_search;
 
-  /// Auto-generated metadata for key 'text_copied_address'.
+  /// Shown after copying text to clipboard
   ///
   /// In en, this message translates to:
-  /// **'The address has been copied.'**
-  String get text_copied_address;
+  /// **'Copied.'**
+  String get text_copied;
+
+  /// Instruction text on ban screen to contact support with logs
+  ///
+  /// In en, this message translates to:
+  /// **'Please copy the logs below and contact support.'**
+  String get ban_support_instruction;
+
+  /// Copy button label
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get action_copy;
 
   /// Auto-generated metadata for key 'text_draw_image'.
   ///
@@ -2004,19 +2016,19 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'ban_title'.
   ///
   /// In en, this message translates to:
-  /// **'Account Suspended'**
+  /// **'Device Suspended'**
   String get ban_title;
 
   /// Auto-generated metadata for key 'ban_message'.
   ///
   /// In en, this message translates to:
-  /// **'Your account has been temporarily suspended due to inappropriate activity.'**
+  /// **'This device has been temporarily suspended due to policy violations.'**
   String get ban_message;
 
   /// Auto-generated metadata for key 'ban_contact'.
   ///
   /// In en, this message translates to:
-  /// **'Please contact customer service if you have any questions.'**
+  /// **'If you believe this is a mistake, please contact customer support.'**
   String get ban_contact;
 
   /// Auto-generated metadata for key 'compatibility_empty_state_title'.

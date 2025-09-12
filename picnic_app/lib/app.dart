@@ -36,6 +36,9 @@ import 'package:picnic_lib/core/utils/device_debug_info.dart';
 import 'package:picnic_app/bottom_navigation_menu.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 
+// 임시: 밴 화면 강제 표시 플래그
+const bool kForceBanScreen = true;
+
 class App extends ConsumerStatefulWidget {
   const App({super.key});
 
@@ -200,7 +203,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     AppBuilder.updateScreenProtector(isScreenProtector);
 
     Widget currentScreen;
-    if (!_isAppInitialized) {
+    if (kForceBanScreen) {
+      logger.i('임시 강제 - 밴 화면 표시');
+      currentScreen = const BanScreen();
+    } else if (!_isAppInitialized) {
       logger.i('앱이 초기화되지 않음 - 스플래시 화면 표시 (패치 체크 포함)');
       // 패치 체크 기능이 활성화된 SplashImage 사용
       currentScreen = const SplashImage(enablePatchCheck: true);

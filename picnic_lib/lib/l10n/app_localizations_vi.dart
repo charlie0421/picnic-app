@@ -900,7 +900,14 @@ class AppLocalizationsVi extends AppLocalizations {
   String get text_community_post_search => 'Tìm kiếm';
 
   @override
-  String get text_copied_address => 'Địa chỉ đã được sao chép.';
+  String get text_copied => 'Đã sao chép.';
+
+  @override
+  String get ban_support_instruction =>
+      'Vui lòng sao chép nhật ký bên dưới và liên hệ với hỗ trợ.';
+
+  @override
+  String get action_copy => 'Sao chép';
 
   @override
   String get text_draw_image =>

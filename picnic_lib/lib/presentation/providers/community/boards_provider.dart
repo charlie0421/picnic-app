@@ -88,7 +88,7 @@ class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
             .neq('artist_id', 0)
             .eq('status', 'approved')
             .order(
-              'artist(name->>${Localizations.localeOf(navigatorKey.currentContext!).languageCode == 'zh' ? 'zh_CN' : Localizations.localeOf(navigatorKey.currentContext!).languageCode})',
+              'artist(name->>${Localizations.localeOf(navigatorKey.currentContext!).languageCode})',
               ascending: true,
             )
             .order('is_official', ascending: false)
@@ -157,7 +157,7 @@ class BoardRequestNotifier extends _$BoardRequestNotifier {
           .from('boards')
           .select()
           .or(
-            'name->>ko.eq.$title,name->>en.eq.$title,name->>ja.eq.$title,name->>zh_CN.eq.$title,name->>zh.eq.$title',
+            'name->>ko.eq.$title,name->>en.eq.$title,name->>ja.eq.$title,name->>zh_CN.eq.$title',
           )
           .maybeSingle();
 
@@ -180,13 +180,7 @@ class BoardRequestNotifier extends _$BoardRequestNotifier {
 
       await supabase.from('boards').upsert({
         'artist_id': artistId,
-        'name': {
-          'ko': title,
-          'en': title,
-          'ja': title,
-          'zh_CN': title,
-          'zh': title,
-        },
+        'name': {'ko': title, 'en': title, 'ja': title, 'zh_CN': title},
         'description': description,
         'status': 'pending',
         'request_message': requestMessage,

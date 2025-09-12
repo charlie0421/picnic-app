@@ -891,7 +891,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get text_community_post_search => 'ค้นหา';
 
   @override
-  String get text_copied_address => 'ที่อยู่ได้รับการคัดลอก';
+  String get text_copied => 'คัดลอกแล้ว';
+
+  @override
+  String get ban_support_instruction =>
+      'คัดลอกล็อกด้านล่างแล้วติดต่อฝ่ายสนับสนุน';
+
+  @override
+  String get action_copy => 'คัดลอก';
 
   @override
   String get text_draw_image =>

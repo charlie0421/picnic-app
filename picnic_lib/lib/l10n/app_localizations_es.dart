@@ -917,7 +917,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String get text_community_post_search => 'Buscar';
 
   @override
-  String get text_copied_address => 'La dirección ha sido copiada.';
+  String get text_copied => 'Copiado.';
+
+  @override
+  String get ban_support_instruction =>
+      'Copie los registros a continuación y póngase en contacto con el soporte.';
+
+  @override
+  String get action_copy => 'Copiar';
 
   @override
   String get text_draw_image =>

@@ -1290,6 +1290,12 @@
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
+  "action_copy": "Kopyahin",
+  "@action_copy": {"description": "Copy button label"},
+  "text_copied": "Nakopya.",
+  "@text_copied": {"description": "Shown after copying text to clipboard"},
+  "ban_support_instruction": "Pakikopya ang mga log sa ibaba at makipag-ugnayan sa suporta.",
+  "@ban_support_instruction": {"description": "Instruction to copy logs and contact support"},
   "compatibility_empty_state_title": "Walang impormasyon sa pagiging tugma",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."

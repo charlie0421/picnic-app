@@ -67,6 +67,7 @@ class Setting with _$Setting {
             ? locale.languageCode
             : '${locale.languageCode}_${locale.countryCode}',
       )
+      .where((code) => code != 'zh' && code != 'bn')
       .toList();
 
   Future<Setting> load() async {
@@ -78,6 +79,9 @@ class Setting with _$Setting {
     String normalizedLanguage = language ?? 'ko';
     if (normalizedLanguage == 'zh') {
       normalizedLanguage = 'zh_CN';
+    }
+    if (normalizedLanguage == 'bn') {
+      normalizedLanguage = 'bn_BD';
     }
 
     final fixedLanguage =

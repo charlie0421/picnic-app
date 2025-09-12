@@ -424,6 +424,34 @@ class AppInitializer {
           final isVirtualDevice = await VirtualMachineDetector.detect(ref);
           isBanned = isVirtualDevice || await DeviceManager.isDeviceBanned();
           logger.i('디바이스 상태 - 가상머신: $isVirtualDevice, 차단: $isBanned');
+          if (isBanned) {
+            try {
+              final deviceId = await DeviceManager.getDeviceId();
+              await Sentry.captureMessage(
+                'Device banned detected',
+                withScope: (scope) async {
+                  scope.setTag(
+                    'ban.virtual_device',
+                    isVirtualDevice.toString(),
+                  );
+                  scope.setTag('ban.device_id', deviceId);
+                  try {
+                    final info = await DeviceInfoPlugin().androidInfo;
+                    scope.setContexts('device', {
+                      'manufacturer': info.manufacturer,
+                      'model': info.model,
+                      'hardware': info.hardware,
+                      'sdk': info.version.sdkInt,
+                      'release': info.version.release,
+                      'is_physical_device': info.isPhysicalDevice,
+                    });
+                  } catch (_) {}
+                },
+              );
+            } catch (e, s) {
+              logger.e('Sentry ban log failed', error: e, stackTrace: s);
+            }
+          }
         }
 
         ref

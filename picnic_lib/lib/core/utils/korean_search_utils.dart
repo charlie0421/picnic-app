@@ -256,9 +256,10 @@ class KoreanSearchUtils {
     if (zhCnText.toLowerCase().contains(lowerQuery)) {
       return zhCnText;
     }
-    final zhText = nameMap['zh']?.toString() ?? '';
-    if (zhText.toLowerCase().contains(lowerQuery)) {
-      return zhText;
+    // 전통 중국어 검색 보완 (기존 zh 키는 제거됨)
+    final zhTwText = nameMap['zh_TW']?.toString() ?? '';
+    if (zhTwText.toLowerCase().contains(lowerQuery)) {
+      return zhTwText;
     }
 
     // 검색어가 없으면 기본 로케일 텍스트 반환

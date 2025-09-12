@@ -1279,18 +1279,24 @@
   "@update": {
     "description": "Auto-generated metadata for key 'update'."
   },
-  "ban_title": "Account Suspended",
+  "ban_title": "设备已被暂停使用",
   "@ban_title": {
     "description": "Auto-generated metadata for key 'ban_title'."
   },
-  "ban_message": "Your account has been temporarily suspended due to inappropriate activity.",
+  "ban_message": "因违反政策，该设备的使用已被暂时停用。",
   "@ban_message": {
     "description": "Auto-generated metadata for key 'ban_message'."
   },
-  "ban_contact": "Please contact customer service if you have any questions.",
+  "ban_contact": "如认为为误判，请联系客户支持。",
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
+  "action_copy": "复制",
+  "@action_copy": {"description": "Copy button label"},
+  "text_copied": "已复制。",
+  "@text_copied": {"description": "Shown after copying text to clipboard"},
+  "ban_support_instruction": "请复制下面的日志并联系客户支持。",
+  "@ban_support_instruction": {"description": "Instruction to copy logs and contact support"},
   "compatibility_empty_state_title": "No compatibility information",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."

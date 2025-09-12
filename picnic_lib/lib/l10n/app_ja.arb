@@ -1470,18 +1470,24 @@
   "@update": {
     "description": "Auto-generated metadata for key 'update'."
   },
-  "ban_title": "Account Suspended",
+  "ban_title": "端末の利用停止",
   "@ban_title": {
     "description": "Auto-generated metadata for key 'ban_title'."
   },
-  "ban_message": "Your account has been temporarily suspended due to inappropriate activity.",
+  "ban_message": "ポリシー違反が確認されたため、この端末の利用を一時的に停止しました。",
   "@ban_message": {
     "description": "Auto-generated metadata for key 'ban_message'."
   },
-  "ban_contact": "Please contact customer service if you have any questions.",
+  "ban_contact": "誤検知と思われる場合はカスタマーサポートへお問い合わせください。",
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
+  "action_copy": "コピー",
+  "@action_copy": {"description": "Copy button label"},
+  "text_copied": "コピーしました。",
+  "@text_copied": {"description": "Shown after copying text to clipboard"},
+  "ban_support_instruction": "下のログをコピーしてサポートにお問い合わせください。",
+  "@ban_support_instruction": {"description": "Instruction to copy logs and contact support"},
   "compatibility_empty_state_title": "No compatibility information",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
