@@ -36,8 +36,8 @@ import 'package:picnic_lib/core/utils/device_debug_info.dart';
 import 'package:picnic_app/bottom_navigation_menu.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 
-// 임시: 밴 화면 강제 표시 플래그
-const bool kForceBanScreen = true;
+// 임시: 밴 화면 강제 표시 플래그 (테스트 제거)
+const bool kForceBanScreen = false;
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
