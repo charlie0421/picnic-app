@@ -27,9 +27,9 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:screen_protector/screen_protector.dart' as sp;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:fluwx/fluwx.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // WeChat 제거로 미사용
+// import 'package:url_launcher/url_launcher.dart'; // WeChat 제거로 미사용
+// import 'package:fluwx/fluwx.dart'; // WeChat 제거로 미사용
 
 class LoginPage extends ConsumerStatefulWidget {
   static const String routeName = '/login';
@@ -334,8 +334,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           if (isIOS()) _buildAppleLogin(context),
           _buildGoogleLogin(context),
           _buildKakaoLogin(context),
-          // WeChat 버튼 숨김 (요청에 따라 주석 처리)
-          _buildWeChatLogin(context),
+          // WeChat 버튼 완전 비노출 처리 (요청에 따라 제거)
         ],
       ),
     );
@@ -737,139 +736,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _buildWeChatLogin(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Stack(
-          children: [
-            GestureDetector(
-              onTap: () async {
-                try {
-                  if (Navigator.of(context).canPop()) {
-                    Navigator.of(context).pop();
-                    await Future.delayed(const Duration(milliseconds: 150));
-                  }
-                  // 위챗 설치 여부 확인 후 미설치 시 스토어 이동 팝업
-                  if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
-                    try {
-                      final fluwx = Fluwx();
-                      await fluwx.registerApi(
-                        appId: Environment.wechatAppId,
-                        universalLink: Environment.wechatUniversalLink,
-                      );
-                      final installed = await fluwx.isWeChatInstalled;
-                      if (!installed) {
-                        if (navigatorKey.currentContext != null) {
-                          showSimpleDialog(
-                            content: AppLocalizations.of(
-                              navigatorKey.currentContext!,
-                            ).label_login_with_wechat,
-                            onOk: () async {
-                              // 스토어로 이동
-                              final uri = UniversalPlatform.isIOS
-                                  ? Uri.parse(
-                                      'itms-apps://itunes.apple.com/app/id414478124',
-                                    )
-                                  : Uri.parse(
-                                      'market://details?id=com.tencent.mm',
-                                    );
-                              try {
-                                await launchUrl(
-                                  uri,
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              } catch (_) {}
-                              Navigator.of(navigatorKey.currentContext!).pop();
-                            },
-                          );
-                        }
-                        return;
-                      }
-                    } catch (_) {}
-                  }
-                  try {
-                    await sp.ScreenProtector.preventScreenshotOff();
-                  } catch (_) {}
-                  try {
-                    final user = await _authService.signInWithWeChat();
-                    if (user != null) {
-                      _handleSuccessfulLogin('wechat');
-                    }
-                  } finally {
-                    try {
-                      await sp.ScreenProtector.preventScreenshotOn();
-                    } catch (_) {}
-                  }
-                } on PicnicAuthException catch (e) {
-                  if (e.code == 'canceled') {
-                    return;
-                  }
-                  if (navigatorKey.currentContext != null) {
-                    showSimpleDialog(
-                      type: DialogType.error,
-                      title: AppLocalizations.of(
-                        navigatorKey.currentContext!,
-                      ).error_title,
-                      content: e.message,
-                      onOk: () {
-                        Navigator.of(navigatorKey.currentContext!).pop();
-                      },
-                    );
-                  }
-                } catch (e, s) {
-                  logger.e('Error signing in with WeChat: $e', stackTrace: s);
-                  if (navigatorKey.currentContext != null) {
-                    showSimpleDialog(
-                      type: DialogType.error,
-                      title: AppLocalizations.of(
-                        navigatorKey.currentContext!,
-                      ).error_title,
-                      content: AppLocalizations.of(
-                        navigatorKey.currentContext!,
-                      ).error_message_login_failed,
-                      onOk: () {
-                        Navigator.of(navigatorKey.currentContext!).pop();
-                      },
-                    );
-                  }
-                  rethrow;
-                }
-              },
-              child: Center(
-                child: Container(
-                  width: 240,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.grey400, width: 1),
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
-                  ),
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const FaIcon(
-                        FontAwesomeIcons.weixin,
-                        color: AppColors.grey800,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Login with WeChat',
-                        style: getTextStyle(AppTypo.body14M, AppColors.grey800),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            if (lastProvider == 'wechat') const LastProvider(),
-          ],
-        );
-      },
-    );
-  }
+  // WeChat 로그인 위젯은 노출 요구사항에 따라 제거되었습니다.
 }
 
 class LastProvider extends StatelessWidget {
