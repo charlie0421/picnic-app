@@ -146,8 +146,7 @@ class VirtualMachineDetector {
 
         if (isEmulator) {
           // 감지 결과 요약 로깅
-          logger.w(
-            '''가상 머신 감지됨
+          logger.w('''가상 머신 감지됨
             {
               'detection_summary': {
                 'detection_type': [
@@ -164,15 +163,15 @@ class VirtualMachineDetector {
                 },
               },
             }
-            ''',
-          );
+            ''');
 
           // 상세 감지 정보 로깅
           if (buildInfo) {
-            final results =
-                await _getBuildCheckResults(androidInfo, configs.sublist(0, 4));
-            logger.w(
-              '''Build 체크 상세 정보
+            final results = await _getBuildCheckResults(
+              androidInfo,
+              configs.sublist(0, 4),
+            );
+            logger.w('''Build 체크 상세 정보
               {
                 'detection_details': {
                   'matched_keywords': {
@@ -186,38 +185,41 @@ class VirtualMachineDetector {
                   'manufacturer_empty':
                       ${results.checkResults['suspicious_manufacturer']},
                 },
-              }''',
-            );
+              }''');
           }
 
           if (hardwareCheck) {
             final results = await _getHardwareCheckResults(configs);
-            logger.w('Hardware 체크 상세 정보', error: {
-              'detection_details': {
-                'cpu_info': cpuInfo,
-                'cpu_keywords': results.cpuKeywords,
-                'has_sensors': hasSensors,
-                'is_physical_device': androidInfo.isPhysicalDevice,
+            logger.w(
+              'Hardware 체크 상세 정보',
+              error: {
+                'detection_details': {
+                  'cpu_info': cpuInfo,
+                  'cpu_keywords': results.cpuKeywords,
+                  'has_sensors': hasSensors,
+                  'is_physical_device': androidInfo.isPhysicalDevice,
+                },
               },
-            });
+            );
           }
 
           if (networkCheck) {
-            logger.w('Network 체크 상세 정보', error: {
-              'detection_details': {
-                'ttl': {
-                  'value': ttl,
-                  'range': configs[5],
-                },
-                'mac': {
-                  'address': macAddress,
-                  'matched_keywords': _sanitizeKeywords(configs[6])
-                      .where(
-                          (keyword) => macAddress?.startsWith(keyword) ?? false)
-                      .toList(),
+            logger.w(
+              'Network 체크 상세 정보',
+              error: {
+                'detection_details': {
+                  'ttl': {'value': ttl, 'range': configs[5]},
+                  'mac': {
+                    'address': macAddress,
+                    'matched_keywords': _sanitizeKeywords(configs[6])
+                        .where(
+                          (keyword) => macAddress?.startsWith(keyword) ?? false,
+                        )
+                        .toList(),
+                  },
                 },
               },
-            });
+            );
           }
 
           // Sentry에 상세 정보 전송 (설정에 따라)
@@ -238,13 +240,17 @@ class VirtualMachineDetector {
           logger.i('가상 머신 검사 결과: 정상 기기');
 
           // 정상 기기의 경우에도 분석 결과 로깅
-          final buildResults =
-              await _getBuildCheckResults(androidInfo, configs.sublist(0, 4));
+          final buildResults = await _getBuildCheckResults(
+            androidInfo,
+            configs.sublist(0, 4),
+          );
           final hardwareResults = await _getHardwareCheckResults(configs);
-          final networkResults =
-              await _getNetworkCheckResults(configs.sublist(5));
+          final networkResults = await _getNetworkCheckResults(
+            configs.sublist(5),
+          );
 
-          final deviceInfo = '''
+          final deviceInfo =
+              '''
 정상 기기 상세 정보:
 - 제조사: ${androidInfo.manufacturer}
 - 모델: ${androidInfo.model}
@@ -318,9 +324,22 @@ class VirtualMachineDetector {
     return config.split(',').where((k) => k.isNotEmpty).toList();
   }
 
+  // 부분 문자열 오탐 방지를 위한 단어 경계 매칭
+  static bool _containsWholeToken(String text, String keyword) {
+    if (keyword.isEmpty) return false;
+    final pattern = RegExp(
+      '(?<![A-Za-z0-9_])${RegExp.escape(keyword)}(?![A-Za-z0-9_])',
+      caseSensitive: false,
+    );
+    return pattern.hasMatch(text);
+  }
+
   static Future<BuildCheckResults> _getBuildCheckResults(
-      AndroidDeviceInfo info, List<String?> configs) async {
-    final String deviceInfo = '''
+    AndroidDeviceInfo info,
+    List<String?> configs,
+  ) async {
+    final String deviceInfo =
+        '''
       ${info.manufacturer}
       ${info.model}
       ${info.brand}
@@ -341,7 +360,7 @@ class VirtualMachineDetector {
       ${info.host}_${info.product}_${info.device}
       ${info.brand}_${info.manufacturer}_${info.model}
     '''
-        .toLowerCase();
+            .toLowerCase();
 
     // 기본 정보 로깅
     logger.d('''
@@ -397,24 +416,38 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
 
     // 매칭된 키워드 찾기
     final vmMatches = vmKeywords
-        .map((keyword) => KeywordMatch(keyword, deviceInfo.contains(keyword)))
+        .map(
+          (keyword) =>
+              KeywordMatch(keyword, _containsWholeToken(deviceInfo, keyword)),
+        )
         .where((match) => match.isMatch)
         .toList();
 
     final bluestacksMatches = bluestacksKeywords
-        .map((keyword) => KeywordMatch(keyword, deviceInfo.contains(keyword)))
+        .map(
+          (keyword) =>
+              KeywordMatch(keyword, _containsWholeToken(deviceInfo, keyword)),
+        )
         .where((match) => match.isMatch)
         .toList();
 
     final hardwareMatches = hardwareKeywords
-        .map((keyword) => KeywordMatch(
-            keyword, info.hardware.toLowerCase().contains(keyword)))
+        .map(
+          (keyword) => KeywordMatch(
+            keyword,
+            info.hardware.toLowerCase().contains(keyword),
+          ),
+        )
         .where((match) => match.isMatch)
         .toList();
 
     final manufacturerMatches = manufacturerKeywords
-        .map((keyword) => KeywordMatch(
-            keyword, info.manufacturer.toLowerCase().contains(keyword)))
+        .map(
+          (keyword) => KeywordMatch(
+            keyword,
+            info.manufacturer.toLowerCase().contains(keyword),
+          ),
+        )
         .where((match) => match.isMatch)
         .toList();
 
@@ -424,17 +457,22 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
       'model': info.model,
       'hardware': info.hardware,
       'matched_vm_keywords': vmMatches.map((e) => e.keyword).toList(),
-      'matched_bluestacks_keywords':
-          bluestacksMatches.map((e) => e.keyword).toList(),
-      'matched_hardware_keywords':
-          hardwareMatches.map((e) => e.keyword).toList(),
-      'matched_manufacturer_keywords':
-          manufacturerMatches.map((e) => e.keyword).toList(),
+      'matched_bluestacks_keywords': bluestacksMatches
+          .map((e) => e.keyword)
+          .toList(),
+      'matched_hardware_keywords': hardwareMatches
+          .map((e) => e.keyword)
+          .toList(),
+      'matched_manufacturer_keywords': manufacturerMatches
+          .map((e) => e.keyword)
+          .toList(),
     });
 
-    final suspiciousHardware = info.hardware.isEmpty ||
-        hardwareKeywords
-            .any((keyword) => info.hardware.toLowerCase().contains(keyword));
+    final suspiciousHardware =
+        info.hardware.isEmpty ||
+        hardwareKeywords.any(
+          (keyword) => info.hardware.toLowerCase().contains(keyword),
+        );
 
     // 삼성 기기 관련 의심스러운 패턴 체크 (설정에 따라 활성화)
     if (VMDetectionConfig.enableSamsungStrictCheck &&
@@ -477,7 +515,7 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
         'has_vm_keywords': vmMatches.isNotEmpty,
         'has_bluestacks_keywords': bluestacksMatches.isNotEmpty,
         'suspicious_hardware': hardwareMatches.isNotEmpty || suspiciousHardware,
-        'suspicious_manufacturer': manufacturerMatches.isNotEmpty
+        'suspicious_manufacturer': manufacturerMatches.isNotEmpty,
       },
     );
   }
@@ -490,9 +528,8 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     final cpuKeywords = _sanitizeKeywords(cpuKeywordsConfig);
 
     // CPU 정보에서 의심스러운 패턴 체크
-    final suspiciousCpu = cpuKeywords.any(
-          (keyword) => cpuInfo.toLowerCase().contains(keyword),
-        ) ||
+    final suspiciousCpu =
+        cpuKeywords.any((keyword) => cpuInfo.toLowerCase().contains(keyword)) ||
         cpuInfo.toLowerCase().contains('hypervisor') ||
         cpuInfo.toLowerCase().contains('virtual') ||
         cpuInfo.toLowerCase().contains('qemu');
@@ -532,16 +569,19 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     final ttlRange = _sanitizeKeywords(configs[0]);
     final macKeywords = _sanitizeKeywords(configs[1]);
 
-    final suspiciousTtl = ttlRange.length == 2 &&
+    final suspiciousTtl =
+        ttlRange.length == 2 &&
         ttl != null &&
         int.tryParse(ttlRange[0]) != null &&
         int.tryParse(ttlRange[1]) != null &&
         ttl >= int.parse(ttlRange[0]) &&
         ttl <= int.parse(ttlRange[1]);
 
-    final suspiciousMac = macAddress != null &&
+    final suspiciousMac =
+        macAddress != null &&
         macKeywords.any(
-            (keyword) => keyword.isNotEmpty && macAddress.startsWith(keyword));
+          (keyword) => keyword.isNotEmpty && macAddress.startsWith(keyword),
+        );
 
     return suspiciousTtl || suspiciousMac;
   }
@@ -633,8 +673,10 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     required bool networkCheck,
   }) async {
     try {
-      final buildCheckResults =
-          await _getBuildCheckResults(androidInfo, configs);
+      final buildCheckResults = await _getBuildCheckResults(
+        androidInfo,
+        configs,
+      );
       final processorCount = await _getCpuCores();
 
       logger.i('Sentry 리포트 전송 시작...');
@@ -712,7 +754,8 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
   }
 
   static Future<HardwareCheckResults> _getHardwareCheckResults(
-      List<String?> configs) async {
+    List<String?> configs,
+  ) async {
     final cpuKeywordsConfig = configs[4];
     final cpuInfo = await _readCpuInfo();
     final hasSensors = await _checkSensors();
@@ -736,7 +779,8 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
   }
 
   static Future<Map<String, dynamic>> _getNetworkCheckResults(
-      List<String?> configs) async {
+    List<String?> configs,
+  ) async {
     final ttl = await _getTTL();
     final macAddress = await _getMacAddress();
 
