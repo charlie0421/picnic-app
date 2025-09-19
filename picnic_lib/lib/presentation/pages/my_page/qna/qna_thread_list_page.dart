@@ -7,6 +7,8 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_create_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/qna/qna_status_chip.dart';
+import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -130,22 +132,9 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: QnaSubmitButton.fab(
+        context,
         onPressed: _navigateToCreateThread,
-        backgroundColor: AppColors.primary500,
-        foregroundColor: Colors.white,
-        elevation: 6,
-        extendedPadding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 8.0,
-        ),
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        icon: const Icon(Icons.edit),
-        label: Text(
-          AppLocalizations.of(context).qna_create_page_title,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       body: _buildBody(),
     );
@@ -300,7 +289,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                _buildStatusChip(thread.status),
+                QnaStatusChip(status: thread.status),
               ],
             ),
             const SizedBox(height: 8),
@@ -382,43 +371,6 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildStatusChip(String status) {
-    final s = status.toUpperCase();
-    late Color chipColor;
-    late Color textColor;
-    late String statusText;
-
-    // Reuse existing open/closed labels for simplicity
-    if (s == 'RESOLVED') {
-      chipColor = AppColors.secondary500;
-      textColor = AppColors.grey900;
-      statusText = AppLocalizations.of(context).qna_status_closed;
-    } else if (s == 'IN_PROGRESS') {
-      chipColor = AppColors.primary500;
-      textColor = Colors.white;
-      statusText = AppLocalizations.of(context).qna_status_open;
-    } else {
-      // RECEIVED (default)
-      chipColor = AppColors.sub500;
-      textColor = Colors.white;
-      statusText = AppLocalizations.of(context).qna_status_open;
-    }
-
-    return Chip(
-      label: Text(
-        statusText,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      backgroundColor: chipColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }

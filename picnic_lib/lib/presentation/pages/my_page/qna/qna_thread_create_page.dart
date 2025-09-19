@@ -10,8 +10,8 @@ import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/qna/qna_category.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
+import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart';
 
 class QnaThreadCreatePage extends StatefulWidget {
   final String userId;
@@ -174,43 +174,10 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary500,
-                          AppColors.primary500.withValues(alpha: 0.85),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(10.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary500.withValues(alpha: 0.25),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton.icon(
-                      onPressed: _isSubmitting ? null : _submitThread,
-                      icon: const Icon(Icons.check, size: 18),
-                      label: Text(
-                        AppLocalizations.of(context).qna_submit_button,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        foregroundColor: Colors.white,
-                        shadowColor: Colors.transparent,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.w,
-                          vertical: 8.h,
-                        ),
-                        minimumSize: Size(64.w, 36.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                      ),
-                    ),
+                  child: QnaSubmitButton.primary(
+                    context,
+                    onPressed: _submitThread,
+                    isLoading: _isSubmitting,
                   ),
                 ),
               ],

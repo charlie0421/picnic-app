@@ -13,6 +13,7 @@ import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_full_screen_image_viewer.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_video_player_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/qna/qna_status_chip.dart';
 import 'package:picnic_lib/presentation/widgets/loading_view.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -169,7 +170,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: _buildStatusChip(),
+                  child: QnaStatusChip(status: widget.thread.status),
                 ),
               ],
             ),
@@ -221,41 +222,6 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
             ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStatusChip() {
-    final s = widget.thread.status.toUpperCase();
-    late Color chipColor;
-    late Color textColor;
-    // Reuse existing i18n: open for RECEIVED/IN_PROGRESS, closed for RESOLVED
-    final statusText = s == 'RESOLVED'
-        ? AppLocalizations.of(context).qna_status_closed
-        : AppLocalizations.of(context).qna_status_open;
-
-    if (s == 'RESOLVED') {
-      chipColor = AppColors.secondary500;
-      textColor = AppColors.grey900;
-    } else if (s == 'IN_PROGRESS') {
-      chipColor = AppColors.primary500;
-      textColor = Colors.white;
-    } else {
-      chipColor = AppColors.sub500;
-      textColor = Colors.white;
-    }
-
-    return Chip(
-      label: Text(
-        statusText,
-        style: getTextStyle(AppTypo.caption12M, textColor),
-      ),
-      backgroundColor: chipColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide.none,
-      ),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 
@@ -567,7 +533,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
       );
     }
     return Container(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         boxShadow: [
@@ -585,7 +551,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
             if (_shouldShowAutoCloseNotice()) _buildAutoCloseNotice(),
             if (_attachments.isNotEmpty)
               SizedBox(
-                height: 70,
+                height: 56,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: _attachments.length,
@@ -603,15 +569,15 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                         clipBehavior: Clip.none,
                         children: [
                           SizedBox(
-                            width: 60,
-                            height: 60,
+                            width: 52,
+                            height: 52,
                             child: isImage
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: ImageThumbnailFromFile(
                                       file: file,
-                                      width: 60,
-                                      height: 60,
+                                      width: 52,
+                                      height: 52,
                                       borderRadius: 8,
                                       fit: BoxFit.cover,
                                     ),
@@ -619,8 +585,8 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                                 : isVideo
                                 ? VideoThumbnailFromFile(
                                     file: file,
-                                    width: 60,
-                                    height: 60,
+                                    width: 52,
+                                    height: 52,
                                   )
                                 : Container(
                                     decoration: BoxDecoration(
@@ -660,9 +626,18 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.perm_media_outlined),
+                  icon: const Icon(Icons.perm_media_outlined, size: 20),
                   onPressed: _pickMedia,
                   tooltip: AppLocalizations.of(context).qna_add_media_tooltip,
+                  padding: const EdgeInsets.all(4.0),
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
+                  visualDensity: const VisualDensity(
+                    horizontal: -2,
+                    vertical: -2,
+                  ),
                 ),
                 Expanded(
                   child: TextField(
@@ -680,8 +655,17 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                   )
                 else
                   IconButton(
-                    icon: const Icon(Icons.send),
+                    icon: const Icon(Icons.send, size: 20),
                     onPressed: _sendMessage,
+                    padding: const EdgeInsets.all(4.0),
+                    constraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
+                    ),
+                    visualDensity: const VisualDensity(
+                      horizontal: -2,
+                      vertical: -2,
+                    ),
                   ),
               ],
             ),
