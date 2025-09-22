@@ -1,0 +1,12 @@
+{
+  "extends": "./dev.json",
+  "supabase": {
+    "url": "REPLACE_WITH_LOCAL_SUPABASE_URL",
+    "anon_key": "REPLACE_WITH_LOCAL_SUPABASE_ANON_KEY"
+  },
+  "sentry": {
+    "enable": false
+  }
+}
+
+

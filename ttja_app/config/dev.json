@@ -1,0 +1,93 @@
+{
+  "supabase": {
+    "url": "https://xtijtefcycoeqludlngc.supabase.co",
+    "anon_key": "REPLACE_WITH_TTJA_SUPABASE_ANON_KEY",
+    "storage": {
+      "url": "https://api.picnic.fan",
+      "anon_key": "REPLACE_WITH_TTJA_STORAGE_ANON_KEY"
+    }
+  },
+  "auth": {
+    "apple": {
+      "client_id": "io.iconcasting.ttja.app.apple",
+      "redirect_uri": "https://api.picnic.fan/auth/v1/callback"
+    },
+    "google": {
+      "client_id": "REPLACE_WITH_GOOGLE_CLIENT_ID",
+      "server_client_id": "REPLACE_WITH_GOOGLE_SERVER_CLIENT_ID"
+    },
+    "kakao": {
+      "native_app_key": "REPLACE_WITH_KAKAO_NATIVE_KEY",
+      "javascript_key": "REPLACE_WITH_KAKAO_JS_KEY"
+    },
+    "wechat": {
+      "app_id": "REPLACE_WITH_WECHAT_APP_ID",
+      "app_secret": "REPLACE_WITH_WECHAT_APP_SECRET",
+      "universal_link": "https://applink.picnic.fan/wechat/"
+    }
+  },
+  "sentry": {
+    "enable": true,
+    "app_dsn": "REPLACE_WITH_SENTRY_DSN",
+    "web_dsn": "REPLACE_WITH_SENTRY_WEB_DSN",
+    "sample_rates": { "trace": 1.0, "profile": 1.0, "session": 1.0, "error": 1.0 }
+  },
+  "storage": {
+    "cdn_url": "https://cdn.picnic.fan/picnic",
+    "aws": {
+      "access_key_id": "REPLACE_AWS_KEY",
+      "secret_access_key": "REPLACE_AWS_SECRET",
+      "region": "ap-northeast-2",
+      "s3_bucket": "picnic-prod-cdn",
+      "s3_bucket_url": "https://picnic-fan.s3.ap-northeast-2.amazonaws.com"
+    }
+  },
+  "api_keys": {
+    "youtube": "REPLACE_YOUTUBE_KEY",
+    "deepl": "REPLACE_DEEPL_KEY",
+    "branch": "REPLACE_BRANCH_KEY"
+  },
+  "app": {
+    "web_domain": "https://www.picnic.fan",
+    "download_link": "https://www.picnic.fan/download.html",
+    "app_link_prefix": "https://applink.picnic.fan",
+    "inapp_appname_prefix": ""
+  },
+  "theme": {
+    "colors": {
+      "primary": "0xFF9374FF",
+      "secondary": "0xFF83FBC8",
+      "sub": "0xFFCDFB5D",
+      "point": "0xFFFFA9BD",
+      "point_900": "0xFFEB4A71"
+    }
+  },
+  "ads": {
+    "tapjoy": {
+      "ios_sdk_key": "REPLACE_TAPJOY_IOS_KEY",
+      "android_sdk_key": "REPLACE_TAPJOY_ANDROID_KEY"
+    },
+    "unity": {
+      "apple_game_id": "REPLACE_UNITY_APPLE_ID",
+      "google_game_id": "REPLACE_UNITY_GOOGLE_ID",
+      "ios_placement_id": "Rewarded_iOS",
+      "android_placement_id": "Rewarded_Android"
+    },
+    "pangle": {
+      "ios_app_id": "REPLACE_PANGLE_IOS_APP_ID",
+      "ios_rewarded_video_id": "REPLACE_PANGLE_IOS_REWARDED_ID",
+      "android_app_id": "REPLACE_PANGLE_ANDROID_APP_ID",
+      "android_rewarded_video_id": "REPLACE_PANGLE_ANDROID_REWARDED_ID"
+    },
+    "pincrux": {
+      "android_app_key": "REPLACE_PINCRUX_ANDROID",
+      "ios_app_key": "REPLACE_PINCRUX_IOS"
+    },
+    "admob": {
+      "ios_rewarded_video_id": "REPLACE_ADMOB_IOS",
+      "android_rewarded_video_id": "REPLACE_ADMOB_ANDROID"
+    }
+  }
+}
+
+

@@ -1,5 +1,4 @@
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -14,8 +13,10 @@ class GoogleLogin implements SocialLogin {
     try {
       // google_sign_in 7.x API: singleton + initialize + authenticate
       // iOS는 Info.plist 설정을 사용하므로 clientId를 명시하지 않음
+      // Android에서는 clientId를 전달하지 않습니다(웹 클라이언트 ID 전달 시 계정 선택/웹뷰 표시 문제가 발생할 수 있음).
+      // iOS도 Info.plist 기반 설정을 사용하므로 여기서는 serverClientId만 지정합니다.
       await GoogleSignIn.instance.initialize(
-        clientId: UniversalPlatform.isIOS ? null : Environment.googleClientId,
+        clientId: null,
         serverClientId: Environment.googleServerClientId,
       );
 

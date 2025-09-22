@@ -16,7 +16,7 @@ dependencies:
         path: ../picnic_lib
     intl: ^0.20.2
     screen_protector: ^1.4.2+1
-    supabase_flutter: ^2.8.4
+    supabase_flutter: ^2.9.1
     universal_platform: ^1.1.0
     flutter_screenutil: ^5.9.3
     overlay_support: ^2.1.0
@@ -32,8 +32,8 @@ dependencies:
     timezone: ^0.10.0
     flutter_svg: ^2.0.16
     supabase_extensions: ^1.0.1
-    url_launcher: ^6.2.5
-    tapjoy_offerwall: ^14.2.1
+    url_launcher: ^6.3.2
+    tapjoy_offerwall: ^14.3.1
     flutter_branch_sdk: ^8.3.2
     shorebird_code_push: ^2.0.3
     flutter_phoenix: ^1.1.1
@@ -45,7 +45,7 @@ dev_dependencies:
     flutter_lints: ^6.0.0
     json_serializable: ^6.9.0
     intl_utils: ^2.8.7
-    flutter_native_splash: ^2.4.4
+    flutter_native_splash: ^2.4.6
 flutter_intl:
     enabled: true
 

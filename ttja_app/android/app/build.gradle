@@ -86,7 +86,11 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (signingConfigs.release.storeFile != null) {
+                signingConfig signingConfigs.release
+            } else {
+                println "⚠️  release 서명 파일이 없어 unsigned 빌드로 진행합니다"
+            }
             ndk {
                 debugSymbolLevel "FULL"
             }
@@ -116,7 +120,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:1.6.1"
     implementation 'com.google.android.material:material:1.11.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "com.tapjoy:tapjoy-android-sdk:14.2.1"
+    implementation "com.tapjoy:tapjoy-android-sdk:14.4.0"
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     // Pincrux Offerwall
     implementation files('libs/pincrux_offerwall.aar')
