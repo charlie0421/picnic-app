@@ -38,9 +38,10 @@ class Environment {
 
   // 로그 관련 설정
   static Level get logLevel {
-    final levelName = _getValueOrDefault(['logging', 'level'], 'info')
-        .toString()
-        .toLowerCase();
+    final levelName = _getValueOrDefault([
+      'logging',
+      'level',
+    ], 'info').toString().toLowerCase();
     switch (levelName) {
       case 'off':
         return Level.off;
@@ -61,8 +62,12 @@ class Environment {
     }
   }
 
-  static int get imageLoadWarningThreshold => _getValueOrDefault(
-      ['logging', 'image_load_warning_threshold_seconds'], 10) as int;
+  static int get imageLoadWarningThreshold =>
+      _getValueOrDefault([
+            'logging',
+            'image_load_warning_threshold_seconds',
+          ], 10)
+          as int;
 
   static int get imageLoadErrorThreshold =>
       _getValueOrDefault(['logging', 'image_load_error_threshold_seconds'], 20)
@@ -156,10 +161,21 @@ class Environment {
   static String? get tapjoyIosSdkKey =>
       _getValue(['ads', 'tapjoy', 'ios_sdk_key']) as String;
 
-  static String? get unityAppleGameId =>
-      _getValue(['ads', 'unity', 'apple_game_id']) as String;
-  static String? get unityAndroidGameId =>
-      _getValue(['ads', 'unity', 'google_game_id']) as String;
+  static String? get unityAppleGameId {
+    try {
+      return _getValue(['ads', 'unity', 'apple_game_id']) as String;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static String? get unityAndroidGameId {
+    try {
+      return _getValue(['ads', 'unity', 'google_game_id']) as String;
+    } catch (e) {
+      return null;
+    }
+  }
 
   // Pincrux 관련 설정
   static String? get pincruxAndroidAppKey {

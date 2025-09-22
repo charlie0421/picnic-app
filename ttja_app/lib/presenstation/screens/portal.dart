@@ -27,8 +27,7 @@ class Portal extends ConsumerStatefulWidget {
 class _PortalState extends ConsumerState<Portal> {
   @override
   Widget build(BuildContext context) {
-    final currentScreen = ref
-        .watch(navigationInfoProvider.select((value) => value.currentScreen));
+    final navigationNotifier = ref.watch(navigationInfoProvider.notifier);
     final showTopMenu =
         ref.watch(navigationInfoProvider.select((value) => value.showTopMenu));
     final userInfoState = ref.watch(userInfoProvider);
@@ -109,8 +108,7 @@ class _PortalState extends ConsumerState<Portal> {
                       width: webDesignSize.width,
                       child: Column(children: [
                         if (showTopMenu) const TopMenu(),
-                        Expanded(
-                            child: currentScreen ?? const VoteHomeScreen()),
+                        Expanded(child: navigationNotifier.getScreen()),
                       ]),
                     ))
                   : SizedBox(
@@ -118,8 +116,7 @@ class _PortalState extends ConsumerState<Portal> {
                       height: constraints.maxHeight,
                       child: Column(children: [
                         if (showTopMenu) const TopMenu(),
-                        Expanded(
-                            child: currentScreen ?? const VoteHomeScreen()),
+                        Expanded(child: navigationNotifier.getScreen()),
                       ]),
                     );
             },
