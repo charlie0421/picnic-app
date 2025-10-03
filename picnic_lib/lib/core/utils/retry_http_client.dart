@@ -41,8 +41,10 @@ class RetryHttpClient extends http.BaseClient {
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     Exception? lastException;
+    // 비멱등 요청(예: POST/PUT/PATCH/DELETE)은 재시도하지 않음
+    final int attemptsAllowed = _isIdempotent(request.method) ? maxAttempts : 1;
 
-    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+    for (int attempt = 1; attempt <= attemptsAllowed; attempt++) {
       try {
         if (attempt > 1) {
           logger.d('Request attempt $attempt/$maxAttempts to ${request.url}');
@@ -77,11 +79,14 @@ class RetryHttpClient extends http.BaseClient {
       } catch (e) {
         lastException = e is Exception ? e : Exception(e.toString());
 
-        final detailedLog =
-            _createDetailedErrorLog(lastException, attempt, request.url);
+        final detailedLog = _createDetailedErrorLog(
+          lastException,
+          attempt,
+          request.url,
+        );
         logger.w(detailedLog);
 
-        if (attempt == maxAttempts || !_shouldRetry(lastException)) {
+        if (attempt == attemptsAllowed || !_shouldRetry(lastException)) {
           break;
         }
 
@@ -96,7 +101,8 @@ class RetryHttpClient extends http.BaseClient {
   void _cleanupOldConnections() {
     final now = DateTime.now();
     _connectionPool.removeWhere(
-        (_, timestamp) => now.difference(timestamp) > _connectionMaxAge);
+      (_, timestamp) => now.difference(timestamp) > _connectionMaxAge,
+    );
   }
 
   void _resetConnection(String hostKey) {
@@ -104,29 +110,37 @@ class RetryHttpClient extends http.BaseClient {
   }
 
   Future<http.StreamedResponse> _sendWithTimeout(
-      http.BaseRequest request) async {
+    http.BaseRequest request,
+  ) async {
     try {
       // Content-Length 헤더 제거하여 chunked transfer encoding 사용
       request.headers.remove('Content-Length');
       request.headers['Connection'] = 'keep-alive';
 
-      final response = await _inner.send(request).timeout(
-        timeout,
-        onTimeout: () {
-          throw TimeoutException(
-            'Request timed out after ${timeout.inSeconds} seconds',
+      final response = await _inner
+          .send(request)
+          .timeout(
             timeout,
+            onTimeout: () {
+              throw TimeoutException(
+                'Request timed out after ${timeout.inSeconds} seconds',
+                timeout,
+              );
+            },
           );
-        },
-      );
 
       // 안전한 응답 처리
       return http.StreamedResponse(
         response.stream.handleError((error, stackTrace) {
-          logger.e('Stream error during response processing',
-              error: error, stackTrace: stackTrace);
-          throw NetworkError('Stream processing error: $error',
-              isRetryable: true);
+          logger.e(
+            'Stream error during response processing',
+            error: error,
+            stackTrace: stackTrace,
+          );
+          throw NetworkError(
+            'Stream processing error: $error',
+            isRetryable: true,
+          );
         }),
         response.statusCode,
         headers: response.headers,
@@ -199,6 +213,11 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
                 errorString.contains('connection reset')));
   }
 
+  bool _isIdempotent(String method) {
+    final m = method.toUpperCase();
+    return m == 'GET' || m == 'HEAD' || m == 'OPTIONS';
+  }
+
   Future<http.BaseRequest> _copyRequest(http.BaseRequest original) async {
     http.BaseRequest copy;
     if (original is http.Request) {
@@ -211,7 +230,8 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
         ..files.addAll(original.files);
     } else {
       throw UnsupportedError(
-          'Unsupported request type: ${original.runtimeType}');
+        'Unsupported request type: ${original.runtimeType}',
+      );
     }
 
     copy
