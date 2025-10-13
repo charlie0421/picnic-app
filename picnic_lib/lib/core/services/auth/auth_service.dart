@@ -95,6 +95,8 @@ class AuthService {
 
       await DeviceManager.registerDevice(response.user!.id);
       await _saveAndNotifySession(response.session!);
+      // 국가 추적 (로그인 직후)
+      await _trackCountry('login');
       return response.user;
     } catch (e, s) {
       logger.e('Error during WeChat sign in:', error: e, stackTrace: s);
@@ -134,6 +136,8 @@ class AuthService {
       await DeviceManager.registerDevice(response.user!.id);
 
       await _saveAndNotifySession(response.session!);
+      // 국가 추적 (로그인 직후)
+      await _trackCountry('login');
       return response.user;
     } catch (e, s) {
       logger.e('Error during sign in:', error: e, stackTrace: s);
@@ -220,6 +224,8 @@ class AuthService {
 
       if (response.session != null) {
         await _saveAndNotifySession(response.session!);
+        // 국가 추적 (토큰 갱신 직후)
+        await _trackCountry('token_refresh');
         return true;
       }
 
@@ -316,6 +322,19 @@ class AuthService {
   Future<void> _saveAndNotifySession(Session session) async {
     await _storageService.saveSession(session);
     _sessionController.add(session);
+  }
+
+  // Edge Function 호출로 접속 국가 기록
+  Future<void> _trackCountry(String source) async {
+    try {
+      if (supabase.auth.currentUser == null) return;
+      await supabase.functions.invoke(
+        'track-country',
+        body: {'source': source},
+      );
+    } catch (e, s) {
+      logger.w('track-country invoke failed: $e', stackTrace: s);
+    }
   }
 
   Future<void> _clearAuthState() async {
