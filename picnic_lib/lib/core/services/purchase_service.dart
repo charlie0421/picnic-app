@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
@@ -14,6 +15,7 @@ import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 // 🔥 복잡한 가드 시스템 제거 - 단순 중복 방지만 사용
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/services/duplicate_prevention_service.dart';
+import 'package:picnic_lib/core/services/receipt_queue_service.dart';
 
 class PurchaseService {
   PurchaseService({
@@ -31,6 +33,14 @@ class PurchaseService {
     inAppPurchaseService.onPurchaseTimeout = handlePurchaseTimeout;
 
     logger.i('✅ PurchaseService 초기화 완료 - 강화된 중복 방지 시스템 활성화');
+
+    // 앱 시작 시 큐 플러시
+    unawaited(ReceiptQueueService().flushPending());
+
+    // 안드로이드: 과거 미처리 구매 점검
+    if (Platform.isAndroid) {
+      unawaited(_reconcileAndroidPastPurchases());
+    }
   }
 
   final WidgetRef ref;
@@ -604,6 +614,49 @@ class PurchaseService {
       onTimeoutUIReset!();
     } else {
       logger.w('⚠️ UI 리셋 콜백이 설정되지 않음 - UI가 로딩 상태로 남을 수 있음');
+    }
+
+    // 타임아웃 이후에도 큐 플러시 재시도
+    unawaited(ReceiptQueueService().flushPending());
+  }
+
+  Future<void> _reconcileAndroidPastPurchases() async {
+    try {
+      logger.i('🔍 Android 과거 구매 조회 시작');
+      final addition = InAppPurchase.instance
+          .getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
+      final resp = await addition.queryPastPurchases();
+      if (resp.pastPurchases.isEmpty) {
+        logger.i('ℹ️ 과거 구매 없음');
+        return;
+      }
+
+      final currentUser = supabase.auth.currentUser;
+      if (currentUser == null) {
+        logger.w('ℹ️ 로그인되지 않아 과거 구매 재검증 생략');
+        return;
+      }
+
+      final environment = await receiptVerificationService.getEnvironment();
+
+      for (final p in resp.pastPurchases) {
+        // 이미 소비/완료 여부는 스토어 상태에 의존적이므로, 영수증을 큐에 적재해 서버 멱등 처리에 위임
+        final receipt = p.verificationData.serverVerificationData;
+        if (receipt.isEmpty) continue;
+
+        final clientTraceId = await ReceiptQueueService().enqueueAndroid(
+          receipt: receipt,
+          productId: p.productID,
+          userId: currentUser.id,
+          environment: environment,
+        );
+        logger.i('🧾 과거 구매 큐 적재: ${p.productID} trace=$clientTraceId');
+      }
+
+      await ReceiptQueueService().flushPending();
+      logger.i('✅ Android 과거 구매 재검증 플러시 완료');
+    } catch (e, s) {
+      logger.e('Android 과거 구매 조회/재검증 실패: $e', stackTrace: s);
     }
   }
 

@@ -342,8 +342,9 @@ async function verifyAndroidPurchase(productId, purchaseToken) {
   }
     console.log(`[verify_receipt] reqId=${reqId} start method=${request.method}`);
   try {
-    const { receipt, platform, productId, user_id, environment, format } = await request.json();
-    console.log(`[verify_receipt] reqId=${reqId} body parsed platform=${platform} productId=${productId} user=${user_id} env=${environment} receiptLen=${typeof receipt==='string'?receipt.length:0}`);
+    const { receipt, platform, productId, user_id, environment, format, client_trace_id } = await request.json();
+    const maskedTok = platform === 'android' && typeof receipt === 'string' ? `${receipt.slice(0,8)}..${receipt.slice(-4)}` : '';
+    console.log(`[verify_receipt] reqId=${reqId} clientTrace=${client_trace_id||'-'} body parsed platform=${platform} productId=${productId} user=${user_id} env=${environment} receiptLen=${typeof receipt==='string'?receipt.length:0} ${maskedTok?`token=${maskedTok}`:''}`);
     if (!receipt || !platform || !productId || !user_id || !environment) {
       console.warn(`[verify_receipt] reqId=${reqId} missing params`);
       return new Response(JSON.stringify({
@@ -403,7 +404,9 @@ async function verifyAndroidPurchase(productId, purchaseToken) {
       ]);
       return new Response(JSON.stringify({
         success: false,
-        data: verify
+        data: verify,
+        traceId: reqId,
+        client_trace_id
       }), {
         status: 400,
         headers: {
@@ -430,10 +433,12 @@ async function verifyAndroidPurchase(productId, purchaseToken) {
       // 유니크 충돌 = 이미 처리된 구매
       if (e?.code === '23505') {
         console.log(`[verify_receipt] reqId=${reqId} duplicate receipt (skip)`);
-        return new Response(JSON.stringify({
+          return new Response(JSON.stringify({
           success: false,
           code: 'DUPLICATE_RECEIPT',
-          message: '이미 처리된 구매입니다.'
+            message: '이미 처리된 구매입니다.',
+            traceId: reqId,
+            client_trace_id
         }), {
           status: 409,
           headers: {
@@ -459,7 +464,9 @@ async function verifyAndroidPurchase(productId, purchaseToken) {
     console.log(`[verify_receipt] reqId=${reqId} reward processed OK`);
     return new Response(JSON.stringify({
       success: true,
-      data: verify.data
+      data: verify.data,
+      traceId: reqId,
+      client_trace_id
     }), {
       status: 200,
       headers: {

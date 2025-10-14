@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:picnic_lib/core/services/receipt_queue_service.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -15,10 +16,7 @@ class ReusedPurchaseException implements Exception {
   final String message;
   final String? receiptId;
 
-  ReusedPurchaseException({
-    required this.message,
-    this.receiptId,
-  });
+  ReusedPurchaseException({required this.message, this.receiptId});
 
   @override
   String toString() => 'ReusedPurchaseException: $message';
@@ -73,7 +71,12 @@ class ReceiptVerificationService {
           throw ReusedPurchaseException(message: 'Duplicate iOS receipt');
         }
         await _verifyiOSReceipt(
-            receipt, productId, userId, environment, receiptFormat);
+          receipt,
+          productId,
+          userId,
+          environment,
+          receiptFormat,
+        );
         await _idemCacheAdd(idemKey);
       } catch (e) {
         if (e is ReusedPurchaseException) {
@@ -82,7 +85,12 @@ class ReceiptVerificationService {
         }
         logger.w('🍎 JWS 파싱/멱등 처리 실패 - 일반 경로로 진행: $e');
         await _verifyiOSReceipt(
-            receipt, productId, userId, environment, receiptFormat);
+          receipt,
+          productId,
+          userId,
+          environment,
+          receiptFormat,
+        );
       }
     } else {
       await _verifyAndroidReceipt(receipt, productId, userId, environment);
@@ -132,8 +140,9 @@ class ReceiptVerificationService {
       'productId': productId,
       'user_id': userId,
       'environment': environment,
-      'format':
-          receiptFormat.contains('StoreKit2 JWT') ? 'storekit2_jwt' : 'legacy',
+      'format': receiptFormat.contains('StoreKit2 JWT')
+          ? 'storekit2_jwt'
+          : 'legacy',
     };
 
     await _callVerificationFunction(requestBody, 'iOS');
@@ -152,6 +161,14 @@ class ReceiptVerificationService {
     logger.i('  - Environment: $environment');
     logger.i('  - Receipt length: ${receipt.length}');
 
+    // 큐에 적재하고 client_trace_id 생성
+    final clientTraceId = await ReceiptQueueService().enqueueAndroid(
+      receipt: receipt,
+      productId: productId,
+      userId: userId,
+      environment: environment,
+    );
+
     final requestBody = {
       'receipt': receipt,
       'platform': 'android',
@@ -159,10 +176,13 @@ class ReceiptVerificationService {
       'user_id': userId,
       'environment': environment,
       'format': 'google_play',
+      'client_trace_id': clientTraceId,
     };
 
-    logger.i('🚀 Android 서버 검증 호출 시작');
+    logger.i('🚀 Android 서버 검증 호출 시작 (clientTrace: $clientTraceId)');
     await _callVerificationFunction(requestBody, 'Android');
+    // 성공 시 큐에서 제거
+    await ReceiptQueueService().removeByClientTraceId(clientTraceId);
     logger.i('✅ Android 영수증 검증 완료');
   }
 
@@ -178,7 +198,8 @@ class ReceiptVerificationService {
         : PurchaseConstants.verificationTimeout;
 
     logger.i(
-        'Using timeout: ${timeoutDuration.inSeconds}s for $environment environment');
+      'Using timeout: ${timeoutDuration.inSeconds}s for $environment environment',
+    );
 
     // 환경에 따른 재시도 횟수 설정
     final maxRetries = environment == _sandboxEnvironment
@@ -199,8 +220,9 @@ class ReceiptVerificationService {
         logger.i('Verification successful');
         return; // 성공 시 즉시 반환
       } catch (error) {
-        lastException =
-            error is Exception ? error : Exception(error.toString());
+        lastException = error is Exception
+            ? error
+            : Exception(error.toString());
 
         // 409 Conflict (중복) 에러인지 확인
         if (error is FunctionException && error.status == 409) {
@@ -216,7 +238,8 @@ class ReceiptVerificationService {
         }
 
         logger.w(
-            '$verificationType verification attempt $attempt failed: $error');
+          '$verificationType verification attempt $attempt failed: $error',
+        );
 
         // 마지막 시도가 아니면 재시도
         if (attempt < maxRetries) {
@@ -229,7 +252,8 @@ class ReceiptVerificationService {
 
     // 모든 시도 실패 시 처리(타임아웃도 실패로 간주)
     logger.e('All $verificationType verification attempts failed');
-    final isTimeout = lastException is TimeoutException ||
+    final isTimeout =
+        lastException is TimeoutException ||
         lastException.toString().toLowerCase().contains('time');
     if (isTimeout) {
       logger.w('⚠️ 영수증 검증 타임아웃 - 실패로 처리 (관대한 처리 비활성화)');
@@ -261,13 +285,15 @@ class ReceiptVerificationService {
     final installerStore = packageInfo.installerStore;
 
     // 테스트 환경 감지
-    final isTestEnvironment = installerStore == 'com.apple.testflight' ||
+    final isTestEnvironment =
+        installerStore == 'com.apple.testflight' ||
         installerStore == null ||
         packageInfo.appName.toLowerCase().contains('testflight') ||
         packageInfo.buildSignature.isNotEmpty;
 
-    final environment =
-        isTestEnvironment ? _sandboxEnvironment : _productionEnvironment;
+    final environment = isTestEnvironment
+        ? _sandboxEnvironment
+        : _productionEnvironment;
     logger.d('iOS environment: $environment');
     return environment;
   }
@@ -327,16 +353,18 @@ class ReceiptVerificationService {
         return s;
       }
 
-      final payload =
-          json.decode(utf8.decode(base64.decode(normalize(parts[1]))));
+      final payload = json.decode(
+        utf8.decode(base64.decode(normalize(parts[1]))),
+      );
       final tx =
           (payload['transactionId'] ?? payload['originalTransactionId'] ?? '')
               .toString();
-      final time = (payload['signedDate'] ??
-              payload['purchaseDate'] ??
-              payload['originalPurchaseDate'] ??
-              '')
-          .toString();
+      final time =
+          (payload['signedDate'] ??
+                  payload['purchaseDate'] ??
+                  payload['originalPurchaseDate'] ??
+                  '')
+              .toString();
       return 'ios:$tx:$time';
     } catch (_) {
       return 'raw:${jws.hashCode}';
@@ -423,14 +451,14 @@ class ReceiptVerificationService {
         'product_id': productId,
         'jwt_token': jwtToken,
         'validation_method': 'format_check',
-        'message': 'StoreKit2 JWT format validated'
+        'message': 'StoreKit2 JWT format validated',
       };
     } catch (e) {
       logger.e('StoreKit2 JWT verification failed: $e');
       return {
         'status': -1,
         'error': 'JWT verification failed: $e',
-        'receipt_type': 'StoreKit2_JWT_ERROR'
+        'receipt_type': 'StoreKit2_JWT_ERROR',
       };
     }
   }
