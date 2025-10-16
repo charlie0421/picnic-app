@@ -1498,4 +1498,14 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get qna_status_resolved => 'Đã giải quyết';
+
+  @override
+  String get ad_close_confirm_title => 'Đóng quảng cáo?';
+
+  @override
+  String get ad_close_confirm_message =>
+      'Đóng ngay bây giờ sẽ không nhận được phần thưởng. Bạn có chắc muốn đóng?';
+
+  @override
+  String get ad_more_info_button => 'Tìm hiểu thêm';
 }

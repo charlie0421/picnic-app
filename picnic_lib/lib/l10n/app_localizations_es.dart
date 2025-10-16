@@ -1521,4 +1521,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get qna_status_resolved => 'Resuelto';
+
+  @override
+  String get ad_close_confirm_title => '¿Cerrar el anuncio?';
+
+  @override
+  String get ad_close_confirm_message =>
+      'Si cierras ahora no recibirás la bonificación. ¿Seguro que quieres cerrar?';
+
+  @override
+  String get ad_more_info_button => 'Más información';
 }

@@ -1492,6 +1492,16 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get qna_status_resolved => 'Resolved';
+
+  @override
+  String get ad_close_confirm_title => 'বিজ্ঞাপনটি বন্ধ করবেন?';
+
+  @override
+  String get ad_close_confirm_message =>
+      'এখন বন্ধ করলে বোনাস পাওয়া যাবে না। আপনি কি সত্যিই বন্ধ করতে চান?';
+
+  @override
+  String get ad_more_info_button => 'আরও জানুন';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -2982,4 +2992,14 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get qna_status_resolved => 'সমাধান সম্পন্ন';
+
+  @override
+  String get ad_close_confirm_title => 'বিজ্ঞাপনটি বন্ধ করবেন?';
+
+  @override
+  String get ad_close_confirm_message =>
+      'এখন বন্ধ করলে বোনাস পাওয়া যাবে না। আপনি কি নিশ্চিত?';
+
+  @override
+  String get ad_more_info_button => 'আরও জানুন';
 }

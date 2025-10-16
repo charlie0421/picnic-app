@@ -1476,4 +1476,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get qna_status_resolved => 'แก้ไขแล้ว';
+
+  @override
+  String get ad_close_confirm_title => 'ปิดโฆษณาหรือไม่?';
+
+  @override
+  String get ad_close_confirm_message =>
+      'หากปิดตอนนี้จะไม่ได้รับโบนัส ยืนยันที่จะปิดหรือไม่?';
+
+  @override
+  String get ad_more_info_button => 'ดูเพิ่มเติม';
 }

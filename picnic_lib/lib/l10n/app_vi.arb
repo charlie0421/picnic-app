@@ -1892,4 +1892,11 @@
   "@qna_category_label": {"description": "QnA category label"},
   "qna_category_required": "Vui lòng chọn danh mục",
   "@qna_category_required": {"description": "Error message when category is required"}
+  ,
+  "ad_close_confirm_title": "Đóng quảng cáo?",
+  "@ad_close_confirm_title": {"description": "Tiêu đề xác nhận đóng quảng cáo"},
+  "ad_close_confirm_message": "Đóng ngay bây giờ sẽ không nhận được phần thưởng. Bạn có chắc muốn đóng?",
+  "@ad_close_confirm_message": {"description": "Nội dung xác nhận đóng quảng cáo"},
+  "ad_more_info_button": "Tìm hiểu thêm",
+  "@ad_more_info_button": {"description": "Nút CTA sau khi quảng cáo kết thúc"}
 }

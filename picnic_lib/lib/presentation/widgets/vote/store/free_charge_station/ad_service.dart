@@ -8,6 +8,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/p
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/pincrux_platform.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/unity_ads_platform.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/shortform_internal_platform.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 
 /// 통합 광고 서비스
@@ -34,6 +35,12 @@ class AdService {
       'pangle': PanglePlatform(ref, context, 'pangle', animationController),
       'tapjoy': TapjoyPlatform(ref, context, 'tapjoy', animationController),
       'pincrux': PincruxPlatform(ref, context, 'pincrux', animationController),
+      'internal-shortform': ShortformInternalPlatform(
+        ref,
+        context,
+        'internal',
+        animationController,
+      ),
     };
   }
 
@@ -64,8 +71,9 @@ class AdService {
 
     // 병렬로 모든 초기화 진행
     await Future.wait(futures);
-    logger
-        .i('Available ad platforms initialized: ${availablePlatforms.length}');
+    logger.i(
+      'Available ad platforms initialized: ${availablePlatforms.length}',
+    );
     _initialized = true;
   }
 
@@ -101,6 +109,10 @@ class AdService {
             Environment.pincruxIosAppKey!.isNotEmpty &&
             Environment.pincruxAndroidAppKey != null &&
             Environment.pincruxAndroidAppKey!.isNotEmpty;
+      case 'internal-shortform':
+        // POC: Supabase URL/Anon 키가 존재하면 노출
+        return Environment.supabaseUrl.isNotEmpty &&
+            Environment.supabaseAnonKey.isNotEmpty;
       default:
         return false;
     }

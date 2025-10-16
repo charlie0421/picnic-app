@@ -1492,6 +1492,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get qna_status_resolved => 'Resolved';
+
+  @override
+  String get ad_close_confirm_title => '要关闭广告吗？';
+
+  @override
+  String get ad_close_confirm_message => '现在关闭将无法获得奖励。确定要关闭吗？';
+
+  @override
+  String get ad_more_info_button => '了解更多';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -2919,6 +2928,15 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get qna_status_resolved => '已解决';
+
+  @override
+  String get ad_close_confirm_title => '要关闭广告吗？';
+
+  @override
+  String get ad_close_confirm_message => '现在关闭将无法获得奖励。确定要关闭吗？';
+
+  @override
+  String get ad_more_info_button => '了解更多';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4345,4 +4363,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get qna_status_resolved => '已解決';
+
+  @override
+  String get ad_close_confirm_title => '要關閉廣告嗎？';
+
+  @override
+  String get ad_close_confirm_message => '現在關閉將無法獲得獎勵。確定要關閉嗎？';
+
+  @override
+  String get ad_more_info_button => '更多資訊';
 }

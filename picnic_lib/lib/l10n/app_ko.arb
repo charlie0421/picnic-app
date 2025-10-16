@@ -2045,4 +2045,11 @@
   "@qna_category_required": {
     "description": "QnA 카테고리 필수 선택 에러 메시지"
   }
+  ,
+  "ad_close_confirm_title": "광고를 닫을까요?",
+  "@ad_close_confirm_title": {"description": "광고 닫기 확인 다이얼로그 제목"},
+  "ad_close_confirm_message": "닫으면 보너스 지급이 되지 않습니다. 정말 닫겠습니까?",
+  "@ad_close_confirm_message": {"description": "광고 닫기 확인 다이얼로그 메시지"},
+  "ad_more_info_button": "더보기",
+  "@ad_more_info_button": {"description": "광고 종료 후 CTA 버튼"}
 }

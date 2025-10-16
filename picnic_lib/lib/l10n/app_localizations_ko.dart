@@ -1430,4 +1430,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get qna_status_resolved => '해결됨';
+
+  @override
+  String get ad_close_confirm_title => '광고를 닫을까요?';
+
+  @override
+  String get ad_close_confirm_message => '닫으면 보너스 지급이 되지 않습니다. 정말 닫겠습니까?';
+
+  @override
+  String get ad_more_info_button => '더보기';
 }

@@ -1948,4 +1948,11 @@
   "@qna_category_label": {"description": "QnA category label"},
   "qna_category_required": "カテゴリを選択してください",
   "@qna_category_required": {"description": "Error message when category is required"}
+  ,
+  "ad_close_confirm_title": "広告を閉じますか？",
+  "@ad_close_confirm_title": {"description": "広告を閉じる確認ダイアログのタイトル"},
+  "ad_close_confirm_message": "今閉じるとボーナスは付与されません。本当に閉じますか？",
+  "@ad_close_confirm_message": {"description": "広告を閉じる確認ダイアログのメッセージ"},
+  "ad_more_info_button": "詳細",
+  "@ad_more_info_button": {"description": "広告終了後のCTAボタン"}
 }

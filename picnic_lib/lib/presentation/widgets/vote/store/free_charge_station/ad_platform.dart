@@ -137,27 +137,41 @@ abstract class AdPlatform {
     if (!context.mounted || isDisposed) return false;
 
     try {
-      final response = await supabase.functions.invoke(
+      logInfo('checkAdsLimit request start: platform=$platform');
+      final resp = await supabase.functions.invoke(
         'check-ads-count?platform=$platform',
       );
       if (!context.mounted || isDisposed) return false;
 
-      logger.i('checkAdsLimit response: ${response.data}');
+      final status = (resp as dynamic).status;
+      logInfo('checkAdsLimit response status: $status');
+      logInfo('checkAdsLimit raw: ${resp.data}');
 
-      final allowed = response.data['allowed'] as bool?;
+      // 상태코드 4xx/5xx 로깅
+      if (status is int && status >= 400) {
+        logWarning('checkAdsLimit http error status: $status');
+      }
+
+      final data = (resp.data as Map?) ?? const {};
+      final allowed = data['allowed'] == true;
+
       if (allowed != true) {
-        final limits =
-            (response.data['limits'] as Map<String, dynamic>)[platform]
-                as Map<String, dynamic>;
-        _handleExceededAdsLimit(response.data['nextAvailableTime'], {
-          'hourly': limits['hourly'] as int,
-          'daily': limits['daily'] as int,
+        // limits 안전 파싱
+        final limitsMap = (data['limits'] as Map?) ?? const {};
+        final platformLimits = (limitsMap[platform] as Map?) ?? const {};
+        final hourly = (platformLimits['hourly'] as num?)?.toInt() ?? 10;
+        final daily = (platformLimits['daily'] as num?)?.toInt() ?? 50;
+        final nextAvailableTime = data['nextAvailableTime'] as String?;
+
+        _handleExceededAdsLimit(nextAvailableTime, {
+          'hourly': hourly,
+          'daily': daily,
         });
         return false;
       }
       return true;
     } catch (e, s) {
-      logger.e('Error in checkAdsLimit', error: e, stackTrace: s);
+      logError('Error in checkAdsLimit', error: e, stackTrace: s);
       if (context.mounted && !isDisposed) {
         showSimpleDialog(
           content: AppLocalizations.of(context).label_ads_load_fail,
@@ -173,9 +187,17 @@ abstract class AdPlatform {
     String? nextAvailableTimeStr,
     Map<String, int>? limits,
   ) {
-    if (nextAvailableTimeStr == null || !context.mounted || isDisposed) return;
+    if (!context.mounted || isDisposed) return;
 
-    final nextAvailableTime = DateTime.parse(nextAvailableTimeStr).toLocal();
+    DateTime? nextAvailableTime;
+    if (nextAvailableTimeStr != null) {
+      try {
+        nextAvailableTime = DateTime.parse(nextAvailableTimeStr).toLocal();
+      } catch (_) {
+        nextAvailableTime = null;
+      }
+    }
+
     final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
 
     showSimpleDialog(
@@ -188,24 +210,27 @@ abstract class AdPlatform {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          UnderlinedText(
-            text: AppLocalizations.of(context).label_ads_limits(
-              (limits?['hourly'] as num?)?.toInt() ?? 0,
-              (limits?['daily'] as num?)?.toInt() ?? 0,
+          if (limits != null)
+            UnderlinedText(
+              text: AppLocalizations.of(context).label_ads_limits(
+                (limits['hourly'] as num?)?.toInt() ?? 0,
+                (limits['daily'] as num?)?.toInt() ?? 0,
+              ),
+              textStyle: getTextStyle(AppTypo.body14M, AppColors.grey600),
             ),
-            textStyle: getTextStyle(AppTypo.body14M, AppColors.grey600),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            AppLocalizations.of(context).ads_available_time,
-            style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            formatter.format(nextAvailableTime),
-            style: getTextStyle(AppTypo.caption12B, AppColors.grey600),
-            textAlign: TextAlign.center,
-          ),
+          if (nextAvailableTime != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(context).ads_available_time,
+              style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              formatter.format(nextAvailableTime),
+              style: getTextStyle(AppTypo.caption12B, AppColors.grey600),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
     );

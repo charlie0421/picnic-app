@@ -1,7 +1,1 @@
-enum AdPlatformType {
-  admob,
-  unity,
-  pangle,
-  tapjoy,
-  pincrux,
-}
+enum AdPlatformType { admob, unity, pangle, tapjoy, pincrux, custom }

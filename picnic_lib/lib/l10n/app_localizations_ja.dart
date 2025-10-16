@@ -1431,4 +1431,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get qna_status_resolved => '解決済み';
+
+  @override
+  String get ad_close_confirm_title => '広告を閉じますか？';
+
+  @override
+  String get ad_close_confirm_message => '今閉じるとボーナスは付与されません。本当に閉じますか？';
+
+  @override
+  String get ad_more_info_button => '詳細';
 }

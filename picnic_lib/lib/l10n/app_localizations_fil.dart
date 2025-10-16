@@ -1530,4 +1530,14 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get qna_status_resolved => 'Nalutas';
+
+  @override
+  String get ad_close_confirm_title => 'Isara ang ad?';
+
+  @override
+  String get ad_close_confirm_message =>
+      'Kapag isinara ngayon, hindi matatanggap ang bonus. Sigurado ka bang isasara?';
+
+  @override
+  String get ad_more_info_button => 'Karagdagang Impormasyon';
 }

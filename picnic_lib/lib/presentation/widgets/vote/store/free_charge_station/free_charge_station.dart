@@ -124,10 +124,11 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     logger.i('showPincruxOfferwall');
     try {
       PincruxOfferwallPlugin.init(
-          Platform.isIOS
-              ? Environment.pincruxIosAppKey
-              : Environment.pincruxAndroidAppKey,
-          supabase.auth.currentUser!.id);
+        Platform.isIOS
+            ? Environment.pincruxIosAppKey
+            : Environment.pincruxAndroidAppKey,
+        supabase.auth.currentUser!.id,
+      );
       PincruxOfferwallPlugin.setOfferwallType(1);
       PincruxOfferwallPlugin.startPincruxOfferwall();
     } catch (e, s) {
@@ -142,28 +143,32 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     final items = <ChargeStationItem>[];
 
     if (_adService.isPlatformAvailable('tapjoy')) {
-      items.add(ChargeStationItem(
-        id: 'tapjoy',
-        title:
-            '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
-        isMission: true,
-        platformType: AdPlatformType.tapjoy,
-        onPressed: () => _adService.getPlatform('tapjoy')?.showAd(),
-        bonusText: AppLocalizations.of(context).label_unlimited_rewards,
-      ));
+      items.add(
+        ChargeStationItem(
+          id: 'tapjoy',
+          title:
+              '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
+          isMission: true,
+          platformType: AdPlatformType.tapjoy,
+          onPressed: () => _adService.getPlatform('tapjoy')?.showAd(),
+          bonusText: AppLocalizations.of(context).label_unlimited_rewards,
+        ),
+      );
       globalIndex++;
     }
 
     if (_adService.isPlatformAvailable('pincrux')) {
-      items.add(ChargeStationItem(
-        id: 'pincrux',
-        title:
-            '${AppLocalizations.of(context).label_korean_recommendation} #${koreaIndex + 1}',
-        isMission: true,
-        platformType: AdPlatformType.pincrux,
-        onPressed: () => _adService.getPlatform('pincrux')?.showAd(),
-        bonusText: AppLocalizations.of(context).label_unlimited_rewards,
-      ));
+      items.add(
+        ChargeStationItem(
+          id: 'pincrux',
+          title:
+              '${AppLocalizations.of(context).label_korean_recommendation} #${koreaIndex + 1}',
+          isMission: true,
+          platformType: AdPlatformType.pincrux,
+          onPressed: () => _adService.getPlatform('pincrux')?.showAd(),
+          bonusText: AppLocalizations.of(context).label_unlimited_rewards,
+        ),
+      );
       globalIndex++;
     }
 
@@ -176,44 +181,107 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     var asiaIndex = 0;
     final items = <ChargeStationItem>[];
 
-    if (_adService.isPlatformAvailable('admob')) {
-      items.add(ChargeStationItem(
-        id: 'admob',
+    // 글로벌 픽 #2에 내부 숏폼 광고 버튼 배치
+    if (_adService.isPlatformAvailable('internal-shortform')) {
+      // 글로벌 픽 #1 자리는 기존 순서를 유지하고, #2 자리를 내부광고로
+      final internalItem = ChargeStationItem(
+        id: 'internal-shortform',
         title:
-            '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
+            '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 2}',
         isMission: false,
-        platformType: AdPlatformType.admob,
-        index: 0,
-        onPressed: () => _adService.getPlatform('admob')?.showAd(),
+        platformType: AdPlatformType.custom,
+        onPressed: () => _adService.getPlatform('internal-shortform')?.showAd(),
         bonusText: '1',
-      ));
+      );
+      // 임시로 뒤에서 추가 후 재정렬: 먼저 기존 글로벌 #1을 채운 다음 삽입
+      // 실제 순서 보장은 아래 기존 플랫폼 추가 로직 이후에 배열 재배치로 처리
+      // (간단히 마지막에 위치를 정리)
+      items.add(internalItem);
+    }
+
+    if (_adService.isPlatformAvailable('admob')) {
+      items.add(
+        ChargeStationItem(
+          id: 'admob',
+          title:
+              '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
+          isMission: false,
+          platformType: AdPlatformType.admob,
+          index: 0,
+          onPressed: () => _adService.getPlatform('admob')?.showAd(),
+          bonusText: '1',
+        ),
+      );
       globalIndex++;
     }
 
     if (_adService.isPlatformAvailable('unity')) {
-      items.add(ChargeStationItem(
-        id: 'unity',
-        title:
-            '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
-        isMission: false,
-        platformType: AdPlatformType.unity,
-        onPressed: () => _adService.getPlatform('unity')?.showAd(),
-        bonusText: '1',
-      ));
+      items.add(
+        ChargeStationItem(
+          id: 'unity',
+          title:
+              '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
+          isMission: false,
+          platformType: AdPlatformType.unity,
+          onPressed: () => _adService.getPlatform('unity')?.showAd(),
+          bonusText: '1',
+        ),
+      );
       globalIndex++;
     }
 
     if (_adService.isPlatformAvailable('pangle')) {
-      items.add(ChargeStationItem(
-        id: 'pangle',
-        title:
-            '${AppLocalizations.of(context).label_asia_recommendation} #${asiaIndex + 1}',
-        isMission: false,
-        platformType: AdPlatformType.pangle,
-        onPressed: () => _adService.getPlatform('pangle')?.showAd(),
-        bonusText: '1',
-      ));
+      items.add(
+        ChargeStationItem(
+          id: 'pangle',
+          title:
+              '${AppLocalizations.of(context).label_asia_recommendation} #${asiaIndex + 1}',
+          isMission: false,
+          platformType: AdPlatformType.pangle,
+          onPressed: () => _adService.getPlatform('pangle')?.showAd(),
+          bonusText: '1',
+        ),
+      );
       asiaIndex++;
+    }
+
+    // 재정렬: 내부 숏폼을 글로벌 #2로, 기존 글로벌 #2(있다면) → #3로 숨김 처리
+    // 간단 구현: 글로벌 추천들만 추출해 내부 숏폼을 2번째 위치로 이동하고, 3번째 항목은 제거
+    final globalItems = <int>[]; // 인덱스 목록
+    for (var i = 0; i < items.length; i++) {
+      final t = items[i].title;
+      if (t.contains(
+        AppLocalizations.of(context).label_global_recommendation,
+      )) {
+        globalItems.add(i);
+      }
+    }
+    // 내부 숏폼 찾기
+    final internalIdx = items.indexWhere((x) => x.id == 'internal-shortform');
+    if (internalIdx != -1) {
+      // 글로벌 #2 목표 위치 계산
+      int targetPos = -1;
+      if (globalItems.isNotEmpty) {
+        // #1 다음 위치를 찾음
+        final firstGlobal = globalItems.first;
+        targetPos = (firstGlobal + 1 <= items.length)
+            ? firstGlobal + 1
+            : items.length;
+      } else {
+        targetPos = 0;
+      }
+      final internalItem = items.removeAt(internalIdx);
+      items.insert(targetPos, internalItem);
+      // 기존 글로벌 #2(새 위치 기준 #2 다음)의 항목이 있다면 한 개 제거(보이지 않게)
+      // targetPos+1이 유효하고 글로벌 추천이면 제거
+      if (targetPos + 1 < items.length) {
+        final nextItem = items[targetPos + 1];
+        if (nextItem.title.contains(
+          AppLocalizations.of(context).label_global_recommendation,
+        )) {
+          items.removeAt(targetPos + 1);
+        }
+      }
     }
 
     return items;

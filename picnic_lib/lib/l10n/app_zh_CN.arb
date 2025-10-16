@@ -1895,4 +1895,11 @@
   "@qna_status_resolved": {
     "description": "QnA status when resolved/closed"
   }
+  ,
+  "ad_close_confirm_title": "要关闭广告吗？",
+  "@ad_close_confirm_title": {"description": "关闭广告确认对话框标题(简体)"},
+  "ad_close_confirm_message": "现在关闭将无法获得奖励。确定要关闭吗？",
+  "@ad_close_confirm_message": {"description": "关闭广告确认对话框消息(简体)"},
+  "ad_more_info_button": "了解更多",
+  "@ad_more_info_button": {"description": "广告结束后的CTA按钮(简体)"}
 }

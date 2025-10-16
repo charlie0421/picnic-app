@@ -1899,4 +1899,11 @@
   "@qna_status_resolved": {
     "description": "QnA status when resolved/closed"
   }
+  ,
+  "ad_close_confirm_title": "Close the ad?",
+  "@ad_close_confirm_title": {"description": "Title for closing ad confirmation dialog"},
+  "ad_close_confirm_message": "Closing now will not grant the bonus reward. Are you sure you want to close?",
+  "@ad_close_confirm_message": {"description": "Message for closing ad confirmation dialog"},
+  "ad_more_info_button": "More Info",
+  "@ad_more_info_button": {"description": "CTA button after ad finished"}
 }

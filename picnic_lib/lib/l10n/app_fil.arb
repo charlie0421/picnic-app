@@ -1892,4 +1892,11 @@
   "@qna_category_label": {"description": "QnA category label"},
   "qna_category_required": "Pumili ng kategorya",
   "@qna_category_required": {"description": "Error message when category is required"}
+  ,
+  "ad_close_confirm_title": "Isara ang ad?",
+  "@ad_close_confirm_title": {"description": "Pamagat ng dialog para sa pagsasara ng ad"},
+  "ad_close_confirm_message": "Kapag isinara ngayon, hindi matatanggap ang bonus. Sigurado ka bang isasara?",
+  "@ad_close_confirm_message": {"description": "Mensahe ng dialog para sa pagsasara ng ad"},
+  "ad_more_info_button": "Karagdagang Impormasyon",
+  "@ad_more_info_button": {"description": "CTA button pagkatapos ng ad"}
 }

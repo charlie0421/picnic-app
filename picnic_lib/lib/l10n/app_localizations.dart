@@ -2852,6 +2852,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Resolved'**
   String get qna_status_resolved;
+
+  /// Title for closing ad confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Close the ad?'**
+  String get ad_close_confirm_title;
+
+  /// Message for closing ad confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Closing now will not grant the bonus reward. Are you sure you want to close?'**
+  String get ad_close_confirm_message;
+
+  /// CTA button after ad finished
+  ///
+  /// In en, this message translates to:
+  /// **'More Info'**
+  String get ad_more_info_button;
 }
 
 class _AppLocalizationsDelegate

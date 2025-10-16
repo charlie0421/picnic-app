@@ -1500,4 +1500,14 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_status_resolved => 'Selesai';
+
+  @override
+  String get ad_close_confirm_title => 'Tutup iklan?';
+
+  @override
+  String get ad_close_confirm_message =>
+      'Jika ditutup sekarang, bonus tidak akan diberikan. Tetap tutup?';
+
+  @override
+  String get ad_more_info_button => 'Selengkapnya';
 }
