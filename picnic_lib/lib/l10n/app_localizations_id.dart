@@ -1510,4 +1510,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get ad_more_info_button => 'Selengkapnya';
+
+  @override
+  String get ad_reward_success_message => 'Hadiah telah dikreditkan.';
 }

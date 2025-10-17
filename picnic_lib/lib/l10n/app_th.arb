@@ -1886,17 +1886,17 @@
   "qna_status_resolved": "แก้ไขแล้ว",
   "@qna_status_resolved": {
     "description": "QnA status when resolved/closed"
-  }
-,
+  },
   "qna_category_label": "หมวดหมู่",
   "@qna_category_label": {"description": "QnA category label"},
   "qna_category_required": "โปรดเลือกหมวดหมู่",
-  "@qna_category_required": {"description": "Error message when category is required"}
-  ,
+  "@qna_category_required": {"description": "Error message when category is required"},
   "ad_close_confirm_title": "ปิดโฆษณาหรือไม่?",
   "@ad_close_confirm_title": {"description": "หัวข้อกล่องยืนยันการปิดโฆษณา"},
   "ad_close_confirm_message": "หากปิดตอนนี้จะไม่ได้รับโบนัส ยืนยันที่จะปิดหรือไม่?",
   "@ad_close_confirm_message": {"description": "ข้อความยืนยันการปิดโฆษณา"},
   "ad_more_info_button": "ดูเพิ่มเติม",
-  "@ad_more_info_button": {"description": "ปุ่ม CTA หลังจบโฆษณา"}
+  "@ad_more_info_button": {"description": "ปุ่ม CTA หลังจบโฆษณา"},
+  "ad_reward_success_message": "เพิ่มรางวัลเรียบร้อยแล้ว",
+  "@ad_reward_success_message": {"description": "ข้อความสำเร็จเมื่อให้รางวัลจากโฆษณา"}
 }

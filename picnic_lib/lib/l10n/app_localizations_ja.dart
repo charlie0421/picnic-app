@@ -1113,10 +1113,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_load_fail_title => 'お問い合わせの読み込みに失敗しました';
 
   @override
-  String get qna_category_label => 'カテゴリ';
+  String get qna_category_label => 'Category';
 
   @override
-  String get qna_category_required => 'カテゴリを選択してください';
+  String get qna_category_required => 'Please select a category';
 
   @override
   String get qna_message_hint => 'メッセージを入力';
@@ -1433,11 +1433,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_status_resolved => '解決済み';
 
   @override
-  String get ad_close_confirm_title => '広告を閉じますか？';
+  String get ad_close_confirm_title => 'Close the ad?';
 
   @override
-  String get ad_close_confirm_message => '今閉じるとボーナスは付与されません。本当に閉じますか？';
+  String get ad_close_confirm_message =>
+      'Closing now will not grant the bonus reward. Are you sure you want to close?';
 
   @override
-  String get ad_more_info_button => '詳細';
+  String get ad_more_info_button => 'More Info';
+
+  @override
+  String get ad_reward_success_message => '報酬が付与されました。';
 }

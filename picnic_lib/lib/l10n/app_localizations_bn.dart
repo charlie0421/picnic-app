@@ -1502,6 +1502,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get ad_more_info_button => 'আরও জানুন';
+
+  @override
+  String get ad_reward_success_message => 'পুরস্কার ক্রেডিট করা হয়েছে।';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -3002,4 +3005,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get ad_more_info_button => 'আরও জানুন';
+
+  @override
+  String get ad_reward_success_message => 'পুরস্কার ক্রেডিট করা হয়েছে।';
 }

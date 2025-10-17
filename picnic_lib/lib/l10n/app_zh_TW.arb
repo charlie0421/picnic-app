@@ -1894,12 +1894,13 @@
   "qna_status_resolved": "已解決",
   "@qna_status_resolved": {
     "description": "QnA status when resolved/closed"
-  }
-  ,
+  },
   "ad_close_confirm_title": "要關閉廣告嗎？",
   "@ad_close_confirm_title": {"description": "關閉廣告確認對話框標題(繁體)"},
   "ad_close_confirm_message": "現在關閉將無法獲得獎勵。確定要關閉嗎？",
   "@ad_close_confirm_message": {"description": "關閉廣告確認對話框訊息(繁體)"},
   "ad_more_info_button": "更多資訊",
-  "@ad_more_info_button": {"description": "廣告結束後的CTA按鈕(繁體)"}
+  "@ad_more_info_button": {"description": "廣告結束後的CTA按鈕(繁體)"},
+  "ad_reward_success_message": "獎勵已發放。",
+  "@ad_reward_success_message": {"description": "廣告觀看獎勵成功訊息(繁體)"}
 }

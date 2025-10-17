@@ -1942,17 +1942,17 @@
   "qna_status_resolved": "Selesai",
   "@qna_status_resolved": {
     "description": "QnA status when resolved/closed"
-  }
-,
+  },
   "qna_category_label": "Kategori",
   "@qna_category_label": {"description": "QnA category label"},
   "qna_category_required": "Silakan pilih kategori",
-  "@qna_category_required": {"description": "Error message when category is required"}
-  ,
+  "@qna_category_required": {"description": "Error message when category is required"},
   "ad_close_confirm_title": "Tutup iklan?",
   "@ad_close_confirm_title": {"description": "Judul dialog konfirmasi menutup iklan"},
   "ad_close_confirm_message": "Jika ditutup sekarang, bonus tidak akan diberikan. Tetap tutup?",
   "@ad_close_confirm_message": {"description": "Pesan dialog konfirmasi menutup iklan"},
   "ad_more_info_button": "Selengkapnya",
-  "@ad_more_info_button": {"description": "Tombol CTA setelah iklan selesai"}
+  "@ad_more_info_button": {"description": "Tombol CTA setelah iklan selesai"},
+  "ad_reward_success_message": "Hadiah telah dikreditkan.",
+  "@ad_reward_success_message": {"description": "Pesan sukses saat kredit hadiah iklan"}
 }

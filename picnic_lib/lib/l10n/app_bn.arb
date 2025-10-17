@@ -6,7 +6,9 @@
   "ad_close_confirm_message": "এখন বন্ধ করলে বোনাস পাওয়া যাবে না। আপনি কি সত্যিই বন্ধ করতে চান?",
   "@ad_close_confirm_message": {"description": "বিজ্ঞাপন বন্ধের নিশ্চিতকরণ বার্তা"},
   "ad_more_info_button": "আরও জানুন",
-  "@ad_more_info_button": {"description": "বিজ্ঞাপন শেষ হলে CTA বাটন"}
+  "@ad_more_info_button": {"description": "বিজ্ঞাপন শেষ হলে CTA বাটন"},
+  "ad_reward_success_message": "পুরস্কার ক্রেডিট করা হয়েছে।",
+  "@ad_reward_success_message": {"description": "বিজ্ঞাপন দেখার পুরস্কার সফলতার বার্তা"}
 }
 
  

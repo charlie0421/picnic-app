@@ -13,6 +13,7 @@ import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CommonBanner extends ConsumerStatefulWidget {
@@ -64,9 +65,18 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
     final isGif = imageUrl.toLowerCase().endsWith('.gif');
 
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (item.link != null) {
-          AppInitializer.handleDeepLink(ref, item.link!);
+          try {
+            final uri = Uri.parse(item.link!);
+            if (uri.scheme == 'http' || uri.scheme == 'https') {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            } else {
+              AppInitializer.handleDeepLink(ref, item.link!);
+            }
+          } catch (_) {
+            AppInitializer.handleDeepLink(ref, item.link!);
+          }
         }
       },
       child: Stack(
@@ -101,8 +111,10 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
                 color: Colors.black.withValues(alpha: 0.5),
                 child: Text(
                   title,
-                  style: getTextStyle(AppTypo.body14R, Colors.white)
-                      .copyWith(overflow: TextOverflow.ellipsis),
+                  style: getTextStyle(
+                    AppTypo.body14R,
+                    Colors.white,
+                  ).copyWith(overflow: TextOverflow.ellipsis),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -114,8 +126,9 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncBannerListState =
-        ref.watch(asyncBannerListProvider(location: widget.location));
+    final asyncBannerListState = ref.watch(
+      asyncBannerListProvider(location: widget.location),
+    );
     final width = ref.watch(globalMediaQueryProvider).size.width;
 
     return asyncBannerListState.when(
@@ -170,10 +183,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
           children: [
             AspectRatio(
               aspectRatio: widget.aspectRatio,
-              child: Container(
-                width: width,
-                color: Colors.white,
-              ),
+              child: Container(width: width, color: Colors.white),
             ),
             const SizedBox(height: 20),
             Row(
@@ -194,8 +204,11 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
           ],
         ),
       ),
-      error: (error, stackTrace) => buildErrorView(context,
-          error: error.toString(), stackTrace: stackTrace),
+      error: (error, stackTrace) => buildErrorView(
+        context,
+        error: error.toString(),
+        stackTrace: stackTrace,
+      ),
     );
   }
 }

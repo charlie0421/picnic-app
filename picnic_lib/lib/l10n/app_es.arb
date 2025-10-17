@@ -1886,17 +1886,17 @@
   "qna_status_resolved": "Resuelto",
   "@qna_status_resolved": {
     "description": "QnA status when resolved/closed"
-  }
-,
+  },
   "qna_category_label": "Categoría",
   "@qna_category_label": {"description": "QnA category label"},
   "qna_category_required": "Seleccione una categoría",
-  "@qna_category_required": {"description": "Error message when category is required"}
-  ,
+  "@qna_category_required": {"description": "Error message when category is required"},
   "ad_close_confirm_title": "¿Cerrar el anuncio?",
   "@ad_close_confirm_title": {"description": "Título del diálogo de confirmación de cierre de anuncio"},
   "ad_close_confirm_message": "Si cierras ahora no recibirás la bonificación. ¿Seguro que quieres cerrar?",
   "@ad_close_confirm_message": {"description": "Mensaje del diálogo de confirmación de cierre de anuncio"},
   "ad_more_info_button": "Más información",
-  "@ad_more_info_button": {"description": "Botón CTA después de terminar el anuncio"}
+  "@ad_more_info_button": {"description": "Botón CTA después de terminar el anuncio"},
+  "ad_reward_success_message": "Recompensa acreditada.",
+  "@ad_reward_success_message": {"description": "Mensaje de éxito al acreditar la recompensa del anuncio"}
 }

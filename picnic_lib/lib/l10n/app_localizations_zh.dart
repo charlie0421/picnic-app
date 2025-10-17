@@ -1501,6 +1501,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ad_more_info_button => '了解更多';
+
+  @override
+  String get ad_reward_success_message => '奖励已发放。';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -2937,6 +2940,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get ad_more_info_button => '了解更多';
+
+  @override
+  String get ad_reward_success_message => '奖励已发放。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4372,4 +4378,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get ad_more_info_button => '更多資訊';
+
+  @override
+  String get ad_reward_success_message => '獎勵已發放。';
 }

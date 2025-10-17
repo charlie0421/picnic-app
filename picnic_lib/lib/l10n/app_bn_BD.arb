@@ -1886,8 +1886,7 @@
   "qna_status_resolved": "সমাধান সম্পন্ন",
   "@qna_status_resolved": {
     "description": "QnA status when resolved/closed"
-  }
-,
+  },
   "qna_category_label": "বিভাগ",
   "@qna_category_label": {"description": "QnA category label"},
   "qna_category_required": "অনুগ্রহ করে বিভাগ নির্বাচন করুন",
@@ -1898,5 +1897,7 @@
   "ad_close_confirm_message": "এখন বন্ধ করলে বোনাস পাওয়া যাবে না। আপনি কি নিশ্চিত?",
   "@ad_close_confirm_message": {"description": "বিজ্ঞাপন বন্ধের নিশ্চিতকরণ বার্তা (BD)"},
   "ad_more_info_button": "আরও জানুন",
-  "@ad_more_info_button": {"description": "বিজ্ঞাপন শেষ হলে CTA বাটন (BD)"}
+  "@ad_more_info_button": {"description": "বিজ্ঞাপন শেষ হলে CTA বাটন (BD)"},
+  "ad_reward_success_message": "পুরস্কার ক্রেডিট করা হয়েছে।",
+  "@ad_reward_success_message": {"description": "বিজ্ঞাপন দেখার পুরস্কার সফলতার বার্তা (BD)"}
 }

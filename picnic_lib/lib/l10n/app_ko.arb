@@ -2051,5 +2051,7 @@
   "ad_close_confirm_message": "닫으면 보너스 지급이 되지 않습니다. 정말 닫겠습니까?",
   "@ad_close_confirm_message": {"description": "광고 닫기 확인 다이얼로그 메시지"},
   "ad_more_info_button": "더보기",
-  "@ad_more_info_button": {"description": "광고 종료 후 CTA 버튼"}
+  "@ad_more_info_button": {"description": "광고 종료 후 CTA 버튼"},
+  "ad_reward_success_message": "적립되었습니다.",
+  "@ad_reward_success_message": {"description": "광고 시청 적립 완료 메시지"}
 }

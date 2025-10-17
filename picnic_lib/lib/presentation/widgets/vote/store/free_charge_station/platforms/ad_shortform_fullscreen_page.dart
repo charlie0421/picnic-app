@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:picnic_lib/ui/style.dart';
 import 'package:video_player/video_player.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class AdShortformFullscreenPage extends StatefulWidget {
   final String videoUrl;
@@ -33,6 +34,7 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
   VideoPlayerController? _controller;
   bool _viewReported = false;
   bool _loading = true;
+  bool _rewarding = false;
   String? _resolvedVideoUrl;
   String? _resolvedCtaUrl;
   bool _ctaRevealStarted =
@@ -68,10 +70,11 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
       if (!mounted) return;
       await _initPlayer(_resolvedVideoUrl!);
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _loading = false;
         });
+      }
     }
   }
 
@@ -104,7 +107,58 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
         });
       }
     }
-    // 재생 완료 시 자동 적립 호출 제거 (닫기/More 시점에서만 적립)
+    // 재생 완료 시 자동 적립 시작 (중복 방지)
+    if (value.isInitialized &&
+        value.position >=
+            (value.duration - const Duration(milliseconds: 150)) &&
+        !_viewReported &&
+        !_rewarding) {
+      _startReward();
+    }
+  }
+
+  Future<void> _startReward() async {
+    if (_rewarding || _viewReported) return;
+    setState(() {
+      _rewarding = true;
+    });
+    _loadingOverlayKey.currentState?.show();
+    var success = false;
+    try {
+      await widget.onViewComplete();
+      success = true;
+      if (mounted) {
+        setState(() {
+          _viewReported = true;
+        });
+      }
+    } catch (_) {
+      // 보상 실패 시 추가 안내 없이 진행
+    } finally {
+      _loadingOverlayKey.currentState?.hide();
+      if (mounted) {
+        setState(() {
+          _rewarding = false;
+        });
+      }
+    }
+    if (success && mounted) {
+      showSimpleDialog(
+        // 국제화된 성공 메시지 사용, 버튼 없음
+        content: AppLocalizations.of(context).ad_reward_success_message,
+      );
+    }
+  }
+
+  Widget _buildPulseOverlay(bool visible) {
+    return IgnorePointer(
+      ignoring: true,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 150),
+        opacity: visible ? 1.0 : 0.0,
+        child: const Center(child: MediumPulseLoadingIndicator()),
+      ),
+    );
   }
 
   Future<void> _handleClosePressed() async {
@@ -116,35 +170,6 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
         v.position >= v.duration;
     if (canClose) {
       debugPrint('[internal] close pressed (finished=true)');
-      // 재생 종료 후 닫기: 기본 보상 보장 + 성공 안내 후 닫기
-      if (!_viewReported) {
-        _viewReported = true;
-        debugPrint('[internal] ensuring view reward before close');
-        try {
-          _loadingOverlayKey.currentState?.show();
-          await widget.onViewComplete();
-          showSimpleDialog(
-            title: '',
-            content: '적립 되었습니다.',
-            onCancel: () {
-              final ctx = navigatorKey.currentContext;
-              if (ctx != null && ctx.mounted) Navigator.of(ctx).pop();
-              if (mounted) Navigator.of(context).maybePop();
-            },
-            onOk: () {
-              final ctx = navigatorKey.currentContext;
-              if (ctx != null && ctx.mounted) Navigator.of(ctx).pop();
-              if (mounted) Navigator.of(context).maybePop();
-            },
-          );
-          return;
-        } catch (_) {
-          // 실패 시에는 안내 없이 닫기
-          debugPrint('[internal] view reward failed on close; closing route');
-        } finally {
-          _loadingOverlayKey.currentState?.hide();
-        }
-      }
       debugPrint('[internal] closing route');
       if (mounted) Navigator.of(context).maybePop();
       return;
@@ -221,7 +246,7 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                     ? const SizedBox.shrink()
                     : ValueListenableBuilder(
                         valueListenable: ctrl,
-                        builder: (_, __, ___) {
+                        builder: (_, _, _) {
                           final size = ctrl.value.size;
                           final vw = size.width == 0 ? 16.0 : size.width;
                           final vh = size.height == 0 ? 9.0 : size.height;
@@ -239,52 +264,39 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
 
               // 로더
               Positioned.fill(
-                child: (ctrl == null || _loading)
-                    ? const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      )
+                child: ctrl == null
+                    ? _buildPulseOverlay(true)
                     : ValueListenableBuilder(
                         valueListenable: ctrl,
-                        builder: (_, __, ___) {
+                        builder: (_, _, _) {
                           final v = ctrl.value;
-                          final isFinished =
+                          final finished =
                               v.isInitialized &&
+                              !v.isBuffering &&
                               v.position >=
                                   (v.duration -
                                       const Duration(milliseconds: 150));
-                          final isPlayingSmooth =
-                              v.isInitialized && v.isPlaying && !v.isBuffering;
-                          final showLoader =
+                          final show =
+                              _loading ||
                               !v.isInitialized ||
-                              (v.isBuffering && !isFinished) ||
-                              (!isPlayingSmooth && v.position == Duration.zero);
-                          return IgnorePointer(
-                            ignoring: true,
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 150),
-                              opacity: showLoader ? 1.0 : 0.0,
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          );
+                              (v.isBuffering && !finished) ||
+                              (!(v.isPlaying) && v.position == Duration.zero);
+                          return _buildPulseOverlay(show);
                         },
                       ),
               ),
 
               // 닫기 + 카운트다운 (우상단, SafeArea 패딩 수동 적용)
               Positioned(
-                top: pad.top,
-                right: 12,
+                top: pad.top - 12,
+                right: 24,
                 child: ctrl == null
                     ? const SizedBox.shrink()
                     : ValueListenableBuilder(
                         valueListenable: ctrl,
-                        builder: (_, __, ___) {
+                        builder: (_, _, _) {
                           final v = ctrl.value;
-                          final canClose =
+                          final finished =
                               v.isInitialized &&
                               !v.isBuffering &&
                               v.position >= v.duration;
@@ -292,58 +304,64 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                               ? (v.duration - v.position).inSeconds
                               : 0;
                           final showCountdown =
-                              !canClose && remaining > 0 && remaining <= 5;
+                              !finished && remaining > 0 && remaining <= 5;
+                          final canCloseNow =
+                              finished && _viewReported && !_rewarding;
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (showCountdown)
                                 AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 420),
+                                  duration: const Duration(milliseconds: 1000),
                                   switchInCurve: Curves.easeOutBack,
                                   switchOutCurve: Curves.easeOutBack,
                                   transitionBuilder: (child, anim) =>
                                       FadeTransition(
                                         opacity: anim,
-                                        child: ScaleTransition(
-                                          scale: Tween<double>(
-                                            begin: 0.8,
-                                            end: 1.0,
-                                          ).animate(anim),
-                                          child: child,
-                                        ),
+                                        child: child,
                                       ),
                                   child: Container(
                                     key: ValueKey<int>(remaining),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
+                                    width: 24,
+                                    height: 24,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.95),
-                                      borderRadius: BorderRadius.circular(14),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 8,
-                                        ),
-                                      ],
+                                      color: AppColors.grey500,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: AppColors.grey500,
+                                      ),
                                     ),
-                                    child: Text(
-                                      '$remaining',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
+                                    child: Center(
+                                      child: Text(
+                                        '$remaining',
+                                        style: getTextStyle(
+                                          AppTypo.caption10SB,
+                                          AppColors.grey300,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               const SizedBox(width: 8),
-                              IconButton(
-                                onPressed: _handleClosePressed,
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Colors.white,
+                              GestureDetector(
+                                onTap: finished
+                                    ? (canCloseNow ? _handleClosePressed : null)
+                                    : _handleClosePressed,
+                                child: Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.grey300,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.grey500,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.close,
+                                    color: AppColors.grey500,
+                                    size: 18,
+                                  ),
                                 ),
                               ),
                             ],
@@ -354,66 +372,44 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
 
               // More 버튼 (우하단)
               Positioned(
+                left: 24,
                 right: 24,
-                bottom: pad.bottom + 24,
+                bottom: pad.bottom + 12,
                 child: ctrl == null
                     ? const SizedBox.shrink()
                     : ValueListenableBuilder(
                         valueListenable: ctrl,
-                        builder: (_, __, ___) {
+                        builder: (_, _, _) {
                           final v = ctrl.value;
                           final finished =
                               v.isInitialized &&
                               !v.isBuffering &&
                               v.position >= v.duration;
                           final cta = _resolvedCtaUrl ?? widget.ctaUrl;
-                          if (cta == null || cta.isEmpty)
+                          if (cta == null || cta.isEmpty) {
                             return const SizedBox.shrink();
+                          }
                           // 노출 조건: 카운트다운이 한 번 시작되었거나(플래그) 종료 후
                           if (!(_ctaRevealStarted || finished)) {
                             return const SizedBox.shrink();
                           }
-                          final bool enabled = finished;
+                          final bool enabled =
+                              finished && _viewReported && !_rewarding;
                           return ElevatedButton(
                             onPressed: enabled
                                 ? () async {
                                     debugPrint('[internal] more pressed');
-                                    // 기본 보상만 보장 (More 보상 제거), 이후 URL 오픈
-                                    if (!_viewReported) {
-                                      _viewReported = true;
-                                      debugPrint(
-                                        '[internal] ensuring view reward before more',
-                                      );
-                                      _loadingOverlayKey.currentState?.show();
-                                      try {
-                                        await widget.onViewComplete();
-                                      } finally {
-                                        _loadingOverlayKey.currentState?.hide();
-                                      }
-                                    }
+                                    // 적립은 재생 종료 시 자동 처리됨
                                     await _openCta(cta);
-                                    if (mounted)
+                                    if (mounted) {
                                       Navigator.of(context).maybePop();
+                                    }
                                     // widget.onMore()는 호출하지 않음 (More 보상 제거)
                                   }
                                 : null,
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.resolveWith<Color?>((
-                                    states,
-                                  ) {
-                                    if (states.contains(MaterialState.disabled))
-                                      return Colors.white24;
-                                    return null; // default
-                                  }),
-                              foregroundColor:
-                                  MaterialStateProperty.resolveWith<Color?>((
-                                    states,
-                                  ) {
-                                    if (states.contains(MaterialState.disabled))
-                                      return Colors.white70;
-                                    return null; // default
-                                  }),
+                            style: ElevatedButton.styleFrom(
+                              disabledBackgroundColor: Colors.white24,
+                              disabledForegroundColor: Colors.white70,
                             ),
                             child: Text(
                               AppLocalizations.of(context).ad_more_info_button,

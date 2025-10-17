@@ -2870,6 +2870,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More Info'**
   String get ad_more_info_button;
+
+  /// Ad view credited success message
+  ///
+  /// In en, this message translates to:
+  /// **'Reward credited.'**
+  String get ad_reward_success_message;
 }
 
 class _AppLocalizationsDelegate

@@ -1905,5 +1905,7 @@
   "ad_close_confirm_message": "Closing now will not grant the bonus reward. Are you sure you want to close?",
   "@ad_close_confirm_message": {"description": "Message for closing ad confirmation dialog"},
   "ad_more_info_button": "More Info",
-  "@ad_more_info_button": {"description": "CTA button after ad finished"}
+  "@ad_more_info_button": {"description": "CTA button after ad finished"},
+  "ad_reward_success_message": "Reward credited.",
+  "@ad_reward_success_message": {"description": "Ad view credited success message"}
 }

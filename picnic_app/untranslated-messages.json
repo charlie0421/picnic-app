@@ -458,6 +458,14 @@
     "qna_status_resolved"
   ],
 
+  "ja": [
+    "qna_category_label",
+    "qna_category_required",
+    "ad_close_confirm_title",
+    "ad_close_confirm_message",
+    "ad_more_info_button"
+  ],
+
   "zh": [
     "achieve",
     "ads_available_time",

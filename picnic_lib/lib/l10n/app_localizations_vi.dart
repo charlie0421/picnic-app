@@ -1508,4 +1508,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get ad_more_info_button => 'Tìm hiểu thêm';
+
+  @override
+  String get ad_reward_success_message => 'Phần thưởng đã được ghi có.';
 }
