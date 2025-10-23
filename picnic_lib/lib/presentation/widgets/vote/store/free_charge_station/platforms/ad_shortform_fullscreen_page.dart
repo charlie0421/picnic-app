@@ -68,7 +68,12 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
         _resolvedCtaUrl = widget.ctaUrl;
       }
       if (!mounted) return;
-      await _initPlayer(_resolvedVideoUrl!);
+      try {
+        await _initPlayer(_resolvedVideoUrl!);
+      } catch (e) {
+        _showVideoLoadErrorDialog(e);
+        return;
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -80,7 +85,15 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
 
   Future<void> _initPlayer(String videoUrl) async {
     final ctrl = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
-    await ctrl.initialize();
+    try {
+      await ctrl.initialize();
+    } on PlatformException catch (e) {
+      _showVideoLoadErrorDialog(e);
+      return;
+    } catch (e) {
+      _showVideoLoadErrorDialog(e);
+      return;
+    }
     try {
       await ctrl.setLooping(false);
     } catch (_) {}
@@ -91,7 +104,32 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
     setState(() {
       _controller = ctrl;
     });
-    await ctrl.play();
+    try {
+      await ctrl.play();
+    } on PlatformException catch (e) {
+      _showVideoLoadErrorDialog(e);
+      return;
+    } catch (e) {
+      _showVideoLoadErrorDialog(e);
+      return;
+    }
+  }
+
+  void _showVideoLoadErrorDialog(dynamic error) {
+    if (!mounted) return;
+    // 권한/보호된 리소스 등으로 재생 실패 시 공통 에러 다이얼로그 표시 후 화면 종료
+    final closePage = () {
+      final c = navigatorKey.currentContext;
+      if (c != null && c.mounted) Navigator.of(c).pop();
+      if (mounted) Navigator.of(context).maybePop();
+    };
+    final message = AppLocalizations.of(context).label_ads_load_fail;
+    showSimpleDialog(
+      type: DialogType.error,
+      content: message,
+      onOk: closePage,
+      onCancel: closePage,
+    );
   }
 
   void _onProgress() {

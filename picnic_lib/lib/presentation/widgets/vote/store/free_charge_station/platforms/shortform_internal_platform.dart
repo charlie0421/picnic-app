@@ -16,6 +16,66 @@ class ShortformInternalPlatform extends AdPlatform {
     AnimationController super.animationController,
   );
 
+  // 임시 HLS 마스터 URL 치환(ads/* 경로용) - ads 경로에서 파일명(UUID)을 추출해 동적 구성
+  static const String _cloudfrontBase =
+      'https://d2jrkjksiktw4e.cloudfront.net/videos/output';
+  static final RegExp _uuidPattern = RegExp(
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+  );
+
+  String _rewriteVideoUrlIfNeeded(String? url) {
+    if (url == null || url.isEmpty) return '';
+    final normalized = url.split('?').first.split('#').first;
+
+    // 1) ads/* 경로 → UUID 추출 후 CloudFront master.m3u8로 치환
+    final hasAds =
+        normalized.startsWith('ads/') || normalized.contains('/ads/');
+    if (hasAds) {
+      final segments = normalized
+          .split('/')
+          .where((s) => s.isNotEmpty)
+          .toList();
+      String? id;
+      for (final s in segments) {
+        final part = s.contains('.') ? s.substring(0, s.lastIndexOf('.')) : s;
+        if (_uuidPattern.hasMatch(part)) {
+          id = part;
+          break;
+        }
+      }
+      id ??= () {
+        final last = segments.isNotEmpty ? segments.last : '';
+        return last.contains('.')
+            ? last.substring(0, last.lastIndexOf('.'))
+            : last;
+      }();
+      if (id.isEmpty) return url; // 추출 실패 시 원본 유지
+      return '$_cloudfrontBase/$id/master.m3u8';
+    }
+
+    // 2) /videos/output/* 경로 → 받은 값의 ID를 기준으로 CloudFront master.m3u8 구성
+    final pathOnly = () {
+      final uri = Uri.tryParse(normalized);
+      return uri?.path?.isNotEmpty == true ? uri!.path : normalized;
+    }();
+    if (pathOnly.contains(RegExp(r'/videos/output/'))) {
+      final segs = pathOnly.split('/').where((s) => s.isNotEmpty).toList();
+      final idx = segs.indexWhere((s) => s == 'videos');
+      if (idx != -1 && idx + 2 < segs.length && segs[idx + 1] == 'output') {
+        var idSeg = segs[idx + 2];
+        idSeg = idSeg.contains('.')
+            ? idSeg.substring(0, idSeg.lastIndexOf('.'))
+            : idSeg;
+        if (idSeg.isNotEmpty) {
+          return '$_cloudfrontBase/$idSeg/master.m3u8';
+        }
+      }
+    }
+
+    // 그 외에는 원본 유지
+    return url;
+  }
+
   String? _viewToken;
   String? _moreToken;
   String? _videoUrl;
@@ -59,6 +119,8 @@ class ShortformInternalPlatform extends AdPlatform {
       final tokens = json['tokens'] as Map<String, dynamic>?;
       _videoUrl = ad?['video_url'] as String?;
       _ctaUrl = ad?['cta_url'] as String?;
+      // 임시: ads/* 또는 /video(s)/output/* 경로를 CloudFront HLS 마스터로 동적 치환
+      _videoUrl = _rewriteVideoUrlIfNeeded(_videoUrl);
       logInfo('issued video_url: ${_videoUrl ?? ''}');
       logInfo('issued cta_url: ${_ctaUrl ?? ''}');
       _viewToken = tokens?['view_token'] as String?;
@@ -105,6 +167,8 @@ class ShortformInternalPlatform extends AdPlatform {
               final tokens = json['tokens'] as Map<String, dynamic>?;
               _videoUrl = ad?['video_url'] as String?;
               _ctaUrl = ad?['cta_url'] as String?;
+              // 임시: ads/* 또는 /video(s)/output/* 경로를 CloudFront HLS 마스터로 동적 치환
+              _videoUrl = _rewriteVideoUrlIfNeeded(_videoUrl);
               logInfo('issued (route) video_url: ${_videoUrl ?? ''}');
               _viewToken = tokens?['view_token'] as String?;
               _moreToken = tokens?['more_token'] as String?;

@@ -481,7 +481,7 @@ class _BoardsByArtistNameNotifierProviderElement
 }
 
 String _$boardRequestNotifierHash() =>
-    r'282686a0efa594278b1473643a4ddf9bf0fb52bf';
+    r'eae1b2b0f3f5946da7ec84ab800c1606281cbd1f';
 
 /// See also [BoardRequestNotifier].
 @ProviderFor(BoardRequestNotifier)

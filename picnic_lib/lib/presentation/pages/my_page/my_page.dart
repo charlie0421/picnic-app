@@ -40,6 +40,7 @@ import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'dart:async';
+import 'package:picnic_lib/presentation/pages/notifications/notifications_page.dart';
 
 class MyPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_mypage';
@@ -126,6 +127,14 @@ class _MyPageState extends ConsumerState<MyPage> {
                   onTap: () => ref
                       .read(navigationInfoProvider.notifier)
                       .setCurrentMyPage(const FAQPage()),
+                ),
+                // Notifications
+                PicnicListItem(
+                  leading: '알림함',
+                  assetPath: 'assets/icons/arrow_right_style=line.svg',
+                  onTap: () => ref
+                      .read(navigationInfoProvider.notifier)
+                      .setCurrentMyPage(const NotificationsPage()),
                 ),
                 // QnA
                 if (data != null && data.id != null)

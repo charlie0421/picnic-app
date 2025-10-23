@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../data/models/user_push_token.dart';
+part of '../../data/models/user_push_token.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -13,12 +13,12 @@ _$UserPushTokenImpl _$$UserPushTokenImplFromJson(Map<String, dynamic> json) =>
       ($checkedConvert) {
         final val = _$UserPushTokenImpl(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
-          userId: $checkedConvert('user_id', (v) => (v as num).toInt()),
-          tokenIos: $checkedConvert('token_ios', (v) => v as String),
-          tokenAndroid: $checkedConvert('token_android', (v) => v as String),
-          tokenWeb: $checkedConvert('token_web', (v) => v as String),
-          tokenMacos: $checkedConvert('token_macos', (v) => v as String),
-          tokenWindows: $checkedConvert('token_windows', (v) => v as String),
+          userId: $checkedConvert('user_id', (v) => v as String),
+          tokenIos: $checkedConvert('token_ios', (v) => v as String?),
+          tokenAndroid: $checkedConvert('token_android', (v) => v as String?),
+          tokenWeb: $checkedConvert('token_web', (v) => v as String?),
+          tokenMacos: $checkedConvert('token_macos', (v) => v as String?),
+          tokenWindows: $checkedConvert('token_windows', (v) => v as String?),
         );
         return val;
       },
@@ -28,7 +28,7 @@ _$UserPushTokenImpl _$$UserPushTokenImplFromJson(Map<String, dynamic> json) =>
         'tokenAndroid': 'token_android',
         'tokenWeb': 'token_web',
         'tokenMacos': 'token_macos',
-        'tokenWindows': 'token_windows'
+        'tokenWindows': 'token_windows',
       },
     );
 

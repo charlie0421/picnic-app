@@ -9,6 +9,7 @@ import 'package:picnic_lib/presentation/common/common_my_point_info.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_community.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_post.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_post_view.dart';
+// Removed duplicate notifications icon from TopMenu; it stays in top AppBar
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -17,9 +18,7 @@ import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:picnic_lib/navigation_stack.dart';
 
 class TopMenu extends ConsumerStatefulWidget {
-  const TopMenu({
-    super.key,
-  });
+  const TopMenu({super.key});
 
   @override
   ConsumerState<TopMenu> createState() => _TopState();
@@ -92,10 +91,12 @@ class _TopState extends ConsumerState<TopMenu> {
       return Container();
     }
 
-    if (navigationInfo.topRightMenu == TopRightType.common &&
-        navigationInfo.portalType == PortalType.vote &&
-        _isVoteHomePage(navigationInfo.voteNavigationStack)) {
-      return const AreaSelector();
+    if (navigationInfo.topRightMenu == TopRightType.common) {
+      if (navigationInfo.portalType == PortalType.vote &&
+          _isVoteHomePage(navigationInfo.voteNavigationStack)) {
+        return const AreaSelector();
+      }
+      return Container();
     }
 
     if (navigationInfo.topRightMenu == TopRightType.board) {
@@ -151,7 +152,9 @@ class _TopState extends ConsumerState<TopMenu> {
                       customBorder: const CircleBorder(),
                       onTap: () {
                         _handleBackButtonTap(
-                            navigationInfo, navigationInfoNotifier);
+                          navigationInfo,
+                          navigationInfoNotifier,
+                        );
                       },
                       child: Ink(
                         decoration: BoxDecoration(
@@ -159,8 +162,9 @@ class _TopState extends ConsumerState<TopMenu> {
                           color: _getPortalColor(navigationInfo.portalType),
                           boxShadow: [
                             BoxShadow(
-                              color: _getPortalColor(navigationInfo.portalType)
-                                  .withValues(alpha: 0.25),
+                              color: _getPortalColor(
+                                navigationInfo.portalType,
+                              ).withValues(alpha: 0.25),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -186,8 +190,8 @@ class _TopState extends ConsumerState<TopMenu> {
                     ),
                   )
                 : (navigationInfo.showMyPoint && isLoggedIn)
-                    ? const CommonMyPoint()
-                    : Container(),
+                ? const CommonMyPoint()
+                : Container(),
           ),
           Positioned(
             right: 0,

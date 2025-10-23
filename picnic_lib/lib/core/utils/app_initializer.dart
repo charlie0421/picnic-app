@@ -14,6 +14,7 @@ import 'package:picnic_lib/core/services/network_connectivity_service.dart';
 import 'package:picnic_lib/core/services/update_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
+import 'package:picnic_lib/core/services/push_token_service.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
@@ -366,6 +367,7 @@ class AppInitializer {
 
       if (isMobile()) {
         await _initializeMobileApp(ref);
+        await PushTokenService.initialize();
         if (!context.mounted) return;
         await _loadProducts(ref);
 
