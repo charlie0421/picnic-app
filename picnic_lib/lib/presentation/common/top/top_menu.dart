@@ -15,6 +15,9 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_pic_list_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/pic_chart_page.dart';
 import 'package:picnic_lib/navigation_stack.dart';
 
 class TopMenu extends ConsumerStatefulWidget {
@@ -46,10 +49,13 @@ class _TopState extends ConsumerState<TopMenu> {
     }
   }
 
-  bool _isVoteHomePage(NavigationStack? stack) {
+  bool _isAreaSelectorTargetPage(NavigationStack? stack) {
     if (stack == null) return false;
     final currentPage = stack.peek();
-    return currentPage is VoteHomePage;
+    return currentPage is VoteHomePage ||
+        currentPage is VoteListPage ||
+        currentPage is VotePicListPage ||
+        currentPage is PicChartPage;
   }
 
   bool _shouldShowBackButton(Navigation navigationInfo) {
@@ -93,7 +99,7 @@ class _TopState extends ConsumerState<TopMenu> {
 
     if (navigationInfo.topRightMenu == TopRightType.common) {
       if (navigationInfo.portalType == PortalType.vote &&
-          _isVoteHomePage(navigationInfo.voteNavigationStack)) {
+          _isAreaSelectorTargetPage(navigationInfo.voteNavigationStack)) {
         return const AreaSelector();
       }
       return Container();

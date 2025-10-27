@@ -16,8 +16,10 @@ class _PicChartPageState extends ConsumerState<PicChartPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-            showPortal: true,
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: false,
             showTopMenu: true,
             showMyPoint: false,
             showBottomNavigation: true,

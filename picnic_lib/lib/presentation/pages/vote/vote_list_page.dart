@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/common/area_selector.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
@@ -29,20 +27,22 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
     _initializeTabController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: false,
-          showTopMenu: true,
-          showMyPoint: false,
-          showBottomNavigation: true,
-          pageTitle: AppLocalizations.of(context).label_vote_screen_title);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: false,
+            showTopMenu: true,
+            showMyPoint: false,
+            showBottomNavigation: true,
+            pageTitle: AppLocalizations.of(context).label_vote_screen_title,
+          );
     });
   }
 
   void _initializeTabController() {
-    final savedIndex = PageStorage.of(context).readState(
-          context,
-          identifier: _tabIndexKey,
-        ) as int? ??
+    final savedIndex =
+        PageStorage.of(context).readState(context, identifier: _tabIndexKey)
+            as int? ??
         0;
 
     final tabLength = _isAdmin ? 4 : 3;
@@ -54,11 +54,9 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
 
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        PageStorage.of(context).writeState(
+        PageStorage.of(
           context,
-          _tabController.index,
-          identifier: _tabIndexKey,
-        );
+        ).writeState(context, _tabController.index, identifier: _tabIndexKey);
       }
     });
   }
@@ -95,10 +93,7 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
 class VoteListContent extends ConsumerStatefulWidget {
   final bool isAdmin;
 
-  const VoteListContent({
-    super.key,
-    required this.isAdmin,
-  });
+  const VoteListContent({super.key, required this.isAdmin});
 
   @override
   ConsumerState<VoteListContent> createState() => _VoteListContentState();
@@ -114,10 +109,9 @@ class _VoteListContentState extends ConsumerState<VoteListContent>
   void initState() {
     super.initState();
 
-    final savedIndex = PageStorage.of(context).readState(
-          context,
-          identifier: _tabIndexKey,
-        ) as int? ??
+    final savedIndex =
+        PageStorage.of(context).readState(context, identifier: _tabIndexKey)
+            as int? ??
         0;
 
     final tabLength = widget.isAdmin ? 4 : 3;
@@ -133,11 +127,9 @@ class _VoteListContentState extends ConsumerState<VoteListContent>
         if (widget.isAdmin && _tabController.index == 3) {
           logger.d('🚨🚨🚨 디버그 탭(3번)으로 변경됨!');
         }
-        PageStorage.of(context).writeState(
+        PageStorage.of(
           context,
-          _tabController.index,
-          identifier: _tabIndexKey,
-        );
+        ).writeState(context, _tabController.index, identifier: _tabIndexKey);
       }
     });
   }
@@ -151,18 +143,6 @@ class _VoteListContentState extends ConsumerState<VoteListContent>
       bucket: _pageStorageBucket,
       child: Column(
         children: [
-          // Area 선택기를 본문 상단에 추가
-          Container(
-            height: 34,
-            width: double.infinity,
-            padding: EdgeInsets.only(right: 16.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const AreaSelector(),
-              ],
-            ),
-          ),
           SizedBox(
             height: 50,
             child: TabBar(
@@ -170,12 +150,12 @@ class _VoteListContentState extends ConsumerState<VoteListContent>
               indicatorWeight: 3,
               tabs: [
                 Tab(
-                    text:
-                        AppLocalizations.of(context).label_tabbar_vote_active),
+                  text: AppLocalizations.of(context).label_tabbar_vote_active,
+                ),
                 Tab(text: AppLocalizations.of(context).label_tabbar_vote_end),
                 Tab(
-                    text: AppLocalizations.of(context)
-                        .label_tabbar_vote_upcoming),
+                  text: AppLocalizations.of(context).label_tabbar_vote_upcoming,
+                ),
                 if (widget.isAdmin) const Tab(text: '(Admin)'),
               ],
             ),
@@ -212,14 +192,20 @@ class _VoteListContentState extends ConsumerState<VoteListContent>
         // 디버그 탭 선택 시 로그 추가
         if (status == VoteStatus.debug && currentIndex == tabIndex) {
           logger.d(
-              '🚨🚨🚨 디버그 탭 선택됨! currentIndex: $currentIndex, tabIndex: $tabIndex');
+            '🚨🚨🚨 디버그 탭 선택됨! currentIndex: $currentIndex, tabIndex: $tabIndex',
+          );
         }
 
         if (!shouldBuild) {
           return const SizedBox.shrink();
         }
 
-        return VoteList(status, VoteCategory.all, area);
+        return VoteList(
+          status,
+          VoteCategory.all,
+          area,
+          portal: VotePortal.vote,
+        );
       },
     );
   }
