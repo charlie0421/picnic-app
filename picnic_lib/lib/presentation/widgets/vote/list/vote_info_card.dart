@@ -487,7 +487,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                             crossAxisCount: 4,
                             mainAxisSpacing: 4,
                             crossAxisSpacing: 8,
-                            childAspectRatio: 1,
+                            childAspectRatio: 1 / 1.1,
                           ),
                       itemCount: thumbnails.length,
                       itemBuilder: (context, index) {
