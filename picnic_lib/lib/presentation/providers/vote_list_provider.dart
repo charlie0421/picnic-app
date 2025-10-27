@@ -17,14 +17,20 @@ enum VotePortal { vote, pic }
 class AsyncVoteList extends _$AsyncVoteList {
   @override
   Future<List<VoteModel>> build(
-      int page, int limit, String sort, String order, String area,
-      {VotePortal votePortal = VotePortal.vote,
-      required VoteStatus status,
-      required VoteCategory category}) async {
+    int page,
+    int limit,
+    String sort,
+    String order,
+    String area, {
+    VotePortal votePortal = VotePortal.vote,
+    required VoteStatus status,
+    required VoteCategory category,
+  }) async {
     // 🚨🚨🚨 빌드 메서드 호출 로깅
     logger.d('🚨🚨🚨 AsyncVoteList.build 메서드 시작');
     logger.d(
-        '🔍 파라미터: status=$status, category=$category, area=$area, page=$page, limit=$limit');
+      '🔍 파라미터: status=$status, category=$category, area=$area, page=$page, limit=$limit',
+    );
 
     if (status == VoteStatus.debug) {
       logger.d('🚨🚨🚨🚨🚨 디버그 모드로 build 메서드 진입 확인됨!');
@@ -55,9 +61,9 @@ class AsyncVoteList extends _$AsyncVoteList {
     required VoteStatus status,
     required String area,
   }) async {
-    String voteTable = votePortal == VotePortal.vote ? 'vote' : 'pic_vote';
-    String voteItemTable =
-        votePortal == VotePortal.vote ? 'vote_item' : 'pic_vote_item';
+    // PIC 차트는 별도 테이블이 아닌 동일 테이블에서 카테고리로만 구분
+    String voteTable = 'vote';
+    String voteItemTable = 'vote_item';
 
     try {
       PostgrestList response;
@@ -80,17 +86,19 @@ class AsyncVoteList extends _$AsyncVoteList {
             )
           ''');
 
-      // 디버그 모드가 아닌 경우에만 area 필터 적용
-      if (area != 'all' && status != VoteStatus.debug) {
+      // area 필터 항상 적용 (Admin/Debug 포함)
+      if (area != 'all') {
         query = query.eq('area', area);
       }
 
       query = query.filter('deleted_at', 'is', null);
 
-      // 디버그 모드가 아닌 경우에만 카테고리 필터 적용
+      // 카테고리 직접 선택 시 우선 적용 (디버그 제외)
       if (category != 'all' && status != VoteStatus.debug) {
         query = query.eq('vote_category', category);
       }
+
+      // 포털 분기 제거: 화면에서 후처리로 필터 (VoteList의 itemFilter)
 
       String finalSort = sort;
       String finalOrder = order;
@@ -146,8 +154,9 @@ class AsyncVoteList extends _$AsyncVoteList {
           if (voteData[voteItemTable] is List) {
             final voteItems = voteData[voteItemTable] as List;
             // vote_total 기준으로 정렬하고 상위 3개만 유지
-            voteItems.sort((a, b) =>
-                (b['vote_total'] ?? 0).compareTo(a['vote_total'] ?? 0));
+            voteItems.sort(
+              (a, b) => (b['vote_total'] ?? 0).compareTo(a['vote_total'] ?? 0),
+            );
             voteData[voteItemTable] = voteItems.take(3).toList();
           }
           return voteData;

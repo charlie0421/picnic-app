@@ -20,3 +20,4 @@ final unreadNotificationsCountProvider = AutoDisposeFutureProvider<int>((
     return 0;
   }
 });
+

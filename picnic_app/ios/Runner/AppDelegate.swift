@@ -1,4 +1,5 @@
 import Flutter
+import UserNotifications
 #if canImport(PAGAdSDK)
 import PAGAdSDK
 #endif
@@ -46,6 +47,9 @@ import UIKit
         }
 
         GeneratedPluginRegistrant.register(with: self)
+        // iOS 푸시 수신 및 토큰 등록을 위해 Delegate 설정 및 APNs 등록
+        UNUserNotificationCenter.current().delegate = self
+        application.registerForRemoteNotifications()
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 }

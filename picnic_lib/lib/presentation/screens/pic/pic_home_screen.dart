@@ -46,7 +46,8 @@ class _PicHomeScreenState extends ConsumerState<PicHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final showBottomNavigation = ref.watch(
-        navigationInfoProvider.select((value) => value.showBottomNavigation));
+      navigationInfoProvider.select((value) => value.showBottomNavigation),
+    );
 
     return PopScope(
       canPop: false,
@@ -72,7 +73,7 @@ class _PicHomeScreenState extends ConsumerState<PicHomeScreen> {
             const PicnicAnimatedSwitcher(),
             if (showBottomNavigation == true)
               Positioned(
-                bottom: getBottomPadding(context),
+                bottom: 0,
                 left: 0,
                 right: 0,
                 child: CommonBottomNavigationBar(),

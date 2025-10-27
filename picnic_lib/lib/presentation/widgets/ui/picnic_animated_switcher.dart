@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 
 class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
@@ -42,55 +42,53 @@ class _PicnicAnimatedSwitcherState
         stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
     }
 
-    final currentIndex =
-        stackChildren.isNotEmpty ? stackChildren.length - 1 : 0;
+    final currentIndex = stackChildren.isNotEmpty
+        ? stackChildren.length - 1
+        : 0;
 
     return Container(
       padding: navigationInfo.showBottomNavigation
-          ? EdgeInsets.only(bottom: getBottomPadding(context) + 52)
-          : EdgeInsets.only(bottom: getBottomPadding(context)),
-      child: stackChildren.isNotEmpty
-          ? IndexedStack(
-              index: currentIndex,
-              children: stackChildren,
+          ? const EdgeInsets.only(
+              bottom:
+                  NavBarConstants.bottomNavHeight +
+                  NavBarConstants.bottomNavOuterMargin,
             )
+          : EdgeInsets.zero,
+      child: stackChildren.isNotEmpty
+          ? IndexedStack(index: currentIndex, children: stackChildren)
           : Container(),
     );
   }
 }
 
 class DrawerAnimatedSwitcher extends ConsumerWidget {
-  const DrawerAnimatedSwitcher({
-    super.key,
-  });
+  const DrawerAnimatedSwitcher({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final navigationInfo = ref.watch(navigationInfoProvider);
 
     return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
-        layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-          return currentChild ?? Container();
-        },
-        child: Container(
-            child: navigationInfo.drawerNavigationStack != null &&
-                    navigationInfo.drawerNavigationStack!.length > 0
-                ? navigationInfo.drawerNavigationStack?.peek()
-                : Container()));
+      duration: const Duration(milliseconds: 500),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+      layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+        return currentChild ?? Container();
+      },
+      child: Container(
+        child:
+            navigationInfo.drawerNavigationStack != null &&
+                navigationInfo.drawerNavigationStack!.length > 0
+            ? navigationInfo.drawerNavigationStack?.peek()
+            : Container(),
+      ),
+    );
   }
 }
 
 class SignUpAnimatedSwitcher extends ConsumerWidget {
-  const SignUpAnimatedSwitcher({
-    super.key,
-  });
+  const SignUpAnimatedSwitcher({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -99,20 +97,20 @@ class SignUpAnimatedSwitcher extends ConsumerWidget {
     logger.i('signUpNavigationStack: ${navigationInfo.signUpNavigationStack}');
 
     return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
-        layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-          return currentChild ?? Container();
-        },
-        child: Container(
-            child: navigationInfo.signUpNavigationStack != null &&
-                    navigationInfo.signUpNavigationStack!.length > 0
-                ? navigationInfo.signUpNavigationStack?.peek()
-                : Container()));
+      duration: const Duration(milliseconds: 500),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+      layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+        return currentChild ?? Container();
+      },
+      child: Container(
+        child:
+            navigationInfo.signUpNavigationStack != null &&
+                navigationInfo.signUpNavigationStack!.length > 0
+            ? navigationInfo.signUpNavigationStack?.peek()
+            : Container(),
+      ),
+    );
   }
 }

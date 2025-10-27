@@ -12,8 +12,15 @@ class VoteList extends ConsumerStatefulWidget {
   final VoteStatus status;
   final VoteCategory category;
   final String area;
+  final VotePortal portal;
 
-  const VoteList(this.status, this.category, this.area, {super.key});
+  const VoteList(
+    this.status,
+    this.category,
+    this.area, {
+    super.key,
+    this.portal = VotePortal.vote,
+  });
 
   @override
   ConsumerState<VoteList> createState() => _VoteListState();
@@ -23,6 +30,7 @@ class _VoteListState extends ConsumerState<VoteList> {
   final List<VoteModel> _items = [];
   bool _isLoading = true;
   bool _isFetchingMore = false;
+  bool _noMoreItems = false;
   int _pageKey = 1;
   static const _pageSize = 10;
   late final PageController _pageController;
@@ -41,13 +49,19 @@ class _VoteListState extends ConsumerState<VoteList> {
     }
   }
 
-  Future<void> _fetchVotes(
-      {bool isInitialLoad = false, bool isRefresh = false}) async {
+  Future<void> _fetchVotes({
+    bool isInitialLoad = false,
+    bool isRefresh = false,
+  }) async {
+    if (_noMoreItems && !isInitialLoad && !isRefresh) {
+      return;
+    }
     // 디버그 상태 로그 추가
     if (widget.status == VoteStatus.debug) {
       logger.d('🚨🚨🚨 VoteList._fetchVotes 호출됨 - 디버그 모드');
       logger.d(
-          '📍 파라미터: status=${widget.status}, category=${widget.category}, area=${widget.area}');
+        '📍 파라미터: status=${widget.status}, category=${widget.category}, area=${widget.area}',
+      );
       logger.d('📍 페이지: $_pageKey, 사이즈: $_pageSize');
       logger.d('📍 정렬: id DESC (고정값)');
       logger.d('📍 Provider 호출 시작...');
@@ -61,6 +75,7 @@ class _VoteListState extends ConsumerState<VoteList> {
 
     if (isRefresh) {
       _pageKey = 1;
+      _noMoreItems = false;
     }
 
     try {
@@ -69,15 +84,78 @@ class _VoteListState extends ConsumerState<VoteList> {
           ? 'id_${DateTime.now().millisecondsSinceEpoch}'
           : 'id';
 
-      final newItems = await ref.read(asyncVoteListProvider(
-        _pageKey,
-        _pageSize,
-        sortKey,
-        'DESC',
-        widget.area,
-        status: widget.status,
-        category: widget.category,
-      ).future);
+      final newItems = await ref.read(
+        asyncVoteListProvider(
+          _pageKey,
+          _pageSize,
+          sortKey,
+          'DESC',
+          widget.area,
+          status: widget.status,
+          category: widget.category,
+          votePortal: widget.portal,
+        ).future,
+      );
+
+      // 포털에 따라 카테고리 필터 적용 (대소문자 무시)
+      List<VoteModel> filteredItems = newItems;
+      if (widget.portal == VotePortal.pic) {
+        filteredItems = newItems.where((v) {
+          final cat = (v.voteCategory ?? '').toLowerCase();
+          final isImage = cat.contains('image');
+          final isWeekly = cat.contains('weekly');
+          return isImage || isWeekly;
+        }).toList();
+      } else {
+        filteredItems = newItems.where((v) {
+          final cat = (v.voteCategory ?? '').toLowerCase();
+          final isImage = cat.contains('image');
+          final isWeekly = cat.contains('weekly');
+          return !(isImage || isWeekly);
+        }).toList();
+      }
+
+      // 빈 페이지가 반환될 경우 몇 페이지 앞당겨 건너뛰기(최대 3회 시도)
+      if (!isInitialLoad && filteredItems.isEmpty && _items.isNotEmpty) {
+        int attempts = 0;
+        int tempPage = _pageKey + 1;
+        while (attempts < 3 && filteredItems.isEmpty) {
+          try {
+            final nextItems = await ref.read(
+              asyncVoteListProvider(
+                tempPage,
+                _pageSize,
+                sortKey,
+                'DESC',
+                widget.area,
+                status: widget.status,
+                category: widget.category,
+                votePortal: widget.portal,
+              ).future,
+            );
+            filteredItems = nextItems.where((v) {
+              final cat = (v.voteCategory ?? '').toLowerCase();
+              final isImage = cat.contains('image');
+              final isWeekly = cat.contains('week');
+              return widget.portal == VotePortal.pic
+                  ? (isImage || isWeekly)
+                  : !(isImage || isWeekly);
+            }).toList();
+            if (filteredItems.isNotEmpty) {
+              // tempPage까지 소비한 것으로 간주하여 pageKey를 넘겨둠
+              _pageKey = tempPage + 1;
+              break;
+            }
+            attempts++;
+            tempPage++;
+          } catch (_) {
+            break;
+          }
+        }
+        if (filteredItems.isEmpty) {
+          _noMoreItems = true;
+        }
+      }
 
       if (widget.status == VoteStatus.debug) {
         logger.d('🚨🚨🚨 VoteList._fetchVotes 결과: ${newItems.length}개 아이템');
@@ -87,8 +165,9 @@ class _VoteListState extends ConsumerState<VoteList> {
         if (isRefresh || isInitialLoad) {
           _items.clear();
         }
-        _items.addAll(newItems);
-        if (newItems.isNotEmpty) {
+        _items.addAll(filteredItems);
+        if (filteredItems.isNotEmpty && (_pageKey == 1 || !isInitialLoad)) {
+          // 일반 흐름에서 pageKey는 한 페이지씩 증가
           _pageKey++;
         }
         _isLoading = false;
@@ -143,9 +222,7 @@ class _VoteListState extends ConsumerState<VoteList> {
     if (_isLoading && _items.isEmpty) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          VoteCardSkeleton(status: _getSkeletonStatus(null)),
-        ],
+        children: [VoteCardSkeleton(status: _getSkeletonStatus(null))],
       );
     }
     if (_items.isEmpty) {
@@ -199,8 +276,10 @@ class _VoteListState extends ConsumerState<VoteList> {
               child: Padding(
                 padding: EdgeInsets.all(16.0),
                 child: VoteCardSkeleton(
-                    status: _getSkeletonStatus(
-                        _items.isNotEmpty ? _items[_items.length - 1] : null)),
+                  status: _getSkeletonStatus(
+                    _items.isNotEmpty ? _items[_items.length - 1] : null,
+                  ),
+                ),
               ),
             ),
         ],

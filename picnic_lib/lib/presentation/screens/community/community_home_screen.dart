@@ -47,14 +47,12 @@ class _CommunityHomeScreenState extends ConsumerState<CommunityHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final showBottomNavigation = ref.watch(
-        navigationInfoProvider.select((value) => value.showBottomNavigation));
+      navigationInfoProvider.select((value) => value.showBottomNavigation),
+    );
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (
-        didPop,
-        result,
-      ) {
+      onPopInvokedWithResult: (didPop, result) {
         logger.d('PopScope onPopInvokedWithResult: $didPop, $result');
         _handleRightSwipe();
       },
@@ -76,7 +74,7 @@ class _CommunityHomeScreenState extends ConsumerState<CommunityHomeScreen> {
             const PicnicAnimatedSwitcher(),
             if (showBottomNavigation == true)
               Positioned(
-                bottom: getBottomPadding(context),
+                bottom: 0,
                 left: 0,
                 right: 0,
                 child: CommonBottomNavigationBar(),

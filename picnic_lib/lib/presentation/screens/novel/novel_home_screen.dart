@@ -16,7 +16,8 @@ class NovelHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final showBottomNavigation = ref.watch(
-        navigationInfoProvider.select((value) => value.showBottomNavigation));
+      navigationInfoProvider.select((value) => value.showBottomNavigation),
+    );
 
     return Stack(
       fit: StackFit.expand,
@@ -24,7 +25,7 @@ class NovelHomeScreen extends ConsumerWidget {
         const PicnicAnimatedSwitcher(),
         if (showBottomNavigation == true)
           Positioned(
-            bottom: getBottomPadding(context),
+            bottom: 0,
             left: 0,
             right: 0,
             child: CommonBottomNavigationBar(),

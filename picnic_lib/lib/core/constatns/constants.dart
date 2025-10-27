@@ -16,6 +16,17 @@ class Constants {
   static Duration snackBarDuration = const Duration(seconds: 5);
 }
 
+/// 하단 내비게이션 관련 상수
+class NavBarConstants {
+  NavBarConstants._();
+
+  /// 하단 내비게이션 바의 고정 높이
+  static const double bottomNavHeight = 52.0;
+
+  /// 내비 외곽 하단 마진 (콘텐츠 패딩 계산에도 사용)
+  static const double bottomNavOuterMargin = 16.0;
+}
+
 LocalStorage globalStorage = LocalStorage();
 
 // LocalStorage 언어 설정 관련 확장 메서드

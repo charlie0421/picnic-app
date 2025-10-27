@@ -37,14 +37,14 @@ class VoteHomePage extends ConsumerStatefulWidget {
 class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   late final PagingController<int, VoteModel> _pagingController =
       PagingController<int, VoteModel>(
-    getNextPageKey: (state) {
-      if (state.items == null) return 1;
-      final isLastPage = state.items!.length < _pageSize;
-      if (isLastPage) return null;
-      return (state.keys?.last ?? 0) + 1;
-    },
-    fetchPage: _fetch,
-  );
+        getNextPageKey: (state) {
+          if (state.items == null) return 1;
+          final isLastPage = state.items!.length < _pageSize;
+          if (isLastPage) return null;
+          return (state.keys?.last ?? 0) + 1;
+        },
+        fetchPage: _fetch,
+      );
   static const _pageSize = 20;
 
   Object? _lastArea = Object();
@@ -56,8 +56,13 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true, showTopMenu: true, showBottomNavigation: true);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            showBottomNavigation: true,
+          );
 
       // 이미지 캐시 최적화를 먼저 수행
       _optimizeImageCacheForPage();
@@ -161,15 +166,19 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         alignment: Alignment.centerLeft,
         child: Row(
           children: [
-            Text(AppLocalizations.of(context).label_vote_screen_title,
-                style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
+            Text(
+              AppLocalizations.of(context).label_vote_screen_title,
+              style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+            ),
             SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/arrow_right_style=line.svg',
               width: 24,
               height: 24,
-              colorFilter:
-                  const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
+              colorFilter: const ColorFilter.mode(
+                AppColors.grey900,
+                BlendMode.srcIn,
+              ),
             ),
           ],
         ),
@@ -182,51 +191,55 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       controller: _pagingController,
       builder: (context, state, fetchNextPage) =>
           PagedListView<int, VoteModel>.separated(
-        state: _pagingController.value,
-        fetchNextPage: _pagingController.fetchNextPage,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        builderDelegate: PagedChildBuilderDelegate<VoteModel>(
-          firstPageProgressIndicatorBuilder: (context) => SizedBox(
-            height: MediaQuery.of(context).size.height * 0.6,
-            child: const SingleChildScrollView(
-              child: Column(
-                children: [
-                  VoteCardSkeleton(status: VoteCardStatus.ongoing),
-                  VoteCardSkeleton(status: VoteCardStatus.ongoing),
-                  VoteCardSkeleton(status: VoteCardStatus.ongoing),
-                ],
+            state: _pagingController.value,
+            fetchNextPage: _pagingController.fetchNextPage,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            builderDelegate: PagedChildBuilderDelegate<VoteModel>(
+              firstPageProgressIndicatorBuilder: (context) => SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child: const SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      VoteCardSkeleton(status: VoteCardStatus.ongoing),
+                      VoteCardSkeleton(status: VoteCardStatus.ongoing),
+                      VoteCardSkeleton(status: VoteCardStatus.ongoing),
+                    ],
+                  ),
+                ),
               ),
+              newPageProgressIndicatorBuilder: (context) => const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: VoteCardSkeleton(status: VoteCardStatus.ongoing),
+              ),
+              firstPageErrorIndicatorBuilder: (context) => buildErrorView(
+                context,
+                error: _pagingController.error,
+                retryFunction: () => _pagingController.refresh(),
+                stackTrace: null,
+              ),
+              newPageErrorIndicatorBuilder: (context) => const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: VoteCardSkeleton(status: VoteCardStatus.ongoing),
+              ),
+              noMoreItemsIndicatorBuilder: (context) => const SizedBox.shrink(),
+              noItemsFoundIndicatorBuilder: (context) =>
+                  VoteNoItem(status: VoteStatus.active, context: context),
+              itemBuilder: (context, vote, index) {
+                final now = DateTime.now().toUtc();
+                final status = vote.startAt!.isAfter(now)
+                    ? VoteStatus.upcoming
+                    : VoteStatus.active;
+                return VoteInfoCard(
+                  context: context,
+                  vote: vote,
+                  status: status,
+                );
+              },
             ),
+            separatorBuilder: (context, index) =>
+                const Divider(height: 1, color: AppColors.grey300),
           ),
-          newPageProgressIndicatorBuilder: (context) => const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: VoteCardSkeleton(status: VoteCardStatus.ongoing),
-          ),
-          firstPageErrorIndicatorBuilder: (context) => buildErrorView(
-            context,
-            error: _pagingController.error,
-            retryFunction: () => _pagingController.refresh(),
-            stackTrace: null,
-          ),
-          newPageErrorIndicatorBuilder: (context) => const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: VoteCardSkeleton(status: VoteCardStatus.ongoing),
-          ),
-          noMoreItemsIndicatorBuilder: (context) => const SizedBox.shrink(),
-          noItemsFoundIndicatorBuilder: (context) =>
-              VoteNoItem(status: VoteStatus.active, context: context),
-          itemBuilder: (context, vote, index) {
-            final now = DateTime.now().toUtc();
-            final status = vote.startAt!.isAfter(now)
-                ? VoteStatus.upcoming
-                : VoteStatus.active;
-            return VoteInfoCard(context: context, vote: vote, status: status);
-          },
-        ),
-        separatorBuilder: (context, index) =>
-            const Divider(height: 1, color: AppColors.grey300),
-      ),
     );
   }
 
@@ -238,8 +251,10 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         Container(
           padding: EdgeInsets.only(left: 16.w),
           alignment: Alignment.centerLeft,
-          child: Text(AppLocalizations.of(context).label_vote_reward_list,
-              style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
+          child: Text(
+            AppLocalizations.of(context).label_vote_reward_list,
+            style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+          ),
         ),
         const SizedBox(height: 16),
         asyncRewardListState.when(
@@ -262,8 +277,9 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   onTap: () => showRewardDialog(context, data[index]),
                   child: Container(
                     margin: const EdgeInsets.only(right: 16),
-                    decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(8).r),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8).r,
+                    ),
                     child: SizedBox(
                       width: 120,
                       height: 100,
@@ -305,12 +321,15 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                               ),
                               alignment: Alignment.center,
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 8),
+                                vertical: 4,
+                                horizontal: 8,
+                              ),
                               child: Text(
                                 title,
                                 style: getTextStyle(
-                                        AppTypo.body14R, Colors.white)
-                                    .copyWith(overflow: TextOverflow.ellipsis),
+                                  AppTypo.body14R,
+                                  Colors.white,
+                                ).copyWith(overflow: TextOverflow.ellipsis),
                                 maxLines: 1,
                               ),
                             ),
@@ -334,39 +353,88 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                 itemBuilder: (context, index) => Container(
                   width: 120,
                   height: 100,
-                  margin:
-                      EdgeInsets.only(left: 16.w, right: index == 4 ? 16.w : 0),
+                  margin: EdgeInsets.only(
+                    left: 16.w,
+                    right: index == 4 ? 16.w : 0,
+                  ),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.r),
-                      color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.r),
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
           ),
-          error: (error, stackTrace) => buildErrorView(context,
-              error: error.toString(), stackTrace: stackTrace),
+          error: (error, stackTrace) => buildErrorView(
+            context,
+            error: error.toString(),
+            stackTrace: stackTrace,
+          ),
         ),
       ],
     );
   }
 
   Future<List<VoteModel>> _fetch(int pageKey) async {
+    // 위젯이 dispose 되었으면 즉시 종료
+    if (!mounted) return [];
+
     final setting = ref.read(appSettingProvider);
     final area = setting.area;
     try {
-      final newItems = await ref.read(asyncVoteListProvider(
-        pageKey,
-        _pageSize,
-        'stop_at',
-        'DESC',
-        area,
-        status: VoteStatus.activeAndUpcoming,
-        category: VoteCategory.all,
-      ).future);
+      // 일반 투표(vote)와 PIC 투표(pic_vote)를 모두 가져와 합친다
+      final voteFuture = ref.read(
+        asyncVoteListProvider(
+          pageKey,
+          _pageSize,
+          'stop_at',
+          'DESC',
+          area,
+          status: VoteStatus.activeAndUpcoming,
+          category: VoteCategory.all,
+        ).future,
+      );
 
-      logger.d('newItems: $newItems');
+      final picFuture = ref.read(
+        asyncVoteListProvider(
+          pageKey,
+          _pageSize,
+          'stop_at',
+          'DESC',
+          area,
+          status: VoteStatus.activeAndUpcoming,
+          category: VoteCategory.all,
+          votePortal: VotePortal.pic,
+        ).future,
+      );
 
-      return newItems;
+      final results = await Future.wait<List<VoteModel>>([voteFuture, picFuture]);
+      // await 이후 dispose 되었을 수 있으므로 재확인
+      if (!mounted) return [];
+
+      final voteItems = results[0];
+      final picItems = results[1];
+
+      // 두 소스 합치고 중복(id) 제거 후 종료일 기준 정렬(ASC)
+      final combinedAll = <VoteModel>[...voteItems, ...picItems];
+      final byId = <int, VoteModel>{};
+      for (final v in combinedAll) {
+        // 동일 id 중복 시 최초 항목을 유지
+        byId.putIfAbsent(v.id, () => v);
+      }
+      final combined = byId.values.toList();
+      combined.sort((a, b) {
+        final aTs = a.stopAt?.millisecondsSinceEpoch ?? 0;
+        final bTs = b.stopAt?.millisecondsSinceEpoch ?? 0;
+        return aTs.compareTo(bTs);
+      });
+      final pageSlice = combined.take(_pageSize).toList();
+
+      logger.d(
+        'vote_home combined items: vote=${voteItems.length}, pic=${picItems.length}, dedup=${combined.length}, returned=${pageSlice.length}',
+      );
+
+      return pageSlice;
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       rethrow;
