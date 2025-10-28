@@ -67,12 +67,6 @@
       "ios_sdk_key": "${TAPJOY_IOS_SDK_KEY}",
       "android_sdk_key": "${TAPJOY_ANDROID_SDK_KEY}"
     },
-    "unity": {
-      "apple_game_id": "${UNITY_APPLE_GAME_ID}",
-      "google_game_id": "${UNITY_GOOGLE_GAME_ID}",
-      "ios_placement_id": "${UNITY_IOS_PLACEMENT_ID}",
-      "android_placement_id": "${UNITY_ANDROID_PLACEMENT_ID}"
-    },
     "pangle": {
       "ios_app_id": "${PANGLE_IOS_APP_ID}",
       "ios_rewarded_video_id": "${PANGLE_IOS_REWARDED_VIDEO_ID}",

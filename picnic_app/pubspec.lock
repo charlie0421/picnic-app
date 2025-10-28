@@ -2369,14 +2369,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  unity_ads_plugin:
-    dependency: transitive
-    description:
-      name: unity_ads_plugin
-      sha256: "419a314c3b2b851e0978f9adf5e45807548b1c0d42b06ea6f0504cbf158ff4cc"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.27"
   universal_html:
     dependency: transitive
     description:

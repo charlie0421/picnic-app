@@ -31,7 +31,6 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:universal_io/io.dart';
-import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_types.dart';
@@ -215,20 +214,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       globalIndex++;
     }
 
-    if (_adService.isPlatformAvailable('unity')) {
-      items.add(
-        ChargeStationItem(
-          id: 'unity',
-          title:
-              '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
-          isMission: false,
-          platformType: AdPlatformType.unity,
-          onPressed: () => _adService.getPlatform('unity')?.showAd(),
-          bonusText: '1',
-        ),
-      );
-      globalIndex++;
-    }
+    // Unity 플랫폼 제거됨
 
     if (_adService.isPlatformAvailable('pangle')) {
       items.add(

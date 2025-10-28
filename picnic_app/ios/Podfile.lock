@@ -273,9 +273,9 @@ PODS:
     - Flutter
     - ScreenProtectorKit (~> 1.3.1)
   - ScreenProtectorKit (1.3.1)
-  - SDWebImage (5.21.1):
-    - SDWebImage/Core (= 5.21.1)
-  - SDWebImage/Core (5.21.1)
+  - SDWebImage (5.21.3):
+    - SDWebImage/Core (= 5.21.3)
+  - SDWebImage/Core (5.21.3)
   - Sentry/HybridSDK (8.52.1)
   - sentry_flutter (9.6.0):
     - Flutter
@@ -299,10 +299,6 @@ PODS:
     - TapjoySDK/Static (= 14.4.0)
   - TapjoySDK/Static (14.4.0)
   - TOCropViewController (2.7.4)
-  - unity_ads_plugin (0.0.1):
-    - Flutter
-    - UnityAds (= 4.16.1)
-  - UnityAds (4.16.1)
   - url_launcher_ios (0.0.1):
     - Flutter
   - video_player_avfoundation (0.0.1):
@@ -358,7 +354,6 @@ DEPENDENCIES:
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - tapjoy_offerwall (from `.symlinks/plugins/tapjoy_offerwall/ios`)
-  - unity_ads_plugin (from `.symlinks/plugins/unity_ads_plugin/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
   - video_thumbnail (from `.symlinks/plugins/video_thumbnail/ios`)
@@ -399,7 +394,6 @@ SPEC REPOS:
     - SwiftyGif
     - TapjoySDK
     - TOCropViewController
-    - UnityAds
     - WechatOpenSDK-XCFramework
 
 EXTERNAL SOURCES:
@@ -479,8 +473,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
   tapjoy_offerwall:
     :path: ".symlinks/plugins/tapjoy_offerwall/ios"
-  unity_ads_plugin:
-    :path: ".symlinks/plugins/unity_ads_plugin/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   video_player_avfoundation:
@@ -551,7 +543,7 @@ SPEC CHECKSUMS:
   quill_native_bridge_ios: f47af4b14e7757968486641656c5d23250cee521
   screen_protector: 3d90d44ac886b25335aebd93230b454aef45794a
   ScreenProtectorKit: 83a6281b02c7a5902ee6eac4f5045f674e902ae4
-  SDWebImage: f29024626962457f3470184232766516dee8dfea
+  SDWebImage: 16309af6d214ba3f77a7c6f6fdda888cb313a50a
   Sentry: 2cbbe3592f30050c60e916c63c7f5a2fa584005e
   sentry_flutter: 9b1e3e6934cb7040ffb71383c95a35f73523180c
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
@@ -562,8 +554,6 @@ SPEC CHECKSUMS:
   tapjoy_offerwall: 1601e1efc9b45bf3fad9a9d662d84f1b91a100fe
   TapjoySDK: d83ca74fc1195c52943ca2879519412d3ec770a4
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
-  unity_ads_plugin: 7360965cd7e381dff6488bc55fb1bbec01641b2b
-  UnityAds: 24cb6536614958aefcd5a44576eb4f3157c781d0
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
   video_player_avfoundation: 2cef49524dd1f16c5300b9cd6efd9611ce03639b
   video_thumbnail: b637e0ad5f588ca9945f6e2c927f73a69a661140

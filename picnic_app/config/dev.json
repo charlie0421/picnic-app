@@ -72,12 +72,6 @@
       "ios_sdk_key": "pBnrfy3zRC6j03GvH4QoEwEBRVja2XbI3iokRJa1roxfZzfYAzgjaIs8sfOP",
       "android_sdk_key": "cAl4XIbiTqmQDwpMU1zRogECCVRjf0cCYfuf6KfWQD5A7gLih5JeTA4NqirN"
     },
-    "unity": {
-      "apple_game_id": "5688277",
-      "google_game_id": "5688276",
-      "ios_placement_id": "Rewarded_iOS",
-      "android_placement_id": "Rewarded_Android"
-    },
     "pangle": {
       "ios_app_id": "8615669",
       "ios_rewarded_video_id": "981883046",

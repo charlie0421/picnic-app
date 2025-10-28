@@ -98,7 +98,6 @@ dependencies:
   in_app_purchase_storekit: ^0.4.4
   tapjoy_offerwall: ^14.2.1
   flutter_branch_sdk: ^8.3.2
-  unity_ads_plugin: ^0.3.23
   shorebird_code_push: ^2.0.3
   googleapis: ^14.0.0
   googleapis_auth: ^2.0.0

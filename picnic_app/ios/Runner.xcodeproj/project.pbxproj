@@ -815,7 +815,6 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/sign_in_with_apple\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/tapjoy_offerwall\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/unity_ads_plugin\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview\"",
 					"\"${PODS_ROOT}/Ads-Global/SDK\"",
@@ -824,7 +823,6 @@
 					"\"${PODS_ROOT}/GoogleAppMeasurement/Frameworks\"",
 					"\"${PODS_ROOT}/GoogleUserMessagingPlatform/Frameworks/Release\"",
 					"\"${PODS_ROOT}/TapjoySDK/TapjoySDK_iOS_v14.2.1/Libraries/Static\"",
-					"\"${PODS_ROOT}/UnityAds\"",
 					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/Ads-Global/BUAdSDK\"",
 					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/FirebaseAnalytics/AdIdSupport\"",
 					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/Google-Mobile-Ads-SDK\"",
@@ -832,7 +830,6 @@
 					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/GoogleAppMeasurement/WithoutAdIdSupport\"",
 					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/GoogleUserMessagingPlatform\"",
 					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/TapjoySDK/Static\"",
-					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/UnityAds\"",
 					"$(PROJECT_DIR)/Frameworks",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;

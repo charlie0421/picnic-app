@@ -7,7 +7,6 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/p
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/pangle_platform.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/pincrux_platform.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/unity_ads_platform.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/shortform_internal_platform.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 
@@ -31,7 +30,6 @@ class AdService {
   void _initPlatforms() {
     _platforms = {
       'admob': AdmobPlatform(ref, context, 'admob', animationController),
-      'unity': UnityAdsPlatform(ref, context, 'unity', animationController),
       'pangle': PanglePlatform(ref, context, 'pangle', animationController),
       'tapjoy': TapjoyPlatform(ref, context, 'tapjoy', animationController),
       'pincrux': PincruxPlatform(ref, context, 'pincrux', animationController),
@@ -89,11 +87,6 @@ class AdService {
             Environment.admobIosRewardedVideoId!.isNotEmpty &&
             Environment.admobAndroidRewardedVideoId != null &&
             Environment.admobAndroidRewardedVideoId!.isNotEmpty;
-      case 'unity':
-        return Environment.unityAppleGameId != null &&
-            Environment.unityAppleGameId!.isNotEmpty &&
-            Environment.unityAndroidGameId != null &&
-            Environment.unityAndroidGameId!.isNotEmpty;
       case 'pangle':
         return Environment.pangleIosAppId != null &&
             Environment.pangleIosAppId!.isNotEmpty &&

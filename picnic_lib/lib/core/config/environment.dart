@@ -161,21 +161,6 @@ class Environment {
   static String? get tapjoyIosSdkKey =>
       _getValue(['ads', 'tapjoy', 'ios_sdk_key']) as String;
 
-  static String? get unityAppleGameId {
-    try {
-      return _getValue(['ads', 'unity', 'apple_game_id']) as String;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  static String? get unityAndroidGameId {
-    try {
-      return _getValue(['ads', 'unity', 'google_game_id']) as String;
-    } catch (e) {
-      return null;
-    }
-  }
 
   // Pincrux 관련 설정
   static String? get pincruxAndroidAppKey {
@@ -195,21 +180,6 @@ class Environment {
   }
 
   // 다음 값들은 prod 환경에만 있고 나머지 환경에는 없을 수 있으므로 예외 처리 추가
-  static String? get unityIosPlacementId {
-    try {
-      return _getValue(['ads', 'unity', 'ios_placement_id']) as String;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  static String? get unityAndroidPlacementId {
-    try {
-      return _getValue(['ads', 'unity', 'android_placement_id']) as String;
-    } catch (e) {
-      return null;
-    }
-  }
 
   // Pangle 관련 설정
   static String? get pangleIosAppId {
