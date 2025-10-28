@@ -66,6 +66,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   bool isUpcoming = false;
   final _searchSubject = BehaviorSubject<String>();
   Timer? _updateTimer;
+  bool _isRefreshingItems = false;
   final Map<int, int> _previousVoteCounts = {};
   final Map<int, int> _previousRanks = {};
   final Map<int, int> _currentRanks = {};
@@ -121,10 +122,23 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+    _updateTimer = Timer.periodic(const Duration(seconds: 8), (_) async {
       if (!mounted) return;
-
-      final _ = ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
+      if (_isRefreshingItems || _isSaving) return;
+      _isRefreshingItems = true;
+      try {
+        await ref
+            .refresh(
+              asyncVoteItemListProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ).future,
+            )
+            .timeout(const Duration(seconds: 6), onTimeout: () => []);
+      } catch (_) {
+      } finally {
+        _isRefreshingItems = false;
+      }
     });
   }
 
@@ -487,32 +501,34 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
                       return GestureDetector(
                         onTap: () => _focusNode.unfocus(),
-                        child: CustomScrollView(
-                          controller: _scrollController,
-                          physics:
-                              const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
-                          keyboardDismissBehavior:
-                              ScrollViewKeyboardDismissBehavior.onDrag,
-                          slivers: [
-                            SliverToBoxAdapter(
-                              child: RepaintBoundary(
-                                key: _captureKey,
-                                child: Column(
-                                  children: [
-                                    _buildVoteInfo(context, voteModel),
-                                    SizedBox(height: 12),
-                                    if (_isSaving)
-                                      _buildCaptureVoteList(context),
-                                  ],
+                        child: SizedBox.expand(
+                          child: CustomScrollView(
+                            controller: _scrollController,
+                            physics:
+                                const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
+                            keyboardDismissBehavior:
+                                ScrollViewKeyboardDismissBehavior.onDrag,
+                            slivers: [
+                              SliverToBoxAdapter(
+                                child: RepaintBoundary(
+                                  key: _captureKey,
+                                  child: Column(
+                                    children: [
+                                      _buildVoteInfo(context, voteModel),
+                                      SizedBox(height: 12),
+                                      if (_isSaving)
+                                        _buildCaptureVoteList(context),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            if (!_isSaving) _buildVoteItemList(context),
-                          ],
+                              if (!_isSaving) _buildVoteItemList(context),
+                            ],
+                          ),
                         ),
                       );
                     },
-                    loading: () => _buildLoadingShimmer(),
+                    loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
                     error: (error, stackTrace) => buildErrorView(
                       context,
                       error: error.toString(),
@@ -845,7 +861,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       },
       loading: () {
         logger.d('⏳ 투표 아이템 로딩 중...');
-        return SliverToBoxAdapter(child: _buildLoadingShimmer());
+        // 주의: 부모가 CustomScrollView이므로 내부에 또 다른 CustomScrollView를 넣지 않기 위해
+        // 아이템 영역 전용 스켈레톤을 사용한다.
+        return SliverToBoxAdapter(child: _buildVoteListSkeleton());
       },
       error: (error, stackTrace) {
         logger.e('❌ 투표 아이템 로딩 실패: $error');

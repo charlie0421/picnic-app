@@ -71,7 +71,8 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
             final uri = Uri.parse(item.link!);
             final isHttp = uri.scheme == 'http' || uri.scheme == 'https';
             final host = uri.host.toLowerCase();
-            final isPicnicDomain = host == 'applink.picnic.fan' || host == 'www.picnic.fan';
+            final isPicnicDomain =
+                host == 'applink.picnic.fan' || host == 'www.picnic.fan';
 
             // Picnic 도메인의 앱 내부 경로는 외부 브라우저를 열지 말고 인앱 딥링크로 처리
             if (isHttp && isPicnicDomain) {

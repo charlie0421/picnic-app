@@ -25,6 +25,8 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
         votePortal == VotePortal.vote ? 'vote_item' : 'pic_vote_item';
 
     try {
+      final startedAt = DateTime.now();
+      logger.d('[VoteDetail] fetch start voteId=$voteId portal=$votePortal');
       final response = await supabase
           .from(voteTable)
           .select(
@@ -39,9 +41,13 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
       response['is_upcoming'] =
           now.isBefore(DateTime.parse(response['start_at']));
 
-      return VoteModel.fromJson(response);
+      final result = VoteModel.fromJson(response);
+      final elapsedMs = DateTime.now().difference(startedAt).inMilliseconds;
+      logger.d('[VoteDetail] fetch success voteId=$voteId portal=$votePortal in ${elapsedMs}ms');
+      return result;
     } catch (e, s) {
-      logger.e('Failed to load vote detail: $e', stackTrace: s);
+      final elapsedMs = DateTime.now().difference(DateTime.now()).inMilliseconds;
+      logger.e('[VoteDetail] fetch error voteId=$voteId portal=$votePortal in ${elapsedMs}ms', error: e, stackTrace: s);
       Sentry.captureException(
         e,
         stackTrace: s,
@@ -64,6 +70,8 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
     final voteItemTable =
         votePortal == VotePortal.vote ? 'vote_item' : 'pic_vote_item';
     try {
+      final startedAt = DateTime.now();
+      logger.d('[VoteItems] fetch start voteId=$voteId portal=$votePortal');
       final response = await supabase
           .from(voteItemTable)
           .select(
@@ -76,10 +84,11 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
           response.map((e) => VoteItemModel.fromJson(e)));
 
       state = AsyncValue.data(voteItemList);
-
+      final elapsedMs = DateTime.now().difference(startedAt).inMilliseconds;
+      logger.d('[VoteItems] fetch success voteId=$voteId count=${voteItemList.length} portal=$votePortal in ${elapsedMs}ms');
       return voteItemList;
     } catch (e, s) {
-      logger.e(s, stackTrace: s);
+      logger.e('[VoteItems] fetch error voteId=$voteId portal=$votePortal', error: e, stackTrace: s);
       Sentry.captureException(
         e,
         stackTrace: s,
