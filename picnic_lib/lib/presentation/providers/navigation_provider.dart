@@ -362,6 +362,20 @@ class NavigationInfo extends _$NavigationInfo {
         '📱 Vote navigation state updated with new page: ${page.runtimeType}');
   }
 
+  /// 현재 Screen을 유지한 채 voteNavigationStack에 페이지만 푸시합니다.
+  /// VoteHomeScreen 같은 Screen 컨테이너를 유지해야 할 때 사용합니다.
+  void pushVotePageKeepScreen(Widget page) {
+    final voteNavigationStack = state.voteNavigationStack ?? NavigationStack();
+    voteNavigationStack.push(page);
+    logger.d('📱 (keepScreen) Pushing page to voteNavigationStack: ${page.runtimeType}');
+    logger.d('📱 (keepScreen) Stack length after push: ${voteNavigationStack.length}');
+
+    // currentScreen은 변경하지 않고 스택만 갱신
+    state = state.copyWith(
+      voteNavigationStack: voteNavigationStack,
+    );
+  }
+
   void setPicCurrentPage(Widget page,
       {bool showTopMenu = false, bool showBottomNavigation = true}) {
     // PIC은 현재 vote 스택을 사용

@@ -28,6 +28,7 @@ import 'package:picnic_lib/presentation/pages/community/community_home_page.dart
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/notice_detail_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
@@ -655,6 +656,19 @@ class AppInitializer {
         final portal = uri.pathSegments[0];
         final page = uri.pathSegments[1];
         switch (portal) {
+          case 'notice':
+            // e.g. /notice/1
+            try {
+              final noticeId = int.parse(page);
+              // 공지는 VOTE 포털 컨테이너에서 렌더되므로 포털을 VOTE로 전환
+              navigationNotifier.setPortal(PortalType.vote);
+              // Screen 컨테이너를 유지하고 내부 스택만 푸시
+              navigationNotifier.pushVotePageKeepScreen(
+                NoticeDetailPage(noticeId: noticeId),
+              );
+              return;
+            } catch (_) {}
+            break;
           case 'vote':
             switch (page) {
               case 'list':
