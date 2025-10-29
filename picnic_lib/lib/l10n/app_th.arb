@@ -1897,6 +1897,9 @@
   "@ad_close_confirm_message": {"description": "ข้อความยืนยันการปิดโฆษณา"},
   "ad_more_info_button": "ดูเพิ่มเติม",
   "@ad_more_info_button": {"description": "ปุ่ม CTA หลังจบโฆษณา"},
-  "ad_reward_success_message": "เพิ่มรางวัลเรียบร้อยแล้ว",
-  "@ad_reward_success_message": {"description": "ข้อความสำเร็จเมื่อให้รางวัลจากโฆษณา"}
+  "ad_reward_success_message": "บันทึกรางวัลแล้ว",
+  "@ad_reward_success_message": {"description": "ข้อความบันทึกรางวัลจากการชมโฆษณา"},
+  "weekly_vote_info_title": "🎖️ คู่มือโหวตรายสัปดาห์",
+  "@weekly_vote_info_title": {"description": "ชื่อป๊อปอัปข้อมูลโหวตรายสัปดาห์"},
+  "weekly_vote_info_body": "Hall of Fame Award ของ Picnic จัดขึ้นทุกสัปดาห์!\n\nผู้ชนะประจำสัปดาห์จะถูกบันทึกเป็นผู้ท้าชิง 'Hall of Fame Award' ประจำปลายปีโดยอัตโนมัติ\n\nโดยจะคัดเลือกผู้ชนะรายสัปดาห์ทั้งหมด 50 คนต่อปี\n\n(※ เมื่อศิลปินชนะแล้ว จะถูกถอดจากผู้เข้าชิงโหวตรายสัปดาห์ในปีนั้น)"
 }

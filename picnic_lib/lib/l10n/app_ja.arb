@@ -1944,5 +1944,8 @@
     "description": "QnA status when resolved/closed"
   },
   "ad_reward_success_message": "報酬が付与されました。",
-  "@ad_reward_success_message": {"description": "広告視聴報酬の付与成功メッセージ"}
+  "@ad_reward_success_message": {"description": "広告視聴の報酬付与メッセージ"},
+  "weekly_vote_info_title": "🎖️ ウィークリー投票のご案内",
+  "@weekly_vote_info_title": {"description": "ウィークリー投票案内ポップアップのタイトル"},
+  "weekly_vote_info_body": "毎週開催されるピクニックの Hall of Fame Award!\n\n毎週の優勝アーティストは年末の 'Hall of Fame Award' 候補に自動登録され、\n\n年間合計50名のウィークリー優勝者が選出されます。\n\n（※一度優勝したアーティストは、その年のウィークリー投票候補から除外されます。）"
 }

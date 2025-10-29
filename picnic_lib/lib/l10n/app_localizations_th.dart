@@ -1488,5 +1488,15 @@ class AppLocalizationsTh extends AppLocalizations {
   String get ad_more_info_button => 'ดูเพิ่มเติม';
 
   @override
-  String get ad_reward_success_message => 'เพิ่มรางวัลเรียบร้อยแล้ว';
+  String get ad_reward_success_message => 'บันทึกรางวัลแล้ว';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ คู่มือโหวตรายสัปดาห์';
+
+  @override
+  String get weekly_vote_info_body =>
+      'Hall of Fame Award ของ Picnic จัดขึ้นทุกสัปดาห์!\n\nผู้ชนะประจำสัปดาห์จะถูกบันทึกเป็นผู้ท้าชิง \'Hall of Fame Award\' ประจำปลายปีโดยอัตโนมัติ\n\nโดยจะคัดเลือกผู้ชนะรายสัปดาห์ทั้งหมด 50 คนต่อปี\n\n(※ เมื่อศิลปินชนะแล้ว จะถูกถอดจากผู้เข้าชิงโหวตรายสัปดาห์ในปีนั้น)';
+
+  @override
+  String get weekly_vote_info_link => 'What is Weekly Vote?';
 }

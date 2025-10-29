@@ -1504,7 +1504,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get ad_more_info_button => 'আরও জানুন';
 
   @override
-  String get ad_reward_success_message => 'পুরস্কার ক্রেডিট করা হয়েছে।';
+  String get ad_reward_success_message => 'রিওয়ার্ড জমা হয়েছে।';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ সাপ্তাহিক ভোট নির্দেশিকা';
+
+  @override
+  String get weekly_vote_info_body =>
+      'পিকনিকের Hall of Fame Award প্রতি সপ্তাহে অনুষ্ঠিত হয়!\n\nপ্রতি সপ্তাহের বিজয়ী বছরশেষের \'Hall of Fame Award\'-এর প্রার্থী হিসেবে স্বয়ংক্রিয়ভাবে নিবন্ধিত হয়,\n\nএবং বছরে মোট ৫০ জন সাপ্তাহিক বিজয়ী নির্বাচিত হয়।\n\n(※ একটি শিল্পী একবার জিতলে, সেই বছরে সাপ্তাহিক ভোটের প্রার্থী থেকে বাদ দেওয়া হয়।)';
+
+  @override
+  String get weekly_vote_info_link => 'What is Weekly Vote?';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -3007,5 +3017,12 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get ad_more_info_button => 'আরও জানুন';
 
   @override
-  String get ad_reward_success_message => 'পুরস্কার ক্রেডিট করা হয়েছে।';
+  String get ad_reward_success_message => 'রিওয়ার্ড জমা হয়েছে।';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ সাপ্তাহিক ভোট নির্দেশিকা';
+
+  @override
+  String get weekly_vote_info_body =>
+      'পিকনিকের Hall of Fame Award প্রতি সপ্তাহে অনুষ্ঠিত হয়!\n\nপ্রতি সপ্তাহের বিজয়ী বছরশেষের \'Hall of Fame Award\'-এর প্রার্থী হিসেবে স্বয়ংক্রিয়ভাবে নিবন্ধিত হয়,\n\nএবং বছরে মোট ৫০ জন সাপ্তাহিক বিজয়ী নির্বাচিত হয়।\n\n(※ একটি শিল্পী একবার জিতলে, সেই বছরে সাপ্তাহিক ভোটের প্রার্থী থেকে বাদ দেওয়া হয়।)';
 }

@@ -466,8 +466,12 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           ),
           child: Column(
             children: [
+              // 화면 높이에 따라 그리드 높이를 유동적으로 조정 (더 넉넉한 영역 확보)
               SizedBox(
-                height: 240,
+                height: math.max(
+                  200.0,
+                  math.min(340.0, ref.watch(globalMediaQueryProvider).size.height * 0.36),
+                ),
                 child: PageView.builder(
                   controller: _thumbnailPageController,
                   onPageChanged: (index) {
@@ -487,7 +491,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                             crossAxisCount: 4,
                             mainAxisSpacing: 4,
                             crossAxisSpacing: 8,
-                            childAspectRatio: 1 / 1.1,
+                            childAspectRatio: 1 / 1.0,
                           ),
                       itemCount: thumbnails.length,
                       itemBuilder: (context, index) {

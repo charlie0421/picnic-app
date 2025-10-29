@@ -1510,5 +1510,15 @@ class AppLocalizationsVi extends AppLocalizations {
   String get ad_more_info_button => 'Tìm hiểu thêm';
 
   @override
-  String get ad_reward_success_message => 'Phần thưởng đã được ghi có.';
+  String get ad_reward_success_message => 'Phần thưởng đã được cộng.';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ Hướng dẫn Bầu chọn Hàng tuần';
+
+  @override
+  String get weekly_vote_info_body =>
+      'Hall of Fame Award của Picnic mở ra mỗi tuần!\n\nMỗi nghệ sĩ chiến thắng hàng tuần sẽ tự động được đề cử vào \'Hall of Fame Award\' cuối năm,\n\nvới tổng cộng 50 người chiến thắng hàng tuần được chọn mỗi năm.\n\n(※ Một khi nghệ sĩ đã chiến thắng, họ sẽ bị loại khỏi danh sách đề cử bầu chọn hàng tuần trong năm đó.)';
+
+  @override
+  String get weekly_vote_info_link => 'What is Weekly Vote?';
 }

@@ -1907,5 +1907,11 @@
   "ad_more_info_button": "More Info",
   "@ad_more_info_button": {"description": "CTA button after ad finished"},
   "ad_reward_success_message": "Reward credited.",
-  "@ad_reward_success_message": {"description": "Ad view credited success message"}
+  "@ad_reward_success_message": {"description": "Ad view credited success message"},
+  "weekly_vote_info_title": "🎖️ Weekly Vote Guide",
+  "@weekly_vote_info_title": {"description": "Weekly vote info popup title"},
+  "weekly_vote_info_body": "Picnic's Hall of Fame Award opens every week!\n\nEach weekly winner is automatically nominated for the year-end 'Hall of Fame Award',\n\nwith a total of 50 weekly winners selected annually.\n\n(※ Once an artist wins, they are excluded from weekly vote candidates for the rest of that year.)"
+  ,
+  "@weekly_vote_info_link": {"description": "Link label asking what weekly voting is"},
+  "weekly_vote_info_link": "What is Weekly Vote?"
 }

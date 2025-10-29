@@ -1898,5 +1898,11 @@
   "ad_more_info_button": "Karagdagang Impormasyon",
   "@ad_more_info_button": {"description": "CTA button pagkatapos ng ad"},
   "ad_reward_success_message": "Na-kredito ang gantimpala.",
-  "@ad_reward_success_message": {"description": "Mensaheng tagumpay sa pagkredito ng gantimpala ng ad"}
+  "@ad_reward_success_message": {"description": "Mensahe kapag na-kredito ang gantimpala sa panonood ng ad"},
+  "weekly_vote_info_title": "🎖️ Gabay sa Weekly Vote",
+  "@weekly_vote_info_title": {"description": "Pamagat ng popup para sa impormasyong weekly vote"},
+  "weekly_vote_info_body": "Bukas linggo-linggo ang Hall of Fame Award ng Picnic!\n\nAng bawat lingguhang nagwagi ay awtomatikong nakarehistro bilang kandidato sa 'Hall of Fame Award' sa katapusan ng taon,\n\nat kabuuang 50 lingguhang nagwagi ang pipiliin taun-taon.\n\n(※ Kapag nanalo na ang isang artista, hindi na siya kasali bilang kandidato sa weekly vote sa nasabing taon.)"
+  ,
+  "@weekly_vote_info_link": {"description": "Label ng link para sa weekly vote info"},
+  "weekly_vote_info_link": "Ano ang Weekly Vote?"
 }

@@ -1902,6 +1902,9 @@
   "@ad_close_confirm_message": {"description": "关闭广告确认对话框消息(简体)"},
   "ad_more_info_button": "了解更多",
   "@ad_more_info_button": {"description": "广告结束后的CTA按钮(简体)"},
-  "ad_reward_success_message": "奖励已发放。",
-  "@ad_reward_success_message": {"description": "广告观看奖励成功消息(简体)"}
+  "ad_reward_success_message": "已发放奖励。",
+  "@ad_reward_success_message": {"description": "观看广告奖励发放消息"},
+  "weekly_vote_info_title": "🎖️ 每周投票指南",
+  "@weekly_vote_info_title": {"description": "每周投票弹窗标题（简体）"},
+  "weekly_vote_info_body": "Picnic 的 Hall of Fame Award 每周开启！\n\n每周的获胜艺人将自动登记为年末 'Hall of Fame Award' 的候选人，\n\n全年共评选出50名每周优胜者。\n\n（※ 已获胜的艺人在当年将不再作为每周投票候选人。）"
 }

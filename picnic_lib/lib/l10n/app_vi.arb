@@ -1897,6 +1897,9 @@
   "@ad_close_confirm_message": {"description": "Nội dung xác nhận đóng quảng cáo"},
   "ad_more_info_button": "Tìm hiểu thêm",
   "@ad_more_info_button": {"description": "Nút CTA sau khi quảng cáo kết thúc"},
-  "ad_reward_success_message": "Phần thưởng đã được ghi có.",
-  "@ad_reward_success_message": {"description": "Thông báo thành công khi cộng thưởng quảng cáo"}
+  "ad_reward_success_message": "Phần thưởng đã được cộng.",
+  "@ad_reward_success_message": {"description": "Thông báo cộng phần thưởng xem quảng cáo"},
+  "weekly_vote_info_title": "🎖️ Hướng dẫn Bầu chọn Hàng tuần",
+  "@weekly_vote_info_title": {"description": "Tiêu đề popup thông tin bầu chọn hàng tuần"},
+  "weekly_vote_info_body": "Hall of Fame Award của Picnic mở ra mỗi tuần!\n\nMỗi nghệ sĩ chiến thắng hàng tuần sẽ tự động được đề cử vào 'Hall of Fame Award' cuối năm,\n\nvới tổng cộng 50 người chiến thắng hàng tuần được chọn mỗi năm.\n\n(※ Một khi nghệ sĩ đã chiến thắng, họ sẽ bị loại khỏi danh sách đề cử bầu chọn hàng tuần trong năm đó.)"
 }

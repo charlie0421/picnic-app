@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:animated_digit/animated_digit.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -501,34 +500,70 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
                       return GestureDetector(
                         onTap: () => _focusNode.unfocus(),
-                        child: SizedBox.expand(
-                          child: CustomScrollView(
-                            controller: _scrollController,
-                            physics:
-                                const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
-                            keyboardDismissBehavior:
-                                ScrollViewKeyboardDismissBehavior.onDrag,
-                            slivers: [
-                              SliverToBoxAdapter(
-                                child: RepaintBoundary(
-                                  key: _captureKey,
-                                  child: Column(
-                                    children: [
-                                      _buildVoteInfo(context, voteModel),
-                                      SizedBox(height: 12),
-                                      if (_isSaving)
-                                        _buildCaptureVoteList(context),
-                                    ],
+                        child: RefreshIndicator(
+                          color: AppColors.primary500,
+                          backgroundColor: Colors.white,
+                          onRefresh: () async {
+                            _isRefreshingItems = true;
+                            try {
+                              await Future.wait([
+                                ref
+                                    .refresh(
+                                      asyncVoteDetailProvider(
+                                        voteId: widget.voteId,
+                                        votePortal: widget.votePortal,
+                                      ).future,
+                                    )
+                                    .timeout(
+                                      const Duration(seconds: 8),
+                                      onTimeout: () => null,
+                                    ),
+                                ref
+                                    .refresh(
+                                      asyncVoteItemListProvider(
+                                        voteId: widget.voteId,
+                                        votePortal: widget.votePortal,
+                                      ).future,
+                                    )
+                                    .timeout(
+                                      const Duration(seconds: 8),
+                                      onTimeout: () => [],
+                                    ),
+                              ]);
+                            } finally {
+                              _isRefreshingItems = false;
+                            }
+                          },
+                          child: SizedBox.expand(
+                            child: CustomScrollView(
+                              controller: _scrollController,
+                              physics:
+                                  const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              slivers: [
+                                SliverToBoxAdapter(
+                                  child: RepaintBoundary(
+                                    key: _captureKey,
+                                    child: Column(
+                                      children: [
+                                        _buildVoteInfo(context, voteModel),
+                                        SizedBox(height: 12),
+                                        if (_isSaving)
+                                          _buildCaptureVoteList(context),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                              if (!_isSaving) _buildVoteItemList(context),
-                            ],
+                                if (!_isSaving) _buildVoteItemList(context),
+                              ],
+                            ),
                           ),
                         ),
                       );
                     },
-                    loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
+                    loading: () =>
+                        SizedBox.expand(child: _buildLoadingShimmer()),
                     error: (error, stackTrace) => buildErrorView(
                       context,
                       error: error.toString(),
@@ -1246,7 +1281,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               width: 39, // 명시적 크기 지정
               height: 39,
               child: hasValidImageUrl
-                  ? _buildNetworkImage(fullImageUrl, item.id, index)
+                  ? _buildNetworkImage(imageUrl, item.id, index)
                   : _buildImagePlaceholder(),
             ),
           ),
@@ -1272,31 +1307,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildImageWithFallback(String imageUrl) {
-    // 먼저 기본 CachedNetworkImage로 시도
-    return CachedNetworkImage(
-      imageUrl: imageUrl,
-      fit: BoxFit.cover,
-      width: 39,
-      height: 39,
-      memCacheWidth: 78,
-      memCacheHeight: 78,
-      placeholder: (context, url) {
-        logger.d('🖼️ 이미지 로딩 중: $url');
-        return _buildImagePlaceholder();
-      },
-      errorWidget: (context, url, error) {
-        // logger.e('🖼️ 이미지 로딩 실패: $url, 에러: $error');
-        // 에러 발생 시 PicnicCachedNetworkImage로 fallback
-        return _buildPicnicImageFallback(imageUrl);
-      },
-      fadeInDuration: const Duration(milliseconds: 200),
-      fadeOutDuration: const Duration(milliseconds: 100),
-    );
-  }
-
-  Widget _buildPicnicImageFallback(String imageUrl) {
-    logger.d('🖼️ PicnicCachedNetworkImage fallback 시도: $imageUrl');
-
+    // 뷰포트에 들어올 때 로딩되는 커스텀 컴포넌트 사용 (가시 시 로딩)
     return PicnicCachedNetworkImage(
       imageUrl: imageUrl,
       fit: BoxFit.cover,
@@ -1305,8 +1316,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       memCacheWidth: 78,
       memCacheHeight: 78,
       placeholder: _buildImagePlaceholder(),
-      lazyLoadingStrategy: LazyLoadingStrategy.none,
-      priority: ImagePriority.high,
+      lazyLoadingStrategy: LazyLoadingStrategy.viewport,
+      priority: ImagePriority.normal,
+      enableMemoryOptimization: true,
+      enableProgressiveLoading: true,
       timeout: const Duration(seconds: 10),
       maxRetries: 2,
     );
@@ -1486,6 +1499,54 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildApplicationButton(BuildContext context) {
+    final voteModel = ref
+        .watch(
+          asyncVoteDetailProvider(
+            voteId: widget.voteId,
+            votePortal: widget.votePortal,
+          ),
+        )
+        .value;
+
+    final category = voteModel?.voteCategory?.toLowerCase() ?? '';
+    final isWeekly = category.contains('week');
+
+    if (isWeekly) {
+      return InkWell(
+        onTap: () {
+          showSimpleDialog(
+            title: AppLocalizations.of(context).weekly_vote_info_title,
+            content: AppLocalizations.of(context).weekly_vote_info_body,
+            onOk: () => Navigator.of(context, rootNavigator: false).pop(),
+          );
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/icons/ic_weekly_info.svg',
+              package: 'picnic_lib',
+              width: 16,
+              height: 16,
+            ),
+            const SizedBox(width: 6),
+            UnderlinedText(
+              text: AppLocalizations.of(context).weekly_vote_info_link,
+              textStyle: getTextStyle(AppTypo.body14B, AppColors.primary500),
+              underlineColor: AppColors.primary500,
+              underlineHeight: 1,
+              underlineGap: 1,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return _buildApplicationGradientButton(context);
+  }
+
+  Widget _buildApplicationGradientButton(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.95, end: 1.0),
       duration: const Duration(milliseconds: 1500),
@@ -1552,7 +1613,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                         if (isSupabaseLoggedSafely) {
                           logger.d('🔥 사용자 로그인 상태 확인됨');
 
-                          // 신청 다이얼로그 표시
                           final voteModel = ref
                               .read(
                                 asyncVoteDetailProvider(
@@ -1618,7 +1678,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                               duration: const Duration(milliseconds: 1200),
                               curve: Curves.easeOutBack,
                               builder: (context, textOpacity, child) {
-                                // opacity 값이 0.0~1.0 범위를 벗어나지 않도록 보장
                                 final safeOpacity = textOpacity.clamp(0.0, 1.0);
                                 return Opacity(
                                   opacity: safeOpacity,

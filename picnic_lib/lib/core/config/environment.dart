@@ -161,7 +161,6 @@ class Environment {
   static String? get tapjoyIosSdkKey =>
       _getValue(['ads', 'tapjoy', 'ios_sdk_key']) as String;
 
-
   // Pincrux 관련 설정
   static String? get pincruxAndroidAppKey {
     try {

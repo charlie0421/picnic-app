@@ -1513,4 +1513,14 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get ad_reward_success_message => 'Hadiah telah dikreditkan.';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ Panduan Pemungutan Suara Mingguan';
+
+  @override
+  String get weekly_vote_info_body =>
+      'Hall of Fame Award Picnic dibuka setiap minggu!\n\nSetiap pemenang mingguan akan otomatis terdaftar sebagai kandidat \'Hall of Fame Award\' akhir tahun,\n\ndengan total 50 pemenang mingguan dipilih setiap tahun.\n\n(※ Setelah seorang artis menang, ia tidak lagi menjadi kandidat voting mingguan pada tahun tersebut.)';
+
+  @override
+  String get weekly_vote_info_link => 'Apa itu Weekly Vote?';
 }

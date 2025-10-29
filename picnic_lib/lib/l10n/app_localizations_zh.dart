@@ -1503,7 +1503,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ad_more_info_button => '了解更多';
 
   @override
-  String get ad_reward_success_message => '奖励已发放。';
+  String get ad_reward_success_message => '已发放奖励。';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ 每周投票指南';
+
+  @override
+  String get weekly_vote_info_body =>
+      'Picnic 的 Hall of Fame Award 每周开启！\n\n每周的获胜艺人将自动登记为年末 \'Hall of Fame Award\' 的候选人，\n\n全年共评选出50名每周优胜者。\n\n（※ 已获胜的艺人在当年将不再作为每周投票候选人。）';
+
+  @override
+  String get weekly_vote_info_link => 'What is Weekly Vote?';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -2942,7 +2952,14 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get ad_more_info_button => '了解更多';
 
   @override
-  String get ad_reward_success_message => '奖励已发放。';
+  String get ad_reward_success_message => '已发放奖励。';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ 每周投票指南';
+
+  @override
+  String get weekly_vote_info_body =>
+      'Picnic 的 Hall of Fame Award 每周开启！\n\n每周的获胜艺人将自动登记为年末 \'Hall of Fame Award\' 的候选人，\n\n全年共评选出50名每周优胜者。\n\n（※ 已获胜的艺人在当年将不再作为每周投票候选人。）';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4380,5 +4397,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get ad_more_info_button => '更多資訊';
 
   @override
-  String get ad_reward_success_message => '獎勵已發放。';
+  String get ad_reward_success_message => '已發放獎勵。';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ 每週投票指南';
+
+  @override
+  String get weekly_vote_info_body =>
+      'Picnic 的 Hall of Fame Award 每週開啟！\n\n每週的優勝藝人將自動登錄為年末 \'Hall of Fame Award\' 候選人，\n\n全年共選出50位每週優勝者。\n\n（※ 一旦藝人獲勝，該年度將不再列入每週投票候選。）';
 }

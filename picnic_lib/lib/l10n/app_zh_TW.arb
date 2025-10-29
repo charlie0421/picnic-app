@@ -1901,6 +1901,9 @@
   "@ad_close_confirm_message": {"description": "關閉廣告確認對話框訊息(繁體)"},
   "ad_more_info_button": "更多資訊",
   "@ad_more_info_button": {"description": "廣告結束後的CTA按鈕(繁體)"},
-  "ad_reward_success_message": "獎勵已發放。",
-  "@ad_reward_success_message": {"description": "廣告觀看獎勵成功訊息(繁體)"}
+  "ad_reward_success_message": "已發放獎勵。",
+  "@ad_reward_success_message": {"description": "觀看廣告獎勵發放訊息"},
+  "weekly_vote_info_title": "🎖️ 每週投票指南",
+  "@weekly_vote_info_title": {"description": "每週投票彈窗標題（繁體）"},
+  "weekly_vote_info_body": "Picnic 的 Hall of Fame Award 每週開啟！\n\n每週的優勝藝人將自動登錄為年末 'Hall of Fame Award' 候選人，\n\n全年共選出50位每週優勝者。\n\n（※ 一旦藝人獲勝，該年度將不再列入每週投票候選。）"
 }

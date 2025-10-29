@@ -1534,4 +1534,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get ad_reward_success_message => 'Recompensa acreditada.';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ Guía del voto semanal';
+
+  @override
+  String get weekly_vote_info_body =>
+      '¡Hall of Fame Award de Picnic se celebra cada semana!\n\nCada ganador semanal se registra automáticamente como candidato al \'Hall of Fame Award\' de fin de año,\n\ncon un total de 50 ganadores semanales seleccionados al año.\n\n(※ Una vez que un artista gana, queda excluido como candidato del voto semanal durante ese año.)';
+
+  @override
+  String get weekly_vote_info_link => '¿Qué es el voto semanal?';
 }

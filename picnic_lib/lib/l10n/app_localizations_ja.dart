@@ -1444,4 +1444,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get ad_reward_success_message => '報酬が付与されました。';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ ウィークリー投票のご案内';
+
+  @override
+  String get weekly_vote_info_body =>
+      '毎週開催されるピクニックの Hall of Fame Award!\n\n毎週の優勝アーティストは年末の \'Hall of Fame Award\' 候補に自動登録され、\n\n年間合計50名のウィークリー優勝者が選出されます。\n\n（※一度優勝したアーティストは、その年のウィークリー投票候補から除外されます。）';
+
+  @override
+  String get weekly_vote_info_link => 'What is Weekly Vote?';
 }

@@ -1543,4 +1543,14 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get ad_reward_success_message => 'Na-kredito ang gantimpala.';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ Gabay sa Weekly Vote';
+
+  @override
+  String get weekly_vote_info_body =>
+      'Bukas linggo-linggo ang Hall of Fame Award ng Picnic!\n\nAng bawat lingguhang nagwagi ay awtomatikong nakarehistro bilang kandidato sa \'Hall of Fame Award\' sa katapusan ng taon,\n\nat kabuuang 50 lingguhang nagwagi ang pipiliin taun-taon.\n\n(※ Kapag nanalo na ang isang artista, hindi na siya kasali bilang kandidato sa weekly vote sa nasabing taon.)';
+
+  @override
+  String get weekly_vote_info_link => 'Ano ang Weekly Vote?';
 }

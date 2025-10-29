@@ -129,13 +129,14 @@ class _MyPageState extends ConsumerState<MyPage> {
                       .setCurrentMyPage(const FAQPage()),
                 ),
                 // Notifications
-                PicnicListItem(
-                  leading: '알림함',
-                  assetPath: 'assets/icons/arrow_right_style=line.svg',
-                  onTap: () => ref
-                      .read(navigationInfoProvider.notifier)
-                      .setCurrentMyPage(const NotificationsPage()),
-                ),
+                if (data != null && (data.isAdmin ?? false))
+                  PicnicListItem(
+                    leading: '알림함',
+                    assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    onTap: () => ref
+                        .read(navigationInfoProvider.notifier)
+                        .setCurrentMyPage(const NotificationsPage()),
+                  ),
                 // QnA
                 if (data != null && data.id != null)
                   PicnicListItem(

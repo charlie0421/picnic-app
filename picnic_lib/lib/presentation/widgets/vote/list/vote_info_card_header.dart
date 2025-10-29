@@ -54,6 +54,8 @@ class VoteCardInfoHeader extends StatelessWidget {
               AppColors.grey900,
             ),
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         CountdownTimer(

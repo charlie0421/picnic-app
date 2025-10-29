@@ -1898,5 +1898,11 @@
   "ad_more_info_button": "Más información",
   "@ad_more_info_button": {"description": "Botón CTA después de terminar el anuncio"},
   "ad_reward_success_message": "Recompensa acreditada.",
-  "@ad_reward_success_message": {"description": "Mensaje de éxito al acreditar la recompensa del anuncio"}
+  "@ad_reward_success_message": {"description": "Mensaje de recompensa por ver anuncios"},
+  "weekly_vote_info_title": "🎖️ Guía del voto semanal",
+  "@weekly_vote_info_title": {"description": "Título del popup de información del voto semanal"},
+  "weekly_vote_info_body": "¡Hall of Fame Award de Picnic se celebra cada semana!\n\nCada ganador semanal se registra automáticamente como candidato al 'Hall of Fame Award' de fin de año,\n\ncon un total de 50 ganadores semanales seleccionados al año.\n\n(※ Una vez que un artista gana, queda excluido como candidato del voto semanal durante ese año.)"
+  ,
+  "@weekly_vote_info_link": {"description": "Etiqueta del enlace de información del voto semanal"},
+  "weekly_vote_info_link": "¿Qué es el voto semanal?"
 }

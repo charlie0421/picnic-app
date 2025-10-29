@@ -1898,6 +1898,9 @@
   "@ad_close_confirm_message": {"description": "বিজ্ঞাপন বন্ধের নিশ্চিতকরণ বার্তা (BD)"},
   "ad_more_info_button": "আরও জানুন",
   "@ad_more_info_button": {"description": "বিজ্ঞাপন শেষ হলে CTA বাটন (BD)"},
-  "ad_reward_success_message": "পুরস্কার ক্রেডিট করা হয়েছে।",
-  "@ad_reward_success_message": {"description": "বিজ্ঞাপন দেখার পুরস্কার সফলতার বার্তা (BD)"}
+  "ad_reward_success_message": "রিওয়ার্ড জমা হয়েছে।",
+  "@ad_reward_success_message": {"description": "বিজ্ঞাপন দেখার রিওয়ার্ড মেসেজ (BD)"},
+  "weekly_vote_info_title": "🎖️ সাপ্তাহিক ভোট নির্দেশিকা",
+  "@weekly_vote_info_title": {"description": "সাপ্তাহিক ভোট তথ্য পপআপ শিরোনাম (BD)"},
+  "weekly_vote_info_body": "পিকনিকের Hall of Fame Award প্রতি সপ্তাহে অনুষ্ঠিত হয়!\n\nপ্রতি সপ্তাহের বিজয়ী বছরশেষের 'Hall of Fame Award'-এর প্রার্থী হিসেবে স্বয়ংক্রিয়ভাবে নিবন্ধিত হয়,\n\nএবং বছরে মোট ৫০ জন সাপ্তাহিক বিজয়ী নির্বাচিত হয়।\n\n(※ একটি শিল্পী একবার জিতলে, সেই বছরে সাপ্তাহিক ভোটের প্রার্থী থেকে বাদ দেওয়া হয়।)"
 }

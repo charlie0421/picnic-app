@@ -455,7 +455,12 @@
     "qna_auto_close_after_14_days_notice",
     "qna_status_received",
     "qna_status_in_progress",
-    "qna_status_resolved"
+    "qna_status_resolved",
+    "weekly_vote_info_link"
+  ],
+
+  "bn_BD": [
+    "weekly_vote_info_link"
   ],
 
   "ja": [
@@ -463,7 +468,16 @@
     "qna_category_required",
     "ad_close_confirm_title",
     "ad_close_confirm_message",
-    "ad_more_info_button"
+    "ad_more_info_button",
+    "weekly_vote_info_link"
+  ],
+
+  "th": [
+    "weekly_vote_info_link"
+  ],
+
+  "vi": [
+    "weekly_vote_info_link"
   ],
 
   "zh": [
@@ -922,6 +936,15 @@
     "qna_auto_close_after_14_days_notice",
     "qna_status_received",
     "qna_status_in_progress",
-    "qna_status_resolved"
+    "qna_status_resolved",
+    "weekly_vote_info_link"
+  ],
+
+  "zh_CN": [
+    "weekly_vote_info_link"
+  ],
+
+  "zh_TW": [
+    "weekly_vote_info_link"
   ]
 }

@@ -1505,4 +1505,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ad_reward_success_message => 'Reward credited.';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ Weekly Vote Guide';
+
+  @override
+  String get weekly_vote_info_body =>
+      'Picnic\'s Hall of Fame Award opens every week!\n\nEach weekly winner is automatically nominated for the year-end \'Hall of Fame Award\',\n\nwith a total of 50 weekly winners selected annually.\n\n(※ Once an artist wins, they are excluded from weekly vote candidates for the rest of that year.)';
+
+  @override
+  String get weekly_vote_info_link => 'What is Weekly Vote?';
 }

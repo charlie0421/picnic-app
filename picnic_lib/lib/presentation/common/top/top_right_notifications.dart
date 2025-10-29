@@ -2,12 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/presentation/pages/notifications/notifications_page.dart';
 import 'package:picnic_lib/presentation/providers/notifications_unread_count_provider.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 
 class TopRightNotifications extends ConsumerWidget {
   const TopRightNotifications({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userInfoState = ref.watch(userInfoProvider);
+    final isAdmin = userInfoState.maybeWhen(
+      data: (u) => (u?.isAdmin ?? false),
+      orElse: () => false,
+    );
+
+    if (!isAdmin) {
+      return const SizedBox.shrink();
+    }
+
     final unreadAsync = ref.watch(unreadNotificationsCountProvider);
     final count = unreadAsync.maybeWhen(data: (v) => v, orElse: () => 0);
 

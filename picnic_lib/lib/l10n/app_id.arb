@@ -1954,5 +1954,11 @@
   "ad_more_info_button": "Selengkapnya",
   "@ad_more_info_button": {"description": "Tombol CTA setelah iklan selesai"},
   "ad_reward_success_message": "Hadiah telah dikreditkan.",
-  "@ad_reward_success_message": {"description": "Pesan sukses saat kredit hadiah iklan"}
+  "@ad_reward_success_message": {"description": "Pesan sukses kredit hadiah dari iklan"},
+  "weekly_vote_info_title": "🎖️ Panduan Pemungutan Suara Mingguan",
+  "@weekly_vote_info_title": {"description": "Judul popup panduan vote mingguan"},
+  "weekly_vote_info_body": "Hall of Fame Award Picnic dibuka setiap minggu!\n\nSetiap pemenang mingguan akan otomatis terdaftar sebagai kandidat 'Hall of Fame Award' akhir tahun,\n\ndengan total 50 pemenang mingguan dipilih setiap tahun.\n\n(※ Setelah seorang artis menang, ia tidak lagi menjadi kandidat voting mingguan pada tahun tersebut.)"
+  ,
+  "@weekly_vote_info_link": {"description": "Label tautan untuk info voting mingguan"},
+  "weekly_vote_info_link": "Apa itu Weekly Vote?"
 }

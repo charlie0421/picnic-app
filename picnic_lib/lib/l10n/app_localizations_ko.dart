@@ -1442,4 +1442,14 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get ad_reward_success_message => '적립되었습니다.';
+
+  @override
+  String get weekly_vote_info_title => '🎖️ 위클리 투표 안내';
+
+  @override
+  String get weekly_vote_info_body =>
+      '매주 열리는 피크닠의 명예의 전당!\n\n매주 우승한 아티스트는 연말 \'명예의 전당\' 후보로 자동 등록되며,\n\n연간 총 50명의 위클리 우승자가 선정됩니다.\n\n(※ 한 번 우승한 아티스트는 그 해 위클리 투표 후보에서 제외됩니다.)';
+
+  @override
+  String get weekly_vote_info_link => '위클리 투표란?';
 }
