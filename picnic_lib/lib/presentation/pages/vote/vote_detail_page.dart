@@ -795,8 +795,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                     top: 56,
                     left: 16.w,
                     right: 16.w,
-                    bottom: 100,
-                  ).r, // 하단 패딩 추가로 스크롤 여백 확보
+                    // 고정 100 대신 기기 하단 viewPadding을 고려하여 동적 패딩 적용
+                    bottom: 24 + MediaQuery.of(context).viewPadding.bottom,
+                  ).r, // 하단 패딩: 기기별 안전영역을 반영해 스크롤 여백 확보
                   child: filteredIndices.isEmpty && _searchQuery.isNotEmpty
                       ? SizedBox(
                           height: 200,

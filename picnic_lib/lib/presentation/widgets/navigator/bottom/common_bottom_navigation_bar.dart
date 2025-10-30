@@ -14,11 +14,14 @@ class CommonBottomNavigationBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final userInfoState = ref.watch(userInfoProvider);
-    
+
     // 디바이스 하단 안전영역에 따라 네비게이션 바의 바닥 마진을 조정
-    final safeBottom = MediaQuery.of(context).padding.bottom;
-    // 홈 인디케이터가 있는 기기(iOS 최신 등)에도 최소 여백을 준다
-    final double dynamicBottomMargin = safeBottom > 0 ? 16.h : 16.h;
+    // Android 15(edge-to-edge)에서는 MediaQuery.padding.bottom이 0이므로
+    // viewPadding.bottom을 우선 사용해 제스처 영역까지 고려한다.
+    final mediaQuery = MediaQuery.of(context);
+    final double safeBottom = mediaQuery.viewPadding.bottom;
+    // 기본 여백(디자인 스펙) + 기기 안전 영역
+    final double dynamicBottomMargin = 16.h + (safeBottom > 0 ? safeBottom : 0);
     final screenInfo = NavigationConfigs.getScreenInfo(
       navigationInfo.portalType,
     );
