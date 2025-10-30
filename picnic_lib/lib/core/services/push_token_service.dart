@@ -112,6 +112,13 @@ class PushTokenService {
         // ignore: unawaited_futures
         registerToken(token);
       });
+
+      // 앱 포그라운드 수신 로그
+      FirebaseMessaging.onMessage.listen((RemoteMessage msg) {
+        final title = msg.notification?.title ?? '(no-title)';
+        final body = msg.notification?.body ?? '';
+        logger.i('[FCM] onMessage (foreground) title="$title" body="$body" data=${msg.data}');
+      });
       totalSw.stop();
       logger.i(
         'PushTokenService.initialize completed in ${totalSw.elapsedMilliseconds}ms',

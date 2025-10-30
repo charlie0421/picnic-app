@@ -52,4 +52,17 @@ import UIKit
         application.registerForRemoteNotifications()
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
+
+    // iOS 포그라운드 알림 표시 설정
+    override func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        if #available(iOS 14.0, *) {
+            completionHandler([.banner, .list, .badge, .sound])
+        } else {
+            completionHandler([.alert, .badge, .sound])
+        }
+    }
 }
