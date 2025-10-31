@@ -81,7 +81,7 @@ class PushTokenService {
         if (sessionReady) {
           // 초기화 지연을 막기 위해 비동기 호출로 전환
           // ignore: unawaited_futures
-          registerToken(fcmToken!);
+          registerToken(fcmToken);
         } else {
           logger.w(
             'Auth session not ready; will register push token on sign-in event',
@@ -117,7 +117,9 @@ class PushTokenService {
       FirebaseMessaging.onMessage.listen((RemoteMessage msg) {
         final title = msg.notification?.title ?? '(no-title)';
         final body = msg.notification?.body ?? '';
-        logger.i('[FCM] onMessage (foreground) title="$title" body="$body" data=${msg.data}');
+        logger.i(
+          '[FCM] onMessage (foreground) title="$title" body="$body" data=${msg.data}',
+        );
       });
       totalSw.stop();
       logger.i(
@@ -126,7 +128,7 @@ class PushTokenService {
     } catch (e, s) {
       final type = e.runtimeType.toString();
       logger.e(
-        'PushTokenService initialize failed (${type})',
+        'PushTokenService initialize failed ($type)',
         error: e,
         stackTrace: s,
       );
@@ -300,7 +302,7 @@ class PushTokenService {
       }
     } catch (e, s) {
       final type = e.runtimeType.toString();
-      logger.e('registerToken failed (${type})', error: e, stackTrace: s);
+      logger.e('registerToken failed ($type)', error: e, stackTrace: s);
     }
   }
 

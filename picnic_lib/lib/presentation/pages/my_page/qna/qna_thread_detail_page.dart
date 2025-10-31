@@ -20,6 +20,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class QnaThreadDetailPage extends ConsumerStatefulWidget {
   final QnaThread thread;
@@ -401,9 +402,23 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
               )
             : videoWidget;
       } else {
+        final fileUrl = _getPublicUrl(att.filePath);
         return InkWell(
-          onTap: () {
-            // TODO: Implement attachment download/view
+          onTap: () async {
+            try {
+              final uri = Uri.parse(fileUrl);
+              final launched = await launchUrl(
+                uri,
+                mode: LaunchMode.externalApplication,
+              );
+              if (!launched && mounted) {
+                SnackbarUtil().error('Cannot open the link.', context: context);
+              }
+            } catch (_) {
+              if (mounted) {
+                SnackbarUtil().error('Cannot open the link.', context: context);
+              }
+            }
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),

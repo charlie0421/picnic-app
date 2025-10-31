@@ -56,7 +56,7 @@ class ShortformInternalPlatform extends AdPlatform {
     // 2) /videos/output/* 경로 → 받은 값의 ID를 기준으로 CloudFront master.m3u8 구성
     final pathOnly = () {
       final uri = Uri.tryParse(normalized);
-      return uri?.path?.isNotEmpty == true ? uri!.path : normalized;
+      return uri?.path.isNotEmpty == true ? uri!.path : normalized;
     }();
     if (pathOnly.contains(RegExp(r'/videos/output/'))) {
       final segs = pathOnly.split('/').where((s) => s.isNotEmpty).toList();
@@ -81,7 +81,6 @@ class ShortformInternalPlatform extends AdPlatform {
   String? _videoUrl;
   String? _ctaUrl;
   VideoPlayerController? _controller;
-  bool _issued = false;
   bool _viewCalled = false;
 
   @override
@@ -99,45 +98,12 @@ class ShortformInternalPlatform extends AdPlatform {
     }); // checkAdsLimit 수행 (기본값)
   }
 
-  Future<void> _issue() async {
-    if (_issued) return;
-    try {
-      final supabaseUrl = Environment.supabaseUrl;
-      final token = supabase.auth.currentSession?.accessToken ?? '';
-      final res = await supabase.auth.currentSession != null
-          ? await SupabaseClient(
-              supabaseUrl,
-              Environment.supabaseAnonKey,
-            ).functions.invoke(
-              'ad-shortform-issue',
-              headers: {'Authorization': 'Bearer $token'},
-            )
-          : throw Exception('not logged in');
-      if (res.data == null) throw Exception('issue failed');
-      final json = res.data as Map<String, dynamic>;
-      final ad = json['ad'] as Map<String, dynamic>?;
-      final tokens = json['tokens'] as Map<String, dynamic>?;
-      _videoUrl = ad?['video_url'] as String?;
-      _ctaUrl = ad?['cta_url'] as String?;
-      // 임시: ads/* 또는 /video(s)/output/* 경로를 CloudFront HLS 마스터로 동적 치환
-      _videoUrl = _rewriteVideoUrlIfNeeded(_videoUrl);
-      logInfo('issued video_url: ${_videoUrl ?? ''}');
-      logInfo('issued cta_url: ${_ctaUrl ?? ''}');
-      _viewToken = tokens?['view_token'] as String?;
-      _moreToken = tokens?['more_token'] as String?;
-      _issued = true;
-    } catch (e, s) {
-      logError('issue failed', error: e, stackTrace: s);
-      rethrow;
-    }
-  }
-
   Future<void> _play() async {
     try {
       await Navigator.of(context).push(
         PageRouteBuilder(
           opaque: true,
-          pageBuilder: (_, __, ___) => AdShortformFullscreenPage(
+          pageBuilder: (_, _, _) => AdShortformFullscreenPage(
             videoUrl: _videoUrl ?? '',
             ctaUrl: _ctaUrl,
             onViewComplete: () async {
@@ -172,11 +138,10 @@ class ShortformInternalPlatform extends AdPlatform {
               logInfo('issued (route) video_url: ${_videoUrl ?? ''}');
               _viewToken = tokens?['view_token'] as String?;
               _moreToken = tokens?['more_token'] as String?;
-              _issued = true;
               return (videoUrl: _videoUrl ?? '', ctaUrl: _ctaUrl);
             },
           ),
-          transitionsBuilder: (_, a, __, child) =>
+          transitionsBuilder: (_, a, _, child) =>
               FadeTransition(opacity: a, child: child),
         ),
       );

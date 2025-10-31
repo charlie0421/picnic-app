@@ -26,8 +26,6 @@ import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 
-import 'package:ttja_app/generated/l10n.dart';
-
 class App extends ConsumerStatefulWidget {
   const App({super.key});
 
@@ -126,7 +124,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     // LanguageInitializer가 모든 로직(설정 로드, 에러 핸들링, fallback)을 처리
     final (success, language) =
-        await LanguageInitializer.initializeLanguage(ref, S.load);
+        await LanguageInitializer.initializeLanguage(ref, AppLocalizations.delegate.load);
 
     logger.i('언어 초기화 완료: 성공=$success, 언어=$language');
   }

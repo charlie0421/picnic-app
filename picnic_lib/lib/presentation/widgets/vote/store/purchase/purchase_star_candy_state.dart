@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,12 +26,10 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_t
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
 
 import 'handlers/restore_purchase_handler.dart';
 import 'handlers/purchase_safety_manager.dart';
 import 'handlers/purchase_dialog_handler.dart';
-import 'handlers/debug_dialog_handler.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
@@ -44,7 +41,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   late final RestorePurchaseHandler _restoreHandler;
   late final PurchaseSafetyManager _safetyManager;
   late final PurchaseDialogHandler _dialogHandler;
-  late final DebugDialogHandler _debugHandler;
   String? _pendingProductId;
   bool _transactionsCleared = false;
   bool _isActivePurchasing = false;
@@ -85,12 +81,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     _dialogHandler = PurchaseDialogHandler(
       context: context,
       purchaseService: _purchaseService,
-    );
-
-    _debugHandler = DebugDialogHandler(
-      context: context,
-      purchaseService: _purchaseService,
-      loadingKey: _loadingKey,
     );
 
     // 🎯 복원 핸들러와 안전망 매니저 연결 (연속 구매 보호)
@@ -1019,7 +1009,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
               const Divider(color: AppColors.grey200, height: 32),
               _buildFooterSection(),
               const SizedBox(height: 36),
-              _buildDebugButtons(),
             ],
           ),
         ),
@@ -1160,350 +1149,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       buttonOnPressed: isButtonEnabled
           ? () => _handleBuyButtonPressed(context, serverProduct, storeProducts)
           : null,
-    );
-  }
-
-  Widget _buildDebugButtons() {
-    if (!kDebugMode) return SizedBox.shrink();
-
-    return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.orange.withValues(alpha: 0.1),
-        border: Border.all(color: Colors.orange),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Debug & Simulation Tools',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          SizedBox(height: 12),
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.red.withValues(alpha: 0.1),
-              border: Border.all(color: Colors.red),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Force Timeout (100% Guaranteed)',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red[700],
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Does not send actual purchase request, only triggers timeout after 3 seconds:',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[700]),
-                ),
-                SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red[600],
-                      ),
-                      onPressed: () {
-                        _purchaseService.enableForceTimeout();
-                        SnackbarUtil().warning(
-                          'Force Timeout ON - Purchase will now timeout after 3 seconds!',
-                          context: context,
-                        );
-                      },
-                      child: Text(
-                        'Force Timeout ON',
-                        style: TextStyle(fontSize: 12, color: Colors.white),
-                      ),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[600],
-                      ),
-                      onPressed: () {
-                        _purchaseService.disableForceTimeout();
-                        SnackbarUtil().info(
-                          'Force Timeout OFF - Normal purchase process',
-                          context: context,
-                        );
-                      },
-                      child: Text(
-                        'Force Timeout OFF',
-                        style: TextStyle(fontSize: 12, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 12),
-          Text(
-            'Timeout Settings',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Proceed with actual purchase but adjust timeout duration:',
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-          ),
-          SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () {
-                  _purchaseService.setTimeoutMode('instant');
-                  SnackbarUtil().info(
-                    'Instant Timeout (100ms)',
-                    context: context,
-                  );
-                },
-                child: Text('100ms', style: TextStyle(fontSize: 12)),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
-                ),
-                onPressed: () {
-                  _purchaseService.setTimeoutMode('ultrafast');
-                  SnackbarUtil().info(
-                    'Ultra Fast Timeout (500ms)',
-                    context: context,
-                  );
-                },
-                child: Text('500ms', style: TextStyle(fontSize: 12)),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                onPressed: () {
-                  _purchaseService.setTimeoutMode('debug');
-                  SnackbarUtil().info(
-                    'Debug Timeout (3 seconds)',
-                    context: context,
-                  );
-                },
-                child: Text('3sec', style: TextStyle(fontSize: 12)),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                onPressed: () {
-                  _purchaseService.setTimeoutMode('normal');
-                  SnackbarUtil().info(
-                    'Normal Timeout (30 seconds)',
-                    context: context,
-                  );
-                },
-                child: Text('30sec', style: TextStyle(fontSize: 12)),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          Text(
-            'Purchase Delay Simulation',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Delay the purchase request itself to induce timeout:',
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-          ),
-          SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
-                onPressed: () {
-                  _purchaseService.enableSlowPurchase();
-                  SnackbarUtil().warning(
-                    'Purchase Delay ON - 5 second delay',
-                    context: context,
-                  );
-                },
-                // TODO: i18n - 국제화 적용 필요
-                child: Text('Delay ON', style: TextStyle(fontSize: 12)),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                onPressed: () {
-                  _purchaseService.disableSlowPurchase();
-                  SnackbarUtil().info('Purchase Delay OFF', context: context);
-                },
-                // TODO: i18n - 국제화 적용 필요
-                child: Text('Delay OFF', style: TextStyle(fontSize: 12)),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          Text(
-            'Purchase State Management',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[400],
-                ),
-                onPressed: () {
-                  final platform = Theme.of(context).platform;
-                  final platformEmoji = platform == TargetPlatform.iOS
-                      ? '📱'
-                      : platform == TargetPlatform.android
-                      ? '🤖'
-                      : '🖥️';
-
-                  logger.d(
-                    '복원 디버그 버튼 눌림 ($platformEmoji ${platform.name}) - 조용히 무시',
-                  );
-
-                  if (kDebugMode) {
-                    SnackbarUtil().info(
-                      '$platformEmoji ${platform.name}: Restore Ignored',
-                      context: context,
-                      duration: const Duration(seconds: 1),
-                    );
-                  }
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.visibility_off, size: 16, color: Colors.white),
-                    SizedBox(width: 4),
-                    Text(
-                      'Ignore Restore',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                onPressed: _debugHandler.handleSandboxAuthReset,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.fingerprint, size: 16, color: Colors.white),
-                    SizedBox(width: 4),
-                    Text(
-                      'Auth Reset',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-                onPressed: _debugHandler.handleSandboxDiagnosis,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.healing, size: 16, color: Colors.white),
-                    SizedBox(width: 4),
-                    Text(
-                      'Diagnosis',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
-                onPressed: _debugHandler.handleNuclearReset,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.dangerous, size: 16, color: Colors.white),
-                    SizedBox(width: 4),
-                    Text(
-                      'Nuclear Reset',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                onPressed: _debugHandler.handleCheckPendingStatus,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.analytics, size: 16, color: Colors.white),
-                    SizedBox(width: 4),
-                    Text(
-                      'Check Pending',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          Text(
-            'Authentication Troubleshooting',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Solve issues where authentication dialog does not appear:',
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-          ),
-          SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
-                onPressed: _debugHandler.handleAuthenticationDiagnosis,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.search, size: 16, color: Colors.white),
-                    SizedBox(width: 4),
-                    Text(
-                      'Auth Diagnosis',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[800],
-                ),
-                onPressed: _debugHandler.handleUltimateAuthReset,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.warning, size: 16, color: Colors.white),
-                    SizedBox(width: 4),
-                    Text(
-                      'Ultimate Reset',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

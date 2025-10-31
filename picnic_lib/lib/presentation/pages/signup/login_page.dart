@@ -197,7 +197,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 itemCount: entries.length,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     const Divider(height: 1, color: AppColors.grey100),
                 itemBuilder: (context, index) {
                   final entry = entries[index];

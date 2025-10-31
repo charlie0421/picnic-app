@@ -148,17 +148,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
           switch (n.type) {
             case 'vote':
               leadingIcon = Icons.how_to_vote;
-              tileColor = Colors.indigo.withOpacity(0.05);
+              tileColor = Colors.indigo.withValues(alpha: 0.05);
               break;
             case 'qna':
             case 'answer_created':
             case 'question_created':
               leadingIcon = Icons.question_answer;
-              tileColor = Colors.teal.withOpacity(0.05);
+              tileColor = Colors.teal.withValues(alpha: 0.05);
               break;
             case 'post':
               leadingIcon = Icons.post_add;
-              tileColor = Colors.deepPurple.withOpacity(0.05);
+              tileColor = Colors.deepPurple.withValues(alpha: 0.05);
               break;
             default:
               leadingIcon = Icons.notifications;
@@ -190,7 +190,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ),
           );
         },
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, _) => const Divider(height: 1),
         itemCount: _items.length + 1,
       ),
     );

@@ -8,89 +8,17 @@ import 'package:shimmer/shimmer.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../../presentation/providers/global_media_query.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
-
-void showOverlayToast(BuildContext context, Widget child) {
-  // 1) 가능한 모든 경로로 OverlayState 획득 시도
-  final overlayState =
-      Navigator.maybeOf(context, rootNavigator: true)?.overlay ??
-          Overlay.maybeOf(context, rootOverlay: true) ??
-          Overlay.maybeOf(context);
-
-  if (overlayState != null) {
-    final overlayEntry = OverlayEntry(
-      builder: (ctx) => Center(
-        child: Container(
-          width: getPlatformScreenSize(ctx).width * 0.5,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.grey100,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: child,
-        ),
-      ),
-    );
-    overlayState.insert(overlayEntry);
-    Future.delayed(const Duration(seconds: 1), () => overlayEntry.remove());
-    return;
-  }
-
-  // 2) Fallback: 스낵바로 표시 (가능하면 현재 컨텍스트, 아니면 전역 키)
-  final messenger = ScaffoldMessenger.maybeOf(context) ??
-      SnackbarUtil.scaffoldMessengerKey.currentState;
-  if (messenger != null) {
-    messenger.showSnackBar(
-      SnackBar(
-        content: child,
-        duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-    return;
-  }
-
-  // 3) 최후 Fallback: 다이얼로그로 1초 표시 후 자동 닫기
-  showDialog(
-    context: context,
-    barrierDismissible: true,
-    builder: (ctx) => Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(24),
-      child: Center(
-        child: Container(
-          width: getPlatformScreenSize(ctx).width * 0.6,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.grey100,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: child,
-        ),
-      ),
-    ),
-  );
-  Future.delayed(const Duration(seconds: 1), () {
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    }
-  });
-}
 
 Widget buildPlaceholderImage() {
   return Shimmer.fromColors(
     baseColor: AppColors.grey200,
     highlightColor: AppColors.grey100,
-    child: Container(
-      color: AppColors.grey00,
-    ),
+    child: Container(color: AppColors.grey00),
   );
 }
 
 Widget buildLoadingOverlay() {
-  return const Center(
-    child: MediumPulseLoadingIndicator(),
-  );
+  return const Center(child: MediumPulseLoadingIndicator());
 }
 
 Size getPlatformScreenSize(BuildContext context) {
@@ -101,8 +29,10 @@ Size getPlatformScreenSize(BuildContext context) {
 }
 
 Future<bool> checkSuperAdmin() async {
-  final response =
-      await supabase.from('auth.users').select('is_super_admin').single();
+  final response = await supabase
+      .from('auth.users')
+      .select('is_super_admin')
+      .single();
 
   logger.i('response[\'is_super_admin\'] : ${response['is_super_admin']}');
   if (response['is_super_admin'] == true) {

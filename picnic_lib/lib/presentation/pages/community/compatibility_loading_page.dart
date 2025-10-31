@@ -8,6 +8,7 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -17,10 +18,7 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CompatibilityLoadingPage extends ConsumerStatefulWidget {
-  const CompatibilityLoadingPage({
-    super.key,
-    required this.compatibility,
-  });
+  const CompatibilityLoadingPage({super.key, required this.compatibility});
 
   final CompatibilityModel compatibility;
 
@@ -97,47 +95,46 @@ class _CompatibilityLoadingPageState
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        if (!mounted) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      setState(() {
+        if (_seconds > 0) {
+          _seconds--;
+        } else {
           timer.cancel();
-          return;
+
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            await supabase
+                .from('compatibility_results')
+                .update({'id': widget.compatibility.id, 'is_ads': true})
+                .eq('id', widget.compatibility.id);
+
+            ref.read(navigationInfoProvider.notifier).goBackCommunity();
+            ref
+                .read(navigationInfoProvider.notifier)
+                .setCommunityCurrentPage(
+                  CompatibilityResultPage(compatibility: widget.compatibility),
+                );
+          });
         }
-
-        setState(() {
-          if (_seconds > 0) {
-            _seconds--;
-          } else {
-            timer.cancel();
-
-            WidgetsBinding.instance.addPostFrameCallback((_) async {
-              await supabase.from('compatibility_results').update({
-                'id': widget.compatibility.id,
-                'is_ads': true,
-              }).eq('id', widget.compatibility.id);
-
-              ref.read(navigationInfoProvider.notifier).goBackCommunity();
-              ref
-                  .read(navigationInfoProvider.notifier)
-                  .setCommunityCurrentPage(CompatibilityResultPage(
-                    compatibility: widget.compatibility,
-                  ));
-            });
-          }
-        });
-      },
-    );
+      });
+    });
   }
 
   void _updateNavigation() {
     Future(() {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
             showPortal: true,
             showTopMenu: true,
             topRightMenu: TopRightType.board,
             showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(context).compatibility_page_title,
+            pageTitle: AppLocalizations.of(navigatorKey.currentContext!).compatibility_page_title,
           );
     });
   }
@@ -172,10 +169,11 @@ class _CompatibilityLoadingPageState
         duration: _animationDuration,
         curve: Curves.linear,
         transform: Matrix4.translationValues(
-            -constraints.maxWidth * (1 - _progress),
-            // MediaQuery 대신 실제 Container 너비 사용
-            0,
-            0),
+          -constraints.maxWidth * (1 - _progress),
+          // MediaQuery 대신 실제 Container 너비 사용
+          0,
+          0,
+        ),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -193,10 +191,7 @@ class _CompatibilityLoadingPageState
     return Center(
       child: Text(
         '${_isLoadingStarted ? AppLocalizations.of(context).compatibility_analyzing : AppLocalizations.of(context).compatibility_analyzing_prepare} ${_isLoadingStarted ? '($_seconds${AppLocalizations.of(context).seconds})' : ''}',
-        style: getTextStyle(
-          AppTypo.body14B,
-          AppColors.grey00,
-        ),
+        style: getTextStyle(AppTypo.body14B, AppColors.grey00),
       ),
     );
   }
@@ -219,19 +214,13 @@ class _CompatibilityLoadingPageState
         Text(
           AppLocalizations.of(context).compatibility_waiting_message,
           textAlign: TextAlign.center,
-          style: getTextStyle(
-            AppTypo.caption12R,
-            AppColors.grey900,
-          ),
+          style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
         ),
         const SizedBox(height: 8),
         Text(
           AppLocalizations.of(context).compatibility_warning_exit,
           textAlign: TextAlign.center,
-          style: getTextStyle(
-            AppTypo.caption12R,
-            AppColors.grey900,
-          ),
+          style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
         ),
         const SizedBox(height: 16),
         BannerAdWidget(
@@ -273,9 +262,10 @@ class _CompatibilityLoadingPageState
                     _buildLoadingView()
                   else if (widget.compatibility.hasError)
                     CompatibilityErrorView(
-                      error: widget.compatibility.errorMessage ??
+                      error:
+                          widget.compatibility.errorMessage ??
                           AppLocalizations.of(context).error_unknown,
-                    )
+                    ),
                 ],
               ),
             ),

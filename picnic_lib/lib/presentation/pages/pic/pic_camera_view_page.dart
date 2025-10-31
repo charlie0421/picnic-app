@@ -100,10 +100,10 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
       _setTimer = (_setTimer == 0)
           ? 3
           : (_setTimer == 3)
-              ? 7
-              : (_setTimer == 7)
-                  ? 10
-                  : 0;
+          ? 7
+          : (_setTimer == 7)
+          ? 10
+          : 0;
     });
   }
 
@@ -131,10 +131,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
             children: [
               if (_userImage != null)
                 Positioned.fill(
-                  child: Image.file(
-                    _userImage!,
-                    fit: BoxFit.cover,
-                  ),
+                  child: Image.file(_userImage!, fit: BoxFit.cover),
                 ),
               if (_overlayImage != null)
                 Positioned.fill(
@@ -147,10 +144,14 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   color: Colors.transparent,
                   child: Center(
                     child: Text(
-                        AppLocalizations.of(context)
-                            .label_pic_pic_synthesizing_image,
-                        style: TextStyle(
-                            fontSize: 30, color: AppColors.primary500)),
+                      AppLocalizations.of(
+                        context,
+                      ).label_pic_pic_synthesizing_image,
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: AppColors.primary500,
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -183,10 +184,13 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   color: Colors.transparent,
                   child: Center(
                     child: Text(
-                      AppLocalizations.of(context)
-                          .label_pic_pic_initializing_camera,
-                      style:
-                          TextStyle(fontSize: 30, color: AppColors.primary500),
+                      AppLocalizations.of(
+                        context,
+                      ).label_pic_pic_initializing_camera,
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: AppColors.primary500,
+                      ),
                     ),
                   ),
                 )
@@ -206,10 +210,13 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   color: Colors.transparent,
                   child: Center(
                     child: Text(
-                      AppLocalizations.of(context)
-                          .label_pic_pic_synthesizing_image,
-                      style:
-                          TextStyle(fontSize: 30, color: AppColors.primary500),
+                      AppLocalizations.of(
+                        context,
+                      ).label_pic_pic_synthesizing_image,
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: AppColors.primary500,
+                      ),
                     ),
                   ),
                 ),
@@ -300,21 +307,20 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         type: RequestType.image,
         filterOption: FilterOptionGroup(
           orders: [
-            const OrderOption(type: OrderOptionType.createDate, asc: false)
+            const OrderOption(type: OrderOptionType.createDate, asc: false),
           ],
           containsPathModified: true,
           imageOption: const FilterOption(
-            sizeConstraint: SizeConstraint(
-              minHeight: 100,
-              minWidth: 100,
-            ),
+            sizeConstraint: SizeConstraint(minHeight: 100, minWidth: 100),
           ),
         ),
       );
 
       if (paths.isNotEmpty) {
-        List<AssetEntity> recentAssets =
-            await paths[0].getAssetListPaged(page: 0, size: 1);
+        List<AssetEntity> recentAssets = await paths[0].getAssetListPaged(
+          page: 0,
+          size: 1,
+        );
 
         if (recentAssets.isNotEmpty) {
           File? file = await recentAssets[0].file;
@@ -330,8 +336,9 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   }
 
   Future<void> _loadOverlayImage() async {
-    final ByteData data = await rootBundle
-        .load('assets/mockup/pic/che1.png'); // Adjust path as needed
+    final ByteData data = await rootBundle.load(
+      'assets/mockup/pic/che1.png',
+    ); // Adjust path as needed
     final Uint8List bytes = data.buffer.asUint8List();
     final img.Image image = img.decodeImage(bytes)!;
     final uiImage = await _convertImage(image);
@@ -359,7 +366,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
     'sounds/8.mp3',
     'sounds/9.mp3',
     'sounds/10.mp3',
-    'sounds/shutter.mp3'
+    'sounds/shutter.mp3',
   ];
 
   void _handleCapture() {
@@ -402,11 +409,13 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
     });
     try {
       _controller?.pausePreview();
-      RenderRepaintBoundary boundary = _repaintBoundaryKey.currentContext!
-          .findRenderObject() as RenderRepaintBoundary;
+      RenderRepaintBoundary boundary =
+          _repaintBoundaryKey.currentContext!.findRenderObject()
+              as RenderRepaintBoundary;
       ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      ByteData? byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
+      ByteData? byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
 
       if (!mounted) return;
       _capturedImageBytes = byteData!.buffer.asUint8List();
@@ -442,19 +451,21 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
             content: _capturedImageBytes != null
                 ? Container(
                     height: 500,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 16.w,
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                            width: 200.w,
-                            child: AspectRatio(
-                                aspectRatio: 5.5 / 8.5,
-                                child: Image.memory(
-                                  _capturedImageBytes!,
-                                ))),
+                          width: 200.w,
+                          child: AspectRatio(
+                            aspectRatio: 5.5 / 8.5,
+                            child: Image.memory(_capturedImageBytes!),
+                          ),
+                        ),
                         Container(
                           width: 200.w,
                           padding: EdgeInsets.symmetric(vertical: 16.w),
@@ -467,8 +478,9 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                                 Navigator.of(navContext).pop();
                               }
                             },
-                            child: Text(AppLocalizations.of(context)
-                                .button_pic_pic_save),
+                            child: Text(
+                              AppLocalizations.of(context).button_pic_pic_save,
+                            ),
                           ),
                         ),
                       ],
@@ -495,11 +507,15 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
 
         if (result['isSuccess']) {
           SnackbarUtil().info(
-            AppLocalizations.of(context).message_pic_pic_save_success,
+            AppLocalizations.of(
+              navigatorKey.currentContext!,
+            ).message_pic_pic_save_success,
           );
         } else {
           SnackbarUtil().error(
-            AppLocalizations.of(context).message_pic_pic_save_fail,
+            AppLocalizations.of(
+              navigatorKey.currentContext!,
+            ).message_pic_pic_save_fail,
           );
         }
       }

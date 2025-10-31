@@ -11,6 +11,7 @@ import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
@@ -121,9 +122,12 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   void _handleShareToTwitter() async {
     await ShareUtils.shareToSocial(
       _shareKey,
-      message: getLocaleTextFromJson(widget.vote.title, context),
+      message: getLocaleTextFromJson(
+        widget.vote.title,
+        navigatorKey.currentContext!,
+      ),
       hashtag:
-          '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(widget.vote.title, context).replaceAll(' ', '')}',
+          '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(widget.vote.title, navigatorKey.currentContext!).replaceAll(' ', '')}',
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() => _isSaving = true);
@@ -470,7 +474,10 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
               SizedBox(
                 height: math.max(
                   200.0,
-                  math.min(340.0, ref.watch(globalMediaQueryProvider).size.height * 0.36),
+                  math.min(
+                    340.0,
+                    ref.watch(globalMediaQueryProvider).size.height * 0.36,
+                  ),
                 ),
                 child: PageView.builder(
                   controller: _thumbnailPageController,

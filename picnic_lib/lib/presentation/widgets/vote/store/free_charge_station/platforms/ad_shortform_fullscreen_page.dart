@@ -118,11 +118,12 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
   void _showVideoLoadErrorDialog(dynamic error) {
     if (!mounted) return;
     // 권한/보호된 리소스 등으로 재생 실패 시 공통 에러 다이얼로그 표시 후 화면 종료
-    final closePage = () {
+    void closePage() {
       final c = navigatorKey.currentContext;
       if (c != null && c.mounted) Navigator.of(c).pop();
       if (mounted) Navigator.of(context).maybePop();
-    };
+    }
+
     final message = AppLocalizations.of(context).label_ads_load_fail;
     showSimpleDialog(
       type: DialogType.error,
@@ -217,7 +218,7 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
       await _controller?.pause();
     } catch (_) {}
     debugPrint('[internal] close pressed (confirm dialog)');
-    final i18n = AppLocalizations.of(context);
+    final i18n = AppLocalizations.of(navigatorKey.currentContext!);
     showSimpleDialog(
       title: i18n.ad_close_confirm_title,
       content: i18n.ad_close_confirm_message,
@@ -440,7 +441,9 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                                     // 적립은 재생 종료 시 자동 처리됨
                                     await _openCta(cta);
                                     if (mounted) {
-                                      Navigator.of(context).maybePop();
+                                      Navigator.of(
+                                        navigatorKey.currentContext!,
+                                      ).maybePop();
                                     }
                                     // widget.onMore()는 호출하지 않음 (More 보상 제거)
                                   }

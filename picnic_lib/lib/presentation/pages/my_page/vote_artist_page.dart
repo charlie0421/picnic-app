@@ -4,10 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/my_page/vote_artist_list_provider.dart';
@@ -407,7 +409,9 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
           _pagingController.refresh(); // 리스트 새로고침
         } else {
           logger.w('북마크 추가 실패 (최대 5개 제한)');
-          // TODO: 사용자에게 알림 표시
+        SnackbarUtil().show(
+          AppLocalizations.of(navigatorKey.currentContext!).toast_max_five_celeb,
+        );
         }
       }
     } catch (e) {
