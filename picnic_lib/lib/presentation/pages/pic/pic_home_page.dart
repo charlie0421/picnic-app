@@ -77,6 +77,18 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // 공지 상세 등에서 복귀 시 PIC 홈의 제목은 비워둔다
+    final navState = ref.watch(navigationInfoProvider);
+    if (navState.pageTitle.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref
+              .read(navigationInfoProvider.notifier)
+              .setPageTitle(pageTitle: '');
+        }
+      });
+    }
+
     final asyncCelebListState = ref.watch(asyncCelebListProvider);
 
     final selectedCelebNotifier = ref.read(selectedCelebProvider.notifier);

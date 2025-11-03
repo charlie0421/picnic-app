@@ -660,12 +660,23 @@ class AppInitializer {
             // e.g. /notice/1
             try {
               final noticeId = int.parse(page);
-              // 공지는 VOTE 포털 컨테이너에서 렌더되므로 포털을 VOTE로 전환
-              navigationNotifier.setPortal(PortalType.vote);
-              // Screen 컨테이너를 유지하고 내부 스택만 푸시
-              navigationNotifier.pushVotePageKeepScreen(
-                NoticeDetailPage(noticeId: noticeId),
-              );
+              // 현재 포털에 맞춰 스택에 푸시하여 뒤로가기 시 원래 화면으로 복귀
+              final currentPortal = ref.read(navigationInfoProvider).portalType;
+              if (currentPortal == PortalType.community) {
+                navigationNotifier.setCommunityCurrentPage(
+                  NoticeDetailPage(noticeId: noticeId),
+                );
+              } else if (currentPortal == PortalType.pic) {
+                navigationNotifier.setPicCurrentPage(
+                  NoticeDetailPage(noticeId: noticeId),
+                );
+              } else {
+                // 기본은 VOTE 컨테이너 유지
+                navigationNotifier.setPortal(PortalType.vote);
+                navigationNotifier.pushVotePageKeepScreen(
+                  NoticeDetailPage(noticeId: noticeId),
+                );
+              }
               return;
             } catch (_) {}
             break;

@@ -33,6 +33,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
   late final BoardsNotifier _boardsNotifier;
   int _currentIndex = 0;
   bool _isInitialized = false;
+  String? _artistName;
 
   @override
   bool get wantKeepAlive => true;
@@ -53,6 +54,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
           topRightMenu: TopRightType.board,
           showBottomNavigation: false,
           pageTitle: getLocaleTextFromJson(artist.name));
+      _artistName = getLocaleTextFromJson(artist.name);
     });
   }
 
@@ -83,6 +85,18 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    // 공지 상세 등에서 복귀 시 상단 타이틀이 남아있다면 현재 아티스트명으로 복원
+    final navState = ref.watch(navigationInfoProvider);
+    if (_artistName != null && navState.pageTitle != _artistName) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref
+              .read(navigationInfoProvider.notifier)
+              .setPageTitle(pageTitle: _artistName!);
+        }
+      });
+    }
 
     return ref.watch(boardsNotifierProvider(widget.artistId)).when(
           data: (boards) {

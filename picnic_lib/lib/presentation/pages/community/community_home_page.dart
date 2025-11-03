@@ -60,6 +60,18 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // 공지 상세 등에서 복귀 시 커뮤니티 홈의 타이틀은 비워둔다
+    final navState = ref.watch(navigationInfoProvider);
+    if (navState.pageTitle.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref
+              .read(navigationInfoProvider.notifier)
+              .setPageTitle(pageTitle: '');
+        }
+      });
+    }
+
     final bookmarkedArtists = ref.watch(asyncBookmarkedArtistsProvider);
     final currentArtist = ref.watch(
         communityStateInfoProvider.select((value) => value.currentArtist));

@@ -62,6 +62,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             showPortal: true,
             showTopMenu: true,
             showBottomNavigation: true,
+            pageTitle: '',
           );
 
       // 이미지 캐시 최적화를 먼저 수행
@@ -101,6 +102,23 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   Widget build(BuildContext context) {
     final setting = ref.watch(appSettingProvider);
     final area = setting.area;
+
+    // 뒤로가기 등으로 이 화면이 다시 표시될 때 상단 타이틀이 남아있으면 초기화
+    final navState = ref.watch(navigationInfoProvider);
+    if (navState.pageTitle.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref
+              .read(navigationInfoProvider.notifier)
+              .settingNavigation(
+                showPortal: true,
+                showTopMenu: true,
+                showBottomNavigation: true,
+                pageTitle: '',
+              );
+        }
+      });
+    }
 
     if (_lastArea != area) {
       _lastArea = area;
@@ -408,7 +426,10 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         ).future,
       );
 
-      final results = await Future.wait<List<VoteModel>>([voteFuture, picFuture]);
+      final results = await Future.wait<List<VoteModel>>([
+        voteFuture,
+        picFuture,
+      ]);
       // await 이후 dispose 되었을 수 있으므로 재확인
       if (!mounted) return [];
 
