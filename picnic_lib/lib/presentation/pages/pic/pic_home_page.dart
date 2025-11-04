@@ -23,6 +23,7 @@ import 'package:picnic_lib/presentation/widgets/no_bookmark_celeb.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/enums.dart';
 
 import '../../providers/celeb_list_provider.dart';
 import '../../providers/app_setting_provider.dart';
@@ -47,8 +48,13 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true, showTopMenu: true, showBottomNavigation: true);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            showBottomNavigation: true,
+          );
     });
   }
 
@@ -57,16 +63,18 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
     final area = setting.area;
     logger.i('area: $area');
     try {
-      final newItems = await ref.read(asyncVoteListProvider(
-        pageKey,
-        _pageSize,
-        'vote.id',
-        'DESC',
-        area,
-        votePortal: VotePortal.pic,
-        status: VoteStatus.activeAndUpcoming,
-        category: VoteCategory.all,
-      ).future);
+      final newItems = await ref.read(
+        asyncVoteListProvider(
+          pageKey,
+          _pageSize,
+          'vote.id',
+          'DESC',
+          area,
+          votePortal: VotePortal.pic,
+          status: VoteStatus.activeAndUpcoming,
+          category: VoteCategory.all,
+        ).future,
+      );
 
       return newItems;
     } catch (e, s) {
@@ -77,14 +85,16 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // 공지 상세 등에서 복귀 시 PIC 홈의 제목은 비워둔다
+    // PIC 홈 활성 상태(루트)일 때만 타이틀 비우기
     final navState = ref.watch(navigationInfoProvider);
-    if (navState.pageTitle.isNotEmpty) {
+    final bool isPicActive = navState.portalType == PortalType.pic;
+    final bool isAtRoot =
+        navState.voteNavigationStack == null ||
+        navState.voteNavigationStack!.length <= 1;
+    if (isPicActive && isAtRoot && navState.pageTitle.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          ref
-              .read(navigationInfoProvider.notifier)
-              .setPageTitle(pageTitle: '');
+          ref.read(navigationInfoProvider.notifier).setPageTitle(pageTitle: '');
         }
       });
     }
@@ -94,26 +104,27 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
     final selectedCelebNotifier = ref.read(selectedCelebProvider.notifier);
 
     return asyncCelebListState.when(
-        data: (data) {
-          if (data == null) {
-            return const SizedBox.shrink();
-          }
-          // if (selectedCelebState == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            selectedCelebNotifier.setSelectedCeleb(data.first);
-          });
+      data: (data) {
+        if (data == null) {
+          return const SizedBox.shrink();
+        }
+        // if (selectedCelebState == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          selectedCelebNotifier.setSelectedCeleb(data.first);
+        });
 
-          // ref.read(asyncMyCelebListProvider.notifier).fetchMyCelebList();
-          // return const SizedBox.shrink();
-          // }
+        // ref.read(asyncMyCelebListProvider.notifier).fetchMyCelebList();
+        // return const SizedBox.shrink();
+        // }
 
-          final asyncBannerListState =
-              ref.watch(asyncBannerListProvider(location: 'pic_home'));
-          return ListView(
-            children: [
-              CelebDropDown(),
-              SingleChildScrollView(
-                  child: Column(
+        final asyncBannerListState = ref.watch(
+          asyncBannerListProvider(location: 'pic_home'),
+        );
+        return ListView(
+          children: [
+            CelebDropDown(),
+            SingleChildScrollView(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -125,7 +136,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       width: ui.getPlatformScreenSize(context).width,
                       height: ui.getPlatformScreenSize(context).width * .5,
                       child: const VoteCardSkeleton(
-                          status: VoteCardStatus.ongoing),
+                        status: VoteCardStatus.ongoing,
+                      ),
                     ),
                     error: (error, stackTrace) => SizedBox(
                       width: ui.getPlatformScreenSize(context).width,
@@ -145,30 +157,32 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   _buildCelebGallery(),
                   const SizedBox(height: 20),
                   _buildVoteListTitle(),
-                  _buildVoteSection()
+                  _buildVoteSection(),
                 ],
-              )),
-            ],
-          );
-        },
-        loading: () => const Column(
-              children: [
-                VoteCardSkeleton(status: VoteCardStatus.ongoing),
-                VoteCardSkeleton(status: VoteCardStatus.ongoing),
-                VoteCardSkeleton(status: VoteCardStatus.ongoing),
-              ],
+              ),
             ),
-        error: (error, stackTrace) {
-          return buildErrorView(
-            context,
-            error: error,
-            stackTrace: stackTrace,
-            retryFunction: () {
-              // ignore: unused_result
-              ref.refresh(asyncMyCelebListProvider);
-            },
-          );
-        });
+          ],
+        );
+      },
+      loading: () => const Column(
+        children: [
+          VoteCardSkeleton(status: VoteCardStatus.ongoing),
+          VoteCardSkeleton(status: VoteCardStatus.ongoing),
+          VoteCardSkeleton(status: VoteCardStatus.ongoing),
+        ],
+      ),
+      error: (error, stackTrace) {
+        return buildErrorView(
+          context,
+          error: error,
+          stackTrace: stackTrace,
+          retryFunction: () {
+            // ignore: unused_result
+            ref.refresh(asyncMyCelebListProvider);
+          },
+        );
+      },
+    );
   }
 
   Widget _buildVoteListTitle() {
@@ -186,8 +200,10 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
             'assets/icons/arrow_right_style=line.svg',
             width: 8.w,
             height: 15,
-            colorFilter:
-                const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
+            colorFilter: const ColorFilter.mode(
+              AppColors.grey900,
+              BlendMode.srcIn,
+            ),
           ),
         ],
       ),
@@ -195,21 +211,23 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
   }
 
   Widget _buildCelebGallery() {
-    final asyncCelebGalleryListState =
-        ref.watch(asyncCelebGalleryListProvider(9));
+    final asyncCelebGalleryListState = ref.watch(
+      asyncCelebGalleryListProvider(9),
+    );
 
     return asyncCelebGalleryListState.when(
-        data: (data) => _buildGalleryList(data),
-        error: (error, stackTrace) {
-          return buildErrorView(
-            context,
-            error: error,
-            stackTrace: stackTrace,
-            retryFunction: () =>
-                ref.read(asyncGalleryListProvider.notifier).build(),
-          );
-        },
-        loading: () => const VoteCardSkeleton(status: VoteCardStatus.ongoing));
+      data: (data) => _buildGalleryList(data),
+      error: (error, stackTrace) {
+        return buildErrorView(
+          context,
+          error: error,
+          stackTrace: stackTrace,
+          retryFunction: () =>
+              ref.read(asyncGalleryListProvider.notifier).build(),
+        );
+      },
+      loading: () => const VoteCardSkeleton(status: VoteCardStatus.ongoing),
+    );
   }
 
   Widget _buildGalleryList(List<GalleryModel> data) {
@@ -219,62 +237,68 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
       width: double.infinity,
       padding: EdgeInsets.only(left: 16.w),
       child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) {
-            String title = data[index].getTitle();
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          String title = data[index].getTitle();
 
-            return GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                ref
-                    .read(navigationInfoProvider.notifier)
-                    .setPicCurrentPage(GalleryDetailPage(
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              ref
+                  .read(navigationInfoProvider.notifier)
+                  .setPicCurrentPage(
+                    GalleryDetailPage(
                       galleryId: data[index].id,
                       galleryName: data[index].titleEn,
-                    ));
-              },
-              child: Stack(
-                children: [
-                  SizedBox(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.r),
-                      child: PicnicCachedNetworkImage(
-                          width: 140,
-                          height: 100,
-                          imageUrl: data[index].cover ?? '',
-                          fit: BoxFit.cover),
+                    ),
+                  );
+            },
+            child: Stack(
+              children: [
+                SizedBox(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.r),
+                    child: PicnicCachedNetworkImage(
+                      width: 140,
+                      height: 100,
+                      imageUrl: data[index].cover ?? '',
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  Positioned(
-                    bottom: 0,
-                    child: Container(
-                      width: 140.w,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(8.r),
-                            bottomRight: Radius.circular(8.r)),
-                        color: Colors.black.withValues(alpha: 0.5),
+                ),
+                Positioned(
+                  bottom: 0,
+                  child: Container(
+                    width: 140.w,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(8.r),
+                        bottomRight: Radius.circular(8.r),
                       ),
-                      alignment: Alignment.center,
-                      padding:
-                          EdgeInsets.symmetric(vertical: 4, horizontal: 8.w),
-                      child: Text(
-                        title,
-                        style: getTextStyle(AppTypo.body14R, Colors.white)
-                            .copyWith(overflow: TextOverflow.ellipsis),
-                      ),
+                      color: Colors.black.withValues(alpha: 0.5),
                     ),
-                  )
-                ],
-              ),
-            );
-          },
-          separatorBuilder: (context, index) => const VerticalDivider(
-                width: 20,
-                thickness: 0,
-                color: AppColors.grey00,
-              ),
-          itemCount: data.length),
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8.w),
+                    child: Text(
+                      title,
+                      style: getTextStyle(
+                        AppTypo.body14R,
+                        Colors.white,
+                      ).copyWith(overflow: TextOverflow.ellipsis),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        separatorBuilder: (context, index) => const VerticalDivider(
+          width: 20,
+          thickness: 0,
+          color: AppColors.grey00,
+        ),
+        itemCount: data.length,
+      ),
     );
   }
 
@@ -316,10 +340,11 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   ? VoteStatus.upcoming
                   : VoteStatus.active;
               return VoteInfoCard(
-                  context: context,
-                  vote: vote,
-                  status: status,
-                  votePortal: VotePortal.pic);
+                context: context,
+                vote: vote,
+                status: status,
+                votePortal: VotePortal.pic,
+              );
             },
             noItemsFoundIndicatorBuilder: (context) => NoItemContainer(),
           ),
@@ -385,18 +410,18 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
     logger.w('asyncMyCelebListState: $asyncCelebListState');
 
     showModalBottomSheet(
-        context: context,
-        useSafeArea: false,
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(8),
-            topRight: Radius.circular(8),
-          ),
+      context: context,
+      useSafeArea: false,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
         ),
-        builder: (BuildContext context) {
-          return SingleChildScrollView(
-              child: Column(
+      ),
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Column(
             children: [
               const SizedBox(height: 20),
               Text(
@@ -410,41 +435,46 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
               const SizedBox(height: 16),
               if (selectedCelebState != null)
                 ...asyncCelebListState.when(
-                    data: (data) {
-                      logger.w('data: $data');
-                      if (data == null) {
-                        return [const SizedBox()];
-                      }
-                      logger.w('data.items.length: ${data.length}');
-                      return data.isNotEmpty
-                          ? _buildSearchList(context, data, selectedCelebState)
-                          : [const NoBookmarkCeleb()];
-                    },
-                    loading: () => [ui.buildLoadingOverlay()],
-                    error: (error, stackTrace) => [
-                          buildErrorView(
-                            context,
-                            retryFunction: () {
-                              // ignore: unused_result
-                              ref.refresh(asyncMyCelebListProvider);
-                            },
-                            error: error,
-                            stackTrace: stackTrace,
-                          )
-                        ]),
-              const SizedBox(
-                height: 40,
-              ),
+                  data: (data) {
+                    logger.w('data: $data');
+                    if (data == null) {
+                      return [const SizedBox()];
+                    }
+                    logger.w('data.items.length: ${data.length}');
+                    return data.isNotEmpty
+                        ? _buildSearchList(context, data, selectedCelebState)
+                        : [const NoBookmarkCeleb()];
+                  },
+                  loading: () => [ui.buildLoadingOverlay()],
+                  error: (error, stackTrace) => [
+                    buildErrorView(
+                      context,
+                      retryFunction: () {
+                        // ignore: unused_result
+                        ref.refresh(asyncMyCelebListProvider);
+                      },
+                      error: error,
+                      stackTrace: stackTrace,
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 40),
             ],
-          ));
-        });
+          ),
+        );
+      },
+    );
   }
 
   List<Widget> _buildSearchList(
-      BuildContext context, List<CelebModel> data, CelebModel selectedCeleb) {
+    BuildContext context,
+    List<CelebModel> data,
+    CelebModel selectedCeleb,
+  ) {
     data.removeWhere((item) => item.id == selectedCeleb.id);
     return data
-        .map((e) => Container(
+        .map(
+          (e) => Container(
             height: 70,
             margin: EdgeInsets.symmetric(horizontal: 32.w, vertical: 4),
             padding: EdgeInsets.symmetric(horizontal: 8.w),
@@ -452,10 +482,7 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
               color: e.id == selectedCeleb.id
                   ? const Color(0xFF47E89B)
                   : AppColors.grey00,
-              border: Border.all(
-                color: AppColors.grey100,
-                width: 1,
-              ),
+              border: Border.all(color: AppColors.grey100, width: 1),
             ),
             child: InkWell(
               onTap: () {
@@ -464,11 +491,14 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
                 Navigator.pop(context);
               },
               child: CelebListItem(
-                  item: e,
-                  type: 'my',
-                  showBookmark: e.id != selectedCeleb.id,
-                  enableBookmark: false),
-            )))
+                item: e,
+                type: 'my',
+                showBookmark: e.id != selectedCeleb.id,
+                enableBookmark: false,
+              ),
+            ),
+          ),
+        )
         .toList();
   }
 }

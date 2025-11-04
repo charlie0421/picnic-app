@@ -131,6 +131,8 @@ class _TopState extends ConsumerState<TopMenu> {
 
     final String pageName = navigationInfo.pageTitle;
 
+    final String displayTitle = pageName;
+
     return Container(
       height: 54,
       padding: EdgeInsets.only(left: 12.w, right: 16.w, top: 10, bottom: 10),
@@ -141,7 +143,7 @@ class _TopState extends ConsumerState<TopMenu> {
             alignment: Alignment.center,
             child: Center(
               child: Text(
-                pageName,
+                displayTitle,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
             ),

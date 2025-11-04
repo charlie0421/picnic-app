@@ -27,10 +27,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class CompatibilityResultPage extends ConsumerStatefulWidget {
-  const CompatibilityResultPage({
-    super.key,
-    required this.compatibility,
-  });
+  const CompatibilityResultPage({super.key, required this.compatibility});
 
   final CompatibilityModel compatibility;
 
@@ -55,11 +52,14 @@ class _CompatibilityResultPageState
 
   // late final에서 getter로 변경하여 항상 최신 아티스트 정보 사용
   String get _shareMessage {
-    final artistName =
-        getLocaleTextFromJson(widget.compatibility.artist.name, context);
+    final artistName = getLocaleTextFromJson(
+      widget.compatibility.artist.name,
+      context,
+    );
     logger.d('🎯 아티스트 이름: "$artistName"');
-    final message =
-        AppLocalizations.of(context).compatibility_share_message(artistName);
+    final message = AppLocalizations.of(
+      context,
+    ).compatibility_share_message(artistName);
     logger.d('🎯 공유 메시지: "$message"');
     return message;
   }
@@ -71,6 +71,14 @@ class _CompatibilityResultPageState
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
+      // 초기 진입 시 헤더 타이틀을 즉시 아티스트 이름으로 설정하여 공백 상태 방지
+      if (mounted) {
+        final nameJson = widget.compatibility.artist.name;
+        final title = getBestLocaleText(nameJson, context);
+        ref
+            .read(navigationInfoProvider.notifier)
+            .setPageTitle(pageTitle: title);
+      }
     });
   }
 
@@ -124,8 +132,11 @@ class _CompatibilityResultPageState
       // 비동기 작업 후 mounted 체크
       if (!mounted) return;
     } catch (e, stack) {
-      logger.e('Error refreshing compatibility data',
-          error: e, stackTrace: stack);
+      logger.e(
+        'Error refreshing compatibility data',
+        error: e,
+        stackTrace: stack,
+      );
     }
   }
 
@@ -133,12 +144,42 @@ class _CompatibilityResultPageState
     Future(() {
       // Future 콜백 내에서 mounted 체크
       if (mounted) {
-        ref.read(navigationInfoProvider.notifier).settingNavigation(
+        // 아티스트 이름이 로케일에 없을 경우 다국어 키를 순회하여 안전하게 타이틀 생성
+        String safeArtistTitle() {
+          final nameJson = widget.compatibility.artist.name;
+          String title = getLocaleTextFromJson(nameJson, context).trim();
+          if (title.isEmpty) {
+            const fallbacks = [
+              'ko',
+              'en',
+              'ja',
+              'id',
+              'th',
+              'vi',
+              'fil',
+              'zh',
+              'zh-cn',
+              'zh-tw',
+            ];
+            for (final lc in fallbacks) {
+              title = getLocaleTextFromJsonWithLocale(nameJson, lc).trim();
+              if (title.isNotEmpty) break;
+            }
+          }
+          if (title.isEmpty) {
+            title = 'Artist';
+          }
+          return title;
+        }
+
+        ref
+            .read(navigationInfoProvider.notifier)
+            .settingNavigation(
               showPortal: true,
               showTopMenu: true,
               topRightMenu: TopRightType.board,
               showBottomNavigation: false,
-              pageTitle: AppLocalizations.of(context).compatibility_page_title,
+              pageTitle: safeArtistTitle(),
             );
       }
     });
@@ -171,8 +212,9 @@ class _CompatibilityResultPageState
         return;
       }
 
-      final userProfile =
-          await ref.read(userInfoProvider.notifier).getUserProfiles();
+      final userProfile = await ref
+          .read(userInfoProvider.notifier)
+          .getUserProfiles();
 
       // 첫 번째 비동기 작업 후 mounted 체크
       if (!mounted) {
@@ -200,8 +242,9 @@ class _CompatibilityResultPageState
         OverlayLoadingProgress.stop();
         showSimpleDialog(
           title: AppLocalizations.of(context).fortune_lack_of_star_candy_title,
-          content:
-              AppLocalizations.of(context).fortune_lack_of_star_candy_message,
+          content: AppLocalizations.of(
+            context,
+          ).fortune_lack_of_star_candy_message,
           onOk: () {
             if (mounted) {
               ref
@@ -220,10 +263,10 @@ class _CompatibilityResultPageState
         return;
       }
 
-      await supabase.functions.invoke('open-compatibility', body: {
-        'userId': userProfile.id,
-        'compatibilityId': compatibilityId,
-      });
+      await supabase.functions.invoke(
+        'open-compatibility',
+        body: {'userId': userProfile.id, 'compatibilityId': compatibilityId},
+      );
 
       // Supabase 함수 호출 후 mounted 체크
       if (!mounted) {
@@ -231,8 +274,9 @@ class _CompatibilityResultPageState
         return;
       }
 
-      final updatedProfile =
-          await ref.read(userInfoProvider.notifier).getUserProfiles();
+      final updatedProfile = await ref
+          .read(userInfoProvider.notifier)
+          .getUserProfiles();
 
       // 두 번째 getUserProfiles 호출 후 mounted 체크
       if (!mounted) {
@@ -262,9 +306,10 @@ class _CompatibilityResultPageState
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                    package: 'picnic_lib',
-                    'assets/icons/store/star_100.png',
-                    width: 36),
+                  package: 'picnic_lib',
+                  'assets/icons/store/star_100.png',
+                  width: 36,
+                ),
                 Text(
                   '${updatedProfile.starCandy}',
                   style: getTextStyle(AppTypo.body16B, AppColors.grey900),
@@ -279,7 +324,8 @@ class _CompatibilityResultPageState
       if (mounted) {
         OverlayLoadingProgress.stop();
         await _showErrorDialog(
-            AppLocalizations.of(context).message_error_occurred);
+          AppLocalizations.of(context).message_error_occurred,
+        );
       }
       rethrow;
     }
@@ -288,7 +334,24 @@ class _CompatibilityResultPageState
   @override
   Widget build(BuildContext context) {
     try {
+      // 외부에서 pageTitle이 비워지는 경우를 복구 (build 내에서만 listen)
+      ref.listen(navigationInfoProvider.select((s) => s.pageTitle), (
+        previous,
+        next,
+      ) {
+        if (!mounted) return;
+        if (next.isEmpty) {
+          final nameJson = widget.compatibility.artist.name;
+          final title = getBestLocaleText(nameJson, context);
+          ref
+              .read(navigationInfoProvider.notifier)
+              .setPageTitle(pageTitle: title);
+        }
+      });
+
       final compatibilityState = ref.watch(compatibilityProvider);
+
+      // 타이틀은 didChangeDependencies -> _updateNavigation 에서만 설정 (build에서는 설정하지 않음)
 
       return compatibilityState.when(
         data: (compatibility) {
@@ -325,17 +388,17 @@ class _CompatibilityResultPageState
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [
-                                        AppColors.primary500
-                                            .withValues(alpha: .7),
-                                        AppColors.secondary500
-                                            .withValues(alpha: .7),
+                                        AppColors.primary500.withValues(
+                                          alpha: .7,
+                                        ),
+                                        AppColors.secondary500.withValues(
+                                          alpha: .7,
+                                        ),
                                       ],
                                     )
                                   : null,
                             ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Column(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -361,12 +424,14 @@ class _CompatibilityResultPageState
                             children: [
                               if (compatibility.hasError)
                                 CompatibilityErrorView(
-                                  error: compatibility.errorMessage ??
-                                      AppLocalizations.of(context)
-                                          .error_unknown,
+                                  error:
+                                      compatibility.errorMessage ??
+                                      AppLocalizations.of(
+                                        context,
+                                      ).error_unknown,
                                 )
                               else if (compatibility.isCompleted)
-                                _buildResultContent(compatibility)
+                                _buildResultContent(compatibility),
                             ],
                           ),
                         ),
@@ -387,8 +452,11 @@ class _CompatibilityResultPageState
         ),
       );
     } catch (e, stack) {
-      logger.e('Error building compatibility result page',
-          error: e, stackTrace: stack);
+      logger.e(
+        'Error building compatibility result page',
+        error: e,
+        stackTrace: stack,
+      );
       return Center(
         child: Text(
           'Error: $e',
@@ -399,9 +467,7 @@ class _CompatibilityResultPageState
   }
 
   Widget _buildLoadingIndicator() {
-    return Center(
-      child: MediumPulseLoadingIndicator(),
-    );
+    return Center(child: MediumPulseLoadingIndicator());
   }
 
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
@@ -434,8 +500,10 @@ class _CompatibilityResultPageState
 
   Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
     logger.i('Share to Twitter');
-    final artistName =
-        getLocaleTextFromJson(compatibility.artist.name, context);
+    final artistName = getLocaleTextFromJson(
+      compatibility.artist.name,
+      context,
+    );
     final hashtag = AppLocalizations.of(context).compatibility_share_hashtag;
     logger.d('🎯 해시태그 - 아티스트 이름: "$artistName", 결과: "$hashtag"');
 
@@ -444,8 +512,9 @@ class _CompatibilityResultPageState
       message: _shareMessage,
       hashtag: hashtag,
       downloadLink: await createBranchLink(
-          getLocaleTextFromJson(compatibility.artist.name, context),
-          '${Environment.appLinkPrefix}/community/compatibility/${compatibility.artist.id}'),
+        getLocaleTextFromJson(compatibility.artist.name, context),
+        '${Environment.appLinkPrefix}/community/compatibility/${compatibility.artist.id}',
+      ),
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() {

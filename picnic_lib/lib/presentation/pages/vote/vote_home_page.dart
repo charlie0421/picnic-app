@@ -26,6 +26,7 @@ import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/enums.dart';
 
 class VoteHomePage extends ConsumerStatefulWidget {
   const VoteHomePage({super.key});
@@ -103,9 +104,13 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     final setting = ref.watch(appSettingProvider);
     final area = setting.area;
 
-    // 뒤로가기 등으로 이 화면이 다시 표시될 때 상단 타이틀이 남아있으면 초기화
+    // 투표 홈 활성 상태(루트)일 때만 타이틀 비우기
     final navState = ref.watch(navigationInfoProvider);
-    if (navState.pageTitle.isNotEmpty) {
+    final bool isVoteActive = navState.portalType == PortalType.vote;
+    final bool isAtRoot =
+        navState.voteNavigationStack == null ||
+        navState.voteNavigationStack!.length <= 1;
+    if (isVoteActive && isAtRoot && navState.pageTitle.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           ref

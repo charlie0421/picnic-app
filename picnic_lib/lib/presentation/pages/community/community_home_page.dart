@@ -15,6 +15,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/home/community_home.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/enums.dart';
 
 class CommunityHomePage extends ConsumerStatefulWidget {
   const CommunityHomePage({super.key});
@@ -30,8 +31,13 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true, showTopMenu: true, showBottomNavigation: true);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            showBottomNavigation: true,
+          );
       _updateLoginState();
     });
 
@@ -60,140 +66,158 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // 공지 상세 등에서 복귀 시 커뮤니티 홈의 타이틀은 비워둔다
+    // 커뮤니티 홈 활성 상태(루트)일 때만 타이틀 비우기
     final navState = ref.watch(navigationInfoProvider);
-    if (navState.pageTitle.isNotEmpty) {
+    final bool isCommunityActive = navState.portalType == PortalType.community;
+    final bool isAtRoot =
+        navState.communityNavigationStack == null ||
+        navState.communityNavigationStack!.length <= 1;
+    if (isCommunityActive && isAtRoot && navState.pageTitle.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          ref
-              .read(navigationInfoProvider.notifier)
-              .setPageTitle(pageTitle: '');
+          ref.read(navigationInfoProvider.notifier).setPageTitle(pageTitle: '');
         }
       });
     }
 
     final bookmarkedArtists = ref.watch(asyncBookmarkedArtistsProvider);
     final currentArtist = ref.watch(
-        communityStateInfoProvider.select((value) => value.currentArtist));
+      communityStateInfoProvider.select((value) => value.currentArtist),
+    );
 
-    return ListView(children: [
-      const CommonBanner('community_home', 3144 / 1200),
-      const SizedBox(height: 32),
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: Text('My ARTISTS',
-            style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
-      ),
-      const SizedBox(height: 16),
-      isSupabaseLoggedSafely
-          ? Container(
-              child: bookmarkedArtists.when(
-                data: (artists) {
-                  if ((currentArtist?.id == null ||
-                          !artists.contains(currentArtist)) &&
-                      artists.isNotEmpty) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      ref
-                          .read(communityStateInfoProvider.notifier)
-                          .setCurrentArtist(artists[0]);
-                    });
-                  }
-                  return artists.isNotEmpty
-                      ? Column(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              height: 84,
-                              child: ListView.separated(
-                                itemCount: artists.length,
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (context, index) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      ref
-                                          .read(communityStateInfoProvider
-                                              .notifier)
-                                          .setCurrentArtist(artists[index]);
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Column(
-                                          children: [
-                                            Container(
-                                              width: 64,
-                                              height: 64,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(64),
-                                                border: Border.all(
-                                                    color: currentArtist?.id ==
+    return ListView(
+      children: [
+        const CommonBanner('community_home', 3144 / 1200),
+        const SizedBox(height: 32),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Text(
+            'My ARTISTS',
+            style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+          ),
+        ),
+        const SizedBox(height: 16),
+        isSupabaseLoggedSafely
+            ? Container(
+                child: bookmarkedArtists.when(
+                  data: (artists) {
+                    if ((currentArtist?.id == null ||
+                            !artists.contains(currentArtist)) &&
+                        artists.isNotEmpty) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        ref
+                            .read(communityStateInfoProvider.notifier)
+                            .setCurrentArtist(artists[0]);
+                      });
+                    }
+                    return artists.isNotEmpty
+                        ? Column(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                height: 84,
+                                child: ListView.separated(
+                                  itemCount: artists.length,
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (context, index) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        ref
+                                            .read(
+                                              communityStateInfoProvider
+                                                  .notifier,
+                                            )
+                                            .setCurrentArtist(artists[index]);
+                                      },
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Column(
+                                            children: [
+                                              Container(
+                                                width: 64,
+                                                height: 64,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(64),
+                                                  border: Border.all(
+                                                    color:
+                                                        currentArtist?.id ==
                                                             artists[index].id
                                                         ? AppColors.primary500
                                                         : Colors.transparent,
-                                                    width: 4),
-                                              ),
-                                              child: Center(
-                                                child: ProfileImageContainer(
-                                                  avatarUrl:
-                                                      artists[index].image,
-                                                  width: 54,
-                                                  height: 54,
-                                                  borderRadius: 54,
+                                                    width: 4,
+                                                  ),
+                                                ),
+                                                child: Center(
+                                                  child: ProfileImageContainer(
+                                                    avatarUrl:
+                                                        artists[index].image,
+                                                    width: 54,
+                                                    height: 54,
+                                                    borderRadius: 54,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            const SizedBox(height: 2),
-                                            Text(
+                                              const SizedBox(height: 2),
+                                              Text(
                                                 getLocaleTextFromJson(
-                                                    artists[index].name),
+                                                  artists[index].name,
+                                                ),
                                                 style: getTextStyle(
-                                                    AppTypo.caption12R,
-                                                    AppColors.grey900)),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                                separatorBuilder:
-                                    (BuildContext context, int index) {
-                                  return SizedBox(width: 14.w);
-                                },
+                                                  AppTypo.caption12R,
+                                                  AppColors.grey900,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  separatorBuilder:
+                                      (BuildContext context, int index) {
+                                        return SizedBox(width: 14.w);
+                                      },
+                                ),
+                              ),
+                              if (currentArtist != null) const CommunityHome(),
+                            ],
+                          )
+                        : Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'No bookmarked artists',
+                              style: getTextStyle(
+                                AppTypo.body16R,
+                                AppColors.grey500,
                               ),
                             ),
-                            if (currentArtist != null) const CommunityHome(),
-                          ],
-                        )
-                      : Container(
-                          alignment: Alignment.center,
-                          child: Text('No bookmarked artists',
-                              style: getTextStyle(
-                                  AppTypo.body16R, AppColors.grey500)),
-                        );
+                          );
+                  },
+                  loading: () => buildLoadingOverlay(),
+                  error: (error, stack) => Text('Error: $error'),
+                ),
+              )
+            : GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  ).then((_) {
+                    _updateLoginState();
+                  });
                 },
-                loading: () => buildLoadingOverlay(),
-                error: (error, stack) => Text('Error: $error'),
-              ),
-            )
-          : GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                ).then((_) {
-                  _updateLoginState();
-                });
-              },
-              child: Container(
-                alignment: Alignment.center,
-                child: Text(
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
                     AppLocalizations.of(context).label_mypage_should_login,
-                    style:
-                        getTextStyle(AppTypo.title18B, AppColors.primary500)),
+                    style: getTextStyle(AppTypo.title18B, AppColors.primary500),
+                  ),
+                ),
               ),
-            ),
-    ]);
+      ],
+    );
   }
 }

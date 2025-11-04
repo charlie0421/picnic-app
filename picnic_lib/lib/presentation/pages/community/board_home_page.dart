@@ -33,7 +33,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
   late final BoardsNotifier _boardsNotifier;
   int _currentIndex = 0;
   bool _isInitialized = false;
-  String? _artistName;
+  // 유지하던 로컬 아티스트명 캐시는 제거 (타이틀 충돌 방지 목적)
 
   @override
   bool get wantKeepAlive => true;
@@ -48,13 +48,16 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
       final artist = await ref.read(getArtistProvider(widget.artistId).future);
       if (!mounted) return;
 
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          topRightMenu: TopRightType.board,
-          showBottomNavigation: false,
-          pageTitle: getLocaleTextFromJson(artist.name));
-      _artistName = getLocaleTextFromJson(artist.name);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            topRightMenu: TopRightType.board,
+            showBottomNavigation: false,
+            pageTitle: getLocaleTextFromJson(artist.name),
+          );
+      // 로컬 캐시는 사용하지 않음
     });
   }
 
@@ -63,8 +66,9 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
 
     final currentBoard = ref.read(communityStateInfoProvider).currentBoard;
     if (currentBoard != null) {
-      final index =
-          boards.indexWhere((board) => board.boardId == currentBoard.boardId);
+      final index = boards.indexWhere(
+        (board) => board.boardId == currentBoard.boardId,
+      );
       if (index != -1) {
         final newIndex = index + 1;
         setState(() {
@@ -86,19 +90,11 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
   Widget build(BuildContext context) {
     super.build(context);
 
-    // 공지 상세 등에서 복귀 시 상단 타이틀이 남아있다면 현재 아티스트명으로 복원
-    final navState = ref.watch(navigationInfoProvider);
-    if (_artistName != null && navState.pageTitle != _artistName) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          ref
-              .read(navigationInfoProvider.notifier)
-              .setPageTitle(pageTitle: _artistName!);
-        }
-      });
-    }
+    // 공지 상세 복귀 시 제목 강제 복원 로직은 제거하여 다른 페이지(예: 궁합 상세)와 타이틀 충돌/깜빡임 방지
 
-    return ref.watch(boardsNotifierProvider(widget.artistId)).when(
+    return ref
+        .watch(boardsNotifierProvider(widget.artistId))
+        .when(
           data: (boards) {
             if (boards == null || boards.isEmpty) {
               return const Center(child: Text('No boards available'));
@@ -109,34 +105,48 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
             }
 
             final currentUser = supabase.auth.currentUser;
-            final bool hasApprovedBoards = currentUser != null &&
-                boards.any((board) =>
-                    board.status == 'approved' &&
-                    board.creatorId == currentUser.id);
+            final bool hasApprovedBoards =
+                currentUser != null &&
+                boards.any(
+                  (board) =>
+                      board.status == 'approved' &&
+                      board.creatorId == currentUser.id,
+                );
 
-            final bool hasPendingBoard = currentUser != null &&
-                boards.any((board) =>
-                    board.status == 'pending' &&
-                    board.creatorId == currentUser.id);
+            final bool hasPendingBoard =
+                currentUser != null &&
+                boards.any(
+                  (board) =>
+                      board.status == 'pending' &&
+                      board.creatorId == currentUser.id,
+                );
 
             final bool showRequestButton =
                 !hasApprovedBoards || hasPendingBoard;
-            final int totalPages =
-                showRequestButton ? boards.length + 2 : boards.length + 1;
+            final int totalPages = showRequestButton
+                ? boards.length + 2
+                : boards.length + 1;
 
             return Column(
               children: [
                 _buildTabBar(boards, totalPages, showRequestButton),
                 Expanded(
-                    child: _buildPageView(
-                        boards, widget.artistId, showRequestButton)),
+                  child: _buildPageView(
+                    boards,
+                    widget.artistId,
+                    showRequestButton,
+                  ),
+                ),
               ],
             );
           },
           loading: () => const Center(child: MediumPulseLoadingIndicator()),
           error: (error, stackTrace) {
-            logger.e('Error fetching boards:',
-                error: error, stackTrace: stackTrace);
+            logger.e(
+              'Error fetching boards:',
+              error: error,
+              stackTrace: stackTrace,
+            );
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -155,7 +165,10 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
   }
 
   Widget _buildTabBar(
-      List<BoardModel> boards, int totalPages, bool showRequestButton) {
+    List<BoardModel> boards,
+    int totalPages,
+    bool showRequestButton,
+  ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       decoration: const BoxDecoration(
@@ -168,10 +181,14 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
         itemBuilder: (context, index) {
           if (index == 0) {
             return _buildMenuItem(
-                AppLocalizations.of(context).common_all, index);
+              AppLocalizations.of(context).common_all,
+              index,
+            );
           } else if (index <= boards.length) {
             return _buildMenuItem(
-                getLocaleTextFromJson(boards[index - 1].name), index);
+              getLocaleTextFromJson(boards[index - 1].name),
+              index,
+            );
           } else {
             return _buildOpenRequestItem(totalPages - 1);
           }
@@ -181,7 +198,10 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
   }
 
   Widget _buildPageView(
-      List<BoardModel> boards, int artistId, bool showRequestButton) {
+    List<BoardModel> boards,
+    int artistId,
+    bool showRequestButton,
+  ) {
     return PageView(
       controller: _pageController,
       onPageChanged: (index) {
@@ -215,10 +235,12 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
         decoration: _currentIndex == index
             ? const BoxDecoration(
                 border: Border(
-                    bottom: BorderSide(
-                        color: Colors.black,
-                        width: 3,
-                        strokeAlign: BorderSide.strokeAlignInside)),
+                  bottom: BorderSide(
+                    color: Colors.black,
+                    width: 3,
+                    strokeAlign: BorderSide.strokeAlignInside,
+                  ),
+                ),
               )
             : null,
         alignment: Alignment.center,
@@ -248,24 +270,30 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
         decoration: _currentIndex == index
             ? const BoxDecoration(
                 border: Border(
-                    bottom: BorderSide(
-                        color: Colors.black,
-                        width: 3,
-                        strokeAlign: BorderSide.strokeAlignInside)),
+                  bottom: BorderSide(
+                    color: Colors.black,
+                    width: 3,
+                    strokeAlign: BorderSide.strokeAlignInside,
+                  ),
+                ),
               )
             : null,
         child: Row(
           children: [
-            Text(AppLocalizations.of(context).post_board_request_label,
-                style: getTextStyle(AppTypo.caption12B, AppColors.grey700)),
+            Text(
+              AppLocalizations.of(context).post_board_request_label,
+              style: getTextStyle(AppTypo.caption12B, AppColors.grey700),
+            ),
             const SizedBox(width: 4),
             SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/plus_style=fill.svg',
               width: 16,
               height: 16,
-              colorFilter:
-                  const ColorFilter.mode(AppColors.grey700, BlendMode.srcIn),
+              colorFilter: const ColorFilter.mode(
+                AppColors.grey700,
+                BlendMode.srcIn,
+              ),
             ),
           ],
         ),

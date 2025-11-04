@@ -1,6 +1,5 @@
 import { getSupabaseClient } from '../database.ts';
 import { createChatCompletion } from '../ai/openai.ts';
-import { translateBatch, translateText } from '../ai/deepl.ts';
 import { SUPPORTED_LANGUAGES } from '../types/openai.ts';
 import { formatDate, logError } from '../utils.ts';
 import { PromptService } from './prompt.ts';
@@ -42,44 +41,9 @@ export class CompatibilityService {
     }
   }
   async generateAndStoreTranslations(compatibilityId, result) {
-    try {
-      console.log('Generating translations for:', compatibilityId);
-      const descriptions = await this.getDescriptions(result.score);
-      // 각 언어별 번역 생성 및 저장
-      for (const lang of SUPPORTED_LANGUAGES){
-        try {
-          const translatedResult = await this.translateResult(result, lang);
-          const insertData = {
-            compatibility_id: compatibilityId,
-            language: lang,
-            score: result.score,
-            compatibility_summary: descriptions[0]['summary_' + lang],
-            score_title: descriptions[0]['title_' + lang],
-            details: translatedResult.details,
-            tips: translatedResult.tips
-          };
-          const { error } = await this.supabase.from('compatibility_results_i18n').insert(insertData);
-          if (error) {
-            console.error(`Insert error for ${lang}:`, error);
-            throw error;
-          }
-          console.log(`Successfully saved ${lang} translation`);
-        } catch (langError) {
-          logError(langError, {
-            context: 'translation-processing',
-            language: lang,
-            compatibilityId
-          });
-        // 개별 언어 처리 실패 시 다음 언어로 계속 진행
-        }
-      }
-    } catch (error) {
-      logError(error, {
-        context: 'translations',
-        compatibilityId
-      });
-      throw error;
-    }
+    // DeepL 제거로 인해 기존 선번역 저장 로직을 일시 비활성화합니다.
+    // 이후 GPT 번역 지연 로딩/선계산 경로로 대체됩니다.
+    return;
   }
   async generateNewResults(compatibility) {
     try {
@@ -126,7 +90,11 @@ export class CompatibilityService {
         tips: result.tips
       }).eq('id', compatibility.id).select().single();
       if (insertError) throw insertError;
-      await this.generateAndStoreTranslations(compatibility.id, result);
+      // 번역 선계산 분기: lazy(기본)에서는 수행하지 않음
+      const mode = (Deno.env.get('TRANSLATION_MODE') || 'lazy').toLowerCase();
+      if (mode === 'eager' || mode === 'hybrid') {
+        await this.generateAndStoreTranslations(compatibility.id, result);
+      }
       return insertedResult;
     } catch (error) {
       logError(error, {
@@ -190,52 +158,6 @@ export class CompatibilityService {
       renderedTemplate = renderedTemplate.replace(regex, value);
     }
     return renderedTemplate;
-  }
-  async translateResult(result, targetLang) {
-    try {
-      if (targetLang === 'ko') return result;
-      // 기본 구조 확인 및 초기화
-      const defaultDetails = {
-        style: {
-          idol_style: '',
-          user_style: '',
-          couple_style: ''
-        },
-        activities: {
-          recommended: [],
-          description: ''
-        }
-      };
-      // result.details가 없거나 필요한 구조가 없는 경우 기본값 사용
-      const details = result.details || defaultDetails;
-      const style = details.style || defaultDetails.style;
-      const activities = details.activities || defaultDetails.activities;
-      // 번역 실행
-      const translatedDetails = {
-        style: {
-          idol_style: await translateText(style.idol_style || '', targetLang),
-          user_style: await translateText(style.user_style || '', targetLang),
-          couple_style: await translateText(style.couple_style || '', targetLang)
-        },
-        activities: {
-          recommended: await translateBatch(activities.recommended || [], targetLang),
-          description: await translateText(activities.description || '', targetLang)
-        }
-      };
-      return {
-        ...result,
-        details: translatedDetails,
-        tips: await translateBatch(result.tips || [], targetLang)
-      };
-    } catch (error) {
-      logError(error, {
-        context: 'translate-result',
-        targetLang,
-        resultId: result.id
-      });
-      // 에러 발생 시 원본 결과 반환
-      return result;
-    }
   }
   validateResult(result) {
     if (!result) return false;

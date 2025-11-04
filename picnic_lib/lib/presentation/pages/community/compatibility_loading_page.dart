@@ -7,8 +7,8 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/utils/locale_utils.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
-import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -62,6 +62,8 @@ class _CompatibilityLoadingPageState
         }
       });
     });
+
+    // 네비게이션 상태가 외부에서 초기화되며 타이틀이 비어지는 경우를 복구는 build에서 처리
   }
 
   @override
@@ -127,15 +129,41 @@ class _CompatibilityLoadingPageState
 
   void _updateNavigation() {
     Future(() {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(
-            showPortal: true,
-            showTopMenu: true,
-            topRightMenu: TopRightType.board,
-            showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(navigatorKey.currentContext!).compatibility_page_title,
-          );
+      // 로딩 화면에서도 아티스트 이름을 타이틀로 사용하여 결과 화면과 일관성 유지
+      final nameJson = widget.compatibility.artist.name;
+      String title = getLocaleTextFromJson(nameJson, context).trim();
+      if (title.isEmpty) {
+        const fallbacks = [
+          'ko',
+          'en',
+          'ja',
+          'id',
+          'th',
+          'vi',
+          'fil',
+          'zh',
+          'zh-cn',
+          'zh-tw',
+        ];
+        for (final lc in fallbacks) {
+          title = getLocaleTextFromJsonWithLocale(nameJson, lc).trim();
+          if (title.isNotEmpty) break;
+        }
+      }
+      if (title.isEmpty) title = 'Artist';
+
+      final nav = ref.read(navigationInfoProvider);
+      if (nav.pageTitle != title) {
+        ref
+            .read(navigationInfoProvider.notifier)
+            .settingNavigation(
+              showPortal: true,
+              showTopMenu: true,
+              topRightMenu: TopRightType.board,
+              showBottomNavigation: false,
+              pageTitle: title,
+            );
+      }
     });
   }
 
@@ -234,6 +262,21 @@ class _CompatibilityLoadingPageState
 
   @override
   Widget build(BuildContext context) {
+    // build 내부에서 pageTitle이 비어지는 이벤트만 감지하여 복구
+    ref.listen(navigationInfoProvider.select((s) => s.pageTitle), (
+      previous,
+      next,
+    ) {
+      if (!mounted) return;
+      if (next.isEmpty) {
+        final nameJson = widget.compatibility.artist.name;
+        final title = getBestLocaleText(nameJson, context);
+        ref
+            .read(navigationInfoProvider.notifier)
+            .setPageTitle(pageTitle: title);
+      }
+    });
+
     return SingleChildScrollView(
       child: Container(
         padding: const EdgeInsets.all(16),
