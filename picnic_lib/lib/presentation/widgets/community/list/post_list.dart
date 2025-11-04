@@ -53,6 +53,17 @@ class _PostListState extends ConsumerState<PostList> {
         headerTitle = navState.pageTitle;
       }
 
+      // 상단 메뉴 영역(pageTitle)을 아티스트 이름으로 동기화 (차이 있을 때만, 비동기 적용)
+      if (headerTitle.isNotEmpty && headerTitle != navState.pageTitle) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            ref
+                .read(navigationInfoProvider.notifier)
+                .setPageTitle(pageTitle: headerTitle);
+          }
+        });
+      }
+
       return Column(
         children: [
           if (headerTitle.isNotEmpty)
