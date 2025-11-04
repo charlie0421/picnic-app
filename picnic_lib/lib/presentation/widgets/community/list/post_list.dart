@@ -19,6 +19,7 @@ import 'package:picnic_lib/presentation/widgets/community/common/post_list_item.
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/core/utils/locale_utils.dart';
 
 enum PostListType { artist, board }
 
@@ -43,9 +44,26 @@ class _PostListState extends ConsumerState<PostList> {
 
       final currentArtist = ref.watch(
           communityStateInfoProvider.select((value) => value.currentArtist));
+      final navState = ref.watch(navigationInfoProvider);
+
+      String headerTitle = '';
+      if (currentArtist != null) {
+        headerTitle = getBestLocaleText(currentArtist.name, context);
+      } else if (navState.pageTitle.isNotEmpty) {
+        headerTitle = navState.pageTitle;
+      }
 
       return Column(
         children: [
+          if (headerTitle.isNotEmpty)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                headerTitle,
+                style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+              ),
+            ),
           InkWell(
             onTap: () async {
               if (!isSupabaseLoggedSafely) {

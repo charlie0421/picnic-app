@@ -6,6 +6,11 @@ import { createErrorResponse, createSuccessResponse } from '../_shared/response.
 import { getSupabaseClient, } from '../_shared/database.ts';
 import { logError } from '../_shared/utils.ts';
 import { gptTranslateJson } from '../_shared/ai/gpt_translate.ts';
+import { parseTranslationLanguages } from '../_shared/i18n/locales.ts';
+
+// For type-checkers that don't pick up Deno types in this workspace
+// deno-lint-ignore no-explicit-any
+declare const Deno: any;
 
 type RequestBody = {
   compatibility_id: string;
@@ -35,7 +40,13 @@ Deno.serve(async (req) => {
       return createErrorResponse('compatibility_id and language are required', 400, 'INVALID_PARAMS', {}, cors);
     }
 
-    const supabase = getSupabaseClient();
+    // 0) Validate language against allowed list (env overrideable)
+    const allowed = parseTranslationLanguages();
+    if (!allowed.includes(language)) {
+      return createErrorResponse('Unsupported language', 400, 'UNSUPPORTED_LANGUAGE', { language, allowed }, cors);
+    }
+
+    const supabase: any = getSupabaseClient()!;
 
     // 1) Check if already exists
     const { data: existing, error: existErr } = await supabase
