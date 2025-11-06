@@ -43,7 +43,8 @@ class _PostListState extends ConsumerState<PostList> {
           : ref.watch(postsByBoardProvider(widget.id as String, 10, 1));
 
       final currentArtist = ref.watch(
-          communityStateInfoProvider.select((value) => value.currentArtist));
+        communityStateInfoProvider.select((value) => value.currentArtist),
+      );
       final navState = ref.watch(navigationInfoProvider);
 
       String headerTitle = '';
@@ -110,20 +111,19 @@ class _PostListState extends ConsumerState<PostList> {
               height: 40,
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               alignment: Alignment.centerLeft,
-              child: Text(AppLocalizations.of(context).fortune_button_title,
-                  style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
+              child: Text(
+                AppLocalizations.of(context).fortune_button_title,
+                style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+              ),
             ),
           ),
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.grey300,
-          ),
+          Divider(height: 1, thickness: 1, color: AppColors.grey300),
           InkWell(
             onTap: () {
               if (isSupabaseLoggedSafely) {
                 navigationInfoNotifier.setCommunityCurrentPage(
-                    CompatibilityListPage(artistId: currentArtist?.id));
+                  CompatibilityListPage(artistId: currentArtist?.id),
+                );
               } else {
                 showRequireLoginDialog();
               }
@@ -132,15 +132,13 @@ class _PostListState extends ConsumerState<PostList> {
               height: 40,
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               alignment: Alignment.centerLeft,
-              child: Text(AppLocalizations.of(context).fortune_with_me,
-                  style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
+              child: Text(
+                AppLocalizations.of(context).fortune_with_me,
+                style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+              ),
             ),
           ),
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.grey300,
-          ),
+          Divider(height: 1, thickness: 1, color: AppColors.grey300),
           Expanded(
             child: postListAsyncValue.when(
               data: (data) {
@@ -153,44 +151,56 @@ class _PostListState extends ConsumerState<PostList> {
                           children: [
                             const SizedBox(height: 80),
                             Text(
-                                AppLocalizations.of(context)
-                                    .post_write_post_recommend_write,
-                                style: getTextStyle(
-                                    AppTypo.caption12B, AppColors.grey500)),
+                              AppLocalizations.of(
+                                context,
+                              ).post_write_post_recommend_write,
+                              style: getTextStyle(
+                                AppTypo.caption12B,
+                                AppColors.grey500,
+                              ),
+                            ),
                             const SizedBox(height: 54),
                             ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  foregroundColor: AppColors.primary500,
-                                  backgroundColor: AppColors.grey00,
-                                  textStyle: getTextStyle(AppTypo.body14B),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20.w, vertical: 10),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: BorderSide(
-                                      color: AppColors.primary500,
-                                      width: 1,
-                                    ),
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: AppColors.primary500,
+                                backgroundColor: AppColors.grey00,
+                                textStyle: getTextStyle(AppTypo.body14B),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20.w,
+                                  vertical: 10,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(
+                                    color: AppColors.primary500,
+                                    width: 1,
                                   ),
                                 ),
-                                onPressed: () {
-                                  if (!isSupabaseLoggedSafely) {
-                                    showRequireLoginDialog();
-                                    return;
-                                  }
-                                  ref
-                                      .read(navigationInfoProvider.notifier)
-                                      .setCommunityCurrentPage(
-                                        const PostWritePage(),
-                                      );
-                                },
-                                child: Text(
-                                    AppLocalizations.of(context)
-                                        .post_write_board_post,
-                                    style: getTextStyle(
-                                        AppTypo.body14B, AppColors.primary500)))
+                              ),
+                              onPressed: () {
+                                if (!isSupabaseLoggedSafely) {
+                                  showRequireLoginDialog();
+                                  return;
+                                }
+                                ref
+                                    .read(navigationInfoProvider.notifier)
+                                    .setCommunityCurrentPage(
+                                      const PostWritePage(),
+                                    );
+                              },
+                              child: Text(
+                                AppLocalizations.of(
+                                  context,
+                                ).post_write_board_post,
+                                style: getTextStyle(
+                                  AppTypo.body14B,
+                                  AppColors.primary500,
+                                ),
+                              ),
+                            ),
                           ],
-                        ))
+                        ),
+                      )
                     : ListView.builder(
                         itemCount: data.length,
                         itemBuilder: (context, index) => PostListItem(
@@ -202,11 +212,21 @@ class _PostListState extends ConsumerState<PostList> {
                               await deletePost(ref, post.postId);
                               try {
                                 if (widget.type == PostListType.artist) {
-                                  ref.invalidate(postsByArtistProvider(
-                                      widget.id as int, 10, 1));
+                                  ref.invalidate(
+                                    postsByArtistProvider(
+                                      widget.id as int,
+                                      10,
+                                      1,
+                                    ),
+                                  );
                                 } else {
-                                  ref.invalidate(postsByBoardProvider(
-                                      widget.id as String, 10, 1));
+                                  ref.invalidate(
+                                    postsByBoardProvider(
+                                      widget.id as String,
+                                      10,
+                                      1,
+                                    ),
+                                  );
                                 }
                               } catch (e, s) {
                                 logger.e('Error: $e, StackTrace: $s');
@@ -219,20 +239,31 @@ class _PostListState extends ConsumerState<PostList> {
                                   barrierDismissible: true,
                                   builder: (BuildContext context) {
                                     return ReportDialog(
-                                        postId: post.postId,
-                                        title: title,
-                                        type: ReportType.post,
-                                        target: post);
+                                      postId: post.postId,
+                                      title: title,
+                                      type: ReportType.post,
+                                      target: post,
+                                    );
                                   },
                                 ).then((value) {
                                   logger.d('ReportDialog result: $value');
                                   if (value != null) {
                                     if (widget.type == PostListType.artist) {
-                                      ref.invalidate(postsByArtistProvider(
-                                          widget.id as int, 10, 1));
+                                      ref.invalidate(
+                                        postsByArtistProvider(
+                                          widget.id as int,
+                                          10,
+                                          1,
+                                        ),
+                                      );
                                     } else {
-                                      ref.invalidate(postsByBoardProvider(
-                                          widget.id as String, 10, 1));
+                                      ref.invalidate(
+                                        postsByBoardProvider(
+                                          widget.id as String,
+                                          10,
+                                          1,
+                                        ),
+                                      );
                                     }
                                   }
                                 });

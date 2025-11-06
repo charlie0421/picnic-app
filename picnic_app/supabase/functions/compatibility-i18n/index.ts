@@ -18,17 +18,19 @@ type RequestBody = {
 };
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get('origin') || '';
   // CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
-      headers: createCorsHeaders(req, { allowedOrigins: ['*'] })
+      headers: createCorsHeaders(origin, { allowedOrigins: ['*'] })
     });
   }
 
-  const cors = createCorsHeaders(req, { allowedOrigins: ['*'] });
+  const cors = createCorsHeaders(origin, { allowedOrigins: ['*'] });
 
   try {
+    const startedAt = Date.now();
     if (req.method !== 'POST') {
       return createErrorResponse('Method not allowed', 405, 'METHOD_NOT_ALLOWED', {}, cors);
     }
@@ -115,6 +117,14 @@ Deno.serve(async (req) => {
       .select('*')
       .single();
     if (upsertErr) throw upsertErr;
+
+    console.log('compatibility-i18n metrics:', {
+      ms: Date.now() - startedAt,
+      language,
+      score: base.score,
+      detailsSize: JSON.stringify(insertData.details || {}).length,
+      tipsLen: Array.isArray(insertData.tips) ? insertData.tips.length : 0
+    });
 
     return createSuccessResponse({ ok: true, created: true, data: upserted }, cors);
   } catch (error) {

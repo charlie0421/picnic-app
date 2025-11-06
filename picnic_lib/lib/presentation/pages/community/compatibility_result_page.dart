@@ -49,6 +49,7 @@ class _CompatibilityResultPageState
       ScrollController(); // Add ScrollController
   static const _animationDuration = Duration(milliseconds: 300);
   static const _scrollCurve = Curves.easeOut;
+  bool _invokingI18n = false;
 
   // late final에서 getter로 변경하여 항상 최신 아티스트 정보 사용
   String get _shareMessage {
@@ -193,6 +194,21 @@ class _CompatibilityResultPageState
       onShare: _handleShare,
       onOpenCompatibility: _openCompatibility,
     );
+  }
+
+  String _currentLanguageCode() {
+    final locale = Localizations.localeOf(context);
+    final language = locale.languageCode.toLowerCase();
+    final country = (locale.countryCode ?? '').toUpperCase();
+    // Normalize to backend codes: e.g., zh-CN / zh-TW
+    if (language == 'zh') {
+      if (country == 'CN') return 'zh-CN';
+      if (country == 'TW') return 'zh-TW';
+      return 'zh';
+    }
+    // bn_BD -> bn
+    if (language == 'bn') return 'bn';
+    return language;
   }
 
   void _openCompatibility(String compatibilityId) async {
@@ -358,6 +374,39 @@ class _CompatibilityResultPageState
           if (compatibility == null) {
             return _buildLoadingIndicator();
           }
+
+          // i18n 누락 시 엣지 함수 호출(포스트 프레임, 1회 가드)
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            if (!mounted || _invokingI18n) return;
+            try {
+              if (compatibility.isCompleted) {
+                final lang = _currentLanguageCode();
+                final hasCurrent =
+                    compatibility.getLocalizedResult(lang) != null;
+                if (!hasCurrent) {
+                  _invokingI18n = true;
+                  await supabase.functions.invoke(
+                    'compatibility-i18n',
+                    body: {
+                      'compatibility_id': compatibility.id,
+                      'language': lang,
+                    },
+                  );
+                  await ref
+                      .read(compatibilityProvider.notifier)
+                      .loadCompatibility(compatibility.id, forceRefresh: true);
+                }
+              }
+            } catch (e, s) {
+              logger.e(
+                'compatibility-i18n invoke failed',
+                error: e,
+                stackTrace: s,
+              );
+            } finally {
+              _invokingI18n = false;
+            }
+          });
 
           return CustomScrollView(
             controller: _scrollController, // Add the ScrollController here

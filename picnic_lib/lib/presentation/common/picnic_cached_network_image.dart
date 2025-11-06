@@ -101,6 +101,7 @@ class _PicnicCachedNetworkImageState
   late final DateTime _loadStartTime = DateTime.now();
   int _retryCount = 0;
   Timer? _lazyLoadTimer;
+  List<String>? _cachedUrls; // 동일 위젯 생명주기 동안 고정된 URL 세트
 
   static const Duration _defaultTimeout = Duration(seconds: 15);
   static const int _defaultMaxRetries = 2;
@@ -151,6 +152,16 @@ class _PicnicCachedNetworkImageState
         _prepareGifLoading();
       });
     }
+    // URL 세트는 최초 계산 후 생명주기 동안 고정하여 캐시 키 변동을 방지
+    // (동시 로딩 수 변화로 dpr/품질 조합이 흔들리며 캐시 미스가 나는 문제 완화)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _cachedUrls ??= _getTransformedUrls(
+          context,
+          _getResolutionMultiplier(context),
+        );
+      }
+    });
   }
 
   /// Lazy Loading 초기화
@@ -401,10 +412,12 @@ class _PicnicCachedNetworkImageState
   Widget _buildMainWidget() {
     final imageWidth = widget.width;
     final imageHeight = widget.height;
-    final resolutionMultiplier = _getResolutionMultiplier(context);
-
-    // 진보적 로딩을 위한 URL 목록 생성
-    final urls = _getTransformedUrls(context, resolutionMultiplier);
+    // 최초 계산된 URL 고정 사용 (빌드마다 변하지 않도록)
+    _cachedUrls ??= _getTransformedUrls(
+      context,
+      _getResolutionMultiplier(context),
+    );
+    final urls = _cachedUrls!;
     final primaryUrl = urls.last;
 
     return SizedBox(

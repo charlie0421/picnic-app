@@ -197,3 +197,13 @@ entrypoint = "./functions/jma-report-production/index.ts"
 enabled = true
 verify_jwt = true
 entrypoint = "./functions/expiring-bonus/index.ts"
+
+[functions.compatibility-i18n]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/compatibility-i18n/index.ts"
+
+[functions.prompts-upsert]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/prompts-upsert/index.ts"

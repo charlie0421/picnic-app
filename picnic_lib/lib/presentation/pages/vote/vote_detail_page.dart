@@ -40,6 +40,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VoteDetailPage extends ConsumerStatefulWidget {
   final int voteId;
@@ -69,6 +70,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   final Map<int, int> _previousVoteCounts = {};
   final Map<int, int> _previousRanks = {};
   final Map<int, int> _currentRanks = {};
+  final Set<int> _highlightedItemIds = {};
+  RealtimeChannel? _voteItemChannel;
 
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
@@ -85,6 +88,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     _setupListeners();
     _setupUpdateTimer();
     _initializeRanks();
+    _setupRealtimeSubscription();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
@@ -121,7 +125,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(const Duration(seconds: 8), (_) async {
+    _updateTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
       if (!mounted) return;
       if (_isRefreshingItems || _isSaving) return;
       _isRefreshingItems = true;
@@ -133,7 +137,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                 votePortal: widget.votePortal,
               ).future,
             )
-            .timeout(const Duration(seconds: 6), onTimeout: () => []);
+            .timeout(const Duration(seconds: 3), onTimeout: () => []);
       } catch (_) {
       } finally {
         _isRefreshingItems = false;
@@ -194,8 +198,82 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     }
   }
 
+  void _triggerHighlight(int itemId) {
+    if (_highlightedItemIds.contains(itemId)) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        _highlightedItemIds.add(itemId);
+      });
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (!mounted) return;
+        if (_highlightedItemIds.contains(itemId)) {
+          setState(() {
+            _highlightedItemIds.remove(itemId);
+          });
+        }
+      });
+    });
+  }
+
+  void _setupRealtimeSubscription() {
+    try {
+      final table = widget.votePortal == VotePortal.vote
+          ? 'vote_item'
+          : 'pic_vote_item';
+
+      _voteItemChannel = supabase.channel('vote_items_${widget.voteId}')
+        ..onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: table,
+          callback: (payload) {
+            final record = payload.newRecord;
+            if (record['vote_id'] == widget.voteId) {
+              final int id = record['id'] as int;
+              final int voteTotal = (record['vote_total'] as int?) ?? 0;
+              ref
+                  .read(
+                    asyncVoteItemListProvider(
+                      voteId: widget.voteId,
+                      votePortal: widget.votePortal,
+                    ).notifier,
+                  )
+                  .setVoteItem(id: id, voteTotal: voteTotal);
+            }
+          },
+        )
+        ..onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: table,
+          callback: (payload) {
+            final record = payload.newRecord;
+            if (record['vote_id'] == widget.voteId) {
+              final int id = record['id'] as int;
+              final int voteTotal = (record['vote_total'] as int?) ?? 0;
+              ref
+                  .read(
+                    asyncVoteItemListProvider(
+                      voteId: widget.voteId,
+                      votePortal: widget.votePortal,
+                    ).notifier,
+                  )
+                  .setVoteItem(id: id, voteTotal: voteTotal);
+            }
+          },
+        )
+        ..subscribe();
+    } catch (e) {
+      logger.e('Realtime 구독 실패: $e');
+    }
+  }
+
   @override
   void dispose() {
+    try {
+      _voteItemChannel?.unsubscribe();
+    } catch (_) {}
     _scrollController.dispose();
     _focusNode.dispose();
     _textEditingController.dispose();
@@ -854,6 +932,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                   final rankChanged =
                                       previousRank != actualRank;
 
+                                  if (rankChanged) {
+                                    _triggerHighlight(item.id);
+                                  }
+
                                   // PostFrameCallback을 더 안전하게 처리
                                   WidgetsBinding.instance.addPostFrameCallback((
                                     _,
@@ -942,7 +1024,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       index: index,
       actualRank: actualRank,
       voteCountDiff: voteCountDiff,
-      rankChanged: rankChanged,
+      rankChanged: _highlightedItemIds.contains(item.id),
       rankUp: rankUp,
       isEnded: isEnded,
       isSaving: _isSaving,
@@ -968,12 +1050,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     try {
       // 검색어가 매칭된 언어의 텍스트 가져오기
 
+      final bool highlightActive = _highlightedItemIds.contains(item.id);
       return RepaintBoundary(
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeInOut,
           decoration: BoxDecoration(
-            color: rankChanged
+            color: highlightActive
                 ? (rankUp
                       ? Colors.blue.withValues(alpha: 0.18)
                       : Colors.red.withValues(alpha: 0.18))
@@ -1317,8 +1400,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       memCacheWidth: 78,
       memCacheHeight: 78,
       placeholder: _buildImagePlaceholder(),
-      lazyLoadingStrategy: LazyLoadingStrategy.viewport,
-      priority: ImagePriority.normal,
+      lazyLoadingStrategy: LazyLoadingStrategy.none, // 즉시 로딩으로 깜빡임 방지
+      priority: ImagePriority.high, // 우선순위 상향으로 빠른 렌더링
       enableMemoryOptimization: true,
       enableProgressiveLoading: true,
       timeout: const Duration(seconds: 10),

@@ -127,7 +127,7 @@ class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage> {
 
     return PopScope(
       canPop: true,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           final restoreTitle = _prevPageTitle ?? '';
           ref
