@@ -113,6 +113,13 @@ class VoteCardColumnVertical extends StatelessWidget {
                         '',
                     width: 100,
                     height: 100,
+                    // 리스트 카드에서는 화면에 보일 때 빠르게 로딩되도록 파라미터 명시
+                    lazyLoadingStrategy: LazyLoadingStrategy.viewport,
+                    visibilityThreshold: 0.05,
+                    priority: ImagePriority.high,
+                    enableProgressiveLoading: true,
+                    timeout: Duration(seconds: 10),
+                    maxRetries: 2,
                   ),
                 ),
               ),

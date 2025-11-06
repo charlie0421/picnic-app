@@ -189,6 +189,15 @@ class _PicnicCachedNetworkImageState
 
       if (isVisible && !_shouldLoadImage) {
         _triggerLazyLoad();
+      }
+
+      // 가시화 시 이전에 에러가 있었고 재시도 가능하면 즉시 재시도 트리거
+      if (isVisible && _hasError && _retryCount < effectiveMaxRetries) {
+        setState(() {
+          _hasError = false;
+          _loading = true;
+          _shouldLoadImage = true;
+        });
       } else if (!isVisible &&
           _shouldLoadImage &&
           widget.priority == ImagePriority.low) {
