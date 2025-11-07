@@ -129,8 +129,8 @@ class _PicnicCachedNetworkImageState
   Duration _calculateBackoffDelay(int retryCount) {
     final baseDelay = Duration(milliseconds: 500);
     final delay = Duration(
-      milliseconds:
-          (baseDelay.inMilliseconds * math.pow(1.5, retryCount)).toInt(),
+      milliseconds: (baseDelay.inMilliseconds * math.pow(1.5, retryCount))
+          .toInt(),
     );
     return delay > _maxBackoffDelay ? _maxBackoffDelay : delay;
   }
@@ -343,8 +343,9 @@ class _PicnicCachedNetworkImageState
         final newSizeMB = newSizeBytes ~/ (1024 * 1024);
 
         logger.d(
-            '이미지 캐시 부분 정리됨: ${previousSizeMB}MB/${(maxSizeBytes ~/ (1024 * 1024))}MB → ${newSizeMB}MB, '
-            '이미지 수: $previousImageCount개 → $newImageCount개');
+          '이미지 캐시 부분 정리됨: ${previousSizeMB}MB/${(maxSizeBytes ~/ (1024 * 1024))}MB → ${newSizeMB}MB, '
+          '이미지 수: $previousImageCount개 → $newImageCount개',
+        );
       }
     } catch (e) {
       logger.e('이미지 캐시 정리 오류: $e');
@@ -361,7 +362,8 @@ class _PicnicCachedNetworkImageState
         _clearPartialImageCache();
 
         logger.d(
-            'GIF 로딩을 위한 부분 캐시 정리: ${currentSizeBytes ~/ (1024 * 1024)}MB → ${PaintingBinding.instance.imageCache.currentSizeBytes ~/ (1024 * 1024)}MB');
+          'GIF 로딩을 위한 부분 캐시 정리: ${currentSizeBytes ~/ (1024 * 1024)}MB → ${PaintingBinding.instance.imageCache.currentSizeBytes ~/ (1024 * 1024)}MB',
+        );
       }
     } catch (e) {
       logger.e('GIF 로딩 준비 오류: $e');
@@ -494,9 +496,11 @@ class _PicnicCachedNetworkImageState
   Widget _buildSafePlaceholder() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final safeWidth = widget.width ??
+        final safeWidth =
+            widget.width ??
             (constraints.maxWidth.isFinite ? constraints.maxWidth : 100.0);
-        final safeHeight = widget.height ??
+        final safeHeight =
+            widget.height ??
             (constraints.maxHeight.isFinite ? constraints.maxHeight : 100.0);
 
         return SizedBox(
@@ -512,9 +516,11 @@ class _PicnicCachedNetworkImageState
   Widget _buildSafeMainWidget() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final safeWidth = widget.width ??
+        final safeWidth =
+            widget.width ??
             (constraints.maxWidth.isFinite ? constraints.maxWidth : 100.0);
-        final safeHeight = widget.height ??
+        final safeHeight =
+            widget.height ??
             (constraints.maxHeight.isFinite ? constraints.maxHeight : 100.0);
 
         return SizedBox(
@@ -550,7 +556,9 @@ class _PicnicCachedNetworkImageState
   }
 
   List<String> _getTransformedUrls(
-      BuildContext context, double resolutionMultiplier) {
+    BuildContext context,
+    double resolutionMultiplier,
+  ) {
     final isLowBandwidth = _isLowBandwidthConnection();
     final imageSize = _estimateImageComplexity();
 
@@ -564,9 +572,7 @@ class _PicnicCachedNetworkImageState
 
     switch (imageSize) {
       case ImageComplexity.low:
-        return [
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 85),
-        ];
+        return [_getTransformedUrl(widget.imageUrl, resolutionMultiplier, 85)];
       case ImageComplexity.medium:
         return [
           _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.6, 40),
@@ -595,7 +601,10 @@ class _PicnicCachedNetworkImageState
   }
 
   String _getTransformedUrl(
-      String key, double resolutionMultiplier, int quality) {
+    String key,
+    double resolutionMultiplier,
+    int quality,
+  ) {
     Uri uri = Uri.parse('${Environment.cdnUrl}/$key');
 
     Map<String, String> queryParameters = {
@@ -607,7 +616,8 @@ class _PicnicCachedNetworkImageState
     };
 
     if (!isGif) {
-      final supportsWebP = WebPSupportChecker.instance.supportInfo != null &&
+      final supportsWebP =
+          WebPSupportChecker.instance.supportInfo != null &&
           WebPSupportChecker.instance.supportInfo!.webp;
 
       if (supportsWebP) {
@@ -633,7 +643,10 @@ class _PicnicCachedNetworkImageState
 
   /// 진보적 이미지 로딩 스택 구성
   Widget _buildProgressiveImageStack(
-      List<String> urls, double? width, double? height) {
+    List<String> urls,
+    double? width,
+    double? height,
+  ) {
     return SizedBox(
       width: width,
       height: height,
@@ -716,7 +729,11 @@ class _PicnicCachedNetworkImageState
   }
 
   Widget _buildCachedNetworkImage(
-      String url, double? width, double? height, int index) {
+    String url,
+    double? width,
+    double? height,
+    int index,
+  ) {
     try {
       Timer? timeoutTimer;
 
@@ -727,10 +744,11 @@ class _PicnicCachedNetworkImageState
               if (mounted && _loading) {
                 logger.w('이미지 로딩 타임아웃: $url');
                 _handleImageError(
-                    url,
-                    'Timeout after ${effectiveTimeout.inSeconds} seconds',
-                    width,
-                    height);
+                  url,
+                  'Timeout after ${effectiveTimeout.inSeconds} seconds',
+                  width,
+                  height,
+                );
               }
             });
           }
@@ -805,7 +823,11 @@ class _PicnicCachedNetworkImageState
 
   // 이미지 로딩 에러 처리 및 재시도 로직
   Widget _handleImageError(
-      String url, dynamic error, double? width, double? height) {
+    String url,
+    dynamic error,
+    double? width,
+    double? height,
+  ) {
     _recordFailure(url);
 
     if (_shouldRetry(url, error)) {
@@ -863,7 +885,8 @@ class _PicnicCachedNetworkImageState
     final delay = _calculateBackoffDelay(_retryCount);
 
     logger.i(
-        '이미지 로드 재시도 예정: $url (시도: $_retryCount/$effectiveMaxRetries, 지연: ${delay.inSeconds}초)');
+      '이미지 로드 재시도 예정: $url (시도: $_retryCount/$effectiveMaxRetries, 지연: ${delay.inSeconds}초)',
+    );
 
     Future.delayed(delay, () {
       if (mounted) {
@@ -878,11 +901,7 @@ class _PicnicCachedNetworkImageState
   // 에러 위젯 생성
   Widget _buildErrorWidget(double? width, double? height) {
     if (widget.errorWidget != null) {
-      return SizedBox(
-        width: width,
-        height: height,
-        child: widget.errorWidget,
-      );
+      return SizedBox(width: width, height: height, child: widget.errorWidget);
     }
 
     return SizedBox(
@@ -908,10 +927,7 @@ class _PicnicCachedNetworkImageState
                 const SizedBox(height: 4),
                 Text(
                   '이미지 로드 실패',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 10,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 10),
                 ),
               ],
             ],
@@ -977,7 +993,8 @@ class _PicnicCachedNetworkImageState
               _snapshotCount++;
 
               logger.i(
-                  '느린 이미지 로딩 감지됨 ($_snapshotCount번째): $url - ${loadDuration.inSeconds}초');
+                '느린 이미지 로딩 감지됨 ($_snapshotCount번째): $url - ${loadDuration.inSeconds}초',
+              );
             } else {
               logger.d('메모리 압박으로 로깅 건너뜀: $url');
             }
@@ -985,8 +1002,9 @@ class _PicnicCachedNetworkImageState
         }
 
         // 오래된 스냅샷 기록 정리 (4시간 이상)
-        _lastSnapshotTimes
-            .removeWhere((key, time) => now.difference(time).inHours >= 4);
+        _lastSnapshotTimes.removeWhere(
+          (key, time) => now.difference(time).inHours >= 4,
+        );
       }
     }
   }
@@ -1029,10 +1047,7 @@ class _ShimmerLoading extends StatefulWidget {
   final bool isLoading;
   final Widget child;
 
-  const _ShimmerLoading({
-    required this.isLoading,
-    required this.child,
-  });
+  const _ShimmerLoading({required this.isLoading, required this.child});
 
   @override
   _ShimmerLoadingState createState() => _ShimmerLoadingState();
@@ -1102,9 +1117,7 @@ class _ShimmerLoadingState extends State<_ShimmerLoading>
 }
 
 class _SlidingGradientTransform extends GradientTransform {
-  const _SlidingGradientTransform({
-    required this.slidePercent,
-  });
+  const _SlidingGradientTransform({required this.slidePercent});
 
   final double slidePercent;
 

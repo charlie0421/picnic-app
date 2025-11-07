@@ -26,12 +26,11 @@ class VoteCardColumnVertical extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const width = 80.0;
-    final barHeight =
-        (rank == 1
-            ? 220 * .65
-            : rank == 2
-            ? 220 * .50
-            : 220 * .40);
+    final barHeight = (rank == 1
+        ? 220 * .65
+        : rank == 2
+        ? 220 * .50
+        : 220 * .40);
 
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -83,12 +82,11 @@ class VoteCardColumnVertical extends StatelessWidget {
             height: width,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              gradient:
-                  rank == 1
-                      ? goldGradient
-                      : rank == 2
-                      ? silverGradient
-                      : bronzeGradient,
+              gradient: rank == 1
+                  ? goldGradient
+                  : rank == 2
+                  ? silverGradient
+                  : bronzeGradient,
               borderRadius: BorderRadius.circular(100),
             ),
             child: Container(
@@ -133,52 +131,51 @@ class VoteCardColumnVertical extends StatelessWidget {
             child: SizedBox(
               width: width,
               child: Column(
-                children:
-                    (voteItem.artist?.id ?? 0) != 0
-                        ? [
-                          Text(
-                            getLocaleTextFromJson(voteItem.artist?.name ?? {}),
-                            style: getTextStyle(
-                              AppTypo.caption12B,
-                              AppColors.grey900,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                children: (voteItem.artist?.id ?? 0) != 0
+                    ? [
+                        Text(
+                          getLocaleTextFromJson(voteItem.artist?.name ?? {}),
+                          style: getTextStyle(
+                            AppTypo.caption12B,
+                            AppColors.grey900,
                           ),
-                          if (voteItem.artist?.artistGroup?.name != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Text(
-                                getLocaleTextFromJson(
-                                  voteItem.artist!.artistGroup!.name,
-                                ),
-                                style: getTextStyle(
-                                  AppTypo.caption10SB,
-                                  AppColors.grey600,
-                                ),
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (voteItem.artist?.artistGroup?.name != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              getLocaleTextFromJson(
+                                voteItem.artist!.artistGroup!.name,
                               ),
+                              style: getTextStyle(
+                                AppTypo.caption10SB,
+                                AppColors.grey600,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                        ]
-                        : (voteItem.artistGroup?.id ?? 0) != 0
-                        ? [
-                          Text(
-                            getLocaleTextFromJson(
-                              voteItem.artistGroup?.name ?? {},
-                            ),
-                            style: getTextStyle(
-                              AppTypo.caption12B,
-                              AppColors.grey900,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ]
-                        : [],
+                      ]
+                    : (voteItem.artistGroup?.id ?? 0) != 0
+                    ? [
+                        Text(
+                          getLocaleTextFromJson(
+                            voteItem.artistGroup?.name ?? {},
+                          ),
+                          style: getTextStyle(
+                            AppTypo.caption12B,
+                            AppColors.grey900,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ]
+                    : [],
               ),
             ),
           ),

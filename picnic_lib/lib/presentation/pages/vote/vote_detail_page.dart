@@ -853,6 +853,47 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         _updateRanks(data);
         final filteredIndices = _getFilteredIndices([data, _searchQuery]);
 
+        // 검색 결과가 없을 때
+        if (filteredIndices.isEmpty && _searchQuery.isNotEmpty) {
+          return SliverToBoxAdapter(
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.primary500, width: 1.r),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(70.r),
+                      topRight: Radius.circular(70.r),
+                      bottomLeft: Radius.circular(40.r),
+                      bottomRight: Radius.circular(40.r),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: 56,
+                      left: 16.w,
+                      right: 16.w,
+                      bottom: 24 + MediaQuery.of(context).viewPadding.bottom,
+                    ).r,
+                    child: SizedBox(
+                      height: 200,
+                      child: Center(
+                        child: Text(
+                          AppLocalizations.of(context).text_no_search_result,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                _buildSearchBox(),
+              ],
+            ),
+          );
+        }
+
+        // ListView.builder를 사용하여 가상화 구현 (shrinkWrap으로 부모 스크롤 사용)
         return SliverToBoxAdapter(
           child: Stack(
             children: [
@@ -873,103 +914,77 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                     top: 56,
                     left: 16.w,
                     right: 16.w,
-                    // 고정 100 대신 기기 하단 viewPadding을 고려하여 동적 패딩 적용
                     bottom: 24 + MediaQuery.of(context).viewPadding.bottom,
-                  ).r, // 하단 패딩: 기기별 안전영역을 반영해 스크롤 여백 확보
-                  child: filteredIndices.isEmpty && _searchQuery.isNotEmpty
-                      ? SizedBox(
-                          height: 200,
-                          child: Center(
-                            child: Text(
-                              AppLocalizations.of(
-                                context,
-                              ).text_no_search_result,
-                            ),
+                  ).r,
+                  child: ListView.builder(
+                    // 가상화를 통한 성능 최적화: 뷰포트에 보이는 아이템만 렌더링
+                    shrinkWrap: true, // SliverToBoxAdapter 내부에서 사용
+                    physics: const NeverScrollableScrollPhysics(), // 부모 CustomScrollView의 스크롤 사용
+                    itemCount: filteredIndices.length,
+                    cacheExtent: 200, // 뷰포트 밖 200px까지 미리 렌더링
+                    addAutomaticKeepAlives: false, // 메모리 최적화
+                    addRepaintBoundaries: true, // 리페인트 최적화
+                    itemBuilder: (context, index) {
+                      // 안전성 체크 추가
+                      if (index >= filteredIndices.length) {
+                        logger.w(
+                          '📋 인덱스 초과 - index: $index, filteredLength: ${filteredIndices.length}',
+                        );
+                        return const SizedBox.shrink();
+                      }
+
+                      final itemIndex = filteredIndices[index];
+                      if (itemIndex >= data.length) {
+                        logger.w(
+                          '📋 데이터 인덱스 초과 - itemIndex: $itemIndex, dataLength: ${data.length}',
+                        );
+                        return const SizedBox.shrink();
+                      }
+
+                      final item = data[itemIndex];
+                      if (item == null) {
+                        logger.w(
+                          '📋 null 아이템 - itemIndex: $itemIndex',
+                        );
+                        return const SizedBox.shrink();
+                      }
+
+                      final previousVoteCount =
+                          _previousVoteCounts[item.id] ?? item.voteTotal;
+                      final voteCountDiff = item.voteTotal! - previousVoteCount!;
+                      final actualRank = _currentRanks[item.id] ?? 1;
+                      final previousRank = _previousRanks[item.id] ?? actualRank;
+                      final rankChanged = previousRank != actualRank;
+
+                      if (rankChanged) {
+                        _triggerHighlight(item.id);
+                      }
+
+                      // PostFrameCallback을 더 안전하게 처리
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          _previousVoteCounts[item.id] = item.voteTotal!;
+                          _previousRanks[item.id] = actualRank;
+                        }
+                      });
+
+                      return RepaintBoundary(
+                        key: ValueKey('vote_item_${item.id}'),
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 16),
+                          child: _buildVoteItemWithHighlight(
+                            item: item,
+                            index: itemIndex,
+                            actualRank: actualRank,
+                            voteCountDiff: voteCountDiff,
+                            rankChanged: rankChanged,
+                            rankUp: previousRank > actualRank,
+                            searchQuery: _searchQuery,
                           ),
-                        )
-                      : Column(
-                          children: [
-                            for (
-                              int index = 0;
-                              index < filteredIndices.length;
-                              index++
-                            )
-                              Builder(
-                                builder: (context) {
-                                  // 안전성 체크 추가
-                                  if (index >= filteredIndices.length) {
-                                    logger.w(
-                                      '📋 인덱스 초과 - index: $index, filteredLength: ${filteredIndices.length}',
-                                    );
-                                    return const SizedBox.shrink();
-                                  }
-
-                                  final itemIndex = filteredIndices[index];
-                                  if (itemIndex >= data.length) {
-                                    logger.w(
-                                      '📋 데이터 인덱스 초과 - itemIndex: $itemIndex, dataLength: ${data.length}',
-                                    );
-                                    return const SizedBox.shrink();
-                                  }
-
-                                  final item = data[itemIndex];
-                                  if (item == null) {
-                                    logger.w(
-                                      '📋 null 아이템 - itemIndex: $itemIndex',
-                                    );
-                                    return const SizedBox.shrink();
-                                  }
-
-                                  final previousVoteCount =
-                                      _previousVoteCounts[item.id] ??
-                                      item.voteTotal;
-                                  final voteCountDiff =
-                                      item.voteTotal! - previousVoteCount!;
-                                  final actualRank =
-                                      _currentRanks[item.id] ?? 1;
-                                  final previousRank =
-                                      _previousRanks[item.id] ?? actualRank;
-                                  final rankChanged =
-                                      previousRank != actualRank;
-
-                                  if (rankChanged) {
-                                    _triggerHighlight(item.id);
-                                  }
-
-                                  // PostFrameCallback을 더 안전하게 처리
-                                  WidgetsBinding.instance.addPostFrameCallback((
-                                    _,
-                                  ) {
-                                    if (mounted) {
-                                      _previousVoteCounts[item.id] =
-                                          item.voteTotal!;
-                                      _previousRanks[item.id] = actualRank;
-                                    }
-                                  });
-
-                                  return RepaintBoundary(
-                                    key: ValueKey(
-                                      'vote_item_${item.id}',
-                                    ), // 검색어 제거하여 안정적인 키 사용
-                                    child: Padding(
-                                      padding: EdgeInsets.only(
-                                        bottom: 16,
-                                      ), // 24에서 16으로 더 감소
-                                      child: _buildVoteItemWithHighlight(
-                                        item: item,
-                                        index: itemIndex,
-                                        actualRank: actualRank,
-                                        voteCountDiff: voteCountDiff,
-                                        rankChanged: rankChanged,
-                                        rankUp: previousRank > actualRank,
-                                        searchQuery: _searchQuery,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                          ],
                         ),
+                      );
+                    },
+                  ),
                 ),
               ),
               _buildSearchBox(),
@@ -1385,26 +1400,32 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       child: SizedBox(
         width: 39,
         height: 39,
-        child: _buildImageWithFallback(imageUrl),
+        child: _buildImageWithFallback(imageUrl, index: index),
       ),
     );
   }
 
-  Widget _buildImageWithFallback(String imageUrl) {
-    // 뷰포트에 들어올 때 로딩되는 커스텀 컴포넌트 사용 (가시 시 로딩)
+  Widget _buildImageWithFallback(String imageUrl, {int? index}) {
+    // 대량 아이템(1500개+) 최적화: 뷰포트에 보이는 이미지만 로딩
+    // 상위 랭킹(상위 50개)은 높은 우선순위, 나머지는 일반 우선순위
+    final isTopRanking = index != null && index < 50;
+    
     return PicnicCachedNetworkImage(
       imageUrl: imageUrl,
       fit: BoxFit.cover,
       width: 39,
       height: 39,
-      memCacheWidth: 78,
+      memCacheWidth: 78, // 2x 해상도로 메모리 캐시 (화면 크기 대비 최적화)
       memCacheHeight: 78,
       placeholder: _buildImagePlaceholder(),
-      lazyLoadingStrategy: LazyLoadingStrategy.none, // 즉시 로딩으로 깜빡임 방지
-      priority: ImagePriority.high, // 우선순위 상향으로 빠른 렌더링
+      lazyLoadingStrategy: LazyLoadingStrategy.viewport, // 뷰포트에 들어올 때만 로딩
+      visibilityThreshold: 0.1, // 10% 보일 때부터 로딩 시작
+      enablePreloading: true, // 뷰포트 근처 200px 전에 미리 로딩
+      preloadDistance: 200.0,
+      priority: isTopRanking ? ImagePriority.high : ImagePriority.normal, // 상위 랭킹만 높은 우선순위
       enableMemoryOptimization: true,
       enableProgressiveLoading: true,
-      timeout: const Duration(seconds: 10),
+      timeout: const Duration(seconds: 15), // 타임아웃을 15초로 증가 (네트워크 상태 고려)
       maxRetries: 2,
     );
   }
