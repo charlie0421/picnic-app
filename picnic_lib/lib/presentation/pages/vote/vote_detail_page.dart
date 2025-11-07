@@ -919,7 +919,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                   child: ListView.builder(
                     // 가상화를 통한 성능 최적화: 뷰포트에 보이는 아이템만 렌더링
                     shrinkWrap: true, // SliverToBoxAdapter 내부에서 사용
-                    physics: const NeverScrollableScrollPhysics(), // 부모 CustomScrollView의 스크롤 사용
+                    physics:
+                        const NeverScrollableScrollPhysics(), // 부모 CustomScrollView의 스크롤 사용
                     itemCount: filteredIndices.length,
                     cacheExtent: 200, // 뷰포트 밖 200px까지 미리 렌더링
                     addAutomaticKeepAlives: false, // 메모리 최적화
@@ -943,17 +944,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
                       final item = data[itemIndex];
                       if (item == null) {
-                        logger.w(
-                          '📋 null 아이템 - itemIndex: $itemIndex',
-                        );
+                        logger.w('📋 null 아이템 - itemIndex: $itemIndex');
                         return const SizedBox.shrink();
                       }
 
                       final previousVoteCount =
                           _previousVoteCounts[item.id] ?? item.voteTotal;
-                      final voteCountDiff = item.voteTotal! - previousVoteCount!;
+                      final voteCountDiff =
+                          item.voteTotal! - previousVoteCount!;
                       final actualRank = _currentRanks[item.id] ?? 1;
-                      final previousRank = _previousRanks[item.id] ?? actualRank;
+                      final previousRank =
+                          _previousRanks[item.id] ?? actualRank;
                       final rankChanged = previousRank != actualRank;
 
                       if (rankChanged) {
@@ -1047,7 +1048,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         logger.d('🔥 onTap: onTap');
         _handleVoteItemTap(context, item, index);
       },
-      artistImage: _buildArtistImage(item, index),
+      artistImage: _buildArtistImage(item, index, actualRank),
       voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
       rankText: _buildRankText(actualRank, item),
     );
@@ -1111,7 +1112,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                     ),
                   ),
                   SizedBox(width: 8.w),
-                  _buildArtistImage(item, index),
+                  _buildArtistImage(item, index, actualRank),
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Column(
@@ -1233,7 +1234,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         isEnded: isEnded,
         isSaving: _isSaving,
         onTap: () => _handleVoteItemTap(context, item, index),
-        artistImage: _buildArtistImage(item, index),
+        artistImage: _buildArtistImage(item, index, actualRank),
         voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
         rankText: _buildRankText(actualRank, item),
       );
@@ -1280,7 +1281,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                               isSaving: _isSaving,
                               onTap: () =>
                                   _handleVoteItemTap(context, data[i]!, i),
-                              artistImage: _buildArtistImage(data[i]!, i),
+                              artistImage: _buildArtistImage(
+                                data[i]!,
+                                i,
+                                _currentRanks[data[i]!.id] ?? 1,
+                              ),
                               voteCountContainer: _buildVoteCountContainer(
                                 data[i]!,
                                 0,
@@ -1338,7 +1343,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     }
   }
 
-  Widget _buildArtistImage(VoteItemModel item, int index) {
+  Widget _buildArtistImage(VoteItemModel item, int index, int actualRank) {
     try {
       // 이미지 URL을 안전하게 가져오기
       final artistUrl = item.artist?.image ?? '';
@@ -1380,7 +1385,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               width: 39, // 명시적 크기 지정
               height: 39,
               child: hasValidImageUrl
-                  ? _buildNetworkImage(imageUrl, item.id, index)
+                  ? _buildNetworkImage(imageUrl, item.id, index, actualRank)
                   : _buildImagePlaceholder(),
             ),
           ),
@@ -1393,24 +1398,40 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     }
   }
 
-  Widget _buildNetworkImage(String imageUrl, int itemId, int index) {
-    // 안정적인 키 사용
+  Widget _buildNetworkImage(
+    String imageUrl,
+    int itemId,
+    int index,
+    int actualRank,
+  ) {
+    // 순위 변동 시 이미지 위젯 재생성을 위해 actualRank를 키에 포함
     return RepaintBoundary(
-      key: ValueKey('image_$itemId'),
+      key: ValueKey('image_${itemId}_rank_$actualRank'),
       child: SizedBox(
         width: 39,
         height: 39,
-        child: _buildImageWithFallback(imageUrl, index: index),
+        child: _buildImageWithFallback(
+          imageUrl,
+          index: index,
+          actualRank: actualRank,
+        ),
       ),
     );
   }
 
-  Widget _buildImageWithFallback(String imageUrl, {int? index}) {
+  Widget _buildImageWithFallback(
+    String imageUrl, {
+    int? index,
+    int? actualRank,
+  }) {
     // 대량 아이템(1500개+) 최적화: 뷰포트에 보이는 이미지만 로딩
     // 상위 랭킹(상위 50개)은 높은 우선순위, 나머지는 일반 우선순위
     final isTopRanking = index != null && index < 50;
-    
+
     return PicnicCachedNetworkImage(
+      key: ValueKey(
+        'cached_image_$imageUrl${actualRank != null ? '_rank_$actualRank' : ''}',
+      ), // 순위 변동 시 위젯 재생성
       imageUrl: imageUrl,
       fit: BoxFit.cover,
       width: 39,
@@ -1422,7 +1443,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       visibilityThreshold: 0.1, // 10% 보일 때부터 로딩 시작
       enablePreloading: true, // 뷰포트 근처 200px 전에 미리 로딩
       preloadDistance: 200.0,
-      priority: isTopRanking ? ImagePriority.high : ImagePriority.normal, // 상위 랭킹만 높은 우선순위
+      priority: isTopRanking
+          ? ImagePriority.high
+          : ImagePriority.normal, // 상위 랭킹만 높은 우선순위
       enableMemoryOptimization: true,
       enableProgressiveLoading: true,
       timeout: const Duration(seconds: 15), // 타임아웃을 15초로 증가 (네트워크 상태 고려)
