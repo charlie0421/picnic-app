@@ -1040,7 +1040,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       index: index,
       actualRank: actualRank,
       voteCountDiff: voteCountDiff,
-      rankChanged: _highlightedItemIds.contains(item.id),
+      rankChanged: rankChanged, // 실제 rankChanged 파라미터 사용
       rankUp: rankUp,
       isEnded: isEnded,
       isSaving: _isSaving,
@@ -1048,7 +1048,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         logger.d('🔥 onTap: onTap');
         _handleVoteItemTap(context, item, index);
       },
-      artistImage: _buildArtistImage(item, index, actualRank),
+      artistImage: _buildArtistImage(item, index, actualRank, rankChanged),
       voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
       rankText: _buildRankText(actualRank, item),
     );
@@ -1112,7 +1112,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                     ),
                   ),
                   SizedBox(width: 8.w),
-                  _buildArtistImage(item, index, actualRank),
+                  _buildArtistImage(item, index, actualRank, rankChanged),
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Column(
@@ -1234,7 +1234,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         isEnded: isEnded,
         isSaving: _isSaving,
         onTap: () => _handleVoteItemTap(context, item, index),
-        artistImage: _buildArtistImage(item, index, actualRank),
+        artistImage: _buildArtistImage(item, index, actualRank, rankChanged),
         voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
         rankText: _buildRankText(actualRank, item),
       );
@@ -1285,6 +1285,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                 data[i]!,
                                 i,
                                 _currentRanks[data[i]!.id] ?? 1,
+                                false, // 캡처 시에는 순위 변동 없음
                               ),
                               voteCountContainer: _buildVoteCountContainer(
                                 data[i]!,
@@ -1343,7 +1344,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     }
   }
 
-  Widget _buildArtistImage(VoteItemModel item, int index, int actualRank) {
+  Widget _buildArtistImage(
+    VoteItemModel item,
+    int index,
+    int actualRank,
+    bool rankChanged,
+  ) {
     try {
       // 이미지 URL을 안전하게 가져오기
       final artistUrl = item.artist?.image ?? '';
@@ -1385,7 +1391,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               width: 39, // 명시적 크기 지정
               height: 39,
               child: hasValidImageUrl
-                  ? _buildNetworkImage(imageUrl, item.id, index, actualRank)
+                  ? _buildNetworkImage(
+                      imageUrl,
+                      item.id,
+                      index,
+                      actualRank,
+                      rankChanged,
+                    )
                   : _buildImagePlaceholder(),
             ),
           ),
@@ -1403,6 +1415,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     int itemId,
     int index,
     int actualRank,
+    bool rankChanged,
   ) {
     // 순위 변동 시 이미지 위젯 재생성을 위해 actualRank를 키에 포함
     return RepaintBoundary(
@@ -1414,6 +1427,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           imageUrl,
           index: index,
           actualRank: actualRank,
+          rankChanged: rankChanged,
         ),
       ),
     );
@@ -1423,10 +1437,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     String imageUrl, {
     int? index,
     int? actualRank,
+    bool rankChanged = false,
   }) {
     // 대량 아이템(1500개+) 최적화: 뷰포트에 보이는 이미지만 로딩
     // 상위 랭킹(상위 50개)은 높은 우선순위, 나머지는 일반 우선순위
     final isTopRanking = index != null && index < 50;
+
+    // 순위가 변동된 경우 즉시 로딩 (LazyLoadingStrategy.none)
+    // 그 외의 경우 뷰포트 기반 지연 로딩 (LazyLoadingStrategy.viewport)
+    final lazyLoadingStrategy = rankChanged
+        ? LazyLoadingStrategy.none
+        : LazyLoadingStrategy.viewport;
 
     return PicnicCachedNetworkImage(
       key: ValueKey(
@@ -1439,7 +1460,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       memCacheWidth: 78, // 2x 해상도로 메모리 캐시 (화면 크기 대비 최적화)
       memCacheHeight: 78,
       placeholder: _buildImagePlaceholder(),
-      lazyLoadingStrategy: LazyLoadingStrategy.viewport, // 뷰포트에 들어올 때만 로딩
+      lazyLoadingStrategy: lazyLoadingStrategy, // 순위 변동 시 즉시 로딩
       visibilityThreshold: 0.1, // 10% 보일 때부터 로딩 시작
       enablePreloading: true, // 뷰포트 근처 200px 전에 미리 로딩
       preloadDistance: 200.0,
