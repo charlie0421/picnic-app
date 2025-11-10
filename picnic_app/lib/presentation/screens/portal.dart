@@ -105,6 +105,7 @@ class _PortalState extends ConsumerState<Portal> {
                     if (Environment.currentEnvironment != 'prod')
                       Text(Environment.currentEnvironment),
                     const PortalMenuItem(portalType: PortalType.vote),
+                    const PortalMenuItem(portalType: PortalType.goongHap),
                     const PortalMenuItem(portalType: PortalType.community),
                     if (isSupabaseLoggedSafely)
                       userInfoState.when(

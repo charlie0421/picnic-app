@@ -10,7 +10,9 @@ import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
+import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart';
 import 'package:picnic_lib/presentation/screens/community/community_home_screen.dart';
+import 'package:picnic_lib/presentation/screens/goong_hap/goong_hap_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/novel/novel_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/pic/pic_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/vote/vote_home_screen.dart';
@@ -134,6 +136,8 @@ class NavigationInfo extends _$NavigationInfo {
     switch (state.portalType) {
       case PortalType.vote:
         return const VoteHomeScreen();
+      case PortalType.goongHap:
+        return const GoongHapHomeScreen();
       case PortalType.pic:
         return const PicHomeScreen();
       case PortalType.community:
@@ -167,6 +171,22 @@ class NavigationInfo extends _$NavigationInfo {
           currentScreen: const VoteHomeScreen(),
         );
         logger.d('📱 VOTE portal set successfully with fresh stack');
+        break;
+
+      case PortalType.goongHap:
+        final goongHapPage =
+            NavigationConfigs.getPageWidget(PortalType.goongHap, 0) ??
+                const CompatibilityListPage();
+        logger.d(
+            '💕 Setting GOONG-HAP portal, page widget: ${goongHapPage.runtimeType}');
+
+        // GOONG-HAP 포털로 전환 시 항상 새로운 스택으로 초기화
+        state = state.copyWith(
+          communityBottomNavigationIndex: 0, // 첫 번째 탭으로 초기화
+          communityNavigationStack: NavigationStack()..push(goongHapPage),
+          currentScreen: const GoongHapHomeScreen(),
+        );
+        logger.d('💕 GOONG-HAP portal set successfully with fresh stack');
         break;
 
       case PortalType.community:
@@ -231,6 +251,8 @@ class NavigationInfo extends _$NavigationInfo {
   int getBottomNavigationIndex() {
     if (state.portalType == PortalType.vote) {
       return state.voteBottomNavigationIndex;
+    } else if (state.portalType == PortalType.goongHap) {
+      return state.communityBottomNavigationIndex; // goongHap은 communityNavigationStack 사용
     } else if (state.portalType == PortalType.pic) {
       return state.picBottomNavigationIndex;
     } else if (state.portalType == PortalType.community) {
@@ -248,6 +270,8 @@ class NavigationInfo extends _$NavigationInfo {
 
     if (state.portalType == PortalType.vote) {
       setVoteBottomNavigationIndex(index);
+    } else if (state.portalType == PortalType.goongHap) {
+      setCommunityBottomNavigationIndex(index); // goongHap은 communityNavigationStack 사용
     } else if (state.portalType == PortalType.pic) {
       setPicBottomNavigationIndex(index);
     } else if (state.portalType == PortalType.community) {

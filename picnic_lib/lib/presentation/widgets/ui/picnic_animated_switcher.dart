@@ -26,6 +26,11 @@ class _PicnicAnimatedSwitcherState
       case PortalType.vote:
         stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
         break;
+      case PortalType.goongHap:
+        // goongHap은 community 스택 공유
+        stackChildren =
+            navigationInfo.communityNavigationStack?.items ?? const [];
+        break;
       case PortalType.community:
         stackChildren =
             navigationInfo.communityNavigationStack?.items ?? const [];

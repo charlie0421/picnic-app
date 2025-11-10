@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/pages/community/compatibility_artist_select_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_input_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_loading_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
@@ -32,6 +32,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
   // 성능 최적화를 위한 const 상수 활용
   static const _scrollThreshold = 0.8;
   static const _padding = EdgeInsets.fromLTRB(16, 24, 16, 80);
+  static const _headerPadding = EdgeInsets.fromLTRB(16, 24, 16, 16);
 
   // 🔧 연타 방지만 - 스크롤 관련 복잡한 로직 제거
   DateTime? _lastTapTime;
@@ -80,8 +81,14 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
   void _onNewCompatibilityTap() {
     final currentArtist = ref.read(communityStateInfoProvider).currentArtist;
     if (currentArtist != null) {
+      // 현재 선택된 아티스트가 있으면 바로 입력 페이지로 이동
       ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
             CompatibilityInputPage(artist: currentArtist),
+          );
+    } else {
+      // 아티스트가 없으면 아티스트 선택 페이지로 이동
+      ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
+            const CompatibilityArtistSelectPage(),
           );
     }
   }
@@ -175,22 +182,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
                         1 + history.items.length + (history.isLoading ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index == 0) {
-                        final locale = Localizations.localeOf(context);
-                        final languageCode =
-                            ['ko', 'en'].contains(locale.languageCode)
-                                ? locale.languageCode
-                                : 'en';
-                        return Column(
-                          children: [
-                            SvgPicture.asset(
-                              package: 'picnic_lib',
-                              'assets/images/fortune/title_$languageCode.svg',
-                              fit: BoxFit.fitHeight,
-                              height: 48,
-                            ),
-                            const SizedBox(height: 24),
-                          ],
-                        );
+                        return _buildHeader();
                       }
 
                       final itemIndex = index - 1;
@@ -213,45 +205,65 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
                       );
                     },
                   ),
-                  Positioned(
-                    bottom: 24,
-                    left: 24,
-                    right: 24,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary500.withValues(alpha: 0.2),
-                            blurRadius: 15,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton(
-                        onPressed: _onNewCompatibilityTap,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 48, vertical: 16),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.add_circle_outline, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              AppLocalizations.of(context)
-                                  .compatibility_new_compatibility,
-                              style:
-                                  getTextStyle(AppTypo.body16B, Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
                 ],
               ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context);
+
+    return Padding(
+      padding: _headerPadding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 제목: Goong-Hap (웹과 동일)
+          Text(
+            'Goong-Hap',
+            style: getTextStyle(AppTypo.title18B, AppColors.grey00),
+          ),
+          const SizedBox(height: 8),
+          // 설명: compatibility_page_title 번역
+          Text(
+            l10n.compatibility_page_title,
+            style: getTextStyle(AppTypo.body14R, AppColors.grey00.withValues(alpha: 0.8)),
+          ),
+          const SizedBox(height: 16),
+          // 새 궁합 계산하기 버튼 (웹처럼 상단에 배치)
+          Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary500.withValues(alpha: 0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: _onNewCompatibilityTap,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                backgroundColor: AppColors.primary500,
+                foregroundColor: Colors.white,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.add_circle_outline, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    l10n.compatibility_new_compatibility,
+                    style: getTextStyle(AppTypo.body16B, Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }

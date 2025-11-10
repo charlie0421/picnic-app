@@ -7,12 +7,8 @@ enum PolicyLanguage {
   const PolicyLanguage(this.text);
 }
 
-enum PolicyType {
-  privacy,
-  terms,
-  withdraw,
-}
+enum PolicyType { privacy, terms, withdraw }
 
-enum PortalType { vote, pic, community, novel, mypage }
+enum PortalType { vote, goongHap, pic, community, novel, mypage }
 
 enum Gender { male, female }

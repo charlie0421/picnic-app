@@ -4,6 +4,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 final voteMainColor = AppColors.secondary500;
+final goongHapMainColor = AppColors.primary500;
 final picMainColor = AppColors.primary500;
 final communityMainColor = AppColors.sub500;
 final novelMainColor = AppColors.point500;

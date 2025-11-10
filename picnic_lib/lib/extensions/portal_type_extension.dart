@@ -5,6 +5,8 @@ extension PortalTypeExtension on PortalType {
     switch (this) {
       case PortalType.vote:
         return 'vote';
+      case PortalType.goongHap:
+        return 'goongHap';
       case PortalType.pic:
         return 'pic';
       case PortalType.community:
@@ -20,6 +22,8 @@ extension PortalTypeExtension on PortalType {
     switch (value) {
       case 'vote':
         return PortalType.vote;
+      case 'goongHap':
+        return PortalType.goongHap;
       case 'pic':
         return PortalType.pic;
       case 'community':

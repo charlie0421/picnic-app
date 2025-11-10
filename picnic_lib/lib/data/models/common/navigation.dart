@@ -112,6 +112,8 @@ class Navigation with _$Navigation {
     switch (portalType) {
       case PortalType.vote:
         return voteBottomNavigationIndex;
+      case PortalType.goongHap:
+        return communityBottomNavigationIndex; // goongHap은 communityNavigationStack 사용
       case PortalType.pic:
         return picBottomNavigationIndex;
       case PortalType.community:

@@ -42,7 +42,7 @@ class PortalMenuItem extends ConsumerWidget {
           ),
           child: Center(
             child: Text(
-              portalType.name.toUpperCase(),
+              _getPortalDisplayName(portalType),
               style: isSelected
                   ? getTextStyle(AppTypo.body14B, AppColors.grey900)
                   : getTextStyle(AppTypo.body14R, AppColors.grey900),
@@ -51,5 +51,14 @@ class PortalMenuItem extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  String _getPortalDisplayName(PortalType portalType) {
+    switch (portalType) {
+      case PortalType.goongHap:
+        return 'Goong-Hap';
+      default:
+        return portalType.name.toUpperCase();
+    }
   }
 }
