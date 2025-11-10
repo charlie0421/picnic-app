@@ -15,8 +15,14 @@ _$UserNotificationImpl _$$UserNotificationImplFromJson(
     final val = _$UserNotificationImpl(
       id: $checkedConvert('id', (v) => (v as num).toInt()),
       userId: $checkedConvert('user_id', (v) => v as String?),
-      title: $checkedConvert('title', (v) => v as String),
-      body: $checkedConvert('body', (v) => v as String),
+      title: $checkedConvert(
+        'title',
+        (v) => const MultilangJsonConverter().fromJson(v),
+      ),
+      body: $checkedConvert(
+        'body',
+        (v) => const MultilangJsonConverter().fromJson(v),
+      ),
       data: $checkedConvert('data', (v) => v as Map<String, dynamic>?),
       actionUrl: $checkedConvert('action_url', (v) => v as String?),
       type: $checkedConvert('type', (v) => v as String? ?? 'default'),
@@ -40,8 +46,8 @@ Map<String, dynamic> _$$UserNotificationImplToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'user_id': instance.userId,
-  'title': instance.title,
-  'body': instance.body,
+  'title': const MultilangJsonConverter().toJson(instance.title),
+  'body': const MultilangJsonConverter().toJson(instance.body),
   'data': instance.data,
   'action_url': instance.actionUrl,
   'type': instance.type,

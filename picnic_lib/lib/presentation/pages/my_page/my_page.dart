@@ -436,14 +436,26 @@ class _MyPageState extends ConsumerState<MyPage> {
                 final entries = languageMap.entries.toList();
                 final isWide = MediaQuery.of(context).size.width > 480;
 
-                void handleSelect(String langCode) {
+                void handleSelect(String langCode) async {
                   if (langCode == currentLanguage) {
                     Navigator.of(context).pop();
                     return;
                   }
                   try {
                     Navigator.of(context).pop();
+                    
+                    // DB에 언어 업데이트 (비동기)
+                    try {
+                      await ref.read(userInfoProvider.notifier).updateLanguage(langCode);
+                    } catch (e) {
+                      // DB 업데이트 실패는 로그만 남기고 계속 진행 (앱 동작에는 영향 없음)
+                      logger.w('user_profiles.language 업데이트 실패', error: e);
+                    }
+                    
+                    // 로컬 스토리지에 언어 저장
                     ref.read(appSettingProvider.notifier).setLanguage(langCode);
+                    
+                    // 앱 재시작하여 새 언어 적용
                     Phoenix.rebirth(context);
                   } catch (e, stackTrace) {
                     logger.e('언어 변경 중 오류 발생', error: e, stackTrace: stackTrace);

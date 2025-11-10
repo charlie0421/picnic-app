@@ -165,16 +165,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
               tileColor = null;
           }
 
+          // 다국어 처리: 현재 로케일에 맞는 텍스트 표시
+          final localizedTitle = n.getLocalizedTitle(context);
+          final localizedBody = n.getLocalizedBody(context);
+          
           return ListTile(
             leading: Icon(leadingIcon),
             tileColor: tileColor,
             title: Text(
-              n.title,
+              localizedTitle,
               style: TextStyle(
                 fontWeight: n.isRead ? FontWeight.normal : FontWeight.bold,
               ),
             ),
-            subtitle: Text(n.body),
+            subtitle: Text(localizedBody),
             onTap: () {
               if ((n.actionUrl ?? '').isNotEmpty) {
                 _openUrl(n.actionUrl!);

@@ -26,9 +26,11 @@ mixin _$UserNotification {
   @JsonKey(name: 'user_id')
   String? get userId => throw _privateConstructorUsedError;
   @JsonKey(name: 'title')
-  String get title => throw _privateConstructorUsedError;
+  @MultilangJsonConverter()
+  Map<String, dynamic> get title => throw _privateConstructorUsedError; // 다국어 객체: {"ko": "...", "en": "..."}
   @JsonKey(name: 'body')
-  String get body => throw _privateConstructorUsedError;
+  @MultilangJsonConverter()
+  Map<String, dynamic> get body => throw _privateConstructorUsedError; // 다국어 객체: {"ko": "...", "en": "..."}
   @JsonKey(name: 'data')
   Map<String, dynamic>? get data => throw _privateConstructorUsedError;
   @JsonKey(name: 'action_url')
@@ -62,8 +64,10 @@ abstract class $UserNotificationCopyWith<$Res> {
   $Res call({
     @JsonKey(name: 'id') int id,
     @JsonKey(name: 'user_id') String? userId,
-    @JsonKey(name: 'title') String title,
-    @JsonKey(name: 'body') String body,
+    @JsonKey(name: 'title')
+    @MultilangJsonConverter()
+    Map<String, dynamic> title,
+    @JsonKey(name: 'body') @MultilangJsonConverter() Map<String, dynamic> body,
     @JsonKey(name: 'data') Map<String, dynamic>? data,
     @JsonKey(name: 'action_url') String? actionUrl,
     @JsonKey(name: 'type') String type,
@@ -112,11 +116,11 @@ class _$UserNotificationCopyWithImpl<$Res, $Val extends UserNotification>
             title: null == title
                 ? _value.title
                 : title // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as Map<String, dynamic>,
             body: null == body
                 ? _value.body
                 : body // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as Map<String, dynamic>,
             data: freezed == data
                 ? _value.data
                 : data // ignore: cast_nullable_to_non_nullable
@@ -159,8 +163,10 @@ abstract class _$$UserNotificationImplCopyWith<$Res>
   $Res call({
     @JsonKey(name: 'id') int id,
     @JsonKey(name: 'user_id') String? userId,
-    @JsonKey(name: 'title') String title,
-    @JsonKey(name: 'body') String body,
+    @JsonKey(name: 'title')
+    @MultilangJsonConverter()
+    Map<String, dynamic> title,
+    @JsonKey(name: 'body') @MultilangJsonConverter() Map<String, dynamic> body,
     @JsonKey(name: 'data') Map<String, dynamic>? data,
     @JsonKey(name: 'action_url') String? actionUrl,
     @JsonKey(name: 'type') String type,
@@ -206,13 +212,13 @@ class __$$UserNotificationImplCopyWithImpl<$Res>
             : userId // ignore: cast_nullable_to_non_nullable
                   as String?,
         title: null == title
-            ? _value.title
+            ? _value._title
             : title // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as Map<String, dynamic>,
         body: null == body
-            ? _value.body
+            ? _value._body
             : body // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as Map<String, dynamic>,
         data: freezed == data
             ? _value._data
             : data // ignore: cast_nullable_to_non_nullable
@@ -248,15 +254,21 @@ class _$UserNotificationImpl extends _UserNotification {
   const _$UserNotificationImpl({
     @JsonKey(name: 'id') required this.id,
     @JsonKey(name: 'user_id') this.userId,
-    @JsonKey(name: 'title') required this.title,
-    @JsonKey(name: 'body') required this.body,
+    @JsonKey(name: 'title')
+    @MultilangJsonConverter()
+    required final Map<String, dynamic> title,
+    @JsonKey(name: 'body')
+    @MultilangJsonConverter()
+    required final Map<String, dynamic> body,
     @JsonKey(name: 'data') final Map<String, dynamic>? data,
     @JsonKey(name: 'action_url') this.actionUrl,
     @JsonKey(name: 'type') this.type = 'default',
     @JsonKey(name: 'is_read') this.isRead = false,
     @JsonKey(name: 'created_at') this.createdAt,
     @JsonKey(name: 'read_at') this.readAt,
-  }) : _data = data,
+  }) : _title = title,
+       _body = body,
+       _data = data,
        super._();
 
   factory _$UserNotificationImpl.fromJson(Map<String, dynamic> json) =>
@@ -268,13 +280,31 @@ class _$UserNotificationImpl extends _UserNotification {
   @override
   @JsonKey(name: 'user_id')
   final String? userId;
+  final Map<String, dynamic> _title;
   @override
   @JsonKey(name: 'title')
-  final String title;
+  @MultilangJsonConverter()
+  Map<String, dynamic> get title {
+    if (_title is EqualUnmodifiableMapView) return _title;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_title);
+  }
+
+  // 다국어 객체: {"ko": "...", "en": "..."}
+  final Map<String, dynamic> _body;
+  // 다국어 객체: {"ko": "...", "en": "..."}
   @override
   @JsonKey(name: 'body')
-  final String body;
+  @MultilangJsonConverter()
+  Map<String, dynamic> get body {
+    if (_body is EqualUnmodifiableMapView) return _body;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_body);
+  }
+
+  // 다국어 객체: {"ko": "...", "en": "..."}
   final Map<String, dynamic>? _data;
+  // 다국어 객체: {"ko": "...", "en": "..."}
   @override
   @JsonKey(name: 'data')
   Map<String, dynamic>? get data {
@@ -313,8 +343,8 @@ class _$UserNotificationImpl extends _UserNotification {
             other is _$UserNotificationImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.title, title) || other.title == title) &&
-            (identical(other.body, body) || other.body == body) &&
+            const DeepCollectionEquality().equals(other._title, _title) &&
+            const DeepCollectionEquality().equals(other._body, _body) &&
             const DeepCollectionEquality().equals(other._data, _data) &&
             (identical(other.actionUrl, actionUrl) ||
                 other.actionUrl == actionUrl) &&
@@ -331,8 +361,8 @@ class _$UserNotificationImpl extends _UserNotification {
     runtimeType,
     id,
     userId,
-    title,
-    body,
+    const DeepCollectionEquality().hash(_title),
+    const DeepCollectionEquality().hash(_body),
     const DeepCollectionEquality().hash(_data),
     actionUrl,
     type,
@@ -362,8 +392,12 @@ abstract class _UserNotification extends UserNotification {
   const factory _UserNotification({
     @JsonKey(name: 'id') required final int id,
     @JsonKey(name: 'user_id') final String? userId,
-    @JsonKey(name: 'title') required final String title,
-    @JsonKey(name: 'body') required final String body,
+    @JsonKey(name: 'title')
+    @MultilangJsonConverter()
+    required final Map<String, dynamic> title,
+    @JsonKey(name: 'body')
+    @MultilangJsonConverter()
+    required final Map<String, dynamic> body,
     @JsonKey(name: 'data') final Map<String, dynamic>? data,
     @JsonKey(name: 'action_url') final String? actionUrl,
     @JsonKey(name: 'type') final String type,
@@ -384,10 +418,12 @@ abstract class _UserNotification extends UserNotification {
   String? get userId;
   @override
   @JsonKey(name: 'title')
-  String get title;
+  @MultilangJsonConverter()
+  Map<String, dynamic> get title; // 다국어 객체: {"ko": "...", "en": "..."}
   @override
   @JsonKey(name: 'body')
-  String get body;
+  @MultilangJsonConverter()
+  Map<String, dynamic> get body; // 다국어 객체: {"ko": "...", "en": "..."}
   @override
   @JsonKey(name: 'data')
   Map<String, dynamic>? get data;

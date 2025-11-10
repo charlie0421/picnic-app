@@ -43,7 +43,8 @@ class UserInfo extends _$UserInfo {
       final response = await supabase
           .from('user_profiles')
           .select(
-              'id,avatar_url,star_candy,nickname,email,star_candy_bonus,is_admin,birth_date,gender,birth_time,deleted_at,user_agreement(id,terms,privacy)')
+            'id,avatar_url,star_candy,nickname,email,star_candy_bonus,is_admin,birth_date,gender,birth_time,deleted_at,user_agreement(id,terms,privacy)',
+          )
           .eq('id', supabase.auth.currentUser!.id)
           .maybeSingle();
 
@@ -128,25 +129,74 @@ class UserInfo extends _$UserInfo {
         return false;
       }
 
-      final updatedProfile =
-          UserProfilesModel.fromJson(jsonDecode(response.data)['data']);
+      final updatedProfile = UserProfilesModel.fromJson(
+        jsonDecode(response.data)['data'],
+      );
       state = AsyncValue.data(updatedProfile);
       logger.i('Nickname updated successfully: ${updatedProfile.nickname}');
       return true;
     } catch (e, s) {
-      logger.e('Error calling update-nickname function',
-          error: e, stackTrace: s);
+      logger.e(
+        'Error calling update-nickname function',
+        error: e,
+        stackTrace: s,
+      );
       return false;
     }
   }
 
   Future<void> updateAvatar(String url) async {
     logger.i('Updating avatar URL to: $url');
-    await supabase.from('user_profiles').update({
-      'avatar_url': url,
-    }).eq('id', supabase.auth.currentUser!.id);
+    await supabase
+        .from('user_profiles')
+        .update({'avatar_url': url})
+        .eq('id', supabase.auth.currentUser!.id);
     state = AsyncValue.data(state.value!.copyWith(avatarUrl: url));
     logger.i('Avatar URL updated successfully');
+  }
+
+  /// 사용자 언어 설정을 업데이트합니다.
+  Future<void> updateLanguage(String languageCode) async {
+    if (!isSupabaseLoggedSafely) {
+      logger.w('Cannot update language: user not logged in');
+      return;
+    }
+
+    try {
+      // 언어 코드 정규화 (zh_CN -> zh, zh_TW -> zh-TW 등)
+      String normalizedLanguage = languageCode;
+      if (normalizedLanguage.startsWith('zh_CN') ||
+          normalizedLanguage == 'zh') {
+        normalizedLanguage = 'zh';
+      } else if (normalizedLanguage.startsWith('zh_TW')) {
+        normalizedLanguage = 'zh-TW';
+      } else if (normalizedLanguage.startsWith('bn_BD') ||
+          normalizedLanguage == 'bn') {
+        normalizedLanguage = 'bn';
+      } else {
+        // 언어 코드만 추출 (예: ko_KR -> ko, en_US -> en)
+        final parts = normalizedLanguage.split('_');
+        normalizedLanguage = parts[0];
+      }
+
+      logger.i(
+        'Updating user language to: $normalizedLanguage (original: $languageCode)',
+      );
+
+      await supabase
+          .from('user_profiles')
+          .update({
+            'language': normalizedLanguage,
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', supabase.auth.currentUser!.id);
+
+      logger.i('User language updated successfully');
+    } catch (e, s) {
+      logger.e('Error updating user language', error: e, stackTrace: s);
+      Sentry.captureException(e, stackTrace: s);
+      // 언어 업데이트 실패는 치명적이지 않으므로 rethrow하지 않음
+    }
   }
 }
 
@@ -214,7 +264,8 @@ Future<List<Map<String, dynamic>?>?> expireBonus(Ref ref) async {
       for (final item in parsed) {
         if (item is Map<String, dynamic>) {
           logger.i(
-              '[expireBonus] item month=${item['prediction_month']} amount=${item['expiring_amount']}');
+            '[expireBonus] item month=${item['prediction_month']} amount=${item['expiring_amount']}',
+          );
         }
       }
       return List<Map<String, dynamic>>.from(parsed);

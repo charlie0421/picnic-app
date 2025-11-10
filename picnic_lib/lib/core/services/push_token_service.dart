@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -11,13 +12,23 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PushTokenService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  static final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
   static bool _apnsWaited = false;
+  static bool _notificationsInitialized = false;
 
   static Future<void> initialize() async {
     if (kIsWeb) return; // Web handled in Next.js app
 
     try {
       final totalSw = Stopwatch()..start();
+
+      // 로컬 알림 초기화 (포그라운드 알림 표시용)
+      if (!_notificationsInitialized) {
+        await _initializeLocalNotifications();
+        _notificationsInitialized = true;
+      }
+
       if (Platform.isIOS) {
         final permSw = Stopwatch()..start();
         final settings = await _messaging
@@ -113,13 +124,23 @@ class PushTokenService {
         registerToken(token);
       });
 
-      // 앱 포그라운드 수신 로그
-      FirebaseMessaging.onMessage.listen((RemoteMessage msg) {
-        final title = msg.notification?.title ?? '(no-title)';
-        final body = msg.notification?.body ?? '';
+      // 앱 포그라운드 수신 처리 및 알림 표시
+      FirebaseMessaging.onMessage.listen((RemoteMessage msg) async {
+        final title =
+            msg.notification?.title ?? msg.data['title'] ?? '(no-title)';
+        final body = msg.notification?.body ?? msg.data['body'] ?? '';
         logger.i(
           '[FCM] onMessage (foreground) title="$title" body="$body" data=${msg.data}',
         );
+
+        // 포그라운드에서 알림 표시
+        if (title != '(no-title)' && body.isNotEmpty) {
+          await _showLocalNotification(
+            title: title,
+            body: body,
+            data: msg.data,
+          );
+        }
       });
       totalSw.stop();
       logger.i(
@@ -322,5 +343,100 @@ class PushTokenService {
       }
     } catch (_) {}
     return null;
+  }
+
+  /// 로컬 알림 초기화
+  static Future<void> _initializeLocalNotifications() async {
+    try {
+      const androidSettings = AndroidInitializationSettings(
+        '@mipmap/launcher_icon',
+      );
+      const iosSettings = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
+      const initSettings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
+
+      await _localNotifications.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse response) {
+          logger.i('[FCM] Local notification tapped: ${response.payload}');
+          // 알림 탭 처리 로직은 필요시 추가
+        },
+      );
+
+      // Android 알림 채널 생성
+      if (Platform.isAndroid) {
+        const androidChannel = AndroidNotificationChannel(
+          'high_importance_channel', // id
+          'High Importance Notifications', // name
+          description: 'This channel is used for important notifications.',
+          importance: Importance.high,
+        );
+        await _localNotifications
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >()
+            ?.createNotificationChannel(androidChannel);
+      }
+
+      logger.i('Local notifications initialized');
+    } catch (e, s) {
+      logger.e(
+        'Failed to initialize local notifications',
+        error: e,
+        stackTrace: s,
+      );
+    }
+  }
+
+  /// 로컬 알림 표시
+  static Future<void> _showLocalNotification({
+    required String title,
+    required String body,
+    Map<String, dynamic>? data,
+  }) async {
+    try {
+      const androidDetails = AndroidNotificationDetails(
+        'high_importance_channel',
+        'High Importance Notifications',
+        channelDescription: 'This channel is used for important notifications.',
+        importance: Importance.high,
+        priority: Priority.high,
+        showWhen: true,
+      );
+
+      const iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      const notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      // 고유 ID 생성 (타임스탬프 기반)
+      final notificationId = DateTime.now().millisecondsSinceEpoch.remainder(
+        100000,
+      );
+
+      await _localNotifications.show(
+        notificationId,
+        title,
+        body,
+        notificationDetails,
+        payload: data?.toString(),
+      );
+
+      logger.i('[FCM] Local notification shown: title="$title" body="$body"');
+    } catch (e, s) {
+      logger.e('Failed to show local notification', error: e, stackTrace: s);
+    }
   }
 }
