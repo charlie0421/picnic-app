@@ -16,8 +16,15 @@ class PushTokenService {
       FlutterLocalNotificationsPlugin();
   static bool _apnsWaited = false;
   static bool _notificationsInitialized = false;
+  static Function(RemoteMessage)? _onNotificationTap;
+  static Function(String)? _onActionUrlTap;
 
-  static Future<void> initialize() async {
+  static Future<void> initialize({
+    Function(RemoteMessage)? onNotificationTap,
+    Function(String)? onActionUrlTap,
+  }) async {
+    _onNotificationTap = onNotificationTap;
+    _onActionUrlTap = onActionUrlTap;
     if (kIsWeb) return; // Web handled in Next.js app
 
     try {
@@ -142,6 +149,28 @@ class PushTokenService {
           );
         }
       });
+
+      // 백그라운드에서 알림 클릭 시 처리
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage msg) {
+        logger.i(
+          '[FCM] onMessageOpenedApp (background tap) title="${msg.notification?.title}" data=${msg.data}',
+        );
+        _handleNotificationTap(msg);
+      });
+
+      // 앱이 종료된 상태에서 알림으로 시작된 경우 처리
+      final initialMessage = await FirebaseMessaging.instance
+          .getInitialMessage();
+      if (initialMessage != null) {
+        logger.i(
+          '[FCM] getInitialMessage (terminated tap) title="${initialMessage.notification?.title}" data=${initialMessage.data}',
+        );
+        // 앱이 완전히 초기화된 후 처리하기 위해 약간의 지연
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _handleNotificationTap(initialMessage);
+        });
+      }
+
       totalSw.stop();
       logger.i(
         'PushTokenService.initialize completed in ${totalSw.elapsedMilliseconds}ms',
@@ -365,7 +394,39 @@ class PushTokenService {
         initSettings,
         onDidReceiveNotificationResponse: (NotificationResponse response) {
           logger.i('[FCM] Local notification tapped: ${response.payload}');
-          // 알림 탭 처리 로직은 필요시 추가
+          // 로컬 알림 탭 처리 (포그라운드 알림)
+          // payload는 action_url이 포함된 문자열
+          if (response.payload != null && response.payload!.isNotEmpty) {
+            try {
+              // payload에서 action_url 추출 시도
+              // payload 형식: "{action_url: https://applink.picnic.fan/...}"
+              final payloadStr = response.payload!;
+              // 간단한 파싱: action_url이 포함되어 있으면 추출
+              if (payloadStr.contains('action_url')) {
+                final uriMatch = RegExp(
+                  r'https?://[^\s}]+',
+                ).firstMatch(payloadStr);
+                if (uriMatch != null) {
+                  final actionUrl = uriMatch.group(0);
+                  if (actionUrl != null && actionUrl.isNotEmpty) {
+                    logger.i(
+                      '[FCM] Extracted action_url from local notification: $actionUrl',
+                    );
+                    if (_onActionUrlTap != null) {
+                      _onActionUrlTap!(actionUrl);
+                    } else {
+                      logger.w('[FCM] onActionUrlTap callback not set');
+                    }
+                  }
+                }
+              }
+            } catch (e) {
+              logger.e(
+                '[FCM] Failed to parse local notification payload',
+                error: e,
+              );
+            }
+          }
         },
       );
 
@@ -426,17 +487,47 @@ class PushTokenService {
         100000,
       );
 
+      // payload에 action_url 포함 (로컬 알림 탭 시 사용)
+      final payload = data != null && data.containsKey('action_url')
+          ? 'action_url: ${data['action_url']}'
+          : data?.toString();
+
       await _localNotifications.show(
         notificationId,
         title,
         body,
         notificationDetails,
-        payload: data?.toString(),
+        payload: payload,
       );
 
       logger.i('[FCM] Local notification shown: title="$title" body="$body"');
     } catch (e, s) {
       logger.e('Failed to show local notification', error: e, stackTrace: s);
+    }
+  }
+
+  /// 알림 탭 처리
+  static void _handleNotificationTap(RemoteMessage msg) {
+    try {
+      final actionUrl = msg.data['action_url'];
+      if (actionUrl != null && actionUrl is String && actionUrl.isNotEmpty) {
+        logger.i('[FCM] Handling notification tap with action_url: $actionUrl');
+        if (_onNotificationTap != null) {
+          _onNotificationTap!(msg);
+        } else {
+          logger.w('[FCM] onNotificationTap callback not set');
+        }
+      } else {
+        logger.i(
+          '[FCM] Notification tap but no action_url in data: ${msg.data}',
+        );
+      }
+    } catch (e, s) {
+      logger.e(
+        '[FCM] Failed to handle notification tap',
+        error: e,
+        stackTrace: s,
+      );
     }
   }
 }

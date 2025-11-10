@@ -15,12 +15,14 @@ import 'package:picnic_lib/core/services/update_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/common/scaffold_key.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
@@ -29,6 +31,9 @@ import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/notice_detail_page.dart';
+import 'package:picnic_lib/presentation/pages/community/post_view_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
+import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
@@ -368,7 +373,29 @@ class AppInitializer {
 
       if (isMobile()) {
         await _initializeMobileApp(ref);
-        await PushTokenService.initialize();
+        await PushTokenService.initialize(
+          onNotificationTap: (RemoteMessage msg) {
+            final actionUrl = msg.data['action_url'];
+            if (actionUrl != null &&
+                actionUrl is String &&
+                actionUrl.isNotEmpty) {
+              logger.i(
+                '[AppInitializer] Handling push notification tap: $actionUrl',
+              );
+              // 다음 프레임에서 처리하여 앱 초기화 완료 후 실행되도록 함
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                handleDeepLink(ref, actionUrl);
+              });
+            }
+          },
+          onActionUrlTap: (String actionUrl) {
+            logger.i('[AppInitializer] Handling action URL tap: $actionUrl');
+            // 다음 프레임에서 처리하여 앱 초기화 완료 후 실행되도록 함
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              handleDeepLink(ref, actionUrl);
+            });
+          },
+        );
         if (!context.mounted) return;
         await _loadProducts(ref);
 
@@ -623,7 +650,7 @@ class AppInitializer {
 
   static void setupBranchListener(WidgetRef ref) {
     FlutterBranchSdk.listSession().listen(
-      (data) {
+      (data) async {
         try {
           logger.i('Incoming Branch link data: $data');
           if (data.containsKey("+clicked_branch_link") &&
@@ -631,7 +658,7 @@ class AppInitializer {
             // 링크 클릭 시 처리 로직
             final longUrl = data["\$desktop_url"];
             // longUrl을 사용하여 원하는 페이지로 이동
-            handleDeepLink(ref, longUrl);
+            await handleDeepLink(ref, longUrl);
           }
         } catch (e, s) {
           logger.e('Branch link 처리 중 오류:', error: e, stackTrace: s);
@@ -645,7 +672,7 @@ class AppInitializer {
     // 필요한 경우 나중에 구독 취소 로직 추가
   }
 
-  static void handleDeepLink(WidgetRef ref, String longUrl) {
+  static Future<void> handleDeepLink(WidgetRef ref, String longUrl) async {
     try {
       final uri = Uri.parse(longUrl);
 
@@ -660,44 +687,72 @@ class AppInitializer {
             // e.g. /notice/1
             try {
               final noticeId = int.parse(page);
+              final targetPage = NoticeDetailPage(noticeId: noticeId);
               // 현재 포털에 맞춰 스택에 푸시하여 뒤로가기 시 원래 화면으로 복귀
               final currentPortal = ref.read(navigationInfoProvider).portalType;
               if (currentPortal == PortalType.community) {
-                navigationNotifier.setCommunityCurrentPage(
-                  NoticeDetailPage(noticeId: noticeId),
-                );
+                navigationNotifier.setCommunityCurrentPage(targetPage);
               } else if (currentPortal == PortalType.pic) {
-                navigationNotifier.setPicCurrentPage(
-                  NoticeDetailPage(noticeId: noticeId),
-                );
+                navigationNotifier.setPicCurrentPage(targetPage);
+              } else if (currentPortal == PortalType.novel) {
+                navigationNotifier.setNovelCurrentPage(targetPage);
               } else {
                 // 기본은 VOTE 컨테이너 유지
                 navigationNotifier.setPortal(PortalType.vote);
-                navigationNotifier.pushVotePageKeepScreen(
-                  NoticeDetailPage(noticeId: noticeId),
-                );
+                // 다음 프레임에서 페이지 설정 (setPortal의 스택 초기화 후 실행)
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  navigationNotifier.pushVotePageKeepScreen(targetPage);
+                });
               }
               return;
             } catch (_) {}
             break;
           case 'vote':
+            // 현재 포털에 맞춰 스택에 푸시하여 뒤로가기 시 원래 화면으로 복귀
+            final currentPortal = ref.read(navigationInfoProvider).portalType;
+            Widget targetPage;
+
+            // 페이지 타입에 따라 타겟 페이지 결정
             switch (page) {
               case 'list':
-                navigationNotifier.setCurrentPage(const VoteListPage());
+                targetPage = const VoteListPage();
                 break;
               case 'detail':
-                final voteId = uri.pathSegments[2];
-                final type = uri.queryParameters['type'];
-                if (type == 'achieve') {
-                  navigationNotifier.setCurrentPage(
-                    VoteDetailAchievePage(voteId: int.parse(voteId)),
-                  );
+                if (uri.pathSegments.length >= 3) {
+                  final voteId = uri.pathSegments[2];
+                  final type = uri.queryParameters['type'];
+                  if (type == 'achieve') {
+                    targetPage = VoteDetailAchievePage(
+                      voteId: int.parse(voteId),
+                    );
+                  } else {
+                    targetPage = VoteDetailPage(voteId: int.parse(voteId));
+                  }
                 } else {
-                  navigationNotifier.setCurrentPage(
-                    VoteDetailPage(voteId: int.parse(voteId)),
+                  logger.w(
+                    'Invalid vote detail URL: $longUrl (missing voteId)',
                   );
+                  return;
                 }
                 break;
+              default:
+                return;
+            }
+
+            // 현재 포털에 따라 적절한 메서드 호출
+            if (currentPortal == PortalType.community) {
+              navigationNotifier.setCommunityCurrentPage(targetPage);
+            } else if (currentPortal == PortalType.pic) {
+              navigationNotifier.setPicCurrentPage(targetPage);
+            } else if (currentPortal == PortalType.novel) {
+              navigationNotifier.setNovelCurrentPage(targetPage);
+            } else {
+              // vote 포털이거나 다른 포털인 경우 vote 포털로 전환
+              navigationNotifier.setPortal(PortalType.vote);
+              // 다음 프레임에서 페이지 설정 (setPortal의 스택 초기화 후 실행)
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                navigationNotifier.setCurrentPage(targetPage);
+              });
             }
             break;
           case 'community':
@@ -733,6 +788,54 @@ class AppInitializer {
                 logger.i('Compatibility 기능이 임시로 비활성화되었습니다.');
                 break;
             }
+            break;
+          case 'post':
+            // e.g. /post/{postId}
+            if (uri.pathSegments.length >= 2) {
+              final postId = uri.pathSegments[1];
+              if (postId.isNotEmpty) {
+                navigationNotifier.setPortal(PortalType.community);
+                navigationNotifier.setCurrentPage(PostViewPage(postId));
+                return;
+              }
+            }
+            break;
+          case 'qna':
+            // e.g. /qna/{questionId}
+            if (uri.pathSegments.length >= 2) {
+              final questionIdStr = uri.pathSegments[1];
+              if (questionIdStr.isNotEmpty) {
+                try {
+                  final threadId = int.parse(questionIdStr);
+                  final repo = QnaRepository();
+                  final withMsgs = await repo.getQaThreadById(threadId);
+                  // 마이페이지 스택을 클리어하고 QnA 페이지로 이동
+                  navigationNotifier.setResetStackMyPage();
+                  // 다음 프레임에서 QnA 페이지 푸시 및 Drawer 열기
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    navigationNotifier.setCurrentMyPage(
+                      QnaThreadDetailPage(thread: withMsgs.thread),
+                    );
+                    // 하단 메뉴 숨김
+                    navigationNotifier.setShowBottomNavigation(false);
+                    // Drawer 열기 (Scaffold GlobalKey 사용)
+                    if (scaffoldKey.currentState != null) {
+                      scaffoldKey.currentState!.openDrawer();
+                    } else {
+                      logger.w('Scaffold key가 없어 Drawer를 열 수 없습니다');
+                    }
+                  });
+                  return;
+                } catch (e, s) {
+                  logger.e(
+                    'QnA thread 로드 실패: $questionIdStr',
+                    error: e,
+                    stackTrace: s,
+                  );
+                }
+              }
+            }
+            break;
         }
       }
 

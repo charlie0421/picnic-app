@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/services/notification_inbox_service.dart';
 import 'package:picnic_lib/data/models/user_notification.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -7,15 +8,16 @@ import 'package:picnic_lib/presentation/pages/community/post_view_page.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
+import 'package:picnic_lib/core/utils/app_initializer.dart';
 
-class NotificationsPage extends StatefulWidget {
+class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
 
   @override
-  State<NotificationsPage> createState() => _NotificationsPageState();
+  ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
 }
 
-class _NotificationsPageState extends State<NotificationsPage> {
+class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   final List<UserNotification> _items = [];
   bool _loading = false;
   int _from = 0;
@@ -68,7 +70,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Future<void> _openUrl(String url) async {
     try {
       final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
+      final host = uri.host.toLowerCase();
+      final isPicnicDomain = host == 'applink.picnic.fan' || host == 'www.picnic.fan';
+      
+      // Picnic 도메인의 앱 내부 경로는 deep link로 처리
+      if (isPicnicDomain && (uri.scheme == 'https' || uri.scheme == 'http')) {
+        logger.i('Deep link 처리: $url');
+        await AppInitializer.handleDeepLink(ref, url);
+      } else if (await canLaunchUrl(uri)) {
+        // 외부 URL은 외부 브라우저로 열기
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         logger.w('Cannot launch URL: $url');

@@ -14,6 +14,7 @@ import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/fixed_width_layout.dart';
+import 'package:picnic_lib/presentation/common/scaffold_key.dart';
 
 class Portal extends ConsumerStatefulWidget {
   static const String routeName = '/landing';
@@ -37,6 +38,7 @@ class _PortalState extends ConsumerState<Portal> {
       ),
       child: FixedWidthLayout(
         child: Scaffold(
+          key: scaffoldKey,
           drawerEnableOpenDragGesture: false,
           drawer: const Drawer(
             width: double.infinity,

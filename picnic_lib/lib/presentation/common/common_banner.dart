@@ -76,14 +76,14 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
 
             // Picnic 도메인의 앱 내부 경로는 외부 브라우저를 열지 말고 인앱 딥링크로 처리
             if (isHttp && isPicnicDomain) {
-              AppInitializer.handleDeepLink(ref, item.link!);
+              await AppInitializer.handleDeepLink(ref, item.link!);
             } else if (isHttp) {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
             } else {
-              AppInitializer.handleDeepLink(ref, item.link!);
+              await AppInitializer.handleDeepLink(ref, item.link!);
             }
           } catch (_) {
-            AppInitializer.handleDeepLink(ref, item.link!);
+            await AppInitializer.handleDeepLink(ref, item.link!);
           }
         }
       },
