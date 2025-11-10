@@ -39,6 +39,7 @@ class AppSetting extends _$AppSetting {
   void setLanguage(String language) {
     globalStorage.saveData('language', language);
     state = state.copyWith(language: language);
+    // user_profiles.language 업데이트는 language_initializer.dart의 changeLanguage에서 처리
   }
 
   void setArea(String area) {

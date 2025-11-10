@@ -176,6 +176,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         return voteThemeLight;
       case PortalType.pic:
         return picThemeLight;
+      case PortalType.goongHap:
       case PortalType.community:
         return communityThemeLight;
       case PortalType.novel:

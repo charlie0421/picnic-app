@@ -148,7 +148,7 @@ class _FetchVoteAchieveProviderElement
   int get voteId => (origin as FetchVoteAchieveProvider).voteId;
 }
 
-String _$asyncVoteDetailHash() => r'dd83a1b07ecb1d931f075a9806561344b2431ad7';
+String _$asyncVoteDetailHash() => r'7c1f85d5ef38e11c53a21b26182a526cff9f0511';
 
 abstract class _$AsyncVoteDetail
     extends BuildlessAutoDisposeAsyncNotifier<VoteModel?> {
@@ -305,7 +305,7 @@ class _AsyncVoteDetailProviderElement
   VotePortal get votePortal => (origin as AsyncVoteDetailProvider).votePortal;
 }
 
-String _$asyncVoteItemListHash() => r'e83a599a864da32a61b3f423cee07b16c46e4e70';
+String _$asyncVoteItemListHash() => r'893a6c6ee106b7074e1f8ea73ff622ddb7dc011a';
 
 abstract class _$AsyncVoteItemList
     extends BuildlessAutoDisposeAsyncNotifier<List<VoteItemModel?>> {
