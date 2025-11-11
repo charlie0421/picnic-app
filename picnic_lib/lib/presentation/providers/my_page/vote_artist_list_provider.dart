@@ -143,40 +143,46 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
       logger.d(
           '🔥🔥🔥 [VoteArtistListProvider] 검색 결과에서 발견된 북마크 아티스트 수: ${artistsWithBookmarks.where((a) => a.isBookmarked == true).length}');
 
-      // 검색 결과에 포함되지 않은 북마크된 아티스트들 확인
-      final foundBookmarkedIds = artistsWithBookmarks
-          .where((a) => a.isBookmarked == true)
-          .map((a) => a.id)
-          .toSet();
-      final missingBookmarkedIds =
-          bookmarkedArtistIds.difference(foundBookmarkedIds);
+      // 첫 번째 페이지(page=0)이고 검색어가 비어있을 때만 북마크된 아티스트를 상단에 추가
+      if (page == 0 && query.isEmpty) {
+        // 검색 결과에 포함되지 않은 북마크된 아티스트들 확인
+        final foundBookmarkedIds = artistsWithBookmarks
+            .where((a) => a.isBookmarked == true)
+            .map((a) => a.id)
+            .toSet();
+        final missingBookmarkedIds =
+            bookmarkedArtistIds.difference(foundBookmarkedIds);
 
-      if (missingBookmarkedIds.isNotEmpty) {
-        logger.d(
-            '🔥🔥🔥 [VoteArtistListProvider] 검색 결과에 없는 북마크된 아티스트 ID들: $missingBookmarkedIds');
+        if (missingBookmarkedIds.isNotEmpty) {
+          logger.d(
+              '🔥🔥🔥 [VoteArtistListProvider] 검색 결과에 없는 북마크된 아티스트 ID들: $missingBookmarkedIds');
 
-        // 누락된 북마크 아티스트들을 bookmarkedArtists에서 찾아서 추가
-        final missingBookmarkedArtists = bookmarkedArtists
-            .where((artist) => missingBookmarkedIds.contains(artist.id))
-            .map((artist) => artist.copyWith(isBookmarked: true))
-            .toList();
+          // 누락된 북마크 아티스트들을 bookmarkedArtists에서 찾아서 추가
+          final missingBookmarkedArtists = bookmarkedArtists
+              .where((artist) => missingBookmarkedIds.contains(artist.id))
+              .map((artist) => artist.copyWith(isBookmarked: true))
+              .toList();
 
-        logger.d(
-            '🔥🔥🔥 [VoteArtistListProvider] 추가할 누락된 북마크 아티스트 수: ${missingBookmarkedArtists.length}');
+          logger.d(
+              '🔥🔥🔥 [VoteArtistListProvider] 추가할 누락된 북마크 아티스트 수: ${missingBookmarkedArtists.length}');
 
-        // 누락된 북마크 아티스트들을 리스트 앞쪽에 추가
-        artistsWithBookmarks.insertAll(0, missingBookmarkedArtists);
+          // 누락된 북마크 아티스트들을 리스트 앞쪽에 추가
+          artistsWithBookmarks.insertAll(0, missingBookmarkedArtists);
 
-        logger.d('🔥🔥🔥 [VoteArtistListProvider] 누락된 북마크 아티스트 추가 완료');
+          logger.d('🔥🔥🔥 [VoteArtistListProvider] 누락된 북마크 아티스트 추가 완료');
+        }
+
+        // 북마크된 아티스트를 상단으로 정렬
+        artistsWithBookmarks.sort((a, b) {
+          // 북마크된 아티스트가 상단에 오도록 정렬
+          if (a.isBookmarked == true && b.isBookmarked != true) return -1;
+          if (a.isBookmarked != true && b.isBookmarked == true) return 1;
+          return 0;
+        });
+      } else {
+        // 첫 페이지가 아니거나 검색어가 있을 때는 북마크 상태만 적용하고 정렬하지 않음
+        // (검색 결과 순서 유지)
       }
-
-      // 북마크된 아티스트를 상단으로 정렬
-      artistsWithBookmarks.sort((a, b) {
-        // 북마크된 아티스트가 상단에 오도록 정렬
-        if (a.isBookmarked == true && b.isBookmarked != true) return -1;
-        if (a.isBookmarked != true && b.isBookmarked == true) return 1;
-        return 0;
-      });
 
       logger.d('🔥🔥🔥 [VoteArtistListProvider] 정렬 후 첫 3개 아티스트:');
       for (int i = 0; i < artistsWithBookmarks.length && i < 3; i++) {
