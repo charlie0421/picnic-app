@@ -4,6 +4,8 @@ import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart'
+    show DisposableBuildContext, ScrollAwareImageProvider;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -98,12 +100,13 @@ class _PicnicCachedNetworkImageState
   bool _hasError = false;
   bool _shouldLoadImage = false; // Lazy Loading 제어
   bool _isVisible = false; // 가시성 상태
-  late final DateTime _loadStartTime = DateTime.now();
+  bool _isImageLoaded = false;
+  DateTime? _loadStartTime;
   int _retryCount = 0;
   Timer? _lazyLoadTimer;
   List<String>? _cachedUrls; // 동일 위젯 생명주기 동안 고정된 URL 세트
 
-  static const Duration _defaultTimeout = Duration(seconds: 15);
+  static const Duration _defaultTimeout = Duration(seconds: 30);
   static const int _defaultMaxRetries = 2;
   static const Duration _maxBackoffDelay = Duration(seconds: 30);
 
@@ -117,6 +120,13 @@ class _PicnicCachedNetworkImageState
   static final Map<String, List<DateTime>> _failureHistory = {};
   static DateTime? _lastGlobalSnapshot;
   static int _snapshotCount = 0;
+  static DateTime? _lastMemoryPressureLog;
+  static const Duration _memoryPressureLogInterval = Duration(minutes: 1);
+  static final Map<String, DateTime> _lastTimeoutLogTimes = {};
+  static const Duration _timeoutLogInterval = Duration(minutes: 3);
+  int _reloadToken = 0;
+  late final DisposableBuildContext<ConsumerState<PicnicCachedNetworkImage>>
+  _scrollAwareContext;
 
   bool get isGif => widget.imageUrl.toLowerCase().endsWith('.gif');
   bool get isLowBandwidth => _isLowBandwidthConnection();
@@ -135,9 +145,39 @@ class _PicnicCachedNetworkImageState
     return delay > _maxBackoffDelay ? _maxBackoffDelay : delay;
   }
 
+  int _roundPixels(double value, double multiplier) {
+    final computed = (value * multiplier).round();
+    return computed > 0 ? computed : 1;
+  }
+
+  int _computeCacheDimension(
+    int? explicit,
+    double? fallback,
+    double multiplier,
+  ) {
+    if (explicit != null) {
+      return math.max(1, (explicit * multiplier).round());
+    }
+    if (fallback != null && fallback.isFinite) {
+      return math.max(1, (fallback * multiplier).round());
+    }
+
+    return math.max(1, (400 * multiplier).round());
+  }
+
+  String _formatDpr(double value) {
+    final fixed = value.toStringAsFixed(2);
+    final trimmed = fixed
+        .replaceAll(RegExp(r'0+$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
+    return trimmed.isEmpty ? '1' : trimmed;
+  }
+
   @override
   void initState() {
     super.initState();
+    _scrollAwareContext =
+        DisposableBuildContext<ConsumerState<PicnicCachedNetworkImage>>(this);
 
     // Lazy Loading 전략에 따른 초기화
     _initializeLazyLoading();
@@ -166,6 +206,7 @@ class _PicnicCachedNetworkImageState
 
   /// Lazy Loading 초기화
   void _initializeLazyLoading() {
+    _isImageLoaded = false;
     switch (widget.lazyLoadingStrategy) {
       case LazyLoadingStrategy.none:
         _shouldLoadImage = true;
@@ -269,6 +310,7 @@ class _PicnicCachedNetworkImageState
     _currentLoadingCount++;
     setState(() {
       _shouldLoadImage = true;
+      _isImageLoaded = false;
     });
   }
 
@@ -285,6 +327,7 @@ class _PicnicCachedNetworkImageState
   @override
   void dispose() {
     _lazyLoadTimer?.cancel();
+    _scrollAwareContext.dispose();
     _onLoadingComplete();
     super.dispose();
   }
@@ -300,9 +343,9 @@ class _PicnicCachedNetworkImageState
       imageCache.maximumSizeBytes = 150 * 1024 * 1024; // 150MB
       imageCache.maximumSize = 300; // 최대 300개 이미지
     } else {
-      // 모바일에서는 더 여유있는 설정 - 안정성 개선
-      imageCache.maximumSizeBytes = 250 * 1024 * 1024; // 250MB (기존 200MB에서 증가)
-      imageCache.maximumSize = 600; // 최대 600개 이미지 (기존 500개에서 증가)
+      // 모바일에서는 메모리 사용 폭을 완화
+      imageCache.maximumSizeBytes = 200 * 1024 * 1024; // 200MB
+      imageCache.maximumSize = 500; // 최대 500개 이미지
     }
 
     // 캐시 정리 임계값을 더 높게 설정하여 빈번한 정리 방지
@@ -381,6 +424,8 @@ class _PicnicCachedNetworkImageState
         _hasError = false;
         _shouldLoadImage =
             widget.lazyLoadingStrategy == LazyLoadingStrategy.none;
+        _isImageLoaded = false;
+        _loadStartTime = null;
       });
     }
     // URL이 같다면 기존 상태 유지 (로딩 상태 초기화하지 않음)
@@ -448,7 +493,7 @@ class _PicnicCachedNetworkImageState
             ),
 
             // 로딩 오버레이 (크기 제한)
-            if (_loading)
+            if (!_isImageLoaded && !_hasError)
               SizedBox(
                 width: imageWidth,
                 height: imageHeight,
@@ -607,13 +652,22 @@ class _PicnicCachedNetworkImageState
   ) {
     Uri uri = Uri.parse('${Environment.cdnUrl}/$key');
 
-    Map<String, String> queryParameters = {
-      if (widget.width != null)
-        'w': ((widget.width!).toInt() * resolutionMultiplier).toString(),
-      if (widget.height != null)
-        'h': ((widget.height!).toInt() * resolutionMultiplier).toString(),
-      'q': quality.toString(),
-    };
+    final Map<String, String> queryParameters = {'q': quality.toString()};
+
+    final widgetWidth = widget.width;
+    if (widgetWidth != null && widgetWidth.isFinite) {
+      queryParameters['w'] = _roundPixels(
+        widgetWidth,
+        resolutionMultiplier,
+      ).toString();
+    }
+    final widgetHeight = widget.height;
+    if (widgetHeight != null && widgetHeight.isFinite) {
+      queryParameters['h'] = _roundPixels(
+        widgetHeight,
+        resolutionMultiplier,
+      ).toString();
+    }
 
     if (!isGif) {
       final supportsWebP =
@@ -630,7 +684,7 @@ class _PicnicCachedNetworkImageState
         'fm': queryParameters['f']!,
         'auto': 'compress,format',
         'fit': 'max',
-        'dpr': resolutionMultiplier.toString(),
+        'dpr': _formatDpr(resolutionMultiplier),
       });
 
       if (queryParameters['f'] == 'jpg') {
@@ -683,12 +737,16 @@ class _PicnicCachedNetworkImageState
       height: height,
       fit: widget.fit,
       cacheManager: null,
-      memCacheWidth: isLowQuality
-          ? ((widget.memCacheWidth ?? (width?.toInt() ?? 400)) * 0.5).toInt()
-          : (widget.memCacheWidth ?? (width?.toInt() ?? 400)),
-      memCacheHeight: isLowQuality
-          ? ((widget.memCacheHeight ?? (height?.toInt() ?? 400)) * 0.5).toInt()
-          : (widget.memCacheHeight ?? (height?.toInt() ?? 400)),
+      memCacheWidth: _computeCacheDimension(
+        widget.memCacheWidth,
+        width,
+        isLowQuality ? 0.5 : 1.0,
+      ),
+      memCacheHeight: _computeCacheDimension(
+        widget.memCacheHeight,
+        height,
+        isLowQuality ? 0.5 : 1.0,
+      ),
       maxWidthDiskCache: isLowQuality ? 1000 : 2000,
       maxHeightDiskCache: isLowQuality ? 1000 : 2000,
       cacheKey: url,
@@ -714,11 +772,16 @@ class _PicnicCachedNetworkImageState
           _onImageLoadSuccess(url);
         }
 
+        final scrollAwareImageProvider = ScrollAwareImageProvider(
+          context: _scrollAwareContext,
+          imageProvider: imageProvider,
+        );
+
         return AnimatedOpacity(
           duration: Duration(milliseconds: isLowQuality ? 100 : 300),
           opacity: 1.0,
           child: Image(
-            image: imageProvider,
+            image: scrollAwareImageProvider,
             fit: widget.fit,
             width: width,
             height: height,
@@ -741,26 +804,45 @@ class _PicnicCachedNetworkImageState
         builder: (context, setState) {
           if (_loading && timeoutTimer == null) {
             timeoutTimer = Timer(effectiveTimeout, () {
-              if (mounted && _loading) {
+              if (!mounted) return;
+              final stillLoading = _loading && !_hasError && !_isImageLoaded;
+              if (!stillLoading) return;
+
+              final now = DateTime.now();
+              final lastLoggedAt = _lastTimeoutLogTimes[url];
+              if (lastLoggedAt == null ||
+                  now.difference(lastLoggedAt) >= _timeoutLogInterval) {
+                _lastTimeoutLogTimes[url] = now;
                 logger.w('이미지 로딩 타임아웃: $url');
-                _handleImageError(
-                  url,
-                  'Timeout after ${effectiveTimeout.inSeconds} seconds',
-                  width,
-                  height,
-                );
               }
+
+              logger.w('이미지 로딩 타임아웃 후 에러 처리: $url');
+              _handleImageError(
+                url,
+                'Timeout after ${effectiveTimeout.inSeconds} seconds',
+                width,
+                height,
+              );
             });
           }
 
           return CachedNetworkImage(
+            key: ValueKey('${widget.imageUrl}_$_reloadToken'),
             imageUrl: url,
             width: width,
             height: height,
             fit: widget.fit,
             cacheManager: null,
-            memCacheWidth: widget.memCacheWidth ?? (width?.toInt() ?? 400),
-            memCacheHeight: widget.memCacheHeight ?? (height?.toInt() ?? 400),
+            memCacheWidth: _computeCacheDimension(
+              widget.memCacheWidth,
+              width,
+              1.0,
+            ),
+            memCacheHeight: _computeCacheDimension(
+              widget.memCacheHeight,
+              height,
+              1.0,
+            ),
             maxWidthDiskCache: 2000,
             maxHeightDiskCache: 2000,
             cacheKey: url,
@@ -771,6 +853,8 @@ class _PicnicCachedNetworkImageState
                   if (mounted) {
                     setState(() {
                       _loading = true;
+                      _isImageLoaded = false;
+                      _loadStartTime ??= DateTime.now();
                     });
                   }
                 });
@@ -800,11 +884,16 @@ class _PicnicCachedNetworkImageState
                 }
               });
 
+              final scrollAwareImageProvider = ScrollAwareImageProvider(
+                context: _scrollAwareContext,
+                imageProvider: imageProvider,
+              );
+
               _onImageLoadSuccess(url);
               _retryCount = 0;
 
               return Image(
-                image: imageProvider,
+                image: scrollAwareImageProvider,
                 fit: widget.fit,
                 width: width,
                 height: height,
@@ -828,9 +917,21 @@ class _PicnicCachedNetworkImageState
     double? width,
     double? height,
   ) {
+    logger.w('이미지 로딩 실패 감지: $url, error: $error');
     _recordFailure(url);
 
     if (_shouldRetry(url, error)) {
+      logger.i('이미지 로드 재시도 준비: $url');
+      _onLoadingComplete();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _loading = false;
+            _hasError = false;
+            _isImageLoaded = false;
+          });
+        }
+      });
       _scheduleRetry(url);
       return buildImageLoadingOverlay();
     }
@@ -890,9 +991,15 @@ class _PicnicCachedNetworkImageState
 
     Future.delayed(delay, () {
       if (mounted) {
+        CachedNetworkImage.evictFromCache(url);
         setState(() {
+          _reloadToken++;
+          logger.i('이미지 로드 재시도 시작: $url (토큰: $_reloadToken)');
           _loading = true;
           _hasError = false;
+          _isImageLoaded = false;
+          _loadStartTime = null;
+          _shouldLoadImage = true;
         });
       }
     });
@@ -946,26 +1053,41 @@ class _PicnicCachedNetworkImageState
 
       final usagePercentage = (currentSizeBytes / maxSizeBytes) * 100;
 
-      return usagePercentage > 80.0;
+      return usagePercentage >= 90.0;
     } catch (e) {
       logger.e('메모리 압박 상황 체크 중 오류: $e');
       return false;
     }
   }
 
+  bool _shouldLogMemoryPressure(DateTime now) {
+    final lastLoggedAt = _lastMemoryPressureLog;
+    if (lastLoggedAt == null ||
+        now.difference(lastLoggedAt) >= _memoryPressureLogInterval) {
+      _lastMemoryPressureLog = now;
+      return true;
+    }
+    return false;
+  }
+
   void _onImageLoadSuccess(String url) async {
+    final loadDuration = _loadStartTime != null
+        ? DateTime.now().difference(_loadStartTime!)
+        : Duration.zero;
+    _loadStartTime = null;
+    _lastTimeoutLogTimes.remove(url);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
           _loading = false;
           _hasError = false;
+          _isImageLoaded = true;
         });
       }
     });
 
     _onLoadingComplete();
-
-    final loadDuration = DateTime.now().difference(_loadStartTime);
 
     final warningThreshold = Environment.imageLoadWarningThreshold;
     final errorThreshold = Environment.imageLoadErrorThreshold;
@@ -996,7 +1118,9 @@ class _PicnicCachedNetworkImageState
                 '느린 이미지 로딩 감지됨 ($_snapshotCount번째): $url - ${loadDuration.inSeconds}초',
               );
             } else {
-              logger.d('메모리 압박으로 로깅 건너뜀: $url');
+              if (_shouldLogMemoryPressure(now)) {
+                logger.d('메모리 압박으로 로깅 건너뜀: $url');
+              }
             }
           }
         }
@@ -1010,15 +1134,18 @@ class _PicnicCachedNetworkImageState
   }
 
   void _onImageLoadError(String url, dynamic error) {
+    logger.e('이미지 로드 에러: $url, error: $error');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
           _loading = false;
           _hasError = true;
+          _isImageLoaded = false;
         });
       }
     });
 
+    _loadStartTime = null;
     _onLoadingComplete();
 
     if (kDebugMode) {

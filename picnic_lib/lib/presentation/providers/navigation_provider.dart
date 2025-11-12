@@ -373,8 +373,7 @@ class NavigationInfo extends _$NavigationInfo {
     final voteNavigationStack = state.voteNavigationStack ?? NavigationStack();
 
     voteNavigationStack.push(page);
-    logger.d('📱 Pushing page to voteNavigationStack: ${page.runtimeType}');
-    logger.d('📱 Stack length after push: ${voteNavigationStack.length}');
+    logger.d('📱 Pushing page to voteNavigationStack: ${page.runtimeType}, Stack length after push: ${voteNavigationStack.length}');
 
     state = state.copyWith(
       voteNavigationStack: voteNavigationStack,
