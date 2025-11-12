@@ -1087,7 +1087,7 @@
   "@label_mypage_faq": {
     "description": "Auto-generated metadata for key 'label_mypage_faq'."
   },
-  "label_mypage_logout": "Log out",
+  "label_mypage_logout": "로그아웃",
   "@label_mypage_logout": {
     "description": "Auto-generated metadata for key 'label_mypage_logout'."
   },
