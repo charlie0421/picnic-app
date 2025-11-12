@@ -603,7 +603,18 @@ class AppInitializer {
 
         if (data.event == AuthChangeEvent.signedIn) {
           try {
-            await ref.read(userInfoProvider.notifier).getUserProfiles();
+            final userInfoState = ref.read(userInfoProvider);
+            final shouldFetchProfile = userInfoState.maybeWhen(
+              loading: () => false,
+              data: (profile) => profile == null,
+              orElse: () => true,
+            );
+
+            if (shouldFetchProfile) {
+              await ref.read(userInfoProvider.notifier).getUserProfiles();
+            } else {
+              logger.i('프로필 데이터가 이미 로드되어 중복 호출을 생략합니다.');
+            }
           } catch (e) {
             logger.e('getUserProfiles 호출 중 오류: $e');
             // ref가 더 이상 유효하지 않을 수 있으므로 무시

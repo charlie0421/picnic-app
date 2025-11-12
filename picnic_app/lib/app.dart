@@ -60,7 +60,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   // 지원되는 언어 목록은 AppLocalizations.supportedLocales를 단일 소스로 사용
 
-  // 앱의 라우트 맵 - 앱 고유 라우트만 포함 (공통 라우트는 RouteManager에서 관리)
+  // 앱의 라우트 맵 - 앱 고유 라우트만 포함 (공통 라우트는 RouteManager에서 관리)9
   final Map<String, WidgetBuilder> _appSpecificRoutes = {
     Portal.routeName: (context) => const Portal(),
   };
@@ -69,9 +69,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppInitializer.initializeAppWithSplash(context, ref);
-    });
 
     // 라우트 설정
     AppLifecycleInitializer.setupAppRoutes(ref, _appSpecificRoutes);
