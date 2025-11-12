@@ -21,6 +21,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -42,8 +43,8 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginPage> {
   final AuthService _authService = AuthService();
-  final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
-      GlobalKey<LoadingOverlayWithIconState>();
+  final GlobalKey<LoadingOverlayState> _loadingKey =
+      GlobalKey<LoadingOverlayState>();
 
   String? lastProvider;
 
@@ -64,30 +65,37 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
   /// 로그인 프로세스 중 로딩 상태를 안전하게 관리하는 유틸리티 메서드
   Future<T> _executeWithLoading<T>(Future<T> Function() operation) async {
-    try {
+    final alreadyVisible = _loadingKey.currentState?.isLoading ?? false;
+    if (!alreadyVisible) {
       _loadingKey.currentState?.show();
+    }
+    try {
       return await operation();
     } finally {
+      if (!alreadyVisible) {
+        _loadingKey.currentState?.hide();
+      }
+    }
+  }
+
+  void _showLoginLoadingOverlay() {
+    if (!(_loadingKey.currentState?.isLoading ?? false)) {
+      _loadingKey.currentState?.show();
+    }
+  }
+
+  void _hideLoginLoadingOverlay() {
+    if (_loadingKey.currentState?.isLoading ?? false) {
       _loadingKey.currentState?.hide();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return LoadingOverlayWithIcon(
+    return LoadingOverlay(
       key: _loadingKey,
-      // 구매와 동일한 pulse 애니메이션 설정
-      iconAssetPath: 'assets/app_icon_128.png',
-      enableRotation: false, // 회전 비활성화
-      enableScale: true, // pulse 효과를 위한 스케일
-      enableFade: true, // pulse 효과를 위한 페이드
-      loadingMessage: null, // 하단 텍스트 제거
-      // pulse 효과를 위한 커스텀 설정
-      scaleDuration: const Duration(milliseconds: 800), // 더 빠른 pulse
-      fadeDuration: const Duration(milliseconds: 800), // 스케일과 동기화
-      minScale: 0.98, // 매우 미묘한 변화
-      maxScale: 1.02, // 매우 미묘한 변화
-      showProgressIndicator: false, // 하단 로딩바 제거
+      barrierColor: Colors.black.withValues(alpha: 0.45),
+      loadingWidget: const LargePulseLoadingIndicator(),
       child: Container(
         decoration: BoxDecoration(gradient: commonGradient),
         child: Center(
@@ -340,7 +348,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     );
   }
 
-  void _handleSuccessfulLogin([String? provider]) async {
+  Future<void> _handleSuccessfulLogin([String? provider]) async {
     try {
       // 로그인 성공 시 사용한 provider 저장
       if (provider != null) {
@@ -442,29 +450,35 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       );
                     });
                   } else {
-                    // 모바일 네이티브 로그인 UI 표시 시 화면보호 해제 → 인증 → 재설정
+                    _showLoginLoadingOverlay();
                     try {
-                      await sp.ScreenProtector.preventScreenshotOff();
-                    } catch (_) {}
-                    try {
-                      final user = await _authService.signInWithProvider(
-                        OAuthProvider.apple,
-                      );
-                      if (user != null) {
-                        _handleSuccessfulLogin('apple');
+                      try {
+                        await sp.ScreenProtector.preventScreenshotOff();
+                      } catch (_) {}
+                      try {
+                        final user = await _authService.signInWithProvider(
+                          OAuthProvider.apple,
+                        );
+                        if (user != null) {
+                          await _handleSuccessfulLogin('apple');
+                        }
+                      } finally {
+                        try {
+                          await sp.ScreenProtector.preventScreenshotOn();
+                        } catch (_) {}
                       }
                     } finally {
-                      try {
-                        await sp.ScreenProtector.preventScreenshotOn();
-                      } catch (_) {}
+                      _hideLoginLoadingOverlay();
                     }
                   }
                 } on PicnicAuthException catch (e) {
                   if (e.code == 'canceled') {
+                    _hideLoginLoadingOverlay();
                     return; // 사용자가 취소한 경우 아무것도 하지 않음
                   }
 
                   if (navigatorKey.currentContext != null) {
+                    _hideLoginLoadingOverlay();
                     showSimpleDialog(
                       type: DialogType.error,
                       title: AppLocalizations.of(
@@ -478,6 +492,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   }
                 } catch (e, s) {
                   logger.e('Error signing in with Apple: $e', stackTrace: s);
+                  _hideLoginLoadingOverlay();
                   if (navigatorKey.currentContext != null) {
                     showSimpleDialog(
                       type: DialogType.error,
@@ -544,15 +559,16 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     Navigator.of(context).pop();
                     await Future.delayed(const Duration(milliseconds: 150));
                   }
+                  _showLoginLoadingOverlay();
                   try {
                     final user = await _authService.signInWithProvider(
                       OAuthProvider.google,
                     );
                     if (user != null) {
-                      _handleSuccessfulLogin('google');
+                      await _handleSuccessfulLogin('google');
                     }
-                  } catch (e, s) {
-                    logger.e('Error signing in with Google: $e', stackTrace: s);
+                  } finally {
+                    _hideLoginLoadingOverlay();
                   }
                 } on PicnicAuthException catch (e) {
                   if (e.code == 'canceled') {
@@ -648,27 +664,34 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       );
                     });
                   } else {
+                    _showLoginLoadingOverlay();
                     try {
-                      await sp.ScreenProtector.preventScreenshotOff();
-                    } catch (_) {}
-                    try {
-                      final user = await _authService.signInWithProvider(
-                        OAuthProvider.kakao,
-                      );
-                      if (user != null) {
-                        _handleSuccessfulLogin('kakao');
+                      try {
+                        await sp.ScreenProtector.preventScreenshotOff();
+                      } catch (_) {}
+                      try {
+                        final user = await _authService.signInWithProvider(
+                          OAuthProvider.kakao,
+                        );
+                        if (user != null) {
+                          await _handleSuccessfulLogin('kakao');
+                        }
+                      } finally {
+                        try {
+                          await sp.ScreenProtector.preventScreenshotOn();
+                        } catch (_) {}
                       }
                     } finally {
-                      try {
-                        await sp.ScreenProtector.preventScreenshotOn();
-                      } catch (_) {}
+                      _hideLoginLoadingOverlay();
                     }
                   }
                 } on PicnicAuthException catch (e) {
                   if (e.code == 'canceled') {
+                    _hideLoginLoadingOverlay();
                     return; // 사용자가 취소한 경우 아무것도 하지 않음
                   }
                   if (navigatorKey.currentContext != null) {
+                    _hideLoginLoadingOverlay();
                     showSimpleDialog(
                       type: DialogType.error,
                       title: AppLocalizations.of(
@@ -682,6 +705,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   }
                 } catch (e, s) {
                   logger.e('Error signing in with Kakao: $e', stackTrace: s);
+                  _hideLoginLoadingOverlay();
                   if (navigatorKey.currentContext != null) {
                     showSimpleDialog(
                       type: DialogType.error,
