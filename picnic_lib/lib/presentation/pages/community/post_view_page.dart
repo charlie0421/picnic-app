@@ -37,9 +37,14 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class PostViewPage extends ConsumerStatefulWidget {
-  const PostViewPage(this.postId, {super.key});
+  const PostViewPage(
+    this.postId, {
+    super.key,
+    this.syncNavigation = true,
+  });
 
   final String postId;
+  final bool syncNavigation;
 
   @override
   ConsumerState<PostViewPage> createState() => _PostViewPageState();
@@ -55,10 +60,12 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
   bool _isLoadingComments = false;
   bool _isDisposed = false;
   String? _lastPageTitle;
+  late final bool _syncNavigation;
 
   @override
   void initState() {
     super.initState();
+    _syncNavigation = widget.syncNavigation;
     _postFuture = _loadPost();
   }
 
@@ -122,8 +129,22 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
   }
 
   void _updateNavigationInfo(PostModel post) {
-    final currentBoard = ref.read(communityStateInfoProvider).currentBoard;
-    if (currentBoard == null) return;
+    final board = post.board;
+    final resolvedTitle = board != null
+        ? getLocaleTextFromJson(board.name)
+        : (_lastPageTitle ?? post.title ?? '');
+    _lastPageTitle = resolvedTitle.isNotEmpty ? resolvedTitle : _lastPageTitle;
+
+    if (!_syncNavigation) {
+      return;
+    }
+
+    final currentBoard =
+        ref.read(communityStateInfoProvider).currentBoard ?? board;
+    if (currentBoard == null) {
+      return;
+    }
+
     ref.read(communityStateInfoProvider.notifier).setCurrentPost(post);
     final pageTitle = getLocaleTextFromJson(currentBoard.name);
     _lastPageTitle = pageTitle;
@@ -197,96 +218,127 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
       future: _postFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: LargePulseLoadingIndicator(),
+          return const Material(
+            color: Colors.white,
+            child: Center(
+              child: LargePulseLoadingIndicator(),
+            ),
           );
         }
 
         if (snapshot.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _errorMessage ?? AppLocalizations.of(context).error_unknown,
-                  style: const TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _postFuture = _loadPost();
-                    });
-                  },
-                  child: Text(AppLocalizations.of(context).label_retry),
-                ),
-              ],
+          return Material(
+            color: Colors.white,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _errorMessage ??
+                        AppLocalizations.of(context).error_unknown,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _postFuture = _loadPost();
+                      });
+                    },
+                    child: Text(AppLocalizations.of(context).label_retry),
+                  ),
+                ],
+              ),
             ),
           );
         }
 
         if (!snapshot.hasData) {
-          return Center(
-            child: Text(AppLocalizations.of(context).post_not_found),
+          return Material(
+            color: Colors.white,
+            child: Center(
+              child: Text(AppLocalizations.of(context).post_not_found),
+            ),
           );
         }
 
         final post = snapshot.data!;
-        return RefreshIndicator(
-          color: AppColors.primary500,
-          backgroundColor: Colors.white,
-          onRefresh: () => _refreshPostAndComments(),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BannerAdWidget(
-                  configKey: 'POSTVIEW_TOP',
-                  adSize: AdSize.fullBanner,
-                ),
-                // 컨텐츠
-
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Text(
-                    post.title ?? '',
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
+        final content = Material(
+          color: Colors.white,
+          child: RefreshIndicator(
+            color: AppColors.primary500,
+            backgroundColor: Colors.white,
+            onRefresh: () => _refreshPostAndComments(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BannerAdWidget(
+                    configKey: 'POSTVIEW_TOP',
+                    adSize: AdSize.fullBanner,
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
-                  child: post.isAnonymous ?? false
-                      ? Text(
-                          AppLocalizations.of(context).anonymous,
-                          style: getTextStyle(
-                              AppTypo.caption12B, AppColors.primary500),
-                        )
-                      : Text(
-                          post.userProfiles?.nickname ?? '',
-                          style: getTextStyle(
-                              AppTypo.caption12B, AppColors.primary500),
-                        ),
-                ),
-                _buildPostInfo(post),
-                const Divider(color: AppColors.grey500),
-                Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: _buildContent(),
-                ),
-                BannerAdWidget(
-                  configKey: 'POSTVIEW_BOTTOM',
-                  adSize: AdSize.mediumRectangle,
-                ),
+                  // 컨텐츠
 
-                const SizedBox(height: 36),
-                _buildCommentsList(post),
-              ],
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Text(
+                      post.title ?? '',
+                      style: const TextStyle(
+                          fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
+                    child: post.isAnonymous ?? false
+                        ? Text(
+                            AppLocalizations.of(context).anonymous,
+                            style: getTextStyle(
+                                AppTypo.caption12B, AppColors.primary500),
+                          )
+                        : Text(
+                            post.userProfiles?.nickname ?? '',
+                            style: getTextStyle(
+                                AppTypo.caption12B, AppColors.primary500),
+                          ),
+                  ),
+                  _buildPostInfo(post),
+                  const Divider(color: AppColors.grey500),
+                  Padding(
+                    padding: EdgeInsets.all(16.w),
+                    child: _buildContent(),
+                  ),
+                  BannerAdWidget(
+                    configKey: 'POSTVIEW_BOTTOM',
+                    adSize: AdSize.mediumRectangle,
+                  ),
+
+                  const SizedBox(height: 36),
+                  _buildCommentsList(post),
+                ],
+              ),
             ),
           ),
         );
+
+        if (!_syncNavigation) {
+          final fallbackTitle =
+              _lastPageTitle ?? post.title ?? AppLocalizations.of(context).post_not_found;
+          return Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              title: Text(fallbackTitle),
+              backgroundColor: Colors.white,
+              foregroundColor: AppColors.grey900,
+              elevation: 0,
+            ),
+            body: content,
+          );
+        }
+
+        return content;
       },
     );
   }
@@ -595,6 +647,9 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
   }
 
   void _restoreNavigation() {
+    if (!_syncNavigation) {
+      return;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final currentBoard = ref.read(communityStateInfoProvider).currentBoard;

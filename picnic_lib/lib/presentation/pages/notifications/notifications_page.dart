@@ -67,16 +67,17 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     }
   }
 
-  Future<void> _openUrl(String url) async {
+  Future<bool> _openUrl(String url) async {
     try {
       final uri = Uri.parse(url);
       final host = uri.host.toLowerCase();
       final isPicnicDomain = host == 'applink.picnic.fan' || host == 'www.picnic.fan';
-      
+
       // Picnic 도메인의 앱 내부 경로는 deep link로 처리
       if (isPicnicDomain && (uri.scheme == 'https' || uri.scheme == 'http')) {
         logger.i('Deep link 처리: $url');
         await AppInitializer.handleDeepLink(ref, url);
+        return true;
       } else if (await canLaunchUrl(uri)) {
         // 외부 URL은 외부 브라우저로 열기
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -86,6 +87,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     } catch (e, s) {
       logger.e('open url failed', error: e, stackTrace: s);
     }
+
+    return false;
   }
 
   Future<void> _navigateByType(UserNotification n) async {
@@ -108,7 +111,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             if (!mounted) return;
             Navigator.of(
               context,
-            ).push(MaterialPageRoute(builder: (_) => PostViewPage(postId)));
+            ).push(
+              MaterialPageRoute(
+                builder: (_) => PostViewPage(
+                  postId,
+                  syncNavigation: false,
+                ),
+              ),
+            );
           }
           break;
         case 'qna':
@@ -189,11 +199,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               ),
             ),
             subtitle: Text(localizedBody),
-            onTap: () {
+            onTap: () async {
               if ((n.actionUrl ?? '').isNotEmpty) {
-                _openUrl(n.actionUrl!);
+                final handledInternally = await _openUrl(n.actionUrl!);
+                if (handledInternally && mounted) {
+                  await Navigator.of(context).maybePop();
+                }
               } else if ((n.data ?? {}).isNotEmpty) {
-                _navigateByType(n);
+                await _navigateByType(n);
               }
             },
             trailing: (n.userId != null && !n.isRead)

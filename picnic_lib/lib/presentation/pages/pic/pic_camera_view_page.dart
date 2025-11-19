@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image/image.dart' as img;
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -55,6 +55,14 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
     _initializeCameras();
     _fetchRecentImage();
     _loadOverlayImage();
+  }
+
+  @override
+  void dispose() {
+    unawaited(_controller?.dispose());
+    _overlayImage?.dispose();
+    _overlayImage = null;
+    super.dispose();
   }
 
   @override
@@ -336,23 +344,30 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   }
 
   Future<void> _loadOverlayImage() async {
-    final ByteData data = await rootBundle.load(
-      'assets/mockup/pic/che1.png',
-    ); // Adjust path as needed
-    final Uint8List bytes = data.buffer.asUint8List();
-    final img.Image image = img.decodeImage(bytes)!;
-    final uiImage = await _convertImage(image);
-    setState(() {
-      _overlayImage = uiImage;
-    });
+    try {
+      final ByteData data = await rootBundle.load(
+        'assets/mockup/pic/che1.png',
+      );
+      final ui.Image uiImage =
+          await _decodeUiImage(data.buffer.asUint8List());
+      if (!mounted) {
+        uiImage.dispose();
+        return;
+      }
+      setState(() {
+        _overlayImage = uiImage;
+      });
+    } catch (error, stackTrace) {
+      logger.e('Error loading overlay image: $error',
+          stackTrace: stackTrace);
+    }
   }
 
-  Future<ui.Image> _convertImage(img.Image image) async {
-    final Completer<ui.Image> completer = Completer();
-    ui.decodeImageFromList(Uint8List.fromList(img.encodePng(image)), (uiImage) {
-      completer.complete(uiImage);
-    });
-    return completer.future;
+  Future<ui.Image> _decodeUiImage(Uint8List bytes) async {
+    final codec = await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
+    codec.dispose();
+    return frame.image;
   }
 
   final List<String> countdownSounds = [

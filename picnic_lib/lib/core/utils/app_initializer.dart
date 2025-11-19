@@ -22,7 +22,6 @@ import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
-import 'package:picnic_lib/presentation/common/scaffold_key.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
@@ -805,8 +804,27 @@ class AppInitializer {
             if (uri.pathSegments.length >= 2) {
               final postId = uri.pathSegments[1];
               if (postId.isNotEmpty) {
-                navigationNotifier.setPortal(PortalType.community);
-                navigationNotifier.setCurrentPage(PostViewPage(postId));
+                final context = navigatorKey.currentContext;
+                if (context == null) {
+                  logger.w('Navigator context가 없어 게시물 페이지를 열 수 없습니다');
+                  return;
+                }
+
+                navigationNotifier.setShowBottomNavigation(false);
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context)
+                      .push(
+                    MaterialPageRoute(
+                      builder: (_) => PostViewPage(
+                        postId,
+                        syncNavigation: false,
+                      ),
+                    ),
+                  )
+                      .whenComplete(() {
+                    navigationNotifier.setShowBottomNavigation(true);
+                  });
+                });
                 return;
               }
             }
@@ -820,21 +838,25 @@ class AppInitializer {
                   final threadId = int.parse(questionIdStr);
                   final repo = QnaRepository();
                   final withMsgs = await repo.getQaThreadById(threadId);
-                  // 마이페이지 스택을 클리어하고 QnA 페이지로 이동
-                  navigationNotifier.setResetStackMyPage();
-                  // 다음 프레임에서 QnA 페이지 푸시 및 Drawer 열기
+                  final context = navigatorKey.currentContext;
+                  if (context == null) {
+                    logger.w('Navigator context가 없어 QnA 페이지를 열 수 없습니다');
+                    return;
+                  }
+                  navigationNotifier.setShowBottomNavigation(false);
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    navigationNotifier.setCurrentMyPage(
-                      QnaThreadDetailPage(thread: withMsgs.thread),
-                    );
-                    // 하단 메뉴 숨김
-                    navigationNotifier.setShowBottomNavigation(false);
-                    // Drawer 열기 (Scaffold GlobalKey 사용)
-                    if (scaffoldKey.currentState != null) {
-                      scaffoldKey.currentState!.openDrawer();
-                    } else {
-                      logger.w('Scaffold key가 없어 Drawer를 열 수 없습니다');
-                    }
+                    Navigator.of(context)
+                        .push(
+                      MaterialPageRoute(
+                        builder: (_) => QnaThreadDetailPage(
+                          thread: withMsgs.thread,
+                          syncNavigation: false,
+                        ),
+                      ),
+                    )
+                        .whenComplete(() {
+                      navigationNotifier.setShowBottomNavigation(true);
+                    });
                   });
                   return;
                 } catch (e, s) {

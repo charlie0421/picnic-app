@@ -14,6 +14,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_full_screen_image_viewer.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_video_player_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_status_chip.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/loading_view.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -24,8 +25,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 class QnaThreadDetailPage extends ConsumerStatefulWidget {
   final QnaThread thread;
+  final bool syncNavigation;
 
-  const QnaThreadDetailPage({super.key, required this.thread});
+  const QnaThreadDetailPage({
+    super.key,
+    required this.thread,
+    this.syncNavigation = true,
+  });
 
   @override
   ConsumerState<QnaThreadDetailPage> createState() =>
@@ -36,6 +42,8 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   final QnaRepository _repository = QnaRepository();
   final TextEditingController _messageController = TextEditingController();
 
+  late QnaThread _thread;
+  late final bool _syncNavigation;
   List<QnaMessage> _messages = [];
   List<File> _attachments = [];
   bool _isLoading = true;
@@ -43,11 +51,26 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   bool _isAttaching = false;
   String? _errorMessage;
   String? _categoryLabel;
+  String? _prevPageTitle;
+  String? _prevMyPageTitle;
   static const int _maxFileSizeInBytes = 10 * 1024 * 1024; // 10MB
 
   @override
   void initState() {
     super.initState();
+    _thread = widget.thread;
+    _syncNavigation = widget.syncNavigation;
+
+    if (_syncNavigation) {
+      final navState = ref.read(navigationInfoProvider);
+      _prevPageTitle = navState.pageTitle;
+      _prevMyPageTitle = navState.myPageTitle;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _applyNavigation(_thread.title);
+      });
+    }
     _loadThreadDetails();
   }
 
@@ -59,19 +82,37 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
       });
 
       final threadWithMessages = await _repository.getQaThreadById(
-        widget.thread.id,
+        _thread.id,
       );
       setState(() {
+        _thread = threadWithMessages.thread;
         _messages = threadWithMessages.messages;
         _categoryLabel = threadWithMessages.categoryLabel;
         _isLoading = false;
       });
+      if (_syncNavigation) {
+        _applyNavigation(_thread.title);
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
         _errorMessage = e.toString();
       });
     }
+  }
+
+  void _applyNavigation(String title) {
+    if (!_syncNavigation) {
+      return;
+    }
+    final nav = ref.read(navigationInfoProvider.notifier);
+    nav.setMyPageTitle(pageTitle: title);
+    nav.settingNavigation(
+      showPortal: false,
+      showBottomNavigation: true,
+      showTopMenu: true,
+      pageTitle: title,
+    );
   }
 
   Future<void> _sendMessage() async {
@@ -88,7 +129,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
 
     try {
       final newMessage = await _repository.createQaMessage(
-        threadId: widget.thread.id,
+        threadId: _thread.id,
         userId: userId,
         content: content,
         attachments: _attachments,
@@ -154,14 +195,14 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final body = GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Stack(
         children: [
           Scaffold(
             appBar: AppBar(
               title: Text(
-                widget.thread.title,
+                _thread.title,
                 style: getTextStyle(AppTypo.body14M, AppColors.grey900),
               ),
               backgroundColor: AppColors.grey00,
@@ -171,7 +212,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: QnaStatusChip(status: widget.thread.status),
+                  child: QnaStatusChip(status: _thread.status),
                 ),
               ],
             ),
@@ -223,6 +264,28 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
             ),
         ],
       ),
+    );
+
+    if (!_syncNavigation) {
+      return body;
+    }
+
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) return;
+        final nav = ref.read(navigationInfoProvider.notifier);
+        final previousPageTitle = _prevPageTitle ?? '';
+        final previousMyPageTitle = _prevMyPageTitle ?? '';
+        nav.setMyPageTitle(pageTitle: previousMyPageTitle);
+        nav.settingNavigation(
+          showPortal: false,
+          showBottomNavigation: true,
+          showTopMenu: true,
+          pageTitle: previousPageTitle,
+        );
+      },
+      child: body,
     );
   }
 
@@ -522,7 +585,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   Widget _buildMessageInput() {
-    final isThreadOpen = widget.thread.isOpen;
+    final isThreadOpen = _thread.isOpen;
 
     if (!isThreadOpen) {
       return Container(
@@ -691,7 +754,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   bool _shouldShowAutoCloseNotice() {
-    if (widget.thread.isResolved) return false;
+    if (_thread.isResolved) return false;
     if (_messages.isEmpty) return false;
     // Find the latest message by createdAt to be safe
     final latest = _messages.reduce(

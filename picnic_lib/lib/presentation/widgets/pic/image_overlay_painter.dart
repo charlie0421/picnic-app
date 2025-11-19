@@ -23,5 +23,7 @@ class ImageOverlayPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant ImageOverlayPainter oldDelegate) {
+    return oldDelegate.overlayImage != overlayImage;
+  }
 }
