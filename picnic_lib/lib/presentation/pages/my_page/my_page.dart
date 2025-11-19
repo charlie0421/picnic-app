@@ -12,6 +12,7 @@ import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/data/models/user_profiles.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
@@ -51,21 +52,34 @@ class MyPage extends ConsumerStatefulWidget {
   ConsumerState<MyPage> createState() => _MyPageState();
 }
 
-class _MyPageState extends ConsumerState<MyPage> {
+class _MyPageState extends ConsumerState<MyPage>
+    with RouteAwareStateMixin<MyPage> {
+  String? _currentTitle;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(
-            pageTitle: AppLocalizations.of(context).page_title_mypage,
-          );
+      _currentTitle = AppLocalizations.of(context).page_title_mypage;
+      _updateNavigation();
 
       // 앱 시작 시 언어 설정 확인
       final currentLanguage = ref.read(appSettingProvider).language;
       logger.i('앱 시작 시 언어 설정: $currentLanguage');
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentTitle ??= AppLocalizations.of(context).page_title_mypage;
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   @override
@@ -188,6 +202,17 @@ class _MyPageState extends ConsumerState<MyPage> {
       loading: () => ui.buildLoadingOverlay(),
       error: (error, stackTrace) => Container(),
     );
+  }
+
+  void _updateNavigation() {
+    final title = _currentTitle;
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+            pageTitle: title,
+          );
+    });
   }
 
   Widget _buildNonLogin() {

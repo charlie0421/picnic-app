@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/data/models/vote/video_info.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
@@ -22,22 +23,14 @@ class VoteMediaListPage extends ConsumerStatefulWidget {
   ConsumerState<VoteMediaListPage> createState() => _VoteMediaListPageState();
 }
 
-class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
+class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage>
+    with RouteAwareStateMixin<VoteMediaListPage> {
   static const _pageSize = 10;
   late final PagingController<int, VideoInfo> _pagingController;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-            showPortal: true,
-            showTopMenu: true,
-            showMyPoint: false,
-            showBottomNavigation: true,
-            pageTitle: AppLocalizations.of(context).nav_media,
-          );
-    });
     _pagingController = PagingController<int, VideoInfo>(
       getNextPageKey: (state) {
         if (state.items == null) return 1;
@@ -47,6 +40,20 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
       },
       fetchPage: _fetch,
     );
+
+    _updateNavigation();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   @override
@@ -159,5 +166,18 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
         ),
       ),
     );
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            showMyPoint: false,
+            showBottomNavigation: true,
+            pageTitle: AppLocalizations.of(context).nav_media,
+          );
+    });
   }
 }

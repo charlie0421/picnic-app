@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
@@ -30,7 +31,8 @@ class CompatibilityInputPage extends ConsumerStatefulWidget {
 }
 
 class _CompatibilityInputScreenState
-    extends ConsumerState<CompatibilityInputPage> {
+    extends ConsumerState<CompatibilityInputPage>
+    with RouteAwareStateMixin<CompatibilityInputPage> {
   DateTime? _birthDate;
   String? _birthTime;
   String? _gender;
@@ -50,6 +52,12 @@ class _CompatibilityInputScreenState
     super.didChangeDependencies();
     _updateNavigation();
     _initTimeSlots();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   void _updateNavigation() {

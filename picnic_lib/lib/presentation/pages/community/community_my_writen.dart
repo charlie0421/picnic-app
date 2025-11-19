@@ -4,6 +4,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
@@ -19,19 +20,14 @@ class CommunityMyWriten extends ConsumerStatefulWidget {
 }
 
 class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin<CommunityMyWriten>, RouteAwareStateMixin<CommunityMyWriten> {
   late final PagingController<int, PostModel> _pagingController;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          topRightMenu: TopRightType.none,
-          showBottomNavigation: false,
-          pageTitle: AppLocalizations.of(context).post_my_written_post);
+      _updateNavigation();
     });
 
     _pagingController = PagingController<int, PostModel>(
@@ -43,6 +39,18 @@ class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
       },
       fetchPage: _fetchPage,
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   static const _pageSize = 20;
@@ -77,5 +85,17 @@ class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
             noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
           )),
     );
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showTopMenu: true,
+          topRightMenu: TopRightType.none,
+          showBottomNavigation: false,
+          pageTitle: AppLocalizations.of(context).post_my_written_post);
+    });
   }
 }

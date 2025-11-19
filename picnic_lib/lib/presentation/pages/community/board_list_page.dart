@@ -7,6 +7,7 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -25,7 +26,8 @@ class BoardListPage extends ConsumerStatefulWidget {
   ConsumerState<BoardListPage> createState() => _BoardPageState();
 }
 
-class _BoardPageState extends ConsumerState<BoardListPage> {
+class _BoardPageState extends ConsumerState<BoardListPage>
+    with RouteAwareStateMixin<BoardListPage> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController _textEditingController = TextEditingController();
   final _searchSubject = BehaviorSubject<String>();
@@ -46,11 +48,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: false,
-          showBottomNavigation: true,
-          topRightMenu: TopRightType.community);
+      _updateNavigation();
     });
 
     _scrollController = ScrollController();
@@ -159,6 +157,17 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
     }
   }
 
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showTopMenu: false,
+          showBottomNavigation: true,
+          topRightMenu: TopRightType.community);
+    });
+  }
+
   Future<void> _loadData({required bool isRefresh}) async {
     if (_isLoading) return;
 
@@ -224,11 +233,23 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     focusNode.dispose();
     _textEditingController.dispose();
     _searchSubject.close();
-    _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   Future<List<BoardModel>> _fetch(int pageKey) async {

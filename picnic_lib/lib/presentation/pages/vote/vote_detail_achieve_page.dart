@@ -8,6 +8,7 @@ import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.da
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/date.dart';
@@ -46,7 +47,8 @@ class VoteDetailAchievePage extends ConsumerStatefulWidget {
       _VoteDetailAchievePageState();
 }
 
-class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
+class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
+    with RouteAwareStateMixin<VoteDetailAchievePage> {
   late ScrollController _scrollController;
   Timer? _updateTimer;
   bool _isDisposed = false;
@@ -64,16 +66,19 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     );
     _setupTimer();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(
-            showPortal: false,
-            showTopMenu: true,
-            showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(context).page_title_vote_detail,
-          );
-    });
+    _updateNavigation();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   void _setupTimer() {
@@ -396,6 +401,20 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
 
     autoCloseTimer?.cancel();
     overlayState.insert(_overlayEntry!);
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: false,
+            showTopMenu: true,
+            showBottomNavigation: false,
+            pageTitle: AppLocalizations.of(context).page_title_vote_detail,
+          );
+    });
   }
 
   @override

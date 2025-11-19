@@ -8,6 +8,7 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/core/utils/locale_utils.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
@@ -28,7 +29,8 @@ class CompatibilityLoadingPage extends ConsumerStatefulWidget {
 }
 
 class _CompatibilityLoadingPageState
-    extends ConsumerState<CompatibilityLoadingPage> {
+    extends ConsumerState<CompatibilityLoadingPage>
+    with RouteAwareStateMixin<CompatibilityLoadingPage> {
   // Constants
   static const int _totalSeconds = 30;
 
@@ -69,6 +71,12 @@ class _CompatibilityLoadingPageState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
     _updateNavigation();
   }
 

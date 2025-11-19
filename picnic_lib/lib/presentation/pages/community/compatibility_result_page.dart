@@ -11,6 +11,7 @@ import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_content.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
@@ -37,7 +38,8 @@ class CompatibilityResultPage extends ConsumerStatefulWidget {
 }
 
 class _CompatibilityResultPageState
-    extends ConsumerState<CompatibilityResultPage> {
+    extends ConsumerState<CompatibilityResultPage>
+    with RouteAwareStateMixin<CompatibilityResultPage> {
   final GlobalKey _saveKey = GlobalKey();
   final GlobalKey _shareKey = GlobalKey();
   final styleController = ExpansibleController();
@@ -96,6 +98,12 @@ class _CompatibilityResultPageState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
     _updateNavigation();
   }
 

@@ -4,6 +4,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post_scrap.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/comment/my_scrap_popup_menu.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
@@ -19,19 +20,14 @@ class CommunityMyScraps extends ConsumerStatefulWidget {
 }
 
 class _CommunityMyScrapsState extends ConsumerState<CommunityMyScraps>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin<CommunityMyScraps>, RouteAwareStateMixin<CommunityMyScraps> {
   late final PagingController<int, PostScrapModel> _pagingController;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          topRightMenu: TopRightType.none,
-          showBottomNavigation: false,
-          pageTitle: AppLocalizations.of(context).post_my_written_scrap);
+      _updateNavigation();
     });
 
     _pagingController = PagingController<int, PostScrapModel>(
@@ -78,5 +74,29 @@ class _CommunityMyScrapsState extends ConsumerState<CommunityMyScraps>
         ),
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showTopMenu: true,
+          topRightMenu: TopRightType.none,
+          showBottomNavigation: false,
+          pageTitle: AppLocalizations.of(context).post_my_written_scrap);
+    });
   }
 }

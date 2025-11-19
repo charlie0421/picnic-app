@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -19,20 +20,13 @@ class StorePage extends ConsumerStatefulWidget {
 }
 
 class _StorePageState extends ConsumerState<StorePage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin<StorePage>, RouteAwareStateMixin<StorePage> {
   TabController? _tabController;
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(
-            showPortal: true,
-            showTopMenu: false,
-            showBottomNavigation: true,
-          );
-      _setPageTitleForIndex(_tabController?.index ?? 0);
+      _updateNavigation();
     });
 
     super.initState();
@@ -42,6 +36,18 @@ class _StorePageState extends ConsumerState<StorePage>
         _setPageTitleForIndex(_tabController!.index);
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   @override
@@ -86,5 +92,19 @@ class _StorePageState extends ConsumerState<StorePage>
               ),
             ],
           );
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: true,
+            showTopMenu: false,
+            showBottomNavigation: true,
+          );
+      _setPageTitleForIndex(_tabController?.index ?? 0);
+    });
   }
 }

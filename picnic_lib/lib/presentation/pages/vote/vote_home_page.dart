@@ -16,6 +16,7 @@ import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart'
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
@@ -35,7 +36,8 @@ class VoteHomePage extends ConsumerStatefulWidget {
   ConsumerState<VoteHomePage> createState() => _VoteHomePageState();
 }
 
-class _VoteHomePageState extends ConsumerState<VoteHomePage> {
+class _VoteHomePageState extends ConsumerState<VoteHomePage>
+    with RouteAwareStateMixin<VoteHomePage> {
   late final PagingController<int, VoteModel> _pagingController =
       PagingController<int, VoteModel>(
         getNextPageKey: (state) {
@@ -57,14 +59,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(
-            showPortal: true,
-            showTopMenu: true,
-            showBottomNavigation: true,
-            pageTitle: '',
-          );
+      _updateNavigation();
 
       // 이미지 캐시 최적화를 먼저 수행
       _optimizeImageCacheForPage();
@@ -72,6 +67,18 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       // 그 다음 페이징 컨트롤러 초기화
       _pagingController.fetchNextPage();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   /// 페이지별 이미지 캐시 최적화
@@ -176,6 +183,20 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   void dispose() {
     _pagingController.dispose();
     super.dispose();
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            showBottomNavigation: true,
+            pageTitle: '',
+          );
+    });
   }
 
   Widget _buildVoteListTitle() {

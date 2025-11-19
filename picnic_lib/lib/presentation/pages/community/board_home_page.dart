@@ -7,6 +7,7 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/board_request.dart';
 import 'package:picnic_lib/presentation/providers/artist_provider.dart';
@@ -28,11 +29,12 @@ class BoardHomePage extends ConsumerStatefulWidget {
 }
 
 class _PostListPageState extends ConsumerState<BoardHomePage>
-    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with SingleTickerProviderStateMixin, RouteAwareStateMixin<BoardHomePage>, AutomaticKeepAliveClientMixin {
   late final PageController _pageController = PageController();
   late final BoardsNotifier _boardsNotifier;
   int _currentIndex = 0;
   bool _isInitialized = false;
+  String? _currentArtistTitle;
   // 유지하던 로컬 아티스트명 캐시는 제거 (타이틀 충돌 방지 목적)
 
   @override
@@ -48,17 +50,22 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
       final artist = await ref.read(getArtistProvider(widget.artistId).future);
       if (!mounted) return;
 
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(
-            showPortal: true,
-            showTopMenu: true,
-            topRightMenu: TopRightType.board,
-            showBottomNavigation: false,
-            pageTitle: getLocaleTextFromJson(artist.name),
-          );
+      _currentArtistTitle = getLocaleTextFromJson(artist.name);
+      _applyNavigation(_currentArtistTitle);
       // 로컬 캐시는 사용하지 않음
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _applyNavigation(_currentArtistTitle);
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _applyNavigation(_currentArtistTitle);
   }
 
   void _initializeWithCurrentBoard(List<BoardModel> boards) {
@@ -80,10 +87,28 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
             _pageController.jumpToPage(newIndex);
           }
         });
+        _currentArtistTitle = getLocaleTextFromJson(currentBoard.name);
+        _applyNavigation(_currentArtistTitle);
       }
     } else {
       _isInitialized = true;
     }
+  }
+
+  void _applyNavigation(String? title) {
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            topRightMenu: TopRightType.board,
+            showBottomNavigation: false,
+            pageTitle: title,
+          );
+    });
   }
 
   @override

@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
@@ -16,6 +17,7 @@ import 'package:picnic_lib/presentation/widgets/community/home/community_home.da
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 
 class CommunityHomePage extends ConsumerStatefulWidget {
   const CommunityHomePage({super.key});
@@ -24,20 +26,15 @@ class CommunityHomePage extends ConsumerStatefulWidget {
   ConsumerState<CommunityHomePage> createState() => _CommunityHomePageState();
 }
 
-class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
+class _CommunityHomePageState extends ConsumerState<CommunityHomePage>
+    with SingleTickerProviderStateMixin<CommunityHomePage>, RouteAwareStateMixin<CommunityHomePage> {
   StreamSubscription? _authSubscription;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(
-            showPortal: true,
-            showTopMenu: true,
-            showBottomNavigation: true,
-          );
+      _updateNavigation();
       _updateLoginState();
     });
 
@@ -48,6 +45,18 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
         _updateLoginState();
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   @override
@@ -219,5 +228,20 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
               ),
       ],
     );
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            showBottomNavigation: true,
+            topRightMenu: TopRightType.community,
+            pageTitle: '',
+          );
+    });
   }
 }

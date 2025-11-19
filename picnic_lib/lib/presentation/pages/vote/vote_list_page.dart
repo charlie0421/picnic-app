@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
@@ -16,7 +17,7 @@ class VoteListPage extends ConsumerStatefulWidget {
 }
 
 class _VoteListPageState extends ConsumerState<VoteListPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin<VoteListPage>, RouteAwareStateMixin<VoteListPage> {
   late TabController _tabController;
   static const String _tabIndexKey = 'vote_list_tab_index';
   bool _isAdmin = false;
@@ -26,17 +27,19 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
     super.initState();
     _initializeTabController();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(
-            showPortal: false,
-            showTopMenu: true,
-            showMyPoint: false,
-            showBottomNavigation: true,
-            pageTitle: AppLocalizations.of(context).label_vote_screen_title,
-          );
-    });
+    _updateNavigation();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   void _initializeTabController() {
@@ -87,6 +90,21 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: false,
+            showTopMenu: true,
+            showMyPoint: false,
+            showBottomNavigation: true,
+            pageTitle: AppLocalizations.of(context).label_vote_screen_title,
+          );
+    });
   }
 }
 

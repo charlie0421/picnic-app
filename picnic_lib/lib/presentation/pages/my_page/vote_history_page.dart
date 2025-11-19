@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_history_list_item.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
 class VoteHistoryPage extends ConsumerStatefulWidget {
   const VoteHistoryPage({super.key});
@@ -18,7 +19,8 @@ class VoteHistoryPage extends ConsumerStatefulWidget {
   ConsumerState createState() => _VoteHistoryPageState();
 }
 
-class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
+class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage>
+    with RouteAwareStateMixin<VoteHistoryPage> {
   late final PagingController<int, VotePickModel> _pagingController =
       PagingController<int, VotePickModel>(
     getNextPageKey: (state) {
@@ -31,13 +33,14 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
   );
   String _sortOrder = 'DESC';
   static const int _pageSize = 10;
+  String? _currentTitle;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
-          pageTitle: AppLocalizations.of(context).label_mypage_vote_history);
+      _currentTitle = AppLocalizations.of(context).label_mypage_vote_history;
+      _updateNavigation();
       _pagingController.fetchNextPage();
     });
   }
@@ -68,6 +71,19 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
   void dispose() {
     _pagingController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentTitle ??= AppLocalizations.of(context).label_mypage_vote_history;
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   @override
@@ -116,6 +132,16 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
         ),
       ],
     );
+  }
+
+  void _updateNavigation() {
+    final title = _currentTitle;
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+          pageTitle: title);
+    });
   }
 }
 

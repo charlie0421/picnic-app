@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
 class FAQPage extends ConsumerStatefulWidget {
   const FAQPage({super.key});
@@ -16,11 +17,13 @@ class FAQPage extends ConsumerStatefulWidget {
   ConsumerState<FAQPage> createState() => _FAQPageState();
 }
 
-class _FAQPageState extends ConsumerState<FAQPage> {
+class _FAQPageState extends ConsumerState<FAQPage>
+    with RouteAwareStateMixin<FAQPage> {
   List<Map<String, dynamic>> _faqs = [];
   String? _selectedCategory;
   List<String> _categories = ['ALL'];
   List<Map<String, dynamic>> _categoriesData = [];
+  String? _currentTitle;
 
   String _getLocalizedText(Map<String, dynamic> json, String language) {
     if (json[language] != null) {
@@ -54,13 +57,23 @@ class _FAQPageState extends ConsumerState<FAQPage> {
     _selectedCategory = 'ALL';
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(
-            pageTitle: AppLocalizations.of(context).label_mypage_faq,
-          );
+      _currentTitle = AppLocalizations.of(context).label_mypage_faq;
+      _updateNavigation();
       _fetchPage();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentTitle ??= AppLocalizations.of(context).label_mypage_faq;
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   Future<void> _fetchPage() async {
@@ -101,6 +114,19 @@ class _FAQPageState extends ConsumerState<FAQPage> {
       return _faqs;
     }
     return _faqs.where((faq) => faq['category'] == _selectedCategory).toList();
+  }
+
+  void _updateNavigation() {
+    final title = _currentTitle;
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(
+            pageTitle: title,
+          );
+    });
   }
 
   @override

@@ -9,6 +9,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
 class PrivacyPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_privacy';
@@ -21,8 +22,9 @@ class PrivacyPage extends ConsumerStatefulWidget {
 }
 
 class _PrivacyPageState extends ConsumerState<PrivacyPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RouteAwareStateMixin<PrivacyPage> {
   PolicyLanguage? _selectedLanguage;
+  String? _currentTitle;
 
   @override
   void initState() {
@@ -34,12 +36,22 @@ class _PrivacyPageState extends ConsumerState<PrivacyPage>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(
-            pageTitle: AppLocalizations.of(context).label_mypage_privacy_policy,
-          );
+      _currentTitle = AppLocalizations.of(context).label_mypage_privacy_policy;
+      _updateNavigation();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentTitle ??= AppLocalizations.of(context).label_mypage_privacy_policy;
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   @override
@@ -123,5 +135,18 @@ class _PrivacyPageState extends ConsumerState<PrivacyPage>
       error: (error, stack) =>
           buildErrorView(context, error: error, stackTrace: stack),
     );
+  }
+
+  void _updateNavigation() {
+    final title = _currentTitle;
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(
+            pageTitle: title,
+          );
+    });
   }
 }

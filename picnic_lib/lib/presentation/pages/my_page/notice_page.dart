@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
 class NoticePage extends ConsumerStatefulWidget {
   const NoticePage({super.key});
@@ -16,8 +17,10 @@ class NoticePage extends ConsumerStatefulWidget {
   ConsumerState<NoticePage> createState() => _NoticePageState();
 }
 
-class _NoticePageState extends ConsumerState<NoticePage> {
+class _NoticePageState extends ConsumerState<NoticePage>
+    with RouteAwareStateMixin<NoticePage> {
   List<Map<String, dynamic>> _notices = [];
+  String? _currentTitle;
 
   String _getLocalizedText(Map<String, dynamic> json, String language) {
     if (json[language] != null) {
@@ -31,10 +34,23 @@ class _NoticePageState extends ConsumerState<NoticePage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
-          pageTitle: AppLocalizations.of(context).label_mypage_notice);
+      _currentTitle = AppLocalizations.of(context).label_mypage_notice;
+      _updateNavigation();
       _fetchPage();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentTitle ??= AppLocalizations.of(context).label_mypage_notice;
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   Future<void> _fetchPage() async {
@@ -123,5 +139,15 @@ class _NoticePageState extends ConsumerState<NoticePage> {
           )
         : NoItemContainer(
             message: AppLocalizations.of(context).common_text_no_search_result);
+  }
+
+  void _updateNavigation() {
+    final title = _currentTitle;
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+          pageTitle: title);
+    });
   }
 }

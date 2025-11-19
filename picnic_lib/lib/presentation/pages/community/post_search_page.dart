@@ -7,6 +7,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
@@ -24,7 +25,8 @@ class PostSearchPage extends ConsumerStatefulWidget {
   ConsumerState<PostSearchPage> createState() => _PostSearchPageState();
 }
 
-class _PostSearchPageState extends ConsumerState<PostSearchPage> {
+class _PostSearchPageState extends ConsumerState<PostSearchPage>
+    with RouteAwareStateMixin<PostSearchPage> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController _textController = TextEditingController();
   late final PagingController<int, PostModel> _pagingController;
@@ -37,7 +39,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
     focusNode.addListener(_onFocusChange);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeNavigation();
+      _updateNavigation();
       _loadSearchHistory();
     });
 
@@ -63,12 +65,9 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
     super.dispose();
   }
 
-  void _onFocusChange() {
-    if (!focusNode.hasFocus) setState(() {});
-  }
-
-  void _initializeNavigation() {
-    if (mounted) {
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
             showTopMenu: true,
@@ -76,7 +75,23 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
             topRightMenu: TopRightType.none,
             pageTitle: AppLocalizations.of(context).text_community_post_search,
           );
-    }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
+  }
+
+  void _onFocusChange() {
+    if (!focusNode.hasFocus) setState(() {});
   }
 
   void _executeSearch(String query) {

@@ -5,6 +5,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
 class NoticeDetailPage extends ConsumerStatefulWidget {
   const NoticeDetailPage({super.key, required this.noticeId});
@@ -15,11 +16,13 @@ class NoticeDetailPage extends ConsumerStatefulWidget {
   ConsumerState<NoticeDetailPage> createState() => _NoticeDetailPageState();
 }
 
-class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage> {
+class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage>
+    with RouteAwareStateMixin<NoticeDetailPage> {
   Map<String, dynamic>? _notice;
   bool _loading = true;
   Object? _error;
   String? _prevPageTitle;
+  String? _currentTitle;
 
   String _getLocalizedText(Map<String, dynamic> json, String language) {
     if (json[language] != null) {
@@ -34,15 +37,9 @@ class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 현재 페이지 타이틀을 저장해두었다가, 뒤로가기 시 복원한다
       _prevPageTitle = ref.read(navigationInfoProvider).pageTitle;
-      final nav = ref.read(navigationInfoProvider.notifier);
       final title = AppLocalizations.of(context).label_mypage_notice;
-      nav.setMyPageTitle(pageTitle: title);
-      nav.settingNavigation(
-        showPortal: false,
-        showBottomNavigation: true,
-        showTopMenu: true,
-        pageTitle: title,
-      );
+      _currentTitle = title;
+      _applyNavigation(title);
       _fetchDetail();
     });
   }
@@ -51,6 +48,22 @@ class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage> {
   void dispose() {
     // 복원 로직은 PopScope.onPopInvoked에서 처리
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_currentTitle != null) {
+      _applyNavigation(_currentTitle);
+    }
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    if (_currentTitle != null) {
+      _applyNavigation(_currentTitle);
+    }
   }
 
   Future<void> _fetchDetail() async {
@@ -137,5 +150,20 @@ class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage> {
       },
       child: body,
     );
+  }
+
+  void _applyNavigation(String? title) {
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final nav = ref.read(navigationInfoProvider.notifier);
+      nav.setMyPageTitle(pageTitle: title);
+      nav.settingNavigation(
+        showPortal: false,
+        showBottomNavigation: true,
+        showTopMenu: true,
+        pageTitle: title,
+      );
+    });
   }
 }

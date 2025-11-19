@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_artist_select_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_input_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_loading_page.dart';
@@ -26,7 +27,8 @@ class CompatibilityListPage extends ConsumerStatefulWidget {
       _CompatibilityListPageState();
 }
 
-class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
+class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
+    with RouteAwareStateMixin<CompatibilityListPage> {
   final _scrollController = ScrollController();
 
   // 성능 최적화를 위한 const 상수 활용
@@ -46,14 +48,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
         .read(compatibilityListProvider(artistId: widget.artistId).notifier)
         .loadInitial());
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          topRightMenu: TopRightType.board,
-          showBottomNavigation: false,
-          pageTitle: AppLocalizations.of(context).compatibility_page_title);
-    });
+    _updateNavigation();
   }
 
   // 메모리 누수 방지
@@ -62,6 +57,18 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   // 단순한 스크롤 처리 - 페이지네이션만
@@ -285,6 +292,18 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
         ],
       ),
     );
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showTopMenu: true,
+          topRightMenu: TopRightType.board,
+          showBottomNavigation: false,
+          pageTitle: AppLocalizations.of(context).compatibility_page_title);
+    });
   }
 }
 

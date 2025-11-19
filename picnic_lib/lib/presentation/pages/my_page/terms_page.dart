@@ -9,6 +9,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
 class TermsPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_terms_of_use';
@@ -22,8 +23,9 @@ class TermsPage extends ConsumerStatefulWidget {
 }
 
 class _TermsPageState extends ConsumerState<TermsPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RouteAwareStateMixin<TermsPage> {
   PolicyLanguage? _selectedLanguage;
+  String? _currentTitle;
 
   @override
   void initState() {
@@ -35,12 +37,22 @@ class _TermsPageState extends ConsumerState<TermsPage>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(
-            pageTitle: AppLocalizations.of(context).label_mypage_terms_of_use,
-          );
+      _currentTitle = AppLocalizations.of(context).label_mypage_terms_of_use;
+      _updateNavigation();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentTitle ??= AppLocalizations.of(context).label_mypage_terms_of_use;
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   @override
@@ -120,5 +132,18 @@ class _TermsPageState extends ConsumerState<TermsPage>
       error: (error, stack) =>
           buildErrorView(context, error: error, stackTrace: stack),
     );
+  }
+
+  void _updateNavigation() {
+    final title = _currentTitle;
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(
+            pageTitle: title,
+          );
+    });
   }
 }

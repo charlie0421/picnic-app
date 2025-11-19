@@ -16,6 +16,8 @@ import 'package:universal_platform/universal_platform.dart';
 /// 두 앱(picnic_app, ttja_app)의 app.dart 파일에서 중복되는 UI 빌드 로직을
 /// 추출하여 재사용성을 높이고 코드 중복을 줄입니다.
 class AppBuilder {
+  static bool _screenProtectorEnabled = false;
+
   /// 앱 초기화 후 MaterialApp 위젯 생성
   ///
   /// [navigatorKey] 앱 내비게이션 관리를 위한 키
@@ -224,6 +226,7 @@ class AppBuilder {
   /// [enable] 활성화 여부
   static void updateScreenProtector(bool enable) {
     if (!UniversalPlatform.isMobile) return;
+    if (enable == _screenProtectorEnabled) return;
 
     try {
       if (enable) {
@@ -231,6 +234,7 @@ class AppBuilder {
       } else {
         ScreenProtector.preventScreenshotOff();
       }
+      _screenProtectorEnabled = enable;
     } catch (e) {
       logger.e('화면 보호기 설정 업데이트 중 오류', error: e);
     }

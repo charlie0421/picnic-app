@@ -14,6 +14,7 @@ import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
 class QnaThreadListPage extends ConsumerStatefulWidget {
   final String userId;
@@ -24,7 +25,8 @@ class QnaThreadListPage extends ConsumerStatefulWidget {
   ConsumerState<QnaThreadListPage> createState() => _QnaThreadListPageState();
 }
 
-class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
+class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
+    with RouteAwareStateMixin<QnaThreadListPage> {
   final QnaRepository _repository = QnaRepository();
   final ScrollController _scrollController = ScrollController();
   List<QnaThread> _threadList = [];
@@ -32,17 +34,15 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
   bool _isMoreLoading = false;
   bool _hasMore = true;
   String? _errorMessage;
+  String? _currentTitle;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(
-            pageTitle: AppLocalizations.of(context).qna_list_title,
-          );
+      _currentTitle = AppLocalizations.of(context).qna_list_title;
+      _updateNavigation();
     });
     _loadThreads(isInitial: true);
   }
@@ -52,6 +52,19 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentTitle ??= AppLocalizations.of(context).qna_list_title;
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   void _onScroll() {
@@ -126,6 +139,17 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
         builder: (context) => QnaThreadDetailPage(thread: thread),
       ),
     );
+  }
+
+  void _updateNavigation() {
+    final title = _currentTitle;
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+            pageTitle: title,
+          );
+    });
   }
 
   @override

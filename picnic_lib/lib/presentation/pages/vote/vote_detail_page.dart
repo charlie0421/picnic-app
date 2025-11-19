@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/date.dart';
@@ -57,7 +58,7 @@ class VoteDetailPage extends ConsumerStatefulWidget {
 }
 
 class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin<VoteDetailPage>, RouteAwareStateMixin<VoteDetailPage> {
   late ScrollController _scrollController;
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
@@ -90,16 +91,19 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     _initializeRanks();
     _setupRealtimeSubscription();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(
-            showPortal: false,
-            showTopMenu: true,
-            showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(context).page_title_vote_detail,
-          );
-    });
+    _updateNavigation();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   void _initializeControllers() {
@@ -267,6 +271,20 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     } catch (e) {
       logger.e('Realtime 구독 실패: $e');
     }
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: false,
+            showTopMenu: true,
+            showBottomNavigation: false,
+            pageTitle: AppLocalizations.of(context).page_title_vote_detail,
+          );
+    });
   }
 
   @override

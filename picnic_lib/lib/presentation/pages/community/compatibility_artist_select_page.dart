@@ -6,6 +6,7 @@ import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -29,7 +30,8 @@ class CompatibilityArtistSelectPage extends ConsumerStatefulWidget {
 }
 
 class _CompatibilityArtistSelectPageState
-    extends ConsumerState<CompatibilityArtistSelectPage> {
+    extends ConsumerState<CompatibilityArtistSelectPage>
+    with RouteAwareStateMixin<CompatibilityArtistSelectPage> {
   late PagingController<int, ArtistModel> _pagingController;
   static const _pageSize = 20;
 
@@ -48,20 +50,25 @@ class _CompatibilityArtistSelectPageState
       fetchPage: _fetchArtistPage,
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-            showPortal: true,
-            showTopMenu: true,
-            showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(context).compatibility_new_compatibility,
-          );
-    });
+    _updateNavigation();
   }
 
   @override
   void dispose() {
     _pagingController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   Future<List<ArtistModel>> _fetchArtistPage(int pageKey) async {
@@ -319,6 +326,18 @@ class _CompatibilityArtistSelectPageState
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
     );
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            showBottomNavigation: false,
+            pageTitle: AppLocalizations.of(context).compatibility_new_compatibility,
+          );
+    });
   }
 }
 

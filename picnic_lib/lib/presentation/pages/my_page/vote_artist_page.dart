@@ -18,6 +18,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
@@ -28,9 +29,11 @@ class VoteArtistPage extends ConsumerStatefulWidget {
   ConsumerState createState() => _VoteMyArtistState();
 }
 
-class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
+class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
+    with RouteAwareStateMixin<VoteArtistPage> {
   late PagingController<int, ArtistModel> _pagingController;
   static const _pageSize = 20;
+  String? _currentTitle;
 
   @override
   void initState() {
@@ -52,8 +55,8 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       logger.i('🎯 VoteArtistPage setting title');
       try {
-        ref.read(navigationInfoProvider.notifier).setMyPageTitle(
-            pageTitle: AppLocalizations.of(context).label_mypage_my_artist);
+        _currentTitle = AppLocalizations.of(context).label_mypage_my_artist;
+        _updateNavigation();
         logger.i('🎯 VoteArtistPage title set successfully');
       } catch (e) {
         logger.e('🎯 VoteArtistPage title setting failed: $e');
@@ -65,6 +68,19 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
   void dispose() {
     _pagingController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentTitle ??= AppLocalizations.of(context).label_mypage_my_artist;
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   Future<List<ArtistModel>> _fetchArtistPage(int pageKey) async {
@@ -92,6 +108,17 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
       logger.e('Failed to fetch artist page', error: e, stackTrace: stackTrace);
       rethrow;
     }
+  }
+
+  void _updateNavigation() {
+    final title = _currentTitle;
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+            pageTitle: title,
+          );
+    });
   }
 
   @override

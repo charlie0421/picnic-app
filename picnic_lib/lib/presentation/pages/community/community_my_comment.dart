@@ -10,6 +10,7 @@ import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_popup_menu.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
@@ -27,20 +28,15 @@ class CommunityMyComment extends ConsumerStatefulWidget {
   ConsumerState<CommunityMyComment> createState() => _CommunityMyCommentState();
 }
 
-class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
+class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
+    with RouteAwareStateMixin<CommunityMyComment> {
   late final PagingController<int, CommentModel> _pagingController;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-            showPortal: true,
-            showTopMenu: true,
-            topRightMenu: TopRightType.none,
-            showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(context).post_my_written_reply,
-          );
+      _updateNavigation();
     });
 
     _pagingController = PagingController<int, CommentModel>(
@@ -102,6 +98,31 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
   void dispose() {
     _pagingController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            topRightMenu: TopRightType.none,
+            showBottomNavigation: false,
+            pageTitle: AppLocalizations.of(context).post_my_written_reply,
+          );
+    });
   }
 
   @override

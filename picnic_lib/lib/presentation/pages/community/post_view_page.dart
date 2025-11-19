@@ -16,6 +16,7 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_item.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_list.dart';
@@ -44,7 +45,8 @@ class PostViewPage extends ConsumerStatefulWidget {
   ConsumerState<PostViewPage> createState() => _PostViewPageState();
 }
 
-class _PostViewPageState extends ConsumerState<PostViewPage> {
+class _PostViewPageState extends ConsumerState<PostViewPage>
+    with RouteAwareStateMixin<PostViewPage> {
   late Future<PostModel> _postFuture;
   quill.QuillController? _quillController;
   String? _errorMessage;
@@ -52,6 +54,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   List<CommentModel>? _comments;
   bool _isLoadingComments = false;
   bool _isDisposed = false;
+  String? _lastPageTitle;
 
   @override
   void initState() {
@@ -120,13 +123,16 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
 
   void _updateNavigationInfo(PostModel post) {
     final currentBoard = ref.read(communityStateInfoProvider).currentBoard;
+    if (currentBoard == null) return;
     ref.read(communityStateInfoProvider.notifier).setCurrentPost(post);
+    final pageTitle = getLocaleTextFromJson(currentBoard.name);
+    _lastPageTitle = pageTitle;
     ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true,
           showTopMenu: true,
           topRightMenu: TopRightType.postView,
           showBottomNavigation: false,
-          pageTitle: getLocaleTextFromJson(currentBoard!.name),
+          pageTitle: pageTitle,
         );
   }
 
@@ -574,6 +580,35 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     } catch (e, s) {
       logger.e('Error refreshing data: $e', stackTrace: s);
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _restoreNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _restoreNavigation();
+  }
+
+  void _restoreNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final currentBoard = ref.read(communityStateInfoProvider).currentBoard;
+      final resolvedTitle =
+          currentBoard != null ? getLocaleTextFromJson(currentBoard.name) : _lastPageTitle;
+      if (resolvedTitle == null) return;
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            topRightMenu: TopRightType.postView,
+            showBottomNavigation: false,
+            pageTitle: resolvedTitle,
+          );
+    });
   }
 }
 

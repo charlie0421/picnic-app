@@ -23,6 +23,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
@@ -31,12 +32,14 @@ class SettingPage extends ConsumerStatefulWidget {
   ConsumerState<SettingPage> createState() => _SettingPageState();
 }
 
-class _SettingPageState extends ConsumerState<SettingPage> {
+class _SettingPageState extends ConsumerState<SettingPage>
+    with RouteAwareStateMixin<SettingPage> {
   bool value1 = false;
   bool value2 = false;
   String buildNumber = '';
   bool _isRestartingApp = false;
   bool _isCheckingPatch = false;
+  String? _currentTitle;
 
   Future<bool> _getFuture1() async {
     await Future.delayed(const Duration(seconds: 1));
@@ -62,12 +65,22 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         setState(() {});
       });
 
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(
-            pageTitle: AppLocalizations.of(context).mypage_setting,
-          );
+      _currentTitle = AppLocalizations.of(context).mypage_setting;
+      _updateNavigation();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentTitle ??= AppLocalizations.of(context).mypage_setting;
+    _updateNavigation();
+  }
+
+  @override
+  void onRoutePopNext() {
+    super.onRoutePopNext();
+    _updateNavigation();
   }
 
   @override
@@ -539,5 +552,18 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         });
       }
     }
+  }
+
+  void _updateNavigation() {
+    final title = _currentTitle;
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(
+            pageTitle: title,
+          );
+    });
   }
 }
