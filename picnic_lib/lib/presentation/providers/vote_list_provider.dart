@@ -69,14 +69,22 @@ class AsyncVoteList extends _$AsyncVoteList {
       PostgrestList response;
       final offset = (page - 1) * limit;
 
-      // 최적화: 목록에서는 상위 3개 vote_item만 가져오고, 필요한 필드만 선택
+      // 최적화: 목록에서는 필요한 필드만 선택하고, vote_item 정보는 이후 상태에 따라 가공
       var query = supabase.from(voteTable).select('''
             id,
             title,
+            main_image,
+            wait_image,
+            result_image,
+            vote_content,
+            created_at,
             start_at,
             stop_at,
             visible_at,
             vote_category,
+            is_partnership,
+            partner,
+            reward(*),
             $voteItemTable!inner(
               id,
               vote_id,
@@ -139,31 +147,56 @@ class AsyncVoteList extends _$AsyncVoteList {
           .order(finalSort, ascending: finalOrder == 'ASC')
           .range(offset, offset + limit - 1);
 
-      // 디버그 모드가 아닌 경우에만 vote_item 최적화 수행
-      List<dynamic> finalResponse;
-      if (status == VoteStatus.debug) {
-        // 디버그 모드: vote_item이 없으므로 빈 배열 추가하여 JSON 파싱 오류 방지
-        logger.d('🚨🚨🚨 디버그 모드: vote_item 필드를 빈 배열로 추가');
-        finalResponse = response.map((voteData) {
-          voteData[voteItemTable] = []; // 빈 vote_item 배열 추가
-          return voteData;
-        }).toList();
-      } else {
-        // 일반 모드: 각 투표에 대해 상위 3개 vote_item만 유지
-        finalResponse = response.map((voteData) {
-          if (voteData[voteItemTable] is List) {
-            final voteItems = voteData[voteItemTable] as List;
-            // vote_total 기준으로 정렬하고 상위 3개만 유지
-            voteItems.sort(
-              (a, b) => (b['vote_total'] ?? 0).compareTo(a['vote_total'] ?? 0),
-            );
-            voteData[voteItemTable] = voteItems.take(3).toList();
-          }
-          return voteData;
-        }).toList();
-      }
+      final now = DateTime.now().toUtc();
+      final processedResponse = response.map((voteData) {
+        final map = Map<String, dynamic>.from(voteData);
 
-      final result = finalResponse.map((e) => VoteModel.fromJson(e)).toList();
+        final startAtString = map['start_at'] as String?;
+        final stopAtString = map['stop_at'] as String?;
+        final startAt =
+            startAtString != null ? DateTime.parse(startAtString).toUtc() : null;
+        final stopAt =
+            stopAtString != null ? DateTime.parse(stopAtString).toUtc() : null;
+
+        final isUpcoming =
+            startAt != null ? now.isBefore(startAt) : false;
+        final isEnded = stopAt != null ? now.isAfter(stopAt) : false;
+
+        map['is_upcoming'] = isUpcoming;
+        map['is_ended'] = isEnded;
+
+        if (status == VoteStatus.debug) {
+          map[voteItemTable] = <Map<String, dynamic>>[];
+        } else if (map[voteItemTable] is List) {
+          final voteItems = (map[voteItemTable] as List)
+              .whereType<Map<String, dynamic>>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .where((item) => item['deleted_at'] == null)
+              .toList();
+
+          voteItems.sort(
+            (a, b) => (b['vote_total'] ?? 0).compareTo(a['vote_total'] ?? 0),
+          );
+
+          map[voteItemTable] =
+              isUpcoming ? voteItems : voteItems.take(3).toList();
+        } else {
+          map[voteItemTable] = <Map<String, dynamic>>[];
+        }
+
+        map.putIfAbsent('reward', () => <dynamic>[]);
+        map.putIfAbsent('vote_content', () => null);
+        map.putIfAbsent('main_image', () => null);
+        map.putIfAbsent('wait_image', () => null);
+        map.putIfAbsent('result_image', () => null);
+        map.putIfAbsent('is_partnership', () => null);
+        map.putIfAbsent('partner', () => null);
+
+        return map;
+      }).toList();
+
+      final result =
+          processedResponse.map((e) => VoteModel.fromJson(e)).toList();
 
       // 디버그 상태에서 결과 상세 로그 출력
       if (status == VoteStatus.debug) {
