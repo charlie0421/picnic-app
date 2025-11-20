@@ -359,6 +359,14 @@ class _PicnicCachedNetworkImageState
       final currentSizeBytes = imageCache.currentSizeBytes;
       final maxSizeBytes = imageCache.maximumSizeBytes;
       final currentImageCount = imageCache.liveImageCount;
+      final pendingDecodeCount = imageCache.pendingImageCount;
+
+      if (pendingDecodeCount > 0) {
+        logger.d(
+          '이미지 디코딩이 진행 중(pending: $pendingDecodeCount)이라 캐시 정리를 건너뜁니다.',
+        );
+        return;
+      }
 
       // 90% 초과 시에만 정리 (기존 85%에서 상향) - 더 관대한 임계값
       if (currentSizeBytes > maxSizeBytes * 0.90) {
