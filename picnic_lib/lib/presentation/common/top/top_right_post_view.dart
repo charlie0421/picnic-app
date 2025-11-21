@@ -8,9 +8,7 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class TopRightPostView extends ConsumerStatefulWidget {
-  const TopRightPostView({
-    super.key,
-  });
+  const TopRightPostView({super.key});
 
   @override
   ConsumerState<TopRightPostView> createState() => _TopRightPostViewState();
@@ -19,8 +17,14 @@ class TopRightPostView extends ConsumerStatefulWidget {
 class _TopRightPostViewState extends ConsumerState<TopRightPostView> {
   @override
   Widget build(BuildContext context) {
-    final currentPost = ref.watch(communityStateInfoProvider).currentPost!;
-    final currentPostNotifier = ref.watch(communityStateInfoProvider.notifier);
+    final communityState = ref.watch(communityStateInfoProvider);
+    final currentPost = communityState.currentPost;
+
+    if (currentPost == null) {
+      return const SizedBox.shrink();
+    }
+
+    final currentPostNotifier = ref.read(communityStateInfoProvider.notifier);
 
     return Container(
       width: 60,
@@ -35,12 +39,20 @@ class _TopRightPostViewState extends ConsumerState<TopRightPostView> {
               showRequireLoginDialog();
               return;
             }
-            (currentPost.isScraped ?? false)
-                ? unscrapPost(
-                    ref, currentPost.postId, supabase.auth.currentUser!.id)
-                : scrapPost(ref, currentPost.postId);
-            currentPostNotifier.setCurrentPost(currentPost.copyWith(
-                isScraped: !(currentPost.isScraped ?? false)));
+            if (currentPost.isScraped ?? false) {
+              unscrapPost(
+                ref,
+                currentPost.postId,
+                supabase.auth.currentUser!.id,
+              );
+            } else {
+              scrapPost(ref, currentPost.postId);
+            }
+            currentPostNotifier.setCurrentPost(
+              currentPost.copyWith(
+                isScraped: !(currentPost.isScraped ?? false),
+              ),
+            );
           },
           child: Container(
             width: 30,

@@ -165,6 +165,25 @@ class _PicnicCachedNetworkImageState
     return math.max(1, (400 * multiplier).round());
   }
 
+  String _cacheKeyFor(
+    String url, {
+    int? index,
+    bool isLowQuality = false,
+  }) {
+    final buffer = StringBuffer(url)
+      ..write('_')
+      ..write(_reloadToken);
+    if (index != null) {
+      buffer
+        ..write('_')
+        ..write(index);
+    }
+    if (isLowQuality) {
+      buffer.write('_lq');
+    }
+    return buffer.toString();
+  }
+
   String _formatDpr(double value) {
     final fixed = value.toStringAsFixed(2);
     final trimmed = fixed
@@ -745,6 +764,11 @@ class _PicnicCachedNetworkImageState
       height: height,
       fit: widget.fit,
       cacheManager: null,
+      cacheKey: _cacheKeyFor(
+        url,
+        index: index,
+        isLowQuality: isLowQuality,
+      ),
       memCacheWidth: _computeCacheDimension(
         widget.memCacheWidth,
         width,
@@ -757,7 +781,6 @@ class _PicnicCachedNetworkImageState
       ),
       maxWidthDiskCache: isLowQuality ? 1000 : 2000,
       maxHeightDiskCache: isLowQuality ? 1000 : 2000,
-      cacheKey: url,
       fadeInDuration: isLowQuality
           ? const Duration(milliseconds: 100)
           : const Duration(milliseconds: 300),
@@ -841,6 +864,7 @@ class _PicnicCachedNetworkImageState
             height: height,
             fit: widget.fit,
             cacheManager: null,
+            cacheKey: _cacheKeyFor(url),
             memCacheWidth: _computeCacheDimension(
               widget.memCacheWidth,
               width,
@@ -853,7 +877,6 @@ class _PicnicCachedNetworkImageState
             ),
             maxWidthDiskCache: 2000,
             maxHeightDiskCache: 2000,
-            cacheKey: url,
             progressIndicatorBuilder: (context, url, progress) {
               // 진행률 표시기가 호출되면 로딩 중임을 나타냄
               if (!_loading && mounted) {
@@ -976,6 +999,7 @@ class _PicnicCachedNetworkImageState
       'interrupted', // 연결 중단
       'refused', // 연결 거부
       'reset', // 연결 재설정
+      'dispose', // 디코드 중 리소스 해제
     ];
 
     final isRetryableError = retryableErrors.any(
@@ -999,7 +1023,6 @@ class _PicnicCachedNetworkImageState
 
     Future.delayed(delay, () {
       if (mounted) {
-        CachedNetworkImage.evictFromCache(url);
         setState(() {
           _reloadToken++;
           logger.i('이미지 로드 재시도 시작: $url (토큰: $_reloadToken)');

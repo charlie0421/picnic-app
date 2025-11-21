@@ -37,11 +37,7 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class PostViewPage extends ConsumerStatefulWidget {
-  const PostViewPage(
-    this.postId, {
-    super.key,
-    this.syncNavigation = true,
-  });
+  const PostViewPage(this.postId, {super.key, this.syncNavigation = true});
 
   final String postId;
   final bool syncNavigation;
@@ -73,14 +69,18 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
     if (_isDisposed) return Future.error('Widget is disposed');
 
     try {
-      final updatedPost = await postById(ref, widget.postId,
-          isIncrementViewCount: isIncrementViewCount);
+      final updatedPost = await postById(
+        ref,
+        widget.postId,
+        isIncrementViewCount: isIncrementViewCount,
+      );
 
       if (_isDisposed) return Future.error('Widget is disposed');
 
       if (updatedPost == null) {
         throw Exception(
-            AppLocalizations.of(navigatorKey.currentContext!).post_not_found);
+          AppLocalizations.of(navigatorKey.currentContext!).post_not_found,
+        );
       }
 
       _initializeQuillController(updatedPost);
@@ -102,16 +102,19 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
 
     try {
       final content = _parseContent(post.content);
+      final document = _createDocument(content, post.content);
       _quillController = quill.QuillController(
-        document: quill.Document.fromJson(content),
+        document: document,
         selection: const TextSelection.collapsed(offset: 0),
         readOnly: true,
       );
     } catch (e, s) {
       logger.e('Error initializing QuillController: $e', stackTrace: s);
       if (!_isDisposed) {
-        setState(() =>
-            _errorMessage = AppLocalizations.of(context).error_content_parse);
+        setState(
+          () =>
+              _errorMessage = AppLocalizations.of(context).error_content_parse,
+        );
       }
     }
   }
@@ -148,7 +151,9 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
     ref.read(communityStateInfoProvider.notifier).setCurrentPost(post);
     final pageTitle = getLocaleTextFromJson(currentBoard.name);
     _lastPageTitle = pageTitle;
-    ref.read(navigationInfoProvider.notifier).settingNavigation(
+    ref
+        .read(navigationInfoProvider.notifier)
+        .settingNavigation(
           showPortal: true,
           showTopMenu: true,
           topRightMenu: TopRightType.postView,
@@ -161,16 +166,102 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
     try {
       if (content == null) {
         return [
-          {"insert": ""}
+          {"insert": ""},
         ];
       }
-      return (content is String ? jsonDecode(content) : content) as List;
+
+      if (content is List) {
+        return content;
+      }
+
+      if (content is Map<String, dynamic>) {
+        final ops = _extractOpsFromMap(content);
+        if (ops != null) {
+          return ops;
+        }
+        return [content];
+      }
+
+      if (content is String) {
+        final trimmed = content.trim();
+        if (trimmed.isEmpty) {
+          return [
+            {"insert": ""},
+          ];
+        }
+
+        try {
+          final decoded = jsonDecode(trimmed);
+          if (decoded is List) {
+            return decoded;
+          }
+          if (decoded is Map<String, dynamic>) {
+            final ops = _extractOpsFromMap(decoded);
+            if (ops != null) {
+              return ops;
+            }
+            return [decoded];
+          }
+        } catch (_) {
+          // fallthrough to treat as plain text
+        }
+
+        return [
+          {"insert": content},
+        ];
+      }
+
+      return [
+        {"insert": content.toString()},
+      ];
     } catch (e, s) {
       logger.e('Error parsing content: $e', stackTrace: s);
       return [
-        {"insert": AppLocalizations.of(context).error_content_parse}
+        {"insert": AppLocalizations.of(context).error_content_parse},
       ];
     }
+  }
+
+  quill.Document _createDocument(List<dynamic> content, dynamic rawContent) {
+    try {
+      return quill.Document.fromJson(content);
+    } catch (e, s) {
+      logger.e('Error creating document from content: $e', stackTrace: s);
+      final fallbackText = _extractFallbackText(rawContent);
+      return quill.Document()..insert(0, fallbackText);
+    }
+  }
+
+  String _extractFallbackText(dynamic rawContent) {
+    if (rawContent == null) {
+      return '';
+    }
+    if (rawContent is String) {
+      return rawContent;
+    }
+    try {
+      return jsonEncode(rawContent);
+    } catch (_) {
+      return rawContent.toString();
+    }
+  }
+
+  List<dynamic>? _extractOpsFromMap(Map<String, dynamic> map) {
+    final ops = map['ops'];
+    if (ops is List) {
+      return ops;
+    }
+    final delta = map['delta'];
+    if (delta is List) {
+      return delta;
+    }
+    if (delta is Map<String, dynamic>) {
+      final deltaOps = delta['ops'];
+      if (deltaOps is List) {
+        return deltaOps;
+      }
+    }
+    return null;
   }
 
   Future<void> _loadComments(String postId) async {
@@ -180,13 +271,10 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
 
     try {
       final loadedComments = await Future.value(
-          ref.read(commentsNotifierProvider(postId, 1, 3).notifier).build(
-                postId,
-                1,
-                3,
-                includeDeleted: false,
-                includeReported: false,
-              )).timeout(const Duration(seconds: 10));
+        ref
+            .read(commentsNotifierProvider(postId, 1, 3).notifier)
+            .build(postId, 1, 3, includeDeleted: false, includeReported: false),
+      ).timeout(const Duration(seconds: 10));
 
       if (_isDisposed) return;
 
@@ -220,9 +308,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Material(
             color: Colors.white,
-            child: Center(
-              child: LargePulseLoadingIndicator(),
-            ),
+            child: Center(child: LargePulseLoadingIndicator()),
           );
         }
 
@@ -234,8 +320,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    _errorMessage ??
-                        AppLocalizations.of(context).error_unknown,
+                    _errorMessage ?? AppLocalizations.of(context).error_unknown,
                     style: const TextStyle(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
@@ -279,29 +364,37 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
                     configKey: 'POSTVIEW_TOP',
                     adSize: AdSize.fullBanner,
                   ),
-                  // 컨텐츠
 
+                  // 컨텐츠
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: Text(
                       post.title ?? '',
                       style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 8,
+                    ),
                     child: post.isAnonymous ?? false
                         ? Text(
                             AppLocalizations.of(context).anonymous,
                             style: getTextStyle(
-                                AppTypo.caption12B, AppColors.primary500),
+                              AppTypo.caption12B,
+                              AppColors.primary500,
+                            ),
                           )
                         : Text(
                             post.userProfiles?.nickname ?? '',
                             style: getTextStyle(
-                                AppTypo.caption12B, AppColors.primary500),
+                              AppTypo.caption12B,
+                              AppColors.primary500,
+                            ),
                           ),
                   ),
                   _buildPostInfo(post),
@@ -325,7 +418,9 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
 
         if (!_syncNavigation) {
           final fallbackTitle =
-              _lastPageTitle ?? post.title ?? AppLocalizations.of(context).post_not_found;
+              _lastPageTitle ??
+              post.title ??
+              AppLocalizations.of(context).post_not_found;
           return Scaffold(
             backgroundColor: Colors.white,
             appBar: AppBar(
@@ -353,20 +448,26 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
             children: [
               Text(
                 '${AppLocalizations.of(context).views}: ${post.viewCount}',
-                style:
-                    getTextStyle(AppTypo.caption10SB, const Color(0XFF8E8E8E)),
+                style: getTextStyle(
+                  AppTypo.caption10SB,
+                  const Color(0XFF8E8E8E),
+                ),
               ),
               SizedBox(width: 8.w),
               Text(
                 '${AppLocalizations.of(context).replies}: ${post.replyCount}',
-                style:
-                    getTextStyle(AppTypo.caption10SB, const Color(0XFF8E8E8E)),
+                style: getTextStyle(
+                  AppTypo.caption10SB,
+                  const Color(0XFF8E8E8E),
+                ),
               ),
               SizedBox(width: 8.w),
               Text(
                 formatDateTimeYYYYMMDDHHM(post.createdAt!),
-                style:
-                    getTextStyle(AppTypo.caption10SB, const Color(0XFF8E8E8E)),
+                style: getTextStyle(
+                  AppTypo.caption10SB,
+                  const Color(0XFF8E8E8E),
+                ),
               ),
             ],
           ),
@@ -382,8 +483,9 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
                 if (!_isDisposed) {
                   if (navigatorKey.currentContext != null) {
                     SnackbarUtil().error(
-                      AppLocalizations.of(navigatorKey.currentContext!)
-                          .error_delete_post,
+                      AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_delete_post,
                     );
                   }
                 }
@@ -430,10 +532,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
 
   Widget _buildContent() {
     if (_errorMessage != null) {
-      return Text(
-        _errorMessage!,
-        style: const TextStyle(color: Colors.red),
-      );
+      return Text(_errorMessage!, style: const TextStyle(color: Colors.red));
     }
     if (_quillController == null) {
       return const Center(child: MediumPulseLoadingIndicator());
@@ -598,7 +697,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
         borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
       ),
       constraints: BoxConstraints(
-        maxHeight: ref.watch(globalMediaQueryProvider).size.height -
+        maxHeight:
+            ref.watch(globalMediaQueryProvider).size.height -
             getAppBarHeight(ref),
       ),
       builder: (context) => SafeArea(
@@ -653,10 +753,13 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final currentBoard = ref.read(communityStateInfoProvider).currentBoard;
-      final resolvedTitle =
-          currentBoard != null ? getLocaleTextFromJson(currentBoard.name) : _lastPageTitle;
+      final resolvedTitle = currentBoard != null
+          ? getLocaleTextFromJson(currentBoard.name)
+          : _lastPageTitle;
       if (resolvedTitle == null) return;
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
             showPortal: true,
             showTopMenu: true,
             topRightMenu: TopRightType.postView,

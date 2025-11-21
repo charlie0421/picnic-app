@@ -4,7 +4,7 @@ import 'package:picnic_lib/core/services/notification_inbox_service.dart';
 import 'package:picnic_lib/data/models/user_notification.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:picnic_lib/presentation/pages/community/post_view_page.dart';
+import 'package:picnic_lib/presentation/pages/community/community_post_detail_screen.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
@@ -109,14 +109,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           final postId = (data['post_id'] ?? data['id'])?.toString();
           if (postId != null && postId.isNotEmpty) {
             if (!mounted) return;
-            Navigator.of(
-              context,
-            ).push(
+            Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => PostViewPage(
-                  postId,
-                  syncNavigation: false,
-                ),
+                builder: (_) => CommunityPostDetailScreen(postId: postId),
               ),
             );
           }

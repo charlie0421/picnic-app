@@ -30,7 +30,7 @@ import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/notice_detail_page.dart';
-import 'package:picnic_lib/presentation/pages/community/post_view_page.dart';
+import 'package:picnic_lib/presentation/pages/community/community_post_detail_screen.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
@@ -815,10 +815,8 @@ class AppInitializer {
                   Navigator.of(context)
                       .push(
                     MaterialPageRoute(
-                      builder: (_) => PostViewPage(
-                        postId,
-                        syncNavigation: false,
-                      ),
+                      builder: (_) =>
+                          CommunityPostDetailScreen(postId: postId),
                     ),
                   )
                       .whenComplete(() {

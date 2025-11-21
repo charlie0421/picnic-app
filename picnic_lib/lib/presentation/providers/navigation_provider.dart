@@ -385,6 +385,10 @@ class NavigationInfo extends _$NavigationInfo {
         '📱 Vote navigation state updated with new page: ${page.runtimeType}');
   }
 
+  void replaceState(Navigation navigation) {
+    state = navigation;
+  }
+
   /// 현재 Screen을 유지한 채 voteNavigationStack에 페이지만 푸시합니다.
   /// VoteHomeScreen 같은 Screen 컨테이너를 유지해야 할 때 사용합니다.
   void pushVotePageKeepScreen(Widget page) {
