@@ -106,13 +106,12 @@ class CelebListItem extends ConsumerWidget {
   Future<int> getBookmarkCount(AsyncValue<List<CelebModel>?> celebList) async {
     logger.i(celebList.value);
 
-    final response = await supabase
+    final count = await supabase
         .from('celeb_bookmark_user')
-        .select()
+        .count()
         .eq('celeb_id', item.id)
-        .eq('user_id', supabase.auth.currentUser!.id)
-        .count();
+        .eq('user_id', supabase.auth.currentUser!.id);
 
-    return response.count;
+    return count;
   }
 }

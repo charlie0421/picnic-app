@@ -461,7 +461,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_mypage_faq => '자주 묻는 질문';
 
   @override
-  String get label_mypage_logout => 'Log out';
+  String get label_mypage_logout => '로그아웃';
 
   @override
   String get label_mypage_my_artist => '내 아티스트';

@@ -41,9 +41,8 @@ class AsyncCommentList extends _$AsyncCommentList {
 
     final commentCount = await supabase
         .from('article_comment')
-        .select()
-        .eq('article_id', articleId)
-        .count(CountOption.exact);
+        .count(CountOption.exact)
+        .eq('article_id', articleId);
 
     return CommentState(
         articleId: articleId,
@@ -52,7 +51,7 @@ class AsyncCommentList extends _$AsyncCommentList {
         sort: sort,
         order: order,
         pagingController: pagingController,
-        commentCount: commentCount.count);
+        commentCount: commentCount);
   }
 
   Future<void> submitComment({

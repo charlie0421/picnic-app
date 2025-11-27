@@ -20,15 +20,14 @@ Future<List<ArticleModel>?> fetchArticleList(
     final int from = (page - 1) * limit;
     final int to = page * limit;
 
-    final response = await supabase
+    final List<dynamic> response = await supabase
         .from('article')
         .select('*, article_image(*, article_image_user(*))')
         .eq('gallery_id', galleryId)
         .order(sort, ascending: order == 'ASC')
-        .range(from, to)
-        .count();
+        .range(from, to);
 
-    return response.data.map((e) => ArticleModel.fromJson(e)).toList();
+    return response.map((e) => ArticleModel.fromJson(e)).toList();
   } catch (e, s) {
     logger.e('error', error: e, stackTrace: s);
     Sentry.captureException(
