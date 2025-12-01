@@ -983,6 +983,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get vote_share_message => 'โหวต';
 
   @override
+  String get vote_completed_message => 'โหวตแล้ว!';
+
+  @override
   String get voting_share_benefit_text =>
       'รับ 1 ลูกอมโบนัสสตาร์สำหรับทุก ๆ 100 คะแนนและแบ่งปัน!';
 

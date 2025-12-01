@@ -1009,6 +1009,9 @@ class AppLocalizationsFil extends AppLocalizations {
   String get vote_share_message => 'Bumoto!';
 
   @override
+  String get vote_completed_message => 'Nakaboto na ako!';
+
+  @override
   String get voting_share_benefit_text =>
       'Kumuha ng 1 bonus star candy para sa bawat 100 boto at ibahagi!';
 

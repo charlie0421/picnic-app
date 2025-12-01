@@ -994,6 +994,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get vote_share_message => 'Voted!';
 
   @override
+  String get vote_completed_message => 'Aku sudah memilih!';
+
+  @override
   String get voting_share_benefit_text =>
       'Dapatkan 1 bonus permen bintang untuk setiap 100 suara dan bagikan!';
 

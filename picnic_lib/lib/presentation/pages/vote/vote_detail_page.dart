@@ -1528,9 +1528,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
     return SizedBox(
       width: double.infinity,
-      height: voteCountDiff > 0 ? 30 : 20, // 애니메이션이 있을 때 높이를 30으로 적당히 조정
+      height: 20,
       child: Stack(
-        clipBehavior: Clip.hardEdge, // 오버플로우를 방지하여 에러 해결
+        clipBehavior: Clip.none, // 진행바 위로 배지를 띄워 레이아웃 흔들림 방지
         children: [
           Positioned(
             bottom: 0,
@@ -1570,7 +1570,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           if (voteCountDiff > 0)
             Positioned(
               right: 16.w,
-              bottom: 18, // top: 0 대신 bottom을 사용하여 더 안정적인 위치 지정
+              bottom: 28,
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
                 duration: const Duration(seconds: 1),
@@ -1580,7 +1580,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                   return Opacity(
                     opacity: opacity,
                     child: Transform.translate(
-                      offset: Offset(0, -5 * value), // -10에서 -5로 줄여서 오버플로우 방지
+                      offset: Offset(0, -6 * value),
                       child: Text(
                         '+$voteCountDiff',
                         style: getTextStyle(

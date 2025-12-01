@@ -988,6 +988,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get vote_share_message => 'Voted!';
 
   @override
+  String get vote_completed_message => 'I voted!';
+
+  @override
   String get voting_share_benefit_text =>
       'Get 1 bonus star candy for every 100 votes and share!';
 
@@ -2500,6 +2503,9 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get vote_share_message => 'ভোট!';
+
+  @override
+  String get vote_completed_message => 'আমি ভোট দিয়েছি!';
 
   @override
   String get voting_share_benefit_text =>

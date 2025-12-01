@@ -988,6 +988,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vote_share_message => 'Voted!';
 
   @override
+  String get vote_completed_message => 'I voted!';
+
+  @override
   String get voting_share_benefit_text =>
       'Get 1 bonus star candy for every 100 votes and share!';
 
@@ -2465,6 +2468,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get vote_share_message => '投了赞成票！';
 
   @override
+  String get vote_completed_message => '我已投票！';
+
+  @override
   String get voting_share_benefit_text => '每 100 次投票和分享可获得 1 颗奖励星星糖果！';
 
   @override
@@ -3908,6 +3914,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get vote_share_message => '投了赞成票！';
+
+  @override
+  String get vote_completed_message => '我已投票！';
 
   @override
   String get voting_share_benefit_text => '每 100 次投票和分享可获得 1 颗奖励星星糖果！';

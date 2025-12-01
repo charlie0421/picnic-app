@@ -89,9 +89,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                     color: AppColors.grey00,
                     borderRadius: BorderRadius.circular(26.r),
                     border: Border.all(
-                        color: AppColors.primary500,
-                        width: 2.5.r,
-                        strokeAlign: BorderSide.strokeAlignInside),
+                      color: AppColors.primary500,
+                      width: 2.5.r,
+                      strokeAlign: BorderSide.strokeAlignInside,
+                    ),
                   ),
                   child: Container(
                     alignment: Alignment.center,
@@ -101,9 +102,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(26.r),
                       border: Border.all(
-                          color: AppColors.secondary500,
-                          width: 2.5.r,
-                          strokeAlign: BorderSide.strokeAlignInside),
+                        color: AppColors.secondary500,
+                        width: 2.5.r,
+                        strokeAlign: BorderSide.strokeAlignInside,
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -136,69 +138,76 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                 ),
                 const SizedBox(height: 8),
                 Container(
-                    width: 291.w,
-                    height: 70,
-                    padding: EdgeInsets.only(left: 12.w),
-                    decoration: BoxDecoration(
-                      color: AppColors.grey00,
-                      borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(
-                        color: AppColors.primary500,
-                        width: 1.5.r,
-                        strokeAlign: BorderSide.strokeAlignInside,
-                      ),
+                  width: 291.w,
+                  height: 70,
+                  padding: EdgeInsets.only(left: 12.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey00,
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: AppColors.primary500,
+                      width: 1.5.r,
+                      strokeAlign: BorderSide.strokeAlignInside,
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(48.r),
-                          child: ProfileImageContainer(
-                            avatarUrl: userInfo.value?.avatarUrl,
-                            width: 48,
-                            height: 48,
-                            borderRadius: 48,
-                          ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(48.r),
+                        child: ProfileImageContainer(
+                          avatarUrl: userInfo.value?.avatarUrl,
+                          width: 48,
+                          height: 48,
+                          borderRadius: 48,
                         ),
-                        SizedBox(width: 16.w),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              userInfo.value?.nickname ?? '',
-                              style: getTextStyle(
-                                  AppTypo.caption12B, AppColors.grey900),
+                      ),
+                      SizedBox(width: 16.w),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userInfo.value?.nickname ?? '',
+                            style: getTextStyle(
+                              AppTypo.caption12B,
+                              AppColors.grey900,
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              () {
-                                try {
-                                  final updatedAtStr =
-                                      widget.result['updatedAt'] as String?;
-                                  if (updatedAtStr == null) {
-                                    return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
-                                  }
-                                  final parsedDate =
-                                      DateTime.tryParse(updatedAtStr);
-                                  if (parsedDate == null) {
-                                    return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
-                                  }
-                                  return '${DateFormat('yyyy.MM.dd HH:mm').format(parsedDate.add(const Duration(hours: 9)))}(KST)';
-                                } catch (e) {
-                                  logger.w(
-                                      'Failed to parse updatedAt: ${widget.result['updatedAt']}, error: $e');
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            () {
+                              try {
+                                final updatedAtStr =
+                                    widget.result['updatedAt'] as String?;
+                                if (updatedAtStr == null) {
                                   return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
                                 }
-                              }(),
-                              style: getTextStyle(
-                                  AppTypo.caption12R, AppColors.grey600),
-                              overflow: TextOverflow.ellipsis,
+                                final parsedDate = DateTime.tryParse(
+                                  updatedAtStr,
+                                );
+                                if (parsedDate == null) {
+                                  return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
+                                }
+                                return '${DateFormat('yyyy.MM.dd HH:mm').format(parsedDate.add(const Duration(hours: 9)))}(KST)';
+                              } catch (e) {
+                                logger.w(
+                                  'Failed to parse updatedAt: ${widget.result['updatedAt']}, error: $e',
+                                );
+                                return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
+                              }
+                            }(),
+                            style: getTextStyle(
+                              AppTypo.caption12R,
+                              AppColors.grey600,
                             ),
-                          ],
-                        ),
-                      ],
-                    )),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Container(
                   width: 291.w,
@@ -216,7 +225,11 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                     children: [
                       Container(
                         padding: EdgeInsets.only(
-                            top: 8, bottom: 8, left: 24.w, right: 24.w),
+                          top: 8,
+                          bottom: 8,
+                          left: 24.w,
+                          right: 24.w,
+                        ),
                         alignment: Alignment.center,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -247,8 +260,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       Container(
                         padding: EdgeInsets.only(right: 16.w),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               flex: 1,
@@ -263,12 +275,15 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                             0 &&
                                         widget.voteItemModel.artist != null) {
                                       return _artist(
-                                          widget.voteItemModel.artist!);
+                                        widget.voteItemModel.artist!,
+                                      );
                                     } else if (widget
-                                            .voteItemModel.artistGroup !=
+                                            .voteItemModel
+                                            .artistGroup !=
                                         null) {
                                       return _group(
-                                          widget.voteItemModel.artistGroup!);
+                                        widget.voteItemModel.artistGroup!,
+                                      );
                                     } else {
                                       // fallback: 기본 위젯 반환
                                       return [
@@ -288,8 +303,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                         const SizedBox(height: 4),
                                         Text(
                                           'Unknown Artist',
-                                          style: getTextStyle(AppTypo.body16B,
-                                              AppColors.grey900),
+                                          style: getTextStyle(
+                                            AppTypo.body16B,
+                                            AppColors.grey900,
+                                          ),
                                           textAlign: TextAlign.center,
                                         ),
                                       ];
@@ -298,37 +315,18 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                 ),
                               ),
                             ),
+                            SizedBox(width: 12.w),
                             Expanded(
                               flex: 1,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    NumberFormat.decimalPattern().format(
-                                        widget.result['existingVoteTotal']),
-                                    style: getTextStyle(
-                                        AppTypo.caption12B, AppColors.grey400),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    '+${NumberFormat.decimalPattern().format(widget.result['addedVoteTotal'])}',
-                                    style: getTextStyle(
-                                        AppTypo.body14B, AppColors.primary500),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    NumberFormat.decimalPattern().format(
-                                        widget.result['updatedVoteTotal']),
-                                    style: getTextStyle(
-                                        AppTypo.title18B, AppColors.primary500),
-                                  ),
-                                ],
+                              child: SizedBox(
+                                height: 120,
+                                child: _buildVoteAmountHighlight(),
                               ),
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(height: 4),
                     ],
                   ),
                 ),
@@ -342,8 +340,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       ShareUtils.saveImage(
                         _globalKey,
                         onStart: () {
-                          OverlayLoadingProgress.start(context,
-                              color: AppColors.primary500);
+                          OverlayLoadingProgress.start(
+                            context,
+                            color: AppColors.primary500,
+                          );
                           setState(() => _isSaving = true);
                         },
                         onComplete: () {
@@ -356,14 +356,18 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       if (_isSaving) return;
                       final artist = (widget.voteItemModel.artist?.id ?? 0) != 0
                           ? getLocaleTextFromJson(
-                              widget.voteItemModel.artist?.name ?? {})
+                              widget.voteItemModel.artist?.name ?? {},
+                            )
                           : getLocaleTextFromJson(
-                              widget.voteItemModel.artistGroup?.name ?? {});
-                      final voteTitle =
-                          getLocaleTextFromJson(widget.voteModel.title);
+                              widget.voteItemModel.artistGroup?.name ?? {},
+                            );
+                      final voteTitle = getLocaleTextFromJson(
+                        widget.voteModel.title,
+                      );
 
                       logger.i(
-                          'Environment.appLinkPrefix: ${Environment.appLinkPrefix}');
+                        'Environment.appLinkPrefix: ${Environment.appLinkPrefix}',
+                      );
                       if (navigatorKey.currentContext != null) {
                         ShareUtils.shareToSocial(
                           _globalKey,
@@ -372,11 +376,14 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                           hashtag:
                               '#Picnic #Vote #PicnicApp #${voteTitle.replaceAll(' ', '')}',
                           downloadLink: await createBranchLink(
-                              getLocaleTextFromJson(widget.voteModel.title),
-                              '${Environment.appLinkPrefix}/vote/detail/${widget.voteModel.id}'),
+                            getLocaleTextFromJson(widget.voteModel.title),
+                            '${Environment.appLinkPrefix}/vote/detail/${widget.voteModel.id}',
+                          ),
                           onStart: () {
-                            OverlayLoadingProgress.start(context,
-                                color: AppColors.primary500);
+                            OverlayLoadingProgress.start(
+                              context,
+                              color: AppColors.primary500,
+                            );
                             setState(() => _isSaving = true);
                           },
                           onComplete: () {
@@ -388,15 +395,67 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                     },
                   ),
                 SizedBox(height: 4),
-                Image.asset(
-                  'assets/app_icon_128.png',
-                  width: 50,
-                ),
+                Image.asset('assets/app_icon_128.png', width: 50),
               ],
             ),
           ),
           closeButton: _isSaving ? Container() : null,
         ),
+      ),
+    );
+  }
+
+  Widget _buildVoteAmountHighlight() {
+    final addedVoteTotal =
+        (widget.result['addedVoteTotal'] as num?)?.toInt() ?? 0;
+
+    return Container(
+      height: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        gradient: LinearGradient(
+          colors: [AppColors.primary500, AppColors.secondary500],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: Colors.white.withOpacity(0.35), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary500.withOpacity(0.35),
+            blurRadius: 14,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            AppLocalizations.of(context).vote_completed_message,
+            style: getTextStyle(
+              AppTypo.caption12B,
+              Colors.white.withOpacity(0.9),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          TweenAnimationBuilder<int>(
+            tween: IntTween(begin: 0, end: addedVoteTotal),
+            duration: const Duration(milliseconds: 900),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, _) {
+              return Text(
+                '+${NumberFormat.decimalPattern().format(value)}',
+                style: getTextStyle(
+                  AppTypo.title18B,
+                  Colors.white,
+                ).copyWith(fontSize: 26.sp, height: 1),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -424,8 +483,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
       if (artist.artistGroup?.name != null)
         Text(
           getLocaleTextFromJson(artist.artistGroup!.name),
-          style: getTextStyle(AppTypo.caption12R, AppColors.grey600)
-              .copyWith(height: .8),
+          style: getTextStyle(
+            AppTypo.caption12R,
+            AppColors.grey600,
+          ).copyWith(height: .8),
           textAlign: TextAlign.center,
         ),
     ];
@@ -454,8 +515,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
       ),
       Text(
         getLocaleTextFromJson(group.name),
-        style: getTextStyle(AppTypo.caption12R, AppColors.grey600)
-            .copyWith(height: .8),
+        style: getTextStyle(
+          AppTypo.caption12R,
+          AppColors.grey600,
+        ).copyWith(height: .8),
         textAlign: TextAlign.center,
       ),
     ];

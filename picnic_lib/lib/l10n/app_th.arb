@@ -1255,6 +1255,10 @@
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
+  "vote_completed_message": "โหวตแล้ว!",
+  "@vote_completed_message": {
+    "description": "Auto-generated metadata for key 'vote_completed_message'."
+  },
   "voting_share_benefit_text": "รับ 1 ลูกอมโบนัสสตาร์สำหรับทุก ๆ 100 คะแนนและแบ่งปัน!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."

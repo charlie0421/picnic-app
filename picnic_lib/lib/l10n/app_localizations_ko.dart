@@ -955,6 +955,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vote_share_message => '투표했습니다!';
 
   @override
+  String get vote_completed_message => '투표했습니다!';
+
+  @override
   String get voting_share_benefit_text => '100표마다 보너스 스타캔디 1개 획득 및 공유!';
 
   @override

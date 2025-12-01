@@ -1255,6 +1255,10 @@
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
+  "vote_completed_message": "¡Voté!",
+  "@vote_completed_message": {
+    "description": "Auto-generated metadata for key 'vote_completed_message'."
+  },
   "voting_share_benefit_text": "¡Obtenga 1 caramelo estrella de bonificación por cada 100 votos y comparta!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."

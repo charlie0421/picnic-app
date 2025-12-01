@@ -956,6 +956,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vote_share_message => '投票完了！';
 
   @override
+  String get vote_completed_message => '投票しました！';
+
+  @override
   String get voting_share_benefit_text =>
       '100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！';
 

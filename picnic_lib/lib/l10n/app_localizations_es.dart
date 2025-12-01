@@ -1010,6 +1010,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vote_share_message => '¡Votado!';
 
   @override
+  String get vote_completed_message => '¡Voté!';
+
+  @override
   String get voting_share_benefit_text =>
       '¡Obtenga 1 caramelo estrella de bonificación por cada 100 votos y comparta!';
 

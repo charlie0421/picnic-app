@@ -1255,6 +1255,10 @@
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
+  "vote_completed_message": "আমি ভোট দিয়েছি!",
+  "@vote_completed_message": {
+    "description": "Auto-generated metadata for key 'vote_completed_message'."
+  },
   "voting_share_benefit_text": "প্রতি 100 ভোটের জন্য 1 বোনাস স্টার ক্যান্ডি পান এবং ভাগ করুন!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."

@@ -1255,6 +1255,10 @@
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
+  "vote_completed_message": "我已投票！",
+  "@vote_completed_message": {
+    "description": "Auto-generated metadata for key 'vote_completed_message'."
+  },
   "voting_share_benefit_text": "每 100 次投票和分享可获得 1 颗奖励星星糖果！",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."

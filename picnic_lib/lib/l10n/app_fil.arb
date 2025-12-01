@@ -1254,6 +1254,10 @@
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
+  "vote_completed_message": "Nakaboto na ako!",
+  "@vote_completed_message": {
+    "description": "Auto-generated metadata for key 'vote_completed_message'."
+  },
   "voting_share_benefit_text": "Kumuha ng 1 bonus star candy para sa bawat 100 boto at ibahagi!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."

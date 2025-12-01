@@ -994,6 +994,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get vote_share_message => 'Bình chọn!';
 
   @override
+  String get vote_completed_message => 'Tôi đã bình chọn!';
+
+  @override
   String get voting_share_benefit_text =>
       'Nhận 1 Candy Star Bonus cho mỗi 100 phiếu bầu và chia sẻ!';
 

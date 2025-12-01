@@ -1977,6 +1977,12 @@ abstract class AppLocalizations {
   /// **'Voted!'**
   String get vote_share_message;
 
+  /// Auto-generated metadata for key 'vote_completed_message'.
+  ///
+  /// In en, this message translates to:
+  /// **'I voted!'**
+  String get vote_completed_message;
+
   /// Auto-generated metadata for key 'voting_share_benefit_text'.
   ///
   /// In en, this message translates to:
