@@ -11,6 +11,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_input.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_item.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_reply_layer.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
@@ -347,6 +348,9 @@ class _CommentListState extends ConsumerState<CommentList> {
                   id: widget.id,
                   pagingController: _pagingController,
                   onPostComment: (postId, parentId, locale, content) async {
+                    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+                      return;
+                    }
                     final commentsNotifier = ref.read(
                       commentsNotifierProvider(widget.id, 1, _pageSize)
                           .notifier,

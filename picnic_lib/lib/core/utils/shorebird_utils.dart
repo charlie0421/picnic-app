@@ -1,9 +1,29 @@
+import 'dart:async';
+
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
-import 'dart:async';
 import 'package:universal_platform/universal_platform.dart';
 
 final updater = shorebird.ShorebirdUpdater();
+
+class PatchStatusCheckResult {
+  final shorebird.UpdateStatus status;
+  final int? currentPatchNumber;
+
+  const PatchStatusCheckResult({required this.status, this.currentPatchNumber});
+}
+
+enum PatchStatusError { webUnsupported, generic }
+
+class PatchStatusException implements Exception {
+  final PatchStatusError code;
+  final String? message;
+
+  const PatchStatusException(this.code, {this.message});
+
+  @override
+  String toString() => 'PatchStatusException(code: $code, message: $message)';
+}
 
 class ShorebirdUtils {
   static Future<void> checkAndUpdate() async {
@@ -28,7 +48,8 @@ class ShorebirdUtils {
         // 패치가 실제로 변경되었는지 확인
         if (patchBefore?.number != patchAfter?.number) {
           logger.i(
-              '✅ Shorebird 업데이트 성공적으로 완료 (${patchBefore?.number} → ${patchAfter?.number})');
+            '✅ Shorebird 업데이트 성공적으로 완료 (${patchBefore?.number} → ${patchAfter?.number})',
+          );
         } else {
           logger.w('⚠️ Shorebird 업데이트가 완료되었지만 패치 번호가 변경되지 않음');
         }
@@ -53,50 +74,34 @@ class ShorebirdUtils {
   }
 
   /// 간단한 패치 상태 확인 (설정 페이지용)
-  static Future<String> checkPatchStatusForSettings() async {
-    try {
-      if (UniversalPlatform.isWeb) {
-        return '웹 환경에서는 패치 기능을 사용할 수 없습니다.';
-      }
+  static Future<PatchStatusCheckResult> checkPatchStatusForSettings() async {
+    if (UniversalPlatform.isWeb) {
+      throw const PatchStatusException(PatchStatusError.webUnsupported);
+    }
 
+    try {
       logger.i('🔍 설정 페이지 패치 상태 확인');
 
-      // 현재 패치 정보 확인
       final currentPatch = await updater.readCurrentPatch();
-      final currentPatchNumber = currentPatch?.number;
-
-      logger.i('📋 현재 패치: ${currentPatchNumber ?? "없음"}');
 
       // 서버에서 새 패치 확인 (10초 타임아웃)
       final status = await updater.checkForUpdate().timeout(
-            Duration(seconds: 10),
-            onTimeout: () => shorebird.UpdateStatus.unavailable,
-          );
+        Duration(seconds: 10),
+        onTimeout: () => shorebird.UpdateStatus.unavailable,
+      );
 
-      switch (status) {
-        case shorebird.UpdateStatus.upToDate:
-          return currentPatchNumber != null
-              ? 'Patch $currentPatchNumber (최신)'
-              : '최신 버전 (패치 없음)';
+      logger.i('📋 현재 패치: ${currentPatch?.number ?? "없음"}, 상태: $status');
 
-        case shorebird.UpdateStatus.outdated:
-          return currentPatchNumber != null
-              ? 'Patch $currentPatchNumber (업데이트 가능)'
-              : '새 패치 사용 가능';
-
-        case shorebird.UpdateStatus.unavailable:
-          return currentPatchNumber != null
-              ? 'Patch $currentPatchNumber (오프라인)'
-              : '패치 확인 불가';
-
-        default:
-          return currentPatchNumber != null
-              ? 'Patch $currentPatchNumber (상태 불명)'
-              : '패치 상태 불명';
-      }
-    } catch (e) {
-      logger.e('❌ 설정 페이지 패치 상태 확인 실패: $e');
-      return '패치 상태 확인 실패';
+      return PatchStatusCheckResult(
+        status: status,
+        currentPatchNumber: currentPatch?.number,
+      );
+    } catch (e, stackTrace) {
+      logger.e('❌ 설정 페이지 패치 상태 확인 실패: $e', stackTrace: stackTrace);
+      throw PatchStatusException(
+        PatchStatusError.generic,
+        message: e.toString(),
+      );
     }
   }
 }

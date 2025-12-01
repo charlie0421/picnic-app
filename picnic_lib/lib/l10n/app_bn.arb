@@ -1,17 +1,141 @@
 {
-  "@@locale": "bn"
-  ,
+  "@@locale": "bn",
   "ad_close_confirm_title": "বিজ্ঞাপনটি বন্ধ করবেন?",
-  "@ad_close_confirm_title": {"description": "বিজ্ঞাপন বন্ধের নিশ্চিতকরণ ডায়ালগের শিরোনাম"},
+  "@ad_close_confirm_title": {
+    "description": "বিজ্ঞাপন বন্ধের নিশ্চিতকরণ ডায়ালগের শিরোনাম"
+  },
   "ad_close_confirm_message": "এখন বন্ধ করলে বোনাস পাওয়া যাবে না। আপনি কি সত্যিই বন্ধ করতে চান?",
-  "@ad_close_confirm_message": {"description": "বিজ্ঞাপন বন্ধের নিশ্চিতকরণ বার্তা"},
+  "@ad_close_confirm_message": {
+    "description": "বিজ্ঞাপন বন্ধের নিশ্চিতকরণ বার্তা"
+  },
   "ad_more_info_button": "আরও জানুন",
-  "@ad_more_info_button": {"description": "বিজ্ঞাপন শেষ হলে CTA বাটন"},
+  "@ad_more_info_button": {
+    "description": "বিজ্ঞাপন শেষ হলে CTA বাটন"
+  },
   "ad_reward_success_message": "রিওয়ার্ড জমা হয়েছে।",
-  "@ad_reward_success_message": {"description": "বিজ্ঞাপন দেখার রিওয়ার্ড মেসেজ"},
+  "@ad_reward_success_message": {
+    "description": "বিজ্ঞাপন দেখার রিওয়ার্ড মেসেজ"
+  },
   "weekly_vote_info_title": "🎖️ সাপ্তাহিক ভোট নির্দেশিকা",
-  "@weekly_vote_info_title": {"description": "সাপ্তাহিক ভোট তথ্য পপআপ শিরোনাম"},
-  "weekly_vote_info_body": "পিকনিকের Hall of Fame Award প্রতি সপ্তাহে অনুষ্ঠিত হয়!\n\nপ্রতি সপ্তাহের বিজয়ী বছরশেষের 'Hall of Fame Award'-এর প্রার্থী হিসেবে স্বয়ংক্রিয়ভাবে নিবন্ধিত হয়,\n\nএবং বছরে মোট ৫০ জন সাপ্তাহিক বিজয়ী নির্বাচিত হয়।\n\n(※ একটি শিল্পী একবার জিতলে, সেই বছরে সাপ্তাহিক ভোটের প্রার্থী থেকে বাদ দেওয়া হয়।)"
+  "@weekly_vote_info_title": {
+    "description": "সাপ্তাহিক ভোট তথ্য পপআপ শিরোনাম"
+  },
+  "weekly_vote_info_body": "পিকনিকের Hall of Fame Award প্রতি সপ্তাহে অনুষ্ঠিত হয়!\n\nপ্রতি সপ্তাহের বিজয়ী বছরশেষের 'Hall of Fame Award'-এর প্রার্থী হিসেবে স্বয়ংক্রিয়ভাবে নিবন্ধিত হয়,\n\nএবং বছরে মোট ৫০ জন সাপ্তাহিক বিজয়ী নির্বাচিত হয়।\n\n(※ একটি শিল্পী একবার জিতলে, সেই বছরে সাপ্তাহিক ভোটের প্রার্থী থেকে বাদ দেওয়া হয়।)",
+  "label_setting_patch_section_title": "Patch status",
+  "@label_setting_patch_section_title": {
+    "description": "Title for the patch status section in Settings."
+  },
+  "label_setting_patch_check_button": "Check for patches",
+  "@label_setting_patch_check_button": {
+    "description": "Button label for manually checking Shorebird patches."
+  },
+  "label_setting_patch_apply_button": "Apply update",
+  "@label_setting_patch_apply_button": {
+    "description": "Button label for manually applying a downloaded patch."
+  },
+  "label_setting_patch_checking": "Checking...",
+  "@label_setting_patch_checking": {
+    "description": "Status text shown while patch status check is running."
+  },
+  "label_setting_patch_last_checked": "Last checked: {time}",
+  "@label_setting_patch_last_checked": {
+    "description": "Label that shows when the patch status was last checked.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "label_setting_patch_status_restart_required": "Update ready (restart required)",
+  "@label_setting_patch_status_restart_required": {
+    "description": "Status label when a restart is required to apply a patch."
+  },
+  "label_setting_patch_status_downloaded": "Update downloaded",
+  "@label_setting_patch_status_downloaded": {
+    "description": "Status label when a patch has been downloaded."
+  },
+  "label_setting_patch_status_available": "Update available",
+  "@label_setting_patch_status_available": {
+    "description": "Status label when a patch is available."
+  },
+  "label_setting_patch_status_current_patch": "Current patch: {patchNumber}",
+  "@label_setting_patch_status_current_patch": {
+    "description": "Status label showing the current patch number.",
+    "placeholders": {
+      "patchNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "label_setting_patch_status_none": "No patch applied",
+  "@label_setting_patch_status_none": {
+    "description": "Status label when no patch is applied."
+  },
+  "message_setting_patch_restart_hint": "A new patch has been downloaded. Tap Restart to apply it.",
+  "@message_setting_patch_restart_hint": {
+    "description": "Hint shown when a restart is required after downloading a patch."
+  },
+  "message_setting_patch_web_not_supported": "Patch updates aren't available on web.",
+  "@message_setting_patch_web_not_supported": {
+    "description": "Warning shown when patch actions are attempted on web platforms."
+  },
+  "message_setting_patch_update_available": "A new patch is available.",
+  "@message_setting_patch_update_available": {
+    "description": "Snackbar text when a patch update is available."
+  },
+  "message_setting_patch_update_success": "Patch update complete! Restart the app.",
+  "@message_setting_patch_update_success": {
+    "description": "Snackbar text when a patch update completes successfully."
+  },
+  "message_setting_patch_update_failed": "Failed to apply the patch: {error}",
+  "@message_setting_patch_update_failed": {
+    "description": "Snackbar text when applying a patch fails.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "message_setting_patch_status_failed": "Failed to check patch status: {error}",
+  "@message_setting_patch_status_failed": {
+    "description": "Snackbar text when checking patch status fails.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "message_setting_patch_status_unavailable": "Patch status unavailable. Please try again later.",
+  "@message_setting_patch_status_unavailable": {
+    "description": "Snackbar text when patch status is unavailable (e.g., offline)."
+  },
+  "message_setting_patch_up_to_date": "You're already on the latest patch.",
+  "@message_setting_patch_up_to_date": {
+    "description": "Snackbar text when the user is already on the latest patch."
+  },
+  "dialog_setting_restart_title": "Restart app",
+  "@dialog_setting_restart_title": {
+    "description": "Title for the restart confirmation dialog on the Settings page."
+  },
+  "dialog_setting_restart_body": "A new update is ready. The app will restart to apply the changes.\n\nContinue?",
+  "@dialog_setting_restart_body": {
+    "description": "Body text for the restart confirmation dialog on the Settings page."
+  },
+  "button_restart": "Restart",
+  "@button_restart": {
+    "description": "Label for restart buttons."
+  },
+  "button_update": "Update",
+  "@button_update": {
+    "description": "Label for update buttons."
+  },
+  "label_setting_patch_number": " / Patch: {patchNumber}",
+  "@label_setting_patch_number": {
+    "description": "Suffix appended to build information to show the current patch number.",
+    "placeholders": {
+      "patchNumber": {
+        "type": "int"
+      }
+    }
+  }
 }
-
- 

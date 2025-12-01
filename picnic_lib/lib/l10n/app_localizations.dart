@@ -2900,6 +2900,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'What is Weekly Vote?'**
   String get weekly_vote_info_link;
+
+  /// Title for the patch status section in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Patch status'**
+  String get label_setting_patch_section_title;
+
+  /// Button label for manually checking Shorebird patches.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for patches'**
+  String get label_setting_patch_check_button;
+
+  /// Button label for manually applying a downloaded patch.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply update'**
+  String get label_setting_patch_apply_button;
+
+  /// Status text shown while patch status check is running.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking...'**
+  String get label_setting_patch_checking;
+
+  /// Label that shows when the patch status was last checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Last checked: {time}'**
+  String label_setting_patch_last_checked(String time);
+
+  /// Status label when a restart is required to apply a patch.
+  ///
+  /// In en, this message translates to:
+  /// **'Update ready (restart required)'**
+  String get label_setting_patch_status_restart_required;
+
+  /// Status label when a patch has been downloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Update downloaded'**
+  String get label_setting_patch_status_downloaded;
+
+  /// Status label when a patch is available.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available'**
+  String get label_setting_patch_status_available;
+
+  /// Status label showing the current patch number.
+  ///
+  /// In en, this message translates to:
+  /// **'Current patch: {patchNumber}'**
+  String label_setting_patch_status_current_patch(int patchNumber);
+
+  /// Status label when no patch is applied.
+  ///
+  /// In en, this message translates to:
+  /// **'No patch applied'**
+  String get label_setting_patch_status_none;
+
+  /// Hint shown when a restart is required after downloading a patch.
+  ///
+  /// In en, this message translates to:
+  /// **'A new patch has been downloaded. Tap Restart to apply it.'**
+  String get message_setting_patch_restart_hint;
+
+  /// Warning shown when patch actions are attempted on web platforms.
+  ///
+  /// In en, this message translates to:
+  /// **'Patch updates aren\'t available on web.'**
+  String get message_setting_patch_web_not_supported;
+
+  /// Snackbar text when a patch update is available.
+  ///
+  /// In en, this message translates to:
+  /// **'A new patch is available.'**
+  String get message_setting_patch_update_available;
+
+  /// Snackbar text when a patch update completes successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Patch update complete! Restart the app.'**
+  String get message_setting_patch_update_success;
+
+  /// Snackbar text when applying a patch fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to apply the patch: {error}'**
+  String message_setting_patch_update_failed(String error);
+
+  /// Snackbar text when checking patch status fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to check patch status: {error}'**
+  String message_setting_patch_status_failed(String error);
+
+  /// Snackbar text when patch status is unavailable (e.g., offline).
+  ///
+  /// In en, this message translates to:
+  /// **'Patch status unavailable. Please try again later.'**
+  String get message_setting_patch_status_unavailable;
+
+  /// Snackbar text when the user is already on the latest patch.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re already on the latest patch.'**
+  String get message_setting_patch_up_to_date;
+
+  /// Title for the restart confirmation dialog on the Settings page.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart app'**
+  String get dialog_setting_restart_title;
+
+  /// Body text for the restart confirmation dialog on the Settings page.
+  ///
+  /// In en, this message translates to:
+  /// **'A new update is ready. The app will restart to apply the changes.\n\nContinue?'**
+  String get dialog_setting_restart_body;
+
+  /// Label for restart buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get button_restart;
+
+  /// Label for update buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get button_update;
+
+  /// Suffix appended to build information to show the current patch number.
+  ///
+  /// In en, this message translates to:
+  /// **' / Patch: {patchNumber}'**
+  String label_setting_patch_number(int patchNumber);
 }
 
 class _AppLocalizationsDelegate

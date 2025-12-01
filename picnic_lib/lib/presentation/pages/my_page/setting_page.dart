@@ -8,6 +8,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
@@ -39,6 +40,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
   String buildNumber = '';
   bool _isRestartingApp = false;
   bool _isCheckingPatch = false;
+  bool _isManualPatchUpdating = false;
   String? _currentTitle;
 
   Future<bool> _getFuture1() async {
@@ -89,6 +91,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
     final userInfoState = ref.watch(userInfoProvider);
     final updateChecker = ref.watch(checkUpdateProvider);
     final patchInfo = ref.watch(patchInfoProvider);
+    final l10n = AppLocalizations.of(context);
 
     return userInfoState.when(
       data: (data) => Container(
@@ -215,7 +218,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
                         margin: EdgeInsets.only(right: 8.w),
                         alignment: Alignment.centerRight,
                         child: Text(
-                          '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                          '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? l10n.label_setting_patch_number(patchInfo.currentPatch!) : ''}',
                           style: getTextStyle(
                             AppTypo.caption12B,
                             AppColors.primary500,
@@ -232,7 +235,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
                         margin: EdgeInsets.only(right: 8.w),
                         alignment: Alignment.centerRight,
                         child: Text(
-                          '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                          '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? l10n.label_setting_patch_number(patchInfo.currentPatch!) : ''}',
                           style: getTextStyle(
                             AppTypo.caption12B,
                             AppColors.primary500,
@@ -257,7 +260,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
                         margin: EdgeInsets.only(right: 8.w),
                         alignment: Alignment.centerRight,
                         child: Text(
-                          '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                          '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? l10n.label_setting_patch_number(patchInfo.currentPatch!) : ''}',
                           style: getTextStyle(
                             AppTypo.caption12B,
                             AppColors.primary500,
@@ -282,7 +285,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
                         margin: EdgeInsets.only(right: 8.w),
                         alignment: Alignment.centerRight,
                         child: Text(
-                          '${AppLocalizations.of(context).label_setting_recent_version_up_to_date} 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                          '${AppLocalizations.of(context).label_setting_recent_version_up_to_date} 빌드: $buildNumber${patchInfo.currentPatch != null ? l10n.label_setting_patch_number(patchInfo.currentPatch!) : ''}',
                           style: getTextStyle(
                             AppTypo.caption12B,
                             AppColors.secondary500,
@@ -299,7 +302,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
             ),
             // 패치 정보 및 수동 재시작
             PicnicListItem(
-              leading: 'Patch Status',
+              leading: l10n.label_setting_patch_section_title,
               title: Container(
                 margin: EdgeInsets.only(right: 8.w),
                 alignment: Alignment.centerRight,
@@ -324,8 +327,8 @@ class _SettingPageState extends ConsumerState<SettingPage>
                           ),
                         Text(
                           _isCheckingPatch
-                              ? 'Checking...'
-                              : patchInfo.displayInfo,
+                              ? l10n.label_setting_patch_checking
+                              : _localizedPatchStatusText(l10n, patchInfo),
                           style: getTextStyle(
                             AppTypo.caption12B,
                             patchInfo.canRestart
@@ -338,12 +341,49 @@ class _SettingPageState extends ConsumerState<SettingPage>
                     ),
                     if (patchInfo.lastChecked != null && !_isCheckingPatch)
                       Text(
-                        'Last checked: ${_formatTime(patchInfo.lastChecked!)}',
+                        l10n.label_setting_patch_last_checked(
+                          _formatTime(patchInfo.lastChecked!),
+                        ),
                         style: getTextStyle(
                           AppTypo.caption10SB,
                           AppColors.grey500,
                         ),
                         textAlign: TextAlign.end,
+                      ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      alignment: WrapAlignment.end,
+                      children: [
+                        _buildPatchActionButton(
+                          label: l10n.label_setting_patch_check_button,
+                          onTap: _isCheckingPatch
+                              ? null
+                              : () => _handlePatchStatusTap(),
+                          isPrimary: false,
+                          isLoading: _isCheckingPatch,
+                        ),
+                        _buildPatchActionButton(
+                          label: l10n.label_setting_patch_apply_button,
+                          onTap: _isManualPatchUpdating
+                              ? null
+                              : () => _handleManualPatchUpdate(context),
+                          isLoading: _isManualPatchUpdating,
+                        ),
+                      ],
+                    ),
+                    if (patchInfo.needsRestart)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          l10n.message_setting_patch_restart_hint,
+                          style: getTextStyle(
+                            AppTypo.caption10SB,
+                            AppColors.primary500,
+                          ),
+                          textAlign: TextAlign.end,
+                        ),
                       ),
                   ],
                 ),
@@ -360,6 +400,24 @@ class _SettingPageState extends ConsumerState<SettingPage>
       loading: () => ui.buildLoadingOverlay(),
       error: (error, stackTrace) => Container(),
     );
+  }
+
+  String _localizedPatchStatusText(AppLocalizations l10n, PatchInfo patchInfo) {
+    if (patchInfo.needsRestart) {
+      return l10n.label_setting_patch_status_restart_required;
+    }
+    if (patchInfo.updateDownloaded) {
+      return l10n.label_setting_patch_status_downloaded;
+    }
+    if (patchInfo.hasUpdate) {
+      return l10n.label_setting_patch_status_available;
+    }
+    if (patchInfo.currentPatch != null) {
+      return l10n.label_setting_patch_status_current_patch(
+        patchInfo.currentPatch!,
+      );
+    }
+    return l10n.label_setting_patch_status_none;
   }
 
   /// 시간 포맷팅 (HH:mm 형식)
@@ -380,6 +438,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
 
   /// 수동 재시작 버튼 위젯
   Widget _buildRestartButton(BuildContext context, PatchInfo patchInfo) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       margin: EdgeInsets.only(left: 8.w),
       child: _isRestartingApp
@@ -407,11 +466,70 @@ class _SettingPageState extends ConsumerState<SettingPage>
                   ],
                 ),
                 child: Text(
-                  'Restart',
+                  l10n.button_restart,
                   style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _buildPatchActionButton({
+    required String label,
+    required VoidCallback? onTap,
+    bool isPrimary = true,
+    bool isLoading = false,
+  }) {
+    final isDisabled = onTap == null;
+    final backgroundColor = isPrimary
+        ? AppColors.primary500
+        : AppColors.primary500.withValues(alpha: 0.1);
+    final textColor = isPrimary ? AppColors.grey00 : AppColors.primary500;
+
+    return GestureDetector(
+      onTap: isDisabled ? null : onTap,
+      child: Opacity(
+        opacity: isDisabled ? 0.6 : 1,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.w),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(12),
+            border: isPrimary
+                ? null
+                : Border.all(
+                    color: AppColors.primary500.withValues(alpha: 0.4),
+                    width: 1,
+                  ),
+            boxShadow: isPrimary
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary500.withValues(alpha: 0.25),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : [],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isLoading) ...[
+                SizedBox(
+                  width: 12.w,
+                  height: 12.w,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(textColor),
+                  ),
+                ),
+                SizedBox(width: 6.w),
+              ],
+              Text(label, style: getTextStyle(AppTypo.caption10SB, textColor)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -422,16 +540,18 @@ class _SettingPageState extends ConsumerState<SettingPage>
   ) async {
     if (!patchInfo.canRestart || _isRestartingApp) return;
 
+    final l10n = AppLocalizations.of(context);
+
     // 확인 다이얼로그 표시
     final shouldRestart = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Restart App',
+          l10n.dialog_setting_restart_title,
           style: getTextStyle(AppTypo.body16B, AppColors.grey900),
         ),
         content: Text(
-          'A new update is ready. The app will restart to apply the changes.\n\nContinue?',
+          l10n.dialog_setting_restart_body,
           style: getTextStyle(AppTypo.body14R, AppColors.grey700),
         ),
         actions: [
@@ -442,7 +562,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
               }
             },
             child: Text(
-              'Cancel',
+              l10n.button_cancel,
               style: getTextStyle(AppTypo.body14M, AppColors.grey600),
             ),
           ),
@@ -453,7 +573,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
               }
             },
             child: Text(
-              'Restart',
+              l10n.button_restart,
               style: getTextStyle(AppTypo.body14B, AppColors.primary500),
             ),
           ),
@@ -483,6 +603,63 @@ class _SettingPageState extends ConsumerState<SettingPage>
     }
   }
 
+  /// 수동 패치 다운로드 및 적용
+  Future<void> _handleManualPatchUpdate(BuildContext context) async {
+    if (_isManualPatchUpdating) return;
+
+    final l10n = AppLocalizations.of(context);
+
+    if (UniversalPlatform.isWeb) {
+      SnackbarUtil().warning(
+        l10n.message_setting_patch_web_not_supported,
+        context: context,
+      );
+      return;
+    }
+
+    if (mounted) {
+      setState(() {
+        _isManualPatchUpdating = true;
+      });
+    }
+
+    try {
+      await ShorebirdUtils.checkAndUpdate();
+      final patch = await ShorebirdUtils.checkPatch();
+
+      if (!mounted || !context.mounted) {
+        return;
+      }
+
+      ref.read(patchInfoProvider.notifier).updatePatchInfo({
+        'updateDownloaded': true,
+        'needsRestart': true,
+        'currentPatch': patch?.number,
+        'statusMessage': 'Patch downloaded',
+      });
+
+      SnackbarUtil().success(
+        l10n.message_setting_patch_update_success,
+        context: context,
+      );
+    } catch (e, stackTrace) {
+      logger.e('수동 패치 업데이트 실패: $e', stackTrace: stackTrace);
+      if (!mounted || !context.mounted) {
+        return;
+      }
+      SnackbarUtil().error(
+        l10n.message_setting_patch_update_failed(e.toString()),
+        context: context,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isManualPatchUpdating = false;
+        });
+      }
+    }
+  }
+
   /// 패치 상태 탭 처리 - 수동 패치 확인
   Future<void> _handlePatchStatusTap() async {
     if (_isCheckingPatch) return;
@@ -491,59 +668,64 @@ class _SettingPageState extends ConsumerState<SettingPage>
       _isCheckingPatch = true;
     });
 
+    final l10n = AppLocalizations.of(context);
+
     try {
-      logger.i('🔍 설정 페이지에서 수동 패치 확인 시작');
-
-      // 웹 환경에서는 스킵
-      if (UniversalPlatform.isWeb) {
-        if (mounted) {
-          SnackbarUtil().warning(
-            '웹 환경에서는 패치 기능을 사용할 수 없습니다.',
-            context: context,
-          );
-        }
-        return;
-      }
-
-      // 간단한 패치 상태 확인
-      final patchStatus = await ShorebirdUtils.checkPatchStatusForSettings();
+      final result = await ShorebirdUtils.checkPatchStatusForSettings();
 
       if (mounted) {
-        final hasUpdate = patchStatus.contains('업데이트 가능');
-        if (hasUpdate) {
-          SnackbarUtil().info(
-            patchStatus,
+        ref.read(patchInfoProvider.notifier).updatePatchInfo({
+          'hasUpdate': result.status == shorebird.UpdateStatus.outdated,
+          'currentPatch': result.currentPatchNumber,
+        });
+
+        switch (result.status) {
+          case shorebird.UpdateStatus.outdated:
+            SnackbarUtil().info(
+              l10n.message_setting_patch_update_available,
+              context: context,
+              actionLabel: l10n.button_update,
+              onAction: () async {
+                await _handleManualPatchUpdate(context);
+              },
+            );
+            break;
+          case shorebird.UpdateStatus.upToDate:
+            SnackbarUtil().success(
+              l10n.message_setting_patch_up_to_date,
+              context: context,
+            );
+            break;
+          default:
+            SnackbarUtil().info(
+              l10n.message_setting_patch_status_unavailable,
+              context: context,
+            );
+            break;
+        }
+      }
+    } on PatchStatusException catch (error) {
+      if (mounted) {
+        if (error.code == PatchStatusError.webUnsupported) {
+          SnackbarUtil().warning(
+            l10n.message_setting_patch_web_not_supported,
             context: context,
-            actionLabel: '업데이트',
-            onAction: () async {
-              try {
-                await ShorebirdUtils.checkAndUpdate();
-                if (mounted) {
-                  SnackbarUtil().success(
-                    '패치 업데이트 완료! 앱을 재시작하세요.',
-                    context: context,
-                    actionLabel: '재시작',
-                    onAction: () => Phoenix.rebirth(context),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  SnackbarUtil().error('패치 업데이트 실패: $e', context: context);
-                }
-              }
-            },
           );
-        } else if (patchStatus.contains('최신')) {
-          SnackbarUtil().success(patchStatus, context: context);
         } else {
-          SnackbarUtil().info(patchStatus, context: context);
+          SnackbarUtil().error(
+            l10n.message_setting_patch_status_failed(error.message ?? ''),
+            context: context,
+          );
         }
       }
     } catch (e, stackTrace) {
       logger.e('❌ 패치 상태 확인 중 오류 발생: $e', stackTrace: stackTrace);
 
       if (mounted) {
-        SnackbarUtil().error('패치 상태 확인 실패: $e', context: context);
+        SnackbarUtil().error(
+          l10n.message_setting_patch_status_failed(e.toString()),
+          context: context,
+        );
       }
     } finally {
       if (mounted) {
@@ -561,9 +743,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
       if (!mounted) return;
       ref
           .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(
-            pageTitle: title,
-          );
+          .setMyPageTitle(pageTitle: title);
     });
   }
 }

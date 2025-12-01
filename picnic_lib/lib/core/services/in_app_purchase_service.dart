@@ -154,10 +154,18 @@ class InAppPurchaseService {
     // iOS에서는 SKPaymentQueue를 직접 정리하여 안정성을 높입니다.
     if (Platform.isIOS) {
       await _clearIosPendingTransactions();
+      // iOS는 StoreKit 복원 경로가 있으므로 기존처럼 pending 구매를 정리한다.
+      await _processPendingTransactions();
+    } else if (Platform.isAndroid) {
+      // Android는 구매를 소비(completePurchase)하면 purchaseToken을 다시 받을 수 없으므로
+      // 자동 정리를 건너뛰고, PurchaseService 측의 큐/재검증 로직에 맡긴다.
+      logger.i(
+        '🤖 Android: pending 구매 자동 정리를 생략합니다 (영수증 검증 이전 소비 방지)',
+      );
+    } else {
+      // 기타 플랫폼은 기존 동작 유지
+      await _processPendingTransactions();
     }
-
-    // 모든 플랫폼에서 플러그인을 통한 정리를 한 번 더 수행합니다.
-    await _processPendingTransactions();
     logger.i('✨ 앱 시작: 처리되지 않은 구매 정리 완료');
   }
 
@@ -560,7 +568,13 @@ class InAppPurchaseService {
 
     try {
       // 🧹 1단계: 실제 pending 구매들을 찾아서 완료 처리
-      await _processPendingTransactions();
+      if (Platform.isIOS) {
+        await _processPendingTransactions();
+      } else if (Platform.isAndroid) {
+        logger.i('🤖 Android: pending 구매 자동 정리를 건너뜁니다 (수동 검증 필요)');
+      } else {
+        await _processPendingTransactions();
+      }
 
       // 🧹 2단계: 캐시 클리어 및 재초기화
       if (Platform.isIOS) {

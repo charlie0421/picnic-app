@@ -7,23 +7,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/app.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const App());
+  testWidgets('앱이 ProviderScope 안에서 빌드된다', (tester) async {
+    // ProviderScope를 함께 Pump해서 Riverpod 의존성을 충족하고,
+    // UI가 예외 없이 한 프레임이라도 그려지는지만 확인한다.
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: App(),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Splash 화면의 기본 요소가 존재하는지 정도만 확인한다.
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

@@ -1295,11 +1295,17 @@
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
   "action_copy": "Kopyahin",
-  "@action_copy": {"description": "Copy button label"},
+  "@action_copy": {
+    "description": "Copy button label"
+  },
   "text_copied": "Nakopya.",
-  "@text_copied": {"description": "Shown after copying text to clipboard"},
+  "@text_copied": {
+    "description": "Shown after copying text to clipboard"
+  },
   "ban_support_instruction": "Pakikopya ang mga log sa ibaba at makipag-ugnayan sa suporta.",
-  "@ban_support_instruction": {"description": "Instruction to copy logs and contact support"},
+  "@ban_support_instruction": {
+    "description": "Instruction to copy logs and contact support"
+  },
   "compatibility_empty_state_title": "Walang impormasyon sa pagiging tugma",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
@@ -1892,21 +1898,153 @@
     "description": "QnA status when resolved/closed"
   },
   "qna_category_label": "Kategorya",
-  "@qna_category_label": {"description": "QnA category label"},
+  "@qna_category_label": {
+    "description": "QnA category label"
+  },
   "qna_category_required": "Pumili ng kategorya",
-  "@qna_category_required": {"description": "Error message when category is required"},
+  "@qna_category_required": {
+    "description": "Error message when category is required"
+  },
   "ad_close_confirm_title": "Isara ang ad?",
-  "@ad_close_confirm_title": {"description": "Pamagat ng dialog para sa pagsasara ng ad"},
+  "@ad_close_confirm_title": {
+    "description": "Pamagat ng dialog para sa pagsasara ng ad"
+  },
   "ad_close_confirm_message": "Kapag isinara ngayon, hindi matatanggap ang bonus. Sigurado ka bang isasara?",
-  "@ad_close_confirm_message": {"description": "Mensahe ng dialog para sa pagsasara ng ad"},
+  "@ad_close_confirm_message": {
+    "description": "Mensahe ng dialog para sa pagsasara ng ad"
+  },
   "ad_more_info_button": "Karagdagang Impormasyon",
-  "@ad_more_info_button": {"description": "CTA button pagkatapos ng ad"},
+  "@ad_more_info_button": {
+    "description": "CTA button pagkatapos ng ad"
+  },
   "ad_reward_success_message": "Na-kredito ang gantimpala.",
-  "@ad_reward_success_message": {"description": "Mensahe kapag na-kredito ang gantimpala sa panonood ng ad"},
+  "@ad_reward_success_message": {
+    "description": "Mensahe kapag na-kredito ang gantimpala sa panonood ng ad"
+  },
   "weekly_vote_info_title": "🎖️ Gabay sa Weekly Vote",
-  "@weekly_vote_info_title": {"description": "Pamagat ng popup para sa impormasyong weekly vote"},
-  "weekly_vote_info_body": "Bukas linggo-linggo ang Hall of Fame Award ng Picnic!\n\nAng bawat lingguhang nagwagi ay awtomatikong nakarehistro bilang kandidato sa 'Hall of Fame Award' sa katapusan ng taon,\n\nat kabuuang 50 lingguhang nagwagi ang pipiliin taun-taon.\n\n(※ Kapag nanalo na ang isang artista, hindi na siya kasali bilang kandidato sa weekly vote sa nasabing taon.)"
-  ,
-  "@weekly_vote_info_link": {"description": "Label ng link para sa weekly vote info"},
-  "weekly_vote_info_link": "Ano ang Weekly Vote?"
+  "@weekly_vote_info_title": {
+    "description": "Pamagat ng popup para sa impormasyong weekly vote"
+  },
+  "weekly_vote_info_body": "Bukas linggo-linggo ang Hall of Fame Award ng Picnic!\n\nAng bawat lingguhang nagwagi ay awtomatikong nakarehistro bilang kandidato sa 'Hall of Fame Award' sa katapusan ng taon,\n\nat kabuuang 50 lingguhang nagwagi ang pipiliin taun-taon.\n\n(※ Kapag nanalo na ang isang artista, hindi na siya kasali bilang kandidato sa weekly vote sa nasabing taon.)",
+  "@weekly_vote_info_link": {
+    "description": "Label ng link para sa weekly vote info"
+  },
+  "weekly_vote_info_link": "Ano ang Weekly Vote?",
+  "label_setting_patch_section_title": "Patch status",
+  "@label_setting_patch_section_title": {
+    "description": "Title for the patch status section in Settings."
+  },
+  "label_setting_patch_check_button": "Check for patches",
+  "@label_setting_patch_check_button": {
+    "description": "Button label for manually checking Shorebird patches."
+  },
+  "label_setting_patch_apply_button": "Apply update",
+  "@label_setting_patch_apply_button": {
+    "description": "Button label for manually applying a downloaded patch."
+  },
+  "label_setting_patch_checking": "Checking...",
+  "@label_setting_patch_checking": {
+    "description": "Status text shown while patch status check is running."
+  },
+  "label_setting_patch_last_checked": "Last checked: {time}",
+  "@label_setting_patch_last_checked": {
+    "description": "Label that shows when the patch status was last checked.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "label_setting_patch_status_restart_required": "Update ready (restart required)",
+  "@label_setting_patch_status_restart_required": {
+    "description": "Status label when a restart is required to apply a patch."
+  },
+  "label_setting_patch_status_downloaded": "Update downloaded",
+  "@label_setting_patch_status_downloaded": {
+    "description": "Status label when a patch has been downloaded."
+  },
+  "label_setting_patch_status_available": "Update available",
+  "@label_setting_patch_status_available": {
+    "description": "Status label when a patch is available."
+  },
+  "label_setting_patch_status_current_patch": "Current patch: {patchNumber}",
+  "@label_setting_patch_status_current_patch": {
+    "description": "Status label showing the current patch number.",
+    "placeholders": {
+      "patchNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "label_setting_patch_status_none": "No patch applied",
+  "@label_setting_patch_status_none": {
+    "description": "Status label when no patch is applied."
+  },
+  "message_setting_patch_restart_hint": "A new patch has been downloaded. Tap Restart to apply it.",
+  "@message_setting_patch_restart_hint": {
+    "description": "Hint shown when a restart is required after downloading a patch."
+  },
+  "message_setting_patch_web_not_supported": "Patch updates aren't available on web.",
+  "@message_setting_patch_web_not_supported": {
+    "description": "Warning shown when patch actions are attempted on web platforms."
+  },
+  "message_setting_patch_update_available": "A new patch is available.",
+  "@message_setting_patch_update_available": {
+    "description": "Snackbar text when a patch update is available."
+  },
+  "message_setting_patch_update_success": "Patch update complete! Restart the app.",
+  "@message_setting_patch_update_success": {
+    "description": "Snackbar text when a patch update completes successfully."
+  },
+  "message_setting_patch_update_failed": "Failed to apply the patch: {error}",
+  "@message_setting_patch_update_failed": {
+    "description": "Snackbar text when applying a patch fails.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "message_setting_patch_status_failed": "Failed to check patch status: {error}",
+  "@message_setting_patch_status_failed": {
+    "description": "Snackbar text when checking patch status fails.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "message_setting_patch_status_unavailable": "Patch status unavailable. Please try again later.",
+  "@message_setting_patch_status_unavailable": {
+    "description": "Snackbar text when patch status is unavailable (e.g., offline)."
+  },
+  "message_setting_patch_up_to_date": "You're already on the latest patch.",
+  "@message_setting_patch_up_to_date": {
+    "description": "Snackbar text when the user is already on the latest patch."
+  },
+  "dialog_setting_restart_title": "Restart app",
+  "@dialog_setting_restart_title": {
+    "description": "Title for the restart confirmation dialog on the Settings page."
+  },
+  "dialog_setting_restart_body": "A new update is ready. The app will restart to apply the changes.\n\nContinue?",
+  "@dialog_setting_restart_body": {
+    "description": "Body text for the restart confirmation dialog on the Settings page."
+  },
+  "button_restart": "Restart",
+  "@button_restart": {
+    "description": "Label for restart buttons."
+  },
+  "button_update": "Update",
+  "@button_update": {
+    "description": "Label for update buttons."
+  },
+  "label_setting_patch_number": " / Patch: {patchNumber}",
+  "@label_setting_patch_number": {
+    "description": "Suffix appended to build information to show the current patch number.",
+    "placeholders": {
+      "patchNumber": {
+        "type": "int"
+      }
+    }
+  }
 }

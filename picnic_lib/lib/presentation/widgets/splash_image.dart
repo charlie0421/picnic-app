@@ -1,12 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
@@ -14,14 +17,58 @@ import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 
 class SplashImageData {
   final String imageUrl;
-  final DateTime startDate;
-  final DateTime endDate;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String? deepLinkUrl;
+  final String? platform;
+  final Map<String, dynamic>? metadata;
 
-  SplashImageData({
+  const SplashImageData({
     required this.imageUrl,
-    required this.startDate,
-    required this.endDate,
+    this.startDate,
+    this.endDate,
+    this.deepLinkUrl,
+    this.platform,
+    this.metadata,
   });
+
+  factory SplashImageData.fromJson(Map<String, dynamic> json) {
+    return SplashImageData(
+      imageUrl: (json['image_url'] ?? json['imageUrl'] ?? '') as String,
+      startDate: _parseDate(json['starts_at'] ?? json['startDate']),
+      endDate: _parseDate(json['ends_at'] ?? json['endDate']),
+      deepLinkUrl: json['deep_link_url'] as String?,
+      platform: json['platform'] as String?,
+      metadata: json['metadata'] is Map<String, dynamic>
+          ? Map<String, dynamic>.from(json['metadata'] as Map)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'image_url': imageUrl,
+    'starts_at': startDate?.toIso8601String(),
+    'ends_at': endDate?.toIso8601String(),
+    'deep_link_url': deepLinkUrl,
+    'platform': platform,
+    'metadata': metadata,
+  };
+
+  bool get isValid => imageUrl.isNotEmpty;
+
+  bool get isExpired => endDate != null && endDate!.isBefore(DateTime.now());
+
+  static DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    try {
+      if (value is String && value.isNotEmpty) {
+        return DateTime.tryParse(value);
+      }
+    } catch (_) {
+      return null;
+    }
+    return null;
+  }
 }
 
 class SplashImage extends ConsumerStatefulWidget {
@@ -39,6 +86,8 @@ class SplashImage extends ConsumerStatefulWidget {
 }
 
 class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
+  static const _splashCacheKey = 'picnic.cached.splash.asset';
+
   String? scheduledSplashUrl;
   bool _disposed = false;
 
@@ -59,8 +108,9 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       return;
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchScheduledSplashImage();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadCachedSplashImage();
+      await _fetchScheduledSplashImage();
 
       // 패치 체크가 활성화된 경우에만 실행
       if (widget.enablePatchCheck) {
@@ -339,35 +389,144 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     }
   }
 
-  Future<void> _fetchScheduledSplashImage() async {
-    logger.d('스플래시 이미지 fetch 시작');
+  Future<void> _loadCachedSplashImage() async {
     try {
-      // Supabase RPC 함수 호출
-      final response =
-          await supabase.rpc('get_current_splash_image').maybeSingle();
-
-      logger.d('스플래시 response: $response');
-
-      // response.data가 null 이면, 현재 노출할 이미지가 없다는 의미
-      if (response == null) {
-        logger.d('스플래시 이미지 없음');
+      final prefs = await SharedPreferences.getInstance();
+      final cachedJson = prefs.getString(_splashCacheKey);
+      if (cachedJson == null) {
         return;
       }
 
-      final splashData = SplashImageData(
-        imageUrl: getLocaleTextFromJson(response['image']),
-        startDate: DateTime.parse(response['start_at'] as String),
-        endDate: DateTime.parse(response['end_at'] as String),
-      );
+      final cached = jsonDecode(cachedJson) as Map<String, dynamic>;
+      final assetMap = cached['asset'] as Map<String, dynamic>?;
+      final cachedPlatform = cached['platform'] as String?;
+      if (assetMap == null) {
+        return;
+      }
 
-      logger.d('스플래시 데이터: $splashData');
+      final splash = SplashImageData.fromJson(assetMap);
+      if (!splash.isValid) {
+        return;
+      }
+
+      final currentPlatform = _resolvePlatformParam();
+      final platformMatches =
+          cachedPlatform == null ||
+          cachedPlatform == 'all' ||
+          cachedPlatform == currentPlatform;
+
+      if (!platformMatches) {
+        logger.i(
+          '캐시된 스플래시 이미지 플랫폼 불일치: cached=$cachedPlatform, current=$currentPlatform',
+        );
+        return;
+      }
+
+      if (splash.isExpired) {
+        logger.i('캐시된 스플래시 이미지가 만료되어 삭제합니다.');
+        await prefs.remove(_splashCacheKey);
+        return;
+      }
 
       setStateIfMounted(() {
-        scheduledSplashUrl = splashData.imageUrl;
+        scheduledSplashUrl = splash.imageUrl;
+      });
+    } catch (e, stack) {
+      logger.w('캐시된 스플래시 이미지를 불러오지 못했습니다: $e', stackTrace: stack);
+    }
+  }
+
+  Future<void> _cacheSplashAsset(
+    SplashImageData splash,
+    String platform,
+  ) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        _splashCacheKey,
+        jsonEncode({
+          'platform': platform,
+          'asset': splash.toJson(),
+          'cached_at': DateTime.now().toIso8601String(),
+        }),
+      );
+    } catch (e) {
+      logger.w('스플래시 이미지 캐시 저장 실패: $e');
+    }
+  }
+
+  String _resolvePlatformParam() {
+    if (UniversalPlatform.isIOS) {
+      return 'ios';
+    }
+    if (UniversalPlatform.isAndroid) {
+      return 'android';
+    }
+    if (UniversalPlatform.isMacOS) {
+      return 'macos';
+    }
+    if (UniversalPlatform.isWindows) {
+      return 'windows';
+    }
+    return 'all';
+  }
+
+  Future<void> _fetchScheduledSplashImage() async {
+    logger.d('스플래시 이미지 fetch 시작');
+    try {
+      final platform = _resolvePlatformParam();
+      final uri =
+          Uri.parse(
+            '${Environment.supabaseUrl}/functions/v1/splash-screen',
+          ).replace(
+            queryParameters: {
+              'platform': platform,
+              'ts': DateTime.now().millisecondsSinceEpoch.toString(),
+            },
+          );
+
+      final headers = {
+        'apikey': Environment.supabaseAnonKey,
+        'Authorization': 'Bearer ${Environment.supabaseAnonKey}',
+      };
+
+      final response = await customHttpClient.get(uri, headers: headers);
+      logger.d('스플래시 response status=${response.statusCode}');
+
+      if (response.statusCode >= 300) {
+        logger.w('스플래시 이미지 호출 실패: ${response.statusCode} ${response.body}');
+        return;
+      }
+
+      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+      final data = decoded['data'];
+      final asset = data is Map<String, dynamic> ? data['asset'] : null;
+      if (asset == null) {
+        logger.i('활성화된 스플래시 이미지 없음');
+        return;
+      }
+
+      final splash = SplashImageData.fromJson(
+        Map<String, dynamic>.from(asset as Map),
+      );
+      if (!splash.isValid) {
+        logger.w('스플래시 자산에 이미지 URL이 없습니다.');
+        return;
+      }
+
+      if (splash.isExpired) {
+        logger.i('수신한 스플래시 자산이 이미 만료됨');
+        return;
+      }
+
+      await _cacheSplashAsset(splash, splash.platform ?? platform);
+
+      setStateIfMounted(() {
+        scheduledSplashUrl = splash.imageUrl;
         logger.d('스플래시 이미지 url: $scheduledSplashUrl');
       });
     } catch (e, stack) {
-      logger.e('스플래시 이미지 fetch 실패: $e\n$stack');
+      logger.e('스플래시 이미지 fetch 실패: $e', stackTrace: stack);
     }
   }
 

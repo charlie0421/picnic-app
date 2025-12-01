@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_media_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/loading_view.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
@@ -13,16 +15,16 @@ import 'package:picnic_lib/data/models/qna/qna_category.dart';
 import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart';
 
-class QnaThreadCreatePage extends StatefulWidget {
+class QnaThreadCreatePage extends ConsumerStatefulWidget {
   final String userId;
 
   const QnaThreadCreatePage({super.key, required this.userId});
 
   @override
-  State<QnaThreadCreatePage> createState() => _QnaThreadCreatePageState();
+  ConsumerState<QnaThreadCreatePage> createState() => _QnaThreadCreatePageState();
 }
 
-class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
+class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
@@ -95,6 +97,10 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
 
   Future<void> _submitThread() async {
     FocusScope.of(context).unfocus();
+
+    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      return;
+    }
 
     // 카테고리 필수: 카테고리 목록이 있는 경우 반드시 선택
     if (_categories.isNotEmpty &&

@@ -1517,6 +1517,93 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get weekly_vote_info_link => 'What is Weekly Vote?';
+
+  @override
+  String get label_setting_patch_section_title => 'Patch status';
+
+  @override
+  String get label_setting_patch_check_button => 'Check for patches';
+
+  @override
+  String get label_setting_patch_apply_button => 'Apply update';
+
+  @override
+  String get label_setting_patch_checking => 'Checking...';
+
+  @override
+  String label_setting_patch_last_checked(String time) {
+    return 'Last checked: $time';
+  }
+
+  @override
+  String get label_setting_patch_status_restart_required =>
+      'Update ready (restart required)';
+
+  @override
+  String get label_setting_patch_status_downloaded => 'Update downloaded';
+
+  @override
+  String get label_setting_patch_status_available => 'Update available';
+
+  @override
+  String label_setting_patch_status_current_patch(int patchNumber) {
+    return 'Current patch: $patchNumber';
+  }
+
+  @override
+  String get label_setting_patch_status_none => 'No patch applied';
+
+  @override
+  String get message_setting_patch_restart_hint =>
+      'A new patch has been downloaded. Tap Restart to apply it.';
+
+  @override
+  String get message_setting_patch_web_not_supported =>
+      'Patch updates aren\'t available on web.';
+
+  @override
+  String get message_setting_patch_update_available =>
+      'A new patch is available.';
+
+  @override
+  String get message_setting_patch_update_success =>
+      'Patch update complete! Restart the app.';
+
+  @override
+  String message_setting_patch_update_failed(String error) {
+    return 'Failed to apply the patch: $error';
+  }
+
+  @override
+  String message_setting_patch_status_failed(String error) {
+    return 'Failed to check patch status: $error';
+  }
+
+  @override
+  String get message_setting_patch_status_unavailable =>
+      'Patch status unavailable. Please try again later.';
+
+  @override
+  String get message_setting_patch_up_to_date =>
+      'You\'re already on the latest patch.';
+
+  @override
+  String get dialog_setting_restart_title => 'Restart app';
+
+  @override
+  String get dialog_setting_restart_body =>
+      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+
+  @override
+  String get button_restart => 'Restart';
+
+  @override
+  String get button_update => 'Update';
+
+  @override
+  String label_setting_patch_number(int patchNumber) {
+    return ' / Patch: $patchNumber';
+  }
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -2966,6 +3053,93 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   @override
   String get weekly_vote_info_body =>
       'Picnic 的 Hall of Fame Award 每周开启！\n\n每周的获胜艺人将自动登记为年末 \'Hall of Fame Award\' 的候选人，\n\n全年共评选出50名每周优胜者。\n\n（※ 已获胜的艺人在当年将不再作为每周投票候选人。）';
+
+  @override
+  String get label_setting_patch_section_title => 'Patch status';
+
+  @override
+  String get label_setting_patch_check_button => 'Check for patches';
+
+  @override
+  String get label_setting_patch_apply_button => 'Apply update';
+
+  @override
+  String get label_setting_patch_checking => 'Checking...';
+
+  @override
+  String label_setting_patch_last_checked(String time) {
+    return 'Last checked: $time';
+  }
+
+  @override
+  String get label_setting_patch_status_restart_required =>
+      'Update ready (restart required)';
+
+  @override
+  String get label_setting_patch_status_downloaded => 'Update downloaded';
+
+  @override
+  String get label_setting_patch_status_available => 'Update available';
+
+  @override
+  String label_setting_patch_status_current_patch(int patchNumber) {
+    return 'Current patch: $patchNumber';
+  }
+
+  @override
+  String get label_setting_patch_status_none => 'No patch applied';
+
+  @override
+  String get message_setting_patch_restart_hint =>
+      'A new patch has been downloaded. Tap Restart to apply it.';
+
+  @override
+  String get message_setting_patch_web_not_supported =>
+      'Patch updates aren\'t available on web.';
+
+  @override
+  String get message_setting_patch_update_available =>
+      'A new patch is available.';
+
+  @override
+  String get message_setting_patch_update_success =>
+      'Patch update complete! Restart the app.';
+
+  @override
+  String message_setting_patch_update_failed(String error) {
+    return 'Failed to apply the patch: $error';
+  }
+
+  @override
+  String message_setting_patch_status_failed(String error) {
+    return 'Failed to check patch status: $error';
+  }
+
+  @override
+  String get message_setting_patch_status_unavailable =>
+      'Patch status unavailable. Please try again later.';
+
+  @override
+  String get message_setting_patch_up_to_date =>
+      'You\'re already on the latest patch.';
+
+  @override
+  String get dialog_setting_restart_title => 'Restart app';
+
+  @override
+  String get dialog_setting_restart_body =>
+      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+
+  @override
+  String get button_restart => 'Restart';
+
+  @override
+  String get button_update => 'Update';
+
+  @override
+  String label_setting_patch_number(int patchNumber) {
+    return ' / Patch: $patchNumber';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4414,4 +4588,91 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get weekly_vote_info_body =>
       'Picnic 的 Hall of Fame Award 每週開啟！\n\n每週的優勝藝人將自動登錄為年末 \'Hall of Fame Award\' 候選人，\n\n全年共選出50位每週優勝者。\n\n（※ 一旦藝人獲勝，該年度將不再列入每週投票候選。）';
+
+  @override
+  String get label_setting_patch_section_title => 'Patch status';
+
+  @override
+  String get label_setting_patch_check_button => 'Check for patches';
+
+  @override
+  String get label_setting_patch_apply_button => 'Apply update';
+
+  @override
+  String get label_setting_patch_checking => 'Checking...';
+
+  @override
+  String label_setting_patch_last_checked(String time) {
+    return 'Last checked: $time';
+  }
+
+  @override
+  String get label_setting_patch_status_restart_required =>
+      'Update ready (restart required)';
+
+  @override
+  String get label_setting_patch_status_downloaded => 'Update downloaded';
+
+  @override
+  String get label_setting_patch_status_available => 'Update available';
+
+  @override
+  String label_setting_patch_status_current_patch(int patchNumber) {
+    return 'Current patch: $patchNumber';
+  }
+
+  @override
+  String get label_setting_patch_status_none => 'No patch applied';
+
+  @override
+  String get message_setting_patch_restart_hint =>
+      'A new patch has been downloaded. Tap Restart to apply it.';
+
+  @override
+  String get message_setting_patch_web_not_supported =>
+      'Patch updates aren\'t available on web.';
+
+  @override
+  String get message_setting_patch_update_available =>
+      'A new patch is available.';
+
+  @override
+  String get message_setting_patch_update_success =>
+      'Patch update complete! Restart the app.';
+
+  @override
+  String message_setting_patch_update_failed(String error) {
+    return 'Failed to apply the patch: $error';
+  }
+
+  @override
+  String message_setting_patch_status_failed(String error) {
+    return 'Failed to check patch status: $error';
+  }
+
+  @override
+  String get message_setting_patch_status_unavailable =>
+      'Patch status unavailable. Please try again later.';
+
+  @override
+  String get message_setting_patch_up_to_date =>
+      'You\'re already on the latest patch.';
+
+  @override
+  String get dialog_setting_restart_title => 'Restart app';
+
+  @override
+  String get dialog_setting_restart_body =>
+      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+
+  @override
+  String get button_restart => 'Restart';
+
+  @override
+  String get button_update => 'Update';
+
+  @override
+  String label_setting_patch_number(int patchNumber) {
+    return ' / Patch: $patchNumber';
+  }
 }

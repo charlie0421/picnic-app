@@ -9,6 +9,7 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_create_page
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_status_chip.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -123,6 +124,9 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
   }
 
   void _navigateToCreateThread() async {
+    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      return;
+    }
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => QnaThreadCreatePage(userId: widget.userId),

@@ -13,6 +13,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
@@ -159,6 +160,10 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
   Future<void> _commitComment() async {
     if (!_isInputValid || _isLoading) return;
+
+    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      return;
+    }
 
     final comment = _textEditingController.text.trim();
     if (comment.isEmpty) return;

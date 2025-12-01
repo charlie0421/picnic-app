@@ -15,6 +15,7 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
@@ -811,6 +812,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
+    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      return;
+    }
+
     if (!_canPurchase(productId: serverProduct['id'] as String)) {
       return;
     }
@@ -832,6 +837,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
   ) async {
+    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      _resetPurchaseState();
+      _loadingKey.currentState?.hide();
+      return;
+    }
+
     // 🛡️ 복원 정리 완료 대기 가드
     if (!_restoreHandler.isProactiveCleanupCompleted) {
       logger.w('🛡️ 복원 정리가 아직 완료되지 않음 - 구매 차단');

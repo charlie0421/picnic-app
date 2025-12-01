@@ -16,7 +16,7 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - PromisesObjC (~> 2.4)
-  - BranchSDK (3.12.2)
+  - BranchSDK (3.13.3)
   - camera_avfoundation (0.0.1):
     - Flutter
   - connectivity_plus (0.0.1):
@@ -117,8 +117,8 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.1)
     - nanopb (~> 3.30910.0)
   - Flutter (1.0.0)
-  - flutter_branch_sdk (8.6.0):
-    - BranchSDK (~> 3.12.0)
+  - flutter_branch_sdk (8.10.0):
+    - BranchSDK (~> 3.13.0)
     - Flutter
   - flutter_inappwebview_ios (0.0.1):
     - Flutter
@@ -257,6 +257,8 @@ PODS:
   - nanopb/encode (3.30910.0)
   - network_info_plus (0.0.1):
     - Flutter
+  - objective_c (0.0.1):
+    - Flutter
   - OrderedSet (6.0.3)
   - package_info_plus (0.4.5):
     - Flutter
@@ -265,24 +267,24 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.3.0):
     - Flutter
-  - photo_manager (3.7.1):
+  - photo_manager (3.8.2):
     - Flutter
     - FlutterMacOS
   - PromisesObjC (2.4.0)
   - quill_native_bridge_ios (0.0.1):
     - Flutter
-  - screen_protector (1.3.2):
+  - screen_protector (1.4.8):
     - Flutter
-    - ScreenProtectorKit (~> 1.4.1)
-  - ScreenProtectorKit (1.4.1)
-  - SDWebImage (5.21.3):
-    - SDWebImage/Core (= 5.21.3)
-  - SDWebImage/Core (5.21.3)
-  - Sentry/HybridSDK (8.52.1)
-  - sentry_flutter (9.6.0):
+    - ScreenProtectorKit (= 1.4.4)
+  - ScreenProtectorKit (1.4.4)
+  - SDWebImage (5.21.4):
+    - SDWebImage/Core (= 5.21.4)
+  - SDWebImage/Core (5.21.4)
+  - Sentry/HybridSDK (8.56.2)
+  - sentry_flutter (9.8.0):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.52.1)
+    - Sentry/HybridSDK (= 8.56.2)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -294,12 +296,12 @@ PODS:
     - Flutter
     - FlutterMacOS
   - SwiftyGif (5.4.5)
-  - tapjoy_offerwall (14.4.0):
+  - tapjoy_offerwall (14.6.0):
     - Flutter
-    - TapjoySDK (= 14.4.0)
-  - TapjoySDK (14.4.0):
-    - TapjoySDK/Static (= 14.4.0)
-  - TapjoySDK/Static (14.4.0)
+    - TapjoySDK (= 14.6.0)
+  - TapjoySDK (14.6.0):
+    - TapjoySDK/Static (= 14.6.0)
+  - TapjoySDK/Static (14.6.0)
   - TOCropViewController (2.7.4)
   - url_launcher_ios (0.0.1):
     - Flutter
@@ -345,10 +347,11 @@ DEPENDENCIES:
   - kakao_flutter_sdk_common (from `.symlinks/plugins/kakao_flutter_sdk_common/ios`)
   - keyboard_height_plugin (from `.symlinks/plugins/keyboard_height_plugin/ios`)
   - network_info_plus (from `.symlinks/plugins/network_info_plus/ios`)
+  - objective_c (from `.symlinks/plugins/objective_c/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
+  - photo_manager (from `.symlinks/plugins/photo_manager/darwin`)
   - quill_native_bridge_ios (from `.symlinks/plugins/quill_native_bridge_ios/ios`)
   - screen_protector (from `.symlinks/plugins/screen_protector/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
@@ -454,6 +457,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/keyboard_height_plugin/ios"
   network_info_plus:
     :path: ".symlinks/plugins/network_info_plus/ios"
+  objective_c:
+    :path: ".symlinks/plugins/objective_c/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
@@ -461,7 +466,7 @@ EXTERNAL SOURCES:
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   photo_manager:
-    :path: ".symlinks/plugins/photo_manager/ios"
+    :path: ".symlinks/plugins/photo_manager/darwin"
   quill_native_bridge_ios:
     :path: ".symlinks/plugins/quill_native_bridge_ios/ios"
   screen_protector:
@@ -495,8 +500,8 @@ SPEC CHECKSUMS:
   app_tracking_transparency: 3d84f147f67ca82d3c15355c36b1fa6b66ca7c92
   AppAuth: 1c1a8afa7e12f2ec3a294d9882dfa5ab7d3cb063
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
-  BranchSDK: db2c2ffa5b85ad3e202f73393ca794878afd3c52
-  camera_avfoundation: be3be85408cd4126f250386828e9b1dfa40ab436
+  BranchSDK: 19a6e97115350db916a57823c7f6ed96d1e70e46
+  camera_avfoundation: 5675ca25298b6f81fa0a325188e7df62cc217741
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
@@ -512,7 +517,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 317270fec08a5d418fdbc8429282238cab3ac843
   FirebaseMessaging: 3b26e2cee503815e01c3701236b020aa9b576f09
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_branch_sdk: a87d7e10a30e891371ed3b464859e7797b07d5f0
+  flutter_branch_sdk: aa2db32133bf3d6980e814423c1e387dbc38346f
   flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
   flutter_keyboard_visibility: 4625131e43015dbbe759d9b20daaf77e0e3f6619
   flutter_keyboard_visibility_temp_fork: 95b2d534bacf6ac62e7fcbe5c2a9e2c2a17ce06f
@@ -522,7 +527,7 @@ SPEC CHECKSUMS:
   fluwx: 2ef787502fccb3f3596b380509001a8ea71cbbff
   Google-Mobile-Ads-SDK: 1dfb0c3cb46c7e2b00b0f4de74a1e06d9ea25d67
   google_mobile_ads: 535223588a6791b7a3cc3513a1bc7b89d12f3e62
-  google_sign_in_ios: 205742c688aea0e64db9da03c33121694a365109
+  google_sign_in_ios: 00dfa94252eb10278b64828c81bcb7158a81a53a
   GoogleAdsOnDeviceConversion: 2be6297a4f048459e0ae17fad9bfd2844e10cf64
   GoogleAppMeasurement: 700dce7541804bec33db590a5c496b663fbe2539
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
@@ -533,38 +538,39 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   image_cropper: c4326ea50132b1e1564499e5d32a84f01fb03537
   image_gallery_saver_plus: e597bf65a7846979417a3eae0763b71b6dfec6c3
-  image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
-  in_app_purchase_storekit: d1a48cb0f8b29dbf5f85f782f5dd79b21b90a5e6
+  image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
+  in_app_purchase_storekit: 22cca7d08eebca9babdf4d07d0baccb73325d3c8
   kakao_flutter_sdk_common: 600d55b532da0bd37268a529e1add49302477710
   keyboard_height_plugin: ef70a8181b29f27670e9e2450814ca6b6dc05b05
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   network_info_plus: cf61925ab5205dce05a4f0895989afdb6aade5fc
+  objective_c: 89e720c30d716b036faf9c9684022048eee1eee2
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
-  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
-  photo_manager: 1d80ae07a89a67dfbcae95953a1e5a24af7c3e62
+  photo_manager: 6ef6ff923cef3e08c2dd1b3fc58a4d44b6225b4c
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   quill_native_bridge_ios: f47af4b14e7757968486641656c5d23250cee521
-  screen_protector: fb01c3478cdfdffab23cd2586350346897935cad
-  ScreenProtectorKit: 21bdf6572671f779864908978d63e2c9ecfe7910
-  SDWebImage: 16309af6d214ba3f77a7c6f6fdda888cb313a50a
-  Sentry: 2cbbe3592f30050c60e916c63c7f5a2fa584005e
-  sentry_flutter: 9b1e3e6934cb7040ffb71383c95a35f73523180c
+  screen_protector: 7b78505d9bff9ff39dd49bbc4fd66d677294a05a
+  ScreenProtectorKit: 7b9287f0d15f1f588f55a3f9e1d0f78b12b6a84b
+  SDWebImage: d0184764be51240d49c761c37f53dd017e1ccaaf
+  Sentry: b53951377b78e21a734f5dc8318e333dbfc682d7
+  sentry_flutter: 4c33648b7e83310aa1fdb1b10c5491027d9643f0
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
-  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
-  tapjoy_offerwall: 1601e1efc9b45bf3fad9a9d662d84f1b91a100fe
-  TapjoySDK: d83ca74fc1195c52943ca2879519412d3ec770a4
+  tapjoy_offerwall: db9e0585f63e70f3e36dbb8cec063821d01df633
+  TapjoySDK: 51f62d2da0b46b7a78d91fa2b7a5fbcef566c262
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
-  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
-  video_player_avfoundation: 2cef49524dd1f16c5300b9cd6efd9611ce03639b
+  url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
+  video_player_avfoundation: dd410b52df6d2466a42d28550e33e4146928280a
   video_thumbnail: b637e0ad5f588ca9945f6e2c927f73a69a661140
   wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
-  webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
+  webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
   WechatOpenSDK-XCFramework: b072030c9eeee91dfff1856a7846f70f7b9a88ed
 
 PODFILE CHECKSUM: 758c45fe889f443b62431c99aba94d1a5535d0c6

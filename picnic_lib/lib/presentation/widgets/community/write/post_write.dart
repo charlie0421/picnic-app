@@ -15,6 +15,7 @@ import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/post_write_body.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/post_write_bottom_bar.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/post_write_header.dart';
@@ -85,6 +86,10 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
   }
 
   Future<void> _savePost({bool isTemporary = false}) async {
+    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      return;
+    }
+
     OverlayLoadingProgress.start(context);
     logger.i('_titleController.text: ${_titleController.text}');
     logger.i(

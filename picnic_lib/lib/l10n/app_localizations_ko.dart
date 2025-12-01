@@ -1455,4 +1455,88 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get weekly_vote_info_link => '위클리 투표란?';
+
+  @override
+  String get label_setting_patch_section_title => '패치 상태';
+
+  @override
+  String get label_setting_patch_check_button => '패치 확인';
+
+  @override
+  String get label_setting_patch_apply_button => '업데이트 적용';
+
+  @override
+  String get label_setting_patch_checking => '확인 중...';
+
+  @override
+  String label_setting_patch_last_checked(String time) {
+    return '마지막 확인: $time';
+  }
+
+  @override
+  String get label_setting_patch_status_restart_required =>
+      '업데이트 준비 완료 (재시작 필요)';
+
+  @override
+  String get label_setting_patch_status_downloaded => '업데이트 다운로드 완료';
+
+  @override
+  String get label_setting_patch_status_available => '업데이트 가능';
+
+  @override
+  String label_setting_patch_status_current_patch(int patchNumber) {
+    return '현재 패치: $patchNumber';
+  }
+
+  @override
+  String get label_setting_patch_status_none => '적용된 패치 없음';
+
+  @override
+  String get message_setting_patch_restart_hint =>
+      '새 패치가 다운로드되었습니다. 재시작을 눌러 적용하세요.';
+
+  @override
+  String get message_setting_patch_web_not_supported =>
+      '웹 환경에서는 패치를 사용할 수 없습니다.';
+
+  @override
+  String get message_setting_patch_update_available => '새 패치를 사용할 수 있습니다.';
+
+  @override
+  String get message_setting_patch_update_success => '패치 업데이트 완료! 앱을 재시작하세요.';
+
+  @override
+  String message_setting_patch_update_failed(String error) {
+    return '패치 적용에 실패했습니다: $error';
+  }
+
+  @override
+  String message_setting_patch_status_failed(String error) {
+    return '패치 상태 확인에 실패했습니다: $error';
+  }
+
+  @override
+  String get message_setting_patch_status_unavailable =>
+      '패치 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get message_setting_patch_up_to_date => '이미 최신 패치를 사용 중입니다.';
+
+  @override
+  String get dialog_setting_restart_title => '앱 재시작';
+
+  @override
+  String get dialog_setting_restart_body =>
+      '새 업데이트가 준비되었습니다. 변경 사항을 적용하려면 앱을 재시작합니다.\n\n계속할까요?';
+
+  @override
+  String get button_restart => '재시작';
+
+  @override
+  String get button_update => '업데이트';
+
+  @override
+  String label_setting_patch_number(int patchNumber) {
+    return ' / 패치: $patchNumber';
+  }
 }
