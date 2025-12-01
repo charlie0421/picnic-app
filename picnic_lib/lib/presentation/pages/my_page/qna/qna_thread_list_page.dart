@@ -124,7 +124,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
   }
 
   void _navigateToCreateThread() async {
-    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
     final result = await Navigator.of(context).push(

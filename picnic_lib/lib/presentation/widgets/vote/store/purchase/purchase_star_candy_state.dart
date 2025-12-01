@@ -812,7 +812,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
-    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
 
@@ -837,7 +837,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
   ) async {
-    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       _resetPurchaseState();
       _loadingKey.currentState?.hide();
       return;

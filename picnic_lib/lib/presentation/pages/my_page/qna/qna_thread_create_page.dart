@@ -21,7 +21,8 @@ class QnaThreadCreatePage extends ConsumerStatefulWidget {
   const QnaThreadCreatePage({super.key, required this.userId});
 
   @override
-  ConsumerState<QnaThreadCreatePage> createState() => _QnaThreadCreatePageState();
+  ConsumerState<QnaThreadCreatePage> createState() =>
+      _QnaThreadCreatePageState();
 }
 
 class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
@@ -98,7 +99,7 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
   Future<void> _submitThread() async {
     FocusScope.of(context).unfocus();
 
-    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
 

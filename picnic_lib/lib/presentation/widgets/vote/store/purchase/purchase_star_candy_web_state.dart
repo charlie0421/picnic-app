@@ -127,7 +127,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
     BuildContext context,
     Map<String, dynamic> serverProduct,
   ) async {
-    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
 

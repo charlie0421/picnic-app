@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
-import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -71,6 +71,107 @@ class SplashImageData {
   }
 }
 
+class SplashConfigPayload {
+  final String imageUrl;
+  final int version;
+  final DateTime? expiresAt;
+
+  SplashConfigPayload({
+    required this.imageUrl,
+    required this.version,
+    this.expiresAt,
+  });
+
+  bool get isValid => imageUrl.isNotEmpty;
+
+  bool get isExpired =>
+      expiresAt != null && expiresAt!.isBefore(DateTime.now());
+
+  static SplashConfigPayload? fromRaw(String? raw) {
+    if (raw == null || raw.isEmpty) {
+      return null;
+    }
+
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) {
+        return null;
+      }
+
+      final versionValue =
+          decoded['version'] ?? decoded['Version'] ?? decoded['VERSION'];
+      final version = _parseVersion(versionValue) ?? 1;
+
+      final imageUrl = _resolveImageUrl(
+        decoded['cdnUrl'] ?? decoded['cdn_url'],
+        decoded['cdnPath'] ?? decoded['cdn_path'],
+      );
+      if (imageUrl == null || imageUrl.isEmpty) {
+        return null;
+      }
+
+      final expiresValue = decoded['expiresAt'] ?? decoded['expires_at'];
+      DateTime? expiresAt;
+      if (expiresValue is String && expiresValue.isNotEmpty) {
+        expiresAt = DateTime.tryParse(expiresValue);
+      }
+
+      return SplashConfigPayload(
+        imageUrl: imageUrl,
+        version: version,
+        expiresAt: expiresAt,
+      );
+    } catch (e, stack) {
+      logger.w('스플래시 config 파싱 실패: $e', stackTrace: stack);
+      return null;
+    }
+  }
+
+  static int? _parseVersion(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+    if (value is String && value.isNotEmpty) {
+      return int.tryParse(value);
+    }
+    return null;
+  }
+
+  static String? _resolveImageUrl(dynamic cdnUrlValue, dynamic cdnPathValue) {
+    final cdnUrl = cdnUrlValue is String ? cdnUrlValue.trim() : '';
+    if (cdnUrl.isNotEmpty) {
+      return cdnUrl;
+    }
+
+    final cdnPath = cdnPathValue is String ? cdnPathValue.trim() : '';
+    if (cdnPath.isEmpty) {
+      return null;
+    }
+
+    if (cdnPath.startsWith('http://') || cdnPath.startsWith('https://')) {
+      return cdnPath;
+    }
+
+    final base = Environment.cdnUrl;
+    final sanitizedBase = base.endsWith('/')
+        ? base.substring(0, base.length - 1)
+        : base;
+
+    var sanitizedPath = cdnPath;
+    if (sanitizedPath.startsWith(sanitizedBase)) {
+      sanitizedPath = sanitizedPath.substring(sanitizedBase.length);
+    }
+    if (sanitizedPath.startsWith('/')) {
+      sanitizedPath = sanitizedPath.substring(1);
+    }
+
+    return '${sanitizedBase}/${sanitizedPath}';
+  }
+}
+
 class SplashImage extends ConsumerStatefulWidget {
   final String? statusMessage; // 외부에서 전달받은 상태 메시지
   final bool enablePatchCheck; // 패치 체크 활성화 여부
@@ -87,8 +188,10 @@ class SplashImage extends ConsumerStatefulWidget {
 
 class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
   static const _splashCacheKey = 'picnic.cached.splash.asset';
+  static const _splashConfigKey = 'splash_screen_asset';
 
   String? scheduledSplashUrl;
+  int? _cachedConfigVersion;
   bool _disposed = false;
 
   // 패치 체크 관련 상태
@@ -110,7 +213,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _loadCachedSplashImage();
-      await _fetchScheduledSplashImage();
+      await _syncSplashImageFromConfig();
 
       // 패치 체크가 활성화된 경우에만 실행
       if (widget.enablePatchCheck) {
@@ -400,6 +503,14 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       final cached = jsonDecode(cachedJson) as Map<String, dynamic>;
       final assetMap = cached['asset'] as Map<String, dynamic>?;
       final cachedPlatform = cached['platform'] as String?;
+      final cachedVersion = cached['config_version'];
+
+      if (cachedVersion is int) {
+        _cachedConfigVersion = cachedVersion;
+      } else if (cachedVersion is num) {
+        _cachedConfigVersion = cachedVersion.toInt();
+      }
+
       if (assetMap == null) {
         return;
       }
@@ -425,6 +536,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       if (splash.isExpired) {
         logger.i('캐시된 스플래시 이미지가 만료되어 삭제합니다.');
         await prefs.remove(_splashCacheKey);
+        _cachedConfigVersion = null;
         return;
       }
 
@@ -438,8 +550,9 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
   Future<void> _cacheSplashAsset(
     SplashImageData splash,
-    String platform,
-  ) async {
+    String platform, {
+    int? configVersion,
+  }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
@@ -448,6 +561,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
           'platform': platform,
           'asset': splash.toJson(),
           'cached_at': DateTime.now().toIso8601String(),
+          'config_version': configVersion,
         }),
       );
     } catch (e) {
@@ -471,62 +585,48 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     return 'all';
   }
 
-  Future<void> _fetchScheduledSplashImage() async {
-    logger.d('스플래시 이미지 fetch 시작');
+  Future<void> _syncSplashImageFromConfig() async {
+    logger.d('스플래시 config 동기화 시작');
     try {
-      final platform = _resolvePlatformParam();
-      final uri =
-          Uri.parse(
-            '${Environment.supabaseUrl}/functions/v1/splash-screen',
-          ).replace(
-            queryParameters: {
-              'platform': platform,
-              'ts': DateTime.now().millisecondsSinceEpoch.toString(),
-            },
-          );
-
-      final headers = {
-        'apikey': Environment.supabaseAnonKey,
-        'Authorization': 'Bearer ${Environment.supabaseAnonKey}',
-      };
-
-      final response = await customHttpClient.get(uri, headers: headers);
-      logger.d('스플래시 response status=${response.statusCode}');
-
-      if (response.statusCode >= 300) {
-        logger.w('스플래시 이미지 호출 실패: ${response.statusCode} ${response.body}');
+      final configService = ref.read(configServiceProvider);
+      final raw = await configService.getConfig(_splashConfigKey);
+      if (raw == null || raw.isEmpty) {
+        logger.i('시작화면 config 값이 없습니다.');
         return;
       }
 
-      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-      final data = decoded['data'];
-      final asset = data is Map<String, dynamic> ? data['asset'] : null;
-      if (asset == null) {
-        logger.i('활성화된 스플래시 이미지 없음');
+      final configPayload = SplashConfigPayload.fromRaw(raw);
+      if (configPayload == null || !configPayload.isValid) {
+        logger.w('시작화면 config 파싱 실패');
         return;
       }
 
-      final splash = SplashImageData.fromJson(
-        Map<String, dynamic>.from(asset as Map),
+      if (configPayload.isExpired) {
+        logger.i('시작화면 config가 만료되었습니다.');
+        return;
+      }
+
+      final splash = SplashImageData(
+        imageUrl: configPayload.imageUrl,
+        startDate: null,
+        endDate: configPayload.expiresAt,
+        platform: 'all',
+        metadata: {'source': 'config', 'version': configPayload.version},
       );
-      if (!splash.isValid) {
-        logger.w('스플래시 자산에 이미지 URL이 없습니다.');
-        return;
-      }
 
-      if (splash.isExpired) {
-        logger.i('수신한 스플래시 자산이 이미 만료됨');
-        return;
-      }
-
-      await _cacheSplashAsset(splash, splash.platform ?? platform);
+      await _cacheSplashAsset(
+        splash,
+        'all',
+        configVersion: configPayload.version,
+      );
 
       setStateIfMounted(() {
         scheduledSplashUrl = splash.imageUrl;
-        logger.d('스플래시 이미지 url: $scheduledSplashUrl');
+        _cachedConfigVersion = configPayload.version;
+        logger.d('시작화면 이미지 url 업데이트: $scheduledSplashUrl');
       });
     } catch (e, stack) {
-      logger.e('스플래시 이미지 fetch 실패: $e', stackTrace: stack);
+      logger.e('스플래시 config 동기화 실패: $e', stackTrace: stack);
     }
   }
 
@@ -555,6 +655,8 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
           PicnicCachedNetworkImage(
             imageUrl: scheduledSplashUrl!,
             fit: BoxFit.cover, // contain에서 cover로 변경
+            showLoadingOverlay: false,
+            placeholder: const SizedBox.shrink(),
           ),
 
         // 3) 상태 메시지 표시 (패치 체크 진행 상황 등)

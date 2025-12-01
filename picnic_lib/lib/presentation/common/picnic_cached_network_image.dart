@@ -64,6 +64,7 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final int? maxConcurrentLoads; // 최대 동시 로딩 수
 
   final Widget? errorWidget; // 커스텀 에러 위젯
+  final bool showLoadingOverlay;
 
   const PicnicCachedNetworkImage({
     super.key,
@@ -81,6 +82,7 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.lazyLoadDelay,
     this.placeholder,
     this.errorWidget,
+    this.showLoadingOverlay = true,
     this.enablePreloading = true,
     this.preloadDistance = 200.0,
     this.priority = ImagePriority.normal,
@@ -165,11 +167,7 @@ class _PicnicCachedNetworkImageState
     return math.max(1, (400 * multiplier).round());
   }
 
-  String _cacheKeyFor(
-    String url, {
-    int? index,
-    bool isLowQuality = false,
-  }) {
+  String _cacheKeyFor(String url, {int? index, bool isLowQuality = false}) {
     final buffer = StringBuffer(url)
       ..write('_')
       ..write(_reloadToken);
@@ -381,9 +379,7 @@ class _PicnicCachedNetworkImageState
       final pendingDecodeCount = imageCache.pendingImageCount;
 
       if (pendingDecodeCount > 0) {
-        logger.d(
-          '이미지 디코딩이 진행 중(pending: $pendingDecodeCount)이라 캐시 정리를 건너뜁니다.',
-        );
+        logger.d('이미지 디코딩이 진행 중(pending: $pendingDecodeCount)이라 캐시 정리를 건너뜁니다.');
         return;
       }
 
@@ -468,6 +464,10 @@ class _PicnicCachedNetworkImageState
       );
     }
 
+    if (!widget.showLoadingOverlay) {
+      return const SizedBox.shrink();
+    }
+
     // Shimmer 로딩으로 변경
     return SizedBox(
       width: widget.width,
@@ -513,14 +513,15 @@ class _PicnicCachedNetworkImageState
           fit: StackFit.expand, // Stack이 부모 크기에 맞춤
           children: [
             // 배경 컨테이너 (크기 고정)
-            Container(
-              width: imageWidth,
-              height: imageHeight,
-              color: const Color.fromRGBO(158, 158, 158, 0.05),
-            ),
+            if (widget.showLoadingOverlay)
+              Container(
+                width: imageWidth,
+                height: imageHeight,
+                color: const Color.fromRGBO(158, 158, 158, 0.05),
+              ),
 
             // 로딩 오버레이 (크기 제한)
-            if (!_isImageLoaded && !_hasError)
+            if (widget.showLoadingOverlay && !_isImageLoaded && !_hasError)
               SizedBox(
                 width: imageWidth,
                 height: imageHeight,
@@ -677,7 +678,15 @@ class _PicnicCachedNetworkImageState
     double resolutionMultiplier,
     int quality,
   ) {
-    Uri uri = Uri.parse('${Environment.cdnUrl}/$key');
+    final normalizedKey = key.trim();
+    final isAbsolute =
+        normalizedKey.startsWith('http://') ||
+        normalizedKey.startsWith('https://');
+    Uri uri = isAbsolute
+        ? Uri.parse(normalizedKey)
+        : Uri.parse(
+            '${Environment.cdnUrl}/${normalizedKey.startsWith('/') ? normalizedKey.substring(1) : normalizedKey}',
+          );
 
     final Map<String, String> queryParameters = {'q': quality.toString()};
 
@@ -764,11 +773,7 @@ class _PicnicCachedNetworkImageState
       height: height,
       fit: widget.fit,
       cacheManager: null,
-      cacheKey: _cacheKeyFor(
-        url,
-        index: index,
-        isLowQuality: isLowQuality,
-      ),
+      cacheKey: _cacheKeyFor(url, index: index, isLowQuality: isLowQuality),
       memCacheWidth: _computeCacheDimension(
         widget.memCacheWidth,
         width,
@@ -788,6 +793,9 @@ class _PicnicCachedNetworkImageState
           ? const Duration(milliseconds: 200)
           : const Duration(milliseconds: 100),
       placeholder: (context, url) {
+        if (!widget.showLoadingOverlay) {
+          return const SizedBox.shrink();
+        }
         return index == 0
             ? buildImageLoadingOverlay()
             : const SizedBox.shrink();
@@ -892,6 +900,9 @@ class _PicnicCachedNetworkImageState
               }
 
               // 진행률에 관계없이 항상 스켈레톤 표시
+              if (!widget.showLoadingOverlay) {
+                return const SizedBox.shrink();
+              }
               return SizedBox(
                 width: width,
                 height: height,
@@ -964,7 +975,9 @@ class _PicnicCachedNetworkImageState
         }
       });
       _scheduleRetry(url);
-      return buildImageLoadingOverlay();
+      return widget.showLoadingOverlay
+          ? buildImageLoadingOverlay()
+          : const SizedBox.shrink();
     }
 
     _onImageLoadError(url, error);

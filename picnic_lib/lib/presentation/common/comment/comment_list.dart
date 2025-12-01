@@ -348,7 +348,10 @@ class _CommentListState extends ConsumerState<CommentList> {
                   id: widget.id,
                   pagingController: _pagingController,
                   onPostComment: (postId, parentId, locale, content) async {
-                    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+                    if (await showWithdrawalBlockedDialog(
+                      context: context,
+                      ref: ref,
+                    )) {
                       return;
                     }
                     final commentsNotifier = ref.read(

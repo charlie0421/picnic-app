@@ -86,7 +86,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
   }
 
   Future<void> _savePost({bool isTemporary = false}) async {
-    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
 

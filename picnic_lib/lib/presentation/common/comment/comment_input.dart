@@ -161,7 +161,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
   Future<void> _commitComment() async {
     if (!_isInputValid || _isLoading) return;
 
-    if (showWithdrawalBlockedDialog(context: context, ref: ref)) {
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
 
