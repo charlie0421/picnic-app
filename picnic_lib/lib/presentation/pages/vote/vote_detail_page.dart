@@ -31,6 +31,7 @@ import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_with_icon.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 
@@ -76,23 +77,26 @@ class _VoteGainIndicatorState extends State<VoteGainIndicator>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          setState(() {
-            _displayDiff = null;
-          });
-        }
-      });
+    _controller =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 1200),
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            setState(() {
+              _displayDiff = null;
+            });
+          }
+        });
 
-    _opacity = Tween<double>(begin: 1, end: 0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-    _offset = Tween<double>(begin: 0, end: -10).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _opacity = Tween<double>(
+      begin: 1,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _offset = Tween<double>(
+      begin: 0,
+      end: -10,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     if (widget.diff > 0) {
       _startAnimation(widget.diff);
@@ -139,17 +143,16 @@ class _VoteGainIndicatorState extends State<VoteGainIndicator>
       },
       child: Text(
         '+$_displayDiff',
-        style: getTextStyle(
-          AppTypo.caption10SB,
-          AppColors.primary500,
-        ),
+        style: getTextStyle(AppTypo.caption10SB, AppColors.primary500),
       ),
     );
   }
 }
 
 class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
-    with TickerProviderStateMixin<VoteDetailPage>, RouteAwareStateMixin<VoteDetailPage> {
+    with
+        TickerProviderStateMixin<VoteDetailPage>,
+        RouteAwareStateMixin<VoteDetailPage> {
   late ScrollController _scrollController;
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
@@ -1668,7 +1671,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     );
   }
 
-  void _handleVoteItemTap(BuildContext context, VoteItemModel item, int index) {
+  Future<void> _handleVoteItemTap(
+    BuildContext context,
+    VoteItemModel item,
+    int index,
+  ) async {
     logger.d('🔥 _handleVoteItemTap 호출됨 - index: $index');
     final isAdmin =
         ref.watch(userInfoProvider.select((value) => value.value?.isAdmin)) ??
@@ -1689,22 +1696,29 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     logger.d('🔥 isAdmin: $isAdmin');
     logger.d('🔥 isJmaVote: $isJmaVote');
 
+    if (!isSupabaseLoggedSafely) {
+      showRequireLoginDialog();
+      return;
+    }
+
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      return;
+    }
+
     if (isAdmin && isJmaVote) {
-      isSupabaseLoggedSafely
-          ? showVotingDialog(
-              context: context,
-              voteModel: ref
-                  .read(
-                    asyncVoteDetailProvider(
-                      voteId: widget.voteId,
-                      votePortal: widget.votePortal,
-                    ),
-                  )
-                  .value!,
-              voteItemModel: item,
-              portalType: widget.votePortal,
+      showVotingDialog(
+        context: context,
+        voteModel: ref
+            .read(
+              asyncVoteDetailProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ),
             )
-          : showRequireLoginDialog();
+            .value!,
+        voteItemModel: item,
+        portalType: widget.votePortal,
+      );
       return;
     }
 
@@ -1717,21 +1731,19 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         content: AppLocalizations.of(context).message_vote_is_upcoming,
       );
     } else {
-      isSupabaseLoggedSafely
-          ? showVotingDialog(
-              context: context,
-              voteModel: ref
-                  .read(
-                    asyncVoteDetailProvider(
-                      voteId: widget.voteId,
-                      votePortal: widget.votePortal,
-                    ),
-                  )
-                  .value!,
-              voteItemModel: item,
-              portalType: widget.votePortal,
+      showVotingDialog(
+        context: context,
+        voteModel: ref
+            .read(
+              asyncVoteDetailProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ),
             )
-          : showRequireLoginDialog();
+            .value!,
+        voteItemModel: item,
+        portalType: widget.votePortal,
+      );
     }
   }
 

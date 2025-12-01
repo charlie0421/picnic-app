@@ -18,6 +18,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
@@ -1155,7 +1156,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     );
   }
 
-  void _handleVote(String userId) {
+  Future<void> _handleVote(String userId) async {
     final voteAmount = _getVoteAmount();
 
     if (voteAmount == 0) {
@@ -1178,6 +1179,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     }
 
     FocusScope.of(context).unfocus();
+
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      return;
+    }
+
     _loadingKey.currentState?.show();
 
     // 보너스 사용 계산
@@ -1187,7 +1193,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         voteAmount <= usableBonusVotes ? voteAmount : usableBonusVotes;
 
     // 교환과 투표를 함께 수행
-    _performExchangeAndVoting(voteAmount, userId, bonusVotesUsed);
+    await _performExchangeAndVoting(voteAmount, userId, bonusVotesUsed);
   }
 
   // 교환과 투표를 함께 수행하는 함수

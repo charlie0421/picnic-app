@@ -16,6 +16,7 @@ import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/common/post_list_item.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -177,11 +178,19 @@ class _PostListState extends ConsumerState<PostList> {
                                   ),
                                 ),
                               ),
-                              onPressed: () {
+                              onPressed: () async {
                                 if (!isSupabaseLoggedSafely) {
                                   showRequireLoginDialog();
                                   return;
                                 }
+
+                                if (await showWithdrawalBlockedDialog(
+                                  context: context,
+                                  ref: ref,
+                                )) {
+                                  return;
+                                }
+
                                 ref
                                     .read(navigationInfoProvider.notifier)
                                     .setCommunityCurrentPage(

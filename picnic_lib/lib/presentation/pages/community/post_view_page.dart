@@ -29,6 +29,7 @@ import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/link_embed_builder.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/youtube_embed_builder.dart';
@@ -678,9 +679,13 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
     }
   }
 
-  void _openCommentsModal(PostModel post) {
+  Future<void> _openCommentsModal(PostModel post) async {
     if (!isSupabaseLoggedSafely) {
       showRequireLoginDialog();
+      return;
+    }
+
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
 

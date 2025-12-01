@@ -8,6 +8,7 @@ import 'package:picnic_lib/presentation/pages/community/post_write_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 
 class TopRightPost extends ConsumerStatefulWidget {
   const TopRightPost({
@@ -28,13 +29,21 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         GestureDetector(
-          onTap: () {
-            if (isSupabaseLoggedSafely) {
-              navigationInfoNotifier
-                  .setCommunityCurrentPage(const PostWritePage());
-            } else {
+          onTap: () async {
+            if (!isSupabaseLoggedSafely) {
               showRequireLoginDialog();
+              return;
             }
+
+            if (await showWithdrawalBlockedDialog(
+              context: context,
+              ref: ref,
+            )) {
+              return;
+            }
+
+            navigationInfoNotifier
+                .setCommunityCurrentPage(const PostWritePage());
           },
           child: Container(
             alignment: Alignment.centerLeft,

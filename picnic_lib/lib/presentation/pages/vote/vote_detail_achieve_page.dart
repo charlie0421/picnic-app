@@ -27,6 +27,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -847,7 +848,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
     );
   }
 
-  void _handleVoteItemTap(BuildContext context, VoteItemModel item) {
+  Future<void> _handleVoteItemTap(BuildContext context, VoteItemModel item) async {
     final voteDetail =
         ref.read(asyncVoteDetailProvider(voteId: widget.voteId)).value!;
     if (voteDetail.isEnded!) {
@@ -859,13 +860,20 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
         content: AppLocalizations.of(context).message_vote_is_upcoming,
       );
     } else {
-      isSupabaseLoggedSafely
-          ? showVotingDialog(
-            context: context,
-            voteModel: voteDetail,
-            voteItemModel: item,
-          )
-          : showRequireLoginDialog();
+      if (!isSupabaseLoggedSafely) {
+        showRequireLoginDialog();
+        return;
+      }
+
+      if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
+        return;
+      }
+
+      showVotingDialog(
+        context: context,
+        voteModel: voteDetail,
+        voteItemModel: item,
+      );
     }
   }
 

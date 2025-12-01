@@ -21,8 +21,9 @@ import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
-import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
+import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -684,7 +685,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
   }
 
-  void _handleVote(int myStarCandy, String userId) {
+  Future<void> _handleVote(int myStarCandy, String userId) async {
     final voteAmount = _getVoteAmount();
     if (voteAmount == 0 || myStarCandy < voteAmount) {
       showSimpleDialog(
@@ -700,9 +701,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
     FocusScope.of(context).unfocus();
 
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      return;
+    }
+
     _loadingKey.currentState?.show();
 
-    _performVoting(voteAmount, userId);
+    await _performVoting(voteAmount, userId);
   }
 
   // star_candy와 star_candy_bonus 사용량 계산
