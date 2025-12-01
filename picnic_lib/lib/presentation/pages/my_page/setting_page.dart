@@ -25,6 +25,7 @@ import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
@@ -301,104 +302,136 @@ class _SettingPageState extends ConsumerState<SettingPage>
               error: (_, _) => Container(),
             ),
             // 패치 정보 및 수동 재시작
-            PicnicListItem(
-              leading: l10n.label_setting_patch_section_title,
-              title: Container(
-                margin: EdgeInsets.only(right: 8.w),
-                alignment: Alignment.centerRight,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_isCheckingPatch)
-                          Container(
-                            width: 12.w,
-                            height: 12.w,
-                            margin: EdgeInsets.only(right: 6.w),
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppColors.primary500,
-                              ),
-                            ),
-                          ),
-                        Text(
-                          _isCheckingPatch
-                              ? l10n.label_setting_patch_checking
-                              : _localizedPatchStatusText(l10n, patchInfo),
-                          style: getTextStyle(
-                            AppTypo.caption12B,
-                            patchInfo.canRestart
-                                ? AppColors.primary500
-                                : AppColors.secondary500,
-                          ),
-                          textAlign: TextAlign.end,
-                        ),
-                      ],
-                    ),
-                    if (patchInfo.lastChecked != null && !_isCheckingPatch)
-                      Text(
-                        l10n.label_setting_patch_last_checked(
-                          _formatTime(patchInfo.lastChecked!),
-                        ),
-                        style: getTextStyle(
-                          AppTypo.caption10SB,
-                          AppColors.grey500,
-                        ),
-                        textAlign: TextAlign.end,
-                      ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 6,
-                      alignment: WrapAlignment.end,
-                      children: [
-                        _buildPatchActionButton(
-                          label: l10n.label_setting_patch_check_button,
-                          onTap: _isCheckingPatch
-                              ? null
-                              : () => _handlePatchStatusTap(),
-                          isPrimary: false,
-                          isLoading: _isCheckingPatch,
-                        ),
-                        _buildPatchActionButton(
-                          label: l10n.label_setting_patch_apply_button,
-                          onTap: _isManualPatchUpdating
-                              ? null
-                              : () => _handleManualPatchUpdate(context),
-                          isLoading: _isManualPatchUpdating,
-                        ),
-                      ],
-                    ),
-                    if (patchInfo.needsRestart)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 6),
-                        child: Text(
-                          l10n.message_setting_patch_restart_hint,
-                          style: getTextStyle(
-                            AppTypo.caption10SB,
-                            AppColors.primary500,
-                          ),
-                          textAlign: TextAlign.end,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () => _handlePatchStatusTap(),
-              tailing: patchInfo.canRestart
-                  ? _buildRestartButton(context, patchInfo)
-                  : const SizedBox.shrink(),
-            ),
+            _buildPatchStatusTile(context, l10n, patchInfo),
           ],
         ),
       ),
       loading: () => ui.buildLoadingOverlay(),
       error: (error, stackTrace) => Container(),
+    );
+  }
+
+  Widget _buildPatchStatusTile(
+    BuildContext context,
+    AppLocalizations l10n,
+    PatchInfo patchInfo,
+  ) {
+    final arrowIcon = SvgPicture.asset(
+      'assets/icons/arrow_right_style=line.svg',
+      package: 'picnic_lib',
+      width: 20.w,
+      height: 20.w,
+      colorFilter: const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
+    );
+    final canApplyPatch = patchInfo.hasUpdate && !_isManualPatchUpdating;
+
+    return Column(
+      children: [
+        InkWell(
+          onTap: _isCheckingPatch ? null : () => _handlePatchStatusTap(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.w),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.label_setting_patch_section_title,
+                  style: getTextStyle(AppTypo.body16M),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_isCheckingPatch)
+                            Container(
+                              width: 12.w,
+                              height: 12.w,
+                              margin: EdgeInsets.only(right: 6.w),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.primary500,
+                                ),
+                              ),
+                            ),
+                          Text(
+                            _isCheckingPatch
+                                ? l10n.label_setting_patch_checking
+                                : _localizedPatchStatusText(l10n, patchInfo),
+                            style: getTextStyle(
+                              AppTypo.caption12B,
+                              patchInfo.canRestart
+                                  ? AppColors.primary500
+                                  : AppColors.secondary500,
+                            ),
+                            textAlign: TextAlign.end,
+                          ),
+                        ],
+                      ),
+                      if (patchInfo.lastChecked != null && !_isCheckingPatch)
+                        Text(
+                          l10n.label_setting_patch_last_checked(
+                            _formatTime(patchInfo.lastChecked!),
+                          ),
+                          style: getTextStyle(
+                            AppTypo.caption10SB,
+                            AppColors.grey500,
+                          ),
+                          textAlign: TextAlign.end,
+                        ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        alignment: WrapAlignment.end,
+                        children: [
+                          _buildPatchActionButton(
+                            label: l10n.label_setting_patch_check_button,
+                            onTap: _isCheckingPatch
+                                ? null
+                                : () => _handlePatchStatusTap(),
+                            isPrimary: false,
+                            isLoading: _isCheckingPatch,
+                          ),
+                          _buildPatchActionButton(
+                            label: l10n.label_setting_patch_apply_button,
+                            onTap: canApplyPatch
+                                ? () => _handleManualPatchUpdate(context)
+                                : null,
+                            isLoading: _isManualPatchUpdating,
+                          ),
+                        ],
+                      ),
+                      if (patchInfo.needsRestart)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            l10n.message_setting_patch_restart_hint,
+                            style: getTextStyle(
+                              AppTypo.caption10SB,
+                              AppColors.primary500,
+                            ),
+                            textAlign: TextAlign.end,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                patchInfo.canRestart
+                    ? _buildRestartButton(context, patchInfo)
+                    : arrowIcon,
+              ],
+            ),
+          ),
+        ),
+        const Divider(color: AppColors.grey200),
+      ],
     );
   }
 
