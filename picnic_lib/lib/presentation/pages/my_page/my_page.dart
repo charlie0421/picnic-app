@@ -479,8 +479,9 @@ class _MyPageState extends ConsumerState<MyPage>
                     
                     // 로컬 스토리지에 언어 저장
                     ref.read(appSettingProvider.notifier).setLanguage(langCode);
-                    
+
                     // 앱 재시작하여 새 언어 적용
+                    if (!context.mounted) return;
                     Phoenix.rebirth(context);
                   } catch (e, stackTrace) {
                     logger.e('언어 변경 중 오류 발생', error: e, stackTrace: stackTrace);

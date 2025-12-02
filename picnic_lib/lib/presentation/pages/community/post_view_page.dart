@@ -688,6 +688,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
+    if (!mounted) return;
 
     setState(() {
       _isModalOpen = true;

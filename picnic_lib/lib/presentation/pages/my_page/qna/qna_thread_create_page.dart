@@ -102,6 +102,7 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
+    if (!mounted) return;
 
     // 카테고리 필수: 카테고리 목록이 있는 경우 반드시 선택
     if (_categories.isNotEmpty &&

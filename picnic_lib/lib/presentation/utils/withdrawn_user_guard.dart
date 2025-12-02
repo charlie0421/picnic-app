@@ -29,6 +29,8 @@ Future<bool> showWithdrawalBlockedDialog({
     return false;
   }
 
+  if (!context.mounted) return true;
+
   showSimpleDialog(
     content: AppLocalizations.of(context).error_message_withdrawal,
     onOk: () {

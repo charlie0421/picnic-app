@@ -168,7 +168,7 @@ class SplashConfigPayload {
       sanitizedPath = sanitizedPath.substring(1);
     }
 
-    return '${sanitizedBase}/${sanitizedPath}';
+    return '$sanitizedBase/$sanitizedPath';
   }
 }
 
@@ -191,7 +191,6 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
   static const _splashConfigKey = 'splash_screen_asset';
 
   String? scheduledSplashUrl;
-  int? _cachedConfigVersion;
   bool _disposed = false;
 
   // 패치 체크 관련 상태
@@ -503,13 +502,6 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       final cached = jsonDecode(cachedJson) as Map<String, dynamic>;
       final assetMap = cached['asset'] as Map<String, dynamic>?;
       final cachedPlatform = cached['platform'] as String?;
-      final cachedVersion = cached['config_version'];
-
-      if (cachedVersion is int) {
-        _cachedConfigVersion = cachedVersion;
-      } else if (cachedVersion is num) {
-        _cachedConfigVersion = cachedVersion.toInt();
-      }
 
       if (assetMap == null) {
         return;
@@ -536,7 +528,6 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       if (splash.isExpired) {
         logger.i('캐시된 스플래시 이미지가 만료되어 삭제합니다.');
         await prefs.remove(_splashCacheKey);
-        _cachedConfigVersion = null;
         return;
       }
 
@@ -622,7 +613,6 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
       setStateIfMounted(() {
         scheduledSplashUrl = splash.imageUrl;
-        _cachedConfigVersion = configPayload.version;
         logger.d('시작화면 이미지 url 업데이트: $scheduledSplashUrl');
       });
     } catch (e, stack) {

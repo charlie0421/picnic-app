@@ -419,10 +419,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        border: Border.all(color: Colors.white.withOpacity(0.35), width: 1.2),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary500.withOpacity(0.35),
+            color: AppColors.primary500.withValues(alpha: 0.35),
             blurRadius: 14,
             offset: const Offset(0, 8),
           ),
@@ -437,7 +437,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
             AppLocalizations.of(context).vote_completed_message,
             style: getTextStyle(
               AppTypo.caption12B,
-              Colors.white.withOpacity(0.9),
+              Colors.white.withValues(alpha: 0.9),
             ),
           ),
           SizedBox(height: 8.h),

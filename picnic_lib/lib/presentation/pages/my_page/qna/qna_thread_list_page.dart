@@ -127,6 +127,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
+    if (!mounted) return;
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => QnaThreadCreatePage(userId: widget.userId),

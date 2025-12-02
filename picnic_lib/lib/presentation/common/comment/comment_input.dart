@@ -164,6 +164,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
+    if (!mounted) return;
 
     final comment = _textEditingController.text.trim();
     if (comment.isEmpty) return;

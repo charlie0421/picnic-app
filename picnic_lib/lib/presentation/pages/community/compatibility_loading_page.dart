@@ -137,6 +137,7 @@ class _CompatibilityLoadingPageState
 
   void _updateNavigation() {
     Future(() {
+      if (!mounted) return;
       // 로딩 화면에서도 아티스트 이름을 타이틀로 사용하여 결과 화면과 일관성 유지
       final nameJson = widget.compatibility.artist.name;
       String title = getLocaleTextFromJson(nameJson, context).trim();

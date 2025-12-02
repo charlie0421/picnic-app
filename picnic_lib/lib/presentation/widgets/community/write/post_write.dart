@@ -89,6 +89,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
+    if (!mounted) return;
 
     OverlayLoadingProgress.start(context);
     logger.i('_titleController.text: ${_titleController.text}');

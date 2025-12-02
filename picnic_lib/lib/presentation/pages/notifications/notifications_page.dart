@@ -197,7 +197,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             onTap: () async {
               if ((n.actionUrl ?? '').isNotEmpty) {
                 final handledInternally = await _openUrl(n.actionUrl!);
-                if (handledInternally && mounted) {
+                if (handledInternally && mounted && context.mounted) {
                   await Navigator.of(context).maybePop();
                 }
               } else if ((n.data ?? {}).isNotEmpty) {

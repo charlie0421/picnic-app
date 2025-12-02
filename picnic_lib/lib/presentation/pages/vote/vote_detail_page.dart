@@ -1704,6 +1704,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       return;
     }
+    if (!context.mounted) return;
 
     if (isAdmin && isJmaVote) {
       showVotingDialog(

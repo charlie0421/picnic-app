@@ -868,6 +868,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
       if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
         return;
       }
+      if (!context.mounted) return;
 
       showVotingDialog(
         context: context,
