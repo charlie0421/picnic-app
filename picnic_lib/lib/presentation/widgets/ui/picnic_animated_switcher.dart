@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 
 class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
@@ -47,9 +48,14 @@ class _PicnicAnimatedSwitcherState
         stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
     }
 
-    final currentIndex = stackChildren.isNotEmpty
-        ? stackChildren.length - 1
-        : 0;
+    // 스택이 비어있으면 기본 홈 페이지를 fallback으로 사용
+    // 이는 로그인 후 간헐적 블랙 스크린 문제를 방지함
+    if (stackChildren.isEmpty) {
+      logger.w('⚠️ PicnicAnimatedSwitcher: Navigation stack is empty, using fallback page');
+      stackChildren = [const VoteHomePage()];
+    }
+
+    final currentIndex = stackChildren.length - 1;
 
     return Container(
       padding: navigationInfo.showBottomNavigation
@@ -59,9 +65,7 @@ class _PicnicAnimatedSwitcherState
                   NavBarConstants.bottomNavOuterMargin,
             )
           : EdgeInsets.zero,
-      child: stackChildren.isNotEmpty
-          ? IndexedStack(index: currentIndex, children: stackChildren)
-          : Container(),
+      child: IndexedStack(index: currentIndex, children: stackChildren),
     );
   }
 }
@@ -73,21 +77,24 @@ class DrawerAnimatedSwitcher extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final navigationInfo = ref.watch(navigationInfoProvider);
 
+    final drawerStack = navigationInfo.drawerNavigationStack;
+    final hasContent = drawerStack != null && drawerStack.length > 0;
+
+    if (!hasContent) {
+      logger.w('⚠️ DrawerAnimatedSwitcher: Drawer stack is empty');
+    }
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(opacity: animation, child: child);
       },
       layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-        return currentChild ?? Container();
+        return currentChild ?? const SizedBox.shrink();
       },
-      child: Container(
-        child:
-            navigationInfo.drawerNavigationStack != null &&
-                navigationInfo.drawerNavigationStack!.length > 0
-            ? navigationInfo.drawerNavigationStack?.peek()
-            : Container(),
-      ),
+      child: hasContent
+          ? drawerStack.peek()
+          : const SizedBox.shrink(),
     );
   }
 }
@@ -99,7 +106,12 @@ class SignUpAnimatedSwitcher extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final navigationInfo = ref.watch(navigationInfoProvider);
 
-    logger.i('signUpNavigationStack: ${navigationInfo.signUpNavigationStack}');
+    final signUpStack = navigationInfo.signUpNavigationStack;
+    final hasContent = signUpStack != null && signUpStack.length > 0;
+
+    if (!hasContent) {
+      logger.w('⚠️ SignUpAnimatedSwitcher: SignUp stack is empty');
+    }
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
@@ -107,15 +119,11 @@ class SignUpAnimatedSwitcher extends ConsumerWidget {
         return FadeTransition(opacity: animation, child: child);
       },
       layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-        return currentChild ?? Container();
+        return currentChild ?? const SizedBox.shrink();
       },
-      child: Container(
-        child:
-            navigationInfo.signUpNavigationStack != null &&
-                navigationInfo.signUpNavigationStack!.length > 0
-            ? navigationInfo.signUpNavigationStack?.peek()
-            : Container(),
-      ),
+      child: hasContent
+          ? signUpStack.peek()
+          : const SizedBox.shrink(),
     );
   }
 }
