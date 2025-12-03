@@ -145,7 +145,7 @@ class _MyPageState extends ConsumerState<MyPage>
                 // Notifications
                 if (data != null && (data.isAdmin ?? false))
                   PicnicListItem(
-                    leading: '알림함',
+                    leading: AppLocalizations.of(context).label_mypage_notifications,
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     onTap: () => ref
                         .read(navigationInfoProvider.notifier)

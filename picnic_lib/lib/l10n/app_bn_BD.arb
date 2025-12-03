@@ -619,6 +619,10 @@
   "@label_mypage_notice": {
     "description": "Auto-generated metadata for key 'label_mypage_notice'."
   },
+  "label_mypage_notifications": "বিজ্ঞপ্তি বাক্স",
+  "@label_mypage_notifications": {
+    "description": "Auto-generated metadata for key 'label_mypage_notifications'."
+  },
   "label_mypage_picnic_id": "পিকনিক আইডি",
   "@label_mypage_picnic_id": {
     "description": "Auto-generated metadata for key 'label_mypage_picnic_id'."

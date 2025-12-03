@@ -487,6 +487,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_mypage_notice => 'Notice';
 
   @override
+  String get label_mypage_notifications => '通知';
+
+  @override
   String get label_mypage_picnic_id => 'Picnic ID';
 
   @override
@@ -2074,6 +2077,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get label_mypage_notice => '公告';
 
   @override
+  String get label_mypage_notifications => '通知';
+
+  @override
   String get label_mypage_picnic_id => 'ID';
 
   @override
@@ -3607,6 +3613,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get label_mypage_notice => '公告';
+
+  @override
+  String get label_mypage_notifications => '通知';
 
   @override
   String get label_mypage_picnic_id => 'ID';

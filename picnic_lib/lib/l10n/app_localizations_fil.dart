@@ -502,6 +502,9 @@ class AppLocalizationsFil extends AppLocalizations {
   String get label_mypage_notice => 'PAUNAWA';
 
   @override
+  String get label_mypage_notifications => 'Mga abiso';
+
+  @override
   String get label_mypage_picnic_id => 'Picnic id';
 
   @override

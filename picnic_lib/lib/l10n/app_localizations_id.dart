@@ -488,6 +488,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_mypage_notice => 'Pengumuman';
 
   @override
+  String get label_mypage_notifications => 'Notifikasi';
+
+  @override
   String get label_mypage_picnic_id => 'ID';
 
   @override

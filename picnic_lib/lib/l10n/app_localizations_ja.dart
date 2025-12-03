@@ -473,6 +473,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_mypage_notice => 'お知らせ';
 
   @override
+  String get label_mypage_notifications => '通知';
+
+  @override
   String get label_mypage_picnic_id => 'アイデンティティ';
 
   @override

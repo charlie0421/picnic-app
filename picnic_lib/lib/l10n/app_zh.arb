@@ -137,5 +137,9 @@
         "type": "int"
       }
     }
+  },
+  "label_mypage_notifications": "通知箱",
+  "@label_mypage_notifications": {
+    "description": "Auto-generated metadata for key 'label_mypage_notifications'."
   }
 }

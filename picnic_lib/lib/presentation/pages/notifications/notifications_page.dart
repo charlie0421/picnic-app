@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/services/notification_inbox_service.dart';
-import 'package:picnic_lib/data/models/user_notification.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/user_notification.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/pages/community/community_post_detail_screen.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
@@ -23,6 +25,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   int _from = 0;
   final int _limit = 20;
   final ScrollController _controller = ScrollController();
+  String? _pageTitle;
 
   @override
   void initState() {
@@ -35,6 +38,13 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         _load();
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _pageTitle ??= AppLocalizations.of(context).label_mypage_notifications;
+    _updateNavigationTitle();
   }
 
   Future<void> _load() async {
@@ -71,7 +81,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     try {
       final uri = Uri.parse(url);
       final host = uri.host.toLowerCase();
-      final isPicnicDomain = host == 'applink.picnic.fan' || host == 'www.picnic.fan';
+      final isPicnicDomain =
+          host == 'applink.picnic.fan' || host == 'www.picnic.fan';
 
       // Picnic 도메인의 앱 내부 경로는 deep link로 처리
       if (isPicnicDomain && (uri.scheme == 'https' || uri.scheme == 'http')) {
@@ -145,7 +156,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('알림함')),
       body: ListView.separated(
         controller: _controller,
         itemBuilder: (context, index) {
@@ -183,7 +193,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           // 다국어 처리: 현재 로케일에 맞는 텍스트 표시
           final localizedTitle = n.getLocalizedTitle(context);
           final localizedBody = n.getLocalizedBody(context);
-          
+
           return ListTile(
             leading: Icon(leadingIcon),
             tileColor: tileColor,
@@ -216,5 +226,18 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         itemCount: _items.length + 1,
       ),
     );
+  }
+
+  void _updateNavigationTitle() {
+    final title = _pageTitle;
+    if (title == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(pageTitle: title);
+    });
   }
 }

@@ -488,6 +488,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get label_mypage_notice => 'สังเกต';
 
   @override
+  String get label_mypage_notifications => 'การแจ้งเตือน';
+
+  @override
   String get label_mypage_picnic_id => 'ID ปิคนิค';
 
   @override

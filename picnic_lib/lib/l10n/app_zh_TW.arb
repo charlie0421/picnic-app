@@ -619,6 +619,10 @@
   "@label_mypage_notice": {
     "description": "Auto-generated metadata for key 'label_mypage_notice'."
   },
+  "label_mypage_notifications": "通知箱",
+  "@label_mypage_notifications": {
+    "description": "Auto-generated metadata for key 'label_mypage_notifications'."
+  },
   "label_mypage_picnic_id": "ID",
   "@label_mypage_picnic_id": {
     "description": "Auto-generated metadata for key 'label_mypage_picnic_id'."
