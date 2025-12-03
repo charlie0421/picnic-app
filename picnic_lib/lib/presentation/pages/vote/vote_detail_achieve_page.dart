@@ -484,9 +484,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                 SizedBox(
                   height: 18,
                   child: Text(
-                    '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.startAt!.toLocal())} ~ '
-                    '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.stopAt!.toLocal())} '
-                    '(${getShortTimeZoneIdentifier()})',
+                    formatVotePeriod(voteModel.startAt, voteModel.stopAt),
                     style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
                   ),
                 ),

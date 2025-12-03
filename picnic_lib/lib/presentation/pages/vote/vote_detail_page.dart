@@ -797,9 +797,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               fit: BoxFit.scaleDown,
               alignment: Alignment.center,
               child: Text(
-                '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.startAt!.toLocal())} ~ '
-                '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.stopAt!.toLocal())} '
-                '(${getShortTimeZoneIdentifier()})',
+                formatVotePeriod(voteModel.startAt, voteModel.stopAt),
                 style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
                 maxLines: 1,
                 overflow: TextOverflow.visible,

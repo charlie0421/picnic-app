@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
+import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote_pick.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -58,7 +58,10 @@ class _VoteHistoryHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          DateFormat('yyyy.MM.dd HH:mm:ss').format(item.createdAt!),
+          formatLocalDateTime(
+            item.createdAt,
+            format: 'yyyy.MM.dd HH:mm:ss',
+          ),
           style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
         ),
         if (isPartnership)

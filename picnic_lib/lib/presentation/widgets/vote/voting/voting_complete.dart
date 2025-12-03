@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
@@ -181,20 +182,20 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                 final updatedAtStr =
                                     widget.result['updatedAt'] as String?;
                                 if (updatedAtStr == null) {
-                                  return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
+                                  return formatLocalDateTime(DateTime.now());
                                 }
                                 final parsedDate = DateTime.tryParse(
                                   updatedAtStr,
                                 );
                                 if (parsedDate == null) {
-                                  return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
+                                  return formatLocalDateTime(DateTime.now());
                                 }
-                                return '${DateFormat('yyyy.MM.dd HH:mm').format(parsedDate.add(const Duration(hours: 9)))}(KST)';
+                                return formatLocalDateTime(parsedDate);
                               } catch (e) {
                                 logger.w(
                                   'Failed to parse updatedAt: ${widget.result['updatedAt']}, error: $e',
                                 );
-                                return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
+                                return formatLocalDateTime(DateTime.now());
                               }
                             }(),
                             style: getTextStyle(
