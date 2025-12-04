@@ -1,7 +1,11 @@
 PODS:
-  - Ads-Global (6.5.0.9):
-    - Ads-Global/BUAdSDK (= 6.5.0.9)
-  - Ads-Global/BUAdSDK (6.5.0.9)
+  - Ads-Global (7.7.0.5):
+    - Ads-Global/BUAdSDK (= 7.7.0.5)
+  - Ads-Global/BUAdSDK (7.7.0.5):
+    - Ads-Global/PangleSDK
+    - Ads-Global/TikTokBusinessSDK
+  - Ads-Global/PangleSDK (7.7.0.5)
+  - Ads-Global/TikTokBusinessSDK (7.7.0.5)
   - app_links (6.4.1):
     - Flutter
   - app_tracking_transparency (0.0.1):
@@ -143,6 +147,9 @@ PODS:
   - fluwx/pay (0.0.1):
     - Flutter
     - WechatOpenSDK-XCFramework (~> 2.0.5)
+  - gma_mediation_pangle (3.4.0):
+    - Flutter
+    - GoogleMobileAdsMediationPangle (~> 7.7.0.5.0)
   - Google-Mobile-Ads-SDK (12.2.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - google_mobile_ads (6.0.0):
@@ -183,6 +190,9 @@ PODS:
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
+  - GoogleMobileAdsMediationPangle (7.7.0.5.0):
+    - Ads-Global (= 7.7.0.5)
+    - Google-Mobile-Ads-SDK (~> 12.0)
   - GoogleSignIn (9.0.0):
     - AppAuth (~> 2.0)
     - AppCheckCore (~> 11.0)
@@ -319,7 +329,6 @@ PODS:
   - WechatOpenSDK-XCFramework (2.0.5)
 
 DEPENDENCIES:
-  - Ads-Global (= 6.5.0.9)
   - app_links (from `.symlinks/plugins/app_links/ios`)
   - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
@@ -338,6 +347,7 @@ DEPENDENCIES:
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - fluwx (from `.symlinks/plugins/fluwx/ios`)
+  - gma_mediation_pangle (from `.symlinks/plugins/gma_mediation_pangle/ios`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
@@ -385,6 +395,7 @@ SPEC REPOS:
     - GoogleAdsOnDeviceConversion
     - GoogleAppMeasurement
     - GoogleDataTransport
+    - GoogleMobileAdsMediationPangle
     - GoogleSignIn
     - GoogleUserMessagingPlatform
     - GoogleUtilities
@@ -439,6 +450,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   fluwx:
     :path: ".symlinks/plugins/fluwx/ios"
+  gma_mediation_pangle:
+    :path: ".symlinks/plugins/gma_mediation_pangle/ios"
   google_mobile_ads:
     :path: ".symlinks/plugins/google_mobile_ads/ios"
   google_sign_in_ios:
@@ -495,7 +508,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
-  Ads-Global: 4ae64395eb89220f3a257c1aaff9c83f900c2155
+  Ads-Global: 05498f814fe2e18f385f6079b04622f66d240168
   app_links: 3dbc685f76b1693c66a6d9dd1e9ab6f73d97dc0a
   app_tracking_transparency: 3d84f147f67ca82d3c15355c36b1fa6b66ca7c92
   AppAuth: 1c1a8afa7e12f2ec3a294d9882dfa5ab7d3cb063
@@ -525,12 +538,14 @@ SPEC CHECKSUMS:
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
   fluwx: 2ef787502fccb3f3596b380509001a8ea71cbbff
+  gma_mediation_pangle: 2e19d82494f2eb1a9e4999b8a53cedda3ae9b521
   Google-Mobile-Ads-SDK: 1dfb0c3cb46c7e2b00b0f4de74a1e06d9ea25d67
   google_mobile_ads: 535223588a6791b7a3cc3513a1bc7b89d12f3e62
   google_sign_in_ios: 00dfa94252eb10278b64828c81bcb7158a81a53a
   GoogleAdsOnDeviceConversion: 2be6297a4f048459e0ae17fad9bfd2844e10cf64
   GoogleAppMeasurement: 700dce7541804bec33db590a5c496b663fbe2539
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
+  GoogleMobileAdsMediationPangle: 51e31e4267363e466e196d31f69306dd2b17ee88
   GoogleSignIn: c7f09cfbc85a1abf69187be091997c317cc33b77
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
@@ -573,6 +588,6 @@ SPEC CHECKSUMS:
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
   WechatOpenSDK-XCFramework: b072030c9eeee91dfff1856a7846f70f7b9a88ed
 
-PODFILE CHECKSUM: 758c45fe889f443b62431c99aba94d1a5535d0c6
+PODFILE CHECKSUM: a80188021e74e2ca708f6629256f54915646a2d3
 
 COCOAPODS: 1.16.2

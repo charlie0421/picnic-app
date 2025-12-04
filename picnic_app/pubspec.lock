@@ -1109,6 +1109,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.3"
+  gma_mediation_pangle:
+    dependency: transitive
+    description:
+      name: gma_mediation_pangle
+      sha256: "676136f1dfc2073ddd89a2651ea633e6269c9fd358f632a0e18a48bbecaecd05"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.4.0"
   google_identity_services_web:
     dependency: transitive
     description:

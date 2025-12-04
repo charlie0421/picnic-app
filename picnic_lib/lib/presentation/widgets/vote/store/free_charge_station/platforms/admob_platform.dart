@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/consent_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -23,10 +24,25 @@ class AdmobPlatform extends AdPlatform {
 
     try {
       logger.i('[$id] AdMob 초기화 시작');
-      await MobileAds.instance.initialize();
+
+      // UMP 동의 확인 (MobileAds 초기화 전에)
+      await ConsentService().initialize();
+      logger.i('[$id] UMP 동의 확인 완료');
+
+      final initStatus = await MobileAds.instance.initialize();
+
+      // 미디에이션 어댑터 상태 로깅
+      initStatus.adapterStatuses.forEach((adapter, status) {
+        logger.i(
+          '[$id] Adapter: $adapter, '
+          'State: ${status.state}, '
+          'Description: ${status.description}',
+        );
+      });
+
       await _initAdUnitId();
       _isInitialized = true;
-      logger.i('[$id] AdMob 초기화 완료');
+      logger.i('[$id] AdMob 초기화 완료 (어댑터 ${initStatus.adapterStatuses.length}개)');
     } catch (e, s) {
       logger.e('[$id] AdMob 초기화 실패', error: e, stackTrace: s);
     }

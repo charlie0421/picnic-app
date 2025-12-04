@@ -47,7 +47,8 @@ target 'Runner' do
   use_modular_headers!
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
-  pod 'Ads-Global', '6.5.0.9'
+  # Pangle SDK는 gma_mediation_pangle 어댑터가 자동 관리
+  # pod 'Ads-Global', '6.5.0.9'  # 미디에이션 전환으로 제거
   # Ensure WeChat SDK headers are integrated for fluwx
   pod 'WechatOpenSDK-XCFramework'
 
