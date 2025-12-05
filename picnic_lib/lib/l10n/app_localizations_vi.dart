@@ -491,7 +491,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_mypage_notice => 'Để ý';
 
   @override
-  String get label_mypage_notifications => 'Thông báo';
+  String get label_mypage_notifications => 'Hộp thông báo';
 
   @override
   String get label_mypage_picnic_id => 'ID dã ngoại';

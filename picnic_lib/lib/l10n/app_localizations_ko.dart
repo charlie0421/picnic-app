@@ -473,7 +473,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_mypage_notice => '공지사항';
 
   @override
-  String get label_mypage_notifications => '알림';
+  String get label_mypage_notifications => '알림함';
 
   @override
   String get label_mypage_picnic_id => '피크닠 ID';

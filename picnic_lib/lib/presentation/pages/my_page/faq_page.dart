@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
@@ -30,6 +32,87 @@ class _FAQPageState extends ConsumerState<FAQPage>
       return json[language];
     }
     return json['en'] ?? '';
+  }
+
+  // answer_delta에서 해당 언어의 Delta 가져오기
+  Map<String, dynamic>? _getLocalizedDelta(
+    Map<String, dynamic>? answerDelta,
+    String language,
+  ) {
+    if (answerDelta == null) return null;
+    if (answerDelta[language] != null) {
+      return answerDelta[language] as Map<String, dynamic>?;
+    }
+    if (answerDelta['ko'] != null) {
+      return answerDelta['ko'] as Map<String, dynamic>?;
+    }
+    return null;
+  }
+
+  // Delta를 QuillEditor로 렌더링
+  Widget _buildQuillViewer(Map<String, dynamic> delta) {
+    try {
+      final ops = delta['ops'] as List?;
+      if (ops == null || ops.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      final document = quill.Document.fromJson(ops);
+      final controller = quill.QuillController(
+        document: document,
+        selection: const TextSelection.collapsed(offset: 0),
+        readOnly: true,
+      );
+
+      return quill.QuillEditor(
+        controller: controller,
+        scrollController: ScrollController(),
+        focusNode: FocusNode(),
+        config: quill.QuillEditorConfig(
+          showCursor: false,
+          autoFocus: false,
+          expands: false,
+          padding: EdgeInsets.zero,
+          embedBuilders: [
+            NetworkImageEmbedBuilder(),
+          ],
+        ),
+      );
+    } catch (e) {
+      logger.e('FAQ Delta 렌더링 오류', error: e);
+      // 폴백: Delta에서 plain text 추출
+      return Text(
+        _extractPlainTextFromDelta(delta),
+        style: getTextStyle(AppTypo.body14M, AppColors.grey700),
+      );
+    }
+  }
+
+  // Delta에서 plain text 추출 (폴백용)
+  String _extractPlainTextFromDelta(Map<String, dynamic> delta) {
+    final ops = delta['ops'] as List?;
+    if (ops == null) return '';
+    return ops
+        .where((op) => op is Map && op['insert'] is String)
+        .map((op) => op['insert'] as String)
+        .join();
+  }
+
+  // 답변 위젯 빌더
+  Widget _buildAnswer(Map<String, dynamic> faq, String language) {
+    final answerDelta =
+        faq['answer_delta'] as Map<String, dynamic>?;
+    final delta = _getLocalizedDelta(answerDelta, language);
+
+    if (delta != null) {
+      return _buildQuillViewer(delta);
+    }
+
+    // 폴백: 레거시 텍스트 렌더링
+    return Text(
+      _getLocalizedText(faq['answer'], language),
+      style: getTextStyle(AppTypo.body14M, AppColors.grey700),
+    );
   }
 
   String _getLocalizedCategoryLabel(String categoryCode, String language) {
@@ -213,13 +296,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
                       children: [
                         Padding(
                           padding: EdgeInsets.all(16.w),
-                          child: Text(
-                            _getLocalizedText(faq['answer'], currentLanguage),
-                            style: getTextStyle(
-                              AppTypo.body14M,
-                              AppColors.grey700,
-                            ),
-                          ),
+                          child: _buildAnswer(faq, currentLanguage),
                         ),
                       ],
                     );

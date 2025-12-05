@@ -487,7 +487,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_mypage_notice => 'Notice';
 
   @override
-  String get label_mypage_notifications => 'Notifications';
+  String get label_mypage_notifications => 'Notification Box';
 
   @override
   String get label_mypage_picnic_id => 'Picnic ID';

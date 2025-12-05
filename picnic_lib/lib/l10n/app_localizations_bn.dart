@@ -487,7 +487,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get label_mypage_notice => 'Notice';
 
   @override
-  String get label_mypage_notifications => 'নোটিফিকেশন';
+  String get label_mypage_notifications => 'বিজ্ঞপ্তি বাক্স';
 
   @override
   String get label_mypage_picnic_id => 'Picnic ID';
@@ -2097,7 +2097,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get label_mypage_notice => 'বিজ্ঞপ্তি';
 
   @override
-  String get label_mypage_notifications => 'নোটিফিকেশন';
+  String get label_mypage_notifications => 'বিজ্ঞপ্তি বাক্স';
 
   @override
   String get label_mypage_picnic_id => 'পিকনিক আইডি';

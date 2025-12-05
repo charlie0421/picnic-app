@@ -1032,7 +1032,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'label_mypage_notifications'.
   ///
   /// In en, this message translates to:
-  /// **'Notifications'**
+  /// **'Notification Box'**
   String get label_mypage_notifications;
 
   /// Auto-generated metadata for key 'label_mypage_picnic_id'.
