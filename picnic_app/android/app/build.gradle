@@ -211,7 +211,10 @@ repositories {
     mavenCentral()
 }
 
-// gma_mediation_pangle의 unfat pag-sdk-ad 제외 (API 미노출로 PangleNativeHandler 호환 불가)
+// Pangle SDK 설정:
+// - gma_mediation_pangle이 번들하는 pag-sdk-ad는 API가 노출되지 않아 PangleNativeHandler와 호환 불가
+// - 대신 전체 API를 제공하는 ads-sdk를 직접 사용
+// - 이렇게 하면 미디에이션(google_mobile_ads)과 직접 SDK 호출(PangleNativeHandler) 모두 작동
 configurations.all {
     exclude group: 'com.pangle.global', module: 'pag-sdk-ad'
 }
