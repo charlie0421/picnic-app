@@ -17,12 +17,12 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
   final S3Uploader _s3Uploader;
 
   LocalImageEmbedBuilder({required this.onUploadComplete})
-      : _s3Uploader = S3Uploader(
-          accessKey: Environment.awsAccessKey,
-          secretKey: Environment.awsSecretKey,
-          region: Environment.awsRegion,
-          bucketName: Environment.awsBucket,
-        );
+    : _s3Uploader = S3Uploader(
+        accessKey: Environment.awsAccessKey,
+        secretKey: Environment.awsSecretKey,
+        region: Environment.awsRegion,
+        bucketName: Environment.awsBucket,
+      );
 
   @override
   String get key => 'local-image';
@@ -82,14 +82,11 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
         }
 
         final Uint8List bytes = response.bodyBytes;
-        final mediaUrl = await _s3Uploader.uploadFile(
-          'post/image',
-          bytes,
-          (progress) {
-            logger
-                .i('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
-          },
-        );
+        final mediaUrl = await _s3Uploader.uploadFile('post/image', bytes, (
+          progress,
+        ) {
+          logger.i('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
+        });
 
         onUploadComplete(source, mediaUrl);
         return mediaUrl;
@@ -102,15 +99,12 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
 
         final streamController = StreamController<double>();
 
-        final mediaUrl = await _s3Uploader.uploadFile(
-          'post/image',
-          file,
-          (progress) {
-            streamController.add(progress);
-            logger
-                .i('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
-          },
-        );
+        final mediaUrl = await _s3Uploader.uploadFile('post/image', file, (
+          progress,
+        ) {
+          streamController.add(progress);
+          logger.i('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
+        });
 
         streamController.close();
         onUploadComplete(source, mediaUrl);
@@ -142,9 +136,10 @@ class NetworkImageEmbedBuilder extends EmbedBuilder {
     final imageWidget = SizedBox(
       width: width,
       child: PicnicCachedNetworkImage(
-          imageUrl: imageUrl,
-          width: getPlatformScreenSize(context).width.toInt() - 10,
-          fit: BoxFit.contain),
+        imageUrl: imageUrl,
+        width: getPlatformScreenSize(context).width.toInt() - 10,
+        fit: BoxFit.contain,
+      ),
     );
 
     if (enableFullScreen) {
@@ -161,7 +156,7 @@ class NetworkImageEmbedBuilder extends EmbedBuilder {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
-        pageBuilder: (_, __, ___) => _FullScreenImageViewer(imageUrl: imageUrl),
+        pageBuilder: (_, _, _) => _FullScreenImageViewer(imageUrl: imageUrl),
       ),
     );
   }

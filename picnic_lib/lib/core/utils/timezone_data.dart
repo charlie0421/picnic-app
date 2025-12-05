@@ -1,7 +1,3 @@
-/// 시간대 약어 데이터베이스
-/// 출처: timeanddate.com + IANA 데이터베이스
-/// 웹(picnic-web)과 동일한 구현을 유지합니다.
-
 const Map<String, String> timezoneAbbreviations = {
   // 아시아-태평양
   'Asia/Seoul': 'KST',
