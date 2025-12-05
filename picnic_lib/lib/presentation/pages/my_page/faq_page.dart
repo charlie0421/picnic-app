@@ -74,7 +74,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
           expands: false,
           padding: EdgeInsets.zero,
           embedBuilders: [
-            NetworkImageEmbedBuilder(),
+            NetworkImageEmbedBuilder(enableFullScreen: true),
           ],
         ),
       );

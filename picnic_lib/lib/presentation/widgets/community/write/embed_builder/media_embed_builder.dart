@@ -124,6 +124,11 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
 }
 
 class NetworkImageEmbedBuilder extends EmbedBuilder {
+  /// 이미지 탭 시 전체 화면 뷰어를 표시할지 여부
+  final bool enableFullScreen;
+
+  NetworkImageEmbedBuilder({this.enableFullScreen = false});
+
   @override
   String get key => BlockEmbed.imageType;
 
@@ -133,12 +138,68 @@ class NetworkImageEmbedBuilder extends EmbedBuilder {
     final imageUrl = node.value.data;
     final screenWidth = getPlatformScreenSize(context).width;
     final width = screenWidth / 2;
-    return SizedBox(
+
+    final imageWidget = SizedBox(
       width: width,
       child: PicnicCachedNetworkImage(
           imageUrl: imageUrl,
           width: getPlatformScreenSize(context).width.toInt() - 10,
           fit: BoxFit.contain),
+    );
+
+    if (enableFullScreen) {
+      return GestureDetector(
+        onTap: () => _showFullScreenImage(context, imageUrl),
+        child: imageWidget,
+      );
+    }
+
+    return imageWidget;
+  }
+
+  void _showFullScreenImage(BuildContext context, String imageUrl) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (_, __, ___) => _FullScreenImageViewer(imageUrl: imageUrl),
+      ),
+    );
+  }
+}
+
+/// FAQ 등에서 사용하는 전체 화면 이미지 뷰어
+class _FullScreenImageViewer extends StatelessWidget {
+  final String imageUrl;
+
+  const _FullScreenImageViewer({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black.withValues(alpha: 0.9),
+      body: Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              panEnabled: true,
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: PicnicCachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            right: 10,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 30),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
