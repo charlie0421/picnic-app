@@ -68,11 +68,13 @@ class CommentsNotifier extends _$CommentsNotifier {
 
       final rootComments = rootResponse.map((row) {
         final comment = CommentModel.fromJson(row);
-        final likes = (row['comment_likes'] as List).where((like) =>
+        final commentLikes = row['comment_likes'] as List? ?? [];
+        final likes = commentLikes.where((like) =>
             like['user_id'] == currentUserId && like['deleted_at'] == null);
+        final commentReports = row['comment_reports'] as List? ?? [];
 
         return comment.copyWith(
-          isReportedByMe: row['comment_reports'].length > 0,
+          isReportedByMe: commentReports.isNotEmpty,
           isLikedByMe: likes.isNotEmpty,
         );
       }).toList();
@@ -108,11 +110,13 @@ class CommentsNotifier extends _$CommentsNotifier {
 
       final childComments = childResponse.map((row) {
         final comment = CommentModel.fromJson(row);
-        final likes = (row['comment_likes'] as List).where((like) =>
+        final commentLikes = row['comment_likes'] as List? ?? [];
+        final likes = commentLikes.where((like) =>
             like['user_id'] == currentUserId && like['deleted_at'] == null);
+        final commentReports = row['comment_reports'] as List? ?? [];
 
         return comment.copyWith(
-          isReportedByMe: row['comment_reports'].length > 0,
+          isReportedByMe: commentReports.isNotEmpty,
           isLikedByMe: likes.isNotEmpty,
         );
       }).toList();

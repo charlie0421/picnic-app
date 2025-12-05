@@ -448,6 +448,14 @@ class NavigationInfo extends _$NavigationInfo {
     final communityNavigationStack =
         state.communityNavigationStack ?? NavigationStack();
 
+    // 같은 타입의 페이지가 스택 최상단에 있으면 중복 push 방지
+    if (!communityNavigationStack.isEmpty &&
+        communityNavigationStack.peek().runtimeType == page.runtimeType) {
+      logger.d(
+          '🚀 Skipping duplicate push: ${page.runtimeType} is already on top');
+      return;
+    }
+
     communityNavigationStack.push(page);
     logger
         .d('🚀 Pushing page to communityNavigationStack: ${page.runtimeType}');

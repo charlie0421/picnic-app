@@ -167,7 +167,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
     try {
       if (content == null) {
         return [
-          {"insert": ""},
+          {"insert": "\n"},
         ];
       }
 
@@ -187,7 +187,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
         final trimmed = content.trim();
         if (trimmed.isEmpty) {
           return [
-            {"insert": ""},
+            {"insert": "\n"},
           ];
         }
 

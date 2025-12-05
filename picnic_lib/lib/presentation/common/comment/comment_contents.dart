@@ -28,7 +28,7 @@ class _CommentContentsState extends State<CommentContents> {
     logger.i(
         'isTranslated: ${widget.isTranslated}, showOriginal: ${widget.showOriginal}');
 
-    if (widget.item.isReportedByMe! ||
+    if ((widget.item.isReportedByMe ?? false) ||
         (widget.item.isBlindedByAdmin ?? false)) {
       return '(${AppLocalizations.of(context).post_comment_reported_comment})';
     }
@@ -37,26 +37,33 @@ class _CommentContentsState extends State<CommentContents> {
       return '(${AppLocalizations.of(context).post_comment_deleted_comment})';
     }
 
+    final content = widget.item.content;
+    if (content == null || content.isEmpty) {
+      return '';
+    }
+
     String currentLocale = Localizations.localeOf(context).languageCode;
     String commentLocale = widget.item.locale ?? 'ko';
 
     // 원문 보기가 활성화되었거나, 번역이 없거나, 번역 모드가 아닌 경우 원본 텍스트 반환
     if (widget.showOriginal ||
         !widget.isTranslated ||
-        !widget.item.content!.containsKey(currentLocale)) {
-      return widget.item.content![commentLocale]!;
+        !content.containsKey(currentLocale)) {
+      return content[commentLocale] ?? content.values.first ?? '';
     }
 
     // 그 외의 경우 번역된 텍스트 반환
-    return widget.item.content![currentLocale]!;
+    return content[currentLocale] ?? content[commentLocale] ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
     final currentLocale = Localizations.localeOf(context).languageCode;
     final commentLocale = widget.item.locale ?? 'ko';
+    final itemContent = widget.item.content;
     final isTranslatedText = widget.isTranslated &&
-        widget.item.content!.containsKey(currentLocale) &&
+        itemContent != null &&
+        itemContent.containsKey(currentLocale) &&
         currentLocale != commentLocale &&
         !widget.showOriginal;
     final content = _getDisplayContent(context);
@@ -99,7 +106,7 @@ class _CommentContentsState extends State<CommentContents> {
                         content,
                         style: getTextStyle(
                           AppTypo.body14M,
-                          widget.item.isReportedByMe! ||
+                          (widget.item.isReportedByMe ?? false) ||
                                   (widget.item.isBlindedByAdmin ?? false)
                               ? AppColors.point500
                               : widget.item.deletedAt != null

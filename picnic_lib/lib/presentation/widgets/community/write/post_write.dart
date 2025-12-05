@@ -16,6 +16,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
+import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/post_write_body.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/post_write_bottom_bar.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/post_write_header.dart';
@@ -177,7 +178,17 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
             AppLocalizations.of(navigatorKey.currentContext!).common_success,
           );
         }
-        ref.read(navigationInfoProvider.notifier).goBack();
+        // 게시글 리스트 갱신
+        final communityState = ref.read(communityStateInfoProvider);
+        final boardId = communityState.currentBoard?.boardId;
+        final artistId = communityState.currentArtist?.id;
+        if (boardId != null) {
+          ref.invalidate(postsByBoardProvider(boardId, 10, 1));
+        }
+        if (artistId != null) {
+          ref.invalidate(postsByArtistProvider(artistId, 10, 1));
+        }
+        ref.read(navigationInfoProvider.notifier).goBackCommunity();
       }
     } catch (e, s) {
       logger.e('Error saving post: $e', stackTrace: s);
