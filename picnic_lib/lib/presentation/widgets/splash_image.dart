@@ -75,11 +75,13 @@ class SplashConfigPayload {
   final String imageUrl;
   final int version;
   final DateTime? expiresAt;
+  final bool enabled;
 
   SplashConfigPayload({
     required this.imageUrl,
     required this.version,
     this.expiresAt,
+    this.enabled = true,
   });
 
   bool get isValid => imageUrl.isNotEmpty;
@@ -116,10 +118,14 @@ class SplashConfigPayload {
         expiresAt = DateTime.tryParse(expiresValue);
       }
 
+      final enabledValue = decoded['enabled'];
+      final enabled = enabledValue is bool ? enabledValue : true;
+
       return SplashConfigPayload(
         imageUrl: imageUrl,
         version: version,
         expiresAt: expiresAt,
+        enabled: enabled,
       );
     } catch (e, stack) {
       logger.w('스플래시 config 파싱 실패: $e', stackTrace: stack);
@@ -589,6 +595,17 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       final configPayload = SplashConfigPayload.fromRaw(raw);
       if (configPayload == null || !configPayload.isValid) {
         logger.w('시작화면 config 파싱 실패');
+        return;
+      }
+
+      if (!configPayload.enabled) {
+        logger.i('시작화면이 비활성화되어 있습니다.');
+        // 캐시된 스플래시 이미지 제거
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove(_splashCacheKey);
+        setStateIfMounted(() {
+          scheduledSplashUrl = null;
+        });
         return;
       }
 
