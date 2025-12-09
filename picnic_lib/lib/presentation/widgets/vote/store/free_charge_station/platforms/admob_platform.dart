@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/config/environment.dart';
-import 'package:picnic_lib/core/services/consent_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -10,8 +9,8 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/a
 import 'package:picnic_lib/supabase_options.dart';
 
 /// AdMob 광고 플랫폼 구현
+/// 참고: AdMob SDK 초기화는 MainInitializer._initializeAdMob()에서 앱 시작 시 수행됨
 class AdmobPlatform extends AdPlatform {
-  static bool _isInitialized = false;
   String _adUnitId = '';
   RewardedAd? _currentAd;
 
@@ -20,32 +19,10 @@ class AdmobPlatform extends AdPlatform {
 
   @override
   Future<void> initialize() async {
-    if (_isInitialized || isDisposed) return;
+    if (isDisposed) return;
 
-    try {
-      logger.i('[$id] AdMob 초기화 시작');
-
-      // UMP 동의 확인 (MobileAds 초기화 전에)
-      await ConsentService().initialize();
-      logger.i('[$id] UMP 동의 확인 완료');
-
-      final initStatus = await MobileAds.instance.initialize();
-
-      // 미디에이션 어댑터 상태 로깅
-      initStatus.adapterStatuses.forEach((adapter, status) {
-        logger.i(
-          '[$id] Adapter: $adapter, '
-          'State: ${status.state}, '
-          'Description: ${status.description}',
-        );
-      });
-
-      await _initAdUnitId();
-      _isInitialized = true;
-      logger.i('[$id] AdMob 초기화 완료 (어댑터 ${initStatus.adapterStatuses.length}개)');
-    } catch (e, s) {
-      logger.e('[$id] AdMob 초기화 실패', error: e, stackTrace: s);
-    }
+    // 광고 ID만 초기화 (SDK 초기화는 앱 시작 시 완료됨)
+    await _initAdUnitId();
   }
 
   Future<void> _initAdUnitId() async {

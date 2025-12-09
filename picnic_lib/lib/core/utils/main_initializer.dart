@@ -18,6 +18,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:picnic_lib/core/services/consent_service.dart';
 
 /// main.dart 파일에서 공통으로 사용되는 초기화 로직을 담은 유틸리티 클래스
 ///
@@ -100,6 +102,11 @@ class MainInitializer {
               enableLogging: true,
               branchAttributionLevel: BranchAttributionLevel.NONE,
             );
+          }
+
+          // AdMob 초기화 (모바일 전용)
+          if (UniversalPlatform.isMobile) {
+            await _initializeAdMob();
           }
 
           logger.i('앱 시작 중...');
@@ -200,6 +207,33 @@ class MainInitializer {
 
       // 오류 발생 시에도 콜백 호출
       callback(false, 'ko');
+    }
+  }
+
+  /// AdMob 및 미디에이션 초기화
+  static Future<void> _initializeAdMob() async {
+    try {
+      logger.i('AdMob 초기화 시작');
+
+      // UMP 동의 확인 (MobileAds 초기화 전에)
+      await ConsentService().initialize();
+      logger.i('UMP 동의 확인 완료');
+
+      // AdMob SDK 초기화
+      final initStatus = await MobileAds.instance.initialize();
+
+      // 미디에이션 어댑터 상태 로깅
+      initStatus.adapterStatuses.forEach((adapter, status) {
+        logger.i(
+          '[AdMob] Adapter: $adapter, '
+          'State: ${status.state}, '
+          'Description: ${status.description}',
+        );
+      });
+
+      logger.i('AdMob 초기화 완료 (어댑터 ${initStatus.adapterStatuses.length}개)');
+    } catch (e, s) {
+      logger.e('AdMob 초기화 실패', error: e, stackTrace: s);
     }
   }
 }
