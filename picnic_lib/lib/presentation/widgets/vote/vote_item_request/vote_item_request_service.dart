@@ -99,19 +99,18 @@ class VoteItemRequestService {
     }
   }
 
-  /// 페이지네이션을 지원하는 아티스트 검색
+  /// 페이지네이션을 지원하는 아티스트 검색 (빠른 검색 사용)
   Future<Map<String, dynamic>> searchArtistsWithPagination(
     String query, {
     required int page,
     required int pageSize,
   }) async {
     try {
-      // 단순히 SearchService의 기존 메서드 사용
-      final artists = await SearchService.searchArtists(
+      // 투표 후보 신청용 빠른 검색 메서드 사용
+      final artists = await SearchService.searchArtistsFast(
         query: query,
         page: page,
         limit: pageSize,
-        supportKoreanInitials: true,
       );
 
       // 더 많은 결과가 있는지는 단순히 결과 개수로 판단

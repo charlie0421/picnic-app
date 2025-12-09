@@ -335,6 +335,148 @@ class SearchService {
     }
   }
 
+  /// 투표 후보 신청용 빠른 아티스트 검색 (북마크 정보 제외, 그룹명 병렬 검색)
+  ///
+  /// [query] 검색어
+  /// [page] 페이지 번호 (0부터 시작)
+  /// [limit] 페이지당 결과 수
+  ///
+  /// Returns: 검색된 아티스트 목록
+  static Future<List<ArtistModel>> searchArtistsFast({
+    required String query,
+    int page = 0,
+    int limit = 20,
+    String language = 'ko',
+  }) async {
+    query = query.trim();
+
+    // 캐시 키 생성
+    final cacheKey = 'artist_fast_${query}_${page}_$limit';
+
+    // 캐시에서 조회 시도
+    final cachedResult = _cache.get<List<ArtistModel>>(cacheKey);
+    if (cachedResult != null) {
+      logger.d('Returning cached fast artist search results for: $query');
+      return cachedResult;
+    }
+
+    try {
+      // 빈 검색어 처리
+      if (query.isEmpty) {
+        final response = await supabase
+            .from('artist')
+            .select('id,name,image,artist_group(id,name,image)')
+            .neq('id', 0)
+            .eq('is_kpop', true)
+            .order('name->>$language', ascending: true)
+            .range(page * limit, (page + 1) * limit - 1);
+
+        final results = (response as List<dynamic>)
+            .where((data) => data != null)
+            .map((data) => ArtistModel.fromJson(data as Map<String, dynamic>))
+            .toList();
+
+        if (results.isNotEmpty) {
+          _cache.put(cacheKey, results);
+        }
+        return results;
+      }
+
+      // 한국어 초성 검색인지 확인
+      final koreanInitials = [
+        'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
+        'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
+      ];
+      final isKoreanInitials =
+          query.split('').every((char) => koreanInitials.contains(char));
+
+      if (isKoreanInitials) {
+        // 초성 검색: 모든 아티스트를 가져와서 로컬 필터링
+        final response = await supabase
+            .from('artist')
+            .select('id,name,image,artist_group(id,name,image)')
+            .neq('id', 0)
+            .eq('is_kpop', true)
+            .order('name->>$language', ascending: true);
+
+        final allArtists = (response as List<dynamic>)
+            .where((data) => data != null)
+            .map((data) => ArtistModel.fromJson(data as Map<String, dynamic>))
+            .toList();
+
+        // 로컬에서 초성 필터링
+        final filteredResults = allArtists.where((artist) {
+          final artistNames = [
+            artist.name['ko'],
+            artist.name['en'],
+          ].where((name) => name != null && name.isNotEmpty).cast<String>();
+
+          for (final name in artistNames) {
+            if (KoreanSearchUtils.matchesKoreanInitials(name, query)) {
+              return true;
+            }
+          }
+
+          // 그룹 이름에서도 검색
+          if (artist.artistGroup?.name != null) {
+            final groupNames = [
+              artist.artistGroup!.name['ko'],
+              artist.artistGroup!.name['en'],
+            ].where((name) => name != null && name.isNotEmpty).cast<String>();
+
+            for (final groupName in groupNames) {
+              if (KoreanSearchUtils.matchesKoreanInitials(groupName, query)) {
+                return true;
+              }
+            }
+          }
+          return false;
+        }).toList();
+
+        // 페이지네이션 적용
+        final startIndex = page * limit;
+        final endIndex = (startIndex + limit).clamp(0, filteredResults.length);
+
+        if (startIndex >= filteredResults.length) {
+          return <ArtistModel>[];
+        }
+
+        final results = filteredResults.sublist(startIndex, endIndex);
+        if (results.isNotEmpty) {
+          _cache.put(cacheKey, results);
+        }
+        return results;
+      }
+
+      // 일반 텍스트 검색: 아티스트 이름으로 검색
+      final searchPattern = '%$query%';
+
+      final response = await supabase
+          .from('artist')
+          .select('id,name,image,artist_group(id,name,image)')
+          .neq('id', 0)
+          .eq('is_kpop', true)
+          .or('name->>ko.ilike.$searchPattern,name->>en.ilike.$searchPattern')
+          .order('name->>$language', ascending: true)
+          .range(page * limit, (page + 1) * limit - 1);
+
+      final results = (response as List<dynamic>)
+          .where((data) => data != null)
+          .map((data) => ArtistModel.fromJson(data as Map<String, dynamic>))
+          .toList();
+
+      if (results.isNotEmpty) {
+        _cache.put(cacheKey, results);
+      }
+
+      return results;
+    } catch (e, s) {
+      logger.e('Error in fast artist search:', error: e, stackTrace: s);
+      Sentry.captureException(e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   /// 제네릭 검색 메서드 - 다른 엔티티 타입에서도 사용 가능
   ///
   /// [T] 반환할 모델 타입

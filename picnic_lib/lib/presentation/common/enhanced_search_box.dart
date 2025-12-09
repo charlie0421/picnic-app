@@ -33,6 +33,7 @@ class EnhancedSearchBox extends StatefulWidget {
     this.suffixIcon,
     this.controller,
     this.focusNode,
+    this.height,
   });
 
   /// 힌트 텍스트
@@ -100,6 +101,9 @@ class EnhancedSearchBox extends StatefulWidget {
 
   /// 포커스 노드
   final FocusNode? focusNode;
+
+  /// 검색 박스 높이
+  final double? height;
 
   @override
   State<EnhancedSearchBox> createState() => _EnhancedSearchBoxState();
@@ -190,22 +194,25 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
 
   @override
   Widget build(BuildContext context) {
+    final boxHeight = widget.height ?? 48.h;
+    final iconSize = widget.height != null ? (widget.height! * 0.5) : 20.w;
+
     return Container(
-      height: 48.h,
+      height: boxHeight,
       decoration: BoxDecoration(
         border: Border.all(
           color: widget.borderColor ?? AppColors.primary500,
           width: 1.r,
         ),
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(24.r),
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(boxHeight / 2),
         color: widget.backgroundColor ?? AppColors.grey00,
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center, // 세로 중앙 정렬 추가
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // 검색 아이콘 또는 커스텀 prefix 아이콘
           if (widget.showSearchIcon || widget.prefixIcon != null)
-            _buildPrefixIcon(),
+            _buildPrefixIcon(iconSize),
 
           // 텍스트 입력 필드
           Expanded(
@@ -216,7 +223,7 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
               maxLength: widget.maxLength,
               textInputAction: widget.textInputAction,
               keyboardType: widget.keyboardType,
-              textAlignVertical: TextAlignVertical.center, // 텍스트 세로 중앙 정렬
+              textAlignVertical: TextAlignVertical.center,
               style: widget.style ??
                   getTextStyle(AppTypo.body16R, AppColors.grey900),
               decoration: InputDecoration(
@@ -225,10 +232,10 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
                     getTextStyle(AppTypo.body16R, AppColors.grey300),
                 border: InputBorder.none,
                 contentPadding: widget.contentPadding ??
-                    EdgeInsets.symmetric(
-                        vertical: 0.h, horizontal: 0.w), // 세로 패딩을 0으로 조정
-                counterText: '', // 글자 수 카운터 숨김
-                isDense: true, // 컴팩트한 높이를 위해 추가
+                    EdgeInsets.zero,
+                counterText: '',
+                isDense: true,
+                isCollapsed: true,
               ),
               onSubmitted: _onSubmitted,
             ),
@@ -236,16 +243,16 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
 
           // 클리어 버튼 또는 커스텀 suffix 아이콘
           if (widget.showClearButton || widget.suffixIcon != null)
-            _buildSuffixIcon(),
+            _buildSuffixIcon(iconSize),
         ],
       ),
     );
   }
 
-  Widget _buildPrefixIcon() {
+  Widget _buildPrefixIcon(double iconSize) {
     if (widget.prefixIcon != null) {
       return Padding(
-        padding: EdgeInsets.only(left: 16.w, right: 8.w),
+        padding: EdgeInsets.only(left: 12.w, right: 8.w),
         child: widget.prefixIcon!,
       );
     }
@@ -257,12 +264,12 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
         }
       },
       child: Padding(
-        padding: EdgeInsets.only(left: 16.w, right: 8.w),
+        padding: EdgeInsets.only(left: 12.w, right: 8.w),
         child: SvgPicture.asset(
           package: 'picnic_lib',
           'assets/icons/vote/search_icon.svg',
-          width: 20.w,
-          height: 20.w,
+          width: iconSize,
+          height: iconSize,
           colorFilter: ColorFilter.mode(
             widget.enabled ? AppColors.grey700 : AppColors.grey300,
             BlendMode.srcIn,
@@ -272,10 +279,10 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
     );
   }
 
-  Widget _buildSuffixIcon() {
+  Widget _buildSuffixIcon(double iconSize) {
     if (widget.suffixIcon != null) {
       return Padding(
-        padding: EdgeInsets.only(left: 8.w, right: 16.w),
+        padding: EdgeInsets.only(left: 8.w, right: 12.w),
         child: widget.suffixIcon!,
       );
     }
@@ -284,12 +291,12 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
       behavior: HitTestBehavior.opaque,
       onTap: widget.enabled ? _onClear : null,
       child: Padding(
-        padding: EdgeInsets.only(left: 8.w, right: 16.w),
+        padding: EdgeInsets.only(left: 8.w, right: 12.w),
         child: SvgPicture.asset(
           package: 'picnic_lib',
           'assets/icons/cancel_style=fill.svg',
-          width: 20.w,
-          height: 20.w,
+          width: iconSize,
+          height: iconSize,
           colorFilter: ColorFilter.mode(
             _controller.text.isNotEmpty && widget.enabled
                 ? AppColors.grey700

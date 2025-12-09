@@ -62,6 +62,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   final int _pageSize = 20;
   String? _lastSearchToken;
   String? _errorMessage;
+  bool _isSearchFocused = false;
 
   @override
   void initState() {
@@ -69,7 +70,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     _service =
         VoteItemRequestService(ref: ref, voteId: widget.vote.id.toString());
     _loadAllApplicationData();
-    _loadInitialArtists();
+    // 초기에는 아티스트 목록 로드하지 않음
   }
 
   @override
@@ -95,37 +96,41 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         child: Column(
           children: [
             _buildHeader(),
-            // 남은 공간을 두 섹션으로 분할 (시각적 균형 고려)
-            Expanded(
-              child: Column(
-                children: [
-                  // 모든 사용자 신청 현황 섹션 - 상단
-                  Expanded(
-                    flex: 3,
-                    child: CurrentApplicationsSection(
-                      artistApplicationSummaries: _artistApplicationSummaries,
-                      totalApplications: _totalApplications,
-                      isLoading: _isLoadingApplications,
-                    ),
-                  ),
-                  // 검색 및 결과 섹션 - 하단
-                  Expanded(
-                    flex: 7,
-                    child: SearchAndResultsSection(
-                      currentSearchQuery: _currentSearchQuery,
-                      onSearchChanged: _onSearchChanged,
-                      searchResults: _searchResults,
-                      searchResultsInfo: _searchResultsInfo,
-                      onSubmitApplication: _submitApplication,
-                      isSearching: _isSearching,
-                      hasMoreResults: _hasMoreResults,
-                      onLoadMore: _loadMoreResults,
-                      isLoadingMore: _isLoadingMore,
-                    ),
-                  ),
-                ],
-              ),
+            // 검색창 - 항상 상단에 표시
+            SearchAndResultsSection(
+              currentSearchQuery: _currentSearchQuery,
+              onSearchChanged: _onSearchChanged,
+              searchResults: _searchResults,
+              searchResultsInfo: _searchResultsInfo,
+              onSubmitApplication: _submitApplication,
+              isSearching: _isSearching,
+              hasMoreResults: _hasMoreResults,
+              onLoadMore: _loadMoreResults,
+              isLoadingMore: _isLoadingMore,
+              showSearchBoxOnly: !_isSearchFocused,
+              onSearchFocusChanged: (isFocused) {
+                setState(() {
+                  _isSearchFocused = isFocused;
+                });
+              },
+              onCloseSearch: () {
+                setState(() {
+                  _isSearchFocused = false;
+                  _searchResults.clear();
+                  _searchResultsInfo.clear();
+                  _currentSearchQuery = '';
+                });
+              },
             ),
+            // 신청 현황 섹션 - 검색 포커스가 아닐 때 표시
+            if (!_isSearchFocused)
+              Expanded(
+                child: CurrentApplicationsSection(
+                  artistApplicationSummaries: _artistApplicationSummaries,
+                  totalApplications: _totalApplications,
+                  isLoading: _isLoadingApplications,
+                ),
+              ),
             if (_errorMessage != null) _buildErrorMessage(),
           ],
         ),
@@ -156,27 +161,6 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
           _isLoadingApplications = false;
         });
       }
-    }
-  }
-
-  Future<void> _loadInitialArtists() async {
-    setState(() {
-      _isSearching = true;
-      _currentPage = 0;
-      _searchResults.clear();
-      _searchResultsInfo.clear();
-    });
-
-    try {
-      // 첫 페이지 로드 (빈 문자열로 검색하여 전체 아티스트 목록을 가져옴)
-      await _loadArtistsPage('', page: 0, isInitial: true);
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isSearching = false;
-        });
-      }
-      logger.e('Failed to load initial artists', error: e);
     }
   }
 
@@ -214,50 +198,54 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     }
 
     if (mounted) {
-      final userInfo = ref.read(userInfoProvider).value;
-      logger.d('📋 사용자 정보: ${userInfo?.id}');
-
-      final applicationData = await _service.loadApplicationDataForResults(
-        results['artists'],
-        userInfo?.id,
-      );
-
-      logger.d('📋 신청 정보 로드 완료: ${applicationData.length}개');
-
-      // 다시 한번 토큰 검증 (긴 작업 후)
-      if (searchToken != null && _lastSearchToken != searchToken) {
-        logger.d('📋 긴 작업 후 토큰 불일치로 결과 무시');
-        return;
-      }
-
-      // 신청수 기준으로 정렬 (많은 순서대로)
       final artists = results['artists'] as List<ArtistModel>;
-      artists.sort((a, b) {
-        final aCount = applicationData[a.id.toString()]?.applicationCount ?? 0;
-        final bCount = applicationData[b.id.toString()]?.applicationCount ?? 0;
-        return bCount.compareTo(aCount); // 내림차순
-      });
 
-      logger.d('📋 정렬 완료: ${artists.length}개 아티스트');
-
+      // 1단계: 검색 결과 먼저 표시 (신청 정보 없이)
       setState(() {
         if (isInitial) {
           _searchResults = artists;
           _searchResultsInfo.clear();
-          logger.d('📋 초기 로드 - 검색 결과 교체: ${artists.length}개');
+          logger.d('📋 초기 로드 - 검색 결과 즉시 표시: ${artists.length}개');
         } else {
           _searchResults.addAll(artists);
-          logger.d(
-              '📋 추가 로드 - 검색 결과 추가: ${artists.length}개 (총 ${_searchResults.length}개)');
+          logger.d('📋 추가 로드 - 검색 결과 추가: ${artists.length}개 (총 ${_searchResults.length}개)');
         }
-        _searchResultsInfo.addAll(applicationData);
         _currentPage = page;
         _hasMoreResults = results['hasMore'] ?? false;
         _isSearching = false;
       });
 
-      logger.d(
-          '📋 UI 업데이트 완료 - 최종 검색 결과: ${_searchResults.length}개, 더보기: $_hasMoreResults');
+      // 2단계: 신청 정보를 백그라운드에서 로드
+      _loadApplicationDataInBackground(artists, searchToken);
+    }
+  }
+
+  /// 신청 정보를 백그라운드에서 로드하고 UI 업데이트
+  Future<void> _loadApplicationDataInBackground(
+      List<ArtistModel> artists, String? searchToken) async {
+    try {
+      final userInfo = ref.read(userInfoProvider).value;
+      logger.d('📋 백그라운드 신청 정보 로드 시작: ${artists.length}개');
+
+      final applicationData = await _service.loadApplicationDataForResults(
+        artists,
+        userInfo?.id,
+      );
+
+      // 토큰 검증 (다른 검색이 시작되었으면 무시)
+      if (searchToken != null && _lastSearchToken != searchToken) {
+        logger.d('📋 신청 정보 로드 완료했으나 토큰 불일치로 무시');
+        return;
+      }
+
+      if (mounted) {
+        setState(() {
+          _searchResultsInfo.addAll(applicationData);
+        });
+        logger.d('📋 신청 정보 UI 업데이트 완료: ${applicationData.length}개');
+      }
+    } catch (e) {
+      logger.e('📋 백그라운드 신청 정보 로드 실패', error: e);
     }
   }
 
@@ -338,15 +326,11 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       _currentPage = 0;
     });
 
-    // 디바운싱 처리 (300ms 지연)
-    await Future.delayed(Duration(milliseconds: 300));
-
-    if (_lastSearchToken == searchToken && mounted) {
-      logger.d('🔍 디바운싱 후 실제 검색 실행: "$query"');
+    // EnhancedSearchBox에서 이미 디바운싱 처리하므로 즉시 검색 실행
+    if (mounted) {
+      logger.d('🔍 검색 실행: "$query"');
       await _loadArtistsPage(query,
           page: 0, isInitial: true, searchToken: searchToken);
-    } else {
-      logger.d('🔍 검색 토큰 불일치로 검색 취소: "$query"');
     }
   }
 
@@ -376,8 +360,12 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       await _service.submitApplication(artist, userInfo!.id!);
 
       if (mounted) {
+        // 신청 성공 시 검색 포커스 해제하여 상단 섹션 표시
+        FocusScope.of(context).unfocus();
+
         // 신청 성공 즉시 해당 아티스트 상태 업데이트
         setState(() {
+          _isSearchFocused = false;
           final artistId = artist.id.toString();
           if (_searchResultsInfo.containsKey(artistId)) {
             _searchResultsInfo[artistId] =
@@ -400,7 +388,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         });
 
         // 3초 후 성공 메시지 제거
-        Future.delayed(Duration(seconds: 3), () {
+        Future.delayed(const Duration(seconds: 3), () {
           if (mounted) {
             setState(() {
               _errorMessage = null;
@@ -424,7 +412,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         });
 
         // 3초 후 에러 메시지 제거
-        Future.delayed(Duration(seconds: 3), () {
+        Future.delayed(const Duration(seconds: 3), () {
           if (mounted) {
             setState(() {
               _errorMessage = null;
@@ -471,10 +459,6 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         // 검색어가 있지만 결과가 없으면 검색 다시 실행
         logger.d('🔄 검색어가 있지만 결과가 없음 - 검색 다시 실행: "$_currentSearchQuery"');
         await _onSearchChanged(_currentSearchQuery);
-      } else {
-        // 검색어도 없고 결과도 없으면 초기 목록 로드
-        logger.d('🔄 검색어도 없고 결과도 없음 - 초기 아티스트 목록 갱신');
-        await _loadInitialArtists();
       }
 
       logger.d('🔄 _refreshAllData 완료');

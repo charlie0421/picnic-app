@@ -11,6 +11,7 @@ class SearchResultActionButton extends StatelessWidget {
   final bool isAlreadyInVote;
   final String status;
   final VoidCallback onPressed;
+  final bool isLoading;
 
   const SearchResultActionButton({
     super.key,
@@ -19,10 +20,30 @@ class SearchResultActionButton extends StatelessWidget {
     required this.isAlreadyInVote,
     required this.status,
     required this.onPressed,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    // 신청 정보 로딩 중
+    if (isLoading) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+        decoration: BoxDecoration(
+          color: AppColors.grey100,
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        child: SizedBox(
+          width: 12.w,
+          height: 12.h,
+          child: CircularProgressIndicator(
+            strokeWidth: 1.5,
+            color: AppColors.grey400,
+          ),
+        ),
+      );
+    }
+
     if (shouldShowApplicationButton) {
       return Container(
         decoration: BoxDecoration(
