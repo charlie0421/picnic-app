@@ -1608,6 +1608,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String label_setting_patch_number(int patchNumber) {
     return ' / Patch: $patchNumber';
   }
+
+  @override
+  String get vote_item_request_search_initial_guide =>
+      'অনুরোধ করতে শিল্পী অনুসন্ধান করুন';
+
+  @override
+  String get vote_item_request_search_try_other_keyword =>
+      'অন্য কীওয়ার্ড দিয়ে অনুসন্ধান করে দেখুন';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -3211,4 +3219,12 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String label_setting_patch_number(int patchNumber) {
     return ' / Patch: $patchNumber';
   }
+
+  @override
+  String get vote_item_request_search_initial_guide =>
+      'অনুরোধ করতে শিল্পী অনুসন্ধান করুন';
+
+  @override
+  String get vote_item_request_search_try_other_keyword =>
+      'অন্য কীওয়ার্ড দিয়ে অনুসন্ধান করে দেখুন';
 }

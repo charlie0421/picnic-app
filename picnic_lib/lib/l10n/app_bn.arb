@@ -141,5 +141,13 @@
   "label_mypage_notifications": "বিজ্ঞপ্তি বাক্স",
   "@label_mypage_notifications": {
     "description": "Auto-generated metadata for key 'label_mypage_notifications'."
+  },
+  "vote_item_request_search_initial_guide": "অনুরোধ করতে শিল্পী অনুসন্ধান করুন",
+  "@vote_item_request_search_initial_guide": {
+    "description": "Guide text shown before user starts searching for artist"
+  },
+  "vote_item_request_search_try_other_keyword": "অন্য কীওয়ার্ড দিয়ে অনুসন্ধান করে দেখুন",
+  "@vote_item_request_search_try_other_keyword": {
+    "description": "Suggestion text when no search results are found"
   }
 }

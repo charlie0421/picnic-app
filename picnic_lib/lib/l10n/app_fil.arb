@@ -2050,5 +2050,13 @@
         "type": "int"
       }
     }
+  },
+  "vote_item_request_search_initial_guide": "Maghanap ng artist na i-request",
+  "@vote_item_request_search_initial_guide": {
+    "description": "Guide text shown before user starts searching for artist"
+  },
+  "vote_item_request_search_try_other_keyword": "Subukan maghanap gamit ang ibang keyword",
+  "@vote_item_request_search_try_other_keyword": {
+    "description": "Suggestion text when no search results are found"
   }
 }

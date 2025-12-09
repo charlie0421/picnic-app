@@ -2046,5 +2046,13 @@
         "type": "int"
       }
     }
+  },
+  "vote_item_request_search_initial_guide": "搜尋要申請的藝術家",
+  "@vote_item_request_search_initial_guide": {
+    "description": "Guide text shown before user starts searching for artist"
+  },
+  "vote_item_request_search_try_other_keyword": "請嘗試其他關鍵詞搜尋",
+  "@vote_item_request_search_try_other_keyword": {
+    "description": "Suggestion text when no search results are found"
   }
 }

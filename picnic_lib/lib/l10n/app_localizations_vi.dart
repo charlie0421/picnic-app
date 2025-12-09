@@ -1614,4 +1614,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String label_setting_patch_number(int patchNumber) {
     return ' / Patch: $patchNumber';
   }
+
+  @override
+  String get vote_item_request_search_initial_guide =>
+      'Tìm kiếm nghệ sĩ để yêu cầu';
+
+  @override
+  String get vote_item_request_search_try_other_keyword =>
+      'Hãy thử tìm kiếm với từ khóa khác';
 }

@@ -2046,5 +2046,13 @@
         "type": "int"
       }
     }
+  },
+  "vote_item_request_search_initial_guide": "Search for an artist to request",
+  "@vote_item_request_search_initial_guide": {
+    "description": "Guide text shown before user starts searching for artist"
+  },
+  "vote_item_request_search_try_other_keyword": "Try searching with different keywords",
+  "@vote_item_request_search_try_other_keyword": {
+    "description": "Suggestion text when no search results are found"
   }
 }

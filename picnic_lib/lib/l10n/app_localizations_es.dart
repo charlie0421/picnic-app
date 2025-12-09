@@ -1637,4 +1637,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String label_setting_patch_number(int patchNumber) {
     return ' / Patch: $patchNumber';
   }
+
+  @override
+  String get vote_item_request_search_initial_guide =>
+      'Busca un artista para solicitar';
+
+  @override
+  String get vote_item_request_search_try_other_keyword =>
+      'Intenta buscar con otras palabras clave';
 }

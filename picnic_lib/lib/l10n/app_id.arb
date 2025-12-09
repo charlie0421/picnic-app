@@ -2106,5 +2106,13 @@
         "type": "int"
       }
     }
+  },
+  "vote_item_request_search_initial_guide": "Cari artis untuk diajukan",
+  "@vote_item_request_search_initial_guide": {
+    "description": "Guide text shown before user starts searching for artist"
+  },
+  "vote_item_request_search_try_other_keyword": "Coba cari dengan kata kunci lain",
+  "@vote_item_request_search_try_other_keyword": {
+    "description": "Suggestion text when no search results are found"
   }
 }

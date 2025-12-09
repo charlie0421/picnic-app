@@ -2082,5 +2082,13 @@
         "type": "int"
       }
     }
+  },
+  "vote_item_request_search_initial_guide": "申請するアーティストを検索してください",
+  "@vote_item_request_search_initial_guide": {
+    "description": "Guide text shown before user starts searching for artist"
+  },
+  "vote_item_request_search_try_other_keyword": "別のキーワードで検索してみてください",
+  "@vote_item_request_search_try_other_keyword": {
+    "description": "Suggestion text when no search results are found"
   }
 }

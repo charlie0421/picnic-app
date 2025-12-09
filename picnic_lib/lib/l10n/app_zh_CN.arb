@@ -2046,5 +2046,13 @@
         "type": "int"
       }
     }
+  },
+  "vote_item_request_search_initial_guide": "搜索要申请的艺术家",
+  "@vote_item_request_search_initial_guide": {
+    "description": "Guide text shown before user starts searching for artist"
+  },
+  "vote_item_request_search_try_other_keyword": "请尝试其他关键词搜索",
+  "@vote_item_request_search_try_other_keyword": {
+    "description": "Suggestion text when no search results are found"
   }
 }

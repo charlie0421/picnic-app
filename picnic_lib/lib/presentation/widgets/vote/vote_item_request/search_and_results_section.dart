@@ -23,6 +23,8 @@ class SearchAndResultsSection extends StatefulWidget {
   final ValueChanged<bool>? onSearchFocusChanged;
   final bool showSearchBoxOnly; // 검색창만 표시 (검색 포커스가 아닐 때)
   final VoidCallback? onCloseSearch; // 검색창 닫기 콜백
+  final FocusNode? searchFocusNode; // 외부에서 관리하는 FocusNode
+  final VoidCallback? onSearchBoxTapped; // 검색창 탭 콜백
 
   const SearchAndResultsSection({
     super.key,
@@ -38,6 +40,8 @@ class SearchAndResultsSection extends StatefulWidget {
     this.onSearchFocusChanged,
     this.showSearchBoxOnly = false,
     this.onCloseSearch,
+    this.searchFocusNode,
+    this.onSearchBoxTapped,
   });
 
   @override
@@ -47,8 +51,11 @@ class SearchAndResultsSection extends StatefulWidget {
 
 class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   final ScrollController _scrollController = ScrollController();
-  final FocusNode _searchFocusNode = FocusNode();
+  FocusNode? _internalFocusNode;
   bool _isScrollLoading = false; // 스크롤 로딩 중복 방지
+
+  FocusNode get _searchFocusNode =>
+      widget.searchFocusNode ?? (_internalFocusNode ??= FocusNode());
 
   @override
   void initState() {
@@ -58,10 +65,22 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   }
 
   @override
+  void didUpdateWidget(SearchAndResultsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 외부 FocusNode가 변경된 경우 리스너 재설정
+    if (oldWidget.searchFocusNode != widget.searchFocusNode) {
+      oldWidget.searchFocusNode?.removeListener(_onFocusChanged);
+      _internalFocusNode?.removeListener(_onFocusChanged);
+      _searchFocusNode.addListener(_onFocusChanged);
+    }
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     _searchFocusNode.removeListener(_onFocusChanged);
-    _searchFocusNode.dispose();
+    // 내부에서 생성한 FocusNode만 dispose
+    _internalFocusNode?.dispose();
     super.dispose();
   }
 
@@ -195,25 +214,50 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
           SizedBox(height: 8.h),
 
           // 검색 입력 박스
-          EnhancedSearchBox(
-            hintText: AppLocalizations.of(context)
-                .vote_item_request_search_artist_hint,
-            onSearchChanged: widget.onSearchChanged,
-            showClearButton: true,
-            showSearchIcon: true,
-            autofocus: false,
-            focusNode: _searchFocusNode,
-            style: getTextStyle(AppTypo.body14R, AppColors.grey900),
-            hintStyle: getTextStyle(AppTypo.caption12R, AppColors.grey400),
-            height: 36.h,
-            debounceTime: const Duration(milliseconds: 200),
-          ),
+          // showSearchBoxOnly 모드일 때는 GestureDetector로 감싸서 탭 시 레이아웃 먼저 변경
+          if (widget.showSearchBoxOnly && widget.onSearchBoxTapped != null)
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: widget.onSearchBoxTapped,
+              child: AbsorbPointer(
+                child: EnhancedSearchBox(
+                  hintText: AppLocalizations.of(context)
+                      .vote_item_request_search_artist_hint,
+                  onSearchChanged: widget.onSearchChanged,
+                  showClearButton: true,
+                  showSearchIcon: true,
+                  autofocus: false,
+                  focusNode: _searchFocusNode,
+                  style: getTextStyle(AppTypo.body14R, AppColors.grey900),
+                  hintStyle: getTextStyle(AppTypo.caption12R, AppColors.grey400),
+                  height: 36.h,
+                  debounceTime: const Duration(milliseconds: 200),
+                ),
+              ),
+            )
+          else
+            EnhancedSearchBox(
+              hintText: AppLocalizations.of(context)
+                  .vote_item_request_search_artist_hint,
+              onSearchChanged: widget.onSearchChanged,
+              showClearButton: true,
+              showSearchIcon: true,
+              autofocus: false,
+              focusNode: _searchFocusNode,
+              style: getTextStyle(AppTypo.body14R, AppColors.grey900),
+              hintStyle: getTextStyle(AppTypo.caption12R, AppColors.grey400),
+              height: 36.h,
+              debounceTime: const Duration(milliseconds: 200),
+            ),
         ],
       ),
     );
   }
 
   Widget _buildSearchResults() {
+    // 초기 상태: 검색어가 없으면 안내 메시지 표시
+    final hasSearchQuery = widget.currentSearchQuery.trim().isNotEmpty;
+
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -225,9 +269,11 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
       ),
       child: widget.isSearching
           ? _buildLoadingState()
-          : widget.searchResults.isEmpty
-              ? _buildEmptyState()
-              : _buildResultsList(),
+          : !hasSearchQuery
+              ? _buildInitialState() // 초기 상태 (검색어 없음)
+              : widget.searchResults.isEmpty
+                  ? _buildEmptyState() // 검색 결과 없음
+                  : _buildResultsList(),
     );
   }
 
@@ -308,6 +354,37 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
     );
   }
 
+  /// 초기 상태: 검색어 입력 전 안내 메시지
+  Widget _buildInitialState() {
+    return SizedBox(
+      height: 120.h,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(16.r),
+              decoration: BoxDecoration(
+                color: AppColors.primary500.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Icon(
+                Icons.search_rounded,
+                color: AppColors.primary500,
+                size: 32.r,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              AppLocalizations.of(context).vote_item_request_search_initial_guide,
+              style: getTextStyle(AppTypo.body14B, AppColors.grey600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
     return SizedBox(
       height: 120.h,
@@ -334,7 +411,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
             ),
             SizedBox(height: 4.h),
             Text(
-              '다른 키워드로 검색해보세요',
+              AppLocalizations.of(context).vote_item_request_search_try_other_keyword,
               style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
             ),
           ],

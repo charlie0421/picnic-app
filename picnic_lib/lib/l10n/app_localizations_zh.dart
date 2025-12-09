@@ -1607,6 +1607,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String label_setting_patch_number(int patchNumber) {
     return ' / Patch: $patchNumber';
   }
+
+  @override
+  String get vote_item_request_search_initial_guide => '搜索要申请的艺术家';
+
+  @override
+  String get vote_item_request_search_try_other_keyword => '请尝试其他关键词搜索';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3146,6 +3152,12 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String label_setting_patch_number(int patchNumber) {
     return ' / Patch: $patchNumber';
   }
+
+  @override
+  String get vote_item_request_search_initial_guide => '搜索要申请的艺术家';
+
+  @override
+  String get vote_item_request_search_try_other_keyword => '请尝试其他关键词搜索';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4684,4 +4696,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String label_setting_patch_number(int patchNumber) {
     return ' / Patch: $patchNumber';
   }
+
+  @override
+  String get vote_item_request_search_initial_guide => '搜尋要申請的藝術家';
+
+  @override
+  String get vote_item_request_search_try_other_keyword => '請嘗試其他關鍵詞搜尋';
 }

@@ -1542,4 +1542,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String label_setting_patch_number(int patchNumber) {
     return ' / 패치: $patchNumber';
   }
+
+  @override
+  String get vote_item_request_search_initial_guide => '신청할 아티스트를 검색하세요';
+
+  @override
+  String get vote_item_request_search_try_other_keyword => '다른 키워드로 검색해보세요';
 }

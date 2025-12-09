@@ -3044,6 +3044,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **' / Patch: {patchNumber}'**
   String label_setting_patch_number(int patchNumber);
+
+  /// Guide text shown before user starts searching for artist
+  ///
+  /// In en, this message translates to:
+  /// **'Search for an artist to request'**
+  String get vote_item_request_search_initial_guide;
+
+  /// Suggestion text when no search results are found
+  ///
+  /// In en, this message translates to:
+  /// **'Try searching with different keywords'**
+  String get vote_item_request_search_try_other_keyword;
 }
 
 class _AppLocalizationsDelegate

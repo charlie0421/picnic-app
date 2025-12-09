@@ -58,6 +58,7 @@ PODS:
   - DKPhotoGallery/Resource (0.0.19):
     - SDWebImage
     - SwiftyGif
+  - FBAudienceNetwork (6.21.0)
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
@@ -147,6 +148,12 @@ PODS:
   - fluwx/pay (0.0.1):
     - Flutter
     - WechatOpenSDK-XCFramework (~> 2.0.5)
+  - gma_mediation_liftoffmonetize (1.4.0):
+    - Flutter
+    - GoogleMobileAdsMediationVungle (~> 7.6.1.0)
+  - gma_mediation_meta (1.5.0):
+    - Flutter
+    - GoogleMobileAdsMediationFacebook (~> 6.21.0.0)
   - gma_mediation_pangle (3.4.0):
     - Flutter
     - GoogleMobileAdsMediationPangle (~> 7.7.0.5.0)
@@ -190,9 +197,15 @@ PODS:
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
+  - GoogleMobileAdsMediationFacebook (6.21.0.0):
+    - FBAudienceNetwork (= 6.21.0)
+    - Google-Mobile-Ads-SDK (~> 12.0)
   - GoogleMobileAdsMediationPangle (7.7.0.5.0):
     - Ads-Global (= 7.7.0.5)
     - Google-Mobile-Ads-SDK (~> 12.0)
+  - GoogleMobileAdsMediationVungle (7.6.1.0):
+    - Google-Mobile-Ads-SDK (~> 12.0)
+    - VungleAds (= 7.6.1)
   - GoogleSignIn (9.0.0):
     - AppAuth (~> 2.0)
     - AppCheckCore (~> 11.0)
@@ -321,6 +334,7 @@ PODS:
   - video_thumbnail (0.0.1):
     - Flutter
     - libwebp
+  - VungleAds (7.6.1)
   - wakelock_plus (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -347,6 +361,8 @@ DEPENDENCIES:
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - fluwx (from `.symlinks/plugins/fluwx/ios`)
+  - gma_mediation_liftoffmonetize (from `.symlinks/plugins/gma_mediation_liftoffmonetize/ios`)
+  - gma_mediation_meta (from `.symlinks/plugins/gma_mediation_meta/ios`)
   - gma_mediation_pangle (from `.symlinks/plugins/gma_mediation_pangle/ios`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
@@ -385,6 +401,7 @@ SPEC REPOS:
     - BranchSDK
     - DKImagePickerController
     - DKPhotoGallery
+    - FBAudienceNetwork
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -395,7 +412,9 @@ SPEC REPOS:
     - GoogleAdsOnDeviceConversion
     - GoogleAppMeasurement
     - GoogleDataTransport
+    - GoogleMobileAdsMediationFacebook
     - GoogleMobileAdsMediationPangle
+    - GoogleMobileAdsMediationVungle
     - GoogleSignIn
     - GoogleUserMessagingPlatform
     - GoogleUtilities
@@ -411,6 +430,7 @@ SPEC REPOS:
     - SwiftyGif
     - TapjoySDK
     - TOCropViewController
+    - VungleAds
     - WechatOpenSDK-XCFramework
 
 EXTERNAL SOURCES:
@@ -450,6 +470,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   fluwx:
     :path: ".symlinks/plugins/fluwx/ios"
+  gma_mediation_liftoffmonetize:
+    :path: ".symlinks/plugins/gma_mediation_liftoffmonetize/ios"
+  gma_mediation_meta:
+    :path: ".symlinks/plugins/gma_mediation_meta/ios"
   gma_mediation_pangle:
     :path: ".symlinks/plugins/gma_mediation_pangle/ios"
   google_mobile_ads:
@@ -519,6 +543,7 @@ SPEC CHECKSUMS:
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
+  FBAudienceNetwork: f4ab9e073ab98c884dbdb5ffe7c861272b380bc2
   file_picker: a0560bc09d61de87f12d246fc47d2119e6ef37be
   Firebase: d99ac19b909cd2c548339c2241ecd0d1599ab02e
   firebase_analytics: 0e25ca1d4001ccedd40b4e5b74c0ec34e18f6425
@@ -538,6 +563,8 @@ SPEC CHECKSUMS:
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
   fluwx: 2ef787502fccb3f3596b380509001a8ea71cbbff
+  gma_mediation_liftoffmonetize: ca02a10c2840622a3bbf035caf699c9329a530a0
+  gma_mediation_meta: b6d4555a5619bfe4d3b0600e73aa96f84dcfd62c
   gma_mediation_pangle: 2e19d82494f2eb1a9e4999b8a53cedda3ae9b521
   Google-Mobile-Ads-SDK: 1dfb0c3cb46c7e2b00b0f4de74a1e06d9ea25d67
   google_mobile_ads: 535223588a6791b7a3cc3513a1bc7b89d12f3e62
@@ -545,7 +572,9 @@ SPEC CHECKSUMS:
   GoogleAdsOnDeviceConversion: 2be6297a4f048459e0ae17fad9bfd2844e10cf64
   GoogleAppMeasurement: 700dce7541804bec33db590a5c496b663fbe2539
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
+  GoogleMobileAdsMediationFacebook: 664fd50364d36531196bf24fe62d2db84cad72d0
   GoogleMobileAdsMediationPangle: 51e31e4267363e466e196d31f69306dd2b17ee88
+  GoogleMobileAdsMediationVungle: 37752604d3b49e6507c210f87d0a3e9f0cb5bfd2
   GoogleSignIn: c7f09cfbc85a1abf69187be091997c317cc33b77
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
@@ -584,6 +613,7 @@ SPEC CHECKSUMS:
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   video_player_avfoundation: dd410b52df6d2466a42d28550e33e4146928280a
   video_thumbnail: b637e0ad5f588ca9945f6e2c927f73a69a661140
+  VungleAds: ab78d62721933672a83efcf7d2de8ae0610494be
   wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
   WechatOpenSDK-XCFramework: b072030c9eeee91dfff1856a7846f70f7b9a88ed

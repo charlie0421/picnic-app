@@ -2046,5 +2046,13 @@
         "type": "int"
       }
     }
+  },
+  "vote_item_request_search_initial_guide": "ค้นหาศิลปินที่ต้องการสมัคร",
+  "@vote_item_request_search_initial_guide": {
+    "description": "Guide text shown before user starts searching for artist"
+  },
+  "vote_item_request_search_try_other_keyword": "ลองค้นหาด้วยคำหลักอื่น",
+  "@vote_item_request_search_try_other_keyword": {
+    "description": "Suggestion text when no search results are found"
   }
 }
