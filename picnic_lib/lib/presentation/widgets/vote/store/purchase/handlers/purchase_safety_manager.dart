@@ -13,9 +13,9 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
   static const Duration _safetyTimeout = Duration(seconds: 90);
   static const Duration _basePurchaseCooldown =
-      Duration(minutes: 1); // 🎯 기본 60초
+      Duration(seconds: 15); // 🎯 기본 15초 (60초 → 15초로 단축)
   static const Duration _consecutivePurchaseCooldown =
-      Duration(minutes: 1); // 🔄 연속 구매도 60초 동일 적용
+      Duration(seconds: 30); // 🔄 연속 구매 시 30초 (60초 → 30초로 단축)
 
   // 🔄 연속 구매 추적
   int _consecutivePurchaseCount = 0;

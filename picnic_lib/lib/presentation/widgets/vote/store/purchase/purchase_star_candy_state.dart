@@ -619,11 +619,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 ).previousTransactionPendingError,
               );
             }
-            // iOS JWS 반복 중복 완화: 강제 쿨다운(상품별) 60초 적용하여 루프 차단
+            // iOS JWS 반복 중복 완화: 강제 쿨다운(상품별) 15초 적용하여 루프 차단
             if (_pendingProductId != null) {
               _safetyManager.activateDuplicateCooldown(
                 productId: _pendingProductId,
-                cooldown: const Duration(minutes: 1),
+                cooldown: const Duration(seconds: 15),
               );
             }
           } else if (error == PurchaseConstants.errCooldownActive) {
@@ -639,11 +639,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           } else if (_isDuplicateError(error)) {
             // 문자열 기반 중복 케이스도 동일 처리: 안내만, 쿨타임 미적용
             setState(() => _isPurchasing = false);
-            // iOS 캐시성 중복 신호 완화용 강제 쿨다운(상품별) 60초
+            // iOS 캐시성 중복 신호 완화용 강제 쿨다운(상품별) 15초
             if (_pendingProductId != null) {
               _safetyManager.activateDuplicateCooldown(
                 productId: _pendingProductId,
-                cooldown: const Duration(minutes: 1),
+                cooldown: const Duration(seconds: 15),
               );
             }
           } else {

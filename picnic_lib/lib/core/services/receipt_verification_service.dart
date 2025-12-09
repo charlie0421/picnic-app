@@ -225,11 +225,12 @@ class ReceiptVerificationService {
             : Exception(error.toString());
 
         // 409 Conflict (중복) 에러인지 확인
+        // 서버에서 409가 반환되면 이미 성공적으로 처리된 영수증임
+        // 따라서 에러가 아닌 "이미 완료됨"으로 처리하여 사용자 경험 개선
         if (error is FunctionException && error.status == 409) {
-          logger.w('Duplicate receipt detected (409 Conflict)');
-          throw ReusedPurchaseException(
-            message: PurchaseConstants.errPrevTransactionPending,
-          );
+          logger.i('✅ 영수증이 이미 서버에서 처리됨 (409 Conflict) - 성공으로 간주');
+          // 기존: 에러 throw → 변경: 정상 완료로 처리
+          return; // 성공으로 반환
         }
 
         // ReusedPurchaseException은 재시도하지 않음
@@ -321,24 +322,62 @@ class ReceiptVerificationService {
     }
   }
 
-  // ===== iOS JWS 멱등 캐시 =====
-  static const _spKeySentReceipts = 'sent_receipts_idem_keys';
+  // ===== iOS JWS 멱등 캐시 (TTL 적용) =====
+  static const _spKeySentReceipts = 'sent_receipts_idem_keys_v2';
+  static const Duration _idemCacheTTL = Duration(minutes: 5); // 5분 후 만료
 
-  Future<Set<String>> _loadIdemCache() async {
+  Future<Map<String, int>> _loadIdemCache() async {
     final sp = await SharedPreferences.getInstance();
-    return sp.getStringList(_spKeySentReceipts)?.toSet() ?? <String>{};
+    final raw = sp.getStringList(_spKeySentReceipts) ?? [];
+    final cache = <String, int>{};
+    for (final entry in raw) {
+      final parts = entry.split('|');
+      if (parts.length == 2) {
+        cache[parts[0]] = int.tryParse(parts[1]) ?? 0;
+      }
+    }
+    return cache;
   }
 
   Future<bool> _idemCacheContains(String key) async {
-    final s = await _loadIdemCache();
-    return s.contains(key);
+    final cache = await _loadIdemCache();
+    final timestamp = cache[key];
+    if (timestamp == null) return false;
+
+    final age = DateTime.now().millisecondsSinceEpoch - timestamp;
+    if (age > _idemCacheTTL.inMilliseconds) {
+      // TTL 만료 - 캐시에서 제거
+      await _idemCacheRemove(key);
+      logger.i('🍎 JWS 캐시 TTL 만료로 제거: $key');
+      return false;
+    }
+    return true;
   }
 
   Future<void> _idemCacheAdd(String key) async {
     final sp = await SharedPreferences.getInstance();
-    final s = await _loadIdemCache()
-      ..add(key);
-    await sp.setStringList(_spKeySentReceipts, s.toList());
+    final cache = await _loadIdemCache();
+
+    // 만료된 항목들 정리 (최대 50개 유지)
+    final now = DateTime.now().millisecondsSinceEpoch;
+    cache.removeWhere((k, v) => now - v > _idemCacheTTL.inMilliseconds);
+    if (cache.length >= 50) {
+      // 가장 오래된 항목 제거
+      final oldest = cache.entries.reduce((a, b) => a.value < b.value ? a : b);
+      cache.remove(oldest.key);
+    }
+
+    cache[key] = now;
+    final entries = cache.entries.map((e) => '${e.key}|${e.value}').toList();
+    await sp.setStringList(_spKeySentReceipts, entries);
+  }
+
+  Future<void> _idemCacheRemove(String key) async {
+    final sp = await SharedPreferences.getInstance();
+    final cache = await _loadIdemCache();
+    cache.remove(key);
+    final entries = cache.entries.map((e) => '${e.key}|${e.value}').toList();
+    await sp.setStringList(_spKeySentReceipts, entries);
   }
 
   String _makeIdemKeyFromJWS(String jws) {
