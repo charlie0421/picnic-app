@@ -588,13 +588,23 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       final configService = ref.read(configServiceProvider);
       final raw = await configService.getConfig(_splashConfigKey);
       if (raw == null || raw.isEmpty) {
-        logger.i('시작화면 config 값이 없습니다.');
+        logger.i('시작화면 config 값이 없습니다. 캐시를 삭제합니다.');
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove(_splashCacheKey);
+        setStateIfMounted(() {
+          scheduledSplashUrl = null;
+        });
         return;
       }
 
       final configPayload = SplashConfigPayload.fromRaw(raw);
       if (configPayload == null || !configPayload.isValid) {
-        logger.w('시작화면 config 파싱 실패');
+        logger.w('시작화면 config 파싱 실패. 캐시를 삭제합니다.');
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove(_splashCacheKey);
+        setStateIfMounted(() {
+          scheduledSplashUrl = null;
+        });
         return;
       }
 
@@ -610,7 +620,12 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       }
 
       if (configPayload.isExpired) {
-        logger.i('시작화면 config가 만료되었습니다.');
+        logger.i('시작화면 config가 만료되었습니다. 캐시를 삭제합니다.');
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove(_splashCacheKey);
+        setStateIfMounted(() {
+          scheduledSplashUrl = null;
+        });
         return;
       }
 
