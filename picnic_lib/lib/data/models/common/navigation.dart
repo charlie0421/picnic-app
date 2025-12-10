@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/data/models/navigator/navigation_configs.dart';
 import 'package:picnic_lib/enums.dart';
@@ -9,33 +8,86 @@ import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 
-part '../../../generated/models/common/navigation.freezed.dart';
-
 enum TopRightType { none, common, board, postView, community }
 
-@freezed
-class Navigation with _$Navigation {
-  const Navigation._();
+class Navigation {
+  final PortalType portalType;
+  final int picBottomNavigationIndex;
+  final int voteBottomNavigationIndex;
+  final int communityBottomNavigationIndex;
+  final int novelBottomNavigationIndex;
+  final Widget? currentScreen;
+  final bool showPortal;
+  final bool showTopMenu;
+  final bool showMyPoint;
+  final TopRightType topRightMenu;
+  final bool showBottomNavigation;
+  final String pageTitle;
+  final String myPageTitle;
+  final NavigationStack? voteNavigationStack;
+  final NavigationStack? communityNavigationStack;
+  final NavigationStack? drawerNavigationStack;
+  final NavigationStack? signUpNavigationStack;
 
-  const factory Navigation({
-    @Default(PortalType.vote) PortalType portalType,
-    @Default(0) int picBottomNavigationIndex,
-    @Default(0) int voteBottomNavigationIndex,
-    @Default(0) int communityBottomNavigationIndex,
-    @Default(0) int novelBottomNavigationIndex,
+  const Navigation({
+    this.portalType = PortalType.vote,
+    this.picBottomNavigationIndex = 0,
+    this.voteBottomNavigationIndex = 0,
+    this.communityBottomNavigationIndex = 0,
+    this.novelBottomNavigationIndex = 0,
+    this.currentScreen,
+    this.showPortal = true,
+    this.showTopMenu = true,
+    this.showMyPoint = true,
+    this.topRightMenu = TopRightType.common,
+    this.showBottomNavigation = true,
+    this.pageTitle = '',
+    this.myPageTitle = '',
+    this.voteNavigationStack,
+    this.communityNavigationStack,
+    this.drawerNavigationStack,
+    this.signUpNavigationStack,
+  });
+
+  Navigation copyWith({
+    PortalType? portalType,
+    int? picBottomNavigationIndex,
+    int? voteBottomNavigationIndex,
+    int? communityBottomNavigationIndex,
+    int? novelBottomNavigationIndex,
     Widget? currentScreen,
-    @Default(true) bool showPortal,
-    @Default(true) bool showTopMenu,
-    @Default(true) bool showMyPoint,
-    @Default(TopRightType.common) TopRightType topRightMenu,
-    @Default(true) bool showBottomNavigation,
-    @Default('') String pageTitle,
-    @Default('') String myPageTitle,
+    bool? showPortal,
+    bool? showTopMenu,
+    bool? showMyPoint,
+    TopRightType? topRightMenu,
+    bool? showBottomNavigation,
+    String? pageTitle,
+    String? myPageTitle,
     NavigationStack? voteNavigationStack,
     NavigationStack? communityNavigationStack,
     NavigationStack? drawerNavigationStack,
     NavigationStack? signUpNavigationStack,
-  }) = _Navigation;
+  }) {
+    return Navigation(
+      portalType: portalType ?? this.portalType,
+      picBottomNavigationIndex: picBottomNavigationIndex ?? this.picBottomNavigationIndex,
+      voteBottomNavigationIndex: voteBottomNavigationIndex ?? this.voteBottomNavigationIndex,
+      communityBottomNavigationIndex: communityBottomNavigationIndex ?? this.communityBottomNavigationIndex,
+      novelBottomNavigationIndex: novelBottomNavigationIndex ?? this.novelBottomNavigationIndex,
+      currentScreen: currentScreen ?? this.currentScreen,
+      showPortal: showPortal ?? this.showPortal,
+      showTopMenu: showTopMenu ?? this.showTopMenu,
+      showMyPoint: showMyPoint ?? this.showMyPoint,
+      topRightMenu: topRightMenu ?? this.topRightMenu,
+      showBottomNavigation: showBottomNavigation ?? this.showBottomNavigation,
+      pageTitle: pageTitle ?? this.pageTitle,
+      myPageTitle: myPageTitle ?? this.myPageTitle,
+      voteNavigationStack: voteNavigationStack ?? this.voteNavigationStack,
+      communityNavigationStack: communityNavigationStack ?? this.communityNavigationStack,
+      drawerNavigationStack: drawerNavigationStack ?? this.drawerNavigationStack,
+      signUpNavigationStack: signUpNavigationStack ?? this.signUpNavigationStack,
+    );
+  }
 
   factory Navigation.initial() {
     // 초기 투표 페이지는 인덱스 0에 해당하는 페이지를 로드

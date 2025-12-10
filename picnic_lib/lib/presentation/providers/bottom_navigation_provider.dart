@@ -1,7 +1,8 @@
 import 'package:riverpod/riverpod.dart';
 
-class BottomNavigationBarCount extends StateNotifier<int> {
-  BottomNavigationBarCount() : super(0);
+class BottomNavigationBarCount extends Notifier<int> {
+  @override
+  int build() => 0;
 
   void setIndex(int index) {
     state = index;
@@ -9,6 +10,6 @@ class BottomNavigationBarCount extends StateNotifier<int> {
 }
 
 final bottomNavigationBarIndexStateProvider =
-    StateNotifierProvider<BottomNavigationBarCount, int>((ref) {
-  return BottomNavigationBarCount();
-});
+    NotifierProvider<BottomNavigationBarCount, int>(
+  BottomNavigationBarCount.new,
+);

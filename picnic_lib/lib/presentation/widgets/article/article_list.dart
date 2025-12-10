@@ -40,7 +40,7 @@ class _ArticleListState extends ConsumerState<ArticleList> {
   static const _pageSize = 10;
 
   Future<List<ArticleModel>> _fetch(int pageKey) async {
-    final newItems = await ref.watch(FetchArticleListProvider(
+    final newItems = await ref.watch(fetchArticleListProvider(
             page: pageKey,
             limit: 10,
             sort: 'id',

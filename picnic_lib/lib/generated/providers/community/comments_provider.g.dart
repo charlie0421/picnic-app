@@ -6,276 +6,227 @@ part of '../../../presentation/providers/community/comments_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$commentsNotifierHash() => r'990cab214aa6fca433f5e2f4bf42dd480e34088f';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
-
-abstract class _$CommentsNotifier
-    extends BuildlessAutoDisposeAsyncNotifier<List<CommentModel>> {
-  late final String postId;
-  late final int page;
-  late final int limit;
-  late final bool includeDeleted;
-  late final bool includeReported;
-
-  FutureOr<List<CommentModel>> build(
-    String postId,
-    int page,
-    int limit, {
-    bool includeDeleted = true,
-    bool includeReported = true,
-  });
-}
-
-/// See also [CommentsNotifier].
 @ProviderFor(CommentsNotifier)
-const commentsNotifierProvider = CommentsNotifierFamily();
+const commentsProvider = CommentsNotifierFamily._();
 
-/// See also [CommentsNotifier].
-class CommentsNotifierFamily extends Family<AsyncValue<List<CommentModel>>> {
-  /// See also [CommentsNotifier].
-  const CommentsNotifierFamily();
+final class CommentsNotifierProvider
+    extends $AsyncNotifierProvider<CommentsNotifier, List<CommentModel>> {
+  const CommentsNotifierProvider._({
+    required CommentsNotifierFamily super.from,
+    required (String, int, int, {bool includeDeleted, bool includeReported})
+    super.argument,
+  }) : super(
+         retry: null,
+         name: r'commentsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
-  /// See also [CommentsNotifier].
+  @override
+  String debugGetCreateSourceHash() => _$commentsNotifierHash();
+
+  @override
+  String toString() {
+    return r'commentsProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  CommentsNotifier create() => CommentsNotifier();
+
+  @override
+  bool operator ==(Object other) {
+    return other is CommentsNotifierProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$commentsNotifierHash() => r'7fafa42440c84535957ca35e1469e1e3c8095074';
+
+final class CommentsNotifierFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          CommentsNotifier,
+          AsyncValue<List<CommentModel>>,
+          List<CommentModel>,
+          FutureOr<List<CommentModel>>,
+          (String, int, int, {bool includeDeleted, bool includeReported})
+        > {
+  const CommentsNotifierFamily._()
+    : super(
+        retry: null,
+        name: r'commentsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
   CommentsNotifierProvider call(
     String postId,
     int page,
     int limit, {
     bool includeDeleted = true,
     bool includeReported = true,
-  }) {
-    return CommentsNotifierProvider(
+  }) => CommentsNotifierProvider._(
+    argument: (
       postId,
       page,
       limit,
       includeDeleted: includeDeleted,
       includeReported: includeReported,
-    );
-  }
+    ),
+    from: this,
+  );
 
   @override
-  CommentsNotifierProvider getProviderOverride(
-    covariant CommentsNotifierProvider provider,
-  ) {
-    return call(
-      provider.postId,
-      provider.page,
-      provider.limit,
-      includeDeleted: provider.includeDeleted,
-      includeReported: provider.includeReported,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'commentsNotifierProvider';
+  String toString() => r'commentsProvider';
 }
 
-/// See also [CommentsNotifier].
-class CommentsNotifierProvider
-    extends
-        AutoDisposeAsyncNotifierProviderImpl<
-          CommentsNotifier,
-          List<CommentModel>
-        > {
-  /// See also [CommentsNotifier].
-  CommentsNotifierProvider(
+abstract class _$CommentsNotifier extends $AsyncNotifier<List<CommentModel>> {
+  late final _$args =
+      ref.$arg
+          as (String, int, int, {bool includeDeleted, bool includeReported});
+  String get postId => _$args.$1;
+  int get page => _$args.$2;
+  int get limit => _$args.$3;
+  bool get includeDeleted => _$args.includeDeleted;
+  bool get includeReported => _$args.includeReported;
+
+  FutureOr<List<CommentModel>> build(
     String postId,
     int page,
     int limit, {
     bool includeDeleted = true,
     bool includeReported = true,
-  }) : this._internal(
-         () => CommentsNotifier()
-           ..postId = postId
-           ..page = page
-           ..limit = limit
-           ..includeDeleted = includeDeleted
-           ..includeReported = includeReported,
-         from: commentsNotifierProvider,
-         name: r'commentsNotifierProvider',
-         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-             ? null
-             : _$commentsNotifierHash,
-         dependencies: CommentsNotifierFamily._dependencies,
-         allTransitiveDependencies:
-             CommentsNotifierFamily._allTransitiveDependencies,
-         postId: postId,
-         page: page,
-         limit: limit,
-         includeDeleted: includeDeleted,
-         includeReported: includeReported,
+  });
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build(
+      _$args.$1,
+      _$args.$2,
+      _$args.$3,
+      includeDeleted: _$args.includeDeleted,
+      includeReported: _$args.includeReported,
+    );
+    final ref =
+        this.ref as $Ref<AsyncValue<List<CommentModel>>, List<CommentModel>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<CommentModel>>, List<CommentModel>>,
+              AsyncValue<List<CommentModel>>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
+
+@ProviderFor(UserCommentsNotifier)
+const userCommentsProvider = UserCommentsNotifierFamily._();
+
+final class UserCommentsNotifierProvider
+    extends $AsyncNotifierProvider<UserCommentsNotifier, List<CommentModel>> {
+  const UserCommentsNotifierProvider._({
+    required UserCommentsNotifierFamily super.from,
+    required (String, int, int, {bool includeDeleted, bool includeReported})
+    super.argument,
+  }) : super(
+         retry: null,
+         name: r'userCommentsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
        );
 
-  CommentsNotifierProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.postId,
-    required this.page,
-    required this.limit,
-    required this.includeDeleted,
-    required this.includeReported,
-  }) : super.internal();
-
-  final String postId;
-  final int page;
-  final int limit;
-  final bool includeDeleted;
-  final bool includeReported;
+  @override
+  String debugGetCreateSourceHash() => _$userCommentsNotifierHash();
 
   @override
-  FutureOr<List<CommentModel>> runNotifierBuild(
-    covariant CommentsNotifier notifier,
-  ) {
-    return notifier.build(
-      postId,
-      page,
-      limit,
-      includeDeleted: includeDeleted,
-      includeReported: includeReported,
-    );
+  String toString() {
+    return r'userCommentsProvider'
+        ''
+        '$argument';
   }
 
+  @$internal
   @override
-  Override overrideWith(CommentsNotifier Function() create) {
-    return ProviderOverride(
-      origin: this,
-      override: CommentsNotifierProvider._internal(
-        () => create()
-          ..postId = postId
-          ..page = page
-          ..limit = limit
-          ..includeDeleted = includeDeleted
-          ..includeReported = includeReported,
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        postId: postId,
-        page: page,
-        limit: limit,
-        includeDeleted: includeDeleted,
-        includeReported: includeReported,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeAsyncNotifierProviderElement<CommentsNotifier, List<CommentModel>>
-  createElement() {
-    return _CommentsNotifierProviderElement(this);
-  }
+  UserCommentsNotifier create() => UserCommentsNotifier();
 
   @override
   bool operator ==(Object other) {
-    return other is CommentsNotifierProvider &&
-        other.postId == postId &&
-        other.page == page &&
-        other.limit == limit &&
-        other.includeDeleted == includeDeleted &&
-        other.includeReported == includeReported;
+    return other is UserCommentsNotifierProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, postId.hashCode);
-    hash = _SystemHash.combine(hash, page.hashCode);
-    hash = _SystemHash.combine(hash, limit.hashCode);
-    hash = _SystemHash.combine(hash, includeDeleted.hashCode);
-    hash = _SystemHash.combine(hash, includeReported.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin CommentsNotifierRef
-    on AutoDisposeAsyncNotifierProviderRef<List<CommentModel>> {
-  /// The parameter `postId` of this provider.
-  String get postId;
-
-  /// The parameter `page` of this provider.
-  int get page;
-
-  /// The parameter `limit` of this provider.
-  int get limit;
-
-  /// The parameter `includeDeleted` of this provider.
-  bool get includeDeleted;
-
-  /// The parameter `includeReported` of this provider.
-  bool get includeReported;
-}
-
-class _CommentsNotifierProviderElement
-    extends
-        AutoDisposeAsyncNotifierProviderElement<
-          CommentsNotifier,
-          List<CommentModel>
-        >
-    with CommentsNotifierRef {
-  _CommentsNotifierProviderElement(super.provider);
-
-  @override
-  String get postId => (origin as CommentsNotifierProvider).postId;
-  @override
-  int get page => (origin as CommentsNotifierProvider).page;
-  @override
-  int get limit => (origin as CommentsNotifierProvider).limit;
-  @override
-  bool get includeDeleted =>
-      (origin as CommentsNotifierProvider).includeDeleted;
-  @override
-  bool get includeReported =>
-      (origin as CommentsNotifierProvider).includeReported;
 }
 
 String _$userCommentsNotifierHash() =>
     r'a1f0974c30c89db84dcfffba0f1d8bed85e89768';
 
+final class UserCommentsNotifierFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          UserCommentsNotifier,
+          AsyncValue<List<CommentModel>>,
+          List<CommentModel>,
+          FutureOr<List<CommentModel>>,
+          (String, int, int, {bool includeDeleted, bool includeReported})
+        > {
+  const UserCommentsNotifierFamily._()
+    : super(
+        retry: null,
+        name: r'userCommentsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  UserCommentsNotifierProvider call(
+    String userId,
+    int page,
+    int limit, {
+    bool includeDeleted = true,
+    bool includeReported = true,
+  }) => UserCommentsNotifierProvider._(
+    argument: (
+      userId,
+      page,
+      limit,
+      includeDeleted: includeDeleted,
+      includeReported: includeReported,
+    ),
+    from: this,
+  );
+
+  @override
+  String toString() => r'userCommentsProvider';
+}
+
 abstract class _$UserCommentsNotifier
-    extends BuildlessAutoDisposeAsyncNotifier<List<CommentModel>> {
-  late final String userId;
-  late final int page;
-  late final int limit;
-  late final bool includeDeleted;
-  late final bool includeReported;
+    extends $AsyncNotifier<List<CommentModel>> {
+  late final _$args =
+      ref.$arg
+          as (String, int, int, {bool includeDeleted, bool includeReported});
+  String get userId => _$args.$1;
+  int get page => _$args.$2;
+  int get limit => _$args.$3;
+  bool get includeDeleted => _$args.includeDeleted;
+  bool get includeReported => _$args.includeReported;
 
   FutureOr<List<CommentModel>> build(
     String userId,
@@ -284,248 +235,72 @@ abstract class _$UserCommentsNotifier
     bool includeDeleted = true,
     bool includeReported = true,
   });
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build(
+      _$args.$1,
+      _$args.$2,
+      _$args.$3,
+      includeDeleted: _$args.includeDeleted,
+      includeReported: _$args.includeReported,
+    );
+    final ref =
+        this.ref as $Ref<AsyncValue<List<CommentModel>>, List<CommentModel>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<CommentModel>>, List<CommentModel>>,
+              AsyncValue<List<CommentModel>>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
 }
 
-/// See also [UserCommentsNotifier].
-@ProviderFor(UserCommentsNotifier)
-const userCommentsNotifierProvider = UserCommentsNotifierFamily();
+@ProviderFor(CommentTranslationNotifier)
+const commentTranslationProvider = CommentTranslationNotifierProvider._();
 
-/// See also [UserCommentsNotifier].
-class UserCommentsNotifierFamily
-    extends Family<AsyncValue<List<CommentModel>>> {
-  /// See also [UserCommentsNotifier].
-  const UserCommentsNotifierFamily();
-
-  /// See also [UserCommentsNotifier].
-  UserCommentsNotifierProvider call(
-    String userId,
-    int page,
-    int limit, {
-    bool includeDeleted = true,
-    bool includeReported = true,
-  }) {
-    return UserCommentsNotifierProvider(
-      userId,
-      page,
-      limit,
-      includeDeleted: includeDeleted,
-      includeReported: includeReported,
-    );
-  }
-
-  @override
-  UserCommentsNotifierProvider getProviderOverride(
-    covariant UserCommentsNotifierProvider provider,
-  ) {
-    return call(
-      provider.userId,
-      provider.page,
-      provider.limit,
-      includeDeleted: provider.includeDeleted,
-      includeReported: provider.includeReported,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'userCommentsNotifierProvider';
-}
-
-/// See also [UserCommentsNotifier].
-class UserCommentsNotifierProvider
-    extends
-        AutoDisposeAsyncNotifierProviderImpl<
-          UserCommentsNotifier,
-          List<CommentModel>
-        > {
-  /// See also [UserCommentsNotifier].
-  UserCommentsNotifierProvider(
-    String userId,
-    int page,
-    int limit, {
-    bool includeDeleted = true,
-    bool includeReported = true,
-  }) : this._internal(
-         () => UserCommentsNotifier()
-           ..userId = userId
-           ..page = page
-           ..limit = limit
-           ..includeDeleted = includeDeleted
-           ..includeReported = includeReported,
-         from: userCommentsNotifierProvider,
-         name: r'userCommentsNotifierProvider',
-         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-             ? null
-             : _$userCommentsNotifierHash,
-         dependencies: UserCommentsNotifierFamily._dependencies,
-         allTransitiveDependencies:
-             UserCommentsNotifierFamily._allTransitiveDependencies,
-         userId: userId,
-         page: page,
-         limit: limit,
-         includeDeleted: includeDeleted,
-         includeReported: includeReported,
-       );
-
-  UserCommentsNotifierProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.userId,
-    required this.page,
-    required this.limit,
-    required this.includeDeleted,
-    required this.includeReported,
-  }) : super.internal();
-
-  final String userId;
-  final int page;
-  final int limit;
-  final bool includeDeleted;
-  final bool includeReported;
-
-  @override
-  FutureOr<List<CommentModel>> runNotifierBuild(
-    covariant UserCommentsNotifier notifier,
-  ) {
-    return notifier.build(
-      userId,
-      page,
-      limit,
-      includeDeleted: includeDeleted,
-      includeReported: includeReported,
-    );
-  }
-
-  @override
-  Override overrideWith(UserCommentsNotifier Function() create) {
-    return ProviderOverride(
-      origin: this,
-      override: UserCommentsNotifierProvider._internal(
-        () => create()
-          ..userId = userId
-          ..page = page
-          ..limit = limit
-          ..includeDeleted = includeDeleted
-          ..includeReported = includeReported,
-        from: from,
-        name: null,
+final class CommentTranslationNotifierProvider
+    extends $AsyncNotifierProvider<CommentTranslationNotifier, void> {
+  const CommentTranslationNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'commentTranslationProvider',
+        isAutoDispose: true,
         dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        userId: userId,
-        page: page,
-        limit: limit,
-        includeDeleted: includeDeleted,
-        includeReported: includeReported,
-      ),
-    );
-  }
+        $allTransitiveDependencies: null,
+      );
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<
-    UserCommentsNotifier,
-    List<CommentModel>
-  >
-  createElement() {
-    return _UserCommentsNotifierProviderElement(this);
-  }
+  String debugGetCreateSourceHash() => _$commentTranslationNotifierHash();
 
+  @$internal
   @override
-  bool operator ==(Object other) {
-    return other is UserCommentsNotifierProvider &&
-        other.userId == userId &&
-        other.page == page &&
-        other.limit == limit &&
-        other.includeDeleted == includeDeleted &&
-        other.includeReported == includeReported;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, userId.hashCode);
-    hash = _SystemHash.combine(hash, page.hashCode);
-    hash = _SystemHash.combine(hash, limit.hashCode);
-    hash = _SystemHash.combine(hash, includeDeleted.hashCode);
-    hash = _SystemHash.combine(hash, includeReported.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin UserCommentsNotifierRef
-    on AutoDisposeAsyncNotifierProviderRef<List<CommentModel>> {
-  /// The parameter `userId` of this provider.
-  String get userId;
-
-  /// The parameter `page` of this provider.
-  int get page;
-
-  /// The parameter `limit` of this provider.
-  int get limit;
-
-  /// The parameter `includeDeleted` of this provider.
-  bool get includeDeleted;
-
-  /// The parameter `includeReported` of this provider.
-  bool get includeReported;
-}
-
-class _UserCommentsNotifierProviderElement
-    extends
-        AutoDisposeAsyncNotifierProviderElement<
-          UserCommentsNotifier,
-          List<CommentModel>
-        >
-    with UserCommentsNotifierRef {
-  _UserCommentsNotifierProviderElement(super.provider);
-
-  @override
-  String get userId => (origin as UserCommentsNotifierProvider).userId;
-  @override
-  int get page => (origin as UserCommentsNotifierProvider).page;
-  @override
-  int get limit => (origin as UserCommentsNotifierProvider).limit;
-  @override
-  bool get includeDeleted =>
-      (origin as UserCommentsNotifierProvider).includeDeleted;
-  @override
-  bool get includeReported =>
-      (origin as UserCommentsNotifierProvider).includeReported;
+  CommentTranslationNotifier create() => CommentTranslationNotifier();
 }
 
 String _$commentTranslationNotifierHash() =>
     r'7d630ef180597a582b5965d8a833f030b5338da1';
 
-/// See also [CommentTranslationNotifier].
-@ProviderFor(CommentTranslationNotifier)
-final commentTranslationNotifierProvider =
-    AutoDisposeAsyncNotifierProvider<CommentTranslationNotifier, void>.internal(
-      CommentTranslationNotifier.new,
-      name: r'commentTranslationNotifierProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$commentTranslationNotifierHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-typedef _$CommentTranslationNotifier = AutoDisposeAsyncNotifier<void>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+abstract class _$CommentTranslationNotifier extends $AsyncNotifier<void> {
+  FutureOr<void> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    build();
+    final ref = this.ref as $Ref<AsyncValue<void>, void>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, void>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, null);
+  }
+}

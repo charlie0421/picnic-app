@@ -623,7 +623,7 @@ class AppInitializer {
             if (user != null) {
               String? userRole;
               try {
-                final p = ref.read(userInfoProvider).valueOrNull;
+                final p = ref.read(userInfoProvider).value;
                 if (p != null) {
                   userRole = p.isAdmin == true ? 'admin' : 'user';
                 }

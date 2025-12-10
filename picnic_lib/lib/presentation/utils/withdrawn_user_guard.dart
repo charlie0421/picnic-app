@@ -21,7 +21,7 @@ Future<bool> showWithdrawalBlockedDialog({
     // 프로필을 새로고침하지 못하면 기존 캐시 값을 사용합니다.
   }
 
-  userProfile ??= ref.read(userInfoProvider).valueOrNull;
+  userProfile ??= ref.read(userInfoProvider).value;
 
   final isWithdrawn = userProfile?.deletedAt != null;
 

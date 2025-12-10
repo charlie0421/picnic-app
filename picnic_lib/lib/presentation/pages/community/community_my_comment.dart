@@ -54,7 +54,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
 
   Future<List<CommentModel>> _fetchPage(int pageKey) async {
     final userCommentsNotifier = ref.read(
-      userCommentsNotifierProvider(
+      userCommentsProvider(
         supabase.auth.currentUser!.id,
         pageKey,
         10,
@@ -77,7 +77,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
   Future<void> _handleDelete(String commentId) async {
     try {
       final commentsNotifier = ref.read(
-        commentsNotifierProvider(commentId, 1, 10).notifier,
+        commentsProvider(commentId, 1, 10).notifier,
       );
       await commentsNotifier.deleteComment(commentId);
       _handleRefresh();

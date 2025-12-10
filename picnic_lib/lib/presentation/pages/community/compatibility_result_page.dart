@@ -119,7 +119,7 @@ class _CompatibilityResultPageState
       if (!mounted) return;
 
       if (widget.compatibility.isPending) {
-        ref.read(compatibilityLoadingProvider.notifier).state = true;
+        ref.read(compatibilityLoadingProvider.notifier).set(true);
       }
 
       if (widget.compatibility.isCompleted) {

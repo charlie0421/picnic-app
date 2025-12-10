@@ -2,14 +2,12 @@
 
 import 'dart:io';
 
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/data/models/common/app_version.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:version/version.dart';
 
-part '../../generated/providers/check_update_provider.freezed.dart';
 part '../../generated/providers/check_update_provider.g.dart';
 
 enum UpdateStatus {
@@ -19,17 +17,36 @@ enum UpdateStatus {
   needPatch,
 }
 
-@freezed
-class UpdateInfo with _$UpdateInfo {
-  const UpdateInfo._();
+class UpdateInfo {
+  final UpdateStatus status;
+  final String currentVersion;
+  final String latestVersion;
+  final String forceVersion;
+  final String? url;
 
-  const factory UpdateInfo({
-    required UpdateStatus status,
-    required String currentVersion,
-    required String latestVersion,
-    required String forceVersion,
+  const UpdateInfo({
+    required this.status,
+    required this.currentVersion,
+    required this.latestVersion,
+    required this.forceVersion,
+    this.url,
+  });
+
+  UpdateInfo copyWith({
+    UpdateStatus? status,
+    String? currentVersion,
+    String? latestVersion,
+    String? forceVersion,
     String? url,
-  }) = _UpdateInfo;
+  }) {
+    return UpdateInfo(
+      status: status ?? this.status,
+      currentVersion: currentVersion ?? this.currentVersion,
+      latestVersion: latestVersion ?? this.latestVersion,
+      forceVersion: forceVersion ?? this.forceVersion,
+      url: url ?? this.url,
+    );
+  }
 }
 
 @riverpod

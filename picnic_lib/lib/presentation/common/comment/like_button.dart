@@ -99,7 +99,7 @@ class LikeButtonState extends ConsumerState<LikeButton>
 
     try {
       final commentsNotifier = ref.read(
-        commentsNotifierProvider(widget.postId, 1, 10).notifier,
+        commentsProvider(widget.postId, 1, 10).notifier,
       );
 
       // Optimistic update

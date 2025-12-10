@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part '../../generated/providers/app_setting_provider.freezed.dart';
 part '../../generated/providers/app_setting_provider.g.dart';
 
 @riverpod
@@ -48,16 +46,32 @@ class AppSetting extends _$AppSetting {
   }
 }
 
-@freezed
-class Setting with _$Setting {
-  const Setting._();
+class Setting {
+  final ThemeMode themeMode;
+  final bool postAnonymousMode;
+  final String language;
+  final String area;
 
-  const factory Setting({
-    @Default(ThemeMode.system) ThemeMode themeMode,
-    @Default(false) bool postAnonymousMode,
-    @Default('ko') String language,
-    @Default('all') String area,
-  }) = _Setting;
+  const Setting({
+    this.themeMode = ThemeMode.system,
+    this.postAnonymousMode = false,
+    this.language = 'ko',
+    this.area = 'all',
+  });
+
+  Setting copyWith({
+    ThemeMode? themeMode,
+    bool? postAnonymousMode,
+    String? language,
+    String? area,
+  }) {
+    return Setting(
+      themeMode: themeMode ?? this.themeMode,
+      postAnonymousMode: postAnonymousMode ?? this.postAnonymousMode,
+      language: language ?? this.language,
+      area: area ?? this.area,
+    );
+  }
 
   /// 지원되는 언어 목록 (AppLocalizations.supportedLocales 기반, 단일 소스)
   /// zh 지역 분기(zh_CN/zh_TW)를 포함하기 위해 countryCode를 결합한 코드 사용

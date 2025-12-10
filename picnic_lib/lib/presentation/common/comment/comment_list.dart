@@ -24,7 +24,7 @@ import 'package:picnic_lib/ui/style.dart';
 final commentsPageProvider = FutureProvider.autoDispose
     .family<List<CommentModel>, CommentsPageParams>((ref, params) async {
   final commentsNotifier = ref.read(
-    commentsNotifierProvider(params.postId, params.pageKey, params.pageSize)
+    commentsProvider(params.postId, params.pageKey, params.pageSize)
         .notifier,
   );
 
@@ -165,7 +165,7 @@ class _CommentListState extends ConsumerState<CommentList> {
 
   Future<void> _handleLikeComment(String commentId, bool currentLikeStatus) {
     final commentsNotifier = ref.read(
-      commentsNotifierProvider(widget.id, 1, _pageSize).notifier,
+      commentsProvider(widget.id, 1, _pageSize).notifier,
     );
 
     return _handleCommentAction(() {
@@ -181,7 +181,7 @@ class _CommentListState extends ConsumerState<CommentList> {
     String text,
   ) {
     final commentsNotifier = ref.read(
-      commentsNotifierProvider(widget.id, 1, _pageSize).notifier,
+      commentsProvider(widget.id, 1, _pageSize).notifier,
     );
 
     return _handleCommentAction(() {
@@ -191,7 +191,7 @@ class _CommentListState extends ConsumerState<CommentList> {
 
   Future<void> _handleDeleteComment(String commentId) {
     final commentsNotifier = ref.read(
-      commentsNotifierProvider(widget.id, 1, _pageSize).notifier,
+      commentsProvider(widget.id, 1, _pageSize).notifier,
     );
 
     return _handleCommentAction(() {
@@ -355,7 +355,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                       return;
                     }
                     final commentsNotifier = ref.read(
-                      commentsNotifierProvider(widget.id, 1, _pageSize)
+                      commentsProvider(widget.id, 1, _pageSize)
                           .notifier,
                     );
                     await _handleCommentAction(() {

@@ -34,7 +34,7 @@ class _PostBoardSelectPopupMenuState
       (value) => value.currentBoard,
     ));
 
-    return ref.watch(boardsNotifierProvider(widget.artistId)).when(
+    return ref.watch(boardsProvider(widget.artistId)).when(
           data: (boards) {
             if (boards == null || boards.isEmpty) {
               return const SizedBox.shrink();

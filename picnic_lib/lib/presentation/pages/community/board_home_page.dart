@@ -118,7 +118,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
     // 공지 상세 복귀 시 제목 강제 복원 로직은 제거하여 다른 페이지(예: 궁합 상세)와 타이틀 충돌/깜빡임 방지
 
     return ref
-        .watch(boardsNotifierProvider(widget.artistId))
+        .watch(boardsProvider(widget.artistId))
         .when(
           data: (boards) {
             if (boards == null || boards.isEmpty) {

@@ -6,25 +6,52 @@ part of '../../../presentation/providers/my_page/vote_artist_list_provider.dart'
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncVoteArtistListHash() =>
-    r'ab32a87e91da4cd7be30076dda1c86ab16dc7a8c';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [AsyncVoteArtistList].
 @ProviderFor(AsyncVoteArtistList)
-final asyncVoteArtistListProvider =
-    AutoDisposeAsyncNotifierProvider<
-      AsyncVoteArtistList,
-      List<ArtistModel>
-    >.internal(
-      AsyncVoteArtistList.new,
-      name: r'asyncVoteArtistListProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$asyncVoteArtistListHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+const asyncVoteArtistListProvider = AsyncVoteArtistListProvider._();
 
-typedef _$AsyncVoteArtistList = AutoDisposeAsyncNotifier<List<ArtistModel>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class AsyncVoteArtistListProvider
+    extends $AsyncNotifierProvider<AsyncVoteArtistList, List<ArtistModel>> {
+  const AsyncVoteArtistListProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'asyncVoteArtistListProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$asyncVoteArtistListHash();
+
+  @$internal
+  @override
+  AsyncVoteArtistList create() => AsyncVoteArtistList();
+}
+
+String _$asyncVoteArtistListHash() =>
+    r'7af2d7405a1e199f3a3f07042ffed36141946f71';
+
+abstract class _$AsyncVoteArtistList extends $AsyncNotifier<List<ArtistModel>> {
+  FutureOr<List<ArtistModel>> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref =
+        this.ref as $Ref<AsyncValue<List<ArtistModel>>, List<ArtistModel>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<ArtistModel>>, List<ArtistModel>>,
+              AsyncValue<List<ArtistModel>>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}

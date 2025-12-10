@@ -20,7 +20,16 @@ import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart'
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
-final searchQueryProvider = StateProvider<String>((ref) => '');
+class SearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void set(String value) => state = value;
+}
+
+final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(
+  SearchQueryNotifier.new,
+);
 
 class VoteArtistPage extends ConsumerStatefulWidget {
   const VoteArtistPage({super.key});
@@ -138,7 +147,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
                 try {
                   logger.i(
                       '🔍 [VoteArtistPage] Setting search query and refreshing');
-                  ref.read(searchQueryProvider.notifier).state = query;
+                  ref.read(searchQueryProvider.notifier).set(query);
                   _pagingController.refresh();
                   logger.i(
                       '🔍 [VoteArtistPage] Search query set and refresh triggered');

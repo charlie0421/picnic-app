@@ -6,22 +6,44 @@ part of '../../presentation/providers/check_update_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$checkUpdateHash() => r'91cad81f81a16ece43384daf2772d6dd7c3e51e2';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [checkUpdate].
 @ProviderFor(checkUpdate)
-final checkUpdateProvider = AutoDisposeFutureProvider<UpdateInfo?>.internal(
-  checkUpdate,
-  name: r'checkUpdateProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$checkUpdateHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+const checkUpdateProvider = CheckUpdateProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef CheckUpdateRef = AutoDisposeFutureProviderRef<UpdateInfo?>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class CheckUpdateProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<UpdateInfo?>,
+          UpdateInfo?,
+          FutureOr<UpdateInfo?>
+        >
+    with $FutureModifier<UpdateInfo?>, $FutureProvider<UpdateInfo?> {
+  const CheckUpdateProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'checkUpdateProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$checkUpdateHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<UpdateInfo?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<UpdateInfo?> create(Ref ref) {
+    return checkUpdate(ref);
+  }
+}
+
+String _$checkUpdateHash() => r'91cad81f81a16ece43384daf2772d6dd7c3e51e2';

@@ -96,7 +96,7 @@ class _CompatibilityLoadingPageState
 
       if (widget.compatibility.isPending ||
           widget.compatibility.isAds == false) {
-        ref.read(compatibilityLoadingProvider.notifier).state = true;
+        ref.read(compatibilityLoadingProvider.notifier).set(true);
       }
     } catch (e, stack) {
       logger.e('Error initializing data', error: e, stackTrace: stack);

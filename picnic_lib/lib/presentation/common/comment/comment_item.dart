@@ -191,7 +191,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
       if (!mounted) return;
 
       final translationNotifier = ref.read(
-        commentTranslationNotifierProvider.notifier,
+        commentTranslationProvider.notifier,
       );
 
       await translationNotifier.updateTranslation(

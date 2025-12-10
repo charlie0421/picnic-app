@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final unreadNotificationsCountProvider = AutoDisposeFutureProvider<int>((
+final unreadNotificationsCountProvider = FutureProvider.autoDispose<int>((
   ref,
 ) async {
   final client = Supabase.instance.client;

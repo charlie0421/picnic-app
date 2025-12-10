@@ -49,7 +49,7 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
         onOk: () async {
           try {
             final commentsNotifier = ref.read(
-              commentsNotifierProvider(widget.postId, 1, 10).notifier,
+              commentsProvider(widget.postId, 1, 10).notifier,
             );
             await commentsNotifier.deleteComment(widget.comment.commentId);
 

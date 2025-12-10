@@ -1,17 +1,27 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 
-part '../../../generated/models/common/community_navigation.freezed.dart';
+class CommunityState {
+  final ArtistModel? currentArtist;
+  final PostModel? currentPost;
+  final BoardModel? currentBoard;
 
-@freezed
-class CommunityState with _$CommunityState {
-  const CommunityState._();
+  const CommunityState({
+    this.currentArtist,
+    this.currentPost,
+    this.currentBoard,
+  });
 
-  const factory CommunityState({
+  CommunityState copyWith({
     ArtistModel? currentArtist,
     PostModel? currentPost,
     BoardModel? currentBoard,
-  }) = Navigation;
+  }) {
+    return CommunityState(
+      currentArtist: currentArtist ?? this.currentArtist,
+      currentPost: currentPost ?? this.currentPost,
+      currentBoard: currentBoard ?? this.currentBoard,
+    );
+  }
 }

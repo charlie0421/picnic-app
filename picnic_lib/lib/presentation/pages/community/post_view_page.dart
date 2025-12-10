@@ -273,7 +273,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
     try {
       final loadedComments = await Future.value(
         ref
-            .read(commentsNotifierProvider(postId, 1, 3).notifier)
+            .read(commentsProvider(postId, 1, 3).notifier)
             .build(postId, 1, 3, includeDeleted: false, includeReported: false),
       ).timeout(const Duration(seconds: 10));
 

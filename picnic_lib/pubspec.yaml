@@ -33,12 +33,12 @@ dependencies:
   supabase_extensions: ^1.0.1
   shared_preferences: ^2.3.4
   image_picker: ^1.1.2
-  riverpod: ^2.6.1
-  package_info_plus: ^8.1.2
-  flutter_riverpod: ^2.6.1
+  riverpod: ^3.0.3
+  package_info_plus: ^9.0.0
+  flutter_riverpod: ^3.0.3
   flutter_svg: ^2.0.16
   load_switch: ^2.1.0
-  riverpod_annotation: ^2.6.1
+  riverpod_annotation: ^3.0.3
   flutter_quill: ^11.4.1
   intl: ^0.20.2
   camera: ^0.11.1
@@ -54,14 +54,14 @@ dependencies:
   overlay_support: ^2.1.0
   screen_protector: ^1.4.2+1
   bubble_box: ^0.5.3
-  supabase_flutter: ^2.9.1
+  supabase_flutter: ^2.10.3
   google_sign_in: ^7.1.1
   sign_in_with_apple: ^7.0.1
   kakao_flutter_sdk_user: ^1.9.6
   fluwx: ^5.7.1
-  firebase_core: ^3.8.1
-  firebase_messaging: ^15.1.6
-  flutter_local_notifications: ^18.0.1
+  firebase_core: ^4.2.1
+  firebase_messaging: ^16.0.4
+  flutter_local_notifications: ^19.5.0
   image: ^4.3.0
   image_gallery_saver_plus: ^4.0.0-0.alpha
   in_app_purchase: ^3.2.0
@@ -70,16 +70,16 @@ dependencies:
   flutter_markdown: ^0.7.4+3
   path_provider: ^2.1.5
   app_tracking_transparency: ^2.0.6+1
-  freezed_annotation: ^2.4.4
-  app_links: ^6.3.3
+  freezed_annotation: ^3.1.0
+  app_links: ^6.4.1
   http: ^1.2.2
   video_player: ^2.8.6
   chewie: ^1.7.5
   video_thumbnail: ^0.5.6
   deepl_dart: ^2.0.0
-  firebase_analytics: ^11.3.4
+  firebase_analytics: ^12.0.4
   timezone: ^0.10.0
-  connectivity_plus: ^6.1.1
+  connectivity_plus: ^7.0.0
   image_cropper: ^9.0.0
   flutter_inappwebview: ^6.1.7
   version: ^3.0.2
@@ -92,8 +92,8 @@ dependencies:
   universal_io: ^2.2.2
   confetti: ^0.8.0
   dart_openai: ^5.1.0
-  share_plus: ^11.0.0
-  device_info_plus: ^11.2.0
+  share_plus: ^12.0.1
+  device_info_plus: ^12.3.0
   flutter_phoenix: ^1.1.1
   mime: ^2.0.0
   path: ^1.9.0
@@ -113,12 +113,12 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   json_serializable: ^6.9.0
-  riverpod_generator: ^2.6.4
+  riverpod_generator: ^3.0.3
   intl_utils: ^2.8.7
   build_runner: ^2.4.13
   
   change_app_package_name: ^1.4.0
-  freezed: ^2.5.8
+  freezed: ^3.2.3
   
   delete_un_used_assets: ^1.0.1
   flutter_assets_cleaner: ^0.0.9

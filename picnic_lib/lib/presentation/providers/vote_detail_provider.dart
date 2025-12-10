@@ -102,6 +102,9 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
         response.map((e) => VoteItemModel.fromJson(e)),
       );
 
+      // async 작업 후 provider가 dispose되었는지 확인
+      if (!ref.mounted) return voteItemList;
+
       state = AsyncValue.data(voteItemList);
       final elapsedMs = DateTime.now().difference(startedAt).inMilliseconds;
       logger.d(
@@ -122,6 +125,8 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
 
   setVoteItem({required int id, required int voteTotal}) async {
     try {
+      if (!ref.mounted) return;
+
       if (state.value != null) {
         final updatedList = state.value!.map<VoteItemModel>((item) {
           if (item != null && item.id == id) {
@@ -130,9 +135,11 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
           return item!;
         }).toList();
 
+        if (!ref.mounted) return;
         state = AsyncValue.data(updatedList);
 
         //sort by total_vote
+        if (!ref.mounted) return;
         state = AsyncValue.data(
           state.value!.toList()
             ..sort((a, b) => b!.voteTotal!.compareTo(a!.voteTotal!)),

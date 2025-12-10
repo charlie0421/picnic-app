@@ -90,9 +90,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
     return PopScope(
       onPopInvokedWithResult: (didPop, result) async {
-        if (ref.watch(parmePageIndexProvider.notifier).state == 1) {
-          ref.read(parmePageIndexProvider.notifier).state = 0;
-        } else if (ref.watch(picSelectedIndexProvider.notifier).state == 0) {}
+        if (ref.watch(parmePageIndexProvider) == 1) {
+          ref.read(parmePageIndexProvider.notifier).set(0);
+        } else if (ref.watch(picSelectedIndexProvider) == 0) {}
       },
       child: widget,
     );

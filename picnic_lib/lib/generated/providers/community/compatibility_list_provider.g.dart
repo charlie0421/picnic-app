@@ -6,172 +6,105 @@ part of '../../../presentation/providers/community/compatibility_list_provider.d
 // RiverpodGenerator
 // **************************************************************************
 
-String _$compatibilityListHash() => r'b64e6ae565692bcaa95874393b473dceef1a3fbc';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
-
-abstract class _$CompatibilityList
-    extends BuildlessAutoDisposeNotifier<CompatibilityHistoryModel> {
-  late final int? artistId;
-
-  CompatibilityHistoryModel build({int? artistId});
-}
-
-/// See also [CompatibilityList].
 @ProviderFor(CompatibilityList)
-const compatibilityListProvider = CompatibilityListFamily();
+const compatibilityListProvider = CompatibilityListFamily._();
 
-/// See also [CompatibilityList].
-class CompatibilityListFamily extends Family<CompatibilityHistoryModel> {
-  /// See also [CompatibilityList].
-  const CompatibilityListFamily();
+final class CompatibilityListProvider
+    extends $NotifierProvider<CompatibilityList, CompatibilityHistoryModel> {
+  const CompatibilityListProvider._({
+    required CompatibilityListFamily super.from,
+    required int? super.argument,
+  }) : super(
+         retry: null,
+         name: r'compatibilityListProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
-  /// See also [CompatibilityList].
-  CompatibilityListProvider call({int? artistId}) {
-    return CompatibilityListProvider(artistId: artistId);
+  @override
+  String debugGetCreateSourceHash() => _$compatibilityListHash();
+
+  @override
+  String toString() {
+    return r'compatibilityListProvider'
+        ''
+        '($argument)';
   }
 
+  @$internal
   @override
-  CompatibilityListProvider getProviderOverride(
-    covariant CompatibilityListProvider provider,
-  ) {
-    return call(artistId: provider.artistId);
-  }
+  CompatibilityList create() => CompatibilityList();
 
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'compatibilityListProvider';
-}
-
-/// See also [CompatibilityList].
-class CompatibilityListProvider
-    extends
-        AutoDisposeNotifierProviderImpl<
-          CompatibilityList,
-          CompatibilityHistoryModel
-        > {
-  /// See also [CompatibilityList].
-  CompatibilityListProvider({int? artistId})
-    : this._internal(
-        () => CompatibilityList()..artistId = artistId,
-        from: compatibilityListProvider,
-        name: r'compatibilityListProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$compatibilityListHash,
-        dependencies: CompatibilityListFamily._dependencies,
-        allTransitiveDependencies:
-            CompatibilityListFamily._allTransitiveDependencies,
-        artistId: artistId,
-      );
-
-  CompatibilityListProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.artistId,
-  }) : super.internal();
-
-  final int? artistId;
-
-  @override
-  CompatibilityHistoryModel runNotifierBuild(
-    covariant CompatibilityList notifier,
-  ) {
-    return notifier.build(artistId: artistId);
-  }
-
-  @override
-  Override overrideWith(CompatibilityList Function() create) {
-    return ProviderOverride(
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CompatibilityHistoryModel value) {
+    return $ProviderOverride(
       origin: this,
-      override: CompatibilityListProvider._internal(
-        () => create()..artistId = artistId,
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        artistId: artistId,
-      ),
+      providerOverride: $SyncValueProvider<CompatibilityHistoryModel>(value),
     );
   }
 
   @override
-  AutoDisposeNotifierProviderElement<
-    CompatibilityList,
-    CompatibilityHistoryModel
-  >
-  createElement() {
-    return _CompatibilityListProviderElement(this);
-  }
-
-  @override
   bool operator ==(Object other) {
-    return other is CompatibilityListProvider && other.artistId == artistId;
+    return other is CompatibilityListProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, artistId.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin CompatibilityListRef
-    on AutoDisposeNotifierProviderRef<CompatibilityHistoryModel> {
-  /// The parameter `artistId` of this provider.
-  int? get artistId;
-}
+String _$compatibilityListHash() => r'b64e6ae565692bcaa95874393b473dceef1a3fbc';
 
-class _CompatibilityListProviderElement
-    extends
-        AutoDisposeNotifierProviderElement<
+final class CompatibilityListFamily extends $Family
+    with
+        $ClassFamilyOverride<
           CompatibilityList,
-          CompatibilityHistoryModel
-        >
-    with CompatibilityListRef {
-  _CompatibilityListProviderElement(super.provider);
+          CompatibilityHistoryModel,
+          CompatibilityHistoryModel,
+          CompatibilityHistoryModel,
+          int?
+        > {
+  const CompatibilityListFamily._()
+    : super(
+        retry: null,
+        name: r'compatibilityListProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  CompatibilityListProvider call({int? artistId}) =>
+      CompatibilityListProvider._(argument: artistId, from: this);
 
   @override
-  int? get artistId => (origin as CompatibilityListProvider).artistId;
+  String toString() => r'compatibilityListProvider';
 }
 
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+abstract class _$CompatibilityList
+    extends $Notifier<CompatibilityHistoryModel> {
+  late final _$args = ref.$arg as int?;
+  int? get artistId => _$args;
+
+  CompatibilityHistoryModel build({int? artistId});
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build(artistId: _$args);
+    final ref =
+        this.ref as $Ref<CompatibilityHistoryModel, CompatibilityHistoryModel>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<CompatibilityHistoryModel, CompatibilityHistoryModel>,
+              CompatibilityHistoryModel,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}

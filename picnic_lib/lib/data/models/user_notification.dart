@@ -1,9 +1,8 @@
 import 'dart:convert';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:picnic_lib/core/utils/locale_utils.dart';
 
-part '../../generated/models/user_notification.freezed.dart';
 part '../../generated/models/user_notification.g.dart';
 
 /// 다국어 필드를 정규화하는 JSON 변환기
@@ -19,7 +18,7 @@ class MultilangJsonConverter
     if (json is Map<String, dynamic>) {
       return json;
     }
-    
+
     // 문자열인 경우
     if (json is String) {
       // JSON 문자열인지 확인 (시작이 '{' 또는 '[')
@@ -42,7 +41,7 @@ class MultilangJsonConverter
       // 일반 문자열인 경우
       return {'ko': json, 'en': json};
     }
-    
+
     // null이거나 다른 타입인 경우
     return {'ko': '', 'en': ''};
   }
@@ -51,29 +50,83 @@ class MultilangJsonConverter
   dynamic toJson(Map<String, dynamic> object) => object;
 }
 
-@freezed
-class UserNotification with _$UserNotification {
-  const UserNotification._();
+@JsonSerializable()
+class UserNotification {
+  @JsonKey(name: 'id')
+  final int id;
 
-  const factory UserNotification({
-    @JsonKey(name: 'id') required int id,
-    @JsonKey(name: 'user_id') String? userId,
-    @JsonKey(name: 'title')
-    @MultilangJsonConverter()
-    required Map<String, dynamic> title, // 다국어 객체: {"ko": "...", "en": "..."}
-    @JsonKey(name: 'body')
-    @MultilangJsonConverter()
-    required Map<String, dynamic> body, // 다국어 객체: {"ko": "...", "en": "..."}
-    @JsonKey(name: 'data') Map<String, dynamic>? data,
-    @JsonKey(name: 'action_url') String? actionUrl,
-    @JsonKey(name: 'type') @Default('default') String type,
-    @JsonKey(name: 'is_read') @Default(false) bool isRead,
-    @JsonKey(name: 'created_at') String? createdAt,
-    @JsonKey(name: 'read_at') String? readAt,
-  }) = _UserNotification;
+  @JsonKey(name: 'user_id')
+  final String? userId;
+
+  @JsonKey(name: 'title')
+  @MultilangJsonConverter()
+  final Map<String, dynamic> title;
+
+  @JsonKey(name: 'body')
+  @MultilangJsonConverter()
+  final Map<String, dynamic> body;
+
+  @JsonKey(name: 'data')
+  final Map<String, dynamic>? data;
+
+  @JsonKey(name: 'action_url')
+  final String? actionUrl;
+
+  @JsonKey(name: 'type')
+  final String type;
+
+  @JsonKey(name: 'is_read')
+  final bool isRead;
+
+  @JsonKey(name: 'created_at')
+  final String? createdAt;
+
+  @JsonKey(name: 'read_at')
+  final String? readAt;
+
+  const UserNotification({
+    required this.id,
+    this.userId,
+    required this.title,
+    required this.body,
+    this.data,
+    this.actionUrl,
+    this.type = 'default',
+    this.isRead = false,
+    this.createdAt,
+    this.readAt,
+  });
 
   factory UserNotification.fromJson(Map<String, dynamic> json) =>
       _$UserNotificationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UserNotificationToJson(this);
+
+  UserNotification copyWith({
+    int? id,
+    String? userId,
+    Map<String, dynamic>? title,
+    Map<String, dynamic>? body,
+    Map<String, dynamic>? data,
+    String? actionUrl,
+    String? type,
+    bool? isRead,
+    String? createdAt,
+    String? readAt,
+  }) {
+    return UserNotification(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      data: data ?? this.data,
+      actionUrl: actionUrl ?? this.actionUrl,
+      type: type ?? this.type,
+      isRead: isRead ?? this.isRead,
+      createdAt: createdAt ?? this.createdAt,
+      readAt: readAt ?? this.readAt,
+    );
+  }
 
   /// 현재 로케일에 맞는 제목 반환 (en fallback)
   String getLocalizedTitle(BuildContext context) {

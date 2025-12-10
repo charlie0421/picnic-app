@@ -261,7 +261,7 @@ class _BoardPageState extends ConsumerState<BoardListPage>
       final adjustedPage = pageKey - 1;
 
       final newItems = await ref.read(
-          boardsByArtistNameNotifierProvider(query, adjustedPage, _pageSize)
+          boardsByArtistNameProvider(query, adjustedPage, _pageSize)
               .future);
 
       if (!mounted) return [];

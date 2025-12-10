@@ -119,7 +119,7 @@ class AdService {
   }
 
   bool isAdLoading(String id) {
-    return ref.read(adLoadingStateProvider.notifier).isLoading(id);
+    return ref.read(adLoadingStateProvider.notifier).isAdLoading(id);
   }
 
   // 리소스 해제

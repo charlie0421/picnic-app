@@ -8,6 +8,9 @@ targets:
                         '^lib/presentation/providers/{{}}.dart': 'lib/generated/providers/{{}}.g.dart'
             freezed:
                 options:
+                    copy_with: true
+                    equal: true
+                    to_string: true
                     build_extensions:
                         '^lib/data/models/{{}}.dart': 'lib/generated/models/{{}}.freezed.dart'
                         '^lib/presentation/providers/{{}}.dart': 'lib/generated/providers/{{}}.freezed.dart'

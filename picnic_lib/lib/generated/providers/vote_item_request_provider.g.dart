@@ -6,26 +6,57 @@ part of '../../presentation/providers/vote_item_request_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$voteItemRequestRepositoryHash() =>
-    r'9b01bf85056d37e503a98edc367d8fd0d69c26e0';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// VoteItemRequestRepository 인스턴스를 제공하는 provider
+
+@ProviderFor(voteItemRequestRepository)
+const voteItemRequestRepositoryProvider = VoteItemRequestRepositoryProvider._();
 
 /// VoteItemRequestRepository 인스턴스를 제공하는 provider
-///
-/// Copied from [voteItemRequestRepository].
-@ProviderFor(voteItemRequestRepository)
-final voteItemRequestRepositoryProvider =
-    Provider<VoteItemRequestRepository>.internal(
-      voteItemRequestRepository,
-      name: r'voteItemRequestRepositoryProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$voteItemRequestRepositoryHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef VoteItemRequestRepositoryRef = ProviderRef<VoteItemRequestRepository>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class VoteItemRequestRepositoryProvider
+    extends
+        $FunctionalProvider<
+          VoteItemRequestRepository,
+          VoteItemRequestRepository,
+          VoteItemRequestRepository
+        >
+    with $Provider<VoteItemRequestRepository> {
+  /// VoteItemRequestRepository 인스턴스를 제공하는 provider
+  const VoteItemRequestRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'voteItemRequestRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$voteItemRequestRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<VoteItemRequestRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  VoteItemRequestRepository create(Ref ref) {
+    return voteItemRequestRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(VoteItemRequestRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<VoteItemRequestRepository>(value),
+    );
+  }
+}
+
+String _$voteItemRequestRepositoryHash() =>
+    r'9b01bf85056d37e503a98edc367d8fd0d69c26e0';

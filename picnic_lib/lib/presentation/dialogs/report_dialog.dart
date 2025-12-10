@@ -222,7 +222,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
 
       if (widget.type == ReportType.comment) {
         final commentsNotifier = ref.read(
-          commentsNotifierProvider(widget.postId, 1, 10).notifier,
+          commentsProvider(widget.postId, 1, 10).notifier,
         );
         await commentsNotifier.reportComment(
           widget.target as CommentModel,

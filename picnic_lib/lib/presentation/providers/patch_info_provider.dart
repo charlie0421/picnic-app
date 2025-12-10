@@ -61,8 +61,9 @@ class PatchInfo {
 }
 
 /// 패치 정보 상태 관리 Provider
-class PatchInfoNotifier extends StateNotifier<PatchInfo> {
-  PatchInfoNotifier() : super(const PatchInfo());
+class PatchInfoNotifier extends Notifier<PatchInfo> {
+  @override
+  PatchInfo build() => const PatchInfo();
 
   /// 패치 정보 업데이트 메소드
   void updatePatchInfo(Map<String, dynamic> info) {
@@ -91,6 +92,6 @@ class PatchInfoNotifier extends StateNotifier<PatchInfo> {
 }
 
 /// 패치 정보 Provider
-final patchInfoProvider = StateNotifierProvider<PatchInfoNotifier, PatchInfo>(
-  (ref) => PatchInfoNotifier(),
+final patchInfoProvider = NotifierProvider<PatchInfoNotifier, PatchInfo>(
+  PatchInfoNotifier.new,
 );

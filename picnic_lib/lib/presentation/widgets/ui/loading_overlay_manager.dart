@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 글로벌 LoadingOverlay 상태를 관리하는 프로바이더
 final loadingOverlayProvider =
-    StateNotifierProvider<LoadingOverlayNotifier, LoadingOverlayState>((ref) {
-  return LoadingOverlayNotifier();
-});
+    NotifierProvider<LoadingOverlayNotifier, LoadingOverlayState>(
+  LoadingOverlayNotifier.new,
+);
 
 /// LoadingOverlay의 상태를 나타내는 클래스
 @immutable
@@ -72,9 +72,10 @@ class LoadingOverlayState {
   }
 }
 
-/// LoadingOverlay 상태를 관리하는 StateNotifier
-class LoadingOverlayNotifier extends StateNotifier<LoadingOverlayState> {
-  LoadingOverlayNotifier() : super(const LoadingOverlayState());
+/// LoadingOverlay 상태를 관리하는 Notifier
+class LoadingOverlayNotifier extends Notifier<LoadingOverlayState> {
+  @override
+  LoadingOverlayState build() => const LoadingOverlayState();
 
   /// 로딩 표시
   void show({

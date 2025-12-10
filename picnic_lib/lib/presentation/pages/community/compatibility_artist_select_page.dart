@@ -18,8 +18,17 @@ import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
+class CompatibilityArtistSearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void set(String value) => state = value;
+}
+
 final compatibilityArtistSearchQueryProvider =
-    StateProvider<String>((ref) => '');
+    NotifierProvider<CompatibilityArtistSearchQueryNotifier, String>(
+  CompatibilityArtistSearchQueryNotifier.new,
+);
 
 class CompatibilityArtistSelectPage extends ConsumerStatefulWidget {
   const CompatibilityArtistSelectPage({super.key});
@@ -107,8 +116,7 @@ class _CompatibilityArtistSelectPageState
             hintText: AppLocalizations.of(context).text_hint_search,
             onSearchChanged: (query) {
               if (mounted) {
-                ref.read(compatibilityArtistSearchQueryProvider.notifier).state =
-                    query;
+                ref.read(compatibilityArtistSearchQueryProvider.notifier).set(query);
                 _pagingController.refresh();
               }
             },

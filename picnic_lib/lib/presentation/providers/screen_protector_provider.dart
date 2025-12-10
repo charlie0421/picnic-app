@@ -15,10 +15,10 @@ class IsScreenProtector extends _$IsScreenProtector {
       return false;
     }
 
-    final isAdmin =
-        ref.watch(userInfoProvider.select((value) => value.value?.isAdmin));
-    final portalType =
-        ref.watch(navigationInfoProvider.select((value) => value.portalType));
+    final userInfoValue = ref.watch(userInfoProvider);
+    final isAdmin = userInfoValue.value?.isAdmin;
+    final navigationValue = ref.watch(navigationInfoProvider);
+    final portalType = navigationValue.portalType;
 
     state = portalType == PortalType.pic;
 

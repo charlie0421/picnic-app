@@ -2,18 +2,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 통합 광고 로딩 상태 관리
 final adLoadingStateProvider =
-    StateNotifierProvider<AdLoadingStateNotifier, Map<String, bool>>((ref) {
-  return AdLoadingStateNotifier();
-});
+    NotifierProvider<AdLoadingStateNotifier, Map<String, bool>>(
+  AdLoadingStateNotifier.new,
+);
 
-class AdLoadingStateNotifier extends StateNotifier<Map<String, bool>> {
-  AdLoadingStateNotifier() : super({});
+class AdLoadingStateNotifier extends Notifier<Map<String, bool>> {
+  @override
+  Map<String, bool> build() => {};
 
   void setLoading(String adId, bool isLoading) {
     state = {...state, adId: isLoading};
   }
 
-  bool isLoading(String adId) {
+  bool isAdLoading(String adId) {
     return state[adId] ?? false;
   }
 }

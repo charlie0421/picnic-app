@@ -6,24 +6,51 @@ part of '../../presentation/providers/library_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(AsyncLibraryList)
+const asyncLibraryListProvider = AsyncLibraryListProvider._();
+
+final class AsyncLibraryListProvider
+    extends $AsyncNotifierProvider<AsyncLibraryList, List<LibraryModel>?> {
+  const AsyncLibraryListProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'asyncLibraryListProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$asyncLibraryListHash();
+
+  @$internal
+  @override
+  AsyncLibraryList create() => AsyncLibraryList();
+}
+
 String _$asyncLibraryListHash() => r'5501bb3a9e0c19dd29b34eea22490f1fb20e24cd';
 
-/// See also [AsyncLibraryList].
-@ProviderFor(AsyncLibraryList)
-final asyncLibraryListProvider =
-    AutoDisposeAsyncNotifierProvider<
-      AsyncLibraryList,
-      List<LibraryModel>?
-    >.internal(
-      AsyncLibraryList.new,
-      name: r'asyncLibraryListProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$asyncLibraryListHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-typedef _$AsyncLibraryList = AutoDisposeAsyncNotifier<List<LibraryModel>?>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+abstract class _$AsyncLibraryList extends $AsyncNotifier<List<LibraryModel>?> {
+  FutureOr<List<LibraryModel>?> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref =
+        this.ref as $Ref<AsyncValue<List<LibraryModel>?>, List<LibraryModel>?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<LibraryModel>?>, List<LibraryModel>?>,
+              AsyncValue<List<LibraryModel>?>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}

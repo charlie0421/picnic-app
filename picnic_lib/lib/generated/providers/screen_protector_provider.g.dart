@@ -6,21 +6,58 @@ part of '../../presentation/providers/screen_protector_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$isScreenProtectorHash() => r'f793b7bae09c42940652dcaddf5dbffc4bbc1e9a';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [IsScreenProtector].
 @ProviderFor(IsScreenProtector)
-final isScreenProtectorProvider =
-    AutoDisposeNotifierProvider<IsScreenProtector, bool>.internal(
-      IsScreenProtector.new,
-      name: r'isScreenProtectorProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$isScreenProtectorHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+const isScreenProtectorProvider = IsScreenProtectorProvider._();
 
-typedef _$IsScreenProtector = AutoDisposeNotifier<bool>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class IsScreenProtectorProvider
+    extends $NotifierProvider<IsScreenProtector, bool> {
+  const IsScreenProtectorProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'isScreenProtectorProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$isScreenProtectorHash();
+
+  @$internal
+  @override
+  IsScreenProtector create() => IsScreenProtector();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$isScreenProtectorHash() => r'e3ec20de4f38b8a30a27cccf3d7e0a5604139d32';
+
+abstract class _$IsScreenProtector extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}

@@ -1,19 +1,38 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part '../../generated/providers/app_initialization_provider.freezed.dart';
 part '../../generated/providers/app_initialization_provider.g.dart';
 
-@freezed
-class AppInitializationState with _$AppInitializationState {
-  const factory AppInitializationState({
-    @Default(true) bool hasNetwork,
-    @Default(false) bool isBanned,
-    @Default(false) bool isInitialized,
-    @Default(false) bool isUpdateRequired,
+class AppInitializationState {
+  final bool hasNetwork;
+  final bool isBanned;
+  final bool isInitialized;
+  final bool isUpdateRequired;
+  final UpdateInfo? updateInfo;
+
+  const AppInitializationState({
+    this.hasNetwork = true,
+    this.isBanned = false,
+    this.isInitialized = false,
+    this.isUpdateRequired = false,
+    this.updateInfo,
+  });
+
+  AppInitializationState copyWith({
+    bool? hasNetwork,
+    bool? isBanned,
+    bool? isInitialized,
+    bool? isUpdateRequired,
     UpdateInfo? updateInfo,
-  }) = _AppInitializationState;
+  }) {
+    return AppInitializationState(
+      hasNetwork: hasNetwork ?? this.hasNetwork,
+      isBanned: isBanned ?? this.isBanned,
+      isInitialized: isInitialized ?? this.isInitialized,
+      isUpdateRequired: isUpdateRequired ?? this.isUpdateRequired,
+      updateInfo: updateInfo ?? this.updateInfo,
+    );
+  }
 }
 
 @riverpod

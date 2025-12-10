@@ -3,23 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // reflectable 제거로 인해 reflection 기반 비교를 안전한 필드 비교로 대체
 
-class LoggingObserver extends ProviderObserver {
+base class LoggingObserver extends ProviderObserver {
   @override
   void didUpdateProvider(
-    ProviderBase provider,
+    ProviderObserverContext context,
     Object? previousValue,
     Object? newValue,
-    ProviderContainer container,
   ) {
     if (previousValue == null || newValue == null) {
       return;
     }
-    // logger.i('Provider ${provider.name} ');
-    // logger.i('type of Object: ${provider.runtimeType}');
+    // logger.i('Provider ${context.provider.name} ');
+    // logger.i('type of Object: ${context.provider.runtimeType}');
     // logger.i('type of Object: ${previousValue.runtimeType.toString()}');
     // logger.i('type of Object: ${newValue.runtimeType}');
-    // logger.i('type of Object: ${container.runtimeType}');
+    // logger.i('type of Object: ${context.container.runtimeType}');
 
+    final provider = context.provider;
     // Locale 관련 Provider 또는 Locale 객체 처리 건너뛰기
     if (provider.name?.contains('locale') == true ||
         provider.name?.contains('Locale') == true ||

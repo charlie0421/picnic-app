@@ -43,8 +43,7 @@ if (useCodemagicSigning) {
 android {
     namespace "io.iconcasting.picnic.app"
     compileSdk flutter.compileSdkVersion
-    // NDK 버전 고정 제거 (Flutter 기본값 사용)
-    // ndkVersion "27.0.12077973"
+    ndkVersion "28.2.13676358"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -230,6 +229,6 @@ dependencies {
     // Pangle SDK - PangleNativeHandler에서 직접 사용
     implementation 'com.pangle.global:ads-sdk:6.5.0.6'
     // Core library desugaring for flutter_local_notifications
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     // Firebase 제거: 관련 의존성 제거
 }

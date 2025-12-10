@@ -9,7 +9,17 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../../generated/providers/community/compatibility_provider.g.dart';
 
-final compatibilityLoadingProvider = StateProvider<bool>((ref) => false);
+class CompatibilityLoadingNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool value) => state = value;
+}
+
+final compatibilityLoadingProvider =
+    NotifierProvider<CompatibilityLoadingNotifier, bool>(
+  CompatibilityLoadingNotifier.new,
+);
 
 @Riverpod(keepAlive: true)
 class Compatibility extends _$Compatibility {
@@ -39,7 +49,7 @@ class Compatibility extends _$Compatibility {
     }
 
     state = AsyncValue.data(compatibility);
-    ref.read(compatibilityLoadingProvider.notifier).state = false;
+    ref.read(compatibilityLoadingProvider.notifier).set(false);
 
     if (compatibility.isPending) {
       // 이미 처리 중인 ID인지 확인
@@ -48,7 +58,7 @@ class Compatibility extends _$Compatibility {
       }
       _processingIds.add(compatibility.id);
 
-      ref.read(compatibilityLoadingProvider.notifier).state = true;
+      ref.read(compatibilityLoadingProvider.notifier).set(true);
       await _processInBackground(compatibility);
       _processingIds.remove(compatibility.id);
     }
@@ -80,7 +90,7 @@ class Compatibility extends _$Compatibility {
         retryCount++;
 
         if (retryCount == _maxRetries) {
-          ref.read(compatibilityLoadingProvider.notifier).state = false;
+          ref.read(compatibilityLoadingProvider.notifier).set(false);
 
           await supabase.from(_table).update({
             'status': 'error',
@@ -129,7 +139,7 @@ class Compatibility extends _$Compatibility {
 
       if (mainResponse == null) {
         state = const AsyncValue.data(null);
-        ref.read(compatibilityLoadingProvider.notifier).state = false;
+        ref.read(compatibilityLoadingProvider.notifier).set(false);
         return;
       }
 
@@ -151,12 +161,12 @@ class Compatibility extends _$Compatibility {
 
       // Only turn off loading if the status is not pending
       if (compatibility.status != CompatibilityStatus.pending) {
-        ref.read(compatibilityLoadingProvider.notifier).state = false;
+        ref.read(compatibilityLoadingProvider.notifier).set(false);
       }
     } catch (e, stack) {
       logger.e('Failed to load compatibility', error: e, stackTrace: stack);
       state = AsyncValue.error(e, stack);
-      ref.read(compatibilityLoadingProvider.notifier).state = false;
+      ref.read(compatibilityLoadingProvider.notifier).set(false);
     }
   }
 
@@ -171,7 +181,7 @@ class Compatibility extends _$Compatibility {
       if (userId == null) throw Exception('User not authenticated');
 
       state = const AsyncValue.loading();
-      ref.read(compatibilityLoadingProvider.notifier).state = true;
+      ref.read(compatibilityLoadingProvider.notifier).set(true);
 
       final compatibilityData = {
         'user_id': userId,
@@ -203,7 +213,7 @@ class Compatibility extends _$Compatibility {
     } catch (e, stack) {
       logger.e('Failed to create compatibility', error: e, stackTrace: stack);
       state = AsyncValue.error(e, stack);
-      ref.read(compatibilityLoadingProvider.notifier).state = false;
+      ref.read(compatibilityLoadingProvider.notifier).set(false);
       return null;
     }
   }

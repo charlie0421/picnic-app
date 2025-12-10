@@ -42,7 +42,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
     _nameController = TextEditingController();
     _descriptionController = TextEditingController();
     _requestMessageController = TextEditingController();
-    _boardRequestNotifier = ref.read(boardRequestNotifierProvider.notifier);
+    _boardRequestNotifier = ref.read(boardRequestProvider.notifier);
 
     _setupControllers();
     _loadInitialData();
@@ -113,7 +113,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
   @override
   Widget build(BuildContext context) {
     // Provider 상태 구독
-    final boardRequestState = ref.watch(boardRequestNotifierProvider);
+    final boardRequestState = ref.watch(boardRequestProvider);
 
     return boardRequestState.when(
       data: (pendingRequest) {
