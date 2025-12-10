@@ -57,7 +57,10 @@ class _VoteHomeScreenState extends ConsumerState<VoteHomeScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         logger.d('PopScope onPopInvokedWithResult: $didPop, $result');
-        _handleRightSwipe();
+        if (!didPop) {
+          // canPop: false로 인해 팝이 차단된 경우에만 뒤로가기 처리
+          _handleRightSwipe();
+        }
       },
       child: GestureDetector(
         onPanUpdate: (details) {
