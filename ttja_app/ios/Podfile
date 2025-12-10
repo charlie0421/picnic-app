@@ -34,7 +34,7 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
-  pod 'Ads-Global', '6.5.0.9'
+  pod 'Ads-Global', '7.7.0.5'
 
   target 'RunnerTests' do
     inherit! :search_paths

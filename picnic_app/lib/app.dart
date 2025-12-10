@@ -165,7 +165,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         };
 
         // screenInfosProvider에 스크린 정보 설정
-        ref.read(screenInfosProvider.notifier).state = screenInfoMap;
+        ref.read(screenInfosProvider.notifier).update(screenInfoMap);
 
         // 최종 언어가 제대로 설정되었는지 확인
         final currentLanguage = ref.read(appSettingProvider).language;

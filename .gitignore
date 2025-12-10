@@ -47,3 +47,4 @@ picnic_app/key.properties
 # Task files
 # tasks.json
 # tasks/ 
+*.hprof

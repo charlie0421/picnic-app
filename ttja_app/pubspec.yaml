@@ -15,37 +15,36 @@ dependencies:
     picnic_lib:
         path: ../picnic_lib
     intl: ^0.20.2
-    screen_protector: ^1.4.2+1
-    supabase_flutter: ^2.9.1
+    screen_protector: ^1.4.10
+    supabase_flutter: ^2.10.3
     universal_platform: ^1.1.0
     flutter_screenutil: ^5.9.3
     overlay_support: ^2.1.0
-    flutter_riverpod: ^2.6.1
-    app_links: ^6.3.3
+    flutter_riverpod: ^3.0.3
+    app_links: ^6.4.1
     another_flutter_splash_screen: ^1.2.1
-    device_info_plus: ^11.2.0
-    firebase_core: ^3.8.1
-    sentry_flutter: ^9.0.0
-    
-    firebase_analytics: ^11.3.4
+    device_info_plus: ^12.3.0
+    firebase_core: ^4.2.1
+    sentry_flutter: ^9.8.0
+    firebase_analytics: ^12.0.4
     flutter_secure_storage: ^9.2.3
     timezone: ^0.10.0
-    flutter_svg: ^2.0.16
+    flutter_svg: ^2.2.3
     supabase_extensions: ^1.0.1
     url_launcher: ^6.3.2
-    tapjoy_offerwall: ^14.3.1
-    flutter_branch_sdk: ^8.3.2
-    shorebird_code_push: ^2.0.3
+    tapjoy_offerwall: ^14.6.0
+    flutter_branch_sdk: ^8.10.0
+    shorebird_code_push: ^2.0.5
     flutter_phoenix: ^1.1.1
 
 dev_dependencies:
     flutter_test:
         sdk: flutter
-    build_runner: ^2.4.13
+    build_runner: ^2.10.4
     flutter_lints: ^6.0.0
-    json_serializable: ^6.9.0
-    intl_utils: ^2.8.7
-    flutter_native_splash: ^2.4.6
+    json_serializable: ^6.11.2
+    intl_utils: ^2.8.13
+    flutter_native_splash: ^2.4.7
 flutter_intl:
     enabled: true
 

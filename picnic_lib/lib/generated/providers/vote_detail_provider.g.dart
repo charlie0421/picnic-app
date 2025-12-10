@@ -149,7 +149,7 @@ final class AsyncVoteItemListProvider
   }
 }
 
-String _$asyncVoteItemListHash() => r'1040418db6e9cd16840ba02d7012c659ad7dbe37';
+String _$asyncVoteItemListHash() => r'8d024b566d7e0790fd2609b4f056327489858437';
 
 final class AsyncVoteItemListFamily extends $Family
     with

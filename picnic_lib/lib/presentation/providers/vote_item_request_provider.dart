@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

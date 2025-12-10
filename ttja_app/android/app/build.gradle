@@ -35,11 +35,12 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.ttja"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
@@ -100,6 +101,11 @@ android {
 
         }
     }
+
+    lintOptions {
+        disable 'InvalidPackage'
+        checkReleaseBuilds false
+    }
 }
 
 flutter {
@@ -114,6 +120,13 @@ repositories {
     jcenter()
 }
 
+// Pangle SDK 설정:
+// - gma_mediation_pangle이 번들하는 pag-sdk-ad는 API가 노출되지 않아 PangleNativeHandler와 호환 불가
+// - 대신 전체 API를 제공하는 ads-sdk를 직접 사용
+configurations.all {
+    exclude group: 'com.pangle.global', module: 'pag-sdk-ad'
+}
+
 
 dependencies {
     implementation "androidx.multidex:multidex:2.0.1"
@@ -125,10 +138,11 @@ dependencies {
     // Pincrux Offerwall
     implementation files('libs/pincrux_offerwall.aar')
 
-    // Pangle SDK
-    implementation 'com.pangle.global:ads-sdk:6.5.0.5'
-    implementation 'com.pangle.global:crash_monitor:1.3.8-rc.1'
-    implementation 'com.pangle.global:gecko_pgl:1.0.0.1'
-    
+    // Pangle SDK - PangleNativeHandler에서 직접 사용
+    implementation 'com.pangle.global:ads-sdk:6.5.0.6'
+
+    // Core library desugaring for flutter_local_notifications
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+
     // Flutter 의존성은 Flutter Gradle 플러그인이 자동으로 처리합니다
 }

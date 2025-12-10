@@ -6,12 +6,12 @@ part of '../../data/models/user_push_token.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_UserPushToken _$UserPushTokenFromJson(Map<String, dynamic> json) =>
+UserPushToken _$UserPushTokenFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
-      '_UserPushToken',
+      'UserPushToken',
       json,
       ($checkedConvert) {
-        final val = _UserPushToken(
+        final val = UserPushToken(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
           userId: $checkedConvert('user_id', (v) => v as String),
           tokenIos: $checkedConvert('token_ios', (v) => v as String?),
@@ -32,7 +32,7 @@ _UserPushToken _$UserPushTokenFromJson(Map<String, dynamic> json) =>
       },
     );
 
-Map<String, dynamic> _$UserPushTokenToJson(_UserPushToken instance) =>
+Map<String, dynamic> _$UserPushTokenToJson(UserPushToken instance) =>
     <String, dynamic>{
       'id': instance.id,
       'user_id': instance.userId,
