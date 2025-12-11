@@ -3,7 +3,7 @@ workflows:
   picnic-app-ios:
     name: Picnic App - iOS
     instance_type: mac_mini_m2
-    max_build_duration: 120
+    max_build_duration: 60
     integrations:
       app_store_connect: codemagic-picnic
     environment:
@@ -15,7 +15,7 @@ workflows:
         - shorebird-config
         - picnic_env
       flutter: 3.38.4
-      xcode: latest
+      xcode: 16.4
       cocoapods: default
       vars:
         APP_NAME: "picnic_app"
@@ -586,7 +586,7 @@ workflows:
         - shorebird-config
         - picnic_env
       flutter: 3.38.4
-      xcode: latest
+      xcode: 16.4
       cocoapods: default
       vars:
         APP_NAME: "picnic_app"
