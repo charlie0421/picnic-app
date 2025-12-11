@@ -192,6 +192,7 @@ workflows:
 
           # xcodebuild archive with linker flag for Swift Concurrency
           echo "📦 Xcode Archive 생성..."
+          set +e
           xcodebuild archive \
             -workspace Runner.xcworkspace \
             -scheme Runner \
@@ -199,7 +200,18 @@ workflows:
             -archivePath ../build/ios/archive/Runner.xcarchive \
             -destination "generic/platform=iOS" \
             IPHONEOS_DEPLOYMENT_TARGET=15.4 \
-            OTHER_LDFLAGS='$(inherited) -ObjC -lc++ -lc++abi -Wl,-weak_reference_mismatches,weak'
+            OTHER_LDFLAGS='$(inherited) -ObjC -lc++ -lc++abi -Wl,-weak_reference_mismatches,weak' \
+            2>&1 | tee /tmp/xcodebuild.log
+
+          XCODE_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          if [ $XCODE_EXIT -ne 0 ]; then
+            echo "❌ xcodebuild 실패. 링커 에러 확인:"
+            grep -A 5 "Undefined symbol" /tmp/xcodebuild.log || true
+            grep -A 5 "Linker command failed" /tmp/xcodebuild.log || true
+            tail -100 /tmp/xcodebuild.log
+          fi
 
           if [ ! -d "../build/ios/archive/Runner.xcarchive" ]; then
             echo "❌ Archive 생성 실패"
