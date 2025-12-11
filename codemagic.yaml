@@ -15,8 +15,8 @@ workflows:
         - shorebird-config
         - picnic_env
       flutter: 3.38.4
-      xcode: 16.2
-      cocoapods: 1.16.2
+      xcode: latest
+      cocoapods: default
       vars:
         APP_NAME: "picnic_app"
         BUNDLE_ID: "io.iconcasting.picnic.app"
@@ -586,8 +586,8 @@ workflows:
         - shorebird-config
         - picnic_env
       flutter: 3.38.4
-      xcode: 16.2
-      cocoapods: 1.16.2
+      xcode: latest
+      cocoapods: default
       vars:
         APP_NAME: "picnic_app"
     cache:
