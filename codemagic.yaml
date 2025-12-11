@@ -170,23 +170,11 @@ workflows:
           echo "  - PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
           echo "📦 CocoaPods 타겟들: Automatic Signing (변경 없음)"
 
-      - name: Shorebird iOS Release and Build IPA
+      - name: Build iOS IPA
         script: |
-          export PATH="$HOME/.shorebird/bin:$PATH"
           cd picnic_app
 
-          echo "=== Shorebird iOS 릴리즈 및 IPA 빌드 ==="
-          echo ""
-
-          echo "=== Shorebird 버전 확인 ==="
-          shorebird --version
-
-          echo "=== Shorebird 인증 확인 ==="
-          if [ -z "$SHOREBIRD_TOKEN" ]; then
-            echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
-            exit 1
-          fi
-          echo "✅ SHOREBIRD_TOKEN 설정됨"
+          echo "=== iOS IPA 빌드 ==="
 
           echo "=== Flutter 환경 준비 ==="
           flutter pub get
@@ -195,55 +183,58 @@ workflows:
           VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //')
           echo "📦 현재 버전: $VERSION"
 
-          echo "=== Shorebird iOS 릴리즈 실행 ==="
-          echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
+          echo "=== iOS 빌드 (xcodebuild 직접 사용) ==="
 
-          # Shorebird release는 빌드 + IPA 생성 + 릴리즈를 한 번에 수행
-          # --no-codesign 제거하고 export-options-plist 사용
-          shorebird release ios \
-            --dart-define=ENVIRONMENT=prod \
-            -- \
-            --export-options-plist=ios/ExportOptions.plist \
-            2>&1 | tee /tmp/shorebird_release.log
+          # Flutter 빌드 준비 (코드 생성만)
+          flutter build ios --release --no-codesign --dart-define=ENVIRONMENT=prod || true
 
-          RELEASE_EXIT_CODE=${PIPESTATUS[0]}
+          cd ios
 
-          # 이미 릴리즈가 있는 경우 처리
-          if grep -q "existing.*release for version" /tmp/shorebird_release.log; then
-            echo "⚠️ 이미 같은 버전의 릴리즈가 존재합니다"
-            echo "📋 기존 릴리즈를 사용하여 IPA만 빌드합니다"
-            SKIP_SHOREBIRD=true
-          elif [ $RELEASE_EXIT_CODE -ne 0 ]; then
-            echo "❌ Shorebird iOS 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
-            echo "📋 Flutter로 직접 IPA 빌드 시도..."
-            SKIP_SHOREBIRD=true
-          else
-            echo "✅ Shorebird iOS 릴리즈 성공"
-            SKIP_SHOREBIRD=false
+          # xcodebuild archive with linker flag for Swift Concurrency
+          echo "📦 Xcode Archive 생성..."
+          xcodebuild archive \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -archivePath ../build/ios/archive/Runner.xcarchive \
+            -destination "generic/platform=iOS" \
+            OTHER_LDFLAGS='$(inherited) -ObjC -lc++ -lc++abi -Wl,-weak_reference_mismatches,weak' \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM=24SL34R9HR \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="picnic_app_profile_2025" \
+            | xcpretty || true
+
+          if [ ! -d "../build/ios/archive/Runner.xcarchive" ]; then
+            echo "❌ Archive 생성 실패"
+            exit 1
           fi
+          echo "✅ Archive 생성 완료"
 
-          echo "=== IPA 파일 확인 ==="
-          # Shorebird가 생성한 IPA 찾기
-          if [ -f "build/ios/ipa/picnic_app.ipa" ]; then
-            echo "✅ Shorebird가 생성한 IPA 발견"
-            cp "build/ios/ipa/picnic_app.ipa" "../picnic_app.ipa"
-          elif [ -f "build/ios/ipa/Runner.ipa" ]; then
-            echo "✅ Runner.ipa 발견"
+          # IPA 내보내기
+          echo "📤 IPA 내보내기..."
+          xcodebuild -exportArchive \
+            -archivePath ../build/ios/archive/Runner.xcarchive \
+            -exportPath ../build/ios/ipa \
+            -exportOptionsPlist ExportOptions.plist \
+            | xcpretty || true
+
+          cd ..
+
+          # IPA 복사
+          if [ -f "build/ios/ipa/Runner.ipa" ]; then
             cp "build/ios/ipa/Runner.ipa" "../picnic_app.ipa"
+            echo "✅ IPA 빌드 완료"
+          elif [ -f "build/ios/ipa/picnic_app.ipa" ]; then
+            cp "build/ios/ipa/picnic_app.ipa" "../picnic_app.ipa"
+            echo "✅ IPA 빌드 완료"
           else
-            echo "🔍 IPA 파일 검색 중..."
-            find build/ios -name "*.ipa" -type f 2>/dev/null
-
-            # Shorebird가 생성한 IPA가 없으면 직접 빌드
-            echo "📦 Flutter로 IPA 직접 빌드..."
-            flutter build ipa \
-              --release \
-              --dart-define=ENVIRONMENT=prod \
-              --export-options-plist=ios/ExportOptions.plist
-
-            if [ -f "build/ios/ipa/"*.ipa ]; then
-              cp build/ios/ipa/*.ipa ../picnic_app.ipa
-              echo "✅ IPA 빌드 완료"
+            echo "🔍 IPA 파일 검색..."
+            find build/ios -name "*.ipa" -type f
+            IPA_FILE=$(find build/ios -name "*.ipa" -type f | head -1)
+            if [ -n "$IPA_FILE" ]; then
+              cp "$IPA_FILE" "../picnic_app.ipa"
+              echo "✅ IPA 빌드 완료: $IPA_FILE"
             else
               echo "❌ IPA 파일을 생성할 수 없습니다"
               exit 1
