@@ -207,10 +207,15 @@ workflows:
           set -e
 
           if [ $XCODE_EXIT -ne 0 ]; then
-            echo "❌ xcodebuild 실패. 링커 에러 확인:"
-            grep -A 5 "Undefined symbol" /tmp/xcodebuild.log || true
-            grep -A 5 "Linker command failed" /tmp/xcodebuild.log || true
-            tail -100 /tmp/xcodebuild.log
+            echo "❌ xcodebuild 실패. 에러 확인:"
+            echo "=== Undefined symbols ==="
+            grep -i "undefined" /tmp/xcodebuild.log || echo "(없음)"
+            echo "=== Error lines ==="
+            grep -i "error:" /tmp/xcodebuild.log || echo "(없음)"
+            echo "=== Ld command ==="
+            grep -B 2 -A 10 "Ld.*Runner normal" /tmp/xcodebuild.log || true
+            echo "=== Last 200 lines ==="
+            tail -200 /tmp/xcodebuild.log
           fi
 
           if [ ! -d "../build/ios/archive/Runner.xcarchive" ]; then
