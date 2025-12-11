@@ -37,18 +37,11 @@ workflows:
       - name: Get Flutter packages and prepare iOS
         script: |
           cd picnic_app
-          echo "=== 캐시 정리 (WriteAuxiliaryFile 문제 방지) ==="
-          flutter clean
-          rm -rf ios/Pods
-          rm -rf ios/Podfile.lock
-          rm -rf ios/.symlinks
-          rm -rf ios/Flutter/Flutter.framework
-          rm -rf ~/Library/Developer/Xcode/DerivedData/*
 
           echo "=== Flutter 패키지 설치 ==="
           flutter packages pub get
 
-          echo "=== Flutter iOS 설정 생성 (Generated.xcconfig 파일 생성) ==="
+          echo "=== Flutter iOS 설정 생성 ==="
           flutter precache --ios
           flutter build ios --config-only
 
@@ -57,23 +50,10 @@ workflows:
 
       - name: Install CocoaPods dependencies
         script: |
-          cd picnic_app
+          cd picnic_app/ios
 
-          echo "=== Generated.xcconfig 파일 확인 ==="
-          if [ ! -f "ios/Flutter/Generated.xcconfig" ]; then
-            echo "⚠️ Generated.xcconfig 파일이 없음 - Flutter 설정 재생성"
-            flutter build ios --config-only
-          fi
-
-          echo "✅ Generated.xcconfig 파일 존재 확인:"
-          ls -la ios/Flutter/Generated.xcconfig
-
-          echo "=== CocoaPods repo 업데이트 ==="
-          pod repo update
-
-          echo "=== CocoaPods 설치 시작 ==="
-          cd ios
-          pod install --repo-update
+          echo "=== CocoaPods 설치 ==="
+          pod install --verbose
 
       - name: Install Shorebird CLI
         script: |
@@ -653,18 +633,14 @@ workflows:
           fi
           echo "✅ SHOREBIRD_TOKEN 설정됨"
 
-          # 3. Flutter 환경 준비 (클린 빌드)
+          # 3. Flutter 환경 준비
           cd picnic_app
-          echo "🧹 캐시 정리..."
-          flutter clean
-          rm -rf ios/Pods ios/Podfile.lock ios/.symlinks
-          rm -rf ~/Library/Developer/Xcode/DerivedData/*
 
           echo "📦 Flutter 패키지 설치..."
           flutter pub get
 
           echo "📦 CocoaPods 설치..."
-          cd ios && pod install --repo-update && cd ..
+          cd ios && pod install && cd ..
 
           # 4. iOS 패치 생성 및 배포
           echo "🚀 iOS 패치 생성 중..."
