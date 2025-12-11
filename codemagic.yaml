@@ -15,7 +15,7 @@ workflows:
         - shorebird-config
         - picnic_env
       flutter: 3.38.4
-      xcode: 15.4
+      xcode: 16.0
       cocoapods: default
       vars:
         APP_NAME: "picnic_app"
@@ -510,7 +510,7 @@ workflows:
         - shorebird-config
         - picnic_env
       flutter: 3.38.4
-      xcode: 15.4
+      xcode: 16.0
       cocoapods: default
       vars:
         APP_NAME: "picnic_app"

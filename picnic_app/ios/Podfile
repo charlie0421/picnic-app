@@ -64,18 +64,17 @@ post_install do |installer|
     target.build_configurations.each do |config|
       # Force arm64 simulator, exclude legacy sim archs
       config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386 x86_64'
-      # Minimal overrides only
       config.build_settings['ENABLE_BITCODE'] = 'NO'
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.4'
 
-      # Xcode 16+ Swift Concurrency 호환성 (CI 환경용)
-      # _swift_coroFrameAlloc 심볼 에러 방지
-      config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
-      config.build_settings['OTHER_LDFLAGS'] << '-Wl,-weak_reference_mismatches,weak'
+      # Meta Audience Network adapter 6.9.0.0+ requires Swift library paths
+      # https://developers.google.com/admob/ios/mediation/meta
+      config.build_settings['LIBRARY_SEARCH_PATHS'] ||= ['$(inherited)']
+      config.build_settings['LIBRARY_SEARCH_PATHS'] << '$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)'
+      config.build_settings['LIBRARY_SEARCH_PATHS'] << '$(SDKROOT)/usr/lib/swift'
 
-      # Swift 5 모드 강제 (Swift 6 concurrency 기능 비활성화)
+      # Swift 5 모드 강제 (Xcode 16 호환성)
       config.build_settings['SWIFT_VERSION'] = '5.0'
-      config.build_settings['SWIFT_STRICT_CONCURRENCY'] = 'minimal'
     end
   end
 
