@@ -60,31 +60,16 @@ workflows:
       - name: Install Shorebird CLI
         script: |
           if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
-            echo "⏭️ Skipping Shorebird (disabled in Codemagic)"
+            echo "⏭️ Skipping Shorebird (disabled)"
             exit 0
           fi
-          echo "=== Shorebird CLI 설치 시작 ==="
-          
-          # 기존 Shorebird 설치 강제 제거 (충돌 방지)
-          echo "🧹 기존 Shorebird 설치 정리 중..."
-          if [ -d "$HOME/.shorebird" ]; then
-            rm -rf "$HOME/.shorebird"
-            echo "✅ 기존 Shorebird 디렉토리 제거 완료"
-          fi
-          
-          # 최신 안정 버전 사용 (v1.6.49)
-          echo "🔧 Shorebird v1.6.49 최신 안정 버전 설치 중..."
-          
-          # 공식 GitHub 설치 스크립트 사용 (가장 안정적)
-          echo "📥 공식 설치 스크립트로 최신 Shorebird 설치..."
+          echo "=== Shorebird CLI 설치 ==="
+          rm -rf "$HOME/.shorebird"
           curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-          
-          export PATH="$HOME/.shorebird/bin:$PATH"
-          
-          echo "=== Shorebird 설치 확인 ==="
-          if command -v shorebird >/dev/null 2>&1; then
-            shorebird --version
-            echo "✅ Shorebird 설치 및 설정 완료"
+
+          # 바이너리 존재 확인만 (--version은 Flutter 다운로드로 오래 걸림)
+          if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+            echo "✅ Shorebird 설치 완료"
           else
             echo "❌ Shorebird 설치 실패"
             exit 1
@@ -343,31 +328,16 @@ workflows:
       - name: Install Shorebird CLI
         script: |
           if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
-            echo "⏭️ Skipping Shorebird (disabled in Codemagic)"
+            echo "⏭️ Skipping Shorebird (disabled)"
             exit 0
           fi
-          echo "=== Shorebird CLI 설치 시작 ==="
-          
-          # 기존 Shorebird 설치 강제 제거 (충돌 방지)
-          echo "🧹 기존 Shorebird 설치 정리 중..."
-          if [ -d "$HOME/.shorebird" ]; then
-            rm -rf "$HOME/.shorebird"
-            echo "✅ 기존 Shorebird 디렉토리 제거 완료"
-          fi
-          
-          # 최신 안정 버전 사용 (v1.6.49)
-          echo "🔧 Shorebird v1.6.49 최신 안정 버전 설치 중..."
-          
-          # 공식 GitHub 설치 스크립트 사용 (가장 안정적)
-          echo "📥 공식 설치 스크립트로 최신 Shorebird 설치..."
+          echo "=== Shorebird CLI 설치 ==="
+          rm -rf "$HOME/.shorebird"
           curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-          
-          export PATH="$HOME/.shorebird/bin:$PATH"
-          
-          echo "=== Shorebird 설치 확인 ==="
-          if command -v shorebird >/dev/null 2>&1; then
-            shorebird --version
-            echo "✅ Shorebird 설치 및 설정 완료"
+
+          # 바이너리 존재 확인만 (--version은 Flutter 다운로드로 오래 걸림)
+          if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+            echo "✅ Shorebird 설치 완료"
           else
             echo "❌ Shorebird 설치 실패"
             exit 1
