@@ -15,7 +15,7 @@ workflows:
         - shorebird-config
         - picnic_env
       flutter: 3.38.4
-      xcode: 16.4
+      xcode: 15.4
       cocoapods: default
       vars:
         APP_NAME: "picnic_app"
@@ -183,81 +183,29 @@ workflows:
           VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //')
           echo "📦 현재 버전: $VERSION"
 
-          echo "=== iOS 빌드 (xcodebuild 직접 사용) ==="
+          echo "=== iOS IPA 빌드 (Xcode 15.4) ==="
 
-          # Flutter 빌드 준비 (코드 생성만)
-          flutter build ios --release --no-codesign --dart-define=ENVIRONMENT=prod 2>&1 || echo "⚠️ Flutter 빌드 경고 (계속 진행)"
+          # Xcode 15.4에서는 Swift concurrency 심볼 문제 없음
+          flutter build ipa \
+            --release \
+            --dart-define=ENVIRONMENT=prod \
+            --export-options-plist=ios/ExportOptions.plist
 
-          cd ios
-
-          # xcodebuild archive with linker flag for Swift Concurrency
-          echo "📦 Xcode Archive 생성..."
-          set +e
-          xcodebuild archive \
-            -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            -archivePath ../build/ios/archive/Runner.xcarchive \
-            -destination "generic/platform=iOS" \
-            IPHONEOS_DEPLOYMENT_TARGET=15.4 \
-            OTHER_LDFLAGS='$(inherited) -ObjC -lc++ -lc++abi -Wl,-weak_reference_mismatches,weak' \
-            2>&1 | tee /tmp/xcodebuild.log
-
-          XCODE_EXIT=${PIPESTATUS[0]}
-          set -e
-
-          if [ $XCODE_EXIT -ne 0 ]; then
-            echo "❌ xcodebuild 실패. 에러 확인:"
-            echo "=== Undefined symbols ==="
-            grep -i "undefined" /tmp/xcodebuild.log || echo "(없음)"
-            echo "=== Error lines ==="
-            grep -i "error:" /tmp/xcodebuild.log || echo "(없음)"
-            echo "=== Ld command ==="
-            grep -B 2 -A 10 "Ld.*Runner normal" /tmp/xcodebuild.log || true
-            echo "=== Last 200 lines ==="
-            tail -200 /tmp/xcodebuild.log
-          fi
-
-          if [ ! -d "../build/ios/archive/Runner.xcarchive" ]; then
-            echo "❌ Archive 생성 실패"
+          if [ ! -f "build/ios/ipa/"*.ipa ]; then
+            echo "❌ IPA 빌드 실패"
             exit 1
           fi
-          echo "✅ Archive 생성 완료"
-
-          # IPA 내보내기
-          echo "📤 IPA 내보내기..."
-          xcodebuild -exportArchive \
-            -archivePath ../build/ios/archive/Runner.xcarchive \
-            -exportPath ../build/ios/ipa \
-            -exportOptionsPlist ExportOptions.plist \
-            | xcpretty || true
-
-          cd ..
+          echo "✅ IPA 빌드 완료"
 
           # IPA 복사
-          if [ -f "build/ios/ipa/Runner.ipa" ]; then
-            cp "build/ios/ipa/Runner.ipa" "../picnic_app.ipa"
-            echo "✅ IPA 빌드 완료"
-          elif [ -f "build/ios/ipa/picnic_app.ipa" ]; then
-            cp "build/ios/ipa/picnic_app.ipa" "../picnic_app.ipa"
-            echo "✅ IPA 빌드 완료"
-          else
-            echo "🔍 IPA 파일 검색..."
-            find build/ios -name "*.ipa" -type f
-            IPA_FILE=$(find build/ios -name "*.ipa" -type f | head -1)
-            if [ -n "$IPA_FILE" ]; then
-              cp "$IPA_FILE" "../picnic_app.ipa"
-              echo "✅ IPA 빌드 완료: $IPA_FILE"
-            else
-              echo "❌ IPA 파일을 생성할 수 없습니다"
-              exit 1
-            fi
-          fi
-
-          # IPA 크기 확인
-          if [ -f "../picnic_app.ipa" ]; then
+          IPA_FILE=$(find build/ios/ipa -name "*.ipa" -type f | head -1)
+          if [ -n "$IPA_FILE" ]; then
+            cp "$IPA_FILE" "../picnic_app.ipa"
             IPA_SIZE=$(stat -f%z "../picnic_app.ipa" 2>/dev/null || stat -c%s "../picnic_app.ipa" 2>/dev/null || echo "unknown")
             echo "✅ IPA 파일 준비 완료: $IPA_SIZE bytes"
+          else
+            echo "❌ IPA 파일을 찾을 수 없습니다"
+            exit 1
           fi
 
           echo "=== 빌드 완료 ==="
@@ -562,7 +510,7 @@ workflows:
         - shorebird-config
         - picnic_env
       flutter: 3.38.4
-      xcode: 16.4
+      xcode: 15.4
       cocoapods: default
       vars:
         APP_NAME: "picnic_app"
