@@ -186,7 +186,7 @@ workflows:
           echo "=== iOS 빌드 (xcodebuild 직접 사용) ==="
 
           # Flutter 빌드 준비 (코드 생성만)
-          flutter build ios --release --no-codesign --dart-define=ENVIRONMENT=prod || true
+          flutter build ios --release --no-codesign --dart-define=ENVIRONMENT=prod 2>&1 || echo "⚠️ Flutter 빌드 경고 (계속 진행)"
 
           cd ios
 
@@ -198,12 +198,12 @@ workflows:
             -configuration Release \
             -archivePath ../build/ios/archive/Runner.xcarchive \
             -destination "generic/platform=iOS" \
+            IPHONEOS_DEPLOYMENT_TARGET=15.4 \
             OTHER_LDFLAGS='$(inherited) -ObjC -lc++ -lc++abi -Wl,-weak_reference_mismatches,weak' \
             CODE_SIGN_STYLE=Manual \
             DEVELOPMENT_TEAM=24SL34R9HR \
             CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="picnic_app_profile_2025" \
-            | xcpretty || true
+            PROVISIONING_PROFILE_SPECIFIER="picnic_app_profile_2025"
 
           if [ ! -d "../build/ios/archive/Runner.xcarchive" ]; then
             echo "❌ Archive 생성 실패"
