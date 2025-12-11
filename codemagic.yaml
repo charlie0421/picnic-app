@@ -439,13 +439,23 @@ workflows:
 
           echo "=== Gradle 메모리 최적화 설정 ==="
           mkdir -p $HOME/.gradle
-          cat >> $HOME/.gradle/gradle.properties << 'GRADLE'
+          cat > $HOME/.gradle/gradle.properties << 'GRADLE'
           org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.daemon=true
-          org.gradle.caching=true
+          org.gradle.caching=false
+          org.gradle.configureondemand=false
+          org.gradle.parallel=false
           android.enableJetifier=true
           android.useAndroidX=true
           GRADLE
+
+          echo "=== Gradle 캐시 정리 ==="
+          cd android
+          ./gradlew clean --no-daemon || true
+          cd ..
+          rm -rf android/.gradle
+          rm -rf android/app/build
+          rm -rf $HOME/.gradle/caches/transforms-*
 
           echo "=== Shorebird 버전 확인 ==="
           shorebird --version
@@ -751,16 +761,25 @@ workflows:
 
           # 3. Gradle 메모리 최적화
           mkdir -p $HOME/.gradle
-          cat >> $HOME/.gradle/gradle.properties << 'GRADLE'
+          cat > $HOME/.gradle/gradle.properties << 'GRADLE'
           org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.daemon=true
-          org.gradle.caching=true
+          org.gradle.caching=false
+          org.gradle.configureondemand=false
+          org.gradle.parallel=false
           android.enableJetifier=true
           android.useAndroidX=true
           GRADLE
 
           # 4. Flutter 환경 준비
           cd picnic_app
+          echo "🧹 Gradle 캐시 정리..."
+          cd android
+          ./gradlew clean --no-daemon || true
+          cd ..
+          rm -rf android/.gradle
+          rm -rf android/app/build
+
           echo "📦 Flutter 패키지 설치..."
           flutter pub get
 
