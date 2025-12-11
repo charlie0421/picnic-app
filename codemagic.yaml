@@ -212,9 +212,12 @@ workflows:
           echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
 
           # Shorebird release는 빌드 + IPA 생성 + 릴리즈를 한 번에 수행
+          # --no-codesign 제거하고 export-options-plist 사용
           shorebird release ios \
             --dart-define=ENVIRONMENT=prod \
-            --verbose 2>&1 | tee /tmp/shorebird_release.log
+            -- \
+            --export-options-plist=ios/ExportOptions.plist \
+            2>&1 | tee /tmp/shorebird_release.log
 
           RELEASE_EXIT_CODE=${PIPESTATUS[0]}
 
@@ -225,8 +228,8 @@ workflows:
             SKIP_SHOREBIRD=true
           elif [ $RELEASE_EXIT_CODE -ne 0 ]; then
             echo "❌ Shorebird iOS 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
-            cat /tmp/shorebird_release.log
-            exit 1
+            echo "📋 Flutter로 직접 IPA 빌드 시도..."
+            SKIP_SHOREBIRD=true
           else
             echo "✅ Shorebird iOS 릴리즈 성공"
             SKIP_SHOREBIRD=false
@@ -245,11 +248,11 @@ workflows:
             find build/ios -name "*.ipa" -type f 2>/dev/null
 
             # Shorebird가 생성한 IPA가 없으면 직접 빌드
-            echo "📦 IPA 직접 빌드..."
+            echo "📦 Flutter로 IPA 직접 빌드..."
             flutter build ipa \
               --release \
               --dart-define=ENVIRONMENT=prod \
-              --export-options-plist=ios/ExportOptions.plist || true
+              --export-options-plist=ios/ExportOptions.plist
 
             if [ -f "build/ios/ipa/"*.ipa ]; then
               cp build/ios/ipa/*.ipa ../picnic_app.ipa
