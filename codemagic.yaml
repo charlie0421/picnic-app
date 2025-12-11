@@ -52,8 +52,11 @@ workflows:
         script: |
           cd picnic_app/ios
 
+          echo "=== Podfile.lock 삭제 (새로 설치) ==="
+          rm -rf Podfile.lock Pods
+
           echo "=== CocoaPods 설치 ==="
-          pod install --verbose
+          pod install --repo-update
 
       - name: Install Shorebird CLI
         script: |
