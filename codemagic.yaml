@@ -21,6 +21,7 @@ workflows:
         APP_NAME: "picnic_app"
         BUNDLE_ID: "io.iconcasting.picnic.app"
         FLUTTER_VERSION: "3.38.4"
+        ENABLE_SHOREBIRD: "true"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
