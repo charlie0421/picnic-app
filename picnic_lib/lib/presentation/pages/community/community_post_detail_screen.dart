@@ -92,7 +92,6 @@ class _CommunityPostDetailScreenState
           children: [
             PortalMenuItem(portalType: PortalType.vote),
             PortalMenuItem(portalType: PortalType.goongHap),
-            PortalMenuItem(portalType: PortalType.community),
             if (isSupabaseLoggedSafely && isAdmin) ...[
               PortalMenuItem(portalType: PortalType.pic),
               PortalMenuItem(portalType: PortalType.novel),

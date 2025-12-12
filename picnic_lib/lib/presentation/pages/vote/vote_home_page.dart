@@ -425,6 +425,11 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
 
     final setting = ref.read(appSettingProvider);
     final area = setting.area;
+
+    // PIC-CHART 선택 시 area는 'all'로 처리하고, 후처리로 image/weekly 필터링
+    final isPicChart = area == 'pic-chart';
+    final queryArea = isPicChart ? 'all' : area;
+
     try {
       // 일반 투표(vote)와 PIC 투표(pic_vote)를 모두 가져와 합친다
       final voteFuture = ref.read(
@@ -433,7 +438,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
           _pageSize,
           'stop_at',
           'DESC',
-          area,
+          queryArea,
           status: VoteStatus.activeAndUpcoming,
           category: VoteCategory.all,
         ).future,
@@ -445,7 +450,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
           _pageSize,
           'stop_at',
           'DESC',
-          area,
+          queryArea,
           status: VoteStatus.activeAndUpcoming,
           category: VoteCategory.all,
           votePortal: VotePortal.pic,
@@ -469,7 +474,25 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
         // 동일 id 중복 시 최초 항목을 유지
         byId.putIfAbsent(v.id, () => v);
       }
-      final combined = byId.values.toList();
+      var combined = byId.values.toList();
+
+      // PIC-CHART 선택 시 image/weekly 카테고리만 필터링
+      // ALL 선택 시 모든 투표 표시 (필터링 없음)
+      // 특정 area(kpop, musical) 선택 시 image/weekly 제외
+      if (isPicChart) {
+        combined = combined.where((v) {
+          final cat = (v.voteCategory ?? '').toLowerCase();
+          return cat.contains('image') || cat.contains('weekly');
+        }).toList();
+      } else if (area != 'all') {
+        // 특정 area 선택 시 image/weekly 제외
+        combined = combined.where((v) {
+          final cat = (v.voteCategory ?? '').toLowerCase();
+          return !(cat.contains('image') || cat.contains('weekly'));
+        }).toList();
+      }
+      // area == 'all'인 경우 필터링 없이 모든 투표 표시
+
       combined.sort((a, b) {
         final aTs = a.stopAt?.millisecondsSinceEpoch ?? 0;
         final bTs = b.stopAt?.millisecondsSinceEpoch ?? 0;
@@ -478,7 +501,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
       final pageSlice = combined.take(_pageSize).toList();
 
       logger.d(
-        'vote_home combined items: vote=${voteItems.length}, pic=${picItems.length}, dedup=${combined.length}, returned=${pageSlice.length}',
+        'vote_home combined items: vote=${voteItems.length}, pic=${picItems.length}, dedup=${combined.length}, returned=${pageSlice.length}, isPicChart=$isPicChart',
       );
 
       return pageSlice;

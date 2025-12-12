@@ -84,29 +84,36 @@ class _VoteListState extends ConsumerState<VoteList> {
           ? 'id_${DateTime.now().millisecondsSinceEpoch}'
           : 'id';
 
+      // PIC-CHART 선택 시 area는 'all'로 처리
+      final isPicChart = widget.area == 'pic-chart';
+      final queryArea = isPicChart ? 'all' : widget.area;
+
       final newItems = await ref.read(
         asyncVoteListProvider(
           _pageKey,
           _pageSize,
           sortKey,
           'DESC',
-          widget.area,
+          queryArea,
           status: widget.status,
           category: widget.category,
           votePortal: widget.portal,
         ).future,
       );
 
-      // 포털에 따라 카테고리 필터 적용 (대소문자 무시)
+      // 포털 또는 PIC-CHART area에 따라 카테고리 필터 적용 (대소문자 무시)
+      // ALL 선택 시 모든 투표 표시 (필터링 없음)
+      // 특정 area(kpop, musical) 선택 시 image/weekly 제외
       List<VoteModel> filteredItems = newItems;
-      if (widget.portal == VotePortal.pic) {
+      if (widget.portal == VotePortal.pic || isPicChart) {
         filteredItems = newItems.where((v) {
           final cat = (v.voteCategory ?? '').toLowerCase();
           final isImage = cat.contains('image');
           final isWeekly = cat.contains('weekly');
           return isImage || isWeekly;
         }).toList();
-      } else {
+      } else if (widget.area != 'all') {
+        // 특정 area 선택 시 image/weekly 제외
         filteredItems = newItems.where((v) {
           final cat = (v.voteCategory ?? '').toLowerCase();
           final isImage = cat.contains('image');
@@ -114,6 +121,7 @@ class _VoteListState extends ConsumerState<VoteList> {
           return !(isImage || isWeekly);
         }).toList();
       }
+      // widget.area == 'all'인 경우 필터링 없이 모든 투표 표시
 
       // 빈 페이지가 반환될 경우 몇 페이지 앞당겨 건너뛰기(최대 3회 시도)
       if (!isInitialLoad && filteredItems.isEmpty && _items.isNotEmpty) {
@@ -127,20 +135,25 @@ class _VoteListState extends ConsumerState<VoteList> {
                 _pageSize,
                 sortKey,
                 'DESC',
-                widget.area,
+                queryArea,
                 status: widget.status,
                 category: widget.category,
                 votePortal: widget.portal,
               ).future,
             );
-            filteredItems = nextItems.where((v) {
-              final cat = (v.voteCategory ?? '').toLowerCase();
-              final isImage = cat.contains('image');
-              final isWeekly = cat.contains('week');
-              return widget.portal == VotePortal.pic
-                  ? (isImage || isWeekly)
-                  : !(isImage || isWeekly);
-            }).toList();
+            // ALL이면 필터링 없이 모든 항목
+            if (widget.area == 'all' && widget.portal != VotePortal.pic && !isPicChart) {
+              filteredItems = nextItems;
+            } else {
+              filteredItems = nextItems.where((v) {
+                final cat = (v.voteCategory ?? '').toLowerCase();
+                final isImage = cat.contains('image');
+                final isWeekly = cat.contains('week');
+                return (widget.portal == VotePortal.pic || isPicChart)
+                    ? (isImage || isWeekly)
+                    : !(isImage || isWeekly);
+              }).toList();
+            }
             if (filteredItems.isNotEmpty) {
               // tempPage까지 소비한 것으로 간주하여 pageKey를 넘겨둠
               _pageKey = tempPage + 1;

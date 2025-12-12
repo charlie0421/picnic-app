@@ -17,7 +17,6 @@ import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_pic_list_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/pic_chart_page.dart';
 import 'package:picnic_lib/navigation_stack.dart';
 
 class TopMenu extends ConsumerStatefulWidget {
@@ -54,8 +53,7 @@ class _TopState extends ConsumerState<TopMenu> {
     final currentPage = stack.peek();
     return currentPage is VoteHomePage ||
         currentPage is VoteListPage ||
-        currentPage is VotePicListPage ||
-        currentPage is PicChartPage;
+        currentPage is VotePicListPage;
   }
 
   bool _shouldShowBackButton(Navigation navigationInfo) {

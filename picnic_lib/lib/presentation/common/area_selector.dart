@@ -9,6 +9,42 @@ class AreaSelector extends ConsumerWidget {
     super.key,
   });
 
+  DropdownMenuItem<String> _buildDropdownItem(
+      String value, String label, String currentArea) {
+    final isSelected = currentArea == value;
+    return DropdownMenuItem(
+      value: value,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(6.r),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: getTextStyle(
+                  isSelected ? AppTypo.caption12R : AppTypo.caption10SB,
+                  isSelected ? AppColors.primary500 : AppColors.grey00),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final setting = ref.watch(appSettingProvider);
@@ -44,111 +80,10 @@ class AreaSelector extends ConsumerWidget {
         borderRadius: BorderRadius.circular(8.r),
         elevation: 8,
         items: [
-          DropdownMenuItem(
-            value: 'all',
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-              decoration: BoxDecoration(
-                color: area == 'all' ? Colors.white : Colors.transparent,
-                borderRadius: BorderRadius.circular(6.r),
-                boxShadow: area == 'all'
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'ALL',
-                    style: getTextStyle(
-                        area == 'all'
-                            ? AppTypo.caption12R
-                            : AppTypo.caption10SB,
-                        area == 'all'
-                            ? AppColors.primary500
-                            : AppColors.grey00),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          DropdownMenuItem(
-            value: 'kpop',
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-              decoration: BoxDecoration(
-                color: area == 'kpop' ? Colors.white : Colors.transparent,
-                borderRadius: BorderRadius.circular(6.r),
-                boxShadow: area == 'kpop'
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'K-POP',
-                    style: getTextStyle(
-                        area == 'kpop'
-                            ? AppTypo.caption12R
-                            : AppTypo.caption10SB,
-                        area == 'kpop'
-                            ? AppColors.primary500
-                            : AppColors.grey00),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          DropdownMenuItem(
-            value: 'musical',
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-              decoration: BoxDecoration(
-                color: area == 'musical' ? Colors.white : Colors.transparent,
-                borderRadius: BorderRadius.circular(6.r),
-                boxShadow: area == 'musical'
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'K-MUSICAL',
-                    style: getTextStyle(
-                        area == 'musical'
-                            ? AppTypo.caption12R
-                            : AppTypo.caption10SB,
-                        area == 'musical'
-                            ? AppColors.primary500
-                            : AppColors.grey00),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _buildDropdownItem('all', 'ALL', area),
+          _buildDropdownItem('kpop', 'K-POP', area),
+          _buildDropdownItem('musical', 'K-MUSICAL', area),
+          _buildDropdownItem('pic-chart', 'PIC-CHART', area),
         ],
         onChanged: (String? newValue) {
           if (newValue != null) {
