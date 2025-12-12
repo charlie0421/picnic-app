@@ -170,11 +170,13 @@ workflows:
           echo "  - PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
           echo "📦 CocoaPods 타겟들: Automatic Signing (변경 없음)"
 
-      - name: Build iOS IPA
+      - name: Shorebird iOS Release and Build IPA
         script: |
+          export PATH="$HOME/.shorebird/bin:$PATH"
           cd picnic_app
 
-          echo "=== iOS IPA 빌드 ==="
+          echo "=== Shorebird iOS 릴리즈 및 IPA 빌드 ==="
+          echo ""
 
           echo "=== Flutter 환경 준비 ==="
           flutter pub get
@@ -183,9 +185,36 @@ workflows:
           VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //')
           echo "📦 현재 버전: $VERSION"
 
-          echo "=== iOS IPA 빌드 (Xcode 15.4) ==="
+          echo "=== Shorebird 인증 확인 ==="
+          if [ -z "$SHOREBIRD_TOKEN" ]; then
+            echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
+            exit 1
+          fi
+          echo "✅ SHOREBIRD_TOKEN 설정됨"
 
-          # Xcode 15.4에서는 Swift concurrency 심볼 문제 없음
+          echo "=== Shorebird iOS 릴리즈 실행 ==="
+          echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
+
+          # Shorebird release ios는 IPA를 생성하지 않으므로 별도로 빌드 필요
+          shorebird release ios \
+            --dart-define=ENVIRONMENT=prod \
+            --verbose 2>&1 | tee /tmp/shorebird_release.log
+
+          RELEASE_EXIT_CODE=${PIPESTATUS[0]}
+
+          # 이미 릴리즈가 있는 경우 처리
+          if grep -q "existing.*release for version" /tmp/shorebird_release.log; then
+            echo "⚠️ 이미 같은 버전의 릴리즈가 존재합니다"
+            echo "📋 기존 릴리즈를 사용합니다"
+          elif [ $RELEASE_EXIT_CODE -ne 0 ]; then
+            echo "❌ Shorebird iOS 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
+            cat /tmp/shorebird_release.log
+            exit 1
+          else
+            echo "✅ Shorebird iOS 릴리즈 성공"
+          fi
+
+          echo "=== iOS IPA 빌드 (App Store 배포용) ==="
           flutter build ipa \
             --release \
             --dart-define=ENVIRONMENT=prod \
@@ -210,6 +239,7 @@ workflows:
 
           echo "=== 빌드 완료 ==="
           echo "📦 IPA 파일: picnic_app.ipa"
+          echo "🚀 Shorebird 릴리즈: 완료"
 
     artifacts:
       # 단일 IPA 파일 (중복 publishing 방지)
