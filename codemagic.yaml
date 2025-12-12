@@ -195,35 +195,29 @@ workflows:
           echo "=== Shorebird 캐시 정리 ==="
           shorebird cache clean
 
-          echo "=== 기존 Shorebird 릴리즈 확인 ==="
-          # 기존 릴리즈 목록 확인
-          shorebird releases list --platform ios 2>&1 | tee /tmp/shorebird_releases.log
+          echo "=== Shorebird iOS 릴리즈 시도 ==="
+          echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
+          SKIP_SHOREBIRD=false
 
-          # 현재 버전의 릴리즈가 이미 존재하는지 확인
-          if grep -q "$VERSION" /tmp/shorebird_releases.log; then
-            echo "⚠️ 버전 $VERSION의 iOS 릴리즈가 이미 존재합니다"
-            echo "📋 Shorebird 릴리즈를 건너뜁니다"
-            SKIP_SHOREBIRD=true
-          else
-            echo "✅ 새 릴리즈 버전입니다. Shorebird 릴리즈를 진행합니다"
-            SKIP_SHOREBIRD=false
-          fi
+          shorebird release ios \
+            --dart-define=ENVIRONMENT=prod \
+            --verbose 2>&1 | tee /tmp/shorebird_release.log
 
-          if [ "$SKIP_SHOREBIRD" = "false" ]; then
-            echo "=== Shorebird iOS 릴리즈 실행 ==="
-            echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
+          RELEASE_EXIT_CODE=${PIPESTATUS[0]}
 
-            shorebird release ios \
-              --dart-define=ENVIRONMENT=prod \
-              --verbose 2>&1 | tee /tmp/shorebird_release.log
-
-            RELEASE_EXIT_CODE=${PIPESTATUS[0]}
-
-            if [ $RELEASE_EXIT_CODE -ne 0 ]; then
+          if [ $RELEASE_EXIT_CODE -ne 0 ]; then
+            # 이미 릴리즈가 존재하거나 아티팩트를 찾을 수 없는 경우 IPA 빌드로 진행
+            if grep -q "existing.*release for version" /tmp/shorebird_release.log || \
+               grep -q "Cannot find release build artifacts" /tmp/shorebird_release.log; then
+              echo "⚠️ 이미 같은 버전의 릴리즈가 존재하거나 아티팩트 문제 발생"
+              echo "📋 Shorebird 릴리즈를 건너뛰고 IPA 빌드로 진행합니다"
+              SKIP_SHOREBIRD=true
+            else
               echo "❌ Shorebird iOS 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
               cat /tmp/shorebird_release.log
               exit 1
             fi
+          else
             echo "✅ Shorebird iOS 릴리즈 성공"
           fi
 
@@ -416,35 +410,29 @@ workflows:
           echo "=== Shorebird 캐시 정리 ==="
           shorebird cache clean
 
-          echo "=== 기존 Shorebird 릴리즈 확인 ==="
-          # 기존 릴리즈 목록 확인
-          shorebird releases list --platform android 2>&1 | tee /tmp/shorebird_releases.log
+          echo "=== Shorebird Android 릴리즈 시도 ==="
+          echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
+          SKIP_SHOREBIRD=false
 
-          # 현재 버전의 릴리즈가 이미 존재하는지 확인
-          if grep -q "$VERSION" /tmp/shorebird_releases.log; then
-            echo "⚠️ 버전 $VERSION의 Android 릴리즈가 이미 존재합니다"
-            echo "📋 Shorebird 릴리즈를 건너뛰고 AAB만 빌드합니다"
-            SKIP_SHOREBIRD=true
-          else
-            echo "✅ 새 릴리즈 버전입니다. Shorebird 릴리즈를 진행합니다"
-            SKIP_SHOREBIRD=false
-          fi
+          shorebird release android \
+            --dart-define=ENVIRONMENT=prod \
+            --verbose 2>&1 | tee /tmp/shorebird_release.log
 
-          if [ "$SKIP_SHOREBIRD" = "false" ]; then
-            echo "=== Shorebird Android 릴리즈 실행 ==="
-            echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
+          RELEASE_EXIT_CODE=${PIPESTATUS[0]}
 
-            shorebird release android \
-              --dart-define=ENVIRONMENT=prod \
-              --verbose 2>&1 | tee /tmp/shorebird_release.log
-
-            RELEASE_EXIT_CODE=${PIPESTATUS[0]}
-
-            if [ $RELEASE_EXIT_CODE -ne 0 ]; then
+          if [ $RELEASE_EXIT_CODE -ne 0 ]; then
+            # 이미 릴리즈가 존재하거나 아티팩트를 찾을 수 없는 경우 Flutter 빌드로 폴백
+            if grep -q "existing.*release for version" /tmp/shorebird_release.log || \
+               grep -q "Cannot find release build artifacts" /tmp/shorebird_release.log; then
+              echo "⚠️ 이미 같은 버전의 릴리즈가 존재하거나 아티팩트 문제 발생"
+              echo "📋 Shorebird 릴리즈를 건너뛰고 Flutter AAB 빌드로 진행합니다"
+              SKIP_SHOREBIRD=true
+            else
               echo "❌ Shorebird Android 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
               cat /tmp/shorebird_release.log
               exit 1
             fi
+          else
             echo "✅ Shorebird Android 릴리즈 성공"
           fi
 
