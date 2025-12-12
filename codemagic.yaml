@@ -195,25 +195,35 @@ workflows:
           echo "=== Shorebird 캐시 정리 ==="
           shorebird cache clean
 
-          echo "=== Shorebird iOS 릴리즈 실행 ==="
-          echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
+          echo "=== 기존 Shorebird 릴리즈 확인 ==="
+          # 기존 릴리즈 목록 확인
+          shorebird releases list --platform ios 2>&1 | tee /tmp/shorebird_releases.log
 
-          # Shorebird release ios는 IPA를 생성하지 않으므로 별도로 빌드 필요
-          shorebird release ios \
-            --dart-define=ENVIRONMENT=prod \
-            --verbose 2>&1 | tee /tmp/shorebird_release.log
-
-          RELEASE_EXIT_CODE=${PIPESTATUS[0]}
-
-          # 이미 릴리즈가 있는 경우 처리
-          if grep -q "existing.*release for version" /tmp/shorebird_release.log; then
-            echo "⚠️ 이미 같은 버전의 릴리즈가 존재합니다"
-            echo "📋 기존 릴리즈를 사용합니다"
-          elif [ $RELEASE_EXIT_CODE -ne 0 ]; then
-            echo "❌ Shorebird iOS 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
-            cat /tmp/shorebird_release.log
-            exit 1
+          # 현재 버전의 릴리즈가 이미 존재하는지 확인
+          if grep -q "$VERSION" /tmp/shorebird_releases.log; then
+            echo "⚠️ 버전 $VERSION의 iOS 릴리즈가 이미 존재합니다"
+            echo "📋 Shorebird 릴리즈를 건너뜁니다"
+            SKIP_SHOREBIRD=true
           else
+            echo "✅ 새 릴리즈 버전입니다. Shorebird 릴리즈를 진행합니다"
+            SKIP_SHOREBIRD=false
+          fi
+
+          if [ "$SKIP_SHOREBIRD" = "false" ]; then
+            echo "=== Shorebird iOS 릴리즈 실행 ==="
+            echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
+
+            shorebird release ios \
+              --dart-define=ENVIRONMENT=prod \
+              --verbose 2>&1 | tee /tmp/shorebird_release.log
+
+            RELEASE_EXIT_CODE=${PIPESTATUS[0]}
+
+            if [ $RELEASE_EXIT_CODE -ne 0 ]; then
+              echo "❌ Shorebird iOS 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
+              cat /tmp/shorebird_release.log
+              exit 1
+            fi
             echo "✅ Shorebird iOS 릴리즈 성공"
           fi
 
@@ -406,39 +416,42 @@ workflows:
           echo "=== Shorebird 캐시 정리 ==="
           shorebird cache clean
 
-          echo "=== Shorebird Android 릴리즈 실행 ==="
-          echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
+          echo "=== 기존 Shorebird 릴리즈 확인 ==="
+          # 기존 릴리즈 목록 확인
+          shorebird releases list --platform android 2>&1 | tee /tmp/shorebird_releases.log
 
-          shorebird release android \
-            --dart-define=ENVIRONMENT=prod \
-            --verbose 2>&1 | tee /tmp/shorebird_release.log
-
-          RELEASE_EXIT_CODE=${PIPESTATUS[0]}
-
-          # 이미 릴리즈가 있는 경우 처리
-          if grep -q "existing.*release for version" /tmp/shorebird_release.log; then
-            echo "⚠️ 이미 같은 버전의 릴리즈가 존재합니다"
-            echo "📋 기존 릴리즈를 사용하여 AAB만 빌드합니다"
+          # 현재 버전의 릴리즈가 이미 존재하는지 확인
+          if grep -q "$VERSION" /tmp/shorebird_releases.log; then
+            echo "⚠️ 버전 $VERSION의 Android 릴리즈가 이미 존재합니다"
+            echo "📋 Shorebird 릴리즈를 건너뛰고 AAB만 빌드합니다"
             SKIP_SHOREBIRD=true
-          elif [ $RELEASE_EXIT_CODE -ne 0 ]; then
-            echo "❌ Shorebird Android 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
-            cat /tmp/shorebird_release.log
-            exit 1
           else
-            echo "✅ Shorebird Android 릴리즈 성공"
+            echo "✅ 새 릴리즈 버전입니다. Shorebird 릴리즈를 진행합니다"
             SKIP_SHOREBIRD=false
           fi
 
-          echo "=== AAB 파일 확인 ==="
-          if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
-            AAB_SIZE=$(stat -f%z "build/app/outputs/bundle/release/app-release.aab" 2>/dev/null || stat -c%s "build/app/outputs/bundle/release/app-release.aab" 2>/dev/null || echo "unknown")
-            echo "✅ AAB 파일 생성 완료: $AAB_SIZE bytes"
-          else
-            echo "🔍 AAB 파일 검색 중..."
-            find build/ -name "*.aab" -type f 2>/dev/null
+          if [ "$SKIP_SHOREBIRD" = "false" ]; then
+            echo "=== Shorebird Android 릴리즈 실행 ==="
+            echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
 
-            # Shorebird가 생성한 AAB가 없으면 직접 빌드
-            echo "📦 AAB 직접 빌드..."
+            shorebird release android \
+              --dart-define=ENVIRONMENT=prod \
+              --verbose 2>&1 | tee /tmp/shorebird_release.log
+
+            RELEASE_EXIT_CODE=${PIPESTATUS[0]}
+
+            if [ $RELEASE_EXIT_CODE -ne 0 ]; then
+              echo "❌ Shorebird Android 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
+              cat /tmp/shorebird_release.log
+              exit 1
+            fi
+            echo "✅ Shorebird Android 릴리즈 성공"
+          fi
+
+          echo "=== AAB 파일 확인 및 빌드 ==="
+          # Shorebird를 건너뛴 경우 또는 AAB가 없는 경우 Flutter 빌드 실행
+          if [ "$SKIP_SHOREBIRD" = "true" ] || [ ! -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+            echo "📦 Flutter AAB 빌드..."
             flutter build appbundle \
               --release \
               --dart-define=ENVIRONMENT=prod
@@ -449,7 +462,12 @@ workflows:
               echo "❌ AAB 파일을 생성할 수 없습니다"
               exit 1
             fi
+          else
+            echo "✅ Shorebird 릴리즈에서 AAB 생성됨"
           fi
+
+          AAB_SIZE=$(stat -f%z "build/app/outputs/bundle/release/app-release.aab" 2>/dev/null || stat -c%s "build/app/outputs/bundle/release/app-release.aab" 2>/dev/null || echo "unknown")
+          echo "📦 AAB 파일 크기: $AAB_SIZE bytes"
 
           echo "=== 빌드 완료 ==="
           echo "📦 AAB 파일: build/app/outputs/bundle/release/app-release.aab"
