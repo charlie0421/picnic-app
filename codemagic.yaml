@@ -178,9 +178,6 @@ workflows:
           echo "=== Shorebird iOS 릴리즈 및 IPA 빌드 ==="
           echo ""
 
-          echo "=== Flutter 환경 준비 ==="
-          flutter pub get
-
           echo "=== 현재 버전 확인 ==="
           VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //')
           echo "📦 현재 버전: $VERSION"
@@ -192,8 +189,8 @@ workflows:
           fi
           echo "✅ SHOREBIRD_TOKEN 설정됨"
 
-          echo "=== Shorebird 캐시 정리 ==="
-          shorebird cache clean
+          # CI 환경은 매번 깨끗하므로 cache clean 불필요
+          # shorebird release가 자체적으로 빌드를 수행함
 
           echo "=== Shorebird iOS 릴리즈 시도 ==="
           echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
@@ -400,15 +397,12 @@ workflows:
           fi
           echo "✅ SHOREBIRD_TOKEN 설정됨"
 
-          echo "=== Flutter 환경 준비 ==="
-          flutter pub get
-
           echo "=== 현재 버전 확인 ==="
           VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //')
           echo "📦 현재 버전: $VERSION"
 
-          echo "=== Shorebird 캐시 정리 ==="
-          shorebird cache clean
+          # CI 환경은 매번 깨끗하므로 cache clean 불필요
+          # shorebird release가 자체적으로 빌드를 수행함
 
           echo "=== Shorebird Android 릴리즈 시도 ==="
           echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
@@ -602,7 +596,6 @@ workflows:
 
           # 4. iOS 패치 생성 및 배포
           echo "🚀 iOS 패치 생성 중..."
-          shorebird cache clean
 
           shorebird patch ios \
             --release-version=latest \
@@ -709,7 +702,6 @@ workflows:
 
           # 5. Android 패치 생성 및 배포
           echo "🚀 Android 패치 생성 중..."
-          shorebird cache clean
 
           shorebird patch android \
             --release-version=latest \
