@@ -192,6 +192,9 @@ workflows:
           fi
           echo "✅ SHOREBIRD_TOKEN 설정됨"
 
+          echo "=== Shorebird 캐시 정리 ==="
+          shorebird cache clean
+
           echo "=== Shorebird iOS 릴리즈 실행 ==="
           echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
 
@@ -399,6 +402,9 @@ workflows:
           echo "=== 현재 버전 확인 ==="
           VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //')
           echo "📦 현재 버전: $VERSION"
+
+          echo "=== Shorebird 캐시 정리 ==="
+          shorebird cache clean
 
           echo "=== Shorebird Android 릴리즈 실행 ==="
           echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
