@@ -23,7 +23,7 @@ dependencies:
   another_flutter_splash_screen: ^1.2.1
   google_mobile_ads: ^6.0.0
   gma_mediation_pangle: ^3.4.0  # AdMob Mediation - Pangle
-  gma_mediation_meta: ^1.5.0    # AdMob Mediation - Meta Audience Network
+  # gma_mediation_meta: ^1.5.0    # AdMob Mediation - Meta Audience Network (disabled: Xcode 16 _swift_coroFrameAlloc error)
   gma_mediation_liftoffmonetize: ^1.4.0  # AdMob Mediation - Liftoff (Vungle)
   logger: ^2.5.0
   flutter_secure_storage: ^9.2.2
