@@ -415,15 +415,18 @@ workflows:
           RELEASE_EXIT_CODE=${PIPESTATUS[0]}
 
           if [ $RELEASE_EXIT_CODE -ne 0 ]; then
+            echo "⚠️ Shorebird 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
+            echo "=== Shorebird 오류 로그 ==="
+            cat /tmp/shorebird_release.log
+            echo "=== 오류 로그 끝 ==="
+
             # 이미 릴리즈가 존재하거나 아티팩트를 찾을 수 없는 경우 Flutter 빌드로 폴백
             if grep -q "existing.*release for version" /tmp/shorebird_release.log || \
                grep -q "Cannot find release build artifacts" /tmp/shorebird_release.log; then
-              echo "⚠️ 이미 같은 버전의 릴리즈가 존재하거나 아티팩트 문제 발생"
               echo "📋 Shorebird 릴리즈를 건너뛰고 Flutter AAB 빌드로 진행합니다"
               SKIP_SHOREBIRD=true
             else
-              echo "❌ Shorebird Android 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
-              cat /tmp/shorebird_release.log
+              echo "❌ 복구 불가능한 오류입니다"
               exit 1
             fi
           else
