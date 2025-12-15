@@ -707,9 +707,15 @@ class _SettingPageState extends ConsumerState<SettingPage>
       final result = await ShorebirdUtils.checkPatchStatusForSettings();
 
       if (mounted) {
+        // restartRequired인 경우 needsRestart를 true로, nextPatch 정보도 반영
+        final isRestartRequired =
+            result.status == shorebird.UpdateStatus.restartRequired;
+
         ref.read(patchInfoProvider.notifier).updatePatchInfo({
           'hasUpdate': result.status == shorebird.UpdateStatus.outdated,
-          'currentPatch': result.currentPatchNumber,
+          'currentPatch': result.currentPatchNumber ?? result.nextPatchNumber,
+          'needsRestart': isRestartRequired,
+          'updateDownloaded': isRestartRequired,
         });
 
         switch (result.status) {
@@ -720,6 +726,16 @@ class _SettingPageState extends ConsumerState<SettingPage>
               actionLabel: l10n.button_update,
               onAction: () async {
                 await _handleManualPatchUpdate(context);
+              },
+            );
+            break;
+          case shorebird.UpdateStatus.restartRequired:
+            SnackbarUtil().info(
+              l10n.message_setting_patch_restart_hint,
+              context: context,
+              actionLabel: l10n.button_restart,
+              onAction: () {
+                Phoenix.rebirth(context);
               },
             );
             break;

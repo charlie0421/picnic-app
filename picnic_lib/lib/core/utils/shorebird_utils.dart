@@ -9,8 +9,13 @@ final updater = shorebird.ShorebirdUpdater();
 class PatchStatusCheckResult {
   final shorebird.UpdateStatus status;
   final int? currentPatchNumber;
+  final int? nextPatchNumber; // 다운로드되어 대기 중인 패치 (재시작 시 적용)
 
-  const PatchStatusCheckResult({required this.status, this.currentPatchNumber});
+  const PatchStatusCheckResult({
+    required this.status,
+    this.currentPatchNumber,
+    this.nextPatchNumber,
+  });
 }
 
 enum PatchStatusError { webUnsupported, generic }
@@ -82,7 +87,11 @@ class ShorebirdUtils {
     try {
       logger.i('🔍 설정 페이지 패치 상태 확인');
 
+      // 현재 실행 중인 패치
       final currentPatch = await updater.readCurrentPatch();
+
+      // 다운로드되어 대기 중인 패치 (다음 재시작 시 적용)
+      final nextPatch = await updater.readNextPatch();
 
       // 서버에서 새 패치 확인 (10초 타임아웃)
       final status = await updater.checkForUpdate().timeout(
@@ -90,11 +99,13 @@ class ShorebirdUtils {
         onTimeout: () => shorebird.UpdateStatus.unavailable,
       );
 
-      logger.i('📋 현재 패치: ${currentPatch?.number ?? "없음"}, 상태: $status');
+      logger.i('📋 현재 패치: ${currentPatch?.number ?? "없음"}, '
+          '대기 패치: ${nextPatch?.number ?? "없음"}, 상태: $status');
 
       return PatchStatusCheckResult(
         status: status,
         currentPatchNumber: currentPatch?.number,
+        nextPatchNumber: nextPatch?.number,
       );
     } catch (e, stackTrace) {
       logger.e('❌ 설정 페이지 패치 상태 확인 실패: $e', stackTrace: stackTrace);
