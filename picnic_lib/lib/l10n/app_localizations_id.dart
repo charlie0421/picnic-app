@@ -73,10 +73,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Saya setuju untuk menyimpan informasi jenis kelamin dan ulang tahun saya di profil saya.';
 
   @override
-  String get compatibility_analyze_start => 'Mulai analisis kompatibilitas';
+  String get compatibility_analyze_start => 'Mulai analisis Goong-Hap';
 
   @override
-  String get compatibility_analyzing => 'Menganalisis kompatibilitas.';
+  String get compatibility_analyzing => 'Menganalisis Goong-Hap.';
 
   @override
   String get compatibility_analyzing_prepare => 'Mempersiapkan';
@@ -92,7 +92,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get compatibility_duplicate_data_title =>
-      'Data kompatibilitas yang sudah ada';
+      'Data Goong-Hap yang sudah ada';
 
   @override
   String get compatibility_gender => 'Jenis Kelamin';
@@ -107,10 +107,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get compatibility_idol_style => 'Gaya Idola';
 
   @override
-  String get compatibility_new_compatibility => 'Hitung Goong-Hap Baru';
+  String get compatibility_new_compatibility => 'Lihat Goong-Hap Baru';
 
   @override
-  String get compatibility_page_title => 'Kompatibilitas';
+  String get compatibility_page_title => 'Goong-Hap';
 
   @override
   String get compatibility_purchase_confirm_message =>
@@ -128,7 +128,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String compatibility_share_message(String artistName) {
-    return 'Berapa persen kompatibilitas kimia bersinar saya dengan $artistName ? Jantungku berdegup kencang!';
+    return 'Berapa persen Goong-Hap kimia bersinar saya dengan $artistName ? Jantungku berdegup kencang!';
   }
 
   @override
@@ -138,11 +138,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get compatibility_snackbar_need_gender => 'Pilih jenis kelamin.';
 
   @override
-  String get compatibility_snackbar_start =>
-      'Mulai menganalisis kompatibilitas.';
+  String get compatibility_snackbar_start => 'Mulai menganalisis Goong-Hap.';
 
   @override
-  String get compatibility_style_title => 'Gaya kompatibilitas';
+  String get compatibility_style_title => 'Gaya Goong-Hap';
 
   @override
   String get compatibility_time_slot1 => 'Jam Tikus (23:30-01:29)';
@@ -181,7 +180,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get compatibility_time_slot9 => 'Jam Monyet (15:30-17:29)|🐒🐒';
 
   @override
-  String get compatibility_tips_title => 'Tips kompatibilitas';
+  String get compatibility_tips_title => 'Tips Goong-Hap';
 
   @override
   String get compatibility_user_style => 'Gaya Pengguna';
@@ -770,7 +769,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Silakan masukkan nama untuk papan minor Anda.';
 
   @override
-  String get post_my_compatibilities => 'Kompatibilitas saya';
+  String get post_my_compatibilities => 'Goong-Hap saya';
 
   @override
   String get post_my_written_post => 'Posting yang telah saya tulis';
@@ -1035,6 +1034,16 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get compatibility_empty_state_subtitle =>
       'Create your first compatibility!';
+
+  @override
+  String get compatibility_login_required_title => 'Login required';
+
+  @override
+  String get compatibility_login_required_subtitle =>
+      'Please log in to see your Goong-Hap results';
+
+  @override
+  String get compatibility_login_button => 'Log in';
 
   @override
   String get network_error_title => 'Network Error';
@@ -1384,7 +1393,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get compatibility_duplicate_data_message =>
-      'Data kompatibilitas dengan kondisi yang sama sudah ada.';
+      'Data Goong-Hap dengan kondisi yang sama sudah ada.';
 
   @override
   String label_time_ago_minute(int minute) {
@@ -1466,7 +1475,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get compatibility_perfect_score_exists =>
-      'Harap diperhatikan bahwa data kompatibilitas untuk kondisi ini telah mendapatkan hadiah, sehingga kami tidak dapat memberikan hadiah tambahan.';
+      'Harap diperhatikan bahwa data Goong-Hap untuk kondisi ini telah mendapatkan hadiah, sehingga kami tidak dapat memberikan hadiah tambahan.';
 
   @override
   String get post_minor_board_create_request_message_input =>

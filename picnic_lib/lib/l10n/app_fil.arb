@@ -83,11 +83,11 @@
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
   },
-  "compatibility_analyze_start": "Simulan ang pagsusuri ng pagiging tugma",
+  "compatibility_analyze_start": "Simulan ang pagsusuri ng Goong-Hap",
   "@compatibility_analyze_start": {
     "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
   },
-  "compatibility_analyzing": "Pag -aaral ng pagiging tugma.",
+  "compatibility_analyzing": "Pag -aaral ng Goong-Hap.",
   "@compatibility_analyzing": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing'."
   },
@@ -107,7 +107,7 @@
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
   },
-  "compatibility_duplicate_data_title": "Ang data ng pagiging tugma na mayroon na",
+  "compatibility_duplicate_data_title": "Ang data ng Goong-Hap na mayroon na",
   "@compatibility_duplicate_data_title": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
   },
@@ -127,11 +127,11 @@
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "Kalkulahin ang bagong goong-hap",
+  "compatibility_new_compatibility": "Tingnan ang bagong goong-hap",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_page_title": "Pagiging tugma",
+  "compatibility_page_title": "Goong-Hap",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
@@ -151,7 +151,7 @@
   "@compatibility_share_hashtag": {
     "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
   },
-  "compatibility_share_message": "Anong porsyento ang aking nagniningning na pagiging tugma ng kimika sa {artistName}? Karera ang puso ko!",
+  "compatibility_share_message": "Anong porsyento ang aking nagniningning na Goong-Hap ng kimika sa {artistName}? Karera ang puso ko!",
   "@compatibility_share_message": {
     "placeholders": {
       "artistName": {
@@ -167,11 +167,11 @@
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "Simulan ang pagsusuri ng pagiging tugma.",
+  "compatibility_snackbar_start": "Simulan ang pagsusuri ng Goong-Hap.",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_style_title": "Mga istilo ng pagiging tugma",
+  "compatibility_style_title": "Mga istilo ng Goong-Hap",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
@@ -223,7 +223,7 @@
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_tips_title": "Mga tip sa pagiging tugma",
+  "compatibility_tips_title": "Mga tip sa Goong-Hap",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
   },
@@ -978,7 +978,7 @@
   "@post_minor_board_name_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_name_input'."
   },
-  "post_my_compatibilities": "Ang aking pagiging tugma",
+  "post_my_compatibilities": "Ang aking Goong-Hap",
   "@post_my_compatibilities": {
     "description": "Auto-generated metadata for key 'post_my_compatibilities'."
   },
@@ -1310,11 +1310,11 @@
   "@ban_support_instruction": {
     "description": "Instruction to copy logs and contact support"
   },
-  "compatibility_empty_state_title": "Walang impormasyon sa pagiging tugma",
+  "compatibility_empty_state_title": "Walang impormasyon sa Goong-Hap",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "Lumikha ng iyong unang pagiging tugma!",
+  "compatibility_empty_state_subtitle": "Lumikha ng iyong unang Goong-Hap!",
   "@compatibility_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
   },
@@ -1749,7 +1749,7 @@
   "@compatibility_perfect_score_exists_title": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "Ang data ng pagiging tugma na may parehong mga kondisyon ay mayroon na.",
+  "compatibility_duplicate_data_message": "Ang data ng Goong-Hap na may parehong mga kondisyon ay mayroon na.",
   "@compatibility_duplicate_data_message": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
@@ -1853,7 +1853,7 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "Mangyaring tandaan na ang data ng pagiging tugma para sa kondisyong ito ay nakakuha ng mga gantimpala, kaya hindi namin magagawang iginawad ang mga karagdagang gantimpala.",
+  "compatibility_perfect_score_exists": "Mangyaring tandaan na ang data ng Goong-Hap para sa kondisyong ito ay nakakuha ng mga gantimpala, kaya hindi namin magagawang iginawad ang mga karagdagang gantimpala.",
   "@compatibility_perfect_score_exists": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
   },

@@ -73,10 +73,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'I agree to store my gender and birthday information in my profile.';
 
   @override
-  String get compatibility_analyze_start => 'Start compatibility analysis';
+  String get compatibility_analyze_start => 'Start Goong-Hap analysis';
 
   @override
-  String get compatibility_analyzing => 'Analyzing compatibility.';
+  String get compatibility_analyzing => 'Analyzing Goong-Hap.';
 
   @override
   String get compatibility_analyzing_prepare => 'Preparing';
@@ -92,7 +92,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get compatibility_duplicate_data_title =>
-      'Compatibility data that already exists';
+      'Goong-Hap data that already exists';
 
   @override
   String get compatibility_gender => 'Gender';
@@ -107,10 +107,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get compatibility_idol_style => 'Idol Styles';
 
   @override
-  String get compatibility_new_compatibility => 'Calculate New Goong-Hap';
+  String get compatibility_new_compatibility => 'View New Goong-Hap';
 
   @override
-  String get compatibility_page_title => 'Compatibility';
+  String get compatibility_page_title => 'Goong-Hap';
 
   @override
   String get compatibility_purchase_confirm_message =>
@@ -128,7 +128,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String compatibility_share_message(String artistName) {
-    return 'What percentage is my shining chemistry compatibility with $artistName ? My heart is racing!';
+    return 'What percentage is my shining chemistry Goong-Hap with $artistName? My heart is racing!';
   }
 
   @override
@@ -138,10 +138,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get compatibility_snackbar_need_gender => 'Please select a gender.';
 
   @override
-  String get compatibility_snackbar_start => 'Start analyzing compatibility.';
+  String get compatibility_snackbar_start => 'Start analyzing Goong-Hap.';
 
   @override
-  String get compatibility_style_title => 'Compatibility styles';
+  String get compatibility_style_title => 'Goong-Hap styles';
 
   @override
   String get compatibility_time_slot1 => 'Hour of the Rat|(23:30-01:29)|🐀';
@@ -181,7 +181,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get compatibility_time_slot9 => 'Hour of the Monkey|(15:30-17:29)|🐒';
 
   @override
-  String get compatibility_tips_title => 'Compatibility tips';
+  String get compatibility_tips_title => 'Goong-Hap tips';
 
   @override
   String get compatibility_user_style => 'User Styles';
@@ -766,7 +766,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'Please enter a name for your minor board.';
 
   @override
-  String get post_my_compatibilities => 'My compatibility';
+  String get post_my_compatibilities => 'My Goong-Hap';
 
   @override
   String get post_my_written_post => 'Posts I\'ve written';
@@ -1024,11 +1024,21 @@ class AppLocalizationsBn extends AppLocalizations {
       'If you believe this is a mistake, please contact customer support.';
 
   @override
-  String get compatibility_empty_state_title => 'No compatibility information';
+  String get compatibility_empty_state_title => 'No Goong-Hap information';
 
   @override
   String get compatibility_empty_state_subtitle =>
-      'Create your first compatibility!';
+      'Create your first Goong-Hap!';
+
+  @override
+  String get compatibility_login_required_title => 'Login required';
+
+  @override
+  String get compatibility_login_required_subtitle =>
+      'Please log in to see your Goong-Hap results';
+
+  @override
+  String get compatibility_login_button => 'Log in';
 
   @override
   String get network_error_title => 'Network Error';
@@ -1380,7 +1390,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get compatibility_duplicate_data_message =>
-      'Compatibility data with the same conditions already exists.';
+      'Goong-Hap data with the same conditions already exists.';
 
   @override
   String label_time_ago_minute(int minute) {
@@ -1459,7 +1469,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get compatibility_perfect_score_exists =>
-      'Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards.';
+      'Please note that the Goong-Hap data for this condition has already earned rewards, so we are unable to award additional rewards.';
 
   @override
   String get post_minor_board_create_request_message_input =>
@@ -1689,7 +1699,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
       'আমি আমার প্রোফাইলে আমার লিঙ্গ এবং জন্মদিনের তথ্য সংরক্ষণ করতে সম্মত।';
 
   @override
-  String get compatibility_analyze_start => 'সামঞ্জস্যতা বিশ্লেষণ শুরু করুন';
+  String get compatibility_analyze_start => 'Goong-Hap বিশ্লেষণ শুরু করুন';
 
   @override
   String get compatibility_analyzing => 'সামঞ্জস্য বিশ্লেষণ।';
@@ -1708,7 +1718,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get compatibility_duplicate_data_title =>
-      'ইতিমধ্যে বিদ্যমান সামঞ্জস্যতা ডেটা';
+      'ইতিমধ্যে বিদ্যমান Goong-Hap ডেটা';
 
   @override
   String get compatibility_gender => 'লিঙ্গ';
@@ -1723,10 +1733,10 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get compatibility_idol_style => 'প্রতিমা শৈলী';
 
   @override
-  String get compatibility_new_compatibility => 'নতুন গং-হ্যাপ গণনা করুন';
+  String get compatibility_new_compatibility => 'নতুন গং-হ্যাপ দেখুন';
 
   @override
-  String get compatibility_page_title => 'সামঞ্জস্যতা';
+  String get compatibility_page_title => 'Goong-Hap';
 
   @override
   String get compatibility_purchase_confirm_message =>
@@ -1744,7 +1754,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String compatibility_share_message(String artistName) {
-    return '$artistName এর সাথে আমার চকচকে রসায়ন সামঞ্জস্যতা কত শতাংশ? আমার হৃদয় দৌড়!';
+    return '$artistName এর সাথে আমার চকচকে রসায়ন Goong-Hap কত শতাংশ? আমার হৃদয় দৌড়!';
   }
 
   @override
@@ -1757,7 +1767,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get compatibility_snackbar_start => 'সামঞ্জস্য বিশ্লেষণ শুরু করুন।';
 
   @override
-  String get compatibility_style_title => 'সামঞ্জস্যতা শৈলী';
+  String get compatibility_style_title => 'Goong-Hap শৈলী';
 
   @override
   String get compatibility_time_slot1 => 'ইঁদুরের ঘন্টা | (23: 30-01: 29) | 🐀';
@@ -1798,7 +1808,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get compatibility_time_slot9 => 'বানরের সময় | (15: 30-17: 29) | 🐒';
 
   @override
-  String get compatibility_tips_title => 'সামঞ্জস্যতার টিপস';
+  String get compatibility_tips_title => 'Goong-Hapর টিপস';
 
   @override
   String get compatibility_user_style => 'ব্যবহারকারী শৈলী';
@@ -2639,11 +2649,11 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
       'আপনার যদি কোনও প্রশ্ন থাকে তবে দয়া করে গ্রাহক পরিষেবার সাথে যোগাযোগ করুন।';
 
   @override
-  String get compatibility_empty_state_title => 'কোনও সামঞ্জস্যতার তথ্য নেই';
+  String get compatibility_empty_state_title => 'কোনও Goong-Hapর তথ্য নেই';
 
   @override
   String get compatibility_empty_state_subtitle =>
-      'আপনার প্রথম সামঞ্জস্যতা তৈরি করুন!';
+      'আপনার প্রথম Goong-Hap তৈরি করুন!';
 
   @override
   String get network_error_title => 'নেটওয়ার্ক ত্রুটি';
@@ -2991,7 +3001,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get compatibility_duplicate_data_message =>
-      'ইতিমধ্যে একই শর্তগুলির সাথে সামঞ্জস্যতা ডেটা ইতিমধ্যে বিদ্যমান।';
+      'ইতিমধ্যে একই শর্তগুলির সাথে Goong-Hap ডেটা ইতিমধ্যে বিদ্যমান।';
 
   @override
   String label_time_ago_minute(int minute) {
@@ -3072,7 +3082,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get compatibility_perfect_score_exists =>
-      'দয়া করে নোট করুন যে এই শর্তের জন্য সামঞ্জস্যতা ডেটা ইতিমধ্যে পুরষ্কার অর্জন করেছে, তাই আমরা অতিরিক্ত পুরষ্কার প্রদান করতে অক্ষম।';
+      'দয়া করে নোট করুন যে এই শর্তের জন্য Goong-Hap ডেটা ইতিমধ্যে পুরষ্কার অর্জন করেছে, তাই আমরা অতিরিক্ত পুরষ্কার প্রদান করতে অক্ষম।';
 
   @override
   String get post_minor_board_create_request_message_input =>

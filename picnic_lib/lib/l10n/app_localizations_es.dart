@@ -76,11 +76,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Acepto almacenar mi información de género y cumpleaños en mi perfil.';
 
   @override
-  String get compatibility_analyze_start =>
-      'Análisis de compatibilidad de inicio';
+  String get compatibility_analyze_start => 'Iniciar análisis de Goong-Hap';
 
   @override
-  String get compatibility_analyzing => 'Análisis de compatibilidad.';
+  String get compatibility_analyzing => 'Analizando Goong-Hap.';
 
   @override
   String get compatibility_analyzing_prepare => 'Preparante';
@@ -96,7 +95,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get compatibility_duplicate_data_title =>
-      'Datos de compatibilidad que ya existe';
+      'Datos de Goong-Hap que ya existen';
 
   @override
   String get compatibility_gender => 'Género';
@@ -111,10 +110,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get compatibility_idol_style => 'Estilos de ídolo';
 
   @override
-  String get compatibility_new_compatibility => 'Calcular nuevo Goong-hap';
+  String get compatibility_new_compatibility => 'Ver nuevo Goong-hap';
 
   @override
-  String get compatibility_page_title => 'Compatibilidad';
+  String get compatibility_page_title => 'Goong-Hap';
 
   @override
   String get compatibility_purchase_confirm_message =>
@@ -132,7 +131,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String compatibility_share_message(String artistName) {
-    return '¿Qué porcentaje es mi compatibilidad de química brillante con $artistName ? ¡Mi corazón está acelerando!';
+    return '¿Qué porcentaje es mi Goong-Hap de química brillante con $artistName? ¡Mi corazón está acelerando!';
   }
 
   @override
@@ -142,11 +141,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get compatibility_snackbar_need_gender => 'Seleccione un género.';
 
   @override
-  String get compatibility_snackbar_start =>
-      'Comience a analizar la compatibilidad.';
+  String get compatibility_snackbar_start => 'Comenzar a analizar Goong-Hap.';
 
   @override
-  String get compatibility_style_title => 'Estilos de compatibilidad';
+  String get compatibility_style_title => 'Estilos de Goong-Hap';
 
   @override
   String get compatibility_time_slot1 =>
@@ -195,7 +193,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get compatibility_time_slot9 => 'Hora del mono | (15: 30-17: 29) | 🐒';
 
   @override
-  String get compatibility_tips_title => 'Consejos de compatibilidad';
+  String get compatibility_tips_title => 'Consejos de Goong-Hap';
 
   @override
   String get compatibility_user_style => 'Estilos de usuario';
@@ -785,7 +783,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Ingrese un nombre para su tablero menor.';
 
   @override
-  String get post_my_compatibilities => 'Mi compatibilidad';
+  String get post_my_compatibilities => 'Mi Goong-Hap';
 
   @override
   String get post_my_written_post => 'Publicaciones que he escrito';
@@ -1046,12 +1044,20 @@ class AppLocalizationsEs extends AppLocalizations {
       'Póngase en contacto con el servicio al cliente si tiene alguna pregunta.';
 
   @override
-  String get compatibility_empty_state_title =>
-      'Sin información de compatibilidad';
+  String get compatibility_empty_state_title => 'Sin información de Goong-Hap';
 
   @override
-  String get compatibility_empty_state_subtitle =>
-      '¡Crea tu primera compatibilidad!';
+  String get compatibility_empty_state_subtitle => '¡Crea tu primer Goong-Hap!';
+
+  @override
+  String get compatibility_login_required_title => 'Login required';
+
+  @override
+  String get compatibility_login_required_subtitle =>
+      'Please log in to see your Goong-Hap results';
+
+  @override
+  String get compatibility_login_button => 'Log in';
 
   @override
   String get network_error_title => 'Error de red';
@@ -1406,7 +1412,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get compatibility_duplicate_data_message =>
-      'Ya existe datos de compatibilidad con las mismas condiciones.';
+      'Ya existen datos de Goong-Hap con las mismas condiciones.';
 
   @override
   String label_time_ago_minute(int minute) {
@@ -1487,7 +1493,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get compatibility_perfect_score_exists =>
-      'Tenga en cuenta que los datos de compatibilidad para esta condición ya han ganado recompensas, por lo que no podemos otorgar recompensas adicionales.';
+      'Tenga en cuenta que los datos de Goong-Hap para esta condición ya han ganado recompensas, por lo que no podemos otorgar recompensas adicionales.';
 
   @override
   String get post_minor_board_create_request_message_input =>

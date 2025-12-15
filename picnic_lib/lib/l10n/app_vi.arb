@@ -84,11 +84,11 @@
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
   },
-  "compatibility_analyze_start": "Bắt đầu phân tích khả năng tương thích",
+  "compatibility_analyze_start": "Bắt đầu phân tích Goong-Hap",
   "@compatibility_analyze_start": {
     "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
   },
-  "compatibility_analyzing": "Phân tích khả năng tương thích.",
+  "compatibility_analyzing": "Phân tích Goong-Hap.",
   "@compatibility_analyzing": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing'."
   },
@@ -128,11 +128,11 @@
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "Tính toán Goong-Hap mới",
+  "compatibility_new_compatibility": "Xem Goong-Hap mới",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_page_title": "Khả năng tương thích",
+  "compatibility_page_title": "Goong-Hap",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
@@ -152,7 +152,7 @@
   "@compatibility_share_hashtag": {
     "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
   },
-  "compatibility_share_message": "Bao nhiêu phần trăm khả năng tương thích hóa học của tôi với {artistName}? Trái tim tôi đang chạy đua!",
+  "compatibility_share_message": "Bao nhiêu phần trăm Goong-Hap hóa học của tôi với {artistName}? Trái tim tôi đang chạy đua!",
   "@compatibility_share_message": {
     "placeholders": {
       "artistName": {
@@ -168,7 +168,7 @@
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "Bắt đầu phân tích khả năng tương thích.",
+  "compatibility_snackbar_start": "Bắt đầu phân tích Goong-Hap.",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
@@ -979,7 +979,7 @@
   "@post_minor_board_name_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_name_input'."
   },
-  "post_my_compatibilities": "Khả năng tương thích của tôi",
+  "post_my_compatibilities": "Goong-Hap của tôi",
   "@post_my_compatibilities": {
     "description": "Auto-generated metadata for key 'post_my_compatibilities'."
   },
@@ -1315,7 +1315,7 @@
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "Tạo khả năng tương thích đầu tiên của bạn!",
+  "compatibility_empty_state_subtitle": "Tạo Goong-Hap đầu tiên của bạn!",
   "@compatibility_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
   },

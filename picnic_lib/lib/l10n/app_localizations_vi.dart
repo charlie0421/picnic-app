@@ -74,11 +74,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Tôi đồng ý lưu trữ thông tin về giới tính và sinh nhật của tôi trong hồ sơ của tôi.';
 
   @override
-  String get compatibility_analyze_start =>
-      'Bắt đầu phân tích khả năng tương thích';
+  String get compatibility_analyze_start => 'Bắt đầu phân tích Goong-Hap';
 
   @override
-  String get compatibility_analyzing => 'Phân tích khả năng tương thích.';
+  String get compatibility_analyzing => 'Phân tích Goong-Hap.';
 
   @override
   String get compatibility_analyzing_prepare => 'Chuẩn bị';
@@ -109,10 +108,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get compatibility_idol_style => 'Phong cách thần tượng';
 
   @override
-  String get compatibility_new_compatibility => 'Tính toán Goong-Hap mới';
+  String get compatibility_new_compatibility => 'Xem Goong-Hap mới';
 
   @override
-  String get compatibility_page_title => 'Khả năng tương thích';
+  String get compatibility_page_title => 'Goong-Hap';
 
   @override
   String get compatibility_purchase_confirm_message =>
@@ -130,7 +129,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String compatibility_share_message(String artistName) {
-    return 'Bao nhiêu phần trăm khả năng tương thích hóa học của tôi với $artistName? Trái tim tôi đang chạy đua!';
+    return 'Bao nhiêu phần trăm Goong-Hap hóa học của tôi với $artistName? Trái tim tôi đang chạy đua!';
   }
 
   @override
@@ -140,8 +139,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get compatibility_snackbar_need_gender => 'Vui lòng chọn giới tính.';
 
   @override
-  String get compatibility_snackbar_start =>
-      'Bắt đầu phân tích khả năng tương thích.';
+  String get compatibility_snackbar_start => 'Bắt đầu phân tích Goong-Hap.';
 
   @override
   String get compatibility_style_title => 'Phong cách tương thích';
@@ -771,7 +769,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Vui lòng nhập tên cho bảng nhỏ của bạn.';
 
   @override
-  String get post_my_compatibilities => 'Khả năng tương thích của tôi';
+  String get post_my_compatibilities => 'Goong-Hap của tôi';
 
   @override
   String get post_my_written_post => 'Bài viết tôi đã viết';
@@ -1035,7 +1033,17 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get compatibility_empty_state_subtitle =>
-      'Tạo khả năng tương thích đầu tiên của bạn!';
+      'Tạo Goong-Hap đầu tiên của bạn!';
+
+  @override
+  String get compatibility_login_required_title => 'Login required';
+
+  @override
+  String get compatibility_login_required_subtitle =>
+      'Please log in to see your Goong-Hap results';
+
+  @override
+  String get compatibility_login_button => 'Log in';
 
   @override
   String get network_error_title => 'Lỗi mạng';

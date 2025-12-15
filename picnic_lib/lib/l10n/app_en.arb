@@ -83,11 +83,11 @@
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
   },
-  "compatibility_analyze_start": "Start compatibility analysis",
+  "compatibility_analyze_start": "Start Goong-Hap analysis",
   "@compatibility_analyze_start": {
     "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
   },
-  "compatibility_analyzing": "Analyzing compatibility.",
+  "compatibility_analyzing": "Analyzing Goong-Hap.",
   "@compatibility_analyzing": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing'."
   },
@@ -107,7 +107,7 @@
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
   },
-  "compatibility_duplicate_data_title": "Compatibility data that already exists",
+  "compatibility_duplicate_data_title": "Goong-Hap data that already exists",
   "@compatibility_duplicate_data_title": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
   },
@@ -127,11 +127,11 @@
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "Calculate New Goong-Hap",
+  "compatibility_new_compatibility": "View New Goong-Hap",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_page_title": "Compatibility",
+  "compatibility_page_title": "Goong-Hap",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
@@ -151,7 +151,7 @@
   "@compatibility_share_hashtag": {
     "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
   },
-  "compatibility_share_message": "What percentage is my shining chemistry compatibility with {artistName} ? My heart is racing!",
+  "compatibility_share_message": "What percentage is my shining chemistry Goong-Hap with {artistName}? My heart is racing!",
   "@compatibility_share_message": {
     "placeholders": {
       "artistName": {
@@ -167,11 +167,11 @@
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "Start analyzing compatibility.",
+  "compatibility_snackbar_start": "Start analyzing Goong-Hap.",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_style_title": "Compatibility styles",
+  "compatibility_style_title": "Goong-Hap styles",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
@@ -223,7 +223,7 @@
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_tips_title": "Compatibility tips",
+  "compatibility_tips_title": "Goong-Hap tips",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
   },
@@ -978,7 +978,7 @@
   "@post_minor_board_name_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_name_input'."
   },
-  "post_my_compatibilities": "My compatibility",
+  "post_my_compatibilities": "My Goong-Hap",
   "@post_my_compatibilities": {
     "description": "Auto-generated metadata for key 'post_my_compatibilities'."
   },
@@ -1306,13 +1306,25 @@
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
-  "compatibility_empty_state_title": "No compatibility information",
+  "compatibility_empty_state_title": "No Goong-Hap information",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "Create your first compatibility!",
+  "compatibility_empty_state_subtitle": "Create your first Goong-Hap!",
   "@compatibility_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
+  },
+  "compatibility_login_required_title": "Login required",
+  "@compatibility_login_required_title": {
+    "description": "Title shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_required_subtitle": "Please log in to see your Goong-Hap results",
+  "@compatibility_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_button": "Log in",
+  "@compatibility_login_button": {
+    "description": "Login button text on compatibility page"
   },
   "network_error_title": "Network Error",
   "@network_error_title": {
@@ -1753,7 +1765,7 @@
   "@compatibility_perfect_score_exists_title": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "Compatibility data with the same conditions already exists.",
+  "compatibility_duplicate_data_message": "Goong-Hap data with the same conditions already exists.",
   "@compatibility_duplicate_data_message": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
@@ -1857,7 +1869,7 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards.",
+  "compatibility_perfect_score_exists": "Please note that the Goong-Hap data for this condition has already earned rewards, so we are unable to award additional rewards.",
   "@compatibility_perfect_score_exists": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
   },

@@ -84,7 +84,7 @@
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
   },
-  "compatibility_analyze_start": "সামঞ্জস্যতা বিশ্লেষণ শুরু করুন",
+  "compatibility_analyze_start": "Goong-Hap বিশ্লেষণ শুরু করুন",
   "@compatibility_analyze_start": {
     "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
   },
@@ -108,7 +108,7 @@
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
   },
-  "compatibility_duplicate_data_title": "ইতিমধ্যে বিদ্যমান সামঞ্জস্যতা ডেটা",
+  "compatibility_duplicate_data_title": "ইতিমধ্যে বিদ্যমান Goong-Hap ডেটা",
   "@compatibility_duplicate_data_title": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
   },
@@ -128,11 +128,11 @@
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "নতুন গং-হ্যাপ গণনা করুন",
+  "compatibility_new_compatibility": "নতুন গং-হ্যাপ দেখুন",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_page_title": "সামঞ্জস্যতা",
+  "compatibility_page_title": "Goong-Hap",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
@@ -152,7 +152,7 @@
   "@compatibility_share_hashtag": {
     "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
   },
-  "compatibility_share_message": "{artistName} এর সাথে আমার চকচকে রসায়ন সামঞ্জস্যতা কত শতাংশ? আমার হৃদয় দৌড়!",
+  "compatibility_share_message": "{artistName} এর সাথে আমার চকচকে রসায়ন Goong-Hap কত শতাংশ? আমার হৃদয় দৌড়!",
   "@compatibility_share_message": {
     "placeholders": {
       "artistName": {
@@ -172,7 +172,7 @@
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_style_title": "সামঞ্জস্যতা শৈলী",
+  "compatibility_style_title": "Goong-Hap শৈলী",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
@@ -224,7 +224,7 @@
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_tips_title": "সামঞ্জস্যতার টিপস",
+  "compatibility_tips_title": "Goong-Hapর টিপস",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
   },
@@ -1311,11 +1311,11 @@
   "@ban_support_instruction": {
     "description": "Instruction to copy logs and contact support"
   },
-  "compatibility_empty_state_title": "কোনও সামঞ্জস্যতার তথ্য নেই",
+  "compatibility_empty_state_title": "কোনও Goong-Hapর তথ্য নেই",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "আপনার প্রথম সামঞ্জস্যতা তৈরি করুন!",
+  "compatibility_empty_state_subtitle": "আপনার প্রথম Goong-Hap তৈরি করুন!",
   "@compatibility_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
   },
@@ -1749,7 +1749,7 @@
   "@compatibility_perfect_score_exists_title": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "ইতিমধ্যে একই শর্তগুলির সাথে সামঞ্জস্যতা ডেটা ইতিমধ্যে বিদ্যমান।",
+  "compatibility_duplicate_data_message": "ইতিমধ্যে একই শর্তগুলির সাথে Goong-Hap ডেটা ইতিমধ্যে বিদ্যমান।",
   "@compatibility_duplicate_data_message": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
@@ -1853,7 +1853,7 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "দয়া করে নোট করুন যে এই শর্তের জন্য সামঞ্জস্যতা ডেটা ইতিমধ্যে পুরষ্কার অর্জন করেছে, তাই আমরা অতিরিক্ত পুরষ্কার প্রদান করতে অক্ষম।",
+  "compatibility_perfect_score_exists": "দয়া করে নোট করুন যে এই শর্তের জন্য Goong-Hap ডেটা ইতিমধ্যে পুরষ্কার অর্জন করেছে, তাই আমরা অতিরিক্ত পুরষ্কার প্রদান করতে অক্ষম।",
   "@compatibility_perfect_score_exists": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
   },

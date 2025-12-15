@@ -246,13 +246,13 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'compatibility_analyze_start'.
   ///
   /// In en, this message translates to:
-  /// **'Start compatibility analysis'**
+  /// **'Start Goong-Hap analysis'**
   String get compatibility_analyze_start;
 
   /// Auto-generated metadata for key 'compatibility_analyzing'.
   ///
   /// In en, this message translates to:
-  /// **'Analyzing compatibility.'**
+  /// **'Analyzing Goong-Hap.'**
   String get compatibility_analyzing;
 
   /// Auto-generated metadata for key 'compatibility_analyzing_prepare'.
@@ -282,7 +282,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'compatibility_duplicate_data_title'.
   ///
   /// In en, this message translates to:
-  /// **'Compatibility data that already exists'**
+  /// **'Goong-Hap data that already exists'**
   String get compatibility_duplicate_data_title;
 
   /// Auto-generated metadata for key 'compatibility_gender'.
@@ -312,13 +312,13 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'compatibility_new_compatibility'.
   ///
   /// In en, this message translates to:
-  /// **'Calculate New Goong-Hap'**
+  /// **'View New Goong-Hap'**
   String get compatibility_new_compatibility;
 
   /// Auto-generated metadata for key 'compatibility_page_title'.
   ///
   /// In en, this message translates to:
-  /// **'Compatibility'**
+  /// **'Goong-Hap'**
   String get compatibility_page_title;
 
   /// Auto-generated metadata for key 'compatibility_purchase_confirm_message'.
@@ -348,7 +348,7 @@ abstract class AppLocalizations {
   /// No description provided for @compatibility_share_message.
   ///
   /// In en, this message translates to:
-  /// **'What percentage is my shining chemistry compatibility with {artistName} ? My heart is racing!'**
+  /// **'What percentage is my shining chemistry Goong-Hap with {artistName}? My heart is racing!'**
   String compatibility_share_message(String artistName);
 
   /// Auto-generated metadata for key 'compatibility_snackbar_error'.
@@ -366,13 +366,13 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'compatibility_snackbar_start'.
   ///
   /// In en, this message translates to:
-  /// **'Start analyzing compatibility.'**
+  /// **'Start analyzing Goong-Hap.'**
   String get compatibility_snackbar_start;
 
   /// Auto-generated metadata for key 'compatibility_style_title'.
   ///
   /// In en, this message translates to:
-  /// **'Compatibility styles'**
+  /// **'Goong-Hap styles'**
   String get compatibility_style_title;
 
   /// Auto-generated metadata for key 'compatibility_time_slot1'.
@@ -450,7 +450,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'compatibility_tips_title'.
   ///
   /// In en, this message translates to:
-  /// **'Compatibility tips'**
+  /// **'Goong-Hap tips'**
   String get compatibility_tips_title;
 
   /// Auto-generated metadata for key 'compatibility_user_style'.
@@ -1560,7 +1560,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'post_my_compatibilities'.
   ///
   /// In en, this message translates to:
-  /// **'My compatibility'**
+  /// **'My Goong-Hap'**
   String get post_my_compatibilities;
 
   /// Auto-generated metadata for key 'post_my_written_post'.
@@ -2046,14 +2046,32 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'compatibility_empty_state_title'.
   ///
   /// In en, this message translates to:
-  /// **'No compatibility information'**
+  /// **'No Goong-Hap information'**
   String get compatibility_empty_state_title;
 
   /// Auto-generated metadata for key 'compatibility_empty_state_subtitle'.
   ///
   /// In en, this message translates to:
-  /// **'Create your first compatibility!'**
+  /// **'Create your first Goong-Hap!'**
   String get compatibility_empty_state_subtitle;
+
+  /// Title shown when user needs to login to see compatibility
+  ///
+  /// In en, this message translates to:
+  /// **'Login required'**
+  String get compatibility_login_required_title;
+
+  /// Subtitle shown when user needs to login to see compatibility
+  ///
+  /// In en, this message translates to:
+  /// **'Please log in to see your Goong-Hap results'**
+  String get compatibility_login_required_subtitle;
+
+  /// Login button text on compatibility page
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get compatibility_login_button;
 
   /// Auto-generated metadata for key 'network_error_title'.
   ///
@@ -2670,7 +2688,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'compatibility_duplicate_data_message'.
   ///
   /// In en, this message translates to:
-  /// **'Compatibility data with the same conditions already exists.'**
+  /// **'Goong-Hap data with the same conditions already exists.'**
   String get compatibility_duplicate_data_message;
 
   /// No description provided for @label_time_ago_minute.
@@ -2796,7 +2814,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'compatibility_perfect_score_exists'.
   ///
   /// In en, this message translates to:
-  /// **'Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards.'**
+  /// **'Please note that the Goong-Hap data for this condition has already earned rewards, so we are unable to award additional rewards.'**
   String get compatibility_perfect_score_exists;
 
   /// Auto-generated metadata for key 'post_minor_board_create_request_message_input'.

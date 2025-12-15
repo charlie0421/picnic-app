@@ -73,10 +73,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'ฉันตกลงที่จะเก็บข้อมูลเพศและวันเกิดของฉันในโปรไฟล์ของฉัน';
 
   @override
-  String get compatibility_analyze_start => 'เริ่มการวิเคราะห์ความเข้ากันได้';
+  String get compatibility_analyze_start => 'เริ่มการวิเคราะห์Goong-Hap';
 
   @override
-  String get compatibility_analyzing => 'การวิเคราะห์ความเข้ากันได้';
+  String get compatibility_analyzing => 'การวิเคราะห์Goong-Hap';
 
   @override
   String get compatibility_analyzing_prepare => 'การเตรียม';
@@ -92,7 +92,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get compatibility_duplicate_data_title =>
-      'ข้อมูลความเข้ากันได้ที่มีอยู่แล้ว';
+      'ข้อมูลGoong-Hapที่มีอยู่แล้ว';
 
   @override
   String get compatibility_gender => 'เพศ';
@@ -107,10 +107,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get compatibility_idol_style => 'รูปแบบไอดอล';
 
   @override
-  String get compatibility_new_compatibility => 'คำนวณ GOONG-HAP ใหม่';
+  String get compatibility_new_compatibility => 'ดู Goong-Hap ใหม่';
 
   @override
-  String get compatibility_page_title => 'ความเข้ากันได้';
+  String get compatibility_page_title => 'Goong-Hap';
 
   @override
   String get compatibility_purchase_confirm_message =>
@@ -128,7 +128,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String compatibility_share_message(String artistName) {
-    return 'ความเข้ากันได้กับเคมีที่ส่องแสงของฉันกับ $artistName หัวใจของฉันคือการแข่ง!';
+    return 'Goong-Hapกับเคมีที่ส่องแสงของฉันกับ $artistName หัวใจของฉันคือการแข่ง!';
   }
 
   @override
@@ -138,10 +138,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get compatibility_snackbar_need_gender => 'โปรดเลือกเพศ';
 
   @override
-  String get compatibility_snackbar_start => 'เริ่มวิเคราะห์ความเข้ากันได้';
+  String get compatibility_snackbar_start => 'เริ่มวิเคราะห์Goong-Hap';
 
   @override
-  String get compatibility_style_title => 'รูปแบบความเข้ากันได้';
+  String get compatibility_style_title => 'รูปแบบGoong-Hap';
 
   @override
   String get compatibility_time_slot1 => 'ชั่วโมงของหนู | (23: 30-01: 29) | 🐀';
@@ -186,7 +186,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get compatibility_time_slot9 => 'ชั่วโมงของลิง | (15: 30-17: 29) | 🐒';
 
   @override
-  String get compatibility_tips_title => 'เคล็ดลับความเข้ากันได้';
+  String get compatibility_tips_title => 'เคล็ดลับGoong-Hap';
 
   @override
   String get compatibility_user_style => 'สไตล์ผู้ใช้';
@@ -764,7 +764,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get post_minor_board_name_input => 'โปรดป้อนชื่อสำหรับบอร์ดรองของคุณ';
 
   @override
-  String get post_my_compatibilities => 'ความเข้ากันได้ของฉัน';
+  String get post_my_compatibilities => 'Goong-Hapของฉัน';
 
   @override
   String get post_my_written_post => 'โพสต์ที่ฉันเขียน';
@@ -1018,11 +1018,20 @@ class AppLocalizationsTh extends AppLocalizations {
   String get ban_contact => 'กรุณาติดต่อฝ่ายบริการลูกค้าหากคุณมีคำถามใด ๆ';
 
   @override
-  String get compatibility_empty_state_title => 'ไม่มีข้อมูลความเข้ากันได้';
+  String get compatibility_empty_state_title => 'ไม่มีข้อมูลGoong-Hap';
 
   @override
-  String get compatibility_empty_state_subtitle =>
-      'สร้างความเข้ากันได้แรกของคุณ!';
+  String get compatibility_empty_state_subtitle => 'สร้างGoong-Hapแรกของคุณ!';
+
+  @override
+  String get compatibility_login_required_title => 'Login required';
+
+  @override
+  String get compatibility_login_required_subtitle =>
+      'Please log in to see your Goong-Hap results';
+
+  @override
+  String get compatibility_login_button => 'Log in';
 
   @override
   String get network_error_title => 'ข้อผิดพลาดเครือข่าย';
@@ -1366,7 +1375,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get compatibility_duplicate_data_message =>
-      'ข้อมูลความเข้ากันได้กับเงื่อนไขเดียวกันมีอยู่แล้ว';
+      'ข้อมูลGoong-Hapกับเงื่อนไขเดียวกันมีอยู่แล้ว';
 
   @override
   String label_time_ago_minute(int minute) {
@@ -1444,7 +1453,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get compatibility_perfect_score_exists =>
-      'โปรดทราบว่าข้อมูลความเข้ากันได้สำหรับเงื่อนไขนี้ได้รับรางวัลแล้วดังนั้นเราจึงไม่สามารถให้รางวัลเพิ่มเติมได้';
+      'โปรดทราบว่าข้อมูลGoong-Hapสำหรับเงื่อนไขนี้ได้รับรางวัลแล้วดังนั้นเราจึงไม่สามารถให้รางวัลเพิ่มเติมได้';
 
   @override
   String get post_minor_board_create_request_message_input =>

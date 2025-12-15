@@ -72,10 +72,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get compatibility_agree_checkbox => '性別、誕生日情報をプロフィールに保存することに同意します。';
 
   @override
-  String get compatibility_analyze_start => '相性分析開始';
+  String get compatibility_analyze_start => 'Goong-Hap分析開始';
 
   @override
-  String get compatibility_analyzing => '相性を分析しています。';
+  String get compatibility_analyzing => 'Goong-Hapを分析しています。';
 
   @override
   String get compatibility_analyzing_prepare => '準備中';
@@ -90,7 +90,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get compatibility_couple_style => 'カップルスタイル';
 
   @override
-  String get compatibility_duplicate_data_title => '既に存在する相性データ';
+  String get compatibility_duplicate_data_title => '既に存在するGoong-Hapデータ';
 
   @override
   String get compatibility_gender => '性別';
@@ -105,10 +105,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get compatibility_idol_style => 'アイドルスタイル';
 
   @override
-  String get compatibility_new_compatibility => '新しい相性を確認する';
+  String get compatibility_new_compatibility => '新しいGoong-Hapを確認する';
 
   @override
-  String get compatibility_page_title => '相性';
+  String get compatibility_page_title => 'Goong-Hap';
 
   @override
   String get compatibility_purchase_confirm_message =>
@@ -118,7 +118,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get compatibility_remain_star_candy => '残りの星飴';
 
   @override
-  String get compatibility_result_not_found => '相性が悪いです😔。';
+  String get compatibility_result_not_found => 'Goong-Hapが悪いです😔。';
 
   @override
   String get compatibility_share_hashtag =>
@@ -136,10 +136,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get compatibility_snackbar_need_gender => '性別を選択してください。';
 
   @override
-  String get compatibility_snackbar_start => '相性を分析し始めます。';
+  String get compatibility_snackbar_start => 'Goong-Hapを分析し始めます。';
 
   @override
-  String get compatibility_style_title => '相性スタイル';
+  String get compatibility_style_title => 'Goong-Hapスタイル';
 
   @override
   String get compatibility_time_slot1 => '子の刻(ね)|(23:30-01:29)|🐀';
@@ -178,7 +178,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get compatibility_time_slot9 => '申の刻(さる)|(15:30-17:29)|🐒';
 
   @override
-  String get compatibility_tips_title => '相性のヒント';
+  String get compatibility_tips_title => 'Goong-Hapのヒント';
 
   @override
   String get compatibility_user_style => 'ユーザースタイル';
@@ -336,7 +336,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fortune_total_title => '総合占い';
 
   @override
-  String get fortune_with_me => 'アーティストと私の相性';
+  String get fortune_with_me => 'アーティストと私のGoong-Hap';
 
   @override
   String get hint_library_add => 'アルバム名';
@@ -742,7 +742,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get post_minor_board_name_input => 'マイナー掲示板名を入力してください。';
 
   @override
-  String get post_my_compatibilities => '私の相性';
+  String get post_my_compatibilities => '私のGoong-Hap';
 
   @override
   String get post_my_written_post => '私が書いた記事';
@@ -997,6 +997,16 @@ class AppLocalizationsJa extends AppLocalizations {
       'Create your first compatibility!';
 
   @override
+  String get compatibility_login_required_title => 'Login required';
+
+  @override
+  String get compatibility_login_required_subtitle =>
+      'Please log in to see your Goong-Hap results';
+
+  @override
+  String get compatibility_login_button => 'Log in';
+
+  @override
   String get network_error_title => 'Network Error';
 
   @override
@@ -1156,7 +1166,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String compatibility_purchase_message(String artistName) {
-    return '私と「$artistName」の相性スコアが気になる方は？';
+    return '私と「$artistName」のGoong-Hapスコアが気になる方は？';
   }
 
   @override
@@ -1322,10 +1332,11 @@ class AppLocalizationsJa extends AppLocalizations {
       '- 無料チャージステーションからのボーナススターキャンディ、および購入時のボーナススターキャンディには有効期限があります。';
 
   @override
-  String get compatibility_perfect_score_exists_title => 'すでに当選した相性データ';
+  String get compatibility_perfect_score_exists_title => 'すでに当選したGoong-Hapデータ';
 
   @override
-  String get compatibility_duplicate_data_message => '同じ条件の相性データが既に存在します。';
+  String get compatibility_duplicate_data_message =>
+      '同じ条件のGoong-Hapデータが既に存在します。';
 
   @override
   String label_time_ago_minute(int minute) {
@@ -1388,7 +1399,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get message_update_nickname_success => 'ニックネームが正常に変更されました。';
 
   @override
-  String get compatibility_new_compatibility_ask => '新しい相性を見ませんか？';
+  String get compatibility_new_compatibility_ask => '新しいGoong-Hapを見ませんか？';
 
   @override
   String post_replying_comment(String nickname) {
@@ -1400,7 +1411,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get compatibility_perfect_score_exists =>
-      '当該条件の相性データは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。';
+      '当該条件のGoong-Hapデータは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。';
 
   @override
   String get post_minor_board_create_request_message_input =>

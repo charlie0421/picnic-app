@@ -76,10 +76,10 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get compatibility_analyze_start =>
-      'Simulan ang pagsusuri ng pagiging tugma';
+      'Simulan ang pagsusuri ng Goong-Hap';
 
   @override
-  String get compatibility_analyzing => 'Pag -aaral ng pagiging tugma.';
+  String get compatibility_analyzing => 'Pag -aaral ng Goong-Hap.';
 
   @override
   String get compatibility_analyzing_prepare => 'Naghahanda';
@@ -95,7 +95,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get compatibility_duplicate_data_title =>
-      'Ang data ng pagiging tugma na mayroon na';
+      'Ang data ng Goong-Hap na mayroon na';
 
   @override
   String get compatibility_gender => 'Kasarian';
@@ -110,11 +110,10 @@ class AppLocalizationsFil extends AppLocalizations {
   String get compatibility_idol_style => 'Mga Estilo ng Idol';
 
   @override
-  String get compatibility_new_compatibility =>
-      'Kalkulahin ang bagong goong-hap';
+  String get compatibility_new_compatibility => 'Tingnan ang bagong goong-hap';
 
   @override
-  String get compatibility_page_title => 'Pagiging tugma';
+  String get compatibility_page_title => 'Goong-Hap';
 
   @override
   String get compatibility_purchase_confirm_message =>
@@ -132,7 +131,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String compatibility_share_message(String artistName) {
-    return 'Anong porsyento ang aking nagniningning na pagiging tugma ng kimika sa $artistName? Karera ang puso ko!';
+    return 'Anong porsyento ang aking nagniningning na Goong-Hap ng kimika sa $artistName? Karera ang puso ko!';
   }
 
   @override
@@ -144,10 +143,10 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get compatibility_snackbar_start =>
-      'Simulan ang pagsusuri ng pagiging tugma.';
+      'Simulan ang pagsusuri ng Goong-Hap.';
 
   @override
-  String get compatibility_style_title => 'Mga istilo ng pagiging tugma';
+  String get compatibility_style_title => 'Mga istilo ng Goong-Hap';
 
   @override
   String get compatibility_time_slot1 => 'Oras ng daga | (23: 30-01: 29) | 🐀';
@@ -191,7 +190,7 @@ class AppLocalizationsFil extends AppLocalizations {
       'Oras ng unggoy | (15: 30-17: 29) | 🐒';
 
   @override
-  String get compatibility_tips_title => 'Mga tip sa pagiging tugma';
+  String get compatibility_tips_title => 'Mga tip sa Goong-Hap';
 
   @override
   String get compatibility_user_style => 'Mga Estilo ng Gumagamit';
@@ -784,7 +783,7 @@ class AppLocalizationsFil extends AppLocalizations {
       'Mangyaring magpasok ng isang pangalan para sa iyong menor de edad na board.';
 
   @override
-  String get post_my_compatibilities => 'Ang aking pagiging tugma';
+  String get post_my_compatibilities => 'Ang aking Goong-Hap';
 
   @override
   String get post_my_written_post => 'Mga post na isinulat ko';
@@ -1046,11 +1045,21 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get compatibility_empty_state_title =>
-      'Walang impormasyon sa pagiging tugma';
+      'Walang impormasyon sa Goong-Hap';
 
   @override
   String get compatibility_empty_state_subtitle =>
-      'Lumikha ng iyong unang pagiging tugma!';
+      'Lumikha ng iyong unang Goong-Hap!';
+
+  @override
+  String get compatibility_login_required_title => 'Login required';
+
+  @override
+  String get compatibility_login_required_subtitle =>
+      'Please log in to see your Goong-Hap results';
+
+  @override
+  String get compatibility_login_button => 'Log in';
 
   @override
   String get network_error_title => 'Error sa network';
@@ -1410,7 +1419,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get compatibility_duplicate_data_message =>
-      'Ang data ng pagiging tugma na may parehong mga kondisyon ay mayroon na.';
+      'Ang data ng Goong-Hap na may parehong mga kondisyon ay mayroon na.';
 
   @override
   String label_time_ago_minute(int minute) {
@@ -1495,7 +1504,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get compatibility_perfect_score_exists =>
-      'Mangyaring tandaan na ang data ng pagiging tugma para sa kondisyong ito ay nakakuha ng mga gantimpala, kaya hindi namin magagawang iginawad ang mga karagdagang gantimpala.';
+      'Mangyaring tandaan na ang data ng Goong-Hap para sa kondisyong ito ay nakakuha ng mga gantimpala, kaya hindi namin magagawang iginawad ang mga karagdagang gantimpala.';
 
   @override
   String get post_minor_board_create_request_message_input =>

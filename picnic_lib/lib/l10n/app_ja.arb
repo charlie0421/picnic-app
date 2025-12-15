@@ -83,11 +83,11 @@
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
   },
-  "compatibility_analyze_start": "相性分析開始",
+  "compatibility_analyze_start": "Goong-Hap分析開始",
   "@compatibility_analyze_start": {
     "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
   },
-  "compatibility_analyzing": "相性を分析しています。",
+  "compatibility_analyzing": "Goong-Hapを分析しています。",
   "@compatibility_analyzing": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing'."
   },
@@ -107,7 +107,7 @@
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
   },
-  "compatibility_duplicate_data_title": "既に存在する相性データ",
+  "compatibility_duplicate_data_title": "既に存在するGoong-Hapデータ",
   "@compatibility_duplicate_data_title": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
   },
@@ -127,11 +127,11 @@
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "新しい相性を確認する",
+  "compatibility_new_compatibility": "新しいGoong-Hapを確認する",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_page_title": "相性",
+  "compatibility_page_title": "Goong-Hap",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
@@ -143,7 +143,7 @@
   "@compatibility_remain_star_candy": {
     "description": "Auto-generated metadata for key 'compatibility_remain_star_candy'."
   },
-  "compatibility_result_not_found": "相性が悪いです😔。",
+  "compatibility_result_not_found": "Goong-Hapが悪いです😔。",
   "@compatibility_result_not_found": {
     "description": "Auto-generated metadata for key 'compatibility_result_not_found'."
   },
@@ -167,11 +167,11 @@
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "相性を分析し始めます。",
+  "compatibility_snackbar_start": "Goong-Hapを分析し始めます。",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_style_title": "相性スタイル",
+  "compatibility_style_title": "Goong-Hapスタイル",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
@@ -223,7 +223,7 @@
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_tips_title": "相性のヒント",
+  "compatibility_tips_title": "Goong-Hapのヒント",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
   },
@@ -431,7 +431,7 @@
   "@fortune_total_title": {
     "description": "Auto-generated metadata for key 'fortune_total_title'."
   },
-  "fortune_with_me": "アーティストと私の相性",
+  "fortune_with_me": "アーティストと私のGoong-Hap",
   "@fortune_with_me": {
     "description": "Auto-generated metadata for key 'fortune_with_me'."
   },
@@ -978,7 +978,7 @@
   "@post_minor_board_name_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_name_input'."
   },
-  "post_my_compatibilities": "私の相性",
+  "post_my_compatibilities": "私のGoong-Hap",
   "@post_my_compatibilities": {
     "description": "Auto-generated metadata for key 'post_my_compatibilities'."
   },
@@ -1578,7 +1578,7 @@
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "compatibility_purchase_message": "私と「{artistName}」の相性スコアが気になる方は？",
+  "compatibility_purchase_message": "私と「{artistName}」のGoong-Hapスコアが気になる方は？",
   "@compatibility_purchase_message": {
     "placeholders": {
       "artistName": {
@@ -1801,11 +1801,11 @@
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
-  "compatibility_perfect_score_exists_title": "すでに当選した相性データ",
+  "compatibility_perfect_score_exists_title": "すでに当選したGoong-Hapデータ",
   "@compatibility_perfect_score_exists_title": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "同じ条件の相性データが既に存在します。",
+  "compatibility_duplicate_data_message": "同じ条件のGoong-Hapデータが既に存在します。",
   "@compatibility_duplicate_data_message": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
@@ -1893,7 +1893,7 @@
   "@message_update_nickname_success": {
     "description": "Auto-generated metadata for key 'message_update_nickname_success'."
   },
-  "compatibility_new_compatibility_ask": "新しい相性を見ませんか？",
+  "compatibility_new_compatibility_ask": "新しいGoong-Hapを見ませんか？",
   "@compatibility_new_compatibility_ask": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
   },
@@ -1909,7 +1909,7 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "当該条件の相性データは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。",
+  "compatibility_perfect_score_exists": "当該条件のGoong-Hapデータは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。",
   "@compatibility_perfect_score_exists": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
   },

@@ -84,11 +84,11 @@
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
   },
-  "compatibility_analyze_start": "开始相容性分析",
+  "compatibility_analyze_start": "开始宮合分析",
   "@compatibility_analyze_start": {
     "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
   },
-  "compatibility_analyzing": "分析相容性。",
+  "compatibility_analyzing": "分析宮合。",
   "@compatibility_analyzing": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing'."
   },
@@ -108,7 +108,7 @@
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
   },
-  "compatibility_duplicate_data_title": "已有的相容性資料",
+  "compatibility_duplicate_data_title": "已有的宮合資料",
   "@compatibility_duplicate_data_title": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
   },
@@ -128,11 +128,11 @@
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "计算新宮合",
+  "compatibility_new_compatibility": "查看新宮合",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_page_title": "相容性",
+  "compatibility_page_title": "宮合",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
@@ -152,7 +152,7 @@
   "@compatibility_share_hashtag": {
     "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
   },
-  "compatibility_share_message": "我的闪亮化学相容性与 {artistName} 的百分比是多少？?我的心在狂跳",
+  "compatibility_share_message": "我的闪亮化学宮合与 {artistName} 的百分比是多少？?我的心在狂跳",
   "@compatibility_share_message": {
     "placeholders": {
       "artistName": {
@@ -168,11 +168,11 @@
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "开始分析相容性。",
+  "compatibility_snackbar_start": "开始分析宮合。",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_style_title": "相容性样式",
+  "compatibility_style_title": "宮合样式",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
@@ -224,7 +224,7 @@
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_tips_title": "相容性提示",
+  "compatibility_tips_title": "宮合提示",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
   },
@@ -979,7 +979,7 @@
   "@post_minor_board_name_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_name_input'."
   },
-  "post_my_compatibilities": "我的相容性",
+  "post_my_compatibilities": "我的宮合",
   "@post_my_compatibilities": {
     "description": "Auto-generated metadata for key 'post_my_compatibilities'."
   },
@@ -1749,7 +1749,7 @@
   "@compatibility_perfect_score_exists_title": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "相同条件下的相容性資料已经存在。",
+  "compatibility_duplicate_data_message": "相同条件下的宮合資料已经存在。",
   "@compatibility_duplicate_data_message": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
@@ -1853,7 +1853,7 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "请注意，此条件的相容性資料已获得奖励，因此我们无法再颁发额外奖励。",
+  "compatibility_perfect_score_exists": "请注意，此条件的宮合資料已获得奖励，因此我们无法再颁发额外奖励。",
   "@compatibility_perfect_score_exists": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
   },

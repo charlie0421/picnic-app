@@ -105,7 +105,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get compatibility_idol_style => '아이돌 스타일';
 
   @override
-  String get compatibility_new_compatibility => '새 궁합 계산';
+  String get compatibility_new_compatibility => '새 궁합 보기';
 
   @override
   String get compatibility_page_title => '궁합';
@@ -992,6 +992,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get compatibility_empty_state_subtitle => '첫 번째 궁합을 만들어보세요!';
+
+  @override
+  String get compatibility_login_required_title => '로그인이 필요합니다';
+
+  @override
+  String get compatibility_login_required_subtitle => '궁합 결과를 보려면 로그인해주세요';
+
+  @override
+  String get compatibility_login_button => '로그인하기';
 
   @override
   String get network_error_title => '네트워크 오류';

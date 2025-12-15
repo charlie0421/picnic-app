@@ -139,6 +139,18 @@
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
   },
+  "compatibility_login_required_title": "로그인이 필요합니다",
+  "@compatibility_login_required_title": {
+    "description": "Title shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_required_subtitle": "궁합 결과를 보려면 로그인해주세요",
+  "@compatibility_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_button": "로그인하기",
+  "@compatibility_login_button": {
+    "description": "Login button text on compatibility page"
+  },
   "compatibility_gender": "성별",
   "@compatibility_gender": {
     "description": "Auto-generated metadata for key 'compatibility_gender'."
@@ -155,7 +167,7 @@
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "새 궁합 계산",
+  "compatibility_new_compatibility": "새 궁합 보기",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },

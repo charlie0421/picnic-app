@@ -83,11 +83,11 @@
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
   },
-  "compatibility_analyze_start": "Mulai analisis kompatibilitas",
+  "compatibility_analyze_start": "Mulai analisis Goong-Hap",
   "@compatibility_analyze_start": {
     "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
   },
-  "compatibility_analyzing": "Menganalisis kompatibilitas.",
+  "compatibility_analyzing": "Menganalisis Goong-Hap.",
   "@compatibility_analyzing": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing'."
   },
@@ -107,7 +107,7 @@
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
   },
-  "compatibility_duplicate_data_title": "Data kompatibilitas yang sudah ada",
+  "compatibility_duplicate_data_title": "Data Goong-Hap yang sudah ada",
   "@compatibility_duplicate_data_title": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
   },
@@ -127,11 +127,11 @@
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "Hitung Goong-Hap Baru",
+  "compatibility_new_compatibility": "Lihat Goong-Hap Baru",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_page_title": "Kompatibilitas",
+  "compatibility_page_title": "Goong-Hap",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
@@ -151,7 +151,7 @@
   "@compatibility_share_hashtag": {
     "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
   },
-  "compatibility_share_message": "Berapa persen kompatibilitas kimia bersinar saya dengan {artistName} ? Jantungku berdegup kencang!",
+  "compatibility_share_message": "Berapa persen Goong-Hap kimia bersinar saya dengan {artistName} ? Jantungku berdegup kencang!",
   "@compatibility_share_message": {
     "placeholders": {
       "artistName": {
@@ -167,11 +167,11 @@
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "Mulai menganalisis kompatibilitas.",
+  "compatibility_snackbar_start": "Mulai menganalisis Goong-Hap.",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_style_title": "Gaya kompatibilitas",
+  "compatibility_style_title": "Gaya Goong-Hap",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
@@ -223,7 +223,7 @@
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_tips_title": "Tips kompatibilitas",
+  "compatibility_tips_title": "Tips Goong-Hap",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
   },
@@ -978,7 +978,7 @@
   "@post_minor_board_name_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_name_input'."
   },
-  "post_my_compatibilities": "Kompatibilitas saya",
+  "post_my_compatibilities": "Goong-Hap saya",
   "@post_my_compatibilities": {
     "description": "Auto-generated metadata for key 'post_my_compatibilities'."
   },
@@ -1805,7 +1805,7 @@
   "@compatibility_perfect_score_exists_title": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "Data kompatibilitas dengan kondisi yang sama sudah ada.",
+  "compatibility_duplicate_data_message": "Data Goong-Hap dengan kondisi yang sama sudah ada.",
   "@compatibility_duplicate_data_message": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
@@ -1909,7 +1909,7 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "Harap diperhatikan bahwa data kompatibilitas untuk kondisi ini telah mendapatkan hadiah, sehingga kami tidak dapat memberikan hadiah tambahan.",
+  "compatibility_perfect_score_exists": "Harap diperhatikan bahwa data Goong-Hap untuk kondisi ini telah mendapatkan hadiah, sehingga kami tidak dapat memberikan hadiah tambahan.",
   "@compatibility_perfect_score_exists": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
   },

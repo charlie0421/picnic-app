@@ -84,11 +84,11 @@
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
   },
-  "compatibility_analyze_start": "เริ่มการวิเคราะห์ความเข้ากันได้",
+  "compatibility_analyze_start": "เริ่มการวิเคราะห์Goong-Hap",
   "@compatibility_analyze_start": {
     "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
   },
-  "compatibility_analyzing": "การวิเคราะห์ความเข้ากันได้",
+  "compatibility_analyzing": "การวิเคราะห์Goong-Hap",
   "@compatibility_analyzing": {
     "description": "Auto-generated metadata for key 'compatibility_analyzing'."
   },
@@ -108,7 +108,7 @@
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
   },
-  "compatibility_duplicate_data_title": "ข้อมูลความเข้ากันได้ที่มีอยู่แล้ว",
+  "compatibility_duplicate_data_title": "ข้อมูลGoong-Hapที่มีอยู่แล้ว",
   "@compatibility_duplicate_data_title": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
   },
@@ -128,11 +128,11 @@
   "@compatibility_idol_style": {
     "description": "Auto-generated metadata for key 'compatibility_idol_style'."
   },
-  "compatibility_new_compatibility": "คำนวณ GOONG-HAP ใหม่",
+  "compatibility_new_compatibility": "ดู Goong-Hap ใหม่",
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_page_title": "ความเข้ากันได้",
+  "compatibility_page_title": "Goong-Hap",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
@@ -152,7 +152,7 @@
   "@compatibility_share_hashtag": {
     "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
   },
-  "compatibility_share_message": "ความเข้ากันได้กับเคมีที่ส่องแสงของฉันกับ {artistName} หัวใจของฉันคือการแข่ง!",
+  "compatibility_share_message": "Goong-Hapกับเคมีที่ส่องแสงของฉันกับ {artistName} หัวใจของฉันคือการแข่ง!",
   "@compatibility_share_message": {
     "placeholders": {
       "artistName": {
@@ -168,11 +168,11 @@
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "เริ่มวิเคราะห์ความเข้ากันได้",
+  "compatibility_snackbar_start": "เริ่มวิเคราะห์Goong-Hap",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_style_title": "รูปแบบความเข้ากันได้",
+  "compatibility_style_title": "รูปแบบGoong-Hap",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
@@ -224,7 +224,7 @@
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_tips_title": "เคล็ดลับความเข้ากันได้",
+  "compatibility_tips_title": "เคล็ดลับGoong-Hap",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
   },
@@ -979,7 +979,7 @@
   "@post_minor_board_name_input": {
     "description": "Auto-generated metadata for key 'post_minor_board_name_input'."
   },
-  "post_my_compatibilities": "ความเข้ากันได้ของฉัน",
+  "post_my_compatibilities": "Goong-Hapของฉัน",
   "@post_my_compatibilities": {
     "description": "Auto-generated metadata for key 'post_my_compatibilities'."
   },
@@ -1311,11 +1311,11 @@
   "@ban_support_instruction": {
     "description": "Instruction to copy logs and contact support"
   },
-  "compatibility_empty_state_title": "ไม่มีข้อมูลความเข้ากันได้",
+  "compatibility_empty_state_title": "ไม่มีข้อมูลGoong-Hap",
   "@compatibility_empty_state_title": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "สร้างความเข้ากันได้แรกของคุณ!",
+  "compatibility_empty_state_subtitle": "สร้างGoong-Hapแรกของคุณ!",
   "@compatibility_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
   },
@@ -1749,7 +1749,7 @@
   "@compatibility_perfect_score_exists_title": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "ข้อมูลความเข้ากันได้กับเงื่อนไขเดียวกันมีอยู่แล้ว",
+  "compatibility_duplicate_data_message": "ข้อมูลGoong-Hapกับเงื่อนไขเดียวกันมีอยู่แล้ว",
   "@compatibility_duplicate_data_message": {
     "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
@@ -1853,7 +1853,7 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "โปรดทราบว่าข้อมูลความเข้ากันได้สำหรับเงื่อนไขนี้ได้รับรางวัลแล้วดังนั้นเราจึงไม่สามารถให้รางวัลเพิ่มเติมได้",
+  "compatibility_perfect_score_exists": "โปรดทราบว่าข้อมูลGoong-Hapสำหรับเงื่อนไขนี้ได้รับรางวัลแล้วดังนั้นเราจึงไม่สามารถให้รางวัลเพิ่มเติมได้",
   "@compatibility_perfect_score_exists": {
     "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
   },
