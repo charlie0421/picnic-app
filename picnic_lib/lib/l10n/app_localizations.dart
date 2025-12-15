@@ -2913,7 +2913,7 @@ abstract class AppLocalizations {
   /// **'🎖️ Weekly Vote Guide'**
   String get weekly_vote_info_title;
 
-  /// No description provided for @weekly_vote_info_body.
+  /// Weekly vote info popup body
   ///
   /// In en, this message translates to:
   /// **'Picnic\'s Hall of Fame Award opens every week!\n\nEach weekly winner is automatically nominated for the year-end \'Hall of Fame Award\',\n\nwith a total of 50 weekly winners selected annually.\n\n(※ Once an artist wins, they are excluded from weekly vote candidates for the rest of that year.)'**
