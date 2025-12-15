@@ -143,20 +143,54 @@ tasks.register('copyAABForShorebird') {
         def targetDir = file("${projectRoot}/build/app/outputs/bundle/release")
         def flutterFile = new File(targetDir, "app.aab")
         def shorebirdFile = new File(targetDir, "app-release.aab")
-        
+
         // 타겟 디렉토리 생성
         targetDir.mkdirs()
-        
+
         if (sourceFile.exists()) {
             // Flutter용 app.aab 파일 생성
             flutterFile.bytes = sourceFile.bytes
             println "✅ Created app.aab for Flutter: ${flutterFile.absolutePath}"
-            
+
             // Shorebird용 app-release.aab 파일 생성
             shorebirdFile.bytes = sourceFile.bytes
             println "✅ Created app-release.aab for Shorebird: ${shorebirdFile.absolutePath}"
         } else {
             println "⚠️ Source AAB file not found: ${sourceFile.absolutePath}"
+        }
+    }
+}
+
+// Shorebird가 stripped_native_libs를 찾을 수 있도록 심볼릭 링크 생성
+tasks.register('linkStrippedNativeLibsForShorebird') {
+    doLast {
+        def projectRoot = project.rootDir.parentFile
+        def sourceDir = file("$buildDir/intermediates/stripped_native_libs")
+        def targetDir = file("${projectRoot}/build/app/intermediates")
+        def targetLink = new File(targetDir, "stripped_native_libs")
+
+        // 타겟 디렉토리 생성
+        targetDir.mkdirs()
+
+        if (sourceDir.exists()) {
+            // 기존 링크/디렉토리 삭제
+            if (targetLink.exists()) {
+                if (java.nio.file.Files.isSymbolicLink(targetLink.toPath())) {
+                    targetLink.delete()
+                } else {
+                    // 일반 디렉토리인 경우 삭제
+                    targetLink.deleteDir()
+                }
+            }
+
+            // 심볼릭 링크 생성
+            java.nio.file.Files.createSymbolicLink(
+                targetLink.toPath(),
+                sourceDir.toPath()
+            )
+            println "✅ Created symlink for stripped_native_libs: ${targetLink.absolutePath} -> ${sourceDir.absolutePath}"
+        } else {
+            println "⚠️ Source stripped_native_libs not found: ${sourceDir.absolutePath}"
         }
     }
 }
@@ -192,7 +226,7 @@ tasks.register('copyAPKForFlutter') {
 
 // Flutter 빌드 완료 후 자동으로 파일명 복사 실행
 afterEvaluate {
-    tasks.findByName('bundleRelease')?.finalizedBy('copyAABForShorebird')
+    tasks.findByName('bundleRelease')?.finalizedBy('copyAABForShorebird', 'linkStrippedNativeLibsForShorebird')
     tasks.findByName('assembleDebug')?.finalizedBy('copyAPKForFlutter')
     tasks.findByName('assembleRelease')?.finalizedBy('copyAPKForFlutter')
 }
