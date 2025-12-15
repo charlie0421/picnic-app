@@ -61,7 +61,7 @@ class CompatibilityList extends _$CompatibilityList {
 
   Future<List<CompatibilityModel>> _getHistory({required int page}) async {
     final userId = supabase.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) return []; // 비로그인 시 빈 목록 반환
 
     final from = page * _pageSize;
     final to = from + _pageSize - 1;

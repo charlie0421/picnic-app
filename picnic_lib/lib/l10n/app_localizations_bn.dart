@@ -1031,14 +1031,14 @@ class AppLocalizationsBn extends AppLocalizations {
       'Create your first Goong-Hap!';
 
   @override
-  String get compatibility_login_required_title => 'Login required';
+  String get compatibility_login_required_title => 'লগইন প্রয়োজন';
 
   @override
   String get compatibility_login_required_subtitle =>
-      'Please log in to see your Goong-Hap results';
+      'আপনার সামঞ্জস্যের ফলাফল দেখতে লগইন করুন';
 
   @override
-  String get compatibility_login_button => 'Log in';
+  String get compatibility_login_button => 'লগইন';
 
   @override
   String get network_error_title => 'Network Error';
@@ -2656,6 +2656,16 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
       'আপনার প্রথম Goong-Hap তৈরি করুন!';
 
   @override
+  String get compatibility_login_required_title => 'লগইন প্রয়োজন';
+
+  @override
+  String get compatibility_login_required_subtitle =>
+      'আপনার সামঞ্জস্যের ফলাফল দেখতে লগইন করুন';
+
+  @override
+  String get compatibility_login_button => 'লগইন';
+
+  @override
   String get network_error_title => 'নেটওয়ার্ক ত্রুটি';
 
   @override
@@ -3142,6 +3152,9 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get weekly_vote_info_body =>
       'পিকনিকের Hall of Fame Award প্রতি সপ্তাহে অনুষ্ঠিত হয়!\n\nপ্রতি সপ্তাহের বিজয়ী বছরশেষের \'Hall of Fame Award\'-এর প্রার্থী হিসেবে স্বয়ংক্রিয়ভাবে নিবন্ধিত হয়,\n\nএবং বছরে মোট ৫০ জন সাপ্তাহিক বিজয়ী নির্বাচিত হয়।\n\n(※ একটি শিল্পী একবার জিতলে, সেই বছরে সাপ্তাহিক ভোটের প্রার্থী থেকে বাদ দেওয়া হয়।)';
+
+  @override
+  String get weekly_vote_info_link => 'সাপ্তাহিক ভোট কি?';
 
   @override
   String get label_setting_patch_section_title => 'Patch status';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -11,9 +12,11 @@ import 'package:picnic_lib/presentation/pages/community/compatibility_result_pag
 import 'package:picnic_lib/presentation/providers/community/compatibility_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'dart:async';
 
@@ -125,6 +128,63 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
     }
   }
 
+  // 비로그인 상태 UI
+  Widget _buildLoginRequiredState() {
+    final l10n = AppLocalizations.of(context);
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: AppColors.grey00.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(60),
+            ),
+            child: Icon(
+              Icons.lock_outline,
+              size: 60,
+              color: AppColors.grey00.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            l10n.compatibility_login_required_title,
+            style: getTextStyle(AppTypo.title18B, AppColors.grey00),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.compatibility_login_required_subtitle,
+            style: getTextStyle(
+                AppTypo.body14R, AppColors.grey00.withValues(alpha: 0.8)),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: showRequireLoginDialog,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.login, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.compatibility_login_button,
+                  style: getTextStyle(AppTypo.body16B, Colors.white),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // 불필요한 리빌드 방지를 위한 메서드 분리
   Widget _buildEmptyState() {
     return Center(
@@ -166,6 +226,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
 
   @override
   Widget build(BuildContext context) {
+    final isLoggedIn = supabase.auth.currentUser != null;
     final history =
         ref.watch(compatibilityListProvider(artistId: widget.artistId));
 
@@ -178,9 +239,11 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
             colors: [AppColors.primary500, AppColors.secondary500],
           ),
         ),
-        child: history.items.isEmpty && !history.isLoading
-            ? _buildEmptyState()
-            : Stack(
+        child: !isLoggedIn
+            ? _buildLoginRequiredState()
+            : history.items.isEmpty && !history.isLoading
+                ? _buildEmptyState()
+                : Stack(
                 children: [
                   ListView.builder(
                     controller: _scrollController,
@@ -226,18 +289,41 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 제목: Goong-Hap (웹과 동일)
-          Text(
-            'Goong-Hap',
-            style: getTextStyle(AppTypo.title18B, AppColors.grey00),
+          // 한자 + 제목 Row
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 한자 宮合 텍스트
+              Text(
+                '宮合',
+                style: TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.grey00.withValues(alpha: 0.9),
+                  height: 1.0,
+                ),
+              ),
+              const SizedBox(width: 16),
+              // 제목과 설명
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Goong-Hap',
+                      style: getTextStyle(AppTypo.title18B, AppColors.grey00),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      l10n.compatibility_page_title,
+                      style: getTextStyle(AppTypo.body14R, AppColors.grey00.withValues(alpha: 0.8)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          // 설명: compatibility_page_title 번역
-          Text(
-            l10n.compatibility_page_title,
-            style: getTextStyle(AppTypo.body14R, AppColors.grey00.withValues(alpha: 0.8)),
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           // 새 궁합 계산하기 버튼 (웹처럼 상단에 배치)
           Container(
             decoration: BoxDecoration(

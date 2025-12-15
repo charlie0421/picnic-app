@@ -1510,6 +1510,18 @@
   "@compatibility_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
   },
+  "compatibility_login_required_title": "ログインが必要です",
+  "@compatibility_login_required_title": {
+    "description": "Title shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_required_subtitle": "相性結果を見るにはログインしてください",
+  "@compatibility_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_button": "ログイン",
+  "@compatibility_login_button": {
+    "description": "Login button text on compatibility page"
+  },
   "network_error_title": "Network Error",
   "@network_error_title": {
     "description": "Auto-generated metadata for key 'network_error_title'."
@@ -2090,5 +2102,29 @@
   "vote_item_request_search_try_other_keyword": "別のキーワードで検索してみてください",
   "@vote_item_request_search_try_other_keyword": {
     "description": "Suggestion text when no search results are found"
+  },
+  "qna_category_label": "カテゴリー",
+  "@qna_category_label": {
+    "description": "QnA category label"
+  },
+  "qna_category_required": "カテゴリーを選択してください",
+  "@qna_category_required": {
+    "description": "Error message when category is required"
+  },
+  "ad_close_confirm_title": "広告を閉じますか？",
+  "@ad_close_confirm_title": {
+    "description": "Title for closing ad confirmation dialog"
+  },
+  "ad_close_confirm_message": "今閉じるとボーナスが受け取れません。本当に閉じますか？",
+  "@ad_close_confirm_message": {
+    "description": "Message for closing ad confirmation dialog"
+  },
+  "ad_more_info_button": "詳細を見る",
+  "@ad_more_info_button": {
+    "description": "CTA button after ad finished"
+  },
+  "weekly_vote_info_link": "ウィークリー投票とは？",
+  "@weekly_vote_info_link": {
+    "description": "Link label asking what weekly voting is"
   }
 }

@@ -1318,6 +1318,18 @@
   "@compatibility_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
   },
+  "compatibility_login_required_title": "Kinakailangan ang pag-login",
+  "@compatibility_login_required_title": {
+    "description": "Title shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_required_subtitle": "Mangyaring mag-login upang makita ang iyong mga resulta ng compatibility",
+  "@compatibility_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_button": "Mag-login",
+  "@compatibility_login_button": {
+    "description": "Login button text on compatibility page"
+  },
   "network_error_title": "Error sa network",
   "@network_error_title": {
     "description": "Auto-generated metadata for key 'network_error_title'."

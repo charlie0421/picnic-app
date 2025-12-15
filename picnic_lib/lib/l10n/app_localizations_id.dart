@@ -1036,14 +1036,14 @@ class AppLocalizationsId extends AppLocalizations {
       'Create your first compatibility!';
 
   @override
-  String get compatibility_login_required_title => 'Login required';
+  String get compatibility_login_required_title => 'Diperlukan login';
 
   @override
   String get compatibility_login_required_subtitle =>
-      'Please log in to see your Goong-Hap results';
+      'Silakan masuk untuk melihat hasil kecocokan Anda';
 
   @override
-  String get compatibility_login_button => 'Log in';
+  String get compatibility_login_button => 'Masuk';
 
   @override
   String get network_error_title => 'Network Error';

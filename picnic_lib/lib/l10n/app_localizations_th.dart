@@ -1024,14 +1024,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get compatibility_empty_state_subtitle => 'สร้างGoong-Hapแรกของคุณ!';
 
   @override
-  String get compatibility_login_required_title => 'Login required';
+  String get compatibility_login_required_title => 'ต้องเข้าสู่ระบบ';
 
   @override
   String get compatibility_login_required_subtitle =>
-      'Please log in to see your Goong-Hap results';
+      'กรุณาเข้าสู่ระบบเพื่อดูผลความเข้ากัน';
 
   @override
-  String get compatibility_login_button => 'Log in';
+  String get compatibility_login_button => 'เข้าสู่ระบบ';
 
   @override
   String get network_error_title => 'ข้อผิดพลาดเครือข่าย';
@@ -1513,7 +1513,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'Hall of Fame Award ของ Picnic จัดขึ้นทุกสัปดาห์!\n\nผู้ชนะประจำสัปดาห์จะถูกบันทึกเป็นผู้ท้าชิง \'Hall of Fame Award\' ประจำปลายปีโดยอัตโนมัติ\n\nโดยจะคัดเลือกผู้ชนะรายสัปดาห์ทั้งหมด 50 คนต่อปี\n\n(※ เมื่อศิลปินชนะแล้ว จะถูกถอดจากผู้เข้าชิงโหวตรายสัปดาห์ในปีนั้น)';
 
   @override
-  String get weekly_vote_info_link => 'What is Weekly Vote?';
+  String get weekly_vote_info_link => 'Weekly Vote คืออะไร?';
 
   @override
   String get label_setting_patch_section_title => 'Patch status';

@@ -1052,14 +1052,15 @@ class AppLocalizationsFil extends AppLocalizations {
       'Lumikha ng iyong unang Goong-Hap!';
 
   @override
-  String get compatibility_login_required_title => 'Login required';
+  String get compatibility_login_required_title =>
+      'Kinakailangan ang pag-login';
 
   @override
   String get compatibility_login_required_subtitle =>
-      'Please log in to see your Goong-Hap results';
+      'Mangyaring mag-login upang makita ang iyong mga resulta ng compatibility';
 
   @override
-  String get compatibility_login_button => 'Log in';
+  String get compatibility_login_button => 'Mag-login';
 
   @override
   String get network_error_title => 'Error sa network';

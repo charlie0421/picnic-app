@@ -1319,6 +1319,18 @@
   "@compatibility_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
   },
+  "compatibility_login_required_title": "লগইন প্রয়োজন",
+  "@compatibility_login_required_title": {
+    "description": "Title shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_required_subtitle": "আপনার সামঞ্জস্যের ফলাফল দেখতে লগইন করুন",
+  "@compatibility_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_button": "লগইন",
+  "@compatibility_login_button": {
+    "description": "Login button text on compatibility page"
+  },
   "network_error_title": "নেটওয়ার্ক ত্রুটি",
   "@network_error_title": {
     "description": "Auto-generated metadata for key 'network_error_title'."
@@ -2054,5 +2066,9 @@
   "vote_item_request_search_try_other_keyword": "অন্য কীওয়ার্ড দিয়ে অনুসন্ধান করে দেখুন",
   "@vote_item_request_search_try_other_keyword": {
     "description": "Suggestion text when no search results are found"
+  },
+  "weekly_vote_info_link": "সাপ্তাহিক ভোট কি?",
+  "@weekly_vote_info_link": {
+    "description": "Link label asking what weekly voting is"
   }
 }

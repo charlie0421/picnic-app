@@ -1031,14 +1031,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'Create your first Goong-Hap!';
 
   @override
-  String get compatibility_login_required_title => 'Login required';
+  String get compatibility_login_required_title => '需要登录';
 
   @override
-  String get compatibility_login_required_subtitle =>
-      'Please log in to see your Goong-Hap results';
+  String get compatibility_login_required_subtitle => '请登录查看您的配对结果';
 
   @override
-  String get compatibility_login_button => 'Log in';
+  String get compatibility_login_button => '登录';
 
   @override
   String get network_error_title => 'Network Error';
@@ -2614,6 +2613,15 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
       'Create your first compatibility!';
 
   @override
+  String get compatibility_login_required_title => '需要登录';
+
+  @override
+  String get compatibility_login_required_subtitle => '请登录查看您的配对结果';
+
+  @override
+  String get compatibility_login_button => '登录';
+
+  @override
   String get network_error_title => 'Network Error';
 
   @override
@@ -3075,6 +3083,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   @override
   String get weekly_vote_info_body =>
       'Picnic 的 Hall of Fame Award 每周开启！\n\n每周的获胜艺人将自动登记为年末 \'Hall of Fame Award\' 的候选人，\n\n全年共评选出50名每周优胜者。\n\n（※ 已获胜的艺人在当年将不再作为每周投票候选人。）';
+
+  @override
+  String get weekly_vote_info_link => '什么是周投票?';
 
   @override
   String get label_setting_patch_section_title => 'Patch status';
@@ -4158,6 +4169,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
       'Create your first compatibility!';
 
   @override
+  String get compatibility_login_required_title => '需要登入';
+
+  @override
+  String get compatibility_login_required_subtitle => '請登入查看您的配對結果';
+
+  @override
+  String get compatibility_login_button => '登入';
+
+  @override
   String get network_error_title => 'Network Error';
 
   @override
@@ -4619,6 +4639,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get weekly_vote_info_body =>
       'Picnic 的 Hall of Fame Award 每週開啟！\n\n每週的優勝藝人將自動登錄為年末 \'Hall of Fame Award\' 候選人，\n\n全年共選出50位每週優勝者。\n\n（※ 一旦藝人獲勝，該年度將不再列入每週投票候選。）';
+
+  @override
+  String get weekly_vote_info_link => '什麼是週投票?';
 
   @override
   String get label_setting_patch_section_title => 'Patch status';

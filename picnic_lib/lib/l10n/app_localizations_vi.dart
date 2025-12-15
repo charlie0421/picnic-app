@@ -1036,14 +1036,14 @@ class AppLocalizationsVi extends AppLocalizations {
       'Tạo Goong-Hap đầu tiên của bạn!';
 
   @override
-  String get compatibility_login_required_title => 'Login required';
+  String get compatibility_login_required_title => 'Cần đăng nhập';
 
   @override
   String get compatibility_login_required_subtitle =>
-      'Please log in to see your Goong-Hap results';
+      'Vui lòng đăng nhập để xem kết quả tương hợp';
 
   @override
-  String get compatibility_login_button => 'Log in';
+  String get compatibility_login_button => 'Đăng nhập';
 
   @override
   String get network_error_title => 'Lỗi mạng';
@@ -1534,7 +1534,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Hall of Fame Award của Picnic mở ra mỗi tuần!\n\nMỗi nghệ sĩ chiến thắng hàng tuần sẽ tự động được đề cử vào \'Hall of Fame Award\' cuối năm,\n\nvới tổng cộng 50 người chiến thắng hàng tuần được chọn mỗi năm.\n\n(※ Một khi nghệ sĩ đã chiến thắng, họ sẽ bị loại khỏi danh sách đề cử bầu chọn hàng tuần trong năm đó.)';
 
   @override
-  String get weekly_vote_info_link => 'What is Weekly Vote?';
+  String get weekly_vote_info_link => 'Weekly Vote là gì?';
 
   @override
   String get label_setting_patch_section_title => 'Patch status';

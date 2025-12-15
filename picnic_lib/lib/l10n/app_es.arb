@@ -1319,6 +1319,18 @@
   "@compatibility_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
   },
+  "compatibility_login_required_title": "Inicio de sesión requerido",
+  "@compatibility_login_required_title": {
+    "description": "Title shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_required_subtitle": "Por favor inicia sesión para ver tus resultados de compatibilidad",
+  "@compatibility_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_button": "Iniciar sesión",
+  "@compatibility_login_button": {
+    "description": "Login button text on compatibility page"
+  },
   "network_error_title": "Error de red",
   "@network_error_title": {
     "description": "Auto-generated metadata for key 'network_error_title'."

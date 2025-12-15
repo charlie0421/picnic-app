@@ -997,14 +997,13 @@ class AppLocalizationsJa extends AppLocalizations {
       'Create your first compatibility!';
 
   @override
-  String get compatibility_login_required_title => 'Login required';
+  String get compatibility_login_required_title => 'ログインが必要です';
 
   @override
-  String get compatibility_login_required_subtitle =>
-      'Please log in to see your Goong-Hap results';
+  String get compatibility_login_required_subtitle => '相性結果を見るにはログインしてください';
 
   @override
-  String get compatibility_login_button => 'Log in';
+  String get compatibility_login_button => 'ログイン';
 
   @override
   String get network_error_title => 'Network Error';
@@ -1129,10 +1128,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_load_fail_title => 'お問い合わせの読み込みに失敗しました';
 
   @override
-  String get qna_category_label => 'Category';
+  String get qna_category_label => 'カテゴリー';
 
   @override
-  String get qna_category_required => 'Please select a category';
+  String get qna_category_required => 'カテゴリーを選択してください';
 
   @override
   String get qna_message_hint => 'メッセージを入力';
@@ -1450,14 +1449,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_status_resolved => '解決済み';
 
   @override
-  String get ad_close_confirm_title => 'Close the ad?';
+  String get ad_close_confirm_title => '広告を閉じますか？';
 
   @override
-  String get ad_close_confirm_message =>
-      'Closing now will not grant the bonus reward. Are you sure you want to close?';
+  String get ad_close_confirm_message => '今閉じるとボーナスが受け取れません。本当に閉じますか？';
 
   @override
-  String get ad_more_info_button => 'More Info';
+  String get ad_more_info_button => '詳細を見る';
 
   @override
   String get ad_reward_success_message => '報酬が付与されました。';
@@ -1470,7 +1468,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '毎週開催されるピクニックの Hall of Fame Award!\n\n毎週の優勝アーティストは年末の \'Hall of Fame Award\' 候補に自動登録され、\n\n年間合計50名のウィークリー優勝者が選出されます。\n\n（※一度優勝したアーティストは、その年のウィークリー投票候補から除外されます。）';
 
   @override
-  String get weekly_vote_info_link => 'What is Weekly Vote?';
+  String get weekly_vote_info_link => 'ウィークリー投票とは？';
 
   @override
   String get label_setting_patch_section_title => 'Patch status';

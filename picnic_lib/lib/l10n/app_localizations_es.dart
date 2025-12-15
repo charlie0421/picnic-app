@@ -1050,14 +1050,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String get compatibility_empty_state_subtitle => '¡Crea tu primer Goong-Hap!';
 
   @override
-  String get compatibility_login_required_title => 'Login required';
+  String get compatibility_login_required_title => 'Inicio de sesión requerido';
 
   @override
   String get compatibility_login_required_subtitle =>
-      'Please log in to see your Goong-Hap results';
+      'Por favor inicia sesión para ver tus resultados de compatibilidad';
 
   @override
-  String get compatibility_login_button => 'Log in';
+  String get compatibility_login_button => 'Iniciar sesión';
 
   @override
   String get network_error_title => 'Error de red';
