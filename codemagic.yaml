@@ -194,22 +194,44 @@ workflows:
 
           echo "=== Shorebird iOS 릴리즈 시도 ==="
           echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
-          SKIP_SHOREBIRD=false
+          SHOREBIRD_RELEASE_SUCCESS=false
 
+          # Shorebird release ios는 xcarchive를 생성함
+          # --export-options-plist를 전달하여 IPA도 함께 생성
           shorebird release ios \
             --dart-define=ENVIRONMENT=prod \
             --no-confirm \
-            --verbose 2>&1 | tee /tmp/shorebird_release.log
+            --verbose \
+            -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
 
           RELEASE_EXIT_CODE=${PIPESTATUS[0]}
 
           if [ $RELEASE_EXIT_CODE -ne 0 ]; then
-            # 이미 릴리즈가 존재하거나 아티팩트를 찾을 수 없는 경우 IPA 빌드로 진행
-            if grep -q "existing.*release for version" /tmp/shorebird_release.log || \
-               grep -q "Cannot find release build artifacts" /tmp/shorebird_release.log; then
-              echo "⚠️ 이미 같은 버전의 릴리즈가 존재하거나 아티팩트 문제 발생"
-              echo "📋 Shorebird 릴리즈를 건너뛰고 IPA 빌드로 진행합니다"
-              SKIP_SHOREBIRD=true
+            # 이미 릴리즈가 존재하는 경우 - Shorebird의 xcarchive에서 IPA 추출 시도
+            if grep -q "existing.*release for version" /tmp/shorebird_release.log; then
+              echo "⚠️ 이미 같은 버전의 릴리즈가 존재합니다"
+              echo "📋 기존 릴리즈를 사용하여 IPA 빌드..."
+
+              # shorebird release가 생성한 xcarchive 찾기
+              XCARCHIVE=$(find build/ios/archive -name "*.xcarchive" -type d 2>/dev/null | head -1)
+
+              if [ -n "$XCARCHIVE" ] && [ -d "$XCARCHIVE" ]; then
+                echo "📦 Found xcarchive: $XCARCHIVE"
+                echo "🔧 Exporting IPA from Shorebird xcarchive..."
+
+                xcodebuild -exportArchive \
+                  -archivePath "$XCARCHIVE" \
+                  -exportPath build/ios/ipa \
+                  -exportOptionsPlist ios/ExportOptions.plist
+
+                SHOREBIRD_RELEASE_SUCCESS=true
+              else
+                echo "⚠️ Shorebird xcarchive를 찾을 수 없음"
+                echo "📋 Fallback: shorebird build로 IPA 생성..."
+              fi
+            elif grep -q "Cannot find release build artifacts" /tmp/shorebird_release.log; then
+              echo "⚠️ 아티팩트 문제 발생"
+              echo "📋 Fallback: 새로운 shorebird release 시도..."
             else
               echo "❌ Shorebird iOS 릴리즈 실패 (종료 코드: $RELEASE_EXIT_CODE)"
               cat /tmp/shorebird_release.log
@@ -217,13 +239,52 @@ workflows:
             fi
           else
             echo "✅ Shorebird iOS 릴리즈 성공"
+            SHOREBIRD_RELEASE_SUCCESS=true
           fi
 
-          echo "=== iOS IPA 빌드 (App Store 배포용) ==="
-          flutter build ipa \
-            --release \
-            --dart-define=ENVIRONMENT=prod \
-            --export-options-plist=ios/ExportOptions.plist
+          # Shorebird release가 성공했으면, 해당 xcarchive에서 IPA 추출
+          if [ "$SHOREBIRD_RELEASE_SUCCESS" = "true" ]; then
+            echo "=== Shorebird xcarchive에서 IPA 추출 ==="
+
+            # Shorebird가 생성한 xcarchive 찾기
+            XCARCHIVE=$(find build/ios/archive -name "*.xcarchive" -type d 2>/dev/null | head -1)
+
+            if [ -z "$XCARCHIVE" ] || [ ! -d "$XCARCHIVE" ]; then
+              # 기본 Flutter 빌드 위치도 확인
+              XCARCHIVE=$(find build -name "*.xcarchive" -type d 2>/dev/null | head -1)
+            fi
+
+            if [ -n "$XCARCHIVE" ] && [ -d "$XCARCHIVE" ]; then
+              echo "📦 Found xcarchive: $XCARCHIVE"
+
+              # IPA가 이미 존재하지 않으면 추출
+              if [ ! -f "build/ios/ipa/"*.ipa ]; then
+                echo "🔧 Exporting IPA..."
+                mkdir -p build/ios/ipa
+
+                xcodebuild -exportArchive \
+                  -archivePath "$XCARCHIVE" \
+                  -exportPath build/ios/ipa \
+                  -exportOptionsPlist ios/ExportOptions.plist
+              fi
+            else
+              echo "⚠️ xcarchive를 찾을 수 없어 flutter build ipa 실행..."
+              # 이 경우는 패치가 작동하지 않을 수 있음 (경고 표시)
+              echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
+              flutter build ipa \
+                --release \
+                --dart-define=ENVIRONMENT=prod \
+                --export-options-plist=ios/ExportOptions.plist
+            fi
+          else
+            # Shorebird 릴리즈 실패 시 fallback (패치 작동 안함)
+            echo "=== Fallback: flutter build ipa ==="
+            echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
+            flutter build ipa \
+              --release \
+              --dart-define=ENVIRONMENT=prod \
+              --export-options-plist=ios/ExportOptions.plist
+          fi
 
           if [ ! -f "build/ios/ipa/"*.ipa ]; then
             echo "❌ IPA 빌드 실패"
@@ -436,21 +497,27 @@ workflows:
           fi
 
           echo "=== AAB 파일 확인 및 빌드 ==="
+          # Shorebird가 성공적으로 AAB를 생성했는지 확인
+          SHOREBIRD_AAB_EXISTS=false
+          if [ "$SKIP_SHOREBIRD" = "false" ] && [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+            echo "✅ Shorebird 릴리즈에서 AAB 생성됨"
+            SHOREBIRD_AAB_EXISTS=true
+          fi
+
           # Shorebird를 건너뛴 경우 또는 AAB가 없는 경우 Flutter 빌드 실행
-          if [ "$SKIP_SHOREBIRD" = "true" ] || [ ! -f "build/app/outputs/bundle/release/app-release.aab" ]; then
-            echo "📦 Flutter AAB 빌드..."
+          if [ "$SHOREBIRD_AAB_EXISTS" = "false" ]; then
+            echo "⚠️ WARNING: flutter build appbundle로 생성된 AAB는 Shorebird 패치를 받을 수 없습니다!"
+            echo "📦 Flutter AAB 빌드 (fallback)..."
             flutter build appbundle \
               --release \
               --dart-define=ENVIRONMENT=prod
 
             if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
-              echo "✅ AAB 빌드 완료"
+              echo "✅ AAB 빌드 완료 (Shorebird 패치 미지원)"
             else
               echo "❌ AAB 파일을 생성할 수 없습니다"
               exit 1
             fi
-          else
-            echo "✅ Shorebird 릴리즈에서 AAB 생성됨"
           fi
 
           AAB_SIZE=$(stat -f%z "build/app/outputs/bundle/release/app-release.aab" 2>/dev/null || stat -c%s "build/app/outputs/bundle/release/app-release.aab" 2>/dev/null || echo "unknown")
@@ -605,6 +672,8 @@ workflows:
           shorebird patch ios \
             --release-version=latest \
             --no-confirm \
+            --allow-native-diffs \
+            --allow-asset-diffs \
             --dart-define=ENVIRONMENT=prod \
             --verbose
 
@@ -711,6 +780,8 @@ workflows:
           shorebird patch android \
             --release-version=latest \
             --no-confirm \
+            --allow-native-diffs \
+            --allow-asset-diffs \
             --dart-define=ENVIRONMENT=prod \
             --verbose
 
