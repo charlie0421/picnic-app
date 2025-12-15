@@ -668,6 +668,7 @@ workflows:
 
           # 4. iOS 패치 생성 및 배포
           echo "🚀 iOS 패치 생성 중..."
+          echo "💡 패치는 Dart 코드만 업데이트하므로 코드 서명이 불필요합니다"
 
           shorebird patch ios \
             --release-version=latest \
@@ -675,7 +676,8 @@ workflows:
             --allow-native-diffs \
             --allow-asset-diffs \
             --dart-define=ENVIRONMENT=prod \
-            --verbose
+            --verbose \
+            -- --no-codesign
 
           PATCH_EXIT_CODE=$?
 
