@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -47,9 +46,11 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    Future.microtask(() => ref
-        .read(compatibilityListProvider(artistId: widget.artistId).notifier)
-        .loadInitial());
+    Future.microtask(
+      () => ref
+          .read(compatibilityListProvider(artistId: widget.artistId).notifier)
+          .loadInitial(),
+    );
 
     _updateNavigation();
   }
@@ -92,14 +93,16 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
     final currentArtist = ref.read(communityStateInfoProvider).currentArtist;
     if (currentArtist != null) {
       // 현재 선택된 아티스트가 있으면 바로 입력 페이지로 이동
-      ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setCommunityCurrentPage(
             CompatibilityInputPage(artist: currentArtist),
           );
     } else {
       // 아티스트가 없으면 아티스트 선택 페이지로 이동
-      ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
-            const CompatibilityArtistSelectPage(),
-          );
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setCommunityCurrentPage(const CompatibilityArtistSelectPage());
     }
   }
 
@@ -118,11 +121,15 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
 
     // 페이지 이동
     if (item.status == CompatibilityStatus.completed && item.isAds == true) {
-      ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setCommunityCurrentPage(
             CompatibilityResultPage(compatibility: item),
           );
     } else {
-      ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setCommunityCurrentPage(
             CompatibilityLoadingPage(compatibility: item),
           );
     }
@@ -158,7 +165,9 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
           Text(
             l10n.compatibility_login_required_subtitle,
             style: getTextStyle(
-                AppTypo.body14R, AppColors.grey00.withValues(alpha: 0.8)),
+              AppTypo.body14R,
+              AppColors.grey00.withValues(alpha: 0.8),
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
@@ -214,7 +223,9 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
           Text(
             AppLocalizations.of(context).compatibility_empty_state_subtitle,
             style: getTextStyle(
-                AppTypo.body14R, AppColors.grey00.withValues(alpha: 0.8)),
+              AppTypo.body14R,
+              AppColors.grey00.withValues(alpha: 0.8),
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
@@ -227,8 +238,9 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
   @override
   Widget build(BuildContext context) {
     final isLoggedIn = supabase.auth.currentUser != null;
-    final history =
-        ref.watch(compatibilityListProvider(artistId: widget.artistId));
+    final history = ref.watch(
+      compatibilityListProvider(artistId: widget.artistId),
+    );
 
     return Scaffold(
       body: Container(
@@ -242,8 +254,8 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
         child: !isLoggedIn
             ? _buildLoginRequiredState()
             : history.items.isEmpty && !history.isLoading
-                ? _buildEmptyState()
-                : Stack(
+            ? _buildEmptyState()
+            : Stack(
                 children: [
                   ListView.builder(
                     controller: _scrollController,
@@ -316,7 +328,10 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
                     const SizedBox(height: 4),
                     Text(
                       l10n.compatibility_page_title,
-                      style: getTextStyle(AppTypo.body14R, AppColors.grey00.withValues(alpha: 0.8)),
+                      style: getTextStyle(
+                        AppTypo.body14R,
+                        AppColors.grey00.withValues(alpha: 0.8),
+                      ),
                     ),
                   ],
                 ),
@@ -338,7 +353,10 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
             child: ElevatedButton(
               onPressed: _onNewCompatibilityTap,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 backgroundColor: AppColors.primary500,
                 foregroundColor: Colors.white,
               ),
@@ -383,12 +401,15 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
   void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          topRightMenu: TopRightType.board,
-          showBottomNavigation: false,
-          pageTitle: AppLocalizations.of(context).compatibility_page_title);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            topRightMenu: TopRightType.board,
+            showBottomNavigation: false,
+            pageTitle: AppLocalizations.of(context).compatibility_page_title,
+          );
     });
   }
 }

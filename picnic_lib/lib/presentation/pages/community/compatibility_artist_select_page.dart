@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
@@ -12,7 +13,6 @@ import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_input_page.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/providers/my_page/vote_artist_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -90,12 +90,15 @@ class _CompatibilityArtistSelectPageState
           ref.read(compatibilityArtistSearchQueryProvider);
       logger.d('Fetching page $pageKey with query: "$searchQuery"');
 
-      final newItems =
-          await ref.read(asyncVoteArtistListProvider.notifier).fetchArtists(
-                page: pageKey,
-                query: searchQuery,
-                language: Localizations.localeOf(context).languageCode,
-              );
+      // SearchService를 직접 호출하여 provider dispose 문제 회피
+      final language = Localizations.localeOf(context).languageCode;
+      final newItems = await SearchService.searchArtists(
+        query: searchQuery,
+        page: pageKey,
+        limit: _pageSize,
+        language: language,
+        supportKoreanInitials: true,
+      );
 
       logger.d('Received ${newItems.length} items for page $pageKey');
       return newItems;

@@ -105,6 +105,12 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
         supportKoreanInitials: true, // 한국어 초성 검색 활성화
       );
 
+      // 비동기 작업 후 provider가 dispose되었는지 확인
+      if (!ref.mounted) {
+        logger.d('🔥🔥🔥 [VoteArtistListProvider] Provider disposed after search, returning empty list');
+        return [];
+      }
+
       logger.d(
           '🔥🔥🔥 [VoteArtistListProvider] 서버 응답 받음 - 아이템 수: ${searchResponse.length}');
       logger.i(
@@ -119,6 +125,12 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
       // 북마크된 아티스트 목록 가져오기
       final bookmarkedArtists =
           await ref.read(asyncBookmarkedArtistsProvider.future);
+
+      // 북마크 조회 후 다시 mounted 확인
+      if (!ref.mounted) {
+        logger.d('🔥🔥🔥 [VoteArtistListProvider] Provider disposed after bookmark fetch, returning search results only');
+        return searchResponse;
+      }
       final bookmarkedArtistIds = bookmarkedArtists.map((a) => a.id).toSet();
       logger.d(
           '🔥🔥🔥 [VoteArtistListProvider] 북마크된 아티스트 수: ${bookmarkedArtistIds.length}');
