@@ -700,7 +700,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
         // 짧은 지연 후 재시작 실행
         await Future.delayed(const Duration(milliseconds: 300));
         if (mounted && context.mounted) {
-          Phoenix.rebirth(context);
+          await ShorebirdUtils.restartAppForPatch();
         }
       } catch (e) {
         logger.e('수동 재시작 실행 중 오류: $e');
@@ -781,11 +781,9 @@ class _SettingPageState extends ConsumerState<SettingPage>
       barrierDismissible: false,
       barrierColor: Colors.black54,
       builder: (dialogContext) => _AutoRestartDialog(
-        onComplete: () {
-          // navigatorKey를 사용하여 더 안정적으로 재시작
-          // rebirth가 앱을 완전히 재시작하므로 다이얼로그를 수동으로 닫을 필요 없음
-          final ctx = navigatorKey.currentContext ?? context;
-          Phoenix.rebirth(ctx);
+        onComplete: () async {
+          // 네이티브 재시작으로 앱 프로세스를 완전히 재시작
+          await ShorebirdUtils.restartAppForPatch();
         },
       ),
     );
@@ -832,8 +830,8 @@ class _SettingPageState extends ConsumerState<SettingPage>
               l10n.message_setting_patch_restart_hint,
               context: context,
               actionLabel: l10n.button_restart,
-              onAction: () {
-                Phoenix.rebirth(context);
+              onAction: () async {
+                await ShorebirdUtils.restartAppForPatch();
               },
             );
             break;

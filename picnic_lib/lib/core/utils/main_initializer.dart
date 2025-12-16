@@ -13,6 +13,7 @@ import 'package:picnic_lib/core/utils/logging_observer.dart';
 import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
 
 import 'package:picnic_lib/core/utils/supabase_health_check.dart';
+import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -107,6 +108,11 @@ class MainInitializer {
           // AdMob 초기화 (모바일 전용)
           if (UniversalPlatform.isMobile) {
             await _initializeAdMob();
+          }
+
+          // Shorebird 패치 체크 및 자동 재시작 (모바일 전용)
+          if (UniversalPlatform.isMobile) {
+            await ShorebirdUtils.checkAndRestartOnLaunch();
           }
 
           logger.i('앱 시작 중...');

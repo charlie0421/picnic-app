@@ -40,6 +40,7 @@ dependencies:
     network_info_plus: ^7.0.0
     # firebase_crashlytics: ^5.0.0
     shorebird_code_push: ^2.0.3
+    restart_app: ^1.2.1
     stack_trace: ^1.11.1
     flutter_native_splash: ^2.4.6
     flutter_phoenix: ^1.1.1

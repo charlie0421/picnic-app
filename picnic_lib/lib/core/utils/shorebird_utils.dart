@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 import 'package:universal_platform/universal_platform.dart';
 
@@ -113,6 +114,64 @@ class ShorebirdUtils {
         PatchStatusError.generic,
         message: e.toString(),
       );
+    }
+  }
+
+  /// 네이티브 앱 재시작 (Shorebird 패치 적용을 위해)
+  /// iOS/Android에서 앱 프로세스를 완전히 재시작합니다.
+  static Future<void> restartAppForPatch() async {
+    if (UniversalPlatform.isWeb) {
+      logger.w('웹에서는 네이티브 재시작을 지원하지 않습니다');
+      return;
+    }
+
+    try {
+      logger.i('🔄 패치 적용을 위한 네이티브 앱 재시작 시작');
+      await Restart.restartApp();
+    } catch (e, stackTrace) {
+      logger.e('❌ 네이티브 앱 재시작 실패: $e', stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  /// 앱 시작시 패치 체크 및 자동 재시작
+  /// 패치가 다운로드되어 대기 중이면 자동으로 앱을 재시작합니다.
+  static Future<void> checkAndRestartOnLaunch() async {
+    if (UniversalPlatform.isWeb) {
+      logger.i('웹에서는 Shorebird 패치를 지원하지 않습니다');
+      return;
+    }
+
+    try {
+      logger.i('🚀 앱 시작시 Shorebird 패치 상태 확인');
+
+      // 먼저 대기 중인 패치가 있는지 확인
+      final status = await updater.checkForUpdate();
+      logger.i('📊 Shorebird 상태: $status');
+
+      if (status == shorebird.UpdateStatus.restartRequired) {
+        // 이미 패치가 다운로드되어 재시작만 필요한 경우
+        logger.i('🔄 대기 중인 패치 발견 - 자동 재시작 실행');
+        await Future.delayed(const Duration(milliseconds: 500));
+        await restartAppForPatch();
+        return;
+      }
+
+      if (status == shorebird.UpdateStatus.outdated) {
+        // 새 패치가 있는 경우 다운로드 후 재시작
+        logger.i('🆕 새 패치 발견 - 다운로드 시작');
+        await updater.update();
+        logger.i('✅ 패치 다운로드 완료 - 자동 재시작 실행');
+        await Future.delayed(const Duration(milliseconds: 500));
+        await restartAppForPatch();
+        return;
+      }
+
+      logger.i('✅ 패치 없음 또는 최신 상태');
+    } catch (e, stackTrace) {
+      logger.e('❌ 앱 시작시 패치 확인 실패 (앱은 계속 실행됨): $e',
+          stackTrace: stackTrace);
+      // 패치 확인 실패해도 앱은 계속 실행되도록 함
     }
   }
 }
