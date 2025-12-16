@@ -147,50 +147,41 @@ class AppLocalizationsEs extends AppLocalizations {
   String get compatibility_style_title => 'Estilos de Goong-Hap';
 
   @override
-  String get compatibility_time_slot1 =>
-      'Hora de la rata | (23: 30-01: 29) | 🐀';
+  String get compatibility_time_slot1 => 'Hora de la rata|(23:30-01:29)|🐀';
 
   @override
-  String get compatibility_time_slot10 =>
-      'Hora del gallo | (17: 30-19: 29) | 🐔';
+  String get compatibility_time_slot10 => 'Hora del gallo|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 =>
-      'Hora del perro | (19: 30-21: 29) | 🐕';
+  String get compatibility_time_slot11 => 'Hora del perro|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 =>
-      'Hora del jabalí | (21: 30-23: 29) | 🐖';
+  String get compatibility_time_slot12 => 'Hora del jabalí|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => 'Hora del buey | (01: 30-03: 29) | 🐂';
+  String get compatibility_time_slot2 => 'Hora del buey|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 =>
-      'Hora del tigre | (03: 30-05: 29) | 🐅';
+  String get compatibility_time_slot3 => 'Hora del tigre|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 =>
-      'Hora del conejo | (05: 30-07: 29) | 🐇';
+  String get compatibility_time_slot4 => 'Hora del conejo|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 =>
-      'Hora del dragón | (07: 30-09: 29) | 🐉';
+  String get compatibility_time_slot5 => 'Hora del dragón|(07:30-09:29)|🐉';
 
   @override
   String get compatibility_time_slot6 =>
-      'Hora de la serpiente | (09: 30-11: 29) | 🐍';
+      'Hora de la serpiente|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 =>
-      'Hora del caballo | (11: 30-13: 29) | 🐎';
+  String get compatibility_time_slot7 => 'Hora del caballo|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 =>
-      'Hora de la oveja | (13: 30-15: 29) | 🐑';
+  String get compatibility_time_slot8 => 'Hora de la oveja|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 => 'Hora del mono | (15: 30-17: 29) | 🐒';
+  String get compatibility_time_slot9 => 'Hora del mono|(15:30-17:29)|🐒';
 
   @override
   String get compatibility_tips_title => 'Consejos de Goong-Hap';
@@ -1609,6 +1600,9 @@ class AppLocalizationsEs extends AppLocalizations {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting => 'Reiniciando la aplicación...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -1651,4 +1645,41 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get vote_item_request_search_try_other_keyword =>
       'Intenta buscar con otras palabras clave';
+
+  @override
+  String get goong_hap_what_is => '¿Qué es Goong-Hap?';
+
+  @override
+  String get goong_hap_title => 'Goong-Hap';
+
+  @override
+  String get goong_hap_subtitle => '¿Cuál es tu destino con tu idol favorito?';
+
+  @override
+  String get goong_hap_tradition_title => 'Cultura tradicional coreana';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      'Goong-Hap es una cultura tradicional coreana que se ha transmitido durante cientos de años. ¡Es una forma especial de descubrir la química del destino entre dos personas según sus fechas de nacimiento!';
+
+  @override
+  String get goong_hap_kpop_title => 'Mi compatibilidad con artistas K-POP';
+
+  @override
+  String get goong_hap_kpop_desc =>
+      '¿Qué tan bien combinas con tu idol favorito? ¡Descubre tu compatibilidad con tu bias!';
+
+  @override
+  String get goong_hap_fun_title => 'Una nueva forma de disfrutar el fandom';
+
+  @override
+  String get goong_hap_fun_desc =>
+      '¡Compara y comparte tus puntuaciones con amigos! ¿Quién es más compatible con su idol?';
+
+  @override
+  String get goong_hap_notice =>
+      '¡Disfruta los resultados de Goong-Hap solo por diversión! Experimenta la cultura tradicional coreana con K-POP';
+
+  @override
+  String get goong_hap_close_button => 'Cerrar';
 }

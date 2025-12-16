@@ -144,46 +144,40 @@ class AppLocalizationsTh extends AppLocalizations {
   String get compatibility_style_title => 'รูปแบบGoong-Hap';
 
   @override
-  String get compatibility_time_slot1 => 'ชั่วโมงของหนู | (23: 30-01: 29) | 🐀';
+  String get compatibility_time_slot1 => 'ชั่วโมงของหนู|(23:30-01:29)|🐀';
 
   @override
-  String get compatibility_time_slot10 =>
-      'ชั่วโมงของไก่ | (17: 30-19: 29) | 🐔';
+  String get compatibility_time_slot10 => 'ชั่วโมงของไก่|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 =>
-      'ชั่วโมงของสุนัข | (19: 30-21: 29) | 🐕';
+  String get compatibility_time_slot11 => 'ชั่วโมงของสุนัข|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 =>
-      'ชั่วโมงของหมูป่า | (21: 30-23: 29) | 🐖';
+  String get compatibility_time_slot12 => 'ชั่วโมงของหมูป่า|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => 'ชั่วโมงของวัว | (01: 30-03: 29) | 🐂';
+  String get compatibility_time_slot2 => 'ชั่วโมงของวัว|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 =>
-      'ชั่วโมงของเสือ | (03: 30-05: 29) | 🐅';
+  String get compatibility_time_slot3 => 'ชั่วโมงของเสือ|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 =>
-      'ชั่วโมงของกระต่าย | (05: 30-07: 29) | 🐇';
+  String get compatibility_time_slot4 => 'ชั่วโมงของกระต่าย|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 =>
-      'ชั่วโมงของมังกร | (07: 30-09: 29) | 🐉';
+  String get compatibility_time_slot5 => 'ชั่วโมงของมังกร|(07:30-09:29)|🐉';
 
   @override
-  String get compatibility_time_slot6 => 'ชั่วโมงของงู | (09: 30-11: 29) | 🐍';
+  String get compatibility_time_slot6 => 'ชั่วโมงของงู|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 => 'ชั่วโมงของม้า | (11: 30-13: 29) | 🐎';
+  String get compatibility_time_slot7 => 'ชั่วโมงของม้า|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 => 'ชั่วโมงของแกะ | (13: 30-15: 29) | 🐑';
+  String get compatibility_time_slot8 => 'ชั่วโมงของแกะ|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 => 'ชั่วโมงของลิง | (15: 30-17: 29) | 🐒';
+  String get compatibility_time_slot9 => 'ชั่วโมงของลิง|(15:30-17:29)|🐒';
 
   @override
   String get compatibility_tips_title => 'เคล็ดลับGoong-Hap';
@@ -1567,6 +1561,9 @@ class AppLocalizationsTh extends AppLocalizations {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting => 'กำลังรีสตาร์ทแอป...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -1609,4 +1606,41 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get vote_item_request_search_try_other_keyword =>
       'ลองค้นหาด้วยคำหลักอื่น';
+
+  @override
+  String get goong_hap_what_is => 'กุงฮับคืออะไร?';
+
+  @override
+  String get goong_hap_title => 'กุงฮับ (Goong-Hap)';
+
+  @override
+  String get goong_hap_subtitle => 'พรหมลิขิตของคุณกับไอดอลคนโปรดคืออะไร?';
+
+  @override
+  String get goong_hap_tradition_title => 'วัฒนธรรมดั้งเดิมของเกาหลี';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      'กุงฮับเป็นวัฒนธรรมดั้งเดิมของเกาหลีที่สืบทอดมาหลายร้อยปี เป็นวิธีพิเศษในการค้นพบเคมีแห่งโชคชะตาระหว่างสองคนตามวันเกิด!';
+
+  @override
+  String get goong_hap_kpop_title => 'ความเข้ากันของฉันกับศิลปิน K-POP';
+
+  @override
+  String get goong_hap_kpop_desc =>
+      'คุณเข้ากับไอดอลคนโปรดได้ดีแค่ไหน? ตรวจสอบความเข้ากันแห่งโชคชะตากับ bias ของคุณ!';
+
+  @override
+  String get goong_hap_fun_title => 'วิธีใหม่ในการสนุกกับแฟนด้อม';
+
+  @override
+  String get goong_hap_fun_desc =>
+      'เปรียบเทียบและแชร์คะแนนความเข้ากันกับเพื่อน! ใครเข้ากับ bias ได้ดีที่สุด?';
+
+  @override
+  String get goong_hap_notice =>
+      'สนุกกับผลลัพธ์กุงฮับเพื่อความบันเทิงเท่านั้น! สัมผัสวัฒนธรรมดั้งเดิมของเกาหลีพร้อม K-POP';
+
+  @override
+  String get goong_hap_close_button => 'ปิด';
 }

@@ -145,42 +145,41 @@ class AppLocalizationsVi extends AppLocalizations {
   String get compatibility_style_title => 'Phong cách tương thích';
 
   @override
-  String get compatibility_time_slot1 => 'Giờ của chuột | (23: 30-01: 29) |';
+  String get compatibility_time_slot1 => 'Giờ của chuột|(23:30-01:29)|🐀';
 
   @override
   String get compatibility_time_slot10 =>
-      'Giờ của con gà trống | (17: 30-19: 29) | 🐔';
+      'Giờ của con gà trống|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 => 'Giờ của con chó | (19: 30-21: 29) |';
+  String get compatibility_time_slot11 => 'Giờ của con chó|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 => 'Giờ của con lợn | (21: 30-23: 29) |';
+  String get compatibility_time_slot12 => 'Giờ của con lợn|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => 'Giờ của Ox | (01: 30-03: 29) |';
+  String get compatibility_time_slot2 => 'Giờ của Trâu|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 => 'Giờ của Tiger | (03: 30-05: 29) |';
+  String get compatibility_time_slot3 => 'Giờ của Hổ|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 => 'Giờ của thỏ | (05: 30-07: 29) |';
+  String get compatibility_time_slot4 => 'Giờ của thỏ|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 => 'Giờ của con rồng | (07: 30-09: 29) |';
+  String get compatibility_time_slot5 => 'Giờ của con rồng|(07:30-09:29)|🐉';
 
   @override
-  String get compatibility_time_slot6 => 'Giờ của con rắn | (09: 30-11: 29) |';
+  String get compatibility_time_slot6 => 'Giờ của con rắn|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 => 'Giờ của con ngựa | (11: 30-13: 29) |';
+  String get compatibility_time_slot7 => 'Giờ của con ngựa|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 =>
-      'Giờ của những con cừu | (13: 30-15: 29) |';
+  String get compatibility_time_slot8 => 'Giờ của cừu|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 => 'Giờ của con khỉ | (15: 30-17: 29) |';
+  String get compatibility_time_slot9 => 'Giờ của con khỉ|(15:30-17:29)|🐒';
 
   @override
   String get compatibility_tips_title => 'Mẹo tương thích';
@@ -1588,6 +1587,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting =>
+      'Đang khởi động lại ứng dụng...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -1630,4 +1633,42 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get vote_item_request_search_try_other_keyword =>
       'Hãy thử tìm kiếm với từ khóa khác';
+
+  @override
+  String get goong_hap_what_is => 'Goong-Hap là gì?';
+
+  @override
+  String get goong_hap_title => 'Goong-Hap';
+
+  @override
+  String get goong_hap_subtitle =>
+      'Định mệnh của bạn với idol yêu thích là gì?';
+
+  @override
+  String get goong_hap_tradition_title => 'Văn hóa truyền thống Hàn Quốc';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      'Goong-Hap là văn hóa truyền thống Hàn Quốc đã được truyền lại hàng trăm năm. Đây là cách đặc biệt để khám phá hóa học định mệnh giữa hai người dựa trên ngày sinh của họ!';
+
+  @override
+  String get goong_hap_kpop_title => 'Độ tương hợp của tôi với nghệ sĩ K-POP';
+
+  @override
+  String get goong_hap_kpop_desc =>
+      'Bạn phù hợp với idol yêu thích đến mức nào? Hãy kiểm tra độ tương hợp định mệnh với bias của bạn!';
+
+  @override
+  String get goong_hap_fun_title => 'Cách mới để tận hưởng Fandom';
+
+  @override
+  String get goong_hap_fun_desc =>
+      'So sánh và chia sẻ điểm tương hợp với bạn bè! Ai phù hợp nhất với bias của họ?';
+
+  @override
+  String get goong_hap_notice =>
+      'Hãy tận hưởng kết quả Goong-Hap chỉ để vui thôi! Trải nghiệm văn hóa truyền thống Hàn Quốc cùng K-POP';
+
+  @override
+  String get goong_hap_close_button => 'Đóng';
 }

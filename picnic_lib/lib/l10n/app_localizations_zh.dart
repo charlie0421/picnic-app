@@ -1582,6 +1582,9 @@ class AppLocalizationsZh extends AppLocalizations {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting => '正在重启应用...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -1622,6 +1625,40 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get vote_item_request_search_try_other_keyword => '请尝试其他关键词搜索';
+
+  @override
+  String get goong_hap_what_is => '什么是宫合？';
+
+  @override
+  String get goong_hap_title => '宫合 (Goong-Hap)';
+
+  @override
+  String get goong_hap_subtitle => '你和偶像的命中注定是？';
+
+  @override
+  String get goong_hap_tradition_title => '韩国传统文化';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      '宫合是传承数百年的韩国传统文化。通过出生日期来了解两人之间命定缘分的特别方法！';
+
+  @override
+  String get goong_hap_kpop_title => '我和K-POP艺人的缘分';
+
+  @override
+  String get goong_hap_kpop_desc => '我和喜欢的偶像有多合适？快来看看你和偶像的命定缘分吧！';
+
+  @override
+  String get goong_hap_fun_title => '追星的新乐趣';
+
+  @override
+  String get goong_hap_fun_desc => '和朋友比较缘分分数，分享给大家！谁和偶像最有缘？';
+
+  @override
+  String get goong_hap_notice => '宫合结果仅供娱乐！和K-POP一起体验韩国传统文化吧';
+
+  @override
+  String get goong_hap_close_button => '关闭';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3139,6 +3176,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting => '正在重启应用...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -3179,6 +3219,40 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get vote_item_request_search_try_other_keyword => '请尝试其他关键词搜索';
+
+  @override
+  String get goong_hap_what_is => '什么是宫合？';
+
+  @override
+  String get goong_hap_title => '宫合 (Goong-Hap)';
+
+  @override
+  String get goong_hap_subtitle => '你和偶像的命中注定是？';
+
+  @override
+  String get goong_hap_tradition_title => '韩国传统文化';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      '宫合是传承数百年的韩国传统文化。通过出生日期来了解两人之间命定缘分的特别方法！';
+
+  @override
+  String get goong_hap_kpop_title => '我和K-POP艺人的缘分';
+
+  @override
+  String get goong_hap_kpop_desc => '我和喜欢的偶像有多合适？快来看看你和偶像的命定缘分吧！';
+
+  @override
+  String get goong_hap_fun_title => '追星的新乐趣';
+
+  @override
+  String get goong_hap_fun_desc => '和朋友比较缘分分数，分享给大家！谁和偶像最有缘？';
+
+  @override
+  String get goong_hap_notice => '宫合结果仅供娱乐！和K-POP一起体验韩国传统文化吧';
+
+  @override
+  String get goong_hap_close_button => '关闭';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4695,6 +4769,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting => '正在重新啟動應用程式...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -4735,4 +4812,38 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get vote_item_request_search_try_other_keyword => '請嘗試其他關鍵詞搜尋';
+
+  @override
+  String get goong_hap_what_is => '什麼是宮合？';
+
+  @override
+  String get goong_hap_title => '宮合 (Goong-Hap)';
+
+  @override
+  String get goong_hap_subtitle => '你和偶像的命中注定是？';
+
+  @override
+  String get goong_hap_tradition_title => '韓國傳統文化';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      '宮合是傳承數百年的韓國傳統文化。通過出生日期來了解兩人之間命定緣分的特別方法！';
+
+  @override
+  String get goong_hap_kpop_title => '我和K-POP藝人的緣分';
+
+  @override
+  String get goong_hap_kpop_desc => '我和喜歡的偶像有多合適？快來看看你和偶像的命定緣分吧！';
+
+  @override
+  String get goong_hap_fun_title => '追星的新樂趣';
+
+  @override
+  String get goong_hap_fun_desc => '和朋友比較緣分分數，分享給大家！誰和偶像最有緣？';
+
+  @override
+  String get goong_hap_notice => '宮合結果僅供娛樂！和K-POP一起體驗韓國傳統文化吧';
+
+  @override
+  String get goong_hap_close_button => '關閉';
 }

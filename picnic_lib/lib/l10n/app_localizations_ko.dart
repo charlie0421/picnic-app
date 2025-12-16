@@ -1515,7 +1515,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get message_setting_patch_update_available => '새 패치를 사용할 수 있습니다.';
 
   @override
-  String get message_setting_patch_update_success => '패치 업데이트 완료! 앱을 재시작하세요.';
+  String get message_setting_patch_update_success => '패치 업데이트 완료!';
+
+  @override
+  String get message_setting_patch_restarting => '앱을 재시작합니다...';
 
   @override
   String message_setting_patch_update_failed(String error) {
@@ -1557,4 +1560,40 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get vote_item_request_search_try_other_keyword => '다른 키워드로 검색해보세요';
+
+  @override
+  String get goong_hap_what_is => '궁합이란?';
+
+  @override
+  String get goong_hap_title => '궁합 (Goong-Hap)';
+
+  @override
+  String get goong_hap_subtitle => '나와 최애의 운명적 케미는?';
+
+  @override
+  String get goong_hap_tradition_title => '한국의 전통 문화';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      '궁합은 수백 년 동안 이어져 온 한국의 전통 문화예요. 생년월일로 두 사람의 운명적 케미를 알아보는 특별한 방법이에요!';
+
+  @override
+  String get goong_hap_kpop_title => 'K-POP 아티스트와 나의 궁합';
+
+  @override
+  String get goong_hap_kpop_desc =>
+      '내가 좋아하는 아이돌과 나는 얼마나 잘 맞을까? 최애와의 운명적 궁합을 확인해 보세요!';
+
+  @override
+  String get goong_hap_fun_title => '덕질의 새로운 재미';
+
+  @override
+  String get goong_hap_fun_desc => '친구들과 궁합 점수를 비교하고 자랑해 보세요! 누가 최애와 가장 찰떡일까요?';
+
+  @override
+  String get goong_hap_notice =>
+      '궁합 결과는 재미로 즐겨주세요! 한국의 전통 문화를 K-POP과 함께 경험해 보세요';
+
+  @override
+  String get goong_hap_close_button => '닫기';
 }

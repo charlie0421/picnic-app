@@ -176,51 +176,51 @@
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
-  "compatibility_time_slot1": "ชั่วโมงของหนู | (23: 30-01: 29) | 🐀",
+  "compatibility_time_slot1": "ชั่วโมงของหนู|(23:30-01:29)|🐀",
   "@compatibility_time_slot1": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
   },
-  "compatibility_time_slot10": "ชั่วโมงของไก่ | (17: 30-19: 29) | 🐔",
+  "compatibility_time_slot10": "ชั่วโมงของไก่|(17:30-19:29)|🐔",
   "@compatibility_time_slot10": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
   },
-  "compatibility_time_slot11": "ชั่วโมงของสุนัข | (19: 30-21: 29) | 🐕",
+  "compatibility_time_slot11": "ชั่วโมงของสุนัข|(19:30-21:29)|🐕",
   "@compatibility_time_slot11": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
   },
-  "compatibility_time_slot12": "ชั่วโมงของหมูป่า | (21: 30-23: 29) | 🐖",
+  "compatibility_time_slot12": "ชั่วโมงของหมูป่า|(21:30-23:29)|🐖",
   "@compatibility_time_slot12": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
   },
-  "compatibility_time_slot2": "ชั่วโมงของวัว | (01: 30-03: 29) | 🐂",
+  "compatibility_time_slot2": "ชั่วโมงของวัว|(01:30-03:29)|🐂",
   "@compatibility_time_slot2": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
   },
-  "compatibility_time_slot3": "ชั่วโมงของเสือ | (03: 30-05: 29) | 🐅",
+  "compatibility_time_slot3": "ชั่วโมงของเสือ|(03:30-05:29)|🐅",
   "@compatibility_time_slot3": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
   },
-  "compatibility_time_slot4": "ชั่วโมงของกระต่าย | (05: 30-07: 29) | 🐇",
+  "compatibility_time_slot4": "ชั่วโมงของกระต่าย|(05:30-07:29)|🐇",
   "@compatibility_time_slot4": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
   },
-  "compatibility_time_slot5": "ชั่วโมงของมังกร | (07: 30-09: 29) | 🐉",
+  "compatibility_time_slot5": "ชั่วโมงของมังกร|(07:30-09:29)|🐉",
   "@compatibility_time_slot5": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
   },
-  "compatibility_time_slot6": "ชั่วโมงของงู | (09: 30-11: 29) | 🐍",
+  "compatibility_time_slot6": "ชั่วโมงของงู|(09:30-11:29)|🐍",
   "@compatibility_time_slot6": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
   },
-  "compatibility_time_slot7": "ชั่วโมงของม้า | (11: 30-13: 29) | 🐎",
+  "compatibility_time_slot7": "ชั่วโมงของม้า|(11:30-13:29)|🐎",
   "@compatibility_time_slot7": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
   },
-  "compatibility_time_slot8": "ชั่วโมงของแกะ | (13: 30-15: 29) | 🐑",
+  "compatibility_time_slot8": "ชั่วโมงของแกะ|(13:30-15:29)|🐑",
   "@compatibility_time_slot8": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
   },
-  "compatibility_time_slot9": "ชั่วโมงของลิง | (15: 30-17: 29) | 🐒",
+  "compatibility_time_slot9": "ชั่วโมงของลิง|(15:30-17:29)|🐒",
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
@@ -2070,5 +2070,53 @@
   "weekly_vote_info_link": "Weekly Vote คืออะไร?",
   "@weekly_vote_info_link": {
     "description": "Link label asking what weekly voting is"
+  },
+  "goong_hap_what_is": "กุงฮับคืออะไร?",
+  "@goong_hap_what_is": {
+    "description": "Button label for What is Goong-Hap"
+  },
+  "goong_hap_title": "กุงฮับ (Goong-Hap)",
+  "@goong_hap_title": {
+    "description": "Title in Goong-Hap intro"
+  },
+  "goong_hap_subtitle": "พรหมลิขิตของคุณกับไอดอลคนโปรดคืออะไร?",
+  "@goong_hap_subtitle": {
+    "description": "Subtitle in Goong-Hap intro"
+  },
+  "goong_hap_tradition_title": "วัฒนธรรมดั้งเดิมของเกาหลี",
+  "@goong_hap_tradition_title": {
+    "description": "Tradition section title in Goong-Hap intro"
+  },
+  "goong_hap_tradition_desc": "กุงฮับเป็นวัฒนธรรมดั้งเดิมของเกาหลีที่สืบทอดมาหลายร้อยปี เป็นวิธีพิเศษในการค้นพบเคมีแห่งโชคชะตาระหว่างสองคนตามวันเกิด!",
+  "@goong_hap_tradition_desc": {
+    "description": "Tradition section description in Goong-Hap intro"
+  },
+  "goong_hap_kpop_title": "ความเข้ากันของฉันกับศิลปิน K-POP",
+  "@goong_hap_kpop_title": {
+    "description": "K-POP section title in Goong-Hap intro"
+  },
+  "goong_hap_kpop_desc": "คุณเข้ากับไอดอลคนโปรดได้ดีแค่ไหน? ตรวจสอบความเข้ากันแห่งโชคชะตากับ bias ของคุณ!",
+  "@goong_hap_kpop_desc": {
+    "description": "K-POP section description in Goong-Hap intro"
+  },
+  "goong_hap_fun_title": "วิธีใหม่ในการสนุกกับแฟนด้อม",
+  "@goong_hap_fun_title": {
+    "description": "Fun section title in Goong-Hap intro"
+  },
+  "goong_hap_fun_desc": "เปรียบเทียบและแชร์คะแนนความเข้ากันกับเพื่อน! ใครเข้ากับ bias ได้ดีที่สุด?",
+  "@goong_hap_fun_desc": {
+    "description": "Fun section description in Goong-Hap intro"
+  },
+  "goong_hap_notice": "สนุกกับผลลัพธ์กุงฮับเพื่อความบันเทิงเท่านั้น! สัมผัสวัฒนธรรมดั้งเดิมของเกาหลีพร้อม K-POP",
+  "@goong_hap_notice": {
+    "description": "Notice text in Goong-Hap intro"
+  },
+  "goong_hap_close_button": "ปิด",
+  "@goong_hap_close_button": {
+    "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "message_setting_patch_restarting": "กำลังรีสตาร์ทแอป...",
+  "@message_setting_patch_restarting": {
+    "description": "Message shown when restarting app after patch"
   }
 }

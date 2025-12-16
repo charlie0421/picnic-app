@@ -1522,6 +1522,9 @@ class AppLocalizationsJa extends AppLocalizations {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting => 'アプリを再起動中...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -1562,4 +1565,40 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get vote_item_request_search_try_other_keyword => '別のキーワードで検索してみてください';
+
+  @override
+  String get goong_hap_what_is => '宮合とは？';
+
+  @override
+  String get goong_hap_title => '宮合 (Goong-Hap)';
+
+  @override
+  String get goong_hap_subtitle => '推しとの運命的なケミは？';
+
+  @override
+  String get goong_hap_tradition_title => '韓国の伝統文化';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      '宮合は数百年にわたって受け継がれてきた韓国の伝統文化です。生年月日から二人の運命的なケミを知る特別な方法です！';
+
+  @override
+  String get goong_hap_kpop_title => 'K-POPアーティストと私の相性';
+
+  @override
+  String get goong_hap_kpop_desc =>
+      '推しのアイドルと私はどれくらい合う？推しとの運命的な相性をチェックしてみてください！';
+
+  @override
+  String get goong_hap_fun_title => '推し活の新しい楽しみ方';
+
+  @override
+  String get goong_hap_fun_desc => '友達と相性スコアを比較してシェアしよう！誰が推しと一番相性がいい？';
+
+  @override
+  String get goong_hap_notice =>
+      '宮合の結果はお楽しみとしてご覧ください！K-POPと一緒に韓国の伝統文化を体験してみてください';
+
+  @override
+  String get goong_hap_close_button => '閉じる';
 }

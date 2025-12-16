@@ -35,7 +35,7 @@ class SettingPage extends ConsumerStatefulWidget {
 }
 
 class _SettingPageState extends ConsumerState<SettingPage>
-    with RouteAwareStateMixin<SettingPage> {
+    with RouteAwareStateMixin<SettingPage>, SingleTickerProviderStateMixin {
   bool value1 = false;
   bool value2 = false;
   String buildNumber = '';
@@ -43,6 +43,11 @@ class _SettingPageState extends ConsumerState<SettingPage>
   bool _isCheckingPatch = false;
   bool _isManualPatchUpdating = false;
   String? _currentTitle;
+
+  // 애니메이션 컨트롤러
+  late AnimationController _patchAnimationController;
+  late Animation<double> _patchFadeAnimation;
+  late Animation<double> _patchScaleAnimation;
 
   Future<bool> _getFuture1() async {
     await Future.delayed(const Duration(seconds: 1));
@@ -62,6 +67,26 @@ class _SettingPageState extends ConsumerState<SettingPage>
   @override
   void initState() {
     super.initState();
+
+    // 애니메이션 초기화
+    _patchAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _patchFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _patchAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+    _patchScaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _patchAnimationController,
+        curve: Curves.easeOutBack,
+      ),
+    );
+    _patchAnimationController.forward();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getBuildNumber().then((value) {
         buildNumber = value;
@@ -70,7 +95,53 @@ class _SettingPageState extends ConsumerState<SettingPage>
 
       _currentTitle = AppLocalizations.of(context).mypage_setting;
       _updateNavigation();
+
+      // 설정 페이지 진입 시 자동으로 패치 상태 확인
+      _checkPatchStatusOnEntry();
     });
+  }
+
+  @override
+  void dispose() {
+    _patchAnimationController.dispose();
+    super.dispose();
+  }
+
+  /// 설정 페이지 진입 시 자동 패치 확인 (조용히)
+  Future<void> _checkPatchStatusOnEntry() async {
+    if (UniversalPlatform.isWeb) return;
+
+    setState(() {
+      _isCheckingPatch = true;
+    });
+
+    try {
+      final result = await ShorebirdUtils.checkPatchStatusForSettings();
+
+      if (mounted) {
+        final isRestartRequired =
+            result.status == shorebird.UpdateStatus.restartRequired;
+
+        ref.read(patchInfoProvider.notifier).updatePatchInfo({
+          'hasUpdate': result.status == shorebird.UpdateStatus.outdated,
+          'currentPatch': result.currentPatchNumber ?? result.nextPatchNumber,
+          'needsRestart': isRestartRequired,
+          'updateDownloaded': isRestartRequired,
+        });
+
+        // 애니메이션 리셋 및 재실행
+        _patchAnimationController.reset();
+        _patchAnimationController.forward();
+      }
+    } catch (e) {
+      logger.w('자동 패치 확인 실패 (무시됨): $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCheckingPatch = false;
+        });
+      }
+    }
   }
 
   @override
@@ -325,7 +396,11 @@ class _SettingPageState extends ConsumerState<SettingPage>
     );
     final canApplyPatch = patchInfo.hasUpdate && !_isManualPatchUpdating;
 
-    return Column(
+    return FadeTransition(
+      opacity: _patchFadeAnimation,
+      child: ScaleTransition(
+        scale: _patchScaleAnimation,
+        child: Column(
       children: [
         InkWell(
           onTap: _isCheckingPatch ? null : () => _handlePatchStatusTap(),
@@ -432,6 +507,8 @@ class _SettingPageState extends ConsumerState<SettingPage>
         ),
         const Divider(color: AppColors.grey200),
       ],
+    ),
+      ),
     );
   }
 
@@ -636,7 +713,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
     }
   }
 
-  /// 수동 패치 다운로드 및 적용
+  /// 수동 패치 다운로드 및 적용 (자동 리스타트 포함)
   Future<void> _handleManualPatchUpdate(BuildContext context) async {
     if (_isManualPatchUpdating) return;
 
@@ -671,10 +748,8 @@ class _SettingPageState extends ConsumerState<SettingPage>
         'statusMessage': 'Patch downloaded',
       });
 
-      SnackbarUtil().success(
-        l10n.message_setting_patch_update_success,
-        context: context,
-      );
+      // 패치 다운로드 성공 - 자동 리스타트 진행
+      await _showAutoRestartAnimation(context, l10n);
     } catch (e, stackTrace) {
       logger.e('수동 패치 업데이트 실패: $e', stackTrace: stackTrace);
       if (!mounted || !context.mounted) {
@@ -691,6 +766,31 @@ class _SettingPageState extends ConsumerState<SettingPage>
         });
       }
     }
+  }
+
+  /// 자동 리스타트 애니메이션 표시 후 리스타트
+  Future<void> _showAutoRestartAnimation(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    if (!mounted || !context.mounted) return;
+
+    // 오버레이로 리스타트 안내 표시
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black54,
+      builder: (dialogContext) => _AutoRestartDialog(
+        onComplete: () {
+          if (dialogContext.mounted) {
+            Navigator.of(dialogContext).pop();
+          }
+          if (context.mounted) {
+            Phoenix.rebirth(context);
+          }
+        },
+      ),
+    );
   }
 
   /// 패치 상태 탭 처리 - 수동 패치 확인
@@ -794,5 +894,156 @@ class _SettingPageState extends ConsumerState<SettingPage>
           .read(navigationInfoProvider.notifier)
           .setMyPageTitle(pageTitle: title);
     });
+  }
+}
+
+/// 자동 리스타트 애니메이션 다이얼로그
+class _AutoRestartDialog extends StatefulWidget {
+  final VoidCallback onComplete;
+
+  const _AutoRestartDialog({required this.onComplete});
+
+  @override
+  State<_AutoRestartDialog> createState() => _AutoRestartDialogState();
+}
+
+class _AutoRestartDialogState extends State<_AutoRestartDialog>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _progressAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 2500),
+      vsync: this,
+    );
+
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.8, end: 1.1)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 30,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.1, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 20,
+      ),
+      TweenSequenceItem(
+        tween: ConstantTween<double>(1.0),
+        weight: 50,
+      ),
+    ]).animate(_controller);
+
+    _fadeAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 20,
+      ),
+      TweenSequenceItem(
+        tween: ConstantTween<double>(1.0),
+        weight: 80,
+      ),
+    ]).animate(_controller);
+
+    _progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.2, 1.0, curve: Curves.easeInOut),
+      ),
+    );
+
+    _controller.forward().then((_) {
+      widget.onComplete();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Center(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Container(
+                width: 280.w,
+                padding: EdgeInsets.all(24.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 체크마크 애니메이션
+                    Container(
+                      width: 60.w,
+                      height: 60.w,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary500.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.check_circle_rounded,
+                        size: 40.w,
+                        color: AppColors.primary500,
+                      ),
+                    ),
+                    SizedBox(height: 16.w),
+                    Text(
+                      l10n.message_setting_patch_update_success,
+                      style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 8.w),
+                    Text(
+                      l10n.message_setting_patch_restarting,
+                      style: getTextStyle(AppTypo.body14R, AppColors.grey600),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 20.w),
+                    // 프로그레스 바
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: _progressAnimation.value,
+                        backgroundColor: AppColors.grey200,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.primary500,
+                        ),
+                        minHeight: 6,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

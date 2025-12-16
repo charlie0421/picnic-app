@@ -1580,8 +1580,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'A new patch is available.';
 
   @override
-  String get message_setting_patch_update_success =>
-      'Patch update complete! Restart the app.';
+  String get message_setting_patch_update_success => 'Patch update complete!';
+
+  @override
+  String get message_setting_patch_restarting => 'Restarting app...';
 
   @override
   String message_setting_patch_update_failed(String error) {
@@ -1626,4 +1628,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get vote_item_request_search_try_other_keyword =>
       'Try searching with different keywords';
+
+  @override
+  String get goong_hap_what_is => 'What is Goong-Hap?';
+
+  @override
+  String get goong_hap_title => 'Goong-Hap';
+
+  @override
+  String get goong_hap_subtitle => 'What\'s your destiny with your bias?';
+
+  @override
+  String get goong_hap_tradition_title => 'Korean Traditional Culture';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      'Goong-Hap is a traditional Korean culture that has been passed down for hundreds of years. It\'s a special way to discover the destined chemistry between two people based on their birthdates!';
+
+  @override
+  String get goong_hap_kpop_title => 'My Chemistry with K-POP Artists';
+
+  @override
+  String get goong_hap_kpop_desc =>
+      'How well do you match with your favorite idol? Check out your destined compatibility with your bias!';
+
+  @override
+  String get goong_hap_fun_title => 'A New Way to Enjoy Fandom';
+
+  @override
+  String get goong_hap_fun_desc =>
+      'Compare and share your compatibility scores with friends! Who matches best with their bias?';
+
+  @override
+  String get goong_hap_notice =>
+      'Enjoy Goong-Hap results just for fun! Experience Korean traditional culture with K-POP';
+
+  @override
+  String get goong_hap_close_button => 'Close';
 }

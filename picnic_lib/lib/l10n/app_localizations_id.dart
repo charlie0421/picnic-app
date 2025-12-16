@@ -144,40 +144,40 @@ class AppLocalizationsId extends AppLocalizations {
   String get compatibility_style_title => 'Gaya Goong-Hap';
 
   @override
-  String get compatibility_time_slot1 => 'Jam Tikus (23:30-01:29)';
+  String get compatibility_time_slot1 => 'Jam Tikus|(23:30-01:29)|🐀';
 
   @override
-  String get compatibility_time_slot10 => 'Jam Ayam Jantan (17:30-19:29)';
+  String get compatibility_time_slot10 => 'Jam Ayam Jantan|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 => 'Jam Anjing (19:30-21:29)';
+  String get compatibility_time_slot11 => 'Jam Anjing|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 => 'Jam Babi Hutan (21:30-23:29)';
+  String get compatibility_time_slot12 => 'Jam Babi Hutan|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => 'Jam Kerbau (01:30-03:29)';
+  String get compatibility_time_slot2 => 'Jam Kerbau|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 => 'Jam Harimau (03:30-05:29)';
+  String get compatibility_time_slot3 => 'Jam Harimau|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 => 'Jam Kelinci (05:30-07:29) ⚫🐇';
+  String get compatibility_time_slot4 => 'Jam Kelinci|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 => 'Jam Naga (07:30-09:29)';
+  String get compatibility_time_slot5 => 'Jam Naga|(07:30-09:29)|🐉';
 
   @override
-  String get compatibility_time_slot6 => 'Jam Ular (09:30-11:29) ➢🐍';
+  String get compatibility_time_slot6 => 'Jam Ular|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 => 'Jam Kuda (11:30-13:29)|🐎';
+  String get compatibility_time_slot7 => 'Jam Kuda|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 => 'Jam Domba (13:30-15:29) ☺🐑🐑';
+  String get compatibility_time_slot8 => 'Jam Domba|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 => 'Jam Monyet (15:30-17:29)|🐒🐒';
+  String get compatibility_time_slot9 => 'Jam Monyet|(15:30-17:29)|🐒';
 
   @override
   String get compatibility_tips_title => 'Tips Goong-Hap';
@@ -1591,6 +1591,9 @@ class AppLocalizationsId extends AppLocalizations {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting => 'Memulai ulang aplikasi...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -1633,4 +1636,41 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get vote_item_request_search_try_other_keyword =>
       'Coba cari dengan kata kunci lain';
+
+  @override
+  String get goong_hap_what_is => 'Apa itu Goong-Hap?';
+
+  @override
+  String get goong_hap_title => 'Goong-Hap';
+
+  @override
+  String get goong_hap_subtitle => 'Apa takdirmu dengan bias favoritmu?';
+
+  @override
+  String get goong_hap_tradition_title => 'Budaya Tradisional Korea';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      'Goong-Hap adalah budaya tradisional Korea yang telah diturunkan selama ratusan tahun. Ini adalah cara khusus untuk menemukan chemistry takdir antara dua orang berdasarkan tanggal lahir mereka!';
+
+  @override
+  String get goong_hap_kpop_title => 'Kecocokanku dengan Artis K-POP';
+
+  @override
+  String get goong_hap_kpop_desc =>
+      'Seberapa cocok kamu dengan idol favoritmu? Cek kecocokan takdirmu dengan biasmu!';
+
+  @override
+  String get goong_hap_fun_title => 'Cara Baru Menikmati Fandom';
+
+  @override
+  String get goong_hap_fun_desc =>
+      'Bandingkan dan bagikan skor kecocokanmu dengan teman! Siapa yang paling cocok dengan bias mereka?';
+
+  @override
+  String get goong_hap_notice =>
+      'Nikmati hasil Goong-Hap hanya untuk kesenangan! Rasakan budaya tradisional Korea bersama K-POP';
+
+  @override
+  String get goong_hap_close_button => 'Tutup';
 }

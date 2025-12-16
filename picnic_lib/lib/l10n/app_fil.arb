@@ -175,51 +175,51 @@
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
-  "compatibility_time_slot1": "Oras ng daga | (23: 30-01: 29) | 🐀",
+  "compatibility_time_slot1": "Oras ng daga|(23:30-01:29)|🐀",
   "@compatibility_time_slot1": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
   },
-  "compatibility_time_slot10": "Oras ng tandang | (17: 30-19: 29) | 🐔",
+  "compatibility_time_slot10": "Oras ng tandang|(17:30-19:29)|🐔",
   "@compatibility_time_slot10": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
   },
-  "compatibility_time_slot11": "Oras ng Aso | (19: 30-21: 29) | 🐕",
+  "compatibility_time_slot11": "Oras ng Aso|(19:30-21:29)|🐕",
   "@compatibility_time_slot11": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
   },
-  "compatibility_time_slot12": "Oras ng Boar | (21: 30-23: 29) | 🐖",
+  "compatibility_time_slot12": "Oras ng Baboy-ramo|(21:30-23:29)|🐖",
   "@compatibility_time_slot12": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
   },
-  "compatibility_time_slot2": "Oras ng baka | (01: 30-03: 29) | 🐂",
+  "compatibility_time_slot2": "Oras ng baka|(01:30-03:29)|🐂",
   "@compatibility_time_slot2": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
   },
-  "compatibility_time_slot3": "Oras ng Tiger | (03: 30-05: 29) | 🐅",
+  "compatibility_time_slot3": "Oras ng Tigre|(03:30-05:29)|🐅",
   "@compatibility_time_slot3": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
   },
-  "compatibility_time_slot4": "Oras ng kuneho | (05: 30-07: 29) | 🐇",
+  "compatibility_time_slot4": "Oras ng kuneho|(05:30-07:29)|🐇",
   "@compatibility_time_slot4": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
   },
-  "compatibility_time_slot5": "Oras ng Dragon | (07: 30-09: 29) | 🐉",
+  "compatibility_time_slot5": "Oras ng Dragon|(07:30-09:29)|🐉",
   "@compatibility_time_slot5": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
   },
-  "compatibility_time_slot6": "Oras ng ahas | (09: 30-11: 29) | 🐍",
+  "compatibility_time_slot6": "Oras ng ahas|(09:30-11:29)|🐍",
   "@compatibility_time_slot6": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
   },
-  "compatibility_time_slot7": "Oras ng kabayo | (11: 30-13: 29) | 🐎",
+  "compatibility_time_slot7": "Oras ng kabayo|(11:30-13:29)|🐎",
   "@compatibility_time_slot7": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
   },
-  "compatibility_time_slot8": "Oras ng tupa | (13: 30-15: 29) | 🐑",
+  "compatibility_time_slot8": "Oras ng tupa|(13:30-15:29)|🐑",
   "@compatibility_time_slot8": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
   },
-  "compatibility_time_slot9": "Oras ng unggoy | (15: 30-17: 29) | 🐒",
+  "compatibility_time_slot9": "Oras ng unggoy|(15:30-17:29)|🐒",
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
@@ -2070,5 +2070,53 @@
   "vote_item_request_search_try_other_keyword": "Subukan maghanap gamit ang ibang keyword",
   "@vote_item_request_search_try_other_keyword": {
     "description": "Suggestion text when no search results are found"
+  },
+  "goong_hap_what_is": "Ano ang Goong-Hap?",
+  "@goong_hap_what_is": {
+    "description": "Button label for What is Goong-Hap"
+  },
+  "goong_hap_title": "Goong-Hap",
+  "@goong_hap_title": {
+    "description": "Title in Goong-Hap intro"
+  },
+  "goong_hap_subtitle": "Ano ang kapalaran mo sa iyong paboritong idol?",
+  "@goong_hap_subtitle": {
+    "description": "Subtitle in Goong-Hap intro"
+  },
+  "goong_hap_tradition_title": "Tradisyunal na Kulturang Koreano",
+  "@goong_hap_tradition_title": {
+    "description": "Tradition section title in Goong-Hap intro"
+  },
+  "goong_hap_tradition_desc": "Ang Goong-Hap ay isang tradisyunal na kulturang Koreano na ipinasa-pasa na ng daan-daang taon. Ito ay isang espesyal na paraan para matuklasan ang chemistry ng kapalaran sa pagitan ng dalawang tao batay sa kanilang mga petsa ng kapanganakan!",
+  "@goong_hap_tradition_desc": {
+    "description": "Tradition section description in Goong-Hap intro"
+  },
+  "goong_hap_kpop_title": "Ang Aking Pagkakatugma sa K-POP Artists",
+  "@goong_hap_kpop_title": {
+    "description": "K-POP section title in Goong-Hap intro"
+  },
+  "goong_hap_kpop_desc": "Gaano ka kaswak ng iyong paboritong idol? Tingnan ang iyong pagkakatugma sa kapalaran sa iyong bias!",
+  "@goong_hap_kpop_desc": {
+    "description": "K-POP section description in Goong-Hap intro"
+  },
+  "goong_hap_fun_title": "Bagong Paraan para Mag-enjoy sa Fandom",
+  "@goong_hap_fun_title": {
+    "description": "Fun section title in Goong-Hap intro"
+  },
+  "goong_hap_fun_desc": "Ikumpara at ibahagi ang iyong mga score sa mga kaibigan! Sino ang pinakaswak sa kanilang bias?",
+  "@goong_hap_fun_desc": {
+    "description": "Fun section description in Goong-Hap intro"
+  },
+  "goong_hap_notice": "Enjoy ang mga resulta ng Goong-Hap para lang sa kasiyahan! Maranasan ang tradisyunal na kulturang Koreano kasama ang K-POP",
+  "@goong_hap_notice": {
+    "description": "Notice text in Goong-Hap intro"
+  },
+  "goong_hap_close_button": "Isara",
+  "@goong_hap_close_button": {
+    "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "message_setting_patch_restarting": "Nagre-restart ang app...",
+  "@message_setting_patch_restarting": {
+    "description": "Message shown when restarting app after patch"
   }
 }

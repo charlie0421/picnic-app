@@ -2007,9 +2007,13 @@
   "@message_setting_patch_update_available": {
     "description": "Snackbar text when a patch update is available."
   },
-  "message_setting_patch_update_success": "Patch update complete! Restart the app.",
+  "message_setting_patch_update_success": "Patch update complete!",
   "@message_setting_patch_update_success": {
     "description": "Snackbar text when a patch update completes successfully."
+  },
+  "message_setting_patch_restarting": "Restarting app...",
+  "@message_setting_patch_restarting": {
+    "description": "Dialog text shown while the app is restarting after patch update."
   },
   "message_setting_patch_update_failed": "Failed to apply the patch: {error}",
   "@message_setting_patch_update_failed": {
@@ -2069,5 +2073,49 @@
   "vote_item_request_search_try_other_keyword": "Try searching with different keywords",
   "@vote_item_request_search_try_other_keyword": {
     "description": "Suggestion text when no search results are found"
+  },
+  "goong_hap_what_is": "What is Goong-Hap?",
+  "@goong_hap_what_is": {
+    "description": "Button text for opening Goong-Hap intro dialog"
+  },
+  "goong_hap_title": "Goong-Hap",
+  "@goong_hap_title": {
+    "description": "Title of Goong-Hap intro dialog"
+  },
+  "goong_hap_subtitle": "What's your destiny with your bias?",
+  "@goong_hap_subtitle": {
+    "description": "Subtitle of Goong-Hap intro dialog"
+  },
+  "goong_hap_tradition_title": "Korean Traditional Culture",
+  "@goong_hap_tradition_title": {
+    "description": "Tradition section title in Goong-Hap intro"
+  },
+  "goong_hap_tradition_desc": "Goong-Hap is a traditional Korean culture that has been passed down for hundreds of years. It's a special way to discover the destined chemistry between two people based on their birthdates!",
+  "@goong_hap_tradition_desc": {
+    "description": "Tradition section description in Goong-Hap intro"
+  },
+  "goong_hap_kpop_title": "My Chemistry with K-POP Artists",
+  "@goong_hap_kpop_title": {
+    "description": "K-POP section title in Goong-Hap intro"
+  },
+  "goong_hap_kpop_desc": "How well do you match with your favorite idol? Check out your destined compatibility with your bias!",
+  "@goong_hap_kpop_desc": {
+    "description": "K-POP section description in Goong-Hap intro"
+  },
+  "goong_hap_fun_title": "A New Way to Enjoy Fandom",
+  "@goong_hap_fun_title": {
+    "description": "Fun section title in Goong-Hap intro"
+  },
+  "goong_hap_fun_desc": "Compare and share your compatibility scores with friends! Who matches best with their bias?",
+  "@goong_hap_fun_desc": {
+    "description": "Fun section description in Goong-Hap intro"
+  },
+  "goong_hap_notice": "Enjoy Goong-Hap results just for fun! Experience Korean traditional culture with K-POP",
+  "@goong_hap_notice": {
+    "description": "Notice text in Goong-Hap intro"
+  },
+  "goong_hap_close_button": "Close",
+  "@goong_hap_close_button": {
+    "description": "Close button text in Goong-Hap intro dialog"
   }
 }

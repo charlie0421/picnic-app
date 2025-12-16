@@ -149,45 +149,40 @@ class AppLocalizationsFil extends AppLocalizations {
   String get compatibility_style_title => 'Mga istilo ng Goong-Hap';
 
   @override
-  String get compatibility_time_slot1 => 'Oras ng daga | (23: 30-01: 29) | 🐀';
+  String get compatibility_time_slot1 => 'Oras ng daga|(23:30-01:29)|🐀';
 
   @override
-  String get compatibility_time_slot10 =>
-      'Oras ng tandang | (17: 30-19: 29) | 🐔';
+  String get compatibility_time_slot10 => 'Oras ng tandang|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 => 'Oras ng Aso | (19: 30-21: 29) | 🐕';
+  String get compatibility_time_slot11 => 'Oras ng Aso|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 => 'Oras ng Boar | (21: 30-23: 29) | 🐖';
+  String get compatibility_time_slot12 => 'Oras ng Baboy-ramo|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => 'Oras ng baka | (01: 30-03: 29) | 🐂';
+  String get compatibility_time_slot2 => 'Oras ng baka|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 => 'Oras ng Tiger | (03: 30-05: 29) | 🐅';
+  String get compatibility_time_slot3 => 'Oras ng Tigre|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 =>
-      'Oras ng kuneho | (05: 30-07: 29) | 🐇';
+  String get compatibility_time_slot4 => 'Oras ng kuneho|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 =>
-      'Oras ng Dragon | (07: 30-09: 29) | 🐉';
+  String get compatibility_time_slot5 => 'Oras ng Dragon|(07:30-09:29)|🐉';
 
   @override
-  String get compatibility_time_slot6 => 'Oras ng ahas | (09: 30-11: 29) | 🐍';
+  String get compatibility_time_slot6 => 'Oras ng ahas|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 =>
-      'Oras ng kabayo | (11: 30-13: 29) | 🐎';
+  String get compatibility_time_slot7 => 'Oras ng kabayo|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 => 'Oras ng tupa | (13: 30-15: 29) | 🐑';
+  String get compatibility_time_slot8 => 'Oras ng tupa|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 =>
-      'Oras ng unggoy | (15: 30-17: 29) | 🐒';
+  String get compatibility_time_slot9 => 'Oras ng unggoy|(15:30-17:29)|🐒';
 
   @override
   String get compatibility_tips_title => 'Mga tip sa Goong-Hap';
@@ -1622,6 +1617,9 @@ class AppLocalizationsFil extends AppLocalizations {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting => 'Nagre-restart ang app...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -1664,4 +1662,42 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get vote_item_request_search_try_other_keyword =>
       'Subukan maghanap gamit ang ibang keyword';
+
+  @override
+  String get goong_hap_what_is => 'Ano ang Goong-Hap?';
+
+  @override
+  String get goong_hap_title => 'Goong-Hap';
+
+  @override
+  String get goong_hap_subtitle =>
+      'Ano ang kapalaran mo sa iyong paboritong idol?';
+
+  @override
+  String get goong_hap_tradition_title => 'Tradisyunal na Kulturang Koreano';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      'Ang Goong-Hap ay isang tradisyunal na kulturang Koreano na ipinasa-pasa na ng daan-daang taon. Ito ay isang espesyal na paraan para matuklasan ang chemistry ng kapalaran sa pagitan ng dalawang tao batay sa kanilang mga petsa ng kapanganakan!';
+
+  @override
+  String get goong_hap_kpop_title => 'Ang Aking Pagkakatugma sa K-POP Artists';
+
+  @override
+  String get goong_hap_kpop_desc =>
+      'Gaano ka kaswak ng iyong paboritong idol? Tingnan ang iyong pagkakatugma sa kapalaran sa iyong bias!';
+
+  @override
+  String get goong_hap_fun_title => 'Bagong Paraan para Mag-enjoy sa Fandom';
+
+  @override
+  String get goong_hap_fun_desc =>
+      'Ikumpara at ibahagi ang iyong mga score sa mga kaibigan! Sino ang pinakaswak sa kanilang bias?';
+
+  @override
+  String get goong_hap_notice =>
+      'Enjoy ang mga resulta ng Goong-Hap para lang sa kasiyahan! Maranasan ang tradisyunal na kulturang Koreano kasama ang K-POP';
+
+  @override
+  String get goong_hap_close_button => 'Isara';
 }

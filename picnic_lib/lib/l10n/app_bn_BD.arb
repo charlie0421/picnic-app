@@ -176,51 +176,51 @@
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
-  "compatibility_time_slot1": "ইঁদুরের ঘন্টা | (23: 30-01: 29) | 🐀",
+  "compatibility_time_slot1": "ইঁদুরের ঘন্টা|(23:30-01:29)|🐀",
   "@compatibility_time_slot1": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
   },
-  "compatibility_time_slot10": "মোরগের সময় | (17: 30-19: 29) | 🐔",
+  "compatibility_time_slot10": "মোরগের সময়|(17:30-19:29)|🐔",
   "@compatibility_time_slot10": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
   },
-  "compatibility_time_slot11": "কুকুরের ঘন্টা | (19: 30-21: 29) | 🐕",
+  "compatibility_time_slot11": "কুকুরের ঘন্টা|(19:30-21:29)|🐕",
   "@compatibility_time_slot11": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
   },
-  "compatibility_time_slot12": "শুয়োরের সময় | (21: 30-23: 29) | 🐖",
+  "compatibility_time_slot12": "শুয়োরের সময়|(21:30-23:29)|🐖",
   "@compatibility_time_slot12": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
   },
-  "compatibility_time_slot2": "ষাঁড়ের ঘন্টা | (01: 30-03: 29) | 🐂",
+  "compatibility_time_slot2": "ষাঁড়ের ঘন্টা|(01:30-03:29)|🐂",
   "@compatibility_time_slot2": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
   },
-  "compatibility_time_slot3": "বাঘের ঘন্টা | (03: 30-05: 29) | 🐅",
+  "compatibility_time_slot3": "বাঘের ঘন্টা|(03:30-05:29)|🐅",
   "@compatibility_time_slot3": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
   },
-  "compatibility_time_slot4": "খরগোশের সময় | (05: 30-07: 29) | 🐇",
+  "compatibility_time_slot4": "খরগোশের সময়|(05:30-07:29)|🐇",
   "@compatibility_time_slot4": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
   },
-  "compatibility_time_slot5": "ড্রাগনের সময় | (07: 30-09: 29) | 🐉",
+  "compatibility_time_slot5": "ড্রাগনের সময়|(07:30-09:29)|🐉",
   "@compatibility_time_slot5": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
   },
-  "compatibility_time_slot6": "সাপের সময় | (09: 30-11: 29) | 🐍",
+  "compatibility_time_slot6": "সাপের সময়|(09:30-11:29)|🐍",
   "@compatibility_time_slot6": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
   },
-  "compatibility_time_slot7": "ঘোড়ার ঘন্টা | (11: 30-13: 29) | 🐎",
+  "compatibility_time_slot7": "ঘোড়ার ঘন্টা|(11:30-13:29)|🐎",
   "@compatibility_time_slot7": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
   },
-  "compatibility_time_slot8": "ভেড়ার ঘন্টা | (13: 30-15: 29) | 🐑",
+  "compatibility_time_slot8": "ভেড়ার ঘন্টা|(13:30-15:29)|🐑",
   "@compatibility_time_slot8": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
   },
-  "compatibility_time_slot9": "বানরের সময় | (15: 30-17: 29) | 🐒",
+  "compatibility_time_slot9": "বানরের সময়|(15:30-17:29)|🐒",
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
@@ -2070,5 +2070,53 @@
   "weekly_vote_info_link": "সাপ্তাহিক ভোট কি?",
   "@weekly_vote_info_link": {
     "description": "Link label asking what weekly voting is"
+  },
+  "goong_hap_what_is": "গুংহাপ কি?",
+  "@goong_hap_what_is": {
+    "description": "Button label for What is Goong-Hap"
+  },
+  "goong_hap_title": "গুংহাপ (Goong-Hap)",
+  "@goong_hap_title": {
+    "description": "Title in Goong-Hap intro"
+  },
+  "goong_hap_subtitle": "আপনার প্রিয় আইডলের সাথে আপনার নিয়তি কি?",
+  "@goong_hap_subtitle": {
+    "description": "Subtitle in Goong-Hap intro"
+  },
+  "goong_hap_tradition_title": "কোরিয়ান ঐতিহ্যবাহী সংস্কৃতি",
+  "@goong_hap_tradition_title": {
+    "description": "Tradition section title in Goong-Hap intro"
+  },
+  "goong_hap_tradition_desc": "গুংহাপ হল একটি কোরিয়ান ঐতিহ্যবাহী সংস্কৃতি যা শত শত বছর ধরে চলে আসছে। জন্মতারিখের উপর ভিত্তি করে দুই জনের মধ্যে নিয়তির সংযোগ খুঁজে বের করার একটি বিশেষ উপায়!",
+  "@goong_hap_tradition_desc": {
+    "description": "Tradition section description in Goong-Hap intro"
+  },
+  "goong_hap_kpop_title": "K-POP আর্টিস্টের সাথে আমার সম্পর্ক",
+  "@goong_hap_kpop_title": {
+    "description": "K-POP section title in Goong-Hap intro"
+  },
+  "goong_hap_kpop_desc": "আপনার প্রিয় আইডলের সাথে আপনি কতটা মিলে যান? আপনার প্রিয় আইডলের সাথে নিয়তির সম্পর্ক দেখুন!",
+  "@goong_hap_kpop_desc": {
+    "description": "K-POP section description in Goong-Hap intro"
+  },
+  "goong_hap_fun_title": "ফ্যানডমের নতুন মজা",
+  "@goong_hap_fun_title": {
+    "description": "Fun section title in Goong-Hap intro"
+  },
+  "goong_hap_fun_desc": "বন্ধুদের সাথে স্কোর তুলনা করুন এবং শেয়ার করুন! কে তাদের আইডলের সাথে সবচেয়ে ভালো মিলে যায়?",
+  "@goong_hap_fun_desc": {
+    "description": "Fun section description in Goong-Hap intro"
+  },
+  "goong_hap_notice": "গুংহাপ ফলাফল শুধুমাত্র মজা করার জন্য! K-POP এর সাথে কোরিয়ান ঐতিহ্যবাহী সংস্কৃতি অনুভব করুন",
+  "@goong_hap_notice": {
+    "description": "Notice text in Goong-Hap intro"
+  },
+  "goong_hap_close_button": "বন্ধ",
+  "@goong_hap_close_button": {
+    "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "message_setting_patch_restarting": "অ্যাপ রিস্টার্ট হচ্ছে...",
+  "@message_setting_patch_restarting": {
+    "description": "Message shown when restarting app after patch"
   }
 }

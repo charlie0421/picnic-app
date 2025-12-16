@@ -175,51 +175,51 @@
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
   },
-  "compatibility_time_slot1": "Jam Tikus (23:30-01:29)",
+  "compatibility_time_slot1": "Jam Tikus|(23:30-01:29)|🐀",
   "@compatibility_time_slot1": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
   },
-  "compatibility_time_slot10": "Jam Ayam Jantan (17:30-19:29)",
+  "compatibility_time_slot10": "Jam Ayam Jantan|(17:30-19:29)|🐔",
   "@compatibility_time_slot10": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
   },
-  "compatibility_time_slot11": "Jam Anjing (19:30-21:29)",
+  "compatibility_time_slot11": "Jam Anjing|(19:30-21:29)|🐕",
   "@compatibility_time_slot11": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
   },
-  "compatibility_time_slot12": "Jam Babi Hutan (21:30-23:29)",
+  "compatibility_time_slot12": "Jam Babi Hutan|(21:30-23:29)|🐖",
   "@compatibility_time_slot12": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
   },
-  "compatibility_time_slot2": "Jam Kerbau (01:30-03:29)",
+  "compatibility_time_slot2": "Jam Kerbau|(01:30-03:29)|🐂",
   "@compatibility_time_slot2": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
   },
-  "compatibility_time_slot3": "Jam Harimau (03:30-05:29)",
+  "compatibility_time_slot3": "Jam Harimau|(03:30-05:29)|🐅",
   "@compatibility_time_slot3": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
   },
-  "compatibility_time_slot4": "Jam Kelinci (05:30-07:29) ⚫🐇",
+  "compatibility_time_slot4": "Jam Kelinci|(05:30-07:29)|🐇",
   "@compatibility_time_slot4": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
   },
-  "compatibility_time_slot5": "Jam Naga (07:30-09:29)",
+  "compatibility_time_slot5": "Jam Naga|(07:30-09:29)|🐉",
   "@compatibility_time_slot5": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
   },
-  "compatibility_time_slot6": "Jam Ular (09:30-11:29) ➢🐍",
+  "compatibility_time_slot6": "Jam Ular|(09:30-11:29)|🐍",
   "@compatibility_time_slot6": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
   },
-  "compatibility_time_slot7": "Jam Kuda (11:30-13:29)|🐎",
+  "compatibility_time_slot7": "Jam Kuda|(11:30-13:29)|🐎",
   "@compatibility_time_slot7": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
   },
-  "compatibility_time_slot8": "Jam Domba (13:30-15:29) ☺🐑🐑",
+  "compatibility_time_slot8": "Jam Domba|(13:30-15:29)|🐑",
   "@compatibility_time_slot8": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
   },
-  "compatibility_time_slot9": "Jam Monyet (15:30-17:29)|🐒🐒",
+  "compatibility_time_slot9": "Jam Monyet|(15:30-17:29)|🐒",
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
@@ -2126,5 +2126,53 @@
   "vote_item_request_search_try_other_keyword": "Coba cari dengan kata kunci lain",
   "@vote_item_request_search_try_other_keyword": {
     "description": "Suggestion text when no search results are found"
+  },
+  "goong_hap_what_is": "Apa itu Goong-Hap?",
+  "@goong_hap_what_is": {
+    "description": "Button label for What is Goong-Hap"
+  },
+  "goong_hap_title": "Goong-Hap",
+  "@goong_hap_title": {
+    "description": "Title in Goong-Hap intro"
+  },
+  "goong_hap_subtitle": "Apa takdirmu dengan bias favoritmu?",
+  "@goong_hap_subtitle": {
+    "description": "Subtitle in Goong-Hap intro"
+  },
+  "goong_hap_tradition_title": "Budaya Tradisional Korea",
+  "@goong_hap_tradition_title": {
+    "description": "Tradition section title in Goong-Hap intro"
+  },
+  "goong_hap_tradition_desc": "Goong-Hap adalah budaya tradisional Korea yang telah diturunkan selama ratusan tahun. Ini adalah cara khusus untuk menemukan chemistry takdir antara dua orang berdasarkan tanggal lahir mereka!",
+  "@goong_hap_tradition_desc": {
+    "description": "Tradition section description in Goong-Hap intro"
+  },
+  "goong_hap_kpop_title": "Kecocokanku dengan Artis K-POP",
+  "@goong_hap_kpop_title": {
+    "description": "K-POP section title in Goong-Hap intro"
+  },
+  "goong_hap_kpop_desc": "Seberapa cocok kamu dengan idol favoritmu? Cek kecocokan takdirmu dengan biasmu!",
+  "@goong_hap_kpop_desc": {
+    "description": "K-POP section description in Goong-Hap intro"
+  },
+  "goong_hap_fun_title": "Cara Baru Menikmati Fandom",
+  "@goong_hap_fun_title": {
+    "description": "Fun section title in Goong-Hap intro"
+  },
+  "goong_hap_fun_desc": "Bandingkan dan bagikan skor kecocokanmu dengan teman! Siapa yang paling cocok dengan bias mereka?",
+  "@goong_hap_fun_desc": {
+    "description": "Fun section description in Goong-Hap intro"
+  },
+  "goong_hap_notice": "Nikmati hasil Goong-Hap hanya untuk kesenangan! Rasakan budaya tradisional Korea bersama K-POP",
+  "@goong_hap_notice": {
+    "description": "Notice text in Goong-Hap intro"
+  },
+  "goong_hap_close_button": "Tutup",
+  "@goong_hap_close_button": {
+    "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "message_setting_patch_restarting": "Memulai ulang aplikasi...",
+  "@message_setting_patch_restarting": {
+    "description": "Message shown when restarting app after patch"
   }
 }

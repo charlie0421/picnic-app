@@ -43,7 +43,7 @@ final class CompatibilityProvider
   }
 }
 
-String _$compatibilityHash() => r'9121b8d9db9e260b3894220491d297a1d70a3358';
+String _$compatibilityHash() => r'e307c05e0fc926b02a318437b37689f58a8635c7';
 
 abstract class _$Compatibility
     extends $Notifier<AsyncValue<CompatibilityModel?>> {

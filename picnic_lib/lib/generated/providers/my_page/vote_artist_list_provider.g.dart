@@ -34,7 +34,7 @@ final class AsyncVoteArtistListProvider
 }
 
 String _$asyncVoteArtistListHash() =>
-    r'7af2d7405a1e199f3a3f07042ffed36141946f71';
+    r'2ea7debfbdcf6aa3c5a068166b9f5d2970e5c431';
 
 abstract class _$AsyncVoteArtistList extends $AsyncNotifier<List<ArtistModel>> {
   FutureOr<List<ArtistModel>> build();

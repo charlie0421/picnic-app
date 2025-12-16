@@ -2070,5 +2070,53 @@
   "weekly_vote_info_link": "什麼是週投票?",
   "@weekly_vote_info_link": {
     "description": "Link label asking what weekly voting is"
+  },
+  "goong_hap_what_is": "什麼是宮合？",
+  "@goong_hap_what_is": {
+    "description": "Button label for What is Goong-Hap"
+  },
+  "goong_hap_title": "宮合 (Goong-Hap)",
+  "@goong_hap_title": {
+    "description": "Title in Goong-Hap intro"
+  },
+  "goong_hap_subtitle": "你和偶像的命中注定是？",
+  "@goong_hap_subtitle": {
+    "description": "Subtitle in Goong-Hap intro"
+  },
+  "goong_hap_tradition_title": "韓國傳統文化",
+  "@goong_hap_tradition_title": {
+    "description": "Tradition section title in Goong-Hap intro"
+  },
+  "goong_hap_tradition_desc": "宮合是傳承數百年的韓國傳統文化。通過出生日期來了解兩人之間命定緣分的特別方法！",
+  "@goong_hap_tradition_desc": {
+    "description": "Tradition section description in Goong-Hap intro"
+  },
+  "goong_hap_kpop_title": "我和K-POP藝人的緣分",
+  "@goong_hap_kpop_title": {
+    "description": "K-POP section title in Goong-Hap intro"
+  },
+  "goong_hap_kpop_desc": "我和喜歡的偶像有多合適？快來看看你和偶像的命定緣分吧！",
+  "@goong_hap_kpop_desc": {
+    "description": "K-POP section description in Goong-Hap intro"
+  },
+  "goong_hap_fun_title": "追星的新樂趣",
+  "@goong_hap_fun_title": {
+    "description": "Fun section title in Goong-Hap intro"
+  },
+  "goong_hap_fun_desc": "和朋友比較緣分分數，分享給大家！誰和偶像最有緣？",
+  "@goong_hap_fun_desc": {
+    "description": "Fun section description in Goong-Hap intro"
+  },
+  "goong_hap_notice": "宮合結果僅供娛樂！和K-POP一起體驗韓國傳統文化吧",
+  "@goong_hap_notice": {
+    "description": "Notice text in Goong-Hap intro"
+  },
+  "goong_hap_close_button": "關閉",
+  "@goong_hap_close_button": {
+    "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "message_setting_patch_restarting": "正在重新啟動應用程式...",
+  "@message_setting_patch_restarting": {
+    "description": "Message shown when restarting app after patch"
   }
 }

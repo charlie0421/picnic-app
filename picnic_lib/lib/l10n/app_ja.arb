@@ -2126,5 +2126,53 @@
   "weekly_vote_info_link": "ウィークリー投票とは？",
   "@weekly_vote_info_link": {
     "description": "Link label asking what weekly voting is"
+  },
+  "goong_hap_what_is": "宮合とは？",
+  "@goong_hap_what_is": {
+    "description": "Button text for opening Goong-Hap intro dialog"
+  },
+  "goong_hap_title": "宮合 (Goong-Hap)",
+  "@goong_hap_title": {
+    "description": "Title of Goong-Hap intro dialog"
+  },
+  "goong_hap_subtitle": "推しとの運命的なケミは？",
+  "@goong_hap_subtitle": {
+    "description": "Subtitle of Goong-Hap intro dialog"
+  },
+  "goong_hap_tradition_title": "韓国の伝統文化",
+  "@goong_hap_tradition_title": {
+    "description": "Tradition section title in Goong-Hap intro"
+  },
+  "goong_hap_tradition_desc": "宮合は数百年にわたって受け継がれてきた韓国の伝統文化です。生年月日から二人の運命的なケミを知る特別な方法です！",
+  "@goong_hap_tradition_desc": {
+    "description": "Tradition section description in Goong-Hap intro"
+  },
+  "goong_hap_kpop_title": "K-POPアーティストと私の相性",
+  "@goong_hap_kpop_title": {
+    "description": "K-POP section title in Goong-Hap intro"
+  },
+  "goong_hap_kpop_desc": "推しのアイドルと私はどれくらい合う？推しとの運命的な相性をチェックしてみてください！",
+  "@goong_hap_kpop_desc": {
+    "description": "K-POP section description in Goong-Hap intro"
+  },
+  "goong_hap_fun_title": "推し活の新しい楽しみ方",
+  "@goong_hap_fun_title": {
+    "description": "Fun section title in Goong-Hap intro"
+  },
+  "goong_hap_fun_desc": "友達と相性スコアを比較してシェアしよう！誰が推しと一番相性がいい？",
+  "@goong_hap_fun_desc": {
+    "description": "Fun section description in Goong-Hap intro"
+  },
+  "goong_hap_notice": "宮合の結果はお楽しみとしてご覧ください！K-POPと一緒に韓国の伝統文化を体験してみてください",
+  "@goong_hap_notice": {
+    "description": "Notice text in Goong-Hap intro"
+  },
+  "goong_hap_close_button": "閉じる",
+  "@goong_hap_close_button": {
+    "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "message_setting_patch_restarting": "アプリを再起動中...",
+  "@message_setting_patch_restarting": {
+    "description": "Message shown when restarting app after patch"
   }
 }

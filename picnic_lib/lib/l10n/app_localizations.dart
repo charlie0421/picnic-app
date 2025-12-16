@@ -3006,8 +3006,14 @@ abstract class AppLocalizations {
   /// Snackbar text when a patch update completes successfully.
   ///
   /// In en, this message translates to:
-  /// **'Patch update complete! Restart the app.'**
+  /// **'Patch update complete!'**
   String get message_setting_patch_update_success;
+
+  /// Dialog text shown while the app is restarting after patch update.
+  ///
+  /// In en, this message translates to:
+  /// **'Restarting app...'**
+  String get message_setting_patch_restarting;
 
   /// Snackbar text when applying a patch fails.
   ///
@@ -3074,6 +3080,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try searching with different keywords'**
   String get vote_item_request_search_try_other_keyword;
+
+  /// Button text for opening Goong-Hap intro dialog
+  ///
+  /// In en, this message translates to:
+  /// **'What is Goong-Hap?'**
+  String get goong_hap_what_is;
+
+  /// Title of Goong-Hap intro dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Goong-Hap'**
+  String get goong_hap_title;
+
+  /// Subtitle of Goong-Hap intro dialog
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s your destiny with your bias?'**
+  String get goong_hap_subtitle;
+
+  /// Tradition section title in Goong-Hap intro
+  ///
+  /// In en, this message translates to:
+  /// **'Korean Traditional Culture'**
+  String get goong_hap_tradition_title;
+
+  /// Tradition section description in Goong-Hap intro
+  ///
+  /// In en, this message translates to:
+  /// **'Goong-Hap is a traditional Korean culture that has been passed down for hundreds of years. It\'s a special way to discover the destined chemistry between two people based on their birthdates!'**
+  String get goong_hap_tradition_desc;
+
+  /// K-POP section title in Goong-Hap intro
+  ///
+  /// In en, this message translates to:
+  /// **'My Chemistry with K-POP Artists'**
+  String get goong_hap_kpop_title;
+
+  /// K-POP section description in Goong-Hap intro
+  ///
+  /// In en, this message translates to:
+  /// **'How well do you match with your favorite idol? Check out your destined compatibility with your bias!'**
+  String get goong_hap_kpop_desc;
+
+  /// Fun section title in Goong-Hap intro
+  ///
+  /// In en, this message translates to:
+  /// **'A New Way to Enjoy Fandom'**
+  String get goong_hap_fun_title;
+
+  /// Fun section description in Goong-Hap intro
+  ///
+  /// In en, this message translates to:
+  /// **'Compare and share your compatibility scores with friends! Who matches best with their bias?'**
+  String get goong_hap_fun_desc;
+
+  /// Notice text in Goong-Hap intro
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy Goong-Hap results just for fun! Experience Korean traditional culture with K-POP'**
+  String get goong_hap_notice;
+
+  /// Close button text in Goong-Hap intro dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get goong_hap_close_button;
 }
 
 class _AppLocalizationsDelegate

@@ -1584,6 +1584,9 @@ class AppLocalizationsBn extends AppLocalizations {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting => 'অ্যাপ রিস্টার্ট হচ্ছে...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -1626,6 +1629,43 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get vote_item_request_search_try_other_keyword =>
       'অন্য কীওয়ার্ড দিয়ে অনুসন্ধান করে দেখুন';
+
+  @override
+  String get goong_hap_what_is => 'গুংহাপ কি?';
+
+  @override
+  String get goong_hap_title => 'গুংহাপ (Goong-Hap)';
+
+  @override
+  String get goong_hap_subtitle => 'আপনার প্রিয় আইডলের সাথে আপনার নিয়তি কি?';
+
+  @override
+  String get goong_hap_tradition_title => 'কোরিয়ান ঐতিহ্যবাহী সংস্কৃতি';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      'গুংহাপ হল একটি কোরিয়ান ঐতিহ্যবাহী সংস্কৃতি যা শত শত বছর ধরে চলে আসছে। জন্মতারিখের উপর ভিত্তি করে দুই জনের মধ্যে নিয়তির সংযোগ খুঁজে বের করার একটি বিশেষ উপায়!';
+
+  @override
+  String get goong_hap_kpop_title => 'K-POP আর্টিস্টের সাথে আমার সম্পর্ক';
+
+  @override
+  String get goong_hap_kpop_desc =>
+      'আপনার প্রিয় আইডলের সাথে আপনি কতটা মিলে যান? আপনার প্রিয় আইডলের সাথে নিয়তির সম্পর্ক দেখুন!';
+
+  @override
+  String get goong_hap_fun_title => 'ফ্যানডমের নতুন মজা';
+
+  @override
+  String get goong_hap_fun_desc =>
+      'বন্ধুদের সাথে স্কোর তুলনা করুন এবং শেয়ার করুন! কে তাদের আইডলের সাথে সবচেয়ে ভালো মিলে যায়?';
+
+  @override
+  String get goong_hap_notice =>
+      'গুংহাপ ফলাফল শুধুমাত্র মজা করার জন্য! K-POP এর সাথে কোরিয়ান ঐতিহ্যবাহী সংস্কৃতি অনুভব করুন';
+
+  @override
+  String get goong_hap_close_button => 'বন্ধ';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -1770,42 +1810,40 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get compatibility_style_title => 'Goong-Hap শৈলী';
 
   @override
-  String get compatibility_time_slot1 => 'ইঁদুরের ঘন্টা | (23: 30-01: 29) | 🐀';
+  String get compatibility_time_slot1 => 'ইঁদুরের ঘন্টা|(23:30-01:29)|🐀';
 
   @override
-  String get compatibility_time_slot10 => 'মোরগের সময় | (17: 30-19: 29) | 🐔';
+  String get compatibility_time_slot10 => 'মোরগের সময়|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 =>
-      'কুকুরের ঘন্টা | (19: 30-21: 29) | 🐕';
+  String get compatibility_time_slot11 => 'কুকুরের ঘন্টা|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 =>
-      'শুয়োরের সময় | (21: 30-23: 29) | 🐖';
+  String get compatibility_time_slot12 => 'শুয়োরের সময়|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => 'ষাঁড়ের ঘন্টা | (01: 30-03: 29) | 🐂';
+  String get compatibility_time_slot2 => 'ষাঁড়ের ঘন্টা|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 => 'বাঘের ঘন্টা | (03: 30-05: 29) | 🐅';
+  String get compatibility_time_slot3 => 'বাঘের ঘন্টা|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 => 'খরগোশের সময় | (05: 30-07: 29) | 🐇';
+  String get compatibility_time_slot4 => 'খরগোশের সময়|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 => 'ড্রাগনের সময় | (07: 30-09: 29) | 🐉';
+  String get compatibility_time_slot5 => 'ড্রাগনের সময়|(07:30-09:29)|🐉';
 
   @override
-  String get compatibility_time_slot6 => 'সাপের সময় | (09: 30-11: 29) | 🐍';
+  String get compatibility_time_slot6 => 'সাপের সময়|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 => 'ঘোড়ার ঘন্টা | (11: 30-13: 29) | 🐎';
+  String get compatibility_time_slot7 => 'ঘোড়ার ঘন্টা|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 => 'ভেড়ার ঘন্টা | (13: 30-15: 29) | 🐑';
+  String get compatibility_time_slot8 => 'ভেড়ার ঘন্টা|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 => 'বানরের সময় | (15: 30-17: 29) | 🐒';
+  String get compatibility_time_slot9 => 'বানরের সময়|(15:30-17:29)|🐒';
 
   @override
   String get compatibility_tips_title => 'Goong-Hapর টিপস';
@@ -3208,6 +3246,9 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
       'Patch update complete! Restart the app.';
 
   @override
+  String get message_setting_patch_restarting => 'অ্যাপ রিস্টার্ট হচ্ছে...';
+
+  @override
   String message_setting_patch_update_failed(String error) {
     return 'Failed to apply the patch: $error';
   }
@@ -3250,4 +3291,41 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get vote_item_request_search_try_other_keyword =>
       'অন্য কীওয়ার্ড দিয়ে অনুসন্ধান করে দেখুন';
+
+  @override
+  String get goong_hap_what_is => 'গুংহাপ কি?';
+
+  @override
+  String get goong_hap_title => 'গুংহাপ (Goong-Hap)';
+
+  @override
+  String get goong_hap_subtitle => 'আপনার প্রিয় আইডলের সাথে আপনার নিয়তি কি?';
+
+  @override
+  String get goong_hap_tradition_title => 'কোরিয়ান ঐতিহ্যবাহী সংস্কৃতি';
+
+  @override
+  String get goong_hap_tradition_desc =>
+      'গুংহাপ হল একটি কোরিয়ান ঐতিহ্যবাহী সংস্কৃতি যা শত শত বছর ধরে চলে আসছে। জন্মতারিখের উপর ভিত্তি করে দুই জনের মধ্যে নিয়তির সংযোগ খুঁজে বের করার একটি বিশেষ উপায়!';
+
+  @override
+  String get goong_hap_kpop_title => 'K-POP আর্টিস্টের সাথে আমার সম্পর্ক';
+
+  @override
+  String get goong_hap_kpop_desc =>
+      'আপনার প্রিয় আইডলের সাথে আপনি কতটা মিলে যান? আপনার প্রিয় আইডলের সাথে নিয়তির সম্পর্ক দেখুন!';
+
+  @override
+  String get goong_hap_fun_title => 'ফ্যানডমের নতুন মজা';
+
+  @override
+  String get goong_hap_fun_desc =>
+      'বন্ধুদের সাথে স্কোর তুলনা করুন এবং শেয়ার করুন! কে তাদের আইডলের সাথে সবচেয়ে ভালো মিলে যায়?';
+
+  @override
+  String get goong_hap_notice =>
+      'গুংহাপ ফলাফল শুধুমাত্র মজা করার জন্য! K-POP এর সাথে কোরিয়ান ঐতিহ্যবাহী সংস্কৃতি অনুভব করুন';
+
+  @override
+  String get goong_hap_close_button => 'বন্ধ';
 }
