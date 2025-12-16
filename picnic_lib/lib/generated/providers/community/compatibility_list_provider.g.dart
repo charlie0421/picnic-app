@@ -58,7 +58,7 @@ final class CompatibilityListProvider
   }
 }
 
-String _$compatibilityListHash() => r'7c9284c986f5b33227741c38d1fd514ed1f95344';
+String _$compatibilityListHash() => r'bea62c5009a169ad6ba464a7a36b070fb8571b9f';
 
 final class CompatibilityListFamily extends $Family
     with

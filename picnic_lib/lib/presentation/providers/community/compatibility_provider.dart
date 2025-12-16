@@ -190,6 +190,9 @@ class Compatibility extends _$Compatibility {
     try {
       final userId = supabase.auth.currentUser?.id;
       if (userId == null) throw Exception('User not authenticated');
+      if (artist.birthDate == null) {
+        throw Exception('Artist birth date is required for compatibility');
+      }
 
       state = const AsyncValue.loading();
       ref.read(compatibilityLoadingProvider.notifier).set(true);
@@ -197,7 +200,7 @@ class Compatibility extends _$Compatibility {
       final compatibilityData = {
         'user_id': userId,
         'artist_id': artist.id,
-        'idol_birth_date': artist.birthDate?.toIso8601String(),
+        'idol_birth_date': artist.birthDate!.toIso8601String(),
         'user_birth_date': birthDate.toIso8601String(),
         'user_birth_time': birthTime,
         'gender': gender,

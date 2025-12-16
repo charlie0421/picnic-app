@@ -262,6 +262,18 @@ class _CompatibilityArtistSelectPageState
                 : null,
             onTap: () {
               logger.i('Artist selected: ${getLocaleTextFromJson(item.name)}');
+              // 생년월일이 없는 아티스트는 궁합 계산 불가
+              if (item.birthDate == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      AppLocalizations.of(context).compatibility_artist_no_birthdate,
+                    ),
+                    backgroundColor: AppColors.statusError,
+                  ),
+                );
+                return;
+              }
               ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
                     CompatibilityInputPage(artist: item),
                   );

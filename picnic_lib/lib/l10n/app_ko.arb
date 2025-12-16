@@ -99,6 +99,10 @@
   "@compatibility_activities_title": {
     "description": "Auto-generated metadata for key 'compatibility_activities_title'."
   },
+  "compatibility_artist_no_birthdate": "이 아티스트의 생년월일 정보가 없어 궁합을 볼 수 없습니다.",
+  "@compatibility_artist_no_birthdate": {
+    "description": "Error message when artist has no birth date for compatibility"
+  },
   "compatibility_agree_checkbox": "내 프로필에 성별과 생년월일 정보 저장에 동의합니다.",
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."

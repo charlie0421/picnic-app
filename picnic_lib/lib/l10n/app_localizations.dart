@@ -237,6 +237,12 @@ abstract class AppLocalizations {
   /// **'Suggested activities'**
   String get compatibility_activities_title;
 
+  /// Error message when artist has no birth date for compatibility
+  ///
+  /// In en, this message translates to:
+  /// **'This artist\'s birth date is not available for compatibility.'**
+  String get compatibility_artist_no_birthdate;
+
   /// Auto-generated metadata for key 'compatibility_agree_checkbox'.
   ///
   /// In en, this message translates to:

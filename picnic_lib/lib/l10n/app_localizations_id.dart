@@ -69,6 +69,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get compatibility_activities_title => 'Kegiatan yang disarankan';
 
   @override
+  String get compatibility_artist_no_birthdate =>
+      'This artist\'s birth date is not available for compatibility.';
+
+  @override
   String get compatibility_agree_checkbox =>
       'Saya setuju untuk menyimpan informasi jenis kelamin dan ulang tahun saya di profil saya.';
 

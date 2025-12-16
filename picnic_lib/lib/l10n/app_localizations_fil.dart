@@ -71,6 +71,10 @@ class AppLocalizationsFil extends AppLocalizations {
   String get compatibility_activities_title => 'Mga iminungkahing aktibidad';
 
   @override
+  String get compatibility_artist_no_birthdate =>
+      'This artist\'s birth date is not available for compatibility.';
+
+  @override
   String get compatibility_agree_checkbox =>
       'Sumasang -ayon ako na itago ang aking impormasyon sa kasarian at kaarawan sa aking profile.';
 

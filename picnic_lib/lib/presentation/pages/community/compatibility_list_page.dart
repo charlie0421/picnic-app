@@ -247,6 +247,32 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
       compatibilityListProvider(artistId: widget.artistId),
     );
 
+    // 네비게이션 스택 감지 - 현재 페이지가 top에 있을 때 네비게이션 업데이트
+    ref.listen<int?>(
+      navigationInfoProvider.select(
+        (nav) => nav.communityNavigationStack?.length,
+      ),
+      (previous, next) {
+        final navStack = ref
+            .read(navigationInfoProvider)
+            .communityNavigationStack;
+        final isCurrentPageOnTop = navStack?.peek() is CompatibilityListPage;
+        if (isCurrentPageOnTop &&
+            previous != null &&
+            next != null &&
+            next < previous) {
+          // 스택이 줄어들면서 현재 페이지가 top이 됨 = 뒤로 돌아옴
+          _updateNavigation();
+          // 페이지로 돌아올 때 리스트 새로고침
+          ref
+              .read(
+                compatibilityListProvider(artistId: widget.artistId).notifier,
+              )
+              .loadInitial();
+        }
+      },
+    );
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -370,10 +396,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
                   const SizedBox(width: 4),
                   Text(
                     l10n.goong_hap_what_is,
-                    style: getTextStyle(
-                      AppTypo.caption12R,
-                      AppColors.grey00,
-                    ),
+                    style: getTextStyle(AppTypo.caption12R, AppColors.grey00),
                   ),
                 ],
               ),

@@ -131,10 +131,10 @@ _$LocalizedCompatibilityImpl _$$LocalizedCompatibilityImplFromJson(
       ($checkedConvert) {
         final val = _$LocalizedCompatibilityImpl(
           language: $checkedConvert('language', (v) => v as String),
-          score: $checkedConvert('score', (v) => (v as num).toInt()),
-          scoreTitle: $checkedConvert('score_title', (v) => v as String),
+          score: $checkedConvert('score', (v) => (v as num?)?.toInt() ?? 0),
+          scoreTitle: $checkedConvert('score_title', (v) => (v as String?) ?? ''),
           compatibilitySummary:
-              $checkedConvert('compatibility_summary', (v) => v as String),
+              $checkedConvert('compatibility_summary', (v) => (v as String?) ?? ''),
           details: $checkedConvert(
               'details',
               (v) => v == null

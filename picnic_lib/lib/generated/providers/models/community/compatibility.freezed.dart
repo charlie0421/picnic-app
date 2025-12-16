@@ -1007,10 +1007,10 @@ class __$$LocalizedCompatibilityImplCopyWithImpl<$Res>
 class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
   const _$LocalizedCompatibilityImpl(
       {required this.language,
-      @JsonKey(name: 'score') required this.score,
-      @JsonKey(name: 'score_title') required this.scoreTitle,
+      @JsonKey(name: 'score') this.score = 0,
+      @JsonKey(name: 'score_title') this.scoreTitle = '',
       @JsonKey(name: 'compatibility_summary')
-      required this.compatibilitySummary,
+      this.compatibilitySummary = '',
       @JsonKey(name: 'details') this.details,
       final List<String> tips = const []})
       : _tips = tips;
@@ -1093,10 +1093,10 @@ class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
 abstract class _LocalizedCompatibility implements LocalizedCompatibility {
   const factory _LocalizedCompatibility(
       {required final String language,
-      @JsonKey(name: 'score') required final int score,
-      @JsonKey(name: 'score_title') required final String scoreTitle,
+      @JsonKey(name: 'score') final int score,
+      @JsonKey(name: 'score_title') final String scoreTitle,
       @JsonKey(name: 'compatibility_summary')
-      required final String compatibilitySummary,
+      final String compatibilitySummary,
       @JsonKey(name: 'details') final Details? details,
       final List<String> tips}) = _$LocalizedCompatibilityImpl;
 

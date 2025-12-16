@@ -163,9 +163,9 @@ class CompatibilityCard extends ConsumerWidget {
                                 style: getTextStyle(
                                     AppTypo.caption12B, AppColors.grey900)),
                             Text(
-                              artist.gender! == Gender.male.name
+                              artist.gender == Gender.male.name
                                   ? '🧑'
-                                  : artist.gender! == Gender.female.name
+                                  : artist.gender == Gender.female.name
                                       ? '👩'
                                       : '',
                               textAlign: TextAlign.center,

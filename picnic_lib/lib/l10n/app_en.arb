@@ -79,6 +79,10 @@
   "@compatibility_activities_title": {
     "description": "Auto-generated metadata for key 'compatibility_activities_title'."
   },
+  "compatibility_artist_no_birthdate": "This artist's birth date is not available for compatibility.",
+  "@compatibility_artist_no_birthdate": {
+    "description": "Error message when artist has no birth date for compatibility"
+  },
   "compatibility_agree_checkbox": "I agree to store my gender and birthday information in my profile.",
   "@compatibility_agree_checkbox": {
     "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."

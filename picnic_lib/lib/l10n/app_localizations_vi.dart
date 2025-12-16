@@ -70,6 +70,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get compatibility_activities_title => 'Các hoạt động đề xuất';
 
   @override
+  String get compatibility_artist_no_birthdate =>
+      'This artist\'s birth date is not available for compatibility.';
+
+  @override
   String get compatibility_agree_checkbox =>
       'Tôi đồng ý lưu trữ thông tin về giới tính và sinh nhật của tôi trong hồ sơ của tôi.';
 

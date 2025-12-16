@@ -365,7 +365,7 @@ class SearchService {
       if (query.isEmpty) {
         final response = await supabase
             .from('artist')
-            .select('id,name,image,artist_group(id,name,image)')
+            .select('id,name,image,birth_date,gender,artist_group(id,name,image)')
             .neq('id', 0)
             .eq('is_kpop', true)
             .order('name->>$language', ascending: true)
@@ -394,7 +394,7 @@ class SearchService {
         // 초성 검색: 모든 아티스트를 가져와서 로컬 필터링
         final response = await supabase
             .from('artist')
-            .select('id,name,image,artist_group(id,name,image)')
+            .select('id,name,image,birth_date,gender,artist_group(id,name,image)')
             .neq('id', 0)
             .eq('is_kpop', true)
             .order('name->>$language', ascending: true);
@@ -453,7 +453,7 @@ class SearchService {
 
       final response = await supabase
           .from('artist')
-          .select('id,name,image,artist_group(id,name,image)')
+          .select('id,name,image,birth_date,gender,artist_group(id,name,image)')
           .neq('id', 0)
           .eq('is_kpop', true)
           .or('name->>ko.ilike.$searchPattern,name->>en.ilike.$searchPattern')

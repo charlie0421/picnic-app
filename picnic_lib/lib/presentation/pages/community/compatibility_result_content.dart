@@ -43,8 +43,9 @@ class _CompatibilityResultContentState
 
   // 🔧 스크롤 중 우발적 구매 방지 - 강화된 연타 방지
   DateTime? _lastStarPurchaseTime;
-  static const Duration _purchaseCooldown =
-      Duration(seconds: 1); // 300ms -> 1초로 증가
+  static const Duration _purchaseCooldown = Duration(
+    seconds: 1,
+  ); // 300ms -> 1초로 증가
 
   @override
   void initState() {
@@ -64,8 +65,9 @@ class _CompatibilityResultContentState
           title: Row(
             children: [
               Text(
-                AppLocalizations.of(context)
-                    .compatibility_purchase_confirm_title,
+                AppLocalizations.of(
+                  context,
+                ).compatibility_purchase_confirm_title,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
             ],
@@ -124,8 +126,11 @@ class _CompatibilityResultContentState
     // 정규화된 언어 코드 생성
     String normalizedLang = language;
     if (language == 'zh') {
-      if (country == 'CN') normalizedLang = 'zh-CN';
-      else if (country == 'TW') normalizedLang = 'zh-TW';
+      if (country == 'CN') {
+        normalizedLang = 'zh-CN';
+      } else if (country == 'TW') {
+        normalizedLang = 'zh-TW';
+      }
     }
 
     if (widget.compatibility.localizedResults?.isEmpty ?? true) {
@@ -138,16 +143,15 @@ class _CompatibilityResultContentState
     }
 
     // 현재 언어의 번역만 사용, fallback 하지 않음
-    final localizedResult = widget.compatibility.getLocalizedResult(normalizedLang) ??
+    final localizedResult =
+        widget.compatibility.getLocalizedResult(normalizedLang) ??
         widget.compatibility.getLocalizedResult(language);
 
     // 현재 언어 번역이 없으면 로딩 표시 (fallback 하지 않음)
     if (localizedResult == null) {
       return const SizedBox(
         height: 300,
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -169,16 +173,16 @@ class _CompatibilityResultContentState
         children: [
           CompatibilitySummaryWidget(localizedResult: localizedResult),
           const SizedBox(height: 24),
-          CompatibilityScoreWidget(
-            compatibility: widget.compatibility,
-          ),
+          CompatibilityScoreWidget(compatibility: widget.compatibility),
           const SizedBox(height: 36),
           if (!(widget.compatibility.isPaid ?? false))
             Stack(
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                   child: Column(
                     children: [
                       if (style != null) _buildStyleSection(style),
@@ -269,8 +273,11 @@ class _CompatibilityResultContentState
                                     // 🔒 구매 확인 다이얼로그 표시
                                     await _showPurchaseConfirmDialog();
                                   },
-                                  child: Text(AppLocalizations.of(context)
-                                      .fortune_purchase_by_star_candy),
+                                  child: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    ).fortune_purchase_by_star_candy,
+                                  ),
                                 ),
                               ),
                             ],
@@ -306,10 +313,7 @@ class _CompatibilityResultContentState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
-        ),
+        Text(label, style: getTextStyle(AppTypo.caption12B, AppColors.grey900)),
         const SizedBox(height: 4),
         Text(
           content,
@@ -350,11 +354,7 @@ class _CompatibilityResultContentState
           InkWell(
             onTap: () => _styleController.collapse(),
             child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: 16,
-              ),
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -412,11 +412,7 @@ class _CompatibilityResultContentState
           InkWell(
             onTap: () => _activityController.collapse(),
             child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: 16,
-              ),
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -429,11 +425,13 @@ class _CompatibilityResultContentState
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 4),
                     itemBuilder: (context, index) {
-                      return Text('✔️ ${activities.recommended[index]}',
-                          style: getTextStyle(
-                            AppTypo.caption12B,
-                            AppColors.grey900,
-                          ));
+                      return Text(
+                        '✔️ ${activities.recommended[index]}',
+                        style: getTextStyle(
+                          AppTypo.caption12B,
+                          AppColors.grey900,
+                        ),
+                      );
                     },
                   ),
                   Text(
@@ -443,7 +441,7 @@ class _CompatibilityResultContentState
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -477,11 +475,7 @@ class _CompatibilityResultContentState
           InkWell(
             onTap: () => _tipController.collapse(),
             child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: 16,
-              ),
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -492,11 +486,13 @@ class _CompatibilityResultContentState
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 12),
                     itemBuilder: (context, index) {
-                      return Text('✔️ ${tips[index]}',
-                          style: getTextStyle(
-                            AppTypo.caption12B,
-                            AppColors.grey900,
-                          ));
+                      return Text(
+                        '✔️ ${tips[index]}',
+                        style: getTextStyle(
+                          AppTypo.caption12B,
+                          AppColors.grey900,
+                        ),
+                      );
                     },
                   ),
                 ],

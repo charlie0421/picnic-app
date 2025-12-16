@@ -69,6 +69,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get compatibility_activities_title => '추천 활동';
 
   @override
+  String get compatibility_artist_no_birthdate =>
+      '이 아티스트의 생년월일 정보가 없어 궁합을 볼 수 없습니다.';
+
+  @override
   String get compatibility_agree_checkbox => '내 프로필에 성별과 생년월일 정보 저장에 동의합니다.';
 
   @override

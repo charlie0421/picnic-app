@@ -69,6 +69,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get compatibility_activities_title => 'Suggested activities';
 
   @override
+  String get compatibility_artist_no_birthdate =>
+      'This artist\'s birth date is not available for compatibility.';
+
+  @override
   String get compatibility_agree_checkbox =>
       'I agree to store my gender and birthday information in my profile.';
 
