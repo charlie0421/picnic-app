@@ -775,19 +775,17 @@ class _SettingPageState extends ConsumerState<SettingPage>
   ) async {
     if (!mounted || !context.mounted) return;
 
-    // 오버레이로 리스타트 안내 표시
-    showDialog(
+    // 오버레이로 리스타트 안내 표시 후 바로 재시작
+    await showDialog(
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black54,
       builder: (dialogContext) => _AutoRestartDialog(
         onComplete: () {
-          if (dialogContext.mounted) {
-            Navigator.of(dialogContext).pop();
-          }
-          if (context.mounted) {
-            Phoenix.rebirth(context);
-          }
+          // navigatorKey를 사용하여 더 안정적으로 재시작
+          // rebirth가 앱을 완전히 재시작하므로 다이얼로그를 수동으로 닫을 필요 없음
+          final ctx = navigatorKey.currentContext ?? context;
+          Phoenix.rebirth(ctx);
         },
       ),
     );

@@ -239,7 +239,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     setState(fn);
   }
 
-  /// 간소화된 패치 체크 로직 (auto_update 사용)
+  /// 앱 시작 시 패치 체크 및 자동 적용
   Future<void> _checkForUpdatesStable() async {
     if (UniversalPlatform.isWeb || _patchCheckCompleted) {
       logger.i(
@@ -254,36 +254,52 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     });
 
     try {
-      logger.i('🔍 간단한 패치 정보 확인 시작 (auto_update 활성화됨)');
+      logger.i('🔍 패치 상태 확인 시작');
 
-      // 간단한 현재 패치 정보만 확인 (Shorebird auto_update가 패치 처리)
-      try {
-        final patch = await ShorebirdUtils.checkPatch();
-        final currentPatchNumber = patch?.number;
+      final updater = shorebird.ShorebirdUpdater();
 
-        logger.i('✅ 현재 패치 번호: ${currentPatchNumber ?? "없음"}');
+      // 현재 패치 정보 확인
+      final currentPatch = await updater.readCurrentPatch();
+      final currentPatchNumber = currentPatch?.number;
+      logger.i('📋 현재 패치 번호: ${currentPatchNumber ?? "없음"}');
 
-        // PatchInfoProvider 업데이트
-        _updatePatchInfoProvider({
-          'currentPatch': currentPatchNumber,
-          'updateAvailable': false, // auto_update가 처리
-          'needsRestart': false,
-          'statusMessage': '패치 정보 확인 완료',
-        });
+      // 서버에서 업데이트 확인 (10초 타임아웃)
+      final status = await updater.checkForUpdate().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          logger.w('⏱️ 패치 확인 타임아웃');
+          return shorebird.UpdateStatus.upToDate;
+        },
+      );
 
-        await _handleUpToDate(currentPatchNumber);
-      } catch (e) {
-        logger.w('⚠️ 패치 정보 확인 실패: $e');
+      logger.i('📊 패치 상태: $status');
 
-        // 실패해도 정상 진행
-        _updatePatchInfoProvider({
-          'currentPatch': null,
-          'updateAvailable': false,
-          'needsRestart': false,
-          'statusMessage': '패치 정보 확인 실패',
-        });
+      switch (status) {
+        case shorebird.UpdateStatus.outdated:
+          // 새 패치 다운로드 및 적용
+          await _downloadAndApplyPatch(updater, currentPatchNumber);
+          break;
 
-        await _handleUpToDate(null);
+        case shorebird.UpdateStatus.restartRequired:
+          // 이미 다운로드된 패치가 있음 - 재시작 필요
+          logger.i('🔄 재시작이 필요한 패치가 대기 중');
+          _updatePatchInfoProvider({
+            'currentPatch': currentPatchNumber,
+            'updateDownloaded': true,
+            'needsRestart': true,
+            'hasUpdate': false,
+          });
+          await _scheduleAppRestart('Update ready! Restarting...');
+          break;
+
+        case shorebird.UpdateStatus.upToDate:
+          await _handleUpToDate(currentPatchNumber);
+          break;
+
+        default:
+          logger.i('ℹ️ 패치 상태: $status');
+          await _handleUpToDate(currentPatchNumber);
+          break;
       }
     } catch (e, stackTrace) {
       logger.e('💥 패치 체크 중 오류: $e', stackTrace: stackTrace);
@@ -298,9 +314,8 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     }
   }
 
-  // Deprecated/unused: 최신 플로우에서는 auto_update로 대체됨
-  // ignore: unused_element
-  Future<void> _handleOutdatedUpdate(
+  /// 패치 다운로드 및 적용 후 자동 재시작
+  Future<void> _downloadAndApplyPatch(
     shorebird.ShorebirdUpdater updater,
     int? currentPatchNumber,
   ) async {
@@ -309,71 +324,31 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     });
 
     try {
-      logger.i('💾 패치 다운로드 및 적용 시작');
+      logger.i('⬇️ 패치 다운로드 시작');
 
-      // 업데이트 전 패치 정보
-      final patchBefore = await updater.readCurrentPatch();
-      logger.i('📋 업데이트 전 패치: ${patchBefore?.number}');
-
-      // 패치 다운로드 및 적용
-      logger.i('⬇️ 패치 다운로드 중...');
+      // 패치 다운로드
       await updater.update();
-      logger.i('✅ 패치 다운로드 완료');
 
-      // 업데이트 후 패치 정보
+      // 다운로드 후 패치 정보 확인
       final patchAfter = await updater.readCurrentPatch();
-      logger.i('📋 업데이트 후 패치: ${patchAfter?.number}');
+      logger.i('📋 다운로드 후 패치: ${patchAfter?.number}');
 
-      if (patchBefore?.number != patchAfter?.number) {
-        logger.i(
-          '🎉 패치가 성공적으로 적용됨 (${patchBefore?.number} → ${patchAfter?.number})',
-        );
+      // PatchInfoProvider 업데이트
+      _updatePatchInfoProvider({
+        'currentPatch': currentPatchNumber,
+        'newPatch': patchAfter?.number,
+        'updateDownloaded': true,
+        'needsRestart': true,
+        'hasUpdate': false,
+      });
 
-        // PatchInfoProvider 업데이트 - 재시작 필요 상태
-        _updatePatchInfoProvider({
-          'updateAvailable': false,
-          'updateDownloaded': true,
-          'needsRestart': true,
-          'currentPatch': patchBefore?.number,
-          'newPatch': patchAfter?.number,
-        });
-
-        await _scheduleAppRestart('Update complete! Restarting app...');
-      } else {
-        logger.w('⚠️ 패치 업데이트가 완료되었지만 패치 번호가 변경되지 않음');
-
-        // PatchInfoProvider 업데이트 - 완료 상태
-        _updatePatchInfoProvider({
-          'updateAvailable': false,
-          'updateDownloaded': true,
-          'needsRestart': false,
-          'currentPatch': currentPatchNumber,
-        });
-
-        setStateIfMounted(() {
-          _updateStatus = 'Update completed';
-        });
-      }
+      logger.i('✅ 패치 다운로드 완료 - 자동 재시작 진행');
+      await _scheduleAppRestart('Update complete! Restarting...');
     } catch (e) {
-      logger.e('💥 패치 적용 중 오류: $e');
-      rethrow;
+      logger.e('💥 패치 다운로드 실패: $e');
+      // 다운로드 실패해도 앱은 계속 진행
+      await _handleUpToDate(currentPatchNumber);
     }
-  }
-
-  // Deprecated/unused: 최신 플로우에서는 auto_update로 대체됨
-  // ignore: unused_element
-  Future<void> _handleRestartRequired(int? currentPatchNumber) async {
-    logger.w('🔄 재시작이 필요한 상태 감지 - 패치 번호: $currentPatchNumber');
-
-    // PatchInfoProvider 업데이트 - 재시작 필요 상태
-    _updatePatchInfoProvider({
-      'updateAvailable': false,
-      'updateDownloaded': true,
-      'needsRestart': true,
-      'currentPatch': currentPatchNumber,
-    });
-
-    await _scheduleAppRestart('Restarting app...');
   }
 
   /// 최신 상태인 경우 처리
