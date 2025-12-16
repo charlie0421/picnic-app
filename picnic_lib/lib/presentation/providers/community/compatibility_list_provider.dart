@@ -66,6 +66,7 @@ class CompatibilityList extends _$CompatibilityList {
     final from = page * _pageSize;
     final to = from + _pageSize - 1;
 
+    // 리스트에서는 details, tips 불필요 (상세 페이지에서만 보안 RPC로 조회)
     var query = supabase.from(_table).select('''
           *,
           artist(*),
@@ -73,9 +74,7 @@ class CompatibilityList extends _$CompatibilityList {
             language,
             score,
             score_title,
-            compatibility_summary,
-            details,
-            tips
+            compatibility_summary
           )
         ''').eq('user_id', userId);
 

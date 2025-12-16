@@ -232,13 +232,13 @@ class Compatibility extends _$Compatibility {
   Future<List<Map<String, dynamic>>> _getI18nDataEfficiently(
       String compatibilityId) async {
     try {
+      // 보안을 위해 RPC 함수 사용 (is_paid=false일 때 details, tips 숨김)
       final response = await supabase
-          .from(_i18nTable)
-          .select()
-          .eq('compatibility_id', compatibilityId)
+          .rpc('get_compatibility_i18n', params: {'p_compatibility_id': compatibilityId})
           .timeout(_defaultTimeout);
 
-      return List<Map<String, dynamic>>.from(response);
+      if (response == null) return [];
+      return List<Map<String, dynamic>>.from(response as List);
     } catch (e, s) {
       logger.e('Error fetching i18n data', error: e, stackTrace: s);
       return [];
