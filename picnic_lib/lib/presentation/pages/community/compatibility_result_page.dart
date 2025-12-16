@@ -187,7 +187,8 @@ class _CompatibilityResultPageState
             .settingNavigation(
               showPortal: true,
               showTopMenu: true,
-              topRightMenu: TopRightType.board,
+              showMyPoint: false,
+              topRightMenu: TopRightType.none,
               showBottomNavigation: false,
               pageTitle: safeArtistTitle(),
             );

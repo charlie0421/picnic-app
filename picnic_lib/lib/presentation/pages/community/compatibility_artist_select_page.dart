@@ -13,6 +13,7 @@ import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_input_page.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -90,14 +91,13 @@ class _CompatibilityArtistSelectPageState
           ref.read(compatibilityArtistSearchQueryProvider);
       logger.d('Fetching page $pageKey with query: "$searchQuery"');
 
-      // SearchService를 직접 호출하여 provider dispose 문제 회피
+      // 빠른 아티스트 검색 사용 (북마크 정보 제외)
       final language = Localizations.localeOf(context).languageCode;
-      final newItems = await SearchService.searchArtists(
+      final newItems = await SearchService.searchArtistsFast(
         query: searchQuery,
         page: pageKey,
         limit: _pageSize,
         language: language,
-        supportKoreanInitials: true,
       );
 
       logger.d('Received ${newItems.length} items for page $pageKey');
@@ -345,6 +345,8 @@ class _CompatibilityArtistSelectPageState
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
             showTopMenu: true,
+            showMyPoint: false,
+            topRightMenu: TopRightType.none,
             showBottomNavigation: false,
             pageTitle: AppLocalizations.of(context).compatibility_new_compatibility,
           );

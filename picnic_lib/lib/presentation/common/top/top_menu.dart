@@ -64,6 +64,7 @@ class _TopState extends ConsumerState<TopMenu> {
         return navigationInfo.voteNavigationStack != null &&
             navigationInfo.voteNavigationStack!.length > 1;
       case PortalType.community:
+      case PortalType.goongHap:
         return navigationInfo.communityNavigationStack != null &&
             navigationInfo.communityNavigationStack!.length > 1;
       default:
@@ -83,6 +84,7 @@ class _TopState extends ConsumerState<TopMenu> {
         navigationInfoNotifier.goBackNovel();
         break;
       case PortalType.community:
+      case PortalType.goongHap:
         navigationInfoNotifier.goBackCommunity();
         break;
       default:

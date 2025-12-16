@@ -12,6 +12,7 @@ import 'package:picnic_lib/presentation/providers/community/compatibility_list_p
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
+import 'package:picnic_lib/presentation/dialogs/goong_hap_intro_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -73,6 +74,10 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
   void onRoutePopNext() {
     super.onRoutePopNext();
     _updateNavigation();
+    // 페이지로 돌아올 때 리스트 새로고침
+    ref
+        .read(compatibilityListProvider(artistId: widget.artistId).notifier)
+        .loadInitial();
   }
 
   // 단순한 스크롤 처리 - 페이지네이션만
@@ -301,36 +306,38 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 한자 + 제목 Row
+          // 제목: 한글 → 중국어 → 영어 순서
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 한자 宮合 텍스트
+              // 한글 궁합 텍스트 (가장 큼)
               Text(
-                '宮合',
+                '궁합',
                 style: TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.grey00.withValues(alpha: 0.9),
+                  color: AppColors.grey00.withValues(alpha: 0.95),
                   height: 1.0,
                 ),
               ),
               const SizedBox(width: 16),
-              // 제목과 설명
+              // 중국어, 영어, 설명
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 중국어 宮合
                     Text(
-                      'Goong-Hap',
+                      '宮合',
                       style: getTextStyle(AppTypo.title18B, AppColors.grey00),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
+                    // 영어 Goong-Hap
                     Text(
-                      l10n.compatibility_page_title,
+                      'Goong-Hap',
                       style: getTextStyle(
                         AppTypo.body14R,
-                        AppColors.grey00.withValues(alpha: 0.8),
+                        AppColors.grey00.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -338,7 +345,41 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+          // 궁합이란? 버튼 (별도 줄) - 작고 팬시하게
+          GestureDetector(
+            onTap: showGoongHapIntroDialog,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary500.withValues(alpha: 0.15),
+                    AppColors.secondary500.withValues(alpha: 0.15),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.grey00.withValues(alpha: 0.25),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('✨', style: TextStyle(fontSize: 12)),
+                  const SizedBox(width: 4),
+                  Text(
+                    l10n.goong_hap_what_is,
+                    style: getTextStyle(
+                      AppTypo.caption12R,
+                      AppColors.grey00,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           // 새 궁합 계산하기 버튼 (웹처럼 상단에 배치)
           Container(
             decoration: BoxDecoration(
@@ -406,7 +447,8 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
           .settingNavigation(
             showPortal: true,
             showTopMenu: true,
-            topRightMenu: TopRightType.board,
+            showMyPoint: false,
+            topRightMenu: TopRightType.none,
             showBottomNavigation: false,
             pageTitle: AppLocalizations.of(context).compatibility_page_title,
           );

@@ -67,7 +67,8 @@ class _CompatibilityInputScreenState
           .settingNavigation(
             showPortal: true,
             showTopMenu: true,
-            topRightMenu: TopRightType.board,
+            showMyPoint: false,
+            topRightMenu: TopRightType.none,
             showBottomNavigation: false,
             pageTitle: AppLocalizations.of(context).compatibility_page_title,
           );
@@ -739,7 +740,7 @@ class _CompatibilityInputScreenState
                                     final time = entry.value;
                                     final parts = time.split('|');
                                     final text = parts[0];
-                                    final textTime = parts[1];
+                                    final textTime = parts.length > 1 ? parts[1] : '';
                                     final icon = parts.length > 2
                                         ? parts[2]
                                         : '';
