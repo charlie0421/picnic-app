@@ -52,6 +52,7 @@ class _CompatibilityResultPageState
   static const _animationDuration = Duration(milliseconds: 300);
   static const _scrollCurve = Curves.easeOut;
   bool _invokingI18n = false;
+  bool _isLoadingI18n = false;
 
   // late final에서 getter로 변경하여 항상 최신 아티스트 정보 사용
   String get _shareMessage {
@@ -384,26 +385,30 @@ class _CompatibilityResultPageState
           }
 
           // i18n 누락 시 엣지 함수 호출(포스트 프레임, 1회 가드)
+          final lang = _currentLanguageCode();
+          final hasCurrent = compatibility.getLocalizedResult(lang) != null;
+          final needsI18n = compatibility.isCompleted && !hasCurrent;
+
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             if (!mounted || _invokingI18n) return;
             try {
-              if (compatibility.isCompleted) {
-                final lang = _currentLanguageCode();
-                final hasCurrent =
-                    compatibility.getLocalizedResult(lang) != null;
-                if (!hasCurrent) {
-                  _invokingI18n = true;
-                  await supabase.functions.invoke(
-                    'compatibility-i18n',
-                    body: {
-                      'compatibility_id': compatibility.id,
-                      'language': lang,
-                    },
-                  );
-                  await ref
-                      .read(compatibilityProvider.notifier)
-                      .loadCompatibility(compatibility.id, forceRefresh: true);
+              if (needsI18n) {
+                _invokingI18n = true;
+                if (mounted) {
+                  setState(() {
+                    _isLoadingI18n = true;
+                  });
                 }
+                await supabase.functions.invoke(
+                  'compatibility-i18n',
+                  body: {
+                    'compatibility_id': compatibility.id,
+                    'language': lang,
+                  },
+                );
+                await ref
+                    .read(compatibilityProvider.notifier)
+                    .loadCompatibility(compatibility.id, forceRefresh: true);
               }
             } catch (e, s) {
               logger.e(
@@ -413,8 +418,18 @@ class _CompatibilityResultPageState
               );
             } finally {
               _invokingI18n = false;
+              if (mounted) {
+                setState(() {
+                  _isLoadingI18n = false;
+                });
+              }
             }
           });
+
+          // 번역 로딩 중이면 로딩 인디케이터 표시
+          if (needsI18n && (_isLoadingI18n || !hasCurrent)) {
+            return _buildI18nLoadingIndicator(compatibility);
+          }
 
           return CustomScrollView(
             controller: _scrollController, // Add the ScrollController here
@@ -525,6 +540,55 @@ class _CompatibilityResultPageState
 
   Widget _buildLoadingIndicator() {
     return Center(child: MediumPulseLoadingIndicator());
+  }
+
+  Widget _buildI18nLoadingIndicator(CompatibilityModel compatibility) {
+    return Container(
+      constraints: BoxConstraints(
+        minHeight: MediaQuery.of(context).size.height,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.primary500.withValues(alpha: .7),
+            AppColors.secondary500.withValues(alpha: .7),
+          ],
+        ),
+      ),
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(height: 24),
+              CompatibilityLogoWidget(),
+              SizedBox(height: 36),
+              CompatibilityCard(
+                artist: compatibility.artist,
+                birthDate: compatibility.birthDate,
+                birthTime: compatibility.birthTime,
+                gender: compatibility.gender,
+                compatibility: compatibility,
+              ),
+              const SizedBox(height: 48),
+              // 번역 로딩 인디케이터
+              MediumPulseLoadingIndicator(),
+              const SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context).loading,
+                style: getTextStyle(AppTypo.body14R, AppColors.grey00),
+              ),
+              const SizedBox(height: 100),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {

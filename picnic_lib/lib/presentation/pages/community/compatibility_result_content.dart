@@ -117,7 +117,16 @@ class _CompatibilityResultContentState
 
   @override
   Widget build(BuildContext context) {
-    String language = Localizations.localeOf(context).languageCode;
+    final locale = Localizations.localeOf(context);
+    final language = locale.languageCode.toLowerCase();
+    final country = (locale.countryCode ?? '').toUpperCase();
+
+    // 정규화된 언어 코드 생성
+    String normalizedLang = language;
+    if (language == 'zh') {
+      if (country == 'CN') normalizedLang = 'zh-CN';
+      else if (country == 'TW') normalizedLang = 'zh-TW';
+    }
 
     if (widget.compatibility.localizedResults?.isEmpty ?? true) {
       return Center(
@@ -128,14 +137,16 @@ class _CompatibilityResultContentState
       );
     }
 
-    final localizedResult = widget.compatibility.getLocalizedResult(language) ??
-        widget.compatibility.localizedResults?.values.firstOrNull;
+    // 현재 언어의 번역만 사용, fallback 하지 않음
+    final localizedResult = widget.compatibility.getLocalizedResult(normalizedLang) ??
+        widget.compatibility.getLocalizedResult(language);
 
+    // 현재 언어 번역이 없으면 로딩 표시 (fallback 하지 않음)
     if (localizedResult == null) {
-      return Center(
-        child: Text(
-          AppLocalizations.of(context).compatibility_result_not_found,
-          style: getTextStyle(AppTypo.body14R, AppColors.grey500),
+      return const SizedBox(
+        height: 300,
+        child: Center(
+          child: CircularProgressIndicator(),
         ),
       );
     }

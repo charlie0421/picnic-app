@@ -66,6 +66,7 @@ class Compatibility extends _$Compatibility {
 
   Future<void> _processInBackground(CompatibilityModel initial) async {
     var retryCount = 0;
+    String? lastErrorMessage;
 
     while (retryCount < _maxRetries) {
       try {
@@ -83,29 +84,39 @@ class Compatibility extends _$Compatibility {
           return;
         }
 
-        throw Exception('Edge function error: ${response.data}');
+        lastErrorMessage = 'Edge function error: ${response.data}';
+        throw Exception(lastErrorMessage);
       } catch (e, s) {
         logger.e('Edge function error (attempt ${retryCount + 1}/$_maxRetries)',
             error: e, stackTrace: s);
+        lastErrorMessage = e.toString();
         retryCount++;
 
-        if (retryCount == _maxRetries) {
+        if (retryCount >= _maxRetries) {
+          // 최대 재시도 횟수 도달 - 에러 상태로 설정하고 종료
           ref.read(compatibilityLoadingProvider.notifier).set(false);
 
-          await supabase.from(_table).update({
-            'status': 'error',
-            'error_message': 'Failed after $_maxRetries attempts',
-          }).eq('id', initial.id);
+          final errorMsg = 'Failed after $_maxRetries attempts: $lastErrorMessage';
+
+          try {
+            await supabase.from(_table).update({
+              'status': 'error',
+              'error_message': errorMsg,
+            }).eq('id', initial.id);
+          } catch (dbError) {
+            logger.e('Failed to update error status in DB', error: dbError);
+          }
 
           state = AsyncValue.data(initial.copyWith(
             status: CompatibilityStatus.error,
-            errorMessage: 'Failed after $_maxRetries attempts',
+            errorMessage: errorMsg,
           ));
-          return;
+          return; // 무한 루프 방지 - 반드시 여기서 종료
         }
 
+        // 다음 재시도 전 대기
         await Future.delayed(_retryDelay * retryCount);
-        rethrow;
+        // rethrow 제거 - while 루프가 계속 실행되도록 함
       }
     }
   }
