@@ -1,0 +1,2125 @@
+{
+  "@@locale": "my",
+  "achieve": "အောင်မြင်ချက်",
+  "@achieve": {
+    "description": "Auto-generated metadata for key 'achieve'."
+  },
+  "ads_available_time": "ကြော်ငြာများကိုကြည့်ရှုရန်လာမည့်ရရှိနိုင်သည့်အချိန်",
+  "@ads_available_time": {
+    "description": "Auto-generated metadata for key 'ads_available_time'."
+  },
+  "anonymous": "အမည်မထုတ်ဖေါ်သော",
+  "@anonymous": {
+    "description": "Auto-generated metadata for key 'anonymous'."
+  },
+  "anonymous_mode": "အမည်မသိ mode ကို",
+  "@anonymous_mode": {
+    "description": "Auto-generated metadata for key 'anonymous_mode'."
+  },
+  "block_user_label": "အသုံးပြုသူများကိုပိတ်ဆို့ခြင်း",
+  "@block_user_label": {
+    "description": "Auto-generated metadata for key 'block_user_label'."
+  },
+  "button_cancel": "ပျက်စေ",
+  "@button_cancel": {
+    "description": "Auto-generated metadata for key 'button_cancel'."
+  },
+  "button_complete": "ပြီးပြီ",
+  "@button_complete": {
+    "description": "Auto-generated metadata for key 'button_complete'."
+  },
+  "button_login": "ဆိုင်းအင်လုပ်ခြင်း",
+  "@button_login": {
+    "description": "Auto-generated metadata for key 'button_login'."
+  },
+  "button_ok": "အတည်ပြု",
+  "@button_ok": {
+    "description": "Auto-generated metadata for key 'button_ok'."
+  },
+  "comments": "မှတ်ချက်များ",
+  "@comments": {
+    "description": "Auto-generated metadata for key 'comments'."
+  },
+  "common_all": "အားလုံး",
+  "@common_all": {
+    "description": "Auto-generated metadata for key 'common_all'."
+  },
+  "common_fail": "မအောင်မြင်",
+  "@common_fail": {
+    "description": "Auto-generated metadata for key 'common_fail'."
+  },
+  "common_retry_label": "ထပ်ကြိုးစားပါ",
+  "@common_retry_label": {
+    "description": "Auto-generated metadata for key 'common_retry_label'."
+  },
+  "common_success": "အောင်မြင်ခြင်း",
+  "@common_success": {
+    "description": "Auto-generated metadata for key 'common_success'."
+  },
+  "common_text_no_data": "ဒေတာမရှိပါ။",
+  "@common_text_no_data": {
+    "description": "Auto-generated metadata for key 'common_text_no_data'."
+  },
+  "common_text_no_search_result": "ရှာဖွေမှုရလဒ်များကိုရှာမတွေ့ပါ။",
+  "@common_text_no_search_result": {
+    "description": "Auto-generated metadata for key 'common_text_no_search_result'."
+  },
+  "common_text_search_error": "ရှာဖွေရေးကာလအတွင်းအမှားတစ်ခုဖြစ်ပွားခဲ့သည်။",
+  "@common_text_search_error": {
+    "description": "Auto-generated metadata for key 'common_text_search_error'."
+  },
+  "common_text_search_recent_label": "လတ်တလောရှာဖွေမှုများ",
+  "@common_text_search_recent_label": {
+    "description": "Auto-generated metadata for key 'common_text_search_recent_label'."
+  },
+  "common_text_search_result_label": "ရှာဖွေမှုရလဒ်များ",
+  "@common_text_search_result_label": {
+    "description": "Auto-generated metadata for key 'common_text_search_result_label'."
+  },
+  "compatibility_activities_title": "အကြံပြုချက်များ",
+  "@compatibility_activities_title": {
+    "description": "Auto-generated metadata for key 'compatibility_activities_title'."
+  },
+  "compatibility_artist_no_birthdate": "ဤအနုပညာရှင်၏မွေးနေ့သည်လိုက်ဖက်မှုအတွက်မရှိပါ။",
+  "@compatibility_artist_no_birthdate": {
+    "description": "Error message when artist has no birth date for compatibility"
+  },
+  "compatibility_agree_checkbox": "ကျွန်ုပ်၏ကျားမနှင့်မွေးနေ့ကိုကျွန်ုပ်၏ပရိုဖိုင်းတွင်သိမ်းဆည်းရန်ကျွန်ုပ်သဘောတူသည်။",
+  "@compatibility_agree_checkbox": {
+    "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
+  },
+  "compatibility_analyze_start": "လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာစတင်ပါ",
+  "@compatibility_analyze_start": {
+    "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
+  },
+  "compatibility_analyzing": "လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာခွဲခြမ်းစိတ်ဖြာ။",
+  "@compatibility_analyzing": {
+    "description": "Auto-generated metadata for key 'compatibility_analyzing'."
+  },
+  "compatibility_analyzing_prepare": "ပြင်ဆင်နေ",
+  "@compatibility_analyzing_prepare": {
+    "description": "Auto-generated metadata for key 'compatibility_analyzing_prepare'."
+  },
+  "compatibility_birthday": "မွေးနေ့",
+  "@compatibility_birthday": {
+    "description": "Auto-generated metadata for key 'compatibility_birthday'."
+  },
+  "compatibility_birthtime": "မွေးဖွားချိန်",
+  "@compatibility_birthtime": {
+    "description": "Auto-generated metadata for key 'compatibility_birthtime'."
+  },
+  "compatibility_couple_style": "စုံတွဲများစတိုင်များ",
+  "@compatibility_couple_style": {
+    "description": "Auto-generated metadata for key 'compatibility_couple_style'."
+  },
+  "compatibility_duplicate_data_title": "ရှိပြီးသားတည်ရှိနေတဲ့သဟဇာတဒေတာ",
+  "@compatibility_duplicate_data_title": {
+    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
+  },
+  "compatibility_gender": "ကျားကန်",
+  "@compatibility_gender": {
+    "description": "Auto-generated metadata for key 'compatibility_gender'."
+  },
+  "compatibility_gender_female": "မိန်းမ",
+  "@compatibility_gender_female": {
+    "description": "Auto-generated metadata for key 'compatibility_gender_female'."
+  },
+  "compatibility_gender_male": "ယောကျ်ားဖြစ်သော",
+  "@compatibility_gender_male": {
+    "description": "Auto-generated metadata for key 'compatibility_gender_male'."
+  },
+  "compatibility_idol_style": "Idol Style",
+  "@compatibility_idol_style": {
+    "description": "Auto-generated metadata for key 'compatibility_idol_style'."
+  },
+  "compatibility_new_compatibility": "နယူး goong-hap တွက်ချက်",
+  "@compatibility_new_compatibility": {
+    "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
+  },
+  "compatibility_page_title": "လိုက်ကြားမှု",
+  "@compatibility_page_title": {
+    "description": "Auto-generated metadata for key 'compatibility_page_title'."
+  },
+  "compatibility_purchase_confirm_message": "အသေးစိတ် Goong-Hap ရလဒ်ကြည့်ရန် Star Candy ၁၀၀ သုံးမည်လား?",
+  "@compatibility_purchase_confirm_message": {
+    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
+  },
+  "compatibility_remain_star_candy": "ကျန်ရှိ Star Candy",
+  "@compatibility_remain_star_candy": {
+    "description": "Auto-generated metadata for key 'compatibility_remain_star_candy'."
+  },
+  "compatibility_result_not_found": "ဒါဟာ Goong-hap 😔မဟုတ်ပါဘူး။",
+  "@compatibility_result_not_found": {
+    "description": "Auto-generated metadata for key 'compatibility_result_not_found'."
+  },
+  "compatibility_share_hashtag": "#Picnic # 피크닠 # 아이돌궁합 # 아이돌궁합 #goGONGHAP # 피크닠궁합",
+  "@compatibility_share_hashtag": {
+    "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
+  },
+  "compatibility_share_message": "ကျွန်ုပ်၏တောက်ပသောဓာတုဗေဒလိုက်လျောညီထွေဖြစ်မှုသည် {artistName} နှင့်မည်သည့်ရာခိုင်နှုန်းနှင့်လိုက်ဖက်သနည်း။ ငါ့နှလုံးကပြိုင်ကားနေပါတယ်",
+  "@compatibility_share_message": {
+    "placeholders": {
+      "artistName": {
+        "type": "String"
+      }
+    }
+  },
+  "compatibility_snackbar_error": "အမှားတစ်ခုဖြစ်ပွားခဲ့သည်",
+  "@compatibility_snackbar_error": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
+  },
+  "compatibility_snackbar_need_gender": "ကျေးဇူးပြုပြီးကျား,",
+  "@compatibility_snackbar_need_gender": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
+  },
+  "compatibility_snackbar_start": "လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာစတင်လေ့လာပါ။",
+  "@compatibility_snackbar_start": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
+  },
+  "compatibility_style_title": "လိုက်ဖက်တဲ့စတိုင်လ်",
+  "@compatibility_style_title": {
+    "description": "Auto-generated metadata for key 'compatibility_style_title'."
+  },
+  "compatibility_time_slot1": "ကြွက်၏နာရီ | (23 း 30-01: 29) | 🐀",
+  "@compatibility_time_slot1": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
+  },
+  "compatibility_time_slot10": "ကြက်ငှက်တုပ်ကွေး၏နာရီ (17: 30-19: 29) | 🐔 |",
+  "@compatibility_time_slot10": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
+  },
+  "compatibility_time_slot11": "ခွေး၏နာရီ | (19 း 30-21 း 29) | 🐕 |",
+  "@compatibility_time_slot11": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
+  },
+  "compatibility_time_slot12": "ဝက်ဝက်၏နာရီ | (21: 30-23: 29) | 🐖 |",
+  "@compatibility_time_slot12": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
+  },
+  "compatibility_time_slot2": "နွား၏နာရီ | (01: 30-03 း 29) | 🐂 |",
+  "@compatibility_time_slot2": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
+  },
+  "compatibility_time_slot3": "Tiger ၏နာရီ (03: 30-05: 29) | 🐅 |",
+  "@compatibility_time_slot3": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
+  },
+  "compatibility_time_slot4": "ယုန်၏နာရီ | (05: 30-07: 29) | 🐇 |",
+  "@compatibility_time_slot4": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
+  },
+  "compatibility_time_slot5": "နဂါး၏နာရီ (07: 30-09: 29) | 🐉 |",
+  "@compatibility_time_slot5": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
+  },
+  "compatibility_time_slot6": "မြွေ၏နာရီ | (09 း 30-11: 29) | 🐍 |",
+  "@compatibility_time_slot6": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
+  },
+  "compatibility_time_slot7": "မြင်း၏နာရီ (11 း 30-13: 29) | 🐎",
+  "@compatibility_time_slot7": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
+  },
+  "compatibility_time_slot8": "သိုးများ၏နာရီ | (13: 30-15: 29) |",
+  "@compatibility_time_slot8": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
+  },
+  "compatibility_time_slot9": "မျောက်၏အချိန် | (15 း 30-17: 29) | 🐒",
+  "@compatibility_time_slot9": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
+  },
+  "compatibility_tips_title": "လိုက်ဖက်တဲ့သိကောင်းစရာများ",
+  "@compatibility_tips_title": {
+    "description": "Auto-generated metadata for key 'compatibility_tips_title'."
+  },
+  "compatibility_user_style": "အသုံးပြုသူပုံစံများ",
+  "@compatibility_user_style": {
+    "description": "Auto-generated metadata for key 'compatibility_user_style'."
+  },
+  "compatibility_waiting_message": "ကျေးဇူးပြုပြီးခဏစောင့်ပါ",
+  "@compatibility_waiting_message": {
+    "description": "Auto-generated metadata for key 'compatibility_waiting_message'."
+  },
+  "compatibility_warning_exit": "အကယ်. သင်သည်မျက်နှာပြင်ကိုထားခဲ့ပါက,",
+  "@compatibility_warning_exit": {
+    "description": "Auto-generated metadata for key 'compatibility_warning_exit'."
+  },
+  "dialog_button_cancel": "ပျက်စေ",
+  "@dialog_button_cancel": {
+    "description": "Auto-generated metadata for key 'dialog_button_cancel'."
+  },
+  "dialog_button_ok": "အတည်ပြု",
+  "@dialog_button_ok": {
+    "description": "Auto-generated metadata for key 'dialog_button_ok'."
+  },
+  "dialog_caution": "🚫သတိ🚫",
+  "@dialog_caution": {
+    "description": "Auto-generated metadata for key 'dialog_caution'."
+  },
+  "dialog_content_ads_exhausted": "ကြော်ငြာများအားလုံးကုန်ပြီ ကျေးဇူးပြုပြီးနောက်တစ်ခါထပ်ကြိုးစားပါ",
+  "@dialog_content_ads_exhausted": {
+    "description": "Auto-generated metadata for key 'dialog_content_ads_exhausted'."
+  },
+  "dialog_content_login_required": "login လိုအပ်သည်",
+  "@dialog_content_login_required": {
+    "description": "Auto-generated metadata for key 'dialog_content_login_required'."
+  },
+  "dialog_message_can_resignup": "သင်၏အသင်း 0 င်မှုကိုယခုသင်ဖျက်သိမ်းလျှင်သင်ပြန်လည်ဆုံတွေ့နိုင်သည့်အခါ?",
+  "@dialog_message_can_resignup": {
+    "description": "Auto-generated metadata for key 'dialog_message_can_resignup'."
+  },
+  "dialog_message_purchase_failed": "သင်၏ 0 ယ်ယူမှုနှင့်အတူအမှားတစ်ခုရှိခဲ့သည်, ကျေးဇူးပြု. နောက်မှထပ်ကြိုးစားပါ။",
+  "@dialog_message_purchase_failed": {
+    "description": "Auto-generated metadata for key 'dialog_message_purchase_failed'."
+  },
+  "dialog_message_purchase_success": "သင်၏ 0 ယ်ယူမှုကိုအောင်မြင်စွာပြီးစီးခဲ့သည်။",
+  "@dialog_message_purchase_success": {
+    "description": "Auto-generated metadata for key 'dialog_message_purchase_success'."
+  },
+  "dialog_title_ads_exhausted": "အားလုံးကြော်ငြာများမော",
+  "@dialog_title_ads_exhausted": {
+    "description": "Auto-generated metadata for key 'dialog_title_ads_exhausted'."
+  },
+  "dialog_title_vote_fail": "မဲပေးခွင့်မအောင်မြင်ပါ",
+  "@dialog_title_vote_fail": {
+    "description": "Auto-generated metadata for key 'dialog_title_vote_fail'."
+  },
+  "dialog_will_delete_star_candy": "ဖျက်ပစ်ခံရဖို့ကြယ်ပွင့်",
+  "@dialog_will_delete_star_candy": {
+    "description": "Auto-generated metadata for key 'dialog_will_delete_star_candy'."
+  },
+  "dialog_withdraw_message": "သင်၏အသင်း 0 င်ခြင်းကိုသင်ဖျက်သိမ်းပါကသင်၏ကြယ်ပွင့်သကြားလုံးနှင့်ပရော်ဖက်ရှင်နယ်ဆိုင်ရာအချက်အလက်များကိုချက်ချင်းဖျက်ပစ်လိမ့်မည်။",
+  "@dialog_withdraw_message": {
+    "description": "Auto-generated metadata for key 'dialog_withdraw_message'."
+  },
+  "dialog_withdraw_title": "မင်းထွက်သွားချင်တာသေချာလား",
+  "@dialog_withdraw_title": {
+    "description": "Auto-generated metadata for key 'dialog_withdraw_title'."
+  },
+  "error_action_failed": "စစ်ဆင်ရေးဖျော်ဖြေစဉ်အမှားတစ်ခုဖြစ်ပွားခဲ့သည်။",
+  "@error_action_failed": {
+    "description": "Auto-generated metadata for key 'error_action_failed'."
+  },
+  "error_content_parse": "အကြောင်းအရာခွဲခြမ်းစိတ်ဖြာနေစဉ်အမှားတစ်ခုဖြစ်ပွားခဲ့သည်။",
+  "@error_content_parse": {
+    "description": "Auto-generated metadata for key 'error_content_parse'."
+  },
+  "error_invalid_data": "မမှန်ကန်သောဒေတာ။",
+  "@error_invalid_data": {
+    "description": "Auto-generated metadata for key 'error_invalid_data'."
+  },
+  "error_network_connection": "သင်၏ network connection ကိုစစ်ဆေးပါ။",
+  "@error_network_connection": {
+    "description": "Auto-generated metadata for key 'error_network_connection'."
+  },
+  "error_request_timeout": "တောင်းဆိုမှုထွက်အချိန်မီ။",
+  "@error_request_timeout": {
+    "description": "Auto-generated metadata for key 'error_request_timeout'."
+  },
+  "error_title": "မှားယွင်းမှား",
+  "@error_title": {
+    "description": "Auto-generated metadata for key 'error_title'."
+  },
+  "error_unknown": "အမည်မသိအမှားတစ်ခုဖြစ်ပွားခဲ့သည်။",
+  "@error_unknown": {
+    "description": "Auto-generated metadata for key 'error_unknown'."
+  },
+  "faq_category_all": "အားလုံး",
+  "@faq_category_all": {
+    "description": "Auto-generated metadata for key 'faq_category_all'."
+  },
+  "fortune_advice": "အကြံ",
+  "@fortune_advice": {
+    "description": "Auto-generated metadata for key 'fortune_advice'."
+  },
+  "fortune_button_title": "ငါ့အနုပညာရှင်ရဲ့ Fortune Teller",
+  "@fortune_button_title": {
+    "description": "Auto-generated metadata for key 'fortune_button_title'."
+  },
+  "fortune_career": "စီးပွားရေးကံကြမ္မာ",
+  "@fortune_career": {
+    "description": "Auto-generated metadata for key 'fortune_career'."
+  },
+  "fortune_health": "ကျန်းမာရေးကံကြမ္မာ",
+  "@fortune_health": {
+    "description": "Auto-generated metadata for key 'fortune_health'."
+  },
+  "fortune_honor": "ဂုဏ်",
+  "@fortune_honor": {
+    "description": "Auto-generated metadata for key 'fortune_honor'."
+  },
+  "fortune_lack_of_star_candy_message": "Star Candy မလုံလောက်ပါ။ ဆိုင်တွင် ဖြည့်ပါ။",
+  "@fortune_lack_of_star_candy_message": {
+    "description": "Auto-generated metadata for key 'fortune_lack_of_star_candy_message'."
+  },
+  "fortune_lack_of_star_candy_title": "မင်းမှာကြယ်ပွင့်သကြားလုံးမရှိဘူး။ ဆိုင်မျက်နှာပြင်သို့ပြောင်းရွှေ့ခြင်း။",
+  "@fortune_lack_of_star_candy_title": {
+    "description": "Auto-generated metadata for key 'fortune_lack_of_star_candy_title'."
+  },
+  "fortune_lucky_color": "ကံကောင်းသည့်အရောင်များ",
+  "@fortune_lucky_color": {
+    "description": "Auto-generated metadata for key 'fortune_lucky_color'."
+  },
+  "fortune_lucky_days": "ရက်သတ္တပတ်၏ကံကောင်းနေ့ရက်ကာလ",
+  "@fortune_lucky_days": {
+    "description": "Auto-generated metadata for key 'fortune_lucky_days'."
+  },
+  "fortune_lucky_keyword": "ကံကောင်းသောသော့ချက်စာလုံးများ",
+  "@fortune_lucky_keyword": {
+    "description": "Auto-generated metadata for key 'fortune_lucky_keyword'."
+  },
+  "fortune_lucky_number": "Lucky နံပါတ်များ",
+  "@fortune_lucky_number": {
+    "description": "Auto-generated metadata for key 'fortune_lucky_number'."
+  },
+  "fortune_money": "Fortune ပြောပြခြင်း",
+  "@fortune_money": {
+    "description": "Auto-generated metadata for key 'fortune_money'."
+  },
+  "fortune_month1": "ဇန်နဝါရီလအတွက်ကံဇာတာ",
+  "@fortune_month1": {
+    "description": "Auto-generated metadata for key 'fortune_month1'."
+  },
+  "fortune_month10": "အောက်တိုဘာလ Fortune",
+  "@fortune_month10": {
+    "description": "Auto-generated metadata for key 'fortune_month10'."
+  },
+  "fortune_month11": "နိုဝင်ဘာလများအတွက်ကံဇာတာ",
+  "@fortune_month11": {
+    "description": "Auto-generated metadata for key 'fortune_month11'."
+  },
+  "fortune_month12": "ဒီဇင်ဘာလ Fortune",
+  "@fortune_month12": {
+    "description": "Auto-generated metadata for key 'fortune_month12'."
+  },
+  "fortune_month2": "ဖေဖော်ဝါရီလအတွက် Fortune",
+  "@fortune_month2": {
+    "description": "Auto-generated metadata for key 'fortune_month2'."
+  },
+  "fortune_month3": "မတ်လအတွက်ကံဇာတာ",
+  "@fortune_month3": {
+    "description": "Auto-generated metadata for key 'fortune_month3'."
+  },
+  "fortune_month4": "April ပြီလ fortune",
+  "@fortune_month4": {
+    "description": "Auto-generated metadata for key 'fortune_month4'."
+  },
+  "fortune_month5": "မေလအတွက်ကံဇာတာ",
+  "@fortune_month5": {
+    "description": "Auto-generated metadata for key 'fortune_month5'."
+  },
+  "fortune_month6": "ဇွန်လအတွက်ကံဇာတာ",
+  "@fortune_month6": {
+    "description": "Auto-generated metadata for key 'fortune_month6'."
+  },
+  "fortune_month7": "ဇူလိုင်လအတွက်ကံဇာတာ",
+  "@fortune_month7": {
+    "description": "Auto-generated metadata for key 'fortune_month7'."
+  },
+  "fortune_month8": "သြဂုတ်လအတွက်ကံဇာတာ",
+  "@fortune_month8": {
+    "description": "Auto-generated metadata for key 'fortune_month8'."
+  },
+  "fortune_month9": "စက်တင်ဘာလအတွက်ကံဇာတာ",
+  "@fortune_month9": {
+    "description": "Auto-generated metadata for key 'fortune_month9'."
+  },
+  "fortune_monthly": "လစဉ်ကံကြမ္မာ",
+  "@fortune_monthly": {
+    "description": "Auto-generated metadata for key 'fortune_monthly'."
+  },
+  "fortune_relationship": "အသေသတ်တတ်သော",
+  "@fortune_relationship": {
+    "description": "Auto-generated metadata for key 'fortune_relationship'."
+  },
+  "fortune_total_title": "ဘက်စုံစုံတသမတ်တည်း",
+  "@fortune_total_title": {
+    "description": "Auto-generated metadata for key 'fortune_total_title'."
+  },
+  "fortune_with_me": "ငါနှင့်အတူ goong-hap",
+  "@fortune_with_me": {
+    "description": "Auto-generated metadata for key 'fortune_with_me'."
+  },
+  "hint_library_add": "အယ်လ်ဘမ်အမည်",
+  "@hint_library_add": {
+    "description": "Auto-generated metadata for key 'hint_library_add'."
+  },
+  "hint_nickname_input": "ကျေးဇူးပြု. အမည်ပြောင်ကိုရိုက်ထည့်ပါ။",
+  "@hint_nickname_input": {
+    "description": "Auto-generated metadata for key 'hint_nickname_input'."
+  },
+  "image_save_success": "ပုံရိပ်ကိုကယ်တင်ခြင်းသို့ရောက်ပြီ",
+  "@image_save_success": {
+    "description": "Auto-generated metadata for key 'image_save_success'."
+  },
+  "label_ads_exceeded": "သင်သည်ဤခလုတ်အတွက်ကြော်ငြာများကိုကြည့်ရှုနိုင်သည့်အကြိမ်အရေအတွက်ထက်ကျော်လွန်ပြီ။",
+  "@label_ads_exceeded": {
+    "description": "Auto-generated metadata for key 'label_ads_exceeded'."
+  },
+  "label_ads_get_star_candy": "ကြော်ငြာမှကြယ်ပွင့်သကြားလုံးကိုရယူပါ",
+  "@label_ads_get_star_candy": {
+    "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
+  },
+  "label_ads_limits": "{hourly} တစ်နာရီလျှင် ",
+  "@label_ads_limits": {
+    "placeholders": {
+      "hourly": {
+        "type": "int"
+      },
+      "daily": {
+        "type": "int"
+      }
+    }
+  },
+  "label_ads_load_fail": "ကြော်ငြာတင်ရန်မအောင်မြင်ပါ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ",
+  "@label_ads_load_fail": {
+    "description": "Auto-generated metadata for key 'label_ads_load_fail'."
+  },
+  "label_ads_sdk_init_fail": "SDK Initialization မအောင်မြင်ပါ။ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ",
+  "@label_ads_sdk_init_fail": {
+    "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."
+  },
+  "label_ads_show_fail": "ကြော်ငြာပြရန်မအောင်မြင်ပါ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ",
+  "@label_ads_show_fail": {
+    "description": "Auto-generated metadata for key 'label_ads_show_fail'."
+  },
+  "label_agreement_privacy": "ပုဂ္ဂိုလ်ရေးသတင်းအချက်အလက်စုဆောင်းခြင်းနှင့်အသုံးပြုမှုမှသဘောတူသည်",
+  "@label_agreement_privacy": {
+    "description": "Auto-generated metadata for key 'label_agreement_privacy'."
+  },
+  "label_agreement_terms": "အသုံးပြုမှု၏စည်းကမ်းချက်များကိုလက်ခံပါ",
+  "@label_agreement_terms": {
+    "description": "Auto-generated metadata for key 'label_agreement_terms'."
+  },
+  "label_album_add": "အသစ်တစ်ခုအယ်လ်ဘမ်ထည့်ပါ",
+  "@label_album_add": {
+    "description": "Auto-generated metadata for key 'label_album_add'."
+  },
+  "label_article_comment_empty": "မှတ်ချက်ပေးရန်ပထမ ဦး ဆုံးဖြစ်!",
+  "@label_article_comment_empty": {
+    "description": "Auto-generated metadata for key 'label_article_comment_empty'."
+  },
+  "label_asia_recommendation": "အာရှရွေး",
+  "@label_asia_recommendation": {
+    "description": "Auto-generated metadata for key 'label_asia_recommendation'."
+  },
+  "label_bonus": "ဆုလာဘ်",
+  "@label_bonus": {
+    "description": "Auto-generated metadata for key 'label_bonus'."
+  },
+  "label_button_agreement": "သဘောတူလက်ခံ",
+  "@label_button_agreement": {
+    "description": "Auto-generated metadata for key 'label_button_agreement'."
+  },
+  "label_button_close": "ပိတ်ထားသော",
+  "@label_button_close": {
+    "description": "Auto-generated metadata for key 'label_button_close'."
+  },
+  "label_button_recharge": "သွင်းခြင်း",
+  "@label_button_recharge": {
+    "description": "Auto-generated metadata for key 'label_button_recharge'."
+  },
+  "label_button_view_policy": "မူဝါဒကြည့်ပါ",
+  "@label_button_view_policy": {
+    "description": "Auto-generated metadata for key 'label_button_view_policy'."
+  },
+  "label_button_vote": "မဲပေးပဲှ",
+  "@label_button_vote": {
+    "description": "Auto-generated metadata for key 'label_button_vote'."
+  },
+  "label_celeb_gallery": "အနုပညာရှင်ပြခန်း",
+  "@label_celeb_gallery": {
+    "description": "Auto-generated metadata for key 'label_celeb_gallery'."
+  },
+  "label_celeb_recommend": "အဆိုတော်အကြံပြုချက်များ",
+  "@label_celeb_recommend": {
+    "description": "Auto-generated metadata for key 'label_celeb_recommend'."
+  },
+  "label_checkbox_entire_use": "အပြည့်အဝအသုံးပြုမှု",
+  "@label_checkbox_entire_use": {
+    "description": "Auto-generated metadata for key 'label_checkbox_entire_use'."
+  },
+  "label_draw_image": "ကျပန်းပုံရိပ်ကိုအနိုင်ရရန်အခွင့်အလမ်း",
+  "@label_draw_image": {
+    "description": "Auto-generated metadata for key 'label_draw_image'."
+  },
+  "label_dropdown_oldest": "အသက်အကြီးဆုံး",
+  "@label_dropdown_oldest": {
+    "description": "Auto-generated metadata for key 'label_dropdown_oldest'."
+  },
+  "label_dropdown_recent": "နောက်ဆုံးပေါ်",
+  "@label_dropdown_recent": {
+    "description": "Auto-generated metadata for key 'label_dropdown_recent'."
+  },
+  "label_global_recommendation": "ကမ္ဘာလုံးဆိုင်ရာရွေး",
+  "@label_global_recommendation": {
+    "description": "Auto-generated metadata for key 'label_global_recommendation'."
+  },
+  "label_hint_comment": "မှတ်ချက်ချန်ထားပါ။",
+  "@label_hint_comment": {
+    "description": "Auto-generated metadata for key 'label_hint_comment'."
+  },
+  "label_input_input": "အင်ပွတ်ပြုလုပ်",
+  "@label_input_input": {
+    "description": "Auto-generated metadata for key 'label_input_input'."
+  },
+  "label_korean_recommendation": "ကိုရီးယားရွေး",
+  "@label_korean_recommendation": {
+    "description": "Auto-generated metadata for key 'label_korean_recommendation'."
+  },
+  "label_last_provider": "မကြာမီကဖြစ်သော",
+  "@label_last_provider": {
+    "description": "Auto-generated metadata for key 'label_last_provider'."
+  },
+  "label_library_save": "စာကြည့်တိုက်ကိုသိမ်းပါ",
+  "@label_library_save": {
+    "description": "Auto-generated metadata for key 'label_library_save'."
+  },
+  "label_library_tab_ai_photo": "AI ဓါတ်ပုံများ",
+  "@label_library_tab_ai_photo": {
+    "description": "Auto-generated metadata for key 'label_library_tab_ai_photo'."
+  },
+  "label_library_tab_library": "စာကြည့်တိုက်များ",
+  "@label_library_tab_library": {
+    "description": "Auto-generated metadata for key 'label_library_tab_library'."
+  },
+  "label_library_tab_pic": "ပိုက်",
+  "@label_library_tab_pic": {
+    "description": "Auto-generated metadata for key 'label_library_tab_pic'."
+  },
+  "label_loading_ads": "ကြော်ငြာတင်နေသည်",
+  "@label_loading_ads": {
+    "description": "Auto-generated metadata for key 'label_loading_ads'."
+  },
+  "label_mission_get_star_candy": "မစ်ရှင်မှကြယ်ပွင့်သကြားလုံးရယူပါ",
+  "@label_mission_get_star_candy": {
+    "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
+  },
+  "label_mission_short": "တိုက်ခိုက်ရေးလုပ်ငန်းတာဝန်",
+  "@label_mission_short": {
+    "description": "Auto-generated metadata for key 'label_mission_short'."
+  },
+  "label_moveto_celeb_gallery": "အနုပညာရှင်ပြခန်းကိုသွားပါ",
+  "@label_moveto_celeb_gallery": {
+    "description": "Auto-generated metadata for key 'label_moveto_celeb_gallery'."
+  },
+  "label_mypage_faq": "အမြဲမေးလေ့ရှိသောမေးခွန်းများ",
+  "@label_mypage_faq": {
+    "description": "Auto-generated metadata for key 'label_mypage_faq'."
+  },
+  "label_mypage_logout": "Log Out",
+  "@label_mypage_logout": {
+    "description": "Auto-generated metadata for key 'label_mypage_logout'."
+  },
+  "label_mypage_my_artist": "ငါ့အနုပညာရှင်တွေ",
+  "@label_mypage_my_artist": {
+    "description": "Auto-generated metadata for key 'label_mypage_my_artist'."
+  },
+  "label_mypage_no_artist": "အနုပညာရှင်မရှိ",
+  "@label_mypage_no_artist": {
+    "description": "Auto-generated metadata for key 'label_mypage_no_artist'."
+  },
+  "label_mypage_notice": "မှတ်သား",
+  "@label_mypage_notice": {
+    "description": "Auto-generated metadata for key 'label_mypage_notice'."
+  },
+  "label_mypage_notifications": "အကြောင်းကြားချက်များ",
+  "@label_mypage_notifications": {
+    "description": "Auto-generated metadata for key 'label_mypage_notifications'."
+  },
+  "label_mypage_picnic_id": "だろう။",
+  "@label_mypage_picnic_id": {
+    "description": "Auto-generated metadata for key 'label_mypage_picnic_id'."
+  },
+  "label_mypage_privacy_policy": "ကိုယ်ရေးအချက်အလက်မူဝါဒ",
+  "@label_mypage_privacy_policy": {
+    "description": "Auto-generated metadata for key 'label_mypage_privacy_policy'."
+  },
+  "label_mypage_setting": "ဆက်တင်များ",
+  "@label_mypage_setting": {
+    "description": "Auto-generated metadata for key 'label_mypage_setting'."
+  },
+  "label_mypage_should_login": "ကျေးဇူးပြု. ဆိုင်းအင်လုပ်ပါ",
+  "@label_mypage_should_login": {
+    "description": "Auto-generated metadata for key 'label_mypage_should_login'."
+  },
+  "label_mypage_terms_of_use": "သတ်မှတ်ချက်များ",
+  "@label_mypage_terms_of_use": {
+    "description": "Auto-generated metadata for key 'label_mypage_terms_of_use'."
+  },
+  "label_mypage_vote_history": "Starcandy မဲပေးမှုသမိုင်း",
+  "@label_mypage_vote_history": {
+    "description": "Auto-generated metadata for key 'label_mypage_vote_history'."
+  },
+  "label_mypage_withdrawal": "ဆုတ်ခွာ",
+  "@label_mypage_withdrawal": {
+    "description": "Auto-generated metadata for key 'label_mypage_withdrawal'."
+  },
+  "label_no_celeb": "မင်းမှာအနုပညာရှင်တွေရှိတယ်။",
+  "@label_no_celeb": {
+    "description": "Auto-generated metadata for key 'label_no_celeb'."
+  },
+  "label_pic_chart": "pic ဇယား",
+  "@label_pic_chart": {
+    "description": "Auto-generated metadata for key 'label_pic_chart'."
+  },
+  "label_pic_pic_save_gallery": "ပြခန်းမှကယ်တင်ပါ",
+  "@label_pic_pic_save_gallery": {
+    "description": "Auto-generated metadata for key 'label_pic_pic_save_gallery'."
+  },
+  "label_read_more_comment": "မှတ်ချက်များ",
+  "@label_read_more_comment": {
+    "description": "Auto-generated metadata for key 'label_read_more_comment'."
+  },
+  "label_reply": "ပြန်ကြားချက်ကိုပြန်ကြားခြင်း",
+  "@label_reply": {
+    "description": "Auto-generated metadata for key 'label_reply'."
+  },
+  "label_retry": "ပြန်လည်ကြိုးစားခြင်း",
+  "@label_retry": {
+    "description": "Auto-generated metadata for key 'label_retry'."
+  },
+  "label_setting_alarm": "အသိပေးချက်များ",
+  "@label_setting_alarm": {
+    "description": "Auto-generated metadata for key 'label_setting_alarm'."
+  },
+  "label_setting_appinfo": "appo အချက်အလက်",
+  "@label_setting_appinfo": {
+    "description": "Auto-generated metadata for key 'label_setting_appinfo'."
+  },
+  "label_setting_current_version": "လက်ရှိဗားရှင်း",
+  "@label_setting_current_version": {
+    "description": "Auto-generated metadata for key 'label_setting_current_version'."
+  },
+  "label_setting_event_alarm": "အဖြစ်အပျက်သတိပေးချက်များ",
+  "@label_setting_event_alarm": {
+    "description": "Auto-generated metadata for key 'label_setting_event_alarm'."
+  },
+  "label_setting_event_alarm_desc": "ဖြစ်ရပ်များနှင့်ဖြစ်ပျက်။",
+  "@label_setting_event_alarm_desc": {
+    "description": "Auto-generated metadata for key 'label_setting_event_alarm_desc'."
+  },
+  "label_setting_language": "ဘာသာစကားဆက်တင်များ",
+  "@label_setting_language": {
+    "description": "Auto-generated metadata for key 'label_setting_language'."
+  },
+  "label_setting_push_alarm": "သတိပေးချက်များကိုတွန်းအားပေး",
+  "@label_setting_push_alarm": {
+    "description": "Auto-generated metadata for key 'label_setting_push_alarm'."
+  },
+  "label_setting_recent_version": "နောက်ဆုံးဗားရှင်း",
+  "@label_setting_recent_version": {
+    "description": "Auto-generated metadata for key 'label_setting_recent_version'."
+  },
+  "label_setting_recent_version_up_to_date": "နောက်ဆုံးဗားရှင်း",
+  "@label_setting_recent_version_up_to_date": {
+    "description": "Auto-generated metadata for key 'label_setting_recent_version_up_to_date'."
+  },
+  "label_setting_remove_cache": "cache မှတ်ဉာဏ်ကိုဖျက်ပါ",
+  "@label_setting_remove_cache": {
+    "description": "Auto-generated metadata for key 'label_setting_remove_cache'."
+  },
+  "label_setting_storage": "သိုလှောင်မှုစီမံခန့်ခွဲ",
+  "@label_setting_storage": {
+    "description": "Auto-generated metadata for key 'label_setting_storage'."
+  },
+  "label_star_candy_pouch": "Star Candy အိတ်",
+  "@label_star_candy_pouch": {
+    "description": "Auto-generated metadata for key 'label_star_candy_pouch'."
+  },
+  "label_tabbar_vote_active": "ဆောင်ရွက်ဆဲဖြစ်သည်",
+  "@label_tabbar_vote_active": {
+    "description": "Auto-generated metadata for key 'label_tabbar_vote_active'."
+  },
+  "label_tabbar_vote_end": "ပိတ်ထားသော",
+  "@label_tabbar_vote_end": {
+    "description": "Auto-generated metadata for key 'label_tabbar_vote_end'."
+  },
+  "label_time_ago_day": "{day} လွန်ခဲ့သောရက်",
+  "@label_time_ago_day": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "label_time_ago_hour": "{hour} လွန်ခဲ့သောနာရီ",
+  "@label_time_ago_hour": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "label_time_ago_right_now": "ခဏအကြာက",
+  "@label_time_ago_right_now": {
+    "description": "Auto-generated metadata for key 'label_time_ago_right_now'."
+  },
+  "label_title_report": "အစီရင်ခံစာတစ်ခုလုပ်ပါ",
+  "@label_title_report": {
+    "description": "Auto-generated metadata for key 'label_title_report'."
+  },
+  "label_unlimited_rewards": "အကန့်အသတ်မရှိဆုများ",
+  "@label_unlimited_rewards": {
+    "description": "Auto-generated metadata for key 'label_unlimited_rewards'."
+  },
+  "label_vote_end": "စစ်တမ်းကိုပိတ်ပါ",
+  "@label_vote_end": {
+    "description": "Auto-generated metadata for key 'label_vote_end'."
+  },
+  "label_vote_reward_list": "ဆုလာဘ်စာရင်း",
+  "@label_vote_reward_list": {
+    "description": "Auto-generated metadata for key 'label_vote_reward_list'."
+  },
+  "label_vote_screen_title": "မဲပေးခြင်း",
+  "@label_vote_screen_title": {
+    "description": "Auto-generated metadata for key 'label_vote_screen_title'."
+  },
+  "label_vote_upcoming": "မဲပေးခြင်းသည်အထိ",
+  "@label_vote_upcoming": {
+    "description": "Auto-generated metadata for key 'label_vote_upcoming'."
+  },
+  "label_watch_ads_short": "စောင့်",
+  "@label_watch_ads_short": {
+    "description": "Auto-generated metadata for key 'label_watch_ads_short'."
+  },
+  "lable_my_celeb": "ငါ့အနုပညာရှင်တွေ",
+  "@lable_my_celeb": {
+    "description": "Auto-generated metadata for key 'lable_my_celeb'."
+  },
+  "message_error_occurred": "အမှားတစ်ခုဖြစ်ပွားခဲ့သည်",
+  "@message_error_occurred": {
+    "description": "Auto-generated metadata for key 'message_error_occurred'."
+  },
+  "message_noitem_vote_active": "လက်ရှိတက်ကြွသောရွေးကောက်ပွဲများမရှိပါ။",
+  "@message_noitem_vote_active": {
+    "description": "Auto-generated metadata for key 'message_noitem_vote_active'."
+  },
+  "message_noitem_vote_end": "လက်ရှိတွင်ပိတ်ထားသောရွေးကောက်ပွဲမရှိသေးပါ။",
+  "@message_noitem_vote_end": {
+    "description": "Auto-generated metadata for key 'message_noitem_vote_end'."
+  },
+  "message_noitem_vote_upcoming": "လက်ရှိအခြေအနေမရှိသေးပါ။",
+  "@message_noitem_vote_upcoming": {
+    "description": "Auto-generated metadata for key 'message_noitem_vote_upcoming'."
+  },
+  "message_pic_pic_save_fail": "ပုံကိုသိမ်းဆည်းခြင်းမအောင်မြင်ပါ",
+  "@message_pic_pic_save_fail": {
+    "description": "Auto-generated metadata for key 'message_pic_pic_save_fail'."
+  },
+  "message_pic_pic_save_success": "ပုံရိပ်ကိုကယ်တင်ခြင်းသို့ရောက်ပြီ",
+  "@message_pic_pic_save_success": {
+    "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
+  },
+  "message_vote_is_ended": "စစ်တမ်းပိတ်လိုက်သည်",
+  "@message_vote_is_ended": {
+    "description": "Auto-generated metadata for key 'message_vote_is_ended'."
+  },
+  "message_vote_is_upcoming": "ဒါကလာမယ့်မဲတစ်ခုပါ။",
+  "@message_vote_is_upcoming": {
+    "description": "Auto-generated metadata for key 'message_vote_is_upcoming'."
+  },
+  "my_info": "ကျွန်ုပ်၏သတင်းအချက်အလက်",
+  "@my_info": {
+    "description": "Auto-generated metadata for key 'my_info'."
+  },
+  "mypage_setting": "ဆက်တင်များ",
+  "@mypage_setting": {
+    "description": "Auto-generated metadata for key 'mypage_setting'."
+  },
+  "nav_media": "စာနယ်ဇင်းများ",
+  "@nav_media": {
+    "description": "Auto-generated metadata for key 'nav_media'."
+  },
+  "nickname_validation_error": "အထူးအက္ခရာများကိုဖယ်ထုတ်ပြီးစာလုံး 20 သို့မဟုတ်ထိုထက်နည်းသည်။",
+  "@nickname_validation_error": {
+    "description": "Auto-generated metadata for key 'nickname_validation_error'."
+  },
+  "page_title_mypage": "ငါ့စာမျက်နှာ",
+  "@page_title_mypage": {
+    "description": "Auto-generated metadata for key 'page_title_mypage'."
+  },
+  "page_title_post_write": "ပို့စ်တစ်ခုဖန်တီးပါ",
+  "@page_title_post_write": {
+    "description": "Auto-generated metadata for key 'page_title_post_write'."
+  },
+  "page_title_vote_detail": "မဲပေးပဲှ",
+  "@page_title_vote_detail": {
+    "description": "Auto-generated metadata for key 'page_title_vote_detail'."
+  },
+  "popup_label_delete": "ဖျက်",
+  "@popup_label_delete": {
+    "description": "Auto-generated metadata for key 'popup_label_delete'."
+  },
+  "post_anonymous": "အမည်မသိတင်ခြင်း",
+  "@post_anonymous": {
+    "description": "Auto-generated metadata for key 'post_anonymous'."
+  },
+  "post_board_already_exist": "ရှိပြီးသားဘုတ်အဖွဲ့။",
+  "@post_board_already_exist": {
+    "description": "Auto-generated metadata for key 'post_board_already_exist'."
+  },
+  "post_board_create_request_complete": "ဘုတ်တစ်ခုဖွင့်ရန်သင်၏တောင်းဆိုမှုသည်ပြည့်စုံသည်။",
+  "@post_board_create_request_complete": {
+    "description": "Auto-generated metadata for key 'post_board_create_request_complete'."
+  },
+  "post_board_create_request_condition": "* အသေးစားဘုတ်တစ်ခုသာ ID ကို အသုံးပြု. အသုံးပြုနိုင်သည်။",
+  "@post_board_create_request_condition": {
+    "description": "Auto-generated metadata for key 'post_board_create_request_condition'."
+  },
+  "post_board_request_label": "ပွင့်လင်းတောင်းဆိုမှုများ",
+  "@post_board_request_label": {
+    "description": "Auto-generated metadata for key 'post_board_request_label'."
+  },
+  "post_comment_action_translate": "ဘာသာပြန်ချက်",
+  "@post_comment_action_translate": {
+    "description": "Auto-generated metadata for key 'post_comment_action_translate'."
+  },
+  "post_comment_content_more": "နောက်ထပ်",
+  "@post_comment_content_more": {
+    "description": "Auto-generated metadata for key 'post_comment_content_more'."
+  },
+  "post_comment_delete_confirm": "မှတ်ချက်ကိုသင်ဖျက်ချင်ပါသလား။",
+  "@post_comment_delete_confirm": {
+    "description": "Auto-generated metadata for key 'post_comment_delete_confirm'."
+  },
+  "post_comment_delete_fail": "မှတ်ချက်ပယ်ဖျက်ခြင်းမအောင်မြင်ပါ",
+  "@post_comment_delete_fail": {
+    "description": "Auto-generated metadata for key 'post_comment_delete_fail'."
+  },
+  "post_comment_deleted_comment": "ဒါကဖျက်ပစ်လိုက်တဲ့မှတ်ချက်တစ်ခုပါ။",
+  "@post_comment_deleted_comment": {
+    "description": "Auto-generated metadata for key 'post_comment_deleted_comment'."
+  },
+  "post_comment_like_processing_fail": "တူအောင်လုပ်ဖို့ပျက်ကွက်။",
+  "@post_comment_like_processing_fail": {
+    "description": "Auto-generated metadata for key 'post_comment_like_processing_fail'."
+  },
+  "post_comment_loading_fail": "မှတ်ချက်ပေးရန်ပျက်ကွက်ခဲ့သည်။",
+  "@post_comment_loading_fail": {
+    "description": "Auto-generated metadata for key 'post_comment_loading_fail'."
+  },
+  "post_comment_register_fail": "မှတ်ချက်မှတ်ပုံတင်ခြင်းမှတ်ပုံတင်ခြင်းမအောင်မြင်ပါ။",
+  "@post_comment_register_fail": {
+    "description": "Auto-generated metadata for key 'post_comment_register_fail'."
+  },
+  "post_comment_registered_comment": "သင့်ထင်မြင်ချက်ကိုမှတ်ပုံတင်ထားသည်။",
+  "@post_comment_registered_comment": {
+    "description": "Auto-generated metadata for key 'post_comment_registered_comment'."
+  },
+  "post_comment_reported_comment": "ဤသည်အစီရင်ခံမှတ်ချက်ဖြစ်ပါတယ်။",
+  "@post_comment_reported_comment": {
+    "description": "Auto-generated metadata for key 'post_comment_reported_comment'."
+  },
+  "post_comment_translate_fail": "ဘာသာပြန်ချက်မအောင်မြင်ပါ",
+  "@post_comment_translate_fail": {
+    "description": "Auto-generated metadata for key 'post_comment_translate_fail'."
+  },
+  "post_comment_translated": "ဘာသာပြန်ထားသော",
+  "@post_comment_translated": {
+    "description": "Auto-generated metadata for key 'post_comment_translated'."
+  },
+  "post_comment_write_label": "မှတ်ချက်ရေးပါ",
+  "@post_comment_write_label": {
+    "description": "Auto-generated metadata for key 'post_comment_write_label'."
+  },
+  "post_content_placeholder": "ကျေးဇူးပြုပြီးတစ်ခုခုထည့်ပါ",
+  "@post_content_placeholder": {
+    "description": "Auto-generated metadata for key 'post_content_placeholder'."
+  },
+  "post_delete_scrap_confirm": "ဒီအပိုင်းကိုဖျက်ချင်ပါသလား။",
+  "@post_delete_scrap_confirm": {
+    "description": "Auto-generated metadata for key 'post_delete_scrap_confirm'."
+  },
+  "post_delete_scrap_title": "တစ်ခုအပိုင်းအစဖျက်ပါ",
+  "@post_delete_scrap_title": {
+    "description": "Auto-generated metadata for key 'post_delete_scrap_title'."
+  },
+  "post_flagged": "မသင့်လျော်သောအကြောင်းအရာများပါရှိသည်",
+  "@post_flagged": {
+    "description": "Auto-generated metadata for key 'post_flagged'."
+  },
+  "post_go_to_boards": "ဘုတ်အဖွဲ့သို့သွားပါ",
+  "@post_go_to_boards": {
+    "description": "Auto-generated metadata for key 'post_go_to_boards'."
+  },
+  "post_header_publish": "ပုံနှိပ်ထုတ်ဝေခြင်း",
+  "@post_header_publish": {
+    "description": "Auto-generated metadata for key 'post_header_publish'."
+  },
+  "post_header_temporary_save": "မူကြမ်း",
+  "@post_header_temporary_save": {
+    "description": "Auto-generated metadata for key 'post_header_temporary_save'."
+  },
+  "post_hint_title": "ကျေးဇူးပြု. ခေါင်းစဉ်တစ်ခုထည့်ပါ။",
+  "@post_hint_title": {
+    "description": "Auto-generated metadata for key 'post_hint_title'."
+  },
+  "post_hyperlink": "Hyperlinks",
+  "@post_hyperlink": {
+    "description": "Auto-generated metadata for key 'post_hyperlink'."
+  },
+  "post_insert_link": "လင့်များထည့်သွင်းခြင်း",
+  "@post_insert_link": {
+    "description": "Auto-generated metadata for key 'post_insert_link'."
+  },
+  "post_minor_board_condition": "ကျေးဇူးပြု. အနည်းဆုံးစာလုံးရေ 5 လုံးနှင့်ဇာတ်ကောင် 20 ထက်မပိုပါ။",
+  "@post_minor_board_condition": {
+    "description": "Auto-generated metadata for key 'post_minor_board_condition'."
+  },
+  "post_minor_board_description": "အသေးစားစာစောင်ဘုတ်အဖွဲ့ဖော်ပြချက်များ",
+  "@post_minor_board_description": {
+    "description": "Auto-generated metadata for key 'post_minor_board_description'."
+  },
+  "post_minor_board_description_input": "ကျေးဇူးပြု. သင်၏အသေးစားဘုတ်အဖွဲ့အတွက်ဖော်ပြချက်တစ်ခုကိုထည့်ပါ။",
+  "@post_minor_board_description_input": {
+    "description": "Auto-generated metadata for key 'post_minor_board_description_input'."
+  },
+  "post_minor_board_name": "အသေးစားဘုတ်အဖွဲ့အမည်",
+  "@post_minor_board_name": {
+    "description": "Auto-generated metadata for key 'post_minor_board_name'."
+  },
+  "post_minor_board_name_input": "ကျေးဇူးပြု. သင်၏အသေးစားဘုတ်အဖွဲ့အတွက်နာမည်ထည့်ပါ။",
+  "@post_minor_board_name_input": {
+    "description": "Auto-generated metadata for key 'post_minor_board_name_input'."
+  },
+  "post_my_compatibilities": "ကျွန်တော့်လိုက်ဖက်တဲ့",
+  "@post_my_compatibilities": {
+    "description": "Auto-generated metadata for key 'post_my_compatibilities'."
+  },
+  "post_my_written_post": "ရေးသားထားသောရေးသားချက်များ",
+  "@post_my_written_post": {
+    "description": "Auto-generated metadata for key 'post_my_written_post'."
+  },
+  "post_my_written_reply": "မှတ်ချက်များငါရေးသားခဲ့သည်",
+  "@post_my_written_reply": {
+    "description": "Auto-generated metadata for key 'post_my_written_reply'."
+  },
+  "post_my_written_scrap": "ငါ့အပိုင်းအစတွေ",
+  "@post_my_written_scrap": {
+    "description": "Auto-generated metadata for key 'post_my_written_scrap'."
+  },
+  "post_no_comment": "အထူးပြောစရာမရှိ။",
+  "@post_no_comment": {
+    "description": "Auto-generated metadata for key 'post_no_comment'."
+  },
+  "post_not_found": "ပို့စ်များမရှိပါ။",
+  "@post_not_found": {
+    "description": "Auto-generated metadata for key 'post_not_found'."
+  },
+  "post_report_fail": "အစီရင်ခံစာမအောင်မြင်ပါ",
+  "@post_report_fail": {
+    "description": "Auto-generated metadata for key 'post_report_fail'."
+  },
+  "post_report_label": "အစီရင်ခံစာတစ်ခုလုပ်ပါ",
+  "@post_report_label": {
+    "description": "Auto-generated metadata for key 'post_report_label'."
+  },
+  "post_report_other_input": "ကျေးဇူးပြု. အခြားအကြောင်းပြချက်များကိုဖြည့်ပါ။",
+  "@post_report_other_input": {
+    "description": "Auto-generated metadata for key 'post_report_other_input'."
+  },
+  "post_report_reason_1": "မကြောက်မထားသောပို့စ်များ",
+  "@post_report_reason_1": {
+    "description": "Auto-generated metadata for key 'post_report_reason_1'."
+  },
+  "post_report_reason_2": "လိင်ဗေဒပညာရှင်,",
+  "@post_report_reason_2": {
+    "description": "Auto-generated metadata for key 'post_report_reason_2'."
+  },
+  "post_report_reason_3": "ထိုးစစ်ညစ်ညမ်းခြင်းပါဝင်သောရေးသားချက်များ",
+  "@post_report_reason_3": {
+    "description": "Auto-generated metadata for key 'post_report_reason_3'."
+  },
+  "post_report_reason_4": "ကြော်ငြာ / မြှင့်တင်ရေးပို့စ်များ",
+  "@post_report_reason_4": {
+    "description": "Auto-generated metadata for key 'post_report_reason_4'."
+  },
+  "post_report_reason_5": "အခြား",
+  "@post_report_reason_5": {
+    "description": "Auto-generated metadata for key 'post_report_reason_5'."
+  },
+  "post_report_reason_input": "ကျေးဇူးပြု. သင်၏အစီရင်ခံစာအတွက်အကြောင်းပြချက်ကိုရွေးချယ်ပါ။",
+  "@post_report_reason_input": {
+    "description": "Auto-generated metadata for key 'post_report_reason_input'."
+  },
+  "post_report_reason_label": "အစီရင်ခံရန်အကြောင်းပြချက်",
+  "@post_report_reason_label": {
+    "description": "Auto-generated metadata for key 'post_report_reason_label'."
+  },
+  "post_report_success": "အစီရင်ခံစာပြီးပြည့်စုံသည်။",
+  "@post_report_success": {
+    "description": "Auto-generated metadata for key 'post_report_success'."
+  },
+  "post_title_placeholder": "ကျေးဇူးပြု. ခေါင်းစဉ်တစ်ခုထည့်ပါ။",
+  "@post_title_placeholder": {
+    "description": "Auto-generated metadata for key 'post_title_placeholder'."
+  },
+  "post_youtube_link": "youtube link ကို",
+  "@post_youtube_link": {
+    "description": "Auto-generated metadata for key 'post_youtube_link'."
+  },
+  "purchase_confirm_button": "ဝယ်ယူပါ",
+  "@purchase_confirm_button": {
+    "description": "Auto-generated metadata for key 'purchase_confirm_button'."
+  },
+  "purchase_confirm_message": "အောက်ပါပစ္စည်းကိုဝယ်ယူလိုပါသလား။",
+  "@purchase_confirm_message": {
+    "description": "Auto-generated metadata for key 'purchase_confirm_message'."
+  },
+  "purchase_confirm_title": "ဝယ်ယူမှုအတည်ပြုခြင်း",
+  "@purchase_confirm_title": {
+    "description": "Auto-generated metadata for key 'purchase_confirm_title'."
+  },
+  "previousTransactionPendingError": "သင့်ယခင်ငွေပေးချေမှုကို Apple/Google မှပြုလုပ်နေဆဲဖြစ်သည်။ ကျေးဇူးပြု၍နောက်မှထပ်ကြိုးစားပါ။",
+  "@previousTransactionPendingError": {
+    "description": "Auto-generated metadata for key 'previousTransactionPendingError'."
+  },
+  "purchase_in_progress_message": "ဝယ်ယူမှုပြုလုပ်နေပါသည်။ ခဏစောင့်ပါ။",
+  "@purchase_in_progress_message": {
+    "description": "Auto-generated metadata for key 'purchase_in_progress_message'."
+  },
+  "purchase_initializing_message": "အစပြုနေပါသည်။ ခဏကြာလျှင်ထပ်ကြိုးစားပါ။",
+  "@purchase_initializing_message": {
+    "description": "Auto-generated metadata for key 'purchase_initializing_message'."
+  },
+  "purchase_cancelled_message": "ဝယ်ယူမှုကိုပယ်ဖျက်ပြီးပါပြီ။",
+  "@purchase_cancelled_message": {
+    "description": "Auto-generated metadata for key 'purchase_cancelled_message'."
+  },
+  "purchase_payment_amount": "ငွေပေးချေမှုပမာဏ",
+  "@purchase_payment_amount": {
+    "description": "Auto-generated metadata for key 'purchase_payment_amount'."
+  },
+  "purchase_web_message": "ဤသည်အက်ပလီကေးရှင်းနှင့်မပေးနိုင်သောသူများအတွက်ငွေပေးချေမှု 0 င်းဒိုးဖြစ်သည်။\n ကျေးဇူးပြု. ကျပန်း ID ကိုကြိုတင်ကူးထည့်ပါ။\n ၎င်းကိုကူးယူပြီးနောက်ငွေပေးချေမှုနှင့်အတူဆက်လက်ဆောင်ရွက်ရန်အောက်ပါခလုတ်ကိုနှိပ်ပါ။",
+  "@purchase_web_message": {
+    "description": "Auto-generated metadata for key 'purchase_web_message'."
+  },
+  "qna_content": "အကြောင်းအရာ",
+  "@qna_content": {
+    "description": "Auto-generated metadata for key 'qna_content'."
+  },
+  "qna_create_page_title": "စုံစမ်းမှုဖန်တီးပါ",
+  "@qna_create_page_title": {
+    "description": "Auto-generated metadata for key 'qna_create_page_title'."
+  },
+  "qna_no_inquiries": "စုံစမ်းမှုမှတ်တမ်းမရှိပါ",
+  "@qna_no_inquiries": {
+    "description": "Auto-generated metadata for key 'qna_no_inquiries'."
+  },
+  "qna_status_closed": "ပိတ်ထားသည်",
+  "@qna_status_closed": {
+    "description": "Auto-generated metadata for key 'qna_status_closed'."
+  },
+  "qna_status_open": "qna.status.open",
+  "@qna_status_open": {
+    "description": "Auto-generated metadata for key 'qna_status_open'."
+  },
+  "qna_submit_button": "စုံစမ်းမှုတင်သွင်းပါ",
+  "@qna_submit_button": {
+    "description": "Auto-generated metadata for key 'qna_submit_button'."
+  },
+  "qna_title": "ခေါင်းစဉ်",
+  "@qna_title": {
+    "description": "Auto-generated metadata for key 'qna_title'."
+  },
+  "replies": "မှတ်ချက်များ",
+  "@replies": {
+    "description": "Auto-generated metadata for key 'replies'."
+  },
+  "reward": "ဆုလာဘ်",
+  "@reward": {
+    "description": "Auto-generated metadata for key 'reward'."
+  },
+  "save": "ကယ်ဆယ်",
+  "@save": {
+    "description": "Auto-generated metadata for key 'save'."
+  },
+  "seconds": "စက္ကန့်",
+  "@seconds": {
+    "description": "Auto-generated metadata for key 'seconds'."
+  },
+  "share": "ခဲှဝေ",
+  "@share": {
+    "description": "Auto-generated metadata for key 'share'."
+  },
+  "text_community_board_search": "အနုပညာရှင်ဘုတ်ရှာဖွေခြင်း",
+  "@text_community_board_search": {
+    "description": "Auto-generated metadata for key 'text_community_board_search'."
+  },
+  "text_community_post_search": "ရှာဖေှခြင်း",
+  "@text_community_post_search": {
+    "description": "Auto-generated metadata for key 'text_community_post_search'."
+  },
+  "text_copied": "ကူးယူပြီးပါပြီ။",
+  "@text_copied": {
+    "description": "Shown after copying text to clipboard"
+  },
+  "ban_support_instruction": "အောက်ပါမှတ်တမ်းများကိုကူးယူပြီးအထောက်အပံ့သို့ဆက်သွယ်ပါ။",
+  "@ban_support_instruction": {
+    "description": "Instruction text on ban screen to contact support with logs"
+  },
+  "action_copy": "ကူးယူပါ",
+  "@action_copy": {
+    "description": "Copy button label"
+  },
+  "text_draw_image": "ပြခန်းတစ်ခုလုံးမှ 1 ပုံရိပ် 1 ပုံရိပ်ကိုအတည်ပြုခဲ့သည်။",
+  "@text_draw_image": {
+    "description": "Auto-generated metadata for key 'text_draw_image'."
+  },
+  "text_hint_search": "အနုပညာရှင်များရှာဖွေပါ",
+  "@text_hint_search": {
+    "description": "Auto-generated metadata for key 'text_hint_search'."
+  },
+  "text_moveto_celeb_gallery": "ရွေးချယ်ထားသောအနုပညာရှင်၏အိမ်သို့သွားပါ။",
+  "@text_moveto_celeb_gallery": {
+    "description": "Auto-generated metadata for key 'text_moveto_celeb_gallery'."
+  },
+  "text_need_recharge": "အားသွင်းလိုအပ်သည်။",
+  "@text_need_recharge": {
+    "description": "Auto-generated metadata for key 'text_need_recharge'."
+  },
+  "text_no_search_result": "ရှာဖွေမှုရလဒ်မရှိပါ။",
+  "@text_no_search_result": {
+    "description": "Auto-generated metadata for key 'text_no_search_result'."
+  },
+  "text_purchase_vat_included": "* စျေးနှုန်းတွင် VAT ပါဝင်သည်။",
+  "@text_purchase_vat_included": {
+    "description": "Auto-generated metadata for key 'text_purchase_vat_included'."
+  },
+  "text_vote_complete": "အပြည့်အဝမဲပေး",
+  "@text_vote_complete": {
+    "description": "Auto-generated metadata for key 'text_vote_complete'."
+  },
+  "text_vote_rank": "__phph_0__ အဆင့်",
+  "@text_vote_rank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "text_vote_rank_in_reward": "ဆုအတွက်ရာထူး",
+  "@text_vote_rank_in_reward": {
+    "description": "Auto-generated metadata for key 'text_vote_rank_in_reward'."
+  },
+  "text_vote_where_is_my_bias": "ငါ့အကြိုက်ဆုံးဘယ်မှာလဲ",
+  "@text_vote_where_is_my_bias": {
+    "description": "Auto-generated metadata for key 'text_vote_where_is_my_bias'."
+  },
+  "title_dialog_library_add": "အသစ်တစ်ခုအယ်လ်ဘမ်ထည့်ပါ",
+  "@title_dialog_library_add": {
+    "description": "Auto-generated metadata for key 'title_dialog_library_add'."
+  },
+  "title_select_language": "ဘာသာစကားတစ်ခုကိုရွေးချယ်ပါ",
+  "@title_select_language": {
+    "description": "Auto-generated metadata for key 'title_select_language'."
+  },
+  "toast_max_five_celeb": "သင်၏ကိုယ်ပိုင်အနုပညာရှင်ငါး ဦး ကိုသင်ထည့်နိုင်သည်။",
+  "@toast_max_five_celeb": {
+    "description": "Auto-generated metadata for key 'toast_max_five_celeb'."
+  },
+  "update_button": "နောက်ဆုံးသဘောပြု",
+  "@update_button": {
+    "description": "Auto-generated metadata for key 'update_button'."
+  },
+  "update_cannot_open_appstore": "App Store ကိုကျွန်တော်ဖွင့်လို့မရဘူး",
+  "@update_cannot_open_appstore": {
+    "description": "Auto-generated metadata for key 'update_cannot_open_appstore'."
+  },
+  "update_required_title": "အသစ်ပြောင်းခြင်းလိုအပ်သည်။",
+  "@update_required_title": {
+    "description": "Auto-generated metadata for key 'update_required_title'."
+  },
+  "views": "အမြင်များ",
+  "@views": {
+    "description": "Auto-generated metadata for key 'views'."
+  },
+  "vote_item_request_can_apply": "လျှောက်ထားနိုင်သည်",
+  "@vote_item_request_can_apply": {
+    "description": "Auto-generated metadata for key 'vote_item_request_can_apply'."
+  },
+  "vote_item_request_search_artist": "ရှာဖွေရေးအနုပညာရှင်",
+  "@vote_item_request_search_artist": {
+    "description": "Auto-generated metadata for key 'vote_item_request_search_artist'."
+  },
+  "vote_item_request_status": "တောင်းဆိုမှုအခြေအနေ",
+  "@vote_item_request_status": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status'."
+  },
+  "vote_item_request_status_approved": "အတည်ပြု",
+  "@vote_item_request_status_approved": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_approved'."
+  },
+  "vote_item_request_status_pending": "လာမည့်",
+  "@vote_item_request_status_pending": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_pending'."
+  },
+  "vote_item_request_status_rejected": "ငြင်းပယ်ခဲ့သည်",
+  "@vote_item_request_status_rejected": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_rejected'."
+  },
+  "vote_item_request_submit": "နားထောင်",
+  "@vote_item_request_submit": {
+    "description": "Auto-generated metadata for key 'vote_item_request_submit'."
+  },
+  "vote_item_request_title": "မဲရေးဆွဲရေးတောင်းဆိုမှု",
+  "@vote_item_request_title": {
+    "description": "Auto-generated metadata for key 'vote_item_request_title'."
+  },
+  "vote_share_message": "မဲပေး!",
+  "@vote_share_message": {
+    "description": "Auto-generated metadata for key 'vote_share_message'."
+  },
+  "vote_completed_message": "မဲပေးပြီးပါပြီ!",
+  "@vote_completed_message": {
+    "description": "Auto-generated metadata for key 'vote_completed_message'."
+  },
+  "voting_share_benefit_text": "မဲ 100 တိုင်းအတွက်အပိုဆုကြယ်ပွင့်သကြားလုံး 1 ခုကိုရယူပါ။",
+  "@voting_share_benefit_text": {
+    "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
+  },
+  "cancel": "ပျက်စေ",
+  "@cancel": {
+    "description": "Auto-generated metadata for key 'cancel'."
+  },
+  "confirm": "အတည်ပြု",
+  "@confirm": {
+    "description": "Auto-generated metadata for key 'confirm'."
+  },
+  "loading": "တင်နေသည်...",
+  "@loading": {
+    "description": "Auto-generated metadata for key 'loading'."
+  },
+  "retry": "ထပ်ကြိုးစားပါ",
+  "@retry": {
+    "description": "Auto-generated metadata for key 'retry'."
+  },
+  "update": "အပ်ဒိတ်လုပ်ပါ",
+  "@update": {
+    "description": "Auto-generated metadata for key 'update'."
+  },
+  "ban_title": "စက်ပိတ်ထားသည်",
+  "@ban_title": {
+    "description": "Auto-generated metadata for key 'ban_title'."
+  },
+  "ban_message": "ဤစက်ကိုမူဝါဒချိုးဖောက်မှုကြောင့်ယာယီပိတ်ထားသည်။",
+  "@ban_message": {
+    "description": "Auto-generated metadata for key 'ban_message'."
+  },
+  "ban_contact": "အမှားဖြစ်သည်ဟုယုံကြည်ပါက customer@picnicglobal.com သို့ဆက်သွယ်ပါ။",
+  "@ban_contact": {
+    "description": "Auto-generated metadata for key 'ban_contact'."
+  },
+  "compatibility_empty_state_title": "ကုန်းဟပ်အချက်အလက်မရှိပါ",
+  "@compatibility_empty_state_title": {
+    "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
+  },
+  "compatibility_empty_state_subtitle": "သင့်ပထမဆုံးကုန်းဟပ်ကိုဖန်တီးပါ!",
+  "@compatibility_empty_state_subtitle": {
+    "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
+  },
+  "compatibility_login_required_title": "ဝင်ရောက်ရန်လိုအပ်သည်",
+  "@compatibility_login_required_title": {
+    "description": "Title shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_required_subtitle": "သင့်ကုန်းဟပ်ရလဒ်များကိုကြည့်ရန်ဝင်ရောက်ပါ",
+  "@compatibility_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see compatibility"
+  },
+  "compatibility_login_button": "ဝင်ရောက်ပါ",
+  "@compatibility_login_button": {
+    "description": "Login button text on compatibility page"
+  },
+  "network_error_title": "ကွန်ရက်အမှား",
+  "@network_error_title": {
+    "description": "Auto-generated metadata for key 'network_error_title'."
+  },
+  "network_error_message": "သင့်အင်တာနက်ချိတ်ဆက်မှုကိုစစ်ဆေးပါ။",
+  "@network_error_message": {
+    "description": "Auto-generated metadata for key 'network_error_message'."
+  },
+  "notice_pinned": "ကပ်စွာ",
+  "@notice_pinned": {
+    "description": "Auto-generated metadata for key 'notice_pinned'."
+  },
+  "title_dialog_error": "အမှား",
+  "@title_dialog_error": {
+    "description": "Auto-generated metadata for key 'title_dialog_error'."
+  },
+  "vote_item_request_waiting": "စောင့်နေသည်",
+  "@vote_item_request_waiting": {
+    "description": "Auto-generated metadata for key 'vote_item_request_waiting'."
+  },
+  "capture_failed": "ဖမ်းယူမှုမအောင်မြင်ပါ",
+  "@capture_failed": {
+    "description": "Auto-generated metadata for key 'capture_failed'."
+  },
+  "qna_submit_success": "သင့်စုံစမ်းမှုကိုအောင်မြင်စွာတင်သွင်းပြီးပါပြီ",
+  "@qna_submit_success": {
+    "description": "Auto-generated metadata for key 'qna_submit_success'."
+  },
+  "qna_list_title": "ကျွန်ုပ်၏စုံစမ်းမှုများ",
+  "@qna_list_title": {
+    "description": "Auto-generated metadata for key 'qna_list_title'."
+  },
+  "starCandy100": "ကြယ်ပွင့်သကြားလုံး ၁၀၀",
+  "@starCandy100": {
+    "description": "Auto-generated metadata for key 'starCandy100'."
+  },
+  "starCandy200": "ကြယ်ပွင့်သကြားလုံး ၂၀၀",
+  "@starCandy200": {
+    "description": "Auto-generated metadata for key 'starCandy200'."
+  },
+  "starCandy600": "ကြယ်ပွင့်သကြားလုံး ၆၀၀",
+  "@starCandy600": {
+    "description": "Auto-generated metadata for key 'starCandy600'."
+  },
+  "starCandy1000": "ကြယ်ပွင့်သကြားလုံး ၁,၀၀၀",
+  "@starCandy1000": {
+    "description": "Auto-generated metadata for key 'starCandy1000'."
+  },
+  "starCandy2000": "ကြယ်ပွင့်သကြားလုံး ၂,၀၀၀",
+  "@starCandy2000": {
+    "description": "Auto-generated metadata for key 'starCandy2000'."
+  },
+  "starCandy3000": "ကြယ်ပွင့်သကြားလုံး ၃,၀၀၀",
+  "@starCandy3000": {
+    "description": "Auto-generated metadata for key 'starCandy3000'."
+  },
+  "starCandy4000": "ကြယ်ပွင့်သကြားလုံး ၄,၀၀၀",
+  "@starCandy4000": {
+    "description": "Auto-generated metadata for key 'starCandy4000'."
+  },
+  "starCandy5000": "ကြယ်ပွင့်သကြားလုံး ၅,၀၀၀",
+  "@starCandy5000": {
+    "description": "Auto-generated metadata for key 'starCandy5000'."
+  },
+  "update_required_message": "အက်ပ်အပ်ဒိတ်လိုအပ်သည်",
+  "@update_required_message": {
+    "description": "Auto-generated metadata for key 'update_required_message'."
+  },
+  "vote_item_request_no_search_results": "ရှာဖွေမှုရလဒ်မရှိပါ",
+  "@vote_item_request_no_search_results": {
+    "description": "Auto-generated metadata for key 'vote_item_request_no_search_results'."
+  },
+  "jma_voting_my_star_candy": "ကျွန်ုပ်၏ကြယ်ပွင့်သကြားလုံး",
+  "@jma_voting_my_star_candy": {
+    "description": "Auto-generated metadata for key 'jma_voting_my_star_candy'."
+  },
+  "jma_voting_usable_jma_votes": "ရနိုင်သော JMA မဲများ",
+  "@jma_voting_usable_jma_votes": {
+    "description": "Auto-generated metadata for key 'jma_voting_usable_jma_votes'."
+  },
+  "jma_voting_use_all": "အားလုံးသုံးပါ",
+  "@jma_voting_use_all": {
+    "description": "Auto-generated metadata for key 'jma_voting_use_all'."
+  },
+  "jma_voting_input_amount": "ကြယ်ပွင့်သကြားလုံးပမာဏထည့်ပါ။",
+  "@jma_voting_input_amount": {
+    "description": "Auto-generated metadata for key 'jma_voting_input_amount'."
+  },
+  "jma_voting_daily_limit_error": "တစ်နေ့လျှင် ၅ ကြိမ်အထိမဲပေးနိုင်သည်။",
+  "@jma_voting_daily_limit_error": {
+    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_error'."
+  },
+  "jma_voting_exchange_failed": "ကြယ်ပွင့်သကြားလုံးလဲလှယ်စဉ်အမှားဖြစ်ပွားသည်။ ထပ်ကြိုးစားပါ။",
+  "@jma_voting_exchange_failed": {
+    "description": "Auto-generated metadata for key 'jma_voting_exchange_failed'."
+  },
+  "jma_voting_daily_limit_title": "မဲပေးမှုကန့်သတ်ချက်",
+  "@jma_voting_daily_limit_title": {
+    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_title'."
+  },
+  "jma_voting_exchange_failed_title": "လဲလှယ်မှုမအောင်မြင်ပါ",
+  "@jma_voting_exchange_failed_title": {
+    "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
+  },
+  "expiring_bonus_candy_guide": "သက်တမ်းကုန်ဆုံးမည့်ဘောနပ်လမ်းညွှန်",
+  "@expiring_bonus_candy_guide": {
+    "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
+  },
+  "qna_form_title_hint": "အနည်းဆုံးစာလုံး ၅ လုံးပါသောခေါင်းစဉ်ထည့်ပါ။",
+  "@qna_form_title_hint": {
+    "description": "Auto-generated metadata for key 'qna_form_title_hint'."
+  },
+  "qna_form_content_hint": "အနည်းဆုံးစာလုံး ၁၀ လုံးပါသောအကြောင်းအရာထည့်ပါ။",
+  "@qna_form_content_hint": {
+    "description": "Auto-generated metadata for key 'qna_form_content_hint'."
+  },
+  "qna_attach_media": "ဓာတ်ပုံ/ဗီဒီယိုပူးတွဲပါ",
+  "@qna_attach_media": {
+    "description": "Auto-generated metadata for key 'qna_attach_media'."
+  },
+  "file_too_large_message": "{fileName} သည် {maxSize}MB အရွယ်အစားကန့်သတ်ချက်ထက်ကျော်လွန်သည်။",
+  "@file_too_large_message": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "maxSize": {
+        "type": "int"
+      }
+    }
+  },
+  "qna_submit_fail": "စုံစမ်းမှုတင်သွင်းခြင်းမအောင်မြင်ပါ",
+  "@qna_submit_fail": {
+    "description": "Auto-generated metadata for key 'qna_submit_fail'."
+  },
+  "qna_file_size_limit_notice": "{maxSize}MB အထိဖိုင်များပူးတွဲနိုင်သည်။",
+  "@qna_file_size_limit_notice": {
+    "placeholders": {
+      "maxSize": {
+        "type": "int"
+      }
+    }
+  },
+  "qna_cannot_send_message_closed": "ဤစုံစမ်းမှုကိုပိတ်ထားပြီးစာပို့၍မရတော့ပါ။",
+  "@qna_cannot_send_message_closed": {
+    "description": "Auto-generated metadata for key 'qna_cannot_send_message_closed'."
+  },
+  "qna_message_sent_success": "စာပို့မှုအောင်မြင်ပါသည်။",
+  "@qna_message_sent_success": {
+    "description": "Auto-generated metadata for key 'qna_message_sent_success'."
+  },
+  "qna_message_sent_fail": "စာပို့မှုမအောင်မြင်ပါ",
+  "@qna_message_sent_fail": {
+    "description": "Auto-generated metadata for key 'qna_message_sent_fail'."
+  },
+  "qna_no_answer_yet": "အဖြေမရှိသေးပါ",
+  "@qna_no_answer_yet": {
+    "description": "Auto-generated metadata for key 'qna_no_answer_yet'."
+  },
+  "qna_add_media_tooltip": "မီဒီယာထည့်ပါ",
+  "@qna_add_media_tooltip": {
+    "description": "Auto-generated metadata for key 'qna_add_media_tooltip'."
+  },
+  "qna_load_fail_title": "စုံစမ်းမှုများတင်ခြင်းမအောင်မြင်ပါ",
+  "@qna_load_fail_title": {
+    "description": "Auto-generated metadata for key 'qna_load_fail_title'."
+  },
+  "qna_category_label": "အမျိုးအစား",
+  "@qna_category_label": {
+    "description": "QnA category label"
+  },
+  "qna_category_required": "အမျိုးအစားရွေးချယ်ပါ",
+  "@qna_category_required": {
+    "description": "Error message when category is required"
+  },
+  "qna_message_hint": "စာထည့်ပါ",
+  "@qna_message_hint": {
+    "description": "Auto-generated metadata for key 'qna_message_hint'."
+  },
+  "label_my_vote_history": "ကျွန်ုပ်၏မဲပေးမှုမှတ်တမ်း",
+  "@label_my_vote_history": {
+    "description": "Auto-generated metadata for key 'label_my_vote_history'."
+  },
+  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__ ၁၅ ရက် ၀၀:၀၀(KST)",
+  "@bonus_candy_example_2_expire": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
+  },
+  "bonus_candy_example_earn_date": "ရရှိသည့်နေ့စွဲ",
+  "@bonus_candy_example_earn_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
+  },
+  "vote_item_request_status_unknown": "မသိသာသော",
+  "@vote_item_request_status_unknown": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
+  },
+  "bonus_candy_expiration_policy_load_fail": "သက်တမ်းကုန်ဆုံးမည့်ဘောနပ်အချက်အလက်တင်ခြင်းမအောင်မြင်ပါ။",
+  "@bonus_candy_expiration_policy_load_fail": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
+  },
+  "bonus_candy_example_1_expire": "__NEXT_MONTH__ ၁၅ ရက် ၀၀:၀၀(KST)",
+  "@bonus_candy_example_1_expire": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
+  },
+  "vote_item_request_status_in_progress": "ဆောင်ရွက်ဆဲဖြစ်သည်",
+  "@vote_item_request_status_in_progress": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
+  },
+  "bonus_candy_policy_2": "- ကြယ်ပွင့်သကြားလုံးအသုံးပြုသောအခါ သက်တမ်းနီးစပ်ဆုံးဘောနပ်ကြယ်ပွင့်သကြားလုံးကိုအရင်သုံးမည်။",
+  "@bonus_candy_policy_2": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
+  },
+  "compatibility_purchase_message": "ငါနဲ့ {artistName} ကြားမှာ Goong-hap ရမှတ်ကိုငါသိချင်ရင်?",
+  "@compatibility_purchase_message": {
+    "placeholders": {
+      "artistName": {
+        "type": "String"
+      }
+    }
+  },
+  "label_mypage_charge_history": "စွဲချက်",
+  "@label_mypage_charge_history": {
+    "description": "Charge history menu for admin users"
+  },
+  "compatibility_time_slot_unknown": "မသိဘူး",
+  "@compatibility_time_slot_unknown": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
+  },
+  "label_popup_hide_7days": "7 ရက်မကြည့်ပါနှင့်",
+  "@label_popup_hide_7days": {
+    "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
+  },
+  "expiring_soon_bonus_candy": "မကြာမီသက်တမ်းကုန်မည့်ဘောနပ်ကြယ်ပွင့်သကြားလုံး",
+  "@expiring_soon_bonus_candy": {
+    "description": "Auto-generated metadata for key 'expiring_soon_bonus_candy'."
+  },
+  "bonus_candy_expiration_policy_earn_period": "ရရှိသည့်ကာလ",
+  "@bonus_candy_expiration_policy_earn_period": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
+  },
+  "message_setting_remove_cache": "cache မှတ်ဉာဏ်ဖျက်ခြင်းပြည့်စုံသည်။",
+  "@message_setting_remove_cache": {
+    "description": "Auto-generated metadata for key 'message_setting_remove_cache'."
+  },
+  "error_loading_more_comments": "မှတ်ချက်ပေးတဲ့အမှားတစ်ခုရှိတယ်။",
+  "@error_loading_more_comments": {
+    "description": "Auto-generated metadata for key 'error_loading_more_comments'."
+  },
+  "purchase_timeout_message": "ဝယ်ယူမှုလုပ်ဆောင်ခြင်းအချိန်ကြာမြင့်လွန်းသည်။\nထပ်ကြိုးစားပါ။",
+  "@purchase_timeout_message": {
+    "description": "Auto-generated metadata for key 'purchase_timeout_message'."
+  },
+  "label_tabbar_vote_upcoming": "လာမည့်",
+  "@label_tabbar_vote_upcoming": {
+    "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
+  },
+  "bonus_candy_example_1_earn": "__MONTH__ ၁၀ ရက် ၁၄:၀၀(KST)",
+  "@bonus_candy_example_1_earn": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
+  },
+  "error_receipt_verification_failed": "ပြေစာအတည်ပြုခြင်းမအောင်မြင်ပါ။",
+  "@error_receipt_verification_failed": {
+    "description": "Auto-generated metadata for key 'error_receipt_verification_failed'."
+  },
+  "vote_item_request_status_cancelled": "ပယ်ဖျက်လိုက်သော",
+  "@vote_item_request_status_cancelled": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_cancelled'."
+  },
+  "post_write_board_post": "ပို့စ်တစ်ခုဖန်တီးပါ",
+  "@post_write_board_post": {
+    "description": "Auto-generated metadata for key 'post_write_board_post'."
+  },
+  "bonus_candy_policy_3": "- သက်တမ်းကုန်ဆုံးသွားသောဘောနပ်ကြယ်ပွင့်သကြားလုံးကိုပြန်ရ၍မရပါ။",
+  "@bonus_candy_policy_3": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
+  },
+  "message_update_nickname_fail": "အမည်ပြောင်ပြောင်းလဲမှုမအောင်မြင်ပါ\nကျေးဇူးပြု. အခြားအမည်ဝှက်ကိုရွေးချယ်ပါ။",
+  "@message_update_nickname_fail": {
+    "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
+  },
+  "bonus_candy_expiration_time_title": "သက်တမ်းကုန်ဆုံးချိန်",
+  "@bonus_candy_expiration_time_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_time_title'."
+  },
+  "post_comment_action_show_translation": "ဘာသာပြန်ချက်များကိုဘာသာပြန်ရန်",
+  "@post_comment_action_show_translation": {
+    "description": "Auto-generated metadata for key 'post_comment_action_show_translation'."
+  },
+  "fortune_lucky_direction": "ကံဇာတာ၏ ဦး တည်ချက်",
+  "@fortune_lucky_direction": {
+    "description": "Auto-generated metadata for key 'fortune_lucky_direction'."
+  },
+  "error_message_login_failed": "login စဉ်အတွင်းအမှားတစ်ခုဖြစ်ပွားခဲ့သည်။",
+  "@error_message_login_failed": {
+    "description": "Auto-generated metadata for key 'error_message_login_failed'."
+  },
+  "dialog_withdraw_button_ok": "ပယ်ဖျက်နိုင်ခြင်း",
+  "@dialog_withdraw_button_ok": {
+    "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
+  },
+  "compatibility_birthtime_subtitle": "တိကျမှန်ကန်မှုကိုတိုးမြှင့်!",
+  "@compatibility_birthtime_subtitle": {
+    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
+  },
+  "title_dialog_success": "အောင်မြင်ခြင်း",
+  "@title_dialog_success": {
+    "description": "Auto-generated metadata for key 'title_dialog_success'."
+  },
+  "bonus_candy_policy_title": "ဘောနပ်ကြယ်ပွင့်သကြားလုံးမူဝါဒ",
+  "@bonus_candy_policy_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
+  },
+  "bonus_candy_example_expiration_date": "သက်တမ်းကုန်ဆုံးရက်",
+  "@bonus_candy_example_expiration_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
+  },
+  "label_tab_free_charge_station": "အခမဲ့အားသွင်းဘူတာ",
+  "@label_tab_free_charge_station": {
+    "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
+  },
+  "error_user_not_authenticated": "သင်ဝင်ရောက်ရန်လိုအပ်သည်။ ထပ်မံဝင်ရောက်ပါ။",
+  "@error_user_not_authenticated": {
+    "description": "Auto-generated metadata for key 'error_user_not_authenticated'."
+  },
+  "text_dialog_vote_amount_should_not_zero": "မဲအရေအတွက်သည်သုညမဖြစ်နိုင်ပါ။",
+  "@text_dialog_vote_amount_should_not_zero": {
+    "description": "Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'."
+  },
+  "message_agreement_success": "စည်းကမ်းချက်များကိုလက်ခံခြင်းသည်ပြီးပြည့်စုံသည်။",
+  "@message_agreement_success": {
+    "description": "Auto-generated metadata for key 'message_agreement_success'."
+  },
+  "bonus_candy_earn_period_1_to_15": "၁ ရက် ၀၀:၀၀:၀၀ ~ ၁၅ ရက် ၂၃:၅၉:၅၉",
+  "@bonus_candy_earn_period_1_to_15": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  },
+  "compatibility_snackbar_need_birthday": "ကျေးဇူးပြု. သင်၏မွေးနေ့ကိုထည့်ပါ။",
+  "@compatibility_snackbar_need_birthday": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
+  },
+  "update_recommend_text": "ဗားရှင်းအသစ် ({version}) ကိုရနိုင်သည်။",
+  "@update_recommend_text": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "error_product_not_found": "ဝယ်ယူထားသောပစ္စည်းကိုရှာမတွေ့ပါ။",
+  "@error_product_not_found": {
+    "description": "Auto-generated metadata for key 'error_product_not_found'."
+  },
+  "label_popup_close": "ပိတ်ထားသော",
+  "@label_popup_close": {
+    "description": "Auto-generated metadata for key 'label_popup_close'."
+  },
+  "jma_voting_info_text": "-ဘောနပ်ကြယ်ပွင့်သကြားလုံးကို JMA မဲပေးခြင်းအတွက်အကန့်အသတ်ဖြင့်သုံးနိုင်သည်။",
+  "@jma_voting_info_text": {
+    "description": "Auto-generated metadata for key 'jma_voting_info_text'."
+  },
+  "vote_item_request_search_artist_hint": "အနုပညာရှင်သို့မဟုတ်အုပ်စုကိုရှာဖွေပါ",
+  "@vote_item_request_search_artist_hint": {
+    "description": "Auto-generated metadata for key 'vote_item_request_search_artist_hint'."
+  },
+  "bonus_candy_expiration_month_after_next": "နောက်တစ်လ ၁၅ ရက် ၀၀:၀၀:၀၀",
+  "@bonus_candy_expiration_month_after_next": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'."
+  },
+  "post_comment_action_show_original": "စာသားအပြည့်အစုံကိုကြည့်ပါ",
+  "@post_comment_action_show_original": {
+    "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
+  },
+  "compatibility_snackbar_need_profile_save_agree": "သင်၏ပရိုဖိုင်းကိုကယ်တင်ရန်သင်၏ခွင့်ပြုချက်ကိုပေးပါ။",
+  "@compatibility_snackbar_need_profile_save_agree": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
+  },
+  "qna_content_min_length": "စုံစမ်းမှုအကြောင်းအရာသည်အနည်းဆုံးစာလုံး ၁၀ လုံးရှိရမည်",
+  "@qna_content_min_length": {
+    "description": "Auto-generated metadata for key 'qna_content_min_length'."
+  },
+  "post_ask_go_to_temporary_save_list": "မူကြမ်းစာရင်းကိုသွားချင်ပါသလား။",
+  "@post_ask_go_to_temporary_save_list": {
+    "description": "Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'."
+  },
+  "label_pic_pic_synthesizing_image": "ပုံတစ်ပုံကိုရေးပါ ...",
+  "@label_pic_pic_synthesizing_image": {
+    "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
+  },
+  "label_tab_buy_star_candy": "ကြယ်ပွင့်သကြားလုံးဝယ်ပါ",
+  "@label_tab_buy_star_candy": {
+    "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
+  },
+  "jma_voting_max_votes_exceeded": "လက်ရှိအများဆုံးဖြစ်နိုင်သောမဲမှာ {maxVotes} ဖြစ်သည်။",
+  "@jma_voting_max_votes_exceeded": {
+    "placeholders": {
+      "maxVotes": {
+        "type": "int"
+      }
+    }
+  },
+  "jma_voting_daily_limit_remaining": "ယနေ့ကျန်ရှိသောဘောနပ်မဲများ: {remaining} ကြိမ် ({max} ကြိမ်)",
+  "@jma_voting_daily_limit_remaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "post_temporary_save_complete": "ဖြည့်စွက်။",
+  "@post_temporary_save_complete": {
+    "description": "Auto-generated metadata for key 'post_temporary_save_complete'."
+  },
+  "bonus_candy_example_title": "ဥပမာ",
+  "@bonus_candy_example_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_title'."
+  },
+  "label_pic_pic_initializing_camera": "ကင်မရာကိုစတင်ရန် ...",
+  "@label_pic_pic_initializing_camera": {
+    "description": "Auto-generated metadata for key 'label_pic_pic_initializing_camera'."
+  },
+  "post_write_post_recommend_write": "ကျေးဇူးပြုပြီးပို့စ်တစ်ခုဖန်တီးပါ",
+  "@post_write_post_recommend_write": {
+    "description": "Auto-generated metadata for key 'post_write_post_recommend_write'."
+  },
+  "jma_voting_daily_limit_exhausted": "ယနေ့အတွက်ဘောနပ်မဲအားလုံးကိုသုံးပြီးပါပြီ။",
+  "@jma_voting_daily_limit_exhausted": {
+    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
+  },
+  "bonus_candy_policy_1": "- အခမဲ့အားသွင်းစခန်းများနှင့်ဆုလာဘ်များမှရရှိသောဘောနပ်ကြယ်ပွင့်သကြားလုံးသည်သက်တမ်းကုန်ဆုံးသည်။",
+  "@bonus_candy_policy_1": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
+  },
+  "compatibility_perfect_score_exists_title": "ပြီးသားအနိုင်ရဒေတာဒေတာ",
+  "@compatibility_perfect_score_exists_title": {
+    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
+  },
+  "compatibility_duplicate_data_message": "တူညီသောအခြေအနေများနှင့်အတူလိုက်ဖက်တဲ့ဒေတာရှိပြီးသား။",
+  "@compatibility_duplicate_data_message": {
+    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
+  },
+  "label_time_ago_minute": "{minute} မိနစ်အကြာ",
+  "@label_time_ago_minute": {
+    "placeholders": {
+      "minute": {
+        "type": "int"
+      }
+    }
+  },
+  "update_required_text": "သငျသညျဗားရှင်းအသစ် ({version}) အသစ်သို့ update လုပ်ဖို့လိုအပ်ပါတယ်။",
+  "@update_required_text": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "jma_voting_star_candy_shortage": "ကြယ်ပွင့်သကြားလုံး {shortage} ခုထပ်လိုအပ်သည်။",
+  "@jma_voting_star_candy_shortage": {
+    "placeholders": {
+      "shortage": {
+        "type": "int"
+      }
+    }
+  },
+  "bonus_candy_earn_period_16_to_end": "၁၆ ရက် ၀၀:၀၀:၀၀ ~ လကုန် ၂၃:၅၉:၅၉",
+  "@bonus_candy_earn_period_16_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  },
+  "error_message_withdrawal": "နုတ်ထွက်ထားသော အဖွဲ့ဝင်များသည် ဤလုပ်ဆောင်ချက်ကို အသုံးပြု၍မရပါ။",
+  "@error_message_withdrawal": {
+    "description": "Auto-generated metadata for key 'error_message_withdrawal'."
+  },
+  "text_achievement": "__ $ __ ph_0__ ဂိုးများကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉",
+  "@text_achievement": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "label_login_with_wechat": "WeChat နှင့်အတူဝင်ပါ",
+  "@label_login_with_wechat": {
+    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
+  },
+  "withdrawal_success": "အဆိုပါ unsubscribe အောင်မြင်စွာလုပ်ငန်းများ၌ခဲ့သည်။",
+  "@withdrawal_success": {
+    "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "vote_item_request_already_applied_artist": "သင်ဤအနုပညာရှင်အတွက်လျှောက်ထားပြီးပြီ",
+  "@vote_item_request_already_applied_artist": {
+    "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
+  },
+  "bonus_candy_expiration_policy_expiration_date": "သက်တမ်းကုန်ဆုံးရက်",
+  "@bonus_candy_expiration_policy_expiration_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
+  },
+  "bonus_candy_example_2_earn": "__MONTH__ ၂၀ ရက် ၁၄:၀၀(KST)",
+  "@bonus_candy_example_2_earn": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
+  },
+  "message_agreement_fail": "စည်းကမ်းသဘောတူရန်လိုအပ်သည်",
+  "@message_agreement_fail": {
+    "description": "Auto-generated metadata for key 'message_agreement_fail'."
+  },
+  "vote_item_request_button": "မဲလျှောက်ထားရန်လျှောက်ထားပါ",
+  "@vote_item_request_button": {
+    "description": "Auto-generated metadata for key 'vote_item_request_button'."
+  },
+  "bonus_candy_expiration_next_month": "နောက်လ ၁၅ ရက် ၀၀:၀၀:၀၀",
+  "@bonus_candy_expiration_next_month": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_next_month'."
+  },
+  "error_delete_post": "ပို့စ်ကိုဖျက်နေစဉ်အမှားတစ်ခုဖြစ်ပွားခဲ့သည်။",
+  "@error_delete_post": {
+    "description": "Auto-generated metadata for key 'error_delete_post'."
+  },
+  "qna_title_min_length": "ခေါင်းစဉ်သည်အနည်းဆုံးစာလုံး ၅ လုံးရှိရမည်",
+  "@qna_title_min_length": {
+    "description": "Auto-generated metadata for key 'qna_title_min_length'."
+  },
+  "message_update_nickname_success": "သင်၏အမည်ပြောင်ကိုအောင်မြင်စွာပြောင်းလဲသွားပြီ။",
+  "@message_update_nickname_success": {
+    "description": "Auto-generated metadata for key 'message_update_nickname_success'."
+  },
+  "compatibility_new_compatibility_ask": "အသစ်တစ်ခုကို Goong-had ကြည့်ချင်ပါသလား?",
+  "@compatibility_new_compatibility_ask": {
+    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
+  },
+  "post_replying_comment": "__ph_0 __... တုံ့ပြန်ခြင်း",
+  "@post_replying_comment": {
+    "placeholders": {
+      "nickname": {
+        "type": "String"
+      }
+    }
+  },
+  "button_pic_pic_save": "ကယ်ဆယ်",
+  "@button_pic_pic_save": {
+    "description": "Auto-generated metadata for key 'button_pic_pic_save'."
+  },
+  "compatibility_perfect_score_exists": "ဤအခြေအနေအတွက်လိုက်ဖက်တဲ့အချက်အလက်များကအကျိုးကျေးဇူးများရရှိထားကြောင်း ကျေးဇူးပြု. မှတ်သားပါ။",
+  "@compatibility_perfect_score_exists": {
+    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
+  },
+  "post_minor_board_create_request_message_input": "ဘုတ်အဖွဲ့တစ်ခုဖွင့်ရန်တောင်းဆိုသည့်စာကိုထည့်ပါ။",
+  "@post_minor_board_create_request_message_input": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_input'."
+  },
+  "fortune_purchase_by_star_candy": "Star Candy ဖြင့်ကြည့်ရန်",
+  "@fortune_purchase_by_star_candy": {
+    "description": "Auto-generated metadata for key 'fortune_purchase_by_star_candy'."
+  },
+  "post_minor_board_create_request_message_condition": "ကျေးဇူးပြု. သင်၏မက်ဆေ့ခ်ျတွင်အနည်းဆုံးစာလုံး 10 လုံးပါ 0 င်ပါ။",
+  "@post_minor_board_create_request_message_condition": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_condition'."
+  },
+  "post_board_create_request_reviewing": "ဘုတ်အဖွဲ့တစ်ခုဖွင့်ရန်တောင်းဆိုမှုကိုပြန်လည်သုံးသပ်",
+  "@post_board_create_request_reviewing": {
+    "description": "Auto-generated metadata for key 'post_board_create_request_reviewing'."
+  },
+  "post_minor_board_create_request_message": "* ဘုတ်အဖွဲ့တစ်ခုဖွင့်ရန်တောင်းဆိုခြင်းစာ။",
+  "@post_minor_board_create_request_message": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
+  },
+  "compatibility_purchase_confirm_title": "Goong-Hap ရလဒ်ကြည့်ရန်",
+  "@compatibility_purchase_confirm_title": {
+    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
+  },
+  "post_board_create_request_label": "ဘုတ်အဖွဲ့ဖွင့်ရန်တောင်းဆိုမှု",
+  "@post_board_create_request_label": {
+    "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  },
+  "qna_auto_close_after_14_days_notice": "၁၄ ရက်အတွင်းထပ်မံစကားပြောမှုမရှိပါကစုံစမ်းမှုကိုအလိုအလျောက်ပိတ်မည်။",
+  "@qna_auto_close_after_14_days_notice": {
+    "description": "Notice shown when the last message is from admin in QnA thread."
+  },
+  "qna_status_received": "ခံယူ",
+  "@qna_status_received": {
+    "description": "QnA status when inquiry is received (waiting for admin)"
+  },
+  "qna_status_in_progress": "ဆောင်ရွက်ဆဲဖြစ်သည်",
+  "@qna_status_in_progress": {
+    "description": "QnA status when processing is ongoing"
+  },
+  "qna_status_resolved": "ဖြေရှင်း",
+  "@qna_status_resolved": {
+    "description": "QnA status when resolved/closed"
+  },
+  "ad_close_confirm_title": "ကြော်ငြာပိတ်မလား။",
+  "@ad_close_confirm_title": {
+    "description": "Title for closing ad confirmation dialog"
+  },
+  "ad_close_confirm_message": "ယခုပိတ်ပါကဘောနပ်ဆုလာဘ်ရမည်မဟုတ်ပါ။ ပိတ်မလား။",
+  "@ad_close_confirm_message": {
+    "description": "Message for closing ad confirmation dialog"
+  },
+  "ad_more_info_button": "အသေးစိတ်",
+  "@ad_more_info_button": {
+    "description": "CTA button after ad finished"
+  },
+  "ad_reward_success_message": "ဆုလာဘ်ရရှိပြီး။",
+  "@ad_reward_success_message": {
+    "description": "Ad view credited success message"
+  },
+  "weekly_vote_info_title": "🎖️ အပတ်စဉ်မဲပေးမှုလမ်းညွှန်",
+  "@weekly_vote_info_title": {
+    "description": "Weekly vote info popup title"
+  },
+  "weekly_vote_info_body": "Picnic ၏ Hall of Fame ဆုသည်အပတ်တိုင်းဖွင့်ထားသည်!\n\nအပတ်တိုင်း...",
+  "@weekly_vote_info_body": {
+    "description": "Weekly vote info popup body"
+  },
+  "weekly_vote_info_link": "အပတ်စဉ်မဲပေးမှုဆိုတာဘာလဲ။",
+  "@weekly_vote_info_link": {
+    "description": "Link label asking what weekly voting is"
+  },
+  "label_setting_patch_section_title": "ပက်ချ်အခြေအနေ",
+  "@label_setting_patch_section_title": {
+    "description": "Title for the patch status section in Settings."
+  },
+  "label_setting_patch_check_button": "ပက်ချ်စစ်ဆေးပါ",
+  "@label_setting_patch_check_button": {
+    "description": "Button label for manually checking Shorebird patches."
+  },
+  "label_setting_patch_apply_button": "အပ်ဒိတ်အသုံးပြုပါ",
+  "@label_setting_patch_apply_button": {
+    "description": "Button label for manually applying a downloaded patch."
+  },
+  "label_setting_patch_checking": "စစ်ဆေးနေသည်...",
+  "@label_setting_patch_checking": {
+    "description": "Status text shown while patch status check is running."
+  },
+  "label_setting_patch_last_checked": "နောက်ဆုံးစစ်ဆေးချိန်: {time}",
+  "@label_setting_patch_last_checked": {
+    "description": "Label that shows when the patch status was last checked.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "label_setting_patch_status_restart_required": "အပ်ဒိတ်အဆင်သင့်ဖြစ်ပြီ (restart လိုအပ်သည်)",
+  "@label_setting_patch_status_restart_required": {
+    "description": "Status label when a restart is required to apply a patch."
+  },
+  "label_setting_patch_status_downloaded": "အပ်ဒိတ်ဒေါင်းလုဒ်ပြီးပါပြီ",
+  "@label_setting_patch_status_downloaded": {
+    "description": "Status label when a patch has been downloaded."
+  },
+  "label_setting_patch_status_available": "အပ်ဒိတ်ရနိုင်သည်",
+  "@label_setting_patch_status_available": {
+    "description": "Status label when a patch is available."
+  },
+  "label_setting_patch_status_current_patch": "လက်ရှိပက်ချ်: {patchNumber}",
+  "@label_setting_patch_status_current_patch": {
+    "description": "Status label showing the current patch number.",
+    "placeholders": {
+      "patchNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "label_setting_patch_status_none": "ပက်ချ်မသုံးထားပါ",
+  "@label_setting_patch_status_none": {
+    "description": "Status label when no patch is applied."
+  },
+  "message_setting_patch_restart_hint": "ပက်ချ်အသစ်ဒေါင်းလုဒ်ပြီးပါပြီ။ အသုံးပြုရန် Restart နှိပ်ပါ။",
+  "@message_setting_patch_restart_hint": {
+    "description": "Hint shown when a restart is required after downloading a patch."
+  },
+  "message_setting_patch_web_not_supported": "ပက်ချ်အပ်ဒိတ်များသည်ဝဘ်တွင်မရနိုင်ပါ။",
+  "@message_setting_patch_web_not_supported": {
+    "description": "Warning shown when patch actions are attempted on web platforms."
+  },
+  "message_setting_patch_update_available": "ပက်ချ်အသစ်ရနိုင်သည်။",
+  "@message_setting_patch_update_available": {
+    "description": "Snackbar text when a patch update is available."
+  },
+  "message_setting_patch_update_success": "ပက်ချ်အပ်ဒိတ်ပြီးပါပြီ!",
+  "@message_setting_patch_update_success": {
+    "description": "Snackbar text when a patch update completes successfully."
+  },
+  "message_setting_patch_restarting": "အက်ပ် restart လုပ်နေသည်...",
+  "@message_setting_patch_restarting": {
+    "description": "Dialog text shown while the app is restarting after patch update."
+  },
+  "message_setting_patch_update_failed": "ပက်ချ်အသုံးပြုခြင်းမအောင်မြင်ပါ: {error}",
+  "@message_setting_patch_update_failed": {
+    "description": "Snackbar text when applying a patch fails.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "message_setting_patch_status_failed": "ပက်ချ်အခြေအနေစစ်ဆေးခြင်းမအောင်မြင်ပါ: {error}",
+  "@message_setting_patch_status_failed": {
+    "description": "Snackbar text when checking patch status fails.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "message_setting_patch_status_unavailable": "ပက်ချ်အခြေအနေမရနိုင်ပါ။ နောက်မှထပ်ကြိုးစားပါ။",
+  "@message_setting_patch_status_unavailable": {
+    "description": "Snackbar text when patch status is unavailable (e.g., offline)."
+  },
+  "message_setting_patch_up_to_date": "သင်သည်နောက်ဆုံးပက်ချ်တွင်ရှိနှင့်ပြီးဖြစ်သည်။",
+  "@message_setting_patch_up_to_date": {
+    "description": "Snackbar text when the user is already on the latest patch."
+  },
+  "dialog_setting_restart_title": "အက်ပ် restart လုပ်ပါ",
+  "@dialog_setting_restart_title": {
+    "description": "Title for the restart confirmation dialog on the Settings page."
+  },
+  "dialog_setting_restart_body": "အပ်ဒိတ်အသစ်အဆင်သင့်ဖြစ်ပြီ။ အပ်ဒိတ်အသုံးပြုရန်အက်ပ် restart ဖြစ်မည်။",
+  "@dialog_setting_restart_body": {
+    "description": "Body text for the restart confirmation dialog on the Settings page."
+  },
+  "button_restart": "Restart",
+  "@button_restart": {
+    "description": "Label for restart buttons."
+  },
+  "button_update": "အပ်ဒိတ်",
+  "@button_update": {
+    "description": "Label for update buttons."
+  },
+  "label_setting_patch_number": " / ပက်ချ်: {patchNumber}",
+  "@label_setting_patch_number": {
+    "description": "Suffix appended to build information to show the current patch number.",
+    "placeholders": {
+      "patchNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "vote_item_request_search_initial_guide": "တောင်းဆိုရန်အနုပညာရှင်ရှာပါ",
+  "@vote_item_request_search_initial_guide": {
+    "description": "Guide text shown before user starts searching for artist"
+  },
+  "vote_item_request_search_try_other_keyword": "အခြား keyword များဖြင့်ရှာဖွေကြည့်ပါ",
+  "@vote_item_request_search_try_other_keyword": {
+    "description": "Suggestion text when no search results are found"
+  },
+  "goong_hap_what_is": "ကုန်းဟပ်ဆိုတာဘာလဲ။",
+  "@goong_hap_what_is": {
+    "description": "Button text for opening Goong-Hap intro dialog"
+  },
+  "goong_hap_title": "ကုန်းဟပ်",
+  "@goong_hap_title": {
+    "description": "Title of Goong-Hap intro dialog"
+  },
+  "goong_hap_subtitle": "သင့် bias နှင့်ကံကြမ္မာက ဘယ်လိုလဲ။",
+  "@goong_hap_subtitle": {
+    "description": "Subtitle of Goong-Hap intro dialog"
+  },
+  "goong_hap_tradition_title": "ကိုရီးယားရိုးရာယဉ်ကျေးမှု",
+  "@goong_hap_tradition_title": {
+    "description": "Tradition section title in Goong-Hap intro"
+  },
+  "goong_hap_tradition_desc": "ကုန်းဟပ်သည်ရာစုနှစ်များစွာရှိနေသောကိုရီးယားရိုးရာယဉ်ကျေးမှုတစ်ခုဖြစ်သည်။",
+  "@goong_hap_tradition_desc": {
+    "description": "Tradition section description in Goong-Hap intro"
+  },
+  "goong_hap_kpop_title": "K-POP အနုပညာရှင်များနှင့်ကျွန်ုပ်၏ဓာတ်ပြု",
+  "@goong_hap_kpop_title": {
+    "description": "K-POP section title in Goong-Hap intro"
+  },
+  "goong_hap_kpop_desc": "သင်အကြိုက်ဆုံး idol နှင့်ဘယ်လောက်ကိုက်ညီလဲ။ စစ်ဆေးကြည့်ပါ!",
+  "@goong_hap_kpop_desc": {
+    "description": "K-POP section description in Goong-Hap intro"
+  },
+  "goong_hap_fun_title": "Fandom ခံစားရန်နည်းလမ်းသစ်",
+  "@goong_hap_fun_title": {
+    "description": "Fun section title in Goong-Hap intro"
+  },
+  "goong_hap_fun_desc": "သူငယ်ချင်းများနှင့်သင့်လိုက်ဖက်မှုရမှတ်များကိုနှိုင်းယှဉ်ပြီးမျှဝေပါ!",
+  "@goong_hap_fun_desc": {
+    "description": "Fun section description in Goong-Hap intro"
+  },
+  "goong_hap_notice": "ကုန်းဟပ်ရလဒ်များကိုပျော်ရွှင်စရာအဖြစ်ခံစားပါ! K-POP ကမ္ဘာကိုကုန်းဟပ်ဖြင့်ခံစားပါ။",
+  "@goong_hap_notice": {
+    "description": "Notice text in Goong-Hap intro"
+  },
+  "goong_hap_close_button": "ပိတ်ပါ",
+  "@goong_hap_close_button": {
+    "description": "Close button text in Goong-Hap intro dialog"
+  }
+}
