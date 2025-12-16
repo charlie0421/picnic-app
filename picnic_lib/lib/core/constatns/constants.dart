@@ -66,6 +66,7 @@ Map<String, String> countryMap = {
   'fil': 'PH',
   'th': 'TH',
   'vi': 'VN',
+  'my': 'MM',
 };
 
 Map<String, String> languageMap = {
@@ -80,6 +81,7 @@ Map<String, String> languageMap = {
   'fil': 'Filipino',
   'th': 'ไทย',
   'vi': 'Tiếng Việt',
+  'my': 'မြန်မာ',
 };
 
 const Size webDesignSize = Size(600, 800);
