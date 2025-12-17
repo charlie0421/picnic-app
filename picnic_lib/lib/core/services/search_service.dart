@@ -335,11 +335,12 @@ class SearchService {
     }
   }
 
-  /// 투표 후보 신청용 빠른 아티스트 검색 (북마크 정보 제외, 그룹명 병렬 검색)
+  /// 투표 후보 신청용 빠른 아티스트 검색
   ///
   /// [query] 검색어
   /// [page] 페이지 번호 (0부터 시작)
   /// [limit] 페이지당 결과 수
+  /// [includeBookmarks] 북마크 정보 포함 여부 (기본값: false)
   ///
   /// Returns: 검색된 아티스트 목록
   static Future<List<ArtistModel>> searchArtistsFast({
@@ -347,11 +348,12 @@ class SearchService {
     int page = 0,
     int limit = 20,
     String language = 'ko',
+    bool includeBookmarks = false,
   }) async {
     query = query.trim();
 
-    // 캐시 키 생성
-    final cacheKey = 'artist_fast_${query}_${page}_$limit';
+    // 캐시 키 생성 (북마크 포함 여부도 키에 포함)
+    final cacheKey = 'artist_fast_${query}_${page}_${limit}_$includeBookmarks';
 
     // 캐시에서 조회 시도
     final cachedResult = _cache.get<List<ArtistModel>>(cacheKey);
@@ -360,12 +362,17 @@ class SearchService {
       return cachedResult;
     }
 
+    // select 필드 정의
+    final selectFields = includeBookmarks
+        ? 'id,name,image,birth_date,gender,artist_group(id,name,image),artist_user_bookmark!left(artist_id)'
+        : 'id,name,image,birth_date,gender,artist_group(id,name,image)';
+
     try {
       // 빈 검색어 처리
       if (query.isEmpty) {
         final response = await supabase
             .from('artist')
-            .select('id,name,image,birth_date,gender,artist_group(id,name,image)')
+            .select(selectFields)
             .neq('id', 0)
             .eq('is_kpop', true)
             .order('name->>$language', ascending: true)
@@ -373,7 +380,7 @@ class SearchService {
 
         final results = (response as List<dynamic>)
             .where((data) => data != null)
-            .map((data) => ArtistModel.fromJson(data as Map<String, dynamic>))
+            .map((data) => _parseArtistWithBookmark(data as Map<String, dynamic>, includeBookmarks))
             .toList();
 
         if (results.isNotEmpty) {
@@ -394,14 +401,14 @@ class SearchService {
         // 초성 검색: 모든 아티스트를 가져와서 로컬 필터링
         final response = await supabase
             .from('artist')
-            .select('id,name,image,birth_date,gender,artist_group(id,name,image)')
+            .select(selectFields)
             .neq('id', 0)
             .eq('is_kpop', true)
             .order('name->>$language', ascending: true);
 
         final allArtists = (response as List<dynamic>)
             .where((data) => data != null)
-            .map((data) => ArtistModel.fromJson(data as Map<String, dynamic>))
+            .map((data) => _parseArtistWithBookmark(data as Map<String, dynamic>, includeBookmarks))
             .toList();
 
         // 로컬에서 초성 필터링
@@ -453,7 +460,7 @@ class SearchService {
 
       final response = await supabase
           .from('artist')
-          .select('id,name,image,birth_date,gender,artist_group(id,name,image)')
+          .select(selectFields)
           .neq('id', 0)
           .eq('is_kpop', true)
           .or('name->>ko.ilike.$searchPattern,name->>en.ilike.$searchPattern')
@@ -462,7 +469,7 @@ class SearchService {
 
       final results = (response as List<dynamic>)
           .where((data) => data != null)
-          .map((data) => ArtistModel.fromJson(data as Map<String, dynamic>))
+          .map((data) => _parseArtistWithBookmark(data as Map<String, dynamic>, includeBookmarks))
           .toList();
 
       if (results.isNotEmpty) {
@@ -475,6 +482,27 @@ class SearchService {
       Sentry.captureException(e, stackTrace: s);
       rethrow;
     }
+  }
+
+  /// 북마크 정보를 포함하여 아티스트 데이터를 파싱하는 헬퍼 메서드
+  static ArtistModel _parseArtistWithBookmark(
+    Map<String, dynamic> data,
+    bool includeBookmarks,
+  ) {
+    if (!includeBookmarks) {
+      return ArtistModel.fromJson(data);
+    }
+
+    // 북마크 정보 확인 (artist_user_bookmark 배열이 비어있지 않으면 북마크됨)
+    final bookmarkData = data['artist_user_bookmark'] as List?;
+    final isBookmarked = bookmarkData != null && bookmarkData.isNotEmpty;
+
+    // 북마크 정보를 제거하고 아티스트 데이터만 추출
+    final cleanArtistData = Map<String, dynamic>.from(data);
+    cleanArtistData.remove('artist_user_bookmark');
+    cleanArtistData['isBookmarked'] = isBookmarked;
+
+    return ArtistModel.fromJson(cleanArtistData);
   }
 
   /// 제네릭 검색 메서드 - 다른 엔티티 타입에서도 사용 가능

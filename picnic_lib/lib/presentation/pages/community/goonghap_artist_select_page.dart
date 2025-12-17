@@ -93,11 +93,12 @@ class _GoonghapArtistSelectPageState
 
       // 아티스트 검색 (북마크 정보 포함)
       final language = Localizations.localeOf(context).languageCode;
-      final newItems = await SearchService.searchArtists(
+      final newItems = await SearchService.searchArtistsFast(
         query: searchQuery,
         page: pageKey,
         limit: _pageSize,
         language: language,
+        includeBookmarks: true,
       );
 
       logger.d('Received ${newItems.length} items for page $pageKey');
