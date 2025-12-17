@@ -6,23 +6,17 @@ part of '../../../../data/models/vote/artist_group.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$ArtistGroupModelImpl _$$ArtistGroupModelImplFromJson(
-        Map<String, dynamic> json) =>
-    $checkedCreate(
-      r'_$ArtistGroupModelImpl',
-      json,
-      ($checkedConvert) {
-        final val = _$ArtistGroupModelImpl(
-          id: $checkedConvert('id', (v) => (v as num).toInt()),
-          name: $checkedConvert('name', (v) => v as Map<String, dynamic>),
-          image: $checkedConvert('image', (v) => v as String?),
-        );
-        return val;
-      },
-    );
+_ArtistGroupModel _$ArtistGroupModelFromJson(Map<String, dynamic> json) =>
+    $checkedCreate('_ArtistGroupModel', json, ($checkedConvert) {
+      final val = _ArtistGroupModel(
+        id: $checkedConvert('id', (v) => (v as num).toInt()),
+        name: $checkedConvert('name', (v) => v as Map<String, dynamic>),
+        image: $checkedConvert('image', (v) => v as String?),
+      );
+      return val;
+    });
 
-Map<String, dynamic> _$$ArtistGroupModelImplToJson(
-        _$ArtistGroupModelImpl instance) =>
+Map<String, dynamic> _$ArtistGroupModelToJson(_ArtistGroupModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,

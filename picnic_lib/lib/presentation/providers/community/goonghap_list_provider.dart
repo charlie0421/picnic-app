@@ -1,20 +1,20 @@
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part '../../../generated/providers/community/compatibility_list_provider.g.dart';
+part '../../../generated/providers/community/goonghap_list_provider.g.dart';
 
 @riverpod
-class CompatibilityList extends _$CompatibilityList {
+class GoonghapList extends _$GoonghapList {
   static const int _pageSize = 10;
-  static const String _table = 'compatibility_results';
+  static const String _table = 'goonghap_results';
   int? _artistId;
 
   @override
-  CompatibilityHistoryModel build({int? artistId}) {
+  GoonghapHistoryModel build({int? artistId}) {
     _artistId = artistId;
-    return const CompatibilityHistoryModel(
+    return const GoonghapHistoryModel(
       items: [],
       hasMore: true,
       isLoading: false,
@@ -59,7 +59,7 @@ class CompatibilityList extends _$CompatibilityList {
     }
   }
 
-  Future<List<CompatibilityModel>> _getHistory({required int page}) async {
+  Future<List<GoonghapModel>> _getHistory({required int page}) async {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) return []; // 비로그인 시 빈 목록 반환
 
@@ -70,11 +70,11 @@ class CompatibilityList extends _$CompatibilityList {
     var query = supabase.from(_table).select('''
           *,
           artist(*),
-          i18n: compatibility_results_i18n (
+          i18n: goonghap_results_i18n (
             language,
             score,
             score_title,
-            compatibility_summary
+            goonghap_summary
           )
         ''').eq('user_id', userId);
 
@@ -86,7 +86,7 @@ class CompatibilityList extends _$CompatibilityList {
         await query.order('created_at', ascending: false).range(from, to);
 
     return (response as List).map((data) {
-      return CompatibilityModel.fromJson(data);
+      return GoonghapModel.fromJson(data);
     }).toList();
   }
 }

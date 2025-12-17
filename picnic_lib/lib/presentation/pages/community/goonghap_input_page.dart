@@ -6,33 +6,33 @@ import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_loading_page.dart';
-import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_loading_page.dart';
+import 'package:picnic_lib/presentation/providers/community/goonghap_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_card.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/fortune_divider.dart';
 import 'package:picnic_lib/presentation/widgets/stroked_text.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-class CompatibilityInputPage extends ConsumerStatefulWidget {
-  const CompatibilityInputPage({super.key, required this.artist});
+class GoonghapInputPage extends ConsumerStatefulWidget {
+  const GoonghapInputPage({super.key, required this.artist});
 
   final ArtistModel artist;
 
   @override
-  ConsumerState<CompatibilityInputPage> createState() =>
-      _CompatibilityInputScreenState();
+  ConsumerState<GoonghapInputPage> createState() =>
+      _GoonghapInputScreenState();
 }
 
-class _CompatibilityInputScreenState
-    extends ConsumerState<CompatibilityInputPage>
-    with RouteAwareStateMixin<CompatibilityInputPage> {
+class _GoonghapInputScreenState
+    extends ConsumerState<GoonghapInputPage>
+    with RouteAwareStateMixin<GoonghapInputPage> {
   DateTime? _birthDate;
   String? _birthTime;
   String? _gender;
@@ -70,25 +70,25 @@ class _CompatibilityInputScreenState
             showMyPoint: false,
             topRightMenu: TopRightType.none,
             showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(context).compatibility_page_title,
+            pageTitle: AppLocalizations.of(context).goonghap_page_title,
           );
     });
   }
 
   void _initTimeSlots() {
     _timeSlots = [
-      AppLocalizations.of(context).compatibility_time_slot1,
-      AppLocalizations.of(context).compatibility_time_slot2,
-      AppLocalizations.of(context).compatibility_time_slot3,
-      AppLocalizations.of(context).compatibility_time_slot4,
-      AppLocalizations.of(context).compatibility_time_slot5,
-      AppLocalizations.of(context).compatibility_time_slot6,
-      AppLocalizations.of(context).compatibility_time_slot7,
-      AppLocalizations.of(context).compatibility_time_slot8,
-      AppLocalizations.of(context).compatibility_time_slot9,
-      AppLocalizations.of(context).compatibility_time_slot10,
-      AppLocalizations.of(context).compatibility_time_slot11,
-      AppLocalizations.of(context).compatibility_time_slot12,
+      AppLocalizations.of(context).goonghap_time_slot1,
+      AppLocalizations.of(context).goonghap_time_slot2,
+      AppLocalizations.of(context).goonghap_time_slot3,
+      AppLocalizations.of(context).goonghap_time_slot4,
+      AppLocalizations.of(context).goonghap_time_slot5,
+      AppLocalizations.of(context).goonghap_time_slot6,
+      AppLocalizations.of(context).goonghap_time_slot7,
+      AppLocalizations.of(context).goonghap_time_slot8,
+      AppLocalizations.of(context).goonghap_time_slot9,
+      AppLocalizations.of(context).goonghap_time_slot10,
+      AppLocalizations.of(context).goonghap_time_slot11,
+      AppLocalizations.of(context).goonghap_time_slot12,
     ];
   }
 
@@ -175,10 +175,10 @@ class _CompatibilityInputScreenState
         }
       }
 
-      final existingCompatibility = await _checkExistingCompatibility();
-      if (existingCompatibility != null) {
+      final existingGoonghap = await _checkExistingGoonghap();
+      if (existingGoonghap != null) {
         if (!mounted) return;
-        final shouldProceed = await _showDuplicateDialog(existingCompatibility);
+        final shouldProceed = await _showDuplicateDialog(existingGoonghap);
 
         if (!shouldProceed) {
           setState(() {
@@ -193,13 +193,13 @@ class _CompatibilityInputScreenState
 
       await _saveUserProfile();
 
-      final compatibility = await _createCompatibility();
-      if (compatibility == null || !mounted) {
+      final goonghap = await _createGoonghap();
+      if (goonghap == null || !mounted) {
         _showErrorMessage();
         return;
       }
 
-      _navigateToResult(compatibility);
+      _navigateToResult(goonghap);
     } catch (e, s) {
       logger.e('Error in submit', error: e, stackTrace: s);
       if (mounted) {
@@ -214,9 +214,9 @@ class _CompatibilityInputScreenState
     }
   }
 
-  Future<CompatibilityModel?> _checkExistingCompatibility() async {
+  Future<GoonghapModel?> _checkExistingGoonghap() async {
     var query = supabase
-        .from('compatibility_results')
+        .from('goonghap_results')
         .select('''
           id,
           user_id,
@@ -243,7 +243,7 @@ class _CompatibilityInputScreenState
 
     if (result.isEmpty) return null;
 
-    return CompatibilityModel.fromJson({
+    return GoonghapModel.fromJson({
       ...result.first,
       'artist': widget.artist.toJson(),
     });
@@ -251,7 +251,7 @@ class _CompatibilityInputScreenState
 
   Future<bool> _hasPerfectScore() async {
     var query = supabase
-        .from('compatibility_results')
+        .from('goonghap_results')
         .select()
         .eq('user_id', supabase.auth.currentUser!.id)
         .eq('artist_id', widget.artist.id)
@@ -282,7 +282,7 @@ class _CompatibilityInputScreenState
               title: Text(
                 AppLocalizations.of(
                   context,
-                ).compatibility_perfect_score_exists_title,
+                ).goonghap_perfect_score_exists_title,
                 style: getTextStyle(AppTypo.title18B, AppColors.grey900),
               ),
               content: Column(
@@ -292,28 +292,28 @@ class _CompatibilityInputScreenState
                   Text(
                     AppLocalizations.of(
                       context,
-                    ).compatibility_perfect_score_exists,
+                    ).goonghap_perfect_score_exists,
                     style: getTextStyle(AppTypo.body14R, AppColors.grey900),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '• ${AppLocalizations.of(context).compatibility_birthday}: ${formatDateTimeYYYYMMDD(_birthDate!)}',
+                    '• ${AppLocalizations.of(context).goonghap_birthday}: ${formatDateTimeYYYYMMDD(_birthDate!)}',
                     style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                   ),
                   if (_birthTime != null)
                     Text(
-                      '• ${AppLocalizations.of(context).compatibility_birthtime}: ${_timeSlots![int.parse(_birthTime!) - 1].split('|')[0]}',
+                      '• ${AppLocalizations.of(context).goonghap_birthtime}: ${_timeSlots![int.parse(_birthTime!) - 1].split('|')[0]}',
                       style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                     ),
                   Text(
-                    '• ${AppLocalizations.of(context).compatibility_gender}: ${_gender == 'male' ? AppLocalizations.of(context).compatibility_gender_male : AppLocalizations.of(context).compatibility_gender_female}',
+                    '• ${AppLocalizations.of(context).goonghap_gender}: ${_gender == 'male' ? AppLocalizations.of(context).goonghap_gender_male : AppLocalizations.of(context).goonghap_gender_female}',
                     style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     AppLocalizations.of(
                       context,
-                    ).compatibility_new_compatibility_ask,
+                    ).goonghap_new_ask,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                   ),
                 ],
@@ -335,7 +335,7 @@ class _CompatibilityInputScreenState
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                   child: Text(
-                    AppLocalizations.of(context).compatibility_analyze_start,
+                    AppLocalizations.of(context).goonghap_analyze_start,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey00),
                   ),
                 ),
@@ -347,7 +347,7 @@ class _CompatibilityInputScreenState
         false;
   }
 
-  Future<bool> _showDuplicateDialog(CompatibilityModel existing) async {
+  Future<bool> _showDuplicateDialog(GoonghapModel existing) async {
     if (!mounted) return false;
 
     return await showDialog<bool>(
@@ -359,7 +359,7 @@ class _CompatibilityInputScreenState
                 borderRadius: BorderRadius.circular(16),
               ),
               title: Text(
-                AppLocalizations.of(context).compatibility_duplicate_data_title,
+                AppLocalizations.of(context).goonghap_duplicate_data_title,
                 style: getTextStyle(AppTypo.title18B, AppColors.grey900),
               ),
               content: Column(
@@ -369,28 +369,28 @@ class _CompatibilityInputScreenState
                   Text(
                     AppLocalizations.of(
                       context,
-                    ).compatibility_duplicate_data_message,
+                    ).goonghap_duplicate_data_message,
                     style: getTextStyle(AppTypo.body14R, AppColors.grey900),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '• ${AppLocalizations.of(context).compatibility_birthday}: ${formatDateTimeYYYYMMDD(_birthDate!)}',
+                    '• ${AppLocalizations.of(context).goonghap_birthday}: ${formatDateTimeYYYYMMDD(_birthDate!)}',
                     style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                   ),
                   if (_birthTime != null)
                     Text(
-                      '• ${AppLocalizations.of(context).compatibility_birthtime}: ${_timeSlots![int.parse(_birthTime!) - 1].split('|')[0]}',
+                      '• ${AppLocalizations.of(context).goonghap_birthtime}: ${_timeSlots![int.parse(_birthTime!) - 1].split('|')[0]}',
                       style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                     ),
                   Text(
-                    '• ${AppLocalizations.of(context).compatibility_gender}: ${_gender == 'male' ? AppLocalizations.of(context).compatibility_gender_male : AppLocalizations.of(context).compatibility_gender_female}',
+                    '• ${AppLocalizations.of(context).goonghap_gender}: ${_gender == 'male' ? AppLocalizations.of(context).goonghap_gender_male : AppLocalizations.of(context).goonghap_gender_female}',
                     style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     AppLocalizations.of(
                       context,
-                    ).compatibility_new_compatibility_ask,
+                    ).goonghap_new_ask,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                   ),
                 ],
@@ -412,7 +412,7 @@ class _CompatibilityInputScreenState
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                   child: Text(
-                    AppLocalizations.of(context).compatibility_analyze_start,
+                    AppLocalizations.of(context).goonghap_analyze_start,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey00),
                   ),
                 ),
@@ -426,7 +426,7 @@ class _CompatibilityInputScreenState
 
   void _showLoadingMessage() {
     SnackbarUtil().info(
-      AppLocalizations.of(context).compatibility_snackbar_start,
+      AppLocalizations.of(context).goonghap_snackbar_start,
     );
   }
 
@@ -440,10 +440,10 @@ class _CompatibilityInputScreenState
         );
   }
 
-  Future<CompatibilityModel?> _createCompatibility() async {
+  Future<GoonghapModel?> _createGoonghap() async {
     return await ref
-        .read(compatibilityProvider.notifier)
-        .createCompatibility(
+        .read(goonghapProvider.notifier)
+        .createGoonghap(
           artist: widget.artist,
           birthDate: _birthDate!,
           gender: _gender!,
@@ -451,11 +451,11 @@ class _CompatibilityInputScreenState
         );
   }
 
-  void _navigateToResult(CompatibilityModel compatibility) {
+  void _navigateToResult(GoonghapModel goonghap) {
     ref
         .read(navigationInfoProvider.notifier)
         .setCommunityCurrentPage(
-          CompatibilityLoadingPage(compatibility: compatibility),
+          GoonghapLoadingPage(goonghap: goonghap),
         );
   }
 
@@ -464,13 +464,13 @@ class _CompatibilityInputScreenState
     if (_birthDate == null) {
       message = AppLocalizations.of(
         context,
-      ).compatibility_snackbar_need_birthday;
+      ).goonghap_snackbar_need_birthday;
     } else if (_gender == null) {
-      message = AppLocalizations.of(context).compatibility_snackbar_need_gender;
+      message = AppLocalizations.of(context).goonghap_snackbar_need_gender;
     } else {
       message = AppLocalizations.of(
         context,
-      ).compatibility_snackbar_need_profile_save_agree;
+      ).goonghap_snackbar_need_profile_save_agree;
     }
 
     SnackbarUtil().error(message);
@@ -479,7 +479,7 @@ class _CompatibilityInputScreenState
   void _showErrorMessage() {
     if (!mounted) return;
     SnackbarUtil().error(
-      AppLocalizations.of(context).compatibility_snackbar_error,
+      AppLocalizations.of(context).goonghap_snackbar_error,
     );
   }
 
@@ -508,7 +508,7 @@ class _CompatibilityInputScreenState
               strokeWidth: 3,
             ),
             const SizedBox(height: 12),
-            CompatibilityCard(artist: widget.artist),
+            GoonghapCard(artist: widget.artist),
             const SizedBox(height: 8),
             FortuneDivider(color: AppColors.grey00),
             StrokedText(
@@ -549,7 +549,7 @@ class _CompatibilityInputScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppLocalizations.of(context).compatibility_gender,
+                          AppLocalizations.of(context).goonghap_gender,
                           style: getTextStyle(
                             AppTypo.body14B,
                             AppColors.grey900,
@@ -603,7 +603,7 @@ class _CompatibilityInputScreenState
                             Text(
                               AppLocalizations.of(
                                 context,
-                              ).compatibility_birthday,
+                              ).goonghap_birthday,
                               style: getTextStyle(
                                 AppTypo.body14B,
                                 AppColors.grey900,
@@ -627,7 +627,7 @@ class _CompatibilityInputScreenState
                                 _birthDate == null
                                     ? AppLocalizations.of(
                                         context,
-                                      ).compatibility_birthday
+                                      ).goonghap_birthday
                                     : formatDateTimeYYYYMMDD(_birthDate!),
                                 style: getTextStyle(
                                   AppTypo.caption12M,
@@ -686,7 +686,7 @@ class _CompatibilityInputScreenState
                               Text(
                                 AppLocalizations.of(
                                   context,
-                                ).compatibility_birthtime,
+                                ).goonghap_birthtime,
                                 style: getTextStyle(
                                   AppTypo.body14B,
                                   AppColors.grey900,
@@ -696,7 +696,7 @@ class _CompatibilityInputScreenState
                               Text(
                                 AppLocalizations.of(
                                   context,
-                                ).compatibility_birthtime_subtitle,
+                                ).goonghap_birthtime_subtitle,
                                 style: getTextStyle(
                                   AppTypo.caption10SB,
                                   AppColors.point900,
@@ -728,7 +728,7 @@ class _CompatibilityInputScreenState
                                     child: Text(
                                       AppLocalizations.of(
                                         context,
-                                      ).compatibility_time_slot_unknown,
+                                      ).goonghap_time_slot_unknown,
                                       style: getTextStyle(
                                         AppTypo.caption10SB,
                                         AppColors.grey900,
@@ -794,7 +794,7 @@ class _CompatibilityInputScreenState
                 });
               },
               title: Text(
-                AppLocalizations.of(context).compatibility_agree_checkbox,
+                AppLocalizations.of(context).goonghap_agree_checkbox,
                 style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
               ),
               controlAffinity: ListTileControlAffinity.leading,
@@ -838,7 +838,7 @@ class _CompatibilityInputScreenState
                         Text(
                           AppLocalizations.of(
                             context,
-                          ).compatibility_analyze_start,
+                          ).goonghap_analyze_start,
                           style: getTextStyle(
                             AppTypo.body16B,
                             AppColors.grey00,
@@ -865,11 +865,11 @@ class _CompatibilityInputScreenState
     List<Map<String, String>> genderOptions = [
       {
         'value': 'male',
-        'label': AppLocalizations.of(context).compatibility_gender_male,
+        'label': AppLocalizations.of(context).goonghap_gender_male,
       },
       {
         'value': 'female',
-        'label': AppLocalizations.of(context).compatibility_gender_female,
+        'label': AppLocalizations.of(context).goonghap_gender_female,
       },
     ];
 

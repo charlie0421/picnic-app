@@ -4,37 +4,37 @@ import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_summary_widget.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_score_widget.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_summary_widget.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-class CompatibilityResultContent extends ConsumerStatefulWidget {
-  const CompatibilityResultContent({
+class GoonghapResultContent extends ConsumerStatefulWidget {
+  const GoonghapResultContent({
     super.key,
-    required this.compatibility,
+    required this.goonghap,
     required this.isSaving,
     required this.onSave,
     required this.onShare,
-    required this.onOpenCompatibility,
+    required this.onOpenGoonghap,
   });
 
-  final CompatibilityModel compatibility;
+  final GoonghapModel goonghap;
   final bool isSaving;
-  final Future<Future<bool>> Function(CompatibilityModel) onSave;
-  final Future<Future<bool>> Function(CompatibilityModel) onShare;
-  final Function(String) onOpenCompatibility;
+  final Future<Future<bool>> Function(GoonghapModel) onSave;
+  final Future<Future<bool>> Function(GoonghapModel) onShare;
+  final Function(String) onOpenGoonghap;
 
   @override
-  ConsumerState<CompatibilityResultContent> createState() =>
-      _CompatibilityResultContentState();
+  ConsumerState<GoonghapResultContent> createState() =>
+      _GoonghapResultContentState();
 }
 
-class _CompatibilityResultContentState
-    extends ConsumerState<CompatibilityResultContent> {
+class _GoonghapResultContentState
+    extends ConsumerState<GoonghapResultContent> {
   late final ExpansibleController _styleController;
   late final ExpansibleController _activityController;
   late final ExpansibleController _tipController;
@@ -67,13 +67,13 @@ class _CompatibilityResultContentState
               Text(
                 AppLocalizations.of(
                   context,
-                ).compatibility_purchase_confirm_title,
+                ).goonghap_purchase_confirm_title,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
             ],
           ),
           content: Text(
-            AppLocalizations.of(context).compatibility_purchase_confirm_message,
+            AppLocalizations.of(context).goonghap_purchase_confirm_message,
             style: getTextStyle(AppTypo.body14R, AppColors.grey700),
           ),
           actions: [
@@ -109,7 +109,7 @@ class _CompatibilityResultContentState
   Future<void> _processPurchase() async {
     _loadingKey.currentState?.show();
     try {
-      widget.onOpenCompatibility(widget.compatibility.id);
+      widget.onOpenGoonghap(widget.goonghap.id);
     } finally {
       if (mounted) {
         _loadingKey.currentState?.hide();
@@ -133,10 +133,10 @@ class _CompatibilityResultContentState
       }
     }
 
-    if (widget.compatibility.localizedResults?.isEmpty ?? true) {
+    if (widget.goonghap.localizedResults?.isEmpty ?? true) {
       return Center(
         child: Text(
-          AppLocalizations.of(context).compatibility_result_not_found,
+          AppLocalizations.of(context).goonghap_result_not_found,
           style: getTextStyle(AppTypo.body14R, AppColors.grey500),
         ),
       );
@@ -144,8 +144,8 @@ class _CompatibilityResultContentState
 
     // 현재 언어의 번역만 사용, fallback 하지 않음
     final localizedResult =
-        widget.compatibility.getLocalizedResult(normalizedLang) ??
-        widget.compatibility.getLocalizedResult(language);
+        widget.goonghap.getLocalizedResult(normalizedLang) ??
+        widget.goonghap.getLocalizedResult(language);
 
     // 현재 언어 번역이 없으면 로딩 표시 (fallback 하지 않음)
     if (localizedResult == null) {
@@ -171,11 +171,11 @@ class _CompatibilityResultContentState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CompatibilitySummaryWidget(localizedResult: localizedResult),
+          GoonghapSummaryWidget(localizedResult: localizedResult),
           const SizedBox(height: 24),
-          CompatibilityScoreWidget(compatibility: widget.compatibility),
+          GoonghapScoreWidget(goonghap: widget.goonghap),
           const SizedBox(height: 36),
-          if (!(widget.compatibility.isPaid ?? false))
+          if (!(widget.goonghap.isPaid ?? false))
             Stack(
               children: [
                 Container(
@@ -195,8 +195,8 @@ class _CompatibilityResultContentState
                         ShareSection(
                           saveButtonText: AppLocalizations.of(context).save,
                           shareButtonText: AppLocalizations.of(context).share,
-                          onSave: () => widget.onSave(widget.compatibility),
-                          onShare: () => widget.onShare(widget.compatibility),
+                          onSave: () => widget.onSave(widget.goonghap),
+                          onShare: () => widget.onShare(widget.goonghap),
                         ),
                       SizedBox(height: 16),
                     ],
@@ -299,8 +299,8 @@ class _CompatibilityResultContentState
               ShareSection(
                 saveButtonText: AppLocalizations.of(context).save,
                 shareButtonText: AppLocalizations.of(context).share,
-                onSave: () => widget.onSave(widget.compatibility),
-                onShare: () => widget.onShare(widget.compatibility),
+                onSave: () => widget.onSave(widget.goonghap),
+                onShare: () => widget.onShare(widget.goonghap),
               ),
             const SizedBox(height: 16),
           ],
@@ -344,7 +344,7 @@ class _CompatibilityResultContentState
                 ),
               ),
               Text(
-                ' ${AppLocalizations.of(context).compatibility_style_title}',
+                ' ${AppLocalizations.of(context).goonghap_style_title}',
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
             ],
@@ -360,19 +360,19 @@ class _CompatibilityResultContentState
                 children: [
                   _buildStyleItem(
                     context,
-                    AppLocalizations.of(context).compatibility_idol_style,
+                    AppLocalizations.of(context).goonghap_idol_style,
                     style.idolStyle,
                   ),
                   const SizedBox(height: 12),
                   _buildStyleItem(
                     context,
-                    AppLocalizations.of(context).compatibility_user_style,
+                    AppLocalizations.of(context).goonghap_user_style,
                     style.userStyle,
                   ),
                   const SizedBox(height: 12),
                   _buildStyleItem(
                     context,
-                    AppLocalizations.of(context).compatibility_couple_style,
+                    AppLocalizations.of(context).goonghap_couple_style,
                     style.coupleStyle,
                   ),
                 ],
@@ -403,7 +403,7 @@ class _CompatibilityResultContentState
               ),
             ),
             Text(
-              ' ${AppLocalizations.of(context).compatibility_activities_title}',
+              ' ${AppLocalizations.of(context).goonghap_activities_title}',
               style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             ),
           ],
@@ -466,7 +466,7 @@ class _CompatibilityResultContentState
               ),
             ),
             Text(
-              ' ${AppLocalizations.of(context).compatibility_tips_title}',
+              ' ${AppLocalizations.of(context).goonghap_tips_title}',
               style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             ),
           ],

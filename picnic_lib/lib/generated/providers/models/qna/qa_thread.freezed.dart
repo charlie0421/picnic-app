@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,262 +9,284 @@ part of '../../../../data/models/qna/qa_thread.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-QnaThread _$QnaThreadFromJson(Map<String, dynamic> json) {
-  return _QnaThread.fromJson(json);
-}
 
 /// @nodoc
 mixin _$QnaThread {
-  int get id => throw _privateConstructorUsedError;
-  String get userId => throw _privateConstructorUsedError;
-  String get title => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
-  String get status => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+
+ int get id; String get userId; String get title; DateTime get createdAt; String get status; DateTime get updatedAt;
+/// Create a copy of QnaThread
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$QnaThreadCopyWith<QnaThread> get copyWith => _$QnaThreadCopyWithImpl<QnaThread>(this as QnaThread, _$identity);
 
   /// Serializes this QnaThread to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of QnaThread
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $QnaThreadCopyWith<QnaThread> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QnaThread&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.title, title) || other.title == title)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,userId,title,createdAt,status,updatedAt);
+
+@override
+String toString() {
+  return 'QnaThread(id: $id, userId: $userId, title: $title, createdAt: $createdAt, status: $status, updatedAt: $updatedAt)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $QnaThreadCopyWith<$Res> {
-  factory $QnaThreadCopyWith(QnaThread value, $Res Function(QnaThread) then) =
-      _$QnaThreadCopyWithImpl<$Res, QnaThread>;
-  @useResult
-  $Res call(
-      {int id,
-      String userId,
-      String title,
-      DateTime createdAt,
-      String status,
-      DateTime updatedAt});
-}
+abstract mixin class $QnaThreadCopyWith<$Res>  {
+  factory $QnaThreadCopyWith(QnaThread value, $Res Function(QnaThread) _then) = _$QnaThreadCopyWithImpl;
+@useResult
+$Res call({
+ int id, String userId, String title, DateTime createdAt, String status, DateTime updatedAt
+});
 
+
+
+
+}
 /// @nodoc
-class _$QnaThreadCopyWithImpl<$Res, $Val extends QnaThread>
+class _$QnaThreadCopyWithImpl<$Res>
     implements $QnaThreadCopyWith<$Res> {
-  _$QnaThreadCopyWithImpl(this._value, this._then);
+  _$QnaThreadCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final QnaThread _self;
+  final $Res Function(QnaThread) _then;
 
-  /// Create a copy of QnaThread
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? userId = null,
-    Object? title = null,
-    Object? createdAt = null,
-    Object? status = null,
-    Object? updatedAt = null,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      title: null == title
-          ? _value.title
-          : title // ignore: cast_nullable_to_non_nullable
-              as String,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as String,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-    ) as $Val);
-  }
+/// Create a copy of QnaThread
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? title = null,Object? createdAt = null,Object? status = null,Object? updatedAt = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
 }
 
-/// @nodoc
-abstract class _$$QnaThreadImplCopyWith<$Res>
-    implements $QnaThreadCopyWith<$Res> {
-  factory _$$QnaThreadImplCopyWith(
-          _$QnaThreadImpl value, $Res Function(_$QnaThreadImpl) then) =
-      __$$QnaThreadImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {int id,
-      String userId,
-      String title,
-      DateTime createdAt,
-      String status,
-      DateTime updatedAt});
 }
 
-/// @nodoc
-class __$$QnaThreadImplCopyWithImpl<$Res>
-    extends _$QnaThreadCopyWithImpl<$Res, _$QnaThreadImpl>
-    implements _$$QnaThreadImplCopyWith<$Res> {
-  __$$QnaThreadImplCopyWithImpl(
-      _$QnaThreadImpl _value, $Res Function(_$QnaThreadImpl) _then)
-      : super(_value, _then);
 
-  /// Create a copy of QnaThread
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? userId = null,
-    Object? title = null,
-    Object? createdAt = null,
-    Object? status = null,
-    Object? updatedAt = null,
-  }) {
-    return _then(_$QnaThreadImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      title: null == title
-          ? _value.title
-          : title // ignore: cast_nullable_to_non_nullable
-              as String,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as String,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-    ));
-  }
+/// Adds pattern-matching-related methods to [QnaThread].
+extension QnaThreadPatterns on QnaThread {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _QnaThread value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _QnaThread() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _QnaThread value)  $default,){
+final _that = this;
+switch (_that) {
+case _QnaThread():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _QnaThread value)?  $default,){
+final _that = this;
+switch (_that) {
+case _QnaThread() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String userId,  String title,  DateTime createdAt,  String status,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _QnaThread() when $default != null:
+return $default(_that.id,_that.userId,_that.title,_that.createdAt,_that.status,_that.updatedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String userId,  String title,  DateTime createdAt,  String status,  DateTime updatedAt)  $default,) {final _that = this;
+switch (_that) {
+case _QnaThread():
+return $default(_that.id,_that.userId,_that.title,_that.createdAt,_that.status,_that.updatedAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String userId,  String title,  DateTime createdAt,  String status,  DateTime updatedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _QnaThread() when $default != null:
+return $default(_that.id,_that.userId,_that.title,_that.createdAt,_that.status,_that.updatedAt);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$QnaThreadImpl implements _QnaThread {
-  const _$QnaThreadImpl(
-      {required this.id,
-      required this.userId,
-      required this.title,
-      required this.createdAt,
-      required this.status,
-      required this.updatedAt});
 
-  factory _$QnaThreadImpl.fromJson(Map<String, dynamic> json) =>
-      _$$QnaThreadImplFromJson(json);
+class _QnaThread implements QnaThread {
+  const _QnaThread({required this.id, required this.userId, required this.title, required this.createdAt, required this.status, required this.updatedAt});
+  factory _QnaThread.fromJson(Map<String, dynamic> json) => _$QnaThreadFromJson(json);
 
-  @override
-  final int id;
-  @override
-  final String userId;
-  @override
-  final String title;
-  @override
-  final DateTime createdAt;
-  @override
-  final String status;
-  @override
-  final DateTime updatedAt;
+@override final  int id;
+@override final  String userId;
+@override final  String title;
+@override final  DateTime createdAt;
+@override final  String status;
+@override final  DateTime updatedAt;
 
-  @override
-  String toString() {
-    return 'QnaThread(id: $id, userId: $userId, title: $title, createdAt: $createdAt, status: $status, updatedAt: $updatedAt)';
-  }
+/// Create a copy of QnaThread
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$QnaThreadCopyWith<_QnaThread> get copyWith => __$QnaThreadCopyWithImpl<_QnaThread>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$QnaThreadImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.title, title) || other.title == title) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.status, status) || other.status == status) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, userId, title, createdAt, status, updatedAt);
-
-  /// Create a copy of QnaThread
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$QnaThreadImplCopyWith<_$QnaThreadImpl> get copyWith =>
-      __$$QnaThreadImplCopyWithImpl<_$QnaThreadImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$QnaThreadImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$QnaThreadToJson(this, );
 }
 
-abstract class _QnaThread implements QnaThread {
-  const factory _QnaThread(
-      {required final int id,
-      required final String userId,
-      required final String title,
-      required final DateTime createdAt,
-      required final String status,
-      required final DateTime updatedAt}) = _$QnaThreadImpl;
-
-  factory _QnaThread.fromJson(Map<String, dynamic> json) =
-      _$QnaThreadImpl.fromJson;
-
-  @override
-  int get id;
-  @override
-  String get userId;
-  @override
-  String get title;
-  @override
-  DateTime get createdAt;
-  @override
-  String get status;
-  @override
-  DateTime get updatedAt;
-
-  /// Create a copy of QnaThread
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$QnaThreadImplCopyWith<_$QnaThreadImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QnaThread&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.title, title) || other.title == title)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,userId,title,createdAt,status,updatedAt);
+
+@override
+String toString() {
+  return 'QnaThread(id: $id, userId: $userId, title: $title, createdAt: $createdAt, status: $status, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$QnaThreadCopyWith<$Res> implements $QnaThreadCopyWith<$Res> {
+  factory _$QnaThreadCopyWith(_QnaThread value, $Res Function(_QnaThread) _then) = __$QnaThreadCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, String userId, String title, DateTime createdAt, String status, DateTime updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$QnaThreadCopyWithImpl<$Res>
+    implements _$QnaThreadCopyWith<$Res> {
+  __$QnaThreadCopyWithImpl(this._self, this._then);
+
+  final _QnaThread _self;
+  final $Res Function(_QnaThread) _then;
+
+/// Create a copy of QnaThread
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? title = null,Object? createdAt = null,Object? status = null,Object? updatedAt = null,}) {
+  return _then(_QnaThread(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+
+}
+
+// dart format on

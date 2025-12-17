@@ -5,7 +5,7 @@ part '../../../generated/providers/models/community/board.freezed.dart';
 part '../../../generated/providers/models/community/board.g.dart';
 
 @freezed
-class BoardModel with _$BoardModel {
+abstract class BoardModel with _$BoardModel {
   const BoardModel._();
 
   const factory BoardModel({

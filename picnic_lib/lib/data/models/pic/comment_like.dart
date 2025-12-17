@@ -4,7 +4,7 @@ part '../../../generated/providers/models/pic/comment_like.freezed.dart';
 part '../../../generated/providers/models/pic/comment_like.g.dart';
 
 @freezed
-class UserCommentLikeModel with _$UserCommentLikeModel {
+abstract class UserCommentLikeModel with _$UserCommentLikeModel {
   const UserCommentLikeModel._();
 
   const factory UserCommentLikeModel({

@@ -6,7 +6,7 @@ import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
 import 'package:picnic_lib/presentation/pages/community/community_my_page.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_list_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
@@ -54,10 +54,10 @@ class NavigationConfigs {
       color: goongHapMainColor,
       pages: const [
         BottomNavigationItem(
-          title: 'compatibility_page_title',
+          title: 'goonghap_page_title',
           assetPath: 'assets/icons/bottom/media.svg',
           index: 0,
-          pageWidget: CompatibilityListPage(),
+          pageWidget: GoonghapListPage(),
           needLogin: false,
         ),
       ],

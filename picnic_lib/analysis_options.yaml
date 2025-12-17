@@ -11,6 +11,10 @@ analyzer:
     errors:
         invalid_annotation_target: ignore
         file_names: ignore
+        # freezed 3.x + Dart 3.10 호환성 문제로 인해 무시
+        # https://github.com/rrousselGit/freezed/issues/1097
+        non_abstract_class_inherits_abstract_member: ignore
+        abstract_super_member_reference: ignore
 include: package:flutter_lints/flutter.yaml
 exclude:
     - "**/*.g.dart"

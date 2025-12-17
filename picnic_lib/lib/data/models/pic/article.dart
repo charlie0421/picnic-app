@@ -7,7 +7,7 @@ part '../../../generated/providers/models/pic/article.freezed.dart';
 part '../../../generated/providers/models/pic/article.g.dart';
 
 @freezed
-class ArticleModel with _$ArticleModel {
+abstract class ArticleModel with _$ArticleModel {
   const ArticleModel._();
 
   const factory ArticleModel({

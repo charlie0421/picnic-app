@@ -6,63 +6,71 @@ part of '../../../../data/models/vote/vote.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$VoteModelImpl _$$VoteModelImplFromJson(Map<String, dynamic> json) =>
-    $checkedCreate(
-      r'_$VoteModelImpl',
-      json,
-      ($checkedConvert) {
-        final val = _$VoteModelImpl(
-          id: $checkedConvert('id', (v) => (v as num).toInt()),
-          title: $checkedConvert('title', (v) => v as Map<String, dynamic>),
-          voteCategory: $checkedConvert('vote_category', (v) => v as String?),
-          mainImage: $checkedConvert('main_image', (v) => v as String?),
-          waitImage: $checkedConvert('wait_image', (v) => v as String?),
-          resultImage: $checkedConvert('result_image', (v) => v as String?),
-          voteContent: $checkedConvert('vote_content', (v) => v as String?),
-          voteItem: $checkedConvert(
-              'vote_item',
-              (v) => (v as List<dynamic>?)
-                  ?.map(
-                      (e) => VoteItemModel.fromJson(e as Map<String, dynamic>))
-                  .toList()),
-          createdAt: $checkedConvert('created_at',
-              (v) => v == null ? null : DateTime.parse(v as String)),
-          visibleAt: $checkedConvert('visible_at',
-              (v) => v == null ? null : DateTime.parse(v as String)),
-          stopAt: $checkedConvert(
-              'stop_at', (v) => v == null ? null : DateTime.parse(v as String)),
-          startAt: $checkedConvert('start_at',
-              (v) => v == null ? null : DateTime.parse(v as String)),
-          isEnded: $checkedConvert('is_ended', (v) => v as bool?),
-          isUpcoming: $checkedConvert('is_upcoming', (v) => v as bool?),
-          isPartnership: $checkedConvert('is_partnership', (v) => v as bool?),
-          partner: $checkedConvert('partner', (v) => v as String?),
-          reward: $checkedConvert(
-              'reward',
-              (v) => (v as List<dynamic>?)
-                  ?.map((e) => RewardModel.fromJson(e as Map<String, dynamic>))
-                  .toList()),
-        );
-        return val;
-      },
-      fieldKeyMap: const {
-        'voteCategory': 'vote_category',
-        'mainImage': 'main_image',
-        'waitImage': 'wait_image',
-        'resultImage': 'result_image',
-        'voteContent': 'vote_content',
-        'voteItem': 'vote_item',
-        'createdAt': 'created_at',
-        'visibleAt': 'visible_at',
-        'stopAt': 'stop_at',
-        'startAt': 'start_at',
-        'isEnded': 'is_ended',
-        'isUpcoming': 'is_upcoming',
-        'isPartnership': 'is_partnership'
-      },
+_VoteModel _$VoteModelFromJson(Map<String, dynamic> json) => $checkedCreate(
+  '_VoteModel',
+  json,
+  ($checkedConvert) {
+    final val = _VoteModel(
+      id: $checkedConvert('id', (v) => (v as num).toInt()),
+      title: $checkedConvert('title', (v) => v as Map<String, dynamic>),
+      voteCategory: $checkedConvert('vote_category', (v) => v as String?),
+      mainImage: $checkedConvert('main_image', (v) => v as String?),
+      waitImage: $checkedConvert('wait_image', (v) => v as String?),
+      resultImage: $checkedConvert('result_image', (v) => v as String?),
+      voteContent: $checkedConvert('vote_content', (v) => v as String?),
+      voteItem: $checkedConvert(
+        'vote_item',
+        (v) => (v as List<dynamic>?)
+            ?.map((e) => VoteItemModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      ),
+      createdAt: $checkedConvert(
+        'created_at',
+        (v) => v == null ? null : DateTime.parse(v as String),
+      ),
+      visibleAt: $checkedConvert(
+        'visible_at',
+        (v) => v == null ? null : DateTime.parse(v as String),
+      ),
+      stopAt: $checkedConvert(
+        'stop_at',
+        (v) => v == null ? null : DateTime.parse(v as String),
+      ),
+      startAt: $checkedConvert(
+        'start_at',
+        (v) => v == null ? null : DateTime.parse(v as String),
+      ),
+      isEnded: $checkedConvert('is_ended', (v) => v as bool?),
+      isUpcoming: $checkedConvert('is_upcoming', (v) => v as bool?),
+      isPartnership: $checkedConvert('is_partnership', (v) => v as bool?),
+      partner: $checkedConvert('partner', (v) => v as String?),
+      reward: $checkedConvert(
+        'reward',
+        (v) => (v as List<dynamic>?)
+            ?.map((e) => RewardModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      ),
     );
+    return val;
+  },
+  fieldKeyMap: const {
+    'voteCategory': 'vote_category',
+    'mainImage': 'main_image',
+    'waitImage': 'wait_image',
+    'resultImage': 'result_image',
+    'voteContent': 'vote_content',
+    'voteItem': 'vote_item',
+    'createdAt': 'created_at',
+    'visibleAt': 'visible_at',
+    'stopAt': 'stop_at',
+    'startAt': 'start_at',
+    'isEnded': 'is_ended',
+    'isUpcoming': 'is_upcoming',
+    'isPartnership': 'is_partnership',
+  },
+);
 
-Map<String, dynamic> _$$VoteModelImplToJson(_$VoteModelImpl instance) =>
+Map<String, dynamic> _$VoteModelToJson(_VoteModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title': instance.title,
@@ -83,29 +91,35 @@ Map<String, dynamic> _$$VoteModelImplToJson(_$VoteModelImpl instance) =>
       'reward': instance.reward?.map((e) => e.toJson()).toList(),
     };
 
-_$VoteItemModelImpl _$$VoteItemModelImplFromJson(Map<String, dynamic> json) =>
+_VoteItemModel _$VoteItemModelFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
-      r'_$VoteItemModelImpl',
+      '_VoteItemModel',
       json,
       ($checkedConvert) {
-        final val = _$VoteItemModelImpl(
+        final val = _VoteItemModel(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
           voteTotal: $checkedConvert('vote_total', (v) => (v as num?)?.toInt()),
-          starCandyTotal:
-              $checkedConvert('star_candy_total', (v) => (v as num?)?.toInt()),
+          starCandyTotal: $checkedConvert(
+            'star_candy_total',
+            (v) => (v as num?)?.toInt(),
+          ),
           starCandyBonusTotal: $checkedConvert(
-              'star_candy_bonus_total', (v) => (v as num?)?.toInt()),
+            'star_candy_bonus_total',
+            (v) => (v as num?)?.toInt(),
+          ),
           voteId: $checkedConvert('vote_id', (v) => (v as num).toInt()),
           artist: $checkedConvert(
-              'artist',
-              (v) => v == null
-                  ? null
-                  : ArtistModel.fromJson(v as Map<String, dynamic>)),
+            'artist',
+            (v) => v == null
+                ? null
+                : ArtistModel.fromJson(v as Map<String, dynamic>),
+          ),
           artistGroup: $checkedConvert(
-              'artist_group',
-              (v) => v == null
-                  ? null
-                  : ArtistGroupModel.fromJson(v as Map<String, dynamic>)),
+            'artist_group',
+            (v) => v == null
+                ? null
+                : ArtistGroupModel.fromJson(v as Map<String, dynamic>),
+          ),
         );
         return val;
       },
@@ -114,11 +128,11 @@ _$VoteItemModelImpl _$$VoteItemModelImplFromJson(Map<String, dynamic> json) =>
         'starCandyTotal': 'star_candy_total',
         'starCandyBonusTotal': 'star_candy_bonus_total',
         'voteId': 'vote_id',
-        'artistGroup': 'artist_group'
+        'artistGroup': 'artist_group',
       },
     );
 
-Map<String, dynamic> _$$VoteItemModelImplToJson(_$VoteItemModelImpl instance) =>
+Map<String, dynamic> _$VoteItemModelToJson(_VoteItemModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'vote_total': instance.voteTotal,
@@ -129,28 +143,31 @@ Map<String, dynamic> _$$VoteItemModelImplToJson(_$VoteItemModelImpl instance) =>
       'artist_group': instance.artistGroup?.toJson(),
     };
 
-_$VoteAchieveImpl _$$VoteAchieveImplFromJson(Map<String, dynamic> json) =>
-    $checkedCreate(
-      r'_$VoteAchieveImpl',
-      json,
-      ($checkedConvert) {
-        final val = _$VoteAchieveImpl(
-          id: $checkedConvert('id', (v) => (v as num).toInt()),
-          voteId: $checkedConvert('vote_id', (v) => (v as num).toInt()),
-          rewardId: $checkedConvert('reward_id', (v) => (v as num).toInt()),
-          order: $checkedConvert('order', (v) => (v as num).toInt()),
-          amount: $checkedConvert('amount', (v) => (v as num).toInt()),
-          reward: $checkedConvert(
-              'reward', (v) => RewardModel.fromJson(v as Map<String, dynamic>)),
-          vote: $checkedConvert(
-              'vote', (v) => VoteModel.fromJson(v as Map<String, dynamic>)),
-        );
-        return val;
-      },
-      fieldKeyMap: const {'voteId': 'vote_id', 'rewardId': 'reward_id'},
+_VoteAchieve _$VoteAchieveFromJson(Map<String, dynamic> json) => $checkedCreate(
+  '_VoteAchieve',
+  json,
+  ($checkedConvert) {
+    final val = _VoteAchieve(
+      id: $checkedConvert('id', (v) => (v as num).toInt()),
+      voteId: $checkedConvert('vote_id', (v) => (v as num).toInt()),
+      rewardId: $checkedConvert('reward_id', (v) => (v as num).toInt()),
+      order: $checkedConvert('order', (v) => (v as num).toInt()),
+      amount: $checkedConvert('amount', (v) => (v as num).toInt()),
+      reward: $checkedConvert(
+        'reward',
+        (v) => RewardModel.fromJson(v as Map<String, dynamic>),
+      ),
+      vote: $checkedConvert(
+        'vote',
+        (v) => VoteModel.fromJson(v as Map<String, dynamic>),
+      ),
     );
+    return val;
+  },
+  fieldKeyMap: const {'voteId': 'vote_id', 'rewardId': 'reward_id'},
+);
 
-Map<String, dynamic> _$$VoteAchieveImplToJson(_$VoteAchieveImpl instance) =>
+Map<String, dynamic> _$VoteAchieveToJson(_VoteAchieve instance) =>
     <String, dynamic>{
       'id': instance.id,
       'vote_id': instance.voteId,

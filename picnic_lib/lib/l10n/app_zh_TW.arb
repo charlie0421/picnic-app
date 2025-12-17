@@ -76,169 +76,169 @@
   "@common_text_search_result_label": {
     "description": "Auto-generated metadata for key 'common_text_search_result_label'."
   },
-  "compatibility_activities_title": "建议开展的活动",
-  "@compatibility_activities_title": {
-    "description": "Auto-generated metadata for key 'compatibility_activities_title'."
+  "goonghap_activities_title": "建议开展的活动",
+  "@goonghap_activities_title": {
+    "description": "Auto-generated metadata for key 'goonghap_activities_title'."
   },
-  "compatibility_agree_checkbox": "我同意在个人档案中存储我的性别和生日信息。",
-  "@compatibility_agree_checkbox": {
-    "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
+  "goonghap_agree_checkbox": "我同意在个人档案中存储我的性别和生日信息。",
+  "@goonghap_agree_checkbox": {
+    "description": "Auto-generated metadata for key 'goonghap_agree_checkbox'."
   },
-  "compatibility_analyze_start": "开始宮合分析",
-  "@compatibility_analyze_start": {
-    "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
+  "goonghap_analyze_start": "开始宮合分析",
+  "@goonghap_analyze_start": {
+    "description": "Auto-generated metadata for key 'goonghap_analyze_start'."
   },
-  "compatibility_analyzing": "分析宮合。",
-  "@compatibility_analyzing": {
-    "description": "Auto-generated metadata for key 'compatibility_analyzing'."
+  "goonghap_analyzing": "分析宮合。",
+  "@goonghap_analyzing": {
+    "description": "Auto-generated metadata for key 'goonghap_analyzing'."
   },
-  "compatibility_analyzing_prepare": "准备工作",
-  "@compatibility_analyzing_prepare": {
-    "description": "Auto-generated metadata for key 'compatibility_analyzing_prepare'."
+  "goonghap_analyzing_prepare": "准备工作",
+  "@goonghap_analyzing_prepare": {
+    "description": "Auto-generated metadata for key 'goonghap_analyzing_prepare'."
   },
-  "compatibility_birthday": "出生日期",
-  "@compatibility_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_birthday'."
+  "goonghap_birthday": "出生日期",
+  "@goonghap_birthday": {
+    "description": "Auto-generated metadata for key 'goonghap_birthday'."
   },
-  "compatibility_birthtime": "出生時間",
-  "@compatibility_birthtime": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime'."
+  "goonghap_birthtime": "出生時間",
+  "@goonghap_birthtime": {
+    "description": "Auto-generated metadata for key 'goonghap_birthtime'."
   },
-  "compatibility_couple_style": "情侣款式",
-  "@compatibility_couple_style": {
-    "description": "Auto-generated metadata for key 'compatibility_couple_style'."
+  "goonghap_couple_style": "情侣款式",
+  "@goonghap_couple_style": {
+    "description": "Auto-generated metadata for key 'goonghap_couple_style'."
   },
-  "compatibility_duplicate_data_title": "已有的宮合資料",
-  "@compatibility_duplicate_data_title": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
+  "goonghap_duplicate_data_title": "已有的宮合資料",
+  "@goonghap_duplicate_data_title": {
+    "description": "Auto-generated metadata for key 'goonghap_duplicate_data_title'."
   },
-  "compatibility_gender": "性别",
-  "@compatibility_gender": {
-    "description": "Auto-generated metadata for key 'compatibility_gender'."
+  "goonghap_gender": "性别",
+  "@goonghap_gender": {
+    "description": "Auto-generated metadata for key 'goonghap_gender'."
   },
-  "compatibility_gender_female": "女性",
-  "@compatibility_gender_female": {
-    "description": "Auto-generated metadata for key 'compatibility_gender_female'."
+  "goonghap_gender_female": "女性",
+  "@goonghap_gender_female": {
+    "description": "Auto-generated metadata for key 'goonghap_gender_female'."
   },
-  "compatibility_gender_male": "男",
-  "@compatibility_gender_male": {
-    "description": "Auto-generated metadata for key 'compatibility_gender_male'."
+  "goonghap_gender_male": "男",
+  "@goonghap_gender_male": {
+    "description": "Auto-generated metadata for key 'goonghap_gender_male'."
   },
-  "compatibility_idol_style": "偶像風格",
-  "@compatibility_idol_style": {
-    "description": "Auto-generated metadata for key 'compatibility_idol_style'."
+  "goonghap_idol_style": "偶像風格",
+  "@goonghap_idol_style": {
+    "description": "Auto-generated metadata for key 'goonghap_idol_style'."
   },
-  "compatibility_new_compatibility": "查看新宮合",
-  "@compatibility_new_compatibility": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
+  "goonghap_new": "查看新宮合",
+  "@goonghap_new": {
+    "description": "Auto-generated metadata for key 'goonghap_new'."
   },
-  "compatibility_page_title": "宮合",
-  "@compatibility_page_title": {
-    "description": "Auto-generated metadata for key 'compatibility_page_title'."
+  "goonghap_page_title": "宮合",
+  "@goonghap_page_title": {
+    "description": "Auto-generated metadata for key 'goonghap_page_title'."
   },
-  "compatibility_purchase_confirm_message": "使用100个星星糖果查看宮合結果。",
-  "@compatibility_purchase_confirm_message": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
+  "goonghap_purchase_confirm_message": "使用100个星星糖果查看宮合結果。",
+  "@goonghap_purchase_confirm_message": {
+    "description": "Auto-generated metadata for key 'goonghap_purchase_confirm_message'."
   },
-  "compatibility_remain_star_candy": "剩余的糖果",
-  "@compatibility_remain_star_candy": {
-    "description": "Auto-generated metadata for key 'compatibility_remain_star_candy'."
+  "goonghap_remain_star_candy": "剩余的糖果",
+  "@goonghap_remain_star_candy": {
+    "description": "Auto-generated metadata for key 'goonghap_remain_star_candy'."
   },
-  "compatibility_result_not_found": "这不是 宮合😔。",
-  "@compatibility_result_not_found": {
-    "description": "Auto-generated metadata for key 'compatibility_result_not_found'."
+  "goonghap_result_not_found": "这不是 宮合😔。",
+  "@goonghap_result_not_found": {
+    "description": "Auto-generated metadata for key 'goonghap_result_not_found'."
   },
-  "compatibility_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
-  "@compatibility_share_hashtag": {
-    "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
+  "goonghap_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
+  "@goonghap_share_hashtag": {
+    "description": "Auto-generated metadata for key 'goonghap_share_hashtag'."
   },
-  "compatibility_share_message": "我的闪亮化学宮合与 {artistName} 的百分比是多少？?我的心在狂跳",
-  "@compatibility_share_message": {
+  "goonghap_share_message": "我的闪亮化学宮合与 {artistName} 的百分比是多少？?我的心在狂跳",
+  "@goonghap_share_message": {
     "placeholders": {
       "artistName": {
         "type": "String"
       }
     }
   },
-  "compatibility_snackbar_error": "出现錯誤。",
-  "@compatibility_snackbar_error": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
+  "goonghap_snackbar_error": "出现錯誤。",
+  "@goonghap_snackbar_error": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_error'."
   },
-  "compatibility_snackbar_need_gender": "请选择性别。",
-  "@compatibility_snackbar_need_gender": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
+  "goonghap_snackbar_need_gender": "请选择性别。",
+  "@goonghap_snackbar_need_gender": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "开始分析宮合。",
-  "@compatibility_snackbar_start": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
+  "goonghap_snackbar_start": "开始分析宮合。",
+  "@goonghap_snackbar_start": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_start'."
   },
-  "compatibility_style_title": "宮合样式",
-  "@compatibility_style_title": {
-    "description": "Auto-generated metadata for key 'compatibility_style_title'."
+  "goonghap_style_title": "宮合样式",
+  "@goonghap_style_title": {
+    "description": "Auto-generated metadata for key 'goonghap_style_title'."
   },
-  "compatibility_time_slot1": "老鼠的时刻|(23:30-01:29)|🐀",
-  "@compatibility_time_slot1": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
+  "goonghap_time_slot1": "老鼠的时刻|(23:30-01:29)|🐀",
+  "@goonghap_time_slot1": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot1'."
   },
-  "compatibility_time_slot10": "鸡鸣时刻|(17:30-19:29)|🐔|(17:30-19:29)",
-  "@compatibility_time_slot10": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
+  "goonghap_time_slot10": "鸡鸣时刻|(17:30-19:29)|🐔|(17:30-19:29)",
+  "@goonghap_time_slot10": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot10'."
   },
-  "compatibility_time_slot11": "狗的时刻|(19:30-21:29)|🐕",
-  "@compatibility_time_slot11": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
+  "goonghap_time_slot11": "狗的时刻|(19:30-21:29)|🐕",
+  "@goonghap_time_slot11": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot11'."
   },
-  "compatibility_time_slot12": "野猪的时刻|(21:30-23:29)|🐖",
-  "@compatibility_time_slot12": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
+  "goonghap_time_slot12": "野猪的时刻|(21:30-23:29)|🐖",
+  "@goonghap_time_slot12": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot12'."
   },
-  "compatibility_time_slot2": "牛的时刻|(01:30-03:29)|🐂",
-  "@compatibility_time_slot2": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
+  "goonghap_time_slot2": "牛的时刻|(01:30-03:29)|🐂",
+  "@goonghap_time_slot2": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot2'."
   },
-  "compatibility_time_slot3": "虎啸龙吟|(03:30-05:29)|🐅|(03:30-05:29)",
-  "@compatibility_time_slot3": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
+  "goonghap_time_slot3": "虎啸龙吟|(03:30-05:29)|🐅|(03:30-05:29)",
+  "@goonghap_time_slot3": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot3'."
   },
-  "compatibility_time_slot4": "兔子的时刻|(05:30-07:29)|🐇🐇",
-  "@compatibility_time_slot4": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
+  "goonghap_time_slot4": "兔子的时刻|(05:30-07:29)|🐇🐇",
+  "@goonghap_time_slot4": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot4'."
   },
-  "compatibility_time_slot5": "龙的时刻|(07:30-09:29)|🐉🐉",
-  "@compatibility_time_slot5": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
+  "goonghap_time_slot5": "龙的时刻|(07:30-09:29)|🐉🐉",
+  "@goonghap_time_slot5": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot5'."
   },
-  "compatibility_time_slot6": "蛇的时刻|(09:30-11:29)|🐍🐍",
-  "@compatibility_time_slot6": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
+  "goonghap_time_slot6": "蛇的时刻|(09:30-11:29)|🐍🐍",
+  "@goonghap_time_slot6": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot6'."
   },
-  "compatibility_time_slot7": "马的时刻|(11:30-13:29)|🐎",
-  "@compatibility_time_slot7": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
+  "goonghap_time_slot7": "马的时刻|(11:30-13:29)|🐎",
+  "@goonghap_time_slot7": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot7'."
   },
-  "compatibility_time_slot8": "羊的时刻|(13:30-15:29)|🐑",
-  "@compatibility_time_slot8": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
+  "goonghap_time_slot8": "羊的时刻|(13:30-15:29)|🐑",
+  "@goonghap_time_slot8": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot8'."
   },
-  "compatibility_time_slot9": "猴年春节|(15:30-17:29)|🐒|(15:30-17:29)",
-  "@compatibility_time_slot9": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
+  "goonghap_time_slot9": "猴年春节|(15:30-17:29)|🐒|(15:30-17:29)",
+  "@goonghap_time_slot9": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot9'."
   },
-  "compatibility_tips_title": "宮合提示",
-  "@compatibility_tips_title": {
-    "description": "Auto-generated metadata for key 'compatibility_tips_title'."
+  "goonghap_tips_title": "宮合提示",
+  "@goonghap_tips_title": {
+    "description": "Auto-generated metadata for key 'goonghap_tips_title'."
   },
-  "compatibility_user_style": "用戶風格",
-  "@compatibility_user_style": {
-    "description": "Auto-generated metadata for key 'compatibility_user_style'."
+  "goonghap_user_style": "用戶風格",
+  "@goonghap_user_style": {
+    "description": "Auto-generated metadata for key 'goonghap_user_style'."
   },
-  "compatibility_waiting_message": "请稍候。",
-  "@compatibility_waiting_message": {
-    "description": "Auto-generated metadata for key 'compatibility_waiting_message'."
+  "goonghap_waiting_message": "请稍候。",
+  "@goonghap_waiting_message": {
+    "description": "Auto-generated metadata for key 'goonghap_waiting_message'."
   },
-  "compatibility_warning_exit": "如果离开屏幕，则需要重新进行分析。",
-  "@compatibility_warning_exit": {
-    "description": "Auto-generated metadata for key 'compatibility_warning_exit'."
+  "goonghap_warning_exit": "如果离开屏幕，则需要重新进行分析。",
+  "@goonghap_warning_exit": {
+    "description": "Auto-generated metadata for key 'goonghap_warning_exit'."
   },
   "dialog_button_cancel": "取消",
   "@dialog_button_cancel": {
@@ -1311,25 +1311,25 @@
   "@ban_support_instruction": {
     "description": "Instruction to copy logs and contact support"
   },
-  "compatibility_empty_state_title": "No compatibility information",
-  "@compatibility_empty_state_title": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
+  "goonghap_empty_state_title": "No Goong-Hap information",
+  "@goonghap_empty_state_title": {
+    "description": "Auto-generated metadata for key 'goonghap_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "Create your first compatibility!",
-  "@compatibility_empty_state_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
+  "goonghap_empty_state_subtitle": "Create your first Goong-Hap!",
+  "@goonghap_empty_state_subtitle": {
+    "description": "Auto-generated metadata for key 'goonghap_empty_state_subtitle'."
   },
-  "compatibility_login_required_title": "需要登入",
-  "@compatibility_login_required_title": {
-    "description": "Title shown when user needs to login to see compatibility"
+  "goonghap_login_required_title": "需要登入",
+  "@goonghap_login_required_title": {
+    "description": "Title shown when user needs to login to see goonghap"
   },
-  "compatibility_login_required_subtitle": "請登入查看您的配對結果",
-  "@compatibility_login_required_subtitle": {
-    "description": "Subtitle shown when user needs to login to see compatibility"
+  "goonghap_login_required_subtitle": "請登入查看您的配對結果",
+  "@goonghap_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see goonghap"
   },
-  "compatibility_login_button": "登入",
-  "@compatibility_login_button": {
-    "description": "Login button text on compatibility page"
+  "goonghap_login_button": "登入",
+  "@goonghap_login_button": {
+    "description": "Login button text on goonghap page"
   },
   "network_error_title": "Network Error",
   "@network_error_title": {
@@ -1534,8 +1534,8 @@
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "compatibility_purchase_message": "如果我想知道我和 {artistName}之间的 Goong-hap 分数？",
-  "@compatibility_purchase_message": {
+  "goonghap_purchase_message": "如果我想知道我和 {artistName}之间的 Goong-hap 分数？",
+  "@goonghap_purchase_message": {
     "placeholders": {
       "artistName": {
         "type": "String"
@@ -1546,9 +1546,9 @@
   "@label_mypage_charge_history": {
     "description": "Charge history menu for admin users"
   },
-  "compatibility_time_slot_unknown": "不知道",
-  "@compatibility_time_slot_unknown": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
+  "goonghap_time_slot_unknown": "不知道",
+  "@goonghap_time_slot_unknown": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot_unknown'."
   },
   "label_popup_hide_7days": "不查看 7 天",
   "@label_popup_hide_7days": {
@@ -1622,9 +1622,9 @@
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "compatibility_birthtime_subtitle": "提高准确性！",
-  "@compatibility_birthtime_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
+  "goonghap_birthtime_subtitle": "提高准确性！",
+  "@goonghap_birthtime_subtitle": {
+    "description": "Auto-generated metadata for key 'goonghap_birthtime_subtitle'."
   },
   "title_dialog_success": "成功",
   "@title_dialog_success": {
@@ -1658,9 +1658,9 @@
   "@bonus_candy_earn_period_1_to_15": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
   },
-  "compatibility_snackbar_need_birthday": "请输入您的出生日期。",
-  "@compatibility_snackbar_need_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
+  "goonghap_snackbar_need_birthday": "请输入您的出生日期。",
+  "@goonghap_snackbar_need_birthday": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_birthday'."
   },
   "update_recommend_text": "新版本 ({version}) 已发布。",
   "@update_recommend_text": {
@@ -1694,9 +1694,9 @@
   "@post_comment_action_show_original": {
     "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
   },
-  "compatibility_snackbar_need_profile_save_agree": "同意保存您的个人资料。",
-  "@compatibility_snackbar_need_profile_save_agree": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
+  "goonghap_snackbar_need_profile_save_agree": "同意保存您的个人资料。",
+  "@goonghap_snackbar_need_profile_save_agree": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_profile_save_agree'."
   },
   "qna_content_min_length": "咨询内容至少需要10个字符",
   "@qna_content_min_length": {
@@ -1757,13 +1757,13 @@
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
-  "compatibility_perfect_score_exists_title": "已获胜比赛資料",
-  "@compatibility_perfect_score_exists_title": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
+  "goonghap_perfect_score_exists_title": "已获胜比赛資料",
+  "@goonghap_perfect_score_exists_title": {
+    "description": "Auto-generated metadata for key 'goonghap_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "相同条件下的宮合資料已经存在。",
-  "@compatibility_duplicate_data_message": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
+  "goonghap_duplicate_data_message": "相同条件下的宮合資料已经存在。",
+  "@goonghap_duplicate_data_message": {
+    "description": "Auto-generated metadata for key 'goonghap_duplicate_data_message'."
   },
   "label_time_ago_minute": "{minute} 分鐘前",
   "@label_time_ago_minute": {
@@ -1849,9 +1849,9 @@
   "@message_update_nickname_success": {
     "description": "Auto-generated metadata for key 'message_update_nickname_success'."
   },
-  "compatibility_new_compatibility_ask": "想看看新的配对吗？",
-  "@compatibility_new_compatibility_ask": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
+  "goonghap_new_ask": "想看看新的配对吗？",
+  "@goonghap_new_ask": {
+    "description": "Auto-generated metadata for key 'goonghap_new_ask'."
   },
   "post_replying_comment": "回复 {nickname}...",
   "@post_replying_comment": {
@@ -1865,9 +1865,9 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "请注意，此条件的宮合資料已获得奖励，因此我们无法再颁发额外奖励。",
-  "@compatibility_perfect_score_exists": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
+  "goonghap_perfect_score_exists": "请注意，此条件的宮合資料已获得奖励，因此我们无法再颁发额外奖励。",
+  "@goonghap_perfect_score_exists": {
+    "description": "Auto-generated metadata for key 'goonghap_perfect_score_exists'."
   },
   "post_minor_board_create_request_message_input": "输入要求打开留言板的信息。",
   "@post_minor_board_create_request_message_input": {
@@ -1897,9 +1897,13 @@
   "@qna_category_required": {
     "description": "Error message when category is required (Traditional)"
   },
-  "compatibility_purchase_confirm_title": "用星星糖果購買",
-  "@compatibility_purchase_confirm_title": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
+  "goonghap_purchase_confirm_title": "用星星糖果購買",
+  "@goonghap_purchase_confirm_title": {
+    "description": "Auto-generated metadata for key 'goonghap_purchase_confirm_title'."
+  },
+  "goonghap_artist_no_birthdate": "由於沒有該藝人的生日資訊，無法查看緣分。",
+  "@goonghap_artist_no_birthdate": {
+    "description": "Auto-generated metadata for key 'goonghap_artist_no_birthdate'."
   },
   "post_board_create_request_label": "申请开设一个板块",
   "@post_board_create_request_label": {

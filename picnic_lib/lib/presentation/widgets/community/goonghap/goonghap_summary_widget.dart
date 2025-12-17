@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-class CompatibilitySummaryWidget extends StatelessWidget {
-  const CompatibilitySummaryWidget({
+class GoonghapSummaryWidget extends StatelessWidget {
+  const GoonghapSummaryWidget({
     super.key,
     required this.localizedResult,
   });
 
-  final LocalizedCompatibility? localizedResult;
+  final LocalizedGoonghap? localizedResult;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class CompatibilitySummaryWidget extends StatelessWidget {
               constraints: const BoxConstraints(minHeight: 60),
               child: Center(
                 child: Text(
-                  localizedResult!.compatibilitySummary,
+                  localizedResult!.goonghapSummary,
                   style: getTextStyle(AppTypo.caption12B, AppColors.grey00),
                   textAlign: TextAlign.center,
                 ),

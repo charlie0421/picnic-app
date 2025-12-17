@@ -233,251 +233,251 @@ abstract class AppLocalizations {
   /// **'Search results'**
   String get common_text_search_result_label;
 
-  /// Auto-generated metadata for key 'compatibility_activities_title'.
+  /// Auto-generated metadata for key 'goonghap_activities_title'.
   ///
   /// In en, this message translates to:
   /// **'Suggested activities'**
-  String get compatibility_activities_title;
+  String get goonghap_activities_title;
 
-  /// Error message when artist has no birth date for compatibility
+  /// Error message when artist has no birth date for goonghap
   ///
   /// In en, this message translates to:
-  /// **'This artist\'s birth date is not available for compatibility.'**
-  String get compatibility_artist_no_birthdate;
+  /// **'This artist\'s birth date is not available for goonghap.'**
+  String get goonghap_artist_no_birthdate;
 
-  /// Auto-generated metadata for key 'compatibility_agree_checkbox'.
+  /// Auto-generated metadata for key 'goonghap_agree_checkbox'.
   ///
   /// In en, this message translates to:
   /// **'I agree to store my gender and birthday information in my profile.'**
-  String get compatibility_agree_checkbox;
+  String get goonghap_agree_checkbox;
 
-  /// Auto-generated metadata for key 'compatibility_analyze_start'.
+  /// Auto-generated metadata for key 'goonghap_analyze_start'.
   ///
   /// In en, this message translates to:
   /// **'Start Goong-Hap analysis'**
-  String get compatibility_analyze_start;
+  String get goonghap_analyze_start;
 
-  /// Auto-generated metadata for key 'compatibility_analyzing'.
+  /// Auto-generated metadata for key 'goonghap_analyzing'.
   ///
   /// In en, this message translates to:
   /// **'Analyzing Goong-Hap.'**
-  String get compatibility_analyzing;
+  String get goonghap_analyzing;
 
-  /// Auto-generated metadata for key 'compatibility_analyzing_prepare'.
+  /// Auto-generated metadata for key 'goonghap_analyzing_prepare'.
   ///
   /// In en, this message translates to:
   /// **'Preparing'**
-  String get compatibility_analyzing_prepare;
+  String get goonghap_analyzing_prepare;
 
-  /// Auto-generated metadata for key 'compatibility_birthday'.
+  /// Auto-generated metadata for key 'goonghap_birthday'.
   ///
   /// In en, this message translates to:
   /// **'Date of birth'**
-  String get compatibility_birthday;
+  String get goonghap_birthday;
 
-  /// Auto-generated metadata for key 'compatibility_birthtime'.
+  /// Auto-generated metadata for key 'goonghap_birthtime'.
   ///
   /// In en, this message translates to:
   /// **'Birth time'**
-  String get compatibility_birthtime;
+  String get goonghap_birthtime;
 
-  /// Auto-generated metadata for key 'compatibility_couple_style'.
+  /// Auto-generated metadata for key 'goonghap_couple_style'.
   ///
   /// In en, this message translates to:
   /// **'Couple styles'**
-  String get compatibility_couple_style;
+  String get goonghap_couple_style;
 
-  /// Auto-generated metadata for key 'compatibility_duplicate_data_title'.
+  /// Auto-generated metadata for key 'goonghap_duplicate_data_title'.
   ///
   /// In en, this message translates to:
   /// **'Goong-Hap data that already exists'**
-  String get compatibility_duplicate_data_title;
+  String get goonghap_duplicate_data_title;
 
-  /// Auto-generated metadata for key 'compatibility_gender'.
+  /// Auto-generated metadata for key 'goonghap_gender'.
   ///
   /// In en, this message translates to:
   /// **'Gender'**
-  String get compatibility_gender;
+  String get goonghap_gender;
 
-  /// Auto-generated metadata for key 'compatibility_gender_female'.
+  /// Auto-generated metadata for key 'goonghap_gender_female'.
   ///
   /// In en, this message translates to:
   /// **'Female'**
-  String get compatibility_gender_female;
+  String get goonghap_gender_female;
 
-  /// Auto-generated metadata for key 'compatibility_gender_male'.
+  /// Auto-generated metadata for key 'goonghap_gender_male'.
   ///
   /// In en, this message translates to:
   /// **'Male'**
-  String get compatibility_gender_male;
+  String get goonghap_gender_male;
 
-  /// Auto-generated metadata for key 'compatibility_idol_style'.
+  /// Auto-generated metadata for key 'goonghap_idol_style'.
   ///
   /// In en, this message translates to:
   /// **'Idol Styles'**
-  String get compatibility_idol_style;
+  String get goonghap_idol_style;
 
-  /// Auto-generated metadata for key 'compatibility_new_compatibility'.
+  /// Auto-generated metadata for key 'goonghap_new'.
   ///
   /// In en, this message translates to:
   /// **'View New Goong-Hap'**
-  String get compatibility_new_compatibility;
+  String get goonghap_new;
 
-  /// Auto-generated metadata for key 'compatibility_page_title'.
+  /// Auto-generated metadata for key 'goonghap_page_title'.
   ///
   /// In en, this message translates to:
   /// **'Goong-Hap'**
-  String get compatibility_page_title;
+  String get goonghap_page_title;
 
-  /// Auto-generated metadata for key 'compatibility_purchase_confirm_message'.
+  /// Auto-generated metadata for key 'goonghap_purchase_confirm_message'.
   ///
   /// In en, this message translates to:
   /// **'Use 100 Star Candy to check Goong-Hap results.'**
-  String get compatibility_purchase_confirm_message;
+  String get goonghap_purchase_confirm_message;
 
-  /// Auto-generated metadata for key 'compatibility_remain_star_candy'.
+  /// Auto-generated metadata for key 'goonghap_remain_star_candy'.
   ///
   /// In en, this message translates to:
   /// **'Remaining Star Candy'**
-  String get compatibility_remain_star_candy;
+  String get goonghap_remain_star_candy;
 
-  /// Auto-generated metadata for key 'compatibility_result_not_found'.
+  /// Auto-generated metadata for key 'goonghap_result_not_found'.
   ///
   /// In en, this message translates to:
   /// **'It\'s not Goong-Hap 😔.'**
-  String get compatibility_result_not_found;
+  String get goonghap_result_not_found;
 
-  /// Auto-generated metadata for key 'compatibility_share_hashtag'.
+  /// Auto-generated metadata for key 'goonghap_share_hashtag'.
   ///
   /// In en, this message translates to:
   /// **'#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합'**
-  String get compatibility_share_hashtag;
+  String get goonghap_share_hashtag;
 
-  /// No description provided for @compatibility_share_message.
+  /// No description provided for @goonghap_share_message.
   ///
   /// In en, this message translates to:
   /// **'What percentage is my shining chemistry Goong-Hap with {artistName}? My heart is racing!'**
-  String compatibility_share_message(String artistName);
+  String goonghap_share_message(String artistName);
 
-  /// Auto-generated metadata for key 'compatibility_snackbar_error'.
+  /// Auto-generated metadata for key 'goonghap_snackbar_error'.
   ///
   /// In en, this message translates to:
   /// **'An error occurred.'**
-  String get compatibility_snackbar_error;
+  String get goonghap_snackbar_error;
 
-  /// Auto-generated metadata for key 'compatibility_snackbar_need_gender'.
+  /// Auto-generated metadata for key 'goonghap_snackbar_need_gender'.
   ///
   /// In en, this message translates to:
   /// **'Please select a gender.'**
-  String get compatibility_snackbar_need_gender;
+  String get goonghap_snackbar_need_gender;
 
-  /// Auto-generated metadata for key 'compatibility_snackbar_start'.
+  /// Auto-generated metadata for key 'goonghap_snackbar_start'.
   ///
   /// In en, this message translates to:
   /// **'Start analyzing Goong-Hap.'**
-  String get compatibility_snackbar_start;
+  String get goonghap_snackbar_start;
 
-  /// Auto-generated metadata for key 'compatibility_style_title'.
+  /// Auto-generated metadata for key 'goonghap_style_title'.
   ///
   /// In en, this message translates to:
   /// **'Goong-Hap styles'**
-  String get compatibility_style_title;
+  String get goonghap_style_title;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot1'.
+  /// Auto-generated metadata for key 'goonghap_time_slot1'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Rat|(23:30-01:29)|🐀'**
-  String get compatibility_time_slot1;
+  String get goonghap_time_slot1;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot10'.
+  /// Auto-generated metadata for key 'goonghap_time_slot10'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Rooster|(17:30-19:29)|🐔'**
-  String get compatibility_time_slot10;
+  String get goonghap_time_slot10;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot11'.
+  /// Auto-generated metadata for key 'goonghap_time_slot11'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Dog|(19:30-21:29)|🐕'**
-  String get compatibility_time_slot11;
+  String get goonghap_time_slot11;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot12'.
+  /// Auto-generated metadata for key 'goonghap_time_slot12'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Boar|(21:30-23:29)|🐖'**
-  String get compatibility_time_slot12;
+  String get goonghap_time_slot12;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot2'.
+  /// Auto-generated metadata for key 'goonghap_time_slot2'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Ox|(01:30-03:29)|🐂'**
-  String get compatibility_time_slot2;
+  String get goonghap_time_slot2;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot3'.
+  /// Auto-generated metadata for key 'goonghap_time_slot3'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Tiger|(03:30-05:29)|🐅'**
-  String get compatibility_time_slot3;
+  String get goonghap_time_slot3;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot4'.
+  /// Auto-generated metadata for key 'goonghap_time_slot4'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Rabbit|(05:30-07:29)|🐇'**
-  String get compatibility_time_slot4;
+  String get goonghap_time_slot4;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot5'.
+  /// Auto-generated metadata for key 'goonghap_time_slot5'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Dragon|(07:30-09:29)|🐉'**
-  String get compatibility_time_slot5;
+  String get goonghap_time_slot5;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot6'.
+  /// Auto-generated metadata for key 'goonghap_time_slot6'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Snake|(09:30-11:29)|🐍'**
-  String get compatibility_time_slot6;
+  String get goonghap_time_slot6;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot7'.
+  /// Auto-generated metadata for key 'goonghap_time_slot7'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Horse|(11:30-13:29)|🐎'**
-  String get compatibility_time_slot7;
+  String get goonghap_time_slot7;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot8'.
+  /// Auto-generated metadata for key 'goonghap_time_slot8'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Sheep|(13:30-15:29)|🐑'**
-  String get compatibility_time_slot8;
+  String get goonghap_time_slot8;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot9'.
+  /// Auto-generated metadata for key 'goonghap_time_slot9'.
   ///
   /// In en, this message translates to:
   /// **'Hour of the Monkey|(15:30-17:29)|🐒'**
-  String get compatibility_time_slot9;
+  String get goonghap_time_slot9;
 
-  /// Auto-generated metadata for key 'compatibility_tips_title'.
+  /// Auto-generated metadata for key 'goonghap_tips_title'.
   ///
   /// In en, this message translates to:
   /// **'Goong-Hap tips'**
-  String get compatibility_tips_title;
+  String get goonghap_tips_title;
 
-  /// Auto-generated metadata for key 'compatibility_user_style'.
+  /// Auto-generated metadata for key 'goonghap_user_style'.
   ///
   /// In en, this message translates to:
   /// **'User Styles'**
-  String get compatibility_user_style;
+  String get goonghap_user_style;
 
-  /// Auto-generated metadata for key 'compatibility_waiting_message'.
+  /// Auto-generated metadata for key 'goonghap_waiting_message'.
   ///
   /// In en, this message translates to:
   /// **'Please wait a moment.'**
-  String get compatibility_waiting_message;
+  String get goonghap_waiting_message;
 
-  /// Auto-generated metadata for key 'compatibility_warning_exit'.
+  /// Auto-generated metadata for key 'goonghap_warning_exit'.
   ///
   /// In en, this message translates to:
   /// **'If you leave the screen, you\'ll need to do the analysis again.'**
-  String get compatibility_warning_exit;
+  String get goonghap_warning_exit;
 
   /// Auto-generated metadata for key 'dialog_button_cancel'.
   ///
@@ -2051,35 +2051,35 @@ abstract class AppLocalizations {
   /// **'If you believe this is a mistake, please contact customer support.'**
   String get ban_contact;
 
-  /// Auto-generated metadata for key 'compatibility_empty_state_title'.
+  /// Auto-generated metadata for key 'goonghap_empty_state_title'.
   ///
   /// In en, this message translates to:
   /// **'No Goong-Hap information'**
-  String get compatibility_empty_state_title;
+  String get goonghap_empty_state_title;
 
-  /// Auto-generated metadata for key 'compatibility_empty_state_subtitle'.
+  /// Auto-generated metadata for key 'goonghap_empty_state_subtitle'.
   ///
   /// In en, this message translates to:
   /// **'Create your first Goong-Hap!'**
-  String get compatibility_empty_state_subtitle;
+  String get goonghap_empty_state_subtitle;
 
-  /// Title shown when user needs to login to see compatibility
+  /// Title shown when user needs to login to see goonghap
   ///
   /// In en, this message translates to:
   /// **'Login required'**
-  String get compatibility_login_required_title;
+  String get goonghap_login_required_title;
 
-  /// Subtitle shown when user needs to login to see compatibility
+  /// Subtitle shown when user needs to login to see goonghap
   ///
   /// In en, this message translates to:
   /// **'Please log in to see your Goong-Hap results'**
-  String get compatibility_login_required_subtitle;
+  String get goonghap_login_required_subtitle;
 
-  /// Login button text on compatibility page
+  /// Login button text on goonghap page
   ///
   /// In en, this message translates to:
   /// **'Log in'**
-  String get compatibility_login_button;
+  String get goonghap_login_button;
 
   /// Auto-generated metadata for key 'network_error_title'.
   ///
@@ -2381,11 +2381,11 @@ abstract class AppLocalizations {
   /// **'- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.'**
   String get bonus_candy_policy_2;
 
-  /// No description provided for @compatibility_purchase_message.
+  /// No description provided for @goonghap_purchase_message.
   ///
   /// In en, this message translates to:
   /// **'If I want to know the Goong-hap score between me and the {artistName}?'**
-  String compatibility_purchase_message(String artistName);
+  String goonghap_purchase_message(String artistName);
 
   /// Charge history menu for admin users
   ///
@@ -2393,11 +2393,11 @@ abstract class AppLocalizations {
   /// **'Charges (Admin)'**
   String get label_mypage_charge_history;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot_unknown'.
+  /// Auto-generated metadata for key 'goonghap_time_slot_unknown'.
   ///
   /// In en, this message translates to:
   /// **'Don\'t know'**
-  String get compatibility_time_slot_unknown;
+  String get goonghap_time_slot_unknown;
 
   /// Auto-generated metadata for key 'label_popup_hide_7days'.
   ///
@@ -2507,11 +2507,11 @@ abstract class AppLocalizations {
   /// **'Unsubscribing'**
   String get dialog_withdraw_button_ok;
 
-  /// Auto-generated metadata for key 'compatibility_birthtime_subtitle'.
+  /// Auto-generated metadata for key 'goonghap_birthtime_subtitle'.
   ///
   /// In en, this message translates to:
   /// **'Increase accuracy!'**
-  String get compatibility_birthtime_subtitle;
+  String get goonghap_birthtime_subtitle;
 
   /// Auto-generated metadata for key 'title_dialog_success'.
   ///
@@ -2561,11 +2561,11 @@ abstract class AppLocalizations {
   /// **'1st 00:00:00 ~ 15th 23:59:59'**
   String get bonus_candy_earn_period_1_to_15;
 
-  /// Auto-generated metadata for key 'compatibility_snackbar_need_birthday'.
+  /// Auto-generated metadata for key 'goonghap_snackbar_need_birthday'.
   ///
   /// In en, this message translates to:
   /// **'Please enter your date of birth.'**
-  String get compatibility_snackbar_need_birthday;
+  String get goonghap_snackbar_need_birthday;
 
   /// No description provided for @update_recommend_text.
   ///
@@ -2609,11 +2609,11 @@ abstract class AppLocalizations {
   /// **'View full text'**
   String get post_comment_action_show_original;
 
-  /// Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'.
+  /// Auto-generated metadata for key 'goonghap_snackbar_need_profile_save_agree'.
   ///
   /// In en, this message translates to:
   /// **'Give your consent to save your profile.'**
-  String get compatibility_snackbar_need_profile_save_agree;
+  String get goonghap_snackbar_need_profile_save_agree;
 
   /// Auto-generated metadata for key 'qna_content_min_length'.
   ///
@@ -2687,17 +2687,17 @@ abstract class AppLocalizations {
   /// **'- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.'**
   String get bonus_candy_policy_1;
 
-  /// Auto-generated metadata for key 'compatibility_perfect_score_exists_title'.
+  /// Auto-generated metadata for key 'goonghap_perfect_score_exists_title'.
   ///
   /// In en, this message translates to:
   /// **'Already Winning Matches Data'**
-  String get compatibility_perfect_score_exists_title;
+  String get goonghap_perfect_score_exists_title;
 
-  /// Auto-generated metadata for key 'compatibility_duplicate_data_message'.
+  /// Auto-generated metadata for key 'goonghap_duplicate_data_message'.
   ///
   /// In en, this message translates to:
   /// **'Goong-Hap data with the same conditions already exists.'**
-  String get compatibility_duplicate_data_message;
+  String get goonghap_duplicate_data_message;
 
   /// No description provided for @label_time_ago_minute.
   ///
@@ -2801,11 +2801,11 @@ abstract class AppLocalizations {
   /// **'Your nickname has been successfully changed.'**
   String get message_update_nickname_success;
 
-  /// Auto-generated metadata for key 'compatibility_new_compatibility_ask'.
+  /// Auto-generated metadata for key 'goonghap_new_ask'.
   ///
   /// In en, this message translates to:
   /// **'Want to see a new Goong-Hap?'**
-  String get compatibility_new_compatibility_ask;
+  String get goonghap_new_ask;
 
   /// No description provided for @post_replying_comment.
   ///
@@ -2819,11 +2819,11 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get button_pic_pic_save;
 
-  /// Auto-generated metadata for key 'compatibility_perfect_score_exists'.
+  /// Auto-generated metadata for key 'goonghap_perfect_score_exists'.
   ///
   /// In en, this message translates to:
   /// **'Please note that the Goong-Hap data for this condition has already earned rewards, so we are unable to award additional rewards.'**
-  String get compatibility_perfect_score_exists;
+  String get goonghap_perfect_score_exists;
 
   /// Auto-generated metadata for key 'post_minor_board_create_request_message_input'.
   ///
@@ -2855,11 +2855,11 @@ abstract class AppLocalizations {
   /// **'* Message requesting to open a board.'**
   String get post_minor_board_create_request_message;
 
-  /// Auto-generated metadata for key 'compatibility_purchase_confirm_title'.
+  /// Auto-generated metadata for key 'goonghap_purchase_confirm_title'.
   ///
   /// In en, this message translates to:
   /// **'Purchase with Star Candy'**
-  String get compatibility_purchase_confirm_title;
+  String get goonghap_purchase_confirm_title;
 
   /// Auto-generated metadata for key 'post_board_create_request_label'.
   ///
@@ -3128,7 +3128,7 @@ abstract class AppLocalizations {
   /// K-POP section description in Goong-Hap intro
   ///
   /// In en, this message translates to:
-  /// **'How well do you match with your favorite idol? Check out your destined compatibility with your bias!'**
+  /// **'How well do you match with your favorite idol? Check out your destined Goong-Hap with your bias!'**
   String get goong_hap_kpop_desc;
 
   /// Fun section title in Goong-Hap intro
@@ -3140,7 +3140,7 @@ abstract class AppLocalizations {
   /// Fun section description in Goong-Hap intro
   ///
   /// In en, this message translates to:
-  /// **'Compare and share your compatibility scores with friends! Who matches best with their bias?'**
+  /// **'Compare and share your Goong-Hap scores with friends! Who matches best with their bias?'**
   String get goong_hap_fun_desc;
 
   /// Notice text in Goong-Hap intro

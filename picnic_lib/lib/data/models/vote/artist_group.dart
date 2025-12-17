@@ -4,7 +4,7 @@ part '../../../generated/providers/models/vote/artist_group.freezed.dart';
 part '../../../generated/providers/models/vote/artist_group.g.dart';
 
 @freezed
-class ArtistGroupModel with _$ArtistGroupModel {
+abstract class ArtistGroupModel with _$ArtistGroupModel {
   const ArtistGroupModel._();
 
   const factory ArtistGroupModel(

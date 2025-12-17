@@ -5,7 +5,7 @@ part '../../../generated/providers/models/vote/vote_pick.freezed.dart';
 part '../../../generated/providers/models/vote/vote_pick.g.dart';
 
 @freezed
-class VotePickModel with _$VotePickModel {
+abstract class VotePickModel with _$VotePickModel {
   const VotePickModel._();
 
   const factory VotePickModel({

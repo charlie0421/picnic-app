@@ -7,7 +7,7 @@ part '../../../generated/providers/models/community/post_scrap.freezed.dart';
 part '../../../generated/providers/models/community/post_scrap.g.dart';
 
 @freezed
-class PostScrapModel with _$PostScrapModel {
+abstract class PostScrapModel with _$PostScrapModel {
   const PostScrapModel._();
 
   const factory PostScrapModel({

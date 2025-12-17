@@ -66,131 +66,131 @@ class AppLocalizationsKo extends AppLocalizations {
   String get common_text_search_result_label => '검색 결과';
 
   @override
-  String get compatibility_activities_title => '추천 활동';
+  String get goonghap_activities_title => '추천 활동';
 
   @override
-  String get compatibility_artist_no_birthdate =>
+  String get goonghap_artist_no_birthdate =>
       '이 아티스트의 생년월일 정보가 없어 궁합을 볼 수 없습니다.';
 
   @override
-  String get compatibility_agree_checkbox => '내 프로필에 성별과 생년월일 정보 저장에 동의합니다.';
+  String get goonghap_agree_checkbox => '내 프로필에 성별과 생년월일 정보 저장에 동의합니다.';
 
   @override
-  String get compatibility_analyze_start => '궁합 분석 시작';
+  String get goonghap_analyze_start => '궁합 분석 시작';
 
   @override
-  String get compatibility_analyzing => '궁합 분석 중';
+  String get goonghap_analyzing => '궁합 분석 중';
 
   @override
-  String get compatibility_analyzing_prepare => '준비 중';
+  String get goonghap_analyzing_prepare => '준비 중';
 
   @override
-  String get compatibility_birthday => '생년월일';
+  String get goonghap_birthday => '생년월일';
 
   @override
-  String get compatibility_birthtime => '출생 시간';
+  String get goonghap_birthtime => '출생 시간';
 
   @override
-  String get compatibility_couple_style => '커플 스타일';
+  String get goonghap_couple_style => '커플 스타일';
 
   @override
-  String get compatibility_duplicate_data_title => '이미 존재하는 궁합 데이터';
+  String get goonghap_duplicate_data_title => '이미 존재하는 궁합 데이터';
 
   @override
-  String get compatibility_gender => '성별';
+  String get goonghap_gender => '성별';
 
   @override
-  String get compatibility_gender_female => '여성';
+  String get goonghap_gender_female => '여성';
 
   @override
-  String get compatibility_gender_male => '남성';
+  String get goonghap_gender_male => '남성';
 
   @override
-  String get compatibility_idol_style => '아이돌 스타일';
+  String get goonghap_idol_style => '아이돌 스타일';
 
   @override
-  String get compatibility_new_compatibility => '새 궁합 보기';
+  String get goonghap_new => '새 궁합 보기';
 
   @override
-  String get compatibility_page_title => '궁합';
+  String get goonghap_page_title => '궁합';
 
   @override
-  String get compatibility_purchase_confirm_message =>
+  String get goonghap_purchase_confirm_message =>
       '스타캔디 100개를 사용하여 궁합 결과를 확인합니다.';
 
   @override
-  String get compatibility_remain_star_candy => '남은 스타캔디';
+  String get goonghap_remain_star_candy => '남은 스타캔디';
 
   @override
-  String get compatibility_result_not_found => '궁합이 맞지 않네요 😔';
+  String get goonghap_result_not_found => '궁합이 맞지 않네요 😔';
 
   @override
-  String get compatibility_share_hashtag => '#피크닉 #피크닠 #아이돌궁합 #Goonghap #피크닠궁합';
+  String get goonghap_share_hashtag => '#피크닉 #피크닠 #아이돌궁합 #Goonghap #피크닠궁합';
 
   @override
-  String compatibility_share_message(String artistName) {
+  String goonghap_share_message(String artistName) {
     return '$artistName과 나의 빛나는 케미 궁합은 몇 퍼센트일까? 두근두근!';
   }
 
   @override
-  String get compatibility_snackbar_error => '오류가 발생했습니다.';
+  String get goonghap_snackbar_error => '오류가 발생했습니다.';
 
   @override
-  String get compatibility_snackbar_need_gender => '성별을 선택해주세요.';
+  String get goonghap_snackbar_need_gender => '성별을 선택해주세요.';
 
   @override
-  String get compatibility_snackbar_start => '궁합 분석을 시작합니다.';
+  String get goonghap_snackbar_start => '궁합 분석을 시작합니다.';
 
   @override
-  String get compatibility_style_title => '궁합 스타일';
+  String get goonghap_style_title => '궁합 스타일';
 
   @override
-  String get compatibility_time_slot1 => '자시|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => '자시|(23:30-01:29)|🐀';
 
   @override
-  String get compatibility_time_slot10 => '유시|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => '유시|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 => '술시|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => '술시|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 => '해시|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => '해시|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => '축시|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => '축시|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 => '인시|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => '인시|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 => '묘시|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => '묘시|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 => '진시|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => '진시|(07:30-09:29)|🐉';
 
   @override
-  String get compatibility_time_slot6 => '사시|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => '사시|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 => '오시|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => '오시|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 => '미시|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => '미시|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 => '신시|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => '신시|(15:30-17:29)|🐒';
 
   @override
-  String get compatibility_tips_title => '궁합 팁';
+  String get goonghap_tips_title => '궁합 팁';
 
   @override
-  String get compatibility_user_style => '사용자 스타일';
+  String get goonghap_user_style => '사용자 스타일';
 
   @override
-  String get compatibility_waiting_message => '잠시만 기다려주세요.';
+  String get goonghap_waiting_message => '잠시만 기다려주세요.';
 
   @override
-  String get compatibility_warning_exit => '화면을 나가시면 분석을 다시 해야 합니다.';
+  String get goonghap_warning_exit => '화면을 나가시면 분석을 다시 해야 합니다.';
 
   @override
   String get dialog_button_cancel => '취소';
@@ -992,19 +992,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ban_contact => '오탐으로 판단되면 고객센터로 문의해주세요.';
 
   @override
-  String get compatibility_empty_state_title => '궁합 정보가 없습니다';
+  String get goonghap_empty_state_title => '궁합 정보가 없습니다';
 
   @override
-  String get compatibility_empty_state_subtitle => '첫 번째 궁합을 만들어보세요!';
+  String get goonghap_empty_state_subtitle => '첫 번째 궁합을 만들어보세요!';
 
   @override
-  String get compatibility_login_required_title => '로그인이 필요합니다';
+  String get goonghap_login_required_title => '로그인이 필요합니다';
 
   @override
-  String get compatibility_login_required_subtitle => '궁합 결과를 보려면 로그인해주세요';
+  String get goonghap_login_required_subtitle => '궁합 결과를 보려면 로그인해주세요';
 
   @override
-  String get compatibility_login_button => '로그인하기';
+  String get goonghap_login_button => '로그인하기';
 
   @override
   String get network_error_title => '네트워크 오류';
@@ -1164,7 +1164,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '- 스타캔디 사용 시, 소멸일이 임박한 보너스 스타캔디부터 순서대로 차감됩니다.';
 
   @override
-  String compatibility_purchase_message(String artistName) {
+  String goonghap_purchase_message(String artistName) {
     return '$artistName과 나의 궁합 점수를 알고 싶다면?';
   }
 
@@ -1172,7 +1172,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_mypage_charge_history => '충전 내역 (관리자)';
 
   @override
-  String get compatibility_time_slot_unknown => '모름';
+  String get goonghap_time_slot_unknown => '모름';
 
   @override
   String get label_popup_hide_7days => '7일간 보지 않기';
@@ -1231,7 +1231,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dialog_withdraw_button_ok => '탈퇴하기';
 
   @override
-  String get compatibility_birthtime_subtitle => '정확도 향상!';
+  String get goonghap_birthtime_subtitle => '정확도 향상!';
 
   @override
   String get title_dialog_success => '성공';
@@ -1259,7 +1259,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '01일 00:00:00(KST) ~ 14일 23:59:59(KST)';
 
   @override
-  String get compatibility_snackbar_need_birthday => '생년월일을 입력해주세요.';
+  String get goonghap_snackbar_need_birthday => '생년월일을 입력해주세요.';
 
   @override
   String update_recommend_text(String version) {
@@ -1287,8 +1287,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get post_comment_action_show_original => '원문 보기';
 
   @override
-  String get compatibility_snackbar_need_profile_save_agree =>
-      '프로필 저장에 동의해주세요.';
+  String get goonghap_snackbar_need_profile_save_agree => '프로필 저장에 동의해주세요.';
 
   @override
   String get qna_content_min_length => '내용은 최소 10자 이상 입력해주세요.';
@@ -1332,11 +1331,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '- 무료 충전소 적립 보너스 별사탕, 구매 시 추가로 지급된 보너스 별사탕은 소멸 기한이 정해져 있습니다.';
 
   @override
-  String get compatibility_perfect_score_exists_title => '이미 우승한 궁합 데이터';
+  String get goonghap_perfect_score_exists_title => '이미 우승한 궁합 데이터';
 
   @override
-  String get compatibility_duplicate_data_message =>
-      '동일한 조건의 궁합 데이터가 이미 존재합니다.';
+  String get goonghap_duplicate_data_message => '동일한 조건의 궁합 데이터가 이미 존재합니다.';
 
   @override
   String label_time_ago_minute(int minute) {
@@ -1400,7 +1398,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get message_update_nickname_success => '닉네임이 성공적으로 변경되었습니다.';
 
   @override
-  String get compatibility_new_compatibility_ask => '새로운 궁합을 보고 싶나요?';
+  String get goonghap_new_ask => '새로운 궁합을 보고 싶나요?';
 
   @override
   String post_replying_comment(String nickname) {
@@ -1411,7 +1409,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get button_pic_pic_save => '저장';
 
   @override
-  String get compatibility_perfect_score_exists =>
+  String get goonghap_perfect_score_exists =>
       '이 조건의 궁합 데이터는 이미 리워드를 받았으므로 추가 리워드를 지급할 수 없습니다.';
 
   @override
@@ -1432,7 +1430,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get post_minor_board_create_request_message => '* 게시판 개설 요청 메시지';
 
   @override
-  String get compatibility_purchase_confirm_title => '스타캔디로 구매';
+  String get goonghap_purchase_confirm_title => '스타캔디로 구매';
 
   @override
   String get post_board_create_request_label => '게시판 개설 요청';

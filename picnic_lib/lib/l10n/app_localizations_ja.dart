@@ -66,132 +66,131 @@ class AppLocalizationsJa extends AppLocalizations {
   String get common_text_search_result_label => '検索結果';
 
   @override
-  String get compatibility_activities_title => 'おすすめアクティビティ';
+  String get goonghap_activities_title => 'おすすめアクティビティ';
 
   @override
-  String get compatibility_artist_no_birthdate =>
-      'This artist\'s birth date is not available for compatibility.';
+  String get goonghap_artist_no_birthdate =>
+      'このアーティストの生年月日情報がないため、相性を見ることができません。';
 
   @override
-  String get compatibility_agree_checkbox => '性別、誕生日情報をプロフィールに保存することに同意します。';
+  String get goonghap_agree_checkbox => '性別、誕生日情報をプロフィールに保存することに同意します。';
 
   @override
-  String get compatibility_analyze_start => 'Goong-Hap分析開始';
+  String get goonghap_analyze_start => 'Goong-Hap分析開始';
 
   @override
-  String get compatibility_analyzing => 'Goong-Hapを分析しています。';
+  String get goonghap_analyzing => 'Goong-Hapを分析しています。';
 
   @override
-  String get compatibility_analyzing_prepare => '準備中';
+  String get goonghap_analyzing_prepare => '準備中';
 
   @override
-  String get compatibility_birthday => '生年月日';
+  String get goonghap_birthday => '生年月日';
 
   @override
-  String get compatibility_birthtime => '出生時間';
+  String get goonghap_birthtime => '出生時間';
 
   @override
-  String get compatibility_couple_style => 'カップルスタイル';
+  String get goonghap_couple_style => 'カップルスタイル';
 
   @override
-  String get compatibility_duplicate_data_title => '既に存在するGoong-Hapデータ';
+  String get goonghap_duplicate_data_title => '既に存在するGoong-Hapデータ';
 
   @override
-  String get compatibility_gender => '性別';
+  String get goonghap_gender => '性別';
 
   @override
-  String get compatibility_gender_female => '女性';
+  String get goonghap_gender_female => '女性';
 
   @override
-  String get compatibility_gender_male => '男性';
+  String get goonghap_gender_male => '男性';
 
   @override
-  String get compatibility_idol_style => 'アイドルスタイル';
+  String get goonghap_idol_style => 'アイドルスタイル';
 
   @override
-  String get compatibility_new_compatibility => '新しいGoong-Hapを確認する';
+  String get goonghap_new => '新しいGoong-Hapを確認する';
 
   @override
-  String get compatibility_page_title => 'Goong-Hap';
+  String get goonghap_page_title => 'Goong-Hap';
 
   @override
-  String get compatibility_purchase_confirm_message =>
+  String get goonghap_purchase_confirm_message =>
       'スターキャンディ100個を使用してGoong-Hap結果を確認します。';
 
   @override
-  String get compatibility_remain_star_candy => '残りの星飴';
+  String get goonghap_remain_star_candy => '残りの星飴';
 
   @override
-  String get compatibility_result_not_found => 'Goong-Hapが悪いです😔。';
+  String get goonghap_result_not_found => 'Goong-Hapが悪いです😔。';
 
   @override
-  String get compatibility_share_hashtag =>
-      'ピクニック #피크닠 #아이돌궁합 #Goonghap #피크닠궁합 #궁합';
+  String get goonghap_share_hashtag => 'ピクニック #피크닠 #아이돌궁합 #Goonghap #피크닠궁합 #궁합';
 
   @override
-  String compatibility_share_message(String artistName) {
+  String goonghap_share_message(String artistName) {
     return '私と$artistName の輝くケミは何％かな？ドキドキが止まらない！';
   }
 
   @override
-  String get compatibility_snackbar_error => 'エラーが発生しました。';
+  String get goonghap_snackbar_error => 'エラーが発生しました。';
 
   @override
-  String get compatibility_snackbar_need_gender => '性別を選択してください。';
+  String get goonghap_snackbar_need_gender => '性別を選択してください。';
 
   @override
-  String get compatibility_snackbar_start => 'Goong-Hapを分析し始めます。';
+  String get goonghap_snackbar_start => 'Goong-Hapを分析し始めます。';
 
   @override
-  String get compatibility_style_title => 'Goong-Hapスタイル';
+  String get goonghap_style_title => 'Goong-Hapスタイル';
 
   @override
-  String get compatibility_time_slot1 => '子の刻(ね)|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => '子の刻(ね)|(23:30-01:29)|🐀';
 
   @override
-  String get compatibility_time_slot10 => '酉の刻(とり)|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => '酉の刻(とり)|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 => '戌の刻(いぬ)|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => '戌の刻(いぬ)|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 => '亥の刻(い)|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => '亥の刻(い)|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => '丑の刻(うし)|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => '丑の刻(うし)|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 => '寅の刻(とら)|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => '寅の刻(とら)|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 => '卯の刻(う)|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => '卯の刻(う)|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 => '辰の刻(たつ)|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => '辰の刻(たつ)|(07:30-09:29)|🐉';
 
   @override
-  String get compatibility_time_slot6 => '巳の刻(み)|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => '巳の刻(み)|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 => '午の刻(うま)|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => '午の刻(うま)|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 => '未の刻(ひつじ)|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => '未の刻(ひつじ)|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 => '申の刻(さる)|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => '申の刻(さる)|(15:30-17:29)|🐒';
 
   @override
-  String get compatibility_tips_title => 'Goong-Hapのヒント';
+  String get goonghap_tips_title => 'Goong-Hapのヒント';
 
   @override
-  String get compatibility_user_style => 'ユーザースタイル';
+  String get goonghap_user_style => 'ユーザースタイル';
 
   @override
-  String get compatibility_waiting_message => 'しばらくお待ちください。';
+  String get goonghap_waiting_message => 'しばらくお待ちください。';
 
   @override
-  String get compatibility_warning_exit => '画面を離れると、分析をやり直す必要があります。';
+  String get goonghap_warning_exit => '画面を離れると、分析をやり直す必要があります。';
 
   @override
   String get dialog_button_cancel => 'キャンセル';
@@ -994,20 +993,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ban_contact => '誤検知と思われる場合はカスタマーサポートへお問い合わせください。';
 
   @override
-  String get compatibility_empty_state_title => 'No compatibility information';
+  String get goonghap_empty_state_title => 'No Goong-Hap information';
 
   @override
-  String get compatibility_empty_state_subtitle =>
-      'Create your first compatibility!';
+  String get goonghap_empty_state_subtitle => 'Create your first Goong-Hap!';
 
   @override
-  String get compatibility_login_required_title => 'ログインが必要です';
+  String get goonghap_login_required_title => 'ログインが必要です';
 
   @override
-  String get compatibility_login_required_subtitle => '相性結果を見るにはログインしてください';
+  String get goonghap_login_required_subtitle => '相性結果を見るにはログインしてください';
 
   @override
-  String get compatibility_login_button => 'ログイン';
+  String get goonghap_login_button => 'ログイン';
 
   @override
   String get network_error_title => 'Network Error';
@@ -1168,7 +1166,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '- スターキャンディを使用する際、有効期限が最も近いボーナススターキャンディから先に消費されます。';
 
   @override
-  String compatibility_purchase_message(String artistName) {
+  String goonghap_purchase_message(String artistName) {
     return '私と「$artistName」のGoong-Hapスコアが気になる方は？';
   }
 
@@ -1176,7 +1174,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_mypage_charge_history => '料金内訳 (Admin)';
 
   @override
-  String get compatibility_time_slot_unknown => '不明';
+  String get goonghap_time_slot_unknown => '不明';
 
   @override
   String get label_popup_hide_7days => '7日間表示しない';
@@ -1236,7 +1234,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dialog_withdraw_button_ok => '退会する';
 
   @override
-  String get compatibility_birthtime_subtitle => '精度が上がります！';
+  String get goonghap_birthtime_subtitle => '精度が上がります！';
 
   @override
   String get title_dialog_success => '成功';
@@ -1263,7 +1261,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bonus_candy_earn_period_1_to_15 => '1日 00:00:00 ～ 15日 23:59:59';
 
   @override
-  String get compatibility_snackbar_need_birthday => '生年月日を入力してください。';
+  String get goonghap_snackbar_need_birthday => '生年月日を入力してください。';
 
   @override
   String update_recommend_text(String version) {
@@ -1290,8 +1288,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get post_comment_action_show_original => '原文を見る';
 
   @override
-  String get compatibility_snackbar_need_profile_save_agree =>
-      'プロフィール保存に同意してください。';
+  String get goonghap_snackbar_need_profile_save_agree => 'プロフィール保存に同意してください。';
 
   @override
   String get qna_content_min_length => 'お問い合わせ内容は最低10文字以上入力してください';
@@ -1335,11 +1332,10 @@ class AppLocalizationsJa extends AppLocalizations {
       '- 無料チャージステーションからのボーナススターキャンディ、および購入時のボーナススターキャンディには有効期限があります。';
 
   @override
-  String get compatibility_perfect_score_exists_title => 'すでに当選したGoong-Hapデータ';
+  String get goonghap_perfect_score_exists_title => 'すでに当選したGoong-Hapデータ';
 
   @override
-  String get compatibility_duplicate_data_message =>
-      '同じ条件のGoong-Hapデータが既に存在します。';
+  String get goonghap_duplicate_data_message => '同じ条件のGoong-Hapデータが既に存在します。';
 
   @override
   String label_time_ago_minute(int minute) {
@@ -1402,7 +1398,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get message_update_nickname_success => 'ニックネームが正常に変更されました。';
 
   @override
-  String get compatibility_new_compatibility_ask => '新しいGoong-Hapを見ませんか？';
+  String get goonghap_new_ask => '新しいGoong-Hapを見ませんか？';
 
   @override
   String post_replying_comment(String nickname) {
@@ -1413,7 +1409,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get button_pic_pic_save => '保存する';
 
   @override
-  String get compatibility_perfect_score_exists =>
+  String get goonghap_perfect_score_exists =>
       '当該条件のGoong-Hapデータは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。';
 
   @override
@@ -1434,7 +1430,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get post_minor_board_create_request_message => '* 掲示板オープンリクエストのメッセージ。';
 
   @override
-  String get compatibility_purchase_confirm_title => 'スターキャンディで購入';
+  String get goonghap_purchase_confirm_title => 'スターキャンディで購入';
 
   @override
   String get post_board_create_request_label => '掲示板オープンリクエスト';

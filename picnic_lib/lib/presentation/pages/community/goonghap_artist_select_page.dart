@@ -11,7 +11,7 @@ import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_input_page.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_input_page.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -19,29 +19,29 @@ import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-class CompatibilityArtistSearchQueryNotifier extends Notifier<String> {
+class GoonghapArtistSearchQueryNotifier extends Notifier<String> {
   @override
   String build() => '';
 
   void set(String value) => state = value;
 }
 
-final compatibilityArtistSearchQueryProvider =
-    NotifierProvider<CompatibilityArtistSearchQueryNotifier, String>(
-  CompatibilityArtistSearchQueryNotifier.new,
+final goonghapArtistSearchQueryProvider =
+    NotifierProvider<GoonghapArtistSearchQueryNotifier, String>(
+  GoonghapArtistSearchQueryNotifier.new,
 );
 
-class CompatibilityArtistSelectPage extends ConsumerStatefulWidget {
-  const CompatibilityArtistSelectPage({super.key});
+class GoonghapArtistSelectPage extends ConsumerStatefulWidget {
+  const GoonghapArtistSelectPage({super.key});
 
   @override
-  ConsumerState<CompatibilityArtistSelectPage> createState() =>
-      _CompatibilityArtistSelectPageState();
+  ConsumerState<GoonghapArtistSelectPage> createState() =>
+      _GoonghapArtistSelectPageState();
 }
 
-class _CompatibilityArtistSelectPageState
-    extends ConsumerState<CompatibilityArtistSelectPage>
-    with RouteAwareStateMixin<CompatibilityArtistSelectPage> {
+class _GoonghapArtistSelectPageState
+    extends ConsumerState<GoonghapArtistSelectPage>
+    with RouteAwareStateMixin<GoonghapArtistSelectPage> {
   late PagingController<int, ArtistModel> _pagingController;
   static const _pageSize = 20;
 
@@ -88,7 +88,7 @@ class _CompatibilityArtistSelectPageState
       }
 
       final searchQuery =
-          ref.read(compatibilityArtistSearchQueryProvider);
+          ref.read(goonghapArtistSearchQueryProvider);
       logger.d('Fetching page $pageKey with query: "$searchQuery"');
 
       // 빠른 아티스트 검색 사용 (북마크 정보 제외)
@@ -119,7 +119,7 @@ class _CompatibilityArtistSelectPageState
             hintText: AppLocalizations.of(context).text_hint_search,
             onSearchChanged: (query) {
               if (mounted) {
-                ref.read(compatibilityArtistSearchQueryProvider.notifier).set(query);
+                ref.read(goonghapArtistSearchQueryProvider.notifier).set(query);
                 _pagingController.refresh();
               }
             },
@@ -134,7 +134,7 @@ class _CompatibilityArtistSelectPageState
 
   Widget _buildArtistList() {
     final searchQuery =
-        ref.watch(compatibilityArtistSearchQueryProvider);
+        ref.watch(goonghapArtistSearchQueryProvider);
 
     return PagingListener<int, ArtistModel>(
       controller: _pagingController,
@@ -267,7 +267,7 @@ class _CompatibilityArtistSelectPageState
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      AppLocalizations.of(context).compatibility_artist_no_birthdate,
+                      AppLocalizations.of(context).goonghap_artist_no_birthdate,
                     ),
                     backgroundColor: AppColors.statusError,
                   ),
@@ -275,7 +275,7 @@ class _CompatibilityArtistSelectPageState
                 return;
               }
               ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
-                    CompatibilityInputPage(artist: item),
+                    GoonghapInputPage(artist: item),
                   );
             },
           ),
@@ -360,7 +360,7 @@ class _CompatibilityArtistSelectPageState
             showMyPoint: false,
             topRightMenu: TopRightType.none,
             showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(context).compatibility_new_compatibility,
+            pageTitle: AppLocalizations.of(context).goonghap_new,
           );
     });
   }

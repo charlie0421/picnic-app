@@ -6,7 +6,7 @@ part '../../../generated/providers/models/pic/artist_vote.freezed.dart';
 part '../../../generated/providers/models/pic/artist_vote.g.dart';
 
 @freezed
-class ArtistVoteModel with _$ArtistVoteModel {
+abstract class ArtistVoteModel with _$ArtistVoteModel {
   const ArtistVoteModel._();
 
   const factory ArtistVoteModel({
@@ -27,7 +27,7 @@ class ArtistVoteModel with _$ArtistVoteModel {
 }
 
 @freezed
-class ArtistVoteItemModel with _$ArtistVoteItemModel {
+abstract class ArtistVoteItemModel with _$ArtistVoteItemModel {
   const ArtistVoteItemModel._();
 
   const factory ArtistVoteItemModel({
@@ -43,7 +43,7 @@ class ArtistVoteItemModel with _$ArtistVoteItemModel {
 }
 
 @freezed
-class MyStarMemberModel with _$MyStarMemberModel {
+abstract class MyStarMemberModel with _$MyStarMemberModel {
   const MyStarMemberModel._();
 
   const factory MyStarMemberModel({
@@ -74,7 +74,7 @@ class MyStarMemberModel with _$MyStarMemberModel {
 }
 
 @freezed
-class MyStarGroupModel with _$MyStarGroupModel {
+abstract class MyStarGroupModel with _$MyStarGroupModel {
   const MyStarGroupModel._();
 
   const factory MyStarGroupModel({
@@ -99,7 +99,7 @@ class MyStarGroupModel with _$MyStarGroupModel {
 }
 
 @freezed
-class ArtistMemberModel with _$ArtistMemberModel {
+abstract class ArtistMemberModel with _$ArtistMemberModel {
   const ArtistMemberModel._();
 
   const factory ArtistMemberModel({
@@ -115,7 +115,7 @@ class ArtistMemberModel with _$ArtistMemberModel {
 }
 
 @freezed
-class ArtistGroupModel with _$ArtistGroupModel {
+abstract class ArtistGroupModel with _$ArtistGroupModel {
   const ArtistGroupModel._();
 
   const factory ArtistGroupModel({

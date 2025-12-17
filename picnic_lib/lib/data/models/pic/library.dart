@@ -5,7 +5,7 @@ part '../../../generated/providers/models/pic/library.freezed.dart';
 part '../../../generated/providers/models/pic/library.g.dart';
 
 @freezed
-class LibraryModel with _$LibraryModel {
+abstract class LibraryModel with _$LibraryModel {
   const LibraryModel._();
 
   const factory LibraryModel({

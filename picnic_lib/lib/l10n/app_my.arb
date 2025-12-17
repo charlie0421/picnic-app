@@ -76,173 +76,173 @@
   "@common_text_search_result_label": {
     "description": "Auto-generated metadata for key 'common_text_search_result_label'."
   },
-  "compatibility_activities_title": "အကြံပြုချက်များ",
-  "@compatibility_activities_title": {
-    "description": "Auto-generated metadata for key 'compatibility_activities_title'."
+  "goonghap_activities_title": "အကြံပြုချက်များ",
+  "@goonghap_activities_title": {
+    "description": "Auto-generated metadata for key 'goonghap_activities_title'."
   },
-  "compatibility_artist_no_birthdate": "ဤအနုပညာရှင်၏မွေးနေ့သည်လိုက်ဖက်မှုအတွက်မရှိပါ။",
-  "@compatibility_artist_no_birthdate": {
-    "description": "Error message when artist has no birth date for compatibility"
+  "goonghap_artist_no_birthdate": "ဤအနုပညာရှင်၏မွေးနေ့သည်လိုက်ဖက်မှုအတွက်မရှိပါ။",
+  "@goonghap_artist_no_birthdate": {
+    "description": "Error message when artist has no birth date for goonghap"
   },
-  "compatibility_agree_checkbox": "ကျွန်ုပ်၏ကျားမနှင့်မွေးနေ့ကိုကျွန်ုပ်၏ပရိုဖိုင်းတွင်သိမ်းဆည်းရန်ကျွန်ုပ်သဘောတူသည်။",
-  "@compatibility_agree_checkbox": {
-    "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
+  "goonghap_agree_checkbox": "ကျွန်ုပ်၏ကျားမနှင့်မွေးနေ့ကိုကျွန်ုပ်၏ပရိုဖိုင်းတွင်သိမ်းဆည်းရန်ကျွန်ုပ်သဘောတူသည်။",
+  "@goonghap_agree_checkbox": {
+    "description": "Auto-generated metadata for key 'goonghap_agree_checkbox'."
   },
-  "compatibility_analyze_start": "လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာစတင်ပါ",
-  "@compatibility_analyze_start": {
-    "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
+  "goonghap_analyze_start": "လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာစတင်ပါ",
+  "@goonghap_analyze_start": {
+    "description": "Auto-generated metadata for key 'goonghap_analyze_start'."
   },
-  "compatibility_analyzing": "လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာခွဲခြမ်းစိတ်ဖြာ။",
-  "@compatibility_analyzing": {
-    "description": "Auto-generated metadata for key 'compatibility_analyzing'."
+  "goonghap_analyzing": "လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာခွဲခြမ်းစိတ်ဖြာ။",
+  "@goonghap_analyzing": {
+    "description": "Auto-generated metadata for key 'goonghap_analyzing'."
   },
-  "compatibility_analyzing_prepare": "ပြင်ဆင်နေ",
-  "@compatibility_analyzing_prepare": {
-    "description": "Auto-generated metadata for key 'compatibility_analyzing_prepare'."
+  "goonghap_analyzing_prepare": "ပြင်ဆင်နေ",
+  "@goonghap_analyzing_prepare": {
+    "description": "Auto-generated metadata for key 'goonghap_analyzing_prepare'."
   },
-  "compatibility_birthday": "မွေးနေ့",
-  "@compatibility_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_birthday'."
+  "goonghap_birthday": "မွေးနေ့",
+  "@goonghap_birthday": {
+    "description": "Auto-generated metadata for key 'goonghap_birthday'."
   },
-  "compatibility_birthtime": "မွေးဖွားချိန်",
-  "@compatibility_birthtime": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime'."
+  "goonghap_birthtime": "မွေးဖွားချိန်",
+  "@goonghap_birthtime": {
+    "description": "Auto-generated metadata for key 'goonghap_birthtime'."
   },
-  "compatibility_couple_style": "စုံတွဲများစတိုင်များ",
-  "@compatibility_couple_style": {
-    "description": "Auto-generated metadata for key 'compatibility_couple_style'."
+  "goonghap_couple_style": "စုံတွဲများစတိုင်များ",
+  "@goonghap_couple_style": {
+    "description": "Auto-generated metadata for key 'goonghap_couple_style'."
   },
-  "compatibility_duplicate_data_title": "ရှိပြီးသားတည်ရှိနေတဲ့သဟဇာတဒေတာ",
-  "@compatibility_duplicate_data_title": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
+  "goonghap_duplicate_data_title": "ရှိပြီးသားတည်ရှိနေတဲ့သဟဇာတဒေတာ",
+  "@goonghap_duplicate_data_title": {
+    "description": "Auto-generated metadata for key 'goonghap_duplicate_data_title'."
   },
-  "compatibility_gender": "ကျားကန်",
-  "@compatibility_gender": {
-    "description": "Auto-generated metadata for key 'compatibility_gender'."
+  "goonghap_gender": "ကျားကန်",
+  "@goonghap_gender": {
+    "description": "Auto-generated metadata for key 'goonghap_gender'."
   },
-  "compatibility_gender_female": "မိန်းမ",
-  "@compatibility_gender_female": {
-    "description": "Auto-generated metadata for key 'compatibility_gender_female'."
+  "goonghap_gender_female": "မိန်းမ",
+  "@goonghap_gender_female": {
+    "description": "Auto-generated metadata for key 'goonghap_gender_female'."
   },
-  "compatibility_gender_male": "ယောကျ်ားဖြစ်သော",
-  "@compatibility_gender_male": {
-    "description": "Auto-generated metadata for key 'compatibility_gender_male'."
+  "goonghap_gender_male": "ယောကျ်ားဖြစ်သော",
+  "@goonghap_gender_male": {
+    "description": "Auto-generated metadata for key 'goonghap_gender_male'."
   },
-  "compatibility_idol_style": "Idol Style",
-  "@compatibility_idol_style": {
-    "description": "Auto-generated metadata for key 'compatibility_idol_style'."
+  "goonghap_idol_style": "Idol Style",
+  "@goonghap_idol_style": {
+    "description": "Auto-generated metadata for key 'goonghap_idol_style'."
   },
-  "compatibility_new_compatibility": "နယူး goong-hap တွက်ချက်",
-  "@compatibility_new_compatibility": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
+  "goonghap_new": "နယူး goong-hap တွက်ချက်",
+  "@goonghap_new": {
+    "description": "Auto-generated metadata for key 'goonghap_new'."
   },
-  "compatibility_page_title": "လိုက်ကြားမှု",
-  "@compatibility_page_title": {
-    "description": "Auto-generated metadata for key 'compatibility_page_title'."
+  "goonghap_page_title": "လိုက်ကြားမှု",
+  "@goonghap_page_title": {
+    "description": "Auto-generated metadata for key 'goonghap_page_title'."
   },
-  "compatibility_purchase_confirm_message": "အသေးစိတ် Goong-Hap ရလဒ်ကြည့်ရန် Star Candy ၁၀၀ သုံးမည်လား?",
-  "@compatibility_purchase_confirm_message": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
+  "goonghap_purchase_confirm_message": "အသေးစိတ် Goong-Hap ရလဒ်ကြည့်ရန် Star Candy ၁၀၀ သုံးမည်လား?",
+  "@goonghap_purchase_confirm_message": {
+    "description": "Auto-generated metadata for key 'goonghap_purchase_confirm_message'."
   },
-  "compatibility_remain_star_candy": "ကျန်ရှိ Star Candy",
-  "@compatibility_remain_star_candy": {
-    "description": "Auto-generated metadata for key 'compatibility_remain_star_candy'."
+  "goonghap_remain_star_candy": "ကျန်ရှိ Star Candy",
+  "@goonghap_remain_star_candy": {
+    "description": "Auto-generated metadata for key 'goonghap_remain_star_candy'."
   },
-  "compatibility_result_not_found": "ဒါဟာ Goong-hap 😔မဟုတ်ပါဘူး။",
-  "@compatibility_result_not_found": {
-    "description": "Auto-generated metadata for key 'compatibility_result_not_found'."
+  "goonghap_result_not_found": "ဒါဟာ Goong-hap 😔မဟုတ်ပါဘူး။",
+  "@goonghap_result_not_found": {
+    "description": "Auto-generated metadata for key 'goonghap_result_not_found'."
   },
-  "compatibility_share_hashtag": "#Picnic # 피크닠 # 아이돌궁합 # 아이돌궁합 #goGONGHAP # 피크닠궁합",
-  "@compatibility_share_hashtag": {
-    "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
+  "goonghap_share_hashtag": "#Picnic # 피크닠 # 아이돌궁합 # 아이돌궁합 #goGONGHAP # 피크닠궁합",
+  "@goonghap_share_hashtag": {
+    "description": "Auto-generated metadata for key 'goonghap_share_hashtag'."
   },
-  "compatibility_share_message": "ကျွန်ုပ်၏တောက်ပသောဓာတုဗေဒလိုက်လျောညီထွေဖြစ်မှုသည် {artistName} နှင့်မည်သည့်ရာခိုင်နှုန်းနှင့်လိုက်ဖက်သနည်း။ ငါ့နှလုံးကပြိုင်ကားနေပါတယ်",
-  "@compatibility_share_message": {
+  "goonghap_share_message": "ကျွန်ုပ်၏တောက်ပသောဓာတုဗေဒလိုက်လျောညီထွေဖြစ်မှုသည် {artistName} နှင့်မည်သည့်ရာခိုင်နှုန်းနှင့်လိုက်ဖက်သနည်း။ ငါ့နှလုံးကပြိုင်ကားနေပါတယ်",
+  "@goonghap_share_message": {
     "placeholders": {
       "artistName": {
         "type": "String"
       }
     }
   },
-  "compatibility_snackbar_error": "အမှားတစ်ခုဖြစ်ပွားခဲ့သည်",
-  "@compatibility_snackbar_error": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
+  "goonghap_snackbar_error": "အမှားတစ်ခုဖြစ်ပွားခဲ့သည်",
+  "@goonghap_snackbar_error": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_error'."
   },
-  "compatibility_snackbar_need_gender": "ကျေးဇူးပြုပြီးကျား,",
-  "@compatibility_snackbar_need_gender": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
+  "goonghap_snackbar_need_gender": "ကျေးဇူးပြုပြီးကျား,",
+  "@goonghap_snackbar_need_gender": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာစတင်လေ့လာပါ။",
-  "@compatibility_snackbar_start": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
+  "goonghap_snackbar_start": "လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာစတင်လေ့လာပါ။",
+  "@goonghap_snackbar_start": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_start'."
   },
-  "compatibility_style_title": "လိုက်ဖက်တဲ့စတိုင်လ်",
-  "@compatibility_style_title": {
-    "description": "Auto-generated metadata for key 'compatibility_style_title'."
+  "goonghap_style_title": "လိုက်ဖက်တဲ့စတိုင်လ်",
+  "@goonghap_style_title": {
+    "description": "Auto-generated metadata for key 'goonghap_style_title'."
   },
-  "compatibility_time_slot1": "ကြွက်၏နာရီ | (23 း 30-01: 29) | 🐀",
-  "@compatibility_time_slot1": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
+  "goonghap_time_slot1": "ကြွက်၏နာရီ | (23 း 30-01: 29) | 🐀",
+  "@goonghap_time_slot1": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot1'."
   },
-  "compatibility_time_slot10": "ကြက်ငှက်တုပ်ကွေး၏နာရီ (17: 30-19: 29) | 🐔 |",
-  "@compatibility_time_slot10": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
+  "goonghap_time_slot10": "ကြက်ငှက်တုပ်ကွေး၏နာရီ (17: 30-19: 29) | 🐔 |",
+  "@goonghap_time_slot10": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot10'."
   },
-  "compatibility_time_slot11": "ခွေး၏နာရီ | (19 း 30-21 း 29) | 🐕 |",
-  "@compatibility_time_slot11": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
+  "goonghap_time_slot11": "ခွေး၏နာရီ | (19 း 30-21 း 29) | 🐕 |",
+  "@goonghap_time_slot11": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot11'."
   },
-  "compatibility_time_slot12": "ဝက်ဝက်၏နာရီ | (21: 30-23: 29) | 🐖 |",
-  "@compatibility_time_slot12": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
+  "goonghap_time_slot12": "ဝက်ဝက်၏နာရီ | (21: 30-23: 29) | 🐖 |",
+  "@goonghap_time_slot12": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot12'."
   },
-  "compatibility_time_slot2": "နွား၏နာရီ | (01: 30-03 း 29) | 🐂 |",
-  "@compatibility_time_slot2": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
+  "goonghap_time_slot2": "နွား၏နာရီ | (01: 30-03 း 29) | 🐂 |",
+  "@goonghap_time_slot2": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot2'."
   },
-  "compatibility_time_slot3": "Tiger ၏နာရီ (03: 30-05: 29) | 🐅 |",
-  "@compatibility_time_slot3": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
+  "goonghap_time_slot3": "Tiger ၏နာရီ (03: 30-05: 29) | 🐅 |",
+  "@goonghap_time_slot3": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot3'."
   },
-  "compatibility_time_slot4": "ယုန်၏နာရီ | (05: 30-07: 29) | 🐇 |",
-  "@compatibility_time_slot4": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
+  "goonghap_time_slot4": "ယုန်၏နာရီ | (05: 30-07: 29) | 🐇 |",
+  "@goonghap_time_slot4": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot4'."
   },
-  "compatibility_time_slot5": "နဂါး၏နာရီ (07: 30-09: 29) | 🐉 |",
-  "@compatibility_time_slot5": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
+  "goonghap_time_slot5": "နဂါး၏နာရီ (07: 30-09: 29) | 🐉 |",
+  "@goonghap_time_slot5": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot5'."
   },
-  "compatibility_time_slot6": "မြွေ၏နာရီ | (09 း 30-11: 29) | 🐍 |",
-  "@compatibility_time_slot6": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
+  "goonghap_time_slot6": "မြွေ၏နာရီ | (09 း 30-11: 29) | 🐍 |",
+  "@goonghap_time_slot6": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot6'."
   },
-  "compatibility_time_slot7": "မြင်း၏နာရီ (11 း 30-13: 29) | 🐎",
-  "@compatibility_time_slot7": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
+  "goonghap_time_slot7": "မြင်း၏နာရီ (11 း 30-13: 29) | 🐎",
+  "@goonghap_time_slot7": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot7'."
   },
-  "compatibility_time_slot8": "သိုးများ၏နာရီ | (13: 30-15: 29) |",
-  "@compatibility_time_slot8": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
+  "goonghap_time_slot8": "သိုးများ၏နာရီ | (13: 30-15: 29) |",
+  "@goonghap_time_slot8": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot8'."
   },
-  "compatibility_time_slot9": "မျောက်၏အချိန် | (15 း 30-17: 29) | 🐒",
-  "@compatibility_time_slot9": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
+  "goonghap_time_slot9": "မျောက်၏အချိန် | (15 း 30-17: 29) | 🐒",
+  "@goonghap_time_slot9": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot9'."
   },
-  "compatibility_tips_title": "လိုက်ဖက်တဲ့သိကောင်းစရာများ",
-  "@compatibility_tips_title": {
-    "description": "Auto-generated metadata for key 'compatibility_tips_title'."
+  "goonghap_tips_title": "လိုက်ဖက်တဲ့သိကောင်းစရာများ",
+  "@goonghap_tips_title": {
+    "description": "Auto-generated metadata for key 'goonghap_tips_title'."
   },
-  "compatibility_user_style": "အသုံးပြုသူပုံစံများ",
-  "@compatibility_user_style": {
-    "description": "Auto-generated metadata for key 'compatibility_user_style'."
+  "goonghap_user_style": "အသုံးပြုသူပုံစံများ",
+  "@goonghap_user_style": {
+    "description": "Auto-generated metadata for key 'goonghap_user_style'."
   },
-  "compatibility_waiting_message": "ကျေးဇူးပြုပြီးခဏစောင့်ပါ",
-  "@compatibility_waiting_message": {
-    "description": "Auto-generated metadata for key 'compatibility_waiting_message'."
+  "goonghap_waiting_message": "ကျေးဇူးပြုပြီးခဏစောင့်ပါ",
+  "@goonghap_waiting_message": {
+    "description": "Auto-generated metadata for key 'goonghap_waiting_message'."
   },
-  "compatibility_warning_exit": "အကယ်. သင်သည်မျက်နှာပြင်ကိုထားခဲ့ပါက,",
-  "@compatibility_warning_exit": {
-    "description": "Auto-generated metadata for key 'compatibility_warning_exit'."
+  "goonghap_warning_exit": "အကယ်. သင်သည်မျက်နှာပြင်ကိုထားခဲ့ပါက,",
+  "@goonghap_warning_exit": {
+    "description": "Auto-generated metadata for key 'goonghap_warning_exit'."
   },
   "dialog_button_cancel": "ပျက်စေ",
   "@dialog_button_cancel": {
@@ -1311,25 +1311,25 @@
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
-  "compatibility_empty_state_title": "ကုန်းဟပ်အချက်အလက်မရှိပါ",
-  "@compatibility_empty_state_title": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
+  "goonghap_empty_state_title": "ကုန်းဟပ်အချက်အလက်မရှိပါ",
+  "@goonghap_empty_state_title": {
+    "description": "Auto-generated metadata for key 'goonghap_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "သင့်ပထမဆုံးကုန်းဟပ်ကိုဖန်တီးပါ!",
-  "@compatibility_empty_state_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
+  "goonghap_empty_state_subtitle": "သင့်ပထမဆုံးကုန်းဟပ်ကိုဖန်တီးပါ!",
+  "@goonghap_empty_state_subtitle": {
+    "description": "Auto-generated metadata for key 'goonghap_empty_state_subtitle'."
   },
-  "compatibility_login_required_title": "ဝင်ရောက်ရန်လိုအပ်သည်",
-  "@compatibility_login_required_title": {
-    "description": "Title shown when user needs to login to see compatibility"
+  "goonghap_login_required_title": "ဝင်ရောက်ရန်လိုအပ်သည်",
+  "@goonghap_login_required_title": {
+    "description": "Title shown when user needs to login to see goonghap"
   },
-  "compatibility_login_required_subtitle": "သင့်ကုန်းဟပ်ရလဒ်များကိုကြည့်ရန်ဝင်ရောက်ပါ",
-  "@compatibility_login_required_subtitle": {
-    "description": "Subtitle shown when user needs to login to see compatibility"
+  "goonghap_login_required_subtitle": "သင့်ကုန်းဟပ်ရလဒ်များကိုကြည့်ရန်ဝင်ရောက်ပါ",
+  "@goonghap_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see goonghap"
   },
-  "compatibility_login_button": "ဝင်ရောက်ပါ",
-  "@compatibility_login_button": {
-    "description": "Login button text on compatibility page"
+  "goonghap_login_button": "ဝင်ရောက်ပါ",
+  "@goonghap_login_button": {
+    "description": "Login button text on goonghap page"
   },
   "network_error_title": "ကွန်ရက်အမှား",
   "@network_error_title": {
@@ -1542,8 +1542,8 @@
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "compatibility_purchase_message": "ငါနဲ့ {artistName} ကြားမှာ Goong-hap ရမှတ်ကိုငါသိချင်ရင်?",
-  "@compatibility_purchase_message": {
+  "goonghap_purchase_message": "ငါနဲ့ {artistName} ကြားမှာ Goong-hap ရမှတ်ကိုငါသိချင်ရင်?",
+  "@goonghap_purchase_message": {
     "placeholders": {
       "artistName": {
         "type": "String"
@@ -1554,9 +1554,9 @@
   "@label_mypage_charge_history": {
     "description": "Charge history menu for admin users"
   },
-  "compatibility_time_slot_unknown": "မသိဘူး",
-  "@compatibility_time_slot_unknown": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
+  "goonghap_time_slot_unknown": "မသိဘူး",
+  "@goonghap_time_slot_unknown": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot_unknown'."
   },
   "label_popup_hide_7days": "7 ရက်မကြည့်ပါနှင့်",
   "@label_popup_hide_7days": {
@@ -1630,9 +1630,9 @@
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "compatibility_birthtime_subtitle": "တိကျမှန်ကန်မှုကိုတိုးမြှင့်!",
-  "@compatibility_birthtime_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
+  "goonghap_birthtime_subtitle": "တိကျမှန်ကန်မှုကိုတိုးမြှင့်!",
+  "@goonghap_birthtime_subtitle": {
+    "description": "Auto-generated metadata for key 'goonghap_birthtime_subtitle'."
   },
   "title_dialog_success": "အောင်မြင်ခြင်း",
   "@title_dialog_success": {
@@ -1666,9 +1666,9 @@
   "@bonus_candy_earn_period_1_to_15": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
   },
-  "compatibility_snackbar_need_birthday": "ကျေးဇူးပြု. သင်၏မွေးနေ့ကိုထည့်ပါ။",
-  "@compatibility_snackbar_need_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
+  "goonghap_snackbar_need_birthday": "ကျေးဇူးပြု. သင်၏မွေးနေ့ကိုထည့်ပါ။",
+  "@goonghap_snackbar_need_birthday": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_birthday'."
   },
   "update_recommend_text": "ဗားရှင်းအသစ် ({version}) ကိုရနိုင်သည်။",
   "@update_recommend_text": {
@@ -1702,9 +1702,9 @@
   "@post_comment_action_show_original": {
     "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
   },
-  "compatibility_snackbar_need_profile_save_agree": "သင်၏ပရိုဖိုင်းကိုကယ်တင်ရန်သင်၏ခွင့်ပြုချက်ကိုပေးပါ။",
-  "@compatibility_snackbar_need_profile_save_agree": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
+  "goonghap_snackbar_need_profile_save_agree": "သင်၏ပရိုဖိုင်းကိုကယ်တင်ရန်သင်၏ခွင့်ပြုချက်ကိုပေးပါ။",
+  "@goonghap_snackbar_need_profile_save_agree": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_profile_save_agree'."
   },
   "qna_content_min_length": "စုံစမ်းမှုအကြောင်းအရာသည်အနည်းဆုံးစာလုံး ၁၀ လုံးရှိရမည်",
   "@qna_content_min_length": {
@@ -1765,13 +1765,13 @@
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
-  "compatibility_perfect_score_exists_title": "ပြီးသားအနိုင်ရဒေတာဒေတာ",
-  "@compatibility_perfect_score_exists_title": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
+  "goonghap_perfect_score_exists_title": "ပြီးသားအနိုင်ရဒေတာဒေတာ",
+  "@goonghap_perfect_score_exists_title": {
+    "description": "Auto-generated metadata for key 'goonghap_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "တူညီသောအခြေအနေများနှင့်အတူလိုက်ဖက်တဲ့ဒေတာရှိပြီးသား။",
-  "@compatibility_duplicate_data_message": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
+  "goonghap_duplicate_data_message": "တူညီသောအခြေအနေများနှင့်အတူလိုက်ဖက်တဲ့ဒေတာရှိပြီးသား။",
+  "@goonghap_duplicate_data_message": {
+    "description": "Auto-generated metadata for key 'goonghap_duplicate_data_message'."
   },
   "label_time_ago_minute": "{minute} မိနစ်အကြာ",
   "@label_time_ago_minute": {
@@ -1857,9 +1857,9 @@
   "@message_update_nickname_success": {
     "description": "Auto-generated metadata for key 'message_update_nickname_success'."
   },
-  "compatibility_new_compatibility_ask": "အသစ်တစ်ခုကို Goong-had ကြည့်ချင်ပါသလား?",
-  "@compatibility_new_compatibility_ask": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
+  "goonghap_new_ask": "အသစ်တစ်ခုကို Goong-had ကြည့်ချင်ပါသလား?",
+  "@goonghap_new_ask": {
+    "description": "Auto-generated metadata for key 'goonghap_new_ask'."
   },
   "post_replying_comment": "__ph_0 __... တုံ့ပြန်ခြင်း",
   "@post_replying_comment": {
@@ -1873,9 +1873,9 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "ဤအခြေအနေအတွက်လိုက်ဖက်တဲ့အချက်အလက်များကအကျိုးကျေးဇူးများရရှိထားကြောင်း ကျေးဇူးပြု. မှတ်သားပါ။",
-  "@compatibility_perfect_score_exists": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
+  "goonghap_perfect_score_exists": "ဤအခြေအနေအတွက်လိုက်ဖက်တဲ့အချက်အလက်များကအကျိုးကျေးဇူးများရရှိထားကြောင်း ကျေးဇူးပြု. မှတ်သားပါ။",
+  "@goonghap_perfect_score_exists": {
+    "description": "Auto-generated metadata for key 'goonghap_perfect_score_exists'."
   },
   "post_minor_board_create_request_message_input": "ဘုတ်အဖွဲ့တစ်ခုဖွင့်ရန်တောင်းဆိုသည့်စာကိုထည့်ပါ။",
   "@post_minor_board_create_request_message_input": {
@@ -1897,9 +1897,9 @@
   "@post_minor_board_create_request_message": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
   },
-  "compatibility_purchase_confirm_title": "Goong-Hap ရလဒ်ကြည့်ရန်",
-  "@compatibility_purchase_confirm_title": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
+  "goonghap_purchase_confirm_title": "Goong-Hap ရလဒ်ကြည့်ရန်",
+  "@goonghap_purchase_confirm_title": {
+    "description": "Auto-generated metadata for key 'goonghap_purchase_confirm_title'."
   },
   "post_board_create_request_label": "ဘုတ်အဖွဲ့ဖွင့်ရန်တောင်းဆိုမှု",
   "@post_board_create_request_label": {

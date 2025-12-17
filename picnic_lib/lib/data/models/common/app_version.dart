@@ -4,7 +4,7 @@ part '../../../generated/providers/models/common/app_version.freezed.dart';
 part '../../../generated/providers/models/common/app_version.g.dart';
 
 @freezed
-class AppVersionModel with _$AppVersionModel {
+abstract class AppVersionModel with _$AppVersionModel {
   const factory AppVersionModel({
     @JsonKey(name: 'id') required int id,
     @JsonKey(name: 'ios') required Map<String, dynamic> ios,

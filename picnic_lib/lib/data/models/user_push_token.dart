@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part '../../generated/models/user_push_token.g.dart';
+part '../../generated/providers/models/user_push_token.g.dart';
 
 @JsonSerializable()
 class UserPushToken {

@@ -75,169 +75,169 @@
   "@common_text_search_result_label": {
     "description": "Auto-generated metadata for key 'common_text_search_result_label'."
   },
-  "compatibility_activities_title": "おすすめアクティビティ",
-  "@compatibility_activities_title": {
-    "description": "Auto-generated metadata for key 'compatibility_activities_title'."
+  "goonghap_activities_title": "おすすめアクティビティ",
+  "@goonghap_activities_title": {
+    "description": "Auto-generated metadata for key 'goonghap_activities_title'."
   },
-  "compatibility_agree_checkbox": "性別、誕生日情報をプロフィールに保存することに同意します。",
-  "@compatibility_agree_checkbox": {
-    "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
+  "goonghap_agree_checkbox": "性別、誕生日情報をプロフィールに保存することに同意します。",
+  "@goonghap_agree_checkbox": {
+    "description": "Auto-generated metadata for key 'goonghap_agree_checkbox'."
   },
-  "compatibility_analyze_start": "Goong-Hap分析開始",
-  "@compatibility_analyze_start": {
-    "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
+  "goonghap_analyze_start": "Goong-Hap分析開始",
+  "@goonghap_analyze_start": {
+    "description": "Auto-generated metadata for key 'goonghap_analyze_start'."
   },
-  "compatibility_analyzing": "Goong-Hapを分析しています。",
-  "@compatibility_analyzing": {
-    "description": "Auto-generated metadata for key 'compatibility_analyzing'."
+  "goonghap_analyzing": "Goong-Hapを分析しています。",
+  "@goonghap_analyzing": {
+    "description": "Auto-generated metadata for key 'goonghap_analyzing'."
   },
-  "compatibility_analyzing_prepare": "準備中",
-  "@compatibility_analyzing_prepare": {
-    "description": "Auto-generated metadata for key 'compatibility_analyzing_prepare'."
+  "goonghap_analyzing_prepare": "準備中",
+  "@goonghap_analyzing_prepare": {
+    "description": "Auto-generated metadata for key 'goonghap_analyzing_prepare'."
   },
-  "compatibility_birthday": "生年月日",
-  "@compatibility_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_birthday'."
+  "goonghap_birthday": "生年月日",
+  "@goonghap_birthday": {
+    "description": "Auto-generated metadata for key 'goonghap_birthday'."
   },
-  "compatibility_birthtime": "出生時間",
-  "@compatibility_birthtime": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime'."
+  "goonghap_birthtime": "出生時間",
+  "@goonghap_birthtime": {
+    "description": "Auto-generated metadata for key 'goonghap_birthtime'."
   },
-  "compatibility_couple_style": "カップルスタイル",
-  "@compatibility_couple_style": {
-    "description": "Auto-generated metadata for key 'compatibility_couple_style'."
+  "goonghap_couple_style": "カップルスタイル",
+  "@goonghap_couple_style": {
+    "description": "Auto-generated metadata for key 'goonghap_couple_style'."
   },
-  "compatibility_duplicate_data_title": "既に存在するGoong-Hapデータ",
-  "@compatibility_duplicate_data_title": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
+  "goonghap_duplicate_data_title": "既に存在するGoong-Hapデータ",
+  "@goonghap_duplicate_data_title": {
+    "description": "Auto-generated metadata for key 'goonghap_duplicate_data_title'."
   },
-  "compatibility_gender": "性別",
-  "@compatibility_gender": {
-    "description": "Auto-generated metadata for key 'compatibility_gender'."
+  "goonghap_gender": "性別",
+  "@goonghap_gender": {
+    "description": "Auto-generated metadata for key 'goonghap_gender'."
   },
-  "compatibility_gender_female": "女性",
-  "@compatibility_gender_female": {
-    "description": "Auto-generated metadata for key 'compatibility_gender_female'."
+  "goonghap_gender_female": "女性",
+  "@goonghap_gender_female": {
+    "description": "Auto-generated metadata for key 'goonghap_gender_female'."
   },
-  "compatibility_gender_male": "男性",
-  "@compatibility_gender_male": {
-    "description": "Auto-generated metadata for key 'compatibility_gender_male'."
+  "goonghap_gender_male": "男性",
+  "@goonghap_gender_male": {
+    "description": "Auto-generated metadata for key 'goonghap_gender_male'."
   },
-  "compatibility_idol_style": "アイドルスタイル",
-  "@compatibility_idol_style": {
-    "description": "Auto-generated metadata for key 'compatibility_idol_style'."
+  "goonghap_idol_style": "アイドルスタイル",
+  "@goonghap_idol_style": {
+    "description": "Auto-generated metadata for key 'goonghap_idol_style'."
   },
-  "compatibility_new_compatibility": "新しいGoong-Hapを確認する",
-  "@compatibility_new_compatibility": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
+  "goonghap_new": "新しいGoong-Hapを確認する",
+  "@goonghap_new": {
+    "description": "Auto-generated metadata for key 'goonghap_new'."
   },
-  "compatibility_page_title": "Goong-Hap",
-  "@compatibility_page_title": {
-    "description": "Auto-generated metadata for key 'compatibility_page_title'."
+  "goonghap_page_title": "Goong-Hap",
+  "@goonghap_page_title": {
+    "description": "Auto-generated metadata for key 'goonghap_page_title'."
   },
-  "compatibility_purchase_confirm_message": "スターキャンディ100個を使用してGoong-Hap結果を確認します。",
-  "@compatibility_purchase_confirm_message": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
+  "goonghap_purchase_confirm_message": "スターキャンディ100個を使用してGoong-Hap結果を確認します。",
+  "@goonghap_purchase_confirm_message": {
+    "description": "Auto-generated metadata for key 'goonghap_purchase_confirm_message'."
   },
-  "compatibility_remain_star_candy": "残りの星飴",
-  "@compatibility_remain_star_candy": {
-    "description": "Auto-generated metadata for key 'compatibility_remain_star_candy'."
+  "goonghap_remain_star_candy": "残りの星飴",
+  "@goonghap_remain_star_candy": {
+    "description": "Auto-generated metadata for key 'goonghap_remain_star_candy'."
   },
-  "compatibility_result_not_found": "Goong-Hapが悪いです😔。",
-  "@compatibility_result_not_found": {
-    "description": "Auto-generated metadata for key 'compatibility_result_not_found'."
+  "goonghap_result_not_found": "Goong-Hapが悪いです😔。",
+  "@goonghap_result_not_found": {
+    "description": "Auto-generated metadata for key 'goonghap_result_not_found'."
   },
-  "compatibility_share_hashtag": "ピクニック #피크닠 #아이돌궁합 #Goonghap #피크닠궁합 #궁합",
-  "@compatibility_share_hashtag": {
-    "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
+  "goonghap_share_hashtag": "ピクニック #피크닠 #아이돌궁합 #Goonghap #피크닠궁합 #궁합",
+  "@goonghap_share_hashtag": {
+    "description": "Auto-generated metadata for key 'goonghap_share_hashtag'."
   },
-  "compatibility_share_message": "私と{artistName} の輝くケミは何％かな？ドキドキが止まらない！",
-  "@compatibility_share_message": {
+  "goonghap_share_message": "私と{artistName} の輝くケミは何％かな？ドキドキが止まらない！",
+  "@goonghap_share_message": {
     "placeholders": {
       "artistName": {
         "type": "String"
       }
     }
   },
-  "compatibility_snackbar_error": "エラーが発生しました。",
-  "@compatibility_snackbar_error": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
+  "goonghap_snackbar_error": "エラーが発生しました。",
+  "@goonghap_snackbar_error": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_error'."
   },
-  "compatibility_snackbar_need_gender": "性別を選択してください。",
-  "@compatibility_snackbar_need_gender": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
+  "goonghap_snackbar_need_gender": "性別を選択してください。",
+  "@goonghap_snackbar_need_gender": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "Goong-Hapを分析し始めます。",
-  "@compatibility_snackbar_start": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
+  "goonghap_snackbar_start": "Goong-Hapを分析し始めます。",
+  "@goonghap_snackbar_start": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_start'."
   },
-  "compatibility_style_title": "Goong-Hapスタイル",
-  "@compatibility_style_title": {
-    "description": "Auto-generated metadata for key 'compatibility_style_title'."
+  "goonghap_style_title": "Goong-Hapスタイル",
+  "@goonghap_style_title": {
+    "description": "Auto-generated metadata for key 'goonghap_style_title'."
   },
-  "compatibility_time_slot1": "子の刻(ね)|(23:30-01:29)|🐀",
-  "@compatibility_time_slot1": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
+  "goonghap_time_slot1": "子の刻(ね)|(23:30-01:29)|🐀",
+  "@goonghap_time_slot1": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot1'."
   },
-  "compatibility_time_slot10": "酉の刻(とり)|(17:30-19:29)|🐔",
-  "@compatibility_time_slot10": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
+  "goonghap_time_slot10": "酉の刻(とり)|(17:30-19:29)|🐔",
+  "@goonghap_time_slot10": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot10'."
   },
-  "compatibility_time_slot11": "戌の刻(いぬ)|(19:30-21:29)|🐕",
-  "@compatibility_time_slot11": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
+  "goonghap_time_slot11": "戌の刻(いぬ)|(19:30-21:29)|🐕",
+  "@goonghap_time_slot11": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot11'."
   },
-  "compatibility_time_slot12": "亥の刻(い)|(21:30-23:29)|🐖",
-  "@compatibility_time_slot12": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
+  "goonghap_time_slot12": "亥の刻(い)|(21:30-23:29)|🐖",
+  "@goonghap_time_slot12": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot12'."
   },
-  "compatibility_time_slot2": "丑の刻(うし)|(01:30-03:29)|🐂",
-  "@compatibility_time_slot2": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
+  "goonghap_time_slot2": "丑の刻(うし)|(01:30-03:29)|🐂",
+  "@goonghap_time_slot2": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot2'."
   },
-  "compatibility_time_slot3": "寅の刻(とら)|(03:30-05:29)|🐅",
-  "@compatibility_time_slot3": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
+  "goonghap_time_slot3": "寅の刻(とら)|(03:30-05:29)|🐅",
+  "@goonghap_time_slot3": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot3'."
   },
-  "compatibility_time_slot4": "卯の刻(う)|(05:30-07:29)|🐇",
-  "@compatibility_time_slot4": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
+  "goonghap_time_slot4": "卯の刻(う)|(05:30-07:29)|🐇",
+  "@goonghap_time_slot4": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot4'."
   },
-  "compatibility_time_slot5": "辰の刻(たつ)|(07:30-09:29)|🐉",
-  "@compatibility_time_slot5": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
+  "goonghap_time_slot5": "辰の刻(たつ)|(07:30-09:29)|🐉",
+  "@goonghap_time_slot5": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot5'."
   },
-  "compatibility_time_slot6": "巳の刻(み)|(09:30-11:29)|🐍",
-  "@compatibility_time_slot6": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
+  "goonghap_time_slot6": "巳の刻(み)|(09:30-11:29)|🐍",
+  "@goonghap_time_slot6": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot6'."
   },
-  "compatibility_time_slot7": "午の刻(うま)|(11:30-13:29)|🐎",
-  "@compatibility_time_slot7": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
+  "goonghap_time_slot7": "午の刻(うま)|(11:30-13:29)|🐎",
+  "@goonghap_time_slot7": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot7'."
   },
-  "compatibility_time_slot8": "未の刻(ひつじ)|(13:30-15:29)|🐑",
-  "@compatibility_time_slot8": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
+  "goonghap_time_slot8": "未の刻(ひつじ)|(13:30-15:29)|🐑",
+  "@goonghap_time_slot8": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot8'."
   },
-  "compatibility_time_slot9": "申の刻(さる)|(15:30-17:29)|🐒",
-  "@compatibility_time_slot9": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
+  "goonghap_time_slot9": "申の刻(さる)|(15:30-17:29)|🐒",
+  "@goonghap_time_slot9": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot9'."
   },
-  "compatibility_tips_title": "Goong-Hapのヒント",
-  "@compatibility_tips_title": {
-    "description": "Auto-generated metadata for key 'compatibility_tips_title'."
+  "goonghap_tips_title": "Goong-Hapのヒント",
+  "@goonghap_tips_title": {
+    "description": "Auto-generated metadata for key 'goonghap_tips_title'."
   },
-  "compatibility_user_style": "ユーザースタイル",
-  "@compatibility_user_style": {
-    "description": "Auto-generated metadata for key 'compatibility_user_style'."
+  "goonghap_user_style": "ユーザースタイル",
+  "@goonghap_user_style": {
+    "description": "Auto-generated metadata for key 'goonghap_user_style'."
   },
-  "compatibility_waiting_message": "しばらくお待ちください。",
-  "@compatibility_waiting_message": {
-    "description": "Auto-generated metadata for key 'compatibility_waiting_message'."
+  "goonghap_waiting_message": "しばらくお待ちください。",
+  "@goonghap_waiting_message": {
+    "description": "Auto-generated metadata for key 'goonghap_waiting_message'."
   },
-  "compatibility_warning_exit": "画面を離れると、分析をやり直す必要があります。",
-  "@compatibility_warning_exit": {
-    "description": "Auto-generated metadata for key 'compatibility_warning_exit'."
+  "goonghap_warning_exit": "画面を離れると、分析をやり直す必要があります。",
+  "@goonghap_warning_exit": {
+    "description": "Auto-generated metadata for key 'goonghap_warning_exit'."
   },
   "dialog_button_cancel": "キャンセル",
   "@dialog_button_cancel": {
@@ -1502,25 +1502,25 @@
   "@ban_support_instruction": {
     "description": "Instruction to copy logs and contact support"
   },
-  "compatibility_empty_state_title": "No compatibility information",
-  "@compatibility_empty_state_title": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
+  "goonghap_empty_state_title": "No Goong-Hap information",
+  "@goonghap_empty_state_title": {
+    "description": "Auto-generated metadata for key 'goonghap_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "Create your first compatibility!",
-  "@compatibility_empty_state_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
+  "goonghap_empty_state_subtitle": "Create your first Goong-Hap!",
+  "@goonghap_empty_state_subtitle": {
+    "description": "Auto-generated metadata for key 'goonghap_empty_state_subtitle'."
   },
-  "compatibility_login_required_title": "ログインが必要です",
-  "@compatibility_login_required_title": {
-    "description": "Title shown when user needs to login to see compatibility"
+  "goonghap_login_required_title": "ログインが必要です",
+  "@goonghap_login_required_title": {
+    "description": "Title shown when user needs to login to see goonghap"
   },
-  "compatibility_login_required_subtitle": "相性結果を見るにはログインしてください",
-  "@compatibility_login_required_subtitle": {
-    "description": "Subtitle shown when user needs to login to see compatibility"
+  "goonghap_login_required_subtitle": "相性結果を見るにはログインしてください",
+  "@goonghap_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see goonghap"
   },
-  "compatibility_login_button": "ログイン",
-  "@compatibility_login_button": {
-    "description": "Login button text on compatibility page"
+  "goonghap_login_button": "ログイン",
+  "@goonghap_login_button": {
+    "description": "Login button text on goonghap page"
   },
   "network_error_title": "Network Error",
   "@network_error_title": {
@@ -1590,8 +1590,8 @@
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "compatibility_purchase_message": "私と「{artistName}」のGoong-Hapスコアが気になる方は？",
-  "@compatibility_purchase_message": {
+  "goonghap_purchase_message": "私と「{artistName}」のGoong-Hapスコアが気になる方は？",
+  "@goonghap_purchase_message": {
     "placeholders": {
       "artistName": {
         "type": "String"
@@ -1602,9 +1602,9 @@
   "@label_mypage_charge_history": {
     "description": "Charge history menu for admin users"
   },
-  "compatibility_time_slot_unknown": "不明",
-  "@compatibility_time_slot_unknown": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
+  "goonghap_time_slot_unknown": "不明",
+  "@goonghap_time_slot_unknown": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot_unknown'."
   },
   "label_popup_hide_7days": "7日間表示しない",
   "@label_popup_hide_7days": {
@@ -1678,9 +1678,9 @@
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "compatibility_birthtime_subtitle": "精度が上がります！",
-  "@compatibility_birthtime_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
+  "goonghap_birthtime_subtitle": "精度が上がります！",
+  "@goonghap_birthtime_subtitle": {
+    "description": "Auto-generated metadata for key 'goonghap_birthtime_subtitle'."
   },
   "title_dialog_success": "成功",
   "@title_dialog_success": {
@@ -1714,9 +1714,9 @@
   "@bonus_candy_earn_period_1_to_15": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
   },
-  "compatibility_snackbar_need_birthday": "生年月日を入力してください。",
-  "@compatibility_snackbar_need_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
+  "goonghap_snackbar_need_birthday": "生年月日を入力してください。",
+  "@goonghap_snackbar_need_birthday": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_birthday'."
   },
   "update_recommend_text": "新しいバージョン({version})が利用可能です。",
   "@update_recommend_text": {
@@ -1750,9 +1750,9 @@
   "@post_comment_action_show_original": {
     "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
   },
-  "compatibility_snackbar_need_profile_save_agree": "プロフィール保存に同意してください。",
-  "@compatibility_snackbar_need_profile_save_agree": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
+  "goonghap_snackbar_need_profile_save_agree": "プロフィール保存に同意してください。",
+  "@goonghap_snackbar_need_profile_save_agree": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_profile_save_agree'."
   },
   "qna_content_min_length": "お問い合わせ内容は最低10文字以上入力してください",
   "@qna_content_min_length": {
@@ -1813,13 +1813,13 @@
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
-  "compatibility_perfect_score_exists_title": "すでに当選したGoong-Hapデータ",
-  "@compatibility_perfect_score_exists_title": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
+  "goonghap_perfect_score_exists_title": "すでに当選したGoong-Hapデータ",
+  "@goonghap_perfect_score_exists_title": {
+    "description": "Auto-generated metadata for key 'goonghap_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "同じ条件のGoong-Hapデータが既に存在します。",
-  "@compatibility_duplicate_data_message": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
+  "goonghap_duplicate_data_message": "同じ条件のGoong-Hapデータが既に存在します。",
+  "@goonghap_duplicate_data_message": {
+    "description": "Auto-generated metadata for key 'goonghap_duplicate_data_message'."
   },
   "label_time_ago_minute": "{minute}分前",
   "@label_time_ago_minute": {
@@ -1905,9 +1905,9 @@
   "@message_update_nickname_success": {
     "description": "Auto-generated metadata for key 'message_update_nickname_success'."
   },
-  "compatibility_new_compatibility_ask": "新しいGoong-Hapを見ませんか？",
-  "@compatibility_new_compatibility_ask": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
+  "goonghap_new_ask": "新しいGoong-Hapを見ませんか？",
+  "@goonghap_new_ask": {
+    "description": "Auto-generated metadata for key 'goonghap_new_ask'."
   },
   "post_replying_comment": "{nickname}さんへの返信中...",
   "@post_replying_comment": {
@@ -1921,9 +1921,9 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "当該条件のGoong-Hapデータは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。",
-  "@compatibility_perfect_score_exists": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
+  "goonghap_perfect_score_exists": "当該条件のGoong-Hapデータは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。",
+  "@goonghap_perfect_score_exists": {
+    "description": "Auto-generated metadata for key 'goonghap_perfect_score_exists'."
   },
   "post_minor_board_create_request_message_input": "掲示板オープンリクエストメッセージを入力してください。",
   "@post_minor_board_create_request_message_input": {
@@ -1945,9 +1945,13 @@
   "@post_minor_board_create_request_message": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
   },
-  "compatibility_purchase_confirm_title": "スターキャンディで購入",
-  "@compatibility_purchase_confirm_title": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
+  "goonghap_purchase_confirm_title": "スターキャンディで購入",
+  "@goonghap_purchase_confirm_title": {
+    "description": "Auto-generated metadata for key 'goonghap_purchase_confirm_title'."
+  },
+  "goonghap_artist_no_birthdate": "このアーティストの生年月日情報がないため、相性を見ることができません。",
+  "@goonghap_artist_no_birthdate": {
+    "description": "Auto-generated metadata for key 'goonghap_artist_no_birthdate'."
   },
   "post_board_create_request_label": "掲示板オープンリクエスト",
   "@post_board_create_request_label": {

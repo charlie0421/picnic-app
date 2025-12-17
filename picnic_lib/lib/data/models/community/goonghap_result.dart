@@ -1,11 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '../../../generated/providers/models/community/compatibility_result.freezed.dart';
-part '../../../generated/providers/models/community/compatibility_result.g.dart';
+part '../../../generated/providers/models/community/goonghap_result.freezed.dart';
+part '../../../generated/providers/models/community/goonghap_result.g.dart';
 
 @freezed
-class CompatibilityResult with _$CompatibilityResult {
-  const factory CompatibilityResult({
+abstract class GoonghapResult with _$GoonghapResult {
+  const factory GoonghapResult({
     required String id,
     required String userId,
     required String idolName,
@@ -13,19 +13,19 @@ class CompatibilityResult with _$CompatibilityResult {
     required DateTime idolBirthDate,
     required String userGender,
     String? birthTime, // Optional
-    required int compatibilityScore,
-    required String? compatibilitySummary,
+    required int goonghapScore,
+    required String? goonghapSummary,
     required Map<String, dynamic>? details,
     required List<String>? tips,
     required DateTime createdAt,
-  }) = _CompatibilityResult;
+  }) = _GoonghapResult;
 
-  factory CompatibilityResult.fromJson(Map<String, dynamic> json) =>
-      _$CompatibilityResultFromJson(json);
+  factory GoonghapResult.fromJson(Map<String, dynamic> json) =>
+      _$GoonghapResultFromJson(json);
 }
 
 @freezed
-class StyleDetails with _$StyleDetails {
+abstract class StyleDetails with _$StyleDetails {
   const factory StyleDetails({
     required String? idolStyle,
     required String? userStyle,
@@ -37,7 +37,7 @@ class StyleDetails with _$StyleDetails {
 }
 
 @freezed
-class ActivitiesDetails with _$ActivitiesDetails {
+abstract class ActivitiesDetails with _$ActivitiesDetails {
   const factory ActivitiesDetails({
     required List<String>? recommended,
     required String? description,

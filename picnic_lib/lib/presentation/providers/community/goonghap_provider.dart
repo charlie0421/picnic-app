@@ -2,29 +2,30 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part '../../../generated/providers/community/compatibility_provider.g.dart';
+part '../../../generated/providers/community/goonghap_provider.g.dart';
 
-class CompatibilityLoadingNotifier extends Notifier<bool> {
+class GoonghapLoadingNotifier extends Notifier<bool> {
   @override
   bool build() => false;
 
   void set(bool value) => state = value;
 }
 
-final compatibilityLoadingProvider =
-    NotifierProvider<CompatibilityLoadingNotifier, bool>(
-  CompatibilityLoadingNotifier.new,
+final goonghapLoadingProvider =
+    NotifierProvider<GoonghapLoadingNotifier, bool>(
+  GoonghapLoadingNotifier.new,
 );
 
 @Riverpod(keepAlive: true)
-class Compatibility extends _$Compatibility {
-  static const String _table = 'compatibility_results';
-  static const _i18nTable = 'compatibility_results_i18n';
+class Goonghap extends _$Goonghap {
+  static const String _table = 'goonghap_results';
+  // ignore: unused_field
+  static const _i18nTable = 'goonghap_results_i18n';
   static const _retryDelay = Duration(seconds: 2);
   static const _maxRetries = 3;
   static const _defaultTimeout = Duration(seconds: 30);
@@ -32,7 +33,7 @@ class Compatibility extends _$Compatibility {
   Timer? _retryTimer;
 
   @override
-  AsyncValue<CompatibilityModel?> build() {
+  AsyncValue<GoonghapModel?> build() {
     ref.onDispose(() {
       _retryTimer?.cancel();
     });
@@ -41,37 +42,37 @@ class Compatibility extends _$Compatibility {
 
   final Set<String> _processingIds = {};
 
-  Future<void> setCompatibility(CompatibilityModel compatibility) async {
+  Future<void> setGoonghap(GoonghapModel goonghap) async {
     // 이미 동일한 데이터로 처리 중인 경우 중복 실행 방지
     if (state.isLoading ||
-        (state.hasValue && state.value?.id == compatibility.id)) {
+        (state.hasValue && state.value?.id == goonghap.id)) {
       return;
     }
 
-    state = AsyncValue.data(compatibility);
-    ref.read(compatibilityLoadingProvider.notifier).set(false);
+    state = AsyncValue.data(goonghap);
+    ref.read(goonghapLoadingProvider.notifier).set(false);
 
-    if (compatibility.isPending) {
+    if (goonghap.isPending) {
       // 이미 처리 중인 ID인지 확인
-      if (_processingIds.contains(compatibility.id)) {
+      if (_processingIds.contains(goonghap.id)) {
         return;
       }
-      _processingIds.add(compatibility.id);
+      _processingIds.add(goonghap.id);
 
-      ref.read(compatibilityLoadingProvider.notifier).set(true);
-      await _processInBackground(compatibility);
-      _processingIds.remove(compatibility.id);
+      ref.read(goonghapLoadingProvider.notifier).set(true);
+      await _processInBackground(goonghap);
+      _processingIds.remove(goonghap.id);
     }
   }
 
-  Future<void> _processInBackground(CompatibilityModel initial) async {
+  Future<void> _processInBackground(GoonghapModel initial) async {
     var retryCount = 0;
     String? lastErrorMessage;
 
     while (retryCount < _maxRetries) {
       try {
-        final response = await supabase.functions.invoke('compatibility',
-            body: {'compatibility_id': initial.id}).timeout(_defaultTimeout);
+        final response = await supabase.functions.invoke('goonghap',
+            body: {'goonghap_id': initial.id}).timeout(_defaultTimeout);
 
         logger.i('Edge function response: ${response.data}');
 
@@ -80,7 +81,7 @@ class Compatibility extends _$Compatibility {
           await Future.delayed(const Duration(seconds: 30));
 
           // Then refresh the data
-          await loadCompatibility(initial.id, forceRefresh: true);
+          await loadGoonghap(initial.id, forceRefresh: true);
           return;
         }
 
@@ -94,7 +95,7 @@ class Compatibility extends _$Compatibility {
 
         if (retryCount >= _maxRetries) {
           // 최대 재시도 횟수 도달 - 에러 상태로 설정하고 종료
-          ref.read(compatibilityLoadingProvider.notifier).set(false);
+          ref.read(goonghapLoadingProvider.notifier).set(false);
 
           final errorMsg = 'Failed after $_maxRetries attempts: $lastErrorMessage';
 
@@ -108,7 +109,7 @@ class Compatibility extends _$Compatibility {
           }
 
           state = AsyncValue.data(initial.copyWith(
-            status: CompatibilityStatus.error,
+            status: GoonghapStatus.error,
             errorMessage: errorMsg,
           ));
           return; // 무한 루프 방지 - 반드시 여기서 종료
@@ -121,7 +122,7 @@ class Compatibility extends _$Compatibility {
     }
   }
 
-  Future<void> loadCompatibility(String id, {bool forceRefresh = false}) async {
+  Future<void> loadGoonghap(String id, {bool forceRefresh = false}) async {
     if (state.isLoading) return;
 
     if (!forceRefresh && state.hasValue && state.value?.id == id) {
@@ -150,7 +151,7 @@ class Compatibility extends _$Compatibility {
 
       if (mainResponse == null) {
         state = const AsyncValue.data(null);
-        ref.read(compatibilityLoadingProvider.notifier).set(false);
+        ref.read(goonghapLoadingProvider.notifier).set(false);
         return;
       }
 
@@ -163,25 +164,25 @@ class Compatibility extends _$Compatibility {
         }
       }
 
-      final compatibility = CompatibilityModel.fromJson({
+      final goonghap = GoonghapModel.fromJson({
         ...mainResponse,
         'i18n': i18nData,
       });
 
-      state = AsyncValue.data(compatibility);
+      state = AsyncValue.data(goonghap);
 
       // Only turn off loading if the status is not pending
-      if (compatibility.status != CompatibilityStatus.pending) {
-        ref.read(compatibilityLoadingProvider.notifier).set(false);
+      if (goonghap.status != GoonghapStatus.pending) {
+        ref.read(goonghapLoadingProvider.notifier).set(false);
       }
     } catch (e, stack) {
-      logger.e('Failed to load compatibility', error: e, stackTrace: stack);
+      logger.e('Failed to load goonghap', error: e, stackTrace: stack);
       state = AsyncValue.error(e, stack);
-      ref.read(compatibilityLoadingProvider.notifier).set(false);
+      ref.read(goonghapLoadingProvider.notifier).set(false);
     }
   }
 
-  Future<CompatibilityModel?> createCompatibility({
+  Future<GoonghapModel?> createGoonghap({
     required ArtistModel artist,
     required DateTime birthDate,
     required String gender,
@@ -191,13 +192,13 @@ class Compatibility extends _$Compatibility {
       final userId = supabase.auth.currentUser?.id;
       if (userId == null) throw Exception('User not authenticated');
       if (artist.birthDate == null) {
-        throw Exception('Artist birth date is required for compatibility');
+        throw Exception('Artist birth date is required for goonghap');
       }
 
       state = const AsyncValue.loading();
-      ref.read(compatibilityLoadingProvider.notifier).set(true);
+      ref.read(goonghapLoadingProvider.notifier).set(true);
 
-      final compatibilityData = {
+      final goonghapData = {
         'user_id': userId,
         'artist_id': artist.id,
         'idol_birth_date': artist.birthDate!.toIso8601String(),
@@ -210,34 +211,34 @@ class Compatibility extends _$Compatibility {
 
       final response = await supabase
           .from(_table)
-          .insert(compatibilityData)
+          .insert(goonghapData)
           .select()
           .single();
 
-      final newCompatibility = CompatibilityModel.fromJson({
+      final newGoonghap = GoonghapModel.fromJson({
         ...response,
         'artist': artist.toJson(),
         'i18n': [],
       });
 
-      state = AsyncValue.data(newCompatibility);
-      _processInBackground(newCompatibility);
+      state = AsyncValue.data(newGoonghap);
+      _processInBackground(newGoonghap);
 
-      return newCompatibility;
+      return newGoonghap;
     } catch (e, stack) {
-      logger.e('Failed to create compatibility', error: e, stackTrace: stack);
+      logger.e('Failed to create goonghap', error: e, stackTrace: stack);
       state = AsyncValue.error(e, stack);
-      ref.read(compatibilityLoadingProvider.notifier).set(false);
+      ref.read(goonghapLoadingProvider.notifier).set(false);
       return null;
     }
   }
 
   Future<List<Map<String, dynamic>>> _getI18nDataEfficiently(
-      String compatibilityId) async {
+      String goonghapId) async {
     try {
       // 보안을 위해 RPC 함수 사용 (is_paid=false일 때 details, tips 숨김)
       final response = await supabase
-          .rpc('get_compatibility_i18n', params: {'p_compatibility_id': compatibilityId})
+          .rpc('get_goonghap_i18n', params: {'p_goonghap_id': goonghapId})
           .timeout(_defaultTimeout);
 
       if (response == null) return [];
@@ -252,9 +253,9 @@ class Compatibility extends _$Compatibility {
     if (state.value == null) return;
 
     try {
-      await loadCompatibility(state.value!.id, forceRefresh: true);
+      await loadGoonghap(state.value!.id, forceRefresh: true);
     } catch (e, s) {
-      logger.e('Failed to refresh compatibility', error: e, stackTrace: s);
+      logger.e('Failed to refresh goonghap', error: e, stackTrace: s);
     }
   }
 }

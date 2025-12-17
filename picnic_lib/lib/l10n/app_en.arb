@@ -75,173 +75,173 @@
   "@common_text_search_result_label": {
     "description": "Auto-generated metadata for key 'common_text_search_result_label'."
   },
-  "compatibility_activities_title": "Suggested activities",
-  "@compatibility_activities_title": {
-    "description": "Auto-generated metadata for key 'compatibility_activities_title'."
+  "goonghap_activities_title": "Suggested activities",
+  "@goonghap_activities_title": {
+    "description": "Auto-generated metadata for key 'goonghap_activities_title'."
   },
-  "compatibility_artist_no_birthdate": "This artist's birth date is not available for compatibility.",
-  "@compatibility_artist_no_birthdate": {
-    "description": "Error message when artist has no birth date for compatibility"
+  "goonghap_artist_no_birthdate": "This artist's birth date is not available for goonghap.",
+  "@goonghap_artist_no_birthdate": {
+    "description": "Error message when artist has no birth date for goonghap"
   },
-  "compatibility_agree_checkbox": "I agree to store my gender and birthday information in my profile.",
-  "@compatibility_agree_checkbox": {
-    "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
+  "goonghap_agree_checkbox": "I agree to store my gender and birthday information in my profile.",
+  "@goonghap_agree_checkbox": {
+    "description": "Auto-generated metadata for key 'goonghap_agree_checkbox'."
   },
-  "compatibility_analyze_start": "Start Goong-Hap analysis",
-  "@compatibility_analyze_start": {
-    "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
+  "goonghap_analyze_start": "Start Goong-Hap analysis",
+  "@goonghap_analyze_start": {
+    "description": "Auto-generated metadata for key 'goonghap_analyze_start'."
   },
-  "compatibility_analyzing": "Analyzing Goong-Hap.",
-  "@compatibility_analyzing": {
-    "description": "Auto-generated metadata for key 'compatibility_analyzing'."
+  "goonghap_analyzing": "Analyzing Goong-Hap.",
+  "@goonghap_analyzing": {
+    "description": "Auto-generated metadata for key 'goonghap_analyzing'."
   },
-  "compatibility_analyzing_prepare": "Preparing",
-  "@compatibility_analyzing_prepare": {
-    "description": "Auto-generated metadata for key 'compatibility_analyzing_prepare'."
+  "goonghap_analyzing_prepare": "Preparing",
+  "@goonghap_analyzing_prepare": {
+    "description": "Auto-generated metadata for key 'goonghap_analyzing_prepare'."
   },
-  "compatibility_birthday": "Date of birth",
-  "@compatibility_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_birthday'."
+  "goonghap_birthday": "Date of birth",
+  "@goonghap_birthday": {
+    "description": "Auto-generated metadata for key 'goonghap_birthday'."
   },
-  "compatibility_birthtime": "Birth time",
-  "@compatibility_birthtime": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime'."
+  "goonghap_birthtime": "Birth time",
+  "@goonghap_birthtime": {
+    "description": "Auto-generated metadata for key 'goonghap_birthtime'."
   },
-  "compatibility_couple_style": "Couple styles",
-  "@compatibility_couple_style": {
-    "description": "Auto-generated metadata for key 'compatibility_couple_style'."
+  "goonghap_couple_style": "Couple styles",
+  "@goonghap_couple_style": {
+    "description": "Auto-generated metadata for key 'goonghap_couple_style'."
   },
-  "compatibility_duplicate_data_title": "Goong-Hap data that already exists",
-  "@compatibility_duplicate_data_title": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
+  "goonghap_duplicate_data_title": "Goong-Hap data that already exists",
+  "@goonghap_duplicate_data_title": {
+    "description": "Auto-generated metadata for key 'goonghap_duplicate_data_title'."
   },
-  "compatibility_gender": "Gender",
-  "@compatibility_gender": {
-    "description": "Auto-generated metadata for key 'compatibility_gender'."
+  "goonghap_gender": "Gender",
+  "@goonghap_gender": {
+    "description": "Auto-generated metadata for key 'goonghap_gender'."
   },
-  "compatibility_gender_female": "Female",
-  "@compatibility_gender_female": {
-    "description": "Auto-generated metadata for key 'compatibility_gender_female'."
+  "goonghap_gender_female": "Female",
+  "@goonghap_gender_female": {
+    "description": "Auto-generated metadata for key 'goonghap_gender_female'."
   },
-  "compatibility_gender_male": "Male",
-  "@compatibility_gender_male": {
-    "description": "Auto-generated metadata for key 'compatibility_gender_male'."
+  "goonghap_gender_male": "Male",
+  "@goonghap_gender_male": {
+    "description": "Auto-generated metadata for key 'goonghap_gender_male'."
   },
-  "compatibility_idol_style": "Idol Styles",
-  "@compatibility_idol_style": {
-    "description": "Auto-generated metadata for key 'compatibility_idol_style'."
+  "goonghap_idol_style": "Idol Styles",
+  "@goonghap_idol_style": {
+    "description": "Auto-generated metadata for key 'goonghap_idol_style'."
   },
-  "compatibility_new_compatibility": "View New Goong-Hap",
-  "@compatibility_new_compatibility": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
+  "goonghap_new": "View New Goong-Hap",
+  "@goonghap_new": {
+    "description": "Auto-generated metadata for key 'goonghap_new'."
   },
-  "compatibility_page_title": "Goong-Hap",
-  "@compatibility_page_title": {
-    "description": "Auto-generated metadata for key 'compatibility_page_title'."
+  "goonghap_page_title": "Goong-Hap",
+  "@goonghap_page_title": {
+    "description": "Auto-generated metadata for key 'goonghap_page_title'."
   },
-  "compatibility_purchase_confirm_message": "Use 100 Star Candy to check Goong-Hap results.",
-  "@compatibility_purchase_confirm_message": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
+  "goonghap_purchase_confirm_message": "Use 100 Star Candy to check Goong-Hap results.",
+  "@goonghap_purchase_confirm_message": {
+    "description": "Auto-generated metadata for key 'goonghap_purchase_confirm_message'."
   },
-  "compatibility_remain_star_candy": "Remaining Star Candy",
-  "@compatibility_remain_star_candy": {
-    "description": "Auto-generated metadata for key 'compatibility_remain_star_candy'."
+  "goonghap_remain_star_candy": "Remaining Star Candy",
+  "@goonghap_remain_star_candy": {
+    "description": "Auto-generated metadata for key 'goonghap_remain_star_candy'."
   },
-  "compatibility_result_not_found": "It's not Goong-Hap 😔.",
-  "@compatibility_result_not_found": {
-    "description": "Auto-generated metadata for key 'compatibility_result_not_found'."
+  "goonghap_result_not_found": "It's not Goong-Hap 😔.",
+  "@goonghap_result_not_found": {
+    "description": "Auto-generated metadata for key 'goonghap_result_not_found'."
   },
-  "compatibility_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
-  "@compatibility_share_hashtag": {
-    "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
+  "goonghap_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
+  "@goonghap_share_hashtag": {
+    "description": "Auto-generated metadata for key 'goonghap_share_hashtag'."
   },
-  "compatibility_share_message": "What percentage is my shining chemistry Goong-Hap with {artistName}? My heart is racing!",
-  "@compatibility_share_message": {
+  "goonghap_share_message": "What percentage is my shining chemistry Goong-Hap with {artistName}? My heart is racing!",
+  "@goonghap_share_message": {
     "placeholders": {
       "artistName": {
         "type": "String"
       }
     }
   },
-  "compatibility_snackbar_error": "An error occurred.",
-  "@compatibility_snackbar_error": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
+  "goonghap_snackbar_error": "An error occurred.",
+  "@goonghap_snackbar_error": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_error'."
   },
-  "compatibility_snackbar_need_gender": "Please select a gender.",
-  "@compatibility_snackbar_need_gender": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
+  "goonghap_snackbar_need_gender": "Please select a gender.",
+  "@goonghap_snackbar_need_gender": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "Start analyzing Goong-Hap.",
-  "@compatibility_snackbar_start": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
+  "goonghap_snackbar_start": "Start analyzing Goong-Hap.",
+  "@goonghap_snackbar_start": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_start'."
   },
-  "compatibility_style_title": "Goong-Hap styles",
-  "@compatibility_style_title": {
-    "description": "Auto-generated metadata for key 'compatibility_style_title'."
+  "goonghap_style_title": "Goong-Hap styles",
+  "@goonghap_style_title": {
+    "description": "Auto-generated metadata for key 'goonghap_style_title'."
   },
-  "compatibility_time_slot1": "Hour of the Rat|(23:30-01:29)|🐀",
-  "@compatibility_time_slot1": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
+  "goonghap_time_slot1": "Hour of the Rat|(23:30-01:29)|🐀",
+  "@goonghap_time_slot1": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot1'."
   },
-  "compatibility_time_slot10": "Hour of the Rooster|(17:30-19:29)|🐔",
-  "@compatibility_time_slot10": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
+  "goonghap_time_slot10": "Hour of the Rooster|(17:30-19:29)|🐔",
+  "@goonghap_time_slot10": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot10'."
   },
-  "compatibility_time_slot11": "Hour of the Dog|(19:30-21:29)|🐕",
-  "@compatibility_time_slot11": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
+  "goonghap_time_slot11": "Hour of the Dog|(19:30-21:29)|🐕",
+  "@goonghap_time_slot11": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot11'."
   },
-  "compatibility_time_slot12": "Hour of the Boar|(21:30-23:29)|🐖",
-  "@compatibility_time_slot12": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
+  "goonghap_time_slot12": "Hour of the Boar|(21:30-23:29)|🐖",
+  "@goonghap_time_slot12": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot12'."
   },
-  "compatibility_time_slot2": "Hour of the Ox|(01:30-03:29)|🐂",
-  "@compatibility_time_slot2": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
+  "goonghap_time_slot2": "Hour of the Ox|(01:30-03:29)|🐂",
+  "@goonghap_time_slot2": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot2'."
   },
-  "compatibility_time_slot3": "Hour of the Tiger|(03:30-05:29)|🐅",
-  "@compatibility_time_slot3": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
+  "goonghap_time_slot3": "Hour of the Tiger|(03:30-05:29)|🐅",
+  "@goonghap_time_slot3": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot3'."
   },
-  "compatibility_time_slot4": "Hour of the Rabbit|(05:30-07:29)|🐇",
-  "@compatibility_time_slot4": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
+  "goonghap_time_slot4": "Hour of the Rabbit|(05:30-07:29)|🐇",
+  "@goonghap_time_slot4": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot4'."
   },
-  "compatibility_time_slot5": "Hour of the Dragon|(07:30-09:29)|🐉",
-  "@compatibility_time_slot5": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
+  "goonghap_time_slot5": "Hour of the Dragon|(07:30-09:29)|🐉",
+  "@goonghap_time_slot5": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot5'."
   },
-  "compatibility_time_slot6": "Hour of the Snake|(09:30-11:29)|🐍",
-  "@compatibility_time_slot6": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
+  "goonghap_time_slot6": "Hour of the Snake|(09:30-11:29)|🐍",
+  "@goonghap_time_slot6": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot6'."
   },
-  "compatibility_time_slot7": "Hour of the Horse|(11:30-13:29)|🐎",
-  "@compatibility_time_slot7": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
+  "goonghap_time_slot7": "Hour of the Horse|(11:30-13:29)|🐎",
+  "@goonghap_time_slot7": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot7'."
   },
-  "compatibility_time_slot8": "Hour of the Sheep|(13:30-15:29)|🐑",
-  "@compatibility_time_slot8": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
+  "goonghap_time_slot8": "Hour of the Sheep|(13:30-15:29)|🐑",
+  "@goonghap_time_slot8": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot8'."
   },
-  "compatibility_time_slot9": "Hour of the Monkey|(15:30-17:29)|🐒",
-  "@compatibility_time_slot9": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
+  "goonghap_time_slot9": "Hour of the Monkey|(15:30-17:29)|🐒",
+  "@goonghap_time_slot9": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot9'."
   },
-  "compatibility_tips_title": "Goong-Hap tips",
-  "@compatibility_tips_title": {
-    "description": "Auto-generated metadata for key 'compatibility_tips_title'."
+  "goonghap_tips_title": "Goong-Hap tips",
+  "@goonghap_tips_title": {
+    "description": "Auto-generated metadata for key 'goonghap_tips_title'."
   },
-  "compatibility_user_style": "User Styles",
-  "@compatibility_user_style": {
-    "description": "Auto-generated metadata for key 'compatibility_user_style'."
+  "goonghap_user_style": "User Styles",
+  "@goonghap_user_style": {
+    "description": "Auto-generated metadata for key 'goonghap_user_style'."
   },
-  "compatibility_waiting_message": "Please wait a moment.",
-  "@compatibility_waiting_message": {
-    "description": "Auto-generated metadata for key 'compatibility_waiting_message'."
+  "goonghap_waiting_message": "Please wait a moment.",
+  "@goonghap_waiting_message": {
+    "description": "Auto-generated metadata for key 'goonghap_waiting_message'."
   },
-  "compatibility_warning_exit": "If you leave the screen, you'll need to do the analysis again.",
-  "@compatibility_warning_exit": {
-    "description": "Auto-generated metadata for key 'compatibility_warning_exit'."
+  "goonghap_warning_exit": "If you leave the screen, you'll need to do the analysis again.",
+  "@goonghap_warning_exit": {
+    "description": "Auto-generated metadata for key 'goonghap_warning_exit'."
   },
   "dialog_button_cancel": "Cancel",
   "@dialog_button_cancel": {
@@ -1310,25 +1310,25 @@
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
-  "compatibility_empty_state_title": "No Goong-Hap information",
-  "@compatibility_empty_state_title": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
+  "goonghap_empty_state_title": "No Goong-Hap information",
+  "@goonghap_empty_state_title": {
+    "description": "Auto-generated metadata for key 'goonghap_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "Create your first Goong-Hap!",
-  "@compatibility_empty_state_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
+  "goonghap_empty_state_subtitle": "Create your first Goong-Hap!",
+  "@goonghap_empty_state_subtitle": {
+    "description": "Auto-generated metadata for key 'goonghap_empty_state_subtitle'."
   },
-  "compatibility_login_required_title": "Login required",
-  "@compatibility_login_required_title": {
-    "description": "Title shown when user needs to login to see compatibility"
+  "goonghap_login_required_title": "Login required",
+  "@goonghap_login_required_title": {
+    "description": "Title shown when user needs to login to see goonghap"
   },
-  "compatibility_login_required_subtitle": "Please log in to see your Goong-Hap results",
-  "@compatibility_login_required_subtitle": {
-    "description": "Subtitle shown when user needs to login to see compatibility"
+  "goonghap_login_required_subtitle": "Please log in to see your Goong-Hap results",
+  "@goonghap_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see goonghap"
   },
-  "compatibility_login_button": "Log in",
-  "@compatibility_login_button": {
-    "description": "Login button text on compatibility page"
+  "goonghap_login_button": "Log in",
+  "@goonghap_login_button": {
+    "description": "Login button text on goonghap page"
   },
   "network_error_title": "Network Error",
   "@network_error_title": {
@@ -1542,8 +1542,8 @@
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "compatibility_purchase_message": "If I want to know the Goong-hap score between me and the {artistName}?",
-  "@compatibility_purchase_message": {
+  "goonghap_purchase_message": "If I want to know the Goong-hap score between me and the {artistName}?",
+  "@goonghap_purchase_message": {
     "placeholders": {
       "artistName": {
         "type": "String"
@@ -1554,9 +1554,9 @@
   "@label_mypage_charge_history": {
     "description": "Charge history menu for admin users"
   },
-  "compatibility_time_slot_unknown": "Don't know",
-  "@compatibility_time_slot_unknown": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
+  "goonghap_time_slot_unknown": "Don't know",
+  "@goonghap_time_slot_unknown": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot_unknown'."
   },
   "label_popup_hide_7days": "Don't view for 7 days",
   "@label_popup_hide_7days": {
@@ -1630,9 +1630,9 @@
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "compatibility_birthtime_subtitle": "Increase accuracy!",
-  "@compatibility_birthtime_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
+  "goonghap_birthtime_subtitle": "Increase accuracy!",
+  "@goonghap_birthtime_subtitle": {
+    "description": "Auto-generated metadata for key 'goonghap_birthtime_subtitle'."
   },
   "title_dialog_success": "Success",
   "@title_dialog_success": {
@@ -1666,9 +1666,9 @@
   "@bonus_candy_earn_period_1_to_15": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
   },
-  "compatibility_snackbar_need_birthday": "Please enter your date of birth.",
-  "@compatibility_snackbar_need_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
+  "goonghap_snackbar_need_birthday": "Please enter your date of birth.",
+  "@goonghap_snackbar_need_birthday": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_birthday'."
   },
   "update_recommend_text": "A new version ({version}) is available.",
   "@update_recommend_text": {
@@ -1702,9 +1702,9 @@
   "@post_comment_action_show_original": {
     "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
   },
-  "compatibility_snackbar_need_profile_save_agree": "Give your consent to save your profile.",
-  "@compatibility_snackbar_need_profile_save_agree": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
+  "goonghap_snackbar_need_profile_save_agree": "Give your consent to save your profile.",
+  "@goonghap_snackbar_need_profile_save_agree": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_profile_save_agree'."
   },
   "qna_content_min_length": "Inquiry content must be at least 10 characters",
   "@qna_content_min_length": {
@@ -1765,13 +1765,13 @@
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
-  "compatibility_perfect_score_exists_title": "Already Winning Matches Data",
-  "@compatibility_perfect_score_exists_title": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
+  "goonghap_perfect_score_exists_title": "Already Winning Matches Data",
+  "@goonghap_perfect_score_exists_title": {
+    "description": "Auto-generated metadata for key 'goonghap_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "Goong-Hap data with the same conditions already exists.",
-  "@compatibility_duplicate_data_message": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
+  "goonghap_duplicate_data_message": "Goong-Hap data with the same conditions already exists.",
+  "@goonghap_duplicate_data_message": {
+    "description": "Auto-generated metadata for key 'goonghap_duplicate_data_message'."
   },
   "label_time_ago_minute": "{minute} minutes ago",
   "@label_time_ago_minute": {
@@ -1857,9 +1857,9 @@
   "@message_update_nickname_success": {
     "description": "Auto-generated metadata for key 'message_update_nickname_success'."
   },
-  "compatibility_new_compatibility_ask": "Want to see a new Goong-Hap?",
-  "@compatibility_new_compatibility_ask": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
+  "goonghap_new_ask": "Want to see a new Goong-Hap?",
+  "@goonghap_new_ask": {
+    "description": "Auto-generated metadata for key 'goonghap_new_ask'."
   },
   "post_replying_comment": "Replying to {nickname}...",
   "@post_replying_comment": {
@@ -1873,9 +1873,9 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "Please note that the Goong-Hap data for this condition has already earned rewards, so we are unable to award additional rewards.",
-  "@compatibility_perfect_score_exists": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
+  "goonghap_perfect_score_exists": "Please note that the Goong-Hap data for this condition has already earned rewards, so we are unable to award additional rewards.",
+  "@goonghap_perfect_score_exists": {
+    "description": "Auto-generated metadata for key 'goonghap_perfect_score_exists'."
   },
   "post_minor_board_create_request_message_input": "Enter a message requesting to open a board.",
   "@post_minor_board_create_request_message_input": {
@@ -1897,9 +1897,9 @@
   "@post_minor_board_create_request_message": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
   },
-  "compatibility_purchase_confirm_title": "Purchase with Star Candy",
-  "@compatibility_purchase_confirm_title": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
+  "goonghap_purchase_confirm_title": "Purchase with Star Candy",
+  "@goonghap_purchase_confirm_title": {
+    "description": "Auto-generated metadata for key 'goonghap_purchase_confirm_title'."
   },
   "post_board_create_request_label": "Request to open a board",
   "@post_board_create_request_label": {
@@ -2102,7 +2102,7 @@
   "@goong_hap_kpop_title": {
     "description": "K-POP section title in Goong-Hap intro"
   },
-  "goong_hap_kpop_desc": "How well do you match with your favorite idol? Check out your destined compatibility with your bias!",
+  "goong_hap_kpop_desc": "How well do you match with your favorite idol? Check out your destined Goong-Hap with your bias!",
   "@goong_hap_kpop_desc": {
     "description": "K-POP section description in Goong-Hap intro"
   },
@@ -2110,7 +2110,7 @@
   "@goong_hap_fun_title": {
     "description": "Fun section title in Goong-Hap intro"
   },
-  "goong_hap_fun_desc": "Compare and share your compatibility scores with friends! Who matches best with their bias?",
+  "goong_hap_fun_desc": "Compare and share your Goong-Hap scores with friends! Who matches best with their bias?",
   "@goong_hap_fun_desc": {
     "description": "Fun section description in Goong-Hap intro"
   },

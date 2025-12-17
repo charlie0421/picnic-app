@@ -8,7 +8,7 @@ part '../../../generated/providers/models/vote/vote.freezed.dart';
 part '../../../generated/providers/models/vote/vote.g.dart';
 
 @freezed
-class VoteModel with _$VoteModel {
+abstract class VoteModel with _$VoteModel {
   const VoteModel._();
 
   const factory VoteModel(
@@ -47,7 +47,7 @@ class VoteModel with _$VoteModel {
 }
 
 @freezed
-class VoteItemModel with _$VoteItemModel {
+abstract class VoteItemModel with _$VoteItemModel {
   const VoteItemModel._();
 
   const factory VoteItemModel(
@@ -78,7 +78,7 @@ class ArtistModelWithHighlight {
 }
 
 @freezed
-class VoteAchieve with _$VoteAchieve {
+abstract class VoteAchieve with _$VoteAchieve {
   const VoteAchieve._();
 
   const factory VoteAchieve(

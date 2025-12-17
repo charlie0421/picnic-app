@@ -75,169 +75,169 @@
   "@common_text_search_result_label": {
     "description": "Auto-generated metadata for key 'common_text_search_result_label'."
   },
-  "compatibility_activities_title": "Kegiatan yang disarankan",
-  "@compatibility_activities_title": {
-    "description": "Auto-generated metadata for key 'compatibility_activities_title'."
+  "goonghap_activities_title": "Kegiatan yang disarankan",
+  "@goonghap_activities_title": {
+    "description": "Auto-generated metadata for key 'goonghap_activities_title'."
   },
-  "compatibility_agree_checkbox": "Saya setuju untuk menyimpan informasi jenis kelamin dan ulang tahun saya di profil saya.",
-  "@compatibility_agree_checkbox": {
-    "description": "Auto-generated metadata for key 'compatibility_agree_checkbox'."
+  "goonghap_agree_checkbox": "Saya setuju untuk menyimpan informasi jenis kelamin dan ulang tahun saya di profil saya.",
+  "@goonghap_agree_checkbox": {
+    "description": "Auto-generated metadata for key 'goonghap_agree_checkbox'."
   },
-  "compatibility_analyze_start": "Mulai analisis Goong-Hap",
-  "@compatibility_analyze_start": {
-    "description": "Auto-generated metadata for key 'compatibility_analyze_start'."
+  "goonghap_analyze_start": "Mulai analisis Goong-Hap",
+  "@goonghap_analyze_start": {
+    "description": "Auto-generated metadata for key 'goonghap_analyze_start'."
   },
-  "compatibility_analyzing": "Menganalisis Goong-Hap.",
-  "@compatibility_analyzing": {
-    "description": "Auto-generated metadata for key 'compatibility_analyzing'."
+  "goonghap_analyzing": "Menganalisis Goong-Hap.",
+  "@goonghap_analyzing": {
+    "description": "Auto-generated metadata for key 'goonghap_analyzing'."
   },
-  "compatibility_analyzing_prepare": "Mempersiapkan",
-  "@compatibility_analyzing_prepare": {
-    "description": "Auto-generated metadata for key 'compatibility_analyzing_prepare'."
+  "goonghap_analyzing_prepare": "Mempersiapkan",
+  "@goonghap_analyzing_prepare": {
+    "description": "Auto-generated metadata for key 'goonghap_analyzing_prepare'."
   },
-  "compatibility_birthday": "Tanggal lahir",
-  "@compatibility_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_birthday'."
+  "goonghap_birthday": "Tanggal lahir",
+  "@goonghap_birthday": {
+    "description": "Auto-generated metadata for key 'goonghap_birthday'."
   },
-  "compatibility_birthtime": "Waktu kelahiran",
-  "@compatibility_birthtime": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime'."
+  "goonghap_birthtime": "Waktu kelahiran",
+  "@goonghap_birthtime": {
+    "description": "Auto-generated metadata for key 'goonghap_birthtime'."
   },
-  "compatibility_couple_style": "Gaya pasangan",
-  "@compatibility_couple_style": {
-    "description": "Auto-generated metadata for key 'compatibility_couple_style'."
+  "goonghap_couple_style": "Gaya pasangan",
+  "@goonghap_couple_style": {
+    "description": "Auto-generated metadata for key 'goonghap_couple_style'."
   },
-  "compatibility_duplicate_data_title": "Data Goong-Hap yang sudah ada",
-  "@compatibility_duplicate_data_title": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_title'."
+  "goonghap_duplicate_data_title": "Data Goong-Hap yang sudah ada",
+  "@goonghap_duplicate_data_title": {
+    "description": "Auto-generated metadata for key 'goonghap_duplicate_data_title'."
   },
-  "compatibility_gender": "Jenis Kelamin",
-  "@compatibility_gender": {
-    "description": "Auto-generated metadata for key 'compatibility_gender'."
+  "goonghap_gender": "Jenis Kelamin",
+  "@goonghap_gender": {
+    "description": "Auto-generated metadata for key 'goonghap_gender'."
   },
-  "compatibility_gender_female": "Perempuan",
-  "@compatibility_gender_female": {
-    "description": "Auto-generated metadata for key 'compatibility_gender_female'."
+  "goonghap_gender_female": "Perempuan",
+  "@goonghap_gender_female": {
+    "description": "Auto-generated metadata for key 'goonghap_gender_female'."
   },
-  "compatibility_gender_male": "Laki-laki",
-  "@compatibility_gender_male": {
-    "description": "Auto-generated metadata for key 'compatibility_gender_male'."
+  "goonghap_gender_male": "Laki-laki",
+  "@goonghap_gender_male": {
+    "description": "Auto-generated metadata for key 'goonghap_gender_male'."
   },
-  "compatibility_idol_style": "Gaya Idola",
-  "@compatibility_idol_style": {
-    "description": "Auto-generated metadata for key 'compatibility_idol_style'."
+  "goonghap_idol_style": "Gaya Idola",
+  "@goonghap_idol_style": {
+    "description": "Auto-generated metadata for key 'goonghap_idol_style'."
   },
-  "compatibility_new_compatibility": "Lihat Goong-Hap Baru",
-  "@compatibility_new_compatibility": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
+  "goonghap_new": "Lihat Goong-Hap Baru",
+  "@goonghap_new": {
+    "description": "Auto-generated metadata for key 'goonghap_new'."
   },
-  "compatibility_page_title": "Goong-Hap",
-  "@compatibility_page_title": {
-    "description": "Auto-generated metadata for key 'compatibility_page_title'."
+  "goonghap_page_title": "Goong-Hap",
+  "@goonghap_page_title": {
+    "description": "Auto-generated metadata for key 'goonghap_page_title'."
   },
-  "compatibility_purchase_confirm_message": "Gunakan 100 Star Candy untuk melihat hasil Goong-Hap.",
-  "@compatibility_purchase_confirm_message": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
+  "goonghap_purchase_confirm_message": "Gunakan 100 Star Candy untuk melihat hasil Goong-Hap.",
+  "@goonghap_purchase_confirm_message": {
+    "description": "Auto-generated metadata for key 'goonghap_purchase_confirm_message'."
   },
-  "compatibility_remain_star_candy": "Sisa Permen Bintang",
-  "@compatibility_remain_star_candy": {
-    "description": "Auto-generated metadata for key 'compatibility_remain_star_candy'."
+  "goonghap_remain_star_candy": "Sisa Permen Bintang",
+  "@goonghap_remain_star_candy": {
+    "description": "Auto-generated metadata for key 'goonghap_remain_star_candy'."
   },
-  "compatibility_result_not_found": "Itu bukan Goong-Hap 😔.",
-  "@compatibility_result_not_found": {
-    "description": "Auto-generated metadata for key 'compatibility_result_not_found'."
+  "goonghap_result_not_found": "Itu bukan Goong-Hap 😔.",
+  "@goonghap_result_not_found": {
+    "description": "Auto-generated metadata for key 'goonghap_result_not_found'."
   },
-  "compatibility_share_hashtag": "ピクニック #피크닠 #아이돌궁 #Goonghap #피크닠합 #궁합",
-  "@compatibility_share_hashtag": {
-    "description": "Auto-generated metadata for key 'compatibility_share_hashtag'."
+  "goonghap_share_hashtag": "ピクニック #피크닠 #아이돌궁 #Goonghap #피크닠합 #궁합",
+  "@goonghap_share_hashtag": {
+    "description": "Auto-generated metadata for key 'goonghap_share_hashtag'."
   },
-  "compatibility_share_message": "Berapa persen Goong-Hap kimia bersinar saya dengan {artistName} ? Jantungku berdegup kencang!",
-  "@compatibility_share_message": {
+  "goonghap_share_message": "Berapa persen Goong-Hap kimia bersinar saya dengan {artistName} ? Jantungku berdegup kencang!",
+  "@goonghap_share_message": {
     "placeholders": {
       "artistName": {
         "type": "String"
       }
     }
   },
-  "compatibility_snackbar_error": "Terjadi kesalahan.",
-  "@compatibility_snackbar_error": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
+  "goonghap_snackbar_error": "Terjadi kesalahan.",
+  "@goonghap_snackbar_error": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_error'."
   },
-  "compatibility_snackbar_need_gender": "Pilih jenis kelamin.",
-  "@compatibility_snackbar_need_gender": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
+  "goonghap_snackbar_need_gender": "Pilih jenis kelamin.",
+  "@goonghap_snackbar_need_gender": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_gender'."
   },
-  "compatibility_snackbar_start": "Mulai menganalisis Goong-Hap.",
-  "@compatibility_snackbar_start": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
+  "goonghap_snackbar_start": "Mulai menganalisis Goong-Hap.",
+  "@goonghap_snackbar_start": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_start'."
   },
-  "compatibility_style_title": "Gaya Goong-Hap",
-  "@compatibility_style_title": {
-    "description": "Auto-generated metadata for key 'compatibility_style_title'."
+  "goonghap_style_title": "Gaya Goong-Hap",
+  "@goonghap_style_title": {
+    "description": "Auto-generated metadata for key 'goonghap_style_title'."
   },
-  "compatibility_time_slot1": "Jam Tikus|(23:30-01:29)|🐀",
-  "@compatibility_time_slot1": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot1'."
+  "goonghap_time_slot1": "Jam Tikus|(23:30-01:29)|🐀",
+  "@goonghap_time_slot1": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot1'."
   },
-  "compatibility_time_slot10": "Jam Ayam Jantan|(17:30-19:29)|🐔",
-  "@compatibility_time_slot10": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot10'."
+  "goonghap_time_slot10": "Jam Ayam Jantan|(17:30-19:29)|🐔",
+  "@goonghap_time_slot10": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot10'."
   },
-  "compatibility_time_slot11": "Jam Anjing|(19:30-21:29)|🐕",
-  "@compatibility_time_slot11": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot11'."
+  "goonghap_time_slot11": "Jam Anjing|(19:30-21:29)|🐕",
+  "@goonghap_time_slot11": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot11'."
   },
-  "compatibility_time_slot12": "Jam Babi Hutan|(21:30-23:29)|🐖",
-  "@compatibility_time_slot12": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot12'."
+  "goonghap_time_slot12": "Jam Babi Hutan|(21:30-23:29)|🐖",
+  "@goonghap_time_slot12": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot12'."
   },
-  "compatibility_time_slot2": "Jam Kerbau|(01:30-03:29)|🐂",
-  "@compatibility_time_slot2": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot2'."
+  "goonghap_time_slot2": "Jam Kerbau|(01:30-03:29)|🐂",
+  "@goonghap_time_slot2": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot2'."
   },
-  "compatibility_time_slot3": "Jam Harimau|(03:30-05:29)|🐅",
-  "@compatibility_time_slot3": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot3'."
+  "goonghap_time_slot3": "Jam Harimau|(03:30-05:29)|🐅",
+  "@goonghap_time_slot3": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot3'."
   },
-  "compatibility_time_slot4": "Jam Kelinci|(05:30-07:29)|🐇",
-  "@compatibility_time_slot4": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot4'."
+  "goonghap_time_slot4": "Jam Kelinci|(05:30-07:29)|🐇",
+  "@goonghap_time_slot4": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot4'."
   },
-  "compatibility_time_slot5": "Jam Naga|(07:30-09:29)|🐉",
-  "@compatibility_time_slot5": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot5'."
+  "goonghap_time_slot5": "Jam Naga|(07:30-09:29)|🐉",
+  "@goonghap_time_slot5": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot5'."
   },
-  "compatibility_time_slot6": "Jam Ular|(09:30-11:29)|🐍",
-  "@compatibility_time_slot6": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot6'."
+  "goonghap_time_slot6": "Jam Ular|(09:30-11:29)|🐍",
+  "@goonghap_time_slot6": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot6'."
   },
-  "compatibility_time_slot7": "Jam Kuda|(11:30-13:29)|🐎",
-  "@compatibility_time_slot7": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot7'."
+  "goonghap_time_slot7": "Jam Kuda|(11:30-13:29)|🐎",
+  "@goonghap_time_slot7": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot7'."
   },
-  "compatibility_time_slot8": "Jam Domba|(13:30-15:29)|🐑",
-  "@compatibility_time_slot8": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot8'."
+  "goonghap_time_slot8": "Jam Domba|(13:30-15:29)|🐑",
+  "@goonghap_time_slot8": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot8'."
   },
-  "compatibility_time_slot9": "Jam Monyet|(15:30-17:29)|🐒",
-  "@compatibility_time_slot9": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
+  "goonghap_time_slot9": "Jam Monyet|(15:30-17:29)|🐒",
+  "@goonghap_time_slot9": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot9'."
   },
-  "compatibility_tips_title": "Tips Goong-Hap",
-  "@compatibility_tips_title": {
-    "description": "Auto-generated metadata for key 'compatibility_tips_title'."
+  "goonghap_tips_title": "Tips Goong-Hap",
+  "@goonghap_tips_title": {
+    "description": "Auto-generated metadata for key 'goonghap_tips_title'."
   },
-  "compatibility_user_style": "Gaya Pengguna",
-  "@compatibility_user_style": {
-    "description": "Auto-generated metadata for key 'compatibility_user_style'."
+  "goonghap_user_style": "Gaya Pengguna",
+  "@goonghap_user_style": {
+    "description": "Auto-generated metadata for key 'goonghap_user_style'."
   },
-  "compatibility_waiting_message": "Mohon tunggu sebentar.",
-  "@compatibility_waiting_message": {
-    "description": "Auto-generated metadata for key 'compatibility_waiting_message'."
+  "goonghap_waiting_message": "Mohon tunggu sebentar.",
+  "@goonghap_waiting_message": {
+    "description": "Auto-generated metadata for key 'goonghap_waiting_message'."
   },
-  "compatibility_warning_exit": "Jika Anda meninggalkan layar, Anda harus melakukan analisis lagi.",
-  "@compatibility_warning_exit": {
-    "description": "Auto-generated metadata for key 'compatibility_warning_exit'."
+  "goonghap_warning_exit": "Jika Anda meninggalkan layar, Anda harus melakukan analisis lagi.",
+  "@goonghap_warning_exit": {
+    "description": "Auto-generated metadata for key 'goonghap_warning_exit'."
   },
   "dialog_button_cancel": "Batal",
   "@dialog_button_cancel": {
@@ -1502,25 +1502,25 @@
   "@ban_support_instruction": {
     "description": "Instruction to copy logs and contact support"
   },
-  "compatibility_empty_state_title": "No compatibility information",
-  "@compatibility_empty_state_title": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_title'."
+  "goonghap_empty_state_title": "No Goong-Hap information",
+  "@goonghap_empty_state_title": {
+    "description": "Auto-generated metadata for key 'goonghap_empty_state_title'."
   },
-  "compatibility_empty_state_subtitle": "Create your first compatibility!",
-  "@compatibility_empty_state_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_empty_state_subtitle'."
+  "goonghap_empty_state_subtitle": "Create your first Goong-Hap!",
+  "@goonghap_empty_state_subtitle": {
+    "description": "Auto-generated metadata for key 'goonghap_empty_state_subtitle'."
   },
-  "compatibility_login_required_title": "Diperlukan login",
-  "@compatibility_login_required_title": {
-    "description": "Title shown when user needs to login to see compatibility"
+  "goonghap_login_required_title": "Diperlukan login",
+  "@goonghap_login_required_title": {
+    "description": "Title shown when user needs to login to see goonghap"
   },
-  "compatibility_login_required_subtitle": "Silakan masuk untuk melihat hasil kecocokan Anda",
-  "@compatibility_login_required_subtitle": {
-    "description": "Subtitle shown when user needs to login to see compatibility"
+  "goonghap_login_required_subtitle": "Silakan masuk untuk melihat hasil kecocokan Anda",
+  "@goonghap_login_required_subtitle": {
+    "description": "Subtitle shown when user needs to login to see goonghap"
   },
-  "compatibility_login_button": "Masuk",
-  "@compatibility_login_button": {
-    "description": "Login button text on compatibility page"
+  "goonghap_login_button": "Masuk",
+  "@goonghap_login_button": {
+    "description": "Login button text on goonghap page"
   },
   "network_error_title": "Network Error",
   "@network_error_title": {
@@ -1590,8 +1590,8 @@
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "compatibility_purchase_message": "Jika saya ingin mengetahui skor Goong-hap antara saya dan {artistName}?",
-  "@compatibility_purchase_message": {
+  "goonghap_purchase_message": "Jika saya ingin mengetahui skor Goong-hap antara saya dan {artistName}?",
+  "@goonghap_purchase_message": {
     "placeholders": {
       "artistName": {
         "type": "String"
@@ -1602,9 +1602,9 @@
   "@label_mypage_charge_history": {
     "description": "Charge history menu for admin users"
   },
-  "compatibility_time_slot_unknown": "Tidak tahu",
-  "@compatibility_time_slot_unknown": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
+  "goonghap_time_slot_unknown": "Tidak tahu",
+  "@goonghap_time_slot_unknown": {
+    "description": "Auto-generated metadata for key 'goonghap_time_slot_unknown'."
   },
   "label_popup_hide_7days": "Don't view for 7 days",
   "@label_popup_hide_7days": {
@@ -1678,9 +1678,9 @@
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "compatibility_birthtime_subtitle": "Tingkatkan akurasi!",
-  "@compatibility_birthtime_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
+  "goonghap_birthtime_subtitle": "Tingkatkan akurasi!",
+  "@goonghap_birthtime_subtitle": {
+    "description": "Auto-generated metadata for key 'goonghap_birthtime_subtitle'."
   },
   "title_dialog_success": "Sukses",
   "@title_dialog_success": {
@@ -1714,9 +1714,9 @@
   "@bonus_candy_earn_period_1_to_15": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
   },
-  "compatibility_snackbar_need_birthday": "Masukkan tanggal lahir Anda.",
-  "@compatibility_snackbar_need_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
+  "goonghap_snackbar_need_birthday": "Masukkan tanggal lahir Anda.",
+  "@goonghap_snackbar_need_birthday": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_birthday'."
   },
   "update_recommend_text": "Versi baru ({version}) tersedia.",
   "@update_recommend_text": {
@@ -1750,9 +1750,9 @@
   "@post_comment_action_show_original": {
     "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
   },
-  "compatibility_snackbar_need_profile_save_agree": "Berikan persetujuan Anda untuk menyimpan profil Anda.",
-  "@compatibility_snackbar_need_profile_save_agree": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
+  "goonghap_snackbar_need_profile_save_agree": "Berikan persetujuan Anda untuk menyimpan profil Anda.",
+  "@goonghap_snackbar_need_profile_save_agree": {
+    "description": "Auto-generated metadata for key 'goonghap_snackbar_need_profile_save_agree'."
   },
   "qna_content_min_length": "Isi konsultasi minimal 10 karakter",
   "@qna_content_min_length": {
@@ -1813,13 +1813,13 @@
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
-  "compatibility_perfect_score_exists_title": "Data Pertandingan yang Sudah Menang",
-  "@compatibility_perfect_score_exists_title": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
+  "goonghap_perfect_score_exists_title": "Data Pertandingan yang Sudah Menang",
+  "@goonghap_perfect_score_exists_title": {
+    "description": "Auto-generated metadata for key 'goonghap_perfect_score_exists_title'."
   },
-  "compatibility_duplicate_data_message": "Data Goong-Hap dengan kondisi yang sama sudah ada.",
-  "@compatibility_duplicate_data_message": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
+  "goonghap_duplicate_data_message": "Data Goong-Hap dengan kondisi yang sama sudah ada.",
+  "@goonghap_duplicate_data_message": {
+    "description": "Auto-generated metadata for key 'goonghap_duplicate_data_message'."
   },
   "label_time_ago_minute": "{minute} beberapa menit yang lalu",
   "@label_time_ago_minute": {
@@ -1905,9 +1905,9 @@
   "@message_update_nickname_success": {
     "description": "Auto-generated metadata for key 'message_update_nickname_success'."
   },
-  "compatibility_new_compatibility_ask": "Ingin melihat pasangan baru?",
-  "@compatibility_new_compatibility_ask": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
+  "goonghap_new_ask": "Ingin melihat pasangan baru?",
+  "@goonghap_new_ask": {
+    "description": "Auto-generated metadata for key 'goonghap_new_ask'."
   },
   "post_replying_comment": "Membalas ke {nickname}...",
   "@post_replying_comment": {
@@ -1921,9 +1921,9 @@
   "@button_pic_pic_save": {
     "description": "Auto-generated metadata for key 'button_pic_pic_save'."
   },
-  "compatibility_perfect_score_exists": "Harap diperhatikan bahwa data Goong-Hap untuk kondisi ini telah mendapatkan hadiah, sehingga kami tidak dapat memberikan hadiah tambahan.",
-  "@compatibility_perfect_score_exists": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
+  "goonghap_perfect_score_exists": "Harap diperhatikan bahwa data Goong-Hap untuk kondisi ini telah mendapatkan hadiah, sehingga kami tidak dapat memberikan hadiah tambahan.",
+  "@goonghap_perfect_score_exists": {
+    "description": "Auto-generated metadata for key 'goonghap_perfect_score_exists'."
   },
   "post_minor_board_create_request_message_input": "Masukkan pesan yang meminta untuk membuka papan.",
   "@post_minor_board_create_request_message_input": {
@@ -1945,9 +1945,13 @@
   "@post_minor_board_create_request_message": {
     "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
   },
-  "compatibility_purchase_confirm_title": "Beli dengan Star Candy",
-  "@compatibility_purchase_confirm_title": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
+  "goonghap_purchase_confirm_title": "Beli dengan Star Candy",
+  "@goonghap_purchase_confirm_title": {
+    "description": "Auto-generated metadata for key 'goonghap_purchase_confirm_title'."
+  },
+  "goonghap_artist_no_birthdate": "Tidak bisa melihat kecocokan karena tidak ada informasi tanggal lahir artis ini.",
+  "@goonghap_artist_no_birthdate": {
+    "description": "Auto-generated metadata for key 'goonghap_artist_no_birthdate'."
   },
   "post_board_create_request_label": "Permintaan untuk membuka papan",
   "@post_board_create_request_label": {

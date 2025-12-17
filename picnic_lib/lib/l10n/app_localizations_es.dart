@@ -69,135 +69,133 @@ class AppLocalizationsEs extends AppLocalizations {
   String get common_text_search_result_label => 'Resultados de la búsqueda';
 
   @override
-  String get compatibility_activities_title => 'Actividades sugeridas';
+  String get goonghap_activities_title => 'Actividades sugeridas';
 
   @override
-  String get compatibility_artist_no_birthdate =>
-      'This artist\'s birth date is not available for compatibility.';
+  String get goonghap_artist_no_birthdate =>
+      'No se puede ver la compatibilidad porque no hay información de la fecha de nacimiento de este artista.';
 
   @override
-  String get compatibility_agree_checkbox =>
+  String get goonghap_agree_checkbox =>
       'Acepto almacenar mi información de género y cumpleaños en mi perfil.';
 
   @override
-  String get compatibility_analyze_start => 'Iniciar análisis de Goong-Hap';
+  String get goonghap_analyze_start => 'Iniciar análisis de Goong-Hap';
 
   @override
-  String get compatibility_analyzing => 'Analizando Goong-Hap.';
+  String get goonghap_analyzing => 'Analizando Goong-Hap.';
 
   @override
-  String get compatibility_analyzing_prepare => 'Preparante';
+  String get goonghap_analyzing_prepare => 'Preparante';
 
   @override
-  String get compatibility_birthday => 'Fecha de nacimiento';
+  String get goonghap_birthday => 'Fecha de nacimiento';
 
   @override
-  String get compatibility_birthtime => 'Hora de nacimiento';
+  String get goonghap_birthtime => 'Hora de nacimiento';
 
   @override
-  String get compatibility_couple_style => 'Pareja estilos';
+  String get goonghap_couple_style => 'Pareja estilos';
 
   @override
-  String get compatibility_duplicate_data_title =>
+  String get goonghap_duplicate_data_title =>
       'Datos de Goong-Hap que ya existen';
 
   @override
-  String get compatibility_gender => 'Género';
+  String get goonghap_gender => 'Género';
 
   @override
-  String get compatibility_gender_female => 'Femenino';
+  String get goonghap_gender_female => 'Femenino';
 
   @override
-  String get compatibility_gender_male => 'Masculino';
+  String get goonghap_gender_male => 'Masculino';
 
   @override
-  String get compatibility_idol_style => 'Estilos de ídolo';
+  String get goonghap_idol_style => 'Estilos de ídolo';
 
   @override
-  String get compatibility_new_compatibility => 'Ver nuevo Goong-hap';
+  String get goonghap_new => 'Ver nuevo Goong-hap';
 
   @override
-  String get compatibility_page_title => 'Goong-Hap';
+  String get goonghap_page_title => 'Goong-Hap';
 
   @override
-  String get compatibility_purchase_confirm_message =>
+  String get goonghap_purchase_confirm_message =>
       'Use dulces de 100 estrellas para verificar los resultados de Goong-Hap.';
 
   @override
-  String get compatibility_remain_star_candy => 'Candy Star Candy restante';
+  String get goonghap_remain_star_candy => 'Candy Star Candy restante';
 
   @override
-  String get compatibility_result_not_found => 'No es goong-hap 😔.';
+  String get goonghap_result_not_found => 'No es goong-hap 😔.';
 
   @override
-  String get compatibility_share_hashtag =>
-      '#Picnic #피크닠 #아이돌궁합 #goonghap #피크닠궁합';
+  String get goonghap_share_hashtag => '#Picnic #피크닠 #아이돌궁합 #goonghap #피크닠궁합';
 
   @override
-  String compatibility_share_message(String artistName) {
+  String goonghap_share_message(String artistName) {
     return '¿Qué porcentaje es mi Goong-Hap de química brillante con $artistName? ¡Mi corazón está acelerando!';
   }
 
   @override
-  String get compatibility_snackbar_error => 'Ocurrió un error.';
+  String get goonghap_snackbar_error => 'Ocurrió un error.';
 
   @override
-  String get compatibility_snackbar_need_gender => 'Seleccione un género.';
+  String get goonghap_snackbar_need_gender => 'Seleccione un género.';
 
   @override
-  String get compatibility_snackbar_start => 'Comenzar a analizar Goong-Hap.';
+  String get goonghap_snackbar_start => 'Comenzar a analizar Goong-Hap.';
 
   @override
-  String get compatibility_style_title => 'Estilos de Goong-Hap';
+  String get goonghap_style_title => 'Estilos de Goong-Hap';
 
   @override
-  String get compatibility_time_slot1 => 'Hora de la rata|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => 'Hora de la rata|(23:30-01:29)|🐀';
 
   @override
-  String get compatibility_time_slot10 => 'Hora del gallo|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => 'Hora del gallo|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 => 'Hora del perro|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => 'Hora del perro|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 => 'Hora del jabalí|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => 'Hora del jabalí|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => 'Hora del buey|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => 'Hora del buey|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 => 'Hora del tigre|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => 'Hora del tigre|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 => 'Hora del conejo|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => 'Hora del conejo|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 => 'Hora del dragón|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => 'Hora del dragón|(07:30-09:29)|🐉';
 
   @override
-  String get compatibility_time_slot6 =>
-      'Hora de la serpiente|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => 'Hora de la serpiente|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 => 'Hora del caballo|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => 'Hora del caballo|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 => 'Hora de la oveja|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => 'Hora de la oveja|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 => 'Hora del mono|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => 'Hora del mono|(15:30-17:29)|🐒';
 
   @override
-  String get compatibility_tips_title => 'Consejos de Goong-Hap';
+  String get goonghap_tips_title => 'Consejos de Goong-Hap';
 
   @override
-  String get compatibility_user_style => 'Estilos de usuario';
+  String get goonghap_user_style => 'Estilos de usuario';
 
   @override
-  String get compatibility_waiting_message => 'Por favor espere un momento.';
+  String get goonghap_waiting_message => 'Por favor espere un momento.';
 
   @override
-  String get compatibility_warning_exit =>
+  String get goonghap_warning_exit =>
       'Si deja la pantalla, deberá hacer el análisis nuevamente.';
 
   @override
@@ -1039,20 +1037,20 @@ class AppLocalizationsEs extends AppLocalizations {
       'Póngase en contacto con el servicio al cliente si tiene alguna pregunta.';
 
   @override
-  String get compatibility_empty_state_title => 'Sin información de Goong-Hap';
+  String get goonghap_empty_state_title => 'Sin información de Goong-Hap';
 
   @override
-  String get compatibility_empty_state_subtitle => '¡Crea tu primer Goong-Hap!';
+  String get goonghap_empty_state_subtitle => '¡Crea tu primer Goong-Hap!';
 
   @override
-  String get compatibility_login_required_title => 'Inicio de sesión requerido';
+  String get goonghap_login_required_title => 'Inicio de sesión requerido';
 
   @override
-  String get compatibility_login_required_subtitle =>
+  String get goonghap_login_required_subtitle =>
       'Por favor inicia sesión para ver tus resultados de compatibilidad';
 
   @override
-  String get compatibility_login_button => 'Iniciar sesión';
+  String get goonghap_login_button => 'Iniciar sesión';
 
   @override
   String get network_error_title => 'Error de red';
@@ -1219,7 +1217,7 @@ class AppLocalizationsEs extends AppLocalizations {
       '- Al usar Star Candy, el bono Star Candy con la fecha de vencimiento más cercana se deducirá primero.';
 
   @override
-  String compatibility_purchase_message(String artistName) {
+  String goonghap_purchase_message(String artistName) {
     return 'Si quiero saber el puntaje de goong-hap entre mí y el $artistName?';
   }
 
@@ -1227,7 +1225,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get label_mypage_charge_history => 'Cargos (administrador)';
 
   @override
-  String get compatibility_time_slot_unknown => 'No sé';
+  String get goonghap_time_slot_unknown => 'No sé';
 
   @override
   String get label_popup_hide_7days => 'No vea por 7 días';
@@ -1292,7 +1290,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'Dando sus suscripción';
 
   @override
-  String get compatibility_birthtime_subtitle => '¡Aumenta la precisión!';
+  String get goonghap_birthtime_subtitle => '¡Aumenta la precisión!';
 
   @override
   String get title_dialog_success => 'Éxito';
@@ -1323,7 +1321,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get bonus_candy_earn_period_1_to_15 => '1 00:00:00 ~ 15 23:59:59';
 
   @override
-  String get compatibility_snackbar_need_birthday =>
+  String get goonghap_snackbar_need_birthday =>
       'Ingrese su fecha de nacimiento.';
 
   @override
@@ -1353,7 +1351,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get post_comment_action_show_original => 'Ver texto completo';
 
   @override
-  String get compatibility_snackbar_need_profile_save_agree =>
+  String get goonghap_snackbar_need_profile_save_agree =>
       'Dé su consentimiento para guardar su perfil.';
 
   @override
@@ -1402,11 +1400,11 @@ class AppLocalizationsEs extends AppLocalizations {
       '- Bonus Star Candy de estaciones de carga gratuitas y dulces de estrellas de bonificación de compras tienen una fecha de vencimiento.';
 
   @override
-  String get compatibility_perfect_score_exists_title =>
+  String get goonghap_perfect_score_exists_title =>
       'Ya ganando datos de partidos';
 
   @override
-  String get compatibility_duplicate_data_message =>
+  String get goonghap_duplicate_data_message =>
       'Ya existen datos de Goong-Hap con las mismas condiciones.';
 
   @override
@@ -1475,8 +1473,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Tu apodo ha cambiado con éxito.';
 
   @override
-  String get compatibility_new_compatibility_ask =>
-      '¿Quieres ver un nuevo Goong-hap?';
+  String get goonghap_new_ask => '¿Quieres ver un nuevo Goong-hap?';
 
   @override
   String post_replying_comment(String nickname) {
@@ -1487,7 +1484,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get button_pic_pic_save => 'Ahorrar';
 
   @override
-  String get compatibility_perfect_score_exists =>
+  String get goonghap_perfect_score_exists =>
       'Tenga en cuenta que los datos de Goong-Hap para esta condición ya han ganado recompensas, por lo que no podemos otorgar recompensas adicionales.';
 
   @override
@@ -1510,7 +1507,7 @@ class AppLocalizationsEs extends AppLocalizations {
       '* Mensaje solicitando abrir un tablero.';
 
   @override
-  String get compatibility_purchase_confirm_title => 'Compra con Star Candy';
+  String get goonghap_purchase_confirm_title => 'Compra con Star Candy';
 
   @override
   String get post_board_create_request_label =>

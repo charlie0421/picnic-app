@@ -10,7 +10,7 @@ import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_list_page.dart';
 import 'package:picnic_lib/presentation/screens/community/community_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/goong_hap/goong_hap_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/novel/novel_home_screen.dart';
@@ -176,7 +176,7 @@ class NavigationInfo extends _$NavigationInfo {
       case PortalType.goongHap:
         final goongHapPage =
             NavigationConfigs.getPageWidget(PortalType.goongHap, 0) ??
-                const CompatibilityListPage();
+                const GoonghapListPage();
         logger.d(
             '💕 Setting GOONG-HAP portal, page widget: ${goongHapPage.runtimeType}');
 

@@ -5,7 +5,7 @@ part '../../../generated/providers/models/qna/qna_message.freezed.dart';
 part '../../../generated/providers/models/qna/qna_message.g.dart';
 
 @freezed
-class QnaMessage with _$QnaMessage {
+abstract class QnaMessage with _$QnaMessage {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory QnaMessage({
     required int id,

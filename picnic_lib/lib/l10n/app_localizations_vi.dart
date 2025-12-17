@@ -67,135 +67,132 @@ class AppLocalizationsVi extends AppLocalizations {
   String get common_text_search_result_label => 'Kết quả tìm kiếm';
 
   @override
-  String get compatibility_activities_title => 'Các hoạt động đề xuất';
+  String get goonghap_activities_title => 'Các hoạt động đề xuất';
 
   @override
-  String get compatibility_artist_no_birthdate =>
-      'This artist\'s birth date is not available for compatibility.';
+  String get goonghap_artist_no_birthdate =>
+      'Không thể xem tương hợp vì không có thông tin ngày sinh của nghệ sĩ này.';
 
   @override
-  String get compatibility_agree_checkbox =>
+  String get goonghap_agree_checkbox =>
       'Tôi đồng ý lưu trữ thông tin về giới tính và sinh nhật của tôi trong hồ sơ của tôi.';
 
   @override
-  String get compatibility_analyze_start => 'Bắt đầu phân tích Goong-Hap';
+  String get goonghap_analyze_start => 'Bắt đầu phân tích Goong-Hap';
 
   @override
-  String get compatibility_analyzing => 'Phân tích Goong-Hap.';
+  String get goonghap_analyzing => 'Phân tích Goong-Hap.';
 
   @override
-  String get compatibility_analyzing_prepare => 'Chuẩn bị';
+  String get goonghap_analyzing_prepare => 'Chuẩn bị';
 
   @override
-  String get compatibility_birthday => 'Ngày sinh';
+  String get goonghap_birthday => 'Ngày sinh';
 
   @override
-  String get compatibility_birthtime => 'Thời gian sinh';
+  String get goonghap_birthtime => 'Thời gian sinh';
 
   @override
-  String get compatibility_couple_style => 'Phong cách cặp đôi';
+  String get goonghap_couple_style => 'Phong cách cặp đôi';
 
   @override
-  String get compatibility_duplicate_data_title =>
-      'Dữ liệu tương thích đã tồn tại';
+  String get goonghap_duplicate_data_title => 'Dữ liệu tương thích đã tồn tại';
 
   @override
-  String get compatibility_gender => 'Giới tính';
+  String get goonghap_gender => 'Giới tính';
 
   @override
-  String get compatibility_gender_female => 'Nữ giới';
+  String get goonghap_gender_female => 'Nữ giới';
 
   @override
-  String get compatibility_gender_male => 'Nam giới';
+  String get goonghap_gender_male => 'Nam giới';
 
   @override
-  String get compatibility_idol_style => 'Phong cách thần tượng';
+  String get goonghap_idol_style => 'Phong cách thần tượng';
 
   @override
-  String get compatibility_new_compatibility => 'Xem Goong-Hap mới';
+  String get goonghap_new => 'Xem Goong-Hap mới';
 
   @override
-  String get compatibility_page_title => 'Goong-Hap';
+  String get goonghap_page_title => 'Goong-Hap';
 
   @override
-  String get compatibility_purchase_confirm_message =>
+  String get goonghap_purchase_confirm_message =>
       'Sử dụng kẹo 100 sao để kiểm tra kết quả Goong-Hap.';
 
   @override
-  String get compatibility_remain_star_candy => 'Kẹo sao còn lại';
+  String get goonghap_remain_star_candy => 'Kẹo sao còn lại';
 
   @override
-  String get compatibility_result_not_found => 'Nó không phải là goong-hap.';
+  String get goonghap_result_not_found => 'Nó không phải là goong-hap.';
 
   @override
-  String get compatibility_share_hashtag =>
-      '#Picnic #피크닠 #아이돌궁합 #goorghap #피크닠궁합';
+  String get goonghap_share_hashtag => '#Picnic #피크닠 #아이돌궁합 #goorghap #피크닠궁합';
 
   @override
-  String compatibility_share_message(String artistName) {
+  String goonghap_share_message(String artistName) {
     return 'Bao nhiêu phần trăm Goong-Hap hóa học của tôi với $artistName? Trái tim tôi đang chạy đua!';
   }
 
   @override
-  String get compatibility_snackbar_error => 'Một lỗi đã xảy ra.';
+  String get goonghap_snackbar_error => 'Một lỗi đã xảy ra.';
 
   @override
-  String get compatibility_snackbar_need_gender => 'Vui lòng chọn giới tính.';
+  String get goonghap_snackbar_need_gender => 'Vui lòng chọn giới tính.';
 
   @override
-  String get compatibility_snackbar_start => 'Bắt đầu phân tích Goong-Hap.';
+  String get goonghap_snackbar_start => 'Bắt đầu phân tích Goong-Hap.';
 
   @override
-  String get compatibility_style_title => 'Phong cách tương thích';
+  String get goonghap_style_title => 'Phong cách tương thích';
 
   @override
-  String get compatibility_time_slot1 => 'Giờ của chuột|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => 'Giờ của chuột|(23:30-01:29)|🐀';
 
   @override
-  String get compatibility_time_slot10 =>
-      'Giờ của con gà trống|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => 'Giờ của con gà trống|(17:30-19:29)|🐔';
 
   @override
-  String get compatibility_time_slot11 => 'Giờ của con chó|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => 'Giờ của con chó|(19:30-21:29)|🐕';
 
   @override
-  String get compatibility_time_slot12 => 'Giờ của con lợn|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => 'Giờ của con lợn|(21:30-23:29)|🐖';
 
   @override
-  String get compatibility_time_slot2 => 'Giờ của Trâu|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => 'Giờ của Trâu|(01:30-03:29)|🐂';
 
   @override
-  String get compatibility_time_slot3 => 'Giờ của Hổ|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => 'Giờ của Hổ|(03:30-05:29)|🐅';
 
   @override
-  String get compatibility_time_slot4 => 'Giờ của thỏ|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => 'Giờ của thỏ|(05:30-07:29)|🐇';
 
   @override
-  String get compatibility_time_slot5 => 'Giờ của con rồng|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => 'Giờ của con rồng|(07:30-09:29)|🐉';
 
   @override
-  String get compatibility_time_slot6 => 'Giờ của con rắn|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => 'Giờ của con rắn|(09:30-11:29)|🐍';
 
   @override
-  String get compatibility_time_slot7 => 'Giờ của con ngựa|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => 'Giờ của con ngựa|(11:30-13:29)|🐎';
 
   @override
-  String get compatibility_time_slot8 => 'Giờ của cừu|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => 'Giờ của cừu|(13:30-15:29)|🐑';
 
   @override
-  String get compatibility_time_slot9 => 'Giờ của con khỉ|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => 'Giờ của con khỉ|(15:30-17:29)|🐒';
 
   @override
-  String get compatibility_tips_title => 'Mẹo tương thích';
+  String get goonghap_tips_title => 'Mẹo tương thích';
 
   @override
-  String get compatibility_user_style => 'Kiểu người dùng';
+  String get goonghap_user_style => 'Kiểu người dùng';
 
   @override
-  String get compatibility_waiting_message => 'Vui lòng đợi một chút.';
+  String get goonghap_waiting_message => 'Vui lòng đợi một chút.';
 
   @override
-  String get compatibility_warning_exit =>
+  String get goonghap_warning_exit =>
       'Nếu bạn rời khỏi màn hình, bạn sẽ cần phải thực hiện phân tích một lần nữa.';
 
   @override
@@ -1031,22 +1028,20 @@ class AppLocalizationsVi extends AppLocalizations {
       'Vui lòng liên hệ với dịch vụ khách hàng nếu bạn có bất kỳ câu hỏi.';
 
   @override
-  String get compatibility_empty_state_title =>
-      'Không có thông tin tương thích';
+  String get goonghap_empty_state_title => 'Không có thông tin tương thích';
 
   @override
-  String get compatibility_empty_state_subtitle =>
-      'Tạo Goong-Hap đầu tiên của bạn!';
+  String get goonghap_empty_state_subtitle => 'Tạo Goong-Hap đầu tiên của bạn!';
 
   @override
-  String get compatibility_login_required_title => 'Cần đăng nhập';
+  String get goonghap_login_required_title => 'Cần đăng nhập';
 
   @override
-  String get compatibility_login_required_subtitle =>
+  String get goonghap_login_required_subtitle =>
       'Vui lòng đăng nhập để xem kết quả tương hợp';
 
   @override
-  String get compatibility_login_button => 'Đăng nhập';
+  String get goonghap_login_button => 'Đăng nhập';
 
   @override
   String get network_error_title => 'Lỗi mạng';
@@ -1212,7 +1207,7 @@ class AppLocalizationsVi extends AppLocalizations {
       '- Khi sử dụng Star Candy, Candy Star Bonus với ngày hết hạn gần nhất sẽ được khấu trừ trước.';
 
   @override
-  String compatibility_purchase_message(String artistName) {
+  String goonghap_purchase_message(String artistName) {
     return 'Nếu tôi muốn biết điểm số goong-hap giữa tôi và $artistName?';
   }
 
@@ -1220,7 +1215,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_mypage_charge_history => 'Phí (quản trị viên)';
 
   @override
-  String get compatibility_time_slot_unknown => 'Không biết';
+  String get goonghap_time_slot_unknown => 'Không biết';
 
   @override
   String get label_popup_hide_7days => 'Đừng xem trong 7 ngày';
@@ -1283,7 +1278,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'Hủy đăng ký';
 
   @override
-  String get compatibility_birthtime_subtitle => 'Tăng độ chính xác!';
+  String get goonghap_birthtime_subtitle => 'Tăng độ chính xác!';
 
   @override
   String get title_dialog_success => 'Thành công';
@@ -1313,7 +1308,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get bonus_candy_earn_period_1_to_15 => '1 00:00:00 ~ 15th 23:59:59';
 
   @override
-  String get compatibility_snackbar_need_birthday =>
+  String get goonghap_snackbar_need_birthday =>
       'Vui lòng nhập ngày sinh của bạn.';
 
   @override
@@ -1344,7 +1339,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get post_comment_action_show_original => 'Xem toàn văn';
 
   @override
-  String get compatibility_snackbar_need_profile_save_agree =>
+  String get goonghap_snackbar_need_profile_save_agree =>
       'Hãy đồng ý để lưu hồ sơ của bạn.';
 
   @override
@@ -1392,11 +1387,10 @@ class AppLocalizationsVi extends AppLocalizations {
       '- Bonus Star Candy từ các trạm sạc miễn phí và tiền thưởng Star Candy từ các giao dịch mua có ngày hết hạn.';
 
   @override
-  String get compatibility_perfect_score_exists_title =>
-      'Đã thắng dữ liệu phù hợp';
+  String get goonghap_perfect_score_exists_title => 'Đã thắng dữ liệu phù hợp';
 
   @override
-  String get compatibility_duplicate_data_message =>
+  String get goonghap_duplicate_data_message =>
       'Dữ liệu tương thích với các điều kiện tương tự đã tồn tại.';
 
   @override
@@ -1463,8 +1457,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Biệt danh của bạn đã được thay đổi thành công.';
 
   @override
-  String get compatibility_new_compatibility_ask =>
-      'Bạn muốn xem một Goong-Hap mới?';
+  String get goonghap_new_ask => 'Bạn muốn xem một Goong-Hap mới?';
 
   @override
   String post_replying_comment(String nickname) {
@@ -1475,7 +1468,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get button_pic_pic_save => 'Cứu';
 
   @override
-  String get compatibility_perfect_score_exists =>
+  String get goonghap_perfect_score_exists =>
       'Xin lưu ý rằng dữ liệu tương thích cho điều kiện này đã kiếm được phần thưởng, vì vậy chúng tôi không thể trao phần thưởng bổ sung.';
 
   @override
@@ -1498,7 +1491,7 @@ class AppLocalizationsVi extends AppLocalizations {
       '* Tin nhắn yêu cầu mở một bảng.';
 
   @override
-  String get compatibility_purchase_confirm_title => 'Mua bằng kẹo sao';
+  String get goonghap_purchase_confirm_title => 'Mua bằng kẹo sao';
 
   @override
   String get post_board_create_request_label => 'Yêu cầu mở một bảng';

@@ -4,7 +4,7 @@ part '../../../generated/providers/models/qna/qna_attachment.freezed.dart';
 part '../../../generated/providers/models/qna/qna_attachment.g.dart';
 
 @freezed
-class QnaAttachment with _$QnaAttachment {
+abstract class QnaAttachment with _$QnaAttachment {
   const factory QnaAttachment({
     required int id,
     required int messageId,

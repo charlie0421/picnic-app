@@ -68,141 +68,135 @@ class AppLocalizationsMy extends AppLocalizations {
   String get common_text_search_result_label => 'ရှာဖွေမှုရလဒ်များ';
 
   @override
-  String get compatibility_activities_title => 'အကြံပြုချက်များ';
+  String get goonghap_activities_title => 'အကြံပြုချက်များ';
 
   @override
-  String get compatibility_artist_no_birthdate =>
+  String get goonghap_artist_no_birthdate =>
       'ဤအနုပညာရှင်၏မွေးနေ့သည်လိုက်ဖက်မှုအတွက်မရှိပါ။';
 
   @override
-  String get compatibility_agree_checkbox =>
+  String get goonghap_agree_checkbox =>
       'ကျွန်ုပ်၏ကျားမနှင့်မွေးနေ့ကိုကျွန်ုပ်၏ပရိုဖိုင်းတွင်သိမ်းဆည်းရန်ကျွန်ုပ်သဘောတူသည်။';
 
   @override
-  String get compatibility_analyze_start => 'လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာစတင်ပါ';
+  String get goonghap_analyze_start => 'လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာစတင်ပါ';
 
   @override
-  String get compatibility_analyzing =>
-      'လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာခွဲခြမ်းစိတ်ဖြာ။';
+  String get goonghap_analyzing => 'လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာခွဲခြမ်းစိတ်ဖြာ။';
 
   @override
-  String get compatibility_analyzing_prepare => 'ပြင်ဆင်နေ';
+  String get goonghap_analyzing_prepare => 'ပြင်ဆင်နေ';
 
   @override
-  String get compatibility_birthday => 'မွေးနေ့';
+  String get goonghap_birthday => 'မွေးနေ့';
 
   @override
-  String get compatibility_birthtime => 'မွေးဖွားချိန်';
+  String get goonghap_birthtime => 'မွေးဖွားချိန်';
 
   @override
-  String get compatibility_couple_style => 'စုံတွဲများစတိုင်များ';
+  String get goonghap_couple_style => 'စုံတွဲများစတိုင်များ';
 
   @override
-  String get compatibility_duplicate_data_title =>
-      'ရှိပြီးသားတည်ရှိနေတဲ့သဟဇာတဒေတာ';
+  String get goonghap_duplicate_data_title => 'ရှိပြီးသားတည်ရှိနေတဲ့သဟဇာတဒေတာ';
 
   @override
-  String get compatibility_gender => 'ကျားကန်';
+  String get goonghap_gender => 'ကျားကန်';
 
   @override
-  String get compatibility_gender_female => 'မိန်းမ';
+  String get goonghap_gender_female => 'မိန်းမ';
 
   @override
-  String get compatibility_gender_male => 'ယောကျ်ားဖြစ်သော';
+  String get goonghap_gender_male => 'ယောကျ်ားဖြစ်သော';
 
   @override
-  String get compatibility_idol_style => 'Idol Style';
+  String get goonghap_idol_style => 'Idol Style';
 
   @override
-  String get compatibility_new_compatibility => 'နယူး goong-hap တွက်ချက်';
+  String get goonghap_new => 'နယူး goong-hap တွက်ချက်';
 
   @override
-  String get compatibility_page_title => 'လိုက်ကြားမှု';
+  String get goonghap_page_title => 'လိုက်ကြားမှု';
 
   @override
-  String get compatibility_purchase_confirm_message =>
+  String get goonghap_purchase_confirm_message =>
       'အသေးစိတ် Goong-Hap ရလဒ်ကြည့်ရန် Star Candy ၁၀၀ သုံးမည်လား?';
 
   @override
-  String get compatibility_remain_star_candy => 'ကျန်ရှိ Star Candy';
+  String get goonghap_remain_star_candy => 'ကျန်ရှိ Star Candy';
 
   @override
-  String get compatibility_result_not_found => 'ဒါဟာ Goong-hap 😔မဟုတ်ပါဘူး။';
+  String get goonghap_result_not_found => 'ဒါဟာ Goong-hap 😔မဟုတ်ပါဘူး။';
 
   @override
-  String get compatibility_share_hashtag =>
+  String get goonghap_share_hashtag =>
       '#Picnic # 피크닠 # 아이돌궁합 # 아이돌궁합 #goGONGHAP # 피크닠궁합';
 
   @override
-  String compatibility_share_message(String artistName) {
+  String goonghap_share_message(String artistName) {
     return 'ကျွန်ုပ်၏တောက်ပသောဓာတုဗေဒလိုက်လျောညီထွေဖြစ်မှုသည် $artistName နှင့်မည်သည့်ရာခိုင်နှုန်းနှင့်လိုက်ဖက်သနည်း။ ငါ့နှလုံးကပြိုင်ကားနေပါတယ်';
   }
 
   @override
-  String get compatibility_snackbar_error => 'အမှားတစ်ခုဖြစ်ပွားခဲ့သည်';
+  String get goonghap_snackbar_error => 'အမှားတစ်ခုဖြစ်ပွားခဲ့သည်';
 
   @override
-  String get compatibility_snackbar_need_gender => 'ကျေးဇူးပြုပြီးကျား,';
+  String get goonghap_snackbar_need_gender => 'ကျေးဇူးပြုပြီးကျား,';
 
   @override
-  String get compatibility_snackbar_start =>
+  String get goonghap_snackbar_start =>
       'လိုက်ဖက်တဲ့ခွဲခြမ်းစိတ်ဖြာစတင်လေ့လာပါ။';
 
   @override
-  String get compatibility_style_title => 'လိုက်ဖက်တဲ့စတိုင်လ်';
+  String get goonghap_style_title => 'လိုက်ဖက်တဲ့စတိုင်လ်';
 
   @override
-  String get compatibility_time_slot1 => 'ကြွက်၏နာရီ | (23 း 30-01: 29) | 🐀';
+  String get goonghap_time_slot1 => 'ကြွက်၏နာရီ | (23 း 30-01: 29) | 🐀';
 
   @override
-  String get compatibility_time_slot10 =>
+  String get goonghap_time_slot10 =>
       'ကြက်ငှက်တုပ်ကွေး၏နာရီ (17: 30-19: 29) | 🐔 |';
 
   @override
-  String get compatibility_time_slot11 =>
-      'ခွေး၏နာရီ | (19 း 30-21 း 29) | 🐕 |';
+  String get goonghap_time_slot11 => 'ခွေး၏နာရီ | (19 း 30-21 း 29) | 🐕 |';
 
   @override
-  String get compatibility_time_slot12 =>
-      'ဝက်ဝက်၏နာရီ | (21: 30-23: 29) | 🐖 |';
+  String get goonghap_time_slot12 => 'ဝက်ဝက်၏နာရီ | (21: 30-23: 29) | 🐖 |';
 
   @override
-  String get compatibility_time_slot2 => 'နွား၏နာရီ | (01: 30-03 း 29) | 🐂 |';
+  String get goonghap_time_slot2 => 'နွား၏နာရီ | (01: 30-03 း 29) | 🐂 |';
 
   @override
-  String get compatibility_time_slot3 => 'Tiger ၏နာရီ (03: 30-05: 29) | 🐅 |';
+  String get goonghap_time_slot3 => 'Tiger ၏နာရီ (03: 30-05: 29) | 🐅 |';
 
   @override
-  String get compatibility_time_slot4 => 'ယုန်၏နာရီ | (05: 30-07: 29) | 🐇 |';
+  String get goonghap_time_slot4 => 'ယုန်၏နာရီ | (05: 30-07: 29) | 🐇 |';
 
   @override
-  String get compatibility_time_slot5 => 'နဂါး၏နာရီ (07: 30-09: 29) | 🐉 |';
+  String get goonghap_time_slot5 => 'နဂါး၏နာရီ (07: 30-09: 29) | 🐉 |';
 
   @override
-  String get compatibility_time_slot6 => 'မြွေ၏နာရီ | (09 း 30-11: 29) | 🐍 |';
+  String get goonghap_time_slot6 => 'မြွေ၏နာရီ | (09 း 30-11: 29) | 🐍 |';
 
   @override
-  String get compatibility_time_slot7 => 'မြင်း၏နာရီ (11 း 30-13: 29) | 🐎';
+  String get goonghap_time_slot7 => 'မြင်း၏နာရီ (11 း 30-13: 29) | 🐎';
 
   @override
-  String get compatibility_time_slot8 => 'သိုးများ၏နာရီ | (13: 30-15: 29) |';
+  String get goonghap_time_slot8 => 'သိုးများ၏နာရီ | (13: 30-15: 29) |';
 
   @override
-  String get compatibility_time_slot9 =>
-      'မျောက်၏အချိန် | (15 း 30-17: 29) | 🐒';
+  String get goonghap_time_slot9 => 'မျောက်၏အချိန် | (15 း 30-17: 29) | 🐒';
 
   @override
-  String get compatibility_tips_title => 'လိုက်ဖက်တဲ့သိကောင်းစရာများ';
+  String get goonghap_tips_title => 'လိုက်ဖက်တဲ့သိကောင်းစရာများ';
 
   @override
-  String get compatibility_user_style => 'အသုံးပြုသူပုံစံများ';
+  String get goonghap_user_style => 'အသုံးပြုသူပုံစံများ';
 
   @override
-  String get compatibility_waiting_message => 'ကျေးဇူးပြုပြီးခဏစောင့်ပါ';
+  String get goonghap_waiting_message => 'ကျေးဇူးပြုပြီးခဏစောင့်ပါ';
 
   @override
-  String get compatibility_warning_exit =>
-      'အကယ်. သင်သည်မျက်နှာပြင်ကိုထားခဲ့ပါက,';
+  String get goonghap_warning_exit => 'အကယ်. သင်သည်မျက်နှာပြင်ကိုထားခဲ့ပါက,';
 
   @override
   String get dialog_button_cancel => 'ပျက်စေ';
@@ -1040,21 +1034,20 @@ class AppLocalizationsMy extends AppLocalizations {
       'အမှားဖြစ်သည်ဟုယုံကြည်ပါက customer@picnicglobal.com သို့ဆက်သွယ်ပါ။';
 
   @override
-  String get compatibility_empty_state_title => 'ကုန်းဟပ်အချက်အလက်မရှိပါ';
+  String get goonghap_empty_state_title => 'ကုန်းဟပ်အချက်အလက်မရှိပါ';
 
   @override
-  String get compatibility_empty_state_subtitle =>
-      'သင့်ပထမဆုံးကုန်းဟပ်ကိုဖန်တီးပါ!';
+  String get goonghap_empty_state_subtitle => 'သင့်ပထမဆုံးကုန်းဟပ်ကိုဖန်တီးပါ!';
 
   @override
-  String get compatibility_login_required_title => 'ဝင်ရောက်ရန်လိုအပ်သည်';
+  String get goonghap_login_required_title => 'ဝင်ရောက်ရန်လိုအပ်သည်';
 
   @override
-  String get compatibility_login_required_subtitle =>
+  String get goonghap_login_required_subtitle =>
       'သင့်ကုန်းဟပ်ရလဒ်များကိုကြည့်ရန်ဝင်ရောက်ပါ';
 
   @override
-  String get compatibility_login_button => 'ဝင်ရောက်ပါ';
+  String get goonghap_login_button => 'ဝင်ရောက်ပါ';
 
   @override
   String get network_error_title => 'ကွန်ရက်အမှား';
@@ -1220,7 +1213,7 @@ class AppLocalizationsMy extends AppLocalizations {
       '- ကြယ်ပွင့်သကြားလုံးအသုံးပြုသောအခါ သက်တမ်းနီးစပ်ဆုံးဘောနပ်ကြယ်ပွင့်သကြားလုံးကိုအရင်သုံးမည်။';
 
   @override
-  String compatibility_purchase_message(String artistName) {
+  String goonghap_purchase_message(String artistName) {
     return 'ငါနဲ့ $artistName ကြားမှာ Goong-hap ရမှတ်ကိုငါသိချင်ရင်?';
   }
 
@@ -1228,7 +1221,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get label_mypage_charge_history => 'စွဲချက်';
 
   @override
-  String get compatibility_time_slot_unknown => 'မသိဘူး';
+  String get goonghap_time_slot_unknown => 'မသိဘူး';
 
   @override
   String get label_popup_hide_7days => '7 ရက်မကြည့်ပါနှင့်';
@@ -1293,7 +1286,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'ပယ်ဖျက်နိုင်ခြင်း';
 
   @override
-  String get compatibility_birthtime_subtitle => 'တိကျမှန်ကန်မှုကိုတိုးမြှင့်!';
+  String get goonghap_birthtime_subtitle => 'တိကျမှန်ကန်မှုကိုတိုးမြှင့်!';
 
   @override
   String get title_dialog_success => 'အောင်မြင်ခြင်း';
@@ -1324,7 +1317,7 @@ class AppLocalizationsMy extends AppLocalizations {
       '၁ ရက် ၀၀:၀၀:၀၀ ~ ၁၅ ရက် ၂၃:၅၉:၅၉';
 
   @override
-  String get compatibility_snackbar_need_birthday =>
+  String get goonghap_snackbar_need_birthday =>
       'ကျေးဇူးပြု. သင်၏မွေးနေ့ကိုထည့်ပါ။';
 
   @override
@@ -1354,7 +1347,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get post_comment_action_show_original => 'စာသားအပြည့်အစုံကိုကြည့်ပါ';
 
   @override
-  String get compatibility_snackbar_need_profile_save_agree =>
+  String get goonghap_snackbar_need_profile_save_agree =>
       'သင်၏ပရိုဖိုင်းကိုကယ်တင်ရန်သင်၏ခွင့်ပြုချက်ကိုပေးပါ။';
 
   @override
@@ -1403,11 +1396,10 @@ class AppLocalizationsMy extends AppLocalizations {
       '- အခမဲ့အားသွင်းစခန်းများနှင့်ဆုလာဘ်များမှရရှိသောဘောနပ်ကြယ်ပွင့်သကြားလုံးသည်သက်တမ်းကုန်ဆုံးသည်။';
 
   @override
-  String get compatibility_perfect_score_exists_title =>
-      'ပြီးသားအနိုင်ရဒေတာဒေတာ';
+  String get goonghap_perfect_score_exists_title => 'ပြီးသားအနိုင်ရဒေတာဒေတာ';
 
   @override
-  String get compatibility_duplicate_data_message =>
+  String get goonghap_duplicate_data_message =>
       'တူညီသောအခြေအနေများနှင့်အတူလိုက်ဖက်တဲ့ဒေတာရှိပြီးသား။';
 
   @override
@@ -1477,8 +1469,7 @@ class AppLocalizationsMy extends AppLocalizations {
       'သင်၏အမည်ပြောင်ကိုအောင်မြင်စွာပြောင်းလဲသွားပြီ။';
 
   @override
-  String get compatibility_new_compatibility_ask =>
-      'အသစ်တစ်ခုကို Goong-had ကြည့်ချင်ပါသလား?';
+  String get goonghap_new_ask => 'အသစ်တစ်ခုကို Goong-had ကြည့်ချင်ပါသလား?';
 
   @override
   String post_replying_comment(String nickname) {
@@ -1489,7 +1480,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get button_pic_pic_save => 'ကယ်ဆယ်';
 
   @override
-  String get compatibility_perfect_score_exists =>
+  String get goonghap_perfect_score_exists =>
       'ဤအခြေအနေအတွက်လိုက်ဖက်တဲ့အချက်အလက်များကအကျိုးကျေးဇူးများရရှိထားကြောင်း ကျေးဇူးပြု. မှတ်သားပါ။';
 
   @override
@@ -1512,7 +1503,7 @@ class AppLocalizationsMy extends AppLocalizations {
       '* ဘုတ်အဖွဲ့တစ်ခုဖွင့်ရန်တောင်းဆိုခြင်းစာ။';
 
   @override
-  String get compatibility_purchase_confirm_title => 'Goong-Hap ရလဒ်ကြည့်ရန်';
+  String get goonghap_purchase_confirm_title => 'Goong-Hap ရလဒ်ကြည့်ရန်';
 
   @override
   String get post_board_create_request_label => 'ဘုတ်အဖွဲ့ဖွင့်ရန်တောင်းဆိုမှု';

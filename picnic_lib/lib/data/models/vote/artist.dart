@@ -5,7 +5,7 @@ part '../../../generated/providers/models/vote/artist.freezed.dart';
 part '../../../generated/providers/models/vote/artist.g.dart';
 
 @freezed
-class ArtistModel with _$ArtistModel {
+abstract class ArtistModel with _$ArtistModel {
   const ArtistModel._();
 
   const factory ArtistModel({
@@ -14,7 +14,7 @@ class ArtistModel with _$ArtistModel {
     @JsonKey(name: 'yy') int? yy,
     @JsonKey(name: 'mm') int? mm,
     @JsonKey(name: 'dd') int? dd,
-    @JsonKey(name: 'birth_date') DateTime? birthDate,
+    @JsonKey(name: 'birth_date') DateTime? birthDateRaw,
     @JsonKey(name: 'gender') String? gender,
     @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup,
     @JsonKey(name: 'image') String? image,
@@ -27,9 +27,9 @@ class ArtistModel with _$ArtistModel {
   factory ArtistModel.fromJson(Map<String, dynamic> json) =>
       _$ArtistModelFromJson(json);
 
-  @override
+  /// 실제 생년월일 (birthDateRaw 우선, 없으면 yy/mm/dd로 계산)
   DateTime? get birthDate {
-    if (super.birthDate != null) return super.birthDate;
+    if (birthDateRaw != null) return birthDateRaw;
     if (yy != null && mm != null && dd != null) {
       try {
         return DateTime(yy!, mm!, dd!);

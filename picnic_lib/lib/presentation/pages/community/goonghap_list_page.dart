@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_artist_select_page.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_input_page.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_loading_page.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
-import 'package:picnic_lib/presentation/providers/community/compatibility_list_provider.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_artist_select_page.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_input_page.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_loading_page.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_result_page.dart';
+import 'package:picnic_lib/presentation/providers/community/goonghap_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/goong_hap_intro_dialog.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_card.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_score_widget.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'dart:async';
 
-class CompatibilityListPage extends ConsumerStatefulWidget {
-  const CompatibilityListPage({super.key, this.artistId});
+class GoonghapListPage extends ConsumerStatefulWidget {
+  const GoonghapListPage({super.key, this.artistId});
 
   final int? artistId;
 
   @override
-  ConsumerState<CompatibilityListPage> createState() =>
-      _CompatibilityListPageState();
+  ConsumerState<GoonghapListPage> createState() =>
+      _GoonghapListPageState();
 }
 
-class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
-    with RouteAwareStateMixin<CompatibilityListPage> {
+class _GoonghapListPageState extends ConsumerState<GoonghapListPage>
+    with RouteAwareStateMixin<GoonghapListPage> {
   final _scrollController = ScrollController();
 
   // 성능 최적화를 위한 const 상수 활용
@@ -49,7 +49,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
     _scrollController.addListener(_onScroll);
     Future.microtask(
       () => ref
-          .read(compatibilityListProvider(artistId: widget.artistId).notifier)
+          .read(goonghapListProvider(artistId: widget.artistId).notifier)
           .loadInitial(),
     );
 
@@ -76,7 +76,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
     _updateNavigation();
     // 페이지로 돌아올 때 리스트 새로고침
     ref
-        .read(compatibilityListProvider(artistId: widget.artistId).notifier)
+        .read(goonghapListProvider(artistId: widget.artistId).notifier)
         .loadInitial();
   }
 
@@ -89,30 +89,30 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
 
     if (currentScroll >= maxScroll * _scrollThreshold) {
       ref
-          .read(compatibilityListProvider(artistId: widget.artistId).notifier)
+          .read(goonghapListProvider(artistId: widget.artistId).notifier)
           .loadMore();
     }
   }
 
-  void _onNewCompatibilityTap() {
+  void _onNewGoonghapTap() {
     final currentArtist = ref.read(communityStateInfoProvider).currentArtist;
     if (currentArtist != null) {
       // 현재 선택된 아티스트가 있으면 바로 입력 페이지로 이동
       ref
           .read(navigationInfoProvider.notifier)
           .setCommunityCurrentPage(
-            CompatibilityInputPage(artist: currentArtist),
+            GoonghapInputPage(artist: currentArtist),
           );
     } else {
       // 아티스트가 없으면 아티스트 선택 페이지로 이동
       ref
           .read(navigationInfoProvider.notifier)
-          .setCommunityCurrentPage(const CompatibilityArtistSelectPage());
+          .setCommunityCurrentPage(const GoonghapArtistSelectPage());
     }
   }
 
   // 🔧 연타 방지만 - 단순화
-  void _onCompatibilityCardTap(CompatibilityModel item) {
+  void _onGoonghapCardTap(GoonghapModel item) {
     // 연타 방지 (300ms)
     if (_lastTapTime != null) {
       final timeSinceTap = DateTime.now().difference(_lastTapTime!);
@@ -125,17 +125,17 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
     _lastTapTime = DateTime.now();
 
     // 페이지 이동
-    if (item.status == CompatibilityStatus.completed && item.isAds == true) {
+    if (item.status == GoonghapStatus.completed && item.isAds == true) {
       ref
           .read(navigationInfoProvider.notifier)
           .setCommunityCurrentPage(
-            CompatibilityResultPage(compatibility: item),
+            GoonghapResultPage(goonghap: item),
           );
     } else {
       ref
           .read(navigationInfoProvider.notifier)
           .setCommunityCurrentPage(
-            CompatibilityLoadingPage(compatibility: item),
+            GoonghapLoadingPage(goonghap: item),
           );
     }
   }
@@ -162,13 +162,13 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
           ),
           const SizedBox(height: 24),
           Text(
-            l10n.compatibility_login_required_title,
+            l10n.goonghap_login_required_title,
             style: getTextStyle(AppTypo.title18B, AppColors.grey00),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            l10n.compatibility_login_required_subtitle,
+            l10n.goonghap_login_required_subtitle,
             style: getTextStyle(
               AppTypo.body14R,
               AppColors.grey00.withValues(alpha: 0.8),
@@ -188,7 +188,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
                 const Icon(Icons.login, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  l10n.compatibility_login_button,
+                  l10n.goonghap_login_button,
                   style: getTextStyle(AppTypo.body16B, Colors.white),
                 ),
               ],
@@ -220,13 +220,13 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
           ),
           const SizedBox(height: 24),
           Text(
-            AppLocalizations.of(context).compatibility_empty_state_title,
+            AppLocalizations.of(context).goonghap_empty_state_title,
             style: getTextStyle(AppTypo.title18B, AppColors.grey00),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context).compatibility_empty_state_subtitle,
+            AppLocalizations.of(context).goonghap_empty_state_subtitle,
             style: getTextStyle(
               AppTypo.body14R,
               AppColors.grey00.withValues(alpha: 0.8),
@@ -234,7 +234,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
-          _buildNewCompatibilityButton(),
+          _buildNewGoonghapButton(),
         ],
       ),
     );
@@ -244,7 +244,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
   Widget build(BuildContext context) {
     final isLoggedIn = supabase.auth.currentUser != null;
     final history = ref.watch(
-      compatibilityListProvider(artistId: widget.artistId),
+      goonghapListProvider(artistId: widget.artistId),
     );
 
     // 네비게이션 스택 감지 - 현재 페이지가 top에 있을 때 네비게이션 업데이트
@@ -256,7 +256,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
         final navStack = ref
             .read(navigationInfoProvider)
             .communityNavigationStack;
-        final isCurrentPageOnTop = navStack?.peek() is CompatibilityListPage;
+        final isCurrentPageOnTop = navStack?.peek() is GoonghapListPage;
         if (isCurrentPageOnTop &&
             previous != null &&
             next != null &&
@@ -266,7 +266,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
           // 페이지로 돌아올 때 리스트 새로고침
           ref
               .read(
-                compatibilityListProvider(artistId: widget.artistId).notifier,
+                goonghapListProvider(artistId: widget.artistId).notifier,
               )
               .loadInitial();
         }
@@ -311,10 +311,10 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
 
                       final item = history.items[itemIndex];
 
-                      return _CompatibilityListItem(
+                      return _GoonghapListItem(
                         item: item,
                         isLastItem: itemIndex == history.items.length - 1,
-                        onTap: () => _onCompatibilityCardTap(item),
+                        onTap: () => _onGoonghapCardTap(item),
                       );
                     },
                   ),
@@ -415,7 +415,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
               ],
             ),
             child: ElevatedButton(
-              onPressed: _onNewCompatibilityTap,
+              onPressed: _onNewGoonghapTap,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -430,7 +430,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
                   const Icon(Icons.add_circle_outline, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    l10n.compatibility_new_compatibility,
+                    l10n.goonghap_new,
                     style: getTextStyle(AppTypo.body16B, Colors.white),
                   ),
                 ],
@@ -443,9 +443,9 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
     );
   }
 
-  Widget _buildNewCompatibilityButton() {
+  Widget _buildNewGoonghapButton() {
     return ElevatedButton(
-      onPressed: _onNewCompatibilityTap,
+      onPressed: _onNewGoonghapTap,
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
       ),
@@ -454,7 +454,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            AppLocalizations.of(context).compatibility_new_compatibility,
+            AppLocalizations.of(context).goonghap_new,
             style: getTextStyle(AppTypo.body16B, Colors.white),
           ),
         ],
@@ -473,20 +473,20 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage>
             showMyPoint: false,
             topRightMenu: TopRightType.none,
             showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(context).compatibility_page_title,
+            pageTitle: AppLocalizations.of(context).goonghap_page_title,
           );
     });
   }
 }
 
-class _CompatibilityListItem extends ConsumerWidget {
-  const _CompatibilityListItem({
+class _GoonghapListItem extends ConsumerWidget {
+  const _GoonghapListItem({
     required this.item,
     required this.isLastItem,
     required this.onTap,
   });
 
-  final CompatibilityModel item;
+  final GoonghapModel item;
   final bool isLastItem;
   final VoidCallback onTap;
 
@@ -498,15 +498,15 @@ class _CompatibilityListItem extends ConsumerWidget {
           onTap: onTap,
           child: Column(
             children: [
-              CompatibilityCard(
+              GoonghapCard(
                 artist: item.artist,
                 birthDate: item.birthDate,
                 birthTime: item.birthTime,
                 gender: item.gender,
-                compatibility: item,
+                goonghap: item,
               ),
               const SizedBox(height: 8),
-              CompatibilityScoreWidget(compatibility: item),
+              GoonghapScoreWidget(goonghap: item),
             ],
           ),
         ),

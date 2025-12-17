@@ -5,7 +5,7 @@ part '../../../generated/providers/models/pic/article_image.freezed.dart';
 part '../../../generated/providers/models/pic/article_image.g.dart';
 
 @freezed
-class ArticleImageModel with _$ArticleImageModel {
+abstract class ArticleImageModel with _$ArticleImageModel {
   const ArticleImageModel._();
 
   const factory ArticleImageModel({

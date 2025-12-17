@@ -6,7 +6,7 @@ part '../../../generated/providers/models/community/post.freezed.dart';
 part '../../../generated/providers/models/community/post.g.dart';
 
 @freezed
-class PostModel with _$PostModel {
+abstract class PostModel with _$PostModel {
   const PostModel._();
 
   const factory PostModel({

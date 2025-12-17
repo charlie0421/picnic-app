@@ -4,7 +4,7 @@ part '../../../generated/providers/models/qna/qa_thread.freezed.dart';
 part '../../../generated/providers/models/qna/qa_thread.g.dart';
 
 @freezed
-class QnaThread with _$QnaThread {
+abstract class QnaThread with _$QnaThread {
   const factory QnaThread({
     required int id,
     required String userId,

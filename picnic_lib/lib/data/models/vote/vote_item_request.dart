@@ -11,7 +11,7 @@ part '../../../generated/providers/models/vote/vote_item_request.g.dart';
 /// - status: VARCHAR(50) (요청 상태)
 /// - created_at, updated_at: TIMESTAMP
 @freezed
-class VoteItemRequest with _$VoteItemRequest {
+abstract class VoteItemRequest with _$VoteItemRequest {
   const factory VoteItemRequest({
     @JsonKey(name: 'id') required String id,
     @JsonKey(name: 'vote_id') required int voteId,

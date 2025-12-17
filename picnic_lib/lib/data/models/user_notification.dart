@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:picnic_lib/core/utils/locale_utils.dart';
 
-part '../../generated/models/user_notification.g.dart';
+part '../../generated/providers/models/user_notification.g.dart';
 
 /// 다국어 필드를 정규화하는 JSON 변환기
 /// 문자열이면 {"ko": "...", "en": "..."} 형태로 변환

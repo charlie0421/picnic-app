@@ -4,7 +4,7 @@ part '../../../generated/providers/models/common/popup.freezed.dart';
 part '../../../generated/providers/models/common/popup.g.dart';
 
 @freezed
-class Popup with _$Popup {
+abstract class Popup with _$Popup {
   const factory Popup({
     required int id,
     required Map<String, String> title,

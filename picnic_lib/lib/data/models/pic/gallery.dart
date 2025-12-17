@@ -7,7 +7,7 @@ part '../../../generated/providers/models/pic/gallery.freezed.dart';
 part '../../../generated/providers/models/pic/gallery.g.dart';
 
 @freezed
-class GalleryModel with _$GalleryModel {
+abstract class GalleryModel with _$GalleryModel {
   const GalleryModel._();
 
   const factory GalleryModel({

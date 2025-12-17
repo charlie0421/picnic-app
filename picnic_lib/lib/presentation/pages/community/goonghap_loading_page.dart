@@ -5,32 +5,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/core/utils/locale_utils.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
-import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_result_page.dart';
+import 'package:picnic_lib/presentation/providers/community/goonghap_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_error.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_card.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_error.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-class CompatibilityLoadingPage extends ConsumerStatefulWidget {
-  const CompatibilityLoadingPage({super.key, required this.compatibility});
+class GoonghapLoadingPage extends ConsumerStatefulWidget {
+  const GoonghapLoadingPage({super.key, required this.goonghap});
 
-  final CompatibilityModel compatibility;
+  final GoonghapModel goonghap;
 
   @override
-  ConsumerState<CompatibilityLoadingPage> createState() =>
-      _CompatibilityLoadingPageState();
+  ConsumerState<GoonghapLoadingPage> createState() =>
+      _GoonghapLoadingPageState();
 }
 
-class _CompatibilityLoadingPageState
-    extends ConsumerState<CompatibilityLoadingPage>
-    with RouteAwareStateMixin<CompatibilityLoadingPage> {
+class _GoonghapLoadingPageState
+    extends ConsumerState<GoonghapLoadingPage>
+    with RouteAwareStateMixin<GoonghapLoadingPage> {
   // Constants
   static const int _totalSeconds = 30;
 
@@ -91,12 +91,12 @@ class _CompatibilityLoadingPageState
 
     try {
       await ref
-          .read(compatibilityProvider.notifier)
-          .setCompatibility(widget.compatibility);
+          .read(goonghapProvider.notifier)
+          .setGoonghap(widget.goonghap);
 
-      if (widget.compatibility.isPending ||
-          widget.compatibility.isAds == false) {
-        ref.read(compatibilityLoadingProvider.notifier).set(true);
+      if (widget.goonghap.isPending ||
+          widget.goonghap.isAds == false) {
+        ref.read(goonghapLoadingProvider.notifier).set(true);
       }
     } catch (e, stack) {
       logger.e('Error initializing data', error: e, stackTrace: stack);
@@ -119,15 +119,15 @@ class _CompatibilityLoadingPageState
 
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             await supabase
-                .from('compatibility_results')
-                .update({'id': widget.compatibility.id, 'is_ads': true})
-                .eq('id', widget.compatibility.id);
+                .from('goonghap_results')
+                .update({'id': widget.goonghap.id, 'is_ads': true})
+                .eq('id', widget.goonghap.id);
 
             ref.read(navigationInfoProvider.notifier).goBackCommunity();
             ref
                 .read(navigationInfoProvider.notifier)
                 .setCommunityCurrentPage(
-                  CompatibilityResultPage(compatibility: widget.compatibility),
+                  GoonghapResultPage(goonghap: widget.goonghap),
                 );
           });
         }
@@ -139,7 +139,7 @@ class _CompatibilityLoadingPageState
     Future(() {
       if (!mounted) return;
       // 로딩 화면에서도 아티스트 이름을 타이틀로 사용하여 결과 화면과 일관성 유지
-      final nameJson = widget.compatibility.artist.name;
+      final nameJson = widget.goonghap.artist.name;
       String title = getLocaleTextFromJson(nameJson, context).trim();
       if (title.isEmpty) {
         const fallbacks = [
@@ -228,7 +228,7 @@ class _CompatibilityLoadingPageState
   Widget _buildProgressText() {
     return Center(
       child: Text(
-        '${_isLoadingStarted ? AppLocalizations.of(context).compatibility_analyzing : AppLocalizations.of(context).compatibility_analyzing_prepare} ${_isLoadingStarted ? '($_seconds${AppLocalizations.of(context).seconds})' : ''}',
+        '${_isLoadingStarted ? AppLocalizations.of(context).goonghap_analyzing : AppLocalizations.of(context).goonghap_analyzing_prepare} ${_isLoadingStarted ? '($_seconds${AppLocalizations.of(context).seconds})' : ''}',
         style: getTextStyle(AppTypo.body14B, AppColors.grey00),
       ),
     );
@@ -245,24 +245,24 @@ class _CompatibilityLoadingPageState
         ),
         SizedBox(height: 24),
         BannerAdWidget(
-          configKey: 'COMPATIBILITY_LOADING_TOP',
+          configKey: 'GOONGHAP_LOADING_TOP',
           adSize: AdSize.largeBanner,
         ),
         const SizedBox(height: 16),
         Text(
-          AppLocalizations.of(context).compatibility_waiting_message,
+          AppLocalizations.of(context).goonghap_waiting_message,
           textAlign: TextAlign.center,
           style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
         ),
         const SizedBox(height: 8),
         Text(
-          AppLocalizations.of(context).compatibility_warning_exit,
+          AppLocalizations.of(context).goonghap_warning_exit,
           textAlign: TextAlign.center,
           style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
         ),
         const SizedBox(height: 16),
         BannerAdWidget(
-          configKey: 'COMPATIBILITY_LOADING_BOTTOM',
+          configKey: 'GOONGHAP_LOADING_BOTTOM',
           adSize: AdSize.largeBanner,
         ),
         SizedBox(height: 200),
@@ -279,7 +279,7 @@ class _CompatibilityLoadingPageState
     ) {
       if (!mounted) return;
       if (next.isEmpty) {
-        final nameJson = widget.compatibility.artist.name;
+        final nameJson = widget.goonghap.artist.name;
         final title = getBestLocaleText(nameJson, context);
         ref
             .read(navigationInfoProvider.notifier)
@@ -303,20 +303,20 @@ class _CompatibilityLoadingPageState
               key: _printKey,
               child: Column(
                 children: [
-                  CompatibilityCard(
-                    artist: widget.compatibility.artist,
-                    birthDate: widget.compatibility.birthDate,
-                    birthTime: widget.compatibility.birthTime,
-                    gender: widget.compatibility.gender,
-                    compatibility: widget.compatibility,
+                  GoonghapCard(
+                    artist: widget.goonghap.artist,
+                    birthDate: widget.goonghap.birthDate,
+                    birthTime: widget.goonghap.birthTime,
+                    gender: widget.goonghap.gender,
+                    goonghap: widget.goonghap,
                   ),
-                  if (widget.compatibility.isPending ||
-                      widget.compatibility.isAds == false)
+                  if (widget.goonghap.isPending ||
+                      widget.goonghap.isAds == false)
                     _buildLoadingView()
-                  else if (widget.compatibility.hasError)
-                    CompatibilityErrorView(
+                  else if (widget.goonghap.hasError)
+                    GoonghapErrorView(
                       error:
-                          widget.compatibility.errorMessage ??
+                          widget.goonghap.errorMessage ??
                           AppLocalizations.of(context).error_unknown,
                     ),
                 ],

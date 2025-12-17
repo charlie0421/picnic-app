@@ -13,7 +13,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
-import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 
 class SplashImageData {
   final String imageUrl;

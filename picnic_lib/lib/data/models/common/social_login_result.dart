@@ -4,7 +4,7 @@ part '../../../generated/providers/models/common/social_login_result.freezed.dar
 part '../../../generated/providers/models/common/social_login_result.g.dart';
 
 @freezed
-class SocialLoginResult with _$SocialLoginResult {
+abstract class SocialLoginResult with _$SocialLoginResult {
   const factory SocialLoginResult({
     String? idToken,
     String? accessToken,

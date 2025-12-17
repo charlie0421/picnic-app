@@ -213,12 +213,12 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                               _shareKey,
                               message: AppLocalizations.of(
                                       navigatorKey.currentContext!)
-                                  .compatibility_share_message(
+                                  .goonghap_share_message(
                                       getLocaleTextFromJson(
                                           fortune.artist.name)),
                               hashtag: AppLocalizations.of(
                                       navigatorKey.currentContext!)
-                                  .compatibility_share_hashtag,
+                                  .goonghap_share_hashtag,
                               downloadLink: await createBranchLink(
                                   getLocaleTextFromJson(fortune.artist.name),
                                   '${Environment.appLinkPrefix}/community/fortune/${widget.artistId}'),

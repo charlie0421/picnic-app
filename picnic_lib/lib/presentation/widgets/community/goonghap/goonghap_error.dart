@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-class CompatibilityErrorView extends StatelessWidget {
-  const CompatibilityErrorView({super.key, required this.error});
+class GoonghapErrorView extends StatelessWidget {
+  const GoonghapErrorView({super.key, required this.error});
 
   final String error;
 

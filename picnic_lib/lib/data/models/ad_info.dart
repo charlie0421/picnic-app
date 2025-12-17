@@ -4,7 +4,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 part '../../generated/providers/models/ad_info.freezed.dart';
 
 @freezed
-class AdInfo with _$AdInfo {
+abstract class AdInfo with _$AdInfo {
   const factory AdInfo({
     RewardedAd? ad,
     @Default(false) bool isShowing,
@@ -13,7 +13,7 @@ class AdInfo with _$AdInfo {
 }
 
 @freezed
-class AdState with _$AdState {
+abstract class AdState with _$AdState {
   const factory AdState({
     required List<AdInfo> ads,
   }) = _AdState;

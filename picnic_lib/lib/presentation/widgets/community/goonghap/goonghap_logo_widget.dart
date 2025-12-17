@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class CompatibilityLogoWidget extends StatelessWidget {
-  const CompatibilityLogoWidget({
+class GoonghapLogoWidget extends StatelessWidget {
+  const GoonghapLogoWidget({
     super.key,
   });
 

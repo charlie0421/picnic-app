@@ -4,7 +4,7 @@ targets:
             source_gen:combining_builder:
                 options:
                     build_extensions:
-                        '^lib/data/models/{{}}.dart': 'lib/generated/models/{{}}.g.dart'
+                        '^lib/data/models/{{}}.dart': 'lib/generated/providers/models/{{}}.g.dart'
                         '^lib/presentation/providers/{{}}.dart': 'lib/generated/providers/{{}}.g.dart'
             freezed:
                 options:
@@ -12,7 +12,7 @@ targets:
                     equal: true
                     to_string: true
                     build_extensions:
-                        '^lib/data/models/{{}}.dart': 'lib/generated/models/{{}}.freezed.dart'
+                        '^lib/data/models/{{}}.dart': 'lib/generated/providers/models/{{}}.freezed.dart'
                         '^lib/presentation/providers/{{}}.dart': 'lib/generated/providers/{{}}.freezed.dart'
                 generate_for:
                     - lib/data/models/**.dart

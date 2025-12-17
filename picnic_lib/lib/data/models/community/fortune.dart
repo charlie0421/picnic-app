@@ -5,7 +5,7 @@ part '../../../generated/providers/models/community/fortune.freezed.dart';
 part '../../../generated/providers/models/community/fortune.g.dart';
 
 @freezed
-class FortuneModel with _$FortuneModel {
+abstract class FortuneModel with _$FortuneModel {
   const factory FortuneModel({
     @JsonKey(name: 'id') required String id,
     @JsonKey(name: 'year') required int year,
@@ -24,7 +24,7 @@ class FortuneModel with _$FortuneModel {
 }
 
 @freezed
-class MonthlyFortuneModel with _$MonthlyFortuneModel {
+abstract class MonthlyFortuneModel with _$MonthlyFortuneModel {
   const factory MonthlyFortuneModel({
     @JsonKey(name: 'month') required int month,
     @JsonKey(name: 'honor') required String honor,
@@ -38,7 +38,7 @@ class MonthlyFortuneModel with _$MonthlyFortuneModel {
 }
 
 @freezed
-class AspectModel with _$AspectModel {
+abstract class AspectModel with _$AspectModel {
   const factory AspectModel({
     @JsonKey(name: 'honor') required String honor,
     @JsonKey(name: 'career') required String career,
@@ -52,7 +52,7 @@ class AspectModel with _$AspectModel {
 }
 
 @freezed
-class LuckyModel with _$LuckyModel {
+abstract class LuckyModel with _$LuckyModel {
   const factory LuckyModel({
     @JsonKey(name: 'days') required List<String> days,
     @JsonKey(name: 'colors') required List<String> colors,

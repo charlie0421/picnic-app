@@ -4,7 +4,7 @@ part '../../generated/providers/models/user_profiles.freezed.dart';
 part '../../generated/providers/models/user_profiles.g.dart';
 
 @freezed
-class UserProfilesModel with _$UserProfilesModel {
+abstract class UserProfilesModel with _$UserProfilesModel {
   const UserProfilesModel._();
 
   const factory UserProfilesModel({
@@ -28,7 +28,7 @@ class UserProfilesModel with _$UserProfilesModel {
 }
 
 @freezed
-class UserAgreement with _$UserAgreement {
+abstract class UserAgreement with _$UserAgreement {
   const UserAgreement._();
 
   const factory UserAgreement({

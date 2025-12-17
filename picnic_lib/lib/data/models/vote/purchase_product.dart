@@ -5,7 +5,7 @@ part '../../../generated/providers/models/vote/purchase_product.freezed.dart';
 part '../../../generated/providers/models/vote/purchase_product.g.dart';
 
 @freezed
-class PurchaseProduct with _$PurchaseProduct {
+abstract class PurchaseProduct with _$PurchaseProduct {
   const PurchaseProduct._();
 
   const factory PurchaseProduct({

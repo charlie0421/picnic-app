@@ -5,7 +5,7 @@ part '../../../generated/providers/models/pic/celeb.freezed.dart';
 part '../../../generated/providers/models/pic/celeb.g.dart';
 
 @freezed
-class CelebModel with _$CelebModel {
+abstract class CelebModel with _$CelebModel {
   const CelebModel._();
 
   const factory CelebModel({

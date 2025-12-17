@@ -4,7 +4,7 @@ part '../../generated/providers/models/policy.freezed.dart';
 part '../../generated/providers/models/policy.g.dart';
 
 @freezed
-class PolicyModel with _$PolicyModel {
+abstract class PolicyModel with _$PolicyModel {
   const factory PolicyModel({
     @JsonKey(name: 'privacy_en') required PrivacyModel privacyEn,
     @JsonKey(name: 'terms_en') required TermsModel termsEn,
@@ -17,7 +17,7 @@ class PolicyModel with _$PolicyModel {
 }
 
 @freezed
-class PrivacyModel with _$PrivacyModel {
+abstract class PrivacyModel with _$PrivacyModel {
   const factory PrivacyModel({
     @JsonKey(name: 'content') required String content,
     @JsonKey(name: 'version') required String version,
@@ -28,7 +28,7 @@ class PrivacyModel with _$PrivacyModel {
 }
 
 @freezed
-class TermsModel with _$TermsModel {
+abstract class TermsModel with _$TermsModel {
   const factory TermsModel({
     @JsonKey(name: 'content') required String content,
     @JsonKey(name: 'version') required String version,

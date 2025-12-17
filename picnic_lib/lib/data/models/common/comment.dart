@@ -7,7 +7,7 @@ part '../../../generated/providers/models/common/comment.freezed.dart';
 part '../../../generated/providers/models/common/comment.g.dart';
 
 @freezed
-class CommentModel with _$CommentModel {
+abstract class CommentModel with _$CommentModel {
   const CommentModel._();
 
   const factory CommentModel({

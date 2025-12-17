@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-class CompatibilityScoreWidget extends StatelessWidget {
-  const CompatibilityScoreWidget({
+class GoonghapScoreWidget extends StatelessWidget {
+  const GoonghapScoreWidget({
     super.key,
-    required this.compatibility,
+    required this.goonghap,
   });
 
-  final CompatibilityModel? compatibility;
+  final GoonghapModel? goonghap;
 
   @override
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) {
         final currentLocale = Localizations.localeOf(context).languageCode;
-        final localizedResult = compatibility?.localizedResults?[currentLocale];
+        final localizedResult = goonghap?.localizedResults?[currentLocale];
         if (localizedResult != null) {
-          return compatibility?.isPaid ?? false
-              ? AnimatedCompatibilityBar(
+          return goonghap?.isPaid ?? false
+              ? AnimatedGoonghapBar(
                   score: localizedResult.score,
                   message: localizedResult.scoreTitle,
                 )
@@ -42,9 +42,9 @@ class CompatibilityScoreWidget extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         AppLocalizations.of(context)
-                            .compatibility_purchase_message(
+                            .goonghap_purchase_message(
                                 getLocaleTextFromJson(
-                                    compatibility?.artist.name ?? {}, context)),
+                                    goonghap?.artist.name ?? {}, context)),
                         style: getTextStyle(AppTypo.body14B, AppColors.grey00),
                       ),
                     ),
@@ -57,11 +57,11 @@ class CompatibilityScoreWidget extends StatelessWidget {
   }
 }
 
-class AnimatedCompatibilityBar extends StatelessWidget {
+class AnimatedGoonghapBar extends StatelessWidget {
   final int score;
   final String message;
 
-  const AnimatedCompatibilityBar({
+  const AnimatedGoonghapBar({
     super.key,
     required this.score,
     required this.message,

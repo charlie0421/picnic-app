@@ -9,37 +9,37 @@ import 'package:picnic_lib/core/utils/locale_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_result_content.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_result_content.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
-import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
+import 'package:picnic_lib/presentation/providers/community/goonghap_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_error.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_logo_widget.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_card.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_error.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_logo_widget.dart';
 // ignore: unused_import
-import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/fortune_divider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
-class CompatibilityResultPage extends ConsumerStatefulWidget {
-  const CompatibilityResultPage({super.key, required this.compatibility});
+class GoonghapResultPage extends ConsumerStatefulWidget {
+  const GoonghapResultPage({super.key, required this.goonghap});
 
-  final CompatibilityModel compatibility;
+  final GoonghapModel goonghap;
 
   @override
-  ConsumerState<CompatibilityResultPage> createState() =>
-      _CompatibilityResultPageState();
+  ConsumerState<GoonghapResultPage> createState() =>
+      _GoonghapResultPageState();
 }
 
-class _CompatibilityResultPageState
-    extends ConsumerState<CompatibilityResultPage>
-    with RouteAwareStateMixin<CompatibilityResultPage> {
+class _GoonghapResultPageState
+    extends ConsumerState<GoonghapResultPage>
+    with RouteAwareStateMixin<GoonghapResultPage> {
   final GlobalKey _saveKey = GlobalKey();
   final GlobalKey _shareKey = GlobalKey();
   final styleController = ExpansibleController();
@@ -57,13 +57,13 @@ class _CompatibilityResultPageState
   // late final에서 getter로 변경하여 항상 최신 아티스트 정보 사용
   String get _shareMessage {
     final artistName = getLocaleTextFromJson(
-      widget.compatibility.artist.name,
+      widget.goonghap.artist.name,
       context,
     );
     logger.d('🎯 아티스트 이름: "$artistName"');
     final message = AppLocalizations.of(
       context,
-    ).compatibility_share_message(artistName);
+    ).goonghap_share_message(artistName);
     logger.d('🎯 공유 메시지: "$message"');
     return message;
   }
@@ -71,13 +71,13 @@ class _CompatibilityResultPageState
   @override
   void initState() {
     super.initState();
-    logger.d('CompatibilityResultPage initState called');
+    logger.d('GoonghapResultPage initState called');
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
       // 초기 진입 시 헤더 타이틀을 즉시 아티스트 이름으로 설정하여 공백 상태 방지
       if (mounted) {
-        final nameJson = widget.compatibility.artist.name;
+        final nameJson = widget.goonghap.artist.name;
         final title = getBestLocaleText(nameJson, context);
         ref
             .read(navigationInfoProvider.notifier)
@@ -113,17 +113,17 @@ class _CompatibilityResultPageState
 
     try {
       await ref
-          .read(compatibilityProvider.notifier)
-          .loadCompatibility(widget.compatibility.id, forceRefresh: true);
+          .read(goonghapProvider.notifier)
+          .loadGoonghap(widget.goonghap.id, forceRefresh: true);
 
       // 비동기 작업 후 mounted 체크
       if (!mounted) return;
 
-      if (widget.compatibility.isPending) {
-        ref.read(compatibilityLoadingProvider.notifier).set(true);
+      if (widget.goonghap.isPending) {
+        ref.read(goonghapLoadingProvider.notifier).set(true);
       }
 
-      if (widget.compatibility.isCompleted) {
+      if (widget.goonghap.isCompleted) {
         await _refreshData();
       }
     } catch (e, stack) {
@@ -136,14 +136,14 @@ class _CompatibilityResultPageState
 
     try {
       await ref
-          .read(compatibilityProvider.notifier)
-          .loadCompatibility(widget.compatibility.id, forceRefresh: true);
+          .read(goonghapProvider.notifier)
+          .loadGoonghap(widget.goonghap.id, forceRefresh: true);
 
       // 비동기 작업 후 mounted 체크
       if (!mounted) return;
     } catch (e, stack) {
       logger.e(
-        'Error refreshing compatibility data',
+        'Error refreshing goonghap data',
         error: e,
         stackTrace: stack,
       );
@@ -156,7 +156,7 @@ class _CompatibilityResultPageState
       if (mounted) {
         // 아티스트 이름이 로케일에 없을 경우 다국어 키를 순회하여 안전하게 타이틀 생성
         String safeArtistTitle() {
-          final nameJson = widget.compatibility.artist.name;
+          final nameJson = widget.goonghap.artist.name;
           String title = getLocaleTextFromJson(nameJson, context).trim();
           if (title.isEmpty) {
             const fallbacks = [
@@ -196,13 +196,13 @@ class _CompatibilityResultPageState
     });
   }
 
-  Widget _buildResultContent(CompatibilityModel compatibility) {
-    return CompatibilityResultContent(
-      compatibility: compatibility,
+  Widget _buildResultContent(GoonghapModel goonghap) {
+    return GoonghapResultContent(
+      goonghap: goonghap,
       isSaving: _isSaving,
       onSave: _handleSave,
       onShare: _handleShare,
-      onOpenCompatibility: _openCompatibility,
+      onOpenGoonghap: _openGoonghap,
     );
   }
 
@@ -221,7 +221,7 @@ class _CompatibilityResultPageState
     return language;
   }
 
-  void _openCompatibility(String compatibilityId) async {
+  void _openGoonghap(String goonghapId) async {
     try {
       // 호환성 결과 열기 전에 로딩바 표시
       if (!mounted) return;
@@ -290,8 +290,8 @@ class _CompatibilityResultPageState
       }
 
       await supabase.functions.invoke(
-        'open-compatibility',
-        body: {'userId': userProfile.id, 'compatibilityId': compatibilityId},
+        'open-goonghap',
+        body: {'userId': userProfile.id, 'goonghapId': goonghapId},
       );
 
       // Supabase 함수 호출 후 mounted 체크
@@ -326,7 +326,7 @@ class _CompatibilityResultPageState
       showSimpleDialog(
         contentWidget: Column(
           children: [
-            Text(AppLocalizations.of(context).compatibility_remain_star_candy),
+            Text(AppLocalizations.of(context).goonghap_remain_star_candy),
             SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -346,7 +346,7 @@ class _CompatibilityResultPageState
         ),
       );
     } catch (e, s) {
-      logger.e('Error opening compatibility', error: e, stackTrace: s);
+      logger.e('Error opening goonghap', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
         await _showErrorDialog(
@@ -367,7 +367,7 @@ class _CompatibilityResultPageState
       ) {
         if (!mounted) return;
         if (next.isEmpty) {
-          final nameJson = widget.compatibility.artist.name;
+          final nameJson = widget.goonghap.artist.name;
           final title = getBestLocaleText(nameJson, context);
           ref
               .read(navigationInfoProvider.notifier)
@@ -375,20 +375,20 @@ class _CompatibilityResultPageState
         }
       });
 
-      final compatibilityState = ref.watch(compatibilityProvider);
+      final goonghapState = ref.watch(goonghapProvider);
 
       // 타이틀은 didChangeDependencies -> _updateNavigation 에서만 설정 (build에서는 설정하지 않음)
 
-      return compatibilityState.when(
-        data: (compatibility) {
-          if (compatibility == null) {
+      return goonghapState.when(
+        data: (goonghap) {
+          if (goonghap == null) {
             return _buildLoadingIndicator();
           }
 
           // i18n 누락 시 엣지 함수 호출(포스트 프레임, 1회 가드)
           final lang = _currentLanguageCode();
-          final hasCurrent = compatibility.getLocalizedResult(lang) != null;
-          final needsI18n = compatibility.isCompleted && !hasCurrent;
+          final hasCurrent = goonghap.getLocalizedResult(lang) != null;
+          final needsI18n = goonghap.isCompleted && !hasCurrent;
 
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             if (!mounted || _invokingI18n) return;
@@ -401,19 +401,19 @@ class _CompatibilityResultPageState
                   });
                 }
                 await supabase.functions.invoke(
-                  'compatibility-i18n',
+                  'goonghap-i18n',
                   body: {
-                    'compatibility_id': compatibility.id,
+                    'goonghap_id': goonghap.id,
                     'language': lang,
                   },
                 );
                 await ref
-                    .read(compatibilityProvider.notifier)
-                    .loadCompatibility(compatibility.id, forceRefresh: true);
+                    .read(goonghapProvider.notifier)
+                    .loadGoonghap(goonghap.id, forceRefresh: true);
               }
             } catch (e, s) {
               logger.e(
-                'compatibility-i18n invoke failed',
+                'goonghap-i18n invoke failed',
                 error: e,
                 stackTrace: s,
               );
@@ -429,7 +429,7 @@ class _CompatibilityResultPageState
 
           // 번역 로딩 중이면 로딩 인디케이터 표시
           if (needsI18n && (_isLoadingI18n || !hasCurrent)) {
-            return _buildI18nLoadingIndicator(compatibility);
+            return _buildI18nLoadingIndicator(goonghap);
           }
 
           return CustomScrollView(
@@ -477,14 +477,14 @@ class _CompatibilityResultPageState
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 SizedBox(height: 24),
-                                CompatibilityLogoWidget(),
+                                GoonghapLogoWidget(),
                                 SizedBox(height: 36),
-                                CompatibilityCard(
-                                  artist: compatibility.artist,
-                                  birthDate: compatibility.birthDate,
-                                  birthTime: compatibility.birthTime,
-                                  gender: compatibility.gender,
-                                  compatibility: compatibility,
+                                GoonghapCard(
+                                  artist: goonghap.artist,
+                                  birthDate: goonghap.birthDate,
+                                  birthTime: goonghap.birthTime,
+                                  gender: goonghap.gender,
+                                  goonghap: goonghap,
                                 ),
                                 const SizedBox(height: 8),
                               ],
@@ -495,16 +495,16 @@ class _CompatibilityResultPageState
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Column(
                             children: [
-                              if (compatibility.hasError)
-                                CompatibilityErrorView(
+                              if (goonghap.hasError)
+                                GoonghapErrorView(
                                   error:
-                                      compatibility.errorMessage ??
+                                      goonghap.errorMessage ??
                                       AppLocalizations.of(
                                         context,
                                       ).error_unknown,
                                 )
-                              else if (compatibility.isCompleted)
-                                _buildResultContent(compatibility),
+                              else if (goonghap.isCompleted)
+                                _buildResultContent(goonghap),
                             ],
                           ),
                         ),
@@ -526,7 +526,7 @@ class _CompatibilityResultPageState
       );
     } catch (e, stack) {
       logger.e(
-        'Error building compatibility result page',
+        'Error building goonghap result page',
         error: e,
         stackTrace: stack,
       );
@@ -543,7 +543,7 @@ class _CompatibilityResultPageState
     return Center(child: MediumPulseLoadingIndicator());
   }
 
-  Widget _buildI18nLoadingIndicator(CompatibilityModel compatibility) {
+  Widget _buildI18nLoadingIndicator(GoonghapModel goonghap) {
     return Container(
       constraints: BoxConstraints(
         minHeight: MediaQuery.of(context).size.height,
@@ -567,14 +567,14 @@ class _CompatibilityResultPageState
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(height: 24),
-              CompatibilityLogoWidget(),
+              GoonghapLogoWidget(),
               SizedBox(height: 36),
-              CompatibilityCard(
-                artist: compatibility.artist,
-                birthDate: compatibility.birthDate,
-                birthTime: compatibility.birthTime,
-                gender: compatibility.gender,
-                compatibility: compatibility,
+              GoonghapCard(
+                artist: goonghap.artist,
+                birthDate: goonghap.birthDate,
+                birthTime: goonghap.birthTime,
+                gender: goonghap.gender,
+                goonghap: goonghap,
               ),
               const SizedBox(height: 48),
               // 번역 로딩 인디케이터
@@ -592,7 +592,7 @@ class _CompatibilityResultPageState
     );
   }
 
-  Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
+  Future<Future<bool>> _handleSave(GoonghapModel goonghap) async {
     return ShareUtils.saveImage(
       _saveKey,
       onStart: () {
@@ -620,13 +620,13 @@ class _CompatibilityResultPageState
     );
   }
 
-  Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
+  Future<Future<bool>> _handleShare(GoonghapModel goonghap) async {
     logger.i('Share to Twitter');
     final artistName = getLocaleTextFromJson(
-      compatibility.artist.name,
+      goonghap.artist.name,
       context,
     );
-    final hashtag = AppLocalizations.of(context).compatibility_share_hashtag;
+    final hashtag = AppLocalizations.of(context).goonghap_share_hashtag;
     logger.d('🎯 해시태그 - 아티스트 이름: "$artistName", 결과: "$hashtag"');
 
     return ShareUtils.shareToSocial(
@@ -634,8 +634,8 @@ class _CompatibilityResultPageState
       message: _shareMessage,
       hashtag: hashtag,
       downloadLink: await createBranchLink(
-        getLocaleTextFromJson(compatibility.artist.name, context),
-        '${Environment.appLinkPrefix}/community/compatibility/${compatibility.artist.id}',
+        getLocaleTextFromJson(goonghap.artist.name, context),
+        '${Environment.appLinkPrefix}/community/goonghap/${goonghap.artist.id}',
       ),
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);

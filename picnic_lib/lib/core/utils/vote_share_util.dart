@@ -178,7 +178,7 @@ class ShareUtils {
       final result = await ImageGallerySaverPlus.saveImage(
         bytes,
         quality: 100,
-        name: "compatibility_result_${DateTime.now().millisecondsSinceEpoch}",
+        name: "goonghap_result_${DateTime.now().millisecondsSinceEpoch}",
       );
 
       if (result?['isSuccess'] != true) throw Exception('Save failed');

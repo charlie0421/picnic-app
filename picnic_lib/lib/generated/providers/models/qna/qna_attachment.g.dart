@@ -6,20 +6,22 @@ part of '../../../../data/models/qna/qna_attachment.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$QnaAttachmentImpl _$$QnaAttachmentImplFromJson(Map<String, dynamic> json) =>
+_QnaAttachment _$QnaAttachmentFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
-      r'_$QnaAttachmentImpl',
+      '_QnaAttachment',
       json,
       ($checkedConvert) {
-        final val = _$QnaAttachmentImpl(
+        final val = _QnaAttachment(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
           messageId: $checkedConvert('message_id', (v) => (v as num).toInt()),
           fileName: $checkedConvert('file_name', (v) => v as String),
           filePath: $checkedConvert('file_path', (v) => v as String),
           fileType: $checkedConvert('file_type', (v) => v as String?),
           fileSize: $checkedConvert('file_size', (v) => (v as num?)?.toInt()),
-          createdAt:
-              $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
+          createdAt: $checkedConvert(
+            'created_at',
+            (v) => DateTime.parse(v as String),
+          ),
         );
         return val;
       },
@@ -29,11 +31,11 @@ _$QnaAttachmentImpl _$$QnaAttachmentImplFromJson(Map<String, dynamic> json) =>
         'filePath': 'file_path',
         'fileType': 'file_type',
         'fileSize': 'file_size',
-        'createdAt': 'created_at'
+        'createdAt': 'created_at',
       },
     );
 
-Map<String, dynamic> _$$QnaAttachmentImplToJson(_$QnaAttachmentImpl instance) =>
+Map<String, dynamic> _$QnaAttachmentToJson(_QnaAttachment instance) =>
     <String, dynamic>{
       'id': instance.id,
       'message_id': instance.messageId,

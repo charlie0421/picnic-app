@@ -4,7 +4,7 @@ part '../../generated/providers/models/reward.freezed.dart';
 part '../../generated/providers/models/reward.g.dart';
 
 @freezed
-class RewardModel with _$RewardModel {
+abstract class RewardModel with _$RewardModel {
   const RewardModel._();
 
   const factory RewardModel(

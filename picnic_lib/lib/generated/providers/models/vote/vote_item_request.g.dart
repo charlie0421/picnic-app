@@ -6,32 +6,34 @@ part of '../../../../data/models/vote/vote_item_request.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$VoteItemRequestImpl _$$VoteItemRequestImplFromJson(
-        Map<String, dynamic> json) =>
+_VoteItemRequest _$VoteItemRequestFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
-      r'_$VoteItemRequestImpl',
+      '_VoteItemRequest',
       json,
       ($checkedConvert) {
-        final val = _$VoteItemRequestImpl(
+        final val = _VoteItemRequest(
           id: $checkedConvert('id', (v) => v as String),
           voteId: $checkedConvert('vote_id', (v) => (v as num).toInt()),
           status: $checkedConvert('status', (v) => v as String),
-          createdAt:
-              $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
-          updatedAt:
-              $checkedConvert('updated_at', (v) => DateTime.parse(v as String)),
+          createdAt: $checkedConvert(
+            'created_at',
+            (v) => DateTime.parse(v as String),
+          ),
+          updatedAt: $checkedConvert(
+            'updated_at',
+            (v) => DateTime.parse(v as String),
+          ),
         );
         return val;
       },
       fieldKeyMap: const {
         'voteId': 'vote_id',
         'createdAt': 'created_at',
-        'updatedAt': 'updated_at'
+        'updatedAt': 'updated_at',
       },
     );
 
-Map<String, dynamic> _$$VoteItemRequestImplToJson(
-        _$VoteItemRequestImpl instance) =>
+Map<String, dynamic> _$VoteItemRequestToJson(_VoteItemRequest instance) =>
     <String, dynamic>{
       'id': instance.id,
       'vote_id': instance.voteId,

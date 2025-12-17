@@ -6,40 +6,41 @@ part of '../../../../data/models/qna/qna_message.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$QnaMessageImpl _$$QnaMessageImplFromJson(Map<String, dynamic> json) =>
-    $checkedCreate(
-      r'_$QnaMessageImpl',
-      json,
-      ($checkedConvert) {
-        final val = _$QnaMessageImpl(
-          id: $checkedConvert('id', (v) => (v as num).toInt()),
-          threadId: $checkedConvert('thread_id', (v) => (v as num).toInt()),
-          userId: $checkedConvert('user_id', (v) => v as String),
-          content: $checkedConvert('content', (v) => v as String?),
-          createdAt:
-              $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
-          isAdminMessage: $checkedConvert('is_admin_message', (v) => v as bool),
-          attachments: $checkedConvert(
-              'qna_attachments',
-              (v) =>
-                  (v as List<dynamic>?)
-                      ?.map((e) =>
-                          QnaAttachment.fromJson(e as Map<String, dynamic>))
-                      .toList() ??
-                  const []),
-        );
-        return val;
-      },
-      fieldKeyMap: const {
-        'threadId': 'thread_id',
-        'userId': 'user_id',
-        'createdAt': 'created_at',
-        'isAdminMessage': 'is_admin_message',
-        'attachments': 'qna_attachments'
-      },
+_QnaMessage _$QnaMessageFromJson(Map<String, dynamic> json) => $checkedCreate(
+  '_QnaMessage',
+  json,
+  ($checkedConvert) {
+    final val = _QnaMessage(
+      id: $checkedConvert('id', (v) => (v as num).toInt()),
+      threadId: $checkedConvert('thread_id', (v) => (v as num).toInt()),
+      userId: $checkedConvert('user_id', (v) => v as String),
+      content: $checkedConvert('content', (v) => v as String?),
+      createdAt: $checkedConvert(
+        'created_at',
+        (v) => DateTime.parse(v as String),
+      ),
+      isAdminMessage: $checkedConvert('is_admin_message', (v) => v as bool),
+      attachments: $checkedConvert(
+        'qna_attachments',
+        (v) =>
+            (v as List<dynamic>?)
+                ?.map((e) => QnaAttachment.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            const [],
+      ),
     );
+    return val;
+  },
+  fieldKeyMap: const {
+    'threadId': 'thread_id',
+    'userId': 'user_id',
+    'createdAt': 'created_at',
+    'isAdminMessage': 'is_admin_message',
+    'attachments': 'qna_attachments',
+  },
+);
 
-Map<String, dynamic> _$$QnaMessageImplToJson(_$QnaMessageImpl instance) =>
+Map<String, dynamic> _$QnaMessageToJson(_QnaMessage instance) =>
     <String, dynamic>{
       'id': instance.id,
       'thread_id': instance.threadId,

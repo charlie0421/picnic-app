@@ -4,7 +4,7 @@ part '../../../generated/providers/models/vote/video_info.freezed.dart';
 part '../../../generated/providers/models/vote/video_info.g.dart';
 
 @freezed
-class VideoInfo with _$VideoInfo {
+abstract class VideoInfo with _$VideoInfo {
   const factory VideoInfo({
     @JsonKey(name: 'id') required int id,
     @JsonKey(name: 'video_id') required String videoId,

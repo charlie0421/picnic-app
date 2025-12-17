@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/date.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -11,16 +11,16 @@ import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart'
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 // ignore: unused_import
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
+import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_score_widget.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-class CompatibilityCard extends ConsumerWidget {
-  const CompatibilityCard({
+class GoonghapCard extends ConsumerWidget {
+  const GoonghapCard({
     super.key,
     required this.artist,
     this.birthDate,
     this.birthTime,
-    this.compatibility,
+    this.goonghap,
     this.gender,
   });
 
@@ -28,7 +28,7 @@ class CompatibilityCard extends ConsumerWidget {
   final DateTime? birthDate;
   final String? birthTime;
   final String? gender;
-  final CompatibilityModel? compatibility;
+  final GoonghapModel? goonghap;
 
   /// 아티스트 이미지 빌드 (null/빈 문자열 처리 포함)
   Widget _buildArtistImage() {

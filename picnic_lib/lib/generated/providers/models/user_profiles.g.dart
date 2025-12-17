@@ -6,31 +6,37 @@ part of '../../../data/models/user_profiles.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UserProfilesModelImpl _$$UserProfilesModelImplFromJson(
-        Map<String, dynamic> json) =>
+_UserProfilesModel _$UserProfilesModelFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
-      r'_$UserProfilesModelImpl',
+      '_UserProfilesModel',
       json,
       ($checkedConvert) {
-        final val = _$UserProfilesModelImpl(
+        final val = _UserProfilesModel(
           id: $checkedConvert('id', (v) => v as String?),
           nickname: $checkedConvert('nickname', (v) => v as String?),
           avatarUrl: $checkedConvert('avatar_url', (v) => v as String?),
           countryCode: $checkedConvert('country_code', (v) => v as String?),
-          deletedAt: $checkedConvert('deleted_at',
-              (v) => v == null ? null : DateTime.parse(v as String)),
+          deletedAt: $checkedConvert(
+            'deleted_at',
+            (v) => v == null ? null : DateTime.parse(v as String),
+          ),
           userAgreement: $checkedConvert(
-              'user_agreement',
-              (v) => v == null
-                  ? null
-                  : UserAgreement.fromJson(v as Map<String, dynamic>)),
+            'user_agreement',
+            (v) => v == null
+                ? null
+                : UserAgreement.fromJson(v as Map<String, dynamic>),
+          ),
           isAdmin: $checkedConvert('is_admin', (v) => v as bool?),
           starCandy: $checkedConvert('star_candy', (v) => (v as num?)?.toInt()),
-          starCandyBonus:
-              $checkedConvert('star_candy_bonus', (v) => (v as num?)?.toInt()),
+          starCandyBonus: $checkedConvert(
+            'star_candy_bonus',
+            (v) => (v as num?)?.toInt(),
+          ),
           jmaCandy: $checkedConvert('jma_candy', (v) => (v as num?)?.toInt()),
-          birthDate: $checkedConvert('birth_date',
-              (v) => v == null ? null : DateTime.parse(v as String)),
+          birthDate: $checkedConvert(
+            'birth_date',
+            (v) => v == null ? null : DateTime.parse(v as String),
+          ),
           gender: $checkedConvert('gender', (v) => v as String?),
           birthTime: $checkedConvert('birth_time', (v) => v as String?),
         );
@@ -46,12 +52,11 @@ _$UserProfilesModelImpl _$$UserProfilesModelImplFromJson(
         'starCandyBonus': 'star_candy_bonus',
         'jmaCandy': 'jma_candy',
         'birthDate': 'birth_date',
-        'birthTime': 'birth_time'
+        'birthTime': 'birth_time',
       },
     );
 
-Map<String, dynamic> _$$UserProfilesModelImplToJson(
-        _$UserProfilesModelImpl instance) =>
+Map<String, dynamic> _$UserProfilesModelToJson(_UserProfilesModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'nickname': instance.nickname,
@@ -68,21 +73,16 @@ Map<String, dynamic> _$$UserProfilesModelImplToJson(
       'birth_time': instance.birthTime,
     };
 
-_$UserAgreementImpl _$$UserAgreementImplFromJson(Map<String, dynamic> json) =>
-    $checkedCreate(
-      r'_$UserAgreementImpl',
-      json,
-      ($checkedConvert) {
-        final val = _$UserAgreementImpl(
-          terms: $checkedConvert('terms', (v) => DateTime.parse(v as String)),
-          privacy:
-              $checkedConvert('privacy', (v) => DateTime.parse(v as String)),
-        );
-        return val;
-      },
-    );
+_UserAgreement _$UserAgreementFromJson(Map<String, dynamic> json) =>
+    $checkedCreate('_UserAgreement', json, ($checkedConvert) {
+      final val = _UserAgreement(
+        terms: $checkedConvert('terms', (v) => DateTime.parse(v as String)),
+        privacy: $checkedConvert('privacy', (v) => DateTime.parse(v as String)),
+      );
+      return val;
+    });
 
-Map<String, dynamic> _$$UserAgreementImplToJson(_$UserAgreementImpl instance) =>
+Map<String, dynamic> _$UserAgreementToJson(_UserAgreement instance) =>
     <String, dynamic>{
       'terms': instance.terms.toIso8601String(),
       'privacy': instance.privacy.toIso8601String(),

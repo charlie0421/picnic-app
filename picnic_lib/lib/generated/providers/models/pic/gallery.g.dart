@@ -6,28 +6,29 @@ part of '../../../../data/models/pic/gallery.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$GalleryModelImpl _$$GalleryModelImplFromJson(Map<String, dynamic> json) =>
+_GalleryModel _$GalleryModelFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
-      r'_$GalleryModelImpl',
+      '_GalleryModel',
       json,
       ($checkedConvert) {
-        final val = _$GalleryModelImpl(
+        final val = _GalleryModel(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
           titleKo: $checkedConvert('title_ko', (v) => v as String),
           titleEn: $checkedConvert('title_en', (v) => v as String),
           cover: $checkedConvert('cover', (v) => v as String?),
           celeb: $checkedConvert(
-              'celeb',
-              (v) => v == null
-                  ? null
-                  : CelebModel.fromJson(v as Map<String, dynamic>)),
+            'celeb',
+            (v) => v == null
+                ? null
+                : CelebModel.fromJson(v as Map<String, dynamic>),
+          ),
         );
         return val;
       },
       fieldKeyMap: const {'titleKo': 'title_ko', 'titleEn': 'title_en'},
     );
 
-Map<String, dynamic> _$$GalleryModelImplToJson(_$GalleryModelImpl instance) =>
+Map<String, dynamic> _$GalleryModelToJson(_GalleryModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title_ko': instance.titleKo,

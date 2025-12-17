@@ -22,7 +22,6 @@ import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:flutter_svg/flutter_svg.dart';

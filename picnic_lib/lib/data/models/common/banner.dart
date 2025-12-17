@@ -4,7 +4,7 @@ part '../../../generated/providers/models/common/banner.freezed.dart';
 part '../../../generated/providers/models/common/banner.g.dart';
 
 @freezed
-class BannerModel with _$BannerModel {
+abstract class BannerModel with _$BannerModel {
   const BannerModel._();
 
   const factory BannerModel({
