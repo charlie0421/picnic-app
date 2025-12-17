@@ -91,9 +91,9 @@ class _GoonghapArtistSelectPageState
           ref.read(goonghapArtistSearchQueryProvider);
       logger.d('Fetching page $pageKey with query: "$searchQuery"');
 
-      // 빠른 아티스트 검색 사용 (북마크 정보 제외)
+      // 아티스트 검색 (북마크 정보 포함)
       final language = Localizations.localeOf(context).languageCode;
-      final newItems = await SearchService.searchArtistsFast(
+      final newItems = await SearchService.searchArtists(
         query: searchQuery,
         page: pageKey,
         limit: _pageSize,
