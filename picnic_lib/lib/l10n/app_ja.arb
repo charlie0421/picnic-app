@@ -1002,6 +1002,14 @@
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."
   },
+  "post_deleted_title": "削除された投稿",
+  "@post_deleted_title": {
+    "description": "Title shown for deleted posts"
+  },
+  "post_deleted_desc": "この投稿は作成者によって削除されました。",
+  "@post_deleted_desc": {
+    "description": "Description shown for deleted posts"
+  },
   "post_report_fail": "申告に失敗しました。",
   "@post_report_fail": {
     "description": "Auto-generated metadata for key 'post_report_fail'."
@@ -2007,7 +2015,7 @@
       }
     }
   },
-  "label_setting_patch_status_restart_required": "Update ready (restart required)",
+  "label_setting_patch_status_restart_required": "アップデート準備完了（再起動が必要）",
   "@label_setting_patch_status_restart_required": {
     "description": "Status label when a restart is required to apply a patch."
   },
@@ -2032,9 +2040,13 @@
   "@label_setting_patch_status_none": {
     "description": "Status label when no patch is applied."
   },
-  "message_setting_patch_restart_hint": "A new patch has been downloaded. Tap Restart to apply it.",
+  "message_setting_patch_restart_hint": "新しいパッチがダウンロードされました。再起動をタップして適用してください。",
   "@message_setting_patch_restart_hint": {
     "description": "Hint shown when a restart is required after downloading a patch."
+  },
+  "message_setting_patch_restart_hint_ios": "新しいアップデートがダウンロードされました。適用するにはアプリを終了して再度開いてください。",
+  "@message_setting_patch_restart_hint_ios": {
+    "description": "iOS-specific hint since iOS cannot programmatically restart the app."
   },
   "message_setting_patch_web_not_supported": "Patch updates aren't available on web.",
   "@message_setting_patch_web_not_supported": {
@@ -2070,25 +2082,49 @@
   "@message_setting_patch_status_unavailable": {
     "description": "Snackbar text when patch status is unavailable (e.g., offline)."
   },
-  "message_setting_patch_up_to_date": "You're already on the latest patch.",
+  "message_setting_patch_up_to_date": "すでに最新のパッチを使用しています。",
   "@message_setting_patch_up_to_date": {
     "description": "Snackbar text when the user is already on the latest patch."
   },
-  "dialog_setting_restart_title": "Restart app",
+  "message_patch_download_complete": "アップデートの準備ができました。アプリ切り替え時に自動適用されます。",
+  "@message_patch_download_complete": {
+    "description": "Snackbar shown when patch download completes (medium notification level)."
+  },
+  "message_patch_applied": "アプリが最新バージョンに更新されました。",
+  "@message_patch_applied": {
+    "description": "Toast shown after a patch has been applied on app restart."
+  },
+  "dialog_setting_restart_title": "アプリを再起動",
   "@dialog_setting_restart_title": {
     "description": "Title for the restart confirmation dialog on the Settings page."
   },
-  "dialog_setting_restart_body": "A new update is ready. The app will restart to apply the changes.\n\nContinue?",
+  "dialog_setting_restart_body": "新しいアップデートの準備ができました。変更を適用するにはアプリを再起動します。\n\n続行しますか？",
   "@dialog_setting_restart_body": {
     "description": "Body text for the restart confirmation dialog on the Settings page."
   },
-  "button_restart": "Restart",
+  "button_restart": "再起動",
   "@button_restart": {
     "description": "Label for restart buttons."
   },
-  "button_update": "Update",
+  "button_update": "アップデート",
   "@button_update": {
     "description": "Label for update buttons."
+  },
+  "notification_patch_update_ready_title": "アップデート準備完了",
+  "@notification_patch_update_ready_title": {
+    "description": "Local push notification title when a patch update is ready to apply."
+  },
+  "notification_patch_update_ready_body": "アプリを終了して再度開き、アップデートを適用してください。",
+  "@notification_patch_update_ready_body": {
+    "description": "Local push notification body when a patch update is ready to apply."
+  },
+  "notification_patch_downloaded_title": "アップデートダウンロード完了",
+  "@notification_patch_downloaded_title": {
+    "description": "Local push notification title when a patch has been downloaded."
+  },
+  "notification_patch_downloaded_body": "アプリを再起動してアップデートを適用してください。",
+  "@notification_patch_downloaded_body": {
+    "description": "Local push notification body when a patch has been downloaded."
   },
   "label_setting_patch_number": " / Patch: {patchNumber}",
   "@label_setting_patch_number": {

@@ -125,7 +125,7 @@ class AppBuilder {
     bool enableScreenProtector = false,
   }) {
     // home 위젯을 화면 보호기로 래핑
-    Widget wrappedHome = _wrapWithScreenProtector(home, enableScreenProtector);
+    final wrappedHome = _wrapWithScreenProtector(home, enableScreenProtector);
 
     return MaterialApp(
       navigatorKey: navigatorKey,

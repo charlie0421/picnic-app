@@ -1971,7 +1971,7 @@
       }
     }
   },
-  "label_setting_patch_status_restart_required": "Update ready (restart required)",
+  "label_setting_patch_status_restart_required": "Cập nhật đã sẵn sàng (cần khởi động lại)",
   "@label_setting_patch_status_restart_required": {
     "description": "Status label when a restart is required to apply a patch."
   },
@@ -1996,9 +1996,13 @@
   "@label_setting_patch_status_none": {
     "description": "Status label when no patch is applied."
   },
-  "message_setting_patch_restart_hint": "A new patch has been downloaded. Tap Restart to apply it.",
+  "message_setting_patch_restart_hint": "Bản vá mới đã được tải xuống. Nhấn Khởi động lại để áp dụng.",
   "@message_setting_patch_restart_hint": {
     "description": "Hint shown when a restart is required after downloading a patch."
+  },
+  "message_setting_patch_restart_hint_ios": "Bản cập nhật mới đã được tải xuống. Vui lòng đóng và mở lại ứng dụng để áp dụng.",
+  "@message_setting_patch_restart_hint_ios": {
+    "description": "iOS-specific hint since iOS cannot programmatically restart the app."
   },
   "message_setting_patch_web_not_supported": "Patch updates aren't available on web.",
   "@message_setting_patch_web_not_supported": {
@@ -2034,25 +2038,49 @@
   "@message_setting_patch_status_unavailable": {
     "description": "Snackbar text when patch status is unavailable (e.g., offline)."
   },
-  "message_setting_patch_up_to_date": "You're already on the latest patch.",
+  "message_setting_patch_up_to_date": "Bạn đang sử dụng bản vá mới nhất.",
   "@message_setting_patch_up_to_date": {
     "description": "Snackbar text when the user is already on the latest patch."
   },
-  "dialog_setting_restart_title": "Restart app",
+  "message_patch_download_complete": "Bản cập nhật đã sẵn sàng. Sẽ được áp dụng khi chuyển ứng dụng.",
+  "@message_patch_download_complete": {
+    "description": "Snackbar shown when patch download completes (medium notification level)."
+  },
+  "message_patch_applied": "Ứng dụng đã được cập nhật lên phiên bản mới nhất.",
+  "@message_patch_applied": {
+    "description": "Toast shown after a patch has been applied on app restart."
+  },
+  "dialog_setting_restart_title": "Khởi động lại ứng dụng",
   "@dialog_setting_restart_title": {
     "description": "Title for the restart confirmation dialog on the Settings page."
   },
-  "dialog_setting_restart_body": "A new update is ready. The app will restart to apply the changes.\n\nContinue?",
+  "dialog_setting_restart_body": "Bản cập nhật mới đã sẵn sàng. Ứng dụng sẽ khởi động lại để áp dụng thay đổi.\n\nBạn có muốn tiếp tục không?",
   "@dialog_setting_restart_body": {
     "description": "Body text for the restart confirmation dialog on the Settings page."
   },
-  "button_restart": "Restart",
+  "button_restart": "Khởi động lại",
   "@button_restart": {
     "description": "Label for restart buttons."
   },
-  "button_update": "Update",
+  "button_update": "Cập nhật",
   "@button_update": {
     "description": "Label for update buttons."
+  },
+  "notification_patch_update_ready_title": "Cập nhật đã sẵn sàng",
+  "@notification_patch_update_ready_title": {
+    "description": "Local push notification title when a patch update is ready to apply."
+  },
+  "notification_patch_update_ready_body": "Vui lòng đóng và mở lại ứng dụng để áp dụng cập nhật.",
+  "@notification_patch_update_ready_body": {
+    "description": "Local push notification body when a patch update is ready to apply."
+  },
+  "notification_patch_downloaded_title": "Đã tải xuống cập nhật",
+  "@notification_patch_downloaded_title": {
+    "description": "Local push notification title when a patch has been downloaded."
+  },
+  "notification_patch_downloaded_body": "Vui lòng khởi động lại ứng dụng để áp dụng cập nhật.",
+  "@notification_patch_downloaded_body": {
+    "description": "Local push notification body when a patch has been downloaded."
   },
   "label_setting_patch_number": " / Patch: {patchNumber}",
   "@label_setting_patch_number": {

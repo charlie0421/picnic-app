@@ -1,11 +1,49 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:flutter/widgets.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/patch_notification_service.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 import 'package:universal_platform/universal_platform.dart';
 
 final updater = shorebird.ShorebirdUpdater();
+final _localNotifications = FlutterLocalNotificationsPlugin();
+
+/// 패치 대기 상태 (백그라운드 재시작용)
+bool _hasPendingPatch = false;
+
+/// 다운로드 완료 알림 메시지 (L10N 적용용)
+String? _downloadCompleteMessage;
+
+/// 패치 상태 변경 콜백 타입
+typedef PatchStatusCallback = void Function(ShorebirdPatchEvent event);
+
+/// 패치 이벤트 타입
+enum ShorebirdPatchEvent {
+  /// 패치 체크 시작
+  checking,
+
+  /// 패치 다운로드 시작
+  downloading,
+
+  /// 패치 다운로드 완료 (재시작 필요)
+  downloadCompleted,
+
+  /// 이미 재시작 대기 중
+  restartPending,
+
+  /// 최신 상태
+  upToDate,
+
+  /// 에러 발생
+  error,
+}
+
+/// 전역 패치 상태 콜백 (앱에서 설정)
+PatchStatusCallback? _onPatchStatusChanged;
 
 class PatchStatusCheckResult {
   final shorebird.UpdateStatus status;
@@ -32,6 +70,17 @@ class PatchStatusException implements Exception {
 }
 
 class ShorebirdUtils {
+  /// 패치 상태 변경 콜백 등록
+  /// 앱 초기화 시 호출하여 패치 상태 변경을 감지할 수 있습니다.
+  static void setOnPatchStatusChanged(PatchStatusCallback? callback) {
+    _onPatchStatusChanged = callback;
+  }
+
+  /// 패치 상태 변경 알림
+  static void _notifyPatchStatus(ShorebirdPatchEvent event) {
+    _onPatchStatusChanged?.call(event);
+  }
+
   static Future<void> checkAndUpdate() async {
     try {
       logger.i('🔄 Shorebird 업데이트 체크 시작');
@@ -118,24 +167,86 @@ class ShorebirdUtils {
   }
 
   /// 네이티브 앱 재시작 (Shorebird 패치 적용을 위해)
-  /// iOS/Android에서 앱 프로세스를 완전히 재시작합니다.
-  static Future<void> restartAppForPatch() async {
+  /// iOS: 로컬 푸시 알림으로 재시작 유도 (Apple 정책상 프로그래밍적 재시작 불가)
+  /// Android: restart_app 패키지로 앱 재시작
+  static Future<void> restartAppForPatch({
+    String? notificationTitle,
+    String? notificationBody,
+  }) async {
     if (UniversalPlatform.isWeb) {
       logger.w('웹에서는 네이티브 재시작을 지원하지 않습니다');
       return;
     }
 
     try {
-      logger.i('🔄 패치 적용을 위한 네이티브 앱 재시작 시작');
-      await Restart.restartApp();
+      if (Platform.isIOS) {
+        // iOS: 로컬 푸시 알림으로 재시작 유도
+        // Apple 정책상 프로그래밍적 재시작 불가능
+        logger.i('🔔 iOS - 로컬 푸시 알림으로 재시작 유도');
+        await showRestartNotification(
+          title: notificationTitle ?? 'Update Ready',
+          body: notificationBody ?? 'Please close and reopen the app to apply the update.',
+        );
+        // iOS에서는 앱을 종료하지 않고 사용자가 수동으로 앱을 재시작하도록 유도
+        // exit(0)을 호출하면 App Store 심사에서 리젝될 수 있음
+      } else {
+        // Android: 직접 재시작
+        logger.i('🔄 Android - 네이티브 앱 재시작 실행');
+        await Restart.restartApp();
+      }
     } catch (e, stackTrace) {
-      logger.e('❌ 네이티브 앱 재시작 실패: $e', stackTrace: stackTrace);
+      logger.e('❌ 앱 재시작 처리 실패: $e', stackTrace: stackTrace);
       rethrow;
     }
   }
 
-  /// 앱 시작시 패치 체크 및 자동 재시작
-  /// 패치가 다운로드되어 대기 중이면 자동으로 앱을 재시작합니다.
+  /// 즉시 로컬 푸시 알림 표시 (재시작 유도용)
+  static Future<void> showRestartNotification({
+    required String title,
+    required String body,
+  }) async {
+    if (UniversalPlatform.isWeb) return;
+
+    try {
+      const androidDetails = AndroidNotificationDetails(
+        'patch_update_channel',
+        'Patch Updates',
+        channelDescription: 'Notifications for app patch updates',
+        importance: Importance.high,
+        priority: Priority.high,
+        showWhen: true,
+      );
+
+      const iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      const notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _localNotifications.show(
+        9999,
+        title,
+        body,
+        notificationDetails,
+      );
+
+      logger.i('🔔 재시작 유도 로컬 푸시 알림 표시됨');
+    } catch (e, stackTrace) {
+      logger.e('❌ 로컬 푸시 알림 표시 실패: $e', stackTrace: stackTrace);
+    }
+  }
+
+  /// 앱 시작시 패치 체크 (재시작 없이 백그라운드 다운로드)
+  ///
+  /// 앱 초기화 중에 재시작하면 앱이 행(hang)될 수 있으므로,
+  /// 패치 다운로드만 수행하고 앱은 정상 실행됩니다.
+  /// 사용자가 설정에서 수동으로 재시작하거나, 앱을 완전히 종료 후
+  /// 다시 열면 패치가 적용됩니다.
   static Future<void> checkAndRestartOnLaunch() async {
     if (UniversalPlatform.isWeb) {
       logger.i('웹에서는 Shorebird 패치를 지원하지 않습니다');
@@ -144,6 +255,7 @@ class ShorebirdUtils {
 
     try {
       logger.i('🚀 앱 시작시 Shorebird 패치 상태 확인');
+      _notifyPatchStatus(ShorebirdPatchEvent.checking);
 
       // 먼저 대기 중인 패치가 있는지 확인
       final status = await updater.checkForUpdate();
@@ -151,27 +263,137 @@ class ShorebirdUtils {
 
       if (status == shorebird.UpdateStatus.restartRequired) {
         // 이미 패치가 다운로드되어 재시작만 필요한 경우
-        logger.i('🔄 대기 중인 패치 발견 - 자동 재시작 실행');
-        await Future.delayed(const Duration(milliseconds: 500));
-        await restartAppForPatch();
+        // 앱 초기화 중에는 재시작하지 않음 (행 방지)
+        logger.i('🔄 대기 중인 패치 발견 - 백그라운드 전환 시 자동 적용됨');
+        _hasPendingPatch = true;
+        _notifyPatchStatus(ShorebirdPatchEvent.restartPending);
+        // normal 방식: 로컬 푸시 없이 설정 페이지 배너와 백그라운드 재시작으로 처리
         return;
       }
 
       if (status == shorebird.UpdateStatus.outdated) {
-        // 새 패치가 있는 경우 다운로드 후 재시작
-        logger.i('🆕 새 패치 발견 - 다운로드 시작');
-        await updater.update();
-        logger.i('✅ 패치 다운로드 완료 - 자동 재시작 실행');
-        await Future.delayed(const Duration(milliseconds: 500));
-        await restartAppForPatch();
+        // 새 패치가 있는 경우 백그라운드에서 다운로드 (재시작 안 함)
+        logger.i('🆕 새 패치 발견 - 백그라운드 다운로드 시작');
+        _notifyPatchStatus(ShorebirdPatchEvent.downloading);
+        // 비동기로 다운로드 (앱 초기화 blocking 방지)
+        _downloadPatchInBackground();
         return;
       }
 
       logger.i('✅ 패치 없음 또는 최신 상태');
+      _notifyPatchStatus(ShorebirdPatchEvent.upToDate);
     } catch (e, stackTrace) {
       logger.e('❌ 앱 시작시 패치 확인 실패 (앱은 계속 실행됨): $e',
           stackTrace: stackTrace);
+      _notifyPatchStatus(ShorebirdPatchEvent.error);
       // 패치 확인 실패해도 앱은 계속 실행되도록 함
+    }
+  }
+
+  /// 백그라운드에서 패치 다운로드 (앱 초기화 blocking 방지)
+  static Future<void> _downloadPatchInBackground() async {
+    try {
+      await updater.update();
+      logger.i('✅ 패치 다운로드 완료 - 백그라운드 전환 시 자동 적용됨');
+      _hasPendingPatch = true;
+      _notifyPatchStatus(ShorebirdPatchEvent.downloadCompleted);
+
+      // 다운로드 완료 스낵바 표시 (중간 수준 알림)
+      if (_downloadCompleteMessage != null) {
+        PatchNotificationService.showDownloadCompleteNotification(
+          _downloadCompleteMessage!,
+        );
+      }
+    } catch (e, stackTrace) {
+      logger.e('❌ 백그라운드 패치 다운로드 실패: $e', stackTrace: stackTrace);
+      _notifyPatchStatus(ShorebirdPatchEvent.error);
+    }
+  }
+
+  /// 패치 대기 상태 확인
+  static bool get hasPendingPatch => _hasPendingPatch;
+
+  /// 패치 대기 상태 설정 (외부에서 설정 필요 시)
+  static void setPendingPatch(bool value) {
+    _hasPendingPatch = value;
+  }
+
+  /// 다운로드 완료 알림 메시지 설정 (L10N 적용용)
+  ///
+  /// 앱 초기화 시 L10N 문자열로 설정해야 함
+  static void setDownloadCompleteMessage(String message) {
+    _downloadCompleteMessage = message;
+  }
+}
+
+/// 앱 생명주기 감지하여 백그라운드 전환 시 자동 재시작 (Android)
+///
+/// 사용법:
+/// ```dart
+/// // 앱 시작 시
+/// PatchLifecycleObserver.register();
+///
+/// // 앱 종료 시 (선택적)
+/// PatchLifecycleObserver.unregister();
+/// ```
+class PatchLifecycleObserver with WidgetsBindingObserver {
+  static PatchLifecycleObserver? _instance;
+  static bool _isRegistered = false;
+
+  PatchLifecycleObserver._();
+
+  /// 옵저버 등록
+  static void register() {
+    if (_isRegistered) return;
+
+    _instance = PatchLifecycleObserver._();
+    WidgetsBinding.instance.addObserver(_instance!);
+    _isRegistered = true;
+    logger.i('🔄 PatchLifecycleObserver 등록됨');
+  }
+
+  /// 옵저버 해제
+  static void unregister() {
+    if (!_isRegistered || _instance == null) return;
+
+    WidgetsBinding.instance.removeObserver(_instance!);
+    _instance = null;
+    _isRegistered = false;
+    logger.i('🔄 PatchLifecycleObserver 해제됨');
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // 백그라운드로 전환될 때 (paused 상태)
+    if (state == AppLifecycleState.paused) {
+      _handleAppPaused();
+    }
+  }
+
+  /// 앱이 백그라운드로 전환될 때 처리
+  void _handleAppPaused() {
+    if (!_hasPendingPatch) return;
+
+    logger.i('🔄 백그라운드 전환 감지 - 패치 대기 중');
+
+    // Android만 자동 재시작 (iOS는 다음 앱 실행 시 자동 적용)
+    if (Platform.isAndroid) {
+      logger.i('🔄 Android: 백그라운드에서 앱 재시작 실행');
+      _hasPendingPatch = false;
+
+      // 약간의 지연 후 재시작 (백그라운드 전환 완료 대기)
+      Future.delayed(const Duration(milliseconds: 500), () async {
+        try {
+          await Restart.restartApp();
+        } catch (e) {
+          logger.e('❌ 백그라운드 재시작 실패: $e');
+          _hasPendingPatch = true; // 실패 시 다시 대기 상태로
+        }
+      });
+    } else {
+      logger.i('📱 iOS: 다음 앱 실행 시 패치 자동 적용됨');
     }
   }
 }

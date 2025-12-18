@@ -1975,7 +1975,7 @@
       }
     }
   },
-  "label_setting_patch_status_restart_required": "Update ready (restart required)",
+  "label_setting_patch_status_restart_required": "Handa na ang update (kailangan ng restart)",
   "@label_setting_patch_status_restart_required": {
     "description": "Status label when a restart is required to apply a patch."
   },
@@ -2000,9 +2000,13 @@
   "@label_setting_patch_status_none": {
     "description": "Status label when no patch is applied."
   },
-  "message_setting_patch_restart_hint": "A new patch has been downloaded. Tap Restart to apply it.",
+  "message_setting_patch_restart_hint": "Na-download na ang bagong patch. I-tap ang Restart para i-apply.",
   "@message_setting_patch_restart_hint": {
     "description": "Hint shown when a restart is required after downloading a patch."
+  },
+  "message_setting_patch_restart_hint_ios": "Na-download na ang bagong update. Pakisara at buksan muli ang app para i-apply.",
+  "@message_setting_patch_restart_hint_ios": {
+    "description": "iOS-specific hint since iOS cannot programmatically restart the app."
   },
   "message_setting_patch_web_not_supported": "Patch updates aren't available on web.",
   "@message_setting_patch_web_not_supported": {
@@ -2042,21 +2046,37 @@
   "@message_setting_patch_up_to_date": {
     "description": "Snackbar text when the user is already on the latest patch."
   },
-  "dialog_setting_restart_title": "Restart app",
+  "dialog_setting_restart_title": "I-restart ang App",
   "@dialog_setting_restart_title": {
     "description": "Title for the restart confirmation dialog on the Settings page."
   },
-  "dialog_setting_restart_body": "A new update is ready. The app will restart to apply the changes.\n\nContinue?",
+  "dialog_setting_restart_body": "Handa na ang bagong update. I-restart ang app para i-apply ang mga pagbabago.\n\nMagpatuloy?",
   "@dialog_setting_restart_body": {
     "description": "Body text for the restart confirmation dialog on the Settings page."
   },
-  "button_restart": "Restart",
+  "button_restart": "I-restart",
   "@button_restart": {
     "description": "Label for restart buttons."
   },
-  "button_update": "Update",
+  "button_update": "I-update",
   "@button_update": {
     "description": "Label for update buttons."
+  },
+  "notification_patch_update_ready_title": "Handa na ang Update",
+  "@notification_patch_update_ready_title": {
+    "description": "Local push notification title when a patch update is ready to apply."
+  },
+  "notification_patch_update_ready_body": "Mangyaring isara at muling buksan ang app para i-apply ang update.",
+  "@notification_patch_update_ready_body": {
+    "description": "Local push notification body when a patch update is ready to apply."
+  },
+  "notification_patch_downloaded_title": "Na-download na ang Update",
+  "@notification_patch_downloaded_title": {
+    "description": "Local push notification title when a patch has been downloaded."
+  },
+  "notification_patch_downloaded_body": "Mangyaring i-restart ang app para i-apply ang update.",
+  "@notification_patch_downloaded_body": {
+    "description": "Local push notification body when a patch has been downloaded."
   },
   "label_setting_patch_number": " / Patch: {patchNumber}",
   "@label_setting_patch_number": {
@@ -2122,5 +2142,17 @@
   "message_setting_patch_restarting": "Nagre-restart ang app...",
   "@message_setting_patch_restarting": {
     "description": "Message shown when restarting app after patch"
+  },
+  "message_setting_patch_restart_hint_ios": "Isara ang app at buksan ulit para mag-apply ng update",
+  "@message_setting_patch_restart_hint_ios": {
+    "description": "iOS-specific hint for restarting the app to apply patch"
+  },
+  "message_patch_download_complete": "Na-download na ang update. Mag-a-apply sa susunod na restart",
+  "@message_patch_download_complete": {
+    "description": "Snackbar message when patch download completes"
+  },
+  "message_patch_applied": "Na-apply na ang update",
+  "@message_patch_applied": {
+    "description": "Toast message when patch has been applied after restart"
   }
 }

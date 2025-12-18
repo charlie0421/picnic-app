@@ -786,6 +786,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get post_not_found => 'No posts were found.';
 
   @override
+  String get post_deleted_title => 'Deleted Post';
+
+  @override
+  String get post_deleted_desc => 'This post has been deleted by the author.';
+
+  @override
   String get post_report_fail => 'The report failed.';
 
   @override
@@ -1572,6 +1578,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'A new patch has been downloaded. Tap Restart to apply it.';
 
   @override
+  String get message_setting_patch_restart_hint_ios =>
+      'A new update has been downloaded. Please close and reopen the app to apply it.';
+
+  @override
   String get message_setting_patch_web_not_supported =>
       'Patch updates aren\'t available on web.';
 
@@ -1604,6 +1614,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'re already on the latest patch.';
 
   @override
+  String get message_patch_download_complete =>
+      'Update ready. It will apply when you switch apps.';
+
+  @override
+  String get message_patch_applied =>
+      'App has been updated to the latest version.';
+
+  @override
   String get dialog_setting_restart_title => 'Restart app';
 
   @override
@@ -1615,6 +1633,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get button_update => 'Update';
+
+  @override
+  String get notification_patch_update_ready_title => 'Update Ready';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'Please close and reopen the app to apply the update.';
+
+  @override
+  String get notification_patch_downloaded_title => 'Update Downloaded';
+
+  @override
+  String get notification_patch_downloaded_body =>
+      'Please restart the app to apply the update.';
 
   @override
   String label_setting_patch_number(int patchNumber) {

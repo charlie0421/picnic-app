@@ -763,6 +763,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get post_not_found => '投稿が見つかりません。';
 
   @override
+  String get post_deleted_title => '削除された投稿';
+
+  @override
+  String get post_deleted_desc => 'この投稿は作成者によって削除されました。';
+
+  @override
   String get post_report_fail => '申告に失敗しました。';
 
   @override
@@ -1489,7 +1495,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get label_setting_patch_status_restart_required =>
-      'Update ready (restart required)';
+      'アップデート準備完了（再起動が必要）';
 
   @override
   String get label_setting_patch_status_downloaded => 'Update downloaded';
@@ -1507,7 +1513,11 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get message_setting_patch_restart_hint =>
-      'A new patch has been downloaded. Tap Restart to apply it.';
+      '新しいパッチがダウンロードされました。再起動をタップして適用してください。';
+
+  @override
+  String get message_setting_patch_restart_hint_ios =>
+      '新しいアップデートがダウンロードされました。適用するにはアプリを終了して再度開いてください。';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -1539,21 +1549,40 @@ class AppLocalizationsJa extends AppLocalizations {
       'Patch status unavailable. Please try again later.';
 
   @override
-  String get message_setting_patch_up_to_date =>
-      'You\'re already on the latest patch.';
+  String get message_setting_patch_up_to_date => 'すでに最新のパッチを使用しています。';
 
   @override
-  String get dialog_setting_restart_title => 'Restart app';
+  String get message_patch_download_complete =>
+      'アップデートの準備ができました。アプリ切り替え時に自動適用されます。';
+
+  @override
+  String get message_patch_applied => 'アプリが最新バージョンに更新されました。';
+
+  @override
+  String get dialog_setting_restart_title => 'アプリを再起動';
 
   @override
   String get dialog_setting_restart_body =>
-      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+      '新しいアップデートの準備ができました。変更を適用するにはアプリを再起動します。\n\n続行しますか？';
 
   @override
-  String get button_restart => 'Restart';
+  String get button_restart => '再起動';
 
   @override
-  String get button_update => 'Update';
+  String get button_update => 'アップデート';
+
+  @override
+  String get notification_patch_update_ready_title => 'アップデート準備完了';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'アプリを終了して再度開き、アップデートを適用してください。';
+
+  @override
+  String get notification_patch_downloaded_title => 'アップデートダウンロード完了';
+
+  @override
+  String get notification_patch_downloaded_body => 'アプリを再起動してアップデートを適用してください。';
 
   @override
   String label_setting_patch_number(int patchNumber) {

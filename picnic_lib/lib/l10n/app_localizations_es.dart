@@ -794,6 +794,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get post_not_found => 'No se encontraron publicaciones.';
 
   @override
+  String get post_deleted_title => 'Deleted Post';
+
+  @override
+  String get post_deleted_desc => 'This post has been deleted by the author.';
+
+  @override
   String get post_report_fail => 'El informe falló.';
 
   @override
@@ -1568,7 +1574,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get label_setting_patch_status_restart_required =>
-      'Update ready (restart required)';
+      'Actualización lista (reinicio requerido)';
 
   @override
   String get label_setting_patch_status_downloaded => 'Update downloaded';
@@ -1586,7 +1592,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get message_setting_patch_restart_hint =>
-      'A new patch has been downloaded. Tap Restart to apply it.';
+      'Se ha descargado un nuevo parche. Toca Reiniciar para aplicarlo.';
+
+  @override
+  String get message_setting_patch_restart_hint_ios =>
+      'Se ha descargado una nueva actualización. Por favor, cierra y vuelve a abrir la app para aplicarla.';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -1619,20 +1629,42 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get message_setting_patch_up_to_date =>
-      'You\'re already on the latest patch.';
+      'Ya tienes el parche más reciente.';
 
   @override
-  String get dialog_setting_restart_title => 'Restart app';
+  String get message_patch_download_complete =>
+      'Actualización lista. Se aplicará al cambiar de app.';
+
+  @override
+  String get message_patch_applied =>
+      'La app se ha actualizado a la última versión.';
+
+  @override
+  String get dialog_setting_restart_title => 'Reiniciar aplicación';
 
   @override
   String get dialog_setting_restart_body =>
-      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+      'Nueva actualización lista. Reinicia la aplicación para aplicar los cambios.\n\n¿Continuar?';
 
   @override
-  String get button_restart => 'Restart';
+  String get button_restart => 'Reiniciar';
 
   @override
-  String get button_update => 'Update';
+  String get button_update => 'Actualizar';
+
+  @override
+  String get notification_patch_update_ready_title => 'Actualización Lista';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'Por favor cierra y vuelve a abrir la aplicación para aplicar la actualización.';
+
+  @override
+  String get notification_patch_downloaded_title => 'Actualización Descargada';
+
+  @override
+  String get notification_patch_downloaded_body =>
+      'Por favor reinicia la aplicación para aplicar la actualización.';
 
   @override
   String label_setting_patch_number(int patchNumber) {

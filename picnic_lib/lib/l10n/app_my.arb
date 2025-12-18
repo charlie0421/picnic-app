@@ -2003,6 +2003,10 @@
   "@message_setting_patch_restart_hint": {
     "description": "Hint shown when a restart is required after downloading a patch."
   },
+  "message_setting_patch_restart_hint_ios": "အပ်ဒိတ်အသစ်ဒေါင်းလုဒ်ပြီးပါပြီ။ အသုံးပြုရန် အက်ပ်ကိုပိတ်ပြီး ပြန်ဖွင့်ပါ။",
+  "@message_setting_patch_restart_hint_ios": {
+    "description": "iOS-specific hint since iOS cannot programmatically restart the app."
+  },
   "message_setting_patch_web_not_supported": "ပက်ချ်အပ်ဒိတ်များသည်ဝဘ်တွင်မရနိုင်ပါ။",
   "@message_setting_patch_web_not_supported": {
     "description": "Warning shown when patch actions are attempted on web platforms."
@@ -2060,6 +2064,22 @@
   "button_update": "အပ်ဒိတ်",
   "@button_update": {
     "description": "Label for update buttons."
+  },
+  "notification_patch_update_ready_title": "အပ်ဒိတ်အဆင်သင့်ဖြစ်ပြီ",
+  "@notification_patch_update_ready_title": {
+    "description": "Local push notification title when a patch update is ready to apply."
+  },
+  "notification_patch_update_ready_body": "အပ်ဒိတ်အသုံးပြုရန် အက်ပ်ကိုပိတ်ပြီး ပြန်ဖွင့်ပါ။",
+  "@notification_patch_update_ready_body": {
+    "description": "Local push notification body when a patch update is ready to apply."
+  },
+  "notification_patch_downloaded_title": "အပ်ဒိတ်ဒေါင်းလုဒ်ပြီးပါပြီ",
+  "@notification_patch_downloaded_title": {
+    "description": "Local push notification title when a patch has been downloaded."
+  },
+  "notification_patch_downloaded_body": "အပ်ဒိတ်အသုံးပြုရန် အက်ပ်ကို restart လုပ်ပါ။",
+  "@notification_patch_downloaded_body": {
+    "description": "Local push notification body when a patch has been downloaded."
   },
   "label_setting_patch_number": " / ပက်ချ်: {patchNumber}",
   "@label_setting_patch_number": {
@@ -2121,5 +2141,21 @@
   "goong_hap_close_button": "ပိတ်ပါ",
   "@goong_hap_close_button": {
     "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "message_setting_patch_restarting": "အက်ပ်ပြန်စနေသည်...",
+  "@message_setting_patch_restarting": {
+    "description": "Message shown when restarting app after patch"
+  },
+  "message_setting_patch_restart_hint_ios": "အပ်ဒိတ်အသုံးချရန် အက်ပ်ပိတ်ပြီးပြန်ဖွင့်ပါ",
+  "@message_setting_patch_restart_hint_ios": {
+    "description": "iOS-specific hint for restarting the app to apply patch"
+  },
+  "message_patch_download_complete": "အပ်ဒိတ်ဒေါင်းလုဒ်ပြီးပါပြီ။ နောက်တစ်ကြိမ်ပြန်စသောအခါအသုံးချမည်",
+  "@message_patch_download_complete": {
+    "description": "Snackbar message when patch download completes"
+  },
+  "message_patch_applied": "အပ်ဒိတ်အသုံးချပြီးပါပြီ",
+  "@message_patch_applied": {
+    "description": "Toast message when patch has been applied after restart"
   }
 }

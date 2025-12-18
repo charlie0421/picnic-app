@@ -778,6 +778,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get post_not_found => 'ไม่พบโพสต์';
 
   @override
+  String get post_deleted_title => 'Deleted Post';
+
+  @override
+  String get post_deleted_desc => 'This post has been deleted by the author.';
+
+  @override
   String get post_report_fail => 'รายงานล้มเหลว';
 
   @override
@@ -1527,7 +1533,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get label_setting_patch_status_restart_required =>
-      'Update ready (restart required)';
+      'อัปเดตพร้อมแล้ว (ต้องรีสตาร์ท)';
 
   @override
   String get label_setting_patch_status_downloaded => 'Update downloaded';
@@ -1545,7 +1551,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get message_setting_patch_restart_hint =>
-      'A new patch has been downloaded. Tap Restart to apply it.';
+      'ดาวน์โหลดแพตช์ใหม่แล้ว แตะรีสตาร์ทเพื่อใช้งาน';
+
+  @override
+  String get message_setting_patch_restart_hint_ios =>
+      'ดาวน์โหลดอัปเดตใหม่แล้ว กรุณาปิดและเปิดแอปอีกครั้งเพื่อใช้งาน';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -1577,21 +1587,42 @@ class AppLocalizationsTh extends AppLocalizations {
       'Patch status unavailable. Please try again later.';
 
   @override
-  String get message_setting_patch_up_to_date =>
-      'You\'re already on the latest patch.';
+  String get message_setting_patch_up_to_date => 'คุณใช้แพตช์ล่าสุดอยู่แล้ว';
 
   @override
-  String get dialog_setting_restart_title => 'Restart app';
+  String get message_patch_download_complete =>
+      'อัปเดตพร้อมแล้ว จะนำไปใช้เมื่อสลับแอป';
+
+  @override
+  String get message_patch_applied =>
+      'แอปได้รับการอัปเดตเป็นเวอร์ชันล่าสุดแล้ว';
+
+  @override
+  String get dialog_setting_restart_title => 'รีสตาร์ทแอป';
 
   @override
   String get dialog_setting_restart_body =>
-      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+      'อัปเดตใหม่พร้อมแล้ว รีสตาร์ทแอปเพื่อใช้การเปลี่ยนแปลง\n\nดำเนินการต่อหรือไม่?';
 
   @override
-  String get button_restart => 'Restart';
+  String get button_restart => 'รีสตาร์ท';
 
   @override
-  String get button_update => 'Update';
+  String get button_update => 'อัปเดต';
+
+  @override
+  String get notification_patch_update_ready_title => 'อัปเดตพร้อมแล้ว';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'กรุณาปิดและเปิดแอปใหม่เพื่อใช้งานอัปเดต';
+
+  @override
+  String get notification_patch_downloaded_title => 'ดาวน์โหลดอัปเดตแล้ว';
+
+  @override
+  String get notification_patch_downloaded_body =>
+      'กรุณารีสตาร์ทแอปเพื่อใช้งานอัปเดต';
 
   @override
   String label_setting_patch_number(int patchNumber) {

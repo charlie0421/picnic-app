@@ -18,6 +18,7 @@ import 'package:picnic_lib/presentation/providers/platform_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
+import 'package:picnic_lib/presentation/providers/patch_status_provider.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -164,11 +165,17 @@ class _SettingPageState extends ConsumerState<SettingPage>
     final patchInfo = ref.watch(patchInfoProvider);
     final l10n = AppLocalizations.of(context);
 
+    // 패치 상태 Provider 구독 (재시작 배너 표시용)
+    final patchStatusInfo = ref.watch(patchStatusProvider);
+
     return userInfoState.when(
       data: (data) => Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: ListView(
           children: [
+            // 재시작 필요 시 상단 배너 표시
+            if (patchStatusInfo.needsRestart)
+              _buildRestartBanner(context, l10n),
             const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context).label_setting_alarm,
@@ -381,6 +388,118 @@ class _SettingPageState extends ConsumerState<SettingPage>
     );
   }
 
+  /// 재시작 필요 시 상단에 표시되는 배너
+  Widget _buildRestartBanner(BuildContext context, AppLocalizations l10n) {
+    final isIOS = UniversalPlatform.isIOS;
+
+    return Container(
+      margin: EdgeInsets.only(top: 8.w, bottom: 8.w),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary500,
+            AppColors.primary500.withValues(alpha: 0.85),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary500.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 아이콘
+          Container(
+            width: 44.w,
+            height: 44.w,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.system_update_rounded,
+              color: Colors.white,
+              size: 24.w,
+            ),
+          ),
+          SizedBox(width: 12.w),
+          // 텍스트
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.label_setting_patch_status_restart_required,
+                  style: getTextStyle(AppTypo.body14B, Colors.white),
+                ),
+                SizedBox(height: 4.w),
+                Text(
+                  isIOS
+                      ? l10n.message_setting_patch_restart_hint_ios
+                      : l10n.message_setting_patch_restart_hint,
+                  style: getTextStyle(
+                    AppTypo.caption12R,
+                    Colors.white.withValues(alpha: 0.9),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8.w),
+          // 재시작 버튼
+          _isRestartingApp
+              ? SizedBox(
+                  width: 24.w,
+                  height: 24.w,
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : GestureDetector(
+                  onTap: () async {
+                    setState(() {
+                      _isRestartingApp = true;
+                    });
+                    try {
+                      await ShorebirdUtils.restartAppForPatch();
+                    } catch (e) {
+                      logger.e('배너에서 재시작 실패: $e');
+                    } finally {
+                      if (mounted) {
+                        setState(() {
+                          _isRestartingApp = false;
+                        });
+                      }
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 8.w,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      isIOS ? l10n.button_ok : l10n.button_restart,
+                      style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+                    ),
+                  ),
+                ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPatchStatusTile(
     BuildContext context,
     AppLocalizations l10n,
@@ -393,7 +512,6 @@ class _SettingPageState extends ConsumerState<SettingPage>
       height: 20.w,
       colorFilter: const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
     );
-    final canApplyPatch = patchInfo.hasUpdate && !_isManualPatchUpdating;
 
     return FadeTransition(
       opacity: _patchFadeAnimation,
@@ -459,40 +577,15 @@ class _SettingPageState extends ConsumerState<SettingPage>
                           textAlign: TextAlign.end,
                         ),
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 6,
-                        alignment: WrapAlignment.end,
-                        children: [
-                          _buildPatchActionButton(
-                            label: l10n.label_setting_patch_check_button,
-                            onTap: _isCheckingPatch
-                                ? null
-                                : () => _handlePatchStatusTap(),
-                            isPrimary: false,
-                            isLoading: _isCheckingPatch,
-                          ),
-                          _buildPatchActionButton(
-                            label: l10n.label_setting_patch_apply_button,
-                            onTap: canApplyPatch
-                                ? () => _handleManualPatchUpdate(context)
-                                : null,
-                            isLoading: _isManualPatchUpdating,
-                          ),
-                        ],
+                      // 패치 확인 버튼만 유지 (업데이트 적용은 자동으로 처리됨)
+                      _buildPatchActionButton(
+                        label: l10n.label_setting_patch_check_button,
+                        onTap: _isCheckingPatch
+                            ? null
+                            : () => _handlePatchStatusTap(),
+                        isPrimary: false,
+                        isLoading: _isCheckingPatch,
                       ),
-                      if (patchInfo.needsRestart)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 6),
-                          child: Text(
-                            l10n.message_setting_patch_restart_hint,
-                            style: getTextStyle(
-                              AppTypo.caption10SB,
-                              AppColors.primary500,
-                            ),
-                            textAlign: TextAlign.end,
-                          ),
-                        ),
                     ],
                   ),
                 ),

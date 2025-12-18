@@ -789,6 +789,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get post_not_found => 'Tidak ada tulisan yang ditemukan.';
 
   @override
+  String get post_deleted_title => 'Deleted Post';
+
+  @override
+  String get post_deleted_desc => 'This post has been deleted by the author.';
+
+  @override
   String get post_report_fail => 'Laporan tersebut gagal.';
 
   @override
@@ -1557,7 +1563,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get label_setting_patch_status_restart_required =>
-      'Update ready (restart required)';
+      'Pembaruan siap (perlu restart)';
 
   @override
   String get label_setting_patch_status_downloaded => 'Update downloaded';
@@ -1575,7 +1581,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get message_setting_patch_restart_hint =>
-      'A new patch has been downloaded. Tap Restart to apply it.';
+      'Patch baru telah diunduh. Ketuk Restart untuk menerapkan.';
+
+  @override
+  String get message_setting_patch_restart_hint_ios =>
+      'Pembaruan baru telah diunduh. Silakan tutup dan buka kembali aplikasi untuk menerapkan.';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -1608,20 +1618,42 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get message_setting_patch_up_to_date =>
-      'You\'re already on the latest patch.';
+      'Anda sudah menggunakan patch terbaru.';
 
   @override
-  String get dialog_setting_restart_title => 'Restart app';
+  String get message_patch_download_complete =>
+      'Pembaruan siap. Akan diterapkan saat beralih aplikasi.';
+
+  @override
+  String get message_patch_applied =>
+      'Aplikasi telah diperbarui ke versi terbaru.';
+
+  @override
+  String get dialog_setting_restart_title => 'Restart Aplikasi';
 
   @override
   String get dialog_setting_restart_body =>
-      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+      'Pembaruan baru sudah siap. Restart aplikasi untuk menerapkan perubahan.\n\nLanjutkan?';
 
   @override
   String get button_restart => 'Restart';
 
   @override
-  String get button_update => 'Update';
+  String get button_update => 'Perbarui';
+
+  @override
+  String get notification_patch_update_ready_title => 'Pembaruan Siap';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'Silakan tutup dan buka kembali aplikasi untuk menerapkan pembaruan.';
+
+  @override
+  String get notification_patch_downloaded_title => 'Pembaruan Diunduh';
+
+  @override
+  String get notification_patch_downloaded_body =>
+      'Silakan restart aplikasi untuk menerapkan pembaruan.';
 
   @override
   String label_setting_patch_number(int patchNumber) {

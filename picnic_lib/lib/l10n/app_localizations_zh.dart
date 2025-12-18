@@ -785,6 +785,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get post_not_found => 'No posts were found.';
 
   @override
+  String get post_deleted_title => 'Deleted Post';
+
+  @override
+  String get post_deleted_desc => 'This post has been deleted by the author.';
+
+  @override
   String get post_report_fail => 'The report failed.';
 
   @override
@@ -1569,6 +1575,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'A new patch has been downloaded. Tap Restart to apply it.';
 
   @override
+  String get message_setting_patch_restart_hint_ios =>
+      'A new update has been downloaded. Please close and reopen the app to apply it.';
+
+  @override
   String get message_setting_patch_web_not_supported =>
       'Patch updates aren\'t available on web.';
 
@@ -1602,6 +1612,14 @@ class AppLocalizationsZh extends AppLocalizations {
       'You\'re already on the latest patch.';
 
   @override
+  String get message_patch_download_complete =>
+      'Update ready. It will apply when you switch apps.';
+
+  @override
+  String get message_patch_applied =>
+      'App has been updated to the latest version.';
+
+  @override
   String get dialog_setting_restart_title => 'Restart app';
 
   @override
@@ -1613,6 +1631,20 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get button_update => 'Update';
+
+  @override
+  String get notification_patch_update_ready_title => 'Update Ready';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'Please close and reopen the app to apply the update.';
+
+  @override
+  String get notification_patch_downloaded_title => 'Update Downloaded';
+
+  @override
+  String get notification_patch_downloaded_body =>
+      'Please restart the app to apply the update.';
 
   @override
   String label_setting_patch_number(int patchNumber) {
@@ -2415,6 +2447,12 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get post_not_found => '未找到任何帖子。';
 
   @override
+  String get post_deleted_title => '已删除的帖子';
+
+  @override
+  String get post_deleted_desc => '此帖子已被作者删除。';
+
+  @override
   String get post_report_fail => '报告没有通过。';
 
   @override
@@ -3141,8 +3179,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   }
 
   @override
-  String get label_setting_patch_status_restart_required =>
-      'Update ready (restart required)';
+  String get label_setting_patch_status_restart_required => '更新准备就绪（需要重启）';
 
   @override
   String get label_setting_patch_status_downloaded => 'Update downloaded';
@@ -3159,8 +3196,11 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get label_setting_patch_status_none => 'No patch applied';
 
   @override
-  String get message_setting_patch_restart_hint =>
-      'A new patch has been downloaded. Tap Restart to apply it.';
+  String get message_setting_patch_restart_hint => '新补丁已下载完成，点击重启以应用更新。';
+
+  @override
+  String get message_setting_patch_restart_hint_ios =>
+      '新更新已下载完成，请关闭应用后重新打开以应用更新。';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -3192,21 +3232,37 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
       'Patch status unavailable. Please try again later.';
 
   @override
-  String get message_setting_patch_up_to_date =>
-      'You\'re already on the latest patch.';
+  String get message_setting_patch_up_to_date => '您已使用最新补丁。';
 
   @override
-  String get dialog_setting_restart_title => 'Restart app';
+  String get message_patch_download_complete => '更新已准备就绪，切换应用时将自动应用。';
 
   @override
-  String get dialog_setting_restart_body =>
-      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+  String get message_patch_applied => '应用已更新到最新版本。';
 
   @override
-  String get button_restart => 'Restart';
+  String get dialog_setting_restart_title => '重启应用';
 
   @override
-  String get button_update => 'Update';
+  String get dialog_setting_restart_body => '新更新已准备就绪，将重启应用以应用更改。\n\n是否继续？';
+
+  @override
+  String get button_restart => '重启';
+
+  @override
+  String get button_update => '更新';
+
+  @override
+  String get notification_patch_update_ready_title => '更新准备就绪';
+
+  @override
+  String get notification_patch_update_ready_body => '请关闭并重新打开应用以应用更新。';
+
+  @override
+  String get notification_patch_downloaded_title => '更新下载完成';
+
+  @override
+  String get notification_patch_downloaded_body => '请重启应用以应用更新。';
 
   @override
   String label_setting_patch_number(int patchNumber) {
@@ -4735,8 +4791,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
-  String get label_setting_patch_status_restart_required =>
-      'Update ready (restart required)';
+  String get label_setting_patch_status_restart_required => '更新準備就緒（需要重新啟動）';
 
   @override
   String get label_setting_patch_status_downloaded => 'Update downloaded';
@@ -4753,8 +4808,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get label_setting_patch_status_none => 'No patch applied';
 
   @override
-  String get message_setting_patch_restart_hint =>
-      'A new patch has been downloaded. Tap Restart to apply it.';
+  String get message_setting_patch_restart_hint => '新補丁已下載完成，點擊重新啟動以套用更新。';
+
+  @override
+  String get message_setting_patch_restart_hint_ios =>
+      '新更新已下載完成，請關閉應用程式後重新開啟以套用更新。';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -4786,21 +4844,37 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
       'Patch status unavailable. Please try again later.';
 
   @override
-  String get message_setting_patch_up_to_date =>
-      'You\'re already on the latest patch.';
+  String get message_setting_patch_up_to_date => '您已使用最新補丁。';
 
   @override
-  String get dialog_setting_restart_title => 'Restart app';
+  String get message_patch_download_complete => '更新已準備就緒，切換應用程式時將自動套用。';
 
   @override
-  String get dialog_setting_restart_body =>
-      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+  String get message_patch_applied => '應用程式已更新到最新版本。';
 
   @override
-  String get button_restart => 'Restart';
+  String get dialog_setting_restart_title => '重新啟動應用程式';
 
   @override
-  String get button_update => 'Update';
+  String get dialog_setting_restart_body => '新更新已準備就緒，將重新啟動應用程式以套用變更。\n\n是否繼續？';
+
+  @override
+  String get button_restart => '重新啟動';
+
+  @override
+  String get button_update => '更新';
+
+  @override
+  String get notification_patch_update_ready_title => '更新準備就緒';
+
+  @override
+  String get notification_patch_update_ready_body => '請關閉並重新開啟應用程式以套用更新。';
+
+  @override
+  String get notification_patch_downloaded_title => '更新下載完成';
+
+  @override
+  String get notification_patch_downloaded_body => '請重新啟動應用程式以套用更新。';
 
   @override
   String label_setting_patch_number(int patchNumber) {

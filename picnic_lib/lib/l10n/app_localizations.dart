@@ -1601,6 +1601,18 @@ abstract class AppLocalizations {
   /// **'No posts were found.'**
   String get post_not_found;
 
+  /// Title shown for deleted posts
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted Post'**
+  String get post_deleted_title;
+
+  /// Description shown for deleted posts
+  ///
+  /// In en, this message translates to:
+  /// **'This post has been deleted by the author.'**
+  String get post_deleted_desc;
+
   /// Auto-generated metadata for key 'post_report_fail'.
   ///
   /// In en, this message translates to:
@@ -2999,6 +3011,12 @@ abstract class AppLocalizations {
   /// **'A new patch has been downloaded. Tap Restart to apply it.'**
   String get message_setting_patch_restart_hint;
 
+  /// iOS-specific hint since iOS cannot programmatically restart the app.
+  ///
+  /// In en, this message translates to:
+  /// **'A new update has been downloaded. Please close and reopen the app to apply it.'**
+  String get message_setting_patch_restart_hint_ios;
+
   /// Warning shown when patch actions are attempted on web platforms.
   ///
   /// In en, this message translates to:
@@ -3047,6 +3065,18 @@ abstract class AppLocalizations {
   /// **'You\'re already on the latest patch.'**
   String get message_setting_patch_up_to_date;
 
+  /// Snackbar shown when patch download completes (medium notification level).
+  ///
+  /// In en, this message translates to:
+  /// **'Update ready. It will apply when you switch apps.'**
+  String get message_patch_download_complete;
+
+  /// Toast shown after a patch has been applied on app restart.
+  ///
+  /// In en, this message translates to:
+  /// **'App has been updated to the latest version.'**
+  String get message_patch_applied;
+
   /// Title for the restart confirmation dialog on the Settings page.
   ///
   /// In en, this message translates to:
@@ -3070,6 +3100,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update'**
   String get button_update;
+
+  /// Local push notification title when a patch update is ready to apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Ready'**
+  String get notification_patch_update_ready_title;
+
+  /// Local push notification body when a patch update is ready to apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Please close and reopen the app to apply the update.'**
+  String get notification_patch_update_ready_body;
+
+  /// Local push notification title when a patch has been downloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Downloaded'**
+  String get notification_patch_downloaded_title;
+
+  /// Local push notification body when a patch has been downloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Please restart the app to apply the update.'**
+  String get notification_patch_downloaded_body;
 
   /// Suffix appended to build information to show the current patch number.
   ///

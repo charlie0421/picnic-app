@@ -196,12 +196,13 @@ Future<PostModel?> postById(ref, String postId,
           .rpc('increment_view_count', params: {'post_id_param': postId});
     }
 
+    // 삭제된 게시물도 조회 가능하도록 deleted_at 필터 제거
+    // 삭제된 게시물은 UI에서 "삭제된 게시물입니다" 메시지로 표시
     var query = supabase
         .from('posts')
         .select(
             '*, board:boards!inner(*), user_profiles!posts_user_id_fkey(nickname,avatar_url,created_at,updated_at,deleted_at), post_reports!left(post_id), post_scraps!left(post_id)')
         .eq('post_id', postId)
-        .isFilter('deleted_at', null)
         .isFilter('post_reports', null);
 
     // 차단된 사용자가 있는 경우에만 필터 적용

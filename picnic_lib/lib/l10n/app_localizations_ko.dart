@@ -763,6 +763,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get post_not_found => '게시글을 찾을 수 없습니다.';
 
   @override
+  String get post_deleted_title => '삭제된 게시물';
+
+  @override
+  String get post_deleted_desc => '작성자가 삭제한 게시물입니다.';
+
+  @override
   String get post_report_fail => '신고에 실패했습니다.';
 
   @override
@@ -1510,6 +1516,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '새 패치가 다운로드되었습니다. 재시작을 눌러 적용하세요.';
 
   @override
+  String get message_setting_patch_restart_hint_ios =>
+      '새 업데이트가 다운로드되었습니다. 앱을 종료 후 다시 열어주세요.';
+
+  @override
   String get message_setting_patch_web_not_supported =>
       '웹 환경에서는 패치를 사용할 수 없습니다.';
 
@@ -1540,6 +1550,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get message_setting_patch_up_to_date => '이미 최신 패치를 사용 중입니다.';
 
   @override
+  String get message_patch_download_complete =>
+      '업데이트가 준비되었습니다. 앱 전환 시 자동 적용됩니다.';
+
+  @override
+  String get message_patch_applied => '앱이 최신 버전으로 업데이트되었습니다.';
+
+  @override
   String get dialog_setting_restart_title => '앱 재시작';
 
   @override
@@ -1551,6 +1568,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get button_update => '업데이트';
+
+  @override
+  String get notification_patch_update_ready_title => '업데이트 준비 완료';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      '앱을 종료 후 다시 열어 업데이트를 적용해주세요.';
+
+  @override
+  String get notification_patch_downloaded_title => '업데이트 다운로드 완료';
+
+  @override
+  String get notification_patch_downloaded_body => '앱을 재시작하여 업데이트를 적용해주세요.';
 
   @override
   String label_setting_patch_number(int patchNumber) {

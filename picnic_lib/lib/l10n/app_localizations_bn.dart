@@ -786,6 +786,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get post_not_found => 'No posts were found.';
 
   @override
+  String get post_deleted_title => 'Deleted Post';
+
+  @override
+  String get post_deleted_desc => 'This post has been deleted by the author.';
+
+  @override
   String get post_report_fail => 'The report failed.';
 
   @override
@@ -1551,7 +1557,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get label_setting_patch_status_restart_required =>
-      'Update ready (restart required)';
+      'আপডেট প্রস্তুত (রিস্টার্ট প্রয়োজন)';
 
   @override
   String get label_setting_patch_status_downloaded => 'Update downloaded';
@@ -1569,7 +1575,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get message_setting_patch_restart_hint =>
-      'A new patch has been downloaded. Tap Restart to apply it.';
+      'নতুন প্যাচ ডাউনলোড হয়েছে। প্রয়োগ করতে রিস্টার্ট ট্যাপ করুন।';
+
+  @override
+  String get message_setting_patch_restart_hint_ios =>
+      'আপডেট প্রয়োগ করতে অ্যাপ বন্ধ করে আবার খুলুন';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -1605,17 +1615,38 @@ class AppLocalizationsBn extends AppLocalizations {
       'You\'re already on the latest patch.';
 
   @override
-  String get dialog_setting_restart_title => 'Restart app';
+  String get message_patch_download_complete =>
+      'আপডেট ডাউনলোড সম্পন্ন। পরবর্তী রিস্টার্টে প্রয়োগ হবে';
+
+  @override
+  String get message_patch_applied => 'আপডেট প্রয়োগ করা হয়েছে';
+
+  @override
+  String get dialog_setting_restart_title => 'অ্যাপ রিস্টার্ট';
 
   @override
   String get dialog_setting_restart_body =>
-      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+      'নতুন আপডেট প্রস্তুত। পরিবর্তন প্রয়োগ করতে অ্যাপ রিস্টার্ট হবে।\n\nচালিয়ে যেতে চান?';
 
   @override
-  String get button_restart => 'Restart';
+  String get button_restart => 'রিস্টার্ট';
 
   @override
-  String get button_update => 'Update';
+  String get button_update => 'আপডেট';
+
+  @override
+  String get notification_patch_update_ready_title => 'আপডেট প্রস্তুত';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'অনুগ্রহ করে অ্যাপটি বন্ধ করে আবার খুলুন আপডেট প্রয়োগ করতে।';
+
+  @override
+  String get notification_patch_downloaded_title => 'আপডেট ডাউনলোড হয়েছে';
+
+  @override
+  String get notification_patch_downloaded_body =>
+      'অনুগ্রহ করে অ্যাপটি রিস্টার্ট করুন আপডেট প্রয়োগ করতে।';
 
   @override
   String label_setting_patch_number(int patchNumber) {
@@ -3213,7 +3244,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get label_setting_patch_status_restart_required =>
-      'Update ready (restart required)';
+      'আপডেট প্রস্তুত (রিস্টার্ট প্রয়োজন)';
 
   @override
   String get label_setting_patch_status_downloaded => 'Update downloaded';
@@ -3231,7 +3262,11 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get message_setting_patch_restart_hint =>
-      'A new patch has been downloaded. Tap Restart to apply it.';
+      'নতুন প্যাচ ডাউনলোড হয়েছে। প্রয়োগ করতে রিস্টার্ট ট্যাপ করুন।';
+
+  @override
+  String get message_setting_patch_restart_hint_ios =>
+      'আপডেট প্রয়োগ করতে অ্যাপ বন্ধ করে আবার খুলুন';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -3267,17 +3302,38 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
       'You\'re already on the latest patch.';
 
   @override
-  String get dialog_setting_restart_title => 'Restart app';
+  String get message_patch_download_complete =>
+      'আপডেট ডাউনলোড সম্পন্ন। পরবর্তী রিস্টার্টে প্রয়োগ হবে';
+
+  @override
+  String get message_patch_applied => 'আপডেট প্রয়োগ করা হয়েছে';
+
+  @override
+  String get dialog_setting_restart_title => 'অ্যাপ রিস্টার্ট';
 
   @override
   String get dialog_setting_restart_body =>
-      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+      'নতুন আপডেট প্রস্তুত। পরিবর্তন প্রয়োগ করতে অ্যাপ রিস্টার্ট হবে।\n\nচালিয়ে যেতে চান?';
 
   @override
-  String get button_restart => 'Restart';
+  String get button_restart => 'রিস্টার্ট';
 
   @override
-  String get button_update => 'Update';
+  String get button_update => 'আপডেট';
+
+  @override
+  String get notification_patch_update_ready_title => 'আপডেট প্রস্তুত';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'অনুগ্রহ করে অ্যাপটি বন্ধ করে আবার খুলুন আপডেট প্রয়োগ করতে।';
+
+  @override
+  String get notification_patch_downloaded_title => 'আপডেট ডাউনলোড হয়েছে';
+
+  @override
+  String get notification_patch_downloaded_body =>
+      'অনুগ্রহ করে অ্যাপটি রিস্টার্ট করুন আপডেট প্রয়োগ করতে।';
 
   @override
   String label_setting_patch_number(int patchNumber) {

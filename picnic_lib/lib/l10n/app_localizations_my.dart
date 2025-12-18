@@ -793,6 +793,12 @@ class AppLocalizationsMy extends AppLocalizations {
   String get post_not_found => 'ပို့စ်များမရှိပါ။';
 
   @override
+  String get post_deleted_title => 'Deleted Post';
+
+  @override
+  String get post_deleted_desc => 'This post has been deleted by the author.';
+
+  @override
   String get post_report_fail => 'အစီရင်ခံစာမအောင်မြင်ပါ';
 
   @override
@@ -1585,6 +1591,10 @@ class AppLocalizationsMy extends AppLocalizations {
       'ပက်ချ်အသစ်ဒေါင်းလုဒ်ပြီးပါပြီ။ အသုံးပြုရန် Restart နှိပ်ပါ။';
 
   @override
+  String get message_setting_patch_restart_hint_ios =>
+      'အပ်ဒိတ်အသုံးချရန် အက်ပ်ပိတ်ပြီးပြန်ဖွင့်ပါ';
+
+  @override
   String get message_setting_patch_web_not_supported =>
       'ပက်ချ်အပ်ဒိတ်များသည်ဝဘ်တွင်မရနိုင်ပါ။';
 
@@ -1595,7 +1605,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get message_setting_patch_update_success => 'ပက်ချ်အပ်ဒိတ်ပြီးပါပြီ!';
 
   @override
-  String get message_setting_patch_restarting => 'အက်ပ် restart လုပ်နေသည်...';
+  String get message_setting_patch_restarting => 'အက်ပ်ပြန်စနေသည်...';
 
   @override
   String message_setting_patch_update_failed(String error) {
@@ -1616,6 +1626,13 @@ class AppLocalizationsMy extends AppLocalizations {
       'သင်သည်နောက်ဆုံးပက်ချ်တွင်ရှိနှင့်ပြီးဖြစ်သည်။';
 
   @override
+  String get message_patch_download_complete =>
+      'အပ်ဒိတ်ဒေါင်းလုဒ်ပြီးပါပြီ။ နောက်တစ်ကြိမ်ပြန်စသောအခါအသုံးချမည်';
+
+  @override
+  String get message_patch_applied => 'အပ်ဒိတ်အသုံးချပြီးပါပြီ';
+
+  @override
   String get dialog_setting_restart_title => 'အက်ပ် restart လုပ်ပါ';
 
   @override
@@ -1627,6 +1644,21 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get button_update => 'အပ်ဒိတ်';
+
+  @override
+  String get notification_patch_update_ready_title => 'အပ်ဒိတ်အဆင်သင့်ဖြစ်ပြီ';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'အပ်ဒိတ်အသုံးပြုရန် အက်ပ်ကိုပိတ်ပြီး ပြန်ဖွင့်ပါ။';
+
+  @override
+  String get notification_patch_downloaded_title =>
+      'အပ်ဒိတ်ဒေါင်းလုဒ်ပြီးပါပြီ';
+
+  @override
+  String get notification_patch_downloaded_body =>
+      'အပ်ဒိတ်အသုံးပြုရန် အက်ပ်ကို restart လုပ်ပါ။';
 
   @override
   String label_setting_patch_number(int patchNumber) {

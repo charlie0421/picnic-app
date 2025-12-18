@@ -787,6 +787,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get post_not_found => 'Không có bài viết đã được tìm thấy.';
 
   @override
+  String get post_deleted_title => 'Deleted Post';
+
+  @override
+  String get post_deleted_desc => 'This post has been deleted by the author.';
+
+  @override
   String get post_report_fail => 'Báo cáo thất bại.';
 
   @override
@@ -1551,7 +1557,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get label_setting_patch_status_restart_required =>
-      'Update ready (restart required)';
+      'Cập nhật đã sẵn sàng (cần khởi động lại)';
 
   @override
   String get label_setting_patch_status_downloaded => 'Update downloaded';
@@ -1569,7 +1575,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get message_setting_patch_restart_hint =>
-      'A new patch has been downloaded. Tap Restart to apply it.';
+      'Bản vá mới đã được tải xuống. Nhấn Khởi động lại để áp dụng.';
+
+  @override
+  String get message_setting_patch_restart_hint_ios =>
+      'Bản cập nhật mới đã được tải xuống. Vui lòng đóng và mở lại ứng dụng để áp dụng.';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -1603,20 +1613,42 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get message_setting_patch_up_to_date =>
-      'You\'re already on the latest patch.';
+      'Bạn đang sử dụng bản vá mới nhất.';
 
   @override
-  String get dialog_setting_restart_title => 'Restart app';
+  String get message_patch_download_complete =>
+      'Bản cập nhật đã sẵn sàng. Sẽ được áp dụng khi chuyển ứng dụng.';
+
+  @override
+  String get message_patch_applied =>
+      'Ứng dụng đã được cập nhật lên phiên bản mới nhất.';
+
+  @override
+  String get dialog_setting_restart_title => 'Khởi động lại ứng dụng';
 
   @override
   String get dialog_setting_restart_body =>
-      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+      'Bản cập nhật mới đã sẵn sàng. Ứng dụng sẽ khởi động lại để áp dụng thay đổi.\n\nBạn có muốn tiếp tục không?';
 
   @override
-  String get button_restart => 'Restart';
+  String get button_restart => 'Khởi động lại';
 
   @override
-  String get button_update => 'Update';
+  String get button_update => 'Cập nhật';
+
+  @override
+  String get notification_patch_update_ready_title => 'Cập nhật đã sẵn sàng';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'Vui lòng đóng và mở lại ứng dụng để áp dụng cập nhật.';
+
+  @override
+  String get notification_patch_downloaded_title => 'Đã tải xuống cập nhật';
+
+  @override
+  String get notification_patch_downloaded_body =>
+      'Vui lòng khởi động lại ứng dụng để áp dụng cập nhật.';
 
   @override
   String label_setting_patch_number(int patchNumber) {

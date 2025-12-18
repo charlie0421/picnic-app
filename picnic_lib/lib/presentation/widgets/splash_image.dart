@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/patch_notification_service.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
@@ -362,12 +363,28 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       'currentPatch': currentPatchNumber,
     });
 
-    setStateIfMounted(() {
-      _updateStatus = 'App is up to date';
-    });
+    // 패치가 방금 적용되었는지 확인
+    final wasJustApplied =
+        await PatchNotificationService.checkAndClearPatchApplied();
 
-    // 잠시 메시지 표시 후 숨김
-    await Future.delayed(const Duration(milliseconds: 1000));
+    if (wasJustApplied) {
+      // 패치가 방금 적용된 경우 - 적용 완료 메시지 표시
+      logger.i('🎉 패치 적용 완료 메시지 표시');
+      setStateIfMounted(() {
+        _updateStatus = 'Update applied!';
+      });
+
+      // 메시지를 더 오래 표시
+      await Future.delayed(const Duration(milliseconds: 2000));
+    } else {
+      // 일반적인 최신 상태
+      setStateIfMounted(() {
+        _updateStatus = 'App is up to date';
+      });
+
+      await Future.delayed(const Duration(milliseconds: 1000));
+    }
+
     setStateIfMounted(() {
       _updateStatus = '';
     });

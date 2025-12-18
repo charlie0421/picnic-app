@@ -46,7 +46,7 @@
       }
     }
   },
-  "label_setting_patch_status_restart_required": "Update ready (restart required)",
+  "label_setting_patch_status_restart_required": "আপডেট প্রস্তুত (রিস্টার্ট প্রয়োজন)",
   "@label_setting_patch_status_restart_required": {
     "description": "Status label when a restart is required to apply a patch."
   },
@@ -71,9 +71,13 @@
   "@label_setting_patch_status_none": {
     "description": "Status label when no patch is applied."
   },
-  "message_setting_patch_restart_hint": "A new patch has been downloaded. Tap Restart to apply it.",
+  "message_setting_patch_restart_hint": "নতুন প্যাচ ডাউনলোড হয়েছে। প্রয়োগ করতে রিস্টার্ট ট্যাপ করুন।",
   "@message_setting_patch_restart_hint": {
     "description": "Hint shown when a restart is required after downloading a patch."
+  },
+  "message_setting_patch_restart_hint_ios": "নতুন আপডেট ডাউনলোড হয়েছে। প্রয়োগ করতে অ্যাপটি বন্ধ করে আবার খুলুন।",
+  "@message_setting_patch_restart_hint_ios": {
+    "description": "iOS-specific hint since iOS cannot programmatically restart the app."
   },
   "message_setting_patch_web_not_supported": "Patch updates aren't available on web.",
   "@message_setting_patch_web_not_supported": {
@@ -113,21 +117,37 @@
   "@message_setting_patch_up_to_date": {
     "description": "Snackbar text when the user is already on the latest patch."
   },
-  "dialog_setting_restart_title": "Restart app",
+  "dialog_setting_restart_title": "অ্যাপ রিস্টার্ট",
   "@dialog_setting_restart_title": {
     "description": "Title for the restart confirmation dialog on the Settings page."
   },
-  "dialog_setting_restart_body": "A new update is ready. The app will restart to apply the changes.\n\nContinue?",
+  "dialog_setting_restart_body": "নতুন আপডেট প্রস্তুত। পরিবর্তন প্রয়োগ করতে অ্যাপ রিস্টার্ট হবে।\n\nচালিয়ে যেতে চান?",
   "@dialog_setting_restart_body": {
     "description": "Body text for the restart confirmation dialog on the Settings page."
   },
-  "button_restart": "Restart",
+  "button_restart": "রিস্টার্ট",
   "@button_restart": {
     "description": "Label for restart buttons."
   },
-  "button_update": "Update",
+  "button_update": "আপডেট",
   "@button_update": {
     "description": "Label for update buttons."
+  },
+  "notification_patch_update_ready_title": "আপডেট প্রস্তুত",
+  "@notification_patch_update_ready_title": {
+    "description": "Local push notification title when a patch update is ready to apply."
+  },
+  "notification_patch_update_ready_body": "অনুগ্রহ করে অ্যাপটি বন্ধ করে আবার খুলুন আপডেট প্রয়োগ করতে।",
+  "@notification_patch_update_ready_body": {
+    "description": "Local push notification body when a patch update is ready to apply."
+  },
+  "notification_patch_downloaded_title": "আপডেট ডাউনলোড হয়েছে",
+  "@notification_patch_downloaded_title": {
+    "description": "Local push notification title when a patch has been downloaded."
+  },
+  "notification_patch_downloaded_body": "অনুগ্রহ করে অ্যাপটি রিস্টার্ট করুন আপডেট প্রয়োগ করতে।",
+  "@notification_patch_downloaded_body": {
+    "description": "Local push notification body when a patch has been downloaded."
   },
   "label_setting_patch_number": " / Patch: {patchNumber}",
   "@label_setting_patch_number": {
@@ -2118,5 +2138,17 @@
   "message_setting_patch_restarting": "অ্যাপ রিস্টার্ট হচ্ছে...",
   "@message_setting_patch_restarting": {
     "description": "Message shown when restarting app after patch"
+  },
+  "message_setting_patch_restart_hint_ios": "আপডেট প্রয়োগ করতে অ্যাপ বন্ধ করে আবার খুলুন",
+  "@message_setting_patch_restart_hint_ios": {
+    "description": "iOS-specific hint for restarting the app to apply patch"
+  },
+  "message_patch_download_complete": "আপডেট ডাউনলোড সম্পন্ন। পরবর্তী রিস্টার্টে প্রয়োগ হবে",
+  "@message_patch_download_complete": {
+    "description": "Snackbar message when patch download completes"
+  },
+  "message_patch_applied": "আপডেট প্রয়োগ করা হয়েছে",
+  "@message_patch_applied": {
+    "description": "Toast message when patch has been applied after restart"
   }
 }

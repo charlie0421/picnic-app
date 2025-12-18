@@ -797,6 +797,12 @@ class AppLocalizationsFil extends AppLocalizations {
   String get post_not_found => 'Walang nahanap na mga post.';
 
   @override
+  String get post_deleted_title => 'Deleted Post';
+
+  @override
+  String get post_deleted_desc => 'This post has been deleted by the author.';
+
+  @override
   String get post_report_fail => 'Nabigo ang ulat.';
 
   @override
@@ -1581,7 +1587,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get label_setting_patch_status_restart_required =>
-      'Update ready (restart required)';
+      'Handa na ang update (kailangan ng restart)';
 
   @override
   String get label_setting_patch_status_downloaded => 'Update downloaded';
@@ -1599,7 +1605,11 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get message_setting_patch_restart_hint =>
-      'A new patch has been downloaded. Tap Restart to apply it.';
+      'Na-download na ang bagong patch. I-tap ang Restart para i-apply.';
+
+  @override
+  String get message_setting_patch_restart_hint_ios =>
+      'Isara ang app at buksan ulit para mag-apply ng update';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -1635,17 +1645,38 @@ class AppLocalizationsFil extends AppLocalizations {
       'You\'re already on the latest patch.';
 
   @override
-  String get dialog_setting_restart_title => 'Restart app';
+  String get message_patch_download_complete =>
+      'Na-download na ang update. Mag-a-apply sa susunod na restart';
+
+  @override
+  String get message_patch_applied => 'Na-apply na ang update';
+
+  @override
+  String get dialog_setting_restart_title => 'I-restart ang App';
 
   @override
   String get dialog_setting_restart_body =>
-      'A new update is ready. The app will restart to apply the changes.\n\nContinue?';
+      'Handa na ang bagong update. I-restart ang app para i-apply ang mga pagbabago.\n\nMagpatuloy?';
 
   @override
-  String get button_restart => 'Restart';
+  String get button_restart => 'I-restart';
 
   @override
-  String get button_update => 'Update';
+  String get button_update => 'I-update';
+
+  @override
+  String get notification_patch_update_ready_title => 'Handa na ang Update';
+
+  @override
+  String get notification_patch_update_ready_body =>
+      'Mangyaring isara at muling buksan ang app para i-apply ang update.';
+
+  @override
+  String get notification_patch_downloaded_title => 'Na-download na ang Update';
+
+  @override
+  String get notification_patch_downloaded_body =>
+      'Mangyaring i-restart ang app para i-apply ang update.';
 
   @override
   String label_setting_patch_number(int patchNumber) {
