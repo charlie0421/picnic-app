@@ -2162,5 +2162,29 @@
   "message_patch_applied": "Na-apply na ang update",
   "@message_patch_applied": {
     "description": "Toast message when patch has been applied after restart"
+  },
+  "patch_update_ready_title": "Handa na ang Update",
+  "@patch_update_ready_title": {
+    "description": "Title for patch restart dialog"
+  },
+  "patch_update_ios_message": "Na-download na ang bagong update. Pakisara at buksan muli ang app para i-apply ang update.",
+  "@patch_update_ios_message": {
+    "description": "Message for iOS users to manually restart app"
+  },
+  "patch_update_android_message": "Na-download na ang bagong update. I-restart ang app ngayon para i-apply ang update?",
+  "@patch_update_android_message": {
+    "description": "Message for Android users asking to restart"
+  },
+  "patch_button_later": "Mamaya",
+  "@patch_button_later": {
+    "description": "Button to dismiss patch restart dialog"
+  },
+  "patch_button_restart": "I-restart",
+  "@patch_button_restart": {
+    "description": "Button to restart app for patch"
+  },
+  "patch_button_ok": "OK",
+  "@patch_button_ok": {
+    "description": "OK button for iOS patch dialog"
   }
 }

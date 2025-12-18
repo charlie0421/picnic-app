@@ -1728,4 +1728,24 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'Isara';
+
+  @override
+  String get patch_update_ready_title => 'Handa na ang Update';
+
+  @override
+  String get patch_update_ios_message =>
+      'Na-download na ang bagong update. Pakisara at buksan muli ang app para i-apply ang update.';
+
+  @override
+  String get patch_update_android_message =>
+      'Na-download na ang bagong update. I-restart ang app ngayon para i-apply ang update?';
+
+  @override
+  String get patch_button_later => 'Mamaya';
+
+  @override
+  String get patch_button_restart => 'I-restart';
+
+  @override
+  String get patch_button_ok => 'OK';
 }

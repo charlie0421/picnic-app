@@ -2158,5 +2158,29 @@
   "message_setting_patch_restarting": "Reiniciando la aplicación...",
   "@message_setting_patch_restarting": {
     "description": "Message shown when restarting app after patch"
+  },
+  "patch_update_ready_title": "Actualización Lista",
+  "@patch_update_ready_title": {
+    "description": "Title for patch restart dialog"
+  },
+  "patch_update_ios_message": "Se ha descargado una nueva actualización. Por favor cierra y vuelve a abrir la aplicación para aplicar la actualización.",
+  "@patch_update_ios_message": {
+    "description": "Message for iOS users to manually restart app"
+  },
+  "patch_update_android_message": "Se ha descargado una nueva actualización. ¿Reiniciar la aplicación ahora para aplicar la actualización?",
+  "@patch_update_android_message": {
+    "description": "Message for Android users asking to restart"
+  },
+  "patch_button_later": "Más tarde",
+  "@patch_button_later": {
+    "description": "Button to dismiss patch restart dialog"
+  },
+  "patch_button_restart": "Reiniciar",
+  "@patch_button_restart": {
+    "description": "Button to restart app for patch"
+  },
+  "patch_button_ok": "OK",
+  "@patch_button_ok": {
+    "description": "OK button for iOS patch dialog"
   }
 }

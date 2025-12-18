@@ -1704,4 +1704,24 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'Tutup';
+
+  @override
+  String get patch_update_ready_title => 'Pembaruan Siap';
+
+  @override
+  String get patch_update_ios_message =>
+      'Pembaruan baru telah diunduh. Silakan tutup dan buka kembali aplikasi untuk menerapkan pembaruan.';
+
+  @override
+  String get patch_update_android_message =>
+      'Pembaruan baru telah diunduh. Restart aplikasi sekarang untuk menerapkan pembaruan?';
+
+  @override
+  String get patch_button_later => 'Nanti';
+
+  @override
+  String get patch_button_restart => 'Restart';
+
+  @override
+  String get patch_button_ok => 'OK';
 }

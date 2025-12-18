@@ -2158,5 +2158,29 @@
   "message_setting_patch_restarting": "กำลังรีสตาร์ทแอป...",
   "@message_setting_patch_restarting": {
     "description": "Message shown when restarting app after patch"
+  },
+  "patch_update_ready_title": "อัปเดตพร้อมแล้ว",
+  "@patch_update_ready_title": {
+    "description": "Title for patch restart dialog"
+  },
+  "patch_update_ios_message": "ดาวน์โหลดอัปเดตใหม่แล้ว กรุณาปิดและเปิดแอปใหม่เพื่อใช้งานอัปเดต",
+  "@patch_update_ios_message": {
+    "description": "Message for iOS users to manually restart app"
+  },
+  "patch_update_android_message": "ดาวน์โหลดอัปเดตใหม่แล้ว ต้องการรีสตาร์ทแอปเพื่อใช้งานอัปเดตตอนนี้หรือไม่?",
+  "@patch_update_android_message": {
+    "description": "Message for Android users asking to restart"
+  },
+  "patch_button_later": "ภายหลัง",
+  "@patch_button_later": {
+    "description": "Button to dismiss patch restart dialog"
+  },
+  "patch_button_restart": "รีสตาร์ท",
+  "@patch_button_restart": {
+    "description": "Button to restart app for patch"
+  },
+  "patch_button_ok": "ตกลง",
+  "@patch_button_ok": {
+    "description": "OK button for iOS patch dialog"
   }
 }

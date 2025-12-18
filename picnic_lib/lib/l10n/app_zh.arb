@@ -2118,5 +2118,65 @@
   "message_setting_patch_restarting": "正在重启应用...",
   "@message_setting_patch_restarting": {
     "description": "Message shown when restarting app after patch"
+  },
+  "post_deleted_title": "已删除的帖子",
+  "@post_deleted_title": {
+    "description": "Title shown for deleted posts"
+  },
+  "post_deleted_desc": "此帖子已被作者删除。",
+  "@post_deleted_desc": {
+    "description": "Description shown for deleted posts"
+  },
+  "message_setting_patch_restart_hint_ios": "新更新已下载完成。请关闭并重新打开应用以应用更新。",
+  "@message_setting_patch_restart_hint_ios": {
+    "description": "iOS-specific hint for restarting the app to apply patch"
+  },
+  "message_patch_download_complete": "更新已准备就绪，切换应用时将自动应用。",
+  "@message_patch_download_complete": {
+    "description": "Snackbar message when patch download completes"
+  },
+  "message_patch_applied": "应用已更新到最新版本。",
+  "@message_patch_applied": {
+    "description": "Toast message when patch has been applied after restart"
+  },
+  "notification_patch_update_ready_title": "更新准备就绪",
+  "@notification_patch_update_ready_title": {
+    "description": "Local push notification title when a patch update is ready to apply."
+  },
+  "notification_patch_update_ready_body": "请关闭并重新打开应用以应用更新。",
+  "@notification_patch_update_ready_body": {
+    "description": "Local push notification body when a patch update is ready to apply."
+  },
+  "notification_patch_downloaded_title": "更新下载完成",
+  "@notification_patch_downloaded_title": {
+    "description": "Local push notification title when a patch has been downloaded."
+  },
+  "notification_patch_downloaded_body": "请重启应用以应用更新。",
+  "@notification_patch_downloaded_body": {
+    "description": "Local push notification body when a patch has been downloaded."
+  },
+  "patch_update_ready_title": "更新准备就绪",
+  "@patch_update_ready_title": {
+    "description": "Title for patch restart dialog"
+  },
+  "patch_update_ios_message": "新更新已下载完成。请关闭并重新打开应用以应用更新。",
+  "@patch_update_ios_message": {
+    "description": "Message for iOS users to manually restart app"
+  },
+  "patch_update_android_message": "新更新已下载完成。是否立即重启应用以应用更新？",
+  "@patch_update_android_message": {
+    "description": "Message for Android users asking to restart"
+  },
+  "patch_button_later": "稍后",
+  "@patch_button_later": {
+    "description": "Button to dismiss patch restart dialog"
+  },
+  "patch_button_restart": "重启",
+  "@patch_button_restart": {
+    "description": "Button to restart app for patch"
+  },
+  "patch_button_ok": "确定",
+  "@patch_button_ok": {
+    "description": "OK button for iOS patch dialog"
   }
 }

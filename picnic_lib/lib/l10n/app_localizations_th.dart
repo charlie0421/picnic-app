@@ -1673,4 +1673,24 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'ปิด';
+
+  @override
+  String get patch_update_ready_title => 'อัปเดตพร้อมแล้ว';
+
+  @override
+  String get patch_update_ios_message =>
+      'ดาวน์โหลดอัปเดตใหม่แล้ว กรุณาปิดและเปิดแอปใหม่เพื่อใช้งานอัปเดต';
+
+  @override
+  String get patch_update_android_message =>
+      'ดาวน์โหลดอัปเดตใหม่แล้ว ต้องการรีสตาร์ทแอปเพื่อใช้งานอัปเดตตอนนี้หรือไม่?';
+
+  @override
+  String get patch_button_later => 'ภายหลัง';
+
+  @override
+  String get patch_button_restart => 'รีสตาร์ท';
+
+  @override
+  String get patch_button_ok => 'ตกลง';
 }

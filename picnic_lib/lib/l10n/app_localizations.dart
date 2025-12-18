@@ -3208,6 +3208,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get goong_hap_close_button;
+
+  /// Title for patch restart dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Update Ready'**
+  String get patch_update_ready_title;
+
+  /// Message for iOS users to manually restart app
+  ///
+  /// In en, this message translates to:
+  /// **'A new update has been downloaded. Please close and reopen the app to apply the update.'**
+  String get patch_update_ios_message;
+
+  /// Message for Android users asking to restart
+  ///
+  /// In en, this message translates to:
+  /// **'A new update has been downloaded. Restart the app now to apply the update?'**
+  String get patch_update_android_message;
+
+  /// Button to dismiss patch restart dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get patch_button_later;
+
+  /// Button to restart app for patch
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get patch_button_restart;
+
+  /// OK button for iOS patch dialog
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get patch_button_ok;
 }
 
 class _AppLocalizationsDelegate

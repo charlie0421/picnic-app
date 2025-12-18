@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/patch_status_provider.dart';
 
 /// 패치 다운로드 완료 후 재시작을 유도하는 다이얼로그 리스너
@@ -62,20 +63,18 @@ class PatchRestartDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: L10N 적용 필요
+    final l10n = AppLocalizations.of(context);
     final isIOS = Platform.isIOS;
 
     return AlertDialog(
-      title: const Text('Update Ready'),
+      title: Text(l10n.patch_update_ready_title),
       content: Text(
-        isIOS
-            ? 'A new update has been downloaded. Please close and reopen the app to apply the update.'
-            : 'A new update has been downloaded. Restart the app now to apply the update?',
+        isIOS ? l10n.patch_update_ios_message : l10n.patch_update_android_message,
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Later'),
+          child: Text(l10n.patch_button_later),
         ),
         if (!isIOS)
           FilledButton(
@@ -83,12 +82,12 @@ class PatchRestartDialog extends ConsumerWidget {
               Navigator.of(context).pop();
               await ShorebirdUtils.restartAppForPatch();
             },
-            child: const Text('Restart'),
+            child: Text(l10n.patch_button_restart),
           ),
         if (isIOS)
           FilledButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
+            child: Text(l10n.patch_button_ok),
           ),
       ],
     );

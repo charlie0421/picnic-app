@@ -1697,6 +1697,26 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'বন্ধ';
+
+  @override
+  String get patch_update_ready_title => 'আপডেট প্রস্তুত';
+
+  @override
+  String get patch_update_ios_message =>
+      'নতুন আপডেট ডাউনলোড হয়েছে। আপডেট প্রয়োগ করতে অ্যাপ বন্ধ করে আবার খুলুন।';
+
+  @override
+  String get patch_update_android_message =>
+      'নতুন আপডেট ডাউনলোড হয়েছে। এখনই অ্যাপ রিস্টার্ট করে আপডেট প্রয়োগ করবেন?';
+
+  @override
+  String get patch_button_later => 'পরে';
+
+  @override
+  String get patch_button_restart => 'রিস্টার্ট';
+
+  @override
+  String get patch_button_ok => 'ঠিক আছে';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -3390,4 +3410,24 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get goong_hap_close_button => 'বন্ধ';
+
+  @override
+  String get patch_update_ready_title => 'আপডেট প্রস্তুত';
+
+  @override
+  String get patch_update_ios_message =>
+      'নতুন আপডেট ডাউনলোড হয়েছে। আপডেট প্রয়োগ করতে অ্যাপ বন্ধ করে আবার খুলুন।';
+
+  @override
+  String get patch_update_android_message =>
+      'নতুন আপডেট ডাউনলোড হয়েছে। এখনই অ্যাপ রিস্টার্ট করে আপডেট প্রয়োগ করবেন?';
+
+  @override
+  String get patch_button_later => 'পরে';
+
+  @override
+  String get patch_button_restart => 'রিস্টার্ট';
+
+  @override
+  String get patch_button_ok => 'ঠিক আছে';
 }

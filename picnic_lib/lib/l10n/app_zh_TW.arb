@@ -2158,5 +2158,29 @@
   "message_setting_patch_restarting": "正在重新啟動應用程式...",
   "@message_setting_patch_restarting": {
     "description": "Message shown when restarting app after patch"
+  },
+  "patch_update_ready_title": "更新準備就緒",
+  "@patch_update_ready_title": {
+    "description": "Title for patch restart dialog"
+  },
+  "patch_update_ios_message": "新更新已下載完成。請關閉並重新開啟應用程式以套用更新。",
+  "@patch_update_ios_message": {
+    "description": "Message for iOS users to manually restart app"
+  },
+  "patch_update_android_message": "新更新已下載完成。是否立即重新啟動應用程式以套用更新？",
+  "@patch_update_android_message": {
+    "description": "Message for Android users asking to restart"
+  },
+  "patch_button_later": "稍後",
+  "@patch_button_later": {
+    "description": "Button to dismiss patch restart dialog"
+  },
+  "patch_button_restart": "重新啟動",
+  "@patch_button_restart": {
+    "description": "Button to restart app for patch"
+  },
+  "patch_button_ok": "確定",
+  "@patch_button_ok": {
+    "description": "OK button for iOS patch dialog"
   }
 }

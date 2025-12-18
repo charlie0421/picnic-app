@@ -1628,4 +1628,24 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => '닫기';
+
+  @override
+  String get patch_update_ready_title => '업데이트 준비 완료';
+
+  @override
+  String get patch_update_ios_message =>
+      '새 업데이트가 다운로드되었습니다. 앱을 종료 후 다시 열어 업데이트를 적용해주세요.';
+
+  @override
+  String get patch_update_android_message =>
+      '새 업데이트가 다운로드되었습니다. 지금 앱을 재시작하여 업데이트를 적용할까요?';
+
+  @override
+  String get patch_button_later => '나중에';
+
+  @override
+  String get patch_button_restart => '재시작';
+
+  @override
+  String get patch_button_ok => '확인';
 }

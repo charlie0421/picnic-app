@@ -2214,5 +2214,29 @@
   "message_setting_patch_restarting": "アプリを再起動中...",
   "@message_setting_patch_restarting": {
     "description": "Message shown when restarting app after patch"
+  },
+  "patch_update_ready_title": "アップデート準備完了",
+  "@patch_update_ready_title": {
+    "description": "Title for patch restart dialog"
+  },
+  "patch_update_ios_message": "新しいアップデートがダウンロードされました。アプリを閉じて再度開いてアップデートを適用してください。",
+  "@patch_update_ios_message": {
+    "description": "Message for iOS users to manually restart app"
+  },
+  "patch_update_android_message": "新しいアップデートがダウンロードされました。今すぐアプリを再起動してアップデートを適用しますか？",
+  "@patch_update_android_message": {
+    "description": "Message for Android users asking to restart"
+  },
+  "patch_button_later": "後で",
+  "@patch_button_later": {
+    "description": "Button to dismiss patch restart dialog"
+  },
+  "patch_button_restart": "再起動",
+  "@patch_button_restart": {
+    "description": "Button to restart app for patch"
+  },
+  "patch_button_ok": "OK",
+  "@patch_button_ok": {
+    "description": "OK button for iOS patch dialog"
   }
 }

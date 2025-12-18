@@ -1700,4 +1700,24 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'Đóng';
+
+  @override
+  String get patch_update_ready_title => 'Cập nhật đã sẵn sàng';
+
+  @override
+  String get patch_update_ios_message =>
+      'Bản cập nhật mới đã được tải xuống. Vui lòng đóng và mở lại ứng dụng để áp dụng cập nhật.';
+
+  @override
+  String get patch_update_android_message =>
+      'Bản cập nhật mới đã được tải xuống. Bạn có muốn khởi động lại ứng dụng ngay bây giờ để áp dụng cập nhật không?';
+
+  @override
+  String get patch_button_later => 'Để sau';
+
+  @override
+  String get patch_button_restart => 'Khởi động lại';
+
+  @override
+  String get patch_button_ok => 'OK';
 }

@@ -785,10 +785,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get post_not_found => 'No posts were found.';
 
   @override
-  String get post_deleted_title => 'Deleted Post';
+  String get post_deleted_title => '已删除的帖子';
 
   @override
-  String get post_deleted_desc => 'This post has been deleted by the author.';
+  String get post_deleted_desc => '此帖子已被作者删除。';
 
   @override
   String get post_report_fail => 'The report failed.';
@@ -1576,7 +1576,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get message_setting_patch_restart_hint_ios =>
-      'A new update has been downloaded. Please close and reopen the app to apply it.';
+      '新更新已下载完成。请关闭并重新打开应用以应用更新。';
 
   @override
   String get message_setting_patch_web_not_supported =>
@@ -1612,12 +1612,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'You\'re already on the latest patch.';
 
   @override
-  String get message_patch_download_complete =>
-      'Update ready. It will apply when you switch apps.';
+  String get message_patch_download_complete => '更新已准备就绪，切换应用时将自动应用。';
 
   @override
-  String get message_patch_applied =>
-      'App has been updated to the latest version.';
+  String get message_patch_applied => '应用已更新到最新版本。';
 
   @override
   String get dialog_setting_restart_title => 'Restart app';
@@ -1633,18 +1631,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get button_update => 'Update';
 
   @override
-  String get notification_patch_update_ready_title => 'Update Ready';
+  String get notification_patch_update_ready_title => '更新准备就绪';
 
   @override
-  String get notification_patch_update_ready_body =>
-      'Please close and reopen the app to apply the update.';
+  String get notification_patch_update_ready_body => '请关闭并重新打开应用以应用更新。';
 
   @override
-  String get notification_patch_downloaded_title => 'Update Downloaded';
+  String get notification_patch_downloaded_title => '更新下载完成';
 
   @override
-  String get notification_patch_downloaded_body =>
-      'Please restart the app to apply the update.';
+  String get notification_patch_downloaded_body => '请重启应用以应用更新。';
 
   @override
   String label_setting_patch_number(int patchNumber) {
@@ -1690,6 +1686,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => '关闭';
+
+  @override
+  String get patch_update_ready_title => '更新准备就绪';
+
+  @override
+  String get patch_update_ios_message => '新更新已下载完成。请关闭并重新打开应用以应用更新。';
+
+  @override
+  String get patch_update_android_message => '新更新已下载完成。是否立即重启应用以应用更新？';
+
+  @override
+  String get patch_button_later => '稍后';
+
+  @override
+  String get patch_button_restart => '重启';
+
+  @override
+  String get patch_button_ok => '确定';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3308,6 +3322,24 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get goong_hap_close_button => '关闭';
+
+  @override
+  String get patch_update_ready_title => '更新准备就绪';
+
+  @override
+  String get patch_update_ios_message => '新更新已下载完成。请关闭并重新打开应用以应用更新。';
+
+  @override
+  String get patch_update_android_message => '新更新已下载完成。是否立即重启应用以应用更新？';
+
+  @override
+  String get patch_button_later => '稍后';
+
+  @override
+  String get patch_button_restart => '重启';
+
+  @override
+  String get patch_button_ok => '确定';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4926,4 +4958,22 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get goong_hap_close_button => '關閉';
+
+  @override
+  String get patch_update_ready_title => '更新準備就緒';
+
+  @override
+  String get patch_update_ios_message => '新更新已下載完成。請關閉並重新開啟應用程式以套用更新。';
+
+  @override
+  String get patch_update_android_message => '新更新已下載完成。是否立即重新啟動應用程式以套用更新？';
+
+  @override
+  String get patch_button_later => '稍後';
+
+  @override
+  String get patch_button_restart => '重新啟動';
+
+  @override
+  String get patch_button_ok => '確定';
 }

@@ -1710,4 +1710,24 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'ပိတ်ပါ';
+
+  @override
+  String get patch_update_ready_title => 'အပ်ဒိတ်အဆင်သင့်ဖြစ်ပြီ';
+
+  @override
+  String get patch_update_ios_message =>
+      'အပ်ဒိတ်အသစ်ဒေါင်းလုဒ်ပြီးပါပြီ။ အပ်ဒိတ်အသုံးပြုရန် အက်ပ်ကိုပိတ်ပြီး ပြန်ဖွင့်ပါ။';
+
+  @override
+  String get patch_update_android_message =>
+      'အပ်ဒိတ်အသစ်ဒေါင်းလုဒ်ပြီးပါပြီ။ အပ်ဒိတ်အသုံးပြုရန် အက်ပ်ကို အခု restart လုပ်မလား။';
+
+  @override
+  String get patch_button_later => 'နောက်မှ';
+
+  @override
+  String get patch_button_restart => 'Restart';
+
+  @override
+  String get patch_button_ok => 'အိုကေ';
 }

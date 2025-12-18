@@ -2162,5 +2162,29 @@
   "message_patch_applied": "আপডেট প্রয়োগ করা হয়েছে",
   "@message_patch_applied": {
     "description": "Toast message when patch has been applied after restart"
+  },
+  "patch_update_ready_title": "আপডেট প্রস্তুত",
+  "@patch_update_ready_title": {
+    "description": "Title for patch restart dialog"
+  },
+  "patch_update_ios_message": "নতুন আপডেট ডাউনলোড হয়েছে। আপডেট প্রয়োগ করতে অ্যাপ বন্ধ করে আবার খুলুন।",
+  "@patch_update_ios_message": {
+    "description": "Message for iOS users to manually restart app"
+  },
+  "patch_update_android_message": "নতুন আপডেট ডাউনলোড হয়েছে। এখনই অ্যাপ রিস্টার্ট করে আপডেট প্রয়োগ করবেন?",
+  "@patch_update_android_message": {
+    "description": "Message for Android users asking to restart"
+  },
+  "patch_button_later": "পরে",
+  "@patch_button_later": {
+    "description": "Button to dismiss patch restart dialog"
+  },
+  "patch_button_restart": "রিস্টার্ট",
+  "@patch_button_restart": {
+    "description": "Button to restart app for patch"
+  },
+  "patch_button_ok": "ঠিক আছে",
+  "@patch_button_ok": {
+    "description": "OK button for iOS patch dialog"
   }
 }

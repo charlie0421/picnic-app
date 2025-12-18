@@ -1630,4 +1630,24 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => '閉じる';
+
+  @override
+  String get patch_update_ready_title => 'アップデート準備完了';
+
+  @override
+  String get patch_update_ios_message =>
+      '新しいアップデートがダウンロードされました。アプリを閉じて再度開いてアップデートを適用してください。';
+
+  @override
+  String get patch_update_android_message =>
+      '新しいアップデートがダウンロードされました。今すぐアプリを再起動してアップデートを適用しますか？';
+
+  @override
+  String get patch_button_later => '後で';
+
+  @override
+  String get patch_button_restart => '再起動';
+
+  @override
+  String get patch_button_ok => 'OK';
 }
