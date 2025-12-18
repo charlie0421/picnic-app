@@ -789,10 +789,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get post_not_found => 'Tidak ada tulisan yang ditemukan.';
 
   @override
-  String get post_deleted_title => 'Deleted Post';
+  String get post_deleted_title => 'Postingan Dihapus';
 
   @override
-  String get post_deleted_desc => 'This post has been deleted by the author.';
+  String get post_deleted_desc => 'Postingan ini telah dihapus oleh penulis.';
 
   @override
   String get post_report_fail => 'Laporan tersebut gagal.';

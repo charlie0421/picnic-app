@@ -778,10 +778,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get post_not_found => 'ไม่พบโพสต์';
 
   @override
-  String get post_deleted_title => 'Deleted Post';
+  String get post_deleted_title => 'โพสต์ที่ถูกลบ';
 
   @override
-  String get post_deleted_desc => 'This post has been deleted by the author.';
+  String get post_deleted_desc => 'โพสต์นี้ถูกลบโดยผู้เขียน';
 
   @override
   String get post_report_fail => 'รายงานล้มเหลว';

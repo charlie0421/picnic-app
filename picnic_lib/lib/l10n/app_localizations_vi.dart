@@ -787,10 +787,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get post_not_found => 'Không có bài viết đã được tìm thấy.';
 
   @override
-  String get post_deleted_title => 'Deleted Post';
+  String get post_deleted_title => 'Bài viết đã bị xóa';
 
   @override
-  String get post_deleted_desc => 'This post has been deleted by the author.';
+  String get post_deleted_desc => 'Bài viết này đã bị xóa bởi tác giả.';
 
   @override
   String get post_report_fail => 'Báo cáo thất bại.';

@@ -793,10 +793,10 @@ class AppLocalizationsMy extends AppLocalizations {
   String get post_not_found => 'ပို့စ်များမရှိပါ။';
 
   @override
-  String get post_deleted_title => 'Deleted Post';
+  String get post_deleted_title => 'ဖျက်ပြီးသော ပို့စ်';
 
   @override
-  String get post_deleted_desc => 'This post has been deleted by the author.';
+  String get post_deleted_desc => 'ဤပို့စ်ကို ရေးသားသူမှ ဖျက်လိုက်ပါပြီ။';
 
   @override
   String get post_report_fail => 'အစီရင်ခံစာမအောင်မြင်ပါ';

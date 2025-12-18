@@ -786,10 +786,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get post_not_found => 'No posts were found.';
 
   @override
-  String get post_deleted_title => 'Deleted Post';
+  String get post_deleted_title => 'মুছে ফেলা পোস্ট';
 
   @override
-  String get post_deleted_desc => 'This post has been deleted by the author.';
+  String get post_deleted_desc => 'এই পোস্টটি লেখক দ্বারা মুছে ফেলা হয়েছে।';
 
   @override
   String get post_report_fail => 'The report failed.';
@@ -2478,6 +2478,12 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get post_not_found => 'কোনও পোস্ট পাওয়া যায় নি।';
+
+  @override
+  String get post_deleted_title => 'মুছে ফেলা পোস্ট';
+
+  @override
+  String get post_deleted_desc => 'এই পোস্টটি লেখক দ্বারা মুছে ফেলা হয়েছে।';
 
   @override
   String get post_report_fail => 'প্রতিবেদন ব্যর্থ হয়েছে।';

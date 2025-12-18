@@ -4065,6 +4065,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get post_not_found => '未找到任何帖子。';
 
   @override
+  String get post_deleted_title => '已刪除的貼文';
+
+  @override
+  String get post_deleted_desc => '此貼文已被作者刪除。';
+
+  @override
   String get post_report_fail => '报告没有通过。';
 
   @override

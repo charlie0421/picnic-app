@@ -797,10 +797,10 @@ class AppLocalizationsFil extends AppLocalizations {
   String get post_not_found => 'Walang nahanap na mga post.';
 
   @override
-  String get post_deleted_title => 'Deleted Post';
+  String get post_deleted_title => 'Tinanggal na Post';
 
   @override
-  String get post_deleted_desc => 'This post has been deleted by the author.';
+  String get post_deleted_desc => 'Tinanggal na ng may-akda ang post na ito.';
 
   @override
   String get post_report_fail => 'Nabigo ang ulat.';

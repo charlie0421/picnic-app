@@ -794,10 +794,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get post_not_found => 'No se encontraron publicaciones.';
 
   @override
-  String get post_deleted_title => 'Deleted Post';
+  String get post_deleted_title => 'Publicación eliminada';
 
   @override
-  String get post_deleted_desc => 'This post has been deleted by the author.';
+  String get post_deleted_desc =>
+      'Esta publicación ha sido eliminada por el autor.';
 
   @override
   String get post_report_fail => 'El informe falló.';

@@ -373,27 +373,29 @@ class PatchLifecycleObserver with WidgetsBindingObserver {
   }
 
   /// 앱이 백그라운드로 전환될 때 처리
+  ///
+  /// ⚠️ 백그라운드 자동 재시작 비활성화됨 (흰 화면 버그 발생)
+  /// Shorebird 패치는 사용자가 앱을 완전히 종료 후 다시 열면 자동 적용됩니다.
   void _handleAppPaused() {
     if (!_hasPendingPatch) return;
 
     logger.i('🔄 백그라운드 전환 감지 - 패치 대기 중');
+    logger.i('📱 다음 앱 실행 시 패치 자동 적용됨 (자동 재시작 비활성화됨)');
 
-    // Android만 자동 재시작 (iOS는 다음 앱 실행 시 자동 적용)
-    if (Platform.isAndroid) {
-      logger.i('🔄 Android: 백그라운드에서 앱 재시작 실행');
-      _hasPendingPatch = false;
-
-      // 약간의 지연 후 재시작 (백그라운드 전환 완료 대기)
-      Future.delayed(const Duration(milliseconds: 500), () async {
-        try {
-          await Restart.restartApp();
-        } catch (e) {
-          logger.e('❌ 백그라운드 재시작 실패: $e');
-          _hasPendingPatch = true; // 실패 시 다시 대기 상태로
-        }
-      });
-    } else {
-      logger.i('📱 iOS: 다음 앱 실행 시 패치 자동 적용됨');
-    }
+    // ⚠️ 자동 재시작 비활성화 - 앱 재시작 시 흰 화면 버그 발생
+    // Shorebird 패치는 앱을 완전히 종료 후 다시 열면 자동 적용됩니다.
+    // if (Platform.isAndroid) {
+    //   logger.i('🔄 Android: 백그라운드에서 앱 재시작 실행');
+    //   _hasPendingPatch = false;
+    //
+    //   Future.delayed(const Duration(milliseconds: 500), () async {
+    //     try {
+    //       await Restart.restartApp();
+    //     } catch (e) {
+    //       logger.e('❌ 백그라운드 재시작 실패: $e');
+    //       _hasPendingPatch = true;
+    //     }
+    //   });
+    // }
   }
 }
