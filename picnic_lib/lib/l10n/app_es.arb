@@ -999,6 +999,14 @@
   "@post_no_comment": {
     "description": "Auto-generated metadata for key 'post_no_comment'."
   },
+  "post_deleted_title": "Publicación eliminada",
+  "@post_deleted_title": {
+    "description": "Auto-generated metadata for key 'post_deleted_title'."
+  },
+  "post_deleted_desc": "Esta publicación ha sido eliminada por el autor.",
+  "@post_deleted_desc": {
+    "description": "Auto-generated metadata for key 'post_deleted_desc'."
+  },
   "post_not_found": "No se encontraron publicaciones.",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."

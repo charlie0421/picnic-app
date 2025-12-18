@@ -999,6 +999,14 @@
   "@post_no_comment": {
     "description": "Auto-generated metadata for key 'post_no_comment'."
   },
+  "post_deleted_title": "โพสต์ที่ถูกลบ",
+  "@post_deleted_title": {
+    "description": "Auto-generated metadata for key 'post_deleted_title'."
+  },
+  "post_deleted_desc": "โพสต์นี้ถูกลบโดยผู้เขียน",
+  "@post_deleted_desc": {
+    "description": "Auto-generated metadata for key 'post_deleted_desc'."
+  },
   "post_not_found": "ไม่พบโพสต์",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."

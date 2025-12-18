@@ -999,6 +999,14 @@
   "@post_no_comment": {
     "description": "Auto-generated metadata for key 'post_no_comment'."
   },
+  "post_deleted_title": "Bài viết đã bị xóa",
+  "@post_deleted_title": {
+    "description": "Auto-generated metadata for key 'post_deleted_title'."
+  },
+  "post_deleted_desc": "Bài viết này đã bị xóa bởi tác giả.",
+  "@post_deleted_desc": {
+    "description": "Auto-generated metadata for key 'post_deleted_desc'."
+  },
   "post_not_found": "Không có bài viết đã được tìm thấy.",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."

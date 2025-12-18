@@ -998,6 +998,14 @@
   "@post_no_comment": {
     "description": "Auto-generated metadata for key 'post_no_comment'."
   },
+  "post_deleted_title": "Postingan Dihapus",
+  "@post_deleted_title": {
+    "description": "Auto-generated metadata for key 'post_deleted_title'."
+  },
+  "post_deleted_desc": "Postingan ini telah dihapus oleh penulis.",
+  "@post_deleted_desc": {
+    "description": "Auto-generated metadata for key 'post_deleted_desc'."
+  },
   "post_not_found": "Tidak ada tulisan yang ditemukan.",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."

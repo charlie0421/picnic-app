@@ -1003,6 +1003,14 @@
   "@post_no_comment": {
     "description": "Auto-generated metadata for key 'post_no_comment'."
   },
+  "post_deleted_title": "ဖျက်ပြီးသော ပို့စ်",
+  "@post_deleted_title": {
+    "description": "Auto-generated metadata for key 'post_deleted_title'."
+  },
+  "post_deleted_desc": "ဤပို့စ်ကို ရေးသားသူမှ ဖျက်လိုက်ပါပြီ။",
+  "@post_deleted_desc": {
+    "description": "Auto-generated metadata for key 'post_deleted_desc'."
+  },
   "post_not_found": "ပို့စ်များမရှိပါ။",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."

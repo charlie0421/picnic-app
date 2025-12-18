@@ -998,6 +998,14 @@
   "@post_no_comment": {
     "description": "Auto-generated metadata for key 'post_no_comment'."
   },
+  "post_deleted_title": "Tinanggal na Post",
+  "@post_deleted_title": {
+    "description": "Auto-generated metadata for key 'post_deleted_title'."
+  },
+  "post_deleted_desc": "Tinanggal na ng may-akda ang post na ito.",
+  "@post_deleted_desc": {
+    "description": "Auto-generated metadata for key 'post_deleted_desc'."
+  },
   "post_not_found": "Walang nahanap na mga post.",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."

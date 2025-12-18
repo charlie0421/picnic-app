@@ -999,6 +999,14 @@
   "@post_no_comment": {
     "description": "Auto-generated metadata for key 'post_no_comment'."
   },
+  "post_deleted_title": "মুছে ফেলা পোস্ট",
+  "@post_deleted_title": {
+    "description": "Auto-generated metadata for key 'post_deleted_title'."
+  },
+  "post_deleted_desc": "এই পোস্টটি লেখক দ্বারা মুছে ফেলা হয়েছে।",
+  "@post_deleted_desc": {
+    "description": "Auto-generated metadata for key 'post_deleted_desc'."
+  },
   "post_not_found": "কোনও পোস্ট পাওয়া যায় নি।",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."

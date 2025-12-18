@@ -999,6 +999,14 @@
   "@post_no_comment": {
     "description": "Auto-generated metadata for key 'post_no_comment'."
   },
+  "post_deleted_title": "已刪除的貼文",
+  "@post_deleted_title": {
+    "description": "Auto-generated metadata for key 'post_deleted_title'."
+  },
+  "post_deleted_desc": "此貼文已被作者刪除。",
+  "@post_deleted_desc": {
+    "description": "Auto-generated metadata for key 'post_deleted_desc'."
+  },
   "post_not_found": "未找到任何帖子。",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."
