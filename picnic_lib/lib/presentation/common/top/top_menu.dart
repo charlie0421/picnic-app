@@ -57,19 +57,9 @@ class _TopState extends ConsumerState<TopMenu> {
   }
 
   bool _shouldShowBackButton(Navigation navigationInfo) {
-    switch (navigationInfo.portalType) {
-      case PortalType.vote:
-      case PortalType.pic:
-      case PortalType.novel:
-        return navigationInfo.voteNavigationStack != null &&
-            navigationInfo.voteNavigationStack!.length > 1;
-      case PortalType.community:
-      case PortalType.goongHap:
-        return navigationInfo.communityNavigationStack != null &&
-            navigationInfo.communityNavigationStack!.length > 1;
-      default:
-        return false;
-    }
+    // 모든 포털이 voteNavigationStack을 사용
+    return navigationInfo.voteNavigationStack != null &&
+        navigationInfo.voteNavigationStack!.length > 1;
   }
 
   void _handleBackButtonTap(Navigation navigationInfo, navigationInfoNotifier) {

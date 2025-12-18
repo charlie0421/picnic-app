@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -20,33 +19,11 @@ class _PicnicAnimatedSwitcherState
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
 
-    // 현재 포털 타입에 따라 해당하는 NavigationStack의 모든 위젯을 가져와서
-    // IndexedStack으로 유지하여 상태(스크롤 등)를 보존한다.
-    List<Widget> stackChildren;
-    switch (navigationInfo.portalType) {
-      case PortalType.vote:
-        stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
-        break;
-      case PortalType.goongHap:
-        // goongHap은 community 스택 공유
-        stackChildren =
-            navigationInfo.communityNavigationStack?.items ?? const [];
-        break;
-      case PortalType.community:
-        stackChildren =
-            navigationInfo.communityNavigationStack?.items ?? const [];
-        break;
-      case PortalType.pic:
-        // pic은 현재 vote 스택 공유
-        stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
-        break;
-      case PortalType.novel:
-        // novel도 현재 vote 스택 공유
-        stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
-        break;
-      default:
-        stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
-    }
+    logger.d('🔄 PicnicAnimatedSwitcher build - portalType: ${navigationInfo.portalType}');
+    logger.d('🔄 voteNavigationStack length: ${navigationInfo.voteNavigationStack?.length ?? 0}');
+
+    // 모든 포털이 voteNavigationStack을 공유
+    List<Widget> stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
 
     // 스택이 비어있으면 기본 홈 페이지를 fallback으로 사용
     // 이는 로그인 후 간헐적 블랙 스크린 문제를 방지함

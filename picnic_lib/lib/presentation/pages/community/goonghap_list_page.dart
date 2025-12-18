@@ -250,12 +250,12 @@ class _GoonghapListPageState extends ConsumerState<GoonghapListPage>
     // 네비게이션 스택 감지 - 현재 페이지가 top에 있을 때 네비게이션 업데이트
     ref.listen<int?>(
       navigationInfoProvider.select(
-        (nav) => nav.communityNavigationStack?.length,
+        (nav) => nav.voteNavigationStack?.length,
       ),
       (previous, next) {
         final navStack = ref
             .read(navigationInfoProvider)
-            .communityNavigationStack;
+            .voteNavigationStack;
         final isCurrentPageOnTop = navStack?.peek() is GoonghapListPage;
         if (isCurrentPageOnTop &&
             previous != null &&

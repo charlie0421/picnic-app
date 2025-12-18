@@ -79,8 +79,8 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage>
     final navState = ref.watch(navigationInfoProvider);
     final bool isCommunityActive = navState.portalType == PortalType.community;
     final bool isAtRoot =
-        navState.communityNavigationStack == null ||
-        navState.communityNavigationStack!.length <= 1;
+        navState.voteNavigationStack == null ||
+        navState.voteNavigationStack!.length <= 1;
     if (isCommunityActive && isAtRoot && navState.pageTitle.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {

@@ -25,7 +25,6 @@ class Navigation {
   final String pageTitle;
   final String myPageTitle;
   final NavigationStack? voteNavigationStack;
-  final NavigationStack? communityNavigationStack;
   final NavigationStack? drawerNavigationStack;
   final NavigationStack? signUpNavigationStack;
 
@@ -44,7 +43,6 @@ class Navigation {
     this.pageTitle = '',
     this.myPageTitle = '',
     this.voteNavigationStack,
-    this.communityNavigationStack,
     this.drawerNavigationStack,
     this.signUpNavigationStack,
   });
@@ -64,7 +62,6 @@ class Navigation {
     String? pageTitle,
     String? myPageTitle,
     NavigationStack? voteNavigationStack,
-    NavigationStack? communityNavigationStack,
     NavigationStack? drawerNavigationStack,
     NavigationStack? signUpNavigationStack,
   }) {
@@ -83,7 +80,6 @@ class Navigation {
       pageTitle: pageTitle ?? this.pageTitle,
       myPageTitle: myPageTitle ?? this.myPageTitle,
       voteNavigationStack: voteNavigationStack ?? this.voteNavigationStack,
-      communityNavigationStack: communityNavigationStack ?? this.communityNavigationStack,
       drawerNavigationStack: drawerNavigationStack ?? this.drawerNavigationStack,
       signUpNavigationStack: signUpNavigationStack ?? this.signUpNavigationStack,
     );
@@ -165,7 +161,7 @@ class Navigation {
       case PortalType.vote:
         return voteBottomNavigationIndex;
       case PortalType.goongHap:
-        return communityBottomNavigationIndex; // goongHap은 communityNavigationStack 사용
+        return communityBottomNavigationIndex;
       case PortalType.pic:
         return picBottomNavigationIndex;
       case PortalType.community:

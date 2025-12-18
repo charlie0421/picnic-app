@@ -91,7 +91,8 @@ class _CommunityPostDetailScreenState
         child: Row(
           children: [
             PortalMenuItem(portalType: PortalType.vote),
-            PortalMenuItem(portalType: PortalType.goongHap),
+            // 궁합 기능 커뮤니티 메뉴에서 숨김 처리
+            // PortalMenuItem(portalType: PortalType.goongHap),
             if (isSupabaseLoggedSafely && isAdmin) ...[
               PortalMenuItem(portalType: PortalType.pic),
               PortalMenuItem(portalType: PortalType.novel),

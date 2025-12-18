@@ -29,7 +29,7 @@ class _CommunityHomeScreenState extends ConsumerState<CommunityHomeScreen> {
     if (_isSwipeEnabled) {
       logger.d('Right swipe detected');
       final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
-      navigationInfoNotifier.goBack();
+      navigationInfoNotifier.goBackCommunity();
       setState(() {
         _isSwipeEnabled = false;
       });

@@ -99,18 +99,19 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   Future<void> goBackCommunity() async {
-    final communityNavigationStack = state.communityNavigationStack;
+    // Community도 voteNavigationStack을 사용
+    final voteNavigationStack = state.voteNavigationStack;
 
-    if (communityNavigationStack != null &&
-        communityNavigationStack.length > 1) {
-      communityNavigationStack.pop();
-      final currentPage = communityNavigationStack.peek();
+    if (voteNavigationStack != null &&
+        voteNavigationStack.length > 1) {
+      voteNavigationStack.pop();
+      final currentPage = voteNavigationStack.peek();
       logger.d('🔙 Going back to page: ${currentPage.runtimeType}');
-      logger.d('🔙 Stack length after pop: ${communityNavigationStack.length}');
+      logger.d('🔙 Stack length after pop: ${voteNavigationStack.length}');
 
-      final isAtRoot = communityNavigationStack.length <= 1;
+      final isAtRoot = voteNavigationStack.length <= 1;
       state = state.copyWith(
-        communityNavigationStack: communityNavigationStack,
+        voteNavigationStack: voteNavigationStack,
         currentScreen: currentPage,
         showPortal: isAtRoot ? true : state.showPortal,
         showTopMenu: isAtRoot ? true : state.showTopMenu,
@@ -180,10 +181,10 @@ class NavigationInfo extends _$NavigationInfo {
         logger.d(
             '💕 Setting GOONG-HAP portal, page widget: ${goongHapPage.runtimeType}');
 
-        // GOONG-HAP 포털로 전환 시 항상 새로운 스택으로 초기화
+        // GOONG-HAP 포털로 전환 시 voteNavigationStack 사용
         state = state.copyWith(
           communityBottomNavigationIndex: 0, // 첫 번째 탭으로 초기화
-          communityNavigationStack: NavigationStack()..push(goongHapPage),
+          voteNavigationStack: NavigationStack()..push(goongHapPage),
           currentScreen: const GoongHapHomeScreen(),
         );
         logger.d('💕 GOONG-HAP portal set successfully with fresh stack');
@@ -196,10 +197,10 @@ class NavigationInfo extends _$NavigationInfo {
         logger.d(
             '🏘️ Setting COMMUNITY portal, page widget: ${communityPage.runtimeType}');
 
-        // COMMUNITY 포털로 전환 시 항상 새로운 스택으로 초기화
+        // COMMUNITY 포털로 전환 시 voteNavigationStack 사용
         state = state.copyWith(
           communityBottomNavigationIndex: 0, // 첫 번째 탭으로 초기화
-          communityNavigationStack: NavigationStack()..push(communityPage),
+          voteNavigationStack: NavigationStack()..push(communityPage),
           currentScreen: const CommunityHomeScreen(),
         );
         logger.d('🏘️ COMMUNITY portal set successfully with fresh stack');
@@ -252,7 +253,7 @@ class NavigationInfo extends _$NavigationInfo {
     if (state.portalType == PortalType.vote) {
       return state.voteBottomNavigationIndex;
     } else if (state.portalType == PortalType.goongHap) {
-      return state.communityBottomNavigationIndex; // goongHap은 communityNavigationStack 사용
+      return state.communityBottomNavigationIndex;
     } else if (state.portalType == PortalType.pic) {
       return state.picBottomNavigationIndex;
     } else if (state.portalType == PortalType.community) {
@@ -271,7 +272,7 @@ class NavigationInfo extends _$NavigationInfo {
     if (state.portalType == PortalType.vote) {
       setVoteBottomNavigationIndex(index);
     } else if (state.portalType == PortalType.goongHap) {
-      setCommunityBottomNavigationIndex(index); // goongHap은 communityNavigationStack 사용
+      setCommunityBottomNavigationIndex(index);
     } else if (state.portalType == PortalType.pic) {
       setPicBottomNavigationIndex(index);
     } else if (state.portalType == PortalType.community) {
@@ -345,7 +346,7 @@ class NavigationInfo extends _$NavigationInfo {
 
     state = state.copyWith(
       communityBottomNavigationIndex: index,
-      communityNavigationStack: NavigationStack()..push(pageWidget),
+      voteNavigationStack: NavigationStack()..push(pageWidget),
       currentScreen: pageWidget,
     );
     globalStorage.saveData('communityBottomNavigationIndex', index.toString());
@@ -445,24 +446,25 @@ class NavigationInfo extends _$NavigationInfo {
 
   void setCommunityCurrentPage(Widget page,
       {bool showTopMenu = false, bool showBottomNavigation = true}) {
-    final communityNavigationStack =
-        state.communityNavigationStack ?? NavigationStack();
+    // Community도 voteNavigationStack을 사용
+    final voteNavigationStack =
+        state.voteNavigationStack ?? NavigationStack();
 
     // 같은 타입의 페이지가 스택 최상단에 있으면 중복 push 방지
-    if (!communityNavigationStack.isEmpty &&
-        communityNavigationStack.peek().runtimeType == page.runtimeType) {
+    if (!voteNavigationStack.isEmpty &&
+        voteNavigationStack.peek().runtimeType == page.runtimeType) {
       logger.d(
           '🚀 Skipping duplicate push: ${page.runtimeType} is already on top');
       return;
     }
 
-    communityNavigationStack.push(page);
+    voteNavigationStack.push(page);
     logger
-        .d('🚀 Pushing page to communityNavigationStack: ${page.runtimeType}');
-    logger.d('🚀 Stack length after push: ${communityNavigationStack.length}');
+        .d('🚀 Pushing page to voteNavigationStack (community): ${page.runtimeType}');
+    logger.d('🚀 Stack length after push: ${voteNavigationStack.length}');
 
     state = state.copyWith(
-      communityNavigationStack: communityNavigationStack,
+      voteNavigationStack: voteNavigationStack,
       showBottomNavigation: showBottomNavigation,
       currentScreen: page,
     );
