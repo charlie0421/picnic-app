@@ -116,10 +116,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get goonghap_purchase_confirm_message =>
-      '스타캔디 100개를 사용하여 궁합 결과를 확인합니다.';
+      '별사탕 100개를 사용하여 궁합 결과를 확인합니다.';
 
   @override
-  String get goonghap_remain_star_candy => '남은 스타캔디';
+  String get goonghap_remain_star_candy => '남은 별사탕';
 
   @override
   String get goonghap_result_not_found => '궁합이 맞지 않네요 😔';
@@ -224,11 +224,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dialog_title_vote_fail => '투표 실패';
 
   @override
-  String get dialog_will_delete_star_candy => '삭제될 스타캔디';
+  String get dialog_will_delete_star_candy => '삭제될 별사탕';
 
   @override
   String get dialog_withdraw_message =>
-      '탈퇴하시면 피크닠의 스타캔디와 계정 정보가 즉시 삭제되며, 재가입 시 기존 정보와 데이터는 복구되지 않습니다.';
+      '탈퇴하시면 피크닠의 별사탕과 계정 정보가 즉시 삭제되며, 재가입 시 기존 정보와 데이터는 복구되지 않습니다.';
 
   @override
   String get dialog_withdraw_title => '정말 떠나시겠습니까?';
@@ -274,10 +274,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get fortune_lack_of_star_candy_message =>
-      '리워드 스타캔디는 여기서 사용할 수 없습니다. 😥';
+      '보너스 별사탕은 여기서 사용할 수 없습니다. 😥';
 
   @override
-  String get fortune_lack_of_star_candy_title => '스타캔디가 부족합니다. 상점 화면으로 이동합니다.';
+  String get fortune_lack_of_star_candy_title => '별사탕이 부족합니다. 상점 화면으로 이동합니다.';
 
   @override
   String get fortune_lucky_color => '행운의 색깔';
@@ -355,7 +355,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_ads_exceeded => '이 버튼의 광고 시청 횟수를 초과했습니다.';
 
   @override
-  String get label_ads_get_star_candy => '광고에서 스타캔디 받기';
+  String get label_ads_get_star_candy => '광고에서 별사탕 받기';
 
   @override
   String label_ads_limits(int hourly, int daily) {
@@ -453,7 +453,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_loading_ads => '광고 로딩 중';
 
   @override
-  String get label_mission_get_star_candy => '미션에서 스타캔디 받기';
+  String get label_mission_get_star_candy => '미션에서 별사탕 받기';
 
   @override
   String get label_mission_short => '미션';
@@ -495,7 +495,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_mypage_terms_of_use => '이용약관';
 
   @override
-  String get label_mypage_vote_history => '스타캔디 투표 이력';
+  String get label_mypage_vote_history => '별사탕 투표 이력';
 
   @override
   String get label_mypage_withdrawal => '회원탈퇴';
@@ -552,7 +552,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_setting_storage => '저장소 관리';
 
   @override
-  String get label_star_candy_pouch => '스타캔디 파우치';
+  String get label_star_candy_pouch => '별사탕 파우치';
 
   @override
   String get label_tabbar_vote_active => '진행중';
@@ -971,7 +971,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vote_completed_message => '투표했습니다!';
 
   @override
-  String get voting_share_benefit_text => '100표마다 보너스 스타캔디 1개 획득 및 공유!';
+  String get voting_share_benefit_text => '100표마다 보너스 별사탕 1개 획득 및 공유!';
 
   @override
   String get cancel => '취소';
@@ -1037,28 +1037,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_list_title => '문의 내역';
 
   @override
-  String get starCandy100 => '스타캔디 100개';
+  String get starCandy100 => '별사탕 100개';
 
   @override
-  String get starCandy200 => '스타캔디 200개';
+  String get starCandy200 => '별사탕 200개';
 
   @override
-  String get starCandy600 => '스타캔디 600개';
+  String get starCandy600 => '별사탕 600개';
 
   @override
-  String get starCandy1000 => '스타캔디 1000개';
+  String get starCandy1000 => '별사탕 1000개';
 
   @override
-  String get starCandy2000 => '스타캔디 2000개';
+  String get starCandy2000 => '별사탕 2000개';
 
   @override
-  String get starCandy3000 => '스타캔디 3000개';
+  String get starCandy3000 => '별사탕 3000개';
 
   @override
-  String get starCandy4000 => '스타캔디 4000개';
+  String get starCandy4000 => '별사탕 4000개';
 
   @override
-  String get starCandy5000 => '스타캔디 5000개';
+  String get starCandy5000 => '별사탕 5000개';
 
   @override
   String get update_required_message => '앱 업데이트가 필요합니다';
@@ -1167,7 +1167,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_2 =>
-      '- 스타캔디 사용 시, 소멸일이 임박한 보너스 스타캔디부터 순서대로 차감됩니다.';
+      '- 별사탕 사용 시, 소멸일이 임박한 보너스 별사탕부터 순서대로 차감됩니다.';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -1184,7 +1184,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_popup_hide_7days => '7일간 보지 않기';
 
   @override
-  String get expiring_soon_bonus_candy => '소멸 예정 보너스 스타캔디';
+  String get expiring_soon_bonus_candy => '소멸 예정 보너스 별사탕';
 
   @override
   String get bonus_candy_expiration_policy_earn_period => '적립 기간';
@@ -1216,7 +1216,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_3 =>
-      '- 소멸된 보너스 스타캔디는 복구되지 않으니, 기간 내에 꼭 사용해 주세요.';
+      '- 소멸된 보너스 별사탕는 복구되지 않으니, 기간 내에 꼭 사용해 주세요.';
 
   @override
   String get message_update_nickname_fail => '닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요.';
@@ -1243,7 +1243,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get title_dialog_success => '성공';
 
   @override
-  String get bonus_candy_policy_title => '보너스 스타캔디 정책';
+  String get bonus_candy_policy_title => '보너스 별사탕 정책';
 
   @override
   String get bonus_candy_example_expiration_date => '소멸일';
@@ -1280,7 +1280,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get jma_voting_info_text =>
-      '-보너스 스타캔디는 1일 최대 5개까지 JMA 투표에 사용 가능합니다.\n-필요한 스타캔디는 자동으로 변환됩니다.(30star Candy = 1JMA Vote)\n-투표 참여 시 자카르타 콘서트에 자동 응모됩니다.';
+      '-보너스 별사탕는 1일 최대 5개까지 JMA 투표에 사용 가능합니다.\n-필요한 별사탕는 자동으로 변환됩니다.(30star Candy = 1JMA Vote)\n-투표 참여 시 자카르타 콘서트에 자동 응모됩니다.';
 
   @override
   String get vote_item_request_search_artist_hint => '아티스트나 그룹을 검색하세요';
@@ -1305,7 +1305,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_pic_pic_synthesizing_image => '이미지 합성 중...';
 
   @override
-  String get label_tab_buy_star_candy => '스타캔디 구매';
+  String get label_tab_buy_star_candy => '별사탕 구매';
 
   @override
   String jma_voting_max_votes_exceeded(int maxVotes) {
@@ -1423,7 +1423,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '게시판 개설 요청 메시지를 입력하세요.';
 
   @override
-  String get fortune_purchase_by_star_candy => '스타캔디로 확인';
+  String get fortune_purchase_by_star_candy => '별사탕로 확인';
 
   @override
   String get post_minor_board_create_request_message_condition =>
@@ -1436,7 +1436,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get post_minor_board_create_request_message => '* 게시판 개설 요청 메시지';
 
   @override
-  String get goonghap_purchase_confirm_title => '스타캔디로 구매';
+  String get goonghap_purchase_confirm_title => '별사탕로 구매';
 
   @override
   String get post_board_create_request_label => '게시판 개설 요청';
