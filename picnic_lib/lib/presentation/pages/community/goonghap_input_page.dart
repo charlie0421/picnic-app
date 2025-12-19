@@ -9,6 +9,7 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/utils/locale_utils.dart';
 import 'package:picnic_lib/presentation/pages/community/goonghap_loading_page.dart';
 import 'package:picnic_lib/presentation/providers/community/goonghap_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -62,6 +63,9 @@ class _GoonghapInputScreenState
 
   void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      // 아티스트 이름을 pageTitle로 사용
+      final artistName = getBestLocaleText(widget.artist.name, context);
       ref
           .read(navigationInfoProvider.notifier)
           .settingNavigation(
@@ -70,7 +74,7 @@ class _GoonghapInputScreenState
             showMyPoint: false,
             topRightMenu: TopRightType.none,
             showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(context).goonghap_page_title,
+            pageTitle: artistName,
           );
     });
   }

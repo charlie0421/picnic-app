@@ -112,6 +112,16 @@ class _GoonghapArtistSelectPageState
 
   @override
   Widget build(BuildContext context) {
+    // 스택의 최상단 페이지가 현재 페이지일 때 네비게이션 복구
+    ref.listen(
+      navigationInfoProvider.select((s) => s.voteNavigationStack?.peek()),
+      (previous, next) {
+        if (next is GoonghapArtistSelectPage) {
+          _updateNavigation();
+        }
+      },
+    );
+
     return Column(
       children: [
         Padding(

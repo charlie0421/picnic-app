@@ -362,31 +362,125 @@ class SearchService {
       return cachedResult;
     }
 
-    // select 필드 정의
-    final selectFields = includeBookmarks
-        ? 'id,name,image,birth_date,gender,artist_group(id,name,image),artist_user_bookmark!left(artist_id)'
-        : 'id,name,image,birth_date,gender,artist_group(id,name,image)';
+    // select 필드 정의 (북마크 조인 제거하여 성능 향상)
+    const selectFields = 'id,name,image,birth_date,gender,artist_group(id,name,image)';
 
     try {
-      // 빈 검색어 처리
+      // 빈 검색어 처리 - 북마크 아티스트 우선 표시
       if (query.isEmpty) {
-        final response = await supabase
-            .from('artist')
-            .select(selectFields)
-            .neq('id', 0)
-            .eq('is_kpop', true)
-            .order('name->>$language', ascending: true)
-            .range(page * limit, (page + 1) * limit - 1);
+        if (includeBookmarks && page == 0) {
+          // 첫 페이지: 북마크된 아티스트를 먼저 가져온 후, 일반 아티스트 추가
+          final results = <ArtistModel>[];
 
-        final results = (response as List<dynamic>)
-            .where((data) => data != null)
-            .map((data) => _parseArtistWithBookmark(data as Map<String, dynamic>, includeBookmarks))
-            .toList();
+          // 1. 북마크된 아티스트 먼저 가져오기
+          final bookmarkedResponse = await supabase
+              .from('artist_user_bookmark')
+              .select('artist:artist_id($selectFields)')
+              .order('created_at', ascending: false);
 
-        if (results.isNotEmpty) {
-          _cache.put(cacheKey, results);
+          final bookmarkedArtists = (bookmarkedResponse as List<dynamic>)
+              .where((data) => data != null && data['artist'] != null)
+              .map((data) {
+                final artistData = Map<String, dynamic>.from(data['artist'] as Map<String, dynamic>);
+                artistData['isBookmarked'] = true;
+                return ArtistModel.fromJson(artistData);
+              })
+              .where((artist) => artist.id != 0)
+              .toList();
+
+          results.addAll(bookmarkedArtists);
+
+          // 2. 일반 아티스트 가져오기 (북마크된 아티스트 제외)
+          final bookmarkedIds = bookmarkedArtists.map((a) => a.id).toList();
+          final remainingLimit = limit - results.length;
+
+          if (remainingLimit > 0) {
+            var generalQuery = supabase
+                .from('artist')
+                .select(selectFields)
+                .neq('id', 0)
+                .eq('is_kpop', true);
+
+            if (bookmarkedIds.isNotEmpty) {
+              generalQuery = generalQuery.not('id', 'in', bookmarkedIds);
+            }
+
+            final generalResponse = await generalQuery
+                .order('name->>$language', ascending: true)
+                .limit(remainingLimit);
+
+            final generalArtists = (generalResponse as List<dynamic>)
+                .where((data) => data != null)
+                .map((data) {
+                  final artistData = Map<String, dynamic>.from(data as Map<String, dynamic>);
+                  artistData['isBookmarked'] = false;
+                  return ArtistModel.fromJson(artistData);
+                })
+                .toList();
+
+            results.addAll(generalArtists);
+          }
+
+          if (results.isNotEmpty) {
+            _cache.put(cacheKey, results);
+          }
+          return results;
+        } else {
+          // 후속 페이지 또는 북마크 불필요: 일반 쿼리
+          // 첫 페이지가 아닌 경우 북마크된 아티스트를 건너뛰어야 함
+          List<dynamic> response;
+          if (includeBookmarks && page > 0) {
+            // 북마크된 아티스트 ID 가져오기
+            final bookmarkedResponse = await supabase
+                .from('artist_user_bookmark')
+                .select('artist_id');
+
+            final bookmarkedIds = (bookmarkedResponse as List<dynamic>)
+                .map((data) => data['artist_id'] as int)
+                .toList();
+
+            var query = supabase
+                .from('artist')
+                .select(selectFields)
+                .neq('id', 0)
+                .eq('is_kpop', true);
+
+            if (bookmarkedIds.isNotEmpty) {
+              query = query.not('id', 'in', bookmarkedIds);
+            }
+
+            // 첫 페이지의 일반 아티스트 수를 고려하여 offset 계산
+            final firstPageBookmarkCount = bookmarkedIds.length.clamp(0, limit);
+            final firstPageGeneralCount = limit - firstPageBookmarkCount;
+            final offset = (page - 1) * limit + firstPageGeneralCount;
+
+            response = await query
+                .order('name->>$language', ascending: true)
+                .range(offset, offset + limit - 1);
+          } else {
+            response = await supabase
+                .from('artist')
+                .select(selectFields)
+                .neq('id', 0)
+                .eq('is_kpop', true)
+                .order('name->>$language', ascending: true)
+                .range(page * limit, (page + 1) * limit - 1);
+          }
+
+          final results = response
+              .where((data) => data != null)
+              .map((data) {
+                final artistData = Map<String, dynamic>.from(data as Map<String, dynamic>);
+                artistData['isBookmarked'] = false;
+                return ArtistModel.fromJson(artistData);
+              })
+              .toList();
+
+          if (results.isNotEmpty) {
+            _cache.put(cacheKey, results);
+          }
+          return results;
         }
-        return results;
       }
 
       // 한국어 초성 검색인지 확인
