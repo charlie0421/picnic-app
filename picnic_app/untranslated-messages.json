@@ -1,13 +1,1 @@
-{
-  "zh": [
-    "post_deleted_title",
-    "post_deleted_desc",
-    "message_setting_patch_restart_hint_ios",
-    "message_patch_download_complete",
-    "message_patch_applied",
-    "notification_patch_update_ready_title",
-    "notification_patch_update_ready_body",
-    "notification_patch_downloaded_title",
-    "notification_patch_downloaded_body"
-  ]
-}
+{}
