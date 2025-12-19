@@ -11,9 +11,8 @@ import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universal_platform/universal_platform.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
+import 'package:universal_platform/universal_platform.dart';
 
 class SplashImageData {
   final String imageUrl;
@@ -204,9 +203,6 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
   String _updateStatus = '';
   bool _patchCheckCompleted = false;
 
-  // 재시작 관련 상태
-  final bool _needsRestart = false;
-
   @override
   void initState() {
     super.initState();
@@ -258,6 +254,18 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
       final updater = shorebird.ShorebirdUpdater();
 
+      // Shorebird가 사용 가능한지 확인
+      final isAvailable = updater.isAvailable;
+      if (!isAvailable) {
+        logger.i('ℹ️ Shorebird를 사용할 수 없는 빌드입니다 (디버그 또는 비-Shorebird 빌드)');
+        setStateIfMounted(() {
+          _updateStatus = '';
+          _isCheckingUpdate = false;
+          _patchCheckCompleted = true;
+        });
+        return;
+      }
+
       // 현재 패치 정보 확인
       final currentPatch = await updater.readCurrentPatch();
       final currentPatchNumber = currentPatch?.number;
@@ -276,20 +284,23 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
       switch (status) {
         case shorebird.UpdateStatus.outdated:
-          // 새 패치 다운로드 및 적용
-          await _downloadAndApplyPatch(updater, currentPatchNumber);
+          // 새 패치 다운로드 (재시작은 사용자가 직접)
+          await _downloadPatch(updater, currentPatchNumber);
           break;
 
         case shorebird.UpdateStatus.restartRequired:
-          // 이미 다운로드된 패치가 있음 - 재시작 필요
-          logger.i('🔄 재시작이 필요한 패치가 대기 중');
+          // 이미 다운로드된 패치가 있음 - 설정 페이지 배너로 안내
+          logger.i('🔄 재시작이 필요한 패치가 대기 중 - 배너로 안내');
           _updatePatchInfoProvider({
             'currentPatch': currentPatchNumber,
             'updateDownloaded': true,
             'needsRestart': true,
             'hasUpdate': false,
           });
-          await _scheduleAppRestart('Update ready! Restarting...');
+          setStateIfMounted(() {
+            _updateStatus = 'Update ready';
+          });
+          await Future.delayed(const Duration(milliseconds: 1500));
           break;
 
         case shorebird.UpdateStatus.upToDate:
@@ -314,8 +325,8 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     }
   }
 
-  /// 패치 다운로드 및 적용 후 자동 재시작
-  Future<void> _downloadAndApplyPatch(
+  /// 패치 다운로드 (재시작은 사용자가 직접)
+  Future<void> _downloadPatch(
     shorebird.ShorebirdUpdater updater,
     int? currentPatchNumber,
   ) async {
@@ -330,10 +341,10 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       await updater.update();
 
       // 다운로드 후 패치 정보 확인
-      final patchAfter = await updater.readCurrentPatch();
-      logger.i('📋 다운로드 후 패치: ${patchAfter?.number}');
+      final patchAfter = await updater.readNextPatch();
+      logger.i('📋 다운로드된 패치: ${patchAfter?.number}');
 
-      // PatchInfoProvider 업데이트
+      // PatchInfoProvider 업데이트 - 설정 페이지 배너 표시용
       _updatePatchInfoProvider({
         'currentPatch': currentPatchNumber,
         'newPatch': patchAfter?.number,
@@ -342,8 +353,11 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
         'hasUpdate': false,
       });
 
-      logger.i('✅ 패치 다운로드 완료 - 자동 재시작 진행');
-      await _scheduleAppRestart('Update complete! Restarting...');
+      logger.i('✅ 패치 다운로드 완료 - 앱 재시작 시 적용됨');
+      setStateIfMounted(() {
+        _updateStatus = 'Update downloaded';
+      });
+      await Future.delayed(const Duration(milliseconds: 1500));
     } catch (e) {
       logger.e('💥 패치 다운로드 실패: $e');
       // 다운로드 실패해도 앱은 계속 진행
@@ -425,66 +439,6 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       }
     } catch (e) {
       logger.e('💥 PatchInfoProvider 업데이트 실패: $e');
-    }
-  }
-
-  /// 안정적인 앱 재시작 스케줄링
-  Future<void> _scheduleAppRestart(String message) async {
-    setStateIfMounted(() {
-      _updateStatus = message;
-    });
-
-    // 메시지 표시 시간
-    await Future.delayed(const Duration(milliseconds: 1500));
-
-    if (!mounted) return;
-
-    // 카운트다운 시작
-    for (int i = 3; i > 0; i--) {
-      if (!mounted) return;
-
-      setStateIfMounted(() {
-        _updateStatus = 'Restarting in ${i}s...';
-      });
-
-      await Future.delayed(const Duration(seconds: 1));
-    }
-
-    if (!mounted) return;
-
-    setStateIfMounted(() {
-      _updateStatus = 'Restarting now...';
-    });
-
-    // 짧은 딜레이 후 재시작
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (mounted) {
-      try {
-        logger.i('Phoenix를 사용하여 앱 재시작');
-        Phoenix.rebirth(context);
-        logger.i('Phoenix.rebirth 성공적으로 실행됨');
-      } catch (e) {
-        logger.e('Phoenix 재시작 실패: $e');
-
-        // 재시작 실패 시 사용자에게 수동 재시작 요청
-        if (mounted) {
-          setStateIfMounted(() {
-            _patchCheckCompleted = false;
-            _isCheckingUpdate = false;
-            _updateStatus = 'Restart required - please restart manually';
-          });
-
-          // 5초 후 메시지 숨김
-          Future.delayed(const Duration(seconds: 5), () {
-            if (mounted) {
-              setStateIfMounted(() {
-                _updateStatus = '';
-              });
-            }
-          });
-        }
-      }
     }
   }
 
@@ -694,13 +648,14 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
                       ).copyWith(decoration: TextDecoration.none),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(width: 16),
-                    if (_isCheckingUpdate || _needsRestart)
+                    if (_isCheckingUpdate) ...[
+                      const SizedBox(width: 16),
                       const SizedBox(
                         width: 16,
                         height: 16,
                         child: SmallPulseLoadingIndicator(),
                       ),
+                    ],
                   ],
                 ),
               ),

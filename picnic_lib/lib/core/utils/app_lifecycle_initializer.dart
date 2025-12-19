@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/shorebird_utils.dart';
-import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 
 /// 앱 생명주기 관리 및 초기화를 위한 유틸리티 클래스
@@ -38,17 +36,6 @@ class AppLifecycleInitializer {
             updateInfo: null,
           );
       logger.i('App 초기화 Provider 설정 완료');
-
-      // 패치 백그라운드 자동 재시작 옵저버 등록
-      PatchLifecycleObserver.register();
-      logger.i('PatchLifecycleObserver 등록 완료');
-
-      // 패치 알림 메시지 설정 (L10N)
-      final l10n = AppLocalizations.of(context);
-      ShorebirdUtils.setDownloadCompleteMessage(
-        l10n.message_patch_download_complete,
-      );
-      logger.i('패치 다운로드 완료 알림 메시지 설정 완료');
     } catch (e, stackTrace) {
       logger.e('App 초기화 로직 설정 중 오류 발생', error: e, stackTrace: stackTrace);
     }
@@ -67,9 +54,6 @@ class AppLifecycleInitializer {
 
       // 앱 링크 이벤트 구독 해제
       appLinksSubscription?.cancel();
-
-      // 패치 옵저버 해제
-      PatchLifecycleObserver.unregister();
 
       logger.i('App 리스너 정리 완료');
     } catch (e) {

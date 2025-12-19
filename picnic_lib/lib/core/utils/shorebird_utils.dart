@@ -1,7 +1,5 @@
-import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/patch_notification_service.dart';
@@ -323,79 +321,5 @@ class ShorebirdUtils {
   /// 앱 초기화 시 L10N 문자열로 설정해야 함
   static void setDownloadCompleteMessage(String message) {
     _downloadCompleteMessage = message;
-  }
-}
-
-/// 앱 생명주기 감지하여 백그라운드 전환 시 자동 재시작 (Android)
-///
-/// 사용법:
-/// ```dart
-/// // 앱 시작 시
-/// PatchLifecycleObserver.register();
-///
-/// // 앱 종료 시 (선택적)
-/// PatchLifecycleObserver.unregister();
-/// ```
-class PatchLifecycleObserver with WidgetsBindingObserver {
-  static PatchLifecycleObserver? _instance;
-  static bool _isRegistered = false;
-
-  PatchLifecycleObserver._();
-
-  /// 옵저버 등록
-  static void register() {
-    if (_isRegistered) return;
-
-    _instance = PatchLifecycleObserver._();
-    WidgetsBinding.instance.addObserver(_instance!);
-    _isRegistered = true;
-    logger.i('🔄 PatchLifecycleObserver 등록됨');
-  }
-
-  /// 옵저버 해제
-  static void unregister() {
-    if (!_isRegistered || _instance == null) return;
-
-    WidgetsBinding.instance.removeObserver(_instance!);
-    _instance = null;
-    _isRegistered = false;
-    logger.i('🔄 PatchLifecycleObserver 해제됨');
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    // 백그라운드로 전환될 때 (paused 상태)
-    if (state == AppLifecycleState.paused) {
-      _handleAppPaused();
-    }
-  }
-
-  /// 앱이 백그라운드로 전환될 때 처리
-  ///
-  /// ⚠️ 백그라운드 자동 재시작 비활성화됨 (흰 화면 버그 발생)
-  /// Shorebird 패치는 사용자가 앱을 완전히 종료 후 다시 열면 자동 적용됩니다.
-  void _handleAppPaused() {
-    if (!_hasPendingPatch) return;
-
-    logger.i('🔄 백그라운드 전환 감지 - 패치 대기 중');
-    logger.i('📱 다음 앱 실행 시 패치 자동 적용됨 (자동 재시작 비활성화됨)');
-
-    // ⚠️ 자동 재시작 비활성화 - 앱 재시작 시 흰 화면 버그 발생
-    // Shorebird 패치는 앱을 완전히 종료 후 다시 열면 자동 적용됩니다.
-    // if (Platform.isAndroid) {
-    //   logger.i('🔄 Android: 백그라운드에서 앱 재시작 실행');
-    //   _hasPendingPatch = false;
-    //
-    //   Future.delayed(const Duration(milliseconds: 500), () async {
-    //     try {
-    //       await Restart.restartApp();
-    //     } catch (e) {
-    //       logger.e('❌ 백그라운드 재시작 실패: $e');
-    //       _hasPendingPatch = true;
-    //     }
-    //   });
-    // }
   }
 }
