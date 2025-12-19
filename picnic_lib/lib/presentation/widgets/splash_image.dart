@@ -1,15 +1,18 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/patch_notification_service.dart';
+import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 import 'package:universal_platform/universal_platform.dart';
@@ -289,18 +292,15 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
           break;
 
         case shorebird.UpdateStatus.restartRequired:
-          // 이미 다운로드된 패치가 있음 - 설정 페이지 배너로 안내
-          logger.i('🔄 재시작이 필요한 패치가 대기 중 - 배너로 안내');
+          // 이미 다운로드된 패치가 있음 - 자동 재시작
+          logger.i('🔄 재시작이 필요한 패치가 대기 중 - 자동 재시작 진행');
           _updatePatchInfoProvider({
             'currentPatch': currentPatchNumber,
             'updateDownloaded': true,
             'needsRestart': true,
             'hasUpdate': false,
           });
-          setStateIfMounted(() {
-            _updateStatus = 'Update ready';
-          });
-          await Future.delayed(const Duration(milliseconds: 1500));
+          await _restartAppAfterDownload();
           break;
 
         case shorebird.UpdateStatus.upToDate:
@@ -353,15 +353,53 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
         'hasUpdate': false,
       });
 
-      logger.i('✅ 패치 다운로드 완료 - 앱 재시작 시 적용됨');
-      setStateIfMounted(() {
-        _updateStatus = 'Update downloaded';
-      });
-      await Future.delayed(const Duration(milliseconds: 1500));
+      logger.i('✅ 패치 다운로드 완료 - 자동 재시작 진행');
+
+      // 플랫폼별 자동 재시작
+      await _restartAppAfterDownload();
     } catch (e) {
       logger.e('💥 패치 다운로드 실패: $e');
       // 다운로드 실패해도 앱은 계속 진행
       await _handleUpToDate(currentPatchNumber);
+    }
+  }
+
+  /// 패치 다운로드 완료 후 플랫폼별 자동 재시작
+  ///
+  /// Android: Restart.restartApp()으로 앱 프로세스 재시작
+  /// iOS: 로컬 푸시 알림 표시 후 exit(0)으로 앱 종료
+  Future<void> _restartAppAfterDownload() async {
+    setStateIfMounted(() {
+      _updateStatus = 'Restarting...';
+    });
+
+    // 메시지 표시 시간
+    await Future.delayed(const Duration(milliseconds: 1000));
+
+    try {
+      if (Platform.isAndroid) {
+        logger.i('🔄 Android: 앱 재시작 실행');
+        await Restart.restartApp();
+      } else if (Platform.isIOS) {
+        logger.i('🔄 iOS: 로컬 푸시 알림 후 앱 종료');
+
+        // 로컬 푸시 알림 표시
+        await ShorebirdUtils.showRestartNotification(
+          title: 'Update Ready',
+          body: 'Tap to reopen the app and apply the update.',
+        );
+
+        // 약간의 딜레이 후 앱 종료 (알림이 표시될 시간)
+        await Future.delayed(const Duration(milliseconds: 500));
+        exit(0);
+      }
+    } catch (e) {
+      logger.e('❌ 자동 재시작 실패: $e');
+      // 실패해도 앱은 계속 진행
+      setStateIfMounted(() {
+        _updateStatus = 'Update ready - please restart manually';
+      });
+      await Future.delayed(const Duration(milliseconds: 2000));
     }
   }
 
