@@ -14,7 +14,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/goonghap_result_content.dart';
-import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
+import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/providers/community/goonghap_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -254,9 +254,6 @@ class _GoonghapResultPageState
           content: AppLocalizations.of(context).message_error_occurred,
           onOk: () {
             if (mounted) {
-              ref
-                  .read(navigationInfoProvider.notifier)
-                  .setCommunityCurrentPage(StorePage());
               Navigator.of(context).pop();
             }
           },
@@ -273,9 +270,9 @@ class _GoonghapResultPageState
           ).fortune_lack_of_star_candy_message,
           onOk: () {
             if (mounted) {
-              ref
-                  .read(navigationInfoProvider.notifier)
-                  .setCommunityCurrentPage(StorePage());
+              // Vote 포탈로 전환 후 Store 탭(인덱스 3)으로 이동
+              ref.read(navigationInfoProvider.notifier).setPortal(PortalType.vote);
+              ref.read(navigationInfoProvider.notifier).setVoteBottomNavigationIndex(3);
               Navigator.of(context).pop();
             }
           },
