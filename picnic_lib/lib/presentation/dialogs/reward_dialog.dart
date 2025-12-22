@@ -155,7 +155,7 @@ class RewardSection extends StatelessWidget {
         final locationData = data.location![locale];
         // locationData가 Map이 아닌 경우 처리
         if (locationData is! Map) return false;
-        final map = locationData as Map;
+        final map = locationData ;
         return (map['map'] != null && (map['map'] as List?)?.isNotEmpty == true) ||
             (map['address'] != null && (map['address'] as List?)?.isNotEmpty == true) ||
             (map['images'] != null && (map['images'] as List?)?.isNotEmpty == true) ||
