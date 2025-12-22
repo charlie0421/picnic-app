@@ -276,18 +276,21 @@ class RewardSection extends StatelessWidget {
         break;
 
       case RewardType.sizeGuide:
-        if (data.sizeGuide?[locale] != null) {
-          for (final guide in data.sizeGuide![locale]) {
-            if (guide['image'] != null) {
+        if (data.sizeGuide?[locale] != null && data.sizeGuide![locale] is List) {
+          final sizeGuideList = data.sizeGuide![locale] as List;
+          for (final guide in sizeGuideList) {
+            if (guide is! Map) continue;
+
+            if (guide['image'] != null && guide['image'] is List) {
               widgets.addAll(_buildSizeGuideImageList(
                 context,
-                guide['image'].cast<String>(),
+                (guide['image'] as List).cast<String>(),
               ));
             }
 
-            if (guide['desc'] != null) {
+            if (guide['desc'] != null && guide['desc'] is List) {
               widgets.add(const SizedBox(height: 24));
-              final descList = guide['desc'].cast<String>();
+              final descList = (guide['desc'] as List).cast<String>();
               if (descList.isNotEmpty) {
                 widgets.addAll(_buildTextList(
                   [descList.first],
