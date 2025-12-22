@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/patch_notification_service.dart';
 import 'package:restart_app/restart_app.dart';
@@ -8,7 +7,6 @@ import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 import 'package:universal_platform/universal_platform.dart';
 
 final updater = shorebird.ShorebirdUpdater();
-final _localNotifications = FlutterLocalNotificationsPlugin();
 
 /// 패치 대기 상태 (백그라운드 재시작용)
 bool _hasPendingPatch = false;
@@ -199,44 +197,16 @@ class ShorebirdUtils {
   }
 
   /// 즉시 로컬 푸시 알림 표시 (재시작 유도용)
+  ///
+  /// ⚠️ 로컬 알림 기능 비활성화됨
+  /// 초기화되지 않은 FlutterLocalNotificationsPlugin 사용으로 인한 크래시 방지
+  /// iOS에서는 패치가 다음 앱 실행 시 자동 적용됩니다.
   static Future<void> showRestartNotification({
     required String title,
     required String body,
   }) async {
-    if (UniversalPlatform.isWeb) return;
-
-    try {
-      const androidDetails = AndroidNotificationDetails(
-        'patch_update_channel',
-        'Patch Updates',
-        channelDescription: 'Notifications for app patch updates',
-        importance: Importance.high,
-        priority: Priority.high,
-        showWhen: true,
-      );
-
-      const iosDetails = DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      );
-
-      const notificationDetails = NotificationDetails(
-        android: androidDetails,
-        iOS: iosDetails,
-      );
-
-      await _localNotifications.show(
-        9999,
-        title,
-        body,
-        notificationDetails,
-      );
-
-      logger.i('🔔 재시작 유도 로컬 푸시 알림 표시됨');
-    } catch (e, stackTrace) {
-      logger.e('❌ 로컬 푸시 알림 표시 실패: $e', stackTrace: stackTrace);
-    }
+    // 로컬 알림 비활성화 - 초기화 문제로 인한 크래시 방지
+    logger.i('📱 패치 알림 스킵됨 - 다음 실행 시 자동 적용');
   }
 
   /// 앱 시작시 패치 체크 (재시작 없이 백그라운드 다운로드)

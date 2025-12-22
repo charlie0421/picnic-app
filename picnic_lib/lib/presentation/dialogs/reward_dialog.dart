@@ -153,17 +153,20 @@ class RewardSection extends StatelessWidget {
       case RewardType.location:
         if (data.location?[locale] == null) return false;
         final locationData = data.location![locale];
-        return (locationData['map'] != null &&
-                locationData['map'].isNotEmpty) ||
-            (locationData['address'] != null &&
-                locationData['address'].isNotEmpty) ||
-            (locationData['images'] != null &&
-                locationData['images'].isNotEmpty) ||
-            (locationData['desc'] != null && locationData['desc'].isNotEmpty);
+        // locationData가 Map이 아닌 경우 처리
+        if (locationData is! Map) return false;
+        final map = locationData as Map;
+        return (map['map'] != null && (map['map'] as List?)?.isNotEmpty == true) ||
+            (map['address'] != null && (map['address'] as List?)?.isNotEmpty == true) ||
+            (map['images'] != null && (map['images'] as List?)?.isNotEmpty == true) ||
+            (map['desc'] != null && (map['desc'] as List?)?.isNotEmpty == true);
 
       case RewardType.sizeGuide:
-        return data.sizeGuide?[locale] != null &&
-            data.sizeGuide![locale].isNotEmpty;
+        if (data.sizeGuide?[locale] == null) return false;
+        final sizeGuideData = data.sizeGuide![locale];
+        // sizeGuideData가 List가 아닌 경우 처리
+        if (sizeGuideData is! List) return false;
+        return sizeGuideData.isNotEmpty;
     }
   }
 
@@ -220,11 +223,11 @@ class RewardSection extends StatelessWidget {
         break;
 
       case RewardType.location:
-        if (data.location?[locale] != null) {
-          final locationData = data.location![locale];
+        if (data.location?[locale] != null && data.location![locale] is Map) {
+          final locationData = data.location![locale] as Map;
           // Map 이미지 처리
-          if (locationData['map'] != null) {
-            final mapImages = locationData['map'].cast<String>();
+          if (locationData['map'] != null && locationData['map'] is List) {
+            final mapImages = (locationData['map'] as List).cast<String>();
             if (mapImages.isNotEmpty) {
               widgets.addAll(_buildImageList(
                 context,
@@ -245,27 +248,27 @@ class RewardSection extends StatelessWidget {
             }
           }
 
-          if (locationData['address'] != null) {
+          if (locationData['address'] != null && locationData['address'] is List) {
             widgets.add(const SizedBox(height: 24));
             widgets.addAll(_buildTextAddress(
               context,
-              locationData['address'].cast<String>(),
+              (locationData['address'] as List).cast<String>(),
               getTextStyle(AppTypo.body16B, AppColors.grey900),
             ));
           }
 
-          if (locationData['images'] != null) {
+          if (locationData['images'] != null && locationData['images'] is List) {
             widgets.add(const SizedBox(height: 24));
             widgets.addAll(_buildImageList(
               context,
-              locationData['images'].cast<String>(),
+              (locationData['images'] as List).cast<String>(),
             ));
           }
 
-          if (locationData['desc'] != null) {
+          if (locationData['desc'] != null && locationData['desc'] is List) {
             widgets.add(const SizedBox(height: 24));
             widgets.addAll(_buildTextList(
-              locationData['desc'].cast<String>(),
+              (locationData['desc'] as List).cast<String>(),
               getTextStyle(AppTypo.body16B, AppColors.grey900),
             ));
           }
