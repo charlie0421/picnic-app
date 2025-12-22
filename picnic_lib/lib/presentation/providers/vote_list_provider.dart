@@ -95,8 +95,9 @@ class AsyncVoteList extends _$AsyncVoteList {
           ''');
 
       // area 필터 항상 적용 (Admin/Debug 포함)
+      // areas 배열에 해당 값이 포함되어 있는지 확인 (PostgreSQL의 @> 연산자)
       if (area != 'all') {
-        query = query.eq('area', area);
+        query = query.contains('areas', [area]);
       }
 
       query = query.filter('deleted_at', 'is', null);
