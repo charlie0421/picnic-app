@@ -82,10 +82,14 @@ class ArtistSelectListView extends ConsumerStatefulWidget {
 class _ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
   late PagingController<int, ArtistModel> _pagingController;
   static const _pageSize = 20;
+  late String _initialSearchQuery;
 
   @override
   void initState() {
     super.initState();
+
+    // 초기 검색어 저장 (페이지 재진입 시 복원용)
+    _initialSearchQuery = ref.read(widget.searchQueryProvider);
 
     _pagingController = PagingController<int, ArtistModel>(
       getNextPageKey: (state) {
@@ -137,6 +141,23 @@ class _ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
     _pagingController.refresh();
   }
 
+  /// 특정 아티스트의 북마크 상태를 즉시 업데이트합니다.
+  void updateBookmarkState(int artistId, bool isBookmarked) {
+    final items = _pagingController.value.items;
+    if (items == null) return;
+
+    final updatedItems = items.map((artist) {
+      if (artist.id == artistId) {
+        return artist.copyWith(isBookmarked: isBookmarked);
+      }
+      return artist;
+    }).toList();
+
+    _pagingController.value = _pagingController.value.copyWith(
+      items: updatedItems,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -145,6 +166,7 @@ class _ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16),
           child: EnhancedSearchBox(
             hintText: AppLocalizations.of(context).text_hint_search,
+            initialValue: _initialSearchQuery,
             onSearchChanged: (query) {
               if (mounted) {
                 // Notifier의 set 메서드 호출
@@ -172,6 +194,8 @@ class _ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
           state: state,
           fetchNextPage: fetchNextPage,
           padding: EdgeInsets.symmetric(horizontal: 16.w),
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: true,
           builderDelegate: PagedChildBuilderDelegate<ArtistModel>(
             itemBuilder: (context, item, index) {
               return _buildArtistItem(item, index, searchQuery);
@@ -289,6 +313,8 @@ class _ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
               height: 48,
               imageUrl: 'artist/${item.id}/image.png',
               borderRadius: BorderRadius.circular(24),
+              lazyLoadingStrategy: LazyLoadingStrategy.viewport,
+              priority: ImagePriority.normal,
             ),
             title: _buildHighlightedName(item, searchQuery),
             subtitle: item.artistGroup?.name != null

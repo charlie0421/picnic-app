@@ -34,7 +34,11 @@ class EnhancedSearchBox extends StatefulWidget {
     this.controller,
     this.focusNode,
     this.height,
+    this.initialValue,
   });
+
+  /// 초기 검색어 값
+  final String? initialValue;
 
   /// 힌트 텍스트
   final String hintText;
@@ -121,6 +125,12 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
     _controller = widget.controller ?? TextEditingController();
     _focusNode = widget.focusNode ?? FocusNode();
 
+    // 초기값이 있으면 설정
+    if (widget.initialValue != null && widget.initialValue!.isNotEmpty) {
+      _controller.text = widget.initialValue!;
+      _previousText = widget.initialValue!;
+    }
+
     _controller.addListener(_onTextChanged);
 
     if (widget.autofocus) {
@@ -189,7 +199,8 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
     _debounceTimer?.cancel();
     widget.onClear?.call();
     widget.onSearchChanged?.call('');
-    _focusNode.requestFocus();
+    // 키보드 숨기기
+    _focusNode.unfocus();
   }
 
   @override

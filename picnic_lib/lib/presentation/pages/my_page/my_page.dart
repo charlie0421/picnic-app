@@ -21,7 +21,7 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart'
 import 'package:picnic_lib/presentation/pages/my_page/my_profile.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_list_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/setting_page.dart';
-import 'package:picnic_lib/presentation/pages/my_page/vote_artist_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/my_artist_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_history_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/faq_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/notice_page.dart';
@@ -370,11 +370,11 @@ class _MyPageState extends ConsumerState<MyPage>
           logger.i('🎯 User not logged in, navigating to signup');
           Navigator.of(context).pushNamed(SignUpScreen.routeName);
         } else {
-          logger.i('🎯 User logged in, setting VoteArtistPage');
+          logger.i('🎯 User logged in, setting MyArtistPage');
           ref
               .read(navigationInfoProvider.notifier)
-              .setCurrentMyPage(const VoteArtistPage());
-          logger.i('🎯 VoteArtistPage set successfully');
+              .setCurrentMyPage(const MyArtistPage());
+          logger.i('🎯 MyArtistPage set successfully');
         }
       },
       child: Column(

@@ -13,30 +13,31 @@ import 'package:picnic_lib/presentation/widgets/common/artist_select_list_view.d
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 
 /// 나의 아티스트 검색어 상태 관리 프로바이더
-class SearchQueryNotifier extends Notifier<String> {
+class MyArtistSearchQueryNotifier extends Notifier<String> {
   @override
   String build() => '';
 
   void set(String value) => state = value;
 }
 
-final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(
-  SearchQueryNotifier.new,
+final myArtistSearchQueryProvider =
+    NotifierProvider<MyArtistSearchQueryNotifier, String>(
+  MyArtistSearchQueryNotifier.new,
 );
 
 /// 나의 아티스트 페이지
 ///
 /// 공통 [ArtistSelectListView] 위젯을 사용하여 아티스트 목록을 표시하고
 /// 북마크 토글 기능을 제공합니다.
-class VoteArtistPage extends ConsumerStatefulWidget {
-  const VoteArtistPage({super.key});
+class MyArtistPage extends ConsumerStatefulWidget {
+  const MyArtistPage({super.key});
 
   @override
-  ConsumerState createState() => _VoteMyArtistState();
+  ConsumerState createState() => _MyArtistPageState();
 }
 
-class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
-    with RouteAwareStateMixin<VoteArtistPage> {
+class _MyArtistPageState extends ConsumerState<MyArtistPage>
+    with RouteAwareStateMixin<MyArtistPage> {
   String? _currentTitle;
   final GlobalKey<_ArtistSelectListViewState> _listViewKey = GlobalKey();
 
@@ -44,18 +45,32 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
   void initState() {
     super.initState();
 
-    logger.i('🎯 VoteArtistPage initState called');
+    logger.i('🎯 MyArtistPage initState called');
+
+    // 페이지 진입 시 검색어 초기화
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(myArtistSearchQueryProvider.notifier).set('');
+      }
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      logger.i('🎯 VoteArtistPage setting title');
+      logger.i('🎯 MyArtistPage setting title');
       try {
         _currentTitle = AppLocalizations.of(context).label_mypage_my_artist;
         _updateNavigation();
-        logger.i('🎯 VoteArtistPage title set successfully');
+        logger.i('🎯 MyArtistPage title set successfully');
       } catch (e) {
-        logger.e('🎯 VoteArtistPage title setting failed: $e');
+        logger.e('🎯 MyArtistPage title setting failed: $e');
       }
     });
+  }
+
+  @override
+  void dispose() {
+    // 페이지를 나갈 때 검색어 초기화
+    ref.read(myArtistSearchQueryProvider.notifier).set('');
+    super.dispose();
   }
 
   @override
@@ -97,8 +112,9 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
 
         if (success) {
           logger.i('북마크 해제됨: ${getLocaleTextFromJson(artist.name)}');
-          // 공통 위젯의 리스트 새로고침
-          (_listViewKey.currentState as dynamic)?.refresh();
+          // 즉시 UI 업데이트
+          (_listViewKey.currentState as dynamic)
+              ?.updateBookmarkState(artist.id, false);
         }
       } else {
         // 북마크 추가
@@ -106,8 +122,9 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
 
         if (success) {
           logger.i('북마크 추가됨: ${getLocaleTextFromJson(artist.name)}');
-          // 공통 위젯의 리스트 새로고침
-          (_listViewKey.currentState as dynamic)?.refresh();
+          // 즉시 UI 업데이트
+          (_listViewKey.currentState as dynamic)
+              ?.updateBookmarkState(artist.id, true);
         } else {
           logger.w('북마크 추가 실패 (최대 5개 제한)');
           SnackbarUtil().show(
@@ -123,11 +140,11 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
 
   @override
   Widget build(BuildContext context) {
-    logger.i('🎯 VoteArtistPage build called');
+    logger.i('🎯 MyArtistPage build called');
 
     return ArtistSelectListView(
       key: _listViewKey,
-      searchQueryProvider: searchQueryProvider,
+      searchQueryProvider: myArtistSearchQueryProvider,
       config: const ArtistSelectConfig(
         showBookmarkToggle: true,
         hideSectionHeaderOnSearch: false,
