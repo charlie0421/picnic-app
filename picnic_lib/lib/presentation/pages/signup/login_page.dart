@@ -363,8 +363,18 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       }
 
       await _executeWithLoading(() async {
-        final user = supabase.auth.currentUser;
+        // 세션 동기화 대기 - 시뮬레이터에서 특히 중요
+        // Supabase 세션이 메모리에 완전히 저장될 때까지 재시도
+        User? user;
+        for (int retry = 0; retry < 5; retry++) {
+          user = supabase.auth.currentUser;
+          if (user != null) break;
+          logger.d('Waiting for session sync... attempt ${retry + 1}');
+          await Future.delayed(const Duration(milliseconds: 200));
+        }
+
         if (user == null) {
+          logger.e('Failed to get current user after retries');
           throw Exception('Failed to get current user');
         }
 
@@ -372,60 +382,70 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             .read(userInfoProvider.notifier)
             .getUserProfiles();
 
+        // Navigator 컨텍스트 사전 확인
+        final navContext = navigatorKey.currentContext;
+        if (navContext == null || !navContext.mounted) {
+          logger.w('Navigator context is not available after login');
+          return;
+        }
+
         if (userProfile == null) {
           ref
               .read(navigationInfoProvider.notifier)
               .setCurrentSignUpPage(const AgreementTermsPage());
-          final navContext = navigatorKey.currentContext;
-          if (navContext != null && navContext.mounted) {
+          if (navContext.mounted && Navigator.of(navContext).canPop()) {
             Navigator.of(navContext).pop();
           }
         } else if (userProfile.deletedAt != null) {
-          if (navigatorKey.currentContext != null) {
-            showSimpleDialog(
-              content: AppLocalizations.of(
-                navigatorKey.currentContext!,
-              ).error_message_withdrawal,
-              onOk: () {
-                ref.read(userInfoProvider.notifier).logout();
-                final navContext = navigatorKey.currentContext;
-                if (navContext != null && navContext.mounted) {
-                  Navigator.of(navContext).pop();
-                }
-              },
-            );
-          }
+          showSimpleDialog(
+            content: AppLocalizations.of(navContext).error_message_withdrawal,
+            onOk: () {
+              ref.read(userInfoProvider.notifier).logout();
+              final ctx = navigatorKey.currentContext;
+              if (ctx != null && ctx.mounted && Navigator.of(ctx).canPop()) {
+                Navigator.of(ctx).pop();
+              }
+            },
+          );
         } else if (userProfile.userAgreement == null) {
           ref
               .read(navigationInfoProvider.notifier)
               .setCurrentSignUpPage(const AgreementTermsPage());
-          final navContext = navigatorKey.currentContext;
-          if (navContext != null && navContext.mounted) {
+          if (navContext.mounted && Navigator.of(navContext).canPop()) {
             Navigator.of(navContext).pop();
           }
         } else {
           ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
-          final navContext = navigatorKey.currentContext;
-          if (navContext != null && navContext.mounted) {
+          // 이중 pop을 안전하게 처리 - 약간의 딜레이로 race condition 방지
+          if (navContext.mounted && Navigator.of(navContext).canPop()) {
             Navigator.of(navContext).pop();
-            Navigator.of(navContext).pop();
+            // 두 번째 pop 전에 프레임 대기
+            await Future.delayed(const Duration(milliseconds: 50));
+            final ctx2 = navigatorKey.currentContext;
+            if (ctx2 != null && ctx2.mounted && Navigator.of(ctx2).canPop()) {
+              Navigator.of(ctx2).pop();
+            }
           }
         }
       });
     } catch (e, s) {
-      logger.e('error', error: e, stackTrace: s);
-      if (navigatorKey.currentContext != null) {
+      logger.e('Login flow error', error: e, stackTrace: s);
+      _hideLoginLoadingOverlay();
+      final navContext = navigatorKey.currentContext;
+      if (navContext != null && navContext.mounted) {
         showSimpleDialog(
-          title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
-          content: AppLocalizations.of(
-            navigatorKey.currentContext!,
-          ).error_message_login_failed,
+          type: DialogType.error,
+          title: AppLocalizations.of(navContext).error_title,
+          content: AppLocalizations.of(navContext).error_message_login_failed,
           onOk: () {
-            Navigator.of(navigatorKey.currentContext!).pop();
+            final ctx = navigatorKey.currentContext;
+            if (ctx != null && ctx.mounted && Navigator.of(ctx).canPop()) {
+              Navigator.of(ctx).pop();
+            }
           },
         );
       }
-      rethrow;
+      // rethrow 제거 - 에러 다이얼로그로 이미 사용자에게 알림
     }
   }
 

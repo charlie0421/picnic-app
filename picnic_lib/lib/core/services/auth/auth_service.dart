@@ -136,6 +136,10 @@ class AuthService {
       await DeviceManager.registerDevice(response.user!.id);
 
       await _saveAndNotifySession(response.session!);
+
+      // 세션 동기화 대기 - 시뮬레이터에서 메모리 동기화가 늦을 수 있음
+      await Future.delayed(const Duration(milliseconds: 100));
+
       // 국가 추적 (로그인 직후)
       await _trackCountry('login');
       return response.user;
