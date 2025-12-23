@@ -1211,6 +1211,14 @@
   "@title_select_language": {
     "description": "Auto-generated metadata for key 'title_select_language'."
   },
+  "toast_bookmark_added": "বুকমার্কে যোগ করা হয়েছে।",
+  "@toast_bookmark_added": {
+    "description": "Toast message when bookmark is added successfully."
+  },
+  "toast_bookmark_removed": "বুকমার্ক থেকে সরানো হয়েছে।",
+  "@toast_bookmark_removed": {
+    "description": "Toast message when bookmark is removed successfully."
+  },
   "toast_max_five_celeb": "আপনি আপনার নিজের পাঁচটি শিল্পী যুক্ত করতে পারেন।",
   "@toast_max_five_celeb": {
     "description": "Auto-generated metadata for key 'toast_max_five_celeb'."

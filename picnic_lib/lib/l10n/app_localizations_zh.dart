@@ -955,6 +955,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get title_select_language => 'Select a language';
 
   @override
+  String get toast_bookmark_added => 'Added to bookmarks.';
+
+  @override
+  String get toast_bookmark_removed => 'Removed from bookmarks.';
+
+  @override
   String get toast_max_five_celeb =>
       'You can add up to five of your own artists.';
 
@@ -2649,6 +2655,12 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get title_select_language => '选择语言';
 
   @override
+  String get toast_bookmark_added => '已添加到书签。';
+
+  @override
+  String get toast_bookmark_removed => '已从书签中移除。';
+
+  @override
   String get toast_max_five_celeb => '您最多可以添加五位自己的艺术家。';
 
   @override
@@ -4309,6 +4321,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get title_select_language => '选择语言';
+
+  @override
+  String get toast_bookmark_added => '已加入書籤。';
+
+  @override
+  String get toast_bookmark_removed => '已從書籤中移除。';
 
   @override
   String get toast_max_five_celeb => '您最多可以添加五位自己的艺术家。';

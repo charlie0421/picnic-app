@@ -964,6 +964,12 @@ class AppLocalizationsMy extends AppLocalizations {
   String get title_select_language => 'ဘာသာစကားတစ်ခုကိုရွေးချယ်ပါ';
 
   @override
+  String get toast_bookmark_added => 'စာညွှန်းများသို့ ထည့်ထားပါပြီ။';
+
+  @override
+  String get toast_bookmark_removed => 'စာညွှန်းများမှ ဖယ်ရှားပြီးပါပြီ။';
+
+  @override
   String get toast_max_five_celeb =>
       'သင်၏ကိုယ်ပိုင်အနုပညာရှင်ငါး ဦး ကိုသင်ထည့်နိုင်သည်။';
 

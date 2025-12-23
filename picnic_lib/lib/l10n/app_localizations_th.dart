@@ -945,6 +945,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get title_select_language => 'เลือกภาษา';
 
   @override
+  String get toast_bookmark_added => 'เพิ่มในบุ๊กมาร์กแล้ว';
+
+  @override
+  String get toast_bookmark_removed => 'ลบออกจากบุ๊กมาร์กแล้ว';
+
+  @override
   String get toast_max_five_celeb =>
       'คุณสามารถเพิ่มศิลปินของคุณเองได้มากถึงห้าคน';
 

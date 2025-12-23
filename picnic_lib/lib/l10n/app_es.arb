@@ -1211,6 +1211,14 @@
   "@title_select_language": {
     "description": "Auto-generated metadata for key 'title_select_language'."
   },
+  "toast_bookmark_added": "Agregado a marcadores.",
+  "@toast_bookmark_added": {
+    "description": "Toast message when bookmark is added successfully."
+  },
+  "toast_bookmark_removed": "Eliminado de marcadores.",
+  "@toast_bookmark_removed": {
+    "description": "Toast message when bookmark is removed successfully."
+  },
   "toast_max_five_celeb": "Puede agregar hasta cinco de sus propios artistas.",
   "@toast_max_five_celeb": {
     "description": "Auto-generated metadata for key 'toast_max_five_celeb'."

@@ -1919,6 +1919,18 @@ abstract class AppLocalizations {
   /// **'Select a language'**
   String get title_select_language;
 
+  /// Toast message when bookmark is added successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to bookmarks.'**
+  String get toast_bookmark_added;
+
+  /// Toast message when bookmark is removed successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from bookmarks.'**
+  String get toast_bookmark_removed;
+
   /// Auto-generated metadata for key 'toast_max_five_celeb'.
   ///
   /// In en, this message translates to:

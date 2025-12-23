@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../presentation/providers/my_page/vote_artist_list_provider.dart';
+part of '../../../presentation/providers/my_page/my_artist_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,34 +9,33 @@ part of '../../../presentation/providers/my_page/vote_artist_list_provider.dart'
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(AsyncVoteArtistList)
-const asyncVoteArtistListProvider = AsyncVoteArtistListProvider._();
+@ProviderFor(AsyncMyArtist)
+const asyncMyArtistProvider = AsyncMyArtistProvider._();
 
-final class AsyncVoteArtistListProvider
-    extends $AsyncNotifierProvider<AsyncVoteArtistList, List<ArtistModel>> {
-  const AsyncVoteArtistListProvider._()
+final class AsyncMyArtistProvider
+    extends $AsyncNotifierProvider<AsyncMyArtist, List<ArtistModel>> {
+  const AsyncMyArtistProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'asyncVoteArtistListProvider',
+        name: r'asyncMyArtistProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$asyncVoteArtistListHash();
+  String debugGetCreateSourceHash() => _$asyncMyArtistHash();
 
   @$internal
   @override
-  AsyncVoteArtistList create() => AsyncVoteArtistList();
+  AsyncMyArtist create() => AsyncMyArtist();
 }
 
-String _$asyncVoteArtistListHash() =>
-    r'2ea7debfbdcf6aa3c5a068166b9f5d2970e5c431';
+String _$asyncMyArtistHash() => r'e384848ddee1e2def699f040c200d219856f72fd';
 
-abstract class _$AsyncVoteArtistList extends $AsyncNotifier<List<ArtistModel>> {
+abstract class _$AsyncMyArtist extends $AsyncNotifier<List<ArtistModel>> {
   FutureOr<List<ArtistModel>> build();
   @$mustCallSuper
   @override

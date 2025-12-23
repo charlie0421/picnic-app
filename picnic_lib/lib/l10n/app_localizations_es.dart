@@ -968,6 +968,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get title_select_language => 'Seleccione un idioma';
 
   @override
+  String get toast_bookmark_added => 'Agregado a marcadores.';
+
+  @override
+  String get toast_bookmark_removed => 'Eliminado de marcadores.';
+
+  @override
   String get toast_max_five_celeb =>
       'Puede agregar hasta cinco de sus propios artistas.';
 

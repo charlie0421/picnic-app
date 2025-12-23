@@ -957,6 +957,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get title_select_language => 'Chọn một ngôn ngữ';
 
   @override
+  String get toast_bookmark_added => 'Đã thêm vào dấu trang.';
+
+  @override
+  String get toast_bookmark_removed => 'Đã xóa khỏi dấu trang.';
+
+  @override
   String get toast_max_five_celeb =>
       'Bạn có thể thêm tối đa năm nghệ sĩ của riêng bạn.';
 

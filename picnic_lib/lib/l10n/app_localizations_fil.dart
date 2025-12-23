@@ -969,6 +969,12 @@ class AppLocalizationsFil extends AppLocalizations {
   String get title_select_language => 'Pumili ng isang wika';
 
   @override
+  String get toast_bookmark_added => 'Idinagdag sa mga bookmark.';
+
+  @override
+  String get toast_bookmark_removed => 'Inalis mula sa mga bookmark.';
+
+  @override
   String get toast_max_five_celeb =>
       'Maaari kang magdagdag ng hanggang sa lima sa iyong sariling mga artista.';
 

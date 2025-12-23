@@ -1211,6 +1211,14 @@
   "@title_select_language": {
     "description": "Auto-generated metadata for key 'title_select_language'."
   },
+  "toast_bookmark_added": "已加入書籤。",
+  "@toast_bookmark_added": {
+    "description": "Toast message when bookmark is added successfully."
+  },
+  "toast_bookmark_removed": "已從書籤中移除。",
+  "@toast_bookmark_removed": {
+    "description": "Toast message when bookmark is removed successfully."
+  },
   "toast_max_five_celeb": "您最多可以添加五位自己的艺术家。",
   "@toast_max_five_celeb": {
     "description": "Auto-generated metadata for key 'toast_max_five_celeb'."

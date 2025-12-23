@@ -1210,6 +1210,14 @@
   "@title_select_language": {
     "description": "Auto-generated metadata for key 'title_select_language'."
   },
+  "toast_bookmark_added": "ブックマークに追加しました。",
+  "@toast_bookmark_added": {
+    "description": "Toast message when bookmark is added successfully."
+  },
+  "toast_bookmark_removed": "ブックマークを解除しました。",
+  "@toast_bookmark_removed": {
+    "description": "Toast message when bookmark is removed successfully."
+  },
   "toast_max_five_celeb": "マイアーティストは最大5人まで追加できます。",
   "@toast_max_five_celeb": {
     "description": "Auto-generated metadata for key 'toast_max_five_celeb'."

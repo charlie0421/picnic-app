@@ -926,6 +926,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get title_select_language => '언어 선택';
 
   @override
+  String get toast_bookmark_added => '북마크에 추가되었습니다.';
+
+  @override
+  String get toast_bookmark_removed => '북마크가 해제되었습니다.';
+
+  @override
   String get toast_max_five_celeb => '최대 5명의 아티스트를 추가할 수 있습니다.';
 
   @override

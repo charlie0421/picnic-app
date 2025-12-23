@@ -60,7 +60,7 @@ final class AsyncVoteListProvider
   }
 }
 
-String _$asyncVoteListHash() => r'2f112c869d069673cfe222a38e2aebd274a71ed2';
+String _$asyncVoteListHash() => r'c6b87882fb8848817332b23fa4439cde7fc4ee31';
 
 final class AsyncVoteListFamily extends $Family
     with

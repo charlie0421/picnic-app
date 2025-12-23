@@ -959,6 +959,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get title_select_language => 'Pilih bahasa';
 
   @override
+  String get toast_bookmark_added => 'Ditambahkan ke bookmark.';
+
+  @override
+  String get toast_bookmark_removed => 'Dihapus dari bookmark.';
+
+  @override
   String get toast_max_five_celeb =>
       'Anda dapat menambahkan hingga lima artis Anda sendiri.';
 

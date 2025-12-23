@@ -926,6 +926,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get title_select_language => '言語の選択';
 
   @override
+  String get toast_bookmark_added => 'ブックマークに追加しました。';
+
+  @override
+  String get toast_bookmark_removed => 'ブックマークを解除しました。';
+
+  @override
   String get toast_max_five_celeb => 'マイアーティストは最大5人まで追加できます。';
 
   @override

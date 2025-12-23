@@ -76,10 +76,10 @@ class ArtistSelectListView extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<ArtistSelectListView> createState() =>
-      _ArtistSelectListViewState();
+      ArtistSelectListViewState();
 }
 
-class _ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
+class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
   late PagingController<int, ArtistModel> _pagingController;
   static const _pageSize = 20;
   late String _initialSearchQuery;
@@ -156,10 +156,12 @@ class _ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
       }).toList();
     }).toList();
 
-    // PagingController의 value를 업데이트
-    _pagingController.value = _pagingController.value.copyWith(
-      pages: updatedPages,
-    );
+    // PagingController의 value를 업데이트하고 UI 새로고침
+    setState(() {
+      _pagingController.value = _pagingController.value.copyWith(
+        pages: updatedPages,
+      );
+    });
   }
 
   @override

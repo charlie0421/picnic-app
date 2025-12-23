@@ -5,9 +5,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/common/navigator_key.dart';
-import 'package:picnic_lib/presentation/providers/my_page/vote_artist_list_provider.dart';
-import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
+import 'package:picnic_lib/presentation/providers/my_page/my_artist_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/common/artist_select_list_view.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
@@ -39,7 +37,7 @@ class MyArtistPage extends ConsumerStatefulWidget {
 class _MyArtistPageState extends ConsumerState<MyArtistPage>
     with RouteAwareStateMixin<MyArtistPage> {
   String? _currentTitle;
-  final GlobalKey<_ArtistSelectListViewState> _listViewKey = GlobalKey();
+  final GlobalKey<ArtistSelectListViewState> _listViewKey = GlobalKey();
 
   @override
   void initState() {
@@ -67,13 +65,6 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
   }
 
   @override
-  void dispose() {
-    // 페이지를 나갈 때 검색어 초기화
-    ref.read(myArtistSearchQueryProvider.notifier).set('');
-    super.dispose();
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _currentTitle ??= AppLocalizations.of(context).label_mypage_my_artist;
@@ -98,39 +89,38 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
   }
 
   Future<void> _toggleBookmark(ArtistModel artist) async {
+    if (!mounted) return;
+
     try {
-      final provider = ref.read(asyncVoteArtistListProvider.notifier);
+      final provider = ref.read(asyncMyArtistProvider.notifier);
+      final l10n = AppLocalizations.of(context);
 
       if (artist.isBookmarked == true) {
         // 북마크 해제
-        final bookmarkedProvider =
-            ref.read(asyncBookmarkedArtistsProvider.notifier);
-        final success = await provider.unBookmarkArtist(
-          artistId: artist.id,
-          bookmarkedArtistsRef: bookmarkedProvider,
-        );
+        final success = await provider.unBookmarkArtist(artistId: artist.id);
+
+        if (!mounted) return;
 
         if (success) {
           logger.i('북마크 해제됨: ${getLocaleTextFromJson(artist.name)}');
           // 즉시 UI 업데이트
-          (_listViewKey.currentState as dynamic)
-              ?.updateBookmarkState(artist.id, false);
+          _listViewKey.currentState?.updateBookmarkState(artist.id, false);
+          SnackbarUtil().show(l10n.toast_bookmark_removed, context: context);
         }
       } else {
         // 북마크 추가
         final success = await provider.bookmarkArtist(artistId: artist.id);
 
+        if (!mounted) return;
+
         if (success) {
           logger.i('북마크 추가됨: ${getLocaleTextFromJson(artist.name)}');
           // 즉시 UI 업데이트
-          (_listViewKey.currentState as dynamic)
-              ?.updateBookmarkState(artist.id, true);
+          _listViewKey.currentState?.updateBookmarkState(artist.id, true);
+          SnackbarUtil().show(l10n.toast_bookmark_added, context: context);
         } else {
           logger.w('북마크 추가 실패 (최대 5개 제한)');
-          SnackbarUtil().show(
-            AppLocalizations.of(navigatorKey.currentContext!)
-                .toast_max_five_celeb,
-          );
+          SnackbarUtil().show(l10n.toast_max_five_celeb, context: context);
         }
       }
     } catch (e) {
@@ -159,6 +149,3 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
     );
   }
 }
-
-// GlobalKey 사용을 위한 타입 별칭
-typedef _ArtistSelectListViewState = ConsumerState<ArtistSelectListView>;

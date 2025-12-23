@@ -956,6 +956,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get title_select_language => 'Select a language';
 
   @override
+  String get toast_bookmark_added => 'Added to bookmarks.';
+
+  @override
+  String get toast_bookmark_removed => 'Removed from bookmarks.';
+
+  @override
   String get toast_max_five_celeb =>
       'You can add up to five of your own artists.';
 
@@ -2698,6 +2704,12 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get title_select_language => 'একটি ভাষা নির্বাচন করুন';
+
+  @override
+  String get toast_bookmark_added => 'বুকমার্কে যোগ করা হয়েছে।';
+
+  @override
+  String get toast_bookmark_removed => 'বুকমার্ক থেকে সরানো হয়েছে।';
 
   @override
   String get toast_max_five_celeb =>

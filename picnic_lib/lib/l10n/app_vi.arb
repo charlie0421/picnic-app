@@ -1211,6 +1211,14 @@
   "@title_select_language": {
     "description": "Auto-generated metadata for key 'title_select_language'."
   },
+  "toast_bookmark_added": "Đã thêm vào dấu trang.",
+  "@toast_bookmark_added": {
+    "description": "Toast message when bookmark is added successfully."
+  },
+  "toast_bookmark_removed": "Đã xóa khỏi dấu trang.",
+  "@toast_bookmark_removed": {
+    "description": "Toast message when bookmark is removed successfully."
+  },
   "toast_max_five_celeb": "Bạn có thể thêm tối đa năm nghệ sĩ của riêng bạn.",
   "@toast_max_five_celeb": {
     "description": "Auto-generated metadata for key 'toast_max_five_celeb'."
