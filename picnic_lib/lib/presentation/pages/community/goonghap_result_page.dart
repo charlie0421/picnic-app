@@ -222,126 +222,81 @@ class _GoonghapResultPageState
   }
 
   void _openGoonghap(String goonghapId) async {
+    if (!mounted) return;
+
+    OverlayLoadingProgress.start(
+      context,
+      barrierDismissible: false,
+      color: AppColors.primary500,
+    );
+
     try {
-      // 호환성 결과 열기 전에 로딩바 표시
-      if (!mounted) return;
-
-      OverlayLoadingProgress.start(
-        context,
-        barrierDismissible: false,
-        color: AppColors.primary500,
-      );
-
-      // 첫 번째 비동기 작업 전 mounted 체크
-      if (!mounted) {
-        OverlayLoadingProgress.stop();
-        return;
-      }
-
+      // 사용자 프로필 확인 (잔액 체크용)
       final userProfile = await ref
           .read(userInfoProvider.notifier)
           .getUserProfiles();
 
-      // 첫 번째 비동기 작업 후 mounted 체크
       if (!mounted) {
         OverlayLoadingProgress.stop();
         return;
       }
 
-      if (userProfile == null) {
+      if (userProfile == null || userProfile.id == null) {
         OverlayLoadingProgress.stop();
         showSimpleDialog(
           content: AppLocalizations.of(context).message_error_occurred,
           onOk: () {
-            if (mounted) {
-              Navigator.of(context).pop();
-            }
+            if (mounted) Navigator.of(context).pop();
           },
         );
         return;
       }
 
+      // 잔액 부족 사전 체크 (불필요한 API 호출 방지)
       if ((userProfile.starCandy ?? 0) < 100) {
         OverlayLoadingProgress.stop();
-        showSimpleDialog(
-          title: AppLocalizations.of(context).fortune_lack_of_star_candy_title,
-          content: AppLocalizations.of(
-            context,
-          ).fortune_lack_of_star_candy_message,
-          onOk: () {
-            if (mounted) {
-              // Vote 포탈로 전환 후 Store 탭(인덱스 3)으로 이동
-              ref.read(navigationInfoProvider.notifier).setPortal(PortalType.vote);
-              ref.read(navigationInfoProvider.notifier).setVoteBottomNavigationIndex(3);
-              Navigator.of(context).pop();
-            }
-          },
-        );
+        _showInsufficientBalanceDialog();
         return;
       }
 
-      // Supabase 함수 호출 전 mounted 체크
-      if (!mounted) {
-        OverlayLoadingProgress.stop();
-        return;
-      }
-
-      await supabase.functions.invoke(
-        'open-goonghap',
-        body: {'userId': userProfile.id, 'goonghapId': goonghapId},
+      // Provider를 통한 구매 처리
+      final result = await ref.read(goonghapProvider.notifier).openGoonghap(
+        goonghapId: goonghapId,
+        userId: userProfile.id!,
       );
 
-      // Supabase 함수 호출 후 mounted 체크
-      if (!mounted) {
-        OverlayLoadingProgress.stop();
-        return;
-      }
-
-      final updatedProfile = await ref
-          .read(userInfoProvider.notifier)
-          .getUserProfiles();
-
-      // 두 번째 getUserProfiles 호출 후 mounted 체크
-      if (!mounted) {
-        OverlayLoadingProgress.stop();
-        return;
-      }
-
-      if (updatedProfile == null) {
-        throw Exception('Failed to get updated user profile');
-      }
-
-      await _refreshData();
-
-      // 모든 비동기 작업 완료 후 mounted 체크
       if (!mounted) {
         OverlayLoadingProgress.stop();
         return;
       }
 
       OverlayLoadingProgress.stop();
-      showSimpleDialog(
-        contentWidget: Column(
-          children: [
-            Text(AppLocalizations.of(context).goonghap_remain_star_candy),
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  package: 'picnic_lib',
-                  'assets/icons/store/star_100.png',
-                  width: 36,
-                ),
-                Text(
-                  '${updatedProfile.starCandy}',
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
+
+      switch (result) {
+        case OpenGoonghapResult.success:
+          // 잔액 업데이트 후 표시
+          final updatedProfile = await ref
+              .read(userInfoProvider.notifier)
+              .getUserProfiles();
+          if (mounted && updatedProfile != null) {
+            _showSuccessDialog(updatedProfile.starCandy ?? 0);
+          }
+          break;
+
+        case OpenGoonghapResult.alreadyPaid:
+          // 이미 구매됨 - UI만 새로고침 (별사탕 차감 없음)
+          break;
+
+        case OpenGoonghapResult.insufficientBalance:
+          _showInsufficientBalanceDialog();
+          break;
+
+        case OpenGoonghapResult.error:
+          await _showErrorDialog(
+            AppLocalizations.of(context).message_error_occurred,
+          );
+          break;
+      }
     } catch (e, s) {
       logger.e('Error opening goonghap', error: e, stackTrace: s);
       if (mounted) {
@@ -350,8 +305,47 @@ class _GoonghapResultPageState
           AppLocalizations.of(context).message_error_occurred,
         );
       }
-      rethrow;
     }
+  }
+
+  void _showInsufficientBalanceDialog() {
+    showSimpleDialog(
+      title: AppLocalizations.of(context).fortune_lack_of_star_candy_title,
+      content: AppLocalizations.of(context).fortune_lack_of_star_candy_message,
+      onOk: () {
+        if (mounted) {
+          // Vote 포탈로 전환 후 Store 탭(인덱스 3)으로 이동
+          ref.read(navigationInfoProvider.notifier).setPortal(PortalType.vote);
+          ref.read(navigationInfoProvider.notifier).setVoteBottomNavigationIndex(3);
+          Navigator.of(context).pop();
+        }
+      },
+    );
+  }
+
+  void _showSuccessDialog(int remainingStarCandy) {
+    showSimpleDialog(
+      contentWidget: Column(
+        children: [
+          Text(AppLocalizations.of(context).goonghap_remain_star_candy),
+          SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                package: 'picnic_lib',
+                'assets/icons/store/star_100.png',
+                width: 36,
+              ),
+              Text(
+                '$remainingStarCandy',
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override

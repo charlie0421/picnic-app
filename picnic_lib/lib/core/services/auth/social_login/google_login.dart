@@ -25,17 +25,7 @@ class GoogleLogin implements SocialLogin {
       );
       logger.d('Google Sign In attempt result: $account');
 
-      // 시뮬레이터에서 특히 null 반환이 빈번함 - 명시적 체크 필요
-      if (account == null) {
-        logger.w('Google Sign In returned null account (user may have canceled or simulator issue)');
-        throw PicnicAuthExceptions.canceled();
-      }
-
       final googleAuth = account.authentication;
-      if (googleAuth == null) {
-        logger.w('Google authentication tokens are null');
-        throw PicnicAuthExceptions.invalidToken();
-      }
       logger.d('Google authentication tokens extracted');
 
       return SocialLoginResult(

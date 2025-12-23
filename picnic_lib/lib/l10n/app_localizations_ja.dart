@@ -145,40 +145,40 @@ class AppLocalizationsJa extends AppLocalizations {
   String get goonghap_style_title => 'Goong-Hapスタイル';
 
   @override
-  String get goonghap_time_slot1 => '子の刻(ね)|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => '子の刻(ね)|(23:00-01:00)|🐀';
 
   @override
-  String get goonghap_time_slot10 => '酉の刻(とり)|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => '酉の刻(とり)|(17:00-19:00)|🐔';
 
   @override
-  String get goonghap_time_slot11 => '戌の刻(いぬ)|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => '戌の刻(いぬ)|(19:00-21:00)|🐕';
 
   @override
-  String get goonghap_time_slot12 => '亥の刻(い)|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => '亥の刻(い)|(21:00-23:00)|🐖';
 
   @override
-  String get goonghap_time_slot2 => '丑の刻(うし)|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => '丑の刻(うし)|(01:00-03:00)|🐂';
 
   @override
-  String get goonghap_time_slot3 => '寅の刻(とら)|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => '寅の刻(とら)|(03:00-05:00)|🐅';
 
   @override
-  String get goonghap_time_slot4 => '卯の刻(う)|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => '卯の刻(う)|(05:00-07:00)|🐇';
 
   @override
-  String get goonghap_time_slot5 => '辰の刻(たつ)|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => '辰の刻(たつ)|(07:00-09:00)|🐉';
 
   @override
-  String get goonghap_time_slot6 => '巳の刻(み)|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => '巳の刻(み)|(09:00-11:00)|🐍';
 
   @override
-  String get goonghap_time_slot7 => '午の刻(うま)|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => '午の刻(うま)|(11:00-13:00)|🐎';
 
   @override
-  String get goonghap_time_slot8 => '未の刻(ひつじ)|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => '未の刻(ひつじ)|(13:00-15:00)|🐑';
 
   @override
-  String get goonghap_time_slot9 => '申の刻(さる)|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => '申の刻(さる)|(15:00-17:00)|🐒';
 
   @override
   String get goonghap_tips_title => 'Goong-Hapのヒント';

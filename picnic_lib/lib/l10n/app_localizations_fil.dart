@@ -150,40 +150,40 @@ class AppLocalizationsFil extends AppLocalizations {
   String get goonghap_style_title => 'Mga istilo ng Goong-Hap';
 
   @override
-  String get goonghap_time_slot1 => 'Oras ng daga|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => 'Oras ng daga|(23:00-01:00)|🐀';
 
   @override
-  String get goonghap_time_slot10 => 'Oras ng tandang|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => 'Oras ng tandang|(17:00-19:00)|🐔';
 
   @override
-  String get goonghap_time_slot11 => 'Oras ng Aso|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => 'Oras ng Aso|(19:00-21:00)|🐕';
 
   @override
-  String get goonghap_time_slot12 => 'Oras ng Baboy-ramo|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => 'Oras ng Baboy-ramo|(21:00-23:00)|🐖';
 
   @override
-  String get goonghap_time_slot2 => 'Oras ng baka|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => 'Oras ng baka|(01:00-03:00)|🐂';
 
   @override
-  String get goonghap_time_slot3 => 'Oras ng Tigre|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => 'Oras ng Tigre|(03:00-05:00)|🐅';
 
   @override
-  String get goonghap_time_slot4 => 'Oras ng kuneho|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => 'Oras ng kuneho|(05:00-07:00)|🐇';
 
   @override
-  String get goonghap_time_slot5 => 'Oras ng Dragon|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => 'Oras ng Dragon|(07:00-09:00)|🐉';
 
   @override
-  String get goonghap_time_slot6 => 'Oras ng ahas|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => 'Oras ng ahas|(09:00-11:00)|🐍';
 
   @override
-  String get goonghap_time_slot7 => 'Oras ng kabayo|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => 'Oras ng kabayo|(11:00-13:00)|🐎';
 
   @override
-  String get goonghap_time_slot8 => 'Oras ng tupa|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => 'Oras ng tupa|(13:00-15:00)|🐑';
 
   @override
-  String get goonghap_time_slot9 => 'Oras ng unggoy|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => 'Oras ng unggoy|(15:00-17:00)|🐒';
 
   @override
   String get goonghap_tips_title => 'Mga tip sa Goong-Hap';

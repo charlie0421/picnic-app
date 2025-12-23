@@ -258,4 +258,68 @@ class Goonghap extends _$Goonghap {
       logger.e('Failed to refresh goonghap', error: e, stackTrace: s);
     }
   }
+
+  /// 궁합 결과 구매 (별사탕 차감)
+  ///
+  /// Returns:
+  /// - `OpenGoonghapResult.success`: 구매 성공
+  /// - `OpenGoonghapResult.alreadyPaid`: 이미 구매됨
+  /// - `OpenGoonghapResult.insufficientBalance`: 잔액 부족
+  /// - `OpenGoonghapResult.error`: 오류 발생
+  Future<OpenGoonghapResult> openGoonghap({
+    required String goonghapId,
+    required String userId,
+    int starCandyRequired = 100,
+  }) async {
+    try {
+      // 현재 상태에서 이미 구매된 경우 early return
+      if (state.hasValue && state.value?.id == goonghapId && state.value?.isPaid == true) {
+        return OpenGoonghapResult.alreadyPaid;
+      }
+
+      final response = await supabase.functions.invoke(
+        'open-goonghap',
+        body: {'userId': userId, 'goonghapId': goonghapId},
+      ).timeout(_defaultTimeout);
+
+      if (response.status != 200) {
+        final errorData = response.data as Map<String, dynamic>?;
+        final errorCode = errorData?['code'] as String?;
+
+        // 잔액 부족 에러 처리
+        if (errorCode == 'PAYMENT_FAILED') {
+          final errorMessage = errorData?['message'] as String? ?? '';
+          if (errorMessage.contains('부족') || errorMessage.contains('insufficient')) {
+            return OpenGoonghapResult.insufficientBalance;
+          }
+        }
+
+        logger.e('Open goonghap failed: ${response.data}');
+        return OpenGoonghapResult.error;
+      }
+
+      final data = response.data as Map<String, dynamic>?;
+      final alreadyPaid = data?['alreadyPaid'] == true;
+
+      // 데이터 새로고침
+      await loadGoonghap(goonghapId, forceRefresh: true);
+
+      return alreadyPaid ? OpenGoonghapResult.alreadyPaid : OpenGoonghapResult.success;
+    } catch (e, s) {
+      logger.e('Error opening goonghap', error: e, stackTrace: s);
+      return OpenGoonghapResult.error;
+    }
+  }
+}
+
+/// 궁합 구매 결과
+enum OpenGoonghapResult {
+  /// 구매 성공
+  success,
+  /// 이미 구매됨 (중복 구매 방지)
+  alreadyPaid,
+  /// 잔액 부족
+  insufficientBalance,
+  /// 오류 발생
+  error,
 }

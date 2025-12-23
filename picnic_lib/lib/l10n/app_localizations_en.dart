@@ -147,40 +147,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goonghap_style_title => 'Goong-Hap styles';
 
   @override
-  String get goonghap_time_slot1 => 'Hour of the Rat|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => 'Hour of the Rat|(23:00-01:00)|🐀';
 
   @override
-  String get goonghap_time_slot10 => 'Hour of the Rooster|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => 'Hour of the Rooster|(17:00-19:00)|🐔';
 
   @override
-  String get goonghap_time_slot11 => 'Hour of the Dog|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => 'Hour of the Dog|(19:00-21:00)|🐕';
 
   @override
-  String get goonghap_time_slot12 => 'Hour of the Boar|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => 'Hour of the Boar|(21:00-23:00)|🐖';
 
   @override
-  String get goonghap_time_slot2 => 'Hour of the Ox|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => 'Hour of the Ox|(01:00-03:00)|🐂';
 
   @override
-  String get goonghap_time_slot3 => 'Hour of the Tiger|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => 'Hour of the Tiger|(03:00-05:00)|🐅';
 
   @override
-  String get goonghap_time_slot4 => 'Hour of the Rabbit|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => 'Hour of the Rabbit|(05:00-07:00)|🐇';
 
   @override
-  String get goonghap_time_slot5 => 'Hour of the Dragon|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => 'Hour of the Dragon|(07:00-09:00)|🐉';
 
   @override
-  String get goonghap_time_slot6 => 'Hour of the Snake|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => 'Hour of the Snake|(09:00-11:00)|🐍';
 
   @override
-  String get goonghap_time_slot7 => 'Hour of the Horse|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => 'Hour of the Horse|(11:00-13:00)|🐎';
 
   @override
-  String get goonghap_time_slot8 => 'Hour of the Sheep|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => 'Hour of the Sheep|(13:00-15:00)|🐑';
 
   @override
-  String get goonghap_time_slot9 => 'Hour of the Monkey|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => 'Hour of the Monkey|(15:00-17:00)|🐒';
 
   @override
   String get goonghap_tips_title => 'Goong-Hap tips';

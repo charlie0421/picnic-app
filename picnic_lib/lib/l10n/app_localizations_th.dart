@@ -146,40 +146,40 @@ class AppLocalizationsTh extends AppLocalizations {
   String get goonghap_style_title => 'รูปแบบGoong-Hap';
 
   @override
-  String get goonghap_time_slot1 => 'ชั่วโมงของหนู|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => 'ชั่วโมงของหนู|(23:00-01:00)|🐀';
 
   @override
-  String get goonghap_time_slot10 => 'ชั่วโมงของไก่|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => 'ชั่วโมงของไก่|(17:00-19:00)|🐔';
 
   @override
-  String get goonghap_time_slot11 => 'ชั่วโมงของสุนัข|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => 'ชั่วโมงของสุนัข|(19:00-21:00)|🐕';
 
   @override
-  String get goonghap_time_slot12 => 'ชั่วโมงของหมูป่า|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => 'ชั่วโมงของหมูป่า|(21:00-23:00)|🐖';
 
   @override
-  String get goonghap_time_slot2 => 'ชั่วโมงของวัว|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => 'ชั่วโมงของวัว|(01:00-03:00)|🐂';
 
   @override
-  String get goonghap_time_slot3 => 'ชั่วโมงของเสือ|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => 'ชั่วโมงของเสือ|(03:00-05:00)|🐅';
 
   @override
-  String get goonghap_time_slot4 => 'ชั่วโมงของกระต่าย|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => 'ชั่วโมงของกระต่าย|(05:00-07:00)|🐇';
 
   @override
-  String get goonghap_time_slot5 => 'ชั่วโมงของมังกร|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => 'ชั่วโมงของมังกร|(07:00-09:00)|🐉';
 
   @override
-  String get goonghap_time_slot6 => 'ชั่วโมงของงู|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => 'ชั่วโมงของงู|(09:00-11:00)|🐍';
 
   @override
-  String get goonghap_time_slot7 => 'ชั่วโมงของม้า|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => 'ชั่วโมงของม้า|(11:00-13:00)|🐎';
 
   @override
-  String get goonghap_time_slot8 => 'ชั่วโมงของแกะ|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => 'ชั่วโมงของแกะ|(13:00-15:00)|🐑';
 
   @override
-  String get goonghap_time_slot9 => 'ชั่วโมงของลิง|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => 'ชั่วโมงของลิง|(15:00-17:00)|🐒';
 
   @override
   String get goonghap_tips_title => 'เคล็ดลับGoong-Hap';

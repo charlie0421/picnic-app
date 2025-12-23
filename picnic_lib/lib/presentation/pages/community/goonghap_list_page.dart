@@ -36,7 +36,7 @@ class _GoonghapListPageState extends ConsumerState<GoonghapListPage>
 
   // 성능 최적화를 위한 const 상수 활용
   static const _scrollThreshold = 0.8;
-  static const _padding = EdgeInsets.fromLTRB(16, 24, 16, 80);
+  static const _basePadding = EdgeInsets.fromLTRB(16, 24, 16, 80);
   static const _headerPadding = EdgeInsets.fromLTRB(16, 24, 16, 16);
 
   // 🔧 연타 방지만 - 스크롤 관련 복잡한 로직 제거
@@ -290,7 +290,9 @@ class _GoonghapListPageState extends ConsumerState<GoonghapListPage>
                 children: [
                   ListView.builder(
                     controller: _scrollController,
-                    padding: _padding,
+                    padding: _basePadding.copyWith(
+                      bottom: _basePadding.bottom + MediaQuery.of(context).padding.bottom,
+                    ),
                     itemCount:
                         1 + history.items.length + (history.isLoading ? 1 : 0),
                     itemBuilder: (context, index) {

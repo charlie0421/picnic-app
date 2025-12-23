@@ -146,40 +146,40 @@ class AppLocalizationsId extends AppLocalizations {
   String get goonghap_style_title => 'Gaya Goong-Hap';
 
   @override
-  String get goonghap_time_slot1 => 'Jam Tikus|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => 'Jam Tikus|(23:00-01:00)|🐀';
 
   @override
-  String get goonghap_time_slot10 => 'Jam Ayam Jantan|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => 'Jam Ayam Jantan|(17:00-19:00)|🐔';
 
   @override
-  String get goonghap_time_slot11 => 'Jam Anjing|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => 'Jam Anjing|(19:00-21:00)|🐕';
 
   @override
-  String get goonghap_time_slot12 => 'Jam Babi Hutan|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => 'Jam Babi Hutan|(21:00-23:00)|🐖';
 
   @override
-  String get goonghap_time_slot2 => 'Jam Kerbau|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => 'Jam Kerbau|(01:00-03:00)|🐂';
 
   @override
-  String get goonghap_time_slot3 => 'Jam Harimau|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => 'Jam Harimau|(03:00-05:00)|🐅';
 
   @override
-  String get goonghap_time_slot4 => 'Jam Kelinci|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => 'Jam Kelinci|(05:00-07:00)|🐇';
 
   @override
-  String get goonghap_time_slot5 => 'Jam Naga|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => 'Jam Naga|(07:00-09:00)|🐉';
 
   @override
-  String get goonghap_time_slot6 => 'Jam Ular|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => 'Jam Ular|(09:00-11:00)|🐍';
 
   @override
-  String get goonghap_time_slot7 => 'Jam Kuda|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => 'Jam Kuda|(11:00-13:00)|🐎';
 
   @override
-  String get goonghap_time_slot8 => 'Jam Domba|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => 'Jam Domba|(13:00-15:00)|🐑';
 
   @override
-  String get goonghap_time_slot9 => 'Jam Monyet|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => 'Jam Monyet|(15:00-17:00)|🐒';
 
   @override
   String get goonghap_tips_title => 'Tips Goong-Hap';

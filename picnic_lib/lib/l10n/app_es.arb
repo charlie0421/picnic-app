@@ -176,51 +176,51 @@
   "@goonghap_style_title": {
     "description": "Auto-generated metadata for key 'goonghap_style_title'."
   },
-  "goonghap_time_slot1": "Hora de la rata|(23:30-01:29)|🐀",
+  "goonghap_time_slot1": "Hora de la rata|(23:00-01:00)|🐀",
   "@goonghap_time_slot1": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot1'."
   },
-  "goonghap_time_slot10": "Hora del gallo|(17:30-19:29)|🐔",
+  "goonghap_time_slot10": "Hora del gallo|(17:00-19:00)|🐔",
   "@goonghap_time_slot10": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot10'."
   },
-  "goonghap_time_slot11": "Hora del perro|(19:30-21:29)|🐕",
+  "goonghap_time_slot11": "Hora del perro|(19:00-21:00)|🐕",
   "@goonghap_time_slot11": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot11'."
   },
-  "goonghap_time_slot12": "Hora del jabalí|(21:30-23:29)|🐖",
+  "goonghap_time_slot12": "Hora del jabalí|(21:00-23:00)|🐖",
   "@goonghap_time_slot12": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot12'."
   },
-  "goonghap_time_slot2": "Hora del buey|(01:30-03:29)|🐂",
+  "goonghap_time_slot2": "Hora del buey|(01:00-03:00)|🐂",
   "@goonghap_time_slot2": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot2'."
   },
-  "goonghap_time_slot3": "Hora del tigre|(03:30-05:29)|🐅",
+  "goonghap_time_slot3": "Hora del tigre|(03:00-05:00)|🐅",
   "@goonghap_time_slot3": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot3'."
   },
-  "goonghap_time_slot4": "Hora del conejo|(05:30-07:29)|🐇",
+  "goonghap_time_slot4": "Hora del conejo|(05:00-07:00)|🐇",
   "@goonghap_time_slot4": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot4'."
   },
-  "goonghap_time_slot5": "Hora del dragón|(07:30-09:29)|🐉",
+  "goonghap_time_slot5": "Hora del dragón|(07:00-09:00)|🐉",
   "@goonghap_time_slot5": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot5'."
   },
-  "goonghap_time_slot6": "Hora de la serpiente|(09:30-11:29)|🐍",
+  "goonghap_time_slot6": "Hora de la serpiente|(09:00-11:00)|🐍",
   "@goonghap_time_slot6": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot6'."
   },
-  "goonghap_time_slot7": "Hora del caballo|(11:30-13:29)|🐎",
+  "goonghap_time_slot7": "Hora del caballo|(11:00-13:00)|🐎",
   "@goonghap_time_slot7": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot7'."
   },
-  "goonghap_time_slot8": "Hora de la oveja|(13:30-15:29)|🐑",
+  "goonghap_time_slot8": "Hora de la oveja|(13:00-15:00)|🐑",
   "@goonghap_time_slot8": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot8'."
   },
-  "goonghap_time_slot9": "Hora del mono|(15:30-17:29)|🐒",
+  "goonghap_time_slot9": "Hora del mono|(15:00-17:00)|🐒",
   "@goonghap_time_slot9": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot9'."
   },

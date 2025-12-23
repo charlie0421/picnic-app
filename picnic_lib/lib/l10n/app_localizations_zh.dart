@@ -146,40 +146,40 @@ class AppLocalizationsZh extends AppLocalizations {
   String get goonghap_style_title => 'Goong-Hap styles';
 
   @override
-  String get goonghap_time_slot1 => 'Hour of the Rat|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => 'Hour of the Rat|(23:00-01:00)|🐀';
 
   @override
-  String get goonghap_time_slot10 => 'Hour of the Rooster|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => 'Hour of the Rooster|(17:00-19:00)|🐔';
 
   @override
-  String get goonghap_time_slot11 => 'Hour of the Dog|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => 'Hour of the Dog|(19:00-21:00)|🐕';
 
   @override
-  String get goonghap_time_slot12 => 'Hour of the Boar|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => 'Hour of the Boar|(21:00-23:00)|🐖';
 
   @override
-  String get goonghap_time_slot2 => 'Hour of the Ox|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => 'Hour of the Ox|(01:00-03:00)|🐂';
 
   @override
-  String get goonghap_time_slot3 => 'Hour of the Tiger|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => 'Hour of the Tiger|(03:00-05:00)|🐅';
 
   @override
-  String get goonghap_time_slot4 => 'Hour of the Rabbit|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => 'Hour of the Rabbit|(05:00-07:00)|🐇';
 
   @override
-  String get goonghap_time_slot5 => 'Hour of the Dragon|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => 'Hour of the Dragon|(07:00-09:00)|🐉';
 
   @override
-  String get goonghap_time_slot6 => 'Hour of the Snake|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => 'Hour of the Snake|(09:00-11:00)|🐍';
 
   @override
-  String get goonghap_time_slot7 => 'Hour of the Horse|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => 'Hour of the Horse|(11:00-13:00)|🐎';
 
   @override
-  String get goonghap_time_slot8 => 'Hour of the Sheep|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => 'Hour of the Sheep|(13:00-15:00)|🐑';
 
   @override
-  String get goonghap_time_slot9 => 'Hour of the Monkey|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => 'Hour of the Monkey|(15:00-17:00)|🐒';
 
   @override
   String get goonghap_tips_title => 'Goong-Hap tips';
@@ -1845,40 +1845,40 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get goonghap_style_title => '宫合样式';
 
   @override
-  String get goonghap_time_slot1 => '老鼠的时刻|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => '老鼠的时刻|(23:00-01:00)|🐀';
 
   @override
-  String get goonghap_time_slot10 => '鸡鸣时刻|(17:30-19:29)|🐔|(17:30-19:29)';
+  String get goonghap_time_slot10 => '鸡鸣时刻|(17:00-19:00)|🐔';
 
   @override
-  String get goonghap_time_slot11 => '狗的时刻|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => '狗的时刻|(19:00-21:00)|🐕';
 
   @override
-  String get goonghap_time_slot12 => '野猪的时刻|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => '野猪的时刻|(21:00-23:00)|🐖';
 
   @override
-  String get goonghap_time_slot2 => '牛的时刻|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => '牛的时刻|(01:00-03:00)|🐂';
 
   @override
-  String get goonghap_time_slot3 => '虎啸龙吟|(03:30-05:29)|🐅|(03:30-05:29)';
+  String get goonghap_time_slot3 => '虎啸龙吟|(03:00-05:00)|🐅';
 
   @override
-  String get goonghap_time_slot4 => '兔子的时刻|(05:30-07:29)|🐇🐇';
+  String get goonghap_time_slot4 => '兔子的时刻|(05:00-07:00)|🐇';
 
   @override
-  String get goonghap_time_slot5 => '龙的时刻|(07:30-09:29)|🐉🐉';
+  String get goonghap_time_slot5 => '龙的时刻|(07:00-09:00)|🐉';
 
   @override
-  String get goonghap_time_slot6 => '蛇的时刻|(09:30-11:29)|🐍🐍';
+  String get goonghap_time_slot6 => '蛇的时刻|(09:00-11:00)|🐍';
 
   @override
-  String get goonghap_time_slot7 => '马的时刻|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => '马的时刻|(11:00-13:00)|🐎';
 
   @override
-  String get goonghap_time_slot8 => '羊的时刻|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => '羊的时刻|(13:00-15:00)|🐑';
 
   @override
-  String get goonghap_time_slot9 => '猴年春节|(15:30-17:29)|🐒|(15:30-17:29)';
+  String get goonghap_time_slot9 => '猴年春节|(15:00-17:00)|🐒';
 
   @override
   String get goonghap_tips_title => '宫合提示';
@@ -3481,40 +3481,40 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get goonghap_style_title => '宮合样式';
 
   @override
-  String get goonghap_time_slot1 => '老鼠的时刻|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => '老鼠的时刻|(23:00-01:00)|🐀';
 
   @override
-  String get goonghap_time_slot10 => '鸡鸣时刻|(17:30-19:29)|🐔|(17:30-19:29)';
+  String get goonghap_time_slot10 => '鸡鸣时刻|(17:00-19:00)|🐔';
 
   @override
-  String get goonghap_time_slot11 => '狗的时刻|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => '狗的时刻|(19:00-21:00)|🐕';
 
   @override
-  String get goonghap_time_slot12 => '野猪的时刻|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => '野猪的时刻|(21:00-23:00)|🐖';
 
   @override
-  String get goonghap_time_slot2 => '牛的时刻|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => '牛的时刻|(01:00-03:00)|🐂';
 
   @override
-  String get goonghap_time_slot3 => '虎啸龙吟|(03:30-05:29)|🐅|(03:30-05:29)';
+  String get goonghap_time_slot3 => '虎啸龙吟|(03:00-05:00)|🐅';
 
   @override
-  String get goonghap_time_slot4 => '兔子的时刻|(05:30-07:29)|🐇🐇';
+  String get goonghap_time_slot4 => '兔子的时刻|(05:00-07:00)|🐇';
 
   @override
-  String get goonghap_time_slot5 => '龙的时刻|(07:30-09:29)|🐉🐉';
+  String get goonghap_time_slot5 => '龙的时刻|(07:00-09:00)|🐉';
 
   @override
-  String get goonghap_time_slot6 => '蛇的时刻|(09:30-11:29)|🐍🐍';
+  String get goonghap_time_slot6 => '蛇的时刻|(09:00-11:00)|🐍';
 
   @override
-  String get goonghap_time_slot7 => '马的时刻|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => '马的时刻|(11:00-13:00)|🐎';
 
   @override
-  String get goonghap_time_slot8 => '羊的时刻|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => '羊的时刻|(13:00-15:00)|🐑';
 
   @override
-  String get goonghap_time_slot9 => '猴年春节|(15:30-17:29)|🐒|(15:30-17:29)';
+  String get goonghap_time_slot9 => '猴年春节|(15:00-17:00)|🐒';
 
   @override
   String get goonghap_tips_title => '宮合提示';

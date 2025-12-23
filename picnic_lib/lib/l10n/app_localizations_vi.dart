@@ -147,40 +147,40 @@ class AppLocalizationsVi extends AppLocalizations {
   String get goonghap_style_title => 'Phong cách tương thích';
 
   @override
-  String get goonghap_time_slot1 => 'Giờ của chuột|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => 'Giờ của chuột|(23:00-01:00)|🐀';
 
   @override
-  String get goonghap_time_slot10 => 'Giờ của con gà trống|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => 'Giờ của con gà trống|(17:00-19:00)|🐔';
 
   @override
-  String get goonghap_time_slot11 => 'Giờ của con chó|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => 'Giờ của con chó|(19:00-21:00)|🐕';
 
   @override
-  String get goonghap_time_slot12 => 'Giờ của con lợn|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => 'Giờ của con lợn|(21:00-23:00)|🐖';
 
   @override
-  String get goonghap_time_slot2 => 'Giờ của Trâu|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => 'Giờ của Trâu|(01:00-03:00)|🐂';
 
   @override
-  String get goonghap_time_slot3 => 'Giờ của Hổ|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => 'Giờ của Hổ|(03:00-05:00)|🐅';
 
   @override
-  String get goonghap_time_slot4 => 'Giờ của thỏ|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => 'Giờ của thỏ|(05:00-07:00)|🐇';
 
   @override
-  String get goonghap_time_slot5 => 'Giờ của con rồng|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => 'Giờ của con rồng|(07:00-09:00)|🐉';
 
   @override
-  String get goonghap_time_slot6 => 'Giờ của con rắn|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => 'Giờ của con rắn|(09:00-11:00)|🐍';
 
   @override
-  String get goonghap_time_slot7 => 'Giờ của con ngựa|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => 'Giờ của con ngựa|(11:00-13:00)|🐎';
 
   @override
-  String get goonghap_time_slot8 => 'Giờ của cừu|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => 'Giờ của cừu|(13:00-15:00)|🐑';
 
   @override
-  String get goonghap_time_slot9 => 'Giờ của con khỉ|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => 'Giờ của con khỉ|(15:00-17:00)|🐒';
 
   @override
   String get goonghap_tips_title => 'Mẹo tương thích';

@@ -145,40 +145,40 @@ class AppLocalizationsKo extends AppLocalizations {
   String get goonghap_style_title => '궁합 스타일';
 
   @override
-  String get goonghap_time_slot1 => '자시|(23:30-01:29)|🐀';
+  String get goonghap_time_slot1 => '자시|(23:00-01:00)|🐀';
 
   @override
-  String get goonghap_time_slot10 => '유시|(17:30-19:29)|🐔';
+  String get goonghap_time_slot10 => '유시|(17:00-19:00)|🐔';
 
   @override
-  String get goonghap_time_slot11 => '술시|(19:30-21:29)|🐕';
+  String get goonghap_time_slot11 => '술시|(19:00-21:00)|🐕';
 
   @override
-  String get goonghap_time_slot12 => '해시|(21:30-23:29)|🐖';
+  String get goonghap_time_slot12 => '해시|(21:00-23:00)|🐖';
 
   @override
-  String get goonghap_time_slot2 => '축시|(01:30-03:29)|🐂';
+  String get goonghap_time_slot2 => '축시|(01:00-03:00)|🐂';
 
   @override
-  String get goonghap_time_slot3 => '인시|(03:30-05:29)|🐅';
+  String get goonghap_time_slot3 => '인시|(03:00-05:00)|🐅';
 
   @override
-  String get goonghap_time_slot4 => '묘시|(05:30-07:29)|🐇';
+  String get goonghap_time_slot4 => '묘시|(05:00-07:00)|🐇';
 
   @override
-  String get goonghap_time_slot5 => '진시|(07:30-09:29)|🐉';
+  String get goonghap_time_slot5 => '진시|(07:00-09:00)|🐉';
 
   @override
-  String get goonghap_time_slot6 => '사시|(09:30-11:29)|🐍';
+  String get goonghap_time_slot6 => '사시|(09:00-11:00)|🐍';
 
   @override
-  String get goonghap_time_slot7 => '오시|(11:30-13:29)|🐎';
+  String get goonghap_time_slot7 => '오시|(11:00-13:00)|🐎';
 
   @override
-  String get goonghap_time_slot8 => '미시|(13:30-15:29)|🐑';
+  String get goonghap_time_slot8 => '미시|(13:00-15:00)|🐑';
 
   @override
-  String get goonghap_time_slot9 => '신시|(15:30-17:29)|🐒';
+  String get goonghap_time_slot9 => '신시|(15:00-17:00)|🐒';
 
   @override
   String get goonghap_tips_title => '궁합 팁';
@@ -1423,7 +1423,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '게시판 개설 요청 메시지를 입력하세요.';
 
   @override
-  String get fortune_purchase_by_star_candy => '별사탕로 확인';
+  String get fortune_purchase_by_star_candy => '별사탕으로 확인';
 
   @override
   String get post_minor_board_create_request_message_condition =>
@@ -1436,7 +1436,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get post_minor_board_create_request_message => '* 게시판 개설 요청 메시지';
 
   @override
-  String get goonghap_purchase_confirm_title => '별사탕로 구매';
+  String get goonghap_purchase_confirm_title => '별사탕으로 구매';
 
   @override
   String get post_board_create_request_label => '게시판 개설 요청';

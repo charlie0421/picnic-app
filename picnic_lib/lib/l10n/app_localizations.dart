@@ -386,73 +386,73 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'goonghap_time_slot1'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Rat|(23:30-01:29)|🐀'**
+  /// **'Hour of the Rat|(23:00-01:00)|🐀'**
   String get goonghap_time_slot1;
 
   /// Auto-generated metadata for key 'goonghap_time_slot10'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Rooster|(17:30-19:29)|🐔'**
+  /// **'Hour of the Rooster|(17:00-19:00)|🐔'**
   String get goonghap_time_slot10;
 
   /// Auto-generated metadata for key 'goonghap_time_slot11'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Dog|(19:30-21:29)|🐕'**
+  /// **'Hour of the Dog|(19:00-21:00)|🐕'**
   String get goonghap_time_slot11;
 
   /// Auto-generated metadata for key 'goonghap_time_slot12'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Boar|(21:30-23:29)|🐖'**
+  /// **'Hour of the Boar|(21:00-23:00)|🐖'**
   String get goonghap_time_slot12;
 
   /// Auto-generated metadata for key 'goonghap_time_slot2'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Ox|(01:30-03:29)|🐂'**
+  /// **'Hour of the Ox|(01:00-03:00)|🐂'**
   String get goonghap_time_slot2;
 
   /// Auto-generated metadata for key 'goonghap_time_slot3'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Tiger|(03:30-05:29)|🐅'**
+  /// **'Hour of the Tiger|(03:00-05:00)|🐅'**
   String get goonghap_time_slot3;
 
   /// Auto-generated metadata for key 'goonghap_time_slot4'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Rabbit|(05:30-07:29)|🐇'**
+  /// **'Hour of the Rabbit|(05:00-07:00)|🐇'**
   String get goonghap_time_slot4;
 
   /// Auto-generated metadata for key 'goonghap_time_slot5'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Dragon|(07:30-09:29)|🐉'**
+  /// **'Hour of the Dragon|(07:00-09:00)|🐉'**
   String get goonghap_time_slot5;
 
   /// Auto-generated metadata for key 'goonghap_time_slot6'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Snake|(09:30-11:29)|🐍'**
+  /// **'Hour of the Snake|(09:00-11:00)|🐍'**
   String get goonghap_time_slot6;
 
   /// Auto-generated metadata for key 'goonghap_time_slot7'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Horse|(11:30-13:29)|🐎'**
+  /// **'Hour of the Horse|(11:00-13:00)|🐎'**
   String get goonghap_time_slot7;
 
   /// Auto-generated metadata for key 'goonghap_time_slot8'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Sheep|(13:30-15:29)|🐑'**
+  /// **'Hour of the Sheep|(13:00-15:00)|🐑'**
   String get goonghap_time_slot8;
 
   /// Auto-generated metadata for key 'goonghap_time_slot9'.
   ///
   /// In en, this message translates to:
-  /// **'Hour of the Monkey|(15:30-17:29)|🐒'**
+  /// **'Hour of the Monkey|(15:00-17:00)|🐒'**
   String get goonghap_time_slot9;
 
   /// Auto-generated metadata for key 'goonghap_tips_title'.
