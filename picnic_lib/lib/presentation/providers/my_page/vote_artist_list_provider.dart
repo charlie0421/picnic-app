@@ -25,9 +25,10 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
         throw Exception('User is not authenticated');
       }
 
-      await supabase
-          .from('artist_user_bookmark')
-          .upsert({'artist_id': artistId});
+      await supabase.from('artist_user_bookmark').upsert({
+        'artist_id': artistId,
+        'user_id': supabase.auth.currentUser!.id,
+      });
       await ref
           .read(asyncBookmarkedArtistsProvider.notifier)
           .refreshBookmarkedArtists();
