@@ -143,18 +143,23 @@ class _ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
 
   /// 특정 아티스트의 북마크 상태를 즉시 업데이트합니다.
   void updateBookmarkState(int artistId, bool isBookmarked) {
-    final items = _pagingController.itemList;
-    if (items == null) return;
+    final pages = _pagingController.value.pages;
+    if (pages == null || pages.isEmpty) return;
 
-    final updatedItems = items.map((artist) {
-      if (artist.id == artistId) {
-        return artist.copyWith(isBookmarked: isBookmarked);
-      }
-      return artist;
+    // 각 페이지의 아이템을 업데이트
+    final updatedPages = pages.map((page) {
+      return page.map((artist) {
+        if (artist.id == artistId) {
+          return artist.copyWith(isBookmarked: isBookmarked);
+        }
+        return artist;
+      }).toList();
     }).toList();
 
-    // PagingController의 itemList를 직접 업데이트
-    _pagingController.itemList = updatedItems;
+    // PagingController의 value를 업데이트
+    _pagingController.value = _pagingController.value.copyWith(
+      pages: updatedPages,
+    );
   }
 
   @override
