@@ -49,10 +49,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   bool _isPurchasing = false;
   final Set<String> _currentlyProcessingIDs = {};
 
-  // 🛡️ 연속 구매 성공 다이얼로그 중복 방지
-  final Set<String> _completedTransactionIds = {};
-  static const int _maxCompletedTransactionCache = 20;
-
   @override
   void initState() {
     super.initState();
@@ -365,23 +361,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       '[PurchaseStarCandyState] Processing: ${purchaseDetails.status} for ${purchaseDetails.productID}',
     );
 
-    // 🍎 iOS 전용: 완료된 구매(purchased/restored)에 대한 추가 중복 체크
-    if (Platform.isIOS &&
-        (purchaseDetails.status == PurchaseStatus.purchased ||
-            purchaseDetails.status == PurchaseStatus.restored)) {
-      final transactionId = purchaseDetails.purchaseID ?? '';
-      if (transactionId.isNotEmpty && _isTransactionAlreadyCompleted(transactionId)) {
-        logger.w(
-          '[PurchaseStarCandyState] 🍎 iOS: 이미 완료된 트랜잭션 스킵: $transactionId',
-        );
-        // 조용히 완료 처리만 해줌
-        if (purchaseDetails.pendingCompletePurchase) {
-          await _purchaseService.inAppPurchaseService.completePurchase(purchaseDetails);
-        }
-        return;
-      }
-    }
-
     if (_shouldForceCompletePending(purchaseDetails)) {
       await _forceCompletePendingPurchase(purchaseDetails);
       return;
@@ -576,17 +555,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 활성 구매 처리
   Future<void> _processActivePurchase(PurchaseDetails purchaseDetails) async {
-    // 🛡️ 트랜잭션 중복 처리 방지 (iOS 연속 결제 문제 해결)
-    final transactionKey = _safetyManager.generateTransactionKey(purchaseDetails);
-    if (!_safetyManager.shouldProcessPurchase(purchaseDetails)) {
-      logger.w('[PurchaseStarCandyState] 🛡️ 이미 처리된 트랜잭션 스킵: $transactionKey');
-      // 조용히 완료 처리만 해줌
-      if (purchaseDetails.pendingCompletePurchase) {
-        await _purchaseService.inAppPurchaseService.completePurchase(purchaseDetails);
-      }
-      return;
-    }
-
     final isActualPurchase = _safetyManager.isActualPurchase(
       purchaseDetails: purchaseDetails,
       isActivePurchasing: _isActivePurchasing,
@@ -604,16 +572,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       () async {
         logger.i('[PurchaseStarCandyState] Purchase successful');
 
-        // 🛡️ 트랜잭션 처리 완료 마킹 (중복 방지)
-        _safetyManager.markTransactionAsProcessed(transactionKey);
-        _purchaseService.inAppPurchaseService.markTransactionAsProcessed(purchaseDetails);
-
-        // 🛡️ 완료된 트랜잭션 ID 캐시에 추가
-        final transactionId =
-            purchaseDetails.purchaseID ??
-            '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
-        _addToCompletedTransactions(transactionId);
-
         // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
         _safetyManager.completePurchaseSession(purchaseDetails.productID);
 
@@ -621,6 +579,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         _cleanupAllTimersOnSuccess(purchaseDetails.productID);
 
         // 🧹 구매 완료 후 클린 작업 수행 (동기 처리로 완전성 보장)
+        final transactionId =
+            purchaseDetails.purchaseID ??
+            '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
+
         // 🧹 동기로 클린 작업 실행 - 완료까지 기다림 (확실성 우선)
         await _safetyManager.performPostPurchaseCleanup(
           productId: purchaseDetails.productID,
@@ -634,24 +596,14 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           _resetPurchaseState();
           _loadingKey.currentState?.hide();
 
-          // 🛡️ 성공 다이얼로그 중복 표시 방지
-          if (_safetyManager.canShowSuccessDialog()) {
-            _safetyManager.onSuccessDialogShown();
-            if (isLatePurchase) {
-              await _dialogHandler.showLatePurchaseSuccessDialog();
-            } else {
-              await _dialogHandler.showSuccessDialog();
-            }
-            _safetyManager.onSuccessDialogDismissed();
+          if (isLatePurchase) {
+            await _dialogHandler.showLatePurchaseSuccessDialog();
           } else {
-            logger.w('[PurchaseStarCandyState] 🛡️ 성공 다이얼로그 중복 표시 방지됨');
+            await _dialogHandler.showSuccessDialog();
           }
         }
       },
       (error) async {
-        // 🍎 iOS 전용: 트랜잭션 실패 마킹 (processingTransactionIds에서 제거)
-        _purchaseService.inAppPurchaseService.markTransactionAsFailed(purchaseDetails);
-
         if (mounted) {
           // ✅ UI만 리셋하고 쿨다운은 유지하여 즉시 연속 구매 차단
           _safetyManager.resetUIOnly(reason: '구매 에러/중복 처리 후 UI만 리셋');
@@ -752,9 +704,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 에러 및 취소 처리
   Future<void> _processErrorAndCancel(PurchaseDetails purchaseDetails) async {
-    // 🍎 iOS 전용: 트랜잭션 실패 마킹 (processingTransactionIds에서 제거)
-    _purchaseService.inAppPurchaseService.markTransactionAsFailed(purchaseDetails);
-
     if (purchaseDetails.status == PurchaseStatus.error) {
       logger.e(
         '[PurchaseStarCandyState] Purchase error: ${purchaseDetails.error?.message}',
@@ -801,31 +750,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         error.contains('이미 처리된 구매') ||
         error.contains('Duplicate') ||
         error.toLowerCase().contains('reused');
-  }
-
-  /// 🍎 iOS 전용: 완료된 트랜잭션 ID를 캐시에 추가
-  void _addToCompletedTransactions(String transactionId) {
-    // 🍎 iOS에서만 적용
-    if (!Platform.isIOS) return;
-
-    _completedTransactionIds.add(transactionId);
-
-    // 캐시 크기 관리
-    if (_completedTransactionIds.length > _maxCompletedTransactionCache) {
-      final toRemove = _completedTransactionIds.take(5).toList();
-      _completedTransactionIds.removeAll(toRemove);
-      logger.d('[PurchaseStarCandyState] 🍎 iOS: 오래된 트랜잭션 캐시 정리: ${toRemove.length}개');
-    }
-
-    logger.i('[PurchaseStarCandyState] 🍎 iOS: 트랜잭션 완료 캐시 추가: $transactionId');
-  }
-
-  /// 🍎 iOS 전용: 트랜잭션이 이미 완료되었는지 확인
-  bool _isTransactionAlreadyCompleted(String transactionId) {
-    // 🍎 iOS에서만 적용
-    if (!Platform.isIOS) return false;
-
-    return _completedTransactionIds.contains(transactionId);
   }
 
   /// 🧹 정상 구매 완료 시 모든 타이머 완전 정리

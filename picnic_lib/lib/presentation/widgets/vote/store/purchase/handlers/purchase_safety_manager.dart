@@ -38,15 +38,6 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   final Map<String, DateTime> _firstPurchaseInSessionByProduct = {}; // productId -> first in session
   final Map<String, DateTime> _productCooldownUntil = {}; // productId -> enforced cooldown until
 
-  // 🛡️ 글로벌 트랜잭션 중복 방지 (iOS 연속 결제 문제 해결)
-  final Set<String> _globalProcessedTransactions = {};
-  static const int _maxGlobalTransactionCache = 50;
-
-  // 🛡️ 성공 다이얼로그 중복 표시 방지
-  bool _isSuccessDialogShowing = false;
-  DateTime? _lastSuccessDialogTime;
-  static const Duration _successDialogCooldown = Duration(seconds: 2);
-
   PurchaseSafetyManager({
     required GlobalKey<LoadingOverlayWithIconState> loadingKey,
     required VoidCallback resetPurchaseState,
@@ -366,57 +357,30 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     }
   }
 
-  /// 🍎 iOS 전용 클린 작업 (강화된 버전)
+  /// 🍎 iOS 전용 클린 작업 (최적화)
   Future<void> _performIOSCleanup(String productId) async {
-    logger.i('🧹 🍎 iOS StoreKit 클린 작업 (강화된 버전)');
+    logger.i('🧹 🍎 iOS StoreKit 클린 작업');
 
     try {
-      // StoreKit 트랜잭션 큐 정리를 위한 짧은 대기
+      // StoreKit 트랜잭션 큐 정리를 위한 짧은 대기 (최적화: 500ms → 300ms)
       await Future.delayed(Duration(milliseconds: 300));
 
-      // 🛡️ 1차: 현재 트랜잭션들 확인 및 완료 처리
+      // 현재 트랜잭션들 확인 및 완료 처리 (최적화: 2초 → 1초)
       final recentPurchases = await InAppPurchase.instance.purchaseStream
           .take(1)
           .timeout(Duration(seconds: 1))
           .first
           .catchError((e) => <PurchaseDetails>[]);
 
-      int completedCount = 0;
       for (var purchase in recentPurchases) {
-        if (purchase.pendingCompletePurchase) {
-          try {
-            await InAppPurchase.instance.completePurchase(purchase);
-            completedCount++;
-            logger.i('🧹 🍎 iOS 잔여 트랜잭션 완료: ${purchase.productID}');
-          } catch (e) {
-            logger.w('🧹 🍎 iOS 트랜잭션 완료 실패: ${purchase.productID} - $e');
-          }
+        if (purchase.productID == productId &&
+            purchase.pendingCompletePurchase) {
+          logger.i('🧹 🍎 iOS 잔여 트랜잭션 완료: ${purchase.productID}');
+          await InAppPurchase.instance.completePurchase(purchase);
         }
       }
 
-      // 🛡️ 2차: 추가 정리 (같은 상품에 대한 중복 트랜잭션 정리)
-      if (completedCount > 0) {
-        await Future.delayed(Duration(milliseconds: 200));
-
-        final additionalPurchases = await InAppPurchase.instance.purchaseStream
-            .take(1)
-            .timeout(Duration(milliseconds: 500))
-            .first
-            .catchError((e) => <PurchaseDetails>[]);
-
-        for (var purchase in additionalPurchases) {
-          if (purchase.productID == productId && purchase.pendingCompletePurchase) {
-            try {
-              await InAppPurchase.instance.completePurchase(purchase);
-              logger.i('🧹 🍎 iOS 추가 잔여 트랜잭션 완료: ${purchase.productID}');
-            } catch (e) {
-              logger.w('🧹 🍎 iOS 추가 트랜잭션 완료 실패: $e');
-            }
-          }
-        }
-      }
-
-      logger.i('🧹 🍎 iOS StoreKit 클린 작업 완료 (정리: $completedCount개)');
+      logger.i('🧹 🍎 iOS StoreKit 클린 작업 완료');
     } catch (e) {
       logger.w('🧹 🍎 iOS 클린 작업 경고: $e');
     }
@@ -730,101 +694,4 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   bool get isSafetyTimeoutTriggered => _safetyTimeoutTriggered;
   DateTime? get safetyTimeoutTime => _safetyTimeoutTime;
   DateTime? get lastPurchaseAttempt => _lastPurchaseTime;
-
-  // 🛡️ ===== iOS 전용: 성공 다이얼로그 중복 방지 메서드들 =====
-
-  /// 🛡️ iOS 전용: 성공 다이얼로그 표시 가능 여부 확인
-  bool canShowSuccessDialog() {
-    // 🍎 iOS에서만 적용
-    if (!Platform.isIOS) return true;
-
-    // 이미 다이얼로그가 표시 중이면 차단
-    if (_isSuccessDialogShowing) {
-      logger.w('🍎 iOS: 성공 다이얼로그 이미 표시 중 - 중복 표시 차단');
-      return false;
-    }
-
-    // 최근에 다이얼로그를 표시했으면 차단
-    if (_lastSuccessDialogTime != null) {
-      final elapsed = DateTime.now().difference(_lastSuccessDialogTime!);
-      if (elapsed < _successDialogCooldown) {
-        logger.w('🍎 iOS: 성공 다이얼로그 쿨다운 중 (${elapsed.inMilliseconds}ms) - 중복 표시 차단');
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  /// 🛡️ iOS 전용: 성공 다이얼로그 표시 시작 기록
-  void onSuccessDialogShown() {
-    // 🍎 iOS에서만 적용
-    if (!Platform.isIOS) return;
-
-    _isSuccessDialogShowing = true;
-    _lastSuccessDialogTime = DateTime.now();
-    logger.i('🍎 iOS: 성공 다이얼로그 표시 시작 기록');
-  }
-
-  /// 🛡️ iOS 전용: 성공 다이얼로그 표시 완료 기록
-  void onSuccessDialogDismissed() {
-    // 🍎 iOS에서만 적용
-    if (!Platform.isIOS) return;
-
-    _isSuccessDialogShowing = false;
-    logger.i('🍎 iOS: 성공 다이얼로그 표시 완료 기록');
-  }
-
-  // 🛡️ ===== iOS 전용: 글로벌 트랜잭션 중복 방지 메서드들 =====
-
-  /// 🛡️ iOS 전용: 트랜잭션이 이미 처리되었는지 확인
-  bool isTransactionAlreadyProcessed(String transactionKey) {
-    // 🍎 iOS에서만 적용
-    if (!Platform.isIOS) return false;
-
-    return _globalProcessedTransactions.contains(transactionKey);
-  }
-
-  /// 🛡️ iOS 전용: 트랜잭션을 처리 완료로 마킹
-  void markTransactionAsProcessed(String transactionKey) {
-    // 🍎 iOS에서만 적용
-    if (!Platform.isIOS) return;
-
-    _globalProcessedTransactions.add(transactionKey);
-
-    // 캐시 크기 관리
-    if (_globalProcessedTransactions.length > _maxGlobalTransactionCache) {
-      final toRemove = _globalProcessedTransactions.take(10).toList();
-      _globalProcessedTransactions.removeAll(toRemove);
-      logger.d('🍎 iOS: 오래된 글로벌 트랜잭션 캐시 정리: ${toRemove.length}개');
-    }
-
-    logger.i('🍎 iOS: 글로벌 트랜잭션 처리 완료 마킹: $transactionKey');
-  }
-
-  /// 🛡️ iOS 전용: 트랜잭션 고유 키 생성
-  String generateTransactionKey(dynamic purchaseDetails) {
-    final productId = purchaseDetails.productID ?? '';
-    final purchaseId = purchaseDetails.purchaseID ?? '';
-    final transactionDate = purchaseDetails.transactionDate ?? '';
-
-    // iOS: transactionDate + productID + purchaseID 조합
-    return '${productId}_${transactionDate}_$purchaseId';
-  }
-
-  /// 🛡️ iOS 전용: 현재 처리 중인 구매인지 확인 (중복 콜백 방지)
-  bool shouldProcessPurchase(dynamic purchaseDetails) {
-    // 🍎 iOS에서만 적용
-    if (!Platform.isIOS) return true;
-
-    final transactionKey = generateTransactionKey(purchaseDetails);
-
-    // 이미 처리된 트랜잭션은 스킵
-    if (isTransactionAlreadyProcessed(transactionKey)) {
-      logger.w('🍎 iOS: 이미 처리된 트랜잭션 - 스킵: $transactionKey');
-      return false;
-    }
-
-    return true;
-  }
 }

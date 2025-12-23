@@ -51,12 +51,6 @@ class InAppPurchaseService {
   // 현재 진행 중인 구매 추적 (타임아웃 시 정리용)
   String? _currentPurchasingProductId;
 
-  // 🛡️ 글로벌 트랜잭션 중복 방지 (iOS 연속 결제 문제 해결)
-  final Set<String> _processedTransactionIds = {};
-  final Set<String> _processingTransactionIds = {};
-  static const int _maxProcessedTransactionCache = 100;
-  DateTime? _lastSuccessfulPurchaseTime;
-
   // 🧪 디버그 모드 설정
   bool debugMode = false;
   String debugTimeoutMode =
@@ -218,39 +212,8 @@ class InAppPurchaseService {
           'Purchase stream event: ${purchaseDetailsList.length} purchases',
         );
 
-        // 🛡️ iOS 전용: 중복 트랜잭션 필터링 (iOS 연속 결제 문제 해결)
-        final filteredPurchases = <PurchaseDetails>[];
+        // 🚨 구매 완료 시 현재 구매 ID 정리
         for (final purchase in purchaseDetailsList) {
-          // 🍎 iOS에서만 중복 필터링 적용
-          if (Platform.isIOS) {
-            final transactionKey = _generateTransactionKey(purchase);
-
-            // 이미 처리 완료된 트랜잭션은 스킵
-            if (_processedTransactionIds.contains(transactionKey)) {
-              logger.w('🍎 iOS: 이미 처리된 트랜잭션 스킵: $transactionKey');
-              // 단, pendingCompletePurchase가 true면 완료 처리만 해줌
-              if (purchase.pendingCompletePurchase) {
-                _silentlyCompletePurchase(purchase);
-              }
-              continue;
-            }
-
-            // 현재 처리 중인 트랜잭션도 스킵
-            if (_processingTransactionIds.contains(transactionKey)) {
-              logger.w('🍎 iOS: 현재 처리 중인 트랜잭션 스킵: $transactionKey');
-              continue;
-            }
-
-            // 처리 대상에 추가
-            if (purchase.status == PurchaseStatus.purchased ||
-                purchase.status == PurchaseStatus.restored) {
-              _processingTransactionIds.add(transactionKey);
-            }
-          }
-
-          filteredPurchases.add(purchase);
-
-          // 🚨 구매 완료 시 현재 구매 ID 정리
           if (purchase.productID == _currentPurchasingProductId &&
               (purchase.status == PurchaseStatus.purchased ||
                   purchase.status == PurchaseStatus.restored ||
@@ -261,12 +224,7 @@ class InAppPurchaseService {
           }
         }
 
-        if (Platform.isIOS && filteredPurchases.isEmpty && purchaseDetailsList.isNotEmpty) {
-          logger.i('🍎 iOS: 모든 트랜잭션이 중복으로 필터링됨 - 콜백 스킵');
-          return;
-        }
-
-        _onPurchaseUpdate(filteredPurchases);
+        _onPurchaseUpdate(purchaseDetailsList);
       },
       onError: (error) {
         logger.e('Purchase stream error: $error');
@@ -283,67 +241,6 @@ class InAppPurchaseService {
 
     _streamInitialized = true;
     logger.d('Purchase stream initialized successfully');
-  }
-
-  /// 🛡️ 트랜잭션 고유 키 생성 (중복 방지용)
-  String _generateTransactionKey(PurchaseDetails purchase) {
-    // iOS: transactionDate + productID + purchaseID 조합
-    // Android: purchaseID만으로도 고유함
-    if (Platform.isIOS) {
-      final transactionDate = purchase.transactionDate ?? '';
-      final purchaseId = purchase.purchaseID ?? '';
-      return '${purchase.productID}_${transactionDate}_$purchaseId';
-    } else {
-      return purchase.purchaseID ?? '${purchase.productID}_${DateTime.now().millisecondsSinceEpoch}';
-    }
-  }
-
-  /// 🛡️ 조용히 구매 완료 처리 (이미 처리된 트랜잭션용)
-  Future<void> _silentlyCompletePurchase(PurchaseDetails purchase) async {
-    try {
-      await InAppPurchase.instance.completePurchase(purchase);
-      logger.i('🧹 중복 트랜잭션 조용히 완료: ${purchase.productID}');
-    } catch (e) {
-      logger.w('🧹 중복 트랜잭션 완료 실패 (무시): $e');
-    }
-  }
-
-  /// 🛡️ iOS 전용: 트랜잭션 처리 완료 마킹 (성공 시 호출)
-  void markTransactionAsProcessed(PurchaseDetails purchase) {
-    // 🍎 iOS에서만 적용
-    if (!Platform.isIOS) return;
-
-    final transactionKey = _generateTransactionKey(purchase);
-    _processingTransactionIds.remove(transactionKey);
-    _processedTransactionIds.add(transactionKey);
-    _lastSuccessfulPurchaseTime = DateTime.now();
-
-    // 캐시 크기 관리
-    if (_processedTransactionIds.length > _maxProcessedTransactionCache) {
-      final toRemove = _processedTransactionIds.take(20).toList();
-      _processedTransactionIds.removeAll(toRemove);
-      logger.d('🍎 iOS: 오래된 트랜잭션 캐시 정리: ${toRemove.length}개');
-    }
-
-    logger.i('🍎 iOS: 트랜잭션 처리 완료 마킹: $transactionKey');
-  }
-
-  /// 🛡️ iOS 전용: 트랜잭션 처리 실패 마킹 (에러/취소 시 호출)
-  void markTransactionAsFailed(PurchaseDetails purchase) {
-    // 🍎 iOS에서만 적용
-    if (!Platform.isIOS) return;
-
-    final transactionKey = _generateTransactionKey(purchase);
-    _processingTransactionIds.remove(transactionKey);
-    // 실패한 트랜잭션은 processedTransactionIds에 추가하지 않음 (재시도 가능)
-    logger.i('🍎 iOS: 트랜잭션 처리 실패 마킹: $transactionKey');
-  }
-
-  /// 🛡️ iOS 전용: 마지막 성공 구매 시간 확인 (연속 구매 감지용)
-  bool isRecentSuccessfulPurchase({Duration within = const Duration(seconds: 3)}) {
-    if (!Platform.isIOS) return false;
-    if (_lastSuccessfulPurchaseTime == null) return false;
-    return DateTime.now().difference(_lastSuccessfulPurchaseTime!) < within;
   }
 
   void _resetPurchaseTimeout() {
@@ -950,47 +847,10 @@ class InAppPurchaseService {
       await Future.delayed(Duration(seconds: 1));
       await _verifyAndCleanRemaining();
 
-      // 🔥 4단계: iOS 전용 - 모든 pending 트랜잭션 강제 완료
-      if (Platform.isIOS) {
-        await _forceCompleteAllPendingTransactions();
-      }
-
       logger.i('✅ 적극적 백그라운드 정리 완료');
     } catch (e) {
       logger.w('🧹 백그라운드 정리 중 오류 (무시): $e');
       // 백그라운드 작업이므로 실패해도 계속 진행
-    }
-  }
-
-  /// 🛡️ iOS 전용: 모든 pending 트랜잭션 강제 완료
-  Future<void> _forceCompleteAllPendingTransactions() async {
-    if (!Platform.isIOS) return;
-
-    logger.i('🛡️ iOS: 모든 pending 트랜잭션 강제 완료 시작');
-
-    try {
-      final transactions = await SKPaymentQueueWrapper().transactions();
-      if (transactions.isEmpty) {
-        logger.i('🛡️ iOS: 정리할 pending 트랜잭션 없음');
-        return;
-      }
-
-      logger.w('🛡️ iOS: ${transactions.length}개의 pending 트랜잭션 발견. 강제 완료 시작.');
-
-      int completedCount = 0;
-      for (final transaction in transactions) {
-        try {
-          await SKPaymentQueueWrapper().finishTransaction(transaction);
-          completedCount++;
-          logger.i('🛡️ iOS: 트랜잭션 강제 완료: ${transaction.transactionIdentifier}');
-        } catch (e) {
-          logger.w('🛡️ iOS: 트랜잭션 강제 완료 실패: ${transaction.transactionIdentifier} - $e');
-        }
-      }
-
-      logger.i('🛡️ iOS: pending 트랜잭션 강제 완료 종료 ($completedCount/${transactions.length}개)');
-    } catch (e) {
-      logger.w('🛡️ iOS: pending 트랜잭션 강제 완료 중 오류: $e');
     }
   }
 
