@@ -30,10 +30,33 @@ class _PatchRestartDialogListenerState
   bool _isDialogShowing = false;
 
   @override
+  void initState() {
+    super.initState();
+    // 위젯이 마운트된 후 현재 상태 확인 (이미 restartRequired 상태일 수 있음)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkCurrentPatchStatus();
+    });
+  }
+
+  /// 현재 패치 상태 확인 - 이미 restartRequired 상태이면 다이얼로그 표시
+  void _checkCurrentPatchStatus() {
+    if (!mounted) return;
+
+    final currentStatus = ref.read(patchStatusProvider);
+    logger.i('🔍 PatchRestartDialogListener 마운트 시 상태 확인: ${currentStatus.status}, shouldShowDialog: ${currentStatus.shouldShowDialog}');
+
+    if (currentStatus.shouldShowDialog && !_isDialogShowing) {
+      logger.i('📢 마운트 시 재시작 다이얼로그 표시 필요 - 다이얼로그 표시');
+      _showRestartDialog(context);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     ref.listen<PatchStatusInfo>(
       patchStatusProvider,
       (previous, next) {
+        logger.i('🔔 PatchStatusProvider 상태 변경: ${previous?.status} -> ${next.status}, shouldShowDialog: ${next.shouldShowDialog}');
         if (next.shouldShowDialog && !_isDialogShowing) {
           _showRestartDialog(context);
         }
@@ -44,8 +67,12 @@ class _PatchRestartDialogListenerState
   }
 
   Future<void> _showRestartDialog(BuildContext context) async {
-    if (_isDialogShowing) return;
+    if (_isDialogShowing) {
+      logger.i('⚠️ 다이얼로그가 이미 표시 중 - 중복 표시 방지');
+      return;
+    }
 
+    logger.i('🚀 패치 재시작 다이얼로그 표시 시작');
     _isDialogShowing = true;
     ref.read(patchStatusProvider.notifier).markDialogShown();
 
@@ -55,6 +82,7 @@ class _PatchRestartDialogListenerState
       builder: (context) => const PatchRestartDialog(),
     );
 
+    logger.i('✅ 패치 재시작 다이얼로그 닫힘');
     _isDialogShowing = false;
   }
 }
