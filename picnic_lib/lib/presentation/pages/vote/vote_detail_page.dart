@@ -826,68 +826,52 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         ),
         const SizedBox(height: 12),
         if (voteModel.reward != null && widget.votePortal == VotePortal.vote)
-          // 리워드 컨테이너: 타이틀과 동일한 좌우 패딩을 적용해 동일 폭으로 고정
+          // 리워드 컨테이너: 각 리워드를 개별 테두리로 세로 나열
           Padding(
             padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.primary500,
-                  width: 1,
-                ), // 타이틀과 동일 두께
-                borderRadius: BorderRadius.circular(24), // 타이틀과 동일 라운드
-                color: Colors.white,
-              ),
-              child: SizedBox(
-                height: 42,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ...voteModel.reward!.map((rewardModel) {
-                      final thumbnailUrl = rewardModel.thumbnail ?? '';
-                      return GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => showRewardDialog(context, rewardModel),
-                        child: Container(
-                          height: 36,
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(6),
-                                child: SizedBox(
-                                  width: 28,
-                                  height: 28,
-                                  child: thumbnailUrl.isNotEmpty
-                                      ? PicnicCachedNetworkImage(
-                                          imageUrl: thumbnailUrl,
-                                          fit: BoxFit.cover,
-                                          width: 28,
-                                          height: 28,
-                                          memCacheWidth: 56,
-                                          memCacheHeight: 56,
-                                          placeholder: Container(
-                                            width: 28,
-                                            height: 28,
-                                            color: AppColors.grey200,
-                                            child: Icon(
-                                              Icons.card_giftcard,
-                                              size: 12,
-                                              color: AppColors.grey500,
-                                            ),
-                                          ),
-                                          lazyLoadingStrategy:
-                                              LazyLoadingStrategy.none,
-                                          priority: ImagePriority.high,
-                                          timeout: const Duration(seconds: 10),
-                                          maxRetries: 1,
-                                        )
-                                      : Container(
+            child: Column(
+              children: [
+                ...voteModel.reward!.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final rewardModel = entry.value;
+                  final thumbnailUrl = rewardModel.thumbnail ?? '';
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index < voteModel.reward!.length - 1 ? 8 : 0,
+                    ),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => showRewardDialog(context, rewardModel),
+                      child: Container(
+                        width: double.infinity,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColors.primary500,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                          color: Colors.white,
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: thumbnailUrl.isNotEmpty
+                                    ? PicnicCachedNetworkImage(
+                                        imageUrl: thumbnailUrl,
+                                        fit: BoxFit.cover,
+                                        width: 28,
+                                        height: 28,
+                                        memCacheWidth: 56,
+                                        memCacheHeight: 56,
+                                        placeholder: Container(
                                           width: 28,
                                           height: 28,
                                           color: AppColors.grey200,
@@ -897,35 +881,47 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                             color: AppColors.grey500,
                                           ),
                                         ),
-                                ),
+                                        lazyLoadingStrategy:
+                                            LazyLoadingStrategy.none,
+                                        priority: ImagePriority.high,
+                                        timeout: const Duration(seconds: 10),
+                                        maxRetries: 1,
+                                      )
+                                    : Container(
+                                        width: 28,
+                                        height: 28,
+                                        color: AppColors.grey200,
+                                        child: Icon(
+                                          Icons.card_giftcard,
+                                          size: 12,
+                                          color: AppColors.grey500,
+                                        ),
+                                      ),
                               ),
-                              const SizedBox(width: 6),
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 150,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: UnderlinedText(
+                                text: getLocaleTextFromJson(
+                                  rewardModel.title ?? {},
+                                  context,
                                 ),
-                                child: UnderlinedText(
-                                  text: getLocaleTextFromJson(
-                                    rewardModel.title ?? {},
-                                    context,
-                                  ),
-                                  textStyle: getTextStyle(
-                                    AppTypo.caption12R,
-                                    AppColors.grey900,
-                                  ),
-                                  underlineHeight: 1,
-                                  underlineGap: 1,
-                                  maxLines: 1,
+                                textStyle: getTextStyle(
+                                  AppTypo.caption12R,
+                                  AppColors.grey900,
                                 ),
+                                underlineHeight: 1,
+                                underlineGap: 1,
+                                maxLines: 1,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
+                      ),
+                    ),
+                  );
+                }),
+              ],
             ),
           ),
         // 신청 버튼 추가 (예정된 투표와 진행 중인 투표에만 표시)
