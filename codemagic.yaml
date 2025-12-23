@@ -14,13 +14,13 @@ workflows:
         - app_store_connect
         - shorebird-config
         - picnic_env
-      flutter: 3.38.4
+      flutter: 3.38.5
       xcode: latest
       cocoapods: default
       vars:
         APP_NAME: "picnic_app"
         BUNDLE_ID: "io.iconcasting.picnic.app"
-        FLUTTER_VERSION: "3.38.4"
+        FLUTTER_VERSION: "3.38.5"
         ENABLE_SHOREBIRD: "true"
     cache:
       cache_paths:
@@ -346,7 +346,7 @@ workflows:
         - google_play
         - shorebird-config
         - picnic_env
-      flutter: 3.38.4
+      flutter: 3.38.5
       java: 17
       vars:
         PATH: $PATH:$HOME/.shorebird/bin
@@ -354,7 +354,7 @@ workflows:
         # CodeMagic이 android_signing을 인식하도록 강제 설정
         FLUTTER_BUILD_MODE: "release"
         # 명시적 Flutter 버전 고정 (Shorebird 호환성)
-        FLUTTER_VERSION: "3.38.4"
+        FLUTTER_VERSION: "3.38.5"
         ENABLE_SHOREBIRD: "true"
     cache:
       cache_paths:
@@ -617,7 +617,7 @@ workflows:
       groups:
         - shorebird-config
         - picnic_env
-      flutter: 3.38.4
+      flutter: 3.38.5
       xcode: latest
       cocoapods: default
       vars:
@@ -690,7 +690,7 @@ workflows:
             echo "❌ 종료 코드: $PATCH_EXIT_CODE"
             echo "💡 확인사항:"
             echo "  - 기존 릴리즈가 Shorebird에 등록되어 있는지 확인"
-            echo "  - Flutter 버전 호환성 확인 (현재: 3.38.4)"
+            echo "  - Flutter 버전 호환성 확인 (현재: 3.38.5)"
             exit 1
           fi
 
@@ -722,7 +722,7 @@ workflows:
       groups:
         - shorebird-config
         - picnic_env
-      flutter: 3.38.4
+      flutter: 3.38.5
       java: 17
       vars:
         APP_NAME: "picnic_app"
@@ -798,7 +798,7 @@ workflows:
             echo "❌ 종료 코드: $PATCH_EXIT_CODE"
             echo "💡 확인사항:"
             echo "  - 기존 릴리즈가 Shorebird에 등록되어 있는지 확인"
-            echo "  - Flutter 버전 호환성 확인 (현재: 3.38.4)"
+            echo "  - Flutter 버전 호환성 확인 (현재: 3.38.5)"
             echo "  - 네이티브 코드 변경 여부 확인 (Dart 변경만 패치 가능)"
             exit 1
           fi
