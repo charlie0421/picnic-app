@@ -101,34 +101,38 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     });
   }
 
-  /// 페이지 초기화 (복원 구매 예방적 정리 포함)
+  /// 페이지 초기화 (복원 구매 예방적 정리 포함) - 🚀 빠른 초기화 최적화
   Future<void> _initializePage() async {
     final initStartTime = DateTime.now();
     final platform = Theme.of(context).platform;
     logger.i(
-      '[PurchaseStarCandyState] Starting initialization with proactive restore cleanup (${platform.name})',
+      '[PurchaseStarCandyState] Starting initialization (${platform.name})',
     );
 
     if (!mounted) return;
 
     try {
-      _loadingKey.currentState?.show();
+      // 🚀 즉시 초기화 완료 상태로 설정 (사용자 대기 없음)
+      // 복원 정리는 백그라운드에서 진행
+      setState(() {
+        _isInitializing = false;
+        _transactionsCleared = true;
+      });
 
-      await _restoreHandler.performProactiveCleanup();
+      // 🚀 백그라운드에서 복원 정리 수행 (비동기)
+      _restoreHandler.performProactiveCleanup().then((_) {
+        final initEndTime = DateTime.now();
+        final initDuration = initEndTime.difference(initStartTime);
+        logger.i(
+          '[PurchaseStarCandyState] Background cleanup completed - Duration: ${initDuration.inMilliseconds}ms',
+        );
+      }).catchError((e) {
+        logger.w('[PurchaseStarCandyState] Background cleanup error (ignored): $e');
+      });
 
-      final initEndTime = DateTime.now();
-      final initDuration = initEndTime.difference(initStartTime);
       logger.i(
-        '[PurchaseStarCandyState] Initialization completed - Duration: ${initDuration.inMilliseconds}ms',
+        '[PurchaseStarCandyState] Initialization completed immediately',
       );
-
-      if (mounted) {
-        setState(() {
-          _isInitializing = false;
-          _transactionsCleared = true;
-        });
-        _loadingKey.currentState?.hide();
-      }
     } catch (e) {
       logger.e('[PurchaseStarCandyState] Initialization failed: $e');
       if (mounted) {
@@ -136,7 +140,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           _isInitializing = false;
           _transactionsCleared = true;
         });
-        _loadingKey.currentState?.hide();
       }
     }
   }
@@ -361,6 +364,25 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       '[PurchaseStarCandyState] Processing: ${purchaseDetails.status} for ${purchaseDetails.productID}',
     );
 
+    // 🛡️ iOS 전용: Transaction ID 중복 체크 (구매 성공 상태만)
+    if (Platform.isIOS &&
+        (purchaseDetails.status == PurchaseStatus.purchased ||
+            purchaseDetails.status == PurchaseStatus.restored)) {
+      final transactionId = purchaseDetails.purchaseID;
+      if (_safetyManager.isTransactionAlreadyProcessed(transactionId)) {
+        logger.w(
+          '[PurchaseStarCandyState] 🛡️ [iOS] 중복 트랜잭션 무시: $transactionId',
+        );
+        // 트랜잭션은 완료 처리하여 재전달 방지
+        if (purchaseDetails.pendingCompletePurchase) {
+          await _purchaseService.inAppPurchaseService.completePurchase(
+            purchaseDetails,
+          );
+        }
+        return;
+      }
+    }
+
     if (_shouldForceCompletePending(purchaseDetails)) {
       await _forceCompletePendingPurchase(purchaseDetails);
       return;
@@ -572,16 +594,17 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       () async {
         logger.i('[PurchaseStarCandyState] Purchase successful');
 
+        // 🛡️ iOS 전용: Transaction ID를 처리 완료로 마킹 (중복 방지)
+        final transactionId =
+            purchaseDetails.purchaseID ??
+            '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
+        _safetyManager.markTransactionAsProcessed(transactionId);
+
         // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
         _safetyManager.completePurchaseSession(purchaseDetails.productID);
 
         // 🧹 모든 타이머 완전 정리 (정상 구매 완료 시)
         _cleanupAllTimersOnSuccess(purchaseDetails.productID);
-
-        // 🧹 구매 완료 후 클린 작업 수행 (동기 처리로 완전성 보장)
-        final transactionId =
-            purchaseDetails.purchaseID ??
-            '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
 
         // 🧹 동기로 클린 작업 실행 - 완료까지 기다림 (확실성 우선)
         await _safetyManager.performPostPurchaseCleanup(
@@ -596,11 +619,23 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           _resetPurchaseState();
           _loadingKey.currentState?.hide();
 
+          // 🛡️ iOS 전용: 다이얼로그 중복 표시 방지
+          if (!_safetyManager.canShowSuccessDialog(transactionId)) {
+            logger.w(
+              '[PurchaseStarCandyState] 🛡️ [iOS] 성공 다이얼로그 중복 표시 차단',
+            );
+            return;
+          }
+
+          _safetyManager.markSuccessDialogShowing(transactionId);
+
           if (isLatePurchase) {
             await _dialogHandler.showLatePurchaseSuccessDialog();
           } else {
             await _dialogHandler.showSuccessDialog();
           }
+
+          _safetyManager.markSuccessDialogDismissed();
         }
       },
       (error) async {
