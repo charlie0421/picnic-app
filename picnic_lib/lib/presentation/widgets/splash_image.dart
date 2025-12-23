@@ -8,6 +8,7 @@ import 'package:picnic_lib/core/utils/patch_notification_service.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
+import 'package:picnic_lib/presentation/providers/patch_status_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -289,14 +290,16 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
           break;
 
         case shorebird.UpdateStatus.restartRequired:
-          // 이미 다운로드된 패치가 있음 - 자동 재시작
-          logger.i('🔄 재시작이 필요한 패치가 대기 중 - 자동 재시작 진행');
+          // 이미 다운로드된 패치가 있음 - 다이얼로그로 재시작 안내
+          logger.i('🔄 재시작이 필요한 패치가 대기 중 - 다이얼로그 표시 예정');
           _updatePatchInfoProvider({
             'currentPatch': currentPatchNumber,
             'updateDownloaded': true,
             'needsRestart': true,
             'hasUpdate': false,
           });
+          // PatchStatusProvider 업데이트 - 재시작 다이얼로그 표시용
+          _updatePatchStatusProvider(PatchStatus.restartRequired);
           await _restartAppAfterDownload();
           break;
 
@@ -350,9 +353,12 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
         'hasUpdate': false,
       });
 
-      logger.i('✅ 패치 다운로드 완료 - 자동 재시작 진행');
+      // PatchStatusProvider 업데이트 - 재시작 다이얼로그 표시용
+      _updatePatchStatusProvider(PatchStatus.restartRequired);
 
-      // 플랫폼별 자동 재시작
+      logger.i('✅ 패치 다운로드 완료 - 앱 초기화 후 다이얼로그 표시 예정');
+
+      // 플랫폼별 처리
       await _restartAppAfterDownload();
     } catch (e) {
       logger.e('💥 패치 다운로드 실패: $e');
@@ -461,6 +467,38 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       }
     } catch (e) {
       logger.e('💥 PatchInfoProvider 업데이트 실패: $e');
+    }
+  }
+
+  /// PatchStatusProvider 업데이트 헬퍼 메서드 (재시작 다이얼로그 트리거용)
+  void _updatePatchStatusProvider(PatchStatus status) {
+    try {
+      if (context.mounted) {
+        final container = ProviderScope.containerOf(context);
+        final notifier = container.read(patchStatusProvider.notifier);
+
+        switch (status) {
+          case PatchStatus.restartRequired:
+            notifier.setRestartRequired();
+            break;
+          case PatchStatus.upToDate:
+            notifier.setUpToDate();
+            break;
+          case PatchStatus.downloading:
+            notifier.setDownloading();
+            break;
+          case PatchStatus.error:
+            notifier.setError('Unknown error');
+            break;
+          default:
+            break;
+        }
+        logger.i('📊 PatchStatusProvider 업데이트됨: $status');
+      } else {
+        logger.w('⚠️ Context가 mounted되지 않아 PatchStatusProvider 업데이트 스킵');
+      }
+    } catch (e) {
+      logger.e('💥 PatchStatusProvider 업데이트 실패: $e');
     }
   }
 

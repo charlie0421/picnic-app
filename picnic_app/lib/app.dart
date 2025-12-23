@@ -23,6 +23,7 @@ import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
+import 'package:picnic_lib/presentation/widgets/patch_restart_dialog.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
@@ -230,20 +231,23 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final routes = RouteManager.mergeRoutes(_appSpecificRoutes);
 
     // AppBuilder를 사용하여 앱 UI 구성
-    return AppBuilder.buildApp(
-      navigatorKey: navigatorKey,
-      scaffoldKey: _scaffoldKey,
-      routes: routes,
-      title: 'PICNIC',
-      theme: _getCurrentTheme(ref),
-      home: UpdateDialog(child: currentScreen),
-      localizationsDelegates: [
-        // picnic_lib의 ARB 파일 기반 번역 (gen-l10n으로 생성)
-        ...AppLocalizations.localizationsDelegates,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: currentLocale,
-      enableScreenProtector: isScreenProtector,
+    // PatchRestartDialogListener로 감싸서 패치 다운로드 완료 시 재시작 다이얼로그 표시
+    return PatchRestartDialogListener(
+      child: AppBuilder.buildApp(
+        navigatorKey: navigatorKey,
+        scaffoldKey: _scaffoldKey,
+        routes: routes,
+        title: 'PICNIC',
+        theme: _getCurrentTheme(ref),
+        home: UpdateDialog(child: currentScreen),
+        localizationsDelegates: [
+          // picnic_lib의 ARB 파일 기반 번역 (gen-l10n으로 생성)
+          ...AppLocalizations.localizationsDelegates,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: currentLocale,
+        enableScreenProtector: isScreenProtector,
+      ),
     );
   }
 
