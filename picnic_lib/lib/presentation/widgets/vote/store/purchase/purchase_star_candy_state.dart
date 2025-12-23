@@ -589,16 +589,18 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase)',
     );
 
+    // 🛡️ iOS 전용: Transaction ID를 영수증 검증 시작 전에 미리 마킹 (중복 호출 방지)
+    final transactionId =
+        purchaseDetails.purchaseID ??
+        '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
+    if (Platform.isIOS) {
+      _safetyManager.markTransactionAsProcessed(transactionId);
+    }
+
     await _purchaseService.handleOptimizedPurchase(
       purchaseDetails,
       () async {
         logger.i('[PurchaseStarCandyState] Purchase successful');
-
-        // 🛡️ iOS 전용: Transaction ID를 처리 완료로 마킹 (중복 방지)
-        final transactionId =
-            purchaseDetails.purchaseID ??
-            '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
-        _safetyManager.markTransactionAsProcessed(transactionId);
 
         // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
         _safetyManager.completePurchaseSession(purchaseDetails.productID);
