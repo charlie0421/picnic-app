@@ -53,6 +53,9 @@ class _PatchRestartDialogListenerState
 
   @override
   Widget build(BuildContext context) {
+    // 현재 상태를 watch하여 리빌드 시에도 상태 확인
+    final currentStatus = ref.watch(patchStatusProvider);
+
     ref.listen<PatchStatusInfo>(
       patchStatusProvider,
       (previous, next) {
@@ -62,6 +65,20 @@ class _PatchRestartDialogListenerState
         }
       },
     );
+
+    // 리빌드 시 현재 상태 확인 (initState 이후 상태가 변경된 경우 대응)
+    // WidgetsBinding을 사용하여 빌드 완료 후 다이얼로그 표시
+    if (currentStatus.shouldShowDialog && !_isDialogShowing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_isDialogShowing) {
+          final status = ref.read(patchStatusProvider);
+          if (status.shouldShowDialog) {
+            logger.i('📢 빌드 시 재시작 다이얼로그 표시 필요 - 다이얼로그 표시');
+            _showRestartDialog(context);
+          }
+        }
+      });
+    }
 
     return widget.child;
   }
