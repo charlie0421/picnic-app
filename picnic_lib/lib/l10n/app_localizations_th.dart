@@ -1693,4 +1693,31 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get patch_button_ok => 'ตกลง';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      'ดาวน์โหลดอัปเดตใหม่แล้วและพร้อมใช้งาน กรุณาปิดแอปให้สมบูรณ์แล้วเปิดใหม่อีกครั้ง';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return 'รีสตาร์ทอัตโนมัติใน $seconds วินาที...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => 'วิธีปิดแอป:';
+
+  @override
+  String get patch_ios_how_to_close_step1 => '1. ปัดขึ้นจากด้านล่างของหน้าจอ';
+
+  @override
+  String get patch_ios_how_to_close_step2 => '2. หาแอปนี้ในหน้าสลับแอป';
+
+  @override
+  String get patch_ios_how_to_close_step3 => '3. ปัดขึ้นบนแอปเพื่อปิด';
+
+  @override
+  String get patch_button_restart_now => 'รีสตาร์ทตอนนี้';
+
+  @override
+  String get patch_button_understood => 'เข้าใจแล้ว';
 }

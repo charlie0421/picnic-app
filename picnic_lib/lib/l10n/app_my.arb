@@ -2189,5 +2189,42 @@
   "patch_button_ok": "အိုကေ",
   "@patch_button_ok": {
     "description": "OK button for iOS patch dialog"
+  },
+  "patch_update_ios_message_detailed": "အပ်ဒိတ်အသစ်ဒေါင်းလုဒ်ပြီး အသုံးပြုရန်အဆင်သင့်ဖြစ်ပါပြီ။ အက်ပ်ကို လုံးဝပိတ်ပြီး ပြန်ဖွင့်ပါ။",
+  "@patch_update_ios_message_detailed": {
+    "description": "Detailed message for iOS users explaining how to apply patch"
+  },
+  "patch_auto_restart_countdown": "{seconds} စက္ကန့်အတွင်း အလိုအလျောက် restart...",
+  "@patch_auto_restart_countdown": {
+    "description": "Countdown message before auto restart on Android",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "patch_ios_how_to_close_title": "အက်ပ်ပိတ်နည်း:",
+  "@patch_ios_how_to_close_title": {
+    "description": "Title for iOS app close instructions"
+  },
+  "patch_ios_how_to_close_step1": "၁။ မျက်နှာပြင်အောက်ခြေမှ အပေါ်သို့ ပွတ်ဆွဲပါ",
+  "@patch_ios_how_to_close_step1": {
+    "description": "Step 1 for closing app on iOS"
+  },
+  "patch_ios_how_to_close_step2": "၂။ အက်ပ်ပြောင်းစခရင်တွင် ဤအက်ပ်ကိုရှာပါ",
+  "@patch_ios_how_to_close_step2": {
+    "description": "Step 2 for closing app on iOS"
+  },
+  "patch_ios_how_to_close_step3": "၃။ ပိတ်ရန် အက်ပ်ပေါ်တွင် အပေါ်သို့ ပွတ်ဆွဲပါ",
+  "@patch_ios_how_to_close_step3": {
+    "description": "Step 3 for closing app on iOS"
+  },
+  "patch_button_restart_now": "အခု Restart",
+  "@patch_button_restart_now": {
+    "description": "Button to restart app immediately"
+  },
+  "patch_button_understood": "နားလည်ပါပြီ",
+  "@patch_button_understood": {
+    "description": "Button to acknowledge iOS restart instructions"
   }
 }

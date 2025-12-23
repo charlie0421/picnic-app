@@ -1730,4 +1730,34 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get patch_button_ok => 'အိုကေ';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      'အပ်ဒိတ်အသစ်ဒေါင်းလုဒ်ပြီး အသုံးပြုရန်အဆင်သင့်ဖြစ်ပါပြီ။ အက်ပ်ကို လုံးဝပိတ်ပြီး ပြန်ဖွင့်ပါ။';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return '$seconds စက္ကန့်အတွင်း အလိုအလျောက် restart...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => 'အက်ပ်ပိတ်နည်း:';
+
+  @override
+  String get patch_ios_how_to_close_step1 =>
+      '၁။ မျက်နှာပြင်အောက်ခြေမှ အပေါ်သို့ ပွတ်ဆွဲပါ';
+
+  @override
+  String get patch_ios_how_to_close_step2 =>
+      '၂။ အက်ပ်ပြောင်းစခရင်တွင် ဤအက်ပ်ကိုရှာပါ';
+
+  @override
+  String get patch_ios_how_to_close_step3 =>
+      '၃။ ပိတ်ရန် အက်ပ်ပေါ်တွင် အပေါ်သို့ ပွတ်ဆွဲပါ';
+
+  @override
+  String get patch_button_restart_now => 'အခု Restart';
+
+  @override
+  String get patch_button_understood => 'နားလည်ပါပြီ';
 }

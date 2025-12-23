@@ -1724,4 +1724,34 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get patch_button_ok => 'OK';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      'Pembaruan baru telah diunduh dan siap diterapkan. Silakan tutup aplikasi sepenuhnya lalu buka kembali.';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return 'Restart otomatis dalam $seconds detik...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => 'Cara menutup aplikasi:';
+
+  @override
+  String get patch_ios_how_to_close_step1 =>
+      '1. Geser ke atas dari bawah layar';
+
+  @override
+  String get patch_ios_how_to_close_step2 =>
+      '2. Temukan aplikasi ini di pengalih aplikasi';
+
+  @override
+  String get patch_ios_how_to_close_step3 =>
+      '3. Geser ke atas pada aplikasi untuk menutup';
+
+  @override
+  String get patch_button_restart_now => 'Restart Sekarang';
+
+  @override
+  String get patch_button_understood => 'Mengerti';
 }

@@ -3244,6 +3244,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get patch_button_ok;
+
+  /// Detailed message for iOS users explaining how to apply patch
+  ///
+  /// In en, this message translates to:
+  /// **'A new update has been downloaded and is ready to apply. Please completely close the app and reopen it to apply the update.'**
+  String get patch_update_ios_message_detailed;
+
+  /// Countdown message before auto restart on Android
+  ///
+  /// In en, this message translates to:
+  /// **'Auto restart in {seconds} seconds...'**
+  String patch_auto_restart_countdown(int seconds);
+
+  /// Title for iOS app close instructions
+  ///
+  /// In en, this message translates to:
+  /// **'How to close the app:'**
+  String get patch_ios_how_to_close_title;
+
+  /// Step 1 for closing app on iOS
+  ///
+  /// In en, this message translates to:
+  /// **'1. Swipe up from the bottom of the screen'**
+  String get patch_ios_how_to_close_step1;
+
+  /// Step 2 for closing app on iOS
+  ///
+  /// In en, this message translates to:
+  /// **'2. Find this app in the app switcher'**
+  String get patch_ios_how_to_close_step2;
+
+  /// Step 3 for closing app on iOS
+  ///
+  /// In en, this message translates to:
+  /// **'3. Swipe up on the app to close it'**
+  String get patch_ios_how_to_close_step3;
+
+  /// Button to restart app immediately
+  ///
+  /// In en, this message translates to:
+  /// **'Restart Now'**
+  String get patch_button_restart_now;
+
+  /// Button to acknowledge iOS restart instructions
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get patch_button_understood;
 }
 
 class _AppLocalizationsDelegate

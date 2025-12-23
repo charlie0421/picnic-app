@@ -1648,4 +1648,31 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get patch_button_ok => '확인';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      '새 업데이트가 다운로드되어 적용 준비가 완료되었습니다. 앱을 완전히 종료한 후 다시 열어주세요.';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return '$seconds초 후 자동 재시작...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => '앱 종료 방법:';
+
+  @override
+  String get patch_ios_how_to_close_step1 => '1. 화면 하단에서 위로 스와이프';
+
+  @override
+  String get patch_ios_how_to_close_step2 => '2. 앱 전환 화면에서 이 앱 찾기';
+
+  @override
+  String get patch_ios_how_to_close_step3 => '3. 앱 카드를 위로 스와이프하여 종료';
+
+  @override
+  String get patch_button_restart_now => '지금 재시작';
+
+  @override
+  String get patch_button_understood => '알겠습니다';
 }

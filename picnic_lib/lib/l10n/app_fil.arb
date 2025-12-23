@@ -2186,5 +2186,42 @@
   "patch_button_ok": "OK",
   "@patch_button_ok": {
     "description": "OK button for iOS patch dialog"
+  },
+  "patch_update_ios_message_detailed": "Na-download na ang bagong update at handa na i-apply. Pakisara nang buo ang app at buksan muli.",
+  "@patch_update_ios_message_detailed": {
+    "description": "Detailed message for iOS users explaining how to apply patch"
+  },
+  "patch_auto_restart_countdown": "Awtomatikong i-restart sa {seconds} segundo...",
+  "@patch_auto_restart_countdown": {
+    "description": "Countdown message before auto restart on Android",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "patch_ios_how_to_close_title": "Paano isara ang app:",
+  "@patch_ios_how_to_close_title": {
+    "description": "Title for iOS app close instructions"
+  },
+  "patch_ios_how_to_close_step1": "1. Mag-swipe pataas mula sa ibaba ng screen",
+  "@patch_ios_how_to_close_step1": {
+    "description": "Step 1 for closing app on iOS"
+  },
+  "patch_ios_how_to_close_step2": "2. Hanapin ang app na ito sa app switcher",
+  "@patch_ios_how_to_close_step2": {
+    "description": "Step 2 for closing app on iOS"
+  },
+  "patch_ios_how_to_close_step3": "3. Mag-swipe pataas sa app para isara",
+  "@patch_ios_how_to_close_step3": {
+    "description": "Step 3 for closing app on iOS"
+  },
+  "patch_button_restart_now": "I-restart Ngayon",
+  "@patch_button_restart_now": {
+    "description": "Button to restart app immediately"
+  },
+  "patch_button_understood": "Naiintindihan",
+  "@patch_button_understood": {
+    "description": "Button to acknowledge iOS restart instructions"
   }
 }

@@ -1650,4 +1650,31 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get patch_button_ok => 'OK';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      '新しいアップデートがダウンロードされ、適用準備が完了しました。アプリを完全に終了してから再度開いてください。';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return '$seconds秒後に自動再起動...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => 'アプリの終了方法:';
+
+  @override
+  String get patch_ios_how_to_close_step1 => '1. 画面下部から上にスワイプ';
+
+  @override
+  String get patch_ios_how_to_close_step2 => '2. アプリ切り替え画面でこのアプリを探す';
+
+  @override
+  String get patch_ios_how_to_close_step3 => '3. アプリを上にスワイプして終了';
+
+  @override
+  String get patch_button_restart_now => '今すぐ再起動';
+
+  @override
+  String get patch_button_understood => '了解';
 }

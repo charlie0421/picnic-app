@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +10,6 @@ import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 import 'package:universal_platform/universal_platform.dart';
@@ -365,45 +363,28 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
   /// 패치 다운로드 완료 후 플랫폼별 처리
   ///
-  /// Android: Restart.restartApp()으로 앱 프로세스 재시작
-  /// iOS: 앱 계속 진행 (다음 실행 시 패치 자동 적용)
+  /// ⚠️ 스플래시 화면에서는 자동 재시작을 하지 않음
+  /// 앱이 완전히 초기화되기 전에 재시작하면 크래시가 발생할 수 있음.
+  /// 대신 PatchRestartDialogListener가 앱 초기화 완료 후 다이얼로그를 표시함.
   ///
-  /// ⚠️ iOS에서 exit(0)을 호출하면 크래시가 발생할 수 있어 제거함.
-  /// Apple 정책상 프로그래밍적 앱 종료는 App Store 리젝 사유가 될 수 있음.
+  /// iOS: Apple 정책상 프로그래밍적 앱 종료 불가
+  /// Android: 앱 초기화 완료 후 다이얼로그에서 재시작 처리
   Future<void> _restartAppAfterDownload() async {
-    try {
-      if (Platform.isAndroid) {
-        setStateIfMounted(() {
-          _updateStatus = 'Restarting...';
-        });
+    logger.i('📱 패치 다운로드 완료 - 앱 초기화 후 다이얼로그 표시 예정');
 
-        // 메시지 표시 시간
-        await Future.delayed(const Duration(milliseconds: 1000));
+    setStateIfMounted(() {
+      _updateStatus = 'Update ready';
+    });
 
-        logger.i('🔄 Android: 앱 재시작 실행');
-        await Restart.restartApp();
-      } else if (Platform.isIOS) {
-        // iOS: 앱 계속 진행, 다음 실행 시 패치 자동 적용
-        // exit(0) 호출 시 크래시 발생 가능성으로 제거
-        logger.i('📱 iOS: 패치 다운로드 완료 - 다음 실행 시 자동 적용');
+    // 메시지를 잠시 표시 후 앱 초기화 계속 진행
+    await Future.delayed(const Duration(milliseconds: 1500));
 
-        setStateIfMounted(() {
-          _updateStatus = 'Update ready';
-        });
+    setStateIfMounted(() {
+      _updateStatus = '';
+    });
 
-        await Future.delayed(const Duration(milliseconds: 1500));
-
-        setStateIfMounted(() {
-          _updateStatus = '';
-        });
-      }
-    } catch (e) {
-      logger.e('❌ 자동 재시작 실패: $e');
-      // 실패해도 앱은 계속 진행
-      setStateIfMounted(() {
-        _updateStatus = '';
-      });
-    }
+    // 앱 초기화가 완료되면 PatchRestartDialogListener가
+    // patchStatusProvider를 감지하여 재시작 다이얼로그를 표시함
   }
 
   /// 최신 상태인 경우 처리

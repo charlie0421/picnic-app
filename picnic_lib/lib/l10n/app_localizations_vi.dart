@@ -1720,4 +1720,33 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get patch_button_ok => 'OK';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      'Bản cập nhật mới đã được tải xuống và sẵn sàng áp dụng. Vui lòng đóng hoàn toàn ứng dụng và mở lại.';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return 'Tự động khởi động lại sau $seconds giây...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => 'Cách đóng ứng dụng:';
+
+  @override
+  String get patch_ios_how_to_close_step1 => '1. Vuốt lên từ cuối màn hình';
+
+  @override
+  String get patch_ios_how_to_close_step2 =>
+      '2. Tìm ứng dụng này trong trình chuyển đổi ứng dụng';
+
+  @override
+  String get patch_ios_how_to_close_step3 =>
+      '3. Vuốt lên trên ứng dụng để đóng';
+
+  @override
+  String get patch_button_restart_now => 'Khởi động lại ngay';
+
+  @override
+  String get patch_button_understood => 'Đã hiểu';
 }

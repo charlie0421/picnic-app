@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/patch_status_provider.dart';
@@ -58,38 +60,158 @@ class _PatchRestartDialogListenerState
 }
 
 /// 재시작 다이얼로그
-class PatchRestartDialog extends ConsumerWidget {
+///
+/// Android: 3초 카운트다운 후 자동 재시작 (회피 불가)
+/// iOS: 앱 종료 방법 안내와 함께 확인 버튼
+class PatchRestartDialog extends ConsumerStatefulWidget {
   const PatchRestartDialog({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PatchRestartDialog> createState() => _PatchRestartDialogState();
+}
+
+class _PatchRestartDialogState extends ConsumerState<PatchRestartDialog> {
+  Timer? _countdownTimer;
+  int _countdown = 3;
+  bool _isRestarting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Android에서만 카운트다운 시작
+    if (Platform.isAndroid) {
+      _startCountdown();
+    }
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startCountdown() {
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      setState(() {
+        _countdown--;
+      });
+
+      if (_countdown <= 0) {
+        timer.cancel();
+        _performRestart();
+      }
+    });
+  }
+
+  Future<void> _performRestart() async {
+    if (_isRestarting) return;
+
+    setState(() {
+      _isRestarting = true;
+    });
+
+    logger.i('🔄 패치 적용을 위한 앱 재시작 실행');
+
+    try {
+      await ShorebirdUtils.restartAppForPatch();
+    } catch (e) {
+      logger.e('❌ 앱 재시작 실패: $e');
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
+  void _closeDialog() {
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final isIOS = Platform.isIOS;
 
-    return AlertDialog(
-      title: Text(l10n.patch_update_ready_title),
-      content: Text(
-        isIOS ? l10n.patch_update_ios_message : l10n.patch_update_android_message,
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.patch_button_later),
+    if (_isRestarting) {
+      return PopScope(
+        canPop: false,
+        child: AlertDialog(
+          title: Text(l10n.patch_update_ready_title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(l10n.message_setting_patch_restarting),
+            ],
+          ),
         ),
-        if (!isIOS)
-          FilledButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await ShorebirdUtils.restartAppForPatch();
-            },
-            child: Text(l10n.patch_button_restart),
-          ),
-        if (isIOS)
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.patch_button_ok),
-          ),
-      ],
+      );
+    }
+
+    // Android: 백 버튼으로 다이얼로그 닫기 방지
+    return PopScope(
+      canPop: isIOS,
+      child: AlertDialog(
+        title: Text(l10n.patch_update_ready_title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isIOS
+                  ? l10n.patch_update_ios_message_detailed
+                  : l10n.patch_update_android_message,
+            ),
+            if (!isIOS) ...[
+              const SizedBox(height: 16),
+              Text(
+                l10n.patch_auto_restart_countdown(_countdown),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+            if (isIOS) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.patch_ios_how_to_close_title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(l10n.patch_ios_how_to_close_step1),
+                    Text(l10n.patch_ios_how_to_close_step2),
+                    Text(l10n.patch_ios_how_to_close_step3),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          // Android: 버튼 없음 - 자동 재시작만
+          // iOS: 확인 버튼 (앱 수동 종료 필요)
+          if (isIOS)
+            FilledButton(
+              onPressed: _closeDialog,
+              child: Text(l10n.patch_button_understood),
+            ),
+        ],
+      ),
     );
   }
 }

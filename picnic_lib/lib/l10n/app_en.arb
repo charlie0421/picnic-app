@@ -2181,5 +2181,42 @@
   "patch_button_ok": "OK",
   "@patch_button_ok": {
     "description": "OK button for iOS patch dialog"
+  },
+  "patch_update_ios_message_detailed": "A new update has been downloaded and is ready to apply. Please completely close the app and reopen it to apply the update.",
+  "@patch_update_ios_message_detailed": {
+    "description": "Detailed message for iOS users explaining how to apply patch"
+  },
+  "patch_auto_restart_countdown": "Auto restart in {seconds} seconds...",
+  "@patch_auto_restart_countdown": {
+    "description": "Countdown message before auto restart on Android",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "patch_ios_how_to_close_title": "How to close the app:",
+  "@patch_ios_how_to_close_title": {
+    "description": "Title for iOS app close instructions"
+  },
+  "patch_ios_how_to_close_step1": "1. Swipe up from the bottom of the screen",
+  "@patch_ios_how_to_close_step1": {
+    "description": "Step 1 for closing app on iOS"
+  },
+  "patch_ios_how_to_close_step2": "2. Find this app in the app switcher",
+  "@patch_ios_how_to_close_step2": {
+    "description": "Step 2 for closing app on iOS"
+  },
+  "patch_ios_how_to_close_step3": "3. Swipe up on the app to close it",
+  "@patch_ios_how_to_close_step3": {
+    "description": "Step 3 for closing app on iOS"
+  },
+  "patch_button_restart_now": "Restart Now",
+  "@patch_button_restart_now": {
+    "description": "Button to restart app immediately"
+  },
+  "patch_button_understood": "Got it",
+  "@patch_button_understood": {
+    "description": "Button to acknowledge iOS restart instructions"
   }
 }

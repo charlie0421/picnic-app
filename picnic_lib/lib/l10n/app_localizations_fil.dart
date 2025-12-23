@@ -1748,4 +1748,34 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get patch_button_ok => 'OK';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      'Na-download na ang bagong update at handa na i-apply. Pakisara nang buo ang app at buksan muli.';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return 'Awtomatikong i-restart sa $seconds segundo...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => 'Paano isara ang app:';
+
+  @override
+  String get patch_ios_how_to_close_step1 =>
+      '1. Mag-swipe pataas mula sa ibaba ng screen';
+
+  @override
+  String get patch_ios_how_to_close_step2 =>
+      '2. Hanapin ang app na ito sa app switcher';
+
+  @override
+  String get patch_ios_how_to_close_step3 =>
+      '3. Mag-swipe pataas sa app para isara';
+
+  @override
+  String get patch_button_restart_now => 'I-restart Ngayon';
+
+  @override
+  String get patch_button_understood => 'Naiintindihan';
 }

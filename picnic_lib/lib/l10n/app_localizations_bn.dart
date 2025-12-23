@@ -1717,6 +1717,36 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get patch_button_ok => 'ঠিক আছে';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      'নতুন আপডেট ডাউনলোড হয়েছে এবং প্রয়োগের জন্য প্রস্তুত। অনুগ্রহ করে অ্যাপটি সম্পূর্ণ বন্ধ করে আবার খুলুন।';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return '$seconds সেকেন্ডে স্বয়ংক্রিয় রিস্টার্ট...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => 'অ্যাপ বন্ধ করার উপায়:';
+
+  @override
+  String get patch_ios_how_to_close_step1 =>
+      '১. স্ক্রিনের নিচ থেকে উপরে সোয়াইপ করুন';
+
+  @override
+  String get patch_ios_how_to_close_step2 =>
+      '২. অ্যাপ সুইচারে এই অ্যাপটি খুঁজুন';
+
+  @override
+  String get patch_ios_how_to_close_step3 =>
+      '৩. বন্ধ করতে অ্যাপের উপর সোয়াইপ করুন';
+
+  @override
+  String get patch_button_restart_now => 'এখনই রিস্টার্ট';
+
+  @override
+  String get patch_button_understood => 'বুঝেছি';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -3430,4 +3460,34 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get patch_button_ok => 'ঠিক আছে';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      'নতুন আপডেট ডাউনলোড হয়েছে এবং প্রয়োগের জন্য প্রস্তুত। অনুগ্রহ করে অ্যাপটি সম্পূর্ণ বন্ধ করে আবার খুলুন।';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return '$seconds সেকেন্ডে স্বয়ংক্রিয় রিস্টার্ট...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => 'অ্যাপ বন্ধ করার উপায়:';
+
+  @override
+  String get patch_ios_how_to_close_step1 =>
+      '১. স্ক্রিনের নিচ থেকে উপরে সোয়াইপ করুন';
+
+  @override
+  String get patch_ios_how_to_close_step2 =>
+      '২. অ্যাপ সুইচারে এই অ্যাপটি খুঁজুন';
+
+  @override
+  String get patch_ios_how_to_close_step3 =>
+      '৩. বন্ধ করতে অ্যাপের উপর সোয়াইপ করুন';
+
+  @override
+  String get patch_button_restart_now => 'এখনই রিস্টার্ট';
+
+  @override
+  String get patch_button_understood => 'বুঝেছি';
 }

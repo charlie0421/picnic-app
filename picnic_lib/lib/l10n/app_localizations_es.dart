@@ -1736,4 +1736,34 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get patch_button_ok => 'OK';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      'Se ha descargado una nueva actualización y está lista para aplicar. Por favor cierra la aplicación completamente y vuelve a abrirla.';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return 'Reinicio automático en $seconds segundos...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => 'Cómo cerrar la aplicación:';
+
+  @override
+  String get patch_ios_how_to_close_step1 =>
+      '1. Desliza hacia arriba desde la parte inferior de la pantalla';
+
+  @override
+  String get patch_ios_how_to_close_step2 =>
+      '2. Encuentra esta aplicación en el selector de aplicaciones';
+
+  @override
+  String get patch_ios_how_to_close_step3 =>
+      '3. Desliza hacia arriba sobre la aplicación para cerrarla';
+
+  @override
+  String get patch_button_restart_now => 'Reiniciar ahora';
+
+  @override
+  String get patch_button_understood => 'Entendido';
 }

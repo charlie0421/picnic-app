@@ -2182,5 +2182,42 @@
   "patch_button_ok": "OK",
   "@patch_button_ok": {
     "description": "OK button for iOS patch dialog"
+  },
+  "patch_update_ios_message_detailed": "Bản cập nhật mới đã được tải xuống và sẵn sàng áp dụng. Vui lòng đóng hoàn toàn ứng dụng và mở lại.",
+  "@patch_update_ios_message_detailed": {
+    "description": "Detailed message for iOS users explaining how to apply patch"
+  },
+  "patch_auto_restart_countdown": "Tự động khởi động lại sau {seconds} giây...",
+  "@patch_auto_restart_countdown": {
+    "description": "Countdown message before auto restart on Android",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "patch_ios_how_to_close_title": "Cách đóng ứng dụng:",
+  "@patch_ios_how_to_close_title": {
+    "description": "Title for iOS app close instructions"
+  },
+  "patch_ios_how_to_close_step1": "1. Vuốt lên từ cuối màn hình",
+  "@patch_ios_how_to_close_step1": {
+    "description": "Step 1 for closing app on iOS"
+  },
+  "patch_ios_how_to_close_step2": "2. Tìm ứng dụng này trong trình chuyển đổi ứng dụng",
+  "@patch_ios_how_to_close_step2": {
+    "description": "Step 2 for closing app on iOS"
+  },
+  "patch_ios_how_to_close_step3": "3. Vuốt lên trên ứng dụng để đóng",
+  "@patch_ios_how_to_close_step3": {
+    "description": "Step 3 for closing app on iOS"
+  },
+  "patch_button_restart_now": "Khởi động lại ngay",
+  "@patch_button_restart_now": {
+    "description": "Button to restart app immediately"
+  },
+  "patch_button_understood": "Đã hiểu",
+  "@patch_button_understood": {
+    "description": "Button to acknowledge iOS restart instructions"
   }
 }

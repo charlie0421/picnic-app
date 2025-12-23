@@ -1704,6 +1704,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get patch_button_ok => '确定';
+
+  @override
+  String get patch_update_ios_message_detailed => '新更新已下载完成，准备就绪。请完全关闭应用后重新打开。';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return '$seconds秒后自动重启...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => '如何关闭应用:';
+
+  @override
+  String get patch_ios_how_to_close_step1 => '1. 从屏幕底部向上滑动';
+
+  @override
+  String get patch_ios_how_to_close_step2 => '2. 在应用切换界面找到此应用';
+
+  @override
+  String get patch_ios_how_to_close_step3 => '3. 向上滑动关闭应用';
+
+  @override
+  String get patch_button_restart_now => '立即重启';
+
+  @override
+  String get patch_button_understood => '知道了';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3340,6 +3366,32 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get patch_button_ok => '确定';
+
+  @override
+  String get patch_update_ios_message_detailed => '新更新已下载完成，准备就绪。请完全关闭应用后重新打开。';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return '$seconds秒后自动重启...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => '如何关闭应用:';
+
+  @override
+  String get patch_ios_how_to_close_step1 => '1. 从屏幕底部向上滑动';
+
+  @override
+  String get patch_ios_how_to_close_step2 => '2. 在应用切换界面找到此应用';
+
+  @override
+  String get patch_ios_how_to_close_step3 => '3. 向上滑动关闭应用';
+
+  @override
+  String get patch_button_restart_now => '立即重启';
+
+  @override
+  String get patch_button_understood => '知道了';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4976,4 +5028,31 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get patch_button_ok => '確定';
+
+  @override
+  String get patch_update_ios_message_detailed =>
+      '新更新已下載完成，準備就緒。請完全關閉應用程式後重新開啟。';
+
+  @override
+  String patch_auto_restart_countdown(int seconds) {
+    return '$seconds秒後自動重新啟動...';
+  }
+
+  @override
+  String get patch_ios_how_to_close_title => '如何關閉應用程式:';
+
+  @override
+  String get patch_ios_how_to_close_step1 => '1. 從螢幕底部向上滑動';
+
+  @override
+  String get patch_ios_how_to_close_step2 => '2. 在應用程式切換畫面找到此應用程式';
+
+  @override
+  String get patch_ios_how_to_close_step3 => '3. 向上滑動關閉應用程式';
+
+  @override
+  String get patch_button_restart_now => '立即重新啟動';
+
+  @override
+  String get patch_button_understood => '知道了';
 }
