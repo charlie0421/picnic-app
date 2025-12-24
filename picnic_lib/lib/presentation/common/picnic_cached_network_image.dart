@@ -36,6 +36,10 @@ enum ImagePriority {
   high, // 높은 우선순위 (사용자가 현재 보고 있는 이미지)
 }
 
+/// 성공적으로 로딩된 이미지 URL을 추적하는 글로벌 Set
+/// 위젯이 재생성되더라도 이미 로딩된 이미지는 즉시 표시됨
+final Set<String> _successfullyLoadedImageUrls = {};
+
 class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final String imageUrl;
   final double? width;
@@ -221,6 +225,17 @@ class _PicnicCachedNetworkImageState
 
   /// Lazy Loading 초기화
   void _initializeLazyLoading() {
+    // 이미 성공적으로 로딩된 이미지인지 확인
+    final isAlreadyLoaded = _successfullyLoadedImageUrls.contains(widget.imageUrl);
+
+    if (isAlreadyLoaded) {
+      // 이미 로딩된 이미지는 즉시 표시
+      _shouldLoadImage = true;
+      _isImageLoaded = true;
+      _loading = false;
+      return;
+    }
+
     _isImageLoaded = false;
     switch (widget.lazyLoadingStrategy) {
       case LazyLoadingStrategy.none:
@@ -1118,6 +1133,10 @@ class _PicnicCachedNetworkImageState
         : Duration.zero;
     _loadStartTime = null;
     _lastTimeoutLogTimes.remove(url);
+
+    // 성공적으로 로딩된 이미지 URL을 글로벌 Set에 추가
+    // 다음 번 위젯 재생성 시 즉시 표시됨
+    _successfullyLoadedImageUrls.add(widget.imageUrl);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {

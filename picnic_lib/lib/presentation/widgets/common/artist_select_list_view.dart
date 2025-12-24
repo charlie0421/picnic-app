@@ -36,13 +36,10 @@ class ArtistSelectConfig {
   final String errorMessage;
 }
 
-/// 로딩된 이미지 URL을 추적하는 글로벌 Set
-/// 이미 로딩된 이미지는 LazyLoading을 건너뜀
-final Set<String> _loadedImageUrls = {};
-
 /// 공통 아티스트 선택 리스트 뷰 위젯
 ///
 /// 북마크 상태 변경 시 위치 이동과 함께 이미지 로딩을 방지합니다.
+/// PicnicCachedNetworkImage 내부의 글로벌 캐시가 이미지 로딩 상태를 추적합니다.
 class ArtistSelectListView extends ConsumerStatefulWidget {
   const ArtistSelectListView({
     super.key,
@@ -119,11 +116,6 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
       final items = await _fetchPage(0);
       if (!mounted) return;
 
-      // 로딩된 이미지 URL 기록
-      for (final item in items) {
-        _loadedImageUrls.add('artist/${item.id}/image.png');
-      }
-
       setState(() {
         _items.addAll(items);
         _currentPage = 1;
@@ -150,11 +142,6 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
     try {
       final items = await _fetchPage(_currentPage);
       if (!mounted) return;
-
-      // 로딩된 이미지 URL 기록
-      for (final item in items) {
-        _loadedImageUrls.add('artist/${item.id}/image.png');
-      }
 
       setState(() {
         _items.addAll(items);
@@ -206,9 +193,6 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
 
     final item = _items[itemIndex];
     final updatedItem = item.copyWith(isBookmarked: isBookmarked);
-
-    // 이미지 URL이 이미 로딩되었음을 보장
-    _loadedImageUrls.add('artist/$artistId/image.png');
 
     setState(() {
       // 현재 위치에서 제거
@@ -359,7 +343,6 @@ class _ArtistItemWidgetState extends ConsumerState<_ArtistItemWidget>
     final isFirstNonBookmark = shouldShowHeaders && _isFirstNonBookmarkItem();
 
     final imageUrl = 'artist/${widget.item.id}/image.png';
-    final isImageAlreadyLoaded = _loadedImageUrls.contains(imageUrl);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,10 +405,8 @@ class _ArtistItemWidgetState extends ConsumerState<_ArtistItemWidget>
                 height: 48,
                 imageUrl: imageUrl,
                 borderRadius: BorderRadius.circular(24),
-                // 이미 로딩된 이미지는 LazyLoading 비활성화
-                lazyLoadingStrategy: isImageAlreadyLoaded
-                    ? LazyLoadingStrategy.none
-                    : LazyLoadingStrategy.viewport,
+                // PicnicCachedNetworkImage 내부에서 이미 로딩된 이미지를 추적함
+                lazyLoadingStrategy: LazyLoadingStrategy.viewport,
                 priority: ImagePriority.high,
               ),
             ),
