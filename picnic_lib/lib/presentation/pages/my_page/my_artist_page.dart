@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:overlay_support/overlay_support.dart';
+import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/providers/my_page/bookmark_state_provider.dart';
+import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/my_artist_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/common/artist_select_list_view.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 /// 나의 아티스트 검색어 상태 관리 프로바이더
 class MyArtistSearchQueryNotifier extends Notifier<String> {
@@ -88,39 +92,87 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
     });
   }
 
+  /// 토스트 메시지 표시 (overlay_support 사용)
+  void _showToast(String message) {
+    if (!mounted) return;
+    // overlay_support의 showSimpleNotification 사용 - 전역적으로 동작
+    showSimpleNotification(
+      Text(
+        message,
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+      ),
+      background: AppColors.point500,
+      duration: const Duration(seconds: 2),
+      slideDismissDirection: DismissDirection.up,
+    );
+    logger.i('🔔 토스트 표시됨: $message');
+  }
+
+  /// MyPage의 북마크 아티스트 리스트 새로고침
+  void _refreshBookmarkedArtists() {
+    if (!mounted) return;
+    // asyncBookmarkedArtistsProvider를 새로고침하여 MyPage에 반영
+    ref.read(asyncBookmarkedArtistsProvider.notifier).refreshBookmarkedArtists();
+    logger.i('🔖 북마크 아티스트 리스트 새로고침 요청');
+  }
+
+  /// 북마크 상태 업데이트 (UI만 변경, 위치 이동 없음)
+  void _updateBookmarkUI(int artistId, bool isBookmarked) {
+    if (!mounted) return;
+    // UI 상태만 변경 (별 아이콘, 배경색)
+    _listViewKey.currentState?.updateBookmarkState(artistId, isBookmarked);
+    // 캐시 무효화 (다음 페이지 진입 시 서버 데이터 반영)
+    SearchService.invalidateCache('artist_fast');
+    logger.i('🔄 북마크 UI 업데이트 - artistId: $artistId, isBookmarked: $isBookmarked');
+  }
+
   Future<void> _toggleBookmark(ArtistModel artist) async {
     if (!mounted) return;
 
     try {
       final provider = ref.read(asyncMyArtistProvider.notifier);
+      final bookmarkProvider = ref.read(bookmarkStateProvider.notifier);
       final l10n = AppLocalizations.of(context);
 
       if (artist.isBookmarked == true) {
-        // 북마크 해제
+        // 북마크 해제 - 먼저 UI 업데이트 (낙관적 업데이트)
+        bookmarkProvider.updateBookmarkState(artist.id, false);
+
         final success = await provider.unBookmarkArtist(artistId: artist.id);
 
         if (!mounted) return;
 
         if (success) {
           logger.i('북마크 해제됨: ${getLocaleTextFromJson(artist.name)}');
-          // 즉시 UI 업데이트
-          _listViewKey.currentState?.updateBookmarkState(artist.id, false);
-          SnackbarUtil().show(l10n.toast_bookmark_removed, context: context);
+          _showToast(l10n.toast_bookmark_removed);
+          // UI 업데이트 및 캐시 무효화
+          _updateBookmarkUI(artist.id, false);
+          // MyPage의 북마크 리스트도 새로고침
+          _refreshBookmarkedArtists();
+        } else {
+          // 실패 시 롤백
+          bookmarkProvider.updateBookmarkState(artist.id, true);
         }
       } else {
-        // 북마크 추가
+        // 북마크 추가 - 먼저 UI 업데이트 (낙관적 업데이트)
+        bookmarkProvider.updateBookmarkState(artist.id, true);
+
         final success = await provider.bookmarkArtist(artistId: artist.id);
 
         if (!mounted) return;
 
         if (success) {
           logger.i('북마크 추가됨: ${getLocaleTextFromJson(artist.name)}');
-          // 즉시 UI 업데이트
-          _listViewKey.currentState?.updateBookmarkState(artist.id, true);
-          SnackbarUtil().show(l10n.toast_bookmark_added, context: context);
+          _showToast(l10n.toast_bookmark_added);
+          // UI 업데이트 및 캐시 무효화
+          _updateBookmarkUI(artist.id, true);
+          // MyPage의 북마크 리스트도 새로고침
+          _refreshBookmarkedArtists();
         } else {
+          // 실패 시 롤백
+          bookmarkProvider.updateBookmarkState(artist.id, false);
           logger.w('북마크 추가 실패 (최대 5개 제한)');
-          SnackbarUtil().show(l10n.toast_max_five_celeb, context: context);
+          _showToast(l10n.toast_max_five_celeb);
         }
       }
     } catch (e) {

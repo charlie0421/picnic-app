@@ -41,6 +41,7 @@ class SnackbarUtil {
         : scaffoldMessengerKey.currentState;
 
     if (messenger == null) {
+      debugPrint('🔔 SnackbarUtil: messenger is null - scaffoldMessengerKey.currentState: ${scaffoldMessengerKey.currentState}');
       return;
     }
 

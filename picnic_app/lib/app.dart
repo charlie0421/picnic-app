@@ -9,6 +9,7 @@ import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
@@ -55,9 +56,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   // 앱이 이미 초기화되었는지 여부를 추적하는 플래그
   bool _isAppInitialized = false;
 
-  // 스캐폴드 메신저 키
+  // 스캐폴드 메신저 키 - SnackbarUtil과 공유하여 전역 토스트 표시 지원
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
-      GlobalKey<ScaffoldMessengerState>();
+      SnackbarUtil.scaffoldMessengerKey;
 
   // 지원되는 언어 목록은 AppLocalizations.supportedLocales를 단일 소스로 사용
 

@@ -20,7 +20,7 @@ final class AsyncBookmarkedArtistsProvider
         argument: null,
         retry: null,
         name: r'asyncBookmarkedArtistsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -34,7 +34,7 @@ final class AsyncBookmarkedArtistsProvider
 }
 
 String _$asyncBookmarkedArtistsHash() =>
-    r'a4eaa6be24689b8726bb217c13ec30c06edb67ed';
+    r'af371bd90d6b228ab13daecf7769c7f03205df89';
 
 abstract class _$AsyncBookmarkedArtists
     extends $AsyncNotifier<List<ArtistModel>> {

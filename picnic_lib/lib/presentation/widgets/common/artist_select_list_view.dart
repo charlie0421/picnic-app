@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -11,6 +10,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/providers/my_page/bookmark_state_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -27,32 +27,22 @@ class ArtistSelectConfig {
     this.errorMessage = '아티스트 목록을 불러오는데 실패했습니다.',
   });
 
-  /// 북마크 토글 버튼 표시 여부 (나의 아티스트: true, 궁합: false)
   final bool showBookmarkToggle;
-
-  /// 검색 시 섹션 헤더 숨김 여부 (나의 아티스트: false, 궁합: true)
   final bool hideSectionHeaderOnSearch;
-
-  /// 북마크 섹션 제목 ("북마크" or "나의 아티스트")
   final String bookmarkSectionTitle;
-
-  /// 일반 섹션 제목
   final String generalSectionTitle;
-
-  /// 빈 목록 메시지
   final String emptyMessage;
-
-  /// 검색 결과 없음 메시지 템플릿 ({query}가 검색어로 대체됨)
   final String searchEmptyMessageTemplate;
-
-  /// 에러 메시지
   final String errorMessage;
 }
 
+/// 로딩된 이미지 URL을 추적하는 글로벌 Set
+/// 이미 로딩된 이미지는 LazyLoading을 건너뜀
+final Set<String> _loadedImageUrls = {};
+
 /// 공통 아티스트 선택 리스트 뷰 위젯
 ///
-/// 나의 아티스트와 궁합 아티스트 선택 화면에서 공통으로 사용됩니다.
-/// [searchArtistsFast]를 사용하여 빠른 검색 성능을 제공합니다.
+/// 북마크 상태 변경 시 위치 이동과 함께 이미지 로딩을 방지합니다.
 class ArtistSelectListView extends ConsumerStatefulWidget {
   const ArtistSelectListView({
     super.key,
@@ -62,16 +52,9 @@ class ArtistSelectListView extends ConsumerStatefulWidget {
     this.onBookmarkToggle,
   });
 
-  /// 검색어 상태 프로바이더
   final NotifierProvider<Notifier<String>, String> searchQueryProvider;
-
-  /// 위젯 설정
   final ArtistSelectConfig config;
-
-  /// 아티스트 탭 콜백 (궁합에서 사용)
   final void Function(ArtistModel artist)? onArtistTap;
-
-  /// 북마크 토글 콜백 (나의 아티스트에서 사용)
   final Future<void> Function(ArtistModel artist)? onBookmarkToggle;
 
   @override
@@ -80,87 +63,170 @@ class ArtistSelectListView extends ConsumerStatefulWidget {
 }
 
 class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
-  late PagingController<int, ArtistModel> _pagingController;
   static const _pageSize = 20;
+
+  final List<ArtistModel> _items = [];
+  final ScrollController _scrollController = ScrollController();
+
+  int _currentPage = 0;
+  bool _isLoading = false;
+  bool _hasMore = true;
+  String? _error;
   late String _initialSearchQuery;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-
-    // 초기 검색어 저장 (페이지 재진입 시 복원용)
     _initialSearchQuery = ref.read(widget.searchQueryProvider);
+    _scrollController.addListener(_onScroll);
+  }
 
-    _pagingController = PagingController<int, ArtistModel>(
-      getNextPageKey: (state) {
-        if (state.items == null) return 0;
-        final isLastPage =
-            state.items!.length < (state.keys?.last ?? 0 + 1) * _pageSize;
-        if (isLastPage) return null;
-        return (state.keys?.last ?? 0) + 1;
-      },
-      fetchPage: _fetchArtistPage,
-    );
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _isInitialized = true;
+      _loadInitialData();
+    }
   }
 
   @override
   void dispose() {
-    _pagingController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  Future<List<ArtistModel>> _fetchArtistPage(int pageKey) async {
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      _loadMoreData();
+    }
+  }
+
+  Future<void> _loadInitialData() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+      _items.clear();
+      _currentPage = 0;
+      _hasMore = true;
+    });
+
     try {
-      if (!mounted) {
-        return [];
+      final items = await _fetchPage(0);
+      if (!mounted) return;
+
+      // 로딩된 이미지 URL 기록
+      for (final item in items) {
+        _loadedImageUrls.add('artist/${item.id}/image.png');
       }
 
-      final searchQuery = ref.read(widget.searchQueryProvider);
-      logger.d('Fetching page $pageKey with query: "$searchQuery"');
-
-      final language = Localizations.localeOf(context).languageCode;
-      final newItems = await SearchService.searchArtistsFast(
-        query: searchQuery,
-        page: pageKey,
-        limit: _pageSize,
-        language: language,
-        includeBookmarks: true,
-      );
-
-      logger.d('Received ${newItems.length} items for page $pageKey');
-      return newItems;
+      setState(() {
+        _items.addAll(items);
+        _currentPage = 1;
+        _hasMore = items.length >= _pageSize;
+        _isLoading = false;
+      });
     } catch (e, stackTrace) {
-      logger.e('Failed to fetch artist page',
-          error: e, stackTrace: stackTrace);
-      rethrow;
+      logger.e('Failed to load initial data', error: e, stackTrace: stackTrace);
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
     }
+  }
+
+  Future<void> _loadMoreData() async {
+    if (_isLoading || !_hasMore) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final items = await _fetchPage(_currentPage);
+      if (!mounted) return;
+
+      // 로딩된 이미지 URL 기록
+      for (final item in items) {
+        _loadedImageUrls.add('artist/${item.id}/image.png');
+      }
+
+      setState(() {
+        _items.addAll(items);
+        _currentPage++;
+        _hasMore = items.length >= _pageSize;
+        _isLoading = false;
+      });
+    } catch (e, stackTrace) {
+      logger.e('Failed to load more data', error: e, stackTrace: stackTrace);
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<List<ArtistModel>> _fetchPage(int pageKey) async {
+    final searchQuery = ref.read(widget.searchQueryProvider);
+    logger.d('Fetching page $pageKey with query: "$searchQuery"');
+
+    final language = Localizations.localeOf(context).languageCode;
+    final newItems = await SearchService.searchArtistsFast(
+      query: searchQuery,
+      page: pageKey,
+      limit: _pageSize,
+      language: language,
+      includeBookmarks: true,
+    );
+
+    logger.d('Received ${newItems.length} items for page $pageKey');
+    return newItems;
   }
 
   /// 리스트를 새로고침합니다.
   void refresh() {
-    _pagingController.refresh();
+    _loadInitialData();
   }
 
-  /// 특정 아티스트의 북마크 상태를 즉시 업데이트합니다.
+  /// 북마크 상태 업데이트 및 위치 이동
   void updateBookmarkState(int artistId, bool isBookmarked) {
-    final pages = _pagingController.value.pages;
-    if (pages == null || pages.isEmpty) return;
+    logger.d('🔖 updateBookmarkState - artistId: $artistId, isBookmarked: $isBookmarked');
 
-    // 각 페이지의 아이템을 업데이트
-    final updatedPages = pages.map((page) {
-      return page.map((artist) {
-        if (artist.id == artistId) {
-          return artist.copyWith(isBookmarked: isBookmarked);
-        }
-        return artist;
-      }).toList();
-    }).toList();
+    // 1. 글로벌 상태 업데이트
+    ref.read(bookmarkStateProvider.notifier).updateBookmarkState(artistId, isBookmarked);
 
-    // PagingController의 value를 업데이트하고 UI 새로고침
+    // 2. 로컬 리스트에서 위치 이동
+    final itemIndex = _items.indexWhere((item) => item.id == artistId);
+    if (itemIndex == -1) return;
+
+    final item = _items[itemIndex];
+    final updatedItem = item.copyWith(isBookmarked: isBookmarked);
+
+    // 이미지 URL이 이미 로딩되었음을 보장
+    _loadedImageUrls.add('artist/$artistId/image.png');
+
     setState(() {
-      _pagingController.value = _pagingController.value.copyWith(
-        pages: updatedPages,
-      );
+      // 현재 위치에서 제거
+      _items.removeAt(itemIndex);
+
+      if (isBookmarked) {
+        // 북마크 추가: 북마크 섹션 마지막에 삽입
+        final lastBookmarkIndex = _items.lastIndexWhere((i) => i.isBookmarked == true);
+        final insertIndex = lastBookmarkIndex + 1;
+        _items.insert(insertIndex, updatedItem);
+        logger.d('🔖 북마크 추가 - 새 위치: $insertIndex');
+      } else {
+        // 북마크 해제: 일반 섹션 첫 번째에 삽입
+        final firstNonBookmarkIndex = _items.indexWhere((i) => i.isBookmarked != true);
+        final insertIndex = firstNonBookmarkIndex == -1 ? _items.length : firstNonBookmarkIndex;
+        _items.insert(insertIndex, updatedItem);
+        logger.d('🔖 북마크 해제 - 새 위치: $insertIndex');
+      }
     });
   }
 
@@ -175,130 +241,165 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
             initialValue: _initialSearchQuery,
             onSearchChanged: (query) {
               if (mounted) {
-                // Notifier의 set 메서드 호출
                 (ref.read(widget.searchQueryProvider.notifier) as dynamic)
                     .set(query);
-                _pagingController.refresh();
+                // 캐시 무효화 후 새로고침
+                SearchService.invalidateCache('artist_fast');
+                _loadInitialData();
               }
             },
           ),
         ),
         Expanded(
-          child: _buildArtistList(),
+          child: _buildContent(),
         ),
       ],
     );
   }
 
-  Widget _buildArtistList() {
+  Widget _buildContent() {
     final searchQuery = ref.watch(widget.searchQueryProvider);
 
-    return PagingListener<int, ArtistModel>(
-      controller: _pagingController,
-      builder: (context, state, fetchNextPage) {
-        return PagedListView<int, ArtistModel>(
-          state: state,
-          fetchNextPage: fetchNextPage,
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          addAutomaticKeepAlives: false,
-          addRepaintBoundaries: true,
-          builderDelegate: PagedChildBuilderDelegate<ArtistModel>(
-            itemBuilder: (context, item, index) {
-              return _buildArtistItem(item, index, searchQuery);
-            },
-            firstPageProgressIndicatorBuilder: (context) {
-              return const Center(child: MediumPulseLoadingIndicator());
-            },
-            newPageProgressIndicatorBuilder: (context) {
-              return const Center(child: MediumPulseLoadingIndicator());
-            },
-            noItemsFoundIndicatorBuilder: (context) {
-              return NoItemContainer(
-                message: searchQuery.isEmpty
-                    ? widget.config.emptyMessage
-                    : widget.config.searchEmptyMessageTemplate
-                        .replaceAll('{query}', searchQuery),
-              );
-            },
-            firstPageErrorIndicatorBuilder: (context) {
-              return buildErrorView(
-                context,
-                error: _pagingController.value.error?.toString() ??
-                    widget.config.errorMessage,
-                stackTrace: StackTrace.current,
-                retryFunction: () {
-                  _pagingController.refresh();
-                },
-              );
-            },
-            newPageErrorIndicatorBuilder: (context) {
-              return Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _pagingController.refresh();
-                    },
-                    child: const Text('다시 시도'),
-                  ),
-                ),
-              );
-            },
-          ),
+    if (_error != null && _items.isEmpty) {
+      return buildErrorView(
+        context,
+        error: _error!,
+        stackTrace: StackTrace.current,
+        retryFunction: _loadInitialData,
+      );
+    }
+
+    if (_isLoading && _items.isEmpty) {
+      return const Center(child: MediumPulseLoadingIndicator());
+    }
+
+    if (_items.isEmpty) {
+      return NoItemContainer(
+        message: searchQuery.isEmpty
+            ? widget.config.emptyMessage
+            : widget.config.searchEmptyMessageTemplate
+                .replaceAll('{query}', searchQuery),
+      );
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      itemCount: _items.length + (_hasMore ? 1 : 0),
+      // 아이템 재사용을 위한 설정
+      addAutomaticKeepAlives: true,
+      addRepaintBoundaries: true,
+      itemBuilder: (context, index) {
+        if (index >= _items.length) {
+          return const Center(child: MediumPulseLoadingIndicator());
+        }
+
+        final item = _items[index];
+        return _ArtistItemWidget(
+          key: ValueKey('artist_item_${item.id}'),
+          item: item,
+          index: index,
+          allItems: _items,
+          searchQuery: searchQuery,
+          config: widget.config,
+          onArtistTap: widget.onArtistTap,
+          onBookmarkToggle: widget.onBookmarkToggle,
         );
       },
     );
   }
+}
 
-  Widget _buildArtistItem(ArtistModel item, int index, String searchQuery) {
-    final isBookmarked = item.isBookmarked == true;
-    final shouldShowSectionHeaders = widget.config.hideSectionHeaderOnSearch
-        ? searchQuery.isEmpty
+/// 개별 아티스트 아이템 위젯
+class _ArtistItemWidget extends ConsumerStatefulWidget {
+  const _ArtistItemWidget({
+    super.key,
+    required this.item,
+    required this.index,
+    required this.allItems,
+    required this.searchQuery,
+    required this.config,
+    this.onArtistTap,
+    this.onBookmarkToggle,
+  });
+
+  final ArtistModel item;
+  final int index;
+  final List<ArtistModel> allItems;
+  final String searchQuery;
+  final ArtistSelectConfig config;
+  final void Function(ArtistModel artist)? onArtistTap;
+  final Future<void> Function(ArtistModel artist)? onBookmarkToggle;
+
+  @override
+  ConsumerState<_ArtistItemWidget> createState() => _ArtistItemWidgetState();
+}
+
+class _ArtistItemWidgetState extends ConsumerState<_ArtistItemWidget>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    // 이 아티스트의 북마크 상태만 선택적으로 watch (UI 표시용)
+    final overrideState = ref.watch(
+      bookmarkStateProvider.select((states) => states[widget.item.id]),
+    );
+    // 로컬 데이터의 isBookmarked를 사용 (위치 이동 후 업데이트됨)
+    final isBookmarked = overrideState ?? widget.item.isBookmarked == true;
+
+    // 섹션 헤더는 로컬 데이터 기준으로 표시
+    final shouldShowHeaders = widget.config.hideSectionHeaderOnSearch
+        ? widget.searchQuery.isEmpty
         : true;
+    final isFirstBookmark = shouldShowHeaders && _isFirstBookmarkItem();
+    final isFirstNonBookmark = shouldShowHeaders && _isFirstNonBookmarkItem();
+
+    final imageUrl = 'artist/${widget.item.id}/image.png';
+    final isImageAlreadyLoaded = _loadedImageUrls.contains(imageUrl);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 섹션 헤더
-        if (shouldShowSectionHeaders) ...[
-          // 북마크 섹션 헤더
-          if (_isFirstBookmarkItem(index))
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              margin: EdgeInsets.only(top: 8.h),
-              color: AppColors.primary500.withValues(alpha: 0.1),
-              child: Row(
-                children: [
-                  Icon(Icons.star, color: AppColors.primary500, size: 18),
-                  SizedBox(width: 6.w),
-                  Text(
-                    widget.config.bookmarkSectionTitle,
-                    style:
-                        getTextStyle(AppTypo.caption12M, AppColors.primary500),
-                  ),
-                ],
-              ),
+        // 북마크 섹션 헤더
+        if (isFirstBookmark)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            margin: EdgeInsets.only(top: 8.h),
+            color: AppColors.primary500.withValues(alpha: 0.1),
+            child: Row(
+              children: [
+                Icon(Icons.star, color: AppColors.primary500, size: 18),
+                SizedBox(width: 6.w),
+                Text(
+                  widget.config.bookmarkSectionTitle,
+                  style: getTextStyle(AppTypo.caption12M, AppColors.primary500),
+                ),
+              ],
             ),
-          // 일반 아티스트 섹션 헤더
-          if (_isFirstNonBookmarkItem(index))
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              margin: EdgeInsets.only(top: 8.h),
-              color: AppColors.grey100,
-              child: Row(
-                children: [
-                  Icon(Icons.people, color: AppColors.grey600, size: 18),
-                  SizedBox(width: 6.w),
-                  Text(
-                    widget.config.generalSectionTitle,
-                    style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-                  ),
-                ],
-              ),
+          ),
+        // 일반 아티스트 섹션 헤더
+        if (isFirstNonBookmark)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            margin: EdgeInsets.only(top: 8.h),
+            color: AppColors.grey100,
+            child: Row(
+              children: [
+                Icon(Icons.people, color: AppColors.grey600, size: 18),
+                SizedBox(width: 6.w),
+                Text(
+                  widget.config.generalSectionTitle,
+                  style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+                ),
+              ],
             ),
-        ],
+          ),
         // 아티스트 아이템
         Container(
           margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
@@ -314,39 +415,61 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
                 : null,
           ),
           child: ListTile(
-            leading: PicnicCachedNetworkImage(
-              width: 48,
-              height: 48,
-              imageUrl: 'artist/${item.id}/image.png',
-              borderRadius: BorderRadius.circular(24),
-              lazyLoadingStrategy: LazyLoadingStrategy.viewport,
-              priority: ImagePriority.normal,
+            leading: RepaintBoundary(
+              child: PicnicCachedNetworkImage(
+                key: ValueKey('artist_image_${widget.item.id}'),
+                width: 48,
+                height: 48,
+                imageUrl: imageUrl,
+                borderRadius: BorderRadius.circular(24),
+                // 이미 로딩된 이미지는 LazyLoading 비활성화
+                lazyLoadingStrategy: isImageAlreadyLoaded
+                    ? LazyLoadingStrategy.none
+                    : LazyLoadingStrategy.viewport,
+                priority: ImagePriority.high,
+              ),
             ),
-            title: _buildHighlightedName(item, searchQuery),
-            subtitle: item.artistGroup?.name != null
-                ? _buildHighlightedGroupName(item, searchQuery)
+            title: _buildHighlightedName(context),
+            subtitle: widget.item.artistGroup?.name != null
+                ? _buildHighlightedGroupName(context)
                 : null,
             trailing: widget.config.showBookmarkToggle
-                ? _buildBookmarkButton(item, isBookmarked)
+                ? _buildBookmarkButton(context, isBookmarked)
                 : null,
-            onTap: widget.onArtistTap != null
-                ? () => widget.onArtistTap!(item)
-                : null,
+            onTap: widget.onArtistTap != null ? () => widget.onArtistTap!(widget.item) : null,
           ),
         ),
-        // 구분선 (검색어가 없을 때만 표시하거나, hideSectionHeaderOnSearch가 false면 항상 표시)
-        if (!widget.config.hideSectionHeaderOnSearch || searchQuery.isEmpty)
-          Divider(height: 1, color: AppColors.grey200),
+        // 구분선
+        if (!widget.config.hideSectionHeaderOnSearch || widget.searchQuery.isEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Divider(height: 1, color: AppColors.grey200),
+          ),
       ],
     );
   }
 
-  Widget _buildBookmarkButton(ArtistModel item, bool isBookmarked) {
+  /// 첫 번째 북마크 아이템인지 확인
+  bool _isFirstBookmarkItem() {
+    if (widget.item.isBookmarked != true) return false;
+    if (widget.index == 0) return true;
+    return widget.allItems[widget.index - 1].isBookmarked != true;
+  }
+
+  /// 첫 번째 일반 아이템인지 확인
+  bool _isFirstNonBookmarkItem() {
+    if (widget.item.isBookmarked == true) return false;
+    if (widget.index == 0) return true;
+    return widget.allItems[widget.index - 1].isBookmarked == true;
+  }
+
+  Widget _buildBookmarkButton(BuildContext context, bool isBookmarked) {
     return GestureDetector(
       onTap: () {
         logger.i(
-            '🔖 북마크 버튼 탭됨 - Artist: ${getLocaleTextFromJson(item.name)}, isBookmarked: ${item.isBookmarked}');
-        widget.onBookmarkToggle?.call(item);
+            '🔖 북마크 버튼 탭됨 - Artist: ${getLocaleTextFromJson(widget.item.name)}, isBookmarked: $isBookmarked');
+        final updatedItem = widget.item.copyWith(isBookmarked: isBookmarked);
+        widget.onBookmarkToggle?.call(updatedItem);
       },
       child: Container(
         padding: EdgeInsets.all(10.w),
@@ -361,49 +484,28 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
               : Border.all(color: Colors.grey.withValues(alpha: 0.2), width: 1),
         ),
         child: Icon(
-          item.isBookmarked == true ? Icons.star : Icons.star_border,
-          color:
-              item.isBookmarked == true ? AppColors.primary500 : AppColors.grey500,
+          isBookmarked ? Icons.star : Icons.star_border,
+          color: isBookmarked ? AppColors.primary500 : AppColors.grey500,
           size: 24,
         ),
       ),
     );
   }
 
-  /// 첫 번째 북마크 아이템인지 확인
-  bool _isFirstBookmarkItem(int index) {
-    final items = _pagingController.value.items;
-    if (items == null || index >= items.length) return false;
-
-    final currentItem = items[index];
-    return currentItem.isBookmarked == true &&
-        (index == 0 || items[index - 1].isBookmarked != true);
-  }
-
-  /// 첫 번째 일반(비북마크) 아이템인지 확인
-  bool _isFirstNonBookmarkItem(int index) {
-    final items = _pagingController.value.items;
-    if (items == null || index >= items.length) return false;
-
-    final currentItem = items[index];
-    return currentItem.isBookmarked != true &&
-        (index == 0 || items[index - 1].isBookmarked == true);
-  }
-
-  Widget _buildHighlightedName(ArtistModel item, String searchQuery) {
-    if (searchQuery.isEmpty) {
+  Widget _buildHighlightedName(BuildContext context) {
+    if (widget.searchQuery.isEmpty) {
       return Text(
-        getLocaleTextFromJson(item.name, context),
+        getLocaleTextFromJson(widget.item.name, context),
         style: getTextStyle(AppTypo.body14M, AppColors.grey900),
       );
     }
 
     final matchingText =
-        KoreanSearchUtils.getMatchingText(item.name, searchQuery);
+        KoreanSearchUtils.getMatchingText(widget.item.name, widget.searchQuery);
 
     return KoreanSearchUtils.buildConditionalHighlightText(
       matchingText,
-      searchQuery,
+      widget.searchQuery,
       getTextStyle(AppTypo.body14M, AppColors.grey900),
       highlightColor: AppColors.primary500.withValues(alpha: 0.3),
       overflow: TextOverflow.ellipsis,
@@ -411,12 +513,12 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
     );
   }
 
-  Widget _buildHighlightedGroupName(ArtistModel item, String searchQuery) {
-    final groupName = item.artistGroup?.name;
+  Widget _buildHighlightedGroupName(BuildContext context) {
+    final groupName = widget.item.artistGroup?.name;
     if (groupName == null) return const SizedBox.shrink();
 
     final groupNameText = getLocaleTextFromJson(groupName, context);
-    if (searchQuery.isEmpty) {
+    if (widget.searchQuery.isEmpty) {
       return Text(
         groupNameText,
         style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
@@ -425,7 +527,7 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
 
     return KoreanSearchUtils.buildConditionalHighlightText(
       groupNameText,
-      searchQuery,
+      widget.searchQuery,
       getTextStyle(AppTypo.caption12R, AppColors.grey600),
       highlightColor: AppColors.primary500.withValues(alpha: 0.3),
       overflow: TextOverflow.ellipsis,

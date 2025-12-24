@@ -6,7 +6,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 part '../../../generated/providers/my_page/bookmarked_artists_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
   @override
   Future<List<ArtistModel>> build() async {
