@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/patch_notification_service.dart';
 import 'package:restart_app/restart_app.dart';
@@ -10,6 +11,9 @@ final updater = shorebird.ShorebirdUpdater();
 
 /// 패치 대기 상태 (백그라운드 재시작용)
 bool _hasPendingPatch = false;
+
+/// iOS 26 이상 여부 캐시 (패치 비활성화용)
+bool? _isIOS26OrHigher;
 
 /// 다운로드 완료 알림 메시지 (L10N 적용용)
 String? _downloadCompleteMessage;
@@ -66,6 +70,52 @@ class PatchStatusException implements Exception {
 }
 
 class ShorebirdUtils {
+  /// iOS 26 이상 여부 확인
+  /// Shorebird 패치가 iOS 26에서 코드 서명 문제로 크래시를 발생시키므로
+  /// iOS 26 이상에서는 패치 기능을 비활성화합니다.
+  static Future<bool> isIOS26OrHigher() async {
+    if (_isIOS26OrHigher != null) {
+      return _isIOS26OrHigher!;
+    }
+
+    if (!Platform.isIOS) {
+      _isIOS26OrHigher = false;
+      return false;
+    }
+
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      final iosInfo = await deviceInfo.iosInfo;
+      final systemVersion = iosInfo.systemVersion;
+
+      // iOS 버전 파싱 (예: "26.2", "18.4")
+      final majorVersion = int.tryParse(systemVersion.split('.').first) ?? 0;
+      _isIOS26OrHigher = majorVersion >= 26;
+
+      logger.i('📱 iOS 버전: $systemVersion (major: $majorVersion), iOS 26+: $_isIOS26OrHigher');
+      return _isIOS26OrHigher!;
+    } catch (e) {
+      logger.e('❌ iOS 버전 확인 실패: $e');
+      _isIOS26OrHigher = false;
+      return false;
+    }
+  }
+
+  /// Shorebird 패치 사용 가능 여부 확인
+  /// iOS 26 이상에서는 코드 서명 문제로 패치 비활성화
+  static Future<bool> isPatchingAvailable() async {
+    if (UniversalPlatform.isWeb) {
+      return false;
+    }
+
+    if (Platform.isIOS && await isIOS26OrHigher()) {
+      logger.w('⚠️ iOS 26 이상에서는 Shorebird 패치가 비활성화됩니다 (코드 서명 호환성 문제)');
+      return false;
+    }
+
+    return true;
+  }
+
   /// 패치 상태 변경 콜백 등록
   /// 앱 초기화 시 호출하여 패치 상태 변경을 감지할 수 있습니다.
   static void setOnPatchStatusChanged(PatchStatusCallback? callback) {
@@ -128,6 +178,14 @@ class ShorebirdUtils {
   static Future<PatchStatusCheckResult> checkPatchStatusForSettings() async {
     if (UniversalPlatform.isWeb) {
       throw const PatchStatusException(PatchStatusError.webUnsupported);
+    }
+
+    // iOS 26 이상에서는 패치 기능 비활성화
+    if (!await isPatchingAvailable()) {
+      logger.i('📱 iOS 26+ 감지 - 패치 상태 확인 스킵');
+      return const PatchStatusCheckResult(
+        status: shorebird.UpdateStatus.upToDate,
+      );
     }
 
     try {
@@ -218,6 +276,13 @@ class ShorebirdUtils {
   static Future<void> checkAndRestartOnLaunch() async {
     if (UniversalPlatform.isWeb) {
       logger.i('웹에서는 Shorebird 패치를 지원하지 않습니다');
+      return;
+    }
+
+    // iOS 26 이상에서는 패치 기능 비활성화
+    if (!await isPatchingAvailable()) {
+      logger.i('📱 iOS 26+ 감지 - 앱 시작 시 패치 체크 스킵');
+      _notifyPatchStatus(ShorebirdPatchEvent.upToDate);
       return;
     }
 

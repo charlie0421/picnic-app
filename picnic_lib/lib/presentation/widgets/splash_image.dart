@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/patch_notification_service.dart';
+import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
@@ -242,6 +243,17 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       logger.i(
         '패치 체크 스킵: 웹환경=${UniversalPlatform.isWeb}, 완료됨=$_patchCheckCompleted',
       );
+      return;
+    }
+
+    // iOS 26 이상에서는 Shorebird 패치 비활성화 (코드 서명 호환성 문제)
+    if (!await ShorebirdUtils.isPatchingAvailable()) {
+      logger.i('📱 iOS 26+ 감지 - 스플래시 패치 체크 스킵');
+      setStateIfMounted(() {
+        _updateStatus = '';
+        _isCheckingUpdate = false;
+        _patchCheckCompleted = true;
+      });
       return;
     }
 
