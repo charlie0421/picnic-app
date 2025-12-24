@@ -1037,10 +1037,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'If you believe this is a mistake, please contact customer support.';
 
   @override
-  String get goonghap_empty_state_title => 'No Goong-Hap information';
+  String get goonghap_empty_state_title => '暫無緣分資訊';
 
   @override
-  String get goonghap_empty_state_subtitle => 'Create your first Goong-Hap!';
+  String get goonghap_empty_state_subtitle => '創建你的第一個緣分吧！';
 
   @override
   String get goonghap_login_required_title => '需要登录';
@@ -1217,7 +1217,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String goonghap_purchase_message(String artistName) {
-    return 'If I want to know the Goong-hap score between me and the $artistName?';
+    return '想知道我和$artistName的緣分分數嗎？';
   }
 
   @override
@@ -2733,10 +2733,10 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get ban_contact => '如认为为误判，请联系客户支持。';
 
   @override
-  String get goonghap_empty_state_title => 'No Goong-Hap information';
+  String get goonghap_empty_state_title => '暂无缘分信息';
 
   @override
-  String get goonghap_empty_state_subtitle => 'Create your first Goong-Hap!';
+  String get goonghap_empty_state_subtitle => '创建你的第一个缘分吧！';
 
   @override
   String get goonghap_login_required_title => '需要登录';
@@ -2912,7 +2912,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String goonghap_purchase_message(String artistName) {
-    return '如果我想知道我和 $artistName之间的 Goong-hap 分数？';
+    return '想知道我和$artistName的缘分分数吗？';
   }
 
   @override
@@ -4401,10 +4401,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get ban_contact => '如有疑問，請聯絡客服支援。';
 
   @override
-  String get goonghap_empty_state_title => 'No Goong-Hap information';
+  String get goonghap_empty_state_title => '暫無緣分資訊';
 
   @override
-  String get goonghap_empty_state_subtitle => 'Create your first Goong-Hap!';
+  String get goonghap_empty_state_subtitle => '創建你的第一個緣分吧！';
 
   @override
   String get goonghap_login_required_title => '需要登入';
@@ -4580,7 +4580,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String goonghap_purchase_message(String artistName) {
-    return '如果我想知道我和 $artistName之间的 Goong-hap 分数？';
+    return '想知道我和$artistName的緣分分數嗎？';
   }
 
   @override

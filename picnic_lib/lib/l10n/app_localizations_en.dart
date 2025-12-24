@@ -1219,7 +1219,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String goonghap_purchase_message(String artistName) {
-    return 'If I want to know the Goong-hap score between me and the $artistName?';
+    return 'Want to know the Goong-Hap score between me and $artistName?';
   }
 
   @override

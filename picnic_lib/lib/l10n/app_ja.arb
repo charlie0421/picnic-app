@@ -1518,11 +1518,11 @@
   "@ban_support_instruction": {
     "description": "Instruction to copy logs and contact support"
   },
-  "goonghap_empty_state_title": "No Goong-Hap information",
+  "goonghap_empty_state_title": "相性情報がありません",
   "@goonghap_empty_state_title": {
     "description": "Auto-generated metadata for key 'goonghap_empty_state_title'."
   },
-  "goonghap_empty_state_subtitle": "Create your first Goong-Hap!",
+  "goonghap_empty_state_subtitle": "最初の相性を作ってみましょう！",
   "@goonghap_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'goonghap_empty_state_subtitle'."
   },

@@ -1327,11 +1327,11 @@
   "@ban_support_instruction": {
     "description": "Instruction to copy logs and contact support"
   },
-  "goonghap_empty_state_title": "No Goong-Hap information",
+  "goonghap_empty_state_title": "暂无缘分信息",
   "@goonghap_empty_state_title": {
     "description": "Auto-generated metadata for key 'goonghap_empty_state_title'."
   },
-  "goonghap_empty_state_subtitle": "Create your first Goong-Hap!",
+  "goonghap_empty_state_subtitle": "创建你的第一个缘分吧！",
   "@goonghap_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'goonghap_empty_state_subtitle'."
   },
@@ -1550,7 +1550,7 @@
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "goonghap_purchase_message": "如果我想知道我和 {artistName}之间的 Goong-hap 分数？",
+  "goonghap_purchase_message": "想知道我和{artistName}的缘分分数吗？",
   "@goonghap_purchase_message": {
     "placeholders": {
       "artistName": {

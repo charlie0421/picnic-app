@@ -1518,11 +1518,11 @@
   "@ban_support_instruction": {
     "description": "Instruction to copy logs and contact support"
   },
-  "goonghap_empty_state_title": "No Goong-Hap information",
+  "goonghap_empty_state_title": "Belum ada informasi Goong-Hap",
   "@goonghap_empty_state_title": {
     "description": "Auto-generated metadata for key 'goonghap_empty_state_title'."
   },
-  "goonghap_empty_state_subtitle": "Create your first Goong-Hap!",
+  "goonghap_empty_state_subtitle": "Buat Goong-Hap pertamamu!",
   "@goonghap_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'goonghap_empty_state_subtitle'."
   },
@@ -1606,7 +1606,7 @@
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "goonghap_purchase_message": "Jika saya ingin mengetahui skor Goong-hap antara saya dan {artistName}?",
+  "goonghap_purchase_message": "Ingin tahu skor Goong-Hap antara aku dan {artistName}?",
   "@goonghap_purchase_message": {
     "placeholders": {
       "artistName": {

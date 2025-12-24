@@ -2408,7 +2408,7 @@ abstract class AppLocalizations {
   /// No description provided for @goonghap_purchase_message.
   ///
   /// In en, this message translates to:
-  /// **'If I want to know the Goong-hap score between me and the {artistName}?'**
+  /// **'Want to know the Goong-Hap score between me and {artistName}?'**
   String goonghap_purchase_message(String artistName);
 
   /// Charge history menu for admin users

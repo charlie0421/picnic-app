@@ -1005,10 +1005,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ban_contact => '誤検知と思われる場合はカスタマーサポートへお問い合わせください。';
 
   @override
-  String get goonghap_empty_state_title => 'No Goong-Hap information';
+  String get goonghap_empty_state_title => '相性情報がありません';
 
   @override
-  String get goonghap_empty_state_subtitle => 'Create your first Goong-Hap!';
+  String get goonghap_empty_state_subtitle => '最初の相性を作ってみましょう！';
 
   @override
   String get goonghap_login_required_title => 'ログインが必要です';

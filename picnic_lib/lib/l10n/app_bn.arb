@@ -1501,11 +1501,11 @@
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
-  "goonghap_empty_state_title": "No Goong-Hap information",
+  "goonghap_empty_state_title": "কোনো গুংহাপ তথ্য নেই",
   "@goonghap_empty_state_title": {
     "description": "Auto-generated metadata for key 'goonghap_empty_state_title'."
   },
-  "goonghap_empty_state_subtitle": "Create your first Goong-Hap!",
+  "goonghap_empty_state_subtitle": "আপনার প্রথম গুংহাপ তৈরি করুন!",
   "@goonghap_empty_state_subtitle": {
     "description": "Auto-generated metadata for key 'goonghap_empty_state_subtitle'."
   },
@@ -1720,7 +1720,7 @@
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "goonghap_purchase_message": "If I want to know the Goong-hap score between me and the {artistName}?",
+  "goonghap_purchase_message": "আমার এবং {artistName}-এর মধ্যে গুংহাপ স্কোর জানতে চান?",
   "@goonghap_purchase_message": {
     "placeholders": {
       "artistName": {

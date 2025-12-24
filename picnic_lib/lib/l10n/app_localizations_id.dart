@@ -1043,10 +1043,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Jika ada pertanyaan, silakan hubungi layanan pelanggan.';
 
   @override
-  String get goonghap_empty_state_title => 'No Goong-Hap information';
+  String get goonghap_empty_state_title => 'Belum ada informasi Goong-Hap';
 
   @override
-  String get goonghap_empty_state_subtitle => 'Create your first Goong-Hap!';
+  String get goonghap_empty_state_subtitle => 'Buat Goong-Hap pertamamu!';
 
   @override
   String get goonghap_login_required_title => 'Diperlukan login';
@@ -1223,7 +1223,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String goonghap_purchase_message(String artistName) {
-    return 'Jika saya ingin mengetahui skor Goong-hap antara saya dan $artistName?';
+    return 'Ingin tahu skor Goong-Hap antara aku dan $artistName?';
   }
 
   @override

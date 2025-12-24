@@ -1558,7 +1558,7 @@
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
-  "goonghap_purchase_message": "If I want to know the Goong-hap score between me and the {artistName}?",
+  "goonghap_purchase_message": "Want to know the Goong-Hap score between me and {artistName}?",
   "@goonghap_purchase_message": {
     "placeholders": {
       "artistName": {

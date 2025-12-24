@@ -1038,10 +1038,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'If you believe this is a mistake, please contact customer support.';
 
   @override
-  String get goonghap_empty_state_title => 'No Goong-Hap information';
+  String get goonghap_empty_state_title => 'কোনো গুংহাপ তথ্য নেই';
 
   @override
-  String get goonghap_empty_state_subtitle => 'Create your first Goong-Hap!';
+  String get goonghap_empty_state_subtitle => 'আপনার প্রথম গুংহাপ তৈরি করুন!';
 
   @override
   String get goonghap_login_required_title => 'লগইন প্রয়োজন';
@@ -1219,7 +1219,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String goonghap_purchase_message(String artistName) {
-    return 'If I want to know the Goong-hap score between me and the $artistName?';
+    return 'আমার এবং $artistName-এর মধ্যে গুংহাপ স্কোর জানতে চান?';
   }
 
   @override
