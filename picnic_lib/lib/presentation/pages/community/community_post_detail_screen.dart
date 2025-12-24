@@ -113,11 +113,12 @@ class _CommunityPostDetailScreenState
       navigationInfoProvider.select((value) => value.showTopMenu),
     );
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: showPortal ? _buildPortalAppBar(context) : null,
-      body: Column(
+    // Scaffold 제거 - PicnicAnimatedSwitcher에서 하단 패딩을 관리함
+    return Container(
+      color: Colors.white,
+      child: Column(
         children: [
+          if (showPortal) _buildPortalAppBar(context),
           if (showTopMenu) const TopMenu(),
           Expanded(child: PostViewPage(widget.postId)),
         ],

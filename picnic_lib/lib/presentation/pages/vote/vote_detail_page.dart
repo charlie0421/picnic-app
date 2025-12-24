@@ -656,6 +656,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   @override
   Widget build(BuildContext context) {
+    // Scaffold 제거 - PicnicAnimatedSwitcher에서 하단 패딩을 관리함
+    // 키보드 처리는 GestureDetector + FocusNode.unfocus()로 대체
     return LoadingOverlayWithIcon(
       key: _loadingKey,
       enableRotation: false, // 회전 비활성화
@@ -669,100 +671,92 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       minScale: 0.98, // 매우 미묘한 변화
       maxScale: 1.02, // 매우 미묘한 변화
       showProgressIndicator: false, // 하단 로딩바 제거
-      child: Scaffold(
-        resizeToAvoidBottomInset: true, // 키보드가 올라올 때 화면 크기 조정
-        body: Stack(
-          children: [
-            Container(
-              color: AppColors.grey00,
-              child: ref
-                  .watch(
-                    asyncVoteDetailProvider(
-                      voteId: widget.voteId,
-                      votePortal: widget.votePortal,
-                    ),
-                  )
-                  .when(
-                    data: (voteModel) {
-                      if (voteModel == null) return const SizedBox.shrink();
-                      isEnded = voteModel.isEnded!;
-                      isUpcoming = voteModel.isUpcoming!;
+      child: Container(
+        color: AppColors.grey00,
+        child: ref
+            .watch(
+              asyncVoteDetailProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ),
+            )
+            .when(
+              data: (voteModel) {
+                if (voteModel == null) return const SizedBox.shrink();
+                isEnded = voteModel.isEnded!;
+                isUpcoming = voteModel.isUpcoming!;
 
-                      return GestureDetector(
-                        onTap: () => _focusNode.unfocus(),
-                        child: RefreshIndicator(
-                          color: AppColors.primary500,
-                          backgroundColor: Colors.white,
-                          onRefresh: () async {
-                            _isRefreshingItems = true;
-                            try {
-                              await Future.wait([
-                                ref
-                                    .refresh(
-                                      asyncVoteDetailProvider(
-                                        voteId: widget.voteId,
-                                        votePortal: widget.votePortal,
-                                      ).future,
-                                    )
-                                    .timeout(
-                                      const Duration(seconds: 8),
-                                      onTimeout: () => null,
-                                    ),
-                                ref
-                                    .refresh(
-                                      asyncVoteItemListProvider(
-                                        voteId: widget.voteId,
-                                        votePortal: widget.votePortal,
-                                      ).future,
-                                    )
-                                    .timeout(
-                                      const Duration(seconds: 8),
-                                      onTimeout: () => [],
-                                    ),
-                              ]);
-                            } finally {
-                              _isRefreshingItems = false;
-                            }
-                          },
-                          child: SizedBox.expand(
-                            child: CustomScrollView(
-                              controller: _scrollController,
-                              physics:
-                                  const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
-                              keyboardDismissBehavior:
-                                  ScrollViewKeyboardDismissBehavior.onDrag,
-                              slivers: [
-                                SliverToBoxAdapter(
-                                  child: RepaintBoundary(
-                                    key: _captureKey,
-                                    child: Column(
-                                      children: [
-                                        _buildVoteInfo(context, voteModel),
-                                        SizedBox(height: 12),
-                                        if (_isSaving)
-                                          _buildCaptureVoteList(context),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                if (!_isSaving) _buildVoteItemList(context),
-                              ],
+                return GestureDetector(
+                  onTap: () => _focusNode.unfocus(),
+                  child: RefreshIndicator(
+                    color: AppColors.primary500,
+                    backgroundColor: Colors.white,
+                    onRefresh: () async {
+                      _isRefreshingItems = true;
+                      try {
+                        await Future.wait([
+                          ref
+                              .refresh(
+                                asyncVoteDetailProvider(
+                                  voteId: widget.voteId,
+                                  votePortal: widget.votePortal,
+                                ).future,
+                              )
+                              .timeout(
+                                const Duration(seconds: 8),
+                                onTimeout: () => null,
+                              ),
+                          ref
+                              .refresh(
+                                asyncVoteItemListProvider(
+                                  voteId: widget.voteId,
+                                  votePortal: widget.votePortal,
+                                ).future,
+                              )
+                              .timeout(
+                                const Duration(seconds: 8),
+                                onTimeout: () => [],
+                              ),
+                        ]);
+                      } finally {
+                        _isRefreshingItems = false;
+                      }
+                    },
+                    child: SizedBox.expand(
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        physics:
+                            const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: RepaintBoundary(
+                              key: _captureKey,
+                              child: Column(
+                                children: [
+                                  _buildVoteInfo(context, voteModel),
+                                  SizedBox(height: 12),
+                                  if (_isSaving)
+                                    _buildCaptureVoteList(context),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                    loading: () =>
-                        SizedBox.expand(child: _buildLoadingShimmer()),
-                    error: (error, stackTrace) => buildErrorView(
-                      context,
-                      error: error.toString(),
-                      stackTrace: stackTrace,
+                          if (!_isSaving) _buildVoteItemList(context),
+                        ],
+                      ),
                     ),
                   ),
+                );
+              },
+              loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
+              error: (error, stackTrace) => buildErrorView(
+                context,
+                error: error.toString(),
+                stackTrace: stackTrace,
+              ),
             ),
-          ],
-        ),
       ),
     );
   }

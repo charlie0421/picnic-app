@@ -273,56 +273,55 @@ class _GoonghapListPageState extends ConsumerState<GoonghapListPage>
       },
     );
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppColors.primary500, AppColors.secondary500],
-          ),
+    // Scaffold 제거 - PicnicAnimatedSwitcher에서 하단 패딩을 관리함
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [AppColors.primary500, AppColors.secondary500],
         ),
-        child: !isLoggedIn
-            ? _buildLoginRequiredState()
-            : history.items.isEmpty && !history.isLoading
-            ? _buildEmptyState()
-            : Stack(
-                children: [
-                  ListView.builder(
-                    controller: _scrollController,
-                    padding: _basePadding.copyWith(
-                      bottom: _basePadding.bottom + MediaQuery.of(context).padding.bottom,
-                    ),
-                    itemCount:
-                        1 + history.items.length + (history.isLoading ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return _buildHeader();
-                      }
-
-                      final itemIndex = index - 1;
-
-                      if (itemIndex == history.items.length) {
-                        return const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: MediumPulseLoadingIndicator(),
-                          ),
-                        );
-                      }
-
-                      final item = history.items[itemIndex];
-
-                      return _GoonghapListItem(
-                        item: item,
-                        isLastItem: itemIndex == history.items.length - 1,
-                        onTap: () => _onGoonghapCardTap(item),
-                      );
-                    },
-                  ),
-                ],
-              ),
       ),
+      child: !isLoggedIn
+          ? _buildLoginRequiredState()
+          : history.items.isEmpty && !history.isLoading
+          ? _buildEmptyState()
+          : Stack(
+              children: [
+                ListView.builder(
+                  controller: _scrollController,
+                  padding: _basePadding.copyWith(
+                    bottom: _basePadding.bottom + MediaQuery.of(context).viewPadding.bottom,
+                  ),
+                  itemCount:
+                      1 + history.items.length + (history.isLoading ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return _buildHeader();
+                    }
+
+                    final itemIndex = index - 1;
+
+                    if (itemIndex == history.items.length) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: MediumPulseLoadingIndicator(),
+                        ),
+                      );
+                    }
+
+                    final item = history.items[itemIndex];
+
+                    return _GoonghapListItem(
+                      item: item,
+                      isLastItem: itemIndex == history.items.length - 1,
+                      onTap: () => _onGoonghapCardTap(item),
+                    );
+                  },
+                ),
+              ],
+            ),
     );
   }
 

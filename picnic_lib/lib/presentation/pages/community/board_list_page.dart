@@ -372,42 +372,38 @@ class _BoardPageState extends ConsumerState<BoardListPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12),
-              child: EnhancedSearchBox(
-                hintText:
-                    AppLocalizations.of(context).text_community_board_search,
-                onSearchChanged: (query) {
-                  if (mounted) {
-                    try {
-                      _searchSubject.add(query);
-                    } catch (e) {
-                      logger.w('Failed to update search query: $e');
-                    }
-                  }
-                },
-                controller: _textEditingController,
-                focusNode: focusNode,
-                debounceTime: const Duration(milliseconds: 300),
-                showClearButton: true,
-              ),
-            ),
-            Expanded(
-              child: RefreshIndicator(
-                color: AppColors.primary500,
-                backgroundColor: Colors.white,
-                onRefresh: () => _loadData(isRefresh: true),
-                child: _buildBoardList(),
-              ),
-            ),
-          ],
+    // Scaffold 제거 - PicnicAnimatedSwitcher에서 하단 패딩을 관리함
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12),
+          child: EnhancedSearchBox(
+            hintText:
+                AppLocalizations.of(context).text_community_board_search,
+            onSearchChanged: (query) {
+              if (mounted) {
+                try {
+                  _searchSubject.add(query);
+                } catch (e) {
+                  logger.w('Failed to update search query: $e');
+                }
+              }
+            },
+            controller: _textEditingController,
+            focusNode: focusNode,
+            debounceTime: const Duration(milliseconds: 300),
+            showClearButton: true,
+          ),
         ),
-      ),
+        Expanded(
+          child: RefreshIndicator(
+            color: AppColors.primary500,
+            backgroundColor: Colors.white,
+            onRefresh: () => _loadData(isRefresh: true),
+            child: _buildBoardList(),
+          ),
+        ),
+      ],
     );
   }
 
