@@ -192,6 +192,11 @@ workflows:
           # CI 환경은 매번 깨끗하므로 cache clean 불필요
           # shorebird release가 자체적으로 빌드를 수행함
 
+          # Xcode 캐시 정리 (Swift 심볼 에러 방지)
+          echo "🧹 Xcode DerivedData 캐시 정리..."
+          rm -rf ~/Library/Developer/Xcode/DerivedData/*
+          rm -rf build/ios
+
           echo "=== Shorebird iOS 릴리즈 시도 ==="
           echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
           SHOREBIRD_RELEASE_SUCCESS=false
