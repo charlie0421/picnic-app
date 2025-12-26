@@ -198,12 +198,12 @@ workflows:
 
           # Shorebird release ios는 xcarchive를 생성함
           # --export-options-plist를 전달하여 IPA도 함께 생성
-          # --no-simulator: 시뮬레이터 빌드 제외
           shorebird release ios \
             --dart-define=ENVIRONMENT=prod \
             --no-confirm \
+            --flutter-version=3.38.5 \
             --verbose \
-            -- --no-simulator --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
+            -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
 
           RELEASE_EXIT_CODE=${PIPESTATUS[0]}
 
