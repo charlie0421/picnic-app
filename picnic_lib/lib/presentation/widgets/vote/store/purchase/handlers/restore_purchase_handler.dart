@@ -14,7 +14,6 @@ abstract class PurchaseSafetyManagerInterface {
 /// 🧹 복원 구매 전용 핸들러 - 예방적 정리 및 차단 기능
 class RestorePurchaseHandler {
   final PurchaseService _purchaseService;
-  // ignore: unused_field - 향후 로딩 표시에 사용될 수 있음
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey;
   final BuildContext _context;
 
@@ -40,7 +39,7 @@ class RestorePurchaseHandler {
     _safetyManager = safetyManager;
   }
 
-  /// 페이지 진입 시 예방적 복원 정리 실행 (최적화: 빠른 초기화 우선)
+  /// 페이지 진입 시 예방적 복원 정리 실행
   Future<void> performProactiveCleanup() async {
     final platform = Theme.of(_context).platform;
     final startTime = DateTime.now();
@@ -50,22 +49,11 @@ class RestorePurchaseHandler {
 
       _restoredPurchaseCount = 0;
       _isWaitingForRestoreCompletion = true;
+      _showPulseLoading();
       _isProactiveCleanupMode = true;
 
-      // 🚀 로딩 표시 없이 백그라운드에서 정리 시도
-      // 사용자가 대기하지 않도록 빠르게 완료
-      try {
-        // 타임아웃을 3초로 단축 (기존 10초 → 3초)
-        await _purchaseService.inAppPurchaseService
-            .restorePurchases()
-            .timeout(const Duration(seconds: 3));
-
-        // 빠른 대기 (최대 2초)
-        await _waitForRestoreCompletion(startTime);
-      } catch (e) {
-        // 타임아웃 또는 오류 시 즉시 완료 처리
-        logger.w('🧹 복원 정리 타임아웃/오류 - 즉시 완료 처리: $e');
-      }
+      await _purchaseService.inAppPurchaseService.restorePurchases();
+      await _waitForRestoreCompletion(startTime);
 
       _isProactiveCleanupMode = false;
       _isWaitingForRestoreCompletion = false;
@@ -81,17 +69,15 @@ class RestorePurchaseHandler {
     }
   }
 
-  /// 복원 완료까지 스마트 대기 (최적화: 빠른 완료 우선)
+  /// 복원 완료까지 스마트 대기
   Future<void> _waitForRestoreCompletion(DateTime startTime) async {
-    // 🚀 최대 대기 시간을 3초로 단축 (기존 10초 → 3초)
-    const maxWaitTime = Duration(seconds: 3);
+    const maxWaitTime = Duration(seconds: 10);
     int lastProcessedCount = 0;
     DateTime? lastProcessTime = DateTime.now();
 
     while (DateTime.now().isBefore(startTime.add(maxWaitTime)) &&
         _isWaitingForRestoreCompletion) {
-      // 🚀 대기 간격을 200ms로 단축 (기존 300ms)
-      await Future.delayed(const Duration(milliseconds: 200));
+      await Future.delayed(Duration(milliseconds: 300));
 
       if (_restoredPurchaseCount > lastProcessedCount) {
         lastProcessedCount = _restoredPurchaseCount;
@@ -100,17 +86,28 @@ class RestorePurchaseHandler {
       }
 
       final elapsed = DateTime.now().difference(startTime);
-      // 🚀 1초 후부터 완료 체크 (기존 2초 → 1초)
-      if (elapsed.inMilliseconds > 1000) {
+      if (elapsed.inMilliseconds > 2000) {
         final timeSinceLastProcess =
             DateTime.now().difference(lastProcessTime!);
-        // 🚀 500ms 동안 새 처리가 없으면 완료로 간주 (기존 1초 → 500ms)
-        if (timeSinceLastProcess.inMilliseconds > 500) {
+        if (timeSinceLastProcess.inMilliseconds > 1000) {
           logger.i('🧹 복원 처리 완료 감지');
           _isWaitingForRestoreCompletion = false;
         }
       }
     }
+  }
+
+  /// 펄스 로딩 표시
+  void _showPulseLoading() {
+    final platform = Theme.of(_context).platform;
+    final platformEmoji = platform == TargetPlatform.iOS ? '📱' : '🤖';
+
+    logger.i('🔄 펄스 로딩 시작: $platformEmoji 복원 구매 정리 중');
+
+    _loadingKey.currentState?.hide();
+    Timer(Duration(milliseconds: 100), () {
+      _loadingKey.currentState?.show();
+    });
   }
 
   /// 복원 구매 처리 여부 확인 - 🍎 iOS/🤖 Android 플랫폼별 처리

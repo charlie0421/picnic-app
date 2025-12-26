@@ -32,14 +32,6 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   DateTime? _lastPurchaseTime; // 마지막 구매 시도 시간
   String? _currentProductId; // 현재 진행 중인 상품 ID
 
-  // 🛡️ iOS 전용: Transaction ID 기반 중복 방지 (최근 처리된 트랜잭션 캐시)
-  final Set<String> _processedTransactionIds = {};
-  static const int _maxCachedTransactionIds = 50; // 최대 캐시 개수
-
-  // 🛡️ iOS 전용: 성공 다이얼로그 중복 표시 방지
-  bool _isSuccessDialogShowing = false;
-  String? _lastSuccessDialogTransactionId;
-
   // 🧩 상품별 쿨타임/연속 구매 세션 추적
   final Map<String, DateTime> _lastPurchaseTimeByProduct = {}; // productId -> last attempt time
   final Map<String, int> _consecutivePurchaseCountByProduct = {}; // productId -> count
@@ -245,78 +237,6 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       _currentProductId = null;
     }
     logger.i('🧹 [상품별] 쿨타임 초기화: $productId');
-  }
-
-  // 🛡️ ===== iOS 전용 중복 방지 메서드들 =====
-
-  /// 🛡️ iOS 전용: Transaction ID가 이미 처리되었는지 확인
-  bool isTransactionAlreadyProcessed(String? transactionId) {
-    if (!Platform.isIOS || transactionId == null || transactionId.isEmpty) {
-      return false;
-    }
-
-    if (_processedTransactionIds.contains(transactionId)) {
-      logger.w('🛡️ [iOS] Transaction ID 중복 감지: $transactionId - 이미 처리됨');
-      return true;
-    }
-    return false;
-  }
-
-  /// 🛡️ iOS 전용: Transaction ID를 처리 완료로 마킹
-  void markTransactionAsProcessed(String? transactionId) {
-    if (!Platform.isIOS || transactionId == null || transactionId.isEmpty) {
-      return;
-    }
-
-    // 캐시 크기 제한
-    if (_processedTransactionIds.length >= _maxCachedTransactionIds) {
-      // 가장 오래된 것 제거 (Set은 순서가 없으므로 첫 번째 요소 제거)
-      if (_processedTransactionIds.isNotEmpty) {
-        _processedTransactionIds.remove(_processedTransactionIds.first);
-      }
-    }
-
-    _processedTransactionIds.add(transactionId);
-    logger.i('🛡️ [iOS] Transaction ID 처리 완료 마킹: $transactionId (캐시: ${_processedTransactionIds.length}개)');
-  }
-
-  /// 🛡️ iOS 전용: 성공 다이얼로그 표시 가능 여부 확인
-  bool canShowSuccessDialog(String? transactionId) {
-    if (!Platform.isIOS) {
-      return true; // Android는 제한 없음
-    }
-
-    // 이미 다이얼로그가 표시 중인 경우
-    if (_isSuccessDialogShowing) {
-      logger.w('🛡️ [iOS] 성공 다이얼로그 이미 표시 중 - 중복 표시 차단');
-      return false;
-    }
-
-    // 같은 트랜잭션에 대해 이미 다이얼로그를 표시한 경우
-    if (transactionId != null &&
-        transactionId == _lastSuccessDialogTransactionId) {
-      logger.w('🛡️ [iOS] 같은 트랜잭션에 대해 이미 다이얼로그 표시됨: $transactionId');
-      return false;
-    }
-
-    return true;
-  }
-
-  /// 🛡️ iOS 전용: 성공 다이얼로그 표시 시작
-  void markSuccessDialogShowing(String? transactionId) {
-    if (!Platform.isIOS) return;
-
-    _isSuccessDialogShowing = true;
-    _lastSuccessDialogTransactionId = transactionId;
-    logger.i('🛡️ [iOS] 성공 다이얼로그 표시 시작: $transactionId');
-  }
-
-  /// 🛡️ iOS 전용: 성공 다이얼로그 표시 종료
-  void markSuccessDialogDismissed() {
-    if (!Platform.isIOS) return;
-
-    _isSuccessDialogShowing = false;
-    logger.i('🛡️ [iOS] 성공 다이얼로그 표시 종료');
   }
 
   /// 🎯 심플 구매 시작 + 연속 구매 추적 (3줄로 해결!)
