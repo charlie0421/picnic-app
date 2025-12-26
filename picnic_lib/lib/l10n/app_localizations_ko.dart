@@ -1243,7 +1243,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dialog_withdraw_button_ok => '탈퇴하기';
 
   @override
-  String get goonghap_birthtime_subtitle => '정확도 향상!';
+  String get goonghap_birthtime_subtitle => '(선택)';
 
   @override
   String get title_dialog_success => '성공';
@@ -1634,6 +1634,52 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => '닫기';
+
+  @override
+  String get goong_hap_zodiac_title => '십이지신과 시간';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      '궁합에서는 태어난 시간도 중요해요! 한국에서는 12가지 동물로 시간을 나누는 전통이 있어요.';
+
+  @override
+  String get goong_hap_zodiac_subtitle => '태어난 시간에 따른 12가지 동물띠';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 자시 (쥐) 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 축시 (소) 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 인시 (호랑이) 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 묘시 (토끼) 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 진시 (용) 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 사시 (뱀) 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 오시 (말) 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 미시 (양) 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 신시 (원숭이) 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 유시 (닭) 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 술시 (개) 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 해시 (돼지) 21:00~23:00';
 
   @override
   String get patch_update_ready_title => '업데이트 준비 완료';

@@ -1638,7 +1638,7 @@
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "goonghap_birthtime_subtitle": "提高准确性！",
+  "goonghap_birthtime_subtitle": "(可選)",
   "@goonghap_birthtime_subtitle": {
     "description": "Auto-generated metadata for key 'goonghap_birthtime_subtitle'."
   },
@@ -2162,6 +2162,66 @@
   "goong_hap_close_button": "關閉",
   "@goong_hap_close_button": {
     "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "goong_hap_zodiac_title": "十二地支與時辰",
+  "@goong_hap_zodiac_title": {
+    "description": "12 zodiac animals section title in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_desc": "宮合中出生時間也很重要！在韓國，有用12種動物來劃分時間的傳統。",
+  "@goong_hap_zodiac_desc": {
+    "description": "12 zodiac animals section description in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_subtitle": "按出生時間的12種動物",
+  "@goong_hap_zodiac_subtitle": {
+    "description": "Subtitle for zodiac animals list in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_rat": "🐭 子時 (鼠) 23:00~01:00",
+  "@goong_hap_zodiac_rat": {
+    "description": "Rat zodiac time slot"
+  },
+  "goong_hap_zodiac_ox": "🐮 丑時 (牛) 01:00~03:00",
+  "@goong_hap_zodiac_ox": {
+    "description": "Ox zodiac time slot"
+  },
+  "goong_hap_zodiac_tiger": "🐯 寅時 (虎) 03:00~05:00",
+  "@goong_hap_zodiac_tiger": {
+    "description": "Tiger zodiac time slot"
+  },
+  "goong_hap_zodiac_rabbit": "🐰 卯時 (兔) 05:00~07:00",
+  "@goong_hap_zodiac_rabbit": {
+    "description": "Rabbit zodiac time slot"
+  },
+  "goong_hap_zodiac_dragon": "🐲 辰時 (龍) 07:00~09:00",
+  "@goong_hap_zodiac_dragon": {
+    "description": "Dragon zodiac time slot"
+  },
+  "goong_hap_zodiac_snake": "🐍 巳時 (蛇) 09:00~11:00",
+  "@goong_hap_zodiac_snake": {
+    "description": "Snake zodiac time slot"
+  },
+  "goong_hap_zodiac_horse": "🐴 午時 (馬) 11:00~13:00",
+  "@goong_hap_zodiac_horse": {
+    "description": "Horse zodiac time slot"
+  },
+  "goong_hap_zodiac_sheep": "🐑 未時 (羊) 13:00~15:00",
+  "@goong_hap_zodiac_sheep": {
+    "description": "Sheep zodiac time slot"
+  },
+  "goong_hap_zodiac_monkey": "🐒 申時 (猴) 15:00~17:00",
+  "@goong_hap_zodiac_monkey": {
+    "description": "Monkey zodiac time slot"
+  },
+  "goong_hap_zodiac_rooster": "🐔 酉時 (雞) 17:00~19:00",
+  "@goong_hap_zodiac_rooster": {
+    "description": "Rooster zodiac time slot"
+  },
+  "goong_hap_zodiac_dog": "🐶 戌時 (狗) 19:00~21:00",
+  "@goong_hap_zodiac_dog": {
+    "description": "Dog zodiac time slot"
+  },
+  "goong_hap_zodiac_pig": "🐷 亥時 (豬) 21:00~23:00",
+  "@goong_hap_zodiac_pig": {
+    "description": "Pig zodiac time slot"
   },
   "message_setting_patch_restarting": "正在重新啟動應用程式...",
   "@message_setting_patch_restarting": {

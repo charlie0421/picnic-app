@@ -1808,7 +1808,7 @@
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "goonghap_birthtime_subtitle": "Increase accuracy!",
+  "goonghap_birthtime_subtitle": "(ঐচ্ছিক)",
   "@goonghap_birthtime_subtitle": {
     "description": "Auto-generated metadata for key 'goonghap_birthtime_subtitle'."
   },
@@ -2150,6 +2150,66 @@
   "goong_hap_close_button": "বন্ধ",
   "@goong_hap_close_button": {
     "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "goong_hap_zodiac_title": "১২ রাশি ও সময়",
+  "@goong_hap_zodiac_title": {
+    "description": "12 zodiac animals section title in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_desc": "গুংহাপে জন্ম সময় গুরুত্বপূর্ণ! কোরিয়ায় ১২টি প্রাণী দিয়ে সময় ভাগ করার ঐতিহ্য আছে।",
+  "@goong_hap_zodiac_desc": {
+    "description": "12 zodiac animals section description in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_subtitle": "জন্ম সময় অনুযায়ী ১২ রাশি",
+  "@goong_hap_zodiac_subtitle": {
+    "description": "Subtitle for zodiac animals list in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_rat": "🐭 ইঁদুর ঘণ্টা ২৩:০০~০১:০০",
+  "@goong_hap_zodiac_rat": {
+    "description": "Rat zodiac time slot"
+  },
+  "goong_hap_zodiac_ox": "🐮 গরু ঘণ্টা ০১:০০~০৩:০০",
+  "@goong_hap_zodiac_ox": {
+    "description": "Ox zodiac time slot"
+  },
+  "goong_hap_zodiac_tiger": "🐯 বাঘ ঘণ্টা ০৩:০০~০৫:০০",
+  "@goong_hap_zodiac_tiger": {
+    "description": "Tiger zodiac time slot"
+  },
+  "goong_hap_zodiac_rabbit": "🐰 খরগোশ ঘণ্টা ০৫:০০~০৭:০০",
+  "@goong_hap_zodiac_rabbit": {
+    "description": "Rabbit zodiac time slot"
+  },
+  "goong_hap_zodiac_dragon": "🐲 ড্রাগন ঘণ্টা ০৭:০০~০৯:০০",
+  "@goong_hap_zodiac_dragon": {
+    "description": "Dragon zodiac time slot"
+  },
+  "goong_hap_zodiac_snake": "🐍 সাপ ঘণ্টা ০৯:০০~১১:০০",
+  "@goong_hap_zodiac_snake": {
+    "description": "Snake zodiac time slot"
+  },
+  "goong_hap_zodiac_horse": "🐴 ঘোড়া ঘণ্টা ১১:০০~১৩:০০",
+  "@goong_hap_zodiac_horse": {
+    "description": "Horse zodiac time slot"
+  },
+  "goong_hap_zodiac_sheep": "🐑 ভেড়া ঘণ্টা ১৩:০০~১৫:০০",
+  "@goong_hap_zodiac_sheep": {
+    "description": "Sheep zodiac time slot"
+  },
+  "goong_hap_zodiac_monkey": "🐒 বানর ঘণ্টা ১৫:০০~১৭:০০",
+  "@goong_hap_zodiac_monkey": {
+    "description": "Monkey zodiac time slot"
+  },
+  "goong_hap_zodiac_rooster": "🐔 মোরগ ঘণ্টা ১৭:০০~১৯:০০",
+  "@goong_hap_zodiac_rooster": {
+    "description": "Rooster zodiac time slot"
+  },
+  "goong_hap_zodiac_dog": "🐶 কুকুর ঘণ্টা ১৯:০০~২১:০০",
+  "@goong_hap_zodiac_dog": {
+    "description": "Dog zodiac time slot"
+  },
+  "goong_hap_zodiac_pig": "🐷 শূকর ঘণ্টা ২১:০০~২৩:০০",
+  "@goong_hap_zodiac_pig": {
+    "description": "Pig zodiac time slot"
   },
   "message_setting_patch_restarting": "অ্যাপ রিস্টার্ট হচ্ছে...",
   "@message_setting_patch_restarting": {

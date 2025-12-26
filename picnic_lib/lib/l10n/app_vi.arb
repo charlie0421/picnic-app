@@ -1638,7 +1638,7 @@
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "goonghap_birthtime_subtitle": "Tăng độ chính xác!",
+  "goonghap_birthtime_subtitle": "(Tùy chọn)",
   "@goonghap_birthtime_subtitle": {
     "description": "Auto-generated metadata for key 'goonghap_birthtime_subtitle'."
   },
@@ -2162,6 +2162,66 @@
   "goong_hap_close_button": "Đóng",
   "@goong_hap_close_button": {
     "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "goong_hap_zodiac_title": "12 Con Giáp & Giờ Sinh",
+  "@goong_hap_zodiac_title": {
+    "description": "12 zodiac animals section title in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_desc": "Giờ sinh rất quan trọng trong Goong-Hap! Ở Hàn Quốc, có truyền thống chia thời gian thành 12 con vật.",
+  "@goong_hap_zodiac_desc": {
+    "description": "12 zodiac animals section description in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_subtitle": "12 Con Giáp theo Giờ Sinh",
+  "@goong_hap_zodiac_subtitle": {
+    "description": "Subtitle for zodiac animals list in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_rat": "🐭 Giờ Tý (Chuột) 23:00~01:00",
+  "@goong_hap_zodiac_rat": {
+    "description": "Rat zodiac time slot"
+  },
+  "goong_hap_zodiac_ox": "🐮 Giờ Sửu (Trâu) 01:00~03:00",
+  "@goong_hap_zodiac_ox": {
+    "description": "Ox zodiac time slot"
+  },
+  "goong_hap_zodiac_tiger": "🐯 Giờ Dần (Hổ) 03:00~05:00",
+  "@goong_hap_zodiac_tiger": {
+    "description": "Tiger zodiac time slot"
+  },
+  "goong_hap_zodiac_rabbit": "🐰 Giờ Mão (Thỏ) 05:00~07:00",
+  "@goong_hap_zodiac_rabbit": {
+    "description": "Rabbit zodiac time slot"
+  },
+  "goong_hap_zodiac_dragon": "🐲 Giờ Thìn (Rồng) 07:00~09:00",
+  "@goong_hap_zodiac_dragon": {
+    "description": "Dragon zodiac time slot"
+  },
+  "goong_hap_zodiac_snake": "🐍 Giờ Tỵ (Rắn) 09:00~11:00",
+  "@goong_hap_zodiac_snake": {
+    "description": "Snake zodiac time slot"
+  },
+  "goong_hap_zodiac_horse": "🐴 Giờ Ngọ (Ngựa) 11:00~13:00",
+  "@goong_hap_zodiac_horse": {
+    "description": "Horse zodiac time slot"
+  },
+  "goong_hap_zodiac_sheep": "🐑 Giờ Mùi (Dê) 13:00~15:00",
+  "@goong_hap_zodiac_sheep": {
+    "description": "Sheep zodiac time slot"
+  },
+  "goong_hap_zodiac_monkey": "🐒 Giờ Thân (Khỉ) 15:00~17:00",
+  "@goong_hap_zodiac_monkey": {
+    "description": "Monkey zodiac time slot"
+  },
+  "goong_hap_zodiac_rooster": "🐔 Giờ Dậu (Gà) 17:00~19:00",
+  "@goong_hap_zodiac_rooster": {
+    "description": "Rooster zodiac time slot"
+  },
+  "goong_hap_zodiac_dog": "🐶 Giờ Tuất (Chó) 19:00~21:00",
+  "@goong_hap_zodiac_dog": {
+    "description": "Dog zodiac time slot"
+  },
+  "goong_hap_zodiac_pig": "🐷 Giờ Hợi (Lợn) 21:00~23:00",
+  "@goong_hap_zodiac_pig": {
+    "description": "Pig zodiac time slot"
   },
   "message_setting_patch_restarting": "Đang khởi động lại ứng dụng...",
   "@message_setting_patch_restarting": {

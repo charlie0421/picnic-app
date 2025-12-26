@@ -1246,7 +1246,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dialog_withdraw_button_ok => '退会する';
 
   @override
-  String get goonghap_birthtime_subtitle => '精度が上がります！';
+  String get goonghap_birthtime_subtitle => '(任意)';
 
   @override
   String get title_dialog_success => '成功';
@@ -1636,6 +1636,52 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => '閉じる';
+
+  @override
+  String get goong_hap_zodiac_title => '十二支と時間';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      '宮合では生まれた時間も重要です！韓国では12種類の動物で時間を分ける伝統があります。';
+
+  @override
+  String get goong_hap_zodiac_subtitle => '生まれた時間による12種類の動物';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 子の刻 (ねずみ) 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 丑の刻 (うし) 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 寅の刻 (とら) 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 卯の刻 (うさぎ) 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 辰の刻 (りゅう) 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 巳の刻 (へび) 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 午の刻 (うま) 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 未の刻 (ひつじ) 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 申の刻 (さる) 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 酉の刻 (とり) 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 戌の刻 (いぬ) 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 亥の刻 (いのしし) 21:00~23:00';
 
   @override
   String get patch_update_ready_title => 'アップデート準備完了';

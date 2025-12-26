@@ -1290,7 +1290,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'Hủy đăng ký';
 
   @override
-  String get goonghap_birthtime_subtitle => 'Tăng độ chính xác!';
+  String get goonghap_birthtime_subtitle => '(Tùy chọn)';
 
   @override
   String get title_dialog_success => 'Thành công';
@@ -1706,6 +1706,52 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'Đóng';
+
+  @override
+  String get goong_hap_zodiac_title => '12 Con Giáp & Giờ Sinh';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      'Giờ sinh rất quan trọng trong Goong-Hap! Ở Hàn Quốc, có truyền thống chia thời gian thành 12 con vật.';
+
+  @override
+  String get goong_hap_zodiac_subtitle => '12 Con Giáp theo Giờ Sinh';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 Giờ Tý (Chuột) 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 Giờ Sửu (Trâu) 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 Giờ Dần (Hổ) 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 Giờ Mão (Thỏ) 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 Giờ Thìn (Rồng) 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 Giờ Tỵ (Rắn) 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 Giờ Ngọ (Ngựa) 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 Giờ Mùi (Dê) 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 Giờ Thân (Khỉ) 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 Giờ Dậu (Gà) 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 Giờ Tuất (Chó) 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 Giờ Hợi (Lợn) 21:00~23:00';
 
   @override
   String get patch_update_ready_title => 'Cập nhật đã sẵn sàng';

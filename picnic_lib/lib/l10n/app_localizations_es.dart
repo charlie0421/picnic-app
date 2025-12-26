@@ -1303,7 +1303,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'Dando sus suscripción';
 
   @override
-  String get goonghap_birthtime_subtitle => '¡Aumenta la precisión!';
+  String get goonghap_birthtime_subtitle => '(Opcional)';
 
   @override
   String get title_dialog_success => 'Éxito';
@@ -1722,6 +1722,54 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'Cerrar';
+
+  @override
+  String get goong_hap_zodiac_title =>
+      'Los 12 Animales del Zodiaco y el Tiempo';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      '¡La hora de nacimiento es importante en Goong-Hap! En Corea, hay una tradición de dividir el tiempo en 12 animales.';
+
+  @override
+  String get goong_hap_zodiac_subtitle =>
+      '12 Animales del Zodiaco según la Hora de Nacimiento';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 Hora de la Rata 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 Hora del Buey 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 Hora del Tigre 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 Hora del Conejo 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 Hora del Dragón 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 Hora de la Serpiente 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 Hora del Caballo 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 Hora de la Oveja 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 Hora del Mono 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 Hora del Gallo 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 Hora del Perro 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 Hora del Cerdo 21:00~23:00';
 
   @override
   String get patch_update_ready_title => 'Actualización Lista';

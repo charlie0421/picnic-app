@@ -1638,7 +1638,7 @@
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "goonghap_birthtime_subtitle": "¡Aumenta la precisión!",
+  "goonghap_birthtime_subtitle": "(Opcional)",
   "@goonghap_birthtime_subtitle": {
     "description": "Auto-generated metadata for key 'goonghap_birthtime_subtitle'."
   },
@@ -2162,6 +2162,66 @@
   "goong_hap_close_button": "Cerrar",
   "@goong_hap_close_button": {
     "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "goong_hap_zodiac_title": "Los 12 Animales del Zodiaco y el Tiempo",
+  "@goong_hap_zodiac_title": {
+    "description": "12 zodiac animals section title in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_desc": "¡La hora de nacimiento es importante en Goong-Hap! En Corea, hay una tradición de dividir el tiempo en 12 animales.",
+  "@goong_hap_zodiac_desc": {
+    "description": "12 zodiac animals section description in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_subtitle": "12 Animales del Zodiaco según la Hora de Nacimiento",
+  "@goong_hap_zodiac_subtitle": {
+    "description": "Subtitle for zodiac animals list in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_rat": "🐭 Hora de la Rata 23:00~01:00",
+  "@goong_hap_zodiac_rat": {
+    "description": "Rat zodiac time slot"
+  },
+  "goong_hap_zodiac_ox": "🐮 Hora del Buey 01:00~03:00",
+  "@goong_hap_zodiac_ox": {
+    "description": "Ox zodiac time slot"
+  },
+  "goong_hap_zodiac_tiger": "🐯 Hora del Tigre 03:00~05:00",
+  "@goong_hap_zodiac_tiger": {
+    "description": "Tiger zodiac time slot"
+  },
+  "goong_hap_zodiac_rabbit": "🐰 Hora del Conejo 05:00~07:00",
+  "@goong_hap_zodiac_rabbit": {
+    "description": "Rabbit zodiac time slot"
+  },
+  "goong_hap_zodiac_dragon": "🐲 Hora del Dragón 07:00~09:00",
+  "@goong_hap_zodiac_dragon": {
+    "description": "Dragon zodiac time slot"
+  },
+  "goong_hap_zodiac_snake": "🐍 Hora de la Serpiente 09:00~11:00",
+  "@goong_hap_zodiac_snake": {
+    "description": "Snake zodiac time slot"
+  },
+  "goong_hap_zodiac_horse": "🐴 Hora del Caballo 11:00~13:00",
+  "@goong_hap_zodiac_horse": {
+    "description": "Horse zodiac time slot"
+  },
+  "goong_hap_zodiac_sheep": "🐑 Hora de la Oveja 13:00~15:00",
+  "@goong_hap_zodiac_sheep": {
+    "description": "Sheep zodiac time slot"
+  },
+  "goong_hap_zodiac_monkey": "🐒 Hora del Mono 15:00~17:00",
+  "@goong_hap_zodiac_monkey": {
+    "description": "Monkey zodiac time slot"
+  },
+  "goong_hap_zodiac_rooster": "🐔 Hora del Gallo 17:00~19:00",
+  "@goong_hap_zodiac_rooster": {
+    "description": "Rooster zodiac time slot"
+  },
+  "goong_hap_zodiac_dog": "🐶 Hora del Perro 19:00~21:00",
+  "@goong_hap_zodiac_dog": {
+    "description": "Dog zodiac time slot"
+  },
+  "goong_hap_zodiac_pig": "🐷 Hora del Cerdo 21:00~23:00",
+  "@goong_hap_zodiac_pig": {
+    "description": "Pig zodiac time slot"
   },
   "message_setting_patch_restarting": "Reiniciando la aplicación...",
   "@message_setting_patch_restarting": {

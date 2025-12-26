@@ -1646,7 +1646,7 @@
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
-  "goonghap_birthtime_subtitle": "Increase accuracy!",
+  "goonghap_birthtime_subtitle": "(Optional)",
   "@goonghap_birthtime_subtitle": {
     "description": "Auto-generated metadata for key 'goonghap_birthtime_subtitle'."
   },
@@ -2165,6 +2165,66 @@
   "goong_hap_close_button": "Close",
   "@goong_hap_close_button": {
     "description": "Close button text in Goong-Hap intro dialog"
+  },
+  "goong_hap_zodiac_title": "The 12 Zodiac Animals & Time",
+  "@goong_hap_zodiac_title": {
+    "description": "12 zodiac animals section title in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_desc": "Birth time is important in Goong-Hap! In Korea, there's a tradition of dividing time into 12 animals.",
+  "@goong_hap_zodiac_desc": {
+    "description": "12 zodiac animals section description in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_subtitle": "12 Zodiac Animals by Birth Time",
+  "@goong_hap_zodiac_subtitle": {
+    "description": "Subtitle for zodiac animals list in Goong-Hap intro"
+  },
+  "goong_hap_zodiac_rat": "🐭 Ja-si (Rat) 23:00~01:00",
+  "@goong_hap_zodiac_rat": {
+    "description": "Rat zodiac time slot"
+  },
+  "goong_hap_zodiac_ox": "🐮 Chuk-si (Ox) 01:00~03:00",
+  "@goong_hap_zodiac_ox": {
+    "description": "Ox zodiac time slot"
+  },
+  "goong_hap_zodiac_tiger": "🐯 In-si (Tiger) 03:00~05:00",
+  "@goong_hap_zodiac_tiger": {
+    "description": "Tiger zodiac time slot"
+  },
+  "goong_hap_zodiac_rabbit": "🐰 Myo-si (Rabbit) 05:00~07:00",
+  "@goong_hap_zodiac_rabbit": {
+    "description": "Rabbit zodiac time slot"
+  },
+  "goong_hap_zodiac_dragon": "🐲 Jin-si (Dragon) 07:00~09:00",
+  "@goong_hap_zodiac_dragon": {
+    "description": "Dragon zodiac time slot"
+  },
+  "goong_hap_zodiac_snake": "🐍 Sa-si (Snake) 09:00~11:00",
+  "@goong_hap_zodiac_snake": {
+    "description": "Snake zodiac time slot"
+  },
+  "goong_hap_zodiac_horse": "🐴 O-si (Horse) 11:00~13:00",
+  "@goong_hap_zodiac_horse": {
+    "description": "Horse zodiac time slot"
+  },
+  "goong_hap_zodiac_sheep": "🐑 Mi-si (Sheep) 13:00~15:00",
+  "@goong_hap_zodiac_sheep": {
+    "description": "Sheep zodiac time slot"
+  },
+  "goong_hap_zodiac_monkey": "🐒 Sin-si (Monkey) 15:00~17:00",
+  "@goong_hap_zodiac_monkey": {
+    "description": "Monkey zodiac time slot"
+  },
+  "goong_hap_zodiac_rooster": "🐔 Yu-si (Rooster) 17:00~19:00",
+  "@goong_hap_zodiac_rooster": {
+    "description": "Rooster zodiac time slot"
+  },
+  "goong_hap_zodiac_dog": "🐶 Sul-si (Dog) 19:00~21:00",
+  "@goong_hap_zodiac_dog": {
+    "description": "Dog zodiac time slot"
+  },
+  "goong_hap_zodiac_pig": "🐷 Hae-si (Pig) 21:00~23:00",
+  "@goong_hap_zodiac_pig": {
+    "description": "Pig zodiac time slot"
   },
   "patch_update_ready_title": "Update Ready",
   "@patch_update_ready_title": {

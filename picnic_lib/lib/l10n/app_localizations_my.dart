@@ -1298,7 +1298,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'ပယ်ဖျက်နိုင်ခြင်း';
 
   @override
-  String get goonghap_birthtime_subtitle => 'တိကျမှန်ကန်မှုကိုတိုးမြှင့်!';
+  String get goonghap_birthtime_subtitle => '(ရွေးချယ်နိုင်)';
 
   @override
   String get title_dialog_success => 'အောင်မြင်ခြင်း';
@@ -1716,6 +1716,52 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'ပိတ်ပါ';
+
+  @override
+  String get goong_hap_zodiac_title => '၁၂ ရာသီခွင်နှင့် အချိန်';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      'ကုန်းဟပ်တွင် မွေးချိန်အရေးကြီးပါသည်! ကိုရီးယားတွင် အချိန်ကို တိရစ္ဆာန် ၁၂ ကောင်ဖြင့် ခွဲခြားသည့် ရိုးရာရှိပါသည်။';
+
+  @override
+  String get goong_hap_zodiac_subtitle => 'မွေးချိန်အလိုက် ၁၂ ရာသီခွင်';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 ကြွက် နာရီ 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 နွား နာရီ 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 ကျား နာရီ 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 ယုန် နာရီ 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 နဂါး နာရီ 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 မြွေ နာရီ 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 မြင်း နာရီ 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 ဆိတ် နာရီ 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 မျောက် နာရီ 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 ကြက် နာရီ 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 ခွေး နာရီ 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 ဝက် နာရီ 21:00~23:00';
 
   @override
   String get patch_update_ready_title => 'အပ်ဒိတ်အဆင်သင့်ဖြစ်ပြီ';

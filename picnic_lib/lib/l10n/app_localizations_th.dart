@@ -1273,7 +1273,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'การยกเลิกการสมัคร';
 
   @override
-  String get goonghap_birthtime_subtitle => 'เพิ่มความแม่นยำ!';
+  String get goonghap_birthtime_subtitle => '(ไม่บังคับ)';
 
   @override
   String get title_dialog_success => 'ความสำเร็จ';
@@ -1679,6 +1679,52 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'ปิด';
+
+  @override
+  String get goong_hap_zodiac_title => '12 นักษัตร & เวลาเกิด';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      'เวลาเกิดสำคัญในกุงฮับ! ในเกาหลีมีประเพณีแบ่งเวลาเป็น 12 สัตว์';
+
+  @override
+  String get goong_hap_zodiac_subtitle => '12 นักษัตรตามเวลาเกิด';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 ชั่วโมงชวด (หนู) 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 ชั่วโมงฉลู (วัว) 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 ชั่วโมงขาล (เสือ) 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 ชั่วโมงเถาะ (กระต่าย) 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 ชั่วโมงมะโรง (มังกร) 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 ชั่วโมงมะเส็ง (งู) 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 ชั่วโมงมะเมีย (ม้า) 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 ชั่วโมงมะแม (แพะ) 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 ชั่วโมงวอก (ลิง) 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 ชั่วโมงระกา (ไก่) 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 ชั่วโมงจอ (สุนัข) 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 ชั่วโมงกุน (หมู) 21:00~23:00';
 
   @override
   String get patch_update_ready_title => 'อัปเดตพร้อมแล้ว';

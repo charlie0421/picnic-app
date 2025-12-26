@@ -1289,7 +1289,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'Unsubscribing';
 
   @override
-  String get goonghap_birthtime_subtitle => 'Increase accuracy!';
+  String get goonghap_birthtime_subtitle => '(Optional)';
 
   @override
   String get title_dialog_success => 'Success';
@@ -1703,6 +1703,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'Close';
+
+  @override
+  String get goong_hap_zodiac_title => 'The 12 Zodiac Animals & Time';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      'Birth time is important in Goong-Hap! In Korea, there\'s a tradition of dividing time into 12 animals.';
+
+  @override
+  String get goong_hap_zodiac_subtitle => '12 Zodiac Animals by Birth Time';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 Ja-si (Rat) 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 Chuk-si (Ox) 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 In-si (Tiger) 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 Myo-si (Rabbit) 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 Jin-si (Dragon) 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 Sa-si (Snake) 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 O-si (Horse) 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 Mi-si (Sheep) 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 Sin-si (Monkey) 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 Yu-si (Rooster) 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 Sul-si (Dog) 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 Hae-si (Pig) 21:00~23:00';
 
   @override
   String get patch_update_ready_title => 'Update Ready';

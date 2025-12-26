@@ -1287,7 +1287,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'Unsubscribing';
 
   @override
-  String get goonghap_birthtime_subtitle => 'Increase accuracy!';
+  String get goonghap_birthtime_subtitle => '(可选)';
 
   @override
   String get title_dialog_success => 'Success';
@@ -1692,6 +1692,51 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => '关闭';
+
+  @override
+  String get goong_hap_zodiac_title => '十二地支与时辰';
+
+  @override
+  String get goong_hap_zodiac_desc => '宫合中出生时间也很重要！在韩国，有用12种动物来划分时间的传统。';
+
+  @override
+  String get goong_hap_zodiac_subtitle => '按出生时间的12种动物';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 子时 (鼠) 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 丑时 (牛) 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 寅时 (虎) 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 卯时 (兔) 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 辰时 (龙) 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 巳时 (蛇) 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 午时 (马) 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 未时 (羊) 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 申时 (猴) 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 酉时 (鸡) 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 戌时 (狗) 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 亥时 (猪) 21:00~23:00';
 
   @override
   String get patch_update_ready_title => '更新准备就绪';
@@ -2977,7 +3022,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get dialog_withdraw_button_ok => '退订';
 
   @override
-  String get goonghap_birthtime_subtitle => '提高准确性！';
+  String get goonghap_birthtime_subtitle => '(可选)';
 
   @override
   String get title_dialog_success => '成功';
@@ -3360,6 +3405,51 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get goong_hap_close_button => '关闭';
+
+  @override
+  String get goong_hap_zodiac_title => '十二地支与时辰';
+
+  @override
+  String get goong_hap_zodiac_desc => '宫合中出生时间也很重要！在韩国，有用12种动物来划分时间的传统。';
+
+  @override
+  String get goong_hap_zodiac_subtitle => '按出生时间的12种动物';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 子时 (鼠) 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 丑时 (牛) 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 寅时 (虎) 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 卯时 (兔) 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 辰时 (龙) 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 巳时 (蛇) 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 午时 (马) 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 未时 (羊) 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 申时 (猴) 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 酉时 (鸡) 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 戌时 (狗) 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 亥时 (猪) 21:00~23:00';
 
   @override
   String get patch_update_ready_title => '更新准备就绪';
@@ -4645,7 +4735,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get dialog_withdraw_button_ok => '退订';
 
   @override
-  String get goonghap_birthtime_subtitle => '提高准确性！';
+  String get goonghap_birthtime_subtitle => '(可選)';
 
   @override
   String get title_dialog_success => '成功';
@@ -5028,6 +5118,51 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get goong_hap_close_button => '關閉';
+
+  @override
+  String get goong_hap_zodiac_title => '十二地支與時辰';
+
+  @override
+  String get goong_hap_zodiac_desc => '宮合中出生時間也很重要！在韓國，有用12種動物來劃分時間的傳統。';
+
+  @override
+  String get goong_hap_zodiac_subtitle => '按出生時間的12種動物';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 子時 (鼠) 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 丑時 (牛) 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 寅時 (虎) 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 卯時 (兔) 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 辰時 (龍) 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 巳時 (蛇) 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 午時 (馬) 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 未時 (羊) 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 申時 (猴) 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 酉時 (雞) 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 戌時 (狗) 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 亥時 (豬) 21:00~23:00';
 
   @override
   String get patch_update_ready_title => '更新準備就緒';

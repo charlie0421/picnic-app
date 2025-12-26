@@ -61,18 +61,27 @@ class GoongHapIntroContent extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header with gradient
-            _buildHeader(l10n),
-            // Wave divider
-            _buildWaveDivider(),
-            // Content sections
-            _buildContent(l10n),
-            // Close button
-            _buildCloseButton(context, l10n),
-          ],
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header with gradient
+              _buildHeader(l10n),
+              // Wave divider
+              _buildWaveDivider(),
+              // Content sections (scrollable)
+              Flexible(
+                child: SingleChildScrollView(
+                  child: _buildContent(l10n),
+                ),
+              ),
+              // Close button
+              _buildCloseButton(context, l10n),
+            ],
+          ),
         ),
       ),
     );
@@ -174,14 +183,12 @@ class GoongHapIntroContent extends StatelessWidget {
   }
 
   Widget _buildContent(AppLocalizations l10n) {
-    return Transform.translate(
-      offset: const Offset(0, -12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            // Tradition section
-            _buildInfoSection(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Column(
+        children: [
+          // Tradition section
+          _buildInfoSection(
               icon: '🏯',
               iconBgColor: AppColors.primary500.withValues(alpha: 0.2),
               title: l10n.goong_hap_tradition_title,
@@ -204,11 +211,21 @@ class GoongHapIntroContent extends StatelessWidget {
               description: '${l10n.goong_hap_fun_desc} 😆',
             ),
             const SizedBox(height: 16),
+            // Zodiac section
+            _buildInfoSection(
+              icon: '🐲',
+              iconBgColor: Colors.amber.withValues(alpha: 0.2),
+              title: l10n.goong_hap_zodiac_title,
+              description: l10n.goong_hap_zodiac_desc,
+            ),
+            const SizedBox(height: 16),
+            // Zodiac animals list
+            _buildZodiacAnimals(l10n),
+            const SizedBox(height: 16),
             // Notice
             _buildNotice(l10n),
           ],
         ),
-      ),
     );
   }
 
@@ -250,6 +267,59 @@ class GoongHapIntroContent extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildZodiacAnimals(AppLocalizations l10n) {
+    final animals = [
+      l10n.goong_hap_zodiac_rat,
+      l10n.goong_hap_zodiac_ox,
+      l10n.goong_hap_zodiac_tiger,
+      l10n.goong_hap_zodiac_rabbit,
+      l10n.goong_hap_zodiac_dragon,
+      l10n.goong_hap_zodiac_snake,
+      l10n.goong_hap_zodiac_horse,
+      l10n.goong_hap_zodiac_sheep,
+      l10n.goong_hap_zodiac_monkey,
+      l10n.goong_hap_zodiac_rooster,
+      l10n.goong_hap_zodiac_dog,
+      l10n.goong_hap_zodiac_pig,
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.amber.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Text(
+            l10n.goong_hap_zodiac_subtitle,
+            style: getTextStyle(AppTypo.caption12B, AppColors.grey700),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 4,
+            runSpacing: 4,
+            alignment: WrapAlignment.center,
+            children: animals.map((animal) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  animal,
+                  style: getTextStyle(AppTypo.caption10R, AppColors.grey600),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 

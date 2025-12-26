@@ -1289,7 +1289,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'Unsubscribing';
 
   @override
-  String get goonghap_birthtime_subtitle => 'Increase accuracy!';
+  String get goonghap_birthtime_subtitle => '(ঐচ্ছিক)';
 
   @override
   String get title_dialog_success => 'Success';
@@ -1703,6 +1703,52 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'বন্ধ';
+
+  @override
+  String get goong_hap_zodiac_title => '১২ রাশি ও সময়';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      'গুংহাপে জন্ম সময় গুরুত্বপূর্ণ! কোরিয়ায় ১২টি প্রাণী দিয়ে সময় ভাগ করার ঐতিহ্য আছে।';
+
+  @override
+  String get goong_hap_zodiac_subtitle => 'জন্ম সময় অনুযায়ী ১২ রাশি';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 ইঁদুর ঘণ্টা ২৩:০০~০১:০০';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 গরু ঘণ্টা ০১:০০~০৩:০০';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 বাঘ ঘণ্টা ০৩:০০~০৫:০০';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 খরগোশ ঘণ্টা ০৫:০০~০৭:০০';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 ড্রাগন ঘণ্টা ০৭:০০~০৯:০০';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 সাপ ঘণ্টা ০৯:০০~১১:০০';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 ঘোড়া ঘণ্টা ১১:০০~১৩:০০';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 ভেড়া ঘণ্টা ১৩:০০~১৫:০০';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 বানর ঘণ্টা ১৫:০০~১৭:০০';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 মোরগ ঘণ্টা ১৭:০০~১৯:০০';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 কুকুর ঘণ্টা ১৯:০০~২১:০০';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 শূকর ঘণ্টা ২১:০০~২৩:০০';
 
   @override
   String get patch_update_ready_title => 'আপডেট প্রস্তুত';
@@ -3039,7 +3085,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get dialog_withdraw_button_ok => 'সাবস্ক্রাইব করা';
 
   @override
-  String get goonghap_birthtime_subtitle => 'নির্ভুলতা বৃদ্ধি!';
+  String get goonghap_birthtime_subtitle => '(ঐচ্ছিক)';
 
   @override
   String get title_dialog_success => 'সাফল্য';
@@ -3452,6 +3498,52 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get goong_hap_close_button => 'বন্ধ';
+
+  @override
+  String get goong_hap_zodiac_title => '১২ রাশি ও সময়';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      'গুংহাপে জন্ম সময় গুরুত্বপূর্ণ! কোরিয়ায় ১২টি প্রাণী দিয়ে সময় ভাগ করার ঐতিহ্য আছে।';
+
+  @override
+  String get goong_hap_zodiac_subtitle => 'জন্ম সময় অনুযায়ী ১২ রাশি';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 ইঁদুর ঘণ্টা ২৩:০০~০১:০০';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 গরু ঘণ্টা ০১:০০~০৩:০০';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 বাঘ ঘণ্টা ০৩:০০~০৫:০০';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 খরগোশ ঘণ্টা ০৫:০০~০৭:০০';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 ড্রাগন ঘণ্টা ০৭:০০~০৯:০০';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 সাপ ঘণ্টা ০৯:০০~১১:০০';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 ঘোড়া ঘণ্টা ১১:০০~১৩:০০';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 ভেড়া ঘণ্টা ১৩:০০~১৫:০০';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 বানর ঘণ্টা ১৫:০০~১৭:০০';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 মোরগ ঘণ্টা ১৭:০০~১৯:০০';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 কুকুর ঘণ্টা ১৯:০০~২১:০০';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 শূকর ঘণ্টা ২১:০০~২৩:০০';
 
   @override
   String get patch_update_ready_title => 'আপডেট প্রস্তুত';

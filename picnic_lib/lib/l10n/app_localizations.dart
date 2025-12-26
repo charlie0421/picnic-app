@@ -2534,7 +2534,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'goonghap_birthtime_subtitle'.
   ///
   /// In en, this message translates to:
-  /// **'Increase accuracy!'**
+  /// **'(Optional)'**
   String get goonghap_birthtime_subtitle;
 
   /// Auto-generated metadata for key 'title_dialog_success'.
@@ -3220,6 +3220,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get goong_hap_close_button;
+
+  /// 12 zodiac animals section title in Goong-Hap intro
+  ///
+  /// In en, this message translates to:
+  /// **'The 12 Zodiac Animals & Time'**
+  String get goong_hap_zodiac_title;
+
+  /// 12 zodiac animals section description in Goong-Hap intro
+  ///
+  /// In en, this message translates to:
+  /// **'Birth time is important in Goong-Hap! In Korea, there\'s a tradition of dividing time into 12 animals.'**
+  String get goong_hap_zodiac_desc;
+
+  /// Subtitle for zodiac animals list in Goong-Hap intro
+  ///
+  /// In en, this message translates to:
+  /// **'12 Zodiac Animals by Birth Time'**
+  String get goong_hap_zodiac_subtitle;
+
+  /// Rat zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐭 Ja-si (Rat) 23:00~01:00'**
+  String get goong_hap_zodiac_rat;
+
+  /// Ox zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐮 Chuk-si (Ox) 01:00~03:00'**
+  String get goong_hap_zodiac_ox;
+
+  /// Tiger zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐯 In-si (Tiger) 03:00~05:00'**
+  String get goong_hap_zodiac_tiger;
+
+  /// Rabbit zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐰 Myo-si (Rabbit) 05:00~07:00'**
+  String get goong_hap_zodiac_rabbit;
+
+  /// Dragon zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐲 Jin-si (Dragon) 07:00~09:00'**
+  String get goong_hap_zodiac_dragon;
+
+  /// Snake zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐍 Sa-si (Snake) 09:00~11:00'**
+  String get goong_hap_zodiac_snake;
+
+  /// Horse zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐴 O-si (Horse) 11:00~13:00'**
+  String get goong_hap_zodiac_horse;
+
+  /// Sheep zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐑 Mi-si (Sheep) 13:00~15:00'**
+  String get goong_hap_zodiac_sheep;
+
+  /// Monkey zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐒 Sin-si (Monkey) 15:00~17:00'**
+  String get goong_hap_zodiac_monkey;
+
+  /// Rooster zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐔 Yu-si (Rooster) 17:00~19:00'**
+  String get goong_hap_zodiac_rooster;
+
+  /// Dog zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐶 Sul-si (Dog) 19:00~21:00'**
+  String get goong_hap_zodiac_dog;
+
+  /// Pig zodiac time slot
+  ///
+  /// In en, this message translates to:
+  /// **'🐷 Hae-si (Pig) 21:00~23:00'**
+  String get goong_hap_zodiac_pig;
 
   /// Title for patch restart dialog
   ///

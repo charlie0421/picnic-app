@@ -1309,7 +1309,7 @@ class AppLocalizationsFil extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'Hindi nag -unsubscribing';
 
   @override
-  String get goonghap_birthtime_subtitle => 'Dagdagan ang kawastuhan!';
+  String get goonghap_birthtime_subtitle => '(Opsyonal)';
 
   @override
   String get title_dialog_success => 'Tagumpay';
@@ -1734,6 +1734,53 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'Isara';
+
+  @override
+  String get goong_hap_zodiac_title => '12 Hayop ng Zodiac at Oras';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      'Mahalaga ang oras ng kapanganakan sa Goong-Hap! Sa Korea, may tradisyon ng paghahati ng oras sa 12 hayop.';
+
+  @override
+  String get goong_hap_zodiac_subtitle =>
+      '12 Hayop ng Zodiac ayon sa Oras ng Kapanganakan';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 Oras ng Daga 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 Oras ng Kalabaw 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 Oras ng Tigre 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 Oras ng Kuneho 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 Oras ng Dragon 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 Oras ng Ahas 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 Oras ng Kabayo 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 Oras ng Tupa 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 Oras ng Unggoy 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 Oras ng Tandang 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 Oras ng Aso 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 Oras ng Baboy 21:00~23:00';
 
   @override
   String get patch_update_ready_title => 'Handa na ang Update';

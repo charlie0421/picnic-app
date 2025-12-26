@@ -1294,7 +1294,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get dialog_withdraw_button_ok => 'Berhenti berlangganan';
 
   @override
-  String get goonghap_birthtime_subtitle => 'Tingkatkan akurasi!';
+  String get goonghap_birthtime_subtitle => '(Opsional)';
 
   @override
   String get title_dialog_success => 'Sukses';
@@ -1710,6 +1710,52 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get goong_hap_close_button => 'Tutup';
+
+  @override
+  String get goong_hap_zodiac_title => '12 Shio & Waktu Lahir';
+
+  @override
+  String get goong_hap_zodiac_desc =>
+      'Waktu lahir penting dalam Goong-Hap! Di Korea, ada tradisi membagi waktu menjadi 12 hewan.';
+
+  @override
+  String get goong_hap_zodiac_subtitle => '12 Shio berdasarkan Waktu Lahir';
+
+  @override
+  String get goong_hap_zodiac_rat => '🐭 Jam Tikus 23:00~01:00';
+
+  @override
+  String get goong_hap_zodiac_ox => '🐮 Jam Kerbau 01:00~03:00';
+
+  @override
+  String get goong_hap_zodiac_tiger => '🐯 Jam Macan 03:00~05:00';
+
+  @override
+  String get goong_hap_zodiac_rabbit => '🐰 Jam Kelinci 05:00~07:00';
+
+  @override
+  String get goong_hap_zodiac_dragon => '🐲 Jam Naga 07:00~09:00';
+
+  @override
+  String get goong_hap_zodiac_snake => '🐍 Jam Ular 09:00~11:00';
+
+  @override
+  String get goong_hap_zodiac_horse => '🐴 Jam Kuda 11:00~13:00';
+
+  @override
+  String get goong_hap_zodiac_sheep => '🐑 Jam Kambing 13:00~15:00';
+
+  @override
+  String get goong_hap_zodiac_monkey => '🐒 Jam Monyet 15:00~17:00';
+
+  @override
+  String get goong_hap_zodiac_rooster => '🐔 Jam Ayam 17:00~19:00';
+
+  @override
+  String get goong_hap_zodiac_dog => '🐶 Jam Anjing 19:00~21:00';
+
+  @override
+  String get goong_hap_zodiac_pig => '🐷 Jam Babi 21:00~23:00';
 
   @override
   String get patch_update_ready_title => 'Pembaruan Siap';
