@@ -189,8 +189,10 @@ workflows:
           fi
           echo "✅ SHOREBIRD_TOKEN 설정됨"
 
-          # CI 환경은 매번 깨끗하므로 cache clean 불필요
-          # shorebird release가 자체적으로 빌드를 수행함
+          # Shorebird 캐시 초기화 (malformed object name 에러 방지)
+          echo "🧹 Shorebird 캐시 초기화..."
+          rm -rf "$HOME/.shorebird/bin/cache/flutter"
+          shorebird doctor --fix || true
 
           echo "=== Shorebird iOS 릴리즈 시도 ==="
           echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
@@ -463,8 +465,10 @@ workflows:
           VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //')
           echo "📦 현재 버전: $VERSION"
 
-          # CI 환경은 매번 깨끗하므로 cache clean 불필요
-          # shorebird release가 자체적으로 빌드를 수행함
+          # Shorebird 캐시 초기화 (malformed object name 에러 방지)
+          echo "🧹 Shorebird 캐시 초기화..."
+          rm -rf "$HOME/.shorebird/bin/cache/flutter"
+          shorebird doctor --fix || true
 
           echo "=== Shorebird Android 릴리즈 시도 ==="
           echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
