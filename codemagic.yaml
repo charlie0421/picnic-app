@@ -670,8 +670,12 @@ workflows:
           echo "🚀 iOS 패치 생성 중..."
           echo "💡 패치는 Dart 코드만 업데이트하므로 코드 서명이 불필요합니다"
 
+          # pubspec.yaml에서 버전 추출 (빌드 번호 제외)
+          RELEASE_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          echo "📦 패치 대상 버전: $RELEASE_VERSION"
+
           shorebird patch ios \
-            --release-version=latest \
+            --release-version=$RELEASE_VERSION \
             --no-confirm \
             --allow-native-diffs \
             --allow-asset-diffs \
@@ -779,8 +783,12 @@ workflows:
           # 5. Android 패치 생성 및 배포
           echo "🚀 Android 패치 생성 중..."
 
+          # pubspec.yaml에서 버전 추출 (빌드 번호 제외)
+          RELEASE_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          echo "📦 패치 대상 버전: $RELEASE_VERSION"
+
           shorebird patch android \
-            --release-version=latest \
+            --release-version=$RELEASE_VERSION \
             --no-confirm \
             --allow-native-diffs \
             --allow-asset-diffs \
