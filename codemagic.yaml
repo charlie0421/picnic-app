@@ -478,6 +478,7 @@ workflows:
           shorebird release android \
             --dart-define=ENVIRONMENT=prod \
             --no-confirm \
+            --flutter-version=3.38.4 \
             --verbose 2>&1 | tee /tmp/shorebird_release.log
 
           RELEASE_EXIT_CODE=${PIPESTATUS[0]}
