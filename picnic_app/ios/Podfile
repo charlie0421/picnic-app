@@ -76,6 +76,14 @@ post_install do |installer|
       # Swift 5 모드 강제 (Xcode 16 호환성)
       config.build_settings['SWIFT_VERSION'] = '5.0'
 
+      # Swift 6 coroutine 심볼 문제 해결 (_swift_coroFrameAlloc)
+      # Xcode 16.2에서 발생하는 링커 에러 방지
+      config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
+      config.build_settings['OTHER_LDFLAGS'] << '-Wl,-weak_reference_mismatches,weak'
+
+      # Swift strict concurrency 비활성화
+      config.build_settings['SWIFT_STRICT_CONCURRENCY'] = 'minimal'
+
       # Xcode 26 베타에서 exhaustive switch warning을 에러로 처리하지 않도록 설정
       # sign_in_with_apple 등 일부 패키지에서 발생하는 호환성 문제 해결
       config.build_settings['SWIFT_SUPPRESS_WARNINGS'] = 'YES'
