@@ -255,6 +255,12 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     logger.i('🎯 구매 시작: $productId (연속 $_consecutivePurchaseCount회째)');
   }
 
+  /// 🛡️ iOS 전용: Transaction ID를 미리 마킹하여 중복 처리 방지
+  void markTransactionAsProcessed(String transactionId) {
+    _lastProcessedTransactionId = transactionId;
+    logger.i('🛡️ Transaction ID 미리 마킹: $transactionId');
+  }
+
   /// 🎯 심플 구매 완료 + 타이머 정리 (3줄로 해결!)
   void completePurchaseSession(String productId) {
     final transactionId =
