@@ -202,7 +202,6 @@ workflows:
             --dart-define=ENVIRONMENT=prod \
             --no-confirm \
             --flutter-version=3.38.5 \
-            --verbose \
             -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
 
           RELEASE_EXIT_CODE=${PIPESTATUS[0]}
