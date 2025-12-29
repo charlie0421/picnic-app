@@ -239,6 +239,21 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     logger.i('🧹 [상품별] 쿨타임 초기화: $productId');
   }
 
+  /// 🧹 모든 상품의 쿨타임/세션 상태 완전 초기화 (페이지 초기화 시 사용)
+  void clearAllCooldowns() {
+    _lastPurchaseTimeByProduct.clear();
+    _consecutivePurchaseCountByProduct.clear();
+    _firstPurchaseInSessionByProduct.clear();
+    _productCooldownUntil.clear();
+    _currentProductId = null;
+    _isPurchaseInProgress = false;
+    _lastProcessedTransactionId = null;
+    _lastPurchaseTime = null;
+    _consecutivePurchaseCount = 0;
+    _firstPurchaseInSession = null;
+    logger.i('🧹 모든 쿨타임/세션 상태 완전 초기화');
+  }
+
   /// 🎯 심플 구매 시작 + 연속 구매 추적 (3줄로 해결!)
   void recordPurchaseAttempt({String? productId}) {
     _isPurchaseInProgress = true;
