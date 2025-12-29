@@ -155,16 +155,16 @@ class InAppPurchaseService {
     _purchaseTimeoutTimer?.cancel();
     _backgroundCleanupTimer?.cancel();
 
-    // StoreKit/BillingClient 초기화를 위해 약간의 지연 시간을 줍니다.
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    // iOS에서는 SKPaymentQueue를 직접 정리하여 안정성을 높입니다.
+    // iOS에서는 SKPaymentQueue를 직접 정리만 수행 (purchaseStream 사용 안함)
     if (Platform.isIOS) {
       await _clearIosPendingTransactions();
+      logger.i('✨ iOS: SKPaymentQueue 정리 완료');
+    } else {
+      // Android만 플러그인 통한 정리 수행
+      await Future.delayed(const Duration(milliseconds: 500));
+      await _processPendingTransactions();
     }
 
-    // 모든 플랫폼에서 플러그인을 통한 정리를 한 번 더 수행합니다.
-    await _processPendingTransactions();
     logger.i('✨ 앱 시작: 처리되지 않은 구매 정리 완료');
   }
 
