@@ -125,10 +125,13 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         // 2️⃣ SafetyManager 쿨타임 초기화
         _safetyManager.clearAllCooldowns();
 
-        // 3️⃣ SKPaymentQueue pending 트랜잭션 정리
+        // 3️⃣ DuplicatePreventionService 상태 초기화 (SharedPreferences 포함)
+        await _purchaseService.duplicatePreventionService.clearAllPurchaseStates();
+
+        // 4️⃣ SKPaymentQueue pending 트랜잭션 정리
         await _purchaseService.inAppPurchaseService.clearPendingPurchasesOnStartup();
 
-        // 4️⃣ iOS는 restorePurchases 건너뛰고 바로 완료 처리
+        // 5️⃣ iOS는 restorePurchases 건너뛰고 바로 완료 처리
         _restoreHandler.markCleanupCompleted();
       } else {
         // Android는 기존대로 복원 정리 수행

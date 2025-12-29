@@ -280,6 +280,35 @@ class DuplicatePreventionService {
     }
   }
 
+  /// 🍎 iOS: 모든 구매 관련 상태 완전 초기화
+  Future<void> clearAllPurchaseStates() async {
+    logger.i('🧹 iOS: 모든 구매 관련 상태 초기화 시작');
+
+    // 메모리 상태 초기화
+    _purchaseAttempts.clear();
+    _authenticationStarts.clear();
+    _backgroundPurchases.clear();
+    _processingPurchases.clear();
+    _userInteractionHistory.clear();
+
+    // SharedPreferences 정리
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final keys = prefs.getKeys();
+      for (final key in keys) {
+        if (key.contains('purchase_') ||
+            key.contains('authentication_') ||
+            key.contains('background_')) {
+          await prefs.remove(key);
+        }
+      }
+    } catch (e) {
+      logger.e('SharedPreferences 정리 실패: $e');
+    }
+
+    logger.i('🧹 iOS: 모든 구매 관련 상태 초기화 완료');
+  }
+
   /// 만료된 데이터 정리 (주기적으로 호출)
   void cleanupExpiredData() {
     final now = DateTime.now();
