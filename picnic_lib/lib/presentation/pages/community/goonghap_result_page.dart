@@ -423,6 +423,7 @@ class _GoonghapResultPageState
             return _buildI18nLoadingIndicator(goonghap);
           }
 
+          final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
           return CustomScrollView(
             controller: _scrollController, // Add the ScrollController here
 
@@ -503,6 +504,10 @@ class _GoonghapResultPageState
                     ),
                   ),
                 ),
+              ),
+              // 하단 안전 영역 패딩
+              SliverToBoxAdapter(
+                child: SizedBox(height: bottomPadding),
               ),
             ],
           );

@@ -287,9 +287,10 @@ class _GoonghapLoadingPageState
       }
     });
 
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
     return SingleChildScrollView(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,

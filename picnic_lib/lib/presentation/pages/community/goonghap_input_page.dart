@@ -489,10 +489,11 @@ class _GoonghapInputScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
     return SingleChildScrollView(
       controller: _scrollController,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,

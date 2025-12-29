@@ -351,6 +351,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
 
         final post = snapshot.data!;
         final isDeleted = post.deletedAt != null;
+        final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
         final content = Material(
           color: Colors.white,
           child: RefreshIndicator(
@@ -359,97 +360,100 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
             onRefresh: () => _refreshPostAndComments(),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BannerAdWidget(
-                    configKey: 'POSTVIEW_TOP',
-                    adSize: AdSize.fullBanner,
-                  ),
-
-                  // 삭제된 게시물인 경우 삭제 메시지 표시
-                  if (isDeleted) ...[
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Text(
-                        AppLocalizations.of(context).post_deleted_title,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.grey500,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(16.w),
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(16.w),
-                        decoration: BoxDecoration(
-                          color: AppColors.grey100,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context).post_deleted_desc,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.grey600,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ] else ...[
-                    // 컨텐츠
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Text(
-                        post.title ?? '',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                  // 삭제되지 않은 게시물일 때만 작성자 정보, 게시물 정보, 본문 표시
-                  if (!isDeleted) ...[
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 8,
-                      ),
-                      child: post.isAnonymous ?? false
-                          ? Text(
-                              AppLocalizations.of(context).anonymous,
-                              style: getTextStyle(
-                                AppTypo.caption12B,
-                                AppColors.primary500,
-                              ),
-                            )
-                          : Text(
-                              post.userProfiles?.nickname ?? '',
-                              style: getTextStyle(
-                                AppTypo.caption12B,
-                                AppColors.primary500,
-                              ),
-                            ),
-                    ),
-                    _buildPostInfo(post),
-                    const Divider(color: AppColors.grey500),
-                    Padding(
-                      padding: EdgeInsets.all(16.w),
-                      child: _buildContent(),
-                    ),
+              child: Padding(
+                padding: EdgeInsets.only(bottom: bottomPadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     BannerAdWidget(
-                      configKey: 'POSTVIEW_BOTTOM',
-                      adSize: AdSize.mediumRectangle,
+                      configKey: 'POSTVIEW_TOP',
+                      adSize: AdSize.fullBanner,
                     ),
+
+                    // 삭제된 게시물인 경우 삭제 메시지 표시
+                    if (isDeleted) ...[
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Text(
+                          AppLocalizations.of(context).post_deleted_title,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.grey500,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.w),
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.grey100,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context).post_deleted_desc,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.grey600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      // 컨텐츠
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Text(
+                          post.title ?? '',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                    // 삭제되지 않은 게시물일 때만 작성자 정보, 게시물 정보, 본문 표시
+                    if (!isDeleted) ...[
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 8,
+                        ),
+                        child: post.isAnonymous ?? false
+                            ? Text(
+                                AppLocalizations.of(context).anonymous,
+                                style: getTextStyle(
+                                  AppTypo.caption12B,
+                                  AppColors.primary500,
+                                ),
+                              )
+                            : Text(
+                                post.userProfiles?.nickname ?? '',
+                                style: getTextStyle(
+                                  AppTypo.caption12B,
+                                  AppColors.primary500,
+                                ),
+                              ),
+                      ),
+                      _buildPostInfo(post),
+                      const Divider(color: AppColors.grey500),
+                      Padding(
+                        padding: EdgeInsets.all(16.w),
+                        child: _buildContent(),
+                      ),
+                      BannerAdWidget(
+                        configKey: 'POSTVIEW_BOTTOM',
+                        adSize: AdSize.mediumRectangle,
+                      ),
+                    ],
+                    const SizedBox(height: 36),
+                    // 댓글은 삭제 여부와 관계없이 항상 표시
+                    _buildCommentsList(post),
                   ],
-                  const SizedBox(height: 36),
-                  // 댓글은 삭제 여부와 관계없이 항상 표시
-                  _buildCommentsList(post),
-                ],
+                ),
               ),
             ),
           ),
