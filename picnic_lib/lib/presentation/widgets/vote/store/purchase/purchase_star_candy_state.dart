@@ -303,6 +303,12 @@ Full Error: ${purchaseDetails.error}
   }
 
   void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) async {
+    // 🍎 iOS 초기화 중에는 모든 이벤트 무시
+    if (_isInitializing && Platform.isIOS) {
+      logger.i('[PurchaseStarCandyState] iOS: Ignoring purchase update during initialization');
+      return;
+    }
+
     final statusCounts = _getStatusCounts(purchaseDetailsList);
 
     logger.d(
