@@ -117,6 +117,11 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       if (Platform.isIOS) {
         logger.i('[PurchaseStarCandyState] iOS: Clearing ALL purchase states (skip restore)');
 
+        // 0️⃣ 펄스 로딩 표시 (Android와 동일하게)
+        _loadingKey.currentState?.hide();
+        await Future.delayed(const Duration(milliseconds: 100));
+        _loadingKey.currentState?.show();
+
         // 1️⃣ 로컬 상태 초기화
         _isPurchasing = false;
         _isActivePurchasing = false;
