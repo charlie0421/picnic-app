@@ -13,9 +13,9 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
   static const Duration _safetyTimeout = Duration(seconds: 90);
   static const Duration _basePurchaseCooldown =
-      Duration(seconds: 15); // 🎯 기본 15초 (60초 → 15초로 단축)
+      Duration(minutes: 1); // 🎯 기본 60초
   static const Duration _consecutivePurchaseCooldown =
-      Duration(seconds: 30); // 🔄 연속 구매 시 30초 (60초 → 30초로 단축)
+      Duration(minutes: 1); // 🔄 연속 구매도 60초 동일 적용
 
   // 🔄 연속 구매 추적
   int _consecutivePurchaseCount = 0;
@@ -253,12 +253,6 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     _consecutivePurchaseCount++;
 
     logger.i('🎯 구매 시작: $productId (연속 $_consecutivePurchaseCount회째)');
-  }
-
-  /// 🛡️ iOS 전용: Transaction ID를 미리 마킹하여 중복 처리 방지
-  void markTransactionAsProcessed(String transactionId) {
-    _lastProcessedTransactionId = transactionId;
-    logger.i('🛡️ Transaction ID 미리 마킹: $transactionId');
   }
 
   /// 🎯 심플 구매 완료 + 타이머 정리 (3줄로 해결!)

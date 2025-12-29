@@ -15,7 +15,6 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
@@ -567,14 +566,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase)',
     );
 
-    // 🛡️ iOS 전용: Transaction ID를 영수증 검증 시작 전에 미리 마킹 (중복 호출 방지)
-    final transactionId =
-        purchaseDetails.purchaseID ??
-        '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
-    if (Platform.isIOS) {
-      _safetyManager.markTransactionAsProcessed(transactionId);
-    }
-
     await _purchaseService.handleOptimizedPurchase(
       purchaseDetails,
       () async {
@@ -627,11 +618,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 ).previousTransactionPendingError,
               );
             }
-            // iOS JWS 반복 중복 완화: 강제 쿨다운(상품별) 15초 적용하여 루프 차단
+            // iOS JWS 반복 중복 완화: 강제 쿨다운(상품별) 60초 적용하여 루프 차단
             if (_pendingProductId != null) {
               _safetyManager.activateDuplicateCooldown(
                 productId: _pendingProductId,
-                cooldown: const Duration(seconds: 15),
+                cooldown: const Duration(minutes: 1),
               );
             }
           } else if (error == PurchaseConstants.errCooldownActive) {
@@ -647,11 +638,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           } else if (_isDuplicateError(error)) {
             // 문자열 기반 중복 케이스도 동일 처리: 안내만, 쿨타임 미적용
             setState(() => _isPurchasing = false);
-            // iOS 캐시성 중복 신호 완화용 강제 쿨다운(상품별) 15초
+            // iOS 캐시성 중복 신호 완화용 강제 쿨다운(상품별) 60초
             if (_pendingProductId != null) {
               _safetyManager.activateDuplicateCooldown(
                 productId: _pendingProductId,
-                cooldown: const Duration(seconds: 15),
+                cooldown: const Duration(minutes: 1),
               );
             }
           } else {
@@ -820,10 +811,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
-    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
-      return;
-    }
-
     if (!_canPurchase(productId: serverProduct['id'] as String)) {
       return;
     }
@@ -845,12 +832,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
   ) async {
-    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
-      _resetPurchaseState();
-      _loadingKey.currentState?.hide();
-      return;
-    }
-
     // 🛡️ 복원 정리 완료 대기 가드
     if (!_restoreHandler.isProactiveCleanupCompleted) {
       logger.w('🛡️ 복원 정리가 아직 완료되지 않음 - 구매 차단');

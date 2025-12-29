@@ -6,7 +6,6 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
-import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy_web.dart';
@@ -127,10 +126,6 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
     BuildContext context,
     Map<String, dynamic> serverProduct,
   ) async {
-    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
-      return;
-    }
-
     final url = serverProduct['paypal_link'];
     logger.i('Buy button pressed: ${serverProduct['paypal_link']}');
     if (await canLaunchUrlString(url)) {

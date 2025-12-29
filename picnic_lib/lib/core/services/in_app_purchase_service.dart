@@ -64,8 +64,7 @@ class InAppPurchaseService {
     debugMode = enabled;
     debugTimeoutMode = enabled ? 'debug' : 'normal';
     logger.i(
-      '🧪 디버그 모드 ${enabled ? "활성화" : "비활성화"}: 타임아웃 시간 ${_getTimeoutDescription()}',
-    );
+        '🧪 디버그 모드 ${enabled ? "활성화" : "비활성화"}: 타임아웃 시간 ${_getTimeoutDescription()}');
   }
 
   /// 🧪 타임아웃 모드 설정 (더 세밀한 제어)
@@ -84,9 +83,7 @@ class InAppPurchaseService {
     final delayText = _slowPurchaseDelay.inMilliseconds < 1000
         ? '${_slowPurchaseDelay.inMilliseconds}ms'
         : '${_slowPurchaseDelay.inSeconds}초';
-    logger.i(
-      '🧪 구매 지연 시뮬레이션 ${enabled ? "활성화" : "비활성화"}: ${enabled ? delayText : "즉시 실행"}',
-    );
+    logger.i('🧪 구매 지연 시뮬레이션 ${enabled ? "활성화" : "비활성화"}: ${enabled ? delayText : "즉시 실행"}');
   }
 
   /// 🎯 무조건 타임아웃 시뮬레이션 설정 (실제 구매 요청 안함)
@@ -157,16 +154,10 @@ class InAppPurchaseService {
     // iOS에서는 SKPaymentQueue를 직접 정리하여 안정성을 높입니다.
     if (Platform.isIOS) {
       await _clearIosPendingTransactions();
-      // iOS는 StoreKit 복원 경로가 있으므로 기존처럼 pending 구매를 정리한다.
-      await _processPendingTransactions();
-    } else if (Platform.isAndroid) {
-      // Android는 구매를 소비(completePurchase)하면 purchaseToken을 다시 받을 수 없으므로
-      // 자동 정리를 건너뛰고, PurchaseService 측의 큐/재검증 로직에 맡긴다.
-      logger.i('🤖 Android: pending 구매 자동 정리를 생략합니다 (영수증 검증 이전 소비 방지)');
-    } else {
-      // 기타 플랫폼은 기존 동작 유지
-      await _processPendingTransactions();
     }
+
+    // 모든 플랫폼에서 플러그인을 통한 정리를 한 번 더 수행합니다.
+    await _processPendingTransactions();
     logger.i('✨ 앱 시작: 처리되지 않은 구매 정리 완료');
   }
 
@@ -188,9 +179,7 @@ class InAppPurchaseService {
           await SKPaymentQueueWrapper().finishTransaction(transaction);
           logger.i('iOS: 트랜잭션 강제 완료: ${transaction.transactionIdentifier}');
         } catch (e) {
-          logger.e(
-            'iOS: 트랜잭션 강제 완료 실패: ${transaction.transactionIdentifier}, error: $e',
-          );
+          logger.e('iOS: 트랜잭션 강제 완료 실패: ${transaction.transactionIdentifier}, error: $e');
         }
       }
     } catch (e) {
@@ -209,8 +198,7 @@ class InAppPurchaseService {
     _subscription = InAppPurchase.instance.purchaseStream.listen(
       (List<PurchaseDetails> purchaseDetailsList) {
         logger.d(
-          'Purchase stream event: ${purchaseDetailsList.length} purchases',
-        );
+            'Purchase stream event: ${purchaseDetailsList.length} purchases');
 
         // 🚨 구매 완료 시 현재 구매 ID 정리
         for (final purchase in purchaseDetailsList) {
@@ -230,9 +218,8 @@ class InAppPurchaseService {
         logger.e('Purchase stream error: $error');
         // 🚨 에러 시에도 현재 구매 ID 정리
         if (_currentPurchasingProductId != null) {
-          logger.w(
-            '🧹 구매 스트림 오류로 인한 현재 구매 ID 정리: $_currentPurchasingProductId',
-          );
+          logger
+              .w('🧹 구매 스트림 오류로 인한 현재 구매 ID 정리: $_currentPurchasingProductId');
           _currentPurchasingProductId = null;
         }
         _onPurchaseUpdate([]);
@@ -251,8 +238,7 @@ class InAppPurchaseService {
 
     _purchaseTimeoutTimer = Timer(timeout, () {
       logger.w(
-        '⏰ Purchase timeout - no updates for ${timeout.inSeconds}s ${debugMode ? "(디버그 모드)" : ""}',
-      );
+          '⏰ Purchase timeout - no updates for ${timeout.inSeconds}s ${debugMode ? "(디버그 모드)" : ""}');
 
       // 🛡️ 타임아웃 발생을 로깅하고 상태 마킹 (안전망은 UI에서 처리)
       logger.w('🚨 InAppPurchaseService 타임아웃 발생 - UI 안전망에서 처리 예정');
@@ -286,9 +272,8 @@ class InAppPurchaseService {
 
     try {
       // 🛡️ StoreKit 레벨 중복 방지: 현재 pending 구매 확인
-      final currentPendingPurchases = await _getPendingPurchasesForProduct(
-        productDetails.id,
-      );
+      final currentPendingPurchases =
+          await _getPendingPurchasesForProduct(productDetails.id);
       if (currentPendingPurchases.isNotEmpty) {
         logger.w('🚫 StoreKit에서 이미 진행 중인 구매 감지: ${productDetails.id}');
         logger.w('   → 진행 중인 구매: ${currentPendingPurchases.length}개');
@@ -427,7 +412,7 @@ class InAppPurchaseService {
       'payment cancelled',
       'cancelled transaction',
       'user cancellation',
-      'cancelled by user',
+      'cancelled by user'
     ];
 
     // 키워드 검사
@@ -443,17 +428,13 @@ class InAppPurchaseService {
 
   /// 특정 제품의 pending 구매들 조회
   Future<List<PurchaseDetails>> _getPendingPurchasesForProduct(
-    String productId,
-  ) async {
+      String productId) async {
     try {
-      final purchaseDetailsList = await _getPurchaseUpdates(
-        Duration(milliseconds: 300),
-      );
+      final purchaseDetailsList =
+          await _getPurchaseUpdates(Duration(milliseconds: 300));
       return purchaseDetailsList
-          .where(
-            (p) =>
-                p.productID == productId && p.status == PurchaseStatus.pending,
-          )
+          .where((p) =>
+              p.productID == productId && p.status == PurchaseStatus.pending)
           .toList();
     } catch (e) {
       logger.w('pending 구매 조회 실패: $e');
@@ -464,18 +445,16 @@ class InAppPurchaseService {
   Future<List<ProductDetails>> getProducts(Set<String> productIds) async {
     logger.i('Fetching ${productIds.length} products');
 
-    final response = await InAppPurchase.instance.queryProductDetails(
-      productIds,
-    );
+    final response =
+        await InAppPurchase.instance.queryProductDetails(productIds);
 
     if (response.error != null) {
       logger.e('Product query error: ${response.error}');
       throw Exception('Failed to fetch products: ${response.error}');
     }
 
-    logger.i(
-      'Products fetched successfully: ${response.productDetails.length}',
-    );
+    logger
+        .i('Products fetched successfully: ${response.productDetails.length}');
     return response.productDetails;
   }
 
@@ -505,9 +484,8 @@ class InAppPurchaseService {
   }
 
   Future<void> clearTransactions({bool includePendingPurchases = false}) async {
-    logger.i(
-      'Clearing transactions (includePending: $includePendingPurchases)',
-    );
+    logger
+        .i('Clearing transactions (includePending: $includePendingPurchases)');
 
     try {
       if (includePendingPurchases) {
@@ -551,8 +529,7 @@ class InAppPurchaseService {
         // 빈 쿼리로 캐시 무효화 (타임아웃 적용)
         try {
           await InAppPurchase.instance
-              .queryProductDetails({})
-              .timeout(_fastCacheTimeout);
+              .queryProductDetails({}).timeout(_fastCacheTimeout);
           logger.i('✅ iOS 제품 캐시 무효화 완료');
         } catch (e) {
           logger.w('⚠️ iOS 제품 캐시 무효화 실패 (무시): $e');
@@ -583,13 +560,7 @@ class InAppPurchaseService {
 
     try {
       // 🧹 1단계: 실제 pending 구매들을 찾아서 완료 처리
-      if (Platform.isIOS) {
-        await _processPendingTransactions();
-      } else if (Platform.isAndroid) {
-        logger.i('🤖 Android: pending 구매 자동 정리를 건너뜁니다 (수동 검증 필요)');
-      } else {
-        await _processPendingTransactions();
-      }
+      await _processPendingTransactions();
 
       // 🧹 2단계: 캐시 클리어 및 재초기화
       if (Platform.isIOS) {
@@ -634,9 +605,8 @@ class InAppPurchaseService {
 
     try {
       // Purchase stream에서 현재 대기 중인 모든 구매 확인
-      final purchaseDetailsList = await _getPurchaseUpdates(
-        _pendingProcessTimeout,
-      );
+      final purchaseDetailsList =
+          await _getPurchaseUpdates(_pendingProcessTimeout);
 
       // pending 구매들만 필터링
       final pendingPurchases = purchaseDetailsList
@@ -664,13 +634,11 @@ class InAppPurchaseService {
       }
 
       // 모든 완료 처리를 대기 (최대 10초)
-      await Future.wait(completionFutures).timeout(
-        Duration(seconds: 10),
-        onTimeout: () {
-          logger.w('⏰ Pending 구매 완료 처리 타임아웃');
-          return [];
-        },
-      );
+      await Future.wait(completionFutures).timeout(Duration(seconds: 10),
+          onTimeout: () {
+        logger.w('⏰ Pending 구매 완료 처리 타임아웃');
+        return [];
+      });
 
       logger.i('✅ ${pendingPurchases.length}개 pending 구매 완료 처리됨');
     } catch (e) {
@@ -901,8 +869,7 @@ class InAppPurchaseService {
           // 여러 번 시도로 확실한 캐시 클리어
           for (int i = 0; i < 3; i++) {
             await InAppPurchase.instance
-                .queryProductDetails({})
-                .timeout(Duration(milliseconds: 300));
+                .queryProductDetails({}).timeout(Duration(milliseconds: 300));
             if (i < 2) await Future.delayed(Duration(milliseconds: 50));
           }
           logger.i('✅ iOS 적극적 캐시 정리 완료');
@@ -930,9 +897,8 @@ class InAppPurchaseService {
 
     try {
       // Purchase stream에서 남은 pending 구매 재확인
-      final purchaseDetailsList = await _getPurchaseUpdates(
-        Duration(seconds: 800),
-      );
+      final purchaseDetailsList =
+          await _getPurchaseUpdates(Duration(seconds: 800));
       final remainingPending = purchaseDetailsList
           .where((p) => p.status == PurchaseStatus.pending)
           .toList();
@@ -963,9 +929,8 @@ class InAppPurchaseService {
 
     try {
       // Purchase stream에서 현재 대기 중인 모든 구매 확인 (1초 타임아웃)
-      final purchaseDetailsList = await _getPurchaseUpdates(
-        Duration(seconds: 1),
-      );
+      final purchaseDetailsList =
+          await _getPurchaseUpdates(Duration(seconds: 1));
 
       // pending 구매들만 필터링
       final pendingPurchases = purchaseDetailsList
@@ -977,8 +942,7 @@ class InAppPurchaseService {
       _lastCleanupTime = DateTime.now();
 
       logger.i(
-        '⚡ 발견된 pending 구매: ${pendingPurchases.length}개 (총 발견: $_totalPendingFoundCount개)',
-      );
+          '⚡ 발견된 pending 구매: ${pendingPurchases.length}개 (총 발견: $_totalPendingFoundCount개)');
 
       if (pendingPurchases.isEmpty) {
         logger.i('✅ 처리할 pending 구매가 없음');
@@ -992,33 +956,28 @@ class InAppPurchaseService {
       for (final purchase in pendingPurchases) {
         logger.i('⚡ pending 구매 빠른 완료 처리: ${purchase.productID}');
 
-        final future = completePurchase(purchase)
-            .then((_) {
-              clearedCount++;
-              logger.i('✅ ${purchase.productID} 완료 처리 성공');
-            })
-            .catchError((error) {
-              logger.w('⚠️ ${purchase.productID} 빠른 완료 처리 실패: $error');
-            });
+        final future = completePurchase(purchase).then((_) {
+          clearedCount++;
+          logger.i('✅ ${purchase.productID} 완료 처리 성공');
+        }).catchError((error) {
+          logger.w('⚠️ ${purchase.productID} 빠른 완료 처리 실패: $error');
+        });
 
         completionFutures.add(future);
       }
 
       // 모든 완료 처리를 대기 (최대 3초)
-      await Future.wait(completionFutures).timeout(
-        Duration(seconds: 3),
-        onTimeout: () {
-          logger.w('⚡ 빠른 pending 구매 완료 처리 타임아웃');
-          return [];
-        },
-      );
+      await Future.wait(completionFutures).timeout(Duration(seconds: 3),
+          onTimeout: () {
+        logger.w('⚡ 빠른 pending 구매 완료 처리 타임아웃');
+        return [];
+      });
 
       // 🔍 정리 통계 업데이트
       _totalPendingClearedCount += clearedCount;
 
       logger.i(
-        '✅ $clearedCount개 pending 구매 빠르게 완료 처리됨 (총 정리: $_totalPendingClearedCount개)',
-      );
+          '✅ $clearedCount개 pending 구매 빠르게 완료 처리됨 (총 정리: $_totalPendingClearedCount개)');
     } catch (e) {
       logger.e('❌ 빠른 pending 구매 처리 중 오류: $e');
     }
@@ -1030,9 +989,8 @@ class InAppPurchaseService {
 
     try {
       // 현재 Purchase stream에서 pending 구매 확인
-      final purchaseDetailsList = await _getPurchaseUpdates(
-        Duration(seconds: 1),
-      );
+      final purchaseDetailsList =
+          await _getPurchaseUpdates(Duration(seconds: 1));
       final currentPending = purchaseDetailsList
           .where((p) => p.status == PurchaseStatus.pending)
           .toList();
@@ -1043,24 +1001,20 @@ class InAppPurchaseService {
         'totalPendingCleared': _totalPendingClearedCount,
         'lastCleanupTime': _lastCleanupTime?.toIso8601String(),
         'currentPendingItems': currentPending
-            .map(
-              (p) => {
-                'productID': p.productID,
-                'transactionDate': p.transactionDate,
-                'pendingCompletePurchase': p.pendingCompletePurchase,
-              },
-            )
+            .map((p) => {
+                  'productID': p.productID,
+                  'transactionDate': p.transactionDate,
+                  'pendingCompletePurchase': p.pendingCompletePurchase,
+                })
             .toList(),
       };
 
-      logger.i(
-        '''🔍 Pending 구매 정리 상태:
+      logger.i('''🔍 Pending 구매 정리 상태:
 ├─ 현재 pending: ${currentPending.length}개
 ├─ 총 발견한 pending: $_totalPendingFoundCount개  
 ├─ 총 정리한 pending: $_totalPendingClearedCount개
 ├─ 마지막 정리 시간: ${_lastCleanupTime?.toString() ?? '없음'}
-└─ 정리 성공률: ${_totalPendingFoundCount > 0 ? ((_totalPendingClearedCount / _totalPendingFoundCount * 100).toStringAsFixed(1)) : '0'}%''',
-      );
+└─ 정리 성공률: ${_totalPendingFoundCount > 0 ? ((_totalPendingClearedCount / _totalPendingFoundCount * 100).toStringAsFixed(1)) : '0'}%''');
 
       return status;
     } catch (e) {
@@ -1108,13 +1062,14 @@ class InAppPurchaseService {
 
             // 빈 세트로 쿼리하여 캐시 무효화
             await InAppPurchase.instance
-                .queryProductDetails({})
-                .timeout(Duration(seconds: 2));
+                .queryProductDetails({}).timeout(Duration(seconds: 2));
 
             // 추가로 실제 제품 ID로도 쿼리 시도
-            await InAppPurchase.instance
-                .queryProductDetails({'STAR10000', 'STAR7000', 'STAR50000'})
-                .timeout(Duration(seconds: 2));
+            await InAppPurchase.instance.queryProductDetails({
+              'STAR10000',
+              'STAR7000',
+              'STAR50000'
+            }).timeout(Duration(seconds: 2));
 
             logger.i('✅ StoreKit 캐시 무효화 ${i + 1}/5 완료');
           } catch (e) {
@@ -1144,11 +1099,9 @@ class InAppPurchaseService {
         try {
           await Future.delayed(Duration(milliseconds: 500));
           final productResponse = await InAppPurchase.instance
-              .queryProductDetails({'STAR10000'})
-              .timeout(Duration(seconds: 3));
+              .queryProductDetails({'STAR10000'}).timeout(Duration(seconds: 3));
           logger.i(
-            '✅ 인증 상태 검증 쿼리 성공: ${productResponse.productDetails.length}개 제품 조회됨',
-          );
+              '✅ 인증 상태 검증 쿼리 성공: ${productResponse.productDetails.length}개 제품 조회됨');
         } catch (e) {
           logger.w('⚠️ 인증 상태 검증 쿼리 실패: $e');
         }
@@ -1186,9 +1139,8 @@ class InAppPurchaseService {
       for (int attempt = 0; attempt < 5; attempt++) {
         logger.i('🔍 Attempt ${attempt + 1}/5: pending 구매 검색 (강화)');
 
-        final purchaseDetailsList = await _getPurchaseUpdates(
-          Duration(seconds: 3),
-        ); // 더 긴 타임아웃
+        final purchaseDetailsList =
+            await _getPurchaseUpdates(Duration(seconds: 3)); // 더 긴 타임아웃
         final pendingPurchases = purchaseDetailsList
             .where((p) => p.status == PurchaseStatus.pending)
             .toList();
@@ -1199,8 +1151,7 @@ class InAppPurchaseService {
         }
 
         logger.w(
-          '🚀 Attempt ${attempt + 1}: ${pendingPurchases.length}개 pending 구매 발견 - 강화된 강제 완료',
-        );
+            '🚀 Attempt ${attempt + 1}: ${pendingPurchases.length}개 pending 구매 발견 - 강화된 강제 완료');
 
         // 순차적으로 하나씩 완료 처리 (더 확실하게)
         for (final purchase in pendingPurchases) {
@@ -1287,8 +1238,7 @@ class InAppPurchaseService {
           try {
             await Future.delayed(Duration(milliseconds: 500));
             await InAppPurchase.instance
-                .queryProductDetails({})
-                .timeout(Duration(seconds: 2));
+                .queryProductDetails({}).timeout(Duration(seconds: 2));
             logger.i('💥 시스템 캐시 무효화 ${i + 1}/10 완료');
           } catch (e) {
             logger.w('💥 시스템 캐시 무효화 ${i + 1}/10 실패: $e');
@@ -1334,9 +1284,8 @@ class InAppPurchaseService {
 
     try {
       // 더 긴 시간으로 pending 구매 찾기
-      final purchaseDetailsList = await _getPurchaseUpdates(
-        Duration(seconds: 5),
-      );
+      final purchaseDetailsList =
+          await _getPurchaseUpdates(Duration(seconds: 5));
       final pendingPurchases = purchaseDetailsList
           .where((p) => p.status == PurchaseStatus.pending)
           .toList();
@@ -1346,9 +1295,8 @@ class InAppPurchaseService {
         return;
       }
 
-      logger.w(
-        '💥 Round $round: ${pendingPurchases.length}개 pending 구매 핵폭탄급 정리',
-      );
+      logger
+          .w('💥 Round $round: ${pendingPurchases.length}개 pending 구매 핵폭탄급 정리');
 
       // 병렬로 모든 pending 구매 완료 처리 (더 긴 타임아웃)
       final futures = pendingPurchases.map((purchase) async {
@@ -1362,9 +1310,8 @@ class InAppPurchaseService {
 
       await Future.wait(futures);
 
-      logger.i(
-        '💥 Round $round 완료: ${pendingPurchases.length}개 pending 구매 정리됨',
-      );
+      logger
+          .i('💥 Round $round 완료: ${pendingPurchases.length}개 pending 구매 정리됨');
     } catch (e) {
       logger.e('💥 Round $round 실패: $e');
     }
@@ -1392,9 +1339,8 @@ class InAppPurchaseService {
 
       // 현재 pending 구매 체크
       try {
-        final purchaseDetailsList = await _getPurchaseUpdates(
-          Duration(seconds: 2),
-        );
+        final purchaseDetailsList =
+            await _getPurchaseUpdates(Duration(seconds: 2));
         final pendingCount = purchaseDetailsList
             .where((p) => p.status == PurchaseStatus.pending)
             .length;
@@ -1406,8 +1352,8 @@ class InAppPurchaseService {
 
       // 제품 쿼리 체크
       try {
-        final productResponse = await InAppPurchase.instance
-            .queryProductDetails({});
+        final productResponse =
+            await InAppPurchase.instance.queryProductDetails({});
         diagnosis['productQuerySuccessful'] = productResponse.error == null;
         if (productResponse.error != null) {
           diagnosis['productQueryError'] = productResponse.error.toString();
@@ -1468,8 +1414,7 @@ class InAppPurchaseService {
       // 3. 제품 쿼리 테스트 (인증이 필요한지 확인)
       try {
         final productResult = await InAppPurchase.instance
-            .queryProductDetails({'STAR10000'})
-            .timeout(Duration(seconds: 5));
+            .queryProductDetails({'STAR10000'}).timeout(Duration(seconds: 5));
 
         diagnosis['productQuerySuccess'] = productResult.error == null;
         diagnosis['productCount'] = productResult.productDetails.length;
@@ -1492,8 +1437,7 @@ class InAppPurchaseService {
       if (diagnosis['currentPendingCount'] != null &&
           diagnosis['currentPendingCount'] > 0) {
         solutions.add(
-          'Pending 구매가 ${diagnosis['currentPendingCount']}개 있습니다. 핵리셋을 시도해보세요.',
-        );
+            'Pending 구매가 ${diagnosis['currentPendingCount']}개 있습니다. 핵리셋을 시도해보세요.');
       }
 
       if (diagnosis['productQuerySuccess'] != true) {
@@ -1505,7 +1449,7 @@ class InAppPurchaseService {
         '2. iOS 설정 > App Store에서 로그아웃 후 재로그인하세요',
         '3. 디바이스를 재부팅해보세요',
         '4. 다른 Apple ID로 테스트해보세요',
-        '5. 시뮬레이터에서 Device > Erase All Content and Settings 시도',
+        '5. 시뮬레이터에서 Device > Erase All Content and Settings 시도'
       ]);
 
       diagnosis['recommendedSolutions'] = solutions;
@@ -1551,14 +1495,11 @@ class InAppPurchaseService {
 
             // 다양한 방법으로 캐시 무효화 시도
             await InAppPurchase.instance
-                .queryProductDetails({})
-                .timeout(Duration(seconds: 3));
-            await InAppPurchase.instance
-                .queryProductDetails({'INVALID_PRODUCT_ID'})
-                .timeout(Duration(seconds: 3));
-            await InAppPurchase.instance
-                .queryProductDetails({'STAR10000'})
-                .timeout(Duration(seconds: 3));
+                .queryProductDetails({}).timeout(Duration(seconds: 3));
+            await InAppPurchase.instance.queryProductDetails(
+                {'INVALID_PRODUCT_ID'}).timeout(Duration(seconds: 3));
+            await InAppPurchase.instance.queryProductDetails(
+                {'STAR10000'}).timeout(Duration(seconds: 3));
 
             logger.i('🧹 시스템 캐시 무효화 ${i + 1}/10 완료');
           } catch (e) {
