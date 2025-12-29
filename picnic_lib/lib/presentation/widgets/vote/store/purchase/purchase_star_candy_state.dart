@@ -113,10 +113,19 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     try {
       _loadingKey.currentState?.show();
 
-      // 🍎 iOS: SKPaymentQueue의 pending 트랜잭션 직접 정리 + 쿨타임 초기화
+      // 🍎 iOS: 모든 결제 상태 완전 초기화
       if (Platform.isIOS) {
-        logger.i('[PurchaseStarCandyState] iOS: Clearing pending transactions and cooldowns');
+        logger.i('[PurchaseStarCandyState] iOS: Clearing ALL purchase states');
+
+        // 1️⃣ 로컬 상태 초기화
+        _isPurchasing = false;
+        _isActivePurchasing = false;
+        _pendingProductId = null;
+
+        // 2️⃣ SafetyManager 쿨타임 초기화
         _safetyManager.clearAllCooldowns();
+
+        // 3️⃣ SKPaymentQueue pending 트랜잭션 정리
         await _purchaseService.inAppPurchaseService.clearPendingPurchasesOnStartup();
       }
 

@@ -148,8 +148,15 @@ class InAppPurchaseService {
   /// 앱 시작 시 처리되지 않은 구매를 정리합니다.
   Future<void> clearPendingPurchasesOnStartup() async {
     logger.i('✨ 앱 시작: 처리되지 않은 구매 정리 시작');
+
+    // 🧹 내부 상태 초기화
+    _currentPurchasingProductId = null;
+    _lastPurchaseWasCancelled = false;
+    _purchaseTimeoutTimer?.cancel();
+    _backgroundCleanupTimer?.cancel();
+
     // StoreKit/BillingClient 초기화를 위해 약간의 지연 시간을 줍니다.
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(milliseconds: 500));
 
     // iOS에서는 SKPaymentQueue를 직접 정리하여 안정성을 높입니다.
     if (Platform.isIOS) {
