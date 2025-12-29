@@ -113,9 +113,9 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     try {
       _loadingKey.currentState?.show();
 
-      // 🍎 iOS: 모든 결제 상태 완전 초기화
+      // 🍎 iOS: 모든 결제 상태 완전 초기화 (restorePurchases 호출 안함)
       if (Platform.isIOS) {
-        logger.i('[PurchaseStarCandyState] iOS: Clearing ALL purchase states');
+        logger.i('[PurchaseStarCandyState] iOS: Clearing ALL purchase states (skip restore)');
 
         // 1️⃣ 로컬 상태 초기화
         _isPurchasing = false;
@@ -127,9 +127,13 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
         // 3️⃣ SKPaymentQueue pending 트랜잭션 정리
         await _purchaseService.inAppPurchaseService.clearPendingPurchasesOnStartup();
-      }
 
-      await _restoreHandler.performProactiveCleanup();
+        // 4️⃣ iOS는 restorePurchases 건너뛰고 바로 완료 처리
+        _restoreHandler.markCleanupCompleted();
+      } else {
+        // Android는 기존대로 복원 정리 수행
+        await _restoreHandler.performProactiveCleanup();
+      }
 
       final initEndTime = DateTime.now();
       final initDuration = initEndTime.difference(initStartTime);

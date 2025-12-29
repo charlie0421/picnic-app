@@ -214,6 +214,14 @@ class RestorePurchaseHandler {
     logger.i('🧹 ✅ RestoreHandler 타이머 정리 완료 (정상 구매 성공 시)');
   }
 
+  /// 🍎 iOS: restorePurchases 없이 정리 완료 처리
+  void markCleanupCompleted() {
+    _isProactiveCleanupMode = false;
+    _isWaitingForRestoreCompletion = false;
+    _isProactiveCleanupCompleted = true;
+    logger.i('🧹 iOS: 정리 완료 처리 (restorePurchases 건너뜀)');
+  }
+
   void dispose() {
     _pulseLoadingTimer?.cancel();
     _cleanupState();
