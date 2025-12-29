@@ -27,7 +27,12 @@ class PurchaseService {
     required void Function(List<PurchaseDetails>) onPurchaseUpdate,
   }) {
     inAppPurchaseService.initialize(onPurchaseUpdate);
-    inAppPurchaseService.clearPendingPurchasesOnStartup();
+
+    // 🍎 iOS: clearPendingPurchasesOnStartup은 _initializePage에서 직접 호출
+    // 생성자에서 호출하면 스트림 이벤트가 초기화 전에 발생할 수 있음
+    if (!Platform.isIOS) {
+      inAppPurchaseService.clearPendingPurchasesOnStartup();
+    }
 
     // 🚨 타임아웃 콜백 설정
     inAppPurchaseService.onPurchaseTimeout = handlePurchaseTimeout;
