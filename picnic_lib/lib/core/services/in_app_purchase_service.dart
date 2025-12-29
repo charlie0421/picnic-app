@@ -278,28 +278,34 @@ class InAppPurchaseService {
     _currentPurchasingProductId = productDetails.id;
 
     try {
-      // 🛡️ StoreKit 레벨 중복 방지: 현재 pending 구매 확인
-      final currentPendingPurchases =
-          await _getPendingPurchasesForProduct(productDetails.id);
-      if (currentPendingPurchases.isNotEmpty) {
-        logger.w('🚫 StoreKit에서 이미 진행 중인 구매 감지: ${productDetails.id}');
-        logger.w('   → 진행 중인 구매: ${currentPendingPurchases.length}개');
+      // 🍎 iOS: pending 구매 체크 건너뛰기 (초기화 시 이미 정리됨)
+      // Android만 pending 구매 체크 수행
+      if (!Platform.isIOS) {
+        // 🛡️ StoreKit 레벨 중복 방지: 현재 pending 구매 확인
+        final currentPendingPurchases =
+            await _getPendingPurchasesForProduct(productDetails.id);
+        if (currentPendingPurchases.isNotEmpty) {
+          logger.w('🚫 StoreKit에서 이미 진행 중인 구매 감지: ${productDetails.id}');
+          logger.w('   → 진행 중인 구매: ${currentPendingPurchases.length}개');
 
-        // 기존 pending 구매들 정리
-        for (final pendingPurchase in currentPendingPurchases) {
-          logger.i('📋 기존 pending 구매 완료 처리: ${pendingPurchase.productID}');
-          await completePurchase(pendingPurchase).catchError((e) {
-            logger.w('기존 pending 구매 완료 실패: $e');
-          });
+          // 기존 pending 구매들 정리
+          for (final pendingPurchase in currentPendingPurchases) {
+            logger.i('📋 기존 pending 구매 완료 처리: ${pendingPurchase.productID}');
+            await completePurchase(pendingPurchase).catchError((e) {
+              logger.w('기존 pending 구매 완료 실패: $e');
+            });
+          }
+
+          // 짧은 대기 후 재시도
+          await Future.delayed(Duration(milliseconds: 500));
+
+          // 중복 구매로 판단하고 실패 반환
+          logger.w('🚫 중복 구매 방지: ${productDetails.id}');
+          _currentPurchasingProductId = null; // 🚨 정리
+          return false;
         }
-
-        // 짧은 대기 후 재시도
-        await Future.delayed(Duration(milliseconds: 500));
-
-        // 중복 구매로 판단하고 실패 반환
-        logger.w('🚫 중복 구매 방지: ${productDetails.id}');
-        _currentPurchasingProductId = null; // 🚨 정리
-        return false;
+      } else {
+        logger.i('🍎 iOS: pending 구매 체크 건너뛰기');
       }
 
       // ⚡ 구매 전 대기 시간 완전 제거 - 즉시 구매 진행!
