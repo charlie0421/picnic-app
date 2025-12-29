@@ -113,35 +113,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     try {
       _loadingKey.currentState?.show();
 
-      // 🍎 iOS: 모든 결제 상태 완전 초기화 (restorePurchases 호출 안함)
-      if (Platform.isIOS) {
-        logger.i('[PurchaseStarCandyState] iOS: Clearing ALL purchase states (skip restore)');
-
-        // 0️⃣ 펄스 로딩 표시 (Android와 동일하게)
-        _loadingKey.currentState?.hide();
-        await Future.delayed(const Duration(milliseconds: 100));
-        _loadingKey.currentState?.show();
-
-        // 1️⃣ 로컬 상태 초기화
-        _isPurchasing = false;
-        _isActivePurchasing = false;
-        _pendingProductId = null;
-
-        // 2️⃣ SafetyManager 쿨타임 초기화
-        _safetyManager.clearAllCooldowns();
-
-        // 3️⃣ DuplicatePreventionService 상태 초기화 (SharedPreferences 포함)
-        await _purchaseService.duplicatePreventionService.clearAllPurchaseStates();
-
-        // 4️⃣ SKPaymentQueue pending 트랜잭션 정리
-        await _purchaseService.inAppPurchaseService.clearPendingPurchasesOnStartup();
-
-        // 5️⃣ iOS는 restorePurchases 건너뛰고 바로 완료 처리
-        _restoreHandler.markCleanupCompleted();
-      } else {
-        // Android는 기존대로 복원 정리 수행
-        await _restoreHandler.performProactiveCleanup();
-      }
+      await _restoreHandler.performProactiveCleanup();
 
       final initEndTime = DateTime.now();
       final initDuration = initEndTime.difference(initStartTime);
@@ -311,12 +283,6 @@ Full Error: ${purchaseDetails.error}
   }
 
   void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) async {
-    // 🍎 iOS 초기화 중에는 모든 이벤트 무시
-    if (_isInitializing && Platform.isIOS) {
-      logger.i('[PurchaseStarCandyState] iOS: Ignoring purchase update during initialization');
-      return;
-    }
-
     final statusCounts = _getStatusCounts(purchaseDetailsList);
 
     logger.d(
@@ -952,7 +918,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return false;
     }
 
-    if (!_safetyManager.canAttemptPurchaseForProduct(productId)) {
+    // 🍎 iOS: 쿨타임 체크 비활성화 (이전 결제 문제 해결)
+    if (!Platform.isIOS && !_safetyManager.canAttemptPurchaseForProduct(productId)) {
       logger.w(
         '[PurchaseStarCandyState] Purchase cooldown active (per product)',
       );
