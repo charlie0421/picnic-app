@@ -554,16 +554,19 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 활성 구매 처리
   Future<void> _processActivePurchase(PurchaseDetails purchaseDetails) async {
-    final isActualPurchase = _safetyManager.isActualPurchase(
-      purchaseDetails: purchaseDetails,
-      isActivePurchasing: _isActivePurchasing,
-      pendingProductId: _pendingProductId,
-    );
+    // 🍎 iOS: 무조건 영수증 검증 수행 (isActualPurchase 판별 로직 우회)
+    final isActualPurchase = Platform.isIOS
+        ? true  // iOS는 항상 영수증 검증
+        : _safetyManager.isActualPurchase(
+            purchaseDetails: purchaseDetails,
+            isActivePurchasing: _isActivePurchasing,
+            pendingProductId: _pendingProductId,
+          );
 
     final isLatePurchase = _safetyManager.isLatePurchase(_isActivePurchasing);
 
     logger.i(
-      '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase)',
+      '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase, platform: ${Platform.isIOS ? "iOS" : "Android"})',
     );
 
     await _purchaseService.handleOptimizedPurchase(
