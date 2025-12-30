@@ -381,6 +381,12 @@ class PurchaseService {
         );
       }
 
+      // 🍎 성공 시 StoreKit 트랜잭션 먼저 완료 처리 (중요!)
+      if (purchaseDetails.pendingCompletePurchase) {
+        logger.i('✅ StoreKit 트랜잭션 완료 처리 ($platform)');
+        await inAppPurchaseService.completePurchase(purchaseDetails);
+      }
+
       onSuccess();
       logger.i('✅ 실제 구매 검증 완료 ($platform)');
     } on ReusedPurchaseException catch (e) {
