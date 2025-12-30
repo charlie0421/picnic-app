@@ -99,21 +99,16 @@ class PurchaseService {
     Function(String) onError, {
     required bool isActualPurchase,
   }) async {
-    logger.i('📦📦📦 handleOptimizedPurchase 호출됨 📦📦📦');
-    logger.i('📦 isActualPurchase: $isActualPurchase');
-    logger.i('📦 Product: ${purchaseDetails.productID}');
-    logger.i('📦 Status: ${purchaseDetails.status}');
-
     try {
       if (isActualPurchase) {
-        logger.i('=== 🚀🚀🚀 신규 구매 처리 (영수증 검증 진행) 🚀🚀🚀 ===');
+        logger.i('=== 🚀 신규 구매 처리 ===');
         logger.i('Product: ${purchaseDetails.productID}');
 
         await _handleActualPurchase(purchaseDetails, onSuccess, onError);
 
         logger.i('=== ✅ 신규 구매 완료 ===');
       } else {
-        logger.i('=== 🚫🚫🚫 복원 구매 무시 (영수증 검증 스킵!) 🚫🚫🚫 ===');
+        logger.i('=== 🚫 복원 구매 무시 ===');
         logger.i('Product: ${purchaseDetails.productID}');
 
         // 🔥 복원 구매는 완전히 무시 - 콜백 실행 안함
@@ -352,11 +347,10 @@ class PurchaseService {
     Function(String) onError,
   ) async {
     final platform = Platform.isIOS ? 'iOS' : 'Android';
-    logger.i('🎯🎯🎯 실제 구매 처리 시작 ($platform) - 영수증 검증 🎯🎯🎯');
+    logger.i('🎯 실제 구매 처리 시작 ($platform) - 영수증 검증');
     logger.i('  - Product ID: ${purchaseDetails.productID}');
     logger.i('  - Transaction ID: ${purchaseDetails.purchaseID}');
     logger.i('  - Status: ${purchaseDetails.status}');
-    logger.i('  - Receipt length: ${purchaseDetails.verificationData.serverVerificationData.length}');
 
     try {
       _validateUserAuthentication();
@@ -368,10 +362,9 @@ class PurchaseService {
       logger.i('✅ 영수증 데이터 검증 완료 ($platform)');
 
       // 🔥 영수증 검증 (서버 검증 단계만 - 타임아웃 있음)
-      logger.i('🔍🔍🔍 서버 영수증 검증 시작 ($platform) 🔍🔍🔍');
-      logger.i('🔍 서버로 영수증 전송 중...');
+      logger.i('🔍 서버 영수증 검증 시작 ($platform)');
       await _verifyReceipt(purchaseDetails, environment);
-      logger.i('✅✅✅ 서버 영수증 검증 완료 ($platform) ✅✅✅');
+      logger.i('✅ 서버 영수증 검증 완료 ($platform)');
 
       await _logPurchaseAnalytics(purchaseDetails);
 
@@ -438,7 +431,7 @@ class PurchaseService {
     VoidCallback onSuccess,
     Function(String) onError,
   ) async {
-    logger.i('🚫🚫🚫 복원된 구매 무시 (영수증 검증 안함!): ${purchaseDetails.productID} 🚫🚫🚫');
+    logger.i('🚫 복원된 구매 무시: ${purchaseDetails.productID}');
 
     // 🔥 복원 구매는 완전히 무시하고 조용히 완료 처리만 함
     await _completePurchaseIfNeeded(purchaseDetails);

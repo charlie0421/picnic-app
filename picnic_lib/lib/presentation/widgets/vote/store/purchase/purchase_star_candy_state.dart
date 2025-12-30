@@ -554,19 +554,16 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 활성 구매 처리
   Future<void> _processActivePurchase(PurchaseDetails purchaseDetails) async {
-    // 🍎 iOS: 무조건 영수증 검증 수행 (isActualPurchase 판별 로직 우회)
-    final isActualPurchase = Platform.isIOS
-        ? true  // iOS는 항상 영수증 검증
-        : _safetyManager.isActualPurchase(
-            purchaseDetails: purchaseDetails,
-            isActivePurchasing: _isActivePurchasing,
-            pendingProductId: _pendingProductId,
-          );
+    final isActualPurchase = _safetyManager.isActualPurchase(
+      purchaseDetails: purchaseDetails,
+      isActivePurchasing: _isActivePurchasing,
+      pendingProductId: _pendingProductId,
+    );
 
     final isLatePurchase = _safetyManager.isLatePurchase(_isActivePurchasing);
 
     logger.i(
-      '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase, platform: ${Platform.isIOS ? "iOS" : "Android"})',
+      '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase)',
     );
 
     await _purchaseService.handleOptimizedPurchase(
@@ -921,8 +918,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return false;
     }
 
-    // 🍎 iOS: 쿨타임 체크 비활성화 (이전 결제 문제 해결)
-    if (!Platform.isIOS && !_safetyManager.canAttemptPurchaseForProduct(productId)) {
+    if (!_safetyManager.canAttemptPurchaseForProduct(productId)) {
       logger.w(
         '[PurchaseStarCandyState] Purchase cooldown active (per product)',
       );
