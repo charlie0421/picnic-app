@@ -381,31 +381,11 @@ class PurchaseService {
         );
       }
 
-      // 🍎 성공 시 StoreKit 트랜잭션 먼저 완료 처리 (중요!)
-      if (purchaseDetails.pendingCompletePurchase) {
-        logger.i('✅ StoreKit 트랜잭션 완료 처리 시작 ($platform)');
-        try {
-          await inAppPurchaseService.completePurchase(purchaseDetails);
-          logger.i('✅ StoreKit 트랜잭션 완료 처리 성공 ($platform)');
-        } catch (e) {
-          logger.e('❌ StoreKit 트랜잭션 완료 처리 실패 ($platform): $e');
-          // 실패해도 onSuccess는 호출 (서버 검증은 성공했으므로)
-        }
-      } else {
-        logger.i('ℹ️ pendingCompletePurchase가 false - 완료 처리 불필요 ($platform)');
-      }
-
       onSuccess();
       logger.i('✅ 실제 구매 검증 완료 ($platform)');
     } on ReusedPurchaseException catch (e) {
       logger.w('🔄 JWT 재사용 감지 ($platform) - StoreKit 캐시 문제: ${e.message}');
       _processingProducts.remove(purchaseDetails.productID);
-
-      // 🍎 iOS: 중복 영수증이어도 StoreKit 트랜잭션은 반드시 완료 처리
-      if (Platform.isIOS && purchaseDetails.pendingCompletePurchase) {
-        logger.i('🍎 iOS: 중복 영수증 트랜잭션 강제 완료 처리');
-        await inAppPurchaseService.completePurchase(purchaseDetails);
-      }
 
       // 🛡️ 중복 방지 서비스에 실패 알림
       final currentUser = supabase.auth.currentUser;
@@ -416,6 +396,13 @@ class PurchaseService {
           success: false,
         );
       }
+
+      // 중복 감지 시: 서비스 레벨 실패 처리 + 남은 쿨다운 안내 메시지 구성
+      duplicatePreventionService.completePurchase(
+        purchaseDetails.productID,
+        supabase.auth.currentUser?.id ?? '',
+        success: false,
+      );
 
       // JWS 재사용: 명확한 안내 메시지 키 전달
       onError(PurchaseConstants.errPrevTransactionPending);
