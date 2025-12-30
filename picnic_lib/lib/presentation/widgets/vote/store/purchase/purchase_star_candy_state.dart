@@ -113,11 +113,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     try {
       _loadingKey.currentState?.show();
 
-      // 🍎 iOS: JWS 멱등 캐시 초기화 (이전 영수증 캐시로 인한 409 에러 방지)
-      if (Platform.isIOS) {
-        await _purchaseService.receiptVerificationService.clearIdemCache();
-      }
-
       await _restoreHandler.performProactiveCleanup();
 
       final initEndTime = DateTime.now();

@@ -341,13 +341,6 @@ class ReceiptVerificationService {
     await sp.setStringList(_spKeySentReceipts, s.toList());
   }
 
-  /// 🍎 iOS: JWS 멱등 캐시 완전 초기화 (구매 페이지 초기화 시 호출)
-  Future<void> clearIdemCache() async {
-    final sp = await SharedPreferences.getInstance();
-    await sp.remove(_spKeySentReceipts);
-    logger.i('🍎 iOS: JWS 멱등 캐시 초기화 완료');
-  }
-
   String _makeIdemKeyFromJWS(String jws) {
     try {
       if (!isStoreKit2JWT(jws)) return 'raw:${jws.hashCode}';
