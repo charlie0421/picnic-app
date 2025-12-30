@@ -383,8 +383,16 @@ class PurchaseService {
 
       // 🍎 성공 시 StoreKit 트랜잭션 먼저 완료 처리 (중요!)
       if (purchaseDetails.pendingCompletePurchase) {
-        logger.i('✅ StoreKit 트랜잭션 완료 처리 ($platform)');
-        await inAppPurchaseService.completePurchase(purchaseDetails);
+        logger.i('✅ StoreKit 트랜잭션 완료 처리 시작 ($platform)');
+        try {
+          await inAppPurchaseService.completePurchase(purchaseDetails);
+          logger.i('✅ StoreKit 트랜잭션 완료 처리 성공 ($platform)');
+        } catch (e) {
+          logger.e('❌ StoreKit 트랜잭션 완료 처리 실패 ($platform): $e');
+          // 실패해도 onSuccess는 호출 (서버 검증은 성공했으므로)
+        }
+      } else {
+        logger.i('ℹ️ pendingCompletePurchase가 false - 완료 처리 불필요 ($platform)');
       }
 
       onSuccess();
