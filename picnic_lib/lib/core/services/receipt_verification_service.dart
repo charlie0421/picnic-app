@@ -226,6 +226,11 @@ class ReceiptVerificationService {
 
         // 409 Conflict (중복) 에러인지 확인
         if (error is FunctionException && error.status == 409) {
+          // 🍎 iOS: 409는 이미 정상 지급 완료된 상태 → 성공으로 처리
+          if (Platform.isIOS) {
+            logger.i('🍎 iOS 409 → 이미 지급 완료된 구매, 성공으로 처리');
+            return; // 성공으로 반환
+          }
           logger.w('Duplicate receipt detected (409 Conflict)');
           throw ReusedPurchaseException(
             message: PurchaseConstants.errPrevTransactionPending,
