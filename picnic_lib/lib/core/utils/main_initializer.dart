@@ -5,7 +5,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -46,8 +45,8 @@ class MainInitializer {
           // Flutter 바인딩 초기화
           WidgetsFlutterBinding.ensureInitialized();
 
-          // ScreenUtil 초기화 - 먼저 처리하여 다른 초기화 과정에서 사용 가능하도록 함
-          await _initializeScreenUtil();
+          // ScreenUtil은 AppBuilder의 ScreenUtilInit 위젯에서 초기화됨
+          // 위젯 트리 생성 전에 ScreenUtil.configure()를 호출하면 에러 발생
 
           // 기본 서비스 초기화
           await AppInitializer.initializeBasics();
@@ -136,38 +135,6 @@ class MainInitializer {
         await Sentry.captureException(error, stackTrace: s);
       },
     );
-  }
-
-  /// ScreenUtil을 초기화하는 메서드
-  /// 앱이 실행되기 전에 먼저 ScreenUtil 설정값을 초기화합니다.
-  static Future<void> _initializeScreenUtil() async {
-    try {
-      logger.i('ScreenUtil 초기화 시작');
-
-      // 디자인 사이즈 설정 (앱 빌더에서 사용하는 것과 동일한 값 사용)
-      const designSize = Size(393, 852);
-
-      // 화면 크기를 미리 계산하여 로깅 목적으로 사용
-      final view = WidgetsBinding.instance.platformDispatcher.views.first;
-      final physicalSize = view.physicalSize;
-      final devicePixelRatio = view.devicePixelRatio;
-      final logicalSize = Size(
-        physicalSize.width / devicePixelRatio,
-        physicalSize.height / devicePixelRatio,
-      );
-
-      // 전역 ScreenUtil 설정 초기화 (메인 위젯이 없는 환경에서 사용 가능)
-      ScreenUtil.configure(
-        designSize: designSize,
-        minTextAdapt: true,
-        splitScreenMode: true,
-      );
-
-      logger.i('ScreenUtil 초기화 완료: 화면 크기 = $logicalSize, 디자인 크기 = $designSize');
-    } catch (e, s) {
-      // 초기화 실패 시에도 앱이 계속 실행되도록 예외 처리
-      logger.e('ScreenUtil 초기화 실패 (앱은 계속 실행됨)', error: e, stackTrace: s);
-    }
   }
 
   /// 언어 초기화를 비동기로 실행하는 유틸리티 메서드
