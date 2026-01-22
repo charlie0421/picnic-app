@@ -192,12 +192,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
+    // MyPageScreen이 AppBar를 제공하므로 Scaffold 없이 body만 반환
     if (_isInitialLoading) {
       return _buildShimmer();
     }
