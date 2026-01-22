@@ -215,6 +215,10 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             ),
             subtitle: Text(localizedBody),
             onTap: () async {
+              // 탭하면 자동으로 읽음 처리
+              if (!n.isRead) {
+                await _markRead(n);
+              }
               if ((n.actionUrl ?? '').isNotEmpty) {
                 final handledInternally = await _openUrl(n.actionUrl!);
                 if (handledInternally && mounted && context.mounted) {
@@ -224,12 +228,13 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 await _navigateByType(n);
               }
             },
-            trailing: (n.userId != null && !n.isRead)
-                ? null
-                : TextButton(
+            // 읽지 않은 알림에만 "읽음" 버튼 표시
+            trailing: (!n.isRead)
+                ? TextButton(
                     onPressed: () => _markRead(n),
                     child: const Text('읽음'),
-                  ),
+                  )
+                : null,
           );
         },
         separatorBuilder: (_, _) => const Divider(height: 1),
