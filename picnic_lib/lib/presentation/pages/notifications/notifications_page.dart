@@ -155,10 +155,18 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // MyPageScreen이 AppBar(헤더, 뒤로가기)를 제공하므로 Scaffold 없이 반환
-    return Material(
-      color: Colors.white,
-      child: ListView.separated(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        title: Text(_pageTitle ?? AppLocalizations.of(context).label_mypage_notifications),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: ListView.separated(
         controller: _controller,
         itemBuilder: (context, index) {
           if (index >= _items.length) {
