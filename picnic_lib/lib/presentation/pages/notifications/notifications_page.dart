@@ -155,8 +155,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView.separated(
+    // MyPageScreen이 AppBar(헤더, 뒤로가기)를 제공하므로 Scaffold 없이 반환
+    return ListView.separated(
         controller: _controller,
         itemBuilder: (context, index) {
           if (index >= _items.length) {
@@ -224,7 +224,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         },
         separatorBuilder: (_, _) => const Divider(height: 1),
         itemCount: _items.length + 1,
-      ),
     );
   }
 
