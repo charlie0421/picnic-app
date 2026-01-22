@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/services/notification_inbox_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/user_notification.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/presentation/common/no_item_container.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/pages/community/community_post_detail_screen.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
@@ -24,7 +21,7 @@ class NotificationsPage extends ConsumerStatefulWidget {
 
 class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   final List<UserNotification> _items = [];
-  bool _loading = true;
+  bool _loading = false;
   int _from = 0;
   final int _limit = 20;
   final ScrollController _controller = ScrollController();
@@ -41,12 +38,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         _load();
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -116,8 +107,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     try {
       switch (n.type) {
         case 'vote':
-        case 'my_artist_vote_start':
-        case 'vote_progress':
           final voteIdStr = (data['vote_id'] ?? data['id'])?.toString();
           final voteId = voteIdStr != null ? int.tryParse(voteIdStr) : null;
           if (voteId != null) {
@@ -166,105 +155,76 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // 초기 로딩 중
-    if (_loading && _items.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return Scaffold(
+      body: ListView.separated(
+        controller: _controller,
+        itemBuilder: (context, index) {
+          if (index >= _items.length) {
+            return _loading
+                ? const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : const SizedBox.shrink();
+          }
+          final n = _items[index];
+          IconData leadingIcon;
+          Color? tileColor;
+          switch (n.type) {
+            case 'vote':
+              leadingIcon = Icons.how_to_vote;
+              tileColor = Colors.indigo.withValues(alpha: 0.05);
+              break;
+            case 'qna':
+            case 'answer_created':
+            case 'question_created':
+              leadingIcon = Icons.question_answer;
+              tileColor = Colors.teal.withValues(alpha: 0.05);
+              break;
+            case 'post':
+              leadingIcon = Icons.post_add;
+              tileColor = Colors.deepPurple.withValues(alpha: 0.05);
+              break;
+            default:
+              leadingIcon = Icons.notifications;
+              tileColor = null;
+          }
 
-    // 데이터 없을 때
-    if (!_loading && _items.isEmpty) {
-      return NoItemContainer(
-        message: AppLocalizations.of(context).common_text_no_data,
-      );
-    }
+          // 다국어 처리: 현재 로케일에 맞는 텍스트 표시
+          final localizedTitle = n.getLocalizedTitle(context);
+          final localizedBody = n.getLocalizedBody(context);
 
-    return ListView.separated(
-      controller: _controller,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      itemBuilder: (context, index) {
-        if (index >= _items.length) {
-          return _loading
-              ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              : const SizedBox.shrink();
-        }
-        final n = _items[index];
-        IconData leadingIcon;
-        switch (n.type) {
-          case 'vote':
-          case 'my_artist_vote_start':
-          case 'vote_progress':
-            leadingIcon = Icons.how_to_vote;
-            break;
-          case 'qna':
-          case 'answer_created':
-          case 'question_created':
-            leadingIcon = Icons.question_answer;
-            break;
-          case 'post':
-            leadingIcon = Icons.post_add;
-            break;
-          default:
-            leadingIcon = Icons.notifications;
-        }
-
-        // 다국어 처리: 현재 로케일에 맞는 텍스트 표시
-        final localizedTitle = n.getLocalizedTitle(context);
-        final localizedBody = n.getLocalizedBody(context);
-
-        return ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-          leading: CircleAvatar(
-            backgroundColor: AppColors.grey200,
-            child: Icon(leadingIcon, color: AppColors.grey700, size: 20),
-          ),
-          title: Text(
-            localizedTitle,
-            style: getTextStyle(
-              n.isRead ? AppTypo.body14M : AppTypo.body14B,
-              AppColors.grey900,
+          return ListTile(
+            leading: Icon(leadingIcon),
+            tileColor: tileColor,
+            title: Text(
+              localizedTitle,
+              style: TextStyle(
+                fontWeight: n.isRead ? FontWeight.normal : FontWeight.bold,
+              ),
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          subtitle: Text(
-            localizedBody,
-            style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          trailing: !n.isRead
-              ? Container(
-                  width: 8.w,
-                  height: 8.w,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary500,
-                    shape: BoxShape.circle,
-                  ),
-                )
-              : null,
-          onTap: () async {
-            if (!n.isRead) {
-              await _markRead(n);
-            }
-            if ((n.actionUrl ?? '').isNotEmpty) {
-              final handledInternally = await _openUrl(n.actionUrl!);
-              if (handledInternally && mounted && context.mounted) {
-                await Navigator.of(context).maybePop();
+            subtitle: Text(localizedBody),
+            onTap: () async {
+              if ((n.actionUrl ?? '').isNotEmpty) {
+                final handledInternally = await _openUrl(n.actionUrl!);
+                if (handledInternally && mounted && context.mounted) {
+                  await Navigator.of(context).maybePop();
+                }
+              } else if ((n.data ?? {}).isNotEmpty) {
+                await _navigateByType(n);
               }
-            } else if ((n.data ?? {}).isNotEmpty) {
-              await _navigateByType(n);
-            }
-          },
-        );
-      },
-      separatorBuilder: (context, index) => Divider(
-        height: 1,
-        color: AppColors.grey200,
+            },
+            trailing: (n.userId != null && !n.isRead)
+                ? null
+                : TextButton(
+                    onPressed: () => _markRead(n),
+                    child: const Text('읽음'),
+                  ),
+          );
+        },
+        separatorBuilder: (_, _) => const Divider(height: 1),
+        itemCount: _items.length + 1,
       ),
-      itemCount: _items.length + 1,
     );
   }
 
