@@ -202,7 +202,7 @@ PODS:
   - GoogleMobileAdsMediationVungle (7.6.2.0):
     - Google-Mobile-Ads-SDK (~> 12.0)
     - VungleAds (= 7.6.2)
-  - GoogleSignIn (9.0.0):
+  - GoogleSignIn (9.1.0):
     - AppAuth (~> 2.0)
     - AppCheckCore (~> 11.0)
     - GTMAppAuth (~> 5.0)
@@ -576,7 +576,7 @@ SPEC CHECKSUMS:
   GoogleMobileAdsMediationFacebook: 664fd50364d36531196bf24fe62d2db84cad72d0
   GoogleMobileAdsMediationPangle: 51e31e4267363e466e196d31f69306dd2b17ee88
   GoogleMobileAdsMediationVungle: 3cbd203d042b7b474a9dd8240bba9a707baf24e8
-  GoogleSignIn: c7f09cfbc85a1abf69187be091997c317cc33b77
+  GoogleSignIn: fcee2257188d5eda57a5e2b6a715550ffff9206d
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMAppAuth: 217a876b249c3c585a54fd6f73e6b58c4f5c4238
