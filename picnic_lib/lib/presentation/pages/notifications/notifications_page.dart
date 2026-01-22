@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/services/notification_inbox_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/user_notification.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/common/no_item_container.dart';
+import 'package:picnic_lib/ui/style.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/pages/community/community_post_detail_screen.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
@@ -21,7 +26,9 @@ class NotificationsPage extends ConsumerStatefulWidget {
 
 class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   final List<UserNotification> _items = [];
-  bool _loading = false;
+  bool _isInitialLoading = true;
+  bool _isMoreLoading = false;
+  bool _hasMore = true;
   int _from = 0;
   final int _limit = 20;
   final ScrollController _controller = ScrollController();
@@ -30,14 +37,21 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   @override
   void initState() {
     super.initState();
-    _load();
+    _loadInitial();
     _controller.addListener(() {
       if (_controller.position.pixels >=
               _controller.position.maxScrollExtent - 200 &&
-          !_loading) {
-        _load();
+          !_isMoreLoading &&
+          _hasMore) {
+        _loadMore();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -47,8 +61,13 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     _updateNavigationTitle();
   }
 
-  Future<void> _load() async {
-    setState(() => _loading = true);
+  Future<void> _loadInitial() async {
+    setState(() {
+      _isInitialLoading = true;
+      _items.clear();
+      _from = 0;
+      _hasMore = true;
+    });
     final list = await NotificationInboxService.fetch(
       from: _from,
       limit: _limit,
@@ -56,7 +75,23 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     setState(() {
       _items.addAll(list);
       _from += list.length;
-      _loading = false;
+      _hasMore = list.length == _limit;
+      _isInitialLoading = false;
+    });
+  }
+
+  Future<void> _loadMore() async {
+    if (_isMoreLoading || !_hasMore) return;
+    setState(() => _isMoreLoading = true);
+    final list = await NotificationInboxService.fetch(
+      from: _from,
+      limit: _limit,
+    );
+    setState(() {
+      _items.addAll(list);
+      _from += list.length;
+      _hasMore = list.length == _limit;
+      _isMoreLoading = false;
     });
   }
 
@@ -107,6 +142,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     try {
       switch (n.type) {
         case 'vote':
+        case 'my_artist_vote_start':
+        case 'vote_progress':
           final voteIdStr = (data['vote_id'] ?? data['id'])?.toString();
           final voteId = voteIdStr != null ? int.tryParse(voteIdStr) : null;
           if (voteId != null) {
@@ -156,74 +193,233 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.separated(
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isInitialLoading) {
+      return _buildShimmer();
+    }
+
+    if (_items.isEmpty) {
+      return NoItemContainer(
+        message: AppLocalizations.of(context).common_text_no_data,
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadInitial,
+      child: ListView.separated(
         controller: _controller,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        itemCount: _items.length + (_isMoreLoading ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= _items.length) {
-            return _loading
-                ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                : const SizedBox.shrink();
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: const CircularProgressIndicator(),
+              ),
+            );
           }
-          final n = _items[index];
-          IconData leadingIcon;
-          Color? tileColor;
-          switch (n.type) {
-            case 'vote':
-              leadingIcon = Icons.how_to_vote;
-              tileColor = Colors.indigo.withValues(alpha: 0.05);
-              break;
-            case 'qna':
-            case 'answer_created':
-            case 'question_created':
-              leadingIcon = Icons.question_answer;
-              tileColor = Colors.teal.withValues(alpha: 0.05);
-              break;
-            case 'post':
-              leadingIcon = Icons.post_add;
-              tileColor = Colors.deepPurple.withValues(alpha: 0.05);
-              break;
-            default:
-              leadingIcon = Icons.notifications;
-              tileColor = null;
+          return _buildNotificationCard(_items[index]);
+        },
+        separatorBuilder: (_, __) => SizedBox(height: 12.h),
+      ),
+    );
+  }
+
+  Widget _buildShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.separated(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        itemCount: 5,
+        itemBuilder: (context, index) => Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 36.w,
+                    height: 36.w,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: 16.h,
+                          color: Colors.white,
+                        ),
+                        SizedBox(height: 8.h),
+                        Container(width: 150.w, height: 12.h, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        separatorBuilder: (_, __) => SizedBox(height: 12.h),
+      ),
+    );
+  }
+
+  Widget _buildNotificationCard(UserNotification n) {
+    IconData leadingIcon;
+    Color iconBgColor;
+    Color iconColor;
+
+    switch (n.type) {
+      case 'vote':
+      case 'my_artist_vote_start':
+      case 'vote_progress':
+        leadingIcon = Icons.how_to_vote;
+        iconBgColor = Colors.indigo.withValues(alpha: 0.1);
+        iconColor = Colors.indigo;
+        break;
+      case 'qna':
+      case 'answer_created':
+      case 'question_created':
+        leadingIcon = Icons.question_answer;
+        iconBgColor = Colors.teal.withValues(alpha: 0.1);
+        iconColor = Colors.teal;
+        break;
+      case 'post':
+        leadingIcon = Icons.post_add;
+        iconBgColor = Colors.deepPurple.withValues(alpha: 0.1);
+        iconColor = Colors.deepPurple;
+        break;
+      default:
+        leadingIcon = Icons.notifications;
+        iconBgColor = AppColors.primary500.withValues(alpha: 0.1);
+        iconColor = AppColors.primary500;
+    }
+
+    final localizedTitle = n.getLocalizedTitle(context);
+    final localizedBody = n.getLocalizedBody(context);
+    final createdAt = n.createdAt != null
+        ? DateFormat('yyyy-MM-dd HH:mm').format(DateTime.parse(n.createdAt!).toLocal())
+        : '';
+
+    return InkWell(
+      onTap: () async {
+        if (!n.isRead) {
+          await _markRead(n);
+        }
+        if ((n.actionUrl ?? '').isNotEmpty) {
+          final handledInternally = await _openUrl(n.actionUrl!);
+          if (handledInternally && mounted && context.mounted) {
+            await Navigator.of(context).maybePop();
           }
-
-          // 다국어 처리: 현재 로케일에 맞는 텍스트 표시
-          final localizedTitle = n.getLocalizedTitle(context);
-          final localizedBody = n.getLocalizedBody(context);
-
-          return ListTile(
-            leading: Icon(leadingIcon),
-            tileColor: tileColor,
-            title: Text(
-              localizedTitle,
-              style: TextStyle(
-                fontWeight: n.isRead ? FontWeight.normal : FontWeight.bold,
+        } else if ((n.data ?? {}).isNotEmpty) {
+          await _navigateByType(n);
+        }
+      },
+      borderRadius: BorderRadius.circular(12.r),
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: n.isRead ? Colors.white : AppColors.primary500.withValues(alpha: 0.03),
+          borderRadius: BorderRadius.circular(12.r),
+          border: n.isRead
+              ? null
+              : Border.all(color: AppColors.primary500.withValues(alpha: 0.2), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.1),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40.w,
+              height: 40.w,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                leadingIcon,
+                size: 20.w,
+                color: iconColor,
               ),
             ),
-            subtitle: Text(localizedBody),
-            onTap: () async {
-              if ((n.actionUrl ?? '').isNotEmpty) {
-                final handledInternally = await _openUrl(n.actionUrl!);
-                if (handledInternally && mounted && context.mounted) {
-                  await Navigator.of(context).maybePop();
-                }
-              } else if ((n.data ?? {}).isNotEmpty) {
-                await _navigateByType(n);
-              }
-            },
-            trailing: (n.userId != null && !n.isRead)
-                ? null
-                : TextButton(
-                    onPressed: () => _markRead(n),
-                    child: const Text('읽음'),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          localizedTitle,
+                          style: getTextStyle(
+                            n.isRead ? AppTypo.body14M : AppTypo.body14B,
+                            AppColors.grey900,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (!n.isRead)
+                        Container(
+                          width: 8.w,
+                          height: 8.w,
+                          margin: EdgeInsets.only(left: 8.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary500,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
                   ),
-          );
-        },
-        separatorBuilder: (_, _) => const Divider(height: 1),
-        itemCount: _items.length + 1,
+                  SizedBox(height: 4.h),
+                  Text(
+                    localizedBody,
+                    style: getTextStyle(AppTypo.body14R, AppColors.grey600),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 8.h),
+                  Row(
+                    children: [
+                      Icon(Icons.schedule, size: 12.w, color: AppColors.grey500),
+                      SizedBox(width: 4.w),
+                      Text(
+                        createdAt,
+                        style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
