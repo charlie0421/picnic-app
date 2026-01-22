@@ -5,6 +5,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/user_notification.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/notifications_unread_count_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/pages/community/community_post_detail_screen.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
@@ -72,9 +73,30 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           );
         }
       });
+      // 뱃지 카운트 갱신
+      ref.invalidate(unreadNotificationsCountProvider);
     } else {
       logger.w('mark read failed');
     }
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _items.clear();
+      _from = 0;
+      _loading = true;
+    });
+    final list = await NotificationInboxService.fetch(
+      from: _from,
+      limit: _limit,
+    );
+    setState(() {
+      _items.addAll(list);
+      _from += list.length;
+      _loading = false;
+    });
+    // 뱃지 카운트 갱신
+    ref.invalidate(unreadNotificationsCountProvider);
   }
 
   Future<bool> _openUrl(String url) async {
@@ -166,15 +188,18 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: ListView.separated(
-        controller: _controller,
-        itemBuilder: (context, index) {
-          if (index >= _items.length) {
-            return _loading
-                ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView.separated(
+          controller: _controller,
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
+            if (index >= _items.length) {
+              return _loading
+                  ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
                 : const SizedBox.shrink();
           }
           final n = _items[index];
@@ -237,8 +262,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 : null,
           );
         },
-        separatorBuilder: (_, _) => const Divider(height: 1),
-        itemCount: _items.length + 1,
+          separatorBuilder: (_, _) => const Divider(height: 1),
+          itemCount: _items.length + 1,
+        ),
       ),
     );
   }
