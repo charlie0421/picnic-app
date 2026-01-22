@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/services/push_token_service.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/services/locale_service.dart';
@@ -154,6 +155,10 @@ class LanguageInitializer {
         // 로그인하지 않은 경우나 업데이트 실패는 무시 (앱 동작에는 영향 없음)
         logger.w('user_profiles.language 업데이트 실패 (언어 변경)', error: e);
       }
+
+      // 푸시 토큰에 새 언어 설정 업데이트 (비동기, fire-and-forget)
+      // ignore: unawaited_futures
+      PushTokenService.refreshTokenWithLanguage();
 
       return true;
     } catch (e, stackTrace) {

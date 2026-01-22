@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/services/locale_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PushTokenService {
@@ -185,6 +186,21 @@ class PushTokenService {
     }
   }
 
+  /// 앱 언어 변경 시 푸시 토큰 재등록
+  /// 서버에 저장된 device_locale을 최신 앱 언어로 업데이트
+  static Future<void> refreshTokenWithLanguage() async {
+    if (kIsWeb) return;
+    try {
+      final token = await _messaging.getToken();
+      if (token != null && token.isNotEmpty) {
+        logger.i('Refreshing push token with updated app language');
+        await registerToken(token);
+      }
+    } catch (e, s) {
+      logger.e('Failed to refresh token with language', error: e, stackTrace: s);
+    }
+  }
+
   static Future<void> registerToken(String token) async {
     try {
       final user = supabase.auth.currentUser;
@@ -203,11 +219,14 @@ class PushTokenService {
           ? 'windows'
           : 'web';
 
+      // 앱 언어 설정 가져오기
+      final appLanguage = _getAppLanguage();
+
       final uriPreview =
           '${Environment.supabaseUrl}/functions/v1/register-push-token';
       final sw = Stopwatch()..start();
       logger.i(
-        'Registering push token to Supabase Edge: POST $uriPreview (uid: ${user.id.substring(0, 6)}..., platform: $platform)',
+        'Registering push token to Supabase Edge: POST $uriPreview (uid: ${user.id.substring(0, 6)}..., platform: $platform, language: $appLanguage)',
       );
 
       // 최신 세션 토큰 확보 (v2 API 호환)
@@ -232,7 +251,11 @@ class PushTokenService {
           .invoke(
             'register-push-token',
             headers: {'Authorization': 'Bearer $accessToken'},
-            body: {'platform': platform, 'token': token},
+            body: {
+              'platform': platform,
+              'token': token,
+              'device_locale': appLanguage,
+            },
           )
           .timeout(const Duration(seconds: 12));
       sw.stop();
@@ -271,6 +294,7 @@ class PushTokenService {
                       ? 'windows'
                       : 'web',
                   'token': token,
+                  'device_locale': _getAppLanguage(),
                 },
               )
               .timeout(const Duration(seconds: 12));
@@ -329,6 +353,7 @@ class PushTokenService {
                     ? 'windows'
                     : 'web',
                 'token': token,
+                'device_locale': _getAppLanguage(),
               },
             );
             if (res.status >= 300) {
@@ -528,6 +553,46 @@ class PushTokenService {
         error: e,
         stackTrace: s,
       );
+    }
+  }
+
+  /// 앱 언어 설정 가져오기
+  /// LocaleService에서 현재 설정된 앱 언어를 반환
+  /// fallback: 디바이스 로케일 -> 'en'
+  static String _getAppLanguage() {
+    try {
+      // 1. LocaleService에서 앱 언어 가져오기
+      final appLanguage = LocaleService.instance.currentLanguageCode;
+      if (appLanguage.isNotEmpty) {
+        // zh-TW 처리 (번체 중국어)
+        if (appLanguage == 'zh-TW' || appLanguage == 'zh_TW') {
+          return 'zh-TW';
+        }
+        return appLanguage.toLowerCase();
+      }
+
+      // 2. Fallback: 디바이스 로케일
+      final localeName = Platform.localeName;
+      if (localeName.isEmpty) return 'en';
+
+      final lowerName = localeName.toLowerCase();
+      if (lowerName.startsWith('zh_tw') ||
+          lowerName.startsWith('zh-tw') ||
+          lowerName.startsWith('zh_hk') ||
+          lowerName.startsWith('zh-hk') ||
+          lowerName.contains('hant')) {
+        return 'zh-TW';
+      }
+
+      final parts = localeName.split(RegExp(r'[_-]'));
+      if (parts.isNotEmpty && parts[0].isNotEmpty) {
+        return parts[0].toLowerCase();
+      }
+
+      return 'en';
+    } catch (e) {
+      logger.w('Failed to get app language: $e');
+      return 'en';
     }
   }
 }

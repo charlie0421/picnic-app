@@ -48,6 +48,10 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
+
+// 딥링크 중복 처리 방지용 변수
+String? _lastDeepLinkUrl;
+DateTime? _lastDeepLinkTime;
 import 'package:universal_platform/universal_platform.dart';
 
 class AppInitializer {
@@ -684,6 +688,17 @@ class AppInitializer {
 
   static Future<void> handleDeepLink(WidgetRef ref, String longUrl) async {
     try {
+      // 중복 딥링크 처리 방지 (2초 이내 같은 URL 무시)
+      final now = DateTime.now();
+      if (_lastDeepLinkUrl == longUrl &&
+          _lastDeepLinkTime != null &&
+          now.difference(_lastDeepLinkTime!).inMilliseconds < 2000) {
+        logger.i('[DeepLink] Ignoring duplicate deep link: $longUrl');
+        return;
+      }
+      _lastDeepLinkUrl = longUrl;
+      _lastDeepLinkTime = now;
+
       final uri = Uri.parse(longUrl);
 
       // 네비게이션 로직을 캡처하여 나중에 위젯이 dispose 되어도 문제가 없도록 함
