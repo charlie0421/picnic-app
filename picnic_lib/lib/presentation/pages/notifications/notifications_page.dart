@@ -24,7 +24,7 @@ class NotificationsPage extends ConsumerStatefulWidget {
 
 class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   final List<UserNotification> _items = [];
-  bool _loading = false;
+  bool _loading = true;
   int _from = 0;
   final int _limit = 20;
   final ScrollController _controller = ScrollController();
@@ -166,6 +166,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 초기 로딩 중
+    if (_loading && _items.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     // 데이터 없을 때
     if (!_loading && _items.isEmpty) {
       return NoItemContainer(
