@@ -48,11 +48,11 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:universal_platform/universal_platform.dart';
 
 // 딥링크 중복 처리 방지용 변수
 String? _lastDeepLinkUrl;
 DateTime? _lastDeepLinkTime;
-import 'package:universal_platform/universal_platform.dart';
 
 class AppInitializer {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
