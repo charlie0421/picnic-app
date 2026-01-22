@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/services/notification_inbox_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/user_notification.dart';
@@ -9,7 +8,6 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/pages/community/community_post_detail_screen.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
@@ -26,9 +24,7 @@ class NotificationsPage extends ConsumerStatefulWidget {
 
 class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   final List<UserNotification> _items = [];
-  bool _isInitialLoading = true;
-  bool _isMoreLoading = false;
-  bool _hasMore = true;
+  bool _loading = false;
   int _from = 0;
   final int _limit = 20;
   final ScrollController _controller = ScrollController();
@@ -37,13 +33,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   @override
   void initState() {
     super.initState();
-    _loadInitial();
+    _load();
     _controller.addListener(() {
       if (_controller.position.pixels >=
               _controller.position.maxScrollExtent - 200 &&
-          !_isMoreLoading &&
-          _hasMore) {
-        _loadMore();
+          !_loading) {
+        _load();
       }
     });
   }
@@ -61,13 +56,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     _updateNavigationTitle();
   }
 
-  Future<void> _loadInitial() async {
-    setState(() {
-      _isInitialLoading = true;
-      _items.clear();
-      _from = 0;
-      _hasMore = true;
-    });
+  Future<void> _load() async {
+    setState(() => _loading = true);
     final list = await NotificationInboxService.fetch(
       from: _from,
       limit: _limit,
@@ -75,23 +65,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     setState(() {
       _items.addAll(list);
       _from += list.length;
-      _hasMore = list.length == _limit;
-      _isInitialLoading = false;
-    });
-  }
-
-  Future<void> _loadMore() async {
-    if (_isMoreLoading || !_hasMore) return;
-    setState(() => _isMoreLoading = true);
-    final list = await NotificationInboxService.fetch(
-      from: _from,
-      limit: _limit,
-    );
-    setState(() {
-      _items.addAll(list);
-      _from += list.length;
-      _hasMore = list.length == _limit;
-      _isMoreLoading = false;
+      _loading = false;
     });
   }
 
@@ -192,230 +166,100 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // MyPageScreen이 AppBar를 제공하므로 Scaffold 없이 body만 반환
-    if (_isInitialLoading) {
-      return _buildShimmer();
-    }
-
-    if (_items.isEmpty) {
+    // 데이터 없을 때
+    if (!_loading && _items.isEmpty) {
       return NoItemContainer(
         message: AppLocalizations.of(context).common_text_no_data,
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: _loadInitial,
-      child: ListView.separated(
-        controller: _controller,
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        itemCount: _items.length + (_isMoreLoading ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index >= _items.length) {
-            return Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.w),
-                child: const CircularProgressIndicator(),
-              ),
-            );
-          }
-          return _buildNotificationCard(_items[index]);
-        },
-        separatorBuilder: (context, index) => SizedBox(height: 12.h),
-      ),
-    );
-  }
-
-  Widget _buildShimmer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        itemCount: 5,
-        itemBuilder: (context, index) => Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 36.w,
-                    height: 36.w,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: 16.h,
-                          color: Colors.white,
-                        ),
-                        SizedBox(height: 8.h),
-                        Container(width: 150.w, height: 12.h, color: Colors.white),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        separatorBuilder: (context, index) => SizedBox(height: 12.h),
-      ),
-    );
-  }
-
-  Widget _buildNotificationCard(UserNotification n) {
-    IconData leadingIcon;
-    Color iconBgColor;
-    Color iconColor;
-
-    switch (n.type) {
-      case 'vote':
-      case 'my_artist_vote_start':
-      case 'vote_progress':
-        leadingIcon = Icons.how_to_vote;
-        iconBgColor = Colors.indigo.withValues(alpha: 0.1);
-        iconColor = Colors.indigo;
-        break;
-      case 'qna':
-      case 'answer_created':
-      case 'question_created':
-        leadingIcon = Icons.question_answer;
-        iconBgColor = Colors.teal.withValues(alpha: 0.1);
-        iconColor = Colors.teal;
-        break;
-      case 'post':
-        leadingIcon = Icons.post_add;
-        iconBgColor = Colors.deepPurple.withValues(alpha: 0.1);
-        iconColor = Colors.deepPurple;
-        break;
-      default:
-        leadingIcon = Icons.notifications;
-        iconBgColor = AppColors.primary500.withValues(alpha: 0.1);
-        iconColor = AppColors.primary500;
-    }
-
-    final localizedTitle = n.getLocalizedTitle(context);
-    final localizedBody = n.getLocalizedBody(context);
-    final createdAt = n.createdAt != null
-        ? DateFormat('yyyy-MM-dd HH:mm').format(DateTime.parse(n.createdAt!).toLocal())
-        : '';
-
-    return InkWell(
-      onTap: () async {
-        if (!n.isRead) {
-          await _markRead(n);
+    return ListView.separated(
+      controller: _controller,
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      itemBuilder: (context, index) {
+        if (index >= _items.length) {
+          return _loading
+              ? const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              : const SizedBox.shrink();
         }
-        if ((n.actionUrl ?? '').isNotEmpty) {
-          final handledInternally = await _openUrl(n.actionUrl!);
-          if (handledInternally && mounted && context.mounted) {
-            await Navigator.of(context).maybePop();
-          }
-        } else if ((n.data ?? {}).isNotEmpty) {
-          await _navigateByType(n);
+        final n = _items[index];
+        IconData leadingIcon;
+        switch (n.type) {
+          case 'vote':
+          case 'my_artist_vote_start':
+          case 'vote_progress':
+            leadingIcon = Icons.how_to_vote;
+            break;
+          case 'qna':
+          case 'answer_created':
+          case 'question_created':
+            leadingIcon = Icons.question_answer;
+            break;
+          case 'post':
+            leadingIcon = Icons.post_add;
+            break;
+          default:
+            leadingIcon = Icons.notifications;
         }
+
+        // 다국어 처리: 현재 로케일에 맞는 텍스트 표시
+        final localizedTitle = n.getLocalizedTitle(context);
+        final localizedBody = n.getLocalizedBody(context);
+
+        return ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          leading: CircleAvatar(
+            backgroundColor: AppColors.grey200,
+            child: Icon(leadingIcon, color: AppColors.grey700, size: 20),
+          ),
+          title: Text(
+            localizedTitle,
+            style: getTextStyle(
+              n.isRead ? AppTypo.body14M : AppTypo.body14B,
+              AppColors.grey900,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            localizedBody,
+            style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: !n.isRead
+              ? Container(
+                  width: 8.w,
+                  height: 8.w,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary500,
+                    shape: BoxShape.circle,
+                  ),
+                )
+              : null,
+          onTap: () async {
+            if (!n.isRead) {
+              await _markRead(n);
+            }
+            if ((n.actionUrl ?? '').isNotEmpty) {
+              final handledInternally = await _openUrl(n.actionUrl!);
+              if (handledInternally && mounted && context.mounted) {
+                await Navigator.of(context).maybePop();
+              }
+            } else if ((n.data ?? {}).isNotEmpty) {
+              await _navigateByType(n);
+            }
+          },
+        );
       },
-      borderRadius: BorderRadius.circular(12.r),
-      child: Container(
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: n.isRead ? Colors.white : AppColors.primary500.withValues(alpha: 0.03),
-          borderRadius: BorderRadius.circular(12.r),
-          border: n.isRead
-              ? null
-              : Border.all(color: AppColors.primary500.withValues(alpha: 0.2), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 40.w,
-              height: 40.w,
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                leadingIcon,
-                size: 20.w,
-                color: iconColor,
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          localizedTitle,
-                          style: getTextStyle(
-                            n.isRead ? AppTypo.body14M : AppTypo.body14B,
-                            AppColors.grey900,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (!n.isRead)
-                        Container(
-                          width: 8.w,
-                          height: 8.w,
-                          margin: EdgeInsets.only(left: 8.w),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary500,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    localizedBody,
-                    style: getTextStyle(AppTypo.body14R, AppColors.grey600),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 8.h),
-                  Row(
-                    children: [
-                      Icon(Icons.schedule, size: 12.w, color: AppColors.grey500),
-                      SizedBox(width: 4.w),
-                      Text(
-                        createdAt,
-                        style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+      separatorBuilder: (context, index) => Divider(
+        height: 1,
+        color: AppColors.grey200,
       ),
+      itemCount: _items.length + 1,
     );
   }
 
