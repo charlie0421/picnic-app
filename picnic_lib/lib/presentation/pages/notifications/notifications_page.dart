@@ -226,7 +226,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           }
           return _buildNotificationCard(_items[index]);
         },
-        separatorBuilder: (_, __) => SizedBox(height: 12.h),
+        separatorBuilder: (context, index) => SizedBox(height: 12.h),
       ),
     );
   }
@@ -277,7 +277,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             ],
           ),
         ),
-        separatorBuilder: (_, __) => SizedBox(height: 12.h),
+        separatorBuilder: (context, index) => SizedBox(height: 12.h),
       ),
     );
   }
