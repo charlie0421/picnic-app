@@ -128,7 +128,11 @@ class PangleAdManager: NSObject {
             return
         }
 
-        guard let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else {
+        // iOS 15+ 호환: UIWindowScene을 통해 keyWindow 획득
+        guard let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }),
+              let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }) else {
             print("리워드 광고 표시 실패: keyWindow를 찾을 수 없습니다")
             result(FlutterError(code: "ShowFailed", message: "keyWindow를 찾을 수 없습니다", details: nil))
             return

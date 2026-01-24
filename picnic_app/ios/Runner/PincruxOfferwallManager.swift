@@ -45,7 +45,7 @@ class PincruxOfferwallManager: NSObject {
 
         case "startOfferwall":
             if isOfferwallNotNil(),
-                let controller = UIApplication.shared.windows.first?.rootViewController
+                let controller = getRootViewController()
             {
                 self.offerwall?.startOfferwall(vc: controller)
                 result(true)
@@ -59,7 +59,7 @@ class PincruxOfferwallManager: NSObject {
             if isOfferwallNotNil(),
                 let args = call.arguments as? [String: Any],
                 let appkey = args["appkey"] as? String,
-                let controller = UIApplication.shared.windows.first?.rootViewController
+                let controller = getRootViewController()
             {
                 self.offerwall?.startOfferwallDetailVC(vc: controller, appKey: appkey)
                 result(true)
@@ -71,7 +71,7 @@ class PincruxOfferwallManager: NSObject {
 
         case "startPincruxOfferwallContact":
             if isOfferwallNotNil(),
-                let controller = UIApplication.shared.windows.first?.rootViewController
+                let controller = getRootViewController()
             {
                 self.offerwall?.startOfferwallContactVC(vc: controller)
                 result(true)
@@ -204,5 +204,16 @@ class PincruxOfferwallManager: NSObject {
 
     private func isOfferwallNotNil() -> Bool {
         return self.offerwall != nil
+    }
+
+    // iOS 15+ 호환: UIWindowScene을 통해 rootViewController 획득
+    private func getRootViewController() -> UIViewController? {
+        guard let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }),
+              let rootVC = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController else {
+            return nil
+        }
+        return rootVC
     }
 }
