@@ -28,6 +28,17 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   final ScrollController _controller = ScrollController();
   String? _pageTitle;
 
+  /// 제목에서 첫 번째 이모지 추출 (없으면 null)
+  String? _extractEmoji(String text) {
+    // 이모지 유니코드 범위 패턴
+    final emojiRegex = RegExp(
+      r'[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]',
+      unicode: true,
+    );
+    final match = emojiRegex.firstMatch(text);
+    return match?.group(0);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -203,42 +214,95 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 : const SizedBox.shrink();
           }
           final n = _items[index];
-          IconData leadingIcon;
-          Color? tileColor;
+          IconData fallbackIcon;
           switch (n.type) {
             case 'vote':
-              leadingIcon = Icons.how_to_vote;
-              tileColor = Colors.indigo.withValues(alpha: 0.05);
+              fallbackIcon = Icons.how_to_vote;
               break;
             case 'qna':
             case 'answer_created':
             case 'question_created':
-              leadingIcon = Icons.question_answer;
-              tileColor = Colors.teal.withValues(alpha: 0.05);
+              fallbackIcon = Icons.question_answer;
               break;
             case 'post':
-              leadingIcon = Icons.post_add;
-              tileColor = Colors.deepPurple.withValues(alpha: 0.05);
+              fallbackIcon = Icons.post_add;
               break;
             default:
-              leadingIcon = Icons.notifications;
-              tileColor = null;
+              fallbackIcon = Icons.notifications;
           }
 
           // 다국어 처리: 현재 로케일에 맞는 텍스트 표시
           final localizedTitle = n.getLocalizedTitle(context);
           final localizedBody = n.getLocalizedBody(context);
 
+          // 제목에서 이모지 추출 및 제거
+          final emoji = _extractEmoji(localizedTitle);
+          final displayTitle = emoji != null
+              ? localizedTitle.replaceFirst(emoji, '').trim()
+              : localizedTitle;
+
+          // 읽음 상태에 따른 스타일 차이
+          final isUnread = !n.isRead;
+          final tileColor = isUnread
+              ? Colors.blue.withValues(alpha: 0.08)
+              : Colors.grey.withValues(alpha: 0.03);
+
+          // Leading 위젯: 이모지 또는 아이콘 + 읽지 않음 표시
+          Widget leadingWidget;
+          if (emoji != null) {
+            leadingWidget = Text(
+              emoji,
+              style: const TextStyle(fontSize: 28),
+            );
+          } else {
+            leadingWidget = Icon(
+              fallbackIcon,
+              color: isUnread ? Colors.blue : Colors.grey,
+            );
+          }
+
+          // 읽지 않은 알림에 파란 점 표시
+          if (isUnread) {
+            leadingWidget = Stack(
+              clipBehavior: Clip.none,
+              children: [
+                leadingWidget,
+                Positioned(
+                  right: -4,
+                  top: -4,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
           return ListTile(
-            leading: Icon(leadingIcon),
+            leading: SizedBox(
+              width: 40,
+              height: 40,
+              child: Center(child: leadingWidget),
+            ),
             tileColor: tileColor,
             title: Text(
-              localizedTitle,
+              displayTitle,
               style: TextStyle(
-                fontWeight: n.isRead ? FontWeight.normal : FontWeight.bold,
+                fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
+                color: isUnread ? Colors.black : Colors.grey[700],
               ),
             ),
-            subtitle: Text(localizedBody),
+            subtitle: Text(
+              localizedBody,
+              style: TextStyle(
+                color: isUnread ? Colors.black87 : Colors.grey[500],
+              ),
+            ),
             onTap: () async {
               // 탭하면 자동으로 읽음 처리
               if (!n.isRead) {
@@ -253,13 +317,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 await _navigateByType(n);
               }
             },
-            // 읽지 않은 알림에만 "읽음" 버튼 표시
-            trailing: (!n.isRead)
-                ? TextButton(
-                    onPressed: () => _markRead(n),
-                    child: const Text('읽음'),
-                  )
-                : null,
           );
         },
           separatorBuilder: (_, _) => const Divider(height: 1),
