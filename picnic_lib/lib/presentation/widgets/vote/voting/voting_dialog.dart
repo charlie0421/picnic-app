@@ -107,6 +107,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   bool _canVote = false;
   bool _isInitialRender = true;
   bool _isProcessingTap = false;
+  bool _isVoting = false; // 투표 중복 클릭 방지
 
   @override
   void initState() {
@@ -663,29 +664,44 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }
 
   Widget _buildVoteButton(int myStarCandy, String userId) {
+    final isEnabled = _canVote && !_isVoting; // 투표 중이면 버튼 비활성화
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: _canVote ? () => _handleVote(myStarCandy, userId) : null,
+      onTap: isEnabled ? () => _handleVote(myStarCandy, userId) : null,
       child: Container(
         width: 172.w,
         height: 52,
         decoration: BoxDecoration(
-          color: _canVote ? AppColors.primary500 : AppColors.grey300,
+          color: _isVoting
+              ? AppColors.primary500
+              : (isEnabled ? AppColors.primary500 : AppColors.grey300),
           borderRadius: BorderRadius.circular(24),
         ),
         alignment: Alignment.center,
-        child: Text(
-          AppLocalizations.of(context).label_button_vote,
-          style: getTextStyle(
-            AppTypo.title18SB,
-            AppColors.grey00,
-          ),
-        ),
+        child: _isVoting
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                AppLocalizations.of(context).label_button_vote,
+                style: getTextStyle(
+                  AppTypo.title18SB,
+                  AppColors.grey00,
+                ),
+              ),
       ),
     );
   }
 
   Future<void> _handleVote(int myStarCandy, String userId) async {
+    // 이미 투표 진행 중이면 무시 (중복 클릭 방지)
+    if (_isVoting) return;
+
     final voteAmount = _getVoteAmount();
     if (voteAmount == 0 || myStarCandy < voteAmount) {
       showSimpleDialog(
@@ -705,9 +721,54 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       return;
     }
 
+    // 투표 시작 - 버튼 비활성화
+    setState(() => _isVoting = true);
+
     _loadingKey.currentState?.show();
 
     await _performVoting(voteAmount, userId);
+  }
+
+  // 429 응답 시 자동 재시도하는 투표 API 호출
+  Future<dynamic> _invokeVotingWithRetry({
+    required int voteAmount,
+    required String userId,
+    required int starCandyUsage,
+    required int starCandyBonusUsage,
+    int retryCount = 0,
+  }) async {
+    final functionName =
+        widget.portalType == VotePortal.vote ? 'voting-v2' : 'pic-voting-v2';
+
+    final response = await supabase.functions.invoke(
+      functionName,
+      body: {
+        'vote_id': widget.voteModel.id,
+        'vote_item_id': widget.voteItemModel.id,
+        'amount': voteAmount,
+        'user_id': userId,
+        'star_candy_usage': starCandyUsage,
+        'star_candy_bonus_usage': starCandyBonusUsage,
+      },
+    );
+
+    // 429 응답이고 아직 재시도 안했으면 3초 후 1회 재시도
+    if (response.status == 429 && retryCount < 1) {
+      logger.d('Voting rate limited, retrying in 3 seconds...');
+      await Future.delayed(const Duration(seconds: 3));
+
+      if (!mounted) return response;
+
+      return _invokeVotingWithRetry(
+        voteAmount: voteAmount,
+        userId: userId,
+        starCandyUsage: starCandyUsage,
+        starCandyBonusUsage: starCandyBonusUsage,
+        retryCount: retryCount + 1,
+      );
+    }
+
+    return response;
   }
 
   // star_candy와 star_candy_bonus 사용량 계산
@@ -748,17 +809,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       final starCandyUsage = usage['star_candy_usage']!;
       final starCandyBonusUsage = usage['star_candy_bonus_usage']!;
 
-      // 새로운 엣지 함수 사용
-      final response = await supabase.functions.invoke(
-          widget.portalType == VotePortal.vote ? 'voting-v2' : 'pic-voting-v2',
-          body: {
-            'vote_id': widget.voteModel.id,
-            'vote_item_id': widget.voteItemModel.id,
-            'amount': voteAmount,
-            'user_id': userId,
-            'star_candy_usage': starCandyUsage,
-            'star_candy_bonus_usage': starCandyBonusUsage,
-          });
+      // 투표 API 호출 (429 시 1회 자동 재시도)
+      final response = await _invokeVotingWithRetry(
+        voteAmount: voteAmount,
+        userId: userId,
+        starCandyUsage: starCandyUsage,
+        starCandyBonusUsage: starCandyBonusUsage,
+      );
 
       if (response.status != 200) {
         throw Exception('Failed to vote');
@@ -787,6 +844,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       _loadingKey.currentState?.hide();
+
+      // 투표 실패 시 버튼 다시 활성화
+      if (mounted) {
+        setState(() => _isVoting = false);
+      }
+
       Navigator.of(context).pop();
 
       _showVotingFailDialog();

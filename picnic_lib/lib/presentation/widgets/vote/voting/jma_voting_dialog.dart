@@ -70,6 +70,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   bool _isInitialRender = true;
   bool _isProcessingTap = false;
   bool _isPolicyExpanded = false;
+  bool _isVoting = false; // 투표 중복 클릭 방지
   String _validationMessage = '';
   int _dailyVoteCount = 0; // 오늘 보너스 별사탕 사용량
   static const int _maxDailyVotes = 5; // 일일 최대 보너스 별사탕 사용량 (5개)
@@ -1105,18 +1106,19 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   Widget _buildJmaVoteButton(String userId) {
+    final isEnabled = _canVote && !_isVoting; // 투표 중이면 버튼 비활성화
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: _canVote ? () => _handleVote(userId) : null,
+      onTap: isEnabled ? () => _handleVote(userId) : null,
       child: Container(
         width: 172.w,
         height: 44, // 44 → 52로 복원
         decoration: BoxDecoration(
-          gradient: _canVote ? commonGradient : null,
-          color: _canVote ? null : AppColors.grey300,
+          gradient: (_isVoting || isEnabled) ? commonGradient : null,
+          color: (_isVoting || isEnabled) ? null : AppColors.grey300,
           borderRadius: BorderRadius.circular(24),
           boxShadow:
-              _canVote
+              (_isVoting || isEnabled)
                   ? [
                     BoxShadow(
                       color: AppColors.primary500.withValues(alpha: 0.4),
@@ -1132,31 +1134,43 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                   : null,
         ),
         alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_canVote) ...[
-              Icon(
-                Icons.how_to_vote,
-                color: Colors.white,
-                size: 20, // 18 → 20으로 복원
+        child: _isVoting
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (isEnabled) ...[
+                    Icon(
+                      Icons.how_to_vote,
+                      color: Colors.white,
+                      size: 20, // 18 → 20으로 복원
+                    ),
+                    SizedBox(width: 8.w), // 6 → 8로 복원
+                  ],
+                  Text(
+                    AppLocalizations.of(context).label_button_vote,
+                    style: getTextStyle(
+                      AppTypo.title18B, // body16B → title18B로 복원
+                      Colors.white,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 8.w), // 6 → 8로 복원
-            ],
-            Text(
-              AppLocalizations.of(context).label_button_vote,
-              style: getTextStyle(
-                AppTypo.title18B, // body16B → title18B로 복원
-                Colors.white,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 
   Future<void> _handleVote(String userId) async {
+    // 이미 투표 진행 중이면 무시 (중복 클릭 방지)
+    if (_isVoting) return;
+
     final voteAmount = _getVoteAmount();
 
     if (voteAmount == 0) {
@@ -1184,6 +1198,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       return;
     }
 
+    // 투표 시작 - 버튼 비활성화
+    setState(() => _isVoting = true);
+
     _loadingKey.currentState?.show();
 
     // 보너스 사용 계산
@@ -1208,6 +1225,12 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     } catch (e) {
       logger.e('Voting error', error: e);
       _loadingKey.currentState?.hide();
+
+      // 투표 실패 시 버튼 다시 활성화
+      if (mounted) {
+        setState(() => _isVoting = false);
+      }
+
       if (mounted) {
         showSimpleDialog(
           type: DialogType.error,
@@ -1217,6 +1240,50 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         );
       }
     }
+  }
+
+  // 429 응답 시 자동 재시도하는 JMA 투표 API 호출
+  Future<dynamic> _invokeJmaVotingWithRetry({
+    required int voteAmount,
+    required String userId,
+    required int starCandyUsage,
+    required int starCandyBonusUsage,
+    int retryCount = 0,
+  }) async {
+    final response = await supabase.functions.invoke(
+      'jma-voting-v2',
+      body: {
+        'vote_id': widget.voteModel.id,
+        'vote_item_id': widget.voteItemModel.id,
+        'amount': voteAmount,
+        'star_candy_usage': starCandyUsage,
+        'star_candy_bonus_usage': starCandyBonusUsage,
+        'user_id': userId,
+      },
+    );
+
+    // 429 응답이고 retryable이면 3초 후 1회 재시도
+    if (response.status == 429 && retryCount < 1) {
+      final data = response.data as Map<String, dynamic>?;
+      final isRetryable = data?['retryable'] == true;
+
+      if (isRetryable) {
+        logger.d('JMA Voting rate limited, retrying in 3 seconds...');
+        await Future.delayed(const Duration(seconds: 3));
+
+        if (!mounted) return response;
+
+        return _invokeJmaVotingWithRetry(
+          voteAmount: voteAmount,
+          userId: userId,
+          starCandyUsage: starCandyUsage,
+          starCandyBonusUsage: starCandyBonusUsage,
+          retryCount: retryCount + 1,
+        );
+      }
+    }
+
+    return response;
   }
 
   /// 보너스 캔디 우선 사용 로직으로 사용량 계산 (실제 별사탕 개수 기준)
@@ -1267,33 +1334,38 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       final requiredStarCandy = _getRequiredStarCandyAmount();
       final usage = _calculateUsage(requiredStarCandy);
 
-      // 새로운 jma-voting-v2 엣지 함수 사용
-      final response = await supabase.functions.invoke(
-        'jma-voting-v2',
-        body: {
-          'vote_id': widget.voteModel.id,
-          'vote_item_id': widget.voteItemModel.id,
-          'amount': voteAmount, // 투표 수
-          'star_candy_usage': usage['star_candy_usage'],
-          'star_candy_bonus_usage': usage['star_candy_bonus_usage'],
-          'user_id': userId,
-        },
+      // 새로운 jma-voting-v2 엣지 함수 사용 (429 시 1회 자동 재시도)
+      final response = await _invokeJmaVotingWithRetry(
+        voteAmount: voteAmount,
+        userId: userId,
+        starCandyUsage: usage['star_candy_usage']!,
+        starCandyBonusUsage: usage['star_candy_bonus_usage']!,
       );
 
       if (response.status != 200) {
-        // Edge function에서 일일 제한 오류 처리
+        // Edge function에서 일일 제한 오류 처리 (retryable이 아닌 429만)
         if (response.status == 429) {
-          _loadingKey.currentState?.hide();
-          if (mounted) {
-            showSimpleDialog(
-              type: DialogType.error,
-              title: AppLocalizations.of(context).jma_voting_daily_limit_title,
-              content:
-                  AppLocalizations.of(context).jma_voting_daily_limit_error,
-              onOk: () {},
-            );
+          final data = response.data as Map<String, dynamic>?;
+          final isRetryable = data?['retryable'] == true;
+
+          // retryable이 false인 경우에만 일일 제한 에러로 처리
+          if (!isRetryable) {
+            _loadingKey.currentState?.hide();
+            // 투표 실패 시 버튼 다시 활성화
+            if (mounted) {
+              setState(() => _isVoting = false);
+            }
+            if (mounted) {
+              showSimpleDialog(
+                type: DialogType.error,
+                title: AppLocalizations.of(context).jma_voting_daily_limit_title,
+                content:
+                    AppLocalizations.of(context).jma_voting_daily_limit_error,
+                onOk: () {},
+              );
+            }
+            return;
           }
-          return;
         }
         throw Exception('Failed to vote');
       }
@@ -1333,6 +1405,12 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       _loadingKey.currentState?.hide();
+
+      // 투표 실패 시 버튼 다시 활성화
+      if (mounted) {
+        setState(() => _isVoting = false);
+      }
+
       Navigator.of(context).pop();
 
       _showVotingFailDialog();
