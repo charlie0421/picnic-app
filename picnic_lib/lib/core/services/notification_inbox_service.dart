@@ -78,4 +78,23 @@ class NotificationInboxService {
       return false;
     }
   }
+
+  static Future<bool> markAllRead() async {
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) return false;
+      await supabase
+          .from('user_notifications')
+          .update({
+            'is_read': true,
+            'read_at': DateTime.now().toIso8601String(),
+          })
+          .eq('user_id', user.id)
+          .eq('is_read', false);
+      return true;
+    } catch (e, s) {
+      logger.e('mark all read failed', error: e, stackTrace: s);
+      return false;
+    }
+  }
 }

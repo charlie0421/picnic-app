@@ -1801,4 +1801,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get patch_button_understood => 'Đã hiểu';
+
+  @override
+  String get notifications_mark_all_read => 'Đọc tất cả';
 }

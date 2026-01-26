@@ -1772,4 +1772,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get patch_button_understood => 'เข้าใจแล้ว';
+
+  @override
+  String get notifications_mark_all_read => 'อ่านทั้งหมด';
 }

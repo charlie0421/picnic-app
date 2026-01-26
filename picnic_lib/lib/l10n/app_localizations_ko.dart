@@ -1727,4 +1727,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get patch_button_understood => '알겠습니다';
+
+  @override
+  String get notifications_mark_all_read => '모두 읽기';
 }

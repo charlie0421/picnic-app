@@ -2291,5 +2291,9 @@
   "patch_button_understood": "বুঝেছি",
   "@patch_button_understood": {
     "description": "Button to acknowledge iOS restart instructions"
+  },
+  "notifications_mark_all_read": "সব পড়ুন",
+  "@notifications_mark_all_read": {
+    "description": "Button to mark all notifications as read"
   }
 }

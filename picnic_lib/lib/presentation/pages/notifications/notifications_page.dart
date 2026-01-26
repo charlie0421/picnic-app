@@ -110,6 +110,23 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     ref.invalidate(unreadNotificationsCountProvider);
   }
 
+  Future<void> _markAllRead() async {
+    final ok = await NotificationInboxService.markAllRead();
+    if (ok) {
+      setState(() {
+        for (int i = 0; i < _items.length; i++) {
+          if (!_items[i].isRead) {
+            _items[i] = _items[i].copyWith(
+              isRead: true,
+              readAt: DateTime.now().toIso8601String(),
+            );
+          }
+        }
+      });
+      ref.invalidate(unreadNotificationsCountProvider);
+    }
+  }
+
   Future<bool> _openUrl(String url) async {
     try {
       final uri = Uri.parse(url);
@@ -198,6 +215,15 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          TextButton(
+            onPressed: _markAllRead,
+            child: Text(
+              AppLocalizations.of(context).notifications_mark_all_read,
+              style: const TextStyle(color: Colors.blue),
+            ),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,

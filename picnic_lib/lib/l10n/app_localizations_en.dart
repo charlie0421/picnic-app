@@ -1799,4 +1799,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get patch_button_understood => 'Got it';
+
+  @override
+  String get notifications_mark_all_read => 'Read all';
 }

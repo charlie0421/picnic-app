@@ -2283,5 +2283,9 @@
   "patch_button_understood": "知道了",
   "@patch_button_understood": {
     "description": "OK button for iOS patch dialog"
+  },
+  "notifications_mark_all_read": "全部已读",
+  "@notifications_mark_all_read": {
+    "description": "Button to mark all notifications as read"
   }
 }

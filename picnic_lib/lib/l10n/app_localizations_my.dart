@@ -1812,4 +1812,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get patch_button_understood => 'နားလည်ပါပြီ';
+
+  @override
+  String get notifications_mark_all_read => 'အားလုံးဖတ်';
 }

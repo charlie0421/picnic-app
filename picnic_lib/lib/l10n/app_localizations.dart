@@ -3394,6 +3394,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Got it'**
   String get patch_button_understood;
+
+  /// Button to mark all notifications as read
+  ///
+  /// In en, this message translates to:
+  /// **'Read all'**
+  String get notifications_mark_all_read;
 }
 
 class _AppLocalizationsDelegate

@@ -1781,6 +1781,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get patch_button_understood => '知道了';
+
+  @override
+  String get notifications_mark_all_read => '全部已读';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3494,6 +3497,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get patch_button_understood => '知道了';
+
+  @override
+  String get notifications_mark_all_read => '全部已读';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -5208,4 +5214,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get patch_button_understood => '知道了';
+
+  @override
+  String get notifications_mark_all_read => '全部已讀';
 }

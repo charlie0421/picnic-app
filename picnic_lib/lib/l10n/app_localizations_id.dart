@@ -1806,4 +1806,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get patch_button_understood => 'Mengerti';
+
+  @override
+  String get notifications_mark_all_read => 'Baca Semua';
 }

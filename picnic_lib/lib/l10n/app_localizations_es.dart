@@ -1820,4 +1820,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get patch_button_understood => 'Entendido';
+
+  @override
+  String get notifications_mark_all_read => 'Leer todo';
 }

@@ -1729,4 +1729,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get patch_button_understood => '了解';
+
+  @override
+  String get notifications_mark_all_read => '全て既読';
 }

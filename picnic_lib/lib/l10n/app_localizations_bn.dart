@@ -1799,6 +1799,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get patch_button_understood => 'বুঝেছি';
+
+  @override
+  String get notifications_mark_all_read => 'সব পড়ুন';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -3594,4 +3597,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get patch_button_understood => 'বুঝেছি';
+
+  @override
+  String get notifications_mark_all_read => 'সব পড়ুন';
 }
