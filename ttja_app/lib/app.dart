@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
+import 'package:picnic_lib/core/services/app_badge_service.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
@@ -209,6 +210,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         // 앱이 포그라운드로 돌아올 때 필요한 작업
+        // Sync app badge with unread notifications count
+        AppBadgeService.syncBadgeWithUnreadCount();
         break;
       case AppLifecycleState.inactive:
         // 앱이 비활성화될 때 필요한 작업
