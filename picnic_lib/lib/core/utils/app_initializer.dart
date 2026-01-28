@@ -15,6 +15,7 @@ import 'package:picnic_lib/core/services/update_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
+import 'package:picnic_lib/core/services/app_badge_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
@@ -399,6 +400,9 @@ class AppInitializer {
             });
           },
         );
+        // Sync app badge with unread notifications count
+        // ignore: unawaited_futures
+        AppBadgeService.syncBadgeWithUnreadCount();
         if (!context.mounted) return;
         await _loadProducts(ref);
 

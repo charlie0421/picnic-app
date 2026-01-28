@@ -1,4 +1,5 @@
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/services/app_badge_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/data/models/user_notification.dart';
 
@@ -72,6 +73,9 @@ class NotificationInboxService {
             'read_at': DateTime.now().toIso8601String(),
           })
           .eq('id', id);
+      // Sync app badge with updated unread count
+      // ignore: unawaited_futures
+      AppBadgeService.syncBadgeWithUnreadCount();
       return true;
     } catch (e, s) {
       logger.e('mark read failed', error: e, stackTrace: s);
@@ -91,6 +95,9 @@ class NotificationInboxService {
           })
           .eq('user_id', user.id)
           .eq('is_read', false);
+      // Clear app badge when all notifications are marked as read
+      // ignore: unawaited_futures
+      AppBadgeService.removeBadge();
       return true;
     } catch (e, s) {
       logger.e('mark all read failed', error: e, stackTrace: s);
