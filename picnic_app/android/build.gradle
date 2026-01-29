@@ -9,6 +9,26 @@ allprojects {
     }
 }
 
+// AGP 8+ namespace 미지원 플러그인 호환성 처리
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            def android = project.android
+            if (android.namespace == null || android.namespace.isEmpty()) {
+                def manifest = file("${project.projectDir}/src/main/AndroidManifest.xml")
+                if (manifest.exists()) {
+                    def pkg = new groovy.util.XmlSlurper()
+                        .parse(manifest)
+                        .@package.toString()
+                    if (pkg) {
+                        android.namespace = pkg
+                    }
+                }
+            }
+        }
+    }
+}
+
 buildscript {
     ext.kotlin_version = '2.1.0'
 
