@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/presentation/widgets/ui/loading_overlay.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/openai.dart';
@@ -92,31 +92,16 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
     }
     if (!mounted) return;
 
-    OverlayLoadingProgress.start(context);
+    // 키보드 내리기
+    FocusScope.of(context).unfocus();
+
+    LoadingOverlay.of(context).show();
     logger.i('_titleController.text: ${_titleController.text}');
     logger.i(
         '_titleController.text: ${_contentController.document.toPlainText()}');
 
     final title = _titleController.text;
     final content = _contentController.document.toPlainText();
-
-    final checkResult = await checkContent('$title\n$content');
-
-    // null safety 처리 추가
-    final isFlagged = checkResult['flagged'] as bool? ?? false;
-
-    if (isFlagged) {
-      OverlayLoadingProgress.stop();
-      if (navigatorKey.currentContext != null) {
-        showSimpleDialog(
-          title:
-              AppLocalizations.of(navigatorKey.currentContext!).dialog_caution,
-          content:
-              AppLocalizations.of(navigatorKey.currentContext!).post_flagged,
-        );
-      }
-      return;
-    }
 
     final postAnonymousMode = ref
         .watch(appSettingProvider.select((value) => value.postAnonymousMode));
@@ -130,7 +115,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
     String? postId;
 
     try {
-      // Create post first
+      // Create post data
       final postData = {
         'title': _titleController.text,
         'content': _contentController.document.toDelta().toJson(),
@@ -140,26 +125,51 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
         'is_temporary': isTemporary,
       };
 
-      final postResponse =
-          await supabase.from('posts').insert(postData).select();
-      postId = postResponse[0]['post_id'];
+      // Run content moderation and DB INSERT in parallel
+      final results = await Future.wait<dynamic>([
+        checkContent('$title\n$content'),
+        supabase.from('posts').insert(postData).select(),
+      ]);
+      final checkResult = results[0] as Map<String, dynamic>;
+      final postResponse = results[1] as List<dynamic>;
+      postId = postResponse[0]['post_id'] as String;
 
-      // Upload attachments and save to attachments table
-      List<Map<String, dynamic>> attachmentData = [];
-      for (var file in _attachments) {
+      // null safety 처리 추가
+      final isFlagged = checkResult['flagged'] as bool? ?? false;
+
+      if (isFlagged) {
+        // Rollback: delete the already-inserted post
+        await supabase.from('posts').delete().eq('post_id', postId);
+        if (!mounted) return;
+        LoadingOverlay.of(context).hide();
+        if (navigatorKey.currentContext != null) {
+          showSimpleDialog(
+            title:
+                AppLocalizations.of(navigatorKey.currentContext!).dialog_caution,
+            content:
+                AppLocalizations.of(navigatorKey.currentContext!).post_flagged,
+          );
+        }
+        return;
+      }
+
+      // Upload attachments in parallel
+      final uploadFutures = _attachments.map((file) async {
         final uploadedUrl = await _uploadAttachment(file);
-
-        attachmentData.add({
+        return {
           'post_id': postId,
           'file_name': file.name,
           'file_path': uploadedUrl,
           'file_type': file.extension ?? 'unknown',
           'file_size': file.size,
-        });
-      }
+        };
+      });
+      final attachmentData = await Future.wait(uploadFutures);
 
-      // Insert all attachments
-      await supabase.from('post_attachments').insert(attachmentData);
+      // Insert all attachments (skip if empty)
+      if (attachmentData.isNotEmpty) {
+        await supabase.from('post_attachments').insert(attachmentData);
+      }
 
       if (isTemporary) {
         showSimpleDialog(
@@ -208,7 +218,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
       );
       rethrow;
     } finally {
-      OverlayLoadingProgress.stop();
+      if (mounted) LoadingOverlay.of(context).hide();
 
       setState(() {
         _isSaving = false;
@@ -220,60 +230,62 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            PostWriteHeader(
-              onSave: (isTemporary) {
-                if (isTemporary) {
-                  _savePost(isTemporary: true);
-                } else {
-                  _savePost(isTemporary: false);
-                }
-              },
-              isTitleValid: _isTitleValid, // _isTitleValid는 부모 위젯에서 관리하는 상태 변수
-              // isSaving: _isSaving,
-            ),
-            PostWriteBody(
-              titleController: _titleController,
-              contentController: _contentController,
-              attachments: _attachments,
-              onAttachmentAdded: (files) async {
-                setState(() => _attachments.addAll(files));
-              },
-              onAttachmentRemoved: (index) {
-                setState(() {
-                  _attachments.removeAt(index);
-                });
-              },
-              onValidityChanged: (isValid) {
-                setState(() {
-                  _isTitleValid = isValid;
-                });
-              },
-            ),
-            if (_uploadProgress.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Uploading attachments:'),
-                    ..._uploadProgress.entries.map(
-                      (entry) => LinearProgressIndicator(
-                        value: entry.value,
-                        backgroundColor: Colors.grey[200],
-                        valueColor:
-                            const AlwaysStoppedAnimation<Color>(Colors.blue),
-                      ),
-                    ),
-                  ],
-                ),
+    return LoadingOverlay(
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              PostWriteHeader(
+                onSave: (isTemporary) {
+                  if (isTemporary) {
+                    _savePost(isTemporary: true);
+                  } else {
+                    _savePost(isTemporary: false);
+                  }
+                },
+                isTitleValid: _isTitleValid, // _isTitleValid는 부모 위젯에서 관리하는 상태 변수
+                // isSaving: _isSaving,
               ),
-            const PostWriteBottomBar(),
-          ],
+              PostWriteBody(
+                titleController: _titleController,
+                contentController: _contentController,
+                attachments: _attachments,
+                onAttachmentAdded: (files) async {
+                  setState(() => _attachments.addAll(files));
+                },
+                onAttachmentRemoved: (index) {
+                  setState(() {
+                    _attachments.removeAt(index);
+                  });
+                },
+                onValidityChanged: (isValid) {
+                  setState(() {
+                    _isTitleValid = isValid;
+                  });
+                },
+              ),
+              if (_uploadProgress.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Uploading attachments:'),
+                      ..._uploadProgress.entries.map(
+                        (entry) => LinearProgressIndicator(
+                          value: entry.value,
+                          backgroundColor: Colors.grey[200],
+                          valueColor:
+                              const AlwaysStoppedAnimation<Color>(Colors.blue),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const PostWriteBottomBar(),
+            ],
+          ),
         ),
       ),
     );
