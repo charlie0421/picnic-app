@@ -39,6 +39,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
   final List<PlatformFile> _attachments = [];
   final Map<String, double> _uploadProgress = {};
   late final S3Uploader _s3Uploader;
+  final GlobalKey<LoadingOverlayState> _loadingKey = GlobalKey<LoadingOverlayState>();
   bool _isSaving = false;
 
   @override
@@ -95,7 +96,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
     // 키보드 내리기
     FocusScope.of(context).unfocus();
 
-    LoadingOverlay.of(context).show();
+    _loadingKey.currentState?.show();
     logger.i('_titleController.text: ${_titleController.text}');
     logger.i(
         '_titleController.text: ${_contentController.document.toPlainText()}');
@@ -141,7 +142,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
         // Rollback: delete the already-inserted post
         await supabase.from('posts').delete().eq('post_id', postId);
         if (!mounted) return;
-        LoadingOverlay.of(context).hide();
+        _loadingKey.currentState?.hide();
         if (navigatorKey.currentContext != null) {
           showSimpleDialog(
             title:
@@ -218,7 +219,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
       );
       rethrow;
     } finally {
-      if (mounted) LoadingOverlay.of(context).hide();
+      if (mounted) _loadingKey.currentState?.hide();
 
       setState(() {
         _isSaving = false;
@@ -231,6 +232,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
   @override
   Widget build(BuildContext context) {
     return LoadingOverlay(
+      key: _loadingKey,
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
