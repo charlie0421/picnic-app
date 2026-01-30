@@ -1821,10 +1821,6 @@
       }
     }
   },
-  "label_login_with_wechat": "使用微信登入",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
   "withdrawal_success": "退订已成功处理。",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."

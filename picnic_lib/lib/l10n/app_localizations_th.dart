@@ -1411,9 +1411,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'เข้าสู่ระบบด้วย WeChat';
-
-  @override
   String get withdrawal_success => 'การยกเลิกการสมัครถูกประมวลผลสำเร็จ';
 
   @override

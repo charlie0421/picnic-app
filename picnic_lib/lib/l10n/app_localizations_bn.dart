@@ -1433,9 +1433,6 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'Login with WeChat';
-
-  @override
   String get withdrawal_success =>
       'The unsubscribe was processed successfully.';
 
@@ -3226,9 +3223,6 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String text_achievement(int count) {
     return '🎉 আপনি এ পর্যন্ত $count গোলে পৌঁছেছেন! 🎉';
   }
-
-  @override
-  String get label_login_with_wechat => 'ওয়েচ্যাট দিয়ে লগইন করুন';
 
   @override
   String get withdrawal_success =>

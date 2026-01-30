@@ -1821,10 +1821,6 @@
       }
     }
   },
-  "label_login_with_wechat": "Mag -login na may wechat",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
   "withdrawal_success": "Ang unsubscribe ay matagumpay na naproseso.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."

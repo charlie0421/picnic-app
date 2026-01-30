@@ -1443,9 +1443,6 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'WeChat နှင့်အတူဝင်ပါ';
-
-  @override
   String get withdrawal_success =>
       'အဆိုပါ unsubscribe အောင်မြင်စွာလုပ်ငန်းများ၌ခဲ့သည်။';
 

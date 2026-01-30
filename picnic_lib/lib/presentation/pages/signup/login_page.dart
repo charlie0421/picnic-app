@@ -28,9 +28,6 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:screen_protector/screen_protector.dart' as sp;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
-// import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // WeChat 제거로 미사용
-// import 'package:url_launcher/url_launcher.dart'; // WeChat 제거로 미사용
-// import 'package:fluwx/fluwx.dart'; // WeChat 제거로 미사용
 
 class LoginPage extends ConsumerStatefulWidget {
   static const String routeName = '/login';
@@ -59,7 +56,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           lastProvider = provider;
         });
       }
-      // WeChat 설치 여부 사전 체크는 생략 (버튼은 모바일에서 항상 노출)
     });
   }
 
@@ -342,7 +338,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           if (isIOS()) _buildAppleLogin(context),
           _buildGoogleLogin(context),
           _buildKakaoLogin(context),
-          // WeChat 버튼 완전 비노출 처리 (요청에 따라 제거)
         ],
       ),
     );
@@ -780,7 +775,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     );
   }
 
-  // WeChat 로그인 위젯은 노출 요구사항에 따라 제거되었습니다.
 }
 
 class LastProvider extends StatelessWidget {

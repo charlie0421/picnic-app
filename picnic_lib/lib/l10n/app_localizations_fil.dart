@@ -1456,9 +1456,6 @@ class AppLocalizationsFil extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'Mag -login na may wechat';
-
-  @override
   String get withdrawal_success =>
       'Ang unsubscribe ay matagumpay na naproseso.';
 

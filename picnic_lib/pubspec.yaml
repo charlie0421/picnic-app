@@ -58,7 +58,6 @@ dependencies:
   google_sign_in: ^7.1.1
   sign_in_with_apple: ^7.0.1
   kakao_flutter_sdk_user: ^1.9.6
-  fluwx: ^5.7.1
   firebase_core: ^4.2.1
   firebase_messaging: ^16.0.4
   flutter_local_notifications: ^19.5.0

@@ -1431,9 +1431,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'Login with WeChat';
-
-  @override
   String get withdrawal_success =>
       'The unsubscribe was processed successfully.';
 
@@ -3158,9 +3155,6 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   }
 
   @override
-  String get label_login_with_wechat => '使用微信登录';
-
-  @override
   String get withdrawal_success => '退订已成功处理。';
 
   @override
@@ -4872,9 +4866,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String text_achievement(int count) {
     return '到目前为止，您已实现 $count 目标！🎉';
   }
-
-  @override
-  String get label_login_with_wechat => '使用微信登入';
 
   @override
   String get withdrawal_success => '退订已成功处理。';

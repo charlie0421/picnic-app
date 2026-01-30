@@ -1434,9 +1434,6 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'Đăng nhập với WeChat';
-
-  @override
   String get withdrawal_success => 'Việc hủy đăng ký đã được xử lý thành công.';
 
   @override

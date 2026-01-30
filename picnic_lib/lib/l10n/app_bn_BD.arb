@@ -1821,10 +1821,6 @@
       }
     }
   },
-  "label_login_with_wechat": "ওয়েচ্যাট দিয়ে লগইন করুন",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
   "withdrawal_success": "সাবস্ক্রাইবটি সফলভাবে প্রক্রিয়া করা হয়েছিল।",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."

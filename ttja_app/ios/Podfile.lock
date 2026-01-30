@@ -117,6 +117,8 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.1)
     - nanopb (~> 3.30910.0)
   - Flutter (1.0.0)
+  - flutter_app_badger (1.3.0):
+    - Flutter
   - flutter_branch_sdk (8.10.0):
     - BranchSDK (~> 3.13.0)
     - Flutter
@@ -137,12 +139,6 @@ PODS:
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
-  - fluwx (0.0.1):
-    - Flutter
-    - fluwx/pay (= 0.0.1)
-  - fluwx/pay (0.0.1):
-    - Flutter
-    - WechatOpenSDK-XCFramework (~> 2.0.5)
   - gma_mediation_liftoffmonetize (1.4.1):
     - Flutter
     - GoogleMobileAdsMediationVungle (~> 7.6.2.0)
@@ -290,6 +286,8 @@ PODS:
   - PromisesObjC (2.4.0)
   - quill_native_bridge_ios (0.0.1):
     - Flutter
+  - restart_app (0.0.1):
+    - Flutter
   - screen_protector (1.4.9):
     - Flutter
     - ScreenProtectorKit (= 1.4.4)
@@ -334,7 +332,6 @@ PODS:
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
     - FlutterMacOS
-  - WechatOpenSDK-XCFramework (2.0.5)
 
 DEPENDENCIES:
   - Ads-Global (= 7.7.0.5)
@@ -348,6 +345,7 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
+  - flutter_app_badger (from `.symlinks/plugins/flutter_app_badger/ios`)
   - flutter_branch_sdk (from `.symlinks/plugins/flutter_branch_sdk/ios`)
   - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
@@ -355,7 +353,6 @@ DEPENDENCIES:
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
-  - fluwx (from `.symlinks/plugins/fluwx/ios`)
   - gma_mediation_liftoffmonetize (from `.symlinks/plugins/gma_mediation_liftoffmonetize/ios`)
   - gma_mediation_meta (from `.symlinks/plugins/gma_mediation_meta/ios`)
   - gma_mediation_pangle (from `.symlinks/plugins/gma_mediation_pangle/ios`)
@@ -373,6 +370,7 @@ DEPENDENCIES:
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
   - quill_native_bridge_ios (from `.symlinks/plugins/quill_native_bridge_ios/ios`)
+  - restart_app (from `.symlinks/plugins/restart_app/ios`)
   - screen_protector (from `.symlinks/plugins/screen_protector/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
@@ -424,7 +422,6 @@ SPEC REPOS:
     - TapjoySDK
     - TOCropViewController
     - VungleAds
-    - WechatOpenSDK-XCFramework
 
 EXTERNAL SOURCES:
   app_links:
@@ -447,6 +444,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
+  flutter_app_badger:
+    :path: ".symlinks/plugins/flutter_app_badger/ios"
   flutter_branch_sdk:
     :path: ".symlinks/plugins/flutter_branch_sdk/ios"
   flutter_inappwebview_ios:
@@ -461,8 +460,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_native_splash/ios"
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
-  fluwx:
-    :path: ".symlinks/plugins/fluwx/ios"
   gma_mediation_liftoffmonetize:
     :path: ".symlinks/plugins/gma_mediation_liftoffmonetize/ios"
   gma_mediation_meta:
@@ -497,6 +494,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/photo_manager/ios"
   quill_native_bridge_ios:
     :path: ".symlinks/plugins/quill_native_bridge_ios/ios"
+  restart_app:
+    :path: ".symlinks/plugins/restart_app/ios"
   screen_protector:
     :path: ".symlinks/plugins/screen_protector/ios"
   sentry_flutter:
@@ -546,6 +545,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: ae9f4902cb5bf1d0c5eaa31ec1f4e5495a0714e2
   FirebaseMessaging: d33971b7bb252745ea6cd31ab190d1a1df4b8ed5
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_app_badger: 16b371e989d04cd265df85be2c3851b49cb68d18
   flutter_branch_sdk: aa2db32133bf3d6980e814423c1e387dbc38346f
   flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
   flutter_keyboard_visibility: 4625131e43015dbbe759d9b20daaf77e0e3f6619
@@ -553,7 +553,6 @@ SPEC CHECKSUMS:
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
-  fluwx: 2ef787502fccb3f3596b380509001a8ea71cbbff
   gma_mediation_liftoffmonetize: 75a6539fc99f30e2dc4505b6fb5c29613c6736fb
   gma_mediation_meta: b6d4555a5619bfe4d3b0600e73aa96f84dcfd62c
   gma_mediation_pangle: 2e19d82494f2eb1a9e4999b8a53cedda3ae9b521
@@ -587,6 +586,7 @@ SPEC CHECKSUMS:
   photo_manager: 1d80ae07a89a67dfbcae95953a1e5a24af7c3e62
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   quill_native_bridge_ios: f47af4b14e7757968486641656c5d23250cee521
+  restart_app: 9cda5378aacc5000e3f66ee76a9201534e7d3ecf
   screen_protector: 7a8c85035c99bd94d0a7e14627e2dd6d8fa8a92f
   ScreenProtectorKit: 7b9287f0d15f1f588f55a3f9e1d0f78b12b6a84b
   SDWebImage: e9c98383c7572d713c1a0d7dd2783b10599b9838
@@ -606,7 +606,6 @@ SPEC CHECKSUMS:
   VungleAds: f0edfe120c864561e3da762a06529edd26b07eef
   wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
   webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
-  WechatOpenSDK-XCFramework: b072030c9eeee91dfff1856a7846f70f7b9a88ed
 
 PODFILE CHECKSUM: 741ae21b11e6765b6a2a005741689b061173330e
 

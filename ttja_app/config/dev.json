@@ -19,11 +19,6 @@
     "kakao": {
       "native_app_key": "REPLACE_WITH_KAKAO_NATIVE_KEY",
       "javascript_key": "REPLACE_WITH_KAKAO_JS_KEY"
-    },
-    "wechat": {
-      "app_id": "REPLACE_WITH_WECHAT_APP_ID",
-      "app_secret": "REPLACE_WITH_WECHAT_APP_SECRET",
-      "universal_link": "https://applink.picnic.fan/wechat/"
     }
   },
   "sentry": {

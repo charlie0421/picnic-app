@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:picnic_lib/core/services/auth/social_login/wechat_login.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/social_login/apple_login.dart';
 import 'package:picnic_lib/core/services/auth/social_login/google_login.dart';
@@ -57,52 +56,7 @@ class AuthService {
         supa.OAuthProvider.google: GoogleLogin(),
         supa.OAuthProvider.apple: AppleLogin(),
         supa.OAuthProvider.kakao: KakaoLogin(),
-        // WeChat 지원 추가
-        // ignore: deprecated_member_use_from_same_package
-        if (supa.OAuthProvider.values.map((e) => e.name).contains('wechat'))
-          // 동적 존재 확인 후 매핑 (SDK/플랫폼 빌드 시 안전)
-          supa.OAuthProvider.values.firstWhere((e) => e.name == 'wechat'):
-              WeChatLogin(),
       };
-
-  // WeChat은 공식 OAuthProvider enum에 없어 별도 흐름 제공
-  Future<supa.User?> signInWithWeChat() async {
-    try {
-      if (await DeviceManager.isDeviceBanned()) {
-        throw PicnicAuthExceptions.deviceBanned();
-      }
-
-      if (!await _networkService.checkOnlineStatus()) {
-        throw PicnicAuthExceptions.network();
-      }
-
-      final result = await WeChatLogin().login();
-      final email = result.userData?['email'] as String?;
-      final otp = result.userData?['otp'] as String?;
-      if (email == null || otp == null) {
-        throw PicnicAuthExceptions.invalidToken();
-      }
-
-      final response = await supabase.auth.verifyOTP(
-        type: OtpType.magiclink,
-        email: email,
-        token: otp,
-      );
-
-      if (response.session == null || response.user == null) {
-        throw PicnicAuthExceptions.invalidToken();
-      }
-
-      await DeviceManager.registerDevice(response.user!.id);
-      await _saveAndNotifySession(response.session!);
-      // 국가 추적 (로그인 직후)
-      await _trackCountry('login');
-      return response.user;
-    } catch (e, s) {
-      logger.e('Error during WeChat sign in:', error: e, stackTrace: s);
-      rethrow;
-    }
-  }
 
   Future<supa.User?> signInWithProvider(supa.OAuthProvider provider) async {
     try {

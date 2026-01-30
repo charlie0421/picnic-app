@@ -1433,9 +1433,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'Login with WeChat';
-
-  @override
   String get withdrawal_success =>
       'The unsubscribe was processed successfully.';
 

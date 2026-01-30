@@ -1449,9 +1449,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'Iniciar sesión con WeChat';
-
-  @override
   String get withdrawal_success => 'El Unfrenscribe se procesó con éxito.';
 
   @override

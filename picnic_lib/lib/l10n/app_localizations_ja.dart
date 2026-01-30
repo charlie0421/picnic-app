@@ -1376,9 +1376,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'WeChatでログイン';
-
-  @override
   String get withdrawal_success => '退会が正常に処理されました。';
 
   @override

@@ -2759,12 +2759,6 @@ abstract class AppLocalizations {
   /// **'🎉 You\'ve reached {count} goals so far! 🎉'**
   String text_achievement(int count);
 
-  /// Auto-generated metadata for key 'label_login_with_wechat'.
-  ///
-  /// In en, this message translates to:
-  /// **'Login with WeChat'**
-  String get label_login_with_wechat;
-
   /// Auto-generated metadata for key 'withdrawal_success'.
   ///
   /// In en, this message translates to:

@@ -1376,9 +1376,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'WeChat으로 로그인';
-
-  @override
   String get withdrawal_success => '회원탈퇴가 성공적으로 처리되었습니다.';
 
   @override

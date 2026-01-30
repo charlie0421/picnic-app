@@ -1970,10 +1970,6 @@
       }
     }
   },
-  "label_login_with_wechat": "WeChat으로 로그인",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
   "withdrawal_success": "회원탈퇴가 성공적으로 처리되었습니다.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."

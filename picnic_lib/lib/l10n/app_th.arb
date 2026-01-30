@@ -1821,10 +1821,6 @@
       }
     }
   },
-  "label_login_with_wechat": "เข้าสู่ระบบด้วย WeChat",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
   "withdrawal_success": "การยกเลิกการสมัครถูกประมวลผลสำเร็จ",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."

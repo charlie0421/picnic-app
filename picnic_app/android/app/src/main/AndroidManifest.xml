@@ -114,12 +114,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
-        <!-- WeChat Entry Activity -->
-        <activity
-            android:name="com.jarvan.fluwx.wxapi.WXEntryActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
         <!-- Don't delete the meta-data below.
                    This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
@@ -142,9 +136,6 @@
     </application>
 
     <queries>
-        <!-- WeChat -->
-        <package android:name="com.tencent.mm" />
-
         <package android:name="com.twitter.android" />
         <intent>
             <action android:name="android.intent.action.SEND" />

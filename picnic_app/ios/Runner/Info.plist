@@ -81,9 +81,6 @@
 		<string>kakao</string>
 		<string>kakaokompassauth</string>
 		<string>kakaolink</string>
-		<string>weixin</string>
-		<string>weixinULAPI</string>
-		<string>weixinURLParamsAPI</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

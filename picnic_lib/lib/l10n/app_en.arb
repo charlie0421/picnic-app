@@ -1829,10 +1829,6 @@
       }
     }
   },
-  "label_login_with_wechat": "Login with WeChat",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
   "withdrawal_success": "The unsubscribe was processed successfully.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."

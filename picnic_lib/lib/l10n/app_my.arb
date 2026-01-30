@@ -1829,10 +1829,6 @@
       }
     }
   },
-  "label_login_with_wechat": "WeChat နှင့်အတူဝင်ပါ",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
   "withdrawal_success": "အဆိုပါ unsubscribe အောင်မြင်စွာလုပ်ငန်းများ၌ခဲ့သည်။",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."

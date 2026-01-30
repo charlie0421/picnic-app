@@ -1877,10 +1877,6 @@
       }
     }
   },
-  "label_login_with_wechat": "Masuk dengan WeChat",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
   "withdrawal_success": "Berhenti berlangganan berhasil diproses.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."

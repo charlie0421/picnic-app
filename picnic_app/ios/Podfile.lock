@@ -139,12 +139,6 @@ PODS:
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
-  - fluwx (0.0.1):
-    - Flutter
-    - fluwx/pay (= 0.0.1)
-  - fluwx/pay (0.0.1):
-    - Flutter
-    - WechatOpenSDK-XCFramework (~> 2.0.5)
   - gma_mediation_liftoffmonetize (1.4.1):
     - Flutter
     - GoogleMobileAdsMediationVungle (~> 7.6.2.0)
@@ -340,7 +334,6 @@ PODS:
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
     - FlutterMacOS
-  - WechatOpenSDK-XCFramework (2.0.5)
 
 DEPENDENCIES:
   - app_links (from `.symlinks/plugins/app_links/ios`)
@@ -361,7 +354,6 @@ DEPENDENCIES:
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
-  - fluwx (from `.symlinks/plugins/fluwx/ios`)
   - gma_mediation_liftoffmonetize (from `.symlinks/plugins/gma_mediation_liftoffmonetize/ios`)
   - gma_mediation_meta (from `.symlinks/plugins/gma_mediation_meta/ios`)
   - gma_mediation_pangle (from `.symlinks/plugins/gma_mediation_pangle/ios`)
@@ -393,7 +385,6 @@ DEPENDENCIES:
   - video_thumbnail (from `.symlinks/plugins/video_thumbnail/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
-  - WechatOpenSDK-XCFramework
 
 SPEC REPOS:
   trunk:
@@ -433,7 +424,6 @@ SPEC REPOS:
     - TapjoySDK
     - TOCropViewController
     - VungleAds
-    - WechatOpenSDK-XCFramework
 
 EXTERNAL SOURCES:
   app_links:
@@ -472,8 +462,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_native_splash/ios"
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
-  fluwx:
-    :path: ".symlinks/plugins/fluwx/ios"
   gma_mediation_liftoffmonetize:
     :path: ".symlinks/plugins/gma_mediation_liftoffmonetize/ios"
   gma_mediation_meta:
@@ -569,7 +557,6 @@ SPEC CHECKSUMS:
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
-  fluwx: 2ef787502fccb3f3596b380509001a8ea71cbbff
   gma_mediation_liftoffmonetize: 75a6539fc99f30e2dc4505b6fb5c29613c6736fb
   gma_mediation_meta: b6d4555a5619bfe4d3b0600e73aa96f84dcfd62c
   gma_mediation_pangle: 2e19d82494f2eb1a9e4999b8a53cedda3ae9b521
@@ -624,8 +611,7 @@ SPEC CHECKSUMS:
   VungleAds: f0edfe120c864561e3da762a06529edd26b07eef
   wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
-  WechatOpenSDK-XCFramework: b072030c9eeee91dfff1856a7846f70f7b9a88ed
 
-PODFILE CHECKSUM: 212a2bf0c63b0e43d803b2dd3c40e5070af1a1f7
+PODFILE CHECKSUM: 3ab3a9c979767c14ec700944ba589482f9316606
 
 COCOAPODS: 1.16.2

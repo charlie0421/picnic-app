@@ -19,11 +19,6 @@
     "kakao": {
       "native_app_key": "3193f86672e3d14b5603d422b32c93f2",
       "javascript_key": "d16ff7e7206df8e234d9b81c8f450cc1"
-    },
-    "wechat": {
-      "app_id": "wxd4a92d01576ef70b",
-      "app_secret": "1a9a7736f86602999648c56b247193c4",
-      "universal_link": "https://applink.ttja.net/wechat/"
     }
   },
   "sentry": {

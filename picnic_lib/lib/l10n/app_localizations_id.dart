@@ -1436,9 +1436,6 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get label_login_with_wechat => 'Masuk dengan WeChat';
-
-  @override
   String get withdrawal_success => 'Berhenti berlangganan berhasil diproses.';
 
   @override
