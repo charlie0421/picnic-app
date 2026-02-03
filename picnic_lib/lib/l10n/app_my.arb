@@ -2015,9 +2015,9 @@
   "@message_setting_patch_restart_hint": {
     "description": "Hint shown when a restart is required after downloading a patch."
   },
-  "message_setting_patch_restart_hint_ios": "အပ်ဒိတ်အသစ်ဒေါင်းလုဒ်ပြီးပါပြီ။ အသုံးပြုရန် အက်ပ်ကိုပိတ်ပြီး ပြန်ဖွင့်ပါ။",
+  "message_setting_patch_restart_hint_ios": "အပ်ဒိတ်အသုံးချရန် အက်ပ်ပိတ်ပြီးပြန်ဖွင့်ပါ",
   "@message_setting_patch_restart_hint_ios": {
-    "description": "iOS-specific hint since iOS cannot programmatically restart the app."
+    "description": "iOS-specific hint for restarting the app to apply patch"
   },
   "message_setting_patch_web_not_supported": "ပက်ချ်အပ်ဒိတ်များသည်ဝဘ်တွင်မရနိုင်ပါ။",
   "@message_setting_patch_web_not_supported": {
@@ -2031,9 +2031,9 @@
   "@message_setting_patch_update_success": {
     "description": "Snackbar text when a patch update completes successfully."
   },
-  "message_setting_patch_restarting": "အက်ပ် restart လုပ်နေသည်...",
+  "message_setting_patch_restarting": "အက်ပ်ပြန်စနေသည်...",
   "@message_setting_patch_restarting": {
-    "description": "Dialog text shown while the app is restarting after patch update."
+    "description": "Message shown when restarting app after patch"
   },
   "message_setting_patch_update_failed": "ပက်ချ်အသုံးပြုခြင်းမအောင်မြင်ပါ: {error}",
   "@message_setting_patch_update_failed": {
@@ -2214,14 +2214,6 @@
   "@goong_hap_zodiac_pig": {
     "description": "Pig zodiac time slot"
   },
-  "message_setting_patch_restarting": "အက်ပ်ပြန်စနေသည်...",
-  "@message_setting_patch_restarting": {
-    "description": "Message shown when restarting app after patch"
-  },
-  "message_setting_patch_restart_hint_ios": "အပ်ဒိတ်အသုံးချရန် အက်ပ်ပိတ်ပြီးပြန်ဖွင့်ပါ",
-  "@message_setting_patch_restart_hint_ios": {
-    "description": "iOS-specific hint for restarting the app to apply patch"
-  },
   "message_patch_download_complete": "အပ်ဒိတ်ဒေါင်းလုဒ်ပြီးပါပြီ။ နောက်တစ်ကြိမ်ပြန်စသောအခါအသုံးချမည်",
   "@message_patch_download_complete": {
     "description": "Snackbar message when patch download completes"
@@ -2294,5 +2286,41 @@
   "notifications_mark_all_read": "အားလုံးဖတ်",
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
+  },
+  "label_attendance_check": "Attendance",
+  "@label_attendance_check": {
+    "description": "Attendance check tab label"
+  },
+  "label_attendance_check_in": "Check In",
+  "@label_attendance_check_in": {
+    "description": "Check in button label"
+  },
+  "label_attendance_checked": "Checked In",
+  "@label_attendance_checked": {
+    "description": "Already checked in label"
+  },
+  "label_attendance_deadline": "Today's deadline",
+  "@label_attendance_deadline": {
+    "description": "Deadline timer label"
+  },
+  "label_attendance_weekly_bonus": "Weekly Bonus",
+  "@label_attendance_weekly_bonus": {
+    "description": "Weekly bonus label"
+  },
+  "label_attendance_weekly_bonus_desc": "Check in all 7 days for Sunday bonus!",
+  "@label_attendance_weekly_bonus_desc": {
+    "description": "Weekly bonus description"
+  },
+  "label_attendance_kst_notice": "Based on KST (UTC+9)",
+  "@label_attendance_kst_notice": {
+    "description": "KST timezone notice"
+  },
+  "label_attendance_new_user_notice": "First week perk! Complete remaining days for bonus!",
+  "@label_attendance_new_user_notice": {
+    "description": "New user benefit notice"
+  },
+  "label_attendance_ad_watch": "Watch Ads",
+  "@label_attendance_ad_watch": {
+    "description": "Watch ad tab label"
   }
 }

@@ -2429,5 +2429,41 @@
   "notifications_mark_all_read": "모두 읽기",
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
+  },
+  "label_attendance_check": "출석체크",
+  "@label_attendance_check": {
+    "description": "Attendance check tab label"
+  },
+  "label_attendance_check_in": "출석하기",
+  "@label_attendance_check_in": {
+    "description": "Check in button label"
+  },
+  "label_attendance_checked": "출석 완료",
+  "@label_attendance_checked": {
+    "description": "Already checked in label"
+  },
+  "label_attendance_deadline": "오늘 마감까지",
+  "@label_attendance_deadline": {
+    "description": "Deadline timer label"
+  },
+  "label_attendance_weekly_bonus": "주간 완성 보너스",
+  "@label_attendance_weekly_bonus": {
+    "description": "Weekly bonus label"
+  },
+  "label_attendance_weekly_bonus_desc": "7일 모두 출석하면 일요일에 지급!",
+  "@label_attendance_weekly_bonus_desc": {
+    "description": "Weekly bonus description"
+  },
+  "label_attendance_kst_notice": "한국시간(KST) 기준",
+  "@label_attendance_kst_notice": {
+    "description": "KST timezone notice"
+  },
+  "label_attendance_new_user_notice": "가입 첫 주 혜택! 남은 요일만 채우면 보너스!",
+  "@label_attendance_new_user_notice": {
+    "description": "New user benefit notice"
+  },
+  "label_attendance_ad_watch": "광고 시청",
+  "@label_attendance_ad_watch": {
+    "description": "Watch ad tab label"
   }
 }

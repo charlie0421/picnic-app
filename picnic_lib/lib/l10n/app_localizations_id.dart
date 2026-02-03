@@ -1806,4 +1806,33 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get notifications_mark_all_read => 'Baca Semua';
+
+  @override
+  String get label_attendance_check => 'Attendance';
+
+  @override
+  String get label_attendance_check_in => 'Check In';
+
+  @override
+  String get label_attendance_checked => 'Checked In';
+
+  @override
+  String get label_attendance_deadline => 'Today\'s deadline';
+
+  @override
+  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+
+  @override
+  String get label_attendance_weekly_bonus_desc =>
+      'Check in all 7 days for Sunday bonus!';
+
+  @override
+  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+
+  @override
+  String get label_attendance_new_user_notice =>
+      'First week perk! Complete remaining days for bonus!';
+
+  @override
+  String get label_attendance_ad_watch => 'Watch Ads';
 }

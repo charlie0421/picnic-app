@@ -8,6 +8,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_in
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/charge_station_item.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/attendance/attendance_check_tab.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class FreeChargeContent extends ConsumerWidget {
@@ -71,13 +72,17 @@ class FreeChargeContent extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             StorePointInfo(
               title: AppLocalizations.of(context).label_star_candy_pouch,
               width: double.infinity,
-              height: 120,
+              height: 100,
             ),
           ],
+          const SizedBox(height: 8),
+
+          // 출석체크 위젯 (별사탕 지갑 아래)
+          const AttendanceCheckTab(),
           const SizedBox(height: 12),
 
           // 미션 섹션
