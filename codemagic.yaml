@@ -14,6 +14,7 @@ workflows:
         - app_store_connect
         - shorebird-config
         - picnic_env
+        - sentry-config
       flutter: 3.38.8
       xcode: 26.1
       cocoapods: default
@@ -312,6 +313,68 @@ workflows:
           echo "📦 IPA 파일: picnic_app.ipa"
           echo "🚀 Shorebird 릴리즈: 완료"
 
+      - name: Upload Debug Symbols to Sentry (iOS)
+        script: |
+          if [ -z "$SENTRY_AUTH_TOKEN" ]; then
+            echo "⏭️ SENTRY_AUTH_TOKEN 미설정 - Sentry 업로드 건너뜀"
+            exit 0
+          fi
+
+          cd picnic_app
+          echo "=== Sentry 디버그 심볼 업로드 (iOS) ==="
+
+          # sentry-cli 설치
+          curl -sL https://sentry.io/get-cli/ | bash
+          export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+
+          sentry-cli --version
+
+          # 버전 정보 추출
+          VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //')
+          VERSION_NAME=$(echo "$VERSION" | cut -d'+' -f1)
+          BUILD_NUMBER=$(echo "$VERSION" | cut -d'+' -f2)
+          SENTRY_RELEASE="${BUNDLE_ID}@${VERSION}"
+
+          echo "📦 Release: $SENTRY_RELEASE"
+          echo "📦 Version: $VERSION_NAME / Build: $BUILD_NUMBER"
+
+          # Sentry 릴리즈 생성
+          sentry-cli releases new "$SENTRY_RELEASE" \
+            --org "$SENTRY_ORG" \
+            --project "$SENTRY_PROJECT" 2>&1 || echo "ℹ️ 릴리즈 생성 실패 또는 이미 존재"
+
+          # 1) iOS dSYM 업로드
+          XCARCHIVE=$(find build/ios/archive -name "*.xcarchive" -type d 2>/dev/null | head -1)
+          if [ -n "$XCARCHIVE" ] && [ -d "$XCARCHIVE/dSYMs" ]; then
+            DSYM_COUNT=$(find "$XCARCHIVE/dSYMs" -name "*.dSYM" -type d 2>/dev/null | wc -l | tr -d ' ')
+            echo "📤 dSYM 업로드: ${DSYM_COUNT}개 파일 ($XCARCHIVE/dSYMs)"
+            sentry-cli debug-files upload \
+              --org "$SENTRY_ORG" \
+              --project "$SENTRY_PROJECT" \
+              --include-sources \
+              "$XCARCHIVE/dSYMs"
+            echo "✅ dSYM 업로드 완료"
+          else
+            echo "⚠️ dSYM 디렉토리를 찾을 수 없습니다"
+            echo "   검색된 xcarchive:"
+            find build/ios -name "*.xcarchive" -type d 2>/dev/null || echo "   (없음)"
+          fi
+
+          # 2) Flutter/Dart 디버그 심볼 업로드 (DWARF debug info)
+          echo "📤 Flutter 디버그 심볼 검색 및 업로드..."
+          sentry-cli debug-files upload \
+            --org "$SENTRY_ORG" \
+            --project "$SENTRY_PROJECT" \
+            --include-sources \
+            build/ios/ 2>&1 || echo "⚠️ Flutter 디버그 심볼 업로드 실패 (무시)"
+
+          # 릴리즈 완료
+          sentry-cli releases finalize "$SENTRY_RELEASE" \
+            --org "$SENTRY_ORG" \
+            --project "$SENTRY_PROJECT" 2>&1 || true
+
+          echo "✅ Sentry iOS 디버그 심볼 업로드 완료"
+
     artifacts:
       # 단일 IPA 파일 (중복 publishing 방지)
       - picnic_app.ipa                                    # 워크스페이스 루트 (가장 확실한 위치)
@@ -351,6 +414,7 @@ workflows:
         - google_play
         - shorebird-config
         - picnic_env
+        - sentry-config
       flutter: 3.38.8
       java: 17
       vars:
@@ -587,6 +651,79 @@ workflows:
             echo "🔍 빌드 과정을 다시 확인하세요"
             exit 1
           fi
+
+      - name: Upload Debug Symbols to Sentry (Android)
+        script: |
+          if [ -z "$SENTRY_AUTH_TOKEN" ]; then
+            echo "⏭️ SENTRY_AUTH_TOKEN 미설정 - Sentry 업로드 건너뜀"
+            exit 0
+          fi
+
+          cd picnic_app
+          echo "=== Sentry 디버그 심볼 업로드 (Android) ==="
+
+          # sentry-cli 설치
+          curl -sL https://sentry.io/get-cli/ | bash
+          export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+
+          sentry-cli --version
+
+          # 버전 정보 추출
+          VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //')
+          VERSION_NAME=$(echo "$VERSION" | cut -d'+' -f1)
+          BUILD_NUMBER=$(echo "$VERSION" | cut -d'+' -f2)
+          APP_PACKAGE="io.iconcasting.picnic.app"
+          SENTRY_RELEASE="${APP_PACKAGE}@${VERSION}"
+
+          echo "📦 Release: $SENTRY_RELEASE"
+          echo "📦 Version: $VERSION_NAME / Build: $BUILD_NUMBER"
+
+          # Sentry 릴리즈 생성
+          sentry-cli releases new "$SENTRY_RELEASE" \
+            --org "$SENTRY_ORG" \
+            --project "$SENTRY_PROJECT" 2>&1 || echo "ℹ️ 릴리즈 생성 실패 또는 이미 존재"
+
+          # 1) ProGuard/R8 매핑 파일 업로드
+          MAPPING_FILE=$(find build -name "mapping.txt" -type f 2>/dev/null | head -1)
+          if [ -n "$MAPPING_FILE" ]; then
+            echo "📤 ProGuard 매핑 업로드: $MAPPING_FILE"
+            sentry-cli upload-proguard \
+              --org "$SENTRY_ORG" \
+              --project "$SENTRY_PROJECT" \
+              --android-manifest "android/app/src/main/AndroidManifest.xml" \
+              "$MAPPING_FILE"
+            echo "✅ ProGuard 매핑 업로드 완료"
+          else
+            echo "⚠️ ProGuard 매핑 파일을 찾을 수 없습니다 (R8 미사용 또는 경로 다름)"
+          fi
+
+          # 2) 네이티브 디버그 심볼 업로드 (NDK .so 파일)
+          NATIVE_LIBS_DIR=$(find build -path "*/merged_native_libs/release/out/lib" -type d 2>/dev/null | head -1)
+          if [ -n "$NATIVE_LIBS_DIR" ]; then
+            echo "📤 네이티브 라이브러리 디버그 심볼 업로드: $NATIVE_LIBS_DIR"
+            sentry-cli debug-files upload \
+              --org "$SENTRY_ORG" \
+              --project "$SENTRY_PROJECT" \
+              "$NATIVE_LIBS_DIR"
+            echo "✅ 네이티브 심볼 업로드 완료"
+          else
+            echo "⚠️ 네이티브 라이브러리 디렉토리를 찾을 수 없습니다"
+          fi
+
+          # 3) Flutter/Dart 디버그 심볼 업로드 (DWARF debug info)
+          echo "📤 Flutter 디버그 심볼 검색 및 업로드..."
+          sentry-cli debug-files upload \
+            --org "$SENTRY_ORG" \
+            --project "$SENTRY_PROJECT" \
+            --include-sources \
+            build/app/ 2>&1 || echo "⚠️ Flutter 디버그 심볼 업로드 실패 (무시)"
+
+          # 릴리즈 완료
+          sentry-cli releases finalize "$SENTRY_RELEASE" \
+            --org "$SENTRY_ORG" \
+            --project "$SENTRY_PROJECT" 2>&1 || true
+
+          echo "✅ Sentry Android 디버그 심볼 업로드 완료"
 
     artifacts:
       # Google Play 배포용 AAB 파일
