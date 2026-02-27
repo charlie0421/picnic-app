@@ -18,7 +18,7 @@ class ShortformInternalPlatform extends AdPlatform {
 
   // 임시 HLS 마스터 URL 치환(ads/* 경로용) - ads 경로에서 파일명(UUID)을 추출해 동적 구성
   static const String _cloudfrontBase =
-      'https://d2jrkjksiktw4e.cloudfront.net/videos/output';
+      'https://d2jrkjksiktw4e.cloudfront.net/picnic/videos/output';
   static final RegExp _uuidPattern = RegExp(
     r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
   );
