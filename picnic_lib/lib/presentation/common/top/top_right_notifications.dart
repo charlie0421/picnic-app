@@ -38,14 +38,21 @@ class TopRightNotifications extends ConsumerWidget {
       );
     }
 
-    return IconButton(
-      icon: bell,
-      onPressed: () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => const NotificationsPage()));
-      },
-      tooltip: '알림',
+    return SizedBox(
+      width: 36,
+      height: 36,
+      child: IconButton(
+        icon: bell,
+        onPressed: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const NotificationsPage()));
+        },
+        tooltip: '알림',
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
+        visualDensity: VisualDensity.compact,
+      ),
     );
   }
 }

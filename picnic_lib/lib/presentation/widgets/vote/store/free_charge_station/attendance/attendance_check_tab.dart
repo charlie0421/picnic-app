@@ -17,14 +17,30 @@ class AttendanceCheckTab extends ConsumerStatefulWidget {
   ConsumerState<AttendanceCheckTab> createState() => _AttendanceCheckTabState();
 }
 
-class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab> {
+class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
+    with SingleTickerProviderStateMixin {
   bool _isCheckingIn = false;
   AttendanceCheckResult? _checkInResult;
   Timer? _resultTimer;
+  late AnimationController _bounceController;
+  late Animation<double> _bounceAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _bounceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _bounceAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(
+      CurvedAnimation(parent: _bounceController, curve: Curves.elasticOut),
+    );
+  }
 
   @override
   void dispose() {
     _resultTimer?.cancel();
+    _bounceController.dispose();
     super.dispose();
   }
 
@@ -37,6 +53,7 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab> {
       final result = await ref.read(attendanceProvider.notifier).checkIn();
       if (result != null && mounted) {
         setState(() => _checkInResult = result);
+        _bounceController.forward(from: 0);
         ref.read(userInfoProvider.notifier).getUserProfiles();
         _resultTimer?.cancel();
         _resultTimer = Timer(const Duration(seconds: 3), () {
@@ -57,220 +74,318 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab> {
     final userInfo = ref.watch(userInfoProvider);
     final isLogged = userInfo.value != null;
 
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.grey200, width: 1),
+    return attendanceAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
       ),
-      child: attendanceAsync.when(
-        loading: () => const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: Center(
-            child: SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
+      error: (error, _) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              l10n.common_retry_label,
+              style: getTextStyle(AppTypo.caption12R, AppColors.grey400),
             ),
-          ),
+            SizedBox(width: 8.w),
+            GestureDetector(
+              onTap: () => ref.invalidate(attendanceProvider),
+              child: Icon(Icons.refresh, size: 18, color: AppColors.primary500),
+            ),
+          ],
         ),
-        error: (error, _) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                l10n.common_retry_label,
-                style: getTextStyle(AppTypo.caption12R, AppColors.grey400),
-              ),
-              SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: () => ref.invalidate(attendanceProvider),
-                child:
-                    Icon(Icons.refresh, size: 18, color: AppColors.primary500),
-              ),
-            ],
-          ),
-        ),
-        data: (state) {
-          final weeklyStatus = state.weeklyStatus;
-          if (weeklyStatus == null || !isLogged) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                l10n.dialog_content_login_required,
-                style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
-                textAlign: TextAlign.center,
-              ),
-            );
-          }
+      ),
+      data: (state) {
+        final weeklyStatus = state.weeklyStatus;
+        if (weeklyStatus == null || !isLogged) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              l10n.dialog_content_login_required,
+              style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
+              textAlign: TextAlign.center,
+            ),
+          );
+        }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header row: title + progress + timer
-              Row(
-                children: [
-                  Text(
-                    l10n.label_attendance_check_in,
-                    style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Progress header
+            Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primary500,
+                        AppColors.primary500.withValues(alpha: 0.8),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  SizedBox(width: 6.w),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 6.w, vertical: 1.h),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary500.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      '${weeklyStatus.checkedCount}/${weeklyStatus.totalRequired}',
-                      style: getTextStyle(
-                          AppTypo.caption10SB, AppColors.primary500),
+                  child: Text(
+                    '${weeklyStatus.checkedCount}/${weeklyStatus.totalRequired}',
+                    style: getTextStyle(AppTypo.caption12B, Colors.white),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: weeklyStatus.checkedCount / weeklyStatus.totalRequired,
+                      backgroundColor: AppColors.grey100,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary500),
+                      minHeight: 4,
                     ),
                   ),
-                  const Spacer(),
-                  if (state.deadlineKST != null)
-                    AttendanceDeadlineTimer(
-                      deadlineUTC: state.deadlineKST!,
-                      label: '',
-                      onDeadlineReached: () =>
-                          ref.invalidate(attendanceProvider),
-                    ),
-                ],
-              ),
-              SizedBox(height: 2.h),
-              // Reward info
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '${l10n.label_attendance_check_in} +60  ',
-                      style: getTextStyle(
-                          AppTypo.caption10R, AppColors.grey400),
-                    ),
-                    TextSpan(
-                      text:
-                          '${l10n.label_attendance_weekly_bonus} +120 🎁',
-                      style: getTextStyle(
-                          AppTypo.caption10SB, const Color(0xFFF57C00)),
-                    ),
+                ),
+                SizedBox(width: 8.w),
+                if (state.deadlineKST != null)
+                  AttendanceDeadlineTimer(
+                    deadlineUTC: state.deadlineKST!,
+                    label: '',
+                    onDeadlineReached: () => ref.invalidate(attendanceProvider),
+                  ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+
+            // Weekly Calendar
+            AttendanceWeeklyCalendar(
+              days: weeklyStatus.days,
+              todayChecked: state.todayChecked,
+              weeklyBonusEligible: weeklyStatus.isWeeklyBonusEligible,
+              checkedCount: weeklyStatus.checkedCount,
+              totalRequired: weeklyStatus.totalRequired,
+            ),
+            SizedBox(height: 12.h),
+
+            // Reward info banner
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFFFFF8E1),
+                    const Color(0xFFFFF3E0),
                   ],
                 ),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFFFE0B2)),
               ),
-              SizedBox(height: 8.h),
-
-              // Weekly Calendar
-              AttendanceWeeklyCalendar(
-                days: weeklyStatus.days,
-                todayChecked: state.todayChecked,
-                weeklyBonusEligible: weeklyStatus.isWeeklyBonusEligible,
-                checkedCount: weeklyStatus.checkedCount,
-                totalRequired: weeklyStatus.totalRequired,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${l10n.label_attendance_check_in} ',
+                        style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+                      ),
+                      Image.asset(
+                        package: 'picnic_lib',
+                        'assets/icons/store/bonus.png',
+                        width: 16,
+                        height: 16,
+                      ),
+                      Text(
+                        ' +60',
+                        style: getTextStyle(AppTypo.caption12B, AppColors.grey700),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 2.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${l10n.label_attendance_weekly_bonus} ',
+                        style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+                      ),
+                      Image.asset(
+                        package: 'picnic_lib',
+                        'assets/icons/store/bonus.png',
+                        width: 16,
+                        height: 16,
+                      ),
+                      Text(
+                        ' +120 ',
+                        style: getTextStyle(AppTypo.caption12B, const Color(0xFFE65100)),
+                      ),
+                      const Text('🎁', style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                ],
               ),
-              SizedBox(height: 10.h),
+            ),
+            SizedBox(height: 14.h),
 
-              // Check-in Button (full width)
-              SizedBox(
-                width: double.infinity,
-                height: 36.h,
+            // Check-in result animation
+            if (_checkInResult != null)
+              ScaleTransition(
+                scale: _bounceAnimation,
+                child: Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.only(bottom: 10.h),
+                  padding: EdgeInsets.symmetric(vertical: 10.h),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.primary500, const Color(0xFFE91E63)],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary500.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        package: 'picnic_lib',
+                        'assets/icons/store/bonus.png',
+                        width: 20,
+                        height: 20,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        '+${_checkInResult!.totalReward}',
+                        style: getTextStyle(AppTypo.title18B, Colors.white),
+                      ),
+                      if (_checkInResult!.weeklyBonusAmount > 0) ...[
+                        SizedBox(width: 8.w),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.25),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '${l10n.label_attendance_weekly_bonus} +${_checkInResult!.weeklyBonusAmount}',
+                            style: getTextStyle(AppTypo.caption10SB, Colors.white),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+
+            // Check-in Button
+            SizedBox(
+              width: double.infinity,
+              height: 48.h,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: state.todayChecked || _isCheckingIn
+                      ? null
+                      : LinearGradient(
+                          colors: [AppColors.primary500, const Color(0xFFE91E63)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                  color: state.todayChecked ? AppColors.grey100 : null,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: state.todayChecked
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: AppColors.primary500.withValues(alpha: 0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                ),
                 child: ElevatedButton(
                   onPressed: state.todayChecked || _isCheckingIn
                       ? null
                       : _handleCheckIn,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: state.todayChecked
-                        ? AppColors.grey100
-                        : AppColors.primary500,
-                    disabledBackgroundColor: AppColors.grey100,
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    disabledBackgroundColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(
-                        color: state.todayChecked
-                            ? AppColors.grey200
-                            : Colors.transparent,
-                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      side: state.todayChecked
+                          ? BorderSide(color: AppColors.grey200)
+                          : BorderSide.none,
                     ),
                     elevation: 0,
                     padding: EdgeInsets.zero,
                   ),
                   child: _isCheckingIn
                       ? SizedBox(
-                          width: 18,
-                          height: 18,
+                          width: 20,
+                          height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: AppColors.primary500,
                           ),
                         )
-                      : _checkInResult != null
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  package: 'picnic_lib',
-                                  'assets/icons/store/star_100.png',
-                                  width: 16.w,
-                                  height: 16.w,
-                                ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  '+${_checkInResult!.totalReward}',
-                                  style: getTextStyle(
-                                      AppTypo.body14B, Colors.white),
-                                ),
-                              ],
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (!state.todayChecked) ...[
-                                  Image.asset(
-                                    package: 'picnic_lib',
-                                    'assets/icons/store/star_100.png',
-                                    width: 16.w,
-                                    height: 16.w,
-                                  ),
-                                  SizedBox(width: 4.w),
-                                ],
-                                Text(
-                                  state.todayChecked
-                                      ? l10n.label_attendance_checked
-                                      : l10n.label_attendance_check_in,
-                                  style: getTextStyle(
-                                    AppTypo.caption12B,
-                                    state.todayChecked
-                                        ? AppColors.grey400
-                                        : Colors.white,
-                                  ),
-                                ),
-                                if (!state.todayChecked) ...[
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    '+60',
-                                    style: getTextStyle(
-                                        AppTypo.caption12B, Colors.white70),
-                                  ),
-                                ],
-                              ],
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (!state.todayChecked) ...[
+                              Image.asset(
+                                package: 'picnic_lib',
+                                'assets/icons/store/bonus.png',
+                                width: 20.w,
+                                height: 20.w,
+                              ),
+                              SizedBox(width: 6.w),
+                            ],
+                            Text(
+                              state.todayChecked
+                                  ? l10n.label_attendance_checked
+                                  : l10n.label_attendance_check_in,
+                              style: getTextStyle(
+                                AppTypo.body16B,
+                                state.todayChecked
+                                    ? AppColors.grey400
+                                    : Colors.white,
+                              ),
                             ),
+                            if (!state.todayChecked) ...[
+                              SizedBox(width: 6.w),
+                              Text(
+                                '+60',
+                                style: getTextStyle(
+                                    AppTypo.body16B, Colors.white.withValues(alpha: 0.7)),
+                              ),
+                            ],
+                          ],
+                        ),
                 ),
               ),
+            ),
 
-              // New user notice (compact)
-              if (weeklyStatus.isNewUser) ...[
-                SizedBox(height: 6.h),
-                Text(
-                  l10n.label_attendance_new_user_notice,
-                  style: getTextStyle(AppTypo.caption10R, AppColors.primary500),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+            // New user notice
+            if (weeklyStatus.isNewUser) ...[
+              SizedBox(height: 8.h),
+              Text(
+                l10n.label_attendance_new_user_notice,
+                style: getTextStyle(AppTypo.caption10R, AppColors.primary500),
+                textAlign: TextAlign.center,
+              ),
             ],
-          );
-        },
-      ),
+          ],
+        );
+      },
     );
   }
 }

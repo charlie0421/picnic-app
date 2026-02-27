@@ -9,6 +9,7 @@ import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/portal_menu_item.dart';
 import 'package:picnic_lib/presentation/common/top/top_menu.dart';
+import 'package:picnic_lib/presentation/common/top/attendance_icon_button.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_notifications.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -127,8 +128,15 @@ class _PortalState extends ConsumerState<Portal> {
                 ),
               ),
             ),
-            actions: const [
-              TopRightNotifications(),
+            actions: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  AttendanceIconButton(),
+                  SizedBox(width: 2),
+                  TopRightNotifications(),
+                ],
+              ),
             ],
           ),
           body: LayoutBuilder(

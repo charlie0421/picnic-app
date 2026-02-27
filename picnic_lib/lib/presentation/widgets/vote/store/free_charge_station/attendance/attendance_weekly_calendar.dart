@@ -11,6 +11,7 @@ class AttendanceWeeklyCalendar extends StatelessWidget {
   final int totalRequired;
 
   static const _dayLabelsKo = ['월', '화', '수', '목', '금', '토', '일'];
+  static const _dayLabelsEn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   const AttendanceWeeklyCalendar({
     super.key,
@@ -23,6 +24,9 @@ class AttendanceWeeklyCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final dayLabels = locale == 'ko' ? _dayLabelsKo : _dayLabelsEn;
+
     return Row(
       children: List.generate(7, (i) {
         if (i >= days.length) return const SizedBox.shrink();
@@ -36,7 +40,7 @@ class AttendanceWeeklyCalendar extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 1.5.w),
             child: _DayCell(
-              label: _dayLabelsKo[i],
+              label: dayLabels[i],
               checked: checked,
               isToday: isToday,
               isPast: isPast,
@@ -93,7 +97,7 @@ class _DayCell extends StatelessWidget {
     }
 
     final cell = Container(
-      padding: EdgeInsets.symmetric(vertical: 6.h),
+      padding: EdgeInsets.symmetric(vertical: 8.h),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(10),
@@ -106,7 +110,7 @@ class _DayCell extends StatelessWidget {
           Text(
             label,
             style: getTextStyle(
-              checked || isToday ? AppTypo.caption10SB : AppTypo.caption10R,
+              checked || isToday ? AppTypo.caption12B : AppTypo.caption12R,
               isSunday
                   ? const Color(0xFFE65100)
                   : isToday
@@ -116,23 +120,23 @@ class _DayCell extends StatelessWidget {
                           : AppColors.grey400,
             ),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 4.h),
 
           // Status icon
           SizedBox(
-            height: 18.h,
+            height: 24.h,
             child: Center(
               child: checked
                   ? Image.asset(
                       package: 'picnic_lib',
-                      'assets/icons/store/star_100.png',
-                      width: 16.w,
-                      height: 16.w,
+                      'assets/icons/store/bonus.png',
+                      width: 20.w,
+                      height: 20.w,
                     )
                   : isToday
                       ? Container(
-                          width: 16.w,
-                          height: 16.w,
+                          width: 20.w,
+                          height: 20.w,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
@@ -142,8 +146,8 @@ class _DayCell extends StatelessWidget {
                           ),
                           child: Center(
                             child: Container(
-                              width: 5.w,
-                              height: 5.w,
+                              width: 6.w,
+                              height: 6.w,
                               decoration: BoxDecoration(
                                 color: AppColors.primary500,
                                 shape: BoxShape.circle,
@@ -153,20 +157,20 @@ class _DayCell extends StatelessWidget {
                         )
                       : isPast
                           ? Icon(Icons.remove,
-                              color: AppColors.grey300, size: 14.w)
+                              color: AppColors.grey300, size: 16.w)
                           : isSunday
-                              ? Text('🎁', style: TextStyle(fontSize: 12.sp))
+                              ? Text('🎁', style: TextStyle(fontSize: 16.sp))
                               : Icon(Icons.remove,
-                                  color: AppColors.grey200, size: 12.w),
+                                  color: AppColors.grey200, size: 14.w),
             ),
           ),
-          SizedBox(height: 1.h),
+          SizedBox(height: 2.h),
 
           // Point label
           Text(
             '+60',
             style: getTextStyle(
-              AppTypo.caption10R,
+              AppTypo.caption12R,
               checked
                   ? AppColors.primary500
                   : isToday
@@ -193,7 +197,7 @@ class _DayCell extends StatelessWidget {
           top: -4.h,
           right: -2.w,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+            padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.5.h),
             decoration: BoxDecoration(
               color: const Color(0xFFFF6D00),
               borderRadius: BorderRadius.circular(6),
@@ -201,7 +205,7 @@ class _DayCell extends StatelessWidget {
             child: Text(
               'x2',
               style: getTextStyle(AppTypo.caption10SB, Colors.white)
-                  .copyWith(fontSize: 9.sp, height: 1.2),
+                  .copyWith(fontSize: 10.sp, height: 1.2),
             ),
           ),
         ),
