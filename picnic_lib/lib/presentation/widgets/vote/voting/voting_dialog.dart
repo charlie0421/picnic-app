@@ -831,16 +831,24 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       if (!mounted) return;
 
+      // navigatorKey context를 pop 전에 캡처 (dialog dispose 후에도 유효)
+      final navContext = navigatorKey.currentContext;
+
       Navigator.of(context).pop();
 
       await Future.delayed(const Duration(milliseconds: 100));
 
-      if (!mounted) return;
+      if (navContext == null || !navContext.mounted) return;
 
       final result = Map<String, dynamic>.from(response.data);
       result['votePickId'] = response.data['votePickId'];
 
-      _showVotingCompleteDialog(result);
+      showVotingCompleteDialog(
+        context: navContext,
+        voteModel: widget.voteModel,
+        voteItemModel: widget.voteItemModel,
+        result: result,
+      );
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       _loadingKey.currentState?.hide();

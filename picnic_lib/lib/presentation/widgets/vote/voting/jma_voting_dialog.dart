@@ -1383,11 +1383,14 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
       if (!mounted) return;
 
+      // navigatorKey context를 pop 전에 캡처 (dialog dispose 후에도 유효)
+      final navContext = navigatorKey.currentContext;
+
       Navigator.of(context).pop();
 
       await Future.delayed(const Duration(milliseconds: 100));
 
-      if (!mounted) return;
+      if (navContext == null || !navContext.mounted) return;
 
       // Edge Function 응답 데이터를 안전하게 처리
       final responseData = response.data as Map<String, dynamic>? ?? {};
@@ -1401,7 +1404,12 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       result['addedVoteTotal'] = responseData['addedVoteTotal'] ?? 0;
       result['updatedVoteTotal'] = responseData['updatedVoteTotal'] ?? 0;
 
-      _showVotingCompleteDialog(result);
+      showVotingCompleteDialog(
+        context: navContext,
+        voteModel: widget.voteModel,
+        voteItemModel: widget.voteItemModel,
+        result: result,
+      );
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       _loadingKey.currentState?.hide();
