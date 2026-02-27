@@ -802,24 +802,55 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     };
   }
 
+  static const int _voteBatchSize = 1000;
+
   Future<void> _performVoting(int voteAmount, String userId) async {
     try {
       // 사용량 계산
       final usage = _calculateUsage(voteAmount);
-      final starCandyUsage = usage['star_candy_usage']!;
-      final starCandyBonusUsage = usage['star_candy_bonus_usage']!;
+      int remainingBonusUsage = usage['star_candy_bonus_usage']!;
 
-      // 투표 API 호출 (429 시 1회 자동 재시도)
-      final response = await _invokeVotingWithRetry(
-        voteAmount: voteAmount,
-        userId: userId,
-        starCandyUsage: starCandyUsage,
-        starCandyBonusUsage: starCandyBonusUsage,
-      );
+      // 대량 투표 시 _voteBatchSize 단위로 분할하여 타임아웃 방지
+      int remaining = voteAmount;
+      dynamic lastResponse;
+      int totalAdded = 0;
 
-      if (response.status != 200) {
-        throw Exception('Failed to vote');
+      while (remaining > 0) {
+        if (!mounted) return;
+
+        final batch = remaining > _voteBatchSize
+            ? _voteBatchSize
+            : remaining;
+
+        // 보너스 먼저 소진, 남은 양은 일반 캔디
+        final batchBonusUsage =
+            remainingBonusUsage >= batch ? batch : remainingBonusUsage;
+        final batchCandyUsage = batch - batchBonusUsage;
+
+        final response = await _invokeVotingWithRetry(
+          voteAmount: batch,
+          userId: userId,
+          starCandyUsage: batchCandyUsage,
+          starCandyBonusUsage: batchBonusUsage,
+        );
+
+        if (response.status != 200) {
+          // 일부 배치가 이미 성공한 경우 부분 성공 처리
+          if (totalAdded > 0) {
+            logger.w('Partial vote success: $totalAdded / $voteAmount');
+            lastResponse = response;
+            break;
+          }
+          throw Exception('Failed to vote');
+        }
+
+        lastResponse = response;
+        remaining -= batch;
+        remainingBonusUsage -= batchBonusUsage;
+        totalAdded += batch;
       }
+
+      final response = lastResponse;
 
       await ref.read(userInfoProvider.notifier).getUserProfiles();
 
@@ -862,15 +893,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       _showVotingFailDialog();
     }
-  }
-
-  void _showVotingCompleteDialog(dynamic result) {
-    showVotingCompleteDialog(
-      context: context,
-      voteModel: widget.voteModel,
-      voteItemModel: widget.voteItemModel,
-      result: result,
-    );
   }
 
   void _showVotingFailDialog() {

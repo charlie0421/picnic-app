@@ -1425,15 +1425,6 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     }
   }
 
-  void _showVotingCompleteDialog(dynamic result) {
-    showVotingCompleteDialog(
-      context: context,
-      voteModel: widget.voteModel,
-      voteItemModel: widget.voteItemModel,
-      result: result,
-    );
-  }
-
   void _showVotingFailDialog() {
     showSimpleDialog(
       type: DialogType.error,
