@@ -1822,31 +1822,31 @@ class AppLocalizationsEs extends AppLocalizations {
   String get notifications_mark_all_read => 'Leer todo';
 
   @override
-  String get label_attendance_check => 'Attendance';
+  String get label_attendance_check => 'Asistencia';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => 'Registrarse';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => 'Registrado';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => 'Límite de hoy';
 
   @override
-  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+  String get label_attendance_weekly_bonus => 'Bono semanal';
 
   @override
   String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+      '¡Regístrate los 7 días para el bono del domingo!';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => 'Basado en KST (UTC+9)';
 
   @override
   String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+      '¡Beneficio de primera semana! ¡Completa los días restantes para el bono!';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => 'Ver anuncios';
 }

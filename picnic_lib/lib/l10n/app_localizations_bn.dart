@@ -1801,33 +1801,33 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifications_mark_all_read => 'সব পড়ুন';
 
   @override
-  String get label_attendance_check => 'Attendance';
+  String get label_attendance_check => 'উপস্থিতি';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => 'চেক ইন';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => 'চেক ইন হয়েছে';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => 'আজকের সময়সীমা';
 
   @override
-  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+  String get label_attendance_weekly_bonus => 'সাপ্তাহিক বোনাস';
 
   @override
   String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+      '৭ দিন চেক ইন করে রবিবার বোনাস পান!';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => 'KST (UTC+9) সময় অনুযায়ী';
 
   @override
   String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+      'প্রথম সপ্তাহের সুবিধা! বাকি দিনগুলো পূরণ করে বোনাস পান!';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => 'বিজ্ঞাপন দেখুন';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -3625,31 +3625,31 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get notifications_mark_all_read => 'সব পড়ুন';
 
   @override
-  String get label_attendance_check => 'Attendance';
+  String get label_attendance_check => 'উপস্থিতি';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => 'চেক ইন';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => 'চেক ইন হয়েছে';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => 'আজকের সময়সীমা';
 
   @override
-  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+  String get label_attendance_weekly_bonus => 'সাপ্তাহিক বোনাস';
 
   @override
   String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+      '৭ দিন চেক ইন করে রবিবার বোনাস পান!';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => 'KST (UTC+9) সময় অনুযায়ী';
 
   @override
   String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+      'প্রথম সপ্তাহের সুবিধা! বাকি দিনগুলো পূরণ করে বোনাস পান!';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => 'বিজ্ঞাপন দেখুন';
 }

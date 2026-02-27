@@ -1803,31 +1803,31 @@ class AppLocalizationsVi extends AppLocalizations {
   String get notifications_mark_all_read => 'Đọc tất cả';
 
   @override
-  String get label_attendance_check => 'Attendance';
+  String get label_attendance_check => 'Điểm danh';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => 'Điểm danh';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => 'Đã điểm danh';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => 'Hạn chót hôm nay';
 
   @override
-  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+  String get label_attendance_weekly_bonus => 'Thưởng tuần';
 
   @override
   String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+      'Điểm danh đủ 7 ngày để nhận thưởng Chủ nhật!';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => 'Theo giờ Hàn Quốc (KST)';
 
   @override
   String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+      'Ưu đãi tuần đầu! Hoàn thành các ngày còn lại để nhận thưởng!';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => 'Xem quảng cáo';
 }

@@ -2344,39 +2344,39 @@
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
   },
-  "label_attendance_check": "Attendance",
+  "label_attendance_check": "出席チェック",
   "@label_attendance_check": {
     "description": "Attendance check tab label"
   },
-  "label_attendance_check_in": "Check In",
+  "label_attendance_check_in": "出席する",
   "@label_attendance_check_in": {
     "description": "Check in button label"
   },
-  "label_attendance_checked": "Checked In",
+  "label_attendance_checked": "出席完了",
   "@label_attendance_checked": {
     "description": "Already checked in label"
   },
-  "label_attendance_deadline": "Today's deadline",
+  "label_attendance_deadline": "今日の締切",
   "@label_attendance_deadline": {
     "description": "Deadline timer label"
   },
-  "label_attendance_weekly_bonus": "Weekly Bonus",
+  "label_attendance_weekly_bonus": "週間ボーナス",
   "@label_attendance_weekly_bonus": {
     "description": "Weekly bonus label"
   },
-  "label_attendance_weekly_bonus_desc": "Check in all 7 days for Sunday bonus!",
+  "label_attendance_weekly_bonus_desc": "7日間すべて出席で日曜ボーナス！",
   "@label_attendance_weekly_bonus_desc": {
     "description": "Weekly bonus description"
   },
-  "label_attendance_kst_notice": "Based on KST (UTC+9)",
+  "label_attendance_kst_notice": "韓国時間(KST)基準",
   "@label_attendance_kst_notice": {
     "description": "KST timezone notice"
   },
-  "label_attendance_new_user_notice": "First week perk! Complete remaining days for bonus!",
+  "label_attendance_new_user_notice": "初週特典！残りの日を埋めてボーナスGET！",
   "@label_attendance_new_user_notice": {
     "description": "New user benefit notice"
   },
-  "label_attendance_ad_watch": "Watch Ads",
+  "label_attendance_ad_watch": "広告を見る",
   "@label_attendance_ad_watch": {
     "description": "Watch ad tab label"
   }

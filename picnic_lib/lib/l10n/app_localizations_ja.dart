@@ -1731,31 +1731,29 @@ class AppLocalizationsJa extends AppLocalizations {
   String get notifications_mark_all_read => '全て既読';
 
   @override
-  String get label_attendance_check => 'Attendance';
+  String get label_attendance_check => '出席チェック';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => '出席する';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => '出席完了';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => '今日の締切';
 
   @override
-  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+  String get label_attendance_weekly_bonus => '週間ボーナス';
 
   @override
-  String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+  String get label_attendance_weekly_bonus_desc => '7日間すべて出席で日曜ボーナス！';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => '韓国時間(KST)基準';
 
   @override
-  String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+  String get label_attendance_new_user_notice => '初週特典！残りの日を埋めてボーナスGET！';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => '広告を見る';
 }

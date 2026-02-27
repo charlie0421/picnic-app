@@ -1808,31 +1808,31 @@ class AppLocalizationsId extends AppLocalizations {
   String get notifications_mark_all_read => 'Baca Semua';
 
   @override
-  String get label_attendance_check => 'Attendance';
+  String get label_attendance_check => 'Absensi';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => 'Absen';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => 'Sudah absen';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => 'Batas waktu hari ini';
 
   @override
-  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+  String get label_attendance_weekly_bonus => 'Bonus mingguan';
 
   @override
   String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+      'Absen 7 hari untuk bonus hari Minggu!';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => 'Berdasarkan KST (UTC+9)';
 
   @override
   String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+      'Keuntungan minggu pertama! Lengkapi hari yang tersisa untuk bonus!';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => 'Tonton iklan';
 }

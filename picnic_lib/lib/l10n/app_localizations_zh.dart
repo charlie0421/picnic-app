@@ -1783,33 +1783,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notifications_mark_all_read => '全部已读';
 
   @override
-  String get label_attendance_check => 'Attendance';
+  String get label_attendance_check => '签到';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => '签到';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => '已签到';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => '今日截止';
 
   @override
-  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+  String get label_attendance_weekly_bonus => '周奖励';
 
   @override
-  String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+  String get label_attendance_weekly_bonus_desc => '连续7天签到即可获得周日奖励！';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => '以韩国时间(KST)为准';
 
   @override
-  String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+  String get label_attendance_new_user_notice => '首周福利！完成剩余天数即可获得奖励！';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => '看广告';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3525,33 +3523,31 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get notifications_mark_all_read => '全部已读';
 
   @override
-  String get label_attendance_check => 'Attendance';
+  String get label_attendance_check => '签到';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => '签到';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => '已签到';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => '今日截止';
 
   @override
-  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+  String get label_attendance_weekly_bonus => '周奖励';
 
   @override
-  String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+  String get label_attendance_weekly_bonus_desc => '连续7天签到即可获得周日奖励！';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => '以韩国时间(KST)为准';
 
   @override
-  String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+  String get label_attendance_new_user_notice => '首周福利！完成剩余天数即可获得奖励！';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => '看广告';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -5268,31 +5264,29 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get notifications_mark_all_read => '全部已讀';
 
   @override
-  String get label_attendance_check => 'Attendance';
+  String get label_attendance_check => '簽到';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => '簽到';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => '已簽到';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => '今日截止';
 
   @override
-  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+  String get label_attendance_weekly_bonus => '週獎勵';
 
   @override
-  String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+  String get label_attendance_weekly_bonus_desc => '連續7天簽到即可獲得週日獎勵！';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => '以韓國時間(KST)為準';
 
   @override
-  String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+  String get label_attendance_new_user_notice => '首週福利！完成剩餘天數即可獲得獎勵！';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => '看廣告';
 }

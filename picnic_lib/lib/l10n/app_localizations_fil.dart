@@ -1836,28 +1836,28 @@ class AppLocalizationsFil extends AppLocalizations {
   String get label_attendance_check => 'Attendance';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => 'Mag-check in';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => 'Na-check in na';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => 'Deadline ngayon';
 
   @override
   String get label_attendance_weekly_bonus => 'Weekly Bonus';
 
   @override
   String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+      'Mag-check in ng 7 araw para sa Sunday bonus!';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => 'Batay sa KST (UTC+9)';
 
   @override
   String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+      'First week perk! Kumpletuhin ang natitirang araw para sa bonus!';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => 'Manood ng ads';
 }

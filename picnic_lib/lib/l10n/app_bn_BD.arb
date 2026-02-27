@@ -2288,39 +2288,39 @@
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
   },
-  "label_attendance_check": "Attendance",
+  "label_attendance_check": "উপস্থিতি",
   "@label_attendance_check": {
     "description": "Attendance check tab label"
   },
-  "label_attendance_check_in": "Check In",
+  "label_attendance_check_in": "চেক ইন",
   "@label_attendance_check_in": {
     "description": "Check in button label"
   },
-  "label_attendance_checked": "Checked In",
+  "label_attendance_checked": "চেক ইন হয়েছে",
   "@label_attendance_checked": {
     "description": "Already checked in label"
   },
-  "label_attendance_deadline": "Today's deadline",
+  "label_attendance_deadline": "আজকের সময়সীমা",
   "@label_attendance_deadline": {
     "description": "Deadline timer label"
   },
-  "label_attendance_weekly_bonus": "Weekly Bonus",
+  "label_attendance_weekly_bonus": "সাপ্তাহিক বোনাস",
   "@label_attendance_weekly_bonus": {
     "description": "Weekly bonus label"
   },
-  "label_attendance_weekly_bonus_desc": "Check in all 7 days for Sunday bonus!",
+  "label_attendance_weekly_bonus_desc": "৭ দিন চেক ইন করে রবিবার বোনাস পান!",
   "@label_attendance_weekly_bonus_desc": {
     "description": "Weekly bonus description"
   },
-  "label_attendance_kst_notice": "Based on KST (UTC+9)",
+  "label_attendance_kst_notice": "KST (UTC+9) সময় অনুযায়ী",
   "@label_attendance_kst_notice": {
     "description": "KST timezone notice"
   },
-  "label_attendance_new_user_notice": "First week perk! Complete remaining days for bonus!",
+  "label_attendance_new_user_notice": "প্রথম সপ্তাহের সুবিধা! বাকি দিনগুলো পূরণ করে বোনাস পান!",
   "@label_attendance_new_user_notice": {
     "description": "New user benefit notice"
   },
-  "label_attendance_ad_watch": "Watch Ads",
+  "label_attendance_ad_watch": "বিজ্ঞাপন দেখুন",
   "@label_attendance_ad_watch": {
     "description": "Watch ad tab label"
   }

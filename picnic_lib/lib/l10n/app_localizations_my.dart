@@ -1814,31 +1814,31 @@ class AppLocalizationsMy extends AppLocalizations {
   String get notifications_mark_all_read => 'အားလုံးဖတ်';
 
   @override
-  String get label_attendance_check => 'Attendance';
+  String get label_attendance_check => 'တက်ရောက်မှုစစ်ဆေးခြင်း';
 
   @override
-  String get label_attendance_check_in => 'Check In';
+  String get label_attendance_check_in => 'စစ်ဆေးမည်';
 
   @override
-  String get label_attendance_checked => 'Checked In';
+  String get label_attendance_checked => 'စစ်ဆေးပြီးပါပြီ';
 
   @override
-  String get label_attendance_deadline => 'Today\'s deadline';
+  String get label_attendance_deadline => 'ယနေ့သတ်မှတ်ချိန်';
 
   @override
-  String get label_attendance_weekly_bonus => 'Weekly Bonus';
+  String get label_attendance_weekly_bonus => 'အပတ်စဉ်ဆုလာဘ်';
 
   @override
   String get label_attendance_weekly_bonus_desc =>
-      'Check in all 7 days for Sunday bonus!';
+      'ရက် ၇ ရက်လုံး စစ်ဆေးပြီး တနင်္ဂနွေဆုလာဘ်ရယူပါ!';
 
   @override
-  String get label_attendance_kst_notice => 'Based on KST (UTC+9)';
+  String get label_attendance_kst_notice => 'KST (UTC+9) အချိန်အတိုင်း';
 
   @override
   String get label_attendance_new_user_notice =>
-      'First week perk! Complete remaining days for bonus!';
+      'ပထမအပတ်အထူးခံစားခွင့်! ကျန်ရက်များဖြည့်၍ ဆုလာဘ်ရယူပါ!';
 
   @override
-  String get label_attendance_ad_watch => 'Watch Ads';
+  String get label_attendance_ad_watch => 'ကြော်ငြာကြည့်ရန်';
 }
