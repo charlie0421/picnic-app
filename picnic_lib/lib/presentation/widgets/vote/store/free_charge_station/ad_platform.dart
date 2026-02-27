@@ -323,12 +323,16 @@ abstract class AdPlatform {
   bool _isNoFillError(String platform, dynamic error, String message) {
     final lowercaseMessage = message.toLowerCase();
 
-    // AdMob의 경우 - 특정 조건
-    if (platform == 'AdMob' &&
-        error is LoadAdError &&
-        error.code == 3 &&
-        error.message.contains('No fill')) {
-      return true;
+    // AdMob의 경우 - No Fill 또는 광고 없음 조건
+    if (platform == 'AdMob' && error is LoadAdError) {
+      // code 3: 명시적 No Fill
+      if (error.code == 3 && error.message.contains('No fill')) {
+        return true;
+      }
+      // code 1 + "No ad to show": 미디에이션 전체 실패 (모든 소스 fill 불가)
+      if (error.code == 1 && error.message.contains('No ad to show')) {
+        return true;
+      }
     }
 
     // 명확한 no fill 에러 메시지들만 감지
@@ -336,6 +340,7 @@ abstract class AdPlatform {
       'no fill',
       'nofill',
       'no ad available',
+      'no ad to show',
       'inventory unavailable',
       'no ads available',
       'not_ready', // Unity 특화

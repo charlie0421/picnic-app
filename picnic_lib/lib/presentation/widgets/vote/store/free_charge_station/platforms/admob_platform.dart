@@ -75,6 +75,14 @@ class AdmobPlatform extends AdPlatform {
             _showRewardedAd(ad);
           },
           onAdFailedToLoad: (LoadAdError error) {
+            logger.e(
+              '[$id] AdMob 광고 로드 실패 상세:\n'
+              '  code: ${error.code}\n'
+              '  message: ${error.message}\n'
+              '  domain: ${error.domain}\n'
+              '  responseInfo: ${error.responseInfo}\n'
+              '  adUnitId: $_adUnitId',
+            );
             logAdLoadFailure('AdMob', error, _adUnitId, error.toString(),
                 StackTrace.current);
             stopAllAnimations();
@@ -109,6 +117,12 @@ class AdmobPlatform extends AdPlatform {
         _disposeCurrentAd();
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
+        logger.e(
+          '[$id] AdMob 광고 표시 실패 상세:\n'
+          '  code: ${error.code}\n'
+          '  message: ${error.message}\n'
+          '  domain: ${error.domain}',
+        );
         logAdShowFailure('AdMob', error, _adUnitId, error.toString(), null);
         stopAllAnimations();
         _disposeCurrentAd();

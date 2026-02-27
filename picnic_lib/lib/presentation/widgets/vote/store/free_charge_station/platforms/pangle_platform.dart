@@ -71,6 +71,10 @@ class PanglePlatform extends AdPlatform {
   }
 
   Future<void> _loadAndShowAd() async {
+    final adUnitId = Platform.isIOS
+        ? (Environment.pangleIosRewardedVideoId ?? 'unknown')
+        : (Environment.pangleAndroidRewardedVideoId ?? 'unknown');
+
     startPerformanceLog('광고 로드');
     bool adLoadSuccess = await _loadPangleAd();
     if (!context.mounted || isDisposed) return;
@@ -82,12 +86,18 @@ class PanglePlatform extends AdPlatform {
         endPerformanceLog('광고 표시');
         stopAllAnimations();
       } catch (e, s) {
-        logAdShowFailure('Pangle', e, 'rewarded', 'Pangle 광고 표시 실패', s);
+        logError(
+          'Pangle 광고 표시 실패 상세:\n'
+          '  error: $e\n'
+          '  errorType: ${e.runtimeType}\n'
+          '  adUnitId: $adUnitId',
+        );
+        logAdShowFailure('Pangle', e, adUnitId, 'Pangle 광고 표시 실패', s);
         throw Exception('Pangle 광고 표시 실패');
       }
     } else {
       logAdLoadFailure(
-          'Pangle', '광고 로드 실패', 'rewarded', '광고 로드 실패', StackTrace.current);
+          'Pangle', '광고 로드 실패', adUnitId, '광고 로드 실패', StackTrace.current);
       // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
       stopAllAnimations();
     }
@@ -106,11 +116,19 @@ class PanglePlatform extends AdPlatform {
       final completer = Completer<bool>();
 
       _loadTimeoutTimer?.cancel();
+      final adUnitId = Platform.isIOS
+          ? Environment.pangleIosRewardedVideoId!
+          : Environment.pangleAndroidRewardedVideoId!;
+
       _loadTimeoutTimer = Timer(const Duration(seconds: 5), () {
         if (!completer.isCompleted) {
-          // 타임아웃은 no fill로 간주하므로 일반 로그만 남김
+          logError(
+            'Pangle 광고 로드 시간 초과 상세:\n'
+            '  adUnitId: $adUnitId\n'
+            '  timeout: 5s',
+          );
           logAdLoadFailure(
-              'Pangle', '광고 로드 시간 초과', 'rewarded', '광고 로드 시간 초과', null);
+              'Pangle', '광고 로드 시간 초과', adUnitId, '광고 로드 시간 초과', null);
           completer.complete(false);
         }
       });
@@ -125,7 +143,16 @@ class PanglePlatform extends AdPlatform {
       _loadTimeoutTimer?.cancel();
       return result == true;
     } catch (e, s) {
-      logAdLoadFailure('Pangle', e, 'rewarded', 'Pangle 광고 로드 실패', s);
+      final failedAdUnitId = Platform.isIOS
+          ? (Environment.pangleIosRewardedVideoId ?? 'unknown')
+          : (Environment.pangleAndroidRewardedVideoId ?? 'unknown');
+      logError(
+        'Pangle 광고 로드 실패 상세:\n'
+        '  error: $e\n'
+        '  errorType: ${e.runtimeType}\n'
+        '  adUnitId: $failedAdUnitId',
+      );
+      logAdLoadFailure('Pangle', e, failedAdUnitId, 'Pangle 광고 로드 실패', s);
       _loadTimeoutTimer?.cancel();
       // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
       return false;
