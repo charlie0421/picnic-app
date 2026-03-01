@@ -202,6 +202,29 @@ workflows:
           echo "🚀 Shorebird로 iOS 빌드 + 릴리즈..."
           SHOREBIRD_RELEASE_SUCCESS=false
 
+          # App.framework MinimumOSVersion 패치 함수
+          # Xcode 26 + Flutter/Shorebird 빌드에서 App.framework Info.plist에
+          # MinimumOSVersion이 누락되는 이슈 해결
+          patch_app_framework() {
+            local ARCHIVE_PATH="$1"
+            local MIN_OS="${2:-15.0}"
+            local APP_FW_PLIST="$ARCHIVE_PATH/Products/Applications/Runner.app/Frameworks/App.framework/Info.plist"
+
+            if [ -f "$APP_FW_PLIST" ]; then
+              CURRENT_MIN_OS=$(/usr/libexec/PlistBuddy -c "Print :MinimumOSVersion" "$APP_FW_PLIST" 2>/dev/null || echo "")
+              if [ -z "$CURRENT_MIN_OS" ]; then
+                echo "🔧 App.framework MinimumOSVersion 패치: $MIN_OS"
+                /usr/libexec/PlistBuddy -c "Delete :MinimumOSVersion" "$APP_FW_PLIST" 2>/dev/null || true
+                /usr/libexec/PlistBuddy -c "Add :MinimumOSVersion string $MIN_OS" "$APP_FW_PLIST"
+                echo "✅ App.framework MinimumOSVersion 패치 완료"
+              else
+                echo "✅ App.framework MinimumOSVersion 이미 설정됨: $CURRENT_MIN_OS"
+              fi
+            else
+              echo "⚠️ App.framework Info.plist을 찾을 수 없음: $APP_FW_PLIST"
+            fi
+          }
+
           # Shorebird release ios는 xcarchive를 생성함
           # --export-options-plist를 전달하여 IPA도 함께 생성
           shorebird release ios \
@@ -223,6 +246,7 @@ workflows:
 
               if [ -n "$XCARCHIVE" ] && [ -d "$XCARCHIVE" ]; then
                 echo "📦 Found xcarchive: $XCARCHIVE"
+                patch_app_framework "$XCARCHIVE"
                 echo "🔧 Exporting IPA from Shorebird xcarchive..."
 
                 xcodebuild -exportArchive \
@@ -262,17 +286,17 @@ workflows:
 
             if [ -n "$XCARCHIVE" ] && [ -d "$XCARCHIVE" ]; then
               echo "📦 Found xcarchive: $XCARCHIVE"
+              patch_app_framework "$XCARCHIVE"
 
-              # IPA가 이미 존재하지 않으면 추출
-              if [ ! -f "build/ios/ipa/"*.ipa ]; then
-                echo "🔧 Exporting IPA..."
-                mkdir -p build/ios/ipa
+              # Shorebird가 생성한 IPA는 패치 전이므로 삭제 후 재추출
+              rm -f build/ios/ipa/*.ipa 2>/dev/null || true
+              echo "🔧 Exporting IPA..."
+              mkdir -p build/ios/ipa
 
-                xcodebuild -exportArchive \
-                  -archivePath "$XCARCHIVE" \
-                  -exportPath build/ios/ipa \
-                  -exportOptionsPlist ios/ExportOptions.plist
-              fi
+              xcodebuild -exportArchive \
+                -archivePath "$XCARCHIVE" \
+                -exportPath build/ios/ipa \
+                -exportOptionsPlist ios/ExportOptions.plist
             else
               echo "⚠️ xcarchive를 찾을 수 없어 flutter build ipa 실행..."
               # 이 경우는 패치가 작동하지 않을 수 있음 (경고 표시)
