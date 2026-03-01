@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -137,9 +139,10 @@ abstract class AdPlatform {
     if (!context.mounted || isDisposed) return false;
 
     try {
-      logInfo('checkAdsLimit request start: platform=$platform');
+      final os = Platform.isIOS ? 'ios' : 'android';
+      logInfo('checkAdsLimit request start: platform=$platform, os=$os');
       final resp = await supabase.functions.invoke(
-        'check-ads-count?platform=$platform',
+        'check-ads-count?platform=$platform&os=$os',
       );
       if (!context.mounted || isDisposed) return false;
 
@@ -154,6 +157,16 @@ abstract class AdPlatform {
 
       final data = (resp.data as Map?) ?? const {};
       final allowed = data['allowed'] == true;
+
+      // 서버 설정에 의해 비활성화된 경우
+      if (data['disabled'] == true) {
+        if (context.mounted && !isDisposed) {
+          showSimpleDialog(
+            content: AppLocalizations.of(context).label_ads_temporarily_unavailable,
+          );
+        }
+        return false;
+      }
 
       if (allowed != true) {
         // limits 안전 파싱

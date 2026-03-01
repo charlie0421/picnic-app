@@ -4,9 +4,11 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:universal_io/io.dart';
 
 /// AdMob 광고 플랫폼 구현
 /// 참고: AdMob SDK 초기화는 MainInitializer._initializeAdMob()에서 앱 시작 시 수행됨
@@ -150,15 +152,29 @@ class AdmobPlatform extends AdPlatform {
       return;
     }
 
+    final userId = supabase.auth.currentUser?.id;
+    final platform = Platform.isIOS ? 'ios' : 'android';
+
+    if (userId == null || userId.isEmpty) {
+      logger.e('[$id] SSV userId가 없음 - 인증 세션 만료 가능성');
+      _disposeCurrentAd();
+      stopAllAnimations();
+      showRequireLoginDialog();
+      return;
+    }
+
+    logger.i('[$id] SSV 설정: userId=$userId, platform=$platform, adUnit=$_adUnitId');
+
     ad.setServerSideOptions(
       ServerSideVerificationOptions(
-        userId: supabase.auth.currentUser?.id ?? '',
+        userId: userId,
+        customData: 'platform=$platform',
       ),
     );
 
     ad.show(
       onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-        logger.i('[$id] 보상 지급: ${reward.amount} ${reward.type}');
+        logger.i('[$id] 보상 콜백 수신: ${reward.amount} ${reward.type}, userId=$userId');
         commonUtils.refreshUserProfile();
       },
     );

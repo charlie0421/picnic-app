@@ -380,6 +380,10 @@ class AppLocalizationsMy extends AppLocalizations {
       'ကြော်ငြာတင်ရန်မအောင်မြင်ပါ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ';
 
   @override
+  String get label_ads_temporarily_unavailable =>
+      'ဤကြော်ငြာကို ယာယီအသုံးပြု၍မရပါ။ ကျေးဇူးပြု၍ အခြားကြော်ငြာကိုစမ်းကြည့်ပါ။';
+
+  @override
   String get label_ads_sdk_init_fail =>
       'SDK Initialization မအောင်မြင်ပါ။ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ';
 

@@ -375,6 +375,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_ads_load_fail => 'Failed to load ad. Please try again.';
 
   @override
+  String get label_ads_temporarily_unavailable => '此广告暂时不可用。请尝试其他广告。';
+
+  @override
   String get label_ads_sdk_init_fail =>
       'SDK initialization failed. Please try again.';
 
@@ -2168,6 +2171,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get label_ads_load_fail => '广告加载失败。请重试。';
 
   @override
+  String get label_ads_temporarily_unavailable => '此广告暂时不可用。请尝试其他广告。';
+
+  @override
   String get label_ads_sdk_init_fail => 'SDK 初始化失败。请重试。';
 
   @override
@@ -3906,6 +3912,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get label_ads_load_fail => '廣告加载失敗。请重试。';
+
+  @override
+  String get label_ads_temporarily_unavailable => '此廣告暫時無法使用。請嘗試其他廣告。';
 
   @override
   String get label_ads_sdk_init_fail => 'SDK 初始化失敗。请重试。';

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,12 +19,16 @@ class AttendanceCheckTab extends ConsumerStatefulWidget {
 }
 
 class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   bool _isCheckingIn = false;
   AttendanceCheckResult? _checkInResult;
   Timer? _resultTimer;
   late AnimationController _bounceController;
   late Animation<double> _bounceAnimation;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  late AnimationController _confettiController;
+  bool _showConfetti = false;
 
   @override
   void initState() {
@@ -35,12 +40,25 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
     _bounceAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(
       CurvedAnimation(parent: _bounceController, curve: Curves.elasticOut),
     );
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
+    );
+    _confettiController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
   }
 
   @override
   void dispose() {
     _resultTimer?.cancel();
     _bounceController.dispose();
+    _fadeController.dispose();
+    _confettiController.dispose();
     super.dispose();
   }
 
@@ -52,12 +70,22 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
     try {
       final result = await ref.read(attendanceProvider.notifier).checkIn();
       if (result != null && mounted) {
-        setState(() => _checkInResult = result);
+        setState(() {
+          _checkInResult = result;
+          _showConfetti = true;
+        });
         _bounceController.forward(from: 0);
+        _fadeController.forward(from: 0);
+        _confettiController.forward(from: 0);
         ref.read(userInfoProvider.notifier).getUserProfiles();
         _resultTimer?.cancel();
         _resultTimer = Timer(const Duration(seconds: 3), () {
-          if (mounted) setState(() => _checkInResult = null);
+          if (mounted) {
+            setState(() {
+              _checkInResult = null;
+              _showConfetti = false;
+            });
+          }
         });
       }
     } catch (_) {
@@ -232,58 +260,80 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
             ),
             SizedBox(height: 14.h),
 
-            // Check-in result animation
+            // Check-in result animation with confetti
             if (_checkInResult != null)
-              ScaleTransition(
-                scale: _bounceAnimation,
-                child: Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.only(bottom: 10.h),
-                  padding: EdgeInsets.symmetric(vertical: 10.h),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColors.primary500, const Color(0xFFE91E63)],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary500.withValues(alpha: 0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        package: 'picnic_lib',
-                        'assets/icons/store/bonus.png',
-                        width: 20,
-                        height: 20,
-                      ),
-                      SizedBox(width: 6.w),
-                      Text(
-                        '+${_checkInResult!.totalReward}',
-                        style: getTextStyle(AppTypo.title18B, Colors.white),
-                      ),
-                      if (_checkInResult!.weeklyBonusAmount > 0) ...[
-                        SizedBox(width: 8.w),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.25),
-                            borderRadius: BorderRadius.circular(8),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: ScaleTransition(
+                      scale: _bounceAnimation,
+                      child: Container(
+                        width: double.infinity,
+                        margin: EdgeInsets.only(bottom: 10.h),
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppColors.primary500, const Color(0xFFE91E63)],
                           ),
-                          child: Text(
-                            '${l10n.label_attendance_weekly_bonus} +${_checkInResult!.weeklyBonusAmount}',
-                            style: getTextStyle(AppTypo.caption10SB, Colors.white),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary500.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              package: 'picnic_lib',
+                              'assets/icons/store/bonus.png',
+                              width: 20,
+                              height: 20,
+                            ),
+                            SizedBox(width: 6.w),
+                            Text(
+                              '+${_checkInResult!.totalReward}',
+                              style: getTextStyle(AppTypo.title18B, Colors.white),
+                            ),
+                            if (_checkInResult!.weeklyBonusAmount > 0) ...[
+                              SizedBox(width: 8.w),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.25),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${l10n.label_attendance_weekly_bonus} +${_checkInResult!.weeklyBonusAmount}',
+                                  style: getTextStyle(AppTypo.caption10SB, Colors.white),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Confetti particles overlay
+                  if (_showConfetti)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: AnimatedBuilder(
+                          animation: _confettiController,
+                          builder: (context, _) => CustomPaint(
+                            painter: _ConfettiPainter(
+                              progress: _confettiController.value,
+                            ),
                           ),
                         ),
-                      ],
-                    ],
-                  ),
-                ),
+                      ),
+                    ),
+                ],
               ),
 
             // Check-in Button
@@ -388,4 +438,74 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
       },
     );
   }
+}
+
+/// Confetti particle painter for check-in celebration
+class _ConfettiPainter extends CustomPainter {
+  final double progress;
+  static final List<_ConfettiParticle> _particles = List.generate(
+    20,
+    (i) => _ConfettiParticle(Random(i)),
+  );
+
+  _ConfettiPainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final particle in _particles) {
+      final opacity = (1.0 - progress).clamp(0.0, 1.0);
+      final paint = Paint()
+        ..color = particle.color.withValues(alpha: opacity)
+        ..style = PaintingStyle.fill;
+
+      final x = particle.startX * size.width;
+      final y = -20 + (size.height + 40) * progress * particle.speed;
+      final rotation = progress * particle.rotationSpeed * 6.28;
+
+      canvas.save();
+      canvas.translate(x, y);
+      canvas.rotate(rotation);
+      if (particle.isCircle) {
+        canvas.drawCircle(Offset.zero, particle.size, paint);
+      } else {
+        canvas.drawRect(
+          Rect.fromCenter(
+            center: Offset.zero,
+            width: particle.size * 1.5,
+            height: particle.size,
+          ),
+          paint,
+        );
+      }
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ConfettiPainter oldDelegate) =>
+      oldDelegate.progress != progress;
+}
+
+class _ConfettiParticle {
+  final double startX;
+  final double speed;
+  final double rotationSpeed;
+  final double size;
+  final Color color;
+  final bool isCircle;
+
+  _ConfettiParticle(Random rng)
+      : startX = rng.nextDouble(),
+        speed = 0.5 + rng.nextDouble() * 0.8,
+        rotationSpeed = 0.5 + rng.nextDouble() * 2,
+        size = 3 + rng.nextDouble() * 4,
+        color = [
+          const Color(0xFFA855F7), // purple
+          const Color(0xFFEC4899), // pink
+          const Color(0xFFF59E0B), // amber
+          const Color(0xFF22C55E), // green
+          const Color(0xFF3B82F6), // blue
+          const Color(0xFFEF4444), // red
+        ][rng.nextInt(6)],
+        isCircle = rng.nextBool();
 }

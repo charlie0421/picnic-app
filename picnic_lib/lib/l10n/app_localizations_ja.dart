@@ -365,6 +365,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_ads_load_fail => '広告の読み込みに失敗しました。もう一度お試しください。';
 
   @override
+  String get label_ads_temporarily_unavailable =>
+      'この広告は一時的にご利用いただけません。他の広告をお試しください。';
+
+  @override
   String get label_ads_sdk_init_fail => 'SDK初期化に失敗しました。もう一度お試しください。';
 
   @override

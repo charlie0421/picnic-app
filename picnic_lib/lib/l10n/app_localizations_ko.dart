@@ -366,6 +366,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_ads_load_fail => '광고 로드에 실패했습니다. 다시 시도해주세요.';
 
   @override
+  String get label_ads_temporarily_unavailable =>
+      '이 광고는 일시적으로 사용할 수 없습니다. 다른 광고를 이용해주세요.';
+
+  @override
   String get label_ads_sdk_init_fail => 'SDK 초기화에 실패했습니다. 다시 시도해주세요.';
 
   @override

@@ -470,6 +470,10 @@
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
+  "label_ads_temporarily_unavailable": "Iklan ini sementara tidak tersedia. Silakan coba iklan lain.",
+  "@label_ads_temporarily_unavailable": {
+    "description": "Message shown when an ad platform is temporarily disabled by server config."
+  },
   "label_ads_sdk_init_fail": "Inisialisasi SDK gagal. Silakan coba lagi.",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."

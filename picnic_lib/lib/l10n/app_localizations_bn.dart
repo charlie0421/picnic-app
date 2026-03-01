@@ -376,6 +376,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get label_ads_load_fail => 'Failed to load ad. Please try again.';
 
   @override
+  String get label_ads_temporarily_unavailable =>
+      'This ad is temporarily unavailable. Please try another ad.';
+
+  @override
   String get label_ads_sdk_init_fail =>
       'SDK initialization failed. Please try again.';
 
@@ -2202,6 +2206,10 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get label_ads_load_fail =>
       'বিজ্ঞাপন লোড করতে ব্যর্থ। আবার চেষ্টা করুন।';
+
+  @override
+  String get label_ads_temporarily_unavailable =>
+      'এই বিজ্ঞাপন সাময়িকভাবে অনুপলব্ধ। অনুগ্রহ করে অন্য বিজ্ঞাপন চেষ্টা করুন।';
 
   @override
   String get label_ads_sdk_init_fail =>

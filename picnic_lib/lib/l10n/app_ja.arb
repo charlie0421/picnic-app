@@ -470,6 +470,10 @@
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
+  "label_ads_temporarily_unavailable": "この広告は一時的にご利用いただけません。他の広告をお試しください。",
+  "@label_ads_temporarily_unavailable": {
+    "description": "Message shown when an ad platform is temporarily disabled by server config."
+  },
   "label_ads_sdk_init_fail": "SDK初期化に失敗しました。もう一度お試しください。",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."

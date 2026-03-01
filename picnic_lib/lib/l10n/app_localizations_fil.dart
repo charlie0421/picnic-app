@@ -381,6 +381,10 @@ class AppLocalizationsFil extends AppLocalizations {
       'Nabigong mag -load ng ad. Mangyaring subukang muli.';
 
   @override
+  String get label_ads_temporarily_unavailable =>
+      'Ang ad na ito ay pansamantalang hindi magagamit. Mangyaring subukan ang ibang ad.';
+
+  @override
   String get label_ads_sdk_init_fail =>
       'Nabigo ang pagsisimula ng SDK. Mangyaring subukang muli.';
 

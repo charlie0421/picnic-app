@@ -376,6 +376,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_ads_load_fail => 'Failed to load ad. Please try again.';
 
   @override
+  String get label_ads_temporarily_unavailable =>
+      'This ad is temporarily unavailable. Please try another ad.';
+
+  @override
   String get label_ads_sdk_init_fail =>
       'SDK initialization failed. Please try again.';
 

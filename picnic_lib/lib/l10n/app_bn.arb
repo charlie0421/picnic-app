@@ -653,6 +653,10 @@
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
+  "label_ads_temporarily_unavailable": "This ad is temporarily unavailable. Please try another ad.",
+  "@label_ads_temporarily_unavailable": {
+    "description": "Message shown when an ad platform is temporarily disabled by server config."
+  },
   "label_ads_sdk_init_fail": "SDK initialization failed. Please try again.",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."

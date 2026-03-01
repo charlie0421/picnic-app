@@ -471,6 +471,10 @@
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
+  "label_ads_temporarily_unavailable": "Este anuncio no está disponible temporalmente. Por favor, intente otro anuncio.",
+  "@label_ads_temporarily_unavailable": {
+    "description": "Message shown when an ad platform is temporarily disabled by server config."
+  },
   "label_ads_sdk_init_fail": "La inicialización SDK falló. Por favor intente de nuevo.",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."

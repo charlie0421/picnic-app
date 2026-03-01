@@ -471,6 +471,10 @@
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
+  "label_ads_temporarily_unavailable": "โฆษณานี้ไม่สามารถใช้งานได้ชั่วคราว กรุณาลองโฆษณาอื่น",
+  "@label_ads_temporarily_unavailable": {
+    "description": "Message shown when an ad platform is temporarily disabled by server config."
+  },
   "label_ads_sdk_init_fail": "การเริ่มต้น SDK ล้มเหลว โปรดลองอีกครั้ง",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."

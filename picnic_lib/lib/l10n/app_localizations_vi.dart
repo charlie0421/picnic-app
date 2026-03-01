@@ -376,6 +376,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_ads_load_fail => 'Không tải được quảng cáo. Hãy thử lại.';
 
   @override
+  String get label_ads_temporarily_unavailable =>
+      'Quảng cáo này tạm thời không khả dụng. Vui lòng thử quảng cáo khác.';
+
+  @override
   String get label_ads_sdk_init_fail =>
       'Khởi tạo SDK không thành công. Hãy thử lại.';
 

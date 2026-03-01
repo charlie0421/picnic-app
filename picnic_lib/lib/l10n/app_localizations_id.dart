@@ -374,6 +374,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_ads_load_fail => 'Gagal memuat iklan. Silakan coba lagi.';
 
   @override
+  String get label_ads_temporarily_unavailable =>
+      'Iklan ini sementara tidak tersedia. Silakan coba iklan lain.';
+
+  @override
   String get label_ads_sdk_init_fail =>
       'Inisialisasi SDK gagal. Silakan coba lagi.';
 

@@ -471,6 +471,10 @@
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
+  "label_ads_temporarily_unavailable": "এই বিজ্ঞাপন সাময়িকভাবে অনুপলব্ধ। অনুগ্রহ করে অন্য বিজ্ঞাপন চেষ্টা করুন।",
+  "@label_ads_temporarily_unavailable": {
+    "description": "Message shown when an ad platform is temporarily disabled by server config."
+  },
   "label_ads_sdk_init_fail": "এসডিকে সূচনা ব্যর্থ হয়েছে। আবার চেষ্টা করুন।",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."

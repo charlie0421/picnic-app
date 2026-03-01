@@ -815,6 +815,12 @@ abstract class AppLocalizations {
   /// **'Failed to load ad. Please try again.'**
   String get label_ads_load_fail;
 
+  /// Message shown when an ad platform is temporarily disabled by server config.
+  ///
+  /// In en, this message translates to:
+  /// **'This ad is temporarily unavailable. Please try another ad.'**
+  String get label_ads_temporarily_unavailable;
+
   /// Auto-generated metadata for key 'label_ads_sdk_init_fail'.
   ///
   /// In en, this message translates to:

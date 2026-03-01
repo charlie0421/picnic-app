@@ -475,6 +475,10 @@
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
+  "label_ads_temporarily_unavailable": "ဤကြော်ငြာကို ယာယီအသုံးပြု၍မရပါ။ ကျေးဇူးပြု၍ အခြားကြော်ငြာကိုစမ်းကြည့်ပါ။",
+  "@label_ads_temporarily_unavailable": {
+    "description": "Message shown when an ad platform is temporarily disabled by server config."
+  },
   "label_ads_sdk_init_fail": "SDK Initialization မအောင်မြင်ပါ။ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."

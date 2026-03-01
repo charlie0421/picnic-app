@@ -381,6 +381,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo cargar anuncio. Por favor intente de nuevo.';
 
   @override
+  String get label_ads_temporarily_unavailable =>
+      'Este anuncio no está disponible temporalmente. Por favor, intente otro anuncio.';
+
+  @override
   String get label_ads_sdk_init_fail =>
       'La inicialización SDK falló. Por favor intente de nuevo.';
 

@@ -372,6 +372,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get label_ads_load_fail => 'ไม่สามารถโหลดโฆษณาได้ โปรดลองอีกครั้ง';
 
   @override
+  String get label_ads_temporarily_unavailable =>
+      'โฆษณานี้ไม่สามารถใช้งานได้ชั่วคราว กรุณาลองโฆษณาอื่น';
+
+  @override
   String get label_ads_sdk_init_fail =>
       'การเริ่มต้น SDK ล้มเหลว โปรดลองอีกครั้ง';
 
