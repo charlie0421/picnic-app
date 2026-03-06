@@ -331,60 +331,10 @@ class AppInitializer {
     try {
       logger.i('앱 초기화 시작');
 
-      // 위젯 마운트 상태 확인
       if (!context.mounted) {
         logger.w('Context가 마운트되지 않아 초기화를 중단합니다.');
         return;
       }
-
-      // MaterialApp/WidgetsApp이 초기화되었는지 확인
-      try {
-        final directionality = Directionality.maybeOf(context);
-        if (directionality == null) {
-          logger.w('Directionality가 아직 초기화되지 않았습니다. MaterialApp 초기화를 기다립니다.');
-          // 짧은 지연 후 다시 시도
-          await Future.delayed(const Duration(milliseconds: 100));
-        } else {
-          logger.d('Directionality 확인 완료: ${directionality.toString()}');
-        }
-      } catch (e) {
-        logger.w('Directionality 확인 중 오류 발생: $e');
-      }
-
-      // MediaQuery 데이터를 안전하게 확인
-      try {
-        final mediaQuery = MediaQuery.maybeOf(navigatorKey.currentContext!);
-        if (mediaQuery != null) {
-          logger.d('MediaQuery 데이터 확인 완료: ${mediaQuery.size}');
-        } else {
-          logger.w('MediaQuery 데이터를 가져올 수 없습니다.');
-        }
-      } catch (e) {
-        logger.w('MediaQuery 데이터 확인 중 오류 발생: $e');
-      }
-
-      if (!context.mounted) return;
-
-      // 기본 초기화 - 안전하게 처리
-      try {
-        await precacheImage(const AssetImage("assets/splash.webp"), context);
-      } catch (e) {
-        logger.w('스플래시 이미지 프리캐시 실패: $e');
-      }
-
-      if (!context.mounted) return;
-
-      // 위젯 마운트 상태 확인 후 ref 사용
-      if (!context.mounted) return;
-
-      try {
-        ref.read(appSettingProvider.notifier);
-      } catch (e) {
-        logger.w('AppSettingProvider 초기화 중 오류: $e');
-      }
-
-      // 위젯 마운트 상태 확인 후 ref 사용
-      if (!context.mounted) return;
 
       // MediaQuery 데이터를 안전하게 가져와서 업데이트
       try {
@@ -398,8 +348,42 @@ class AppInitializer {
         logger.w('MediaQuery 데이터 업데이트 중 오류: $e');
       }
 
+      if (!context.mounted) return;
+
+      // 필수 블로킹 초기화: 네트워크 + 업데이트 + 밴 체크
+      // (결과에 따라 화면 전환이 필요하므로 Portal 표시 전에 완료)
       if (isMobile()) {
         await _initializeMobileApp(ref);
+      }
+
+      if (!context.mounted) return;
+
+      ref
+          .read(appInitializationProvider.notifier)
+          .updateState(isInitialized: true);
+
+      // 백그라운드 초기화: Portal 표시 후 비동기로 진행
+      // (메인 화면 진입을 블로킹하지 않음)
+      if (isMobile()) {
+        _initializeBackgroundTasks(ref);
+      }
+
+      logger.i('앱 초기화 완료');
+    } catch (e, s) {
+      logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: s);
+      if (context.mounted) {
+        ref
+            .read(appInitializationProvider.notifier)
+            .updateState(hasNetwork: false, isInitialized: true);
+      }
+    }
+  }
+
+  /// Portal 표시 후 백그라운드에서 실행되는 비필수 초기화
+  static void _initializeBackgroundTasks(WidgetRef ref) {
+    Future.microtask(() async {
+      try {
+        // 푸시 토큰 등록
         await PushTokenService.initialize(
           onNotificationTap: (RemoteMessage msg) {
             final actionUrl = msg.data['action_url'];
@@ -409,7 +393,6 @@ class AppInitializer {
               logger.i(
                 '[AppInitializer] Handling push notification tap: $actionUrl',
               );
-              // 다음 프레임에서 처리하여 앱 초기화 완료 후 실행되도록 함
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 handleDeepLink(ref, actionUrl);
               });
@@ -417,36 +400,23 @@ class AppInitializer {
           },
           onActionUrlTap: (String actionUrl) {
             logger.i('[AppInitializer] Handling action URL tap: $actionUrl');
-            // 다음 프레임에서 처리하여 앱 초기화 완료 후 실행되도록 함
             WidgetsBinding.instance.addPostFrameCallback((_) {
               handleDeepLink(ref, actionUrl);
             });
           },
         );
-        // Sync app badge with unread notifications count
-        // ignore: unawaited_futures
+        logger.i('백그라운드: 푸시 토큰 등록 완료');
+
+        // 앱 배지 동기화
         AppBadgeService.syncBadgeWithUnreadCount();
-        if (!context.mounted) return;
+
+        // 제품 정보 로드
         await _loadProducts(ref);
-
-        logger.i('제품 정보 로드 완료');
-      } else {
-        logger.i('데스크탑 앱 초기화 완료');
+        logger.i('백그라운드: 제품 정보 로드 완료');
+      } catch (e, s) {
+        logger.e('백그라운드 초기화 중 오류 발생', error: e, stackTrace: s);
       }
-
-      if (!context.mounted) return;
-
-      ref
-          .read(appInitializationProvider.notifier)
-          .updateState(isInitialized: true);
-    } catch (e, s) {
-      logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: s);
-      if (context.mounted) {
-        ref
-            .read(appInitializationProvider.notifier)
-            .updateState(hasNetwork: false, isInitialized: true);
-      }
-    }
+    });
   }
 
   static Future<void> _initializeMobileApp(WidgetRef ref) async {
@@ -460,67 +430,77 @@ class AppInitializer {
 
     if (hasNetwork) {
       try {
-        // 먼저 업데이트 체크
-        final updateInfo = await checkForUpdates(ref);
-        logger.i('업데이트 정보: $updateInfo');
+        // 업데이트 체크와 밴 체크를 병렬로 실행
+        final results = await Future.wait([
+          checkForUpdates(ref),
+          if (!kDebugMode) _checkBanStatus(ref) else Future.value(false),
+        ]);
+
+        final updateInfo = results[0] as dynamic;
+        final isBanned = !kDebugMode ? results[1] as bool : false;
+
+        logger.i('업데이트 정보: $updateInfo, 밴 상태: $isBanned');
 
         ref
             .read(appInitializationProvider.notifier)
             .updateState(
               updateInfo: updateInfo,
-              // 강업 테스트
-              // updateInfo?.copyWith(status: UpdateStatus.updateRequired),
+              isBanned: isBanned,
             );
-
-        // 강제 업데이트가 필요한 경우, 밴 체크를 하지 않고 바로 업데이트 화면으로
-        if (updateInfo?.status == UpdateStatus.updateRequired) {
-          await _loadProducts(ref);
-          return;
-        }
-
-        // 강제 업데이트가 필요하지 않은 경우에만 밴 체크
-        bool isBanned = false;
-        if (!kDebugMode) {
-          final isVirtualDevice = await VirtualMachineDetector.detect(ref);
-          isBanned = isVirtualDevice || await DeviceManager.isDeviceBanned();
-          logger.i('디바이스 상태 - 가상머신: $isVirtualDevice, 차단: $isBanned');
-          if (isBanned) {
-            try {
-              final deviceId = await DeviceManager.getDeviceId();
-              await Sentry.captureMessage(
-                'Device banned detected',
-                withScope: (scope) async {
-                  scope.setTag(
-                    'ban.virtual_device',
-                    isVirtualDevice.toString(),
-                  );
-                  scope.setTag('ban.device_id', deviceId);
-                  try {
-                    final info = await DeviceInfoPlugin().androidInfo;
-                    scope.setContexts('device', {
-                      'manufacturer': info.manufacturer,
-                      'model': info.model,
-                      'hardware': info.hardware,
-                      'sdk': info.version.sdkInt,
-                      'release': info.version.release,
-                      'is_physical_device': info.isPhysicalDevice,
-                    });
-                  } catch (_) {}
-                },
-              );
-            } catch (e, s) {
-              logger.e('Sentry ban log failed', error: e, stackTrace: s);
-            }
-          }
-        }
-
-        ref
-            .read(appInitializationProvider.notifier)
-            .updateState(isBanned: isBanned);
       } catch (e, s) {
         logger.e('모바일 초기화 중 오류 발생:', error: e, stackTrace: s);
       }
     }
+  }
+
+  /// 밴 상태 체크 (VM 감지 + 디바이스 밴 확인)
+  static Future<bool> _checkBanStatus(WidgetRef ref) async {
+    try {
+      final isVirtualDevice = await VirtualMachineDetector.detect(ref);
+      final isDeviceBanned = await DeviceManager.isDeviceBanned();
+      final isBanned = isVirtualDevice || isDeviceBanned;
+
+      logger.i('디바이스 상태 - 가상머신: $isVirtualDevice, 차단: $isBanned');
+
+      if (isBanned) {
+        // Sentry 로깅은 결과에 영향 없으므로 fire-and-forget
+        _logBanToSentry(isVirtualDevice);
+      }
+
+      return isBanned;
+    } catch (e, s) {
+      logger.e('밴 체크 중 오류 발생:', error: e, stackTrace: s);
+      return false;
+    }
+  }
+
+  /// 밴 감지 시 Sentry에 로깅 (비동기, fire-and-forget)
+  static void _logBanToSentry(bool isVirtualDevice) {
+    Future.microtask(() async {
+      try {
+        final deviceId = await DeviceManager.getDeviceId();
+        await Sentry.captureMessage(
+          'Device banned detected',
+          withScope: (scope) async {
+            scope.setTag('ban.virtual_device', isVirtualDevice.toString());
+            scope.setTag('ban.device_id', deviceId);
+            try {
+              final info = await DeviceInfoPlugin().androidInfo;
+              scope.setContexts('device', {
+                'manufacturer': info.manufacturer,
+                'model': info.model,
+                'hardware': info.hardware,
+                'sdk': info.version.sdkInt,
+                'release': info.version.release,
+                'is_physical_device': info.isPhysicalDevice,
+              });
+            } catch (_) {}
+          },
+        );
+      } catch (e, s) {
+        logger.e('Sentry ban log failed', error: e, stackTrace: s);
+      }
+    });
   }
 
   static Future<void> _loadProducts(WidgetRef ref) async {
