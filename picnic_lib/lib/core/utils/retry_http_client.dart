@@ -7,11 +7,14 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
-class NetworkError extends Error {
+class NetworkError implements Exception {
   final String message;
   final bool isRetryable;
 
   NetworkError(this.message, {this.isRetryable = true});
+
+  @override
+  String toString() => 'NetworkError: $message';
 
   static bool isRetryableError(String message) {
     return !message.contains('content size exceeds') &&
