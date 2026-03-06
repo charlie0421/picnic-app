@@ -65,6 +65,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       from: _from,
       limit: _limit,
     );
+    if (!mounted) return;
     setState(() {
       _items.addAll(list);
       _from += list.length;

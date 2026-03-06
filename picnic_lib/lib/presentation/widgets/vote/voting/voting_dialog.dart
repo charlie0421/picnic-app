@@ -395,8 +395,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                       return const TextEditingValue(text: '');
                     }
 
-                    final voteAmount = int.parse(newText);
-                    if (voteAmount == 0) return oldValue;
+                    final voteAmount = int.tryParse(newText);
+                    if (voteAmount == null || voteAmount == 0) return oldValue;
 
                     if (mounted) {
                       setState(() {
@@ -721,6 +721,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       return;
     }
 
+    if (!mounted) return;
+
     // 투표 시작 - 버튼 비활성화
     setState(() => _isVoting = true);
 
@@ -852,7 +854,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       final response = lastResponse;
 
+      if (!mounted) return;
+
       await ref.read(userInfoProvider.notifier).getUserProfiles();
+
+      if (!mounted) return;
 
       ref
           .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)

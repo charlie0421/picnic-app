@@ -258,6 +258,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Future<void> _handleTimerRefresh() async {
+    if (!mounted) return;
     // 상세와 아이템 리스트 모두 새로고침하여 상태 전환을 즉시 반영
     // ignore: unused_result
     await ref.refresh(
@@ -266,6 +267,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         votePortal: widget.votePortal,
       ).future,
     );
+    if (!mounted) return;
     // ignore: unused_result
     await ref.refresh(
       asyncVoteItemListProvider(

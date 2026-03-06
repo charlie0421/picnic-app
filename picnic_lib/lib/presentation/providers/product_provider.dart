@@ -59,10 +59,13 @@ class ServerProducts extends _$ServerProducts {
   }
 
   Map<String, dynamic>? getProductDetailById(String id) {
-    return state.value?.firstWhere(
-      (product) => product['id'] == id,
-      orElse: () => throw Exception('Product not found'),
-    );
+    final products = state.value;
+    if (products == null) return null;
+    try {
+      return products.firstWhere((product) => product['id'] == id);
+    } catch (_) {
+      return null;
+    }
   }
 }
 

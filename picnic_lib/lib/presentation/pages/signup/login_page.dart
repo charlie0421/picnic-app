@@ -373,6 +373,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           throw Exception('Failed to get current user');
         }
 
+        if (!mounted) return;
+
         final userProfile = await ref
             .read(userInfoProvider.notifier)
             .getUserProfiles();
