@@ -25,7 +25,6 @@ import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
-import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 import 'package:picnic_lib/presentation/widgets/patch_restart_dialog.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
@@ -146,8 +145,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         // 이 경고를 무시하는 이유: Future.microtask 내부에서 사용되는 context는
         // 하위 위젯 빌드 없이 초기화 목적으로만 사용되며, mounted 체크를 통해 안전하게 관리됨
         if (mounted) {
-          // 일반 앱 초기화 진행 (패치 체크는 SplashImage에서 담당)
-          await AppInitializer.initializeAppWithSplash(context, ref);
+          // 스플래시 대기 없이 바로 앱 초기화 진행
+          await AppInitializer.initializeApp(navigatorKey.currentContext!, ref);
         }
 
         logger.i('앱 초기화 완료 (with context)');
@@ -203,9 +202,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       logger.i('임시 강제 - 밴 화면 표시');
       currentScreen = const BanScreen();
     } else if (!_isAppInitialized) {
-      logger.i('앱이 초기화되지 않음 - 스플래시 화면 표시 (패치 체크 포함)');
-      // 패치 체크 기능이 활성화된 SplashImage 사용
-      currentScreen = const SplashImage(enablePatchCheck: true);
+      // 초기화 중 경량 로컬 스플래시만 표시 (네트워크/패치 체크 없음)
+      currentScreen = Image.asset('assets/splash.webp', fit: BoxFit.cover);
     } else if (!appInitState.hasNetwork) {
       logger.i('네트워크 오류 - 네트워크 오류 화면 표시');
       currentScreen = NetworkErrorScreen(onRetry: _retryConnection);

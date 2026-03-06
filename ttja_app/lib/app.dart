@@ -19,7 +19,6 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
-import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
@@ -99,7 +98,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     // 앱 초기화 (모바일/웹 구분)
     try {
       if (UniversalPlatform.isMobile) {
-        await AppInitializer.initializeAppWithSplash(context, ref);
+        // 스플래시 대기 없이 바로 앱 초기화 진행
+        await AppInitializer.initializeApp(context, ref);
       } else {
         await AppInitializer.initializeWebApp(context, ref);
       }
@@ -151,11 +151,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     ref.watch(navigationInfoProvider);
     ref.watch(globalMediaQueryProvider);
 
-    // 앱 홈 화면 결정
+    // 앱 홈 화면 결정 - 초기화 중에는 경량 로컬 스플래시만 표시
     Widget homeWidget = _isAppInitialized
-        ? const Portal() // Portal 위젯으로 변경
-        : const SplashImage(
-            enablePatchCheck: true); // 패치 체크 기능이 활성화된 SplashImage 사용
+        ? const Portal()
+        : Image.asset('assets/splash.webp', fit: BoxFit.cover);
 
     // 라우트 처리
     final routes = RouteManager.mergeRoutes(_appSpecificRoutes);
