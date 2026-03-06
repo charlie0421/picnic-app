@@ -124,9 +124,34 @@ class AppInitializer {
           return null;
         }
 
+        // Supabase SDK 내부 TypeError 필터링 (PICNIC-APP-T2)
+        // PostgREST _parseResponse에서 응답이 null일 때 발생하는 SDK 버그
+        if (exceptionType == 'TypeError' &&
+            exceptionValue.contains('Null check operator used on a null value')) {
+          return null;
+        }
+
+        // 광고 SDK 노이즈 필터링 (로드 실패, 시간 초과, 포그라운드 아닐 때)
+        const adNoiseTypes = {'LoadAdError', 'AdError'};
+        if (adNoiseTypes.contains(exceptionType)) {
+          return null;
+        }
+        if (exceptionType == 'String' &&
+            (exceptionValue.contains('광고 로드 실패') ||
+             exceptionValue.contains('광고 로드 시간 초과'))) {
+          return null;
+        }
+
         // Edge Function 502 Bad Gateway 필터링
         if (exceptionType == 'FunctionException' &&
             exceptionValue.contains('502')) {
+          return null;
+        }
+
+        // RLS 정책 위반 노이즈 필터링 (PICNIC-APP-47)
+        // 세션 만료 등으로 인한 예상된 에러, 앱에서 이미 처리됨
+        if (exceptionType == 'PostgrestException' &&
+            exceptionValue.contains('row-level security policy')) {
           return null;
         }
 

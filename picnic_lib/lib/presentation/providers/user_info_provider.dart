@@ -217,8 +217,6 @@ Future<bool> setAgreement(Ref ref) async {
     return true;
   } catch (e, s) {
     logger.e('Error setting user agreement', error: e, stackTrace: s);
-    Sentry.captureException(e, stackTrace: s);
-
     return false;
   }
 }
@@ -241,8 +239,6 @@ Future<bool> agreement(Ref ref) async {
     return true;
   } catch (e, s) {
     logger.e('Error creating user agreement', error: e, stackTrace: s);
-    Sentry.captureException(e, stackTrace: s);
-
     return false;
   }
 }
