@@ -202,9 +202,13 @@ class UserInfo extends _$UserInfo {
 @riverpod
 Future<bool> setAgreement(Ref ref) async {
   logger.i('Setting user agreement');
+  if (!isSupabaseLoggedSafely) {
+    logger.w('Cannot set agreement: user not logged in');
+    return false;
+  }
   try {
     await supabase.from('user_agreement').upsert({
-      'id': supabase.auth.currentUser?.id,
+      'id': supabase.auth.currentUser!.id,
       'terms': 'now',
       'privacy': 'now',
     }).select();
@@ -222,9 +226,13 @@ Future<bool> setAgreement(Ref ref) async {
 @riverpod
 Future<bool> agreement(Ref ref) async {
   logger.i('Creating user agreement');
+  if (!isSupabaseLoggedSafely) {
+    logger.w('Cannot create agreement: user not logged in');
+    return false;
+  }
   try {
     await supabase.from('user_agreement').insert({
-      'id': supabase.auth.currentUser?.id,
+      'id': supabase.auth.currentUser!.id,
       'terms': DateTime.now().toUtc(),
       'privacy': DateTime.now().toUtc(),
     }).select();

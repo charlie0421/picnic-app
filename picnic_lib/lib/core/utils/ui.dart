@@ -29,17 +29,18 @@ Size getPlatformScreenSize(BuildContext context) {
 }
 
 Future<bool> checkSuperAdmin() async {
-  final response = await supabase
-      .from('auth.users')
-      .select('is_super_admin')
-      .single();
+  try {
+    final response = await supabase
+        .from('auth.users')
+        .select('is_super_admin')
+        .maybeSingle();
 
-  logger.i('response[\'is_super_admin\'] : ${response['is_super_admin']}');
-  if (response['is_super_admin'] == true) {
-    return true;
+    if (response == null) return false;
+    return response['is_super_admin'] == true;
+  } catch (e, s) {
+    logger.e('Error checking super admin', error: e, stackTrace: s);
+    return false;
   }
-
-  return true;
 }
 
 bool isIPad(BuildContext context) {

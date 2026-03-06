@@ -8,6 +8,8 @@ part '../../../generated/providers/my_page/bookmarked_artists_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
+  bool _isRefreshing = false;
+
   @override
   Future<List<ArtistModel>> build() async {
     return _fetchBookmarkedArtists();
@@ -39,13 +41,18 @@ class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
   }
 
   Future<void> refreshBookmarkedArtists() async {
-    if (!isSupabaseLoggedSafely) {
-      logger.d('User not logged in, skipping refresh');
-      state = const AsyncValue.data([]);
-      return;
-    }
+    if (_isRefreshing) return;
+    _isRefreshing = true;
+    try {
+      if (!isSupabaseLoggedSafely) {
+        logger.d('User not logged in, skipping refresh');
+        state = const AsyncValue.data([]);
+        return;
+      }
 
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _fetchBookmarkedArtists());
+      state = await AsyncValue.guard(() => _fetchBookmarkedArtists());
+    } finally {
+      _isRefreshing = false;
+    }
   }
 }
