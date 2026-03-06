@@ -107,6 +107,24 @@ class AppInitializer {
         if (!Environment.enableSentry || kDebugMode) {
           return null;
         }
+
+        // 네트워크/HTTP 에러 노이즈 필터링
+        final exceptionValue =
+            event.exceptions?.firstOrNull?.value ?? '';
+        final exceptionType =
+            event.exceptions?.firstOrNull?.type ?? '';
+
+        // HTTP 500 자동 캡처 (Sentry SDK 네트워크 추적) 필터링
+        if (exceptionType == 'HTTPClientError' &&
+            exceptionValue.contains('500')) {
+          return null;
+        }
+
+        // NetworkError (일시적 네트워크 문제) 필터링
+        if (exceptionType == 'NetworkError') {
+          return null;
+        }
+
         return event;
       };
     });
