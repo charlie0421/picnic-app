@@ -298,11 +298,10 @@ abstract class AdPlatform {
   ) {
     logger.e(message, error: error);
 
-    // No Fill 에러 감지 및 처리
-    if (_isNoFillError(platform, error, message)) {
-      logger.i('$platform No Fill 에러는 Sentry 보고에서 제외됨');
+    // 일시적/외부 요인 에러는 Sentry 보고에서 제외
+    if (_isNonReportableAdError(platform, error, message)) {
+      logger.i('$platform 광고 에러 Sentry 보고 제외: $message');
 
-      // No Fill 에러 시 사용자에게 다이얼로그 표시
       if (context.mounted && !isDisposed) {
         _showNoFillDialog();
       }
@@ -332,38 +331,38 @@ abstract class AdPlatform {
     }
   }
 
-  // No Fill 에러 감지 메서드
-  bool _isNoFillError(String platform, dynamic error, String message) {
+  // Sentry에 보내지 않아도 되는 광고 에러 감지
+  bool _isNonReportableAdError(String platform, dynamic error, String message) {
     final lowercaseMessage = message.toLowerCase();
 
-    // AdMob의 경우 - No Fill 또는 광고 없음 조건
     if (platform == 'AdMob' && error is LoadAdError) {
-      // code 3: 명시적 No Fill
-      if (error.code == 3 && error.message.contains('No fill')) {
-        return true;
-      }
-      // code 1 + "No ad to show": 미디에이션 전체 실패 (모든 소스 fill 불가)
-      if (error.code == 1 && error.message.contains('No ad to show')) {
+      // code 1: Request Error (설정/네트워크 문제)
+      // code 2: Network Error (사용자 네트워크 문제)
+      // code 3: No Fill (광고 재고 없음)
+      if (error.code == 1 || error.code == 2 || error.code == 3) {
         return true;
       }
     }
 
-    // 명확한 no fill 에러 메시지들만 감지
-    final noFillKeywords = [
+    final nonReportableKeywords = [
       'no fill',
       'nofill',
       'no ad available',
       'no ad to show',
       'inventory unavailable',
       'no ads available',
-      'not_ready', // Unity 특화
-      'not ready', // Unity 특화
+      'not_ready',
+      'not ready',
+      'network error',
       '광고 없음',
       '광고 없습니다',
       '광고가 없습니다',
+      '광고 로드 실패',
+      '광고 로드 시간 초과',
     ];
 
-    return noFillKeywords.any((keyword) => lowercaseMessage.contains(keyword));
+    return nonReportableKeywords
+        .any((keyword) => lowercaseMessage.contains(keyword));
   }
 
   // No Fill 에러 시 표시할 간단한 다이얼로그
@@ -383,6 +382,11 @@ abstract class AdPlatform {
     StackTrace? stackTrace,
   ) {
     logger.e(message, error: error, stackTrace: stackTrace);
+
+    if (_isNonReportableAdError(platform, error, message)) {
+      logger.i('$platform 광고 표시 에러 Sentry 보고 제외: $message');
+      return;
+    }
 
     Sentry.captureException(
       error,
