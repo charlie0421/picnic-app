@@ -8,6 +8,7 @@ import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/services/app_badge_service.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
@@ -75,6 +76,11 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       logger.i('앱이 이미 초기화됨. 초기화 과정 스킵');
       return;
     }
+
+    // SDK 초기화 완료 대기 (MainInitializer에서 runApp 후 병렬 실행 중)
+    logger.i('SDK 초기화 대기 중...');
+    await MainInitializer.sdkReady;
+    logger.i('SDK 초기화 완료');
 
     // 모바일 환경에서만 시스템 UI 초기화
     if (UniversalPlatform.isMobile && !kIsWeb) {

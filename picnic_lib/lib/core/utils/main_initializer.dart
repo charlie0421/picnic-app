@@ -12,7 +12,6 @@ import 'package:picnic_lib/core/utils/logging_observer.dart';
 import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
 
 import 'package:picnic_lib/core/utils/supabase_health_check.dart';
-import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -26,12 +25,16 @@ import 'package:picnic_lib/core/services/consent_service.dart';
 /// 두 앱(picnic_app, ttja_app)의 main.dart 파일에서 중복되는 초기화 로직을
 /// 추출하여 재사용성을 높이고 코드 중복을 줄입니다.
 class MainInitializer {
+  static final Completer<void> _sdkInitCompleter = Completer<void>();
+
+  /// SDK 초기화 완료를 대기하는 Future
+  /// App 위젯에서 await MainInitializer.sdkReady 로 사용
+  static Future<void> get sdkReady => _sdkInitCompleter.future;
+
   /// 앱 초기화를 위한 main 함수 래퍼
   ///
-  /// [environment] 환경 설정 ('prod', 'dev' 등)
-  /// Firebase는 현재 비활성화됨
-  /// [appBuilder] 초기화 완료 후 앱 위젯을 생성할 함수
-  /// [loadGeneratedTranslations] 앱별 생성된 번역 파일 로드 함수
+  /// ANR 방지를 위해 runApp()을 최대한 빠르게 호출하고,
+  /// SDK 초기화는 UI 표시 후 병렬로 진행합니다.
   static Future<void> initializeApp({
     required String environment,
     FirebaseOptions? firebaseOptions,
@@ -42,91 +45,27 @@ class MainInitializer {
         try {
           logger.i('앱 초기화 시작...');
 
-          // Flutter 바인딩 초기화
-          WidgetsFlutterBinding.ensureInitialized();
-
-          // ScreenUtil은 AppBuilder의 ScreenUtilInit 위젯에서 초기화됨
-          // 위젯 트리 생성 전에 ScreenUtil.configure()를 호출하면 에러 발생
-
-          // 기본 서비스 초기화
+          // === Phase 1: runApp 전 최소 초기화 (ANR 방지) ===
           await AppInitializer.initializeBasics();
           await AppInitializer.initializeEnvironment(environment);
           await AppInitializer.initializeSentry();
 
-          // Supabase 초기화
-          await initializeSupabase();
-
-          // Supabase 헬스체크 실행 (개발 환경에서만)
-          if (kDebugMode) {
-            await SupabaseHealthCheck.runHealthCheckOnAppStart();
-          }
-
-          // 모바일 전용 초기화 로직
-          if (UniversalPlatform.isMobile) {
-            await AppInitializer.initializeWebP();
-            await AppInitializer.initializeTapjoy();
-          }
-
-          // Firebase 초기화 (옵션이 제공된 경우에만)
-          if (firebaseOptions != null) {
-            await Firebase.initializeApp(options: firebaseOptions);
-          }
-
-          // 인증 서비스 초기화
-          await AppInitializer.initializeAuth();
-
-          // 사용자/세션 속성 설정 (가능한 정보만 우선 반영)
-          try {
-            final user = supabase.auth.currentUser;
-            if (user != null) {
-              await AppAnalytics.setUserAndSessionProperties(
-                userId: user.id,
-                locale: Intl.getCurrentLocale(),
-              );
-            }
-          } catch (_) {}
-
-          // 타임존 초기화 (모바일 전용)
-          if (UniversalPlatform.isMobile) {
-            await AppInitializer.initializeTimezone();
-          }
-
-          // 프라이버시 동의 초기화 (모바일 전용)
-          if (UniversalPlatform.isMobile) {
-            await AppInitializer.initializePrivacyConsent();
-          }
-
-          // Branch SDK 초기화 (모바일 전용)
-          if (UniversalPlatform.isMobile) {
-            await FlutterBranchSdk.init(
-              enableLogging: true,
-              branchAttributionLevel: BranchAttributionLevel.NONE,
-            );
-          }
-
-          // AdMob 초기화 (모바일 전용)
-          if (UniversalPlatform.isMobile) {
-            await _initializeAdMob();
-          }
-
-          // Shorebird 패치 체크 및 자동 재시작 (모바일 전용)
-          if (UniversalPlatform.isMobile) {
-            await ShorebirdUtils.checkAndRestartOnLaunch();
-          }
-
+          // 즉시 UI 표시 - SplashImage 위젯이 렌더링됨
           logger.i('앱 시작 중...');
-          // 앱 위젯 생성 후 ProviderScope으로 래핑
           final appWidget = ProviderScope(
             observers: [LoggingObserver()],
             child: appBuilder(),
           );
-
-          // Flutter의 runApp 호출 - 기본 Flutter 함수 사용
           runApp(appWidget);
+          logger.i('앱 UI 시작 완료 - SDK 초기화 계속 진행');
 
-          logger.i('앱 시작 완료');
+          // === Phase 2: runApp 후 SDK 병렬 초기화 ===
+          await _initializeSDKs(firebaseOptions);
         } catch (e, s) {
           logger.e('초기화 중 오류 발생', error: e, stackTrace: s);
+          if (!_sdkInitCompleter.isCompleted) {
+            _sdkInitCompleter.complete();
+          }
           rethrow;
         }
       },
@@ -135,6 +74,68 @@ class MainInitializer {
         await Sentry.captureException(error, stackTrace: s);
       },
     );
+  }
+
+  /// runApp() 이후 SDK 초기화를 병렬로 실행
+  ///
+  /// Group 1: 독립적인 SDK (Supabase, Firebase, WebP, Timezone, Privacy)
+  /// Group 2: Group 1에 의존하는 SDK (Auth, Tapjoy, Branch, AdMob)
+  static Future<void> _initializeSDKs(FirebaseOptions? firebaseOptions) async {
+    try {
+      // Group 1: 독립적인 SDK 병렬 초기화
+      final group1 = <Future>[];
+      group1.add(initializeSupabase());
+      if (firebaseOptions != null) {
+        group1.add(Firebase.initializeApp(options: firebaseOptions));
+      }
+      if (UniversalPlatform.isMobile) {
+        group1.add(AppInitializer.initializeWebP());
+        group1.add(AppInitializer.initializeTimezone());
+        group1.add(AppInitializer.initializePrivacyConsent());
+      }
+      await Future.wait(group1);
+      logger.i('SDK Group 1 초기화 완료 (Supabase, Firebase, WebP, Timezone, Privacy)');
+
+      // Supabase 헬스체크 (개발 환경에서만)
+      if (kDebugMode) {
+        await SupabaseHealthCheck.runHealthCheckOnAppStart();
+      }
+
+      // Group 2: Supabase/Firebase에 의존하는 SDK 병렬 초기화
+      final group2 = <Future>[];
+      group2.add(AppInitializer.initializeAuth());
+      if (UniversalPlatform.isMobile) {
+        group2.add(AppInitializer.initializeTapjoy());
+        group2.add(FlutterBranchSdk.init(
+          enableLogging: true,
+          branchAttributionLevel: BranchAttributionLevel.NONE,
+        ));
+        group2.add(_initializeAdMob());
+      }
+      await Future.wait(group2);
+      logger.i('SDK Group 2 초기화 완료 (Auth, Tapjoy, Branch, AdMob)');
+
+      // Analytics 사용자 속성 설정 (Auth 완료 후)
+      try {
+        final user = supabase.auth.currentUser;
+        if (user != null) {
+          await AppAnalytics.setUserAndSessionProperties(
+            userId: user.id,
+            locale: Intl.getCurrentLocale(),
+          );
+        }
+      } catch (_) {}
+
+      // Shorebird 패치 체크는 SplashImage 위젯에서 처리됨
+
+      logger.i('모든 SDK 초기화 완료');
+    } catch (e, s) {
+      logger.e('SDK 초기화 중 오류 발생', error: e, stackTrace: s);
+    } finally {
+      if (!_sdkInitCompleter.isCompleted) {
+        _sdkInitCompleter.complete();
+      }
+    }
   }
 
   /// 언어 초기화를 비동기로 실행하는 유틸리티 메서드

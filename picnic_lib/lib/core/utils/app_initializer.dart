@@ -64,8 +64,6 @@ class AppInitializer {
     BindingBase.debugZoneErrorsAreFatal = true;
     await initializeGlobalErrorHandling();
 
-    // 앱 초기화 상태 확인을 위한 지연
-    await Future.delayed(const Duration(milliseconds: 100));
   }
 
   /// MaterialApp 초기화 대기

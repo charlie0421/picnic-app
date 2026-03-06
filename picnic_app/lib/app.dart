@@ -9,6 +9,7 @@ import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/services/app_badge_service.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/enums.dart';
@@ -31,7 +32,6 @@ import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
 import 'package:picnic_lib/ui/pic_theme.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
-import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 
 import 'package:flutter/foundation.dart';
@@ -121,17 +121,13 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     logger.i('_initializeApp 완료');
   }
 
-  // 컨텍스트가 필요 없는 초기화 작업
+  // SDK 초기화 완료 대기 및 시스템 UI 설정
+  // 기본 초기화와 환경 설정은 MainInitializer에서 runApp 전에 완료됨
   Future<void> _initializeAppBasics() async {
-    // 기본 초기화
-    logger.i('기본 초기화 시작');
-    await AppInitializer.initializeBasics();
-    logger.i('기본 초기화 완료');
-
-    // 환경 초기화
-    logger.i('환경 초기화 시작');
-    await AppInitializer.initializeEnvironment(Environment.currentEnvironment);
-    logger.i('환경 초기화 완료');
+    // SDK 초기화 완료 대기 (MainInitializer에서 runApp 후 병렬 실행 중)
+    logger.i('SDK 초기화 대기 중...');
+    await MainInitializer.sdkReady;
+    logger.i('SDK 초기화 완료');
 
     // 시스템 UI 초기화
     logger.i('시스템 UI 초기화 시작');
