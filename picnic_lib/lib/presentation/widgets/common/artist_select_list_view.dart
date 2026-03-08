@@ -342,7 +342,7 @@ class _ArtistItemWidgetState extends ConsumerState<_ArtistItemWidget>
     final isFirstBookmark = shouldShowHeaders && _isFirstBookmarkItem();
     final isFirstNonBookmark = shouldShowHeaders && _isFirstNonBookmarkItem();
 
-    final imageUrl = 'artist/${widget.item.id}/image.png';
+    final imageUrl = widget.item.image ?? 'artist/${widget.item.id}/image.png';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

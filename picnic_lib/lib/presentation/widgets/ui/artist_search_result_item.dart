@@ -54,7 +54,7 @@ class ArtistSearchResultItem extends StatelessWidget {
         key: ValueKey('artist_${artist.id}_${artist.name}'), // ✅ 유니크 키로 캐시 최적화
         width: 48.w,
         height: 48.w,
-        imageUrl: 'artist/${artist.id}/image.png',
+        imageUrl: artist.image ?? 'artist/${artist.id}/image.png',
         fit: BoxFit.cover, // ✅ 이미지 맞춤 최적화
         priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
         lazyLoadingStrategy: LazyLoadingStrategy.viewport, // ✅ 뷰포트 기반 지연로딩
