@@ -207,6 +207,7 @@ Future<bool> setAgreement(Ref ref) async {
     return false;
   }
   try {
+    await supabase.auth.refreshSession();
     await supabase.from('user_agreement').upsert({
       'id': supabase.auth.currentUser!.id,
       'terms': 'now',
@@ -229,6 +230,7 @@ Future<bool> agreement(Ref ref) async {
     return false;
   }
   try {
+    await supabase.auth.refreshSession();
     await supabase.from('user_agreement').insert({
       'id': supabase.auth.currentUser!.id,
       'terms': DateTime.now().toUtc(),
