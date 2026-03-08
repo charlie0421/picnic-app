@@ -49,7 +49,7 @@ class VoteDetailAchievePage extends ConsumerStatefulWidget {
 }
 
 class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
-    with RouteAwareStateMixin<VoteDetailAchievePage> {
+    with RouteAwareStateMixin<VoteDetailAchievePage>, WidgetsBindingObserver {
   late ScrollController _scrollController;
   Timer? _updateTimer;
   bool _isDisposed = false;
@@ -61,6 +61,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _scrollController = ScrollController();
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 2),
@@ -68,6 +69,19 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
     _setupTimer();
 
     _updateNavigation();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      _updateTimer?.cancel();
+      _updateTimer = null;
+    } else if (state == AppLifecycleState.resumed) {
+      if (_updateTimer == null && !_isDisposed) {
+        _setupTimer();
+      }
+    }
   }
 
   @override
@@ -93,10 +107,14 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
             ref.read(asyncVoteItemListProvider(voteId: widget.voteId)).value;
         if (voteItemData == null || voteItemData.isEmpty) return;
 
+        final firstItem = voteItemData[0];
+        if (firstItem == null) return;
+        final currentVotes = firstItem.voteTotal;
+        if (currentVotes == null) return;
+
         _achievements ??= await fetchVoteAchieve(ref, voteId: widget.voteId);
         if (_achievements == null || _achievements!.isEmpty) return;
 
-        final currentVotes = voteItemData[0]!.voteTotal!;
         _checkMilestoneAchievement(currentVotes, _achievements!);
       }
     });
@@ -1121,6 +1139,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _overlayEntry?.remove();
     _isDisposed = true;
     _updateTimer?.cancel();

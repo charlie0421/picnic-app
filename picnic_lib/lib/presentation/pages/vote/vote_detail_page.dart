@@ -152,7 +152,8 @@ class _VoteGainIndicatorState extends State<VoteGainIndicator>
 class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     with
         TickerProviderStateMixin<VoteDetailPage>,
-        RouteAwareStateMixin<VoteDetailPage> {
+        RouteAwareStateMixin<VoteDetailPage>,
+        WidgetsBindingObserver {
   late ScrollController _scrollController;
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
@@ -179,6 +180,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeControllers();
     _setupListeners();
     _setupUpdateTimer();
@@ -186,6 +188,19 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     _setupRealtimeSubscription();
 
     _updateNavigation();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      _updateTimer?.cancel();
+      _updateTimer = null;
+    } else if (state == AppLifecycleState.resumed) {
+      if (_updateTimer == null) {
+        _setupUpdateTimer();
+      }
+    }
   }
 
   @override
@@ -279,7 +294,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   void _updateRanks(List<VoteItemModel?> items) {
     final sortedItems = items.where((item) => item != null).toList()
-      ..sort((a, b) => b!.voteTotal!.compareTo(a!.voteTotal!));
+      ..sort((a, b) => (b!.voteTotal ?? 0).compareTo(a!.voteTotal ?? 0));
 
     int currentRank = 1;
     int? previousVoteTotal;
@@ -385,6 +400,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     try {
       _voteItemChannel?.unsubscribe();
     } catch (_) {}
