@@ -246,9 +246,8 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       return;
     }
 
-    // iOS 26 이상에서는 Shorebird 패치 비활성화 (코드 서명 호환성 문제)
     if (!await ShorebirdUtils.isPatchingAvailable()) {
-      logger.i('📱 iOS 26+ 감지 - 스플래시 패치 체크 스킵');
+      logger.i('패치 기능 사용 불가 (웹 환경)');
       setStateIfMounted(() {
         _updateStatus = '';
         _isCheckingUpdate = false;

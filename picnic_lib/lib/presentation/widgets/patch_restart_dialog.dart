@@ -198,9 +198,9 @@ class _PatchRestartDialogState extends ConsumerState<PatchRestartDialog> {
       );
     }
 
-    // Android: 백 버튼으로 다이얼로그 닫기 방지
+    // 양쪽 플랫폼 모두 닫기 불가 (강제 재시작/종료 필요)
     return PopScope(
-      canPop: isIOS,
+      canPop: false,
       child: AlertDialog(
         title: Text(l10n.patch_update_ready_title),
         content: Column(
@@ -247,15 +247,8 @@ class _PatchRestartDialogState extends ConsumerState<PatchRestartDialog> {
             ],
           ],
         ),
-        actions: [
-          // Android: 버튼 없음 - 자동 재시작만
-          // iOS: 확인 버튼 (앱 수동 종료 필요)
-          if (isIOS)
-            FilledButton(
-              onPressed: _closeDialog,
-              child: Text(l10n.patch_button_understood),
-            ),
-        ],
+        // 버튼 없음 - Android: 자동 재시작, iOS: 사용자가 앱 종료해야 함
+        actions: const [],
       ),
     );
   }
