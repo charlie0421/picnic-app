@@ -6,12 +6,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/patch_status_provider.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 
-/// 패치 다운로드 완료 후 재시작을 유도하는 다이얼로그 리스너
+/// 패치 자동 체크 + 강제 재시작 다이얼로그 리스너
 ///
-/// 앱의 상위 위젯 (예: MaterialApp 바로 아래)에 배치하여
-/// 패치 상태 변경 시 자동으로 다이얼로그를 표시합니다.
+/// 앱의 상위 위젯 (MaterialApp 바로 아래)에 배치.
+/// 마운트 시 직접 Shorebird 패치를 체크하고, 패치가 있으면
+/// 다운로드 후 닫을 수 없는 재시작 다이얼로그를 표시합니다.
 class PatchRestartDialogListener extends ConsumerStatefulWidget {
   final Widget child;
 
@@ -28,92 +31,101 @@ class PatchRestartDialogListener extends ConsumerStatefulWidget {
 class _PatchRestartDialogListenerState
     extends ConsumerState<PatchRestartDialogListener> {
   bool _isDialogShowing = false;
+  bool _patchCheckDone = false;
 
   @override
   void initState() {
     super.initState();
-    // 위젯이 마운트된 후 현재 상태 확인 (이미 restartRequired 상태일 수 있음)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkCurrentPatchStatus();
+      _checkAndDownloadPatch();
     });
   }
 
-  /// 현재 패치 상태 확인 - 이미 restartRequired 상태이면 다이얼로그 표시
-  void _checkCurrentPatchStatus() {
-    if (!mounted) return;
+  /// 앱 시작 시 패치 체크 → 다운로드 → 다이얼로그 표시
+  Future<void> _checkAndDownloadPatch() async {
+    if (_patchCheckDone || !mounted) return;
+    _patchCheckDone = true;
 
-    final currentStatus = ref.read(patchStatusProvider);
-    logger.i('🔍 PatchRestartDialogListener 마운트 시 상태 확인: ${currentStatus.status}, shouldShowDialog: ${currentStatus.shouldShowDialog}');
+    if (!await ShorebirdUtils.isPatchingAvailable()) {
+      logger.i('패치 사용 불가 (웹 환경)');
+      return;
+    }
 
-    if (currentStatus.shouldShowDialog && !_isDialogShowing) {
-      logger.i('📢 마운트 시 재시작 다이얼로그 표시 필요 - 다이얼로그 표시');
-      _showRestartDialog(context);
+    try {
+      final updater = shorebird.ShorebirdUpdater();
+
+      if (!updater.isAvailable) {
+        logger.i('Shorebird 사용 불가 (디버그 빌드)');
+        return;
+      }
+
+      // 현재 패치 정보
+      final currentPatch = await updater.readCurrentPatch();
+      logger.i('현재 패치: ${currentPatch?.number ?? "없음"}');
+
+      // patchInfoProvider 업데이트 (설정 페이지 표시용)
+      ref.read(patchInfoProvider.notifier).updatePatchInfo({
+        'currentPatch': currentPatch?.number,
+      });
+
+      // 서버에서 업데이트 확인
+      final status = await updater.checkForUpdate().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => shorebird.UpdateStatus.upToDate,
+      );
+
+      logger.i('패치 상태: $status');
+
+      if (status == shorebird.UpdateStatus.outdated) {
+        // 새 패치 다운로드
+        logger.i('새 패치 발견 - 다운로드 시작');
+        await updater.update();
+        logger.i('패치 다운로드 완료');
+
+        if (mounted) {
+          _showRestartDialog(context);
+        }
+      } else if (status == shorebird.UpdateStatus.restartRequired) {
+        // 이전에 다운로드된 패치가 있음 → 재시작 필요
+        logger.i('대기 중인 패치 발견 - 재시작 다이얼로그 표시');
+        if (mounted) {
+          _showRestartDialog(context);
+        }
+      } else {
+        logger.i('최신 상태 - 패치 불필요');
+      }
+    } catch (e, s) {
+      logger.e('패치 체크 실패 (앱 계속 실행): $e', stackTrace: s);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // 현재 상태를 watch하여 리빌드 시에도 상태 확인
-    final currentStatus = ref.watch(patchStatusProvider);
-
-    ref.listen<PatchStatusInfo>(
-      patchStatusProvider,
-      (previous, next) {
-        logger.i('🔔 PatchStatusProvider 상태 변경: ${previous?.status} -> ${next.status}, shouldShowDialog: ${next.shouldShowDialog}');
-        if (next.shouldShowDialog && !_isDialogShowing) {
-          _showRestartDialog(context);
-        }
-      },
-    );
-
-    // 리빌드 시 현재 상태 확인 (initState 이후 상태가 변경된 경우 대응)
-    // WidgetsBinding을 사용하여 빌드 완료 후 다이얼로그 표시
-    if (currentStatus.shouldShowDialog && !_isDialogShowing) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && !_isDialogShowing) {
-          final status = ref.read(patchStatusProvider);
-          if (status.shouldShowDialog) {
-            logger.i('📢 빌드 시 재시작 다이얼로그 표시 필요 - 다이얼로그 표시');
-            _showRestartDialog(context);
-          }
-        }
-      });
-    }
-
     return widget.child;
   }
 
   Future<void> _showRestartDialog(BuildContext context) async {
-    if (_isDialogShowing) {
-      logger.i('⚠️ 다이얼로그가 이미 표시 중 - 중복 표시 방지');
-      return;
-    }
-
+    if (_isDialogShowing) return;
     _isDialogShowing = true;
 
     try {
-      // Navigator가 준비될 때까지 약간 대기
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Navigator 준비 대기
+      await Future.delayed(const Duration(milliseconds: 300));
 
       if (!mounted || !context.mounted) {
-        logger.w('⚠️ 다이얼로그 표시 불가 - context가 유효하지 않음');
         _isDialogShowing = false;
         return;
       }
 
-      logger.i('🚀 패치 재시작 다이얼로그 표시');
+      logger.i('패치 재시작 다이얼로그 표시');
 
       await showDialog<void>(
         context: context,
         barrierDismissible: false,
         builder: (context) => const PatchRestartDialog(),
       );
-
-      // 다이얼로그가 성공적으로 표시된 후에만 markDialogShown
-      ref.read(patchStatusProvider.notifier).markDialogShown();
-      logger.i('✅ 패치 재시작 다이얼로그 닫힘');
     } catch (e) {
-      logger.e('❌ 다이얼로그 표시 실패 - 다음 빌드에서 재시도: $e');
+      logger.e('다이얼로그 표시 실패: $e');
     } finally {
       _isDialogShowing = false;
     }
@@ -122,8 +134,8 @@ class _PatchRestartDialogListenerState
 
 /// 재시작 다이얼로그
 ///
-/// Android: 3초 카운트다운 후 자동 재시작 (회피 불가)
-/// iOS: 앱 종료 방법 안내와 함께 확인 버튼
+/// Android: 3초 카운트다운 후 자동 재시작 (닫기 불가)
+/// iOS: 앱 종료 안내 (닫기 불가 - 사용자가 직접 앱 종료해야 함)
 class PatchRestartDialog extends ConsumerStatefulWidget {
   const PatchRestartDialog({super.key});
 
@@ -176,20 +188,16 @@ class _PatchRestartDialogState extends ConsumerState<PatchRestartDialog> {
       _isRestarting = true;
     });
 
-    logger.i('🔄 패치 적용을 위한 앱 재시작 실행');
+    logger.i('패치 적용을 위한 앱 재시작 실행');
 
     try {
       await ShorebirdUtils.restartAppForPatch();
     } catch (e) {
-      logger.e('❌ 앱 재시작 실패: $e');
+      logger.e('앱 재시작 실패: $e');
       if (mounted) {
         Navigator.of(context).pop();
       }
     }
-  }
-
-  void _closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override
@@ -214,7 +222,6 @@ class _PatchRestartDialogState extends ConsumerState<PatchRestartDialog> {
       );
     }
 
-    // 양쪽 플랫폼 모두 닫기 불가 (강제 재시작/종료 필요)
     return PopScope(
       canPop: false,
       child: AlertDialog(
@@ -263,7 +270,6 @@ class _PatchRestartDialogState extends ConsumerState<PatchRestartDialog> {
             ],
           ],
         ),
-        // 버튼 없음 - Android: 자동 재시작, iOS: 사용자가 앱 종료해야 함
         actions: const [],
       ),
     );
