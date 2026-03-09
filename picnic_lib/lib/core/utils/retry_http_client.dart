@@ -98,7 +98,7 @@ class RetryHttpClient extends http.BaseClient {
     }
 
     logger.e('All retry attempts failed for ${request.url}');
-    return _createErrorResponse(lastException);
+    return _createErrorResponse(lastException, request);
   }
 
   void _cleanupOldConnections() {
@@ -181,7 +181,10 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
     await Future.delayed(baseDelay + jitter);
   }
 
-  http.StreamedResponse _createErrorResponse(Exception? lastException) {
+  http.StreamedResponse _createErrorResponse(
+    Exception? lastException,
+    http.BaseRequest request,
+  ) {
     final errorMessage = lastException?.toString() ?? 'Unknown network error';
     final errorBytes = utf8.encode('{"error": "$errorMessage"}');
 
@@ -190,6 +193,7 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
       500,
       contentLength: errorBytes.length,
       reasonPhrase: 'Network Error',
+      request: request,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'X-Error-Type': lastException?.runtimeType.toString() ?? 'Unknown',
