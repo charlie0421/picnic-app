@@ -89,18 +89,34 @@ class _PatchRestartDialogListenerState
       return;
     }
 
-    logger.i('🚀 패치 재시작 다이얼로그 표시 시작');
     _isDialogShowing = true;
-    ref.read(patchStatusProvider.notifier).markDialogShown();
 
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const PatchRestartDialog(),
-    );
+    try {
+      // Navigator가 준비될 때까지 약간 대기
+      await Future.delayed(const Duration(milliseconds: 500));
 
-    logger.i('✅ 패치 재시작 다이얼로그 닫힘');
-    _isDialogShowing = false;
+      if (!mounted || !context.mounted) {
+        logger.w('⚠️ 다이얼로그 표시 불가 - context가 유효하지 않음');
+        _isDialogShowing = false;
+        return;
+      }
+
+      logger.i('🚀 패치 재시작 다이얼로그 표시');
+
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const PatchRestartDialog(),
+      );
+
+      // 다이얼로그가 성공적으로 표시된 후에만 markDialogShown
+      ref.read(patchStatusProvider.notifier).markDialogShown();
+      logger.i('✅ 패치 재시작 다이얼로그 닫힘');
+    } catch (e) {
+      logger.e('❌ 다이얼로그 표시 실패 - 다음 빌드에서 재시도: $e');
+    } finally {
+      _isDialogShowing = false;
+    }
   }
 }
 
