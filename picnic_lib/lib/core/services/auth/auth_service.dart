@@ -271,10 +271,11 @@ class AuthService {
   }
 
   bool _shouldClearSession(dynamic error) {
-    return error is TimeoutException ||
-        (error is AuthException &&
-            (error.message.contains('Token expired') ||
-                error.statusCode == "401"));
+    // TimeoutException은 일시적 네트워크 문제이므로 세션을 삭제하지 않음
+    // 세션 삭제는 명확한 인증 실패(401, Token expired)에서만 수행
+    return error is AuthException &&
+        (error.message.contains('Token expired') ||
+            error.statusCode == "401");
   }
 
   Future<void> _saveAndNotifySession(Session session) async {
