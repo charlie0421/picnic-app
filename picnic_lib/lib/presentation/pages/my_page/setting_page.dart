@@ -805,6 +805,50 @@ class _SettingPageState extends ConsumerState<SettingPage>
     }
   }
 
+  /// 패치 자동 다운로드 후 플랫폼별 안내
+  Future<void> _autoDownloadAndNotify(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    try {
+      SnackbarUtil().info(
+        l10n.message_setting_patch_update_available,
+        context: context,
+      );
+
+      await ShorebirdUtils.checkAndUpdate();
+      final patch = await ShorebirdUtils.checkPatch();
+
+      if (!mounted || !context.mounted) return;
+
+      ref.read(patchInfoProvider.notifier).updatePatchInfo({
+        'updateDownloaded': true,
+        'needsRestart': true,
+        'currentPatch': patch?.number,
+      });
+
+      if (UniversalPlatform.isIOS) {
+        // iOS: 앱 종료 후 재실행 안내
+        SnackbarUtil().success(
+          l10n.message_setting_patch_restart_hint_ios,
+          context: context,
+          duration: const Duration(seconds: 5),
+        );
+      } else {
+        // Android: 자동 리스타트
+        await _showAutoRestartAnimation(context, l10n);
+      }
+    } catch (e) {
+      logger.e('패치 자동 다운로드 실패: $e');
+      if (mounted && context.mounted) {
+        SnackbarUtil().error(
+          l10n.message_setting_patch_update_failed(e.toString()),
+          context: context,
+        );
+      }
+    }
+  }
+
   /// 수동 패치 다운로드 및 적용 (자동 리스타트 포함)
   Future<void> _handleManualPatchUpdate(BuildContext context) async {
     if (_isManualPatchUpdating) return;
@@ -908,23 +952,21 @@ class _SettingPageState extends ConsumerState<SettingPage>
 
         switch (result.status) {
           case shorebird.UpdateStatus.outdated:
-            SnackbarUtil().info(
-              l10n.message_setting_patch_update_available,
-              context: context,
-              actionLabel: l10n.button_update,
-              onAction: () async {
-                await _handleManualPatchUpdate(context);
-              },
-            );
+            // 패치가 있으면 자동으로 다운로드 시작
+            await _autoDownloadAndNotify(context, l10n);
             break;
           case shorebird.UpdateStatus.restartRequired:
             SnackbarUtil().info(
-              l10n.message_setting_patch_restart_hint,
+              UniversalPlatform.isIOS
+                  ? l10n.message_setting_patch_restart_hint_ios
+                  : l10n.message_setting_patch_restart_hint,
               context: context,
-              actionLabel: l10n.button_restart,
-              onAction: () async {
-                await ShorebirdUtils.restartAppForPatch();
-              },
+              actionLabel: UniversalPlatform.isIOS ? null : l10n.button_restart,
+              onAction: UniversalPlatform.isIOS
+                  ? null
+                  : () async {
+                      await ShorebirdUtils.restartAppForPatch();
+                    },
             );
             break;
           case shorebird.UpdateStatus.upToDate:
