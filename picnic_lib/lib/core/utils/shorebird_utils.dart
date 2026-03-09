@@ -102,14 +102,9 @@ class ShorebirdUtils {
   }
 
   /// Shorebird 패치 사용 가능 여부 확인
-  /// iOS 26 이상에서는 코드 서명 문제로 패치 비활성화
+  /// Shorebird 1.6.87 + Flutter 3.41.4에서 iOS 26 코드 서명 문제 해결됨
   static Future<bool> isPatchingAvailable() async {
     if (UniversalPlatform.isWeb) {
-      return false;
-    }
-
-    if (Platform.isIOS && await isIOS26OrHigher()) {
-      logger.w('⚠️ iOS 26 이상에서는 Shorebird 패치가 비활성화됩니다 (코드 서명 호환성 문제)');
       return false;
     }
 
@@ -180,9 +175,8 @@ class ShorebirdUtils {
       throw const PatchStatusException(PatchStatusError.webUnsupported);
     }
 
-    // iOS 26 이상에서는 패치 기능 비활성화
     if (!await isPatchingAvailable()) {
-      logger.i('📱 iOS 26+ 감지 - 패치 상태 확인 스킵');
+      logger.i('패치 기능 사용 불가 (웹 환경)');
       return const PatchStatusCheckResult(
         status: shorebird.UpdateStatus.upToDate,
       );
@@ -279,9 +273,8 @@ class ShorebirdUtils {
       return;
     }
 
-    // iOS 26 이상에서는 패치 기능 비활성화
     if (!await isPatchingAvailable()) {
-      logger.i('📱 iOS 26+ 감지 - 앱 시작 시 패치 체크 스킵');
+      logger.i('패치 기능 사용 불가 (웹 환경)');
       _notifyPatchStatus(ShorebirdPatchEvent.upToDate);
       return;
     }
