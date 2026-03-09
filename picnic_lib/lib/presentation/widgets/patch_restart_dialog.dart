@@ -47,7 +47,7 @@ class _PatchRestartDialogListenerState
     _patchCheckDone = true;
 
     if (!await ShorebirdUtils.isPatchingAvailable()) {
-      logger.i('패치 사용 불가 (웹 환경)');
+      logger.i('패치 사용 불가');
       return;
     }
 
