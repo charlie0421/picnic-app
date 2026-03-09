@@ -453,48 +453,72 @@ class _SettingPageState extends ConsumerState<SettingPage>
             ),
           ),
           SizedBox(width: 8.w),
-          // 재시작 버튼
-          _isRestartingApp
-              ? SizedBox(
-                  width: 24.w,
-                  height: 24.w,
-                  child: const CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : GestureDetector(
-                  onTap: () async {
-                    setState(() {
-                      _isRestartingApp = true;
-                    });
-                    try {
-                      await ShorebirdUtils.restartAppForPatch();
-                    } catch (e) {
-                      logger.e('배너에서 재시작 실패: $e');
-                    } finally {
-                      if (mounted) {
-                        setState(() {
-                          _isRestartingApp = false;
-                        });
-                      }
-                    }
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 8.w,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      isIOS ? l10n.button_ok : l10n.button_restart,
-                      style: getTextStyle(AppTypo.body14B, AppColors.primary500),
-                    ),
-                  ),
+          // 재시작/확인 버튼
+          if (isIOS)
+            // iOS: 확인 버튼 (배너 닫기만)
+            GestureDetector(
+              onTap: () {
+                // 배너를 숨기기 위해 상태 초기화
+                ref.read(patchStatusProvider.notifier).markDialogShown();
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 8.w,
                 ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  l10n.button_ok,
+                  style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+                ),
+              ),
+            )
+          else
+            // Android: 재시작 버튼
+            _isRestartingApp
+                ? SizedBox(
+                    width: 24.w,
+                    height: 24.w,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        _isRestartingApp = true;
+                      });
+                      try {
+                        await ShorebirdUtils.restartAppForPatch();
+                      } catch (e) {
+                        logger.e('배너에서 재시작 실패: $e');
+                      } finally {
+                        if (mounted) {
+                          setState(() {
+                            _isRestartingApp = false;
+                          });
+                        }
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 8.w,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        l10n.button_restart,
+                        style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+                      ),
+                    ),
+                  ),
         ],
       ),
     );
@@ -590,7 +614,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
                   ),
                 ),
                 SizedBox(width: 12.w),
-                patchInfo.canRestart
+                patchInfo.canRestart && !UniversalPlatform.isIOS
                     ? _buildRestartButton(context, patchInfo)
                     : arrowIcon,
               ],
