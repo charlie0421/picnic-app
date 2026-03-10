@@ -48,3 +48,9 @@ picnic_app/key.properties
 # tasks.json
 # tasks/ 
 *.hprof
+
+# PDCA 상태 파일
+.pdca-status.json
+
+# 테스트 커버리지
+**/coverage/

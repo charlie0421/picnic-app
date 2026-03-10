@@ -48,6 +48,12 @@ workflows:
           echo "=== Generated.xcconfig 파일 확인 ==="
           ls -la ios/Flutter/Generated.xcconfig || echo "⚠️ Generated.xcconfig 파일이 아직 생성되지 않음"
 
+      - name: Run unit tests
+        script: |
+          cd picnic_lib
+          flutter test
+        test_report: picnic_lib/build/test-results/**/*.xml
+
       - name: Install CocoaPods dependencies
         script: |
           cd picnic_app/ios
@@ -501,6 +507,12 @@ workflows:
           
           echo "=== Flutter 패키지 설치 ==="
           flutter packages pub get
+
+      - name: Run unit tests
+        script: |
+          cd picnic_lib
+          flutter test
+        test_report: picnic_lib/build/test-results/**/*.xml
 
       - name: Verify Keystore Configuration
         script: |
