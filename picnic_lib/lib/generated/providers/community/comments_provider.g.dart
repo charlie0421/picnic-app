@@ -51,7 +51,7 @@ final class CommentsNotifierProvider
   }
 }
 
-String _$commentsNotifierHash() => r'7fafa42440c84535957ca35e1469e1e3c8095074';
+String _$commentsNotifierHash() => r'47632f7d8115f50a113a3c8cce78624fa3a623c0';
 
 final class CommentsNotifierFamily extends $Family
     with

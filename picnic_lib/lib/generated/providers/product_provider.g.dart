@@ -33,7 +33,7 @@ final class ServerProductsProvider
   ServerProducts create() => ServerProducts();
 }
 
-String _$serverProductsHash() => r'0f4c60d3e8e126228ce91d2bee4a67dedbee35fe';
+String _$serverProductsHash() => r'0e1265b570ddf22f4011aff2fb68cebb055497d2';
 
 abstract class _$ServerProducts
     extends $AsyncNotifier<List<Map<String, dynamic>>> {

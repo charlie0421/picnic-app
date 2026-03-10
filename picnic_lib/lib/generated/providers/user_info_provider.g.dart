@@ -86,7 +86,7 @@ final class SetAgreementProvider
   }
 }
 
-String _$setAgreementHash() => r'905f6d2e33d2cc7328ed63c250084b1162bd88a6';
+String _$setAgreementHash() => r'f3bc7175872263d3c9b9e06fb528e0e068516846';
 
 @ProviderFor(agreement)
 const agreementProvider = AgreementProvider._();
@@ -119,7 +119,7 @@ final class AgreementProvider
   }
 }
 
-String _$agreementHash() => r'2f24c6213f6c0d3c7f1a25c5c34104447de3c786';
+String _$agreementHash() => r'6a9932aa288ee9f071c3229d9a59016c6bfdd6d1';
 
 @ProviderFor(expireBonus)
 const expireBonusProvider = ExpireBonusProvider._();
