@@ -155,6 +155,28 @@ class AppInitializer {
           return null;
         }
 
+        // Supabase 502 Bad Gateway 필터링 (PICNIC-APP-47)
+        // Cloudflare가 HTML 에러 페이지를 반환하는 서버 일시 장애
+        if (exceptionType == 'PostgrestException' &&
+            (exceptionValue.contains('DOCTYPE') ||
+             exceptionValue.contains('502'))) {
+          return null;
+        }
+
+        // JWT 만료 필터링 (PICNIC-APP-47R)
+        // 디바이스 시계 오차/백그라운드 복귀 시 발생하는 일시적 에러
+        if (exceptionType == 'PostgrestException' &&
+            exceptionValue.contains('JWT expired')) {
+          return null;
+        }
+
+        // Android Keystore BAD_DECRYPT 필터링 (PICNIC-APP-B8)
+        // OS 업데이트 등으로 암호화 키가 무효화된 경우
+        if (exceptionType == 'PlatformException' &&
+            exceptionValue.contains('BAD_DECRYPT')) {
+          return null;
+        }
+
         return event;
       };
     });

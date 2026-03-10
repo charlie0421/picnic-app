@@ -165,6 +165,7 @@ class CommentsNotifier extends _$CommentsNotifier {
         'content': {locale: content},
       });
 
+      if (!ref.mounted) return;
       // Refresh comments after posting
       state = await AsyncValue.guard(() => _fetchComments(
             postId,
@@ -173,6 +174,7 @@ class CommentsNotifier extends _$CommentsNotifier {
           ));
     } catch (e, s) {
       logger.e('Error posting comment:', error: e, stackTrace: s);
+      if (!ref.mounted) return;
       state = AsyncError(e, s);
     }
   }
@@ -189,12 +191,14 @@ class CommentsNotifier extends _$CommentsNotifier {
         onConflict: 'comment_id,user_id', // 복합 키로 충돌 처리
       );
 
+      if (!ref.mounted) return;
       if (state.value != null) {
         state = AsyncValue.data(
             _updateCommentLikeStatus(state.value!, commentId, true));
       }
     } catch (e, s) {
       logger.e('Error liking comment:', error: e, stackTrace: s);
+      if (!ref.mounted) return;
       state = AsyncError(e, s);
     }
   }
@@ -209,12 +213,14 @@ class CommentsNotifier extends _$CommentsNotifier {
           .eq('user_id', supabase.auth.currentUser!.id)
           .isFilter('deleted_at', null); // 이미 삭제된 것은 제외
 
+      if (!ref.mounted) return;
       if (state.value != null) {
         state = AsyncValue.data(
             _updateCommentLikeStatus(state.value!, commentId, false));
       }
     } catch (e, s) {
       logger.e('Error unliking comment:', error: e, stackTrace: s);
+      if (!ref.mounted) return;
       state = AsyncError(e, s);
     }
   }
@@ -319,6 +325,7 @@ class CommentsNotifier extends _$CommentsNotifier {
           .eq('user_id', supabase.auth.currentUser!.id)
           .eq('blocked_user_id', blockedUserId);
 
+      if (!ref.mounted) return;
       // 차단 해제 후 댓글 목록 새로고침
       if (state.value != null) {
         state = await AsyncValue.guard(() => _fetchComments(
@@ -339,6 +346,7 @@ class CommentsNotifier extends _$CommentsNotifier {
         'deleted_at': DateTime.now().toIso8601String(),
       }).eq('comment_id', commentId);
 
+      if (!ref.mounted) return;
       // Remove the comment from local state
       if (state.value != null) {
         final updatedComments =

@@ -49,12 +49,17 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      const storage = FlutterSecureStorage();
-      final provider = await storage.read(key: 'last_provider');
-      if (mounted) {
-        setState(() {
-          lastProvider = provider;
-        });
+      try {
+        const storage = FlutterSecureStorage();
+        final provider = await storage.read(key: 'last_provider');
+        if (mounted) {
+          setState(() {
+            lastProvider = provider;
+          });
+        }
+      } catch (e) {
+        // Android Keystore 키 무효화 시 BAD_DECRYPT 발생 가능
+        logger.w('SecureStorage read failed (last_provider): $e');
       }
     });
   }
