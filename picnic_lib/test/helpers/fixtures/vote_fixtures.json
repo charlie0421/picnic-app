@@ -1,0 +1,56 @@
+{
+  "basic_vote": {
+    "id": 1,
+    "title": {"ko": "테스트 투표", "en": "Test Vote"},
+    "status": "active",
+    "start_at": "2026-03-01T00:00:00.000Z",
+    "stop_at": "2026-03-31T23:59:59.000Z",
+    "visible_at": "2026-02-28T00:00:00.000Z",
+    "is_ended": false,
+    "is_upcoming": false,
+    "created_at": "2026-02-20T00:00:00.000Z"
+  },
+  "ended_vote": {
+    "id": 2,
+    "title": {"ko": "종료된 투표", "en": "Ended Vote"},
+    "status": "ended",
+    "start_at": "2026-01-01T00:00:00.000Z",
+    "stop_at": "2026-01-31T23:59:59.000Z",
+    "visible_at": "2025-12-28T00:00:00.000Z",
+    "is_ended": true,
+    "is_upcoming": false,
+    "created_at": "2025-12-20T00:00:00.000Z"
+  },
+  "upcoming_vote": {
+    "id": 3,
+    "title": {"ko": "예정 투표", "en": "Upcoming Vote"},
+    "status": "upcoming",
+    "start_at": "2026-06-01T00:00:00.000Z",
+    "stop_at": "2026-06-30T23:59:59.000Z",
+    "visible_at": "2026-05-28T00:00:00.000Z",
+    "is_ended": false,
+    "is_upcoming": true,
+    "created_at": "2026-05-20T00:00:00.000Z"
+  },
+  "vote_item_request": {
+    "id": "req-001",
+    "vote_id": 1,
+    "status": "pending",
+    "created_at": "2026-03-05T12:00:00.000Z",
+    "artist_name": "테스트 아티스트"
+  },
+  "vote_item_request_list": [
+    {
+      "id": "req-001",
+      "vote_id": 1,
+      "status": "pending",
+      "created_at": "2026-03-05T12:00:00.000Z"
+    },
+    {
+      "id": "req-002",
+      "vote_id": 1,
+      "status": "approved",
+      "created_at": "2026-03-06T12:00:00.000Z"
+    }
+  ]
+}

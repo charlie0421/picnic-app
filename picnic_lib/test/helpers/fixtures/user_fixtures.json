@@ -1,0 +1,91 @@
+{
+  "basic_user": {
+    "id": "user-001-uuid",
+    "nickname": "테스트유저",
+    "avatar_url": "https://example.com/avatars/user001.jpg",
+    "country_code": "KR",
+    "deleted_at": null,
+    "user_agreement": {
+      "terms": "2024-01-01T00:00:00Z",
+      "privacy": "2024-01-01T00:00:00Z"
+    },
+    "is_admin": false,
+    "star_candy": 500,
+    "star_candy_bonus": 100,
+    "jma_candy": 50,
+    "birth_date": "2000-05-15T00:00:00Z",
+    "gender": "F",
+    "birth_time": null
+  },
+  "admin_user": {
+    "id": "admin-001-uuid",
+    "nickname": "관리자",
+    "avatar_url": "https://example.com/avatars/admin.jpg",
+    "country_code": "KR",
+    "deleted_at": null,
+    "user_agreement": {
+      "terms": "2024-01-01T00:00:00Z",
+      "privacy": "2024-01-01T00:00:00Z"
+    },
+    "is_admin": true,
+    "star_candy": 99999,
+    "star_candy_bonus": 99999,
+    "jma_candy": 99999,
+    "birth_date": null,
+    "gender": null,
+    "birth_time": null
+  },
+  "user_list": [
+    {
+      "id": "user-001-uuid",
+      "nickname": "유저A",
+      "avatar_url": null,
+      "country_code": "KR",
+      "deleted_at": null,
+      "user_agreement": {
+        "terms": "2024-01-01T00:00:00Z",
+        "privacy": "2024-01-01T00:00:00Z"
+      },
+      "is_admin": false,
+      "star_candy": 300,
+      "star_candy_bonus": 50,
+      "jma_candy": 10,
+      "birth_date": "2001-03-20T00:00:00Z",
+      "gender": "M",
+      "birth_time": null
+    },
+    {
+      "id": "user-002-uuid",
+      "nickname": "유저B",
+      "avatar_url": "https://example.com/avatars/user002.jpg",
+      "country_code": "US",
+      "deleted_at": null,
+      "user_agreement": null,
+      "is_admin": false,
+      "star_candy": 0,
+      "star_candy_bonus": 0,
+      "jma_candy": 0,
+      "birth_date": null,
+      "gender": null,
+      "birth_time": null
+    },
+    {
+      "id": "user-003-uuid",
+      "nickname": "삭제유저",
+      "avatar_url": null,
+      "country_code": "JP",
+      "deleted_at": "2024-06-01T00:00:00Z",
+      "user_agreement": {
+        "terms": "2024-01-01T00:00:00Z",
+        "privacy": "2024-01-01T00:00:00Z"
+      },
+      "is_admin": false,
+      "star_candy": 100,
+      "star_candy_bonus": 0,
+      "jma_candy": 0,
+      "birth_date": "1998-12-01T00:00:00Z",
+      "gender": "F",
+      "birth_time": "14:30"
+    }
+  ]
+}

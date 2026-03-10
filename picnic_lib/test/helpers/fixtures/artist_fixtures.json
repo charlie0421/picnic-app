@@ -1,0 +1,86 @@
+{
+  "basic_artist": {
+    "id": 1,
+    "name": {"ko": "김테스트", "en": "Kim Test", "ja": "キムテスト"},
+    "yy": 2000,
+    "mm": 3,
+    "dd": 15,
+    "gender": "F",
+    "image": "https://example.com/artists/1.jpg",
+    "artist_group": {
+      "id": 10,
+      "name": {"ko": "테스트그룹", "en": "Test Group"},
+      "image": "https://example.com/groups/10.jpg"
+    },
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-06-01T00:00:00Z",
+    "deleted_at": null,
+    "isBookmarked": false
+  },
+  "deleted_artist": {
+    "id": 99,
+    "name": {"ko": "삭제아티스트", "en": "Deleted Artist"},
+    "yy": 1995,
+    "mm": 7,
+    "dd": 20,
+    "gender": "M",
+    "image": null,
+    "artist_group": null,
+    "created_at": "2023-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "deleted_at": "2024-06-01T00:00:00Z",
+    "isBookmarked": false
+  },
+  "artist_list": [
+    {
+      "id": 1,
+      "name": {"ko": "아티스트A", "en": "Artist A"},
+      "yy": 2001,
+      "mm": 1,
+      "dd": 10,
+      "gender": "F",
+      "image": "https://example.com/artists/a.jpg",
+      "artist_group": {
+        "id": 10,
+        "name": {"ko": "그룹A", "en": "Group A"},
+        "image": "https://example.com/groups/a.jpg"
+      },
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": null,
+      "deleted_at": null,
+      "isBookmarked": true
+    },
+    {
+      "id": 2,
+      "name": {"ko": "아티스트B", "en": "Artist B"},
+      "yy": 1999,
+      "mm": 5,
+      "dd": 22,
+      "gender": "M",
+      "image": "https://example.com/artists/b.jpg",
+      "artist_group": {
+        "id": 10,
+        "name": {"ko": "그룹A", "en": "Group A"},
+        "image": "https://example.com/groups/a.jpg"
+      },
+      "created_at": "2024-02-01T00:00:00Z",
+      "updated_at": null,
+      "deleted_at": null,
+      "isBookmarked": false
+    },
+    {
+      "id": 3,
+      "name": {"ko": "솔로아티스트", "en": "Solo Artist"},
+      "yy": 2003,
+      "mm": 11,
+      "dd": 5,
+      "gender": "F",
+      "image": "https://example.com/artists/c.jpg",
+      "artist_group": null,
+      "created_at": "2024-03-01T00:00:00Z",
+      "updated_at": null,
+      "deleted_at": null,
+      "isBookmarked": false
+    }
+  ]
+}
