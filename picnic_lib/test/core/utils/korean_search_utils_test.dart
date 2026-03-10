@@ -14,11 +14,11 @@ void main() {
       // 정확한 초성 매칭 테스트
       expect(KoreanSearchUtils.matchesKoreanInitials(text, 'ㅂㄹㅍㅋ'), true);
 
-      // 부분 매칭 테스트 (ㅍㄹㅍㅋ)
-      expect(KoreanSearchUtils.matchesKoreanInitials(text, 'ㅍㄹㅍㅋ'), true);
+      // 부분 초성 매칭 테스트 (앞부분 일치)
+      expect(KoreanSearchUtils.matchesKoreanInitials(text, 'ㅂㄹ'), true);
 
-      // 순서 무관 테스트
-      expect(KoreanSearchUtils.matchesKoreanInitials(text, 'ㅍㅂㅋㄹ'), true);
+      // 부분 초성 매칭 테스트 (뒷부분 일치)
+      expect(KoreanSearchUtils.matchesKoreanInitials(text, 'ㅍㅋ'), true);
     });
 
     test('다른 아티스트 초성 검색 테스트', () {

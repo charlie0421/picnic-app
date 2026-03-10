@@ -11,6 +11,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: LoadingOverlay(
+            loadingWidget: CircularProgressIndicator(),
             child: Scaffold(
               body: testChild,
             ),
@@ -32,6 +33,7 @@ void main() {
         MaterialApp(
           home: LoadingOverlay(
             key: overlayKey,
+            loadingWidget: const CircularProgressIndicator(),
             child: const Scaffold(
               body: Text('Test Content'),
             ),
@@ -57,6 +59,7 @@ void main() {
         MaterialApp(
           home: LoadingOverlay(
             key: overlayKey,
+            loadingWidget: const CircularProgressIndicator(),
             child: const Scaffold(
               body: Text('Test Content'),
             ),
@@ -109,6 +112,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: LoadingOverlay(
+            loadingWidget: const CircularProgressIndicator(),
             child: Scaffold(
               body: Builder(
                 builder: (context) {
@@ -152,6 +156,7 @@ void main() {
           home: LoadingOverlay(
             key: overlayKey,
             barrierDismissible: true,
+            loadingWidget: const CircularProgressIndicator(),
             child: const Scaffold(
               body: Text('Test Content'),
             ),
@@ -164,8 +169,8 @@ void main() {
       await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      // 배경 터치
-      await tester.tap(find.byType(Container).last);
+      // GestureDetector를 통한 배경 터치
+      await tester.tapAt(const Offset(10, 10));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
