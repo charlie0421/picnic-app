@@ -1,64 +1,113 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/data/models/common/community_navigation.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
+import 'package:picnic_lib/data/models/user_profiles.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
-/// 모든 위젯/프로바이더 테스트에서 사용할 공통 래퍼
+import 'mock_providers.dart';
+import 'test_environment.dart';
+
+/// Riverpod ProviderScope + ScreenUtilInit + MaterialApp 래퍼
 ///
-/// 사용법:
-///   await tester.pumpWidget(
-///     TestApp(
-///       overrides: [myProvider.overrideWithValue(mockValue)],
-///       child: MyWidget(),
-///     ),
-///   );
-class TestApp extends StatelessWidget {
-  final Widget child;
-  final List<Override> overrides;
-  final Locale locale;
-
-  const TestApp({
-    super.key,
-    required this.child,
-    this.overrides = const [],
-    this.locale = const Locale('ko'),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ProviderScope(
-      overrides: overrides,
+/// 모든 매개변수는 defaultProviderOverrides에 전달됩니다.
+/// 동일 provider의 중복 override를 방지합니다.
+Widget buildTestApp(
+  Widget child, {
+  Navigation? navigation,
+  UserProfilesModel? userProfile,
+  Setting? setting,
+  MediaQueryData? mediaQueryData,
+  CommunityState? communityState,
+  bool loggedIn = true,
+  List<dynamic> extraOverrides = const [],
+  Locale locale = const Locale('ko'),
+}) {
+  return ProviderScope(
+    overrides: [
+      ...defaultProviderOverrides(
+        navigation: navigation,
+        userProfile: userProfile,
+        setting: setting,
+        mediaQueryData: mediaQueryData,
+        communityState: communityState,
+        loggedIn: loggedIn,
+      ),
+      ...extraOverrides,
+    ],
+    child: ScreenUtilInit(
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
       child: MaterialApp(
         locale: locale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(body: child),
       ),
-    );
-  }
+    ),
+  );
 }
 
-/// Consumer 빌더를 통해 WidgetRef를 캡처하는 테스트 래퍼
-///
-/// 사용법:
-///   late WidgetRef testRef;
-///   await tester.pumpWidget(
-///     TestApp(
-///       child: RefCaptureWidget(
-///         onRefCaptured: (ref) => testRef = ref,
-///         child: MyWidget(),
-///       ),
-///     ),
-///   );
-class RefCaptureWidget extends ConsumerWidget {
-  final Widget child;
-  final void Function(WidgetRef ref) onRefCaptured;
+/// 페이지 전체를 테스트할 때 사용 (Scaffold 없이)
+Widget buildTestAppPage(
+  Widget page, {
+  Navigation? navigation,
+  UserProfilesModel? userProfile,
+  Setting? setting,
+  MediaQueryData? mediaQueryData,
+  CommunityState? communityState,
+  bool loggedIn = true,
+  List<dynamic> extraOverrides = const [],
+  Locale locale = const Locale('ko'),
+}) {
+  return ProviderScope(
+    overrides: [
+      ...defaultProviderOverrides(
+        navigation: navigation,
+        userProfile: userProfile,
+        setting: setting,
+        mediaQueryData: mediaQueryData,
+        communityState: communityState,
+        loggedIn: loggedIn,
+      ),
+      ...extraOverrides,
+    ],
+    child: ScreenUtilInit(
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      child: MaterialApp(
+        locale: locale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: page,
+      ),
+    ),
+  );
+}
 
-  const RefCaptureWidget({
-    super.key,
-    required this.child,
-    required this.onRefCaptured,
-  });
+/// 커스텀 Navigation 상태로 테스트할 때 사용 (하위 호환)
+Widget buildTestAppWithNavigation(
+  Widget child, {
+  required Navigation navigation,
+  Locale locale = const Locale('ko'),
+}) {
+  return buildTestApp(child, navigation: navigation, locale: locale);
+}
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    onRefCaptured(ref);
-    return child;
-  }
+/// 테스트 전 공통 초기화
+void initTestEnvironment() {
+  initTestColors();
 }

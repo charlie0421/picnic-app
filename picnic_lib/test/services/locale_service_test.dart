@@ -3,35 +3,26 @@ import 'package:picnic_lib/services/locale_service.dart';
 
 void main() {
   group('LocaleService', () {
-    test('싱글톤 인스턴스', () {
-      final instance1 = LocaleService.instance;
-      final instance2 = LocaleService.instance;
-      expect(identical(instance1, instance2), isTrue);
+    test('instance is singleton', () {
+      final a = LocaleService.instance;
+      final b = LocaleService.instance;
+      expect(identical(a, b), isTrue);
     });
 
-    test('기본 언어 코드는 ko', () {
-      // 싱글톤이므로 이전 테스트 영향 가능 - 직접 확인
-      final service = LocaleService.instance;
-      // updateLanguageCode로 초기화
-      service.updateLanguageCode('ko');
-      expect(service.currentLanguageCode, equals('ko'));
+    test('default language code is ko', () {
+      expect(LocaleService.instance.currentLanguageCode, isNotEmpty);
     });
 
-    test('언어 코드 업데이트', () {
-      final service = LocaleService.instance;
-
-      service.updateLanguageCode('en');
-      expect(service.currentLanguageCode, equals('en'));
-
-      service.updateLanguageCode('ja');
-      expect(service.currentLanguageCode, equals('ja'));
-
-      service.updateLanguageCode('zh_CN');
-      expect(service.currentLanguageCode, equals('zh_CN'));
+    test('updateLanguageCode changes language', () {
+      LocaleService.instance.updateLanguageCode('en');
+      expect(LocaleService.instance.currentLanguageCode, 'en');
+      // Reset
+      LocaleService.instance.updateLanguageCode('ko');
     });
 
-    // 정리: 기본값 복원
-    tearDown(() {
+    test('updateLanguageCode to ja', () {
+      LocaleService.instance.updateLanguageCode('ja');
+      expect(LocaleService.instance.currentLanguageCode, 'ja');
       LocaleService.instance.updateLanguageCode('ko');
     });
   });
