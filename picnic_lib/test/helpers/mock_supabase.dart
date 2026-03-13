@@ -37,8 +37,9 @@ String _createFakeJwt(String userId) {
 void setupMockSupabase(Map<String, dynamic> tableResponses, {
   String? userId,
   Map<String, int>? functionStatusCodes,
+  Map<String, int>? tableStatusCodes,
 }) {
-  _setupClient(tableResponses, userId: userId, functionStatusCodes: functionStatusCodes);
+  _setupClient(tableResponses, userId: userId, functionStatusCodes: functionStatusCodes, tableStatusCodes: tableStatusCodes);
 }
 
 /// 인증된 사용자 세션을 포함한 Mock Supabase 설정 (비동기)
@@ -52,8 +53,9 @@ void setupMockSupabase(Map<String, dynamic> tableResponses, {
 Future<void> setupMockSupabaseWithAuth(Map<String, dynamic> tableResponses, {
   required String userId,
   Map<String, int>? functionStatusCodes,
+  Map<String, int>? tableStatusCodes,
 }) async {
-  _setupClient(tableResponses, userId: userId, functionStatusCodes: functionStatusCodes);
+  _setupClient(tableResponses, userId: userId, functionStatusCodes: functionStatusCodes, tableStatusCodes: tableStatusCodes);
 
   // 인증된 세션 설정
   try {
@@ -69,6 +71,7 @@ Future<void> setupMockSupabaseWithAuth(Map<String, dynamic> tableResponses, {
 void _setupClient(Map<String, dynamic> tableResponses, {
   String? userId,
   Map<String, int>? functionStatusCodes,
+  Map<String, int>? tableStatusCodes,
 }) {
   final fakeJwt = userId != null ? _createFakeJwt(userId) : null;
 
@@ -149,6 +152,17 @@ void _setupClient(Map<String, dynamic> tableResponses, {
       final tableName = path.split('/rest/v1/').last.split('?').first;
       final acceptHeader = request.headers['Accept'] ?? request.headers['accept'] ?? '';
       final isSingle = acceptHeader.contains('vnd.pgrst.object');
+
+      // Check if this table should return an error status code
+      final tableStatusCode = tableStatusCodes?[tableName];
+      if (tableStatusCode != null && tableStatusCode >= 400) {
+        return http.Response(
+          jsonEncode({'message': 'Mock error for table $tableName', 'code': 'PGRST000'}),
+          tableStatusCode,
+          request: request,
+          headers: {'content-type': 'application/json'},
+        );
+      }
 
       if (tableResponses.containsKey(tableName)) {
         final data = tableResponses[tableName];
