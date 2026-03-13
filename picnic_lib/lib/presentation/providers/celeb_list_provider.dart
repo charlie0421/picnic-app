@@ -1,5 +1,6 @@
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/pic/celeb.dart';
+import 'package:picnic_lib/presentation/providers/celeb_list_provider_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -19,7 +20,8 @@ class AsyncCelebList extends _$AsyncCelebList {
         await supabase.from('celeb').select().order('id', ascending: true);
 
     final List<CelebModel> celebList =
-        List<CelebModel>.from(response.map((e) => CelebModel.fromJson(e)));
+        CelebListProviderHelper.parseCelebList(
+            List<Map<String, dynamic>>.from(response));
 
     return celebList;
   }
@@ -69,8 +71,9 @@ class AsyncMyCelebList extends _$AsyncMyCelebList {
 
       logger.i('fetchMyCelebList: $response');
 
-      List<CelebModel> celebList = List<CelebModel>.from(
-          response.map((e) => CelebModel.fromJson(e['celeb'])));
+      List<CelebModel> celebList =
+          CelebListProviderHelper.parseMyCelebList(
+              List<Map<String, dynamic>>.from(response));
 
       state = AsyncValue.data(celebList);
 

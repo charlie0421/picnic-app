@@ -7,6 +7,7 @@ import 'package:picnic_lib/data/models/qna/qna_message.dart';
 import 'package:picnic_lib/data/models/qna/qna_category.dart';
 import 'package:picnic_lib/data/models/qna/qna_attachment.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
+import 'package:picnic_lib/data/repositories/qna_repository_helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as p;
 import 'package:picnic_lib/l10n.dart';
@@ -51,10 +52,8 @@ class QnaRepository {
 
       return (response).map((item) {
         final map = Map<String, dynamic>.from(item as Map);
-        final status = (map['status'] as String?)?.trim();
-        if (status == null || status.isEmpty) {
-          map['status'] = 'RECEIVED';
-        }
+        map['status'] = QnaRepositoryHelper.normalizeThreadStatus(
+            map['status'] as String?);
         return QnaThread.fromJson(map);
       }).toList();
     } catch (e) {
@@ -108,12 +107,8 @@ class QnaRepository {
           .eq('code', code)
           .maybeSingle();
       if (row == null) return null;
-      final dynamic labelField = row['label'];
-      if (labelField is Map<String, dynamic>) {
-        final resolved = getLocaleTextFromJson(labelField);
-        return resolved.isEmpty ? null : resolved;
-      }
-      return null;
+      return QnaRepositoryHelper.resolveCategoryLabel(
+          row['label'], getLocaleTextFromJson);
     } catch (e) {
       _logDebug('error fetching label for code=$code: $e');
       return null;
@@ -170,30 +165,22 @@ class QnaRepository {
 
       final list = (response as List<dynamic>).map((raw) {
         final Map<String, dynamic> row = raw as Map<String, dynamic>;
-        final Map<String, dynamic>? labelJson =
-            row['label'] as Map<String, dynamic>?;
-        final Map<String, dynamic>? qJson =
-            row['question_template'] as Map<String, dynamic>?;
-        final Map<String, dynamic>? aJson =
-            row['answer_template'] as Map<String, dynamic>?;
-
-        final label = labelJson != null ? getLocaleTextFromJson(labelJson) : '';
-        final qTmpl = qJson != null ? getLocaleTextFromJson(qJson) : null;
-        final aTmpl = aJson != null ? getLocaleTextFromJson(aJson) : null;
+        final parsed = QnaRepositoryHelper.parseCategoryRow(
+            row, getLocaleTextFromJson);
 
         if (kDebugMode &&
             ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase() ==
                 'en') {
           _logDebug(
-            'code=${row['code']} label="$label" qTmplPreview="${(qTmpl ?? '').toString().substring(0, (qTmpl ?? '').length.clamp(0, 30))}"',
+            'code=${row['code']} label="${parsed.label}" qTmplPreview="${(parsed.questionTemplate ?? '').toString().substring(0, (parsed.questionTemplate ?? '').length.clamp(0, 30))}"',
           );
         }
 
         return QnaCategory(
           code: row['code'] as String,
-          label: label,
-          questionTemplate: qTmpl,
-          answerTemplate: aTmpl,
+          label: parsed.label,
+          questionTemplate: parsed.questionTemplate,
+          answerTemplate: parsed.answerTemplate,
         );
       }).toList();
 
@@ -229,7 +216,8 @@ class QnaRepository {
 
         for (final file in attachments) {
           final safeName = _generateUuidName(p.extension(file.path));
-          final filePath = 'qna/$userId/${newMessage.id}/$safeName';
+          final filePath = QnaRepositoryHelper.buildAttachmentPath(
+              userId, newMessage.id, safeName);
 
           await _client.storage
               .from('qna_attachments')
@@ -243,13 +231,13 @@ class QnaRepository {
                 ),
               );
 
-          attachmentRecords.add({
-            'message_id': newMessage.id,
-            'file_name': safeName,
-            'file_path': filePath,
-            'file_type': lookupMimeType(file.path),
-            'file_size': await file.length(),
-          });
+          attachmentRecords.add(QnaRepositoryHelper.buildAttachmentRecord(
+            messageId: newMessage.id,
+            fileName: safeName,
+            filePath: filePath,
+            fileType: lookupMimeType(file.path),
+            fileSize: await file.length(),
+          ));
         }
         await _client.from('qna_attachments').insert(attachmentRecords);
       }
@@ -268,11 +256,8 @@ class QnaRepository {
   }
 
   String _generateUuidName(String extension) {
-    final uuid = const Uuid().v4().replaceAll('-', '');
-    final normalizedExt = extension.isNotEmpty && extension.startsWith('.')
-        ? extension
-        : (extension.isNotEmpty ? '.$extension' : '');
-    return '$uuid$normalizedExt';
+    final uuid = const Uuid().v4();
+    return QnaRepositoryHelper.generateUuidName(uuid, extension);
   }
 
   /// 스토리지 파일의 공개 URL 가져오기

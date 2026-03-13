@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/presentation/providers/product_provider_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -36,17 +37,14 @@ class ServerProducts extends _$ServerProducts {
       final List<Map<String, dynamic>> products =
           List<Map<String, dynamic>>.from(response);
 
-      if (products.isEmpty) {
-        throw Exception('No products found');
-      }
+      ProductProviderHelper.validateProductsNotEmpty(products);
 
       return products;
     } catch (e, s) {
       logger.e('Supabase products fetch error', error: e, stackTrace: s);
       
       // Supabase 초기화 문제인지 확인
-      if (e.toString().contains('Project not specified') || 
-          e.toString().contains('not initialized')) {
+      if (ProductProviderHelper.isSupabaseInitError(e.toString())) {
         logger.w('Supabase 초기화 문제 감지. 재시도 예약...');
         // 상태 리셋하여 재시도 트리거
         Future.delayed(const Duration(seconds: 2), () {
@@ -59,13 +57,7 @@ class ServerProducts extends _$ServerProducts {
   }
 
   Map<String, dynamic>? getProductDetailById(String id) {
-    final products = state.value;
-    if (products == null) return null;
-    try {
-      return products.firstWhere((product) => product['id'] == id);
-    } catch (_) {
-      return null;
-    }
+    return ProductProviderHelper.findProductById(state.value, id);
   }
 }
 
@@ -92,16 +84,11 @@ class StoreProducts extends _$StoreProducts {
         throw Exception('Store is not available');
       }
 
-      final productIds = serverProducts
-          .map((product) => Platform
-                      .isAndroid // check if the operating system is Android
-                  ? product['id']
-                      .toString()
-                      .toLowerCase() // convert to lowercase for Android
-                  : Environment.inappAppNamePrefix +
-                      product['id'].toString() // use original ID for the rest
-              )
-          .toSet();
+      final productIds = ProductProviderHelper.buildProductIds(
+        serverProducts,
+        isAndroid: Platform.isAndroid,
+        appNamePrefix: Environment.inappAppNamePrefix,
+      );
 
       final ProductDetailsResponse response =
           await inAppPurchase.queryProductDetails(productIds);

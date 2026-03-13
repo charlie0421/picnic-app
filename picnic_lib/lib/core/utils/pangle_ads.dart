@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/pangle_ads_helper.dart';
 
 class PangleAds {
   static const _channel = MethodChannel('pangle_native_channel');
@@ -64,48 +65,51 @@ class PangleAds {
 
     _channel.setMethodCallHandler((call) async {
       try {
-        final DateTime now = DateTime.now();
-        final timestamp =
-            call.arguments?['timestamp'] ?? (now.millisecondsSinceEpoch / 1000);
+        final argsMap = call.arguments is Map
+            ? Map<String, dynamic>.from(call.arguments as Map)
+            : null;
+        final timestamp = PangleAdsHelper.extractTimestamp(argsMap);
+        final eventType = PangleAdsHelper.classifyEvent(call.method);
 
-        switch (call.method) {
-          case 'onAdShown':
+        switch (eventType) {
+          case PangleAdsHelper.adShownEvent:
             logger.i('광고가 표시됨: ${call.arguments}');
             _adShownController.add(null);
             break;
 
-          case 'onAdClicked':
+          case PangleAdsHelper.adClickedEvent:
             logger.i('광고가 클릭됨: ${call.arguments}');
             _adClickedController.add(null);
             break;
 
-          case 'onAdDismissed':
-          case 'onAdClosed': // Android에서 전송할 수 있는 대체 이벤트
+          case PangleAdsHelper.adDismissedEvent:
             logger.i('광고가 닫힘 이벤트 수신 [${call.method}]: ${call.arguments}');
-            // 프로필 새로고침 콜백 실행
             _performProfileRefresh(timestamp);
             break;
 
-          case 'onRewardEarned':
+          case PangleAdsHelper.rewardEarnedEvent:
             logger.i('리워드 획득: ${call.arguments}');
             try {
-              final args = Map<String, dynamic>.from(call.arguments as Map);
-              logger.i(
-                  '보상 획득 이벤트 처리: ${args['rewardName']}, 수량: ${args['rewardAmount']}');
-              _rewardEarnedController.add(args);
-              _performProfileRefresh(timestamp);
-
-              logger.i('보상 획득 이벤트 전파 완료');
+              final args = PangleAdsHelper.parseRewardArgs(call.arguments);
+              if (args != null) {
+                logger.i(
+                    '보상 획득 이벤트 처리: ${args['rewardName']}, 수량: ${args['rewardAmount']}');
+                _rewardEarnedController.add(args);
+                _performProfileRefresh(timestamp);
+                logger.i('보상 획득 이벤트 전파 완료');
+              } else {
+                logger.e('보상 획득 이벤트 처리 중 오류: invalid arguments');
+              }
             } catch (e) {
               logger.e('보상 획득 이벤트 처리 중 오류: $e');
             }
             break;
 
-          case 'onRewardFailed':
+          case PangleAdsHelper.rewardFailedEvent:
             logger.e('리워드 실패: ${call.arguments}');
             try {
-              final args = Map<String, dynamic>.from(call.arguments as Map);
-              final String errorMessage = args['errorMessage'] ?? '알 수 없는 오류';
+              final String errorMessage =
+                  PangleAdsHelper.extractErrorMessage(call.arguments);
               logger.e('보상 지급 실패 이벤트 처리: $errorMessage');
               _rewardFailedController.add(errorMessage);
               _performProfileRefresh(timestamp);
@@ -116,8 +120,7 @@ class PangleAds {
             break;
 
           default:
-            // 알 수 없는 이벤트이지만 'ad'가 포함된 경우 광고 닫힘으로 처리
-            if (call.method.toLowerCase().contains('ad')) {
+            if (PangleAdsHelper.isUnknownAdEvent(call.method)) {
               logger.w('알 수 없는 광고 이벤트를 광고 닫힘으로 처리: ${call.method}');
               _performProfileRefresh(timestamp);
             } else {

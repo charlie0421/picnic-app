@@ -4,9 +4,9 @@ import 'dart:io';
 
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/data/models/common/app_version.dart';
+import 'package:picnic_lib/presentation/providers/check_update_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:version/version.dart';
 
 part '../../generated/providers/check_update_provider.g.dart';
 
@@ -63,7 +63,8 @@ Future<UpdateInfo?> checkUpdate(ref) async {
     final appVersionModel = AppVersionModel.fromJson(response);
 
     final platformName = _getPlatformName();
-    final platformInfo = _getPlatformInfo(appVersionModel, platformName);
+    final platformInfo =
+        CheckUpdateHelper.getPlatformInfo(appVersionModel, platformName);
 
     if (platformInfo == null) {
       return null;
@@ -77,11 +78,11 @@ Future<UpdateInfo?> checkUpdate(ref) async {
       return null;
     }
 
-    final status = _isNewerThan(currentVersion, forceVersion)
-        ? UpdateStatus.updateRequired
-        : _isNewerThan(currentVersion, latestVersion)
-            ? UpdateStatus.updateRecommended
-            : UpdateStatus.upToDate;
+    final status = CheckUpdateHelper.determineUpdateStatus(
+      currentVersion: currentVersion,
+      latestVersion: latestVersion,
+      forceVersion: forceVersion,
+    );
 
     return UpdateInfo(
       status: status,
@@ -101,13 +102,3 @@ String _getPlatformName() {
   return 'unknown';
 }
 
-Map<String, dynamic>? _getPlatformInfo(
-    AppVersionModel model, String platformName) {
-  return platformName == 'android' ? model.android : model.ios;
-}
-
-bool _isNewerThan(String currentVersion, String marketVersion) {
-  final current = Version.parse(currentVersion);
-  final market = Version.parse(marketVersion);
-  return market > current;
-}

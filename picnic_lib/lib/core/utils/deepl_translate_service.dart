@@ -1,4 +1,5 @@
 import 'package:deepl_dart/deepl_dart.dart';
+import 'package:picnic_lib/core/utils/deepl_translate_service_helper.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 class DeepLTranslationService {
@@ -28,7 +29,7 @@ class DeepLTranslationService {
     logger.i('Translating: "$text" to $targetLang');
     int attempts = 0;
 
-    while (attempts < _maxAttempts) {
+    while (DeepLTranslateServiceHelper.shouldRetry(attempts, _maxAttempts)) {
       try {
         final translation = await _deepl.translate.translateText(
           text,
@@ -65,26 +66,15 @@ class DeepLTranslationService {
   /// Translates text while preserving placeholders
   Future<String> translateTextWithPlaceholders(
       String text, String targetLang) async {
-    final placeholders =
-        _placeholderRegex.allMatches(text).map((m) => m.group(0)!).toList();
-    final placeholderMap = Map.fromIterables(
-      placeholders.map((p) => '__PH${placeholders.indexOf(p)}__'),
-      placeholders,
-    );
-
-    String tempText = text;
-    placeholderMap.forEach((key, value) {
-      tempText = tempText.replaceAll(value, key);
-    });
+    final placeholderMap =
+        DeepLTranslateServiceHelper.buildPlaceholderMap(text);
+    final tempText = DeepLTranslateServiceHelper.replacePlaceholdersWithKeys(
+        text, placeholderMap);
 
     final translatedTempText = await translateText(tempText, 'ko', targetLang);
 
-    String finalText = translatedTempText;
-    placeholderMap.forEach((key, value) {
-      finalText = finalText.replaceAll(key, value);
-    });
-
-    return finalText;
+    return DeepLTranslateServiceHelper.restorePlaceholders(
+        translatedTempText, placeholderMap);
   }
 
   /// Checks if text contains Korean characters
