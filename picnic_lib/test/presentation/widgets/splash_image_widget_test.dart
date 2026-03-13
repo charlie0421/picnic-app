@@ -1,10 +1,48 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 
 /// Extended tests for SplashImageData and SplashConfigPayload models.
 /// Widget rendering tests for SplashImage are limited because it requires
 /// platform-specific Shorebird, SharedPreferences, and asset files.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Minimal config to initialize Environment (needed by SplashConfigPayload.fromRaw)
+  final _minimalConfig = {
+    'storage': {'cdn_url': 'https://cdn.test.co'},
+  };
+
+  setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler(
+      'flutter/assets',
+      (ByteData? message) async {
+        final codec = const StringCodec();
+        final requestedAsset = codec.decodeMessage(message!);
+        if (requestedAsset == 'config/test.json') {
+          return codec.encodeMessage(json.encode(_minimalConfig));
+        }
+        return null;
+      },
+    );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler('flutter/assets', null);
+  });
+
+  Future<void> ensureEnvironmentInitialized() async {
+    try {
+      Environment.cdnUrl;
+    } catch (_) {
+      await Environment.initConfig('test');
+    }
+  }
   group('SplashImageData deep link', () {
     test('parses deep_link_url', () {
       final data = SplashImageData.fromJson({
@@ -96,6 +134,10 @@ void main() {
   });
 
   group('SplashConfigPayload edge cases', () {
+    setUp(() async {
+      await ensureEnvironmentInitialized();
+    });
+
     test('handles empty cdnUrl with valid cdnPath (full url)', () {
       final payload = SplashConfigPayload.fromRaw(
         '{"cdnUrl": "", "cdn_path": "https://cdn.example.com/images/splash.png", "version": 1}',

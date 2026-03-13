@@ -1,7 +1,48 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Minimal config to initialize Environment (needed by SplashConfigPayload.fromRaw)
+  final _minimalConfig = {
+    'storage': {'cdn_url': 'https://cdn.test.co'},
+  };
+
+  setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler(
+      'flutter/assets',
+      (ByteData? message) async {
+        final codec = const StringCodec();
+        final requestedAsset = codec.decodeMessage(message!);
+        if (requestedAsset == 'config/test.json') {
+          return codec.encodeMessage(json.encode(_minimalConfig));
+        }
+        return null;
+      },
+    );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler('flutter/assets', null);
+  });
+
+  // Initialize Environment before SplashConfigPayload tests
+  Future<void> ensureEnvironmentInitialized() async {
+    try {
+      // ignore if already initialized
+      Environment.cdnUrl;
+    } catch (_) {
+      await Environment.initConfig('test');
+    }
+  }
+
   group('SplashImageData', () {
     test('creates from json with image_url', () {
       final data = SplashImageData.fromJson({
@@ -83,6 +124,10 @@ void main() {
   });
 
   group('SplashConfigPayload', () {
+    setUp(() async {
+      await ensureEnvironmentInitialized();
+    });
+
     test('parses valid json', () {
       final payload = SplashConfigPayload.fromRaw(
         '{"cdnUrl": "https://cdn.example.com/splash.png", "version": 2}',

@@ -1,9 +1,44 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 
 /// Extended tests for SplashImageData and SplashConfigPayload
 /// focusing on uncovered branches and edge cases.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  final _minimalConfig = {
+    'storage': {'cdn_url': 'https://cdn.test.co'},
+  };
+
+  setUp(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler(
+      'flutter/assets',
+      (ByteData? message) async {
+        final codec = const StringCodec();
+        final requestedAsset = codec.decodeMessage(message!);
+        if (requestedAsset == 'config/test.json') {
+          return codec.encodeMessage(json.encode(_minimalConfig));
+        }
+        return null;
+      },
+    );
+    try {
+      Environment.cdnUrl;
+    } catch (_) {
+      await Environment.initConfig('test');
+    }
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler('flutter/assets', null);
+  });
+
   group('SplashConfigPayload._resolveImageUrl edge cases', () {
     test('cdn_path starting with http:// is treated as full URL', () {
       final payload = SplashConfigPayload.fromRaw(

@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 
 /// Coverage-focused tests for SplashImage data classes covering uncovered lines:
@@ -6,24 +10,53 @@ import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 /// - SplashConfigPayload._parseVersion edge cases
 /// - SplashImageData._parseDate with empty string and non-string value
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  final _minimalConfig = {
+    'storage': {'cdn_url': 'https://cdn.test.co'},
+  };
+
+  setUp(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler(
+      'flutter/assets',
+      (ByteData? message) async {
+        final codec = const StringCodec();
+        final requestedAsset = codec.decodeMessage(message!);
+        if (requestedAsset == 'config/test.json') {
+          return codec.encodeMessage(json.encode(_minimalConfig));
+        }
+        return null;
+      },
+    );
+    try {
+      Environment.cdnUrl;
+    } catch (_) {
+      await Environment.initConfig('test');
+    }
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler('flutter/assets', null);
+  });
   group('SplashConfigPayload._resolveImageUrl edge cases', () {
-    test('parses with relative cdnPath returns null without Environment', () {
-      // Relative cdnPath requires Environment.cdnUrl which is not initialized in test
-      // so _resolveImageUrl catches the LateInitializationError and returns null
+    test('parses with relative cdnPath using Environment.cdnUrl', () {
+      // Relative cdnPath is combined with Environment.cdnUrl base
       final payload = SplashConfigPayload.fromRaw(
         '{"cdn_path": "splash/image.jpg", "version": 1}',
       );
-      // Without Environment configured, this returns null due to catch block
-      expect(payload, isNull);
+      expect(payload, isNotNull);
+      expect(payload!.imageUrl, 'https://cdn.test.co/splash/image.jpg');
     });
 
-    test('parses with cdnPath starting with slash returns null without Environment', () {
-      // Relative cdnPath with leading slash also requires Environment.cdnUrl
+    test('parses with cdnPath starting with slash using Environment.cdnUrl', () {
+      // Relative cdnPath with leading slash is combined with Environment.cdnUrl
       final payload = SplashConfigPayload.fromRaw(
         '{"cdn_path": "/splash/leading-slash.jpg", "version": 1}',
       );
-      // Without Environment configured, this returns null due to catch block
-      expect(payload, isNull);
+      expect(payload, isNotNull);
+      expect(payload!.imageUrl, 'https://cdn.test.co/splash/leading-slash.jpg');
     });
 
     test('parses with http:// cdnPath', () {

@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -9,15 +13,39 @@ import '../../helpers/test_app.dart';
 import '../../helpers/test_environment.dart';
 
 void main() {
-  late void Function() restore;
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  late void Function() restore;
+  bool _envInitialized = false;
+
+  final _minimalConfig = {
+    'storage': {'cdn_url': 'https://cdn.test.co'},
+  };
+
+  setUp(() async {
     initTestColors();
     VisibilityDetectorController.instance.updateInterval = Duration.zero;
     setupMockSupabase({
       'config': <dynamic>[],
     });
     restore = suppressImageErrors();
+
+    if (!_envInitialized) {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMessageHandler(
+        'flutter/assets',
+        (ByteData? message) async {
+          final codec = const StringCodec();
+          final requestedAsset = codec.decodeMessage(message!);
+          if (requestedAsset == 'config/test.json') {
+            return codec.encodeMessage(json.encode(_minimalConfig));
+          }
+          return null;
+        },
+      );
+      await Environment.initConfig('test');
+      _envInitialized = true;
+    }
   });
 
   tearDown(() {
