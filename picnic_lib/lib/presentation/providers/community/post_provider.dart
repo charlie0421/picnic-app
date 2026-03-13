@@ -2,11 +2,10 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/data/models/community/post_scrap.dart';
-import 'package:picnic_lib/data/models/user_profiles.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/providers/community/post_provider_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -28,8 +27,8 @@ Future<List<PostModel>?> postsByArtist(
           .isFilter('deleted_at', null);
     }
 
-    final List<String> blockedUserIds =
-        blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
+    final blockedUserIds =
+        PostProviderHelper.extractBlockedUserIds(blockedResponse);
 
     // 2. 게시글 조회 시 차단된 사용자의 게시글 제외
     var query = supabase
@@ -46,14 +45,15 @@ Future<List<PostModel>?> postsByArtist(
         .isFilter('deleted_at', null);
 
     // 차단된 사용자가 있는 경우에만 필터 적용
-    if (blockedUserIds.isNotEmpty) {
-      query = query.or(
-          '''and(user_id.not.in.(${blockedUserIds.map((id) => id).join(',')}))''');
+    final blockedFilter = PostProviderHelper.buildBlockedUserFilter(blockedUserIds);
+    if (blockedFilter != null) {
+      query = query.or(blockedFilter);
     }
 
+    final range = PostProviderHelper.calculateRange(page, limit);
     final response = await query
         .order('created_at', ascending: false)
-        .range((page - 1) * limit, page * limit - 1);
+        .range(range.$1, range.$2);
 
     return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {
@@ -79,7 +79,7 @@ Future<List<PostModel>?> postsByBoard(
     }
 
     final blockedUserIds =
-        blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
+        PostProviderHelper.extractBlockedUserIds(blockedResponse);
 
     // 2. 게시글 조회 시 차단된 사용자의 게시글 제외
     var query = supabase
@@ -96,14 +96,15 @@ Future<List<PostModel>?> postsByBoard(
         .isFilter('post_reports', null);
 
     // 차단된 사용자가 있는 경우에만 필터 적용
-    if (blockedUserIds.isNotEmpty) {
-      query = query.or(
-          '''and(user_id.not.in.(${blockedUserIds.map((id) => id).join(',')}))''');
+    final blockedFilter = PostProviderHelper.buildBlockedUserFilter(blockedUserIds);
+    if (blockedFilter != null) {
+      query = query.or(blockedFilter);
     }
 
+    final range = PostProviderHelper.calculateRange(page, limit);
     final response = await query
         .order('created_at', ascending: false)
-        .range((page - 1) * limit, page * limit - 1);
+        .range(range.$1, range.$2);
 
     return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {
@@ -133,7 +134,7 @@ Future<List<PostModel>?> postsByQuery(
     }
 
     final blockedUserIds =
-        blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
+        PostProviderHelper.extractBlockedUserIds(blockedResponse);
 
     // 2. 게시글 조회 시 차단된 사용자의 게시글 제외
     var searchQuery = supabase
@@ -150,13 +151,14 @@ Future<List<PostModel>?> postsByQuery(
         .or('title.ilike.%$query%');
 
     // 차단된 사용자가 있는 경우에만 필터 적용
-    if (blockedUserIds.isNotEmpty) {
-      searchQuery = searchQuery.or(
-          '''and(user_id.not.in.(${blockedUserIds.map((id) => id).join(',')}))''');
+    final blockedFilter = PostProviderHelper.buildBlockedUserFilter(blockedUserIds);
+    if (blockedFilter != null) {
+      searchQuery = searchQuery.or(blockedFilter);
     }
 
+    final range = PostProviderHelper.calculateRange(page, limit);
     final response = await searchQuery
-        .range((page - 1) * limit, page * limit - 1)
+        .range(range.$1, range.$2)
         .order(
             'title->>${Localizations.localeOf(navigatorKey.currentContext!).languageCode}',
             ascending: true);
@@ -188,7 +190,7 @@ Future<PostModel?> postById(ref, String postId,
     }
 
     final blockedUserIds =
-        blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
+        PostProviderHelper.extractBlockedUserIds(blockedResponse);
 
     // 조회수 증가 함수 호출
     if (isIncrementViewCount) {
@@ -206,24 +208,16 @@ Future<PostModel?> postById(ref, String postId,
         .isFilter('post_reports', null);
 
     // 차단된 사용자가 있는 경우에만 필터 적용
-    if (blockedUserIds.isNotEmpty) {
-      query = query.or(
-          '''and(user_id.not.in.(${blockedUserIds.map((id) => id).join(',')}))''');
+    final blockedFilter = PostProviderHelper.buildBlockedUserFilter(blockedUserIds);
+    if (blockedFilter != null) {
+      query = query.or(blockedFilter);
     }
 
     final response = await query.maybeSingle();
 
     if (response == null) return null;
 
-    // Check if post_scraps exists and set isScraped accordingly
-    bool isScraped =
-        response['post_scraps'] != null && response['post_scraps'].isNotEmpty;
-
-    // Create a new map with the updated isScraped value
-    Map<String, dynamic> updatedResponse = {
-      ...response,
-      'is_scraped': isScraped,
-    };
+    final updatedResponse = PostProviderHelper.addIsScrapedToResponse(response);
 
     logger.i('postById: $updatedResponse');
 
@@ -251,7 +245,7 @@ Future<List<PostModel>> postsByUser(
     }
 
     final blockedUserIds =
-        blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
+        PostProviderHelper.extractBlockedUserIds(blockedResponse);
 
     var query = supabase
         .from('posts')
@@ -262,22 +256,17 @@ Future<List<PostModel>> postsByUser(
         .isFilter('post_reports', null);
 
     // 차단된 사용자가 있는 경우에만 필터 적용
-    if (blockedUserIds.isNotEmpty) {
-      query = query.or(
-          '''and(user_id.not.in.(${blockedUserIds.map((id) => id).join(',')}))''');
+    final blockedFilter = PostProviderHelper.buildBlockedUserFilter(blockedUserIds);
+    if (blockedFilter != null) {
+      query = query.or(blockedFilter);
     }
 
+    final range = PostProviderHelper.calculateRange(page, limit);
     final response = await query
         .order('created_at', ascending: false)
-        .range((page - 1) * limit, page * limit - 1);
+        .range(range.$1, range.$2);
 
-    return response.map((data) {
-      final post = PostModel.fromJson(data);
-      final userProfile = UserProfilesModel.fromJson(data['user_profiles']);
-      final board =
-          data['boards'] != null ? BoardModel.fromJson(data['boards']) : null;
-      return post.copyWith(userProfiles: userProfile, board: board);
-    }).toList();
+    return response.map((data) => PostProviderHelper.parsePostWithUserAndBoard(data)).toList();
   } catch (e, s) {
     logger.e('Error fetching posts:', error: e, stackTrace: s);
     return Future.error(e);
@@ -301,7 +290,7 @@ Future<List<PostScrapModel>> postsScrapedByUser(
     }
 
     final blockedUserIds =
-        blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
+        PostProviderHelper.extractBlockedUserIds(blockedResponse);
 
     var query = supabase
         .from('post_scraps')
@@ -319,7 +308,8 @@ Future<List<PostScrapModel>> postsScrapedByUser(
       );
     }
 
-    final response = await query.range((page - 1) * limit, page * limit - 1);
+    final range = PostProviderHelper.calculateRange(page, limit);
+    final response = await query.range(range.$1, range.$2);
 
     return response.map((data) => PostScrapModel.fromJson(data)).toList();
   } catch (e, s) {
@@ -338,7 +328,7 @@ Future<void> reportPost(
 }) async {
   try {
     final userId = supabase.auth.currentUser!.id;
-    final fullReason = reason + (text.isNotEmpty ? ' - $text' : '');
+    final fullReason = PostProviderHelper.buildReportReason(reason, text);
 
     // 1. 게시글 신고
     await supabase.from('post_reports').upsert({

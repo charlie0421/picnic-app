@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/link_service_helper.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 class LinkPreviewException implements Exception {
@@ -74,18 +75,12 @@ class LinkService {
 
   LinkService._internal();
 
-  String normalizeUrl(String url) {
-    url = url.trim();
-    if (!url.contains('://')) {
-      url = 'https://$url';
-    }
-    return url;
-  }
+  String normalizeUrl(String url) =>
+      LinkServiceHelper.normalizeUrl(url);
 
   bool isValidUrl(String url) {
     try {
-      final uri = Uri.parse(url);
-      return uri.hasAuthority;
+      return LinkServiceHelper.isValidUrl(url);
     } catch (e, s) {
       logger.e('Error', error: e, stackTrace: s);
       return false;
@@ -93,12 +88,9 @@ class LinkService {
   }
 
   Map<String, String> _getHeaders() {
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${Environment.supabaseAnonKey}',
-      // 필요한 경우 추가 헤더
-      'apikey': Environment.supabaseAnonKey,
-    };
+    return LinkServiceHelper.buildHeaders(
+      anonKey: Environment.supabaseAnonKey,
+    );
   }
 
   Future<LinkPreview> fetchLinkPreview(String rawUrl) async {
@@ -116,15 +108,12 @@ class LinkService {
     } catch (e, s) {
       logger.e('exception:', error: e, stackTrace: s);
       debugPrint('Error fetching link preview: $e');
-      if (e is LinkPreviewException) {
-        rethrow;
-      }
-      throw LinkPreviewException(e.toString());
+      throw LinkServiceHelper.wrapException(e);
     }
   }
 
   Future<LinkPreview> _fetchLinkPreviewWeb(String url) async {
-    final endpoint = '${Environment.supabaseUrl}/functions/v1/link-preview';
+    final endpoint = LinkServiceHelper.buildEndpointUrl(Environment.supabaseUrl);
     debugPrint('Fetching from web endpoint: $endpoint');
 
     try {
@@ -139,26 +128,10 @@ class LinkService {
       debugPrint('Response status: ${response.statusCode}');
       debugPrint('Response body: ${response.body}');
 
-      if (response.statusCode == 401) {
-        throw LinkPreviewException('Authentication failed', statusCode: 401);
-      }
-
-      if (response.statusCode != 200) {
-        throw LinkPreviewException(
-          'Failed to fetch preview',
-          statusCode: response.statusCode,
-        );
-      }
+      LinkServiceHelper.validateStatusCode(response.statusCode);
 
       final data = json.decode(response.body);
-
-      if (data['error'] != null && data['fallback'] != null) {
-        debugPrint('Using fallback data');
-        final fallback = data['fallback'];
-        return LinkPreview.fromJson(fallback, url);
-      }
-
-      return LinkPreview.fromJson(data, url);
+      return LinkServiceHelper.parseResponseData(data, url, handleFallback: true);
     } on http.ClientException catch (e) {
       debugPrint('HTTP client error: $e');
       throw LinkPreviewException('Network error: ${e.message}');
@@ -172,7 +145,7 @@ class LinkService {
   }
 
   Future<LinkPreview> _fetchLinkPreviewNative(String url) async {
-    final endpoint = '${Environment.supabaseUrl}/functions/v1/link-preview';
+    final endpoint = LinkServiceHelper.buildEndpointUrl(Environment.supabaseUrl);
     debugPrint('Fetching from native endpoint: $endpoint');
 
     try {
@@ -187,19 +160,10 @@ class LinkService {
       debugPrint('Response status: ${response.statusCode}');
       debugPrint('Response body: ${response.body}');
 
-      if (response.statusCode == 401) {
-        throw LinkPreviewException('Authentication failed', statusCode: 401);
-      }
-
-      if (response.statusCode != 200) {
-        throw LinkPreviewException(
-          'Failed to fetch preview',
-          statusCode: response.statusCode,
-        );
-      }
+      LinkServiceHelper.validateStatusCode(response.statusCode);
 
       final data = json.decode(response.body);
-      return LinkPreview.fromJson(data, url);
+      return LinkServiceHelper.parseResponseData(data, url);
     } on http.ClientException catch (e, s) {
       logger.e('Error', error: e, stackTrace: s);
       throw LinkPreviewException('Network error: ${e.message}');

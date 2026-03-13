@@ -230,4 +230,151 @@ void main() {
       expect(result['last_updated'], now);
     });
   });
+
+  group('DeviceManagerHelper.determinePlatformType', () {
+    test('returns android when isAndroid is true', () {
+      final result = DeviceManagerHelper.determinePlatformType(
+        isAndroid: true,
+        isIOS: false,
+        isWeb: false,
+      );
+      expect(result, 'android');
+    });
+
+    test('returns ios when isIOS is true', () {
+      final result = DeviceManagerHelper.determinePlatformType(
+        isAndroid: false,
+        isIOS: true,
+        isWeb: false,
+      );
+      expect(result, 'ios');
+    });
+
+    test('returns web when isWeb is true', () {
+      final result = DeviceManagerHelper.determinePlatformType(
+        isAndroid: false,
+        isIOS: false,
+        isWeb: true,
+      );
+      expect(result, 'web');
+    });
+
+    test('returns unknown when no platform is true', () {
+      final result = DeviceManagerHelper.determinePlatformType(
+        isAndroid: false,
+        isIOS: false,
+        isWeb: false,
+      );
+      expect(result, 'unknown');
+    });
+
+    test('android takes priority when multiple flags are true', () {
+      final result = DeviceManagerHelper.determinePlatformType(
+        isAndroid: true,
+        isIOS: true,
+        isWeb: true,
+      );
+      expect(result, 'android');
+    });
+
+    test('ios takes priority over web', () {
+      final result = DeviceManagerHelper.determinePlatformType(
+        isAndroid: false,
+        isIOS: true,
+        isWeb: true,
+      );
+      expect(result, 'ios');
+    });
+  });
+
+  group('DeviceManagerHelper.isBannedFromResult', () {
+    test('returns true when result is not null', () {
+      final result = DeviceManagerHelper.isBannedFromResult(
+        {'device_id': 'abc', 'reason': 'abuse'},
+      );
+      expect(result, isTrue);
+    });
+
+    test('returns false when result is null', () {
+      final result = DeviceManagerHelper.isBannedFromResult(null);
+      expect(result, isFalse);
+    });
+
+    test('returns true for empty map (row exists but no data)', () {
+      final result = DeviceManagerHelper.isBannedFromResult({});
+      expect(result, isTrue);
+    });
+  });
+
+  group('DeviceManagerHelper.buildLastSeenUpdate', () {
+    test('builds update map with last_seen key', () {
+      final result = DeviceManagerHelper.buildLastSeenUpdate(
+        '2026-03-13T10:00:00Z',
+      );
+      expect(result, {'last_seen': '2026-03-13T10:00:00Z'});
+    });
+
+    test('contains only one key', () {
+      final result = DeviceManagerHelper.buildLastSeenUpdate(
+        '2026-01-01T00:00:00Z',
+      );
+      expect(result.length, 1);
+      expect(result.containsKey('last_seen'), isTrue);
+    });
+
+    test('handles empty string timestamp', () {
+      final result = DeviceManagerHelper.buildLastSeenUpdate('');
+      expect(result['last_seen'], '');
+    });
+  });
+
+  group('DeviceManagerHelper.parseIpFromResponse', () {
+    test('parses IP from valid response map', () {
+      final result = DeviceManagerHelper.parseIpFromResponse(
+        {'ip': '192.168.1.1'},
+      );
+      expect(result, '192.168.1.1');
+    });
+
+    test('returns null when ip key is missing', () {
+      final result = DeviceManagerHelper.parseIpFromResponse(
+        {'address': '10.0.0.1'},
+      );
+      expect(result, isNull);
+    });
+
+    test('returns null when response is null', () {
+      final result = DeviceManagerHelper.parseIpFromResponse(null);
+      expect(result, isNull);
+    });
+
+    test('returns null when response is not a Map', () {
+      final result = DeviceManagerHelper.parseIpFromResponse('not a map');
+      expect(result, isNull);
+    });
+
+    test('returns null when response is a list', () {
+      final result = DeviceManagerHelper.parseIpFromResponse([1, 2, 3]);
+      expect(result, isNull);
+    });
+
+    test('returns null when ip value is null in map', () {
+      final result = DeviceManagerHelper.parseIpFromResponse({'ip': null});
+      expect(result, isNull);
+    });
+
+    test('parses IPv6 address', () {
+      final result = DeviceManagerHelper.parseIpFromResponse(
+        {'ip': '::1'},
+      );
+      expect(result, '::1');
+    });
+
+    test('handles map with extra fields', () {
+      final result = DeviceManagerHelper.parseIpFromResponse(
+        {'ip': '10.0.0.1', 'country': 'KR', 'region': 'Seoul'},
+      );
+      expect(result, '10.0.0.1');
+    });
+  });
 }

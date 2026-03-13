@@ -84,7 +84,7 @@ class DeviceManager {
           .select()
           .eq('device_id', deviceId)
           .maybeSingle();
-      return result != null;
+      return DeviceManagerHelper.isBannedFromResult(result);
     } catch (e, s) {
       logger.e('Error checking device ban status', error: e, stackTrace: s);
       return false;
@@ -98,7 +98,7 @@ class DeviceManager {
 
       await supabase
           .from('devices')
-          .update({'last_seen': now})
+          .update(DeviceManagerHelper.buildLastSeenUpdate(now))
           .eq('device_id', deviceId);
     } catch (e, s) {
       logger.e('Error updating last seen', error: e, stackTrace: s);
@@ -138,7 +138,7 @@ class DeviceManager {
   static Future<String?> _getIpAddress() async {
     try {
       final response = await supabase.functions.invoke('get-client-ip');
-      return response.data['ip'] as String?;
+      return DeviceManagerHelper.parseIpFromResponse(response.data);
     } catch (e, s) {
       logger.e('Error getting IP address', error: e, stackTrace: s);
       return null;

@@ -60,27 +60,7 @@ class YouTubeContentService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-
-        // API 응답에서 가장 좋은 품질의 썸네일 선택
-        final thumbnails = data['thumbnails'] as Map<String, dynamic>?;
-        final thumbnailUrl = thumbnails?['maxres']?['url'] ??
-            thumbnails?['standard']?['url'] ??
-            thumbnails?['high']?['url'] ??
-            thumbnails?['medium']?['url'] ??
-            thumbnails?['default']?['url'] ??
-            'https://img.youtube.com/vi/$videoId/mqdefault.jpg';
-
-        return VideoInfo(
-          id: data['videoId'] ?? videoId,
-          title: decodeHtmlEntities(data['title'] ?? 'YouTube Video'),
-          channelTitle:
-              decodeHtmlEntities(data['channelTitle'] ?? 'Unknown Channel'),
-          channelThumbnail: data['channelThumbnail'] ?? '',
-          thumbnailUrl: thumbnailUrl,
-          viewCount: int.tryParse(data['viewCount']?.toString() ?? '0') ?? 0,
-          publishedAt:
-              DateTime.tryParse(data['publishedAt'] ?? '') ?? DateTime.now(),
-        );
+        return parseWebApiResponse(data, videoId);
       }
 
       throw Exception('Failed to fetch video data: ${response.statusCode}');
@@ -88,6 +68,29 @@ class YouTubeContentService {
       logger.e('Error fetching video info: $e', stackTrace: s);
       return createFallbackVideoInfo(url);
     }
+  }
+
+  /// Parses the Supabase youtube-preview proxy response into a [VideoInfo].
+  @visibleForTesting
+  VideoInfo parseWebApiResponse(Map<String, dynamic> data, String videoId) {
+    final thumbnails = data['thumbnails'] as Map<String, dynamic>?;
+    final thumbnailUrl = selectBestThumbnail(
+      thumbnails,
+      videoId,
+      fallbackQuality: 'mqdefault',
+    );
+
+    return VideoInfo(
+      id: data['videoId'] ?? videoId,
+      title: decodeHtmlEntities(data['title'] ?? 'YouTube Video'),
+      channelTitle:
+          decodeHtmlEntities(data['channelTitle'] ?? 'Unknown Channel'),
+      channelThumbnail: data['channelThumbnail'] ?? '',
+      thumbnailUrl: thumbnailUrl,
+      viewCount: int.tryParse(data['viewCount']?.toString() ?? '0') ?? 0,
+      publishedAt:
+          DateTime.tryParse(data['publishedAt'] ?? '') ?? DateTime.now(),
+    );
   }
 
   Future<VideoInfo> _fetchYoutubeInfoNative(String url) async {
@@ -124,26 +127,66 @@ class YouTubeContentService {
               'part=snippet&id=$channelId&key=$apiKey'));
 
       final channelData = json.decode(channelResponse.body);
-      final channelThumbnail = channelData['items']?[0]?['snippet']
-              ?['thumbnails']?['default']?['url'] ??
-          '';
+      final channelThumbnail = extractChannelThumbnail(channelData);
 
-      return VideoInfo(
-        id: videoId,
-        title: decodeHtmlEntities(snippet['title']),
-        channelTitle: decodeHtmlEntities(snippet['channelTitle']),
-        channelThumbnail: channelThumbnail,
-        thumbnailUrl: snippet['thumbnails']?['maxres']?['url'] ??
-            snippet['thumbnails']?['high']?['url'] ??
-            'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
-        viewCount: int.tryParse(video['statistics']?['viewCount'] ?? '0') ?? 0,
-        publishedAt:
-            DateTime.tryParse(snippet['publishedAt']) ?? DateTime.now(),
-      );
+      return parseNativeVideoData(video, videoId, channelThumbnail);
     } catch (e, s) {
       logger.e('Error fetching video info from native: $e', stackTrace: s);
       return createFallbackVideoInfo(url);
     }
+  }
+
+  /// Parses a YouTube Data API video item into a [VideoInfo].
+  @visibleForTesting
+  VideoInfo parseNativeVideoData(
+    Map<String, dynamic> video,
+    String videoId,
+    String channelThumbnail,
+  ) {
+    final snippet = video['snippet'] as Map<String, dynamic>?;
+    final statistics = video['statistics'] as Map<String, dynamic>?;
+    final thumbnails = snippet?['thumbnails'] as Map<String, dynamic>?;
+
+    // Select best thumbnail: maxres > high > fallback
+    final thumbnailUrl = thumbnails?['maxres']?['url'] ??
+        thumbnails?['high']?['url'] ??
+        'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
+
+    return VideoInfo(
+      id: videoId,
+      title: decodeHtmlEntities(snippet?['title'] ?? ''),
+      channelTitle: decodeHtmlEntities(snippet?['channelTitle'] ?? ''),
+      channelThumbnail: channelThumbnail,
+      thumbnailUrl: thumbnailUrl,
+      viewCount:
+          int.tryParse(statistics?['viewCount'] ?? '0') ?? 0,
+      publishedAt:
+          DateTime.tryParse(snippet?['publishedAt'] ?? '') ?? DateTime.now(),
+    );
+  }
+
+  /// Extracts channel thumbnail URL from YouTube Data API channel response.
+  @visibleForTesting
+  static String extractChannelThumbnail(Map<String, dynamic> channelData) {
+    final items = channelData['items'] as List?;
+    if (items == null || items.isEmpty) return '';
+    return items[0]?['snippet']?['thumbnails']?['default']?['url'] ?? '';
+  }
+
+  /// Selects the best quality thumbnail URL from a thumbnails map.
+  /// Priority: maxres > standard > high > medium > default > fallback.
+  @visibleForTesting
+  static String selectBestThumbnail(
+    Map<String, dynamic>? thumbnails,
+    String videoId, {
+    String fallbackQuality = 'hqdefault',
+  }) {
+    return thumbnails?['maxres']?['url'] ??
+        thumbnails?['standard']?['url'] ??
+        thumbnails?['high']?['url'] ??
+        thumbnails?['medium']?['url'] ??
+        thumbnails?['default']?['url'] ??
+        'https://img.youtube.com/vi/$videoId/$fallbackQuality.jpg';
   }
 
   @visibleForTesting

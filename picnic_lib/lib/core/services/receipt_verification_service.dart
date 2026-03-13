@@ -120,14 +120,13 @@ class ReceiptVerificationService {
   ) async {
     logger.i('iOS receipt verification - Format: $receiptFormat');
 
-    final requestBody = {
-      'receipt': receipt,
-      'platform': 'ios',
-      'productId': productId,
-      'user_id': userId,
-      'environment': environment,
-      'format': ReceiptFormatHelper.getIOSReceiptFormatParam(receiptFormat),
-    };
+    final requestBody = ReceiptFormatHelper.buildIOSRequestBody(
+      receipt: receipt,
+      productId: productId,
+      userId: userId,
+      environment: environment,
+      receiptFormat: receiptFormat,
+    );
 
     await _callVerificationFunction(requestBody, 'iOS');
   }
@@ -153,15 +152,13 @@ class ReceiptVerificationService {
       environment: environment,
     );
 
-    final requestBody = {
-      'receipt': receipt,
-      'platform': 'android',
-      'productId': productId,
-      'user_id': userId,
-      'environment': environment,
-      'format': 'google_play',
-      'client_trace_id': clientTraceId,
-    };
+    final requestBody = ReceiptFormatHelper.buildAndroidRequestBody(
+      receipt: receipt,
+      productId: productId,
+      userId: userId,
+      environment: environment,
+      clientTraceId: clientTraceId,
+    );
 
     logger.i('🚀 Android 서버 검증 호출 시작 (clientTrace: $clientTraceId)');
     await _callVerificationFunction(requestBody, 'Android');
@@ -227,18 +224,19 @@ class ReceiptVerificationService {
 
         // 마지막 시도가 아니면 재시도
         if (attempt < maxRetries) {
-          final delay = PurchaseConstants.baseRetryDelay * attempt;
-          logger.i('Retrying in ${delay}s...');
-          await Future.delayed(Duration(seconds: delay));
+          final delay = ReceiptFormatHelper.calculateRetryDelay(
+            attempt: attempt,
+            baseRetryDelaySeconds: PurchaseConstants.baseRetryDelay,
+          );
+          logger.i('Retrying in ${delay.inSeconds}s...');
+          await Future.delayed(delay);
         }
       }
     }
 
     // 모든 시도 실패 시 처리(타임아웃도 실패로 간주)
     logger.e('All $verificationType verification attempts failed');
-    final isTimeout =
-        lastException is TimeoutException ||
-        lastException.toString().toLowerCase().contains('time');
+    final isTimeout = ReceiptFormatHelper.isTimeoutError(lastException);
     if (isTimeout) {
       logger.w('⚠️ 영수증 검증 타임아웃 - 실패로 처리 (관대한 처리 비활성화)');
     }

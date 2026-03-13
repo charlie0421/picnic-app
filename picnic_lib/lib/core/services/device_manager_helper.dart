@@ -97,6 +97,46 @@ class DeviceManagerHelper {
     return {'platform': 'error', 'error': errorMessage};
   }
 
+  /// Determine the current platform type from platform flags.
+  ///
+  /// Returns 'android', 'ios', 'web', or 'unknown'.
+  @visibleForTesting
+  static String determinePlatformType({
+    required bool isAndroid,
+    required bool isIOS,
+    required bool isWeb,
+  }) {
+    if (isAndroid) return 'android';
+    if (isIOS) return 'ios';
+    if (isWeb) return 'web';
+    return 'unknown';
+  }
+
+  /// Interpret whether a device is banned from a query result.
+  ///
+  /// Returns `true` if the result is not null (i.e. a matching row was found).
+  @visibleForTesting
+  static bool isBannedFromResult(Map<String, dynamic>? result) {
+    return result != null;
+  }
+
+  /// Build the update payload for marking a device as last seen now.
+  @visibleForTesting
+  static Map<String, dynamic> buildLastSeenUpdate(String nowIso8601) {
+    return {'last_seen': nowIso8601};
+  }
+
+  /// Parse an IP address string from the edge function response data.
+  ///
+  /// Returns `null` if [responseData] is null or does not contain an 'ip' key.
+  @visibleForTesting
+  static String? parseIpFromResponse(dynamic responseData) {
+    if (responseData is Map<String, dynamic>) {
+      return responseData['ip'] as String?;
+    }
+    return null;
+  }
+
   /// Build the device registration upsert data.
   @visibleForTesting
   static Map<String, dynamic> buildRegistrationData({

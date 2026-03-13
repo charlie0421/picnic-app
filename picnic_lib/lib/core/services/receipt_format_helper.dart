@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -130,5 +131,63 @@ class ReceiptFormatHelper {
   @visibleForTesting
   static String detectAndroidEnvironment({required String? installerStore}) {
     return installerStore != 'com.android.vending' ? 'sandbox' : 'production';
+  }
+
+  /// Build the iOS verification request body.
+  @visibleForTesting
+  static Map<String, dynamic> buildIOSRequestBody({
+    required String receipt,
+    required String productId,
+    required String userId,
+    required String environment,
+    required String receiptFormat,
+  }) {
+    return {
+      'receipt': receipt,
+      'platform': 'ios',
+      'productId': productId,
+      'user_id': userId,
+      'environment': environment,
+      'format': getIOSReceiptFormatParam(receiptFormat),
+    };
+  }
+
+  /// Build the Android verification request body.
+  @visibleForTesting
+  static Map<String, dynamic> buildAndroidRequestBody({
+    required String receipt,
+    required String productId,
+    required String userId,
+    required String environment,
+    required String clientTraceId,
+  }) {
+    return {
+      'receipt': receipt,
+      'platform': 'android',
+      'productId': productId,
+      'user_id': userId,
+      'environment': environment,
+      'format': 'google_play',
+      'client_trace_id': clientTraceId,
+    };
+  }
+
+  /// Determine if an exception represents a timeout error.
+  @visibleForTesting
+  static bool isTimeoutError(Exception? exception) {
+    if (exception == null) return false;
+    return exception is TimeoutException ||
+        exception.toString().toLowerCase().contains('time');
+  }
+
+  /// Calculate retry delay for a given attempt number.
+  ///
+  /// Uses [baseRetryDelay] * [attempt] seconds.
+  @visibleForTesting
+  static Duration calculateRetryDelay({
+    required int attempt,
+    required int baseRetryDelaySeconds,
+  }) {
+    return Duration(seconds: baseRetryDelaySeconds * attempt);
   }
 }

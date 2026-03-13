@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -13,7 +14,6 @@ void main() {
     });
 
     test('returns StoreKit2 JWT for eyJ prefix without dots', () {
-      // eyJ prefix alone triggers StoreKit2 JWT detection
       expect(
         ReceiptFormatHelper.detectReceiptFormat('eyJdata'),
         'StoreKit2 JWT',
@@ -70,7 +70,6 @@ void main() {
     });
 
     test('eyJ prefix takes priority over 3-part check', () {
-      // Even though it has 3 parts, eyJ prefix should match first
       expect(
         ReceiptFormatHelper.detectReceiptFormat('eyJhbGc.payload.sig'),
         'StoreKit2 JWT',
@@ -221,7 +220,7 @@ void main() {
       final header = base64Url.encode(utf8.encode('{"alg":"ES256"}'));
       final payload = base64Url
           .encode(utf8.encode('{"transactionId":"tx+special","signedDate":"2024-01-01"}'))
-          .replaceAll('=', ''); // Remove padding to simulate URL-safe encoding
+          .replaceAll('=', '');
       final jws = '$header.$payload.sig';
 
       final key = ReceiptFormatHelper.makeIdemKeyFromJWS(jws);
@@ -275,6 +274,479 @@ void main() {
         ReceiptFormatHelper.getIOSReceiptFormatParam(''),
         'legacy',
       );
+    });
+  });
+
+  group('ReceiptFormatHelper.isStoreKit2JWT', () {
+    test('returns true for valid JWT with eyJ prefix and 3 parts', () {
+      final header = base64Url.encode(utf8.encode('{"alg":"ES256"}'));
+      final payload = base64Url.encode(utf8.encode('{"sub":"123"}'));
+      final jwt = '$header.$payload.signature';
+      expect(ReceiptFormatHelper.isStoreKit2JWT(jwt), isTrue);
+    });
+
+    test('returns true for minimal eyJ with 3 parts', () {
+      expect(ReceiptFormatHelper.isStoreKit2JWT('eyJhbGc.eyJzdWI.sig'), isTrue);
+    });
+
+    test('returns false for empty string', () {
+      expect(ReceiptFormatHelper.isStoreKit2JWT(''), isFalse);
+    });
+
+    test('returns false for non-eyJ prefix', () {
+      expect(ReceiptFormatHelper.isStoreKit2JWT('abc.def.ghi'), isFalse);
+    });
+
+    test('returns false for eyJ prefix with only 2 parts', () {
+      expect(ReceiptFormatHelper.isStoreKit2JWT('eyJhbGc.eyJzdWI'), isFalse);
+    });
+
+    test('returns false for eyJ prefix with 4 parts', () {
+      expect(ReceiptFormatHelper.isStoreKit2JWT('eyJhbGc.b.c.d'), isFalse);
+    });
+
+    test('returns false for eyJ prefix with 1 part (no dots)', () {
+      expect(ReceiptFormatHelper.isStoreKit2JWT('eyJhbGciOiJFUzI1NiJ9'), isFalse);
+    });
+
+    test('returns false for StoreKit1 Base64', () {
+      expect(ReceiptFormatHelper.isStoreKit2JWT('MIITbase64data'), isFalse);
+    });
+
+    test('returns false for plain text', () {
+      expect(ReceiptFormatHelper.isStoreKit2JWT('hello world'), isFalse);
+    });
+  });
+
+  group('ReceiptFormatHelper.decodeJWTPart', () {
+    test('decodes standard base64url-encoded JSON', () {
+      final encoded = base64Url.encode(utf8.encode('{"alg":"ES256"}'));
+      final result = ReceiptFormatHelper.decodeJWTPart(encoded);
+      expect(result, {'alg': 'ES256'});
+    });
+
+    test('decodes payload with multiple fields', () {
+      final payload = {
+        'transactionId': 'tx-123',
+        'productId': 'com.app.coins',
+        'quantity': 1,
+      };
+      final encoded = base64Url.encode(utf8.encode(json.encode(payload)));
+      final result = ReceiptFormatHelper.decodeJWTPart(encoded);
+      expect(result['transactionId'], 'tx-123');
+      expect(result['productId'], 'com.app.coins');
+      expect(result['quantity'], 1);
+    });
+
+    test('handles base64url without padding', () {
+      final encoded = base64Url.encode(utf8.encode('{"a":"b"}'))
+          .replaceAll('=', '');
+      final result = ReceiptFormatHelper.decodeJWTPart(encoded);
+      expect(result, {'a': 'b'});
+    });
+
+    test('handles base64url with URL-safe characters (- and _)', () {
+      // Manually create a string that would have - and _ in base64url
+      final data = '{"key":"value with special chars +/="}';
+      final encoded = base64Url.encode(utf8.encode(data));
+      final result = ReceiptFormatHelper.decodeJWTPart(encoded);
+      expect(result['key'], 'value with special chars +/=');
+    });
+
+    test('throws for invalid base64', () {
+      expect(
+        () => ReceiptFormatHelper.decodeJWTPart('!!!invalid!!!'),
+        throwsA(anything),
+      );
+    });
+
+    test('throws for valid base64 but invalid JSON', () {
+      final encoded = base64Url.encode(utf8.encode('not json'));
+      expect(
+        () => ReceiptFormatHelper.decodeJWTPart(encoded),
+        throwsA(anything),
+      );
+    });
+
+    test('decodes empty JSON object', () {
+      final encoded = base64Url.encode(utf8.encode('{}'));
+      final result = ReceiptFormatHelper.decodeJWTPart(encoded);
+      expect(result, isEmpty);
+    });
+
+    test('decodes nested JSON', () {
+      final payload = {'data': {'nested': true, 'count': 42}};
+      final encoded = base64Url.encode(utf8.encode(json.encode(payload)));
+      final result = ReceiptFormatHelper.decodeJWTPart(encoded);
+      expect(result['data'], isA<Map>());
+      expect(result['data']['nested'], isTrue);
+    });
+  });
+
+  group('ReceiptFormatHelper.detectIOSEnvironment', () {
+    test('returns sandbox for TestFlight installer store', () {
+      expect(
+        ReceiptFormatHelper.detectIOSEnvironment(
+          installerStore: 'com.apple.testflight',
+          appName: 'MyApp',
+          buildSignature: '',
+        ),
+        'sandbox',
+      );
+    });
+
+    test('returns sandbox when installerStore is null', () {
+      expect(
+        ReceiptFormatHelper.detectIOSEnvironment(
+          installerStore: null,
+          appName: 'MyApp',
+          buildSignature: '',
+        ),
+        'sandbox',
+      );
+    });
+
+    test('returns sandbox when appName contains testflight (case-insensitive)', () {
+      expect(
+        ReceiptFormatHelper.detectIOSEnvironment(
+          installerStore: 'com.apple.AppStore',
+          appName: 'MyApp TestFlight Build',
+          buildSignature: '',
+        ),
+        'sandbox',
+      );
+    });
+
+    test('returns sandbox when appName contains TESTFLIGHT (uppercase)', () {
+      expect(
+        ReceiptFormatHelper.detectIOSEnvironment(
+          installerStore: 'com.apple.AppStore',
+          appName: 'TESTFLIGHT APP',
+          buildSignature: '',
+        ),
+        'sandbox',
+      );
+    });
+
+    test('returns sandbox when buildSignature is non-empty', () {
+      expect(
+        ReceiptFormatHelper.detectIOSEnvironment(
+          installerStore: 'com.apple.AppStore',
+          appName: 'MyApp',
+          buildSignature: 'some-signature',
+        ),
+        'sandbox',
+      );
+    });
+
+    test('returns production for App Store with no test indicators', () {
+      expect(
+        ReceiptFormatHelper.detectIOSEnvironment(
+          installerStore: 'com.apple.AppStore',
+          appName: 'MyApp',
+          buildSignature: '',
+        ),
+        'production',
+      );
+    });
+
+    test('returns production when all conditions are false', () {
+      expect(
+        ReceiptFormatHelper.detectIOSEnvironment(
+          installerStore: 'com.apple.AppStore',
+          appName: 'Picnic',
+          buildSignature: '',
+        ),
+        'production',
+      );
+    });
+  });
+
+  group('ReceiptFormatHelper.detectAndroidEnvironment', () {
+    test('returns production for Google Play Store', () {
+      expect(
+        ReceiptFormatHelper.detectAndroidEnvironment(
+          installerStore: 'com.android.vending',
+        ),
+        'production',
+      );
+    });
+
+    test('returns sandbox for null installer store', () {
+      expect(
+        ReceiptFormatHelper.detectAndroidEnvironment(
+          installerStore: null,
+        ),
+        'sandbox',
+      );
+    });
+
+    test('returns sandbox for Samsung store', () {
+      expect(
+        ReceiptFormatHelper.detectAndroidEnvironment(
+          installerStore: 'com.sec.android.app.samsungapps',
+        ),
+        'sandbox',
+      );
+    });
+
+    test('returns sandbox for sideloaded apps (empty string)', () {
+      expect(
+        ReceiptFormatHelper.detectAndroidEnvironment(
+          installerStore: '',
+        ),
+        'sandbox',
+      );
+    });
+
+    test('returns sandbox for unknown store', () {
+      expect(
+        ReceiptFormatHelper.detectAndroidEnvironment(
+          installerStore: 'com.amazon.venezia',
+        ),
+        'sandbox',
+      );
+    });
+  });
+
+  group('ReceiptFormatHelper.buildIOSRequestBody', () {
+    test('builds correct request body with StoreKit2 format', () {
+      final body = ReceiptFormatHelper.buildIOSRequestBody(
+        receipt: 'eyJhbGc.payload.sig',
+        productId: 'com.app.coins100',
+        userId: 'user-123',
+        environment: 'production',
+        receiptFormat: 'StoreKit2 JWT',
+      );
+
+      expect(body['receipt'], 'eyJhbGc.payload.sig');
+      expect(body['platform'], 'ios');
+      expect(body['productId'], 'com.app.coins100');
+      expect(body['user_id'], 'user-123');
+      expect(body['environment'], 'production');
+      expect(body['format'], 'storekit2_jwt');
+    });
+
+    test('builds correct request body with legacy format', () {
+      final body = ReceiptFormatHelper.buildIOSRequestBody(
+        receipt: 'MIITbase64receipt',
+        productId: 'com.app.premium',
+        userId: 'user-456',
+        environment: 'sandbox',
+        receiptFormat: 'StoreKit1 Base64',
+      );
+
+      expect(body['platform'], 'ios');
+      expect(body['format'], 'legacy');
+      expect(body['environment'], 'sandbox');
+    });
+
+    test('uses legacy format for Unknown receipt format', () {
+      final body = ReceiptFormatHelper.buildIOSRequestBody(
+        receipt: 'unknown-data',
+        productId: 'prod',
+        userId: 'usr',
+        environment: 'sandbox',
+        receiptFormat: 'Unknown',
+      );
+
+      expect(body['format'], 'legacy');
+    });
+
+    test('uses legacy format for JWT Custom receipt format', () {
+      final body = ReceiptFormatHelper.buildIOSRequestBody(
+        receipt: 'header.payload.signature',
+        productId: 'prod',
+        userId: 'usr',
+        environment: 'production',
+        receiptFormat: 'JWT Custom',
+      );
+
+      expect(body['format'], 'legacy');
+    });
+
+    test('includes all required keys', () {
+      final body = ReceiptFormatHelper.buildIOSRequestBody(
+        receipt: 'r',
+        productId: 'p',
+        userId: 'u',
+        environment: 'e',
+        receiptFormat: 'f',
+      );
+
+      expect(body.containsKey('receipt'), isTrue);
+      expect(body.containsKey('platform'), isTrue);
+      expect(body.containsKey('productId'), isTrue);
+      expect(body.containsKey('user_id'), isTrue);
+      expect(body.containsKey('environment'), isTrue);
+      expect(body.containsKey('format'), isTrue);
+      expect(body.length, 6);
+    });
+  });
+
+  group('ReceiptFormatHelper.buildAndroidRequestBody', () {
+    test('builds correct request body', () {
+      final body = ReceiptFormatHelper.buildAndroidRequestBody(
+        receipt: '{"orderId":"GPA.123"}',
+        productId: 'com.app.coins100',
+        userId: 'user-789',
+        environment: 'production',
+        clientTraceId: 'trace-abc-123',
+      );
+
+      expect(body['receipt'], '{"orderId":"GPA.123"}');
+      expect(body['platform'], 'android');
+      expect(body['productId'], 'com.app.coins100');
+      expect(body['user_id'], 'user-789');
+      expect(body['environment'], 'production');
+      expect(body['format'], 'google_play');
+      expect(body['client_trace_id'], 'trace-abc-123');
+    });
+
+    test('always uses google_play format', () {
+      final body = ReceiptFormatHelper.buildAndroidRequestBody(
+        receipt: 'receipt',
+        productId: 'prod',
+        userId: 'usr',
+        environment: 'sandbox',
+        clientTraceId: 'trace-1',
+      );
+
+      expect(body['format'], 'google_play');
+    });
+
+    test('includes all required keys', () {
+      final body = ReceiptFormatHelper.buildAndroidRequestBody(
+        receipt: 'r',
+        productId: 'p',
+        userId: 'u',
+        environment: 'e',
+        clientTraceId: 'c',
+      );
+
+      expect(body.containsKey('receipt'), isTrue);
+      expect(body.containsKey('platform'), isTrue);
+      expect(body.containsKey('productId'), isTrue);
+      expect(body.containsKey('user_id'), isTrue);
+      expect(body.containsKey('environment'), isTrue);
+      expect(body.containsKey('format'), isTrue);
+      expect(body.containsKey('client_trace_id'), isTrue);
+      expect(body.length, 7);
+    });
+
+    test('preserves sandbox environment', () {
+      final body = ReceiptFormatHelper.buildAndroidRequestBody(
+        receipt: 'r',
+        productId: 'p',
+        userId: 'u',
+        environment: 'sandbox',
+        clientTraceId: 'c',
+      );
+
+      expect(body['environment'], 'sandbox');
+    });
+  });
+
+  group('ReceiptFormatHelper.isTimeoutError', () {
+    test('returns true for TimeoutException', () {
+      final exception = TimeoutException('Timed out');
+      expect(ReceiptFormatHelper.isTimeoutError(exception), isTrue);
+    });
+
+    test('returns true for exception containing "time" in message', () {
+      final exception = Exception('Connection timed out');
+      expect(ReceiptFormatHelper.isTimeoutError(exception), isTrue);
+    });
+
+    test('returns true for exception with "timeout" in message', () {
+      final exception = Exception('Request timeout');
+      expect(ReceiptFormatHelper.isTimeoutError(exception), isTrue);
+    });
+
+    test('returns true for exception with "TIME" in message (case-insensitive)', () {
+      final exception = Exception('TIMEOUT ERROR');
+      expect(ReceiptFormatHelper.isTimeoutError(exception), isTrue);
+    });
+
+    test('returns false for null exception', () {
+      expect(ReceiptFormatHelper.isTimeoutError(null), isFalse);
+    });
+
+    test('returns false for non-timeout exception', () {
+      final exception = Exception('Network error');
+      expect(ReceiptFormatHelper.isTimeoutError(exception), isFalse);
+    });
+
+    test('returns false for generic exception', () {
+      final exception = Exception('Something went wrong');
+      expect(ReceiptFormatHelper.isTimeoutError(exception), isFalse);
+    });
+
+    test('returns true for TimeoutException with null message', () {
+      final exception = TimeoutException(null);
+      expect(ReceiptFormatHelper.isTimeoutError(exception), isTrue);
+    });
+  });
+
+  group('ReceiptFormatHelper.calculateRetryDelay', () {
+    test('returns correct delay for attempt 1 with base 2', () {
+      final delay = ReceiptFormatHelper.calculateRetryDelay(
+        attempt: 1,
+        baseRetryDelaySeconds: 2,
+      );
+      expect(delay, const Duration(seconds: 2));
+    });
+
+    test('returns correct delay for attempt 2 with base 2', () {
+      final delay = ReceiptFormatHelper.calculateRetryDelay(
+        attempt: 2,
+        baseRetryDelaySeconds: 2,
+      );
+      expect(delay, const Duration(seconds: 4));
+    });
+
+    test('returns correct delay for attempt 3 with base 2', () {
+      final delay = ReceiptFormatHelper.calculateRetryDelay(
+        attempt: 3,
+        baseRetryDelaySeconds: 2,
+      );
+      expect(delay, const Duration(seconds: 6));
+    });
+
+    test('returns correct delay for attempt 1 with base 5', () {
+      final delay = ReceiptFormatHelper.calculateRetryDelay(
+        attempt: 1,
+        baseRetryDelaySeconds: 5,
+      );
+      expect(delay, const Duration(seconds: 5));
+    });
+
+    test('returns zero delay for attempt 0', () {
+      final delay = ReceiptFormatHelper.calculateRetryDelay(
+        attempt: 0,
+        baseRetryDelaySeconds: 2,
+      );
+      expect(delay, Duration.zero);
+    });
+
+    test('returns zero delay for base 0', () {
+      final delay = ReceiptFormatHelper.calculateRetryDelay(
+        attempt: 3,
+        baseRetryDelaySeconds: 0,
+      );
+      expect(delay, Duration.zero);
+    });
+
+    test('scales linearly with attempt number', () {
+      final delay1 = ReceiptFormatHelper.calculateRetryDelay(
+        attempt: 1,
+        baseRetryDelaySeconds: 2,
+      );
+      final delay3 = ReceiptFormatHelper.calculateRetryDelay(
+        attempt: 3,
+        baseRetryDelaySeconds: 2,
+      );
+      expect(delay3.inSeconds, delay1.inSeconds * 3);
     });
   });
 }
