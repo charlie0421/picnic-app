@@ -105,4 +105,106 @@ void main() {
       await tester.pumpAndSettle();
     });
   });
+
+  group('DeviceDebugInfo.checkGalaxyS25Like', () {
+    test('returns true for Galaxy S25-like specs', () {
+      expect(
+        DeviceDebugInfo.checkGalaxyS25Like(2900, 0.50, 3.5),
+        isTrue,
+      );
+    });
+
+    test('returns false when height is too low', () {
+      expect(
+        DeviceDebugInfo.checkGalaxyS25Like(2000, 0.50, 3.5),
+        isFalse,
+      );
+    });
+
+    test('returns false when ratio is too low', () {
+      expect(
+        DeviceDebugInfo.checkGalaxyS25Like(2900, 0.40, 3.5),
+        isFalse,
+      );
+    });
+
+    test('returns false when ratio is too high', () {
+      expect(
+        DeviceDebugInfo.checkGalaxyS25Like(2900, 0.60, 3.5),
+        isFalse,
+      );
+    });
+
+    test('returns false when pixel ratio is too low', () {
+      expect(
+        DeviceDebugInfo.checkGalaxyS25Like(2900, 0.50, 2.5),
+        isFalse,
+      );
+    });
+
+    test('returns false at boundary height 2800', () {
+      expect(
+        DeviceDebugInfo.checkGalaxyS25Like(2800, 0.50, 3.5),
+        isFalse,
+      );
+    });
+
+    test('returns false at boundary ratio 0.45', () {
+      expect(
+        DeviceDebugInfo.checkGalaxyS25Like(2900, 0.45, 3.5),
+        isFalse,
+      );
+    });
+
+    test('returns false at boundary ratio 0.55', () {
+      expect(
+        DeviceDebugInfo.checkGalaxyS25Like(2900, 0.55, 3.5),
+        isFalse,
+      );
+    });
+
+    test('returns false at boundary pixel ratio 3.0', () {
+      expect(
+        DeviceDebugInfo.checkGalaxyS25Like(2900, 0.50, 3.0),
+        isFalse,
+      );
+    });
+
+    test('returns true just above all boundaries', () {
+      expect(
+        DeviceDebugInfo.checkGalaxyS25Like(2801, 0.451, 3.01),
+        isTrue,
+      );
+    });
+  });
+
+  group('DeviceDebugInfo.classifyBottomPadding', () {
+    test('returns excessive for padding > 30', () {
+      expect(DeviceDebugInfo.classifyBottomPadding(31), 'excessive');
+    });
+
+    test('returns excessive for large padding', () {
+      expect(DeviceDebugInfo.classifyBottomPadding(50), 'excessive');
+    });
+
+    test('returns none for zero padding', () {
+      expect(DeviceDebugInfo.classifyBottomPadding(0), 'none');
+    });
+
+    test('returns normal for padding between 0 and 30', () {
+      expect(DeviceDebugInfo.classifyBottomPadding(15), 'normal');
+    });
+
+    test('returns normal for padding exactly 30', () {
+      expect(DeviceDebugInfo.classifyBottomPadding(30), 'normal');
+    });
+
+    test('returns normal for padding of 1', () {
+      expect(DeviceDebugInfo.classifyBottomPadding(1), 'normal');
+    });
+
+    test('returns excessive at boundary 30.1', () {
+      expect(DeviceDebugInfo.classifyBottomPadding(30.1), 'excessive');
+    });
+  });
 }

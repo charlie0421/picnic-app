@@ -1,6 +1,7 @@
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/presentation/providers/community/comment_like_helper.dart';
+import 'package:picnic_lib/presentation/providers/community/comments_provider_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -25,9 +26,7 @@ class CommentsNotifier extends _$CommentsNotifier {
       includeReported: includeReported,
     );
 
-    return comments.where((comment) {
-      return !blockedUserIds.contains(comment.userId);
-    }).toList();
+    return CommentsProviderHelper.filterBlockedUsers(comments, blockedUserIds);
   }
 
   Future<List<CommentModel>> _fetchComments(
@@ -67,18 +66,10 @@ class CommentsNotifier extends _$CommentsNotifier {
           .order('created_at', ascending: false)
           .range((page - 1) * limit, page * limit - 1);
 
-      final rootComments = rootResponse.map((row) {
-        final comment = CommentModel.fromJson(row);
-        final commentLikes = row['comment_likes'] as List? ?? [];
-        final likes = commentLikes.where((like) =>
-            like['user_id'] == currentUserId && like['deleted_at'] == null);
-        final commentReports = row['comment_reports'] as List? ?? [];
-
-        return comment.copyWith(
-          isReportedByMe: commentReports.isNotEmpty,
-          isLikedByMe: likes.isNotEmpty,
-        );
-      }).toList();
+      final rootComments = rootResponse
+          .map((row) =>
+              CommentsProviderHelper.parseCommentRow(row, currentUserId))
+          .toList();
 
       // 자식 댓글 조회를 위한 별도 쿼리
       final rootCommentIds = rootComments.map((c) => c.commentId).toList();
@@ -109,40 +100,14 @@ class CommentsNotifier extends _$CommentsNotifier {
           .inFilter('parent_comment_id', rootCommentIds)
           .order('created_at', ascending: false);
 
-      final childComments = childResponse.map((row) {
-        final comment = CommentModel.fromJson(row);
-        final commentLikes = row['comment_likes'] as List? ?? [];
-        final likes = commentLikes.where((like) =>
-            like['user_id'] == currentUserId && like['deleted_at'] == null);
-        final commentReports = row['comment_reports'] as List? ?? [];
-
-        return comment.copyWith(
-          isReportedByMe: commentReports.isNotEmpty,
-          isLikedByMe: likes.isNotEmpty,
-        );
-      }).toList();
+      final childComments = childResponse
+          .map((row) =>
+              CommentsProviderHelper.parseCommentRow(row, currentUserId))
+          .toList();
 
       // 댓글 트리 구성
-      final Map<String, CommentModel> commentMap = {};
-      for (var comment in [...rootComments, ...childComments]) {
-        if (comment.parentCommentId == null) {
-          commentMap[comment.commentId] = comment.copyWith(children: []);
-        } else {
-          final parentComment = commentMap[comment.parentCommentId];
-          if (parentComment != null) {
-            final updatedReplies = [...parentComment.children!, comment];
-            commentMap[parentComment.commentId] =
-                parentComment.copyWith(children: updatedReplies);
-          }
-        }
-      }
-
-      final result = rootComments
-          .map((comment) => commentMap[comment.commentId]!)
-          .toList();
-      result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      return result;
+      return CommentsProviderHelper.buildCommentTree(
+          rootComments, childComments);
     } catch (e, s) {
       logger.e('Error fetching comments:', error: e, stackTrace: s);
       return Future.error(e);
@@ -262,22 +227,15 @@ class CommentsNotifier extends _$CommentsNotifier {
 
       // 로컬 상태 업데이트
       if (state.value != null) {
-        final updatedComments = state.value!.map((c) {
-          if (c.commentId == comment.commentId) {
-            return c.copyWith(isReportedByMe: true);
-          }
-          return c;
-        }).toList();
+        var updatedComments = CommentsProviderHelper.markCommentAsReported(
+            state.value!, comment.commentId);
 
         // 사용자 차단 시 해당 사용자의 모든 댓글을 숨김 처리
         if (blockUser) {
-          final filteredComments = updatedComments.where((c) {
-            return c.userId != comment.userId;
-          }).toList();
-          state = AsyncValue.data(filteredComments);
-        } else {
-          state = AsyncValue.data(updatedComments);
+          updatedComments = CommentsProviderHelper.filterCommentsByUserId(
+              updatedComments, comment.userId!);
         }
+        state = AsyncValue.data(updatedComments);
       }
     } catch (e, s) {
       logger.e('Error reporting comment:', error: e, stackTrace: s);
@@ -336,9 +294,8 @@ class CommentsNotifier extends _$CommentsNotifier {
       if (!ref.mounted) return;
       // Remove the comment from local state
       if (state.value != null) {
-        final updatedComments =
-            state.value!.where((c) => c.commentId != commentId).toList();
-        state = AsyncValue.data(updatedComments);
+        state = AsyncValue.data(
+            CommentsProviderHelper.removeComment(state.value!, commentId));
       }
     } catch (e, s) {
       logger.e('Error deleting comment:', error: e, stackTrace: s);

@@ -10,6 +10,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PatchNotificationService {
   static const String _lastPatchNumberKey = 'last_applied_patch_number';
 
+  /// 패치 번호가 변경되었는지 판별하는 순수 헬퍼
+  ///
+  /// [currentPatchNumber] 현재 실행 중인 패치 번호 (null이면 패치 없음)
+  /// [lastPatchNumber] 이전에 저장된 패치 번호 (null이면 첫 실행)
+  ///
+  /// Returns: 패치가 새로 적용되었으면 true
+  static bool wasPatchApplied({
+    required int? currentPatchNumber,
+    required int? lastPatchNumber,
+  }) {
+    return currentPatchNumber != null &&
+        lastPatchNumber != null &&
+        currentPatchNumber != lastPatchNumber;
+  }
+
   /// 패치가 방금 적용되었는지 확인 (스플래시 화면용)
   ///
   /// 앱 시작 시 호출하여 패치가 새로 적용되었는지 확인
@@ -27,9 +42,10 @@ class PatchNotificationService {
       logger.i('📊 패치 번호 비교: 저장된=$lastPatchNumber, 현재=$currentPatchNumber');
 
       // 패치 번호가 변경되었는지 확인
-      final wasApplied = currentPatchNumber != null &&
-          lastPatchNumber != null &&
-          currentPatchNumber != lastPatchNumber;
+      final wasApplied = wasPatchApplied(
+        currentPatchNumber: currentPatchNumber,
+        lastPatchNumber: lastPatchNumber,
+      );
 
       if (wasApplied) {
         logger.i('✅ 새 패치 적용 감지: $lastPatchNumber → $currentPatchNumber');

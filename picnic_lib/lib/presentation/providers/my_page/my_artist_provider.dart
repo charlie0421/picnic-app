@@ -1,5 +1,6 @@
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/presentation/providers/my_page/my_artist_provider_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -31,8 +32,8 @@ class AsyncMyArtist extends _$AsyncMyArtist {
       final currentCount = (countResponse as List).length;
       logger.d('🔖 현재 북마크 수 (DB 직접 조회): $currentCount');
 
-      if (currentCount >= 5) {
-        logger.w('🔖 북마크 최대 개수(5개) 도달');
+      if (MyArtistProviderHelper.isBookmarkLimitReached(currentCount)) {
+        logger.w('🔖 북마크 최대 개수(${MyArtistProviderHelper.maxBookmarks}개) 도달');
         return false;
       }
 

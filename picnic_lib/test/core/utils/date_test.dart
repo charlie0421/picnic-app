@@ -966,4 +966,225 @@ void main() {
       expect(convertKoreanTraditionalTime('하나'), '');
     });
   });
+
+  group('DateHelpers.formatUtcOffsetFromDuration', () {
+    test('formats positive whole-hour offset', () {
+      expect(
+        DateHelpers.formatUtcOffsetFromDuration(const Duration(hours: 9)),
+        'GMT+9',
+      );
+    });
+
+    test('formats negative whole-hour offset', () {
+      expect(
+        DateHelpers.formatUtcOffsetFromDuration(const Duration(hours: -5)),
+        'GMT-5',
+      );
+    });
+
+    test('formats zero offset', () {
+      expect(
+        DateHelpers.formatUtcOffsetFromDuration(Duration.zero),
+        'GMT+0',
+      );
+    });
+
+    test('formats offset with minutes (e.g. India +5:30)', () {
+      expect(
+        DateHelpers.formatUtcOffsetFromDuration(
+          const Duration(hours: 5, minutes: 30),
+        ),
+        'GMT+5:30',
+      );
+    });
+
+    test('formats negative offset with minutes (e.g. -3:30)', () {
+      expect(
+        DateHelpers.formatUtcOffsetFromDuration(
+          const Duration(hours: -3, minutes: -30),
+        ),
+        'GMT-3:30',
+      );
+    });
+
+    test('formats offset with 45-minute remainder (e.g. Nepal +5:45)', () {
+      expect(
+        DateHelpers.formatUtcOffsetFromDuration(
+          const Duration(hours: 5, minutes: 45),
+        ),
+        'GMT+5:45',
+      );
+    });
+
+    test('formats large positive offset', () {
+      expect(
+        DateHelpers.formatUtcOffsetFromDuration(const Duration(hours: 12)),
+        'GMT+12',
+      );
+    });
+
+    test('formats large negative offset', () {
+      expect(
+        DateHelpers.formatUtcOffsetFromDuration(const Duration(hours: -12)),
+        'GMT-12',
+      );
+    });
+  });
+
+  group('DateHelpers.resolveTimezoneAbbreviation', () {
+    test('returns short abbreviation directly (e.g. KST)', () {
+      expect(
+        DateHelpers.resolveTimezoneAbbreviation(
+          'KST',
+          null,
+          const Duration(hours: 9),
+        ),
+        'KST',
+      );
+    });
+
+    test('returns GMT directly when timeZoneName is GMT', () {
+      expect(
+        DateHelpers.resolveTimezoneAbbreviation(
+          'GMT',
+          null,
+          Duration.zero,
+        ),
+        'GMT',
+      );
+    });
+
+    test('looks up IANA name when timeZoneName contains GMT+X (not plain GMT)', () {
+      // timeZoneName = 'GMT+9' (length 5, contains 'GMT', is not 'GMT')
+      // Should fall through to IANA lookup
+      expect(
+        DateHelpers.resolveTimezoneAbbreviation(
+          'GMT+9',
+          'Asia/Seoul',
+          const Duration(hours: 9),
+        ),
+        'KST',
+      );
+    });
+
+    test('falls back to UTC offset when no IANA match', () {
+      expect(
+        DateHelpers.resolveTimezoneAbbreviation(
+          'GMT+3',
+          null,
+          const Duration(hours: 3),
+        ),
+        'GMT+3',
+      );
+    });
+
+    test('returns IANA abbreviation for long timezone name', () {
+      // timeZoneName longer than 5 chars, so skips short-name check
+      expect(
+        DateHelpers.resolveTimezoneAbbreviation(
+          'Asia/Seoul',
+          'Asia/Seoul',
+          const Duration(hours: 9),
+        ),
+        'KST',
+      );
+    });
+
+    test('falls back to offset when IANA name not in database', () {
+      expect(
+        DateHelpers.resolveTimezoneAbbreviation(
+          'Unknown/Zone',
+          'Unknown/Zone',
+          const Duration(hours: 4),
+        ),
+        'GMT+4',
+      );
+    });
+
+    test('returns short abbreviation for JST', () {
+      expect(
+        DateHelpers.resolveTimezoneAbbreviation(
+          'JST',
+          null,
+          const Duration(hours: 9),
+        ),
+        'JST',
+      );
+    });
+
+    test('handles 5-char timezone name with slash (IANA)', () {
+      // Length 5 but contains '/' -> not treated as abbreviation
+      // Would need IANA lookup; but 'A/B/C' is nonsense, so falls back
+      expect(
+        DateHelpers.resolveTimezoneAbbreviation(
+          'A/BCD',
+          null,
+          const Duration(hours: 2),
+        ),
+        'GMT+2',
+      );
+    });
+  });
+
+  group('DateHelpers.resolveIanaTimeZoneName', () {
+    test('returns IANA name if timeZoneName contains slash', () {
+      expect(
+        DateHelpers.resolveIanaTimeZoneName('Asia/Seoul', 9),
+        'Asia/Seoul',
+      );
+    });
+
+    test('returns Asia/Seoul for offset 9', () {
+      expect(DateHelpers.resolveIanaTimeZoneName('KST', 9), 'Asia/Seoul');
+    });
+
+    test('returns Asia/Shanghai for offset 8', () {
+      expect(DateHelpers.resolveIanaTimeZoneName('CST', 8), 'Asia/Shanghai');
+    });
+
+    test('returns Asia/Bangkok for offset 7', () {
+      expect(DateHelpers.resolveIanaTimeZoneName('ICT', 7), 'Asia/Bangkok');
+    });
+
+    test('returns America/New_York for offset -5', () {
+      expect(
+        DateHelpers.resolveIanaTimeZoneName('EST', -5),
+        'America/New_York',
+      );
+    });
+
+    test('returns America/Los_Angeles for offset -8', () {
+      expect(
+        DateHelpers.resolveIanaTimeZoneName('PST', -8),
+        'America/Los_Angeles',
+      );
+    });
+
+    test('returns Europe/London for offset 0', () {
+      expect(DateHelpers.resolveIanaTimeZoneName('GMT', 0), 'Europe/London');
+    });
+
+    test('returns Europe/Berlin for offset 1', () {
+      expect(DateHelpers.resolveIanaTimeZoneName('CET', 1), 'Europe/Berlin');
+    });
+
+    test('returns null for unmapped offset', () {
+      expect(DateHelpers.resolveIanaTimeZoneName('XYZ', 3), isNull);
+    });
+
+    test('returns null for offset 2', () {
+      expect(DateHelpers.resolveIanaTimeZoneName('EET', 2), isNull);
+    });
+
+    test('returns null for offset -3', () {
+      expect(DateHelpers.resolveIanaTimeZoneName('BRT', -3), isNull);
+    });
+
+    test('returns IANA name directly for America/Chicago', () {
+      expect(
+        DateHelpers.resolveIanaTimeZoneName('America/Chicago', -6),
+        'America/Chicago',
+      );
+    });
+  });
 }

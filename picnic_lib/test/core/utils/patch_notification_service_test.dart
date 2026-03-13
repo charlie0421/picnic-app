@@ -10,13 +10,76 @@ void main() {
   });
 
   group('PatchNotificationService', () {
+    group('wasPatchApplied (pure helper)', () {
+      test('returns true when patch number changed', () {
+        expect(
+          PatchNotificationService.wasPatchApplied(
+            currentPatchNumber: 2,
+            lastPatchNumber: 1,
+          ),
+          isTrue,
+        );
+      });
+
+      test('returns true when patch number decreased (rollback)', () {
+        expect(
+          PatchNotificationService.wasPatchApplied(
+            currentPatchNumber: 1,
+            lastPatchNumber: 3,
+          ),
+          isTrue,
+        );
+      });
+
+      test('returns false when both are the same', () {
+        expect(
+          PatchNotificationService.wasPatchApplied(
+            currentPatchNumber: 5,
+            lastPatchNumber: 5,
+          ),
+          isFalse,
+        );
+      });
+
+      test('returns false when currentPatchNumber is null', () {
+        expect(
+          PatchNotificationService.wasPatchApplied(
+            currentPatchNumber: null,
+            lastPatchNumber: 1,
+          ),
+          isFalse,
+        );
+      });
+
+      test('returns false when lastPatchNumber is null', () {
+        expect(
+          PatchNotificationService.wasPatchApplied(
+            currentPatchNumber: 2,
+            lastPatchNumber: null,
+          ),
+          isFalse,
+        );
+      });
+
+      test('returns false when both are null', () {
+        expect(
+          PatchNotificationService.wasPatchApplied(
+            currentPatchNumber: null,
+            lastPatchNumber: null,
+          ),
+          isFalse,
+        );
+      });
+    });
+
     group('checkAndClearPatchApplied', () {
       test('returns false when shorebird updater fails in test environment',
           () async {
         // In test env, updater.readCurrentPatch() will throw
         // because shorebird code push is not available.
         // The catch block returns false.
-        final result = await PatchNotificationService.checkAndClearPatchApplied();
+        final result =
+            await PatchNotificationService.checkAndClearPatchApplied();
         expect(result, isFalse);
       });
 

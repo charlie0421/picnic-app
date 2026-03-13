@@ -5,6 +5,7 @@ import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/user_profiles.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -81,12 +82,12 @@ class UserInfo extends _$UserInfo {
         return;
       }
 
-      final updates = {
-        if (gender != null) 'gender': gender,
-        if (birthDate != null) 'birth_date': birthDate.toIso8601String(),
-        if (birthTime != null) 'birth_time': birthTime,
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      };
+      final updates = UserInfoProviderHelper.buildProfileUpdateMap(
+        gender: gender,
+        birthDate: birthDate,
+        birthTime: birthTime,
+        updatedAt: DateTime.now(),
+      );
 
       await supabase.from('user_profiles').upsert({
         'id': supabase.auth.currentUser!.id,
@@ -122,15 +123,16 @@ class UserInfo extends _$UserInfo {
         body: {'nickname': nickname},
       );
 
-      if (response.status != 200) {
+      final updatedProfile = UserInfoProviderHelper.parseNicknameResponse(
+        status: response.status,
+        data: response.data,
+      );
+      if (updatedProfile == null) {
         final error = jsonDecode(response.data)['error'];
         logger.e('Error updating nickname: $error');
         return false;
       }
 
-      final updatedProfile = UserProfilesModel.fromJson(
-        jsonDecode(response.data)['data'],
-      );
       state = AsyncValue.data(updatedProfile);
       logger.i('Nickname updated successfully: ${updatedProfile.nickname}');
       return true;
@@ -162,21 +164,8 @@ class UserInfo extends _$UserInfo {
     }
 
     try {
-      // 언어 코드 정규화 (zh_CN -> zh, zh_TW -> zh-TW 등)
-      String normalizedLanguage = languageCode;
-      if (normalizedLanguage.startsWith('zh_CN') ||
-          normalizedLanguage == 'zh') {
-        normalizedLanguage = 'zh';
-      } else if (normalizedLanguage.startsWith('zh_TW')) {
-        normalizedLanguage = 'zh-TW';
-      } else if (normalizedLanguage.startsWith('bn_BD') ||
-          normalizedLanguage == 'bn') {
-        normalizedLanguage = 'bn';
-      } else {
-        // 언어 코드만 추출 (예: ko_KR -> ko, en_US -> en)
-        final parts = normalizedLanguage.split('_');
-        normalizedLanguage = parts[0];
-      }
+      final normalizedLanguage =
+          UserInfoProviderHelper.normalizeLanguageCode(languageCode);
 
       logger.i(
         'Updating user language to: $normalizedLanguage (original: $languageCode)',
@@ -263,24 +252,16 @@ Future<List<Map<String, dynamic>?>?> expireBonus(Ref ref) async {
     }
 
     final parsed = raw is String ? jsonDecode(raw) : raw;
-    if (parsed is List) {
-      logger.i('[expireBonus] parsed length: ${parsed.length}');
-      // 각 항목 키 존재 여부 점검
-      for (final item in parsed) {
-        if (item is Map<String, dynamic>) {
-          logger.i(
-            '[expireBonus] item month=${item['prediction_month']} amount=${item['expiring_amount']}',
-          );
-        }
-      }
-      return List<Map<String, dynamic>>.from(parsed);
-    }
+    final result = UserInfoProviderHelper.parseExpireBonusResponse(parsed);
 
-    // 서버가 {data:[...]} 형태로 돌려주는 경우 방어
-    if (parsed is Map && parsed['data'] is List) {
-      final list = List<Map<String, dynamic>>.from(parsed['data'] as List);
-      logger.i('[expireBonus] parsed(data) length: ${list.length}');
-      return list;
+    if (result != null) {
+      logger.i('[expireBonus] parsed length: ${result.length}');
+      for (final item in result) {
+        logger.i(
+          '[expireBonus] item month=${item['prediction_month']} amount=${item['expiring_amount']}',
+        );
+      }
+      return result;
     }
 
     throw Exception('Unexpected response format: ${parsed.runtimeType}');

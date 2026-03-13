@@ -44,10 +44,11 @@ class DeviceDebugInfo {
     _logger.i('Text Scale Factor: ${mediaQuery.textScaler}');
 
     // 하단 네비게이션 최적화 제안
-    if (padding.bottom > 30) {
+    final classification = classifyBottomPadding(padding.bottom);
+    if (classification == 'excessive') {
       _logger.w('⚠️ 하단 padding이 ${padding.bottom}px로 과도함');
       _logger.w('💡 제안: SafeArea bottom만 적용하거나 더 작은 여백 사용');
-    } else if (padding.bottom == 0) {
+    } else if (classification == 'none') {
       _logger.i('ℹ️ 하단 padding 없음 - 물리적 버튼 기기 또는 구형 기기');
     } else {
       _logger.i('✅ 하단 padding ${padding.bottom}px - 정상 범위');
@@ -68,13 +69,12 @@ class DeviceDebugInfo {
   static bool isGalaxyS25Like(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final size = mediaQuery.size;
-    final ratio = size.width / size.height;
 
-    // 갤럭시 S25 예상 스펙 (6.2인치, 19.5:9 비율)
-    final isS25Like = size.height > 2800 &&
-        ratio > 0.45 &&
-        ratio < 0.55 &&
-        mediaQuery.devicePixelRatio > 3.0;
+    final isS25Like = checkGalaxyS25Like(
+      size.height,
+      size.width / size.height,
+      mediaQuery.devicePixelRatio,
+    );
 
     if (isS25Like) {
       _logger.w('⚠️ 갤럭시 S25와 유사한 기기 감지됨!');
@@ -82,6 +82,31 @@ class DeviceDebugInfo {
     }
 
     return isS25Like;
+  }
+
+  /// 갤럭시 S25와 유사한 기기인지 순수 로직으로 판별합니다.
+  /// [height]: 화면 높이, [ratio]: width/height 비율, [pixelRatio]: 디바이스 픽셀 비율
+  static bool checkGalaxyS25Like(
+    double height,
+    double ratio,
+    double pixelRatio,
+  ) {
+    return height > 2800 &&
+        ratio > 0.45 &&
+        ratio < 0.55 &&
+        pixelRatio > 3.0;
+  }
+
+  /// 하단 패딩 상태를 분류합니다.
+  /// 반환값: 'excessive' (>30), 'none' (==0), 'normal' (그 외)
+  static String classifyBottomPadding(double bottomPadding) {
+    if (bottomPadding > 30) {
+      return 'excessive';
+    } else if (bottomPadding == 0) {
+      return 'none';
+    } else {
+      return 'normal';
+    }
   }
 }
 

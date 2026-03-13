@@ -3,6 +3,7 @@ import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/providers/community/boards_provider_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -26,7 +27,7 @@ class BoardDetail extends _$BoardDetail {
           .select()
           .eq('board_id', boardId)
           .maybeSingle();
-      return response == null ? null : BoardModel.fromJson(response);
+      return BoardsProviderHelper.parseBoardDetail(response);
     } catch (e, s) {
       logger.e('Error fetching board detail:', error: e, stackTrace: s);
       rethrow;
@@ -53,7 +54,8 @@ class BoardsNotifier extends _$BoardsNotifier {
           .order('is_official', ascending: false)
           .order('order', ascending: true);
 
-      return response.map((data) => BoardModel.fromJson(data)).toList();
+      return BoardsProviderHelper.parseBoardList(
+          List<Map<String, dynamic>>.from(response));
     } catch (e, s) {
       logger.e('Error fetching boards:', error: e, stackTrace: s);
       return Future.error(e);
@@ -95,7 +97,8 @@ class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
             .order('order', ascending: true)
             .range(page * limit, (page + 1) * limit - 1);
 
-        return response.map((data) => BoardModel.fromJson(data)).toList();
+        return BoardsProviderHelper.parseBoardList(
+            List<Map<String, dynamic>>.from(response));
       }
 
       // SearchService의 편의 메서드를 사용하여 보드 검색
@@ -144,7 +147,7 @@ class BoardRequestNotifier extends _$BoardRequestNotifier {
           .eq('status', 'pending')
           .maybeSingle();
 
-      return response == null ? null : BoardModel.fromJson(response);
+      return BoardsProviderHelper.parseBoardDetail(response);
     } catch (e, s) {
       logger.e('Error checking pending request:', error: e, stackTrace: s);
       return Future.error(e);
@@ -161,7 +164,7 @@ class BoardRequestNotifier extends _$BoardRequestNotifier {
           )
           .maybeSingle();
 
-      return response == null ? null : BoardModel.fromJson(response);
+      return BoardsProviderHelper.parseBoardDetail(response);
     } catch (e, s) {
       logger.e('Error checking duplicate board:', error: e, stackTrace: s);
       return Future.error(e);
@@ -178,17 +181,15 @@ class BoardRequestNotifier extends _$BoardRequestNotifier {
       final user = supabase.auth.currentUser;
       if (user == null) throw Exception('User not authenticated');
 
-      await supabase.from('boards').upsert({
-        'artist_id': artistId,
-        'name': {'ko': title, 'en': title, 'ja': title, 'zh_CN': title},
-        'description': description,
-        'status': 'pending',
-        'request_message': requestMessage,
-        'creator_id': user.id,
-        'is_official': false,
-        'order': 0,
-        'features': [],
-      });
+      await supabase.from('boards').upsert(
+        BoardsProviderHelper.buildCreateBoardData(
+          artistId: artistId,
+          title: title,
+          description: description,
+          requestMessage: requestMessage,
+          userId: user.id,
+        ),
+      );
 
       refresh();
     } catch (e, s) {
