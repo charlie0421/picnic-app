@@ -106,26 +106,44 @@ class AuthService {
 
   Future<bool> recoverSession() async {
     try {
+      // 1. Supabase SDK가 이미 세션을 복원했는지 확인 (SharedPreferences 기반)
+      final sdkSession = supabase.auth.currentSession;
+      if (sdkSession != null && !_isSessionExpired(sdkSession)) {
+        logger.i('Supabase SDK already restored session for user: ${supabase.auth.currentUser?.id}');
+        // SecureStorage도 동기화 (백업용)
+        await _storageService.saveSession(sdkSession);
+        _sessionController.add(sdkSession);
+        await DeviceManager.updateLastSeen();
+        return true;
+      }
+
       if (!await _networkService.checkOnlineStatus()) {
         logger.w('Cannot recover session - offline');
         return false;
       }
 
-      final session = await _storageService.getSession();
-      if (session == null) {
-        logger.w('No stored session found');
-        return false;
-      }
-
-      if (_isSessionExpired(session)) {
-        logger.i('Session expired, attempting refresh');
+      // 2. SDK 세션이 만료된 경우 refresh 시도
+      if (sdkSession != null && _isSessionExpired(sdkSession)) {
+        logger.i('SDK session expired, attempting refresh');
         return await _refreshSession();
       }
 
-      // Session 복구 시도
+      // 3. SDK에 세션이 없으면 SecureStorage에서 복원 시도 (폴백)
+      final storedSession = await _storageService.getSession();
+      if (storedSession == null) {
+        logger.w('No stored session found in SDK or SecureStorage');
+        return false;
+      }
+
+      if (_isSessionExpired(storedSession)) {
+        logger.i('Stored session expired, attempting refresh');
+        return await _refreshSession();
+      }
+
+      // SecureStorage 세션으로 복구 시도
       try {
         final response = await supabase.auth
-            .recoverSession(jsonEncode(session))
+            .recoverSession(jsonEncode(storedSession))
             .timeout(_timeouts.sessionRecovery);
 
         if (response.session != null) {
@@ -135,7 +153,7 @@ class AuthService {
         }
       } catch (e, s) {
         logger.e(
-          'Session recovery failed, trying refresh',
+          'Session recovery from SecureStorage failed, trying refresh',
           error: e,
           stackTrace: s,
         );

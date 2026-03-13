@@ -102,17 +102,25 @@ class MainInitializer {
       }
 
       // Group 2: Supabase/Firebase에 의존하는 SDK 병렬 초기화
-      final group2 = <Future>[];
-      group2.add(AppInitializer.initializeAuth());
+      // Auth는 다른 SDK와 분리하여, Tapjoy/Branch/AdMob 실패가 인증 복구에 영향주지 않도록 함
+      final authFuture = AppInitializer.initializeAuth();
+
+      Future<void> otherSdksFuture = Future.value();
       if (UniversalPlatform.isMobile) {
-        group2.add(AppInitializer.initializeTapjoy());
-        group2.add(FlutterBranchSdk.init(
-          enableLogging: true,
-          branchAttributionLevel: BranchAttributionLevel.NONE,
-        ));
-        group2.add(_initializeAdMob());
+        otherSdksFuture = Future.wait([
+          AppInitializer.initializeTapjoy(),
+          FlutterBranchSdk.init(
+            enableLogging: true,
+            branchAttributionLevel: BranchAttributionLevel.NONE,
+          ),
+          _initializeAdMob(),
+        ]).then((_) {}).catchError((e, s) {
+          // 광고/딥링크 SDK 실패는 앱 사용에 치명적이지 않으므로 로깅만
+          logger.e('SDK Group 2 (non-auth) 초기화 실패', error: e, stackTrace: s);
+        });
       }
-      await Future.wait(group2);
+
+      await Future.wait([authFuture, otherSdksFuture]);
       logger.i('SDK Group 2 초기화 완료 (Auth, Tapjoy, Branch, AdMob)');
 
       // Analytics 사용자 속성 설정 (Auth 완료 후)

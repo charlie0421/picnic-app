@@ -343,6 +343,9 @@ class AppInitializer {
 
       if (!context.mounted) return;
 
+      // Supabase 인증 상태 변경 리스너 설정 (세션 복원 이벤트를 UI에 반영)
+      setupSupabaseAuthListener(ref);
+
       ref
           .read(appInitializationProvider.notifier)
           .updateState(isInitialized: true);
