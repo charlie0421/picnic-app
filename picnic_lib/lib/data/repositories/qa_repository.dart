@@ -4,7 +4,10 @@ import 'package:picnic_lib/data/models/qna/qna_thread.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class QaRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
+
+  QaRepository({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
   /// Q&A 스레드 목록 조회
   Future<List<QnaThread>> getQaThreadList({required String userId}) async {

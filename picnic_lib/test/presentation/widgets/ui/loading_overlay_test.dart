@@ -178,4 +178,149 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
   });
+
+  group('LoadingOverlay static methods', () {
+    testWidgets('of() throws when no LoadingOverlay ancestor',
+        (WidgetTester tester) async {
+      late BuildContext testContext;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              testContext = context;
+              return const Text('No Overlay');
+            },
+          ),
+        ),
+      );
+
+      expect(
+        () => LoadingOverlay.of(testContext),
+        throwsA(isA<FlutterError>()),
+      );
+    });
+
+    testWidgets('maybeOf() returns null when no LoadingOverlay ancestor',
+        (WidgetTester tester) async {
+      late BuildContext testContext;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              testContext = context;
+              return const Text('No Overlay');
+            },
+          ),
+        ),
+      );
+
+      expect(LoadingOverlay.maybeOf(testContext), isNull);
+    });
+  });
+
+  group('Context extensions without LoadingOverlay', () {
+    testWidgets('showLoading does not throw without ancestor',
+        (WidgetTester tester) async {
+      late BuildContext testContext;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              testContext = context;
+              return const Text('No Overlay');
+            },
+          ),
+        ),
+      );
+
+      expect(() => testContext.showLoading(), returnsNormally);
+    });
+
+    testWidgets('hideLoading does not throw without ancestor',
+        (WidgetTester tester) async {
+      late BuildContext testContext;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              testContext = context;
+              return const Text('No Overlay');
+            },
+          ),
+        ),
+      );
+
+      expect(() => testContext.hideLoading(), returnsNormally);
+    });
+
+    testWidgets('isLoadingOverlayVisible returns false without ancestor',
+        (WidgetTester tester) async {
+      late BuildContext testContext;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              testContext = context;
+              return const Text('No Overlay');
+            },
+          ),
+        ),
+      );
+
+      expect(testContext.isLoadingOverlayVisible, isFalse);
+    });
+  });
+
+  group('LoadingOverlay isLoading property', () {
+    testWidgets('isLoading reflects current state',
+        (WidgetTester tester) async {
+      final overlayKey = GlobalKey<LoadingOverlayState>();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoadingOverlay(
+            key: overlayKey,
+            loadingWidget: const CircularProgressIndicator(),
+            child: const Text('Content'),
+          ),
+        ),
+      );
+
+      expect(overlayKey.currentState!.isLoading, isFalse);
+
+      overlayKey.currentState!.show();
+      await tester.pump();
+      expect(overlayKey.currentState!.isLoading, isTrue);
+
+      // Double show does nothing
+      overlayKey.currentState!.show();
+      await tester.pump();
+      expect(overlayKey.currentState!.isLoading, isTrue);
+    });
+
+    testWidgets('hide when not loading does nothing',
+        (WidgetTester tester) async {
+      final overlayKey = GlobalKey<LoadingOverlayState>();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoadingOverlay(
+            key: overlayKey,
+            loadingWidget: const CircularProgressIndicator(),
+            child: const Text('Content'),
+          ),
+        ),
+      );
+
+      // Hide when not loading
+      overlayKey.currentState!.hide();
+      await tester.pump();
+      expect(overlayKey.currentState!.isLoading, isFalse);
+    });
+  });
 }

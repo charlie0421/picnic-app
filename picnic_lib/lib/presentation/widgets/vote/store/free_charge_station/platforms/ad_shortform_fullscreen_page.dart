@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -8,6 +9,84 @@ import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+
+/// Pure logic helpers for AdShortformFullscreenPage, testable without widget tree.
+@visibleForTesting
+class AdShortformLogic {
+  /// Whether the countdown (<= 5s remaining) should start.
+  static bool shouldStartCountdown({
+    required bool ctaRevealStarted,
+    required bool isInitialized,
+    required Duration remaining,
+  }) {
+    if (ctaRevealStarted) return false;
+    if (!isInitialized) return false;
+    return !remaining.isNegative && remaining <= const Duration(seconds: 5);
+  }
+
+  /// Whether playback is complete (position within 150ms of duration).
+  static bool isPlaybackComplete({
+    required bool isInitialized,
+    required Duration position,
+    required Duration duration,
+  }) {
+    return isInitialized &&
+        position >= (duration - const Duration(milliseconds: 150));
+  }
+
+  /// Whether close action can happen immediately (video finished + reward done).
+  static bool canCloseImmediately({
+    required bool isInitialized,
+    required bool isBuffering,
+    required Duration position,
+    required Duration duration,
+  }) {
+    return isInitialized && !isBuffering && position >= duration;
+  }
+
+  /// Whether the CTA/More button should be visible.
+  static bool shouldShowCtaButton({
+    required bool ctaRevealStarted,
+    required bool finished,
+    required String? ctaUrl,
+  }) {
+    if (ctaUrl == null || ctaUrl.isEmpty) return false;
+    return ctaRevealStarted || finished;
+  }
+
+  /// Whether the CTA/More button should be enabled (clickable).
+  static bool isCtaButtonEnabled({
+    required bool finished,
+    required bool viewReported,
+    required bool rewarding,
+  }) {
+    return finished && viewReported && !rewarding;
+  }
+
+  /// Whether the loader overlay should be visible.
+  static bool shouldShowLoader({
+    required bool loading,
+    required bool isInitialized,
+    required bool isBuffering,
+    required bool isPlaying,
+    required Duration position,
+    required Duration duration,
+    required bool finished,
+  }) {
+    return loading ||
+        !isInitialized ||
+        (isBuffering && !finished) ||
+        (!isPlaying && position == Duration.zero);
+  }
+
+  /// Whether the countdown badge should be visible.
+  static bool shouldShowCountdown({
+    required bool finished,
+    required int remainingSeconds,
+  }) {
+    return !finished && remainingSeconds > 0 && remainingSeconds <= 5;
+  }
+}
 
 class AdShortformFullscreenPage extends StatefulWidget {
   final String videoUrl;

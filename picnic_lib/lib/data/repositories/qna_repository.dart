@@ -12,7 +12,10 @@ import 'package:path/path.dart' as p;
 import 'package:picnic_lib/l10n.dart';
 
 class QnaRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
+
+  QnaRepository({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
   void _logDebug(String message) {
     if (kDebugMode) {

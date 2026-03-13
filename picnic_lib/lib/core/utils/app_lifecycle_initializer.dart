@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/core/utils/app_lifecycle_helper.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 
@@ -100,12 +101,16 @@ class AppLifecycleInitializer {
 
     logger.i('Branch URI 처리: $uri');
 
-    // URI 스키마 검사
-    if (uri.scheme == appUriScheme) {
-      // 딥링크 처리 로직은 각 앱에서 구현
-      logger.i('딥링크 처리 필요: ${uri.toString()}');
-    } else {
-      logger.i('지원되지 않는 URI 스키마: ${uri.scheme}');
+    final action = AppLifecycleHelper.classifyBranchUri(uri);
+    switch (action) {
+      case BranchUriAction.deeplink:
+        logger.i('딥링크 처리 필요: ${uri.toString()}');
+        break;
+      case BranchUriAction.unsupported:
+        logger.i('지원되지 않는 URI 스키마: ${uri.scheme}');
+        break;
+      case BranchUriAction.ignore:
+        break;
     }
   }
 }

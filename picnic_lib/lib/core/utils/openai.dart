@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
 /// Fallback response when OpenAI API is unavailable (rate limited, etc.)
 /// Returns a safe default that allows content through
-Map<String, dynamic> _getFallbackResponse() => {
+@visibleForTesting
+Map<String, dynamic> getFallbackResponse() => {
       'flagged': false,
       'categories': {
         'sexual': false,
@@ -63,7 +65,7 @@ Future<Map<String, dynamic>> checkContent(String text) async {
     if (errorMessage.contains('429') ||
         errorMessage.contains('Too Many Requests')) {
       logger.w('OpenAI rate limited, using client-side fallback');
-      return _getFallbackResponse();
+      return getFallbackResponse();
     }
 
     rethrow;

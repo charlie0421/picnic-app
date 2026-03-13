@@ -45,4 +45,46 @@ void main() {
       }
     });
   });
+
+  group('QnaThread fromJson/toJson', () {
+    test('fromJson roundtrip', () {
+      final json = {
+        'id': 10,
+        'user_id': 'user-abc',
+        'title': '문의 제목',
+        'created_at': '2025-03-01T00:00:00.000Z',
+        'status': 'open',
+        'updated_at': '2025-03-05T00:00:00.000Z',
+      };
+      final thread = QnaThread.fromJson(json);
+      expect(thread.id, equals(10));
+      expect(thread.userId, equals('user-abc'));
+      expect(thread.title, equals('문의 제목'));
+      expect(thread.status, equals('open'));
+      expect(thread.createdAt, isA<DateTime>());
+      expect(thread.updatedAt, isA<DateTime>());
+
+      final output = thread.toJson();
+      expect(output['id'], equals(10));
+      expect(output['user_id'], equals('user-abc'));
+      expect(output['title'], equals('문의 제목'));
+      expect(output['status'], equals('open'));
+    });
+
+    test('toJson preserves all fields', () {
+      final thread = QnaThread(
+        id: 5,
+        userId: 'u-xyz',
+        title: 'Test Thread',
+        createdAt: DateTime.utc(2025, 6, 1),
+        status: 'resolved',
+        updatedAt: DateTime.utc(2025, 6, 15),
+      );
+      final json = thread.toJson();
+      expect(json['id'], equals(5));
+      expect(json['user_id'], equals('u-xyz'));
+      expect(json['title'], equals('Test Thread'));
+      expect(json['status'], equals('resolved'));
+    });
+  });
 }

@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart';
+import 'package:picnic_lib/data/storage/non_web_local_storage.dart';
 import 'package:picnic_lib/data/storage/storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // LocalStorage 인터페이스의 Mock 구현
 class MockLocalStorage extends Mock implements LocalStorage {}
@@ -246,6 +248,48 @@ void main() {
         final original = await storage.read(key: 'key1');
         expect(original, 'value1');
       });
+    });
+  });
+
+  group('NonWebLocalStorage (SharedPreferences)', () {
+    late NonWebLocalStorage storage;
+
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+      storage = NonWebLocalStorage();
+    });
+
+    test('saveData and loadData', () async {
+      await storage.saveData('testKey', 'testValue');
+      final result = await storage.loadData('testKey', null);
+      expect(result, 'testValue');
+    });
+
+    test('loadData returns default when key not found', () async {
+      final result = await storage.loadData('missing', 'defaultVal');
+      expect(result, 'defaultVal');
+    });
+
+    test('removeData removes saved data', () async {
+      await storage.saveData('key', 'value');
+      await storage.removeData('key');
+      final result = await storage.loadData('key', null);
+      expect(result, isNull);
+    });
+
+    test('clearStorage removes all data', () async {
+      await storage.saveData('key1', 'val1');
+      await storage.saveData('key2', 'val2');
+      await storage.clearStorage();
+      final r1 = await storage.loadData('key1', null);
+      final r2 = await storage.loadData('key2', null);
+      expect(r1, isNull);
+      expect(r2, isNull);
+    });
+
+    test('getInstance returns NonWebLocalStorage', () {
+      final instance = getInstance();
+      expect(instance, isA<NonWebLocalStorage>());
     });
   });
 

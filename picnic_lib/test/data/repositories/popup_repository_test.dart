@@ -138,5 +138,92 @@ void main() {
         expect(popups, isEmpty);
       });
     });
+
+    group('Popup copyWith', () {
+      test('copyWith으로 title을 변경할 수 있다', () {
+        final popup = Popup(
+          id: 1,
+          title: {'ko': '원래'},
+          content: {'ko': '내용'},
+        );
+
+        final updated = popup.copyWith(title: {'ko': '수정됨'});
+        expect(updated.title['ko'], '수정됨');
+        expect(updated.id, 1);
+        expect(updated.content['ko'], '내용');
+      });
+
+      test('copyWith으로 날짜를 추가할 수 있다', () {
+        final popup = Popup(
+          id: 1,
+          title: {'ko': '테스트'},
+          content: {'ko': '내용'},
+        );
+
+        final withDates = popup.copyWith(
+          startAt: DateTime(2025, 6, 1),
+          stopAt: DateTime(2025, 12, 31),
+        );
+        expect(withDates.startAt, isNotNull);
+        expect(withDates.stopAt, isNotNull);
+        expect(withDates.startAt!.month, 6);
+      });
+
+      test('copyWith으로 image를 설정할 수 있다', () {
+        final popup = Popup(
+          id: 1,
+          title: {'ko': '팝업'},
+          content: {'ko': '내용'},
+        );
+
+        final withImage = popup.copyWith(
+          image: {'ko': 'https://example.com/popup.png'},
+        );
+        expect(withImage.image, isNotNull);
+        expect(withImage.image!['ko'], 'https://example.com/popup.png');
+      });
+    });
+
+    group('Popup 날짜 파싱', () {
+      test('다양한 ISO 8601 날짜 형식을 파싱할 수 있다', () {
+        final json = {
+          'id': 1,
+          'title': {'ko': '날짜 테스트'},
+          'content': {'ko': '내용'},
+          'start_at': '2025-06-15T09:30:00.000+09:00',
+          'stop_at': '2025-12-31T23:59:59.999Z',
+        };
+
+        final popup = Popup.fromJson(json);
+        expect(popup.startAt, isNotNull);
+        expect(popup.stopAt, isNotNull);
+      });
+
+      test('deleted_at이 설정된 Popup을 파싱할 수 있다', () {
+        final json = {
+          'id': 1,
+          'title': {'ko': '삭제된 팝업'},
+          'content': {'ko': '내용'},
+          'deleted_at': '2025-06-01T00:00:00.000Z',
+        };
+
+        final popup = Popup.fromJson(json);
+        expect(popup.deletedAt, isNotNull);
+      });
+    });
+
+    group('Popup 다국어 필드', () {
+      test('다국어 title과 content를 올바르게 저장한다', () {
+        final json = {
+          'id': 1,
+          'title': {'ko': '한국어', 'en': 'English', 'ja': '日本語'},
+          'content': {'ko': '내용', 'en': 'Content', 'ja': 'コンテンツ'},
+        };
+
+        final popup = Popup.fromJson(json);
+        expect(popup.title.length, 3);
+        expect(popup.content['ja'], 'コンテンツ');
+      });
+    });
   });
 }

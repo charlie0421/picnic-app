@@ -7,6 +7,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/presentation/pages/community/board_request_helper.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class BoardRequest extends ConsumerStatefulWidget {
@@ -271,28 +272,31 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
   }
 
   String? _validateName(String? value) {
-    if (value == null || value.isEmpty) {
+    final error = BoardRequestHelper.validateName(value);
+    if (error == 'empty') {
       return AppLocalizations.of(context).post_minor_board_name_input;
     }
     return null;
   }
 
   String? _validateDescription(String? value) {
-    if (value == null || value.isEmpty) {
+    final error = BoardRequestHelper.validateDescription(value);
+    if (error == 'empty') {
       return AppLocalizations.of(context).post_minor_board_description_input;
     }
-    if (value.length < 5 || value.length > 20) {
+    if (error == 'length') {
       return AppLocalizations.of(context).post_minor_board_condition;
     }
     return null;
   }
 
   String? _validateRequestMessage(String? value) {
-    if (value == null || value.isEmpty) {
+    final error = BoardRequestHelper.validateRequestMessage(value);
+    if (error == 'empty') {
       return AppLocalizations.of(context)
           .post_minor_board_create_request_message_input;
     }
-    if (value.length < 10) {
+    if (error == 'length') {
       return AppLocalizations.of(context)
           .post_minor_board_create_request_message_condition;
     }

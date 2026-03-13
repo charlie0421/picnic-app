@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/patch_notification_service.dart';
+import 'package:picnic_lib/core/utils/version_utils.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 import 'package:universal_platform/universal_platform.dart';
@@ -89,8 +90,8 @@ class ShorebirdUtils {
       final systemVersion = iosInfo.systemVersion;
 
       // iOS 버전 파싱 (예: "26.2", "18.4")
-      final majorVersion = int.tryParse(systemVersion.split('.').first) ?? 0;
-      _isIOS26OrHigher = majorVersion >= 26;
+      final majorVersion = VersionUtils.parseMajorVersion(systemVersion);
+      _isIOS26OrHigher = VersionUtils.isIOSVersionAtLeast26(systemVersion);
 
       logger.i('📱 iOS 버전: $systemVersion (major: $majorVersion), iOS 26+: $_isIOS26OrHigher');
       return _isIOS26OrHigher!;

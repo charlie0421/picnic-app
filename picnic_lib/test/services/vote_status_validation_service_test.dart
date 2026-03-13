@@ -574,6 +574,82 @@ void main() {
   });
 
   // =========================================================================
+  // VoteStatusValidationResult.toString 테스트
+  // =========================================================================
+  group('VoteStatusValidationResult.toString', () {
+    test('toString 포맷 확인', () {
+      const result = VoteStatusValidationResult(
+        state: VoteState.ongoing,
+        canApply: true,
+        canVote: true,
+        message: '투표 진행 중',
+      );
+
+      final str = result.toString();
+      expect(str, contains('ongoing'));
+      expect(str, contains('canApply: true'));
+      expect(str, contains('canVote: true'));
+      expect(str, contains('투표 진행 중'));
+    });
+
+    test('toString with null message', () {
+      const result = VoteStatusValidationResult(
+        state: VoteState.ended,
+        canApply: false,
+        canVote: false,
+      );
+
+      final str = result.toString();
+      expect(str, contains('ended'));
+      expect(str, contains('message: null'));
+    });
+  });
+
+  // =========================================================================
+  // logStateChange 테스트
+  // =========================================================================
+  group('logStateChange', () {
+    test('상태 변경 시 로깅 (예외 없이 수행)', () {
+      final vote = createTestVoteModel(
+        startAt: DateTime.utc(2025, 6, 1),
+        stopAt: DateTime.utc(2025, 6, 30),
+      );
+      final now = DateTime.utc(2025, 6, 15, 12, 0);
+
+      expect(
+        () => service.logStateChange(vote, VoteState.upcoming, currentTime: now),
+        returnsNormally,
+      );
+    });
+
+    test('이전 상태가 null이면 예외 없이 수행', () {
+      final vote = createTestVoteModel(
+        startAt: DateTime.utc(2025, 6, 1),
+        stopAt: DateTime.utc(2025, 6, 30),
+      );
+      final now = DateTime.utc(2025, 6, 15, 12, 0);
+
+      expect(
+        () => service.logStateChange(vote, null, currentTime: now),
+        returnsNormally,
+      );
+    });
+
+    test('같은 상태이면 변경 로그 안 남김 (예외 없이 수행)', () {
+      final vote = createTestVoteModel(
+        startAt: DateTime.utc(2025, 6, 1),
+        stopAt: DateTime.utc(2025, 6, 30),
+      );
+      final now = DateTime.utc(2025, 6, 15, 12, 0);
+
+      expect(
+        () => service.logStateChange(vote, VoteState.ongoing, currentTime: now),
+        returnsNormally,
+      );
+    });
+  });
+
+  // =========================================================================
   // getStatusSummary 테스트
   // =========================================================================
   group('getStatusSummary', () {

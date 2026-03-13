@@ -35,6 +35,7 @@ import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_with_icon.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -293,24 +294,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   void _updateRanks(List<VoteItemModel?> items) {
-    final sortedItems = items.where((item) => item != null).toList()
-      ..sort((a, b) => (b!.voteTotal ?? 0).compareTo(a!.voteTotal ?? 0));
-
-    int currentRank = 1;
-    int? previousVoteTotal;
-
-    for (var i = 0; i < sortedItems.length; i++) {
-      final item = sortedItems[i]!;
-
-      if (previousVoteTotal != null && item.voteTotal == previousVoteTotal) {
-        // 같은 순위 유지
-      } else {
-        currentRank = i + 1;
-      }
-
-      _currentRanks[item.id] = currentRank;
-      previousVoteTotal = item.voteTotal;
-    }
+    final ranks = VoteDetailHelper.computeRanks(items);
+    _currentRanks
+      ..clear()
+      ..addAll(ranks);
   }
 
   void _triggerHighlight(int itemId) {
@@ -521,22 +508,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     List<VoteItemModel?> list1,
     List<VoteItemModel?> list2,
   ) {
-    if (list1.length != list2.length) return false;
-
-    for (int i = 0; i < list1.length; i++) {
-      final item1 = list1[i];
-      final item2 = list2[i];
-
-      if (item1 == null && item2 == null) continue;
-      if (item1 == null || item2 == null) return false;
-
-      // ID와 투표수가 같은지 확인 (주요 변화 감지)
-      if (item1.id != item2.id || item1.voteTotal != item2.voteTotal) {
-        return false;
-      }
-    }
-
-    return true;
+    return VoteDetailHelper.areDataListsEqual(list1, list2);
   }
 
   List<int> _getFilteredIndices(List<dynamic> args) {
@@ -551,125 +523,18 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       return _cachedFilteredIndices;
     }
 
-    if (query.isEmpty) {
-      final result = List<int>.generate(data.length, (index) => index);
-      _updateCache(data, query, result);
-      return result;
-    }
-
-    logger.d('🔍 검색어: "$query"');
-
-    final result = List<int>.generate(data.length, (index) => index).where((
-      index,
-    ) {
-      final item = data[index]!;
-      final lowerQuery = query.toLowerCase();
-
-      // 아티스트 이름 검색 (한국어 + 영어 + 초성)
-      if (item.artist?.id != null && (item.artist?.id ?? 0) != 0) {
-        // 한국어 아티스트 이름
-        final artistNameKo = item.artist?.name['ko']?.toString() ?? '';
-        // 영어 아티스트 이름
-        final artistNameEn = item.artist?.name['en']?.toString() ?? '';
-
-        logger.d('👤 아티스트 (한국어): "$artistNameKo"');
-        logger.d('👤 아티스트 (영어): "$artistNameEn"');
-        logger.d(
-          '👤 아티스트 초성: "${KoreanSearchUtils.extractKoreanInitials(artistNameKo)}"',
-        );
-
-        if ((artistNameKo.isNotEmpty &&
-                (artistNameKo.toLowerCase().contains(lowerQuery) ||
-                    KoreanSearchUtils.matchesKoreanInitials(
-                      artistNameKo,
-                      query,
-                    ))) ||
-            (artistNameEn.isNotEmpty &&
-                artistNameEn.toLowerCase().contains(lowerQuery))) {
-          logger.d('✅ 아티스트 이름 매칭: "$artistNameKo" / "$artistNameEn"');
-          return true;
-        }
-
-        // 아티스트의 그룹명 검색 (한국어 + 영어 + 초성)
-        if (item.artist?.artistGroup?.name != null) {
-          final artistGroupNameKo =
-              item.artist!.artistGroup!.name['ko']?.toString() ?? '';
-          final artistGroupNameEn =
-              item.artist!.artistGroup!.name['en']?.toString() ?? '';
-
-          logger.d('🎵 아티스트의 그룹 (한국어): "$artistGroupNameKo"');
-          logger.d('🎵 아티스트의 그룹 (영어): "$artistGroupNameEn"');
-          logger.d(
-            '🎵 아티스트의 그룹 초성: "${KoreanSearchUtils.extractKoreanInitials(artistGroupNameKo)}"',
-          );
-
-          if ((artistGroupNameKo.isNotEmpty &&
-                  (artistGroupNameKo.toLowerCase().contains(lowerQuery) ||
-                      KoreanSearchUtils.matchesKoreanInitials(
-                        artistGroupNameKo,
-                        query,
-                      ))) ||
-              (artistGroupNameEn.isNotEmpty &&
-                  artistGroupNameEn.toLowerCase().contains(lowerQuery))) {
-            logger.d(
-              '✅ 아티스트의 그룹명 매칭: "$artistGroupNameKo" / "$artistGroupNameEn"',
-            );
-            return true;
-          }
-        }
-      }
-
-      // 직접 그룹 검색 (아티스트가 없고 그룹만 있는 경우) (한국어 + 영어 + 초성)
-      if (item.artistGroup?.id != null && (item.artistGroup?.id ?? 0) != 0) {
-        final groupNameKo = item.artistGroup?.name['ko']?.toString() ?? '';
-        final groupNameEn = item.artistGroup?.name['en']?.toString() ?? '';
-
-        logger.d('🎭 직접 그룹 (한국어): "$groupNameKo"');
-        logger.d('🎭 직접 그룹 (영어): "$groupNameEn"');
-        logger.d(
-          '🎭 직접 그룹 초성: "${KoreanSearchUtils.extractKoreanInitials(groupNameKo)}"',
-        );
-
-        if ((groupNameKo.isNotEmpty &&
-                (groupNameKo.toLowerCase().contains(lowerQuery) ||
-                    KoreanSearchUtils.matchesKoreanInitials(
-                      groupNameKo,
-                      query,
-                    ))) ||
-            (groupNameEn.isNotEmpty &&
-                groupNameEn.toLowerCase().contains(lowerQuery))) {
-          logger.d('✅ 직접 그룹명 매칭: "$groupNameKo" / "$groupNameEn"');
-          return true;
-        }
-      }
-
-      return false;
-    }).toList();
-
+    final result = VoteDetailHelper.getFilteredIndices(data, query);
     _updateCache(data, query, result);
     return result;
   }
 
   // 다국어 텍스트에서 검색어가 포함된 언어의 텍스트를 반환 (초성 검색 포함)
   String _getMatchingText(Map<String, dynamic> nameMap, String query) {
-    final lowerQuery = query.toLowerCase();
-
-    // 한국어에서 검색어 찾기 (일반 텍스트 + 초성)
-    final koText = nameMap['ko']?.toString() ?? '';
-    if (koText.isNotEmpty &&
-        (koText.toLowerCase().contains(lowerQuery) ||
-            KoreanSearchUtils.matchesKoreanInitials(koText, query))) {
-      return koText;
-    }
-
-    // 영어에서 검색어 찾기
-    final enText = nameMap['en']?.toString() ?? '';
-    if (enText.isNotEmpty && enText.toLowerCase().contains(lowerQuery)) {
-      return enText;
-    }
-
-    // 검색어가 없으면 기본 로케일 텍스트 반환
-    return getLocaleTextFromJson(nameMap);
+    return VoteDetailHelper.getMatchingText(
+      nameMap,
+      query,
+      fallbackText: getLocaleTextFromJson(nameMap),
+    );
   }
 
   @override
@@ -1433,31 +1298,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   /// 상대 경로를 절대 경로로 변환하는 메서드
   String _makeFullImageUrl(String imageUrl) {
-    if (imageUrl.isEmpty) {
-      return imageUrl;
-    }
-
-    // 이미 절대 경로인 경우 그대로 반환
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return imageUrl;
-    }
-
-    // 상대 경로인 경우 CDN URL과 결합
     try {
-      final cdnUrl = Environment.cdnUrl;
-      // CDN URL 끝의 슬래시 제거
-      final cleanCdnUrl = cdnUrl.endsWith('/')
-          ? cdnUrl.substring(0, cdnUrl.length - 1)
-          : cdnUrl;
-      // 이미지 URL 앞의 슬래시 제거
-      final cleanImageUrl = imageUrl.startsWith('/')
-          ? imageUrl.substring(1)
-          : imageUrl;
-
-      final fullUrl = '$cleanCdnUrl/$cleanImageUrl';
-      return fullUrl;
+      return VoteDetailHelper.makeFullImageUrl(imageUrl, Environment.cdnUrl);
     } catch (e) {
-      logger.e('🔗 URL 변환 실패: $e');
+      logger.e('URL 변환 실패: $e');
       return imageUrl;
     }
   }

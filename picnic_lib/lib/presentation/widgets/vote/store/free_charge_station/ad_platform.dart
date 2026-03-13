@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -299,7 +300,7 @@ abstract class AdPlatform {
     logger.e(message, error: error);
 
     // 일시적/외부 요인 에러는 Sentry 보고에서 제외
-    if (_isNonReportableAdError(platform, error, message)) {
+    if (isNonReportableAdError(platform, error, message)) {
       logger.i('$platform 광고 에러 Sentry 보고 제외: $message');
 
       if (context.mounted && !isDisposed) {
@@ -332,7 +333,8 @@ abstract class AdPlatform {
   }
 
   // Sentry에 보내지 않아도 되는 광고 에러 감지
-  bool _isNonReportableAdError(String platform, dynamic error, String message) {
+  @visibleForTesting
+  bool isNonReportableAdError(String platform, dynamic error, String message) {
     final lowercaseMessage = message.toLowerCase();
 
     if (platform == 'AdMob' && error is LoadAdError) {
@@ -383,7 +385,7 @@ abstract class AdPlatform {
   ) {
     logger.e(message, error: error, stackTrace: stackTrace);
 
-    if (_isNonReportableAdError(platform, error, message)) {
+    if (isNonReportableAdError(platform, error, message)) {
       logger.i('$platform 광고 표시 에러 Sentry 보고 제외: $message');
       return;
     }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_media_picker.dart';
@@ -14,6 +15,28 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/qna/qna_category.dart';
 import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart';
+
+/// Pure logic: validate QnA title (minimum 5 characters after trimming).
+@visibleForTesting
+bool isValidQnaTitle(String? value) {
+  return value != null && value.trim().length >= 5;
+}
+
+/// Pure logic: validate QnA content (minimum 10 characters after trimming).
+@visibleForTesting
+bool isValidQnaContent(String? value) {
+  return value != null && value.trim().length >= 10;
+}
+
+/// Pure logic: check if category selection is required and missing.
+@visibleForTesting
+bool isCategorySelectionRequired({
+  required bool hasCategoriesAvailable,
+  required String? selectedCategoryCode,
+}) {
+  if (!hasCategoriesAvailable) return false;
+  return selectedCategoryCode == null || selectedCategoryCode.isEmpty;
+}
 
 class QnaThreadCreatePage extends ConsumerStatefulWidget {
   final String userId;

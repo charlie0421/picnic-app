@@ -22,6 +22,7 @@ import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_achieve.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -101,14 +102,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   }
 
   List<VoteItemModel> _prepareVoteItems(VoteModel vote) {
-    final items = List<VoteItemModel>.from(vote.voteItem ?? <VoteItemModel>[]);
-    items.sort(
-      (a, b) => (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0),
-    );
-    if (widget.status == VoteStatus.upcoming) {
-      return items;
-    }
-    return items.length <= 3 ? items : items.take(3).toList();
+    return VoteInfoCardHelper.prepareVoteItems(vote.voteItem, widget.status);
   }
 
   Future<void> _handleRefresh() async {

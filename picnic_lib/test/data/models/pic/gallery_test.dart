@@ -1,5 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/pic/gallery.dart';
+
+import '../../../helpers/test_app.dart';
+import '../../../helpers/test_environment.dart';
 
 void main() {
   group('GalleryModel fromJson', () {
@@ -68,6 +72,78 @@ void main() {
         gallery.getCdnUrl('photo.jpg'),
         equals('https://cdn-dev.picnic.fan/gallery/42/photo.jpg'),
       );
+    });
+  });
+
+  group('GalleryModel getTitle (navigatorKey)', () {
+    setUp(() {
+      initTestColors();
+    });
+
+    testWidgets('returns Korean title for ko locale', (tester) async {
+      String? result;
+      final gallery = GalleryModel.fromJson({
+        'id': 1,
+        'title_ko': '한국어 제목',
+        'title_en': 'English Title',
+        'cover': null,
+        'celeb': null,
+      });
+      await tester.pumpWidget(
+        buildTestApp(
+          Builder(builder: (context) {
+            result = gallery.getTitle();
+            return const SizedBox();
+          }),
+          locale: const Locale('ko'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(result, '한국어 제목');
+    });
+
+    testWidgets('returns English title for en locale', (tester) async {
+      String? result;
+      final gallery = GalleryModel.fromJson({
+        'id': 1,
+        'title_ko': '한국어 제목',
+        'title_en': 'English Title',
+        'cover': null,
+        'celeb': null,
+      });
+      await tester.pumpWidget(
+        buildTestApp(
+          Builder(builder: (context) {
+            result = gallery.getTitle();
+            return const SizedBox();
+          }),
+          locale: const Locale('en'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(result, 'English Title');
+    });
+
+    testWidgets('returns English title for unknown locale', (tester) async {
+      String? result;
+      final gallery = GalleryModel.fromJson({
+        'id': 1,
+        'title_ko': '한국어 제목',
+        'title_en': 'English Title',
+        'cover': null,
+        'celeb': null,
+      });
+      await tester.pumpWidget(
+        buildTestApp(
+          Builder(builder: (context) {
+            result = gallery.getTitle();
+            return const SizedBox();
+          }),
+          locale: const Locale('ja'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(result, 'English Title');
     });
   });
 }

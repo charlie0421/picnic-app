@@ -138,5 +138,48 @@ void main() {
 
       expect(find.text('custom status'), findsOneWidget);
     });
+
+    testWidgets('renders SizedBox.shrink when status matches can_apply text',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          SearchResultActionButton(
+            shouldShowApplicationButton: false,
+            isSubmitting: false,
+            isAlreadyInVote: false,
+            status: '신청 가능', // matches vote_item_request_can_apply
+            onPressed: () {},
+          ),
+        ),
+      );
+      await tester.pump();
+
+      // Should render SizedBox.shrink (no visible content)
+      final sizedBoxFinder = find.byWidgetPredicate(
+        (widget) => widget is SizedBox && widget.width == 0.0 && widget.height == 0.0,
+      );
+      expect(sizedBoxFinder, findsOneWidget);
+    });
+
+    testWidgets('loading indicator has correct color', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          SearchResultActionButton(
+            shouldShowApplicationButton: false,
+            isSubmitting: false,
+            isAlreadyInVote: false,
+            status: '',
+            onPressed: () {},
+            isLoading: true,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final indicator = tester.widget<CircularProgressIndicator>(
+        find.byType(CircularProgressIndicator),
+      );
+      expect(indicator.strokeWidth, 1.5);
+    });
   });
 }

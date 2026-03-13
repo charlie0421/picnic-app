@@ -6,6 +6,7 @@ import 'package:picnic_lib/data/models/common/community_navigation.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/user_profiles.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
 import 'mock_providers.dart';
@@ -42,6 +43,7 @@ Widget buildTestApp(
       designSize: const Size(375, 812),
       minTextAdapt: true,
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         locale: locale,
         localizationsDelegates: const [
           AppLocalizations.delegate,
@@ -84,6 +86,7 @@ Widget buildTestAppPage(
       designSize: const Size(375, 812),
       minTextAdapt: true,
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         locale: locale,
         localizationsDelegates: const [
           AppLocalizations.delegate,

@@ -28,6 +28,7 @@ import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -984,77 +985,21 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
   List<int> _generateMilestonesFromAchievements(
     List<VoteAchieve> achievements,
   ) {
-    List<int> milestones = [0];
-    milestones.addAll(achievements.map((achieve) => achieve.amount));
-    return milestones;
+    return VoteDetailAchieveHelper.generateMilestonesFromAchievements(
+      achievements.map((a) => a.amount).toList(),
+    );
   }
 
   double _calculateExactProgress(int voteTotal, List<int> levels) {
-    if (voteTotal >= levels.last) {
-      return 100.0;
-    }
-    if (voteTotal <= levels.first) {
-      return 0.0;
-    }
-
-    // 현재 단계 찾기
-    int currentLevelIndex = 0;
-    for (int i = 0; i < levels.length - 1; i++) {
-      if (voteTotal >= levels[i] && voteTotal < levels[i + 1]) {
-        currentLevelIndex = i;
-        break;
-      }
-    }
-
-    // 각 단계의 크기를 동일하게 설정
-    final totalSteps = levels.length - 1;
-    final stepSize = 100.0 / totalSteps; // 각 단계는 동일한 크기를 가짐
-
-    // 현재 단계 내에서의 진행률 계산
-    final currentLevel = levels[currentLevelIndex];
-    final nextLevel = levels[currentLevelIndex + 1];
-    final levelDiff = nextLevel - currentLevel;
-    final currentDiff = voteTotal - currentLevel;
-
-    // 현재 단계에서의 진행률을 0-1 사이의 값으로 ��산
-    final progressInCurrentStep = levelDiff > 0 ? currentDiff / levelDiff : 0.0;
-
-    // 전체 진행률 계산
-    // 이전 단계들의 진행률 + 현재 단계에서의 진행률
-    final baseProgress = currentLevelIndex * stepSize;
-    final additionalProgress = progressInCurrentStep * stepSize;
-
-    return (baseProgress + additionalProgress).clamp(0.0, 100.0);
+    return VoteDetailAchieveHelper.calculateExactProgress(voteTotal, levels);
   }
 
   List<int> _generateLevels(List<int> mainMilestones) {
-    List<int> allLevels = [];
-    allLevels.add(0);
-
-    for (int i = 1; i < mainMilestones.length; i++) {
-      final start = mainMilestones[i - 1];
-      final end = mainMilestones[i];
-
-      // 각 구간을 5개의 동일한 간격으로 나눔
-      final stepSize = (end - start) ~/ 5;
-
-      if (start != 0) {
-        for (int j = 1; j <= 4; j++) {
-          allLevels.add(start + (stepSize * j));
-        }
-      } else {
-        for (int j = 1; j <= 4; j++) {
-          allLevels.add(stepSize * j);
-        }
-      }
-      allLevels.add(end);
-    }
-
-    return allLevels;
+    return VoteDetailAchieveHelper.generateLevels(mainMilestones);
   }
 
   int _calculateTotalSteps(List<int> mainMilestones) {
-    return _generateLevels(mainMilestones).length;
+    return VoteDetailAchieveHelper.calculateTotalSteps(mainMilestones);
   }
 
   Widget _buildLoadingShimmer() {

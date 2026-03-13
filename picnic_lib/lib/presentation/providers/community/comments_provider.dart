@@ -1,5 +1,6 @@
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
+import 'package:picnic_lib/presentation/providers/community/comment_like_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -230,21 +231,7 @@ class CommentsNotifier extends _$CommentsNotifier {
     String commentId,
     bool isLiked,
   ) {
-    return comments.map((comment) {
-      if (comment.commentId == commentId) {
-        return comment.copyWith(
-          isLikedByMe: isLiked,
-          likes: isLiked ? comment.likes + 1 : comment.likes - 1,
-        );
-      }
-      if (comment.children != null && comment.children!.isNotEmpty) {
-        return comment.copyWith(
-          children:
-              _updateCommentLikeStatus(comment.children!, commentId, isLiked),
-        );
-      }
-      return comment;
-    }).toList();
+    return CommentLikeHelper.updateCommentLikeStatus(comments, commentId, isLiked);
   }
 
   Future<void> reportComment(

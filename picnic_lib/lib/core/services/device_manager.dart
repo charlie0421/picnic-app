@@ -1,5 +1,6 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:picnic_lib/core/services/device_manager_helper.dart';
 import 'package:picnic_lib/core/utils/device_fingerprint.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -16,58 +17,50 @@ class DeviceManager {
     try {
       if (UniversalPlatform.isAndroid) {
         final androidInfo = await _deviceInfo.androidInfo;
-        return {
-          'platform': 'android',
-          'brand': androidInfo.brand,
-          'manufacturer': androidInfo.manufacturer,
-          'model': androidInfo.model,
-          'device': androidInfo.device,
-          'product': androidInfo.product,
-          'version': {
-            'sdk': androidInfo.version.sdkInt,
-            'release': androidInfo.version.release,
-            'security_patch': androidInfo.version.securityPatch,
-          },
-          'hardware': androidInfo.hardware,
-          'is_physical_device': androidInfo.isPhysicalDevice,
-          'android_id': androidInfo.fingerprint,
-          'fingerprint': androidInfo.fingerprint,
-        };
+        return DeviceManagerHelper.buildAndroidDeviceInfo(
+          brand: androidInfo.brand,
+          manufacturer: androidInfo.manufacturer,
+          model: androidInfo.model,
+          device: androidInfo.device,
+          product: androidInfo.product,
+          sdkInt: androidInfo.version.sdkInt,
+          release: androidInfo.version.release,
+          securityPatch: androidInfo.version.securityPatch,
+          hardware: androidInfo.hardware,
+          isPhysicalDevice: androidInfo.isPhysicalDevice,
+          fingerprint: androidInfo.fingerprint,
+        );
       }
 
       if (UniversalPlatform.isIOS) {
         final iosInfo = await _deviceInfo.iosInfo;
-        return {
-          'platform': 'ios',
-          'name': iosInfo.name,
-          'model': iosInfo.model,
-          'system_name': iosInfo.systemName,
-          'system_version': iosInfo.systemVersion,
-          'localized_model': iosInfo.localizedModel,
-          'identifier_for_vendor': iosInfo.identifierForVendor,
-          'is_physical_device': iosInfo.isPhysicalDevice,
-          'utsname': {
-            'machine': iosInfo.utsname.machine,
-            'release': iosInfo.utsname.release,
-          },
-        };
+        return DeviceManagerHelper.buildIOSDeviceInfo(
+          name: iosInfo.name,
+          model: iosInfo.model,
+          systemName: iosInfo.systemName,
+          systemVersion: iosInfo.systemVersion,
+          localizedModel: iosInfo.localizedModel,
+          identifierForVendor: iosInfo.identifierForVendor,
+          isPhysicalDevice: iosInfo.isPhysicalDevice,
+          machine: iosInfo.utsname.machine,
+          release: iosInfo.utsname.release,
+        );
       }
 
       if (UniversalPlatform.isWeb) {
         final webInfo = await _deviceInfo.webBrowserInfo;
-        return {
-          'platform': 'web',
-          'browser': webInfo.browserName.name,
-          'platform_os': webInfo.platform,
-          'user_agent': webInfo.userAgent,
-          'language': webInfo.language,
-        };
+        return DeviceManagerHelper.buildWebDeviceInfo(
+          browserName: webInfo.browserName.name,
+          platformOs: webInfo.platform,
+          userAgent: webInfo.userAgent,
+          language: webInfo.language,
+        );
       }
 
-      return {'platform': 'unknown'};
+      return DeviceManagerHelper.buildUnknownPlatformInfo();
     } catch (e, s) {
       logger.e('Error getting device info', error: e, stackTrace: s);
-      return {'platform': 'error', 'error': e.toString()};
+      return DeviceManagerHelper.buildErrorInfo(e.toString());
     }
   }
 
@@ -120,17 +113,20 @@ class DeviceManager {
       final now = DateTime.now().toIso8601String();
       final packageInfo = await PackageInfo.fromPlatform();
 
-      await supabase.from('devices').upsert({
-        'device_id': deviceId,
-        'user_id': userId,
-        'last_seen': now,
-        'created_at': now,
-        'device_info': deviceInfo,
-        'app_version': packageInfo.version, // 앱 버전 정보 추가
-        'app_build_number': packageInfo.buildNumber, // 빌드 번호 추가
-        'last_ip': await _getIpAddress(), // IP 주소 추가 (선택사항)
-        'last_updated': DateTime.now().toIso8601String(),
-      }, onConflict: 'device_id');
+      final registrationData = DeviceManagerHelper.buildRegistrationData(
+        deviceId: deviceId,
+        userId: userId,
+        now: now,
+        deviceInfo: deviceInfo,
+        appVersion: packageInfo.version,
+        buildNumber: packageInfo.buildNumber,
+        lastIp: await _getIpAddress(),
+      );
+
+      await supabase.from('devices').upsert(
+        registrationData,
+        onConflict: 'device_id',
+      );
 
       return true;
     } catch (e, s) {

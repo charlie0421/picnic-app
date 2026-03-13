@@ -1,9 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/retry_http_client.dart';
 import 'package:picnic_lib/data/storage/supabase_pkce_async_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+/// 테스트에서 Supabase 클라이언트를 주입하기 위한 setter
+/// 테스트 종료 시 반드시 null로 리셋해야 합니다.
+@visibleForTesting
+SupabaseClient? testSupabaseClient;
 
 final customHttpClient = RetryHttpClient(http.Client());
 
@@ -33,6 +39,7 @@ Future<void> initializeSupabase() async {
 
 // 안전한 클라이언트 인스턴스 getter
 SupabaseClient get supabase {
+  if (testSupabaseClient != null) return testSupabaseClient!;
   try {
     return Supabase.instance.client;
   } catch (e) {

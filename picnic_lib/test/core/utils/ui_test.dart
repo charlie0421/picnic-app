@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/ui.dart' as ui;
+
+import '../../helpers/mock_supabase.dart';
+import '../../helpers/test_app.dart';
+import '../../helpers/test_environment.dart';
 
 void main() {
   group('getComplementaryColor', () {
@@ -70,6 +75,132 @@ void main() {
       } else {
         expect(ui.isMobile() != ui.isDesktop(), isTrue);
       }
+    });
+  });
+
+  group('checkSuperAdmin', () {
+    setUp(() {
+      setupMockSupabase({
+        'auth.users': [
+          {'is_super_admin': true},
+        ],
+      });
+    });
+
+    tearDown(() {
+      tearDownMockSupabase();
+    });
+
+    test('returns bool value', () async {
+      final result = await ui.checkSuperAdmin();
+      expect(result, isA<bool>());
+    });
+
+    test('returns false when no user found', () async {
+      tearDownMockSupabase();
+      setupMockSupabase({
+        'auth.users': <Map<String, dynamic>>[],
+      });
+      final result = await ui.checkSuperAdmin();
+      expect(result, false);
+    });
+
+    test('returns true when user is super admin', () async {
+      final result = await ui.checkSuperAdmin();
+      expect(result, true);
+    });
+
+    test('returns false when user is not super admin', () async {
+      tearDownMockSupabase();
+      setupMockSupabase({
+        'auth.users': [
+          {'is_super_admin': false},
+        ],
+      });
+      final result = await ui.checkSuperAdmin();
+      expect(result, false);
+    });
+  });
+
+  group('위젯 유틸리티 함수', () {
+    setUp(() {
+      initTestColors();
+    });
+
+    testWidgets('buildPlaceholderImage renders Shimmer', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          SizedBox(
+            width: 100,
+            height: 100,
+            child: ui.buildPlaceholderImage(),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(SizedBox), findsWidgets);
+    });
+
+    testWidgets('getPlatformScreenSize returns valid size', (tester) async {
+      Size? result;
+      await tester.pumpWidget(
+        buildTestApp(
+          Builder(builder: (context) {
+            result = ui.getPlatformScreenSize(context);
+            return const SizedBox();
+          }),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(result, isNotNull);
+      expect(result!.width, greaterThan(0));
+      expect(result!.height, greaterThan(0));
+    });
+
+    testWidgets('getBottomPadding returns non-negative value', (tester) async {
+      double? result;
+      await tester.pumpWidget(
+        buildTestApp(
+          Builder(builder: (context) {
+            result = ui.getBottomPadding(context);
+            return const SizedBox();
+          }),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(result, isNotNull);
+      expect(result!, greaterThanOrEqualTo(0));
+    });
+
+    testWidgets('isIPad returns bool', (tester) async {
+      bool? result;
+      await tester.pumpWidget(
+        buildTestApp(
+          Builder(builder: (context) {
+            result = ui.isIPad(context);
+            return const SizedBox();
+          }),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(result, isA<bool>());
+    });
+
+    testWidgets('getAppBarHeight returns positive value', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          Consumer(builder: (context, ref, _) {
+            final height = ui.getAppBarHeight(ref);
+            expect(height, greaterThan(0));
+            return const SizedBox();
+          }),
+        ),
+      );
+      await tester.pumpAndSettle();
     });
   });
 }

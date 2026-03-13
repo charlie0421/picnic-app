@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:picnic_lib/core/services/receipt_queue_service.dart';
+import 'package:picnic_lib/core/services/receipt_format_helper.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -101,27 +102,12 @@ class ReceiptVerificationService {
 
   /// 입력 값 검증
   void _validateInputs(String receipt, String productId, String userId) {
-    if (receipt.isEmpty) {
-      throw Exception('영수증 데이터가 비어있습니다');
-    }
-    if (productId.isEmpty) {
-      throw Exception('상품 ID가 비어있습니다');
-    }
-    if (userId.isEmpty) {
-      throw Exception('사용자 ID가 비어있습니다');
-    }
+    ReceiptFormatHelper.validateInputs(receipt, productId, userId);
   }
 
   /// 영수증 형식 감지
   String _detectReceiptFormat(String receipt) {
-    if (receipt.startsWith('eyJ')) {
-      return 'StoreKit2 JWT';
-    } else if (receipt.startsWith('MIIT') || receipt.startsWith('MIIK')) {
-      return 'StoreKit1 Base64';
-    } else if (receipt.contains('.') && receipt.split('.').length == 3) {
-      return 'JWT Custom';
-    }
-    return 'Unknown';
+    return ReceiptFormatHelper.detectReceiptFormat(receipt);
   }
 
   /// iOS 영수증 검증
@@ -140,9 +126,7 @@ class ReceiptVerificationService {
       'productId': productId,
       'user_id': userId,
       'environment': environment,
-      'format': receiptFormat.contains('StoreKit2 JWT')
-          ? 'storekit2_jwt'
-          : 'legacy',
+      'format': ReceiptFormatHelper.getIOSReceiptFormatParam(receiptFormat),
     };
 
     await _callVerificationFunction(requestBody, 'iOS');
@@ -282,43 +266,27 @@ class ReceiptVerificationService {
 
   /// iOS 환경 감지
   String _getIOSEnvironment(PackageInfo packageInfo) {
-    final installerStore = packageInfo.installerStore;
-
-    // 테스트 환경 감지
-    final isTestEnvironment =
-        installerStore == 'com.apple.testflight' ||
-        installerStore == null ||
-        packageInfo.appName.toLowerCase().contains('testflight') ||
-        packageInfo.buildSignature.isNotEmpty;
-
-    final environment = isTestEnvironment
-        ? _sandboxEnvironment
-        : _productionEnvironment;
+    final environment = ReceiptFormatHelper.detectIOSEnvironment(
+      installerStore: packageInfo.installerStore,
+      appName: packageInfo.appName,
+      buildSignature: packageInfo.buildSignature,
+    );
     logger.d('iOS environment: $environment');
     return environment;
   }
 
   /// Android 환경 감지
   String _getAndroidEnvironment(PackageInfo packageInfo) {
-    final installerStore = packageInfo.installerStore;
-
-    // Google Play가 아닌 경우 샌드박스
-    final environment = installerStore != 'com.android.vending'
-        ? _sandboxEnvironment
-        : _productionEnvironment;
-
+    final environment = ReceiptFormatHelper.detectAndroidEnvironment(
+      installerStore: packageInfo.installerStore,
+    );
     logger.d('Android environment: $environment');
     return environment;
   }
 
   /// StoreKit2 JWT 형식 감지
   static bool isStoreKit2JWT(String receiptData) {
-    try {
-      return receiptData.startsWith('eyJ') &&
-          receiptData.split('.').length == 3;
-    } catch (e) {
-      return false;
-    }
+    return ReceiptFormatHelper.isStoreKit2JWT(receiptData);
   }
 
   // ===== iOS JWS 멱등 캐시 =====
@@ -342,45 +310,12 @@ class ReceiptVerificationService {
   }
 
   String _makeIdemKeyFromJWS(String jws) {
-    try {
-      if (!isStoreKit2JWT(jws)) return 'raw:${jws.hashCode}';
-      final parts = jws.split('.');
-      String normalize(String s) {
-        s = s.replaceAll('-', '+').replaceAll('_', '/');
-        while (s.length % 4 != 0) {
-          s += '=';
-        }
-        return s;
-      }
-
-      final payload = json.decode(
-        utf8.decode(base64.decode(normalize(parts[1]))),
-      );
-      final tx =
-          (payload['transactionId'] ?? payload['originalTransactionId'] ?? '')
-              .toString();
-      final time =
-          (payload['signedDate'] ??
-                  payload['purchaseDate'] ??
-                  payload['originalPurchaseDate'] ??
-                  '')
-              .toString();
-      return 'ios:$tx:$time';
-    } catch (_) {
-      return 'raw:${jws.hashCode}';
-    }
+    return ReceiptFormatHelper.makeIdemKeyFromJWS(jws);
   }
 
   /// JWT 부분 디코딩 헬퍼
   static Map<String, dynamic> _decodeJWTPart(String part) {
-    // Base64URL 디코딩을 위한 패딩 추가
-    String normalized = part.replaceAll('-', '+').replaceAll('_', '/');
-    while (normalized.length % 4 != 0) {
-      normalized += '=';
-    }
-
-    final decoded = base64.decode(normalized);
-    return json.decode(utf8.decode(decoded));
+    return ReceiptFormatHelper.decodeJWTPart(part);
   }
 
   /// 통합 영수증 검증 (정적 메서드)

@@ -1,853 +1,999 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
+import 'package:picnic_lib/data/storage/local_storage.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/navigation_stack.dart';
+import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_list_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
+import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
+import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/screens/community/community_home_screen.dart';
+import 'package:picnic_lib/presentation/screens/goong_hap/goong_hap_home_screen.dart';
+import 'package:picnic_lib/presentation/screens/novel/novel_home_screen.dart';
+import 'package:picnic_lib/presentation/screens/pic/pic_home_screen.dart';
+import 'package:picnic_lib/presentation/screens/vote/vote_home_screen.dart';
 
-import '../../helpers/mock_providers.dart';
-import '../../helpers/test_app.dart';
 import '../../helpers/test_environment.dart';
 
+// --------------------------------------------------------------------------
+// Fake LocalStorage that records calls without touching SharedPreferences
+// --------------------------------------------------------------------------
+class FakeLocalStorage implements LocalStorage {
+  final Map<String, String> _store = {};
+
+  @override
+  Future<void> saveData(String key, String value) async {
+    _store[key] = value;
+  }
+
+  @override
+  Future<String?> loadData(String key, dynamic defaultValue) async {
+    return _store[key] ?? defaultValue?.toString();
+  }
+
+  @override
+  Future<void> removeData(String key) async {
+    _store.remove(key);
+  }
+
+  @override
+  Future<void> clearStorage() async {
+    _store.clear();
+  }
+
+  /// Retrieve what was stored (for assertions).
+  String? operator [](String key) => _store[key];
+}
+
 void main() {
+  late ProviderContainer container;
+  late FakeLocalStorage fakeStorage;
+
   setUpAll(() {
     initTestColors();
   });
 
-  group('NavigationInfo build', () {
-    testWidgets('initial state uses VoteHomeScreen', (tester) async {
-      late Navigation initialNav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              initialNav = ref.watch(navigationInfoProvider);
-              return const SizedBox();
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+  setUp(() {
+    fakeStorage = FakeLocalStorage();
+    // Replace the global storage with our fake so calls to saveData
+    // don't hit SharedPreferences.
+    globalStorage = fakeStorage;
 
-      // Default mock navigation has vote portal
-      expect(initialNav.portalType, PortalType.vote);
-      expect(initialNav.showPortal, isTrue);
-      expect(initialNav.showTopMenu, isTrue);
-      expect(initialNav.showBottomNavigation, isTrue);
+    container = ProviderContainer();
+  });
+
+  tearDown(() {
+    container.dispose();
+  });
+
+  // --------------- helpers ------------------------------------------------
+
+  NavigationInfo notifier() => container.read(navigationInfoProvider.notifier);
+
+  Navigation state() => container.read(navigationInfoProvider);
+
+  // ========================================================================
+  // build()
+  // ========================================================================
+  group('build()', () {
+    test('initial state has VoteHomeScreen as currentScreen', () {
+      final nav = state();
+      expect(nav.currentScreen, isA<VoteHomeScreen>());
+    });
+
+    test('initial portalType is vote', () {
+      expect(state().portalType, PortalType.vote);
+    });
+
+    test('initial navigation flags are all true', () {
+      final nav = state();
+      expect(nav.showPortal, isTrue);
+      expect(nav.showTopMenu, isTrue);
+      expect(nav.showBottomNavigation, isTrue);
+      expect(nav.showMyPoint, isTrue);
+    });
+
+    test('initial voteNavigationStack is not null and has 1 page', () {
+      final nav = state();
+      expect(nav.voteNavigationStack, isNotNull);
+      expect(nav.voteNavigationStack!.length, 1);
+    });
+
+    test('initial drawerNavigationStack has MyPage', () {
+      final nav = state();
+      expect(nav.drawerNavigationStack, isNotNull);
+      expect(nav.drawerNavigationStack!.length, 1);
+      expect(nav.drawerNavigationStack!.peek(), isA<MyPage>());
+    });
+
+    test('initial signUpNavigationStack has LoginPage', () {
+      final nav = state();
+      expect(nav.signUpNavigationStack, isNotNull);
+      expect(nav.signUpNavigationStack!.length, 1);
+      expect(nav.signUpNavigationStack!.peek(), isA<LoginPage>());
+    });
+
+    test('initial bottom navigation indices are all 0', () {
+      final nav = state();
+      expect(nav.voteBottomNavigationIndex, 0);
+      expect(nav.picBottomNavigationIndex, 0);
+      expect(nav.communityBottomNavigationIndex, 0);
+      expect(nav.novelBottomNavigationIndex, 0);
     });
   });
 
-  group('NavigationInfo setPortal', () {
-    testWidgets('changes portal type to goongHap', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setPortal(PortalType.goongHap);
-                },
-                child: const Text('switch'),
-              );
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+  // ========================================================================
+  // goBack()
+  // ========================================================================
+  group('goBack()', () {
+    test('pops from voteNavigationStack when length > 1', () async {
+      // Push a second page so we can go back
+      notifier().setCurrentPage(const Text('Page 2'));
+      expect(state().voteNavigationStack!.length, 2);
 
+      await notifier().goBack();
+
+      expect(state().voteNavigationStack!.length, 1);
+    });
+
+    test('restores portal/topMenu/bottomNav when returning to root', () async {
+      // Hide navigation, push a page, then go back
+      notifier().settingNavigation(
+        showPortal: false,
+        showBottomNavigation: false,
+        showTopMenu: false,
+      );
+      notifier().setCurrentPage(const Text('Deep Page'));
+      expect(state().voteNavigationStack!.length, 2);
+
+      await notifier().goBack();
+
+      // At root now (length 1), so flags should be restored to true
+      expect(state().showPortal, isTrue);
+      expect(state().showTopMenu, isTrue);
+      expect(state().showBottomNavigation, isTrue);
+    });
+
+    test('currentScreen is updated to the page below', () async {
+      final page1 = const SizedBox(key: Key('p1'));
+      final page2 = const SizedBox(key: Key('p2'));
+
+      // Replace state with a known stack
+      notifier().replaceState(Navigation(
+        voteNavigationStack: NavigationStack()
+          ..push(page1)
+          ..push(page2),
+        currentScreen: page2,
+      ));
+
+      await notifier().goBack();
+
+      expect(state().currentScreen, same(page1));
+    });
+
+    test('does nothing when stack has only 1 page', () async {
+      // Initial state already has 1 page
+      final lengthBefore = state().voteNavigationStack!.length;
+      expect(lengthBefore, 1);
+
+      await notifier().goBack();
+
+      expect(state().voteNavigationStack!.length, lengthBefore);
+    });
+
+    test('does nothing when stack is null', () async {
+      notifier().replaceState(const Navigation());
+      expect(state().voteNavigationStack, isNull);
+
+      // Should not throw
+      await notifier().goBack();
+    });
+  });
+
+  // ========================================================================
+  // goBackPic()
+  // ========================================================================
+  group('goBackPic()', () {
+    test('pops from voteNavigationStack when length > 1', () async {
+      notifier().setPortal(PortalType.pic);
+      notifier().setPicCurrentPage(const Text('PIC Detail'));
+      final lengthBefore = state().voteNavigationStack!.length;
+
+      await notifier().goBackPic();
+
+      expect(state().voteNavigationStack!.length, lengthBefore - 1);
+    });
+
+    test('does nothing when stack has only 1 page', () async {
+      notifier().setPortal(PortalType.pic);
+      // setPortal resets stack to 1 page
+      expect(state().voteNavigationStack!.length, 1);
+
+      await notifier().goBackPic();
+
+      expect(state().voteNavigationStack!.length, 1);
+    });
+
+    test('restores flags when returning to root', () async {
+      notifier().setPortal(PortalType.pic);
+      notifier().setPicCurrentPage(const Text('PIC Detail'));
+      // Flags might have been changed by setPicCurrentPage
+
+      await notifier().goBackPic();
+
+      final isAtRoot = state().voteNavigationStack!.length <= 1;
+      if (isAtRoot) {
+        expect(state().showPortal, isTrue);
+        expect(state().showTopMenu, isTrue);
+        expect(state().showBottomNavigation, isTrue);
+      }
+    });
+  });
+
+  // ========================================================================
+  // goBackNovel()
+  // ========================================================================
+  group('goBackNovel()', () {
+    test('pops from voteNavigationStack when length > 1', () async {
+      notifier().setPortal(PortalType.novel);
+      notifier().setNovelCurrentPage(const Text('Novel Detail'));
+      final lengthBefore = state().voteNavigationStack!.length;
+
+      await notifier().goBackNovel();
+
+      expect(state().voteNavigationStack!.length, lengthBefore - 1);
+    });
+
+    test('does nothing when stack has only 1 page', () async {
+      notifier().setPortal(PortalType.novel);
+      expect(state().voteNavigationStack!.length, 1);
+
+      await notifier().goBackNovel();
+
+      expect(state().voteNavigationStack!.length, 1);
+    });
+  });
+
+  // ========================================================================
+  // goBackCommunity()
+  // ========================================================================
+  group('goBackCommunity()', () {
+    test('pops from voteNavigationStack when length > 1', () async {
+      notifier().setPortal(PortalType.community);
+      notifier().setCommunityCurrentPage(const Text('Community Detail'));
+      final lengthBefore = state().voteNavigationStack!.length;
+
+      await notifier().goBackCommunity();
+
+      expect(state().voteNavigationStack!.length, lengthBefore - 1);
+    });
+
+    test('does nothing when stack has only 1 page', () async {
+      notifier().setPortal(PortalType.community);
+      expect(state().voteNavigationStack!.length, 1);
+
+      await notifier().goBackCommunity();
+
+      expect(state().voteNavigationStack!.length, 1);
+    });
+  });
+
+  // ========================================================================
+  // goBackMyPage()
+  // ========================================================================
+  group('goBackMyPage()', () {
+    test('pops from drawerNavigationStack when length > 1', () async {
+      notifier().setCurrentMyPage(const Text('Settings'));
+      expect(state().drawerNavigationStack!.length, 2);
+
+      await notifier().goBackMyPage();
+
+      expect(state().drawerNavigationStack!.length, 1);
+    });
+
+    test('does nothing when stack has only 1 page', () async {
+      expect(state().drawerNavigationStack!.length, 1);
+
+      await notifier().goBackMyPage();
+
+      expect(state().drawerNavigationStack!.length, 1);
+    });
+
+    test('does nothing when stack is null', () async {
+      notifier().replaceState(const Navigation());
+      expect(state().drawerNavigationStack, isNull);
+
+      // Should not throw
+      await notifier().goBackMyPage();
+    });
+  });
+
+  // ========================================================================
+  // goBackSignUp()
+  // ========================================================================
+  group('goBackSignUp()', () {
+    test('pops from signUpNavigationStack when length > 1', () {
+      notifier().setCurrentSignUpPage(const Text('Verify'));
+      expect(state().signUpNavigationStack!.length, 2);
+
+      notifier().goBackSignUp();
+
+      expect(state().signUpNavigationStack!.length, 1);
+    });
+
+    test('does nothing when stack has only 1 page', () {
+      expect(state().signUpNavigationStack!.length, 1);
+
+      notifier().goBackSignUp();
+
+      expect(state().signUpNavigationStack!.length, 1);
+    });
+
+    test('does nothing when stack is null', () {
+      notifier().replaceState(const Navigation());
+      expect(state().signUpNavigationStack, isNull);
+
+      // Should not throw
+      notifier().goBackSignUp();
+    });
+  });
+
+  // ========================================================================
+  // getScreen()
+  // ========================================================================
+  group('getScreen()', () {
+    test('returns VoteHomeScreen for PortalType.vote', () {
+      expect(notifier().getScreen(), isA<VoteHomeScreen>());
+    });
+
+    test('returns GoongHapHomeScreen for PortalType.goongHap', () {
+      notifier().setPortal(PortalType.goongHap);
+      expect(notifier().getScreen(), isA<GoongHapHomeScreen>());
+    });
+
+    test('returns PicHomeScreen for PortalType.pic', () {
+      notifier().setPortal(PortalType.pic);
+      expect(notifier().getScreen(), isA<PicHomeScreen>());
+    });
+
+    test('returns CommunityHomeScreen for PortalType.community', () {
+      notifier().setPortal(PortalType.community);
+      expect(notifier().getScreen(), isA<CommunityHomeScreen>());
+    });
+
+    test('returns NovelHomeScreen for PortalType.novel', () {
+      notifier().setPortal(PortalType.novel);
+      expect(notifier().getScreen(), isA<NovelHomeScreen>());
+    });
+  });
+
+  // ========================================================================
+  // setPortal()
+  // ========================================================================
+  group('setPortal()', () {
+    test('sets portalType to vote and resets stack', () {
+      notifier().setPortal(PortalType.pic); // first switch away
+      notifier().setPortal(PortalType.vote);
+
+      final nav = state();
       expect(nav.portalType, PortalType.vote);
+      expect(nav.currentScreen, isA<VoteHomeScreen>());
+      expect(nav.voteBottomNavigationIndex, 0);
+      expect(nav.voteNavigationStack, isNotNull);
+      expect(nav.voteNavigationStack!.length, 1);
+      expect(nav.voteNavigationStack!.peek(), isA<VoteHomePage>());
+    });
 
-      await tester.tap(find.text('switch'));
-      await tester.pumpAndSettle();
+    test('sets portalType to goongHap', () {
+      notifier().setPortal(PortalType.goongHap);
 
+      final nav = state();
       expect(nav.portalType, PortalType.goongHap);
+      expect(nav.currentScreen, isA<GoongHapHomeScreen>());
+      expect(nav.communityBottomNavigationIndex, 0);
+      expect(nav.voteNavigationStack!.peek(), isA<GoonghapListPage>());
     });
 
-    testWidgets('changes portal type to pic', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setPortal(PortalType.pic);
-                },
-                child: const Text('switch'),
-              );
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+    test('sets portalType to pic', () {
+      notifier().setPortal(PortalType.pic);
 
-      await tester.tap(find.text('switch'));
-      await tester.pumpAndSettle();
-
+      final nav = state();
       expect(nav.portalType, PortalType.pic);
+      expect(nav.currentScreen, isA<PicHomeScreen>());
+      expect(nav.picBottomNavigationIndex, 0);
+      expect(nav.voteNavigationStack!.peek(), isA<PicHomePage>());
     });
 
-    testWidgets('changes portal type to community', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setPortal(PortalType.community);
-                },
-                child: const Text('switch'),
-              );
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+    test('sets portalType to community', () {
+      notifier().setPortal(PortalType.community);
 
-      await tester.tap(find.text('switch'));
-      await tester.pumpAndSettle();
-
+      final nav = state();
       expect(nav.portalType, PortalType.community);
+      expect(nav.currentScreen, isA<CommunityHomeScreen>());
+      expect(nav.communityBottomNavigationIndex, 0);
+      expect(nav.voteNavigationStack!.peek(), isA<CommunityHomePage>());
     });
 
-    testWidgets('changes portal type to novel', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setPortal(PortalType.novel);
-                },
-                child: const Text('switch'),
-              );
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+    test('sets portalType to novel', () {
+      notifier().setPortal(PortalType.novel);
 
-      await tester.tap(find.text('switch'));
-      await tester.pumpAndSettle();
-
+      final nav = state();
       expect(nav.portalType, PortalType.novel);
+      expect(nav.currentScreen, isA<NovelHomeScreen>());
+      expect(nav.novelBottomNavigationIndex, 0);
+      expect(nav.voteNavigationStack!.length, 1);
+    });
+
+    test('saves portal string to globalStorage', () {
+      notifier().setPortal(PortalType.pic);
+      expect(fakeStorage['portalString'], 'pic');
+
+      notifier().setPortal(PortalType.community);
+      expect(fakeStorage['portalString'], 'community');
+    });
+
+    test('resets voteNavigationStack to fresh 1-element stack', () {
+      // Push extra pages
+      notifier().setCurrentPage(const Text('Extra'));
+      expect(state().voteNavigationStack!.length, 2);
+
+      // Switch portal -- stack should reset
+      notifier().setPortal(PortalType.community);
+      expect(state().voteNavigationStack!.length, 1);
     });
   });
 
-  group('NavigationInfo getScreen', () {
-    testWidgets('returns widget for each portal type', (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              final notifier = ref.read(navigationInfoProvider.notifier);
-              // Test getScreen for default portal
-              final screen = notifier.getScreen();
-              expect(screen, isA<Widget>());
-              return const SizedBox();
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+  // ========================================================================
+  // setShowBottomNavigation()
+  // ========================================================================
+  group('setShowBottomNavigation()', () {
+    test('sets showBottomNavigation to false', () {
+      notifier().setShowBottomNavigation(false);
+      expect(state().showBottomNavigation, isFalse);
+    });
+
+    test('sets showBottomNavigation to true', () {
+      notifier().setShowBottomNavigation(false);
+      notifier().setShowBottomNavigation(true);
+      expect(state().showBottomNavigation, isTrue);
     });
   });
 
-  group('NavigationInfo navigation methods', () {
-    testWidgets('settingNavigation updates state', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref.read(navigationInfoProvider.notifier).settingNavigation(
-                        showPortal: false,
-                        showBottomNavigation: false,
-                        showTopMenu: false,
-                        pageTitle: 'Test Page',
-                      );
-                },
-                child: const Text('configure'),
-              );
-            },
-          ),
-        ),
+  // ========================================================================
+  // getBottomNavigationIndex()
+  // ========================================================================
+  group('getBottomNavigationIndex()', () {
+    test('returns voteBottomNavigationIndex for vote portal', () {
+      expect(state().portalType, PortalType.vote);
+      expect(notifier().getBottomNavigationIndex(), 0);
+    });
+
+    test('returns communityBottomNavigationIndex for goongHap portal', () {
+      notifier().setPortal(PortalType.goongHap);
+      expect(notifier().getBottomNavigationIndex(), 0);
+    });
+
+    test('returns picBottomNavigationIndex for pic portal', () {
+      notifier().setPortal(PortalType.pic);
+      expect(notifier().getBottomNavigationIndex(), 0);
+    });
+
+    test('returns communityBottomNavigationIndex for community portal', () {
+      notifier().setPortal(PortalType.community);
+      expect(notifier().getBottomNavigationIndex(), 0);
+    });
+
+    test('returns novelBottomNavigationIndex for novel portal', () {
+      notifier().setPortal(PortalType.novel);
+      expect(notifier().getBottomNavigationIndex(), 0);
+    });
+
+    test('returns 0 for unknown portal type', () {
+      notifier().replaceState(
+          const Navigation(portalType: PortalType.mypage));
+      expect(notifier().getBottomNavigationIndex(), 0);
+    });
+  });
+
+  // ========================================================================
+  // setBottomNavigationIndex()
+  // ========================================================================
+  group('setBottomNavigationIndex()', () {
+    test('delegates to setVoteBottomNavigationIndex for vote portal', () {
+      notifier().setBottomNavigationIndex(1);
+
+      expect(state().voteBottomNavigationIndex, 1);
+      expect(fakeStorage['voteBottomNavigationIndex'], '1');
+    });
+
+    test('delegates to setCommunityBottomNavigationIndex for goongHap', () {
+      notifier().setPortal(PortalType.goongHap);
+      // goongHap has only 1 page (index 0), so setting 0 should work
+      notifier().setBottomNavigationIndex(0);
+      expect(state().communityBottomNavigationIndex, 0);
+    });
+
+    test('delegates to setPicBottomNavigationIndex for pic portal', () {
+      notifier().setPortal(PortalType.pic);
+      notifier().setBottomNavigationIndex(1);
+
+      expect(state().picBottomNavigationIndex, 1);
+      expect(fakeStorage['picBottomNavigationIndex'], '1');
+    });
+
+    test('delegates to setCommunityBottomNavigationIndex for community', () {
+      notifier().setPortal(PortalType.community);
+      notifier().setBottomNavigationIndex(1);
+
+      expect(state().communityBottomNavigationIndex, 1);
+      expect(fakeStorage['communityBottomNavigationIndex'], '1');
+    });
+
+    test('delegates to setNovelBottomNavigationIndex for novel portal', () {
+      notifier().setPortal(PortalType.novel);
+      notifier().setBottomNavigationIndex(0);
+
+      expect(state().novelBottomNavigationIndex, 0);
+      expect(fakeStorage['novelBottomNavigationIndex'], '0');
+    });
+
+    test('does nothing for invalid index (out of range)', () {
+      final before = state().voteBottomNavigationIndex;
+      notifier().setBottomNavigationIndex(99); // No page at index 99
+      // NavigationConfigs.getPageWidget returns null, so the setter returns early
+      expect(state().voteBottomNavigationIndex, before);
+    });
+  });
+
+  // ========================================================================
+  // settingNavigation()
+  // ========================================================================
+  group('settingNavigation()', () {
+    test('updates all navigation flags', () {
+      notifier().settingNavigation(
+        showPortal: false,
+        showBottomNavigation: false,
+        showTopMenu: false,
+        showMyPoint: false,
+        topRightMenu: TopRightType.board,
+        pageTitle: 'Test Title',
       );
-      await tester.pumpAndSettle();
 
-      await tester.tap(find.text('configure'));
-      await tester.pumpAndSettle();
-
+      final nav = state();
       expect(nav.showPortal, isFalse);
       expect(nav.showBottomNavigation, isFalse);
       expect(nav.showTopMenu, isFalse);
-      expect(nav.pageTitle, 'Test Page');
+      expect(nav.showMyPoint, isFalse);
+      expect(nav.topRightMenu, TopRightType.board);
+      expect(nav.pageTitle, 'Test Title');
     });
 
-    testWidgets('setShowBottomNavigation toggles visibility', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setShowBottomNavigation(false);
-                },
-                child: const Text('hide'),
-              );
-            },
-          ),
-        ),
+    test('uses defaults for optional parameters', () {
+      notifier().settingNavigation(
+        showPortal: true,
+        showBottomNavigation: true,
+        showTopMenu: true,
       );
-      await tester.pumpAndSettle();
-      expect(nav.showBottomNavigation, isTrue);
 
-      await tester.tap(find.text('hide'));
-      await tester.pumpAndSettle();
+      final nav = state();
+      expect(nav.showMyPoint, isTrue);
+      expect(nav.topRightMenu, TopRightType.common);
+      expect(nav.pageTitle, '');
+    });
+  });
 
-      expect(nav.showBottomNavigation, isFalse);
+  // ========================================================================
+  // setPageTitle() / setMyPageTitle()
+  // ========================================================================
+  group('setPageTitle() / setMyPageTitle()', () {
+    test('setPageTitle updates pageTitle', () {
+      notifier().setPageTitle(pageTitle: 'Hello');
+      expect(state().pageTitle, 'Hello');
     });
 
-    testWidgets('setPageTitle updates title', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setPageTitle(pageTitle: 'New Title');
-                },
-                child: const Text('title'),
-              );
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('title'));
-      await tester.pumpAndSettle();
-
-      expect(nav.pageTitle, 'New Title');
+    test('setMyPageTitle updates myPageTitle', () {
+      notifier().setMyPageTitle(pageTitle: 'My Title');
+      expect(state().myPageTitle, 'My Title');
     });
 
-    testWidgets('setMyPageTitle updates my page title', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setMyPageTitle(pageTitle: 'My Page Title');
-                },
-                child: const Text('myTitle'),
-              );
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+    test('setPageTitle does not affect myPageTitle and vice versa', () {
+      notifier().setPageTitle(pageTitle: 'Page');
+      notifier().setMyPageTitle(pageTitle: 'MyPage');
+      expect(state().pageTitle, 'Page');
+      expect(state().myPageTitle, 'MyPage');
+    });
+  });
 
-      await tester.tap(find.text('myTitle'));
-      await tester.pumpAndSettle();
+  // ========================================================================
+  // setCurrentPage()
+  // ========================================================================
+  group('setCurrentPage()', () {
+    test('pushes page to voteNavigationStack', () {
+      final initialLength = state().voteNavigationStack!.length;
+      notifier().setCurrentPage(const Text('New Page'));
 
-      expect(nav.myPageTitle, 'My Page Title');
+      expect(state().voteNavigationStack!.length, initialLength + 1);
     });
 
-    testWidgets('replaceState replaces entire navigation', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .replaceState(const Navigation(
-                        portalType: PortalType.pic,
-                        pageTitle: 'Replaced',
-                        showPortal: false,
-                      ));
-                },
-                child: const Text('replace'),
-              );
-            },
-          ),
-        ),
+    test('updates currentScreen to the pushed page', () {
+      const page = Text('New Page');
+      notifier().setCurrentPage(page);
+
+      expect(state().currentScreen, same(page));
+    });
+
+    test('default showBottomNavigation is true', () {
+      notifier().setCurrentPage(const Text('Page'));
+      expect(state().showBottomNavigation, isTrue);
+    });
+
+    test('can hide bottom navigation', () {
+      notifier().setCurrentPage(const Text('Page'), showBottomNavigation: false);
+      expect(state().showBottomNavigation, isFalse);
+    });
+
+    test('creates new stack if voteNavigationStack is null', () {
+      notifier().replaceState(const Navigation());
+      expect(state().voteNavigationStack, isNull);
+
+      notifier().setCurrentPage(const Text('Page'));
+      expect(state().voteNavigationStack, isNotNull);
+      expect(state().voteNavigationStack!.length, 1);
+    });
+  });
+
+  // ========================================================================
+  // pushVotePageKeepScreen()
+  // ========================================================================
+  group('pushVotePageKeepScreen()', () {
+    test('pushes page to stack but does not change currentScreen', () {
+      final originalScreen = state().currentScreen;
+      notifier().pushVotePageKeepScreen(const Text('Hidden Page'));
+
+      expect(state().voteNavigationStack!.length, 2);
+      expect(state().currentScreen, same(originalScreen));
+    });
+
+    test('creates new stack if voteNavigationStack is null', () {
+      notifier().replaceState(const Navigation(currentScreen: SizedBox()));
+      notifier().pushVotePageKeepScreen(const Text('Page'));
+
+      expect(state().voteNavigationStack, isNotNull);
+      expect(state().voteNavigationStack!.length, 1);
+    });
+  });
+
+  // ========================================================================
+  // setCommunityCurrentPage()
+  // ========================================================================
+  group('setCommunityCurrentPage()', () {
+    test('pushes page to voteNavigationStack', () {
+      notifier().setPortal(PortalType.community);
+      final initialLength = state().voteNavigationStack!.length;
+
+      notifier().setCommunityCurrentPage(const Text('Community Detail'));
+
+      expect(state().voteNavigationStack!.length, initialLength + 1);
+    });
+
+    test('prevents duplicate push when same type is on top', () {
+      notifier().setPortal(PortalType.community);
+      notifier().setCommunityCurrentPage(const Text('Detail A'));
+      final lengthAfterFirst = state().voteNavigationStack!.length;
+
+      // Same type (Text) is already on top, should skip
+      notifier().setCommunityCurrentPage(const Text('Detail B'));
+      expect(state().voteNavigationStack!.length, lengthAfterFirst);
+    });
+
+    test('allows push of different widget type', () {
+      notifier().setPortal(PortalType.community);
+      notifier().setCommunityCurrentPage(const Text('Detail'));
+      final lengthAfterFirst = state().voteNavigationStack!.length;
+
+      // Different type -- should push
+      notifier().setCommunityCurrentPage(const SizedBox());
+      expect(state().voteNavigationStack!.length, lengthAfterFirst + 1);
+    });
+
+    test('updates currentScreen to the pushed page', () {
+      notifier().setPortal(PortalType.community);
+      const page = SizedBox(key: Key('comm'));
+      notifier().setCommunityCurrentPage(page);
+      expect(state().currentScreen, same(page));
+    });
+  });
+
+  // ========================================================================
+  // setPicCurrentPage() / setNovelCurrentPage()
+  // ========================================================================
+  group('setPicCurrentPage()', () {
+    test('pushes page to voteNavigationStack', () {
+      notifier().setPortal(PortalType.pic);
+      final initialLength = state().voteNavigationStack!.length;
+
+      notifier().setPicCurrentPage(const Text('PIC Detail'));
+
+      expect(state().voteNavigationStack!.length, initialLength + 1);
+      expect(state().currentScreen, isA<Text>());
+    });
+  });
+
+  group('setNovelCurrentPage()', () {
+    test('pushes page to voteNavigationStack', () {
+      notifier().setPortal(PortalType.novel);
+      final initialLength = state().voteNavigationStack!.length;
+
+      notifier().setNovelCurrentPage(const Text('Novel Detail'));
+
+      expect(state().voteNavigationStack!.length, initialLength + 1);
+      expect(state().currentScreen, isA<Text>());
+    });
+  });
+
+  // ========================================================================
+  // replaceState()
+  // ========================================================================
+  group('replaceState()', () {
+    test('replaces entire navigation state', () {
+      const replacement = Navigation(
+        portalType: PortalType.pic,
+        pageTitle: 'Replaced',
+        showPortal: false,
+        showBottomNavigation: false,
       );
-      await tester.pumpAndSettle();
 
-      await tester.tap(find.text('replace'));
-      await tester.pumpAndSettle();
+      notifier().replaceState(replacement);
 
+      final nav = state();
       expect(nav.portalType, PortalType.pic);
       expect(nav.pageTitle, 'Replaced');
       expect(nav.showPortal, isFalse);
-    });
-
-    testWidgets('getBottomNavigationIndex returns correct index for vote',
-        (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              final notifier = ref.read(navigationInfoProvider.notifier);
-              final index = notifier.getBottomNavigationIndex();
-              expect(index, 0); // default vote index is 0
-              return const SizedBox();
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+      expect(nav.showBottomNavigation, isFalse);
     });
   });
 
-  group('NavigationInfo page navigation', () {
-    testWidgets('setCurrentPage pushes page to stack', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setCurrentPage(const Text('Page 2'));
-                },
-                child: const Text('push'),
-              );
-            },
-          ),
-          navigation: Navigation(
-            voteNavigationStack: NavigationStack()..push(const Text('Page 1')),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+  // ========================================================================
+  // setResetStackMyPage()
+  // ========================================================================
+  group('setResetStackMyPage()', () {
+    test('resets drawerNavigationStack with MyPage', () {
+      // First push extra pages
+      notifier().setCurrentMyPage(const Text('Settings'));
+      notifier().setCurrentMyPage(const Text('About'));
+      expect(state().drawerNavigationStack!.length, 3);
 
-      await tester.tap(find.text('push'));
-      await tester.pumpAndSettle();
+      notifier().setResetStackMyPage();
 
-      expect(nav.voteNavigationStack?.length, greaterThanOrEqualTo(1));
+      expect(state().drawerNavigationStack!.length, 1);
+      expect(state().drawerNavigationStack!.peek(), isA<MyPage>());
+    });
+  });
+
+  // ========================================================================
+  // setResetStackSignUp()
+  // ========================================================================
+  group('setResetStackSignUp()', () {
+    test('resets signUpNavigationStack with LoginPage', () {
+      notifier().setCurrentSignUpPage(const Text('Verify'));
+      notifier().setCurrentSignUpPage(const Text('Profile'));
+      expect(state().signUpNavigationStack!.length, 3);
+
+      notifier().setResetStackSignUp();
+
+      expect(state().signUpNavigationStack!.length, 1);
+      expect(state().signUpNavigationStack!.peek(), isA<LoginPage>());
+    });
+  });
+
+  // ========================================================================
+  // setCurrentMyPage()
+  // ========================================================================
+  group('setCurrentMyPage()', () {
+    test('pushes page to drawerNavigationStack', () {
+      notifier().setCurrentMyPage(const Text('Settings'));
+      expect(state().drawerNavigationStack!.length, 2);
     });
 
-    testWidgets('goBack pops from stack', (tester) async {
-      late Navigation nav;
-      final stack = NavigationStack()
-        ..push(const Text('Page 1'))
-        ..push(const Text('Page 2'));
-
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () async {
-                  await ref.read(navigationInfoProvider.notifier).goBack();
-                },
-                child: const Text('back'),
-              );
-            },
-          ),
-          navigation: Navigation(voteNavigationStack: stack),
-        ),
+    test('sets showTopMenu and showBottomNavigation to true', () {
+      notifier().settingNavigation(
+        showPortal: false,
+        showBottomNavigation: false,
+        showTopMenu: false,
       );
-      await tester.pumpAndSettle();
 
-      await tester.tap(find.text('back'));
-      await tester.pumpAndSettle();
+      notifier().setCurrentMyPage(const Text('Settings'));
 
-      // After going back, stack should have fewer items
-      expect(nav.voteNavigationStack, isNotNull);
+      expect(state().showTopMenu, isTrue);
+      expect(state().showBottomNavigation, isTrue);
     });
 
-    testWidgets('goBack does nothing when stack has one item', (tester) async {
-      final stack = NavigationStack()..push(const Text('Only Page'));
+    test('skips push if same page instance is already on top', () {
+      // Push a widget, then try pushing the same instance
+      final page = const SizedBox(key: Key('same'));
+      notifier().setCurrentMyPage(page);
+      final lengthAfter = state().drawerNavigationStack!.length;
 
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () async {
-                  await ref.read(navigationInfoProvider.notifier).goBack();
-                },
-                child: const Text('back'),
-              );
-            },
-          ),
-          navigation: Navigation(voteNavigationStack: stack),
-        ),
+      // peek() == page uses Widget equality. Const widgets with same key are equal.
+      notifier().setCurrentMyPage(page);
+      expect(state().drawerNavigationStack!.length, lengthAfter);
+    });
+
+    test('does nothing when drawerNavigationStack is null', () {
+      notifier().replaceState(const Navigation());
+      expect(state().drawerNavigationStack, isNull);
+
+      // Should not throw; push on null stack is a no-op
+      notifier().setCurrentMyPage(const Text('Page'));
+    });
+  });
+
+  // ========================================================================
+  // setCurrentSignUpPage()
+  // ========================================================================
+  group('setCurrentSignUpPage()', () {
+    test('pushes page to signUpNavigationStack', () {
+      notifier().setCurrentSignUpPage(const Text('Verify'));
+      expect(state().signUpNavigationStack!.length, 2);
+    });
+
+    test('skips push if same page instance is already on top', () {
+      final page = const SizedBox(key: Key('same'));
+      notifier().setCurrentSignUpPage(page);
+      final lengthAfter = state().signUpNavigationStack!.length;
+
+      notifier().setCurrentSignUpPage(page);
+      expect(state().signUpNavigationStack!.length, lengthAfter);
+    });
+
+    test('sets showTopMenu and showBottomNavigation to true', () {
+      notifier().settingNavigation(
+        showPortal: false,
+        showBottomNavigation: false,
+        showTopMenu: false,
       );
-      await tester.pumpAndSettle();
+
+      notifier().setCurrentSignUpPage(const Text('Verify'));
+
+      expect(state().showTopMenu, isTrue);
+      expect(state().showBottomNavigation, isTrue);
+    });
+
+    test('does nothing when signUpNavigationStack is null', () {
+      notifier().replaceState(const Navigation());
+      expect(state().signUpNavigationStack, isNull);
 
       // Should not throw
-      await tester.tap(find.text('back'));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('pushVotePageKeepScreen pushes without changing screen',
-        (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .pushVotePageKeepScreen(const Text('Inner Page'));
-                },
-                child: const Text('push'),
-              );
-            },
-          ),
-          navigation: Navigation(
-            voteNavigationStack: NavigationStack()..push(const Text('Root')),
-            currentScreen: const Text('Screen'),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('push'));
-      await tester.pumpAndSettle();
-
-      expect(nav.voteNavigationStack, isNotNull);
+      notifier().setCurrentSignUpPage(const Text('Page'));
     });
   });
 
-  group('NavigationInfo portal-specific methods', () {
-    testWidgets('setPicCurrentPage pushes to vote stack', (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setPicCurrentPage(const Text('PIC Page'));
-                },
-                child: const Text('picPage'),
-              );
-            },
-          ),
-          navigation: Navigation(
-            portalType: PortalType.pic,
-            voteNavigationStack: NavigationStack()..push(const Text('PIC Root')),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+  // ========================================================================
+  // Portal-specific bottom navigation index setters
+  // ========================================================================
+  group('setVoteBottomNavigationIndex()', () {
+    test('updates index and resets stack with page widget', () {
+      notifier().setPortal(PortalType.vote);
+      notifier().setCurrentPage(const Text('Extra'));
+      expect(state().voteNavigationStack!.length, 2);
 
-      await tester.tap(find.text('picPage'));
-      await tester.pumpAndSettle();
+      // Index 1 = CommunityHomePage for vote portal
+      notifier().setPortal(PortalType.vote); // reset to known state
+      notifier().setBottomNavigationIndex(1);
+
+      expect(state().voteBottomNavigationIndex, 1);
+      expect(state().voteNavigationStack!.length, 1);
+      expect(fakeStorage['voteBottomNavigationIndex'], '1');
     });
 
-    testWidgets('setNovelCurrentPage pushes to vote stack', (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setNovelCurrentPage(const Text('Novel Page'));
-                },
-                child: const Text('novelPage'),
-              );
-            },
-          ),
-          navigation: Navigation(
-            portalType: PortalType.novel,
-            voteNavigationStack:
-                NavigationStack()..push(const Text('Novel Root')),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+    test('does nothing for invalid index', () {
+      notifier().setPortal(PortalType.vote);
+      final indexBefore = state().voteBottomNavigationIndex;
 
-      await tester.tap(find.text('novelPage'));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('setCommunityCurrentPage pushes to vote stack', (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setCommunityCurrentPage(const Text('Community Page'));
-                },
-                child: const Text('communityPage'),
-              );
-            },
-          ),
-          navigation: Navigation(
-            portalType: PortalType.community,
-            voteNavigationStack:
-                NavigationStack()..push(const Text('Community Root')),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('communityPage'));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('goBackPic pops from vote stack', (tester) async {
-      final stack = NavigationStack()
-        ..push(const Text('PIC Root'))
-        ..push(const Text('PIC Detail'));
-
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () async {
-                  await ref.read(navigationInfoProvider.notifier).goBackPic();
-                },
-                child: const Text('back'),
-              );
-            },
-          ),
-          navigation: Navigation(
-            portalType: PortalType.pic,
-            voteNavigationStack: stack,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('back'));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('goBackNovel pops from vote stack', (tester) async {
-      final stack = NavigationStack()
-        ..push(const Text('Novel Root'))
-        ..push(const Text('Novel Detail'));
-
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () async {
-                  await ref.read(navigationInfoProvider.notifier).goBackNovel();
-                },
-                child: const Text('back'),
-              );
-            },
-          ),
-          navigation: Navigation(
-            portalType: PortalType.novel,
-            voteNavigationStack: stack,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('back'));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('goBackCommunity pops from vote stack', (tester) async {
-      final stack = NavigationStack()
-        ..push(const Text('Community Root'))
-        ..push(const Text('Community Detail'));
-
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () async {
-                  await ref
-                      .read(navigationInfoProvider.notifier)
-                      .goBackCommunity();
-                },
-                child: const Text('back'),
-              );
-            },
-          ),
-          navigation: Navigation(
-            portalType: PortalType.community,
-            voteNavigationStack: stack,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('back'));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('goBackMyPage pops from drawer stack', (tester) async {
-      final stack = NavigationStack()
-        ..push(const Text('MyPage'))
-        ..push(const Text('Settings'));
-
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () async {
-                  await ref
-                      .read(navigationInfoProvider.notifier)
-                      .goBackMyPage();
-                },
-                child: const Text('back'),
-              );
-            },
-          ),
-          navigation: Navigation(drawerNavigationStack: stack),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('back'));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('setCurrentMyPage pushes to drawer stack', (tester) async {
-      final stack = NavigationStack()..push(const Text('MyPage Root'));
-
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setCurrentMyPage(const Text('Settings'));
-                },
-                child: const Text('navigate'),
-              );
-            },
-          ),
-          navigation: Navigation(drawerNavigationStack: stack),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('navigate'));
-      await tester.pumpAndSettle();
+      notifier().setBottomNavigationIndex(99);
+      expect(state().voteBottomNavigationIndex, indexBefore);
     });
   });
 
-  group('NavigationInfo bottom navigation index', () {
-    testWidgets('setBottomNavigationIndex for vote portal', (tester) async {
-      late Navigation nav;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              nav = ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setBottomNavigationIndex(1);
-                },
-                child: const Text('setIndex'),
-              );
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+  group('setPicBottomNavigationIndex()', () {
+    test('updates index and sets PicHomeScreen as currentScreen', () {
+      notifier().setPortal(PortalType.pic);
+      notifier().setBottomNavigationIndex(1); // GalleryPage
 
-      await tester.tap(find.text('setIndex'));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('getBottomNavigationIndex for goongHap portal',
-        (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  final notifier = ref.read(navigationInfoProvider.notifier);
-                  notifier.setPortal(PortalType.goongHap);
-                  final idx = notifier.getBottomNavigationIndex();
-                  // goongHap uses communityBottomNavigationIndex which defaults to 0
-                  expect(idx, 0);
-                },
-                child: const Text('test'),
-              );
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('test'));
-      await tester.pumpAndSettle();
+      expect(state().picBottomNavigationIndex, 1);
+      expect(state().currentScreen, isA<PicHomeScreen>());
+      expect(fakeStorage['picBottomNavigationIndex'], '1');
     });
   });
 
-  group('NavigationInfo signup', () {
-    testWidgets('setResetStackSignUp resets signup stack', (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setResetStackSignUp();
-                },
-                child: const Text('reset'),
-              );
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+  group('setCommunityBottomNavigationIndex()', () {
+    test('updates index for community portal', () {
+      notifier().setPortal(PortalType.community);
+      notifier().setBottomNavigationIndex(1); // BoardListPage
 
-      await tester.tap(find.text('reset'));
-      await tester.pumpAndSettle();
+      expect(state().communityBottomNavigationIndex, 1);
+      expect(fakeStorage['communityBottomNavigationIndex'], '1');
+    });
+  });
+
+  group('setNovelBottomNavigationIndex()', () {
+    test('updates index and sets NovelHomeScreen as currentScreen', () {
+      notifier().setPortal(PortalType.novel);
+      notifier().setBottomNavigationIndex(0);
+
+      expect(state().novelBottomNavigationIndex, 0);
+      expect(state().currentScreen, isA<NovelHomeScreen>());
+      expect(fakeStorage['novelBottomNavigationIndex'], '0');
+    });
+  });
+
+  // ========================================================================
+  // Integration / multi-step scenarios
+  // ========================================================================
+  group('integration scenarios', () {
+    test('push multiple pages then go back through entire stack', () async {
+      notifier().setCurrentPage(const Text('Page 2'));
+      notifier().setCurrentPage(const Text('Page 3'));
+      notifier().setCurrentPage(const Text('Page 4'));
+      expect(state().voteNavigationStack!.length, 4);
+
+      await notifier().goBack();
+      expect(state().voteNavigationStack!.length, 3);
+
+      await notifier().goBack();
+      expect(state().voteNavigationStack!.length, 2);
+
+      await notifier().goBack();
+      expect(state().voteNavigationStack!.length, 1);
+
+      // At root -- cannot go further
+      await notifier().goBack();
+      expect(state().voteNavigationStack!.length, 1);
     });
 
-    testWidgets('setResetStackMyPage resets my page stack', (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setResetStackMyPage();
-                },
-                child: const Text('reset'),
-              );
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+    test('switching portals resets vote stack', () {
+      notifier().setCurrentPage(const Text('Extra Page'));
+      expect(state().voteNavigationStack!.length, 2);
 
-      await tester.tap(find.text('reset'));
-      await tester.pumpAndSettle();
+      notifier().setPortal(PortalType.pic);
+      expect(state().voteNavigationStack!.length, 1);
+      expect(state().portalType, PortalType.pic);
+
+      notifier().setPortal(PortalType.vote);
+      expect(state().voteNavigationStack!.length, 1);
+      expect(state().portalType, PortalType.vote);
     });
 
-    testWidgets('goBackSignUp pops from signup stack', (tester) async {
-      final stack = NavigationStack()
-        ..push(const Text('Login'))
-        ..push(const Text('Verify'));
-
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref.read(navigationInfoProvider.notifier).goBackSignUp();
-                },
-                child: const Text('back'),
-              );
-            },
-          ),
-          navigation: Navigation(signUpNavigationStack: stack),
-        ),
+    test('goBack after settingNavigation restores flags at root', () async {
+      notifier().setCurrentPage(const Text('Detail'));
+      notifier().settingNavigation(
+        showPortal: false,
+        showBottomNavigation: false,
+        showTopMenu: false,
       );
-      await tester.pumpAndSettle();
 
-      await tester.tap(find.text('back'));
-      await tester.pumpAndSettle();
+      await notifier().goBack();
+
+      // Back at root (length 1), flags restored
+      expect(state().showPortal, isTrue);
+      expect(state().showTopMenu, isTrue);
+      expect(state().showBottomNavigation, isTrue);
     });
 
-    testWidgets('setCurrentSignUpPage pushes to signup stack', (tester) async {
-      final stack = NavigationStack()..push(const Text('Login'));
+    test('drawer and signup stacks are independent of vote stack', () {
+      notifier().setCurrentPage(const Text('Vote Detail'));
+      notifier().setCurrentMyPage(const Text('MyPage Detail'));
+      notifier().setCurrentSignUpPage(const Text('SignUp Step'));
 
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              ref.watch(navigationInfoProvider);
-              return ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(navigationInfoProvider.notifier)
-                      .setCurrentSignUpPage(const Text('Verify'));
-                },
-                child: const Text('next'),
-              );
-            },
-          ),
-          navigation: Navigation(signUpNavigationStack: stack),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('next'));
-      await tester.pumpAndSettle();
+      expect(state().voteNavigationStack!.length, 2);
+      expect(state().drawerNavigationStack!.length, 2);
+      expect(state().signUpNavigationStack!.length, 2);
     });
   });
 }

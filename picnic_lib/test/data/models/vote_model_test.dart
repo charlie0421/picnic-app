@@ -247,6 +247,68 @@ void main() {
     });
   });
 
+  group('VoteModel with nested items', () {
+    test('fromJson으로 vote_item 리스트를 파싱할 수 있다', () {
+      final json = {
+        'id': 100,
+        'title': {'ko': '투표'},
+        'vote_category': null,
+        'main_image': null,
+        'wait_image': null,
+        'result_image': null,
+        'vote_content': null,
+        'vote_item': [
+          {
+            'id': 1,
+            'vote_total': 100,
+            'star_candy_total': null,
+            'star_candy_bonus_total': null,
+            'vote_id': 100,
+            'artist': null,
+            'artist_group': null,
+          },
+          {
+            'id': 2,
+            'vote_total': 200,
+            'star_candy_total': null,
+            'star_candy_bonus_total': null,
+            'vote_id': 100,
+            'artist': null,
+            'artist_group': null,
+          },
+        ],
+        'created_at': null,
+        'visible_at': null,
+        'stop_at': null,
+        'start_at': null,
+        'is_ended': null,
+        'is_upcoming': null,
+        'is_partnership': null,
+        'partner': null,
+        'reward': [
+          {
+            'id': 10,
+            'title': null,
+            'thumbnail': null,
+            'overview_images': null,
+            'location': null,
+            'size_guide': null,
+            'size_guide_images': null,
+          },
+        ],
+      };
+
+      final vote = VoteModel.fromJson(json);
+      expect(vote.voteItem, isNotNull);
+      expect(vote.voteItem!.length, equals(2));
+      expect(vote.voteItem![0].id, equals(1));
+      expect(vote.voteItem![1].voteTotal, equals(200));
+      expect(vote.reward, isNotNull);
+      expect(vote.reward!.length, equals(1));
+      expect(vote.reward![0].id, equals(10));
+    });
+  });
+
   group('VoteAchieve', () {
     test('fromJson으로 VoteAchieve를 생성할 수 있다', () {
       final json = {
@@ -293,6 +355,54 @@ void main() {
       expect(achieve.amount, equals(100));
       expect(achieve.reward, isNotNull);
       expect(achieve.vote, isNotNull);
+    });
+
+    test('toJson으로 VoteAchieve를 JSON 변환할 수 있다', () {
+      final json = {
+        'id': 1,
+        'vote_id': 10,
+        'reward_id': 5,
+        'order': 1,
+        'amount': 100,
+        'reward': {
+          'id': 5,
+          'title': null,
+          'thumbnail': null,
+          'overview_images': null,
+          'location': null,
+          'size_guide': null,
+          'size_guide_images': null,
+        },
+        'vote': {
+          'id': 10,
+          'title': {'ko': '투표'},
+          'vote_category': null,
+          'main_image': null,
+          'wait_image': null,
+          'result_image': null,
+          'vote_content': null,
+          'vote_item': null,
+          'created_at': null,
+          'visible_at': null,
+          'stop_at': null,
+          'start_at': null,
+          'is_ended': null,
+          'is_upcoming': null,
+          'is_partnership': null,
+          'partner': null,
+          'reward': null,
+        },
+      };
+
+      final achieve = VoteAchieve.fromJson(json);
+      final output = achieve.toJson();
+      expect(output['id'], equals(1));
+      expect(output['vote_id'], equals(10));
+      expect(output['reward_id'], equals(5));
+      expect(output['order'], equals(1));
+      expect(output['amount'], equals(100));
+      expect(output['reward'], isA<Map<String, dynamic>>());
+      expect(output['vote'], isA<Map<String, dynamic>>());
     });
   });
 

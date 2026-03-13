@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_media_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +23,56 @@ import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+/// Pure logic: determines whether the auto-close notice should be shown.
+/// Extracted for testability.
+@visibleForTesting
+bool shouldShowAutoCloseNotice({
+  required String threadStatus,
+  required List<QnaMessage> messages,
+}) {
+  // Resolved threads don't show the notice
+  if (threadStatus.toUpperCase() == 'RESOLVED') return false;
+  if (messages.isEmpty) return false;
+  // Find the latest message by createdAt to be safe
+  final latest = messages.reduce(
+    (a, b) => a.createdAt.isAfter(b.createdAt) ? a : b,
+  );
+  return latest.isAdminMessage;
+}
+
+/// Pure logic: determines if a date divider should be shown between messages
+/// in a reversed list at the given index.
+@visibleForTesting
+bool shouldShowDateDivider({
+  required List<QnaMessage> reversedMessages,
+  required int index,
+}) {
+  if (index == reversedMessages.length - 1) {
+    return true;
+  }
+  final prevMessage = reversedMessages[index + 1];
+  final currentMessageDate = reversedMessages[index].createdAt.toLocal();
+  final prevMessageDate = prevMessage.createdAt.toLocal();
+  return currentMessageDate.day != prevMessageDate.day ||
+      currentMessageDate.month != prevMessageDate.month ||
+      currentMessageDate.year != prevMessageDate.year;
+}
+
+/// Pure logic: determines if an attachment is an image based on MIME type or extension.
+@visibleForTesting
+bool isImageAttachment(QnaAttachment att) {
+  final isImageByMime = att.fileType?.startsWith('image/') ?? false;
+  final isImageByExtension = ['jpg', 'jpeg', 'png', 'gif']
+      .any((ext) => att.fileName.toLowerCase().endsWith('.$ext'));
+  return isImageByMime || isImageByExtension;
+}
+
+/// Pure logic: determines if an attachment is a video based on MIME type.
+@visibleForTesting
+bool isVideoAttachment(QnaAttachment att) {
+  return att.fileType?.startsWith('video/') ?? false;
+}
 
 class QnaThreadDetailPage extends ConsumerStatefulWidget {
   final QnaThread thread;
@@ -754,13 +805,10 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   bool _shouldShowAutoCloseNotice() {
-    if (_thread.isResolved) return false;
-    if (_messages.isEmpty) return false;
-    // Find the latest message by createdAt to be safe
-    final latest = _messages.reduce(
-      (a, b) => a.createdAt.isAfter(b.createdAt) ? a : b,
+    return shouldShowAutoCloseNotice(
+      threadStatus: _thread.status,
+      messages: _messages,
     );
-    return latest.isAdminMessage;
   }
 
   Widget _buildAutoCloseNotice() {

@@ -36,5 +36,34 @@ void main() {
         completes,
       );
     });
+
+    test('initialize can be called multiple times safely', () async {
+      // Multiple calls should not cause errors
+      await PrivacyConsentManager.initialize();
+      await PrivacyConsentManager.initialize();
+      await PrivacyConsentManager.initialize();
+    });
+
+    test('canShowPersonalizedAds returns false consistently on non-mobile', () async {
+      // Call multiple times to verify consistency
+      final r1 = await PrivacyConsentManager.canShowPersonalizedAds();
+      final r2 = await PrivacyConsentManager.canShowPersonalizedAds();
+      final r3 = await PrivacyConsentManager.canShowPersonalizedAds();
+      expect(r1, isFalse);
+      expect(r2, isFalse);
+      expect(r3, isFalse);
+    });
+
+    test('initialize followed by canShowPersonalizedAds returns false on non-mobile', () async {
+      await PrivacyConsentManager.initialize();
+      final result = await PrivacyConsentManager.canShowPersonalizedAds();
+      expect(result, isFalse);
+    });
+
+    test('canShowPersonalizedAds followed by initialize completes', () async {
+      final result = await PrivacyConsentManager.canShowPersonalizedAds();
+      expect(result, isFalse);
+      await expectLater(PrivacyConsentManager.initialize(), completes);
+    });
   });
 }

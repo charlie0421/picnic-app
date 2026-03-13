@@ -1,8 +1,120 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/providers/gallery_list_provider.dart';
 import 'package:picnic_lib/data/models/pic/gallery.dart';
 
+import '../../helpers/mock_supabase.dart';
+
 void main() {
+  group('AsyncGalleryList Supabase 테스트', () {
+    late ProviderContainer container;
+
+    final galleryData = [
+      {
+        'id': 1,
+        'title_ko': '첫번째 갤러리',
+        'title_en': 'First Gallery',
+        'cover': 'https://example.com/cover1.png',
+        'celeb': null,
+      },
+      {
+        'id': 2,
+        'title_ko': '두번째 갤러리',
+        'title_en': 'Second Gallery',
+        'cover': null,
+        'celeb': null,
+      },
+    ];
+
+    setUp(() {
+      setupMockSupabase({'gallery': galleryData});
+      container = ProviderContainer();
+    });
+
+    tearDown(() {
+      container.dispose();
+      tearDownMockSupabase();
+    });
+
+    test('fetches gallery list from supabase', () async {
+      final result = await container.read(asyncGalleryListProvider.future);
+      expect(result.length, 2);
+      expect(result[0].id, 1);
+      expect(result[0].titleKo, '첫번째 갤러리');
+      expect(result[1].titleEn, 'Second Gallery');
+    });
+
+    test('returns empty list when no galleries exist', () async {
+      container.dispose();
+      tearDownMockSupabase();
+
+      setupMockSupabase({'gallery': <Map<String, dynamic>>[]});
+      container = ProviderContainer();
+
+      final result = await container.read(asyncGalleryListProvider.future);
+      expect(result, isEmpty);
+    });
+  });
+
+  group('AsyncCelebGalleryList Supabase 테스트', () {
+    late ProviderContainer container;
+
+    setUp(() {
+      setupMockSupabase({
+        'gallery': [
+          {
+            'id': 10,
+            'title_ko': '셀럽 갤러리',
+            'title_en': 'Celeb Gallery',
+            'cover': null,
+            'celeb': null,
+            'celeb_id': 5,
+          },
+        ],
+      });
+      container = ProviderContainer();
+    });
+
+    tearDown(() {
+      container.dispose();
+      tearDownMockSupabase();
+    });
+
+    test('fetches celeb gallery list from supabase', () async {
+      final result = await container.read(
+        asyncCelebGalleryListProvider(5).future,
+      );
+      expect(result.length, 1);
+      expect(result[0].id, 10);
+      expect(result[0].titleKo, '셀럽 갤러리');
+    });
+  });
+
+  group('SelectedGalleryId Supabase 테스트', () {
+    late ProviderContainer container;
+
+    setUp(() {
+      setupMockSupabase({});
+      container = ProviderContainer();
+    });
+
+    tearDown(() {
+      container.dispose();
+      tearDownMockSupabase();
+    });
+
+    test('default value is 0', () {
+      final id = container.read(selectedGalleryIdProvider);
+      expect(id, 0);
+    });
+
+    test('setSelectedGalleryId updates state', () {
+      container.read(selectedGalleryIdProvider.notifier).setSelectedGalleryId(42);
+      final id = container.read(selectedGalleryIdProvider);
+      expect(id, 42);
+    });
+  });
+
   group('AsyncGalleryList 프로바이더 구조 테스트', () {
     test('asyncGalleryListProvider가 정의되어 있는지 확인', () {
       expect(asyncGalleryListProvider, isNotNull);

@@ -1,6 +1,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/webp_support_helper.dart';
 
 class WebPSupportInfo {
   final bool webp;
@@ -32,41 +33,26 @@ class WebPSupportChecker {
 
     try {
       if (kIsWeb) {
-        _supportInfo = const WebPSupportInfo(
-          webp: true,
-          animatedWebp: true,
-        );
+        _supportInfo = WebPSupportHelper.getWebSupport();
         return _supportInfo!;
       }
 
       if (defaultTargetPlatform == TargetPlatform.iOS) {
         final iosInfo = await _deviceInfo.iosInfo;
-        final List<String> versionParts = iosInfo.systemVersion.split('.');
-        final int majorVersion = int.parse(versionParts[0]);
-
-        _supportInfo = WebPSupportInfo(
-          webp: majorVersion >= 14,
-          animatedWebp: majorVersion >= 14,
-        );
+        _supportInfo =
+            WebPSupportHelper.determineIOSSupport(iosInfo.systemVersion);
         return _supportInfo!;
       }
 
       if (defaultTargetPlatform == TargetPlatform.android) {
         final androidInfo = await _deviceInfo.androidInfo;
-        final int sdkVersion = androidInfo.version.sdkInt;
-
-        _supportInfo = WebPSupportInfo(
-          webp: sdkVersion >= 14,
-          animatedWebp: sdkVersion >= 17, // Android 4.2부터 animated WebP 지원
-        );
+        _supportInfo =
+            WebPSupportHelper.determineAndroidSupport(androidInfo.version.sdkInt);
         return _supportInfo!;
       }
 
       // 기타 플랫폼
-      _supportInfo = const WebPSupportInfo(
-        webp: false,
-        animatedWebp: false,
-      );
+      _supportInfo = WebPSupportHelper.getUnknownPlatformSupport();
       return _supportInfo!;
     } catch (e, s) {
       logger.e('WebP 지원 확인 중 오류 발생', error: e, stackTrace: s);

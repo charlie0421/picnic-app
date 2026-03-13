@@ -10,6 +10,37 @@ import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/ui/style.dart';
 
+/// Pure logic: parse a product description into main and bonus parts.
+/// Returns a record with mainDescription and optional bonusDescription.
+@visibleForTesting
+({String mainDescription, String? bonusDescription}) parseProductDescription(
+    String fullDescription) {
+  if (fullDescription.contains('+')) {
+    final parts = fullDescription.split('+');
+    final mainDescription = parts[0].trim();
+    final bonusDescription = '+${parts.sublist(1).join('+').trim()}';
+    return (mainDescription: mainDescription, bonusDescription: bonusDescription);
+  }
+  return (mainDescription: fullDescription, bonusDescription: null);
+}
+
+/// Pure logic: extract the star image suffix from a product ID.
+/// e.g., 'STAR100' -> '100', 'STAR50' -> '50'
+@visibleForTesting
+String extractStarSuffix(String productId) {
+  return productId.replaceAll('STAR', '');
+}
+
+/// Pure logic: determine if debug info should be shown based on environment info.
+@visibleForTesting
+bool shouldShowDebugInfo(Map<String, dynamic> envInfo) {
+  final isTestFlight = envInfo['environment'] == 'sandbox' &&
+      !envInfo['isDebugMode'] &&
+      (envInfo['installerStore'] == 'com.apple.testflight' ||
+          envInfo['installerStore'] == null);
+  return kDebugMode || isTestFlight;
+}
+
 /// 🎭 구매 관련 다이얼로그 관리자
 class PurchaseDialogHandler {
   final BuildContext _context;

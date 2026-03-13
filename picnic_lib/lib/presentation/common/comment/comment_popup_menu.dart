@@ -5,6 +5,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/comment/comment_popup_menu_helper.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -170,12 +171,18 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
   }
 
   bool _canDeleteComment() {
-    return widget.comment.userId == supabase.auth.currentUser?.id &&
-        widget.comment.deletedAt == null;
+    return CommentPopupMenuHelper.canDeleteComment(
+      commentUserId: widget.comment.userId,
+      currentUserId: supabase.auth.currentUser?.id,
+      deletedAt: widget.comment.deletedAt,
+    );
   }
 
   bool _canReportComment() {
-    return widget.comment.userId != supabase.auth.currentUser?.id &&
-        widget.comment.deletedAt == null;
+    return CommentPopupMenuHelper.canReportComment(
+      commentUserId: widget.comment.userId,
+      currentUserId: supabase.auth.currentUser?.id,
+      deletedAt: widget.comment.deletedAt,
+    );
   }
 }

@@ -1,5 +1,6 @@
 // import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -23,7 +24,8 @@ class ShortformInternalPlatform extends AdPlatform {
     r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
   );
 
-  String _rewriteVideoUrlIfNeeded(String? url) {
+  @visibleForTesting
+  String rewriteVideoUrlIfNeeded(String? url) {
     if (url == null || url.isEmpty) return '';
     final normalized = url.split('?').first.split('#').first;
 
@@ -134,7 +136,7 @@ class ShortformInternalPlatform extends AdPlatform {
               _videoUrl = ad?['video_url'] as String?;
               _ctaUrl = ad?['cta_url'] as String?;
               // 임시: ads/* 또는 /video(s)/output/* 경로를 CloudFront HLS 마스터로 동적 치환
-              _videoUrl = _rewriteVideoUrlIfNeeded(_videoUrl);
+              _videoUrl = rewriteVideoUrlIfNeeded(_videoUrl);
               logInfo('issued (route) video_url: ${_videoUrl ?? ''}');
               _viewToken = tokens?['view_token'] as String?;
               _moreToken = tokens?['more_token'] as String?;

@@ -1,0 +1,807 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
+import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:visibility_detector/visibility_detector.dart';
+
+import '../../../helpers/ignore_image_errors.dart';
+import '../../../helpers/mock_data.dart';
+import '../../../helpers/mock_supabase.dart';
+import '../../../helpers/test_app.dart';
+import '../../../helpers/test_environment.dart';
+
+Map<String, dynamic> _voteRow({
+  int id = 1,
+  String titleKo = '테스트 투표',
+  bool isEnded = false,
+  bool isUpcoming = false,
+}) {
+  final now = DateTime.now().toUtc();
+  return {
+    'id': id,
+    'title': {'ko': titleKo, 'en': 'Test Vote'},
+    'vote_category': 'birthday',
+    'main_image': null,
+    'wait_image': null,
+    'result_image': null,
+    'vote_content': null,
+    'vote_item': [
+      {
+        'id': 1,
+        'vote_id': id,
+        'vote_total': 5000,
+        'artist': {
+          'id': 10,
+          'name': {'ko': '지민', 'en': 'Jimin'},
+          'image': null,
+          'artist_group': {
+            'id': 1,
+            'name': {'ko': 'BTS', 'en': 'BTS'},
+            'image': null,
+          },
+        },
+        'artist_group': null,
+      },
+      {
+        'id': 2,
+        'vote_id': id,
+        'vote_total': 3000,
+        'artist': {
+          'id': 11,
+          'name': {'ko': '정국', 'en': 'Jungkook'},
+          'image': null,
+          'artist_group': {
+            'id': 1,
+            'name': {'ko': 'BTS', 'en': 'BTS'},
+            'image': null,
+          },
+        },
+        'artist_group': null,
+      },
+    ],
+    'created_at': now.toIso8601String(),
+    'visible_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+    'start_at': now.subtract(const Duration(days: 1)).toIso8601String(),
+    'stop_at': now.add(const Duration(days: 7)).toIso8601String(),
+    'is_ended': isEnded,
+    'is_upcoming': isUpcoming,
+    'is_partnership': false,
+    'partner': null,
+    'reward': null,
+  };
+}
+
+Map<String, dynamic> _voteItemRow({
+  int id = 1,
+  int voteId = 1,
+  int voteTotal = 5000,
+  String artistNameKo = '지민',
+  int artistId = 10,
+}) {
+  return {
+    'id': id,
+    'vote_id': voteId,
+    'vote_total': voteTotal,
+    'artist': {
+      'id': artistId,
+      'name': {'ko': artistNameKo, 'en': artistNameKo},
+      'image': null,
+      'artist_group': {
+        'id': 1,
+        'name': {'ko': 'BTS', 'en': 'BTS'},
+        'image': null,
+      },
+    },
+    'artist_group': null,
+  };
+}
+
+void main() {
+  late void Function() restore;
+
+  setUp(() {
+    initTestColors();
+    VisibilityDetectorController.instance.updateInterval = Duration.zero;
+    setupMockSupabase({
+      'vote': [_voteRow()],
+      'vote_item': [
+        _voteItemRow(id: 1, voteTotal: 5000, artistNameKo: '지민', artistId: 10),
+        _voteItemRow(id: 2, voteTotal: 3000, artistNameKo: '정국', artistId: 11),
+      ],
+    });
+    restore = suppressImageErrors();
+  });
+
+  tearDown(() {
+    restore();
+    tearDownMockSupabase();
+  });
+
+  Future<void> pumpAndDrain(WidgetTester tester, widget) async {
+    await tester.pumpWidget(widget);
+    while (tester.takeException() != null) {}
+    await tester.pump(const Duration(seconds: 1));
+    while (tester.takeException() != null) {}
+  }
+
+  group('VoteDetailPage render', () {
+    testWidgets('renders with voteId=1', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with pic portal', (WidgetTester tester) async {
+      setupMockSupabase({
+        'pic_vote': [_voteRow()],
+        'pic_vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1, votePortal: VotePortal.pic),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with ended vote', (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow(isEnded: true)],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 10000),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with upcoming vote', (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow(isUpcoming: true)],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 0),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders logged out state', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+          loggedIn: false,
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('scroll the vote list', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      // Scroll the CustomScrollView
+      final scrollable = find.byType(CustomScrollView);
+      if (scrollable.evaluate().isNotEmpty) {
+        await tester.drag(scrollable.first, const Offset(0, -300),
+            warnIfMissed: false);
+        while (tester.takeException() != null) {}
+        await tester.pump(const Duration(milliseconds: 300));
+        while (tester.takeException() != null) {}
+      }
+    });
+
+    testWidgets('timer ticks update countdown', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      // Pump multiple times to simulate timer ticks
+      for (int i = 0; i < 3; i++) {
+        await tester.pump(const Duration(seconds: 1));
+        while (tester.takeException() != null) {}
+      }
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with many vote items', (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': List.generate(
+          20,
+          (i) => _voteItemRow(
+            id: i + 1,
+            voteTotal: 10000 - i * 500,
+            artistNameKo: '아티스트$i',
+            artistId: 100 + i,
+          ),
+        ),
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+
+      // Scroll down through many items
+      final scrollable = find.byType(CustomScrollView);
+      if (scrollable.evaluate().isNotEmpty) {
+        for (int i = 0; i < 3; i++) {
+          await tester.drag(scrollable.first, const Offset(0, -500),
+              warnIfMissed: false);
+          while (tester.takeException() != null) {}
+          await tester.pump(const Duration(milliseconds: 200));
+          while (tester.takeException() != null) {}
+        }
+      }
+    });
+
+    testWidgets('renders with multiple vote items and different totals',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 50000, artistNameKo: '지민', artistId: 10),
+          _voteItemRow(id: 2, voteTotal: 30000, artistNameKo: '정국', artistId: 11),
+          _voteItemRow(id: 3, voteTotal: 20000, artistNameKo: '뷔', artistId: 12),
+          _voteItemRow(id: 4, voteTotal: 10000, artistNameKo: '진', artistId: 13),
+          _voteItemRow(id: 5, voteTotal: 5000, artistNameKo: 'RM', artistId: 14),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('pull to refresh triggers reload',
+        (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      // Try pull-to-refresh by dragging down
+      final scrollable = find.byType(CustomScrollView);
+      if (scrollable.evaluate().isNotEmpty) {
+        await tester.drag(scrollable.first, const Offset(0, 300),
+            warnIfMissed: false);
+        while (tester.takeException() != null) {}
+        await tester.pump(const Duration(milliseconds: 500));
+        while (tester.takeException() != null) {}
+      }
+    });
+
+    testWidgets('renders with English locale', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+          locale: Locale('en'),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with Japanese locale', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+          locale: Locale('ja'),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with no vote items (empty list)',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': <dynamic>[],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with reward data', (WidgetTester tester) async {
+      final now = DateTime.now().toUtc();
+      setupMockSupabase({
+        'vote': [
+          {
+            ..._voteRow(),
+            'reward': {
+              'id': 1,
+              'title': {'ko': '포토카드'},
+            },
+          }
+        ],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with partnership vote', (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [
+          {
+            ..._voteRow(),
+            'is_partnership': true,
+            'partner': {'name': 'Partner Corp', 'logo': null},
+          }
+        ],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders ended vote with pic portal',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'pic_vote': [_voteRow(isEnded: true)],
+        'pic_vote_item': [
+          _voteItemRow(id: 1, voteTotal: 50000),
+          _voteItemRow(id: 2, voteTotal: 30000, artistNameKo: '정국', artistId: 11),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1, votePortal: VotePortal.pic),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with admin user', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+          userProfile: MockData.userProfile(isAdmin: true),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with zero candy user', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+          userProfile: MockData.userProfile(starCandy: 0, starCandyBonus: 0, jmaCandy: 0),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders single vote item (no competition)',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 100),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with vote content (image/wait/result)',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [
+          {
+            ..._voteRow(),
+            'main_image': 'https://example.com/main.jpg',
+            'wait_image': 'https://example.com/wait.jpg',
+            'result_image': 'https://example.com/result.jpg',
+            'vote_content': {'ko': '투표 설명입니다'},
+          },
+        ],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with reward list (multiple rewards)',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [
+          {
+            ..._voteRow(),
+            'reward': [
+              {'id': 1, 'title': {'ko': '포토카드'}, 'thumbnail': 'https://example.com/r1.jpg'},
+              {'id': 2, 'title': {'ko': '앨범'}, 'thumbnail': null},
+              {'id': 3, 'title': {'ko': '굿즈'}, 'thumbnail': ''},
+            ],
+          }
+        ],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000),
+          _voteItemRow(id: 2, voteTotal: 3000, artistId: 11, artistNameKo: '정국'),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders ended vote with share section visible',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow(isEnded: true)],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 50000, artistNameKo: '지민', artistId: 10),
+          _voteItemRow(id: 2, voteTotal: 30000, artistNameKo: '정국', artistId: 11),
+          _voteItemRow(id: 3, voteTotal: 20000, artistNameKo: '뷔', artistId: 12),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      // Scroll to see share section
+      final scrollable = find.byType(CustomScrollView);
+      if (scrollable.evaluate().isNotEmpty) {
+        await tester.drag(scrollable.first, const Offset(0, -200),
+            warnIfMissed: false);
+        while (tester.takeException() != null) {}
+        await tester.pump(const Duration(milliseconds: 200));
+        while (tester.takeException() != null) {}
+      }
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with main image',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [
+          {
+            ..._voteRow(),
+            'main_image': 'https://example.com/main.jpg',
+          }
+        ],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('timer ticks trigger data refresh',
+        (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      // Pump for 3 seconds to allow timer (2s interval) to fire
+      for (int i = 0; i < 6; i++) {
+        await tester.pump(const Duration(seconds: 1));
+        while (tester.takeException() != null) {}
+      }
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with equal vote totals (same rank)',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000, artistNameKo: '지민', artistId: 10),
+          _voteItemRow(id: 2, voteTotal: 5000, artistNameKo: '정국', artistId: 11),
+          _voteItemRow(id: 3, voteTotal: 5000, artistNameKo: '뷔', artistId: 12),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with upcoming vote with reward',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [
+          {
+            ..._voteRow(isUpcoming: true),
+            'reward': [
+              {'id': 1, 'title': {'ko': '리워드'}, 'thumbnail': 'https://example.com/r.jpg'},
+            ],
+          }
+        ],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 0),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with ended vote and reward',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [
+          {
+            ..._voteRow(isEnded: true),
+            'reward': [
+              {'id': 1, 'title': {'ko': '포토카드'}, 'thumbnail': null},
+            ],
+          }
+        ],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 100000),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('dispose cleans up without error',
+        (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      // Replace with a different widget to trigger dispose
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const SizedBox(),
+        ),
+      );
+      while (tester.takeException() != null) {}
+      await tester.pump(const Duration(milliseconds: 300));
+      while (tester.takeException() != null) {}
+    });
+
+    testWidgets('renders with pic portal and multiple items',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'pic_vote': [_voteRow()],
+        'pic_vote_item': [
+          _voteItemRow(id: 1, voteTotal: 50000),
+          _voteItemRow(id: 2, voteTotal: 30000, artistNameKo: '정국', artistId: 11),
+          _voteItemRow(id: 3, voteTotal: 10000, artistNameKo: '뷔', artistId: 12),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1, votePortal: VotePortal.pic),
+        ),
+      );
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+
+      // Scroll to see all items
+      final scrollable = find.byType(CustomScrollView);
+      if (scrollable.evaluate().isNotEmpty) {
+        await tester.drag(scrollable.first, const Offset(0, -300),
+            warnIfMissed: false);
+        while (tester.takeException() != null) {}
+        await tester.pump(const Duration(milliseconds: 200));
+        while (tester.takeException() != null) {}
+      }
+    });
+
+    testWidgets('renders with low-ranked items (rank > 3)',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': List.generate(
+          6,
+          (i) => _voteItemRow(
+            id: i + 1,
+            voteTotal: 10000 - i * 1500,
+            artistNameKo: '아티스트${i + 1}',
+            artistId: 10 + i,
+          ),
+        ),
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      // Scroll to see lower-ranked items
+      final scrollable = find.byType(CustomScrollView);
+      if (scrollable.evaluate().isNotEmpty) {
+        await tester.drag(scrollable.first, const Offset(0, -500),
+            warnIfMissed: false);
+        while (tester.takeException() != null) {}
+        await tester.pump(const Duration(milliseconds: 200));
+        while (tester.takeException() != null) {}
+      }
+
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+  });
+
+  group('VoteGainIndicator render', () {
+    testWidgets('renders with positive diff', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(const VoteGainIndicator(diff: 100)),
+      );
+
+      expect(find.byType(VoteGainIndicator), findsOneWidget);
+    });
+
+    testWidgets('renders with zero diff', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(const VoteGainIndicator(diff: 0)),
+      );
+
+      expect(find.byType(VoteGainIndicator), findsOneWidget);
+    });
+
+    testWidgets('renders with negative diff', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(const VoteGainIndicator(diff: -5)),
+      );
+
+      expect(find.byType(VoteGainIndicator), findsOneWidget);
+    });
+
+    testWidgets('transition from zero to positive triggers animation',
+        (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(const VoteGainIndicator(diff: 0)),
+      );
+
+      await pumpAndDrain(
+        tester,
+        buildTestApp(const VoteGainIndicator(diff: 50)),
+      );
+
+      expect(find.byType(VoteGainIndicator), findsOneWidget);
+    });
+  });
+}

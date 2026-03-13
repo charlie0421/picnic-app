@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/comment/post_popup_menu_helper.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -105,12 +106,18 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
   }
 
   bool _canDeletePost() {
-    return widget.post.userId == supabase.auth.currentUser?.id &&
-        widget.post.deletedAt == null;
+    return PostPopupMenuHelper.canDeletePost(
+      postUserId: widget.post.userId,
+      currentUserId: supabase.auth.currentUser?.id,
+      deletedAt: widget.post.deletedAt,
+    );
   }
 
   bool _canReportPost() {
-    return widget.post.userId != supabase.auth.currentUser?.id &&
-        widget.post.deletedAt == null;
+    return PostPopupMenuHelper.canReportPost(
+      postUserId: widget.post.userId,
+      currentUserId: supabase.auth.currentUser?.id,
+      deletedAt: widget.post.deletedAt,
+    );
   }
 }

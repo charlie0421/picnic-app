@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -17,6 +18,18 @@ import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_card
 import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_error.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+
+/// Pure logic: calculate loading progress as a fraction of total time.
+/// Returns 1.0 if loading has not started, otherwise seconds / totalSeconds.
+@visibleForTesting
+double calculateLoadingProgress({
+  required bool isLoadingStarted,
+  required int seconds,
+  required int totalSeconds,
+}) {
+  if (!isLoadingStarted) return 1.0;
+  return seconds / totalSeconds;
+}
 
 class GoonghapLoadingPage extends ConsumerStatefulWidget {
   const GoonghapLoadingPage({super.key, required this.goonghap});
@@ -178,7 +191,11 @@ class _GoonghapLoadingPageState
   }
 
   // 성능 최적화를 위한 계산 캐싱
-  double get _progress => _isLoadingStarted ? _seconds / _totalSeconds : 1.0;
+  double get _progress => calculateLoadingProgress(
+        isLoadingStarted: _isLoadingStarted,
+        seconds: _seconds,
+        totalSeconds: _totalSeconds,
+      );
 
   // 불필요한 리빌드 방지를 위한 메서드 분리
   Widget _buildProgressBar(BoxConstraints constraints) {

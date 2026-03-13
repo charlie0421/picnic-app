@@ -127,10 +127,10 @@ class VirtualMachineDetector {
             ? await _checkBuildValues(androidInfo, configs.sublist(0, 4))
             : false;
         final hardwareCheck = VMDetectionConfig.enableHardwareCheck
-            ? _checkHardwareWithInfo(cpuInfo, hasSensors, configs[4])
+            ? checkHardwareWithInfo(cpuInfo, hasSensors, configs[4])
             : false;
         final networkCheck = VMDetectionConfig.enableNetworkCheck
-            ? _checkNetworkWithInfo(ttl, macAddress, configs.sublist(5))
+            ? checkNetworkWithInfo(ttl, macAddress, configs.sublist(5))
             : false;
 
         final isEmulator = buildInfo || hardwareCheck || networkCheck;
@@ -211,7 +211,7 @@ class VirtualMachineDetector {
                   'ttl': {'value': ttl, 'range': configs[5]},
                   'mac': {
                     'address': macAddress,
-                    'matched_keywords': _sanitizeKeywords(configs[6])
+                    'matched_keywords': sanitizeKeywords(configs[6])
                         .where(
                           (keyword) => macAddress?.startsWith(keyword) ?? false,
                         )
@@ -319,13 +319,15 @@ class VirtualMachineDetector {
     }
   }
 
-  static List<String> _sanitizeKeywords(String? config) {
+  @visibleForTesting
+  static List<String> sanitizeKeywords(String? config) {
     if (config == null || config.isEmpty) return [];
     return config.split(',').where((k) => k.isNotEmpty).toList();
   }
 
   // 부분 문자열 오탐 방지를 위한 단어 경계 매칭
-  static bool _containsWholeToken(String text, String keyword) {
+  @visibleForTesting
+  static bool containsWholeToken(String text, String keyword) {
     if (keyword.isEmpty) return false;
     final pattern = RegExp(
       '(?<![A-Za-z0-9_])${RegExp.escape(keyword)}(?![A-Za-z0-9_])',
@@ -409,16 +411,16 @@ class VirtualMachineDetector {
 ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
 ''');
 
-    final vmKeywords = _sanitizeKeywords(configs[0]);
-    final bluestacksKeywords = _sanitizeKeywords(configs[1]);
-    final hardwareKeywords = _sanitizeKeywords(configs[2]);
-    final manufacturerKeywords = _sanitizeKeywords(configs[3]);
+    final vmKeywords = sanitizeKeywords(configs[0]);
+    final bluestacksKeywords = sanitizeKeywords(configs[1]);
+    final hardwareKeywords = sanitizeKeywords(configs[2]);
+    final manufacturerKeywords = sanitizeKeywords(configs[3]);
 
     // 매칭된 키워드 찾기
     final vmMatches = vmKeywords
         .map(
           (keyword) =>
-              KeywordMatch(keyword, _containsWholeToken(deviceInfo, keyword)),
+              KeywordMatch(keyword, containsWholeToken(deviceInfo, keyword)),
         )
         .where((match) => match.isMatch)
         .toList();
@@ -426,7 +428,7 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     final bluestacksMatches = bluestacksKeywords
         .map(
           (keyword) =>
-              KeywordMatch(keyword, _containsWholeToken(deviceInfo, keyword)),
+              KeywordMatch(keyword, containsWholeToken(deviceInfo, keyword)),
         )
         .where((match) => match.isMatch)
         .toList();
@@ -520,12 +522,13 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     );
   }
 
-  static bool _checkHardwareWithInfo(
+  @visibleForTesting
+  static bool checkHardwareWithInfo(
     String cpuInfo,
     bool hasSensors,
     String? cpuKeywordsConfig,
   ) {
-    final cpuKeywords = _sanitizeKeywords(cpuKeywordsConfig);
+    final cpuKeywords = sanitizeKeywords(cpuKeywordsConfig);
 
     // CPU 정보에서 의심스러운 패턴 체크
     final suspiciousCpu =
@@ -537,16 +540,22 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     return suspiciousCpu || !hasSensors;
   }
 
+  /// Counts processor entries from /proc/cpuinfo text content.
+  @visibleForTesting
+  static int countProcessorsFromCpuInfo(String cpuInfoText) {
+    return cpuInfoText
+        .split('\n')
+        .where((line) => line.trim().toLowerCase().startsWith('processor'))
+        .length;
+  }
+
   static Future<int?> _getCpuCores() async {
     try {
       final file = File('/proc/cpuinfo');
       final cpuInfo = await file.readAsString();
 
       // processor 라인을 찾아서 개수를 세는 방식
-      final processorCount = cpuInfo
-          .split('\n')
-          .where((line) => line.trim().toLowerCase().startsWith('processor'))
-          .length;
+      final processorCount = countProcessorsFromCpuInfo(cpuInfo);
 
       if (processorCount == 0) {
         // processor 라인이 없는 경우, CPU 코어 수를 직접 가져오기
@@ -561,13 +570,14 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     }
   }
 
-  static bool _checkNetworkWithInfo(
+  @visibleForTesting
+  static bool checkNetworkWithInfo(
     int? ttl,
     String? macAddress,
     List<String?> configs,
   ) {
-    final ttlRange = _sanitizeKeywords(configs[0]);
-    final macKeywords = _sanitizeKeywords(configs[1]);
+    final ttlRange = sanitizeKeywords(configs[0]);
+    final macKeywords = sanitizeKeywords(configs[1]);
 
     final suspiciousTtl =
         ttlRange.length == 2 &&
@@ -625,12 +635,18 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     }
   }
 
+  /// Parses TTL value from ping command output.
+  @visibleForTesting
+  static int? parseTTLFromPingOutput(String output) {
+    final ttlMatch = RegExp(r'ttl=(\d+)').firstMatch(output);
+    return ttlMatch != null ? int.parse(ttlMatch.group(1)!) : null;
+  }
+
   static Future<int?> _getTTL() async {
     try {
       final result = await Process.run('ping', ['-c', '1', '8.8.8.8']);
       final output = result.stdout.toString();
-      final ttlMatch = RegExp(r'ttl=(\d+)').firstMatch(output);
-      return ttlMatch != null ? int.parse(ttlMatch.group(1)!) : null;
+      return parseTTLFromPingOutput(output);
     } catch (e) {
       return null;
     }
@@ -760,7 +776,7 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     final cpuInfo = await _readCpuInfo();
     final hasSensors = await _checkSensors();
 
-    final cpuKeywords = _sanitizeKeywords(cpuKeywordsConfig);
+    final cpuKeywords = sanitizeKeywords(cpuKeywordsConfig);
     final suspiciousCpu = cpuKeywords.any(
       (keyword) => cpuInfo.toLowerCase().contains(keyword),
     );

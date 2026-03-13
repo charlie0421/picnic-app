@@ -12,6 +12,7 @@ import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
 import 'package:picnic_lib/core/services/update_service.dart';
+import 'package:picnic_lib/core/utils/app_initializer_helper.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
@@ -102,82 +103,19 @@ class AppInitializer {
       options.addInAppInclude('sentry-debug-meta.properties');
 
       options.beforeSend = (event, hint) {
-        if (!Environment.enableSentry || kDebugMode) {
-          return null;
-        }
-
-        // 네트워크/HTTP 에러 노이즈 필터링
         final exceptionValue =
             event.exceptions?.firstOrNull?.value ?? '';
         final exceptionType =
             event.exceptions?.firstOrNull?.type ?? '';
 
-        // 네트워크/인프라 관련 노이즈 필터링 (사용자 환경 문제)
-        const networkNoiseTypes = {
-          'HTTPClientError',
-          'NetworkError',
-          'ClientException',
-          'OSError',
-          'AuthRetryableFetchException',
-        };
-        if (networkNoiseTypes.contains(exceptionType)) {
-          return null;
-        }
+        final shouldFilter = AppInitializerHelper.shouldFilterSentryEvent(
+          sentryEnabled: Environment.enableSentry,
+          isDebugMode: kDebugMode,
+          exceptionType: exceptionType,
+          exceptionValue: exceptionValue,
+        );
 
-        // Supabase SDK 내부 TypeError 필터링 (PICNIC-APP-T2)
-        // PostgREST _parseResponse에서 응답이 null일 때 발생하는 SDK 버그
-        if (exceptionType == 'TypeError' &&
-            exceptionValue.contains('Null check operator used on a null value')) {
-          return null;
-        }
-
-        // 광고 SDK 노이즈 필터링 (로드 실패, 시간 초과, 포그라운드 아닐 때)
-        const adNoiseTypes = {'LoadAdError', 'AdError'};
-        if (adNoiseTypes.contains(exceptionType)) {
-          return null;
-        }
-        if (exceptionType == 'String' &&
-            (exceptionValue.contains('광고 로드 실패') ||
-             exceptionValue.contains('광고 로드 시간 초과'))) {
-          return null;
-        }
-
-        // Edge Function 502 Bad Gateway 필터링
-        if (exceptionType == 'FunctionException' &&
-            exceptionValue.contains('502')) {
-          return null;
-        }
-
-        // RLS 정책 위반 노이즈 필터링 (PICNIC-APP-47)
-        // 세션 만료 등으로 인한 예상된 에러, 앱에서 이미 처리됨
-        if (exceptionType == 'PostgrestException' &&
-            exceptionValue.contains('row-level security policy')) {
-          return null;
-        }
-
-        // Supabase 502 Bad Gateway 필터링 (PICNIC-APP-47)
-        // Cloudflare가 HTML 에러 페이지를 반환하는 서버 일시 장애
-        if (exceptionType == 'PostgrestException' &&
-            (exceptionValue.contains('DOCTYPE') ||
-             exceptionValue.contains('502'))) {
-          return null;
-        }
-
-        // JWT 만료 필터링 (PICNIC-APP-47R)
-        // 디바이스 시계 오차/백그라운드 복귀 시 발생하는 일시적 에러
-        if (exceptionType == 'PostgrestException' &&
-            exceptionValue.contains('JWT expired')) {
-          return null;
-        }
-
-        // Android Keystore BAD_DECRYPT 필터링 (PICNIC-APP-B8)
-        // OS 업데이트 등으로 암호화 키가 무효화된 경우
-        if (exceptionType == 'PlatformException' &&
-            exceptionValue.contains('BAD_DECRYPT')) {
-          return null;
-        }
-
-        return event;
+        return shouldFilter ? null : event;
       };
     });
     logger.i('Sentry initialized');
@@ -744,9 +682,12 @@ class AppInitializer {
     try {
       // 중복 딥링크 처리 방지 (2초 이내 같은 URL 무시)
       final now = DateTime.now();
-      if (_lastDeepLinkUrl == longUrl &&
-          _lastDeepLinkTime != null &&
-          now.difference(_lastDeepLinkTime!).inMilliseconds < 2000) {
+      if (AppInitializerHelper.isDuplicateDeepLink(
+        url: longUrl,
+        lastUrl: _lastDeepLinkUrl,
+        lastTime: _lastDeepLinkTime,
+        now: now,
+      )) {
         logger.i('[DeepLink] Ignoring duplicate deep link: $longUrl');
         return;
       }

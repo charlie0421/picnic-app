@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:picnic_lib/core/errors/auth_exception.dart';
+import 'package:picnic_lib/core/services/auth/auth_service_helper.dart';
 import 'package:picnic_lib/core/services/auth/social_login/apple_login.dart';
 import 'package:picnic_lib/core/services/auth/social_login/google_login.dart';
 import 'package:picnic_lib/core/services/auth/social_login/kakao_login.dart';
@@ -150,10 +151,7 @@ class AuthService {
   }
 
   bool _isSessionExpired(Session session) {
-    final expiresAt = DateTime.fromMillisecondsSinceEpoch(
-      session.expiresAt! * 1000,
-    );
-    return DateTime.now().isAfter(expiresAt);
+    return AuthServiceHelper.isSessionExpired(session.expiresAt!);
   }
 
   Future<bool> refreshSession() async {
@@ -251,16 +249,7 @@ class AuthService {
   }
 
   supa.OAuthProvider _parseProvider(String? provider) {
-    switch (provider?.toLowerCase()) {
-      case 'google':
-        return supa.OAuthProvider.google;
-      case 'apple':
-        return supa.OAuthProvider.apple;
-      case 'kakao':
-        return supa.OAuthProvider.kakao;
-      default:
-        return supa.OAuthProvider.google;
-    }
+    return AuthServiceHelper.parseProvider(provider);
   }
 
   Future<void> _handleAuthError(dynamic error) async {
@@ -271,11 +260,7 @@ class AuthService {
   }
 
   bool _shouldClearSession(dynamic error) {
-    // TimeoutException은 일시적 네트워크 문제이므로 세션을 삭제하지 않음
-    // 세션 삭제는 명확한 인증 실패(401, Token expired)에서만 수행
-    return error is AuthException &&
-        (error.message.contains('Token expired') ||
-            error.statusCode == "401");
+    return AuthServiceHelper.shouldClearSession(error);
   }
 
   Future<void> _saveAndNotifySession(Session session) async {

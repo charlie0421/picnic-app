@@ -6,6 +6,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/dialogs/report_dialog_helper.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -74,16 +75,15 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
   }
 
   void _validateOtherReason() {
-    if (_selectedReason == 4) {
-      final text = _otherReasonController.text.trim();
+    if (_selectedReason == ReportDialogHelper.otherReasonIndex) {
       setState(() {
-        if (text.isEmpty) {
-          _errorText = AppLocalizations.of(context).post_report_other_input;
-        } else if (text.length > _maxLength) {
-          _errorText = '최대 $_maxLength자까지 입력 가능합니다.';
-        } else {
-          _errorText = null;
-        }
+        _errorText = ReportDialogHelper.validateOtherReason(
+          selectedReason: _selectedReason,
+          text: _otherReasonController.text,
+          maxLength: _maxLength,
+          emptyErrorMessage:
+              AppLocalizations.of(context).post_report_other_input,
+        );
       });
     }
   }

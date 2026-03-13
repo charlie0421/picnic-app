@@ -80,21 +80,22 @@ String getTimezoneAbbreviation() {
     }
 
     // 2. IANA 시간대 이름으로 데이터베이스에서 약어 찾기
-    final ianaName = _getIanaTimeZoneName();
+    final ianaName = getIanaTimeZoneName();
     if (ianaName != null && timezoneAbbreviations.containsKey(ianaName)) {
       return timezoneAbbreviations[ianaName]!;
     }
 
     // 3. UTC 오프셋으로 폴백
-    return _formatUtcOffset();
+    return formatUtcOffset();
   } catch (e) {
     logger.e('시간대 약어 가져오기 실패', error: e);
-    return _formatUtcOffset();
+    return formatUtcOffset();
   }
 }
 
 /// IANA 시간대 이름을 가져오는 시도
-String? _getIanaTimeZoneName() {
+@visibleForTesting
+String? getIanaTimeZoneName() {
   try {
     // DateTime.now().timeZoneName이 IANA 형식인 경우 (일부 플랫폼)
     final timeZoneName = DateTime.now().timeZoneName;
@@ -132,7 +133,8 @@ String? _getIanaTimeZoneName() {
 
 /// UTC 오프셋을 포맷팅합니다.
 /// 예: 'GMT+9', 'GMT-5', 'GMT+5:30'
-String _formatUtcOffset() {
+@visibleForTesting
+String formatUtcOffset() {
   final offset = DateTime.now().timeZoneOffset;
   final hours = offset.inHours.abs();
   final minutes = offset.inMinutes.abs() % 60;

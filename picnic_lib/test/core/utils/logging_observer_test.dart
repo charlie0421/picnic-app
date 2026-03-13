@@ -55,6 +55,22 @@ void main() {
       // Same object should not print
       expect(messages, isEmpty);
     });
+
+    test('detectChanges message contains runtimeType info', () {
+      final messages = <String>[];
+      debugPrint = (String? message, {int? wrapWidth}) {
+        if (message != null) messages.add(message);
+      };
+
+      observer.detectChanges(_TestObj(100), _TestObj(200));
+
+      debugPrint = debugPrintThrottled;
+
+      if (kDebugMode) {
+        expect(messages, isNotEmpty);
+        expect(messages.first, contains('_TestObj'));
+      }
+    });
   });
 }
 

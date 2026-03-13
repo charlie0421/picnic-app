@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_score_widget.dart';
 import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_summary_widget.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_result_helper.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class GoonghapResultContent extends ConsumerStatefulWidget {
@@ -124,14 +125,10 @@ class _GoonghapResultContentState
     final country = (locale.countryCode ?? '').toUpperCase();
 
     // 정규화된 언어 코드 생성
-    String normalizedLang = language;
-    if (language == 'zh') {
-      if (country == 'CN') {
-        normalizedLang = 'zh-CN';
-      } else if (country == 'TW') {
-        normalizedLang = 'zh-TW';
-      }
-    }
+    final normalizedLang = GoonghapResultHelper.normalizeLanguageCode(
+      language,
+      country,
+    );
 
     if (widget.goonghap.localizedResults?.isEmpty ?? true) {
       return Center(

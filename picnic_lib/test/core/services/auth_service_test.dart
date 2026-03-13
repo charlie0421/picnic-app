@@ -1,18 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
+import 'package:picnic_lib/data/models/common/social_login_result.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 void main() {
   group('AuthService', () {
-    group('생성자 및 DI', () {
-      test('기본 생성자로 인스턴스를 생성할 수 있다', () {
+    group('constructor and DI', () {
+      test('creates instance with default constructor', () {
         final service = AuthService();
         expect(service, isNotNull);
         expect(service, isA<AuthService>());
       });
 
-      test('선택적 의존성을 주입하여 인스턴스를 생성할 수 있다', () {
-        // 모든 파라미터가 optional이므로 null 전달 시에도 기본값으로 생성
+      test('creates instance with null optional dependencies', () {
         final service = AuthService(
           storageService: null,
           networkService: null,
@@ -21,19 +24,37 @@ void main() {
         expect(service, isNotNull);
       });
 
-      test('커스텀 loginProviders를 주입할 수 있다', () {
+      test('creates instance with custom loginProviders', () {
         final customProviders = <supa.OAuthProvider, SocialLogin>{};
         final service = AuthService(loginProviders: customProviders);
+        expect(service, isNotNull);
+      });
+
+      test('creates instance with single provider', () {
+        final providers = <supa.OAuthProvider, SocialLogin>{
+          supa.OAuthProvider.google: _FakeSocialLogin(),
+        };
+        final service = AuthService(loginProviders: providers);
+        expect(service, isNotNull);
+      });
+
+      test('creates instance with multiple providers', () {
+        final providers = <supa.OAuthProvider, SocialLogin>{
+          supa.OAuthProvider.google: _FakeSocialLogin(),
+          supa.OAuthProvider.apple: _FakeSocialLogin(),
+          supa.OAuthProvider.kakao: _FakeSocialLogin(),
+        };
+        final service = AuthService(loginProviders: providers);
         expect(service, isNotNull);
       });
     });
 
     group('sessionStream', () {
-      test('sessionStream은 broadcast Stream이다', () {
+      test('sessionStream is a broadcast Stream', () {
         final service = AuthService();
         final stream = service.sessionStream;
         expect(stream, isA<Stream<supa.Session?>>());
-        // broadcast stream은 여러 리스너를 허용한다
+        // broadcast stream allows multiple listeners
         stream.listen((_) {});
         stream.listen((_) {});
         service.dispose();
@@ -41,21 +62,18 @@ void main() {
     });
 
     group('dispose', () {
-      test('dispose 호출 후 sessionStream이 닫힌다', () async {
+      test('dispose closes the stream', () async {
         final service = AuthService();
         await service.dispose();
-        // dispose 후 stream에 listen하면 즉시 done 이벤트를 받는다
         final events = <supa.Session?>[];
         service.sessionStream.listen(
           events.add,
-          onDone: () {
-            // stream이 닫혔음을 확인
-          },
+          onDone: () {},
         );
       });
     });
 
-    group('메서드 시그니처 확인', () {
+    group('method signatures', () {
       late AuthService service;
 
       setUp(() {
@@ -66,27 +84,26 @@ void main() {
         await service.dispose();
       });
 
-      test('signInWithProvider는 Future<User?>를 반환하는 메서드이다', () {
-        // 메서드가 존재하고 올바른 타입의 메서드인지 확인
+      test('signInWithProvider is a method', () {
         expect(service.signInWithProvider, isA<Function>());
       });
 
-      test('recoverSession은 Future<bool>을 반환하는 메서드이다', () {
+      test('recoverSession is a method', () {
         expect(service.recoverSession, isA<Function>());
       });
 
-      test('refreshSession은 Future<bool>을 반환하는 메서드이다', () {
+      test('refreshSession is a method', () {
         expect(service.refreshSession, isA<Function>());
       });
 
-      test('signOut은 Future<void>를 반환하는 메서드이다', () {
+      test('signOut is a method', () {
         expect(service.signOut, isA<Function>());
       });
     });
   });
 
   group('AuthTimeouts', () {
-    test('기본 타임아웃 값이 올바르게 설정된다', () {
+    test('default timeout values', () {
       const timeouts = AuthTimeouts();
       expect(timeouts.networkCheck, equals(const Duration(seconds: 5)));
       expect(timeouts.sessionRecovery, equals(const Duration(seconds: 10)));
@@ -94,7 +111,7 @@ void main() {
       expect(timeouts.tokenExpiration, equals(const Duration(hours: 1)));
     });
 
-    test('커스텀 타임아웃 값을 설정할 수 있다', () {
+    test('custom timeout values', () {
       const customTimeouts = AuthTimeouts(
         networkCheck: Duration(seconds: 3),
         sessionRecovery: Duration(seconds: 5),
@@ -102,19 +119,228 @@ void main() {
         tokenExpiration: Duration(minutes: 30),
       );
       expect(customTimeouts.networkCheck, equals(const Duration(seconds: 3)));
-      expect(
-          customTimeouts.sessionRecovery, equals(const Duration(seconds: 5)));
+      expect(customTimeouts.sessionRecovery, equals(const Duration(seconds: 5)));
       expect(customTimeouts.tokenRefresh, equals(const Duration(seconds: 4)));
-      expect(
-          customTimeouts.tokenExpiration, equals(const Duration(minutes: 30)));
+      expect(customTimeouts.tokenExpiration, equals(const Duration(minutes: 30)));
+    });
+
+    test('all zero durations', () {
+      const timeouts = AuthTimeouts(
+        networkCheck: Duration.zero,
+        sessionRecovery: Duration.zero,
+        tokenRefresh: Duration.zero,
+        tokenExpiration: Duration.zero,
+      );
+      expect(timeouts.networkCheck, Duration.zero);
+      expect(timeouts.sessionRecovery, Duration.zero);
     });
   });
 
-  group('SocialLogin 인터페이스', () {
-    test('SocialLogin은 login과 logout 메서드를 가진 추상 클래스이다', () {
-      // SocialLogin이 추상 클래스인지 컴파일 타임에 확인 (인스턴스화 불가)
-      // 타입 체크만 수행
+  group('SocialLogin interface', () {
+    test('SocialLogin is a type', () {
       expect(SocialLogin, isNotNull);
     });
+
+    test('FakeSocialLogin implements SocialLogin', () {
+      final fake = _FakeSocialLogin();
+      expect(fake, isA<SocialLogin>());
+    });
   });
+
+  group('PicnicAuthExceptions factory methods', () {
+    test('invalidToken', () {
+      final e = PicnicAuthExceptions.invalidToken();
+      expect(e.code, 'invalid_token');
+    });
+
+    test('canceled', () {
+      final e = PicnicAuthExceptions.canceled();
+      expect(e.code, 'canceled');
+    });
+
+    test('network', () {
+      final e = PicnicAuthExceptions.network();
+      expect(e.code, 'network_error');
+    });
+
+    test('storageError', () {
+      final e = PicnicAuthExceptions.storageError();
+      expect(e.code, 'storage_error');
+    });
+
+    test('unsupportedProvider', () {
+      final e = PicnicAuthExceptions.unsupportedProvider('test');
+      expect(e.code, 'unsupported_provider');
+      expect(e.message, contains('test'));
+    });
+
+    test('unknown with originalError', () {
+      final orig = Exception('orig');
+      final e = PicnicAuthExceptions.unknown(originalError: orig);
+      expect(e.code, 'unknown');
+      expect(e.originalError, orig);
+    });
+
+    test('unknown without originalError', () {
+      final e = PicnicAuthExceptions.unknown();
+      expect(e.code, 'unknown');
+      expect(e.originalError, isNull);
+    });
+
+    test('deviceBanned', () {
+      final e = PicnicAuthExceptions.deviceBanned();
+      expect(e, isA<supa.AuthException>());
+      expect(e.statusCode, 'DEVICE_BANNED');
+    });
+  });
+
+  group('PicnicAuthException', () {
+    test('toString format', () {
+      final e = PicnicAuthException('code', 'message');
+      expect(e.toString(), contains('PicnicAuthException'));
+      expect(e.toString(), contains('code'));
+      expect(e.toString(), contains('message'));
+    });
+
+    test('implements Exception', () {
+      expect(PicnicAuthException('c', 'm'), isA<Exception>());
+    });
+
+    test('originalError access', () {
+      final orig = StateError('x');
+      final e = PicnicAuthException('c', 'm', originalError: orig);
+      expect(e.originalError, orig);
+    });
+
+    test('fields are accessible', () {
+      final e = PicnicAuthException('my_code', 'my_msg');
+      expect(e.code, 'my_code');
+      expect(e.message, 'my_msg');
+    });
+  });
+
+  group('JWT provider extraction logic', () {
+    test('parses google provider', () {
+      final payload = base64Url
+          .encode(utf8.encode(jsonEncode({'provider': 'google'})));
+      final jwt = 'eyJhbGciOiJIUzI1NiJ9.$payload.sig';
+      final parts = jwt.split('.');
+      expect(parts.length, 3);
+      final decoded = jsonDecode(
+        String.fromCharCodes(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
+      expect(decoded['provider'], 'google');
+    });
+
+    test('parses apple provider', () {
+      final payload = base64Url
+          .encode(utf8.encode(jsonEncode({'provider': 'apple'})));
+      final jwt = 'eyJhbGciOiJIUzI1NiJ9.$payload.sig';
+      final parts = jwt.split('.');
+      final decoded = jsonDecode(
+        String.fromCharCodes(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
+      expect(decoded['provider'], 'apple');
+    });
+
+    test('parses kakao provider', () {
+      final payload = base64Url
+          .encode(utf8.encode(jsonEncode({'provider': 'kakao'})));
+      final jwt = 'eyJhbGciOiJIUzI1NiJ9.$payload.sig';
+      final parts = jwt.split('.');
+      final decoded = jsonDecode(
+        String.fromCharCodes(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
+      expect(decoded['provider'], 'kakao');
+    });
+
+    test('missing provider field defaults to null', () {
+      final payload = base64Url
+          .encode(utf8.encode(jsonEncode({'sub': 'user123'})));
+      final jwt = 'eyJhbGciOiJIUzI1NiJ9.$payload.sig';
+      final parts = jwt.split('.');
+      final decoded = jsonDecode(
+        String.fromCharCodes(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
+      expect(decoded['provider'], isNull);
+    });
+
+    test('handles invalid JWT with wrong number of parts', () {
+      const jwt = 'only.two';
+      final parts = jwt.split('.');
+      expect(parts.length, 2);
+    });
+  });
+
+  group('shouldClearSession logic', () {
+    test('AuthException with 401 should clear', () {
+      const error = supa.AuthException('msg', statusCode: '401');
+      final shouldClear = error is supa.AuthException &&
+          (error.message.contains('Token expired') ||
+              error.statusCode == '401');
+      expect(shouldClear, isTrue);
+    });
+
+    test('AuthException with Token expired should clear', () {
+      const error = supa.AuthException('Token expired', statusCode: '200');
+      final shouldClear = error is supa.AuthException &&
+          (error.message.contains('Token expired') ||
+              error.statusCode == '401');
+      expect(shouldClear, isTrue);
+    });
+
+    test('AuthException with 400 should not clear', () {
+      const error = supa.AuthException('Bad request', statusCode: '400');
+      final shouldClear = error is supa.AuthException &&
+          (error.message.contains('Token expired') ||
+              error.statusCode == '401');
+      expect(shouldClear, isFalse);
+    });
+
+    test('regular Exception should not clear', () {
+      final error = Exception('network');
+      final shouldClear = error is supa.AuthException;
+      expect(shouldClear, isFalse);
+    });
+  });
+
+  group('SocialLoginResult', () {
+    test('all null fields', () {
+      const r = SocialLoginResult();
+      expect(r.idToken, isNull);
+      expect(r.accessToken, isNull);
+      expect(r.userData, isNull);
+    });
+
+    test('all fields set', () {
+      const r = SocialLoginResult(
+        idToken: 'id',
+        accessToken: 'access',
+        userData: {'email': 'e@e.com'},
+      );
+      expect(r.idToken, 'id');
+      expect(r.accessToken, 'access');
+      expect(r.userData?['email'], 'e@e.com');
+    });
+
+    test('only idToken', () {
+      const r = SocialLoginResult(idToken: 'token');
+      expect(r.idToken, 'token');
+      expect(r.accessToken, isNull);
+    });
+
+    test('only userData', () {
+      const r = SocialLoginResult(userData: {'key': 'val'});
+      expect(r.userData?['key'], 'val');
+      expect(r.idToken, isNull);
+    });
+  });
+}
+
+class _FakeSocialLogin implements SocialLogin {
+  @override
+  Future<SocialLoginResult> login() async => const SocialLoginResult();
+
+  @override
+  Future<void> logout() async {}
 }

@@ -254,6 +254,58 @@ void main() {
     });
   });
 
+  group('handleVoteItemRequestError 추가 케이스', () {
+    test('String 오류 - forbidden 키워드 감지', () {
+      final result = service.handleVoteItemRequestError('forbidden resource');
+      expect(result.errorType, equals(ErrorType.authentication));
+      expect(result.shouldRetry, isFalse);
+    });
+
+    test('String 오류 - connection 키워드 감지', () {
+      final result = service.handleVoteItemRequestError('connection reset');
+      expect(result.errorType, equals(ErrorType.network));
+      expect(result.shouldRetry, isTrue);
+    });
+
+    test('String 오류 - 일반 문자열', () {
+      final result = service.handleVoteItemRequestError('some random error');
+      expect(result.errorType, equals(ErrorType.unknown));
+      expect(result.userMessage, equals('some random error'));
+    });
+
+    test('context 정보가 전달됨', () {
+      final ctx = {'voteId': 123};
+      final result = service.handleVoteItemRequestError(
+        'error',
+        context: ctx,
+      );
+      expect(result.additionalData, equals(ctx));
+    });
+  });
+
+  group('handleServerError 추가 케이스', () {
+    test('504 Gateway Timeout은 재시도 가능', () {
+      final result = service.handleServerError(504, 'gateway timeout');
+      expect(result.shouldRetry, isTrue);
+      expect(result.errorType, equals(ErrorType.server));
+    });
+
+    test('context 정보 전달', () {
+      final ctx = {'url': '/api/vote'};
+      final result = service.handleServerError(500, 'error', context: ctx);
+      expect(result.additionalData, equals(ctx));
+    });
+  });
+
+  group('generateUserFriendlyMessage 추가', () {
+    test('client 타입 메시지', () {
+      expect(
+        service.generateUserFriendlyMessage(ErrorType.client, ''),
+        contains('요청'),
+      );
+    });
+  });
+
   group('logError', () {
     test('각 severity 레벨에서 예외 없이 로깅', () {
       for (final severity in ErrorSeverity.values) {

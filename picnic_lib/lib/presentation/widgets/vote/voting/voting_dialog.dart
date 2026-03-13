@@ -23,6 +23,7 @@ import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_usage_helper.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -778,30 +779,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final userInfo = ref.read(userInfoProvider).value;
     final starCandyBonus = userInfo?.starCandyBonus ?? 0;
 
-    int starCandyUsage = 0;
-    int starCandyBonusUsage = 0;
-    int remainingAmount = totalAmount;
-
-    // 1. 먼저 보너스 캔디 사용
-    if (starCandyBonus > 0 && remainingAmount > 0) {
-      if (starCandyBonus >= remainingAmount) {
-        starCandyBonusUsage = remainingAmount;
-        remainingAmount = 0;
-      } else {
-        starCandyBonusUsage = starCandyBonus;
-        remainingAmount -= starCandyBonus;
-      }
-    }
-
-    // 2. 남은 금액은 일반 캔디 사용
-    if (remainingAmount > 0) {
-      starCandyUsage = remainingAmount;
-    }
-
-    return {
-      'star_candy_usage': starCandyUsage,
-      'star_candy_bonus_usage': starCandyBonusUsage,
-    };
+    return VotingUsageHelper.calculateUsage(
+      totalAmount: totalAmount,
+      starCandyBonus: starCandyBonus,
+    );
   }
 
   static const int _voteBatchSize = 1000;

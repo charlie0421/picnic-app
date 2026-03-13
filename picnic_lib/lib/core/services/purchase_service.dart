@@ -12,6 +12,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_se
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
+import 'package:picnic_lib/core/services/purchase_service_helper.dart';
 // 🔥 복잡한 가드 시스템 제거 - 단순 중복 방지만 사용
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/services/duplicate_prevention_service.dart';
@@ -48,6 +49,9 @@ class PurchaseService {
   final ReceiptVerificationService receiptVerificationService;
   final AnalyticsService analyticsService;
   final DuplicatePreventionService duplicatePreventionService;
+
+  /// Helper for pure logic methods (testable without platform dependencies)
+  final PurchaseServiceHelper helper = const PurchaseServiceHelper();
 
   // 🔥 단순화: 복잡한 가드 시스템 제거
   // 기본적인 제품별 구매 진행 상태만 추적 (백업용)
@@ -244,12 +248,7 @@ class PurchaseService {
       );
 
       // 사용자 친화적 오류 메시지
-      String userMessage = '구매 시작 중 오류가 발생했습니다';
-      if (e.toString().contains('상품 정보')) {
-        userMessage = '상품 정보를 찾을 수 없습니다. 잠시 후 다시 시도해주세요.';
-      } else if (e.toString().contains('네트워크')) {
-        userMessage = '네트워크 연결을 확인해주세요.';
-      }
+      final userMessage = helper.getUserFriendlyErrorMessage(e);
 
       onError(userMessage);
       return {
@@ -524,54 +523,22 @@ class PurchaseService {
     List<ProductDetails> storeProducts,
     Map<String, dynamic> serverProduct,
   ) {
-    return storeProducts.firstWhere(
-      (element) => isAndroid()
-          ? element.id.toUpperCase() == serverProduct['id']
-          : element.id == Environment.inappAppNamePrefix + serverProduct['id'],
-      orElse: () => throw Exception('스토어에서 상품을 찾을 수 없습니다'),
+    return helper.findProductDetails(
+      storeProducts: storeProducts,
+      serverProductId: serverProduct['id'] as String,
+      isAndroid: isAndroid(),
+      inappAppNamePrefix: Environment.inappAppNamePrefix,
     );
   }
 
   /// 에러 메시지 생성
   String _getErrorMessage(IAPError? error) {
-    if (error == null) return 'GENERIC';
-
-    switch (error.code) {
-      case 'payment_invalid':
-        return '결제 정보가 유효하지 않습니다.';
-      case 'payment_canceled':
-        return PurchaseConstants.errPurchaseCanceled;
-      case 'store_problem':
-        return PurchaseConstants.errServer;
-      default:
-        return 'GENERIC';
-    }
+    return helper.getErrorMessage(error);
   }
 
   /// 상세 에러 메시지 생성
   String _getDetailedErrorMessage(dynamic error) {
-    final errorString = error.toString();
-
-    // 코드 기반 반환(국제화는 UI 레이어에서 수행)
-    if (errorString.contains('Receipt verification failed')) {
-      return 'RECEIPT_VERIFICATION_FAILED';
-    } else if (errorString.contains('timeout') ||
-        errorString.contains('타임아웃')) {
-      return PurchaseConstants.errTimeout;
-    } else if (errorString.contains('Touch ID') ||
-        errorString.contains('Face ID')) {
-      return PurchaseConstants.errAuthTimeout;
-    } else if (errorString.contains('USER_NOT_AUTHENTICATED')) {
-      return 'USER_NOT_AUTHENTICATED';
-    } else if (errorString.contains('PRODUCT_NOT_FOUND')) {
-      return 'PRODUCT_NOT_FOUND';
-    } else if (errorString.toLowerCase().contains('network')) {
-      return PurchaseConstants.errNetwork;
-    } else if (errorString.toLowerCase().contains('server')) {
-      return PurchaseConstants.errServer;
-    }
-
-    return 'GENERIC';
+    return helper.getDetailedErrorMessage(error);
   }
 
   /// 서비스 해제 시 모든 진행 상태 정리

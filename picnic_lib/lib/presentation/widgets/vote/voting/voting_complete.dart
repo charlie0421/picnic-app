@@ -19,6 +19,7 @@ import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart'
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete_helper.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 Future showVotingCompleteDialog({
@@ -177,27 +178,9 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            () {
-                              try {
-                                final updatedAtStr =
-                                    widget.result['updatedAt'] as String?;
-                                if (updatedAtStr == null) {
-                                  return formatLocalDateTime(DateTime.now());
-                                }
-                                final parsedDate = DateTime.tryParse(
-                                  updatedAtStr,
-                                );
-                                if (parsedDate == null) {
-                                  return formatLocalDateTime(DateTime.now());
-                                }
-                                return formatLocalDateTime(parsedDate);
-                              } catch (e) {
-                                logger.w(
-                                  'Failed to parse updatedAt: ${widget.result['updatedAt']}, error: $e',
-                                );
-                                return formatLocalDateTime(DateTime.now());
-                              }
-                            }(),
+                            formatLocalDateTime(
+                              VotingCompleteHelper.parseUpdatedAt(widget.result),
+                            ),
                             style: getTextStyle(
                               AppTypo.caption12R,
                               AppColors.grey600,
@@ -408,7 +391,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
 
   Widget _buildVoteAmountHighlight() {
     final addedVoteTotal =
-        (widget.result['addedVoteTotal'] as num?)?.toInt() ?? 0;
+        VotingCompleteHelper.extractAddedVoteTotal(widget.result);
 
     return Container(
       height: double.infinity,

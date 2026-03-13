@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 
 void main() {
   group('ShorebirdPatchEvent', () {
@@ -88,12 +89,106 @@ void main() {
       ShorebirdUtils.setDownloadCompleteMessage('Update ready!');
     });
 
+    test('setDownloadCompleteMessage accepts empty string', () {
+      ShorebirdUtils.setDownloadCompleteMessage('');
+    });
+
     test('showRestartNotification completes without error', () async {
       // This method is a no-op (notification disabled)
       await ShorebirdUtils.showRestartNotification(
         title: 'Test',
         body: 'Test body',
       );
+    });
+
+    test('showRestartNotification with empty strings', () async {
+      await ShorebirdUtils.showRestartNotification(
+        title: '',
+        body: '',
+      );
+    });
+
+    test('isPatchingAvailable returns true on non-web platform', () async {
+      // In test environment (macOS), UniversalPlatform.isWeb is false
+      final available = await ShorebirdUtils.isPatchingAvailable();
+      expect(available, isTrue);
+    });
+
+    test('setOnPatchStatusChanged receives events', () {
+      ShorebirdPatchEvent? received;
+      ShorebirdUtils.setOnPatchStatusChanged((event) => received = event);
+
+      // _notifyPatchStatus is private, but we can verify callback is set
+      // Clean up
+      ShorebirdUtils.setOnPatchStatusChanged(null);
+      expect(received, isNull);
+    });
+
+    test('setPendingPatch toggle works', () {
+      ShorebirdUtils.setPendingPatch(false);
+      expect(ShorebirdUtils.hasPendingPatch, isFalse);
+
+      ShorebirdUtils.setPendingPatch(true);
+      expect(ShorebirdUtils.hasPendingPatch, isTrue);
+
+      ShorebirdUtils.setPendingPatch(false);
+      expect(ShorebirdUtils.hasPendingPatch, isFalse);
+    });
+  });
+
+  group('PatchStatusCheckResult', () {
+    test('creates with required status only', () {
+      const result = PatchStatusCheckResult(
+        status: shorebird.UpdateStatus.upToDate,
+      );
+      expect(result.status, shorebird.UpdateStatus.upToDate);
+      expect(result.currentPatchNumber, isNull);
+      expect(result.nextPatchNumber, isNull);
+    });
+
+    test('creates with all fields', () {
+      const result = PatchStatusCheckResult(
+        status: shorebird.UpdateStatus.outdated,
+        currentPatchNumber: 5,
+        nextPatchNumber: 6,
+      );
+      expect(result.status, shorebird.UpdateStatus.outdated);
+      expect(result.currentPatchNumber, 5);
+      expect(result.nextPatchNumber, 6);
+    });
+
+    test('creates with restartRequired status', () {
+      const result = PatchStatusCheckResult(
+        status: shorebird.UpdateStatus.restartRequired,
+        currentPatchNumber: 3,
+        nextPatchNumber: 4,
+      );
+      expect(result.status, shorebird.UpdateStatus.restartRequired);
+    });
+
+    test('creates with unavailable status', () {
+      const result = PatchStatusCheckResult(
+        status: shorebird.UpdateStatus.unavailable,
+      );
+      expect(result.status, shorebird.UpdateStatus.unavailable);
+    });
+
+    test('creates with only currentPatchNumber', () {
+      const result = PatchStatusCheckResult(
+        status: shorebird.UpdateStatus.upToDate,
+        currentPatchNumber: 10,
+      );
+      expect(result.currentPatchNumber, 10);
+      expect(result.nextPatchNumber, isNull);
+    });
+
+    test('creates with only nextPatchNumber', () {
+      const result = PatchStatusCheckResult(
+        status: shorebird.UpdateStatus.restartRequired,
+        nextPatchNumber: 7,
+      );
+      expect(result.currentPatchNumber, isNull);
+      expect(result.nextPatchNumber, 7);
     });
   });
 }

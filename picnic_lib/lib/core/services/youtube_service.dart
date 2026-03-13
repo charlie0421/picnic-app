@@ -44,7 +44,7 @@ class YouTubeContentService {
 
   Future<VideoInfo> _fetchYoutubeInfoWeb(String url) async {
     try {
-      final videoId = _extractVideoId(url);
+      final videoId = extractVideoId(url);
       if (videoId == null) {
         throw Exception('Invalid YouTube URL');
       }
@@ -72,9 +72,9 @@ class YouTubeContentService {
 
         return VideoInfo(
           id: data['videoId'] ?? videoId,
-          title: _decodeHtmlEntities(data['title'] ?? 'YouTube Video'),
+          title: decodeHtmlEntities(data['title'] ?? 'YouTube Video'),
           channelTitle:
-              _decodeHtmlEntities(data['channelTitle'] ?? 'Unknown Channel'),
+              decodeHtmlEntities(data['channelTitle'] ?? 'Unknown Channel'),
           channelThumbnail: data['channelThumbnail'] ?? '',
           thumbnailUrl: thumbnailUrl,
           viewCount: int.tryParse(data['viewCount']?.toString() ?? '0') ?? 0,
@@ -86,12 +86,12 @@ class YouTubeContentService {
       throw Exception('Failed to fetch video data: ${response.statusCode}');
     } catch (e, s) {
       logger.e('Error fetching video info: $e', stackTrace: s);
-      return _createFallbackVideoInfo(url);
+      return createFallbackVideoInfo(url);
     }
   }
 
   Future<VideoInfo> _fetchYoutubeInfoNative(String url) async {
-    final videoId = _extractVideoId(url);
+    final videoId = extractVideoId(url);
     if (videoId == null) {
       throw Exception('Invalid YouTube URL');
     }
@@ -130,8 +130,8 @@ class YouTubeContentService {
 
       return VideoInfo(
         id: videoId,
-        title: _decodeHtmlEntities(snippet['title']),
-        channelTitle: _decodeHtmlEntities(snippet['channelTitle']),
+        title: decodeHtmlEntities(snippet['title']),
+        channelTitle: decodeHtmlEntities(snippet['channelTitle']),
         channelThumbnail: channelThumbnail,
         thumbnailUrl: snippet['thumbnails']?['maxres']?['url'] ??
             snippet['thumbnails']?['high']?['url'] ??
@@ -142,12 +142,13 @@ class YouTubeContentService {
       );
     } catch (e, s) {
       logger.e('Error fetching video info from native: $e', stackTrace: s);
-      return _createFallbackVideoInfo(url);
+      return createFallbackVideoInfo(url);
     }
   }
 
-  VideoInfo _createFallbackVideoInfo(String url) {
-    final videoId = _extractVideoId(url);
+  @visibleForTesting
+  VideoInfo createFallbackVideoInfo(String url) {
+    final videoId = extractVideoId(url);
     return VideoInfo(
       id: videoId ?? '',
       title: 'YouTube Video',
@@ -161,7 +162,8 @@ class YouTubeContentService {
     );
   }
 
-  String _decodeHtmlEntities(String text) {
+  @visibleForTesting
+  String decodeHtmlEntities(String text) {
     return text
         .replaceAll('&quot;', '"')
         .replaceAll('&amp;', '&')
@@ -176,7 +178,8 @@ class YouTubeContentService {
         .replaceAll('&nbsp;', " ");
   }
 
-  String? _extractVideoId(String url) {
+  @visibleForTesting
+  String? extractVideoId(String url) {
     Uri? uri;
     try {
       uri = Uri.parse(url);

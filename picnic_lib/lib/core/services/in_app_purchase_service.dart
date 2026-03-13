@@ -64,14 +64,14 @@ class InAppPurchaseService {
     debugMode = enabled;
     debugTimeoutMode = enabled ? 'debug' : 'normal';
     logger.i(
-        '🧪 디버그 모드 ${enabled ? "활성화" : "비활성화"}: 타임아웃 시간 ${_getTimeoutDescription()}');
+        '🧪 디버그 모드 ${enabled ? "활성화" : "비활성화"}: 타임아웃 시간 ${getTimeoutDescription()}');
   }
 
   /// 🧪 타임아웃 모드 설정 (더 세밀한 제어)
   void setTimeoutMode(String mode) {
     debugTimeoutMode = mode;
     debugMode = mode != 'normal';
-    logger.i('🧪 타임아웃 모드 변경: $mode (${_getTimeoutDescription()})');
+    logger.i('🧪 타임아웃 모드 변경: $mode (${getTimeoutDescription()})');
   }
 
   /// 🧪 구매 지연 시뮬레이션 설정
@@ -98,7 +98,8 @@ class InAppPurchaseService {
   }
 
   /// 현재 타임아웃 설정 가져오기
-  Duration _getCurrentTimeout() {
+  @visibleForTesting
+  Duration getCurrentTimeout() {
     // 🎯 강제 타임아웃 모드일 때는 무조건 빠른 타임아웃 사용
     if (forceTimeoutSimulation) {
       return PurchaseConstants.debugPurchaseTimeout; // 3초 고정
@@ -117,8 +118,9 @@ class InAppPurchaseService {
   }
 
   /// 타임아웃 설명 가져오기
-  String _getTimeoutDescription() {
-    final timeout = _getCurrentTimeout();
+  @visibleForTesting
+  String getTimeoutDescription() {
+    final timeout = getCurrentTimeout();
     if (timeout.inMilliseconds < 1000) {
       return '${timeout.inMilliseconds}ms';
     } else {
@@ -234,7 +236,7 @@ class InAppPurchaseService {
     _purchaseTimeoutTimer?.cancel();
 
     // 🧪 디버그 모드일 때 짧은 타임아웃 사용
-    final timeout = _getCurrentTimeout();
+    final timeout = getCurrentTimeout();
 
     _purchaseTimeoutTimer = Timer(timeout, () {
       logger.w(
@@ -317,7 +319,7 @@ class InAppPurchaseService {
 
         // 실제 구매 요청은 하지 않고 바로 return
         // 타이머가 만료되면 자동으로 타임아웃 처리됨
-        logger.w('🎯 강제 타임아웃 대기 중 - ${_getTimeoutDescription()} 후 타임아웃 발생 예정');
+        logger.w('🎯 강제 타임아웃 대기 중 - ${getTimeoutDescription()} 후 타임아웃 발생 예정');
         return true; // 성공적으로 "구매 요청"했다고 반환 (실제로는 타임아웃만 대기)
       }
 
@@ -349,7 +351,7 @@ class InAppPurchaseService {
       return result;
     } catch (e) {
       // 🔍 취소 감지: 예외가 취소인지 실제 에러인지 구분
-      if (_isPurchaseCancelledException(e)) {
+      if (isPurchaseCancelledException(e)) {
         logger.i('🚫 구매 취소 감지: ${e.toString()}');
         _lastPurchaseWasCancelled = true; // ← 취소 상태 설정
         _currentPurchasingProductId = null; // 🚨 정리
@@ -363,7 +365,8 @@ class InAppPurchaseService {
   }
 
   /// 예외가 취소 관련인지 확인
-  bool _isPurchaseCancelledException(dynamic exception) {
+  @visibleForTesting
+  bool isPurchaseCancelledException(dynamic exception) {
     final exceptionString = exception.toString().toLowerCase();
 
     // StoreKit 2 취소 관련 에러 코드들

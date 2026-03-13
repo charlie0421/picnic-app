@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
+import 'package:picnic_lib/core/services/app_badge_helper.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -105,12 +106,16 @@ class AppBadgeService {
   /// Update badge with count
   static Future<void> _updateBadge(int count) async {
     try {
-      if (count <= 0) {
-        await FlutterAppBadger.removeBadge();
-        logger.i('App badge removed (count: 0)');
-      } else {
-        await FlutterAppBadger.updateBadgeCount(count);
-        logger.i('App badge updated: $count');
+      final action = AppBadgeHelper.determineBadgeAction(count);
+      switch (action) {
+        case BadgeUpdateAction.remove:
+          await FlutterAppBadger.removeBadge();
+          logger.i('App badge removed (count: 0)');
+          break;
+        case BadgeUpdateAction.update:
+          await FlutterAppBadger.updateBadgeCount(count);
+          logger.i('App badge updated: $count');
+          break;
       }
     } catch (e) {
       logger.w('Failed to update badge: $e');
