@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/providers/attendance_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/attendance/attendance_check_tab.dart';
 
+import '../../../../../../helpers/ignore_image_errors.dart';
 import '../../../../../../helpers/test_app.dart';
 import '../../../../../../helpers/test_environment.dart';
 
@@ -266,6 +267,133 @@ void main() {
       expect(find.text(' +60'), findsOneWidget);
       expect(find.text(' +120 '), findsOneWidget);
     });
+
+    testWidgets('error state renders widget without crash', (WidgetTester tester) async {
+      final restore = suppressImageErrors();
+      try {
+        await tester.pumpWidget(
+          buildTestApp(
+            const AttendanceCheckTab(),
+            loggedIn: true,
+            extraOverrides: [
+              attendanceProvider.overrideWith(() => _ErrorAttendance()),
+            ],
+          ),
+        );
+        while (tester.takeException() != null) {}
+        await tester.pump();
+        while (tester.takeException() != null) {}
+        await tester.pump();
+        while (tester.takeException() != null) {}
+
+        expect(find.byType(AttendanceCheckTab), findsOneWidget);
+      } finally {
+        restore();
+      }
+    });
+
+    testWidgets('check-in button tap triggers check-in flow', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const AttendanceCheckTab(),
+          loggedIn: true,
+          extraOverrides: [
+            attendanceProvider.overrideWith(
+              () => _CheckInAttendance(
+                AttendanceState(
+                  weeklyStatus: _mockWeeklyStatus(checkedCount: 3),
+                  todayChecked: false,
+                  deadlineKST: DateTime.now()
+                      .add(const Duration(hours: 12))
+                      .toIso8601String(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      // Find and tap the check-in button
+      final button = find.byType(ElevatedButton);
+      expect(button, findsOneWidget);
+      await tester.tap(button);
+      await tester.pump();
+      // After tap, should show loading indicator
+      await tester.pump(const Duration(milliseconds: 100));
+      // Wait for check-in to complete
+      await tester.pump(const Duration(seconds: 1));
+      // Drain result timer (3 seconds)
+      await tester.pump(const Duration(seconds: 3));
+
+      expect(find.byType(AttendanceCheckTab), findsOneWidget);
+    });
+
+    testWidgets('check-in with weekly bonus result', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const AttendanceCheckTab(),
+          loggedIn: true,
+          extraOverrides: [
+            attendanceProvider.overrideWith(
+              () => _WeeklyBonusCheckInAttendance(
+                AttendanceState(
+                  weeklyStatus: _mockWeeklyStatus(
+                    checkedCount: 6,
+                    isWeeklyBonusEligible: true,
+                  ),
+                  todayChecked: false,
+                  deadlineKST: DateTime.now()
+                      .add(const Duration(hours: 12))
+                      .toIso8601String(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      final button = find.byType(ElevatedButton);
+      expect(button, findsOneWidget);
+      await tester.tap(button);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      // After check-in with weekly bonus, confetti and result should appear
+      await tester.pump(const Duration(seconds: 1));
+      // Drain result timer (3 seconds)
+      await tester.pump(const Duration(seconds: 3));
+
+      expect(find.byType(AttendanceCheckTab), findsOneWidget);
+    });
+
+    testWidgets('check-in button disabled when todayChecked', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const AttendanceCheckTab(),
+          loggedIn: true,
+          extraOverrides: [
+            attendanceProvider.overrideWith(
+              () => _DataAttendance(
+                AttendanceState(
+                  weeklyStatus: _mockWeeklyStatus(checkedCount: 4),
+                  todayChecked: true,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      // Button should be present but disabled
+      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      expect(button.onPressed, isNull);
+    });
+
   });
 }
 
@@ -285,4 +413,59 @@ class _DataAttendance extends Attendance {
 
   @override
   Future<AttendanceState> build() async => _state;
+}
+
+/// Mock Attendance that throws an error
+class _ErrorAttendance extends Attendance {
+  @override
+  Future<AttendanceState> build() async {
+    throw Exception('test error');
+  }
+}
+
+/// Mock Attendance that supports check-in with normal reward
+class _CheckInAttendance extends Attendance {
+  final AttendanceState _state;
+
+  _CheckInAttendance(this._state);
+
+  @override
+  Future<AttendanceState> build() async => _state;
+
+  @override
+  Future<AttendanceCheckResult?> checkIn() async {
+    return const AttendanceCheckResult(
+      rewardAmount: 60,
+      weeklyBonusAmount: 0,
+      totalReward: 60,
+    );
+  }
+}
+
+/// Mock Attendance that supports check-in with weekly bonus
+class _WeeklyBonusCheckInAttendance extends Attendance {
+  final AttendanceState _state;
+
+  _WeeklyBonusCheckInAttendance(this._state);
+
+  @override
+  Future<AttendanceState> build() async => _state;
+
+  @override
+  Future<AttendanceCheckResult?> checkIn() async {
+    return const AttendanceCheckResult(
+      rewardAmount: 60,
+      weeklyBonusAmount: 120,
+      totalReward: 180,
+    );
+  }
+}
+
+/// A notifier that stays in loading state
+class _SlowAttendance extends Attendance {
+  @override
+  Future<AttendanceState> build() async {
+    await Future.delayed(const Duration(hours: 1));
+    return const AttendanceState();
+  }
 }

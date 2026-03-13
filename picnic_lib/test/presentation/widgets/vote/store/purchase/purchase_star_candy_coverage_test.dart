@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 
 /// Coverage-focused tests for purchase_star_candy_state.dart.
@@ -388,4 +389,457 @@ void main() {
       expect(wasCancelled, isFalse);
     });
   });
+
+  group('PurchaseHelper.isDuplicateError (direct)', () {
+    test('detects StoreKit cache issue', () {
+      expect(PurchaseHelper.isDuplicateError('StoreKit 캐시 문제'), isTrue);
+    });
+
+    test('detects duplicate receipt', () {
+      expect(PurchaseHelper.isDuplicateError('중복 영수증'), isTrue);
+    });
+
+    test('detects already processed', () {
+      expect(PurchaseHelper.isDuplicateError('이미 처리된 구매'), isTrue);
+    });
+
+    test('detects Duplicate keyword', () {
+      expect(PurchaseHelper.isDuplicateError('Duplicate'), isTrue);
+    });
+
+    test('detects reused (case insensitive)', () {
+      expect(PurchaseHelper.isDuplicateError('Token Reused'), isTrue);
+    });
+
+    test('returns false for normal errors', () {
+      expect(PurchaseHelper.isDuplicateError('Network error'), isFalse);
+    });
+  });
+
+  group('PurchaseHelper.shouldForceCompletePending', () {
+    test('returns true when not active, not cleared, and pending', () {
+      expect(
+        PurchaseHelper.shouldForceCompletePending(
+          isActivePurchasing: false,
+          transactionsCleared: false,
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.pending),
+        ),
+        isTrue,
+      );
+    });
+
+    test('returns false when active', () {
+      expect(
+        PurchaseHelper.shouldForceCompletePending(
+          isActivePurchasing: true,
+          transactionsCleared: false,
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.pending),
+        ),
+        isFalse,
+      );
+    });
+
+    test('returns false when transactions already cleared', () {
+      expect(
+        PurchaseHelper.shouldForceCompletePending(
+          isActivePurchasing: false,
+          transactionsCleared: true,
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.pending),
+        ),
+        isFalse,
+      );
+    });
+
+    test('returns false for non-pending status', () {
+      expect(
+        PurchaseHelper.shouldForceCompletePending(
+          isActivePurchasing: false,
+          transactionsCleared: false,
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+        ),
+        isFalse,
+      );
+    });
+  });
+
+  group('PurchaseHelper.shouldIgnoreDuringInit', () {
+    test('returns true for restored during init', () {
+      expect(
+        PurchaseHelper.shouldIgnoreDuringInit(
+          isActivePurchasing: false,
+          transactionsCleared: false,
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.restored),
+        ),
+        isTrue,
+      );
+    });
+
+    test('returns true for purchased during init', () {
+      expect(
+        PurchaseHelper.shouldIgnoreDuringInit(
+          isActivePurchasing: false,
+          transactionsCleared: false,
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+        ),
+        isTrue,
+      );
+    });
+
+    test('returns false when active purchasing', () {
+      expect(
+        PurchaseHelper.shouldIgnoreDuringInit(
+          isActivePurchasing: true,
+          transactionsCleared: false,
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+        ),
+        isFalse,
+      );
+    });
+
+    test('returns false when transactions cleared', () {
+      expect(
+        PurchaseHelper.shouldIgnoreDuringInit(
+          isActivePurchasing: false,
+          transactionsCleared: true,
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.restored),
+        ),
+        isFalse,
+      );
+    });
+
+    test('returns false for error status during init', () {
+      expect(
+        PurchaseHelper.shouldIgnoreDuringInit(
+          isActivePurchasing: false,
+          transactionsCleared: false,
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.error),
+        ),
+        isFalse,
+      );
+    });
+
+    test('returns false for pending status during init', () {
+      expect(
+        PurchaseHelper.shouldIgnoreDuringInit(
+          isActivePurchasing: false,
+          transactionsCleared: false,
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.pending),
+        ),
+        isFalse,
+      );
+    });
+  });
+
+  group('PurchaseHelper.getStatusCounts (direct)', () {
+    test('counts empty list', () {
+      final counts = PurchaseHelper.getStatusCounts([]);
+      expect(counts['pending'], 0);
+      expect(counts['restored'], 0);
+      expect(counts['purchased'], 0);
+      expect(counts['error'], 0);
+      expect(counts['canceled'], 0);
+    });
+
+    test('counts mixed statuses', () {
+      final counts = PurchaseHelper.getStatusCounts([
+        _FakePurchaseDetails(PurchaseStatus.pending),
+        _FakePurchaseDetails(PurchaseStatus.purchased),
+        _FakePurchaseDetails(PurchaseStatus.error),
+        _FakePurchaseDetails(PurchaseStatus.restored),
+        _FakePurchaseDetails(PurchaseStatus.canceled),
+      ]);
+      expect(counts['pending'], 1);
+      expect(counts['purchased'], 1);
+      expect(counts['error'], 1);
+      expect(counts['restored'], 1);
+      expect(counts['canceled'], 1);
+    });
+  });
+
+  group('PurchaseHelper.shouldProcessActivePurchaseIOS', () {
+    test('1st stage: active purchasing + purchased status', () {
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseIOS(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+          isActivePurchasing: true,
+          isSafetyTimeoutTriggered: false,
+          safetyTimeoutTime: null,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isTrue,
+      );
+    });
+
+    test('1st stage: active purchasing + restored status', () {
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseIOS(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.restored),
+          isActivePurchasing: true,
+          isSafetyTimeoutTriggered: false,
+          safetyTimeoutTime: null,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isTrue,
+      );
+    });
+
+    test('2nd stage: late purchase after timeout within 2 min', () {
+      final timeoutTime = DateTime.now().subtract(const Duration(seconds: 30));
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseIOS(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+          isActivePurchasing: false,
+          isSafetyTimeoutTriggered: true,
+          safetyTimeoutTime: timeoutTime,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isTrue,
+      );
+    });
+
+    test('2nd stage: rejected if not actual purchase', () {
+      final timeoutTime = DateTime.now().subtract(const Duration(seconds: 30));
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseIOS(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+          isActivePurchasing: false,
+          isSafetyTimeoutTriggered: true,
+          safetyTimeoutTime: timeoutTime,
+          isActualPurchaseCheck: (_) => false,
+        ),
+        isFalse,
+      );
+    });
+
+    test('2nd stage: rejected if timeout > 2 min ago', () {
+      final timeoutTime = DateTime.now().subtract(const Duration(minutes: 5));
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseIOS(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+          isActivePurchasing: false,
+          isSafetyTimeoutTriggered: true,
+          safetyTimeoutTime: timeoutTime,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isTrue, // Falls through to 3rd stage
+      );
+    });
+
+    test('3rd stage: iOS safety fallback for actual purchase', () {
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseIOS(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+          isActivePurchasing: false,
+          isSafetyTimeoutTriggered: false,
+          safetyTimeoutTime: null,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isTrue,
+      );
+    });
+
+    test('blocked: not active, not actual', () {
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseIOS(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+          isActivePurchasing: false,
+          isSafetyTimeoutTriggered: false,
+          safetyTimeoutTime: null,
+          isActualPurchaseCheck: (_) => false,
+        ),
+        isFalse,
+      );
+    });
+
+    test('blocked: error status', () {
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseIOS(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.error),
+          isActivePurchasing: true,
+          isSafetyTimeoutTriggered: false,
+          safetyTimeoutTime: null,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isFalse,
+      );
+    });
+  });
+
+  group('PurchaseHelper.shouldProcessActivePurchaseAndroid', () {
+    test('1st stage: active purchasing + purchased status', () {
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseAndroid(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+          isActivePurchasing: true,
+          isSafetyTimeoutTriggered: false,
+          safetyTimeoutTime: null,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isTrue,
+      );
+    });
+
+    test('2nd stage: short delay after timeout within 1 min', () {
+      final timeoutTime = DateTime.now().subtract(const Duration(seconds: 20));
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseAndroid(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+          isActivePurchasing: false,
+          isSafetyTimeoutTriggered: true,
+          safetyTimeoutTime: timeoutTime,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isTrue,
+      );
+    });
+
+    test('2nd stage: blocked for restored status (Android)', () {
+      final timeoutTime = DateTime.now().subtract(const Duration(seconds: 20));
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseAndroid(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.restored),
+          isActivePurchasing: false,
+          isSafetyTimeoutTriggered: true,
+          safetyTimeoutTime: timeoutTime,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isFalse,
+      );
+    });
+
+    test('2nd stage: blocked if timeout > 1 min', () {
+      final timeoutTime = DateTime.now().subtract(const Duration(minutes: 3));
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseAndroid(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+          isActivePurchasing: false,
+          isSafetyTimeoutTriggered: true,
+          safetyTimeoutTime: timeoutTime,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isFalse,
+      );
+    });
+
+    test('strictly blocked: no fallback (unlike iOS)', () {
+      expect(
+        PurchaseHelper.shouldProcessActivePurchaseAndroid(
+          purchaseDetails: _FakePurchaseDetails(PurchaseStatus.purchased),
+          isActivePurchasing: false,
+          isSafetyTimeoutTriggered: false,
+          safetyTimeoutTime: null,
+          isActualPurchaseCheck: (_) => true,
+        ),
+        isFalse,
+      );
+    });
+  });
+
+  group('PurchaseHelper.isPurchaseCanceled (direct)', () {
+    test('returns true for canceled status', () {
+      expect(
+        PurchaseHelper.isPurchaseCanceled(
+          _FakePurchaseDetails(PurchaseStatus.canceled),
+        ),
+        isTrue,
+      );
+    });
+
+    test('returns true for error with cancel keyword in message', () {
+      expect(
+        PurchaseHelper.isPurchaseCanceled(
+          _FakePurchaseDetailsWithError(
+            PurchaseStatus.error,
+            IAPError(
+              source: 'test',
+              code: '0',
+              message: 'user cancelled the purchase',
+            ),
+          ),
+        ),
+        isTrue,
+      );
+    });
+
+    test('returns true for error with cancel error code', () {
+      expect(
+        PurchaseHelper.isPurchaseCanceled(
+          _FakePurchaseDetailsWithError(
+            PurchaseStatus.error,
+            IAPError(
+              source: 'test',
+              code: 'PAYMENT_CANCELED',
+              message: 'unknown',
+            ),
+          ),
+        ),
+        isTrue,
+      );
+    });
+
+    test('returns false for error with non-cancel message', () {
+      expect(
+        PurchaseHelper.isPurchaseCanceled(
+          _FakePurchaseDetailsWithError(
+            PurchaseStatus.error,
+            IAPError(
+              source: 'test',
+              code: 'NETWORK',
+              message: 'network connection lost',
+            ),
+          ),
+        ),
+        isFalse,
+      );
+    });
+
+    test('returns false for purchased status', () {
+      expect(
+        PurchaseHelper.isPurchaseCanceled(
+          _FakePurchaseDetails(PurchaseStatus.purchased),
+        ),
+        isFalse,
+      );
+    });
+
+    test('returns false for pending status', () {
+      expect(
+        PurchaseHelper.isPurchaseCanceled(
+          _FakePurchaseDetails(PurchaseStatus.pending),
+        ),
+        isFalse,
+      );
+    });
+  });
+}
+
+/// Fake PurchaseDetails for testing
+class _FakePurchaseDetails extends PurchaseDetails {
+  _FakePurchaseDetails(PurchaseStatus s)
+      : super(
+          productID: 'test_product',
+          verificationData: PurchaseVerificationData(
+            localVerificationData: '',
+            serverVerificationData: '',
+            source: '',
+          ),
+          transactionDate: null,
+          status: s,
+        );
+}
+
+class _FakePurchaseDetailsWithError extends PurchaseDetails {
+  _FakePurchaseDetailsWithError(PurchaseStatus s, IAPError err)
+      : super(
+          productID: 'test_product',
+          verificationData: PurchaseVerificationData(
+            localVerificationData: '',
+            serverVerificationData: '',
+            source: '',
+          ),
+          transactionDate: null,
+          status: s,
+        ) {
+    error = err;
+  }
 }
