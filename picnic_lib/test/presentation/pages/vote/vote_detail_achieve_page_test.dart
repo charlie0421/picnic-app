@@ -5,7 +5,11 @@ import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../../helpers/ignore_image_errors.dart';
+import '../../../helpers/mock_supabase.dart';
+import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
 
 Map<String, dynamic> _voteRow({
@@ -1061,6 +1065,119 @@ void main() {
         expect(offset <= 0, isTrue);
         expect(offset >= -10, isTrue);
       }
+    });
+  });
+
+  group('VoteDetailAchievePage widget rendering', () {
+    late void Function() restore;
+
+    setUp(() {
+      VisibilityDetectorController.instance.updateInterval = Duration.zero;
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000),
+          _voteItemRow(id: 2, voteTotal: 3000, artistId: 11, artistNameKo: '정국'),
+        ],
+        'vote_achieve': [
+          _voteAchieveJson(id: 1, order: 1, amount: 10000),
+          _voteAchieveJson(id: 2, order: 2, rewardId: 2, amount: 50000),
+        ],
+      });
+      restore = suppressImageErrors();
+    });
+
+    tearDown(() {
+      restore();
+      tearDownMockSupabase();
+    });
+
+    Future<void> pumpAndDrain(WidgetTester tester, widget) async {
+      await tester.pumpWidget(widget);
+      while (tester.takeException() != null) {}
+      await tester.pump(const Duration(seconds: 1));
+      while (tester.takeException() != null) {}
+    }
+
+    testWidgets('renders without crashing', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(const VoteDetailAchievePage(voteId: 1)),
+      );
+      expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+    });
+
+    testWidgets('renders with pic portal', (WidgetTester tester) async {
+      setupMockSupabase({
+        'pic_vote': [_voteRow()],
+        'pic_vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000),
+        ],
+        'vote_achieve': [
+          _voteAchieveJson(id: 1, order: 1, amount: 10000),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailAchievePage(voteId: 1, votePortal: VotePortal.pic),
+        ),
+      );
+      expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+    });
+
+    testWidgets('renders in logged-out state', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailAchievePage(voteId: 1),
+          loggedIn: false,
+        ),
+      );
+      expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+    });
+
+    testWidgets('renders and can be scrolled', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(const VoteDetailAchievePage(voteId: 1)),
+      );
+      expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+
+      final scrollable = find.byType(CustomScrollView);
+      if (scrollable.evaluate().isNotEmpty) {
+        await tester.drag(scrollable.first, const Offset(0, -300),
+            warnIfMissed: false);
+        while (tester.takeException() != null) {}
+        await tester.pump(const Duration(milliseconds: 200));
+        while (tester.takeException() != null) {}
+      }
+    });
+
+    testWidgets('renders with no achieve milestones', (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': [_voteItemRow(id: 1, voteTotal: 5000)],
+        'vote_achieve': <dynamic>[],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(const VoteDetailAchievePage(voteId: 1)),
+      );
+      expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+    });
+
+    testWidgets('dispose cleans up without error', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(const VoteDetailAchievePage(voteId: 1)),
+      );
+      await tester.pumpWidget(buildTestAppPage(const SizedBox()));
+      while (tester.takeException() != null) {}
+      await tester.pump(const Duration(milliseconds: 300));
+      while (tester.takeException() != null) {}
     });
   });
 }

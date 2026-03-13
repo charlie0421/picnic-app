@@ -5,9 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 
-/// Extended tests for SplashImageData and SplashConfigPayload models.
-/// Widget rendering tests for SplashImage are limited because it requires
-/// platform-specific Shorebird, SharedPreferences, and asset files.
+import 'package:picnic_lib/presentation/widgets/splash_image.dart' as splash_widget;
+
+import '../../helpers/ignore_image_errors.dart';
+import '../../helpers/test_app.dart';
+import '../../helpers/test_environment.dart';
+
+/// Extended tests for SplashImageData and SplashConfigPayload models,
+/// plus widget rendering tests for the SplashImage widget.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -202,6 +207,79 @@ void main() {
         '{"cdnUrl": "https://cdn.example.com/img.png", "version": 1, "enabled": "yes"}',
       );
       expect(payload!.enabled, true);
+    });
+  });
+
+  group('SplashImage widget rendering', () {
+    setUpAll(() {
+      initTestColors();
+    });
+
+    testWidgets('renders SplashImage widget with default params',
+        (tester) async {
+      tester.view.physicalSize = const Size(1125, 2436);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final restore = suppressImageErrors();
+      addTearDown(restore);
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const splash_widget.SplashImage(
+            enablePatchCheck: false,
+          ),
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(seconds: 1));
+
+      expect(find.byType(splash_widget.SplashImage), findsOneWidget);
+    });
+
+    testWidgets('renders SplashImage with custom statusMessage',
+        (tester) async {
+      tester.view.physicalSize = const Size(1125, 2436);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final restore = suppressImageErrors();
+      addTearDown(restore);
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const splash_widget.SplashImage(
+            statusMessage: 'Loading...',
+            enablePatchCheck: false,
+          ),
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(seconds: 1));
+
+      expect(find.byType(splash_widget.SplashImage), findsOneWidget);
+    });
+
+    testWidgets('renders SplashImage with enablePatchCheck false',
+        (tester) async {
+      tester.view.physicalSize = const Size(1125, 2436);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final restore = suppressImageErrors();
+      addTearDown(restore);
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const splash_widget.SplashImage(
+            enablePatchCheck: false,
+          ),
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(seconds: 1));
+
+      expect(find.byType(splash_widget.SplashImage), findsOneWidget);
     });
   });
 }

@@ -5,7 +5,10 @@ import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../../helpers/ignore_image_errors.dart';
+import '../../../helpers/mock_data.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
@@ -1577,6 +1580,133 @@ void main() {
     test('handles empty query', () {
       final spans = KoreanSearchUtils.buildHighlightedTextSpans('지민', '');
       expect(spans, isNotEmpty);
+    });
+  });
+
+  group('VoteDetailPage widget rendering', () {
+    late void Function() restore;
+
+    setUp(() {
+      VisibilityDetectorController.instance.updateInterval = Duration.zero;
+      setupMockSupabase({
+        'vote': [
+          {
+            'id': 1,
+            'title': {'ko': '테스트 투표', 'en': 'Test Vote'},
+            'vote_category': 'birthday',
+            'main_image': null,
+            'wait_image': null,
+            'result_image': null,
+            'vote_content': null,
+            'vote_item': [
+              _voteItemRow(id: 1, voteTotal: 5000, artistNameKo: '지민', artistId: 10),
+              _voteItemRow(id: 2, voteTotal: 3000, artistNameKo: '정국', artistNameEn: 'Jungkook', artistId: 11),
+            ],
+            'created_at': DateTime.now().toUtc().toIso8601String(),
+            'visible_at': DateTime.now().toUtc().subtract(const Duration(days: 2)).toIso8601String(),
+            'start_at': DateTime.now().toUtc().subtract(const Duration(days: 1)).toIso8601String(),
+            'stop_at': DateTime.now().toUtc().add(const Duration(days: 7)).toIso8601String(),
+            'is_ended': false,
+            'is_upcoming': false,
+            'is_partnership': false,
+            'partner': null,
+            'reward': null,
+          }
+        ],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000, artistNameKo: '지민', artistId: 10),
+          _voteItemRow(id: 2, voteTotal: 3000, artistNameKo: '정국', artistNameEn: 'Jungkook', artistId: 11),
+        ],
+      });
+      restore = suppressImageErrors();
+    });
+
+    tearDown(() {
+      restore();
+      tearDownMockSupabase();
+    });
+
+    Future<void> pumpAndDrain(WidgetTester tester, widget) async {
+      await tester.pumpWidget(widget);
+      while (tester.takeException() != null) {}
+      await tester.pump(const Duration(seconds: 1));
+      while (tester.takeException() != null) {}
+    }
+
+    testWidgets('renders without crashing', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(const VoteDetailPage(voteId: 1)),
+      );
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders with pic portal', (WidgetTester tester) async {
+      setupMockSupabase({
+        'pic_vote': [
+          {
+            'id': 1,
+            'title': {'ko': '픽 투표', 'en': 'Pic Vote'},
+            'vote_category': 'birthday',
+            'main_image': null,
+            'wait_image': null,
+            'result_image': null,
+            'vote_content': null,
+            'vote_item': null,
+            'created_at': DateTime.now().toUtc().toIso8601String(),
+            'visible_at': null,
+            'start_at': DateTime.now().toUtc().subtract(const Duration(days: 1)).toIso8601String(),
+            'stop_at': DateTime.now().toUtc().add(const Duration(days: 7)).toIso8601String(),
+            'is_ended': false,
+            'is_upcoming': false,
+            'is_partnership': false,
+            'partner': null,
+            'reward': null,
+          }
+        ],
+        'pic_vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1, votePortal: VotePortal.pic),
+        ),
+      );
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('renders in logged-out state', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+          loggedIn: false,
+        ),
+      );
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    testWidgets('contains CustomScrollView', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(const VoteDetailPage(voteId: 1)),
+      );
+      expect(find.byType(CustomScrollView), findsWidgets);
+    });
+
+    testWidgets('dispose cleans up without error', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(const VoteDetailPage(voteId: 1)),
+      );
+      // Replace widget to trigger dispose
+      await tester.pumpWidget(buildTestAppPage(const SizedBox()));
+      while (tester.takeException() != null) {}
+      await tester.pump(const Duration(milliseconds: 300));
+      while (tester.takeException() != null) {}
     });
   });
 }

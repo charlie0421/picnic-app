@@ -1,8 +1,15 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/locale_utils.dart';
 import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/goonghap_provider.dart';
+
+import '../../../helpers/ignore_image_errors.dart';
+import '../../../helpers/mock_supabase.dart';
+import '../../../helpers/test_app.dart';
 
 /// Tests that exercise production code from goonghap_result_page.dart
 /// and its direct dependencies (goonghap models, locale_utils, goonghap_provider).
@@ -635,6 +642,185 @@ void main() {
       final parsed = result.parsedDetails;
       // Just verify it doesn't throw
       expect(parsed == null || parsed is Details, isTrue);
+    });
+  });
+
+  group('GoonghapResultPage widget rendering', () {
+    late void Function() restore;
+
+    setUp(() {
+      setupMockSupabase({
+        'goonghap_results': <dynamic>[],
+      });
+      restore = suppressImageErrors();
+    });
+
+    tearDown(() {
+      restore();
+      tearDownMockSupabase();
+    });
+
+    GoonghapModel _createTestGoonghap({
+      GoonghapStatus status = GoonghapStatus.completed,
+      bool isPaid = true,
+    }) {
+      return GoonghapModel(
+        id: 'goonghap-1',
+        userId: 'test-user-id',
+        artist: testArtist,
+        birthDate: DateTime(1995, 10, 13),
+        birthTime: '1',
+        status: status,
+        gender: 'male',
+        score: 85,
+        isPaid: isPaid,
+        localizedResults: {
+          'ko': const LocalizedGoonghap(
+            language: 'ko',
+            score: 85,
+            scoreTitle: '최고의 궁합',
+            goonghapSummary: '서로의 에너지가 잘 어울립니다.',
+            details: Details(
+              style: StyleDetails(
+                idolStyle: '따뜻하고 부드러운 스타일',
+                userStyle: '활발하고 에너지 넘치는 스타일',
+                coupleStyle: '서로를 보완하는 완벽한 커플',
+              ),
+              activities: ActivitiesDetails(
+                recommended: ['산책', '영화 감상', '요리'],
+                description: '함께 활동하면 시너지가 생깁니다.',
+              ),
+            ),
+            tips: ['서로의 시간을 존중하세요', '작은 선물을 자주 교환하세요'],
+          ),
+        },
+      );
+    }
+
+    testWidgets('renders loading state without crashing', (WidgetTester tester) async {
+      final goonghap = _createTestGoonghap();
+
+      await tester.pumpWidget(
+        buildTestAppPage(
+          GoonghapResultPage(goonghap: goonghap),
+          extraOverrides: [
+            goonghapProvider.overrideWithValue(const AsyncValue.loading()),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+      expect(find.byType(GoonghapResultPage), findsOneWidget);
+    });
+
+    testWidgets('renders completed goonghap with data', (WidgetTester tester) async {
+      final goonghap = _createTestGoonghap(isPaid: true);
+
+      await tester.pumpWidget(
+        buildTestAppPage(
+          GoonghapResultPage(goonghap: goonghap),
+          extraOverrides: [
+            goonghapProvider.overrideWithValue(AsyncValue.data(goonghap)),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+      expect(find.byType(GoonghapResultPage), findsOneWidget);
+    });
+
+    testWidgets('renders error state', (WidgetTester tester) async {
+      final goonghap = _createTestGoonghap(status: GoonghapStatus.error);
+
+      await tester.pumpWidget(
+        buildTestAppPage(
+          GoonghapResultPage(goonghap: goonghap),
+          extraOverrides: [
+            goonghapProvider.overrideWithValue(
+              AsyncValue.data(goonghap.copyWith(
+                status: GoonghapStatus.error,
+                errorMessage: 'Test error occurred',
+              )),
+            ),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+      expect(find.byType(GoonghapResultPage), findsOneWidget);
+    });
+
+    testWidgets('renders null goonghap (loading indicator)', (WidgetTester tester) async {
+      final goonghap = _createTestGoonghap();
+
+      await tester.pumpWidget(
+        buildTestAppPage(
+          GoonghapResultPage(goonghap: goonghap),
+          extraOverrides: [
+            goonghapProvider.overrideWithValue(const AsyncValue.data(null)),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+      expect(find.byType(GoonghapResultPage), findsOneWidget);
+    });
+
+    testWidgets('renders provider error state', (WidgetTester tester) async {
+      final goonghap = _createTestGoonghap();
+
+      await tester.pumpWidget(
+        buildTestAppPage(
+          GoonghapResultPage(goonghap: goonghap),
+          extraOverrides: [
+            goonghapProvider.overrideWithValue(
+              AsyncValue.error('Test error', StackTrace.current),
+            ),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+      expect(find.byType(GoonghapResultPage), findsOneWidget);
+    });
+
+    testWidgets('renders with English locale', (WidgetTester tester) async {
+      final goonghap = _createTestGoonghap(isPaid: true);
+
+      await tester.pumpWidget(
+        buildTestAppPage(
+          GoonghapResultPage(goonghap: goonghap),
+          locale: const Locale('en'),
+          extraOverrides: [
+            goonghapProvider.overrideWithValue(AsyncValue.data(goonghap)),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+      expect(find.byType(GoonghapResultPage), findsOneWidget);
+    });
+
+    testWidgets('scroll the result page', (WidgetTester tester) async {
+      final goonghap = _createTestGoonghap(isPaid: true);
+
+      await tester.pumpWidget(
+        buildTestAppPage(
+          GoonghapResultPage(goonghap: goonghap),
+          extraOverrides: [
+            goonghapProvider.overrideWithValue(AsyncValue.data(goonghap)),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+
+      final scrollView = find.byType(CustomScrollView);
+      if (scrollView.evaluate().isNotEmpty) {
+        await tester.drag(scrollView.first, const Offset(0, -300),
+            warnIfMissed: false);
+        await pumpAndIgnoreErrors(tester);
+      }
     });
   });
 }

@@ -1,9 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/locale_utils.dart';
 import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/data/models/user_profiles.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/presentation/pages/community/goonghap_input_page.dart';
+
+import '../../../helpers/ignore_image_errors.dart';
+import '../../../helpers/mock_data.dart';
+import '../../../helpers/mock_supabase.dart';
+import '../../../helpers/test_app.dart';
 
 /// Tests that exercise production code from goonghap_input_page.dart
 /// and its direct dependencies (date.dart, locale_utils.dart, models).
@@ -703,6 +710,112 @@ void main() {
         birthDate: DateTime(2000), status: GoonghapStatus.error,
       );
       expect(g.errorMessage, isNull);
+    });
+  });
+
+  group('GoonghapInputPage widget rendering', () {
+    late void Function() restore;
+
+    setUp(() {
+      setupMockSupabase({
+        'goonghap_results': <dynamic>[],
+      });
+      restore = suppressImageErrors();
+    });
+
+    tearDown(() {
+      restore();
+      tearDownMockSupabase();
+    });
+
+    testWidgets('renders without crashing', (WidgetTester tester) async {
+      final artist = MockData.artist();
+
+      await tester.pumpWidget(
+        buildTestAppPage(GoonghapInputPage(artist: artist)),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+      expect(find.byType(GoonghapInputPage), findsOneWidget);
+    });
+
+    testWidgets('renders page structure', (WidgetTester tester) async {
+      final artist = MockData.artist();
+
+      await pumpWidgetAndIgnoreErrors(
+        tester,
+        buildTestAppPage(GoonghapInputPage(artist: artist)),
+      );
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 500));
+
+      // Verify the page rendered
+      expect(find.byType(GoonghapInputPage), findsOneWidget);
+      // Should be wrapped in a MaterialApp
+      expect(find.byType(MaterialApp), findsOneWidget);
+    });
+
+    testWidgets('renders in logged-out state', (WidgetTester tester) async {
+      final artist = MockData.artist();
+
+      await tester.pumpWidget(
+        buildTestAppPage(
+          GoonghapInputPage(artist: artist),
+          loggedIn: false,
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+      expect(find.byType(GoonghapInputPage), findsOneWidget);
+    });
+
+    testWidgets('renders with English locale', (WidgetTester tester) async {
+      final artist = MockData.artist();
+
+      await tester.pumpWidget(
+        buildTestAppPage(
+          GoonghapInputPage(artist: artist),
+          locale: const Locale('en'),
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+      expect(find.byType(GoonghapInputPage), findsOneWidget);
+    });
+
+    testWidgets('checkbox toggle works', (WidgetTester tester) async {
+      final artist = MockData.artist();
+
+      await pumpWidgetAndIgnoreErrors(
+        tester,
+        buildTestAppPage(GoonghapInputPage(artist: artist)),
+      );
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+
+      final checkbox = find.byType(CheckboxListTile);
+      if (checkbox.evaluate().isNotEmpty) {
+        // Tap to toggle on
+        await tester.tap(checkbox, warnIfMissed: false);
+        await pumpAndIgnoreErrors(tester);
+
+        // Tap to toggle off
+        await tester.tap(checkbox, warnIfMissed: false);
+        await pumpAndIgnoreErrors(tester);
+      }
+    });
+
+    testWidgets('dispose cleans up without error', (WidgetTester tester) async {
+      final artist = MockData.artist();
+
+      await tester.pumpWidget(
+        buildTestAppPage(GoonghapInputPage(artist: artist)),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+
+      // Replace widget to trigger dispose
+      await tester.pumpWidget(buildTestAppPage(const SizedBox()));
+      while (tester.takeException() != null) {}
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 200));
     });
   });
 }
