@@ -7,6 +7,7 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/current_applications_section.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/search_and_results_section.dart';
@@ -187,7 +188,10 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   }
 
   Future<void> _loadMoreResults() async {
-    if (_isLoadingMore || !_hasMoreResults) return;
+    if (VoteItemRequestDialogHelper.shouldSkipLoadMore(
+        _isLoadingMore, _hasMoreResults)) {
+      return;
+    }
 
     setState(() => _isLoadingMore = true);
 
@@ -214,7 +218,8 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     logger.d('📋 검색 서비스 결과: ${results['artists']?.length ?? 0}개 아티스트');
 
     // 검색 토큰이 유효하지 않으면 결과 무시 (이미 새로운 검색이 시작됨)
-    if (searchToken != null && _lastSearchToken != searchToken) {
+    if (VoteItemRequestDialogHelper.shouldIgnoreSearchResult(
+        searchToken, _lastSearchToken)) {
       logger.d('📋 검색 토큰 불일치로 결과 무시');
       return;
     }
@@ -224,12 +229,15 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
 
       // 1단계: 검색 결과 먼저 표시 (신청 정보 없이)
       setState(() {
+        _searchResults = VoteItemRequestDialogHelper.mergeSearchResults(
+          _searchResults,
+          artists,
+          isInitial: isInitial,
+        );
         if (isInitial) {
-          _searchResults = artists;
           _searchResultsInfo.clear();
           logger.d('📋 초기 로드 - 검색 결과 즉시 표시: ${artists.length}개');
         } else {
-          _searchResults.addAll(artists);
           logger.d('📋 추가 로드 - 검색 결과 추가: ${artists.length}개 (총 ${_searchResults.length}개)');
         }
         _currentPage = page;
@@ -255,7 +263,8 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       );
 
       // 토큰 검증 (다른 검색이 시작되었으면 무시)
-      if (searchToken != null && _lastSearchToken != searchToken) {
+      if (VoteItemRequestDialogHelper.shouldIgnoreSearchResult(
+          searchToken, _lastSearchToken)) {
         logger.d('📋 신청 정보 로드 완료했으나 토큰 불일치로 무시');
         return;
       }
@@ -363,7 +372,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       logger.d('submitApplication: $userInfo');
 
       // 로그인되지 않은 경우 로그인 유도 다이얼로그 표시
-      if (userInfo?.id == null) {
+      if (!VoteItemRequestDialogHelper.isUserLoggedIn(userInfo?.id)) {
         showRequireLoginDialog();
         return;
       }
@@ -371,10 +380,10 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       // 신청 중 상태로 UI 업데이트
       setState(() {
         final artistId = artist.id.toString();
-        if (_searchResultsInfo.containsKey(artistId)) {
-          _searchResultsInfo[artistId] = _searchResultsInfo[artistId]!.copyWith(
-            isSubmitting: true,
-          );
+        final updated = VoteItemRequestDialogHelper.markArtistAsSubmitting(
+            _searchResultsInfo, artistId);
+        if (updated != null) {
+          _searchResultsInfo[artistId] = updated;
         }
         _errorMessage = null; // 기존 에러 메시지 제거
       });
@@ -389,15 +398,15 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         setState(() {
           _isSearchFocused = false;
           final artistId = artist.id.toString();
-          if (_searchResultsInfo.containsKey(artistId)) {
-            _searchResultsInfo[artistId] =
-                _searchResultsInfo[artistId]!.copyWith(
-              isSubmitting: false,
-              applicationStatus: AppLocalizations.of(context)
-                  .vote_item_request_status_pending, // 대기중으로 변경
-              applicationCount:
-                  _searchResultsInfo[artistId]!.applicationCount + 1, // 신청수 증가
-            );
+          final updated =
+              VoteItemRequestDialogHelper.markApplicationSuccess(
+            _searchResultsInfo,
+            artistId,
+            AppLocalizations.of(context)
+                .vote_item_request_status_pending,
+          );
+          if (updated != null) {
+            _searchResultsInfo[artistId] = updated;
           }
         });
 
@@ -406,7 +415,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
 
         // 성공 메시지를 다이얼로그 내부에 표시
         setState(() {
-          _errorMessage = '✅ 신청이 완료되었습니다!';
+          _errorMessage = VoteItemRequestDialogHelper.successMessage;
         });
 
         // 3초 후 성공 메시지 제거
@@ -422,15 +431,13 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       if (mounted) {
         setState(() {
           final artistId = artist.id.toString();
-          if (_searchResultsInfo.containsKey(artistId)) {
-            _searchResultsInfo[artistId] =
-                _searchResultsInfo[artistId]!.copyWith(
-              isSubmitting: false,
-            );
+          final updated = VoteItemRequestDialogHelper.markApplicationFailure(
+              _searchResultsInfo, artistId);
+          if (updated != null) {
+            _searchResultsInfo[artistId] = updated;
           }
-          _errorMessage = e.toString().contains('already_applied')
-              ? '이미 신청한 아티스트입니다'
-              : '신청 중 오류가 발생했습니다: ${e.toString()}';
+          _errorMessage =
+              VoteItemRequestDialogHelper.getErrorMessageFromException(e);
         });
 
         // 3초 후 에러 메시지 제거
@@ -456,7 +463,13 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       await _loadAllApplicationData();
 
       // 2. 하단 섹션 데이터 갱신 - 현재 검색 상태 유지
-      if (_searchResults.isNotEmpty) {
+      final refreshStrategy =
+          VoteItemRequestDialogHelper.determineRefreshStrategy(
+        _searchResults,
+        _currentSearchQuery,
+      );
+
+      if (refreshStrategy == 'reloadApplicationData') {
         // 기존 검색 결과가 있으면 신청 정보만 갱신
         logger.d('🔄 기존 검색 결과 유지하고 신청 정보만 갱신: ${_searchResults.length}개');
 
@@ -477,7 +490,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
           logger.d(
               '🔄 UI 상태 업데이트 완료 - 검색 결과: ${_searchResults.length}개, 정보: ${_searchResultsInfo.length}개');
         }
-      } else if (_currentSearchQuery.isNotEmpty) {
+      } else if (refreshStrategy == 'rerunSearch') {
         // 검색어가 있지만 결과가 없으면 검색 다시 실행
         logger.d('🔄 검색어가 있지만 결과가 없음 - 검색 다시 실행: "$_currentSearchQuery"');
         await _onSearchChanged(_currentSearchQuery);
@@ -490,7 +503,8 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   }
 
   Widget _buildErrorMessage() {
-    final isSuccess = _errorMessage!.startsWith('✅');
+    final isSuccess =
+        VoteItemRequestDialogHelper.isSuccessMessage(_errorMessage!);
 
     return Container(
       margin: EdgeInsets.all(20.r),

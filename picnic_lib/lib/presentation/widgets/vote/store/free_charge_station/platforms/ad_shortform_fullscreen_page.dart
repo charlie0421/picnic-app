@@ -217,18 +217,21 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
     if (v == null) return;
     final value = v.value;
     // Mark countdown start (<= 5s remaining) to keep More button visible without flicker
-    if (!_ctaRevealStarted && value.isInitialized) {
-      final remaining = value.duration - value.position;
-      if (!remaining.isNegative && remaining <= const Duration(seconds: 5)) {
-        setState(() {
-          _ctaRevealStarted = true;
-        });
-      }
+    if (AdShortformLogic.shouldStartCountdown(
+      ctaRevealStarted: _ctaRevealStarted,
+      isInitialized: value.isInitialized,
+      remaining: value.duration - value.position,
+    )) {
+      setState(() {
+        _ctaRevealStarted = true;
+      });
     }
     // 재생 완료 시 자동 적립 시작 (중복 방지)
-    if (value.isInitialized &&
-        value.position >=
-            (value.duration - const Duration(milliseconds: 150)) &&
+    if (AdShortformLogic.isPlaybackComplete(
+          isInitialized: value.isInitialized,
+          position: value.position,
+          duration: value.duration,
+        ) &&
         !_viewReported &&
         !_rewarding) {
       _startReward();
@@ -281,11 +284,13 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
 
   Future<void> _handleClosePressed() async {
     final v = _controller?.value;
-    final canClose =
-        v != null &&
-        v.isInitialized &&
-        !v.isBuffering &&
-        v.position >= v.duration;
+    final canClose = v != null &&
+        AdShortformLogic.canCloseImmediately(
+          isInitialized: v.isInitialized,
+          isBuffering: v.isBuffering,
+          position: v.position,
+          duration: v.duration,
+        );
     if (canClose) {
       debugPrint('[internal] close pressed (finished=true)');
       debugPrint('[internal] closing route');
@@ -388,17 +393,21 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                         valueListenable: ctrl,
                         builder: (_, _, _) {
                           final v = ctrl.value;
-                          final finished =
-                              v.isInitialized &&
-                              !v.isBuffering &&
-                              v.position >=
-                                  (v.duration -
-                                      const Duration(milliseconds: 150));
-                          final show =
-                              _loading ||
-                              !v.isInitialized ||
-                              (v.isBuffering && !finished) ||
-                              (!(v.isPlaying) && v.position == Duration.zero);
+                          final finished = AdShortformLogic.canCloseImmediately(
+                            isInitialized: v.isInitialized,
+                            isBuffering: v.isBuffering,
+                            position: v.position,
+                            duration: v.duration,
+                          );
+                          final show = AdShortformLogic.shouldShowLoader(
+                            loading: _loading,
+                            isInitialized: v.isInitialized,
+                            isBuffering: v.isBuffering,
+                            isPlaying: v.isPlaying,
+                            position: v.position,
+                            duration: v.duration,
+                            finished: finished,
+                          );
                           return _buildPulseOverlay(show);
                         },
                       ),
@@ -414,17 +423,26 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                         valueListenable: ctrl,
                         builder: (_, _, _) {
                           final v = ctrl.value;
-                          final finished =
-                              v.isInitialized &&
-                              !v.isBuffering &&
-                              v.position >= v.duration;
+                          final finished = AdShortformLogic.canCloseImmediately(
+                            isInitialized: v.isInitialized,
+                            isBuffering: v.isBuffering,
+                            position: v.position,
+                            duration: v.duration,
+                          );
                           final remaining = v.isInitialized
                               ? (v.duration - v.position).inSeconds
                               : 0;
                           final showCountdown =
-                              !finished && remaining > 0 && remaining <= 5;
+                              AdShortformLogic.shouldShowCountdown(
+                            finished: finished,
+                            remainingSeconds: remaining,
+                          );
                           final canCloseNow =
-                              finished && _viewReported && !_rewarding;
+                              AdShortformLogic.isCtaButtonEnabled(
+                            finished: finished,
+                            viewReported: _viewReported,
+                            rewarding: _rewarding,
+                          );
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -499,26 +517,32 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                         valueListenable: ctrl,
                         builder: (_, _, _) {
                           final v = ctrl.value;
-                          final finished =
-                              v.isInitialized &&
-                              !v.isBuffering &&
-                              v.position >= v.duration;
+                          final finished = AdShortformLogic.canCloseImmediately(
+                            isInitialized: v.isInitialized,
+                            isBuffering: v.isBuffering,
+                            position: v.position,
+                            duration: v.duration,
+                          );
                           final cta = _resolvedCtaUrl ?? widget.ctaUrl;
-                          if (cta == null || cta.isEmpty) {
-                            return const SizedBox.shrink();
-                          }
-                          // 노출 조건: 카운트다운이 한 번 시작되었거나(플래그) 종료 후
-                          if (!(_ctaRevealStarted || finished)) {
+                          if (!AdShortformLogic.shouldShowCtaButton(
+                            ctaRevealStarted: _ctaRevealStarted,
+                            finished: finished,
+                            ctaUrl: cta,
+                          )) {
                             return const SizedBox.shrink();
                           }
                           final bool enabled =
-                              finished && _viewReported && !_rewarding;
+                              AdShortformLogic.isCtaButtonEnabled(
+                            finished: finished,
+                            viewReported: _viewReported,
+                            rewarding: _rewarding,
+                          );
                           return ElevatedButton(
                             onPressed: enabled
                                 ? () async {
                                     debugPrint('[internal] more pressed');
                                     // 적립은 재생 종료 시 자동 처리됨
-                                    await _openCta(cta);
+                                    await _openCta(cta!);
                                     if (mounted) {
                                       Navigator.of(
                                         navigatorKey.currentContext!,

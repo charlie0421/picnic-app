@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -14,6 +12,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/post_write_body_helper.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/link_embed_builder.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/youtube_embed_builder.dart';
@@ -108,10 +107,11 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
 
   // 키보드 높이 getter
   double get keyboardHeight {
-    if (!_isKeyboardListenerInitialized || kIsWeb) {
-      return 0;
-    }
-    return _keyboardHeight;
+    return PostWriteBodyHelper.effectiveKeyboardHeight(
+      isListenerInitialized: _isKeyboardListenerInitialized,
+      isWeb: kIsWeb,
+      rawHeight: _keyboardHeight,
+    );
   }
 
   @override
@@ -144,12 +144,13 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
     return LayoutBuilder(builder: (context, constraint) {
       return KeyboardVisibilityBuilder(
           builder: (context, bool isKeyboardVisible) {
-        final double containerSize = MediaQuery.of(context).size.height - 420;
-
-        // Adjust editor height based on platform and keyboard visibility
-        final double editorHeight = !kIsWeb && isKeyboardVisible
-            ? containerSize - _keyboardHeight + 40
-            : containerSize;
+        final double editorHeight =
+            PostWriteBodyHelper.calculateEditorHeight(
+          screenHeight: MediaQuery.of(context).size.height,
+          keyboardHeight: _keyboardHeight,
+          isKeyboardVisible: isKeyboardVisible,
+          isWeb: kIsWeb,
+        );
 
         return SizedBox(
           height: editorHeight,
@@ -294,22 +295,26 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (featuresList != null && featuresList.contains('image'))
+                if (PostWriteBodyHelper.isBoardFeatureEnabled(
+                    featuresList, 'image'))
                   _buildFeatureButton(
                     'assets/icons/post/post_media.svg',
                     _handleMediaButtonTap,
                   ),
-                if (featuresList != null && featuresList.contains('link'))
+                if (PostWriteBodyHelper.isBoardFeatureEnabled(
+                    featuresList, 'link'))
                   _buildFeatureButton(
                     'assets/icons/post/post_link.svg',
                     _insertLink,
                   ),
-                if (featuresList != null && featuresList.contains('youtube'))
+                if (PostWriteBodyHelper.isBoardFeatureEnabled(
+                    featuresList, 'youtube'))
                   _buildFeatureButton(
                     'assets/icons/post/post_youtube.svg',
                     _insertYouTubeLink,
                   ),
-                if (featuresList != null && featuresList.contains('attachment'))
+                if (PostWriteBodyHelper.isBoardFeatureEnabled(
+                    featuresList, 'attachment'))
                   _buildFeatureButton(
                     'assets/icons/post/post_attachment.svg',
                     _pickFiles,
@@ -393,7 +398,8 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
   }
 
   void _validateTitle() {
-    final isValid = widget.titleController.text.trim().isNotEmpty;
+    final isValid =
+        PostWriteBodyHelper.isTitleValid(widget.titleController.text);
     if (isValid != _isTitleValid) {
       setState(() {
         _isTitleValid = isValid;
@@ -461,20 +467,15 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
     final delta = doc.toDelta();
     final operations = delta.toList();
 
-    for (int i = 0; i < operations.length; i++) {
-      final operation = operations[i];
-      if (operation.data is Map<String, dynamic>) {
-        final data = operation.data as Map<String, dynamic>;
-        if (data['local-image'] == localPath) {
-          _controller.replaceText(
-            i,
-            1,
-            quill.BlockEmbed('image', networkUrl),
-            null,
-          );
-          break;
-        }
-      }
+    final opMaps = operations.map((op) => {'data': op.data}).toList();
+    final index = PostWriteBodyHelper.findLocalImageIndex(opMaps, localPath);
+    if (index >= 0) {
+      _controller.replaceText(
+        index,
+        1,
+        quill.BlockEmbed('image', networkUrl),
+        null,
+      );
     }
   }
 
@@ -512,9 +513,14 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
       ),
     );
 
-    if (result != null && result['url']!.isNotEmpty) {
-      _insertEmbed(
-          'link', jsonEncode({'name': result['name'], 'url': result['url']}));
+    if (PostWriteBodyHelper.isLinkResultValid(result)) {
+      final encoded = PostWriteBodyHelper.encodeLinkEmbedData(
+        name: result!['name'],
+        url: result['url'],
+      );
+      if (encoded != null) {
+        _insertEmbed('link', encoded);
+      }
     }
   }
 
@@ -554,8 +560,8 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
       ),
     );
 
-    if (result != null && result.isNotEmpty) {
-      _insertEmbed('youtube', result);
+    if (PostWriteBodyHelper.isYouTubeResultValid(result)) {
+      _insertEmbed('youtube', result!);
     }
   }
 

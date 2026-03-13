@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/presentation/pages/signup/login_page_helper.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
@@ -171,8 +172,12 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       pagination: SwiperPagination(builder: CustomPaginationBuilder()),
       itemBuilder: (BuildContext context, int index) {
         final lang = Localizations.localeOf(context).languageCode;
-        final candidate = 'assets/login/${lang}_${index + 1}.png';
-        final fallback = 'assets/login/en_${index + 1}.png';
+        final paths = LoginPageHelper.swiperImageAssetPaths(
+          languageCode: lang,
+          index: index,
+        );
+        final candidate = paths.candidate;
+        final fallback = paths.fallback;
         return Image.asset(
           candidate,
           errorBuilder: (context, error, stackTrace) {
@@ -340,7 +345,11 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (isIOS()) _buildAppleLogin(context),
+          if (LoginPageHelper.shouldShowAppleLogin(
+            isIOS: isIOS(),
+            isWeb: kIsWeb,
+          ))
+            _buildAppleLogin(context),
           _buildGoogleLogin(context),
           _buildKakaoLogin(context),
         ],
@@ -391,43 +400,44 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           return;
         }
 
-        if (userProfile == null) {
-          ref
-              .read(navigationInfoProvider.notifier)
-              .setCurrentSignUpPage(const AgreementTermsPage());
-          if (navContext.mounted && Navigator.of(navContext).canPop()) {
-            Navigator.of(navContext).pop();
-          }
-        } else if (userProfile.deletedAt != null) {
-          showSimpleDialog(
-            content: AppLocalizations.of(navContext).error_message_withdrawal,
-            onOk: () {
-              ref.read(userInfoProvider.notifier).logout();
-              final ctx = navigatorKey.currentContext;
-              if (ctx != null && ctx.mounted && Navigator.of(ctx).canPop()) {
-                Navigator.of(ctx).pop();
-              }
-            },
-          );
-        } else if (userProfile.userAgreement == null) {
-          ref
-              .read(navigationInfoProvider.notifier)
-              .setCurrentSignUpPage(const AgreementTermsPage());
-          if (navContext.mounted && Navigator.of(navContext).canPop()) {
-            Navigator.of(navContext).pop();
-          }
-        } else {
-          ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
-          // 이중 pop을 안전하게 처리 - 약간의 딜레이로 race condition 방지
-          if (navContext.mounted && Navigator.of(navContext).canPop()) {
-            Navigator.of(navContext).pop();
-            // 두 번째 pop 전에 프레임 대기
-            await Future.delayed(const Duration(milliseconds: 50));
-            final ctx2 = navigatorKey.currentContext;
-            if (ctx2 != null && ctx2.mounted && Navigator.of(ctx2).canPop()) {
-              Navigator.of(ctx2).pop();
+        final action = LoginPageHelper.determinePostLoginAction(
+          profileExists: userProfile != null,
+          isDeleted: userProfile?.deletedAt != null,
+          hasAgreement: userProfile?.userAgreement != null,
+        );
+
+        switch (action) {
+          case PostLoginAction.navigateToAgreement:
+          case PostLoginAction.navigateToAgreementNoRecord:
+            ref
+                .read(navigationInfoProvider.notifier)
+                .setCurrentSignUpPage(const AgreementTermsPage());
+            if (navContext.mounted && Navigator.of(navContext).canPop()) {
+              Navigator.of(navContext).pop();
             }
-          }
+          case PostLoginAction.showDeletedAccountDialog:
+            showSimpleDialog(
+              content: AppLocalizations.of(navContext).error_message_withdrawal,
+              onOk: () {
+                ref.read(userInfoProvider.notifier).logout();
+                final ctx = navigatorKey.currentContext;
+                if (ctx != null && ctx.mounted && Navigator.of(ctx).canPop()) {
+                  Navigator.of(ctx).pop();
+                }
+              },
+            );
+          case PostLoginAction.navigateToMyPage:
+            ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
+            // 이중 pop을 안전하게 처리 - 약간의 딜레이로 race condition 방지
+            if (navContext.mounted && Navigator.of(navContext).canPop()) {
+              Navigator.of(navContext).pop();
+              // 두 번째 pop 전에 프레임 대기
+              await Future.delayed(const Duration(milliseconds: 50));
+              final ctx2 = navigatorKey.currentContext;
+              if (ctx2 != null && ctx2.mounted && Navigator.of(ctx2).canPop()) {
+                Navigator.of(ctx2).pop();
+              }
+            }
         }
       });
     } catch (e, s) {
@@ -468,7 +478,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     await _executeWithLoading(() async {
                       await supabase.auth.signInWithOAuth(
                         OAuthProvider.apple,
-                        redirectTo: '${Environment.webDomain}/auth/callback',
+                        redirectTo: LoginPageHelper.oauthRedirectUrl(
+                          webDomain: Environment.webDomain,
+                        ),
                       );
                     });
                   } else {
@@ -681,7 +693,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     await _executeWithLoading(() async {
                       await supabase.auth.signInWithOAuth(
                         OAuthProvider.kakao,
-                        redirectTo: '${Environment.webDomain}/auth/callback',
+                        redirectTo: LoginPageHelper.oauthRedirectUrl(
+                          webDomain: Environment.webDomain,
+                        ),
                         scopes: 'account_email profile_image profile_nickname',
                       );
                     });

@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart'
 import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/patch_status_provider.dart';
+import 'package:picnic_lib/presentation/widgets/splash_image_helper.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -59,17 +60,8 @@ class SplashImageData {
 
   bool get isExpired => endDate != null && endDate!.isBefore(DateTime.now());
 
-  static DateTime? _parseDate(dynamic value) {
-    if (value == null) return null;
-    try {
-      if (value is String && value.isNotEmpty) {
-        return DateTime.tryParse(value);
-      }
-    } catch (_) {
-      return null;
-    }
-    return null;
-  }
+  static DateTime? _parseDate(dynamic value) =>
+      SplashImageHelper.parseDate(value);
 }
 
 class SplashConfigPayload {
@@ -134,49 +126,15 @@ class SplashConfigPayload {
     }
   }
 
-  static int? _parseVersion(dynamic value) {
-    if (value == null) {
-      return null;
-    }
-    if (value is num) {
-      return value.toInt();
-    }
-    if (value is String && value.isNotEmpty) {
-      return int.tryParse(value);
-    }
-    return null;
-  }
+  static int? _parseVersion(dynamic value) =>
+      SplashImageHelper.parseVersion(value);
 
-  static String? _resolveImageUrl(dynamic cdnUrlValue, dynamic cdnPathValue) {
-    final cdnUrl = cdnUrlValue is String ? cdnUrlValue.trim() : '';
-    if (cdnUrl.isNotEmpty) {
-      return cdnUrl;
-    }
-
-    final cdnPath = cdnPathValue is String ? cdnPathValue.trim() : '';
-    if (cdnPath.isEmpty) {
-      return null;
-    }
-
-    if (cdnPath.startsWith('http://') || cdnPath.startsWith('https://')) {
-      return cdnPath;
-    }
-
-    final base = Environment.cdnUrl;
-    final sanitizedBase = base.endsWith('/')
-        ? base.substring(0, base.length - 1)
-        : base;
-
-    var sanitizedPath = cdnPath;
-    if (sanitizedPath.startsWith(sanitizedBase)) {
-      sanitizedPath = sanitizedPath.substring(sanitizedBase.length);
-    }
-    if (sanitizedPath.startsWith('/')) {
-      sanitizedPath = sanitizedPath.substring(1);
-    }
-
-    return '$sanitizedBase/$sanitizedPath';
-  }
+  static String? _resolveImageUrl(dynamic cdnUrlValue, dynamic cdnPathValue) =>
+      SplashImageHelper.resolveImageUrl(
+        cdnUrlValue,
+        cdnPathValue,
+        Environment.cdnUrl,
+      );
 }
 
 class SplashImage extends ConsumerStatefulWidget {
@@ -536,9 +494,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
       final currentPlatform = _resolvePlatformParam();
       final platformMatches =
-          cachedPlatform == null ||
-          cachedPlatform == 'all' ||
-          cachedPlatform == currentPlatform;
+          SplashImageHelper.isPlatformMatch(cachedPlatform, currentPlatform);
 
       if (!platformMatches) {
         logger.i(
@@ -676,11 +632,16 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     }
 
     // 현재 표시할 상태 메시지 결정
-    String? currentStatusMessage = widget.statusMessage ?? _updateStatus;
-    bool showStatus =
-        (widget.enablePatchCheck &&
-            (_isCheckingUpdate || _updateStatus.isNotEmpty)) ||
-        (widget.statusMessage != null && widget.statusMessage!.isNotEmpty);
+    String? currentStatusMessage = SplashImageHelper.resolveStatusMessage(
+      externalStatusMessage: widget.statusMessage,
+      updateStatus: _updateStatus,
+    );
+    bool showStatus = SplashImageHelper.shouldShowStatus(
+      enablePatchCheck: widget.enablePatchCheck,
+      isCheckingUpdate: _isCheckingUpdate,
+      updateStatus: _updateStatus,
+      externalStatusMessage: widget.statusMessage,
+    );
 
     return Stack(
       fit: StackFit.expand,

@@ -12,6 +12,7 @@ import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
+import 'package:picnic_lib/presentation/pages/community/board_list_helper.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -76,49 +77,9 @@ class _BoardPageState extends ConsumerState<BoardListPage>
 
   static const _pageSize = 20;
 
-  // 개선된 보드 필터링 함수
+  // 개선된 보드 필터링 함수 - BoardListHelper로 위임
   List<BoardModel> _getFilteredBoards(List<BoardModel> boards, String query) {
-    if (query.isEmpty) return boards;
-
-    logger.d('🔍 보드 검색어: "$query"');
-
-    return boards.where((board) {
-      final lowerQuery = query.toLowerCase();
-
-      // 보드 이름 검색 (한국어 + 영어 + 초성)
-      final boardNameKo = board.name['ko']?.toString() ?? '';
-      final boardNameEn = board.name['en']?.toString() ?? '';
-
-      logger.d('📋 보드 이름 (한국어): "$boardNameKo"');
-      logger.d('📋 보드 이름 (영어): "$boardNameEn"');
-      logger.d(
-          '📋 보드 이름 초성: "${KoreanSearchUtils.extractKoreanInitials(boardNameKo)}"');
-
-      if (KoreanSearchUtils.matchesKoreanInitials(boardNameKo, query) ||
-          boardNameEn.toLowerCase().contains(lowerQuery)) {
-        logger.d('✅ 보드 이름 매칭: "$boardNameKo" / "$boardNameEn"');
-        return true;
-      }
-
-      // 아티스트 이름 검색 (한국어 + 영어 + 초성)
-      if (board.artist?.name != null) {
-        final artistNameKo = board.artist!.name['ko']?.toString() ?? '';
-        final artistNameEn = board.artist!.name['en']?.toString() ?? '';
-
-        logger.d('👤 아티스트 (한국어): "$artistNameKo"');
-        logger.d('👤 아티스트 (영어): "$artistNameEn"');
-        logger.d(
-            '👤 아티스트 초성: "${KoreanSearchUtils.extractKoreanInitials(artistNameKo)}"');
-
-        if (KoreanSearchUtils.matchesKoreanInitials(artistNameKo, query) ||
-            artistNameEn.toLowerCase().contains(lowerQuery)) {
-          logger.d('✅ 아티스트 이름 매칭: "$artistNameKo" / "$artistNameEn"');
-          return true;
-        }
-      }
-
-      return false;
-    }).toList();
+    return BoardListHelper.filterBoards(boards, query);
   }
 
   void _onSearchChanged(String query) {
@@ -184,38 +145,15 @@ class _BoardPageState extends ConsumerState<BoardListPage>
       final result = await _fetch(_currentPage);
 
       if (mounted) {
-        // 중복 제거를 위한 Set 사용
-        final existingBoardIds = <String>{};
-        final newBoards = <BoardModel>[];
-
-        if (isRefresh) {
-          // 새로고침 시에는 새 데이터만 사용
-          for (var board in result) {
-            if (!existingBoardIds.contains(board.boardId)) {
-              existingBoardIds.add(board.boardId);
-              newBoards.add(board);
-            }
-          }
-        } else {
-          // 기존 데이터 먼저 추가
-          for (var board in _allBoards) {
-            if (!existingBoardIds.contains(board.boardId)) {
-              existingBoardIds.add(board.boardId);
-              newBoards.add(board);
-            }
-          }
-          // 새 데이터 추가 (중복 제거)
-          for (var board in result) {
-            if (!existingBoardIds.contains(board.boardId)) {
-              existingBoardIds.add(board.boardId);
-              newBoards.add(board);
-            }
-          }
-        }
+        final deduplicated = BoardListHelper.deduplicateBoards(
+          existingBoards: _allBoards,
+          newBoards: result,
+          isRefresh: isRefresh,
+        );
 
         setState(() {
-          _allBoards = newBoards; // 중복이 제거된 리스트로 교체
-          _hasMoreData = result.length >= _pageSize;
+          _allBoards = deduplicated;
+          _hasMoreData = BoardListHelper.hasMoreData(result.length, _pageSize);
           if (!isRefresh) _currentPage++;
           _isLoading = false;
         });
@@ -275,21 +213,8 @@ class _BoardPageState extends ConsumerState<BoardListPage>
   }
 
   Map<String, List<BoardModel>> _groupBoardsByArtist(List<BoardModel> boards) {
-    if (boards.isEmpty) return {};
-
     try {
-      final boardsCopy = List<BoardModel>.from(boards);
-      final map = <String, List<BoardModel>>{};
-
-      for (var board in boardsCopy) {
-        if (board.artist == null) continue;
-
-        final artistId = board.artist!.id;
-        final key = artistId.toString();
-        map.putIfAbsent(key, () => <BoardModel>[]).add(board);
-      }
-
-      return map;
+      return BoardListHelper.groupBoardsByArtist(boards);
     } catch (e) {
       logger.w('Error grouping boards: $e');
       return {};

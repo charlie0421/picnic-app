@@ -11,6 +11,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
+import 'package:picnic_lib/presentation/pages/my_page/faq_page_helper.dart';
 
 class FAQPage extends ConsumerStatefulWidget {
   const FAQPage({super.key});
@@ -28,10 +29,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
   String? _currentTitle;
 
   String _getLocalizedText(Map<String, dynamic> json, String language) {
-    if (json[language] != null) {
-      return json[language];
-    }
-    return json['en'] ?? '';
+    return FAQPageHelper.getLocalizedText(json, language);
   }
 
   // answer_delta에서 해당 언어의 Delta 가져오기
@@ -39,14 +37,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
     Map<String, dynamic>? answerDelta,
     String language,
   ) {
-    if (answerDelta == null) return null;
-    if (answerDelta[language] != null) {
-      return answerDelta[language] as Map<String, dynamic>?;
-    }
-    if (answerDelta['ko'] != null) {
-      return answerDelta['ko'] as Map<String, dynamic>?;
-    }
-    return null;
+    return FAQPageHelper.getLocalizedDelta(answerDelta, language);
   }
 
   // Delta를 QuillEditor로 렌더링
@@ -90,12 +81,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
 
   // Delta에서 plain text 추출 (폴백용)
   String _extractPlainTextFromDelta(Map<String, dynamic> delta) {
-    final ops = delta['ops'] as List?;
-    if (ops == null) return '';
-    return ops
-        .where((op) => op is Map && op['insert'] is String)
-        .map((op) => op['insert'] as String)
-        .join();
+    return FAQPageHelper.extractPlainTextFromDelta(delta);
   }
 
   // 답변 위젯 빌더
@@ -116,22 +102,12 @@ class _FAQPageState extends ConsumerState<FAQPage>
   }
 
   String _getLocalizedCategoryLabel(String categoryCode, String language) {
-    if (categoryCode == 'ALL') {
-      return AppLocalizations.of(context).faq_category_all;
-    }
-    try {
-      final Map<String, dynamic> found = _categoriesData.firstWhere(
-        (c) => c['code'] == categoryCode,
-        orElse: () => <String, dynamic>{},
-      );
-      if (found.isNotEmpty && found['label'] is Map<String, dynamic>) {
-        return _getLocalizedText(
-          found['label'] as Map<String, dynamic>,
-          language,
-        );
-      }
-    } catch (_) {}
-    return categoryCode;
+    return FAQPageHelper.getLocalizedCategoryLabel(
+      categoryCode,
+      language,
+      _categoriesData,
+      allLabel: AppLocalizations.of(context).faq_category_all,
+    );
   }
 
   @override
@@ -182,10 +158,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
       setState(() {
         _faqs = faqsResponse.cast<Map<String, dynamic>>();
         _categoriesData = categoriesResponse.cast<Map<String, dynamic>>();
-        _categories = [
-          'ALL',
-          ..._categoriesData.map((e) => e['code']).whereType<String>(),
-        ];
+        _categories = FAQPageHelper.buildCategoriesList(_categoriesData);
       });
     } catch (error) {
       logger.e('FAQ 데이터 가져오기 오류', error: error);
@@ -193,10 +166,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
   }
 
   List<Map<String, dynamic>> _getFilteredFaqs() {
-    if (_selectedCategory == 'ALL') {
-      return _faqs;
-    }
-    return _faqs.where((faq) => faq['category'] == _selectedCategory).toList();
+    return FAQPageHelper.getFilteredFaqs(_faqs, _selectedCategory);
   }
 
   void _updateNavigation() {
