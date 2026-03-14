@@ -14,7 +14,6 @@ import 'package:picnic_lib/presentation/common/top/top_right_notifications.dart'
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/fixed_width_layout.dart';
 import 'package:picnic_lib/presentation/widgets/ui/popup_carousel.dart';
@@ -59,8 +58,7 @@ class _PortalState extends ConsumerState<Portal> {
                   width: 36,
                   height: 36,
                   alignment: Alignment.center,
-                  child: isSupabaseLoggedSafely
-                      ? userInfoState.when(
+                  child: userInfoState.when(
                           data: (data) => data != null
                               ? GestureDetector(
                                   behavior: HitTestBehavior.opaque,
@@ -78,7 +76,11 @@ class _PortalState extends ConsumerState<Portal> {
                                   onTap: () =>
                                       Scaffold.of(context).openDrawer(),
                                   child: const DefaultAvatar()),
-                          error: (error, stackTrace) => const Icon(Icons.error),
+                          error: (error, stackTrace) => GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => Scaffold.of(context).openDrawer(),
+                            child: const DefaultAvatar(),
+                          ),
                           loading: () => SizedBox(
                             width: 36,
                             height: 36,
@@ -86,11 +88,6 @@ class _PortalState extends ConsumerState<Portal> {
                                 borderRadius: BorderRadius.circular(8.r),
                                 child: buildPlaceholderImage()),
                           ),
-                        )
-                      : GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => Scaffold.of(context).openDrawer(),
-                          child: const DefaultAvatar(),
                         ),
                 );
               },
@@ -109,21 +106,20 @@ class _PortalState extends ConsumerState<Portal> {
                       Text(Environment.currentEnvironment),
                     const PortalMenuItem(portalType: PortalType.vote),
                     const PortalMenuItem(portalType: PortalType.goongHap),
-                    if (isSupabaseLoggedSafely)
-                      userInfoState.when(
-                        data: (userInfo) {
-                          if (userInfo != null && (userInfo.isAdmin ?? false)) {
-                            return const Row(children: [
-                              PortalMenuItem(portalType: PortalType.pic),
-                              PortalMenuItem(portalType: PortalType.novel),
-                            ]);
-                          } else {
-                            return Container();
-                          }
-                        },
-                        error: (error, stackTrace) => const Icon(Icons.error),
-                        loading: () => const SizedBox(),
-                      ),
+                    userInfoState.when(
+                      data: (userInfo) {
+                        if (userInfo != null && (userInfo.isAdmin ?? false)) {
+                          return const Row(children: [
+                            PortalMenuItem(portalType: PortalType.pic),
+                            PortalMenuItem(portalType: PortalType.novel),
+                          ]);
+                        } else {
+                          return Container();
+                        }
+                      },
+                      error: (error, stackTrace) => const SizedBox(),
+                      loading: () => const SizedBox(),
+                    ),
                   ],
                 ),
               ),

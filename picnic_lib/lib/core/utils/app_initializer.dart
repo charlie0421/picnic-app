@@ -346,6 +346,13 @@ class AppInitializer {
       // Supabase 인증 상태 변경 리스너 설정 (세션 복원 이벤트를 UI에 반영)
       setupSupabaseAuthListener(ref);
 
+      // 리스너 설정 전에 세션이 이미 복원된 경우, signedIn 이벤트를 놓쳤으므로
+      // userInfoProvider를 invalidate하여 로그인 상태를 UI에 반영
+      if (isSupabaseLoggedSafely) {
+        logger.i('세션이 이미 복원됨 - userInfoProvider 갱신');
+        ref.invalidate(userInfoProvider);
+      }
+
       ref
           .read(appInitializationProvider.notifier)
           .updateState(isInitialized: true);
