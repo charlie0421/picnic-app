@@ -433,7 +433,7 @@ class _CheckInAttendance extends Attendance {
   Future<AttendanceState> build() async => _state;
 
   @override
-  Future<AttendanceCheckResult?> checkIn() async {
+  Future<AttendanceCheckResult?> checkIn({bool isRetry = false}) async {
     return const AttendanceCheckResult(
       rewardAmount: 60,
       weeklyBonusAmount: 0,
@@ -452,7 +452,7 @@ class _WeeklyBonusCheckInAttendance extends Attendance {
   Future<AttendanceState> build() async => _state;
 
   @override
-  Future<AttendanceCheckResult?> checkIn() async {
+  Future<AttendanceCheckResult?> checkIn({bool isRetry = false}) async {
     return const AttendanceCheckResult(
       rewardAmount: 60,
       weeklyBonusAmount: 120,
