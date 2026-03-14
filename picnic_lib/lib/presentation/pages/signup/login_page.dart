@@ -26,7 +26,7 @@ import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart'
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:screen_protector/screen_protector.dart' as sp;
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -486,20 +486,11 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   } else {
                     _showLoginLoadingOverlay();
                     try {
-                      try {
-                        await sp.ScreenProtector.preventScreenshotOff();
-                      } catch (_) {}
-                      try {
-                        final user = await _authService.signInWithProvider(
-                          OAuthProvider.apple,
-                        );
-                        if (user != null) {
-                          await _handleSuccessfulLogin('apple');
-                        }
-                      } finally {
-                        try {
-                          await sp.ScreenProtector.preventScreenshotOn();
-                        } catch (_) {}
+                      final user = await _authService.signInWithProvider(
+                        OAuthProvider.apple,
+                      );
+                      if (user != null) {
+                        await _handleSuccessfulLogin('apple');
                       }
                     } finally {
                       _hideLoginLoadingOverlay();
@@ -702,20 +693,11 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   } else {
                     _showLoginLoadingOverlay();
                     try {
-                      try {
-                        await sp.ScreenProtector.preventScreenshotOff();
-                      } catch (_) {}
-                      try {
-                        final user = await _authService.signInWithProvider(
-                          OAuthProvider.kakao,
-                        );
-                        if (user != null) {
-                          await _handleSuccessfulLogin('kakao');
-                        }
-                      } finally {
-                        try {
-                          await sp.ScreenProtector.preventScreenshotOn();
-                        } catch (_) {}
+                      final user = await _authService.signInWithProvider(
+                        OAuthProvider.kakao,
+                      );
+                      if (user != null) {
+                        await _handleSuccessfulLogin('kakao');
                       }
                     } finally {
                       _hideLoginLoadingOverlay();

@@ -8,15 +8,11 @@ import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/services/locale_service.dart';
 
-import 'package:screen_protector/screen_protector.dart';
-import 'package:universal_platform/universal_platform.dart';
-
 /// app.dart 파일에서 공통으로 사용되는 앱 빌드 로직을 담은 유틸리티 클래스
 ///
 /// 두 앱(picnic_app, ttja_app)의 app.dart 파일에서 중복되는 UI 빌드 로직을
 /// 추출하여 재사용성을 높이고 코드 중복을 줄입니다.
 class AppBuilder {
-  static bool _screenProtectorEnabled = false;
 
   /// 앱 초기화 후 MaterialApp 위젯 생성
   ///
@@ -39,7 +35,6 @@ class AppBuilder {
     required List<LocalizationsDelegate<dynamic>> localizationsDelegates,
     required List<Locale> supportedLocales,
     required Locale locale,
-    bool enableScreenProtector = false,
   }) {
     // ScreenUtil 초기화 문제를 해결하기 위한 개선된 구현
     return ScreenUtilInit(
@@ -61,7 +56,7 @@ class AppBuilder {
               localizationsDelegates: localizationsDelegates,
               supportedLocales: supportedLocales,
               locale: locale,
-              enableScreenProtector: enableScreenProtector,
+
             );
 
         return safeChild;
@@ -77,7 +72,7 @@ class AppBuilder {
         localizationsDelegates: localizationsDelegates,
         supportedLocales: supportedLocales,
         locale: locale,
-        enableScreenProtector: enableScreenProtector,
+
       ),
     );
   }
@@ -93,7 +88,7 @@ class AppBuilder {
     required List<LocalizationsDelegate<dynamic>> localizationsDelegates,
     required List<Locale> supportedLocales,
     required Locale locale,
-    required bool enableScreenProtector,
+
   }) {
     return OverlaySupport.global(
       child: _buildMaterialApp(
@@ -106,7 +101,7 @@ class AppBuilder {
         localizationsDelegates: localizationsDelegates,
         supportedLocales: supportedLocales,
         locale: locale,
-        enableScreenProtector: enableScreenProtector,
+
       ),
     );
   }
@@ -122,11 +117,7 @@ class AppBuilder {
     required List<LocalizationsDelegate<dynamic>> localizationsDelegates,
     required List<Locale> supportedLocales,
     required Locale locale,
-    bool enableScreenProtector = false,
   }) {
-    // home 위젯을 화면 보호기로 래핑
-    final wrappedHome = _wrapWithScreenProtector(home, enableScreenProtector);
-
     return MaterialApp(
       navigatorKey: navigatorKey,
       navigatorObservers: AppAnalytics.buildNavigatorObservers(),
@@ -136,7 +127,7 @@ class AppBuilder {
       theme: theme,
       debugShowCheckedModeBanner: false,
       routes: routes,
-      home: wrappedHome,
+      home: home,
       locale: locale,
       supportedLocales: supportedLocales,
       localizationsDelegates: localizationsDelegates,
@@ -159,19 +150,6 @@ class AppBuilder {
         return locale;
       },
     );
-  }
-
-  /// 화면 보호기(캡처 방지) 설정이 활성화된 경우 위젯 래핑
-  static Widget _wrapWithScreenProtector(Widget child, bool enableProtector) {
-    if (enableProtector && UniversalPlatform.isMobile) {
-      try {
-        // 화면 캡처 방지 설정
-        ScreenProtector.preventScreenshotOn();
-      } catch (e) {
-        logger.e('화면 보호기 설정 중 오류', error: e);
-      }
-    }
-    return child;
   }
 
   /// 앱 초기화 상태 관리를 위한 유틸리티 메서드
@@ -218,25 +196,6 @@ class AppBuilder {
     // 구현 예정: 언어 변경 시 앱 UI 업데이트 로직
     if (onComplete != null) {
       onComplete(language);
-    }
-  }
-
-  /// 화면 보호기(캡처 방지) 설정 업데이트
-  ///
-  /// [enable] 활성화 여부
-  static void updateScreenProtector(bool enable) {
-    if (!UniversalPlatform.isMobile) return;
-    if (enable == _screenProtectorEnabled) return;
-
-    try {
-      if (enable) {
-        ScreenProtector.preventScreenshotOn();
-      } else {
-        ScreenProtector.preventScreenshotOff();
-      }
-      _screenProtectorEnabled = enable;
-    } catch (e) {
-      logger.e('화면 보호기 설정 업데이트 중 오류', error: e);
     }
   }
 

@@ -2,7 +2,7 @@ name: ttja_app
 description: "Ttja App"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.5.12+151203
+version: 1.5.12+151204
 
 environment:
     sdk: '>=3.3.1 <4.0.0'
@@ -15,7 +15,7 @@ dependencies:
     picnic_lib:
         path: ../picnic_lib
     intl: ^0.20.2
-    screen_protector: ^1.4.10
+
     supabase_flutter: ^2.10.3
     universal_platform: ^1.1.0
     flutter_screenutil: ^5.9.3

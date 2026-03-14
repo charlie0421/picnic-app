@@ -53,9 +53,6 @@ class UserInfo extends _$UserInfo {
         final userProfile = UserProfilesModel.fromJson(response);
         state = AsyncValue.data(userProfile);
 
-        // 캡처 방지 로직은 screen_protector_provider에서 PIC 메뉴별로 관리
-        // 여기서는 전역 캡처 방지 설정을 하지 않음
-
         return userProfile;
       } else {
         logger.w('User profile not found');

@@ -22,7 +22,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
-import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
+
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
 import 'package:picnic_lib/presentation/widgets/patch_restart_dialog.dart';
@@ -191,12 +191,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final appInitState = ref.watch(appInitializationProvider);
     final appSettingState = ref.watch(appSettingProvider);
 
-    // 화면 보호기 상태 감지 및 처리 (PIC 메뉴에서만 활성화)
-    final isScreenProtector = ref.watch(isScreenProtectorProvider);
-
-    // PIC 메뉴별 캡처 방지 설정 업데이트
-    AppBuilder.updateScreenProtector(isScreenProtector);
-
     Widget currentScreen;
     if (kForceBanScreen) {
       logger.i('임시 강제 - 밴 화면 표시');
@@ -243,7 +237,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       locale: currentLocale,
-      enableScreenProtector: isScreenProtector,
     );
   }
 

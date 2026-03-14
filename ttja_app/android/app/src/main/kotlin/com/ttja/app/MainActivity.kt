@@ -24,12 +24,6 @@ class MainActivity : FlutterActivity() {
             try {
                 // 가비지 컬렉션 강제 실행
                 System.gc()
-
-                // 렌더링 모드 조정 (소프트웨어 렌더링 우선)
-                window.setFlags(
-                    WindowManager.LayoutParams.FLAG_SECURE,
-                    WindowManager.LayoutParams.FLAG_SECURE
-                )
             } catch (e: Exception) {
                 println("MediaTek 기기 최적화 중 오류 발생: ${e.message}")
             }

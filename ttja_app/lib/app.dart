@@ -18,7 +18,7 @@ import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
+
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
@@ -142,11 +142,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     // 앱 설정 관련 상태 구독
     final appSettingState = ref.watch(appSettingProvider);
-    final isScreenProtector = ref.watch(isScreenProtectorProvider);
-
-    // 화면 보호기 설정 업데이트
-    AppBuilder.updateScreenProtector(isScreenProtector);
-
     // 내비게이션 관련 프로바이더 구독
     ref.watch(navigationInfoProvider);
     ref.watch(globalMediaQueryProvider);
@@ -173,7 +168,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       locale: Locale(appSettingState.language),
-      enableScreenProtector: isScreenProtector,
     );
   }
 
@@ -204,7 +198,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       _appLinksSubscription,
     );
 
-    // 화면 보호기 해제는 AppBuilder의 updateScreenProtector로 처리
     super.dispose();
   }
 

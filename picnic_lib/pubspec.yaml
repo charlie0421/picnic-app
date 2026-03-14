@@ -52,7 +52,7 @@ dependencies:
   flutter_keyboard_visibility: ^6.0.0
   font_awesome_flutter: ^10.8.0
   overlay_support: ^2.1.0
-  screen_protector: ^1.4.2+1
+
   bubble_box: ^0.5.3
   supabase_flutter: ^2.10.3
   google_sign_in: ^7.1.1
