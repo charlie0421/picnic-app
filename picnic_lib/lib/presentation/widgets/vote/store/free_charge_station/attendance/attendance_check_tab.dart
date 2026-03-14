@@ -62,10 +62,15 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
     super.dispose();
   }
 
+  String? _checkInError;
+
   Future<void> _handleCheckIn() async {
     if (_isCheckingIn) return;
 
-    setState(() => _isCheckingIn = true);
+    setState(() {
+      _isCheckingIn = true;
+      _checkInError = null;
+    });
 
     try {
       final result = await ref.read(attendanceProvider.notifier).checkIn();
@@ -88,10 +93,42 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
           }
         });
       }
+    } on AttendanceException catch (e) {
+      if (mounted) {
+        setState(() {
+          _checkInError = _getErrorMessage(e.type);
+        });
+        _clearCheckInErrorAfterDelay();
+      }
     } catch (_) {
-      // Error is handled by provider
+      if (mounted) {
+        setState(() {
+          _checkInError = AppLocalizations.of(context).common_retry_label;
+        });
+        _clearCheckInErrorAfterDelay();
+      }
     } finally {
       if (mounted) setState(() => _isCheckingIn = false);
+    }
+  }
+
+  void _clearCheckInErrorAfterDelay() {
+    _resultTimer?.cancel();
+    _resultTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _checkInError = null);
+    });
+  }
+
+  String _getErrorMessage(AttendanceErrorType type) {
+    final l10n = AppLocalizations.of(context);
+    switch (type) {
+      case AttendanceErrorType.auth:
+        return l10n.dialog_content_login_required;
+      case AttendanceErrorType.network:
+        return l10n.common_retry_label;
+      case AttendanceErrorType.server:
+      case AttendanceErrorType.unknown:
+        return l10n.common_retry_label;
     }
   }
 
@@ -113,23 +150,39 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
           ),
         ),
       ),
-      error: (error, _) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              l10n.common_retry_label,
-              style: getTextStyle(AppTypo.caption12R, AppColors.grey400),
-            ),
-            SizedBox(width: 8.w),
-            GestureDetector(
-              onTap: () => ref.invalidate(attendanceProvider),
-              child: Icon(Icons.refresh, size: 18, color: AppColors.primary500),
-            ),
-          ],
-        ),
-      ),
+      error: (error, _) {
+        final isAuthError = error is AttendanceException &&
+            error.type == AttendanceErrorType.auth;
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                isAuthError
+                    ? l10n.dialog_content_login_required
+                    : l10n.common_retry_label,
+                style: getTextStyle(AppTypo.caption12R, AppColors.grey400),
+              ),
+              SizedBox(height: 8.h),
+              GestureDetector(
+                onTap: () => ref.invalidate(attendanceProvider),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.refresh, size: 18, color: AppColors.primary500),
+                    SizedBox(width: 4.w),
+                    Text(
+                      l10n.common_retry_label,
+                      style: getTextStyle(AppTypo.caption12R, AppColors.primary500),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
       data: (state) {
         final weeklyStatus = state.weeklyStatus;
         if (weeklyStatus == null || !isLogged) {
@@ -423,6 +476,16 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
                 ),
               ),
             ),
+
+            // Check-in error message
+            if (_checkInError != null) ...[
+              SizedBox(height: 6.h),
+              Text(
+                _checkInError!,
+                style: getTextStyle(AppTypo.caption12R, Colors.red),
+                textAlign: TextAlign.center,
+              ),
+            ],
 
             // New user notice
             if (weeklyStatus.isNewUser) ...[
