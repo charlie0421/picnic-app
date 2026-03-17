@@ -2,16 +2,30 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
+import 'package:meta/meta.dart';
 
 class Environment {
   static late Map<String, dynamic> _config;
   static late String _currentEnvironment;
+  static bool _isInitialized = false;
 
   static Future<void> initConfig(String env) async {
     _currentEnvironment = env;
     final configString = await rootBundle.loadString('config/$env.json');
     _config = json.decode(configString) as Map<String, dynamic>;
+    _isInitialized = true;
   }
+
+  /// 테스트 전용: config를 직접 주입하여 초기화
+  @visibleForTesting
+  static void initTestConfig(Map<String, dynamic> config) {
+    _config = config;
+    _currentEnvironment = 'test';
+    _isInitialized = true;
+  }
+
+  /// Environment가 초기화되었는지 확인
+  static bool get isInitialized => _isInitialized;
 
   static String get currentEnvironment => _currentEnvironment;
 

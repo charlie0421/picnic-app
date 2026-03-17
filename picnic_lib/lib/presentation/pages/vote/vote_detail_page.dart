@@ -1080,7 +1080,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
       // logger.d('🖼️ URL 유효성 검사 결과: $hasValidImageUrl');
 
-      if (!hasValidImageUrl) {
+      if (!hasValidImageUrl && imageUrl.isNotEmpty) {
         logger.w(
           '🖼️ 유효하지 않은 이미지 URL - ID: ${item.id}, 원본: "$imageUrl", 전체: "$fullImageUrl"',
         );
