@@ -11,6 +11,74 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 class SearchService {
   static final SearchCacheService _cache = SearchCacheService();
 
+  /// 한국어 초성 문자 목록
+  static const List<String> _koreanInitials = [
+    'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
+    'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
+  ];
+
+  /// 검색어가 한국어 초성으로만 이루어져 있는지 확인
+  static bool isKoreanInitialQuery(String query) {
+    return query.isNotEmpty &&
+        query.split('').every((char) => _koreanInitials.contains(char));
+  }
+
+  /// Supabase 응답에서 ArtistModel 목록을 파싱하는 헬퍼
+  static List<ArtistModel> _parseArtistListResponse(
+    List<dynamic> response, {
+    bool includeBookmarks = true,
+  }) {
+    return response
+        .where((data) => data != null)
+        .map((data) {
+          final artistData = data as Map<String, dynamic>;
+          if (!includeBookmarks) {
+            return ArtistModel.fromJson(artistData);
+          }
+          final bookmarkData = artistData['artist_user_bookmark'] as List?;
+          final isBookmarked = bookmarkData != null && bookmarkData.isNotEmpty;
+          final cleanArtistData = Map<String, dynamic>.from(artistData);
+          cleanArtistData.remove('artist_user_bookmark');
+          cleanArtistData['isBookmarked'] = isBookmarked;
+          return ArtistModel.fromJson(cleanArtistData);
+        })
+        .toList();
+  }
+
+  /// 아티스트 목록을 한국어 초성으로 필터링
+  static List<ArtistModel> _filterByKoreanInitials(
+    List<ArtistModel> artists,
+    String query, {
+    List<String> languages = const ['ko', 'en', 'ja'],
+  }) {
+    return artists.where((artist) {
+      final artistNames = languages
+          .map((lang) => artist.name[lang])
+          .where((name) => name != null && name.isNotEmpty)
+          .cast<String>();
+
+      for (final name in artistNames) {
+        if (KoreanSearchUtils.matchesKoreanInitials(name, query)) {
+          return true;
+        }
+      }
+
+      if (artist.artistGroup?.name != null) {
+        final groupNames = languages
+            .map((lang) => artist.artistGroup!.name[lang])
+            .where((name) => name != null && name.isNotEmpty)
+            .cast<String>();
+
+        for (final groupName in groupNames) {
+          if (KoreanSearchUtils.matchesKoreanInitials(groupName, query)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }).toList();
+  }
+
   /// 아티스트 이름과 그룹명을 동시에 검색하는 메서드 (고급 검색 사용)
   ///
   /// [query] 검색어
@@ -55,32 +123,9 @@ class SearchService {
         throw ArgumentError('Invalid search query: $query');
       }
 
-      // 한국어 초성 검색인지 확인 (간단한 초성 문자 체크)
-      final koreanInitials = [
-        'ㄱ',
-        'ㄲ',
-        'ㄴ',
-        'ㄷ',
-        'ㄸ',
-        'ㄹ',
-        'ㅁ',
-        'ㅂ',
-        'ㅃ',
-        'ㅅ',
-        'ㅆ',
-        'ㅇ',
-        'ㅈ',
-        'ㅉ',
-        'ㅊ',
-        'ㅋ',
-        'ㅌ',
-        'ㅍ',
-        'ㅎ',
-      ];
+      // 한국어 초성 검색인지 확인
       final isKoreanInitials =
-          supportKoreanInitials &&
-          query.isNotEmpty &&
-          query.split('').every((char) => koreanInitials.contains(char));
+          supportKoreanInitials && isKoreanInitialQuery(query);
 
       dynamic queryBuilder = supabase
           .from('artist')
@@ -110,56 +155,14 @@ class SearchService {
           return <ArtistModel>[];
         }
 
-        final allArtists = (response as List<dynamic>)
-            .where((data) => data != null)
-            .map((data) {
-              final artistData = data as Map<String, dynamic>;
-              // 북마크 정보 확인 (artist_user_bookmark 배열이 비어있지 않으면 북마크됨)
-              final bookmarkData = artistData['artist_user_bookmark'] as List?;
-              final isBookmarked =
-                  bookmarkData != null && bookmarkData.isNotEmpty;
-
-              // 북마크 정보를 제거하고 아티스트 데이터만 추출
-              final cleanArtistData = Map<String, dynamic>.from(artistData);
-              cleanArtistData.remove('artist_user_bookmark');
-              cleanArtistData['isBookmarked'] = isBookmarked;
-
-              return ArtistModel.fromJson(cleanArtistData);
-            })
-            .toList();
+        final allArtists = _parseArtistListResponse(response as List<dynamic>);
 
         // 로컬에서 초성 필터링 (KoreanSearchUtils 사용)
-        final filteredResults = allArtists.where((artist) {
-          // 아티스트 이름에서 검색
-          final artistNames = [
-            artist.name['ko'],
-            artist.name['en'],
-            artist.name['ja'],
-          ].where((name) => name != null && name.isNotEmpty).cast<String>();
-
-          for (final name in artistNames) {
-            if (KoreanSearchUtils.matchesKoreanInitials(name, query)) {
-              return true;
-            }
-          }
-
-          // 그룹 이름에서 검색
-          if (artist.artistGroup?.name != null) {
-            final groupNames = [
-              artist.artistGroup!.name['ko'],
-              artist.artistGroup!.name['en'],
-              artist.artistGroup!.name['ja'],
-            ].where((name) => name != null && name.isNotEmpty).cast<String>();
-
-            for (final groupName in groupNames) {
-              if (KoreanSearchUtils.matchesKoreanInitials(groupName, query)) {
-                return true;
-              }
-            }
-          }
-
-          return false;
-        }).toList();
+        final filteredResults = _filterByKoreanInitials(
+          allArtists,
+          query,
+          languages: ['ko', 'en', 'ja'],
+        );
 
         // 페이지네이션 적용
         final startIndex = page * limit;
@@ -208,21 +211,7 @@ class SearchService {
             .order('name->>$language', ascending: true)
             .range(page * limit, (page + 1) * limit - 1);
 
-        artistResults = (artistResponse as List<dynamic>)
-            .where((data) => data != null)
-            .map((data) {
-              final artistData = data as Map<String, dynamic>;
-              final bookmarkData = artistData['artist_user_bookmark'] as List?;
-              final isBookmarked =
-                  bookmarkData != null && bookmarkData.isNotEmpty;
-
-              final cleanArtistData = Map<String, dynamic>.from(artistData);
-              cleanArtistData.remove('artist_user_bookmark');
-              cleanArtistData['isBookmarked'] = isBookmarked;
-
-              return ArtistModel.fromJson(cleanArtistData);
-            })
-            .toList();
+        artistResults = _parseArtistListResponse(artistResponse as List<dynamic>);
 
         // 2. 그룹명으로 검색 (검색어가 있을 때만, 빈 검색어일 때는 이미 전체 결과가 있으므로 생략)
         if (query.isNotEmpty) {
@@ -267,24 +256,9 @@ class SearchService {
 
               // ignore: unnecessary_null_comparison
               if (groupArtistResponse != null) {
-                groupResults = (groupArtistResponse as List<dynamic>)
-                    .where((data) => data != null)
-                    .map((data) {
-                      final artistData = data as Map<String, dynamic>;
-                      final bookmarkData =
-                          artistData['artist_user_bookmark'] as List?;
-                      final isBookmarked =
-                          bookmarkData != null && bookmarkData.isNotEmpty;
-
-                      final cleanArtistData = Map<String, dynamic>.from(
-                        artistData,
-                      );
-                      cleanArtistData.remove('artist_user_bookmark');
-                      cleanArtistData['isBookmarked'] = isBookmarked;
-
-                      return ArtistModel.fromJson(cleanArtistData);
-                    })
-                    .toList();
+                groupResults = _parseArtistListResponse(
+                  groupArtistResponse as List<dynamic>,
+                );
               }
             }
           } catch (e) {
@@ -484,12 +458,7 @@ class SearchService {
       }
 
       // 한국어 초성 검색인지 확인
-      final koreanInitials = [
-        'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
-        'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
-      ];
-      final isKoreanInitials =
-          query.split('').every((char) => koreanInitials.contains(char));
+      final isKoreanInitials = isKoreanInitialQuery(query);
 
       if (isKoreanInitials) {
         // 초성 검색: 모든 아티스트를 가져와서 로컬 필터링
@@ -506,33 +475,11 @@ class SearchService {
             .toList();
 
         // 로컬에서 초성 필터링
-        final filteredResults = allArtists.where((artist) {
-          final artistNames = [
-            artist.name['ko'],
-            artist.name['en'],
-          ].where((name) => name != null && name.isNotEmpty).cast<String>();
-
-          for (final name in artistNames) {
-            if (KoreanSearchUtils.matchesKoreanInitials(name, query)) {
-              return true;
-            }
-          }
-
-          // 그룹 이름에서도 검색
-          if (artist.artistGroup?.name != null) {
-            final groupNames = [
-              artist.artistGroup!.name['ko'],
-              artist.artistGroup!.name['en'],
-            ].where((name) => name != null && name.isNotEmpty).cast<String>();
-
-            for (final groupName in groupNames) {
-              if (KoreanSearchUtils.matchesKoreanInitials(groupName, query)) {
-                return true;
-              }
-            }
-          }
-          return false;
-        }).toList();
+        final filteredResults = _filterByKoreanInitials(
+          allArtists,
+          query,
+          languages: ['ko', 'en'],
+        );
 
         // 페이지네이션 적용
         final startIndex = page * limit;

@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
@@ -41,6 +40,8 @@ import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_skeleton.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_gain_indicator.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_item_highlight_widget.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -57,97 +58,6 @@ class VoteDetailPage extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<VoteDetailPage> createState() => _VoteDetailPageState();
-}
-
-class VoteGainIndicator extends StatefulWidget {
-  final int diff;
-
-  const VoteGainIndicator({super.key, required this.diff});
-
-  @override
-  State<VoteGainIndicator> createState() => _VoteGainIndicatorState();
-}
-
-class _VoteGainIndicatorState extends State<VoteGainIndicator>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _opacity;
-  late final Animation<double> _offset;
-  int? _displayDiff;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller =
-        AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 1200),
-        )..addStatusListener((status) {
-          if (status == AnimationStatus.completed) {
-            setState(() {
-              _displayDiff = null;
-            });
-          }
-        });
-
-    _opacity = Tween<double>(
-      begin: 1,
-      end: 0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    _offset = Tween<double>(
-      begin: 0,
-      end: -10,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-
-    if (widget.diff > 0) {
-      _startAnimation(widget.diff);
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant VoteGainIndicator oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.diff > 0 && oldWidget.diff <= 0) {
-      _startAnimation(widget.diff);
-    }
-  }
-
-  void _startAnimation(int diff) {
-    setState(() {
-      _displayDiff = diff;
-    });
-    _controller.forward(from: 0);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_displayDiff == null) {
-      return const SizedBox.shrink();
-    }
-
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _opacity.value,
-          child: Transform.translate(
-            offset: Offset(0, _offset.value),
-            child: child,
-          ),
-        );
-      },
-      child: Text(
-        '+$_displayDiff',
-        style: getTextStyle(AppTypo.caption10SB, AppColors.primary500),
-      ),
-    );
-  }
 }
 
 class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
@@ -1046,182 +956,23 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     required bool rankUp,
     required String searchQuery,
   }) {
-    try {
-      // 검색어가 매칭된 언어의 텍스트 가져오기
-
-      final bool highlightActive = _highlightedItemIds.contains(item.id);
-      return RepaintBoundary(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-          decoration: BoxDecoration(
-            color: highlightActive
-                ? (rankUp
-                      ? Colors.blue.withValues(alpha: 0.18)
-                      : Colors.red.withValues(alpha: 0.18))
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => _handleVoteItemTap(context, item, index),
-            child: Container(
-              constraints: BoxConstraints(
-                minHeight: 55,
-              ), // 45에서 55로 증가하여 오버플로우 해결
-              padding: EdgeInsets.symmetric(vertical: 6.h), // 패딩도 약간 증가
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 39,
-                    height: 45, // 높이를 다시 줄임 (크라운만 표시하므로)
-                    child: Center(
-                      child: actualRank <= 3
-                          ? SvgPicture.asset(
-                              package: 'picnic_lib',
-                              'assets/icons/vote/crown$actualRank.svg',
-                              height: 24, // 크라운 크기를 더 크게 하여 잘 보이게
-                              width: 24,
-                            )
-                          : Text(
-                              actualRank.toString(), // 4위 이하는 숫자만 표시
-                              style: getTextStyle(
-                                AppTypo.body16B,
-                                AppColors.point900,
-                              ), // 더 큰 폰트
-                              textAlign: TextAlign.center,
-                            ),
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  _buildArtistImage(item, index, actualRank, rankChanged),
-                  SizedBox(width: 8.w),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // 검색어 하이라이트가 적용된 이름 표시 (한줄로 표시)
-                        RichText(
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1, // 2줄에서 1줄로 변경
-                          text: TextSpan(
-                            style: getTextStyle(
-                              AppTypo.body14B,
-                              AppColors.grey900,
-                            ),
-                            children: (item.artist?.id ?? 0) != 0
-                                ? [
-                                    // 아티스트 이름에 하이라이트 적용
-                                    ...KoreanSearchUtils.buildHighlightedTextSpans(
-                                      item.artist?.name != null
-                                          ? _getMatchingText(
-                                              item.artist!.name,
-                                              searchQuery,
-                                            )
-                                          : '',
-                                      searchQuery,
-                                    ),
-                                    // 아티스트의 그룹명을 괄호 안에 작게 표시 (그룹명이 실제로 존재할 때만)
-                                    if (item.artist?.artistGroup?.name !=
-                                            null &&
-                                        _getMatchingText(
-                                          item.artist!.artistGroup!.name,
-                                          searchQuery,
-                                        ).isNotEmpty)
-                                      TextSpan(
-                                        text: ' (',
-                                        style: getTextStyle(
-                                          AppTypo.caption10SB,
-                                          AppColors.grey600,
-                                        ),
-                                      ),
-                                    if (item.artist?.artistGroup?.name !=
-                                            null &&
-                                        _getMatchingText(
-                                          item.artist!.artistGroup!.name,
-                                          searchQuery,
-                                        ).isNotEmpty)
-                                      ...KoreanSearchUtils.buildHighlightedTextSpans(
-                                        _getMatchingText(
-                                          item.artist!.artistGroup!.name,
-                                          searchQuery,
-                                        ),
-                                        searchQuery,
-                                        baseStyle: getTextStyle(
-                                          AppTypo.caption10SB,
-                                          AppColors.grey600,
-                                        ),
-                                      ),
-                                    if (item.artist?.artistGroup?.name !=
-                                            null &&
-                                        _getMatchingText(
-                                          item.artist!.artistGroup!.name,
-                                          searchQuery,
-                                        ).isNotEmpty)
-                                      TextSpan(
-                                        text: ')',
-                                        style: getTextStyle(
-                                          AppTypo.caption10SB,
-                                          AppColors.grey600,
-                                        ),
-                                      ),
-                                  ]
-                                : [
-                                    // 그룹명에 하이라이트 적용
-                                    ...KoreanSearchUtils.buildHighlightedTextSpans(
-                                      item.artistGroup?.name != null
-                                          ? _getMatchingText(
-                                              item.artistGroup!.name,
-                                              searchQuery,
-                                            )
-                                          : '',
-                                      searchQuery,
-                                    ),
-                                  ],
-                          ),
-                        ),
-                        SizedBox(height: 4.h), // 6.h에서 4.h로 감소
-                        _buildVoteCountContainer(item, voteCountDiff),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 16.w),
-                  if (!isEnded && !_isSaving)
-                    SizedBox(
-                      width: 24.w,
-                      height: 24,
-                      child: SvgPicture.asset(
-                        package: 'picnic_lib',
-                        'assets/icons/star_candy_icon.svg',
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    } catch (e) {
-      // 커스텀 하이라이트 위젯 빌드 에러 발생 시 기본 위젯으로 폴백
-      logger.e('커스텀 하이라이트 위젯 빌드 에러: $e');
-      return VoteItemWidget(
-        item: item,
-        index: index,
-        actualRank: actualRank,
-        voteCountDiff: voteCountDiff,
-        rankChanged: rankChanged,
-        rankUp: rankUp,
-        isEnded: isEnded,
-        isSaving: _isSaving,
-        onTap: () => _handleVoteItemTap(context, item, index),
-        artistImage: _buildArtistImage(item, index, actualRank, rankChanged),
-        voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
-        rankText: _buildRankText(actualRank, item),
-      );
-    }
+    return VoteItemHighlightWidget(
+      item: item,
+      index: index,
+      actualRank: actualRank,
+      voteCountDiff: voteCountDiff,
+      rankChanged: rankChanged,
+      rankUp: rankUp,
+      searchQuery: searchQuery,
+      isEnded: isEnded,
+      isSaving: _isSaving,
+      highlightedItemIds: _highlightedItemIds,
+      onTap: () => _handleVoteItemTap(context, item, index),
+      artistImage: _buildArtistImage(item, index, actualRank, rankChanged),
+      voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
+      getMatchingText: _getMatchingText,
+      rankText: _buildRankText(actualRank, item),
+    );
   }
 
   Widget _buildCaptureVoteList(BuildContext context) {

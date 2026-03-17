@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_gain_indicator.dart';
 
 import '../../../helpers/test_environment.dart';
 
