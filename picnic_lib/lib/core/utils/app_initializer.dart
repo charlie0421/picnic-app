@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -16,6 +15,7 @@ import 'package:picnic_lib/core/utils/app_initializer_helper.dart';
 import 'package:picnic_lib/core/utils/deep_link_handler.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
+import 'package:picnic_lib/core/utils/system_ui_initializer.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
 import 'package:picnic_lib/core/services/app_badge_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -35,11 +35,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:universal_platform/universal_platform.dart';
 
 class AppInitializer {
-  static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
-
   static Future<void> initializeBasics() async {
     WidgetsFlutterBinding.ensureInitialized();
     logger.i('Widget binding initialized');
@@ -500,84 +497,8 @@ class AppInitializer {
         .updateState(hasNetwork: isOnline);
   }
 
-  static Future<void> initializeSystemUI() async {
-    if (kIsWeb) return;
-
-    try {
-      int? androidSdkVersion;
-      if (UniversalPlatform.isAndroid) {
-        try {
-          final androidInfo = await _deviceInfo.androidInfo;
-          androidSdkVersion = androidInfo.version.sdkInt;
-          logger.i('Android SDK Version: $androidSdkVersion');
-        } catch (e, s) {
-          logger.e('안드로이드 SDK 버전 확인 실패:', error: e, stackTrace: s);
-          androidSdkVersion = 29;
-        }
-
-        try {
-          // 시스템 UI 스타일 설정
-          SystemChrome.setSystemUIOverlayStyle(
-            const SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: Brightness.dark,
-              systemNavigationBarColor: Colors.transparent,
-              systemNavigationBarDividerColor: Colors.transparent,
-              systemNavigationBarIconBrightness: Brightness.dark,
-            ),
-          );
-
-          // Android 버전별 SystemUiMode 설정
-          if (androidSdkVersion >= 35) {
-            // Android 15+ (갤럭시 S25 등 최신 기기)
-            await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
-            SystemChrome.setSystemUIOverlayStyle(
-              const SystemUiOverlayStyle(
-                systemNavigationBarContrastEnforced: false,
-                // 최신 기기에서 gesture navigation 지원
-                systemNavigationBarIconBrightness: Brightness.dark,
-              ),
-            );
-          } else if (androidSdkVersion >= 30) {
-            await SystemChrome.setEnabledSystemUIMode(
-              SystemUiMode.manual,
-              overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
-            );
-
-            SystemChrome.setSystemUIOverlayStyle(
-              const SystemUiOverlayStyle(
-                systemNavigationBarContrastEnforced: false,
-              ),
-            );
-          } else {
-            await SystemChrome.setEnabledSystemUIMode(
-              SystemUiMode.manual,
-              overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
-            );
-          }
-        } catch (e, s) {
-          logger.e('시스템 UI 설정 실패:', error: e, stackTrace: s);
-          // 기본 설정으로 폴백
-          await SystemChrome.setEnabledSystemUIMode(
-            SystemUiMode.manual,
-            overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
-          );
-        }
-      }
-
-      try {
-        await SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ]);
-      } catch (e, s) {
-        logger.e('화면 방향 설정 실패:', error: e, stackTrace: s);
-      }
-    } catch (e, s) {
-      logger.e('시스템 UI 초기화 중 오류 발생:', error: e, stackTrace: s);
-    }
-  }
+  static Future<void> initializeSystemUI() =>
+      SystemUIInitializer.initialize();
 
   static void setupSupabaseAuthListener(WidgetRef ref) {
     supabase.auth.onAuthStateChange.listen((data) async {

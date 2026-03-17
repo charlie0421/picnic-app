@@ -1,175 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_animations.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
-/// # LoadingOverlayWithIcon
-///
-/// **앱 아이콘이 중앙에서 애니메이션되는 전체화면 로딩 오버레이 위젯**
-///
-/// 브랜드 일관성을 유지하면서 사용자에게 부드러운 로딩 경험을 제공합니다.
-/// 성능 최적화가 적용되어 60FPS 부드러운 애니메이션을 보장합니다.
-///
-/// ## 주요 특징
-///
-/// - 🎨 **앱 아이콘 중앙 배치**: 브랜드 일관성 유지
-/// - 🎪 **3가지 애니메이션**: 회전, 스케일, 페이드 (개별 제어 가능)
-/// - 🚀 **성능 최적화**: RepaintBoundary, 지연 초기화, 60FPS 유지
-/// - 🎛️ **커스터마이징**: 애니메이션 속도, 크기, 메시지 등 세밀한 조정
-/// - 📱 **반응형**: 다양한 화면 크기 대응
-/// - ♿ **접근성**: Semantics 지원
-/// - 🔍 **디버그**: 개발 모드에서 FPS 모니터링
-///
-/// ## 기본 사용법
+/// 앱 아이콘이 중앙에서 애니메이션되는 전체화면 로딩 오버레이 위젯.
 ///
 /// ```dart
-/// class MyPage extends StatefulWidget {
-///   @override
-///   State<MyPage> createState() => _MyPageState();
-/// }
-///
-/// class _MyPageState extends State<MyPage> {
-///   final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
-///       GlobalKey<LoadingOverlayWithIconState>();
-///
-///   @override
-///   Widget build(BuildContext context) {
-///     return LoadingOverlayWithIcon(
-///       key: _loadingKey,
-///       iconAssetPath: 'assets/app_icon_128.png',
-///       child: Scaffold(
-///         appBar: AppBar(title: Text('내 페이지')),
-///         body: Center(
-///           child: ElevatedButton(
-///             onPressed: () async {
-///               _loadingKey.currentState?.show(); // 로딩 시작
-///
-///               // 비동기 작업 (API 호출, 파일 저장 등)
-///               await _performAsyncWork();
-///
-///               _loadingKey.currentState?.hide(); // 로딩 종료
-///             },
-///             child: Text('작업 시작'),
-///           ),
-///         ),
-///       ),
-///     );
-///   }
-///
-///   Future<void> _performAsyncWork() async {
-///     await Future.delayed(Duration(seconds: 3));
-///   }
-/// }
-/// ```
-///
-/// ## 고급 사용법 (커스터마이징)
-///
-/// ```dart
+/// final key = GlobalKey<LoadingOverlayWithIconState>();
 /// LoadingOverlayWithIcon(
-///   key: _loadingKey,
-///
-///   // 아이콘 설정
-///   iconAssetPath: 'assets/my_app_icon.png',
-///   iconSize: 80.0,
-///
-///   // 애니메이션 설정 (세밀한 제어)
-///   enableRotation: false,           // 회전 비활성화
-///   enableScale: true,               // 스케일 활성화
-///   enableFade: true,                // 페이드 활성화
-///
-///   // 스케일 애니메이션 커스터마이징
-///   minScale: 0.98,                  // 최소 크기 (미묘한 변화)
-///   maxScale: 1.02,                  // 최대 크기
-///   scaleDuration: Duration(milliseconds: 1200),
-///
-///   // 페이드 애니메이션 커스터마이징
-///   fadeDuration: Duration(milliseconds: 800),
-///
-///   // UI 설정
-///   showProgressIndicator: false,    // 하단 로딩바 숨김
-///   loadingMessage: null,            // 메시지 숨김
-///   barrierColor: Colors.black.withValues(alpha: 0.7),
-///
-///   // 성능 최적화
-///   enablePerformanceOptimization: true,
-///   showPerformanceDebugInfo: true,  // 개발 시 FPS 표시
-///
+///   key: key,
+///   iconAssetPath: 'assets/app_icon_128.png',
 ///   child: MyWidget(),
-/// )
+/// );
+/// // 로딩 시작/종료
+/// key.currentState?.show();
+/// key.currentState?.hide();
 /// ```
 ///
-/// ## 실제 사용 사례
-///
-/// ### 이미지 저장
-/// ```dart
-/// Future<void> _saveImage() async {
-///   _loadingKey.currentState?.show();
-///
-///   try {
-///     await ImageService.saveToGallery(imageUrl);
-///     showSuccess('이미지가 저장되었습니다');
-///   } catch (e) {
-///     showError('저장에 실패했습니다');
-///   } finally {
-///     _loadingKey.currentState?.hide();
-///   }
-/// }
-/// ```
-///
-/// ### API 요청
-/// ```dart
-/// Future<void> _loadData() async {
-///   _loadingKey.currentState?.show();
-///
-///   try {
-///     final data = await ApiService.fetchData();
-///     setState(() => _data = data);
-///   } finally {
-///     _loadingKey.currentState?.hide();
-///   }
-/// }
-/// ```
-///
-/// ## 애니메이션 설정 가이드
-///
-/// ### 미묘한 펄스 효과 (추천)
-/// ```dart
-/// enableRotation: false,
-/// enableScale: true,
-/// enableFade: true,
-/// minScale: 0.98,      // 2% 변화
-/// maxScale: 1.02,
-/// ```
-///
-/// ### 활동적인 효과
-/// ```dart
-/// enableRotation: true,
-/// enableScale: true,
-/// enableFade: false,
-/// minScale: 0.9,       // 10% 변화
-/// maxScale: 1.1,
-/// ```
-///
-/// ### 클래식 회전
-/// ```dart
-/// enableRotation: true,
-/// enableScale: false,
-/// enableFade: false,
-/// rotationDuration: Duration(seconds: 2),
-/// ```
-///
-/// ## 성능 고려사항
-///
-/// - ✅ `enablePerformanceOptimization: true` 권장
-/// - ✅ 불필요한 애니메이션 비활성화로 성능 향상
-/// - ✅ `RepaintBoundary` 자동 적용으로 리페인트 최소화
-/// - ✅ 지연 초기화로 메모리 사용량 최적화
-/// - ✅ 개발 모드에서 FPS 모니터링 활용
-///
-/// ## 접근성
-///
-/// - 기본적으로 접근성 레이블 제공 (`semanticsLabel`)
-/// - 스크린 리더 지원
-/// - 시각 장애인을 위한 의미있는 설명 제공
+/// 주요 파라미터:
+/// - [iconAssetPath]: 앱 아이콘 경로
+/// - [iconSize]: 아이콘 크기 (기본 64.0)
+/// - [enableRotation], [enableScale], [enableFade]: 애니메이션 개별 제어
+/// - [barrierColor]: 오버레이 배경 색상
+/// - [loadingMessage]: 로딩 메시지
+/// - [showProgressIndicator]: 하단 로딩 인디케이터 표시 여부
+/// - [enablePerformanceOptimization]: 성능 최적화 모드
+/// - [showPerformanceDebugInfo]: 디버그 FPS 정보 표시 (개발 모드 전용)
 class LoadingOverlayWithIcon extends StatefulWidget {
   /// 오버레이가 덮을 자식 위젯
   final Widget child;
@@ -265,164 +121,31 @@ class LoadingOverlayWithIcon extends StatefulWidget {
 }
 
 class LoadingOverlayWithIconState extends State<LoadingOverlayWithIcon>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, LoadingOverlayAnimationsMixin {
   /// 로딩 상태 관리
   final ValueNotifier<bool> _isLoading = ValueNotifier<bool>(false);
 
   /// Navigator overlay entry
   OverlayEntry? _overlayEntry;
 
-  /// 페이드 애니메이션 컨트롤러 (오버레이 전체)
-  late AnimationController _overlayFadeController;
-
-  /// 오버레이 페이드 애니메이션
-  late Animation<double> _overlayFadeAnimation;
-
-  /// 회전 애니메이션 컨트롤러
-  AnimationController? _rotationController;
-
-  /// 회전 애니메이션
-  Animation<double>? _rotationAnimation;
-
-  /// 스케일 애니메이션 컨트롤러
-  AnimationController? _scaleController;
-
-  /// 스케일 애니메이션
-  Animation<double>? _scaleAnimation;
-
-  /// 아이콘 페이드 애니메이션 컨트롤러
-  AnimationController? _iconFadeController;
-
-  /// 아이콘 페이드 애니메이션
-  Animation<double>? _iconFadeAnimation;
-
-  /// 성능 측정을 위한 변수들
-  int _frameCount = 0;
-  DateTime? _lastFrameTime;
-  double _averageFps = 0.0;
-
   @override
   void initState() {
     super.initState();
-    _initializeAnimations();
+    initializeAnimations(
+      enableRotation: widget.enableRotation,
+      enableScale: widget.enableScale,
+      enableFade: widget.enableFade,
+      rotationDuration: widget.rotationDuration,
+      clockwise: widget.clockwise,
+      scaleDuration: widget.scaleDuration,
+      minScale: widget.minScale,
+      maxScale: widget.maxScale,
+      fadeDuration: widget.fadeDuration,
+    );
 
     // 성능 디버그 정보가 활성화된 경우 프레임 측정 시작
     if (widget.showPerformanceDebugInfo && kDebugMode) {
-      _startPerformanceMonitoring();
-    }
-  }
-
-  /// 애니메이션 컨트롤러들을 초기화 (지연 초기화로 메모리 절약)
-  void _initializeAnimations() {
-    // 오버레이 페이드 애니메이션 컨트롤러 초기화
-    _overlayFadeController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    // 오버레이 페이드 애니메이션 설정
-    _overlayFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _overlayFadeController,
-      curve: Curves.easeInOut,
-    ));
-
-    // 필요한 경우에만 애니메이션 컨트롤러 초기화 (메모리 최적화)
-    if (widget.enableRotation) {
-      _initializeRotationAnimation();
-    }
-
-    if (widget.enableScale) {
-      _initializeScaleAnimation();
-    }
-
-    if (widget.enableFade) {
-      _initializeIconFadeAnimation();
-    }
-  }
-
-  /// 회전 애니메이션 초기화 (지연 초기화)
-  void _initializeRotationAnimation() {
-    _rotationController = AnimationController(
-      duration: widget.rotationDuration,
-      vsync: this,
-    );
-
-    _rotationAnimation = Tween<double>(
-      begin: 0.0,
-      end: widget.clockwise ? 1.0 : -1.0,
-    ).animate(CurvedAnimation(
-      parent: _rotationController!,
-      curve: Curves.linear,
-    ));
-  }
-
-  /// 스케일 애니메이션 초기화 (지연 초기화)
-  void _initializeScaleAnimation() {
-    _scaleController = AnimationController(
-      duration: widget.scaleDuration,
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(
-      begin: widget.minScale,
-      end: widget.maxScale,
-    ).animate(CurvedAnimation(
-      parent: _scaleController!,
-      curve: Curves.easeInOut,
-    ));
-  }
-
-  /// 아이콘 페이드 애니메이션 초기화 (지연 초기화)
-  void _initializeIconFadeAnimation() {
-    _iconFadeController = AnimationController(
-      duration: widget.fadeDuration,
-      vsync: this,
-    );
-
-    _iconFadeAnimation = Tween<double>(
-      begin: 0.7,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _iconFadeController!,
-      curve: Curves.easeInOut,
-    ));
-  }
-
-  /// 성능 모니터링 시작
-  void _startPerformanceMonitoring() {
-    if (!kDebugMode) return;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _measureFrameRate();
-    });
-  }
-
-  /// 프레임율 측정
-  void _measureFrameRate() {
-    if (!mounted || !kDebugMode) return;
-
-    final now = DateTime.now();
-    if (_lastFrameTime != null) {
-      final frameDuration = now.difference(_lastFrameTime!);
-      final fps = 1000 / frameDuration.inMilliseconds;
-
-      _frameCount++;
-      _averageFps = (_averageFps * (_frameCount - 1) + fps) / _frameCount;
-
-      if (_frameCount % 60 == 0) {
-        debugPrint(
-            'LoadingOverlayWithIcon FPS: ${_averageFps.toStringAsFixed(1)}');
-      }
-    }
-    _lastFrameTime = now;
-
-    if (_isLoading.value) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _measureFrameRate();
-      });
+      startPerformanceMonitoring(() => _isLoading.value);
     }
   }
 
@@ -431,10 +154,7 @@ class LoadingOverlayWithIconState extends State<LoadingOverlayWithIcon>
     // 오버레이 정리
     _removeOverlayEntry();
 
-    _overlayFadeController.dispose();
-    _rotationController?.dispose();
-    _scaleController?.dispose();
-    _iconFadeController?.dispose();
+    disposeAnimations();
     _isLoading.dispose();
     super.dispose();
   }
@@ -449,28 +169,28 @@ class LoadingOverlayWithIconState extends State<LoadingOverlayWithIcon>
       // Navigator overlay entry 생성 및 삽입
       _showOverlayEntry();
 
-      _overlayFadeController.forward();
+      overlayFadeController.forward();
 
       // 성능 모니터링 시작 (디버그 모드에서만)
       if (widget.showPerformanceDebugInfo && kDebugMode) {
-        _frameCount = 0;
-        _lastFrameTime = null;
-        _startPerformanceMonitoring();
+        frameCount = 0;
+        lastFrameTime = null;
+        startPerformanceMonitoring(() => _isLoading.value);
       }
 
       // 회전 애니메이션 시작 (활성화된 경우)
-      if (widget.enableRotation && _rotationController != null) {
-        _rotationController!.repeat();
+      if (widget.enableRotation && rotationController != null) {
+        rotationController!.repeat();
       }
 
       // 스케일 애니메이션 시작 (활성화된 경우)
-      if (widget.enableScale && _scaleController != null) {
-        _scaleController!.repeat(reverse: true);
+      if (widget.enableScale && scaleController != null) {
+        scaleController!.repeat(reverse: true);
       }
 
       // 아이콘 페이드 애니메이션 시작 (활성화된 경우)
-      if (widget.enableFade && _iconFadeController != null) {
-        _iconFadeController!.repeat(reverse: true);
+      if (widget.enableFade && iconFadeController != null) {
+        iconFadeController!.repeat(reverse: true);
       }
     }
   }
@@ -481,11 +201,11 @@ class LoadingOverlayWithIconState extends State<LoadingOverlayWithIcon>
 
     if (_isLoading.value) {
       // 모든 애니메이션 정지
-      _rotationController?.stop();
-      _scaleController?.stop();
-      _iconFadeController?.stop();
+      rotationController?.stop();
+      scaleController?.stop();
+      iconFadeController?.stop();
 
-      _overlayFadeController.reverse().then((_) {
+      overlayFadeController.reverse().then((_) {
         if (mounted) {
           _isLoading.value = false;
           _removeOverlayEntry();
@@ -524,10 +244,10 @@ class LoadingOverlayWithIconState extends State<LoadingOverlayWithIcon>
             }
 
             return AnimatedBuilder(
-              animation: _overlayFadeAnimation,
+              animation: overlayFadeAnimation,
               builder: (context, child) {
                 return Opacity(
-                  opacity: _overlayFadeAnimation.value,
+                  opacity: overlayFadeAnimation.value,
                   child: Stack(
                     children: [
                       // 메인 오버레이 콘텐츠
@@ -571,7 +291,10 @@ class LoadingOverlayWithIconState extends State<LoadingOverlayWithIcon>
                         Positioned(
                           top: 50,
                           right: 16,
-                          child: _buildPerformanceDebugInfo(),
+                          child: buildPerformanceDebugInfo(
+                            enablePerformanceOptimization:
+                                widget.enablePerformanceOptimization,
+                          ),
                         ),
                     ],
                   ),
@@ -637,80 +360,13 @@ class LoadingOverlayWithIconState extends State<LoadingOverlayWithIcon>
     );
 
     // 성능 최적화된 애니메이션 조합
-    return _buildCombinedAnimations(iconWidget);
-  }
-
-  /// 모든 애니메이션을 효율적으로 조합
-  Widget _buildCombinedAnimations(Widget child) {
-    // 단일 AnimatedBuilder로 모든 애니메이션 처리 (성능 최적화)
-    if (widget.enablePerformanceOptimization &&
-        widget.enableRotation &&
-        widget.enableScale &&
-        widget.enableFade &&
-        _rotationAnimation != null &&
-        _scaleAnimation != null &&
-        _iconFadeAnimation != null) {
-      return AnimatedBuilder(
-        animation: Listenable.merge([
-          _rotationAnimation!,
-          _scaleAnimation!,
-          _iconFadeAnimation!,
-        ]),
-        builder: (context, _) {
-          return Transform.rotate(
-            angle: _rotationAnimation!.value * 2 * 3.14159,
-            child: Transform.scale(
-              scale: _scaleAnimation!.value,
-              child: Opacity(
-                opacity: _iconFadeAnimation!.value,
-                child: child,
-              ),
-            ),
-          );
-        },
-      );
-    }
-
-    // 개별 애니메이션 적용 (호환성 모드)
-    Widget result = child;
-
-    // 스케일 애니메이션 적용
-    if (widget.enableScale && _scaleAnimation != null) {
-      result = AnimatedBuilder(
-        animation: _scaleAnimation!,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation!.value,
-            child: child,
-          );
-        },
-        child: result,
-      );
-    }
-
-    // 회전 애니메이션 적용
-    if (widget.enableRotation && _rotationAnimation != null) {
-      result = RotationTransition(
-        turns: _rotationAnimation!,
-        child: result,
-      );
-    }
-
-    // 아이콘 페이드 애니메이션 적용
-    if (widget.enableFade && _iconFadeAnimation != null) {
-      result = AnimatedBuilder(
-        animation: _iconFadeAnimation!,
-        builder: (context, child) {
-          return Opacity(
-            opacity: _iconFadeAnimation!.value,
-            child: child,
-          );
-        },
-        child: result,
-      );
-    }
-
-    return result;
+    return buildCombinedAnimations(
+      iconWidget,
+      enablePerformanceOptimization: widget.enablePerformanceOptimization,
+      enableRotation: widget.enableRotation,
+      enableScale: widget.enableScale,
+      enableFade: widget.enableFade,
+    );
   }
 
   /// 로딩 메시지 위젯 구성
@@ -729,46 +385,6 @@ class LoadingOverlayWithIconState extends State<LoadingOverlayWithIcon>
   /// 로딩 인디케이터 위젯 구성
   Widget _buildLoadingIndicator() {
     return SmallPulseLoadingIndicator();
-  }
-
-  /// 성능 디버그 정보 위젯
-  Widget _buildPerformanceDebugInfo() {
-    if (!kDebugMode) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'FPS: ${_averageFps.toStringAsFixed(1)}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            'Frames: $_frameCount',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-            ),
-          ),
-          Text(
-            'Optimized: ${widget.enablePerformanceOptimization}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

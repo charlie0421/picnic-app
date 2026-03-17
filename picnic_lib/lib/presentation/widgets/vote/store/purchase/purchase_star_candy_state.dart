@@ -25,12 +25,11 @@ import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:picnic_lib/core/constants/purchase_constants.dart';
-
 import 'handlers/restore_purchase_handler.dart';
 import 'handlers/purchase_safety_manager.dart';
 import 'handlers/purchase_dialog_handler.dart';
 import 'purchase_helper.dart';
+import 'purchase_processor.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
@@ -318,24 +317,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   Future<void> _forceCompletePendingPurchase(
     PurchaseDetails purchaseDetails,
   ) async {
-    logger.i(
-      '[PurchaseStarCandyState] Force completing pending purchase: ${purchaseDetails.productID}',
+    await PurchaseProcessor.forceCompletePendingPurchase(
+      purchaseDetails: purchaseDetails,
+      inAppPurchaseService: _purchaseService.inAppPurchaseService,
     );
-
-    try {
-      final startTime = DateTime.now();
-      await _purchaseService.inAppPurchaseService.completePurchase(
-        purchaseDetails,
-      );
-      final duration = DateTime.now().difference(startTime).inMilliseconds;
-      logger.i(
-        '[PurchaseStarCandyState] Pending purchase completed: ${duration}ms',
-      );
-    } catch (e) {
-      logger.e(
-        '[PurchaseStarCandyState] Failed to complete pending purchase: $e',
-      );
-    }
   }
 
   Future<void> _processRestoredPurchase(PurchaseDetails purchaseDetails) async {
@@ -398,92 +383,62 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           _safetyManager.resetUIOnly(reason: '구매 에러/중복 처리 후 UI만 리셋');
           _loadingKey.currentState?.hide();
           setState(() => _isPurchasing = false);
-          if (error == PurchaseConstants.errPrevTransactionPending) {
-            // 엣지(서버)에서 중복 처리됨 → '스토어 처리 중' 안내만, 쿨타임 미적용
-            setState(() => _isPurchasing = false);
-            if (navigatorKey.currentContext != null) {
-              showSimpleDialog(
-                content: AppLocalizations.of(
-                  navigatorKey.currentContext!,
-                ).previousTransactionPendingError,
+
+          final action = PurchaseProcessor.classifyError(error);
+
+          switch (action) {
+            case PurchaseErrorAction.showPendingMessage:
+              // 엣지(서버)에서 중복 처리됨 → '스토어 처리 중' 안내만
+              setState(() => _isPurchasing = false);
+              if (navigatorKey.currentContext != null) {
+                showSimpleDialog(
+                  content: AppLocalizations.of(
+                    navigatorKey.currentContext!,
+                  ).previousTransactionPendingError,
+                );
+              }
+              // iOS JWS 반복 중복 완화: 강제 쿨다운(상품별) 60초 적용하여 루프 차단
+              if (_pendingProductId != null) {
+                _safetyManager.activateDuplicateCooldown(
+                  productId: _pendingProductId,
+                  cooldown: const Duration(minutes: 1),
+                );
+              }
+              break;
+
+            case PurchaseErrorAction.showCooldownMessage:
+              // 쿨다운 위반도 동일하게 안내만, 추가 쿨타임 미적용
+              setState(() => _isPurchasing = false);
+              if (navigatorKey.currentContext != null) {
+                showSimpleDialog(
+                  content: AppLocalizations.of(
+                    navigatorKey.currentContext!,
+                  ).previousTransactionPendingError,
+                );
+              }
+              break;
+
+            case PurchaseErrorAction.duplicateWithCooldown:
+              // 문자열 기반 중복 케이스도 동일 처리: 안내만
+              setState(() => _isPurchasing = false);
+              // iOS 캐시성 중복 신호 완화용 강제 쿨다운(상품별) 60초
+              if (_pendingProductId != null) {
+                _safetyManager.activateDuplicateCooldown(
+                  productId: _pendingProductId,
+                  cooldown: const Duration(minutes: 1),
+                );
+              }
+              break;
+
+            case PurchaseErrorAction.showMappedError:
+              logger.e('[PurchaseStarCandyState] Purchase error: $error');
+              final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+              final msg = _resolveErrorMessage(
+                PurchaseProcessor.mapErrorToType(error),
+                l10n,
               );
-            }
-            // iOS JWS 반복 중복 완화: 강제 쿨다운(상품별) 60초 적용하여 루프 차단
-            if (_pendingProductId != null) {
-              _safetyManager.activateDuplicateCooldown(
-                productId: _pendingProductId,
-                cooldown: const Duration(minutes: 1),
-              );
-            }
-          } else if (error == PurchaseConstants.errCooldownActive) {
-            // 쿨다운 위반도 동일하게 안내만, 추가 쿨타임 미적용
-            setState(() => _isPurchasing = false);
-            if (navigatorKey.currentContext != null) {
-              showSimpleDialog(
-                content: AppLocalizations.of(
-                  navigatorKey.currentContext!,
-                ).previousTransactionPendingError,
-              );
-            }
-          } else if (_isDuplicateError(error)) {
-            // 문자열 기반 중복 케이스도 동일 처리: 안내만, 쿨타임 미적용
-            setState(() => _isPurchasing = false);
-            // iOS 캐시성 중복 신호 완화용 강제 쿨다운(상품별) 60초
-            if (_pendingProductId != null) {
-              _safetyManager.activateDuplicateCooldown(
-                productId: _pendingProductId,
-                cooldown: const Duration(minutes: 1),
-              );
-            }
-          } else {
-            logger.e('[PurchaseStarCandyState] Purchase error: $error');
-            // 코드 → i18n 직접 매핑 (상수 메시지/헬퍼 미사용)
-            final l10n = AppLocalizations.of(navigatorKey.currentContext!);
-            String msg;
-            switch (error) {
-              case PurchaseConstants.errPrevTransactionPending:
-              case PurchaseConstants.errCooldownActive:
-                msg = l10n.previousTransactionPendingError;
-                break;
-              case 'RECEIPT_VERIFICATION_FAILED':
-                msg = l10n.error_receipt_verification_failed;
-                break;
-              case 'USER_NOT_AUTHENTICATED':
-                msg = l10n.error_user_not_authenticated;
-                break;
-              case 'PRODUCT_NOT_FOUND':
-                msg = l10n.error_product_not_found;
-                break;
-              case PurchaseConstants.errTimeout:
-                msg = l10n.purchase_timeout_message;
-                break;
-              case PurchaseConstants.errAuthTimeout:
-                msg = l10n.dialog_message_purchase_failed;
-                break;
-              case PurchaseConstants.errNetwork:
-                msg = l10n.error_network_connection;
-                break;
-              case PurchaseConstants.errServer:
-                msg = l10n.network_error_message;
-                break;
-              case PurchaseConstants.errPurchaseCanceled:
-                msg = l10n.purchase_cancelled_message;
-                break;
-              case PurchaseConstants.errInProgress:
-                msg = l10n.purchase_in_progress_message;
-                break;
-              case PurchaseConstants.errConcurrent:
-                msg = l10n.purchase_in_progress_message;
-                break;
-              case PurchaseConstants.errTooSoon:
-              case PurchaseConstants.errRecentPurchase:
-              case PurchaseConstants.errRequestDuplicate:
-                msg = l10n.previousTransactionPendingError;
-                break;
-              default:
-                msg = l10n.dialog_message_purchase_failed;
-            }
-            await _dialogHandler.showErrorDialog(msg);
+              await _dialogHandler.showErrorDialog(msg);
+              break;
           }
         }
       },
@@ -522,41 +477,45 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     // 🔥 중요: 에러가 발생하거나 취소된 경우에도 트랜잭션을 완료하여 반복적인 팝업을 방지합니다.
-    if (purchaseDetails.pendingCompletePurchase) {
-      logger.i(
-        '[PurchaseStarCandyState] Completing failed/canceled transaction to prevent re-delivery.',
-      );
-      await _purchaseService.inAppPurchaseService.completePurchase(
-        purchaseDetails,
-      );
-    }
-  }
-
-  /// 중복 에러 확인
-  bool _isDuplicateError(String error) {
-    return PurchaseHelper.isDuplicateError(error);
+    await PurchaseProcessor.completeFailedTransaction(
+      purchaseDetails: purchaseDetails,
+      inAppPurchaseService: _purchaseService.inAppPurchaseService,
+    );
   }
 
   /// 🧹 정상 구매 완료 시 모든 타이머 완전 정리
   void _cleanupAllTimersOnSuccess(String productId) {
-    logger.i('[PurchaseStarCandyState] 🧹 모든 타이머 정리 시작: $productId');
+    PurchaseProcessor.cleanupAllTimersOnSuccess(
+      productId: productId,
+      safetyManager: _safetyManager,
+      restoreHandler: _restoreHandler,
+      purchaseService: _purchaseService,
+    );
+  }
 
-    try {
-      // 1️⃣ PurchaseSafetyManager 타이머 정리 (추가 정리)
-      _safetyManager.cleanupAllTimersOnSuccess();
-
-      // 2️⃣ RestorePurchaseHandler 타이머 정리
-      _restoreHandler.cleanupTimersOnPurchaseSuccess();
-
-      // 3️⃣ InAppPurchaseService 타이머 정리
-      _purchaseService.inAppPurchaseService.cleanupTimersOnPurchaseSuccess(
-        productId,
-      );
-
-      logger.i('[PurchaseStarCandyState] 🧹 ✅ 모든 타이머 정리 완료: $productId');
-    } catch (e) {
-      logger.w('[PurchaseStarCandyState] 🧹 ⚠️ 타이머 정리 중 경고: $e');
-      // 타이머 정리 실패해도 구매는 이미 성공했으므로 계속 진행
+  /// PurchaseErrorType을 i18n 메시지 문자열로 변환
+  String _resolveErrorMessage(PurchaseErrorType type, AppLocalizations l10n) {
+    switch (type) {
+      case PurchaseErrorType.previousTransactionPending:
+        return l10n.previousTransactionPendingError;
+      case PurchaseErrorType.receiptVerificationFailed:
+        return l10n.error_receipt_verification_failed;
+      case PurchaseErrorType.userNotAuthenticated:
+        return l10n.error_user_not_authenticated;
+      case PurchaseErrorType.productNotFound:
+        return l10n.error_product_not_found;
+      case PurchaseErrorType.timeout:
+        return l10n.purchase_timeout_message;
+      case PurchaseErrorType.networkError:
+        return l10n.error_network_connection;
+      case PurchaseErrorType.serverError:
+        return l10n.network_error_message;
+      case PurchaseErrorType.purchaseCancelled:
+        return l10n.purchase_cancelled_message;
+      case PurchaseErrorType.purchaseInProgress:
+        return l10n.purchase_in_progress_message;
+      case PurchaseErrorType.purchaseFailed:
+        return l10n.dialog_message_purchase_failed;
     }
   }
 
