@@ -13,6 +13,7 @@ import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
 import 'package:picnic_lib/core/services/update_service.dart';
 import 'package:picnic_lib/core/utils/app_initializer_helper.dart';
+import 'package:picnic_lib/core/utils/deep_link_handler.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
@@ -22,39 +23,19 @@ import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
-import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
-import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
-import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
-import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
-// import 'package:picnic_lib/presentation/pages/community/goonghap_list_page.dart'; // 임시 비활성화
-import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
-import 'package:picnic_lib/presentation/pages/my_page/notice_detail_page.dart';
-import 'package:picnic_lib/presentation/pages/community/community_post_detail_screen.dart';
-import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
-import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
-import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
-import 'package:picnic_lib/presentation/screens/privacy.dart';
-import 'package:picnic_lib/presentation/screens/terms.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:universal_platform/universal_platform.dart';
-
-// 딥링크 중복 처리 방지용 변수
-String? _lastDeepLinkUrl;
-DateTime? _lastDeepLinkTime;
 
 class AppInitializer {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
@@ -688,230 +669,10 @@ class AppInitializer {
     // 필요한 경우 나중에 구독 취소 로직 추가
   }
 
-  static Future<void> handleDeepLink(WidgetRef ref, String longUrl) async {
-    try {
-      // 중복 딥링크 처리 방지 (2초 이내 같은 URL 무시)
-      final now = DateTime.now();
-      if (AppInitializerHelper.isDuplicateDeepLink(
-        url: longUrl,
-        lastUrl: _lastDeepLinkUrl,
-        lastTime: _lastDeepLinkTime,
-        now: now,
-      )) {
-        logger.i('[DeepLink] Ignoring duplicate deep link: $longUrl');
-        return;
-      }
-      _lastDeepLinkUrl = longUrl;
-      _lastDeepLinkTime = now;
-
-      final uri = Uri.parse(longUrl);
-
-      // 네비게이션 로직을 캡처하여 나중에 위젯이 dispose 되어도 문제가 없도록 함
-      final navigationNotifier = ref.read(navigationInfoProvider.notifier);
-
-      if (uri.pathSegments.isNotEmpty) {
-        final portal = uri.pathSegments[0];
-        final page = uri.pathSegments[1];
-        switch (portal) {
-          case 'notice':
-            // e.g. /notice/1
-            try {
-              final noticeId = int.parse(page);
-              final targetPage = NoticeDetailPage(noticeId: noticeId);
-              // 현재 포털에 맞춰 스택에 푸시하여 뒤로가기 시 원래 화면으로 복귀
-              final currentPortal = ref.read(navigationInfoProvider).portalType;
-              if (currentPortal == PortalType.community) {
-                navigationNotifier.setCommunityCurrentPage(targetPage);
-              } else if (currentPortal == PortalType.pic) {
-                navigationNotifier.setPicCurrentPage(targetPage);
-              } else if (currentPortal == PortalType.novel) {
-                navigationNotifier.setNovelCurrentPage(targetPage);
-              } else {
-                // 기본은 VOTE 컨테이너 유지
-                navigationNotifier.setPortal(PortalType.vote);
-                // 다음 프레임에서 페이지 설정 (setPortal의 스택 초기화 후 실행)
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  navigationNotifier.pushVotePageKeepScreen(targetPage);
-                });
-              }
-              return;
-            } catch (_) {}
-            break;
-          case 'vote':
-            // 현재 포털에 맞춰 스택에 푸시하여 뒤로가기 시 원래 화면으로 복귀
-            final currentPortal = ref.read(navigationInfoProvider).portalType;
-            Widget targetPage;
-
-            // 페이지 타입에 따라 타겟 페이지 결정
-            switch (page) {
-              case 'list':
-                targetPage = const VoteListPage();
-                break;
-              case 'detail':
-                if (uri.pathSegments.length >= 3) {
-                  final voteId = uri.pathSegments[2];
-                  final type = uri.queryParameters['type'];
-                  if (type == 'achieve') {
-                    targetPage = VoteDetailAchievePage(
-                      voteId: int.parse(voteId),
-                    );
-                  } else {
-                    targetPage = VoteDetailPage(voteId: int.parse(voteId));
-                  }
-                } else {
-                  logger.w(
-                    'Invalid vote detail URL: $longUrl (missing voteId)',
-                  );
-                  return;
-                }
-                break;
-              default:
-                return;
-            }
-
-            // 현재 포털에 따라 적절한 메서드 호출
-            if (currentPortal == PortalType.community) {
-              navigationNotifier.setCommunityCurrentPage(targetPage);
-            } else if (currentPortal == PortalType.pic) {
-              navigationNotifier.setPicCurrentPage(targetPage);
-            } else if (currentPortal == PortalType.novel) {
-              navigationNotifier.setNovelCurrentPage(targetPage);
-            } else {
-              // vote 포털이거나 다른 포털인 경우 vote 포털로 전환
-              navigationNotifier.setPortal(PortalType.vote);
-              // 다음 프레임에서 페이지 설정 (setPortal의 스택 초기화 후 실행)
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                navigationNotifier.setCurrentPage(targetPage);
-              });
-            }
-            break;
-          case 'community':
-            navigationNotifier.setPortal(PortalType.community);
-            switch (page) {
-              case 'home':
-                navigationNotifier.setCurrentPage(const CommunityHomePage());
-                break;
-              case 'board_list':
-                navigationNotifier.setCurrentPage(const BoardListPage());
-                break;
-              case 'board_detail':
-                final artistId = uri.pathSegments[2];
-                logger.i('artistId: $artistId');
-                navigationNotifier.setCurrentPage(
-                  BoardHomePage(int.parse(artistId)),
-                );
-                break;
-              case 'fortune':
-                // 임시로 Fortune/Goonghap 기능 비활성화
-                // final artistId = uri.pathSegments[2];
-                // navigationNotifier.setCurrentPage(
-                //   GoonghapListPage(artistId: int.parse(artistId)),
-                // );
-                logger.i('Fortune/Goonghap 기능이 임시로 비활성화되었습니다.');
-                break;
-              case 'compatibility':
-              case 'goonghap':
-                // 임시로 Goonghap 기능 비활성화
-                // final artistId = uri.pathSegments[2];
-                // navigationNotifier.setCurrentPage(
-                //   GoonghapListPage(artistId: int.parse(artistId)),
-                // );
-                logger.i('Goonghap 기능이 임시로 비활성화되었습니다.');
-                break;
-            }
-            break;
-          case 'post':
-            // e.g. /post/{postId}
-            if (uri.pathSegments.length >= 2) {
-              final postId = uri.pathSegments[1];
-              if (postId.isNotEmpty) {
-                final context = navigatorKey.currentContext;
-                if (context == null) {
-                  logger.w('Navigator context가 없어 게시물 페이지를 열 수 없습니다');
-                  return;
-                }
-
-                navigationNotifier.setShowBottomNavigation(false);
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.of(context)
-                      .push(
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          CommunityPostDetailScreen(postId: postId),
-                    ),
-                  )
-                      .whenComplete(() {
-                    navigationNotifier.setShowBottomNavigation(true);
-                  });
-                });
-                return;
-              }
-            }
-            break;
-          case 'qna':
-            // e.g. /qna/{questionId}
-            if (uri.pathSegments.length >= 2) {
-              final questionIdStr = uri.pathSegments[1];
-              if (questionIdStr.isNotEmpty) {
-                try {
-                  final threadId = int.parse(questionIdStr);
-                  final repo = QnaRepository();
-                  final withMsgs = await repo.getQaThreadById(threadId);
-                  final context = navigatorKey.currentContext;
-                  if (context == null) {
-                    logger.w('Navigator context가 없어 QnA 페이지를 열 수 없습니다');
-                    return;
-                  }
-                  navigationNotifier.setShowBottomNavigation(false);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.of(context)
-                        .push(
-                      MaterialPageRoute(
-                        builder: (_) => QnaThreadDetailPage(
-                          thread: withMsgs.thread,
-                          syncNavigation: false,
-                        ),
-                      ),
-                    )
-                        .whenComplete(() {
-                      navigationNotifier.setShowBottomNavigation(true);
-                    });
-                  });
-                  return;
-                } catch (e, s) {
-                  logger.e(
-                    'QnA thread 로드 실패: $questionIdStr',
-                    error: e,
-                    stackTrace: s,
-                  );
-                }
-              }
-            }
-            break;
-        }
-      }
-
-      if (uri.pathSegments.contains('terms')) {
-        uri.pathSegments.contains('ko')
-            ? const TermsScreen(language: 'ko')
-            : const TermsScreen(language: 'en');
-      } else if (uri.pathSegments.contains('privacy')) {
-        uri.pathSegments.contains('ko')
-            ? const PrivacyScreen(language: 'ko')
-            : const PrivacyScreen(language: 'en');
-      } else {
-        try {
-          final userInfoNotifier = ref.read(userInfoProvider.notifier);
-          userInfoNotifier.getUserProfiles();
-        } catch (e) {
-          logger.e('getUserProfiles 호출 중 오류: $e');
-          // ref가 더 이상 유효하지 않을 수 있으므로 무시
-        }
-      }
-    } catch (e, s) {
-      logger.e('딥링크 처리 중 오류:', error: e, stackTrace: s);
-    }
-  }
+  /// Deep link URL 라우팅 처리.
+  /// 실제 로직은 [DeepLinkHandler]에 위임됩니다.
+  static Future<void> handleDeepLink(WidgetRef ref, String longUrl) =>
+      DeepLinkHandler.handleDeepLink(ref, longUrl);
 
   /// Shorebird 패치 체크를 포함한 통합 초기화
   /// ⚠️ DEPRECATED: 이제 SplashImage에서 패치 체크를 담당합니다.
