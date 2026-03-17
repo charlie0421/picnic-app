@@ -18,7 +18,12 @@ void _setMobileViewSize(WidgetTester tester) {
 }
 
 /// Suppress render errors (overflow, LateInitializationError, asset loading).
-Future<void> _ignoreRenderErrors(Future<void> Function() callback) async {
+/// Also disposes widget tree at the end to cancel pending timers from
+/// shimmer animations (AnimationController.repeat).
+Future<void> _ignoreRenderErrors(
+  WidgetTester tester,
+  Future<void> Function() callback,
+) async {
   final original = FlutterError.onError;
   FlutterError.onError = (details) {
     final exception = details.exception;
@@ -36,6 +41,10 @@ Future<void> _ignoreRenderErrors(Future<void> Function() callback) async {
   };
   try {
     await callback();
+    // Dispose widget tree to cancel animation timers, then drain the
+    // 30-second image timeout timer created by PicnicCachedNetworkImage.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 31));
   } finally {
     FlutterError.onError = original;
   }
@@ -79,7 +88,7 @@ void main() {
       _setMobileViewSize(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await _ignoreRenderErrors(() async {
+      await _ignoreRenderErrors(tester, () async {
         await tester.pumpWidget(
           buildTestApp(
             VotingCompleteDialog(
@@ -100,7 +109,7 @@ void main() {
       _setMobileViewSize(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await _ignoreRenderErrors(() async {
+      await _ignoreRenderErrors(tester, () async {
         await tester.pumpWidget(
           buildTestApp(
             VotingCompleteDialog(
@@ -121,7 +130,7 @@ void main() {
       _setMobileViewSize(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await _ignoreRenderErrors(() async {
+      await _ignoreRenderErrors(tester, () async {
         await tester.pumpWidget(
           buildTestApp(
             VotingCompleteDialog(
@@ -156,7 +165,7 @@ void main() {
         'artist_group': null,
       });
 
-      await _ignoreRenderErrors(() async {
+      await _ignoreRenderErrors(tester, () async {
         await tester.pumpWidget(
           buildTestApp(
             VotingCompleteDialog(
@@ -179,7 +188,7 @@ void main() {
       _setMobileViewSize(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await _ignoreRenderErrors(() async {
+      await _ignoreRenderErrors(tester, () async {
         await tester.pumpWidget(
           buildTestApp(
             VotingCompleteDialog(
@@ -203,7 +212,7 @@ void main() {
       _setMobileViewSize(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await _ignoreRenderErrors(() async {
+      await _ignoreRenderErrors(tester, () async {
         await tester.pumpWidget(
           buildTestApp(
             VotingCompleteDialog(
@@ -224,7 +233,7 @@ void main() {
       _setMobileViewSize(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await _ignoreRenderErrors(() async {
+      await _ignoreRenderErrors(tester, () async {
         await tester.pumpWidget(
           buildTestApp(
             VotingCompleteDialog(
@@ -252,7 +261,7 @@ void main() {
       _setMobileViewSize(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await _ignoreRenderErrors(() async {
+      await _ignoreRenderErrors(tester, () async {
         await tester.pumpWidget(
           buildTestApp(
             Builder(

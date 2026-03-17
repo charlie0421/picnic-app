@@ -111,7 +111,7 @@ extension InAppPurchaseServiceSandbox on InAppPurchaseService {
         logger.i('🔍 Attempt ${attempt + 1}/5: pending 구매 검색 (강화)');
 
         final purchaseDetailsList =
-            await _getPurchaseUpdates(Duration(seconds: 3));
+            await this.getPurchaseUpdates(Duration(seconds: 3));
         final pendingPurchases = purchaseDetailsList
             .where((p) => p.status == PurchaseStatus.pending)
             .toList();
@@ -236,7 +236,7 @@ extension InAppPurchaseServiceSandbox on InAppPurchaseService {
 
     try {
       final purchaseDetailsList =
-          await _getPurchaseUpdates(Duration(seconds: 5));
+          await this.getPurchaseUpdates(Duration(seconds: 5));
       final pendingPurchases = purchaseDetailsList
           .where((p) => p.status == PurchaseStatus.pending)
           .toList();
@@ -287,7 +287,7 @@ extension InAppPurchaseServiceSandbox on InAppPurchaseService {
 
       try {
         final purchaseDetailsList =
-            await _getPurchaseUpdates(Duration(seconds: 2));
+            await this.getPurchaseUpdates(Duration(seconds: 2));
         final pendingCount = purchaseDetailsList
             .where((p) => p.status == PurchaseStatus.pending)
             .length;
@@ -346,7 +346,7 @@ extension InAppPurchaseServiceSandbox on InAppPurchaseService {
 
       try {
         final purchaseUpdates =
-            await _getPurchaseUpdates(Duration(seconds: 3));
+            await this.getPurchaseUpdates(Duration(seconds: 3));
         diagnosis['currentPendingCount'] = purchaseUpdates
             .where((p) => p.status == PurchaseStatus.pending)
             .length;

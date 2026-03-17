@@ -17,6 +17,7 @@ import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -1250,40 +1251,16 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     required int starCandyBonusUsage,
     int retryCount = 0,
   }) async {
-    final response = await supabase.functions.invoke(
-      'jma-voting-v2',
-      body: {
-        'vote_id': widget.voteModel.id,
-        'vote_item_id': widget.voteItemModel.id,
-        'amount': voteAmount,
-        'star_candy_usage': starCandyUsage,
-        'star_candy_bonus_usage': starCandyBonusUsage,
-        'user_id': userId,
-      },
+    return JmaVotingHelper.invokeJmaVotingWithRetry(
+      voteId: widget.voteModel.id,
+      voteItemId: widget.voteItemModel.id,
+      amount: voteAmount,
+      userId: userId,
+      starCandyUsage: starCandyUsage,
+      starCandyBonusUsage: starCandyBonusUsage,
+      retryCount: retryCount,
+      isMounted: () => mounted,
     );
-
-    // 429 응답이고 retryable이면 3초 후 1회 재시도
-    if (response.status == 429 && retryCount < 1) {
-      final data = response.data as Map<String, dynamic>?;
-      final isRetryable = data?['retryable'] == true;
-
-      if (isRetryable) {
-        logger.d('JMA Voting rate limited, retrying in 3 seconds...');
-        await Future.delayed(const Duration(seconds: 3));
-
-        if (!mounted) return response;
-
-        return _invokeJmaVotingWithRetry(
-          voteAmount: voteAmount,
-          userId: userId,
-          starCandyUsage: starCandyUsage,
-          starCandyBonusUsage: starCandyBonusUsage,
-          retryCount: retryCount + 1,
-        );
-      }
-    }
-
-    return response;
   }
 
   /// 보너스 캔디 우선 사용 로직으로 사용량 계산 (실제 별사탕 개수 기준)
