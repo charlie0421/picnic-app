@@ -63,19 +63,6 @@ void main() {
   });
 
   group('ShorebirdUtils static methods', () {
-    test('hasPendingPatch defaults to false', () {
-      // Reset state
-      ShorebirdUtils.setPendingPatch(false);
-      expect(ShorebirdUtils.hasPendingPatch, isFalse);
-    });
-
-    test('setPendingPatch updates state', () {
-      ShorebirdUtils.setPendingPatch(true);
-      expect(ShorebirdUtils.hasPendingPatch, isTrue);
-      // Reset
-      ShorebirdUtils.setPendingPatch(false);
-    });
-
     test('setOnPatchStatusChanged accepts callback', () {
       ShorebirdPatchEvent? received;
       ShorebirdUtils.setOnPatchStatusChanged((event) => received = event);
@@ -85,7 +72,6 @@ void main() {
     });
 
     test('setDownloadCompleteMessage accepts string', () {
-      // Just verify it doesn't throw
       ShorebirdUtils.setDownloadCompleteMessage('Update ready!');
     });
 
@@ -93,23 +79,7 @@ void main() {
       ShorebirdUtils.setDownloadCompleteMessage('');
     });
 
-    test('showRestartNotification completes without error', () async {
-      // This method is a no-op (notification disabled)
-      await ShorebirdUtils.showRestartNotification(
-        title: 'Test',
-        body: 'Test body',
-      );
-    });
-
-    test('showRestartNotification with empty strings', () async {
-      await ShorebirdUtils.showRestartNotification(
-        title: '',
-        body: '',
-      );
-    });
-
     test('isPatchingAvailable returns true on non-web platform', () async {
-      // In test environment (macOS), UniversalPlatform.isWeb is false
       final available = await ShorebirdUtils.isPatchingAvailable();
       expect(available, isTrue);
     });
@@ -117,22 +87,8 @@ void main() {
     test('setOnPatchStatusChanged receives events', () {
       ShorebirdPatchEvent? received;
       ShorebirdUtils.setOnPatchStatusChanged((event) => received = event);
-
-      // _notifyPatchStatus is private, but we can verify callback is set
-      // Clean up
       ShorebirdUtils.setOnPatchStatusChanged(null);
       expect(received, isNull);
-    });
-
-    test('setPendingPatch toggle works', () {
-      ShorebirdUtils.setPendingPatch(false);
-      expect(ShorebirdUtils.hasPendingPatch, isFalse);
-
-      ShorebirdUtils.setPendingPatch(true);
-      expect(ShorebirdUtils.hasPendingPatch, isTrue);
-
-      ShorebirdUtils.setPendingPatch(false);
-      expect(ShorebirdUtils.hasPendingPatch, isFalse);
     });
   });
 

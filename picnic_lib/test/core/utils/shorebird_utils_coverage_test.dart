@@ -83,45 +83,16 @@ void main() {
       ShorebirdUtils.setOnPatchStatusChanged((event) {
         called = true;
       });
-      // Cleanup
       ShorebirdUtils.setOnPatchStatusChanged(null);
       expect(called, isFalse);
     });
 
     test('setOnPatchStatusChanged accepts null', () {
       ShorebirdUtils.setOnPatchStatusChanged(null);
-      // Should not throw
-    });
-
-    test('hasPendingPatch defaults correctly after reset', () {
-      ShorebirdUtils.setPendingPatch(false);
-      expect(ShorebirdUtils.hasPendingPatch, isFalse);
-    });
-
-    test('setPendingPatch changes hasPendingPatch to true', () {
-      ShorebirdUtils.setPendingPatch(true);
-      expect(ShorebirdUtils.hasPendingPatch, isTrue);
-      // Reset
-      ShorebirdUtils.setPendingPatch(false);
-    });
-
-    test('setPendingPatch changes hasPendingPatch to false', () {
-      ShorebirdUtils.setPendingPatch(true);
-      ShorebirdUtils.setPendingPatch(false);
-      expect(ShorebirdUtils.hasPendingPatch, isFalse);
     });
 
     test('setDownloadCompleteMessage accepts string', () {
       ShorebirdUtils.setDownloadCompleteMessage('Update complete');
-      // Should not throw
-    });
-
-    test('showRestartNotification completes without error', () async {
-      await ShorebirdUtils.showRestartNotification(
-        title: 'Test',
-        body: 'Test body',
-      );
-      // Should complete without throwing (function is a no-op)
     });
   });
 

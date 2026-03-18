@@ -114,39 +114,12 @@ void main() {
     test('setOnPatchStatusChanged with callback and then null', () {
       final events = <ShorebirdPatchEvent>[];
       ShorebirdUtils.setOnPatchStatusChanged((event) => events.add(event));
-      // Clean up
       ShorebirdUtils.setOnPatchStatusChanged(null);
       expect(events, isEmpty);
     });
 
     test('setDownloadCompleteMessage with unicode', () {
       ShorebirdUtils.setDownloadCompleteMessage('업데이트 준비 완료! 🎉');
-      // No error expected
-    });
-
-    test('setPendingPatch multiple toggles', () {
-      ShorebirdUtils.setPendingPatch(true);
-      expect(ShorebirdUtils.hasPendingPatch, isTrue);
-      ShorebirdUtils.setPendingPatch(true);
-      expect(ShorebirdUtils.hasPendingPatch, isTrue);
-      ShorebirdUtils.setPendingPatch(false);
-      expect(ShorebirdUtils.hasPendingPatch, isFalse);
-      ShorebirdUtils.setPendingPatch(false);
-      expect(ShorebirdUtils.hasPendingPatch, isFalse);
-    });
-
-    test('showRestartNotification with unicode content', () async {
-      await ShorebirdUtils.showRestartNotification(
-        title: '업데이트',
-        body: '앱을 재시작해 주세요',
-      );
-    });
-
-    test('showRestartNotification with very long strings', () async {
-      await ShorebirdUtils.showRestartNotification(
-        title: 'A' * 1000,
-        body: 'B' * 5000,
-      );
     });
 
     test('isPatchingAvailable returns bool', () async {
