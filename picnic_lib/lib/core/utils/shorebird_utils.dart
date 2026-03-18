@@ -194,7 +194,7 @@ class ShorebirdUtils {
 
       // 서버에서 새 패치 확인 (10초 타임아웃)
       final status = await updater.checkForUpdate().timeout(
-        Duration(seconds: 10),
+        const Duration(seconds: 10),
         onTimeout: () => shorebird.UpdateStatus.unavailable,
       );
 

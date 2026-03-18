@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +6,6 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
-import 'package:picnic_lib/presentation/providers/patch_status_provider.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 
 /// 패치 자동 체크 + 강제 재시작 다이얼로그 리스너
@@ -29,14 +27,16 @@ class PatchRestartDialogListener extends ConsumerStatefulWidget {
 }
 
 class _PatchRestartDialogListenerState
-    extends ConsumerState<PatchRestartDialogListener> {
+    extends ConsumerState<PatchRestartDialogListener>
+    with WidgetsBindingObserver {
   bool _isDialogShowing = false;
-  bool _patchCheckDone = false;
+  bool _isChecking = false;
   Timer? _pollTimer;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAndDownloadPatch();
     });
@@ -44,8 +44,17 @@ class _PatchRestartDialogListenerState
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pollTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_isDialogShowing) {
+      logger.i('🔄 앱 포그라운드 복귀 - 패치 체크');
+      _checkAndDownloadPatch();
+    }
   }
 
   /// 앱 시작 시 패치 체크 → 다이얼로그 표시
@@ -55,15 +64,15 @@ class _PatchRestartDialogListenerState
   /// Flutter 코드가 실행되는 시점에는 아직 다운로드가 완료되지 않았을 수 있으므로,
   /// 즉시 체크 + 폴링(3초 간격, 최대 30초)으로 다운로드 완료를 감지합니다.
   Future<void> _checkAndDownloadPatch() async {
-    if (_patchCheckDone || !mounted) return;
-    _patchCheckDone = true;
-
-    if (!await ShorebirdUtils.isPatchingAvailable()) {
-      logger.i('패치 사용 불가');
-      return;
-    }
+    if (_isChecking || _isDialogShowing || !mounted) return;
+    _isChecking = true;
 
     try {
+      if (!await ShorebirdUtils.isPatchingAvailable()) {
+        logger.i('패치 사용 불가');
+        return;
+      }
+
       final updater = shorebird.ShorebirdUpdater();
 
       if (!updater.isAvailable) {
@@ -116,6 +125,8 @@ class _PatchRestartDialogListenerState
       }
     } catch (e, s) {
       logger.e('패치 체크 실패 (앱 계속 실행): $e', stackTrace: s);
+    } finally {
+      _isChecking = false;
     }
   }
 
@@ -194,8 +205,7 @@ class _PatchRestartDialogListenerState
 
 /// 재시작 다이얼로그
 ///
-/// Android: 3초 카운트다운 후 자동 재시작 (닫기 불가)
-/// iOS: 앱 종료 안내 (닫기 불가 - 사용자가 직접 앱 종료해야 함)
+/// iOS/Android 공통: 앱 종료 안내 (닫기 불가 - 사용자가 직접 앱 종료 후 재실행)
 class PatchRestartDialog extends ConsumerStatefulWidget {
   const PatchRestartDialog({super.key});
 
@@ -204,83 +214,9 @@ class PatchRestartDialog extends ConsumerStatefulWidget {
 }
 
 class _PatchRestartDialogState extends ConsumerState<PatchRestartDialog> {
-  Timer? _countdownTimer;
-  int _countdown = 3;
-  bool _isRestarting = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Android에서만 카운트다운 시작
-    if (Platform.isAndroid) {
-      _startCountdown();
-    }
-  }
-
-  @override
-  void dispose() {
-    _countdownTimer?.cancel();
-    super.dispose();
-  }
-
-  void _startCountdown() {
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-
-      setState(() {
-        _countdown--;
-      });
-
-      if (_countdown <= 0) {
-        timer.cancel();
-        _performRestart();
-      }
-    });
-  }
-
-  Future<void> _performRestart() async {
-    if (_isRestarting) return;
-
-    setState(() {
-      _isRestarting = true;
-    });
-
-    logger.i('패치 적용을 위한 앱 재시작 실행');
-
-    try {
-      await ShorebirdUtils.restartAppForPatch();
-    } catch (e) {
-      logger.e('앱 재시작 실패: $e');
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final isIOS = Platform.isIOS;
-
-    if (_isRestarting) {
-      return PopScope(
-        canPop: false,
-        child: AlertDialog(
-          title: Text(l10n.patch_update_ready_title),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              Text(l10n.message_setting_patch_restarting),
-            ],
-          ),
-        ),
-      );
-    }
 
     return PopScope(
       canPop: false,
@@ -290,44 +226,28 @@ class _PatchRestartDialogState extends ConsumerState<PatchRestartDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              isIOS
-                  ? l10n.patch_update_ios_message_detailed
-                  : l10n.patch_update_android_message,
+            Text(l10n.patch_update_ios_message_detailed),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.patch_ios_how_to_close_title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(l10n.patch_ios_how_to_close_step1),
+                  Text(l10n.patch_ios_how_to_close_step2),
+                  Text(l10n.patch_ios_how_to_close_step3),
+                ],
+              ),
             ),
-            if (!isIOS) ...[
-              const SizedBox(height: 16),
-              Text(
-                l10n.patch_auto_restart_countdown(_countdown),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-            if (isIOS) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.patch_ios_how_to_close_title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(l10n.patch_ios_how_to_close_step1),
-                    Text(l10n.patch_ios_how_to_close_step2),
-                    Text(l10n.patch_ios_how_to_close_step3),
-                  ],
-                ),
-              ),
-            ],
           ],
         ),
         actions: const [],
