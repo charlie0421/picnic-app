@@ -1,20 +1,9 @@
-import 'dart:io';
-
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/patch_notification_service.dart';
-import 'package:picnic_lib/core/utils/version_utils.dart';
-import 'package:restart_app/restart_app.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 import 'package:universal_platform/universal_platform.dart';
 
 final updater = shorebird.ShorebirdUpdater();
-
-/// 패치 대기 상태 (백그라운드 재시작용)
-bool _hasPendingPatch = false;
-
-/// iOS 26 이상 여부 캐시 (패치 비활성화용)
-bool? _isIOS26OrHigher;
 
 /// 다운로드 완료 알림 메시지 (L10N 적용용)
 String? _downloadCompleteMessage;
@@ -71,49 +60,15 @@ class PatchStatusException implements Exception {
 }
 
 class ShorebirdUtils {
-  /// iOS 26 이상 여부 확인
-  /// Shorebird 패치가 iOS 26에서 코드 서명 문제로 크래시를 발생시키므로
-  /// iOS 26 이상에서는 패치 기능을 비활성화합니다.
-  static Future<bool> isIOS26OrHigher() async {
-    if (_isIOS26OrHigher != null) {
-      return _isIOS26OrHigher!;
-    }
-
-    if (!Platform.isIOS) {
-      _isIOS26OrHigher = false;
-      return false;
-    }
-
-    try {
-      final deviceInfo = DeviceInfoPlugin();
-      final iosInfo = await deviceInfo.iosInfo;
-      final systemVersion = iosInfo.systemVersion;
-
-      // iOS 버전 파싱 (예: "26.2", "18.4")
-      final majorVersion = VersionUtils.parseMajorVersion(systemVersion);
-      _isIOS26OrHigher = VersionUtils.isIOSVersionAtLeast26(systemVersion);
-
-      logger.i('📱 iOS 버전: $systemVersion (major: $majorVersion), iOS 26+: $_isIOS26OrHigher');
-      return _isIOS26OrHigher!;
-    } catch (e) {
-      logger.e('❌ iOS 버전 확인 실패: $e');
-      _isIOS26OrHigher = false;
-      return false;
-    }
-  }
-
   /// Shorebird 패치 사용 가능 여부 확인
-  /// Shorebird 1.6.87 + Flutter 3.41.4에서 iOS 26 코드 서명 문제 해결됨
   static Future<bool> isPatchingAvailable() async {
     if (UniversalPlatform.isWeb) {
       return false;
     }
-
     return true;
   }
 
   /// 패치 상태 변경 콜백 등록
-  /// 앱 초기화 시 호출하여 패치 상태 변경을 감지할 수 있습니다.
   static void setOnPatchStatusChanged(PatchStatusCallback? callback) {
     _onPatchStatusChanged = callback;
   }
@@ -132,17 +87,14 @@ class ShorebirdUtils {
       if (status == shorebird.UpdateStatus.outdated) {
         logger.i('🆕 Shorebird 업데이트 필요 - 업데이트 시작');
 
-        // 업데이트 시도 전 상태 확인
         final patchBefore = await updater.readCurrentPatch();
         logger.i('📋 업데이트 전 패치 정보: ${patchBefore?.number}');
 
         await updater.update();
 
-        // 업데이트 후 상태 확인
         final patchAfter = await updater.readCurrentPatch();
         logger.i('📋 업데이트 후 패치 정보: ${patchAfter?.number}');
 
-        // 패치가 실제로 변경되었는지 확인
         if (patchBefore?.number != patchAfter?.number) {
           logger.i(
             '✅ Shorebird 업데이트 성공적으로 완료 (${patchBefore?.number} → ${patchAfter?.number})',
@@ -186,13 +138,9 @@ class ShorebirdUtils {
     try {
       logger.i('🔍 설정 페이지 패치 상태 확인');
 
-      // 현재 실행 중인 패치
       final currentPatch = await updater.readCurrentPatch();
-
-      // 다운로드되어 대기 중인 패치 (다음 재시작 시 적용)
       final nextPatch = await updater.readNextPatch();
 
-      // 서버에서 새 패치 확인 (10초 타임아웃)
       final status = await updater.checkForUpdate().timeout(
         const Duration(seconds: 10),
         onTimeout: () => shorebird.UpdateStatus.unavailable,
@@ -215,59 +163,7 @@ class ShorebirdUtils {
     }
   }
 
-  /// 네이티브 앱 재시작 (Shorebird 패치 적용을 위해)
-  /// iOS: 로컬 푸시 알림으로 재시작 유도 (Apple 정책상 프로그래밍적 재시작 불가)
-  /// Android: restart_app 패키지로 앱 재시작
-  static Future<void> restartAppForPatch({
-    String? notificationTitle,
-    String? notificationBody,
-  }) async {
-    if (UniversalPlatform.isWeb) {
-      logger.w('웹에서는 네이티브 재시작을 지원하지 않습니다');
-      return;
-    }
-
-    try {
-      if (Platform.isIOS) {
-        // iOS: 로컬 푸시 알림으로 재시작 유도
-        // Apple 정책상 프로그래밍적 재시작 불가능
-        logger.i('🔔 iOS - 로컬 푸시 알림으로 재시작 유도');
-        await showRestartNotification(
-          title: notificationTitle ?? 'Update Ready',
-          body: notificationBody ?? 'Please close and reopen the app to apply the update.',
-        );
-        // iOS에서는 앱을 종료하지 않고 사용자가 수동으로 앱을 재시작하도록 유도
-        // exit(0)을 호출하면 App Store 심사에서 리젝될 수 있음
-      } else {
-        // Android: 직접 재시작
-        logger.i('🔄 Android - 네이티브 앱 재시작 실행');
-        await Restart.restartApp();
-      }
-    } catch (e, stackTrace) {
-      logger.e('❌ 앱 재시작 처리 실패: $e', stackTrace: stackTrace);
-      rethrow;
-    }
-  }
-
-  /// 즉시 로컬 푸시 알림 표시 (재시작 유도용)
-  ///
-  /// ⚠️ 로컬 알림 기능 비활성화됨
-  /// 초기화되지 않은 FlutterLocalNotificationsPlugin 사용으로 인한 크래시 방지
-  /// iOS에서는 패치가 다음 앱 실행 시 자동 적용됩니다.
-  static Future<void> showRestartNotification({
-    required String title,
-    required String body,
-  }) async {
-    // 로컬 알림 비활성화 - 초기화 문제로 인한 크래시 방지
-    logger.i('📱 패치 알림 스킵됨 - 다음 실행 시 자동 적용');
-  }
-
   /// 앱 시작시 패치 체크 (재시작 없이 백그라운드 다운로드)
-  ///
-  /// 앱 초기화 중에 재시작하면 앱이 행(hang)될 수 있으므로,
-  /// 패치 다운로드만 수행하고 앱은 정상 실행됩니다.
-  /// 사용자가 설정에서 수동으로 재시작하거나, 앱을 완전히 종료 후
-  /// 다시 열면 패치가 적용됩니다.
   static Future<void> checkAndRestartOnLaunch() async {
     if (UniversalPlatform.isWeb) {
       logger.i('웹에서는 Shorebird 패치를 지원하지 않습니다');
@@ -275,7 +171,7 @@ class ShorebirdUtils {
     }
 
     if (!await isPatchingAvailable()) {
-      logger.i('패치 기능 사용 불가 (웹 환경)');
+      logger.i('패치 기능 사용 불가');
       _notifyPatchStatus(ShorebirdPatchEvent.upToDate);
       return;
     }
@@ -284,25 +180,18 @@ class ShorebirdUtils {
       logger.i('🚀 앱 시작시 Shorebird 패치 상태 확인');
       _notifyPatchStatus(ShorebirdPatchEvent.checking);
 
-      // 먼저 대기 중인 패치가 있는지 확인
       final status = await updater.checkForUpdate();
       logger.i('📊 Shorebird 상태: $status');
 
       if (status == shorebird.UpdateStatus.restartRequired) {
-        // 이미 패치가 다운로드되어 재시작만 필요한 경우
-        // 앱 초기화 중에는 재시작하지 않음 (행 방지)
         logger.i('🔄 대기 중인 패치 발견 - 백그라운드 전환 시 자동 적용됨');
-        _hasPendingPatch = true;
         _notifyPatchStatus(ShorebirdPatchEvent.restartPending);
-        // normal 방식: 로컬 푸시 없이 설정 페이지 배너와 백그라운드 재시작으로 처리
         return;
       }
 
       if (status == shorebird.UpdateStatus.outdated) {
-        // 새 패치가 있는 경우 백그라운드에서 다운로드 (재시작 안 함)
         logger.i('🆕 새 패치 발견 - 백그라운드 다운로드 시작');
         _notifyPatchStatus(ShorebirdPatchEvent.downloading);
-        // 비동기로 다운로드 (앱 초기화 blocking 방지)
         _downloadPatchInBackground();
         return;
       }
@@ -313,7 +202,6 @@ class ShorebirdUtils {
       logger.e('❌ 앱 시작시 패치 확인 실패 (앱은 계속 실행됨): $e',
           stackTrace: stackTrace);
       _notifyPatchStatus(ShorebirdPatchEvent.error);
-      // 패치 확인 실패해도 앱은 계속 실행되도록 함
     }
   }
 
@@ -322,10 +210,8 @@ class ShorebirdUtils {
     try {
       await updater.update();
       logger.i('✅ 패치 다운로드 완료 - 백그라운드 전환 시 자동 적용됨');
-      _hasPendingPatch = true;
       _notifyPatchStatus(ShorebirdPatchEvent.downloadCompleted);
 
-      // 다운로드 완료 스낵바 표시 (중간 수준 알림)
       if (_downloadCompleteMessage != null) {
         PatchNotificationService.showDownloadCompleteNotification(
           _downloadCompleteMessage!,
@@ -337,17 +223,7 @@ class ShorebirdUtils {
     }
   }
 
-  /// 패치 대기 상태 확인
-  static bool get hasPendingPatch => _hasPendingPatch;
-
-  /// 패치 대기 상태 설정 (외부에서 설정 필요 시)
-  static void setPendingPatch(bool value) {
-    _hasPendingPatch = value;
-  }
-
   /// 다운로드 완료 알림 메시지 설정 (L10N 적용용)
-  ///
-  /// 앱 초기화 시 L10N 문자열로 설정해야 함
   static void setDownloadCompleteMessage(String message) {
     _downloadCompleteMessage = message;
   }
