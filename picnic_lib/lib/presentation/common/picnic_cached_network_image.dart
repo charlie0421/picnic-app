@@ -96,6 +96,10 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.maxConcurrentLoads,
   });
 
+  /// 테스트 환경에서 이미지 로딩 타이머 비활성화 (pending timer assertion 방지)
+  @visibleForTesting
+  static bool disableTimeoutForTest = false;
+
   @override
   ConsumerState<PicnicCachedNetworkImage> createState() =>
       _PicnicCachedNetworkImageState();
@@ -857,7 +861,7 @@ class _PicnicCachedNetworkImageState
 
       return StatefulBuilder(
         builder: (context, setState) {
-          if (_loading && timeoutTimer == null) {
+          if (_loading && timeoutTimer == null && !PicnicCachedNetworkImage.disableTimeoutForTest) {
             timeoutTimer = Timer(effectiveTimeout, () {
               if (!mounted) return;
               final stillLoading = _loading && !_hasError && !_isImageLoaded;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -107,9 +108,11 @@ void main() {
     initTestColors();
     VisibilityDetectorController.instance.updateInterval = Duration.zero;
     setupMockSupabase({});
+    PicnicCachedNetworkImage.disableTimeoutForTest = true;
   });
 
   tearDown(() {
+    PicnicCachedNetworkImage.disableTimeoutForTest = false;
     tearDownMockSupabase();
   });
 
