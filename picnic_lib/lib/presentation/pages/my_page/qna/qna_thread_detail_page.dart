@@ -105,6 +105,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   String? _prevPageTitle;
   String? _prevMyPageTitle;
   static const int _maxFileSizeInBytes = 10 * 1024 * 1024; // 10MB
+  RealtimeChannel? _threadStatusChannel;
 
   @override
   void initState() {
@@ -123,6 +124,35 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
       });
     }
     _loadThreadDetails();
+    _setupRealtimeSubscription();
+  }
+
+  void _setupRealtimeSubscription() {
+    try {
+      final supabase = Supabase.instance.client;
+      _threadStatusChannel = supabase.channel('qna_thread_status_${_thread.id}')
+        ..onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'qna_threads',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'id',
+            value: _thread.id,
+          ),
+          callback: (payload) {
+            final newStatus = payload.newRecord['status'] as String?;
+            if (newStatus != null && mounted) {
+              setState(() {
+                _thread = _thread.copyWith(status: newStatus);
+              });
+            }
+          },
+        )
+        ..subscribe();
+    } catch (e) {
+      debugPrint('QnA 스레드 상태 Realtime 구독 실패: $e');
+    }
   }
 
   Future<void> _loadThreadDetails() async {
@@ -242,6 +272,15 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
     setState(() {
       _attachments.removeAt(index);
     });
+  }
+
+  @override
+  void dispose() {
+    try {
+      _threadStatusChannel?.unsubscribe();
+    } catch (_) {}
+    _messageController.dispose();
+    super.dispose();
   }
 
   @override

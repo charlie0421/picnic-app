@@ -16,6 +16,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class QnaThreadListPage extends ConsumerStatefulWidget {
   final String userId;
@@ -36,6 +37,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
   bool _hasMore = true;
   String? _errorMessage;
   String? _currentTitle;
+  RealtimeChannel? _threadListChannel;
 
   @override
   void initState() {
@@ -46,10 +48,49 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
       _updateNavigation();
     });
     _loadThreads(isInitial: true);
+    _setupRealtimeSubscription();
+  }
+
+  void _setupRealtimeSubscription() {
+    try {
+      final supabase = Supabase.instance.client;
+      _threadListChannel = supabase.channel('qna_thread_list_${widget.userId}')
+        ..onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'qna_threads',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: widget.userId,
+          ),
+          callback: (payload) {
+            final record = payload.newRecord;
+            final threadId = record['id'] as int?;
+            final newStatus = record['status'] as String?;
+            if (threadId != null && newStatus != null && mounted) {
+              setState(() {
+                final index = _threadList.indexWhere((t) => t.id == threadId);
+                if (index != -1) {
+                  _threadList[index] = _threadList[index].copyWith(
+                    status: newStatus,
+                  );
+                }
+              });
+            }
+          },
+        )
+        ..subscribe();
+    } catch (e) {
+      debugPrint('QnA 스레드 목록 Realtime 구독 실패: $e');
+    }
   }
 
   @override
   void dispose() {
+    try {
+      _threadListChannel?.unsubscribe();
+    } catch (_) {}
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
