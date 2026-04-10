@@ -33,7 +33,7 @@ final class ServerProductsProvider
   ServerProducts create() => ServerProducts();
 }
 
-String _$serverProductsHash() => r'0e1265b570ddf22f4011aff2fb68cebb055497d2';
+String _$serverProductsHash() => r'61d31a3cceffe19792cf12e92e975cac54dd7cef';
 
 abstract class _$ServerProducts
     extends $AsyncNotifier<List<Map<String, dynamic>>> {
@@ -87,7 +87,7 @@ final class StoreProductsProvider
   StoreProducts create() => StoreProducts();
 }
 
-String _$storeProductsHash() => r'd92e89e57a4e73bc191e3e9536cf6d79685f8ca4';
+String _$storeProductsHash() => r'bcce69d89b463dd232b73092dd900459cca69664';
 
 abstract class _$StoreProducts extends $AsyncNotifier<List<ProductDetails>> {
   FutureOr<List<ProductDetails>> build();

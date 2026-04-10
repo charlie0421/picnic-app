@@ -50,7 +50,7 @@ final class BoardDetailProvider
   }
 }
 
-String _$boardDetailHash() => r'0ca1e17d39c739838a4ebc18cc31e13cf860eb95';
+String _$boardDetailHash() => r'78f2428dcb66cdb181f2b01d6a774b13ec20c3e1';
 
 final class BoardDetailFamily extends $Family
     with
@@ -140,7 +140,7 @@ final class BoardsNotifierProvider
   }
 }
 
-String _$boardsNotifierHash() => r'3bf2919f8c41eaf900af69990c5d73163e6cd7c2';
+String _$boardsNotifierHash() => r'6094360199f46222ef825611c73d73b377726a3f';
 
 final class BoardsNotifierFamily extends $Family
     with
@@ -234,7 +234,7 @@ final class BoardsByArtistNameNotifierProvider
 }
 
 String _$boardsByArtistNameNotifierHash() =>
-    r'e69b4044cd3fc057dff0a58051c5cdd3fa2e484e';
+    r'4725ecd95a76c3ab2cfabaac8b4d83848cfe65a4';
 
 final class BoardsByArtistNameNotifierFamily extends $Family
     with
@@ -315,7 +315,7 @@ final class BoardRequestNotifierProvider
 }
 
 String _$boardRequestNotifierHash() =>
-    r'eae1b2b0f3f5946da7ec84ab800c1606281cbd1f';
+    r'59a8a35fc10e649ba487756b7727f2ea95c58fdd';
 
 abstract class _$BoardRequestNotifier extends $AsyncNotifier<BoardModel?> {
   FutureOr<BoardModel?> build();

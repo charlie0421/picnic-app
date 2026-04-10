@@ -33,7 +33,7 @@ final class AsyncCelebListProvider
   AsyncCelebList create() => AsyncCelebList();
 }
 
-String _$asyncCelebListHash() => r'333e25f7b5309d5b363d27379691467f7b598d23';
+String _$asyncCelebListHash() => r'b90029c8a6968afcc7bd68449e57835265b93e50';
 
 abstract class _$AsyncCelebList extends $AsyncNotifier<List<CelebModel>?> {
   FutureOr<List<CelebModel>?> build();
@@ -79,7 +79,7 @@ final class AsyncMyCelebListProvider
   AsyncMyCelebList create() => AsyncMyCelebList();
 }
 
-String _$asyncMyCelebListHash() => r'd3e28b9a1676105913900557550e8bd06c8f173c';
+String _$asyncMyCelebListHash() => r'9be034db4a0cdfa2552f9faffdc92859367f97d3';
 
 abstract class _$AsyncMyCelebList extends $AsyncNotifier<List<CelebModel>?> {
   FutureOr<List<CelebModel>?> build();

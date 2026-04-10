@@ -33,7 +33,7 @@ final class UserInfoProvider
   UserInfo create() => UserInfo();
 }
 
-String _$userInfoHash() => r'3f2a1fc5302d76a50f70b87228e9137a9e38f1e5';
+String _$userInfoHash() => r'2985637ac44a988a9ef84bbf6e1bc3cd5423d989';
 
 abstract class _$UserInfo extends $AsyncNotifier<UserProfilesModel?> {
   FutureOr<UserProfilesModel?> build();
@@ -160,4 +160,4 @@ final class ExpireBonusProvider
   }
 }
 
-String _$expireBonusHash() => r'52799c85fc5a4058db994474371362bedd5a58f4';
+String _$expireBonusHash() => r'dafb374d23283a12bde181c3a9414ab1484984dc';

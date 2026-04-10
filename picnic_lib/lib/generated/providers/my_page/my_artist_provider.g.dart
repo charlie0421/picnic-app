@@ -33,7 +33,7 @@ final class AsyncMyArtistProvider
   AsyncMyArtist create() => AsyncMyArtist();
 }
 
-String _$asyncMyArtistHash() => r'a0af98d00543f1699f9cab910373d5331bfed985';
+String _$asyncMyArtistHash() => r'8bfb98003cce88fd9dea84b60e4c9acdac2c4146';
 
 abstract class _$AsyncMyArtist extends $AsyncNotifier<List<ArtistModel>> {
   FutureOr<List<ArtistModel>> build();

@@ -41,7 +41,7 @@ final class GoonghapProvider
   }
 }
 
-String _$goonghapHash() => r'04c98177d1aa11c2c6a185813803742e540bd51e';
+String _$goonghapHash() => r'42987c98575ba3ec3d9fb9a048771dbf9f9f8472';
 
 abstract class _$Goonghap extends $Notifier<AsyncValue<GoonghapModel?>> {
   AsyncValue<GoonghapModel?> build();
