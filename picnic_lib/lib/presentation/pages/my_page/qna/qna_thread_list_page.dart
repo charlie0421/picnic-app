@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_create_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
-import 'package:picnic_lib/presentation/pages/my_page/qna/qna_status_chip.dart';
+import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_card.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
-import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
-import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
@@ -117,9 +114,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
   }
 
   Future<void> _loadThreads({bool isInitial = false}) async {
-    if (_isMoreLoading || !_hasMore) {
-      return;
-    }
+    if (_isMoreLoading || !_hasMore) return;
 
     try {
       if (isInitial && _threadList.isEmpty) {
@@ -151,9 +146,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
         _hasMore = threads.isNotEmpty;
         _isLoading = false;
         _isMoreLoading = false;
-        if (isInitial) {
-          _errorMessage = null;
-        }
+        if (isInitial) _errorMessage = null;
       });
     } catch (e) {
       setState(() {
@@ -165,18 +158,14 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
   }
 
   void _navigateToCreateThread() async {
-    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
-      return;
-    }
+    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) return;
     if (!mounted) return;
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => QnaThreadCreatePage(userId: widget.userId),
       ),
     );
-    if (result == true) {
-      _loadThreads(isInitial: true);
-    }
+    if (result == true) _loadThreads(isInitial: true);
   }
 
   void _navigateToThreadDetail(QnaThread thread) {
@@ -211,9 +200,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return _buildShimmer();
-    }
+    if (_isLoading) return _buildShimmer();
 
     return RefreshIndicator(
       onRefresh: () => _loadThreads(isInitial: true),
@@ -228,7 +215,13 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
         if (_threadList.isEmpty) {
           return CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [SliverFillRemaining(child: _buildEmptyView())],
+            slivers: [
+              SliverFillRemaining(
+                child: NoItemContainer(
+                  message: AppLocalizations.of(context).qna_no_inquiries,
+                ),
+              ),
+            ],
           );
         }
 
@@ -247,7 +240,11 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
               );
             }
             final thread = _threadList[index];
-            return _buildThreadCard(thread);
+            return QnaThreadCard(
+              thread: thread,
+              repository: _repository,
+              onTap: () => _navigateToThreadDetail(thread),
+            );
           },
           separatorBuilder: (context, index) => const SizedBox(height: 12),
         );
@@ -315,131 +312,6 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyView() {
-    return NoItemContainer(
-      message: AppLocalizations.of(context).qna_no_inquiries,
-    );
-  }
-
-  Widget _buildThreadCard(QnaThread thread) {
-    return InkWell(
-      onTap: () => _navigateToThreadDetail(thread),
-      borderRadius: BorderRadius.circular(12.0),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    thread.title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                QnaStatusChip(status: thread.status),
-              ],
-            ),
-            const SizedBox(height: 8),
-            FutureBuilder(
-              future: _repository.getFirstAttachmentForThread(thread.id),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SizedBox.shrink();
-                }
-                if (!snapshot.hasData || snapshot.data == null) {
-                  return const SizedBox.shrink();
-                }
-                final att = snapshot.data!;
-                final isImage =
-                    (att.fileType?.startsWith('image/') ?? false) ||
-                    ['jpg', 'jpeg', 'png', 'gif'].any(
-                      (ext) => att.fileName.toLowerCase().endsWith('.$ext'),
-                    );
-                final isVideo = att.fileType?.startsWith('video/') ?? false;
-
-                final url = _repository.getPublicUrl(att.filePath);
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox(
-                      height: 140,
-                      width: double.infinity,
-                      child: isImage
-                          ? ImageThumbnailFromUrl(
-                              imageUrl: url,
-                              fit: BoxFit.cover,
-                            )
-                          : isVideo
-                          ? Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                VideoThumbnailFromUrl(
-                                  videoUrl: url,
-                                  fit: BoxFit.cover,
-                                ),
-                                const Align(
-                                  alignment: Alignment.center,
-                                  child: Icon(
-                                    Icons.play_circle_fill,
-                                    color: Colors.white,
-                                    size: 48,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Container(
-                              color: AppColors.grey200,
-                              child: const Center(
-                                child: Icon(
-                                  Icons.insert_drive_file,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.schedule, size: 14, color: Colors.grey[600]),
-                const SizedBox(width: 4),
-                Text(
-                  DateFormat(
-                    'yyyy-MM-dd HH:mm',
-                  ).format(thread.updatedAt.toLocal()),
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }
