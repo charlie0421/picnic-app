@@ -5,14 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -23,6 +20,7 @@ import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_usage_helper.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -177,21 +175,31 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 8),
-                _buildArtistImage(),
+                VotingArtistImage(voteItemModel: widget.voteItemModel),
                 const SizedBox(height: 16),
-                _buildMemberInfo(),
-                _buildStarCandyInfo(myStarCandy),
+                VotingMemberInfo(voteItemModel: widget.voteItemModel),
+                VotingStarCandyInfo(
+                  myStarCandy: myStarCandy,
+                  onRecharge: _navigateToStore,
+                ),
                 const SizedBox(height: 8),
-                _buildCheckAllOption(),
+                VotingCheckAllOption(
+                  checkAll: _checkAll,
+                  onToggle: _toggleCheckAll,
+                ),
                 const SizedBox(height: 8),
                 _buildVoteAmountInput(context),
                 const SizedBox(height: 8),
-                _buildErrorMessage(),
+                VotingErrorMessage(canVote: _canVote, hasValue: _hasValue),
                 _buildBubble(),
                 const SizedBox(height: 9),
-                _buildVoteButton(myStarCandy, userId),
+                VotingSubmitButton(
+                  canVote: _canVote,
+                  isVoting: _isVoting,
+                  onPressed: () => _handleVote(myStarCandy, userId),
+                ),
                 const SizedBox(height: 16),
-                _buildLogoImage(),
+                VotingLogoImage(voteModel: widget.voteModel),
               ],
             ),
           ),
@@ -200,113 +208,32 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
   }
 
-  Widget _buildArtistImage() {
-    // 아티스트 이미지 URL을 가져오기
-    String? imageUrl;
-    if ((widget.voteItemModel.artist?.id ?? 0) != 0) {
-      imageUrl = widget.voteItemModel.artist?.image;
-    } else {
-      imageUrl = widget.voteItemModel.artistGroup?.image;
-    }
-
-    return Container(
-      width: 80.w,
-      height: 80.w,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.primary500,
-          width: 2,
-        ),
-      ),
-      child: ClipOval(
-        child: imageUrl != null && imageUrl.isNotEmpty
-            ? PicnicCachedNetworkImage(
-                imageUrl: imageUrl,
-                width: 80.w,
-                height: 80.w,
-                fit: BoxFit.cover,
-              )
-            : _buildDefaultArtistImage(),
-      ),
-    );
+  void _navigateToStore() {
+    ref
+        .read(navigationInfoProvider.notifier)
+        .setCurrentPage(const StorePage());
+    ref
+        .read(navigationInfoProvider.notifier)
+        .setVoteBottomNavigationIndex(3);
+    Navigator.pop(context);
   }
 
-  Widget _buildDefaultArtistImage() {
-    return Container(
-      width: 80.w,
-      height: 80.w,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.grey200,
-      ),
-      child: Icon(
-        Icons.person,
-        size: 40.w,
-        color: AppColors.grey500,
-      ),
-    );
-  }
+  void _toggleCheckAll() {
+    FocusScope.of(context).unfocus();
 
-  Widget _buildLogoImage() {
-    // VoteModel의 실제 데이터 사용
-    final isPartnership = widget.voteModel.isPartnership ?? false;
-    final partner = widget.voteModel.partner;
-
-    // 파트너십이 활성화되어 있고 파트너 이름이 있으면 파트너 로고 사용
-    if (isPartnership && partner != null && partner.isNotEmpty) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            package: 'picnic_lib',
-            'assets/images/partners/$partner.png',
-            width: 100.w,
-            height: 100.w,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              // 파트너 로고가 없으면 텍스트로 표시
-              return Container(
-                width: 100.w,
-                height: 100.w,
-                decoration: BoxDecoration(
-                  color: AppColors.primary500,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Center(
-                  child: Text(
-                    partner.toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      );
+    if (mounted) {
+      setState(() {
+        _checkAll = !_checkAll;
+        _hasValue = _checkAll;
+        if (_checkAll) {
+          final amount = _getMyStarCandy();
+          _textEditingController.text = formatNumberWithComma(amount);
+        } else {
+          _textEditingController.clear();
+        }
+      });
     }
-
-    // 기본 로고 사용
-    return SizedBox(
-      width: 60.w,
-      height: 60.w,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            package: 'picnic_lib',
-            'assets/images/logo.png',
-            width: 40.w,
-            height: 40.w,
-            fit: BoxFit.contain,
-          ),
-        ],
-      ),
-    );
+    _validateVote();
   }
 
   Widget _buildVoteAmountInput(BuildContext context) {
@@ -418,16 +345,26 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               ),
             ),
           ),
-          _buildClearButton(),
+          VotingClearButton(
+            hasValue: _hasValue,
+            onClear: () {
+              _textEditingController.clear();
+              if (mounted) {
+                setState(() {
+                  _hasValue = false;
+                  _checkAll = false;
+                });
+              }
+              _validateVote();
+              _focusNode.requestFocus();
+            },
+          ),
         ],
       ),
     );
   }
 
   Widget _buildBubble() {
-    final isPartnership = widget.voteModel.isPartnership ?? false;
-    final partner = widget.voteModel.partner;
-
     return BubbleBox(
       shape: BubbleShapeBorder(
         border: BubbleBoxBorder(
@@ -439,265 +376,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         direction: BubbleDirection.top,
       ),
       backgroundColor: AppColors.secondary500,
-      child: Column(
-        children: [
-          isPartnership && partner != null && partner.isNotEmpty
-              ? Text(
-                  '· ${AppLocalizations.of(context).voting_share_benefit_text}\n· ${partner.toUpperCase()} 파트너십 혜택',
-                  style: getTextStyle(
-                    AppTypo.caption10SB,
-                    AppColors.primary500,
-                  ),
-                  textAlign: TextAlign.center,
-                )
-              : Text(
-                  '· ${AppLocalizations.of(context).voting_share_benefit_text}',
-                  style: getTextStyle(
-                    AppTypo.caption10SB,
-                    AppColors.primary500,
-                  ),
-                ),
-        ],
-      ),
+      child: VotingBubbleInfo(voteModel: widget.voteModel),
     );
   }
 
-  Widget _buildMemberInfo() {
-    return Column(
-      children: [
-        SizedBox(
-          height: 24,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                getLocaleTextFromJson(
-                    (widget.voteItemModel.artist?.id ?? 0) != 0
-                        ? widget.voteItemModel.artist?.name ?? {}
-                        : widget.voteItemModel.artistGroup?.name ?? {}),
-                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              ),
-              SizedBox(width: 8.w),
-              if ((widget.voteItemModel.artist?.id ?? 0) != 0 &&
-                  widget.voteItemModel.artist?.artistGroup?.name != null)
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    getLocaleTextFromJson(
-                        widget.voteItemModel.artist!.artistGroup!.name),
-                    style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        Divider(color: AppColors.grey300, thickness: 1, height: 20.0.h),
-      ],
-    );
-  }
-
-  Widget _buildStarCandyInfo(int myStarCandy) {
-    return SizedBox(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 32.w,
-            height: 32,
-            alignment: Alignment.centerLeft,
-            child: Image.asset(
-                package: 'picnic_lib',
-                'assets/icons/store/star_100.png',
-                width: 32.w,
-                height: 32),
-          ),
-          SizedBox(width: 2.w),
-          Expanded(
-            child: Container(
-              height: 26,
-              alignment: Alignment.topLeft,
-              child: Text(
-                formatNumberWithComma(myStarCandy),
-                style: getTextStyle(AppTypo.body16B, AppColors.primary500),
-              ),
-            ),
-          ),
-          _buildRechargeButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRechargeButton() {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        ref
-            .read(navigationInfoProvider.notifier)
-            .setCurrentPage(const StorePage());
-        ref
-            .read(navigationInfoProvider.notifier)
-            .setVoteBottomNavigationIndex(3);
-        Navigator.pop(context);
-      },
-      child: Container(
-        height: 32,
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
-        decoration: BoxDecoration(
-          color: AppColors.secondary500,
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: AppColors.primary500, width: 1),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              AppLocalizations.of(context).label_button_recharge,
-              style: getTextStyle(AppTypo.body14B, AppColors.primary500),
-            ),
-            SizedBox(width: 4.w),
-            SvgPicture.asset(
-              package: 'picnic_lib',
-              'assets/icons/plus_style=fill.svg',
-              width: 16.w,
-              height: 16,
-              colorFilter:
-                  ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCheckAllOption() {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        FocusScope.of(context).unfocus();
-
-        if (mounted) {
-          setState(() {
-            _checkAll = !_checkAll;
-            _hasValue = _checkAll;
-            if (_checkAll) {
-              final amount = _getMyStarCandy();
-              _textEditingController.text = formatNumberWithComma(amount);
-            } else {
-              _textEditingController.clear();
-            }
-          });
-        }
-        _validateVote();
-      },
-      child: SizedBox(
-        height: 20,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SvgPicture.asset(
-              package: 'picnic_lib',
-              'assets/icons/check_style=line.svg',
-              width: 20.w,
-              height: 20,
-              colorFilter: ColorFilter.mode(
-                _checkAll ? AppColors.primary500 : AppColors.grey300,
-                BlendMode.srcIn,
-              ),
-            ),
-            SizedBox(width: 4.w),
-            Text(
-              AppLocalizations.of(context).label_checkbox_entire_use,
-              style: getTextStyle(
-                AppTypo.body14M,
-                _checkAll ? AppColors.primary500 : AppColors.grey300,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildClearButton() {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        _textEditingController.clear();
-        if (mounted) {
-          setState(() {
-            _hasValue = false;
-            _checkAll = false;
-          });
-        }
-        _validateVote();
-
-        _focusNode.requestFocus();
-      },
-      child: SvgPicture.asset(
-        package: 'picnic_lib',
-        'assets/icons/cancel_style=fill.svg',
-        colorFilter: ColorFilter.mode(
-          _hasValue ? AppColors.grey700 : AppColors.grey200,
-          BlendMode.srcIn,
-        ),
-        width: 20.w,
-        height: 20,
-      ),
-    );
-  }
-
-  Widget _buildErrorMessage() {
-    if (!_canVote && _hasValue) {
-      return Container(
-        padding: EdgeInsets.only(left: 22.w),
-        width: double.infinity,
-        child: Text(
-          AppLocalizations.of(context).text_need_recharge,
-          style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
-          textAlign: TextAlign.left,
-        ),
-      );
-    }
-    return const SizedBox(height: 0);
-  }
-
-  Widget _buildVoteButton(int myStarCandy, String userId) {
-    final isEnabled = _canVote && !_isVoting; // 투표 중이면 버튼 비활성화
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: isEnabled ? () => _handleVote(myStarCandy, userId) : null,
-      child: Container(
-        width: 172.w,
-        height: 52,
-        decoration: BoxDecoration(
-          color: _isVoting
-              ? AppColors.primary500
-              : (isEnabled ? AppColors.primary500 : AppColors.grey300),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        alignment: Alignment.center,
-        child: _isVoting
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Text(
-                AppLocalizations.of(context).label_button_vote,
-                style: getTextStyle(
-                  AppTypo.title18SB,
-                  AppColors.grey00,
-                ),
-              ),
-      ),
-    );
-  }
 
   Future<void> _handleVote(int myStarCandy, String userId) async {
     // 이미 투표 진행 중이면 무시 (중복 클릭 방지)
@@ -785,55 +467,23 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
   }
 
-  static const int _voteBatchSize = 1000;
-
   Future<void> _performVoting(int voteAmount, String userId) async {
     try {
       // 사용량 계산
       final usage = _calculateUsage(voteAmount);
-      int remainingBonusUsage = usage['star_candy_bonus_usage']!;
+      final starCandyUsage = usage['star_candy_usage']!;
+      final starCandyBonusUsage = usage['star_candy_bonus_usage']!;
 
-      // 대량 투표 시 _voteBatchSize 단위로 분할하여 타임아웃 방지
-      int remaining = voteAmount;
-      dynamic lastResponse;
-      int totalAdded = 0;
+      final response = await _invokeVotingWithRetry(
+        voteAmount: voteAmount,
+        userId: userId,
+        starCandyUsage: starCandyUsage,
+        starCandyBonusUsage: starCandyBonusUsage,
+      );
 
-      while (remaining > 0) {
-        if (!mounted) return;
-
-        final batch = remaining > _voteBatchSize
-            ? _voteBatchSize
-            : remaining;
-
-        // 보너스 먼저 소진, 남은 양은 일반 캔디
-        final batchBonusUsage =
-            remainingBonusUsage >= batch ? batch : remainingBonusUsage;
-        final batchCandyUsage = batch - batchBonusUsage;
-
-        final response = await _invokeVotingWithRetry(
-          voteAmount: batch,
-          userId: userId,
-          starCandyUsage: batchCandyUsage,
-          starCandyBonusUsage: batchBonusUsage,
-        );
-
-        if (response.status != 200) {
-          // 일부 배치가 이미 성공한 경우 부분 성공 처리
-          if (totalAdded > 0) {
-            logger.w('Partial vote success: $totalAdded / $voteAmount');
-            lastResponse = response;
-            break;
-          }
-          throw Exception('Failed to vote');
-        }
-
-        lastResponse = response;
-        remaining -= batch;
-        remainingBonusUsage -= batchBonusUsage;
-        totalAdded += batch;
+      if (response.status != 200) {
+        throw Exception('Failed to vote');
       }
-
-      final response = lastResponse;
 
       if (!mounted) return;
 
