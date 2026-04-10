@@ -152,7 +152,11 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
         }
         return item!;
       }).toList()
-        ..sort((a, b) => (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0));
+        ..sort((a, b) {
+          final voteDiff = (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0);
+          if (voteDiff != 0) return voteDiff;
+          return a.id.compareTo(b.id);
+        });
 
       state = AsyncValue.data(updatedList);
     } catch (e, s) {
@@ -170,7 +174,11 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
         }
         return item!;
       }).toList()
-        ..sort((a, b) => (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0));
+        ..sort((a, b) {
+          final voteDiff = (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0);
+          if (voteDiff != 0) return voteDiff;
+          return a.id.compareTo(b.id);
+        });
 
       state = AsyncValue.data(updatedList);
 
