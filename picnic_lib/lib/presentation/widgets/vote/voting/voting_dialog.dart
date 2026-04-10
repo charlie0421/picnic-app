@@ -474,6 +474,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       final starCandyUsage = usage['star_candy_usage']!;
       final starCandyBonusUsage = usage['star_candy_bonus_usage']!;
 
+      // 옵티미스틱 업데이트: 즉시 로컬 투표 수 반영
+      final itemId = widget.voteItemModel.id;
+      final currentTotal = widget.voteItemModel.voteTotal ?? 0;
+      ref
+          .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
+          .setVoteItem(id: itemId, voteTotal: currentTotal + voteAmount);
+
       final response = await _invokeVotingWithRetry(
         voteAmount: voteAmount,
         userId: userId,
@@ -487,13 +494,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       if (!mounted) return;
 
-      await ref.read(userInfoProvider.notifier).getUserProfiles();
+      // 서버 응답의 실제 투표 수로 보정
+      final serverTotal = response.data['updatedVoteTotal'] as int?;
+      if (serverTotal != null) {
+        ref
+            .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
+            .setVoteItem(id: itemId, voteTotal: serverTotal);
+      }
 
-      if (!mounted) return;
-
-      ref
-          .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
-          .fetch(voteId: widget.voteModel.id);
+      // 유저 프로필 새로고침 (잔액 반영)
+      ref.read(userInfoProvider.notifier).getUserProfiles();
 
       _loadingKey.currentState?.hide();
 
@@ -520,6 +530,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       _loadingKey.currentState?.hide();
+
+      // 투표 실패 시 롤백: 서버 데이터로 새로고침
+      ref
+          .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
+          .fetch(voteId: widget.voteModel.id);
+      ref.read(userInfoProvider.notifier).getUserProfiles();
 
       // 투표 실패 시 버튼 다시 활성화
       if (mounted) {

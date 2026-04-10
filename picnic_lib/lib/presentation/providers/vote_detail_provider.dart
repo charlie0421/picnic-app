@@ -123,30 +123,21 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
     }
   }
 
-  setVoteItem({required int id, required int voteTotal}) async {
+  setVoteItem({required int id, required int voteTotal}) {
     try {
-      if (!ref.mounted) return;
+      if (!ref.mounted || state.value == null) return;
 
-      if (state.value != null) {
-        final updatedList = state.value!.map<VoteItemModel>((item) {
-          if (item != null && item.id == id) {
-            item = item.copyWith(voteTotal: voteTotal);
-          }
-          return item!;
-        }).toList();
+      final updatedList = state.value!.map<VoteItemModel>((item) {
+        if (item != null && item.id == id) {
+          return item.copyWith(voteTotal: voteTotal);
+        }
+        return item!;
+      }).toList()
+        ..sort((a, b) => (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0));
 
-        if (!ref.mounted) return;
-        state = AsyncValue.data(updatedList);
+      state = AsyncValue.data(updatedList);
 
-        //sort by total_vote
-        if (!ref.mounted) return;
-        state = AsyncValue.data(
-          state.value!.toList()
-            ..sort((a, b) => b!.voteTotal!.compareTo(a!.voteTotal!)),
-        );
-
-        logger.i('Updated vote item in state: $id with voteTotal: $voteTotal');
-      }
+      logger.i('Updated vote item in state: $id with voteTotal: $voteTotal');
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       rethrow;

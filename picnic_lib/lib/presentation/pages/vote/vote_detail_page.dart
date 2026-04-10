@@ -44,7 +44,6 @@ import 'package:picnic_lib/presentation/pages/vote/vote_gain_indicator.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_highlight_widget.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VoteDetailPage extends ConsumerStatefulWidget {
   final int voteId;
@@ -78,7 +77,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   final Map<int, int> _previousRanks = {};
   final Map<int, int> _currentRanks = {};
   final Set<int> _highlightedItemIds = {};
-  RealtimeChannel? _voteItemChannel;
 
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
@@ -96,7 +94,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     _setupListeners();
     _setupUpdateTimer();
     _initializeRanks();
-    _setupRealtimeSubscription();
 
     _updateNavigation();
   }
@@ -149,7 +146,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
+    _updateTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
       if (!mounted) return;
       if (_isRefreshingItems || _isSaving) return;
       _isRefreshingItems = true;
@@ -228,58 +225,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     });
   }
 
-  void _setupRealtimeSubscription() {
-    try {
-      final table = widget.votePortal == VotePortal.vote
-          ? 'vote_item'
-          : 'pic_vote_item';
-
-      _voteItemChannel = supabase.channel('vote_items_${widget.voteId}')
-        ..onPostgresChanges(
-          event: PostgresChangeEvent.insert,
-          schema: 'public',
-          table: table,
-          callback: (payload) {
-            final record = payload.newRecord;
-            if (record['vote_id'] == widget.voteId) {
-              final int id = record['id'] as int;
-              final int voteTotal = (record['vote_total'] as int?) ?? 0;
-              ref
-                  .read(
-                    asyncVoteItemListProvider(
-                      voteId: widget.voteId,
-                      votePortal: widget.votePortal,
-                    ).notifier,
-                  )
-                  .setVoteItem(id: id, voteTotal: voteTotal);
-            }
-          },
-        )
-        ..onPostgresChanges(
-          event: PostgresChangeEvent.update,
-          schema: 'public',
-          table: table,
-          callback: (payload) {
-            final record = payload.newRecord;
-            if (record['vote_id'] == widget.voteId) {
-              final int id = record['id'] as int;
-              final int voteTotal = (record['vote_total'] as int?) ?? 0;
-              ref
-                  .read(
-                    asyncVoteItemListProvider(
-                      voteId: widget.voteId,
-                      votePortal: widget.votePortal,
-                    ).notifier,
-                  )
-                  .setVoteItem(id: id, voteTotal: voteTotal);
-            }
-          },
-        )
-        ..subscribe();
-    } catch (e) {
-      logger.e('Realtime 구독 실패: $e');
-    }
-  }
 
   void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -298,9 +243,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    try {
-      _voteItemChannel?.unsubscribe();
-    } catch (_) {}
     _scrollController.dispose();
     _focusNode.dispose();
     _textEditingController.dispose();
