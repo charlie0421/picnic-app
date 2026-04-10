@@ -146,7 +146,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
+    _updateTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
       if (!mounted) return;
       if (_isRefreshingItems || _isSaving) return;
       _isRefreshingItems = true;
