@@ -123,6 +123,43 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
     }
   }
 
+  /// 폴링용 경량 쿼리: id, vote_total만 가져와서 기존 state를 업데이트
+  Future<void> refreshVoteTotals({
+    required int voteId,
+    VotePortal votePortal = VotePortal.vote,
+  }) async {
+    if (!ref.mounted || state.value == null) return;
+    final voteItemTable = votePortal == VotePortal.vote
+        ? 'vote_item'
+        : 'pic_vote_item';
+    try {
+      final response = await supabase
+          .from(voteItemTable)
+          .select('id, vote_total')
+          .eq('vote_id', voteId)
+          .filter('deleted_at', 'is', null);
+
+      if (!ref.mounted || state.value == null) return;
+
+      final totalsMap = <int, int>{};
+      for (final row in response) {
+        totalsMap[row['id'] as int] = (row['vote_total'] as int?) ?? 0;
+      }
+
+      final updatedList = state.value!.map<VoteItemModel>((item) {
+        if (item != null && totalsMap.containsKey(item.id)) {
+          return item.copyWith(voteTotal: totalsMap[item.id]);
+        }
+        return item!;
+      }).toList()
+        ..sort((a, b) => (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0));
+
+      state = AsyncValue.data(updatedList);
+    } catch (e, s) {
+      logger.e('[VoteItems] refreshVoteTotals error', error: e, stackTrace: s);
+    }
+  }
+
   setVoteItem({required int id, required int voteTotal}) {
     try {
       if (!ref.mounted || state.value == null) return;

@@ -146,19 +146,22 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
+    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (!mounted) return;
       if (_isRefreshingItems || _isSaving) return;
       _isRefreshingItems = true;
       try {
         await ref
-            .refresh(
+            .read(
               asyncVoteItemListProvider(
                 voteId: widget.voteId,
                 votePortal: widget.votePortal,
-              ).future,
+              ).notifier,
             )
-            .timeout(const Duration(seconds: 3), onTimeout: () => []);
+            .refreshVoteTotals(
+              voteId: widget.voteId,
+              votePortal: widget.votePortal,
+            );
       } catch (_) {
       } finally {
         _isRefreshingItems = false;
