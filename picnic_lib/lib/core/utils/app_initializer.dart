@@ -26,6 +26,7 @@ import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/presentation/providers/attendance_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -527,6 +528,11 @@ class AppInitializer {
             // ref가 더 이상 유효하지 않을 수 있으므로 무시
           }
           try {
+            ref.invalidate(attendanceProvider);
+          } catch (e) {
+            logger.e('attendanceProvider invalidate 중 오류: $e');
+          }
+          try {
             final user = supabase.auth.currentUser;
             if (user != null) {
               String? userRole;
@@ -555,6 +561,11 @@ class AppInitializer {
           } catch (_) {}
         } else if (data.event == AuthChangeEvent.signedOut) {
           logger.i('User signed out');
+          try {
+            ref.invalidate(attendanceProvider);
+          } catch (e) {
+            logger.e('attendanceProvider invalidate 중 오류: $e');
+          }
           await AppAnalytics.clearUserAndSessionProperties();
         }
       } catch (e, s) {
