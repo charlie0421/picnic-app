@@ -1,5 +1,11 @@
 # Task Master AI - Claude Code Integration Guide
 
+> **Database schema is owned by [`picnic-supabase`](https://github.com/charlie0421/picnic-supabase).**
+> All Supabase migrations and DDL changes for `PICNIC-PROD` (project ref `xtijtefcycoeqludlngc`) live there.
+> Do **not** add `supabase/migrations/*.sql` files to this repo. New schema work:
+> `cd ~/Repositories/picnic-supabase && supabase migration new <name>` → SQL → PR → `supabase db push`.
+
+
 ## Essential Commands
 
 ### Core Workflow Commands
