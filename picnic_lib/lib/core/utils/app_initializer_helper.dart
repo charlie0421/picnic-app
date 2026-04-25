@@ -28,6 +28,8 @@ class AppInitializerHelper {
       'NetworkError',
       'ClientException',
       'OSError',
+      'HttpException',
+      'SocketException',
       'AuthRetryableFetchException',
     };
     if (networkNoiseTypes.contains(exceptionType)) {
@@ -51,9 +53,14 @@ class AppInitializerHelper {
       return true;
     }
 
-    // Edge Function 502 Bad Gateway
+    // Edge Function transient gateway errors (502/503/504)
+    // 503 SUPABASE_EDGE_RUNTIME_ERROR is a Supabase platform-side outage
+    // signal, not a picnic bug (PICNIC-APP-4ZY/4ZX/4EN).
     if (exceptionType == 'FunctionException' &&
-        exceptionValue.contains('502')) {
+        (exceptionValue.contains('502') ||
+            exceptionValue.contains('503') ||
+            exceptionValue.contains('504') ||
+            exceptionValue.contains('SUPABASE_EDGE_RUNTIME_ERROR'))) {
       return true;
     }
 
@@ -73,6 +80,18 @@ class AppInitializerHelper {
     // JWT expired (PICNIC-APP-47R)
     if (exceptionType == 'PostgrestException' &&
         exceptionValue.contains('JWT expired')) {
+      return true;
+    }
+
+    // Postgrest wrapping a user-side network drop (PICNIC-APP-47).
+    // The wire-level error is rendered into the message, not the type, so
+    // exact-type filters above miss it. Drop these as user-environment noise.
+    if (exceptionType == 'PostgrestException' &&
+        (exceptionValue.contains('NetworkError') ||
+            exceptionValue.contains('SocketException') ||
+            exceptionValue.contains('Failed host lookup') ||
+            exceptionValue.contains('Connection closed') ||
+            exceptionValue.contains('Connection reset'))) {
       return true;
     }
 

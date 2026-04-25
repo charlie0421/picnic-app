@@ -247,6 +247,149 @@ void main() {
         );
       });
 
+      // -------- Coverage gap fixes (production-leak issues on 1.2.27) --------
+
+      test('filters HttpException as network noise (PICNIC-APP-49W)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'HttpException',
+            exceptionValue: 'HttpException: Invalid statusCode: 502, '
+                'uri = https://supabase.co/storage/...',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters SocketException as network noise', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'SocketException',
+            exceptionValue: 'Failed host lookup',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters FunctionException with 503 (PICNIC-APP-4ZY/4ZX/4EN)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue: 'FunctionException(status: 503, details: '
+                '{code: SUPABASE_EDGE_RUNTIME_ERROR, '
+                'message: Service is temporarily unavailable})',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters FunctionException with 504 gateway timeout', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue: 'Edge Function returned 504',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters FunctionException with SUPABASE_EDGE_RUNTIME_ERROR code',
+          () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue: 'Error: SUPABASE_EDGE_RUNTIME_ERROR',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters PostgrestException wrapping NetworkError (PICNIC-APP-47)',
+          () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PostgrestException',
+            exceptionValue: 'PostgrestException(message: '
+                '{"error": "NetworkError: Network connection error: '
+                'ClientException with SocketException: Failed host lookup"})',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters PostgrestException wrapping SocketException', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PostgrestException',
+            exceptionValue: 'SocketException: Software caused connection abort',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters PostgrestException with Failed host lookup', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PostgrestException',
+            exceptionValue: 'Failed host lookup: api.supabase.co',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters PostgrestException with Connection closed', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PostgrestException',
+            exceptionValue: 'Connection closed before full header was received',
+          ),
+          isTrue,
+        );
+      });
+
+      test('still does not filter actionable PostgrestException messages', () {
+        // Real bugs (RLS misconfig in code, missing column) should still
+        // surface. Only network-environment noise is dropped.
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PostgrestException',
+            exceptionValue: 'column "user_id" does not exist',
+          ),
+          isFalse,
+        );
+      });
+
+      test('does not filter FunctionException with 500 (real server bug)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue: 'Internal Server Error 500',
+          ),
+          isFalse,
+        );
+      });
+
       test('filters when both Sentry disabled and debug mode', () {
         expect(
           AppInitializerHelper.shouldFilterSentryEvent(
