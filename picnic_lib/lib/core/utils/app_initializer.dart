@@ -81,6 +81,15 @@ class AppInitializer {
       options.enableTimeToFullDisplayTracing = false;
       options.addInAppInclude('sentry-debug-meta.properties');
 
+      // ANR 진단 강화 (PICNIC-APP-45E 등)
+      // - attachThreads: ANR/crash 시점에 모든 thread stack 을 함께 캡처해
+      //   main thread 가 어디서 블로킹됐는지 식별 가능하게 만든다.
+      // - anrEnabled/anrTimeoutInterval 은 default true/5s 이지만, 의도를
+      //   명시적으로 둬 향후 옵션 변경 가능성을 readable 하게 유지.
+      options.attachThreads = true;
+      options.anrEnabled = true;
+      options.anrTimeoutInterval = const Duration(seconds: 5);
+
       options.beforeSend = (event, hint) {
         final exceptionValue =
             event.exceptions?.firstOrNull?.value ?? '';
