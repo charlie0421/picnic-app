@@ -804,6 +804,7 @@ workflows:
       groups:
         - shorebird-config
         - picnic_env
+        - sentry-config
       flutter: 3.41.4
       xcode: 26.3
       cocoapods: default
@@ -885,6 +886,50 @@ workflows:
             exit 1
           fi
 
+      - name: Sentry 패치 디버그 심볼 업로드 (iOS)
+        script: |
+          # Shorebird patch 가 새로 빌드한 Dart AOT 코드는 release 빌드와
+          # 다른 debug-id 를 가진다. release 시 업로드된 심볼만 갖고는
+          # OTA 패치 후 발생한 ANR/crash 가 unsymbolicated `_updater/patches/N/dlc.vmcode`
+          # 로 기록되어 분석 불가 (PICNIC-APP-45E 의 원인).
+          # 따라서 patch 빌드 직후에도 symbol 업로드를 수행한다.
+
+          set -e
+          cd picnic_app
+
+          if [ -z "$SENTRY_AUTH_TOKEN" ] || [ -z "$SENTRY_ORG" ] || [ -z "$SENTRY_PROJECT" ]; then
+            echo "⚠️ Sentry 환경변수 누락 — symbol 업로드 건너뜀"
+            exit 0
+          fi
+
+          # sentry-cli 설치
+          curl -sL https://sentry.io/get-cli/ | bash
+          export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+          sentry-cli --version || { echo "⚠️ sentry-cli 설치 실패"; exit 0; }
+
+          # iOS dSYM (xcarchive 가 있으면)
+          XCARCHIVE=$(find build/ios/archive -name "*.xcarchive" -type d 2>/dev/null | head -1)
+          if [ -n "$XCARCHIVE" ] && [ -d "$XCARCHIVE/dSYMs" ]; then
+            echo "📤 iOS dSYM 업로드: $XCARCHIVE/dSYMs"
+            sentry-cli debug-files upload \
+              --org "$SENTRY_ORG" \
+              --project "$SENTRY_PROJECT" \
+              --include-sources \
+              "$XCARCHIVE/dSYMs" 2>&1 || echo "⚠️ dSYM 업로드 실패 (무시)"
+          else
+            echo "ℹ️ xcarchive 미발견 — Shorebird patch 는 일반적으로 archive 를 만들지 않음"
+          fi
+
+          # Flutter Dart AOT debug info (build/ios 전체 스캔)
+          echo "📤 Flutter Dart 심볼 업로드..."
+          sentry-cli debug-files upload \
+            --org "$SENTRY_ORG" \
+            --project "$SENTRY_PROJECT" \
+            --include-sources \
+            build/ios/ 2>&1 || echo "⚠️ Flutter 심볼 업로드 실패 (무시)"
+
+          echo "✅ Sentry iOS patch 심볼 업로드 단계 완료"
+
     artifacts:
       - picnic_app/flutter_drive.log
 
@@ -913,6 +958,7 @@ workflows:
       groups:
         - shorebird-config
         - picnic_env
+        - sentry-config
       flutter: 3.41.4
       java: 17
       vars:
@@ -997,6 +1043,50 @@ workflows:
             echo "  - 네이티브 코드 변경 여부 확인 (Dart 변경만 패치 가능)"
             exit 1
           fi
+
+      - name: Sentry 패치 디버그 심볼 업로드 (Android)
+        script: |
+          # Shorebird patch 가 새로 빌드한 Dart AOT 코드는 release 빌드와
+          # 다른 debug-id 를 가진다. release 시 업로드된 심볼만 갖고는
+          # OTA 패치 후 발생한 ANR/crash 가 unsymbolicated
+          # `_updater/patches/N/dlc.vmcode` 로 기록되어 분석 불가
+          # (PICNIC-APP-45E 의 직접 원인).
+          # 따라서 patch 빌드 직후에도 symbol 업로드를 수행한다.
+
+          set -e
+          cd picnic_app
+
+          if [ -z "$SENTRY_AUTH_TOKEN" ] || [ -z "$SENTRY_ORG" ] || [ -z "$SENTRY_PROJECT" ]; then
+            echo "⚠️ Sentry 환경변수 누락 — symbol 업로드 건너뜀"
+            exit 0
+          fi
+
+          # sentry-cli 설치
+          curl -sL https://sentry.io/get-cli/ | bash
+          export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+          sentry-cli --version || { echo "⚠️ sentry-cli 설치 실패"; exit 0; }
+
+          # 1) Native libs (.so) 디버그 심볼
+          NATIVE_LIBS_DIR=$(find build -path "*merged_native_libs*release*" -type d 2>/dev/null | head -1)
+          if [ -n "$NATIVE_LIBS_DIR" ]; then
+            echo "📤 네이티브 라이브러리 심볼 업로드: $NATIVE_LIBS_DIR"
+            sentry-cli debug-files upload \
+              --org "$SENTRY_ORG" \
+              --project "$SENTRY_PROJECT" \
+              "$NATIVE_LIBS_DIR" 2>&1 || echo "⚠️ 네이티브 심볼 업로드 실패 (무시)"
+          else
+            echo "ℹ️ merged_native_libs 디렉토리 미발견"
+          fi
+
+          # 2) Flutter Dart AOT debug info (DWARF)
+          echo "📤 Flutter Dart 심볼 업로드..."
+          sentry-cli debug-files upload \
+            --org "$SENTRY_ORG" \
+            --project "$SENTRY_PROJECT" \
+            --include-sources \
+            build/app/ 2>&1 || echo "⚠️ Flutter 심볼 업로드 실패 (무시)"
+
+          echo "✅ Sentry Android patch 심볼 업로드 단계 완료"
 
     artifacts:
       - picnic_app/flutter_drive.log
