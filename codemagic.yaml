@@ -813,13 +813,9 @@ workflows:
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
-    triggering:
-      events:
-        - tag
-      tag_patterns:
-        - pattern: 'picnic-patch-*'
-          include: true
-      cancel_previous_builds: true
+    # NOTE: tag-based triggering 제거됨 (2026-04-26).
+    # 패치는 로컬에서 `picnic_app/scripts/shorebird-patch.sh` 로 진행.
+    # Codemagic 워크플로우는 보존하되 수동 트리거(=콘솔에서 직접 빌드 시작) 전용.
     scripts:
       - name: Setup and Patch iOS
         script: |
@@ -967,13 +963,9 @@ workflows:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
         - $HOME/.gradle/caches
-    triggering:
-      events:
-        - tag
-      tag_patterns:
-        - pattern: 'picnic-patch-*'
-          include: true
-      cancel_previous_builds: true
+    # NOTE: tag-based triggering 제거됨 (2026-04-26).
+    # 패치는 로컬에서 `picnic_app/scripts/shorebird-patch.sh` 로 진행.
+    # Codemagic 워크플로우는 보존하되 수동 트리거(=콘솔에서 직접 빌드 시작) 전용.
     scripts:
       - name: Setup and Patch Android
         script: |
