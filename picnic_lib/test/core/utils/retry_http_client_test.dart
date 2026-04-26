@@ -575,4 +575,202 @@ void main() {
       expect(() => client.close(), returnsNormally);
     });
   });
+
+  group('postgrest invariant - response.request never null', () {
+    // Regression guard for Sentry PICNIC-APP-T2 (279k events / 1363 users):
+    // postgrest 2.6.0 / 2.7.0 do `response.request!.method` in
+    // _parseResponse() on the non-2xx branch. If any layer of the http
+    // stack yields a Response with `request == null`, postgrest throws
+    // a `Null check operator used on a null value` TypeError that
+    // bubbles up as an unhandled error and pollutes Sentry.
+    //
+    // RetryHttpClient overrides get/post/put/patch/delete/head and runs
+    // every Response through _ensureRequestPresent so postgrest can
+    // never observe a null request, regardless of inner-client behavior.
+
+    /// Inner client that simulates the buggy path: returns a
+    /// StreamedResponse with `request: null` so we can verify our
+    /// wrapper restores it.
+    http.StreamedResponse buildResponseWithoutRequest(
+      int statusCode, {
+      String body = '{"err": "boom"}',
+    }) {
+      return http.StreamedResponse(
+        Stream.fromIterable([utf8.encode(body)]),
+        statusCode,
+        // intentionally not setting `request:` -> simulates the wild bug
+      );
+    }
+
+    test('GET response has request even if inner returns request: null',
+        () async {
+      final inner = _StubClient(
+        (req) async => buildResponseWithoutRequest(503),
+      );
+      final client = RetryHttpClient(inner, maxAttempts: 1);
+
+      final response =
+          await client.get(Uri.parse('https://example.com/foo?bar=1'));
+
+      expect(response.statusCode, equals(503));
+      expect(response.request, isNotNull,
+          reason: 'postgrest dereferences response.request!.method');
+      expect(response.request!.method, equals('GET'));
+      expect(response.request!.url.toString(),
+          equals('https://example.com/foo?bar=1'));
+      client.close();
+    });
+
+    test('POST response has request even if inner returns request: null',
+        () async {
+      final inner = _StubClient(
+        (req) async => buildResponseWithoutRequest(500),
+      );
+      final client = RetryHttpClient(inner, maxAttempts: 1);
+
+      final response = await client.post(
+        Uri.parse('https://example.com/insert'),
+        body: '{"x": 1}',
+        headers: {'Authorization': 'Bearer t'},
+      );
+
+      expect(response.statusCode, equals(500));
+      expect(response.request, isNotNull);
+      expect(response.request!.method, equals('POST'));
+      client.close();
+    });
+
+    test('all postgrest verbs preserve request on non-2xx', () async {
+      for (final method in ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE']) {
+        final inner = _StubClient(
+          (req) async => buildResponseWithoutRequest(503, body: ''),
+        );
+        final client = RetryHttpClient(inner, maxAttempts: 1);
+
+        final url = Uri.parse('https://example.com/$method');
+        late final http.Response response;
+        switch (method) {
+          case 'GET':
+            response = await client.get(url);
+            break;
+          case 'HEAD':
+            response = await client.head(url);
+            break;
+          case 'POST':
+            response = await client.post(url, body: '{}');
+            break;
+          case 'PUT':
+            response = await client.put(url, body: '{}');
+            break;
+          case 'PATCH':
+            response = await client.patch(url, body: '{}');
+            break;
+          case 'DELETE':
+            response = await client.delete(url);
+            break;
+        }
+
+        expect(response.request, isNotNull,
+            reason: '$method response must have non-null request');
+        expect(response.request!.method, equals(method));
+        client.close();
+      }
+    });
+
+    test('inner response with valid request is passed through unchanged',
+        () async {
+      final inner = _StubClient((req) async {
+        return http.StreamedResponse(
+          Stream.fromIterable([utf8.encode('{"ok": true}')]),
+          200,
+          request: req, // inner sets request properly
+        );
+      });
+      final client = RetryHttpClient(inner, maxAttempts: 1);
+
+      final response = await client.get(Uri.parse('https://example.com/ok'));
+
+      expect(response.statusCode, equals(200));
+      expect(response.request, isNotNull);
+      expect(response.request!.method, equals('GET'));
+      client.close();
+    });
+
+    test('retry-exhausted error path yields request-bearing response',
+        () async {
+      // _createErrorResponse path: all retries fail -> 500 synthetic response
+      final inner = _FailingClient(TimeoutException('always fails'));
+      final client = RetryHttpClient(inner, maxAttempts: 2);
+
+      final response = await client.get(Uri.parse('https://example.com/dead'));
+
+      expect(response.statusCode, equals(500));
+      expect(response.request, isNotNull);
+      expect(response.request!.method, equals('GET'));
+      client.close();
+    });
+  });
+
+  group('upgrade-guard: postgrest version compatibility', () {
+    // When postgrest_dart is upgraded, verify that:
+    //   1. RetryHttpClient's _ensureRequestPresent invariant still applies
+    //      (postgrest's `_parseResponse` may have changed).
+    //   2. The version is in the known-handled set; if not, manually re-audit
+    //      `lib/src/postgrest_builder.dart` for `response.request!` patterns.
+    //
+    // To extend the set, audit the new version's source and add it here.
+    test('postgrest version is known-handled by RetryHttpClient invariant',
+        () {
+      const knownHandledVersions = {'2.6.0', '2.7.0'};
+
+      final lockFile = File('pubspec.lock');
+      if (!lockFile.existsSync()) {
+        // Test runs from picnic_lib root; pubspec.lock should exist there.
+        // In CI variations, skip rather than fail.
+        return;
+      }
+      final content = lockFile.readAsStringSync();
+      final match = RegExp(
+        r'  postgrest:\s*\n(?:    .*\n)*?    version: "([^"]+)"',
+      ).firstMatch(content);
+      final version = match?.group(1);
+
+      expect(
+        version,
+        isNotNull,
+        reason: 'postgrest dependency not found in pubspec.lock',
+      );
+      expect(
+        knownHandledVersions.contains(version),
+        isTrue,
+        reason:
+            'postgrest version "$version" is not in the known-handled set '
+            '$knownHandledVersions. Re-audit '
+            'lib/src/postgrest_builder.dart for `response.request!` '
+            'patterns and confirm RetryHttpClient.{get,post,put,patch,delete,head} '
+            'still ensure response.request != null. After audit, add the new '
+            'version to knownHandledVersions in this test.',
+      );
+    });
+  });
+}
+
+/// Inner client backed by a caller-supplied response builder.
+/// Useful for simulating arbitrary StreamedResponse shapes.
+class _StubClient extends http.BaseClient {
+  final Future<http.StreamedResponse> Function(http.BaseRequest) handler;
+  int callCount = 0;
+
+  _StubClient(this.handler);
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    callCount++;
+    // Drain body to avoid request finalizer assertions.
+    if (request is http.Request) {
+      // ignore: unused_local_variable
+      final _ = request.body;
+    }
+    return handler(request);
+  }
 }

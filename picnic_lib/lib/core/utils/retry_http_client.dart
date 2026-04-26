@@ -41,6 +41,106 @@ class RetryHttpClient extends http.BaseClient {
     this.keepAlive = const Duration(seconds: 60),
   });
 
+  // postgrest 2.6.0/2.7.0 dereferences `response.request!.method` in
+  // _parseResponse on non-2xx paths. If `request` is null on the http.Response
+  // reaching postgrest, a TypeError is thrown to the user. We override the
+  // high-level methods used by postgrest (get/post/put/patch/delete/head) so
+  // we can convert StreamedResponse -> Response ourselves and guarantee that
+  // the resulting Response always carries a non-null `request`.
+  @override
+  Future<http.Response> get(Uri url, {Map<String, String>? headers}) =>
+      _sendUnstreamedSafe('GET', url, headers, null, null);
+
+  @override
+  Future<http.Response> head(Uri url, {Map<String, String>? headers}) =>
+      _sendUnstreamedSafe('HEAD', url, headers, null, null);
+
+  @override
+  Future<http.Response> post(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  }) =>
+      _sendUnstreamedSafe('POST', url, headers, body, encoding);
+
+  @override
+  Future<http.Response> put(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  }) =>
+      _sendUnstreamedSafe('PUT', url, headers, body, encoding);
+
+  @override
+  Future<http.Response> patch(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  }) =>
+      _sendUnstreamedSafe('PATCH', url, headers, body, encoding);
+
+  @override
+  Future<http.Response> delete(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  }) =>
+      _sendUnstreamedSafe('DELETE', url, headers, body, encoding);
+
+  Future<http.Response> _sendUnstreamedSafe(
+    String method,
+    Uri url,
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  ) async {
+    final request = http.Request(method, url);
+    if (headers != null) request.headers.addAll(headers);
+    if (encoding != null) request.encoding = encoding;
+    if (body != null) {
+      if (body is String) {
+        request.body = body;
+      } else if (body is List) {
+        request.bodyBytes = body.cast<int>();
+      } else if (body is Map) {
+        request.bodyFields = body.cast<String, String>();
+      } else {
+        throw ArgumentError('Invalid request body "$body".');
+      }
+    }
+    final streamed = await send(request);
+    return _ensureRequestPresent(
+      await http.Response.fromStream(streamed),
+      request,
+    );
+  }
+
+  /// Guarantees [response.request] is non-null.
+  ///
+  /// postgrest's `_parseResponse` does `response.request!.method` on the
+  /// error branch. If the underlying http stack ever yields a Response with
+  /// `request == null` (observed on Android in production), we rebuild it
+  /// here using [fallback] so postgrest can never throw a null-check error.
+  http.Response _ensureRequestPresent(
+    http.Response response,
+    http.BaseRequest fallback,
+  ) {
+    if (response.request != null) return response;
+    return http.Response.bytes(
+      response.bodyBytes,
+      response.statusCode,
+      request: fallback,
+      headers: response.headers,
+      isRedirect: response.isRedirect,
+      persistentConnection: response.persistentConnection,
+      reasonPhrase: response.reasonPhrase,
+    );
+  }
+
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     Exception? lastException;
