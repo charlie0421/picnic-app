@@ -7,6 +7,7 @@ import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/account_deletion_handler.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
@@ -96,6 +97,18 @@ class AppInitializer {
             event.exceptions?.firstOrNull?.value ?? '';
         final exceptionType =
             event.exceptions?.firstOrNull?.type ?? '';
+
+        // Reactive ACCOUNT_DELETED handling: any Edge Function 403 with
+        // code ACCOUNT_DELETED triggers a one-shot local sign-out so the
+        // soft-deleted user stops generating repeated 403s on subsequent
+        // provider builds. Idempotent within the app session — safe to
+        // fire on every matching event.
+        if (exceptionType == 'FunctionException' &&
+            AccountDeletionHandler.isAccountDeleted(
+              sentryValue: exceptionValue,
+            )) {
+          unawaited(AccountDeletionHandler.signOutForAccountDeleted());
+        }
 
         final shouldFilter = AppInitializerHelper.shouldFilterSentryEvent(
           sentryEnabled: Environment.enableSentry,

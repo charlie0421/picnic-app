@@ -390,6 +390,93 @@ void main() {
         );
       });
 
+      // -------- 1.2.28 prod-leak fixes --------
+
+      test('filters FunctionException ACCOUNT_DELETED — handled reactively '
+          'by AccountDeletionHandler', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue:
+                'FunctionException(status: 403, details: {success: false, '
+                'error: {message: Account deleted, code: ACCOUNT_DELETED}}, '
+                'reasonPhrase: Forbidden)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters HandshakeException as network noise (TLS failures, '
+          'PICNIC-APP-47 in 1.2.28)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'HandshakeException',
+            exceptionValue: 'Connection terminated during handshake',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters TlsException as network noise', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'TlsException',
+            exceptionValue: 'Handshake error in client',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters PostgrestException wrapping HandshakeException '
+          '(real 1.2.28 prod sample)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PostgrestException',
+            exceptionValue: 'PostgrestException(message: '
+                '{"error": "ClientException: Failed to send request: '
+                'HandshakeException: Connection terminated during handshake, '
+                'uri=https://supabase.co/rest/v1/artist_user_bookmark"})',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters PostgrestException with Connection terminated', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PostgrestException',
+            exceptionValue:
+                'Connection terminated during keep-alive negotiation',
+          ),
+          isTrue,
+        );
+      });
+
+      test('still does NOT filter FunctionException 403 with a different '
+          'error code (e.g. real authorization bug should surface)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue:
+                'FunctionException(status: 403, details: {error: '
+                '{code: PERMISSION_DENIED, message: Not allowed}})',
+          ),
+          isFalse,
+        );
+      });
+
       test('filters when both Sentry disabled and debug mode', () {
         expect(
           AppInitializerHelper.shouldFilterSentryEvent(

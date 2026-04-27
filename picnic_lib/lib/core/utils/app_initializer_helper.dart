@@ -30,9 +30,20 @@ class AppInitializerHelper {
       'OSError',
       'HttpException',
       'SocketException',
+      'HandshakeException', // TLS handshake failures (captive portal/MITM)
+      'TlsException',
       'AuthRetryableFetchException',
     };
     if (networkNoiseTypes.contains(exceptionType)) {
+      return true;
+    }
+
+    // Soft-deleted account signal — handled reactively by
+    // AccountDeletionHandler (sign-out side effect fires from beforeSend).
+    // Drop the Sentry event so it does not flood as noise on every Edge
+    // Function call before the sign-out completes (PICNIC-APP-4ZY in 1.2.28+).
+    if (exceptionType == 'FunctionException' &&
+        exceptionValue.contains('ACCOUNT_DELETED')) {
       return true;
     }
 
@@ -89,9 +100,11 @@ class AppInitializerHelper {
     if (exceptionType == 'PostgrestException' &&
         (exceptionValue.contains('NetworkError') ||
             exceptionValue.contains('SocketException') ||
+            exceptionValue.contains('HandshakeException') ||
             exceptionValue.contains('Failed host lookup') ||
             exceptionValue.contains('Connection closed') ||
-            exceptionValue.contains('Connection reset'))) {
+            exceptionValue.contains('Connection reset') ||
+            exceptionValue.contains('Connection terminated'))) {
       return true;
     }
 
