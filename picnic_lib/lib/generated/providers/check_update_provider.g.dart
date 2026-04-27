@@ -46,4 +46,4 @@ final class CheckUpdateProvider
   }
 }
 
-String _$checkUpdateHash() => r'5cb2e174a6b5f1fc1dbba018b847c309fc562ad9';
+String _$checkUpdateHash() => r'2bb42f9780a8c7baed01516731eff8123343a6a1';

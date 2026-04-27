@@ -282,4 +282,68 @@ void main() {
       expect(result, isNull);
     });
   });
+
+  group('UpdateInfo JSON round-trip (cache fallback)', () {
+    test('toJson/fromJson preserves all fields including url', () {
+      const info = UpdateInfo(
+        status: UpdateStatus.updateRequired,
+        currentVersion: '1.2.23',
+        latestVersion: '1.2.28',
+        forceVersion: '1.2.27',
+        url: 'https://apps.apple.com/app/idXXXX',
+      );
+      final round = UpdateInfo.fromJson(info.toJson());
+      expect(round, isNotNull);
+      expect(round!.status, UpdateStatus.updateRequired);
+      expect(round.currentVersion, '1.2.23');
+      expect(round.latestVersion, '1.2.28');
+      expect(round.forceVersion, '1.2.27');
+      expect(round.url, 'https://apps.apple.com/app/idXXXX');
+    });
+
+    test(
+        'fromJson tolerates unknown status name (defaults to upToDate) — '
+        'protects against schema drift between release versions', () {
+      final round = UpdateInfo.fromJson({
+        'status': 'someUnknownStatus',
+        'currentVersion': '1.0.0',
+        'latestVersion': '1.0.0',
+        'forceVersion': '1.0.0',
+      });
+      expect(round, isNotNull);
+      expect(round!.status, UpdateStatus.upToDate);
+      expect(round.url, isNull);
+    });
+
+    test('fromJson with empty map yields a default-shaped UpdateInfo', () {
+      final round = UpdateInfo.fromJson({});
+      expect(round, isNotNull);
+      expect(round!.status, UpdateStatus.upToDate);
+      expect(round.currentVersion, '');
+      expect(round.latestVersion, '');
+      expect(round.forceVersion, '');
+      expect(round.url, isNull);
+    });
+
+    test('toJson encodes status by enum name (stable across renames)', () {
+      const info = UpdateInfo(
+        status: UpdateStatus.updateRequired,
+        currentVersion: '1.0.0',
+        latestVersion: '1.0.0',
+        forceVersion: '1.0.0',
+      );
+      final json = info.toJson();
+      expect(json['status'], 'updateRequired');
+    });
+  });
+
+  group('kCheckUpdateCacheKey contract', () {
+    test('cache key is stable across releases', () {
+      // Renaming this key would invalidate every existing user's cached
+      // UpdateInfo, breaking the TypeError fallback path on the very release
+      // that introduces the rename. Keep it stable; bump the suffix only when
+      // intentionally breaking the schema.
+      expect(kCheckUpdateCacheKey, 'check_update_last_info_v1');
+    });
+  });
 }
