@@ -114,6 +114,35 @@ class AppInitializerHelper {
       return true;
     }
 
+    // Image picker double-tap (PICNIC-APP-VQ).
+    // Plugin throws when the picker is invoked while a previous instance is
+    // still mounted — pure UX noise, no app-side fix needed.
+    if (exceptionType == 'PlatformException' &&
+        exceptionValue.contains('already_active') &&
+        exceptionValue.contains('Image picker')) {
+      return true;
+    }
+
+    // PKCE OAuth flow: code verifier missing in local storage (PICNIC-APP-504).
+    // Happens when the app is killed mid-OAuth or storage is cleared between
+    // launch and callback. Self-heals on next sign-in attempt.
+    if (exceptionType == 'AuthException' &&
+        exceptionValue.contains('Code verifier could not be found')) {
+      return true;
+    }
+
+    // Supabase refresh token rotation noise (PICNIC-APP-4GW / 56J).
+    // - "Invalid Refresh Token: Already Used" — token rotation race; SDK
+    //   auto-recovers by re-fetching the session.
+    // - "Refresh Token Not Found" — session stale (logout elsewhere /
+    //   reinstall); user is signed out and re-prompted to log in.
+    // Both are transient self-recovering states, not actionable bugs.
+    if (exceptionType == 'AuthApiException' &&
+        (exceptionValue.contains('Invalid Refresh Token: Already Used') ||
+            exceptionValue.contains('Refresh Token Not Found'))) {
+      return true;
+    }
+
     return false;
   }
 

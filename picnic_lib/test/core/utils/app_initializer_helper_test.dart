@@ -462,6 +462,93 @@ void main() {
         );
       });
 
+      test('filters PlatformException(already_active, Image picker) — '
+          'PICNIC-APP-VQ double-tap noise', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PlatformException',
+            exceptionValue: 'PlatformException(already_active, '
+                'Image picker is already active, null, null)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('does NOT filter PlatformException already_active for unrelated '
+          'plugins (only Image picker is noise)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PlatformException',
+            exceptionValue: 'PlatformException(already_active, '
+                'Camera is already active, null, null)',
+          ),
+          isFalse,
+        );
+      });
+
+      test('filters AuthException(Code verifier could not be found) — '
+          'PKCE storage race, PICNIC-APP-504', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthException',
+            exceptionValue: 'AuthException(message: '
+                'Code verifier could not be found in local storage., '
+                'statusCode: null)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters AuthApiException(Invalid Refresh Token: Already Used) — '
+          'PICNIC-APP-4GW token rotation race', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthApiException',
+            exceptionValue: 'AuthApiException(message: '
+                'Invalid Refresh Token: Already Used, '
+                'statusCode: 400, code: refresh_token_already_used)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters AuthApiException(Refresh Token Not Found) — '
+          'PICNIC-APP-56J stale session', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthApiException',
+            exceptionValue: 'AuthApiException(message: '
+                'Refresh Token Not Found, statusCode: 400, '
+                'code: refresh_token_not_found)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('still does NOT filter actionable AuthApiException — e.g. '
+          'user_banned should surface (handled separately, not noise)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthApiException',
+            exceptionValue: 'AuthApiException(message: User is banned, '
+                'statusCode: 403, code: user_banned)',
+          ),
+          isFalse,
+        );
+      });
+
       test('still does NOT filter FunctionException 403 with a different '
           'error code (e.g. real authorization bug should surface)', () {
         expect(
