@@ -390,6 +390,180 @@ void main() {
         );
       });
 
+      // -------- 1.2.28 prod-leak fixes --------
+
+      test('filters FunctionException ACCOUNT_DELETED — handled reactively '
+          'by AccountDeletionHandler', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue:
+                'FunctionException(status: 403, details: {success: false, '
+                'error: {message: Account deleted, code: ACCOUNT_DELETED}}, '
+                'reasonPhrase: Forbidden)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters HandshakeException as network noise (TLS failures, '
+          'PICNIC-APP-47 in 1.2.28)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'HandshakeException',
+            exceptionValue: 'Connection terminated during handshake',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters TlsException as network noise', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'TlsException',
+            exceptionValue: 'Handshake error in client',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters PostgrestException wrapping HandshakeException '
+          '(real 1.2.28 prod sample)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PostgrestException',
+            exceptionValue: 'PostgrestException(message: '
+                '{"error": "ClientException: Failed to send request: '
+                'HandshakeException: Connection terminated during handshake, '
+                'uri=https://supabase.co/rest/v1/artist_user_bookmark"})',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters PostgrestException with Connection terminated', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PostgrestException',
+            exceptionValue:
+                'Connection terminated during keep-alive negotiation',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters PlatformException(already_active, Image picker) — '
+          'PICNIC-APP-VQ double-tap noise', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PlatformException',
+            exceptionValue: 'PlatformException(already_active, '
+                'Image picker is already active, null, null)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('does NOT filter PlatformException already_active for unrelated '
+          'plugins (only Image picker is noise)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PlatformException',
+            exceptionValue: 'PlatformException(already_active, '
+                'Camera is already active, null, null)',
+          ),
+          isFalse,
+        );
+      });
+
+      test('filters AuthException(Code verifier could not be found) — '
+          'PKCE storage race, PICNIC-APP-504', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthException',
+            exceptionValue: 'AuthException(message: '
+                'Code verifier could not be found in local storage., '
+                'statusCode: null)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters AuthApiException(Invalid Refresh Token: Already Used) — '
+          'PICNIC-APP-4GW token rotation race', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthApiException',
+            exceptionValue: 'AuthApiException(message: '
+                'Invalid Refresh Token: Already Used, '
+                'statusCode: 400, code: refresh_token_already_used)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters AuthApiException(Refresh Token Not Found) — '
+          'PICNIC-APP-56J stale session', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthApiException',
+            exceptionValue: 'AuthApiException(message: '
+                'Refresh Token Not Found, statusCode: 400, '
+                'code: refresh_token_not_found)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('still does NOT filter actionable AuthApiException — e.g. '
+          'user_banned should surface (handled separately, not noise)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthApiException',
+            exceptionValue: 'AuthApiException(message: User is banned, '
+                'statusCode: 403, code: user_banned)',
+          ),
+          isFalse,
+        );
+      });
+
+      test('still does NOT filter FunctionException 403 with a different '
+          'error code (e.g. real authorization bug should surface)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue:
+                'FunctionException(status: 403, details: {error: '
+                '{code: PERMISSION_DENIED, message: Not allowed}})',
+          ),
+          isFalse,
+        );
+      });
+
       test('filters when both Sentry disabled and debug mode', () {
         expect(
           AppInitializerHelper.shouldFilterSentryEvent(

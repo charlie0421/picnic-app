@@ -30,9 +30,20 @@ class AppInitializerHelper {
       'OSError',
       'HttpException',
       'SocketException',
+      'HandshakeException', // TLS handshake failures (captive portal/MITM)
+      'TlsException',
       'AuthRetryableFetchException',
     };
     if (networkNoiseTypes.contains(exceptionType)) {
+      return true;
+    }
+
+    // Soft-deleted account signal — handled reactively by
+    // AccountDeletionHandler (sign-out side effect fires from beforeSend).
+    // Drop the Sentry event so it does not flood as noise on every Edge
+    // Function call before the sign-out completes (PICNIC-APP-4ZY in 1.2.28+).
+    if (exceptionType == 'FunctionException' &&
+        exceptionValue.contains('ACCOUNT_DELETED')) {
       return true;
     }
 
@@ -89,15 +100,46 @@ class AppInitializerHelper {
     if (exceptionType == 'PostgrestException' &&
         (exceptionValue.contains('NetworkError') ||
             exceptionValue.contains('SocketException') ||
+            exceptionValue.contains('HandshakeException') ||
             exceptionValue.contains('Failed host lookup') ||
             exceptionValue.contains('Connection closed') ||
-            exceptionValue.contains('Connection reset'))) {
+            exceptionValue.contains('Connection reset') ||
+            exceptionValue.contains('Connection terminated'))) {
       return true;
     }
 
     // Android Keystore BAD_DECRYPT (PICNIC-APP-B8)
     if (exceptionType == 'PlatformException' &&
         exceptionValue.contains('BAD_DECRYPT')) {
+      return true;
+    }
+
+    // Image picker double-tap (PICNIC-APP-VQ).
+    // Plugin throws when the picker is invoked while a previous instance is
+    // still mounted — pure UX noise, no app-side fix needed.
+    if (exceptionType == 'PlatformException' &&
+        exceptionValue.contains('already_active') &&
+        exceptionValue.contains('Image picker')) {
+      return true;
+    }
+
+    // PKCE OAuth flow: code verifier missing in local storage (PICNIC-APP-504).
+    // Happens when the app is killed mid-OAuth or storage is cleared between
+    // launch and callback. Self-heals on next sign-in attempt.
+    if (exceptionType == 'AuthException' &&
+        exceptionValue.contains('Code verifier could not be found')) {
+      return true;
+    }
+
+    // Supabase refresh token rotation noise (PICNIC-APP-4GW / 56J).
+    // - "Invalid Refresh Token: Already Used" — token rotation race; SDK
+    //   auto-recovers by re-fetching the session.
+    // - "Refresh Token Not Found" — session stale (logout elsewhere /
+    //   reinstall); user is signed out and re-prompted to log in.
+    // Both are transient self-recovering states, not actionable bugs.
+    if (exceptionType == 'AuthApiException' &&
+        (exceptionValue.contains('Invalid Refresh Token: Already Used') ||
+            exceptionValue.contains('Refresh Token Not Found'))) {
       return true;
     }
 
