@@ -31,11 +31,19 @@ Future<bool> showWithdrawalBlockedDialog({
 
   if (!context.mounted) return true;
 
+  // ProviderContainer 는 ProviderScope subtree 의 root 에서 살아있으며 특정
+  // widget unmount 의 영향을 받지 않는다. dialog 의 onOk 가 호출될 때 호출자
+  // widget 이 이미 deactivate 되었어도 container.read 는 안전하게 작동.
+  // (Sentry PICNIC-APP-4XZ: "Bad state: Using "ref" when a widget is about to
+  //  or has been unmounted is unsafe" — Consumer 의 ref 를 async callback 에서
+  //  쓰면서 발생한 fatal StateError. logoutUser 가 true 인 정상 경로에서 빈번.)
+  final container = ProviderScope.containerOf(context);
+
   showSimpleDialog(
     content: AppLocalizations.of(context).error_message_withdrawal,
     onOk: () {
       if (logoutUser) {
-        ref.read(userInfoProvider.notifier).logout();
+        container.read(userInfoProvider.notifier).logout();
       }
 
       final navContext = navigatorKey.currentContext;
