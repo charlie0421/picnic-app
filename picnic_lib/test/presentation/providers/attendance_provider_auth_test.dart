@@ -447,6 +447,74 @@ void main() {
     });
   });
 
+  group('Attendance provider - authenticated - checkIn 409 ALREADY_CHECKED '
+      '(PICNIC-APP-4ZX patch=4)', () {
+    late ProviderContainer container;
+
+    setUp(() async {
+      await setupMockSupabaseWithAuth({
+        'functions:attendance-check:GET': {
+          'success': true,
+          'data': {
+            'weeklyStatus': weeklyStatusJson,
+            'todayChecked': false,
+            'serverTimeKST': '2026-03-11T15:00:00+09:00',
+            'deadlineKST': '2026-03-12T00:00:00+09:00',
+          },
+        },
+        'functions:attendance-check:POST': {
+          'success': false,
+          'error': {
+            'code': 'ALREADY_CHECKED',
+            'message': 'Already checked in today',
+          },
+        },
+      }, userId: 'test-user-id', functionStatusCodes: {
+        'functions:attendance-check:POST': 409,
+      });
+      container = ProviderContainer();
+    });
+
+    tearDown(() {
+      container.dispose();
+      tearDownMockSupabase();
+    });
+
+    test('checkIn returns null when server responds 409 ALREADY_CHECKED',
+        () async {
+      container.listen(attendanceProvider, (_, __) {});
+      await container.read(attendanceProvider.future);
+
+      final notifier = container.read(attendanceProvider.notifier);
+      final result = await notifier.checkIn();
+      expect(result, isNull);
+    });
+
+    test('checkIn flips state.todayChecked to true on 409 ALREADY_CHECKED',
+        () async {
+      container.listen(attendanceProvider, (_, __) {});
+      await container.read(attendanceProvider.future);
+
+      final notifier = container.read(attendanceProvider.notifier);
+      await notifier.checkIn();
+
+      final state = container.read(attendanceProvider);
+      expect(state.value!.todayChecked, true);
+    });
+
+    test('checkIn preserves weeklyStatus on 409 ALREADY_CHECKED', () async {
+      container.listen(attendanceProvider, (_, __) {});
+      await container.read(attendanceProvider.future);
+
+      final notifier = container.read(attendanceProvider.notifier);
+      await notifier.checkIn();
+
+      final state = container.read(attendanceProvider);
+      expect(state.value!.weeklyStatus, isNotNull);
+      expect(state.value!.weeklyStatus!.checkedCount, 2);
+    });
+  });
+
   group('Attendance provider - authenticated - checkIn error', () {
     late ProviderContainer container;
 

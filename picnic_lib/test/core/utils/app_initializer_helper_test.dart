@@ -390,6 +390,66 @@ void main() {
         );
       });
 
+      // -------- 1.2.28 patch=4 prod sample (PICNIC-APP-4ZY/4ZX) --------
+
+      test('filters FunctionException 500 wrapping NetworkError + '
+          'Failed host lookup (PICNIC-APP-4ZY patch=4)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue: 'FunctionException(status: 500, details: '
+                "{error: NetworkError: Network connection error: "
+                "ClientException with SocketException: Failed host lookup: "
+                "'xtijtefcycoeqludlngc.supabase.co' (OS Error: No address "
+                'associated with hostname, errno = 7)})',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters FunctionException wrapping Connection closed', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue: 'FunctionException(status: 500, details: '
+                '{error: Connection closed before full header was received})',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters FunctionException wrapping HandshakeException', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue: 'FunctionException(status: 500, details: '
+                '{error: HandshakeException: Connection terminated})',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters FunctionException ALREADY_CHECKED — normal business '
+          'response, not noise (PICNIC-APP-4ZX patch=4)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue: 'FunctionException(status: 409, details: '
+                '{success: false, error: {message: Already checked in today, '
+                'code: ALREADY_CHECKED}}, reasonPhrase: Conflict)',
+          ),
+          isTrue,
+        );
+      });
+
       // -------- 1.2.28 prod-leak fixes --------
 
       test('filters FunctionException ACCOUNT_DELETED — handled reactively '

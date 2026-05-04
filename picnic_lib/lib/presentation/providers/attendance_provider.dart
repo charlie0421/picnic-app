@@ -123,6 +123,24 @@ class Attendance extends _$Attendance {
         totalReward: data['totalReward'] as int,
       );
     } on FunctionException catch (e, s) {
+      // 409 + ALREADY_CHECKED is a normal business response (user already
+      // checked in today), but supabase_flutter throws before _invokeAndParse
+      // can inspect the body. Re-route to the success path so the state
+      // flips to checked and Sentry stays quiet (PICNIC-APP-4ZX).
+      if (e.status == 409 && _isAlreadyCheckedException(e)) {
+        final current = state.value;
+        if (current != null) {
+          state = AsyncValue.data(
+            AttendanceState(
+              weeklyStatus: current.weeklyStatus,
+              todayChecked: true,
+              serverTimeKST: current.serverTimeKST,
+              deadlineKST: current.deadlineKST,
+            ),
+          );
+        }
+        return null;
+      }
       logger.e('FunctionException during check-in', error: e, stackTrace: s);
       if (!isRetry && (e.status == 401 || e.status == 403)) {
         if (await _tryRefreshSession('checkIn')) {
@@ -271,6 +289,15 @@ class Attendance extends _$Attendance {
         }
       },
     );
+  }
+
+  bool _isAlreadyCheckedException(FunctionException e) {
+    final details = e.details;
+    if (details is Map) {
+      final error = details['error'];
+      if (error is Map && error['code'] == 'ALREADY_CHECKED') return true;
+    }
+    return e.toString().contains('ALREADY_CHECKED');
   }
 
   bool _isAuthError(Object e) {

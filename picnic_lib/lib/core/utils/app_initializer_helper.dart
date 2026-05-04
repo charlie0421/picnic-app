@@ -75,6 +75,32 @@ class AppInitializerHelper {
       return true;
     }
 
+    // FunctionException wrapping a user-side network drop / DNS failure
+    // (PICNIC-APP-4ZY in 1.2.28 patch=4: status 500 with NetworkError /
+    // ClientException / SocketException: Failed host lookup payloads).
+    // The wire-level failure is rendered into the message body, not the
+    // status, so the status-based filter above misses it.
+    if (exceptionType == 'FunctionException' &&
+        (exceptionValue.contains('NetworkError') ||
+            exceptionValue.contains('SocketException') ||
+            exceptionValue.contains('Failed host lookup') ||
+            exceptionValue.contains('Connection closed') ||
+            exceptionValue.contains('Connection reset') ||
+            exceptionValue.contains('Connection terminated') ||
+            exceptionValue.contains('HandshakeException'))) {
+      return true;
+    }
+
+    // Attendance: ALREADY_CHECKED is a normal business-rule response
+    // (user already checked in today). The Edge Function returns 409 to
+    // signal it; supabase_flutter throws FunctionException before the
+    // client can read the body. checkIn() handles it as success — drop
+    // the Sentry noise (PICNIC-APP-4ZX in 1.2.28 patch=4).
+    if (exceptionType == 'FunctionException' &&
+        exceptionValue.contains('ALREADY_CHECKED')) {
+      return true;
+    }
+
     // RLS policy violation noise (PICNIC-APP-47)
     if (exceptionType == 'PostgrestException' &&
         exceptionValue.contains('row-level security policy')) {
