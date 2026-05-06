@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/reward.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -149,7 +150,14 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
           _rewardListKey = UniqueKey();
         });
 
-        final rewardFuture = ref.read(asyncRewardListProvider.future);
+        // 페이지가 dispose 되면 provider 도 dispose 되어 future 가 StateError 로
+        // reject 되므로 swallow. (Sentry PICNIC-APP-57B)
+        final rewardFuture = ref
+            .read(asyncRewardListProvider.future)
+            .catchError((Object e, StackTrace s) {
+              logger.w('asyncRewardListProvider refresh interrupted: $e');
+              return const <RewardModel>[];
+            });
 
         final voteCompleter = Completer<void>();
         void listener() {
@@ -164,7 +172,11 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
         _pagingController.addListener(listener);
         _pagingController.refresh();
 
-        await Future.wait([rewardFuture, voteCompleter.future]);
+        try {
+          await Future.wait([rewardFuture, voteCompleter.future]);
+        } catch (e, s) {
+          logger.w('vote_home onRefresh interrupted: $e', stackTrace: s);
+        }
       },
       child: ListView(
         children: [
