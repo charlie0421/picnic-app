@@ -1811,6 +1811,37 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get label_attendance_ad_watch => '看广告';
+
+  @override
+  String get error_anti_abuse_ad_title => 'Watch Ads';
+
+  @override
+  String get error_anti_abuse_ad_message =>
+      'Ad watching is currently limited. Please try again later.';
+
+  @override
+  String get error_anti_abuse_signup_title => 'Sign-up Restricted';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      'Sign-up is temporarily restricted due to suspicious activity. Please contact customer support if this is a mistake.';
+
+  @override
+  String get error_anti_abuse_attendance_title => 'Attendance';
+
+  @override
+  String get error_anti_abuse_attendance_message =>
+      'There\'s an issue with the attendance check. Please try again later.';
+
+  @override
+  String get error_anti_abuse_artist_request_title => 'Artist Request';
+
+  @override
+  String get error_anti_abuse_artist_request_message =>
+      'Artist request is currently limited. Please try again later.';
+
+  @override
+  String get button_cs_inquiry => 'Contact Support';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).

@@ -2326,5 +2326,41 @@
   "label_attendance_ad_watch": "Watch Ads",
   "@label_attendance_ad_watch": {
     "description": "Watch ad tab label"
+  },
+  "error_anti_abuse_ad_title": "Watch Ads",
+  "@error_anti_abuse_ad_title": {
+    "description": "Anti-abuse rate-limited dialog title for ad-watch channel"
+  },
+  "error_anti_abuse_ad_message": "Ad watching is currently limited. Please try again later.",
+  "@error_anti_abuse_ad_message": {
+    "description": "Anti-abuse rate-limited dialog body for ad-watch channel"
+  },
+  "error_anti_abuse_signup_title": "Sign-up Restricted",
+  "@error_anti_abuse_signup_title": {
+    "description": "Anti-abuse rate-limited dialog title for signup channel"
+  },
+  "error_anti_abuse_signup_message": "Sign-up is temporarily restricted due to suspicious activity. Please contact customer support if this is a mistake.",
+  "@error_anti_abuse_signup_message": {
+    "description": "Anti-abuse rate-limited dialog body for signup channel — partially explicit + CS link"
+  },
+  "error_anti_abuse_attendance_title": "Attendance",
+  "@error_anti_abuse_attendance_title": {
+    "description": "Anti-abuse rate-limited dialog title for attendance channel"
+  },
+  "error_anti_abuse_attendance_message": "There's an issue with the attendance check. Please try again later.",
+  "@error_anti_abuse_attendance_message": {
+    "description": "Anti-abuse rate-limited dialog body for attendance channel"
+  },
+  "error_anti_abuse_artist_request_title": "Artist Request",
+  "@error_anti_abuse_artist_request_title": {
+    "description": "Anti-abuse rate-limited dialog title for artist-request channel"
+  },
+  "error_anti_abuse_artist_request_message": "Artist request is currently limited. Please try again later.",
+  "@error_anti_abuse_artist_request_message": {
+    "description": "Anti-abuse rate-limited dialog body for artist-request channel"
+  },
+  "button_cs_inquiry": "Contact Support",
+  "@button_cs_inquiry": {
+    "description": "Customer support inquiry button label"
   }
 }

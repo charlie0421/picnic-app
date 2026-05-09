@@ -3454,6 +3454,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Watch Ads'**
   String get label_attendance_ad_watch;
+
+  /// Anti-abuse rate-limited dialog title for ad-watch channel
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Ads'**
+  String get error_anti_abuse_ad_title;
+
+  /// Anti-abuse rate-limited dialog body for ad-watch channel
+  ///
+  /// In en, this message translates to:
+  /// **'Ad watching is currently limited. Please try again later.'**
+  String get error_anti_abuse_ad_message;
+
+  /// Anti-abuse rate-limited dialog title for signup channel
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-up Restricted'**
+  String get error_anti_abuse_signup_title;
+
+  /// Anti-abuse rate-limited dialog body for signup channel — partially explicit + CS link
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-up is temporarily restricted due to suspicious activity. Please contact customer support if this is a mistake.'**
+  String get error_anti_abuse_signup_message;
+
+  /// Anti-abuse rate-limited dialog title for attendance channel
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance'**
+  String get error_anti_abuse_attendance_title;
+
+  /// Anti-abuse rate-limited dialog body for attendance channel
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s an issue with the attendance check. Please try again later.'**
+  String get error_anti_abuse_attendance_message;
+
+  /// Anti-abuse rate-limited dialog title for artist-request channel
+  ///
+  /// In en, this message translates to:
+  /// **'Artist Request'**
+  String get error_anti_abuse_artist_request_title;
+
+  /// Anti-abuse rate-limited dialog body for artist-request channel
+  ///
+  /// In en, this message translates to:
+  /// **'Artist request is currently limited. Please try again later.'**
+  String get error_anti_abuse_artist_request_message;
+
+  /// Customer support inquiry button label
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Support'**
+  String get button_cs_inquiry;
 }
 
 class _AppLocalizationsDelegate

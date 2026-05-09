@@ -1758,4 +1758,34 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get label_attendance_ad_watch => '광고 시청';
+
+  @override
+  String get error_anti_abuse_ad_title => '광고 시청';
+
+  @override
+  String get error_anti_abuse_ad_message => '지금은 광고 시청이 어려워요. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get error_anti_abuse_signup_title => '회원가입 제한';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      '비정상 활동이 감지되어 가입이 일시 제한되었어요. 본인이시라면 고객센터로 문의해주세요.';
+
+  @override
+  String get error_anti_abuse_attendance_title => '출석';
+
+  @override
+  String get error_anti_abuse_attendance_message =>
+      '출석 처리에 문제가 있어요. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get error_anti_abuse_artist_request_title => '아티스트 요청';
+
+  @override
+  String get error_anti_abuse_artist_request_message =>
+      '지금은 아티스트 추가 요청이 어려워요. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get button_cs_inquiry => '고객센터 문의';
 }
