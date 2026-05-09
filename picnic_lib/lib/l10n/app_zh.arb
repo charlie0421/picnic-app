@@ -2323,5 +2323,41 @@
   "label_attendance_ad_watch": "看广告",
   "@label_attendance_ad_watch": {
     "description": "Watch ad tab label"
+  },
+  "error_anti_abuse_ad_title": "观看广告",
+  "@error_anti_abuse_ad_title": {
+    "description": "Anti-abuse rate-limited dialog title for ad-watch channel"
+  },
+  "error_anti_abuse_ad_message": "暂时无法观看广告，请稍后再试。",
+  "@error_anti_abuse_ad_message": {
+    "description": "Anti-abuse rate-limited dialog body for ad-watch channel"
+  },
+  "error_anti_abuse_signup_title": "注册受限",
+  "@error_anti_abuse_signup_title": {
+    "description": "Anti-abuse rate-limited dialog title for signup channel"
+  },
+  "error_anti_abuse_signup_message": "由于检测到可疑活动，注册暂时受限。如果是您本人，请联系客服。",
+  "@error_anti_abuse_signup_message": {
+    "description": "Anti-abuse rate-limited dialog body for signup channel — partially explicit + CS link"
+  },
+  "error_anti_abuse_attendance_title": "签到",
+  "@error_anti_abuse_attendance_title": {
+    "description": "Anti-abuse rate-limited dialog title for attendance channel"
+  },
+  "error_anti_abuse_attendance_message": "签到出现问题，请稍后再试。",
+  "@error_anti_abuse_attendance_message": {
+    "description": "Anti-abuse rate-limited dialog body for attendance channel"
+  },
+  "error_anti_abuse_artist_request_title": "艺人申请",
+  "@error_anti_abuse_artist_request_title": {
+    "description": "Anti-abuse rate-limited dialog title for artist-request channel"
+  },
+  "error_anti_abuse_artist_request_message": "暂时无法申请艺人，请稍后再试。",
+  "@error_anti_abuse_artist_request_message": {
+    "description": "Anti-abuse rate-limited dialog body for artist-request channel"
+  },
+  "button_cs_inquiry": "联系客服",
+  "@button_cs_inquiry": {
+    "description": "Customer support inquiry button label"
   }
 }

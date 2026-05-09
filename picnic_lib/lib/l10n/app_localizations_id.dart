@@ -1841,33 +1841,33 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_attendance_ad_watch => 'Tonton iklan';
 
   @override
-  String get error_anti_abuse_ad_title => 'Watch Ads';
+  String get error_anti_abuse_ad_title => 'Tonton iklan';
 
   @override
   String get error_anti_abuse_ad_message =>
-      'Ad watching is currently limited. Please try again later.';
+      'Saat ini tidak bisa menonton iklan. Silakan coba lagi nanti.';
 
   @override
-  String get error_anti_abuse_signup_title => 'Sign-up Restricted';
+  String get error_anti_abuse_signup_title => 'Pendaftaran dibatasi';
 
   @override
   String get error_anti_abuse_signup_message =>
-      'Sign-up is temporarily restricted due to suspicious activity. Please contact customer support if this is a mistake.';
+      'Pendaftaran sementara dibatasi karena aktivitas mencurigakan. Jika ini Anda, silakan hubungi customer support.';
 
   @override
-  String get error_anti_abuse_attendance_title => 'Attendance';
+  String get error_anti_abuse_attendance_title => 'Absensi';
 
   @override
   String get error_anti_abuse_attendance_message =>
-      'There\'s an issue with the attendance check. Please try again later.';
+      'Ada masalah dengan absensi. Silakan coba lagi nanti.';
 
   @override
-  String get error_anti_abuse_artist_request_title => 'Artist Request';
+  String get error_anti_abuse_artist_request_title => 'Permintaan artis';
 
   @override
   String get error_anti_abuse_artist_request_message =>
-      'Artist request is currently limited. Please try again later.';
+      'Saat ini tidak bisa menambah permintaan artis. Silakan coba lagi nanti.';
 
   @override
-  String get button_cs_inquiry => 'Contact Support';
+  String get button_cs_inquiry => 'Hubungi Support';
 }

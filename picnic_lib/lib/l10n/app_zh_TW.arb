@@ -2327,5 +2327,41 @@
   "label_attendance_ad_watch": "看廣告",
   "@label_attendance_ad_watch": {
     "description": "Watch ad tab label"
+  },
+  "error_anti_abuse_ad_title": "觀看廣告",
+  "@error_anti_abuse_ad_title": {
+    "description": "Anti-abuse rate-limited dialog title for ad-watch channel"
+  },
+  "error_anti_abuse_ad_message": "暫時無法觀看廣告，請稍後再試。",
+  "@error_anti_abuse_ad_message": {
+    "description": "Anti-abuse rate-limited dialog body for ad-watch channel"
+  },
+  "error_anti_abuse_signup_title": "註冊受限",
+  "@error_anti_abuse_signup_title": {
+    "description": "Anti-abuse rate-limited dialog title for signup channel"
+  },
+  "error_anti_abuse_signup_message": "由於偵測到可疑活動，註冊暫時受限。如果是您本人，請聯絡客服。",
+  "@error_anti_abuse_signup_message": {
+    "description": "Anti-abuse rate-limited dialog body for signup channel — partially explicit + CS link"
+  },
+  "error_anti_abuse_attendance_title": "簽到",
+  "@error_anti_abuse_attendance_title": {
+    "description": "Anti-abuse rate-limited dialog title for attendance channel"
+  },
+  "error_anti_abuse_attendance_message": "簽到出現問題，請稍後再試。",
+  "@error_anti_abuse_attendance_message": {
+    "description": "Anti-abuse rate-limited dialog body for attendance channel"
+  },
+  "error_anti_abuse_artist_request_title": "藝人申請",
+  "@error_anti_abuse_artist_request_title": {
+    "description": "Anti-abuse rate-limited dialog title for artist-request channel"
+  },
+  "error_anti_abuse_artist_request_message": "暫時無法申請藝人，請稍後再試。",
+  "@error_anti_abuse_artist_request_message": {
+    "description": "Anti-abuse rate-limited dialog body for artist-request channel"
+  },
+  "button_cs_inquiry": "聯絡客服",
+  "@button_cs_inquiry": {
+    "description": "Customer support inquiry button label"
   }
 }

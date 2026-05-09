@@ -2327,5 +2327,41 @@
   "label_attendance_ad_watch": "Ver anuncios",
   "@label_attendance_ad_watch": {
     "description": "Watch ad tab label"
+  },
+  "error_anti_abuse_ad_title": "Ver anuncios",
+  "@error_anti_abuse_ad_title": {
+    "description": "Anti-abuse rate-limited dialog title for ad-watch channel"
+  },
+  "error_anti_abuse_ad_message": "En este momento no puedes ver anuncios. Inténtalo de nuevo más tarde.",
+  "@error_anti_abuse_ad_message": {
+    "description": "Anti-abuse rate-limited dialog body for ad-watch channel"
+  },
+  "error_anti_abuse_signup_title": "Registro restringido",
+  "@error_anti_abuse_signup_title": {
+    "description": "Anti-abuse rate-limited dialog title for signup channel"
+  },
+  "error_anti_abuse_signup_message": "El registro está temporalmente restringido por actividad sospechosa. Si eres tú, contacta con atención al cliente.",
+  "@error_anti_abuse_signup_message": {
+    "description": "Anti-abuse rate-limited dialog body for signup channel — partially explicit + CS link"
+  },
+  "error_anti_abuse_attendance_title": "Asistencia",
+  "@error_anti_abuse_attendance_title": {
+    "description": "Anti-abuse rate-limited dialog title for attendance channel"
+  },
+  "error_anti_abuse_attendance_message": "Hay un problema con el registro de asistencia. Inténtalo de nuevo más tarde.",
+  "@error_anti_abuse_attendance_message": {
+    "description": "Anti-abuse rate-limited dialog body for attendance channel"
+  },
+  "error_anti_abuse_artist_request_title": "Solicitud de artista",
+  "@error_anti_abuse_artist_request_title": {
+    "description": "Anti-abuse rate-limited dialog title for artist-request channel"
+  },
+  "error_anti_abuse_artist_request_message": "En este momento no puedes solicitar artistas. Inténtalo de nuevo más tarde.",
+  "@error_anti_abuse_artist_request_message": {
+    "description": "Anti-abuse rate-limited dialog body for artist-request channel"
+  },
+  "button_cs_inquiry": "Contactar con soporte",
+  "@button_cs_inquiry": {
+    "description": "Customer support inquiry button label"
   }
 }

@@ -1762,33 +1762,32 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_attendance_ad_watch => '広告を見る';
 
   @override
-  String get error_anti_abuse_ad_title => 'Watch Ads';
+  String get error_anti_abuse_ad_title => '広告視聴';
 
   @override
-  String get error_anti_abuse_ad_message =>
-      'Ad watching is currently limited. Please try again later.';
+  String get error_anti_abuse_ad_message => '現在広告を視聴できません。しばらくしてから再度お試しください。';
 
   @override
-  String get error_anti_abuse_signup_title => 'Sign-up Restricted';
+  String get error_anti_abuse_signup_title => '会員登録の制限';
 
   @override
   String get error_anti_abuse_signup_message =>
-      'Sign-up is temporarily restricted due to suspicious activity. Please contact customer support if this is a mistake.';
+      '不審なアクティビティが検出されたため、登録が一時的に制限されました。ご本人の場合はサポートまでお問い合わせください。';
 
   @override
-  String get error_anti_abuse_attendance_title => 'Attendance';
+  String get error_anti_abuse_attendance_title => '出席';
 
   @override
   String get error_anti_abuse_attendance_message =>
-      'There\'s an issue with the attendance check. Please try again later.';
+      '出席チェックに問題が発生しました。しばらくしてから再度お試しください。';
 
   @override
-  String get error_anti_abuse_artist_request_title => 'Artist Request';
+  String get error_anti_abuse_artist_request_title => 'アーティストリクエスト';
 
   @override
   String get error_anti_abuse_artist_request_message =>
-      'Artist request is currently limited. Please try again later.';
+      '現在アーティスト追加リクエストができません。しばらくしてから再度お試しください。';
 
   @override
-  String get button_cs_inquiry => 'Contact Support';
+  String get button_cs_inquiry => 'サポートに問い合わせる';
 }

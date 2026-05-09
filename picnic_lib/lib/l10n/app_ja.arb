@@ -2383,5 +2383,41 @@
   "label_attendance_ad_watch": "広告を見る",
   "@label_attendance_ad_watch": {
     "description": "Watch ad tab label"
+  },
+  "error_anti_abuse_ad_title": "広告視聴",
+  "@error_anti_abuse_ad_title": {
+    "description": "Anti-abuse rate-limited dialog title for ad-watch channel"
+  },
+  "error_anti_abuse_ad_message": "現在広告を視聴できません。しばらくしてから再度お試しください。",
+  "@error_anti_abuse_ad_message": {
+    "description": "Anti-abuse rate-limited dialog body for ad-watch channel"
+  },
+  "error_anti_abuse_signup_title": "会員登録の制限",
+  "@error_anti_abuse_signup_title": {
+    "description": "Anti-abuse rate-limited dialog title for signup channel"
+  },
+  "error_anti_abuse_signup_message": "不審なアクティビティが検出されたため、登録が一時的に制限されました。ご本人の場合はサポートまでお問い合わせください。",
+  "@error_anti_abuse_signup_message": {
+    "description": "Anti-abuse rate-limited dialog body for signup channel — partially explicit + CS link"
+  },
+  "error_anti_abuse_attendance_title": "出席",
+  "@error_anti_abuse_attendance_title": {
+    "description": "Anti-abuse rate-limited dialog title for attendance channel"
+  },
+  "error_anti_abuse_attendance_message": "出席チェックに問題が発生しました。しばらくしてから再度お試しください。",
+  "@error_anti_abuse_attendance_message": {
+    "description": "Anti-abuse rate-limited dialog body for attendance channel"
+  },
+  "error_anti_abuse_artist_request_title": "アーティストリクエスト",
+  "@error_anti_abuse_artist_request_title": {
+    "description": "Anti-abuse rate-limited dialog title for artist-request channel"
+  },
+  "error_anti_abuse_artist_request_message": "現在アーティスト追加リクエストができません。しばらくしてから再度お試しください。",
+  "@error_anti_abuse_artist_request_message": {
+    "description": "Anti-abuse rate-limited dialog body for artist-request channel"
+  },
+  "button_cs_inquiry": "サポートに問い合わせる",
+  "@button_cs_inquiry": {
+    "description": "Customer support inquiry button label"
   }
 }

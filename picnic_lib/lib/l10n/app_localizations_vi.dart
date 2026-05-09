@@ -1836,33 +1836,33 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_attendance_ad_watch => 'Xem quảng cáo';
 
   @override
-  String get error_anti_abuse_ad_title => 'Watch Ads';
+  String get error_anti_abuse_ad_title => 'Xem quảng cáo';
 
   @override
   String get error_anti_abuse_ad_message =>
-      'Ad watching is currently limited. Please try again later.';
+      'Hiện không thể xem quảng cáo. Vui lòng thử lại sau.';
 
   @override
-  String get error_anti_abuse_signup_title => 'Sign-up Restricted';
+  String get error_anti_abuse_signup_title => 'Đăng ký bị hạn chế';
 
   @override
   String get error_anti_abuse_signup_message =>
-      'Sign-up is temporarily restricted due to suspicious activity. Please contact customer support if this is a mistake.';
+      'Đăng ký tạm thời bị hạn chế do phát hiện hoạt động đáng ngờ. Nếu là bạn, vui lòng liên hệ bộ phận hỗ trợ.';
 
   @override
-  String get error_anti_abuse_attendance_title => 'Attendance';
+  String get error_anti_abuse_attendance_title => 'Điểm danh';
 
   @override
   String get error_anti_abuse_attendance_message =>
-      'There\'s an issue with the attendance check. Please try again later.';
+      'Có sự cố khi điểm danh. Vui lòng thử lại sau.';
 
   @override
-  String get error_anti_abuse_artist_request_title => 'Artist Request';
+  String get error_anti_abuse_artist_request_title => 'Yêu cầu nghệ sĩ';
 
   @override
   String get error_anti_abuse_artist_request_message =>
-      'Artist request is currently limited. Please try again later.';
+      'Hiện không thể yêu cầu thêm nghệ sĩ. Vui lòng thử lại sau.';
 
   @override
-  String get button_cs_inquiry => 'Contact Support';
+  String get button_cs_inquiry => 'Liên hệ hỗ trợ';
 }

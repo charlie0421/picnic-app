@@ -1834,35 +1834,35 @@ class AppLocalizationsBn extends AppLocalizations {
   String get label_attendance_ad_watch => 'বিজ্ঞাপন দেখুন';
 
   @override
-  String get error_anti_abuse_ad_title => 'Watch Ads';
+  String get error_anti_abuse_ad_title => 'বিজ্ঞাপন দেখুন';
 
   @override
   String get error_anti_abuse_ad_message =>
-      'Ad watching is currently limited. Please try again later.';
+      'এখন বিজ্ঞাপন দেখা যাচ্ছে না। কিছুক্ষণ পরে আবার চেষ্টা করুন।';
 
   @override
-  String get error_anti_abuse_signup_title => 'Sign-up Restricted';
+  String get error_anti_abuse_signup_title => 'সাইন-আপ সীমাবদ্ধ';
 
   @override
   String get error_anti_abuse_signup_message =>
-      'Sign-up is temporarily restricted due to suspicious activity. Please contact customer support if this is a mistake.';
+      'সন্দেহজনক কার্যকলাপ সনাক্ত হওয়ায় সাইন-আপ সাময়িকভাবে সীমাবদ্ধ। এটি আপনি হলে গ্রাহক সেবার সাথে যোগাযোগ করুন।';
 
   @override
-  String get error_anti_abuse_attendance_title => 'Attendance';
+  String get error_anti_abuse_attendance_title => 'উপস্থিতি';
 
   @override
   String get error_anti_abuse_attendance_message =>
-      'There\'s an issue with the attendance check. Please try again later.';
+      'উপস্থিতি পরীক্ষায় সমস্যা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।';
 
   @override
-  String get error_anti_abuse_artist_request_title => 'Artist Request';
+  String get error_anti_abuse_artist_request_title => 'শিল্পী অনুরোধ';
 
   @override
   String get error_anti_abuse_artist_request_message =>
-      'Artist request is currently limited. Please try again later.';
+      'এখন শিল্পী অনুরোধ করা যাচ্ছে না। কিছুক্ষণ পরে আবার চেষ্টা করুন।';
 
   @override
-  String get button_cs_inquiry => 'Contact Support';
+  String get button_cs_inquiry => 'সাপোর্টের সাথে যোগাযোগ করুন';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -3691,4 +3691,35 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get label_attendance_ad_watch => 'বিজ্ঞাপন দেখুন';
+
+  @override
+  String get error_anti_abuse_ad_title => 'বিজ্ঞাপন দেখুন';
+
+  @override
+  String get error_anti_abuse_ad_message =>
+      'এখন বিজ্ঞাপন দেখা যাচ্ছে না। কিছুক্ষণ পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get error_anti_abuse_signup_title => 'সাইন-আপ সীমাবদ্ধ';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      'সন্দেহজনক কার্যকলাপ সনাক্ত হওয়ায় সাইন-আপ সাময়িকভাবে সীমাবদ্ধ। এটি আপনি হলে গ্রাহক সেবার সাথে যোগাযোগ করুন।';
+
+  @override
+  String get error_anti_abuse_attendance_title => 'উপস্থিতি';
+
+  @override
+  String get error_anti_abuse_attendance_message =>
+      'উপস্থিতি পরীক্ষায় সমস্যা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get error_anti_abuse_artist_request_title => 'শিল্পী অনুরোধ';
+
+  @override
+  String get error_anti_abuse_artist_request_message =>
+      'এখন শিল্পী অনুরোধ করা যাচ্ছে না। কিছুক্ষণ পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get button_cs_inquiry => 'সাপোর্টের সাথে যোগাযোগ করুন';
 }
