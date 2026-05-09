@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:picnic_lib/core/errors/vote_request_exceptions.dart';
 import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -22,6 +26,25 @@ class FakeErrorSupabaseClient extends Fake implements SupabaseClient {
     if (rpcError != null) throw rpcError!;
     throw UnimplementedError('rpc not mocked for success path');
   }
+}
+
+SupabaseClient _edgeFnClient({
+  required int responseStatus,
+  required Map<String, dynamic> responseBody,
+}) {
+  final mock = MockClient((req) async {
+    return http.Response(
+      jsonEncode(responseBody),
+      responseStatus,
+      headers: {'content-type': 'application/json'},
+    );
+  });
+  return SupabaseClient(
+    'http://localhost:54321',
+    'test-anon-key',
+    httpClient: mock,
+    authOptions: const AuthClientOptions(autoRefreshToken: false),
+  );
 }
 
 /// Additional tests targeting uncovered lines in vote_item_request_repository.dart.
@@ -148,13 +171,21 @@ void main() {
     });
   });
 
-  group('VoteItemRequestRepository - specific error messages', () {
-    test('createVoteItemRequestWithUser detects non-existent artist error',
+  group('VoteItemRequestRepository - specific error messages (edge fn)', () {
+    test('ARTIST_NOT_FOUND (404) → VoteRequestException with mapped message',
         () async {
-      final fakeClient = FakeErrorSupabaseClient(
-        rpcError: Exception('존재하지 않는 아티스트입니다'),
+      final client = _edgeFnClient(
+        responseStatus: 404,
+        responseBody: {
+          'success': false,
+          'error': {
+            'message': 'Artist not found',
+            'code': 'ARTIST_NOT_FOUND',
+            'details': null,
+          },
+        },
       );
-      final repository = VoteItemRequestRepository(supabase: fakeClient);
+      final repository = VoteItemRequestRepository(supabase: client);
 
       expect(
         () => repository.createVoteItemRequestWithUser(
@@ -172,13 +203,19 @@ void main() {
       );
     });
 
-    test(
-        'createVoteItemRequestWithUser detects duplicate request error as DuplicateVoteRequestException',
-        () async {
-      final fakeClient = FakeErrorSupabaseClient(
-        rpcError: Exception('이미 해당 아티스트에 대해 신청하셨습니다'),
+    test('ALREADY_REQUESTED (409) → DuplicateVoteRequestException', () async {
+      final client = _edgeFnClient(
+        responseStatus: 409,
+        responseBody: {
+          'success': false,
+          'error': {
+            'message': 'Already requested',
+            'code': 'ALREADY_REQUESTED',
+            'details': null,
+          },
+        },
       );
-      final repository = VoteItemRequestRepository(supabase: fakeClient);
+      final repository = VoteItemRequestRepository(supabase: client);
 
       expect(
         () => repository.createVoteItemRequestWithUser(
@@ -190,13 +227,19 @@ void main() {
       );
     });
 
-    test(
-        'createVoteItemRequestWithUser wraps generic error as VoteRequestException',
-        () async {
-      final fakeClient = FakeErrorSupabaseClient(
-        rpcError: Exception('unknown server error'),
+    test('알 수 없는 에러 코드 (500 RPC_FAILED) → VoteRequestException', () async {
+      final client = _edgeFnClient(
+        responseStatus: 500,
+        responseBody: {
+          'success': false,
+          'error': {
+            'message': 'unknown server error',
+            'code': 'RPC_FAILED',
+            'details': {'pg_code': '23505'},
+          },
+        },
       );
-      final repository = VoteItemRequestRepository(supabase: fakeClient);
+      final repository = VoteItemRequestRepository(supabase: client);
 
       expect(
         () => repository.createVoteItemRequestWithUser(

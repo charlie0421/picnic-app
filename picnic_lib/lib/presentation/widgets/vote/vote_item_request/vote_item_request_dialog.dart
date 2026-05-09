@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/anti_abuse/rate_limited_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/current_applications_section.dart';
@@ -427,6 +429,20 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
           }
         });
       }
+    } on AntiAbuseException catch (e) {
+      if (mounted) {
+        setState(() {
+          final artistId = artist.id.toString();
+          final updated = VoteItemRequestDialogHelper.markApplicationFailure(
+              _searchResultsInfo, artistId);
+          if (updated != null) {
+            _searchResultsInfo[artistId] = updated;
+          }
+          _errorMessage = null;
+        });
+        await showRateLimitedDialog(context, channel: e.channel);
+      }
+      logger.w('artist-request rate-limited: channel=${e.channel}');
     } catch (e) {
       if (mounted) {
         setState(() {

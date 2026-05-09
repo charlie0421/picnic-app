@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/attendance_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/anti_abuse/rate_limited_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/attendance/attendance_check_result_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/attendance/attendance_reward_banner.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/attendance/attendance_weekly_calendar.dart';
@@ -84,6 +86,10 @@ class _AttendanceCheckTabState extends ConsumerState<AttendanceCheckTab>
         _confettiController.forward(from: 0);
         ref.read(userInfoProvider.notifier).getUserProfiles();
         _scheduleResultClear();
+      }
+    } on AntiAbuseException catch (e) {
+      if (mounted) {
+        await showRateLimitedDialog(context, channel: e.channel);
       }
     } on AttendanceException catch (e) {
       if (mounted) {

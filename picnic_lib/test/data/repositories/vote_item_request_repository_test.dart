@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
 import 'package:picnic_lib/core/errors/vote_request_exceptions.dart';
 import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -27,6 +32,29 @@ class FakeErrorSupabaseClient extends Fake implements SupabaseClient {
   }
 }
 
+/// artist-request-add edge fn 응답을 시뮬레이션하는 SupabaseClient.
+///
+/// [responseStatus] / [responseBody] 로 단일 응답을 강제. functions.invoke 가 호출되면 동일
+/// 응답 반환. ip_hash 등 다른 호출은 mock 하지 않음 (이 테스트 범위 외).
+SupabaseClient _edgeFnClient({
+  required int responseStatus,
+  required Map<String, dynamic> responseBody,
+}) {
+  final mock = MockClient((req) async {
+    return http.Response(
+      jsonEncode(responseBody),
+      responseStatus,
+      headers: {'content-type': 'application/json'},
+    );
+  });
+  return SupabaseClient(
+    'http://localhost:54321',
+    'test-anon-key',
+    httpClient: mock,
+    authOptions: const AuthClientOptions(autoRefreshToken: false),
+  );
+}
+
 void main() {
   group('VoteItemRequestRepository', () {
     group('인스턴스 생성', () {
@@ -45,12 +73,18 @@ void main() {
       });
     });
 
-    group('에러 처리 - createVoteItemRequestWithUser', () {
-      test('Supabase rpc 호출 실패 시 VoteRequestException을 던진다', () async {
-        final fakeClient = FakeErrorSupabaseClient(
-          rpcError: Exception('네트워크 오류'),
+    group('에러 처리 - createVoteItemRequestWithUser (edge fn 경로)', () {
+      test('artist-request-add 호출 실패 (네트워크) 시 VoteRequestException', () async {
+        final mock = MockClient((req) async {
+          throw Exception('네트워크 오류');
+        });
+        final client = SupabaseClient(
+          'http://localhost:54321',
+          'test-anon-key',
+          httpClient: mock,
+          authOptions: const AuthClientOptions(autoRefreshToken: false),
         );
-        final repository = VoteItemRequestRepository(supabase: fakeClient);
+        final repository = VoteItemRequestRepository(supabase: client);
 
         expect(
           () => repository.createVoteItemRequestWithUser(
@@ -62,11 +96,19 @@ void main() {
         );
       });
 
-      test('중복 신청 시 DuplicateVoteRequestException을 던진다', () async {
-        final fakeClient = FakeErrorSupabaseClient(
-          rpcError: Exception('이미 해당 아티스트에 대해 신청하셨습니다'),
+      test('ALREADY_REQUESTED (409) → DuplicateVoteRequestException', () async {
+        final client = _edgeFnClient(
+          responseStatus: 409,
+          responseBody: {
+            'success': false,
+            'error': {
+              'message': 'Already requested',
+              'code': 'ALREADY_REQUESTED',
+              'details': null,
+            },
+          },
         );
-        final repository = VoteItemRequestRepository(supabase: fakeClient);
+        final repository = VoteItemRequestRepository(supabase: client);
 
         expect(
           () => repository.createVoteItemRequestWithUser(
@@ -78,11 +120,19 @@ void main() {
         );
       });
 
-      test('존재하지 않는 아티스트일 때 VoteRequestException을 던진다', () async {
-        final fakeClient = FakeErrorSupabaseClient(
-          rpcError: Exception('존재하지 않는 아티스트입니다'),
+      test('ARTIST_NOT_FOUND (404) → VoteRequestException', () async {
+        final client = _edgeFnClient(
+          responseStatus: 404,
+          responseBody: {
+            'success': false,
+            'error': {
+              'message': 'Artist not found',
+              'code': 'ARTIST_NOT_FOUND',
+              'details': null,
+            },
+          },
         );
-        final repository = VoteItemRequestRepository(supabase: fakeClient);
+        final repository = VoteItemRequestRepository(supabase: client);
 
         expect(
           () => repository.createVoteItemRequestWithUser(
@@ -97,6 +147,59 @@ void main() {
               '존재하지 않는 아티스트입니다.',
             ),
           ),
+        );
+      });
+
+      test('429 RATE_LIMITED → AntiAbuseException(channel: artist_request)',
+          () async {
+        final client = _edgeFnClient(
+          responseStatus: 429,
+          responseBody: {
+            'success': false,
+            'error': {
+              'message': '...',
+              'code': 'RATE_LIMITED',
+              'details': {
+                'reason': 'artist_request_ip_quota',
+                'retry_after_seconds': 86400,
+                'support_contact': 'cs@picnic.fan',
+              },
+            },
+          },
+        );
+        final repository = VoteItemRequestRepository(supabase: client);
+
+        expect(
+          () => repository.createVoteItemRequestWithUser(
+            voteId: 1,
+            artistId: 100,
+            userId: 'user-123',
+          ),
+          throwsA(
+            isA<AntiAbuseException>().having(
+              (e) => e.channel,
+              'channel',
+              'artist_request',
+            ),
+          ),
+        );
+      });
+
+      test('서버가 success=true 인데 data 가 null/비-Map → VoteRequestException',
+          () async {
+        final client = _edgeFnClient(
+          responseStatus: 200,
+          responseBody: {'success': true, 'data': null},
+        );
+        final repository = VoteItemRequestRepository(supabase: client);
+
+        expect(
+          () => repository.createVoteItemRequestWithUser(
+            voteId: 1,
+            artistId: 100,
+            userId: 'user-123',
+          ),
+          throwsA(isA<VoteRequestException>()),
         );
       });
     });
