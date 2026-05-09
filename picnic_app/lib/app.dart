@@ -17,6 +17,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/force_update_overlay.dart';
 import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
+import 'package:picnic_lib/presentation/providers/anti_abuse_providers.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -127,6 +128,11 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     logger.i('SDK 초기화 대기 중...');
     await MainInitializer.sdkReady;
     logger.i('SDK 초기화 완료');
+
+    // anti-abuse ip_hash prefetch — fire-and-forget. 실패는 IpHashService 내부에서 swallow.
+    // 보호 대상 호출(광고/출석/아티스트요청) 전에 캐시가 채워지면 hint 송신, 안 채워지면
+    // 서버가 어쨌든 자체 IP 로 hash 계산하므로 client hint 는 본질적으로 best-effort.
+    unawaited(ref.read(ipHashServiceProvider).fetchAndCache());
 
     // 시스템 UI 초기화
     logger.i('시스템 UI 초기화 시작');

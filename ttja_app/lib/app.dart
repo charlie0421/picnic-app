@@ -15,6 +15,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
+import 'package:picnic_lib/presentation/providers/anti_abuse_providers.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -80,6 +81,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     logger.i('SDK 초기화 대기 중...');
     await MainInitializer.sdkReady;
     logger.i('SDK 초기화 완료');
+
+    // anti-abuse ip_hash prefetch — fire-and-forget. silent fallback on failure.
+    unawaited(ref.read(ipHashServiceProvider).fetchAndCache());
 
     // 모바일 환경에서만 시스템 UI 초기화
     if (UniversalPlatform.isMobile && !kIsWeb) {
