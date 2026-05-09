@@ -39,9 +39,8 @@ Object? mapToAntiAbuseException(dynamic error) {
   }
 
   if (error is FunctionException && error.status == 429) {
-    final details = error.details;
-    if (details is Map && details['code'] == 'RATE_LIMITED') {
-      final reason = (details['reason'] as String?) ?? '';
+    final reason = _extractRateLimitedReason(error.details);
+    if (reason != null) {
       final channel = reason.replaceAll('_ip_quota', '');
       return AntiAbuseException(
         channel,
@@ -49,6 +48,30 @@ Object? mapToAntiAbuseException(dynamic error) {
         original: error,
       );
     }
+  }
+
+  return null;
+}
+
+/// 두 가지 응답 shape 모두 지원:
+///   - nested (실제 서버: rateLimitedResponse): { success: false, error: { code: 'RATE_LIMITED', details: { reason: '<ch>_ip_quota' } } }
+///   - flat (defensive fallback): { code: 'RATE_LIMITED', reason: '<ch>_ip_quota' }
+///
+/// 매칭되지 않으면 null. reason 누락이라도 빈 문자열은 반환 (handler 가 channel 추출 시도).
+String? _extractRateLimitedReason(dynamic details) {
+  if (details is! Map) return null;
+
+  final err = details['error'];
+  if (err is Map && err['code'] == 'RATE_LIMITED') {
+    final inner = err['details'];
+    if (inner is Map) {
+      return (inner['reason'] as String?) ?? '';
+    }
+    return '';
+  }
+
+  if (details['code'] == 'RATE_LIMITED') {
+    return (details['reason'] as String?) ?? '';
   }
 
   return null;

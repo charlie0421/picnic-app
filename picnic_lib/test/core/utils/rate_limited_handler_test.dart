@@ -47,7 +47,46 @@ void main() {
       expect((mapped as AntiAbusePermissionException).requiredKey, isNull);
     });
 
-    test('FunctionException 429 RATE_LIMITED ad_watch', () {
+    test('FunctionException 429 nested rateLimitedResponse shape (ad_watch)', () {
+      // 실제 서버 응답 (supabase/functions/_shared/anti-abuse/check.ts).
+      const ex = FunctionException(
+        status: 429,
+        details: {
+          'success': false,
+          'error': {
+            'message': '...',
+            'code': 'RATE_LIMITED',
+            'details': {
+              'reason': 'ad_watch_ip_quota',
+              'retry_after_seconds': 86400,
+              'support_contact': 'cs@picnic.fan',
+            },
+          },
+        },
+      );
+      final mapped = mapToAntiAbuseException(ex);
+      expect(mapped, isA<AntiAbuseException>());
+      expect((mapped as AntiAbuseException).channel, 'ad_watch');
+    });
+
+    test('FunctionException 429 nested shape (attendance)', () {
+      const ex = FunctionException(
+        status: 429,
+        details: {
+          'success': false,
+          'error': {
+            'code': 'RATE_LIMITED',
+            'details': {'reason': 'attendance_ip_quota'},
+          },
+        },
+      );
+      final mapped = mapToAntiAbuseException(ex);
+      expect(mapped, isA<AntiAbuseException>());
+      expect((mapped as AntiAbuseException).channel, 'attendance');
+    });
+
+    test('FunctionException 429 flat shape (defensive fallback)', () {
+      // 일부 fn 이 다른 헬퍼를 쓰거나 spec 변경 시를 대비.
       const ex = FunctionException(
         status: 429,
         details: {'code': 'RATE_LIMITED', 'reason': 'ad_watch_ip_quota'},
