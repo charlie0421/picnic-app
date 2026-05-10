@@ -2326,5 +2326,41 @@
   "label_attendance_ad_watch": "ကြော်ငြာကြည့်ရန်",
   "@label_attendance_ad_watch": {
     "description": "Watch ad tab label"
+  },
+  "error_anti_abuse_ad_title": "ကြော်ငြာကြည့်ရန်",
+  "@error_anti_abuse_ad_title": {
+    "description": "Anti-abuse rate-limited dialog title for ad-watch channel"
+  },
+  "error_anti_abuse_ad_message": "ယခု ကြော်ငြာကြည့်၍မရပါ။ နောက်မှ ပြန်ကြိုးစားပါ။",
+  "@error_anti_abuse_ad_message": {
+    "description": "Anti-abuse rate-limited dialog body for ad-watch channel"
+  },
+  "error_anti_abuse_signup_title": "အကောင့်ဖွင့်ခြင်းကို ကန့်သတ်ထား",
+  "@error_anti_abuse_signup_title": {
+    "description": "Anti-abuse rate-limited dialog title for signup channel"
+  },
+  "error_anti_abuse_signup_message": "မမှန်ကန်သော လှုပ်ရှားမှုကို တွေ့ရှိ၍ အကောင့်ဖွင့်ခြင်းကို ယာယီကန့်သတ်ထားပါသည်။ သင်ဖြစ်ပါက customer support သို့ ဆက်သွယ်ပါ။",
+  "@error_anti_abuse_signup_message": {
+    "description": "Anti-abuse rate-limited dialog body for signup channel — partially explicit + CS link"
+  },
+  "error_anti_abuse_attendance_title": "တက်ရောက်မှု",
+  "@error_anti_abuse_attendance_title": {
+    "description": "Anti-abuse rate-limited dialog title for attendance channel"
+  },
+  "error_anti_abuse_attendance_message": "တက်ရောက်မှု စစ်ဆေးခြင်းတွင် ပြဿနာရှိနေပါသည်။ နောက်မှ ပြန်ကြိုးစားပါ။",
+  "@error_anti_abuse_attendance_message": {
+    "description": "Anti-abuse rate-limited dialog body for attendance channel"
+  },
+  "error_anti_abuse_artist_request_title": "အနုပညာရှင် တောင်းဆိုမှု",
+  "@error_anti_abuse_artist_request_title": {
+    "description": "Anti-abuse rate-limited dialog title for artist-request channel"
+  },
+  "error_anti_abuse_artist_request_message": "ယခု အနုပညာရှင်အတွက် ထပ်တောင်းဆို၍မရပါ။ နောက်မှ ပြန်ကြိုးစားပါ။",
+  "@error_anti_abuse_artist_request_message": {
+    "description": "Anti-abuse rate-limited dialog body for artist-request channel"
+  },
+  "button_cs_inquiry": "Customer Support သို့ ဆက်သွယ်ပါ",
+  "@button_cs_inquiry": {
+    "description": "Customer support inquiry button label"
   }
 }

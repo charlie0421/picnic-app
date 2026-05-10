@@ -1,7 +1,9 @@
+import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
+import 'package:picnic_lib/core/errors/vote_request_exceptions.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/rate_limited_handler.dart';
 import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:picnic_lib/core/errors/vote_request_exceptions.dart';
 
 /// 투표 아이템 요청 관련 데이터 액세스 레이어
 class VoteItemRequestRepository {
@@ -103,31 +105,82 @@ class VoteItemRequestRepository {
     }
   }
 
-  /// 투표 아이템 요청과 사용자 정보를 함께 생성
+  /// 투표 아이템 요청과 사용자 정보를 함께 생성.
+  ///
+  /// Plan 6 이후 picnic-app 은 직접 RPC 가 아니라 `artist-request-add` edge fn 으로 통과 — 인증 +
+  /// anti-abuse 체크 + ip_hash 채널 채워넣기까지 서버에서 일괄 처리. userId 인자는 backwards
+  /// compat 을 위해 유지하지만 edge fn 이 JWT 에서 자체 도출하므로 무시됨.
   Future<Map<String, dynamic>> createVoteItemRequestWithUser({
     required int voteId,
     required int artistId,
     required String userId,
   }) async {
     try {
-      final response = await _supabase.rpc(
-        'create_vote_item_request_with_user',
-        params: {
-          'vote_id_param': voteId,
-          'artist_id_param': artistId,
-          'user_id_param': userId,
+      final response = await _supabase.functions.invoke(
+        'artist-request-add',
+        body: {
+          'vote_id': voteId,
+          'artist_id': artistId,
         },
       );
-
-      return response as Map<String, dynamic>;
+      final raw = response.data;
+      if (raw is! Map<String, dynamic>) {
+        throw VoteRequestException(
+            '투표 아이템 요청 생성 실패: invalid response payload');
+      }
+      if (raw['success'] != true) {
+        final err = raw['error'];
+        final code = err is Map ? err['code']?.toString() : null;
+        final message = err is Map ? err['message']?.toString() : null;
+        if (code == 'ALREADY_REQUESTED') {
+          throw const DuplicateVoteRequestException(
+              '이미 해당 아티스트에 대해 신청하셨습니다.');
+        }
+        if (code == 'ARTIST_NOT_FOUND') {
+          throw VoteRequestException('존재하지 않는 아티스트입니다.');
+        }
+        throw VoteRequestException(
+            '투표 아이템 요청 생성 실패: ${message ?? code ?? "unknown"}');
+      }
+      final data = raw['data'];
+      if (data is! Map<String, dynamic>) {
+        throw VoteRequestException('투표 아이템 요청 생성 실패: missing data');
+      }
+      return data;
     } catch (e) {
-      if (e.toString().contains('이미 해당 아티스트에 대해 신청하셨습니다')) {
-        throw const DuplicateVoteRequestException('이미 해당 아티스트에 대해 신청하셨습니다.');
-      } else if (e.toString().contains('존재하지 않는 아티스트입니다')) {
-        throw VoteRequestException('존재하지 않는 아티스트입니다.');
+      // 1) anti-abuse 우선 매핑 (FunctionException 429)
+      final aa = mapToAntiAbuseException(e);
+      if (aa is AntiAbuseException) {
+        throw aa;
+      }
+      // 2) 도메인 예외는 그대로 흘려보냄
+      if (e is VoteRequestException || e is DuplicateVoteRequestException) {
+        rethrow;
+      }
+      // 3) FunctionException 의 nested error code 매핑 (ALREADY_REQUESTED, ARTIST_NOT_FOUND)
+      if (e is FunctionException) {
+        final code = _extractErrorCode(e.details);
+        if (code == 'ALREADY_REQUESTED') {
+          throw const DuplicateVoteRequestException(
+              '이미 해당 아티스트에 대해 신청하셨습니다.');
+        }
+        if (code == 'ARTIST_NOT_FOUND') {
+          throw VoteRequestException('존재하지 않는 아티스트입니다.');
+        }
       }
       throw VoteRequestException('투표 아이템 요청 생성 실패: $e');
     }
+  }
+
+  String? _extractErrorCode(dynamic details) {
+    if (details is Map) {
+      final err = details['error'];
+      if (err is Map) {
+        final code = err['code'];
+        if (code is String) return code;
+      }
+    }
+    return null;
   }
 
   /// 특정 투표에서 특정 아티스트의 신청 수 조회

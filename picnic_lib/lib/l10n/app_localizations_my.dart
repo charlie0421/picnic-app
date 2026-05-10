@@ -1845,4 +1845,35 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get label_attendance_ad_watch => 'ကြော်ငြာကြည့်ရန်';
+
+  @override
+  String get error_anti_abuse_ad_title => 'ကြော်ငြာကြည့်ရန်';
+
+  @override
+  String get error_anti_abuse_ad_message =>
+      'ယခု ကြော်ငြာကြည့်၍မရပါ။ နောက်မှ ပြန်ကြိုးစားပါ။';
+
+  @override
+  String get error_anti_abuse_signup_title => 'အကောင့်ဖွင့်ခြင်းကို ကန့်သတ်ထား';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      'မမှန်ကန်သော လှုပ်ရှားမှုကို တွေ့ရှိ၍ အကောင့်ဖွင့်ခြင်းကို ယာယီကန့်သတ်ထားပါသည်။ သင်ဖြစ်ပါက customer support သို့ ဆက်သွယ်ပါ။';
+
+  @override
+  String get error_anti_abuse_attendance_title => 'တက်ရောက်မှု';
+
+  @override
+  String get error_anti_abuse_attendance_message =>
+      'တက်ရောက်မှု စစ်ဆေးခြင်းတွင် ပြဿနာရှိနေပါသည်။ နောက်မှ ပြန်ကြိုးစားပါ။';
+
+  @override
+  String get error_anti_abuse_artist_request_title => 'အနုပညာရှင် တောင်းဆိုမှု';
+
+  @override
+  String get error_anti_abuse_artist_request_message =>
+      'ယခု အနုပညာရှင်အတွက် ထပ်တောင်းဆို၍မရပါ။ နောက်မှ ပြန်ကြိုးစားပါ။';
+
+  @override
+  String get button_cs_inquiry => 'Customer Support သို့ ဆက်သွယ်ပါ';
 }

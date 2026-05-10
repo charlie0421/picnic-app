@@ -9,8 +9,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page_helper.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
+import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
+import 'package:picnic_lib/presentation/widgets/anti_abuse/rate_limited_dialog.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -89,6 +91,16 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   void _hideLoginLoadingOverlay() {
     if (_loadingKey.currentState?.isLoading ?? false) {
       _loadingKey.currentState?.hide();
+    }
+  }
+
+  /// Anti-abuse signup channel 차단 dialog. precheck 가 429 던질 때 호출.
+  /// 로딩 오버레이 정리 + RateLimitedDialog 표시.
+  Future<void> _handleSignupAntiAbuse(AntiAbuseException e) async {
+    _hideLoginLoadingOverlay();
+    final ctx = navigatorKey.currentContext;
+    if (ctx != null && ctx.mounted) {
+      await showRateLimitedDialog(ctx, channel: e.channel);
     }
   }
 
@@ -496,6 +508,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       _hideLoginLoadingOverlay();
                     }
                   }
+                } on AntiAbuseException catch (e) {
+                  await _handleSignupAntiAbuse(e);
+                  return;
                 } on PicnicAuthException catch (e) {
                   if (e.code == 'canceled') {
                     _hideLoginLoadingOverlay();
@@ -595,6 +610,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   } finally {
                     _hideLoginLoadingOverlay();
                   }
+                } on AntiAbuseException catch (e) {
+                  await _handleSignupAntiAbuse(e);
+                  return;
                 } on PicnicAuthException catch (e) {
                   if (e.code == 'canceled') {
                     return; // 사용자가 취소한 경우 아무것도 하지 않음
@@ -703,6 +721,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       _hideLoginLoadingOverlay();
                     }
                   }
+                } on AntiAbuseException catch (e) {
+                  await _handleSignupAntiAbuse(e);
+                  return;
                 } on PicnicAuthException catch (e) {
                   if (e.code == 'canceled') {
                     _hideLoginLoadingOverlay();

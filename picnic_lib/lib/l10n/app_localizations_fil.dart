@@ -1864,4 +1864,35 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get label_attendance_ad_watch => 'Manood ng ads';
+
+  @override
+  String get error_anti_abuse_ad_title => 'Manood ng ads';
+
+  @override
+  String get error_anti_abuse_ad_message =>
+      'Hindi ka makakapanood ng ads ngayon. Subukan ulit mamaya.';
+
+  @override
+  String get error_anti_abuse_signup_title => 'Limitadong sign-up';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      'Pansamantalang limitado ang sign-up dahil sa kahina-hinalang aktibidad. Kung ikaw ito, makipag-ugnayan sa customer support.';
+
+  @override
+  String get error_anti_abuse_attendance_title => 'Pagdalo';
+
+  @override
+  String get error_anti_abuse_attendance_message =>
+      'May problema sa attendance check. Subukan ulit mamaya.';
+
+  @override
+  String get error_anti_abuse_artist_request_title => 'Hiling sa artist';
+
+  @override
+  String get error_anti_abuse_artist_request_message =>
+      'Hindi ka makakahiling ng artist ngayon. Subukan ulit mamaya.';
+
+  @override
+  String get button_cs_inquiry => 'Makipag-ugnayan sa Support';
 }

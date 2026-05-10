@@ -1839,4 +1839,35 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get label_attendance_ad_watch => 'Tonton iklan';
+
+  @override
+  String get error_anti_abuse_ad_title => 'Tonton iklan';
+
+  @override
+  String get error_anti_abuse_ad_message =>
+      'Saat ini tidak bisa menonton iklan. Silakan coba lagi nanti.';
+
+  @override
+  String get error_anti_abuse_signup_title => 'Pendaftaran dibatasi';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      'Pendaftaran sementara dibatasi karena aktivitas mencurigakan. Jika ini Anda, silakan hubungi customer support.';
+
+  @override
+  String get error_anti_abuse_attendance_title => 'Absensi';
+
+  @override
+  String get error_anti_abuse_attendance_message =>
+      'Ada masalah dengan absensi. Silakan coba lagi nanti.';
+
+  @override
+  String get error_anti_abuse_artist_request_title => 'Permintaan artis';
+
+  @override
+  String get error_anti_abuse_artist_request_message =>
+      'Saat ini tidak bisa menambah permintaan artis. Silakan coba lagi nanti.';
+
+  @override
+  String get button_cs_inquiry => 'Hubungi Support';
 }

@@ -1805,4 +1805,35 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get label_attendance_ad_watch => 'ดูโฆษณา';
+
+  @override
+  String get error_anti_abuse_ad_title => 'ดูโฆษณา';
+
+  @override
+  String get error_anti_abuse_ad_message =>
+      'ขณะนี้ไม่สามารถดูโฆษณาได้ กรุณาลองอีกครั้งภายหลัง';
+
+  @override
+  String get error_anti_abuse_signup_title => 'การสมัครถูกจำกัด';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      'การสมัครถูกจำกัดชั่วคราวเนื่องจากตรวจพบกิจกรรมที่ผิดปกติ หากเป็นคุณกรุณาติดต่อฝ่ายบริการลูกค้า';
+
+  @override
+  String get error_anti_abuse_attendance_title => 'เช็คอิน';
+
+  @override
+  String get error_anti_abuse_attendance_message =>
+      'เกิดปัญหาในการเช็คอิน กรุณาลองอีกครั้งภายหลัง';
+
+  @override
+  String get error_anti_abuse_artist_request_title => 'คำขอศิลปิน';
+
+  @override
+  String get error_anti_abuse_artist_request_message =>
+      'ขณะนี้ไม่สามารถส่งคำขอเพิ่มศิลปินได้ กรุณาลองอีกครั้งภายหลัง';
+
+  @override
+  String get button_cs_inquiry => 'ติดต่อฝ่ายสนับสนุน';
 }

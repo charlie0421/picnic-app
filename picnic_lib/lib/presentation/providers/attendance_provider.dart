@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/rate_limited_handler.dart';
 import 'package:picnic_lib/presentation/providers/attendance_models.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -39,6 +41,11 @@ class Attendance extends _$Attendance {
         deadlineKST: data['deadlineKST'] as String?,
       );
     } on FunctionException catch (e, s) {
+      final aa = mapToAntiAbuseException(e);
+      if (aa is AntiAbuseException) {
+        logger.w('attendance-check rate-limited: channel=${aa.channel}');
+        throw aa;
+      }
       logger.e('FunctionException fetching attendance', error: e, stackTrace: s);
       if (!isRetry && (e.status == 401 || e.status == 403)) {
         return _retryWithSessionRefresh();
@@ -123,6 +130,11 @@ class Attendance extends _$Attendance {
         totalReward: data['totalReward'] as int,
       );
     } on FunctionException catch (e, s) {
+      final aa = mapToAntiAbuseException(e);
+      if (aa is AntiAbuseException) {
+        logger.w('attendance check-in rate-limited: channel=${aa.channel}');
+        throw aa;
+      }
       logger.e('FunctionException during check-in', error: e, stackTrace: s);
       if (!isRetry && (e.status == 401 || e.status == 403)) {
         if (await _tryRefreshSession('checkIn')) {

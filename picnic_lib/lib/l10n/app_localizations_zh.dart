@@ -1811,6 +1811,34 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get label_attendance_ad_watch => '看广告';
+
+  @override
+  String get error_anti_abuse_ad_title => '观看广告';
+
+  @override
+  String get error_anti_abuse_ad_message => '暂时无法观看广告，请稍后再试。';
+
+  @override
+  String get error_anti_abuse_signup_title => '注册受限';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      '由于检测到可疑活动，注册暂时受限。如果是您本人，请联系客服。';
+
+  @override
+  String get error_anti_abuse_attendance_title => '签到';
+
+  @override
+  String get error_anti_abuse_attendance_message => '签到出现问题，请稍后再试。';
+
+  @override
+  String get error_anti_abuse_artist_request_title => '艺人申请';
+
+  @override
+  String get error_anti_abuse_artist_request_message => '暂时无法申请艺人，请稍后再试。';
+
+  @override
+  String get button_cs_inquiry => '联系客服';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3554,6 +3582,34 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get label_attendance_ad_watch => '看广告';
+
+  @override
+  String get error_anti_abuse_ad_title => '观看广告';
+
+  @override
+  String get error_anti_abuse_ad_message => '暂时无法观看广告，请稍后再试。';
+
+  @override
+  String get error_anti_abuse_signup_title => '注册受限';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      '由于检测到可疑活动，注册暂时受限。如果是您本人，请联系客服。';
+
+  @override
+  String get error_anti_abuse_attendance_title => '签到';
+
+  @override
+  String get error_anti_abuse_attendance_message => '签到出现问题，请稍后再试。';
+
+  @override
+  String get error_anti_abuse_artist_request_title => '艺人申请';
+
+  @override
+  String get error_anti_abuse_artist_request_message => '暂时无法申请艺人，请稍后再试。';
+
+  @override
+  String get button_cs_inquiry => '联系客服';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -5298,4 +5354,32 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get label_attendance_ad_watch => '看廣告';
+
+  @override
+  String get error_anti_abuse_ad_title => '觀看廣告';
+
+  @override
+  String get error_anti_abuse_ad_message => '暫時無法觀看廣告，請稍後再試。';
+
+  @override
+  String get error_anti_abuse_signup_title => '註冊受限';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      '由於偵測到可疑活動，註冊暫時受限。如果是您本人，請聯絡客服。';
+
+  @override
+  String get error_anti_abuse_attendance_title => '簽到';
+
+  @override
+  String get error_anti_abuse_attendance_message => '簽到出現問題，請稍後再試。';
+
+  @override
+  String get error_anti_abuse_artist_request_title => '藝人申請';
+
+  @override
+  String get error_anti_abuse_artist_request_message => '暫時無法申請藝人，請稍後再試。';
+
+  @override
+  String get button_cs_inquiry => '聯絡客服';
 }

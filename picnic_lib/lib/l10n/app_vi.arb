@@ -2327,5 +2327,41 @@
   "label_attendance_ad_watch": "Xem quảng cáo",
   "@label_attendance_ad_watch": {
     "description": "Watch ad tab label"
+  },
+  "error_anti_abuse_ad_title": "Xem quảng cáo",
+  "@error_anti_abuse_ad_title": {
+    "description": "Anti-abuse rate-limited dialog title for ad-watch channel"
+  },
+  "error_anti_abuse_ad_message": "Hiện không thể xem quảng cáo. Vui lòng thử lại sau.",
+  "@error_anti_abuse_ad_message": {
+    "description": "Anti-abuse rate-limited dialog body for ad-watch channel"
+  },
+  "error_anti_abuse_signup_title": "Đăng ký bị hạn chế",
+  "@error_anti_abuse_signup_title": {
+    "description": "Anti-abuse rate-limited dialog title for signup channel"
+  },
+  "error_anti_abuse_signup_message": "Đăng ký tạm thời bị hạn chế do phát hiện hoạt động đáng ngờ. Nếu là bạn, vui lòng liên hệ bộ phận hỗ trợ.",
+  "@error_anti_abuse_signup_message": {
+    "description": "Anti-abuse rate-limited dialog body for signup channel — partially explicit + CS link"
+  },
+  "error_anti_abuse_attendance_title": "Điểm danh",
+  "@error_anti_abuse_attendance_title": {
+    "description": "Anti-abuse rate-limited dialog title for attendance channel"
+  },
+  "error_anti_abuse_attendance_message": "Có sự cố khi điểm danh. Vui lòng thử lại sau.",
+  "@error_anti_abuse_attendance_message": {
+    "description": "Anti-abuse rate-limited dialog body for attendance channel"
+  },
+  "error_anti_abuse_artist_request_title": "Yêu cầu nghệ sĩ",
+  "@error_anti_abuse_artist_request_title": {
+    "description": "Anti-abuse rate-limited dialog title for artist-request channel"
+  },
+  "error_anti_abuse_artist_request_message": "Hiện không thể yêu cầu thêm nghệ sĩ. Vui lòng thử lại sau.",
+  "@error_anti_abuse_artist_request_message": {
+    "description": "Anti-abuse rate-limited dialog body for artist-request channel"
+  },
+  "button_cs_inquiry": "Liên hệ hỗ trợ",
+  "@button_cs_inquiry": {
+    "description": "Customer support inquiry button label"
   }
 }

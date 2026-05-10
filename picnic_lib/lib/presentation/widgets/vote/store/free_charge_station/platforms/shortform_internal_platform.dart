@@ -2,6 +2,9 @@
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
+import 'package:picnic_lib/core/utils/rate_limited_handler.dart';
+import 'package:picnic_lib/presentation/widgets/anti_abuse/rate_limited_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:video_player/video_player.dart';
@@ -117,30 +120,7 @@ class ShortformInternalPlatform extends AdPlatform {
             loadAd: () async {
               // 라우트 진입 시점에 최신 광고/토큰 발급 (만료 최소화)
               logInfo('loadAd: issuing new tokens');
-              final supabaseUrl = Environment.supabaseUrl;
-              final token = supabase.auth.currentSession?.accessToken ?? '';
-              final res =
-                  await SupabaseClient(
-                    supabaseUrl,
-                    Environment.supabaseAnonKey,
-                  ).functions.invoke(
-                    'ad-shortform-issue',
-                    headers: {'Authorization': 'Bearer $token'},
-                  );
-              if (res.data == null) {
-                throw Exception('issue failed');
-              }
-              final json = res.data as Map<String, dynamic>;
-              final ad = json['ad'] as Map<String, dynamic>?;
-              final tokens = json['tokens'] as Map<String, dynamic>?;
-              _videoUrl = ad?['video_url'] as String?;
-              _ctaUrl = ad?['cta_url'] as String?;
-              // 임시: ads/* 또는 /video(s)/output/* 경로를 CloudFront HLS 마스터로 동적 치환
-              _videoUrl = rewriteVideoUrlIfNeeded(_videoUrl);
-              logInfo('issued (route) video_url: ${_videoUrl ?? ''}');
-              _viewToken = tokens?['view_token'] as String?;
-              _moreToken = tokens?['more_token'] as String?;
-              return (videoUrl: _videoUrl ?? '', ctaUrl: _ctaUrl);
+              return _issueAdTokensFromRoute();
             },
           ),
           transitionsBuilder: (_, a, _, child) =>
@@ -176,8 +156,65 @@ class ShortformInternalPlatform extends AdPlatform {
       }
       logInfo('tokens reissued');
     } catch (e, s) {
+      final aa = mapToAntiAbuseException(e);
+      if (aa is AntiAbuseException) {
+        logWarning('ad-shortform-issue (reissue) blocked: channel=${aa.channel}');
+        _showRateLimitedAndCloseRoute(aa.channel);
+        return;
+      }
       logError('reissue failed', error: e, stackTrace: s);
     }
+  }
+
+  /// loadAd 경로 — anti-abuse 매핑 + token 추출 책임을 한 군데로 모음.
+  /// blocked 시 fullscreen 라우트를 닫고 부모 context 에서 dialog 노출 후 빈 결과 반환.
+  Future<({String videoUrl, String? ctaUrl})> _issueAdTokensFromRoute() async {
+    final supabaseUrl = Environment.supabaseUrl;
+    final token = supabase.auth.currentSession?.accessToken ?? '';
+    try {
+      final res =
+          await SupabaseClient(supabaseUrl, Environment.supabaseAnonKey)
+              .functions
+              .invoke(
+        'ad-shortform-issue',
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (res.data == null) {
+        throw Exception('issue failed');
+      }
+      final json = res.data as Map<String, dynamic>;
+      final ad = json['ad'] as Map<String, dynamic>?;
+      final tokens = json['tokens'] as Map<String, dynamic>?;
+      _videoUrl = ad?['video_url'] as String?;
+      _ctaUrl = ad?['cta_url'] as String?;
+      // 임시: ads/* 또는 /video(s)/output/* 경로를 CloudFront HLS 마스터로 동적 치환
+      _videoUrl = rewriteVideoUrlIfNeeded(_videoUrl);
+      logInfo('issued (route) video_url: ${_videoUrl ?? ''}');
+      _viewToken = tokens?['view_token'] as String?;
+      _moreToken = tokens?['more_token'] as String?;
+      return (videoUrl: _videoUrl ?? '', ctaUrl: _ctaUrl);
+    } catch (e) {
+      final aa = mapToAntiAbuseException(e);
+      if (aa is AntiAbuseException) {
+        logWarning('ad-shortform-issue blocked: channel=${aa.channel}');
+        _showRateLimitedAndCloseRoute(aa.channel);
+        // 빈 videoUrl 반환 → fullscreen 의 _initializeFlow 가 mounted 체크에서 종료.
+        return (videoUrl: '', ctaUrl: null);
+      }
+      rethrow;
+    }
+  }
+
+  /// fullscreen 라우트 close + 부모 context 에서 anti-abuse 다이얼로그 표시.
+  void _showRateLimitedAndCloseRoute(String channel) {
+    if (context.mounted) {
+      Navigator.of(context, rootNavigator: true).maybePop();
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        showRateLimitedDialog(context, channel: channel);
+      }
+    });
   }
 
   void _onProgress() {

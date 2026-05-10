@@ -2327,5 +2327,41 @@
   "label_attendance_ad_watch": "ดูโฆษณา",
   "@label_attendance_ad_watch": {
     "description": "Watch ad tab label"
+  },
+  "error_anti_abuse_ad_title": "ดูโฆษณา",
+  "@error_anti_abuse_ad_title": {
+    "description": "Anti-abuse rate-limited dialog title for ad-watch channel"
+  },
+  "error_anti_abuse_ad_message": "ขณะนี้ไม่สามารถดูโฆษณาได้ กรุณาลองอีกครั้งภายหลัง",
+  "@error_anti_abuse_ad_message": {
+    "description": "Anti-abuse rate-limited dialog body for ad-watch channel"
+  },
+  "error_anti_abuse_signup_title": "การสมัครถูกจำกัด",
+  "@error_anti_abuse_signup_title": {
+    "description": "Anti-abuse rate-limited dialog title for signup channel"
+  },
+  "error_anti_abuse_signup_message": "การสมัครถูกจำกัดชั่วคราวเนื่องจากตรวจพบกิจกรรมที่ผิดปกติ หากเป็นคุณกรุณาติดต่อฝ่ายบริการลูกค้า",
+  "@error_anti_abuse_signup_message": {
+    "description": "Anti-abuse rate-limited dialog body for signup channel — partially explicit + CS link"
+  },
+  "error_anti_abuse_attendance_title": "เช็คอิน",
+  "@error_anti_abuse_attendance_title": {
+    "description": "Anti-abuse rate-limited dialog title for attendance channel"
+  },
+  "error_anti_abuse_attendance_message": "เกิดปัญหาในการเช็คอิน กรุณาลองอีกครั้งภายหลัง",
+  "@error_anti_abuse_attendance_message": {
+    "description": "Anti-abuse rate-limited dialog body for attendance channel"
+  },
+  "error_anti_abuse_artist_request_title": "คำขอศิลปิน",
+  "@error_anti_abuse_artist_request_title": {
+    "description": "Anti-abuse rate-limited dialog title for artist-request channel"
+  },
+  "error_anti_abuse_artist_request_message": "ขณะนี้ไม่สามารถส่งคำขอเพิ่มศิลปินได้ กรุณาลองอีกครั้งภายหลัง",
+  "@error_anti_abuse_artist_request_message": {
+    "description": "Anti-abuse rate-limited dialog body for artist-request channel"
+  },
+  "button_cs_inquiry": "ติดต่อฝ่ายสนับสนุน",
+  "@button_cs_inquiry": {
+    "description": "Customer support inquiry button label"
   }
 }

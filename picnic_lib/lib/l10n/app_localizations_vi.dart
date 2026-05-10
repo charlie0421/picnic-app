@@ -1834,4 +1834,35 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get label_attendance_ad_watch => 'Xem quảng cáo';
+
+  @override
+  String get error_anti_abuse_ad_title => 'Xem quảng cáo';
+
+  @override
+  String get error_anti_abuse_ad_message =>
+      'Hiện không thể xem quảng cáo. Vui lòng thử lại sau.';
+
+  @override
+  String get error_anti_abuse_signup_title => 'Đăng ký bị hạn chế';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      'Đăng ký tạm thời bị hạn chế do phát hiện hoạt động đáng ngờ. Nếu là bạn, vui lòng liên hệ bộ phận hỗ trợ.';
+
+  @override
+  String get error_anti_abuse_attendance_title => 'Điểm danh';
+
+  @override
+  String get error_anti_abuse_attendance_message =>
+      'Có sự cố khi điểm danh. Vui lòng thử lại sau.';
+
+  @override
+  String get error_anti_abuse_artist_request_title => 'Yêu cầu nghệ sĩ';
+
+  @override
+  String get error_anti_abuse_artist_request_message =>
+      'Hiện không thể yêu cầu thêm nghệ sĩ. Vui lòng thử lại sau.';
+
+  @override
+  String get button_cs_inquiry => 'Liên hệ hỗ trợ';
 }

@@ -1760,4 +1760,34 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get label_attendance_ad_watch => '広告を見る';
+
+  @override
+  String get error_anti_abuse_ad_title => '広告視聴';
+
+  @override
+  String get error_anti_abuse_ad_message => '現在広告を視聴できません。しばらくしてから再度お試しください。';
+
+  @override
+  String get error_anti_abuse_signup_title => '会員登録の制限';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      '不審なアクティビティが検出されたため、登録が一時的に制限されました。ご本人の場合はサポートまでお問い合わせください。';
+
+  @override
+  String get error_anti_abuse_attendance_title => '出席';
+
+  @override
+  String get error_anti_abuse_attendance_message =>
+      '出席チェックに問題が発生しました。しばらくしてから再度お試しください。';
+
+  @override
+  String get error_anti_abuse_artist_request_title => 'アーティストリクエスト';
+
+  @override
+  String get error_anti_abuse_artist_request_message =>
+      '現在アーティスト追加リクエストができません。しばらくしてから再度お試しください。';
+
+  @override
+  String get button_cs_inquiry => 'サポートに問い合わせる';
 }

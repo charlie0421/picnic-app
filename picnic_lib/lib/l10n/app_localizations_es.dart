@@ -1853,4 +1853,35 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get label_attendance_ad_watch => 'Ver anuncios';
+
+  @override
+  String get error_anti_abuse_ad_title => 'Ver anuncios';
+
+  @override
+  String get error_anti_abuse_ad_message =>
+      'En este momento no puedes ver anuncios. Inténtalo de nuevo más tarde.';
+
+  @override
+  String get error_anti_abuse_signup_title => 'Registro restringido';
+
+  @override
+  String get error_anti_abuse_signup_message =>
+      'El registro está temporalmente restringido por actividad sospechosa. Si eres tú, contacta con atención al cliente.';
+
+  @override
+  String get error_anti_abuse_attendance_title => 'Asistencia';
+
+  @override
+  String get error_anti_abuse_attendance_message =>
+      'Hay un problema con el registro de asistencia. Inténtalo de nuevo más tarde.';
+
+  @override
+  String get error_anti_abuse_artist_request_title => 'Solicitud de artista';
+
+  @override
+  String get error_anti_abuse_artist_request_message =>
+      'En este momento no puedes solicitar artistas. Inténtalo de nuevo más tarde.';
+
+  @override
+  String get button_cs_inquiry => 'Contactar con soporte';
 }
