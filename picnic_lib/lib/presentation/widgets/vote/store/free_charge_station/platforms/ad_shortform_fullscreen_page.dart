@@ -146,6 +146,10 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
         _resolvedVideoUrl = widget.videoUrl;
         _resolvedCtaUrl = widget.ctaUrl;
       }
+      // anti-abuse rate-limit 등으로 loadAd 가 빈 url 을 sentinel 로 반환한 경우, page
+      // 가 다음 frame 에 pop 되더라도 그 frame 동안 _initPlayer('') 가 실행되며 충돌.
+      // 빈 url 이면 init 시도 자체를 skip — pop 는 platform 측에서 이미 예약됨.
+      if ((_resolvedVideoUrl ?? '').isEmpty) return;
       if (!mounted) return;
       try {
         await _initPlayer(_resolvedVideoUrl!);
