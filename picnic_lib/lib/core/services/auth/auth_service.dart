@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:picnic_lib/core/errors/auth_exception.dart';
+import 'package:picnic_lib/core/services/anti_abuse/signup_anti_abuse_service.dart';
 import 'package:picnic_lib/core/services/auth/auth_service_helper.dart';
 import 'package:picnic_lib/core/services/auth/social_login/apple_login.dart';
 import 'package:picnic_lib/core/services/auth/social_login/google_login.dart';
@@ -39,6 +40,7 @@ class AuthService {
   final SecureStorageService _storageService;
   final NetworkConnectivityService _networkService;
   final Map<supa.OAuthProvider, SocialLogin> _loginProviders;
+  final SignupAntiAbuseService _signupAntiAbuse;
 
   static const _timeouts = AuthTimeouts();
   final _sessionController = StreamController<Session?>.broadcast();
@@ -47,9 +49,11 @@ class AuthService {
     SecureStorageService? storageService,
     NetworkConnectivityService? networkService,
     Map<supa.OAuthProvider, SocialLogin>? loginProviders,
+    SignupAntiAbuseService? signupAntiAbuse,
   }) : _storageService = storageService ?? SecureStorageService(),
        _networkService = networkService ?? NetworkConnectivityService(),
-       _loginProviders = loginProviders ?? _createDefaultLoginProviders();
+       _loginProviders = loginProviders ?? _createDefaultLoginProviders(),
+       _signupAntiAbuse = signupAntiAbuse ?? SignupAntiAbuseService(supabase);
 
   static Map<supa.OAuthProvider, SocialLogin> _createDefaultLoginProviders() =>
       {
@@ -79,6 +83,11 @@ class AuthService {
         throw PicnicAuthExceptions.invalidToken();
       }
 
+      // Anti-abuse precheck — 차단된 IP 면 AntiAbuseException(signup) throw,
+      // 통과 시 sig hint 발급. signInWithIdToken metadata 로 못 실어도 verify 단에서 사용.
+      // best-effort: precheck 실패 (네트워크 등) 는 silent fallback.
+      final hint = await _signupAntiAbuse.runPrecheck();
+
       final response = await supabase.auth.signInWithIdToken(
         provider: provider,
         idToken: result.idToken!,
@@ -94,6 +103,13 @@ class AuthService {
 
       // 세션 동기화 대기 - 시뮬레이터에서 메모리 동기화가 늦을 수 있음
       await Future.delayed(const Duration(milliseconds: 100));
+
+      // Anti-abuse signup-verify — fire-and-forget. server 가 hint 검증 후
+      // raw_app_meta_data 의 signup_pending → signup_verified/unverified 마킹.
+      // 실패해도 사용자 흐름은 진행 (Phase 3 grace 까지 손실 없음).
+      if (hint != null) {
+        unawaited(_signupAntiAbuse.runVerify(hint));
+      }
 
       // 국가 추적 (로그인 직후)
       await _trackCountry('login');
