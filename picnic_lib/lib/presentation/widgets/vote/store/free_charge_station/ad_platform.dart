@@ -361,6 +361,14 @@ abstract class AdPlatform {
       '광고가 없습니다',
       '광고 로드 실패',
       '광고 로드 시간 초과',
+      // Tapjoy SDK 미연결 (초기화 race / 백그라운드 복귀 race) — 사용자 환경
+      // 또는 SDK lifecycle 이슈, 우리 코드 버그 아님 (PICNIC-APP-43M)
+      'sdk is not connected',
+      // iOS NSURLError 계열 (-1001 timeout / -1009 not connected / -1003 cannot
+      // find host / -1004 cannot connect to host 등) — 사용자 네트워크 환경
+      // (PICNIC-APP-43N: '작업을 완료할 수 없습니다. Server Error With Status Code:-1001')
+      'server error with status code:-',
+      '작업을 완료할 수 없습니다',
     ];
 
     return nonReportableKeywords
