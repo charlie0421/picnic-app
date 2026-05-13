@@ -700,8 +700,11 @@ void main() {
         );
       });
 
-      test('still does NOT filter actionable AuthApiException — e.g. '
-          'user_banned should surface (handled separately, not noise)', () {
+      test('filters AuthApiException(User is banned) — admin policy block, '
+          'UI handles it (PICNIC-APP-4RJ: 39u/183e accumulated)', () {
+        // 이전 결정 (NOT filter, "handled separately") 은 실제 누적 데이터로
+        // 뒤집힘 — UI 가 user_banned 안내 후 종료하는 정상 흐름이므로 Sentry
+        // 노이즈로 처리.
         expect(
           AppInitializerHelper.shouldFilterSentryEvent(
             sentryEnabled: true,
@@ -709,6 +712,20 @@ void main() {
             exceptionType: 'AuthApiException',
             exceptionValue: 'AuthApiException(message: User is banned, '
                 'statusCode: 403, code: user_banned)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('still does NOT filter unrelated AuthApiException — e.g. real '
+          'authorization bug should surface', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthApiException',
+            exceptionValue: 'AuthApiException(message: '
+                'something_unexpected, statusCode: 500)',
           ),
           isFalse,
         );
