@@ -98,7 +98,10 @@ class AppInitializer {
       // (PICNIC-APP-9E: 8216 events / 323 users). 우리 백엔드 5xx 는
       // PostgrestException / FunctionException 같은 SDK 별 exception 으로
       // 이미 캡쳐되므로 시야 손실 없음.
-      options.captureFailedRequests = false;
+      //
+      // sentry_flutter 9.14+ 의 captureNativeFailedRequests 만 false 로 두어
+      // Dart-side (SentryHttpClient/dio) 캡쳐 동작은 그대로 유지한다.
+      options.captureNativeFailedRequests = false;
 
       options.beforeSend = (event, hint) {
         final exceptionValue =
