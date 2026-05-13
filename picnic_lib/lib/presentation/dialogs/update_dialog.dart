@@ -77,7 +77,9 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
 
   void _launchAppStore(String url, message) async {
     if (await canLaunchUrlString(url)) {
-      await launchUrlString(url);
+      // App Store / Play Store URL 은 externalApplication 으로 열어야 OS 가
+      // 외부 스토어 앱으로 deep-link 함 (PICNIC-APP-4ED 참고).
+      await launchUrlString(url, mode: LaunchMode.externalApplication);
     } else {
       throw message;
     }
