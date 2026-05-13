@@ -390,6 +390,91 @@ void main() {
         );
       });
 
+      // -------- PICNIC-APP-4ZX: wrapped network/timeout in FunctionException
+      test('filters FunctionException wrapping TimeoutException '
+          '(PICNIC-APP-4ZX)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue:
+                'FunctionException(status: 500, details: {error: '
+                'TimeoutException after 0:00:30.000000: Request timed out '
+                'after 30 seconds}, reasonPhrase: Network Error)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters FunctionException wrapping Software caused '
+          'connection abort (Android net swap)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue:
+                'FunctionException(status: 500, details: {error: '
+                'NetworkError: Network connection error: ClientException: '
+                'Software caused connection abort, '
+                'uri=https://xtijtefcycoeqludlngc.supabase.co/functions/v1/'
+                'attendance-check}, reasonPhrase: Network Error)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters FunctionException wrapping Connection reset by peer', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue:
+                'FunctionException(status: 500, details: {error: '
+                'ClientException: Failed to send request: ClientException: '
+                'Connection reset by peer, '
+                'uri=https://xtijtefcycoeqludlngc.supabase.co/functions/v1/'
+                'attendance-check}, reasonPhrase: Network Error)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters FunctionException wrapping Network is unreachable', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue:
+                'FunctionException(status: 500, details: {error: '
+                'NetworkError: Network connection error: ClientException with '
+                'SocketException: Connection failed (OS Error: Network is '
+                'unreachable, errno = 101), '
+                'address = xtijtefcycoeqludlngc.supabase.co}, '
+                'reasonPhrase: Network Error)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters PostgrestException wrapping TimeoutException', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'PostgrestException',
+            exceptionValue:
+                'PostgrestException(message: {"error": "TimeoutException '
+                'after 0:00:30.000000: Request timed out after 30 seconds"}, '
+                'code: 500, details: Network Error, hint: null)',
+          ),
+          isTrue,
+        );
+      });
+
       // -------- 1.2.28 prod-leak fixes --------
 
       test('filters FunctionException ACCOUNT_DELETED — handled reactively '

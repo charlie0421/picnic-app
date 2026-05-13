@@ -38,6 +38,25 @@ class AppInitializerHelper {
       return true;
     }
 
+    // Wrapped network/transport noise patterns — used by both
+    // FunctionException and PostgrestException blocks below. The actual
+    // wire-level error (timeout, DNS, TCP reset) is rendered into the
+    // wrapping exception's message body, so the exact-type filter above
+    // misses them.
+    bool isWrappedNetworkNoise(String v) =>
+        v.contains('NetworkError') ||
+        v.contains('SocketException') ||
+        v.contains('HandshakeException') ||
+        v.contains('Failed host lookup') ||
+        v.contains('Connection closed') ||
+        v.contains('Connection reset') ||
+        v.contains('Connection terminated') ||
+        v.contains('TimeoutException') || // PICNIC-APP-4ZX: 30s request timeout
+        v.contains('Software caused connection abort') || // Android net swap
+        v.contains('Connection abort') ||
+        v.contains('Connection failed') ||
+        v.contains('Network is unreachable');
+
     // Soft-deleted account signal — handled reactively by
     // AccountDeletionHandler (sign-out side effect fires from beforeSend).
     // Drop the Sentry event so it does not flood as noise on every Edge
@@ -75,6 +94,17 @@ class AppInitializerHelper {
       return true;
     }
 
+    // Edge Function wrapping a user-side network drop / timeout
+    // (PICNIC-APP-4ZX, 4ZY). supabase_flutter throws FunctionException with
+    // status=500 and the underlying transport error (TimeoutException /
+    // SocketException / Connection reset / Network is unreachable / etc.)
+    // rendered into the details body. The status-based filter above only
+    // catches gateway-side 5xx; this block catches client-side network noise.
+    if (exceptionType == 'FunctionException' &&
+        isWrappedNetworkNoise(exceptionValue)) {
+      return true;
+    }
+
     // RLS policy violation noise (PICNIC-APP-47)
     if (exceptionType == 'PostgrestException' &&
         exceptionValue.contains('row-level security policy')) {
@@ -94,17 +124,11 @@ class AppInitializerHelper {
       return true;
     }
 
-    // Postgrest wrapping a user-side network drop (PICNIC-APP-47).
+    // Postgrest wrapping a user-side network drop / timeout (PICNIC-APP-47).
     // The wire-level error is rendered into the message, not the type, so
     // exact-type filters above miss it. Drop these as user-environment noise.
     if (exceptionType == 'PostgrestException' &&
-        (exceptionValue.contains('NetworkError') ||
-            exceptionValue.contains('SocketException') ||
-            exceptionValue.contains('HandshakeException') ||
-            exceptionValue.contains('Failed host lookup') ||
-            exceptionValue.contains('Connection closed') ||
-            exceptionValue.contains('Connection reset') ||
-            exceptionValue.contains('Connection terminated'))) {
+        isWrappedNetworkNoise(exceptionValue)) {
       return true;
     }
 
