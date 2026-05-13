@@ -45,7 +45,11 @@ class ForceUpdateOverlay extends StatelessWidget {
 
   void _launchAppStore(String url, String message) async {
     if (await canLaunchUrlString(url)) {
-      await launchUrlString(url);
+      // App Store / Play Store URL 은 externalApplication 으로 열어야 OS 가
+      // 외부 스토어 앱으로 deep-link 함. platformDefault(iOS = SFSafariView
+      // Controller) 는 store URL 인텐트 미스매치로 _failedSafariViewController
+      // LoadException 을 던짐 (PICNIC-APP-4ED: 169u/330e).
+      await launchUrlString(url, mode: LaunchMode.externalApplication);
     } else {
       throw message;
     }
