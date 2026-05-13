@@ -307,6 +307,10 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
   }
 
   Future<void> _deleteAccount() async {
+    // ProviderContainer 캡쳐 — delete-user Edge Function 호출 중 setting page
+    // 가 unmount 되면 (사용자가 뒤로가기 등) ref 접근이 StateError 를 던진다
+    // (PICNIC-APP-W1). container 는 ProviderScope root 와 함께 살아있어 안전.
+    final container = ProviderScope.containerOf(context);
     try {
       // 현재 로그인된 사용자 가져오기
       final user = supabase.auth.currentUser;
@@ -333,9 +337,11 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
 
       if (response.statusCode == 200) {
         logger.i('User deleted successfully');
-        ref.read(navigationInfoProvider.notifier).setBottomNavigationIndex(0);
-        ref.read(userInfoProvider.notifier).logout();
-        ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
+        container
+            .read(navigationInfoProvider.notifier)
+            .setBottomNavigationIndex(0);
+        container.read(userInfoProvider.notifier).logout();
+        container.read(navigationInfoProvider.notifier).setResetStackMyPage();
 
         if (!mounted) return;
         if (context.mounted) {
