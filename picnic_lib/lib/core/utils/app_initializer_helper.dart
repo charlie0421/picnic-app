@@ -16,6 +16,7 @@ class AppInitializerHelper {
     required bool isDebugMode,
     required String exceptionType,
     required String exceptionValue,
+    List<String> stackFrameFunctions = const [],
   }) {
     // Drop everything when Sentry is disabled or in debug mode
     if (!sentryEnabled || isDebugMode) {
@@ -201,6 +202,38 @@ class AppInitializerHelper {
       return true;
     }
 
+    // App Hanging / ANR 의 stack 에 광고 SDK frame 이 있는 경우 — Pangle/
+    // Tapjoy/AdMob/Branch SDK 가 main thread 를 차단하는 케이스. 우리가 직접
+    // 호출하는 코드 경로가 아닌 SDK 내부 main loop / lifecycle 콜백에서 발생.
+    // 우리 코드 자체의 hang 은 그대로 추적해야 하므로 stack 매칭 기반으로
+    // 정확히 광고 SDK culprit 만 drop.
+    if ((exceptionType == 'App Hanging' ||
+            exceptionType == 'ApplicationNotResponding') &&
+        _hasAdSdkFrame(stackFrameFunctions)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /// 광고 SDK 의 internal frame prefix 매칭 — App Hanging/ANR culprit 검사용.
+  static bool _hasAdSdkFrame(List<String> frames) {
+    const adSdkPatterns = [
+      'PAG', // Pangle (TikTok ByteDance SDK) - PAGWebView/PAGLBase/PAGDevice
+      'GAD_', // Google AdMob native helpers (GAD_GADAudioSession 등)
+      'GADAudio',
+      'GADRewarded',
+      'GADInterstitial',
+      'Tapjoy',
+      'TJPlacement',
+      'Branch', // Branch SDK (BranchLogger, BranchSDK 등)
+      'bytedance', // Pangle internal modules
+    ];
+    for (final fn in frames) {
+      for (final pattern in adSdkPatterns) {
+        if (fn.contains(pattern)) return true;
+      }
+    }
     return false;
   }
 

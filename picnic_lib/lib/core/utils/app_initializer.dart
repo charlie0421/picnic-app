@@ -104,10 +104,16 @@ class AppInitializer {
       options.captureNativeFailedRequests = false;
 
       options.beforeSend = (event, hint) {
-        final exceptionValue =
-            event.exceptions?.firstOrNull?.value ?? '';
-        final exceptionType =
-            event.exceptions?.firstOrNull?.type ?? '';
+        final exception = event.exceptions?.firstOrNull;
+        final exceptionValue = exception?.value ?? '';
+        final exceptionType = exception?.type ?? '';
+
+        // App Hanging / ANR culprit 매칭용 — stack 의 광고 SDK frame 검출
+        // (PICNIC-APP-45E/45S/56S 등의 PAG/GAD/Tapjoy/Branch 노이즈 차단).
+        final stackFrameFunctions = exception?.stackTrace?.frames
+                .map((f) => f.function ?? '')
+                .toList() ??
+            const <String>[];
 
         // Reactive ACCOUNT_DELETED handling: any Edge Function 403 with
         // code ACCOUNT_DELETED triggers a one-shot local sign-out so the
@@ -126,6 +132,7 @@ class AppInitializer {
           isDebugMode: kDebugMode,
           exceptionType: exceptionType,
           exceptionValue: exceptionValue,
+          stackFrameFunctions: stackFrameFunctions,
         );
 
         return shouldFilter ? null : event;
