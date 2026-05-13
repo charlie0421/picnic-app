@@ -186,6 +186,14 @@ class AppInitializerHelper {
       return true;
     }
 
+    // User is banned (어드민 정책 차단) — UI 가 차단 안내 후 흐름 종료하는
+    // 정상 응답. 차단 사용자가 재로그인을 시도할 때마다 누적 (PICNIC-APP-4RJ).
+    if (exceptionType == 'AuthApiException' &&
+        (exceptionValue.contains('User is banned') ||
+            exceptionValue.contains('user_banned'))) {
+      return true;
+    }
+
     // Auth session missing — refreshSession() 호출 시 세션이 없는 정상 상태.
     // attendance 등 인증 필요 API 에서 401/403 → 세션 갱신 시도 → 세션 부재로
     // 401 → 사용자에게 재로그인 안내하는 self-healing 흐름의 일부 (PICNIC-APP-508).
