@@ -186,6 +186,13 @@ class AppInitializerHelper {
       return true;
     }
 
+    // Auth session missing — refreshSession() 호출 시 세션이 없는 정상 상태.
+    // attendance 등 인증 필요 API 에서 401/403 → 세션 갱신 시도 → 세션 부재로
+    // 401 → 사용자에게 재로그인 안내하는 self-healing 흐름의 일부 (PICNIC-APP-508).
+    if (exceptionType == 'AuthSessionMissingException') {
+      return true;
+    }
+
     return false;
   }
 

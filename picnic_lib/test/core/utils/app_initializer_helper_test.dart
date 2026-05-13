@@ -686,6 +686,20 @@ void main() {
         );
       });
 
+      test('filters AuthSessionMissingException — self-healing re-login '
+          'flow (PICNIC-APP-508)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthSessionMissingException',
+            exceptionValue: 'AuthSessionMissingException(message: '
+                'Auth session missing!, statusCode: 400)',
+          ),
+          isTrue,
+        );
+      });
+
       test('still does NOT filter actionable AuthApiException — e.g. '
           'user_banned should surface (handled separately, not noise)', () {
         expect(
