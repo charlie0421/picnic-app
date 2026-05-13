@@ -41,6 +41,9 @@ void main() {
         '광고가 없습니다',
         '광고 로드 실패',
         '광고 로드 시간 초과',
+        'sdk is not connected',
+        'server error with status code:-',
+        '작업을 완료할 수 없습니다',
       ];
 
       return nonReportableKeywords
@@ -97,6 +100,38 @@ void main() {
       expect(
         isNonReportableAdError('Pangle', 'error', 'AD not_ready'),
         isTrue,
+      );
+    });
+
+    test('Tapjoy SDK is not connected is non-reportable (PICNIC-APP-43M)', () {
+      expect(
+        isNonReportableAdError(
+            'Tapjoy', 'error', 'Tapjoy SDK is not connected'),
+        isTrue,
+      );
+    });
+
+    test('iOS NSURLError negative status code is non-reportable '
+        '(PICNIC-APP-43N)', () {
+      // -1001 (timeout)
+      expect(
+        isNonReportableAdError('Tapjoy', 'error',
+            '작업을 완료할 수 없습니다. Server Error With Status Code:-1001'),
+        isTrue,
+      );
+      // -1009 (not connected)
+      expect(
+        isNonReportableAdError(
+            'Tapjoy', 'error', 'Server Error With Status Code:-1009'),
+        isTrue,
+      );
+    });
+
+    test('positive HTTP status (500) IS reportable (sanity)', () {
+      expect(
+        isNonReportableAdError(
+            'Tapjoy', 'error', 'Server Error With Status Code:500'),
+        isFalse,
       );
     });
 
