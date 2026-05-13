@@ -237,17 +237,28 @@ class AuthService {
   Future<bool> _refreshSession() => refreshSession();
 
   Future<void> signOut() async {
+    // Best-effort logout: 소셜 provider logout 이 unknown 에러로 실패해도
+    // local auth state 는 항상 정리한다. provider logout 자체는 idempotent
+    // 하므로 silent fail 이 사용자 UX 에 더 좋고, unknown 에러는 PicnicAuth
+    // Exceptions.unknown 으로 wrap 되어 Sentry 에 노이즈로 쌓였음
+    // (PICNIC-APP-4XS: GoogleLogin.logout unknown — 7u/9e).
     try {
       final session = await _storageService.getSession();
       if (session != null) {
         final provider = _getProviderFromSession(session);
-        await _logoutFromProvider(provider);
+        try {
+          await _logoutFromProvider(provider);
+        } catch (e, s) {
+          logger.w(
+            'Social provider logout failed (proceeding with local cleanup)',
+            error: e,
+            stackTrace: s,
+          );
+        }
         await DeviceManager.updateLastSeen();
       }
+    } finally {
       await _clearAuthState();
-    } catch (e, s) {
-      logger.e('Error during sign out', error: e, stackTrace: s);
-      rethrow;
     }
   }
 
