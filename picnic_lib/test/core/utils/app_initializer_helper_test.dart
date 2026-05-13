@@ -509,6 +509,56 @@ void main() {
         );
       });
 
+      test('filters String-typed PostgrestException wrapping Failed host '
+          'lookup (PICNIC-APP-3R)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'String',
+            exceptionValue:
+                'PostgrestException(message: {"error": "NetworkError: '
+                'Network connection error: ClientException with '
+                'SocketException: Failed host lookup: '
+                '\'xtijtefcycoeqludlngc.supabase.co\' '
+                '(OS Error: No address associated with hostname, errno = 7)"}, '
+                'code: 500, details: Network Error, hint: null)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters String-typed AuthRetryableFetchException wrapping '
+          'HandshakeException (PICNIC-APP-4RP)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'String',
+            exceptionValue:
+                'AuthRetryableFetchException(message: {"error": '
+                '"ClientException: Failed to send request: HandshakeException: '
+                'Connection terminated during handshake, '
+                'uri=https://xtijtefcycoeqludlngc.supabase.co/auth/v1/token?'
+                'grant_type=refresh_token"}, statusCode: 500)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('does not filter String type with unrelated message', () {
+        // 회귀 보호: 일반 String throw 는 그대로 캡쳐
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'String',
+            exceptionValue: 'some unrelated business error',
+          ),
+          isFalse,
+        );
+      });
+
       test('filters HandshakeException as network noise (TLS failures, '
           'PICNIC-APP-47 in 1.2.28)', () {
         expect(

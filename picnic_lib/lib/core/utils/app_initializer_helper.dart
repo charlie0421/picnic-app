@@ -92,6 +92,16 @@ class AppInitializerHelper {
       return true;
     }
 
+    // String-typed wrapping of typed exceptions
+    // (PICNIC-APP-3R: PostgrestException + Failed host lookup,
+    //  PICNIC-APP-4RP: AuthRetryableFetchException + HandshakeException).
+    // Some code path stringifies the typed exception before re-throwing or
+    // before passing to FlutterError.onError. The wire-level error is still
+    // embedded in the message, so reuse the same wrapped-network patterns.
+    if (exceptionType == 'String' && isWrappedNetworkNoise(exceptionValue)) {
+      return true;
+    }
+
     // Edge Function transient gateway errors (502/503/504)
     // 503 SUPABASE_EDGE_RUNTIME_ERROR is a Supabase platform-side outage
     // signal, not a picnic bug (PICNIC-APP-4ZY/4ZX/4EN).
