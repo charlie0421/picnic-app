@@ -700,6 +700,101 @@ void main() {
         );
       });
 
+      // -------- App Hanging / ANR with ad SDK culprit --------
+
+      test('filters App Hanging when stack has Pangle (PAG) frame', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'App Hanging',
+            exceptionValue: 'App hanging for at least 2000 ms.',
+            stackFrameFunctions: const [
+              'start',
+              '_pthread_start',
+              '-[PAGWebViewControllerViewModel handleWebViewWebContentProcessDidTerminate:]',
+            ],
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters App Hanging when stack has AdMob (GAD_) frame', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'App Hanging',
+            exceptionValue: 'App hanging for at least 2000 ms.',
+            stackFrameFunctions: const [
+              'GAD_GADAudioSession_arm64_12_2_0',
+            ],
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters App Hanging when stack has Tapjoy frame', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'App Hanging',
+            exceptionValue: 'App hanging for at least 2000 ms.',
+            stackFrameFunctions: const [
+              '-[TJPlacementManager requestContent:]',
+            ],
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters ApplicationNotResponding when stack has Branch frame', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'ApplicationNotResponding',
+            exceptionValue: 'ANR',
+            stackFrameFunctions: const [
+              '-[BranchLogger callingClass]',
+            ],
+          ),
+          isTrue,
+        );
+      });
+
+      test('does NOT filter App Hanging when stack has only our code '
+          '(real hang in our code should surface)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'App Hanging',
+            exceptionValue: 'App hanging for at least 2000 ms.',
+            stackFrameFunctions: const [
+              '_VoteHomePageState._fetch',
+              'PostgrestBuilder.then',
+            ],
+          ),
+          isFalse,
+        );
+      });
+
+      test('does NOT filter non-hang exception even if PAG in stack '
+          '(회귀 보호: hang/ANR 만 ad SDK frame 기반 필터)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'TypeError',
+            exceptionValue: 'something else',
+            stackFrameFunctions: const ['PAGSomething'],
+          ),
+          isFalse,
+        );
+      });
+
       test('filters AuthApiException(User is banned) — admin policy block, '
           'UI handles it (PICNIC-APP-4RJ: 39u/183e accumulated)', () {
         // 이전 결정 (NOT filter, "handled separately") 은 실제 누적 데이터로
