@@ -468,6 +468,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }
 
   Future<void> _performVoting(int voteAmount, String userId) async {
+    // ProviderContainer 캡쳐 — async 작업 도중/이후 dialog 가 unmount 되어도
+    // (사용자가 다른 탭으로 이동/뒤로가기) catch 블록의 provider 접근이 안전
+    // 하도록 함수 시작 시 container 를 보관 (PICNIC-APP-530).
+    final container = ProviderScope.containerOf(context);
     try {
       // 사용량 계산
       final usage = _calculateUsage(voteAmount);
@@ -531,18 +535,22 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       logger.e('error', error: e, stackTrace: s);
       _loadingKey.currentState?.hide();
 
-      // 투표 실패 시 롤백: 서버 데이터로 새로고침
-      ref
+      // 투표 실패 시 롤백: 서버 데이터로 새로고침.
+      // dialog 가 unmount 되어 ref 가 disposed 일 수 있으므로 capture 한
+      // container 사용 (PICNIC-APP-530).
+      container
           .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
           .fetch(voteId: widget.voteModel.id);
-      ref.read(userInfoProvider.notifier).getUserProfiles();
+      container.read(userInfoProvider.notifier).getUserProfiles();
 
       // 투표 실패 시 버튼 다시 활성화
       if (mounted) {
         setState(() => _isVoting = false);
       }
 
-      Navigator.of(context).pop();
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
 
       _showVotingFailDialog();
     }
