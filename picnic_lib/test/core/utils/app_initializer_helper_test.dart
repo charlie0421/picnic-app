@@ -493,6 +493,22 @@ void main() {
         );
       });
 
+      test('filters FunctionException SIGNUP_UNVERIFIED — email unverified '
+          'business signal (PICNIC-APP-4EN)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'FunctionException',
+            exceptionValue:
+                'FunctionException(status: 403, details: {error: '
+                'signup_unverified, code: SIGNUP_UNVERIFIED}, '
+                'reasonPhrase: Forbidden)',
+          ),
+          isTrue,
+        );
+      });
+
       test('filters HandshakeException as network noise (TLS failures, '
           'PICNIC-APP-47 in 1.2.28)', () {
         expect(

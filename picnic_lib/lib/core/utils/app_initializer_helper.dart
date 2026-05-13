@@ -66,6 +66,15 @@ class AppInitializerHelper {
       return true;
     }
 
+    // Email-unverified signup — Edge Function returns 403 + SIGNUP_UNVERIFIED
+    // for users who haven't completed email verification (e.g. ad_shortform
+    // reward gating). It's a business-rule signal handled by the UI, not a
+    // bug (PICNIC-APP-4EN: 322 users / 868 events).
+    if (exceptionType == 'FunctionException' &&
+        exceptionValue.contains('SIGNUP_UNVERIFIED')) {
+      return true;
+    }
+
     // Supabase SDK internal TypeError (PICNIC-APP-T2)
     if (exceptionType == 'TypeError' &&
         exceptionValue.contains('Null check operator used on a null value')) {
