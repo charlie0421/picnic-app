@@ -133,7 +133,8 @@ class SearchService {
             'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)',
           )
           .neq('id', 0) // artist id 0 제외
-          .eq('is_kpop', true); // K-pop 아티스트만 검색
+          .eq('is_kpop', true) // K-pop 아티스트만 검색
+          .isFilter('deleted_at', null); // soft-deleted 아티스트 제외
 
       // 한국어 초성 검색인 경우 모든 아티스트를 가져와서 로컬 필터링
       if (isKoreanInitials) {
@@ -192,7 +193,8 @@ class SearchService {
               'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)',
             )
             .neq('id', 0)
-            .eq('is_kpop', true); // K-pop 아티스트만 검색
+            .eq('is_kpop', true) // K-pop 아티스트만 검색
+            .isFilter('deleted_at', null); // soft-deleted 아티스트 제외
 
         // 검색어가 있는 경우에만 필터 적용
         if (query.isNotEmpty) {
@@ -219,6 +221,7 @@ class SearchService {
             var groupQuery = supabase
                 .from('artist_group')
                 .select('id,name,image')
+                .isFilter('deleted_at', null) // soft-deleted 그룹 제외
                 .or(
                   'name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh_CN.ilike.%$query%',
                 );
@@ -242,6 +245,7 @@ class SearchService {
                   )
                   .neq('id', 0)
                   .eq('is_kpop', true) // K-pop 아티스트만 검색
+                  .isFilter('deleted_at', null) // soft-deleted 아티스트 제외
                   .filter('artist_group.id', 'in', matchingGroupIds);
 
               // 제외할 ID가 있는 경우
@@ -349,7 +353,7 @@ class SearchService {
           // 1. 북마크된 아티스트 먼저 가져오기
           final bookmarkedResponse = await supabase
               .from('artist_user_bookmark')
-              .select('artist:artist_id($selectFields)')
+              .select('artist:artist_id($selectFields,deleted_at)')
               .order('created_at', ascending: false);
 
           final bookmarkedArtists = (bookmarkedResponse as List<dynamic>)
@@ -359,7 +363,8 @@ class SearchService {
                 artistData['isBookmarked'] = true;
                 return ArtistModel.fromJson(artistData);
               })
-              .where((artist) => artist.id != 0)
+              // soft-deleted 아티스트는 북마크 목록에서도 제외
+              .where((artist) => artist.id != 0 && artist.deletedAt == null)
               .toList();
 
           results.addAll(bookmarkedArtists);
@@ -373,7 +378,8 @@ class SearchService {
                 .from('artist')
                 .select(selectFields)
                 .neq('id', 0)
-                .eq('is_kpop', true);
+                .eq('is_kpop', true)
+                .isFilter('deleted_at', null); // soft-deleted 아티스트 제외
 
             if (bookmarkedIds.isNotEmpty) {
               generalQuery = generalQuery.not('id', 'in', bookmarkedIds);
@@ -417,7 +423,8 @@ class SearchService {
                 .from('artist')
                 .select(selectFields)
                 .neq('id', 0)
-                .eq('is_kpop', true);
+                .eq('is_kpop', true)
+                .isFilter('deleted_at', null); // soft-deleted 아티스트 제외
 
             if (bookmarkedIds.isNotEmpty) {
               query = query.not('id', 'in', bookmarkedIds);
@@ -437,6 +444,7 @@ class SearchService {
                 .select(selectFields)
                 .neq('id', 0)
                 .eq('is_kpop', true)
+                .isFilter('deleted_at', null) // soft-deleted 아티스트 제외
                 .order('name->>$language', ascending: true)
                 .range(page * limit, (page + 1) * limit - 1);
           }
@@ -467,6 +475,7 @@ class SearchService {
             .select(selectFields)
             .neq('id', 0)
             .eq('is_kpop', true)
+            .isFilter('deleted_at', null) // soft-deleted 아티스트 제외
             .order('name->>$language', ascending: true);
 
         final allArtists = (response as List<dynamic>)
@@ -504,6 +513,7 @@ class SearchService {
           .select(selectFields)
           .neq('id', 0)
           .eq('is_kpop', true)
+          .isFilter('deleted_at', null) // soft-deleted 아티스트 제외
           .or('name->>ko.ilike.$searchPattern,name->>en.ilike.$searchPattern')
           .order('name->>$language', ascending: true)
           .range(page * limit, (page + 1) * limit - 1);
