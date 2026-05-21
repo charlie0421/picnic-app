@@ -1,3 +1,4 @@
+import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -104,22 +105,59 @@ class VoteItemRequestRepository {
   }
 
   /// 투표 아이템 요청과 사용자 정보를 함께 생성
+  ///
+  /// `artist-request-add` Edge Function 을 통해 anti-abuse 체크 후 요청을 처리합니다.
+  /// X-Device-Id 헤더를 함께 전송합니다 (디바이스 ID 취득 실패 시 헤더 없이 진행).
   Future<Map<String, dynamic>> createVoteItemRequestWithUser({
     required int voteId,
     required int artistId,
     required String userId,
   }) async {
     try {
-      final response = await _supabase.rpc(
-        'create_vote_item_request_with_user',
-        params: {
-          'vote_id_param': voteId,
-          'artist_id_param': artistId,
-          'user_id_param': userId,
+      // Attach X-Device-Id for anti-abuse device-cohort signal.
+      // Graceful: if retrieval fails the request proceeds without the header.
+      Map<String, String>? extraHeaders;
+      try {
+        final deviceId = await DeviceManager.getDeviceId();
+        extraHeaders = {'X-Device-Id': deviceId};
+      } catch (e) {
+        logger.w('Could not retrieve device ID for artist-request-add header: $e');
+      }
+
+      final fnResponse = await _supabase.functions.invoke(
+        'artist-request-add',
+        body: {
+          'vote_id': voteId,
+          'artist_id': artistId,
         },
+        headers: extraHeaders,
       );
 
-      return response as Map<String, dynamic>;
+      final raw = fnResponse.data;
+      final parsed = raw is Map<String, dynamic> ? raw : <String, dynamic>{};
+      if (parsed['success'] != true) {
+        final errorMap = parsed['error'];
+        final code = errorMap is Map ? errorMap['code'] as String? : null;
+        final message = errorMap is Map
+            ? errorMap['message'] as String? ?? '투표 아이템 요청 생성 실패'
+            : '투표 아이템 요청 생성 실패';
+        if (code == 'ALREADY_REQUESTED') {
+          throw const DuplicateVoteRequestException('이미 해당 아티스트에 대해 신청하셨습니다.');
+        }
+        if (code == 'ARTIST_NOT_FOUND') {
+          throw VoteRequestException('존재하지 않는 아티스트입니다.');
+        }
+        if (code == 'RATE_LIMITED') {
+          throw VoteRequestException(message);
+        }
+        throw VoteRequestException(message);
+      }
+
+      return (parsed['data'] as Map<String, dynamic>?) ?? {};
+    } on DuplicateVoteRequestException {
+      rethrow;
+    } on VoteRequestException {
+      rethrow;
     } catch (e) {
       if (e.toString().contains('이미 해당 아티스트에 대해 신청하셨습니다')) {
         throw const DuplicateVoteRequestException('이미 해당 아티스트에 대해 신청하셨습니다.');

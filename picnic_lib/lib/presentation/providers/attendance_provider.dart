@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/providers/attendance_models.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -206,10 +207,21 @@ class Attendance extends _$Attendance {
     required bool isRetry,
     void Function()? onAlreadyChecked,
   }) async {
+    // Attach X-Device-Id header for anti-abuse device-cohort signal.
+    // Graceful: if retrieval fails the request proceeds without the header.
+    Map<String, String>? extraHeaders;
+    try {
+      final deviceId = await DeviceManager.getDeviceId();
+      extraHeaders = {'X-Device-Id': deviceId};
+    } catch (e) {
+      logger.w('Could not retrieve device ID for attendance-check header: $e');
+    }
+
     final response = await supabase.functions.invoke(
       'attendance-check',
       method: method,
       body: body,
+      headers: extraHeaders,
     );
 
     final raw = response.data;

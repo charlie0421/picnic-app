@@ -2,6 +2,7 @@
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:video_player/video_player.dart';
@@ -119,13 +120,24 @@ class ShortformInternalPlatform extends AdPlatform {
               logInfo('loadAd: issuing new tokens');
               final supabaseUrl = Environment.supabaseUrl;
               final token = supabase.auth.currentSession?.accessToken ?? '';
+              // Attach X-Device-Id for anti-abuse device-cohort signal.
+              // Graceful: if retrieval fails the request proceeds without the header.
+              final Map<String, String> issueHeaders = {
+                'Authorization': 'Bearer $token',
+              };
+              try {
+                final deviceId = await DeviceManager.getDeviceId();
+                issueHeaders['X-Device-Id'] = deviceId;
+              } catch (e) {
+                logWarning('Could not retrieve device ID for ad-shortform-issue header: $e');
+              }
               final res =
                   await SupabaseClient(
                     supabaseUrl,
                     Environment.supabaseAnonKey,
                   ).functions.invoke(
                     'ad-shortform-issue',
-                    headers: {'Authorization': 'Bearer $token'},
+                    headers: issueHeaders,
                   );
               if (res.data == null) {
                 throw Exception('issue failed');
@@ -157,11 +169,22 @@ class ShortformInternalPlatform extends AdPlatform {
     try {
       final supabaseUrl = Environment.supabaseUrl;
       final token = supabase.auth.currentSession?.accessToken ?? '';
+      // Attach X-Device-Id for anti-abuse device-cohort signal.
+      // Graceful: if retrieval fails the request proceeds without the header.
+      final Map<String, String> reissueHeaders = {
+        'Authorization': 'Bearer $token',
+      };
+      try {
+        final deviceId = await DeviceManager.getDeviceId();
+        reissueHeaders['X-Device-Id'] = deviceId;
+      } catch (e) {
+        logWarning('Could not retrieve device ID for ad-shortform-issue reissue header: $e');
+      }
       final res = await SupabaseClient(supabaseUrl, Environment.supabaseAnonKey)
           .functions
           .invoke(
             'ad-shortform-issue',
-            headers: {'Authorization': 'Bearer $token'},
+            headers: reissueHeaders,
           );
       if (res.data == null) throw Exception('issue failed');
       final json = res.data as Map<String, dynamic>;
