@@ -1,5 +1,6 @@
 import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
 import 'package:picnic_lib/core/errors/vote_request_exceptions.dart';
+import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/rate_limited_handler.dart';
 import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
@@ -110,20 +111,32 @@ class VoteItemRequestRepository {
   /// Plan 6 이후 picnic-app 은 직접 RPC 가 아니라 `artist-request-add` edge fn 으로 통과 — 인증 +
   /// anti-abuse 체크 + ip_hash 채널 채워넣기까지 서버에서 일괄 처리. userId 인자는 backwards
   /// compat 을 위해 유지하지만 edge fn 이 JWT 에서 자체 도출하므로 무시됨.
+  /// X-Device-Id 헤더를 함께 전송합니다 (디바이스 ID 취득 실패 시 헤더 없이 진행).
   Future<Map<String, dynamic>> createVoteItemRequestWithUser({
     required int voteId,
     required int artistId,
     required String userId,
   }) async {
     try {
-      final response = await _supabase.functions.invoke(
+      // Attach X-Device-Id for anti-abuse device-cohort signal.
+      // Graceful: if retrieval fails the request proceeds without the header.
+      Map<String, String>? extraHeaders;
+      try {
+        final deviceId = await DeviceManager.getDeviceId();
+        extraHeaders = {'X-Device-Id': deviceId};
+      } catch (e) {
+        logger.w('Could not retrieve device ID for artist-request-add header: $e');
+      }
+
+      final fnResponse = await _supabase.functions.invoke(
         'artist-request-add',
         body: {
           'vote_id': voteId,
           'artist_id': artistId,
         },
+        headers: extraHeaders,
       );
-      final raw = response.data;
+      final raw = fnResponse.data;
       if (raw is! Map<String, dynamic>) {
         throw VoteRequestException(
             '투표 아이템 요청 생성 실패: invalid response payload');
@@ -139,6 +152,10 @@ class VoteItemRequestRepository {
         if (code == 'ARTIST_NOT_FOUND') {
           throw VoteRequestException('존재하지 않는 아티스트입니다.');
         }
+        if (code == 'RATE_LIMITED') {
+          throw VoteRequestException(
+              message ?? '투표 아이템 요청 생성 실패: RATE_LIMITED');
+        }
         throw VoteRequestException(
             '투표 아이템 요청 생성 실패: ${message ?? code ?? "unknown"}');
       }
@@ -147,6 +164,10 @@ class VoteItemRequestRepository {
         throw VoteRequestException('투표 아이템 요청 생성 실패: missing data');
       }
       return data;
+    } on DuplicateVoteRequestException {
+      rethrow;
+    } on VoteRequestException {
+      rethrow;
     } catch (e) {
       // 1) anti-abuse 우선 매핑 (FunctionException 429)
       final aa = mapToAntiAbuseException(e);
