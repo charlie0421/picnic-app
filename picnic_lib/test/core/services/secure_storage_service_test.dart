@@ -1,6 +1,55 @@
+// ignore_for_file: depend_on_referenced_packages
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/services/secure_storage_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class _ThrowingFlutterSecureStoragePlatform extends FlutterSecureStoragePlatform {
+  @override
+  Future<bool> containsKey({
+    required String key,
+    required Map<String, String> options,
+  }) async =>
+      false;
+
+  @override
+  Future<void> delete({
+    required String key,
+    required Map<String, String> options,
+  }) async {}
+
+  @override
+  Future<void> deleteAll({required Map<String, String> options}) async {}
+
+  @override
+  Future<String?> read({
+    required String key,
+    required Map<String, String> options,
+  }) async =>
+      null;
+
+  @override
+  Future<Map<String, String>> readAll({
+    required Map<String, String> options,
+  }) async =>
+      <String, String>{};
+
+  @override
+  Future<void> write({
+    required String key,
+    required String value,
+    required Map<String, String> options,
+  }) async {
+    // PICNIC-APP-58P 의 Android Keystore NPE/PlatformException 시뮬레이션
+    throw PlatformException(
+      code: 'Exception encountered, write',
+      message: "java.lang.NullPointerException: Attempt to invoke virtual method "
+          "'byte[] TF0.a(byte[])' on a null object reference",
+    );
+  }
+}
 
 void main() {
   late FlutterSecureStorage storage;
@@ -138,6 +187,31 @@ void main() {
       final customStorage = const FlutterSecureStorage();
       final customService = SecureStorageService(customStorage);
       expect(customService, isNotNull);
+    });
+  });
+
+  group('SecureStorageService - saveSession 의 keystore 실패 swallow (PICNIC-APP-58P)', () {
+    test('write 가 PlatformException 을 throw 해도 rethrow 하지 않아야 함', () async {
+      // Arrange — 일부 Android 단말의 Keystore NPE 재현
+      FlutterSecureStoragePlatform.instance = _ThrowingFlutterSecureStoragePlatform();
+      final throwingService = SecureStorageService(const FlutterSecureStorage());
+
+      final session = Session.fromJson({
+        'access_token': 'test',
+        'token_type': 'bearer',
+        'expires_in': 3600,
+        'refresh_token': 'test_refresh',
+        'user': {
+          'id': 'u',
+          'app_metadata': <String, dynamic>{},
+          'user_metadata': <String, dynamic>{},
+          'aud': 'authenticated',
+          'created_at': '2024-01-01T00:00:00.000Z',
+        },
+      })!;
+
+      // Act & Assert — rethrow 하지 않고 정상 return
+      await expectLater(throwingService.saveSession(session), completes);
     });
   });
 
