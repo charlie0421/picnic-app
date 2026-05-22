@@ -107,10 +107,38 @@ void main() {
       expect(SearchService.isValidQuery('  test  '), isTrue);
       expect(SearchService.isValidQuery('한글'), isTrue);
       expect(SearchService.isValidQuery('123'), isTrue);
+      // reserved char 가 포함되어 있어도 의미 있는 텍스트가 함께 있으면 valid
+      expect(SearchService.isValidQuery('foo,bar'), isTrue);
+      expect(SearchService.isValidQuery('(test)'), isTrue);
 
       // Invalid queries
       expect(SearchService.isValidQuery(''), isFalse);
       expect(SearchService.isValidQuery('   '), isFalse);
+      // PICNIC-APP-47: PostgREST reserved char 만으로 이루어진 query 는 reject
+      expect(SearchService.isValidQuery(','), isFalse);
+      expect(SearchService.isValidQuery(',,,'), isFalse);
+      expect(SearchService.isValidQuery('()'), isFalse);
+      expect(SearchService.isValidQuery('( , )'), isFalse);
+      expect(SearchService.isValidQuery(':'), isFalse);
+      expect(SearchService.isValidQuery('*'), isFalse);
+    });
+
+    test('sanitizeForOr 는 PostgREST reserved 문자를 제거한다', () {
+      // 일반 query 는 그대로
+      expect(SearchService.sanitizeForOr('test'), equals('test'));
+      expect(SearchService.sanitizeForOr('한글'), equals('한글'));
+      expect(SearchService.sanitizeForOr(''), equals(''));
+
+      // PICNIC-APP-47: `,`, `(`, `)` 제거
+      expect(SearchService.sanitizeForOr(','), equals(''));
+      expect(SearchService.sanitizeForOr('foo,bar'), equals('foobar'));
+      expect(SearchService.sanitizeForOr('BTS (Bulletproof)'),
+          equals('BTS Bulletproof'));
+      expect(SearchService.sanitizeForOr('(a,b,c)'), equals('abc'));
+
+      // 다른 reserved-looking 문자는 보존 (ilike pattern 의 `%` 등)
+      expect(SearchService.sanitizeForOr('100%'), equals('100%'));
+      expect(SearchService.sanitizeForOr('a.b'), equals('a.b'));
     });
 
     test('normalizeQuery는 쿼리를 정규화해야 함', () {
