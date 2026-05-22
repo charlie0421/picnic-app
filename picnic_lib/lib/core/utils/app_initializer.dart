@@ -92,6 +92,15 @@ class AppInitializer {
       options.anrEnabled = true;
       options.anrTimeoutInterval = const Duration(seconds: 5);
 
+      // iOS AppHang threshold 를 default 2s → 3s 로 상향 (PICNIC-APP-4YV 등).
+      // 4YV (46u/124e) 의 culprit 이 ChangeNotifier._removeAt, Subtype6TestCache,
+      // DefaultNullableTypeTest, CallBootstrapNative 등으로 매우 분산 — 단일 코드
+      // 버그가 아니라 메모리 부족 iOS 단말(예: iPhone X free_memory 60MB)의 burst
+      // CPU 정체가 다양한 hot path 에서 잡힌 결과. 2s 는 iOS watchdog kill 임계
+      // (~4-6s) 대비 과민 — 3s 는 사용자가 체감하는 freeze 만 추적하면서 노이즈
+      // 큰 폭 감소. 4s+ 는 watchdog 와 가까워 진짜 hang 을 놓칠 위험이 있어 3s 가 균형점.
+      options.appHangTimeoutInterval = const Duration(seconds: 3);
+
       // 네이티브 SDK 의 URLSession/OkHttp 자동 5xx 캡쳐(SentryNetworkTracker)
       // 를 끈다. 이 경로는 Flutter beforeSend 를 우회하므로 광고 SDK
       // (Pangle/AdMob/Branch 등) 의 텔레메트리 5xx 가 그대로 누적된다
