@@ -247,6 +247,46 @@ void main() {
         );
       });
 
+      test('filters SqfliteDatabaseException SQLITE_FULL (PICNIC-APP-547)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'SqfliteDatabaseException',
+            exceptionValue:
+                "DatabaseException(database or disk is full (code 13 SQLITE_FULL)) sql 'UPDATE cacheObject SET ...'",
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters SqfliteDatabaseException unable to open db (PICNIC-APP-52R/52S)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'SqfliteDatabaseException',
+            exceptionValue:
+                'DatabaseException(Error Domain=SqfliteDarwinDatabase Code=14 '
+                '"unable to open database file" ...) sql \'DELETE FROM cacheObject WHERE _id = ?\'',
+          ),
+          isTrue,
+        );
+      });
+
+      test('does not filter SqfliteDatabaseException for unrelated DB error', () {
+        // 다른 DB 에러(예: constraint violation)는 우리 코드의 schema 버그일 수 있어 통과시킨다.
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'SqfliteDatabaseException',
+            exceptionValue: 'UNIQUE constraint failed: cacheObject.url',
+          ),
+          isFalse,
+        );
+      });
+
       // -------- Coverage gap fixes (production-leak issues on 1.2.27) --------
 
       test('filters HttpException as network noise (PICNIC-APP-49W)', () {
