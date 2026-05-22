@@ -17,6 +17,7 @@ class AppInitializerHelper {
     required String exceptionType,
     required String exceptionValue,
     List<String> stackFrameFunctions = const [],
+    List<bool> stackFrameInApp = const [],
   }) {
     // Drop everything when Sentry is disabled or in debug mode
     if (!sentryEnabled || isDebugMode) {
@@ -221,6 +222,19 @@ class AppInitializerHelper {
     if ((exceptionType == 'App Hanging' ||
             exceptionType == 'ApplicationNotResponding') &&
         _hasAdSdkFrame(stackFrameFunctions)) {
+      return true;
+    }
+
+    // system-only ANR — 우리 코드 frame 이 stack 에 단 한 개도 없는 ANR.
+    // (PICNIC-APP-45E 99u/450e, 464 16u/139e, 4PY 6u/15e 등)
+    // mechanism=AppExitInfo 로 Android OS 가 사후 보고하는 ANR 중 stack 이
+    // 전부 android.os.Looper / nativePollOnce / pollInner 같은 system frame 인
+    // 케이스. 우리가 분석/수정 가능한 정보가 0 이라 추적 가치 없음.
+    // 우리 코드 frame 이 있는 ANR (51W WV.mt0 onServiceConnected, 53X scudo
+    // PageReleaseContext 등) 은 그대로 통과시켜 root cause 추적 유지.
+    if (exceptionType == 'ApplicationNotResponding' &&
+        stackFrameInApp.isNotEmpty &&
+        !stackFrameInApp.any((inApp) => inApp)) {
       return true;
     }
 
