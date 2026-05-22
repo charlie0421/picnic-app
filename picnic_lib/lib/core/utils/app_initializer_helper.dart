@@ -158,6 +158,17 @@ class AppInitializerHelper {
       return true;
     }
 
+    // sqflite cache DB 가 사용자 단말 환경 때문에 실패하는 케이스 (PICNIC-APP-547/52R/52S).
+    // - SQLITE_FULL / 'disk is full' : 디스크 거의 0. cache_store 의 image cache 쓰기 실패.
+    // - 'unable to open database file' : iOS sandbox/권한/디스크 문제 (iPhone 7 등 old device).
+    // 모두 사용자 storage 상태 문제이고 앱이 cache 누락 으로 graceful degrade 됨 — 노이즈.
+    if (exceptionType == 'SqfliteDatabaseException' &&
+        (exceptionValue.contains('SQLITE_FULL') ||
+            exceptionValue.contains('disk is full') ||
+            exceptionValue.contains('unable to open database file'))) {
+      return true;
+    }
+
     // Image picker double-tap (PICNIC-APP-VQ).
     // Plugin throws when the picker is invoked while a previous instance is
     // still mounted — pure UX noise, no app-side fix needed.
