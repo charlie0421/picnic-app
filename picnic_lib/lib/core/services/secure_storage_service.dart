@@ -21,8 +21,12 @@ class SecureStorageService {
         value: jsonEncode(sessionJson),
       );
     } catch (e, s) {
-      logger.e('Error saving session to storage', error: e, stackTrace: s);
-      rethrow;
+      // Android Keystore 가 일부 단말 (HUAWEI 등) 에서 NPE/PlatformException 을 throw
+      // (PICNIC-APP-58P). SecureStorage 는 SDK 의 SharedPreferences-기반
+      // currentSession 의 backup 일 뿐이라, write 실패로 로그인 흐름을 깰 이유가 없다.
+      // 다음 cold start 시 recoverSession() 이 SDK session 으로 복구한다.
+      logger.w('Failed to persist session to secure storage; SDK session is primary',
+          error: e, stackTrace: s);
     }
   }
 
