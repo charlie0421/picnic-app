@@ -27,6 +27,8 @@ class GoonghapList extends _$GoonghapList {
     state = state.copyWith(isLoading: true);
     try {
       final items = await _getHistory(page: 0);
+      // async gap 중 provider 가 dispose 되었으면 state 접근 금지 (PICNIC-APP-4R8)
+      if (!ref.mounted) return;
       state = state.copyWith(
         items: items,
         hasMore: items.length >= _pageSize,
@@ -34,6 +36,7 @@ class GoonghapList extends _$GoonghapList {
       );
     } catch (e, s) {
       logger.e('exception:', error: e, stackTrace: s);
+      if (!ref.mounted) return;
       state = state.copyWith(isLoading: false);
       rethrow;
     }
@@ -47,6 +50,7 @@ class GoonghapList extends _$GoonghapList {
       final page = (state.items.length / _pageSize).floor();
       final items = await _getHistory(page: page);
 
+      if (!ref.mounted) return;
       state = state.copyWith(
         items: [...state.items, ...items],
         hasMore: items.length >= _pageSize,
@@ -54,6 +58,7 @@ class GoonghapList extends _$GoonghapList {
       );
     } catch (e, s) {
       logger.e('Error', error: e, stackTrace: s);
+      if (!ref.mounted) return;
       state = state.copyWith(isLoading: false);
       rethrow;
     }
