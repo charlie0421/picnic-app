@@ -26,9 +26,9 @@
     "app_dsn": "https://2a10b0168b427bbdc6eb3a1f16a1f2a2@o4507695222685696.ingest.us.sentry.io/4507695242739712",
     "web_dsn": "https://9125a97b1328d1c4b578b69a1a4f4774@o4507695222685696.ingest.us.sentry.io/4507964278046720",
     "sample_rates": {
-      "trace": 1.0,
-      "profile": 1.0,
-      "session": 1.0,
+      "trace": 0.2,
+      "profile": 0.5,
+      "session": 0.3,
       "error": 1.0
     }
   },
