@@ -124,6 +124,13 @@ class AppInitializer {
                 .toList() ??
             const <String>[];
 
+        // system-only ANR 판별용 — stack 이 전부 system frame (inApp=false) 이면
+        // 우리가 분석할 수 있는 정보가 없는 ANR (PICNIC-APP-45E 등).
+        final stackFrameInApp = exception?.stackTrace?.frames
+                .map((f) => f.inApp ?? false)
+                .toList() ??
+            const <bool>[];
+
         // Reactive ACCOUNT_DELETED handling: any Edge Function 403 with
         // code ACCOUNT_DELETED triggers a one-shot local sign-out so the
         // soft-deleted user stops generating repeated 403s on subsequent
@@ -142,6 +149,7 @@ class AppInitializer {
           exceptionType: exceptionType,
           exceptionValue: exceptionValue,
           stackFrameFunctions: stackFrameFunctions,
+          stackFrameInApp: stackFrameInApp,
         );
 
         return shouldFilter ? null : event;

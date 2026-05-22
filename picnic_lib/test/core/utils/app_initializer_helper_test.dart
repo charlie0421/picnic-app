@@ -835,6 +835,65 @@ void main() {
         );
       });
 
+      // -------- system-only ANR (PICNIC-APP-45E 등) --------
+
+      test('filters ApplicationNotResponding with all-system stack frames '
+          '(PICNIC-APP-45E)', () {
+        // 45E sample: TECNO KL5 low-end Android, mechanism=AppExitInfo,
+        // stack 이 전부 android.os.Looper / pollInner / nativePollOnce.
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'ApplicationNotResponding',
+            exceptionValue: 'ANR',
+            stackFrameInApp: const [false, false, false, false, false],
+          ),
+          isTrue,
+        );
+      });
+
+      test('does NOT filter ANR when at least one in-app frame is present '
+          '(우리 코드 frame 있는 ANR 은 root cause 추적 유지)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'ApplicationNotResponding',
+            exceptionValue: 'ANR',
+            stackFrameInApp: const [false, false, true, false],
+          ),
+          isFalse,
+        );
+      });
+
+      test('does NOT filter ANR when stackFrameInApp is empty '
+          '(보수적 통과 — 정보 부족 시 drop 하지 않음)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'ApplicationNotResponding',
+            exceptionValue: 'ANR',
+          ),
+          isFalse,
+        );
+      });
+
+      test('does NOT filter non-ANR exception with all-system frames '
+          '(회귀 보호: ANR 만 system-only 기반 필터)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'TypeError',
+            exceptionValue: 'something',
+            stackFrameInApp: const [false, false, false],
+          ),
+          isFalse,
+        );
+      });
+
       test('filters AuthApiException(User is banned) — admin policy block, '
           'UI handles it (PICNIC-APP-4RJ: 39u/183e accumulated)', () {
         // 이전 결정 (NOT filter, "handled separately") 은 실제 누적 데이터로
