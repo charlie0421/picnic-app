@@ -156,11 +156,15 @@ class BoardRequestNotifier extends _$BoardRequestNotifier {
 
   Future<BoardModel?> checkDuplicateBoard(String title) async {
     try {
+      // PostgREST or() 의 reserved 문자 (`,`, `(`, `)`) 를 제거.
+      // title 에 `,` 또는 괄호가 있으면 logic tree parse 가 깨진다 (PGRST100).
+      final t = SearchService.sanitizeForOr(title);
+      if (t.trim().isEmpty) return null;
       final response = await supabase
           .from('boards')
           .select()
           .or(
-            'name->>ko.eq.$title,name->>en.eq.$title,name->>ja.eq.$title,name->>zh_CN.eq.$title',
+            'name->>ko.eq.$t,name->>en.eq.$t,name->>ja.eq.$t,name->>zh_CN.eq.$t',
           )
           .maybeSingle();
 

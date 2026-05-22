@@ -1,6 +1,7 @@
 // ignore_for_file: strict_top_level_inference
 
 import 'package:flutter/widgets.dart';
+import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/data/models/community/post_scrap.dart';
@@ -120,6 +121,11 @@ Future<List<PostModel>?> postsByQuery(
     if (query.isEmpty) {
       return [];
     }
+    // PostgREST or() 의 reserved 문자 제거 — `,` 가 그대로 들어가면 PGRST100.
+    final q = SearchService.sanitizeForOr(query);
+    if (q.trim().isEmpty) {
+      return [];
+    }
 
     // 1. 차단한 사용자 목록 조회
     List<Map<String, dynamic>> blockedResponse = [];
@@ -148,7 +154,7 @@ Future<List<PostModel>?> postsByQuery(
          ''')
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
-        .or('title.ilike.%$query%');
+        .or('title.ilike.%$q%');
 
     // 차단된 사용자가 있는 경우에만 필터 적용
     final blockedFilter = PostProviderHelper.buildBlockedUserFilter(blockedUserIds);

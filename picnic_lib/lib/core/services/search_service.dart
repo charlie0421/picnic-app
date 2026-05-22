@@ -119,8 +119,9 @@ class SearchService {
     }
 
     try {
-      if (!isValidQuery(query) && query.isNotEmpty) {
-        throw ArgumentError('Invalid search query: $query');
+      if (query.isNotEmpty && !isValidQuery(query)) {
+        // reserved-only query (e.g. ',') 는 PostgREST 를 깨뜨리고 의미 없는 검색.
+        return <ArtistModel>[];
       }
 
       // 한국어 초성 검색인지 확인
@@ -198,8 +199,9 @@ class SearchService {
 
         // 검색어가 있는 경우에만 필터 적용
         if (query.isNotEmpty) {
+          final q = sanitizeForOr(query);
           artistQuery = artistQuery.or(
-            'name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh_CN.ilike.%$query%',
+            'name->>ko.ilike.%$q%,name->>en.ilike.%$q%,name->>ja.ilike.%$q%,name->>zh_CN.ilike.%$q%',
           );
         }
 
@@ -218,12 +220,13 @@ class SearchService {
         // 2. 그룹명으로 검색 (검색어가 있을 때만, 빈 검색어일 때는 이미 전체 결과가 있으므로 생략)
         if (query.isNotEmpty) {
           try {
+            final q = sanitizeForOr(query);
             var groupQuery = supabase
                 .from('artist_group')
                 .select('id,name,image')
                 .isFilter('deleted_at', null) // soft-deleted 그룹 제외
                 .or(
-                  'name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh_CN.ilike.%$query%',
+                  'name->>ko.ilike.%$q%,name->>en.ilike.%$q%,name->>ja.ilike.%$q%,name->>zh_CN.ilike.%$q%',
                 );
 
             final groupResponse = await groupQuery.order(
@@ -506,7 +509,11 @@ class SearchService {
       }
 
       // 일반 텍스트 검색: 아티스트 이름으로 검색
-      final searchPattern = '%$query%';
+      if (!isValidQuery(query)) {
+        // reserved-only query 는 PostgREST or() 를 깨뜨리고 의미도 없음
+        return <ArtistModel>[];
+      }
+      final searchPattern = '%${sanitizeForOr(query)}%';
 
       final response = await supabase
           .from('artist')
@@ -605,16 +612,17 @@ class SearchService {
     }
 
     try {
-      if (!isValidQuery(query) && query.isNotEmpty) {
-        throw ArgumentError('Invalid search query: $query');
+      if (query.isNotEmpty && !isValidQuery(query)) {
+        return <T>[];
       }
 
       dynamic queryBuilder = supabase.from(table).select(selectFields);
 
       // 검색어가 있는 경우 지정된 필드들에서 검색
       if (query.isNotEmpty && searchFields.isNotEmpty) {
+        final q = sanitizeForOr(query);
         final searchConditions = searchFields
-            .map((field) => '$field.ilike.%$query%')
+            .map((field) => '$field.ilike.%$q%')
             .join(',');
         queryBuilder = queryBuilder.or(searchConditions);
       }
@@ -695,10 +703,24 @@ class SearchService {
   }
 
   /// 검색어 유효성 검사
+  ///
+  /// 빈 문자열 또는 PostgREST reserved 문자(`,`, `(`, `)`, `:`, `*`)만으로
+  /// 이루어진 검색어는 의미 있는 검색이 아니고 PostgREST `or=(...)` logic tree
+  /// 파서를 깨뜨리므로(PGRST100) 거부한다.
   static bool isValidQuery(String query) {
-    final trimmedQuery = query.trim();
-    return trimmedQuery.isNotEmpty && trimmedQuery.isNotEmpty;
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return false;
+    if (RegExp(r'^[,():*\s]+$').hasMatch(trimmed)) return false;
+    return true;
   }
+
+  /// PostgREST `or=(...)` 인자에 끼워넣을 query 의 reserved 문자를 제거한다.
+  ///
+  /// `,`, `(`, `)` 는 PostgREST logic tree 의 separator/grouping 으로 해석된다.
+  /// 사용자 입력이 그대로 들어가면 `name->>ko.ilike.%,%` 같은 깨진 표현식이 만들어져
+  /// `failed to parse logic tree` (PGRST100) 가 발생한다.
+  static String sanitizeForOr(String value) =>
+      value.replaceAll(RegExp(r'[,()]'), '');
 
   /// 검색어 정규화 (특수문자 제거, 공백 정리 등)
   static String normalizeQuery(String query) {
@@ -805,16 +827,17 @@ class SearchService {
     }
 
     try {
-      if (!isValidQuery(query) && query.isNotEmpty) {
-        throw ArgumentError('Invalid search query: $query');
+      if (query.isNotEmpty && !isValidQuery(query)) {
+        return <T>[];
       }
 
       dynamic queryBuilder = supabase.from(table).select(selectFields);
 
       // 검색어가 있는 경우 커스텀 검색 조건 적용
       if (query.isNotEmpty && searchConditions.isNotEmpty) {
+        final q = sanitizeForOr(query);
         final formattedConditions = searchConditions
-            .map((condition) => condition.replaceAll('{query}', query))
+            .map((condition) => condition.replaceAll('{query}', q))
             .join(',');
         // 괄호 없이 조건들을 직접 전달
         queryBuilder = queryBuilder.or(formattedConditions);
@@ -1034,6 +1057,10 @@ class SearchService {
     }
 
     try {
+      if (!isValidQuery(query)) {
+        return <BoardModel>[];
+      }
+      final q = sanitizeForOr(query);
       // 직접 Supabase 쿼리 사용 (조인된 테이블 검색을 위해)
       final response = await supabase
           .from('boards')
@@ -1041,7 +1068,7 @@ class SearchService {
             'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))',
           )
           .or(
-            'name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh_CN.ilike.%$query%',
+            'name->>ko.ilike.%$q%,name->>en.ilike.%$q%,name->>ja.ilike.%$q%,name->>zh_CN.ilike.%$q%',
           )
           .neq('artist_id', 0)
           .eq('status', 'approved')
