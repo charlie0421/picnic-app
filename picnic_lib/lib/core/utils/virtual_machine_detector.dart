@@ -266,9 +266,14 @@ class VirtualMachineDetector {
   // 텍스트/단어 매칭 callsite (VIRTUAL_KEYWORDS, BLUESTACK, HARDWARE,
   // MANUFACTURER, CPU) 에서만 사용. TTL_RANGE 와 MAC_KEYWORDS 는 숫자/대소문자
   // 의존이라 가드 미적용 — 원래 `sanitizeKeywords` 그대로.
+  // length 가드는 'vm'/'a12' 같은 1~2자 ambiguous 토큰만 차단 (denylist 보조).
+  // 진짜 VM 시그너처 'nox'(3자), 'vmos'(4자) 는 통과시켜야 함.
   @visibleForTesting
-  static const int minKeywordLength = 5;
+  static const int minKeywordLength = 3;
 
+  // 알려진 false-match 소스. deviceInfo concat 의 fingerprint/id/tags/type 등에서
+  // word boundary 매치되는 generic 단어들. 이번에 'cloud' 가 사고 일으킨 것
+  // 외에도 잠재 위험 토큰 예방적으로 등록.
   @visibleForTesting
   static const Set<String> keywordDenylist = {
     'cloud',

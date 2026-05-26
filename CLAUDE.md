@@ -43,7 +43,15 @@ deviceInfo concat 에서 충돌할 수 있음.
 - [ ] 보급형 단말 (Samsung A 시리즈, Infinix, Itel, Tecno) 의 `devices.device_info`
       샘플로 dry-run 쿼리
 - [ ] 적용 후 24시간 `device_bans` 신규 카운트 모니터링 — baseline 5배 이상이면
-      즉시 롤백 (`UPDATE config SET value='' WHERE key='VIRTUAL_*'`)
+      즉시 롤백. 키별로 명시 실행 (와일드카드 X):
+      ```sql
+      UPDATE config SET value = '', updated_at = NOW()
+       WHERE key IN (
+         'VIRTUAL_KEYWORDS', 'VIRTUAL_BLUESTACK_KEWORDS',
+         'VIRTUAL_HARDWARE_KEYWORDS', 'VIRTUAL_MANUFACTURER_KEYWORDS',
+         'VIRTUAL_CPU_KEYWORD'
+       );  -- 또는 사고난 단일 key 만 지정
+      ```
 
 ### Audit log
 

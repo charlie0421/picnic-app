@@ -254,11 +254,19 @@ void main() {
       );
     });
 
-    test('keywords shorter than minKeywordLength dropped', () {
+    test('keywords shorter than minKeywordLength (3) dropped', () {
+      // 'vm' (2자) 만 길이 가드에 걸림. 'nox' / 'sdk' / 'emu' 는 3자라 통과.
       expect(
-        VirtualMachineDetector.sanitizeWordKeywords('vm,sdk,nox,emu'),
+        VirtualMachineDetector.sanitizeWordKeywords('vm,a,xx'),
         isEmpty,
-        reason: '모두 5자 미만',
+      );
+    });
+
+    test('short legit VM signatures (nox 3자, vmos 4자) pass length guard', () {
+      // 진짜 VM 시그너처는 짧아도 통과해야 함. denylist 가 차단 책임.
+      expect(
+        VirtualMachineDetector.sanitizeWordKeywords('nox,vmos,andy,memu'),
+        equals(['nox', 'vmos', 'andy', 'memu']),
       );
     });
 
@@ -271,10 +279,11 @@ void main() {
     });
 
     test('mixed legit + bad keywords — only legit survive', () {
+      // 'cloud'/'user' 는 denylist. 'sdk' 는 3자라 통과 (denylist 에 없음).
       expect(
         VirtualMachineDetector.sanitizeWordKeywords(
             'cloud,bluestacks,user,genymotion,sdk'),
-        equals(['bluestacks', 'genymotion']),
+        equals(['bluestacks', 'genymotion', 'sdk']),
       );
     });
 
