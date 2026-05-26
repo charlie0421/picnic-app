@@ -223,6 +223,94 @@ void main() {
     });
   });
 
+  group('VirtualMachineDetector.sanitizeWordKeywords', () {
+    // 2025-02 인시던트 회귀 가드: 'cloud' 한 글자가 594 FP 를 일으킴.
+    // 텍스트/단어 매칭 callsite 전용. TTL/MAC 은 기존 sanitizeKeywords 유지.
+
+    test('null returns empty', () {
+      expect(VirtualMachineDetector.sanitizeWordKeywords(null), isEmpty);
+    });
+
+    test('empty returns empty', () {
+      expect(VirtualMachineDetector.sanitizeWordKeywords(''), isEmpty);
+    });
+
+    test('denylist drops "cloud" (Samsung Cloud FP source)', () {
+      expect(VirtualMachineDetector.sanitizeWordKeywords('cloud'), isEmpty);
+    });
+
+    test('denylist drops common Android system tokens', () {
+      expect(
+        VirtualMachineDetector.sanitizeWordKeywords(
+            'user,release,samsung,android,google,system,service,phone'),
+        isEmpty,
+      );
+    });
+
+    test('denylist drops "release-keys" (fingerprint marker)', () {
+      expect(
+        VirtualMachineDetector.sanitizeWordKeywords('release-keys'),
+        isEmpty,
+      );
+    });
+
+    test('keywords shorter than minKeywordLength (3) dropped', () {
+      // 'vm' (2자) 만 길이 가드에 걸림. 'nox' / 'sdk' / 'emu' 는 3자라 통과.
+      expect(
+        VirtualMachineDetector.sanitizeWordKeywords('vm,a,xx'),
+        isEmpty,
+      );
+    });
+
+    test('short legit VM signatures (nox 3자, vmos 4자) pass length guard', () {
+      // 진짜 VM 시그너처는 짧아도 통과해야 함. denylist 가 차단 책임.
+      expect(
+        VirtualMachineDetector.sanitizeWordKeywords('nox,vmos,andy,memu'),
+        equals(['nox', 'vmos', 'andy', 'memu']),
+      );
+    });
+
+    test('legit VM keywords still pass through', () {
+      expect(
+        VirtualMachineDetector.sanitizeWordKeywords(
+            'bluestacks,genymotion,nox_app_player,ldplayer'),
+        equals(['bluestacks', 'genymotion', 'nox_app_player', 'ldplayer']),
+      );
+    });
+
+    test('mixed legit + bad keywords — only legit survive', () {
+      // 'cloud'/'user' 는 denylist. 'sdk' 는 3자라 통과 (denylist 에 없음).
+      expect(
+        VirtualMachineDetector.sanitizeWordKeywords(
+            'cloud,bluestacks,user,genymotion,sdk'),
+        equals(['bluestacks', 'genymotion', 'sdk']),
+      );
+    });
+
+    test('uppercase normalized to lowercase before matching', () {
+      expect(
+        VirtualMachineDetector.sanitizeWordKeywords('CLOUD,Samsung,BlueStacks'),
+        equals(['bluestacks']),
+      );
+    });
+
+    test('surrounding whitespace trimmed', () {
+      expect(
+        VirtualMachineDetector.sanitizeWordKeywords(
+            '  bluestacks  , cloud , genymotion '),
+        equals(['bluestacks', 'genymotion']),
+      );
+    });
+
+    test('TTL/MAC config formats are NOT safe inputs here (use sanitizeKeywords)',
+        () {
+      // 회귀 가드: 만약 누가 실수로 TTL range 를 sanitizeWordKeywords 에 넣으면
+      // 숫자 '1', '5' 가 minKeywordLength 미달로 둘 다 사라짐 → 네트워크 체크 무력화.
+      // 따라서 checkNetworkWithInfo 는 sanitizeKeywords 그대로 써야 함.
+      expect(VirtualMachineDetector.sanitizeWordKeywords('1,5'), isEmpty);
+    });
+  });
+
   group('VirtualMachineDetector.containsWholeToken', () {
     test('empty keyword returns false', () {
       expect(
