@@ -269,33 +269,75 @@ class VirtualMachineDetector {
     return pattern.hasMatch(text);
   }
 
+  // info.systemFeatures 는 의도적으로 제외.
+  // Samsung 단말의 'com.samsung.android.cloud' 같은 정상 패키지명이
+  // containsWholeToken 의 `.` 경계 처리로 인해 generic 키워드 ('cloud' 등) 에
+  // false-match 하는 사고가 있었음 (2025-02 인시던트, 594/595 FP).
+  // 패키지명 기반 매칭이 필요하면 별도 keyword 리스트 + 정확 매칭으로 분리할 것.
+  @visibleForTesting
+  static String buildDeviceInfoForMatching({
+    required String manufacturer,
+    required String model,
+    required String brand,
+    required String fingerprint,
+    required String product,
+    required String device,
+    required String hardware,
+    required String host,
+    required String board,
+    required String bootloader,
+    required String display,
+    required String id,
+    required String tags,
+    required String type,
+    required List<String> supported32BitAbis,
+    required List<String> supported64BitAbis,
+  }) {
+    return '''
+      $manufacturer
+      $model
+      $brand
+      $fingerprint
+      $product
+      $device
+      $hardware
+      $host
+      $board
+      $bootloader
+      $display
+      $id
+      $tags
+      $type
+      ${supported32BitAbis.join(' ')}
+      ${supported64BitAbis.join(' ')}
+      ${host}_${product}_$device
+      ${brand}_${manufacturer}_$model
+    '''
+        .toLowerCase();
+  }
+
   static Future<BuildCheckResults> _getBuildCheckResults(
     AndroidDeviceInfo info,
     List<String?> configs,
   ) async {
-    final String deviceInfo =
-        '''
-      ${info.manufacturer}
-      ${info.model}
-      ${info.brand}
-      ${info.fingerprint}
-      ${info.product}
-      ${info.device}
-      ${info.hardware}
-      ${info.host}
-      ${info.board}
-      ${info.bootloader}
-      ${info.display}
-      ${info.id}
-      ${info.tags}
-      ${info.type}
-      ${info.supported32BitAbis.join(' ')}
-      ${info.supported64BitAbis.join(' ')}
-      ${info.systemFeatures.join(' ')}
-      ${info.host}_${info.product}_${info.device}
-      ${info.brand}_${info.manufacturer}_${info.model}
-    '''
-            .toLowerCase();
+    final String deviceInfo = buildDeviceInfoForMatching(
+      manufacturer: info.manufacturer,
+      model: info.model,
+      brand: info.brand,
+      fingerprint: info.fingerprint,
+      product: info.product,
+      device: info.device,
+      hardware: info.hardware,
+      host: info.host,
+      board: info.board,
+      bootloader: info.bootloader,
+      display: info.display,
+      id: info.id,
+      tags: info.tags,
+      type: info.type,
+      supported32BitAbis: info.supported32BitAbis,
+      supported64BitAbis: info.supported64BitAbis,
+    );
 
     // 기본 정보 로깅
     logger.d('''
