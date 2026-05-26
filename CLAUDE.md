@@ -5,6 +5,51 @@
 > Do **not** add `supabase/migrations/*.sql` files to this repo. New schema work:
 > `cd ~/Repositories/picnic-supabase && supabase migration new <name>` → SQL → PR → `supabase db push`.
 
+## Anti-abuse VM detector config (HIGH RISK)
+
+`VirtualMachineDetector` (`picnic_lib/lib/core/utils/virtual_machine_detector.dart`) 는
+Supabase `config` 테이블의 다음 키를 매 앱 실행마다 읽어 VM/에뮬레이터 차단에 사용:
+
+- `VIRTUAL_KEYWORDS` — deviceInfo 전체 문자열에 대한 word-token 매칭
+- `VIRTUAL_BLUESTACK_KEWORDS` — deviceInfo 전체에 대한 word-token 매칭
+- `VIRTUAL_HARDWARE_KEYWORDS` — `info.hardware` substring 매칭
+- `VIRTUAL_MANUFACTURER_KEYWORDS` — `info.manufacturer` substring 매칭
+- `VIRTUAL_CPU_KEYWORD` — `/proc/cpuinfo` substring 매칭
+- `VIRTUAL_TTL_RANGE` — `<min>,<max>` 숫자 범위 (e.g. `1,5`)
+- `VIRTUAL_MAC_KEYWORDS` — MAC prefix (대문자 콜론 포맷: `08:00:27`)
+
+### ⚠️ 변경 시 사고 가능성
+
+**2025-02 인시던트**: `VIRTUAL_KEYWORDS='cloud'` 한 글자 추가 → 11일 동안 595건 ban
+중 594건 (99.8%) 이 정상 Samsung/Infinix/Itel/LG 단말 FP. Root cause 는 `cloud`
+가 Samsung 정상 시스템 패키지 `com.samsung.android.cloud` 와 매치된 것.
+
+코드 단에 두 층 방어 적용:
+1. `info.systemFeatures` 가 deviceInfo 합성에서 제외 (PR #42)
+2. `sanitizeWordKeywords` 가 `minKeywordLength=5` + denylist (`cloud`, `user`,
+   `release`, `samsung`, `android`, `google` 등) 적용
+
+하지만 코드 가드만 믿지 말 것 — 새 generic 단어가 미래 Android build 필드 추가로
+deviceInfo concat 에서 충돌할 수 있음.
+
+### 변경 전 체크리스트
+
+`config.VIRTUAL_*` 어떤 키든 수정 전:
+
+- [ ] 새 키워드가 `sanitizeWordKeywords` 의 denylist/길이 가드 통과 확인
+- [ ] deviceInfo 합성 필드 (manufacturer/model/brand/fingerprint/product/device/
+      hardware/host/board/bootloader/display/id/tags/type/ABI) 와 word boundary
+      매치 위험 검토
+- [ ] 보급형 단말 (Samsung A 시리즈, Infinix, Itel, Tecno) 의 `devices.device_info`
+      샘플로 dry-run 쿼리
+- [ ] 적용 후 24시간 `device_bans` 신규 카운트 모니터링 — baseline 5배 이상이면
+      즉시 롤백 (`UPDATE config SET value='' WHERE key='VIRTUAL_*'`)
+
+### Audit log
+
+`config.VIRTUAL_*` 변경은 자동으로 `config_audit_log` 에 기록됨 (picnic-supabase
+migration). 사고 시 추적 가능.
+
 
 ## Essential Commands
 

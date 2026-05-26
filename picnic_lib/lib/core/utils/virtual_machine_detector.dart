@@ -258,6 +258,43 @@ class VirtualMachineDetector {
     return config.split(',').where((k) => k.isNotEmpty).toList();
   }
 
+  // FP cascade 가드 — 2025-02 인시던트에서 'cloud' 한 글자가 594 FP 를 일으킴.
+  // deviceInfo concat 에 dot-separated 토큰 (fingerprint, id, display, tags, type)
+  // 이 남아있어서 짧고 흔한 단어가 들어오면 같은 사고 재발 가능.
+  // 운영자 config 실수로부터 사용자를 보호하는 최후 방어선.
+  //
+  // 텍스트/단어 매칭 callsite (VIRTUAL_KEYWORDS, BLUESTACK, HARDWARE,
+  // MANUFACTURER, CPU) 에서만 사용. TTL_RANGE 와 MAC_KEYWORDS 는 숫자/대소문자
+  // 의존이라 가드 미적용 — 원래 `sanitizeKeywords` 그대로.
+  @visibleForTesting
+  static const int minKeywordLength = 5;
+
+  @visibleForTesting
+  static const Set<String> keywordDenylist = {
+    'cloud',
+    'user',
+    'release',
+    'samsung',
+    'android',
+    'google',
+    'system',
+    'service',
+    'phone',
+    'release-keys',
+  };
+
+  @visibleForTesting
+  static List<String> sanitizeWordKeywords(String? config) {
+    if (config == null || config.isEmpty) return [];
+    return config
+        .split(',')
+        .map((k) => k.trim().toLowerCase())
+        .where((k) => k.isNotEmpty)
+        .where((k) => k.length >= minKeywordLength)
+        .where((k) => !keywordDenylist.contains(k))
+        .toList();
+  }
+
   // 부분 문자열 오탐 방지를 위한 단어 경계 매칭
   @visibleForTesting
   static bool containsWholeToken(String text, String keyword) {
@@ -386,10 +423,10 @@ class VirtualMachineDetector {
 ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
 ''');
 
-    final vmKeywords = sanitizeKeywords(configs[0]);
-    final bluestacksKeywords = sanitizeKeywords(configs[1]);
-    final hardwareKeywords = sanitizeKeywords(configs[2]);
-    final manufacturerKeywords = sanitizeKeywords(configs[3]);
+    final vmKeywords = sanitizeWordKeywords(configs[0]);
+    final bluestacksKeywords = sanitizeWordKeywords(configs[1]);
+    final hardwareKeywords = sanitizeWordKeywords(configs[2]);
+    final manufacturerKeywords = sanitizeWordKeywords(configs[3]);
 
     // 매칭된 키워드 찾기
     final vmMatches = vmKeywords
@@ -503,7 +540,7 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     bool hasSensors,
     String? cpuKeywordsConfig,
   ) {
-    final cpuKeywords = sanitizeKeywords(cpuKeywordsConfig);
+    final cpuKeywords = sanitizeWordKeywords(cpuKeywordsConfig);
 
     // CPU 정보에서 의심스러운 패턴 체크
     final suspiciousCpu =
@@ -751,7 +788,7 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     final cpuInfo = await _readCpuInfo();
     final hasSensors = await _checkSensors();
 
-    final cpuKeywords = sanitizeKeywords(cpuKeywordsConfig);
+    final cpuKeywords = sanitizeWordKeywords(cpuKeywordsConfig);
     final suspiciousCpu = cpuKeywords.any(
       (keyword) => cpuInfo.toLowerCase().contains(keyword),
     );
