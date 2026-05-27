@@ -33,8 +33,8 @@ void main() {
       });
     });
 
-    group('getDeviceId — v1 legacy fallback', () {
-      test('legacy 키만 있으면 그 값 반환 (점진 마이그레이션)', () async {
+    group('getDeviceId — v1 legacy 강제 마이그레이션', () {
+      test('legacy 키만 있으면 새 UUID 발급 + legacy 제거', () async {
         const legacyHash =
             'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789';
         FlutterSecureStorage.setMockInitialValues({
@@ -42,10 +42,32 @@ void main() {
         });
 
         final deviceId = await DeviceFingerprint.getDeviceId();
-        expect(deviceId, equals(legacyHash));
+        // legacy hash 가 아닌 새 UUID 가 반환되어야 함 (강제 마이그레이션)
+        expect(deviceId, isNot(equals(legacyHash)));
+        expect(deviceId, matches(RegExp(_uuidRegex)));
+
+        // legacy 키는 제거됐어야 함
+        const storage = FlutterSecureStorage();
+        final legacyAfter = await storage.read(key: 'device_fingerprint');
+        expect(legacyAfter, isNull);
+
+        // v2 키에 새 UUID 저장됐어야 함
+        final v2After = await storage.read(key: 'device_fingerprint_v2_uuid');
+        expect(v2After, equals(deviceId));
       });
 
-      test('v2 + legacy 둘 다 있으면 v2 우선', () async {
+      test('재호출 시 마이그레이션된 UUID 안정적 반환', () async {
+        FlutterSecureStorage.setMockInitialValues({
+          'device_fingerprint': 'old_legacy_hash',
+        });
+
+        final first = await DeviceFingerprint.getDeviceId();
+        final second = await DeviceFingerprint.getDeviceId();
+        expect(first, equals(second));
+        expect(first, matches(RegExp(_uuidRegex)));
+      });
+
+      test('v2 + legacy 둘 다 있으면 v2 우선 (legacy 폐기 안 함)', () async {
         FlutterSecureStorage.setMockInitialValues({
           'device_fingerprint': 'legacy_value',
           'device_fingerprint_v2_uuid': '11111111-2222-4333-a444-555555555555',
