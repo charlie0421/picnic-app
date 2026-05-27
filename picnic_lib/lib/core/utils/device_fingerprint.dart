@@ -19,10 +19,13 @@ class DeviceFingerprint {
   /// iOS 는 identifierForVendor 가 이미 vendor-unique 라 안전하지만,
   /// 일관성 + 단일 path 위해 platform 무관 UUID 사용.
   ///
-  /// 점진 마이그레이션:
+  /// 강제 마이그레이션 (v2):
   ///   1. v2 키 (device_fingerprint_v2_uuid) 우선
-  ///   2. legacy 키 (device_fingerprint) — 옛 설치본만 fallback
-  ///   3. 신규 설치 / 둘 다 없으면 UUID v4 생성
+  ///   2. legacy 키 (device_fingerprint) 가 있으면 무조건 새 UUID 발급 + 옛 키 제거.
+  ///      build-based hash collision 즉시 해소.
+  ///      trade-off: 차단된 farm user 도 새 UUID 받아 cohort 1회 흩어짐 (attendance 매일 1회라
+  ///      다시 cohort 형성에 1-2일, farm candy 누적 미미).
+  ///   3. 둘 다 없으면 신규 UUID v4 생성.
   static Future<String> getDeviceId() async {
     final uuid = await _storage.read(key: _uuidVersionKey);
     if (uuid != null && uuid.isNotEmpty) {
@@ -31,7 +34,11 @@ class DeviceFingerprint {
 
     final legacy = await _storage.read(key: _fingerprintKey);
     if (legacy != null && legacy.isNotEmpty) {
-      return legacy;
+      // 강제 마이그레이션 — legacy hash 폐기, 신규 UUID.
+      final migrated = _uuidGen.v4();
+      await _storage.write(key: _uuidVersionKey, value: migrated);
+      await _storage.delete(key: _fingerprintKey);
+      return migrated;
     }
 
     final fresh = _uuidGen.v4();
