@@ -2,126 +2,108 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/device_fingerprint.dart';
 
+const _uuidRegex = r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$';
+
 void main() {
   group('DeviceFingerprint', () {
     setUp(() {
       FlutterSecureStorage.setMockInitialValues({});
     });
 
-    group('getDeviceId', () {
-      test('generates a new fingerprint when none is stored', () async {
+    group('getDeviceId — v2 (UUID)', () {
+      test('신규 설치 시 UUID v4 생성', () async {
         final deviceId = await DeviceFingerprint.getDeviceId();
         expect(deviceId, isNotNull);
         expect(deviceId, isNotEmpty);
-        // SHA-256 hash is 64 hex chars
-        expect(deviceId.length, 64);
+        expect(deviceId, matches(RegExp(_uuidRegex)));
       });
 
-      test('returns the same fingerprint on subsequent calls', () async {
+      test('재호출 시 동일 UUID 반환 (persistence)', () async {
         final first = await DeviceFingerprint.getDeviceId();
         final second = await DeviceFingerprint.getDeviceId();
         expect(first, equals(second));
       });
 
-      test('returns stored fingerprint if available', () async {
-        const storedFingerprint = 'abc123stored';
+      test('v2 키 저장 확인', () async {
+        await DeviceFingerprint.getDeviceId();
+        const storage = FlutterSecureStorage();
+        final stored = await storage.read(key: 'device_fingerprint_v2_uuid');
+        expect(stored, isNotNull);
+        expect(stored, matches(RegExp(_uuidRegex)));
+      });
+    });
+
+    group('getDeviceId — v1 legacy fallback', () {
+      test('legacy 키만 있으면 그 값 반환 (점진 마이그레이션)', () async {
+        const legacyHash =
+            'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789';
         FlutterSecureStorage.setMockInitialValues({
-          'device_fingerprint': storedFingerprint,
+          'device_fingerprint': legacyHash,
         });
 
         final deviceId = await DeviceFingerprint.getDeviceId();
-        expect(deviceId, equals(storedFingerprint));
+        expect(deviceId, equals(legacyHash));
       });
 
-      test('fingerprint is a valid hex string', () async {
+      test('v2 + legacy 둘 다 있으면 v2 우선', () async {
+        FlutterSecureStorage.setMockInitialValues({
+          'device_fingerprint': 'legacy_value',
+          'device_fingerprint_v2_uuid': '11111111-2222-4333-a444-555555555555',
+        });
+
         final deviceId = await DeviceFingerprint.getDeviceId();
-        // SHA-256 produces only hex characters
-        expect(deviceId, matches(RegExp(r'^[a-f0-9]+$')));
+        expect(deviceId, equals('11111111-2222-4333-a444-555555555555'));
       });
     });
 
     group('reset', () {
-      test('clears the stored fingerprint', () async {
-        // Generate and store a fingerprint
-        await DeviceFingerprint.getDeviceId();
+      test('v2 와 legacy 키 둘 다 제거', () async {
+        FlutterSecureStorage.setMockInitialValues({
+          'device_fingerprint': 'legacy_value',
+          'device_fingerprint_v2_uuid': '11111111-2222-4333-a444-555555555555',
+        });
+        const storage = FlutterSecureStorage();
 
-        // Reset it
         await DeviceFingerprint.reset();
 
-        // After reset, a new fingerprint should be generated
-        // (it will be different storage key lookup, but since we're in test
-        // the mock storage is cleared)
-        // Just verify reset completes without error
+        expect(await storage.read(key: 'device_fingerprint'), isNull);
+        expect(await storage.read(key: 'device_fingerprint_v2_uuid'), isNull);
       });
 
-      test('completes without error even when no fingerprint stored', () async {
+      test('저장된 값 없을 때 reset 도 정상 완료', () async {
         await DeviceFingerprint.reset();
-        // Should not throw
       });
     });
 
     group('verify', () {
-      test('returns true for matching fingerprint', () async {
+      test('현재 deviceId 와 같으면 true', () async {
         final deviceId = await DeviceFingerprint.getDeviceId();
         final isValid = await DeviceFingerprint.verify(deviceId);
         expect(isValid, isTrue);
       });
 
-      test('returns false for non-matching fingerprint', () async {
+      test('다른 값이면 false', () async {
         await DeviceFingerprint.getDeviceId();
-        final isValid = await DeviceFingerprint.verify('wrong_fingerprint');
+        final isValid = await DeviceFingerprint.verify('wrong_value');
         expect(isValid, isFalse);
       });
 
-      test('returns false for empty string', () async {
+      test('빈 문자열이면 false', () async {
         await DeviceFingerprint.getDeviceId();
         final isValid = await DeviceFingerprint.verify('');
         expect(isValid, isFalse);
       });
     });
 
-    group('stored fingerprint persistence', () {
-      test('stores fingerprint after first generation', () async {
-        final storage = const FlutterSecureStorage();
-
-        // Initially no fingerprint
-        final before = await storage.read(key: 'device_fingerprint');
-        expect(before, isNull);
-
-        // Generate fingerprint
-        final deviceId = await DeviceFingerprint.getDeviceId();
-
-        // Now it should be stored
-        final after = await storage.read(key: 'device_fingerprint');
-        expect(after, equals(deviceId));
-      });
-
-      test('reset removes the stored fingerprint', () async {
-        final storage = const FlutterSecureStorage();
-
-        // Generate fingerprint
-        await DeviceFingerprint.getDeviceId();
-        final before = await storage.read(key: 'device_fingerprint');
-        expect(before, isNotNull);
-
-        // Reset
-        await DeviceFingerprint.reset();
-        final after = await storage.read(key: 'device_fingerprint');
-        expect(after, isNull);
-      });
-    });
-
-    group('verify after reset', () {
-      test('old fingerprint no longer verifies after reset', () async {
+    group('reset → getDeviceId 재생성', () {
+      test('reset 후 새 UUID 발급', () async {
         final oldId = await DeviceFingerprint.getDeviceId();
-        expect(await DeviceFingerprint.verify(oldId), isTrue);
-
         await DeviceFingerprint.reset();
 
-        // After reset, getDeviceId generates a new fingerprint
         final newId = await DeviceFingerprint.getDeviceId();
-        // The new fingerprint should verify
-        expect(await DeviceFingerprint.verify(newId), isTrue);
+        expect(newId, isNotEmpty);
+        expect(newId, matches(RegExp(_uuidRegex)));
+        expect(newId, isNot(equals(oldId)));
       });
     });
   });
