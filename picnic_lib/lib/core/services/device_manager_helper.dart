@@ -114,10 +114,13 @@ class DeviceManagerHelper {
 
   /// Interpret whether a device is banned from a query result.
   ///
-  /// Returns `true` if the result is not null (i.e. a matching row was found).
+  /// Returns `true` only when a matching row exists AND `unbanned_at` is null.
+  /// device_bans 의 unban 처리는 row 삭제 대신 `unbanned_at` 컬럼 채움(soft unban).
+  /// 옛 로직은 row 존재만으로 ban 판단해 운영자의 unban 작업이 무효였음.
   @visibleForTesting
   static bool isBannedFromResult(Map<String, dynamic>? result) {
-    return result != null;
+    if (result == null) return false;
+    return result['unbanned_at'] == null;
   }
 
   /// Build the update payload for marking a device as last seen now.
