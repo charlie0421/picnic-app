@@ -288,20 +288,33 @@ void main() {
   });
 
   group('DeviceManagerHelper.isBannedFromResult', () {
-    test('returns true when result is not null', () {
-      final result = DeviceManagerHelper.isBannedFromResult(
-        {'device_id': 'abc', 'reason': 'abuse'},
-      );
-      expect(result, isTrue);
-    });
-
-    test('returns false when result is null', () {
+    test('null 결과 → ban 아님', () {
       final result = DeviceManagerHelper.isBannedFromResult(null);
       expect(result, isFalse);
     });
 
-    test('returns true for empty map (row exists but no data)', () {
-      final result = DeviceManagerHelper.isBannedFromResult({});
+    test('unbanned_at 가 null 인 active ban row → ban 임', () {
+      final result = DeviceManagerHelper.isBannedFromResult(
+        {'device_id': 'abc', 'reason': 'abuse', 'unbanned_at': null},
+      );
+      expect(result, isTrue);
+    });
+
+    test('unbanned_at 가 채워진 row (soft unban) → ban 아님 — soft unban 인식', () {
+      final result = DeviceManagerHelper.isBannedFromResult({
+        'device_id': 'abc',
+        'reason': 'abuse',
+        'unbanned_at': '2026-05-26T09:03:57.857821+00:00',
+      });
+      expect(result, isFalse);
+    });
+
+    test('unbanned_at 키 없는 empty / 옛 row → ban 으로 처리 (보수적)', () {
+      // 기본 schema 에서는 항상 unbanned_at 컬럼 존재. 누락은 예상치 못한 케이스.
+      // null/missing 동등 처리: row 가 있으면 ban (보수적).
+      final result = DeviceManagerHelper.isBannedFromResult({
+        'device_id': 'abc',
+      });
       expect(result, isTrue);
     });
   });
