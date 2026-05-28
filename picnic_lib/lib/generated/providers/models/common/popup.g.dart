@@ -26,6 +26,7 @@ _Popup _$PopupFromJson(Map<String, dynamic> json) => $checkedCreate(
           (k, e) => MapEntry(k, e as String),
         ),
       ),
+      platform: $checkedConvert('platform', (v) => v as String?),
       createdAt: $checkedConvert(
         'created_at',
         (v) => v == null ? null : DateTime.parse(v as String),
@@ -63,6 +64,7 @@ Map<String, dynamic> _$PopupToJson(_Popup instance) => <String, dynamic>{
   'title': instance.title,
   'content': instance.content,
   'image': instance.image,
+  'platform': instance.platform,
   'created_at': instance.createdAt?.toIso8601String(),
   'updated_at': instance.updatedAt?.toIso8601String(),
   'deleted_at': instance.deletedAt?.toIso8601String(),

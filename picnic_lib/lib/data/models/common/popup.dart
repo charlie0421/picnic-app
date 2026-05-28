@@ -10,6 +10,7 @@ abstract class Popup with _$Popup {
     required Map<String, String> title,
     required Map<String, String> content,
     Map<String, String>? image,
+    String? platform,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
     @JsonKey(name: 'deleted_at') DateTime? deletedAt,
