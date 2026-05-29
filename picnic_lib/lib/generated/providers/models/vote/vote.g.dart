@@ -44,6 +44,7 @@ _VoteModel _$VoteModelFromJson(Map<String, dynamic> json) => $checkedCreate(
       isUpcoming: $checkedConvert('is_upcoming', (v) => v as bool?),
       isPartnership: $checkedConvert('is_partnership', (v) => v as bool?),
       partner: $checkedConvert('partner', (v) => v as String?),
+      area: $checkedConvert('area', (v) => v as String?),
       reward: $checkedConvert(
         'reward',
         (v) => (v as List<dynamic>?)
@@ -88,6 +89,7 @@ Map<String, dynamic> _$VoteModelToJson(_VoteModel instance) =>
       'is_upcoming': instance.isUpcoming,
       'is_partnership': instance.isPartnership,
       'partner': instance.partner,
+      'area': instance.area,
       'reward': instance.reward?.map((e) => e.toJson()).toList(),
     };
 

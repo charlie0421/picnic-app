@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$VoteModel {
 
-@JsonKey(name: 'id') int get id;@JsonKey(name: 'title') Map<String, dynamic> get title;@JsonKey(name: 'vote_category') String? get voteCategory;@JsonKey(name: 'main_image') String? get mainImage;@JsonKey(name: 'wait_image') String? get waitImage;@JsonKey(name: 'result_image') String? get resultImage;@JsonKey(name: 'vote_content') String? get voteContent;@JsonKey(name: 'vote_item') List<VoteItemModel>? get voteItem;@JsonKey(name: 'created_at') DateTime? get createdAt;@JsonKey(name: 'visible_at') DateTime? get visibleAt;@JsonKey(name: 'stop_at') DateTime? get stopAt;@JsonKey(name: 'start_at') DateTime? get startAt;@JsonKey(name: 'is_ended') bool? get isEnded;@JsonKey(name: 'is_upcoming') bool? get isUpcoming;@JsonKey(name: 'is_partnership') bool? get isPartnership;@JsonKey(name: 'partner') String? get partner;@JsonKey(name: 'reward') List<RewardModel>? get reward;
+@JsonKey(name: 'id') int get id;@JsonKey(name: 'title') Map<String, dynamic> get title;@JsonKey(name: 'vote_category') String? get voteCategory;@JsonKey(name: 'main_image') String? get mainImage;@JsonKey(name: 'wait_image') String? get waitImage;@JsonKey(name: 'result_image') String? get resultImage;@JsonKey(name: 'vote_content') String? get voteContent;@JsonKey(name: 'vote_item') List<VoteItemModel>? get voteItem;@JsonKey(name: 'created_at') DateTime? get createdAt;@JsonKey(name: 'visible_at') DateTime? get visibleAt;@JsonKey(name: 'stop_at') DateTime? get stopAt;@JsonKey(name: 'start_at') DateTime? get startAt;@JsonKey(name: 'is_ended') bool? get isEnded;@JsonKey(name: 'is_upcoming') bool? get isUpcoming;@JsonKey(name: 'is_partnership') bool? get isPartnership;@JsonKey(name: 'partner') String? get partner;@JsonKey(name: 'area') String? get area;@JsonKey(name: 'reward') List<RewardModel>? get reward;
 /// Create a copy of VoteModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $VoteModelCopyWith<VoteModel> get copyWith => _$VoteModelCopyWithImpl<VoteModel>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is VoteModel&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other.title, title)&&(identical(other.voteCategory, voteCategory) || other.voteCategory == voteCategory)&&(identical(other.mainImage, mainImage) || other.mainImage == mainImage)&&(identical(other.waitImage, waitImage) || other.waitImage == waitImage)&&(identical(other.resultImage, resultImage) || other.resultImage == resultImage)&&(identical(other.voteContent, voteContent) || other.voteContent == voteContent)&&const DeepCollectionEquality().equals(other.voteItem, voteItem)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.visibleAt, visibleAt) || other.visibleAt == visibleAt)&&(identical(other.stopAt, stopAt) || other.stopAt == stopAt)&&(identical(other.startAt, startAt) || other.startAt == startAt)&&(identical(other.isEnded, isEnded) || other.isEnded == isEnded)&&(identical(other.isUpcoming, isUpcoming) || other.isUpcoming == isUpcoming)&&(identical(other.isPartnership, isPartnership) || other.isPartnership == isPartnership)&&(identical(other.partner, partner) || other.partner == partner)&&const DeepCollectionEquality().equals(other.reward, reward));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VoteModel&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other.title, title)&&(identical(other.voteCategory, voteCategory) || other.voteCategory == voteCategory)&&(identical(other.mainImage, mainImage) || other.mainImage == mainImage)&&(identical(other.waitImage, waitImage) || other.waitImage == waitImage)&&(identical(other.resultImage, resultImage) || other.resultImage == resultImage)&&(identical(other.voteContent, voteContent) || other.voteContent == voteContent)&&const DeepCollectionEquality().equals(other.voteItem, voteItem)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.visibleAt, visibleAt) || other.visibleAt == visibleAt)&&(identical(other.stopAt, stopAt) || other.stopAt == stopAt)&&(identical(other.startAt, startAt) || other.startAt == startAt)&&(identical(other.isEnded, isEnded) || other.isEnded == isEnded)&&(identical(other.isUpcoming, isUpcoming) || other.isUpcoming == isUpcoming)&&(identical(other.isPartnership, isPartnership) || other.isPartnership == isPartnership)&&(identical(other.partner, partner) || other.partner == partner)&&(identical(other.area, area) || other.area == area)&&const DeepCollectionEquality().equals(other.reward, reward));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,const DeepCollectionEquality().hash(title),voteCategory,mainImage,waitImage,resultImage,voteContent,const DeepCollectionEquality().hash(voteItem),createdAt,visibleAt,stopAt,startAt,isEnded,isUpcoming,isPartnership,partner,const DeepCollectionEquality().hash(reward));
+int get hashCode => Object.hash(runtimeType,id,const DeepCollectionEquality().hash(title),voteCategory,mainImage,waitImage,resultImage,voteContent,const DeepCollectionEquality().hash(voteItem),createdAt,visibleAt,stopAt,startAt,isEnded,isUpcoming,isPartnership,partner,area,const DeepCollectionEquality().hash(reward));
 
 @override
 String toString() {
-  return 'VoteModel(id: $id, title: $title, voteCategory: $voteCategory, mainImage: $mainImage, waitImage: $waitImage, resultImage: $resultImage, voteContent: $voteContent, voteItem: $voteItem, createdAt: $createdAt, visibleAt: $visibleAt, stopAt: $stopAt, startAt: $startAt, isEnded: $isEnded, isUpcoming: $isUpcoming, isPartnership: $isPartnership, partner: $partner, reward: $reward)';
+  return 'VoteModel(id: $id, title: $title, voteCategory: $voteCategory, mainImage: $mainImage, waitImage: $waitImage, resultImage: $resultImage, voteContent: $voteContent, voteItem: $voteItem, createdAt: $createdAt, visibleAt: $visibleAt, stopAt: $stopAt, startAt: $startAt, isEnded: $isEnded, isUpcoming: $isUpcoming, isPartnership: $isPartnership, partner: $partner, area: $area, reward: $reward)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $VoteModelCopyWith<$Res>  {
   factory $VoteModelCopyWith(VoteModel value, $Res Function(VoteModel) _then) = _$VoteModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'id') int id,@JsonKey(name: 'title') Map<String, dynamic> title,@JsonKey(name: 'vote_category') String? voteCategory,@JsonKey(name: 'main_image') String? mainImage,@JsonKey(name: 'wait_image') String? waitImage,@JsonKey(name: 'result_image') String? resultImage,@JsonKey(name: 'vote_content') String? voteContent,@JsonKey(name: 'vote_item') List<VoteItemModel>? voteItem,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'visible_at') DateTime? visibleAt,@JsonKey(name: 'stop_at') DateTime? stopAt,@JsonKey(name: 'start_at') DateTime? startAt,@JsonKey(name: 'is_ended') bool? isEnded,@JsonKey(name: 'is_upcoming') bool? isUpcoming,@JsonKey(name: 'is_partnership') bool? isPartnership,@JsonKey(name: 'partner') String? partner,@JsonKey(name: 'reward') List<RewardModel>? reward
+@JsonKey(name: 'id') int id,@JsonKey(name: 'title') Map<String, dynamic> title,@JsonKey(name: 'vote_category') String? voteCategory,@JsonKey(name: 'main_image') String? mainImage,@JsonKey(name: 'wait_image') String? waitImage,@JsonKey(name: 'result_image') String? resultImage,@JsonKey(name: 'vote_content') String? voteContent,@JsonKey(name: 'vote_item') List<VoteItemModel>? voteItem,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'visible_at') DateTime? visibleAt,@JsonKey(name: 'stop_at') DateTime? stopAt,@JsonKey(name: 'start_at') DateTime? startAt,@JsonKey(name: 'is_ended') bool? isEnded,@JsonKey(name: 'is_upcoming') bool? isUpcoming,@JsonKey(name: 'is_partnership') bool? isPartnership,@JsonKey(name: 'partner') String? partner,@JsonKey(name: 'area') String? area,@JsonKey(name: 'reward') List<RewardModel>? reward
 });
 
 
@@ -65,7 +65,7 @@ class _$VoteModelCopyWithImpl<$Res>
 
 /// Create a copy of VoteModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? voteCategory = freezed,Object? mainImage = freezed,Object? waitImage = freezed,Object? resultImage = freezed,Object? voteContent = freezed,Object? voteItem = freezed,Object? createdAt = freezed,Object? visibleAt = freezed,Object? stopAt = freezed,Object? startAt = freezed,Object? isEnded = freezed,Object? isUpcoming = freezed,Object? isPartnership = freezed,Object? partner = freezed,Object? reward = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? voteCategory = freezed,Object? mainImage = freezed,Object? waitImage = freezed,Object? resultImage = freezed,Object? voteContent = freezed,Object? voteItem = freezed,Object? createdAt = freezed,Object? visibleAt = freezed,Object? stopAt = freezed,Object? startAt = freezed,Object? isEnded = freezed,Object? isUpcoming = freezed,Object? isPartnership = freezed,Object? partner = freezed,Object? area = freezed,Object? reward = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -83,6 +83,7 @@ as DateTime?,isEnded: freezed == isEnded ? _self.isEnded : isEnded // ignore: ca
 as bool?,isUpcoming: freezed == isUpcoming ? _self.isUpcoming : isUpcoming // ignore: cast_nullable_to_non_nullable
 as bool?,isPartnership: freezed == isPartnership ? _self.isPartnership : isPartnership // ignore: cast_nullable_to_non_nullable
 as bool?,partner: freezed == partner ? _self.partner : partner // ignore: cast_nullable_to_non_nullable
+as String?,area: freezed == area ? _self.area : area // ignore: cast_nullable_to_non_nullable
 as String?,reward: freezed == reward ? _self.reward : reward // ignore: cast_nullable_to_non_nullable
 as List<RewardModel>?,
   ));
@@ -169,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'title')  Map<String, dynamic> title, @JsonKey(name: 'vote_category')  String? voteCategory, @JsonKey(name: 'main_image')  String? mainImage, @JsonKey(name: 'wait_image')  String? waitImage, @JsonKey(name: 'result_image')  String? resultImage, @JsonKey(name: 'vote_content')  String? voteContent, @JsonKey(name: 'vote_item')  List<VoteItemModel>? voteItem, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'visible_at')  DateTime? visibleAt, @JsonKey(name: 'stop_at')  DateTime? stopAt, @JsonKey(name: 'start_at')  DateTime? startAt, @JsonKey(name: 'is_ended')  bool? isEnded, @JsonKey(name: 'is_upcoming')  bool? isUpcoming, @JsonKey(name: 'is_partnership')  bool? isPartnership, @JsonKey(name: 'partner')  String? partner, @JsonKey(name: 'reward')  List<RewardModel>? reward)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'title')  Map<String, dynamic> title, @JsonKey(name: 'vote_category')  String? voteCategory, @JsonKey(name: 'main_image')  String? mainImage, @JsonKey(name: 'wait_image')  String? waitImage, @JsonKey(name: 'result_image')  String? resultImage, @JsonKey(name: 'vote_content')  String? voteContent, @JsonKey(name: 'vote_item')  List<VoteItemModel>? voteItem, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'visible_at')  DateTime? visibleAt, @JsonKey(name: 'stop_at')  DateTime? stopAt, @JsonKey(name: 'start_at')  DateTime? startAt, @JsonKey(name: 'is_ended')  bool? isEnded, @JsonKey(name: 'is_upcoming')  bool? isUpcoming, @JsonKey(name: 'is_partnership')  bool? isPartnership, @JsonKey(name: 'partner')  String? partner, @JsonKey(name: 'area')  String? area, @JsonKey(name: 'reward')  List<RewardModel>? reward)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _VoteModel() when $default != null:
-return $default(_that.id,_that.title,_that.voteCategory,_that.mainImage,_that.waitImage,_that.resultImage,_that.voteContent,_that.voteItem,_that.createdAt,_that.visibleAt,_that.stopAt,_that.startAt,_that.isEnded,_that.isUpcoming,_that.isPartnership,_that.partner,_that.reward);case _:
+return $default(_that.id,_that.title,_that.voteCategory,_that.mainImage,_that.waitImage,_that.resultImage,_that.voteContent,_that.voteItem,_that.createdAt,_that.visibleAt,_that.stopAt,_that.startAt,_that.isEnded,_that.isUpcoming,_that.isPartnership,_that.partner,_that.area,_that.reward);case _:
   return orElse();
 
 }
@@ -190,10 +191,10 @@ return $default(_that.id,_that.title,_that.voteCategory,_that.mainImage,_that.wa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'title')  Map<String, dynamic> title, @JsonKey(name: 'vote_category')  String? voteCategory, @JsonKey(name: 'main_image')  String? mainImage, @JsonKey(name: 'wait_image')  String? waitImage, @JsonKey(name: 'result_image')  String? resultImage, @JsonKey(name: 'vote_content')  String? voteContent, @JsonKey(name: 'vote_item')  List<VoteItemModel>? voteItem, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'visible_at')  DateTime? visibleAt, @JsonKey(name: 'stop_at')  DateTime? stopAt, @JsonKey(name: 'start_at')  DateTime? startAt, @JsonKey(name: 'is_ended')  bool? isEnded, @JsonKey(name: 'is_upcoming')  bool? isUpcoming, @JsonKey(name: 'is_partnership')  bool? isPartnership, @JsonKey(name: 'partner')  String? partner, @JsonKey(name: 'reward')  List<RewardModel>? reward)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'title')  Map<String, dynamic> title, @JsonKey(name: 'vote_category')  String? voteCategory, @JsonKey(name: 'main_image')  String? mainImage, @JsonKey(name: 'wait_image')  String? waitImage, @JsonKey(name: 'result_image')  String? resultImage, @JsonKey(name: 'vote_content')  String? voteContent, @JsonKey(name: 'vote_item')  List<VoteItemModel>? voteItem, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'visible_at')  DateTime? visibleAt, @JsonKey(name: 'stop_at')  DateTime? stopAt, @JsonKey(name: 'start_at')  DateTime? startAt, @JsonKey(name: 'is_ended')  bool? isEnded, @JsonKey(name: 'is_upcoming')  bool? isUpcoming, @JsonKey(name: 'is_partnership')  bool? isPartnership, @JsonKey(name: 'partner')  String? partner, @JsonKey(name: 'area')  String? area, @JsonKey(name: 'reward')  List<RewardModel>? reward)  $default,) {final _that = this;
 switch (_that) {
 case _VoteModel():
-return $default(_that.id,_that.title,_that.voteCategory,_that.mainImage,_that.waitImage,_that.resultImage,_that.voteContent,_that.voteItem,_that.createdAt,_that.visibleAt,_that.stopAt,_that.startAt,_that.isEnded,_that.isUpcoming,_that.isPartnership,_that.partner,_that.reward);case _:
+return $default(_that.id,_that.title,_that.voteCategory,_that.mainImage,_that.waitImage,_that.resultImage,_that.voteContent,_that.voteItem,_that.createdAt,_that.visibleAt,_that.stopAt,_that.startAt,_that.isEnded,_that.isUpcoming,_that.isPartnership,_that.partner,_that.area,_that.reward);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +211,10 @@ return $default(_that.id,_that.title,_that.voteCategory,_that.mainImage,_that.wa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'title')  Map<String, dynamic> title, @JsonKey(name: 'vote_category')  String? voteCategory, @JsonKey(name: 'main_image')  String? mainImage, @JsonKey(name: 'wait_image')  String? waitImage, @JsonKey(name: 'result_image')  String? resultImage, @JsonKey(name: 'vote_content')  String? voteContent, @JsonKey(name: 'vote_item')  List<VoteItemModel>? voteItem, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'visible_at')  DateTime? visibleAt, @JsonKey(name: 'stop_at')  DateTime? stopAt, @JsonKey(name: 'start_at')  DateTime? startAt, @JsonKey(name: 'is_ended')  bool? isEnded, @JsonKey(name: 'is_upcoming')  bool? isUpcoming, @JsonKey(name: 'is_partnership')  bool? isPartnership, @JsonKey(name: 'partner')  String? partner, @JsonKey(name: 'reward')  List<RewardModel>? reward)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'title')  Map<String, dynamic> title, @JsonKey(name: 'vote_category')  String? voteCategory, @JsonKey(name: 'main_image')  String? mainImage, @JsonKey(name: 'wait_image')  String? waitImage, @JsonKey(name: 'result_image')  String? resultImage, @JsonKey(name: 'vote_content')  String? voteContent, @JsonKey(name: 'vote_item')  List<VoteItemModel>? voteItem, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'visible_at')  DateTime? visibleAt, @JsonKey(name: 'stop_at')  DateTime? stopAt, @JsonKey(name: 'start_at')  DateTime? startAt, @JsonKey(name: 'is_ended')  bool? isEnded, @JsonKey(name: 'is_upcoming')  bool? isUpcoming, @JsonKey(name: 'is_partnership')  bool? isPartnership, @JsonKey(name: 'partner')  String? partner, @JsonKey(name: 'area')  String? area, @JsonKey(name: 'reward')  List<RewardModel>? reward)?  $default,) {final _that = this;
 switch (_that) {
 case _VoteModel() when $default != null:
-return $default(_that.id,_that.title,_that.voteCategory,_that.mainImage,_that.waitImage,_that.resultImage,_that.voteContent,_that.voteItem,_that.createdAt,_that.visibleAt,_that.stopAt,_that.startAt,_that.isEnded,_that.isUpcoming,_that.isPartnership,_that.partner,_that.reward);case _:
+return $default(_that.id,_that.title,_that.voteCategory,_that.mainImage,_that.waitImage,_that.resultImage,_that.voteContent,_that.voteItem,_that.createdAt,_that.visibleAt,_that.stopAt,_that.startAt,_that.isEnded,_that.isUpcoming,_that.isPartnership,_that.partner,_that.area,_that.reward);case _:
   return null;
 
 }
@@ -225,7 +226,7 @@ return $default(_that.id,_that.title,_that.voteCategory,_that.mainImage,_that.wa
 @JsonSerializable()
 
 class _VoteModel extends VoteModel {
-  const _VoteModel({@JsonKey(name: 'id') required this.id, @JsonKey(name: 'title') required final  Map<String, dynamic> title, @JsonKey(name: 'vote_category') required this.voteCategory, @JsonKey(name: 'main_image') required this.mainImage, @JsonKey(name: 'wait_image') required this.waitImage, @JsonKey(name: 'result_image') required this.resultImage, @JsonKey(name: 'vote_content') required this.voteContent, @JsonKey(name: 'vote_item') required final  List<VoteItemModel>? voteItem, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'visible_at') required this.visibleAt, @JsonKey(name: 'stop_at') required this.stopAt, @JsonKey(name: 'start_at') required this.startAt, @JsonKey(name: 'is_ended') required this.isEnded, @JsonKey(name: 'is_upcoming') required this.isUpcoming, @JsonKey(name: 'is_partnership') required this.isPartnership, @JsonKey(name: 'partner') required this.partner, @JsonKey(name: 'reward') required final  List<RewardModel>? reward}): _title = title,_voteItem = voteItem,_reward = reward,super._();
+  const _VoteModel({@JsonKey(name: 'id') required this.id, @JsonKey(name: 'title') required final  Map<String, dynamic> title, @JsonKey(name: 'vote_category') required this.voteCategory, @JsonKey(name: 'main_image') required this.mainImage, @JsonKey(name: 'wait_image') required this.waitImage, @JsonKey(name: 'result_image') required this.resultImage, @JsonKey(name: 'vote_content') required this.voteContent, @JsonKey(name: 'vote_item') required final  List<VoteItemModel>? voteItem, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'visible_at') required this.visibleAt, @JsonKey(name: 'stop_at') required this.stopAt, @JsonKey(name: 'start_at') required this.startAt, @JsonKey(name: 'is_ended') required this.isEnded, @JsonKey(name: 'is_upcoming') required this.isUpcoming, @JsonKey(name: 'is_partnership') required this.isPartnership, @JsonKey(name: 'partner') required this.partner, @JsonKey(name: 'area') this.area, @JsonKey(name: 'reward') required final  List<RewardModel>? reward}): _title = title,_voteItem = voteItem,_reward = reward,super._();
   factory _VoteModel.fromJson(Map<String, dynamic> json) => _$VoteModelFromJson(json);
 
 @override@JsonKey(name: 'id') final  int id;
@@ -258,6 +259,7 @@ class _VoteModel extends VoteModel {
 @override@JsonKey(name: 'is_upcoming') final  bool? isUpcoming;
 @override@JsonKey(name: 'is_partnership') final  bool? isPartnership;
 @override@JsonKey(name: 'partner') final  String? partner;
+@override@JsonKey(name: 'area') final  String? area;
  final  List<RewardModel>? _reward;
 @override@JsonKey(name: 'reward') List<RewardModel>? get reward {
   final value = _reward;
@@ -281,16 +283,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VoteModel&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other._title, _title)&&(identical(other.voteCategory, voteCategory) || other.voteCategory == voteCategory)&&(identical(other.mainImage, mainImage) || other.mainImage == mainImage)&&(identical(other.waitImage, waitImage) || other.waitImage == waitImage)&&(identical(other.resultImage, resultImage) || other.resultImage == resultImage)&&(identical(other.voteContent, voteContent) || other.voteContent == voteContent)&&const DeepCollectionEquality().equals(other._voteItem, _voteItem)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.visibleAt, visibleAt) || other.visibleAt == visibleAt)&&(identical(other.stopAt, stopAt) || other.stopAt == stopAt)&&(identical(other.startAt, startAt) || other.startAt == startAt)&&(identical(other.isEnded, isEnded) || other.isEnded == isEnded)&&(identical(other.isUpcoming, isUpcoming) || other.isUpcoming == isUpcoming)&&(identical(other.isPartnership, isPartnership) || other.isPartnership == isPartnership)&&(identical(other.partner, partner) || other.partner == partner)&&const DeepCollectionEquality().equals(other._reward, _reward));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VoteModel&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other._title, _title)&&(identical(other.voteCategory, voteCategory) || other.voteCategory == voteCategory)&&(identical(other.mainImage, mainImage) || other.mainImage == mainImage)&&(identical(other.waitImage, waitImage) || other.waitImage == waitImage)&&(identical(other.resultImage, resultImage) || other.resultImage == resultImage)&&(identical(other.voteContent, voteContent) || other.voteContent == voteContent)&&const DeepCollectionEquality().equals(other._voteItem, _voteItem)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.visibleAt, visibleAt) || other.visibleAt == visibleAt)&&(identical(other.stopAt, stopAt) || other.stopAt == stopAt)&&(identical(other.startAt, startAt) || other.startAt == startAt)&&(identical(other.isEnded, isEnded) || other.isEnded == isEnded)&&(identical(other.isUpcoming, isUpcoming) || other.isUpcoming == isUpcoming)&&(identical(other.isPartnership, isPartnership) || other.isPartnership == isPartnership)&&(identical(other.partner, partner) || other.partner == partner)&&(identical(other.area, area) || other.area == area)&&const DeepCollectionEquality().equals(other._reward, _reward));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,const DeepCollectionEquality().hash(_title),voteCategory,mainImage,waitImage,resultImage,voteContent,const DeepCollectionEquality().hash(_voteItem),createdAt,visibleAt,stopAt,startAt,isEnded,isUpcoming,isPartnership,partner,const DeepCollectionEquality().hash(_reward));
+int get hashCode => Object.hash(runtimeType,id,const DeepCollectionEquality().hash(_title),voteCategory,mainImage,waitImage,resultImage,voteContent,const DeepCollectionEquality().hash(_voteItem),createdAt,visibleAt,stopAt,startAt,isEnded,isUpcoming,isPartnership,partner,area,const DeepCollectionEquality().hash(_reward));
 
 @override
 String toString() {
-  return 'VoteModel(id: $id, title: $title, voteCategory: $voteCategory, mainImage: $mainImage, waitImage: $waitImage, resultImage: $resultImage, voteContent: $voteContent, voteItem: $voteItem, createdAt: $createdAt, visibleAt: $visibleAt, stopAt: $stopAt, startAt: $startAt, isEnded: $isEnded, isUpcoming: $isUpcoming, isPartnership: $isPartnership, partner: $partner, reward: $reward)';
+  return 'VoteModel(id: $id, title: $title, voteCategory: $voteCategory, mainImage: $mainImage, waitImage: $waitImage, resultImage: $resultImage, voteContent: $voteContent, voteItem: $voteItem, createdAt: $createdAt, visibleAt: $visibleAt, stopAt: $stopAt, startAt: $startAt, isEnded: $isEnded, isUpcoming: $isUpcoming, isPartnership: $isPartnership, partner: $partner, area: $area, reward: $reward)';
 }
 
 
@@ -301,7 +303,7 @@ abstract mixin class _$VoteModelCopyWith<$Res> implements $VoteModelCopyWith<$Re
   factory _$VoteModelCopyWith(_VoteModel value, $Res Function(_VoteModel) _then) = __$VoteModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'id') int id,@JsonKey(name: 'title') Map<String, dynamic> title,@JsonKey(name: 'vote_category') String? voteCategory,@JsonKey(name: 'main_image') String? mainImage,@JsonKey(name: 'wait_image') String? waitImage,@JsonKey(name: 'result_image') String? resultImage,@JsonKey(name: 'vote_content') String? voteContent,@JsonKey(name: 'vote_item') List<VoteItemModel>? voteItem,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'visible_at') DateTime? visibleAt,@JsonKey(name: 'stop_at') DateTime? stopAt,@JsonKey(name: 'start_at') DateTime? startAt,@JsonKey(name: 'is_ended') bool? isEnded,@JsonKey(name: 'is_upcoming') bool? isUpcoming,@JsonKey(name: 'is_partnership') bool? isPartnership,@JsonKey(name: 'partner') String? partner,@JsonKey(name: 'reward') List<RewardModel>? reward
+@JsonKey(name: 'id') int id,@JsonKey(name: 'title') Map<String, dynamic> title,@JsonKey(name: 'vote_category') String? voteCategory,@JsonKey(name: 'main_image') String? mainImage,@JsonKey(name: 'wait_image') String? waitImage,@JsonKey(name: 'result_image') String? resultImage,@JsonKey(name: 'vote_content') String? voteContent,@JsonKey(name: 'vote_item') List<VoteItemModel>? voteItem,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'visible_at') DateTime? visibleAt,@JsonKey(name: 'stop_at') DateTime? stopAt,@JsonKey(name: 'start_at') DateTime? startAt,@JsonKey(name: 'is_ended') bool? isEnded,@JsonKey(name: 'is_upcoming') bool? isUpcoming,@JsonKey(name: 'is_partnership') bool? isPartnership,@JsonKey(name: 'partner') String? partner,@JsonKey(name: 'area') String? area,@JsonKey(name: 'reward') List<RewardModel>? reward
 });
 
 
@@ -318,7 +320,7 @@ class __$VoteModelCopyWithImpl<$Res>
 
 /// Create a copy of VoteModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? voteCategory = freezed,Object? mainImage = freezed,Object? waitImage = freezed,Object? resultImage = freezed,Object? voteContent = freezed,Object? voteItem = freezed,Object? createdAt = freezed,Object? visibleAt = freezed,Object? stopAt = freezed,Object? startAt = freezed,Object? isEnded = freezed,Object? isUpcoming = freezed,Object? isPartnership = freezed,Object? partner = freezed,Object? reward = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? voteCategory = freezed,Object? mainImage = freezed,Object? waitImage = freezed,Object? resultImage = freezed,Object? voteContent = freezed,Object? voteItem = freezed,Object? createdAt = freezed,Object? visibleAt = freezed,Object? stopAt = freezed,Object? startAt = freezed,Object? isEnded = freezed,Object? isUpcoming = freezed,Object? isPartnership = freezed,Object? partner = freezed,Object? area = freezed,Object? reward = freezed,}) {
   return _then(_VoteModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,title: null == title ? _self._title : title // ignore: cast_nullable_to_non_nullable
@@ -336,6 +338,7 @@ as DateTime?,isEnded: freezed == isEnded ? _self.isEnded : isEnded // ignore: ca
 as bool?,isUpcoming: freezed == isUpcoming ? _self.isUpcoming : isUpcoming // ignore: cast_nullable_to_non_nullable
 as bool?,isPartnership: freezed == isPartnership ? _self.isPartnership : isPartnership // ignore: cast_nullable_to_non_nullable
 as bool?,partner: freezed == partner ? _self.partner : partner // ignore: cast_nullable_to_non_nullable
+as String?,area: freezed == area ? _self.area : area // ignore: cast_nullable_to_non_nullable
 as String?,reward: freezed == reward ? _self._reward : reward // ignore: cast_nullable_to_non_nullable
 as List<RewardModel>?,
   ));

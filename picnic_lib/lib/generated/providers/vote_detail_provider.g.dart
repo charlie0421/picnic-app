@@ -50,7 +50,7 @@ final class AsyncVoteDetailProvider
   }
 }
 
-String _$asyncVoteDetailHash() => r'7c1f85d5ef38e11c53a21b26182a526cff9f0511';
+String _$asyncVoteDetailHash() => r'01adee04365f9a85c253a3056c3172f816d2b8a2';
 
 final class AsyncVoteDetailFamily extends $Family
     with

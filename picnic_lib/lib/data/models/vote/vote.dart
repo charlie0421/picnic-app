@@ -28,6 +28,7 @@ abstract class VoteModel with _$VoteModel {
           @JsonKey(name: 'is_upcoming') required bool? isUpcoming,
           @JsonKey(name: 'is_partnership') required bool? isPartnership,
           @JsonKey(name: 'partner') required String? partner,
+          @JsonKey(name: 'area') String? area,
           @JsonKey(name: 'reward') required List<RewardModel>? reward}) =
       _VoteModel;
 

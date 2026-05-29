@@ -192,6 +192,8 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
         hideSectionHeaderOnSearch: false,
         bookmarkSectionTitle: '북마크',
         generalSectionTitle: '전체 아티스트',
+        // 마이아티스트는 K-pop + 뮤지컬 배우 모두 노출
+        searchScope: ArtistSearchScope.kpopAndMusical,
       ),
       onBookmarkToggle: _toggleBookmark,
       onArtistTap: (artist) {
