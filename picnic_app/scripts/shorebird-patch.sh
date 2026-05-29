@@ -75,16 +75,24 @@ if [ ! -x "$SHOREBIRD" ]; then
 fi
 
 # ---- Sentry symbol upload helpers ----
+# 인증은 SENTRY_AUTH_TOKEN 환경변수뿐 아니라 sentry-cli 설정(~/.sentryclirc 의
+# [auth] token 등)으로도 가능하다. 토큰이 ~/.sentryclirc 에만 있어도 업로드되도록
+# env 토큰 OR `sentry-cli info` 인증을 모두 허용한다.
 sentry_upload_check() {
-  if [ -z "${SENTRY_AUTH_TOKEN:-}" ]; then
-    echo "ℹ️ SENTRY_AUTH_TOKEN 미설정 — symbol 업로드 건너뜀"
-    return 1
-  fi
   if ! command -v sentry-cli &>/dev/null; then
     echo "ℹ️ sentry-cli 미설치 (brew install getsentry/tools/sentry-cli) — symbol 업로드 건너뜀"
     return 1
   fi
-  return 0
+  # 1) 환경변수 토큰이 있으면 OK
+  if [ -n "${SENTRY_AUTH_TOKEN:-}" ]; then
+    return 0
+  fi
+  # 2) 없으면 sentry-cli 자체 인증(~/.sentryclirc 등) 확인
+  if sentry-cli info 2>/dev/null | grep -qi "Auth Token"; then
+    return 0
+  fi
+  echo "ℹ️ Sentry 인증 없음 (SENTRY_AUTH_TOKEN 미설정 + sentry-cli 미인증) — symbol 업로드 건너뜀"
+  return 1
 }
 
 sentry_upload_ios() {
