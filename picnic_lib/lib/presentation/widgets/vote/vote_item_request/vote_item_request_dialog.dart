@@ -71,8 +71,11 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   @override
   void initState() {
     super.initState();
-    _service =
-        VoteItemRequestService(ref: ref, voteId: widget.vote.id.toString());
+    _service = VoteItemRequestService(
+      ref: ref,
+      voteId: widget.vote.id.toString(),
+      voteArea: widget.vote.area,
+    );
     _loadAllApplicationData();
     // 초기에는 아티스트 목록 로드하지 않음
   }

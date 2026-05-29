@@ -6,6 +6,35 @@ import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+/// 아티스트 검색에서 어떤 카테고리(들)를 노출할지 결정하는 범위.
+///
+/// - [kpopOnly]: K-pop 아티스트만 (기존 기본 동작)
+/// - [musicalOnly]: 뮤지컬 배우만 (area == 'musical' 투표)
+/// - [kpopAndMusical]: K-pop + 뮤지컬 (마이아티스트 등 통합 노출)
+enum ArtistSearchScope { kpopOnly, musicalOnly, kpopAndMusical }
+
+/// 투표 `area` 값에 따른 아티스트 검색 범위.
+///
+/// 'musical' 투표는 뮤지컬 배우만, 그 외/null 은 기존 K-pop 으로 매핑한다.
+ArtistSearchScope artistSearchScopeForVoteArea(String? area) =>
+    area == 'musical'
+        ? ArtistSearchScope.musicalOnly
+        : ArtistSearchScope.kpopOnly;
+
+/// [scope] 에 해당하는 PostgREST `or=()` 필터 문자열을 만든다.
+///
+/// 단일 조건(`is_kpop.eq.true`)도 PostgREST `or` 로 표현되며 동작은 `.eq` 와 동일하다.
+String artistScopeOrFilter(ArtistSearchScope scope) {
+  switch (scope) {
+    case ArtistSearchScope.kpopOnly:
+      return 'is_kpop.eq.true';
+    case ArtistSearchScope.musicalOnly:
+      return 'is_musical.eq.true';
+    case ArtistSearchScope.kpopAndMusical:
+      return 'is_kpop.eq.true,is_musical.eq.true';
+  }
+}
+
 /// 공통 검색 서비스 클래스
 /// 다양한 엔티티 타입에 대한 검색 기능을 제공하는 재사용 가능한 모듈
 class SearchService {
@@ -330,11 +359,13 @@ class SearchService {
     int limit = 20,
     String language = 'ko',
     bool includeBookmarks = false,
+    ArtistSearchScope scope = ArtistSearchScope.kpopOnly,
   }) async {
     query = query.trim();
 
-    // 캐시 키 생성 (북마크 포함 여부도 키에 포함)
-    final cacheKey = 'artist_fast_${query}_${page}_${limit}_$includeBookmarks';
+    // 캐시 키 생성 (북마크 포함 여부 + 검색 범위도 키에 포함)
+    final cacheKey =
+        'artist_fast_${query}_${page}_${limit}_${includeBookmarks}_${scope.name}';
 
     // 캐시에서 조회 시도
     final cachedResult = _cache.get<List<ArtistModel>>(cacheKey);
@@ -381,7 +412,7 @@ class SearchService {
                 .from('artist')
                 .select(selectFields)
                 .neq('id', 0)
-                .eq('is_kpop', true)
+                .or(artistScopeOrFilter(scope)) // 검색 범위 (K-pop/뮤지컬)
                 .isFilter('deleted_at', null); // soft-deleted 아티스트 제외
 
             if (bookmarkedIds.isNotEmpty) {
@@ -426,7 +457,7 @@ class SearchService {
                 .from('artist')
                 .select(selectFields)
                 .neq('id', 0)
-                .eq('is_kpop', true)
+                .or(artistScopeOrFilter(scope)) // 검색 범위 (K-pop/뮤지컬)
                 .isFilter('deleted_at', null); // soft-deleted 아티스트 제외
 
             if (bookmarkedIds.isNotEmpty) {
@@ -446,7 +477,7 @@ class SearchService {
                 .from('artist')
                 .select(selectFields)
                 .neq('id', 0)
-                .eq('is_kpop', true)
+                .or(artistScopeOrFilter(scope)) // 검색 범위 (K-pop/뮤지컬)
                 .isFilter('deleted_at', null) // soft-deleted 아티스트 제외
                 .order('name->>$language', ascending: true)
                 .range(page * limit, (page + 1) * limit - 1);
@@ -477,7 +508,7 @@ class SearchService {
             .from('artist')
             .select(selectFields)
             .neq('id', 0)
-            .eq('is_kpop', true)
+            .or(artistScopeOrFilter(scope)) // 검색 범위 (K-pop/뮤지컬)
             .isFilter('deleted_at', null) // soft-deleted 아티스트 제외
             .order('name->>$language', ascending: true);
 
@@ -519,7 +550,7 @@ class SearchService {
           .from('artist')
           .select(selectFields)
           .neq('id', 0)
-          .eq('is_kpop', true)
+          .or(artistScopeOrFilter(scope)) // 검색 범위 (K-pop/뮤지컬)
           .isFilter('deleted_at', null) // soft-deleted 아티스트 제외
           .or('name->>ko.ilike.$searchPattern,name->>en.ilike.$searchPattern')
           .order('name->>$language', ascending: true)

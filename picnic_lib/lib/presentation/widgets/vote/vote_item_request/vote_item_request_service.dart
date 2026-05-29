@@ -15,10 +15,14 @@ class VoteItemRequestService {
   final WidgetRef ref;
   final String voteId;
 
+  /// 투표 area 에 따른 아티스트 검색 범위 (musical 투표 → 뮤지컬 배우 검색).
+  final ArtistSearchScope artistScope;
+
   VoteItemRequestService({
     required this.ref,
     required this.voteId,
-  });
+    String? voteArea,
+  }) : artistScope = artistSearchScopeForVoteArea(voteArea);
 
   /// 신청 수 및 사용자 신청 내역 로드
   Future<Map<String, dynamic>> loadApplicationCounts(String? userId) async {
@@ -106,11 +110,12 @@ class VoteItemRequestService {
     required int pageSize,
   }) async {
     try {
-      // 투표 후보 신청용 빠른 검색 메서드 사용
+      // 투표 후보 신청용 빠른 검색 메서드 사용 (투표 area 에 맞는 검색 범위 적용)
       final artists = await SearchService.searchArtistsFast(
         query: query,
         page: page,
         limit: pageSize,
+        scope: artistScope,
       );
 
       // 더 많은 결과가 있는지는 단순히 결과 개수로 판단

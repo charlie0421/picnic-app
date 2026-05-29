@@ -25,6 +25,7 @@ class ArtistSelectConfig {
     this.emptyMessage = '등록된 아티스트가 없습니다.',
     this.searchEmptyMessageTemplate = '"{query}"에 대한 검색 결과가 없습니다.',
     this.errorMessage = '아티스트 목록을 불러오는데 실패했습니다.',
+    this.searchScope = ArtistSearchScope.kpopOnly,
   });
 
   final bool showBookmarkToggle;
@@ -34,6 +35,9 @@ class ArtistSelectConfig {
   final String emptyMessage;
   final String searchEmptyMessageTemplate;
   final String errorMessage;
+
+  /// 검색에 노출할 아티스트 범위 (K-pop만 / 뮤지컬만 / 통합).
+  final ArtistSearchScope searchScope;
 }
 
 /// 공통 아티스트 선택 리스트 뷰 위젯
@@ -169,6 +173,7 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
       limit: _pageSize,
       language: language,
       includeBookmarks: true,
+      scope: widget.config.searchScope,
     );
 
     logger.d('Received ${newItems.length} items for page $pageKey');
