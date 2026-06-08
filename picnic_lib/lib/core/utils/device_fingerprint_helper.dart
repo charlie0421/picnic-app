@@ -49,6 +49,16 @@ class DeviceFingerprintHelper {
     return v;
   }
 
+  /// device_hash 네임스페이스 prefix — raw SSAID 역산/타시스템 상관 방지.
+  static const String _androidIdNamespace = 'picnic.android_id:';
+
+  /// 정규화된 SSAID 를 네임스페이스와 함께 SHA-256 한 64-hex 문자열 반환.
+  /// 입력은 [normalizeAndroidId] 를 통과한 값이어야 한다.
+  static String hashAndroidId(String normalizedSsaid) {
+    final bytes = utf8.encode('$_androidIdNamespace$normalizedSsaid');
+    return sha256.convert(bytes).toString();
+  }
+
   /// Extracts relevant Android device properties into a map.
   ///
   /// Accepts individual property values to remain pure (no dependency

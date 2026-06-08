@@ -281,6 +281,33 @@ void main() {
       });
     });
 
+    group('hashAndroidId', () {
+      test('is deterministic for the same input', () {
+        final a = DeviceFingerprintHelper.hashAndroidId('abcdef0123456789');
+        final b = DeviceFingerprintHelper.hashAndroidId('abcdef0123456789');
+        expect(a, b);
+      });
+
+      test('returns a 64-char lowercase hex string', () {
+        final h = DeviceFingerprintHelper.hashAndroidId('abcdef0123456789');
+        expect(h.length, 64);
+        expect(RegExp(r'^[0-9a-f]{64}$').hasMatch(h), isTrue);
+      });
+
+      test('equals SHA-256 of the namespaced string', () {
+        const id = 'abcdef0123456789';
+        final expected =
+            sha256.convert(utf8.encode('picnic.android_id:$id')).toString();
+        expect(DeviceFingerprintHelper.hashAndroidId(id), expected);
+      });
+
+      test('namespace makes it differ from a raw SHA-256 of the id', () {
+        const id = 'abcdef0123456789';
+        final raw = sha256.convert(utf8.encode(id)).toString();
+        expect(DeviceFingerprintHelper.hashAndroidId(id), isNot(raw));
+      });
+    });
+
     group('end-to-end: build data then hash', () {
       test('Android device data produces consistent hash', () {
         final data = DeviceFingerprintHelper.buildAndroidDeviceData(
