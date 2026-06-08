@@ -90,6 +90,8 @@ class DeviceFingerprint {
   }
 
   /// 기기 지문 초기화 — legacy 와 v2 키 모두 제거.
+  /// SSAID 기반 id 는 저장값이 아니므로 reset 후에도 동일한 값이 반환된다
+  /// (기기 신원은 "리셋" 대상이 아님 — 의도된 동작).
   static Future<void> reset() async {
     await _storage.delete(key: _fingerprintKey);
     await _storage.delete(key: _uuidVersionKey);

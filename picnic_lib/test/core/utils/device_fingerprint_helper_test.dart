@@ -266,6 +266,13 @@ void main() {
         expect(DeviceFingerprintHelper.normalizeAndroidId('a1b2'), isNull);
       });
 
+      test('accepts exactly-8-char valid hex (lower boundary)', () {
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('a1b2c3d4'),
+          'a1b2c3d4',
+        );
+      });
+
       test('lowercases and returns a valid 16-hex SSAID', () {
         expect(
           DeviceFingerprintHelper.normalizeAndroidId('ABCDEF0123456789'),
