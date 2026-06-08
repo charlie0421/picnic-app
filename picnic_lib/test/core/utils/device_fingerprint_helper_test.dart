@@ -236,6 +236,51 @@ void main() {
       });
     });
 
+    group('normalizeAndroidId', () {
+      test('returns null for null input', () {
+        expect(DeviceFingerprintHelper.normalizeAndroidId(null), isNull);
+      });
+
+      test('returns null for empty / whitespace input', () {
+        expect(DeviceFingerprintHelper.normalizeAndroidId(''), isNull);
+        expect(DeviceFingerprintHelper.normalizeAndroidId('   '), isNull);
+      });
+
+      test('returns null for known-bad constant 9774d56d682e549c', () {
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('9774d56d682e549c'),
+          isNull,
+        );
+        // 대문자로 와도 정규화 후 동일하게 거부
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('9774D56D682E549C'),
+          isNull,
+        );
+      });
+
+      test('returns null for non-hex input', () {
+        expect(DeviceFingerprintHelper.normalizeAndroidId('xyz123hello'), isNull);
+      });
+
+      test('returns null for too-short input (< 8 chars)', () {
+        expect(DeviceFingerprintHelper.normalizeAndroidId('a1b2'), isNull);
+      });
+
+      test('lowercases and returns a valid 16-hex SSAID', () {
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('ABCDEF0123456789'),
+          'abcdef0123456789',
+        );
+      });
+
+      test('trims surrounding whitespace before validating', () {
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('  dca8e4f1b2c3d4e5  '),
+          'dca8e4f1b2c3d4e5',
+        );
+      });
+    });
+
     group('end-to-end: build data then hash', () {
       test('Android device data produces consistent hash', () {
         final data = DeviceFingerprintHelper.buildAndroidDeviceData(

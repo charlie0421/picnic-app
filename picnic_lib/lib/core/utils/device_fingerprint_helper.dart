@@ -30,6 +30,25 @@ class DeviceFingerprintHelper {
     return hash.toString();
   }
 
+  /// 알려진 불량 SSAID 상수 — 일부 구형 단말이 하드코딩 반환하던 값.
+  static const String _badAndroidId = '9774d56d682e549c';
+  static final RegExp _hexOnly = RegExp(r'^[0-9a-f]+$');
+
+  /// SSAID(Settings.Secure.ANDROID_ID) 를 검증·정규화한다.
+  ///
+  /// 규칙: trim + 소문자화 → 빈값 / 불량상수 / 비-hex / 8자 미만은 무효(null).
+  /// SSAID 는 통상 16자 hex 지만 leading-zero 등으로 짧게 렌더될 수 있어
+  /// 상한은 강제하지 않는다(유효값 over-reject 방지).
+  static String? normalizeAndroidId(String? ssaid) {
+    if (ssaid == null) return null;
+    final v = ssaid.trim().toLowerCase();
+    if (v.isEmpty) return null;
+    if (v == _badAndroidId) return null;
+    if (v.length < 8) return null;
+    if (!_hexOnly.hasMatch(v)) return null;
+    return v;
+  }
+
   /// Extracts relevant Android device properties into a map.
   ///
   /// Accepts individual property values to remain pure (no dependency
