@@ -1,13 +1,11 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
 
 /// Pure helper utilities for device fingerprint generation.
 ///
 /// All methods are static, pure, and have no side effects,
 /// making them easy to unit test independently.
-@visibleForTesting
 class DeviceFingerprintHelper {
   /// Normalizes device data by sorting entries alphabetically by key.
   ///
