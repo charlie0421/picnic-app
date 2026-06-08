@@ -98,6 +98,20 @@ iOS (그리고 Android SSAID 폴백):
 - ⚠️ **`android_id` 는 네이티브 구현을 포함한 플러그인** → **Shorebird 패치 불가, 스토어 릴리스 필요**
   (참고: Shorebird 패치는 Dart-only 변경만 가능. 새 네이티브 플러그인 추가는 full release build 대상).
 
+## device_hash 공유 소비처 영향
+
+`getDeviceId()` 의 값은 anti-abuse(`request_ip_log`) 전용이 아니라 `DeviceManager` 를 통해
+다음과도 공유된다. 전환(UUID→SSAID-hash) 시 Android 단말은 1회 새 식별자로 재등록되며, 실측상 영향은 무해하다.
+
+- **`device_bans`** (`isDeviceBanned()` — startup/login 차단 게이트): hash 변경 시 기존 기기 차단이
+  1회 매칭 해제될 수 있으나, 프로덕션에 device_bans 는 **1건(2025-02, 휴면)** 뿐이라 영향 무의미.
+  장기적으로는 ban 이 재설치-견딤이 되어 오히려 견고해짐.
+- **`devices`** (`registerDevice()` upsert `onConflict=device_id`, `updateLastSeen()`): Android 단말이
+  새 `device_id` 로 1행 추가 등록되고 옛 행은 stale 화. **기기수 제한 로직이 없어** 강제 로그아웃·한도
+  트리거 없음 — stale row 누적(데이터 위생)만 남는다.
+- **세션/로그인**: Supabase JWT 기반이라 device_hash 와 무관 → 로그아웃 영향 없음.
+- 멀쩡한 유저 오차단 없음 (새 hash 는 device_bans/anti-abuse 에서 단지 "신규"로 취급).
+
 ## 테스트
 
 - `DeviceFingerprintHelper` 의 두 신규 함수에 **순수 단위테스트**:
