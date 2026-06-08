@@ -1,3 +1,4 @@
+import 'package:android_id/android_id.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:picnic_lib/core/utils/device_fingerprint_helper.dart';
@@ -11,22 +12,29 @@ class DeviceFingerprint {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
   static const _uuidGen = Uuid();
 
-  /// 기기 식별자 가져오기.
+  /// 기기 식별자.
   ///
-  /// v2 정책: Android 의 OS-level build fingerprint 가 같은 모델+펌웨어
-  /// 사용자 사이에 collision 을 일으켜 anti-abuse device cohort 가 FP 를
-  /// 다발 → flutter_secure_storage 에 영구 저장된 UUID v4 로 전환.
-  /// iOS 는 identifierForVendor 가 이미 vendor-unique 라 안전하지만,
-  /// 일관성 + 단일 path 위해 platform 무관 UUID 사용.
-  ///
-  /// 강제 마이그레이션 (v2):
-  ///   1. v2 키 (device_fingerprint_v2_uuid) 우선
-  ///   2. legacy 키 (device_fingerprint) 가 있으면 무조건 새 UUID 발급 + 옛 키 제거.
-  ///      build-based hash collision 즉시 해소.
-  ///      trade-off: 차단된 farm user 도 새 UUID 받아 cohort 1회 흩어짐 (attendance 매일 1회라
-  ///      다시 cohort 형성에 1-2일, farm candy 누적 미미).
-  ///   3. 둘 다 없으면 신규 UUID v4 생성.
+  /// Android: SSAID(Settings.Secure.ANDROID_ID) 가 유효하면 그 해시를 우선 반환한다.
+  ///   - SSAID 는 재설치/업데이트를 견디고(공장초기화만 리셋) 기종/펌웨어에서 파생되지
+  ///     않아 collision 이 없다. stored UUID 보다 우선해야 기존 유저도 업그레이드된다.
+  ///   - 해시는 저장하지 않는다(결정적이라 재계산해도 동일). SSAID 무효(에뮬레이터 등)면
+  ///     기존 UUID 흐름으로 폴백한다.
+  /// iOS: 기존 UUID 흐름(Keychain 이 재설치를 견딤).
   static Future<String> getDeviceId() async {
+    if (UniversalPlatform.isAndroid) {
+      final ssaid = await const AndroidId().getId();
+      final norm = DeviceFingerprintHelper.normalizeAndroidId(ssaid);
+      if (norm != null) {
+        return DeviceFingerprintHelper.hashAndroidId(norm);
+      }
+      // SSAID 무효 → 아래 UUID 폴백
+    }
+    return _getOrCreateUuid();
+  }
+
+  /// v2 UUID 우선 → legacy 강제 마이그레이션 → fresh UUID.
+  /// (Android SSAID 무효 시 폴백, iOS 기본 경로.)
+  static Future<String> _getOrCreateUuid() async {
     final uuid = await _storage.read(key: _uuidVersionKey);
     if (uuid != null && uuid.isNotEmpty) {
       return uuid;
@@ -34,7 +42,6 @@ class DeviceFingerprint {
 
     final legacy = await _storage.read(key: _fingerprintKey);
     if (legacy != null && legacy.isNotEmpty) {
-      // 강제 마이그레이션 — legacy hash 폐기, 신규 UUID.
       final migrated = _uuidGen.v4();
       await _storage.write(key: _uuidVersionKey, value: migrated);
       await _storage.delete(key: _fingerprintKey);
@@ -83,6 +90,8 @@ class DeviceFingerprint {
   }
 
   /// 기기 지문 초기화 — legacy 와 v2 키 모두 제거.
+  /// SSAID 기반 id 는 저장값이 아니므로 reset 후에도 동일한 값이 반환된다
+  /// (기기 신원은 "리셋" 대상이 아님 — 의도된 동작).
   static Future<void> reset() async {
     await _storage.delete(key: _fingerprintKey);
     await _storage.delete(key: _uuidVersionKey);
