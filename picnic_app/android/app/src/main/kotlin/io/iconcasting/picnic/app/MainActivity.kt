@@ -2,9 +2,11 @@ package io.iconcasting.picnic.app
 
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.util.Locale
 import pangle.custom.PangleNativeHandler
@@ -40,6 +42,17 @@ class MainActivity : FlutterActivity() {
         
         // Pincrux 플러그인 등록
         flutterEngine.plugins.add(PincruxPlugin())
+
+        // 기기 식별자(SSAID) 채널 — picnic_lib DeviceFingerprint 에서 호출.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "picnic/device_id")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getAndroidId" -> result.success(
+                        Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+                    )
+                    else -> result.notImplemented()
+                }
+            }
     }
 
     // 문제가 있는 MediaTek 기기 감지

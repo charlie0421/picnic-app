@@ -1,5 +1,5 @@
-import 'package:android_id/android_id.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:picnic_lib/core/utils/device_fingerprint_helper.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -12,6 +12,22 @@ class DeviceFingerprint {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
   static const _uuidGen = Uuid();
 
+  /// 네이티브(MainActivity)에서 Settings.Secure.ANDROID_ID 를 읽는 채널.
+  /// android_id 플러그인이 AGP/flutter-plugin-loader 라이프사이클과 충돌해
+  /// 직접 MethodChannel 로 대체. iOS 엔 핸들러가 없어 호출 자체를 하지 않는다.
+  static const _deviceChannel = MethodChannel('picnic/device_id');
+
+  /// SSAID 조회. 핸들러 미등록(iOS·구버전)·예외 시 null → UUID 폴백.
+  static Future<String?> _readAndroidId() async {
+    try {
+      return await _deviceChannel.invokeMethod<String>('getAndroidId');
+    } on MissingPluginException {
+      return null;
+    } on PlatformException {
+      return null;
+    }
+  }
+
   /// 기기 식별자.
   ///
   /// Android: SSAID(Settings.Secure.ANDROID_ID) 가 유효하면 그 해시를 우선 반환한다.
@@ -22,7 +38,7 @@ class DeviceFingerprint {
   /// iOS: 기존 UUID 흐름(Keychain 이 재설치를 견딤).
   static Future<String> getDeviceId() async {
     if (UniversalPlatform.isAndroid) {
-      final ssaid = await const AndroidId().getId();
+      final ssaid = await _readAndroidId();
       final norm = DeviceFingerprintHelper.normalizeAndroidId(ssaid);
       if (norm != null) {
         return DeviceFingerprintHelper.hashAndroidId(norm);
