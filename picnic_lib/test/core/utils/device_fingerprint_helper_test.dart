@@ -258,6 +258,47 @@ void main() {
         );
       });
 
+      test('returns null for additional known-bad constants', () {
+        expect(DeviceFingerprintHelper.normalizeAndroidId('dead00beef'), isNull);
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('0123456789abcdef'),
+          isNull,
+        );
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('1234567890abcdef'),
+          isNull,
+        );
+      });
+
+      test('returns null for low-entropy SSAID (<= 2 distinct hex chars)', () {
+        // 에뮬레이터/깨진 ROM 이 반환하는 올-제로 등 — 충돌 유발
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('0000000000000000'),
+          isNull,
+        );
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('ffffffffffffffff'),
+          isNull,
+        );
+        // 2개 문자만 반복하는 패턴도 거부
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('abababababababab'),
+          isNull,
+        );
+      });
+
+      test('accepts SSAID with >= 3 distinct hex chars (entropy ok)', () {
+        // 정상값 over-reject 방지 회귀 가드
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('a1b2c3d4'),
+          'a1b2c3d4',
+        );
+        expect(
+          DeviceFingerprintHelper.normalizeAndroidId('dca8e4f1b2c3d4e5'),
+          'dca8e4f1b2c3d4e5',
+        );
+      });
+
       test('returns null for non-hex input', () {
         expect(DeviceFingerprintHelper.normalizeAndroidId('xyz123hello'), isNull);
       });
