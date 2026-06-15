@@ -179,8 +179,12 @@ class ShortformInternalPlatform extends AdPlatform {
   }
 
   /// loadAd 경로 — anti-abuse 매핑 + token 추출 책임을 한 군데로 모음.
-  /// blocked 시 fullscreen 라우트를 닫고 부모 context 에서 dialog 노출 후 빈 결과 반환.
-  Future<({String videoUrl, String? ctaUrl})> _issueAdTokensFromRoute() async {
+  /// anti-abuse 차단 시 fullscreen 라우트를 닫고 부모 context 에서 dialog 노출 후
+  /// `blocked: true` 인 빈 결과를 반환한다. 그 외 실패(예: server 오류)는 rethrow 되어
+  /// fullscreen 의 _initializeFlow 가 에러 다이얼로그를 띄운다. blocked 플래그로
+  /// "anti-abuse 가 이미 pop 예약" vs "그냥 실패/빈값" 을 구분해 무한펄스를 막는다.
+  Future<({String videoUrl, String? ctaUrl, bool blocked})>
+      _issueAdTokensFromRoute() async {
     final supabaseUrl = Environment.supabaseUrl;
     final token = supabase.auth.currentSession?.accessToken ?? '';
     // Attach X-Device-Id for anti-abuse device-cohort signal.
@@ -215,15 +219,17 @@ class ShortformInternalPlatform extends AdPlatform {
       logInfo('issued (route) video_url: ${_videoUrl ?? ''}');
       _viewToken = tokens?['view_token'] as String?;
       _moreToken = tokens?['more_token'] as String?;
-      return (videoUrl: _videoUrl ?? '', ctaUrl: _ctaUrl);
+      return (videoUrl: _videoUrl ?? '', ctaUrl: _ctaUrl, blocked: false);
     } catch (e) {
       final aa = mapToAntiAbuseException(e);
       if (aa is AntiAbuseException) {
         logWarning('ad-shortform-issue blocked: channel=${aa.channel}');
         _showRateLimitedAndCloseRoute(aa.channel);
-        // 빈 videoUrl 반환 → fullscreen 의 _initializeFlow 가 mounted 체크에서 종료.
-        return (videoUrl: '', ctaUrl: null);
+        // anti-abuse 차단: route pop + rate-limited dialog 는 여기서 처리됨.
+        // blocked:true 로 fullscreen 이 중복 에러 다이얼로그를 띄우지 않게 한다.
+        return (videoUrl: '', ctaUrl: null, blocked: true);
       }
+      // anti-abuse 가 아닌 실패는 rethrow → fullscreen 이 에러 다이얼로그 + pop.
       rethrow;
     }
   }

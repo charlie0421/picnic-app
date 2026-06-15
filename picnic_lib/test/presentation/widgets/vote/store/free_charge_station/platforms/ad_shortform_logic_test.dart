@@ -406,6 +406,66 @@ void main() {
     });
   });
 
+  group('AdShortformLogic.shouldRenderCloseButton', () {
+    test('renders when controller is null (escape from infinite pulse)', () {
+      expect(
+        AdShortformLogic.shouldRenderCloseButton(hasController: false),
+        isTrue,
+      );
+    });
+
+    test('renders when controller is present', () {
+      expect(
+        AdShortformLogic.shouldRenderCloseButton(hasController: true),
+        isTrue,
+      );
+    });
+  });
+
+  group('AdShortformLogic.shouldErrorOnEmptyVideoUrl', () {
+    test('errors when videoUrl empty and not blocked by anti-abuse', () {
+      expect(
+        AdShortformLogic.shouldErrorOnEmptyVideoUrl(
+          videoUrl: '',
+          blocked: false,
+        ),
+        isTrue,
+      );
+    });
+
+    test('does not error when blocked by anti-abuse (route already popping)',
+        () {
+      expect(
+        AdShortformLogic.shouldErrorOnEmptyVideoUrl(
+          videoUrl: '',
+          blocked: true,
+        ),
+        isFalse,
+      );
+    });
+
+    test('does not error when videoUrl is present', () {
+      expect(
+        AdShortformLogic.shouldErrorOnEmptyVideoUrl(
+          videoUrl: 'https://example.com/v.m3u8',
+          blocked: false,
+        ),
+        isFalse,
+      );
+    });
+
+    test('does not error when videoUrl present even if (impossibly) blocked',
+        () {
+      expect(
+        AdShortformLogic.shouldErrorOnEmptyVideoUrl(
+          videoUrl: 'https://example.com/v.m3u8',
+          blocked: true,
+        ),
+        isFalse,
+      );
+    });
+  });
+
   group('AdShortformLogic.shouldShowCountdown', () {
     test('returns true for 1-5 seconds remaining', () {
       for (int i = 1; i <= 5; i++) {
