@@ -23,8 +23,11 @@ void main() {
         ctaUrl: 'https://test.com/cta',
         onViewComplete: () async {},
         onMore: () async {},
-        loadAd: () async =>
-            (videoUrl: 'https://test.com/ad.mp4', ctaUrl: 'https://cta.com'),
+        loadAd: () async => (
+          videoUrl: 'https://test.com/ad.mp4',
+          ctaUrl: 'https://cta.com',
+          blocked: false,
+        ),
       );
 
       expect(widget.videoUrl, 'https://test.com/video.mp4');
@@ -116,8 +119,11 @@ void main() {
         videoUrl: '',
         onViewComplete: () async {},
         onMore: () async {},
-        loadAd: () async =>
-            (videoUrl: 'https://ad.com/v.mp4', ctaUrl: 'https://ad.com/cta'),
+        loadAd: () async => (
+          videoUrl: 'https://ad.com/v.mp4',
+          ctaUrl: 'https://ad.com/cta',
+          blocked: false,
+        ),
       );
 
       final result = await widget.loadAd!();
@@ -131,7 +137,7 @@ void main() {
         onViewComplete: () async {},
         onMore: () async {},
         loadAd: () async =>
-            (videoUrl: 'https://ad.com/v.mp4', ctaUrl: null),
+            (videoUrl: 'https://ad.com/v.mp4', ctaUrl: null, blocked: false),
       );
 
       final result = await widget.loadAd!();

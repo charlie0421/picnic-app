@@ -87,6 +87,7 @@ void main() {
               return (
                 videoUrl: 'https://example.com/ad.mp4',
                 ctaUrl: 'https://example.com/cta',
+                blocked: false,
               );
             },
           ),

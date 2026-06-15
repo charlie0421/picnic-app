@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -86,6 +88,26 @@ class AdShortformLogic {
   }) {
     return !finished && remainingSeconds > 0 && remainingSeconds <= 5;
   }
+
+  /// The close (X) button must ALWAYS be rendered so the user can escape even
+  /// when the controller never initializes (infinite-pulse guard). Kept as a
+  /// named helper for explicitness/testability.
+  static bool shouldRenderCloseButton({required bool hasController}) {
+    return true;
+  }
+
+  /// Whether a video-load error dialog should be raised for an empty videoUrl.
+  /// anti-abuse rate-limit returns an empty url with [blocked] = true and pops
+  /// the route itself, so we must NOT raise a duplicate error dialog in that
+  /// case. Any other empty/failed url should surface the error instead of
+  /// silently pulsing forever.
+  static bool shouldErrorOnEmptyVideoUrl({
+    required String videoUrl,
+    required bool blocked,
+  }) {
+    if (videoUrl.isNotEmpty) return false;
+    return !blocked;
+  }
 }
 
 class AdShortformFullscreenPage extends StatefulWidget {
@@ -93,7 +115,14 @@ class AdShortformFullscreenPage extends StatefulWidget {
   final String? ctaUrl;
   final Future<void> Function() onViewComplete;
   final Future<void> Function() onMore;
-  final Future<({String videoUrl, String? ctaUrl})> Function()? loadAd;
+  /// Loads the ad at route-entry time.
+  ///
+  /// [blocked] signals that an anti-abuse rate-limit already popped the route
+  /// and is showing its own dialog; in that case the page must stay silent
+  /// (no duplicate error dialog). Any other empty videoUrl is treated as a
+  /// load failure and surfaces an error instead of pulsing forever.
+  final Future<({String videoUrl, String? ctaUrl, bool blocked})> Function()?
+      loadAd;
 
   const AdShortformFullscreenPage({
     super.key,
@@ -121,11 +150,43 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
   final GlobalKey<LoadingOverlayState> _loadingOverlayKey =
       GlobalKey<LoadingOverlayState>();
 
+  /// Watchdog: if the controller never initializes within this window (server
+  /// failure / network stall anywhere in initialize/setLooping/setVolume/play),
+  /// force a single error+exit so the loader can never pulse forever.
+  static const Duration _watchdogTimeout = Duration(seconds: 20);
+
+  /// Timeout for the underlying [VideoPlayerController.initialize] call, which
+  /// itself has no timeout (cf. pangle_platform.dart's 5s guard).
+  static const Duration _initializeTimeout = Duration(seconds: 15);
+
+  Timer? _watchdog;
+  bool _errorDialogShown = false;
+
   @override
   void initState() {
     super.initState();
     _enterImmersive();
+    _startWatchdog();
     _initializeFlow();
+  }
+
+  /// Starts the single-exit watchdog. Cancelled when the controller is set,
+  /// on dispose, or once an error dialog is shown.
+  void _startWatchdog() {
+    _watchdog?.cancel();
+    _watchdog = Timer(_watchdogTimeout, () {
+      if (!mounted) return;
+      if (_controller != null) return; // controller arrived in time
+      if (_errorDialogShown) return; // error path already handled exit
+      _showVideoLoadErrorDialog(
+        TimeoutException('ad-shortform watchdog: controller never initialized'),
+      );
+    });
+  }
+
+  void _cancelWatchdog() {
+    _watchdog?.cancel();
+    _watchdog = null;
   }
 
   Future<void> _enterImmersive() async {
@@ -138,21 +199,44 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
 
   Future<void> _initializeFlow() async {
     try {
+      // anti-abuse rate-limit 등으로 loadAd 가 빈 url 을 sentinel 로 반환한 경우,
+      // platform 측이 route pop + rate-limited dialog 를 이미 예약했음을 blocked=true
+      // 로 알려준다. 그 외(network/server 실패·예외)는 빈 url 이라도 에러 다이얼로그를
+      // 띄워 무한펄스로 빠지지 않게 한다.
+      var blocked = false;
       if (widget.loadAd != null) {
-        final result = await widget.loadAd!();
-        _resolvedVideoUrl = result.videoUrl;
-        _resolvedCtaUrl = result.ctaUrl;
+        try {
+          final result = await widget.loadAd!();
+          _resolvedVideoUrl = result.videoUrl;
+          _resolvedCtaUrl = result.ctaUrl;
+          blocked = result.blocked;
+        } catch (e) {
+          // loadAd 자체가 throw (anti-abuse 아님) → 에러 다이얼로그 + pop.
+          _showVideoLoadErrorDialog(e);
+          return;
+        }
       } else {
         _resolvedVideoUrl = widget.videoUrl;
         _resolvedCtaUrl = widget.ctaUrl;
       }
-      // anti-abuse rate-limit 등으로 loadAd 가 빈 url 을 sentinel 로 반환한 경우, page
-      // 가 다음 frame 에 pop 되더라도 그 frame 동안 _initPlayer('') 가 실행되며 충돌.
-      // 빈 url 이면 init 시도 자체를 skip — pop 는 platform 측에서 이미 예약됨.
-      if ((_resolvedVideoUrl ?? '').isEmpty) return;
+
+      final resolvedUrl = _resolvedVideoUrl ?? '';
+      if (resolvedUrl.isEmpty) {
+        // blocked(anti-abuse) 면 조용히 종료(platform 이 dialog/pop 담당),
+        // 그 외 빈 url 은 실패로 보고 에러 다이얼로그.
+        if (AdShortformLogic.shouldErrorOnEmptyVideoUrl(
+          videoUrl: resolvedUrl,
+          blocked: blocked,
+        )) {
+          _showVideoLoadErrorDialog(
+            StateError('ad-shortform: empty video_url'),
+          );
+        }
+        return;
+      }
       if (!mounted) return;
       try {
-        await _initPlayer(_resolvedVideoUrl!);
+        await _initPlayer(resolvedUrl);
       } catch (e) {
         _showVideoLoadErrorDialog(e);
         return;
@@ -169,7 +253,9 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
   Future<void> _initPlayer(String videoUrl) async {
     final ctrl = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
     try {
-      await ctrl.initialize();
+      // initialize() 자체엔 타임아웃이 없어 네트워크 stall 시 영구 hang.
+      // TimeoutException 은 아래 generic catch 로 흘러 에러 다이얼로그로 이어진다.
+      await ctrl.initialize().timeout(_initializeTimeout);
     } on PlatformException catch (e) {
       _showVideoLoadErrorDialog(e);
       return;
@@ -184,6 +270,8 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
       await ctrl.setVolume(1.0);
     } catch (_) {}
     ctrl.addListener(_onProgress);
+    // 컨트롤러가 준비됐으니 워치독 해제 — 단일 탈출 경로 유지.
+    _cancelWatchdog();
     setState(() {
       _controller = ctrl;
     });
@@ -200,6 +288,11 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
 
   void _showVideoLoadErrorDialog(dynamic error) {
     if (!mounted) return;
+    // 워치독·initialize 타임아웃·loadAd 예외 등 여러 경로에서 호출될 수 있으므로
+    // 중복 다이얼로그를 막는다.
+    if (_errorDialogShown) return;
+    _errorDialogShown = true;
+    _cancelWatchdog();
     // 권한/보호된 리소스 등으로 재생 실패 시 공통 에러 다이얼로그 표시 후 화면 종료
     void closePage() {
       final c = navigatorKey.currentContext;
@@ -286,7 +379,41 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
     );
   }
 
+  /// The circular close (X) icon. Always rendered so the user is never trapped
+  /// in the loader. [onTap] is null when the close action is intentionally
+  /// disabled (e.g. reward in progress at the end of playback).
+  Widget _buildCloseIcon({required VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          color: AppColors.grey300,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: AppColors.grey500,
+          ),
+        ),
+        child: Icon(
+          Icons.close,
+          color: AppColors.grey500,
+          size: 18,
+        ),
+      ),
+    );
+  }
+
   Future<void> _handleClosePressed() async {
+    // 컨트롤러가 아직 없으면(로딩/실패 중) 재생 중이 아니므로 확인 다이얼로그 없이
+    // 즉시 route pop — 무한펄스에 갇히지 않는 탈출 경로.
+    if (_controller == null) {
+      debugPrint('[internal] close pressed (controller null) -> pop');
+      _cancelWatchdog();
+      if (mounted) Navigator.of(context).maybePop();
+      return;
+    }
+
     final v = _controller?.value;
     final canClose = v != null &&
         AdShortformLogic.canCloseImmediately(
@@ -339,6 +466,7 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
 
   @override
   void dispose() {
+    _cancelWatchdog();
     try {
       _controller?.removeListener(_onProgress);
     } catch (_) {}
@@ -417,12 +545,19 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                       ),
               ),
 
-              // 닫기 + 카운트다운 (우상단, SafeArea 패딩 수동 적용)
+              // 닫기 + 카운트다운 (우상단, SafeArea 패딩 수동 적용).
+              // 닫기(X) 버튼은 controller 가 null(로딩/실패) 이어도 항상 렌더해
+              // 무한펄스에 갇히지 않게 한다. 카운트다운 뱃지는 controller 가 있을 때만.
               Positioned(
                 top: pad.top - 12,
                 right: 24,
                 child: ctrl == null
-                    ? const SizedBox.shrink()
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildCloseIcon(onTap: _handleClosePressed),
+                        ],
+                      )
                     : ValueListenableBuilder(
                         valueListenable: ctrl,
                         builder: (_, _, _) {
@@ -483,26 +618,10 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                                   ),
                                 ),
                               const SizedBox(width: 8),
-                              GestureDetector(
+                              _buildCloseIcon(
                                 onTap: finished
                                     ? (canCloseNow ? _handleClosePressed : null)
                                     : _handleClosePressed,
-                                child: Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.grey300,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppColors.grey500,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.close,
-                                    color: AppColors.grey500,
-                                    size: 18,
-                                  ),
-                                ),
                               ),
                             ],
                           );
