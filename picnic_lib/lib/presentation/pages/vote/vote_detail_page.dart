@@ -861,26 +861,46 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
         // 교체 — prototype 행 하나의 실측 높이(ScreenUtil 적용된 device-correct 값)를
         // 모든 행 extent 로 사용해 뷰포트에 보이는 행만 빌드한다(하드코딩 const 없음).
         // 장식 테두리는 DecoratedSliver, 내부/바깥 여백은 SliverPadding 으로 이전.
-        // 검색창은 기존과 동일하게 리스트 그룹 상단(top:56 예약 영역)에 겹쳐지며
-        // 리스트와 함께 스크롤된다(SliverMainAxisGroup + 0-높이 오버레이 어댑터).
-        return SliverMainAxisGroup(
-          slivers: [
-            // 바깥 margin(top:24, 좌우 16.w) == 슬리버에서는 바깥 패딩.
-            SliverPadding(
-              padding: EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
-              sliver: DecoratedSliver(
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary500, width: 1.r),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(70.r),
-                    topRight: Radius.circular(70.r),
-                    bottomLeft: Radius.circular(40.r),
-                    bottomRight: Radius.circular(40.r),
+        //
+        // 검색창은 테두리 안 "선두 슬리버"로 배치한다(SliverMainAxisGroup 의
+        // 첫 자식). 이렇게 하면:
+        //  - 실제 높이를 가진 SliverToBoxAdapter 라 반드시 paint 되고 탭 가능,
+        //  - 그룹의 첫 슬리버이므로 리스트와 함께 자연스럽게 스크롤 아웃되며,
+        //  - DecoratedSliver 테두리 안쪽에 위치한다.
+        // (이전의 0-높이 어댑터 + OverflowBox 오버레이는 paintExtent==0 →
+        //  SliverGeometry.visible==false 라 RenderSliverMainAxisGroup 가 paint 를
+        //  통째로 스킵 → 검색창이 전혀 안 그려지던 버그를 대체.)
+        // 선두 검색창 어댑터가 예전 top:56 예약 밴드를 대신하므로 리스트의
+        // 상단 inset 은 작은 간격으로만 둔다.
+        return SliverPadding(
+          // 바깥 margin(top:24, 좌우 16.w) == 슬리버에서는 바깥 패딩.
+          padding: EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
+          sliver: DecoratedSliver(
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.primary500, width: 1.r),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(70.r),
+                topRight: Radius.circular(70.r),
+                bottomLeft: Radius.circular(40.r),
+                bottomRight: Radius.circular(40.r),
+              ),
+            ),
+            sliver: SliverMainAxisGroup(
+              slivers: [
+                // 선두 검색창: 예전 top:56 밴드 위치에 들어가며 리스트보다 먼저
+                // 배치돼 함께 스크롤 아웃된다. 실제 높이(검색창 48.h + 상하 패딩)를
+                // 가지므로 반드시 paint 되고 탭 가능.
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 8, bottom: 8).r,
+                    child: _buildSearchBoxContent(),
                   ),
                 ),
-                sliver: SliverPadding(
+                // 리스트: 좌우 16.w / 하단 여백. 상단은 검색창 어댑터가 밴드를
+                // 차지하므로 작은 간격만 둔다.
+                SliverPadding(
                   padding: EdgeInsets.only(
-                    top: 56,
+                    top: 8,
                     left: 16.w,
                     right: 16.w,
                     bottom: 24 + MediaQuery.of(context).viewPadding.bottom,
@@ -956,23 +976,9 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-            // 검색창 오버레이: 리스트 그룹 상단에 겹쳐지고 리스트와 함께 스크롤된다.
-            // 0-높이 어댑터 + 아래로 오버플로우하는 child 로 레이아웃을 차지하지 않고
-            // 기존 Stack(Positioned top:0) 의 시각/스크롤 동작을 재현한다.
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 0,
-                child: OverflowBox(
-                  alignment: Alignment.topCenter,
-                  minHeight: 0,
-                  maxHeight: double.infinity,
-                  child: _buildSearchBoxContent(),
-                ),
-              ),
-            ),
-          ],
+          ),
         );
       },
       loading: () {
@@ -1663,8 +1669,9 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   /// Positioned wrapper for the search box, used inside a [Stack] (the
-  /// empty-search branch). For the sliver overlay path use
-  /// [_buildSearchBoxContent] (a [Positioned] cannot live outside a Stack).
+  /// empty-search branch). For the sliver list path the non-positioned
+  /// [_buildSearchBoxContent] is hosted directly by a leading
+  /// [SliverToBoxAdapter] (a [Positioned] cannot live outside a Stack).
   Widget _buildSearchBox() {
     return Positioned(
       top: 0,
@@ -1675,7 +1682,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   /// The search box content without the [Positioned] wrapper, so it can be
-  /// hosted by both a [Stack] (via [_buildSearchBox]) and a sliver overlay.
+  /// hosted by both a [Stack] (via [_buildSearchBox]) and a leading
+  /// [SliverToBoxAdapter] in the non-empty sliver list path.
   Widget _buildSearchBoxContent() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 32.w),
