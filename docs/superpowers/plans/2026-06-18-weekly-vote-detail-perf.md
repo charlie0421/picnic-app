@@ -837,6 +837,8 @@ Expected: app launches in profile mode; console prints a DevTools URL (`The Flut
 
 ### Task 8: B1-0 — Measure the exact uniform row height and pin `kVoteRowExtent`
 
+> **⛔ SUPERSEDED BY APPROACH A (2026-06-18 decision).** A fixed `kVoteRowExtent` const is brittle: the row uses ScreenUtil `.h` padding, so its real height is device-dependent (~67–83px), and the throwaway measurement (without ScreenUtil) gave a wrong 71px. We are NOT using a hardcoded const. Task 9 uses `SliverPrototypeExtentList` (measures a real prototype row at runtime — device-correct). The `const double kVoteRowExtent = 71.0;` committed by this task is now DEAD and is REMOVED in Task 9. Do not act on the steps below; they are kept for history only.
+
 Do NOT guess the extent. `SliverFixedExtentList.itemExtent` MUST equal the real rendered height of one row INCLUDING the current `Padding(bottom: 16)`, or rows will clip/overlap. Measure it with a throwaway widget test, then hard-code the measured value as a file-level const.
 
 The row today (vote_detail_page.dart ~810-824) is:
@@ -897,7 +899,18 @@ git commit -m "perf(vote-detail): measure and pin kVoteRowExtent for SliverFixed
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ```
 
-### Task 9: B1-1 — Replace the non-empty list branch with DecoratedSliver > SliverPadding > SliverFixedExtentList
+### Task 9: B1-1 — Replace the non-empty list branch with DecoratedSliver > SliverPadding > SliverPrototypeExtentList
+
+> **✅ APPROACH A OVERRIDE (authoritative — supersedes the SliverFixedExtentList/`kVoteRowExtent` mechanics below).**
+> Use **`SliverPrototypeExtentList`** instead of `SliverFixedExtentList(itemExtent: kVoteRowExtent)`. It builds ONE prototype row, measures its real rendered height at runtime (with ScreenUtil applied — device-correct), and uses that extent for all children — same O(1)-scroll virtualization win, no brittle const, no clipping risk.
+> Concretely:
+> - Structure: `DecoratedSliver(decoration: <the rounded border>) > SliverPadding(<the inner padding>) > SliverPrototypeExtentList(prototypeItem: <prototype>, delegate: SliverChildBuilderDelegate(...))`.
+> - `prototypeItem`: a representative single row built the SAME way as a list row (so its measured height — including the row's bottom 16 gap — becomes the extent). Build it from a real item when available (e.g. the first item) or a layout-equivalent stand-in; it is rendered offstage once for measurement.
+> - The delegate's row child KEEPS its `Padding(bottom: 16)` + `RepaintBoundary(key: ValueKey('vote_item_<id>'))` exactly as today (do NOT fold the 16px into an extent — the prototype measures the row-with-gap). Keep `addAutomaticKeepAlives: false`.
+> - **REMOVE the now-dead `const double kVoteRowExtent` that Task 8 added** to `vote_detail_page.dart` (it has no consumer under this approach).
+> - Confirm `SliverPrototypeExtentList` resolves from `package:flutter/material.dart` (it does; no new import).
+> - Everything else in this task's guidance still applies: the `DecoratedSliver` rounded border, the `SliverPadding` inner padding, deleting the inner `ListView`'s `cacheExtent:200`, and leaving the search box to Task 11 (B1-3). The CustomScrollView `cacheExtent` is set in Task 10.
+> The `SliverFixedExtentList`/`itemExtent: kVoteRowExtent` code blocks below are HISTORY — translate them to `SliverPrototypeExtentList(prototypeItem: ..., delegate: ...)`.
 
 This swaps the `SliverToBoxAdapter > Container(border) > Padding > ListView.builder(shrinkWrap, NeverScrollableScrollPhysics)` (vote_detail_page.dart:735-832) for a real sliver list. The decorative rounded border moves to `DecoratedSliver`; the inner padding moves to `SliverPadding`; the rows become a `SliverFixedExtentList` with `itemExtent: kVoteRowExtent`. The search box `Positioned` stays exactly where it is — see Notes for why it must stay an overlay over a Stack-wrapped sliver group, and HOW we keep it.
 
