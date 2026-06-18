@@ -144,6 +144,17 @@ class AsyncVoteList extends _$AsyncVoteList {
         finalQuery = finalQuery.order('area', ascending: true);
       }
 
+      // 진행중/종료 탭 카드는 상위 3개 항목만 표시하므로, 서버에서 vote_item 을
+      // 상위 3개(vote_total 내림차순)로 제한한다. 대형 투표(예: 위클리 핔차트 ~1,500개)의
+      // 전체 항목을 통째로 페치/파싱하면서 발생하던 구형 기기 메모리 급증/강제 종료를 방지.
+      // upcoming 은 썸네일 그리드용으로 전체 항목이 필요하므로 제외(아래 take(3) 분기와 동일).
+      if (status == VoteStatus.active || status == VoteStatus.end) {
+        finalQuery = finalQuery
+            .order('vote_total',
+                referencedTable: voteItemTable, ascending: false)
+            .limit(3, referencedTable: voteItemTable);
+      }
+
       response = await finalQuery
           .order(finalSort, ascending: finalOrder == 'ASC')
           .range(offset, offset + limit - 1);
