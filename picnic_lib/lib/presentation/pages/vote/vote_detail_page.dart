@@ -1000,7 +1000,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       },
                       childCount: filteredIndices.length,
                       addAutomaticKeepAlives: false, // 메모리 최적화 (기존 동작 보존)
-                      addRepaintBoundaries: true, // 리페인트 최적화
+                      // C2: itemBuilder 가 직접 RepaintBoundary 를 제공하므로 자동 래핑 비활성화 (중복 레이어 제거)
+                      addRepaintBoundaries: false,
                     ),
                   ),
                 ),
@@ -1253,20 +1254,18 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     int actualRank,
     bool rankChanged,
   ) {
+    // C2: 별도 RepaintBoundary 제거 — 행 루트(itemBuilder)의 단일 경계만 유지.
     // 이미지 위젯 키는 itemId로만 고정한다. 순위 변동 애니메이션은
     // VoteItemWidget/VoteItemHighlightWidget가 rankChanged/rankUp/actualRank로
     // 처리하므로, 키에 rank를 넣어 위젯을 재생성하면 이미지 리로드 스톰만 발생한다.
-    return RepaintBoundary(
-      key: ValueKey('image_$itemId'),
-      child: SizedBox(
-        width: 39,
-        height: 39,
-        child: _buildImageWithFallback(
-          imageUrl,
-          index: index,
-          actualRank: actualRank,
-          rankChanged: rankChanged,
-        ),
+    return SizedBox(
+      width: 39,
+      height: 39,
+      child: _buildImageWithFallback(
+        imageUrl,
+        index: index,
+        actualRank: actualRank,
+        rankChanged: rankChanged,
       ),
     );
   }

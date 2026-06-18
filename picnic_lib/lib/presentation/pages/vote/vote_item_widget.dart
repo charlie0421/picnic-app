@@ -37,8 +37,8 @@ class VoteItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: AnimatedContainer(
+    // C2: RepaintBoundary 제거 — 행 루트(vote_detail_page itemBuilder)의 단일 경계만 유지.
+    return AnimatedContainer(
         duration: const Duration(milliseconds: 600),
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
@@ -159,7 +159,6 @@ class VoteItemWidget extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

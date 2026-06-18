@@ -185,5 +185,21 @@ void main() {
 
       expect(find.byType(VoteItemWidget), findsOneWidget);
     });
+
+    testWidgets('VoteItemWidget adds no RepaintBoundary of its own (C2)',
+        (tester) async {
+      // C2: VoteItemWidget 자체는 RepaintBoundary 를 추가하지 않는다.
+      // 행 루트 경계는 vote_detail_page 의 itemBuilder 가 제공한다.
+      await tester.pumpWidget(buildWidget());
+      await tester.pump();
+
+      expect(
+        find.descendant(
+          of: find.byType(VoteItemWidget),
+          matching: find.byType(RepaintBoundary),
+        ),
+        findsNothing,
+      );
+    });
   });
 }
