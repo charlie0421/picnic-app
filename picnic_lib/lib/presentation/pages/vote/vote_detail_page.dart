@@ -45,6 +45,12 @@ import 'package:picnic_lib/presentation/pages/vote/vote_item_highlight_widget.da
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
 
+/// Fixed per-row extent for the vote item list (Tier B1 perf refactor).
+/// Measured from VoteItemWidget (minHeight 55 + vertical padding) PLUS the
+/// 16px bottom spacing previously applied by the itemBuilder Padding.
+/// Measured 2026-06 on designSize 393x892; rounded up to avoid sub-pixel clip.
+const double kVoteRowExtent = 71.0;
+
 /// Maximum time the scroll gate may remain raised before the watchdog
 /// self-heals.  Deliberately far longer than any real scroll-settle cycle so
 /// it cannot fire during ordinary scrolling and cannot reintroduce mid-scroll
