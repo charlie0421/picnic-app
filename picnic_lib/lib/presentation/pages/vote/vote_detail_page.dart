@@ -1304,6 +1304,10 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       enableProgressiveLoading: true,
       timeout: const Duration(seconds: 15), // 타임아웃을 15초로 증가 (네트워크 상태 고려)
       maxRetries: 2,
+      // C3: 39x39 썸네일 전용 요청 가중치 축소 (이 리스트에만 적용, 다른 화면 불변).
+      // sub-50px 슬롯이라 q55 + dpr 상한 2.0 으로 충분; 글로벌 _getTransformedUrl 미변경.
+      maxQualityOverride: 55,
+      maxResolutionMultiplierCap: 2.0,
     );
   }
 

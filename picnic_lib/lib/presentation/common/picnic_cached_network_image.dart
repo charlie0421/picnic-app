@@ -77,6 +77,12 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   /// 가시성 게이트 역할을 하는 경우에만 true로 켠다. 기본값은 기존 동작.
   final bool bypassConcurrencyGate;
 
+  // C3: 리스트 전용 요청 가중치 축소(다른 화면 영향 없음 — 기본값 null = 현재 동작 유지).
+  // maxQualityOverride: 단일(저복잡도) URL 의 q 값을 이 값으로 제한.
+  // maxResolutionMultiplierCap: _getResolutionMultiplier 결과를 이 값으로 clamp.
+  final int? maxQualityOverride;
+  final double? maxResolutionMultiplierCap;
+
   const PicnicCachedNetworkImage({
     super.key,
     required this.imageUrl,
@@ -101,6 +107,8 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.enableProgressiveLoading = true,
     this.maxConcurrentLoads,
     this.bypassConcurrencyGate = false,
+    this.maxQualityOverride,
+    this.maxResolutionMultiplierCap,
   });
 
   /// 테스트 환경에서 이미지 로딩 타이머 비활성화 (pending timer assertion 방지)
@@ -235,7 +243,7 @@ class _PicnicCachedNetworkImageState
       if (mounted) {
         _cachedUrls ??= _getTransformedUrls(
           context,
-          _getResolutionMultiplier(context),
+          _capResolution(_getResolutionMultiplier(context)),
         );
       }
     });
@@ -537,7 +545,7 @@ class _PicnicCachedNetworkImageState
     // 최초 계산된 URL 고정 사용 (빌드마다 변하지 않도록)
     _cachedUrls ??= _getTransformedUrls(
       context,
-      _getResolutionMultiplier(context),
+      _capResolution(_getResolutionMultiplier(context)),
     );
     final urls = _cachedUrls!;
     final primaryUrl = urls.last;
@@ -644,6 +652,13 @@ class _PicnicCachedNetworkImageState
     );
   }
 
+  /// C3: 리스트 전용 dpr 상한 적용. 기본(null)이면 변형 없음.
+  double _capResolution(double multiplier) {
+    final cap = widget.maxResolutionMultiplierCap;
+    if (cap == null) return multiplier;
+    return math.min(multiplier, cap);
+  }
+
   double _getResolutionMultiplier(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final devicePixelRatio = mediaQuery.devicePixelRatio;
@@ -686,7 +701,14 @@ class _PicnicCachedNetworkImageState
 
     switch (imageSize) {
       case ImageComplexity.low:
-        return [_getTransformedUrl(widget.imageUrl, resolutionMultiplier, 85)];
+        // C3: 리스트가 maxQualityOverride 를 넘기면 그 값을, 아니면 기존 85.
+        return [
+          _getTransformedUrl(
+            widget.imageUrl,
+            resolutionMultiplier,
+            widget.maxQualityOverride ?? 85,
+          ),
+        ];
       case ImageComplexity.medium:
         return [
           _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.6, 40),

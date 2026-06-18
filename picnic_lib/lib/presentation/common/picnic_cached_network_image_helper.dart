@@ -116,6 +116,15 @@ class PicnicCachedNetworkImageHelper {
     }
   }
 
+  /// C3: Apply an optional DPR cap for list-scoped thumbnail weight reduction.
+  ///
+  /// Returns [multiplier] unchanged when [cap] is null (default behavior).
+  /// Otherwise clamps [multiplier] to at most [cap].
+  static double capResolution(double multiplier, double? cap) {
+    if (cap == null) return multiplier;
+    return math.min(multiplier, cap);
+  }
+
   /// Determine if an error string indicates a retryable network error.
   static bool isRetryableError(String errorString) {
     final lower = errorString.toLowerCase();
