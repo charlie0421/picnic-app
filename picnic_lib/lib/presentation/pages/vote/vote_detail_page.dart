@@ -45,6 +45,12 @@ import 'package:picnic_lib/presentation/pages/vote/vote_item_highlight_widget.da
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
 
+/// Maximum time the scroll gate may remain raised before the watchdog
+/// self-heals.  Deliberately far longer than any real scroll-settle cycle so
+/// it cannot fire during ordinary scrolling and cannot reintroduce mid-scroll
+/// jank.
+const Duration _kScrollGateMaxHold = Duration(seconds: 8);
+
 class VoteDetailPage extends ConsumerStatefulWidget {
   final int voteId;
   final VotePortal votePortal;
@@ -74,6 +80,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   Timer? _updateTimer;
   bool _isRefreshingItems = false;
   bool _isScrolling = false;
+  DateTime? _scrollGateRaisedAt;
   final Map<int, int> _previousVoteCounts = {};
   final Map<int, int> _previousRanks = {};
   final Map<int, int> _currentRanks = {};
@@ -151,7 +158,21 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       if (!mounted) return;
       // Suppress polling while the user is actively scrolling; the deferred
       // refresh fires once on settle via _onScrollSettle().
-      if (_isScrolling) return;
+      // Self-healing watchdog: if the gate has been raised longer than
+      // _kScrollGateMaxHold, a ScrollEndNotification was likely missed —
+      // clear the gate and proceed with the refresh rather than stalling
+      // live-vote totals indefinitely.
+      if (_isScrolling) {
+        final raisedAt = _scrollGateRaisedAt;
+        if (raisedAt != null &&
+            DateTime.now().difference(raisedAt) > _kScrollGateMaxHold) {
+          _isScrolling = false;
+          _scrollGateRaisedAt = null;
+          // fall through to refresh below
+        } else {
+          return;
+        }
+      }
       if (_isRefreshingItems || _isSaving) return;
       _isRefreshingItems = true;
       try {
@@ -501,16 +522,19 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (notification) {
                           if (notification is ScrollStartNotification) {
-                            // Don't gate during programmatic scroll-to-search;
-                            // only user drags start a gate. ScrollStartNotification
-                            // fires for both, so we set the flag and rely on
-                            // ScrollEndNotification to clear + refresh.
+                            // All scroll starts (user-initiated and programmatic)
+                            // raise the gate. The gate is cleared either on
+                            // ScrollEndNotification (normal path) or by the
+                            // self-healing watchdog in the timer body if
+                            // ScrollEndNotification is ever missed.
                             if (!_isScrolling) {
                               _isScrolling = true;
+                              _scrollGateRaisedAt = DateTime.now();
                             }
                           } else if (notification is ScrollEndNotification) {
                             if (_isScrolling) {
                               _isScrolling = false;
+                              _scrollGateRaisedAt = null;
                               // Single deferred refresh on settle.
                               _onScrollSettle();
                             }
