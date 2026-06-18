@@ -147,8 +147,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
+    _updateTimer = Timer.periodic(_refreshInterval(), (_) async {
       if (!mounted) return;
+      // Suppress polling while the user is actively scrolling; the deferred
+      // refresh fires once on settle via _onScrollSettle().
+      if (_isScrolling) return;
       if (_isRefreshingItems || _isSaving) return;
       _isRefreshingItems = true;
       try {
@@ -495,28 +498,48 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       }
                     },
                     child: SizedBox.expand(
-                      child: CustomScrollView(
-                        controller: _scrollController,
-                        physics:
-                            const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
-                        keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.onDrag,
-                        slivers: [
-                          SliverToBoxAdapter(
-                            child: RepaintBoundary(
-                              key: _captureKey,
-                              child: Column(
-                                children: [
-                                  _buildVoteInfo(context, voteModel),
-                                  SizedBox(height: 12),
-                                  if (_isSaving)
-                                    _buildCaptureVoteList(context),
-                                ],
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (notification) {
+                          if (notification is ScrollStartNotification) {
+                            // Don't gate during programmatic scroll-to-search;
+                            // only user drags start a gate. ScrollStartNotification
+                            // fires for both, so we set the flag and rely on
+                            // ScrollEndNotification to clear + refresh.
+                            if (!_isScrolling) {
+                              _isScrolling = true;
+                            }
+                          } else if (notification is ScrollEndNotification) {
+                            if (_isScrolling) {
+                              _isScrolling = false;
+                              // Single deferred refresh on settle.
+                              _onScrollSettle();
+                            }
+                          }
+                          return false; // allow the notification to keep bubbling
+                        },
+                        child: CustomScrollView(
+                          controller: _scrollController,
+                          physics:
+                              const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          slivers: [
+                            SliverToBoxAdapter(
+                              child: RepaintBoundary(
+                                key: _captureKey,
+                                child: Column(
+                                  children: [
+                                    _buildVoteInfo(context, voteModel),
+                                    SizedBox(height: 12),
+                                    if (_isSaving)
+                                      _buildCaptureVoteList(context),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          if (!_isSaving) _buildVoteItemList(context),
-                        ],
+                            if (!_isSaving) _buildVoteItemList(context),
+                          ],
+                        ),
                       ),
                     ),
                   ),
