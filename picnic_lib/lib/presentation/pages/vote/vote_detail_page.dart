@@ -73,6 +73,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   final _searchSubject = BehaviorSubject<String>();
   Timer? _updateTimer;
   bool _isRefreshingItems = false;
+  bool _isScrolling = false;
   final Map<int, int> _previousVoteCounts = {};
   final Map<int, int> _previousRanks = {};
   final Map<int, int> _currentRanks = {};
@@ -167,6 +168,39 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         _isRefreshingItems = false;
       }
     });
+  }
+
+  /// Called once when scrolling settles (ScrollEndNotification).
+  /// Performs a single vote-totals refresh that was suppressed while scrolling.
+  Future<void> _onScrollSettle() async {
+    if (!mounted) return;
+    if (_isRefreshingItems || _isSaving) return;
+    _isRefreshingItems = true;
+    try {
+      await ref
+          .read(
+            asyncVoteItemListProvider(
+              voteId: widget.voteId,
+              votePortal: widget.votePortal,
+            ).notifier,
+          )
+          .refreshVoteTotals(
+            voteId: widget.voteId,
+            votePortal: widget.votePortal,
+          );
+    } catch (_) {
+    } finally {
+      _isRefreshingItems = false;
+    }
+  }
+
+  /// Refresh cadence: 1s for live votes; widen to 5s once the vote is
+  /// ended/upcoming since totals no longer change meaningfully.
+  Duration _refreshInterval() {
+    if (isEnded || isUpcoming) {
+      return const Duration(seconds: 5);
+    }
+    return const Duration(seconds: 1);
   }
 
   void _initializeRanks() {
