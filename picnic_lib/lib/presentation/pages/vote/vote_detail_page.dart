@@ -1228,9 +1228,11 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     int actualRank,
     bool rankChanged,
   ) {
-    // 순위 변동 시 이미지 위젯 재생성을 위해 actualRank를 키에 포함
+    // 이미지 위젯 키는 itemId로만 고정한다. 순위 변동 애니메이션은
+    // VoteItemWidget/VoteItemHighlightWidget가 rankChanged/rankUp/actualRank로
+    // 처리하므로, 키에 rank를 넣어 위젯을 재생성하면 이미지 리로드 스톰만 발생한다.
     return RepaintBoundary(
-      key: ValueKey('image_${itemId}_rank_$actualRank'),
+      key: ValueKey('image_$itemId'),
       child: SizedBox(
         width: 39,
         height: 39,
@@ -1261,9 +1263,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
         : LazyLoadingStrategy.viewport;
 
     return PicnicCachedNetworkImage(
-      key: ValueKey(
-        'cached_image_$imageUrl${actualRank != null ? '_rank_$actualRank' : ''}',
-      ), // 순위 변동 시 위젯 재생성
+      key: ValueKey('cached_image_$imageUrl'), // URL 단위로 고정 (rank 미포함)
       imageUrl: imageUrl,
       fit: BoxFit.cover,
       width: 39,
