@@ -25,6 +25,7 @@ import 'package:picnic_lib/presentation/widgets/vote/voting/voting_usage_helper.
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future showVotingDialog({
   required BuildContext context,
@@ -414,8 +415,14 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     await _performVoting(voteAmount, userId);
   }
 
-  // 429 응답 시 자동 재시도하는 투표 API 호출
-  Future<dynamic> _invokeVotingWithRetry({
+  // 429(요청 폭주/유저 뮤텍스 경합) 시 자동 재시도하는 투표 API 호출.
+  // supabase.functions.invoke 는 비-2xx 응답에서 FunctionResponse 를 반환하지 않고
+  // FunctionException 을 throw 한다. 따라서 429 재시도는 반드시 catch 에서 처리해야 한다
+  // (기존 구현은 response.status 분기라 재시도가 전혀 동작하지 않아, 일시적 429 가
+  //  곧바로 "투표 실패" 팝업으로 노출되었다).
+  static const int _maxVotingRetries = 2;
+
+  Future<FunctionResponse> _invokeVotingWithRetry({
     required int voteAmount,
     required String userId,
     required int starCandyUsage,
@@ -425,35 +432,38 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final functionName =
         widget.portalType == VotePortal.vote ? 'voting-v2' : 'pic-voting-v2';
 
-    final response = await supabase.functions.invoke(
-      functionName,
-      body: {
-        'vote_id': widget.voteModel.id,
-        'vote_item_id': widget.voteItemModel.id,
-        'amount': voteAmount,
-        'user_id': userId,
-        'star_candy_usage': starCandyUsage,
-        'star_candy_bonus_usage': starCandyBonusUsage,
-      },
-    );
-
-    // 429 응답이고 아직 재시도 안했으면 3초 후 1회 재시도
-    if (response.status == 429 && retryCount < 1) {
-      logger.d('Voting rate limited, retrying in 3 seconds...');
-      await Future.delayed(const Duration(seconds: 3));
-
-      if (!mounted) return response;
-
-      return _invokeVotingWithRetry(
-        voteAmount: voteAmount,
-        userId: userId,
-        starCandyUsage: starCandyUsage,
-        starCandyBonusUsage: starCandyBonusUsage,
-        retryCount: retryCount + 1,
+    try {
+      return await supabase.functions.invoke(
+        functionName,
+        body: {
+          'vote_id': widget.voteModel.id,
+          'vote_item_id': widget.voteItemModel.id,
+          'amount': voteAmount,
+          'user_id': userId,
+          'star_candy_usage': starCandyUsage,
+          'star_candy_bonus_usage': starCandyBonusUsage,
+        },
       );
-    }
+    } on FunctionException catch (e) {
+      // 429 는 일시적 경합이므로 짧은 백오프(0.7s, 1.4s) 후 재시도.
+      if (e.status == 429 && retryCount < _maxVotingRetries) {
+        logger.d(
+          'Voting rate limited (429), retry ${retryCount + 1}/$_maxVotingRetries',
+        );
+        await Future.delayed(Duration(milliseconds: 700 * (retryCount + 1)));
 
-    return response;
+        if (!mounted) rethrow;
+
+        return _invokeVotingWithRetry(
+          voteAmount: voteAmount,
+          userId: userId,
+          starCandyUsage: starCandyUsage,
+          starCandyBonusUsage: starCandyBonusUsage,
+          retryCount: retryCount + 1,
+        );
+      }
+      rethrow;
+    }
   }
 
   // star_candy와 star_candy_bonus 사용량 계산
@@ -485,16 +495,14 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
           .setVoteItem(id: itemId, voteTotal: currentTotal + voteAmount);
 
+      // invoke 는 2xx 가 아니면 FunctionException 을 throw 하므로,
+      // 여기까지 도달하면 성공 응답(2xx)이다.
       final response = await _invokeVotingWithRetry(
         voteAmount: voteAmount,
         userId: userId,
         starCandyUsage: starCandyUsage,
         starCandyBonusUsage: starCandyBonusUsage,
       );
-
-      if (response.status != 200) {
-        throw Exception('Failed to vote');
-      }
 
       if (!mounted) return;
 
@@ -552,14 +560,38 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         Navigator.of(context).pop();
       }
 
-      _showVotingFailDialog();
+      _showVotingFailDialog(e);
     }
   }
 
-  void _showVotingFailDialog() {
+  // 실패 원인(FunctionException)에 따라 구체적인 안내 문구를 고른다.
+  // 마감/미시작은 로컬라이즈된 문구를, 그 외(잔액 부족·처리 중 등)는 서버가 제공한
+  // 사용자용 message 를 우선 노출하고, 없으면 일반 "투표 실패" 문구로 폴백한다.
+  String _voteFailMessage(Object? error) {
+    // dialog route 가 pop 된 직후라 State.context 는 teardown 중일 수 있으므로,
+    // Localizations 가 살아있는 root navigator context 로 문구를 조회한다.
+    final ctx = navigatorKey.currentContext;
+    if (ctx == null) return '';
+    final l10n = AppLocalizations.of(ctx);
+    if (error is FunctionException) {
+      final details = error.details;
+      final reason = details is Map ? details['reason'] : null;
+      if (error.status == 403) {
+        if (reason == 'ended') return l10n.message_vote_is_ended;
+        if (reason == 'not_started') return l10n.message_vote_is_upcoming;
+      }
+      final serverMessage = details is Map ? details['message'] : null;
+      if (serverMessage is String && serverMessage.trim().isNotEmpty) {
+        return serverMessage;
+      }
+    }
+    return l10n.dialog_title_vote_fail;
+  }
+
+  void _showVotingFailDialog([Object? error]) {
     showSimpleDialog(
       type: DialogType.error,
-      content: AppLocalizations.of(context).dialog_title_vote_fail,
+      content: _voteFailMessage(error),
       onOk: () {
         final navContext = navigatorKey.currentContext;
         if (navContext != null && navContext.mounted) {
