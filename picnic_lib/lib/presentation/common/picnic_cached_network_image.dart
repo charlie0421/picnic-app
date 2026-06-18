@@ -71,6 +71,12 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final Widget? errorWidget; // 커스텀 에러 위젯
   final bool showLoadingOverlay;
 
+  /// true면 앱 레벨 8-슬롯 동시 로딩 게이트(_maxConcurrentLoads)와
+  /// 동시 로딩 수 기반 저대역폭 휴리스틱을 우회한다.
+  /// 고정 extent 리스트(예: 투표 상세)처럼 sliver 뷰포트가 이미
+  /// 가시성 게이트 역할을 하는 경우에만 true로 켠다. 기본값은 기존 동작.
+  final bool bypassConcurrencyGate;
+
   const PicnicCachedNetworkImage({
     super.key,
     required this.imageUrl,
@@ -94,6 +100,7 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.enableMemoryOptimization = true,
     this.enableProgressiveLoading = true,
     this.maxConcurrentLoads,
+    this.bypassConcurrencyGate = false,
   });
 
   /// 테스트 환경에서 이미지 로딩 타이머 비활성화 (pending timer assertion 방지)
@@ -295,7 +302,8 @@ class _PicnicCachedNetworkImageState
   void _triggerLazyLoad() {
     if (_shouldLoadImage || !mounted) return;
 
-    if (_currentLoadingCount >= maxConcurrentLoads) {
+    if (!widget.bypassConcurrencyGate &&
+        _currentLoadingCount >= maxConcurrentLoads) {
       _queueLoading();
       return;
     }
@@ -644,6 +652,8 @@ class _PicnicCachedNetworkImageState
 
   /// 저대역폭 연결 상태 확인
   bool _isLowBandwidthConnection() {
+    // 동시 로딩 게이트를 우회하는 위젯은 전역 로딩 수에 영향받지 않는다.
+    if (widget.bypassConcurrencyGate) return false;
     // 동시 로딩 수가 많으면 저대역폭으로 간주
     return _currentLoadingCount > maxConcurrentLoads * 0.8;
   }

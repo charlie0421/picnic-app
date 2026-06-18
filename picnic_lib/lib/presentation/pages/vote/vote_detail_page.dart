@@ -1256,12 +1256,9 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     // 상위 랭킹(상위 50개)은 높은 우선순위, 나머지는 일반 우선순위
     final isTopRanking = index != null && index < 50;
 
-    // 순위가 변동된 경우 즉시 로딩 (LazyLoadingStrategy.none)
-    // 그 외의 경우 뷰포트 기반 지연 로딩 (LazyLoadingStrategy.viewport)
-    final lazyLoadingStrategy = rankChanged
-        ? LazyLoadingStrategy.none
-        : LazyLoadingStrategy.viewport;
-
+    // 이 리스트는 고정 extent sliver가 가시성 게이트 역할을 하므로
+    // 위젯별 VisibilityDetector/8-슬롯 동시 로딩 게이트가 불필요하다.
+    // LazyLoadingStrategy.none + bypassConcurrencyGate로 리스트 전용 최적화.
     return PicnicCachedNetworkImage(
       key: ValueKey('cached_image_$imageUrl'), // URL 단위로 고정 (rank 미포함)
       imageUrl: imageUrl,
@@ -1271,9 +1268,10 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       memCacheWidth: 78, // 2x 해상도로 메모리 캐시 (화면 크기 대비 최적화)
       memCacheHeight: 78,
       placeholder: _buildImagePlaceholder(),
-      lazyLoadingStrategy: lazyLoadingStrategy, // 순위 변동 시 즉시 로딩
-      visibilityThreshold: 0.1, // 10% 보일 때부터 로딩 시작
-      enablePreloading: true, // 뷰포트 근처 200px 전에 미리 로딩
+      lazyLoadingStrategy: LazyLoadingStrategy.none, // sliver 뷰포트가 게이트
+      bypassConcurrencyGate: true, // 이 리스트만 8-슬롯 게이트 우회
+      visibilityThreshold: 0.1,
+      enablePreloading: true,
       preloadDistance: 200.0,
       priority: isTopRanking
           ? ImagePriority.high
