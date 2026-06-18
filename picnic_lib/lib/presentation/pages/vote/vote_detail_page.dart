@@ -45,12 +45,6 @@ import 'package:picnic_lib/presentation/pages/vote/vote_item_highlight_widget.da
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
 
-/// Fixed per-row extent for the vote item list (Tier B1 perf refactor).
-/// Measured from VoteItemWidget (minHeight 55 + vertical padding) PLUS the
-/// 16px bottom spacing previously applied by the itemBuilder Padding.
-/// Measured 2026-06 on designSize 393x892; rounded up to avoid sub-pixel clip.
-const double kVoteRowExtent = 71.0;
-
 /// Maximum time the scroll gate may remain raised before the watchdog
 /// self-heals.  Deliberately far longer than any real scroll-settle cycle so
 /// it cannot fire during ordinary scrolling and cannot reintroduce mid-scroll
@@ -771,6 +765,44 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     );
   }
 
+  /// Builds a representative single row for [SliverPrototypeExtentList] to
+  /// measure offstage. It mirrors the real list row EXACTLY (RepaintBoundary >
+  /// Padding(bottom:16) > _buildVoteItemWithHighlight), so the measured height
+  /// — row content + the 16px bottom gap — becomes the per-row extent. Built
+  /// from the first available item so the measurement is device-correct
+  /// (ScreenUtil applied). The non-empty branch guarantees at least one item;
+  /// the SizedBox fallback only guards the theoretically-impossible empty case.
+  Widget _buildVoteRowPrototype(
+    List<VoteItemModel?> data,
+    List<int> filteredIndices,
+  ) {
+    VoteItemModel? sample;
+    for (final i in filteredIndices) {
+      if (i >= 0 && i < data.length && data[i] != null) {
+        sample = data[i];
+        break;
+      }
+    }
+    if (sample == null) {
+      // Defensive: no measurable item. Keep the prototype non-null.
+      return const SizedBox.shrink();
+    }
+    return RepaintBoundary(
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 16),
+        child: _buildVoteItemWithHighlight(
+          item: sample,
+          index: 0,
+          actualRank: 1,
+          voteCountDiff: 0,
+          rankChanged: false,
+          rankUp: false,
+          searchQuery: '',
+        ),
+      ),
+    );
+  }
+
   Widget _buildVoteItemList(BuildContext context) {
     final dataAsync = ref.watch(
       asyncVoteItemListProvider(
@@ -824,13 +856,19 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
           );
         }
 
-        // ListView.builder를 사용하여 가상화 구현 (shrinkWrap으로 부모 스크롤 사용)
-        return SliverToBoxAdapter(
-          child: Stack(
-            children: [
-              Container(
-                width: double.infinity,
-                margin: EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
+        // Tier B1 perf: 실제 슬리버 가상화 리스트.
+        // shrinkWrap ListView(전 행 즉시 빌드) 대신 SliverPrototypeExtentList 로
+        // 교체 — prototype 행 하나의 실측 높이(ScreenUtil 적용된 device-correct 값)를
+        // 모든 행 extent 로 사용해 뷰포트에 보이는 행만 빌드한다(하드코딩 const 없음).
+        // 장식 테두리는 DecoratedSliver, 내부/바깥 여백은 SliverPadding 으로 이전.
+        // 검색창은 기존과 동일하게 리스트 그룹 상단(top:56 예약 영역)에 겹쳐지며
+        // 리스트와 함께 스크롤된다(SliverMainAxisGroup + 0-높이 오버레이 어댑터).
+        return SliverMainAxisGroup(
+          slivers: [
+            // 바깥 margin(top:24, 좌우 16.w) == 슬리버에서는 바깥 패딩.
+            SliverPadding(
+              padding: EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
+              sliver: DecoratedSliver(
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.primary500, width: 1.r),
                   borderRadius: BorderRadius.only(
@@ -840,88 +878,101 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                     bottomRight: Radius.circular(40.r),
                   ),
                 ),
-                child: Padding(
+                sliver: SliverPadding(
                   padding: EdgeInsets.only(
                     top: 56,
                     left: 16.w,
                     right: 16.w,
                     bottom: 24 + MediaQuery.of(context).viewPadding.bottom,
                   ).r,
-                  child: ListView.builder(
-                    // 가상화를 통한 성능 최적화: 뷰포트에 보이는 아이템만 렌더링
-                    shrinkWrap: true, // SliverToBoxAdapter 내부에서 사용
-                    physics:
-                        const NeverScrollableScrollPhysics(), // 부모 CustomScrollView의 스크롤 사용
-                    itemCount: filteredIndices.length,
-                    cacheExtent: 200, // 뷰포트 밖 200px까지 미리 렌더링
-                    addAutomaticKeepAlives: false, // 메모리 최적화
-                    addRepaintBoundaries: true, // 리페인트 최적화
-                    itemBuilder: (context, index) {
-                      // 안전성 체크 추가
-                      if (index >= filteredIndices.length) {
-                        logger.w(
-                          '📋 인덱스 초과 - index: $index, filteredLength: ${filteredIndices.length}',
-                        );
-                        return const SizedBox.shrink();
-                      }
-
-                      final itemIndex = filteredIndices[index];
-                      if (itemIndex >= data.length) {
-                        logger.w(
-                          '📋 데이터 인덱스 초과 - itemIndex: $itemIndex, dataLength: ${data.length}',
-                        );
-                        return const SizedBox.shrink();
-                      }
-
-                      final item = data[itemIndex];
-                      if (item == null) {
-                        logger.w('📋 null 아이템 - itemIndex: $itemIndex');
-                        return const SizedBox.shrink();
-                      }
-
-                      final previousVoteCount =
-                          _previousVoteCounts[item.id] ?? item.voteTotal;
-                      final voteCountDiff =
-                          item.voteTotal! - previousVoteCount!;
-                      final actualRank = _currentRanks[item.id] ?? 1;
-                      final previousRank =
-                          _previousRanks[item.id] ?? actualRank;
-                      final rankChanged = previousRank != actualRank;
-
-                      if (rankChanged) {
-                        _triggerHighlight(item.id);
-                      }
-
-                      // PostFrameCallback을 더 안전하게 처리
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted) {
-                          _previousVoteCounts[item.id] = item.voteTotal!;
-                          _previousRanks[item.id] = actualRank;
+                  sliver: SliverPrototypeExtentList(
+                    // 첫 아이템으로 만든 대표 행을 오프스테이지에서 1회 측정해
+                    // 그 높이(행 + bottom-16 gap)를 모든 행 extent 로 사용.
+                    prototypeItem: _buildVoteRowPrototype(data, filteredIndices),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        // 안전성 체크 (기존 동작 보존)
+                        if (index >= filteredIndices.length) {
+                          logger.w(
+                            '📋 인덱스 초과 - index: $index, filteredLength: ${filteredIndices.length}',
+                          );
+                          return const SizedBox.shrink();
                         }
-                      });
 
-                      return RepaintBoundary(
-                        key: ValueKey('vote_item_${item.id}'),
-                        child: Padding(
-                          padding: EdgeInsets.only(bottom: 16),
-                          child: _buildVoteItemWithHighlight(
-                            item: item,
-                            index: itemIndex,
-                            actualRank: actualRank,
-                            voteCountDiff: voteCountDiff,
-                            rankChanged: rankChanged,
-                            rankUp: previousRank > actualRank,
-                            searchQuery: _searchQuery,
+                        final itemIndex = filteredIndices[index];
+                        if (itemIndex >= data.length) {
+                          logger.w(
+                            '📋 데이터 인덱스 초과 - itemIndex: $itemIndex, dataLength: ${data.length}',
+                          );
+                          return const SizedBox.shrink();
+                        }
+
+                        final item = data[itemIndex];
+                        if (item == null) {
+                          logger.w('📋 null 아이템 - itemIndex: $itemIndex');
+                          return const SizedBox.shrink();
+                        }
+
+                        final previousVoteCount =
+                            _previousVoteCounts[item.id] ?? item.voteTotal;
+                        final voteCountDiff =
+                            item.voteTotal! - previousVoteCount!;
+                        final actualRank = _currentRanks[item.id] ?? 1;
+                        final previousRank =
+                            _previousRanks[item.id] ?? actualRank;
+                        final rankChanged = previousRank != actualRank;
+
+                        if (rankChanged) {
+                          _triggerHighlight(item.id);
+                        }
+
+                        // PostFrameCallback을 더 안전하게 처리
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (mounted) {
+                            _previousVoteCounts[item.id] = item.voteTotal!;
+                            _previousRanks[item.id] = actualRank;
+                          }
+                        });
+
+                        return RepaintBoundary(
+                          key: ValueKey('vote_item_${item.id}'),
+                          child: Padding(
+                            padding: EdgeInsets.only(bottom: 16),
+                            child: _buildVoteItemWithHighlight(
+                              item: item,
+                              index: itemIndex,
+                              actualRank: actualRank,
+                              voteCountDiff: voteCountDiff,
+                              rankChanged: rankChanged,
+                              rankUp: previousRank > actualRank,
+                              searchQuery: _searchQuery,
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                      childCount: filteredIndices.length,
+                      addAutomaticKeepAlives: false, // 메모리 최적화 (기존 동작 보존)
+                      addRepaintBoundaries: true, // 리페인트 최적화
+                    ),
                   ),
                 ),
               ),
-              _buildSearchBox(),
-            ],
-          ),
+            ),
+            // 검색창 오버레이: 리스트 그룹 상단에 겹쳐지고 리스트와 함께 스크롤된다.
+            // 0-높이 어댑터 + 아래로 오버플로우하는 child 로 레이아웃을 차지하지 않고
+            // 기존 Stack(Positioned top:0) 의 시각/스크롤 동작을 재현한다.
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 0,
+                child: OverflowBox(
+                  alignment: Alignment.topCenter,
+                  minHeight: 0,
+                  maxHeight: double.infinity,
+                  child: _buildSearchBoxContent(),
+                ),
+              ),
+            ),
+          ],
         );
       },
       loading: () {
@@ -1611,31 +1662,40 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     );
   }
 
+  /// Positioned wrapper for the search box, used inside a [Stack] (the
+  /// empty-search branch). For the sliver overlay path use
+  /// [_buildSearchBoxContent] (a [Positioned] cannot live outside a Stack).
   Widget _buildSearchBox() {
     return Positioned(
       top: 0,
       right: 0.w,
       left: 0.w,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 32.w),
-        child: EnhancedSearchBox(
-          hintText: AppLocalizations.of(context).text_vote_where_is_my_bias,
-          onSearchChanged: (query) {
-            logger.d('🔍 EnhancedSearchBox onSearchChanged 호출됨: "$query"');
-            // 로컬 상태 업데이트
-            if (mounted) {
-              setState(() {
-                _searchQuery = query;
-              });
-              logger.d('🔍 _searchQuery 로컬 상태 업데이트됨: "$query"');
-            }
-          },
-          controller: _textEditingController,
-          focusNode: _focusNode,
-          debounceTime: const Duration(milliseconds: 300),
-          showClearButton: true,
-          borderRadius: BorderRadius.circular(24.r),
-        ),
+      child: _buildSearchBoxContent(),
+    );
+  }
+
+  /// The search box content without the [Positioned] wrapper, so it can be
+  /// hosted by both a [Stack] (via [_buildSearchBox]) and a sliver overlay.
+  Widget _buildSearchBoxContent() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 32.w),
+      child: EnhancedSearchBox(
+        hintText: AppLocalizations.of(context).text_vote_where_is_my_bias,
+        onSearchChanged: (query) {
+          logger.d('🔍 EnhancedSearchBox onSearchChanged 호출됨: "$query"');
+          // 로컬 상태 업데이트
+          if (mounted) {
+            setState(() {
+              _searchQuery = query;
+            });
+            logger.d('🔍 _searchQuery 로컬 상태 업데이트됨: "$query"');
+          }
+        },
+        controller: _textEditingController,
+        focusNode: _focusNode,
+        debounceTime: const Duration(milliseconds: 300),
+        showClearButton: true,
+        borderRadius: BorderRadius.circular(24.r),
       ),
     );
   }
