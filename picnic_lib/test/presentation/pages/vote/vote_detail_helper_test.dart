@@ -581,6 +581,60 @@ void main() {
     });
   });
 
+  // ── diffChangedItemIds ───────────────────────────────────────────────
+
+  group('diffChangedItemIds', () {
+    test('returns empty set when no totals provided', () {
+      final current = [_item(id: 10, voteTotal: 100), _item(id: 11, voteTotal: 50)];
+      expect(VoteDetailHelper.diffChangedItemIds(current, <int, int>{}), isEmpty);
+    });
+
+    test('returns empty set when totals match current', () {
+      final current = [_item(id: 10, voteTotal: 100), _item(id: 11, voteTotal: 50)];
+      final result = VoteDetailHelper.diffChangedItemIds(current, {10: 100, 11: 50});
+      expect(result, isEmpty);
+    });
+
+    test('returns ids whose voteTotal changed', () {
+      final current = [_item(id: 10, voteTotal: 100), _item(id: 11, voteTotal: 50)];
+      final result = VoteDetailHelper.diffChangedItemIds(current, {10: 100, 11: 75});
+      expect(result, {11});
+    });
+
+    test('returns multiple changed ids', () {
+      final current = [_item(id: 10, voteTotal: 100), _item(id: 11, voteTotal: 50)];
+      final result = VoteDetailHelper.diffChangedItemIds(current, {10: 120, 11: 75});
+      expect(result, {10, 11});
+    });
+
+    test('treats null current voteTotal as 0 for comparison', () {
+      final current = [_item(id: 10, voteTotal: null)];
+      // newTotal 0 == treated-as-0 current -> no change
+      expect(VoteDetailHelper.diffChangedItemIds(current, {10: 0}), isEmpty);
+      // newTotal 5 != 0 -> changed
+      expect(VoteDetailHelper.diffChangedItemIds(current, {10: 5}), {10});
+    });
+
+    test('ignores null items in current list', () {
+      final current = <VoteItemModel?>[null, _item(id: 11, voteTotal: 50)];
+      final result = VoteDetailHelper.diffChangedItemIds(current, {11: 99});
+      expect(result, {11});
+    });
+
+    test('ids present in newTotals but absent from current are included (newly present)', () {
+      final current = [_item(id: 10, voteTotal: 100)];
+      final result = VoteDetailHelper.diffChangedItemIds(current, {10: 100, 99: 7});
+      expect(result, {99});
+    });
+
+    test('ids in current but absent from newTotals are not included', () {
+      final current = [_item(id: 10, voteTotal: 100), _item(id: 11, voteTotal: 50)];
+      // 11 missing from totals -> no signal, not a change
+      final result = VoteDetailHelper.diffChangedItemIds(current, {10: 100});
+      expect(result, isEmpty);
+    });
+  });
+
   // ── areDataListsEqual additional branches ─────────────────────────────
   group('areDataListsEqual - additional', () {
     test('first is null second is not null', () {

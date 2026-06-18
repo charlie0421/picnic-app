@@ -55,6 +55,43 @@ class VoteDetailHelper {
     return true;
   }
 
+  /// Return the set of item ids whose [voteTotal] differs from the matching
+  /// entry in [newTotals], or whose id is present in [newTotals] but not in
+  /// [current] (newly present). A null item voteTotal is treated as 0.
+  ///
+  /// Ids that appear in [current] but are absent from [newTotals] are NOT
+  /// reported as changed (no fresh value = no signal). Null items in
+  /// [current] are ignored.
+  ///
+  /// O(n + m). Used by [AsyncVoteItemList.refreshVoteTotals] to skip
+  /// state reassignment entirely when the 1Hz poll returns no actual change.
+  static Set<int> diffChangedItemIds(
+    List<VoteItemModel?> current,
+    Map<int, int> newTotals,
+  ) {
+    final changed = <int>{};
+    final seen = <int>{};
+
+    for (final item in current) {
+      if (item == null) continue;
+      seen.add(item.id);
+      final newTotal = newTotals[item.id];
+      if (newTotal == null) continue; // no fresh value -> no signal
+      if (newTotal != (item.voteTotal ?? 0)) {
+        changed.add(item.id);
+      }
+    }
+
+    // ids present in the fresh totals but not in current = newly present
+    for (final id in newTotals.keys) {
+      if (!seen.contains(id)) {
+        changed.add(id);
+      }
+    }
+
+    return changed;
+  }
+
   /// Return the text from [nameMap] whose language matches the [query].
   /// Checks Korean (including initial consonant matching) first, then English.
   /// Falls back to [fallbackText] if neither matches.
