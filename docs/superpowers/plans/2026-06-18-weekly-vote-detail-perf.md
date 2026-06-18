@@ -36,7 +36,7 @@
 
 ## Tier 0 — 측정 기준선 (가장 먼저)
 
-### Task: 성능 기준선 측정 + 회귀 지표 고정
+### Task 1: 성능 기준선 측정 + 회귀 지표 고정
 
 **Files:** (코드 변경 없음 — 측정 산출물만)
 
@@ -55,7 +55,7 @@
 ## Tier A — 1초 리빌드 폭풍 차단 (R1)
 
 
-### Task: Add and unit-test `VoteDetailHelper.diffChangedItemIds` (pure, TDD)
+### Task 2: Add and unit-test `VoteDetailHelper.diffChangedItemIds` (pure, TDD)
 
 **Files:**
 - `/Users/charlie.hyun/Repositories/picnic-app-vote-detail-perf/picnic_lib/lib/presentation/pages/vote/vote_detail_helper.dart` (add static method)
@@ -205,7 +205,7 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 
 ---
 
-### Task: Make `refreshVoteTotals` early-return on no change and preserve object identity
+### Task 3: Make `refreshVoteTotals` early-return on no change and preserve object identity
 
 **Files:**
 - `/Users/charlie.hyun/Repositories/picnic-app-vote-detail-perf/picnic_lib/lib/presentation/providers/vote_detail_provider.dart` (modify `refreshVoteTotals`, lines 127-165)
@@ -470,7 +470,7 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
   Expected output: a commit summary line listing 2 files changed.
 
 
-### Task: A2.1 — Add `_isScrolling` gate field + scroll-settle refresh helper to `_VoteDetailPageState`
+### Task 4: A2.1 — Add `_isScrolling` gate field + scroll-settle refresh helper to `_VoteDetailPageState`
 
 **Files:**
 - `/Users/charlie.hyun/Repositories/picnic-app-vote-detail-perf/picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart`
@@ -553,7 +553,7 @@ Expected: commit succeeds, `1 file changed`.
 
 ---
 
-### Task: A2.2 — Early-return the 1s timer body while scrolling + use `_refreshInterval()` + wire `NotificationListener` scroll source
+### Task 5: A2.2 — Early-return the 1s timer body while scrolling + use `_refreshInterval()` + wire `NotificationListener` scroll source
 
 **Files:**
 - `/Users/charlie.hyun/Repositories/picnic-app-vote-detail-perf/picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart`
@@ -699,7 +699,7 @@ Expected: commit succeeds, `1 file changed`.
 
 ---
 
-### Task: A2.3 — Targeted widget test: timer is suppressed during scroll and refreshes once on settle
+### Task 6: A2.3 — Targeted widget test: timer is suppressed during scroll and refreshes once on settle
 
 **Files:**
 - `/Users/charlie.hyun/Repositories/picnic-app-vote-detail-perf/picnic_lib/test/presentation/pages/vote/vote_detail_page_scroll_gate_test.dart` (new)
@@ -797,7 +797,7 @@ Expected: commit succeeds, `1 file changed`.
 
 ---
 
-### Task: A2.4 — Manual profile-mode verification checklist (jank during scroll)
+### Task 7: A2.4 — Manual profile-mode verification checklist (jank during scroll)
 
 **Files:** none (verification only — record results in the PR description, do NOT create a report .md).
 
@@ -835,7 +835,7 @@ Expected: app launches in profile mode; console prints a DevTools URL (`The Flut
 ## Tier B — 가상화 + 이미지 재로딩 폭풍 (R2·R3)
 
 
-### Task: B1-0 — Measure the exact uniform row height and pin `kVoteRowExtent`
+### Task 8: B1-0 — Measure the exact uniform row height and pin `kVoteRowExtent`
 
 Do NOT guess the extent. `SliverFixedExtentList.itemExtent` MUST equal the real rendered height of one row INCLUDING the current `Padding(bottom: 16)`, or rows will clip/overlap. Measure it with a throwaway widget test, then hard-code the measured value as a file-level const.
 
@@ -897,7 +897,7 @@ git commit -m "perf(vote-detail): measure and pin kVoteRowExtent for SliverFixed
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ```
 
-### Task: B1-1 — Replace the non-empty list branch with DecoratedSliver > SliverPadding > SliverFixedExtentList
+### Task 9: B1-1 — Replace the non-empty list branch with DecoratedSliver > SliverPadding > SliverFixedExtentList
 
 This swaps the `SliverToBoxAdapter > Container(border) > Padding > ListView.builder(shrinkWrap, NeverScrollableScrollPhysics)` (vote_detail_page.dart:735-832) for a real sliver list. The decorative rounded border moves to `DecoratedSliver`; the inner padding moves to `SliverPadding`; the rows become a `SliverFixedExtentList` with `itemExtent: kVoteRowExtent`. The search box `Positioned` stays exactly where it is — see Notes for why it must stay an overlay over a Stack-wrapped sliver group, and HOW we keep it.
 
@@ -1125,7 +1125,7 @@ git commit -m "perf(vote-detail): replace shrinkWrap ListView with SliverFixedEx
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ```
 
-### Task: B1-2 — Set CustomScrollView cacheExtent (~1 screen) and remove dependence on the old inner cacheExtent
+### Task 10: B1-2 — Set CustomScrollView cacheExtent (~1 screen) and remove dependence on the old inner cacheExtent
 
 The inner `ListView.cacheExtent: 200` is gone (removed in B1-1). Now the viewport's own `cacheExtent` governs how far off-screen rows are built. Set it to ~one screen height so scrolling pre-builds about a screen of rows but no more (memory-bounded for 1500+ item lists).
 
@@ -1170,7 +1170,7 @@ git commit -m "perf(vote-detail): set CustomScrollView cacheExtent to one screen
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ```
 
-### Task: B1-3 — Re-mount the search box overlay at the same visual position (preserve scroll-away behavior)
+### Task 11: B1-3 — Re-mount the search box overlay at the same visual position (preserve scroll-away behavior)
 
 Original behavior (verified from source): `_buildSearchBox()` returns `Positioned(top:0, left:0, right:0, child: Container(padding: horizontal 32.w, child: EnhancedSearchBox(...)))`. It was a child of the `Stack` that ALSO held the bordered Container, inside a single `SliverToBoxAdapter`. Therefore the search box sat at the very top of that boxed region (overlapping the rounded top border / the top:56 inset) and SCROLLED AWAY with the list — it was never pinned. We must reproduce this exactly. A sliver cannot contain a `Positioned`, so we re-create the Stack overlay by wrapping the list sliver and the search box together using a `SliverMainAxisGroup` is insufficient (no overlap). Use the proven approach: keep the list as a sliver, and overlay the search box with a separate `SliverToBoxAdapter` is also wrong (it would push content down, not overlay). The correct, behavior-identical construct is a `Stack` at the SCROLL-CONTENT level via wrapping the list sliver's first item region. Implement it as follows.
 
@@ -1224,7 +1224,7 @@ git commit -m "perf(vote-detail): re-mount search box as leading sliver (scroll-
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ```
 
-### Task: B1-4 — Verify existing tests pass + add a targeted SliverFixedExtentList widget test + manual screenshot-parity & profile checklist
+### Task 12: B1-4 — Verify existing tests pass + add a targeted SliverFixedExtentList widget test + manual screenshot-parity & profile checklist
 
 - [ ] Run the full existing render test suite for this page (it must stay green — it asserts the page renders, scrolls, refreshes, empty list, many items, locales):
 ```bash
@@ -1292,7 +1292,7 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ```
 
 
-### Task: B2 — Remove the rank segment from the IMAGE widget key and cacheKey (preserve rank-up/down animation)
+### Task 13: B2 — Remove the rank segment from the IMAGE widget key and cacheKey (preserve rank-up/down animation)
 
 **Files:**
 - `/Users/charlie.hyun/Repositories/picnic-app-vote-detail-perf/picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart` (edit)
@@ -1427,7 +1427,7 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 
 ---
 
-### Task: B3 — Switch list image to LazyLoadingStrategy.none + bypass the 8-slot concurrency gate for THIS list only
+### Task 14: B3 — Switch list image to LazyLoadingStrategy.none + bypass the 8-slot concurrency gate for THIS list only
 
 **Files:**
 - `/Users/charlie.hyun/Repositories/picnic-app-vote-detail-perf/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart` (add `bypassConcurrencyGate` param + gate short-circuit)
@@ -1642,7 +1642,7 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ## Tier C — 폴리시
 
 
-### Task: Add O(n) VoteDetailHelper.computeRanksFromSorted (TDD)
+### Task 15: Add O(n) VoteDetailHelper.computeRanksFromSorted (TDD)
 
 **Files:**
 - `/Users/charlie.hyun/Repositories/picnic-app-vote-detail-perf/picnic_lib/lib/presentation/pages/vote/vote_detail_helper.dart` (add method)
@@ -1852,7 +1852,7 @@ with computeRanks verified by unit test.
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ```
 
-### Task: Recompute ranks on provider emit (deduped), remove _updateRanks from build
+### Task 16: Recompute ranks on provider emit (deduped), remove _updateRanks from build
 
 **Files:**
 - `/Users/charlie.hyun/Repositories/picnic-app-vote-detail-perf/picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart`
@@ -1996,7 +1996,7 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ```
 
 
-### Task: C2 — Collapse triple RepaintBoundary to a single row-root boundary
+### Task 17: C2 — Collapse triple RepaintBoundary to a single row-root boundary
 
 The vote-detail list currently nests **three** `RepaintBoundary` per row: (1) at the itemBuilder root (`vote_detail_page.dart` ~line 810), (2) inside `_buildNetworkImage` (`vote_detail_page.dart` ~line 1079), and (3) at the root of `VoteItemWidget.build` (`vote_item_widget.dart` ~line 40). Plus `ListView.builder` has `addRepaintBoundaries: true` (line 765) which wraps EACH item again. Net result: up to 4 boundaries per row — pure overhead (each boundary allocates a separate layer). Keep exactly ONE boundary at the row root, drop the inner two, and turn off the ListView's automatic boundary since we supply our own keyed one.
 
@@ -2197,7 +2197,7 @@ EOF
 
 ---
 
-### Task: C3 — List-scoped thumbnail request weight (q~55, dpr cap ~2.0) without touching other screens
+### Task 18: C3 — List-scoped thumbnail request weight (q~55, dpr cap ~2.0) without touching other screens
 
 The vote-detail row images are 39×39 logical px (sub-50px), but `_estimateImageComplexity()` classifies them as `ImageComplexity.low` (39×39 = 1521 px < 50000) and the low branch requests `quality: 85` at the FULL device resolution multiplier (up to 2.5 on phones, 4.0 on iPad — see `_getResolutionMultiplier`). For a tiny thumbnail that is wasted bytes/decode. We reduce request weight ONLY for this list by passing two new opt-in params; defaults preserve current behavior so no other screen changes. We do NOT edit `_getTransformedUrl`'s global quality constants.
 
@@ -2355,7 +2355,7 @@ EOF
 
 ---
 
-### Task: C4 — Fling-aware deferred image loading for the row image (lowest priority)
+### Task 19: C4 — Fling-aware deferred image loading for the row image (lowest priority)
 
 During a fast fling, decoding images for rows that whip past is wasted work and causes jank. Flutter exposes `Scrollable.recommendDeferredLoadingForContext(context)` which returns true while the enclosing scrollable is flinging fast; we should show the placeholder then and load the real image when it settles. This is the LAST polish step and must be paired with `LazyLoadingStrategy.none` so the gate (not the visibility detector) controls loading on this list. Other screens keep `deferDuringFastScroll: false` (default).
 
