@@ -119,6 +119,10 @@ class _PicnicCachedNetworkImageState
   bool _shouldLoadImage = false; // Lazy Loading 제어
   bool _isVisible = false; // 가시성 상태
   bool _isImageLoaded = false;
+  // 이 인스턴스가 전역 동시 로딩 카운터(_currentLoadingCount)를 증가시켰는지 여부.
+  // none/bypass 전략은 _startLoading 을 거치지 않으므로 슬롯을 점유하지 않는다.
+  // 이 플래그로 "증가시킨 인스턴스만 감소/대기열 해제"하도록 per-instance 균형을 맞춘다.
+  bool _didIncrementCount = false;
   DateTime? _loadStartTime;
   int _retryCount = 0;
   Timer? _lazyLoadTimer;
@@ -353,6 +357,7 @@ class _PicnicCachedNetworkImageState
     if (!mounted) return;
 
     _currentLoadingCount++;
+    _didIncrementCount = true;
     setState(() {
       _shouldLoadImage = true;
       _isImageLoaded = false;
@@ -361,7 +366,13 @@ class _PicnicCachedNetworkImageState
 
   /// 로딩 완료 처리
   void _onLoadingComplete() {
+    // 이 인스턴스가 실제로 슬롯을 점유한 경우(=카운터를 증가시킨 경우)에만
+    // 감소시키고 대기열에서 하나를 해제한다. none/bypass 전략처럼 _startLoading 을
+    // 거치지 않은 인스턴스는 공유 대기열을 건드리지 않아 8-슬롯 캡이 깨지지 않는다.
+    if (!_didIncrementCount) return;
+
     _currentLoadingCount = math.max(0, _currentLoadingCount - 1);
+    _didIncrementCount = false;
 
     if (_loadingQueue.isNotEmpty) {
       final nextCompleter = _loadingQueue.removeAt(0);
