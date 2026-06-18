@@ -1276,10 +1276,6 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     int? actualRank,
     bool rankChanged = false,
   }) {
-    // 대량 아이템(1500개+) 최적화: 뷰포트에 보이는 이미지만 로딩
-    // 상위 랭킹(상위 50개)은 높은 우선순위, 나머지는 일반 우선순위
-    final isTopRanking = index != null && index < 50;
-
     // 이 리스트는 고정 extent sliver가 가시성 게이트 역할을 하므로
     // 위젯별 VisibilityDetector/8-슬롯 동시 로딩 게이트가 불필요하다.
     // LazyLoadingStrategy.none + bypassConcurrencyGate로 리스트 전용 최적화.
@@ -1297,9 +1293,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       visibilityThreshold: 0.1,
       enablePreloading: true,
       preloadDistance: 200.0,
-      priority: isTopRanking
-          ? ImagePriority.high
-          : ImagePriority.normal, // 상위 랭킹만 높은 우선순위
+      // C4: 이 리스트의 행 이미지는 최저 우선순위 + 플링 중 지연 로딩.
+      priority: ImagePriority.low,
       enableMemoryOptimization: true,
       enableProgressiveLoading: true,
       timeout: const Duration(seconds: 15), // 타임아웃을 15초로 증가 (네트워크 상태 고려)
@@ -1308,6 +1303,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       // sub-50px 슬롯이라 q55 + dpr 상한 2.0 으로 충분; 글로벌 _getTransformedUrl 미변경.
       maxQualityOverride: 55,
       maxResolutionMultiplierCap: 2.0,
+      deferDuringFastScroll: true,
     );
   }
 

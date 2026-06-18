@@ -594,5 +594,26 @@ void main() {
 
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
+
+    testWidgets('renders with deferDuringFastScroll without throwing (C4)',
+        (WidgetTester tester) async {
+      PicnicCachedNetworkImage.disableTimeoutForTest = true;
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://example.com/a.jpg',
+            width: 39,
+            height: 39,
+            deferDuringFastScroll: true,
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+
+      // Outside any fast-scroll Scrollable, recommendDeferredLoadingForContext
+      // returns false, so the real image path is taken — no permanent placeholder.
+      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
+    });
   });
 }

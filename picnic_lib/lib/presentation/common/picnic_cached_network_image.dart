@@ -83,6 +83,10 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final int? maxQualityOverride;
   final double? maxResolutionMultiplierCap;
 
+  // C4: 빠른 플링 중에는 실제 이미지 대신 placeholder 를 보여주고, 스크롤이 멎으면 로드.
+  // Scrollable.recommendDeferredLoadingForContext 게이트. 기본 false = 현재 동작.
+  final bool deferDuringFastScroll;
+
   const PicnicCachedNetworkImage({
     super.key,
     required this.imageUrl,
@@ -109,6 +113,7 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.bypassConcurrencyGate = false,
     this.maxQualityOverride,
     this.maxResolutionMultiplierCap,
+    this.deferDuringFastScroll = false,
   });
 
   /// 테스트 환경에서 이미지 로딩 타이머 비활성화 (pending timer assertion 방지)
@@ -590,6 +595,13 @@ class _PicnicCachedNetworkImageState
 
   @override
   Widget build(BuildContext context) {
+    // C4: 빠른 플링 중이면 디코드/네트워크를 미루고 placeholder 만 그린다.
+    // 스크롤이 멎으면 Scrollable 이 이 컨텍스트를 다시 빌드하여 실제 이미지로 전환.
+    if (widget.deferDuringFastScroll &&
+        Scrollable.recommendDeferredLoadingForContext(context)) {
+      return _buildSafePlaceholder();
+    }
+
     // Lazy Loading이 비활성화된 경우 바로 이미지 렌더링
     if (widget.lazyLoadingStrategy == LazyLoadingStrategy.none) {
       return _buildSafeMainWidget();
