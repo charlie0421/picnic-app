@@ -553,6 +553,9 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                               const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
                           keyboardDismissBehavior:
                               ScrollViewKeyboardDismissBehavior.onDrag,
+                          // Tier B1: 뷰포트 밖 ~1 화면만 미리 빌드 (기존 inner cacheExtent:200 대체).
+                          // 대량(1500+) 리스트에서 메모리를 한 화면치로 묶는다.
+                          cacheExtent: MediaQuery.of(context).size.height,
                           slivers: [
                             SliverToBoxAdapter(
                               child: RepaintBoundary(
