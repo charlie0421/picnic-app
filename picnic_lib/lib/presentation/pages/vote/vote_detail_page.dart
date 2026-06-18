@@ -62,10 +62,11 @@ class VoteDetailPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<VoteDetailPage> createState() => _VoteDetailPageState();
+  ConsumerState<VoteDetailPage> createState() => VoteDetailPageState();
 }
 
-class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
+// ignore: library_private_types_in_public_api
+class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     with
         TickerProviderStateMixin<VoteDetailPage>,
         RouteAwareStateMixin<VoteDetailPage>,
@@ -81,6 +82,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   bool _isRefreshingItems = false;
   bool _isScrolling = false;
   DateTime? _scrollGateRaisedAt;
+
+  /// Exposes the scroll-gate state for widget tests only.
+  @visibleForTesting
+  bool get isScrollingForTest => _isScrolling;
+
   final Map<int, int> _previousVoteCounts = {};
   final Map<int, int> _previousRanks = {};
   final Map<int, int> _currentRanks = {};

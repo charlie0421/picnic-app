@@ -114,11 +114,23 @@ void main() {
     tearDownMockSupabase();
   });
 
-  Future<void> pumpAndDrain(WidgetTester tester, widget) async {
+  /// Pumps [widget] and drains any pre-existing infrastructure exceptions
+  /// (e.g. "No Material ancestor for TextField" from EnhancedSearchBox).
+  /// Any exception that is NOT the known pre-existing Material/TextField error
+  /// is re-asserted as null to surface unexpected failures.
+  Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    final ex1 = tester.takeException();
+    if (ex1 != null) {
+      expect(ex1.toString(), contains('No Material widget found'),
+          reason: 'unexpected exception during initial pumpWidget');
+    }
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    final ex2 = tester.takeException();
+    if (ex2 != null) {
+      expect(ex2.toString(), contains('No Material widget found'),
+          reason: 'unexpected exception after 1s pump');
+    }
   }
 
   group('scroll gate wiring', () {
@@ -144,7 +156,7 @@ void main() {
     });
 
     testWidgets(
-        'scroll start/end notifications do not throw and page survives',
+        'scroll gate arms on ScrollStart and disarms on ScrollEnd',
         (tester) async {
       await pumpAndDrain(
         tester,
@@ -156,20 +168,70 @@ void main() {
       final scrollable = find.byType(CustomScrollView);
       expect(scrollable, findsOneWidget);
 
-      // Simulate a user drag: produces ScrollStart -> ScrollUpdate(s) -> ScrollEnd,
-      // which is exactly what flips _isScrolling and triggers _onScrollSettle().
-      await tester.drag(scrollable, const Offset(0, -200),
-          warnIfMissed: false);
-      while (tester.takeException() != null) {}
+      // Locate the State to inspect the gate.
+      final state = tester.state<VoteDetailPageState>(
+        find.byType(VoteDetailPage),
+      );
 
-      // Pump frames spanning past a 1s timer tick to prove the gated
-      // timer body does not crash mid-drag and the page is still mounted.
+      // Gate should be disarmed before any scroll.
+      expect(state.isScrollingForTest, isFalse,
+          reason: 'gate must be disarmed before scrolling starts');
+
+      // Start an in-progress gesture (produces ScrollStart + ScrollUpdate).
+      final center = tester.getCenter(scrollable);
+      final gesture = await tester.startGesture(center);
+      await gesture.moveBy(const Offset(0, -200));
+      await tester.pump();
+
+      expect(state.isScrollingForTest, isTrue,
+          reason: 'gate must be armed while drag is in progress');
+      // Drain any pre-existing EnhancedSearchBox/Material infrastructure
+      // exception that surfaces during renders; assert it is only that known
+      // issue, not a gate-introduced crash.
+      final exDuringDrag = tester.takeException();
+      if (exDuringDrag != null) {
+        expect(exDuringDrag.toString(), contains('No Material widget found'),
+            reason: 'unexpected exception during in-progress drag');
+      }
+
+      // Complete the gesture (produces ScrollEnd).
+      await gesture.up();
+      // pumpAndSettle may surface a pre-existing "No Material ancestor for
+      // TextField" from EnhancedSearchBox; that is unrelated to the gate under
+      // test. Drain it, but assert it is ONLY that known error (not a new one
+      // from the gate logic).
+      await tester.pump(const Duration(milliseconds: 100));
+      final exAfterUp = tester.takeException();
+      if (exAfterUp != null) {
+        expect(
+          exAfterUp.toString(),
+          contains('No Material widget found'),
+          reason:
+              'only the known pre-existing EnhancedSearchBox/Material error '
+              'is acceptable here; any other exception is a gate-introduced bug',
+        );
+      }
+
+      expect(state.isScrollingForTest, isFalse,
+          reason: 'gate must be disarmed after drag completes');
+
+      // Page must still be mounted.
+      expect(find.byType(VoteDetailPage), findsOneWidget);
+
+      // Pump frames spanning past a 1s timer tick to prove the gated timer
+      // body does not crash after settle.
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      final ex500 = tester.takeException();
+      if (ex500 != null) {
+        expect(ex500.toString(), contains('No Material widget found'),
+            reason: 'unexpected exception at 500ms post-settle');
+      }
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
-      await tester.pumpAndSettle();
-      while (tester.takeException() != null) {}
+      final ex1s = tester.takeException();
+      if (ex1s != null) {
+        expect(ex1s.toString(), contains('No Material widget found'),
+            reason: 'unexpected exception at 1s post-settle');
+      }
 
       expect(find.byType(VoteDetailPage), findsOneWidget);
     });
