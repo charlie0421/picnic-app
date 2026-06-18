@@ -33,6 +33,42 @@ class VoteDetailHelper {
     return ranks;
   }
 
+  /// Compute rank map from a list ALREADY sorted by voteTotal descending.
+  ///
+  /// O(n): does NOT sort. Callers must pass a list whose non-null items are in
+  /// descending voteTotal order (e.g. the output of [AsyncVoteItemList], which
+  /// always orders by vote_total desc). Items with equal voteTotal share the
+  /// same rank; the next distinct (lower) value resumes at the 1-based position
+  /// of the first item in its block — i.e. ties skip ranks, matching
+  /// [computeRanks]. null entries and null voteTotals (treated as 0) are
+  /// handled without consuming a rank slot for nulls.
+  static Map<int, int> computeRanksFromSorted(
+    List<VoteItemModel?> sortedDescItems,
+  ) {
+    final ranks = <int, int>{};
+
+    int position = 0; // 1-based count of non-null items seen so far
+    int currentRank = 1;
+    int? previousVoteTotal;
+
+    for (final item in sortedDescItems) {
+      if (item == null) continue;
+
+      position++;
+      final voteTotal = item.voteTotal ?? 0;
+
+      if (previousVoteTotal == null || voteTotal != previousVoteTotal) {
+        currentRank = position;
+      }
+      // else: tie -> keep currentRank
+
+      ranks[item.id] = currentRank;
+      previousVoteTotal = voteTotal;
+    }
+
+    return ranks;
+  }
+
   /// Compare two lists of VoteItemModel by id and voteTotal.
   static bool areDataListsEqual(
     List<VoteItemModel?> list1,
