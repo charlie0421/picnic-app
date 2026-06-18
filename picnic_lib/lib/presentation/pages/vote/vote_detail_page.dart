@@ -267,8 +267,11 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     );
   }
 
+  // Recompute the rank map from a provider snapshot. The provider
+  // (AsyncVoteItemList) always emits data already sorted by vote_total desc,
+  // so we use the O(n) helper and never re-sort here.
   void _updateRanks(List<VoteItemModel?> items) {
-    final ranks = VoteDetailHelper.computeRanks(items);
+    final ranks = VoteDetailHelper.computeRanksFromSorted(items);
     _currentRanks
       ..clear()
       ..addAll(ranks);
@@ -458,6 +461,26 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   @override
   Widget build(BuildContext context) {
+    // Recompute ranks ONLY when the item list provider emits genuinely new
+    // data. Dedup via areDataListsEqual (id + voteTotal) so highlight/search
+    // setState rebuilds do NOT trigger a resort. _initializeRanks seeds the
+    // first frame; this keeps subsequent polling emits in sync.
+    ref.listen(
+      asyncVoteItemListProvider(
+        voteId: widget.voteId,
+        votePortal: widget.votePortal,
+      ),
+      (previous, next) {
+        final nextData = next.value;
+        if (nextData == null) return;
+        final prevData = previous?.value;
+        if (prevData != null &&
+            VoteDetailHelper.areDataListsEqual(prevData, nextData)) {
+          return; // no id/voteTotal change -> ranks unchanged
+        }
+        _updateRanks(nextData);
+      },
+    );
     // Scaffold 제거 - PicnicAnimatedSwitcher에서 하단 패딩을 관리함
     // 키보드 처리는 GestureDetector + FocusNode.unfocus()로 대체
     return LoadingOverlayWithIcon(
@@ -816,7 +839,9 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
     return dataAsync.when(
       data: (data) {
-        _updateRanks(data);
+        // Ranks are kept current by the ref.listen in build() + _initializeRanks
+        // for the first frame; do NOT resort here (highlight/search setState
+        // would otherwise re-run an O(n log n) sort every rebuild).
         final filteredIndices = _getFilteredIndices([data, _searchQuery]);
 
         // 검색 결과가 없을 때
