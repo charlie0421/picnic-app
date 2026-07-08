@@ -17,6 +17,7 @@ import 'package:picnic_lib/presentation/screens/novel/novel_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/pic/pic_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/vote/vote_home_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 part '../../generated/providers/navigation_provider.g.dart';
 
@@ -24,9 +25,33 @@ part '../../generated/providers/navigation_provider.g.dart';
 class NavigationInfo extends _$NavigationInfo {
   @override
   Navigation build() {
+    // currentScreen 이 바뀔 때마다 Sentry scope 에 current_screen 태그를
+    // 남긴다 → 심볼화 불가한 all-system ANR(PICNIC-APP-45E)을 picnic 자체
+    // 화면 개념으로 group-by 가능하게 만든다. 15곳의 copyWith 사이트를 건드리지
+    // 않도록 listenSelf 로 상태 변경을 한 곳에서 관측한다.
+    listenSelf((previous, next) {
+      final prevScreen = previous?.currentScreen?.runtimeType.toString();
+      final nextScreen = next.currentScreen?.runtimeType.toString();
+      if (nextScreen != null && nextScreen != prevScreen) {
+        _updateSentryScreenTag(nextScreen);
+      }
+    });
+
     final navigation = Navigation.initial();
     // 초기 화면을 설정
     return navigation.copyWith(currentScreen: const VoteHomeScreen());
+  }
+
+  /// 관측성 훅 — 실패해도 네비게이션 흐름을 절대 막지 않는다.
+  /// (Sentry 미초기화 시 no-op hub 라 안전하지만, 방어적으로 try/catch.)
+  void _updateSentryScreenTag(String screenName) {
+    try {
+      Sentry.configureScope(
+        (scope) => scope.setTag('current_screen', screenName),
+      );
+    } catch (_) {
+      // observability 는 best-effort. 무시.
+    }
   }
 
   Future<void> goBack() async {

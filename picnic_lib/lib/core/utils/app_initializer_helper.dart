@@ -187,20 +187,32 @@ class AppInitializerHelper {
       return true;
     }
 
-    // Supabase refresh token rotation noise (PICNIC-APP-4GW / 56J).
-    // - "Invalid Refresh Token: Already Used" — token rotation race; SDK
-    //   auto-recovers by re-fetching the session.
-    // - "Refresh Token Not Found" — session stale (logout elsewhere /
-    //   reinstall); user is signed out and re-prompted to log in.
-    // Both are transient self-recovering states, not actionable bugs.
+    // Supabase refresh token 회전/만료 노이즈 (PICNIC-APP-4GW / 56J).
+    // 모든 변형을 케이스-무관하게 포섭:
+    // - "Invalid Refresh Token: Already Used" (refresh_token_already_used)
+    //   — token rotation race; SDK 가 세션 재발급으로 자가복구.
+    // - "Refresh Token Not Found" (refresh_token_not_found)
+    //   — 세션 stale(다른 기기 로그아웃/재설치); 재로그인 안내.
+    // - "Refresh token is not valid" (validation_failed)
+    //   — 실제 4GW 최신 시그니처(400). 위 리터럴 매칭에서 새던 변형.
+    // 전부 transient·self-recovering 상태이지 actionable 버그가 아니다.
     if (exceptionType == 'AuthApiException' &&
-        (exceptionValue.contains('Invalid Refresh Token: Already Used') ||
-            exceptionValue.contains('Refresh Token Not Found'))) {
+        exceptionValue.toLowerCase().contains('refresh token')) {
+      return true;
+    }
+
+    // Auth rate limit (PICNIC-APP-4RJ). GoTrue/anti-abuse 가 로그인·가입 시도
+    // 폭주에 429 를 반환하는 정상 rate-limit ("가입 시도가 너무 많습니다.
+    // 잠시 후 다시 시도해주세요."). self-recovering. statusCode 매칭이라
+    // 메시지 로케일(번역)과 무관하게 견고하며, 429 auth 는 항상 rate-limit 이라
+    // 진짜 인증 버그를 가릴 위험이 없다.
+    if (exceptionType == 'AuthApiException' &&
+        exceptionValue.contains('statusCode: 429')) {
       return true;
     }
 
     // User is banned (어드민 정책 차단) — UI 가 차단 안내 후 흐름 종료하는
-    // 정상 응답. 차단 사용자가 재로그인을 시도할 때마다 누적 (PICNIC-APP-4RJ).
+    // 정상 응답. 차단 사용자가 재로그인을 시도할 때마다 누적.
     if (exceptionType == 'AuthApiException' &&
         (exceptionValue.contains('User is banned') ||
             exceptionValue.contains('user_banned'))) {
@@ -225,20 +237,50 @@ class AppInitializerHelper {
       return true;
     }
 
-    // system-only ANR — 우리 코드 frame 이 stack 에 단 한 개도 없는 ANR.
-    // (PICNIC-APP-45E 99u/450e, 464 16u/139e, 4PY 6u/15e 등)
-    // mechanism=AppExitInfo 로 Android OS 가 사후 보고하는 ANR 중 stack 이
-    // 전부 android.os.Looper / nativePollOnce / pollInner 같은 system frame 인
-    // 케이스. 우리가 분석/수정 가능한 정보가 0 이라 추적 가치 없음.
-    // 우리 코드 frame 이 있는 ANR (51W WV.mt0 onServiceConnected, 53X scudo
-    // PageReleaseContext 등) 은 그대로 통과시켜 root cause 추적 유지.
-    if (exceptionType == 'ApplicationNotResponding' &&
-        stackFrameInApp.isNotEmpty &&
-        !stackFrameInApp.any((inApp) => inApp)) {
-      return true;
-    }
+    // NOTE: all-system ANR (PICNIC-APP-45E) 는 더 이상 여기서 전량 드롭하지
+    // 않는다. [isAllSystemAnr] 로 분류만 하고, 실제 드롭/샘플 유지는
+    // AppInitializer.beforeSend 에서 [shouldSampleKeep] 로 ~10% 만 남긴다.
+    // 심볼화 불가한 OS 사후(AppExitInfo) ANR 이지만 route/current_screen 태그가
+    // 붙어 화면별 분류가 가능해졌고, 전량 드롭하면 볼륨 측정 자체가 불가하기
+    // 때문. 우리 코드 frame 이 있는 ANR 은 애초에 all-system 이 아니라 그대로
+    // 통과된다.
 
     return false;
+  }
+
+  /// all-system ANR 판별 — 우리 코드 frame 이 stack 에 단 한 개도 없는
+  /// [ApplicationNotResponding] (mechanism=AppExitInfo 로 Android OS 가 사후
+  /// 보고하는, stack 이 전부 Looper/nativePollOnce/pollInner 인 ANR).
+  /// PICNIC-APP-45E. 심볼화 불가라 route/screen 태그로만 유의미하며, drop 여부는
+  /// 호출측(beforeSend)이 [shouldSampleKeep] 로 결정한다.
+  ///
+  /// [stackFrameInApp] 가 비어 있으면(정보 부족) false — 보수적으로 all-system
+  /// 으로 단정하지 않는다.
+  static bool isAllSystemAnr(
+    String exceptionType,
+    List<bool> stackFrameInApp,
+  ) {
+    return exceptionType == 'ApplicationNotResponding' &&
+        stackFrameInApp.isNotEmpty &&
+        !stackFrameInApp.any((inApp) => inApp);
+  }
+
+  /// 결정론적 샘플 게이트. [seed] (예: Sentry event id) 의 안정적 해시를
+  /// `[0, 1)` 로 매핑해 [rate] 미만이면 true(유지). `Math.random` 을 쓰지 않아
+  /// 순수·테스트 가능하며, seed 가 이벤트마다 달라 대략 [rate] 비율로 유지된다.
+  ///
+  /// [rate] <= 0 이면 항상 false, [rate] >= 1 이면 항상 true.
+  static bool shouldSampleKeep(String seed, double rate) {
+    if (rate <= 0) return false;
+    if (rate >= 1) return true;
+    // FNV-1a 32-bit hash → [0, 1)
+    var hash = 0x811c9dc5;
+    for (final codeUnit in seed.codeUnits) {
+      hash ^= codeUnit;
+      hash = (hash * 0x01000193) & 0xFFFFFFFF;
+    }
+    final normalized = hash / 0x100000000; // [0, 1)
+    return normalized < rate;
   }
 
   /// 광고 SDK 의 internal frame prefix 매칭 — App Hanging/ANR culprit 검사용.

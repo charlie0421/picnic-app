@@ -837,10 +837,13 @@ void main() {
 
       // -------- system-only ANR (PICNIC-APP-45E 등) --------
 
-      test('filters ApplicationNotResponding with all-system stack frames '
+      test('does NOT hard-drop all-system ANR in shouldFilterSentryEvent — '
+          'classification moved to isAllSystemAnr + beforeSend sampling '
           '(PICNIC-APP-45E)', () {
         // 45E sample: TECNO KL5 low-end Android, mechanism=AppExitInfo,
         // stack 이 전부 android.os.Looper / pollInner / nativePollOnce.
+        // 이제 이 필터는 all-system ANR 을 여기서 전량 드롭하지 않는다 —
+        // beforeSend 가 [shouldSampleKeep] 로 ~10% 만 남기기 때문.
         expect(
           AppInitializerHelper.shouldFilterSentryEvent(
             sentryEnabled: true,
@@ -848,6 +851,14 @@ void main() {
             exceptionType: 'ApplicationNotResponding',
             exceptionValue: 'ANR',
             stackFrameInApp: const [false, false, false, false, false],
+          ),
+          isFalse,
+        );
+        // 대신 분류는 isAllSystemAnr 가 담당한다.
+        expect(
+          AppInitializerHelper.isAllSystemAnr(
+            'ApplicationNotResponding',
+            const [false, false, false, false, false],
           ),
           isTrue,
         );
@@ -895,10 +906,9 @@ void main() {
       });
 
       test('filters AuthApiException(User is banned) — admin policy block, '
-          'UI handles it (PICNIC-APP-4RJ: 39u/183e accumulated)', () {
-        // 이전 결정 (NOT filter, "handled separately") 은 실제 누적 데이터로
-        // 뒤집힘 — UI 가 user_banned 안내 후 종료하는 정상 흐름이므로 Sentry
-        // 노이즈로 처리.
+          'UI handles it (차단 사용자 재로그인 누적)', () {
+        // 어드민 차단 사용자가 재로그인할 때마다 누적. UI 가 안내 후 흐름을
+        // 종료하는 정상 응답이라 Sentry 노이즈로 처리.
         expect(
           AppInitializerHelper.shouldFilterSentryEvent(
             sentryEnabled: true,
@@ -908,6 +918,51 @@ void main() {
                 'statusCode: 403, code: user_banned)',
           ),
           isTrue,
+        );
+      });
+
+      test('filters AuthApiException 429 auth rate-limit — real PICNIC-APP-4RJ '
+          '("가입 시도가 너무 많습니다", statusCode: 429)', () {
+        // 실제 4RJ 이벤트 시그니처. statusCode 매칭이라 메시지 로케일과 무관.
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthApiException',
+            exceptionValue: 'AuthApiException(message: 가입 시도가 너무 '
+                '많습니다. 잠시 후 다시 시도해주세요., statusCode: 429, '
+                'code: unknown)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('filters AuthApiException("Refresh token is not valid") — '
+          'PICNIC-APP-4GW validation_failed 변형 (기존 리터럴 매칭에서 새던 것)',
+          () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthApiException',
+            exceptionValue: 'AuthApiException(message: Refresh token is not '
+                'valid, statusCode: 400, code: validation_failed)',
+          ),
+          isTrue,
+        );
+      });
+
+      test('does NOT filter legit AuthApiException — invalid credentials 400 '
+          '(과필터 방지: 진짜 로그인 실패는 표면화)', () {
+        expect(
+          AppInitializerHelper.shouldFilterSentryEvent(
+            sentryEnabled: true,
+            isDebugMode: false,
+            exceptionType: 'AuthApiException',
+            exceptionValue: 'AuthApiException(message: Invalid login '
+                'credentials, statusCode: 400, code: invalid_credentials)',
+          ),
+          isFalse,
         );
       });
 
@@ -962,6 +1017,90 @@ void main() {
           ),
           isFalse,
         );
+      });
+    });
+
+    // ---------------------------------------------------------------
+    // isAllSystemAnr (PICNIC-APP-45E)
+    // ---------------------------------------------------------------
+    group('isAllSystemAnr', () {
+      test('true when ANR stack has no in-app frame', () {
+        expect(
+          AppInitializerHelper.isAllSystemAnr(
+            'ApplicationNotResponding',
+            const [false, false, false],
+          ),
+          isTrue,
+        );
+      });
+
+      test('false when at least one in-app frame present', () {
+        expect(
+          AppInitializerHelper.isAllSystemAnr(
+            'ApplicationNotResponding',
+            const [false, true, false],
+          ),
+          isFalse,
+        );
+      });
+
+      test('false when stackFrameInApp is empty (정보 부족 — 단정 안 함)', () {
+        expect(
+          AppInitializerHelper.isAllSystemAnr(
+            'ApplicationNotResponding',
+            const [],
+          ),
+          isFalse,
+        );
+      });
+
+      test('false for non-ANR exception even with all-system frames', () {
+        expect(
+          AppInitializerHelper.isAllSystemAnr(
+            'TypeError',
+            const [false, false],
+          ),
+          isFalse,
+        );
+      });
+    });
+
+    // ---------------------------------------------------------------
+    // shouldSampleKeep (결정론적 샘플 게이트)
+    // ---------------------------------------------------------------
+    group('shouldSampleKeep', () {
+      test('rate <= 0 always false', () {
+        expect(AppInitializerHelper.shouldSampleKeep('any-seed', 0.0), isFalse);
+        expect(
+          AppInitializerHelper.shouldSampleKeep('any-seed', -0.5),
+          isFalse,
+        );
+      });
+
+      test('rate >= 1 always true', () {
+        expect(AppInitializerHelper.shouldSampleKeep('any-seed', 1.0), isTrue);
+        expect(AppInitializerHelper.shouldSampleKeep('any-seed', 2.0), isTrue);
+      });
+
+      test('deterministic — same seed + rate → same result', () {
+        final a = AppInitializerHelper.shouldSampleKeep('event-abc-123', 0.10);
+        final b = AppInitializerHelper.shouldSampleKeep('event-abc-123', 0.10);
+        expect(a, b);
+      });
+
+      test('keep-rate approximates the target rate over many seeds', () {
+        const total = 2000;
+        const rate = 0.10;
+        var kept = 0;
+        for (var i = 0; i < total; i++) {
+          if (AppInitializerHelper.shouldSampleKeep('event-$i', rate)) {
+            kept++;
+          }
+        }
+        // 균일 해시 기대치 ~200. 넉넉한 허용 범위로 flakiness 방지
+        // (결정론이라 실제로는 고정값이지만 구현 변경에 대한 가드).
+        expect(kept, greaterThan(total * rate * 0.5)); // > 100
+        expect(kept, lessThan(total * rate * 1.5)); // < 300
       });
     });
 

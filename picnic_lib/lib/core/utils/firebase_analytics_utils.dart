@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'package:picnic_lib/core/navigation/app_route_observer.dart';
 
@@ -8,7 +9,15 @@ class AppAnalytics {
   /// Firebase가 초기화된 경우에만 NavigatorObservers를 반환합니다.
   /// 초기화되지 않았다면 빈 리스트를 반환하여 런타임 오류를 방지합니다.
   static List<NavigatorObserver> buildNavigatorObservers() {
-    final observers = <NavigatorObserver>[appRouteObserver];
+    // SentryNavigatorObserver: 라우트 push/pop 을 브레드크럼으로 남기고
+    // 현재 라우트를 트랜잭션으로 설정 → ANR/crash 이벤트에 "어느 화면에서
+    // 멈췄는지"가 붙는다 (PICNIC-APP-45E 관측성. 심볼화 불가한 all-system
+    // ANR 을 화면 단위로 분류하기 위함). Sentry 미초기화 시에도 no-op hub 라
+    // 안전.
+    final observers = <NavigatorObserver>[
+      appRouteObserver,
+      SentryNavigatorObserver(setRouteNameAsTransaction: true),
+    ];
 
     try {
       final isInitialized = firebase_core.Firebase.apps.isNotEmpty;

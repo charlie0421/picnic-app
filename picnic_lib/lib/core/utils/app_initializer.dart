@@ -152,7 +152,24 @@ class AppInitializer {
           stackFrameInApp: stackFrameInApp,
         );
 
-        return shouldFilter ? null : event;
+        if (shouldFilter) return null;
+
+        // all-system ANR (PICNIC-APP-45E): 심볼화 불가한 OS 사후(AppExitInfo)
+        // ANR. route/current_screen 태그로만 유의미하므로, 전량 드롭 대신
+        // 볼륨 측정용 ~10% 결정론적 샘플(event id 해시 기반, 균일 분포)만
+        // 유지하고 나머지는 드롭한다.
+        if (AppInitializerHelper.isAllSystemAnr(
+              exceptionType,
+              stackFrameInApp,
+            ) &&
+            !AppInitializerHelper.shouldSampleKeep(
+              event.eventId.toString(),
+              0.10,
+            )) {
+          return null;
+        }
+
+        return event;
       };
     });
     logger.i('Sentry initialized');
