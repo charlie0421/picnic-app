@@ -1377,7 +1377,7 @@
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
-  "text_vote_gap_behind_leader": "១ម স្ថាន från {gap} ভોট পিছিয়ে!",
+  "text_vote_gap_behind_leader": "১ম স্থান থেকে {gap} ভোট পিছিয়ে!",
   "@text_vote_gap_behind_leader": {
     "placeholders": {
       "gap": {

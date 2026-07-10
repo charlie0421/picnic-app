@@ -944,7 +944,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String text_vote_gap_behind_leader(String gap) {
-    return '១ម স្ថាន från $gap ভોট পিছিয়ে!';
+    return '১ম স্থান থেকে $gap ভোট পিছিয়ে!';
   }
 
   @override
@@ -2809,7 +2809,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String text_vote_gap_behind_leader(String gap) {
-    return '១ម স្ថាន ից $gap ভোট পিছিয়ে!';
+    return '১ম স্থান থেকে $gap ভোট পিছিয়ে!';
   }
 
   @override
