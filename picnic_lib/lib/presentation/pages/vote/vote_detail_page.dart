@@ -1636,6 +1636,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               });
               logger.d('🔍 _searchQuery 로컬 상태 업데이트됨: "$query"');
             }
+            // 검색어가 입력되면 필터링된 row 로 교체되며 VoteGapTooltip 이
+            // 언마운트된다. dispose()는 onDismissed 를 호출하지 않으므로
+            // 말풍선이 armed 상태였다면 여기서 영구 래치해, 검색어를 지웠을 때
+            // 새 인스턴스가 처음부터 재생되는 것을 막는다.
+            if (query.isNotEmpty && _gapTooltipItemId != null) {
+              _finishGapTooltip();
+            }
           },
           controller: _textEditingController,
           focusNode: _focusNode,
