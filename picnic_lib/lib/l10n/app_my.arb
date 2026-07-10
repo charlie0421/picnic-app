@@ -460,6 +460,17 @@
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
+  "label_ads_limits": "တစ်နာရီလျှင် {hourly} ကြိမ်၊ တစ်နေ့လျှင် {daily} ကြိမ်",
+  "@label_ads_limits": {
+    "placeholders": {
+      "hourly": {
+        "type": "int"
+      },
+      "daily": {
+        "type": "int"
+      }
+    }
+  },
   "label_ads_load_fail": "ကြော်ငြာတင်ရန်မအောင်မြင်ပါ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
@@ -1822,7 +1833,7 @@
   "@error_message_withdrawal": {
     "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
-  "text_achievement": "{count} ဂိုးများကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉",
+  "text_achievement": "{count} ပန်းတိုင်များကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉",
   "@text_achievement": {
     "placeholders": {
       "count": {
