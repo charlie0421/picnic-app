@@ -78,6 +78,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   final Map<int, int> _currentRanks = {};
   final Set<int> _highlightedItemIds = {};
 
+  /// Sum of every item's voteTotal, over the *unfiltered* list.
+  /// Recomputed once per data frame in [_buildVoteItemList].
+  int _totalVotes = 0;
+
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
       GlobalKey<LoadingOverlayWithIconState>(); // 로딩 오버레이 키
@@ -689,6 +693,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     return dataAsync.when(
       data: (data) {
         _updateRanks(data);
+        _totalVotes = VoteDetailHelper.sumVoteTotals(data);
         final filteredIndices = _getFilteredIndices([data, _searchQuery]);
 
         // 검색 결과가 없을 때
@@ -1187,24 +1192,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               padding: EdgeInsets.only(right: 16.w, bottom: 3),
               alignment: Alignment.centerRight,
               key: ValueKey(hasChanged ? item.voteTotal : 'static'),
-              child: hasChanged
-                  ? AnimatedDigitWidget(
-                      value: item.voteTotal,
-                      enableSeparator: true,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOut,
-                      textStyle: getTextStyle(
-                        AppTypo.caption10SB,
-                        AppColors.grey00,
-                      ),
-                    )
-                  : Text(
-                      NumberFormat('#,###').format(item.voteTotal),
-                      style: getTextStyle(
-                        AppTypo.caption10SB,
-                        AppColors.grey00,
-                      ),
-                    ),
+              child: _buildVoteCountLabel(item, hasChanged),
             ),
           ),
           Positioned(
@@ -1214,6 +1202,52 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           ),
         ],
       ),
+    );
+  }
+
+  /// Ended votes keep the raw count. Live votes show share of total, because
+  /// the raw numbers are what we are trying to stop surfacing.
+  Widget _buildVoteCountLabel(VoteItemModel item, bool hasChanged) {
+    final style = getTextStyle(AppTypo.caption10SB, AppColors.grey00);
+
+    if (isEnded) {
+      return hasChanged
+          ? AnimatedDigitWidget(
+              value: item.voteTotal,
+              enableSeparator: true,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+              textStyle: style,
+            )
+          : Text(NumberFormat('#,###').format(item.voteTotal), style: style);
+    }
+
+    final votes = item.voteTotal ?? 0;
+    final label = VoteDetailHelper.formatSharePercent(votes, _totalVotes);
+
+    // '—' and '<0.0001%' have no digits to roll.
+    final rollable = hasChanged && !label.startsWith('<') && label != '—';
+    if (!rollable) return Text(label, style: style);
+
+    final pct = votes / _totalVotes * 100;
+    final decimals = VoteDetailHelper.sharePercentDecimals(pct);
+
+    // AnimatedDigitWidget truncates the fraction (fractionList.take), while
+    // toStringAsFixed rounds. Pre-round so the rolling and the static text
+    // never disagree by one in the last digit.
+    final rounded = double.parse(pct.toStringAsFixed(decimals));
+
+    return AnimatedDigitWidget(
+      // A change in decimals shifts the decimal point; rebuild instead of
+      // rolling across it.
+      key: ValueKey(decimals),
+      value: rounded,
+      fractionDigits: decimals,
+      enableSeparator: false,
+      suffix: '%',
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      textStyle: style,
     );
   }
 
