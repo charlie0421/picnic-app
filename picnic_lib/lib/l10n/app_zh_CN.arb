@@ -148,7 +148,7 @@
   "@goonghap_result_not_found": {
     "description": "Auto-generated metadata for key 'goonghap_result_not_found'."
   },
-  "goonghap_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
+  "goonghap_share_hashtag": "#Picnic #PICNIC #偶像宫合 #Goonghap #PICNIC宫合",
   "@goonghap_share_hashtag": {
     "description": "Auto-generated metadata for key 'goonghap_share_hashtag'."
   },
@@ -432,7 +432,7 @@
   "@fortune_total_title": {
     "description": "Auto-generated metadata for key 'fortune_total_title'."
   },
-  "fortune_with_me": "Goong-Hap with me",
+  "fortune_with_me": "与我的宫合",
   "@fortune_with_me": {
     "description": "Auto-generated metadata for key 'fortune_with_me'."
   },
@@ -1359,11 +1359,11 @@
   "@goonghap_login_button": {
     "description": "Login button text on goonghap page"
   },
-  "network_error_title": "Network Error",
+  "network_error_title": "网络错误",
   "@network_error_title": {
     "description": "Auto-generated metadata for key 'network_error_title'."
   },
-  "network_error_message": "Please check your internet connection.",
+  "network_error_message": "请检查您的网络连接。",
   "@network_error_message": {
     "description": "Auto-generated metadata for key 'network_error_message'."
   },
@@ -1383,7 +1383,7 @@
   "@capture_failed": {
     "description": "Auto-generated metadata for key 'capture_failed'."
   },
-  "qna_submit_success": "Your inquiry has been successfully submitted",
+  "qna_submit_success": "咨询已成功提交。",
   "@qna_submit_success": {
     "description": "Auto-generated metadata for key 'qna_submit_success'."
   },
@@ -1391,95 +1391,95 @@
   "@qna_list_title": {
     "description": "Auto-generated metadata for key 'qna_list_title'."
   },
-  "starCandy100": "100 Star Candy",
+  "starCandy100": "100个星星糖",
   "@starCandy100": {
     "description": "Auto-generated metadata for key 'starCandy100'."
   },
-  "starCandy200": "200 Star Candy",
+  "starCandy200": "200个星星糖",
   "@starCandy200": {
     "description": "Auto-generated metadata for key 'starCandy200'."
   },
-  "starCandy600": "600 Star Candy",
+  "starCandy600": "600个星星糖",
   "@starCandy600": {
     "description": "Auto-generated metadata for key 'starCandy600'."
   },
-  "starCandy1000": "1,000 Star Candy",
+  "starCandy1000": "1000个星星糖",
   "@starCandy1000": {
     "description": "Auto-generated metadata for key 'starCandy1000'."
   },
-  "starCandy2000": "2,000 Star Candy",
+  "starCandy2000": "2000个星星糖",
   "@starCandy2000": {
     "description": "Auto-generated metadata for key 'starCandy2000'."
   },
-  "starCandy3000": "3,000 Star Candy",
+  "starCandy3000": "3000个星星糖",
   "@starCandy3000": {
     "description": "Auto-generated metadata for key 'starCandy3000'."
   },
-  "starCandy4000": "4,000 Star Candy",
+  "starCandy4000": "4000个星星糖",
   "@starCandy4000": {
     "description": "Auto-generated metadata for key 'starCandy4000'."
   },
-  "starCandy5000": "5,000 Star Candy",
+  "starCandy5000": "5000个星星糖",
   "@starCandy5000": {
     "description": "Auto-generated metadata for key 'starCandy5000'."
   },
-  "update_required_message": "App update required",
+  "update_required_message": "需要更新应用",
   "@update_required_message": {
     "description": "Auto-generated metadata for key 'update_required_message'."
   },
-  "vote_item_request_no_search_results": "No search results",
+  "vote_item_request_no_search_results": "没有投票申请的搜索结果",
   "@vote_item_request_no_search_results": {
     "description": "Auto-generated metadata for key 'vote_item_request_no_search_results'."
   },
-  "jma_voting_my_star_candy": "My Star Candy",
+  "jma_voting_my_star_candy": "我的星星糖",
   "@jma_voting_my_star_candy": {
     "description": "Auto-generated metadata for key 'jma_voting_my_star_candy'."
   },
-  "jma_voting_usable_jma_votes": "Available JMA Votes",
+  "jma_voting_usable_jma_votes": "可用JMA投票券",
   "@jma_voting_usable_jma_votes": {
     "description": "Auto-generated metadata for key 'jma_voting_usable_jma_votes'."
   },
-  "jma_voting_use_all": "Use All",
+  "jma_voting_use_all": "全部使用",
   "@jma_voting_use_all": {
     "description": "Auto-generated metadata for key 'jma_voting_use_all'."
   },
-  "jma_voting_input_amount": "Please enter the amount of Star Candy.",
+  "jma_voting_input_amount": "请输入星星糖数量。",
   "@jma_voting_input_amount": {
     "description": "Auto-generated metadata for key 'jma_voting_input_amount'."
   },
-  "jma_voting_daily_limit_error": "You can vote up to 5 times per day.",
+  "jma_voting_daily_limit_error": "每天最多可投票5次。",
   "@jma_voting_daily_limit_error": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_error'."
   },
-  "jma_voting_exchange_failed": "An error occurred while exchanging Star Candy. Please try again.",
+  "jma_voting_exchange_failed": "兑换星星糖时发生错误。请重试。",
   "@jma_voting_exchange_failed": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed'."
   },
-  "jma_voting_daily_limit_title": "Voting Limit",
+  "jma_voting_daily_limit_title": "投票限制",
   "@jma_voting_daily_limit_title": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_title'."
   },
-  "jma_voting_exchange_failed_title": "Exchange Failed",
+  "jma_voting_exchange_failed_title": "兑换失败",
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "Expiring Bonus Guide",
+  "expiring_bonus_candy_guide": "即将失效奖励说明",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
-  "qna_form_title_hint": "Please enter a title of at least 5 characters.",
+  "qna_form_title_hint": "请输入至少5个字的标题。",
   "@qna_form_title_hint": {
     "description": "Auto-generated metadata for key 'qna_form_title_hint'."
   },
-  "qna_form_content_hint": "Please enter content of at least 10 characters.",
+  "qna_form_content_hint": "请输入至少10个字的内容。",
   "@qna_form_content_hint": {
     "description": "Auto-generated metadata for key 'qna_form_content_hint'."
   },
-  "qna_attach_media": "Attach Photo/Video",
+  "qna_attach_media": "附加照片/视频",
   "@qna_attach_media": {
     "description": "Auto-generated metadata for key 'qna_attach_media'."
   },
-  "file_too_large_message": "{fileName} exceeds the {maxSize}MB size limit.",
+  "file_too_large_message": "{fileName} 文件大小不能超过 {maxSize}MB。",
   "@file_too_large_message": {
     "placeholders": {
       "fileName": {
@@ -1534,11 +1534,11 @@
   "@label_my_vote_history": {
     "description": "Auto-generated metadata for key 'label_my_vote_history'."
   },
-  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)",
+  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)",
   "@bonus_candy_example_2_expire": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
   },
-  "bonus_candy_example_earn_date": "Earn Date",
+  "bonus_candy_example_earn_date": "获得日期",
   "@bonus_candy_example_earn_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
   },
@@ -1546,11 +1546,11 @@
   "@vote_item_request_status_unknown": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
   },
-  "bonus_candy_expiration_policy_load_fail": "Failed to load expiring bonus information.",
+  "bonus_candy_expiration_policy_load_fail": "加载即将失效的奖励信息失败。",
   "@bonus_candy_expiration_policy_load_fail": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
   },
-  "bonus_candy_example_1_expire": "__NEXT_MONTH__ 15th 00:00(KST)",
+  "bonus_candy_example_1_expire": "__NEXT_MONTH__月15日 00:00(KST)",
   "@bonus_candy_example_1_expire": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
   },
@@ -1558,7 +1558,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.",
+  "bonus_candy_policy_2": "- 使用星星糖时，将从临近失效日期的奖励星星糖开始依次扣除。",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1582,11 +1582,11 @@
   "@label_popup_hide_7days": {
     "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
   },
-  "expiring_soon_bonus_candy": "Expiring Bonus Star Candy",
+  "expiring_soon_bonus_candy": "即将失效的奖励星星糖",
   "@expiring_soon_bonus_candy": {
     "description": "Auto-generated metadata for key 'expiring_soon_bonus_candy'."
   },
-  "bonus_candy_expiration_policy_earn_period": "Earn Period",
+  "bonus_candy_expiration_policy_earn_period": "获得期间",
   "@bonus_candy_expiration_policy_earn_period": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
   },
@@ -1606,7 +1606,7 @@
   "@label_tabbar_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
   },
-  "bonus_candy_example_1_earn": "__MONTH__ 10th 14:00(KST)",
+  "bonus_candy_example_1_earn": "__MONTH__月10日 14:00(KST)",
   "@bonus_candy_example_1_earn": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
   },
@@ -1622,7 +1622,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.",
+  "bonus_candy_policy_3": "- 已失效的奖励星星糖无法恢复，请务必在期限内使用。",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1630,7 +1630,7 @@
   "@message_update_nickname_fail": {
     "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
   },
-  "bonus_candy_expiration_time_title": "Expiration Time",
+  "bonus_candy_expiration_time_title": "失效时间说明",
   "@bonus_candy_expiration_time_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_time_title'."
   },
@@ -1658,11 +1658,11 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "Bonus Star Candy Policy",
+  "bonus_candy_policy_title": "奖励星星糖政策",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
-  "bonus_candy_example_expiration_date": "Expiration Date",
+  "bonus_candy_example_expiration_date": "失效日期",
   "@bonus_candy_example_expiration_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
   },
@@ -1706,7 +1706,7 @@
   "@label_popup_close": {
     "description": "Auto-generated metadata for key 'label_popup_close'."
   },
-  "jma_voting_info_text": "-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.",
+  "jma_voting_info_text": "-奖励星星糖每天最多可用于JMA投票5次。\n-所需星星糖会自动转换。（30星星糖 = 1 JMA投票）\n-参与投票时将自动报名雅加达演唱会。",
   "@jma_voting_info_text": {
     "description": "Auto-generated metadata for key 'jma_voting_info_text'."
   },
@@ -1714,7 +1714,7 @@
   "@vote_item_request_search_artist_hint": {
     "description": "Auto-generated metadata for key 'vote_item_request_search_artist_hint'."
   },
-  "bonus_candy_expiration_month_after_next": "Month after next 15th 00:00:00",
+  "bonus_candy_expiration_month_after_next": "下下个月15日 00:00:00(KST)",
   "@bonus_candy_expiration_month_after_next": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'."
   },
@@ -1742,7 +1742,7 @@
   "@label_tab_buy_star_candy": {
     "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
   },
-  "jma_voting_max_votes_exceeded": "The current maximum possible votes is {maxVotes}.",
+  "jma_voting_max_votes_exceeded": "当前最多可投票数为{maxVotes}票。",
   "@jma_voting_max_votes_exceeded": {
     "placeholders": {
       "maxVotes": {
@@ -1750,7 +1750,7 @@
       }
     }
   },
-  "jma_voting_daily_limit_remaining": "Today's remaining bonus votes: {remaining} times (max {max} times)",
+  "jma_voting_daily_limit_remaining": "今天剩余奖励投票次数：{remaining}次（最多{max}次）",
   "@jma_voting_daily_limit_remaining": {
     "placeholders": {
       "remaining": {
@@ -1777,11 +1777,11 @@
   "@post_write_post_recommend_write": {
     "description": "Auto-generated metadata for key 'post_write_post_recommend_write'."
   },
-  "jma_voting_daily_limit_exhausted": "You have used all bonus votes for today.",
+  "jma_voting_daily_limit_exhausted": "今天的奖励投票次数已全部用完。",
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.",
+  "bonus_candy_policy_1": "- 通过免费充值站获得的奖励星星糖，以及购买时额外赠送的奖励星星糖，均设有失效期限。",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -1809,7 +1809,7 @@
       }
     }
   },
-  "jma_voting_star_candy_shortage": "You need {shortage} more star candies.",
+  "jma_voting_star_candy_shortage": "还差{shortage}个星星糖。",
   "@jma_voting_star_candy_shortage": {
     "placeholders": {
       "shortage": {
@@ -1817,7 +1817,7 @@
       }
     }
   },
-  "bonus_candy_earn_period_16_to_end": "16th 00:00:00 ~ end of month 23:59:59",
+  "bonus_candy_earn_period_16_to_end": "15日 00:00:00(KST) ~ 月末 23:59:59(KST)",
   "@bonus_candy_earn_period_16_to_end": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
   },
@@ -1841,15 +1841,15 @@
   "@vote_item_request_already_applied_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
   },
-  "bonus_candy_expiration_policy_expiration_date": "Expiration Date",
+  "bonus_candy_expiration_policy_expiration_date": "失效时间",
   "@bonus_candy_expiration_policy_expiration_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
   },
-  "bonus_candy_example_2_earn": "__MONTH__ 20th 14:00(KST)",
+  "bonus_candy_example_2_earn": "__MONTH__月20日 14:00(KST)",
   "@bonus_candy_example_2_earn": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
   },
-  "message_agreement_fail": "Terms agreement required",
+  "message_agreement_fail": "需要同意条款",
   "@message_agreement_fail": {
     "description": "Auto-generated metadata for key 'message_agreement_fail'."
   },
@@ -1857,7 +1857,7 @@
   "@vote_item_request_button": {
     "description": "Auto-generated metadata for key 'vote_item_request_button'."
   },
-  "bonus_candy_expiration_next_month": "Next month 15th 00:00:00",
+  "bonus_candy_expiration_next_month": "下个月15日 00:00:00(KST)",
   "@bonus_candy_expiration_next_month": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_next_month'."
   },
@@ -1970,15 +1970,15 @@
     "description": "每周投票弹窗标题（简体）"
   },
   "weekly_vote_info_body": "Picnic 的 Hall of Fame Award 每周开启！\n\n每周的获胜艺人将自动登记为年末 'Hall of Fame Award' 的候选人，\n\n全年共评选出50名每周优胜者。\n\n（※ 已获胜的艺人在当年将不再作为每周投票候选人。）",
-  "label_setting_patch_section_title": "Patch status",
+  "label_setting_patch_section_title": "补丁状态",
   "@label_setting_patch_section_title": {
     "description": "Title for the patch status section in Settings."
   },
-  "label_setting_patch_check_button": "Check for patches",
+  "label_setting_patch_check_button": "检查补丁",
   "@label_setting_patch_check_button": {
     "description": "Button label for manually checking Shorebird patches."
   },
-  "label_setting_patch_apply_button": "Apply update",
+  "label_setting_patch_apply_button": "应用更新",
   "@label_setting_patch_apply_button": {
     "description": "Button label for manually applying a downloaded patch."
   },
@@ -1986,7 +1986,7 @@
   "@label_setting_patch_checking": {
     "description": "Status text shown while patch status check is running."
   },
-  "label_setting_patch_last_checked": "Last checked: {time}",
+  "label_setting_patch_last_checked": "上次检查：{time}",
   "@label_setting_patch_last_checked": {
     "description": "Label that shows when the patch status was last checked.",
     "placeholders": {
@@ -1999,15 +1999,15 @@
   "@label_setting_patch_status_restart_required": {
     "description": "Status label when a restart is required to apply a patch."
   },
-  "label_setting_patch_status_downloaded": "Update downloaded",
+  "label_setting_patch_status_downloaded": "更新下载完成",
   "@label_setting_patch_status_downloaded": {
     "description": "Status label when a patch has been downloaded."
   },
-  "label_setting_patch_status_available": "Update available",
+  "label_setting_patch_status_available": "有可用更新",
   "@label_setting_patch_status_available": {
     "description": "Status label when a patch is available."
   },
-  "label_setting_patch_status_current_patch": "Current patch: {patchNumber}",
+  "label_setting_patch_status_current_patch": "当前补丁：{patchNumber}",
   "@label_setting_patch_status_current_patch": {
     "description": "Status label showing the current patch number.",
     "placeholders": {
@@ -2016,7 +2016,7 @@
       }
     }
   },
-  "label_setting_patch_status_none": "No patch applied",
+  "label_setting_patch_status_none": "未应用任何补丁",
   "@label_setting_patch_status_none": {
     "description": "Status label when no patch is applied."
   },
@@ -2028,11 +2028,11 @@
   "@message_setting_patch_restart_hint_ios": {
     "description": "iOS-specific hint since iOS cannot programmatically restart the app."
   },
-  "message_setting_patch_web_not_supported": "Patch updates aren't available on web.",
+  "message_setting_patch_web_not_supported": "网页环境下无法使用补丁。",
   "@message_setting_patch_web_not_supported": {
     "description": "Warning shown when patch actions are attempted on web platforms."
   },
-  "message_setting_patch_update_available": "A new patch is available.",
+  "message_setting_patch_update_available": "有新补丁可用。",
   "@message_setting_patch_update_available": {
     "description": "Snackbar text when a patch update is available."
   },
@@ -2040,7 +2040,7 @@
   "@message_setting_patch_update_success": {
     "description": "Snackbar text when a patch update completes successfully."
   },
-  "message_setting_patch_update_failed": "Failed to apply the patch: {error}",
+  "message_setting_patch_update_failed": "补丁应用失败：{error}",
   "@message_setting_patch_update_failed": {
     "description": "Snackbar text when applying a patch fails.",
     "placeholders": {
@@ -2049,7 +2049,7 @@
       }
     }
   },
-  "message_setting_patch_status_failed": "Failed to check patch status: {error}",
+  "message_setting_patch_status_failed": "补丁状态检查失败：{error}",
   "@message_setting_patch_status_failed": {
     "description": "Snackbar text when checking patch status fails.",
     "placeholders": {
@@ -2058,7 +2058,7 @@
       }
     }
   },
-  "message_setting_patch_status_unavailable": "Patch status unavailable. Please try again later.",
+  "message_setting_patch_status_unavailable": "无法确认补丁状态。请稍后再试。",
   "@message_setting_patch_status_unavailable": {
     "description": "Snackbar text when patch status is unavailable (e.g., offline)."
   },
@@ -2106,7 +2106,7 @@
   "@notification_patch_downloaded_body": {
     "description": "Local push notification body when a patch has been downloaded."
   },
-  "label_setting_patch_number": " / Patch: {patchNumber}",
+  "label_setting_patch_number": " / 补丁：{patchNumber}",
   "@label_setting_patch_number": {
     "description": "Suffix appended to build information to show the current patch number.",
     "placeholders": {
