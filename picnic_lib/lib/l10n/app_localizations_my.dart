@@ -372,7 +372,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String label_ads_limits(int hourly, int daily) {
-    return '$hourly တစ်နာရီလျှင် ';
+    return '$hourly per hour, $daily per day';
   }
 
   @override
@@ -957,7 +957,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String text_vote_rank(int rank) {
-    return '__phph_0__ အဆင့်';
+    return 'အဆင့် $rank';
   }
 
   @override
@@ -1448,7 +1448,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String text_achievement(int count) {
-    return '__ \$ __ ph_0__ ဂိုးများကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉';
+    return '$count ဂိုးများကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉';
   }
 
   @override
@@ -1491,7 +1491,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String post_replying_comment(String nickname) {
-    return '__ph_0 __... တုံ့ပြန်ခြင်း';
+    return '$nickname... တုံ့ပြန်ခြင်း';
   }
 
   @override

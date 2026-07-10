@@ -1190,7 +1190,7 @@
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
-  "text_vote_gap_behind_leader": "{gap} na boto ang agwat sa #1!",
+  "text_vote_gap_behind_leader": "{gap} boto ang agwat sa #1!",
   "@text_vote_gap_behind_leader": {
     "placeholders": {
       "gap": {

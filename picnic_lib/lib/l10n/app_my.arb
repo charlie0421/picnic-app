@@ -460,17 +460,6 @@
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
-  "label_ads_limits": "{hourly} တစ်နာရီလျှင် ",
-  "@label_ads_limits": {
-    "placeholders": {
-      "hourly": {
-        "type": "int"
-      },
-      "daily": {
-        "type": "int"
-      }
-    }
-  },
   "label_ads_load_fail": "ကြော်ငြာတင်ရန်မအောင်မြင်ပါ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
@@ -1211,7 +1200,7 @@
       }
     }
   },
-  "text_vote_rank": "__phph_0__ အဆင့်",
+  "text_vote_rank": "အဆင့် {rank}",
   "@text_vote_rank": {
     "placeholders": {
       "rank": {
@@ -1833,7 +1822,7 @@
   "@error_message_withdrawal": {
     "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
-  "text_achievement": "__ $ __ ph_0__ ဂိုးများကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉",
+  "text_achievement": "{count} ဂိုးများကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉",
   "@text_achievement": {
     "placeholders": {
       "count": {
@@ -1885,7 +1874,7 @@
   "@goonghap_new_ask": {
     "description": "Auto-generated metadata for key 'goonghap_new_ask'."
   },
-  "post_replying_comment": "__ph_0 __... တုံ့ပြန်ခြင်း",
+  "post_replying_comment": "{nickname}... တုံ့ပြန်ခြင်း",
   "@post_replying_comment": {
     "placeholders": {
       "nickname": {
