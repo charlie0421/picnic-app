@@ -116,20 +116,54 @@ void main() {
       );
     });
 
-    testWidgets('cancels its timer when disposed early', (tester) async {
+    testWidgets(
+        'disposes cleanly when unmounted during fade-in, before the hold '
+        'timer is even created', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(body: VoteGapTooltip(text: 'gap')),
         ),
       );
+      // Still mid fade-in (< 260ms): the hold Timer is created only inside
+      // the AnimationStatus.completed listener, so _dismiss is still null
+      // here. This exercises the `_dismiss?.cancel()` no-op branch of
+      // dispose(), not actual timer cancellation -- dispose() must simply
+      // not throw.
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Unmount before the hold timer fires. If the timer were left pending,
-      // flutter_test fails the test with "A Timer is still pending".
       await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: SizedBox())),
       );
       await tester.pump(const Duration(seconds: 2));
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('cancels its hold timer when disposed while held',
+        (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: VoteGapTooltip(text: 'gap')),
+        ),
+      );
+      // Past the 260ms fade-in, so the AnimationStatus.completed listener has
+      // already created the live hold Timer (_dismiss != null). The hold
+      // itself doesn't end until 260 + 1000 = 1260ms, so unmounting here
+      // disposes while that Timer is still pending.
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // Unmount while the hold Timer is still pending (it doesn't fire until
+      // fake-clock 1260ms; we're only at ~300ms). Deliberately do NOT pump
+      // any further after this: if we advanced the clock past 1260ms, an
+      // un-cancelled Timer would simply fire on its own (a no-op, since
+      // `mounted` is now false) and stop looking "pending" -- which would
+      // make this test pass even if dispose() never cancelled it. Stopping
+      // here means flutter_test's own end-of-test check for leftover Timers
+      // is what has to catch a missing `_dismiss?.cancel()`, failing with
+      // "A Timer is still pending" if it's gone.
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: SizedBox())),
+      );
 
       expect(tester.takeException(), isNull);
     });
