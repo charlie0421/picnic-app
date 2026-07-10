@@ -1346,8 +1346,8 @@ class AppLocalizationsFil extends AppLocalizations {
       'Ang pagtanggap ng mga termino ay kumpleto.';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 =>
-      'Ika -1 00:00:00 ~ 15th 23:59:59';
+  String get bonus_candy_earn_period_1_to_14 =>
+      'Ika-1 00:00:00 ~ Ika-14 23:59:59';
 
   @override
   String get goonghap_snackbar_need_birthday =>
@@ -1452,8 +1452,8 @@ class AppLocalizationsFil extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
-      'Ika -16 00:00:00 ~ katapusan ng buwan 23:59:59';
+  String get bonus_candy_earn_period_15_to_end =>
+      'Ika-15 00:00:00 ~ katapusan ng buwan 23:59:59';
 
   @override
   String get error_message_withdrawal =>

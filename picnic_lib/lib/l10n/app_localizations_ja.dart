@@ -1279,7 +1279,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get message_agreement_success => '規約の同意が完了しました。';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => '1日 00:00:00 ～ 15日 23:59:59';
+  String get bonus_candy_earn_period_1_to_14 => '1日 00:00:00 ～ 14日 23:59:59';
 
   @override
   String get goonghap_snackbar_need_birthday => '生年月日を入力してください。';
@@ -1374,7 +1374,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end => '16日 00:00:00 ～ 月末 23:59:59';
+  String get bonus_candy_earn_period_15_to_end => '15日 00:00:00 ～ 月末 23:59:59';
 
   @override
   String get error_message_withdrawal => '退会した会員です。';

@@ -1682,9 +1682,9 @@
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
-  "bonus_candy_earn_period_1_to_15": "1 00:00:00 ~ 15th 23:59:59",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  "bonus_candy_earn_period_1_to_14": "Ngày 1 00:00:00 ~ Ngày 14 23:59:59",
+  "@bonus_candy_earn_period_1_to_14": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_14'."
   },
   "goonghap_snackbar_need_birthday": "Vui lòng nhập ngày sinh của bạn.",
   "@goonghap_snackbar_need_birthday": {
@@ -1817,9 +1817,9 @@
       }
     }
   },
-  "bonus_candy_earn_period_16_to_end": "16th 00:00:00 ~ Kết thúc tháng 23:59:59",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  "bonus_candy_earn_period_15_to_end": "Ngày 15 00:00:00 ~ Kết thúc tháng 23:59:59",
+  "@bonus_candy_earn_period_15_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'."
   },
   "error_message_withdrawal": "Một thành viên đã không được đăng ký.",
   "@error_message_withdrawal": {

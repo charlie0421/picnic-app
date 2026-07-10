@@ -1682,9 +1682,9 @@
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
-  "bonus_candy_earn_period_1_to_15": "Ika -1 00:00:00 ~ 15th 23:59:59",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  "bonus_candy_earn_period_1_to_14": "Ika-1 00:00:00 ~ Ika-14 23:59:59",
+  "@bonus_candy_earn_period_1_to_14": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_14'."
   },
   "goonghap_snackbar_need_birthday": "Mangyaring ipasok ang iyong petsa ng kapanganakan.",
   "@goonghap_snackbar_need_birthday": {
@@ -1817,9 +1817,9 @@
       }
     }
   },
-  "bonus_candy_earn_period_16_to_end": "Ika -16 00:00:00 ~ katapusan ng buwan 23:59:59",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  "bonus_candy_earn_period_15_to_end": "Ika-15 00:00:00 ~ katapusan ng buwan 23:59:59",
+  "@bonus_candy_earn_period_15_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'."
   },
   "error_message_withdrawal": "Isang miyembro na hindi naka -unsubscribe.",
   "@error_message_withdrawal": {

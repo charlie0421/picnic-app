@@ -1276,7 +1276,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get message_agreement_success => '약관 동의가 완료되었습니다.';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 =>
+  String get bonus_candy_earn_period_1_to_14 =>
       '01일 00:00:00(KST) ~ 14일 23:59:59(KST)';
 
   @override
@@ -1373,7 +1373,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
+  String get bonus_candy_earn_period_15_to_end =>
       '15일 00:00:00(KST) ~ 말일 23:59:59(KST)';
 
   @override

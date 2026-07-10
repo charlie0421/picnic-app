@@ -1308,7 +1308,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get message_agreement_success => 'การยอมรับข้อกำหนดนั้นเสร็จสมบูรณ์';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => '1st 00:00:00 ~ 15th 23:59:59';
+  String get bonus_candy_earn_period_1_to_14 =>
+      'วันที่ 1 00:00:00 ~ วันที่ 14 23:59:59';
 
   @override
   String get goonghap_snackbar_need_birthday => 'โปรดป้อนวันเดือนปีเกิดของคุณ';
@@ -1408,8 +1409,8 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
-      '16th 00:00:00 ~ สิ้นเดือน 23:59:59';
+  String get bonus_candy_earn_period_15_to_end =>
+      'วันที่ 15 00:00:00 ~ สิ้นเดือน 23:59:59';
 
   @override
   String get error_message_withdrawal => 'สมาชิกที่ไม่ได้สมัครสมาชิก';

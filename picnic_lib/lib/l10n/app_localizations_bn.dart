@@ -1322,7 +1322,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get message_agreement_success => 'শর্তাদি গ্রহণ সম্পূর্ণ।';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => '1st 00:00:00 ~ 15th 23:59:59';
+  String get bonus_candy_earn_period_1_to_14 => '১ম 00:00:00 ~ ১৪তম 23:59:59';
 
   @override
   String get goonghap_snackbar_need_birthday =>
@@ -1424,8 +1424,8 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
-      '16 তম 00:00:00 ~ মাসের শেষ 23:59:59';
+  String get bonus_candy_earn_period_15_to_end =>
+      '১৫তম 00:00:00 ~ মাসের শেষ 23:59:59';
 
   @override
   String get error_message_withdrawal => 'একজন সদস্য যিনি সাবস্ক্রাইব করেছেন।';
@@ -3186,7 +3186,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get message_agreement_success => 'শর্তাদি গ্রহণ সম্পূর্ণ।';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => '1 ম 00:00:00 ~ 15 ম 23:59:59';
+  String get bonus_candy_earn_period_1_to_14 => '১ম 00:00:00 ~ ১৪তম 23:59:59';
 
   @override
   String get goonghap_snackbar_need_birthday =>
@@ -3288,8 +3288,8 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
-      '16 তম 00:00:00 ~ মাসের শেষ 23:59:59';
+  String get bonus_candy_earn_period_15_to_end =>
+      '১৫তম 00:00:00 ~ মাসের শেষ 23:59:59';
 
   @override
   String get error_message_withdrawal => 'একজন সদস্য যিনি সাবস্ক্রাইব করেছেন।';

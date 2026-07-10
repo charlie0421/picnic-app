@@ -208,13 +208,13 @@ class UsagePolicyPopup extends ConsumerWidget {
           Divider(color: AppColors.grey300, height: 12.h),
           _buildCustomTableRow(
             context,
-            localizations.bonus_candy_earn_period_1_to_15,
+            localizations.bonus_candy_earn_period_1_to_14,
             localizations.bonus_candy_expiration_next_month,
           ),
           Divider(color: AppColors.grey300, height: 12.h),
           _buildCustomTableRow(
             context,
-            localizations.bonus_candy_earn_period_16_to_end,
+            localizations.bonus_candy_earn_period_15_to_end,
             localizations.bonus_candy_expiration_month_after_next,
           ),
         ],

@@ -420,7 +420,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -441,7 +441,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -987,7 +987,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -1008,7 +1008,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -1554,7 +1554,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -1575,7 +1575,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -2121,7 +2121,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -2142,7 +2142,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -2688,7 +2688,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -2709,7 +2709,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -3255,7 +3255,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -3276,7 +3276,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -3822,7 +3822,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -3843,7 +3843,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -4389,7 +4389,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -4410,7 +4410,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -4956,7 +4956,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -4977,7 +4977,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -5523,7 +5523,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -5544,7 +5544,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -6090,7 +6090,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -6111,7 +6111,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -6658,7 +6658,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -6679,7 +6679,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -7225,7 +7225,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -7246,7 +7246,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
@@ -7792,7 +7792,7 @@ void main() {
       expect(l10n.error_user_not_authenticated, isA<String>());
       expect(l10n.text_dialog_vote_amount_should_not_zero, isA<String>());
       expect(l10n.message_agreement_success, isA<String>());
-      expect(l10n.bonus_candy_earn_period_1_to_15, isA<String>());
+      expect(l10n.bonus_candy_earn_period_1_to_14, isA<String>());
       expect(l10n.goonghap_snackbar_need_birthday, isA<String>());
       expect(l10n.error_product_not_found, isA<String>());
       expect(l10n.label_popup_close, isA<String>());
@@ -7813,7 +7813,7 @@ void main() {
       expect(l10n.bonus_candy_policy_1, isA<String>());
       expect(l10n.goonghap_perfect_score_exists_title, isA<String>());
       expect(l10n.goonghap_duplicate_data_message, isA<String>());
-      expect(l10n.bonus_candy_earn_period_16_to_end, isA<String>());
+      expect(l10n.bonus_candy_earn_period_15_to_end, isA<String>());
       expect(l10n.error_message_withdrawal, isA<String>());
       expect(l10n.withdrawal_success, isA<String>());
       expect(l10n.vote_item_request_already_applied_artist, isA<String>());
