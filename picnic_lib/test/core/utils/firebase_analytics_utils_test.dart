@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
@@ -20,8 +21,10 @@ void main() {
       test('does not include FirebaseAnalyticsObserver when Firebase not initialized', () {
         // In test environment Firebase is not initialized
         final observers = AppAnalytics.buildNavigatorObservers();
-        // Should only have appRouteObserver (no Firebase observer)
-        expect(observers.length, 1);
+        // 개수가 아니라 의도를 단언한다. 기본 관찰자(appRouteObserver,
+        // sentryNavigatorObserver)가 늘어도 깨지지 않게 — PR #56 이 Sentry
+        // 관찰자를 추가했을 때 length==1 단언이 깨진 채 방치된 전례.
+        expect(observers.whereType<FirebaseAnalyticsObserver>(), isEmpty);
       });
 
       test('can be called multiple times without error', () {
