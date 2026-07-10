@@ -2591,11 +2591,11 @@ abstract class AppLocalizations {
   /// **'Acceptance of the terms is complete.'**
   String get message_agreement_success;
 
-  /// Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'.
+  /// Auto-generated metadata for key 'bonus_candy_earn_period_1_to_14'.
   ///
   /// In en, this message translates to:
-  /// **'1st 00:00:00 ~ 15th 23:59:59'**
-  String get bonus_candy_earn_period_1_to_15;
+  /// **'1st 00:00:00 ~ 14th 23:59:59'**
+  String get bonus_candy_earn_period_1_to_14;
 
   /// Auto-generated metadata for key 'goonghap_snackbar_need_birthday'.
   ///
@@ -2753,11 +2753,11 @@ abstract class AppLocalizations {
   /// **'You need {shortage} more star candies.'**
   String jma_voting_star_candy_shortage(int shortage);
 
-  /// Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'.
+  /// Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'.
   ///
   /// In en, this message translates to:
-  /// **'16th 00:00:00 ~ end of month 23:59:59'**
-  String get bonus_candy_earn_period_16_to_end;
+  /// **'15th 00:00:00 ~ end of month 23:59:59'**
+  String get bonus_candy_earn_period_15_to_end;
 
   /// Auto-generated metadata for key 'error_message_withdrawal'.
   ///

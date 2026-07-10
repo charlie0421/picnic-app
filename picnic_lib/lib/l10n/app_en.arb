@@ -1690,9 +1690,9 @@
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
-  "bonus_candy_earn_period_1_to_15": "1st 00:00:00 ~ 15th 23:59:59",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  "bonus_candy_earn_period_1_to_14": "1st 00:00:00 ~ 14th 23:59:59",
+  "@bonus_candy_earn_period_1_to_14": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_14'."
   },
   "goonghap_snackbar_need_birthday": "Please enter your date of birth.",
   "@goonghap_snackbar_need_birthday": {
@@ -1825,9 +1825,9 @@
       }
     }
   },
-  "bonus_candy_earn_period_16_to_end": "16th 00:00:00 ~ end of month 23:59:59",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  "bonus_candy_earn_period_15_to_end": "15th 00:00:00 ~ end of month 23:59:59",
+  "@bonus_candy_earn_period_15_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'."
   },
   "error_message_withdrawal": "A member who has unsubscribed.",
   "@error_message_withdrawal": {

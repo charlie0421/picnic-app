@@ -1267,7 +1267,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get message_agreement_success => '条款接受完毕。';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => '1st 00:00:00 ~ 15th 23:59:59';
+  String get bonus_candy_earn_period_1_to_14 =>
+      '01日 00:00:00(KST) ~ 14日 23:59:59(KST)';
 
   @override
   String get goonghap_snackbar_need_birthday => '请输入您的出生日期。';
@@ -1362,7 +1363,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
+  String get bonus_candy_earn_period_15_to_end =>
       '15日 00:00:00(KST) ~ 月末 23:59:59(KST)';
 
   @override
@@ -3030,7 +3031,8 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get message_agreement_success => '条款接受完毕。';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => '1st 00:00:00 ~ 15th 23:59:59';
+  String get bonus_candy_earn_period_1_to_14 =>
+      '01日 00:00:00(KST) ~ 14日 23:59:59(KST)';
 
   @override
   String get goonghap_snackbar_need_birthday => '请输入您的出生日期。';
@@ -3125,7 +3127,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
+  String get bonus_candy_earn_period_15_to_end =>
       '15日 00:00:00(KST) ~ 月末 23:59:59(KST)';
 
   @override
@@ -4793,7 +4795,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get message_agreement_success => '條款接受完畢。';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => '1st 00:00:00 ~ 15th 23:59:59';
+  String get bonus_candy_earn_period_1_to_14 =>
+      '01日 00:00:00(KST) ~ 14日 23:59:59(KST)';
 
   @override
   String get goonghap_snackbar_need_birthday => '請輸入您的出生日期。';
@@ -4888,7 +4891,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
+  String get bonus_candy_earn_period_15_to_end =>
       '15日 00:00:00(KST) ~ 月末 23:59:59(KST)';
 
   @override

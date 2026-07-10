@@ -1330,7 +1330,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Persetujuan atas persyaratan telah selesai.';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 =>
+  String get bonus_candy_earn_period_1_to_14 =>
       '01 00:00:00 ~ 14 23:59:59 (KST)';
 
   @override
@@ -1432,7 +1432,7 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
+  String get bonus_candy_earn_period_15_to_end =>
       '15 00:00:00 ~ Akhir bulan 23:59:59 (KST)';
 
   @override

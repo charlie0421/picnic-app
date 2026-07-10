@@ -1334,8 +1334,8 @@ class AppLocalizationsMy extends AppLocalizations {
       'စည်းကမ်းချက်များကိုလက်ခံခြင်းသည်ပြီးပြည့်စုံသည်။';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 =>
-      '၁ ရက် ၀၀:၀၀:၀၀ ~ ၁၅ ရက် ၂၃:၅၉:၅၉';
+  String get bonus_candy_earn_period_1_to_14 =>
+      '၁ ရက် ၀၀:၀၀:၀၀ ~ ၁၄ ရက် ၂၃:၅၉:၅၉';
 
   @override
   String get goonghap_snackbar_need_birthday =>
@@ -1439,8 +1439,8 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
-      '၁၆ ရက် ၀၀:၀၀:၀၀ ~ လကုန် ၂၃:၅၉:၅၉';
+  String get bonus_candy_earn_period_15_to_end =>
+      '၁၅ ရက် ၀၀:၀၀:၀၀ ~ လကုန် ၂၃:၅၉:၅၉';
 
   @override
   String get error_message_withdrawal =>

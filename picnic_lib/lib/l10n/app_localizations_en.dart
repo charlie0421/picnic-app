@@ -1325,7 +1325,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Acceptance of the terms is complete.';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => '1st 00:00:00 ~ 15th 23:59:59';
+  String get bonus_candy_earn_period_1_to_14 => '1st 00:00:00 ~ 14th 23:59:59';
 
   @override
   String get goonghap_snackbar_need_birthday =>
@@ -1430,8 +1430,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
-      '16th 00:00:00 ~ end of month 23:59:59';
+  String get bonus_candy_earn_period_15_to_end =>
+      '15th 00:00:00 ~ end of month 23:59:59';
 
   @override
   String get error_message_withdrawal => 'A member who has unsubscribed.';

@@ -1738,9 +1738,9 @@
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
-  "bonus_candy_earn_period_1_to_15": "1日 00:00:00 ～ 15日 23:59:59",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  "bonus_candy_earn_period_1_to_14": "1日 00:00:00 ～ 14日 23:59:59",
+  "@bonus_candy_earn_period_1_to_14": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_14'."
   },
   "goonghap_snackbar_need_birthday": "生年月日を入力してください。",
   "@goonghap_snackbar_need_birthday": {
@@ -1873,9 +1873,9 @@
       }
     }
   },
-  "bonus_candy_earn_period_16_to_end": "16日 00:00:00 ～ 月末 23:59:59",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  "bonus_candy_earn_period_15_to_end": "15日 00:00:00 ～ 月末 23:59:59",
+  "@bonus_candy_earn_period_15_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'."
   },
   "error_message_withdrawal": "退会した会員です。",
   "@error_message_withdrawal": {
