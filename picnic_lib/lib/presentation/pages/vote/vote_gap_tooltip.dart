@@ -34,6 +34,10 @@ class _VoteGapTooltipState extends State<VoteGapTooltip>
   late final Animation<Offset> _slide;
   Timer? _dismiss;
   bool _gone = false;
+  // Guards the hold Timer so a re-entrant AnimationStatus.completed callback
+  // (none in the current forward -> reverse -> dismissed lifecycle, but the
+  // listener shouldn't assume that) can never stack a second Timer.
+  bool _holdStarted = false;
 
   @override
   void initState() {
@@ -48,14 +52,17 @@ class _VoteGapTooltipState extends State<VoteGapTooltip>
     ).animate(_curve);
 
     _controller.addStatusListener((status) {
-      if (status == AnimationStatus.dismissed && mounted && !_gone) {
+      // The hold is measured from "fully opaque", not from mount, so start
+      // it only once the fade-in has actually completed.
+      if (status == AnimationStatus.completed && mounted && !_holdStarted) {
+        _holdStarted = true;
+        _dismiss = Timer(_hold, () {
+          if (mounted) _controller.reverse();
+        });
+      } else if (status == AnimationStatus.dismissed && mounted && !_gone) {
         setState(() => _gone = true);
         widget.onDismissed?.call();
       }
-    });
-
-    _dismiss = Timer(_hold, () {
-      if (mounted) _controller.reverse();
     });
   }
 
