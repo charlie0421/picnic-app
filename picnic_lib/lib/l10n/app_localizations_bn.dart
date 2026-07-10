@@ -943,6 +943,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get text_vote_complete => 'Voting complete';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return '১ম স্থান থেকে $gap ভোট পিছিয়ে!';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return 'Rank $rank';
   }
@@ -2801,6 +2806,11 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get text_vote_complete => 'ভোট সম্পূর্ণ';
+
+  @override
+  String text_vote_gap_behind_leader(String gap) {
+    return '১ম স্থান থেকে $gap ভোট পিছিয়ে!';
+  }
 
   @override
   String text_vote_rank(int rank) {

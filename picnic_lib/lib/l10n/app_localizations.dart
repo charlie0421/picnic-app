@@ -1895,6 +1895,12 @@ abstract class AppLocalizations {
   /// **'Voting complete'**
   String get text_vote_complete;
 
+  /// No description provided for @text_vote_gap_behind_leader.
+  ///
+  /// In en, this message translates to:
+  /// **'{gap} votes behind #1'**
+  String text_vote_gap_behind_leader(String gap);
+
   /// No description provided for @text_vote_rank.
   ///
   /// In en, this message translates to:

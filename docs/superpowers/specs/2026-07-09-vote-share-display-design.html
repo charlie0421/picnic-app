@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>투표 상세 — 점유율(%) 표시 + 2위 갭 말풍선 설계</title>
+<style>
+  :root {
+    --bg:#0e0b1a; --panel:#171332; --panel2:#1f1a3d; --line:#2c2650;
+    --text:#eceafe; --muted:#a39fce; --pink:#ff5db1; --violet:#7c5cff;
+    --gold:#ffc23c; --green:#3ddc97; --danger:#ff5d6d; --code:#0b0920;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,"Apple SD Gothic Neo","Pretendard",Segoe UI,Roboto,sans-serif;
+    line-height:1.65; font-size:15px; }
+  .wrap { max-width:920px; margin:0 auto; padding:40px 22px 96px; }
+  h1 { font-size:27px; margin:0 0 6px; letter-spacing:-.3px; }
+  h2 { font-size:20px; margin:38px 0 12px; padding-bottom:8px;
+    border-bottom:1px solid var(--line); }
+  h3 { font-size:16px; margin:26px 0 8px; color:var(--pink); }
+  .sub { color:var(--muted); margin:0 0 22px; }
+  p { margin:10px 0; }
+  code { background:var(--code); padding:1.5px 6px; border-radius:5px;
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:12.5px; color:#ffd7ef; }
+  pre { background:var(--code); border:1px solid var(--line); border-radius:12px;
+    padding:16px 18px; overflow-x:auto; margin:12px 0; }
+  pre code { background:none; padding:0; color:#d7d3ff; font-size:12.5px; line-height:1.6; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:18px 20px; margin:14px 0; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media(max-width:680px){ .grid{grid-template-columns:1fr;} }
+  .tablewrap { overflow-x:auto; margin:12px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th,td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  .tag { display:inline-block; font-size:11px; font-weight:700; padding:2px 9px;
+    border-radius:99px; letter-spacing:.3px; white-space:nowrap; }
+  .add { background:rgba(61,220,151,.15); color:var(--green); }
+  .del { background:rgba(255,93,109,.15); color:var(--danger); }
+  .chg { background:rgba(255,194,60,.15); color:var(--gold); }
+  .keep { background:rgba(163,159,206,.15); color:var(--muted); }
+  ul,ol { margin:8px 0; padding-left:22px; } li { margin:5px 0; }
+  .note { border-left:3px solid var(--violet); background:var(--panel2);
+    padding:10px 16px; border-radius:0 10px 10px 0; margin:14px 0; }
+  .warn { border-left-color:var(--gold); }
+  .danger { border-left-color:var(--danger); }
+  .muted { color:var(--muted); }
+  .kbd { font-size:12px; color:var(--muted); }
+  hr { border:none; border-top:1px solid var(--line); margin:30px 0; }
+  .lead { font-size:16px; }
+  .meta { list-style:none; padding:0; margin:0 0 22px; color:var(--muted); font-size:13.5px; }
+  .meta li { margin:3px 0; }
+  .num { text-align:right; font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>투표 상세 — 득표수 대신 점유율(%) 표시 + 2위 갭 말풍선</h1>
+<p class="sub">picnic-app 설계 문서 · 2026-07-09 · rankitten PR #196 이식</p>
+
+<ul class="meta">
+  <li>브랜치 — <code>feat/vote-share-display</code></li>
+  <li>워크트리 — <code>~/Repositories/picnic-app-vote-share</code></li>
+  <li>출처 — rankitten PR #196 (<code>docs/handoff-2026-07-09-vote-list-display.html</code>)</li>
+</ul>
+
+<div class="card">
+<p class="lead" style="margin-top:0">한 줄 요약</p>
+<p style="margin-bottom:0"><b>진행 중인</b> 투표 상세 화면에서 후보의 원시 득표수를 감추고
+<b>전체 대비 점유율(%)</b> 로 바꾼다. 2위 행에 한해 <b>“1위와 N표 차이!”</b> 말풍선을
+진입 시 1회 띄웠다 자동으로 사라지게 한다. <b>종료된 투표는 기존대로 득표수를 유지</b>한다.</p>
+</div>
+
+<h2>1. 범위</h2>
+
+<p>rankitten 핸드오프의 체크리스트를 picnic 구조에 맞춰 다시 잘랐다. picnic 에서 득표수를
+사람에게 보여주는 곳은 네 군데이고, 코드가 공유되지 않은 복사본이다. 그중 <b>하나만</b> 바꾼다.</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th style="width:4%">#</th><th style="width:24%">위치</th><th style="width:30%">파일</th><th>결정</th></tr>
+  <tr><td>①</td><td>투표 상세 리스트 행</td>
+      <td><code>vote_detail_page.dart</code><br><code>_buildVoteCountContainer</code></td>
+      <td><span class="tag chg">CHG</span> 변경 — 진행 중 투표만</td></tr>
+  <tr><td>②</td><td>공유/저장 캡처 이미지 Top-3</td>
+      <td>같은 파일 <code>_buildCaptureVoteList</code></td>
+      <td><span class="tag keep">KEEP</span> 종료 투표에서만 뜨므로 ①의 <code>isEnded</code> 분기를 타 자동으로 득표수 유지</td></tr>
+  <tr><td>③</td><td>achieve 투표 상세</td>
+      <td><code>vote_detail_achieve_page.dart:801</code></td>
+      <td><span class="tag keep">KEEP</span> 현행 유지</td></tr>
+  <tr><td>④</td><td>목록 카드 Top-3 포디움</td>
+      <td><code>vote_info_card_vertical.dart:47</code></td>
+      <td><span class="tag keep">KEEP</span> 현행 유지</td></tr>
+</table>
+</div>
+
+<div class="grid">
+<div class="card">
+<h3 style="margin-top:0">③을 제외한 이유</h3>
+<p class="muted" style="margin-bottom:0"><code>vote_detail_achieve_page.dart:455</code> 는
+<code>_buildAchieveItem(data[0]!)</code> 로 <b>아티스트 한 명만</b> 렌더한다. “전체 대비 share” 가
+성립하지 않는다(항상 100%). 게다가 옆의 <code>_buildLevelItem</code> 사다리는 마일스톤을
+<b>절대 득표수</b>(<code>isAchieved = voteTotal &gt;= currentLevel</code>)로 칠하므로, 행을 %로 가리면
+“목표까지 몇 표 남았는지” 를 알 수 없게 된다.</p>
+</div>
+<div class="card">
+<h3 style="margin-top:0">④를 제외한 이유</h3>
+<p class="muted" style="margin-bottom:0">포디움은 <code>if (status == VoteStatus.end)</code> 가드가 있어
+<b>종료된 투표에서만</b> 득표수를 보인다. 진행 중엔 이미 숫자가 없다. “종료된 투표는 기존대로 득표수”
+원칙과 충돌하므로 손대지 않는다. 결과적으로 종료 투표는 상세·포디움·캡처 이미지 세 곳 모두
+득표수로 일관된다.</p>
+</div>
+</div>
+
+<h2>2. 표시 규칙</h2>
+
+<p>분기는 <code>isEnded</code> 하나뿐이다. upcoming 은 별도 분기가 아니라 <code>total == 0</code> 에서
+자연히 떨어진다.</p>
+
+<pre><code>isEnded ? NumberFormat('#,###').format(item.voteTotal)   // 현행 그대로
+        : VoteDetailHelper.formatSharePercent(item.voteTotal, _totalVotes)</code></pre>
+
+<div class="tablewrap">
+<table>
+  <tr><th style="width:34%">투표 상태</th><th>행 수치</th></tr>
+  <tr><td>진행 중 <code>!isEnded</code></td><td>share % (동적 정밀도)</td></tr>
+  <tr><td>예정 <code>isUpcoming</code></td><td>전원 0표 → <code>total == 0</code> → <code>—</code> (특수 분기 없음)</td></tr>
+  <tr><td>종료 <code>isEnded</code></td><td>득표수 — 현행 <code>NumberFormat('#,###')</code></td></tr>
+</table>
+</div>
+
+<p><b>유지하는 것</b> — rankitten 은 지웠으나 picnic 은 유지한다.</p>
+<ul>
+<li><code>VoteGainIndicator</code> 의 <code>+N</code> 팝. 원시 증분(표)을 노출하지만, 말풍선도 표 단위이므로 모순은 아니다.</li>
+<li>순위 변동 배경 플래시 (파랑=상승, 빨강=하락). rankitten 이 지운 <b>▲▼ 델타는 picnic 에 애초에 없다.</b></li>
+<li><code>AnimatedDigitWidget</code> 롤링. % 값에도 적용한다.</li>
+</ul>
+
+<h2>3. 컴포넌트 1 — <code>formatSharePercent(int? votes, int total)</code></h2>
+
+<p>유효숫자 2자리를 보장하되 소수 자릿수를 2~4로 클램프한다.</p>
+
+<pre><code>pct      = votes / total * 100
+decimals = (2 - floor(log10(pct)) - 1).clamp(2, 4)</code></pre>
+
+<div class="tablewrap">
+<table>
+  <tr><th style="width:40%">입력 pct</th><th>출력</th></tr>
+  <tr><td class="num">35.1972</td><td><code>35.20%</code></td></tr>
+  <tr><td class="num">0.1790</td><td><code>0.18%</code></td></tr>
+  <tr><td class="num">0.0763</td><td><code>0.076%</code></td></tr>
+  <tr><td class="num">0.0032</td><td><code>0.0032%</code></td></tr>
+  <tr><td><code>0 &lt; pct &lt; 0.0001</code></td><td><code>&lt;0.0001%</code></td></tr>
+  <tr><td><code>votes == 0</code> 또는 <code>total &lt;= 0</code></td><td><code>—</code></td></tr>
+</table>
+</div>
+
+<p><code>votes</code> 가 null 이면 0으로 취급한다 (<code>VoteItemModel.voteTotal</code> 은 <code>int?</code>).</p>
+
+<div class="note warn">
+<b>구현 함정 두 가지</b>
+<ol style="margin-bottom:0">
+<li><b>절삭 vs 반올림.</b> <code>AnimatedDigitWidget._formatNum</code> 은
+<code>fractionList.take(fractionDigits)</code> 로 소수를 <b>절삭</b>한다. 정적 <code>Text</code> 는
+<code>toStringAsFixed</code> 로 반올림한다. 그대로 두면 <code>35.199</code> 가 롤링 중엔
+<code>35.19%</code>, 멈추면 <code>35.20%</code> 로 튄다.
+→ 위젯에 넘기기 전에 <code>double.parse(pct.toStringAsFixed(decimals))</code> 로 미리 라운딩한다.</li>
+<li><b>자릿수 변화.</b> <code>decimals</code> 가 바뀌면(<code>0.18%</code> → <code>0.076%</code>)
+소수점 위치가 밀려 롤링이 어그러진다. → <code>AnimatedDigitWidget</code> 에
+<code>key: ValueKey(decimals)</code> 를 주어 깨끗이 재생성한다.</li>
+</ol>
+</div>
+
+<p><code>enableSeparator: false</code>, <code>suffix: '%'</code>, <code>fractionDigits: decimals</code> 를 쓴다.</p>
+
+<h3>합계 계산</h3>
+<p><code>VoteDetailHelper.sumVoteTotals(List&lt;VoteItemModel?&gt;)</code> 를 추가한다. 합계는
+<b>검색 필터가 걸리지 않은 전체 리스트</b> 기준이다. <code>_VoteDetailPageState</code> 에
+<code>int _totalVotes = 0;</code> 필드를 두고, <code>_buildVoteItemList</code> 의 <code>data</code> 콜백에서
+<code>ListView.builder</code> 진입 전에 1회 계산해 담는다 (<code>_updateRanks(data)</code> 바로 옆).
+1초 폴링마다 재계산되지만 int 덧셈 1500회는 무시할 수준이다. <code>_buildVoteCountContainer</code> 는
+이 필드를 읽는다 — 캡처 경로는 <code>isEnded</code> 분기를 타므로 <code>_totalVotes</code> 를 쓰지 않는다.</p>
+
+<h2>4. 컴포넌트 2 — 갭 말풍선</h2>
+
+<div class="note danger">
+<b>rankitten 트릭이 picnic 에서 깨진다.</b> 핸드오프의 “1회 노출” 은 <b>위치 기반 State 매칭</b>
+(키 없는 <code>for</code> 루프)에 의존한다. picnic 은 <code>ListView.builder</code> +
+<code>ValueKey('vote_item_${item.id}')</code> 라서 State 가 <i>아이템</i>을 따라다닌다.
+그대로 이식하면 세 가지로 깨진다.
+<ol style="margin-bottom:0">
+<li><b>2위 주인이 바뀌면 재노출.</b> 새 2위 아이템은 새 State → <code>initState</code> 재실행.
+picnic 은 1초 폴링(rankitten 은 2초)이라 흔하다.</li>
+<li><b>스크롤 아웃 → 인 하면 재노출.</b> <code>ListView.builder</code> 가상화로 unmount/remount.</li>
+<li><b>2위 동점이면 말풍선이 2개.</b> <code>VoteDetailHelper.computeRanks</code> 는
+competition ranking (1,2,2,4) 이라 동점자가 모두 rank 2 를 받는다. 핸드오프의
+<code>rank != 2</code> 가드로는 못 막는다.</li>
+</ol>
+</div>
+
+<h3>해결 — 말풍선 수명을 페이지가 소유</h3>
+
+<pre><code>// _VoteDetailPageState
+int? _gapTooltipItemId;        // 말풍선을 붙일 단 하나의 아이템 id
+int  _gapTooltipGap = 0;       // 진입 시점 값으로 freeze — 폴링에 숫자가 흔들리지 않게
+bool _gapTooltipDone = false;  // 한 번 끝나면 영구 래치
+Timer? _gapTooltipLatch;</code></pre>
+
+<p><code>VoteDetailHelper.pickGapTooltipTarget(items, ranks)</code> 가 대상을 <b>정확히 하나</b> 고르거나
+<code>null</code> 을 반환한다.</p>
+
+<pre><code>rank2 = items where ranks[id] == 2
+if (rank2.length != 1) return null       // 동점 2위 다수 → 미노출
+gap = leaderVotes - rank2.single.voteTotal
+if (gap &lt;= 0) return null                // 동점 → "0표 차이" 방지
+return (itemId: rank2.single.id, gapVotes: gap)</code></pre>
+
+<p>페이지 쪽 추가 가드: <code>_gapTooltipDone</code>, <code>isEnded</code>, <code>isUpcoming</code>,
+<code>_isSaving</code>, <code>_searchQuery.isNotEmpty</code> 중 하나라도 참이면 미노출.
+첫 실데이터 프레임에서 1회만 계산하고, <code>addPostFrameCallback</code> 안에서 <code>setState</code> 한다
+(build 중 setState 금지).</p>
+
+<div class="note">
+핸드오프의 <code>showGapTooltip: candidates.isNotEmpty</code> (플레이스홀더 가드) 는 picnic 에서
+<b>불필요하다.</b> 조사 결과 picnic 에는 가짜 <code>VoteItemModel</code> 을 리스트에 넣는 경로가 없다.
+스켈레톤은 순수 <code>Container</code>/<code>Shimmer</code> 이고, 페치 실패 시 provider 는 빈 리스트를
+반환한다. 따라서 <code>data.isNotEmpty</code> 로 충분하다.
+</div>
+
+<h3>행 위젯 시그니처는 건드리지 않는다</h3>
+<p><code>VoteItemWidget</code> / <code>VoteItemHighlightWidget</code> 에 파라미터를 추가하지 않는다.
+페이지의 <code>_buildVoteItemWithHighlight</code> 가 반환값을 감싸기만 한다.</p>
+
+<pre><code>final row = searchQuery.isNotEmpty ? highlightWidget : voteItemWidget;
+if (item.id != _gapTooltipItemId) return row;
+return Stack(clipBehavior: Clip.none, children: [
+  row,
+  Positioned(
+    top: -30, right: 10,
+    child: _GapTooltip(
+      text: l10n.text_vote_gap_behind_leader(NumberFormat('#,###').format(_gapTooltipGap)),
+      onDismissed: _finishGapTooltip,
+    ),
+  ),
+]);</code></pre>
+
+<p>이 덕분에 <b>기존 위젯 테스트가 하나도 깨지지 않는다.</b></p>
+
+<h3><code>_GapTooltip</code> — 신규 파일 <code>vote_gap_tooltip.dart</code></h3>
+<p>핸드오프 코드를 그대로 쓰되 색/타이포만 picnic 테마(<code>AppColors</code>, <code>getTextStyle</code>)로 바꾼다.</p>
+<ul>
+<li>260ms 페이드+슬라이드 인 → 1s 유지 → 페이드아웃</li>
+<li><code>AnimationStatus.dismissed</code> 리스너에서 <code>_gone = true</code> → <code>build</code> 가
+<code>SizedBox.shrink()</code> 반환 (트리에서 제거해 <code>IgnorePointer</code> 오버레이 잔존 방지)</li>
+<li><code>CurvedAnimation</code> 은 <code>initState</code> 에서 1회 생성하고 <code>dispose</code> 에서 해제
+(build 에서 만들면 리빌드마다 컨트롤러에 리스너가 쌓인다)</li>
+<li><code>ConstrainedBox(maxWidth: 240)</code> 으로 긴 로케일/큰 gap 의 화면 밖 넘침 방지</li>
+<li><code>IgnorePointer</code> 로 행의 탭을 가로채지 않음</li>
+<li><code>_TailPainter</code> 로 아래쪽 꼬리 삼각형</li>
+<li><span class="tag add">ADD</span> <code>onDismissed</code> 콜백. 페이드아웃 완료 시 페이지에 알린다.</li>
+</ul>
+
+<h3>안전망 타이머</h3>
+<p>위젯이 스크롤 아웃으로 dispose 되면 <code>onDismissed</code> 가 오지 않는다. 페이지에 2초짜리
+<code>_gapTooltipLatch</code> 타이머를 함께 건다 (위젯 총 재생 시간 260+1000+260 = 1520ms).
+둘 중 먼저 도달하는 쪽이 <code>_gapTooltipDone = true</code> 로 래치하고, 다른 쪽은 무시된다.
+<code>dispose</code> 에서 타이머를 취소한다.</p>
+
+<div class="note warn">
+<b>알려진 리스크 — 진입 즉시 재생.</b> 핸드오프대로 <b>화면 진입 시</b> 재생한다. picnic 상세 화면은
+리스트 위에 메인 이미지 + 타이틀 + 기간 + 카운트다운 + 리워드 + 신청 버튼이 쌓여 있다. 게다가
+<code>ListView.builder</code> 가 <code>shrinkWrap: true</code> 라 화면 밖 행도 즉시 빌드된다. 따라서
+<b>메인 이미지가 큰 투표에서는 사용자가 스크롤하기 전에 말풍선이 다 재생되고 사라진다.</b><br>
+수용한 리스크다. 실기기 확인 후 문제가 되면 <code>visibility_detector</code>(이미 <code>picnic_lib</code>
+의존성)로 2위 행이 10% 노출될 때 발동하도록 바꾼다. 래치 구조는 그대로 재사용된다.
+</div>
+
+<h2>5. l10n</h2>
+
+<p>키: <code>text_vote_gap_behind_leader</code> (picnic 은 snake_case 관례 — <code>text_vote_rank</code>,
+<code>message_vote_is_ended</code>). placeholder <code>gap</code> 은 <code>String</code> 이며, 호출부에서
+<code>NumberFormat('#,###')</code> 로 <b>미리 포맷한 문자열</b>을 넘긴다. picnic ARB 에는 intl
+<code>format</code> 메타데이터를 쓰는 키가 하나도 없어 숫자 포맷은 전부 호출부 책임이다.</p>
+
+<p>템플릿은 <code>app_en.arb</code>. <b>키 누락을 막는 CI 게이트가 없다</b> — 빠뜨리면 조용히 영어로
+폴백한다. 14개 로케일 전부에 넣는다.</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th style="width:22%">locale</th><th>문구</th></tr>
+  <tr><td>ko</td><td><code>1위와 {gap}표 차이!</code></td></tr>
+  <tr><td>en <span class="muted">(템플릿)</span></td><td><code>{gap} votes behind #1</code></td></tr>
+  <tr><td>ja</td><td><code>1位と{gap}票差！</code></td></tr>
+  <tr><td>zh, zh_CN</td><td><code>落后第 1 名 {gap} 票！</code></td></tr>
+  <tr><td>zh_TW</td><td><code>落後第 1 名 {gap} 票！</code></td></tr>
+  <tr><td>es</td><td><code>{gap} votos detrás del n.º 1</code></td></tr>
+  <tr><td>th</td><td><code>ตามหลังอันดับ 1 อยู่ {gap} โหวต!</code></td></tr>
+  <tr><td>vi</td><td><code>Kém hạng 1 {gap} phiếu!</code></td></tr>
+  <tr><td>id</td><td><code>{gap} suara di belakang #1</code></td></tr>
+  <tr><td>bn, bn_BD <span class="tag add">NEW</span></td><td><code>১ম স্থান থেকে {gap} ভোট পিছিয়ে!</code></td></tr>
+  <tr><td>fil <span class="tag add">NEW</span></td><td><code>{gap} na boto ang agwat sa #1!</code></td></tr>
+  <tr><td>my <span class="tag add">NEW</span></td><td><code>ပထမနေရာထက် မဲ {gap} မဲ နောက်ကျနေသည်!</code></td></tr>
+</table>
+</div>
+
+<p class="muted">핸드오프 표에 있던 <code>pt</code> 는 picnic 로케일에 없다.
+<code>bn</code> / <code>fil</code> / <code>my</code> 세 줄은 핸드오프에 없어 새로 작성한 초안이다.
+<b>머지 전 네이티브 검수를 권한다</b> — 틀려도 빌드는 통과하므로 자동으로 잡히지 않는다.</p>
+
+<h2>6. 테스트</h2>
+
+<p><code>VoteGainIndicator</code> 를 지우지 않기로 해서 <b>기존 테스트 파손이 없다.</b> 지웠다면
+<code>vote_gain_indicator_test.dart</code>, <code>vote_detail_page_test.dart</code>,
+<code>vote_detail_page_render_test.dart</code> 세 파일이 top-level import 때문에 컴파일 자체가
+깨졌을 것이다. 위젯 시그니처를 유지하므로 <code>vote_item_widget_test.dart</code> /
+<code>vote_item_highlight_widget_test.dart</code> 도 무사하다.</p>
+
+<p><b>신규 테스트</b></p>
+<ol>
+<li><code>formatSharePercent</code> — 경계값. <code>35.1972 → 35.20%</code>, <code>0.0763 → 0.076%</code>,
+<code>0.0032 → 0.0032%</code>, <code>votes=0 → —</code>, <code>total=0 → —</code>,
+<code>1/2891788 → &lt;0.0001%</code>.</li>
+<li><code>pickGapTooltipTarget</code> — 2위 동점 → null, gap 0 → null, 1위 동점으로 rank 2 부재 → null,
+정상 케이스 1건.</li>
+<li><code>_GapTooltip</code> 위젯 테스트 — 순수 <code>MaterialApp</code>(ScreenUtil/Riverpod 없이) +
+<code>pumpAndSettle(1600ms)</code> 후 <code>findsNothing</code>, <code>onDismissed</code> 1회 호출.</li>
+</ol>
+
+<div class="note danger">
+<b><code>VoteDetailPage</code> 를 마운트한 채 <code>pumpAndSettle</code> 을 쓰면 안 된다.</b>
+페이지의 1초 주기 타이머 때문에 영원히 settle 되지 않는다. 페이지 레벨 테스트가 필요하면 기존
+render 테스트처럼 <code>tester.pump(Duration(seconds: 1))</code> + 예외 드레인 패턴을 쓴다.
+</div>
+
+<h2>7. 변경 파일</h2>
+
+<div class="tablewrap">
+<table>
+  <tr><th style="width:48%">파일</th><th>변경</th></tr>
+  <tr><td><code>picnic_lib/lib/presentation/pages/vote/vote_detail_helper.dart</code></td>
+      <td><span class="tag add">ADD</span> <code>formatSharePercent</code>, <code>pickGapTooltipTarget</code>, <code>sumVoteTotals</code></td></tr>
+  <tr><td><code>picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart</code></td>
+      <td><span class="tag chg">CHG</span> <code>_buildVoteCountContainer</code> ended/active 분기, 말풍선 오너십 상태, <code>Stack</code> 래핑</td></tr>
+  <tr><td><code>picnic_lib/lib/presentation/pages/vote/vote_gap_tooltip.dart</code></td>
+      <td><span class="tag add">NEW</span> <code>_GapTooltip</code> + <code>_TailPainter</code></td></tr>
+  <tr><td><code>picnic_lib/lib/l10n/app_*.arb</code> × 14</td>
+      <td><span class="tag add">ADD</span> <code>text_vote_gap_behind_leader</code></td></tr>
+  <tr><td><code>picnic_lib/test/presentation/pages/vote/vote_detail_helper_test.dart</code></td>
+      <td><span class="tag add">ADD</span> group 2개</td></tr>
+  <tr><td><code>picnic_lib/test/presentation/pages/vote/vote_gap_tooltip_test.dart</code></td>
+      <td><span class="tag add">NEW</span></td></tr>
+</table>
+</div>
+
+<p class="muted"><b>건드리지 않는 파일</b> — <code>vote_item_widget.dart</code>,
+<code>vote_item_highlight_widget.dart</code>, <code>vote_gain_indicator.dart</code>,
+<code>vote_detail_achieve_page.dart</code>, <code>vote_info_card_vertical.dart</code>.</p>
+
+<h2>8. 참고 — 실측 데이터 (2026-07-09 프로덕션)</h2>
+
+<p>동적 정밀도가 필요한 근거. picnic 투표는 극단적으로 top-heavy 하다.</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th style="width:20%">순위</th><th>07월 생일(남), 91명</th><th>27주차 위클리 핔차트, 1487명</th></tr>
+  <tr><td>1위</td><td class="num">35.20%</td><td class="num">33.89%</td></tr>
+  <tr><td>3위</td><td class="num">27.87%</td><td class="num">30.84%</td></tr>
+  <tr><td>5위</td><td class="num">0.18%</td><td class="num">0.39%</td></tr>
+  <tr><td>20위</td><td class="num">0.0032% <span class="muted">(65표)</span></td><td class="num">0표</td></tr>
+  <tr><td>50위+</td><td class="num">0표</td><td class="num">0표</td></tr>
+</table>
+</div>
+
+<p><code>toStringAsFixed(2)</code> 고정이면 위클리 1487명 중 <b>~1470명이 <code>0.00%</code> 로 뭉개진다.</b></p>
+
+<hr>
+<p class="kbd">picnic-app <code>feat/vote-share-display</code> · 2026-07-09</p>
+
+</div>
+</body>
+</html>

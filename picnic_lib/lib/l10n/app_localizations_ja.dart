@@ -913,6 +913,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get text_vote_complete => '投票完了';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return '1位と$gap票差！';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return '$rank位';
   }

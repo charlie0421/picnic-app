@@ -1191,6 +1191,14 @@
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
+  "text_vote_gap_behind_leader": "ตามหลังอันดับ 1 อยู่ {gap} โหวต!",
+  "@text_vote_gap_behind_leader": {
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
   "text_vote_rank": "อันดับ {rank}",
   "@text_vote_rank": {
     "placeholders": {

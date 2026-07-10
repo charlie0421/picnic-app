@@ -932,6 +932,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get text_vote_complete => 'การโหวตเสร็จสมบูรณ์';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return 'ตามหลังอันดับ 1 อยู่ $gap โหวต!';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return 'อันดับ $rank';
   }

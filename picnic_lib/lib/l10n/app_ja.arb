@@ -1190,6 +1190,14 @@
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
+  "text_vote_gap_behind_leader": "1位と{gap}票差！",
+  "@text_vote_gap_behind_leader": {
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
   "text_vote_rank": "{rank}位",
   "@text_vote_rank": {
     "placeholders": {

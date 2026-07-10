@@ -944,6 +944,11 @@ class AppLocalizationsVi extends AppLocalizations {
   String get text_vote_complete => 'Bỏ phiếu hoàn thành';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return 'Kém hạng 1 $gap phiếu!';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return 'Xếp hạng $rank';
   }

@@ -956,6 +956,11 @@ class AppLocalizationsFil extends AppLocalizations {
   String get text_vote_complete => 'Kumpleto ang pagboto';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return '$gap na boto ang agwat sa #1!';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return 'Ranggo $rank';
   }
