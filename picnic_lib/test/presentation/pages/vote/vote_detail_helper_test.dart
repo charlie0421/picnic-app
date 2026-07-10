@@ -649,4 +649,88 @@ void main() {
       );
     });
   });
+
+  // ── formatSharePercent / sharePercentDecimals ────────────────────────
+
+  group('sharePercentDecimals', () {
+    test('clamps to 2 for values >= 1', () {
+      expect(VoteDetailHelper.sharePercentDecimals(35.1972), 2);
+      expect(VoteDetailHelper.sharePercentDecimals(100.0), 2);
+      expect(VoteDetailHelper.sharePercentDecimals(1.0), 2);
+    });
+
+    test('keeps 2 decimals down to 0.1', () {
+      expect(VoteDetailHelper.sharePercentDecimals(0.1790), 2);
+    });
+
+    test('widens to 3 decimals below 0.1', () {
+      expect(VoteDetailHelper.sharePercentDecimals(0.0763), 3);
+    });
+
+    test('widens to 4 decimals below 0.01', () {
+      expect(VoteDetailHelper.sharePercentDecimals(0.0032), 4);
+    });
+
+    test('clamps to 4 for very small values', () {
+      expect(VoteDetailHelper.sharePercentDecimals(0.00001), 4);
+    });
+  });
+
+  group('formatSharePercent', () {
+    test('formats the leader with two decimals', () {
+      expect(VoteDetailHelper.formatSharePercent(711479, 2021408), '35.20%');
+    });
+
+    test('keeps two significant digits as the value shrinks', () {
+      expect(VoteDetailHelper.formatSharePercent(1790, 1000000), '0.18%');
+      expect(VoteDetailHelper.formatSharePercent(763, 1000000), '0.076%');
+      expect(VoteDetailHelper.formatSharePercent(32, 1000000), '0.0032%');
+    });
+
+    test('rounds rather than truncates', () {
+      // 35.199% -> 35.20%, not 35.19%
+      expect(VoteDetailHelper.formatSharePercent(35199, 100000), '35.20%');
+    });
+
+    test('shows a floor marker below 0.0001%', () {
+      expect(VoteDetailHelper.formatSharePercent(1, 2891788), '<0.0001%');
+    });
+
+    test('shows an em dash for zero votes', () {
+      expect(VoteDetailHelper.formatSharePercent(0, 1000), '—');
+    });
+
+    test('shows an em dash for null votes', () {
+      expect(VoteDetailHelper.formatSharePercent(null, 1000), '—');
+    });
+
+    test('shows an em dash when the total is zero', () {
+      expect(VoteDetailHelper.formatSharePercent(0, 0), '—');
+      expect(VoteDetailHelper.formatSharePercent(10, 0), '—');
+    });
+
+    test('renders a single-item vote as 100.00%', () {
+      expect(VoteDetailHelper.formatSharePercent(500, 500), '100.00%');
+    });
+  });
+
+  group('sumVoteTotals', () {
+    test('returns 0 for an empty list', () {
+      expect(VoteDetailHelper.sumVoteTotals([]), 0);
+    });
+
+    test('treats null items and null voteTotal as 0', () {
+      final items = [_item(id: 1, voteTotal: 10), null, _item(id: 2, voteTotal: null)];
+      expect(VoteDetailHelper.sumVoteTotals(items), 10);
+    });
+
+    test('sums every item', () {
+      final items = [
+        _item(id: 1, voteTotal: 100),
+        _item(id: 2, voteTotal: 250),
+        _item(id: 3, voteTotal: 1),
+      ];
+      expect(VoteDetailHelper.sumVoteTotals(items), 351);
+    });
+  });
 }
