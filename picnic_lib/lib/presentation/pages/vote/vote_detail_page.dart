@@ -41,6 +41,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_skeleton.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_gain_indicator.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_gap_tooltip.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_highlight_widget.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
@@ -81,6 +82,16 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   /// Sum of every item's voteTotal, over the *unfiltered* list.
   /// Recomputed once per data frame in [_buildVoteItemList].
   int _totalVotes = 0;
+
+  // ── Gap tooltip lifetime (owned by the page, not the row) ────────────
+  //
+  // The rows are keyed by item id, so a row's State follows its item. Letting
+  // the tooltip widget own its own "play once" would replay it whenever the
+  // runner-up changes or the row is scrolled out and back in.
+  int? _gapTooltipItemId;
+  int _gapTooltipGap = 0;
+  bool _gapTooltipDone = false;
+  Timer? _gapTooltipLatch;
 
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
@@ -232,6 +243,43 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     });
   }
 
+  /// Choose the one row that gets the gap tooltip, once, on the first real
+  /// data frame. Freezes the gap so the 1s poll cannot make the number twitch.
+  void _maybeArmGapTooltip(List<VoteItemModel?> data) {
+    if (_gapTooltipDone || _gapTooltipItemId != null) return;
+    if (isEnded || isUpcoming || _isSaving || data.isEmpty) return;
+    if (_searchQuery.isNotEmpty) return;
+
+    final target = VoteDetailHelper.pickGapTooltipTarget(data, _currentRanks);
+    if (target == null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _gapTooltipDone || _gapTooltipItemId != null) return;
+      setState(() {
+        _gapTooltipItemId = target.itemId;
+        _gapTooltipGap = target.gapVotes;
+      });
+      // Safety net: the row can be scrolled out and disposed mid-play, in
+      // which case VoteGapTooltip.onDismissed never fires.
+      _gapTooltipLatch = Timer(const Duration(seconds: 2), _finishGapTooltip);
+    });
+  }
+
+  /// Latch the tooltip off, permanently. Idempotent — both the widget callback
+  /// and the safety-net timer may call this.
+  void _finishGapTooltip() {
+    _gapTooltipLatch?.cancel();
+    _gapTooltipLatch = null;
+    if (_gapTooltipDone) return;
+    _gapTooltipDone = true;
+
+    // The callback can arrive from an animation status listener mid-frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _gapTooltipItemId = null);
+    });
+  }
+
 
   void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -255,6 +303,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     _textEditingController.dispose();
     _searchSubject.close();
     _updateTimer?.cancel();
+    _gapTooltipLatch?.cancel();
     super.dispose();
   }
 
@@ -694,6 +743,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       data: (data) {
         _updateRanks(data);
         _totalVotes = VoteDetailHelper.sumVoteTotals(data);
+        _maybeArmGapTooltip(data);
         final filteredIndices = _getFilteredIndices([data, _searchQuery]);
 
         // 검색 결과가 없을 때
@@ -865,35 +915,51 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     required String searchQuery,
   }) {
     // 검색어가 있을 때는 커스텀 위젯을 만들어서 하이라이트 적용
-    if (searchQuery.isNotEmpty) {
-      return _buildCustomVoteItemWithHighlight(
-        item: item,
-        index: index,
-        actualRank: actualRank,
-        voteCountDiff: voteCountDiff,
-        rankChanged: rankChanged,
-        rankUp: rankUp,
-        searchQuery: searchQuery,
-      );
-    }
+    final row = searchQuery.isNotEmpty
+        ? _buildCustomVoteItemWithHighlight(
+            item: item,
+            index: index,
+            actualRank: actualRank,
+            voteCountDiff: voteCountDiff,
+            rankChanged: rankChanged,
+            rankUp: rankUp,
+            searchQuery: searchQuery,
+          )
+        : VoteItemWidget(
+            item: item,
+            index: index,
+            actualRank: actualRank,
+            voteCountDiff: voteCountDiff,
+            rankChanged: rankChanged,
+            rankUp: rankUp,
+            isEnded: isEnded,
+            isSaving: _isSaving,
+            onTap: () {
+              logger.d('🔥 onTap: onTap');
+              _handleVoteItemTap(context, item, index);
+            },
+            artistImage: _buildArtistImage(item, index, actualRank, rankChanged),
+            voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
+            rankText: _buildRankText(actualRank, item),
+          );
 
-    // 검색어가 없을 때는 기존 VoteItemWidget 사용
-    return VoteItemWidget(
-      item: item,
-      index: index,
-      actualRank: actualRank,
-      voteCountDiff: voteCountDiff,
-      rankChanged: rankChanged, // 실제 rankChanged 파라미터 사용
-      rankUp: rankUp,
-      isEnded: isEnded,
-      isSaving: _isSaving,
-      onTap: () {
-        logger.d('🔥 onTap: onTap');
-        _handleVoteItemTap(context, item, index);
-      },
-      artistImage: _buildArtistImage(item, index, actualRank, rankChanged),
-      voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
-      rankText: _buildRankText(actualRank, item),
+    if (item.id != _gapTooltipItemId || searchQuery.isNotEmpty) return row;
+
+    return Stack(
+      clipBehavior: Clip.none, // 행 위로 살짝 넘겨 2위를 가리킨다
+      children: [
+        row,
+        Positioned(
+          top: -30,
+          right: 10,
+          child: VoteGapTooltip(
+            text: AppLocalizations.of(context).text_vote_gap_behind_leader(
+              NumberFormat('#,###').format(_gapTooltipGap),
+            ),
+            onDismissed: _finishGapTooltip,
+          ),
+        ),
+      ],
     );
   }
 
