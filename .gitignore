@@ -13,7 +13,7 @@ build/
 .pub-cache/
 *.iml
 *.lock
-pubspec.lock
+!pubspec.lock
 
 # Added by Claude Task Master
 # Logs
