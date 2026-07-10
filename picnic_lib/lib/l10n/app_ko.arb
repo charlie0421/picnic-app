@@ -1973,7 +1973,7 @@
   "@error_message_withdrawal": {
     "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
-  "text_achievement": "🎉 지금까지 ${count}개의 목표를 달성했습니다! 🎉",
+  "text_achievement": "🎉 지금까지 {count}개의 목표를 달성했습니다! 🎉",
   "@text_achievement": {
     "description": "Auto-generated metadata for key 'text_achievement'.",
     "placeholders": {

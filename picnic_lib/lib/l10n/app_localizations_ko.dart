@@ -1381,7 +1381,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String text_achievement(int count) {
-    return '🎉 지금까지 \$$count개의 목표를 달성했습니다! 🎉';
+    return '🎉 지금까지 $count개의 목표를 달성했습니다! 🎉';
   }
 
   @override

@@ -372,7 +372,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String label_ads_limits(int hourly, int daily) {
-    return '$hourly per hour, $daily per day';
+    return 'တစ်နာရီလျှင် $hourly ကြိမ်၊ တစ်နေ့လျှင် $daily ကြိမ်';
   }
 
   @override
@@ -1448,7 +1448,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String text_achievement(int count) {
-    return '$count ဂိုးများကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉';
+    return '$count ပန်းတိုင်များကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉';
   }
 
   @override
