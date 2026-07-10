@@ -941,6 +941,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_vote_complete => 'Voting complete';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return '落后第 1 名 $gap 票！';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return 'Rank $rank';
   }
@@ -2744,6 +2749,11 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get text_vote_complete => '投票结束';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return '落后第 1 名 $gap 票！';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return '排名 $rank';
   }
@@ -4513,6 +4523,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get text_vote_complete => '投票结束';
+
+  @override
+  String text_vote_gap_behind_leader(String gap) {
+    return '落後第 1 名 $gap 票！';
+  }
 
   @override
   String text_vote_rank(int rank) {

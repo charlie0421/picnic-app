@@ -943,6 +943,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_vote_complete => 'Voting complete';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return '$gap votes behind #1';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return 'Rank $rank';
   }

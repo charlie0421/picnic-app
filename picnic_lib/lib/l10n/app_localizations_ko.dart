@@ -913,6 +913,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get text_vote_complete => '투표 완료';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return '1위와 $gap표 차이!';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return '순위 $rank';
   }

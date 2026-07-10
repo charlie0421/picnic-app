@@ -951,6 +951,11 @@ class AppLocalizationsMy extends AppLocalizations {
   String get text_vote_complete => 'အပြည့်အဝမဲပေး';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return 'ပထမနေရာထက် မဲ $gap မဲ နောက်ကျနေသည်!';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return '__phph_0__ အဆင့်';
   }

@@ -1398,6 +1398,14 @@
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
+  "text_vote_gap_behind_leader": "1위와 {gap}표 차이!",
+  "@text_vote_gap_behind_leader": {
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
   "text_vote_rank": "순위 {rank}",
   "@text_vote_rank": {
     "description": "Auto-generated metadata for key 'text_vote_rank'.",
