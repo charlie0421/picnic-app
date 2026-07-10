@@ -70,6 +70,39 @@ class VoteDetailHelper {
     return ranks;
   }
 
+  /// Pick the single item that should carry the "N votes behind #1" tooltip.
+  ///
+  /// Returns null unless exactly one item holds rank 2 and its gap to the
+  /// leader is positive. [computeRanks] uses competition ranking, so a tie at
+  /// rank 2 yields several rank-2 items (the tooltip would be drawn on each)
+  /// and a tie at rank 1 yields no rank-2 item at all.
+  static GapTooltipTarget? pickGapTooltipTarget(
+    List<VoteItemModel?> items,
+    Map<int, int> ranks,
+  ) {
+    int? leaderVotes;
+    VoteItemModel? runnerUp;
+    var rank2Count = 0;
+
+    for (final item in items) {
+      if (item == null) continue;
+      final rank = ranks[item.id];
+      if (rank == 1) {
+        leaderVotes ??= item.voteTotal ?? 0;
+      } else if (rank == 2) {
+        rank2Count++;
+        runnerUp = item;
+      }
+    }
+
+    if (leaderVotes == null || runnerUp == null || rank2Count != 1) return null;
+
+    final gap = leaderVotes - (runnerUp.voteTotal ?? 0);
+    if (gap <= 0) return null;
+
+    return GapTooltipTarget(itemId: runnerUp.id, gapVotes: gap);
+  }
+
   /// Compare two lists of VoteItemModel by id and voteTotal.
   static bool areDataListsEqual(
     List<VoteItemModel?> list1,
@@ -270,4 +303,12 @@ class RankChangeResult {
   final bool rankUp;
 
   const RankChangeResult({required this.changed, required this.rankUp});
+}
+
+/// Result of [VoteDetailHelper.pickGapTooltipTarget].
+class GapTooltipTarget {
+  final int itemId;
+  final int gapVotes;
+
+  const GapTooltipTarget({required this.itemId, required this.gapVotes});
 }

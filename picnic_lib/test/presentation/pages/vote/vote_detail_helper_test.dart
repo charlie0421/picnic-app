@@ -733,4 +733,86 @@ void main() {
       expect(VoteDetailHelper.sumVoteTotals(items), 351);
     });
   });
+
+  // ── pickGapTooltipTarget ─────────────────────────────────────────────
+
+  group('pickGapTooltipTarget', () {
+    GapTooltipTarget? pick(List<VoteItemModel?> items) =>
+        VoteDetailHelper.pickGapTooltipTarget(
+          items,
+          VoteDetailHelper.computeRanks(items),
+        );
+
+    test('returns null for an empty list', () {
+      expect(pick([]), isNull);
+    });
+
+    test('returns null when there is only a leader', () {
+      expect(pick([_item(id: 1, voteTotal: 100)]), isNull);
+    });
+
+    test('picks the sole runner-up and the raw vote gap', () {
+      final target = pick([
+        _item(id: 1, voteTotal: 95304),
+        _item(id: 2, voteTotal: 87666),
+        _item(id: 3, voteTotal: 86729),
+      ]);
+      expect(target, isNotNull);
+      expect(target!.itemId, 2);
+      expect(target.gapVotes, 7638);
+    });
+
+    test('returns null when two items tie for rank 2', () {
+      // competition ranking -> both get rank 2, tooltip would be drawn twice
+      expect(
+        pick([
+          _item(id: 1, voteTotal: 100),
+          _item(id: 2, voteTotal: 50),
+          _item(id: 3, voteTotal: 50),
+        ]),
+        isNull,
+      );
+    });
+
+    test('returns null when the leaders tie, because rank 2 does not exist', () {
+      // ranks are 1, 1, 3 -- nobody holds rank 2
+      expect(
+        pick([
+          _item(id: 1, voteTotal: 100),
+          _item(id: 2, voteTotal: 100),
+          _item(id: 3, voteTotal: 10),
+        ]),
+        isNull,
+      );
+    });
+
+    test('returns null when the gap is zero', () {
+      // a zero gap can only happen via a tie, which computeRanks collapses,
+      // but guard the arithmetic anyway
+      final items = [_item(id: 1, voteTotal: 10), _item(id: 2, voteTotal: 10)];
+      expect(
+        VoteDetailHelper.pickGapTooltipTarget(items, {1: 1, 2: 2}),
+        isNull,
+      );
+    });
+
+    test('treats a null voteTotal on the runner-up as zero', () {
+      final target = pick([
+        _item(id: 1, voteTotal: 40),
+        _item(id: 2, voteTotal: null),
+      ]);
+      expect(target!.itemId, 2);
+      expect(target.gapVotes, 40);
+    });
+
+    test('ignores null items', () {
+      final target = pick([
+        _item(id: 1, voteTotal: 30),
+        null,
+        _item(id: 2, voteTotal: 10),
+      ]);
+      expect(target!.itemId, 2);
+      expect(target.gapVotes, 20);
+    });
+  });
 }
