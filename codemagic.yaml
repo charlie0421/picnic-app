@@ -96,11 +96,16 @@ workflows:
           app-store-connect fetch-signing-files "io.iconcasting.picnic.app" \
             --type IOS_APP_STORE \
             --certificate-key "@env:CERTIFICATE_PRIVATE_KEY" \
-            --create
+            --create \
+            --delete-stale-profiles
           keychain add-certificates
 
-          # 방금 가져온/생성한 app_store 프로비저닝 프로파일 이름을 추출해 다음 단계로 전달
-          LATEST_PROFILE=$(ls -t "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision 2>/dev/null | head -1)
+          # 방금 가져온/생성한 app_store 프로비저닝 프로파일 이름을 추출해 다음 단계로 전달.
+          # Codemagic은 프로파일을 Xcode UserData 경로에 저장한다(구형 MobileDevice 경로도 fallback).
+          LATEST_PROFILE=$(ls -t \
+            "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/"*.mobileprovision \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision \
+            2>/dev/null | head -1)
           if [ -z "$LATEST_PROFILE" ]; then
             echo "❌ 프로비저닝 프로파일을 찾을 수 없음 (자동 생성 실패 — App Store Connect API 키 권한 확인)"
             exit 1
@@ -109,6 +114,10 @@ workflows:
           SIGNING_PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile.plist)
           echo "✅ 사용할 프로파일: $SIGNING_PROFILE_NAME"
           echo "SIGNING_PROFILE_NAME=$SIGNING_PROFILE_NAME" >> "$CM_ENV"
+
+          # 아카이브(xcodebuild)가 구형 경로도 참조할 수 있으므로 프로파일을 양쪽에 둔다
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$LATEST_PROFILE" "$HOME/Library/MobileDevice/Provisioning Profiles/" 2>/dev/null || true
 
       - name: Verify iOS Signing Configuration
         script: |
