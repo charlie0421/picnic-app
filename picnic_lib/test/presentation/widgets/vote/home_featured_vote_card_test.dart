@@ -79,7 +79,12 @@ void main() {
 
       await _ignoreRenderErrors(() async {
         await tester.pumpWidget(
-          buildTestApp(HomeFeaturedVoteCard(vote: vote)),
+          buildTestApp(
+            SizedBox(
+              height: 420,
+              child: HomeFeaturedVoteCard(vote: vote, percent: 0.62),
+            ),
+          ),
         );
         await tester.pump();
         await tester.pump(const Duration(seconds: 1));
@@ -87,10 +92,11 @@ void main() {
         expect(find.byType(HomeFeaturedVoteCard), findsOneWidget);
         // 제목 렌더 확인
         expect(find.text('홈 투표 테스트'), findsOneWidget);
-        // rank-1 항목 표수 렌더 확인
-        expect(find.text('12345'), findsOneWidget);
+        // rank-1 아티스트 이름 렌더 확인
+        expect(find.text('지민'), findsOneWidget);
+        // 퍼센트 렌더 확인(숫자 대신 퍼센트)
+        expect(find.text('62.0%'), findsOneWidget);
         // rank-2는 렌더되지 않아야 함
-        expect(find.text('9999'), findsNothing);
         expect(find.text('정국'), findsNothing);
       });
     });
@@ -107,7 +113,12 @@ void main() {
 
       await _ignoreRenderErrors(() async {
         await tester.pumpWidget(
-          buildTestApp(HomeFeaturedVoteCard(vote: vote)),
+          buildTestApp(
+            SizedBox(
+              height: 420,
+              child: HomeFeaturedVoteCard(vote: vote),
+            ),
+          ),
         );
         await tester.pump();
         await tester.pump(const Duration(seconds: 1));

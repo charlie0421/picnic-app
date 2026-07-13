@@ -234,7 +234,7 @@ class _VoteListState extends ConsumerState<VoteList> {
   Widget build(BuildContext context) {
     if (_isLoading && _items.isEmpty) {
       return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [VoteCardSkeleton(status: _getSkeletonStatus(null))],
       );
     }
@@ -270,7 +270,7 @@ class _VoteListState extends ConsumerState<VoteList> {
               }
 
               return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   VoteInfoCard(
                     context: context,

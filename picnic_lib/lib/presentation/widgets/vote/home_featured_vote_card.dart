@@ -11,18 +11,30 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 /// 홈 화면 전용 "현재 진행중인 투표" 요약 카드.
 ///
-/// [VoteInfoCard]와 달리 rank-1 항목만 표시하며 낮은 높이로 렌더링된다.
-/// 저장/공유는 `VoteInfoCard`와 동일한 [ShareUtils] 메커니즘을 재사용한다.
+/// 1위 항목을 큰 이미지로 강조하고, 득표 점유율([percent])을 퍼센트로 표시한다.
+/// 캐러셀([HomeFeaturedVoteCarousel]) 안에서 bounded height 로 렌더링되며,
+/// 이미지는 남은 공간을 채운다. 저장/공유는 `VoteInfoCard`와 동일한
+/// [ShareUtils] 메커니즘을 재사용한다.
 class HomeFeaturedVoteCard extends ConsumerStatefulWidget {
   final VoteModel vote;
 
-  const HomeFeaturedVoteCard({super.key, required this.vote});
+  /// 1위 항목의 득표 점유율(0.0 ~ 1.0).
+  final double percent;
+
+  const HomeFeaturedVoteCard({
+    super.key,
+    required this.vote,
+    this.percent = 0,
+  });
 
   @override
   ConsumerState<HomeFeaturedVoteCard> createState() =>
@@ -72,6 +84,22 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
     );
   }
 
+  /// 카드 탭 시 해당 투표 상세로 이동.
+  void _openVote() {
+    final vote = widget.vote;
+    ref.read(navigationInfoProvider.notifier).setCurrentPage(
+          vote.voteCategory == VoteCategory.achieve.name
+              ? VoteDetailAchievePage(
+                  voteId: vote.id,
+                  votePortal: VotePortal.vote,
+                )
+              : VoteDetailPage(
+                  voteId: vote.id,
+                  votePortal: VotePortal.vote,
+                ),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     final vote = widget.vote;
@@ -79,46 +107,82 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
         (vote.voteItem?.isNotEmpty ?? false) ? vote.voteItem!.first : null;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.grey00,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.grey200),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: AppColors.primary500.withValues(alpha: 0.25)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary500.withValues(alpha: 0.18),
+            blurRadius: 24,
+            spreadRadius: 1,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: RepaintBoundary(
         key: _globalKey,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            RepaintBoundary(
-              key: _shareKey,
-              child: Column(
-                children: [
-                  Text(
-                    getLocaleTextFromJson(vote.title, context),
-                    style: getTextStyle(AppTypo.title18B, AppColors.grey900),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  if (vote.stopAt != null)
-                    CountdownTimer(
-                      endTime: vote.stopAt!,
-                      status: VoteStatus.active,
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _openVote,
+                child: RepaintBoundary(
+                  key: _shareKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                    // 제목 + 남은시간 (고정)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16.w, 16, 16.w, 8),
+                      child: Column(
+                        children: [
+                          Text(
+                            getLocaleTextFromJson(vote.title, context),
+                            style: getTextStyle(
+                                AppTypo.title18B, AppColors.grey900),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          if (vote.stopAt != null)
+                            CountdownTimer(
+                              endTime: vote.stopAt!,
+                              status: VoteStatus.active,
+                            ),
+                        ],
+                      ),
                     ),
-                  const SizedBox(height: 12),
-                  if (topItem != null) _buildTopItem(topItem),
-                ],
+                    // 1위 큰 이미지 (남은 공간 채움)
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(16.w, 4, 16.w, 0),
+                        child: topItem != null
+                            ? _buildHeroItem(topItem)
+                            : const SizedBox.shrink(),
+                      ),
+                    ),
+                    ],
+                  ),
+                ),
               ),
             ),
             if (!_isSaving)
-              ShareSection(
-                saveButtonText: AppLocalizations.of(context).save,
-                shareButtonText: AppLocalizations.of(context).share,
-                onSave: _handleSaveImage,
-                onShare: _handleShareToTwitter,
+              Transform.translate(
+                offset: const Offset(0, -10),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: ShareSection(
+                    saveButtonText: AppLocalizations.of(context).save,
+                    shareButtonText: AppLocalizations.of(context).share,
+                    onSave: _handleSaveImage,
+                    onShare: _handleShareToTwitter,
+                  ),
+                ),
               ),
           ],
         ),
@@ -126,38 +190,81 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
     );
   }
 
-  Widget _buildTopItem(VoteItemModel item) {
+  Widget _buildHeroItem(VoteItemModel item) {
     final name = item.artist?.name != null
         ? getLocaleTextFromJson(item.artist!.name)
         : (item.artistGroup?.name != null
             ? getLocaleTextFromJson(item.artistGroup!.name)
             : '');
     final imageUrl = item.artist?.image ?? item.artistGroup?.image ?? '';
-    return Row(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8.r),
-          child: PicnicCachedNetworkImage(
+    final percentText = widget.percent > 0
+        ? '${(widget.percent * 100).toStringAsFixed(1)}%'
+        : '';
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16.r),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          PicnicCachedNetworkImage(
             imageUrl: imageUrl,
-            width: 64,
-            height: 64,
             fit: BoxFit.cover,
           ),
-        ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: Text(
-            name,
-            style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          // 하단 그라디언트 (이름/퍼센트 가독성)
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.center,
+                end: Alignment.bottomCenter,
+                colors: [Colors.transparent, Color(0xCC1A1F2C)],
+              ),
+            ),
           ),
-        ),
-        Text(
-          '${item.voteTotal ?? 0}',
-          style: getTextStyle(AppTypo.body16B, AppColors.primary500),
-        ),
-      ],
+          // 1위 배지 (좌상단)
+          Positioned(
+            top: 12,
+            left: 12,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppColors.primary500,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '1',
+                style: getTextStyle(AppTypo.caption12B, AppColors.grey00),
+              ),
+            ),
+          ),
+          // 이름 + 퍼센트 (하단)
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 14,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Text(
+                    name,
+                    style: getTextStyle(AppTypo.title18B, AppColors.grey00),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                if (percentText.isNotEmpty)
+                  Text(
+                    percentText,
+                    style: getTextStyle(
+                            AppTypo.title18B, AppColors.secondary500)
+                        .copyWith(fontSize: 26.sp, height: 1),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

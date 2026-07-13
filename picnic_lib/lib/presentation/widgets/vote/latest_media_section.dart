@@ -79,14 +79,7 @@ class LatestMediaSection extends ConsumerWidget {
                               vertical: 4,
                               horizontal: 8,
                             ),
-                            child: Text(
-                              title,
-                              style: getTextStyle(
-                                AppTypo.body14R,
-                                Colors.white,
-                              ).copyWith(overflow: TextOverflow.ellipsis),
-                              maxLines: 1,
-                            ),
+                            child: _artistEmphasizedTitle(title),
                           ),
                         ),
                       ],
@@ -98,6 +91,32 @@ class LatestMediaSection extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// 미디어 제목 안의 `#아티스트` 해시태그를 강조(민트·볼드)해 렌더링한다.
+  /// 예: "7월은 #지윤 의 달💙" → "#지윤" 부분만 강조.
+  Widget _artistEmphasizedTitle(String title) {
+    final base = getTextStyle(AppTypo.body14R, Colors.white);
+    final emphasis = getTextStyle(AppTypo.body14B, AppColors.secondary500);
+    final tag = RegExp(r'#[^\s#]+');
+    final spans = <TextSpan>[];
+    var last = 0;
+    for (final m in tag.allMatches(title)) {
+      if (m.start > last) {
+        spans.add(TextSpan(text: title.substring(last, m.start), style: base));
+      }
+      spans.add(TextSpan(text: m.group(0), style: emphasis));
+      last = m.end;
+    }
+    if (last < title.length) {
+      spans.add(TextSpan(text: title.substring(last), style: base));
+    }
+    if (spans.isEmpty) spans.add(TextSpan(text: title, style: base));
+    return Text.rich(
+      TextSpan(children: spans),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 

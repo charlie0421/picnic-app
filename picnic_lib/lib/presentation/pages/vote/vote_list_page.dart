@@ -114,61 +114,52 @@ class _VoteListContentState extends ConsumerState<VoteListContent>
 
   @override
   Widget build(BuildContext context) {
+    // 3.5개 정도가 보이도록 각 탭을 고정폭으로 → 가로 스크롤 존재를 암시.
+    final tabWidth = MediaQuery.of(context).size.width / 3.5;
+
     return Column(
       children: [
-        // 페이지 타이틀 (흰색 스트립 제거로 본문에서)
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            AppLocalizations.of(context).label_vote_screen_title,
-            style: getTextStyle(AppTypo.title18B, AppColors.grey900),
-          ),
-        ),
+        const SizedBox(height: 8),
         // 종류 탭 (가로 스크롤 + 스와이프)
         SizedBox(
-          height: 48,
+          height: 44,
           child: TabBar(
             controller: _tabController,
             isScrollable: true,
             tabAlignment: TabAlignment.start,
+            labelPadding: EdgeInsets.zero,
             indicatorWeight: 3,
-            tabs: _voteTabs.map((t) => Tab(text: t.label)).toList(),
+            indicatorColor: AppColors.primary500,
+            indicatorSize: TabBarIndicatorSize.label,
+            labelColor: AppColors.primary500,
+            unselectedLabelColor: AppColors.grey400,
+            labelStyle: getTextStyle(AppTypo.body16B),
+            unselectedLabelStyle: getTextStyle(AppTypo.body16M),
+            tabs: _voteTabs
+                .map(
+                  (t) => Tab(
+                    child: SizedBox(
+                      width: tabWidth,
+                      child: Center(
+                        child: Text(
+                          t.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         ),
-        // 상태 필터 드롭다운
+        Divider(height: 1, thickness: 1, color: AppColors.grey200),
+        // 상태 필터 드롭다운 (테마 pill)
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
+          padding: EdgeInsets.fromLTRB(16.w, 10, 16.w, 6),
           child: Align(
             alignment: Alignment.centerRight,
-            child: DropdownButton<VoteStatus>(
-              value: _status,
-              onChanged: (v) {
-                if (v != null) setState(() => _status = v);
-              },
-              items: [
-                DropdownMenuItem(
-                  value: VoteStatus.active,
-                  child:
-                      Text(AppLocalizations.of(context).label_tabbar_vote_active),
-                ),
-                DropdownMenuItem(
-                  value: VoteStatus.end,
-                  child:
-                      Text(AppLocalizations.of(context).label_tabbar_vote_end),
-                ),
-                DropdownMenuItem(
-                  value: VoteStatus.upcoming,
-                  child: Text(
-                      AppLocalizations.of(context).label_tabbar_vote_upcoming),
-                ),
-                if (widget.isAdmin)
-                  const DropdownMenuItem(
-                    value: VoteStatus.debug,
-                    child: Text('(Admin)'),
-                  ),
-              ],
-            ),
+            child: _buildStatusDropdown(context),
           ),
         ),
         // 리스트 (종류별 스와이프)
@@ -187,6 +178,119 @@ class _VoteListContentState extends ConsumerState<VoteListContent>
           ),
         ),
       ],
+    );
+  }
+
+  String _statusLabel(BuildContext context, VoteStatus status) {
+    final l = AppLocalizations.of(context);
+    switch (status) {
+      case VoteStatus.active:
+        return l.label_tabbar_vote_active;
+      case VoteStatus.end:
+        return l.label_tabbar_vote_end;
+      case VoteStatus.upcoming:
+        return l.label_tabbar_vote_upcoming;
+      case VoteStatus.debug:
+        return '(Admin)';
+      default:
+        return '';
+    }
+  }
+
+  /// 상태별 컬러 점 색상.
+  Color _statusColor(VoteStatus status) {
+    switch (status) {
+      case VoteStatus.active:
+        return AppColors.secondary500; // 진행중 = 민트
+      case VoteStatus.end:
+        return AppColors.grey400; // 종료됨 = 회색
+      case VoteStatus.upcoming:
+        return const Color(0xFFFFB020); // 예정됨 = 앰버
+      case VoteStatus.debug:
+        return AppColors.statusError; // (Admin) = 레드
+      default:
+        return AppColors.grey400;
+    }
+  }
+
+  Widget _statusRow(BuildContext context, VoteStatus status,
+      {bool selected = false}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: _statusColor(status),
+            shape: BoxShape.circle,
+          ),
+        ),
+        SizedBox(width: 8.w),
+        Text(
+          _statusLabel(context, status),
+          style: getTextStyle(
+            selected ? AppTypo.body14B : AppTypo.body14M,
+            AppColors.grey900,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusDropdown(BuildContext context) {
+    final statuses = <VoteStatus>[
+      VoteStatus.active,
+      VoteStatus.end,
+      VoteStatus.upcoming,
+      if (widget.isAdmin) VoteStatus.debug,
+    ];
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.grey00,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: AppColors.grey200),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.grey900.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<VoteStatus>(
+          value: _status,
+          isDense: true,
+          borderRadius: BorderRadius.circular(16),
+          dropdownColor: AppColors.grey00,
+          elevation: 4,
+          icon: Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Icon(
+              Icons.expand_more_rounded,
+              size: 20,
+              color: AppColors.grey500,
+            ),
+          ),
+          onChanged: (v) {
+            if (v != null) setState(() => _status = v);
+          },
+          selectedItemBuilder: (context) => statuses
+              .map((s) => Center(child: _statusRow(context, s, selected: true)))
+              .toList(),
+          items: statuses
+              .map(
+                (s) => DropdownMenuItem(
+                  value: s,
+                  child: _statusRow(context, s, selected: s == _status),
+                ),
+              )
+              .toList(),
+        ),
+      ),
     );
   }
 }

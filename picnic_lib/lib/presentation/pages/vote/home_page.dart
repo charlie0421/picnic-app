@@ -4,22 +4,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
+import 'package:picnic_lib/presentation/providers/active_featured_votes_provider.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/latest_media_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
-import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
-import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_card.dart';
+import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_carousel.dart';
 import 'package:picnic_lib/presentation/widgets/vote/latest_media_section.dart';
 import 'package:picnic_lib/presentation/widgets/vote/reward_list_section.dart';
-import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 /// 홈 탭(index 0) 루트 페이지.
 ///
-/// 배너 → "현재 진행중인 투표" 대표 카드 → 리워드 리스트 → 최신 미디어 순으로
-/// 조립한다. 대표 투표는 `asyncVoteListProvider`의 active 브랜치(`stop_at ASC`
-/// 정렬)를 재사용해 곧 종료되는 투표 1건을 노출한다(신규 provider 없음).
+/// 배너 → "현재 진행중인 투표" 캐러셀 → 리워드 리스트 → 최신 미디어 순으로 조립한다.
+/// 진행중 투표는 [asyncActiveFeaturedVotesProvider]로 여러 건을 가로 스크롤 노출한다.
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -63,18 +61,6 @@ class _HomePageState extends ConsumerState<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    final featured = ref.watch(
-      asyncVoteListProvider(
-        1,
-        1,
-        'id',
-        'DESC',
-        'all',
-        status: VoteStatus.active,
-        category: VoteCategory.all,
-      ),
-    );
-
     return RefreshIndicator(
       color: AppColors.primary500,
       backgroundColor: Colors.white,
@@ -82,43 +68,27 @@ class _HomePageState extends ConsumerState<HomePage>
         ref.invalidate(asyncBannerListProvider(location: 'vote_home'));
         ref.invalidate(asyncRewardListProvider);
         ref.invalidate(asyncLatestMediaProvider);
-        ref.invalidate(
-          asyncVoteListProvider(
-            1,
-            1,
-            'id',
-            'DESC',
-            'all',
-            status: VoteStatus.active,
-            category: VoteCategory.all,
-          ),
-        );
+        ref.invalidate(asyncActiveFeaturedVotesProvider);
         setState(() => _bannerKey = UniqueKey());
       },
       child: ListView(
         children: [
           CommonBanner('vote_home', 786 / 400, key: _bannerKey),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           Padding(
-            padding: EdgeInsets.only(left: 16.w, bottom: 8),
+            padding: EdgeInsets.only(left: 16.w, bottom: 10),
             child: Text(
               AppLocalizations.of(context).label_home_current_vote,
               style: getTextStyle(AppTypo.title18B, AppColors.grey900),
             ),
           ),
-          featured.when(
-            loading: () =>
-                const VoteCardSkeleton(status: VoteCardStatus.ongoing),
-            error: (e, s) => const SizedBox.shrink(),
-            data: (votes) => votes.isEmpty
-                ? const SizedBox.shrink()
-                : HomeFeaturedVoteCard(vote: votes.first),
-          ),
-          const SizedBox(height: 36),
+          const HomeFeaturedVoteCarousel(),
+          const SizedBox(height: 28),
           const RewardListSection(),
-          const SizedBox(height: 36),
+          const SizedBox(height: 28),
           const LatestMediaSection(),
-          const SizedBox(height: 36),
+          // 하단 플로팅 탭바에 마지막 섹션이 가리지 않도록 여백 확보
+          const SizedBox(height: 96),
         ],
       ),
     );
