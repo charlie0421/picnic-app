@@ -90,8 +90,12 @@ workflows:
           # App Store Connect API 키로 배포 인증서/프로파일을 가져오고, 없으면 --create 로 생성.
           # 인증서/프로파일 만료 시 매년 수동 생성 없이 CI가 자동 갱신.
           keychain initialize
+          # 영속 개인키(CERTIFICATE_PRIVATE_KEY)로 배포 인증서를 생성/재사용한다.
+          # 계정의 "Distribution Managed" 인증서는 개인키가 없어 CI가 못 쓰므로,
+          # Codemagic이 자기 키로 만든 인증서를 쓴다(한 번 만들면 매 빌드 재사용 → 한도 문제 없음).
           app-store-connect fetch-signing-files "io.iconcasting.picnic.app" \
             --type IOS_APP_STORE \
+            --certificate-key "@env:CERTIFICATE_PRIVATE_KEY" \
             --create
           keychain add-certificates
 
