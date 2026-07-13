@@ -3,67 +3,90 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 
+import '../../../helpers/ignore_image_errors.dart';
+import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
 
 void main() {
+  late void Function() restore;
+
   setUp(() {
     initTestColors();
+    setupMockSupabase({'vote': []});
+    // VoteList's loading skeleton overflows the headless test viewport
+    // (pre-existing quirk, see vote_list_render_test.dart) — suppress like
+    // the rest of the suite does instead of a plain pump().
+    restore = suppressImageErrors();
+  });
+
+  tearDown(() {
+    restore();
+    tearDownMockSupabase();
   });
 
   group('VoteListContent rendering', () {
-    testWidgets('renders with isAdmin false (3 tabs)', (tester) async {
+    testWidgets('renders the 4 vote-type tabs regardless of isAdmin',
+        (tester) async {
       await tester.pumpWidget(
         buildTestApp(
           const VoteListContent(isAdmin: false),
         ),
       );
-      await tester.pump();
+      await pumpAndIgnoreErrors(tester);
 
-      // Should have 3 tabs (active, end, upcoming)
-      expect(find.byType(Tab), findsNWidgets(3));
+      // Vote-type tabs (area-based) are a fixed const config, not tied to admin.
+      expect(find.byType(Tab), findsNWidgets(4));
       expect(find.byType(TabBar), findsOneWidget);
       expect(find.byType(TabBarView), findsOneWidget);
     });
 
-    testWidgets('renders with isAdmin true (4 tabs)', (tester) async {
+    testWidgets(
+        'still renders 4 vote-type tabs when isAdmin true (admin adds a status option, not a tab)',
+        (tester) async {
       await tester.pumpWidget(
         buildTestApp(
           const VoteListContent(isAdmin: true),
         ),
       );
-      await tester.pump();
+      await pumpAndIgnoreErrors(tester);
 
-      // Should have 4 tabs (active, end, upcoming, admin)
       expect(find.byType(Tab), findsNWidgets(4));
-      // Admin tab text
-      expect(find.text('(Admin)'), findsOneWidget);
+
+      // Admin option is appended to the status dropdown's items instead.
+      final dropdown = tester.widget<DropdownButton<VoteStatus>>(
+        find.byType(DropdownButton<VoteStatus>),
+      );
+      expect(dropdown.items!.length, 4);
+      expect(dropdown.items!.last.value, VoteStatus.debug);
     });
 
-    testWidgets('has TabController with correct length for non-admin',
-        (tester) async {
+    testWidgets('status dropdown has 3 options for non-admin', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
           const VoteListContent(isAdmin: false),
         ),
       );
-      await tester.pump();
+      await pumpAndIgnoreErrors(tester);
 
-      final tabBar = tester.widget<TabBar>(find.byType(TabBar));
-      expect(tabBar.tabs.length, 3);
+      final dropdown = tester.widget<DropdownButton<VoteStatus>>(
+        find.byType(DropdownButton<VoteStatus>),
+      );
+      expect(dropdown.items!.length, 3);
+      expect(dropdown.value, VoteStatus.active);
     });
 
-    testWidgets('has TabController with correct length for admin',
-        (tester) async {
+    testWidgets('tab bar is scrollable with tabAlignment.start', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          const VoteListContent(isAdmin: true),
+          const VoteListContent(isAdmin: false),
         ),
       );
-      await tester.pump();
+      await pumpAndIgnoreErrors(tester);
 
       final tabBar = tester.widget<TabBar>(find.byType(TabBar));
-      expect(tabBar.tabs.length, 4);
+      expect(tabBar.isScrollable, isTrue);
+      expect(tabBar.tabAlignment, TabAlignment.start);
     });
 
     testWidgets('tab bar has indicator weight 3', (tester) async {
@@ -72,24 +95,23 @@ void main() {
           const VoteListContent(isAdmin: false),
         ),
       );
-      await tester.pump();
+      await pumpAndIgnoreErrors(tester);
 
       final tabBar = tester.widget<TabBar>(find.byType(TabBar));
       expect(tabBar.indicatorWeight, 3);
     });
 
-    testWidgets('uses NeverScrollableScrollPhysics on TabBarView',
+    testWidgets('TabBarView allows swipe (no NeverScrollableScrollPhysics)',
         (tester) async {
       await tester.pumpWidget(
         buildTestApp(
           const VoteListContent(isAdmin: false),
         ),
       );
-      await tester.pump();
+      await pumpAndIgnoreErrors(tester);
 
-      final tabBarView =
-          tester.widget<TabBarView>(find.byType(TabBarView));
-      expect(tabBarView.physics, isA<NeverScrollableScrollPhysics>());
+      final tabBarView = tester.widget<TabBarView>(find.byType(TabBarView));
+      expect(tabBarView.physics, isNot(isA<NeverScrollableScrollPhysics>()));
     });
   });
 
@@ -97,11 +119,11 @@ void main() {
     testWidgets('different isAdmin values produce different keys',
         (tester) async {
       const widget1 = VoteListContent(
-        key: ValueKey('vote_list_kpop_false'),
+        key: ValueKey('vote_list_false'),
         isAdmin: false,
       );
       const widget2 = VoteListContent(
-        key: ValueKey('vote_list_kpop_true'),
+        key: ValueKey('vote_list_true'),
         isAdmin: true,
       );
 
@@ -110,7 +132,7 @@ void main() {
   });
 
   group('VoteStatus/VoteCategory/VotePortal used in VoteListPage', () {
-    test('VoteStatus has debug for admin tab', () {
+    test('VoteStatus has debug for admin option', () {
       expect(VoteStatus.debug, isNotNull);
       expect(VoteStatus.debug.name, 'debug');
     });
