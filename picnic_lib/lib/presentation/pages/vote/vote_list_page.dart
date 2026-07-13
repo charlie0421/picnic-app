@@ -63,7 +63,7 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
       ref
           .read(navigationInfoProvider.notifier)
           .settingNavigation(
-            showPortal: false,
+            showPortal: true,
             showTopMenu: false,
             showMyPoint: false,
             showBottomNavigation: true,
