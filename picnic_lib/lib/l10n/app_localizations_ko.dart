@@ -433,6 +433,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_hint_comment => '댓글을 남겨주세요.';
 
   @override
+  String get label_home_current_vote => '현재 진행중인 투표';
+
+  @override
   String get label_input_input => '입력';
 
   @override

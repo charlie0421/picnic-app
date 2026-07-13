@@ -450,6 +450,9 @@ class AppLocalizationsMy extends AppLocalizations {
   String get label_hint_comment => 'မှတ်ချက်ချန်ထားပါ။';
 
   @override
+  String get label_home_current_vote => 'Current Vote';
+
+  @override
   String get label_input_input => 'အင်ပွတ်ပြုလုပ်';
 
   @override

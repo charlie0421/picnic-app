@@ -562,6 +562,10 @@
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
+  "label_home_current_vote": "Current Vote",
+  "@label_home_current_vote": {
+    "description": "Auto-generated metadata for key 'label_home_current_vote'."
+  },
   "label_input_input": "Input",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."

@@ -429,6 +429,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_hint_comment => '发表评论。';
 
   @override
+  String get label_home_current_vote => 'Current Vote';
+
+  @override
   String get label_input_input => 'Input';
 
   @override

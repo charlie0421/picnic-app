@@ -447,6 +447,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get label_hint_comment => 'একটি মন্তব্য দিন।';
 
   @override
+  String get label_home_current_vote => 'Current Vote';
+
+  @override
   String get label_input_input => 'Input';
 
   @override

@@ -452,6 +452,9 @@ class AppLocalizationsFil extends AppLocalizations {
   String get label_hint_comment => 'Mag -iwan ng komento.';
 
   @override
+  String get label_home_current_vote => 'Current Vote';
+
+  @override
   String get label_input_input => 'Input';
 
   @override

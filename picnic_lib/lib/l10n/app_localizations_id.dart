@@ -444,6 +444,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_hint_comment => 'Tinggalkan komentar.';
 
   @override
+  String get label_home_current_vote => 'Current Vote';
+
+  @override
   String get label_input_input => 'Masukan';
 
   @override

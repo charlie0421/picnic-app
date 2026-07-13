@@ -445,6 +445,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_hint_comment => 'Để lại một bình luận.';
 
   @override
+  String get label_home_current_vote => 'Current Vote';
+
+  @override
   String get label_input_input => 'Đầu vào';
 
   @override

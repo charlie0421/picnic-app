@@ -947,6 +947,12 @@ abstract class AppLocalizations {
   /// **'Leave a comment.'**
   String get label_hint_comment;
 
+  /// Auto-generated metadata for key 'label_home_current_vote'.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Vote'**
+  String get label_home_current_vote;
+
   /// Auto-generated metadata for key 'label_input_input'.
   ///
   /// In en, this message translates to:

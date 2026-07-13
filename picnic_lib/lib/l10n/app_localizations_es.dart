@@ -451,6 +451,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get label_hint_comment => 'Deja un comentario.';
 
   @override
+  String get label_home_current_vote => 'Current Vote';
+
+  @override
   String get label_input_input => 'Aporte';
 
   @override
