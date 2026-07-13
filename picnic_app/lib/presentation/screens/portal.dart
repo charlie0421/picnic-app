@@ -5,9 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
-import 'package:picnic_lib/presentation/common/portal_menu_item.dart';
 import 'package:picnic_lib/presentation/common/top/top_menu.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_notifications.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -103,20 +101,6 @@ class _PortalState extends ConsumerState<Portal> {
                   children: [
                     if (Environment.currentEnvironment != 'prod')
                       Text(Environment.currentEnvironment),
-                    userInfoState.when(
-                      data: (userInfo) {
-                        if (userInfo != null && (userInfo.isAdmin ?? false)) {
-                          return const Row(children: [
-                            PortalMenuItem(portalType: PortalType.pic),
-                            PortalMenuItem(portalType: PortalType.novel),
-                          ]);
-                        } else {
-                          return Container();
-                        }
-                      },
-                      error: (error, stackTrace) => const SizedBox(),
-                      loading: () => const SizedBox(),
-                    ),
                   ],
                 ),
               ),
