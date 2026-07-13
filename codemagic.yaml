@@ -7,9 +7,6 @@ workflows:
     integrations:
       app_store_connect: codemagic-picnic
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: io.iconcasting.picnic.app
       groups:
         - app_store_connect
         - shorebird-config
@@ -86,6 +83,29 @@ workflows:
             exit 1
           fi
 
+      - name: Set up iOS code signing (auto-create)
+        script: |
+          set -e
+          echo "=== iOS 서명 파일 자동 준비 (없으면 생성) ==="
+          # App Store Connect API 키로 배포 인증서/프로파일을 가져오고, 없으면 --create 로 생성.
+          # 인증서/프로파일 만료 시 매년 수동 생성 없이 CI가 자동 갱신.
+          keychain initialize
+          app-store-connect fetch-signing-files "io.iconcasting.picnic.app" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+
+          # 방금 가져온/생성한 app_store 프로비저닝 프로파일 이름을 추출해 다음 단계로 전달
+          LATEST_PROFILE=$(ls -t "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision 2>/dev/null | head -1)
+          if [ -z "$LATEST_PROFILE" ]; then
+            echo "❌ 프로비저닝 프로파일을 찾을 수 없음 (자동 생성 실패 — App Store Connect API 키 권한 확인)"
+            exit 1
+          fi
+          security cms -D -i "$LATEST_PROFILE" > /tmp/profile.plist
+          SIGNING_PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile.plist)
+          echo "✅ 사용할 프로파일: $SIGNING_PROFILE_NAME"
+          echo "SIGNING_PROFILE_NAME=$SIGNING_PROFILE_NAME" >> "$CM_ENV"
+
       - name: Verify iOS Signing Configuration
         script: |
           echo "=== iOS 서명 환경 확인 ==="
@@ -151,9 +171,12 @@ workflows:
           sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Development\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"iPhone Developer\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
           
-          # Distribution 프로파일 설정 (Runner만)
-          echo "📝 Runner 타겟: Distribution 프로파일 설정..."
-          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";/g" Runner.xcodeproj/project.pbxproj
+          # Distribution 프로파일 설정 (Runner만) — 자동 생성된 프로파일 이름 사용
+          echo "📝 Runner 타겟: Distribution 프로파일 설정 ($SIGNING_PROFILE_NAME)..."
+          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"$SIGNING_PROFILE_NAME\";/g" Runner.xcodeproj/project.pbxproj
+
+          # ExportOptions.plist 의 프로파일 이름도 동적으로 갱신 (하드코딩 제거)
+          /usr/libexec/PlistBuddy -c "Set :provisioningProfiles:io.iconcasting.picnic.app $SIGNING_PROFILE_NAME" ExportOptions.plist
           
           # Release 구성 설정
           if [ -f "Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" ]; then
@@ -171,14 +194,14 @@ workflows:
           echo "📝 이제 Runner는 Manual, CocoaPods는 Automatic signing 사용"
           
           echo "📋 Runner 설정 확인:"
-          grep -n "CODE_SIGN_STYLE\|Apple Distribution\|picnic_app_profile_2025" Runner.xcodeproj/project.pbxproj | head -10
+          grep -n "CODE_SIGN_STYLE\|Apple Distribution\|PROVISIONING_PROFILE_SPECIFIER" Runner.xcodeproj/project.pbxproj | head -10
           
           echo "✅ 타겟별 서명 설정 완료"
           echo "📱 Runner 타겟: Manual Distribution Signing"
           echo "  - CODE_SIGN_STYLE: Manual"
           echo "  - DEVELOPMENT_TEAM: 24SL34R9HR"
           echo "  - CODE_SIGN_IDENTITY: Apple Distribution"
-          echo "  - PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
+          echo "  - PROVISIONING_PROFILE_SPECIFIER: $SIGNING_PROFILE_NAME"
           echo "📦 CocoaPods 타겟들: Automatic Signing (변경 없음)"
 
       - name: Shorebird iOS Release and Build IPA
