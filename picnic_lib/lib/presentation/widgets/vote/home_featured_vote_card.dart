@@ -108,7 +108,6 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.grey00,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: AppColors.primary500.withValues(alpha: 0.25)),
         boxShadow: [
@@ -123,7 +122,10 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
       clipBehavior: Clip.antiAlias,
       child: RepaintBoundary(
         key: _globalKey,
-        child: Column(
+        // 흰 배경을 캡처 경계(_globalKey) 안에 둬야 저장 이미지가 검게 안 나온다.
+        child: ColoredBox(
+          color: AppColors.grey00,
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
@@ -148,12 +150,14 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8),
-                          if (vote.stopAt != null)
+                          // 저장 이미지에서는 타이머 제외(_isSaving 동안 숨김)
+                          if (!_isSaving && vote.stopAt != null) ...[
+                            const SizedBox(height: 8),
                             CountdownTimer(
                               endTime: vote.stopAt!,
                               status: VoteStatus.active,
                             ),
+                          ],
                         ],
                       ),
                     ),
@@ -185,6 +189,7 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
                 ),
               ),
           ],
+          ),
         ),
       ),
     );
@@ -231,7 +236,7 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
-                '1',
+                '🥇 1st',
                 style: getTextStyle(AppTypo.caption12B, AppColors.grey00),
               ),
             ),

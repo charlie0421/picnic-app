@@ -10,11 +10,20 @@ import 'package:picnic_lib/presentation/providers/latest_media_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// 홈 화면 최신 미디어(유튜브 영상) 가로 캐러셀 섹션.
+/// 홈 화면 최신 미디어(유튜브 영상) 2열 그리드 섹션.
 ///
-/// 리워드 리스트(`reward_list_section.dart`)와 동일한 120x100 카드 규격을 사용한다.
+/// 리워드 섹션(`reward_list_section.dart`)과 동일한 그리드 규격을 사용한다.
+/// 홈 세로 [ListView] 안에서 `shrinkWrap`으로 여러 줄을 노출한다.
 class LatestMediaSection extends ConsumerWidget {
   const LatestMediaSection({super.key});
+
+  /// 2열 그리드 셀 규격.
+  static const _gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 2,
+    crossAxisSpacing: 12,
+    mainAxisSpacing: 12,
+    childAspectRatio: 1.45,
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,11 +43,13 @@ class LatestMediaSection extends ConsumerWidget {
         mediaAsync.when(
           loading: () => const SizedBox(height: 100),
           error: (e, s) => const SizedBox.shrink(),
-          data: (items) => SizedBox(
-            height: 100,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.only(left: 16.w),
+          data: (items) => Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              gridDelegate: _gridDelegate,
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
@@ -46,34 +57,23 @@ class LatestMediaSection extends ConsumerWidget {
 
                 return GestureDetector(
                   onTap: () => _launch(item),
-                  child: Container(
-                    width: 120,
-                    height: 100,
-                    margin: const EdgeInsets.only(right: 16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
                     child: Stack(
+                      fit: StackFit.expand,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: PicnicCachedNetworkImage(
-                            key: ValueKey('latest_media_${item.id}'),
-                            imageUrl: item.thumbnailUrl,
-                            width: 120,
-                            height: 100,
-                            fit: BoxFit.cover,
-                          ),
+                        PicnicCachedNetworkImage(
+                          key: ValueKey('latest_media_${item.id}'),
+                          imageUrl: item.thumbnailUrl,
+                          fit: BoxFit.cover,
                         ),
                         Positioned(
+                          left: 0,
+                          right: 0,
                           bottom: 0,
                           child: Container(
-                            width: 120,
                             height: 30,
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.only(
-                                bottomLeft: Radius.circular(8),
-                                bottomRight: Radius.circular(8),
-                              ),
-                              color: AppColors.grey900.withValues(alpha: 0.7),
-                            ),
+                            color: AppColors.grey900.withValues(alpha: 0.7),
                             alignment: Alignment.center,
                             padding: const EdgeInsets.symmetric(
                               vertical: 4,

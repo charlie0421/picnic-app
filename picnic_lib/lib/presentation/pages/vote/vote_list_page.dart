@@ -128,32 +128,48 @@ class _VoteListContentState extends ConsumerState<VoteListContent>
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             labelPadding: EdgeInsets.zero,
-            indicatorWeight: 3,
-            indicatorColor: AppColors.primary500,
+            // 기본 인디케이터/디바이더 제거 → 탭별 자체 하단선을 그린다.
+            indicator: const BoxDecoration(),
             indicatorSize: TabBarIndicatorSize.label,
+            dividerColor: Colors.transparent,
             labelColor: AppColors.primary500,
             unselectedLabelColor: AppColors.grey400,
             labelStyle: getTextStyle(AppTypo.body16B),
             unselectedLabelStyle: getTextStyle(AppTypo.body16M),
-            tabs: _voteTabs
-                .map(
-                  (t) => Tab(
-                    child: SizedBox(
+            tabs: List.generate(_voteTabs.length, (i) {
+              return Tab(
+                // 각 탭 하단에 퍼플 라인: 선택=진함(3px), 비선택=연함(2px).
+                // 탭 경계 구분 + 마지막 탭이 잘려 보여 가로 스크롤을 암시한다.
+                child: AnimatedBuilder(
+                  animation: _tabController,
+                  builder: (context, _) {
+                    final selected = _tabController.index == i;
+                    return Container(
                       width: tabWidth,
-                      child: Center(
-                        child: Text(
-                          t.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: selected
+                                ? AppColors.primary500
+                                : AppColors.primary500.withValues(alpha: 0.22),
+                            width: selected ? 3 : 2,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                )
-                .toList(),
+                      child: Text(
+                        _voteTabs[i].label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  },
+                ),
+              );
+            }),
           ),
         ),
-        Divider(height: 1, thickness: 1, color: AppColors.grey200),
         // 상태 필터 드롭다운 (테마 pill)
         Padding(
           padding: EdgeInsets.fromLTRB(16.w, 10, 16.w, 6),

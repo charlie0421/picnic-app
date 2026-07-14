@@ -330,7 +330,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   void _scrollToSearchBox() {
     _scrollController.animateTo(
-      210.w,
+      // 상단 간격 spacer(16) 만큼 이후 슬리버가 밀렸으므로 타깃도 보정.
+      210.w + 16,
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
     );
@@ -521,6 +522,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                         keyboardDismissBehavior:
                             ScrollViewKeyboardDismissBehavior.onDrag,
                         slivers: [
+                          // 상단 민트 바와 컨텐츠 사이 일정한 간격.
+                          // 캡처 경계(_captureKey) 밖에 둬서 저장 이미지엔 포함되지 않고,
+                          // 페이지가 소유하므로 재진입 등 chrome 상태와 무관하게 일정하다.
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: 16),
+                          ),
                           SliverToBoxAdapter(
                             child: RepaintBoundary(
                               key: _captureKey,
