@@ -330,7 +330,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   void _scrollToSearchBox() {
     _scrollController.animateTo(
-      210.w,
+      // 상단 간격 spacer(16) 만큼 이후 슬리버가 밀렸으므로 타깃도 보정.
+      210.w + 16,
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
     );
