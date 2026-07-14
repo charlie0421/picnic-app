@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
@@ -99,8 +100,17 @@ class _PortalState extends ConsumerState<Portal> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    if (Environment.currentEnvironment != 'prod')
+                    // 앱 워드마크 로고 (좌측 정렬)
+                    SvgPicture.asset(
+                      'assets/images/fortune/picnic_logo.svg',
+                      package: 'picnic_lib',
+                      height: 20,
+                      fit: BoxFit.contain,
+                    ),
+                    if (Environment.currentEnvironment != 'prod') ...[
+                      SizedBox(width: 8.w),
                       Text(Environment.currentEnvironment),
+                    ],
                   ],
                 ),
               ),
