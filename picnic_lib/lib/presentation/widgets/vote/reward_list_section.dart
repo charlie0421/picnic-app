@@ -12,19 +12,28 @@ import 'package:shimmer/shimmer.dart';
 
 /// 홈/투표 화면 공용 리워드 리스트 섹션.
 ///
-/// `vote_home_page.dart`의 `_buildRewardList`를 재사용 가능한 위젯으로 추출한 것.
+/// 2열 그리드로 렌더링한다. 홈 세로 [ListView] 안에서 `shrinkWrap`으로
+/// 전체 높이를 잡아 여러 줄을 노출하고, 자연히 스크롤 거리를 늘린다.
 class RewardListSection extends ConsumerWidget {
   const RewardListSection({super.key});
+
+  /// 2열 그리드 셀 규격.
+  static const _gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 2,
+    crossAxisSpacing: 12,
+    mainAxisSpacing: 12,
+    childAspectRatio: 1.45,
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncRewardListState = ref.watch(asyncRewardListProvider);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        Padding(
           padding: EdgeInsets.only(left: 16.w),
-          alignment: Alignment.centerLeft,
           child: Text(
             AppLocalizations.of(context).label_vote_reward_list,
             style: getTextStyle(AppTypo.title18B, AppColors.grey900),
@@ -32,104 +41,81 @@ class RewardListSection extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         asyncRewardListState.when(
-          data: (data) => Container(
-            alignment: Alignment.centerLeft,
-            padding: EdgeInsets.only(left: 16.w),
-            height: 100,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
+          data: (data) => Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              gridDelegate: _gridDelegate,
               itemCount: data.length,
-              cacheExtent: 400.0,
-              addAutomaticKeepAlives: true,
-              addRepaintBoundaries: true,
               itemBuilder: (context, index) {
                 final title = getLocaleTextFromJson(data[index].title!);
-                final isHighPriority = index < 3;
+                final isHighPriority = index < 4;
 
                 return GestureDetector(
                   onTap: () => showRewardDialog(context, data[index]),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8).r,
-                    ),
-                    child: SizedBox(
-                      width: 120,
-                      height: 100,
-                      child: Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: PicnicCachedNetworkImage(
-                              key: ValueKey('reward_${data[index].id}'),
-                              imageUrl: data[index].thumbnail ?? '',
-                              width: 120,
-                              height: 100,
-                              fit: BoxFit.fitWidth,
-                              priority: isHighPriority
-                                  ? ImagePriority.high
-                                  : ImagePriority.normal,
-                              enableMemoryOptimization: true,
-                              enableProgressiveLoading: !isHighPriority,
-                              memCacheWidth: 120,
-                              memCacheHeight: 100,
-                              lazyLoadingStrategy: isHighPriority
-                                  ? LazyLoadingStrategy.none
-                                  : LazyLoadingStrategy.viewport,
-                              timeout: const Duration(seconds: 10),
-                              maxRetries: 2,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        PicnicCachedNetworkImage(
+                          key: ValueKey('reward_${data[index].id}'),
+                          imageUrl: data[index].thumbnail ?? '',
+                          fit: BoxFit.cover,
+                          priority: isHighPriority
+                              ? ImagePriority.high
+                              : ImagePriority.normal,
+                          enableMemoryOptimization: true,
+                          enableProgressiveLoading: !isHighPriority,
+                          lazyLoadingStrategy: isHighPriority
+                              ? LazyLoadingStrategy.none
+                              : LazyLoadingStrategy.viewport,
+                          timeout: const Duration(seconds: 10),
+                          maxRetries: 2,
+                        ),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            height: 30,
+                            color: AppColors.grey900.withValues(alpha: 0.7),
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 4,
+                              horizontal: 8,
+                            ),
+                            child: Text(
+                              title,
+                              style: getTextStyle(
+                                AppTypo.body14R,
+                                Colors.white,
+                              ).copyWith(overflow: TextOverflow.ellipsis),
+                              maxLines: 1,
                             ),
                           ),
-                          Positioned(
-                            bottom: 0,
-                            child: Container(
-                              width: 120,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: const Radius.circular(8),
-                                  bottomRight: const Radius.circular(8),
-                                ),
-                                color: AppColors.grey900.withValues(alpha: 0.7),
-                              ),
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 4,
-                                horizontal: 8,
-                              ),
-                              child: Text(
-                                title,
-                                style: getTextStyle(
-                                  AppTypo.body14R,
-                                  Colors.white,
-                                ).copyWith(overflow: TextOverflow.ellipsis),
-                                maxLines: 1,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 );
               },
             ),
           ),
-          loading: () => Shimmer.fromColors(
-            baseColor: AppColors.grey300,
-            highlightColor: AppColors.grey100,
-            child: SizedBox(
-              height: 100,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 5,
-                itemBuilder: (context, index) => Container(
-                  width: 120,
-                  height: 100,
-                  margin: EdgeInsets.only(
-                    left: 16.w,
-                    right: index == 4 ? 16.w : 0,
-                  ),
+          loading: () => Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Shimmer.fromColors(
+              baseColor: AppColors.grey300,
+              highlightColor: AppColors.grey100,
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.zero,
+                gridDelegate: _gridDelegate,
+                itemCount: 4,
+                itemBuilder: (context, index) => DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8.r),
                     color: Colors.white,
