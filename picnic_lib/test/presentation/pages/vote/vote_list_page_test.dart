@@ -89,7 +89,8 @@ void main() {
       expect(tabBar.tabAlignment, TabAlignment.start);
     });
 
-    testWidgets('tab bar has indicator weight 3', (tester) async {
+    testWidgets('tab bar uses per-tab underline (no built-in indicator/divider)',
+        (tester) async {
       await tester.pumpWidget(
         buildTestApp(
           const VoteListContent(isAdmin: false),
@@ -97,8 +98,11 @@ void main() {
       );
       await pumpAndIgnoreErrors(tester);
 
+      // 탭 구분/스크롤 암시를 위해 기본 인디케이터와 디바이더를 끄고
+      // 탭별 퍼플 하단선(AnimatedBuilder)으로 대체했다.
       final tabBar = tester.widget<TabBar>(find.byType(TabBar));
-      expect(tabBar.indicatorWeight, 3);
+      expect(tabBar.indicator, isA<BoxDecoration>());
+      expect(tabBar.dividerColor, Colors.transparent);
     });
 
     testWidgets('TabBarView allows swipe (no NeverScrollableScrollPhysics)',
