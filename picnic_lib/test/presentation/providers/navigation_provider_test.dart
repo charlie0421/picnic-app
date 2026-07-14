@@ -11,7 +11,7 @@ import 'package:picnic_lib/presentation/pages/community/goonghap_list_page.dart'
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/home_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/screens/community/community_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/goong_hap/goong_hap_home_screen.dart';
@@ -142,22 +142,27 @@ void main() {
       expect(state().voteNavigationStack!.length, 1);
     });
 
-    test('restores portal/topMenu/bottomNav when returning to root', () async {
-      // Hide navigation, push a page, then go back
+    test('restores portal/bottomNav but hides top menu when returning to root',
+        () async {
+      // Simulate entering a detail page that shows the top-menu strip
+      // (e.g. VoteDetailPage sets showTopMenu:true + a '투표 상세' title).
+      notifier().setCurrentPage(const Text('Vote Detail'));
       notifier().settingNavigation(
-        showPortal: false,
-        showBottomNavigation: false,
-        showTopMenu: false,
+        showPortal: true,
+        showBottomNavigation: true,
+        showTopMenu: true,
       );
-      notifier().setCurrentPage(const Text('Deep Page'));
       expect(state().voteNavigationStack!.length, 2);
 
       await notifier().goBack();
 
-      // At root now (length 1), so flags should be restored to true
+      // Back at root (length 1): portal + bottom nav are restored, but the
+      // top-menu strip must be hidden — every vote-portal root
+      // (home/vote/media/store) opts out of it. Leaving it true left a stale
+      // '투표 상세' strip on the home tab after popping a detail page.
       expect(state().showPortal, isTrue);
-      expect(state().showTopMenu, isTrue);
       expect(state().showBottomNavigation, isTrue);
+      expect(state().showTopMenu, isFalse);
     });
 
     test('currentScreen is updated to the page below', () async {
@@ -387,7 +392,8 @@ void main() {
       expect(nav.voteBottomNavigationIndex, 0);
       expect(nav.voteNavigationStack, isNotNull);
       expect(nav.voteNavigationStack!.length, 1);
-      expect(nav.voteNavigationStack!.peek(), isA<VoteHomePage>());
+      // 개편 후 vote 포탈 index 0 은 HomePage (구 VoteHomePage 대체).
+      expect(nav.voteNavigationStack!.peek(), isA<HomePage>());
     });
 
     test('sets portalType to goongHap', () {
@@ -980,9 +986,10 @@ void main() {
 
       await notifier().goBack();
 
-      // Back at root (length 1), flags restored
+      // Back at root (length 1): portal + bottom nav restored, but the
+      // top-menu strip stays hidden (all vote-portal roots opt out).
       expect(state().showPortal, isTrue);
-      expect(state().showTopMenu, isTrue);
+      expect(state().showTopMenu, isFalse);
       expect(state().showBottomNavigation, isTrue);
     });
 

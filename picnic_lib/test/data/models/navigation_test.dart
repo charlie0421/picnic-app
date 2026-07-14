@@ -325,7 +325,9 @@ void main() {
     test('getPages returns pages for vote', () {
       final pages = NavigationConfigs.getPages(PortalType.vote);
       expect(pages.length, 4);
-      expect(pages[0].title, 'nav_vote');
+      // 개편 후 vote 포탈 탭 순서: 홈 · 투표 · 미디어 · 상점.
+      expect(pages[0].title, 'nav_home');
+      expect(pages[1].title, 'nav_vote');
     });
 
     test('getPages for unknown portal returns empty', () {
