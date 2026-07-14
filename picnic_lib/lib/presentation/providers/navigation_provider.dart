@@ -67,9 +67,14 @@ class NavigationInfo extends _$NavigationInfo {
       state = state.copyWith(
         voteNavigationStack: voteNavigationStack,
         currentScreen: currentPage,
-        // 루트로 돌아오면 포탈/탑메뉴/바텀네비 복원
+        // 루트로 돌아오면 포탈/바텀네비는 복원하되, 탑메뉴 스트립은 숨긴다.
+        // vote 포탈의 모든 루트(홈/투표/미디어/상점)는 상단 제목 스트립을
+        // 노출하지 않는다. 루트 페이지는 IndexedStack 으로 keep-alive 되어
+        // 재-mount 되지 않으므로(=자체 settingNavigation 재실행 안 됨),
+        // 상세 페이지가 showTopMenu:true 로 켠 스트립을 여기서 꺼주지 않으면
+        // 홈으로 돌아왔을 때 '투표 상세' 스트립이 스테일하게 남는다.
         showPortal: isAtRoot ? true : state.showPortal,
-        showTopMenu: isAtRoot ? true : state.showTopMenu,
+        showTopMenu: isAtRoot ? false : state.showTopMenu,
         showBottomNavigation: isAtRoot ? true : state.showBottomNavigation,
       );
     } else {
