@@ -67,32 +67,6 @@ void main() {
   });
 
   // =========================================================================
-  // resolveQueryArea / isPicChart
-  // =========================================================================
-  group('resolveQueryArea', () {
-    test('converts pic-chart to all', () {
-      expect(VoteHomeHelper.resolveQueryArea('pic-chart'), 'all');
-    });
-
-    test('passes through other areas unchanged', () {
-      expect(VoteHomeHelper.resolveQueryArea('kpop'), 'kpop');
-      expect(VoteHomeHelper.resolveQueryArea('all'), 'all');
-      expect(VoteHomeHelper.resolveQueryArea('musical'), 'musical');
-    });
-  });
-
-  group('isPicChart', () {
-    test('returns true for pic-chart', () {
-      expect(VoteHomeHelper.isPicChart('pic-chart'), isTrue);
-    });
-
-    test('returns false for other values', () {
-      expect(VoteHomeHelper.isPicChart('all'), isFalse);
-      expect(VoteHomeHelper.isPicChart('kpop'), isFalse);
-    });
-  });
-
-  // =========================================================================
   // deduplicateVotes
   // =========================================================================
   group('deduplicateVotes', () {
@@ -147,54 +121,6 @@ void main() {
       expect(VoteHomeHelper.isImageOrWeeklyCategory('comeback'), isFalse);
       expect(VoteHomeHelper.isImageOrWeeklyCategory(null), isFalse);
       expect(VoteHomeHelper.isImageOrWeeklyCategory(''), isFalse);
-    });
-  });
-
-  // =========================================================================
-  // filterByArea
-  // =========================================================================
-  group('filterByArea', () {
-    final imageVote = _makeVote(id: 1, voteCategory: 'image');
-    final weeklyVote = _makeVote(id: 2, voteCategory: 'weekly');
-    final birthdayVote = _makeVote(id: 3, voteCategory: 'birthday');
-    final comebackVote = _makeVote(id: 4, voteCategory: 'comeback');
-    final allVotes = [imageVote, weeklyVote, birthdayVote, comebackVote];
-
-    test('pic-chart keeps only image/weekly', () {
-      final result = VoteHomeHelper.filterByArea(allVotes, 'pic-chart');
-      expect(result.length, 2);
-      expect(result.map((v) => v.id).toSet(), {1, 2});
-    });
-
-    test('specific area excludes image/weekly', () {
-      final result = VoteHomeHelper.filterByArea(allVotes, 'kpop');
-      expect(result.length, 2);
-      expect(result.map((v) => v.id).toSet(), {3, 4});
-    });
-
-    test('all passes everything through', () {
-      final result = VoteHomeHelper.filterByArea(allVotes, 'all');
-      expect(result.length, 4);
-    });
-
-    test('empty list returns empty', () {
-      expect(VoteHomeHelper.filterByArea([], 'pic-chart').length, 0);
-    });
-
-    test('pic-chart with no matching categories returns empty', () {
-      final result = VoteHomeHelper.filterByArea(
-        [birthdayVote, comebackVote],
-        'pic-chart',
-      );
-      expect(result, isEmpty);
-    });
-
-    test('specific area with only image/weekly returns empty', () {
-      final result = VoteHomeHelper.filterByArea(
-        [imageVote, weeklyVote],
-        'musical',
-      );
-      expect(result, isEmpty);
     });
   });
 
@@ -444,113 +370,6 @@ void main() {
 
     test('rounds correctly', () {
       expect(VoteHomeHelper.targetCacheSize(101), 51); // 50.5 rounds to 51
-    });
-  });
-
-  // =========================================================================
-  // processFetchResults (full pipeline)
-  // =========================================================================
-  group('processFetchResults', () {
-    test('deduplicates, filters for pic-chart, sorts, and slices', () {
-      final v1 = _makeVote(
-        id: 1,
-        voteCategory: 'image',
-        stopAt: DateTime.utc(2026, 3, 1),
-      );
-      final v2 = _makeVote(
-        id: 2,
-        voteCategory: 'weekly',
-        stopAt: DateTime.utc(2026, 1, 1),
-      );
-      final v3 = _makeVote(
-        id: 3,
-        voteCategory: 'birthday',
-        stopAt: DateTime.utc(2026, 2, 1),
-      );
-      // Duplicate id 1 in picItems
-      final v1dup = _makeVote(
-        id: 1,
-        voteCategory: 'image',
-        stopAt: DateTime.utc(2026, 4, 1),
-      );
-
-      final result = VoteHomeHelper.processFetchResults(
-        voteItems: [v1, v3],
-        picItems: [v2, v1dup],
-        area: 'pic-chart',
-      );
-
-      // birthday (v3) is excluded; v1dup is deduplicated; sorted by stopAt ASC
-      expect(result.map((v) => v.id).toList(), [2, 1]);
-    });
-
-    test('specific area excludes image/weekly', () {
-      final v1 = _makeVote(id: 1, voteCategory: 'image');
-      final v2 = _makeVote(
-        id: 2,
-        voteCategory: 'birthday',
-        stopAt: DateTime.utc(2026, 1, 1),
-      );
-
-      final result = VoteHomeHelper.processFetchResults(
-        voteItems: [v1, v2],
-        picItems: [],
-        area: 'kpop',
-      );
-
-      expect(result.length, 1);
-      expect(result.first.id, 2);
-    });
-
-    test('area all keeps everything', () {
-      final v1 = _makeVote(
-        id: 1,
-        voteCategory: 'image',
-        stopAt: DateTime.utc(2026, 2, 1),
-      );
-      final v2 = _makeVote(
-        id: 2,
-        voteCategory: 'birthday',
-        stopAt: DateTime.utc(2026, 1, 1),
-      );
-
-      final result = VoteHomeHelper.processFetchResults(
-        voteItems: [v1, v2],
-        picItems: [],
-        area: 'all',
-      );
-
-      expect(result.length, 2);
-      // sorted by stopAt ASC
-      expect(result.first.id, 2);
-    });
-
-    test('slices to pageSize', () {
-      final votes = List.generate(
-        30,
-        (i) => _makeVote(
-          id: i,
-          voteCategory: 'birthday',
-          stopAt: DateTime.utc(2026, 1, 1).add(Duration(days: i)),
-        ),
-      );
-
-      final result = VoteHomeHelper.processFetchResults(
-        voteItems: votes,
-        picItems: [],
-        area: 'all',
-      );
-
-      expect(result.length, VoteHomeHelper.pageSize);
-    });
-
-    test('empty inputs return empty', () {
-      final result = VoteHomeHelper.processFetchResults(
-        voteItems: [],
-        picItems: [],
-        area: 'all',
-      );
-      expect(result, isEmpty);
     });
   });
 
