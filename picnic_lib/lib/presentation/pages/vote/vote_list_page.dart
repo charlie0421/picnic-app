@@ -107,7 +107,7 @@ class _VoteListContentState extends ConsumerState<VoteListContent> {
     final tab = _voteTabs[_selectedTab];
 
     // 저장/공유 시 공통 아이콘 펄스 오버레이. VoteInfoCard 가
-    // context.showLoadingWithIcon() 로 이 오버레이를 부른다.
+    // LoadingOverlayWithIcon.of(context) 로 이 오버레이를 부른다.
     return AppSaveLoadingOverlay(
       child: Column(
       children: [

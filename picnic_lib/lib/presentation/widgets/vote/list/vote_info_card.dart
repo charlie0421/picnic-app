@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
@@ -60,14 +61,25 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   LoadingOverlayWithIconState? _overlay;
 
   void _showOverlay() {
+    // 페이지가 공통 펄스 오버레이로 감싸져 있으면(투표 리스트) 펄스를,
+    // 없으면(PIC 홈 등) 기존 전역 스피너를 폴백으로 쓴다. 둘 다 dispose-safe
+    // (펄스=저장한 State 참조로, 스피너=전역 static 으로 hide).
     _overlay = LoadingOverlayWithIcon.of(context);
-    _overlay?.show();
+    if (_overlay != null) {
+      _overlay!.show();
+    } else {
+      OverlayLoadingProgress.start(context, color: AppColors.primary500);
+    }
     if (mounted) setState(() => _isSaving = true);
   }
 
   void _hideOverlay() {
-    _overlay?.hide();
-    _overlay = null;
+    if (_overlay != null) {
+      _overlay!.hide();
+      _overlay = null;
+    } else {
+      OverlayLoadingProgress.stop();
+    }
     if (mounted) setState(() => _isSaving = false);
   }
   bool _disposed = false;

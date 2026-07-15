@@ -63,7 +63,7 @@ class _HomePageState extends ConsumerState<HomePage>
   @override
   Widget build(BuildContext context) {
     // 저장/공유 시 공통 펄스 오버레이(앱 아이콘 스케일·페이드)를 홈 전체에
-    // 씌운다. 카드가 context.showLoadingWithIcon()로 이 오버레이를 부른다.
+    // 씌운다. 카드가 LoadingOverlayWithIcon.of(context) 로 이 오버레이를 부른다.
     return AppSaveLoadingOverlay(
       child: RefreshIndicator(
         color: AppColors.primary500,
