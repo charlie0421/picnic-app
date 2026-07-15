@@ -54,6 +54,12 @@ class _VoteListState extends ConsumerState<VoteList> {
     bool isRefresh = false,
   }) async {
     if (_noMoreItems && !isInitialLoad && !isRefresh) {
+      // 더 가져올 게 없으면 즉시 리턴하되, 진행 표시 플래그는 반드시 되돌린다.
+      // 안 그러면 하단 VoteCardSkeleton(진행 표시)이 카드를 영구히 덮어
+      // 회색 잔상처럼 남는다.
+      if (_isFetchingMore) {
+        _setStateIfMounted(() => _isFetchingMore = false);
+      }
       return;
     }
     // 디버그 상태 로그 추가
@@ -174,8 +180,9 @@ class _VoteListState extends ConsumerState<VoteList> {
   }
 
   void _onPageChanged(int index) {
-    // 마지막 아이템에 도달하면 추가 fetch
-    if (!_isFetchingMore && index == _items.length - 1) {
+    // 마지막 아이템에 도달하면 추가 fetch. 더 없을 땐(_noMoreItems) 트리거하지
+    // 않아 진행 스켈레톤이 뜨지 않게 한다.
+    if (!_isFetchingMore && !_noMoreItems && index == _items.length - 1) {
       _setStateIfMounted(() {
         _isFetchingMore = true;
       });
