@@ -40,9 +40,11 @@ class ShareUtils {
       canvas.drawImage(image, Offset.zero, Paint());
       final flattened =
           await recorder.endRecording().toImage(image.width, image.height);
+      image.dispose();
 
       final byteData =
           await flattened.toByteData(format: ui.ImageByteFormat.png);
+      flattened.dispose();
       if (byteData == null) {
         logger.e('ByteData is null');
         return null;

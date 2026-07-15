@@ -47,17 +47,28 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
   final GlobalKey _shareKey = GlobalKey();
   bool _isSaving = false;
 
+  // 저장/공유 시작 시 홈의 로딩 오버레이 State 를 붙잡아 둔다. 캐러셀을 스와이프해
+  // 이 카드가 dispose 돼도(카드 context 무효화) 이 참조로 hide() 가 도달하므로
+  // 오버레이가 홈을 영구히 덮는 일이 없다.
+  LoadingOverlayWithIconState? _overlay;
+
+  void _showOverlay() {
+    _overlay = LoadingOverlayWithIcon.of(context);
+    _overlay?.show();
+    if (mounted) setState(() => _isSaving = true);
+  }
+
+  void _hideOverlay() {
+    _overlay?.hide();
+    _overlay = null;
+    if (mounted) setState(() => _isSaving = false);
+  }
+
   void _handleSaveImage() async {
     await ShareUtils.saveImage(
       _globalKey,
-      onStart: () {
-        context.showLoadingWithIcon();
-        setState(() => _isSaving = true);
-      },
-      onComplete: () {
-        context.hideLoadingWithIcon();
-        setState(() => _isSaving = false);
-      },
+      onStart: _showOverlay,
+      onComplete: _hideOverlay,
     );
   }
 
@@ -70,18 +81,12 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
       ),
       hashtag:
           '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(widget.vote.title, navigatorKey.currentContext!).replaceAll(' ', '')}',
-      onStart: () {
-        context.showLoadingWithIcon();
-        setState(() => _isSaving = true);
-      },
+      onStart: _showOverlay,
       downloadLink: await createBranchLink(
         getLocaleTextFromJson(widget.vote.title, context),
         '${Environment.appLinkPrefix}/vote/detail/${widget.vote.id}',
       ),
-      onComplete: () {
-        context.hideLoadingWithIcon();
-        setState(() => _isSaving = false);
-      },
+      onComplete: _hideOverlay,
     );
   }
 
