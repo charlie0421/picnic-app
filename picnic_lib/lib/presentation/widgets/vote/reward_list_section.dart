@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/data/models/reward.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -74,7 +75,7 @@ class RewardListSection extends ConsumerWidget {
     );
   }
 
-  Widget _rewardCard(BuildContext context, dynamic reward, int index) {
+  Widget _rewardCard(BuildContext context, RewardModel reward, int index) {
     final title = getLocaleTextFromJson(reward.title!);
     final isHighPriority = index < 4;
 
