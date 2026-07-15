@@ -531,13 +531,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                           SliverToBoxAdapter(
                             child: RepaintBoundary(
                               key: _captureKey,
-                              child: Column(
-                                children: [
-                                  _buildVoteInfo(context, voteModel),
-                                  SizedBox(height: 12),
-                                  if (_isSaving)
-                                    _buildCaptureVoteList(context),
-                                ],
+                              // 흰 배경을 캡처 경계 안에 둬야 저장 이미지가 검게 안 나온다.
+                              child: ColoredBox(
+                                color: AppColors.grey00,
+                                child: Column(
+                                  children: [
+                                    _buildVoteInfo(context, voteModel),
+                                    SizedBox(height: 12),
+                                    if (_isSaving)
+                                      _buildCaptureVoteList(context),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
