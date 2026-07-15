@@ -457,6 +457,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       enableFade: true, // pulse 효과를 위한 페이드
       loadingMessage: null, // 텍스트 제거
       iconAssetPath: 'assets/app_icon_128.png', // 커스텀 앱 아이콘 사용
+      iconSize: 40, // 기본 64 는 커서 작게 통일
       // pulse 효과를 위한 커스텀 설정
       scaleDuration: Duration(milliseconds: 800), // 더 빠른 pulse
       fadeDuration: Duration(milliseconds: 800), // 스케일과 동기화

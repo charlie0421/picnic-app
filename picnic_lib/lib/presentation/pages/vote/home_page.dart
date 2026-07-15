@@ -9,7 +9,7 @@ import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/latest_media_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
-import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_with_icon.dart';
+import 'package:picnic_lib/presentation/widgets/ui/app_save_loading_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_carousel.dart';
 import 'package:picnic_lib/presentation/widgets/vote/latest_media_section.dart';
 import 'package:picnic_lib/presentation/widgets/vote/reward_list_section.dart';
@@ -63,18 +63,8 @@ class _HomePageState extends ConsumerState<HomePage>
   @override
   Widget build(BuildContext context) {
     // 저장/공유 시 공통 펄스 오버레이(앱 아이콘 스케일·페이드)를 홈 전체에
-    // 씌운다. 카드가 context.showLoadingOverlay()로 이 오버레이를 부른다.
-    return LoadingOverlayWithIcon(
-      enableRotation: false,
-      enableScale: true,
-      enableFade: true,
-      loadingMessage: null,
-      iconAssetPath: 'assets/app_icon_128.png',
-      scaleDuration: const Duration(milliseconds: 800),
-      fadeDuration: const Duration(milliseconds: 800),
-      minScale: 0.98,
-      maxScale: 1.02,
-      showProgressIndicator: false,
+    // 씌운다. 카드가 LoadingOverlayWithIcon.of(context) 로 이 오버레이를 부른다.
+    return AppSaveLoadingOverlay(
       child: RefreshIndicator(
         color: AppColors.primary500,
         backgroundColor: Colors.white,
