@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
@@ -188,6 +189,9 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
                   ),
                 ),
               ),
+            // 저장 시엔 ShareSection이 빠져 hero가 카드 밑단까지 커지며 이름/퍼센트가
+            // 잘린다. 하단 여백을 줘서 캡처 이미지에서 잘리지 않게 한다.
+            if (_isSaving) const SizedBox(height: 16),
           ],
           ),
         ),
@@ -225,20 +229,14 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
               ),
             ),
           ),
-          // 1위 배지 (좌상단)
+          // 1위 금메달 (좌상단) — 텍스트 대신 이미지로 표기
           Positioned(
-            top: 12,
-            left: 12,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-              decoration: BoxDecoration(
-                color: AppColors.primary500,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                '🥇 1st',
-                style: getTextStyle(AppTypo.caption12B, AppColors.grey00),
-              ),
+            top: 10,
+            left: 10,
+            child: SvgPicture.asset(
+              'assets/images/gold_medal.svg',
+              package: 'picnic_lib',
+              height: 44,
             ),
           ),
           // 이름 + 퍼센트 (하단)
