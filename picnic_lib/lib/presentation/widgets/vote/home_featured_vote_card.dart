@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
@@ -16,6 +15,7 @@ import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_with_icon.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -51,11 +51,11 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
     await ShareUtils.saveImage(
       _globalKey,
       onStart: () {
-        OverlayLoadingProgress.start(context, color: AppColors.primary500);
+        context.showLoadingWithIcon();
         setState(() => _isSaving = true);
       },
       onComplete: () {
-        OverlayLoadingProgress.stop();
+        context.hideLoadingWithIcon();
         setState(() => _isSaving = false);
       },
     );
@@ -71,7 +71,7 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
       hashtag:
           '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(widget.vote.title, navigatorKey.currentContext!).replaceAll(' ', '')}',
       onStart: () {
-        OverlayLoadingProgress.start(context, color: AppColors.primary500);
+        context.showLoadingWithIcon();
         setState(() => _isSaving = true);
       },
       downloadLink: await createBranchLink(
@@ -79,7 +79,7 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
         '${Environment.appLinkPrefix}/vote/detail/${widget.vote.id}',
       ),
       onComplete: () {
-        OverlayLoadingProgress.stop();
+        context.hideLoadingWithIcon();
         setState(() => _isSaving = false);
       },
     );

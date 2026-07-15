@@ -9,6 +9,7 @@ import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/latest_media_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_with_icon.dart';
 import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_carousel.dart';
 import 'package:picnic_lib/presentation/widgets/vote/latest_media_section.dart';
 import 'package:picnic_lib/presentation/widgets/vote/reward_list_section.dart';
@@ -61,10 +62,23 @@ class _HomePageState extends ConsumerState<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      color: AppColors.primary500,
-      backgroundColor: Colors.white,
-      onRefresh: () async {
+    // 저장/공유 시 공통 펄스 오버레이(앱 아이콘 스케일·페이드)를 홈 전체에
+    // 씌운다. 카드가 context.showLoadingOverlay()로 이 오버레이를 부른다.
+    return LoadingOverlayWithIcon(
+      enableRotation: false,
+      enableScale: true,
+      enableFade: true,
+      loadingMessage: null,
+      iconAssetPath: 'assets/app_icon_128.png',
+      scaleDuration: const Duration(milliseconds: 800),
+      fadeDuration: const Duration(milliseconds: 800),
+      minScale: 0.98,
+      maxScale: 1.02,
+      showProgressIndicator: false,
+      child: RefreshIndicator(
+        color: AppColors.primary500,
+        backgroundColor: Colors.white,
+        onRefresh: () async {
         ref.invalidate(asyncBannerListProvider(location: 'vote_home'));
         ref.invalidate(asyncRewardListProvider);
         ref.invalidate(asyncLatestMediaProvider);
@@ -90,6 +104,7 @@ class _HomePageState extends ConsumerState<HomePage>
           // 하단 플로팅 탭바에 마지막 섹션이 가리지 않도록 여백 확보
           const SizedBox(height: 96),
         ],
+        ),
       ),
     );
   }
