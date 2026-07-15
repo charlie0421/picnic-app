@@ -79,7 +79,9 @@ class _VoteTab {
   const _VoteTab(this.label, this.area);
 }
 
+// 투표 종류 태그(칩). 'ALL'(전체)을 첫 번째로. area='all'은 필터 없이 전체.
 const List<_VoteTab> _voteTabs = [
+  _VoteTab('ALL', 'all'),
   _VoteTab('PICNIC', 'kpop'),
   _VoteTab('PIC CHART', 'pic-chart'),
   _VoteTab('MUSICAL', 'musical'),
@@ -95,81 +97,19 @@ class VoteListContent extends ConsumerStatefulWidget {
   ConsumerState<VoteListContent> createState() => _VoteListContentState();
 }
 
-class _VoteListContentState extends ConsumerState<VoteListContent>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
+class _VoteListContentState extends ConsumerState<VoteListContent> {
+  int _selectedTab = 0; // 기본 ALL(전체)
   VoteStatus _status = VoteStatus.active; // 기본 진행중, 미저장
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: _voteTabs.length, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // 3.5개 정도가 보이도록 각 탭을 고정폭으로 → 가로 스크롤 존재를 암시.
-    final tabWidth = MediaQuery.of(context).size.width / 3.5;
+    final tab = _voteTabs[_selectedTab];
 
     return Column(
       children: [
         const SizedBox(height: 8),
-        // 종류 탭 (가로 스크롤 + 스와이프)
-        SizedBox(
-          height: 44,
-          child: TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            labelPadding: EdgeInsets.zero,
-            // 기본 인디케이터/디바이더 제거 → 탭별 자체 하단선을 그린다.
-            indicator: const BoxDecoration(),
-            indicatorSize: TabBarIndicatorSize.label,
-            dividerColor: Colors.transparent,
-            labelColor: AppColors.primary500,
-            unselectedLabelColor: AppColors.grey400,
-            labelStyle: getTextStyle(AppTypo.body16B),
-            unselectedLabelStyle: getTextStyle(AppTypo.body16M),
-            tabs: List.generate(_voteTabs.length, (i) {
-              return Tab(
-                // 각 탭 하단에 퍼플 라인: 선택=진함(3px), 비선택=연함(2px).
-                // 탭 경계 구분 + 마지막 탭이 잘려 보여 가로 스크롤을 암시한다.
-                child: AnimatedBuilder(
-                  animation: _tabController,
-                  builder: (context, _) {
-                    final selected = _tabController.index == i;
-                    return Container(
-                      width: tabWidth,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: selected
-                                ? AppColors.primary500
-                                : AppColors.primary500.withValues(alpha: 0.22),
-                            width: selected ? 3 : 2,
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        _voteTabs[i].label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    );
-                  },
-                ),
-              );
-            }),
-          ),
-        ),
+        // 종류 태그(칩) — 가로 스크롤. 탭 UI 대신 태그 선택 방식.
+        _buildTypeChips(context),
         // 상태 필터 드롭다운 (테마 pill)
         Padding(
           padding: EdgeInsets.fromLTRB(16.w, 10, 16.w, 6),
@@ -178,22 +118,55 @@ class _VoteListContentState extends ConsumerState<VoteListContent>
             child: _buildStatusDropdown(context),
           ),
         ),
-        // 리스트 (종류별 스와이프)
+        // 선택된 태그의 리스트
         Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: _voteTabs
-                .map((t) => VoteList(
-                      _status,
-                      VoteCategory.all,
-                      t.area,
-                      key: ValueKey('votelist_${t.area}_${_status.name}'),
-                      portal: VotePortal.vote,
-                    ))
-                .toList(),
+          child: VoteList(
+            _status,
+            VoteCategory.all,
+            tab.area,
+            key: ValueKey('votelist_${tab.area}_${_status.name}'),
+            portal: VotePortal.vote,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTypeChips(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        itemCount: _voteTabs.length,
+        separatorBuilder: (context, index) => SizedBox(width: 8.w),
+        itemBuilder: (context, i) {
+          final selected = _selectedTab == i;
+          return GestureDetector(
+            onTap: () {
+              if (_selectedTab != i) setState(() => _selectedTab = i);
+            },
+            child: Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              decoration: BoxDecoration(
+                color: selected ? AppColors.primary500 : AppColors.grey00,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: selected ? AppColors.primary500 : AppColors.grey300,
+                ),
+              ),
+              child: Text(
+                _voteTabs[i].label,
+                style: getTextStyle(
+                  selected ? AppTypo.body14B : AppTypo.body14M,
+                  selected ? AppColors.grey00 : AppColors.grey600,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 

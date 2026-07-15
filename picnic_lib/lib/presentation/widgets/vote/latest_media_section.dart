@@ -7,23 +7,16 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/latest_media_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/grid_two_column.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// 홈 화면 최신 미디어(유튜브 영상) 2열 그리드 섹션.
 ///
-/// 리워드 섹션(`reward_list_section.dart`)과 동일한 그리드 규격을 사용한다.
-/// 홈 세로 [ListView] 안에서 `shrinkWrap`으로 여러 줄을 노출한다.
+/// 리워드 섹션과 동일한 [GridTwoColumn](순수 레이아웃) 규격을 사용한다.
+/// 홈 [ListView] 안에서 중첩 스크롤 없이 여러 줄을 노출한다.
 class LatestMediaSection extends ConsumerWidget {
   const LatestMediaSection({super.key});
-
-  /// 2열 그리드 셀 규격.
-  static const _gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    crossAxisSpacing: 12,
-    mainAxisSpacing: 12,
-    childAspectRatio: 1.45,
-  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,52 +38,47 @@ class LatestMediaSection extends ConsumerWidget {
           error: (e, s) => const SizedBox.shrink(),
           data: (items) => Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.zero,
-              gridDelegate: _gridDelegate,
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                final title = getLocaleTextFromJson(item.title);
-
-                return GestureDetector(
-                  onTap: () => _launch(item),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        PicnicCachedNetworkImage(
-                          key: ValueKey('latest_media_${item.id}'),
-                          imageUrl: item.thumbnailUrl,
-                          fit: BoxFit.cover,
-                        ),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            height: 30,
-                            color: AppColors.grey900.withValues(alpha: 0.7),
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 4,
-                              horizontal: 8,
-                            ),
-                            child: _artistEmphasizedTitle(title),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+            child: GridTwoColumn(
+              childAspectRatio: 1.45,
+              children: [
+                for (final item in items) _mediaCard(item),
+              ],
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _mediaCard(VideoInfo item) {
+    final title = getLocaleTextFromJson(item.title);
+    return GestureDetector(
+      onTap: () => _launch(item),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            PicnicCachedNetworkImage(
+              key: ValueKey('latest_media_${item.id}'),
+              imageUrl: item.thumbnailUrl,
+              fit: BoxFit.cover,
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 30,
+                color: AppColors.grey900.withValues(alpha: 0.7),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                child: _artistEmphasizedTitle(title),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
