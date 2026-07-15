@@ -92,27 +92,24 @@ class _PortalState extends ConsumerState<Portal> {
             ),
             leadingWidth: 52.w,
             titleSpacing: 0,
-            title: Container(
+            centerTitle: true,
+            title: SizedBox(
               height: 26,
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(right: 24.w),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    // 앱 워드마크 로고 (좌측 정렬)
-                    SvgPicture.asset(
-                      'assets/images/fortune/picnic_logo.svg',
-                      package: 'picnic_lib',
-                      height: 20,
-                      fit: BoxFit.contain,
-                    ),
-                    if (Environment.currentEnvironment != 'prod') ...[
-                      SizedBox(width: 8.w),
-                      Text(Environment.currentEnvironment),
-                    ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 앱 워드마크 로고 (중앙 정렬)
+                  SvgPicture.asset(
+                    'assets/images/fortune/picnic_logo.svg',
+                    package: 'picnic_lib',
+                    height: 20,
+                    fit: BoxFit.contain,
+                  ),
+                  if (Environment.currentEnvironment != 'prod') ...[
+                    SizedBox(width: 8.w),
+                    Text(Environment.currentEnvironment),
                   ],
-                ),
+                ],
               ),
             ),
             actions: [
