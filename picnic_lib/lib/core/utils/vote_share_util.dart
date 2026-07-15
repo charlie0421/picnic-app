@@ -28,7 +28,21 @@ class ShareUtils {
 
       // 캡처 및 이미지 생성
       final image = await boundary.toImage(pixelRatio: 2.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+
+      // 투명 픽셀이 저장 시 검정으로 보이는 문제(특히 Android PNG 알파)를 막기 위해
+      // 캡처 이미지를 흰 캔버스에 합성해 완전 불투명 배경으로 평탄화한다.
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+        Paint()..color = Colors.white,
+      );
+      canvas.drawImage(image, Offset.zero, Paint());
+      final flattened =
+          await recorder.endRecording().toImage(image.width, image.height);
+
+      final byteData =
+          await flattened.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) {
         logger.e('ByteData is null');
         return null;
