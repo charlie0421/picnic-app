@@ -5,6 +5,7 @@ import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/app_save_loading_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -105,7 +106,10 @@ class _VoteListContentState extends ConsumerState<VoteListContent> {
   Widget build(BuildContext context) {
     final tab = _voteTabs[_selectedTab];
 
-    return Column(
+    // 저장/공유 시 공통 아이콘 펄스 오버레이. VoteInfoCard 가
+    // context.showLoadingWithIcon() 로 이 오버레이를 부른다.
+    return AppSaveLoadingOverlay(
+      child: Column(
       children: [
         const SizedBox(height: 8),
         // 종류 태그(칩) — 가로 스크롤. 탭 UI 대신 태그 선택 방식.
@@ -129,6 +133,7 @@ class _VoteListContentState extends ConsumerState<VoteListContent> {
           ),
         ),
       ],
+      ),
     );
   }
 
