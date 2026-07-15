@@ -817,7 +817,9 @@ workflows:
       google_play:
         credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
-        submit_as_draft: true
+        # false → Play Console 수동 처리 없이 internal 트랙으로 바로 게시
+        # (draft 로 올려 콘솔에서 승격하던 방식 폐기, rakitten 과 동일)
+        submit_as_draft: false
       slack:
         channel: '#codemagic-picnic'
         notify_on_build_start: true

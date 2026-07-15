@@ -5,6 +5,7 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -264,19 +265,14 @@ class _VoteListState extends ConsumerState<VoteList> {
               );
             },
           ),
+          // 추가 로드 중 표시: 카드를 덮는 풀사이즈 스켈레톤 대신 하단 중앙에
+          // 작은 펄스만 띄운다(현재 카드를 가려 회색 잔상처럼 보이던 문제 방지).
           if (_isFetchingMore)
-            Positioned(
-              bottom: 0,
+            const Positioned(
+              bottom: 16,
               left: 0,
               right: 0,
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: VoteCardSkeleton(
-                  status: _getSkeletonStatus(
-                    _items.isNotEmpty ? _items[_items.length - 1] : null,
-                  ),
-                ),
-              ),
+              child: Center(child: SmallPulseLoadingIndicator()),
             ),
         ],
       ),
