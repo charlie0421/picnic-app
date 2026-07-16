@@ -1284,24 +1284,30 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   /// Ended votes keep the raw count. Live votes show share of total, because
-  /// the raw numbers are what we are trying to stop surfacing.
+  /// the raw numbers are what we are trying to stop surfacing — except for
+  /// admins, who see the raw count with the share alongside.
   Widget _buildVoteCountLabel(VoteItemModel item, bool hasChanged) {
     final style = getTextStyle(AppTypo.caption10SB, AppColors.grey00);
 
     if (isEnded) {
-      return hasChanged
-          ? AnimatedDigitWidget(
-              value: item.voteTotal,
-              enableSeparator: true,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-              textStyle: style,
-            )
-          : Text(NumberFormat('#,###').format(item.voteTotal), style: style);
+      return _buildRawVoteCount(item, hasChanged, style);
     }
 
     final votes = item.voteTotal ?? 0;
     final label = VoteDetailHelper.formatSharePercent(votes, _totalVotes);
+
+    final isAdmin =
+        ref.watch(userInfoProvider.select((value) => value.value?.isAdmin)) ??
+        false;
+    if (isAdmin) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildRawVoteCount(item, hasChanged, style),
+          Text(' ($label)', style: style),
+        ],
+      );
+    }
 
     // '—' and '<0.0001%' have no digits to roll.
     final rollable = hasChanged && !label.startsWith('<') && label != '—';
@@ -1327,6 +1333,22 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       curve: Curves.easeInOut,
       textStyle: style,
     );
+  }
+
+  Widget _buildRawVoteCount(
+    VoteItemModel item,
+    bool hasChanged,
+    TextStyle style,
+  ) {
+    return hasChanged
+        ? AnimatedDigitWidget(
+            value: item.voteTotal,
+            enableSeparator: true,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+            textStyle: style,
+          )
+        : Text(NumberFormat('#,###').format(item.voteTotal), style: style);
   }
 
   Future<void> _handleVoteItemTap(

@@ -442,6 +442,47 @@ void main() {
       expect(find.byType(VoteDetailPage), findsOneWidget);
     });
 
+    testWidgets('live vote shows raw count with share for admin',
+        (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+          userProfile: MockData.userProfile(isAdmin: true),
+        ),
+      );
+
+      // The item list builds on the frame after the fetch resolves.
+      await tester.pump(const Duration(seconds: 1));
+      while (tester.takeException() != null) {}
+      await tester.pump(const Duration(seconds: 1));
+      while (tester.takeException() != null) {}
+
+      // 5000 of 8000 total → raw count plus share.
+      expect(find.text('5,000'), findsOneWidget);
+      expect(find.text(' (62.50%)'), findsOneWidget);
+      expect(find.text(' (37.50%)'), findsOneWidget);
+    });
+
+    testWidgets('live vote hides raw count for non-admin',
+        (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      // The item list builds on the frame after the fetch resolves.
+      await tester.pump(const Duration(seconds: 1));
+      while (tester.takeException() != null) {}
+      await tester.pump(const Duration(seconds: 1));
+      while (tester.takeException() != null) {}
+
+      expect(find.text('62.50%'), findsOneWidget);
+      expect(find.text('5,000'), findsNothing);
+    });
+
     testWidgets('renders with zero candy user', (WidgetTester tester) async {
       await pumpAndDrain(
         tester,
