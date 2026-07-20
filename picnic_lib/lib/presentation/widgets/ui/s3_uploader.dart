@@ -25,6 +25,8 @@ class S3Uploader {
 
   Future<String> uploadFile(
       String folder, dynamic file, Function(double) progressCallback) async {
+    _ensureCredentialsAvailable();
+
     late String fileName;
     late int fileLength;
     late Stream<List<int>> fileStream;
@@ -118,6 +120,12 @@ class S3Uploader {
     } else {
       throw Exception(
           'Failed to upload file: ${response.statusCode}, ${response.body}');
+    }
+  }
+
+  void _ensureCredentialsAvailable() {
+    if (accessKey.trim().isEmpty || secretKey.trim().isEmpty) {
+      throw StateError('Community integration is disabled');
     }
   }
 

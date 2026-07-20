@@ -8,6 +8,21 @@ void main() {
     service = DeepLTranslationService(apiKey: 'test-key', debugMode: false);
   });
 
+  test('빈 API 키는 번역 요청 전에 거부한다', () async {
+    final disabledService = DeepLTranslationService(apiKey: ' ');
+
+    await expectLater(
+      disabledService.translateText('안녕하세요', 'KO', 'EN'),
+      throwsA(
+        isA<StateError>().having(
+          (error) => error.message,
+          'message',
+          'Community integration is disabled',
+        ),
+      ),
+    );
+  });
+
   group('containsKorean', () {
     test('returns true for Korean text', () {
       expect(service.containsKorean('안녕하세요'), isTrue);
