@@ -11,7 +11,18 @@ class VoteItemRequestRepository {
   final SupabaseClient _supabase;
 
   VoteItemRequestRepository({SupabaseClient? supabase})
-      : _supabase = supabase ?? Supabase.instance.client;
+    : _supabase = supabase ?? Supabase.instance.client;
+
+  Never _mapRepositoryError(String operation, Object error) {
+    logger.e('$operation failed', error: error);
+    if (error is VoteRequestException) {
+      throw error;
+    }
+    if (error is PostgrestException && error.code == '42P01') {
+      throw const VoteRequestException('현재 투표 신청 기능을 사용할 수 없습니다.');
+    }
+    throw VoteRequestException('$operation 실패');
+  }
 
   /// 투표 아이템 요청 수 조회
   Future<int> getVoteItemRequestCount(int voteId) async {
@@ -23,13 +34,14 @@ class VoteItemRequestRepository {
 
       return (response as List).length;
     } catch (e) {
-      throw VoteRequestException('투표 아이템 요청 수 조회 실패: $e');
+      _mapRepositoryError('투표 아이템 요청 수 조회', e);
     }
   }
 
   /// 현재 사용자의 신청 내역을 상세 정보와 함께 조회
   Future<List<Map<String, dynamic>>> getCurrentUserApplicationsWithDetails(
-      String userId) async {
+    String userId,
+  ) async {
     try {
       // 뷰를 사용하여 아티스트 정보가 포함된 데이터 조회
       final response = await _supabase
@@ -40,7 +52,7 @@ class VoteItemRequestRepository {
 
       return List<Map<String, dynamic>>.from(response as List);
     } catch (e) {
-      throw VoteRequestException('사용자 신청 내역 조회 실패: $e');
+      _mapRepositoryError('사용자 신청 내역 조회', e);
     }
   }
 
@@ -54,13 +66,16 @@ class VoteItemRequestRepository {
 
       return (response as List).length;
     } catch (e) {
-      throw VoteRequestException('제목별 신청 수 조회 실패: $e');
+      _mapRepositoryError('제목별 신청 수 조회', e);
     }
   }
 
   /// 사용자 신청 상태 조회
   Future<Map<String, dynamic>?> getUserApplicationStatus(
-      String userId, int voteId, int artistId) async {
+    String userId,
+    int voteId,
+    int artistId,
+  ) async {
     try {
       // 뷰를 사용하여 아티스트 정보가 포함된 데이터 조회
       final response = await _supabase
@@ -73,7 +88,7 @@ class VoteItemRequestRepository {
 
       return response;
     } catch (e) {
-      throw VoteRequestException('사용자 신청 상태 조회 실패: $e');
+      _mapRepositoryError('사용자 신청 상태 조회', e);
     }
   }
 
@@ -92,17 +107,18 @@ class VoteItemRequestRepository {
 
       return VoteItemRequestUser.fromJson(result);
     } catch (e) {
-      throw VoteRequestException('VoteItemRequestUser 생성 실패: $e');
+      _mapRepositoryError('VoteItemRequestUser 생성', e);
     }
   }
 
   /// 사용자의 투표 아이템 신청 목록 조회
   Future<List<Map<String, dynamic>>> getUserVoteItemRequests(
-      String userId) async {
+    String userId,
+  ) async {
     try {
       return await getCurrentUserApplicationsWithDetails(userId);
     } catch (e) {
-      throw VoteRequestException('사용자 투표 아이템 신청 목록 조회 실패: $e');
+      _mapRepositoryError('사용자 투표 아이템 신청 목록 조회', e);
     }
   }
 
@@ -125,39 +141,38 @@ class VoteItemRequestRepository {
         final deviceId = await DeviceManager.getDeviceId();
         extraHeaders = {'X-Device-Id': deviceId};
       } catch (e) {
-        logger.w('Could not retrieve device ID for artist-request-add header: $e');
+        logger.w(
+          'Could not retrieve device ID for artist-request-add header: $e',
+        );
       }
 
       final fnResponse = await _supabase.functions.invoke(
         'artist-request-add',
-        body: {
-          'vote_id': voteId,
-          'artist_id': artistId,
-        },
+        body: {'vote_id': voteId, 'artist_id': artistId},
         headers: extraHeaders,
       );
       final raw = fnResponse.data;
       if (raw is! Map<String, dynamic>) {
-        throw VoteRequestException(
-            '투표 아이템 요청 생성 실패: invalid response payload');
+        throw VoteRequestException('투표 아이템 요청 생성 실패: invalid response payload');
       }
       if (raw['success'] != true) {
         final err = raw['error'];
         final code = err is Map ? err['code']?.toString() : null;
         final message = err is Map ? err['message']?.toString() : null;
         if (code == 'ALREADY_REQUESTED') {
-          throw const DuplicateVoteRequestException(
-              '이미 해당 아티스트에 대해 신청하셨습니다.');
+          throw const DuplicateVoteRequestException('이미 해당 아티스트에 대해 신청하셨습니다.');
         }
         if (code == 'ARTIST_NOT_FOUND') {
           throw VoteRequestException('존재하지 않는 아티스트입니다.');
         }
         if (code == 'RATE_LIMITED') {
           throw VoteRequestException(
-              message ?? '투표 아이템 요청 생성 실패: RATE_LIMITED');
+            message ?? '투표 아이템 요청 생성 실패: RATE_LIMITED',
+          );
         }
         throw VoteRequestException(
-            '투표 아이템 요청 생성 실패: ${message ?? code ?? "unknown"}');
+          '투표 아이템 요청 생성 실패: ${message ?? code ?? "unknown"}',
+        );
       }
       final data = raw['data'];
       if (data is! Map<String, dynamic>) {
@@ -182,8 +197,7 @@ class VoteItemRequestRepository {
       if (e is FunctionException) {
         final code = _extractErrorCode(e.details);
         if (code == 'ALREADY_REQUESTED') {
-          throw const DuplicateVoteRequestException(
-              '이미 해당 아티스트에 대해 신청하셨습니다.');
+          throw const DuplicateVoteRequestException('이미 해당 아티스트에 대해 신청하셨습니다.');
         }
         if (code == 'ARTIST_NOT_FOUND') {
           throw VoteRequestException('존재하지 않는 아티스트입니다.');
@@ -209,21 +223,21 @@ class VoteItemRequestRepository {
     try {
       final response = await _supabase.rpc(
         'get_artist_request_count',
-        params: {
-          'vote_id_param': voteId,
-          'artist_id_param': artistId,
-        },
+        params: {'vote_id_param': voteId, 'artist_id_param': artistId},
       );
 
       return response as int;
     } catch (e) {
-      throw VoteRequestException('아티스트 신청 수 조회 실패: $e');
+      _mapRepositoryError('아티스트 신청 수 조회', e);
     }
   }
 
   /// 사용자가 특정 투표에서 특정 아티스트에 대해 신청했는지 확인
   Future<bool> hasUserRequestedArtist(
-      int voteId, int artistId, String userId) async {
+    int voteId,
+    int artistId,
+    String userId,
+  ) async {
     try {
       final response = await _supabase
           .from('vote_item_request_users')
@@ -238,13 +252,14 @@ class VoteItemRequestRepository {
       // response가 null이 아니면 신청한 것, null이면 신청하지 않은 것
       return response != null;
     } catch (e) {
-      throw VoteRequestException('사용자 신청 여부 확인 실패: $e');
+      _mapRepositoryError('사용자 신청 여부 확인', e);
     }
   }
 
   /// 특정 투표의 모든 요청 조회 (아티스트 정보 포함)
   Future<List<VoteItemRequestUser>> getVoteItemRequestsByVoteId(
-      int voteId) async {
+    int voteId,
+  ) async {
     try {
       // 뷰를 사용하여 아티스트 정보가 포함된 데이터 조회
       final response = await _supabase
@@ -257,13 +272,15 @@ class VoteItemRequestRepository {
           .map((data) => VoteItemRequestUser.fromJson(data))
           .toList();
     } catch (e) {
-      throw VoteRequestException('투표 아이템 요청 목록 조회 실패: $e');
+      _mapRepositoryError('투표 아이템 요청 목록 조회', e);
     }
   }
 
   /// 사용자의 특정 투표에 대한 신청 내역 조회
   Future<List<VoteItemRequestUser>> getUserRequestsByVoteId(
-      String userId, int voteId) async {
+    String userId,
+    int voteId,
+  ) async {
     try {
       // 뷰를 사용하여 아티스트 정보가 포함된 데이터 조회
       final response = await _supabase
@@ -277,30 +294,35 @@ class VoteItemRequestRepository {
           .map((data) => VoteItemRequestUser.fromJson(data))
           .toList();
     } catch (e) {
-      throw VoteRequestException('사용자 신청 내역 조회 실패: $e');
+      _mapRepositoryError('사용자 신청 내역 조회', e);
     }
   }
 
   /// 사용자의 모든 신청 내역 조회
   Future<List<VoteItemRequestUser>> getAllUserRequests(String userId) async {
     try {
-      final response =
-          await _supabase.from('vote_item_request_users').select('''
+      final response = await _supabase
+          .from('vote_item_request_users')
+          .select('''
             *,
             artist(id, name, image, group_id)
-          ''').eq('user_id', userId).order('created_at', ascending: false);
+          ''')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
 
       return (response as List)
           .map((data) => VoteItemRequestUser.fromJson(data))
           .toList();
     } catch (e) {
-      throw VoteRequestException('사용자 전체 신청 내역 조회 실패: $e');
+      _mapRepositoryError('사용자 전체 신청 내역 조회', e);
     }
   }
 
   /// 투표 아이템 요청 상태 업데이트
   Future<VoteItemRequestUser> updateVoteItemRequestStatus(
-      String requestId, String status) async {
+    String requestId,
+    String status,
+  ) async {
     try {
       final response = await _supabase
           .from('vote_item_request_users')
@@ -311,7 +333,7 @@ class VoteItemRequestRepository {
 
       return VoteItemRequestUser.fromJson(response);
     } catch (e) {
-      throw VoteRequestException('투표 아이템 요청 상태 업데이트 실패: $e');
+      _mapRepositoryError('투표 아이템 요청 상태 업데이트', e);
     }
   }
 
@@ -326,13 +348,14 @@ class VoteItemRequestRepository {
 
       return response ?? {};
     } catch (e) {
-      throw VoteRequestException('아티스트 신청 통계 조회 실패: $e');
+      _mapRepositoryError('아티스트 신청 통계 조회', e);
     }
   }
 
   /// 투표별 신청 상태 요약 조회
   Future<List<Map<String, dynamic>>> getVoteRequestStatusSummary(
-      int voteId) async {
+    int voteId,
+  ) async {
     try {
       final response = await _supabase
           .from('vote_item_request_status_summary')
@@ -342,13 +365,14 @@ class VoteItemRequestRepository {
 
       return List<Map<String, dynamic>>.from(response as List);
     } catch (e) {
-      throw VoteRequestException('투표 신청 상태 요약 조회 실패: $e');
+      _mapRepositoryError('투표 신청 상태 요약 조회', e);
     }
   }
 
   /// 사용자 신청 히스토리 조회
   Future<List<Map<String, dynamic>>> getUserRequestHistory(
-      String userId) async {
+    String userId,
+  ) async {
     try {
       final response = await _supabase
           .from('user_vote_item_request_history')
@@ -358,7 +382,7 @@ class VoteItemRequestRepository {
 
       return List<Map<String, dynamic>>.from(response as List);
     } catch (e) {
-      throw VoteRequestException('사용자 신청 히스토리 조회 실패: $e');
+      _mapRepositoryError('사용자 신청 히스토리 조회', e);
     }
   }
 
@@ -371,7 +395,7 @@ class VoteItemRequestRepository {
           .delete()
           .eq('id', requestId);
     } catch (e) {
-      throw VoteRequestException('투표 아이템 요청 삭제 실패: $e');
+      _mapRepositoryError('투표 아이템 요청 삭제', e);
     }
   }
 
@@ -383,7 +407,7 @@ class VoteItemRequestRepository {
           .delete()
           .eq('id', userRequestId);
     } catch (e) {
-      throw VoteRequestException('사용자 신청 삭제 실패: $e');
+      _mapRepositoryError('사용자 신청 삭제', e);
     }
   }
 }
