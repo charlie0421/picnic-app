@@ -382,7 +382,7 @@
         "id": 32,
         "title": "투표 신청 API 엔드포인트 구현",
         "description": "새로운 신청 생성, 특정 투표 신청 조회, 사용자별 투표 신청 세부 정보 가져오기를 포함한 투표 신청 기능을 위한 REST API 엔드포인트를 개발하고, 적절한 인증 및 권한 부여를 구현합니다.",
-        "status": "pending",
+        "status": "deferred",
         "dependencies": [
           31
         ],
@@ -819,7 +819,7 @@
         "id": 39,
         "title": "투표 신청 다이얼로그 데이터베이스 마이그레이션 실행 및 오류 해결",
         "description": "PostgreSQL 데이터베이스에 vote_requests 테이블을 생성하는 마이그레이션을 실행하여 투표 신청 다이얼로그에서 발생하는 \"relation does not exist\" 오류를 해결합니다. 또한 하드코딩된 상태 데이터를 실제 데이터베이스 연동으로 변경하고 개발 중 발생하는 키보드 이벤트 처리 오류에 대한 해결책도 포함합니다. 다이얼로그 UI 개선 및 최적화를 통해 사용자 경험을 향상시킵니다.",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           27
         ],
@@ -840,7 +840,7 @@
           {
             "id": 3,
             "title": "투표 신청 다이얼로그 테스트",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 4,
@@ -875,7 +875,7 @@
           {
             "id": 10,
             "title": "VoteRequestRepository 추가 메서드 단위 테스트",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 11,
@@ -900,7 +900,7 @@
           {
             "id": 15,
             "title": "상태별 시각적 개선 테스트",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 40,
@@ -1051,7 +1051,7 @@
     ],
     "metadata": {
       "created": "2025-06-23T03:08:06.085Z",
-      "updated": "2025-10-28T05:19:45.086Z",
+      "updated": "2026-07-20T16:53:38.018Z",
       "description": "Tasks for master context"
     }
   }
