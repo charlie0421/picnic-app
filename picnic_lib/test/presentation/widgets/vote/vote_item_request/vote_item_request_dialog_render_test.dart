@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/current_applications_section.dart'
@@ -92,7 +92,11 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          find.text('An error occurred during the search.'),
+          find.text(
+            AppLocalizations.of(
+              tester.element(find.byType(VoteItemRequestDialog)),
+            ).common_text_search_error,
+          ),
           findsOneWidget,
         );
         expect(find.textContaining('internal table detail'), findsNothing);
@@ -120,7 +124,14 @@ void main() {
       await tester.enterText(find.byType(TextField), 'artist');
       await tester.pumpAndSettle();
 
-      expect(find.text('An error occurred during the search.'), findsOneWidget);
+      expect(
+        find.text(
+          AppLocalizations.of(
+            tester.element(find.byType(VoteItemRequestDialog)),
+          ).common_text_search_error,
+        ),
+        findsOneWidget,
+      );
       expect(find.textContaining('internal table detail'), findsNothing);
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });

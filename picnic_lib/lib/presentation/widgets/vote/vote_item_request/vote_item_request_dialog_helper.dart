@@ -15,19 +15,25 @@ class VoteItemRequestDialogHelper {
 
   /// Generates an appropriate error message string from an exception.
   /// Returns a localized message for 'already_applied' errors,
-  /// otherwise a generic error with the exception details.
-  static String getErrorMessageFromException(Object error) {
+  /// otherwise a generic error without exception details.
+  static String getErrorMessageFromException(
+    Object error, {
+    String genericErrorMessage =
+        '\uc2e0\uccad \uc911 \uc624\ub958\uac00 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4',
+  }) {
     final errorStr = error.toString();
     if (errorStr.contains('already_applied')) {
       return '\uc774\ubbf8 \uc2e0\uccad\ud55c \uc544\ud2f0\uc2a4\ud2b8\uc785\ub2c8\ub2e4'; // 이미 신청한 아티스트입니다
     }
-    return '\uc2e0\uccad \uc911 \uc624\ub958\uac00 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4: $errorStr'; // 신청 중 오류가 발생했습니다:
+    return genericErrorMessage;
   }
 
   /// Checks whether a search token is still valid (matches the latest token).
   /// Returns true if the token should be ignored (i.e., a newer search has started).
   static bool shouldIgnoreSearchResult(
-      String? resultToken, String? currentToken) {
+    String? resultToken,
+    String? currentToken,
+  ) {
     if (resultToken == null) return false;
     return currentToken != resultToken;
   }

@@ -106,7 +106,8 @@ void main() {
       expect(text.style?.color, Colors.orange);
       final container = tester.widget<Container>(find.byType(Container).last);
       final decoration = container.decoration! as BoxDecoration;
-      expect(decoration.border, isNotNull);
+      final border = decoration.border! as Border;
+      expect(border.top.color, Colors.orange.withValues(alpha: 0.3));
     });
 
     testWidgets('shows SizedBox.shrink as default fallback', (tester) async {
