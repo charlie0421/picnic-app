@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>투표 신청 로컬 안정화 설계</title>
+  <style>
+    body { max-width: 900px; margin: 40px auto; padding: 0 24px; font: 16px/1.7 system-ui, sans-serif; color: #202124; }
+    h1, h2 { line-height: 1.3; }
+    code { padding: 2px 5px; border-radius: 4px; background: #f1f3f4; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #dadce0; text-align: left; vertical-align: top; }
+    .note { padding: 14px 16px; border-left: 4px solid #1a73e8; background: #f8fbff; }
+  </style>
+</head>
+<body>
+  <h1>Task #39: 투표 신청 로컬 안정화 설계</h1>
+
+  <p><strong>상태:</strong> 구현 전 승인 설계<br>
+     <strong>대상:</strong> <code>picnic_lib</code><br>
+     <strong>제외:</strong> 실제 Supabase DB 변경, 마이그레이션 실행, 원격 RLS 변경</p>
+
+  <h2>1. 배경과 확인된 문제</h2>
+  <ul>
+    <li>초기 신청 내역 조회 실패가 빈 목록처럼 표시되어 서버·권한 오류를 사용자가 구분할 수 없다.</li>
+    <li>검색 실패 시 <code>_isSearching</code>이 해제되지 않아 로딩 표시가 계속될 수 있다.</li>
+    <li>대기 상태에 서로 다른 번역 문자열(<code>대기중</code>, <code>대기 중</code>)을 비교해 배경색과 아이콘·글자색이 달라진다.</li>
+    <li>저장소 래퍼가 기존 도메인 예외를 일반 <code>VoteRequestException</code>으로 다시 감싸 의미를 잃을 수 있다.</li>
+    <li>PostgreSQL <code>42P01</code> 오류가 사용자에게 내부 예외 문자열 그대로 노출될 수 있다.</li>
+    <li>현재 저장소에는 canonical DB migration/RLS 정의가 없어 실제 권한 정책은 로컬에서 확정할 수 없다.</li>
+  </ul>
+
+  <h2>2. 목표</h2>
+  <ol>
+    <li>네트워크·RLS·테이블 오류가 빈 상태나 무한 로딩으로 오인되지 않게 한다.</li>
+    <li>사용자에게 내부 DB 세부 정보를 노출하지 않는 안정적인 오류 메시지를 제공한다.</li>
+    <li>대기 상태 표시를 하나의 의미로 정규화한다.</li>
+    <li>실제 DB 없이 mock과 widget test로 회귀를 방지한다.</li>
+  </ol>
+
+  <h2>3. 설계</h2>
+  <table>
+    <thead><tr><th>영역</th><th>변경</th><th>검증</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>다이얼로그 로딩</td>
+        <td>초기 조회와 검색을 <code>try/catch/finally</code>로 정리한다. 실패 시 로딩 상태를 반드시 해제하고, 빈 목록과 구분되는 일반 오류 상태를 표시한다.</td>
+        <td>실패 주입 후 오류 표시 및 spinner 종료를 widget test로 확인한다.</td>
+      </tr>
+      <tr>
+        <td>상태 표시</td>
+        <td>대기 상태 판단을 번역된 화면 문자열 두 개에 의존하지 않도록 단일 판정 함수로 모은다. 현재 API 호환성을 유지하기 위해 공개 모델 구조는 변경하지 않는다.</td>
+        <td>배경·테두리·아이콘·텍스트 색상을 함께 검증한다.</td>
+      </tr>
+      <tr>
+        <td>저장소 예외</td>
+        <td><code>VoteRequestException</code>과 하위 도메인 예외는 그대로 재전파한다. 알 수 없는 오류만 작업별 문맥을 붙여 변환한다.</td>
+        <td>중복 예외 타입 보존과 각 래퍼의 실패 경로를 단위 테스트한다.</td>
+      </tr>
+      <tr>
+        <td>테이블 누락</td>
+        <td><code>PostgrestException.code == 42P01</code>을 감지해 내부 테이블명이나 원문 대신 “현재 투표 신청 기능을 사용할 수 없습니다” 계열의 고정 메시지로 변환한다.</td>
+        <td>42P01 mock과 일반 오류 mock의 메시지를 각각 검증한다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>4. 테스트 범위</h2>
+  <ul>
+    <li>저장소: 상태 hit/miss, 신청 여부 true/false, 정확한 필터·반환값, 예외 타입 보존, 42P01 변환.</li>
+    <li>다이얼로그: 초기 로딩 실패, 검색 실패, 로딩 종료, 일반 오류 노출.</li>
+    <li>상태 UI: pending/approved/rejected/mixed의 라벨, 아이콘, 색상, 카운트 표시.</li>
+    <li>기존 투표 신청 관련 집중 테스트 전체를 회귀 테스트로 실행한다.</li>
+  </ul>
+
+  <h2>5. 범위 밖 및 후속 작업</h2>
+  <div class="note">
+    <p><code>vote_requests</code>/<code>vote_request_users</code>와 현재 코드의
+       <code>vote_item_requests</code>/<code>vote_item_request_users</code> 중 어느 것이 운영 스키마인지
+       이 작업에서 추정하지 않는다. Task 39.6은 완료 처리하지 않는다.</p>
+    <p>후속 작업에서 read-only schema dump, RLS 정책, role grant, SECURITY DEFINER 함수,
+       unique constraint를 운영 환경 기준으로 검증하고 canonical migration을 복구해야 한다.</p>
+  </div>
+
+  <h2>6. 완료 조건</h2>
+  <ul>
+    <li>실패 경로에서 로딩 상태가 항상 종료된다.</li>
+    <li>DB 내부 오류 문자열이 UI에 노출되지 않는다.</li>
+    <li>대기 상태의 모든 시각 요소가 일관된다.</li>
+    <li>추가 및 기존 집중 테스트가 모두 통과한다.</li>
+    <li>실제 DB와 원격 RLS에는 변경이 없다.</li>
+  </ul>
+</body>
+</html>
