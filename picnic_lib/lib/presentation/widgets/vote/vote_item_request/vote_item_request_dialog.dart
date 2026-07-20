@@ -494,7 +494,12 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
             _searchResultsInfo[artistId] = updated;
           }
           _errorMessage =
-              VoteItemRequestDialogHelper.getErrorMessageFromException(e);
+              VoteItemRequestDialogHelper.getErrorMessageFromException(
+                e,
+                genericErrorMessage: AppLocalizations.of(
+                  context,
+                ).message_error_occurred,
+              );
         });
 
         // 3초 후 에러 메시지 제거

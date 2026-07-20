@@ -27,17 +27,11 @@ void main() {
       });
 
       test('returns false for empty string', () {
-        expect(
-          VoteItemRequestDialogHelper.isSuccessMessage(''),
-          isFalse,
-        );
+        expect(VoteItemRequestDialogHelper.isSuccessMessage(''), isFalse);
       });
 
       test('returns false for message with checkmark not at start', () {
-        expect(
-          VoteItemRequestDialogHelper.isSuccessMessage('완료 ✅'),
-          isFalse,
-        );
+        expect(VoteItemRequestDialogHelper.isSuccessMessage('완료 ✅'), isFalse);
       });
     });
 
@@ -50,27 +44,38 @@ void main() {
       });
 
       test(
-          'returns already_applied message when error contains already_applied',
-          () {
-        final result = VoteItemRequestDialogHelper.getErrorMessageFromException(
-          'Error: already_applied for this vote',
-        );
-        expect(result, '이미 신청한 아티스트입니다');
-      });
+        'returns already_applied message when error contains already_applied',
+        () {
+          final result =
+              VoteItemRequestDialogHelper.getErrorMessageFromException(
+                'Error: already_applied for this vote',
+              );
+          expect(result, '이미 신청한 아티스트입니다');
+        },
+      );
 
-      test('returns generic error message for other errors', () {
+      test('returns generic error without exposing unknown error details', () {
         final result = VoteItemRequestDialogHelper.getErrorMessageFromException(
-          Exception('network error'),
+          Exception('relation secret_table does not exist'),
         );
-        expect(result, contains('신청 중 오류가 발생했습니다'));
-        expect(result, contains('network error'));
+        expect(result, '신청 중 오류가 발생했습니다');
+        expect(result, isNot(contains('secret_table')));
       });
 
       test('returns generic error message for string errors', () {
         final result = VoteItemRequestDialogHelper.getErrorMessageFromException(
           'timeout',
         );
-        expect(result, '신청 중 오류가 발생했습니다: timeout');
+        expect(result, '신청 중 오류가 발생했습니다');
+      });
+
+      test('uses caller-provided localized generic error message', () {
+        final result = VoteItemRequestDialogHelper.getErrorMessageFromException(
+          Exception('relation secret_table does not exist'),
+          genericErrorMessage: 'An error occurred.',
+        );
+
+        expect(result, 'An error occurred.');
       });
     });
 
@@ -96,8 +101,7 @@ void main() {
         );
       });
 
-      test('returns true when currentToken is null but resultToken is not',
-          () {
+      test('returns true when currentToken is null but resultToken is not', () {
         expect(
           VoteItemRequestDialogHelper.shouldIgnoreSearchResult('123', null),
           isTrue,
@@ -147,8 +151,10 @@ void main() {
           ),
         };
 
-        final result =
-            VoteItemRequestDialogHelper.markArtistAsSubmitting(info, '1');
+        final result = VoteItemRequestDialogHelper.markArtistAsSubmitting(
+          info,
+          '1',
+        );
 
         expect(result, isNotNull);
         expect(result!.isSubmitting, isTrue);
@@ -159,8 +165,10 @@ void main() {
       test('returns null when artist is not in the map', () {
         final info = <String, ArtistApplicationInfo>{};
 
-        final result =
-            VoteItemRequestDialogHelper.markArtistAsSubmitting(info, '999');
+        final result = VoteItemRequestDialogHelper.markArtistAsSubmitting(
+          info,
+          '999',
+        );
 
         expect(result, isNull);
       });
@@ -175,8 +183,10 @@ void main() {
           ),
         };
 
-        final result =
-            VoteItemRequestDialogHelper.markArtistAsSubmitting(info, '42');
+        final result = VoteItemRequestDialogHelper.markArtistAsSubmitting(
+          info,
+          '42',
+        );
 
         expect(result!.artistName, 'BTS');
         expect(result.applicationCount, 100);
@@ -253,8 +263,10 @@ void main() {
           ),
         };
 
-        final result =
-            VoteItemRequestDialogHelper.markApplicationFailure(info, '1');
+        final result = VoteItemRequestDialogHelper.markApplicationFailure(
+          info,
+          '1',
+        );
 
         expect(result, isNotNull);
         expect(result!.isSubmitting, isFalse);
@@ -263,8 +275,10 @@ void main() {
       });
 
       test('returns null when artist not in map', () {
-        final result =
-            VoteItemRequestDialogHelper.markApplicationFailure({}, '999');
+        final result = VoteItemRequestDialogHelper.markApplicationFailure(
+          {},
+          '999',
+        );
 
         expect(result, isNull);
       });
@@ -348,20 +362,24 @@ void main() {
     group('determineRefreshStrategy', () {
       test('returns reloadApplicationData when results exist', () {
         expect(
-          VoteItemRequestDialogHelper.determineRefreshStrategy(
-              ['result1'], 'query'),
+          VoteItemRequestDialogHelper.determineRefreshStrategy([
+            'result1',
+          ], 'query'),
           'reloadApplicationData',
         );
       });
 
       test(
-          'returns reloadApplicationData when results exist even with empty query',
-          () {
-        expect(
-          VoteItemRequestDialogHelper.determineRefreshStrategy(['result1'], ''),
-          'reloadApplicationData',
-        );
-      });
+        'returns reloadApplicationData when results exist even with empty query',
+        () {
+          expect(
+            VoteItemRequestDialogHelper.determineRefreshStrategy([
+              'result1',
+            ], ''),
+            'reloadApplicationData',
+          );
+        },
+      );
 
       test('returns rerunSearch when no results but query exists', () {
         expect(
@@ -389,7 +407,8 @@ void main() {
       test('is recognized as success by isSuccessMessage', () {
         expect(
           VoteItemRequestDialogHelper.isSuccessMessage(
-              VoteItemRequestDialogHelper.successMessage),
+            VoteItemRequestDialogHelper.successMessage,
+          ),
           isTrue,
         );
       });
