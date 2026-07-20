@@ -25,8 +25,11 @@ class FakeErrorSupabaseClient extends Fake implements SupabaseClient {
   }
 
   @override
-  PostgrestFilterBuilder<T> rpc<T>(String fn,
-      {Map<String, dynamic>? params, get = false}) {
+  PostgrestFilterBuilder<T> rpc<T>(
+    String fn, {
+    Map<String, dynamic>? params,
+    get = false,
+  }) {
     if (rpcError != null) throw rpcError!;
     throw UnimplementedError('rpc not mocked for success path');
   }
@@ -67,8 +70,7 @@ void main() {
 
       test('다른 mock 클라이언트로도 인스턴스를 생성할 수 있다', () {
         final anotherClient = MockSupabaseClient();
-        final anotherRepo =
-            VoteItemRequestRepository(supabase: anotherClient);
+        final anotherRepo = VoteItemRequestRepository(supabase: anotherClient);
         expect(anotherRepo, isNotNull);
       });
     });
@@ -93,6 +95,30 @@ void main() {
             userId: 'user-123',
           ),
           throwsA(isA<VoteRequestException>()),
+        );
+      });
+
+      test('createVoteItemRequestUser는 중복 예외를 보존한다', () async {
+        final client = _edgeFnClient(
+          responseStatus: 409,
+          responseBody: {
+            'success': false,
+            'error': {
+              'message': 'Already requested',
+              'code': 'ALREADY_REQUESTED',
+              'details': null,
+            },
+          },
+        );
+        final repository = VoteItemRequestRepository(supabase: client);
+
+        expect(
+          () => repository.createVoteItemRequestUser(
+            voteId: 1,
+            artistId: 100,
+            userId: 'user-123',
+          ),
+          throwsA(isA<DuplicateVoteRequestException>()),
         );
       });
 
@@ -150,58 +176,62 @@ void main() {
         );
       });
 
-      test('429 RATE_LIMITED → AntiAbuseException(channel: artist_request)',
-          () async {
-        final client = _edgeFnClient(
-          responseStatus: 429,
-          responseBody: {
-            'success': false,
-            'error': {
-              'message': '...',
-              'code': 'RATE_LIMITED',
-              'details': {
-                'reason': 'artist_request_ip_quota',
-                'retry_after_seconds': 86400,
-                'support_contact': 'cs@picnic.fan',
+      test(
+        '429 RATE_LIMITED → AntiAbuseException(channel: artist_request)',
+        () async {
+          final client = _edgeFnClient(
+            responseStatus: 429,
+            responseBody: {
+              'success': false,
+              'error': {
+                'message': '...',
+                'code': 'RATE_LIMITED',
+                'details': {
+                  'reason': 'artist_request_ip_quota',
+                  'retry_after_seconds': 86400,
+                  'support_contact': 'cs@picnic.fan',
+                },
               },
             },
-          },
-        );
-        final repository = VoteItemRequestRepository(supabase: client);
+          );
+          final repository = VoteItemRequestRepository(supabase: client);
 
-        expect(
-          () => repository.createVoteItemRequestWithUser(
-            voteId: 1,
-            artistId: 100,
-            userId: 'user-123',
-          ),
-          throwsA(
-            isA<AntiAbuseException>().having(
-              (e) => e.channel,
-              'channel',
-              'artist_request',
+          expect(
+            () => repository.createVoteItemRequestWithUser(
+              voteId: 1,
+              artistId: 100,
+              userId: 'user-123',
             ),
-          ),
-        );
-      });
+            throwsA(
+              isA<AntiAbuseException>().having(
+                (e) => e.channel,
+                'channel',
+                'artist_request',
+              ),
+            ),
+          );
+        },
+      );
 
-      test('서버가 success=true 인데 data 가 null/비-Map → VoteRequestException',
-          () async {
-        final client = _edgeFnClient(
-          responseStatus: 200,
-          responseBody: {'success': true, 'data': null},
-        );
-        final repository = VoteItemRequestRepository(supabase: client);
+      test(
+        '서버가 success=true 인데 data 가 null/비-Map → VoteRequestException',
+        () async {
+          final client = _edgeFnClient(
+            responseStatus: 200,
+            responseBody: {'success': true, 'data': null},
+          );
+          final repository = VoteItemRequestRepository(supabase: client);
 
-        expect(
-          () => repository.createVoteItemRequestWithUser(
-            voteId: 1,
-            artistId: 100,
-            userId: 'user-123',
-          ),
-          throwsA(isA<VoteRequestException>()),
-        );
-      });
+          expect(
+            () => repository.createVoteItemRequestWithUser(
+              voteId: 1,
+              artistId: 100,
+              userId: 'user-123',
+            ),
+            throwsA(isA<VoteRequestException>()),
+          );
+        },
+      );
     });
 
     group('에러 처리 - getArtistRequestCount', () {
@@ -272,6 +302,58 @@ void main() {
           throwsA(isA<VoteRequestException>()),
         );
       });
+
+      test('42P01은 기능 사용 불가 메시지로 변환한다', () async {
+        final missingTable = PostgrestException(
+          message: 'relation "vote_item_requests" does not exist',
+          code: '42P01',
+        );
+        final repository = VoteItemRequestRepository(
+          supabase: FakeErrorSupabaseClient(fromError: missingTable),
+        );
+
+        expect(
+          () => repository.getCurrentUserApplicationsWithDetails('user-123'),
+          throwsA(
+            isA<VoteRequestException>().having(
+              (error) => error.message,
+              'message',
+              '현재 투표 신청 기능을 사용할 수 없습니다.',
+            ),
+          ),
+        );
+      });
+    });
+
+    group('테이블 기반 메서드 에러 매핑', () {
+      final methods =
+          <String, Future<dynamic> Function(VoteItemRequestRepository)>{
+            'getApplicationCountByTitle': (repository) =>
+                repository.getApplicationCountByTitle('지민'),
+            'updateVoteItemRequestStatus': (repository) =>
+                repository.updateVoteItemRequestStatus('req-123', 'approved'),
+            'getArtistRequestStatistics': (repository) =>
+                repository.getArtistRequestStatistics(100),
+            'getVoteRequestStatusSummary': (repository) =>
+                repository.getVoteRequestStatusSummary(1),
+            'getUserRequestHistory': (repository) =>
+                repository.getUserRequestHistory('user-123'),
+          };
+
+      for (final entry in methods.entries) {
+        test('${entry.key} 실패를 VoteRequestException으로 변환한다', () async {
+          final repository = VoteItemRequestRepository(
+            supabase: FakeErrorSupabaseClient(
+              fromError: Exception('${entry.key} failure'),
+            ),
+          );
+
+          expect(
+            () => entry.value(repository),
+            throwsA(isA<VoteRequestException>()),
+          );
+        });
+      }
     });
 
     group('에러 처리 - getUserApplicationStatus', () {
@@ -352,29 +434,29 @@ void main() {
         expect(exception.toString(), contains('테스트 에러'));
       });
 
-      test('DuplicateVoteRequestException은 VoteRequestException의 하위 클래스이다',
-          () {
+      test('DuplicateVoteRequestException은 VoteRequestException의 하위 클래스이다', () {
         const exception = DuplicateVoteRequestException('중복');
         expect(exception, isA<VoteRequestException>());
         expect(exception.toString(), contains('DuplicateVoteRequestException'));
       });
 
-      test('VoteRequestNotFoundException은 VoteRequestException의 하위 클래스이다',
-          () {
+      test('VoteRequestNotFoundException은 VoteRequestException의 하위 클래스이다', () {
         const exception = VoteRequestNotFoundException('찾을 수 없음');
         expect(exception, isA<VoteRequestException>());
-        expect(
-            exception.toString(), contains('VoteRequestNotFoundException'));
+        expect(exception.toString(), contains('VoteRequestNotFoundException'));
       });
 
       test(
-          'InvalidVoteRequestStatusException은 VoteRequestException의 하위 클래스이다',
-          () {
-        const exception = InvalidVoteRequestStatusException('상태 변경 불가');
-        expect(exception, isA<VoteRequestException>());
-        expect(exception.toString(),
-            contains('InvalidVoteRequestStatusException'));
-      });
+        'InvalidVoteRequestStatusException은 VoteRequestException의 하위 클래스이다',
+        () {
+          const exception = InvalidVoteRequestStatusException('상태 변경 불가');
+          expect(exception, isA<VoteRequestException>());
+          expect(
+            exception.toString(),
+            contains('InvalidVoteRequestStatusException'),
+          );
+        },
+      );
     });
   });
 }
