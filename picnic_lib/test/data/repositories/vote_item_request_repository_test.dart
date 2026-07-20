@@ -6,8 +6,10 @@ import 'package:http/testing.dart';
 import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
 import 'package:picnic_lib/core/errors/vote_request_exceptions.dart';
 import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
+import 'package:picnic_lib/supabase_options.dart' as supabase_options;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../helpers/mock_supabase.dart' as supabase_harness;
 import '../../helpers/mocks/mock_supabase.dart';
 
 /// 에러를 시뮬레이션하기 위한 Fake SupabaseClient
@@ -327,33 +329,143 @@ void main() {
 
     group('테이블 기반 메서드 에러 매핑', () {
       final methods =
-          <String, Future<dynamic> Function(VoteItemRequestRepository)>{
-            'getApplicationCountByTitle': (repository) =>
-                repository.getApplicationCountByTitle('지민'),
-            'updateVoteItemRequestStatus': (repository) =>
-                repository.updateVoteItemRequestStatus('req-123', 'approved'),
-            'getArtistRequestStatistics': (repository) =>
-                repository.getArtistRequestStatistics(100),
-            'getVoteRequestStatusSummary': (repository) =>
-                repository.getVoteRequestStatusSummary(1),
-            'getUserRequestHistory': (repository) =>
-                repository.getUserRequestHistory('user-123'),
+          <
+            String,
+            ({
+              Future<dynamic> Function(VoteItemRequestRepository) call,
+              String message,
+            })
+          >{
+            'getApplicationCountByTitle': (
+              call: (repository) => repository.getApplicationCountByTitle('지민'),
+              message: '제목별 신청 수 조회 실패',
+            ),
+            'updateVoteItemRequestStatus': (
+              call: (repository) =>
+                  repository.updateVoteItemRequestStatus('req-123', 'approved'),
+              message: '투표 아이템 요청 상태 업데이트 실패',
+            ),
+            'getArtistRequestStatistics': (
+              call: (repository) => repository.getArtistRequestStatistics(100),
+              message: '아티스트 신청 통계 조회 실패',
+            ),
+            'getVoteRequestStatusSummary': (
+              call: (repository) => repository.getVoteRequestStatusSummary(1),
+              message: '투표 신청 상태 요약 조회 실패',
+            ),
+            'getUserRequestHistory': (
+              call: (repository) =>
+                  repository.getUserRequestHistory('user-123'),
+              message: '사용자 신청 히스토리 조회 실패',
+            ),
           };
 
       for (final entry in methods.entries) {
         test('${entry.key} 실패를 VoteRequestException으로 변환한다', () async {
           final repository = VoteItemRequestRepository(
             supabase: FakeErrorSupabaseClient(
-              fromError: Exception('${entry.key} failure'),
+              fromError: Exception('INJECTED_BACKEND_DETAIL_${entry.key}'),
             ),
           );
 
           expect(
-            () => entry.value(repository),
-            throwsA(isA<VoteRequestException>()),
+            () => entry.value.call(repository),
+            throwsA(
+              isA<VoteRequestException>()
+                  .having(
+                    (error) => error.message,
+                    'message',
+                    entry.value.message,
+                  )
+                  .having(
+                    (error) => error.message,
+                    'message without backend detail',
+                    isNot(contains('INJECTED_BACKEND_DETAIL')),
+                  ),
+            ),
           );
         });
       }
+    });
+
+    group('성공 경로 값 검증', () {
+      tearDown(supabase_harness.tearDownMockSupabase);
+
+      test('getApplicationCountByTitle은 정확한 count를 반환한다', () async {
+        supabase_harness.setupMockSupabase({
+          'artist': [
+            {'id': 1},
+            {'id': 2},
+          ],
+        });
+        final repository = VoteItemRequestRepository(
+          supabase: supabase_options.testSupabaseClient!,
+        );
+
+        expect(await repository.getApplicationCountByTitle('지민'), 2);
+      });
+
+      test('getUserApplicationStatus는 hit 상태 map을 반환한다', () async {
+        supabase_harness.setupMockSupabase({
+          'vote_item_requests': [
+            {
+              'id': 'req-1',
+              'vote_id': 1,
+              'artist_id': 100,
+              'user_id': 'user-123',
+              'status': 'pending',
+            },
+          ],
+        });
+        final repository = VoteItemRequestRepository(
+          supabase: supabase_options.testSupabaseClient!,
+        );
+
+        expect(
+          await repository.getUserApplicationStatus('user-123', 1, 100),
+          containsPair('status', 'pending'),
+        );
+      });
+
+      test('getUserApplicationStatus는 miss에서 null을 반환한다', () async {
+        supabase_harness.setupMockSupabase({'vote_item_requests': []});
+        final repository = VoteItemRequestRepository(
+          supabase: supabase_options.testSupabaseClient!,
+        );
+
+        expect(
+          await repository.getUserApplicationStatus('user-123', 1, 999),
+          isNull,
+        );
+      });
+
+      test('hasUserRequestedArtist는 hit에서 true를 반환한다', () async {
+        supabase_harness.setupMockSupabase({
+          'vote_item_request_users': [
+            {'id': 'req-1'},
+          ],
+        });
+        final repository = VoteItemRequestRepository(
+          supabase: supabase_options.testSupabaseClient!,
+        );
+
+        expect(
+          await repository.hasUserRequestedArtist(1, 100, 'user-123'),
+          isTrue,
+        );
+      });
+
+      test('hasUserRequestedArtist는 miss에서 false를 반환한다', () async {
+        supabase_harness.setupMockSupabase({'vote_item_request_users': []});
+        final repository = VoteItemRequestRepository(
+          supabase: supabase_options.testSupabaseClient!,
+        );
+
+        expect(
+          await repository.hasUserRequestedArtist(1, 999, 'user-123'),
+          isFalse,
+        );
+      });
     });
 
     group('에러 처리 - getUserApplicationStatus', () {
