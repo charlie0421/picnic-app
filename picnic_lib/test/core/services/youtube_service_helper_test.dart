@@ -1,8 +1,32 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/testing.dart';
 import 'package:picnic_lib/core/services/youtube_service.dart';
 import 'package:picnic_lib/core/services/youtube_service_helper.dart';
 
 void main() {
+  test(
+    'native service returns fallback when YouTube API key is empty',
+    () async {
+      var requestCount = 0;
+      final service = YouTubeContentService.test(
+        httpClient: MockClient((request) async {
+          requestCount++;
+          throw StateError('HTTP request must not be sent');
+        }),
+        apiKeyProvider: () => ' ',
+      );
+
+      final result = await service.fetchYoutubeInfo(
+        'https://www.youtube.com/watch?v=abc123',
+      );
+
+      expect(result.id, 'abc123');
+      expect(result.title, 'YouTube Video');
+      expect(result.viewCount, 0);
+      expect(requestCount, 0);
+    },
+  );
+
   // ---------------------------------------------------------------------------
   // extractVideoId
   // ---------------------------------------------------------------------------
@@ -10,7 +34,8 @@ void main() {
     test('extracts id from standard watch URL', () {
       expect(
         YouTubeServiceHelper.extractVideoId(
-            'https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+          'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        ),
         'dQw4w9WgXcQ',
       );
     });
@@ -18,7 +43,8 @@ void main() {
     test('extracts id from watch URL with extra query params', () {
       expect(
         YouTubeServiceHelper.extractVideoId(
-            'https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=120&list=PLxyz'),
+          'https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=120&list=PLxyz',
+        ),
         'dQw4w9WgXcQ',
       );
     });
@@ -33,7 +59,8 @@ void main() {
     test('extracts id from youtu.be URL with query params', () {
       expect(
         YouTubeServiceHelper.extractVideoId(
-            'https://youtu.be/dQw4w9WgXcQ?t=30'),
+          'https://youtu.be/dQw4w9WgXcQ?t=30',
+        ),
         'dQw4w9WgXcQ',
       );
     });
@@ -41,7 +68,8 @@ void main() {
     test('extracts id from embed URL', () {
       expect(
         YouTubeServiceHelper.extractVideoId(
-            'https://www.youtube.com/embed/dQw4w9WgXcQ'),
+          'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        ),
         'dQw4w9WgXcQ',
       );
     });
@@ -49,7 +77,8 @@ void main() {
     test('extracts id from shorts URL', () {
       expect(
         YouTubeServiceHelper.extractVideoId(
-            'https://www.youtube.com/shorts/dQw4w9WgXcQ'),
+          'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+        ),
         'dQw4w9WgXcQ',
       );
     });
@@ -57,7 +86,8 @@ void main() {
     test('extracts id from mobile youtube URL', () {
       expect(
         YouTubeServiceHelper.extractVideoId(
-            'https://m.youtube.com/watch?v=dQw4w9WgXcQ'),
+          'https://m.youtube.com/watch?v=dQw4w9WgXcQ',
+        ),
         'dQw4w9WgXcQ',
       );
     });
@@ -80,7 +110,8 @@ void main() {
     test('returns null for youtube.com with no v param on watch', () {
       expect(
         YouTubeServiceHelper.extractVideoId(
-            'https://www.youtube.com/watch?list=PLxyz'),
+          'https://www.youtube.com/watch?list=PLxyz',
+        ),
         isNull,
       );
     });
@@ -92,7 +123,8 @@ void main() {
     test('extracts id from URL without www', () {
       expect(
         YouTubeServiceHelper.extractVideoId(
-            'https://youtube.com/watch?v=abc123_-XYZ'),
+          'https://youtube.com/watch?v=abc123_-XYZ',
+        ),
         'abc123_-XYZ',
       );
     });
@@ -111,8 +143,10 @@ void main() {
 
     test('builds URL with custom quality', () {
       expect(
-        YouTubeServiceHelper.buildThumbnailUrl('abc123',
-            quality: 'maxresdefault'),
+        YouTubeServiceHelper.buildThumbnailUrl(
+          'abc123',
+          quality: 'maxresdefault',
+        ),
         'https://img.youtube.com/vi/abc123/maxresdefault.jpg',
       );
     });
@@ -199,8 +233,11 @@ void main() {
 
     test('uses custom fallbackQuality', () {
       expect(
-        YouTubeServiceHelper.selectBestThumbnail(null, 'vid1',
-            fallbackQuality: 'mqdefault'),
+        YouTubeServiceHelper.selectBestThumbnail(
+          null,
+          'vid1',
+          fallbackQuality: 'mqdefault',
+        ),
         'https://img.youtube.com/vi/vid1/mqdefault.jpg',
       );
     });
@@ -216,11 +253,11 @@ void main() {
           {
             'snippet': {
               'thumbnails': {
-                'default': {'url': 'https://channel-thumb.jpg'}
-              }
-            }
-          }
-        ]
+                'default': {'url': 'https://channel-thumb.jpg'},
+              },
+            },
+          },
+        ],
       };
       expect(
         YouTubeServiceHelper.extractChannelThumbnail(data),
@@ -229,36 +266,24 @@ void main() {
     });
 
     test('returns empty string when items is null', () {
-      expect(
-        YouTubeServiceHelper.extractChannelThumbnail({'items': null}),
-        '',
-      );
+      expect(YouTubeServiceHelper.extractChannelThumbnail({'items': null}), '');
     });
 
     test('returns empty string when items is empty', () {
-      expect(
-        YouTubeServiceHelper.extractChannelThumbnail({'items': []}),
-        '',
-      );
+      expect(YouTubeServiceHelper.extractChannelThumbnail({'items': []}), '');
     });
 
     test('returns empty string when no items key', () {
-      expect(
-        YouTubeServiceHelper.extractChannelThumbnail({}),
-        '',
-      );
+      expect(YouTubeServiceHelper.extractChannelThumbnail({}), '');
     });
 
     test('returns empty string when nested path is missing', () {
       final data = {
         'items': [
-          {'snippet': {}}
-        ]
+          {'snippet': {}},
+        ],
       };
-      expect(
-        YouTubeServiceHelper.extractChannelThumbnail(data),
-        '',
-      );
+      expect(YouTubeServiceHelper.extractChannelThumbnail(data), '');
     });
   });
 
@@ -268,18 +293,23 @@ void main() {
   group('YouTubeServiceHelper.decodeHtmlEntities', () {
     test('decodes &quot;', () {
       expect(
-          YouTubeServiceHelper.decodeHtmlEntities('He said &quot;hello&quot;'),
-          'He said "hello"');
+        YouTubeServiceHelper.decodeHtmlEntities('He said &quot;hello&quot;'),
+        'He said "hello"',
+      );
     });
 
     test('decodes &amp;', () {
-      expect(YouTubeServiceHelper.decodeHtmlEntities('Tom &amp; Jerry'),
-          'Tom & Jerry');
+      expect(
+        YouTubeServiceHelper.decodeHtmlEntities('Tom &amp; Jerry'),
+        'Tom & Jerry',
+      );
     });
 
     test('decodes &lt; and &gt;', () {
-      expect(YouTubeServiceHelper.decodeHtmlEntities('&lt;b&gt;bold&lt;/b&gt;'),
-          '<b>bold</b>');
+      expect(
+        YouTubeServiceHelper.decodeHtmlEntities('&lt;b&gt;bold&lt;/b&gt;'),
+        '<b>bold</b>',
+      );
     });
 
     test('decodes &apos;', () {
@@ -308,13 +338,16 @@ void main() {
 
     test('decodes &nbsp;', () {
       expect(
-          YouTubeServiceHelper.decodeHtmlEntities('hello&nbsp;world'),
-          'hello world');
+        YouTubeServiceHelper.decodeHtmlEntities('hello&nbsp;world'),
+        'hello world',
+      );
     });
 
     test('handles text with no entities', () {
       expect(
-          YouTubeServiceHelper.decodeHtmlEntities('plain text'), 'plain text');
+        YouTubeServiceHelper.decodeHtmlEntities('plain text'),
+        'plain text',
+      );
     });
 
     test('handles empty string', () {
@@ -324,7 +357,8 @@ void main() {
     test('decodes multiple mixed entities', () {
       expect(
         YouTubeServiceHelper.decodeHtmlEntities(
-            '&lt;a&gt;Tom &amp; Jerry&apos;s &quot;Show&quot;&lt;/a&gt;'),
+          '&lt;a&gt;Tom &amp; Jerry&apos;s &quot;Show&quot;&lt;/a&gt;',
+        ),
         '<a>Tom & Jerry\'s "Show"</a>',
       );
     });
@@ -336,19 +370,23 @@ void main() {
   group('YouTubeServiceHelper.createFallbackVideoInfo', () {
     test('creates fallback with valid YouTube URL', () {
       final info = YouTubeServiceHelper.createFallbackVideoInfo(
-          'https://www.youtube.com/watch?v=abc123');
+        'https://www.youtube.com/watch?v=abc123',
+      );
       expect(info.id, 'abc123');
       expect(info.title, 'YouTube Video');
       expect(info.channelTitle, 'Unknown Channel');
       expect(info.channelThumbnail, '');
-      expect(info.thumbnailUrl,
-          'https://img.youtube.com/vi/abc123/hqdefault.jpg');
+      expect(
+        info.thumbnailUrl,
+        'https://img.youtube.com/vi/abc123/hqdefault.jpg',
+      );
       expect(info.viewCount, 0);
     });
 
     test('creates fallback with non-YouTube URL', () {
       final info = YouTubeServiceHelper.createFallbackVideoInfo(
-          'https://www.google.com');
+        'https://www.google.com',
+      );
       expect(info.id, '');
       expect(info.thumbnailUrl, '');
     });
@@ -389,8 +427,7 @@ void main() {
     });
 
     test('uses fallback videoId when not present in data', () {
-      final info =
-          YouTubeServiceHelper.parseWebApiResponse({}, 'myFallbackId');
+      final info = YouTubeServiceHelper.parseWebApiResponse({}, 'myFallbackId');
       expect(info.id, 'myFallbackId');
     });
 
@@ -401,25 +438,30 @@ void main() {
       expect(info.channelThumbnail, '');
       expect(info.viewCount, 0);
       // Falls back to constructed thumbnail with mqdefault
-      expect(info.thumbnailUrl,
-          'https://img.youtube.com/vi/vid1/mqdefault.jpg');
+      expect(
+        info.thumbnailUrl,
+        'https://img.youtube.com/vi/vid1/mqdefault.jpg',
+      );
     });
 
     test('handles viewCount as integer', () {
-      final info = YouTubeServiceHelper.parseWebApiResponse(
-          {'viewCount': 999}, 'vid1');
+      final info = YouTubeServiceHelper.parseWebApiResponse({
+        'viewCount': 999,
+      }, 'vid1');
       expect(info.viewCount, 999);
     });
 
     test('handles invalid viewCount string', () {
-      final info = YouTubeServiceHelper.parseWebApiResponse(
-          {'viewCount': 'not_a_number'}, 'vid1');
+      final info = YouTubeServiceHelper.parseWebApiResponse({
+        'viewCount': 'not_a_number',
+      }, 'vid1');
       expect(info.viewCount, 0);
     });
 
     test('handles invalid publishedAt string', () {
-      final info = YouTubeServiceHelper.parseWebApiResponse(
-          {'publishedAt': 'not_a_date'}, 'vid1');
+      final info = YouTubeServiceHelper.parseWebApiResponse({
+        'publishedAt': 'not_a_date',
+      }, 'vid1');
       expect(info.publishedAt, DateTime.utc(1970));
     });
   });
@@ -439,13 +481,14 @@ void main() {
             'high': {'url': 'https://high-native.jpg'},
           },
         },
-        'statistics': {
-          'viewCount': '67890',
-        },
+        'statistics': {'viewCount': '67890'},
       };
 
       final info = YouTubeServiceHelper.parseNativeVideoData(
-          video, 'nativeVid', 'https://ch.jpg');
+        video,
+        'nativeVid',
+        'https://ch.jpg',
+      );
       expect(info.id, 'nativeVid');
       expect(info.title, 'Native & Title');
       expect(info.channelTitle, 'Channel');
@@ -468,8 +511,7 @@ void main() {
         'statistics': {'viewCount': '0'},
       };
 
-      final info =
-          YouTubeServiceHelper.parseNativeVideoData(video, 'vid1', '');
+      final info = YouTubeServiceHelper.parseNativeVideoData(video, 'vid1', '');
       expect(info.thumbnailUrl, 'https://high-only.jpg');
     });
 
@@ -484,22 +526,28 @@ void main() {
         'statistics': {'viewCount': '0'},
       };
 
-      final info =
-          YouTubeServiceHelper.parseNativeVideoData(video, 'vid1', '');
-      expect(info.thumbnailUrl,
-          'https://img.youtube.com/vi/vid1/hqdefault.jpg');
+      final info = YouTubeServiceHelper.parseNativeVideoData(video, 'vid1', '');
+      expect(
+        info.thumbnailUrl,
+        'https://img.youtube.com/vi/vid1/hqdefault.jpg',
+      );
     });
 
     test('handles null snippet and statistics', () {
       final info = YouTubeServiceHelper.parseNativeVideoData(
-          <String, dynamic>{}, 'vid1', 'ch.jpg');
+        <String, dynamic>{},
+        'vid1',
+        'ch.jpg',
+      );
       expect(info.id, 'vid1');
       expect(info.title, '');
       expect(info.channelTitle, '');
       expect(info.channelThumbnail, 'ch.jpg');
       expect(info.viewCount, 0);
-      expect(info.thumbnailUrl,
-          'https://img.youtube.com/vi/vid1/hqdefault.jpg');
+      expect(
+        info.thumbnailUrl,
+        'https://img.youtube.com/vi/vid1/hqdefault.jpg',
+      );
     });
   });
 
@@ -510,7 +558,8 @@ void main() {
     test('returns true for standard watch URL', () {
       expect(
         YouTubeServiceHelper.isYouTubeUrl(
-            'https://www.youtube.com/watch?v=abc123'),
+          'https://www.youtube.com/watch?v=abc123',
+        ),
         isTrue,
       );
     });
@@ -525,7 +574,8 @@ void main() {
     test('returns true for embed URL', () {
       expect(
         YouTubeServiceHelper.isYouTubeUrl(
-            'https://www.youtube.com/embed/abc123'),
+          'https://www.youtube.com/embed/abc123',
+        ),
         isTrue,
       );
     });
@@ -533,7 +583,8 @@ void main() {
     test('returns true for shorts URL', () {
       expect(
         YouTubeServiceHelper.isYouTubeUrl(
-            'https://www.youtube.com/shorts/abc123'),
+          'https://www.youtube.com/shorts/abc123',
+        ),
         isTrue,
       );
     });
