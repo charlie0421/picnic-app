@@ -8,6 +8,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/vote_item_request_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'vote_item_request_service_helper.dart';
 import 'vote_item_request_models.dart';
 
 /// 투표 항목 신청 서비스 클래스
@@ -142,27 +143,15 @@ class VoteItemRequestService {
     final Map<String, ArtistApplicationInfo> applicationData = {};
 
     try {
-      // 배치 크기 제한 (한번에 너무 많은 데이터 처리 방지)
-      const maxBatchSize = 50;
-      if (artists.length > maxBatchSize) {
-        // 큰 배치는 작게 나누어 처리
-        final batches = <List<ArtistModel>>[];
-        for (int i = 0; i < artists.length; i += maxBatchSize) {
-          final end = (i + maxBatchSize > artists.length)
-              ? artists.length
-              : i + maxBatchSize;
-          batches.add(artists.sublist(i, end));
-        }
-
-        for (final batch in batches) {
-          final batchData = await _loadApplicationDataBatch(batch, userId);
-          applicationData.addAll(batchData);
-        }
-        return applicationData;
+      final batches = VoteItemRequestServiceHelper.splitIntoBatches(
+        artists,
+        VoteItemRequestServiceHelper.enrichmentBatchSize,
+      );
+      for (final batch in batches) {
+        final batchData = await _loadApplicationDataBatch(batch, userId);
+        applicationData.addAll(batchData);
       }
-
-      // 작은 배치는 한번에 처리
-      return await _loadApplicationDataBatch(artists, userId);
+      return applicationData;
     } catch (e) {
       logger.e('Application data loading failed', error: e);
       // 전체 오류 발생 시 기본값으로 설정
@@ -185,20 +174,9 @@ class VoteItemRequestService {
       List<ArtistModel> artists, String? userId) async {
     final Map<String, ArtistApplicationInfo> applicationData = {};
 
-    // 모든 아티스트 이름을 한번에 수집
-    final artistNames = <String>[];
-
-    for (final artist in artists) {
-      final koreanName = artist.name['ko'] as String? ?? '';
-      final englishName = artist.name['en'] as String? ?? '';
-
-      if (koreanName.isNotEmpty) {
-        artistNames.add(koreanName);
-      }
-      if (englishName.isNotEmpty) {
-        artistNames.add(englishName);
-      }
-    }
+    final artistNames = VoteItemRequestServiceHelper.collectArtistNameSet(
+      artists.map((artist) => artist.name).toList(),
+    );
 
     // 배치로 신청수 가져오기
     Map<String, int> applicationCounts = {};
