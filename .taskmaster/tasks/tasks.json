@@ -870,7 +870,7 @@
           {
             "id": 9,
             "title": "데이터 로딩 최적화 성능 테스트",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 10,
@@ -1051,7 +1051,7 @@
     ],
     "metadata": {
       "created": "2025-06-23T03:08:06.085Z",
-      "updated": "2026-07-21T04:48:55.779Z",
+      "updated": "2026-07-21T06:05:02.260Z",
       "description": "Tasks for master context"
     }
   }
