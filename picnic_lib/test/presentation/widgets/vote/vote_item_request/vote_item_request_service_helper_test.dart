@@ -153,6 +153,10 @@ void main() {
       expect(_queryCount(51, false), 4);
       expect(_queryCount(100, false), 4);
     });
+
+    test('rejects a negative artist count', () {
+      expect(() => _queryCount(-1, true), throwsArgumentError);
+    });
   });
 
   group('needsBatching', () {
