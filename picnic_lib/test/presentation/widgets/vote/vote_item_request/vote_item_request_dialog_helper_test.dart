@@ -54,6 +54,15 @@ void main() {
         },
       );
 
+      test('uses caller-provided localized already_applied message', () {
+        final result = VoteItemRequestDialogHelper.getErrorMessageFromException(
+          Exception('already_applied'),
+          alreadyAppliedMessage: 'This artist has already been requested.',
+        );
+
+        expect(result, 'This artist has already been requested.');
+      });
+
       test('returns generic error without exposing unknown error details', () {
         final result = VoteItemRequestDialogHelper.getErrorMessageFromException(
           Exception('relation secret_table does not exist'),

@@ -183,7 +183,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       logger.e('모든 신청 데이터 로딩 실패', error: error, stackTrace: stackTrace);
       if (mounted) {
         setState(() {
-          _errorMessage = AppLocalizations.of(context).common_text_search_error;
+          _errorMessage = AppLocalizations.of(context).message_error_occurred;
         });
       }
     } finally {
@@ -499,6 +499,9 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
                 genericErrorMessage: AppLocalizations.of(
                   context,
                 ).message_error_occurred,
+                alreadyAppliedMessage: AppLocalizations.of(
+                  context,
+                ).vote_item_request_already_applied_artist,
               );
         });
 

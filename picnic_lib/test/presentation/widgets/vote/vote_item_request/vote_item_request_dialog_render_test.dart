@@ -95,7 +95,7 @@ void main() {
           find.text(
             AppLocalizations.of(
               tester.element(find.byType(VoteItemRequestDialog)),
-            ).common_text_search_error,
+            ).message_error_occurred,
           ),
           findsOneWidget,
         );
