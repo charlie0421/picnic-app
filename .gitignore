@@ -54,3 +54,5 @@ picnic_app/key.properties
 
 # 테스트 커버리지
 **/coverage/
+supabase/.temp/**
+supabase/.branches/**

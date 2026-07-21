@@ -1,8 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
-import 'package:meta/meta.dart';
+import 'package:picnic_lib/core/config/supabase_environment_policy.dart';
 
 class Environment {
   static late Map<String, dynamic> _config;
@@ -13,6 +14,24 @@ class Environment {
     _currentEnvironment = env;
     final configString = await rootBundle.loadString('config/$env.json');
     _config = json.decode(configString) as Map<String, dynamic>;
+    if (env == 'local' || env == 'dev') {
+      final productionString = await rootBundle.loadString('config/prod.json');
+      final productionConfig =
+          json.decode(productionString) as Map<String, dynamic>;
+      final result = SupabaseEnvironmentPolicy.validate(
+        environment: env,
+        config: _config,
+        productionConfig: productionConfig,
+        stagingProjectRef: const String.fromEnvironment(
+          'PICNIC_STAGING_SUPABASE_PROJECT_REF',
+        ),
+      );
+      if (!result.isValid) {
+        throw StateError(
+          'Supabase environment validation failed: ${result.reason}',
+        );
+      }
+    }
     _isInitialized = true;
   }
 
