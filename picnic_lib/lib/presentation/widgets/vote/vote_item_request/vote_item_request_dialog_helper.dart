@@ -20,10 +20,12 @@ class VoteItemRequestDialogHelper {
     Object error, {
     String genericErrorMessage =
         '\uc2e0\uccad \uc911 \uc624\ub958\uac00 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4',
+    String alreadyAppliedMessage =
+        '\uc774\ubbf8 \uc2e0\uccad\ud55c \uc544\ud2f0\uc2a4\ud2b8\uc785\ub2c8\ub2e4',
   }) {
     final errorStr = error.toString();
     if (errorStr.contains('already_applied')) {
-      return '\uc774\ubbf8 \uc2e0\uccad\ud55c \uc544\ud2f0\uc2a4\ud2b8\uc785\ub2c8\ub2e4'; // 이미 신청한 아티스트입니다
+      return alreadyAppliedMessage;
     }
     return genericErrorMessage;
   }
