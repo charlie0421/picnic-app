@@ -1,7 +1,7 @@
 # 코튼캔디 지갑 + 캔디 부스트 데이 설계
 
 - 날짜: 2026-07-21
-- 상태: 섹션별 사용자 승인 완료, 통합 설계 문서 검토 대기
+- 상태: 사용자 최종 승인 완료, 구현 계획 작성 완료·실행 방식 선택 대기
 - 조정 브랜치: `feat/cotton-candy-policy`
 - 범위: `picnic-app`, `picnic-supabase`, `picnic-admin`
 - 기준 시간대: `Asia/Seoul`
@@ -665,6 +665,7 @@ CursorPage<T> = {
 
 1. 공급자 event를 8.4의 transaction A로 inbox에 먼저 durable commit한다.
 2. worker는 lease를 얻고 provider transaction·환경·발생 시각을 검증한다. 상품 단가에 quantity를 적용한 base 총액을 DB에서 계산한다.
+   - 기존 PayPal/PortOne RPC signature는 호환용 durable intake로만 남긴다. pending receipt/inbox를 반환한 뒤 Supabase worker가 provider API를 다시 조회하며, 검증 완료 전에는 금융 지급을 하지 않는다.
 3. provider 시각을 확인했으면 그 시각의 campaign version과 rollout policy로 entitlement를 결정한다. 시각만 불명확하면 base snapshot/allocation과 `PENDING_TIME` resolution을 만든다.
 4. Star/Bonus gross credit는 각 통화의 오래된 open debt를 먼저 상계하고 allocation에 gross/debt-offset/net을 모두 남긴다.
 5. base 정상 경로는 receipt, base snapshot/allocation, history/bucket, profile projection, debt event와 purchase inbox success를 한 transaction으로 commit한다. Boost write가 켜져 있으면 확정 가능한 resolution/award도 같은 transaction에 포함한다.
@@ -690,7 +691,7 @@ CursorPage<T> = {
 - 재시도 소진 또는 불변식 위반은 `DEAD`와 영속 alert로 격리한다.
 - commit 여부가 불명확할 때 새 key로 다시 지급하지 않고 기존 key의 상태를 먼저 조회한다.
 - 광고 지표는 channel/environment별 `claim_created`, `grant`, `duplicate`, `pending_age`, `denied`, `expired`, `recovered_after_resume`를 집계한다. 고카디널리티 ID는 label이 아니라 support reference로만 보관한다.
-- rollback되는 PostgreSQL transaction 안에서 alert를 insert하지 않는다. inbox 명령은 transaction C가, vote/admin 같은 동기 명령은 인증된 Edge/admin wrapper가 rollback을 확인한 뒤 service-only `record_wallet_command_failure`를 별도 transaction으로 호출한다. mutation RPC는 client가 직접 EXECUTE하지 않는다. 이 failure 기록까지 실패하면 외부 오류 metric이 on-call을 호출한다.
+- rollback되는 PostgreSQL transaction 안에서 alert를 insert하지 않는다. inbox 명령은 transaction C가, vote/admin 같은 동기 명령은 인증된 Edge/admin wrapper가 rollback을 확인한 뒤 service-only `record_wallet_command_failure`를 별도 transaction으로 호출한다. recorder request는 정확히 `{actor_user_id,request_id,action_code,failure_stage,domain_code,retryable}`이며 `failure_stage`는 `TRANSPORT|RESPONSE_DECODE`만 허용한다. mutation RPC는 client가 직접 EXECUTE하지 않는다. 이 failure 기록까지 실패하면 외부 오류 metric이 on-call을 호출한다.
 
 ### 운영 복구 순서
 
