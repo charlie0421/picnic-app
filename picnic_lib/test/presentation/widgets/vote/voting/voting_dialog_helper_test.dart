@@ -9,7 +9,7 @@ void main() {
       test('refreshes after the first auth 401 and retries once', () async {
         var invokes = 0;
         var refreshes = 0;
-        final phases = <VotingAuthRecoveryPhase>[];
+        final events = <VotingAuthRecoveryEvent>[];
 
         final result = await VotingDialogHelper.invokeVotingWithAuthRecovery(
           invoke: () async {
@@ -26,21 +26,22 @@ void main() {
             refreshes++;
             return true;
           },
-          onPhase: phases.add,
+          onRecovery: events.add,
         );
 
         expect(result, 'ok');
         expect(invokes, 2);
         expect(refreshes, 1);
-        expect(phases, [
+        expect(events.map((event) => event.phase), [
           VotingAuthRecoveryPhase.refreshStarted,
           VotingAuthRecoveryPhase.refreshSucceeded,
         ]);
+        expect(events.map((event) => event.status), everyElement(401));
       });
 
       test('stops after the retried request is also unauthorized', () async {
         var invokes = 0;
-        final phases = <VotingAuthRecoveryPhase>[];
+        final events = <VotingAuthRecoveryEvent>[];
 
         await expectLater(
           VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
@@ -52,7 +53,7 @@ void main() {
               );
             },
             refresh: () async => true,
-            onPhase: phases.add,
+            onRecovery: events.add,
           ),
           throwsA(
             isA<EdgeAuthRecoveryException>().having(
@@ -64,28 +65,124 @@ void main() {
         );
 
         expect(invokes, 2);
-        expect(phases.last, VotingAuthRecoveryPhase.retryFailed);
+        expect(events.last.phase, VotingAuthRecoveryPhase.retryFailed);
+        expect(events.last.status, 401);
       });
 
-      test('does not refresh for a non-auth function error', () async {
-        var refreshes = 0;
+      for (final status in [400, 403, 500]) {
+        test('does not refresh for FunctionException $status', () async {
+          var refreshes = 0;
 
-        await expectLater(
-          VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
-            invoke: () async => throw const FunctionException(status: 429),
-            refresh: () async {
-              refreshes++;
-              return true;
-            },
-          ),
-          throwsA(isA<FunctionException>()),
+          await expectLater(
+            VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
+              invoke: () async => throw FunctionException(status: status),
+              refresh: () async {
+                refreshes++;
+                return true;
+              },
+            ),
+            throwsA(
+              isA<FunctionException>().having(
+                (error) => error.status,
+                'status',
+                status,
+              ),
+            ),
+          );
+
+          expect(refreshes, 0);
+        });
+      }
+
+      test(
+        'reports retry_failed with safe 429 status and preserves error',
+        () async {
+          var invokes = 0;
+          final retryError = const FunctionException(
+            status: 429,
+            details: 'sensitive request details',
+          );
+          final events = <VotingAuthRecoveryEvent>[];
+
+          await expectLater(
+            VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
+              invoke: () async {
+                invokes++;
+                if (invokes == 1) {
+                  throw const FunctionException(status: 401);
+                }
+                throw retryError;
+              },
+              refresh: () async => true,
+              onRecovery: events.add,
+            ),
+            throwsA(same(retryError)),
+          );
+
+          expect(events.last.phase, VotingAuthRecoveryPhase.retryFailed);
+          expect(events.last.status, 429);
+        },
+      );
+
+      test('keeps 429 backoff inside the post-refresh invoke', () async {
+        var authInvokes = 0;
+        var transportInvokes = 0;
+        var backoffs = 0;
+        final events = <VotingAuthRecoveryEvent>[];
+
+        Future<String> invokeWith429Backoff() async {
+          authInvokes++;
+          if (authInvokes == 1) {
+            throw const FunctionException(status: 401);
+          }
+          while (true) {
+            try {
+              transportInvokes++;
+              if (transportInvokes == 1) {
+                throw const FunctionException(status: 429);
+              }
+              return 'ok';
+            } on FunctionException catch (error) {
+              if (error.status != 429) rethrow;
+              backoffs++;
+            }
+          }
+        }
+
+        final result = await VotingDialogHelper.invokeVotingWithAuthRecovery(
+          invoke: invokeWith429Backoff,
+          refresh: () async => true,
+          onRecovery: events.add,
         );
 
-        expect(refreshes, 0);
+        expect(result, 'ok');
+        expect(authInvokes, 2);
+        expect(transportInvokes, 2);
+        expect(backoffs, 1);
+        expect(
+          events.map((event) => event.phase),
+          isNot(contains(VotingAuthRecoveryPhase.retryFailed)),
+        );
+      });
+
+      test('builds only the agreed low-cardinality Sentry tags', () {
+        final tags = VotingDialogHelper.authRecoveryTags(
+          portal: 'pic',
+          event: const VotingAuthRecoveryEvent(
+            VotingAuthRecoveryPhase.retryFailed,
+            status: 500,
+          ),
+        );
+
+        expect(tags, {
+          'portal': 'pic',
+          'phase': 'retry_failed',
+          'status': '500',
+        });
       });
 
       test('reports refresh failure without exposing its cause', () async {
-        final phases = <VotingAuthRecoveryPhase>[];
+        final events = <VotingAuthRecoveryEvent>[];
 
         await expectLater(
           VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
@@ -94,12 +191,13 @@ void main() {
               details: 'Invalid JWT',
             ),
             refresh: () async => false,
-            onPhase: phases.add,
+            onRecovery: events.add,
           ),
           throwsA(isA<EdgeAuthRecoveryException>()),
         );
 
-        expect(phases.last, VotingAuthRecoveryPhase.refreshFailed);
+        expect(events.last.phase, VotingAuthRecoveryPhase.refreshFailed);
+        expect(events.last.status, 401);
       });
     });
 

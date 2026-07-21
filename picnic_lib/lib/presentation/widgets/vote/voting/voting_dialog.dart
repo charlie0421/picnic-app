@@ -516,7 +516,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           final response = await supabase.auth.refreshSession();
           return response.session != null;
         },
-        onPhase: _recordAuthRecoveryPhase,
+        onRecovery: _recordAuthRecoveryEvent,
       );
 
       if (!mounted) return;
@@ -581,12 +581,18 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     }
   }
 
-  void _recordAuthRecoveryPhase(VotingAuthRecoveryPhase phase) {
-    Sentry.addBreadcrumb(
-      Breadcrumb(
-        category: 'vote.auth_recovery',
-        data: {'phase': phase.sentryValue},
-        level: SentryLevel.info,
+  void _recordAuthRecoveryEvent(VotingAuthRecoveryEvent event) {
+    final portal = widget.portalType == VotePortal.vote ? 'vote' : 'pic';
+    unawaited(
+      Sentry.captureEvent(
+        SentryEvent(
+          message: SentryMessage('vote_auth_recovery'),
+          tags: VotingDialogHelper.authRecoveryTags(
+            portal: portal,
+            event: event,
+          ),
+          level: SentryLevel.info,
+        ),
       ),
     );
   }

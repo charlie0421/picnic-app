@@ -18,6 +18,13 @@ extension VotingAuthRecoveryPhaseName on VotingAuthRecoveryPhase {
   };
 }
 
+class VotingAuthRecoveryEvent {
+  const VotingAuthRecoveryEvent(this.phase, {required this.status});
+
+  final VotingAuthRecoveryPhase phase;
+  final int status;
+}
+
 /// Pure-logic helpers extracted from [VotingDialog] for testability.
 ///
 /// NOTE: Vote amount parsing, validation, batch calculation, and usage
@@ -30,34 +37,64 @@ class VotingDialogHelper {
   static Future<T> invokeVotingWithAuthRecovery<T>({
     required Future<T> Function() invoke,
     required Future<bool> Function() refresh,
-    void Function(VotingAuthRecoveryPhase phase)? onPhase,
+    void Function(VotingAuthRecoveryEvent event)? onRecovery,
   }) async {
     try {
       return await invokeWithAuthRecovery(
         invoke: invoke,
+        onRetryFailure: (error) => onRecovery?.call(
+          VotingAuthRecoveryEvent(
+            VotingAuthRecoveryPhase.retryFailed,
+            status: _httpStatus(error),
+          ),
+        ),
         refresh: () async {
-          onPhase?.call(VotingAuthRecoveryPhase.refreshStarted);
+          onRecovery?.call(
+            const VotingAuthRecoveryEvent(
+              VotingAuthRecoveryPhase.refreshStarted,
+              status: 401,
+            ),
+          );
           try {
             final refreshed = await refresh();
-            onPhase?.call(
-              refreshed
-                  ? VotingAuthRecoveryPhase.refreshSucceeded
-                  : VotingAuthRecoveryPhase.refreshFailed,
+            onRecovery?.call(
+              VotingAuthRecoveryEvent(
+                refreshed
+                    ? VotingAuthRecoveryPhase.refreshSucceeded
+                    : VotingAuthRecoveryPhase.refreshFailed,
+                status: 401,
+              ),
             );
             return refreshed;
           } catch (_) {
-            onPhase?.call(VotingAuthRecoveryPhase.refreshFailed);
+            onRecovery?.call(
+              const VotingAuthRecoveryEvent(
+                VotingAuthRecoveryPhase.refreshFailed,
+                status: 401,
+              ),
+            );
             rethrow;
           }
         },
       );
-    } on EdgeAuthRecoveryException catch (error) {
-      if (error.reason == EdgeAuthRecoveryFailureReason.retryUnauthorized) {
-        onPhase?.call(VotingAuthRecoveryPhase.retryFailed);
-      }
+    } on EdgeAuthRecoveryException {
       rethrow;
     }
   }
+
+  static int _httpStatus(Object error) {
+    if (error is FunctionException) return error.status;
+    return 0;
+  }
+
+  static Map<String, String> authRecoveryTags({
+    required String portal,
+    required VotingAuthRecoveryEvent event,
+  }) => {
+    'portal': portal,
+    'phase': event.phase.sentryValue,
+    'status': event.status.toString(),
+  };
 
   static String resolveVoteFailureMessage({
     required Object? error,

@@ -16,12 +16,13 @@ Supabase Edge Function의 JWT 검증 실패가 발생하면 현재 투표 UI는 
 - 모든 Edge Function 호출을 이번 변경에서 공통 래퍼로 전환하지 않는다.
 - Supabase SDK 또는 인증 제공자를 교체하지 않는다.
 - 앱에 publishable key를 도입하는 키 마이그레이션은 별도 후속 작업으로 둔다.
+- 전역 비활성화된 JMA 투표는 이번 앱 패치에서 제외하고 후속 작업으로 연기한다.
 
 ## 설계
 
 ### 투표 호출 복구
 
-일반 투표와 JMA 투표의 호출 경계에서 인증 실패를 분류한다. `FunctionException.status == 401`이고 오류 코드가 `UNAUTHORIZED`, `UNAUTHORIZED_LEGACY_JWT`, `UNAUTHORIZED_ASYMMETRIC_JWT` 또는 동등한 JWT 오류일 때만 `supabase.auth.refreshSession()`을 호출한다.
+일반 투표 호출 경계에서 인증 실패를 분류한다. 오류 상세 형식이나 코드와 무관하게 모든 `FunctionException.status == 401`에서만 `supabase.auth.refreshSession()`을 호출한다. JMA 투표는 전역 비활성 상태이므로 이 변경에서 통합하지 않는다.
 
 갱신으로 새 세션을 얻으면 동일한 투표 요청을 정확히 한 번 재시도한다. 기존 429 재시도 카운터와 인증 재시도 플래그를 분리한다. 인증 재시도 전에는 서버가 함수 내부로 진입하지 않았다는 401만 대상으로 하므로 중복 투표를 만들지 않는다. 2xx 이후 후처리 오류에는 재시도하지 않는다.
 
@@ -33,11 +34,11 @@ Supabase Edge Function의 JWT 검증 실패가 발생하면 현재 투표 UI는 
 
 Sentry에는 `vote_auth_recovery` 이벤트와 다음 저카디널리티 태그만 기록한다.
 
-- `portal`: `vote` 또는 `jma`
+- `portal`: `vote` 또는 `pic`
 - `phase`: `refresh_started`, `refresh_succeeded`, `refresh_failed`, `retry_failed`
-- `status`: HTTP 상태
+- `status`: 숫자 HTTP 상태(HTTP 상태가 없는 예외는 `0`)
 
-토큰, 사용자 ID, 이메일, 요청 본문은 기록하지 않는다.
+예외, 상세 오류, 토큰, 사용자 ID, 이메일, 요청 본문은 기록하지 않는다.
 
 ### 테스트
 
@@ -51,4 +52,3 @@ Sentry에는 `vote_auth_recovery` 이벤트와 다음 저카디널리티 태그�
 ## 배포와 성공 기준
 
 백엔드 인증 경계 배포와 검증 후 앱 패치를 배포한다. 인증 복구 성공률, 최종 401 비율, 중복 투표 신고를 관찰한다. 유효하지만 오래된 세션 사용자는 사용자 조작 없이 회복하고, 회복 불가능한 세션은 명확한 재로그인 안내를 받아야 한다.
-

@@ -4,7 +4,7 @@
 
 **Goal:** Recover voting requests once after an authentication 401 and replace raw JWT errors with a safe re-login message.
 
-**Architecture:** A pure classifier identifies recoverable authentication failures. A small retry coordinator keeps auth retry state separate from existing 429 retry state and injects refresh/invoke callbacks for deterministic tests; both voting dialogs use it.
+**Architecture:** A pure classifier identifies any `FunctionException` with HTTP 401 as recoverable. A small retry coordinator keeps auth retry state separate from existing 429 retry state and injects refresh/invoke callbacks for deterministic tests; the enabled general voting dialog uses it.
 
 **Tech Stack:** Flutter, Dart, Supabase Flutter 2.x, flutter_test, Sentry
 
@@ -14,6 +14,7 @@
 - Never retry after a 2xx response or for 400, 403, 429, or 5xx responses.
 - Never log or display bearer tokens, JWT claims, user IDs, or raw `Invalid JWT` messages.
 - Preserve existing optimistic update, rollback, loading and 429 backoff behavior.
+- JMA voting is globally disabled; do not change its code or behavior. Its integration is excluded and deferred.
 
 ---
 
@@ -30,7 +31,7 @@
 
 - [ ] **Step 1: Write failing tests** for legacy/asymmetric/generic auth 401, non-auth statuses, refresh success, refresh failure, second 401 and exact invoke/refresh call counts.
 - [ ] **Step 2: Verify RED** with `cd picnic_lib && flutter test test/core/services/auth/edge_auth_retry_test.dart`; expect import/module failure.
-- [ ] **Step 3: Implement minimal classifier/coordinator** using `FunctionException.status` and structured detail codes, never error-string interpolation into user-visible output.
+- [ ] **Step 3: Implement minimal classifier/coordinator** using any `FunctionException.status == 401`, never error-string interpolation into user-visible output.
 - [ ] **Step 4: Verify GREEN** with the same test command.
 - [ ] **Step 5: Commit** with `git add picnic_lib/lib/core/services/auth/edge_auth_retry.dart picnic_lib/test/core/services/auth/edge_auth_retry_test.dart && git commit -m "feat(auth): add one-shot edge session recovery"`.
 
@@ -51,18 +52,10 @@
 - [ ] **Step 6: Verify GREEN** with targeted tests and `flutter analyze lib/presentation/widgets/vote/voting/voting_dialog.dart lib/core/services/auth/edge_auth_retry.dart`.
 - [ ] **Step 7: Commit** with `git add picnic_lib && git commit -m "fix(vote): recover expired edge auth session"`.
 
-### Task 3: JMA voting integration
+### Task 3: JMA voting integration (deferred / excluded)
 
-**Files:**
-- Modify: `picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart`
-- Modify: `picnic_lib/test/presentation/widgets/vote/voting/jma_voting_dialog_test.dart`
-- Modify: `picnic_lib/test/presentation/widgets/vote/voting/jma_voting_dialog_widget_test.dart`
-
-- [ ] **Step 1: Add failing JMA tests** for one refresh/retry, refresh failure, second 401 and preservation of the existing 429 retry limit.
-- [ ] **Step 2: Verify RED** with the two targeted JMA test files.
-- [ ] **Step 3: Integrate the shared coordinator** without duplicating authentication classification and emit the `portal=jma` recovery tag.
-- [ ] **Step 4: Verify GREEN** with all voting tests under `test/presentation/widgets/vote/voting`.
-- [ ] **Step 5: Commit** with `git add picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart picnic_lib/test/presentation/widgets/vote/voting && git commit -m "fix(vote): recover JMA edge auth session"`.
+- [ ] No implementation or test changes while JMA remains globally disabled.
+- [ ] Re-evaluate auth recovery only if JMA is re-enabled in a separately approved change.
 
 ### Task 4: App regression verification
 
@@ -72,5 +65,4 @@
 - [ ] **Step 1: Run** `cd picnic_lib && flutter test test/core/services/auth/edge_auth_retry_test.dart test/presentation/widgets/vote/voting` and require zero failures.
 - [ ] **Step 2: Run** `cd picnic_lib && flutter analyze lib/core/services/auth/edge_auth_retry.dart lib/presentation/widgets/vote/voting` and require no new issues.
 - [ ] **Step 3: Run `git diff --check` and secret scan** with `rg -n "Bearer eyJ|accessToken\}" picnic_lib/lib/core/services/auth picnic_lib/lib/presentation/widgets/vote/voting` and confirm no token logging was introduced.
-- [ ] **Step 4: Record the verified commands and outcomes** in the PR body; no separate generated report file is required.
-
+- [ ] **Step 4: Record the verified commands and outcomes** in the requested final-fix report.

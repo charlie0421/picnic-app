@@ -19,6 +19,7 @@ bool isRecoverableEdgeAuthFailure(Object error) {
 Future<T> invokeWithAuthRecovery<T>({
   required Future<T> Function() invoke,
   required Future<bool> Function() refresh,
+  void Function(Object error)? onRetryFailure,
 }) async {
   try {
     return await invoke();
@@ -46,6 +47,7 @@ Future<T> invokeWithAuthRecovery<T>({
   try {
     return await invoke();
   } catch (error) {
+    onRetryFailure?.call(error);
     if (isRecoverableEdgeAuthFailure(error)) {
       throw EdgeAuthRecoveryException(
         EdgeAuthRecoveryFailureReason.retryUnauthorized,
