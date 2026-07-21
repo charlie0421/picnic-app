@@ -845,12 +845,12 @@
           {
             "id": 4,
             "title": "키보드 이벤트 처리 오류 해결 방법 구현",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 5,
             "title": "키보드 이벤트 오류 해결책 문서화",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 6,
@@ -1051,7 +1051,7 @@
     ],
     "metadata": {
       "created": "2025-06-23T03:08:06.085Z",
-      "updated": "2026-07-20T16:53:38.018Z",
+      "updated": "2026-07-21T04:48:55.779Z",
       "description": "Tasks for master context"
     }
   }
