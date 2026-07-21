@@ -25,9 +25,10 @@ import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
 
 void main() async {
-  // ENVIRONMENT dart-define 값을 동적으로 읽기 (기본값: dev)
-  const environment =
-      String.fromEnvironment('ENVIRONMENT', defaultValue: 'dev');
+  const environment = String.fromEnvironment('ENVIRONMENT');
+  if (environment != 'local' && environment != 'dev' && environment != 'prod') {
+    throw StateError('ENVIRONMENT dart-define is required (local, dev, or prod)');
+  }
 
   // MainInitializer를 사용하여 앱 초기화
   await MainInitializer.initializeApp(
