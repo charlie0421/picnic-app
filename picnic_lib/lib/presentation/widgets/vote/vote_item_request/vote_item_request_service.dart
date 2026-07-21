@@ -233,6 +233,8 @@ class VoteItemRequestService {
           futures.add(supabase
               .from('vote_item_request_users')
               .select('''
+                vote_id,
+                user_id,
                 artist_id,
                 artist!inner(name),
                 status
@@ -242,6 +244,10 @@ class VoteItemRequestService {
               .timeout(Duration(seconds: 10))
               .then((response) {
                 for (final row in response) {
+                  if (row['vote_id'].toString() != voteId ||
+                      row['user_id'] != userId) {
+                    continue;
+                  }
                   if (row['artist'] != null) {
                     final artistData = row['artist'] as Map<String, dynamic>;
                     final nameData = artistData['name'] as Map<String, dynamic>;

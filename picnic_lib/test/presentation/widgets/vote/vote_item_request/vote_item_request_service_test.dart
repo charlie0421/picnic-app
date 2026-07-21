@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
 import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/vote_item_request_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service.dart';
@@ -26,7 +28,8 @@ void main() {
         {'vote_id': 1, 'artist_id': 10, 'artist_name': '가수 A', 'request_status': 'approved', 'request_count': 3},
       ],
       'vote_item_request_users': [
-        {'artist_id': 10, 'status': 'pending', 'artist': {'name': {'ko': '가수 A', 'en': 'Singer A'}}},
+        {'vote_id': 1, 'user_id': 'current-user', 'artist_id': 10, 'status': 'pending', 'artist': {'name': {'ko': '가수 A', 'en': 'Singer A'}}},
+        {'vote_id': 1, 'user_id': 'other-user', 'artist_id': 10, 'status': 'rejected', 'artist': {'name': {'ko': '가수 A', 'en': 'Singer A'}}},
       ],
       'vote_item': <Map<String, dynamic>>[],
     }, userId: 'current-user');
@@ -57,7 +60,11 @@ void main() {
     );
 
     expect(result['10']!.applicationCount, 7);
-    expect(result['10']!.applicationStatus, isNot('신청 가능'));
+    expect(
+      result['10']!.applicationStatus,
+      AppLocalizations.of(navigatorKey.currentContext!)
+          .vote_item_request_status_pending,
+    );
   });
 
   group('VoteItemRequestRepository - getVoteItemRequestCount', () {
