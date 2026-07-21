@@ -16,6 +16,12 @@
 - `picnic-web` 코드는 이 계획 범위에 추가하지 않는다. 기존 PayPal/PortOne RPC signature는 Supabase의 durable-intake compatibility wrapper로 유지한다. wrapper는 pending receipt/inbox만 commit하고 금융 mutation을 하지 않으며, Supabase worker가 provider API를 다시 조회해 정산한다. 실제 호출 트래픽과 현재 두 Next Route의 non-null `receipt_id` 호환성을 확인하기 전에는 signature를 revoke하거나 `web_purchase`를 migrated로 바꾸지 않는다.
 - `picnic-app` 구현 작업트리는 `/Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy`, 브랜치는 `feat/cotton-candy-policy`다.
 - `picnic-supabase`와 `picnic-admin`은 실행 전에 `/Users/charlie.hyun/Repositories/GIT_BRANCHING_POLICY.md`를 읽고 사용자의 명시적 승인을 받은 뒤 sibling worktree를 만든다. 메인 폴더에서 `checkout`/`switch`하지 않는다.
+- production Supabase project ref `xtijtefcycoeqludlngc`는 개발/Preview denylist다. feature worktree의 local/Preview preflight가 이 ref, production DB host, linked metadata 중 하나라도 발견하면 exit 1이어야 한다.
+- 현재 App `dev/local` Supabase tuple이 `prod`와 같고 Admin tracked `.env` 및 local env가 production을 가리키므로 네트워크 통합 실행은 Phase -1 해소 전 **NO-GO**다. staging 미구성 시 production으로 fallback하지 않는다.
+- App와 Admin의 추적된 `supabase/.temp/**`/link metadata도 security hotfix로 제거·ignore하고, App tracked config의 privileged-looking credential key는 별도 회전·서버 이전 감사를 완료해야 한다. link 파일을 남긴 채 `--local`을 생략하는 CLI 명령은 허용하지 않는다.
+- `picnic-admin/.env`가 Git에서 제거되고 포함된 production credential이 회전됐다는 별도 security evidence가 없으면 Admin worktree를 만들거나 Vercel Preview를 실행하지 않는다. `NEXT_PUBLIC_*SERVICE_ROLE*`는 모든 환경에서 금지한다.
+- production 변경은 feature branch/개발자 shell에서 실행하지 않는다. 정확한 `main` SHA, release manifest `GO`, 사람 승인, protected production environment를 검증하는 수동 workflow만 허용한다.
+- schema/function을 flag OFF로 배포하는 dark launch와 실제 기능 활성화 `GO`는 별도 단계다. dark launch는 additive migration·read/inbox/worker만 포함하고, 활성화는 관찰·rehearsal·사람 승인을 거친 audited runtime command로만 수행한다.
 - `/Users/charlie.hyun/Repositories/picnic-supabase/.gitignore`와 `/Users/charlie.hyun/Repositories/picnic-admin/types/supabase.ts`의 기존 사용자 변경을 수정·stage·복사하지 않는다.
 - DB migration과 계약이 먼저다. `picnic-admin/types/supabase.ts` 생성은 schema 배포 후 새 admin worktree 안에서만 수행한다.
 - raw `user_profiles` 재화 컬럼이나 금융 원장에 대한 앱/관리자 write를 추가하지 않는다. 서버 command RPC의 stable envelope만 사용한다.
@@ -106,12 +112,38 @@ Supabase enum/core schema
 - Read before execution: `/Users/charlie.hyun/Repositories/GIT_BRANCHING_POLICY.md`
 - Preserve: `/Users/charlie.hyun/Repositories/picnic-supabase/.gitignore`
 - Preserve: `/Users/charlie.hyun/Repositories/picnic-admin/types/supabase.ts`
+- Require before Admin worktree: tracked `/Users/charlie.hyun/Repositories/picnic-admin/.env` removal and production credential rotation evidence
+- Create later in Supabase worktree: `scripts/safety/assert-wallet-target.mjs`
+- Create later in Supabase worktree: `scripts/safety/assert-wallet-target.test.mjs`
 
 - [ ] **Step 1: 사용자에게 두 신규 worktree 생성을 승인받는다**
 
 승인 전에는 아래 `worktree add` 명령을 실행하지 않는다.
 
-- [ ] **Step 2: 정책을 읽고 규격 브랜치의 sibling worktree를 만든다**
+- [ ] **Step 2: production credential blocker를 먼저 확인한다**
+
+비밀값은 출력하지 않고 tracked 파일명과 금지 key 이름만 검사한다.
+
+```bash
+if git -C /Users/charlie.hyun/Repositories/picnic-admin ls-files --error-unmatch .env >/dev/null 2>&1; then
+  echo "NO-GO: picnic-admin/.env is still tracked; remove it and rotate production credentials first" >&2
+  exit 1
+fi
+if git -C /Users/charlie.hyun/Repositories/picnic-admin grep -l 'NEXT_PUBLIC_.*SERVICE_ROLE' -- . ':!types/**' >/dev/null 2>&1; then
+  echo "NO-GO: browser-exposed service-role variable remains" >&2
+  exit 1
+fi
+for repo in /Users/charlie.hyun/Repositories/picnic-app /Users/charlie.hyun/Repositories/picnic-admin; do
+  if git -C "$repo" ls-files 'supabase/.temp/**' 'supabase/.branches/**' | rg . >/dev/null 2>&1; then
+    echo "NO-GO: tracked Supabase CLI link metadata remains in $repo" >&2
+    exit 1
+  fi
+done
+```
+
+Expected now: exit 1. 별도 승인된 security hotfix가 merge되고 credential rotation evidence가 기록되기 전에는 다음 step으로 진행하지 않는다.
+
+- [ ] **Step 3: 정책을 읽고 규격 브랜치의 sibling worktree를 만든다**
 
 ```bash
 git -C /Users/charlie.hyun/Repositories/picnic-supabase worktree add /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine -b feat/cotton-candy-engine
@@ -120,20 +152,22 @@ git -C /Users/charlie.hyun/Repositories/picnic-admin worktree add /Users/charlie
 
 Expected: 두 worktree가 생성되고 원본 두 저장소는 `main`을 유지한다.
 
-- [ ] **Step 3: 환경 파일과 의존성을 준비한다**
+- [ ] **Step 4: production 환경 파일을 복사하지 않고 의존성만 준비한다**
 
-비밀값을 화면에 출력하지 말고 존재하는 파일만 같은 이름으로 복사한다.
+원본의 `.env`, `.env.local`, `supabase/.env`, `supabase/.temp`는 production 대상일 수 있으므로 복사하지 않는다. staging credential은 별도 secret manager/Vercel Preview environment에서 주입하며, 아직 준비되지 않았다면 remote integration은 NO-GO로 남긴다.
 
 ```bash
-find /Users/charlie.hyun/Repositories/picnic-supabase -maxdepth 1 -type f -name '.env*' -exec cp {} /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/ \;
-find /Users/charlie.hyun/Repositories/picnic-admin -maxdepth 1 -type f -name '.env*' -exec cp {} /Users/charlie.hyun/Repositories/picnic-admin-wallet-ops/ \;
+test ! -e /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/supabase/.env
+test ! -e /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/supabase/.temp/project-ref
+test ! -e /Users/charlie.hyun/Repositories/picnic-admin-wallet-ops/.env
+test ! -e /Users/charlie.hyun/Repositories/picnic-admin-wallet-ops/.env.local
 cd /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine && npm install
 cd /Users/charlie.hyun/Repositories/picnic-admin-wallet-ops && npm install
 ```
 
-Expected: install exits 0; 원본 dirty 파일은 여전히 원본 worktree에만 있다.
+Expected: 네 `test`와 install이 모두 exit 0이며 production credential/link metadata가 두 feature worktree에 없다. 원본 dirty 파일은 여전히 원본 worktree에만 있다.
 
-- [ ] **Step 4: 세 작업트리의 시작점을 기록한다**
+- [ ] **Step 5: 세 작업트리의 시작점과 network NO-GO를 기록한다**
 
 ```bash
 git -C /Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy status --short --branch
@@ -142,6 +176,8 @@ git -C /Users/charlie.hyun/Repositories/picnic-admin-wallet-ops status --short -
 ```
 
 Expected: 지정 브랜치이며, 의도하지 않은 tracked 변경이 없다.
+
+App isolation test, Supabase target guard, Admin Preview guard가 구현·통과하기 전에는 이 상태에서 local unit test와 static generation만 허용한다. 실제 API/DB/Edge/Vercel network 호출은 금지한다.
 
 ### Task 2: 계약 fixture와 schema checksum 고정
 
@@ -191,7 +227,22 @@ Expected: `12 contract fixtures verified; integration constants verified; checks
 ```yaml
 release: cotton-candy-v1
 status: blocked
+deployment_stage: blocked
+target_environment: production
+production_commit_sha: null
+staging_project_ref: null
 finance_error_budget: 0
+environment_isolation:
+  app_nonprod_differs_from_production: false
+  admin_preview_uses_staging: false
+  tracked_link_metadata_removed: false
+  admin_tracked_env_removed: false
+  production_credentials_rotated: false
+dark_launch:
+  migration_dry_run_passed: false
+  all_new_flags_false: true
+  release_security_approval: null
+  backend_deploy_approval: null
 required:
   credit_source_coverage: 100
   wallet_mutation_lock_coverage: 100
@@ -219,9 +270,9 @@ approvals:
 
 - [ ] **Step 2: 기존 Star/Bonus 합계·drift·광고/결제 오류율·vote p95·expiry heartbeat를 읽기 전용 SQL로 저장한다**
 
-Run: `cd /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine && supabase db reset && psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f scripts/wallet/capture_baseline.sql`
+Run only in the protected production-read job: `cd /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine && node scripts/safety/assert-production-read.mjs --approval "$PICNIC_PRODUCTION_READ_APPROVAL" && psql "$PICNIC_PRODUCTION_READONLY_DB_URL" -v ON_ERROR_STOP=1 -f scripts/wallet/capture_baseline.sql`
 
-Expected: baseline query exits 0 and no financial row is mutated.
+Expected: local/feature worktree invocation exits 1; protected read-only job exits 0 only after role privileges and approval reference are verified. No generic `SUPABASE_DB_URL` is accepted and no financial row is mutated.
 
 - [ ] **Step 3: gate verifier의 실패 상태를 먼저 확인한다**
 
@@ -255,38 +306,40 @@ Expected: 기존 Star/Bonus 합계 변화 0, 신규 live Cotton grant 0, invaria
 
 Expected: wallet-aware 앱이 Cotton 0도 정상 렌더링하고, legacy 일반 투표 client 경로 0, 관리자 직접 재화 mutation 0.
 
-### Task 6: Cotton 채널 canary
+### Task 6: Cotton 채널 shadow/canary rehearsal (production flags OFF)
 
 **Depends on:** credit source coverage 100%, wallet mutation lock coverage 100%, expiry/reconciliation active, Task 5.
 
 - [ ] **Step 1:** `ads.pangle_claim_mode=shadow`에서 claim intent 누락률·bind 성공률·SSV latency를 측정한다.
-- [ ] **Step 2:** 사내 allowlist에 `wallet.cotton_read_enabled`, `wallet.cotton_spend_enabled`, `ads.internal_reward_mode=cotton`, `ads.cotton_popup_enabled`를 적용한다.
-- [ ] **Step 3:** internal shortform grant → 일반 vote Cotton-first spend → 앱 종료/재개 ack 복구 → 다음 KST 자정 expiry를 한 흐름으로 검증한다.
-- [ ] **Step 4:** 안정 cohort로 확대한 뒤 `ads.pangle_claim_mode=optional`, `ads.pangle_reward_mode=cotton`을 적용하고 Pangle sandbox SSV를 검증한다.
-- [ ] **Step 5:** 최소 지원 앱 version과 마지막 legacy session TTL을 확인한 뒤 `ads.pangle_claim_mode=required`로 전환한다.
+- [ ] **Step 2:** staging/테스트 allowlist에만 `wallet.cotton_read_enabled`, `wallet.cotton_spend_enabled`, `ads.internal_reward_mode=cotton`, `ads.cotton_popup_enabled`를 적용한다. Production runtime flags remain false.
+- [ ] **Step 3:** staging에서 internal shortform grant → 일반 vote Cotton-first spend → 앱 종료/재개 ack 복구 → 다음 KST 자정 expiry를 한 흐름으로 검증한다.
+- [ ] **Step 4:** staging에서 `ads.pangle_claim_mode=optional`, `ads.pangle_reward_mode=cotton`과 Pangle sandbox SSV를 검증한다. Production에서는 would-credit/shadow 결과만 기록한다.
+- [ ] **Step 5:** 최소 지원 앱 version과 마지막 legacy session TTL을 측정하고, production `required` 전환은 Task 9 Step 9의 full activation GO 뒤로 미룬다.
 
-Expected: duplicate grant 0, pending reference 유실 0, 만료 후 spend 0, 정상 replay HTTP 200 + immutable original result.
+Expected: staging duplicate grant 0, pending reference 유실 0, 만료 후 spend 0, 정상 replay HTTP 200 + immutable original result; production live Cotton grant는 0.
 
-### Task 7: 캔디 부스트·환불·surface 출시
+### Task 7: 캔디 부스트·환불·surface shadow rehearsal (production flags OFF)
 
 **Depends on:** 모든 Star/Bonus positive writer가 common credit helper를 사용하고 `debt_recovery_enabled=true`.
 
 - [ ] **Step 1:** 최근 provider event를 shadow evaluator에 넣어 provider 시각, campaign version, base/promo 금액 일치율 100%를 확인한다. Apple/Google/PayPal/PortOne Edge secret과 worker refetch를 canary하고, 두 기존 `picnic-web` route의 배포 commit/non-null pending-receipt 호환성을 manifest에 기록하기 전에는 `web_purchase`를 켜지 않는다.
-- [ ] **Step 2:** 제한 cohort에서 `candy_boost_write_enabled=true`로 바꾸고 base purchase가 pause와 무관하게 성공하는지 확인한다.
-- [ ] **Step 3:** 부분 환불의 base 비례 회수, 첫 환불 promo 전액 회수, 부족분 debt, future same-currency credit 상계를 검증한다.
-- [ ] **Step 4:** `refund_reversal_enabled=true` 설정 command가 `debt_recovery_enabled && credit_source_coverage=100%`가 아니면 거부되는지 확인한 뒤 활성화한다.
-- [ ] **Step 5:** 마지막에 `promotion_surfaces_enabled=true`로 전환해 같은 campaign version이 스토어 badge와 `vote_home` 배너를 동시에 제어하는지 확인한다.
+- [ ] **Step 2:** staging 제한 cohort에서 `candy_boost_write_enabled=true`로 바꾸고 base purchase가 pause와 무관하게 성공하는지 확인한다. Production은 shadow evaluator만 실행한다.
+- [ ] **Step 3:** staging에서 부분 환불의 base 비례 회수, 첫 환불 promo 전액 회수, 부족분 debt, future same-currency credit 상계를 검증한다.
+- [ ] **Step 4:** staging에서 `refund_reversal_enabled=true` 설정 command가 `debt_recovery_enabled && credit_source_coverage=100%`가 아니면 거부되는지 확인한다. Production activation은 Task 9 Step 9 이후다.
+- [ ] **Step 5:** staging에서만 `promotion_surfaces_enabled=true`로 전환해 같은 campaign version이 스토어 badge와 `vote_home` 배너를 동시에 제어하는지 확인한다.
 
-Expected: provider 시각 외 판정 0, 기간 밖 surface 0, 다른 통화 debt 상계 0, refund allocation 방정식 mismatch 0.
+Expected: staging provider 시각 외 판정 0, 기간 밖 surface 0, 다른 통화 debt 상계 0, refund allocation 방정식 mismatch 0; production writes/surfaces remain 0.
 
 ### Task 8: Pre-GO 자동 검증
 
 - [ ] **Step 1: 전체 자동 검증을 실행한다**
 
 ```bash
-cd /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine && supabase db reset && supabase test db
+cd /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine && npm run wallet:db:reset && npm run test:wallet:sql
 cd /Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy/picnic_lib && flutter test && flutter analyze
-cd /Users/charlie.hyun/Repositories/picnic-admin-wallet-ops && npm test -- --runInBand && npm run type-check && npm run build
+cd /Users/charlie.hyun/Repositories/picnic-admin-wallet-ops && npm run verify:wallet-env -- --allow-offline && npm test -- --runInBand && npm run type-check
+export PICNIC_STAGING_SUPABASE_PROJECT_REF="$PICNIC_STAGING_SUPABASE_PROJECT_REF"
+npm run pretest:e2e && npm run build
 ```
 
 Expected: 모든 명령 exit 0.
@@ -315,17 +368,15 @@ Expected: exit 1 with `NO-GO: rehearsal incomplete; approvals incomplete`.
 
 Expected: rollback rehearsal 중 원장 삭제 0, 신규 중복 operation 0, 보류 inbox 유실 0.
 
-- [ ] **Step 6: rehearsal 증거와 사람 승인을 manifest에 기록한다**
+- [ ] **Step 6: dark-launch gate와 rehearsal 증거를 manifest에 기록한다**
 
-kill switch, alert → dry-run repair → auto-resolve 결과의 audit/support reference를 기록하고 `rehearsal_complete=true`로 바꾼다. Product/Finance, Backend, CS/on-call이 실제 증거를 확인한 뒤에만 각 approval을 true로 바꾼다.
+kill switch, alert → dry-run repair → auto-resolve 결과의 audit/support reference를 기록하고 dark-launch migration dry-run, exact `main` SHA, environment isolation, `all_new_flags_false=true`를 확인한다. Production-read/deploy reviewer가 실제 증거를 확인한 뒤에만 `deployment_stage=dark_launch_ready`와 dark-launch approvals를 기록한다. 이 단계에서는 activation approval을 true로 바꾸지 않는다.
 
-- [ ] **Step 7: 최종 gate가 GO인지 확인한다**
+Run: `cd /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine && node scripts/wallet/verify_release_gate.mjs --stage dark-launch ops/wallet/cotton-candy-v1-release-manifest.yaml`
 
-Run: `cd /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine && node scripts/wallet/verify_release_gate.mjs ops/wallet/cotton-candy-v1-release-manifest.yaml`
+Expected: exit 0 with `DARK-LAUNCH-GO: cotton-candy-v1`; activation verifier remains non-zero.
 
-Expected: exit 0 with `GO: cotton-candy-v1`.
-
-- [ ] **Step 8: 각 저장소 branch를 push하고 PR을 생성한다**
+- [ ] **Step 7: 구현 PR을 생성하고 Preview를 검증한다**
 
 ```bash
 cd /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine && git push -u origin feat/cotton-candy-engine && gh pr create --fill --base main --head feat/cotton-candy-engine
@@ -348,6 +399,16 @@ for i in $(seq 1 8); do
 done
 ```
 
-- [ ] **Step 9: merge 승인 전에 사용자 확인을 받는다**
+- [ ] **Step 8: dark launch만 protected workflow로 배포한다**
 
-반드시 `Vercel Preview URL 로 확인하셨나요?`라고 묻고 답을 기다린다.
+세 PR이 review/CI를 통과한 뒤, UI/API PR은 Vercel Preview가 staging Supabase와 연결된 것을 사용자가 확인한 후에만 merge한다. Supabase additive schema/read/inbox/worker 변경은 exact `main` SHA와 manifest checksum을 입력한 `wallet-production-rollout.yml`의 `workflow_dispatch`로만 production dark launch한다. Workflow post-deploy에서 신규 write/source/surface/admin-command flag가 모두 false이고 신규 live grant가 0임을 확인한다. 이 workflow에 production flag 활성화나 down migration 명령은 없다.
+
+- [ ] **Step 9: activation rehearsal, 최종 GO, audited flag command를 분리한다**
+
+dark launch 관찰, 24시간 지표, rollback/recovery rehearsal, Product/Finance·Backend·CS/on-call 승인을 모두 기록하고 `deployment_stage=activation_ready`로 바꾼다. Run `verify_release_gate.mjs --stage activation`; Expected: exit 0 with `GO: cotton-candy-v1`. 그 뒤에만 별도 audited runtime command로 5%→25%→100% cohort flag를 연다. 이 명령은 exact manifest/approval reference를 기록하고 실패 시 exit 1하며, schema를 다시 배포하지 않는다.
+
+merge 승인 전에 사용자에게 반드시
+
+`Vercel Preview URL 로 확인하셨나요?`
+
+라고 묻고 답을 기다린다.

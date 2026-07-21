@@ -810,6 +810,34 @@ CursorPage<T> = {
 
 ## 15. 출시 순서와 게이트
 
+### Phase -1 — 개발·Preview·Production 환경 격리
+
+현재 저장소 점검에서 다음 위험을 확인했다.
+
+- `picnic_app/config/dev.json`과 `local.json`의 Supabase URL·anon key·storage tuple이 `prod.json`과 동일하다.
+- `picnic-admin/.env`와 `.env.local`의 Supabase endpoint가 production project를 가리킨다.
+- `picnic-supabase/supabase/config.toml`과 ignored `supabase/.env`는 production project/DB를 기준으로 한다.
+
+이 상태에서는 네트워크 통합 테스트, Preview 실행, remote Supabase CLI 명령을 시작하지 않는다. 아래 격리 gate가 먼저 통과해야 한다.
+
+- production Supabase project ref `xtijtefcycoeqludlngc`를 모든 개발/Preview preflight의 denylist로 고정한다. production ref 변경 시 release-security 승인으로 denylist와 test fixture를 함께 갱신한다.
+- Supabase 개발 명령은 host가 `127.0.0.1|localhost`, API port `54321`, DB port `54322`인 local stack만 허용한다. feature worktree에서는 `supabase db push --linked`, `supabase migration up --linked`, `supabase functions deploy`, production/unknown `--db-url`, `psql "$SUPABASE_DB_URL"`를 실행하지 않는다.
+- `picnic-supabase` worktree에는 원본 `supabase/.env`, `.env*`, `supabase/.temp`, link metadata를 복사하지 않는다. local test에는 secret 없는 local config만 사용한다.
+- 별도 staging Supabase project ref와 credentials가 제공되지 않으면 Preview/remote integration은 **NO-GO**다. staging ref는 production과 달라야 하며 App `ENVIRONMENT=dev`, Vercel Preview, Admin Playwright가 모두 같은 staging contract version을 사용한다.
+- App의 `local`/`dev` build는 Supabase URL·anon key·storage tuple이 `prod`와 하나라도 동일하면 build/test 전에 실패한다. `local`은 local Supabase, `dev`는 staging만 허용하고 Pangle/결제는 sandbox/test mode만 사용한다.
+- Admin의 local/Preview 환경에는 `NEXT_PUBLIC_*SERVICE_ROLE*` 변수를 허용하지 않는다. browser에는 staging anon key만, server-only Route Handler에는 staging `SUPABASE_SERVICE_ROLE_KEY`만 제공한다. Vercel Preview가 production Supabase URL/ref를 가리키면 build가 실패한다.
+- production baseline은 별도 read-only DB role/URL과 승인 reference로만 수집한다. preflight는 `current_user`가 신규/기존 금융 table에 INSERT/UPDATE/DELETE 권한이 없음을 확인한 뒤 read-only SQL만 실행한다.
+- production schema/function 배포는 feature branch나 개발자 shell에서 실행하지 않는다. `main`의 정확한 commit SHA, `GO: cotton-candy-v1`, rollback rehearsal, Product/Finance·Backend·CS/on-call 승인, protected production environment를 검증하는 수동 workflow만 수행한다.
+- PR은 Vercel Preview와 staging만 사용한다. Vercel Production Branch는 `main`이며, UI/API merge 전 Preview 확인 질문에 사용자가 답하기 전에는 merge하지 않는다.
+
+환경 gate의 실패는 우회 가능한 warning이 아니라 exit code 1인 배포 차단이다. staging 미구성은 개발 편의를 위해 production으로 fallback할 이유가 될 수 없다.
+
+코드·schema 배포와 기능 활성화는 서로 다른 승인 단계다.
+
+- **Dark launch 배포:** local/staging 검증, additive migration dry-run, clean `main`의 exact SHA, production deploy 승인, rollback rehearsal을 만족한 Supabase 코드만 수동 workflow로 배포한다. 이때 신규 write/source/surface/admin-command flag는 모두 false이고 live Cotton grant·Candy Boost·환불 역분개·관리자 금융 명령은 0이어야 한다.
+- **기능 활성화:** dark launch 관찰, wallet-aware App/Admin 선배포, 전체 finance gate, Product/Finance·Backend·CS/on-call 승인까지 완료되어 release verifier가 `GO: cotton-candy-v1`을 반환한 뒤 audited runtime command로만 cohort flag를 단계적으로 연다. schema 재배포와 flag 활성화를 한 동작으로 묶지 않는다.
+- 코드 PR은 full activation GO 전에 생성·검증·merge할 수 있지만, Supabase dark launch와 App/Admin Preview가 각각의 환경 gate를 통과해야 한다. UI/API PR은 Vercel Preview 확인 전 merge하지 않는다.
+
 ### Phase 0 — 기준선
 
 - 기존 Star/Bonus 합계, drift, 광고/결제 오류율, p95, 만료 job 기준을 측정한다.

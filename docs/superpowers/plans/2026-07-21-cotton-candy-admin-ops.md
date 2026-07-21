@@ -11,6 +11,10 @@
 ## Global Constraints
 
 - 승인 설계는 `/Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy/docs/superpowers/specs/2026-07-21-cotton-candy-and-candy-boost-design.md`다. 정책 충돌이 발견되면 구현을 멈추고 설계 변경 승인을 받는다.
+- 현재 원본 저장소의 tracked `.env`, tracked `supabase/.temp/**`, production-target local env, public service-role 변수 이름은 hard blocker다. 별도 승인된 security hotfix로 `.env`를 추적 해제하고 영향받은 production credential을 회전했다는 evidence가 없으면 이 worktree를 만들거나 Vercel Preview를 실행하지 않는다. 비밀값은 읽기·복사·출력하지 않는다.
+- production Supabase ref `xtijtefcycoeqludlngc`는 local/Vercel Preview denylist다. staging ref가 별도로 provision되지 않으면 build/remote type generation/Playwright는 exit 1이며 production fallback은 없다.
+- `NEXT_PUBLIC_*SERVICE_ROLE*`는 모든 환경에서 금지한다. browser에는 anon key만, server-only Route Handler에는 `SUPABASE_SERVICE_ROLE_KEY`만 허용하며 build/static test가 이를 검증한다.
+- Vercel Preview는 staging만 사용하고 Production Branch는 `main`이어야 한다. exact `HEAD == VERCEL_GIT_COMMIT_SHA`, branch/ref, Preview 승인 evidence를 검증하기 전 production build를 허용하지 않는다.
 - 이 계획은 `/Users/charlie.hyun/Repositories/picnic-admin-wallet-ops` worktree, `feat/wallet-ops` 브랜치에서만 실행한다. 실행 전 `/Users/charlie.hyun/Repositories/GIT_BRANCHING_POLICY.md`를 읽는다.
 - `/Users/charlie.hyun/Repositories/picnic-admin/types/supabase.ts`의 기존 사용자 변경은 읽기 외에 수정·복사·stage하지 않는다. 생성 타입은 Supabase schema와 admin RPC가 배포된 뒤 새 worktree의 `/Users/charlie.hyun/Repositories/picnic-admin-wallet-ops/types/supabase.ts`에서만 갱신한다.
 - `wallet.v1`의 모든 bigint JSON 필드는 decimal string이다. `Number`, `parseInt`, `parseFloat`, unary `+`로 금액을 변환하지 않는다. DTO 경계에서 `BigInt`로 parse하고 API 응답으로 되돌릴 때는 decimal string을 유지한다.
@@ -156,6 +160,99 @@ Supabase handoff의 shared permission contract test와 Admin의 compile/runtime 
 | contract/Jest/Playwright | `test/fixtures/wallet-contracts/*`, `__tests__/wallet/*`, `__tests__/api/wallet/*`, `e2e/wallet-admin.spec.ts` |
 
 ---
+
+### Task 0: 환경·credential·Vercel Preview를 production과 격리한다
+
+**Precondition outside this worktree:** 사용자 승인을 받은 별도 security hotfix worktree가 원본 `picnic-admin/.env`와 `supabase/.temp/**`를 Git에서 제거하고 ignore해야 한다. tracked `.env`에 실제 production credential이 있었다면 모두 회전하고 audit reference만 남긴다. 이 precondition이 `main`에 merge되기 전에는 `picnic-admin-wallet-ops` feature worktree 생성과 Vercel Preview가 NO-GO다. 보안 hotfix worktree 자체는 별도 명시 승인을 받은 경우에만 만든다.
+
+**Files:**
+- Create: `scripts/verify-wallet-environment.mjs`
+- Create: `__tests__/wallet/environment-isolation.test.ts`
+- Modify: `.gitignore`
+- Remove from Git index in the approved security hotfix: `.env`, `supabase/.temp/**`
+- Modify: `lib/supabase/constants.ts`
+- Modify: `next.config.mjs`
+- Modify: `package.json`
+
+**Interfaces:** Produces a fail-closed `development|preview|production` target guard. It validates names/host/ref equivalence without logging URL, anon key, service role, token, or password values.
+
+- [ ] **Step 1: Prove the current repository is blocked without exposing values**
+
+Run only file-name/key-name checks in the original repository:
+
+```bash
+if git -C /Users/charlie.hyun/Repositories/picnic-admin ls-files --error-unmatch .env >/dev/null 2>&1; then
+  echo 'NO-GO: tracked .env requires security hotfix and credential rotation' >&2
+  exit 1
+fi
+if git -C /Users/charlie.hyun/Repositories/picnic-admin ls-files 'supabase/.temp/**' | rg . >/dev/null; then
+  echo 'NO-GO: tracked Supabase link metadata' >&2
+  exit 1
+fi
+```
+
+Expected now: exit 1. Stop here until the approved hotfix is merged and credential-rotation evidence exists; do not copy `.env`/`.env.local` into a worktree.
+
+- [ ] **Step 2: Write failing environment-isolation tests**
+
+Tests use temporary sanitized fixtures and spawned processes to assert:
+
+- `development` and `preview` require `PICNIC_STAGING_SUPABASE_PROJECT_REF`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and server-only `SUPABASE_SERVICE_ROLE_KEY`; the URL-derived ref must equal staging and differ from production.
+- any environment key matching `NEXT_PUBLIC_.*SERVICE_ROLE`, production ref/host in local/Preview, `.env` or link metadata in the worktree, missing/placeholder fallback, unknown `VERCEL_ENV`, or missing staging config exits 1.
+- production requires `VERCEL_ENV=production`, `VERCEL_GIT_COMMIT_REF=main`, exact `HEAD == VERCEL_GIT_COMMIT_SHA`, a reviewed deployment-stage reference, and verified Vercel Production Branch evidence.
+- stdout/stderr contains only variable names/reasons. Fixture sentinel `do-not-print-secret` never appears.
+
+Run: `npm test -- --runInBand __tests__/wallet/environment-isolation.test.ts`
+
+Expected before implementation: module-not-found or assertions fail.
+
+- [ ] **Step 3: Implement the guard and remove unsafe fallbacks**
+
+`verify-wallet-environment.mjs` has only explicit test-mode switches `--allow-offline` (unit tests; creates no client/request) and `--require-staging` (Preview/integration). It parses URL host/project ref in memory, checks Git-tracked CLI/env paths, checks public service-role variable **names**, and emits only `NO-GO: unsafe wallet environment (<source-name>)` on failure. `lib/supabase/constants.ts` no longer returns placeholder URL/key in development; missing validated variables throw before any Supabase client or request is created.
+
+`next.config.mjs` derives the Supabase image hostname only from the already validated environment instead of hardcoding production. Set `typescript.ignoreBuildErrors=false` and `eslint.ignoreDuringBuilds=false`; Vercel must not publish a build with type/lint failures.
+
+Use these package hooks; none performs remote type generation:
+
+```json
+{
+  "verify:wallet-env": "node scripts/verify-wallet-environment.mjs",
+  "predev": "npm run verify:wallet-env",
+  "prebuild": "npm run verify:wallet-env",
+  "prestart": "npm run verify:wallet-env",
+  "pretest": "npm run verify:wallet-env -- --allow-offline",
+  "pretest:e2e": "npm run verify:wallet-env -- --require-staging"
+}
+```
+
+Run with sanitized staging variables through the approved local secret manager:
+
+```bash
+npm test -- --runInBand __tests__/wallet/environment-isolation.test.ts
+VERCEL_ENV=preview PICNIC_STAGING_SUPABASE_PROJECT_REF="$PICNIC_STAGING_SUPABASE_PROJECT_REF" npm run verify:wallet-env
+```
+
+Expected: test PASS; preview guard exits 0 only for staging. Replacing only the fixture ref/URL with production exits 1, and no value appears in output.
+
+- [ ] **Step 4: Record external Vercel controls before Preview**
+
+An authorized operator verifies and records, without credentials:
+
+- Vercel Production Branch is exactly `main`; Preview deployments receive only staging env values and Production receives only production values.
+- Preview/Production environment scopes do not share Supabase URL, anon, or server-role variables.
+- deployment protection/authorized reviewers are enabled for Production.
+- the tracked `.env` security hotfix and credential rotations are complete.
+
+Until all four references are present in the release manifest, `verify-wallet-environment.mjs` fails production and Playwright network mode. Unit tests using mocks may continue.
+
+- [ ] **Step 5: Commit the isolation boundary**
+
+```bash
+git add .gitignore package.json next.config.mjs lib/supabase/constants.ts scripts/verify-wallet-environment.mjs __tests__/wallet/environment-isolation.test.ts
+git commit -m "chore(admin): isolate wallet preview environment"
+```
+
+Expected: no `.env` or `supabase/.temp/**` path is tracked; no public service-role variable name remains in `.env*`, Vercel settings, or generated client config; the guard implementation may contain the denylist token; Preview guard and tests pass against staging only.
 
 ### Task 1: 생성 계약과 bigint DTO 경계를 고정한다
 
@@ -803,13 +900,13 @@ export interface WalletAuditQuery extends CursorQueryBase {
 
 - [ ] **Step 4: type generation을 explicit하고 atomic하게 바꾼다**
 
-`scripts/generate-supabase-types-safe.mjs`는 `supabase gen types typescript --project-id xtijtefcycoeqludlngc` 출력을 임시 파일에 쓴 뒤 Fixed RPC Contract의 25개 function 이름이 모두 있을 때만 새 worktree의 `types/supabase.ts`로 rename한다. browser-safe read 15개, two-argument command 9개, failure recorder 1개가 검증 대상이다. 9개 command의 generated args가 정확히 `p_actor_user_id`, `p_request`인지 함께 검증한다. `types/wallet-admin-contract-check.ts`는 15개 read의 argument와 네 추가 safe DTO의 key/primitive/nullability, 11개 permission allowlist를 생성 타입/공유 manifest와 양방향 비교한다. 그 뒤 `npx tsx scripts/generate-interfaces.ts`를 실행하고 동일 입력에서 byte-identical `types/interfaces.ts`가 생성되는지 검증한다. 실패 시 기존 generated file은 그대로 남아야 한다.
+`scripts/generate-supabase-types-safe.mjs`는 remote project id를 하드코딩하지 않는다. Preview/staging에서는 `PICNIC_STAGING_SUPABASE_PROJECT_REF`를 요구하고 production project ref `xtijtefcycoeqludlngc`는 거부한다. CI는 먼저 `verify:wallet-env`를 통과시키고, 허용된 staging ref에 대해서만 `supabase gen types typescript --project-id "$PICNIC_STAGING_SUPABASE_PROJECT_REF"` 출력을 임시 파일에 쓴 뒤 Fixed RPC Contract의 25개 function 이름이 모두 있을 때 새 worktree의 `types/supabase.ts`로 atomic rename한다. Production build는 remote type generation을 실행하지 않고 검증된 generated artifact만 사용한다. browser-safe read 15개, two-argument command 9개, failure recorder 1개가 검증 대상이다. 9개 command의 generated args가 정확히 `p_actor_user_id`, `p_request`인지 함께 검증한다. `types/wallet-admin-contract-check.ts`는 15개 read의 argument와 네 추가 safe DTO의 key/primitive/nullability, 11개 permission allowlist를 생성 타입/공유 manifest와 양방향 비교한다. 그 뒤 `npx tsx scripts/generate-interfaces.ts`를 실행하고 동일 입력에서 byte-identical `types/interfaces.ts`가 생성되는지 검증한다. 실패 시 기존 generated file은 그대로 남아야 한다.
 
-`package.json`에서 `predev`, `prebuild`, `prestart`를 제거하고 다음 script를 둔다.
+`package.json`에는 Task 0의 fail-closed guard를 유지하고 다음 script를 둔다. `predev`, `prebuild`, `prestart`, `pretest` 어느 것도 remote type generation을 호출하지 않는다.
 
 ```json
 {
-  "gen:types": "node scripts/generate-supabase-types-safe.mjs",
+  "gen:types": "npm run verify:wallet-env && node scripts/generate-supabase-types-safe.mjs",
   "verify:wallet-contracts": "node /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/wallet/verify_contract_checksums.mjs --manifest /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/supabase/tests/wallet/contracts/manifest.json /Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy/picnic_lib/test/fixtures/wallet_contracts /Users/charlie.hyun/Repositories/picnic-admin-wallet-ops/test/fixtures/wallet-contracts --app-integration-dart /Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy/picnic_app/integration_test/fixtures/wallet_contract_fixtures.g.dart"
 }
 ```
@@ -830,7 +927,7 @@ git ls-files --error-unmatch types/interfaces.ts
 git diff --exit-code -- types/interfaces.ts
 ```
 
-Expected: type generation exits 0, checksum verifier reports 12 fixtures and integration constants with zero mismatch, `types/interfaces.ts` is tracked and regeneration is byte-identical. Running `npm run build` no longer starts remote type generation.
+Expected: type generation exits 0 only with a non-production staging ref, checksum verifier reports 12 fixtures and integration constants with zero mismatch, `types/interfaces.ts` is tracked and regeneration is byte-identical. Production-ref/link metadata or a public service-role variable fails before Supabase CLI. Running `npm run build` no longer starts remote type generation.
 
 - [ ] **Step 5: contract test와 type-check를 통과시킨다**
 
