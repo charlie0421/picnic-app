@@ -15,6 +15,7 @@ import 'vote_item_request_models.dart';
 class VoteItemRequestService {
   final WidgetRef ref;
   final String voteId;
+  final SupabaseClient? _supabase;
 
   /// 투표 area 에 따른 아티스트 검색 범위 (musical 투표 → 뮤지컬 배우 검색).
   final ArtistSearchScope artistScope;
@@ -23,7 +24,9 @@ class VoteItemRequestService {
     required this.ref,
     required this.voteId,
     String? voteArea,
-  }) : artistScope = artistSearchScopeForVoteArea(voteArea);
+    SupabaseClient? supabase,
+  })  : _supabase = supabase,
+        artistScope = artistSearchScopeForVoteArea(voteArea);
 
   /// 신청 수 및 사용자 신청 내역 로드
   Future<Map<String, dynamic>> loadApplicationCounts(String? userId) async {
@@ -173,6 +176,7 @@ class VoteItemRequestService {
   Future<Map<String, ArtistApplicationInfo>> _loadApplicationDataBatch(
       List<ArtistModel> artists, String? userId) async {
     final Map<String, ArtistApplicationInfo> applicationData = {};
+    final voteRequestRepository = ref.read(voteItemRequestRepositoryProvider);
 
     final artistNames = VoteItemRequestServiceHelper.collectArtistNameSet(
       artists.map((artist) => artist.name).toList(),
@@ -180,46 +184,24 @@ class VoteItemRequestService {
 
     // 배치로 신청수 가져오기
     Map<String, int> applicationCounts = {};
+    Map<int, int> applicationCountsByArtistId = {};
     Map<String, bool> alreadyInVote = {};
     Map<String, String> userApplicationStatuses = {};
 
     if (artistNames.isNotEmpty) {
       try {
-        final supabase = Supabase.instance.client;
+        final supabase = _supabase ?? Supabase.instance.client;
 
         // 타임아웃 설정으로 무한 대기 방지
         final futures = <Future>[];
 
-        // 1. 모든 아티스트의 신청수를 한번에 가져오기
-        futures.add(supabase
-            .from('vote_item_request_users')
-            .select('''
-              artist!inner(name)
-            ''')
-            .eq('vote_id', voteId)
-            .timeout(Duration(seconds: 10))
-            .then((response) {
-              // 신청수 계산
-              for (final row in response) {
-                if (row['artist'] != null) {
-                  final artistData = row['artist'] as Map<String, dynamic>;
-                  final nameData = artistData['name'] as Map<String, dynamic>;
-                  final koreanName = nameData['ko'] as String? ?? '';
-                  final englishName = nameData['en'] as String? ?? '';
-
-                  if (koreanName.isNotEmpty &&
-                      artistNames.contains(koreanName)) {
-                    applicationCounts[koreanName] =
-                        (applicationCounts[koreanName] ?? 0) + 1;
-                  }
-                  if (englishName.isNotEmpty &&
-                      artistNames.contains(englishName)) {
-                    applicationCounts[englishName] =
-                        (applicationCounts[englishName] ?? 0) + 1;
-                  }
-                }
-              }
-            }));
+        // 1. 집계 뷰에서 모든 아티스트의 신청수를 한번에 가져오기
+        futures.add(voteRequestRepository
+            .getVoteItemRequestCountSummary(int.parse(voteId))
+            .then((summary) {
+          applicationCounts = summary.countsByArtistName;
+          applicationCountsByArtistId = summary.countsByArtistId;
+        }));
 
         // 2. 투표 아이템에 이미 등록된 아티스트 확인
         futures.add(supabase
@@ -299,13 +281,15 @@ class VoteItemRequestService {
       final koreanName = artist.name['ko'] as String? ?? '';
       final englishName = artist.name['en'] as String? ?? '';
 
-      // 신청수 계산 (한글과 영어 이름 모두 확인)
-      int totalApplicationCount = 0;
-      if (koreanName.isNotEmpty) {
-        totalApplicationCount += applicationCounts[koreanName] ?? 0;
-      }
-      if (englishName.isNotEmpty && englishName != koreanName) {
-        totalApplicationCount += applicationCounts[englishName] ?? 0;
+      // 아티스트 ID를 우선 사용하고 이름은 이전 데이터용 fallback으로 사용
+      int totalApplicationCount = applicationCountsByArtistId[artist.id] ?? 0;
+      if (!applicationCountsByArtistId.containsKey(artist.id)) {
+        if (koreanName.isNotEmpty) {
+          totalApplicationCount = applicationCounts[koreanName] ?? 0;
+        }
+        if (totalApplicationCount == 0 && englishName.isNotEmpty) {
+          totalApplicationCount = applicationCounts[englishName] ?? 0;
+        }
       }
 
       // 투표에 이미 등록 여부 확인
@@ -489,58 +473,38 @@ class VoteItemRequestService {
     try {
       final voteRequestRepository = ref.read(voteItemRequestRepositoryProvider);
 
-      // 특정 투표의 모든 신청 조회 (뷰 사용으로 아티스트 정보 포함)
-      final allRequests = await voteRequestRepository
-          .getVoteItemRequestsByVoteId(int.parse(voteId));
-
-      // 아티스트별로 그룹화
-      final Map<int, List<VoteItemRequestUser>> groupedByArtist = {};
-      final Map<int, Map<String, dynamic>> artistInfo = {};
-
-      for (final request in allRequests) {
-        final artistId = request.artistId;
-
-        if (!groupedByArtist.containsKey(artistId)) {
-          groupedByArtist[artistId] = [];
-        }
-        groupedByArtist[artistId]!.add(request);
-
-        // 아티스트 정보도 저장 (뷰에서 제공)
-        if (request.artist != null && !artistInfo.containsKey(artistId)) {
-          artistInfo[artistId] = request.artist!.toJson();
-        }
-      }
+      final summary = await voteRequestRepository
+          .getVoteItemRequestCountSummary(int.parse(voteId));
+      final artistIds = summary.countsByArtistId.keys.toList();
+      final artistNames = summary.countsByArtistName.keys.toList();
 
       // 아티스트별 신청 요약 생성
       final List<Map<String, dynamic>> artistApplicationSummaries = [];
 
-      for (final entry in groupedByArtist.entries) {
+      for (final entry in summary.countsByArtistId.entries) {
         final artistId = entry.key;
-        final requests = entry.value;
-        final artist = artistInfo[artistId];
-
-        // 상태별 개수 계산
-        final statusCounts = <String, int>{};
-        for (final request in requests) {
-          statusCounts[request.status] =
-              (statusCounts[request.status] ?? 0) + 1;
-        }
-
-        final totalCount = requests.length;
+        final artistIndex = artistIds.indexOf(artistId);
+        final artistName = artistIndex < artistNames.length
+            ? artistNames[artistIndex]
+            : '';
+        final statusCounts =
+            summary.statusCountsByArtistId[artistId] ?? <String, int>{};
+        final totalCount = entry.value;
         final pendingCount = statusCounts['pending'] ?? 0;
         final approvedCount = statusCounts['approved'] ?? 0;
         final rejectedCount = statusCounts['rejected'] ?? 0;
 
         artistApplicationSummaries.add({
           'artistId': artistId,
-          'artist': artist,
+          'artist': {
+            'id': artistId,
+            'name': {'ko': artistName},
+          },
           'totalApplications': totalCount,
           'pendingCount': pendingCount,
           'approvedCount': approvedCount,
           'rejectedCount': rejectedCount,
           'statusCounts': statusCounts,
-          'requests': requests,
-          'latestRequest': requests.isNotEmpty ? requests.first : null,
         });
       }
 
@@ -550,7 +514,7 @@ class VoteItemRequestService {
 
       return {
         'artistApplicationSummaries': artistApplicationSummaries,
-        'totalApplications': allRequests.length,
+        'totalApplications': summary.totalCount,
       };
     } catch (e) {
       logger.e('모든 사용자 신청 로딩 실패: $e');

@@ -1,16 +1,63 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
 import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
+import 'package:picnic_lib/presentation/providers/vote_item_request_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
 import '../../../../helpers/mock_supabase.dart';
+import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_environment.dart';
 
 void main() {
   setUp(() {
     initTestColors();
+  });
+
+  testWidgets('search enrichment uses aggregate counts and current-user status',
+      (tester) async {
+    setupMockSupabase({
+      'vote_item_request_status_summary': [
+        {'vote_id': 1, 'artist_id': 10, 'artist_name': '가수 A', 'request_status': 'pending', 'request_count': 4},
+        {'vote_id': 1, 'artist_id': 10, 'artist_name': '가수 A', 'request_status': 'approved', 'request_count': 3},
+      ],
+      'vote_item_request_users': [
+        {'artist_id': 10, 'status': 'pending', 'artist': {'name': {'ko': '가수 A', 'en': 'Singer A'}}},
+      ],
+      'vote_item': <Map<String, dynamic>>[],
+    }, userId: 'current-user');
+    addTearDown(tearDownMockSupabase);
+
+    late WidgetRef widgetRef;
+    await tester.pumpWidget(buildTestApp(
+      Consumer(builder: (_, ref, __) {
+        widgetRef = ref;
+        return const SizedBox();
+      }),
+      extraOverrides: [
+        voteItemRequestRepositoryProvider.overrideWithValue(
+          VoteItemRequestRepository(supabase: testSupabaseClient!),
+        ),
+      ],
+    ));
+    await tester.pumpAndSettle();
+
+    final service = VoteItemRequestService(
+      ref: widgetRef,
+      voteId: '1',
+      supabase: testSupabaseClient!,
+    );
+    final result = await service.loadApplicationDataForResults(
+      const [ArtistModel(id: 10, name: {'ko': '가수 A', 'en': 'Singer A'})],
+      'current-user',
+    );
+
+    expect(result['10']!.applicationCount, 7);
+    expect(result['10']!.applicationStatus, isNot('신청 가능'));
   });
 
   group('VoteItemRequestRepository - getVoteItemRequestCount', () {
