@@ -3,6 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
+import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../helpers/mock_data.dart';
 import '../../../../helpers/mock_supabase.dart';
@@ -36,6 +39,26 @@ void main() {
   });
 
   group('VotingDialog', () {
+    test(
+      'auth recovery failure uses localized re-login copy, not raw JWT text',
+      () {
+        const localizedMessage = 'You need to sign in. Please log in again.';
+        final message = VotingDialogHelper.resolveVoteFailureMessage(
+          error: const EdgeAuthRecoveryException(
+            EdgeAuthRecoveryFailureReason.retryUnauthorized,
+            cause: FunctionException(status: 401, details: 'Invalid JWT'),
+          ),
+          reLoginMessage: localizedMessage,
+          genericMessage: 'Vote failed',
+          endedMessage: 'Voting ended',
+          upcomingMessage: 'Voting not started',
+        );
+
+        expect(message, localizedMessage);
+        expect(message, isNot(contains('Invalid JWT')));
+      },
+    );
+
     late VoteModel voteModel;
     late VoteItemModel voteItemModel;
 
@@ -103,8 +126,9 @@ void main() {
       expect(find.text('550'), findsOneWidget);
     });
 
-    testWidgets('displays artist name from voteItemModel with artist',
-        (tester) async {
+    testWidgets('displays artist name from voteItemModel with artist', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -161,8 +185,9 @@ void main() {
       expect(find.text('BLACKPINK'), findsOneWidget);
     });
 
-    testWidgets('vote button is disabled when no amount entered',
-        (tester) async {
+    testWidgets('vote button is disabled when no amount entered', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -181,8 +206,9 @@ void main() {
       expect(find.byType(VotingDialog), findsOneWidget);
     });
 
-    testWidgets('entering vote amount enables button when valid',
-        (tester) async {
+    testWidgets('entering vote amount enables button when valid', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -248,10 +274,12 @@ void main() {
         'vote_item': null,
         'created_at': null,
         'visible_at': null,
-        'start_at':
-            DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
-        'stop_at':
-            DateTime.now().add(const Duration(days: 7)).toIso8601String(),
+        'start_at': DateTime.now()
+            .subtract(const Duration(days: 1))
+            .toIso8601String(),
+        'stop_at': DateTime.now()
+            .add(const Duration(days: 7))
+            .toIso8601String(),
         'is_ended': false,
         'is_upcoming': false,
         'is_partnership': true,
@@ -304,8 +332,10 @@ void main() {
             voteItemModel: voteItemModel,
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 100000, starCandyBonus: 0),
+          userProfile: MockData.userProfile(
+            starCandy: 100000,
+            starCandyBonus: 0,
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -319,8 +349,9 @@ void main() {
       expect(find.text('12,345'), findsOneWidget);
     });
 
-    testWidgets('renders with null artist image (default icon)',
-        (tester) async {
+    testWidgets('renders with null artist image (default icon)', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -351,8 +382,9 @@ void main() {
       expect(find.byIcon(Icons.person), findsOneWidget);
     });
 
-    testWidgets('renders with artist group image when artist id is 0',
-        (tester) async {
+    testWidgets('renders with artist group image when artist id is 0', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -400,8 +432,10 @@ void main() {
             voteItemModel: voteItemModel,
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 10000, starCandyBonus: 0),
+          userProfile: MockData.userProfile(
+            starCandy: 10000,
+            starCandyBonus: 0,
+          ),
         ),
       );
       await tester.pumpAndSettle();

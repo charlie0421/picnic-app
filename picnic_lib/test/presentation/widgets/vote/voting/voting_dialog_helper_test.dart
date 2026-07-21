@@ -1,8 +1,108 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   group('VotingDialogHelper', () {
+    group('invokeVotingWithAuthRecovery', () {
+      test('refreshes after the first auth 401 and retries once', () async {
+        var invokes = 0;
+        var refreshes = 0;
+        final phases = <VotingAuthRecoveryPhase>[];
+
+        final result = await VotingDialogHelper.invokeVotingWithAuthRecovery(
+          invoke: () async {
+            invokes++;
+            if (invokes == 1) {
+              throw const FunctionException(
+                status: 401,
+                details: 'Invalid JWT',
+              );
+            }
+            return 'ok';
+          },
+          refresh: () async {
+            refreshes++;
+            return true;
+          },
+          onPhase: phases.add,
+        );
+
+        expect(result, 'ok');
+        expect(invokes, 2);
+        expect(refreshes, 1);
+        expect(phases, [
+          VotingAuthRecoveryPhase.refreshStarted,
+          VotingAuthRecoveryPhase.refreshSucceeded,
+        ]);
+      });
+
+      test('stops after the retried request is also unauthorized', () async {
+        var invokes = 0;
+        final phases = <VotingAuthRecoveryPhase>[];
+
+        await expectLater(
+          VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
+            invoke: () async {
+              invokes++;
+              throw const FunctionException(
+                status: 401,
+                details: 'Invalid JWT',
+              );
+            },
+            refresh: () async => true,
+            onPhase: phases.add,
+          ),
+          throwsA(
+            isA<EdgeAuthRecoveryException>().having(
+              (error) => error.reason,
+              'reason',
+              EdgeAuthRecoveryFailureReason.retryUnauthorized,
+            ),
+          ),
+        );
+
+        expect(invokes, 2);
+        expect(phases.last, VotingAuthRecoveryPhase.retryFailed);
+      });
+
+      test('does not refresh for a non-auth function error', () async {
+        var refreshes = 0;
+
+        await expectLater(
+          VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
+            invoke: () async => throw const FunctionException(status: 429),
+            refresh: () async {
+              refreshes++;
+              return true;
+            },
+          ),
+          throwsA(isA<FunctionException>()),
+        );
+
+        expect(refreshes, 0);
+      });
+
+      test('reports refresh failure without exposing its cause', () async {
+        final phases = <VotingAuthRecoveryPhase>[];
+
+        await expectLater(
+          VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
+            invoke: () async => throw const FunctionException(
+              status: 401,
+              details: 'Invalid JWT',
+            ),
+            refresh: () async => false,
+            onPhase: phases.add,
+          ),
+          throwsA(isA<EdgeAuthRecoveryException>()),
+        );
+
+        expect(phases.last, VotingAuthRecoveryPhase.refreshFailed);
+      });
+    });
+
     // -------------------------------------------------------------------------
     // resolveArtistImageUrl
     // -------------------------------------------------------------------------
@@ -51,16 +151,19 @@ void main() {
         );
       });
 
-      test('returns null artist image when artistId is non-zero but image is null', () {
-        expect(
-          VotingDialogHelper.resolveArtistImageUrl(
-            artistId: 1,
-            artistImage: null,
-            artistGroupImage: 'https://img/group.png',
-          ),
-          isNull,
-        );
-      });
+      test(
+        'returns null artist image when artistId is non-zero but image is null',
+        () {
+          expect(
+            VotingDialogHelper.resolveArtistImageUrl(
+              artistId: 1,
+              artistImage: null,
+              artistGroupImage: 'https://img/group.png',
+            ),
+            isNull,
+          );
+        },
+      );
     });
 
     // -------------------------------------------------------------------------
@@ -393,20 +496,14 @@ void main() {
 
       test('returns false when partner is null', () {
         expect(
-          VotingDialogHelper.hasPartnerLogo(
-            isPartnership: true,
-            partner: null,
-          ),
+          VotingDialogHelper.hasPartnerLogo(isPartnership: true, partner: null),
           isFalse,
         );
       });
 
       test('returns false when partner is empty', () {
         expect(
-          VotingDialogHelper.hasPartnerLogo(
-            isPartnership: true,
-            partner: '',
-          ),
+          VotingDialogHelper.hasPartnerLogo(isPartnership: true, partner: ''),
           isFalse,
         );
       });

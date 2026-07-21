@@ -1,4 +1,22 @@
 import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+enum VotingAuthRecoveryPhase {
+  refreshStarted,
+  refreshSucceeded,
+  refreshFailed,
+  retryFailed,
+}
+
+extension VotingAuthRecoveryPhaseName on VotingAuthRecoveryPhase {
+  String get sentryValue => switch (this) {
+    VotingAuthRecoveryPhase.refreshStarted => 'refresh_started',
+    VotingAuthRecoveryPhase.refreshSucceeded => 'refresh_succeeded',
+    VotingAuthRecoveryPhase.refreshFailed => 'refresh_failed',
+    VotingAuthRecoveryPhase.retryFailed => 'retry_failed',
+  };
+}
 
 /// Pure-logic helpers extracted from [VotingDialog] for testability.
 ///
@@ -8,6 +26,61 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 /// logic that doesn't depend on Flutter widgets or Riverpod providers.
 class VotingDialogHelper {
   const VotingDialogHelper._();
+
+  static Future<T> invokeVotingWithAuthRecovery<T>({
+    required Future<T> Function() invoke,
+    required Future<bool> Function() refresh,
+    void Function(VotingAuthRecoveryPhase phase)? onPhase,
+  }) async {
+    try {
+      return await invokeWithAuthRecovery(
+        invoke: invoke,
+        refresh: () async {
+          onPhase?.call(VotingAuthRecoveryPhase.refreshStarted);
+          try {
+            final refreshed = await refresh();
+            onPhase?.call(
+              refreshed
+                  ? VotingAuthRecoveryPhase.refreshSucceeded
+                  : VotingAuthRecoveryPhase.refreshFailed,
+            );
+            return refreshed;
+          } catch (_) {
+            onPhase?.call(VotingAuthRecoveryPhase.refreshFailed);
+            rethrow;
+          }
+        },
+      );
+    } on EdgeAuthRecoveryException catch (error) {
+      if (error.reason == EdgeAuthRecoveryFailureReason.retryUnauthorized) {
+        onPhase?.call(VotingAuthRecoveryPhase.retryFailed);
+      }
+      rethrow;
+    }
+  }
+
+  static String resolveVoteFailureMessage({
+    required Object? error,
+    required String reLoginMessage,
+    required String genericMessage,
+    required String endedMessage,
+    required String upcomingMessage,
+  }) {
+    if (error is EdgeAuthRecoveryException) return reLoginMessage;
+    if (error is FunctionException) {
+      final details = error.details;
+      final reason = details is Map ? details['reason'] : null;
+      if (error.status == 403) {
+        if (reason == 'ended') return endedMessage;
+        if (reason == 'not_started') return upcomingMessage;
+      }
+      final serverMessage = details is Map ? details['message'] : null;
+      if (serverMessage is String && serverMessage.trim().isNotEmpty) {
+        return serverMessage;
+      }
+    }
+    return genericMessage;
+  }
 
   // ---------------------------------------------------------------------------
   // Artist image resolution
@@ -133,7 +206,7 @@ class VotingDialogHelper {
   /// (caller should clear the text field).
   @visibleForTesting
   static ({bool checkAll, bool hasValue, String? formattedAmount})
-      computeCheckAllToggle({
+  computeCheckAllToggle({
     required bool currentCheckAll,
     required int availableStarCandy,
     required String Function(dynamic) formatNumber,
@@ -194,9 +267,7 @@ class VotingDialogHelper {
     required bool? isPartnership,
     required String? partner,
   }) {
-    return (isPartnership ?? false) &&
-        partner != null &&
-        partner.isNotEmpty;
+    return (isPartnership ?? false) && partner != null && partner.isNotEmpty;
   }
 }
 
@@ -204,7 +275,4 @@ class VotingDialogHelper {
 enum VoteButtonState { disabled, enabled, loading }
 
 /// Reasons a vote may fail pre-check validation.
-enum VoteFailReason {
-  zeroAmount,
-  insufficientBalance,
-}
+enum VoteFailReason { zeroAmount, insufficientBalance }
