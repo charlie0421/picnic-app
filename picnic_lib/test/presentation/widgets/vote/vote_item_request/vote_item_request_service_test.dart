@@ -1,17 +1,87 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
 import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
+import 'package:picnic_lib/presentation/providers/vote_item_request_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
 import '../../../../helpers/mock_supabase.dart';
 import '../../../../helpers/test_environment.dart';
+import '../../../../helpers/test_app.dart';
 
 void main() {
   setUp(() {
     initTestColors();
   });
+
+  testWidgets(
+    'search enrichment uses aggregate counts and current-user status',
+    (tester) async {
+      setupMockSupabase({
+        'vote_item_request_status_summary': [
+          {
+            'vote_id': 1,
+            'artist_id': 10,
+            'artist_name': '가수 A',
+            'request_status': 'pending',
+            'request_count': 4,
+          },
+          {
+            'vote_id': 1,
+            'artist_id': 10,
+            'artist_name': '가수 A',
+            'request_status': 'approved',
+            'request_count': 3,
+          },
+        ],
+        'vote_item_request_users': [
+          {
+            'artist_id': 10,
+            'status': 'pending',
+            'artist': {
+              'name': {'ko': '가수 A', 'en': 'Singer A'},
+            },
+          },
+        ],
+        'vote_item': <Map<String, dynamic>>[],
+      }, userId: 'current-user');
+      addTearDown(tearDownMockSupabase);
+
+      late WidgetRef widgetRef;
+      await tester.pumpWidget(
+        buildTestApp(
+          Consumer(
+            builder: (_, ref, __) {
+              widgetRef = ref;
+              return const SizedBox();
+            },
+          ),
+          extraOverrides: [
+            voteItemRequestRepositoryProvider.overrideWithValue(
+              VoteItemRequestRepository(supabase: testSupabaseClient!),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final service = VoteItemRequestService(
+        ref: widgetRef,
+        voteId: '1',
+        supabase: testSupabaseClient!,
+      );
+      final result = await service.loadApplicationDataForResults(const [
+        ArtistModel(id: 10, name: {'ko': '가수 A', 'en': 'Singer A'}),
+      ], 'current-user');
+
+      expect(result['10']!.applicationCount, 7);
+      expect(result['10']!.applicationStatus, isNot('신청 가능'));
+    },
+  );
 
   group('VoteItemRequestRepository - getVoteItemRequestCount', () {
     setUp(() {
@@ -60,53 +130,72 @@ void main() {
     });
   });
 
-  group('VoteItemRequestRepository - getCurrentUserApplicationsWithDetails', () {
-    setUp(() {
-      setupMockSupabase({
-        'vote_item_requests': [
-          {
-            'id': 'req-1',
-            'vote_id': 1,
-            'user_id': 'test-user-id',
-            'artist_id': 10,
-            'status': 'pending',
-            'created_at': '2024-01-15T10:00:00Z',
-            'updated_at': '2024-01-15T10:00:00Z',
-            'artist': {'id': 10, 'name': {'ko': '지민', 'en': 'Jimin'}, 'image': null},
-          },
-          {
-            'id': 'req-2',
-            'vote_id': 2,
-            'user_id': 'test-user-id',
-            'artist_id': 11,
-            'status': 'approved',
-            'created_at': '2024-01-16T10:00:00Z',
-            'updated_at': '2024-01-16T10:00:00Z',
-            'artist': {'id': 11, 'name': {'ko': '뷔', 'en': 'V'}, 'image': null},
-          },
-        ],
-      }, userId: 'test-user-id');
-    });
+  group(
+    'VoteItemRequestRepository - getCurrentUserApplicationsWithDetails',
+    () {
+      setUp(() {
+        setupMockSupabase({
+          'vote_item_requests': [
+            {
+              'id': 'req-1',
+              'vote_id': 1,
+              'user_id': 'test-user-id',
+              'artist_id': 10,
+              'status': 'pending',
+              'created_at': '2024-01-15T10:00:00Z',
+              'updated_at': '2024-01-15T10:00:00Z',
+              'artist': {
+                'id': 10,
+                'name': {'ko': '지민', 'en': 'Jimin'},
+                'image': null,
+              },
+            },
+            {
+              'id': 'req-2',
+              'vote_id': 2,
+              'user_id': 'test-user-id',
+              'artist_id': 11,
+              'status': 'approved',
+              'created_at': '2024-01-16T10:00:00Z',
+              'updated_at': '2024-01-16T10:00:00Z',
+              'artist': {
+                'id': 11,
+                'name': {'ko': '뷔', 'en': 'V'},
+                'image': null,
+              },
+            },
+          ],
+        }, userId: 'test-user-id');
+      });
 
-    tearDown(() => tearDownMockSupabase());
+      tearDown(() => tearDownMockSupabase());
 
-    test('returns user applications with details', () async {
-      final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
-      final applications = await repo.getCurrentUserApplicationsWithDetails('test-user-id');
+      test('returns user applications with details', () async {
+        final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
+        final applications = await repo.getCurrentUserApplicationsWithDetails(
+          'test-user-id',
+        );
 
-      expect(applications, isA<List<Map<String, dynamic>>>());
-      expect(applications.length, 2);
-      expect(applications[0]['artist_id'], 10);
-      expect(applications[1]['artist_id'], 11);
-    });
-  });
+        expect(applications, isA<List<Map<String, dynamic>>>());
+        expect(applications.length, 2);
+        expect(applications[0]['artist_id'], 10);
+        expect(applications[1]['artist_id'], 11);
+      });
+    },
+  );
 
   group('VoteItemRequestRepository - getApplicationCountByTitle', () {
     setUp(() {
       setupMockSupabase({
         'artist': [
-          {'id': 1, 'name': {'ko': '지민', 'en': 'Jimin'}},
-          {'id': 2, 'name': {'ko': '지민이', 'en': 'Jimini'}},
+          {
+            'id': 1,
+            'name': {'ko': '지민', 'en': 'Jimin'},
+          },
+          {
+            'id': 2,
+            'name': {'ko': '지민이', 'en': 'Jimini'},
+          },
         ],
       }, userId: 'test-user-id');
     });
@@ -249,7 +338,12 @@ void main() {
             'status': 'pending',
             'created_at': '2024-01-15T10:00:00Z',
             'updated_at': '2024-01-15T10:00:00Z',
-            'artist': {'id': 10, 'name': {'ko': '지민', 'en': 'Jimin'}, 'image': null, 'group_id': 1},
+            'artist': {
+              'id': 10,
+              'name': {'ko': '지민', 'en': 'Jimin'},
+              'image': null,
+              'group_id': 1,
+            },
           },
           {
             'id': 'req-2',
@@ -259,7 +353,12 @@ void main() {
             'status': 'approved',
             'created_at': '2024-01-16T10:00:00Z',
             'updated_at': '2024-01-16T10:00:00Z',
-            'artist': {'id': 11, 'name': {'ko': '뷔', 'en': 'V'}, 'image': null, 'group_id': 1},
+            'artist': {
+              'id': 11,
+              'name': {'ko': '뷔', 'en': 'V'},
+              'image': null,
+              'group_id': 1,
+            },
           },
         ],
       }, userId: 'test-user-id');
@@ -299,7 +398,10 @@ void main() {
 
     test('update call succeeds and returns updated request', () async {
       final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
-      final result = await repo.updateVoteItemRequestStatus('req-1', 'approved');
+      final result = await repo.updateVoteItemRequestStatus(
+        'req-1',
+        'approved',
+      );
       expect(result, isA<VoteItemRequestUser>());
       expect(result.id, 'req-1');
       expect(result.status, 'approved');
@@ -479,7 +581,13 @@ void main() {
     });
 
     test('different status values', () {
-      final statuses = ['pending', 'approved', 'rejected', 'in-progress', 'cancelled'];
+      final statuses = [
+        'pending',
+        'approved',
+        'rejected',
+        'in-progress',
+        'cancelled',
+      ];
       for (final status in statuses) {
         final json = {
           'id': 'req-$status',
@@ -571,26 +679,17 @@ void main() {
     });
 
     test('formattedName returns ko name first', () {
-      const model = ArtistModel(
-        id: 1,
-        name: {'ko': '지민', 'en': 'Jimin'},
-      );
+      const model = ArtistModel(id: 1, name: {'ko': '지민', 'en': 'Jimin'});
       expect(model.formattedName, '지민');
     });
 
     test('formattedName returns en name when no ko', () {
-      const model = ArtistModel(
-        id: 1,
-        name: {'en': 'Jimin'},
-      );
+      const model = ArtistModel(id: 1, name: {'en': 'Jimin'});
       expect(model.formattedName, 'Jimin');
     });
 
     test('formattedName returns first value when no ko or en', () {
-      const model = ArtistModel(
-        id: 1,
-        name: {'ja': 'ジミン'},
-      );
+      const model = ArtistModel(id: 1, name: {'ja': 'ジミン'});
       expect(model.formattedName, 'ジミン');
     });
 
@@ -722,10 +821,21 @@ void main() {
 
   group('VoteRequestStatusUtils.getStatusColor', () {
     test('returns non-zero color value for all statuses', () {
-      final statuses = ['pending', 'approved', 'rejected', 'in-progress', 'cancelled', 'unknown'];
+      final statuses = [
+        'pending',
+        'approved',
+        'rejected',
+        'in-progress',
+        'cancelled',
+        'unknown',
+      ];
       for (final status in statuses) {
         final color = VoteRequestStatusUtils.getStatusColor(status);
-        expect(color.value, isNot(equals(0)), reason: 'Status "$status" should have a non-zero color');
+        expect(
+          color.value,
+          isNot(equals(0)),
+          reason: 'Status "$status" should have a non-zero color',
+        );
       }
     });
 
@@ -769,17 +879,25 @@ void main() {
       expect(count, 0);
     });
 
-    test('getCurrentUserApplicationsWithDetails with no data returns empty list', () async {
-      final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
-      final apps = await repo.getCurrentUserApplicationsWithDetails('test-user-id');
-      expect(apps, isEmpty);
-    });
+    test(
+      'getCurrentUserApplicationsWithDetails with no data returns empty list',
+      () async {
+        final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
+        final apps = await repo.getCurrentUserApplicationsWithDetails(
+          'test-user-id',
+        );
+        expect(apps, isEmpty);
+      },
+    );
 
-    test('getVoteItemRequestsByVoteId with no data returns empty list', () async {
-      final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
-      final requests = await repo.getVoteItemRequestsByVoteId(999);
-      expect(requests, isEmpty);
-    });
+    test(
+      'getVoteItemRequestsByVoteId with no data returns empty list',
+      () async {
+        final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
+        final requests = await repo.getVoteItemRequestsByVoteId(999);
+        expect(requests, isEmpty);
+      },
+    );
 
     test('getUserRequestsByVoteId with no data returns empty list', () async {
       final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
@@ -793,11 +911,14 @@ void main() {
       expect(history, isEmpty);
     });
 
-    test('getVoteRequestStatusSummary with no data returns empty list', () async {
-      final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
-      final summary = await repo.getVoteRequestStatusSummary(999);
-      expect(summary, isEmpty);
-    });
+    test(
+      'getVoteRequestStatusSummary with no data returns empty list',
+      () async {
+        final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
+        final summary = await repo.getVoteRequestStatusSummary(999);
+        expect(summary, isEmpty);
+      },
+    );
   });
 
   group('VoteItemRequestUser model edge cases', () {
@@ -889,11 +1010,7 @@ void main() {
     });
 
     test('isBookmarked field', () {
-      const model = ArtistModel(
-        id: 1,
-        name: {'ko': 'A'},
-        isBookmarked: true,
-      );
+      const model = ArtistModel(id: 1, name: {'ko': 'A'}, isBookmarked: true);
       expect(model.isBookmarked, true);
 
       const model2 = ArtistModel(id: 2, name: {'ko': 'B'});
