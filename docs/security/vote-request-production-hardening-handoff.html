@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>투표 항목 신청 운영 보안 강화 인계 및 런북</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#5c667a; --line:#dce2ec; --accent:#3157d5; --warn:#9a3412; --bg:#f6f8fc; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Noto Sans KR",sans-serif; }
+    main { max-width:960px; margin:40px auto; padding:40px; background:#fff; border:1px solid var(--line); border-radius:18px; }
+    h1,h2,h3 { line-height:1.3; } h1 { margin-top:0; } h2 { margin-top:2rem; border-bottom:1px solid var(--line); padding-bottom:.4rem; }
+    code { background:#eef2f8; padding:.1rem .35rem; border-radius:4px; overflow-wrap:anywhere; } li+li { margin-top:.35rem; }
+    .summary { border-left:5px solid var(--accent); padding:12px 18px; background:#f2f5ff; }
+    .warning { border-left:5px solid var(--warn); padding:12px 18px; background:#fff7ed; }
+    table { width:100%; border-collapse:collapse; } th,td { padding:10px; border:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { background:#f4f6fa; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>투표 항목 신청 운영 보안 강화 인계 및 런북</h1>
+  <p><strong>작성일:</strong> 2026-07-21 · <strong>인계 대상:</strong> DB 스키마 소유 저장소 담당자 및 운영 배포 승인자</p>
+
+  <div class="summary">
+    이 문서는 운영 schema-only 감사 결과와 앱의 새 집계 계약을 DB 소유 저장소에 인계한다. 여기에는 비밀값, 프로젝트 참조값, 사용자 데이터가 없으며 이 절차 자체는 운영 또는 DB 작업을 실행하지 않는다. 실제 변경은 검토·승인을 거쳐 격리된 검증 환경에서 먼저 수행한다.
+  </div>
+
+  <h2>1. 앱 집계 계약</h2>
+  <p>앱이 필요로 하는 공개 relation은 <code>vote_item_request_status_summary</code> 하나이며, 아래 다섯 컬럼만 계약에 포함한다.</p>
+  <table>
+    <thead><tr><th>컬럼</th><th>용도</th></tr></thead>
+    <tbody>
+      <tr><td><code>vote_id</code></td><td>투표 범위 식별</td></tr>
+      <tr><td><code>artist_id</code></td><td>아티스트별 집계 키</td></tr>
+      <tr><td><code>artist_name</code></td><td>집계 결과 표시명</td></tr>
+      <tr><td><code>request_status</code></td><td>상태별 집계 구분</td></tr>
+      <tr><td><code>request_count</code></td><td>상태별 신청 수</td></tr>
+    </tbody>
+  </table>
+  <p>공개 집계 뷰에는 <code>user_id</code>, 신청 행 UUID, IP hash, 생성 시각 등 사용자 또는 개별 신청을 식별할 수 있는 컬럼을 추가하지 않는다. <code>anon</code>과 <code>authenticated</code>에는 이 뷰의 <code>SELECT</code>만 허용하며, 다른 권한은 부여하지 않는다.</p>
+
+  <h2>2. 필수 DB 권한 및 RLS 변경</h2>
+  <table>
+    <thead><tr><th>객체</th><th>필수 계약</th></tr></thead>
+    <tbody>
+      <tr><td><code>vote_item_request_users</code></td><td><code>authenticated</code>의 <code>SELECT</code>는 <code>auth.uid() = user_id</code>인 본인 행만 허용한다. <code>anon</code>의 <code>SELECT</code>는 금지한다.</td></tr>
+      <tr><td><code>vote_item_request_users</code></td><td><code>anon</code>과 <code>authenticated</code>의 <code>INSERT</code>, <code>TRUNCATE</code>, <code>TRIGGER</code> 권한을 회수한다.</td></tr>
+      <tr><td><code>vote_item_request_users</code></td><td>일반 사용자 <code>UPDATE</code>와 <code>DELETE</code>는 현재 UI 계약에 필요하지 않으므로 회수한다. 관리자 및 <code>service_role</code> 정책만 유지한다.</td></tr>
+      <tr><td><code>vote_item_requests</code></td><td><code>security_invoker = true</code>를 적용하고, 기반 relation의 본인 행 RLS가 호출자에게 그대로 적용되도록 한다.</td></tr>
+      <tr><td><code>user_vote_item_request_history</code></td><td><code>security_invoker = true</code>를 적용하고, 기반 relation의 본인 행 RLS가 호출자에게 그대로 적용되도록 한다.</td></tr>
+      <tr><td><code>vote_item_request_status_summary</code></td><td>사용자 식별 컬럼 없이 위 다섯 컬럼만 노출하고 공개 역할에는 <code>SELECT</code>만 허용한다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 소유 저장소 산출물 경로</h2>
+  <ul>
+    <li>마이그레이션: <code>/Users/charlie.hyun/Repositories/picnic-supabase/supabase/migrations/&lt;timestamp&gt;_harden_vote_item_request_access.sql</code></li>
+    <li>접근 보안 테스트: <code>supabase/tests/vote_item_request/01_access_security.test.sql</code></li>
+  </ul>
+  <p>마이그레이션은 객체 삭제·재생성보다 <code>REVOKE</code>, 정책 교체, 뷰 옵션 변경을 우선하며, 카탈로그 기반 사전·사후 검증을 포함한다. 이 앱 저장소에는 DB 마이그레이션을 추가하지 않는다.</p>
+
+  <h2>4. Webhook 비밀 분리와 키 회전</h2>
+  <div class="warning">DB webhook 정의에 <code>service_role</code> JWT literal을 두지 않는다. 실제 토큰이나 shared secret은 SQL, 테스트, 로그, 문서 또는 커밋에 기록하지 않는다.</div>
+  <ol>
+    <li>호출 인증을 versioned shared secret으로 전환하고 실제 값은 Vault에 저장한다.</li>
+    <li>Edge Function은 대응하는 환경 secret에서만 값을 읽으며, 버전 식별자만 운영 절차에서 참조한다.</li>
+    <li>회전 전에 현재 경로의 정상 호출, 실패율, 인증 거부 지표와 경보 상태를 확인한다.</li>
+    <li>새 버전의 secret을 Vault와 Edge Function 환경에 배치한 뒤 webhook이 새 버전으로 인증되는지 격리 환경에서 검증한다.</li>
+    <li>승인된 배포 창에 새 버전을 활성화하고 이전 버전을 폐기한다. 폐기 후 정상 호출과 이전 버전 거부를 모두 확인한다.</li>
+    <li>회전 전후 검증 결과에는 성공/실패와 시각만 남기고 헤더, 토큰, secret 값은 남기지 않는다.</li>
+  </ol>
+
+  <h2>5. 배포 Gate</h2>
+  <h3>Gate A — 변경 전</h3>
+  <ul>
+    <li>DB 소유자, 보안 검토자, 앱 담당자가 migration diff와 위 앱 집계 계약을 승인한다.</li>
+    <li>테스트가 anon, 사용자 A, 사용자 B, 관리자, <code>service_role</code> 권한 행렬을 포함하는지 확인한다.</li>
+    <li>스키마 백업과 복구 가능성을 확인하되 운영 데이터 사본을 문서나 테스트 fixture로 반출하지 않는다.</li>
+    <li>새 secret 버전, 폐기 책임자, 관찰 담당자와 배포 중단 기준을 기록한다. 값 자체는 기록하지 않는다.</li>
+  </ul>
+
+  <h3>Gate B — 격리 환경 검증</h3>
+  <ul>
+    <li><code>supabase/tests/vote_item_request/01_access_security.test.sql</code>이 통과해야 한다.</li>
+    <li>anon의 기본 테이블 조회와 모든 쓰기, 사용자 A의 사용자 B 행 조회, 일반 사용자의 상태 변경이 모두 거부되어야 한다.</li>
+    <li>사용자 본인 조회, 관리자 상태 전이, Edge Function 신청 생성이 허용된 경로에서 성공해야 한다.</li>
+    <li>공개 집계 결과가 다섯 컬럼만 반환하고 사용자 식별 정보를 포함하지 않으며 앱 집계 계약 테스트와 일치해야 한다.</li>
+    <li>뷰의 <code>security_invoker</code>, RLS 활성화, 역할별 grant를 카탈로그 조회로 확인해야 한다.</li>
+  </ul>
+
+  <h3>Gate C — 운영 적용과 관찰</h3>
+  <ul>
+    <li>Gate A와 B의 증거 및 명시적 운영 승인이 없으면 적용하지 않는다.</li>
+    <li>migration 적용 후 권한 행렬의 읽기 전용 smoke test와 webhook 새 버전 호출을 확인한다.</li>
+    <li>15–30분 동안 신청 성공률, 인증 거부, Edge Function 오류, DB 오류를 관찰한다.</li>
+    <li>관찰 창이 끝나고 중단 기준에 해당하지 않을 때만 배포 완료로 선언한다.</li>
+  </ul>
+
+  <h2>6. 롤백 및 장애 대응</h2>
+  <p><strong>롤백은 forward-only 원칙을 따른다.</strong> 이미 폐기했거나 노출 가능성이 있는 비밀값을 복원하지 않고, 이전 JWT literal 또는 이전 shared secret을 DB 정의에 다시 넣지 않는다.</p>
+  <ul>
+    <li>권한 또는 앱 계약 문제가 발생하면 운영 적용을 중단하고 영향 범위를 차단한 뒤, 새 migration으로 최소 권한 상태를 유지하면서 계약 오류만 수정한다.</li>
+    <li>webhook 인증 문제가 발생하면 이전 비밀을 되살리지 않는다. 새 버전의 secret을 발급·배치하고 Edge Function과 webhook을 같은 새 버전으로 맞추는 forward-fix를 수행한다.</li>
+    <li>수정 후 Gate B 검증을 다시 실행하고, 승인 후 적용한 다음 다시 15–30분 관찰한다.</li>
+    <li>장애 기록에는 영향, 시각, 버전 식별자, 검증 결과만 남기고 비밀값이나 사용자 데이터를 포함하지 않는다.</li>
+  </ul>
+
+  <h2>7. 완료 조건</h2>
+  <ul>
+    <li>지정된 migration과 테스트가 DB 소유 저장소에서 검토되고 모든 배포 Gate를 통과한다.</li>
+    <li>앱이 공개 집계 다섯 컬럼만 사용하며 다른 사용자 행을 직접 읽지 않는다.</li>
+    <li>권한·RLS·뷰 옵션과 webhook 비밀 분리가 카탈로그 및 접근 테스트로 확인된다.</li>
+    <li>키 회전 전후 검증과 15–30분 관찰 결과가 비밀값 없이 남는다.</li>
+  </ul>
+</main>
+</body>
+</html>
