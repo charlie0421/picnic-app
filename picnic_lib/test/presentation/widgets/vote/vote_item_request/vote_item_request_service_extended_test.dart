@@ -23,7 +23,7 @@ void main() {
       'vote_item_request_status_summary': [
         {'vote_id': 1, 'artist_id': 10, 'artist_name': '가수 A', 'request_status': 'pending', 'request_count': 4},
         {'vote_id': 1, 'artist_id': 10, 'artist_name': '가수 A', 'request_status': 'approved', 'request_count': 3},
-        {'vote_id': 1, 'artist_id': 11, 'artist_name': '가수 B', 'request_status': 'rejected', 'request_count': 2},
+        {'vote_id': 1, 'artist_id': 11, 'artist_name': '가수 A', 'request_status': 'rejected', 'request_count': 2},
       ],
       'vote_item_request_users': [
         {'id': 'current-request', 'vote_id': 1, 'user_id': 'current-user', 'artist_id': 10, 'status': 'pending', 'created_at': '2024-01-15T10:00:00Z', 'updated_at': '2024-01-15T10:00:00Z'},
@@ -55,6 +55,7 @@ void main() {
     expect(result['totalApplications'], 9);
     expect(summaries.map((summary) => summary['artistId']), [10, 11]);
     expect(summaries.first['artist'], {'id': 10, 'name': {'ko': '가수 A'}});
+    expect(summaries.last['artist'], {'id': 11, 'name': {'ko': '가수 A'}});
     expect(summaries.first, containsPair('totalApplications', 7));
     expect(summaries.first, containsPair('pendingCount', 4));
     expect(summaries.first, containsPair('approvedCount', 3));

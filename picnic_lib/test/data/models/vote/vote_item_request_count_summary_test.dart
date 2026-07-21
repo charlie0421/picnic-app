@@ -55,4 +55,27 @@ void main() {
     expect(summary.totalCount, 2);
     expect(summary.countsByArtistId, {10: 2});
   });
+
+  test('같은 이름의 서로 다른 아티스트 ID를 각각 보존한다', () {
+    final summary = VoteItemRequestCountSummary.fromRows([
+      {
+        'artist_id': 10,
+        'artist_name': '동명이인',
+        'request_status': 'pending',
+        'request_count': 2,
+      },
+      {
+        'artist_id': 20,
+        'artist_name': '동명이인',
+        'request_status': 'approved',
+        'request_count': 3,
+      },
+    ]);
+
+    expect(summary.artistNamesById, {10: '동명이인', 20: '동명이인'});
+    expect(
+      () => summary.artistNamesById[30] = '변경',
+      throwsUnsupportedError,
+    );
+  });
 }

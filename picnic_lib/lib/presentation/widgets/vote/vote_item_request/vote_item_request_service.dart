@@ -475,18 +475,13 @@ class VoteItemRequestService {
 
       final summary = await voteRequestRepository
           .getVoteItemRequestCountSummary(int.parse(voteId));
-      final artistIds = summary.countsByArtistId.keys.toList();
-      final artistNames = summary.countsByArtistName.keys.toList();
 
       // 아티스트별 신청 요약 생성
       final List<Map<String, dynamic>> artistApplicationSummaries = [];
 
       for (final entry in summary.countsByArtistId.entries) {
         final artistId = entry.key;
-        final artistIndex = artistIds.indexOf(artistId);
-        final artistName = artistIndex < artistNames.length
-            ? artistNames[artistIndex]
-            : '';
+        final artistName = summary.artistNamesById[artistId] ?? '';
         final statusCounts =
             summary.statusCountsByArtistId[artistId] ?? <String, int>{};
         final totalCount = entry.value;
