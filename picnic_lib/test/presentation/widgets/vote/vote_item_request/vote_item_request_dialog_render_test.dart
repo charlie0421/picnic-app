@@ -92,12 +92,21 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(TextField));
+      final searchField = find.descendant(
+        of: find.byType(SearchAndResultsSection),
+        matching: find.byType(TextField),
+      );
+      final collapsedSearchTapTarget = find.ancestor(
+        of: searchField,
+        matching: find.byType(GestureDetector),
+      );
+      expect(collapsedSearchTapTarget, findsOneWidget);
+      await tester.tap(collapsedSearchTapTarget);
       await tester.pump();
       final editable = tester.widget<EditableText>(find.byType(EditableText));
       expect(editable.focusNode.hasFocus, isTrue);
 
-      await tester.enterText(find.byType(TextField), 'ab');
+      await tester.enterText(searchField, 'ab');
       await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
       await tester.pump();
