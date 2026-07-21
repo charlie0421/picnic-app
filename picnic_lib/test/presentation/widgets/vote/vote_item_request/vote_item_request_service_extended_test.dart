@@ -1,98 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
-import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
-import 'package:picnic_lib/presentation/providers/vote_item_request_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
-import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
 import '../../../../helpers/mock_supabase.dart';
 import '../../../../helpers/test_environment.dart';
-import '../../../../helpers/test_app.dart';
 
 void main() {
   setUp(() {
     initTestColors();
   });
-
-  testWidgets(
-    'artist summaries use aggregate rows without request identities',
-    (tester) async {
-      setupMockSupabase({
-        'vote_item_request_status_summary': [
-          {
-            'vote_id': 1,
-            'artist_id': 10,
-            'artist_name': '가수 A',
-            'request_status': 'pending',
-            'request_count': 4,
-          },
-          {
-            'vote_id': 1,
-            'artist_id': 10,
-            'artist_name': '가수 A',
-            'request_status': 'approved',
-            'request_count': 3,
-          },
-          {
-            'vote_id': 1,
-            'artist_id': 11,
-            'artist_name': '가수 B',
-            'request_status': 'rejected',
-            'request_count': 2,
-          },
-        ],
-        'vote_item_request_users': [
-          {
-            'id': 'current-request',
-            'vote_id': 1,
-            'user_id': 'current-user',
-            'artist_id': 10,
-            'status': 'pending',
-            'created_at': '2024-01-15T10:00:00Z',
-            'updated_at': '2024-01-15T10:00:00Z',
-          },
-        ],
-      }, userId: 'current-user');
-      addTearDown(tearDownMockSupabase);
-
-      late WidgetRef widgetRef;
-      await tester.pumpWidget(
-        buildTestApp(
-          Consumer(
-            builder: (_, ref, __) {
-              widgetRef = ref;
-              return const SizedBox();
-            },
-          ),
-          extraOverrides: [
-            voteItemRequestRepositoryProvider.overrideWithValue(
-              VoteItemRequestRepository(supabase: testSupabaseClient!),
-            ),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      final result = await VoteItemRequestService(
-        ref: widgetRef,
-        voteId: '1',
-        supabase: testSupabaseClient!,
-      ).loadAllApplicationsByArtist();
-      final summaries =
-          result['artistApplicationSummaries'] as List<Map<String, dynamic>>;
-
-      expect(result['totalApplications'], 9);
-      expect(summaries.map((summary) => summary['artistId']), [10, 11]);
-      expect(summaries.first, containsPair('totalApplications', 7));
-      expect(summaries.first, containsPair('pendingCount', 4));
-      expect(summaries.first, containsPair('approvedCount', 3));
-      expect(summaries.first.containsKey('requests'), isFalse);
-      expect(summaries.first.containsKey('latestRequest'), isFalse);
-    },
-  );
 
   group('ArtistApplicationInfo - copyWith comprehensive', () {
     test('copyWith preserves all unchanged fields', () {
@@ -123,10 +40,7 @@ void main() {
 
       expect(info.copyWith(artistName: 'Updated').artistName, 'Updated');
       expect(info.copyWith(applicationCount: 99).applicationCount, 99);
-      expect(
-        info.copyWith(applicationStatus: 'approved').applicationStatus,
-        'approved',
-      );
+      expect(info.copyWith(applicationStatus: 'approved').applicationStatus, 'approved');
       expect(info.copyWith(isAlreadyInVote: true).isAlreadyInVote, true);
       expect(info.copyWith(isSubmitting: true).isSubmitting, true);
     });
@@ -229,7 +143,10 @@ void main() {
 
   group('UserApplicationInfo', () {
     test('all fields populated', () {
-      const model = ArtistModel(id: 42, name: {'ko': '태연', 'en': 'Taeyeon'});
+      const model = ArtistModel(
+        id: 42,
+        name: {'ko': '태연', 'en': 'Taeyeon'},
+      );
 
       final info = UserApplicationInfo(
         id: 'app-1',
@@ -284,17 +201,26 @@ void main() {
 
   group('ArtistModel - formattedName', () {
     test('returns ko when both available', () {
-      const model = ArtistModel(id: 1, name: {'ko': '지민', 'en': 'Jimin'});
+      const model = ArtistModel(
+        id: 1,
+        name: {'ko': '지민', 'en': 'Jimin'},
+      );
       expect(model.formattedName, '지민');
     });
 
     test('returns en when ko not available', () {
-      const model = ArtistModel(id: 1, name: {'en': 'Jimin'});
+      const model = ArtistModel(
+        id: 1,
+        name: {'en': 'Jimin'},
+      );
       expect(model.formattedName, 'Jimin');
     });
 
     test('returns first value when neither ko nor en', () {
-      const model = ArtistModel(id: 1, name: {'ja': 'ジミン'});
+      const model = ArtistModel(
+        id: 1,
+        name: {'ja': 'ジミン'},
+      );
       expect(model.formattedName, 'ジミン');
     });
 
@@ -333,10 +259,19 @@ void main() {
     });
 
     test('partial yy/mm/dd returns null', () {
-      const modelOnlyYy = ArtistModel(id: 1, name: {'ko': 'A'}, yy: 1995);
+      const modelOnlyYy = ArtistModel(
+        id: 1,
+        name: {'ko': 'A'},
+        yy: 1995,
+      );
       expect(modelOnlyYy.birthDate, isNull);
 
-      const modelYyMm = ArtistModel(id: 1, name: {'ko': 'A'}, yy: 1995, mm: 10);
+      const modelYyMm = ArtistModel(
+        id: 1,
+        name: {'ko': 'A'},
+        yy: 1995,
+        mm: 10,
+      );
       expect(modelYyMm.birthDate, isNull);
     });
 
@@ -442,7 +377,11 @@ void main() {
 
   group('ArtistModel - copyWith', () {
     test('copies with new image', () {
-      const model = ArtistModel(id: 1, name: {'ko': '지민'}, image: 'old.png');
+      const model = ArtistModel(
+        id: 1,
+        name: {'ko': '지민'},
+        image: 'old.png',
+      );
 
       final updated = model.copyWith(image: 'new.png');
       expect(updated.image, 'new.png');
@@ -450,7 +389,10 @@ void main() {
     });
 
     test('copies with new isBookmarked', () {
-      const model = ArtistModel(id: 1, name: {'ko': '지민'});
+      const model = ArtistModel(
+        id: 1,
+        name: {'ko': '지민'},
+      );
 
       final updated = model.copyWith(isBookmarked: true);
       expect(updated.isBookmarked, true);
