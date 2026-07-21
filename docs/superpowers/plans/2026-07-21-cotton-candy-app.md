@@ -184,7 +184,7 @@ Expected: exit 0 only after local/dev are isolated. Until the staging ref exists
 
 <code>verify_release_target.dart</code> tests and enforces all of the following without a bypass argument: CI provider is approved, event is an explicit production release, checkout is clean, <code>HEAD == requested SHA == origin/main</code>, tag resolves to that SHA, release manifest checksum matches, approval reference is non-empty, environment is exactly <code>prod</code>, and environment isolation/security evidence is complete. Local shell, feature branch, ancestor-but-not-current-main SHA, wildcard tag alone, missing evidence, and unknown deploy target all exit 1 without printing secrets.
 
-Add this verifier as the first step of both production Codemagic workflows before any package install, signing, Shorebird, store upload, or Sentry release action. Configure production workflows for manual approval/protected release credentials; tag matching alone is not authority. A protected-tag/CI-approval configuration screenshot or audit reference is required external evidence.
+Add this verifier as the first step of all four production Codemagic workflows (iOS/Android release and iOS/Android patch) before any package install, signing, Shorebird, store upload, or Sentry release action. Configure production workflows for manual approval/protected release credentials; tag matching alone is not authority. A protected-tag/CI-approval configuration screenshot or audit reference is required external evidence.
 
 Replace local production behavior as follows:
 

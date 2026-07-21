@@ -14,7 +14,7 @@
 - 현재 원본 저장소의 tracked `.env`, tracked `supabase/.temp/**`, production-target local env, public service-role 변수 이름은 hard blocker다. 별도 승인된 security hotfix로 `.env`를 추적 해제하고 영향받은 production credential을 회전했다는 evidence가 없으면 이 worktree를 만들거나 Vercel Preview를 실행하지 않는다. 비밀값은 읽기·복사·출력하지 않는다.
 - production Supabase ref `xtijtefcycoeqludlngc`는 local/Vercel Preview denylist다. staging ref가 별도로 provision되지 않으면 build/remote type generation/Playwright는 exit 1이며 production fallback은 없다.
 - `NEXT_PUBLIC_*SERVICE_ROLE*`는 모든 환경에서 금지한다. browser에는 anon key만, server-only Route Handler에는 `SUPABASE_SERVICE_ROLE_KEY`만 허용하며 build/static test가 이를 검증한다.
-- Vercel Preview는 staging만 사용하고 Production Branch는 `main`이어야 한다. exact `HEAD == VERCEL_GIT_COMMIT_SHA`, branch/ref, Preview 승인 evidence를 검증하기 전 production build를 허용하지 않는다.
+- Vercel Preview는 staging만 사용하고 Production Branch는 `main`이어야 한다. clean checkout에서 `git fetch origin main` 후 `HEAD == VERCEL_GIT_COMMIT_SHA == origin/main`, expected repository identity, branch/ref, Preview 승인 evidence를 검증하기 전 production build를 허용하지 않는다.
 - 이 계획은 `/Users/charlie.hyun/Repositories/picnic-admin-wallet-ops` worktree, `feat/wallet-ops` 브랜치에서만 실행한다. 실행 전 `/Users/charlie.hyun/Repositories/GIT_BRANCHING_POLICY.md`를 읽는다.
 - `/Users/charlie.hyun/Repositories/picnic-admin/types/supabase.ts`의 기존 사용자 변경은 읽기 외에 수정·복사·stage하지 않는다. 생성 타입은 Supabase schema와 admin RPC가 배포된 뒤 새 worktree의 `/Users/charlie.hyun/Repositories/picnic-admin-wallet-ops/types/supabase.ts`에서만 갱신한다.
 - `wallet.v1`의 모든 bigint JSON 필드는 decimal string이다. `Number`, `parseInt`, `parseFloat`, unary `+`로 금액을 변환하지 않는다. DTO 경계에서 `BigInt`로 parse하고 API 응답으로 되돌릴 때는 decimal string을 유지한다.
@@ -199,7 +199,7 @@ Tests use temporary sanitized fixtures and spawned processes to assert:
 
 - `development` and `preview` require `PICNIC_STAGING_SUPABASE_PROJECT_REF`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and server-only `SUPABASE_SERVICE_ROLE_KEY`; the URL-derived ref must equal staging and differ from production.
 - any environment key matching `NEXT_PUBLIC_.*SERVICE_ROLE`, production ref/host in local/Preview, `.env` or link metadata in the worktree, missing/placeholder fallback, unknown `VERCEL_ENV`, or missing staging config exits 1.
-- production requires `VERCEL_ENV=production`, `VERCEL_GIT_COMMIT_REF=main`, exact `HEAD == VERCEL_GIT_COMMIT_SHA`, a reviewed deployment-stage reference, and verified Vercel Production Branch evidence.
+- production requires `VERCEL_ENV=production`, `VERCEL_GIT_COMMIT_REF=main`, a clean checkout after `git fetch origin main`, exact `HEAD == VERCEL_GIT_COMMIT_SHA == origin/main`, expected repository identity, a reviewed deployment-stage reference, and verified Vercel Production Branch evidence.
 - stdout/stderr contains only variable names/reasons. Fixture sentinel `do-not-print-secret` never appears.
 
 Run: `npm test -- --runInBand __tests__/wallet/environment-isolation.test.ts`
@@ -1728,6 +1728,8 @@ git commit -m "feat(wallet): route admin adjustments through command api"
 - Modify: `lib/services/walletAdminService.ts`
 
 - [ ] **Step 1: append-only version form 계약을 실패 test로 고정한다**
+
+Campaign version 요청이 `is_active`, surface, cohort 값을 포함하더라도 이 UI가 production에서 즉시 live 효과를 만들 수 없다. DB command/RPC는 `promotion_surfaces_enabled`와 `candy_boost_write_enabled`를 다시 확인하고, full `GO: cotton-candy-v1` 전에는 active/cohort 설정을 저장하되 평가 결과를 비활성화하거나 stable `WALLET_RELEASE_GATE_BLOCKED`로 거부해야 한다. Preview와 staging에서는 동일한 command를 검증할 수 있지만 production flag 활성화는 별도 audited activation 단계에서만 수행한다. 이 경계를 route/component test에 포함한다.
 
 Command body는 다음 exact shape다.
 
