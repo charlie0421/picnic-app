@@ -11,6 +11,9 @@
 ## Global Constraints
 
 - 이 계획은 `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine`, branch `feat/cotton-candy-engine`에서 wallet-core 계획 직후 실행한다. 별도 worktree/branch를 만들지 않는다.
+- wallet-core Task 1의 `assert-wallet-target.mjs`와 `wallet:db:reset` wrapper를 모든 DB/test 명령에 적용한다. production ref `xtijtefcycoeqludlngc`, remote URL/token, `supabase/.temp` link가 worktree에 있으면 시작하지 않는다.
+- feature worktree에서는 linked/remote migration·function deploy를 실행하지 않는다. staging은 별도 non-production ref가 준비된 뒤에만 허용하고, production dark launch는 protected manual workflow에서 exact `main` SHA로만 수행한다.
+- additive schema/function dark launch와 runtime flag 활성화를 분리한다. dark launch 시 모든 신규 write/source/surface/admin-command flag는 false이며, full release verifier의 `GO` 전에는 audited flag command도 live cohort를 열 수 없다.
 - `/Users/charlie.hyun/Repositories/picnic-supabase/.gitignore`의 기존 사용자 변경을 읽거나 복사할 수는 있어도 수정·stage하지 않는다.
 - 승인 설계와 stable `wallet.v1` 계약을 바꾸지 않는다. 충돌이 있으면 구현을 중단하고 설계 승인을 받는다.
 - enum migration과 새 enum 값 사용 migration을 분리한다. `wallet_currency` 값은 `STAR_CANDY`, `BONUS_STAR_CANDY`, `COTTON_CANDY`; operation/inbox 상태는 대문자다.
@@ -124,7 +127,7 @@ Assert `candy_history_type` contains all four reason values, `wallet_currency` c
 - [ ] **Step 3: Observe missing reason values**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_promotion_enum_contract.test.sql
 ```
 
@@ -140,7 +143,7 @@ alter type public.candy_history_type add value if not exists 'CORRECTION';
 ```
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_promotion_enum_contract.test.sql
 git add supabase/migrations/20260721100000_wallet_promotion_reason_enums.sql supabase/tests/wallet_promotion_enum_contract.test.sql
 git commit -m "feat(wallet): add promotion ledger reasons"
@@ -165,7 +168,7 @@ Test A receive replay/conflict, B lease increment/token rotation, B success CAS,
 - [ ] **Step 2: Observe missing inbox schema**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_inbox_state_machine.test.sql
 ```
 
@@ -215,7 +218,7 @@ Audit fields are the design-required actor/role/action/resource/operation/reques
 - [ ] **Step 4: Apply privilege/immutability guards, verify, and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_inbox_state_machine.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_audit_alert_schema.test.sql
 git add supabase/migrations/20260721100500_wallet_inbox_audit_alert_schema.sql supabase/tests/wallet_inbox_state_machine.test.sql supabase/tests/wallet_audit_alert_schema.test.sql
@@ -241,7 +244,7 @@ Cover KST Monday 00 inclusive, Wednesday 00 exclusive, Sunday/Monday UTC crossin
 - [ ] **Step 2: Observe failure before campaign schema**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/promotion_campaign_evaluator.test.sql
 ```
 
@@ -278,7 +281,7 @@ from public.promotion_campaign_versions;
 - [ ] **Step 4: Verify and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/promotion_campaign_constraints.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/promotion_campaign_evaluator.test.sql
 git add supabase/migrations/20260721101000_promotion_campaign_schema.sql supabase/tests/promotion_campaign_evaluator.test.sql supabase/tests/promotion_campaign_constraints.test.sql
@@ -306,7 +309,7 @@ Assert purchase natural-key uniqueness, same-payload replay versus canonical-pay
 - [ ] **Step 2: Observe missing snapshot/debt tables**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/purchase_reward_schema.test.sql
 ```
 
@@ -361,7 +364,7 @@ Task 8 adds the deferred composite FK and partial unique index for `source_refun
 - [ ] **Step 5: Verify privilege guards and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/purchase_reward_schema.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_debt_debit_schema.test.sql
 git add supabase/migrations/20260721101500_purchase_reward_schema.sql supabase/migrations/20260721102000_wallet_recovery_debt_schema.sql supabase/migrations/20260721102500_wallet_debit_repair_schema.sql supabase/tests/purchase_reward_schema.test.sql supabase/tests/wallet_debt_debit_schema.test.sql
@@ -386,7 +389,7 @@ Cover full/partial offset, multiple debts oldest-first, Star never offsets Bonus
 - [ ] **Step 2: Observe debt offset remains zero**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_debt_aware_credit.test.sql
 ```
 
@@ -430,7 +433,7 @@ end loop;
 After concurrency passes, mark mutation route `debt_recovery` migrated with `wallet_debt_aware_credit.test.sql` evidence.
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_debt_aware_credit.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_credit_source_coverage.test.sql
 git add supabase/migrations/20260721103000_wallet_debt_aware_credit.sql supabase/tests/wallet_debt_aware_credit.test.sql
@@ -469,7 +472,7 @@ Cover mobile `star_candy_bonus` versus web `web_bonus_amount`, product-derived u
 - [ ] **Step 2: Observe command absence**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/grant_verified_purchase.test.sql
 ```
 
@@ -603,7 +606,7 @@ Mark credit sources and mutation routes `mobile_purchase` and `web_purchase` mig
 - [ ] **Step 6: Verify and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/grant_verified_purchase.test.sql
 deno test --allow-all supabase/functions/tests/wallet/purchase-settlement.test.ts
 git add supabase/migrations/20260721103500_purchase_settlement_commands.sql supabase/tests/grant_verified_purchase.test.sql supabase/functions/verify_receipt/index.ts supabase/functions/wallet-provider-event/index.ts supabase/functions/wallet-operation-worker/index.ts supabase/functions/_shared/wallet/purchase-provider-verifiers.ts supabase/functions/tests/wallet/purchase-settlement.test.ts
@@ -629,7 +632,7 @@ Test exact integer values around division remainders; only provider occurred tim
 - [ ] **Step 2: Observe missing resolution command**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/purchase_promotion_commands.test.sql
 ```
 
@@ -655,7 +658,7 @@ After the race test passes, mark mutation route `promotion_award` migrated with 
 - [ ] **Step 4: Verify both lock orders and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/purchase_promotion_commands.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/purchase_promotion_race.test.sql
 git add supabase/migrations/20260721104000_purchase_promotion_commands.sql supabase/tests/purchase_promotion_commands.test.sql supabase/tests/purchase_promotion_race.test.sql
@@ -683,7 +686,7 @@ For each base component use `new_target = floor(original_gross * cumulative_nume
 - [ ] **Step 2: Observe missing refund command**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/refund_verified_purchase.test.sql
 ```
 
@@ -744,7 +747,7 @@ RTDN verifies package/subscription/product token and provider refund state/time 
 - [ ] **Step 5: Run race and Edge verification, then commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/refund_verified_purchase.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/refund_credit_concurrency.test.sql
 deno test --allow-all supabase/functions/tests/wallet/refund-settlement.test.ts
@@ -772,7 +775,7 @@ Test non-admin denial, inactive whitelist denial, Operator/Finance/Super actor c
 - [ ] **Step 2: Observe missing actor context**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_admin_reads.test.sql
 ```
 
@@ -831,7 +834,7 @@ The assignment matrix is exact: Operator gets the first four keys; Finance Admin
 - [ ] **Step 5: Verify and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_admin_reads.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_admin_cursor.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_admin_read_shape_contract.test.sql
@@ -859,7 +862,7 @@ Operator: reads, alert ACK, retry enqueue, preview only. Finance: bounded Star/B
 - [ ] **Step 2: Observe missing fixed commands**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_admin_commands.test.sql
 ```
 
@@ -982,7 +985,7 @@ Add a migration test that snapshots `admin_user_roles` before role/capability se
 - [ ] **Step 5: Verify exact privilege matrix and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_admin_commands.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_admin_rbac_privileges.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_credit_source_coverage.test.sql
@@ -1023,7 +1026,7 @@ end $$;
 - [ ] **Step 2: Run the handoff contract after Task 10**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_admin_wrapper_handoff.test.sql
 ```
 
@@ -1063,7 +1066,7 @@ Cover receive commit then crash, lease expiry takeover, stale B and C CAS reject
 - [ ] **Step 2: Observe worker behavior gaps**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_ops_cron_alerts.test.sql
 deno test --allow-all supabase/functions/tests/wallet/operation-worker.test.ts
 ```
@@ -1105,7 +1108,7 @@ for (const lease of leases) {
 - [ ] **Step 4: Verify and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_ops_cron_alerts.test.sql
 deno test --allow-all supabase/functions/tests/wallet/operation-worker.test.ts
 git add supabase/migrations/20260721110500_wallet_ops_cron_jobs.sql supabase/tests/wallet_ops_cron_alerts.test.sql supabase/functions/wallet-operation-worker/index.ts supabase/functions/wallet-reconciliation/index.ts supabase/functions/tests/wallet/operation-worker.test.ts
@@ -1130,7 +1133,7 @@ Create a user with Cotton grant/spend, purchase/promo/refund, debt/recovery, inb
 - [ ] **Step 2: Prove the early compatibility works but completion checks still fail**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_account_anonymization.test.sql
 ```
 
@@ -1155,7 +1158,7 @@ values(p_user_id,'SYSTEM','ANONYMIZE_ACCOUNT','USER_PROFILE',p_user_id::text,p_r
 - [ ] **Step 4: Verify fresh and populated upgrades, then commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_account_anonymization.test.sql
 supabase db lint
 git add supabase/migrations/20260721111000_wallet_account_anonymization.sql supabase/tests/wallet_account_anonymization.test.sql
@@ -1173,7 +1176,14 @@ Expected: tests/lint exit 0; populated financial provenance survives and PII que
 - Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/wallet/export_contract_fixtures.mjs`
 - Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/wallet/verify_contract_checksums.mjs`
 - Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/wallet/verify_release_gate.mjs`
+- Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/safety/assert-production-release.mjs`
+- Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/safety/assert-production-release.test.mjs`
+- Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/safety/assert-production-read.mjs`
+- Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/safety/assert-production-read.test.mjs`
+- Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/wallet/verify_production_readonly.sql`
 - Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/ops/wallet/cotton-candy-v1-release-manifest.yaml`
+- Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/ops/wallet/cotton-candy-v1-functions.txt`
+- Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/.github/workflows/wallet-production-rollout.yml`
 - Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/supabase/tests/wallet/contracts/manifest.json`
 - Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/supabase/tests/wallet/contracts/fixtures/*.json`
 - Modify: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/supabase/functions/_shared/database.types.ts`
@@ -1189,15 +1199,43 @@ Flags are `candy_boost_write_enabled`, `debt_recovery_enabled`, `refund_reversal
 - [ ] **Step 2: Observe blocked defaults**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_promotion_release_gates.test.sql
 ```
 
 Expected: test proves all write flags default false and an invalid refund enable attempt fails with `WALLET_RELEASE_GATE_BLOCKED`.
 
-- [ ] **Step 3: Implement versioned implications and NO-GO manifest**
+- [ ] **Step 3: Implement versioned implications and two-stage NO-GO manifest**
 
-Extend the core runtime flag command, never update flags directly. Manifest requires credit and lock coverage 100; duplicate operations, negative balances, invariant mismatch, audit missing, cursor fixture mismatch all 0; worker heartbeat fresh; finance/backend/CS approvals false until humans set them. Gate verifier returns non-zero until every condition is observed.
+Extend the core runtime flag command, never update flags directly. Manifest requires credit and lock coverage 100; duplicate operations, negative balances, invariant mismatch, audit missing, cursor fixture mismatch all 0; worker heartbeat fresh; finance/backend/CS approvals false until humans set them. It also records `deployment_stage: blocked|dark_launch_ready|activation_ready`, exact production commit SHA, a non-production staging ref, environment-isolation evidence, tracked-link cleanup, Admin credential rotation, Preview evidence, and separate dark-launch/activation approvals. It contains references/checksums only, never credential values.
+
+`verify_release_gate.mjs --stage dark-launch` succeeds with `DARK-LAUNCH-GO: cotton-candy-v1` only when additive migrations passed local/staging tests and dry-run, rollback rehearsal is complete, production SHA is exact, security/backend deploy approvals exist, and every new runtime flag is false. `--stage activation` additionally requires the original 24-hour/coverage/invariant/Finance·Backend·CS gates and returns `GO: cotton-candy-v1`. A dark-launch-ready manifest must still fail activation verification.
+
+The manifest starts fail-closed:
+
+```yaml
+release: cotton-candy-v1
+status: blocked
+deployment_stage: blocked
+target_environment: production
+production_commit_sha: null
+staging_project_ref: null
+environment_isolation:
+  app_nonprod_differs_from_production: false
+  admin_preview_uses_staging: false
+  tracked_link_metadata_removed: false
+  admin_tracked_env_removed: false
+  production_credentials_rotated: false
+dark_launch:
+  migration_dry_run_passed: false
+  all_new_flags_false: true
+  release_security_approval: null
+  backend_deploy_approval: null
+activation:
+  product_finance_approval: null
+  backend_approval: null
+  cs_oncall_approval: null
+```
 
 ```sql
 if (p_changes->>'refund_reversal_enabled')::boolean then
@@ -1227,7 +1265,7 @@ end if;
 - [ ] **Step 4: Generate contracts to temporary files and reconcile**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 supabase gen types typescript --local > /tmp/picnic-wallet-promotion-types.ts
 diff -u supabase/functions/_shared/database.types.ts /tmp/picnic-wallet-promotion-types.ts
 node scripts/wallet/export_contract_fixtures.mjs \
@@ -1251,19 +1289,41 @@ Runbook order:
 
 1. Dark-deploy schema/read/inbox/workers with all new write flags false; require two clean reconciliation scans and fresh heartbeats.
 2. Shadow provider purchase events and campaign evaluation for 24 hours; require provider-time/version/base/promo agreement 100% and base purchase regression 0.
-3. Use the audited private assignment procedure to explicitly assign at least two distinct active-whitelisted Super Admins, one Finance Admin, and one Operator; the same person may not satisfy both Super slots. Record human approver identities in the runbook without secrets.
-4. Enable debt recovery after credit source and lock coverage reach 100; prove net-zero/partial recovery samples and no cross-currency recovery.
-5. Enable Candy Boost write for 5%, 25%, 100%; at each gate require duplicate award 0, invariant mismatch 0, inbox DEAD rate below 0.1% excluding permanent provider rejects.
+3. Use the audited private assignment procedure to explicitly assign at least two distinct active-whitelisted Super Admins, one Finance Admin, and one Operator; the same person may not satisfy both Super slots. Record human approver identities in the runbook without secrets. Keep every production flag false.
+4. Complete rollback rehearsal and run `verify_release_gate.mjs --stage activation`; no production flag change is allowed while it returns NO-GO.
+5. Only after full `GO: cotton-candy-v1`, enable debt recovery after credit source and lock coverage reach 100; prove net-zero/partial recovery samples and no cross-currency recovery.
 6. After admin command UI is deployed and direct writer probes fail, enable admin commands only if the assignment/whitelist gate above still passes; verify role matrix, audit rollback, alert ACK.
-7. Enable refund reversal only after the implication command passes; canary verified full/partial refunds and require allocation equation mismatch 0.
-8. Enable surfaces last; creative missing hides surface and opens alert.
+7. Enable Candy Boost write for 5%, 25%, 100%; at each gate require duplicate award 0, invariant mismatch 0, inbox DEAD rate below 0.1% excluding permanent provider rejects.
+8. Enable refund reversal only after the implication command passes; canary verified full/partial refunds and require allocation equation mismatch 0. Enable surfaces last; creative missing hides surface and opens alert.
 9. Rollback pauses write/source flags and workers only when safe; keep inbox intake, debt recovery, expiry, reconciliation, read RPCs, and immutable evidence. Never delete or restore over ledgers.
 
-- [ ] **Step 6: Run full, property, concurrency, and privilege verification**
+- [ ] **Step 6: Add and test the only production deployment path**
+
+Write `assert-production-release.test.mjs` and `assert-production-read.test.mjs` first. The release test must prove local shell, non-`workflow_dispatch`, non-`main`, SHA mismatch, manifest hash mismatch, production-ref mismatch, missing approval reference, non-clean checkout, and any true runtime flag all fail. It also parses the complete workflow and rejects any unqualified `db push`, `migration up`, `functions deploy`, generic production DB variable, or `--no-confirm`; safe occurrences must carry the explicit linked/project-ref/read-only controls. The read test must reject generic/writable DB URLs, missing approval, non-readonly mode, and any role with financial INSERT/UPDATE/DELETE privilege. Test fixtures include sentinel secrets and assert they never appear in output. Then implement both guards without accepting a bypass flag.
+
+`wallet-production-rollout.yml` is `workflow_dispatch` only and has three jobs:
+
+1. `static-preflight` checks out the input SHA, fetches `origin/main`, requires `HEAD == input SHA == origin/main`, verifies a clean tree, verifies the caller-supplied SHA-256 of the committed manifest, runs `npm ci`, safety tests, local/staging evidence checks, and `verify_release_gate.mjs --stage dark-launch`. It has no production secret.
+2. `deploy` depends on preflight and uses a protected `production` GitHub Environment with required reviewers. It runs the production assertion again, creates an ephemeral link with the protected production project ref, compares `.temp/project-ref` without printing it, runs `supabase db push --dry-run --linked`, then `supabase db push --linked`. It deploys only the reviewed non-empty function allowlist, each with `supabase functions deploy "$function" --project-ref "$PICNIC_PRODUCTION_SUPABASE_PROJECT_REF"`. Bare deploy/push and `--no-confirm` are forbidden by a static test.
+3. `post-deploy-readonly` uses a separate protected `production-read` environment and `PICNIC_PRODUCTION_READONLY_DB_URL`. It opens a read-only transaction, proves the current role has no INSERT/UPDATE/DELETE on wallet/financial tables, checks expected migration versions and all new runtime flags false, then records the exact workflow run/SHA/manifest checksum as evidence.
+
+The workflow never enables a runtime flag. Feature activation remains an audited Admin/DB command after `verify_release_gate.mjs --stage activation` returns full GO. Rollback is code/flag forward-control only; no down migration, ledger deletion, or snapshot restore command appears in the workflow. Do not execute this workflow from the feature branch.
+
+Run:
 
 ```bash
-supabase db reset
-supabase test db
+node --test scripts/safety/assert-production-release.test.mjs scripts/safety/assert-production-read.test.mjs
+rg -n 'workflow_dispatch|environment: production|db push --dry-run --linked|db push --linked|functions deploy.*--project-ref' .github/workflows/wallet-production-rollout.yml
+if rg -n -P -- 'supabase migration up|supabase db push(?!.*--linked)|supabase functions deploy(?!.*--project-ref)|--no-confirm|SUPABASE_DB_URL' .github/workflows scripts package.json; then exit 1; fi
+```
+
+Expected: safety tests exit 0; required workflow controls are present; unsafe command scan finds 0. GitHub protected-environment reviewer settings and the Vercel Production Branch are external evidence items and remain NO-GO until an authorized operator verifies them.
+
+- [ ] **Step 7: Run full, property, concurrency, and privilege verification**
+
+```bash
+npm run wallet:db:reset
+npm run test:wallet:sql
 deno test --allow-all supabase/functions/tests
 deno check supabase/functions/wallet-provider-event/index.ts supabase/functions/wallet-operation-worker/index.ts
 npm run test:wallet
@@ -1274,13 +1334,13 @@ git status --short
 
 Expected before human approvals: tests/checks exit 0, verifier exits 1 with approval-only NO-GO, status has intended files and no `.gitignore`. Property suite uses 100 fixed seeds × 200 operations; each concurrency case runs 100 times; duplicate/negative/invariant counts remain 0; vote p95 regression stays below 20%.
 
-- [ ] **Step 7: Commit release evidence**
+- [ ] **Step 8: Commit release evidence**
 
 ```bash
-git add supabase/migrations/20260721111500_wallet_promotion_release_gates.sql supabase/tests/wallet_promotion_release_gates.test.sql supabase/tests/wallet/contracts/manifest.json supabase/tests/wallet/contracts/fixtures scripts/wallet/export_contract_fixtures.mjs scripts/wallet/verify_contract_checksums.mjs scripts/wallet/verify_release_gate.mjs ops/wallet/cotton-candy-v1-release-manifest.yaml supabase/functions/_shared/database.types.ts docs/wallet/promotion-ops-rollout-runbook.md
+git add .github/workflows/wallet-production-rollout.yml supabase/migrations/20260721111500_wallet_promotion_release_gates.sql supabase/tests/wallet_promotion_release_gates.test.sql supabase/tests/wallet/contracts/manifest.json supabase/tests/wallet/contracts/fixtures scripts/safety/assert-production-release.mjs scripts/safety/assert-production-release.test.mjs scripts/safety/assert-production-read.mjs scripts/safety/assert-production-read.test.mjs scripts/wallet/export_contract_fixtures.mjs scripts/wallet/verify_contract_checksums.mjs scripts/wallet/verify_release_gate.mjs scripts/wallet/verify_production_readonly.sql ops/wallet/cotton-candy-v1-release-manifest.yaml ops/wallet/cotton-candy-v1-functions.txt supabase/functions/_shared/database.types.ts docs/wallet/promotion-ops-rollout-runbook.md
 git commit -m "chore(wallet): gate promotion and refund rollout"
 ```
 
-- [ ] **Step 8: Request independent review and rerun evidence**
+- [ ] **Step 9: Request independent review and rerun evidence**
 
 Use `superpowers:requesting-code-review`. Reviewer checks purchase gross provenance, provider time, campaign versioning, inbox fencing, refund integer math, debt recovery, admin fixed RPC names, role/approval/audit, alert lifecycle, anonymization, raw privilege revocation, and rollout implications. After fixes rerun Step 6. Implementation handoff records migration `20260721111500`, flag versions, coverage, invariant count, worker health, and approval state.

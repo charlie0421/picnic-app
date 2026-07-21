@@ -11,6 +11,9 @@
 ## Global Constraints
 
 - 구현 저장소는 `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine`, branch `feat/cotton-candy-engine`이다. rollout master가 만든 이 단일 worktree를 사용하고 별도 core worktree/branch를 만들지 않는다.
+- production Supabase project ref `xtijtefcycoeqludlngc`는 이 worktree의 denylist다. `supabase/.env`, `.env*`, `supabase/.temp`, linked metadata를 원본에서 복사하지 않으며 local command는 `localhost|127.0.0.1` API `54321`/DB `54322`만 허용한다.
+- feature worktree에서 bare/linked `supabase db push`, `supabase migration up`, `supabase functions deploy`, unknown/production `--db-url`, generic `psql "$SUPABASE_DB_URL"`를 실행하지 않는다. local DB reset/test는 반드시 `npm run wallet:db:reset`/guarded package script를 사용한다.
+- staging project가 production과 다른 ref로 별도 제공되기 전에는 remote integration을 실행하지 않는다. production schema/function 배포는 이 계획 밖의 protected manual workflow만 수행하며 모든 신규 flag를 false로 유지한다.
 - 잠금 순서는 user advisory lock → `public.user_profiles` row → domain/currency bucket이다. 다중 사용자는 UUID 문자열 오름차순으로 단일 사용자 잠금을 모두 획득한다.
 - 앱·관리자·공급자는 금액, 만료시각, campaign 결과를 결정하지 않는다. DB가 상품·정책·서버 고정시각으로 계산한다.
 - 모든 금융 명령은 전역 `operation_key`가 유일하다. provider inbox는 `(operation_type,idempotency_key)`가 유일하다. 같은 key/같은 payload는 저장 결과를 반환하고, 같은 key/다른 payload는 `OP_IDEMPOTENCY_CONFLICT`로 실패한다.
@@ -64,9 +67,12 @@ Migrations deploy in this exact order:
 
 - Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/docs/wallet/cotton-wallet-contract.md`
 - Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/supabase/tests/wallet_contract.test.sql`
+- Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/safety/assert-wallet-target.mjs`
+- Create: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/scripts/safety/assert-wallet-target.test.mjs`
+- Modify: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/supabase/config.toml`
 - Modify: `/Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine/package.json`
 
-**Interfaces:** Produces the exact names above as schema assertions; consumes existing `supabase db reset`, `supabase test db`, and Deno conventions.
+**Interfaces:** Produces the exact names above as schema assertions and a fail-closed local target guard; consumes guarded Supabase local CLI and Deno conventions.
 
 - [ ] **Step 1: Verify the rollout master's shared worktree**
 
@@ -79,7 +85,45 @@ cd /Users/charlie.hyun/Repositories/picnic-supabase-cotton-candy-engine && npm i
 
 Expected: branch는 `feat/cotton-candy-engine`, npm exit 0, status에 `.gitignore` 변경이 없다.
 
-- [ ] **Step 2: Write the failing schema contract**
+- [ ] **Step 2: Write failing production-target isolation tests**
+
+Node test는 temporary fixture만 사용해 다음을 먼저 고정한다.
+
+- `supabase/config.toml`의 `project_id`가 production ref면 exit 1.
+- `supabase/.temp/project-ref`, `SUPABASE_ACCESS_TOKEN`, production/unknown remote URL 또는 production ref 환경변수 중 하나라도 있으면 exit 1.
+- local mode는 API `127.0.0.1|localhost:54321`, DB `127.0.0.1|localhost:54322`, non-production local `project_id`만 통과한다.
+- failure에는 변수명/원인만 출력하고 URL, token, key, password 값은 출력하지 않는다. fixture sentinel `do-not-print-secret`가 stdout/stderr에 없어야 한다.
+
+Run: `node --test scripts/safety/assert-wallet-target.test.mjs`
+
+Expected: guard 구현 전 module-not-found 또는 assertion failure로 exit 1.
+
+- [ ] **Step 3: Implement the local-only target guard and guarded scripts**
+
+`assert-wallet-target.mjs --mode local`은 realpath가 지정 worktree 아래인지 확인하고, `supabase/config.toml`을 parse해 local port와 non-production `project_id`를 검증한다. `.temp/project-ref`는 값과 무관하게 존재 자체를 거부한다. 알려진 production ref/host, remote access token, non-local DB/API URL을 감지하면 secret 값 없이 `NO-GO: unsafe Supabase target (<source-name>)`만 출력하고 exit 1한다. unknown mode도 거부한다.
+
+`supabase/config.toml`의 local-only `project_id`는 `picnic-local`로 바꾼다. production workflow는 이 값을 target 식별에 사용하지 않고 protected secret의 exact project ref를 별도로 검증한다.
+
+Add to `package.json`:
+
+```json
+{
+  "scripts": {
+    "guard:wallet:local": "node scripts/safety/assert-wallet-target.mjs --mode local",
+    "test:wallet:safety": "node --test scripts/safety/assert-wallet-target.test.mjs",
+    "wallet:db:reset": "npm run guard:wallet:local && supabase db reset",
+    "test:wallet:sql": "npm run guard:wallet:local && supabase test db",
+    "test:wallet:edge": "npm run guard:wallet:local && deno test --allow-all supabase/functions/tests/wallet",
+    "test:wallet": "npm run test:wallet:safety && npm run test:wallet:sql && npm run test:wallet:edge"
+  }
+}
+```
+
+Run: `npm run test:wallet:safety && npm run guard:wallet:local`
+
+Expected: tests와 guard exit 0. production ref/link/remote credential fixture를 각각 주입한 negative test는 exit 1이며 secret sentinel 출력은 0건이다.
+
+- [ ] **Step 4: Write the failing schema contract**
 
 `wallet_contract.test.sql`에 다음을 넣는다.
 
@@ -100,29 +144,23 @@ end $$;
 rollback;
 ```
 
-- [ ] **Step 3: Prove it fails**
+- [ ] **Step 5: Prove it fails on the guarded local database**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_contract.test.sql
 ```
 
 Expected: reset succeeds; focused test exits non-zero with `wallet_private schema missing`.
 
-- [ ] **Step 4: Add deterministic scripts and contract prose**
-
-Add to `package.json`:
-
-```json
-{"scripts":{"test:wallet:sql":"supabase test db","test:wallet:edge":"deno test --allow-all supabase/functions/tests/wallet","test:wallet":"npm run test:wallet:sql && npm run test:wallet:edge"}}
-```
+- [ ] **Step 6: Add contract prose**
 
 The contract document records exact signatures, lock order, domain errors, claim keys, and rollout implications from this plan.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add package.json docs/wallet/cotton-wallet-contract.md supabase/tests/wallet_contract.test.sql
+git add package.json supabase/config.toml scripts/safety/assert-wallet-target.mjs scripts/safety/assert-wallet-target.test.mjs docs/wallet/cotton-wallet-contract.md supabase/tests/wallet_contract.test.sql
 git commit -m "test(wallet): define cotton wallet contract"
 ```
 
@@ -158,7 +196,7 @@ In `wallet_account_anonymization_compatibility.test.sql`, run the currently depl
 - [ ] **Step 2: Run and observe the missing table**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_operation_idempotency.test.sql
 ```
 
@@ -250,7 +288,7 @@ Seed mutation routes `core_positive_credit`, `general_vote_v3`, `legacy_general_
 - [ ] **Step 7: Verify and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_account_anonymization_compatibility.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_operation_idempotency.test.sql
 git add supabase/migrations/20260721090000_wallet_core_roles_types.sql supabase/migrations/20260721090200_wallet_account_anonymization_compatibility.sql supabase/migrations/20260721090500_wallet_core_operation_schema.sql supabase/tests/wallet_account_anonymization_compatibility.test.sql supabase/tests/wallet_operation_idempotency.test.sql
@@ -286,7 +324,7 @@ Identical replay returns same operation ID and `replayed=true`; amount 11 with t
 - [ ] **Step 2: Prove locks are absent**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_locking.test.sql
 ```
 
@@ -332,7 +370,7 @@ Validate registered source/nonnegative amounts; acquire user lock; SHA-256 a fix
 - [ ] **Step 5: Verify and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_locking.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_credit_command.test.sql
 git add supabase/migrations/20260721091000_wallet_core_locks_and_credit.sql supabase/tests/wallet_locking.test.sql supabase/tests/wallet_credit_command.test.sql
@@ -358,7 +396,7 @@ Fixture profile/bucket at 3; deduct 4 and assert the transaction fails with unch
 - [ ] **Step 2: Observe the current fail-open behavior**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/bonus_strictness.test.sql
 ```
 
@@ -385,8 +423,8 @@ Override Bonus expiry/consolidation wrappers to acquire the same user lock and m
 - [ ] **Step 4: Run all legacy SQL tests and commit**
 
 ```bash
-supabase db reset
-supabase test db
+npm run wallet:db:reset
+npm run test:wallet:sql
 git add supabase/migrations/20260721091500_wallet_core_bonus_strictness.sql supabase/tests/bonus_strictness.test.sql supabase/tests/bonus_projection_consistency.test.sql
 git commit -m "fix(wallet): enforce strict bonus projection"
 ```
@@ -433,7 +471,7 @@ where source_key in ('attendance_check','vote_share_bonus','gift_reward','missio
 - [ ] **Step 4: Verify coverage and callsites**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_credit_source_coverage.test.sql
 deno test --allow-all supabase/functions/tests/ad supabase/functions/tests/attendance
 rg -n "star_candy(_bonus)?\s*[:=]|from\(['\"]star_candy_(bonus_)?history" supabase/functions
@@ -471,7 +509,7 @@ end $$;
 - [ ] **Step 2: Prove the schema is absent**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/cotton_schema.test.sql
 ```
 
@@ -528,7 +566,7 @@ Test `2026-07-20T14:59:59Z`, `2026-07-20T15:00:00Z`, and Seoul's DST-independent
 - [ ] **Step 5: Verify and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/cotton_schema.test.sql
 git add supabase/migrations/20260721092500_wallet_core_cotton_schema.sql supabase/tests/cotton_schema.test.sql
 git commit -m "feat(wallet): add cotton grant ledger"
@@ -566,7 +604,7 @@ end $$;
 - [ ] **Step 2: Prove grant is absent**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/cotton_commands.test.sql
 ```
 
@@ -652,7 +690,7 @@ Both handlers require `X-Cron-Secret`, call exactly one service-only batch RPC, 
 - [ ] **Step 6: Verify and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/cotton_commands.test.sql
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/cotton_expiry_reconciliation.test.sql
 deno test --allow-all supabase/functions/tests/wallet/expiry-worker.test.ts
@@ -693,7 +731,7 @@ end $$;
 - [ ] **Step 2: Observe missing v3**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/vote_v3.test.sql
 ```
 
@@ -756,7 +794,7 @@ The Edge test and `vote_result_v3` contract fixture assert all four legacy field
 - [ ] **Step 5: Verify and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/vote_v3.test.sql
 deno test --allow-all supabase/functions/tests/wallet/voting-v3.test.ts
 git add supabase/migrations/20260721094000_wallet_core_vote_v3.sql supabase/tests/vote_v3.test.sql supabase/functions/voting-v2/vote-logic.ts supabase/functions/voting-v2/db.ts supabase/functions/voting-v2/index.ts supabase/functions/tests/wallet/voting-v3.test.ts
@@ -894,7 +932,7 @@ Pangle remains provider SSV. SSV verifies provider signature, opaque-token HMAC,
 - [ ] **Step 5: Verify and commit**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/ad_reward_claims.test.sql
 deno test --allow-all supabase/functions/tests/wallet/ad-reward-claim.test.ts supabase/functions/tests/wallet/ad-shortform-issue.test.ts supabase/functions/tests/wallet/pangle-settlement.test.ts
 git add supabase/migrations/20260721094500_wallet_core_ad_claims.sql supabase/tests/ad_reward_claims.test.sql supabase/functions/_shared/wallet supabase/functions/ad-reward-claim supabase/functions/ad-reward-status supabase/functions/ad-shortform-issue/index.ts supabase/functions/callback-ad-shortform-view/index.ts supabase/functions/callback-pangle/index.ts supabase/functions/_shared/ad/platforms/pangle-service.ts supabase/functions/tests/wallet/ad-reward-claim.test.ts supabase/functions/tests/wallet/ad-shortform-issue.test.ts supabase/functions/tests/wallet/pangle-settlement.test.ts
@@ -929,7 +967,7 @@ end $$;
 - [ ] **Step 2: Observe missing reads**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_app_reads.test.sql
 ```
 
@@ -964,7 +1002,7 @@ Each `SECURITY DEFINER SET search_path=''` derives non-null `auth.uid()` and sel
 - [ ] **Step 4: Generate and reconcile Edge types**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 supabase gen types typescript --local > /tmp/picnic-supabase-wallet-types.ts
 diff -u supabase/functions/_shared/database.types.ts /tmp/picnic-supabase-wallet-types.ts
 ```
@@ -1001,7 +1039,7 @@ Exact keys are `wallet.cotton_read_enabled`, `wallet.cotton_spend_enabled`, `wal
 - [ ] **Step 2: Observe missing gate state**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -f supabase/tests/wallet_release_gates.test.sql
 ```
 
@@ -1031,20 +1069,19 @@ alter table public.user_profiles validate constraint user_profiles_star_candy_bo
 
 Runbook order:
 
-1. Deploy migrations 1–8 with flags false; full SQL suite plus two clean reconciliation scans.
-2. Deploy vote/read; enable `wallet.cotton_read_enabled`, then `wallet.cotton_spend_enabled` at 5%, 25%, 100%, requiring zero double-spend/invariant defects.
-3. Enable `wallet.cotton_expiry_enabled`; require two expiry intervals and one reconciliation interval before any Cotton reward mode.
-4. Shadow Shortform/Pangle settlement 24 hours and compare verified versus would-credit counts.
-5. Set `ads.internal_reward_mode=cotton` at 5%, 25%, 100%; duplicate credit 0 and non-provider failure below 0.5%.
-6. Move `ads.pangle_claim_mode` shadow→optional→required and set `ads.pangle_reward_mode=cotton` at 5%, 25%, 100% with environment-separated keys and the same thresholds.
-7. Enable `ads.cotton_popup_enabled` only after acknowledgement recovery fixtures pass.
-8. Rollback sets reward modes to `paused` or `bonus` and disables popup first; it never deletes ledger/grants and keeps spend/expiry/reconciliation active. Expiry cannot be disabled after the first live grant.
+1. Deploy migrations 1–8 with flags false; full SQL suite plus two clean reconciliation scans. This is additive dark launch only.
+2. Deploy vote/read and verify the read RPC with zero live Cotton writes. Do not open `wallet.cotton_read_enabled` or `wallet.cotton_spend_enabled` for a live cohort here; activation is owned by promotion Task 14 after full `GO`.
+3. Keep `wallet.cotton_expiry_enabled`, all reward modes, Pangle claim mode, popup, and every new source/write flag false in production. Local/staging may exercise them with environment-separated keys.
+4. Shadow Shortform/Pangle settlement in staging for 24 hours and compare verified versus would-credit counts; no production reward is emitted.
+5. Prove the 5%→25%→100% implication procedure in local/staging fixtures only, including expiry, acknowledgement recovery, and rollback.
+6. Hand off migration checksums, worker health, reconciliation evidence, and the flag-off assertion to promotion Task 14's protected dark-launch workflow.
+7. Rollback keeps read/inbox/reconciliation evidence and never deletes ledger/grants. Production feature activation and any cohort flag change are forbidden until `verify_release_gate.mjs --stage activation` returns full `GO`.
 
 - [ ] **Step 7: Run complete verification and commit**
 
 ```bash
-supabase db reset
-supabase test db
+npm run wallet:db:reset
+npm run test:wallet:sql
 deno test --allow-all supabase/functions/tests
 deno check supabase/functions/voting-v2/index.ts supabase/functions/ad-reward-claim/index.ts supabase/functions/ad-reward-status/index.ts supabase/functions/wallet-expiry-worker/index.ts supabase/functions/wallet-reconciliation/index.ts
 git diff --check
@@ -1071,7 +1108,7 @@ Use `superpowers:requesting-code-review`. Check lock order, replay, strict Bonus
 - [ ] **Step 2: Re-run evidence after every review fix**
 
 ```bash
-supabase db reset
+npm run wallet:db:reset
 npm run test:wallet
 git diff --check
 git log --oneline --decorate -12

@@ -11,6 +11,10 @@
 ## Global Constraints
 
 - 승인 설계는 <code>docs/superpowers/specs/2026-07-21-cotton-candy-and-candy-boost-design.md</code>다. 계약 충돌이 발견되면 구현을 멈추고 설계 변경 승인을 받는다.
+- 현재 <code>config/dev.json</code>·<code>config/local.json</code>의 Supabase URL/anon/storage tuple은 <code>prod.json</code>과 같고 root <code>supabase/.temp/**</code>·<code>.branches/**</code>가 추적 중이므로 Task 0이 통과하기 전 network integration, device test, Preview, production build는 **NO-GO**다. staging 미구성 시 production으로 fallback하지 않는다.
+- production ref <code>xtijtefcycoeqludlngc</code>는 local/dev denylist다. <code>local</code>은 local Supabase만, <code>dev</code>는 별도 staging만 사용하고 production config와 tuple 항목 하나라도 같으면 build/test guard가 exit 1한다.
+- 추적된 mobile config의 privileged-looking key 이름(예: AWS access/secret fields)은 별도 보안 감사 대상이다. 실제 privileged credential이면 서버 측 signed flow로 이전하고 회전 evidence를 남기기 전 production release를 만들지 않는다. 값은 log·fixture·manifest에 출력하거나 복사하지 않는다.
+- Codemagic tag, Shorebird patch, AWS/Lambda, Supabase copy/deploy는 exact <code>origin/main</code> SHA와 사람 승인 reference를 검증하는 protected CI만 허용한다. feature worktree와 local shell에서는 production 명령을 항상 거부한다.
 - 사용자 노출명은 <code>스타캔디</code>, <code>보너스 스타캔디</code>, <code>코튼캔디</code>, <code>캔디 부스트 데이</code>다. 한국어 일반명 “솜사탕”은 코드, ARB, 접근성 label, fixture에 추가하지 않는다.
 - 재화 순서는 모든 wallet·투표·정책 UI에서 <code>STAR_CANDY → BONUS_STAR_CANDY → COTTON_CANDY</code>다. 일반 투표 서버 차감 순서만 <code>COTTON_CANDY → BONUS_STAR_CANDY → STAR_CANDY</code>다.
 - 일반 <code>VotePortal.vote</code>만 Cotton spend 대상이다. PIC는 <code>pic-voting-v2</code>, JMA는 <code>jma-voting-v2</code>, Goonghap은 현재 writer와 Star/Bonus 정책을 그대로 유지한다.
@@ -96,6 +100,118 @@ internal_shortform_view = {
 - Generated/localized: <code>app_en.arb</code>, <code>app_ko.arb</code>, generated <code>app_localizations*.dart</code> and <code>lib/generated/providers/**</code>.
 
 ---
+
+### Task 0: Non-production Environment and Release Isolation
+
+**Files:**
+- Create: <code>picnic_app/tool/verify_environment_isolation.dart</code>
+- Create: <code>picnic_app/test/config/environment_isolation_test.dart</code>
+- Create: <code>picnic_lib/lib/core/config/supabase_environment_policy.dart</code>
+- Create: <code>picnic_lib/test/core/config/supabase_environment_policy_test.dart</code>
+- Create: <code>picnic_app/tool/verify_release_target.dart</code>
+- Create: <code>picnic_app/test/config/release_target_test.dart</code>
+- Modify: <code>picnic_app/config/local.json</code>
+- Modify: <code>picnic_app/config/dev.json</code>
+- Modify: <code>picnic_app/lib/main.dart</code>
+- Modify: <code>picnic_lib/lib/core/config/environment.dart</code>
+- Modify: <code>.gitignore</code>
+- Remove from Git index: <code>supabase/.temp/**</code>, <code>supabase/.branches/**</code>
+- Modify: <code>codemagic.yaml</code>
+- Modify: <code>picnic_app/scripts/shorebird-patch.sh</code>
+- Modify: <code>picnic_app/scripts/build_android.sh</code>
+- Modify: <code>picnic_app/test_release.sh</code>
+- Modify: <code>picnic_app/scripts/common_functions.sh</code>
+- Modify: <code>scripts/run_tests.sh</code>
+- Modify: <code>picnic_app/aws/resize_image_lambda/deploy.sh</code>
+
+**Interfaces:** Produces fail-closed <code>local|dev|prod</code> config validation and an exact-SHA production release guard. It does not contain, print, or generate credential values.
+
+- [ ] **Step 1: Write failing environment-isolation tests against sanitized fixtures**
+
+Tests load temporary copies and assert:
+
+- local/dev Supabase <code>url</code>, <code>anon_key</code>, storage <code>url</code>, storage <code>anon_key</code> are non-empty and no item equals production.
+- URL-derived project ref is not <code>xtijtefcycoeqludlngc</code>; local host is <code>127.0.0.1|localhost</code>; dev ref equals required <code>PICNIC_STAGING_SUPABASE_PROJECT_REF</code> and differs from production.
+- production ref, tracked/link metadata, absent staging ref, malformed/unknown environment, and privileged production-mode ad/payment settings in local/dev each fail closed.
+- local/dev require <code>PANGLE_ENVIRONMENT=sandbox</code> and <code>PAYMENT_ENVIRONMENT=sandbox</code> (or equivalent explicit test mode) at the build boundary; missing/production values fail before an ad SDK, purchase SDK, or Supabase client is initialized. Production builds require the protected runner to set <code>prod</code> explicitly.
+- errors name only the source/key and never print URL/key/token values. A fixture sentinel <code>do-not-print-secret</code> is absent from stdout/stderr.
+
+Run:
+
+~~~bash
+cd picnic_app
+flutter test test/config/environment_isolation_test.dart
+dart run tool/verify_environment_isolation.dart --environment=dev
+~~~
+
+Expected now: tests expose that dev/local equal prod and the command exits 1 with <code>NO-GO: non-production environment is not isolated</code>. No remote request occurs.
+
+- [ ] **Step 2: Remove persisted CLI link state from source control**
+
+Add <code>/supabase/.temp/</code> and <code>/supabase/.branches/</code> to the root ignore file, then untrack only those exact paths. Quarantine/remove the persisted link copies from the feature worktree without reading their contents; a local CLI link must be recreated only by an approved local-stack command or ephemeral protected deployment job.
+
+~~~bash
+git rm -r --cached --ignore-unmatch supabase/.temp supabase/.branches
+if git ls-files 'supabase/.temp/**' 'supabase/.branches/**' | rg .; then exit 1; fi
+quarantine_dir="$(mktemp -d)"
+test ! -e "$quarantine_dir/supabase/.temp"
+if test -e supabase/.temp; then mv supabase/.temp "$quarantine_dir/"; fi
+if test -e supabase/.branches; then mv supabase/.branches "$quarantine_dir/"; fi
+test ! -e supabase/.temp/project-ref
+test ! -e supabase/.branches/_current_branch
+~~~
+
+Expected: tracked CLI metadata count 0 and any pre-existing local copies are recoverable under the temporary quarantine path held by the operator. Production link is created only inside the separately approved ephemeral deployment job.
+
+- [ ] **Step 3: Implement the config guard without a bypass**
+
+<code>supabase_environment_policy.dart</code> is the runtime-importable pure policy shared by CLI and Flutter tests. <code>verify_environment_isolation.dart</code> is a thin wrapper that validates the selected non-production config before Flutter build/test and emits names/reasons only. <code>Environment.initConfig</code> invokes the same in-memory validator before <code>rootBundle</code> values reach <code>Supabase.initialize</code>, so a misconfigured release cannot bypass the CLI guard. <code>main.dart</code> removes the implicit <code>ENVIRONMENT=dev</code> default and fails before SDK initialization unless an exact <code>local|dev|prod</code> dart-define is supplied. <code>config/local.json</code> is changed to local Supabase endpoints; <code>config/dev.json</code> is populated only after a separate staging project/ref and public client configuration are provisioned. Staging values come from the approved secret/config channel, not production copy commands or this plan.
+
+Run:
+
+~~~bash
+flutter test test/config/environment_isolation_test.dart
+dart run tool/verify_environment_isolation.dart --environment=local
+PICNIC_STAGING_SUPABASE_PROJECT_REF="$PICNIC_STAGING_SUPABASE_PROJECT_REF" \
+  dart run tool/verify_environment_isolation.dart --environment=dev
+~~~
+
+Expected: exit 0 only after local/dev are isolated. Until the staging ref exists, dev integration remains NO-GO while offline unit/widget tests may continue.
+
+`picnic_app/integration_test` mock-server flows use `--environment=local` and never require staging. A separate staging smoke command uses `--environment=dev`; the two commands and evidence are not interchangeable.
+
+- [ ] **Step 4: Write and implement exact-SHA release-target tests**
+
+<code>verify_release_target.dart</code> tests and enforces all of the following without a bypass argument: CI provider is approved, event is an explicit production release, checkout is clean, <code>HEAD == requested SHA == origin/main</code>, tag resolves to that SHA, release manifest checksum matches, approval reference is non-empty, environment is exactly <code>prod</code>, and environment isolation/security evidence is complete. Local shell, feature branch, ancestor-but-not-current-main SHA, wildcard tag alone, missing evidence, and unknown deploy target all exit 1 without printing secrets.
+
+Add this verifier as the first step of both production Codemagic workflows before any package install, signing, Shorebird, store upload, or Sentry release action. Configure production workflows for manual approval/protected release credentials; tag matching alone is not authority. A protected-tag/CI-approval configuration screenshot or audit reference is required external evidence.
+
+Replace local production behavior as follows:
+
+- <code>shorebird-patch.sh</code> exits 1 and points to the protected CI patch workflow; remove local <code>--no-confirm</code>/<code>ENVIRONMENT=prod</code> execution.
+- Lambda <code>deploy.sh</code> and remote branches of <code>common_functions.sh</code> exit 1 outside an approved CI target and exact SHA. Schema-drop/copy and linked Storage commands are never allowed from this feature worktree.
+- <code>build_android.sh</code> and <code>test_release.sh</code> must pass an explicit <code>ENVIRONMENT</code> and the same release-target guard; remove implicit production/default modes and any <code>|| true</code> that can hide a failed guard.
+- The release guard statically rejects bare linked Supabase commands, <code>--no-confirm</code>, and direct remote Lambda mutation in developer scripts.
+
+Run:
+
+~~~bash
+cd picnic_app
+dart test test/config/release_target_test.dart
+dart run tool/verify_release_target.dart --target=production
+~~~
+
+Expected locally: tests pass, direct production verification exits 1 with <code>NO-GO: protected production runner required</code>. No production action is attempted.
+
+- [ ] **Step 5: Commit the isolation boundary**
+
+~~~bash
+git add .gitignore codemagic.yaml picnic_app/config/local.json picnic_app/config/dev.json picnic_app/lib/main.dart picnic_lib/lib/core/config/environment.dart picnic_lib/lib/core/config/supabase_environment_policy.dart picnic_app/tool/verify_environment_isolation.dart picnic_app/tool/verify_release_target.dart picnic_app/test/config picnic_lib/test/core/config picnic_app/scripts/shorebird-patch.sh picnic_app/scripts/build_android.sh picnic_app/test_release.sh picnic_app/scripts/common_functions.sh scripts/run_tests.sh picnic_app/aws/resize_image_lambda/deploy.sh
+git add -u supabase/.temp supabase/.branches
+git commit -m "chore(release): isolate non-production targets"
+~~~
+
+Expected: no CLI link metadata is tracked; no secret values were introduced; local guard tests pass; dev/production integration remains blocked unless its respective external evidence exists.
 
 ### Task 1: Stable Wallet Contract Models
 
@@ -3484,6 +3600,7 @@ Run:
 
 ~~~bash
 cd picnic_app
+dart run tool/verify_environment_isolation.dart --environment=local
 PICNIC_TEST_DEVICE_ID="$(flutter devices --machine | jq -r \
   '[.[] | select(.targetPlatform | test("^(android|ios)"))][0].id // empty')"
 test -n "$PICNIC_TEST_DEVICE_ID"
@@ -3514,6 +3631,7 @@ flutter analyze
 flutter test
 
 cd ../picnic_app
+dart run tool/verify_environment_isolation.dart --environment=local
 dart format --output=none --set-exit-if-changed lib integration_test
 flutter analyze
 flutter test
@@ -3559,6 +3677,9 @@ git commit -m "test(wallet): verify cotton candy release flows"
 - [ ] Canonical/legacy purchase parsers enforce exact keys, state/domain rules, decimal strings, and non-null canonical promotion; same-product attempts remain locked to their captured campaign until terminal resolution.
 - [ ] Wallet, policy dialog, vote history, store and home use approved names, left alignment, and product PNG paths.
 - [ ] Release build/version is <code>1.2.34+123401</code>; server minimum gate is configured before Cotton mode.
+- [ ] Local/dev Supabase tuple differs from production, staging ref evidence exists, no Supabase CLI link metadata is tracked, and an explicit <code>ENVIRONMENT</code> is required.
+- [ ] Codemagic production tag resolves to exact <code>origin/main</code> SHA and protected approval evidence; local Shorebird/Lambda/remote schema-copy commands fail closed.
+- [ ] Privileged-looking mobile config fields were audited; any active privileged credential was removed from the client and rotated before release.
 - [ ] <code>.superpowers/</code> has no staged files and no product code references.
 
 ## Execution Handoff
