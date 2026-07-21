@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>투표 신청 키보드 이벤트 대응 설계</title>
+  <style>
+    body { max-width: 900px; margin: 40px auto; padding: 0 24px; font: 16px/1.7 system-ui, sans-serif; color: #202124; }
+    h1, h2 { line-height: 1.3; }
+    code { padding: 2px 5px; border-radius: 4px; background: #f1f3f4; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #dadce0; text-align: left; vertical-align: top; }
+    .note { padding: 14px 16px; border-left: 4px solid #1a73e8; background: #f8fbff; }
+  </style>
+</head>
+<body>
+  <h1>Task 39.4·39.5: 투표 신청 키보드 이벤트 대응 설계</h1>
+
+  <p><strong>대상:</strong> <code>picnic_lib</code>의 투표 신청 검색 UI와 개발 대응 문서<br>
+     <strong>원칙:</strong> 재현되지 않은 Flutter 엔진 상태 오류를 앱 코드에서 임의로 가로채지 않는다.</p>
+
+  <h2>1. 조사 결과</h2>
+  <ul>
+    <li>투표 신청 코드에는 <code>RawKeyboard</code>, <code>HardwareKeyboard</code>, Backspace 직접 처리기가 없다.</li>
+    <li>Flutter의 해당 assertion은 KeyUp/Repeat 이벤트 시 physical key가 pressed 상태에 없을 때 발생한다.</li>
+    <li>기존 기록에는 전체 오류, 스택, 플랫폼, Flutter revision, 재현 순서가 없어 앱 결함으로 재현할 수 없다.</li>
+    <li>관련 검색·다이얼로그 테스트 41건은 현재 Flutter 3.41.4에서 통과했다.</li>
+  </ul>
+
+  <h2>2. 선택한 접근</h2>
+  <table>
+    <thead><tr><th>항목</th><th>설계</th></tr></thead>
+    <tbody>
+      <tr><td>운영 코드</td><td>변경하지 않는다. Raw key interception이나 pressed-key 상태 조작을 추가하지 않는다.</td></tr>
+      <tr><td>회귀 검증</td><td>실제 투표 신청 다이얼로그에서 검색창을 활성화하고, 텍스트 입력 후 정상적인 paired Backspace 이벤트를 보내 focus 유지, 텍스트 삭제, 예외 부재를 확인한다.</td></tr>
+      <tr><td>문서</td><td>오류 수집 항목, 즉시 복구 절차, 금지하는 임시 우회, 재발 시 Flutter 이슈로 분리할 판단 기준을 한글 HTML로 작성한다.</td></tr>
+      <tr><td>Task Master</td><td>회귀 테스트와 문서가 검증되면 39.4와 39.5를 완료한다. 실제 RLS 작업인 39.6에는 영향을 주지 않는다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 테스트 시나리오</h2>
+  <ol>
+    <li>가짜 서비스로 실제 <code>VoteItemRequestDialog</code>를 렌더링한다.</li>
+    <li>접힌 검색 영역을 눌러 <code>TextField</code>에 focus가 들어왔는지 확인한다.</li>
+    <li><code>ab</code>를 입력하고 <code>LogicalKeyboardKey.backspace</code>의 정상 down/up 이벤트를 보낸다.</li>
+    <li>텍스트가 <code>a</code>가 되고 focus가 유지되며 <code>tester.takeException()</code>이 null인지 확인한다.</li>
+  </ol>
+
+  <h2>4. 하지 않는 것</h2>
+  <ul>
+    <li>KeyUp만 보내 assertion을 인위적으로 만드는 테스트</li>
+    <li>Flutter 내부 pressed-key 상태 초기화</li>
+    <li>Backspace를 다른 삭제 동작으로 대체</li>
+    <li>Flutter SDK 업데이트나 실제 DB 접근</li>
+  </ul>
+
+  <h2>5. 재발 시 필요한 증거</h2>
+  <div class="note">
+    전체 assertion과 stack trace, OS·기기, Flutter revision, debug/profile/release 모드,
+    hot reload/restart 여부, 창 focus 이동 여부, 정확한 키 입력 순서와 완전 재시작 후 재현 여부를 수집한다.
+    정상 앱 실행에서도 재현되면 최소 재현 프로젝트와 함께 Flutter upstream 문제로 분리한다.
+  </div>
+
+  <h2>6. 완료 조건</h2>
+  <ul>
+    <li>paired Backspace 회귀 테스트가 통과한다.</li>
+    <li>기존 투표 신청 검색·다이얼로그 테스트가 통과한다.</li>
+    <li>대응 문서가 실제 명령과 수집 항목을 포함한다.</li>
+    <li>운영 앱 코드와 DB/RLS는 변경되지 않는다.</li>
+  </ul>
+</body>
+</html>
