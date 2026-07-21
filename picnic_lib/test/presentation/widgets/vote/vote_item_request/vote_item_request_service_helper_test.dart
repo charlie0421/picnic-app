@@ -2,6 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service_helper.dart';
 
+int _queryCount(int artistCount, bool hasUser) {
+  return VoteItemRequestServiceHelper.estimateEnrichmentQueryCount(
+    artistCount: artistCount,
+    hasUser: hasUser,
+  );
+}
+
 void main() {
   // ===========================================================================
   // Pagination
@@ -105,6 +112,47 @@ void main() {
         throwsA(isA<ArgumentError>()),
       );
     });
+
+    test('preserves data across enrichment batch boundaries', () {
+      for (final itemCount in [0, 1, 50, 51, 100, 120]) {
+        final items = List<int>.generate(itemCount, (index) => index);
+        final batches = VoteItemRequestServiceHelper.splitIntoBatches(
+          items,
+          VoteItemRequestServiceHelper.enrichmentBatchSize,
+        );
+
+        expect(
+          batches.every((batch) => batch.length <=
+              VoteItemRequestServiceHelper.enrichmentBatchSize),
+          isTrue,
+          reason: 'itemCount: $itemCount',
+        );
+        expect(batches.expand((batch) => batch).toList(), items,
+            reason: 'itemCount: $itemCount');
+      }
+    });
+  });
+
+  group('enrichment query bounds', () {
+    test('keeps the enrichment batch size at 50', () {
+      expect(VoteItemRequestServiceHelper.enrichmentBatchSize, 50);
+    });
+
+    test('returns deterministic signed-in query bounds', () {
+      expect(_queryCount(0, true), 0);
+      expect(_queryCount(1, true), 3);
+      expect(_queryCount(50, true), 3);
+      expect(_queryCount(51, true), 6);
+      expect(_queryCount(100, true), 6);
+      expect(_queryCount(120, true), 9);
+    });
+
+    test('returns deterministic anonymous query bounds', () {
+      expect(_queryCount(0, false), 0);
+      expect(_queryCount(50, false), 2);
+      expect(_queryCount(51, false), 4);
+      expect(_queryCount(100, false), 4);
+    });
   });
 
   group('needsBatching', () {
@@ -180,6 +228,16 @@ void main() {
     test('handles empty input', () {
       final names = VoteItemRequestServiceHelper.collectArtistNames([]);
       expect(names, isEmpty);
+    });
+
+    test('collectArtistNameSet removes duplicates and empty names', () {
+      final names = VoteItemRequestServiceHelper.collectArtistNameSet([
+        {'ko': 'BTS', 'en': 'BTS'},
+        {'ko': '', 'en': 'aespa'},
+        {'ko': 'BTS', 'en': ''},
+      ]);
+      expect(names, {'BTS', 'aespa'});
+      expect(names, isA<Set<String>>());
     });
   });
 
