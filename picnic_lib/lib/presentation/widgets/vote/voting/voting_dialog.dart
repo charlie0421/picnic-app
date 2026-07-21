@@ -21,11 +21,13 @@ import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart'
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_usage_helper.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future showVotingDialog({
   required BuildContext context,
@@ -52,8 +54,9 @@ Future showVotingDialog({
   logger.d('🔍 VoteModel 파트너십 정보:');
   logger.d('   - isPartnership: ${voteModel.isPartnership}');
   logger.d('   - partner: "${voteModel.partner}"');
-  logger
-      .d('   - partner?.toLowerCase(): "${voteModel.partner?.toLowerCase()}"');
+  logger.d(
+    '   - partner?.toLowerCase(): "${voteModel.partner?.toLowerCase()}"',
+  );
   logger.d('   - JMA 조건 매칭: ${voteModel.partner?.toLowerCase() == 'jma'}');
 
   if (voteModel.partner?.toLowerCase() == 'jma') {
@@ -150,8 +153,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   @override
   Widget build(BuildContext context) {
     final myStarCandy = _getMyStarCandy();
-    final userId =
-        ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
+    final userId = ref.watch(
+      userInfoProvider.select((value) => value.value?.id ?? ''),
+    );
 
     return LoadingOverlayWithIcon(
       key: _loadingKey,
@@ -169,8 +173,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         content: LargePopupWidget(
           showCloseButton: false,
           content: Container(
-            padding:
-                EdgeInsets.only(top: 32, bottom: 24, left: 24.w, right: 24.w),
+            padding: EdgeInsets.only(
+              top: 32,
+              bottom: 24,
+              left: 24.w,
+              right: 24.w,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -210,12 +218,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }
 
   void _navigateToStore() {
-    ref
-        .read(navigationInfoProvider.notifier)
-        .setCurrentPage(const StorePage());
-    ref
-        .read(navigationInfoProvider.notifier)
-        .setVoteBottomNavigationIndex(3);
+    ref.read(navigationInfoProvider.notifier).setCurrentPage(const StorePage());
+    ref.read(navigationInfoProvider.notifier).setVoteBottomNavigationIndex(3);
     Navigator.pop(context);
   }
 
@@ -245,8 +249,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       // 포커스가 있을 때 텍스트 필드가 보이도록 적절한 위치로 스크롤
       if (_focusNode.hasFocus) {
-        final RenderObject? renderObject =
-            _inputFieldKey.currentContext?.findRenderObject();
+        final RenderObject? renderObject = _inputFieldKey.currentContext
+            ?.findRenderObject();
         if (renderObject != null) {
           Scrollable.ensureVisible(
             _inputFieldKey.currentContext!,
@@ -302,8 +306,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   focusColor: AppColors.primary500,
                   fillColor: AppColors.grey900,
                   isCollapsed: true,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 24.w, vertical: 5),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 24.w,
+                    vertical: 5,
+                  ),
                 ),
                 onChanged: (_) => _validateVote(),
                 inputFormatters: [
@@ -337,8 +343,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     final formattedText = formatNumberWithComma(newText);
                     return TextEditingValue(
                       text: formattedText,
-                      selection:
-                          TextSelection.collapsed(offset: formattedText.length),
+                      selection: TextSelection.collapsed(
+                        offset: formattedText.length,
+                      ),
                     );
                   }),
                 ],
@@ -381,7 +388,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
   }
 
-
   Future<void> _handleVote(int myStarCandy, String userId) async {
     // 이미 투표 진행 중이면 무시 (중복 클릭 방지)
     if (_isVoting) return;
@@ -391,8 +397,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       showSimpleDialog(
         title: AppLocalizations.of(context).dialog_title_vote_fail,
         content: voteAmount == 0
-            ? AppLocalizations.of(context)
-                .text_dialog_vote_amount_should_not_zero
+            ? AppLocalizations.of(
+                context,
+              ).text_dialog_vote_amount_should_not_zero
             : AppLocalizations.of(context).text_need_recharge,
         onOk: () {},
       );
@@ -429,8 +436,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     required int starCandyBonusUsage,
     int retryCount = 0,
   }) async {
-    final functionName =
-        widget.portalType == VotePortal.vote ? 'voting-v2' : 'pic-voting-v2';
+    final functionName = widget.portalType == VotePortal.vote
+        ? 'voting-v2'
+        : 'pic-voting-v2';
 
     try {
       return await supabase.functions.invoke(
@@ -497,11 +505,18 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       // invoke 는 2xx 가 아니면 FunctionException 을 throw 하므로,
       // 여기까지 도달하면 성공 응답(2xx)이다.
-      final response = await _invokeVotingWithRetry(
-        voteAmount: voteAmount,
-        userId: userId,
-        starCandyUsage: starCandyUsage,
-        starCandyBonusUsage: starCandyBonusUsage,
+      final response = await VotingDialogHelper.invokeVotingWithAuthRecovery(
+        invoke: () => _invokeVotingWithRetry(
+          voteAmount: voteAmount,
+          userId: userId,
+          starCandyUsage: starCandyUsage,
+          starCandyBonusUsage: starCandyBonusUsage,
+        ),
+        refresh: () async {
+          final response = await supabase.auth.refreshSession();
+          return response.session != null;
+        },
+        onRecovery: _recordAuthRecoveryEvent,
       );
 
       if (!mounted) return;
@@ -510,7 +525,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       final serverTotal = response.data['updatedVoteTotal'] as int?;
       if (serverTotal != null) {
         ref
-            .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
+            .read(
+              asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier,
+            )
             .setVoteItem(id: itemId, voteTotal: serverTotal);
       }
 
@@ -564,6 +581,22 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     }
   }
 
+  void _recordAuthRecoveryEvent(VotingAuthRecoveryEvent event) {
+    final portal = widget.portalType == VotePortal.vote ? 'vote' : 'pic';
+    unawaited(
+      Sentry.captureEvent(
+        SentryEvent(
+          message: SentryMessage('vote_auth_recovery'),
+          tags: VotingDialogHelper.authRecoveryTags(
+            portal: portal,
+            event: event,
+          ),
+          level: SentryLevel.info,
+        ),
+      ),
+    );
+  }
+
   // 실패 원인(FunctionException)에 따라 구체적인 안내 문구를 고른다.
   // 마감/미시작은 로컬라이즈된 문구를, 그 외(잔액 부족·처리 중 등)는 서버가 제공한
   // 사용자용 message 를 우선 노출하고, 없으면 일반 "투표 실패" 문구로 폴백한다.
@@ -573,19 +606,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return '';
     final l10n = AppLocalizations.of(ctx);
-    if (error is FunctionException) {
-      final details = error.details;
-      final reason = details is Map ? details['reason'] : null;
-      if (error.status == 403) {
-        if (reason == 'ended') return l10n.message_vote_is_ended;
-        if (reason == 'not_started') return l10n.message_vote_is_upcoming;
-      }
-      final serverMessage = details is Map ? details['message'] : null;
-      if (serverMessage is String && serverMessage.trim().isNotEmpty) {
-        return serverMessage;
-      }
-    }
-    return l10n.dialog_title_vote_fail;
+    return VotingDialogHelper.resolveVoteFailureMessage(
+      error: error,
+      reLoginMessage: l10n.error_user_not_authenticated,
+      genericMessage: l10n.dialog_title_vote_fail,
+      endedMessage: l10n.message_vote_is_ended,
+      upcomingMessage: l10n.message_vote_is_upcoming,
+    );
   }
 
   void _showVotingFailDialog([Object? error]) {
