@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>투표 항목 신청 운영 보안 최소 수정 설계</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#5c667a; --line:#dce2ec; --accent:#3157d5; --warn:#9a3412; --bg:#f6f8fc; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Noto Sans KR",sans-serif; }
+    main { max-width:920px; margin:40px auto; padding:40px; background:#fff; border:1px solid var(--line); border-radius:18px; }
+    h1,h2 { line-height:1.3; } h1 { margin-top:0; } h2 { margin-top:2rem; border-bottom:1px solid var(--line); padding-bottom:.4rem; }
+    code { background:#eef2f8; padding:.1rem .35rem; border-radius:4px; } li+li { margin-top:.35rem; }
+    .summary { border-left:5px solid var(--accent); padding:12px 18px; background:#f2f5ff; }
+    .warning { border-left:5px solid var(--warn); padding:12px 18px; background:#fff7ed; }
+    table { width:100%; border-collapse:collapse; } th,td { padding:10px; border:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { background:#f4f6fa; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>투표 항목 신청 운영 보안 최소 수정 설계</h1>
+  <p><strong>작성일:</strong> 2026-07-21 · <strong>대상:</strong> <code>picnic_app</code>, <code>picnic_lib</code> · <strong>제외:</strong> 폐기된 <code>ttja</code>, 비활성 커뮤니티 기능</p>
+
+  <div class="summary">
+    운영 스키마의 실제 계약을 보존하면서 신청자 개인정보 노출과 과도한 DB 권한을 차단한다. 저장소에는 재현 가능한 마이그레이션과 읽기 전용 검증 절차만 먼저 추가하며, 운영 적용과 비밀키 회전은 별도 승인된 배포 단계로 분리한다.
+  </div>
+
+  <h2>1. 확인된 운영 상태</h2>
+  <ul>
+    <li><code>vote_item_request_users</code> 테이블과 <code>vote_item_requests</code> 뷰가 실제 운영에 존재하며 현재 앱 계약과 일치한다.</li>
+    <li>중복 방지 제약 <code>(vote_id, user_id, artist_id)</code>, 외래 키와 조회용 인덱스가 존재한다.</li>
+    <li>SELECT RLS가 모든 행을 허용하여 다른 사용자의 신청 정보와 <code>user_id</code>가 노출될 수 있다.</li>
+    <li>일반 역할에 <code>TRUNCATE</code>, <code>TRIGGER</code>, 직접 쓰기 권한이 과도하게 부여되어 있다.</li>
+    <li>본인 행 UPDATE 정책에 상태 컬럼 제한이 없어 사용자가 신청 상태를 바꿀 수 있다.</li>
+    <li>HTTP 트리거 정의에 장기 <code>service_role</code> JWT가 평문으로 저장되어 있다. 실제 값은 문서와 저장소에 기록하지 않는다.</li>
+    <li>이 구조를 재현하는 버전 관리 마이그레이션이 없어 운영 드리프트를 검토하기 어렵다.</li>
+  </ul>
+
+  <div class="warning"><strong>사고 대응 경계:</strong> 노출된 키의 회전과 운영 트리거 교체는 콘솔·배포 권한이 필요한 운영 작업이다. 저장소 변경만으로 기존 키를 폐기할 수 없으므로 별도 체크리스트로 관리한다.</div>
+
+  <h2>2. 검토한 접근 방식</h2>
+  <table>
+    <thead><tr><th>방식</th><th>장점</th><th>단점</th></tr></thead>
+    <tbody>
+      <tr><td>앱 코드에서만 필터링</td><td>변경량이 가장 작다.</td><td>DB 직접 호출을 막지 못하므로 보안 해결이 아니다.</td></tr>
+      <tr><td><strong>기존 구조를 유지한 DB 권한 최소화</strong></td><td>앱 계약과 Edge Function 흐름을 유지하며 노출 면적을 줄인다.</td><td>뷰/RPC별 공개 범위를 명시적으로 검증해야 한다.</td></tr>
+      <tr><td>신청 기능 전체 재설계</td><td>장기적으로 가장 정돈된 모델을 만들 수 있다.</td><td>변경 범위와 회귀 위험이 커서 최소 수정 요구와 맞지 않는다.</td></tr>
+    </tbody>
+  </table>
+  <p><strong>선택:</strong> 두 번째 방식. 기존 앱 API를 유지하고 권한·RLS·비밀 처리만 좁힌다.</p>
+
+  <h2>3. 데이터 접근 설계</h2>
+  <ul>
+    <li>신청 생성은 기존 <code>artist-request-add</code> Edge Function을 유일한 공개 진입점으로 유지한다.</li>
+    <li><code>anon</code>은 기본 테이블의 행 조회와 모든 쓰기를 할 수 없다.</li>
+    <li><code>authenticated</code>는 기본 테이블에서 자신의 행만 필요한 컬럼으로 조회할 수 있다.</li>
+    <li>일반 사용자의 직접 INSERT와 UPDATE를 금지한다. 앱이 제공하는 취소가 DELETE라면 본인 pending 신청 삭제만 허용한다.</li>
+    <li>관리자와 <code>service_role</code>만 승인·거절 등 상태 전이를 수행한다.</li>
+    <li>공개 집계가 필요한 경우 사용자 식별자가 없는 최소 집계 뷰/RPC만 허용한다.</li>
+    <li>사용자 이력 뷰는 호출자 본인의 행만 반환하도록 <code>security_invoker</code>와 기반 RLS를 사용하거나 동등한 소유권 조건을 둔다.</li>
+  </ul>
+
+  <h2>4. 마이그레이션 및 비밀 처리</h2>
+  <ul>
+    <li>마이그레이션은 현재 객체를 삭제·재생성하지 않고 <code>REVOKE</code>, 정책 교체, 뷰 옵션 변경 중심으로 작성한다.</li>
+    <li>모든 변경은 가능한 범위에서 재실행 가능하게 작성하고, 적용 전후 카탈로그 확인 SQL을 함께 제공한다.</li>
+    <li>트리거 헤더에 JWT를 직접 저장하지 않는다. 대체 인증 방식은 Supabase 관리 비밀 또는 별도 호출 계층으로 이동한다.</li>
+    <li>노출된 JWT, 프로젝트 참조값, 사용자 데이터는 테스트·HTML·커밋에 포함하지 않는다.</li>
+    <li>비밀키 회전은 새 키 적용 → 트리거 호출 확인 → 기존 키 폐기 순서의 운영 런북으로 분리한다.</li>
+  </ul>
+
+  <h2>5. 검증 설계</h2>
+  <table>
+    <thead><tr><th>주체</th><th>허용</th><th>거부</th></tr></thead>
+    <tbody>
+      <tr><td>anon</td><td>식별자 없는 허용된 공개 집계</td><td>기본 테이블 조회·삽입·수정·삭제·TRUNCATE</td></tr>
+      <tr><td>사용자 A</td><td>A의 신청 조회, 허용된 취소</td><td>B의 신청 조회·변경, 자신의 상태 직접 변경</td></tr>
+      <tr><td>관리자</td><td>전체 조회와 승인 상태 전이</td><td>정책 밖의 임의 스키마 작업</td></tr>
+      <tr><td>service_role</td><td>Edge Function을 통한 생성과 관리 작업</td><td>해당 없음—키 접근 자체를 엄격히 제한</td></tr>
+    </tbody>
+  </table>
+  <p>저장소 검증은 SQL 정적 테스트와 앱 계약 테스트로 수행한다. 실제 A/B/admin 행위 검증은 운영 데이터에 쓰지 않는 스테이징 또는 격리된 테스트 프로젝트에서 실행한다.</p>
+
+  <h2>6. 완료 기준과 비범위</h2>
+  <ul>
+    <li>마이그레이션, 회귀 테스트, 한글 운영 런북이 저장소에 존재한다.</li>
+    <li>현재 앱의 신청 목록·중복 확인·취소·관리 흐름 계약이 유지된다.</li>
+    <li>권한 행렬에서 다른 사용자 정보 조회 및 일반 사용자 상태 변경이 차단된다.</li>
+    <li>운영 적용 전 백업·검토·키 회전 책임자가 명시된다.</li>
+    <li>이번 범위에는 커뮤니티 재활성화, 신청 UI 재설계, 운영 DB 직접 변경, 실제 사용자 데이터 기반 테스트를 포함하지 않는다.</li>
+  </ul>
+</main>
+</body>
+</html>
