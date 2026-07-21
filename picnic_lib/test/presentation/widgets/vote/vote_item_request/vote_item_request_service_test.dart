@@ -37,7 +37,7 @@ void main() {
 
     late WidgetRef widgetRef;
     await tester.pumpWidget(buildTestApp(
-      Consumer(builder: (_, ref, __) {
+      Consumer(builder: (context, ref, child) {
         widgetRef = ref;
         return const SizedBox();
       }),

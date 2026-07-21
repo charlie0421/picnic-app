@@ -78,4 +78,23 @@ void main() {
       throwsUnsupportedError,
     );
   });
+
+  test('같은 아티스트 ID의 이름은 첫 번째 유효 행을 보존한다', () {
+    final summary = VoteItemRequestCountSummary.fromRows([
+      {
+        'artist_id': 10,
+        'artist_name': '첫 이름',
+        'request_status': 'pending',
+        'request_count': 1,
+      },
+      {
+        'artist_id': 10,
+        'artist_name': '나중 이름',
+        'request_status': 'approved',
+        'request_count': 1,
+      },
+    ]);
+
+    expect(summary.artistNamesById[10], '첫 이름');
+  });
 }

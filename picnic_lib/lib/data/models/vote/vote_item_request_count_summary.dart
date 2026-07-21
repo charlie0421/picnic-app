@@ -48,7 +48,7 @@ class VoteItemRequestCountSummary {
       countsByArtistId[artistId] = (countsByArtistId[artistId] ?? 0) + count;
       countsByArtistName[artistName] =
           (countsByArtistName[artistName] ?? 0) + count;
-      artistNamesById[artistId] = artistName;
+      artistNamesById.putIfAbsent(artistId, () => artistName);
       final statuses = statusCountsByArtistId.putIfAbsent(
         artistId,
         () => <String, int>{},

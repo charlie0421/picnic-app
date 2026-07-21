@@ -28,12 +28,15 @@ void main() {
       'vote_item_request_users': [
         {'id': 'current-request', 'vote_id': 1, 'user_id': 'current-user', 'artist_id': 10, 'status': 'pending', 'created_at': '2024-01-15T10:00:00Z', 'updated_at': '2024-01-15T10:00:00Z'},
       ],
+      'artist': [
+        {'id': 10, 'name': {'ko': '가수 A', 'en': 'Singer A'}, 'image': 'artist-a.png', 'artist_group': {'id': 100, 'name': {'ko': '그룹 A', 'en': 'Group A'}}},
+      ],
     }, userId: 'current-user');
     addTearDown(tearDownMockSupabase);
 
     late WidgetRef widgetRef;
     await tester.pumpWidget(buildTestApp(
-      Consumer(builder: (_, ref, __) {
+      Consumer(builder: (context, ref, child) {
         widgetRef = ref;
         return const SizedBox();
       }),
@@ -54,8 +57,13 @@ void main() {
 
     expect(result['totalApplications'], 9);
     expect(summaries.map((summary) => summary['artistId']), [10, 11]);
-    expect(summaries.first['artist'], {'id': 10, 'name': {'ko': '가수 A'}});
-    expect(summaries.last['artist'], {'id': 11, 'name': {'ko': '가수 A'}});
+    expect(summaries.first['artist'], {
+      'id': 10,
+      'name': {'ko': '가수 A', 'en': 'Singer A'},
+      'image': 'artist-a.png',
+      'artist_group': {'id': 100, 'name': {'ko': '그룹 A', 'en': 'Group A'}},
+    });
+    expect(summaries.last['artist'], {'id': 11, 'name': {'und': '가수 A'}});
     expect(summaries.first, containsPair('totalApplications', 7));
     expect(summaries.first, containsPair('pendingCount', 4));
     expect(summaries.first, containsPair('approvedCount', 3));

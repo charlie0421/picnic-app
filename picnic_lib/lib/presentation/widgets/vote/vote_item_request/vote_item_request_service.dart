@@ -481,6 +481,19 @@ class VoteItemRequestService {
 
       final summary = await voteRequestRepository
           .getVoteItemRequestCountSummary(int.parse(voteId));
+      final supabase = _supabase ?? Supabase.instance.client;
+      final artistRows = summary.countsByArtistId.isEmpty
+          ? <dynamic>[]
+          : await supabase
+              .from('artist')
+              .select('id,name,image,artist_group(id,name)')
+              .inFilter('id', summary.countsByArtistId.keys.toList());
+      final artistInfoById = <int, Map<String, dynamic>>{};
+      for (final row in artistRows) {
+        if (row is Map<String, dynamic> && row['id'] is int) {
+          artistInfoById[row['id'] as int] = row;
+        }
+      }
 
       // 아티스트별 신청 요약 생성
       final List<Map<String, dynamic>> artistApplicationSummaries = [];
@@ -497,9 +510,9 @@ class VoteItemRequestService {
 
         artistApplicationSummaries.add({
           'artistId': artistId,
-          'artist': {
+          'artist': artistInfoById[artistId] ?? {
             'id': artistId,
-            'name': {'ko': artistName},
+            'name': {'und': artistName},
           },
           'totalApplications': totalCount,
           'pendingCount': pendingCount,
