@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -75,6 +76,37 @@ void main() {
   }
 
   group('VoteItemRequestDialog render - logged in states', () {
+    testWidgets('검색창은 정상 Backspace 입력을 처리하고 focus를 유지한다', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestAppPage(
+          Material(
+            child: VoteItemRequestDialog(
+              vote: testVote,
+              service: FailingVoteItemRequestService(),
+            ),
+          ),
+          loggedIn: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(TextField));
+      await tester.pump();
+      final editable = tester.widget<EditableText>(find.byType(EditableText));
+      expect(editable.focusNode.hasFocus, isTrue);
+
+      await tester.enterText(find.byType(TextField), 'ab');
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+      await tester.pump();
+
+      expect(editable.controller.text, 'a');
+      expect(editable.focusNode.hasFocus, isTrue);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets(
       'shows a generic error and stops loading when initial load fails',
       (WidgetTester tester) async {
