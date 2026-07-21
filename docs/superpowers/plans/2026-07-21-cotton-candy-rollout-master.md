@@ -287,7 +287,7 @@ Expected: exit 1 with `NO-GO: status=blocked; approvals incomplete`.
 - [ ] **Step 1:** enum migration과 enum 사용 migration이 분리됐는지 확인한다.
 - [ ] **Step 2:** 신규 금융 raw table의 `PUBLIC`, `anon`, `authenticated`, `service_role` DML 권한이 회수되고 command-owner RPC만 허용되는지 pgTAP으로 확인한다.
 - [ ] **Step 3:** strict Bonus projection, 공통 debt-aware credit, user-first lock을 먼저 배포하고 legacy 지급 회귀 테스트를 통과시킨다.
-- [ ] **Step 4:** Cotton expiry worker를 dry-run 후 실제 test-user grant로 KST 자정과 lazy exclude를 검증한다.
+- [ ] **Step 4:** Cotton expiry worker를 local/staging에서 dry-run 후 test-user grant로 KST 자정과 lazy exclude를 검증한다. Production은 read-only/dry-run evidence만 허용하며 live test-user grant는 금지한다.
 - [ ] **Step 5:** reconciliation, invariant alert, inbox worker heartbeat를 확인한다.
 - [ ] **Step 6:** 모든 신규 write flag를 OFF/legacy Bonus mode로 둔 채 read RPC와 admin read만 배포한다.
 
