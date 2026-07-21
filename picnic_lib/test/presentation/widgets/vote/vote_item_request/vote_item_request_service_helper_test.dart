@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service_helper.dart';
 
 int _queryCount(int artistCount, bool hasUser) {
