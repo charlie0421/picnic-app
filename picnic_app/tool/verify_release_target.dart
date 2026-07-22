@@ -1,5 +1,56 @@
 import 'dart:io';
 
+const defaultDeveloperScriptPaths = <String>[
+  'scripts/shorebird-patch.sh',
+  'scripts/build_android.sh',
+  'test_release.sh',
+  'scripts/common_functions.sh',
+  'aws/resize_image_lambda/deploy.sh',
+  '../scripts/run_tests.sh',
+  '../test_signing_local.sh',
+  '../test_codemagic_local.sh',
+];
+
+List<String> scanDeveloperScripts(Map<String, String> scripts) {
+  final findings = <String>[];
+  for (final entry in scripts.entries) {
+    for (final command in _logicalCommands(entry.value)) {
+      if (command.contains('--no-confirm')) {
+        findings.add('${entry.key}: unattended confirmation bypass');
+        continue;
+      }
+      if (RegExp(r'\baws\s+lambda\s+update-function-code\b')
+          .hasMatch(command)) {
+        findings.add('${entry.key}: direct Lambda mutation');
+        continue;
+      }
+      if (RegExp(r'\bsupabase\s+(db|storage|functions|migration|secrets)\b')
+              .hasMatch(command) &&
+          !command.contains('--local') &&
+          !command.contains('--project-ref')) {
+        findings.add('${entry.key}: linked Supabase command');
+      }
+    }
+  }
+  return findings;
+}
+
+Iterable<String> _logicalCommands(String source) sync* {
+  var pending = '';
+  for (final rawLine in source.split('\n')) {
+    final trimmed = rawLine.trim();
+    if (trimmed.isEmpty || trimmed.startsWith('#')) continue;
+    final code = trimmed.split(' #').first.trimRight();
+    final continued = code.endsWith(r'\');
+    pending += '${continued ? code.substring(0, code.length - 1) : code} ';
+    if (!continued) {
+      yield pending.trim();
+      pending = '';
+    }
+  }
+  if (pending.trim().isNotEmpty) yield pending.trim();
+}
+
 class ReleaseTargetInput {
   const ReleaseTargetInput({
     required this.target,
@@ -87,6 +138,17 @@ Future<void> main(List<String> args) async {
   final target = _option(args, 'target') ?? '';
   final env = Platform.environment;
   try {
+    final scripts = <String, String>{};
+    for (final path in defaultDeveloperScriptPaths) {
+      final file = File(path);
+      if (!file.existsSync()) throw StateError('developer script missing');
+      scripts[path] = file.readAsStringSync();
+    }
+    if (scanDeveloperScripts(scripts).isNotEmpty) {
+      stderr.writeln('NO-GO: unsafe developer release command detected');
+      exitCode = 1;
+      return;
+    }
     final head = _git(['rev-parse', 'HEAD']);
     final input = ReleaseTargetInput(
       target: target,
