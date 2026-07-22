@@ -61,9 +61,14 @@ class SupabaseEnvironmentPolicy {
     }
 
     if (environment == 'prod') {
-      if (!url!.contains(productionProjectRef) ||
-          !(storageUrl!.contains(productionProjectRef) ||
-              Uri.tryParse(storageUrl)?.host == 'api.picnic.fan')) {
+      final supabaseUri = Uri.tryParse(url!);
+      final storageUri = Uri.tryParse(storageUrl!);
+      const productionSupabaseHost = '$productionProjectRef.supabase.co';
+      const allowedStorageHosts = {productionSupabaseHost, 'api.picnic.fan'};
+      if (supabaseUri?.scheme != 'https' ||
+          supabaseUri?.host != productionSupabaseHost ||
+          storageUri?.scheme != 'https' ||
+          !allowedStorageHosts.contains(storageUri?.host)) {
         return const SupabaseEnvironmentPolicyResult(
           false,
           'supabase.url must use the production project ref',
