@@ -1796,4 +1796,50 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get button_cs_inquiry => '고객센터 문의';
+
+  @override
+  String get wallet_star_candy => '스타캔디';
+
+  @override
+  String get wallet_bonus_star_candy => '보너스 스타캔디';
+
+  @override
+  String get wallet_cotton_candy => '코튼캔디';
+
+  @override
+  String wallet_cotton_expires_today(String amount) {
+    return '오늘 만료 $amount';
+  }
+
+  @override
+  String wallet_cotton_next_expiry(String date) {
+    return '다음 만료 $date';
+  }
+
+  @override
+  String get wallet_load_failed => '지갑 정보를 불러오지 못했습니다.';
+
+  @override
+  String get wallet_history_title => '캔디 내역';
+
+  @override
+  String get wallet_history_empty => '아직 내역이 없습니다.';
+
+  @override
+  String get candy_boost_day => '캔디 부스트 데이';
+
+  @override
+  String get candy_boost_exact_double => '기본 지급 + 추가 보너스 100%';
+
+  @override
+  String get candy_boost_extra_bonus => '기본 지급 + 추가 보너스';
+
+  @override
+  String get ad_reward_pending => '보상을 확인하고 있어요';
+
+  @override
+  String get ad_reward_granted => '코튼캔디를 받았어요';
+
+  @override
+  String get ad_reward_not_granted => '보상이 지급되지 않았어요';
 }

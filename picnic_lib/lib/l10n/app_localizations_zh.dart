@@ -1769,6 +1769,52 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get button_cs_inquiry => '联系客服';
+
+  @override
+  String get wallet_star_candy => 'Star Candy';
+
+  @override
+  String get wallet_bonus_star_candy => 'Bonus Star Candy';
+
+  @override
+  String get wallet_cotton_candy => 'Cotton Candy';
+
+  @override
+  String wallet_cotton_expires_today(String amount) {
+    return 'Expires today: $amount';
+  }
+
+  @override
+  String wallet_cotton_next_expiry(String date) {
+    return 'Next expiry: $date';
+  }
+
+  @override
+  String get wallet_load_failed => 'Could not load wallet.';
+
+  @override
+  String get wallet_history_title => 'Candy history';
+
+  @override
+  String get wallet_history_empty => 'No history yet.';
+
+  @override
+  String get candy_boost_day => 'Candy Boost Day';
+
+  @override
+  String get candy_boost_exact_double => 'Base reward + 100% extra bonus';
+
+  @override
+  String get candy_boost_extra_bonus => 'Base reward + extra bonus';
+
+  @override
+  String get ad_reward_pending => 'Checking your reward';
+
+  @override
+  String get ad_reward_granted => 'Cotton Candy received';
+
+  @override
+  String get ad_reward_not_granted => 'The reward was not granted';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
