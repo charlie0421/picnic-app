@@ -5,12 +5,22 @@ set -e
 # 🔧 설정값
 BUILD_NAME="1.1.41"
 BUILD_NUMBER="114113"
-ENV="prod"
+ENV="${ENVIRONMENT:-}"
+if [ "$ENV" != "local" ] && [ "$ENV" != "dev" ]; then
+  echo "NO-GO: ENVIRONMENT must be explicitly local or dev; production builds require protected CI"
+  exit 1
+fi
+export PANGLE_ENVIRONMENT="${PANGLE_ENVIRONMENT:-sandbox}"
+export PAYMENT_ENVIRONMENT="${PAYMENT_ENVIRONMENT:-sandbox}"
+dart run tool/verify_environment_isolation.dart --environment="$ENV"
 
 echo "📦 Flutter AAB 빌드 시작..."
 flutter clean
 flutter pub get
-flutter build appbundle --release --dart-define=ENVIRONMENT=$ENV
+flutter build appbundle --release \
+  --dart-define=ENVIRONMENT="$ENV" \
+  --dart-define=PANGLE_ENVIRONMENT="$PANGLE_ENVIRONMENT" \
+  --dart-define=PAYMENT_ENVIRONMENT="$PAYMENT_ENVIRONMENT"
 
 AAB_PATH="build/app/outputs/bundle/release/app-release.aab"
 if [ ! -f "$AAB_PATH" ]; then

@@ -25,11 +25,24 @@ class Environment {
         stagingProjectRef: const String.fromEnvironment(
           'PICNIC_STAGING_SUPABASE_PROJECT_REF',
         ),
+        pangleEnvironment: const String.fromEnvironment('PANGLE_ENVIRONMENT'),
+        paymentEnvironment: const String.fromEnvironment('PAYMENT_ENVIRONMENT'),
       );
       if (!result.isValid) {
         throw StateError(
           'Supabase environment validation failed: ${result.reason}',
         );
+      }
+    }
+    if (env == 'prod') {
+      final result = SupabaseEnvironmentPolicy.validate(
+        environment: env,
+        config: _config,
+        pangleEnvironment: const String.fromEnvironment('PANGLE_ENVIRONMENT'),
+        paymentEnvironment: const String.fromEnvironment('PAYMENT_ENVIRONMENT'),
+      );
+      if (!result.isValid) {
+        throw StateError('Environment validation failed: ${result.reason}');
       }
     }
     _isInitialized = true;

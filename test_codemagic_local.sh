@@ -56,6 +56,8 @@ flutter --version
 
 # 3. 환경 변수 설정 (개발용)
 export ENVIRONMENT=dev
+export PANGLE_ENVIRONMENT=sandbox
+export PAYMENT_ENVIRONMENT=sandbox
 export PATH="$PATH:$HOME/.shorebird/bin"
 
 # 4. 앱 디렉토리로 이동
@@ -91,7 +93,9 @@ if [ "$PLATFORM" = "android" ]; then
     mkdir -p build/app/outputs/flutter-apk/
     
     # Flutter 빌드 실행 (Flutter의 "파일을 찾을 수 없다" 메시지는 무시 - 실제로는 빌드 성공)
-    flutter build apk --debug --dart-define=ENVIRONMENT=dev || echo "Flutter 빌드 완료 (메시지 무시)"
+    flutter build apk --debug --dart-define=ENVIRONMENT=dev \
+      --dart-define=PANGLE_ENVIRONMENT=sandbox \
+      --dart-define=PAYMENT_ENVIRONMENT=sandbox
     
     # 빌드 후 파일 확인 및 복사
     log_info "빌드 결과 확인 및 경로 설정 중..."
@@ -116,7 +120,9 @@ if [ "$PLATFORM" = "android" ]; then
     
     # 릴리즈 빌드 테스트 (키스토어 없이)
     log_info "릴리즈 AAB 빌드 테스트..."
-    flutter build appbundle --release --dart-define=ENVIRONMENT=dev --no-shrink || echo "AAB 빌드 완료 (메시지 무시)"
+    flutter build appbundle --release --dart-define=ENVIRONMENT=dev \
+      --dart-define=PANGLE_ENVIRONMENT=sandbox \
+      --dart-define=PAYMENT_ENVIRONMENT=sandbox --no-shrink
     
     # Flutter가 기대하는 경로에 파일 복사
     mkdir -p build/app/outputs/bundle/release/
@@ -159,7 +165,9 @@ elif [ "$PLATFORM" = "ios" ]; then
     
     # iOS 빌드 테스트
     log_info "iOS 빌드 테스트..."
-    flutter build ios --debug --dart-define=ENVIRONMENT=dev --no-codesign
+    flutter build ios --debug --dart-define=ENVIRONMENT=dev \
+      --dart-define=PANGLE_ENVIRONMENT=sandbox \
+      --dart-define=PAYMENT_ENVIRONMENT=sandbox --no-codesign
     
     # Flutter가 기대하는 경로에 디렉토리 생성
     log_info "iOS 빌드 경로 설정 중..."
@@ -207,4 +215,4 @@ elif [ "$PLATFORM" = "ios" ]; then
     find . -name "*.app" -o -name "*.ipa" | head -10
 fi
 
-log_success "=== 로컬 테스트 완료 ===" 
+log_success "=== 로컬 테스트 완료 ==="

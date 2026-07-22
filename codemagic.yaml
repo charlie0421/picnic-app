@@ -31,6 +31,12 @@ workflows:
           include: true
       cancel_previous_builds: true
     scripts:
+      - name: Verify protected production target when requested
+        script: |
+          if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+            cd picnic_app
+            dart run tool/verify_release_target.dart --target=production
+          fi
       - name: Get Flutter packages and prepare iOS
         script: |
           cd picnic_app
@@ -284,6 +290,8 @@ workflows:
           shorebird release ios \
             --dart-define=ENVIRONMENT=dev \
             --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+            --dart-define=PANGLE_ENVIRONMENT=sandbox \
+            --dart-define=PAYMENT_ENVIRONMENT=sandbox \
             --no-confirm \
             --flutter-version=3.41.4 \
             -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
@@ -360,6 +368,8 @@ workflows:
                 --release \
                 --dart-define=ENVIRONMENT=dev \
                 --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+                --dart-define=PANGLE_ENVIRONMENT=sandbox \
+                --dart-define=PAYMENT_ENVIRONMENT=sandbox \
                 --export-options-plist=ios/ExportOptions.plist
             fi
           else
@@ -370,6 +380,8 @@ workflows:
               --release \
               --dart-define=ENVIRONMENT=dev \
               --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+              --dart-define=PANGLE_ENVIRONMENT=sandbox \
+              --dart-define=PAYMENT_ENVIRONMENT=sandbox \
               --export-options-plist=ios/ExportOptions.plist
           fi
 
@@ -523,6 +535,10 @@ workflows:
           include: true
       cancel_previous_builds: true
     scripts:
+      - name: Verify protected production target
+        script: |
+          cd picnic_app
+          dart run tool/verify_release_target.dart --target=production
       - name: Install Shorebird CLI
         script: |
           if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
@@ -632,6 +648,8 @@ workflows:
 
           shorebird release android \
             --dart-define=ENVIRONMENT=prod \
+            --dart-define=PANGLE_ENVIRONMENT=prod \
+            --dart-define=PAYMENT_ENVIRONMENT=prod \
             --no-confirm \
             --flutter-version=3.41.4 \
             --verbose 2>&1 | tee /tmp/shorebird_release.log
@@ -671,7 +689,9 @@ workflows:
             echo "📦 Flutter AAB 빌드 (fallback)..."
             flutter build appbundle \
               --release \
-              --dart-define=ENVIRONMENT=prod
+              --dart-define=ENVIRONMENT=prod \
+              --dart-define=PANGLE_ENVIRONMENT=prod \
+              --dart-define=PAYMENT_ENVIRONMENT=prod
 
             if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
               echo "✅ AAB 빌드 완료 (Shorebird 패치 미지원)"
@@ -862,10 +882,12 @@ workflows:
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
-    # NOTE: tag-based triggering 제거됨 (2026-04-26).
-    # 패치는 로컬에서 `picnic_app/scripts/shorebird-patch.sh` 로 진행.
-    # Codemagic 워크플로우는 보존하되 수동 트리거(=콘솔에서 직접 빌드 시작) 전용.
+    # Production patches are manual and require protected exact-SHA evidence.
     scripts:
+      - name: Verify protected production target
+        script: |
+          cd picnic_app
+          dart run tool/verify_release_target.dart --target=production
       - name: Setup and Patch iOS
         script: |
           echo "=== Shorebird iOS 패치 ==="
@@ -913,6 +935,8 @@ workflows:
             --allow-native-diffs \
             --allow-asset-diffs \
             --dart-define=ENVIRONMENT=prod \
+            --dart-define=PANGLE_ENVIRONMENT=prod \
+            --dart-define=PAYMENT_ENVIRONMENT=prod \
             --verbose \
             -- --no-codesign
 
@@ -1012,10 +1036,12 @@ workflows:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
         - $HOME/.gradle/caches
-    # NOTE: tag-based triggering 제거됨 (2026-04-26).
-    # 패치는 로컬에서 `picnic_app/scripts/shorebird-patch.sh` 로 진행.
-    # Codemagic 워크플로우는 보존하되 수동 트리거(=콘솔에서 직접 빌드 시작) 전용.
+    # Production patches are manual and require protected exact-SHA evidence.
     scripts:
+      - name: Verify protected production target
+        script: |
+          cd picnic_app
+          dart run tool/verify_release_target.dart --target=production
       - name: Setup and Patch Android
         script: |
           echo "=== Shorebird Android 패치 ==="
@@ -1067,6 +1093,8 @@ workflows:
             --allow-native-diffs \
             --allow-asset-diffs \
             --dart-define=ENVIRONMENT=prod \
+            --dart-define=PANGLE_ENVIRONMENT=prod \
+            --dart-define=PAYMENT_ENVIRONMENT=prod \
             --verbose
 
           PATCH_EXIT_CODE=$?
