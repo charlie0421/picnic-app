@@ -57,36 +57,35 @@ class _PortalState extends ConsumerState<Portal> {
                   height: 36,
                   alignment: Alignment.center,
                   child: userInfoState.when(
-                          data: (data) => data != null
-                              ? GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    Scaffold.of(context).openDrawer();
-                                  },
-                                  child: ProfileImageContainer(
-                                    avatarUrl: data.avatarUrl,
-                                    width: 36,
-                                    height: 36,
-                                    borderRadius: 8.r,
-                                  ))
-                              : GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () =>
-                                      Scaffold.of(context).openDrawer(),
-                                  child: const DefaultAvatar()),
-                          error: (error, stackTrace) => GestureDetector(
+                    data: (data) => data != null
+                        ? GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              Scaffold.of(context).openDrawer();
+                            },
+                            child: ProfileImageContainer(
+                              avatarUrl: data.avatarUrl,
+                              width: 36,
+                              height: 36,
+                              borderRadius: 8.r,
+                            ))
+                        : GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => Scaffold.of(context).openDrawer(),
-                            child: const DefaultAvatar(),
-                          ),
-                          loading: () => SizedBox(
-                            width: 36,
-                            height: 36,
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.r),
-                                child: buildPlaceholderImage()),
-                          ),
-                        ),
+                            child: const DefaultAvatar()),
+                    error: (error, stackTrace) => GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Scaffold.of(context).openDrawer(),
+                      child: const DefaultAvatar(),
+                    ),
+                    loading: () => SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: buildPlaceholderImage()),
+                    ),
+                  ),
                 );
               },
             ),
@@ -105,9 +104,29 @@ class _PortalState extends ConsumerState<Portal> {
                     height: 20,
                     fit: BoxFit.contain,
                   ),
-                  if (Environment.currentEnvironment != 'prod') ...[
+                  if (Environment.currentEnvironment == 'dev') ...[
                     SizedBox(width: 8.w),
-                    Text(Environment.currentEnvironment),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF7C4DFF),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 7.w,
+                          vertical: 3.h,
+                        ),
+                        child: Text(
+                          'STAGING',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ],
               ),
