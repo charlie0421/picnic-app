@@ -90,6 +90,38 @@ supabase storage ls bucket --local
     expect(findings, isEmpty);
   });
 
+  test('static scan does not borrow a target flag from another command', () {
+    final findings = guard.scanDeveloperScripts({
+      'bypass.sh': 'supabase db push; echo --project-ref harmless',
+    });
+    expect(findings, hasLength(1));
+  });
+
+  test('static scan finds linked commands after Supabase global options', () {
+    final findings = guard.scanDeveloperScripts({
+      'global.sh': 'supabase --workdir /tmp db push',
+    });
+    expect(findings, hasLength(1));
+  });
+
+  test('static scan accepts same-invocation safe targets with global options',
+      () {
+    final findings = guard.scanDeveloperScripts({
+      'safe.sh': '''
+supabase --workdir /tmp db push --local
+supabase --debug functions deploy hello --project-ref approved-staging-ref
+''',
+    });
+    expect(findings, isEmpty);
+  });
+
+  test('static scan fails closed on ambiguous guarded shell constructs', () {
+    final findings = guard.scanDeveloperScripts({
+      'ambiguous.sh': r'supabase $(echo db) push --local',
+    });
+    expect(findings, isNotEmpty);
+  });
+
   test('static scan scope is explicit and current developer scripts are safe',
       () {
     final scripts = <String, String>{
