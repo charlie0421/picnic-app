@@ -15,6 +15,10 @@ List<String> scanDeveloperScripts(Map<String, String> scripts) {
   final findings = <String>[];
   for (final entry in scripts.entries) {
     for (final command in _logicalCommands(entry.value)) {
+      if (command == _ambiguousShellMarker) {
+        findings.add('${entry.key}: ambiguous shell syntax');
+        continue;
+      }
       if (command.contains('--no-confirm')) {
         findings.add('${entry.key}: unattended confirmation bypass');
         continue;
@@ -24,11 +28,18 @@ List<String> scanDeveloperScripts(Map<String, String> scripts) {
         findings.add('${entry.key}: direct Lambda mutation');
         continue;
       }
-      if (RegExp(r'\bsupabase\s+(db|storage|functions|migration|secrets)\b')
-              .hasMatch(command) &&
-          !command.contains('--local') &&
-          !command.contains('--project-ref')) {
-        findings.add('${entry.key}: linked Supabase command');
+      final supabaseStart = RegExp(r'\bsupabase\b').firstMatch(command)?.start;
+      if (supabaseStart != null) {
+        final invocation = command.substring(supabaseStart);
+        final hasLinkedOperation = RegExp(
+          r'\b(db|storage|functions|migration|secrets)\b',
+        ).hasMatch(invocation);
+        final hasExplicitTarget = RegExp(
+          r'(^|\s)--local(\s|$)|(^|\s)--project-ref(?:=|\s+)\S+',
+        ).hasMatch(invocation);
+        if (hasLinkedOperation && !hasExplicitTarget) {
+          findings.add('${entry.key}: linked Supabase command');
+        }
       }
     }
   }
@@ -44,11 +55,78 @@ Iterable<String> _logicalCommands(String source) sync* {
     final continued = code.endsWith(r'\');
     pending += '${continued ? code.substring(0, code.length - 1) : code} ';
     if (!continued) {
-      yield pending.trim();
+      final split = _splitShellUnits(pending.trim());
+      if (split.ambiguous) {
+        if (_mayContainGuardedCommand(pending)) {
+          yield _ambiguousShellMarker;
+        }
+      } else {
+        yield* split.units;
+      }
       pending = '';
     }
   }
-  if (pending.trim().isNotEmpty) yield pending.trim();
+  if (pending.trim().isNotEmpty) yield _ambiguousShellMarker;
+}
+
+bool _mayContainGuardedCommand(String command) =>
+    RegExp(r'\bsupabase\b|--no-confirm|\baws\s+lambda\b').hasMatch(command);
+
+const _ambiguousShellMarker = '<ambiguous-shell-syntax>';
+
+({List<String> units, bool ambiguous}) _splitShellUnits(String command) {
+  final units = <String>[];
+  final buffer = StringBuffer();
+  String? quote;
+  var escaped = false;
+  var ambiguousSyntax = false;
+
+  void flush() {
+    final unit = buffer.toString().trim();
+    if (unit.isNotEmpty) units.add(unit);
+    buffer.clear();
+  }
+
+  for (var index = 0; index < command.length; index++) {
+    final char = command[index];
+    if (escaped) {
+      buffer.write(char);
+      escaped = false;
+      continue;
+    }
+    if (char == r'\' && quote != "'") {
+      buffer.write(char);
+      escaped = true;
+      continue;
+    }
+    if (quote != null) {
+      buffer.write(char);
+      if (char == quote) quote = null;
+      continue;
+    }
+    if (char == "'" || char == '"') {
+      quote = char;
+      buffer.write(char);
+      continue;
+    }
+    final next = index + 1 < command.length ? command[index + 1] : '';
+    if (char == '`' ||
+        (char == r'$' && next == '(') ||
+        (char == '&' && next != '&')) {
+      ambiguousSyntax = true;
+    }
+    if (char == ';' || char == '|' || (char == '&' && next == '&')) {
+      flush();
+      if ((char == '|' || char == '&') && next == char) index++;
+      continue;
+    }
+    buffer.write(char);
+  }
+  flush();
+  return (
+    units: units,
+    ambiguous: ambiguousSyntax || quote != null || escaped,
+  );
 }
 
 class ReleaseTargetInput {
