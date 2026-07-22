@@ -2374,5 +2374,27 @@
   "button_cs_inquiry": "Contact Support",
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
-  }
+  },
+  "wallet_star_candy": "Star Candy",
+  "wallet_bonus_star_candy": "Bonus Star Candy",
+  "wallet_cotton_candy": "Cotton Candy",
+  "wallet_cotton_expires_today": "Expires today: {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "Cotton Candy amount that expires today from the server wallet snapshot",
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "wallet_cotton_next_expiry": "Next expiry: {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "Next Cotton Candy expiry from the server wallet snapshot",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "wallet_load_failed": "Could not load wallet.",
+  "wallet_history_title": "Candy history",
+  "wallet_history_empty": "No history yet.",
+  "candy_boost_day": "Candy Boost Day",
+  "candy_boost_exact_double": "Base reward + 100% extra bonus",
+  "candy_boost_extra_bonus": "Base reward + extra bonus",
+  "ad_reward_pending": "Checking your reward",
+  "ad_reward_granted": "Cotton Candy received",
+  "ad_reward_not_granted": "The reward was not granted"
 }

@@ -3520,6 +3520,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Contact Support'**
   String get button_cs_inquiry;
+
+  /// No description provided for @wallet_star_candy.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy'**
+  String get wallet_star_candy;
+
+  /// No description provided for @wallet_bonus_star_candy.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus Star Candy'**
+  String get wallet_bonus_star_candy;
+
+  /// No description provided for @wallet_cotton_candy.
+  ///
+  /// In en, this message translates to:
+  /// **'Cotton Candy'**
+  String get wallet_cotton_candy;
+
+  /// Cotton Candy amount that expires today from the server wallet snapshot
+  ///
+  /// In en, this message translates to:
+  /// **'Expires today: {amount}'**
+  String wallet_cotton_expires_today(String amount);
+
+  /// Next Cotton Candy expiry from the server wallet snapshot
+  ///
+  /// In en, this message translates to:
+  /// **'Next expiry: {date}'**
+  String wallet_cotton_next_expiry(String date);
+
+  /// No description provided for @wallet_load_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load wallet.'**
+  String get wallet_load_failed;
+
+  /// No description provided for @wallet_history_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Candy history'**
+  String get wallet_history_title;
+
+  /// No description provided for @wallet_history_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No history yet.'**
+  String get wallet_history_empty;
+
+  /// No description provided for @candy_boost_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Candy Boost Day'**
+  String get candy_boost_day;
+
+  /// No description provided for @candy_boost_exact_double.
+  ///
+  /// In en, this message translates to:
+  /// **'Base reward + 100% extra bonus'**
+  String get candy_boost_exact_double;
+
+  /// No description provided for @candy_boost_extra_bonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Base reward + extra bonus'**
+  String get candy_boost_extra_bonus;
+
+  /// No description provided for @ad_reward_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking your reward'**
+  String get ad_reward_pending;
+
+  /// No description provided for @ad_reward_granted.
+  ///
+  /// In en, this message translates to:
+  /// **'Cotton Candy received'**
+  String get ad_reward_granted;
+
+  /// No description provided for @ad_reward_not_granted.
+  ///
+  /// In en, this message translates to:
+  /// **'The reward was not granted'**
+  String get ad_reward_not_granted;
 }
 
 class _AppLocalizationsDelegate

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/wallet/wallet_summary_panel.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -57,7 +60,17 @@ class UsagePolicyPopup extends ConsumerWidget {
             ? ref
                   .watch(expireBonusProvider)
                   .when(
-                    data: (data) => _buildPolicyContent(context, data),
+                    data: (data) => ref
+                        .watch(walletSummaryProvider)
+                        .when(
+                          data: (wallet) =>
+                              _buildPolicyContent(context, data, wallet),
+                          loading: () =>
+                              const Center(child: CircularProgressIndicator()),
+                          error: (error, stack) => Center(
+                            child: Text(localizations.wallet_load_failed),
+                          ),
+                        ),
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
                     error: (error, stack) => Center(
@@ -66,7 +79,7 @@ class UsagePolicyPopup extends ConsumerWidget {
                       ),
                     ),
                   )
-            : _buildPolicyContent(context, null),
+            : _buildPolicyContent(context, null, null),
       ),
     );
   }
@@ -74,6 +87,7 @@ class UsagePolicyPopup extends ConsumerWidget {
   Widget _buildPolicyContent(
     BuildContext context,
     List<Map<String, dynamic>?>? expiringData,
+    WalletSummaryModel? wallet,
   ) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -86,11 +100,60 @@ class UsagePolicyPopup extends ConsumerWidget {
             _buildExpiringBonusSection(context, expiringData),
             SizedBox(height: 20.h),
           ],
+          if (wallet != null) ...[
+            _buildCottonExpirySection(context, wallet),
+            SizedBox(height: 20.h),
+          ],
           Expanded(
             child: SingleChildScrollView(
               child: _buildPolicyDetailsSection(context),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCottonExpirySection(
+    BuildContext context,
+    WalletSummaryModel wallet,
+  ) {
+    final localizations = AppLocalizations.of(context);
+    final expiry = buildCottonExpiryText(context, wallet);
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: AppColors.primary500.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Image.asset(
+                'assets/icons/store/currency_cotton_candy.png',
+                width: 20.w,
+                height: 20.w,
+                package: 'picnic_lib',
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                localizations.wallet_cotton_candy,
+                style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+              ),
+            ],
+          ),
+          if (expiry != null) ...[
+            SizedBox(height: 8.h),
+            Text(
+              expiry,
+              textAlign: TextAlign.left,
+              style: getTextStyle(AppTypo.caption12M, AppColors.grey700),
+            ),
+          ],
         ],
       ),
     );

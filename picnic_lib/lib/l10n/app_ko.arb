@@ -2517,5 +2517,27 @@
   "button_cs_inquiry": "고객센터 문의",
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
-  }
+  },
+  "wallet_star_candy": "스타캔디",
+  "wallet_bonus_star_candy": "보너스 스타캔디",
+  "wallet_cotton_candy": "코튼캔디",
+  "wallet_cotton_expires_today": "오늘 만료 {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "서버 지갑 스냅샷에서 오늘 만료되는 코튼캔디 수량",
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "wallet_cotton_next_expiry": "다음 만료 {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "서버 지갑 스냅샷의 다음 코튼캔디 만료 시각",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "wallet_load_failed": "지갑 정보를 불러오지 못했습니다.",
+  "wallet_history_title": "캔디 내역",
+  "wallet_history_empty": "아직 내역이 없습니다.",
+  "candy_boost_day": "캔디 부스트 데이",
+  "candy_boost_exact_double": "기본 지급 + 추가 보너스 100%",
+  "candy_boost_extra_bonus": "기본 지급 + 추가 보너스",
+  "ad_reward_pending": "보상을 확인하고 있어요",
+  "ad_reward_granted": "코튼캔디를 받았어요",
+  "ad_reward_not_granted": "보상이 지급되지 않았어요"
 }
