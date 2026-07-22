@@ -23,6 +23,8 @@ void main() {
         url: 'https://xtijtefcycoeqludlngc.supabase.co',
         storageUrl: 'https://api.picnic.fan',
       ),
+      pangleEnvironment: 'sandbox',
+      paymentEnvironment: 'sandbox',
     );
 
     expect(result.isValid, isFalse);
@@ -36,6 +38,8 @@ void main() {
         url: 'http://127.0.0.1:54321',
         storageUrl: 'http://127.0.0.1:54321/storage/v1',
       ),
+      pangleEnvironment: 'sandbox',
+      paymentEnvironment: 'sandbox',
     );
 
     expect(result.isValid, isTrue);
@@ -49,6 +53,8 @@ void main() {
         url: 'https://staging-ref.supabase.co',
         storageUrl: 'https://staging-ref.supabase.co/storage/v1',
       ),
+      pangleEnvironment: 'sandbox',
+      paymentEnvironment: 'sandbox',
     );
 
     expect(result.isValid, isTrue);

@@ -5,6 +5,15 @@
 
 set -e  # Exit on any error
 
+ENVIRONMENT="${ENVIRONMENT:-}"
+if [ "$ENVIRONMENT" != "local" ] && [ "$ENVIRONMENT" != "dev" ]; then
+    echo "NO-GO: ENVIRONMENT must be explicitly local or dev; production builds require protected CI"
+    exit 1
+fi
+export PANGLE_ENVIRONMENT="${PANGLE_ENVIRONMENT:-sandbox}"
+export PAYMENT_ENVIRONMENT="${PAYMENT_ENVIRONMENT:-sandbox}"
+dart run tool/verify_environment_isolation.dart --environment="$ENVIRONMENT"
+
 echo "🚀 Starting Android build process..."
 
 # Get the directory where the script is located
@@ -20,7 +29,10 @@ echo "🧹 Cleaning previous builds..."
 flutter clean
 
 echo "🔧 Building Flutter assets..."
-flutter build apk --release --target-platform android-arm,android-arm64,android-x64 || true
+flutter build apk --release --target-platform android-arm,android-arm64,android-x64 \
+  --dart-define=ENVIRONMENT="$ENVIRONMENT" \
+  --dart-define=PANGLE_ENVIRONMENT="$PANGLE_ENVIRONMENT" \
+  --dart-define=PAYMENT_ENVIRONMENT="$PAYMENT_ENVIRONMENT"
 
 # Even if Flutter build fails, we can still use Gradle directly
 echo "⚡ Building with Gradle directly..."
@@ -62,4 +74,4 @@ echo "🎉 Build completed successfully!"
 echo "📋 Build artifacts:"
 echo "   - APK: picnic-app-release.apk"
 echo "   - AAB: picnic-app-release.aab"
-echo "   - With timestamp: picnic-app-${TIMESTAMP}.{apk,aab}" 
+echo "   - With timestamp: picnic-app-${TIMESTAMP}.{apk,aab}"

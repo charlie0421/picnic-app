@@ -8,6 +8,13 @@
 
 set -e
 
+# All integration callers must select local or dev explicitly. This script runs
+# offline library tests only and never links or mutates a remote Supabase target.
+if [ -n "${ENVIRONMENT:-}" ] && [ "$ENVIRONMENT" != "local" ] && [ "$ENVIRONMENT" != "dev" ]; then
+  echo "NO-GO: production tests require the protected release workflow"
+  exit 1
+fi
+
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 LIB_DIR="$PROJECT_DIR/picnic_lib"
 THRESHOLD=60
