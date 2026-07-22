@@ -35,6 +35,14 @@ workflows:
         script: |
           cd picnic_app
 
+          : "${PICNIC_STAGING_SUPABASE_URL:?PICNIC_STAGING_SUPABASE_URL is required}"
+          : "${PICNIC_STAGING_SUPABASE_ANON_KEY:?PICNIC_STAGING_SUPABASE_ANON_KEY is required}"
+          : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
+          jq --arg url "$PICNIC_STAGING_SUPABASE_URL" \
+            --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
+            '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=$url | .supabase.storage.anon_key=$key' \
+            config/prod.json > config/dev.json
+
           echo "=== Flutter 패키지 설치 ==="
           flutter packages pub get
 
@@ -274,7 +282,8 @@ workflows:
           # Shorebird release ios는 xcarchive를 생성함
           # --export-options-plist를 전달하여 IPA도 함께 생성
           shorebird release ios \
-            --dart-define=ENVIRONMENT=prod \
+            --dart-define=ENVIRONMENT=dev \
+            --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
             --no-confirm \
             --flutter-version=3.41.4 \
             -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
@@ -349,7 +358,8 @@ workflows:
               echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
               flutter build ipa \
                 --release \
-                --dart-define=ENVIRONMENT=prod \
+                --dart-define=ENVIRONMENT=dev \
+                --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
                 --export-options-plist=ios/ExportOptions.plist
             fi
           else
@@ -358,7 +368,8 @@ workflows:
             echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
             flutter build ipa \
               --release \
-              --dart-define=ENVIRONMENT=prod \
+              --dart-define=ENVIRONMENT=dev \
+              --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
               --export-options-plist=ios/ExportOptions.plist
           fi
 
@@ -1134,4 +1145,3 @@ workflows:
         notify:
           success: true
           failure: true
-
