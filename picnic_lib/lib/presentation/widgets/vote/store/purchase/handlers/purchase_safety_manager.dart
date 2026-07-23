@@ -109,6 +109,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     _loadingKey.currentState?.hide();
     if (productId != null) {
       _activeProducts.remove(productId);
+    } else {
+      _resetPurchaseState();
     }
 
     onTimeoutUIReset?.call();
@@ -734,11 +736,21 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
     if (wasCancelled) {
       logger.i('[심플] 구매 취소 - 조용히 처리');
-      if (productId != null) resetProductState(productId, reason: '구매 취소');
+      if (productId != null) {
+        resetProductState(productId, reason: '구매 취소');
+      } else {
+        resetInternalState(reason: '구매 취소');
+        _resetPurchaseState();
+      }
       _loadingKey.currentState?.hide();
     } else if (!success) {
       logger.e('[심플] 구매 실패: $errorMessage');
-      if (productId != null) resetProductState(productId, reason: '구매 실패');
+      if (productId != null) {
+        resetProductState(productId, reason: '구매 실패');
+      } else {
+        resetInternalState(reason: '구매 실패');
+        _resetPurchaseState();
+      }
       _loadingKey.currentState?.hide();
       await showErrorDialog(errorMessage ?? '구매 처리 중 오류가 발생했습니다.');
     } else {

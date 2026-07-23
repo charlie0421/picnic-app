@@ -88,7 +88,7 @@ class PurchaseCampaignAttemptRegistry {
           ? context!.attempt
           : null;
     }
-    if (context == null || !context.launched || context.transactionId != null) {
+    if (!context.launched || context.transactionId != null) {
       return null;
     }
     context.transactionId = transactionId;
