@@ -154,24 +154,29 @@ abstract class InternalShortformViewResponse
     @JsonKey(name: 'new_bonus') required int? newBonus,
     AdRewardStatusModel? reward,
   }) = _InternalShortformViewResponse;
-  factory InternalShortformViewResponse.fromJson(Map<String, dynamic> json) {
-    const legacy = {'ok', 'reward_added', 'impression_id', 'new_bonus'};
-    const current = {...legacy, 'reward'};
-    final keys = json.keys.toSet();
-    if ((keys.length != legacy.length || !keys.containsAll(legacy)) &&
-        (keys.length != current.length || !keys.containsAll(current))) {
-      throw FormatException('Invalid internal shortform response keys: $keys');
-    }
-    return InternalShortformViewResponse(
-      ok: json['ok'] as bool,
-      rewardAdded: json['reward_added'] as int,
-      impressionId: json['impression_id'] as String,
-      newBonus: json['new_bonus'] as int?,
-      reward: json['reward'] == null
-          ? null
-          : AdRewardStatusModel.fromJson(
-              Map<String, dynamic>.from(json['reward'] as Map),
-            ),
-    );
+  factory InternalShortformViewResponse.fromJson(Map<String, dynamic> json) =>
+      _decodeContract(() => _parseInternalShortformViewResponse(json));
+}
+
+InternalShortformViewResponse _parseInternalShortformViewResponse(
+  Map<String, dynamic> json,
+) {
+  const legacy = {'ok', 'reward_added', 'impression_id', 'new_bonus'};
+  const current = {...legacy, 'reward'};
+  final keys = json.keys.toSet();
+  if ((keys.length != legacy.length || !keys.containsAll(legacy)) &&
+      (keys.length != current.length || !keys.containsAll(current))) {
+    throw FormatException('Invalid internal shortform response keys: $keys');
   }
+  return InternalShortformViewResponse(
+    ok: json['ok'] as bool,
+    rewardAdded: json['reward_added'] as int,
+    impressionId: json['impression_id'] as String,
+    newBonus: json['new_bonus'] as int?,
+    reward: json['reward'] == null
+        ? null
+        : AdRewardStatusModel.fromJson(
+            Map<String, dynamic>.from(json['reward'] as Map),
+          ),
+  );
 }

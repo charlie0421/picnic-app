@@ -14,13 +14,19 @@ class StoredAdRewardReference {
     'state': state.name,
   };
   factory StoredAdRewardReference.fromJson(Map<String, dynamic> json) {
-    requireExactContractKeys(json, {'reference', 'state'});
-    return StoredAdRewardReference(
-      reference: AdRewardReference.fromJson(
-        Map<String, dynamic>.from(json['reference'] as Map),
-      ),
-      state: PendingAdRewardLocalState.values.byName(json['state'] as String),
-    );
+    try {
+      requireExactContractKeys(json, {'reference', 'state'});
+      return StoredAdRewardReference(
+        reference: AdRewardReference.fromJson(
+          Map<String, dynamic>.from(json['reference'] as Map),
+        ),
+        state: PendingAdRewardLocalState.values.byName(json['state'] as String),
+      );
+    } on FormatException {
+      rethrow;
+    } catch (error) {
+      throw FormatException('Invalid stored ad reward reference', error);
+    }
   }
 }
 
@@ -38,17 +44,23 @@ class PendingAdRewardStore {
 
   Future<List<StoredAdRewardReference>> readAll(String userId) async {
     final raw = await storage.loadData(_key(userId), '[]') ?? '[]';
-    final decoded = jsonDecode(raw);
-    if (decoded is! List) {
-      throw const FormatException('Pending rewards must be a list');
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) {
+        throw const FormatException('Pending rewards must be a list');
+      }
+      return decoded
+          .map(
+            (value) => StoredAdRewardReference.fromJson(
+              Map<String, dynamic>.from(value as Map),
+            ),
+          )
+          .toList();
+    } on FormatException {
+      rethrow;
+    } catch (error) {
+      throw FormatException('Invalid pending ad rewards', error);
     }
-    return decoded
-        .map(
-          (value) => StoredAdRewardReference.fromJson(
-            Map<String, dynamic>.from(value as Map),
-          ),
-        )
-        .toList();
   }
 
   Future<void> _save(String userId, Iterable<StoredAdRewardReference> values) =>

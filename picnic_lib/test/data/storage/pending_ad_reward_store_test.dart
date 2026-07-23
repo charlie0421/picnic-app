@@ -67,4 +67,19 @@ void main() {
       expect(await store.readAll('b'), hasLength(1));
     },
   );
+
+  test(
+    'wrong list entries and unknown local state are FormatException',
+    () async {
+      final storage = MemoryStorage();
+      final store = PendingAdRewardStore(storage);
+      storage.values['pending_ad_rewards_v1:a'] = '[1]';
+      await expectLater(store.readAll('a'), throwsFormatException);
+      storage.values['pending_ad_rewards_v1:a'] =
+          '[{"reference":{"type":"INTERNAL_IMPRESSION","id":"id"},"state":"unknown"}]';
+      await expectLater(store.readAll('a'), throwsFormatException);
+      storage.values['pending_ad_rewards_v1:a'] = '{}';
+      await expectLater(store.readAll('a'), throwsFormatException);
+    },
+  );
 }

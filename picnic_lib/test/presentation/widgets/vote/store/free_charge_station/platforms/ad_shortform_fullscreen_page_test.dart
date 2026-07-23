@@ -174,6 +174,10 @@ void main() {
       final response = await legacyViewResponse();
       expect(AdShortformLogic.shouldSuppressLocalWalletUx(response), isFalse);
       expect(AdShortformLogic.shouldUseLegacyBonusUx(response), isTrue);
+      expect(
+        AdShortformLogic.legacyBonusSuccessMessage('credited', response),
+        'credited (1)',
+      );
     });
   });
 }

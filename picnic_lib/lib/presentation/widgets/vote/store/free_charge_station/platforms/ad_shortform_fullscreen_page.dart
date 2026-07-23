@@ -24,6 +24,14 @@ class AdShortformLogic {
     InternalShortformViewResponse response,
   ) => response.reward != null;
 
+  static String legacyBonusSuccessMessage(
+    String baseMessage,
+    InternalShortformViewResponse response,
+  ) {
+    final newBonus = response.newBonus;
+    return newBonus == null ? baseMessage : '$baseMessage ($newBonus)';
+  }
+
   /// Whether the countdown (<= 5s remaining) should start.
   static bool shouldStartCountdown({
     required bool ctaRevealStarted,
@@ -377,7 +385,10 @@ class _AdShortformFullscreenPageState
       if (!mounted) return;
       showSimpleDialog(
         // 국제화된 성공 메시지 사용, 버튼 없음
-        content: AppLocalizations.of(context).ad_reward_success_message,
+        content: AdShortformLogic.legacyBonusSuccessMessage(
+          AppLocalizations.of(context).ad_reward_success_message,
+          response,
+        ),
       );
     }
   }

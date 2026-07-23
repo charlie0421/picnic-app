@@ -14,6 +14,7 @@ import 'package:picnic_lib/presentation/providers/ad_reward_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_fullscreen_page.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_session.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow.dart';
 
 class ShortformInternalPlatform extends AdPlatform {
   ShortformInternalPlatform(
@@ -206,39 +207,28 @@ class ShortformInternalPlatform extends AdPlatform {
       );
     }
     try {
-      final res = await SupabaseClient(
+      final issueClient = SupabaseClient(
         supabaseUrl,
         Environment.supabaseAnonKey,
-      ).functions.invoke('ad-shortform-issue', headers: issueHeaders);
-      if (res.data is! Map) {
-        throw const FormatException('Invalid ad issue response');
-      }
-      final json = Map<String, dynamic>.from(res.data as Map);
-      final impressionId = json['impression_id'];
-      if (impressionId is! String || !_uuidPattern.hasMatch(impressionId)) {
-        throw const FormatException('Invalid ad issue impression_id');
-      }
-      final ad = Map<String, dynamic>.from(json['ad'] as Map);
-      final tokens = Map<String, dynamic>.from(json['tokens'] as Map);
-      _videoUrl = ad['video_url'] as String?;
-      _ctaUrl = ad['cta_url'] as String?;
-      // 임시: ads/* 또는 /video(s)/output/* 경로를 CloudFront HLS 마스터로 동적 치환
-      _videoUrl = rewriteVideoUrlIfNeeded(_videoUrl);
+      );
+      final result = await InternalShortformIssueFlow(
+        currentOwner: () => supabase.auth.currentUser?.id,
+        invokeIssue: () async => (await issueClient.functions.invoke(
+          'ad-shortform-issue',
+          headers: issueHeaders,
+        )).data,
+        persist: (owner, reference) => _rewardSession.bindIssued(
+          owner: owner,
+          issuedReference: reference,
+          persist: ref.read(pendingAdRewardStoreProvider).add,
+        ),
+        rewriteVideoUrl: rewriteVideoUrlIfNeeded,
+      ).issue();
+      _videoUrl = result.videoUrl;
+      _ctaUrl = result.ctaUrl;
       logInfo('issued (route) video_url: ${_videoUrl ?? ''}');
-      _viewToken = tokens['view_token'] as String?;
-      _moreToken = tokens['more_token'] as String?;
-      if ((_videoUrl ?? '').isEmpty || (_viewToken ?? '').isEmpty) {
-        throw const FormatException('Ad issue is not playable');
-      }
-      final reference = AdRewardReference(
-        type: AdRewardReferenceType.internalImpression,
-        id: impressionId,
-      );
-      await _rewardSession.bindIssued(
-        owner: ownerUserId,
-        issuedReference: reference,
-        persist: ref.read(pendingAdRewardStoreProvider).add,
-      );
+      _viewToken = result.viewToken;
+      _moreToken = result.moreToken;
       return (videoUrl: _videoUrl ?? '', ctaUrl: _ctaUrl, blocked: false);
     } catch (e) {
       final aa = mapToAntiAbuseException(e);
@@ -284,23 +274,15 @@ class ShortformInternalPlatform extends AdPlatform {
     if ((_viewToken ?? '').isEmpty) {
       throw StateError('No issued view token');
     }
-    final response = await supabase.functions.invoke(
-      'callback-ad-shortform-view',
-      body: {'token': _viewToken},
-    );
-    if (response.data is! Map) {
-      throw const FormatException('Invalid view callback response');
-    }
-    final parsed = ref
-        .read(adRewardRepositoryProvider)
-        .parseInternalViewResponse(
-          Map<String, dynamic>.from(response.data as Map),
-        );
-    _rewardSession.validateCallback(
-      currentOwner: supabase.auth.currentUser?.id,
-      response: parsed,
-    );
-    return parsed;
+    return InternalShortformViewFlow(
+      session: _rewardSession,
+      currentOwner: () => supabase.auth.currentUser?.id,
+      invokeCallback: () async => (await supabase.functions.invoke(
+        'callback-ad-shortform-view',
+        body: {'token': _viewToken},
+      )).data,
+      parse: ref.read(adRewardRepositoryProvider).parseInternalViewResponse,
+    ).report();
   }
 
   Future<void> _callMore() async {
