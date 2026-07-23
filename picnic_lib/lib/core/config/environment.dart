@@ -6,9 +6,29 @@ import 'package:logger/logger.dart';
 import 'package:picnic_lib/core/config/supabase_environment_policy.dart';
 
 class Environment {
+  static const _pangleEnvironment = String.fromEnvironment(
+    'PANGLE_ENVIRONMENT',
+  );
+  static const _paymentEnvironment = String.fromEnvironment(
+    'PAYMENT_ENVIRONMENT',
+  );
+  static const _paymentProductNamespace = String.fromEnvironment(
+    'PICNIC_PAYMENT_PRODUCT_NAMESPACE',
+  );
+  static const _pangleRuntimeConfig = <String, String>{
+    'ios_app_id': String.fromEnvironment('PICNIC_PANGLE_IOS_APP_ID'),
+    'android_app_id': String.fromEnvironment('PICNIC_PANGLE_ANDROID_APP_ID'),
+    'ios_rewarded_video_id': String.fromEnvironment(
+      'PICNIC_PANGLE_IOS_REWARDED_ID',
+    ),
+    'android_rewarded_video_id': String.fromEnvironment(
+      'PICNIC_PANGLE_ANDROID_REWARDED_ID',
+    ),
+  };
   static late Map<String, dynamic> _config;
   static late String _currentEnvironment;
   static bool _isInitialized = false;
+  static Map<String, dynamic>? _productionPangleConfig;
 
   static Future<void> initConfig(String env) async {
     _currentEnvironment = env;
@@ -18,6 +38,10 @@ class Environment {
       final productionString = await rootBundle.loadString('config/prod.json');
       final productionConfig =
           json.decode(productionString) as Map<String, dynamic>;
+      _productionPangleConfig = Map<String, dynamic>.from(
+        (productionConfig['ads'] as Map<String, dynamic>)['pangle']
+            as Map<String, dynamic>,
+      );
       final result = SupabaseEnvironmentPolicy.validate(
         environment: env,
         config: _config,
@@ -25,14 +49,21 @@ class Environment {
         stagingProjectRef: const String.fromEnvironment(
           'PICNIC_STAGING_SUPABASE_PROJECT_REF',
         ),
-        pangleEnvironment: const String.fromEnvironment('PANGLE_ENVIRONMENT'),
-        paymentEnvironment: const String.fromEnvironment('PAYMENT_ENVIRONMENT'),
+        pangleEnvironment: _pangleEnvironment,
+        paymentEnvironment: _paymentEnvironment,
+        pangleRuntimeConfig: _pangleRuntimeConfig,
+        paymentProductNamespace: _paymentProductNamespace,
       );
       if (!result.isValid) {
         throw StateError(
           'Supabase environment validation failed: ${result.reason}',
         );
       }
+      _config['ads'] ??= <String, dynamic>{};
+      (_config['ads'] as Map<String, dynamic>)['pangle'] =
+          Map<String, dynamic>.from(_pangleRuntimeConfig);
+      (_config['app'] as Map<String, dynamic>)['inapp_appname_prefix'] =
+          _paymentProductNamespace;
     }
     if (env == 'prod') {
       final result = SupabaseEnvironmentPolicy.validate(
@@ -63,6 +94,13 @@ class Environment {
   static bool get isInitialized => _isInitialized;
 
   static String get currentEnvironment => _currentEnvironment;
+  static String get pangleEnvironment =>
+      _currentEnvironment == 'prod' ? 'prod' : 'sandbox';
+  static String get paymentEnvironment =>
+      _currentEnvironment == 'prod' ? 'production' : 'sandbox';
+  static String get paymentProductNamespace => _currentEnvironment == 'prod'
+      ? inappAppNamePrefix
+      : _paymentProductNamespace;
 
   // 중첩된 설정값을 가져오는 헬퍼 메서드
   static dynamic _getValue(List<String> path) {
@@ -271,6 +309,15 @@ class Environment {
       }
     }
   }
+
+  static String? get productionPangleIosAppId =>
+      _productionPangleConfig?['ios_app_id'] as String?;
+  static String? get productionPangleAndroidAppId =>
+      _productionPangleConfig?['android_app_id'] as String?;
+  static String? get productionPangleIosRewardedVideoId =>
+      _productionPangleConfig?['ios_rewarded_video_id'] as String?;
+  static String? get productionPangleAndroidRewardedVideoId =>
+      _productionPangleConfig?['android_rewarded_video_id'] as String?;
 
   static String? get admobIosRewardedVideoId {
     try {

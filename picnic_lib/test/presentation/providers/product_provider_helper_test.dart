@@ -155,6 +155,28 @@ void main() {
     });
   });
 
+  group('ProductProviderHelper.validateSandboxProductIds', () {
+    test('rejects a production product id in a sandbox catalog', () {
+      expect(
+        () => ProductProviderHelper.validateSandboxProductIds(
+          {'STAR100'},
+          namespace: 'staging.',
+        ),
+        throwsStateError,
+      );
+    });
+
+    test('accepts only explicitly namespaced sandbox product ids', () {
+      expect(
+        () => ProductProviderHelper.validateSandboxProductIds(
+          {'staging.STAR100'},
+          namespace: 'staging.',
+        ),
+        returnsNormally,
+      );
+    });
+  });
+
   group('ProductProviderHelper.isSupabaseInitError', () {
     test('returns true for "Project not specified" error', () {
       expect(

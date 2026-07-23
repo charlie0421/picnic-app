@@ -31,6 +31,22 @@ Map<String, dynamic> _purchaseResult() => {
     };
 
 void main() {
+  test('non-production payment verification rejects production environment', () {
+    expect(
+      ReceiptVerificationService.isPaymentEnvironmentAllowed(
+        buildEnvironment: 'dev',
+        requestedEnvironment: 'production',
+      ),
+      isFalse,
+    );
+    expect(
+      ReceiptVerificationService.isPaymentEnvironmentAllowed(
+        buildEnvironment: 'dev',
+        requestedEnvironment: 'sandbox',
+      ),
+      isTrue,
+    );
+  });
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {

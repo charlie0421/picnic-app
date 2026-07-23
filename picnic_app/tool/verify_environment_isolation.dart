@@ -25,6 +25,17 @@ Future<void> main(List<String> args) async {
           Platform.environment['PICNIC_STAGING_SUPABASE_PROJECT_REF'],
       pangleEnvironment: Platform.environment['PANGLE_ENVIRONMENT'],
       paymentEnvironment: Platform.environment['PAYMENT_ENVIRONMENT'],
+      pangleRuntimeConfig: {
+        'ios_app_id': Platform.environment['PICNIC_PANGLE_IOS_APP_ID'] ?? '',
+        'android_app_id':
+            Platform.environment['PICNIC_PANGLE_ANDROID_APP_ID'] ?? '',
+        'ios_rewarded_video_id':
+            Platform.environment['PICNIC_PANGLE_IOS_REWARDED_ID'] ?? '',
+        'android_rewarded_video_id':
+            Platform.environment['PICNIC_PANGLE_ANDROID_REWARDED_ID'] ?? '',
+      },
+      paymentProductNamespace:
+          Platform.environment['PICNIC_PAYMENT_PRODUCT_NAMESPACE'],
     );
     if (!result.isValid) {
       stderr.writeln(

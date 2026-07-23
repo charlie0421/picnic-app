@@ -3,6 +3,15 @@ import PAGAdSDK
 import UIKit
 
 enum PangleMediaExtraError: Error { case invalid }
+enum PangleSdkEnvironment: String {
+    case prod
+    case sandbox
+
+    static func parse(_ value: Any?) -> PangleSdkEnvironment? {
+        guard let raw = value as? String else { return .prod }
+        return PangleSdkEnvironment(rawValue: raw)
+    }
+}
 enum PangleMediaExtra {
     static func requireV2(_ value: String) throws -> String {
         let parts = value.split(separator: ",", maxSplits: 2, omittingEmptySubsequences: false).map(String.init)
@@ -17,6 +26,7 @@ enum PangleMediaExtra {
 class PangleAdManager: NSObject {
     private var rewardedAd: PAGRewardedAd?
     private var appID: String?
+    private var sandboxPlacementID: String?
     private var channel: FlutterMethodChannel?
 
     init(channel: FlutterMethodChannel) {
@@ -36,9 +46,24 @@ class PangleAdManager: NSObject {
         switch call.method {
         case "initPangle":
             if let args = call.arguments as? [String: Any],
-                let appId = args["appId"] as? String
+                let appId = args["appId"] as? String,
+                let environment = PangleSdkEnvironment.parse(args["environment"])
             {
-                initPangle(appId: appId) { success, errorMessage in
+                if environment == .sandbox {
+                    guard let productionAppId = args["productionAppId"] as? String,
+                          let sandboxPlacementId = args["sandboxPlacementId"] as? String,
+                          let productionPlacementId = args["productionPlacementId"] as? String,
+                          !appId.isEmpty, !sandboxPlacementId.isEmpty,
+                          appId != productionAppId,
+                          sandboxPlacementId != productionPlacementId else {
+                        result(FlutterError(code: "InvalidSandboxConfig", message: "Sandbox SDK configuration rejected", details: nil))
+                        return
+                    }
+                    sandboxPlacementID = sandboxPlacementId
+                } else {
+                    sandboxPlacementID = nil
+                }
+                initPangle(appId: appId, environment: environment) { success, errorMessage in
                     if success {
                         result(true)
                     } else {
@@ -65,16 +90,21 @@ class PangleAdManager: NSObject {
         }
     }
 
-    private func initPangle(appId: String, completion: @escaping (Bool, String) -> Void) {
-        print("Flutter에서 Pangle SDK 초기화 시작 - appId: \(appId)")
+    private func initPangle(
+        appId: String,
+        environment: PangleSdkEnvironment,
+        completion: @escaping (Bool, String) -> Void
+    ) {
+        print("Flutter에서 Pangle SDK 초기화 시작")
 
         print("PAGConfig 생성 및 설정...")
         let config = PAGConfig.share()
         config.appID = appId
 
         #if DEBUG
-            print("디버그 모드 활성화: 로그 레벨 설정")
             config.debugLog = true
+        #else
+            config.debugLog = environment == .sandbox
         #endif
 
         PAGSdk.start(with: config) { success, error in
@@ -93,6 +123,11 @@ class PangleAdManager: NSObject {
         placementId: String, mediaExtra: String, result: @escaping FlutterResult
     ) {
         print("리워드 광고 로드 시작 - placementId: \(placementId)")
+
+        if let requiredPlacement = sandboxPlacementID, placementId != requiredPlacement {
+            result(FlutterError(code: "InvalidSandboxPlacement", message: "Sandbox placement rejected", details: nil))
+            return
+        }
 
         guard let validatedMediaExtra = try? PangleMediaExtra.requireV2(mediaExtra) else {
             result(FlutterError(code: "InvalidMediaExtra", message: "Signed v2 mediaExtra is required", details: nil))

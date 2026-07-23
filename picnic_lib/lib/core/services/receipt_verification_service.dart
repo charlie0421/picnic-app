@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -53,6 +54,14 @@ class ReceiptVerificationService {
     String userId,
     String environment,
   ) async {
+    if (Environment.isInitialized &&
+        Environment.currentEnvironment != 'test' &&
+        !isPaymentEnvironmentAllowed(
+          buildEnvironment: Environment.currentEnvironment,
+          requestedEnvironment: environment,
+        )) {
+      throw StateError('Payment environment rejected by build policy');
+    }
     logger.i('=== Receipt Verification Started ===');
     logger.i('Platform: ${Platform.isIOS ? 'iOS' : 'Android'}');
     logger.i('Environment: $environment');
@@ -106,6 +115,20 @@ class ReceiptVerificationService {
 
     logger.i('=== Receipt Verification Completed ===');
     return result;
+  }
+
+  @visibleForTesting
+  static bool isPaymentEnvironmentAllowed({
+    required String buildEnvironment,
+    required String requestedEnvironment,
+  }) {
+    if (buildEnvironment == 'prod') {
+      return requestedEnvironment == _productionEnvironment;
+    }
+    if (buildEnvironment == 'local' || buildEnvironment == 'dev') {
+      return requestedEnvironment == _sandboxEnvironment;
+    }
+    return false;
   }
 
   /// 입력 값 검증
@@ -262,6 +285,10 @@ class ReceiptVerificationService {
   /// 환경 감지
   Future<String> getEnvironment() async {
     logger.d('Determining environment...');
+
+    if (Environment.isInitialized && Environment.currentEnvironment != 'test') {
+      return Environment.paymentEnvironment;
+    }
 
     if (kDebugMode) {
       logger.d('Debug mode detected - using sandbox');

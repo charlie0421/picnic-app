@@ -292,6 +292,11 @@ workflows:
             --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
             --dart-define=PANGLE_ENVIRONMENT=sandbox \
             --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+            --dart-define=PICNIC_PANGLE_IOS_APP_ID=$PICNIC_PANGLE_IOS_APP_ID \
+            --dart-define=PICNIC_PANGLE_ANDROID_APP_ID=$PICNIC_PANGLE_ANDROID_APP_ID \
+            --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID=$PICNIC_PANGLE_IOS_REWARDED_ID \
+            --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID=$PICNIC_PANGLE_ANDROID_REWARDED_ID \
+            --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
             --no-confirm \
             --flutter-version=3.41.4 \
             -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
@@ -370,6 +375,11 @@ workflows:
                 --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
                 --dart-define=PANGLE_ENVIRONMENT=sandbox \
                 --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+                --dart-define=PICNIC_PANGLE_IOS_APP_ID=$PICNIC_PANGLE_IOS_APP_ID \
+                --dart-define=PICNIC_PANGLE_ANDROID_APP_ID=$PICNIC_PANGLE_ANDROID_APP_ID \
+                --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID=$PICNIC_PANGLE_IOS_REWARDED_ID \
+                --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID=$PICNIC_PANGLE_ANDROID_REWARDED_ID \
+                --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
                 --export-options-plist=ios/ExportOptions.plist
             fi
           else
@@ -382,6 +392,11 @@ workflows:
               --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
               --dart-define=PANGLE_ENVIRONMENT=sandbox \
               --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+              --dart-define=PICNIC_PANGLE_IOS_APP_ID=$PICNIC_PANGLE_IOS_APP_ID \
+              --dart-define=PICNIC_PANGLE_ANDROID_APP_ID=$PICNIC_PANGLE_ANDROID_APP_ID \
+              --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID=$PICNIC_PANGLE_IOS_REWARDED_ID \
+              --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID=$PICNIC_PANGLE_ANDROID_REWARDED_ID \
+              --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
               --export-options-plist=ios/ExportOptions.plist
           fi
 

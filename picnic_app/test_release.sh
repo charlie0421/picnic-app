@@ -20,7 +20,12 @@ flutter pub get
 flutter build appbundle --release \
   --dart-define=ENVIRONMENT="$ENV" \
   --dart-define=PANGLE_ENVIRONMENT="$PANGLE_ENVIRONMENT" \
-  --dart-define=PAYMENT_ENVIRONMENT="$PAYMENT_ENVIRONMENT"
+  --dart-define=PAYMENT_ENVIRONMENT="$PAYMENT_ENVIRONMENT" \
+  --dart-define=PICNIC_PANGLE_IOS_APP_ID="$PICNIC_PANGLE_IOS_APP_ID" \
+  --dart-define=PICNIC_PANGLE_ANDROID_APP_ID="$PICNIC_PANGLE_ANDROID_APP_ID" \
+  --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID="$PICNIC_PANGLE_IOS_REWARDED_ID" \
+  --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID="$PICNIC_PANGLE_ANDROID_REWARDED_ID" \
+  --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE="$PICNIC_PAYMENT_PRODUCT_NAMESPACE"
 
 AAB_PATH="build/app/outputs/bundle/release/app-release.aab"
 if [ ! -f "$AAB_PATH" ]; then

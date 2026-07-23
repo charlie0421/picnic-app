@@ -32,7 +32,12 @@ echo "🔧 Building Flutter assets..."
 flutter build apk --release --target-platform android-arm,android-arm64,android-x64 \
   --dart-define=ENVIRONMENT="$ENVIRONMENT" \
   --dart-define=PANGLE_ENVIRONMENT="$PANGLE_ENVIRONMENT" \
-  --dart-define=PAYMENT_ENVIRONMENT="$PAYMENT_ENVIRONMENT"
+  --dart-define=PAYMENT_ENVIRONMENT="$PAYMENT_ENVIRONMENT" \
+  --dart-define=PICNIC_PANGLE_IOS_APP_ID="$PICNIC_PANGLE_IOS_APP_ID" \
+  --dart-define=PICNIC_PANGLE_ANDROID_APP_ID="$PICNIC_PANGLE_ANDROID_APP_ID" \
+  --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID="$PICNIC_PANGLE_IOS_REWARDED_ID" \
+  --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID="$PICNIC_PANGLE_ANDROID_REWARDED_ID" \
+  --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE="$PICNIC_PAYMENT_PRODUCT_NAMESPACE"
 
 # Even if Flutter build fails, we can still use Gradle directly
 echo "⚡ Building with Gradle directly..."

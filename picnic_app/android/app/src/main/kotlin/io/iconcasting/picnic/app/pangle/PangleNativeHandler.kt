@@ -27,6 +27,7 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
     private var rewardedAd: PAGRewardedAd? = null
     private var isSDKInitialized = false
     private var appID: String? = null
+    private var sandboxPlacementId: String? = null
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         applicationContext = flutterPluginBinding.applicationContext
@@ -55,16 +56,39 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
             "initPangle" -> {
                 val appId = call.argument<String>("appId")
                 val userId = call.argument<String>("userId")
-                if (appId != null) {
+                val environment = call.argument<String>("environment") ?: "prod"
+                val productionAppId = call.argument<String>("productionAppId")
+                val requestedSandboxPlacement = call.argument<String>("sandboxPlacementId")
+                val productionPlacementId = call.argument<String>("productionPlacementId")
+                val sandboxConfigValid = environment != "sandbox" ||
+                    (appId != null &&
+                        appId.isNotEmpty() &&
+                        productionAppId != null &&
+                        appId != productionAppId &&
+                        !requestedSandboxPlacement.isNullOrEmpty() &&
+                        requestedSandboxPlacement != productionPlacementId)
+                if (appId != null &&
+                    environment in setOf("prod", "sandbox") &&
+                    sandboxConfigValid
+                ) {
                     appID = appId
+                    sandboxPlacementId =
+                        if (environment == "sandbox") requestedSandboxPlacement else null
                     initPangle(appId, userId, result)
                 } else {
-                    result.error("InvalidParams", "App ID is null", null)
+                    result.error("InvalidParams", "Valid SDK configuration is required", null)
                 }
             }
             "loadRewardedAd" -> {
                 val placementId = call.argument<String>("placementId")
                     ?: return result.error("InvalidParams", "placementId is required", null)
+                if (sandboxPlacementId != null && placementId != sandboxPlacementId) {
+                    return result.error(
+                        "InvalidSandboxPlacement",
+                        "Sandbox placement rejected",
+                        null,
+                    )
+                }
                 val mediaExtra = call.argument<String>("mediaExtra")
                     ?: return result.error("InvalidParams", "mediaExtra is required", null)
                 try {
@@ -76,7 +100,13 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
                     }
                     PangleLoadCoordinator.run(
                         initialized = isSDKInitialized,
-                        initialize = { completion -> initPangle(configuredAppId!!, null, completion = completion) },
+                        initialize = { completion ->
+                            initPangle(
+                                configuredAppId!!,
+                                null,
+                                completion = completion,
+                            )
+                        },
                         placementId = placementId,
                         mediaExtra = validated,
                         load = { id, extra -> loadRewardedAd(id, extra, result) },
@@ -105,7 +135,7 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
         flutterResult: Result? = null,
         completion: ((kotlin.Result<Unit>) -> Unit)? = null,
     ) {
-        println("Flutter에서 Pangle SDK 초기화 시작 - appId: $appId, userId: $userId")
+        println("Flutter에서 Pangle SDK 초기화 시작")
 
         if (isSDKInitialized && appID == appId) {
             println("Pangle SDK가 이미 초기화되어 있습니다.")

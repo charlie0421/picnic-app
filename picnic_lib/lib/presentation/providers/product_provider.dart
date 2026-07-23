@@ -38,7 +38,6 @@ class ServerProducts extends _$ServerProducts {
           List<Map<String, dynamic>>.from(response);
 
       ProductProviderHelper.validateProductsNotEmpty(products);
-
       return products;
     } catch (e, s) {
       logger.e('Supabase products fetch error', error: e, stackTrace: s);
@@ -88,7 +87,18 @@ class StoreProducts extends _$StoreProducts {
         serverProducts,
         isAndroid: Platform.isAndroid,
         appNamePrefix: Environment.inappAppNamePrefix,
+        androidPrefix: Environment.currentEnvironment == 'prod' ||
+                Environment.currentEnvironment == 'test'
+            ? ''
+            : Environment.paymentProductNamespace,
       );
+      if (Environment.currentEnvironment != 'prod' &&
+          Environment.currentEnvironment != 'test') {
+        ProductProviderHelper.validateSandboxProductIds(
+          productIds,
+          namespace: Environment.paymentProductNamespace.toLowerCase(),
+        );
+      }
 
       final ProductDetailsResponse response =
           await inAppPurchase.queryProductDetails(productIds);

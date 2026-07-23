@@ -15,6 +15,8 @@ class SupabaseEnvironmentPolicy {
     String? stagingProjectRef,
     String? pangleEnvironment,
     String? paymentEnvironment,
+    Map<String, String>? pangleRuntimeConfig,
+    String? paymentProductNamespace,
   }) {
     if (environment == 'test') {
       return const SupabaseEnvironmentPolicyResult(true, 'ok');
@@ -40,6 +42,52 @@ class SupabaseEnvironmentPolicy {
         false,
         'PAYMENT_ENVIRONMENT must be $expectedSdkEnvironment',
       );
+    }
+
+    if (environment != 'prod') {
+      const pangleKeys = {
+        'ios_app_id',
+        'android_app_id',
+        'ios_rewarded_video_id',
+        'android_rewarded_video_id',
+      };
+      if (pangleRuntimeConfig == null ||
+          pangleKeys.any(
+            (key) => (pangleRuntimeConfig[key] ?? '').trim().isEmpty,
+          )) {
+        return const SupabaseEnvironmentPolicyResult(
+          false,
+          'missing Pangle sandbox tuple',
+        );
+      }
+      if ((paymentProductNamespace ?? '').trim().isEmpty) {
+        return const SupabaseEnvironmentPolicyResult(
+          false,
+          'missing payment product namespace',
+        );
+      }
+      if (productionConfig != null) {
+        final productionPangle = _map(_map(productionConfig['ads'])['pangle']);
+        if (pangleKeys.any(
+          (key) => pangleRuntimeConfig[key] == productionPangle[key],
+        )) {
+          return const SupabaseEnvironmentPolicyResult(
+            false,
+            'non-production SDK item equals production Pangle tuple',
+          );
+        }
+        final productionPrefix = _map(
+          productionConfig['app'],
+        )['inapp_appname_prefix']?.toString();
+        if (productionPrefix != null &&
+            productionPrefix.isNotEmpty &&
+            paymentProductNamespace == productionPrefix) {
+          return const SupabaseEnvironmentPolicyResult(
+            false,
+            'payment product namespace equals production',
+          );
+        }
+      }
     }
 
     final supabase = _map(config['supabase']);
