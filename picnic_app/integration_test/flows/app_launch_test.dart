@@ -1,6 +1,6 @@
-/// 앱 실행 플로우 테스트
-///
-/// 앱이 정상적으로 시작되고 초기 화면이 표시되는지 검증합니다.
+// 앱 실행 플로우 테스트
+//
+// 앱이 정상적으로 시작되고 초기 화면이 표시되는지 검증합니다.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 

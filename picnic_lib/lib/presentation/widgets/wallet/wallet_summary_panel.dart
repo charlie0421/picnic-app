@@ -6,15 +6,21 @@ import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 
+typedef WalletIconBuilder = Widget Function(String asset, double dimension);
+
 class WalletSummaryPanel extends ConsumerWidget {
   const WalletSummaryPanel({
     super.key,
     this.compact = false,
     this.alignment = MainAxisAlignment.start,
+    this.assetPackage = 'picnic_lib',
+    this.iconBuilder,
   });
 
   final bool compact;
   final MainAxisAlignment alignment;
+  final String? assetPackage;
+  final WalletIconBuilder? iconBuilder;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,6 +40,8 @@ class WalletSummaryPanel extends ConsumerWidget {
                   amount: wallet.star,
                   compact: compact,
                   contentAlignment: _contentAlignment,
+                  assetPackage: assetPackage,
+                  iconBuilder: iconBuilder,
                 ),
               ),
               Expanded(
@@ -43,6 +51,8 @@ class WalletSummaryPanel extends ConsumerWidget {
                   amount: wallet.bonus,
                   compact: compact,
                   contentAlignment: _contentAlignment,
+                  assetPackage: assetPackage,
+                  iconBuilder: iconBuilder,
                 ),
               ),
               Expanded(
@@ -53,6 +63,8 @@ class WalletSummaryPanel extends ConsumerWidget {
                   secondary: buildCottonExpiryText(context, wallet),
                   compact: compact,
                   contentAlignment: _contentAlignment,
+                  assetPackage: assetPackage,
+                  iconBuilder: iconBuilder,
                 ),
               ),
             ],
@@ -101,6 +113,8 @@ class WalletCurrencySegment extends StatelessWidget {
     this.secondary,
     this.compact = false,
     this.contentAlignment = CrossAxisAlignment.start,
+    this.assetPackage = 'picnic_lib',
+    this.iconBuilder,
   });
 
   final String asset;
@@ -109,6 +123,8 @@ class WalletCurrencySegment extends StatelessWidget {
   final String? secondary;
   final bool compact;
   final CrossAxisAlignment contentAlignment;
+  final String? assetPackage;
+  final WalletIconBuilder? iconBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -118,12 +134,13 @@ class WalletCurrencySegment extends StatelessWidget {
         crossAxisAlignment: contentAlignment,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset(
-            asset,
-            package: 'picnic_lib',
-            width: compact ? 32 : 40,
-            height: compact ? 32 : 40,
-          ),
+          iconBuilder?.call(asset, compact ? 32 : 40) ??
+              Image.asset(
+                asset,
+                package: assetPackage,
+                width: compact ? 32 : 40,
+                height: compact ? 32 : 40,
+              ),
           Text(label, textAlign: TextAlign.left),
           Text(formatWalletAmount(amount), textAlign: TextAlign.left),
           if (secondary != null && !compact)
