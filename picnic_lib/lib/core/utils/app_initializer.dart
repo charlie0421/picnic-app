@@ -16,7 +16,6 @@ import 'package:picnic_lib/core/utils/app_initializer_helper.dart';
 import 'package:picnic_lib/core/utils/deep_link_handler.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
-import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/core/utils/startup_future_guard.dart';
 import 'package:picnic_lib/core/utils/system_ui_initializer.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
@@ -46,7 +45,6 @@ class AppInitializer {
     logger.i('Widget binding initialized');
     BindingBase.debugZoneErrorsAreFatal = true;
     await initializeGlobalErrorHandling();
-
   }
 
   /// MaterialApp 초기화 대기
@@ -174,39 +172,6 @@ class AppInitializer {
       };
     });
     logger.i('Sentry initialized');
-
-    // Shorebird 패치 번호를 Sentry tag 로 등록.
-    // release tag(예: 1.2.27+122701) 만으로는 사용자가 OTA 패치를 적용
-    // 받았는지(=어느 patch 번호인지) 구분 불가. 별도 tag 로 노출해 Sentry
-    // 대시보드에서 patch 번호로 group-by/filter 가능하게 만든다.
-    // SDK init 을 블로킹하지 않도록 fire-and-forget 으로 실행.
-    unawaited(_tagSentryWithShorebirdPatch());
-  }
-
-  /// Reads the active Shorebird patch number and sets it as a Sentry tag.
-  ///
-  /// On web, Shorebird is not supported — skips silently.
-  /// Failures (e.g. shorebird CLI not installed in test env) are logged
-  /// but never thrown.
-  static Future<void> _tagSentryWithShorebirdPatch() async {
-    try {
-      if (kIsWeb) return;
-      final patch = await ShorebirdUtils.checkPatch();
-      final patchNumber = patch?.number;
-      Sentry.configureScope((scope) {
-        scope.setTag(
-          'shorebird.patch_number',
-          patchNumber?.toString() ?? 'none',
-        );
-        scope.setTag(
-          'shorebird.has_patch',
-          patchNumber != null ? 'yes' : 'no',
-        );
-      });
-      logger.i('🏷️ Sentry shorebird tag set: patch_number=$patchNumber');
-    } catch (e, st) {
-      logger.w('Sentry shorebird tag 설정 실패: $e', stackTrace: st);
-    }
   }
 
   static Future<void> initializeGlobalErrorHandling() async {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/core/services/shorebird_update_coordinator.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,8 +32,8 @@ class PatchNotificationService {
   static Future<bool> checkAndClearPatchApplied() async {
     try {
       // 현재 패치 번호 확인
-      final currentPatch = await updater.readCurrentPatch();
-      final currentPatchNumber = currentPatch?.number;
+      final currentPatchNumber =
+          (await shorebirdUpdateCoordinator.run()).currentPatchNumber;
 
       // 저장된 마지막 패치 번호 확인
       final prefs = await SharedPreferences.getInstance();
@@ -68,8 +68,8 @@ class PatchNotificationService {
   /// 앱 시작 시 현재 패치 번호를 저장하여 다음 시작 시 비교할 수 있도록 함
   static Future<void> saveCurrentPatchNumber() async {
     try {
-      final currentPatch = await updater.readCurrentPatch();
-      final currentPatchNumber = currentPatch?.number;
+      final currentPatchNumber =
+          (await shorebirdUpdateCoordinator.run()).currentPatchNumber;
 
       if (currentPatchNumber != null) {
         final prefs = await SharedPreferences.getInstance();

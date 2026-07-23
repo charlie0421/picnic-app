@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/shorebird_update_coordinator.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/patch_notification_service.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
@@ -14,7 +15,6 @@ import 'package:picnic_lib/presentation/widgets/splash_image_helper.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 import 'package:universal_platform/universal_platform.dart';
 
 class SplashImageData {
@@ -222,63 +222,30 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     try {
       logger.i('🔍 패치 상태 확인 시작');
 
-      final updater = shorebird.ShorebirdUpdater();
+      final result = await shorebirdUpdateCoordinator.run();
+      final currentPatchNumber = result.currentPatchNumber;
 
-      // Shorebird가 사용 가능한지 확인
-      final isAvailable = updater.isAvailable;
-      if (!isAvailable) {
-        logger.i('ℹ️ Shorebird를 사용할 수 없는 빌드입니다 (디버그 또는 비-Shorebird 빌드)');
-        setStateIfMounted(() {
-          _updateStatus = '';
-          _isCheckingUpdate = false;
-          _patchCheckCompleted = true;
-        });
-        return;
-      }
-
-      // 현재 패치 정보 확인
-      final currentPatch = await updater.readCurrentPatch();
-      final currentPatchNumber = currentPatch?.number;
-      logger.i('📋 현재 패치 번호: ${currentPatchNumber ?? "없음"}');
-
-      // 서버에서 업데이트 확인 (10초 타임아웃)
-      final status = await updater.checkForUpdate().timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          logger.w('⏱️ 패치 확인 타임아웃');
-          return shorebird.UpdateStatus.upToDate;
-        },
-      );
-
-      logger.i('📊 패치 상태: $status');
-
-      switch (status) {
-        case shorebird.UpdateStatus.outdated:
-          // 새 패치 다운로드 (재시작은 사용자가 직접)
-          await _downloadPatch(updater, currentPatchNumber);
-          break;
-
-        case shorebird.UpdateStatus.restartRequired:
-          // 이미 다운로드된 패치가 있음 - 다이얼로그로 재시작 안내
+      switch (result.state) {
+        case ShorebirdRunState.restartRequired:
           logger.i('🔄 재시작이 필요한 패치가 대기 중 - 다이얼로그 표시 예정');
           _updatePatchInfoProvider({
             'currentPatch': currentPatchNumber,
+            'newPatch': result.nextPatchNumber,
             'updateDownloaded': true,
             'needsRestart': true,
             'hasUpdate': false,
           });
-          // PatchStatusProvider 업데이트 - 재시작 다이얼로그 표시용
           _updatePatchStatusProvider(PatchStatus.restartRequired);
           await _restartAppAfterDownload();
           break;
-
-        case shorebird.UpdateStatus.upToDate:
+        case ShorebirdRunState.upToDate:
+        case ShorebirdRunState.unavailable:
           await _handleUpToDate(currentPatchNumber);
           break;
-
-        default:
-          logger.i('ℹ️ 패치 상태: $status');
-          await _handleUpToDate(currentPatchNumber);
+        case ShorebirdRunState.error:
+          await _handlePatchError(
+            result.error ?? StateError('Shorebird update failed'),
+          );
           break;
       }
     } catch (e, stackTrace) {
@@ -291,48 +258,6 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       });
 
       logger.i('🏁 Splash 패치 체크 완료');
-    }
-  }
-
-  /// 패치 다운로드 (재시작은 사용자가 직접)
-  Future<void> _downloadPatch(
-    shorebird.ShorebirdUpdater updater,
-    int? currentPatchNumber,
-  ) async {
-    setStateIfMounted(() {
-      _updateStatus = 'Downloading update...';
-    });
-
-    try {
-      logger.i('⬇️ 패치 다운로드 시작');
-
-      // 패치 다운로드
-      await updater.update();
-
-      // 다운로드 후 패치 정보 확인
-      final patchAfter = await updater.readNextPatch();
-      logger.i('📋 다운로드된 패치: ${patchAfter?.number}');
-
-      // PatchInfoProvider 업데이트 - 설정 페이지 배너 표시용
-      _updatePatchInfoProvider({
-        'currentPatch': currentPatchNumber,
-        'newPatch': patchAfter?.number,
-        'updateDownloaded': true,
-        'needsRestart': true,
-        'hasUpdate': false,
-      });
-
-      // PatchStatusProvider 업데이트 - 재시작 다이얼로그 표시용
-      _updatePatchStatusProvider(PatchStatus.restartRequired);
-
-      logger.i('✅ 패치 다운로드 완료 - 앱 초기화 후 다이얼로그 표시 예정');
-
-      // 플랫폼별 처리
-      await _restartAppAfterDownload();
-    } catch (e) {
-      logger.e('💥 패치 다운로드 실패: $e');
-      // 다운로드 실패해도 앱은 계속 진행
-      await _handleUpToDate(currentPatchNumber);
     }
   }
 

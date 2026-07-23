@@ -22,7 +22,7 @@
 **Files:**
 - Modify: `picnic_app/shorebird.yaml`
 - Modify: `picnic_lib/lib/core/services/update_service.dart`
-- Test: `picnic_lib/test/core/services/update_service_test.dart`
+- Create: `picnic_lib/test/core/services/update_service_test.dart`
 
 **Interfaces:**
 - Consumes: `checkUpdateProvider.future`

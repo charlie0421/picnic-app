@@ -242,6 +242,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       theme: _getCurrentTheme(ref),
       home: AdRewardDialogHost(
         child: PatchRestartDialogListener(
+          enabled: _isAppInitialized,
           child: UpdateDialog(child: currentScreen),
         ),
       ),
