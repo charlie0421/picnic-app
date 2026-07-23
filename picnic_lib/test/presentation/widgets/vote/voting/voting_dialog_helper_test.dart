@@ -1,7 +1,22 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
 
 void main() {
+  WalletSummaryModel wallet({
+    String star = '0',
+    String bonus = '0',
+    String cotton = '0',
+  }) => WalletSummaryModel(
+    contractVersion: 'wallet.v1',
+    star: BigInt.parse(star),
+    bonus: BigInt.parse(bonus),
+    cotton: BigInt.parse(cotton),
+    cottonExpiringAmount: BigInt.zero,
+    cottonNextExpiresAt: null,
+    snapshotAt: DateTime.utc(2026, 7, 21),
+  );
+
   group('VotingDialogHelper', () {
     // -------------------------------------------------------------------------
     // resolveArtistImageUrl
@@ -51,16 +66,19 @@ void main() {
         );
       });
 
-      test('returns null artist image when artistId is non-zero but image is null', () {
-        expect(
-          VotingDialogHelper.resolveArtistImageUrl(
-            artistId: 1,
-            artistImage: null,
-            artistGroupImage: 'https://img/group.png',
-          ),
-          isNull,
-        );
-      });
+      test(
+        'returns null artist image when artistId is non-zero but image is null',
+        () {
+          expect(
+            VotingDialogHelper.resolveArtistImageUrl(
+              artistId: 1,
+              artistImage: null,
+              artistGroupImage: 'https://img/group.png',
+            ),
+            isNull,
+          );
+        },
+      );
     });
 
     // -------------------------------------------------------------------------
@@ -82,6 +100,16 @@ void main() {
           VotingDialogHelper.shouldUseJmaDialog(
             isPicPortal: false,
             partner: 'JMA',
+          ),
+          isTrue,
+        );
+      });
+
+      test('normalizes whitespace and case', () {
+        expect(
+          VotingDialogHelper.shouldUseJmaDialog(
+            isPicPortal: false,
+            partner: '  JmA  ',
           ),
           isTrue,
         );
@@ -114,6 +142,28 @@ void main() {
             partner: 'other',
           ),
           isFalse,
+        );
+      });
+    });
+
+    group('general wallet balance', () {
+      test('includes Cotton and remains exact above JS safe integer', () {
+        final summary = wallet(star: '9007199254740993', cotton: '5');
+        expect(
+          VotingDialogHelper.hasGeneralVoteBalance(
+            summary,
+            BigInt.parse('9007199254740998'),
+          ),
+          isTrue,
+        );
+      });
+
+      test('caps use-all at server maximum', () {
+        expect(
+          VotingDialogHelper.cappedGeneralVoteBalance(
+            wallet(star: '9007199254740993'),
+          ),
+          BigInt.from(2147483647),
         );
       });
     });
@@ -393,20 +443,14 @@ void main() {
 
       test('returns false when partner is null', () {
         expect(
-          VotingDialogHelper.hasPartnerLogo(
-            isPartnership: true,
-            partner: null,
-          ),
+          VotingDialogHelper.hasPartnerLogo(isPartnership: true, partner: null),
           isFalse,
         );
       });
 
       test('returns false when partner is empty', () {
         expect(
-          VotingDialogHelper.hasPartnerLogo(
-            isPartnership: true,
-            partner: '',
-          ),
+          VotingDialogHelper.hasPartnerLogo(isPartnership: true, partner: ''),
           isFalse,
         );
       });

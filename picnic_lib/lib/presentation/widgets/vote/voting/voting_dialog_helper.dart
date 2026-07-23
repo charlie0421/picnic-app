@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 
 /// Pure-logic helpers extracted from [VotingDialog] for testability.
 ///
@@ -38,19 +39,27 @@ class VotingDialogHelper {
   ///
   /// Returns `true` only when the portal is *not* PIC and the partner field
   /// (case-insensitive) equals `'jma'`.
-  @visibleForTesting
   static bool shouldUseJmaDialog({
     required bool isPicPortal,
     required String? partner,
   }) {
-    if (isPicPortal) return false;
-    return partner?.toLowerCase() == 'jma';
+    return !isPicPortal && partner?.trim().toLowerCase() == 'jma';
   }
 
   /// Returns the Supabase Edge Function name to invoke for a vote.
-  @visibleForTesting
   static String getVotingFunctionName({required bool isPicPortal}) {
     return isPicPortal ? 'pic-voting-v2' : 'voting-v2';
+  }
+
+  static bool hasGeneralVoteBalance(WalletSummaryModel wallet, BigInt amount) =>
+      amount <= wallet.cotton + wallet.bonus + wallet.star;
+
+  static const int generalVoteMaximum = 2147483647;
+
+  static BigInt cappedGeneralVoteBalance(WalletSummaryModel wallet) {
+    final balance = wallet.cotton + wallet.bonus + wallet.star;
+    final maximum = BigInt.from(generalVoteMaximum);
+    return balance > maximum ? maximum : balance;
   }
 
   // ---------------------------------------------------------------------------
@@ -133,7 +142,7 @@ class VotingDialogHelper {
   /// (caller should clear the text field).
   @visibleForTesting
   static ({bool checkAll, bool hasValue, String? formattedAmount})
-      computeCheckAllToggle({
+  computeCheckAllToggle({
     required bool currentCheckAll,
     required int availableStarCandy,
     required String Function(dynamic) formatNumber,
@@ -194,9 +203,7 @@ class VotingDialogHelper {
     required bool? isPartnership,
     required String? partner,
   }) {
-    return (isPartnership ?? false) &&
-        partner != null &&
-        partner.isNotEmpty;
+    return (isPartnership ?? false) && partner != null && partner.isNotEmpty;
   }
 }
 
@@ -204,7 +211,4 @@ class VotingDialogHelper {
 enum VoteButtonState { disabled, enabled, loading }
 
 /// Reasons a vote may fail pre-check validation.
-enum VoteFailReason {
-  zeroAmount,
-  insufficientBalance,
-}
+enum VoteFailReason { zeroAmount, insufficientBalance }
