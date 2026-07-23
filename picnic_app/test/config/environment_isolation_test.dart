@@ -17,6 +17,13 @@ Map<String, dynamic> fixture({
       },
     };
 
+const sandboxPangle = <String, String>{
+  'ios_app_id': 'sandbox-ios-app',
+  'android_app_id': 'sandbox-android-app',
+  'ios_rewarded_video_id': 'sandbox-ios-slot',
+  'android_rewarded_video_id': 'sandbox-android-slot',
+};
+
 void main() {
   test('rejects missing sandbox boundaries without exposing values', () {
     final result = SupabaseEnvironmentPolicy.validate(
@@ -36,6 +43,8 @@ void main() {
       stagingProjectRef: 'staging-ref',
       pangleEnvironment: 'sandbox',
       paymentEnvironment: 'sandbox',
+      pangleRuntimeConfig: sandboxPangle,
+      paymentProductNamespace: 'staging.',
     );
     expect(result.isValid, isTrue, reason: result.reason);
   });
@@ -46,6 +55,8 @@ void main() {
       config: fixture(url: 'https://xtijtefcycoeqludlngc.supabase.co'),
       pangleEnvironment: 'sandbox',
       paymentEnvironment: 'sandbox',
+      pangleRuntimeConfig: sandboxPangle,
+      paymentProductNamespace: 'staging.',
     );
     expect(result.isValid, isFalse);
   });
@@ -81,7 +92,8 @@ void main() {
     expect(result.isValid, isTrue, reason: result.reason);
   });
 
-  test('production storage host matching rejects substring and query attacks', () {
+  test('production storage host matching rejects substring and query attacks',
+      () {
     for (final storageUrl in [
       'https://api.picnic.fan.attacker.test/storage/v1',
       'https://attacker.test/?next=api.picnic.fan',
@@ -108,6 +120,8 @@ void main() {
       config: config,
       pangleEnvironment: 'sandbox',
       paymentEnvironment: 'sandbox',
+      pangleRuntimeConfig: sandboxPangle,
+      paymentProductNamespace: 'local.',
     );
     expect(result.isValid, isTrue, reason: result.reason);
   });

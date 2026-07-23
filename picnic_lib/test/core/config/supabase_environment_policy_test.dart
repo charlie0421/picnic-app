@@ -12,8 +12,23 @@ Map<String, dynamic> config({
       'anon_key': anon,
       'storage': {'url': storageUrl, 'anon_key': anon},
     },
+    'ads': {
+      'pangle': {
+        'ios_app_id': 'prod-ios-app',
+        'android_app_id': 'prod-android-app',
+        'ios_rewarded_video_id': 'prod-ios-slot',
+        'android_rewarded_video_id': 'prod-android-slot',
+      },
+    },
   };
 }
+
+const sandboxPangle = <String, String>{
+  'ios_app_id': 'sandbox-ios-app',
+  'android_app_id': 'sandbox-android-app',
+  'ios_rewarded_video_id': 'sandbox-ios-slot',
+  'android_rewarded_video_id': 'sandbox-android-slot',
+};
 
 void main() {
   test('rejects local config that targets production', () {
@@ -25,6 +40,8 @@ void main() {
       ),
       pangleEnvironment: 'sandbox',
       paymentEnvironment: 'sandbox',
+      pangleRuntimeConfig: sandboxPangle,
+      paymentProductNamespace: 'staging.',
     );
 
     expect(result.isValid, isFalse);
@@ -40,6 +57,8 @@ void main() {
       ),
       pangleEnvironment: 'sandbox',
       paymentEnvironment: 'sandbox',
+      pangleRuntimeConfig: sandboxPangle,
+      paymentProductNamespace: 'staging.',
     );
 
     expect(result.isValid, isTrue);
@@ -55,8 +74,66 @@ void main() {
       ),
       pangleEnvironment: 'sandbox',
       paymentEnvironment: 'sandbox',
+      pangleRuntimeConfig: sandboxPangle,
+      paymentProductNamespace: 'staging.',
     );
 
     expect(result.isValid, isTrue);
+  });
+
+  test('rejects missing non-production SDK tuple before initialization', () {
+    final result = SupabaseEnvironmentPolicy.validate(
+      environment: 'dev',
+      stagingProjectRef: 'staging-ref',
+      config: config(
+        url: 'https://staging-ref.supabase.co',
+        storageUrl: 'https://staging-ref.supabase.co/storage/v1',
+      ),
+      productionConfig: config(
+        url: 'https://xtijtefcycoeqludlngc.supabase.co',
+        storageUrl: 'https://api.picnic.fan',
+      ),
+      pangleEnvironment: 'sandbox',
+      paymentEnvironment: 'sandbox',
+    );
+    expect(result.isValid, isFalse);
+    expect(result.reason, contains('Pangle sandbox tuple'));
+  });
+
+  test('rejects any Pangle production tuple item reused by dev', () {
+    final result = SupabaseEnvironmentPolicy.validate(
+      environment: 'dev',
+      stagingProjectRef: 'staging-ref',
+      config: config(
+        url: 'https://staging-ref.supabase.co',
+        storageUrl: 'https://staging-ref.supabase.co/storage/v1',
+      ),
+      productionConfig: config(
+        url: 'https://xtijtefcycoeqludlngc.supabase.co',
+        storageUrl: 'https://api.picnic.fan',
+      ),
+      pangleEnvironment: 'sandbox',
+      paymentEnvironment: 'sandbox',
+      pangleRuntimeConfig: {...sandboxPangle, 'ios_app_id': 'prod-ios-app'},
+      paymentProductNamespace: 'staging.',
+    );
+    expect(result.isValid, isFalse);
+    expect(result.reason, contains('production Pangle'));
+  });
+
+  test('requires a separate payment product namespace outside prod', () {
+    final result = SupabaseEnvironmentPolicy.validate(
+      environment: 'dev',
+      stagingProjectRef: 'staging-ref',
+      config: config(
+        url: 'https://staging-ref.supabase.co',
+        storageUrl: 'https://staging-ref.supabase.co/storage/v1',
+      ),
+      pangleEnvironment: 'sandbox',
+      paymentEnvironment: 'sandbox',
+      pangleRuntimeConfig: sandboxPangle,
+    );
+    expect(result.isValid, isFalse);
+    expect(result.reason, contains('payment product namespace'));
   });
 }

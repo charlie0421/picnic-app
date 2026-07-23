@@ -60,6 +60,56 @@ void main() {
       expect(log.first.arguments, {'appId': 'test_app_id'});
     });
 
+    test('passes explicit sandbox mode to native SDK initialization', () async {
+      setupMockChannel(initResult: true);
+      await PangleAds.initPangle(
+        'test_app_id',
+        environment: 'sandbox',
+        productionAppId: 'production_app_id',
+        sandboxPlacementId: 'sandbox_slot',
+        productionPlacementId: 'production_slot',
+      );
+      expect(log.single.arguments, {
+        'appId': 'test_app_id',
+        'environment': 'sandbox',
+        'productionAppId': 'production_app_id',
+        'sandboxPlacementId': 'sandbox_slot',
+        'productionPlacementId': 'production_slot',
+      });
+    });
+
+    test(
+      'sandbox rejects production app id before native SDK invocation',
+      () async {
+        setupMockChannel(initResult: true);
+        final result = await PangleAds.initPangle(
+          'same_app_id',
+          environment: 'sandbox',
+          productionAppId: 'same_app_id',
+          sandboxPlacementId: 'sandbox_slot',
+          productionPlacementId: 'production_slot',
+        );
+        expect(result, isFalse);
+        expect(log, isEmpty);
+      },
+    );
+
+    test(
+      'sandbox rejects production placement before native SDK invocation',
+      () async {
+        setupMockChannel(initResult: true);
+        final result = await PangleAds.initPangle(
+          'sandbox_app_id',
+          environment: 'sandbox',
+          productionAppId: 'production_app_id',
+          sandboxPlacementId: 'same_slot',
+          productionPlacementId: 'same_slot',
+        );
+        expect(result, isFalse);
+        expect(log, isEmpty);
+      },
+    );
+
     test('returns false on failure', () async {
       setupMockChannel(initResult: false);
       final result = await PangleAds.initPangle('test_app_id');

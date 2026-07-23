@@ -16,4 +16,10 @@ class RunnerTests: XCTestCase {
     }
   }
 
+  func testPangleSdkEnvironmentDefaultsToProtectedProduction() {
+    XCTAssertEqual(PangleSdkEnvironment.parse(nil), .prod)
+    XCTAssertEqual(PangleSdkEnvironment.parse("sandbox"), .sandbox)
+    XCTAssertNil(PangleSdkEnvironment.parse("invalid"))
+  }
+
 }

@@ -108,6 +108,16 @@ class PanglePlatform extends AdPlatform {
         Platform.isIOS
             ? Environment.pangleIosAppId!
             : Environment.pangleAndroidAppId!,
+        environment: Environment.pangleEnvironment,
+        productionAppId: Platform.isIOS
+            ? Environment.productionPangleIosAppId
+            : Environment.productionPangleAndroidAppId,
+        sandboxPlacementId: Platform.isIOS
+            ? Environment.pangleIosRewardedVideoId
+            : Environment.pangleAndroidRewardedVideoId,
+        productionPlacementId: Platform.isIOS
+            ? Environment.productionPangleIosRewardedVideoId
+            : Environment.productionPangleAndroidRewardedVideoId,
       );
 
       if (initResult != true) {

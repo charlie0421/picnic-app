@@ -23,10 +23,11 @@ class ProductProviderHelper {
     List<Map<String, dynamic>> serverProducts, {
     required bool isAndroid,
     required String appNamePrefix,
+    String androidPrefix = '',
   }) {
     return serverProducts
         .map((product) => isAndroid
-            ? product['id'].toString().toLowerCase()
+            ? (androidPrefix + product['id'].toString()).toLowerCase()
             : appNamePrefix + product['id'].toString())
         .toSet();
   }
@@ -36,6 +37,16 @@ class ProductProviderHelper {
   static void validateProductsNotEmpty(List<Map<String, dynamic>> products) {
     if (products.isEmpty) {
       throw Exception('No products found');
+    }
+  }
+
+  static void validateSandboxProductIds(
+    Set<String> productIds, {
+    required String namespace,
+  }) {
+    if (namespace.isEmpty ||
+        productIds.any((productId) => !productId.startsWith(namespace))) {
+      throw StateError('Sandbox product catalog is not isolated');
     }
   }
 

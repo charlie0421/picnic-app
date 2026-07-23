@@ -25,11 +25,36 @@ class PangleAds {
   static Stream<void> get pollingSignals => _pollingSignalController.stream;
 
   // Pangle SDK 초기화
-  static Future<bool> initPangle(String appId) async {
+  static Future<bool> initPangle(
+    String appId, {
+    String environment = 'prod',
+    String? productionAppId,
+    String? sandboxPlacementId,
+    String? productionPlacementId,
+  }) async {
     try {
-      logger.i('Initializing Pangle SDK with appId: $appId');
+      if (environment == 'sandbox' &&
+          (appId.isEmpty ||
+              productionAppId == null ||
+              productionAppId.isEmpty ||
+              appId == productionAppId ||
+              sandboxPlacementId == null ||
+              sandboxPlacementId.isEmpty ||
+              productionPlacementId == null ||
+              productionPlacementId.isEmpty ||
+              sandboxPlacementId == productionPlacementId)) {
+        logger.e('Pangle sandbox configuration rejected');
+        return false;
+      }
+      logger.i('Initializing Pangle SDK');
       final result = await _channel.invokeMethod<bool>('initPangle', {
         'appId': appId,
+        if (environment != 'prod') ...{
+          'environment': environment,
+          'productionAppId': productionAppId,
+          'sandboxPlacementId': sandboxPlacementId,
+          'productionPlacementId': productionPlacementId,
+        },
       });
 
       if (result ?? false) {
