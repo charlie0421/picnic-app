@@ -28,6 +28,7 @@ void main() {
       ),
     );
     await tester.pump();
+    restore();
     final text = tester.widget<Text>(find.text('Candy Boost Day'));
     expect(text.textAlign, TextAlign.left);
     expect(
@@ -43,5 +44,16 @@ void main() {
           .alignment,
       Alignment.centerLeft,
     );
+    final scrims = tester
+        .widgetList<DecoratedBox>(find.byType(DecoratedBox))
+        .where((widget) => widget.decoration is BoxDecoration)
+        .map((widget) => widget.decoration as BoxDecoration)
+        .where((decoration) => decoration.gradient is LinearGradient);
+    expect(scrims, isNotEmpty);
+    final scrim = scrims.first.gradient! as LinearGradient;
+    expect(scrim.begin, Alignment.centerLeft);
+    expect(scrim.end, Alignment.centerRight);
+    expect(scrim.colors.first.a, greaterThan(0.45));
+    expect(text.style?.shadows, isNotEmpty);
   });
 }

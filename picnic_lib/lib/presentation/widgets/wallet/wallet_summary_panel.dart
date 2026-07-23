@@ -114,36 +114,47 @@ class WalletCurrencySegment extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: label,
-      child: Column(
-        crossAxisAlignment: contentAlignment,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            asset,
-            package: 'picnic_lib',
-            width: compact ? 32 : 40,
-            height: compact ? 32 : 40,
-          ),
-          Text(label, textAlign: TextAlign.left),
-          Align(
-            alignment: switch (contentAlignment) {
-              CrossAxisAlignment.center => Alignment.center,
-              CrossAxisAlignment.end => Alignment.centerRight,
-              _ => Alignment.centerLeft,
-            },
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                formatWalletAmount(amount),
-                maxLines: 1,
-                softWrap: false,
-                textAlign: TextAlign.left,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Column(
+          crossAxisAlignment: contentAlignment,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              asset,
+              package: 'picnic_lib',
+              width: compact ? 32 : 40,
+              height: compact ? 32 : 40,
+            ),
+            Text(label, textAlign: TextAlign.left),
+            Align(
+              alignment: switch (contentAlignment) {
+                CrossAxisAlignment.center => Alignment.center,
+                CrossAxisAlignment.end => Alignment.centerRight,
+                _ => Alignment.centerLeft,
+              },
+              child: SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: switch (contentAlignment) {
+                    CrossAxisAlignment.center => Alignment.center,
+                    CrossAxisAlignment.end => Alignment.centerRight,
+                    _ => Alignment.centerLeft,
+                  },
+                  child: Text(
+                    formatWalletAmount(amount),
+                    maxLines: 1,
+                    softWrap: false,
+                    textAlign: TextAlign.left,
+                  ),
+                ),
               ),
             ),
-          ),
-          if (secondary != null && !compact)
-            Text(secondary!, textAlign: TextAlign.left),
-        ],
+            if (secondary != null && !compact)
+              Text(secondary!, textAlign: TextAlign.left),
+          ],
+        ),
       ),
     );
   }
