@@ -10,6 +10,7 @@ import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
 import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
+import 'package:picnic_lib/core/utils/startup_future_guard.dart';
 
 import 'package:picnic_lib/core/utils/supabase_health_check.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -94,7 +95,9 @@ class MainInitializer {
         group1.add(AppInitializer.initializePrivacyConsent());
       }
       await Future.wait(group1);
-      logger.i('SDK Group 1 초기화 완료 (Supabase, Firebase, WebP, Timezone, Privacy)');
+      logger.i(
+        'SDK Group 1 초기화 완료 (Supabase, Firebase, WebP, Timezone, Privacy)',
+      );
 
       // Supabase 헬스체크 (개발 환경에서만)
       if (kDebugMode) {
@@ -107,20 +110,33 @@ class MainInitializer {
 
       Future<void> otherSdksFuture = Future.value();
       if (UniversalPlatform.isMobile) {
-        otherSdksFuture = Future.wait([
-          AppInitializer.initializeTapjoy(),
-          FlutterBranchSdk.init(
-            enableLogging: true,
-            branchAttributionLevel: BranchAttributionLevel.NONE,
-          ),
-          _initializeAdMob(),
-        ]).then((_) {}).catchError((e, s) {
-          // 광고/딥링크 SDK 실패는 앱 사용에 치명적이지 않으므로 로깅만
-          logger.e('SDK Group 2 (non-auth) 초기화 실패', error: e, stackTrace: s);
-        });
+        otherSdksFuture =
+            Future.wait([
+              AppInitializer.initializeTapjoy(),
+              FlutterBranchSdk.init(
+                enableLogging: true,
+                branchAttributionLevel: BranchAttributionLevel.NONE,
+              ),
+              _initializeAdMob(),
+            ]).then((_) {}).catchError((e, s) {
+              // 광고/딥링크 SDK 실패는 앱 사용에 치명적이지 않으므로 로깅만
+              logger.e(
+                'SDK Group 2 (non-auth) 초기화 실패',
+                error: e,
+                stackTrace: s,
+              );
+            });
       }
 
-      await Future.wait([authFuture, otherSdksFuture]);
+      final guardedOtherSdksFuture = waitForNonCriticalStartup(
+        otherSdksFuture,
+        timeout: const Duration(seconds: 10),
+        onTimeout: () {
+          logger.w('SDK Group 2 (non-auth) 초기화 시간 초과 - 앱 시작을 계속합니다.');
+        },
+      );
+
+      await Future.wait([authFuture, guardedOtherSdksFuture]);
       logger.i('SDK Group 2 초기화 완료 (Auth, Tapjoy, Branch, AdMob)');
 
       // Analytics 사용자 속성 설정 (Auth 완료 후)
