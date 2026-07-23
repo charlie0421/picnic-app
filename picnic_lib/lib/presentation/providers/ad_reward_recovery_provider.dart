@@ -27,10 +27,15 @@ AdRewardOwnerReader adRewardOwnerReader(Ref ref) =>
     () => supabase.auth.currentUser?.id;
 
 class OwnedAdRewardStatus {
-  const OwnedAdRewardStatus({required this.ownerUserId, required this.status});
+  const OwnedAdRewardStatus({
+    required this.ownerUserId,
+    required this.status,
+    required this.generation,
+  });
 
   final String ownerUserId;
   final AdRewardStatusModel status;
+  final int generation;
 }
 
 class AdRewardRecoveryState {
@@ -199,7 +204,11 @@ class AdRewardRecovery extends _$AdRewardRecovery {
             state = state.copyWith(
               dialogQueue: [
                 ...state.dialogQueue,
-                OwnedAdRewardStatus(ownerUserId: ownerUserId, status: status),
+                OwnedAdRewardStatus(
+                  ownerUserId: ownerUserId,
+                  status: status,
+                  generation: generation,
+                ),
               ],
             );
           }
@@ -226,7 +235,7 @@ class AdRewardRecovery extends _$AdRewardRecovery {
   Future<void> acknowledgeAfterRender(OwnedAdRewardStatus queued) async {
     final ownerUserId = queued.ownerUserId;
     final status = queued.status;
-    final generation = _generation;
+    final generation = queued.generation;
     if (status.state == AdRewardState.pending) {
       throw StateError('Pending rewards cannot be acknowledged');
     }
@@ -235,6 +244,7 @@ class AdRewardRecovery extends _$AdRewardRecovery {
       throw StateError('Ad reward owner is no longer active');
     }
     if (state.dialogQueue.isEmpty ||
+        state.dialogQueue.first.generation != generation ||
         _key(
               state.dialogQueue.first.ownerUserId,
               state.dialogQueue.first.status.reference,
