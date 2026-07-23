@@ -550,10 +550,14 @@ workflows:
           include: true
       cancel_previous_builds: true
     scripts:
-      - name: Verify protected production target
+      - name: Verify deployment target
         script: |
           cd picnic_app
-          dart run tool/verify_release_target.dart --target=production
+          if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+            dart run tool/verify_release_target.dart --target=production
+          else
+            dart run tool/verify_environment_isolation.dart --environment=dev
+          fi
       - name: Install Shorebird CLI
         script: |
           if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
@@ -588,6 +592,15 @@ workflows:
           flutter --version
           
           echo "=== Flutter 패키지 설치 ==="
+          if [ "${DEPLOY_TARGET:-staging}" != "production" ]; then
+            : "${PICNIC_STAGING_SUPABASE_URL:?PICNIC_STAGING_SUPABASE_URL is required}"
+            : "${PICNIC_STAGING_SUPABASE_ANON_KEY:?PICNIC_STAGING_SUPABASE_ANON_KEY is required}"
+            : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
+            jq --arg url "$PICNIC_STAGING_SUPABASE_URL" \
+              --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
+              '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=($url + "/storage/v1") | .supabase.storage.anon_key=$key' \
+              config/prod.json > config/dev.json
+          fi
           flutter packages pub get
 
       - name: Run unit tests with coverage
@@ -661,13 +674,29 @@ workflows:
           echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
           SKIP_SHOREBIRD=false
 
-          shorebird release android \
-            --dart-define=ENVIRONMENT=prod \
-            --dart-define=PANGLE_ENVIRONMENT=prod \
-            --dart-define=PAYMENT_ENVIRONMENT=prod \
-            --no-confirm \
-            --flutter-version=3.41.4 \
-            --verbose 2>&1 | tee /tmp/shorebird_release.log
+          if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+            shorebird release android \
+              --dart-define=ENVIRONMENT=prod \
+              --dart-define=PANGLE_ENVIRONMENT=prod \
+              --dart-define=PAYMENT_ENVIRONMENT=prod \
+              --no-confirm \
+              --flutter-version=3.41.4 \
+              --verbose 2>&1 | tee /tmp/shorebird_release.log
+          else
+            shorebird release android \
+              --dart-define=ENVIRONMENT=dev \
+              --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+              --dart-define=PANGLE_ENVIRONMENT=sandbox \
+              --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+              --dart-define=PICNIC_PANGLE_IOS_APP_ID=$PICNIC_PANGLE_IOS_APP_ID \
+              --dart-define=PICNIC_PANGLE_ANDROID_APP_ID=$PICNIC_PANGLE_ANDROID_APP_ID \
+              --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID=$PICNIC_PANGLE_IOS_REWARDED_ID \
+              --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID=$PICNIC_PANGLE_ANDROID_REWARDED_ID \
+              --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+              --no-confirm \
+              --flutter-version=3.41.4 \
+              --verbose 2>&1 | tee /tmp/shorebird_release.log
+          fi
 
           RELEASE_EXIT_CODE=${PIPESTATUS[0]}
 
@@ -702,11 +731,25 @@ workflows:
           if [ "$SHOREBIRD_AAB_EXISTS" = "false" ]; then
             echo "⚠️ WARNING: flutter build appbundle로 생성된 AAB는 Shorebird 패치를 받을 수 없습니다!"
             echo "📦 Flutter AAB 빌드 (fallback)..."
-            flutter build appbundle \
-              --release \
-              --dart-define=ENVIRONMENT=prod \
-              --dart-define=PANGLE_ENVIRONMENT=prod \
-              --dart-define=PAYMENT_ENVIRONMENT=prod
+            if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+              flutter build appbundle \
+                --release \
+                --dart-define=ENVIRONMENT=prod \
+                --dart-define=PANGLE_ENVIRONMENT=prod \
+                --dart-define=PAYMENT_ENVIRONMENT=prod
+            else
+              flutter build appbundle \
+                --release \
+                --dart-define=ENVIRONMENT=dev \
+                --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+                --dart-define=PANGLE_ENVIRONMENT=sandbox \
+                --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+                --dart-define=PICNIC_PANGLE_IOS_APP_ID=$PICNIC_PANGLE_IOS_APP_ID \
+                --dart-define=PICNIC_PANGLE_ANDROID_APP_ID=$PICNIC_PANGLE_ANDROID_APP_ID \
+                --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID=$PICNIC_PANGLE_IOS_REWARDED_ID \
+                --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID=$PICNIC_PANGLE_ANDROID_REWARDED_ID \
+                --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE
+            fi
 
             if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
               echo "✅ AAB 빌드 완료 (Shorebird 패치 미지원)"
