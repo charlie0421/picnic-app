@@ -81,7 +81,33 @@ void main() {
     expect(result.isValid, isTrue);
   });
 
-  test('rejects missing non-production SDK tuple before initialization', () {
+  test('accepts an entirely disabled Pangle tuple outside production', () {
+    final result = SupabaseEnvironmentPolicy.validate(
+      environment: 'dev',
+      stagingProjectRef: 'staging-ref',
+      config: config(
+        url: 'https://staging-ref.supabase.co',
+        storageUrl: 'https://staging-ref.supabase.co/storage/v1',
+      ),
+      productionConfig: config(
+        url: 'https://xtijtefcycoeqludlngc.supabase.co',
+        storageUrl: 'https://api.picnic.fan',
+        anon: 'prod-anon',
+      ),
+      pangleEnvironment: 'sandbox',
+      paymentEnvironment: 'sandbox',
+      pangleRuntimeConfig: const {
+        'ios_app_id': '',
+        'android_app_id': '',
+        'ios_rewarded_video_id': '',
+        'android_rewarded_video_id': '',
+      },
+      paymentProductNamespace: 'staging.',
+    );
+    expect(result.isValid, isTrue, reason: result.reason);
+  });
+
+  test('rejects a partially configured Pangle tuple outside production', () {
     final result = SupabaseEnvironmentPolicy.validate(
       environment: 'dev',
       stagingProjectRef: 'staging-ref',
@@ -95,9 +121,16 @@ void main() {
       ),
       pangleEnvironment: 'sandbox',
       paymentEnvironment: 'sandbox',
+      pangleRuntimeConfig: const {
+        'ios_app_id': 'sandbox-ios-app',
+        'android_app_id': '',
+        'ios_rewarded_video_id': '',
+        'android_rewarded_video_id': '',
+      },
+      paymentProductNamespace: 'staging.',
     );
     expect(result.isValid, isFalse);
-    expect(result.reason, contains('Pangle sandbox tuple'));
+    expect(result.reason, contains('partial Pangle sandbox tuple'));
   });
 
   test('rejects any Pangle production tuple item reused by dev', () {
