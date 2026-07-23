@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_app/app.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 
 import 'mock_supabase_server.dart';
 
@@ -23,6 +24,29 @@ class TestAppSetup {
     // Mock 서버 초기화
     mockServer = MockSupabaseServer(scenario: scenario);
     await mockServer.start();
+    Environment.initTestConfig(
+      {
+        'supabase': {
+          'url': mockServer.baseUrl,
+          'anon_key': 'integration-local-anon-key',
+          'storage': {
+            'url': '${mockServer.baseUrl}/storage/v1',
+            'anon_key': 'integration-local-anon-key',
+          },
+        },
+        'theme': {
+          'colors': {
+            'primary': '0xFF9374FF',
+            'secondary': '0xFF83FBC8',
+            'sub': '0xFFCDFB5D',
+            'point': '0xFFFFA9BD',
+            'point_900': '0xFFEB4A71',
+          },
+        },
+        'logging': {'level': 'off'},
+      },
+      environment: 'test-local',
+    );
   }
 
   /// 테스트 환경 정리

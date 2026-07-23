@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/candy_boost_banner.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../helpers/load_test_fonts.dart';
 
@@ -26,17 +27,28 @@ Widget buildCampaignGoldenApp(ActivePromotionCampaignModel campaign) =>
       supportedLocales: AppLocalizations.supportedLocales,
       home: SizedBox(
         height: 200,
-        child: Material(
-          child: CandyBoostBanner(
-            campaign: campaign,
-            background: const ColoredBox(color: Color(0xFFFF7FA8)),
-          ),
+        child: ColoredBox(
+          color: const Color(0xFFFF7FA8),
+          child: CandyBoostBanner(campaign: campaign),
         ),
       ),
     );
 
 void main() {
-  setUpAll(loadTestFonts);
+  late Duration originalVisibilityInterval;
+
+  setUpAll(() async {
+    await loadTestFonts();
+    originalVisibilityInterval =
+        VisibilityDetectorController.instance.updateInterval;
+    VisibilityDetectorController.instance.updateInterval =
+        const Duration(hours: 1);
+  });
+
+  tearDownAll(() {
+    VisibilityDetectorController.instance.updateInterval =
+        originalVisibilityInterval;
+  });
 
   testWidgets('left-aligned candy boost banner golden', (tester) async {
     tester.view.physicalSize = const Size(1179, 600);
@@ -44,7 +56,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(buildCampaignGoldenApp(activeCampaignFixture));
-    await tester.pump(const Duration(seconds: 1));
+    final title = tester.widget<Text>(find.text('캔디 부스트 데이'));
+    expect(title.textAlign, TextAlign.left);
     await expectLater(
       find.byType(CandyBoostBanner),
       matchesGoldenFile('../../goldens/candy_boost_banner.png'),

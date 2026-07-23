@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -18,19 +18,20 @@ Map<String, dynamic> loadGoldenFixture(String path) =>
 final walletSummaryFixture = WalletSummaryModel.fromJson(
   loadGoldenFixture('test/fixtures/wallet_contracts/wallet_summary_v1.json'),
 );
-final walletIconImages = <String, ui.Image>{};
 
-Future<void> loadWalletIconImages() async {
-  for (final asset in const [
-    'assets/icons/store/currency_star_candy.png',
-    'assets/icons/store/currency_bonus_star_candy.png',
-    'assets/icons/store/currency_cotton_candy.png',
-  ]) {
-    final codec = await ui.instantiateImageCodec(File(asset).readAsBytesSync());
-    walletIconImages[asset] = (await codec.getNextFrame()).image;
-    codec.dispose();
+class GoldenAssetBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) async {
+    if (!key.contains('assets/icons/store/currency_')) {
+      return rootBundle.load(key);
+    }
+    final relativePath = key.replaceFirst('packages/picnic_lib/', '');
+    final bytes = await File(relativePath).readAsBytes();
+    return ByteData.sublistView(bytes);
   }
 }
+
+final goldenAssetBundle = GoldenAssetBundle();
 
 class GoldenWalletSummary extends WalletSummary {
   GoldenWalletSummary(this.value);
@@ -44,19 +45,14 @@ Widget buildWalletGoldenApp(WalletSummaryModel wallet) => ProviderScope(
   overrides: [
     walletSummaryProvider.overrideWith(() => GoldenWalletSummary(wallet)),
   ],
-  child: MaterialApp(
-    theme: ThemeData(fontFamily: 'Pretendard'),
-    locale: const Locale('ko'),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: Material(
-      child: WalletSummaryPanel(
-        iconBuilder: (asset, dimension) => RawImage(
-          image: walletIconImages[asset],
-          width: dimension,
-          height: dimension,
-        ),
-      ),
+  child: DefaultAssetBundle(
+    bundle: goldenAssetBundle,
+    child: MaterialApp(
+      theme: ThemeData(fontFamily: 'Pretendard'),
+      locale: const Locale('ko'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const Material(child: WalletSummaryPanel()),
     ),
   ),
 );
@@ -64,7 +60,6 @@ Widget buildWalletGoldenApp(WalletSummaryModel wallet) => ProviderScope(
 void main() {
   setUpAll(() async {
     await loadTestFonts();
-    await loadWalletIconImages();
   });
 
   testWidgets('three-currency wallet golden', (tester) async {
@@ -73,8 +68,28 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(buildWalletGoldenApp(walletSummaryFixture));
+    final context = tester.element(find.byType(WalletSummaryPanel));
+    for (final asset in const [
+      'assets/icons/store/currency_star_candy.png',
+      'assets/icons/store/currency_bonus_star_candy.png',
+      'assets/icons/store/currency_cotton_candy.png',
+    ]) {
+      await tester.runAsync(
+        () => precacheImage(
+          AssetImage(asset, package: 'picnic_lib', bundle: goldenAssetBundle),
+          context,
+        ),
+      );
+    }
     await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
+    expect(find.byType(Image), findsNWidgets(3));
+    final amount = find.text('9,007,199,254,740,993');
+    expect(amount, findsOneWidget);
+    expect(
+      find.ancestor(of: amount, matching: find.byType(FittedBox)),
+      findsOneWidget,
+    );
     await expectLater(
       find.byType(WalletSummaryPanel),
       matchesGoldenFile('../../../goldens/wallet_summary_panel.png'),
