@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -11,10 +10,20 @@ import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 
 /// Pure logic helpers for AdShortformFullscreenPage, testable without widget tree.
 @visibleForTesting
 class AdShortformLogic {
+  static bool shouldUseLegacyBonusUx(InternalShortformViewResponse response) =>
+      response.reward == null && response.rewardAdded > 0;
+
+  static bool shouldSuppressLocalWalletUx(
+    InternalShortformViewResponse response,
+  ) => response.reward != null;
+
   /// Whether the countdown (<= 5s remaining) should start.
   static bool shouldStartCountdown({
     required bool ctaRevealStarted,
@@ -110,11 +119,12 @@ class AdShortformLogic {
   }
 }
 
-class AdShortformFullscreenPage extends StatefulWidget {
+class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   final String videoUrl;
   final String? ctaUrl;
-  final Future<void> Function() onViewComplete;
+  final Future<InternalShortformViewResponse> Function() onViewComplete;
   final Future<void> Function() onMore;
+
   /// Loads the ad at route-entry time.
   ///
   /// [blocked] signals that an anti-abuse rate-limit already popped the route
@@ -122,7 +132,7 @@ class AdShortformFullscreenPage extends StatefulWidget {
   /// (no duplicate error dialog). Any other empty videoUrl is treated as a
   /// load failure and surfaces an error instead of pulsing forever.
   final Future<({String videoUrl, String? ctaUrl, bool blocked})> Function()?
-      loadAd;
+  loadAd;
 
   const AdShortformFullscreenPage({
     super.key,
@@ -134,11 +144,12 @@ class AdShortformFullscreenPage extends StatefulWidget {
   });
 
   @override
-  State<AdShortformFullscreenPage> createState() =>
+  ConsumerState<AdShortformFullscreenPage> createState() =>
       _AdShortformFullscreenPageState();
 }
 
-class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
+class _AdShortformFullscreenPageState
+    extends ConsumerState<AdShortformFullscreenPage> {
   VideoPlayerController? _controller;
   bool _viewReported = false;
   bool _loading = true;
@@ -341,10 +352,9 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
       _rewarding = true;
     });
     _loadingOverlayKey.currentState?.show();
-    var success = false;
+    InternalShortformViewResponse? response;
     try {
-      await widget.onViewComplete();
-      success = true;
+      response = await widget.onViewComplete();
       if (mounted) {
         setState(() {
           _viewReported = true;
@@ -360,7 +370,11 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
         });
       }
     }
-    if (success && mounted) {
+    if (response != null &&
+        AdShortformLogic.shouldUseLegacyBonusUx(response) &&
+        mounted) {
+      await ref.read(userInfoProvider.notifier).getUserProfiles();
+      if (!mounted) return;
       showSimpleDialog(
         // 국제화된 성공 메시지 사용, 버튼 없음
         content: AppLocalizations.of(context).ad_reward_success_message,
@@ -391,15 +405,9 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
         decoration: BoxDecoration(
           color: AppColors.grey300,
           shape: BoxShape.circle,
-          border: Border.all(
-            color: AppColors.grey500,
-          ),
+          border: Border.all(color: AppColors.grey500),
         ),
-        child: Icon(
-          Icons.close,
-          color: AppColors.grey500,
-          size: 18,
-        ),
+        child: Icon(Icons.close, color: AppColors.grey500, size: 18),
       ),
     );
   }
@@ -415,7 +423,8 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
     }
 
     final v = _controller?.value;
-    final canClose = v != null &&
+    final canClose =
+        v != null &&
         AdShortformLogic.canCloseImmediately(
           isInitialized: v.isInitialized,
           isBuffering: v.isBuffering,
@@ -554,9 +563,7 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                 child: ctrl == null
                     ? Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildCloseIcon(onTap: _handleClosePressed),
-                        ],
+                        children: [_buildCloseIcon(onTap: _handleClosePressed)],
                       )
                     : ValueListenableBuilder(
                         valueListenable: ctrl,
@@ -573,15 +580,15 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                               : 0;
                           final showCountdown =
                               AdShortformLogic.shouldShowCountdown(
-                            finished: finished,
-                            remainingSeconds: remaining,
-                          );
+                                finished: finished,
+                                remainingSeconds: remaining,
+                              );
                           final canCloseNow =
                               AdShortformLogic.isCtaButtonEnabled(
-                            finished: finished,
-                            viewReported: _viewReported,
-                            rewarding: _rewarding,
-                          );
+                                finished: finished,
+                                viewReported: _viewReported,
+                                rewarding: _rewarding,
+                              );
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -656,10 +663,10 @@ class _AdShortformFullscreenPageState extends State<AdShortformFullscreenPage> {
                           }
                           final bool enabled =
                               AdShortformLogic.isCtaButtonEnabled(
-                            finished: finished,
-                            viewReported: _viewReported,
-                            rewarding: _rewarding,
-                          );
+                                finished: finished,
+                                viewReported: _viewReported,
+                                rewarding: _rewarding,
+                              );
                           return ElevatedButton(
                             onPressed: enabled
                                 ? () async {

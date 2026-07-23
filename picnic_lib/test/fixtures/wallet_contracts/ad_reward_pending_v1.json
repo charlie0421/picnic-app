@@ -1,0 +1,18 @@
+{
+  "reference": {
+    "type": "PANGLE_CLAIM",
+    "id": "00000000-0000-4000-8000-000000000401"
+  },
+  "state": "PENDING",
+  "grant": null,
+  "wallet": {
+    "contract_version": "wallet.v1",
+    "star": "100",
+    "bonus": "20",
+    "cotton": "5",
+    "cotton_expiring_amount": "5",
+    "cotton_next_expires_at": "2026-07-28T00:00:00.000Z",
+    "snapshot_at": "2026-07-21T00:00:00.000Z"
+  },
+  "snapshot_at": "2026-07-21T00:00:00.000Z"
+}

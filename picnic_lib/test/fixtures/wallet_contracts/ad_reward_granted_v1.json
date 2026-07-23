@@ -1,0 +1,24 @@
+{
+  "reference": {
+    "type": "INTERNAL_IMPRESSION",
+    "id": "00000000-0000-4000-8000-000000000402"
+  },
+  "state": "GRANTED",
+  "grant": {
+    "id": "502",
+    "currency": "COTTON_CANDY",
+    "amount": "3",
+    "granted_at": "2026-07-21T00:00:00.000Z",
+    "expires_at": "2026-07-28T00:00:00.000Z"
+  },
+  "wallet": {
+    "contract_version": "wallet.v1",
+    "star": "100",
+    "bonus": "20",
+    "cotton": "8",
+    "cotton_expiring_amount": "8",
+    "cotton_next_expires_at": "2026-07-28T00:00:00.000Z",
+    "snapshot_at": "2026-07-21T00:00:00.000Z"
+  },
+  "snapshot_at": "2026-07-21T00:00:00.000Z"
+}

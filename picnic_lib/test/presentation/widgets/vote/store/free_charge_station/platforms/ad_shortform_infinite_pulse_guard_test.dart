@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_fullscreen_page.dart';
 
 import '../../../../../../helpers/ignore_image_errors.dart';
@@ -65,7 +66,7 @@ void main() {
       final completer = Completer<({String videoUrl, String? ctaUrl, bool blocked})>();
       final page = AdShortformFullscreenPage(
         videoUrl: '',
-        onViewComplete: () async {},
+        onViewComplete: legacyViewResponse,
         onMore: () async {},
         loadAd: () => completer.future, // never completes -> controller null
       );
@@ -84,7 +85,7 @@ void main() {
       final completer = Completer<({String videoUrl, String? ctaUrl, bool blocked})>();
       final page = AdShortformFullscreenPage(
         videoUrl: '',
-        onViewComplete: () async {},
+        onViewComplete: legacyViewResponse,
         onMore: () async {},
         loadAd: () => completer.future,
       );
@@ -111,7 +112,7 @@ void main() {
         (WidgetTester tester) async {
       final page = AdShortformFullscreenPage(
         videoUrl: '',
-        onViewComplete: () async {},
+        onViewComplete: legacyViewResponse,
         onMore: () async {},
         loadAd: () async => (videoUrl: '', ctaUrl: null, blocked: false),
       );
@@ -132,7 +133,7 @@ void main() {
         (WidgetTester tester) async {
       final page = AdShortformFullscreenPage(
         videoUrl: '',
-        onViewComplete: () async {},
+        onViewComplete: legacyViewResponse,
         onMore: () async {},
         loadAd: () async => (videoUrl: '', ctaUrl: null, blocked: true),
       );
@@ -149,3 +150,11 @@ void main() {
     });
   });
 }
+
+Future<InternalShortformViewResponse> legacyViewResponse() async =>
+    const InternalShortformViewResponse(
+      ok: true,
+      rewardAdded: 1,
+      impressionId: '00000000-0000-4000-8000-000000000402',
+      newBonus: 1,
+    );
