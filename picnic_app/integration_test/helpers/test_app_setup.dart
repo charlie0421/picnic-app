@@ -1,7 +1,4 @@
-/// 테스트용 앱 초기화 헬퍼
-///
-/// 실제 Supabase/Firebase 연결 대신 Mock 서버를 사용하여
-/// 독립적인 E2E 테스트 환경을 구성합니다.
+// 실제 Supabase/Firebase 연결 대신 Mock 서버를 사용하는 E2E 헬퍼입니다.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,21 +34,13 @@ class TestAppSetup {
   ///
   /// Riverpod ProviderScope에 테스트 오버라이드를 적용하여
   /// 실제 백엔드 없이 동작하는 앱 위젯을 반환합니다.
-  static Widget createTestApp({
-    List<Override> additionalOverrides = const [],
-  }) {
+  static Widget createTestApp() {
     // TODO: 실제 프로바이더 오버라이드 구현
     // - Supabase 클라이언트를 Mock으로 교체
     // - Firebase 초기화 건너뛰기
     // - 소셜 로그인 Mock 처리
-    final overrides = <Override>[
-      // TODO: supabaseClientProvider.overrideWithValue(mockServer.client),
-      // TODO: firebaseProvider.overrideWithValue(MockFirebase()),
-      ...additionalOverrides,
-    ];
-
     return ProviderScope(
-      overrides: overrides,
+      overrides: const [],
       child: const App(),
     );
   }
@@ -60,12 +49,9 @@ class TestAppSetup {
   ///
   /// [tester]에 앱을 마운트하고 초기 프레임이 렌더링될 때까지 대기합니다.
   static Future<void> pumpTestApp(
-    WidgetTester tester, {
-    List<Override> additionalOverrides = const [],
-  }) async {
-    await tester.pumpWidget(
-      createTestApp(additionalOverrides: additionalOverrides),
-    );
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(createTestApp());
 
     // 초기 프레임 렌더링 대기
     await tester.pumpAndSettle(const Duration(seconds: 3));

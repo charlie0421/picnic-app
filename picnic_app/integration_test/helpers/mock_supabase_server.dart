@@ -1,9 +1,8 @@
-/// Mock Supabase 서버
-///
-/// E2E 테스트에서 실제 Supabase 백엔드 대신 사용하는
-/// Mock 응답 서버입니다. 테스트 시나리오별로 다른 응답을 제공합니다.
+// E2E 테스트에서 실제 Supabase 백엔드 대신 사용하는 Mock 응답 서버입니다.
 import 'dart:convert';
 import 'dart:io';
+
+import '../fixtures/wallet_contract_fixtures.g.dart';
 
 /// 테스트 시나리오 열거형
 ///
@@ -32,6 +31,7 @@ enum MockScenario {
 class MockSupabaseServer {
   final MockScenario scenario;
   HttpServer? _server;
+  Map<String, dynamic>? lastVoteBody;
 
   /// Mock 서버의 기본 URL (서버 시작 후 설정됨)
   String get baseUrl => 'http://localhost:${_server?.port ?? 0}';
@@ -53,18 +53,30 @@ class MockSupabaseServer {
   /// HTTP 요청 핸들러
   ///
   /// 요청 경로에 따라 적절한 Mock 응답을 반환합니다.
-  void _handleRequest(HttpRequest request) {
+  Future<void> _handleRequest(HttpRequest request) async {
     final path = request.uri.path;
 
     // CORS 헤더 설정
     request.response.headers.add('Access-Control-Allow-Origin', '*');
     request.response.headers.add('Content-Type', 'application/json');
 
+    if (path.endsWith('/functions/v1/voting-v2')) {
+      lastVoteBody = Map<String, dynamic>.from(
+        jsonDecode(await utf8.decoder.bind(request).join()) as Map,
+      );
+      request.response.statusCode = HttpStatus.ok;
+      request.response.write(
+        walletContractFixtureJson['vote_result_v3.json']!,
+      );
+      await request.response.close();
+      return;
+    }
+
     // 네트워크 오류 시나리오: 모든 요청에 500 반환
     if (scenario == MockScenario.networkError) {
       request.response.statusCode = HttpStatus.internalServerError;
       request.response.write(jsonEncode({'error': 'Mock network error'}));
-      request.response.close();
+      await request.response.close();
       return;
     }
 

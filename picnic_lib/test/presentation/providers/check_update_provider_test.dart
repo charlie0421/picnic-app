@@ -1,10 +1,38 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
+import 'package:picnic_lib/presentation/dialogs/force_update_overlay.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
 
 import '../../helpers/mock_supabase.dart';
+import '../../helpers/test_environment.dart';
 
 void main() {
+  setUp(initTestColors);
+
+  testWidgets('force update overlay displays the force version', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('ko'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: ForceUpdateOverlay(
+          updateInfo: UpdateInfo(
+            status: UpdateStatus.updateRequired,
+            currentVersion: '1.2.33',
+            latestVersion: '1.2.35',
+            forceVersion: '1.2.34',
+          ),
+        ),
+      ),
+    );
+    expect(find.textContaining('1.2.34'), findsOneWidget);
+    expect(find.textContaining('1.2.35'), findsNothing);
+  });
+
   group('UpdateStatus', () {
     test('has all expected values', () {
       expect(UpdateStatus.values.length, 4);
@@ -266,9 +294,7 @@ void main() {
     late ProviderContainer container;
 
     setUp(() {
-      setupMockSupabase({
-        'version': <Map<String, dynamic>>[],
-      });
+      setupMockSupabase({'version': <Map<String, dynamic>>[]});
       container = ProviderContainer();
     });
 
@@ -301,8 +327,7 @@ void main() {
       expect(round.url, 'https://apps.apple.com/app/idXXXX');
     });
 
-    test(
-        'fromJson tolerates unknown status name (defaults to upToDate) — '
+    test('fromJson tolerates unknown status name (defaults to upToDate) — '
         'protects against schema drift between release versions', () {
       final round = UpdateInfo.fromJson({
         'status': 'someUnknownStatus',

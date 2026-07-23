@@ -23,13 +23,18 @@ class ForceUpdateOverlay extends StatelessWidget {
               children: [
                 Text(AppLocalizations.of(context).update_required_title),
                 const SizedBox(height: 16),
-                Text(AppLocalizations.of(context)
-                    .update_required_text(forceVersion)),
+                Text(
+                  AppLocalizations.of(
+                    context,
+                  ).update_required_text(forceVersion),
+                ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   child: Text(AppLocalizations.of(context).update_button),
-                  onPressed: () => _launchAppStore(url ?? '',
-                      AppLocalizations.of(context).update_cannot_open_appstore),
+                  onPressed: () => _launchAppStore(
+                    url ?? '',
+                    AppLocalizations.of(context).update_cannot_open_appstore,
+                  ),
                 ),
               ],
             ),
@@ -39,7 +44,7 @@ class ForceUpdateOverlay extends StatelessWidget {
     );
   }
 
-  String get forceVersion => updateInfo.latestVersion;
+  String get forceVersion => updateInfo.forceVersion;
 
   String? get url => updateInfo.url;
 
