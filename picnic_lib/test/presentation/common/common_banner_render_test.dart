@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/common/banner.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/common/candy_boost_banner.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
+import 'package:picnic_lib/presentation/common/custom_pagination.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -117,6 +119,13 @@ class MockMixedBannerList extends AsyncBannerList {
   ];
 }
 
+class MutableBannerList extends AsyncBannerList {
+  static List<BannerModel> items = [];
+
+  @override
+  Future<List<BannerModel>> build({required String location}) async => items;
+}
+
 ActivePromotionCampaignsModel homeCampaign() =>
     ActivePromotionCampaignsModel.fromJson({
       'items': [
@@ -145,6 +154,26 @@ ActivePromotionCampaignsModel homeCampaign() =>
       'snapshot_at': '2026-07-21T00:00:00Z',
       'campaign_owned_home_banner_ids': [101],
     });
+
+class _Scheduled implements CommonBannerScheduledTask {
+  _Scheduled(this.callback);
+  final VoidCallback callback;
+  bool cancelled = false;
+  @override
+  void cancel() => cancelled = true;
+}
+
+class _Scheduler implements CommonBannerScheduler {
+  final List<Duration> delays = [];
+  final List<_Scheduled> tasks = [];
+  @override
+  CommonBannerScheduledTask schedule(Duration delay, VoidCallback callback) {
+    delays.add(delay);
+    final task = _Scheduled(callback);
+    tasks.add(task);
+    return task;
+  }
+}
 
 void main() {
   late void Function() restore;
@@ -411,5 +440,92 @@ void main() {
       );
       expect(reads, 0);
     });
+
+    testWidgets('actual ordinary carousel schedules its displayed duration', (
+      tester,
+    ) async {
+      final scheduler = _Scheduler();
+      final moves = <int>[];
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          CommonBanner(
+            'pic_home',
+            16 / 9,
+            scheduler: scheduler,
+            onAutoplayMove: moves.add,
+          ),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(
+              MockAsyncBannerListMultiple.new,
+            ),
+          ],
+        ),
+      );
+      expect(scheduler.delays, contains(const Duration(milliseconds: 3000)));
+      scheduler.tasks.last.callback();
+      await tester.pump();
+      expect(moves, contains(1));
+      expect(tester.widget<Swiper>(find.byType(Swiper)).itemCount, 3);
+    });
+
+    testWidgets('actual HOME carousel schedules campaign creative duration', (
+      tester,
+    ) async {
+      final scheduler = _Scheduler();
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          CommonBanner('vote_home', 16 / 9, scheduler: scheduler),
+          locale: const Locale('en'),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockMixedBannerList.new),
+            activePromotionCampaignProvider(
+              PromotionSurface.home,
+            ).overrideWith((ref) async => homeCampaign()),
+          ],
+        ),
+      );
+      await tester.pump();
+      expect(scheduler.delays, contains(const Duration(milliseconds: 4500)));
+      expect(tester.widget<Swiper>(find.byType(Swiper)).itemCount, 2);
+    });
+
+    testWidgets(
+      'actual carousel clamps index and pagination after list shrink',
+      (tester) async {
+        MutableBannerList.items = await MockAsyncBannerListMultiple().build(
+          location: 'pic_home',
+        );
+        final scheduler = _Scheduler();
+        await pumpAndDrain(
+          tester,
+          buildTestApp(
+            CommonBanner('pic_home', 16 / 9, scheduler: scheduler),
+            extraOverrides: [
+              asyncBannerListProvider.overrideWith(MutableBannerList.new),
+            ],
+          ),
+        );
+        expect(tester.widget<Swiper>(find.byType(Swiper)).itemCount, 3);
+
+        scheduler.tasks.last.callback();
+        await tester.pump();
+        scheduler.tasks.last.callback();
+        await tester.pump();
+
+        MutableBannerList.items = [MutableBannerList.items.first];
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(CommonBanner)),
+        );
+        container.invalidate(asyncBannerListProvider(location: 'pic_home'));
+        await tester.pump();
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(Swiper), findsNothing);
+        expect(find.byType(CustomPagination), findsNothing);
+      },
+    );
   });
 }

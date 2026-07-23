@@ -12,16 +12,19 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   final VoidCallback _resetPurchaseState;
 
   static const Duration _safetyTimeout = Duration(seconds: 90);
-  static const Duration _basePurchaseCooldown =
-      Duration(minutes: 1); // 🎯 기본 60초
-  static const Duration _consecutivePurchaseCooldown =
-      Duration(minutes: 1); // 🔄 연속 구매도 60초 동일 적용
+  static const Duration _basePurchaseCooldown = Duration(
+    minutes: 1,
+  ); // 🎯 기본 60초
+  static const Duration _consecutivePurchaseCooldown = Duration(
+    minutes: 1,
+  ); // 🔄 연속 구매도 60초 동일 적용
 
   // 🔄 연속 구매 추적
   int _consecutivePurchaseCount = 0;
   DateTime? _firstPurchaseInSession;
 
   Timer? _safetyTimer;
+  final Map<String, Timer> _safetyTimersByProduct = {};
   bool _safetyTimeoutTriggered = false;
   DateTime? _safetyTimeoutTime;
   VoidCallback? onTimeoutUIReset;
@@ -31,21 +34,35 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   String? _lastProcessedTransactionId; // 마지막 처리된 실제 거래 ID
   DateTime? _lastPurchaseTime; // 마지막 구매 시도 시간
   String? _currentProductId; // 현재 진행 중인 상품 ID
+  final Set<String> _activeProducts = {};
 
   // 🧩 상품별 쿨타임/연속 구매 세션 추적
-  final Map<String, DateTime> _lastPurchaseTimeByProduct = {}; // productId -> last attempt time
-  final Map<String, int> _consecutivePurchaseCountByProduct = {}; // productId -> count
-  final Map<String, DateTime> _firstPurchaseInSessionByProduct = {}; // productId -> first in session
-  final Map<String, DateTime> _productCooldownUntil = {}; // productId -> enforced cooldown until
+  final Map<String, DateTime> _lastPurchaseTimeByProduct =
+      {}; // productId -> last attempt time
+  final Map<String, int> _consecutivePurchaseCountByProduct =
+      {}; // productId -> count
+  final Map<String, DateTime> _firstPurchaseInSessionByProduct =
+      {}; // productId -> first in session
+  final Map<String, DateTime> _productCooldownUntil =
+      {}; // productId -> enforced cooldown until
 
   PurchaseSafetyManager({
     required GlobalKey<LoadingOverlayWithIconState> loadingKey,
     required VoidCallback resetPurchaseState,
-  })  : _loadingKey = loadingKey,
-        _resetPurchaseState = resetPurchaseState;
+  }) : _loadingKey = loadingKey,
+       _resetPurchaseState = resetPurchaseState;
 
   /// 안전망 타이머 시작
-  void startSafetyTimer() {
+  void startSafetyTimer({String? productId}) {
+    if (productId != null) {
+      _safetyTimersByProduct.remove(productId)?.cancel();
+      _safetyTimersByProduct[productId] = Timer(_safetyTimeout, () {
+        _safetyTimersByProduct.remove(productId);
+        _handleSafetyTimeout();
+      });
+      logger.i('🛡️ 상품별 안전망 타이머 시작: $productId');
+      return;
+    }
     _safetyTimer?.cancel();
     _safetyTimeoutTriggered = false;
     _safetyTimeoutTime = null;
@@ -60,7 +77,11 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   }
 
   /// 안전망 타이머 중지
-  void stopSafetyTimer() {
+  void stopSafetyTimer({String? productId}) {
+    if (productId != null) {
+      _safetyTimersByProduct.remove(productId)?.cancel();
+      return;
+    }
     if (_safetyTimer?.isActive == true) {
       logger.i('🛡️ 안전망 타이머 중지 - 정상 완료');
       _safetyTimer?.cancel();
@@ -71,6 +92,10 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   void disposeSafetyTimer() {
     _safetyTimer?.cancel();
     _safetyTimer = null;
+    for (final timer in _safetyTimersByProduct.values) {
+      timer.cancel();
+    }
+    _safetyTimersByProduct.clear();
     logger.i('🛡️ 안전망 타이머 정리 완료');
   }
 
@@ -100,8 +125,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
   /// 🎯 상품별 구매 가능 체크 (1분 쿨타임을 개별 상품 기준으로 적용)
   bool canAttemptPurchaseForProduct(String productId) {
-    if (_isPurchaseInProgress) {
-      logger.w('🛡️ 구매 진행 중 - 추가 구매 차단');
+    if (_activeProducts.contains(productId)) {
+      logger.w('🛡️ 동일 상품 구매 진행 중 - 추가 구매 차단: $productId');
       return false;
     }
 
@@ -111,7 +136,9 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       final now = DateTime.now();
       if (now.isBefore(until)) {
         final remaining = until.difference(now);
-        logger.w('🛡️ [상품별] 강제 쿨다운 차단: $productId - 남은 ${remaining.inSeconds}s, 종료 예정: ${until.toIso8601String()}');
+        logger.w(
+          '🛡️ [상품별] 강제 쿨다운 차단: $productId - 남은 ${remaining.inSeconds}s, 종료 예정: ${until.toIso8601String()}',
+        );
         return false;
       } else {
         // 만료된 오버라이드는 제거
@@ -127,7 +154,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
         final remaining = requiredCooldown - elapsed;
         final endsAt = DateTime.now().add(remaining).toIso8601String();
         logger.w(
-            '🛡️ [상품별] 구매 쿨다운 차단: $productId - 남은 ${remaining.inSeconds}s (경과 ${elapsed.inSeconds}s / 필요 ${requiredCooldown.inSeconds}s), 종료 예정: $endsAt');
+          '🛡️ [상품별] 구매 쿨다운 차단: $productId - 남은 ${remaining.inSeconds}s (경과 ${elapsed.inSeconds}s / 필요 ${requiredCooldown.inSeconds}s), 종료 예정: $endsAt',
+        );
         return false;
       }
     }
@@ -139,8 +167,9 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   Duration _getAdaptiveCooldown() {
     // 🔄 연속 구매 세션 감지 (10분 내 구매들)
     if (_firstPurchaseInSession != null) {
-      final sessionElapsed =
-          DateTime.now().difference(_firstPurchaseInSession!);
+      final sessionElapsed = DateTime.now().difference(
+        _firstPurchaseInSession!,
+      );
       if (sessionElapsed.inMinutes > 10) {
         // 세션 리셋
         _consecutivePurchaseCount = 0;
@@ -193,14 +222,18 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       _consecutivePurchaseCountByProduct[targetProductId] =
           (_consecutivePurchaseCountByProduct[targetProductId] ?? 0) + 1;
 
-      final enforced = cooldown ?? _getAdaptiveCooldownForProduct(targetProductId);
+      final enforced =
+          cooldown ?? _getAdaptiveCooldownForProduct(targetProductId);
       _productCooldownUntil[targetProductId] = now.add(enforced);
-      logger.w('🛡️ [상품별] Duplicate JWS detected - cooldown enforced for '
-          '$targetProductId (${enforced.inSeconds}s), until=${_productCooldownUntil[targetProductId]!.toIso8601String()}');
+      logger.w(
+        '🛡️ [상품별] Duplicate JWS detected - cooldown enforced for '
+        '$targetProductId (${enforced.inSeconds}s), until=${_productCooldownUntil[targetProductId]!.toIso8601String()}',
+      );
     } else {
       final cooldown = _getAdaptiveCooldown();
       logger.w(
-          '🛡️ Duplicate JWS detected - cooldown activated (no productId) (${cooldown.inSeconds}s)');
+        '🛡️ Duplicate JWS detected - cooldown activated (no productId) (${cooldown.inSeconds}s)',
+      );
     }
   }
 
@@ -244,6 +277,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     _isPurchaseInProgress = true;
     _lastPurchaseTime = DateTime.now();
     if (productId != null) {
+      _activeProducts.add(productId);
       // 성공 시에만 상품별 쿨타임을 적용하므로 여기서는 상품 ID만 저장
       _currentProductId = productId;
     }
@@ -260,6 +294,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     final transactionId =
         '${productId}_${DateTime.now().millisecondsSinceEpoch}';
     _isPurchaseInProgress = false;
+    _activeProducts.remove(productId);
     _lastProcessedTransactionId = transactionId;
     // ✅ 성공 직후에도 연속 구매를 막기 위해 최근 시도 시간을 현재로 갱신
     _lastPurchaseTime = DateTime.now();
@@ -270,7 +305,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
         (_consecutivePurchaseCountByProduct[productId] ?? 0) + 1;
 
     // 🛡️ 정상 구매 완료 시 안전망 타이머 정리
-    stopSafetyTimer();
+    stopSafetyTimer(productId: productId);
 
     logger.i('🎯 구매 완료: $transactionId (타이머 정리됨)');
   }
@@ -434,6 +469,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   /// 🚨 취소/에러 시 내부 상태 완전 리셋 (중요!)
   void resetInternalState({String reason = '상태 리셋'}) {
     _isPurchaseInProgress = false;
+    _activeProducts.clear();
     _lastProcessedTransactionId = null;
 
     // 🔄 연속 구매 세션도 리셋 (에러/취소 시)
@@ -465,7 +501,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     final platform = Platform.isIOS ? 'iOS' : 'Android';
 
     logger.i(
-        '[플랫폼별] 🔍 $platform 구매 판별: $productId (진행중: $_isPurchaseInProgress)');
+      '[플랫폼별] 🔍 $platform 구매 판별: $productId (진행중: $_isPurchaseInProgress)',
+    );
 
     // 🚨 공통 중복 차단 (모든 플랫폼)
     if (transactionId == _lastProcessedTransactionId) {
@@ -478,13 +515,19 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       return _isActualPurchaseIOS(purchaseDetails, transactionId, productId);
     } else {
       return _isActualPurchaseAndroid(
-          purchaseDetails, transactionId, productId);
+        purchaseDetails,
+        transactionId,
+        productId,
+      );
     }
   }
 
   /// 🍎 iOS 전용 구매 판별 - 유연하고 관대한 처리
   bool _isActualPurchaseIOS(
-      dynamic purchaseDetails, String transactionId, String productId) {
+    dynamic purchaseDetails,
+    String transactionId,
+    String productId,
+  ) {
     // 🍎 1단계: 현재 진행 중인 구매 (확실한 경우)
     if (_isPurchaseInProgress &&
         (purchaseDetails.status == PurchaseStatus.purchased ||
@@ -508,7 +551,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
             ? 'restored→정상'
             : 'purchased';
         logger.i(
-            '[iOS] 🍎 iOS 유연성: 최근 구매 시도와 연관된 $statusText 구매 (${elapsed.inSeconds}초 전)');
+          '[iOS] 🍎 iOS 유연성: 최근 구매 시도와 연관된 $statusText 구매 (${elapsed.inSeconds}초 전)',
+        );
         return true;
       }
     }
@@ -523,7 +567,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
             ? 'restored→정상'
             : 'purchased';
         logger.w(
-            '[iOS] 🍎 iOS 극한 fallback: 3분 이내 $statusText 구매 (${elapsed.inMinutes}분 전) - 신중히 허용');
+          '[iOS] 🍎 iOS 극한 fallback: 3분 이내 $statusText 구매 (${elapsed.inMinutes}분 전) - 신중히 허용',
+        );
         return true;
       }
     }
@@ -535,7 +580,10 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
   /// 🤖 Android 전용 구매 판별 - 엄격하고 직선적인 처리
   bool _isActualPurchaseAndroid(
-      dynamic purchaseDetails, String transactionId, String productId) {
+    dynamic purchaseDetails,
+    String transactionId,
+    String productId,
+  ) {
     // 🤖 1단계: 현재 진행 중인 구매만 허용 (엄격)
     if (_isPurchaseInProgress &&
         purchaseDetails.status == PurchaseStatus.purchased) {
@@ -551,7 +599,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       // 🤖 Android는 10초만 허용 (Google Play Billing은 더 직선적)
       if (elapsed.inSeconds <= 10) {
         logger.i(
-            '[Android] 🤖 Android 엄격 허용: 최근 구매 시도 (${elapsed.inSeconds}초 전)');
+          '[Android] 🤖 Android 엄격 허용: 최근 구매 시도 (${elapsed.inSeconds}초 전)',
+        );
         return true;
       }
     }
@@ -610,7 +659,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       'stopped',
       'interrupted',
       'terminated',
-      'aborted'
+      'aborted',
     ];
 
     for (final keyword in cancelKeywords) {
@@ -631,7 +680,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       'BILLING_RESPONSE_USER_CANCELED',
       '-1002',
       '-2',
-      'LAErrorUserCancel'
+      'LAErrorUserCancel',
     ];
 
     for (final code in cancelErrorCodes) {
@@ -645,7 +694,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
   /// 늦은 구매인지 판별
   bool isLatePurchase(bool isActivePurchasing) {
-    final isLate = !isActivePurchasing &&
+    final isLate =
+        !isActivePurchasing &&
         _safetyTimeoutTriggered &&
         _safetyTimeoutTime != null;
 
@@ -667,8 +717,9 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   Future<void> handlePurchaseResult(
     Map<String, dynamic> purchaseResult,
     bool isActivePurchasing,
-    Function(String) showErrorDialog,
-  ) async {
+    Function(String) showErrorDialog, {
+    String? productId,
+  }) async {
     final success = purchaseResult['success'] as bool;
     final wasCancelled = purchaseResult['wasCancelled'] as bool;
     final errorMessage = purchaseResult['errorMessage'] as String?;
@@ -686,7 +737,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       await showErrorDialog(errorMessage ?? '구매 처리 중 오류가 발생했습니다.');
     } else {
       logger.i('[심플] 구매 시작 성공');
-      startSafetyTimer();
+      startSafetyTimer(productId: productId);
     }
   }
 

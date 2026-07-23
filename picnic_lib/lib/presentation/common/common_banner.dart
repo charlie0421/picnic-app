@@ -20,10 +20,18 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CommonBanner extends ConsumerStatefulWidget {
-  const CommonBanner(this.location, this.aspectRatio, {super.key});
+  const CommonBanner(
+    this.location,
+    this.aspectRatio, {
+    super.key,
+    this.scheduler = const TimerCommonBannerScheduler(),
+    this.onAutoplayMove,
+  });
 
   final String location;
   final double aspectRatio;
+  final CommonBannerScheduler scheduler;
+  final ValueChanged<int>? onAutoplayMove;
 
   @override
   ConsumerState<CommonBanner> createState() => _CommonBannerState();
@@ -38,7 +46,7 @@ int commonBannerSafeIndex(int currentIndex, int length) =>
 class _CommonBannerState extends ConsumerState<CommonBanner> {
   int _currentIndex = 0;
   SwiperController? _swiperController;
-  Timer? _autoplayTimer;
+  CommonBannerScheduledTask? _autoplayTask;
 
   @override
   void initState() {
@@ -48,20 +56,24 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
 
   @override
   void dispose() {
-    _autoplayTimer?.cancel();
+    _autoplayTask?.cancel();
     _swiperController?.dispose();
     super.dispose();
   }
 
   void _startAutoplay(List<CommonBannerSlide> slides) {
-    _autoplayTimer?.cancel();
+    _autoplayTask?.cancel();
     if (slides.length > 1) {
-      _autoplayTimer = Timer(slides[_currentIndex].duration, () {
-        if (mounted) {
-          final nextIndex = (_currentIndex + 1) % slides.length;
-          _swiperController?.move(nextIndex);
-        }
-      });
+      _autoplayTask = widget.scheduler.schedule(
+        slides[_currentIndex].duration,
+        () {
+          if (mounted) {
+            final nextIndex = (_currentIndex + 1) % slides.length;
+            widget.onAutoplayMove?.call(nextIndex);
+            _swiperController?.move(nextIndex);
+          }
+        },
+      );
     }
   }
 
@@ -272,4 +284,28 @@ class CommonBannerSlide {
   final String id;
   final Duration duration;
   final Widget child;
+}
+
+abstract interface class CommonBannerScheduledTask {
+  void cancel();
+}
+
+abstract interface class CommonBannerScheduler {
+  CommonBannerScheduledTask schedule(Duration delay, VoidCallback callback);
+}
+
+class TimerCommonBannerScheduler implements CommonBannerScheduler {
+  const TimerCommonBannerScheduler();
+
+  @override
+  CommonBannerScheduledTask schedule(Duration delay, VoidCallback callback) =>
+      _TimerCommonBannerScheduledTask(Timer(delay, callback));
+}
+
+class _TimerCommonBannerScheduledTask implements CommonBannerScheduledTask {
+  _TimerCommonBannerScheduledTask(this.timer);
+  final Timer timer;
+
+  @override
+  void cancel() => timer.cancel();
 }
