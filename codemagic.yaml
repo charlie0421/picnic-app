@@ -556,7 +556,7 @@ workflows:
           if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
             dart run tool/verify_release_target.dart --target=production
           else
-            dart run tool/verify_environment_isolation.dart --environment=dev
+            echo "Staging target selected; isolation is verified after config/dev.json is generated."
           fi
       - name: Install Shorebird CLI
         script: |
@@ -600,6 +600,7 @@ workflows:
               --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
               '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=($url + "/storage/v1") | .supabase.storage.anon_key=$key' \
               config/prod.json > config/dev.json
+            dart run tool/verify_environment_isolation.dart --environment=dev
           fi
           flutter packages pub get
 
