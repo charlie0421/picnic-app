@@ -74,4 +74,48 @@ void main() {
     expect(result.visibleHomeItems('ko'), isEmpty);
     expect(result.campaignOwnedHomeBannerIds, contains(101));
   });
+
+  test('empty creative object is normalized to hidden', () {
+    final json =
+        jsonDecode(
+              File(
+                'test/fixtures/wallet_contracts/promotion_surfaces_active_v1.json',
+              ).readAsStringSync(),
+            )
+            as Map<String, dynamic>;
+    final item = Map<String, dynamic>.from(
+      (json['items'] as List).single as Map,
+    )..['home_creative'] = <String, dynamic>{};
+    final result = ActivePromotionCampaignsModel.fromJson({
+      ...json,
+      'items': [item],
+    });
+    expect(result.visibleHomeItems('ko'), isEmpty);
+  });
+
+  test('envelope, item, and non-empty creative reject extra keys', () {
+    final json =
+        jsonDecode(
+              File(
+                'test/fixtures/wallet_contracts/promotion_surfaces_active_v1.json',
+              ).readAsStringSync(),
+            )
+            as Map<String, dynamic>;
+    expect(
+      () => ActivePromotionCampaignsModel.fromJson({...json, 'extra': true}),
+      throwsFormatException,
+    );
+    final item = Map<String, dynamic>.from(
+      (json['items'] as List).single as Map,
+    );
+    expect(
+      () => ActivePromotionCampaignModel.fromJson({...item, 'extra': true}),
+      throwsFormatException,
+    );
+    final creative = Map<String, dynamic>.from(item['home_creative'] as Map);
+    expect(
+      () => PromotionCreativeModel.fromJson({...creative, 'extra': true}),
+      throwsFormatException,
+    );
+  });
 }

@@ -6,6 +6,34 @@ part '../../../generated/providers/models/promotion/promotion_campaign.g.dart';
 
 enum PromotionSurface { home, store }
 
+const _creativeKeys = {
+  'banner_id',
+  'title',
+  'image',
+  'thumbnail',
+  'link',
+  'duration',
+};
+const _campaignKeys = {
+  'campaign_id',
+  'campaign_version_id',
+  'code',
+  'display_name',
+  'extra_bonus_bps',
+  'window_starts_at',
+  'window_ends_at',
+  'show_in_store',
+  'show_home_banner',
+  'home_creative',
+};
+const _campaignEnvelopeKeys = {
+  'items',
+  'total_count',
+  'next_cursor',
+  'snapshot_at',
+  'campaign_owned_home_banner_ids',
+};
+
 extension PromotionSurfaceWire on PromotionSurface {
   String get wireValue => this == PromotionSurface.home ? 'HOME' : 'STORE';
 }
@@ -26,7 +54,9 @@ abstract class PromotionCreativeModel with _$PromotionCreativeModel {
   String? localizedTitle(String locale) => _localized(title, locale);
 
   factory PromotionCreativeModel.fromJson(Map<String, dynamic> json) =>
-      _$PromotionCreativeModelFromJson(json);
+      _$PromotionCreativeModelFromJson(
+        requireExactContractKeys(json, _creativeKeys),
+      );
 }
 
 String? _localized(Map<String, dynamic> values, String locale) {
@@ -67,8 +97,14 @@ abstract class ActivePromotionCampaignModel
       homeCreative?.localizedTitle(locale) != null &&
       homeCreative?.localizedImage(locale) != null;
 
-  factory ActivePromotionCampaignModel.fromJson(Map<String, dynamic> json) =>
-      _$ActivePromotionCampaignModelFromJson(json);
+  factory ActivePromotionCampaignModel.fromJson(Map<String, dynamic> json) {
+    final exact = requireExactContractKeys(json, _campaignKeys);
+    if (exact['home_creative'] is Map &&
+        (exact['home_creative'] as Map).isEmpty) {
+      exact['home_creative'] = null;
+    }
+    return _$ActivePromotionCampaignModelFromJson(exact);
+  }
 }
 
 @freezed
@@ -90,5 +126,7 @@ abstract class ActivePromotionCampaignsModel
       items.where((item) => item.hasReadableHomeCreative(locale)).toList();
 
   factory ActivePromotionCampaignsModel.fromJson(Map<String, dynamic> json) =>
-      _$ActivePromotionCampaignsModelFromJson(json);
+      _$ActivePromotionCampaignsModelFromJson(
+        requireExactContractKeys(json, _campaignEnvelopeKeys),
+      );
 }

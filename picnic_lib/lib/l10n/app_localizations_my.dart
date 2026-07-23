@@ -1923,6 +1923,17 @@ class AppLocalizationsMy extends AppLocalizations {
   String get candy_boost_extra_bonus => 'Base reward + extra bonus';
 
   @override
+  String get candy_boost_promotion_checking => 'Promotion review in progress';
+
+  @override
+  String get candy_boost_purchase_pending =>
+      'A purchase for this product is already being processed.';
+
+  @override
+  String get candy_boost_late_purchase_explanation =>
+      'Authentication took longer than expected, but the purchase completed successfully.';
+
+  @override
   String get ad_reward_pending => 'Checking your reward';
 
   @override

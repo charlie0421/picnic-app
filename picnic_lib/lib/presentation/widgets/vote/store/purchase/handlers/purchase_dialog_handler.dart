@@ -343,16 +343,10 @@ class PurchaseDialogHandler {
       context: _context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('🎉 Purchase Completed'),
+        title: Text(AppLocalizations.of(context).purchase_confirm_title),
         content: Text(
-          '''${_purchaseSuccessMessage(context, result, displayedCampaign)}
-
-⏰ Authentication took longer than expected and a timeout message was displayed, but your purchase was actually processed normally.
-
-✅ Star Candy has been added to your account
-✅ Purchase history has been recorded on the server
-
-This is a normal situation that can occur during Touch ID/Face ID authentication.''',
+          '${_purchaseSuccessMessage(context, result, displayedCampaign)}\n\n'
+          '${AppLocalizations.of(context).candy_boost_late_purchase_explanation}',
         ),
         actions: [
           TextButton(
@@ -374,7 +368,8 @@ This is a normal situation that can occur during Touch ID/Face ID authentication
     if (promotion == null || displayedCampaign == null) return base;
     if (promotion.state == PurchasePromotionState.pendingTime ||
         promotion.state == PurchasePromotionState.eligible) {
-      return '$base\n프로모션 확인 중';
+      return '$base\n'
+          '${AppLocalizations.of(context).candy_boost_promotion_checking}';
     }
     if (promotion.state != PurchasePromotionState.granted ||
         promotion.campaignVersionId != displayedCampaign.campaignVersionId) {
@@ -385,7 +380,9 @@ This is a normal situation that can occur during Touch ID/Face ID authentication
   }
 
   Future<void> showPurchaseAlreadyPendingDialog() async {
-    showSimpleDialog(content: '동일 상품의 구매가 처리 중입니다.');
+    showSimpleDialog(
+      content: AppLocalizations.of(_context).candy_boost_purchase_pending,
+    );
   }
 
   /// ⚠️ 예상치 못한 중복 에러 다이얼로그

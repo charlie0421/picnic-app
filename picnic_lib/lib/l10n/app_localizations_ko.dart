@@ -1835,6 +1835,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get candy_boost_extra_bonus => '기본 지급 + 추가 보너스';
 
   @override
+  String get candy_boost_promotion_checking => '프로모션 확인 중';
+
+  @override
+  String get candy_boost_purchase_pending => '동일 상품의 구매가 처리 중입니다.';
+
+  @override
+  String get candy_boost_late_purchase_explanation =>
+      '인증에 예상보다 오래 걸렸지만 구매가 정상적으로 완료되었습니다.';
+
+  @override
   String get ad_reward_pending => '보상을 확인하고 있어요';
 
   @override
