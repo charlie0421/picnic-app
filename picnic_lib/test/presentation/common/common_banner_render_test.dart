@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/common/banner.dart';
@@ -98,6 +99,21 @@ class MockOwnedBannerList extends AsyncBannerList {
         'duration': 3000,
         'link': null,
       }),
+  ];
+}
+
+class MockMixedBannerList extends AsyncBannerList {
+  @override
+  Future<List<BannerModel>> build({required String location}) async => [
+    ...await MockOwnedBannerList().build(location: location),
+    BannerModel.fromJson({
+      'id': 202,
+      'title': {'en': 'ordinary unowned'},
+      'thumbnail': 'https://example.com/thumb.jpg',
+      'image': {'en': 'https://example.com/ordinary.jpg'},
+      'duration': 3000,
+      'link': null,
+    }),
   ];
 }
 
@@ -322,6 +338,71 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(find.text('단일 배너'), findsNothing);
+    });
+
+    testWidgets('inactive owned campaign suppresses ordinary owned rows', (
+      tester,
+    ) async {
+      final inactive = homeCampaign().copyWith(items: []);
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockOwnedBannerList.new),
+            activePromotionCampaignProvider(
+              PromotionSurface.home,
+            ).overrideWith((ref) async => inactive),
+          ],
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('owned ordinary'), findsNothing);
+      expect(find.byType(CandyBoostBanner), findsNothing);
+    });
+
+    testWidgets('mixed HOME prepends campaign and keeps unowned ordinary', (
+      tester,
+    ) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          locale: const Locale('en'),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockMixedBannerList.new),
+            activePromotionCampaignProvider(
+              PromotionSurface.home,
+            ).overrideWith((ref) async => homeCampaign()),
+          ],
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(CandyBoostBanner), findsOneWidget);
+      expect(find.text('owned ordinary'), findsNothing);
+      expect(tester.widget<Swiper>(find.byType(Swiper)).itemCount, 2);
+    });
+
+    testWidgets('non HOME location never reads promotion provider', (
+      tester,
+    ) async {
+      var reads = 0;
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const CommonBanner('pic_home', 16 / 9),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+            activePromotionCampaignProvider(PromotionSurface.home).overrideWith(
+              (ref) async {
+                reads++;
+                return homeCampaign();
+              },
+            ),
+          ],
+        ),
+      );
+      expect(reads, 0);
     });
   });
 }
