@@ -7,9 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CandyBoostBanner extends ConsumerWidget {
-  const CandyBoostBanner({super.key, required this.campaign, this.background});
+  const CandyBoostBanner({super.key, required this.campaign});
   final ActivePromotionCampaignModel campaign;
-  final Widget? background;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,8 +31,7 @@ class CandyBoostBanner extends ConsumerWidget {
         fit: StackFit.expand,
         alignment: Alignment.centerLeft,
         children: [
-          background ??
-              PicnicCachedNetworkImage(imageUrl: image, fit: BoxFit.cover),
+          PicnicCachedNetworkImage(imageUrl: image, fit: BoxFit.cover),
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(

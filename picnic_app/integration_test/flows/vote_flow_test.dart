@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/data/models/vote/vote_transaction.dart';
 import 'package:picnic_lib/data/repositories/vote_transaction_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,6 +24,15 @@ void main() {
 
     tearDownAll(() async {
       await TestAppSetup.tearDown();
+    });
+
+    test('uses only the isolated local integration environment', () {
+      expect(Environment.currentEnvironment, 'test-local');
+      expect(Environment.supabaseUrl, TestAppSetup.mockServer.baseUrl);
+      expect(
+        Environment.supabaseUrl,
+        matches(RegExp(r'^http://(?:127\.0\.0\.1|localhost):\d+$')),
+      );
     });
 
     testWidgets('투표 탭에서 투표 목록이 표시되어야 함', (tester) async {

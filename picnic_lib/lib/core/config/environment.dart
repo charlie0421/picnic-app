@@ -50,9 +50,12 @@ class Environment {
 
   /// 테스트 전용: config를 직접 주입하여 초기화
   @visibleForTesting
-  static void initTestConfig(Map<String, dynamic> config) {
+  static void initTestConfig(
+    Map<String, dynamic> config, {
+    String environment = 'test',
+  }) {
     _config = config;
-    _currentEnvironment = 'test';
+    _currentEnvironment = environment;
     _isInitialized = true;
   }
 

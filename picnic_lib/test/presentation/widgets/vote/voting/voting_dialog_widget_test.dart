@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 
@@ -9,6 +11,25 @@ import '../../../../helpers/mock_data.dart';
 import '../../../../helpers/mock_supabase.dart';
 import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_environment.dart';
+
+class _WalletSummaryOverride extends WalletSummary {
+  _WalletSummaryOverride(this.summary);
+
+  final WalletSummaryModel summary;
+
+  @override
+  Future<WalletSummaryModel> build() async => summary;
+}
+
+final _wallet550 = WalletSummaryModel(
+  contractVersion: 'wallet.v1',
+  star: BigInt.from(500),
+  bonus: BigInt.from(50),
+  cotton: BigInt.zero,
+  cottonExpiringAmount: BigInt.zero,
+  cottonNextExpiresAt: null,
+  snapshotAt: DateTime.utc(2026, 7, 21),
+);
 
 void main() {
   setUpAll(() {
@@ -105,6 +126,11 @@ void main() {
             portalType: VotePortal.vote,
           ),
           userProfile: MockData.userProfile(starCandy: 500, starCandyBonus: 50),
+          extraOverrides: [
+            walletSummaryProvider.overrideWith(
+              () => _WalletSummaryOverride(_wallet550),
+            ),
+          ],
         ),
       );
       await pumpAndIgnoreErrors(tester);
@@ -179,8 +205,7 @@ void main() {
       expect(find.byIcon(Icons.person), findsOneWidget);
     });
 
-    testWidgets('contains TextFormField for vote amount input',
-        (tester) async {
+    testWidgets('contains TextFormField for vote amount input', (tester) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -246,8 +271,20 @@ void main() {
             voteItemModel: voteItemModel,
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 100000, starCandyBonus: 0),
+          userProfile: MockData.userProfile(
+            starCandy: 100000,
+            starCandyBonus: 0,
+          ),
+          extraOverrides: [
+            walletSummaryProvider.overrideWith(
+              () => _WalletSummaryOverride(
+                _wallet550.copyWith(
+                  star: BigInt.from(100000),
+                  bonus: BigInt.zero,
+                ),
+              ),
+            ),
+          ],
         ),
       );
       await pumpAndIgnoreErrors(tester);
