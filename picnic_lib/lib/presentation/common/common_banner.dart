@@ -29,6 +29,12 @@ class CommonBanner extends ConsumerStatefulWidget {
   ConsumerState<CommonBanner> createState() => _CommonBannerState();
 }
 
+Duration commonBannerSlideDuration(int milliseconds) =>
+    Duration(milliseconds: milliseconds > 0 ? milliseconds : 3000);
+
+int commonBannerSafeIndex(int currentIndex, int length) =>
+    length == 0 || currentIndex >= length ? 0 : currentIndex;
+
 class _CommonBannerState extends ConsumerState<CommonBanner> {
   int _currentIndex = 0;
   SwiperController? _swiperController;
@@ -63,9 +69,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
     for (final item in banners)
       CommonBannerSlide(
         id: 'ordinary:${item.id}',
-        duration: Duration(
-          milliseconds: item.duration > 0 ? item.duration : 3000,
-        ),
+        duration: commonBannerSlideDuration(item.duration),
         child: _buildBannerItem(item),
       ),
   ];
@@ -82,10 +86,8 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         if (emitted.add(campaign.homeCreative!.bannerId))
           CommonBannerSlide(
             id: 'campaign:${campaign.homeCreative!.bannerId}',
-            duration: Duration(
-              milliseconds: campaign.homeCreative!.duration > 0
-                  ? campaign.homeCreative!.duration
-                  : 3000,
+            duration: commonBannerSlideDuration(
+              campaign.homeCreative!.duration,
             ),
             child: CandyBoostBanner(campaign: campaign),
           ),
@@ -97,7 +99,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
 
   Widget _renderSlides(List<CommonBannerSlide> slides) {
     if (slides.isEmpty) return const SizedBox.shrink();
-    if (_currentIndex >= slides.length) _currentIndex = 0;
+    _currentIndex = commonBannerSafeIndex(_currentIndex, slides.length);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _startAutoplay(slides);
     });
