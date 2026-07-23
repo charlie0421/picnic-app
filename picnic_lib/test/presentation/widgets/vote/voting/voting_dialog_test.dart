@@ -1,16 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
 import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../helpers/mock_data.dart';
 import '../../../../helpers/mock_supabase.dart';
 import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_environment.dart';
+
+class _WalletSummaryOverride extends WalletSummary {
+  _WalletSummaryOverride(this.summary);
+
+  final WalletSummaryModel summary;
+
+  @override
+  Future<WalletSummaryModel> build() async => summary;
+}
+
+WalletSummaryModel _wallet({BigInt? star, BigInt? bonus, BigInt? cotton}) =>
+    WalletSummaryModel(
+      contractVersion: 'wallet.v1',
+      star: star ?? BigInt.zero,
+      bonus: bonus ?? BigInt.zero,
+      cotton: cotton ?? BigInt.zero,
+      cottonExpiringAmount: BigInt.zero,
+      cottonNextExpiresAt: null,
+      snapshotAt: DateTime.utc(2026, 7, 21),
+    );
 
 void main() {
   setUpAll(() {
@@ -105,7 +128,7 @@ void main() {
       expect(find.byType(VotingDialog), findsOneWidget);
     });
 
-    testWidgets('displays star candy amount from user profile', (tester) async {
+    testWidgets('displays authoritative general wallet total', (tester) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -118,6 +141,13 @@ void main() {
             portalType: VotePortal.vote,
           ),
           userProfile: MockData.userProfile(starCandy: 500, starCandyBonus: 50),
+          extraOverrides: [
+            walletSummaryProvider.overrideWith(
+              () => _WalletSummaryOverride(
+                _wallet(star: BigInt.from(500), bonus: BigInt.from(50)),
+              ),
+            ),
+          ],
         ),
       );
       await tester.pumpAndSettle();
@@ -234,6 +264,40 @@ void main() {
       expect(find.text('50'), findsOneWidget);
     });
 
+    testWidgets('Cotton-only wallet enables normal vote submit', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1125, 2436);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(
+        buildTestApp(
+          VotingDialog(
+            voteModel: voteModel,
+            voteItemModel: voteItemModel,
+            portalType: VotePortal.vote,
+          ),
+          extraOverrides: [
+            walletSummaryProvider.overrideWith(
+              () => _WalletSummaryOverride(_wallet(cotton: BigInt.from(10))),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField), '5');
+      await tester.pump();
+
+      final submit = tester.widget<GestureDetector>(
+        find.descendant(
+          of: find.byType(VotingSubmitButton),
+          matching: find.byType(GestureDetector),
+        ),
+      );
+      expect(submit.onTap, isNotNull);
+    });
+
     testWidgets('shows error when vote exceeds star candy', (tester) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
@@ -336,6 +400,11 @@ void main() {
             starCandy: 100000,
             starCandyBonus: 0,
           ),
+          extraOverrides: [
+            walletSummaryProvider.overrideWith(
+              () => _WalletSummaryOverride(_wallet(star: BigInt.from(100000))),
+            ),
+          ],
         ),
       );
       await tester.pumpAndSettle();

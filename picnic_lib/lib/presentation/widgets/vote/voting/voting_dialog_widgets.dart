@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/core/utils/number.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -69,9 +69,10 @@ class VotingMemberInfo extends StatelessWidget {
             children: [
               Text(
                 getLocaleTextFromJson(
-                    (voteItemModel.artist?.id ?? 0) != 0
-                        ? voteItemModel.artist?.name ?? {}
-                        : voteItemModel.artistGroup?.name ?? {}),
+                  (voteItemModel.artist?.id ?? 0) != 0
+                      ? voteItemModel.artist?.name ?? {}
+                      : voteItemModel.artistGroup?.name ?? {},
+                ),
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               SizedBox(width: 8.w),
@@ -81,7 +82,8 @@ class VotingMemberInfo extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     getLocaleTextFromJson(
-                        voteItemModel.artist!.artistGroup!.name),
+                      voteItemModel.artist!.artistGroup!.name,
+                    ),
                     style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
                   ),
                 ),
@@ -192,7 +194,7 @@ class VotingBubbleInfo extends StatelessWidget {
 
 /// 스타캔디 잔액 + 충전 버튼
 class VotingStarCandyInfo extends StatelessWidget {
-  final int myStarCandy;
+  final BigInt myStarCandy;
   final VoidCallback onRecharge;
 
   const VotingStarCandyInfo({
@@ -213,10 +215,11 @@ class VotingStarCandyInfo extends StatelessWidget {
             height: 32,
             alignment: Alignment.centerLeft,
             child: Image.asset(
-                package: 'picnic_lib',
-                'assets/icons/store/star_100.png',
-                width: 32.w,
-                height: 32),
+              package: 'picnic_lib',
+              'assets/icons/store/star_100.png',
+              width: 32.w,
+              height: 32,
+            ),
           ),
           SizedBox(width: 2.w),
           Expanded(
@@ -224,7 +227,7 @@ class VotingStarCandyInfo extends StatelessWidget {
               height: 26,
               alignment: Alignment.topLeft,
               child: Text(
-                formatNumberWithComma(myStarCandy),
+                formatWalletAmount(myStarCandy),
                 style: getTextStyle(AppTypo.body16B, AppColors.primary500),
               ),
             ),
@@ -267,8 +270,10 @@ class _RechargeButton extends StatelessWidget {
               'assets/icons/plus_style=fill.svg',
               width: 16.w,
               height: 16,
-              colorFilter:
-                  ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(
+                AppColors.primary500,
+                BlendMode.srcIn,
+              ),
             ),
           ],
         ),

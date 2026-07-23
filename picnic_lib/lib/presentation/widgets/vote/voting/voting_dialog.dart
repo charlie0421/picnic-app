@@ -8,6 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/data/models/vote/vote_transaction.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -16,6 +18,8 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/providers/vote_transaction_provider.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
@@ -28,6 +32,7 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 Future showVotingDialog({
   required BuildContext context,
@@ -35,32 +40,11 @@ Future showVotingDialog({
   required VoteItemModel voteItemModel,
   VotePortal portalType = VotePortal.vote,
 }) {
-  // PIC에서는 JMA 보팅 대신 일반 보팅 사용
-  if (portalType == VotePortal.pic) {
-    return showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) {
-        return VotingDialog(
-          voteModel: voteModel,
-          voteItemModel: voteItemModel,
-          portalType: portalType,
-        );
-      },
-    );
-  }
-
-  // partner가 'jma'인 경우에만 JMA 투표 다이얼로그 사용
-  logger.d('🔍 VoteModel 파트너십 정보:');
-  logger.d('   - isPartnership: ${voteModel.isPartnership}');
-  logger.d('   - partner: "${voteModel.partner}"');
-  logger.d(
-    '   - partner?.toLowerCase(): "${voteModel.partner?.toLowerCase()}"',
-  );
-  logger.d('   - JMA 조건 매칭: ${voteModel.partner?.toLowerCase() == 'jma'}');
-
-  if (voteModel.partner?.toLowerCase() == 'jma') {
-    logger.d('✅ JMA 투표 다이얼로그 사용');
+  final isPicPortal = portalType == VotePortal.pic;
+  if (VotingDialogHelper.shouldUseJmaDialog(
+    isPicPortal: isPicPortal,
+    partner: voteModel.partner,
+  )) {
     return showJmaVotingDialog(
       context: context,
       voteModel: voteModel,
@@ -100,6 +84,8 @@ class VotingDialog extends ConsumerStatefulWidget {
 }
 
 class _VotingDialogState extends ConsumerState<VotingDialog> {
+  static const int _maxVotingRetries = 2;
+
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
   final GlobalKey _inputFieldKey = GlobalKey();
@@ -126,10 +112,19 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   void _validateVote() {
     final voteAmount = _getVoteAmount();
-    final myStarCandy = _getMyStarCandy();
+    final wallet = widget.portalType == VotePortal.vote
+        ? ref.read(walletSummaryProvider).value
+        : null;
+    final hasBalance = widget.portalType == VotePortal.vote
+        ? wallet != null &&
+              VotingDialogHelper.hasGeneralVoteBalance(
+                wallet,
+                BigInt.from(voteAmount),
+              )
+        : voteAmount <= _getMyStarCandy();
     if (mounted) {
       setState(() {
-        _canVote = voteAmount > 0 && voteAmount <= myStarCandy;
+        _canVote = voteAmount > 0 && hasBalance;
         _hasValue = voteAmount > 0;
       });
     }
@@ -153,6 +148,18 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   @override
   Widget build(BuildContext context) {
     final myStarCandy = _getMyStarCandy();
+    final wallet = widget.portalType == VotePortal.vote
+        ? ref.watch(walletSummaryProvider)
+        : null;
+    if (widget.portalType == VotePortal.vote) {
+      ref.listen(walletSummaryProvider, (previous, next) => _validateVote());
+    }
+    final summary = wallet?.value;
+    final displayedBalance = widget.portalType == VotePortal.vote
+        ? summary == null
+              ? BigInt.zero
+              : summary.cotton + summary.bonus + summary.star
+        : BigInt.from(myStarCandy);
     final userId = ref.watch(
       userInfoProvider.select((value) => value.value?.id ?? ''),
     );
@@ -188,7 +195,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 const SizedBox(height: 16),
                 VotingMemberInfo(voteItemModel: widget.voteItemModel),
                 VotingStarCandyInfo(
-                  myStarCandy: myStarCandy,
+                  myStarCandy: displayedBalance,
                   onRecharge: _navigateToStore,
                 ),
                 const SizedBox(height: 8),
@@ -231,8 +238,18 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         _checkAll = !_checkAll;
         _hasValue = _checkAll;
         if (_checkAll) {
-          final amount = _getMyStarCandy();
-          _textEditingController.text = formatNumberWithComma(amount);
+          if (widget.portalType == VotePortal.vote) {
+            final wallet = ref.read(walletSummaryProvider).value;
+            _textEditingController.text = wallet == null
+                ? ''
+                : formatWalletAmount(
+                    VotingDialogHelper.cappedGeneralVoteBalance(wallet),
+                  );
+          } else {
+            _textEditingController.text = formatNumberWithComma(
+              _getMyStarCandy(),
+            );
+          }
         } else {
           _textEditingController.clear();
         }
@@ -393,7 +410,17 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     if (_isVoting) return;
 
     final voteAmount = _getVoteAmount();
-    if (voteAmount == 0 || myStarCandy < voteAmount) {
+    final amount = BigInt.from(voteAmount);
+    final hasBalance = widget.portalType == VotePortal.vote
+        ? await ref
+              .read(walletSummaryProvider.future)
+              .then(
+                (wallet) =>
+                    VotingDialogHelper.hasGeneralVoteBalance(wallet, amount),
+              )
+        : BigInt.from(myStarCandy) >= amount;
+    if (!mounted) return;
+    if (voteAmount == 0 || !hasBalance) {
       showSimpleDialog(
         title: AppLocalizations.of(context).dialog_title_vote_fail,
         content: voteAmount == 0
@@ -422,27 +449,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     await _performVoting(voteAmount, userId);
   }
 
-  // 429(요청 폭주/유저 뮤텍스 경합) 시 자동 재시도하는 투표 API 호출.
-  // supabase.functions.invoke 는 비-2xx 응답에서 FunctionResponse 를 반환하지 않고
-  // FunctionException 을 throw 한다. 따라서 429 재시도는 반드시 catch 에서 처리해야 한다
-  // (기존 구현은 response.status 분기라 재시도가 전혀 동작하지 않아, 일시적 429 가
-  //  곧바로 "투표 실패" 팝업으로 노출되었다).
-  static const int _maxVotingRetries = 2;
-
-  Future<FunctionResponse> _invokeVotingWithRetry({
+  Future<FunctionResponse> _invokePicVoting({
     required int voteAmount,
     required String userId,
     required int starCandyUsage,
     required int starCandyBonusUsage,
     int retryCount = 0,
   }) async {
-    final functionName = widget.portalType == VotePortal.vote
-        ? 'voting-v2'
-        : 'pic-voting-v2';
-
     try {
       return await supabase.functions.invoke(
-        functionName,
+        VotingDialogHelper.getVotingFunctionName(isPicPortal: true),
         body: {
           'vote_id': widget.voteModel.id,
           'vote_item_id': widget.voteItemModel.id,
@@ -462,7 +478,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
         if (!mounted) rethrow;
 
-        return _invokeVotingWithRetry(
+        return _invokePicVoting(
           voteAmount: voteAmount,
           userId: userId,
           starCandyUsage: starCandyUsage,
@@ -491,48 +507,72 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // 하도록 함수 시작 시 container 를 보관 (PICNIC-APP-530).
     final container = ProviderScope.containerOf(context);
     try {
-      // 사용량 계산
-      final usage = _calculateUsage(voteAmount);
-      final starCandyUsage = usage['star_candy_usage']!;
-      final starCandyBonusUsage = usage['star_candy_bonus_usage']!;
-
       // 옵티미스틱 업데이트: 즉시 로컬 투표 수 반영
       final itemId = widget.voteItemModel.id;
       final currentTotal = widget.voteItemModel.voteTotal ?? 0;
-      ref
+      container
           .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
           .setVoteItem(id: itemId, voteTotal: currentTotal + voteAmount);
 
-      // invoke 는 2xx 가 아니면 FunctionException 을 throw 하므로,
-      // 여기까지 도달하면 성공 응답(2xx)이다.
-      final response = await VotingDialogHelper.invokeVotingWithAuthRecovery(
-        invoke: () => _invokeVotingWithRetry(
-          voteAmount: voteAmount,
-          userId: userId,
-          starCandyUsage: starCandyUsage,
-          starCandyBonusUsage: starCandyBonusUsage,
-        ),
-        refresh: () async {
-          final response = await supabase.auth.refreshSession();
-          return response.session != null;
-        },
-        onRecovery: _recordAuthRecoveryEvent,
-      );
-
-      if (!mounted) return;
-
-      // 서버 응답의 실제 투표 수로 보정
-      final serverTotal = response.data['updatedVoteTotal'] as int?;
-      if (serverTotal != null) {
-        ref
+      late final Map<String, dynamic> completionResult;
+      if (widget.portalType == VotePortal.vote) {
+        final request = VoteTransactionRequest(
+          voteId: widget.voteModel.id,
+          voteItemId: widget.voteItemModel.id,
+          amount: BigInt.from(voteAmount),
+          requestId: const Uuid().v4(),
+        );
+        final result = await VotingDialogHelper.invokeVotingWithAuthRecovery(
+          invoke: () => container
+              .read(voteTransactionRepositoryProvider)
+              .performGeneralVote(request),
+          refresh: () async {
+            final response = await supabase.auth.refreshSession();
+            return response.session != null;
+          },
+          onRecovery: _recordAuthRecoveryEvent,
+        );
+        container
+            .read(walletSummaryProvider.notifier)
+            .setSummary(result.wallet);
+        container
             .read(
               asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier,
             )
-            .setVoteItem(id: itemId, voteTotal: serverTotal);
+            .setVoteItem(
+              id: widget.voteItemModel.id,
+              voteTotal: result.updatedVoteTotal,
+            );
+        completionResult = result.toLegacyDialogMap();
+      } else {
+        final usage = _calculateUsage(voteAmount);
+        final response = await VotingDialogHelper.invokeVotingWithAuthRecovery(
+          invoke: () => _invokePicVoting(
+            voteAmount: voteAmount,
+            userId: userId,
+            starCandyUsage: usage['star_candy_usage']!,
+            starCandyBonusUsage: usage['star_candy_bonus_usage']!,
+          ),
+          refresh: () async {
+            final response = await supabase.auth.refreshSession();
+            return response.session != null;
+          },
+          onRecovery: _recordAuthRecoveryEvent,
+        );
+        container.read(userInfoProvider.notifier).getUserProfiles();
+        final responseData = Map<String, dynamic>.from(response.data as Map);
+        final serverTotal = responseData['updatedVoteTotal'] as int?;
+        if (serverTotal != null) {
+          container
+              .read(
+                asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier,
+              )
+              .setVoteItem(id: itemId, voteTotal: serverTotal);
+        }
+        completionResult = responseData;
       }
 
-      // 유저 프로필 새로고침 (잔액 반영)
-      ref.read(userInfoProvider.notifier).getUserProfiles();
+      if (!mounted) return;
 
       _loadingKey.currentState?.hide();
 
@@ -547,14 +587,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       if (navContext == null || !navContext.mounted) return;
 
-      final result = Map<String, dynamic>.from(response.data);
-      result['votePickId'] = response.data['votePickId'];
-
       showVotingCompleteDialog(
         context: navContext,
         voteModel: widget.voteModel,
         voteItemModel: widget.voteItemModel,
-        result: result,
+        result: completionResult,
       );
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
@@ -566,14 +603,18 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       container
           .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
           .fetch(voteId: widget.voteModel.id);
-      container.read(userInfoProvider.notifier).getUserProfiles();
+      if (widget.portalType == VotePortal.vote) {
+        await container.read(walletSummaryProvider.notifier).refresh();
+      } else {
+        container.read(userInfoProvider.notifier).getUserProfiles();
+      }
 
       // 투표 실패 시 버튼 다시 활성화
       if (mounted) {
         setState(() => _isVoting = false);
       }
 
-      if (context.mounted) {
+      if (mounted) {
         Navigator.of(context).pop();
       }
 
