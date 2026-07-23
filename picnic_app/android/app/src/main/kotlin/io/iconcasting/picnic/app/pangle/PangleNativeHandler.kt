@@ -69,14 +69,19 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
                     ?: return result.error("InvalidParams", "mediaExtra is required", null)
                 try {
                     val validated = PangleMediaExtra.requireV2(mediaExtra)
-                    if (isSDKInitialized) {
-                        loadRewardedAd(placementId, validated, result)
-                    } else if (appID != null) {
-                        println("SDK가 초기화되지 않았습니다. 재초기화 시도 중...")
-                        initPangle(appID!!, null)
-                    } else {
+                    val configuredAppId = appID
+                    if (!isSDKInitialized && configuredAppId == null) {
                         result.error("NotInitialized", "Pangle SDK가 초기화되지 않았습니다", null)
+                        return
                     }
+                    PangleLoadCoordinator.run(
+                        initialized = isSDKInitialized,
+                        initialize = { completion -> initPangle(configuredAppId!!, null, completion = completion) },
+                        placementId = placementId,
+                        mediaExtra = validated,
+                        load = { id, extra -> loadRewardedAd(id, extra, result) },
+                        fail = { error -> result.error("InitFailed", error.message, null) },
+                    )
                 } catch (_: IllegalArgumentException) {
                     result.error("InvalidMediaExtra", "Signed v2 mediaExtra is required", null)
                 }
@@ -94,12 +99,18 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.setMethodCallHandler(null)
     }
 
-    private fun initPangle(appId: String, userId: String?, flutterResult: Result? = null) {
+    private fun initPangle(
+        appId: String,
+        userId: String?,
+        flutterResult: Result? = null,
+        completion: ((kotlin.Result<Unit>) -> Unit)? = null,
+    ) {
         println("Flutter에서 Pangle SDK 초기화 시작 - appId: $appId, userId: $userId")
 
         if (isSDKInitialized && appID == appId) {
             println("Pangle SDK가 이미 초기화되어 있습니다.")
             flutterResult?.success(true)
+            completion?.invoke(kotlin.Result.success(Unit))
             return
         }
 
@@ -114,12 +125,14 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
                 isSDKInitialized = true
                 appID = appId
                 flutterResult?.success(true)
+                completion?.invoke(kotlin.Result.success(Unit))
             }
 
             override fun fail(code: Int, msg: String) {
                 println("Pangle SDK 초기화 실패: $msg (코드: $code)")
                 isSDKInitialized = false
                 flutterResult?.error("InitFailed", msg, null)
+                completion?.invoke(kotlin.Result.failure(IllegalStateException(msg)))
             }
         })
     }
@@ -162,18 +175,18 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
             rewardedAd?.setAdInteractionListener(object : PAGRewardedAdInteractionListener {
                 override fun onAdShowed() {
                     println("리워드 광고가 표시됨")
-                    channel.invokeMethod("onAdShown", null)
+                    channel.invokeMethod(PangleEventNames.AD_SHOWN, null)
                 }
 
                 override fun onAdClicked() {
                     println("리워드 광고가 클릭됨")
-                    channel.invokeMethod("onAdClicked", null)
+                    channel.invokeMethod(PangleEventNames.AD_CLICKED, null)
                 }
 
                 override fun onAdDismissed() {
                     println("리워드 광고가 닫힘")
                     rewardedAd = null
-                    channel.invokeMethod("onAdDismissed", null)
+                    channel.invokeMethod(PangleEventNames.AD_DISMISSED, null)
                 }
 
                 override fun onUserEarnedReward(item: PAGRewardItem) {
@@ -182,7 +195,7 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
                         "amount" to item.rewardAmount,
                         "name" to item.rewardName
                     )
-                    channel.invokeMethod("onRewardEarned", rewardData)
+                    channel.invokeMethod(PangleEventNames.REWARD_EARNED, rewardData)
                 }
 
                 override fun onUserEarnedRewardFail(code: Int, msg: String) {
@@ -191,7 +204,7 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
                         "code" to code,
                         "errorMessage" to msg
                     )
-                    channel.invokeMethod("onRewardFailed", errorData)
+                    channel.invokeMethod(PangleEventNames.REWARD_FAILED, errorData)
                 }
             })
 

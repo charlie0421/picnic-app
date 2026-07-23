@@ -38,12 +38,14 @@ class PangleClaimPreflight {
     required this.pollingSignals,
     required this.poll,
     required this.load,
+    this.loadTimeout = const Duration(seconds: 5),
   });
   final PangleClaimCreator createClaim;
   final Future<void> Function(String, AdRewardReference) persist;
   final Stream<void> pollingSignals;
   final Future<void> Function(String, AdRewardReference) poll;
   final Future<bool> Function(String, String) load;
+  final Duration loadTimeout;
 
   Future<PangleClaimPreflightResult> execute({
     required String ownerUserId,
@@ -60,18 +62,25 @@ class PangleClaimPreflight {
     final subscription = pollingSignals.listen((_) {
       unawaited(poll(ownerUserId, claim.reference));
     });
-    final loaded = await load(placementId, claim.mediaExtra(ownerUserId));
-    return PangleClaimPreflightResult(
-      loaded: loaded,
-      reference: claim.reference,
-      subscription: subscription,
-    );
+    try {
+      final loaded = await load(
+        placementId,
+        claim.mediaExtra(ownerUserId),
+      ).timeout(loadTimeout, onTimeout: () => false);
+      return PangleClaimPreflightResult(
+        loaded: loaded,
+        reference: claim.reference,
+        subscription: subscription,
+      );
+    } catch (_) {
+      await subscription.cancel();
+      rethrow;
+    }
   }
 }
 
 /// Pangle 광고 플랫폼 구현
 class PanglePlatform extends AdPlatform {
-  Timer? _loadTimeoutTimer;
   bool _isInitialized = false;
   StreamSubscription<void>? _pollingSubscription;
   AdRewardReference? _activeReference;
@@ -183,9 +192,6 @@ class PanglePlatform extends AdPlatform {
     }
 
     try {
-      final completer = Completer<bool>();
-
-      _loadTimeoutTimer?.cancel();
       final adUnitId = Platform.isIOS
           ? Environment.pangleIosRewardedVideoId!
           : Environment.pangleAndroidRewardedVideoId!;
@@ -215,27 +221,8 @@ class PanglePlatform extends AdPlatform {
       _activeReference = preflight.reference;
       _pollingSubscription = preflight.subscription;
 
-      _loadTimeoutTimer = Timer(const Duration(seconds: 5), () {
-        if (!completer.isCompleted) {
-          logError(
-            'Pangle 광고 로드 시간 초과 상세:\n'
-            '  adUnitId: $adUnitId\n'
-            '  timeout: 5s',
-          );
-          logAdLoadFailure(
-            'Pangle',
-            '광고 로드 시간 초과',
-            adUnitId,
-            '광고 로드 시간 초과',
-            null,
-          );
-          completer.complete(false);
-        }
-      });
-
       final result = preflight.loaded;
 
-      _loadTimeoutTimer?.cancel();
       return result == true;
     } catch (e, s) {
       final failedAdUnitId = Platform.isIOS
@@ -248,7 +235,6 @@ class PanglePlatform extends AdPlatform {
         '  adUnitId: $failedAdUnitId',
       );
       logAdLoadFailure('Pangle', e, failedAdUnitId, 'Pangle 광고 로드 실패', s);
-      _loadTimeoutTimer?.cancel();
       // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
       return false;
     }
@@ -273,8 +259,6 @@ class PanglePlatform extends AdPlatform {
     if (_activeReference != null) {
       _activeReference = null;
     }
-    _loadTimeoutTimer?.cancel();
-    _loadTimeoutTimer = null;
     super.dispose();
   }
 }
