@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/common/banner.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
+import 'package:picnic_lib/presentation/common/candy_boost_banner.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../helpers/ignore_image_errors.dart';
@@ -19,45 +22,45 @@ class MockAsyncBannerListEmpty extends AsyncBannerList {
 class MockAsyncBannerListSingle extends AsyncBannerList {
   @override
   Future<List<BannerModel>> build({required String location}) async => [
-        BannerModel.fromJson({
-          'id': 1,
-          'title': {'ko': '단일 배너'},
-          'thumbnail': 'https://example.com/thumb.jpg',
-          'image': {'ko': 'https://example.com/img.jpg'},
-          'duration': 3000,
-          'link': null,
-        }),
-      ];
+    BannerModel.fromJson({
+      'id': 1,
+      'title': {'ko': '단일 배너'},
+      'thumbnail': 'https://example.com/thumb.jpg',
+      'image': {'ko': 'https://example.com/img.jpg'},
+      'duration': 3000,
+      'link': null,
+    }),
+  ];
 }
 
 class MockAsyncBannerListMultiple extends AsyncBannerList {
   @override
   Future<List<BannerModel>> build({required String location}) async => [
-        BannerModel.fromJson({
-          'id': 1,
-          'title': {'ko': '배너 1'},
-          'thumbnail': 'https://example.com/thumb1.jpg',
-          'image': {'ko': 'https://example.com/img1.jpg'},
-          'duration': 3000,
-          'link': 'https://www.picnic.fan/vote',
-        }),
-        BannerModel.fromJson({
-          'id': 2,
-          'title': {'ko': '배너 2'},
-          'thumbnail': 'https://example.com/thumb2.jpg',
-          'image': {'ko': 'https://example.com/img2.jpg'},
-          'duration': 5000,
-          'link': 'https://applink.picnic.fan/something',
-        }),
-        BannerModel.fromJson({
-          'id': 3,
-          'title': {'ko': ''},
-          'thumbnail': 'https://example.com/thumb3.jpg',
-          'image': {'ko': 'https://example.com/img3.gif'},
-          'duration': 4000,
-          'link': null,
-        }),
-      ];
+    BannerModel.fromJson({
+      'id': 1,
+      'title': {'ko': '배너 1'},
+      'thumbnail': 'https://example.com/thumb1.jpg',
+      'image': {'ko': 'https://example.com/img1.jpg'},
+      'duration': 3000,
+      'link': 'https://www.picnic.fan/vote',
+    }),
+    BannerModel.fromJson({
+      'id': 2,
+      'title': {'ko': '배너 2'},
+      'thumbnail': 'https://example.com/thumb2.jpg',
+      'image': {'ko': 'https://example.com/img2.jpg'},
+      'duration': 5000,
+      'link': 'https://applink.picnic.fan/something',
+    }),
+    BannerModel.fromJson({
+      'id': 3,
+      'title': {'ko': ''},
+      'thumbnail': 'https://example.com/thumb3.jpg',
+      'image': {'ko': 'https://example.com/img3.gif'},
+      'duration': 4000,
+      'link': null,
+    }),
+  ];
 }
 
 class MockAsyncBannerListError extends AsyncBannerList {
@@ -70,16 +73,60 @@ class MockAsyncBannerListError extends AsyncBannerList {
 class MockAsyncBannerListWithLinks extends AsyncBannerList {
   @override
   Future<List<BannerModel>> build({required String location}) async => [
-        BannerModel.fromJson({
-          'id': 1,
-          'title': {'ko': '외부 링크'},
-          'thumbnail': 'https://example.com/thumb.jpg',
-          'image': {'ko': 'https://example.com/img.jpg'},
-          'duration': 3000,
-          'link': 'https://www.google.com',
-        }),
-      ];
+    BannerModel.fromJson({
+      'id': 1,
+      'title': {'ko': '외부 링크'},
+      'thumbnail': 'https://example.com/thumb.jpg',
+      'image': {'ko': 'https://example.com/img.jpg'},
+      'duration': 3000,
+      'link': 'https://www.google.com',
+    }),
+  ];
 }
+
+class MockOwnedBannerList extends AsyncBannerList {
+  @override
+  Future<List<BannerModel>> build({required String location}) async => [
+    for (var i = 0; i < 2; i++)
+      BannerModel.fromJson({
+        'id': 101,
+        'title': {'en': 'owned ordinary'},
+        'thumbnail': 'https://example.com/thumb.jpg',
+        'image': {'en': 'https://example.com/owned.jpg'},
+        'duration': 3000,
+        'link': null,
+      }),
+  ];
+}
+
+ActivePromotionCampaignsModel homeCampaign() =>
+    ActivePromotionCampaignsModel.fromJson({
+      'items': [
+        {
+          'campaign_id': 'campaign',
+          'campaign_version_id': 'version',
+          'code': 'CANDY_BOOST_DAY',
+          'display_name': {'en': 'Candy Boost Day'},
+          'extra_bonus_bps': 10000,
+          'window_starts_at': '2026-07-21T00:00:00Z',
+          'window_ends_at': '2026-07-22T00:00:00Z',
+          'show_in_store': true,
+          'show_home_banner': true,
+          'home_creative': {
+            'banner_id': 101,
+            'title': {'en': 'Campaign creative'},
+            'image': {'en': 'https://example.com/campaign.jpg'},
+            'thumbnail': null,
+            'link': null,
+            'duration': 4500,
+          },
+        },
+      ],
+      'total_count': '1',
+      'next_cursor': null,
+      'snapshot_at': '2026-07-21T00:00:00Z',
+      'campaign_owned_home_banner_ids': [101],
+    });
 
 void main() {
   late void Function() restore;
@@ -110,8 +157,7 @@ void main() {
         buildTestApp(
           const CommonBanner('test_location', 16 / 9),
           extraOverrides: [
-            asyncBannerListProvider
-                .overrideWith(MockAsyncBannerListEmpty.new),
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListEmpty.new),
           ],
         ),
       );
@@ -122,15 +168,15 @@ void main() {
       expect(find.byType(CommonBanner), findsOneWidget);
     });
 
-    testWidgets('renders with single banner item (no swiper)',
-        (WidgetTester tester) async {
+    testWidgets('renders with single banner item (no swiper)', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
           const CommonBanner('test_location', 16 / 9),
           extraOverrides: [
-            asyncBannerListProvider
-                .overrideWith(MockAsyncBannerListSingle.new),
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
           ],
         ),
       );
@@ -141,15 +187,17 @@ void main() {
       expect(find.byType(CommonBanner), findsOneWidget);
     });
 
-    testWidgets('renders with multiple banners (swiper)',
-        (WidgetTester tester) async {
+    testWidgets('renders with multiple banners (swiper)', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
           const CommonBanner('test_location', 16 / 9),
           extraOverrides: [
-            asyncBannerListProvider
-                .overrideWith(MockAsyncBannerListMultiple.new),
+            asyncBannerListProvider.overrideWith(
+              MockAsyncBannerListMultiple.new,
+            ),
           ],
         ),
       );
@@ -166,8 +214,7 @@ void main() {
         buildTestApp(
           const CommonBanner('test_location', 16 / 9),
           extraOverrides: [
-            asyncBannerListProvider
-                .overrideWith(MockAsyncBannerListError.new),
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListError.new),
           ],
         ),
       );
@@ -184,8 +231,9 @@ void main() {
         buildTestApp(
           const CommonBanner('test_location', 3144 / 1200),
           extraOverrides: [
-            asyncBannerListProvider
-                .overrideWith(MockAsyncBannerListWithLinks.new),
+            asyncBannerListProvider.overrideWith(
+              MockAsyncBannerListWithLinks.new,
+            ),
           ],
         ),
       );
@@ -196,15 +244,15 @@ void main() {
       expect(find.byType(CommonBanner), findsOneWidget);
     });
 
-    testWidgets('renders with different aspect ratio',
-        (WidgetTester tester) async {
+    testWidgets('renders with different aspect ratio', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
           const CommonBanner('pic_home', 4 / 3),
           extraOverrides: [
-            asyncBannerListProvider
-                .overrideWith(MockAsyncBannerListSingle.new),
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
           ],
         ),
       );
@@ -213,6 +261,27 @@ void main() {
       while (tester.takeException() != null) {}
 
       expect(find.byType(CommonBanner), findsOneWidget);
+    });
+
+    testWidgets('HOME filters every owned duplicate and emits creative once', (
+      tester,
+    ) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          locale: const Locale('en', 'US'),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockOwnedBannerList.new),
+            activePromotionCampaignProvider(
+              PromotionSurface.home,
+            ).overrideWith((ref) async => homeCampaign()),
+          ],
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(CandyBoostBanner), findsOneWidget);
+      expect(find.text('owned ordinary'), findsNothing);
     });
   });
 }
