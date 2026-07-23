@@ -57,4 +57,78 @@ void main() {
       await signals.close();
     },
   );
+
+  test('preflight cancels polling subscription when load throws', () async {
+    final signals = StreamController<void>.broadcast();
+    var polls = 0;
+    final claim = PangleClaimModel(
+      reference: const AdRewardReference(
+        type: AdRewardReferenceType.pangleClaim,
+        id: 'claim-a',
+      ),
+      platform: 'android',
+      signedToken: 'token',
+      expiresAt: DateTime.utc(2030),
+    );
+    final preflight = PangleClaimPreflight(
+      createClaim:
+          ({
+            required platform,
+            required placementId,
+            required clientRequestId,
+          }) async => claim,
+      persist: (_, _) async {},
+      pollingSignals: signals.stream,
+      poll: (_, _) async => polls++,
+      load: (_, _) => Future<bool>.error(StateError('native load failed')),
+    );
+    await expectLater(
+      preflight.execute(
+        ownerUserId: 'user-a',
+        platform: 'android',
+        placementId: 'placement',
+        clientRequestId: 'request',
+      ),
+      throwsStateError,
+    );
+    signals.add(null);
+    await Future<void>.delayed(Duration.zero);
+    expect(polls, 0);
+    await signals.close();
+  });
+
+  test('preflight returns false when native load times out', () async {
+    final signals = StreamController<void>.broadcast();
+    final claim = PangleClaimModel(
+      reference: const AdRewardReference(
+        type: AdRewardReferenceType.pangleClaim,
+        id: 'claim-a',
+      ),
+      platform: 'android',
+      signedToken: 'token',
+      expiresAt: DateTime.utc(2030),
+    );
+    final result =
+        await PangleClaimPreflight(
+          createClaim:
+              ({
+                required platform,
+                required placementId,
+                required clientRequestId,
+              }) async => claim,
+          persist: (_, _) async {},
+          pollingSignals: signals.stream,
+          poll: (_, _) async {},
+          load: (_, _) => Completer<bool>().future,
+          loadTimeout: const Duration(milliseconds: 1),
+        ).execute(
+          ownerUserId: 'user-a',
+          platform: 'android',
+          placementId: 'placement',
+          clientRequestId: 'request',
+        );
+    expect(result.loaded, isFalse);
+    await result.subscription.cancel();
+    await signals.close();
+  });
 }
