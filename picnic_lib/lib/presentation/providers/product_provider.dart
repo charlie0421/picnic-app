@@ -91,6 +91,7 @@ class StoreProducts extends _$StoreProducts {
                 Environment.currentEnvironment == 'test'
             ? ''
             : Environment.paymentProductNamespace,
+        environment: Environment.currentEnvironment,
       );
       if (Environment.currentEnvironment != 'prod' &&
           Environment.currentEnvironment != 'test') {

@@ -538,6 +538,8 @@ class PurchaseService {
       serverProductId: serverProduct['id'] as String,
       isAndroid: isAndroid(),
       inappAppNamePrefix: Environment.inappAppNamePrefix,
+      environment: Environment.currentEnvironment,
+      paymentProductNamespace: Environment.paymentProductNamespace,
     );
   }
 

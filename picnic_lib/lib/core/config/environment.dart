@@ -62,8 +62,6 @@ class Environment {
       _config['ads'] ??= <String, dynamic>{};
       (_config['ads'] as Map<String, dynamic>)['pangle'] =
           Map<String, dynamic>.from(_pangleRuntimeConfig);
-      (_config['app'] as Map<String, dynamic>)['inapp_appname_prefix'] =
-          _paymentProductNamespace;
     }
     if (env == 'prod') {
       final result = SupabaseEnvironmentPolicy.validate(

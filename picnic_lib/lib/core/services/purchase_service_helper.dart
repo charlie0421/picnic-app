@@ -1,5 +1,6 @@
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/core/config/payment_product_id_policy.dart';
 
 /// Pure logic methods extracted from PurchaseService for testability.
 ///
@@ -66,11 +67,19 @@ class PurchaseServiceHelper {
     required String serverProductId,
     required bool isAndroid,
     required String inappAppNamePrefix,
+    String environment = 'prod',
+    String paymentProductNamespace = '',
   }) {
+    final expectedId = PaymentProductIdPolicy.effectiveProductId(
+      environment: environment,
+      isAndroid: isAndroid,
+      paymentNamespace: paymentProductNamespace,
+      serverProductId: serverProductId,
+      iosAppPrefix: inappAppNamePrefix,
+    );
     return storeProducts.firstWhere(
-      (element) => isAndroid
-          ? element.id.toUpperCase() == serverProductId
-          : element.id == inappAppNamePrefix + serverProductId,
+      (element) =>
+          (isAndroid ? element.id.toLowerCase() : element.id) == expectedId,
       orElse: () => throw Exception('스토어에서 상품을 찾을 수 없습니다'),
     );
   }

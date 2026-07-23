@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:picnic_lib/core/config/payment_product_id_policy.dart';
 
 /// Pure helper methods extracted from ProductProvider for testability.
 @visibleForTesting
@@ -24,11 +25,16 @@ class ProductProviderHelper {
     required bool isAndroid,
     required String appNamePrefix,
     String androidPrefix = '',
+    String environment = 'prod',
   }) {
     return serverProducts
-        .map((product) => isAndroid
-            ? (androidPrefix + product['id'].toString()).toLowerCase()
-            : appNamePrefix + product['id'].toString())
+        .map((product) => PaymentProductIdPolicy.effectiveProductId(
+              environment: environment,
+              isAndroid: isAndroid,
+              paymentNamespace: androidPrefix,
+              serverProductId: product['id'].toString(),
+              iosAppPrefix: appNamePrefix,
+            ))
         .toSet();
   }
 
