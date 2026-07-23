@@ -36,4 +36,33 @@ void main() {
       expect(registry.removeIfMatches('STAR100', 'pending'), isTrue);
     },
   );
+
+  test('launch result removes cancel/failure but retains launched attempt', () {
+    final registry = PurchaseCampaignAttemptRegistry();
+    registry.begin(attempt('cancel', 'STAR100'));
+    expect(
+      registry.applyLaunchResult('STAR100', 'cancel', {
+        'success': false,
+        'wasCancelled': true,
+      }),
+      isTrue,
+    );
+    registry.begin(attempt('failure', 'STAR100'));
+    expect(
+      registry.applyLaunchResult('STAR100', 'failure', {
+        'success': false,
+        'wasCancelled': false,
+      }),
+      isTrue,
+    );
+    registry.begin(attempt('launched', 'STAR100'));
+    expect(
+      registry.applyLaunchResult('STAR100', 'launched', {
+        'success': true,
+        'wasCancelled': false,
+      }),
+      isFalse,
+    );
+    expect(registry['STAR100']!.attemptId, 'launched');
+  });
 }

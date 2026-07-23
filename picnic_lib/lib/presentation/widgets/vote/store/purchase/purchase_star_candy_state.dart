@@ -382,8 +382,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         );
 
         ref.read(walletSummaryProvider.notifier).setSummary(result.wallet);
-        await ref.read(userInfoProvider.notifier).getUserProfiles();
-
         if (mounted) {
           _resetPurchaseState();
           _loadingKey.currentState?.hide();
@@ -647,6 +645,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           content: 'Purchase preparation in progress. Please try again later.',
         );
       }
+      _removeAttempt(serverProduct['id'] as String, attemptId);
       return;
     }
 
@@ -658,7 +657,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       );
       final purchaseStartTime = DateTime.now();
 
-      if (!context.mounted) return;
+      if (!context.mounted) {
+        _removeAttempt(serverProduct['id'] as String, attemptId);
+        return;
+      }
       _loadingKey.currentState?.show();
 
       // 즉시 구매 시작
@@ -690,6 +692,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           logger.e(
             '[PurchaseStarCandyState] Purchase error callback: $message',
           );
+          _removeAttempt(serverProduct['id'] as String, attemptId);
           _resetPurchaseState();
           if (mounted) {
             _loadingKey.currentState?.hide();
@@ -698,7 +701,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         },
       );
 
-      await _handlePurchaseResult(purchaseResult);
+      await _handlePurchaseResult(
+        purchaseResult,
+        productId: serverProduct['id'] as String,
+        attemptId: attemptId,
+      );
     } catch (e, s) {
       logger.e(
         '[PurchaseStarCandyState] Error starting purchase: $e',
@@ -706,6 +713,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         stackTrace: s,
       );
       _resetPurchaseState();
+      _removeAttempt(serverProduct['id'] as String, attemptId);
       if (mounted) {
         _loadingKey.currentState?.hide();
         if (navigatorKey.currentContext != null) {
@@ -752,8 +760,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 구매 결과 처리 - 취소와 에러를 구분
   Future<void> _handlePurchaseResult(
-    Map<String, dynamic> purchaseResult,
-  ) async {
+    Map<String, dynamic> purchaseResult, {
+    required String productId,
+    required String attemptId,
+  }) async {
     if (purchaseResult['wasCancelled'] == true) {
       if (mounted) {
         _resetPurchaseState();
@@ -763,8 +773,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           content: AppLocalizations.of(context).purchase_cancelled_message,
         );
       }
+      _purchaseAttempts.applyLaunchResult(productId, attemptId, purchaseResult);
       return;
     }
+
+    _purchaseAttempts.applyLaunchResult(productId, attemptId, purchaseResult);
 
     await _safetyManager.handlePurchaseResult(
       purchaseResult,
