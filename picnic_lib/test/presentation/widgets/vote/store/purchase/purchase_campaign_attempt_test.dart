@@ -78,7 +78,7 @@ void main() {
   ) => PurchaseDetails(
     productID: product,
     purchaseID: transactionId,
-    transactionDate: '1',
+    transactionDate: DateTime.utc(2027).millisecondsSinceEpoch.toString(),
     status: status,
     verificationData: PurchaseVerificationData(
       localVerificationData: 'local',
@@ -220,4 +220,31 @@ void main() {
       expect(dialogCampaign!.campaignVersionId, 'version-at-launch');
     },
   );
+
+  test('unseen historical transaction cannot borrow a new launch campaign', () {
+    final launchedAt = DateTime.utc(2026, 7, 23);
+    final registry = PurchaseCampaignAttemptRegistry(now: () => launchedAt);
+    registry.begin(attempt('new', 'STAR100'));
+    registry.applyLaunchResult('STAR100', 'new', {
+      'success': true,
+      'wasCancelled': false,
+    });
+    final historical = PurchaseDetails(
+      productID: 'STAR100',
+      purchaseID: 'never-seen-old-id',
+      transactionDate: launchedAt
+          .subtract(const Duration(days: 1))
+          .millisecondsSinceEpoch
+          .toString(),
+      status: PurchaseStatus.purchased,
+      verificationData: PurchaseVerificationData(
+        localVerificationData: 'local',
+        serverVerificationData: 'server',
+        source: 'test',
+      ),
+    );
+    expect(registry.bind(historical), isNull);
+    expect(registry['STAR100']?.attemptId, 'new');
+    expect(PurchaseCampaignAttemptRegistry().bind(historical), isNull);
+  });
 }

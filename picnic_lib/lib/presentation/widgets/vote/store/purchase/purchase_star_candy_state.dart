@@ -100,7 +100,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     // 🎯 심플 타임아웃 처리: 직접 콜백 설정
     _safetyManager.onTimeoutUIReset = () {
       if (mounted) {
-        _resetPurchaseState();
+        setState(() {});
+        _loadingKey.currentState?.hide();
         final l10n = AppLocalizations.of(context);
         showSimpleDialog(content: l10n.purchase_timeout_message);
       }
@@ -252,7 +253,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
-    final boundAttempt = _purchaseAttempts.bind(purchaseDetails);
+    final boundAttempt =
+        _purchaseAttempts.bind(purchaseDetails) ??
+        _purchaseAttempts.currentTerminalWithoutId(purchaseDetails);
     if (boundAttempt == null &&
         purchaseDetails.status != PurchaseStatus.pending) {
       logger.w(
@@ -477,7 +480,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   ) async {
     final attempt = boundAttempt;
     if (attempt != null) {
-      _purchaseAttempts.finish(purchaseDetails, attempt.attemptId);
+      if (!_purchaseAttempts.finish(purchaseDetails, attempt.attemptId)) {
+        _removeAttempt(purchaseDetails.productID, attempt.attemptId);
+      }
     }
     if (purchaseDetails.status == PurchaseStatus.error) {
       logger.e(
