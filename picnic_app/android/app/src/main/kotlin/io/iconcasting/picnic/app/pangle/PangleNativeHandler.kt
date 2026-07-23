@@ -63,19 +63,22 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
             "loadRewardedAd" -> {
-                val placementId = call.argument<String>("placementId")!!
-                val userId = call.argument<String>("userId")
-                if (userId != null) {
+                val placementId = call.argument<String>("placementId")
+                    ?: return result.error("InvalidParams", "placementId is required", null)
+                val mediaExtra = call.argument<String>("mediaExtra")
+                    ?: return result.error("InvalidParams", "mediaExtra is required", null)
+                try {
+                    val validated = PangleMediaExtra.requireV2(mediaExtra)
                     if (isSDKInitialized) {
-                        loadRewardedAd(placementId, userId, result)
+                        loadRewardedAd(placementId, validated, result)
                     } else if (appID != null) {
                         println("SDK가 초기화되지 않았습니다. 재초기화 시도 중...")
-                        initPangle(appID!!, userId)
+                        initPangle(appID!!, null)
                     } else {
                         result.error("NotInitialized", "Pangle SDK가 초기화되지 않았습니다", null)
                     }
-                } else {
-                    result.error("InvalidParams", "User ID is null", null)
+                } catch (_: IllegalArgumentException) {
+                    result.error("InvalidMediaExtra", "Signed v2 mediaExtra is required", null)
                 }
             }
             "showRewardedAd" -> {
@@ -121,13 +124,13 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
         })
     }
 
-    private fun loadRewardedAd(placementId: String, userId: String, result: Result) {
-        println("리워드 광고 로드 시작 - placementId: $placementId, userId: $userId")
+    private fun loadRewardedAd(placementId: String, mediaExtra: String, result: Result) {
+        println("리워드 광고 로드 시작 - placementId: $placementId")
 
         rewardedAd = null
         val request = PAGRewardedRequest()
         val extraInfo = hashMapOf<String, Any>()
-        extraInfo["media_extra"] = "$userId,android"
+        extraInfo["media_extra"] = mediaExtra
         request.extraInfo = extraInfo
 
         Handler(Looper.getMainLooper()).postDelayed({
@@ -159,7 +162,7 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
             rewardedAd?.setAdInteractionListener(object : PAGRewardedAdInteractionListener {
                 override fun onAdShowed() {
                     println("리워드 광고가 표시됨")
-                    channel.invokeMethod("onAdShowed", null)
+                    channel.invokeMethod("onAdShown", null)
                 }
 
                 override fun onAdClicked() {
@@ -170,7 +173,7 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
                 override fun onAdDismissed() {
                     println("리워드 광고가 닫힘")
                     rewardedAd = null
-                    channel.invokeMethod("onAdClosed", null)
+                    channel.invokeMethod("onAdDismissed", null)
                 }
 
                 override fun onUserEarnedReward(item: PAGRewardItem) {
@@ -179,16 +182,16 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
                         "amount" to item.rewardAmount,
                         "name" to item.rewardName
                     )
-                    channel.invokeMethod("onUserEarnedReward", rewardData)
+                    channel.invokeMethod("onRewardEarned", rewardData)
                 }
 
                 override fun onUserEarnedRewardFail(code: Int, msg: String) {
                     println("사용자 보상 획득 실패: $msg (코드: $code)")
                     val errorData = mapOf(
                         "code" to code,
-                        "message" to msg
+                        "errorMessage" to msg
                     )
-                    channel.invokeMethod("onUserEarnedRewardFail", errorData)
+                    channel.invokeMethod("onRewardFailed", errorData)
                 }
             })
 
