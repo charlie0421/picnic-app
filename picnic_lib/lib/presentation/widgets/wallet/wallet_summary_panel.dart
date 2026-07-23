@@ -7,9 +7,14 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 
 class WalletSummaryPanel extends ConsumerWidget {
-  const WalletSummaryPanel({super.key, this.compact = false});
+  const WalletSummaryPanel({
+    super.key,
+    this.compact = false,
+    this.alignment = MainAxisAlignment.start,
+  });
 
   final bool compact;
+  final MainAxisAlignment alignment;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,6 +33,7 @@ class WalletSummaryPanel extends ConsumerWidget {
                   label: localizations.wallet_star_candy,
                   amount: wallet.star,
                   compact: compact,
+                  contentAlignment: _contentAlignment,
                 ),
               ),
               Expanded(
@@ -36,6 +42,7 @@ class WalletSummaryPanel extends ConsumerWidget {
                   label: localizations.wallet_bonus_star_candy,
                   amount: wallet.bonus,
                   compact: compact,
+                  contentAlignment: _contentAlignment,
                 ),
               ),
               Expanded(
@@ -45,11 +52,21 @@ class WalletSummaryPanel extends ConsumerWidget {
                   amount: wallet.cotton,
                   secondary: buildCottonExpiryText(context, wallet),
                   compact: compact,
+                  contentAlignment: _contentAlignment,
                 ),
               ),
             ],
           ),
         );
+  }
+
+  CrossAxisAlignment get _contentAlignment {
+    if (!compact) return CrossAxisAlignment.start;
+    return switch (alignment) {
+      MainAxisAlignment.center => CrossAxisAlignment.center,
+      MainAxisAlignment.end => CrossAxisAlignment.end,
+      _ => CrossAxisAlignment.start,
+    };
   }
 }
 
@@ -83,6 +100,7 @@ class WalletCurrencySegment extends StatelessWidget {
     required this.amount,
     this.secondary,
     this.compact = false,
+    this.contentAlignment = CrossAxisAlignment.start,
   });
 
   final String asset;
@@ -90,13 +108,14 @@ class WalletCurrencySegment extends StatelessWidget {
   final BigInt amount;
   final String? secondary;
   final bool compact;
+  final CrossAxisAlignment contentAlignment;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       label: label,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: contentAlignment,
         mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(

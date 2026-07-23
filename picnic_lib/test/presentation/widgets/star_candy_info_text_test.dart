@@ -6,6 +6,7 @@ import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/data/repositories/wallet_repository.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
+import 'package:picnic_lib/presentation/widgets/wallet/wallet_summary_panel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../helpers/test_app.dart';
@@ -58,26 +59,48 @@ void main() {
       expect(find.text('코튼캔디'), findsOneWidget);
     });
 
-    testWidgets('renders with center alignment', (WidgetTester tester) async {
+    testWidgets('centers compact segment content when alignment is center', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _buildSubject(
           const StarCandyInfoText(alignment: MainAxisAlignment.center),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      expect(find.byType(StarCandyInfoText), findsOneWidget);
+      expect(find.byType(WalletCurrencySegment), findsNWidgets(3));
+      for (var index = 0; index < 3; index++) {
+        final column = tester.widget<Column>(
+          find.descendant(
+            of: find.byType(WalletCurrencySegment).at(index),
+            matching: find.byType(Column),
+          ),
+        );
+        expect(column.crossAxisAlignment, CrossAxisAlignment.center);
+      }
     });
 
-    testWidgets('renders with start alignment', (WidgetTester tester) async {
+    testWidgets('left-aligns compact segment content when alignment is start', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _buildSubject(
           const StarCandyInfoText(alignment: MainAxisAlignment.start),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      expect(find.byType(StarCandyInfoText), findsOneWidget);
+      expect(find.byType(WalletCurrencySegment), findsNWidgets(3));
+      for (var index = 0; index < 3; index++) {
+        final column = tester.widget<Column>(
+          find.descendant(
+            of: find.byType(WalletCurrencySegment).at(index),
+            matching: find.byType(Column),
+          ),
+        );
+        expect(column.crossAxisAlignment, CrossAxisAlignment.start);
+      }
     });
   });
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/wallet/currency_history.dart';
@@ -16,11 +18,22 @@ import '../../../../../helpers/test_environment.dart';
 class _UnusedClient extends Fake implements SupabaseClient {}
 
 class _WalletRepository extends WalletRepository {
-  _WalletRepository(this.summary) : super(_UnusedClient());
-  final WalletSummaryModel summary;
+  _WalletRepository.value(WalletSummaryModel summary)
+    : loadSummary = (() async => summary),
+      super(_UnusedClient());
+
+  _WalletRepository.error(Object error)
+    : loadSummary = (() async => throw error),
+      super(_UnusedClient());
+
+  _WalletRepository.loading()
+    : loadSummary = (() => Completer<WalletSummaryModel>().future),
+      super(_UnusedClient());
+
+  final Future<WalletSummaryModel> Function() loadSummary;
 
   @override
-  Future<WalletSummaryModel> getSummary() async => summary;
+  Future<WalletSummaryModel> getSummary() => loadSummary();
 
   @override
   Future<CurrencyHistoryPageModel> getHistory({
@@ -153,7 +166,7 @@ void main() {
             extraOverrides: [
               expireBonusProvider.overrideWith((ref) async => const []),
               walletRepositoryProvider.overrideWithValue(
-                _WalletRepository(summary),
+                _WalletRepository.value(summary),
               ),
             ],
           ),
@@ -165,6 +178,51 @@ void main() {
         expect(find.textContaining('다음 만료'), findsOneWidget);
       },
     );
+
+    testWidgets('keeps Bonus policy visible while wallet is loading', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({}, userId: 'test-user-id');
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const Material(color: Colors.transparent, child: UsagePolicyPopup()),
+          loggedIn: true,
+          extraOverrides: [
+            expireBonusProvider.overrideWith((ref) async => const []),
+            walletRepositoryProvider.overrideWithValue(
+              _WalletRepository.loading(),
+            ),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('보너스 별사탕 정책'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets('keeps Bonus policy visible when wallet loading fails', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({}, userId: 'test-user-id');
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const Material(color: Colors.transparent, child: UsagePolicyPopup()),
+          loggedIn: true,
+          extraOverrides: [
+            expireBonusProvider.overrideWith((ref) async => const []),
+            walletRepositoryProvider.overrideWithValue(
+              _WalletRepository.error(StateError('wallet unavailable')),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('보너스 별사탕 정책'), findsOneWidget);
+      expect(find.text('지갑 정보를 불러오지 못했습니다.'), findsOneWidget);
+    });
 
     testWidgets('showUsagePolicyDialog uses general dialog with transitions', (
       WidgetTester tester,

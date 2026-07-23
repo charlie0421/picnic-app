@@ -60,17 +60,11 @@ class UsagePolicyPopup extends ConsumerWidget {
             ? ref
                   .watch(expireBonusProvider)
                   .when(
-                    data: (data) => ref
-                        .watch(walletSummaryProvider)
-                        .when(
-                          data: (wallet) =>
-                              _buildPolicyContent(context, data, wallet),
-                          loading: () =>
-                              const Center(child: CircularProgressIndicator()),
-                          error: (error, stack) => Center(
-                            child: Text(localizations.wallet_load_failed),
-                          ),
-                        ),
+                    data: (data) => _buildPolicyContent(
+                      context,
+                      data,
+                      ref.watch(walletSummaryProvider),
+                    ),
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
                     error: (error, stack) => Center(
@@ -87,7 +81,7 @@ class UsagePolicyPopup extends ConsumerWidget {
   Widget _buildPolicyContent(
     BuildContext context,
     List<Map<String, dynamic>?>? expiringData,
-    WalletSummaryModel? wallet,
+    AsyncValue<WalletSummaryModel>? walletState,
   ) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -100,8 +94,8 @@ class UsagePolicyPopup extends ConsumerWidget {
             _buildExpiringBonusSection(context, expiringData),
             SizedBox(height: 20.h),
           ],
-          if (wallet != null) ...[
-            _buildCottonExpirySection(context, wallet),
+          if (walletState != null) ...[
+            _buildCottonStateSection(context, walletState),
             SizedBox(height: 20.h),
           ],
           Expanded(
@@ -110,6 +104,20 @@ class UsagePolicyPopup extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCottonStateSection(
+    BuildContext context,
+    AsyncValue<WalletSummaryModel> walletState,
+  ) {
+    return walletState.when(
+      data: (wallet) => _buildCottonExpirySection(context, wallet),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Text(
+        AppLocalizations.of(context).wallet_load_failed,
+        textAlign: TextAlign.left,
       ),
     );
   }
