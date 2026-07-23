@@ -77,6 +77,19 @@ void main() {
   });
 
   group('ProductProviderHelper.buildProductIds', () {
+    test('builds the canonical staging Android query id', () {
+      final result = ProductProviderHelper.buildProductIds(
+        [
+          {'id': 'Star10000'}
+        ],
+        isAndroid: true,
+        appNamePrefix: '',
+        androidPrefix: 'staging.',
+        environment: 'dev',
+      );
+      expect(result, {'staging.star10000'});
+    });
+
     test('lowercases ids on Android', () {
       final result = ProductProviderHelper.buildProductIds(
         sampleProducts,
