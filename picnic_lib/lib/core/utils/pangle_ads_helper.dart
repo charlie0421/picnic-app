@@ -15,7 +15,6 @@ class PangleAdsHelper {
   /// Classifies a method call name into a canonical event type.
   ///
   /// Returns one of the event constants above, or `null` if unrecognized.
-  @visibleForTesting
   static String? classifyEvent(String methodName) {
     switch (methodName) {
       case adShownEvent:
@@ -56,7 +55,6 @@ class PangleAdsHelper {
   /// Parses reward-earned arguments into a typed map.
   ///
   /// Returns `null` if [arguments] is not a valid map.
-  @visibleForTesting
   static Map<String, dynamic>? parseRewardArgs(dynamic arguments) {
     if (arguments is Map) {
       try {
@@ -71,7 +69,6 @@ class PangleAdsHelper {
   /// Extracts the error message from reward-failed arguments.
   ///
   /// Returns a default Korean error string when the message is absent.
-  @visibleForTesting
   static String extractErrorMessage(dynamic arguments) {
     if (arguments is Map) {
       try {

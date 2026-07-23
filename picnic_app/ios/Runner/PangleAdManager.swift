@@ -2,6 +2,18 @@ import Flutter
 import PAGAdSDK
 import UIKit
 
+enum PangleMediaExtraError: Error { case invalid }
+enum PangleMediaExtra {
+    static func requireV2(_ value: String) throws -> String {
+        let parts = value.split(separator: ",", maxSplits: 2, omittingEmptySubsequences: false).map(String.init)
+        guard parts.count == 3, !parts[0].isEmpty, parts[1] == "ios",
+              parts[2].hasPrefix("v2."), parts[2].count > 3 else {
+            throw PangleMediaExtraError.invalid
+        }
+        return value
+    }
+}
+
 class PangleAdManager: NSObject {
     private var rewardedAd: PAGRewardedAd?
     private var appID: String?
@@ -38,12 +50,12 @@ class PangleAdManager: NSObject {
         case "loadRewardedAd":
             if let args = call.arguments as? [String: Any],
                 let placementId = args["placementId"] as? String,
-                let userId = args["userId"] as? String
+                let mediaExtra = args["mediaExtra"] as? String
             {
-                loadRewardedAd(placementId: placementId, userId: userId, result: result)
+                loadRewardedAd(placementId: placementId, mediaExtra: mediaExtra, result: result)
             } else {
                 result(
-                    FlutterError(code: "InvalidParams", message: "Invalid parameters", details: nil)
+                    FlutterError(code: "InvalidParams", message: "placementId and mediaExtra are required", details: nil)
                 )
             }
         case "showRewardedAd":
@@ -78,14 +90,19 @@ class PangleAdManager: NSObject {
     }
 
     private func loadRewardedAd(
-        placementId: String, userId: String, result: @escaping FlutterResult
+        placementId: String, mediaExtra: String, result: @escaping FlutterResult
     ) {
-        print("리워드 광고 로드 시작 - placementId: \(placementId), userId: \(userId)")
+        print("리워드 광고 로드 시작 - placementId: \(placementId)")
+
+        guard let validatedMediaExtra = try? PangleMediaExtra.requireV2(mediaExtra) else {
+            result(FlutterError(code: "InvalidMediaExtra", message: "Signed v2 mediaExtra is required", details: nil))
+            return
+        }
 
         self.rewardedAd = nil
 
         let request = PAGRewardedRequest()
-        let extraInfo = ["media_extra": "\(userId),ios"]
+        let extraInfo = ["media_extra": validatedMediaExtra]
         request.extraInfo = extraInfo
 
         print("PAGRewardedAd.load 호출 준비 - placementId: \(placementId)")
