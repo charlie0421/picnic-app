@@ -15,6 +15,7 @@ abstract class VotePickModel with _$VotePickModel {
     @JsonKey(name: 'amount') required int? amount,
     @JsonKey(name: 'star_candy_usage') int? starCandyUsage,
     @JsonKey(name: 'star_candy_bonus_usage') int? starCandyBonusUsage,
+    @JsonKey(name: 'cotton_candy_usage') int? cottonCandyUsage,
     @JsonKey(name: 'created_at') required DateTime? createdAt,
     @JsonKey(name: 'updated_at') required DateTime? updatedAt,
   }) = _VotePickModel;
