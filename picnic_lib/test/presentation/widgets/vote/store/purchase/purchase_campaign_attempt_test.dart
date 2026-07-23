@@ -1,4 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:picnic_lib/core/services/purchase_service.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
+import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
 
 void main() {
@@ -65,4 +70,154 @@ void main() {
     );
     expect(registry['STAR100']!.attemptId, 'launched');
   });
+
+  PurchaseDetails transaction(
+    String product,
+    String? transactionId,
+    PurchaseStatus status,
+  ) => PurchaseDetails(
+    productID: product,
+    purchaseID: transactionId,
+    transactionDate: '1',
+    status: status,
+    verificationData: PurchaseVerificationData(
+      localVerificationData: 'local',
+      serverVerificationData: 'server',
+      source: 'test',
+    ),
+  );
+
+  test(
+    'real transaction events bind once and completed ids are tombstoned',
+    () {
+      final registry = PurchaseCampaignAttemptRegistry();
+      registry.begin(attempt('a', 'STAR100'));
+      registry.applyLaunchResult('STAR100', 'a', {
+        'success': true,
+        'wasCancelled': false,
+      });
+
+      final purchased = transaction(
+        'STAR100',
+        'txn-a',
+        PurchaseStatus.purchased,
+      );
+      expect(registry.bind(purchased)?.attemptId, 'a');
+      expect(registry.bind(purchased)?.attemptId, 'a');
+      expect(registry.finish(purchased, 'a'), isTrue);
+
+      registry.begin(attempt('b', 'STAR100'));
+      registry.applyLaunchResult('STAR100', 'b', {
+        'success': true,
+        'wasCancelled': false,
+      });
+      expect(
+        registry.bind(purchased),
+        isNull,
+        reason: 'late duplicate A must never bind to B',
+      );
+      expect(registry['STAR100']?.attemptId, 'b');
+    },
+  );
+
+  test(
+    'two products bind independently while restore and orphan are rejected',
+    () {
+      final registry = PurchaseCampaignAttemptRegistry();
+      for (final entry in [('a', 'STAR100'), ('b', 'STAR500')]) {
+        registry.begin(attempt(entry.$1, entry.$2));
+        registry.applyLaunchResult(entry.$2, entry.$1, {
+          'success': true,
+          'wasCancelled': false,
+        });
+      }
+      expect(
+        registry
+            .bind(transaction('STAR500', 'txn-500', PurchaseStatus.purchased))
+            ?.attemptId,
+        'b',
+      );
+      expect(
+        registry
+            .bind(transaction('STAR100', 'txn-100', PurchaseStatus.purchased))
+            ?.attemptId,
+        'a',
+      );
+      expect(
+        registry.bind(
+          transaction('STAR100', 'restore', PurchaseStatus.restored),
+        ),
+        isNull,
+      );
+      expect(
+        registry.bind(
+          transaction('ORPHAN', 'orphan', PurchaseStatus.purchased),
+        ),
+        isNull,
+      );
+      expect(
+        registry.bind(transaction('STAR100', null, PurchaseStatus.purchased)),
+        isNull,
+      );
+    },
+  );
+
+  test(
+    'verified result reaches dialog with identity and launch campaign',
+    () async {
+      final campaign = ActivePromotionCampaignModel.fromJson({
+        'campaign_id': 'campaign',
+        'campaign_version_id': 'version-at-launch',
+        'code': 'BOOST',
+        'display_name': {'ko': '캔디 부스트'},
+        'extra_bonus_bps': 10000,
+        'window_starts_at': '2026-07-01T00:00:00Z',
+        'window_ends_at': '2026-08-01T00:00:00Z',
+        'show_in_store': true,
+        'show_home_banner': false,
+        'home_creative': null,
+      });
+      final launchAttempt = PurchaseCampaignAttempt(
+        attemptId: 'attempt',
+        productId: 'STAR100',
+        displayedCampaign: campaign,
+      );
+      final verified = PurchaseSettlementResultModel(
+        contractVersion: 'wallet.v1',
+        operationId: 'operation',
+        replayed: false,
+        baseStarAmount: BigInt.from(100),
+        baseBonusAmount: BigInt.zero,
+        promotion: null,
+        wallet: WalletSummaryModel(
+          contractVersion: 'wallet.v1',
+          star: BigInt.from(100),
+          bonus: BigInt.zero,
+          cotton: BigInt.zero,
+          cottonExpiringAmount: BigInt.zero,
+          cottonNextExpiresAt: null,
+          snapshotAt: DateTime.utc(2026),
+        ),
+      );
+      PurchaseSettlementResultModel? dialogResult;
+      ActivePromotionCampaignModel? dialogCampaign;
+
+      await deliverVerifiedPurchaseResult(verified, (serviceResult) {
+        return const PurchaseSettlementPresentation().present(
+          result: serviceResult,
+          attempt: launchAttempt,
+          isLate: false,
+          showSuccess: (result, displayedCampaign) async {
+            dialogResult = result;
+            dialogCampaign = displayedCampaign;
+          },
+          showLateSuccess: (result, displayedCampaign) async {},
+        );
+      });
+
+      expect(identical(dialogResult, verified), isTrue);
+      expect(identical(dialogCampaign, campaign), isTrue);
+      expect(dialogCampaign!.campaignVersionId, 'version-at-launch');
+    },
+  );
 }

@@ -47,6 +47,12 @@ void main() {
       expect(manager.canAttemptPurchaseForProduct('product_a'), isFalse);
     });
 
+    test('an unresolved product does not block a different product', () {
+      manager.recordPurchaseAttempt(productId: 'STAR100');
+      expect(manager.canAttemptPurchaseForProduct('STAR100'), isFalse);
+      expect(manager.canAttemptPurchaseForProduct('STAR500'), isTrue);
+    });
+
     test('returns false during cooldown after purchase completion', () {
       manager.recordPurchaseAttempt(productId: 'product_a');
       manager.completePurchaseSession('product_a');
@@ -244,7 +250,7 @@ void main() {
   });
 
   group('isPurchaseCanceled', () {
-    PurchaseDetails _makePurchase({
+    PurchaseDetails makePurchase({
       required PurchaseStatus status,
       String? errorMessage,
       String? errorCode,
@@ -273,22 +279,22 @@ void main() {
     }
 
     test('returns true for canceled status', () {
-      final purchase = _makePurchase(status: PurchaseStatus.canceled);
+      final purchase = makePurchase(status: PurchaseStatus.canceled);
       expect(manager.isPurchaseCanceled(purchase), isTrue);
     });
 
     test('returns false for purchased status', () {
-      final purchase = _makePurchase(status: PurchaseStatus.purchased);
+      final purchase = makePurchase(status: PurchaseStatus.purchased);
       expect(manager.isPurchaseCanceled(purchase), isFalse);
     });
 
     test('returns false for pending status', () {
-      final purchase = _makePurchase(status: PurchaseStatus.pending);
+      final purchase = makePurchase(status: PurchaseStatus.pending);
       expect(manager.isPurchaseCanceled(purchase), isFalse);
     });
 
     test('detects cancel keyword in error message', () {
-      final purchase = _makePurchase(
+      final purchase = makePurchase(
         status: PurchaseStatus.error,
         errorMessage: 'user cancelled the purchase',
       );
@@ -296,7 +302,7 @@ void main() {
     });
 
     test('detects cancel error code', () {
-      final purchase = _makePurchase(
+      final purchase = makePurchase(
         status: PurchaseStatus.error,
         errorCode: 'USER_CANCELED',
       );
@@ -304,7 +310,7 @@ void main() {
     });
 
     test('detects biometric cancel keywords', () {
-      final purchase = _makePurchase(
+      final purchase = makePurchase(
         status: PurchaseStatus.error,
         errorMessage: 'face id authentication failed',
       );
@@ -312,7 +318,7 @@ void main() {
     });
 
     test('detects touch id cancel', () {
-      final purchase = _makePurchase(
+      final purchase = makePurchase(
         status: PurchaseStatus.error,
         errorMessage: 'touch id was not recognized',
       );
@@ -320,7 +326,7 @@ void main() {
     });
 
     test('detects SKError cancel code', () {
-      final purchase = _makePurchase(
+      final purchase = makePurchase(
         status: PurchaseStatus.error,
         errorCode: 'SKErrorPaymentCancelled',
       );
@@ -328,7 +334,7 @@ void main() {
     });
 
     test('detects billing response cancel code', () {
-      final purchase = _makePurchase(
+      final purchase = makePurchase(
         status: PurchaseStatus.error,
         errorCode: 'BILLING_RESPONSE_USER_CANCELED',
       );
@@ -336,7 +342,7 @@ void main() {
     });
 
     test('returns false for non-cancel error', () {
-      final purchase = _makePurchase(
+      final purchase = makePurchase(
         status: PurchaseStatus.error,
         errorMessage: 'network timeout occurred',
         errorCode: 'NETWORK_ERROR',
@@ -345,7 +351,7 @@ void main() {
     });
 
     test('detects PAYMENT_CANCELED code', () {
-      final purchase = _makePurchase(
+      final purchase = makePurchase(
         status: PurchaseStatus.error,
         errorCode: 'PAYMENT_CANCELED',
       );
@@ -353,7 +359,7 @@ void main() {
     });
 
     test('error with no message or code returns false', () {
-      final purchase = _makePurchase(
+      final purchase = makePurchase(
         status: PurchaseStatus.error,
         errorMessage: '',
         errorCode: '',
