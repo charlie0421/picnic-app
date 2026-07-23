@@ -92,6 +92,11 @@ class InternalShortformViewFlow {
   final InternalShortformViewResponse Function(Map<String, dynamic>) parse;
 
   Future<InternalShortformViewResponse> report() async {
+    final issuedOwner = session.ownerUserId;
+    final owner = currentOwner();
+    if (issuedOwner == null || owner == null || owner != issuedOwner) {
+      throw StateError('Ad reward owner changed before view callback');
+    }
     final raw = await invokeCallback();
     try {
       if (raw is! Map) {
