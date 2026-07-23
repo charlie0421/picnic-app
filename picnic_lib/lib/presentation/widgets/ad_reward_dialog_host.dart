@@ -8,9 +8,14 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
 
 class AdRewardDialogHost extends ConsumerStatefulWidget {
-  const AdRewardDialogHost({super.key, required this.child});
+  const AdRewardDialogHost({
+    super.key,
+    required this.child,
+    this.schedulePostFrame,
+  });
 
   final Widget child;
+  final void Function(VoidCallback callback)? schedulePostFrame;
 
   @override
   ConsumerState<AdRewardDialogHost> createState() => _AdRewardDialogHostState();
@@ -29,16 +34,26 @@ class _AdRewardDialogHostState extends ConsumerState<AdRewardDialogHost> {
     final key = _key(queued);
     if (_scheduledKey == key) return;
     _scheduledKey = key;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scheduledKey = null;
+    void invoke() {
+      if (_scheduledKey == key) _scheduledKey = null;
       if (!mounted || _dialogOpen) return;
       unawaited(_showRewardDialog(queued));
-    });
+    }
+
+    final scheduler = widget.schedulePostFrame;
+    if (scheduler != null) {
+      scheduler(invoke);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) => invoke());
+    }
   }
 
   Future<void> _showRewardDialog(OwnedAdRewardStatus queued) async {
-    if (ref.read(adRewardOwnerReaderProvider)() != queued.ownerUserId) {
-      ref.read(adRewardRecoveryProvider.notifier).resetForLogout();
+    final current = ref.read(adRewardRecoveryProvider);
+    if (current.activeUserId != queued.ownerUserId ||
+        current.dialogQueue.isEmpty ||
+        _key(current.dialogQueue.first) != _key(queued) ||
+        ref.read(adRewardOwnerReaderProvider)() != queued.ownerUserId) {
       return;
     }
     _dialogOpen = true;
@@ -100,10 +115,12 @@ class AdRewardDialogBody extends StatefulWidget {
     super.key,
     required this.status,
     required this.onFirstFrame,
+    this.schedulePostFrame,
   });
 
   final AdRewardStatusModel status;
   final Future<void> Function() onFirstFrame;
+  final void Function(VoidCallback callback)? schedulePostFrame;
 
   @override
   State<AdRewardDialogBody> createState() => _AdRewardDialogBodyState();
@@ -115,11 +132,18 @@ class _AdRewardDialogBodyState extends State<AdRewardDialogBody> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    void invoke() {
       if (!mounted || _didAcknowledge) return;
       _didAcknowledge = true;
       unawaited(widget.onFirstFrame());
-    });
+    }
+
+    final scheduler = widget.schedulePostFrame;
+    if (scheduler != null) {
+      scheduler(invoke);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) => invoke());
+    }
   }
 
   @override

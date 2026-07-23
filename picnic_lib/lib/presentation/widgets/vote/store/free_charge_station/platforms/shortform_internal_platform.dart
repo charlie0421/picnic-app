@@ -1,5 +1,3 @@
-import 'dart:async';
-
 // import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -277,32 +275,27 @@ class ShortformInternalPlatform extends AdPlatform {
     if ((_viewToken ?? '').isEmpty) {
       throw StateError('No issued view token');
     }
-    final response = await InternalShortformViewFlow(
-      session: _rewardSession,
-      currentOwner: () => supabase.auth.currentUser?.id,
-      invokeCallback: () async => (await supabase.functions.invoke(
-        'callback-ad-shortform-view',
-        body: {'token': _viewToken},
-      )).data,
-      parse: ref.read(adRewardRepositoryProvider).parseInternalViewResponse,
+    return InternalShortformViewRecoveryFlow(
+      view: InternalShortformViewFlow(
+        session: _rewardSession,
+        currentOwner: () => supabase.auth.currentUser?.id,
+        invokeCallback: () async => (await supabase.functions.invoke(
+          'callback-ad-shortform-view',
+          body: {'token': _viewToken},
+        )).data,
+        parse: ref.read(adRewardRepositoryProvider).parseInternalViewResponse,
+      ),
+      poll: (ownerUserId, reference) => ref
+          .read(adRewardRecoveryProvider.notifier)
+          .poll(ownerUserId: ownerUserId, reference: reference),
+      onPollError: (error, stackTrace) {
+        logError(
+          'Internal reward polling failed',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      },
     ).report();
-    if (response.reward != null) {
-      final ownerUserId = _rewardSession.ownerUserId!;
-      final reference = _rewardSession.reference!;
-      unawaited(
-        ref
-            .read(adRewardRecoveryProvider.notifier)
-            .poll(ownerUserId: ownerUserId, reference: reference)
-            .catchError((Object error, StackTrace stackTrace) {
-              logError(
-                'Internal reward polling failed',
-                error: error,
-                stackTrace: stackTrace,
-              );
-            }),
-      );
-    }
-    return response;
   }
 
   Future<void> _callMore() async {
