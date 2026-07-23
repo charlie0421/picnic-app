@@ -162,4 +162,44 @@ void main() {
       expect(session.reference!.id, impressionId);
     },
   );
+
+  for (final scenario in <(String, String?)>[
+    ('owner mismatch', 'user-b'),
+    ('null owner', null),
+  ]) {
+    test(
+      '${scenario.$1} rejects before callback and retains issued reference',
+      () async {
+        final session = InternalShortformRewardSession();
+        await session.bindIssued(
+          owner: 'user-a',
+          issuedReference: const AdRewardReference(
+            type: AdRewardReferenceType.internalImpression,
+            id: impressionId,
+          ),
+          persist: (_, _) async {},
+        );
+        var callbacks = 0;
+        final flow = InternalShortformViewFlow(
+          session: session,
+          currentOwner: () => scenario.$2,
+          invokeCallback: () async {
+            callbacks++;
+            return {
+              'ok': true,
+              'reward_added': 1,
+              'impression_id': impressionId,
+              'new_bonus': 7,
+            };
+          },
+          parse: InternalShortformViewResponse.fromJson,
+        );
+
+        await expectLater(flow.report(), throwsStateError);
+        expect(callbacks, 0);
+        expect(session.reference!.id, impressionId);
+        expect(session.ownerUserId, 'user-a');
+      },
+    );
+  }
 }
