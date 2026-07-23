@@ -90,6 +90,17 @@ void main() {
       find.ancestor(of: amount, matching: find.byType(FittedBox)),
       findsOneWidget,
     );
+    final amountBounds = tester.getRect(amount);
+    final fittedBounds = tester.getRect(
+      find.ancestor(of: amount, matching: find.byType(FittedBox)),
+    );
+    final firstSegmentBounds = tester.getRect(
+      find.byType(WalletCurrencySegment).first,
+    );
+    expect(amountBounds.left, greaterThanOrEqualTo(firstSegmentBounds.left));
+    expect(amountBounds.right, lessThanOrEqualTo(firstSegmentBounds.right));
+    expect(fittedBounds.left, firstSegmentBounds.left + 4);
+    expect(fittedBounds.right, firstSegmentBounds.right - 4);
     await expectLater(
       find.byType(WalletSummaryPanel),
       matchesGoldenFile('../../../goldens/wallet_summary_panel.png'),

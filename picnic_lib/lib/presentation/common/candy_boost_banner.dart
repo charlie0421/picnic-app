@@ -32,6 +32,20 @@ class CandyBoostBanner extends ConsumerWidget {
         alignment: Alignment.centerLeft,
         children: [
           PicnicCachedNetworkImage(imageUrl: image, fit: BoxFit.cover),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Color(0xD9A52D5E),
+                  Color(0xA6D94D7D),
+                  Color(0x00000000),
+                ],
+                stops: [0, 0.48, 0.82],
+              ),
+            ),
+          ),
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
@@ -39,7 +53,15 @@ class CandyBoostBanner extends ConsumerWidget {
               child: Text(
                 title,
                 textAlign: TextAlign.left,
-                style: getTextStyle(AppTypo.title18B, Colors.white),
+                style: getTextStyle(AppTypo.title18B, Colors.white).copyWith(
+                  shadows: const [
+                    Shadow(
+                      color: Color(0x99000000),
+                      blurRadius: 5,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
