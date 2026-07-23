@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "campaign_id": "00000000-0000-4000-8000-000000000901",
+      "campaign_version_id": "00000000-0000-4000-8000-000000000902",
+      "code": "CANDY_BOOST_DAY",
+      "display_name": {
+        "ko": "캔디 부스트 데이",
+        "en": "Candy Boost Day"
+      },
+      "extra_bonus_bps": 10000,
+      "window_starts_at": "2026-07-19T15:00:00.000Z",
+      "window_ends_at": "2026-07-21T15:00:00.000Z",
+      "show_in_store": true,
+      "show_home_banner": true,
+      "home_creative": {
+        "banner_id": 101,
+        "title": {
+          "ko": "캔디 부스트 데이",
+          "en": "Candy Boost Day"
+        },
+        "image": {
+          "ko": "https://cdn.example.test/candy-boost-ko.png",
+          "en": "https://cdn.example.test/candy-boost-en.png"
+        },
+        "thumbnail": "https://cdn.example.test/candy-boost-thumb.png",
+        "link": "picnic://store",
+        "duration": 4500
+      }
+    }
+  ],
+  "total_count": "1",
+  "next_cursor": null,
+  "snapshot_at": "2026-07-21T00:00:00.000Z",
+  "campaign_owned_home_banner_ids": [
+    101
+  ]
+}

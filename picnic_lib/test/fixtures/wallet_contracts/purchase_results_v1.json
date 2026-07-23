@@ -1,0 +1,73 @@
+{
+  "cases": [
+    {
+      "contract_version": "wallet.v1",
+      "operation_id": "00000000-0000-4000-8000-000000000601",
+      "replayed": false,
+      "base_star_amount": "100",
+      "base_bonus_amount": "20",
+      "promotion": {
+        "resolution_id": "00000000-0000-4000-8000-000000000611",
+        "state": "PENDING_TIME",
+        "campaign_version_id": "00000000-0000-4000-8000-000000000621",
+        "promo_bonus_amount": "0",
+        "domain_code": "PROMO_REVIEW_REQUIRED"
+      },
+      "wallet": {
+        "contract_version": "wallet.v1",
+        "star": "100",
+        "bonus": "20",
+        "cotton": "5",
+        "cotton_expiring_amount": "5",
+        "cotton_next_expires_at": "2026-07-28T00:00:00.000Z",
+        "snapshot_at": "2026-07-21T00:00:00.000Z"
+      }
+    },
+    {
+      "contract_version": "wallet.v1",
+      "operation_id": "00000000-0000-4000-8000-000000000602",
+      "replayed": false,
+      "base_star_amount": "100",
+      "base_bonus_amount": "20",
+      "promotion": {
+        "resolution_id": "00000000-0000-4000-8000-000000000612",
+        "state": "INELIGIBLE",
+        "campaign_version_id": null,
+        "promo_bonus_amount": "0",
+        "domain_code": null
+      },
+      "wallet": {
+        "contract_version": "wallet.v1",
+        "star": "200",
+        "bonus": "40",
+        "cotton": "5",
+        "cotton_expiring_amount": "5",
+        "cotton_next_expires_at": "2026-07-28T00:00:00.000Z",
+        "snapshot_at": "2026-07-21T00:00:00.000Z"
+      }
+    },
+    {
+      "contract_version": "wallet.v1",
+      "operation_id": "00000000-0000-4000-8000-000000000603",
+      "replayed": true,
+      "base_star_amount": "100",
+      "base_bonus_amount": "20",
+      "promotion": {
+        "resolution_id": "00000000-0000-4000-8000-000000000613",
+        "state": "GRANTED",
+        "campaign_version_id": "00000000-0000-4000-8000-000000000623",
+        "promo_bonus_amount": "20",
+        "domain_code": null
+      },
+      "wallet": {
+        "contract_version": "wallet.v1",
+        "star": "300",
+        "bonus": "80",
+        "cotton": "5",
+        "cotton_expiring_amount": "5",
+        "cotton_next_expires_at": "2026-07-28T00:00:00.000Z",
+        "snapshot_at": "2026-07-21T00:00:00.000Z"
+      }
+    }
+  ]
+}

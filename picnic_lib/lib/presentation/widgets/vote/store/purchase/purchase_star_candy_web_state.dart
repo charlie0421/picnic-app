@@ -6,10 +6,13 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy_web.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -38,25 +41,24 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
                 margin: EdgeInsets.only(top: 24, left: 8.w, right: 8.w),
                 padding: const EdgeInsets.only(top: 16),
                 decoration: BoxDecoration(
-                    border: Border.all(
-                      color: AppColors.primary500,
-                      width: 1.5.r,
-                    ),
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(40.r),
-                        topRight: Radius.circular(40.r),
-                        bottomLeft: Radius.circular(40.r),
-                        bottomRight: Radius.circular(40.r))),
-                alignment: Alignment.center,
-                child: Text(
-                  AppLocalizations.of(context).purchase_web_message,
+                  border: Border.all(color: AppColors.primary500, width: 1.5.r),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(40.r),
+                    topRight: Radius.circular(40.r),
+                    bottomLeft: Radius.circular(40.r),
+                    bottomRight: Radius.circular(40.r),
+                  ),
                 ),
+                alignment: Alignment.center,
+                child: Text(AppLocalizations.of(context).purchase_web_message),
               ),
               Positioned.fill(
-                  child: Container(
-                      alignment: Alignment.topCenter,
-                      padding: EdgeInsets.symmetric(horizontal: 33.w),
-                      child: const VoteCommonTitle(title: '수동 결제'))),
+                child: Container(
+                  alignment: Alignment.topCenter,
+                  padding: EdgeInsets.symmetric(horizontal: 33.w),
+                  child: const VoteCommonTitle(title: '수동 결제'),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 36),
@@ -83,9 +85,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
     );
   }
 
-  Widget _buildProductList(
-    List<Map<String, dynamic>> serverProducts,
-  ) {
+  Widget _buildProductList(List<Map<String, dynamic>> serverProducts) {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -98,6 +98,12 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
   }
 
   Widget _buildProductItem(Map<String, dynamic> serverProduct) {
+    final campaign = ref
+        .watch(activePromotionCampaignProvider(PromotionSurface.store))
+        .value
+        ?.items
+        .where((item) => item.showInStore)
+        .firstOrNull;
     return StoreListTile(
       icon: Image.asset(
         package: 'picnic_lib',
@@ -105,8 +111,10 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
         width: 48.w,
         height: 48,
       ),
-      title: Text(serverProduct['id'],
-          style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
+      title: Text(
+        serverProduct['id'],
+        style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+      ),
       subtitle: Text.rich(
         TextSpan(
           children: [
@@ -117,6 +125,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
           ],
         ),
       ),
+      badge: campaign == null ? null : CandyBoostBadge(campaign: campaign),
       buttonText: '${serverProduct['price']} \$',
       buttonOnPressed: () => _handleBuyButtonPressed(context, serverProduct),
     );
@@ -132,7 +141,9 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
       await launchUrlString(url);
     } else {
       if (navigatorKey.currentContext != null) {
-        throw AppLocalizations.of(navigatorKey.currentContext!).update_cannot_open_appstore;
+        throw AppLocalizations.of(
+          navigatorKey.currentContext!,
+        ).update_cannot_open_appstore;
       }
     }
   }
@@ -154,19 +165,9 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
 
   Widget _buildShimmerItem() {
     return ListTile(
-      leading: Container(
-        width: 48.w,
-        height: 48,
-        color: Colors.white,
-      ),
-      title: Container(
-        height: 16,
-        color: Colors.white,
-      ),
-      subtitle: Container(
-        height: 16,
-        color: Colors.white,
-      ),
+      leading: Container(width: 48.w, height: 48, color: Colors.white),
+      title: Container(height: 16, color: Colors.white),
+      subtitle: Container(height: 16, color: Colors.white),
     );
   }
 }

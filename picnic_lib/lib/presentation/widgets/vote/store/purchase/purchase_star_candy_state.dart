@@ -15,6 +15,9 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
@@ -23,6 +26,7 @@ import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'handlers/restore_purchase_handler.dart';
@@ -47,6 +51,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   bool _isInitializing = true;
   bool _isPurchasing = false;
   final Set<String> _currentlyProcessingIDs = {};
+  final Map<String, ActivePromotionCampaignModel?> _campaignByProduct = {};
 
   @override
   void initState() {
@@ -343,7 +348,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
     await _purchaseService.handleOptimizedPurchase(
       purchaseDetails,
-      () async {
+      (result) async {
         logger.i('[PurchaseStarCandyState] Purchase successful');
 
         // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
@@ -364,6 +369,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           completedPurchase: purchaseDetails,
         );
 
+        ref.read(walletSummaryProvider.notifier).setSummary(result.wallet);
         await ref.read(userInfoProvider.notifier).getUserProfiles();
 
         if (mounted) {
@@ -371,10 +377,17 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           _loadingKey.currentState?.hide();
 
           if (isLatePurchase) {
-            await _dialogHandler.showLatePurchaseSuccessDialog();
+            await _dialogHandler.showLatePurchaseSuccessDialog(
+              result: result,
+              displayedCampaign: _campaignByProduct[purchaseDetails.productID],
+            );
           } else {
-            await _dialogHandler.showSuccessDialog();
+            await _dialogHandler.showSuccessDialog(
+              result: result,
+              displayedCampaign: _campaignByProduct[purchaseDetails.productID],
+            );
           }
+          _campaignByProduct.remove(purchaseDetails.productID);
         }
       },
       (error) async {
@@ -432,11 +445,13 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
             case PurchaseErrorAction.showMappedError:
               logger.e('[PurchaseStarCandyState] Purchase error: $error');
+              final errorType = PurchaseProcessor.mapErrorToType(error);
+              if (errorType != PurchaseErrorType.timeout &&
+                  errorType != PurchaseErrorType.networkError) {
+                _campaignByProduct.remove(purchaseDetails.productID);
+              }
               final l10n = AppLocalizations.of(navigatorKey.currentContext!);
-              final msg = _resolveErrorMessage(
-                PurchaseProcessor.mapErrorToType(error),
-                l10n,
-              );
+              final msg = _resolveErrorMessage(errorType, l10n);
               await _dialogHandler.showErrorDialog(msg);
               break;
           }
@@ -448,6 +463,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 에러 및 취소 처리
   Future<void> _processErrorAndCancel(PurchaseDetails purchaseDetails) async {
+    _campaignByProduct.remove(purchaseDetails.productID);
     if (purchaseDetails.status == PurchaseStatus.error) {
       logger.e(
         '[PurchaseStarCandyState] Purchase error: ${purchaseDetails.error?.message}',
@@ -561,13 +577,31 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     // 🔒 구매 확인 다이얼로그 표시
+    final campaigns = ref.read(
+      activePromotionCampaignProvider(PromotionSurface.store),
+    );
+    final displayedCampaign = campaigns.value?.items
+        .where((campaign) => campaign.showInStore)
+        .firstOrNull;
+    final productId = serverProduct['id'] as String;
+    if (_campaignByProduct.containsKey(productId)) {
+      await _dialogHandler.showPurchaseAlreadyPendingDialog();
+      return;
+    }
     final confirmed = await _dialogHandler.showPurchaseConfirmDialog(
       serverProduct: serverProduct,
       storeProducts: storeProducts,
+      displayedCampaign: displayedCampaign,
     );
 
     if (confirmed == true && context.mounted) {
-      await _processPurchase(context, serverProduct, storeProducts);
+      _campaignByProduct[productId] = displayedCampaign;
+      try {
+        await _processPurchase(context, serverProduct, storeProducts);
+      } catch (_) {
+        _campaignByProduct.remove(productId);
+        rethrow;
+      }
     }
   }
 
@@ -867,6 +901,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     final isButtonEnabled = !_isInitializing && !_isPurchasing;
     final isCurrentProductLoading =
         _isPurchasing && _pendingProductId == serverProduct['id'];
+    final campaign = ref
+        .watch(activePromotionCampaignProvider(PromotionSurface.store))
+        .value
+        ?.items
+        .where((item) => item.showInStore)
+        .firstOrNull;
 
     return StoreListTile(
       icon: Image.asset(
@@ -889,6 +929,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           ],
         ),
       ),
+      badge: campaign == null ? null : CandyBoostBadge(campaign: campaign),
       isLoading: isCurrentProductLoading,
       buttonText: '${serverProduct['price']} \$',
       buttonOnPressed: isButtonEnabled

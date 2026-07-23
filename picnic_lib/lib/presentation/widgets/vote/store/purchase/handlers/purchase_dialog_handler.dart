@@ -9,17 +9,24 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
+import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 
 /// Pure logic: parse a product description into main and bonus parts.
 /// Returns a record with mainDescription and optional bonusDescription.
 @visibleForTesting
 ({String mainDescription, String? bonusDescription}) parseProductDescription(
-    String fullDescription) {
+  String fullDescription,
+) {
   if (fullDescription.contains('+')) {
     final parts = fullDescription.split('+');
     final mainDescription = parts[0].trim();
     final bonusDescription = '+${parts.sublist(1).join('+').trim()}';
-    return (mainDescription: mainDescription, bonusDescription: bonusDescription);
+    return (
+      mainDescription: mainDescription,
+      bonusDescription: bonusDescription,
+    );
   }
   return (mainDescription: fullDescription, bonusDescription: null);
 }
@@ -34,7 +41,8 @@ String extractStarSuffix(String productId) {
 /// Pure logic: determine if debug info should be shown based on environment info.
 @visibleForTesting
 bool shouldShowDebugInfo(Map<String, dynamic> envInfo) {
-  final isTestFlight = envInfo['environment'] == 'sandbox' &&
+  final isTestFlight =
+      envInfo['environment'] == 'sandbox' &&
       !envInfo['isDebugMode'] &&
       (envInfo['installerStore'] == 'com.apple.testflight' ||
           envInfo['installerStore'] == null);
@@ -49,13 +57,14 @@ class PurchaseDialogHandler {
   PurchaseDialogHandler({
     required BuildContext context,
     required PurchaseService purchaseService,
-  })  : _context = context,
-        _purchaseService = purchaseService;
+  }) : _context = context,
+       _purchaseService = purchaseService;
 
   /// 🔒 구매 확인 다이얼로그 - 우발적 구매 방지
   Future<bool?> showPurchaseConfirmDialog({
     required Map<String, dynamic> serverProduct,
     required List<ProductDetails> storeProducts,
+    required ActivePromotionCampaignModel? displayedCampaign,
   }) async {
     return await showDialog<bool>(
       context: _context,
@@ -87,6 +96,15 @@ class PurchaseDialogHandler {
                 AppLocalizations.of(context).purchase_confirm_message,
                 style: getTextStyle(AppTypo.body14R, AppColors.grey700),
               ),
+              if (displayedCampaign != null) ...[
+                SizedBox(height: 8),
+                Text(
+                  displayedCampaign.localizedDisplayName(
+                    Localizations.localeOf(context).languageCode,
+                  ),
+                  style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+                ),
+              ],
               SizedBox(height: 16),
               Container(
                 padding: EdgeInsets.all(16),
@@ -125,8 +143,9 @@ class PurchaseDialogHandler {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary500
-                                    .withValues(alpha: 0.15),
+                                color: AppColors.primary500.withValues(
+                                  alpha: 0.15,
+                                ),
                                 blurRadius: 4,
                                 offset: Offset(0, 2),
                               ),
@@ -147,13 +166,16 @@ class PurchaseDialogHandler {
                               Text(
                                 serverProduct['id'],
                                 style: getTextStyle(
-                                    AppTypo.body16B, AppColors.grey900),
+                                  AppTypo.body16B,
+                                  AppColors.grey900,
+                                ),
                               ),
                               SizedBox(height: 6),
                               // 상품 설명을 파싱해서 메인 설명과 보너스 분리
                               ...(() {
                                 final fullDescription = getLocaleTextFromJson(
-                                    serverProduct['description']);
+                                  serverProduct['description'],
+                                );
 
                                 // '+' 기호를 기준으로 분리
                                 if (fullDescription.contains('+')) {
@@ -165,14 +187,18 @@ class PurchaseDialogHandler {
                                   return [
                                     Text(
                                       mainDescription,
-                                      style: getTextStyle(AppTypo.caption12R,
-                                          AppColors.grey600),
+                                      style: getTextStyle(
+                                        AppTypo.caption12R,
+                                        AppColors.grey600,
+                                      ),
                                     ),
                                     SizedBox(height: 4),
                                     Text(
                                       bonusDescription,
-                                      style: getTextStyle(AppTypo.caption12B,
-                                          AppColors.point900),
+                                      style: getTextStyle(
+                                        AppTypo.caption12B,
+                                        AppColors.point900,
+                                      ),
                                     ),
                                   ];
                                 } else {
@@ -180,8 +206,10 @@ class PurchaseDialogHandler {
                                   return [
                                     Text(
                                       fullDescription,
-                                      style: getTextStyle(AppTypo.caption12R,
-                                          AppColors.grey600),
+                                      style: getTextStyle(
+                                        AppTypo.caption12R,
+                                        AppColors.grey600,
+                                      ),
                                     ),
                                   ];
                                 }
@@ -212,13 +240,17 @@ class PurchaseDialogHandler {
                       children: [
                         Text(
                           AppLocalizations.of(context).purchase_payment_amount,
-                          style:
-                              getTextStyle(AppTypo.body14M, AppColors.grey600),
+                          style: getTextStyle(
+                            AppTypo.body14M,
+                            AppColors.grey600,
+                          ),
                         ),
                         Text(
                           '${serverProduct['price']} \$',
                           style: getTextStyle(
-                              AppTypo.body16B, AppColors.primary500),
+                            AppTypo.body16B,
+                            AppColors.primary500,
+                          ),
                         ),
                       ],
                     ),
@@ -257,14 +289,16 @@ class PurchaseDialogHandler {
     try {
       final envInfo = await _purchaseService.receiptVerificationService
           .getEnvironmentInfo();
-      final isTestFlight = envInfo['environment'] == 'sandbox' &&
+      final isTestFlight =
+          envInfo['environment'] == 'sandbox' &&
           !envInfo['isDebugMode'] &&
           (envInfo['installerStore'] == 'com.apple.testflight' ||
               envInfo['installerStore'] == null);
       final shouldShowDebugInfo = kDebugMode || isTestFlight;
 
       if (shouldShowDebugInfo) {
-        final debugInfo = '''
+        final debugInfo =
+            '''
 환경: ${envInfo['environment']}
 플랫폼: ${envInfo['platform']}
 설치 스토어: ${envInfo['installerStore'] ?? 'null'}
@@ -284,20 +318,25 @@ class PurchaseDialogHandler {
   }
 
   /// 🎉 구매 성공 다이얼로그
-  Future<void> showSuccessDialog() async {
+  Future<void> showSuccessDialog({
+    required PurchaseSettlementResultModel result,
+    required ActivePromotionCampaignModel? displayedCampaign,
+  }) async {
     logger.i('[PurchaseDialogHandler] Showing success dialog');
     final context = navigatorKey.currentContext;
     if (context == null) {
       logger.e('Navigator context is null in showSuccessDialog');
       return;
     }
-    final message =
-        AppLocalizations.of(context).dialog_message_purchase_success;
+    final message = _purchaseSuccessMessage(context, result, displayedCampaign);
     showSimpleDialog(content: message);
   }
 
   /// ⏰ 늦은 구매 성공 다이얼로그
-  Future<void> showLatePurchaseSuccessDialog() async {
+  Future<void> showLatePurchaseSuccessDialog({
+    required PurchaseSettlementResultModel result,
+    required ActivePromotionCampaignModel? displayedCampaign,
+  }) async {
     logger.i('[PurchaseDialogHandler] Showing late purchase success dialog');
 
     showDialog(
@@ -305,14 +344,16 @@ class PurchaseDialogHandler {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: Text('🎉 Purchase Completed'),
-        content: Text('''Your purchase has been completed successfully!
+        content: Text(
+          '''${_purchaseSuccessMessage(context, result, displayedCampaign)}
 
 ⏰ Authentication took longer than expected and a timeout message was displayed, but your purchase was actually processed normally.
 
 ✅ Star Candy has been added to your account
 ✅ Purchase history has been recorded on the server
 
-This is a normal situation that can occur during Touch ID/Face ID authentication.'''),
+This is a normal situation that can occur during Touch ID/Face ID authentication.''',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -323,6 +364,30 @@ This is a normal situation that can occur during Touch ID/Face ID authentication
     );
   }
 
+  String _purchaseSuccessMessage(
+    BuildContext context,
+    PurchaseSettlementResultModel result,
+    ActivePromotionCampaignModel? displayedCampaign,
+  ) {
+    final base = AppLocalizations.of(context).dialog_message_purchase_success;
+    final promotion = result.promotion;
+    if (promotion == null || displayedCampaign == null) return base;
+    if (promotion.state == PurchasePromotionState.pendingTime ||
+        promotion.state == PurchasePromotionState.eligible) {
+      return '$base\n프로모션 확인 중';
+    }
+    if (promotion.state != PurchasePromotionState.granted ||
+        promotion.campaignVersionId != displayedCampaign.campaignVersionId) {
+      return base;
+    }
+    final locale = Localizations.localeOf(context).languageCode;
+    return '$base\n${displayedCampaign.localizedDisplayName(locale)} +${formatWalletAmount(promotion.promoBonusAmount)}';
+  }
+
+  Future<void> showPurchaseAlreadyPendingDialog() async {
+    showSimpleDialog(content: '동일 상품의 구매가 처리 중입니다.');
+  }
+
   /// ⚠️ 예상치 못한 중복 에러 다이얼로그
   Future<void> showUnexpectedDuplicateDialog() async {
     showDialog(
@@ -331,7 +396,7 @@ This is a normal situation that can occur during Touch ID/Face ID authentication
       builder: (context) => AlertDialog(
         title: Text('Server Processing Issue'),
         content: Text(
-            '''An error occurred even though the server has relaxed duplicate checks for consumable products.
+          '''An error occurred even though the server has relaxed duplicate checks for consumable products.
 
 Possible causes:
 1. Server deployment not fully applied yet
@@ -343,7 +408,8 @@ Solutions:
 2. If it still doesn't work, restart the app
 3. Contact customer support if the problem persists
 
-Duplicate purchases should be normally allowed for consumable products.'''),
+Duplicate purchases should be normally allowed for consumable products.''',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),

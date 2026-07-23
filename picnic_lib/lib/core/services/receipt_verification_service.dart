@@ -10,6 +10,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 이미 처리된 구매에 대한 예외
@@ -46,7 +47,7 @@ class ReceiptVerificationService {
   }
 
   /// 영수증 검증 메인 메서드
-  Future<void> verifyReceipt(
+  Future<PurchaseSettlementResultModel> verifyReceipt(
     String receipt,
     String productId,
     String userId,
@@ -62,6 +63,7 @@ class ReceiptVerificationService {
     final receiptFormat = _detectReceiptFormat(receipt);
     logger.i('Receipt format: $receiptFormat');
 
+    late final PurchaseSettlementResultModel result;
     if (Platform.isIOS) {
       // iOS: 동일 JWS 재전송 방지 (멱등 키: transactionId + signedDate)
       try {
@@ -71,7 +73,7 @@ class ReceiptVerificationService {
           // 중복으로 간주하여 예외를 던져 상위에서 성공 UI를 띄우지 않도록 함
           throw ReusedPurchaseException(message: 'Duplicate iOS receipt');
         }
-        await _verifyiOSReceipt(
+        result = await _verifyiOSReceipt(
           receipt,
           productId,
           userId,
@@ -85,7 +87,7 @@ class ReceiptVerificationService {
           rethrow;
         }
         logger.w('🍎 JWS 파싱/멱등 처리 실패 - 일반 경로로 진행: $e');
-        await _verifyiOSReceipt(
+        result = await _verifyiOSReceipt(
           receipt,
           productId,
           userId,
@@ -94,10 +96,16 @@ class ReceiptVerificationService {
         );
       }
     } else {
-      await _verifyAndroidReceipt(receipt, productId, userId, environment);
+      result = await _verifyAndroidReceipt(
+        receipt,
+        productId,
+        userId,
+        environment,
+      );
     }
 
     logger.i('=== Receipt Verification Completed ===');
+    return result;
   }
 
   /// 입력 값 검증
@@ -111,7 +119,7 @@ class ReceiptVerificationService {
   }
 
   /// iOS 영수증 검증
-  Future<void> _verifyiOSReceipt(
+  Future<PurchaseSettlementResultModel> _verifyiOSReceipt(
     String receipt,
     String productId,
     String userId,
@@ -128,11 +136,11 @@ class ReceiptVerificationService {
       receiptFormat: receiptFormat,
     );
 
-    await _callVerificationFunction(requestBody, 'iOS');
+    return _callVerificationFunction(requestBody, 'iOS');
   }
 
   /// Android 영수증 검증
-  Future<void> _verifyAndroidReceipt(
+  Future<PurchaseSettlementResultModel> _verifyAndroidReceipt(
     String receipt,
     String productId,
     String userId,
@@ -161,14 +169,15 @@ class ReceiptVerificationService {
     );
 
     logger.i('🚀 Android 서버 검증 호출 시작 (clientTrace: $clientTraceId)');
-    await _callVerificationFunction(requestBody, 'Android');
+    final result = await _callVerificationFunction(requestBody, 'Android');
     // 성공 시 큐에서 제거
     await ReceiptQueueService().removeByClientTraceId(clientTraceId);
     logger.i('✅ Android 영수증 검증 완료');
+    return result;
   }
 
   /// 검증 함수 호출 (재시도 로직 포함)
-  Future<void> _callVerificationFunction(
+  Future<PurchaseSettlementResultModel> _callVerificationFunction(
     Map<String, dynamic> requestBody,
     String verificationType,
   ) async {
@@ -194,12 +203,19 @@ class ReceiptVerificationService {
       try {
         logger.i('$verificationType verification attempt $attempt/$maxRetries');
 
-        await supabase.functions
+        final response = await supabase.functions
             .invoke('verify_receipt', body: requestBody) // 함수 이름 변경
             .timeout(timeoutDuration);
 
         logger.i('Verification successful');
-        return; // 성공 시 즉시 반환
+        if (response.data is! Map) {
+          throw const FormatException(
+            'verify_receipt response must be an object',
+          );
+        }
+        return PurchaseSettlementResultModel.fromJson(
+          Map<String, dynamic>.from(response.data as Map),
+        );
       } catch (error) {
         lastException = error is Exception
             ? error
