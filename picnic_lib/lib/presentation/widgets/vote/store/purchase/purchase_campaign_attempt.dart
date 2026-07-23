@@ -11,18 +11,30 @@ class PurchaseCampaignAttempt {
   final ActivePromotionCampaignModel? displayedCampaign;
 }
 
+class PurchaseExecutionContext {
+  PurchaseExecutionContext({required this.attempt});
+  final PurchaseCampaignAttempt attempt;
+  bool launched = false;
+}
+
 class PurchaseCampaignAttemptRegistry {
-  final Map<String, PurchaseCampaignAttempt> _byProduct = {};
+  final Map<String, PurchaseExecutionContext> _byProduct = {};
 
   PurchaseCampaignAttempt? operator [](String productId) =>
-      _byProduct[productId];
+      _byProduct[productId]?.attempt;
   bool contains(String productId) => _byProduct.containsKey(productId);
 
   bool begin(PurchaseCampaignAttempt attempt) =>
-      _byProduct.putIfAbsent(attempt.productId, () => attempt) == attempt;
+      _byProduct
+          .putIfAbsent(
+            attempt.productId,
+            () => PurchaseExecutionContext(attempt: attempt),
+          )
+          .attempt ==
+      attempt;
 
   bool removeIfMatches(String productId, String attemptId) {
-    if (_byProduct[productId]?.attemptId != attemptId) return false;
+    if (_byProduct[productId]?.attempt.attemptId != attemptId) return false;
     _byProduct.remove(productId);
     return true;
   }
@@ -34,6 +46,9 @@ class PurchaseCampaignAttemptRegistry {
   ) {
     final terminal =
         result['wasCancelled'] == true || result['success'] != true;
-    return terminal && removeIfMatches(productId, attemptId);
+    if (terminal) return removeIfMatches(productId, attemptId);
+    final context = _byProduct[productId];
+    if (context?.attempt.attemptId == attemptId) context!.launched = true;
+    return false;
   }
 }
