@@ -14,7 +14,11 @@ void main() {
   Future<
     ({VoteTransactionRepository repository, List<Map<String, dynamic>> calls})
   >
-  repositoryWith(List<http.Response> responses) async {
+  repositoryWith(
+    List<http.Response> responses, {
+    Future<void> Function(Duration)? delay,
+    VoteRetryJitter? nextJitter,
+  }) async {
     final calls = <Map<String, dynamic>>[];
     var index = 0;
     final client = SupabaseClient(
@@ -29,8 +33,8 @@ void main() {
     return (
       repository: VoteTransactionRepository(
         client,
-        delay: (_) async {},
-        nextJitter: (_) => 0,
+        delay: delay ?? (_) async {},
+        nextJitter: nextJitter ?? (_) => 0,
       ),
       calls: calls,
     );
@@ -97,27 +101,63 @@ void main() {
     });
   }
 
-  for (final testCase in <({int status, Map<String, dynamic> envelope})>[
-    (status: 429, envelope: {'domain_code': 'RATE_LIMITED', 'retryable': true}),
-    (
-      status: 429,
-      envelope: {'domain_code': 'TX_CONFLICT_RETRYABLE', 'retryable': true},
-    ),
-    (status: 409, envelope: {'domain_code': 'OTHER', 'retryable': true}),
-    (
-      status: 409,
-      envelope: {'domain_code': 'TX_CONFLICT_RETRYABLE', 'retryable': false},
-    ),
-  ]) {
-    test('does not retry ${testCase.status}/${testCase.envelope}', () async {
-      final setup = await repositoryWith([
-        response(testCase.status, testCase.envelope),
-      ]);
-      await expectLater(
-        setup.repository.performGeneralVote(request),
-        throwsA(isA<FunctionException>()),
-      );
-      expect(setup.calls, hasLength(1));
-    });
+  for (final detailsAsString in [false, true]) {
+    for (final testCase in <({int status, Map<String, dynamic> envelope})>[
+      (
+        status: 429,
+        envelope: {'domain_code': 'RATE_LIMITED', 'retryable': true},
+      ),
+      (
+        status: 429,
+        envelope: {'domain_code': 'TX_CONFLICT_RETRYABLE', 'retryable': true},
+      ),
+      (status: 409, envelope: {'domain_code': 'OTHER', 'retryable': true}),
+      (
+        status: 409,
+        envelope: {'domain_code': 'TX_CONFLICT_RETRYABLE', 'retryable': false},
+      ),
+    ]) {
+      test('does not retry ${testCase.status}/${testCase.envelope} '
+          '(${detailsAsString ? 'JSON' : 'Map'} details)', () async {
+        final body = detailsAsString
+            ? jsonEncode(testCase.envelope)
+            : testCase.envelope;
+        final setup = await repositoryWith([response(testCase.status, body)]);
+        await expectLater(
+          setup.repository.performGeneralVote(request),
+          throwsA(isA<FunctionException>()),
+        );
+        expect(setup.calls, hasLength(1));
+      });
+    }
   }
+
+  test('uses bounded jitter caps and stops after the fourth error', () async {
+    final envelope = {
+      'domain_code': 'TX_CONFLICT_RETRYABLE',
+      'retryable': true,
+    };
+    final delays = <Duration>[];
+    final upperBounds = <int>[];
+    final setup = await repositoryWith(
+      List.generate(4, (_) => response(409, envelope)),
+      delay: (duration) async => delays.add(duration),
+      nextJitter: (upperExclusive) {
+        upperBounds.add(upperExclusive);
+        return upperExclusive - 1;
+      },
+    );
+
+    await expectLater(
+      setup.repository.performGeneralVote(request),
+      throwsA(isA<FunctionException>()),
+    );
+    expect(setup.calls, hasLength(4));
+    expect(upperBounds, [251, 501, 1001]);
+    expect(delays, const [
+      Duration(milliseconds: 250),
+      Duration(milliseconds: 500),
+      Duration(milliseconds: 1000),
+    ]);
+  });
 }

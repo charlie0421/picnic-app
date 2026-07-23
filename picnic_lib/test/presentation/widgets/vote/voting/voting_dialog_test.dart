@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
@@ -19,6 +21,16 @@ class _WalletSummaryOverride extends WalletSummary {
 
   @override
   Future<WalletSummaryModel> build() async => summary;
+}
+
+class _LoadingWalletSummaryOverride extends WalletSummary {
+  @override
+  Future<WalletSummaryModel> build() => Completer<WalletSummaryModel>().future;
+}
+
+class _ErrorWalletSummaryOverride extends WalletSummary {
+  @override
+  Future<WalletSummaryModel> build() => Future.error(StateError('wallet'));
 }
 
 WalletSummaryModel _wallet({BigInt? star, BigInt? bonus, BigInt? cotton}) =>
@@ -266,6 +278,82 @@ void main() {
       await tester.enterText(find.byType(TextFormField), '5');
       await tester.pump();
 
+      final submit = tester.widget<GestureDetector>(
+        find.descendant(
+          of: find.byType(VotingSubmitButton),
+          matching: find.byType(GestureDetector),
+        ),
+      );
+      expect(submit.onTap, isNotNull);
+    });
+
+    for (final state in ['loading', 'error']) {
+      testWidgets('wallet $state keeps nonzero normal vote disabled', (
+        tester,
+      ) async {
+        tester.view.physicalSize = const Size(1125, 2436);
+        tester.view.devicePixelRatio = 3.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        await tester.pumpWidget(
+          buildTestApp(
+            VotingDialog(
+              voteModel: voteModel,
+              voteItemModel: voteItemModel,
+              portalType: VotePortal.vote,
+            ),
+            extraOverrides: [
+              walletSummaryProvider.overrideWith(
+                state == 'loading'
+                    ? _LoadingWalletSummaryOverride.new
+                    : _ErrorWalletSummaryOverride.new,
+              ),
+            ],
+          ),
+        );
+        await tester.pump();
+        await tester.enterText(find.byType(TextFormField), '5');
+        await tester.pump();
+
+        final submit = tester.widget<GestureDetector>(
+          find.descendant(
+            of: find.byType(VotingSubmitButton),
+            matching: find.byType(GestureDetector),
+          ),
+        );
+        expect(submit.onTap, isNull);
+      });
+    }
+
+    testWidgets('normal use-all caps a greater-than-JS-safe wallet', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1125, 2436);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(
+        buildTestApp(
+          VotingDialog(
+            voteModel: voteModel,
+            voteItemModel: voteItemModel,
+            portalType: VotePortal.vote,
+          ),
+          extraOverrides: [
+            walletSummaryProvider.overrideWith(
+              () => _WalletSummaryOverride(
+                _wallet(star: BigInt.parse('9007199254740993')),
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(VotingCheckAllOption));
+      await tester.pump();
+
+      final input = tester.widget<TextFormField>(find.byType(TextFormField));
+      expect(input.controller!.text, '2,147,483,647');
       final submit = tester.widget<GestureDetector>(
         find.descendant(
           of: find.byType(VotingSubmitButton),
