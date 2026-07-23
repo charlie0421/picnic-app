@@ -26,4 +26,14 @@ class PurchaseCampaignAttemptRegistry {
     _byProduct.remove(productId);
     return true;
   }
+
+  bool applyLaunchResult(
+    String productId,
+    String attemptId,
+    Map<String, dynamic> result,
+  ) {
+    final terminal =
+        result['wasCancelled'] == true || result['success'] != true;
+    return terminal && removeIfMatches(productId, attemptId);
+  }
 }
