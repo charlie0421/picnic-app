@@ -149,6 +149,13 @@ ActivePromotionCampaignsModel homeCampaign() =>
 void main() {
   late void Function() restore;
 
+  test('unified slide timing and shrink index rules are deterministic', () {
+    expect(commonBannerSlideDuration(4500), const Duration(milliseconds: 4500));
+    expect(commonBannerSlideDuration(0), const Duration(milliseconds: 3000));
+    expect(commonBannerSafeIndex(2, 1), 0);
+    expect(commonBannerSafeIndex(1, 3), 1);
+  });
+
   setUp(() {
     initTestColors();
     VisibilityDetectorController.instance.updateInterval = Duration.zero;
