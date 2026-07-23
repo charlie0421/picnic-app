@@ -87,6 +87,18 @@ class _GatedStore extends PendingAdRewardStore {
   }
 }
 
+class _RemoveGatedStore extends PendingAdRewardStore {
+  _RemoveGatedStore(super.storage, this.removeGate);
+
+  final Completer<void> removeGate;
+
+  @override
+  Future<void> remove(String userId, AdRewardReference reference) async {
+    await removeGate.future;
+    await super.remove(userId, reference);
+  }
+}
+
 AdRewardReference _reference(int id) => AdRewardReference(
   type: AdRewardReferenceType.internalImpression,
   id: '00000000-0000-4000-8000-${id.toString().padLeft(12, '0')}',
@@ -455,6 +467,80 @@ void main() {
         (await store.readAll('user-a')).single.state,
         PendingAdRewardLocalState.pendingDisplay,
       );
+    },
+  );
+
+  test('same-owner same-reference ABA rejects stale queued generation', () async {
+    final value = _reference(51);
+    repository.server.add(_status(value, AdRewardState.denied));
+    repository.statuses[value] = [_status(value, AdRewardState.denied)];
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+    await notifier.recover('user-a');
+    final stale = container.read(adRewardRecoveryProvider).dialogQueue.single;
+
+    notifier.resetForLogout();
+    await notifier.recover('user-a');
+    final current = container.read(adRewardRecoveryProvider).dialogQueue.single;
+    expect(current.generation, isNot(stale.generation));
+    expect(current.status.reference, stale.status.reference);
+
+    await expectLater(notifier.acknowledgeAfterRender(stale), throwsStateError);
+    expect(repository.acknowledged, isEmpty);
+    expect(container.read(adRewardRecoveryProvider).dialogQueue.single, current);
+  });
+
+  test(
+    'restart after server ACK before local remove retries then cleans tombstone',
+    () async {
+      final storage = _MemoryStorage();
+      final removeGate = Completer<void>();
+      final firstStore = _RemoveGatedStore(storage, removeGate);
+      final value = _reference(52);
+      final firstRepository = _FakeRepository()
+        ..server.add(_status(value, AdRewardState.denied))
+        ..statuses[value] = [_status(value, AdRewardState.denied)];
+      final first = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(firstRepository),
+          pendingAdRewardStoreProvider.overrideWithValue(firstStore),
+          adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+        ],
+      );
+      await first.read(adRewardRecoveryProvider.notifier).recover('user-a');
+      final queued = first.read(adRewardRecoveryProvider).dialogQueue.single;
+      unawaited(
+        first
+            .read(adRewardRecoveryProvider.notifier)
+            .acknowledgeAfterRender(queued),
+      );
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      expect(firstRepository.acknowledged, [value]);
+      expect(
+        (await firstStore.readAll('user-a')).single.state,
+        PendingAdRewardLocalState.ackPending,
+      );
+      first.dispose();
+
+      final resumedRepository = _FakeRepository()
+        ..server.add(_status(value, AdRewardState.denied));
+      final resumedStore = PendingAdRewardStore(storage);
+      final resumed = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(resumedRepository),
+          pendingAdRewardStoreProvider.overrideWithValue(resumedStore),
+          adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+        ],
+      );
+      await resumed.read(adRewardRecoveryProvider.notifier).recover('user-a');
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      expect(resumed.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+      expect(resumedRepository.acknowledged, [value]);
+      expect(await resumedStore.readAll('user-a'), isEmpty);
+      resumed.dispose();
     },
   );
 }

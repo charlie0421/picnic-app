@@ -26,7 +26,7 @@ class _AdRewardDialogHostState extends ConsumerState<AdRewardDialogHost> {
   String? _scheduledKey;
 
   String _key(OwnedAdRewardStatus value) =>
-      '${value.ownerUserId}:${value.status.reference.type.wireValue}:${value.status.reference.id}';
+      '${value.generation}:${value.ownerUserId}:${value.status.reference.type.wireValue}:${value.status.reference.id}';
 
   void _scheduleDialog(AdRewardRecoveryState state) {
     if (_dialogOpen || state.dialogQueue.isEmpty) return;

@@ -245,8 +245,45 @@ void main() {
     expect(acknowledgements, 1);
   });
 
+  testWidgets('same-owner same-reference stale host callback is rejected', (
+    tester,
+  ) async {
+    final repository = _QueueRepository()..statuses[reference] = denied();
+    final store = PendingAdRewardStore(_MemoryStorage());
+    final scheduled = <VoidCallback>[];
+    final container = ProviderContainer(
+      overrides: [
+        adRewardRepositoryProvider.overrideWithValue(repository),
+        pendingAdRewardStoreProvider.overrideWithValue(store),
+        adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+        adRewardDelayProvider.overrideWithValue((_) async {}),
+      ],
+    );
+    addTearDown(container.dispose);
+    await store.add('user-a', reference);
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+    await notifier.recover('user-a');
+    await tester.pumpWidget(scheduledApp(container, scheduled.add));
+    expect(scheduled, hasLength(1));
+
+    notifier.resetForLogout();
+    await notifier.recover('user-a');
+    await tester.pump();
+    expect(scheduled, hasLength(2));
+    scheduled.first();
+    await tester.pump();
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(repository.acknowledged, isEmpty);
+
+    scheduled.last();
+    await tester.pump();
+    await tester.pump();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(repository.acknowledged, [reference]);
+  });
+
   testWidgets(
-    'current shortform persists issue then queues before render ACK',
+    'current shortform reaches ACK and cleanup only through mounted host frame',
     (tester) async {
       const impressionId = '00000000-0000-4000-8000-000000000051';
       const issuedReference = AdRewardReference(
@@ -256,6 +293,7 @@ void main() {
       final repository = _QueueRepository();
       final store = PendingAdRewardStore(_MemoryStorage());
       final session = InternalShortformRewardSession();
+      final scheduled = <VoidCallback>[];
       final container = ProviderContainer(
         overrides: [
           adRewardRepositoryProvider.overrideWithValue(repository),
@@ -310,10 +348,13 @@ void main() {
           .single;
       expect(queued.status.reference, issuedReference);
       expect(repository.acknowledged, isEmpty);
-      expect(repository.acknowledged, isEmpty);
-      await container
-          .read(adRewardRecoveryProvider.notifier)
-          .acknowledgeAfterRender(queued);
+      await tester.pumpWidget(scheduledApp(container, scheduled.add));
+      expect(scheduled, hasLength(1));
+      scheduled.single();
+      await tester.pump();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      await tester.pump();
+      await tester.pump();
       expect(repository.acknowledged, [issuedReference]);
       expect(await store.readAll('user-a'), isEmpty);
     },
