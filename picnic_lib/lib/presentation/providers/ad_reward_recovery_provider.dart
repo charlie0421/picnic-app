@@ -230,12 +230,20 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     if (status.state == AdRewardState.pending) {
       throw StateError('Pending rewards cannot be acknowledged');
     }
+    final key = _key(ownerUserId, status.reference);
     if (!_isCurrent(ownerUserId, generation)) {
       throw StateError('Ad reward owner is no longer active');
     }
+    if (state.dialogQueue.isEmpty ||
+        _key(
+              state.dialogQueue.first.ownerUserId,
+              state.dialogQueue.first.status.reference,
+            ) !=
+            key) {
+      throw StateError('Ad reward is no longer the active dialog');
+    }
 
     final store = ref.read(pendingAdRewardStoreProvider);
-    final key = _key(ownerUserId, status.reference);
     await store.markAckPending(ownerUserId, status.reference);
     if (!_isCurrent(ownerUserId, generation)) {
       throw StateError('Ad reward owner is no longer active');

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_session.dart';
 
@@ -113,5 +115,31 @@ class InternalShortformViewFlow {
     } on TypeError catch (error) {
       throw FormatException('Invalid view callback response', error);
     }
+  }
+}
+
+class InternalShortformViewRecoveryFlow {
+  InternalShortformViewRecoveryFlow({
+    required this.view,
+    required this.poll,
+    this.onPollError,
+  });
+
+  final InternalShortformViewFlow view;
+  final Future<void> Function(String ownerUserId, AdRewardReference reference)
+  poll;
+  final void Function(Object error, StackTrace stackTrace)? onPollError;
+
+  Future<InternalShortformViewResponse> report() async {
+    final response = await view.report();
+    if (response.reward == null) return response;
+    final owner = view.session.ownerUserId!;
+    final reference = view.session.reference!;
+    unawaited(
+      poll(owner, reference).catchError((Object error, StackTrace stackTrace) {
+        onPollError?.call(error, stackTrace);
+      }),
+    );
+    return response;
   }
 }

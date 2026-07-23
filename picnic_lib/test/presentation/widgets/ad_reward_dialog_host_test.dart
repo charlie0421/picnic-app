@@ -13,6 +13,8 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_provider.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_session.dart';
 
 class _MemoryStorage implements LocalStorage {
   final values = <String, String>{};
@@ -93,6 +95,26 @@ Widget app(ProviderContainer container) => UncontrolledProviderScope(
   ),
 );
 
+Widget scheduledApp(
+  ProviderContainer container,
+  void Function(VoidCallback callback) schedule,
+) => UncontrolledProviderScope(
+  container: container,
+  child: MaterialApp(
+    localizationsDelegates: const [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: AdRewardDialogHost(
+      schedulePostFrame: schedule,
+      child: const Scaffold(body: Text('home')),
+    ),
+  ),
+);
+
 void main() {
   testWidgets('checking indicator never acknowledges', (tester) async {
     final repository = _Repository();
@@ -145,4 +167,162 @@ void main() {
     await tester.pump();
     expect(repository.acknowledged, [reference]);
   });
+
+  testWidgets('stale A schedule never resets B and only B renders or ACKs', (
+    tester,
+  ) async {
+    var owner = 'user-a';
+    final repository = _QueueRepository();
+    final store = PendingAdRewardStore(_MemoryStorage());
+    final scheduled = <VoidCallback>[];
+    final container = ProviderContainer(
+      overrides: [
+        adRewardRepositoryProvider.overrideWithValue(repository),
+        pendingAdRewardStoreProvider.overrideWithValue(store),
+        adRewardOwnerReaderProvider.overrideWithValue(() => owner),
+        adRewardDelayProvider.overrideWithValue((_) async {}),
+      ],
+    );
+    addTearDown(container.dispose);
+    final a = reference;
+    const b = AdRewardReference(
+      type: AdRewardReferenceType.internalImpression,
+      id: '00000000-0000-4000-8000-000000000002',
+    );
+    repository.statuses[a] = denied();
+    repository.statuses[b] = denied().copyWith(reference: b);
+    await store.add('user-a', a);
+    await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+    await tester.pumpWidget(scheduledApp(container, scheduled.add));
+    expect(scheduled, hasLength(1));
+
+    owner = 'user-b';
+    await store.add('user-b', b);
+    await container.read(adRewardRecoveryProvider.notifier).recover('user-b');
+    await tester.pump();
+    expect(scheduled, hasLength(2));
+    scheduled.first();
+    await tester.pump();
+    final bState = container.read(adRewardRecoveryProvider);
+    expect(bState.activeUserId, 'user-b');
+    expect(bState.dialogQueue.single.status.reference, b);
+    expect(repository.acknowledged, isEmpty);
+    expect(find.byType(AlertDialog), findsNothing);
+
+    scheduled.last();
+    await tester.pump();
+    await tester.pump();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(repository.acknowledged, [b]);
+  });
+
+  testWidgets('removed terminal body does not ACK and repump ACKs once', (
+    tester,
+  ) async {
+    final scheduled = <VoidCallback>[];
+    var acknowledgements = 0;
+    Widget body() => MaterialApp(
+      localizationsDelegates: const [AppLocalizations.delegate],
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: AdRewardDialogBody(
+        status: denied(),
+        schedulePostFrame: scheduled.add,
+        onFirstFrame: () async => acknowledgements++,
+      ),
+    );
+
+    await tester.pumpWidget(body());
+    expect(scheduled, hasLength(1));
+    await tester.pumpWidget(const SizedBox());
+    scheduled.removeAt(0)();
+    await tester.pump();
+    expect(acknowledgements, 0);
+
+    await tester.pumpWidget(body());
+    expect(scheduled, hasLength(1));
+    scheduled.single();
+    await tester.pump();
+    expect(acknowledgements, 1);
+  });
+
+  testWidgets(
+    'current shortform persists issue then queues before render ACK',
+    (tester) async {
+      const impressionId = '00000000-0000-4000-8000-000000000051';
+      const issuedReference = AdRewardReference(
+        type: AdRewardReferenceType.internalImpression,
+        id: impressionId,
+      );
+      final repository = _QueueRepository();
+      final store = PendingAdRewardStore(_MemoryStorage());
+      final session = InternalShortformRewardSession();
+      final container = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(repository),
+          pendingAdRewardStoreProvider.overrideWithValue(store),
+          adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+        ],
+      );
+      addTearDown(container.dispose);
+      final issue = await InternalShortformIssueFlow(
+        currentOwner: () => 'user-a',
+        invokeIssue: () async => {
+          'impression_id': impressionId,
+          'ad': {'video_url': 'ads/$impressionId.mp4', 'cta_url': null},
+          'tokens': {'view_token': 'view', 'more_token': null},
+        },
+        persist: (owner, value) => session.bindIssued(
+          owner: owner,
+          issuedReference: value,
+          persist: store.add,
+        ),
+        rewriteVideoUrl: (_) => 'https://cdn/$impressionId/master.m3u8',
+      ).issue();
+      expect(issue.videoUrl, isNotEmpty);
+      expect((await store.readAll('user-a')).single.reference, issuedReference);
+      repository.statuses[issuedReference] = denied().copyWith(
+        reference: issuedReference,
+      );
+      late Future<void> pollCompletion;
+      final response = await InternalShortformViewRecoveryFlow(
+        view: InternalShortformViewFlow(
+          session: session,
+          currentOwner: () => 'user-a',
+          invokeCallback: () async => {
+            'ok': true,
+            'reward_added': 0,
+            'impression_id': impressionId,
+            'new_bonus': null,
+            'reward': repository.statuses[issuedReference]!.toJson(),
+          },
+          parse: InternalShortformViewResponse.fromJson,
+        ),
+        poll: (owner, value) => pollCompletion = container
+            .read(adRewardRecoveryProvider.notifier)
+            .poll(ownerUserId: owner, reference: value),
+      ).report();
+      expect(response.reward, isNotNull);
+      await pollCompletion;
+      final queued = container
+          .read(adRewardRecoveryProvider)
+          .dialogQueue
+          .single;
+      expect(queued.status.reference, issuedReference);
+      expect(repository.acknowledged, isEmpty);
+      expect(repository.acknowledged, isEmpty);
+      await container
+          .read(adRewardRecoveryProvider.notifier)
+          .acknowledgeAfterRender(queued);
+      expect(repository.acknowledged, [issuedReference]);
+      expect(await store.readAll('user-a'), isEmpty);
+    },
+  );
+}
+
+class _QueueRepository extends _Repository {
+  final statuses = <AdRewardReference, AdRewardStatusModel>{};
+  @override
+  Future<AdRewardStatusModel> getStatus(AdRewardReference reference) async =>
+      statuses[reference]!;
 }
