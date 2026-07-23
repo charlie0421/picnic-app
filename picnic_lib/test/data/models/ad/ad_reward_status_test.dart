@@ -80,4 +80,41 @@ void main() {
       throwsFormatException,
     );
   });
+
+  test('wrong primitive/container and unknown states are FormatException', () {
+    final valid = fixture('ad_reward_pending_v1.json');
+    final cases = <Map<String, dynamic>>[
+      {...valid, 'reference': 'not-a-map'},
+      {
+        ...valid,
+        'reference': {'type': 'UNKNOWN', 'id': 'id'},
+      },
+      {...valid, 'state': 'UNKNOWN'},
+      {...valid, 'wallet': []},
+      {...valid, 'snapshot_at': 123},
+    ];
+    for (final value in cases) {
+      expect(() => AdRewardStatusModel.fromJson(value), throwsFormatException);
+    }
+  });
+
+  test('shortform wrong primitive/container values are FormatException', () {
+    final valid = <String, dynamic>{
+      'ok': true,
+      'reward_added': 3,
+      'impression_id': '00000000-0000-4000-8000-000000000402',
+      'new_bonus': 9,
+    };
+    for (final value in <Map<String, dynamic>>[
+      {...valid, 'ok': 'true'},
+      {...valid, 'reward_added': '3'},
+      {...valid, 'new_bonus': '9'},
+      {...valid, 'reward': []},
+    ]) {
+      expect(
+        () => InternalShortformViewResponse.fromJson(value),
+        throwsFormatException,
+      );
+    }
+  });
 }
