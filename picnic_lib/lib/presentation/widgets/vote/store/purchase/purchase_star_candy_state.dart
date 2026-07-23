@@ -35,17 +35,7 @@ import 'handlers/purchase_safety_manager.dart';
 import 'handlers/purchase_dialog_handler.dart';
 import 'purchase_helper.dart';
 import 'purchase_processor.dart';
-
-class PurchaseCampaignAttempt {
-  const PurchaseCampaignAttempt({
-    required this.attemptId,
-    required this.productId,
-    required this.displayedCampaign,
-  });
-  final String attemptId;
-  final String productId;
-  final ActivePromotionCampaignModel? displayedCampaign;
-}
+import 'purchase_campaign_attempt.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
@@ -61,14 +51,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   bool _transactionsCleared = false;
   bool _isActivePurchasing = false;
   bool _isInitializing = true;
-  bool _isPurchasing = false;
   final Set<String> _currentlyProcessingIDs = {};
-  final Map<String, PurchaseCampaignAttempt> _purchaseAttemptByProductId = {};
+  final PurchaseCampaignAttemptRegistry _purchaseAttempts =
+      PurchaseCampaignAttemptRegistry();
 
   void _removeAttempt(String productId, String attemptId) {
-    if (_purchaseAttemptByProductId[productId]?.attemptId == attemptId) {
-      _purchaseAttemptByProductId.remove(productId);
-    }
+    _purchaseAttempts.removeIfMatches(productId, attemptId);
   }
 
   @override
@@ -352,7 +340,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 활성 구매 처리
   Future<void> _processActivePurchase(PurchaseDetails purchaseDetails) async {
-    final attempt = _purchaseAttemptByProductId[purchaseDetails.productID];
+    final attempt = _purchaseAttempts[purchaseDetails.productID];
     final isActualPurchase = _safetyManager.isActualPurchase(
       purchaseDetails: purchaseDetails,
       isActivePurchasing: _isActivePurchasing,
@@ -421,14 +409,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           // ✅ UI만 리셋하고 쿨다운은 유지하여 즉시 연속 구매 차단
           _safetyManager.resetUIOnly(reason: '구매 에러/중복 처리 후 UI만 리셋');
           _loadingKey.currentState?.hide();
-          setState(() => _isPurchasing = false);
 
           final action = PurchaseProcessor.classifyError(error);
 
           switch (action) {
             case PurchaseErrorAction.showPendingMessage:
               // 엣지(서버)에서 중복 처리됨 → '스토어 처리 중' 안내만
-              setState(() => _isPurchasing = false);
               if (navigatorKey.currentContext != null) {
                 showSimpleDialog(
                   content: AppLocalizations.of(
@@ -447,7 +433,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
             case PurchaseErrorAction.showCooldownMessage:
               // 쿨다운 위반도 동일하게 안내만, 추가 쿨타임 미적용
-              setState(() => _isPurchasing = false);
               if (navigatorKey.currentContext != null) {
                 showSimpleDialog(
                   content: AppLocalizations.of(
@@ -459,7 +444,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
             case PurchaseErrorAction.duplicateWithCooldown:
               // 문자열 기반 중복 케이스도 동일 처리: 안내만
-              setState(() => _isPurchasing = false);
               // iOS 캐시성 중복 신호 완화용 강제 쿨다운(상품별) 60초
               if (_pendingProductId != null) {
                 _safetyManager.activateDuplicateCooldown(
@@ -491,7 +475,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 에러 및 취소 처리
   Future<void> _processErrorAndCancel(PurchaseDetails purchaseDetails) async {
-    final attempt = _purchaseAttemptByProductId[purchaseDetails.productID];
+    final attempt = _purchaseAttempts[purchaseDetails.productID];
     if (attempt != null) {
       _removeAttempt(purchaseDetails.productID, attempt.attemptId);
     }
@@ -573,7 +557,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     setState(() {
       _isActivePurchasing = false;
       _pendingProductId = null;
-      _isPurchasing = false;
     });
 
     _safetyManager.resetLatePurchaseSuccess();
@@ -615,7 +598,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         .where((campaign) => campaign.showInStore)
         .firstOrNull;
     final productId = serverProduct['id'] as String;
-    if (_purchaseAttemptByProductId.containsKey(productId)) {
+    if (_purchaseAttempts.contains(productId)) {
       await _dialogHandler.showPurchaseAlreadyPendingDialog();
       return;
     }
@@ -631,13 +614,17 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         productId: productId,
         displayedCampaign: displayedCampaign,
       );
-      if (_purchaseAttemptByProductId.putIfAbsent(productId, () => attempt) !=
-          attempt) {
+      if (!_purchaseAttempts.begin(attempt)) {
         await _dialogHandler.showPurchaseAlreadyPendingDialog();
         return;
       }
       try {
-        await _processPurchase(context, serverProduct, storeProducts);
+        await _processPurchase(
+          context,
+          serverProduct,
+          storeProducts,
+          attemptId: attempt.attemptId,
+        );
       } catch (_) {
         _removeAttempt(productId, attempt.attemptId);
         rethrow;
@@ -649,8 +636,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   Future<void> _processPurchase(
     BuildContext context,
     Map<String, dynamic> serverProduct,
-    List<ProductDetails> storeProducts,
-  ) async {
+    List<ProductDetails> storeProducts, {
+    required String attemptId,
+  }) async {
     // 🛡️ 복원 정리 완료 대기 가드
     if (!_restoreHandler.isProactiveCleanupCompleted) {
       logger.w('🛡️ 복원 정리가 아직 완료되지 않음 - 구매 차단');
@@ -690,10 +678,15 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       final purchaseResult = await _purchaseService.initiatePurchase(
         serverProduct['id'],
         onSuccess: () async {
+          if (_purchaseAttempts[serverProduct['id']]?.attemptId != attemptId) {
+            throw StateError('Stale purchase launch callback');
+          }
           logger.i('[PurchaseStarCandyState] Purchase success callback');
-          setState(() => _isPurchasing = false);
         },
         onError: (message) async {
+          if (_purchaseAttempts[serverProduct['id']]?.attemptId != attemptId) {
+            return;
+          }
           logger.e(
             '[PurchaseStarCandyState] Purchase error callback: $message',
           );
@@ -729,8 +722,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 구매 가능 여부 확인 (상품별 쿨타임 적용)
   bool _canPurchase({required String productId}) {
-    if (_isPurchasing) {
-      logger.w('[PurchaseStarCandyState] Purchase already in progress');
+    if (_purchaseAttempts.contains(productId)) {
+      logger.w('[PurchaseStarCandyState] Product purchase already in progress');
       showSimpleDialog(
         content: AppLocalizations.of(context).purchase_in_progress_message,
       );
@@ -753,9 +746,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 구매 시작 상태 설정
   void _setPurchaseStartState(String productId) {
-    setState(() {
-      _isPurchasing = true;
-    });
     // 🛡️ 구매 시도 기록 시 상품 ID도 함께 전달
     _safetyManager.recordPurchaseAttempt(productId: productId);
   }
@@ -938,9 +928,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
   ) {
-    final isButtonEnabled = !_isInitializing && !_isPurchasing;
-    final isCurrentProductLoading =
-        _isPurchasing && _pendingProductId == serverProduct['id'];
+    final productId = serverProduct['id'] as String;
+    final isButtonEnabled =
+        !_isInitializing && !_purchaseAttempts.contains(productId);
+    final isCurrentProductLoading = _purchaseAttempts.contains(productId);
     final campaign = ref
         .watch(activePromotionCampaignProvider(PromotionSurface.store))
         .value
