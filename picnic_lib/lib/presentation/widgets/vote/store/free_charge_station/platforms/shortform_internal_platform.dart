@@ -1,3 +1,5 @@
+import 'dart:async';
+
 // import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -11,6 +13,7 @@ import 'package:video_player/video_player.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_provider.dart';
+import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_fullscreen_page.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_session.dart';
@@ -274,7 +277,7 @@ class ShortformInternalPlatform extends AdPlatform {
     if ((_viewToken ?? '').isEmpty) {
       throw StateError('No issued view token');
     }
-    return InternalShortformViewFlow(
+    final response = await InternalShortformViewFlow(
       session: _rewardSession,
       currentOwner: () => supabase.auth.currentUser?.id,
       invokeCallback: () async => (await supabase.functions.invoke(
@@ -283,6 +286,23 @@ class ShortformInternalPlatform extends AdPlatform {
       )).data,
       parse: ref.read(adRewardRepositoryProvider).parseInternalViewResponse,
     ).report();
+    if (response.reward != null) {
+      final ownerUserId = _rewardSession.ownerUserId!;
+      final reference = _rewardSession.reference!;
+      unawaited(
+        ref
+            .read(adRewardRecoveryProvider.notifier)
+            .poll(ownerUserId: ownerUserId, reference: reference)
+            .catchError((Object error, StackTrace stackTrace) {
+              logError(
+                'Internal reward polling failed',
+                error: error,
+                stackTrace: stackTrace,
+              );
+            }),
+      );
+    }
+    return response;
   }
 
   Future<void> _callMore() async {
