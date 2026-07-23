@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
+import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler.dart';
 
 import '../../../../../../helpers/test_environment.dart';
@@ -13,6 +16,101 @@ import '../../../../../../helpers/test_environment.dart';
 void main() {
   setUpAll(() {
     initTestColors();
+  });
+
+  ActivePromotionCampaignModel campaign() => ActivePromotionCampaignModel(
+    campaignId: 'campaign',
+    campaignVersionId: 'version',
+    code: 'BOOST',
+    displayName: const {'en': 'Boost'},
+    extraBonusBps: 999999,
+    windowStartsAt: DateTime.utc(2026),
+    windowEndsAt: DateTime.utc(2027),
+    showInStore: true,
+    showHomeBanner: false,
+  );
+  PurchaseSettlementResultModel result({
+    PurchasePromotionState? state,
+    String? version = 'version',
+    BigInt? amount,
+  }) => PurchaseSettlementResultModel(
+    contractVersion: 'wallet.v1',
+    operationId: 'operation',
+    replayed: false,
+    baseStarAmount: BigInt.from(100),
+    baseBonusAmount: BigInt.from(20),
+    promotion: state == null
+        ? null
+        : PurchasePromotionResultModel(
+            resolutionId: 'resolution',
+            state: state,
+            campaignVersionId: version,
+            promoBonusAmount: amount ?? BigInt.zero,
+            domainCode: state == PurchasePromotionState.pendingTime
+                ? 'PROMO_REVIEW_REQUIRED'
+                : null,
+          ),
+    wallet: WalletSummaryModel(
+      contractVersion: 'wallet.v1',
+      star: BigInt.zero,
+      bonus: BigInt.zero,
+      cotton: BigInt.zero,
+      cottonExpiringAmount: BigInt.zero,
+      cottonNextExpiresAt: null,
+      snapshotAt: DateTime.utc(2026),
+    ),
+  );
+
+  test('success decision uses server amount only for matching GRANTED', () {
+    final decision = decidePurchaseSuccess(
+      result(state: PurchasePromotionState.granted, amount: BigInt.from(37)),
+      campaign(),
+    );
+    expect(decision.kind, PurchaseSuccessKind.granted);
+    expect(decision.promoBonusAmount, BigInt.from(37));
+  });
+
+  test('pending and eligible use checking presentation', () {
+    for (final state in [
+      PurchasePromotionState.pendingTime,
+      PurchasePromotionState.eligible,
+    ]) {
+      expect(
+        decidePurchaseSuccess(result(state: state), campaign()).kind,
+        PurchaseSuccessKind.checking,
+      );
+    }
+  });
+
+  test('all non-claim cases use generic presentation', () {
+    expect(
+      decidePurchaseSuccess(result(), campaign()).kind,
+      PurchaseSuccessKind.generic,
+    );
+    for (final state in [
+      PurchasePromotionState.ineligible,
+      PurchasePromotionState.rejected,
+      PurchasePromotionState.cancelledByRefund,
+    ]) {
+      expect(
+        decidePurchaseSuccess(result(state: state), campaign()).kind,
+        PurchaseSuccessKind.generic,
+      );
+    }
+    expect(
+      decidePurchaseSuccess(
+        result(state: PurchasePromotionState.granted),
+        null,
+      ).kind,
+      PurchaseSuccessKind.generic,
+    );
+    expect(
+      decidePurchaseSuccess(
+        result(state: PurchasePromotionState.granted, version: 'other'),
+        campaign(),
+      ).kind,
+      PurchaseSuccessKind.generic,
+    );
   });
 
   group('parseProductDescription', () {
@@ -29,8 +127,7 @@ void main() {
     });
 
     test('handles description with multiple + separators', () {
-      final result =
-          parseProductDescription('스타캔디 100개 + 보너스 10개 + 추가 5개');
+      final result = parseProductDescription('스타캔디 100개 + 보너스 10개 + 추가 5개');
       expect(result.mainDescription, '스타캔디 100개');
       expect(result.bonusDescription, '+보너스 10개 + 추가 5개');
     });
@@ -66,8 +163,7 @@ void main() {
     });
 
     test('preserves whitespace trimming', () {
-      final result =
-          parseProductDescription('  스타캔디 100개  +  보너스 10개  ');
+      final result = parseProductDescription('  스타캔디 100개  +  보너스 10개  ');
       expect(result.mainDescription, '스타캔디 100개');
       expect(result.bonusDescription, '+보너스 10개');
     });
@@ -131,7 +227,8 @@ void main() {
         'installerStore': 'com.apple.testflight',
       };
       // isTestFlight will be true
-      final isTestFlight = envInfo['environment'] == 'sandbox' &&
+      final isTestFlight =
+          envInfo['environment'] == 'sandbox' &&
           !(envInfo['isDebugMode'] as bool) &&
           (envInfo['installerStore'] == 'com.apple.testflight' ||
               envInfo['installerStore'] == null);
@@ -145,7 +242,8 @@ void main() {
         'isDebugMode': true,
         'installerStore': null,
       };
-      final isTestFlight = envInfo['environment'] == 'sandbox' &&
+      final isTestFlight =
+          envInfo['environment'] == 'sandbox' &&
           !(envInfo['isDebugMode'] as bool) &&
           (envInfo['installerStore'] == 'com.apple.testflight' ||
               envInfo['installerStore'] == null);
@@ -160,7 +258,8 @@ void main() {
         'isDebugMode': false,
         'installerStore': 'com.apple',
       };
-      final isTestFlight = envInfo['environment'] == 'sandbox' &&
+      final isTestFlight =
+          envInfo['environment'] == 'sandbox' &&
           !(envInfo['isDebugMode'] as bool) &&
           (envInfo['installerStore'] == 'com.apple.testflight' ||
               envInfo['installerStore'] == null);
@@ -173,7 +272,8 @@ void main() {
         'isDebugMode': false,
         'installerStore': null,
       };
-      final isTestFlight = envInfo['environment'] == 'sandbox' &&
+      final isTestFlight =
+          envInfo['environment'] == 'sandbox' &&
           !(envInfo['isDebugMode'] as bool) &&
           (envInfo['installerStore'] == 'com.apple.testflight' ||
               envInfo['installerStore'] == null);
@@ -237,7 +337,8 @@ void main() {
         'isDebugMode': false,
       };
 
-      final debugInfo = '''
+      final debugInfo =
+          '''
 환경: ${envInfo['environment']}
 플랫폼: ${envInfo['platform']}
 설치 스토어: ${envInfo['installerStore'] ?? 'null'}
@@ -258,9 +359,7 @@ void main() {
     });
 
     test('debug info handles null installer store', () {
-      final envInfo = <String, dynamic>{
-        'installerStore': null,
-      };
+      final envInfo = <String, dynamic>{'installerStore': null};
 
       final store = envInfo['installerStore'] ?? 'null';
       expect(store, 'null');

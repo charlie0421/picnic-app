@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/common/banner.dart';
@@ -282,6 +284,44 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.byType(CandyBoostBanner), findsOneWidget);
       expect(find.text('owned ordinary'), findsNothing);
+    });
+
+    testWidgets('HOME campaign loading withholds ordinary content', (
+      tester,
+    ) async {
+      final pending = Completer<ActivePromotionCampaignsModel>();
+      await tester.pumpWidget(
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+            activePromotionCampaignProvider(
+              PromotionSurface.home,
+            ).overrideWith((ref) => pending.future),
+          ],
+        ),
+      );
+      await tester.pump();
+      expect(find.text('단일 배너'), findsNothing);
+    });
+
+    testWidgets('HOME campaign error withholds ordinary content', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+            activePromotionCampaignProvider(
+              PromotionSurface.home,
+            ).overrideWith((ref) => Future.error(StateError('campaign error'))),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('단일 배너'), findsNothing);
     });
   });
 }
