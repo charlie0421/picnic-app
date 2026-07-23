@@ -14,13 +14,17 @@ class PurchaseCampaignAttempt {
 }
 
 class PurchaseExecutionContext {
-  PurchaseExecutionContext({required this.attempt});
+  PurchaseExecutionContext({required this.attempt, required this.launchedAt});
   final PurchaseCampaignAttempt attempt;
+  final DateTime launchedAt;
   bool launched = false;
   String? transactionId;
 }
 
 class PurchaseCampaignAttemptRegistry {
+  PurchaseCampaignAttemptRegistry({DateTime Function()? now})
+    : _now = now ?? DateTime.now;
+  final DateTime Function() _now;
   final Map<String, PurchaseExecutionContext> _byProduct = {};
   final Map<String, String> _attemptByTransaction = {};
   final Set<String> _completedTransactions = {};
@@ -33,7 +37,10 @@ class PurchaseCampaignAttemptRegistry {
       _byProduct
           .putIfAbsent(
             attempt.productId,
-            () => PurchaseExecutionContext(attempt: attempt),
+            () => PurchaseExecutionContext(
+              attempt: attempt,
+              launchedAt: _now().toUtc(),
+            ),
           )
           .attempt ==
       attempt;
@@ -63,10 +70,15 @@ class PurchaseCampaignAttemptRegistry {
   /// identity. Restores are recovery traffic and never consume a live launch.
   PurchaseCampaignAttempt? bind(PurchaseDetails purchase) {
     final transactionId = purchase.purchaseID;
+    final context = _byProduct[purchase.productID];
+    final transactionAt = _transactionAt(purchase);
     if (transactionId == null ||
         transactionId.isEmpty ||
         purchase.status == PurchaseStatus.restored ||
-        _completedTransactions.contains(transactionId)) {
+        _completedTransactions.contains(transactionId) ||
+        context == null ||
+        transactionAt == null ||
+        transactionAt.isBefore(context.launchedAt)) {
       return null;
     }
     final existingAttemptId = _attemptByTransaction[transactionId];
@@ -76,13 +88,37 @@ class PurchaseCampaignAttemptRegistry {
           ? context!.attempt
           : null;
     }
-    final context = _byProduct[purchase.productID];
     if (context == null || !context.launched || context.transactionId != null) {
       return null;
     }
     context.transactionId = transactionId;
     _attemptByTransaction[transactionId] = context.attempt.attemptId;
     return context.attempt;
+  }
+
+  PurchaseCampaignAttempt? currentTerminalWithoutId(PurchaseDetails purchase) {
+    if (purchase.purchaseID != null ||
+        (purchase.status != PurchaseStatus.error &&
+            purchase.status != PurchaseStatus.canceled)) {
+      return null;
+    }
+    final context = _byProduct[purchase.productID];
+    final transactionAt = _transactionAt(purchase);
+    return context != null &&
+            context.launched &&
+            transactionAt != null &&
+            !transactionAt.isBefore(context.launchedAt)
+        ? context.attempt
+        : null;
+  }
+
+  DateTime? _transactionAt(PurchaseDetails purchase) {
+    final raw = purchase.transactionDate;
+    if (raw == null) return null;
+    final milliseconds = int.tryParse(raw);
+    return milliseconds == null
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(milliseconds, isUtc: true);
   }
 
   bool finish(PurchaseDetails purchase, String attemptId) {

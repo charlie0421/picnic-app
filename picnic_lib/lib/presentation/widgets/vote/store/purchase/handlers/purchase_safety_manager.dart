@@ -58,7 +58,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       _safetyTimersByProduct.remove(productId)?.cancel();
       _safetyTimersByProduct[productId] = Timer(_safetyTimeout, () {
         _safetyTimersByProduct.remove(productId);
-        _handleSafetyTimeout();
+        _handleSafetyTimeout(productId);
       });
       logger.i('🛡️ 상품별 안전망 타이머 시작: $productId');
       return;
@@ -71,7 +71,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
     _safetyTimer = Timer(_safetyTimeout, () {
       if (!_safetyTimeoutTriggered) {
-        _handleSafetyTimeout();
+        _handleSafetyTimeout(null);
       }
     });
   }
@@ -100,14 +100,16 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   }
 
   /// 안전망 타임아웃 처리
-  void _handleSafetyTimeout() {
+  void _handleSafetyTimeout(String? productId) {
     _safetyTimeoutTriggered = true;
     _safetyTimeoutTime = DateTime.now();
 
     logger.w('⏰ 안전망 타임아웃 발동! 90초 경과');
 
     _loadingKey.currentState?.hide();
-    _resetPurchaseState();
+    if (productId != null) {
+      _activeProducts.remove(productId);
+    }
 
     onTimeoutUIReset?.call();
   }
@@ -490,6 +492,12 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     logger.i('🔄 UI 상태 리셋(쿨다운 유지): $reason');
   }
 
+  void resetProductState(String productId, {String reason = '상품 상태 리셋'}) {
+    _activeProducts.remove(productId);
+    stopSafetyTimer(productId: productId);
+    logger.i('🔄 상품별 상태 리셋: $productId ($reason)');
+  }
+
   /// 🎯 플랫폼별 구매 판별 - iOS/Android 완전 분리!
   bool isActualPurchase({
     required dynamic purchaseDetails,
@@ -726,13 +734,11 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
     if (wasCancelled) {
       logger.i('[심플] 구매 취소 - 조용히 처리');
-      resetInternalState(reason: '구매 취소'); // 🚨 내부 상태도 리셋!
-      _resetPurchaseState();
+      if (productId != null) resetProductState(productId, reason: '구매 취소');
       _loadingKey.currentState?.hide();
     } else if (!success) {
       logger.e('[심플] 구매 실패: $errorMessage');
-      resetInternalState(reason: '구매 실패'); // 🚨 내부 상태도 리셋!
-      _resetPurchaseState();
+      if (productId != null) resetProductState(productId, reason: '구매 실패');
       _loadingKey.currentState?.hide();
       await showErrorDialog(errorMessage ?? '구매 처리 중 오류가 발생했습니다.');
     } else {
