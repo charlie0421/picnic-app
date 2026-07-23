@@ -80,4 +80,31 @@ void main() {
       expect(page.items, hasLength(2));
     },
   );
+
+  test('getSummary returns an empty wallet while signed out', () async {
+    final client = SupabaseClient(
+      'http://localhost:54321',
+      'test-anon-key',
+      httpClient: MockClient(
+        (request) async => http.Response(
+          jsonEncode({
+            'code': 'P0001',
+            'message': 'WALLET_UNAUTHENTICATED',
+            'details': 'Bad Request',
+            'hint': null,
+          }),
+          400,
+          headers: {'content-type': 'application/json'},
+          request: request,
+        ),
+      ),
+      authOptions: const AuthClientOptions(autoRefreshToken: false),
+    );
+
+    final summary = await WalletRepository(client).getSummary();
+
+    expect(summary.star, BigInt.zero);
+    expect(summary.bonus, BigInt.zero);
+    expect(summary.cotton, BigInt.zero);
+  });
 }

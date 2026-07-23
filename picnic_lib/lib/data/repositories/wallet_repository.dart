@@ -9,8 +9,26 @@ class WalletRepository {
   final SupabaseClient client;
 
   Future<WalletSummaryModel> getSummary() async {
-    final value = await client.rpc('get_wallet_summary');
-    return WalletSummaryModel.fromJson(Map<String, dynamic>.from(value as Map));
+    try {
+      final value = await client.rpc('get_wallet_summary');
+      return WalletSummaryModel.fromJson(
+        Map<String, dynamic>.from(value as Map),
+      );
+    } on PostgrestException catch (error) {
+      if (error.code != 'P0001' || error.message != 'WALLET_UNAUTHENTICATED') {
+        rethrow;
+      }
+
+      return WalletSummaryModel(
+        contractVersion: 'wallet.v1',
+        star: BigInt.zero,
+        bonus: BigInt.zero,
+        cotton: BigInt.zero,
+        cottonExpiringAmount: BigInt.zero,
+        cottonNextExpiresAt: null,
+        snapshotAt: DateTime.now().toUtc(),
+      );
+    }
   }
 
   Future<CurrencyHistoryPageModel> getHistory({
