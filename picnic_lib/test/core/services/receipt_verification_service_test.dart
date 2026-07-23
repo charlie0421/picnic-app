@@ -6,13 +6,37 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/mock_supabase.dart';
 
+Map<String, dynamic> _purchaseResult() => {
+      'contract_version': 'wallet.v1',
+      'operation_id': '00000000-0000-4000-8000-000000000001',
+      'replayed': false,
+      'base_star_amount': '100',
+      'base_bonus_amount': '20',
+      'promotion': {
+        'resolution_id': '00000000-0000-4000-8000-000000000002',
+        'state': 'INELIGIBLE',
+        'campaign_version_id': null,
+        'promo_bonus_amount': '0',
+        'domain_code': null,
+      },
+      'wallet': {
+        'contract_version': 'wallet.v1',
+        'star': '100',
+        'bonus': '20',
+        'cotton': '5',
+        'cotton_expiring_amount': '5',
+        'cotton_next_expires_at': null,
+        'snapshot_at': '2026-07-21T00:00:00.000Z',
+      },
+    };
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     setupMockSupabase({
-      'functions:verify_receipt': {'success': true},
+      'functions:verify_receipt': _purchaseResult(),
     }, userId: 'test-user-id');
   });
 
@@ -914,11 +938,7 @@ void main() {
         tearDownMockSupabase();
         SharedPreferences.setMockInitialValues({});
         setupMockSupabase({
-          'functions:verify_receipt': {
-            'success': true,
-            'coins_added': 100,
-            'balance': 500,
-          },
+          'functions:verify_receipt': _purchaseResult(),
         }, userId: 'test-user');
 
         await service.verifyReceipt(

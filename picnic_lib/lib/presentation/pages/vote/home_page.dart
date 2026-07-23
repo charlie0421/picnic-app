@@ -9,6 +9,8 @@ import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/latest_media_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/ui/app_save_loading_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_carousel.dart';
 import 'package:picnic_lib/presentation/widgets/vote/latest_media_section.dart';
@@ -51,7 +53,9 @@ class _HomePageState extends ConsumerState<HomePage>
   void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
             showPortal: true,
             showTopMenu: false, // 흰색 스트립(별사탕/area/타이틀) 제거
             showBottomNavigation: true,
@@ -69,31 +73,34 @@ class _HomePageState extends ConsumerState<HomePage>
         color: AppColors.primary500,
         backgroundColor: Colors.white,
         onRefresh: () async {
-        ref.invalidate(asyncBannerListProvider(location: 'vote_home'));
-        ref.invalidate(asyncRewardListProvider);
-        ref.invalidate(asyncLatestMediaProvider);
-        ref.invalidate(asyncActiveFeaturedVotesProvider);
-        setState(() => _bannerKey = UniqueKey());
-      },
-      child: ListView(
-        children: [
-          CommonBanner('vote_home', 786 / 400, key: _bannerKey),
-          const SizedBox(height: 20),
-          Padding(
-            padding: EdgeInsets.only(left: 16.w, bottom: 10),
-            child: Text(
-              AppLocalizations.of(context).label_home_current_vote,
-              style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+          ref.invalidate(asyncBannerListProvider(location: 'vote_home'));
+          ref.invalidate(
+            activePromotionCampaignProvider(PromotionSurface.home),
+          );
+          ref.invalidate(asyncRewardListProvider);
+          ref.invalidate(asyncLatestMediaProvider);
+          ref.invalidate(asyncActiveFeaturedVotesProvider);
+          setState(() => _bannerKey = UniqueKey());
+        },
+        child: ListView(
+          children: [
+            CommonBanner('vote_home', 786 / 400, key: _bannerKey),
+            const SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.only(left: 16.w, bottom: 10),
+              child: Text(
+                AppLocalizations.of(context).label_home_current_vote,
+                style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+              ),
             ),
-          ),
-          const HomeFeaturedVoteCarousel(),
-          const SizedBox(height: 28),
-          const RewardListSection(),
-          const SizedBox(height: 28),
-          const LatestMediaSection(),
-          // 하단 플로팅 탭바에 마지막 섹션이 가리지 않도록 여백 확보
-          const SizedBox(height: 96),
-        ],
+            const HomeFeaturedVoteCarousel(),
+            const SizedBox(height: 28),
+            const RewardListSection(),
+            const SizedBox(height: 28),
+            const LatestMediaSection(),
+            // 하단 플로팅 탭바에 마지막 섹션이 가리지 않도록 여백 확보
+            const SizedBox(height: 96),
+          ],
         ),
       ),
     );
