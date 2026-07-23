@@ -12,3 +12,18 @@ Future<void> waitForNonCriticalStartup(
     },
   );
 }
+
+Future<T> waitForStartupValue<T>(
+  Future<T> work, {
+  required Duration timeout,
+  required T fallback,
+  required void Function() onTimeout,
+}) async {
+  return work.timeout(
+    timeout,
+    onTimeout: () {
+      onTimeout();
+      return fallback;
+    },
+  );
+}

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
 
 void main() {
@@ -32,6 +33,15 @@ void main() {
         final stream = service.onlineStream;
         expect(stream, isA<Stream<bool>>());
       });
+    });
+
+    test('연결 결과가 비어 있으면 오프라인으로 판단한다', () {
+      expect(
+        NetworkConnectivityService.hasNoConnectivity(
+          const <ConnectivityResult>[],
+        ),
+        isTrue,
+      );
     });
   });
 }

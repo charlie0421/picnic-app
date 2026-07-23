@@ -17,6 +17,7 @@ import 'package:picnic_lib/core/utils/deep_link_handler.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
+import 'package:picnic_lib/core/utils/startup_future_guard.dart';
 import 'package:picnic_lib/core/utils/system_ui_initializer.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
 import 'package:picnic_lib/core/services/app_badge_service.dart';
@@ -503,7 +504,14 @@ class AppInitializer {
 
   static Future<void> _initializeMobileApp(WidgetRef ref) async {
     final networkService = NetworkConnectivityService();
-    final hasNetwork = await networkService.checkOnlineStatus();
+    final hasNetwork = await waitForStartupValue<bool>(
+      networkService.checkOnlineStatus(),
+      timeout: const Duration(seconds: 5),
+      fallback: false,
+      onTimeout: () {
+        logger.w('네트워크 상태 확인 시간 초과 - 오프라인으로 시작합니다.');
+      },
+    );
     logger.i('네트워크 상태 확인: $hasNetwork');
 
     ref
@@ -514,8 +522,25 @@ class AppInitializer {
       try {
         // 업데이트 체크와 밴 체크를 병렬로 실행
         final results = await Future.wait([
-          checkForUpdates(ref),
-          if (!kDebugMode) _checkBanStatus(ref) else Future.value(false),
+          waitForStartupValue(
+            checkForUpdates(ref),
+            timeout: const Duration(seconds: 8),
+            fallback: null,
+            onTimeout: () {
+              logger.w('업데이트 확인 시간 초과 - 앱 시작을 계속합니다.');
+            },
+          ),
+          if (!kDebugMode)
+            waitForStartupValue<bool>(
+              _checkBanStatus(ref),
+              timeout: const Duration(seconds: 8),
+              fallback: false,
+              onTimeout: () {
+                logger.w('기기 차단 확인 시간 초과 - 앱 시작을 계속합니다.');
+              },
+            )
+          else
+            Future.value(false),
         ]);
 
         final updateInfo = results[0] as dynamic;

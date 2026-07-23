@@ -31,4 +31,26 @@ void main() {
       expect(timedOut, isFalse);
     },
   );
+
+  test('시간 안에 끝나지 않는 시작 작업은 fallback 값으로 계속 진행한다', () async {
+    final result = await waitForStartupValue<bool>(
+      Completer<bool>().future,
+      timeout: const Duration(milliseconds: 10),
+      fallback: false,
+      onTimeout: () {},
+    );
+
+    expect(result, isFalse);
+  });
+
+  test('시간 안에 끝난 시작 작업은 실제 결과를 반환한다', () async {
+    final result = await waitForStartupValue<bool>(
+      Future.value(true),
+      timeout: const Duration(seconds: 1),
+      fallback: false,
+      onTimeout: () {},
+    );
+
+    expect(result, isTrue);
+  });
 }
