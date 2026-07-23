@@ -29,11 +29,23 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_t
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:uuid/uuid.dart';
 import 'handlers/restore_purchase_handler.dart';
 import 'handlers/purchase_safety_manager.dart';
 import 'handlers/purchase_dialog_handler.dart';
 import 'purchase_helper.dart';
 import 'purchase_processor.dart';
+
+class PurchaseCampaignAttempt {
+  const PurchaseCampaignAttempt({
+    required this.attemptId,
+    required this.productId,
+    required this.displayedCampaign,
+  });
+  final String attemptId;
+  final String productId;
+  final ActivePromotionCampaignModel? displayedCampaign;
+}
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
@@ -51,7 +63,13 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   bool _isInitializing = true;
   bool _isPurchasing = false;
   final Set<String> _currentlyProcessingIDs = {};
-  final Map<String, ActivePromotionCampaignModel?> _campaignByProduct = {};
+  final Map<String, PurchaseCampaignAttempt> _purchaseAttemptByProductId = {};
+
+  void _removeAttempt(String productId, String attemptId) {
+    if (_purchaseAttemptByProductId[productId]?.attemptId == attemptId) {
+      _purchaseAttemptByProductId.remove(productId);
+    }
+  }
 
   @override
   void initState() {
@@ -334,6 +352,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 활성 구매 처리
   Future<void> _processActivePurchase(PurchaseDetails purchaseDetails) async {
+    final attempt = _purchaseAttemptByProductId[purchaseDetails.productID];
     final isActualPurchase = _safetyManager.isActualPurchase(
       purchaseDetails: purchaseDetails,
       isActivePurchasing: _isActivePurchasing,
@@ -349,6 +368,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     await _purchaseService.handleOptimizedPurchase(
       purchaseDetails,
       (result) async {
+        if (isActualPurchase && attempt == null) {
+          throw StateError(
+            'Actual purchase callback has no matching campaign attempt',
+          );
+        }
         logger.i('[PurchaseStarCandyState] Purchase successful');
 
         // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
@@ -379,15 +403,17 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           if (isLatePurchase) {
             await _dialogHandler.showLatePurchaseSuccessDialog(
               result: result,
-              displayedCampaign: _campaignByProduct[purchaseDetails.productID],
+              displayedCampaign: attempt?.displayedCampaign,
             );
           } else {
             await _dialogHandler.showSuccessDialog(
               result: result,
-              displayedCampaign: _campaignByProduct[purchaseDetails.productID],
+              displayedCampaign: attempt?.displayedCampaign,
             );
           }
-          _campaignByProduct.remove(purchaseDetails.productID);
+          if (attempt != null) {
+            _removeAttempt(purchaseDetails.productID, attempt.attemptId);
+          }
         }
       },
       (error) async {
@@ -448,7 +474,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
               final errorType = PurchaseProcessor.mapErrorToType(error);
               if (errorType != PurchaseErrorType.timeout &&
                   errorType != PurchaseErrorType.networkError) {
-                _campaignByProduct.remove(purchaseDetails.productID);
+                if (attempt != null) {
+                  _removeAttempt(purchaseDetails.productID, attempt.attemptId);
+                }
               }
               final l10n = AppLocalizations.of(navigatorKey.currentContext!);
               final msg = _resolveErrorMessage(errorType, l10n);
@@ -463,7 +491,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 에러 및 취소 처리
   Future<void> _processErrorAndCancel(PurchaseDetails purchaseDetails) async {
-    _campaignByProduct.remove(purchaseDetails.productID);
+    final attempt = _purchaseAttemptByProductId[purchaseDetails.productID];
+    if (attempt != null) {
+      _removeAttempt(purchaseDetails.productID, attempt.attemptId);
+    }
     if (purchaseDetails.status == PurchaseStatus.error) {
       logger.e(
         '[PurchaseStarCandyState] Purchase error: ${purchaseDetails.error?.message}',
@@ -584,7 +615,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         .where((campaign) => campaign.showInStore)
         .firstOrNull;
     final productId = serverProduct['id'] as String;
-    if (_campaignByProduct.containsKey(productId)) {
+    if (_purchaseAttemptByProductId.containsKey(productId)) {
       await _dialogHandler.showPurchaseAlreadyPendingDialog();
       return;
     }
@@ -595,11 +626,20 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     );
 
     if (confirmed == true && context.mounted) {
-      _campaignByProduct[productId] = displayedCampaign;
+      final attempt = PurchaseCampaignAttempt(
+        attemptId: const Uuid().v4(),
+        productId: productId,
+        displayedCampaign: displayedCampaign,
+      );
+      if (_purchaseAttemptByProductId.putIfAbsent(productId, () => attempt) !=
+          attempt) {
+        await _dialogHandler.showPurchaseAlreadyPendingDialog();
+        return;
+      }
       try {
         await _processPurchase(context, serverProduct, storeProducts);
       } catch (_) {
-        _campaignByProduct.remove(productId);
+        _removeAttempt(productId, attempt.attemptId);
         rethrow;
       }
     }

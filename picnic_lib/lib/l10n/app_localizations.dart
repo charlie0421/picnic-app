@@ -3587,6 +3587,24 @@ abstract class AppLocalizations {
   /// **'Base reward + extra bonus'**
   String get candy_boost_extra_bonus;
 
+  /// No description provided for @candy_boost_promotion_checking.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotion review in progress'**
+  String get candy_boost_promotion_checking;
+
+  /// No description provided for @candy_boost_purchase_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'A purchase for this product is already being processed.'**
+  String get candy_boost_purchase_pending;
+
+  /// No description provided for @candy_boost_late_purchase_explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication took longer than expected, but the purchase completed successfully.'**
+  String get candy_boost_late_purchase_explanation;
+
   /// No description provided for @ad_reward_pending.
   ///
   /// In en, this message translates to:

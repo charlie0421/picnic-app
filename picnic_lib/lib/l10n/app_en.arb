@@ -2394,6 +2394,9 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "Base reward + 100% extra bonus",
   "candy_boost_extra_bonus": "Base reward + extra bonus",
+  "candy_boost_promotion_checking": "Promotion review in progress",
+  "candy_boost_purchase_pending": "A purchase for this product is already being processed.",
+  "candy_boost_late_purchase_explanation": "Authentication took longer than expected, but the purchase completed successfully.",
   "ad_reward_pending": "Checking your reward",
   "ad_reward_granted": "Cotton Candy received",
   "ad_reward_not_granted": "The reward was not granted"
