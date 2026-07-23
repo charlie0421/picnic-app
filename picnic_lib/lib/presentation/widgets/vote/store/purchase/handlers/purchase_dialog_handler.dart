@@ -13,6 +13,35 @@ import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 
+enum PurchaseSuccessKind { generic, checking, granted }
+
+typedef PurchaseSuccessDecision = ({
+  PurchaseSuccessKind kind,
+  BigInt? promoBonusAmount,
+});
+
+PurchaseSuccessDecision decidePurchaseSuccess(
+  PurchaseSettlementResultModel result,
+  ActivePromotionCampaignModel? displayedCampaign,
+) {
+  final promotion = result.promotion;
+  if (promotion == null || displayedCampaign == null) {
+    return (kind: PurchaseSuccessKind.generic, promoBonusAmount: null);
+  }
+  if (promotion.state == PurchasePromotionState.pendingTime ||
+      promotion.state == PurchasePromotionState.eligible) {
+    return (kind: PurchaseSuccessKind.checking, promoBonusAmount: null);
+  }
+  if (promotion.state == PurchasePromotionState.granted &&
+      promotion.campaignVersionId == displayedCampaign.campaignVersionId) {
+    return (
+      kind: PurchaseSuccessKind.granted,
+      promoBonusAmount: promotion.promoBonusAmount,
+    );
+  }
+  return (kind: PurchaseSuccessKind.generic, promoBonusAmount: null);
+}
+
 /// Pure logic: parse a product description into main and bonus parts.
 /// Returns a record with mainDescription and optional bonusDescription.
 @visibleForTesting
@@ -364,19 +393,17 @@ class PurchaseDialogHandler {
     ActivePromotionCampaignModel? displayedCampaign,
   ) {
     final base = AppLocalizations.of(context).dialog_message_purchase_success;
-    final promotion = result.promotion;
-    if (promotion == null || displayedCampaign == null) return base;
-    if (promotion.state == PurchasePromotionState.pendingTime ||
-        promotion.state == PurchasePromotionState.eligible) {
+    final decision = decidePurchaseSuccess(result, displayedCampaign);
+    if (decision.kind == PurchaseSuccessKind.checking) {
       return '$base\n'
           '${AppLocalizations.of(context).candy_boost_promotion_checking}';
     }
-    if (promotion.state != PurchasePromotionState.granted ||
-        promotion.campaignVersionId != displayedCampaign.campaignVersionId) {
+    if (decision.kind != PurchaseSuccessKind.granted) {
       return base;
     }
     final locale = Localizations.localeOf(context).languageCode;
-    return '$base\n${displayedCampaign.localizedDisplayName(locale)} +${formatWalletAmount(promotion.promoBonusAmount)}';
+    return '$base\n${displayedCampaign!.localizedDisplayName(locale)} '
+        '+${formatWalletAmount(decision.promoBonusAmount!)}';
   }
 
   Future<void> showPurchaseAlreadyPendingDialog() async {
