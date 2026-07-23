@@ -22,6 +22,6 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
 
   @override
   Widget build(BuildContext context) {
-    return const WalletSummaryPanel(compact: true);
+    return WalletSummaryPanel(compact: true, alignment: widget.alignment);
   }
 }
