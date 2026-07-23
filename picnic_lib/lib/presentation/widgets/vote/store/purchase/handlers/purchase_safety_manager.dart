@@ -28,6 +28,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   bool _safetyTimeoutTriggered = false;
   DateTime? _safetyTimeoutTime;
   VoidCallback? onTimeoutUIReset;
+  void Function(String productId, String? attemptId)? onProductTimeout;
 
   // 🎯 3-State 심플 솔루션 - 이것만으로 모든 문제 해결!
   bool _isPurchaseInProgress = false; // 현재 구매 진행 중?
@@ -53,12 +54,13 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
        _resetPurchaseState = resetPurchaseState;
 
   /// 안전망 타이머 시작
-  void startSafetyTimer({String? productId}) {
+  void startSafetyTimer({String? productId, String? attemptId}) {
     if (productId != null) {
       _safetyTimersByProduct.remove(productId)?.cancel();
       _safetyTimersByProduct[productId] = Timer(_safetyTimeout, () {
         _safetyTimersByProduct.remove(productId);
         _handleSafetyTimeout(productId);
+        onProductTimeout?.call(productId, attemptId);
       });
       logger.i('🛡️ 상품별 안전망 타이머 시작: $productId');
       return;
@@ -729,6 +731,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     bool isActivePurchasing,
     Function(String) showErrorDialog, {
     String? productId,
+    String? attemptId,
   }) async {
     final success = purchaseResult['success'] as bool;
     final wasCancelled = purchaseResult['wasCancelled'] as bool;
@@ -755,7 +758,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       await showErrorDialog(errorMessage ?? '구매 처리 중 오류가 발생했습니다.');
     } else {
       logger.i('[심플] 구매 시작 성공');
-      startSafetyTimer(productId: productId);
+      startSafetyTimer(productId: productId, attemptId: attemptId);
     }
   }
 

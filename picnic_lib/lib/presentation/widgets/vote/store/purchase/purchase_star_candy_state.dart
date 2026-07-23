@@ -86,7 +86,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
     _safetyManager = PurchaseSafetyManager(
       loadingKey: _loadingKey,
-      resetPurchaseState: _resetPurchaseState,
+      resetPurchaseState: _resetAllPurchaseState,
     );
 
     _dialogHandler = PurchaseDialogHandler(
@@ -105,6 +105,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         final l10n = AppLocalizations.of(context);
         showSimpleDialog(content: l10n.purchase_timeout_message);
       }
+    };
+    _safetyManager.onProductTimeout = (productId, attemptId) {
+      if (attemptId != null) {
+        _purchaseAttempts.removeIfMatches(productId, attemptId);
+      }
+      if (mounted) setState(() {});
     };
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -204,7 +210,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         error: e,
         stackTrace: s,
       );
-      _resetPurchaseState();
       _loadingKey.currentState?.hide();
       if (navigatorKey.currentContext != null) {
         await _dialogHandler.showErrorDialog(
@@ -389,7 +394,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
         ref.read(walletSummaryProvider.notifier).setSummary(result.wallet);
         if (mounted) {
-          _resetPurchaseState();
+          _resetProductPurchaseState(purchaseDetails.productID);
           _loadingKey.currentState?.hide();
 
           await _settlementPresentation.present(
@@ -493,7 +498,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
       if (mounted) {
         // ✅ 일반 오류: 상품별 쿨타임 적용하지 않음 (초기화는 굳이 강제하지 않음)
-        _resetPurchaseState();
+        _resetProductPurchaseState(purchaseDetails.productID);
         _loadingKey.currentState?.hide();
 
         if (!isCanceled) {
@@ -555,13 +560,22 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
   }
 
-  void _resetPurchaseState() {
+  void _resetProductPurchaseState(
+    String productId, {
+    String? attemptId,
+    bool terminal = false,
+  }) {
+    _safetyManager.resetProductState(productId);
+    if (terminal && attemptId != null) {
+      _purchaseAttempts.removeIfMatches(productId, attemptId);
+    }
+    if (mounted) setState(() {});
+  }
+
+  void _resetAllPurchaseState() {
     _safetyManager.disposeSafetyTimer();
-    _safetyManager.resetInternalState(reason: '전체 상태 리셋'); // 🚨 내부 상태도 완전 리셋!
-
-    setState(() {});
-
-    _safetyManager.resetLatePurchaseSuccess();
+    _safetyManager.resetInternalState(reason: '명시적 전체 세션 리셋');
+    if (mounted) setState(() {});
   }
 
   Future<void> _handleBuyButtonPressed(
@@ -694,8 +708,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           logger.e(
             '[PurchaseStarCandyState] Purchase error callback: $message',
           );
-          _removeAttempt(serverProduct['id'] as String, attemptId);
-          _resetPurchaseState();
+          _resetProductPurchaseState(
+            serverProduct['id'] as String,
+            attemptId: attemptId,
+            terminal: true,
+          );
           if (mounted) {
             _loadingKey.currentState?.hide();
             await _dialogHandler.showErrorDialog(message);
@@ -714,8 +731,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         error: e,
         stackTrace: s,
       );
-      _resetPurchaseState();
-      _removeAttempt(serverProduct['id'] as String, attemptId);
+      _resetProductPurchaseState(
+        serverProduct['id'] as String,
+        attemptId: attemptId,
+        terminal: true,
+      );
       if (mounted) {
         _loadingKey.currentState?.hide();
         if (navigatorKey.currentContext != null) {
@@ -768,7 +788,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   }) async {
     if (purchaseResult['wasCancelled'] == true) {
       if (mounted) {
-        _resetPurchaseState();
+        _resetProductPurchaseState(productId);
         _loadingKey.currentState?.hide();
         // 사용자가 직접 취소한 경우 팝업 표시
         showSimpleDialog(
@@ -790,6 +810,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         }
       },
       productId: productId,
+      attemptId: attemptId,
     );
   }
 
