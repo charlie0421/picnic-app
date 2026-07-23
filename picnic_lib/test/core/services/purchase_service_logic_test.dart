@@ -2,6 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
+import 'package:picnic_lib/core/services/purchase_service.dart';
+import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 
 /// Tests for PurchaseConstants, PurchaseError, PurchaseResult, PurchaseEnvironment,
 /// ReceiptFormat, PurchaseStatusExtension, and ReusedPurchaseException.
@@ -9,30 +12,74 @@ import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 /// The PurchaseService class itself cannot be instantiated in unit tests
 /// because it depends on InAppPurchaseService (native plugin).
 void main() {
+  test('verified result delivery preserves object identity', () async {
+    final result = PurchaseSettlementResultModel(
+      contractVersion: 'wallet.v1',
+      operationId: 'operation',
+      replayed: false,
+      baseStarAmount: BigInt.one,
+      baseBonusAmount: BigInt.zero,
+      promotion: null,
+      wallet: WalletSummaryModel(
+        contractVersion: 'wallet.v1',
+        star: BigInt.one,
+        bonus: BigInt.zero,
+        cotton: BigInt.zero,
+        cottonExpiringAmount: BigInt.zero,
+        cottonNextExpiresAt: null,
+        snapshotAt: DateTime.utc(2026),
+      ),
+    );
+    PurchaseSettlementResultModel? received;
+    await deliverVerifiedPurchaseResult(result, (value) async {
+      received = value;
+    });
+    expect(identical(received, result), isTrue);
+  });
+
   group('PurchaseConstants', () {
     test('timeout constants have expected values', () {
       expect(PurchaseConstants.purchaseTimeout, const Duration(seconds: 30));
-      expect(PurchaseConstants.debugPurchaseTimeout, const Duration(seconds: 3));
       expect(
-          PurchaseConstants.ultraFastTimeout, const Duration(milliseconds: 500));
-      expect(PurchaseConstants.instantTimeout, const Duration(milliseconds: 100));
+        PurchaseConstants.debugPurchaseTimeout,
+        const Duration(seconds: 3),
+      );
       expect(
-          PurchaseConstants.verificationTimeout, const Duration(seconds: 30));
-      expect(PurchaseConstants.sandboxVerificationTimeout,
-          const Duration(seconds: 60));
+        PurchaseConstants.ultraFastTimeout,
+        const Duration(milliseconds: 500),
+      );
+      expect(
+        PurchaseConstants.instantTimeout,
+        const Duration(milliseconds: 100),
+      );
+      expect(
+        PurchaseConstants.verificationTimeout,
+        const Duration(seconds: 30),
+      );
+      expect(
+        PurchaseConstants.sandboxVerificationTimeout,
+        const Duration(seconds: 60),
+      );
     });
 
     test('guard constants', () {
-      expect(PurchaseConstants.authenticationGracePeriod,
-          const Duration(milliseconds: 300));
-      expect(PurchaseConstants.backgroundPurchaseWindow,
-          const Duration(milliseconds: 300));
-      expect(PurchaseConstants.purchaseBlockingPeriod,
-          const Duration(milliseconds: 300));
       expect(
-          PurchaseConstants.cooldownPeriod, const Duration(milliseconds: 300));
+        PurchaseConstants.authenticationGracePeriod,
+        const Duration(milliseconds: 300),
+      );
       expect(
-          PurchaseConstants.initializationDelay, const Duration(seconds: 2));
+        PurchaseConstants.backgroundPurchaseWindow,
+        const Duration(milliseconds: 300),
+      );
+      expect(
+        PurchaseConstants.purchaseBlockingPeriod,
+        const Duration(milliseconds: 300),
+      );
+      expect(
+        PurchaseConstants.cooldownPeriod,
+        const Duration(milliseconds: 300),
+      );
+      expect(PurchaseConstants.initializationDelay, const Duration(seconds: 2));
       expect(PurchaseConstants.cacheRefreshDelay, const Duration(seconds: 1));
     });
 
@@ -43,17 +90,27 @@ void main() {
     });
 
     test('error message keys', () {
-      expect(PurchaseConstants.userNotAuthenticatedErrorKey,
-          'error_user_not_authenticated');
       expect(
-          PurchaseConstants.productNotFoundErrorKey, 'error_product_not_found');
-      expect(PurchaseConstants.receiptVerificationErrorKey,
-          'error_receipt_verification_failed');
-      expect(PurchaseConstants.duplicatePurchaseErrorKey,
-          'error_duplicate_purchase');
+        PurchaseConstants.userNotAuthenticatedErrorKey,
+        'error_user_not_authenticated',
+      );
+      expect(
+        PurchaseConstants.productNotFoundErrorKey,
+        'error_product_not_found',
+      );
+      expect(
+        PurchaseConstants.receiptVerificationErrorKey,
+        'error_receipt_verification_failed',
+      );
+      expect(
+        PurchaseConstants.duplicatePurchaseErrorKey,
+        'error_duplicate_purchase',
+      );
       expect(PurchaseConstants.initializingErrorKey, 'error_initializing');
-      expect(PurchaseConstants.purchaseInProgressErrorKey,
-          'error_purchase_in_progress');
+      expect(
+        PurchaseConstants.purchaseInProgressErrorKey,
+        'error_purchase_in_progress',
+      );
     });
 
     test('error codes', () {
@@ -72,12 +129,15 @@ void main() {
     });
 
     test('SharedPreferences keys', () {
-      expect(PurchaseConstants.testDialogShownKey,
-          'test_environment_dialog_shown');
       expect(
-          PurchaseConstants.lastPurchaseAttemptKey, 'last_purchase_attempt_');
+        PurchaseConstants.testDialogShownKey,
+        'test_environment_dialog_shown',
+      );
       expect(
-          PurchaseConstants.authenticationStartKey, 'authentication_start_');
+        PurchaseConstants.lastPurchaseAttemptKey,
+        'last_purchase_attempt_',
+      );
+      expect(PurchaseConstants.authenticationStartKey, 'authentication_start_');
       expect(PurchaseConstants.backgroundPurchaseKey, 'background_purchase_');
     });
   });
@@ -135,34 +195,47 @@ void main() {
     });
 
     test('toString with details', () {
-      const error =
-          PurchaseError(code: 'ERR', message: 'msg', details: 'detail');
+      const error = PurchaseError(
+        code: 'ERR',
+        message: 'msg',
+        details: 'detail',
+      );
       expect(error.toString(), 'ERR: msg (detail)');
     });
 
     test('static userNotAuthenticated', () {
       expect(PurchaseError.userNotAuthenticated.code, 'USER_NOT_AUTHENTICATED');
-      expect(PurchaseError.userNotAuthenticated.message,
-          PurchaseConstants.userNotAuthenticatedErrorKey);
+      expect(
+        PurchaseError.userNotAuthenticated.message,
+        PurchaseConstants.userNotAuthenticatedErrorKey,
+      );
     });
 
     test('static productNotFound', () {
       expect(PurchaseError.productNotFound.code, 'PRODUCT_NOT_FOUND');
-      expect(PurchaseError.productNotFound.message,
-          PurchaseConstants.productNotFoundErrorKey);
+      expect(
+        PurchaseError.productNotFound.message,
+        PurchaseConstants.productNotFoundErrorKey,
+      );
     });
 
     test('static receiptVerification', () {
       expect(
-          PurchaseError.receiptVerification.code, 'RECEIPT_VERIFICATION_FAILED');
-      expect(PurchaseError.receiptVerification.message,
-          PurchaseConstants.receiptVerificationErrorKey);
+        PurchaseError.receiptVerification.code,
+        'RECEIPT_VERIFICATION_FAILED',
+      );
+      expect(
+        PurchaseError.receiptVerification.message,
+        PurchaseConstants.receiptVerificationErrorKey,
+      );
     });
 
     test('static duplicatePurchase', () {
       expect(PurchaseError.duplicatePurchase.code, 'DUPLICATE_PURCHASE');
-      expect(PurchaseError.duplicatePurchase.message,
-          PurchaseConstants.duplicatePurchaseErrorKey);
+      expect(
+        PurchaseError.duplicatePurchase.message,
+        PurchaseConstants.duplicatePurchaseErrorKey,
+      );
     });
   });
 
@@ -219,8 +292,11 @@ void main() {
       for (final status in PurchaseStatus.values) {
         final states = [status.isCompleted, status.isFailed, status.isPending];
         final trueCount = states.where((s) => s).length;
-        expect(trueCount, 1,
-            reason: '$status should have exactly one true state');
+        expect(
+          trueCount,
+          1,
+          reason: '$status should have exactly one true state',
+        );
       }
     });
   });
@@ -242,10 +318,11 @@ void main() {
     });
 
     test('toString format', () {
-      final exception =
-          ReusedPurchaseException(message: 'Already processed');
+      final exception = ReusedPurchaseException(message: 'Already processed');
       expect(
-          exception.toString(), 'ReusedPurchaseException: Already processed');
+        exception.toString(),
+        'ReusedPurchaseException: Already processed',
+      );
     });
 
     test('implements Exception', () {

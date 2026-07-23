@@ -22,6 +22,11 @@ import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart'
 typedef PurchaseSuccess =
     Future<void> Function(PurchaseSettlementResultModel result);
 
+Future<void> deliverVerifiedPurchaseResult(
+  PurchaseSettlementResultModel result,
+  PurchaseSuccess onSuccess,
+) => onSuccess(result);
+
 class PurchaseService {
   PurchaseService({
     required this.ref,
@@ -384,7 +389,7 @@ class PurchaseService {
         );
       }
 
-      await onSuccess(result);
+      await deliverVerifiedPurchaseResult(result, onSuccess);
       logger.i('✅ 실제 구매 검증 완료 ($platform)');
     } on ReusedPurchaseException catch (e) {
       logger.w('🔄 JWT 재사용 감지 ($platform) - StoreKit 캐시 문제: ${e.message}');
