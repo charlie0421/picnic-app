@@ -51,13 +51,14 @@ class SupabaseEnvironmentPolicy {
         'ios_rewarded_video_id',
         'android_rewarded_video_id',
       };
-      if (pangleRuntimeConfig == null ||
-          pangleKeys.any(
-            (key) => (pangleRuntimeConfig[key] ?? '').trim().isEmpty,
-          )) {
+      final configuredPangleItems = pangleKeys
+          .where((key) => (pangleRuntimeConfig?[key] ?? '').trim().isNotEmpty)
+          .length;
+      if (configuredPangleItems != 0 &&
+          configuredPangleItems != pangleKeys.length) {
         return const SupabaseEnvironmentPolicyResult(
           false,
-          'missing Pangle sandbox tuple',
+          'partial Pangle sandbox tuple',
         );
       }
       if ((paymentProductNamespace ?? '').trim().isEmpty) {
@@ -66,10 +67,10 @@ class SupabaseEnvironmentPolicy {
           'missing payment product namespace',
         );
       }
-      if (productionConfig != null) {
+      if (productionConfig != null && configuredPangleItems != 0) {
         final productionPangle = _map(_map(productionConfig['ads'])['pangle']);
         if (pangleKeys.any(
-          (key) => pangleRuntimeConfig[key] == productionPangle[key],
+          (key) => pangleRuntimeConfig![key] == productionPangle[key],
         )) {
           return const SupabaseEnvironmentPolicyResult(
             false,

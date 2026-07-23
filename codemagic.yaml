@@ -46,8 +46,15 @@ workflows:
           : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
           jq --arg url "$PICNIC_STAGING_SUPABASE_URL" \
             --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
-            '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=$url | .supabase.storage.anon_key=$key' \
+            '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=($url + "/storage/v1") | .supabase.storage.anon_key=$key' \
             config/prod.json > config/dev.json
+          PANGLE_ENVIRONMENT=sandbox \
+            PAYMENT_ENVIRONMENT=sandbox \
+            PICNIC_PANGLE_IOS_APP_ID= \
+            PICNIC_PANGLE_ANDROID_APP_ID= \
+            PICNIC_PANGLE_IOS_REWARDED_ID= \
+            PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+            dart run tool/verify_environment_isolation.dart --environment=dev
 
           echo "=== Flutter 패키지 설치 ==="
           flutter packages pub get
@@ -292,10 +299,10 @@ workflows:
             --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
             --dart-define=PANGLE_ENVIRONMENT=sandbox \
             --dart-define=PAYMENT_ENVIRONMENT=sandbox \
-            --dart-define=PICNIC_PANGLE_IOS_APP_ID=$PICNIC_PANGLE_IOS_APP_ID \
-            --dart-define=PICNIC_PANGLE_ANDROID_APP_ID=$PICNIC_PANGLE_ANDROID_APP_ID \
-            --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID=$PICNIC_PANGLE_IOS_REWARDED_ID \
-            --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID=$PICNIC_PANGLE_ANDROID_REWARDED_ID \
+            --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+            --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+            --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+            --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
             --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
             --no-confirm \
             --flutter-version=3.41.4 \
@@ -375,10 +382,10 @@ workflows:
                 --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
                 --dart-define=PANGLE_ENVIRONMENT=sandbox \
                 --dart-define=PAYMENT_ENVIRONMENT=sandbox \
-                --dart-define=PICNIC_PANGLE_IOS_APP_ID=$PICNIC_PANGLE_IOS_APP_ID \
-                --dart-define=PICNIC_PANGLE_ANDROID_APP_ID=$PICNIC_PANGLE_ANDROID_APP_ID \
-                --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID=$PICNIC_PANGLE_IOS_REWARDED_ID \
-                --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID=$PICNIC_PANGLE_ANDROID_REWARDED_ID \
+                --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+                --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+                --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+                --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
                 --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
                 --export-options-plist=ios/ExportOptions.plist
             fi
@@ -392,10 +399,10 @@ workflows:
               --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
               --dart-define=PANGLE_ENVIRONMENT=sandbox \
               --dart-define=PAYMENT_ENVIRONMENT=sandbox \
-              --dart-define=PICNIC_PANGLE_IOS_APP_ID=$PICNIC_PANGLE_IOS_APP_ID \
-              --dart-define=PICNIC_PANGLE_ANDROID_APP_ID=$PICNIC_PANGLE_ANDROID_APP_ID \
-              --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID=$PICNIC_PANGLE_IOS_REWARDED_ID \
-              --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID=$PICNIC_PANGLE_ANDROID_REWARDED_ID \
+              --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+              --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+              --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+              --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
               --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
               --export-options-plist=ios/ExportOptions.plist
           fi
@@ -600,7 +607,13 @@ workflows:
               --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
               '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=($url + "/storage/v1") | .supabase.storage.anon_key=$key' \
               config/prod.json > config/dev.json
-            dart run tool/verify_environment_isolation.dart --environment=dev
+            PANGLE_ENVIRONMENT=sandbox \
+              PAYMENT_ENVIRONMENT=sandbox \
+              PICNIC_PANGLE_IOS_APP_ID= \
+              PICNIC_PANGLE_ANDROID_APP_ID= \
+              PICNIC_PANGLE_IOS_REWARDED_ID= \
+              PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+              dart run tool/verify_environment_isolation.dart --environment=dev
           fi
           flutter packages pub get
 
@@ -689,10 +702,10 @@ workflows:
               --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
               --dart-define=PANGLE_ENVIRONMENT=sandbox \
               --dart-define=PAYMENT_ENVIRONMENT=sandbox \
-              --dart-define=PICNIC_PANGLE_IOS_APP_ID=$PICNIC_PANGLE_IOS_APP_ID \
-              --dart-define=PICNIC_PANGLE_ANDROID_APP_ID=$PICNIC_PANGLE_ANDROID_APP_ID \
-              --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID=$PICNIC_PANGLE_IOS_REWARDED_ID \
-              --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID=$PICNIC_PANGLE_ANDROID_REWARDED_ID \
+              --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+              --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+              --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+              --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
               --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
               --no-confirm \
               --flutter-version=3.41.4 \
@@ -745,10 +758,10 @@ workflows:
                 --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
                 --dart-define=PANGLE_ENVIRONMENT=sandbox \
                 --dart-define=PAYMENT_ENVIRONMENT=sandbox \
-                --dart-define=PICNIC_PANGLE_IOS_APP_ID=$PICNIC_PANGLE_IOS_APP_ID \
-                --dart-define=PICNIC_PANGLE_ANDROID_APP_ID=$PICNIC_PANGLE_ANDROID_APP_ID \
-                --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID=$PICNIC_PANGLE_IOS_REWARDED_ID \
-                --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID=$PICNIC_PANGLE_ANDROID_REWARDED_ID \
+                --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+                --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+                --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+                --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
                 --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE
             fi
 
