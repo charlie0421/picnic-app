@@ -21,6 +21,23 @@ typedef PurchaseSuccessDecision = ({
   BigInt? promoBonusAmount,
 });
 
+typedef PurchaseReceiptPresenter =
+    Future<void> Function(
+      BuildContext context,
+      CandyRewardReceipt receipt, {
+      String? supportingMessage,
+    });
+
+Future<void> _showPurchaseReceipt(
+  BuildContext context,
+  CandyRewardReceipt receipt, {
+  String? supportingMessage,
+}) => showCandyRewardReceiptDialog(
+  context,
+  receipt,
+  supportingMessage: supportingMessage,
+);
+
 PurchaseSuccessDecision decidePurchaseSuccess(
   PurchaseSettlementResultModel result,
   ActivePromotionCampaignModel? displayedCampaign,
@@ -83,12 +100,18 @@ bool shouldShowDebugInfo(Map<String, dynamic> envInfo) {
 class PurchaseDialogHandler {
   final BuildContext _context;
   final PurchaseService _purchaseService;
+  final BuildContext? Function() _receiptContext;
+  final PurchaseReceiptPresenter _receiptPresenter;
 
   PurchaseDialogHandler({
     required BuildContext context,
     required PurchaseService purchaseService,
+    BuildContext? Function()? receiptContext,
+    PurchaseReceiptPresenter receiptPresenter = _showPurchaseReceipt,
   }) : _context = context,
-       _purchaseService = purchaseService;
+       _purchaseService = purchaseService,
+       _receiptContext = receiptContext ?? (() => navigatorKey.currentContext),
+       _receiptPresenter = receiptPresenter;
 
   /// 🔒 구매 확인 다이얼로그 - 우발적 구매 방지
   Future<bool?> showPurchaseConfirmDialog({
@@ -353,7 +376,7 @@ class PurchaseDialogHandler {
     required ActivePromotionCampaignModel? displayedCampaign,
   }) async {
     logger.i('[PurchaseDialogHandler] Showing success dialog');
-    final context = navigatorKey.currentContext;
+    final context = _receiptContext();
     if (context == null) {
       logger.e('Navigator context is null in showSuccessDialog');
       return;
@@ -363,7 +386,7 @@ class PurchaseDialogHandler {
     final checking =
         result.promotion?.state == PurchasePromotionState.pendingTime ||
         result.promotion?.state == PurchasePromotionState.eligible;
-    await showCandyRewardReceiptDialog(
+    await _receiptPresenter(
       context,
       receipt,
       supportingMessage: checking
@@ -379,14 +402,14 @@ class PurchaseDialogHandler {
   }) async {
     logger.i('[PurchaseDialogHandler] Showing late purchase success dialog');
 
-    final context = navigatorKey.currentContext;
+    final context = _receiptContext();
     if (context == null) {
       logger.e('Navigator context is null in showLatePurchaseSuccessDialog');
       return;
     }
     final receipt = receiptFromPurchase(result);
     if (receipt == null) return;
-    await showCandyRewardReceiptDialog(
+    await _receiptPresenter(
       context,
       receipt,
       supportingMessage: AppLocalizations.of(

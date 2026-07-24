@@ -1,20 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler.dart';
 
 import '../../../../../../helpers/test_environment.dart';
 
-/// Tests for PurchaseDialogHandler extracted pure logic functions.
-///
-/// Widget testing is blocked because PurchaseDialogHandler requires
-/// PurchaseService (which depends on in_app_purchase native plugin)
-/// and the dialog content depends on navigatorKey.currentContext.
-/// Instead, we test the extracted pure logic functions directly.
+class _MockPurchaseService extends Mock implements PurchaseService {}
+
 void main() {
   setUpAll(() {
     initTestColors();
@@ -64,6 +66,96 @@ void main() {
       snapshotAt: DateTime.utc(2026),
     ),
   );
+
+  group('receipt presentation wiring', () {
+    testWidgets('success selects checking message and awaits presenter', (
+      tester,
+    ) async {
+      late BuildContext context;
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (value) {
+              context = value;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      final presentation = Completer<void>();
+      CandyRewardReceipt? presentedReceipt;
+      String? presentedMessage;
+      final handler = PurchaseDialogHandler(
+        context: context,
+        purchaseService: _MockPurchaseService(),
+        receiptContext: () => context,
+        receiptPresenter: (context, receipt, {supportingMessage}) {
+          presentedReceipt = receipt;
+          presentedMessage = supportingMessage;
+          return presentation.future;
+        },
+      );
+
+      var completed = false;
+      final future = handler
+          .showSuccessDialog(
+            result: result(state: PurchasePromotionState.pendingTime),
+            displayedCampaign: campaign(),
+          )
+          .then((_) => completed = true);
+      await tester.pump();
+
+      expect(presentedReceipt!.items, isNotEmpty);
+      expect(
+        presentedMessage,
+        AppLocalizations.of(context).candy_boost_promotion_checking,
+      );
+      expect(completed, isFalse);
+
+      presentation.complete();
+      await future;
+      expect(completed, isTrue);
+    });
+
+    testWidgets('late success selects late explanation', (tester) async {
+      late BuildContext context;
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (value) {
+              context = value;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      String? presentedMessage;
+      final handler = PurchaseDialogHandler(
+        context: context,
+        purchaseService: _MockPurchaseService(),
+        receiptContext: () => context,
+        receiptPresenter: (context, receipt, {supportingMessage}) async {
+          presentedMessage = supportingMessage;
+        },
+      );
+
+      await handler.showLatePurchaseSuccessDialog(
+        result: result(),
+        displayedCampaign: null,
+      );
+
+      expect(
+        presentedMessage,
+        AppLocalizations.of(context).candy_boost_late_purchase_explanation,
+      );
+    });
+  });
 
   test('normal purchase receipt contains only positive star reward', () {
     final receipt = receiptFromPurchase(
