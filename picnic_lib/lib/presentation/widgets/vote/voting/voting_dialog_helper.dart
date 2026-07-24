@@ -35,6 +35,24 @@ class VotingAuthRecoveryEvent {
 class VotingDialogHelper {
   const VotingDialogHelper._();
 
+  /// Best-effort wallet refresh for post-failure recovery.
+  ///
+  /// A vote failure must surface its error and restore the dialog immediately;
+  /// the follow-up wallet refresh is advisory only. This never rethrows and is
+  /// bounded by [timeout], so a hanging or failing refresh can neither block
+  /// dialog dismissal nor mask the original vote error.
+  static Future<void> bestEffortWalletRefresh(
+    Future<void> Function() refresh, {
+    Duration timeout = const Duration(seconds: 5),
+    void Function(Object error, StackTrace stackTrace)? onError,
+  }) async {
+    try {
+      await refresh().timeout(timeout);
+    } catch (error, stackTrace) {
+      onError?.call(error, stackTrace);
+    }
+  }
+
   static Future<T> invokeVotingWithAuthRecovery<T>({
     required Future<T> Function() invoke,
     required Future<bool> Function() refresh,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
@@ -651,6 +653,43 @@ void main() {
           VotingDialogHelper.hasPartnerLogo(isPartnership: true, partner: ''),
           isFalse,
         );
+      });
+    });
+
+    group('bestEffortWalletRefresh', () {
+      test('completes and reports the error when refresh throws', () async {
+        Object? reported;
+
+        await VotingDialogHelper.bestEffortWalletRefresh(
+          () async => throw StateError('wallet down'),
+          onError: (error, _) => reported = error,
+        );
+
+        expect(reported, isA<StateError>());
+      });
+
+      test('completes within the timeout when refresh never resolves', () async {
+        Object? reported;
+        final hang = Completer<void>();
+
+        await VotingDialogHelper.bestEffortWalletRefresh(
+          () => hang.future,
+          timeout: const Duration(milliseconds: 20),
+          onError: (error, _) => reported = error,
+        );
+
+        expect(reported, isA<TimeoutException>());
+      });
+
+      test('does not report an error when refresh succeeds', () async {
+        Object? reported;
+
+        await VotingDialogHelper.bestEffortWalletRefresh(
+          () async {},
+          onError: (error, _) => reported = error,
+        );
+
+        expect(reported, isNull);
       });
     });
   });

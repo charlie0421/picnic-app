@@ -603,13 +603,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       container
           .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
           .fetch(voteId: widget.voteModel.id);
-      if (widget.portalType == VotePortal.vote) {
-        await container.read(walletSummaryProvider.notifier).refresh();
-      } else {
-        container.read(userInfoProvider.notifier).getUserProfiles();
-      }
 
-      // 투표 실패 시 버튼 다시 활성화
+      // 오류 UI 와 로딩 상태 복원을 wallet refresh 보다 먼저 보장한다.
       if (mounted) {
         setState(() => _isVoting = false);
       }
@@ -619,6 +614,23 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       }
 
       _showVotingFailDialog(e);
+
+      // 실패 후 wallet refresh 는 timeout 과 자체 오류 처리를 가진 best-effort.
+      // refresh 가 hang/throw 해도 위의 실패 처리와 dialog 종료를 막지 않는다.
+      if (widget.portalType == VotePortal.vote) {
+        unawaited(
+          VotingDialogHelper.bestEffortWalletRefresh(
+            () => container.read(walletSummaryProvider.notifier).refresh(),
+            onError: (error, stackTrace) => logger.w(
+              'post-failure wallet refresh failed',
+              error: error,
+              stackTrace: stackTrace,
+            ),
+          ),
+        );
+      } else {
+        container.read(userInfoProvider.notifier).getUserProfiles();
+      }
     }
   }
 
