@@ -44,7 +44,7 @@ class CandyRewardReceipt {
     assert(items.isNotEmpty);
     return CandyRewardReceipt._(
       referenceKey: referenceKey,
-      items: items,
+      items: List.unmodifiable(items),
       supportingMessageKey: supportingMessageKey,
     );
   }

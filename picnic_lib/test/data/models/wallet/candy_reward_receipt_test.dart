@@ -42,7 +42,39 @@ void main() {
     expect(receiptFromAdReward(grantedAd(amount: BigInt.one)), isNotNull);
     expect(receiptFromAdReward(deniedAd()), isNull);
   });
+
+  test('receipt items do not change when the source list changes', () {
+    final sourceItems = [receiptItem(WalletCurrency.starCandy)];
+    final receipt = CandyRewardReceipt(
+      referenceKey: 'TEST:source-list',
+      items: sourceItems,
+    );
+
+    sourceItems.add(receiptItem(WalletCurrency.bonusStarCandy));
+
+    expect(receipt.items, hasLength(1));
+    expect(receipt.items.single.currency, WalletCurrency.starCandy);
+  });
+
+  test('receipt items cannot be mutated directly', () {
+    final receipt = CandyRewardReceipt(
+      referenceKey: 'TEST:direct-mutation',
+      items: [receiptItem(WalletCurrency.starCandy)],
+    );
+
+    expect(
+      () => receipt.items[0] = receiptItem(WalletCurrency.bonusStarCandy),
+      throwsUnsupportedError,
+    );
+  });
 }
+
+CandyRewardReceiptItem receiptItem(WalletCurrency currency) =>
+    CandyRewardReceiptItem(
+      currency: currency,
+      grantedAmount: BigInt.one,
+      balanceAfter: BigInt.one,
+    );
 
 PurchaseSettlementResultModel purchaseResult({
   required BigInt baseStar,
