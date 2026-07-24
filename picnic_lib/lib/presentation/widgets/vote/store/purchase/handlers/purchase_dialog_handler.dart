@@ -11,7 +11,8 @@ import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
-import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
+import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
+import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 
 enum PurchaseSuccessKind { generic, checking, granted }
 
@@ -357,8 +358,18 @@ class PurchaseDialogHandler {
       logger.e('Navigator context is null in showSuccessDialog');
       return;
     }
-    final message = _purchaseSuccessMessage(context, result, displayedCampaign);
-    showSimpleDialog(content: message);
+    final receipt = receiptFromPurchase(result);
+    if (receipt == null) return;
+    final checking =
+        result.promotion?.state == PurchasePromotionState.pendingTime ||
+        result.promotion?.state == PurchasePromotionState.eligible;
+    await showCandyRewardReceiptDialog(
+      context,
+      receipt,
+      supportingMessage: checking
+          ? AppLocalizations.of(context).candy_boost_promotion_checking
+          : null,
+    );
   }
 
   /// ⏰ 늦은 구매 성공 다이얼로그
@@ -368,42 +379,20 @@ class PurchaseDialogHandler {
   }) async {
     logger.i('[PurchaseDialogHandler] Showing late purchase success dialog');
 
-    showDialog(
-      context: _context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).purchase_confirm_title),
-        content: Text(
-          '${_purchaseSuccessMessage(context, result, displayedCampaign)}\n\n'
-          '${AppLocalizations.of(context).candy_boost_late_purchase_explanation}',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK'),
-          ),
-        ],
-      ),
+    final context = navigatorKey.currentContext;
+    if (context == null) {
+      logger.e('Navigator context is null in showLatePurchaseSuccessDialog');
+      return;
+    }
+    final receipt = receiptFromPurchase(result);
+    if (receipt == null) return;
+    await showCandyRewardReceiptDialog(
+      context,
+      receipt,
+      supportingMessage: AppLocalizations.of(
+        context,
+      ).candy_boost_late_purchase_explanation,
     );
-  }
-
-  String _purchaseSuccessMessage(
-    BuildContext context,
-    PurchaseSettlementResultModel result,
-    ActivePromotionCampaignModel? displayedCampaign,
-  ) {
-    final base = AppLocalizations.of(context).dialog_message_purchase_success;
-    final decision = decidePurchaseSuccess(result, displayedCampaign);
-    if (decision.kind == PurchaseSuccessKind.checking) {
-      return '$base\n'
-          '${AppLocalizations.of(context).candy_boost_promotion_checking}';
-    }
-    if (decision.kind != PurchaseSuccessKind.granted) {
-      return base;
-    }
-    final locale = Localizations.localeOf(context).languageCode;
-    return '$base\n${displayedCampaign!.localizedDisplayName(locale)} '
-        '+${formatWalletAmount(decision.promoBonusAmount!)}';
   }
 
   Future<void> showPurchaseAlreadyPendingDialog() async {

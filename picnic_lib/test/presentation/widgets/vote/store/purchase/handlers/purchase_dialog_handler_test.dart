@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
+import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler.dart';
 
@@ -33,12 +35,14 @@ void main() {
     PurchasePromotionState? state,
     String? version = 'version',
     BigInt? amount,
+    BigInt? baseStarAmount,
+    BigInt? baseBonusAmount,
   }) => PurchaseSettlementResultModel(
     contractVersion: 'wallet.v1',
     operationId: 'operation',
     replayed: false,
-    baseStarAmount: BigInt.from(100),
-    baseBonusAmount: BigInt.from(20),
+    baseStarAmount: baseStarAmount ?? BigInt.from(100),
+    baseBonusAmount: baseBonusAmount ?? BigInt.from(20),
     promotion: state == null
         ? null
         : PurchasePromotionResultModel(
@@ -60,6 +64,34 @@ void main() {
       snapshotAt: DateTime.utc(2026),
     ),
   );
+
+  test('normal purchase receipt contains only positive star reward', () {
+    final receipt = receiptFromPurchase(
+      result(baseStarAmount: BigInt.from(100), baseBonusAmount: BigInt.zero),
+    );
+
+    expect(receipt!.items.map((item) => item.currency), [
+      WalletCurrency.starCandy,
+    ]);
+  });
+
+  test('promotion receipt combines base and promo bonus from server', () {
+    final receipt = receiptFromPurchase(
+      result(
+        state: PurchasePromotionState.granted,
+        amount: BigInt.from(30),
+        baseStarAmount: BigInt.from(100),
+        baseBonusAmount: BigInt.from(20),
+      ),
+    );
+
+    expect(
+      receipt!.items
+          .singleWhere((item) => item.currency == WalletCurrency.bonusStarCandy)
+          .grantedAmount,
+      BigInt.from(50),
+    );
+  });
 
   test('success decision uses server amount only for matching GRANTED', () {
     final decision = decidePurchaseSuccess(

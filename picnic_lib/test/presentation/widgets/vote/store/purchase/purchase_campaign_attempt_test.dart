@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
@@ -220,6 +222,62 @@ void main() {
       expect(dialogCampaign!.campaignVersionId, 'version-at-launch');
     },
   );
+
+  for (final isLate in [false, true]) {
+    test(
+      '${isLate ? 'late' : 'normal'} settlement awaits and invokes exactly one presentation',
+      () async {
+        final verified = PurchaseSettlementResultModel(
+          contractVersion: 'wallet.v1',
+          operationId: 'operation-${isLate ? 'late' : 'normal'}',
+          replayed: false,
+          baseStarAmount: BigInt.from(100),
+          baseBonusAmount: BigInt.zero,
+          promotion: null,
+          wallet: WalletSummaryModel(
+            contractVersion: 'wallet.v1',
+            star: BigInt.from(100),
+            bonus: BigInt.zero,
+            cotton: BigInt.zero,
+            cottonExpiringAmount: BigInt.zero,
+            cottonNextExpiresAt: null,
+            snapshotAt: DateTime.utc(2026),
+          ),
+        );
+        final launchAttempt = attempt('attempt', 'STAR100');
+        final dialogCompleter = Completer<void>();
+        var normalCalls = 0;
+        var lateCalls = 0;
+
+        final presentation = const PurchaseSettlementPresentation().present(
+          result: verified,
+          attempt: launchAttempt,
+          isLate: isLate,
+          showSuccess: (result, displayedCampaign) {
+            expect(identical(result, verified), isTrue);
+            normalCalls++;
+            return dialogCompleter.future;
+          },
+          showLateSuccess: (result, displayedCampaign) {
+            expect(identical(result, verified), isTrue);
+            lateCalls++;
+            return dialogCompleter.future;
+          },
+        );
+        var completed = false;
+        presentation.then((_) => completed = true);
+
+        await Future<void>.delayed(Duration.zero);
+        expect(completed, isFalse);
+        expect(normalCalls, isLate ? 0 : 1);
+        expect(lateCalls, isLate ? 1 : 0);
+
+        dialogCompleter.complete();
+        await presentation;
+        expect(completed, isTrue);
+      },
+    );
+  }
 
   test('unseen historical transaction cannot borrow a new launch campaign', () {
     final launchedAt = DateTime.utc(2026, 7, 23);
