@@ -43,6 +43,38 @@ void main() {
     expect(receiptFromAdReward(deniedAd()), isNull);
   });
 
+  for (final currency in [
+    WalletCurrency.starCandy,
+    WalletCurrency.bonusStarCandy,
+  ]) {
+    test('ad receipt rejects a positive ${currency.name} grant', () {
+      expect(
+        receiptFromAdReward(grantedAd(amount: BigInt.one, currency: currency)),
+        isNull,
+      );
+    });
+  }
+
+  for (final amount in [BigInt.zero, BigInt.from(-1)]) {
+    test('receipt item rejects a non-positive granted amount: $amount', () {
+      expect(
+        () => CandyRewardReceiptItem(
+          currency: WalletCurrency.cottonCandy,
+          grantedAmount: amount,
+          balanceAfter: BigInt.zero,
+        ),
+        throwsArgumentError,
+      );
+    });
+  }
+
+  test('receipt rejects an empty item list', () {
+    expect(
+      () => CandyRewardReceipt(referenceKey: 'TEST:empty', items: const []),
+      throwsArgumentError,
+    );
+  });
+
   test('receipt items do not change when the source list changes', () {
     final sourceItems = [receiptItem(WalletCurrency.starCandy)];
     final receipt = CandyRewardReceipt(
@@ -96,7 +128,10 @@ PurchaseSettlementResultModel purchaseResult({
   wallet: wallet(),
 );
 
-AdRewardStatusModel grantedAd({required BigInt amount}) => AdRewardStatusModel(
+AdRewardStatusModel grantedAd({
+  required BigInt amount,
+  WalletCurrency currency = WalletCurrency.cottonCandy,
+}) => AdRewardStatusModel(
   reference: const AdRewardReference(
     type: AdRewardReferenceType.pangleClaim,
     id: 'reference-1',
@@ -104,7 +139,7 @@ AdRewardStatusModel grantedAd({required BigInt amount}) => AdRewardStatusModel(
   state: AdRewardState.granted,
   grant: AdRewardGrantModel(
     id: 'grant-1',
-    currency: WalletCurrency.cottonCandy,
+    currency: currency,
     amount: amount,
     grantedAt: DateTime.utc(2026, 7, 24),
     expiresAt: DateTime.utc(2026, 8, 24),

@@ -12,7 +12,13 @@ class CandyRewardReceiptItem {
     required BigInt? balanceAfter,
     DateTime? expiresAt,
   }) {
-    assert(grantedAmount > BigInt.zero);
+    if (grantedAmount <= BigInt.zero) {
+      throw ArgumentError.value(
+        grantedAmount,
+        'grantedAmount',
+        'must be greater than zero',
+      );
+    }
     return CandyRewardReceiptItem._(
       currency: currency,
       grantedAmount: grantedAmount,
@@ -39,25 +45,20 @@ class CandyRewardReceipt {
   factory CandyRewardReceipt({
     required String referenceKey,
     required List<CandyRewardReceiptItem> items,
-    String? supportingMessageKey,
   }) {
-    assert(items.isNotEmpty);
+    if (items.isEmpty) {
+      throw ArgumentError.value(items, 'items', 'must not be empty');
+    }
     return CandyRewardReceipt._(
       referenceKey: referenceKey,
       items: List.unmodifiable(items),
-      supportingMessageKey: supportingMessageKey,
     );
   }
 
-  const CandyRewardReceipt._({
-    required this.referenceKey,
-    required this.items,
-    this.supportingMessageKey,
-  });
+  const CandyRewardReceipt._({required this.referenceKey, required this.items});
 
   final String referenceKey;
   final List<CandyRewardReceiptItem> items;
-  final String? supportingMessageKey;
 }
 
 BigInt _balanceFor(WalletSummaryModel wallet, WalletCurrency currency) =>
@@ -71,6 +72,7 @@ CandyRewardReceipt? receiptFromAdReward(AdRewardStatusModel status) {
   final grant = status.grant;
   if (status.state != AdRewardState.granted ||
       grant == null ||
+      grant.currency != WalletCurrency.cottonCandy ||
       grant.amount <= BigInt.zero) {
     return null;
   }
