@@ -1885,4 +1885,20 @@ class AppLocalizationsKo extends AppLocalizations {
   ) {
     return '$currency, $granted 적립, 현재 보유 $balance';
   }
+
+  @override
+  String candy_reward_receipt_semantics_balance_unavailable(
+    String currency,
+    String granted,
+  ) {
+    return '$currency, $granted 적립, 잔액은 잠시 후 갱신';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_with_expiry(
+    String receipt,
+    String expiry,
+  ) {
+    return '$receipt, $expiry';
+  }
 }

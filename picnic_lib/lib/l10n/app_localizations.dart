@@ -3668,6 +3668,24 @@ abstract class AppLocalizations {
     String granted,
     String balance,
   );
+
+  /// No description provided for @candy_reward_receipt_semantics_balance_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'{currency}, added {granted}, balance will refresh shortly'**
+  String candy_reward_receipt_semantics_balance_unavailable(
+    String currency,
+    String granted,
+  );
+
+  /// No description provided for @candy_reward_receipt_semantics_with_expiry.
+  ///
+  /// In en, this message translates to:
+  /// **'{receipt}, {expiry}'**
+  String candy_reward_receipt_semantics_with_expiry(
+    String receipt,
+    String expiry,
+  );
 }
 
 class _AppLocalizationsDelegate

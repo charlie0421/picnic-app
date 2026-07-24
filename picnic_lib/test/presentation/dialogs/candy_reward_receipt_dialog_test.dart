@@ -48,7 +48,40 @@ final cottonReceipt = CandyRewardReceipt(
   ],
 );
 
+final unavailableCottonReceipt = CandyRewardReceipt(
+  referenceKey: 'AD:unavailable',
+  items: [
+    CandyRewardReceiptItem(
+      currency: WalletCurrency.cottonCandy,
+      grantedAmount: BigInt.from(20),
+      balanceAfter: null,
+    ),
+  ],
+);
+
+final crowdedReceipt = CandyRewardReceipt(
+  referenceKey: 'PURCHASE:crowded',
+  items: List.generate(
+    6,
+    (index) => CandyRewardReceiptItem(
+      currency: WalletCurrency.starCandy,
+      grantedAmount: BigInt.from(1000 + index),
+      balanceAfter: BigInt.from(5000 + index),
+    ),
+  ),
+);
+
 void main() {
+  test('formats arbitrary-precision amounts with Bengali grouping pattern', () {
+    expect(
+      formatCandyRewardAmount(
+        BigInt.parse('123456789012345678901234567'),
+        const Locale('bn'),
+      ),
+      '১২,৩৪,৫৬,৭৮,৯০,১২,৩৪,৫৬,৭৮,৯০,১২,৩৪,৫৬৭',
+    );
+  });
+
   testWidgets('renders Korean multi-currency receipt with approved assets', (
     tester,
   ) async {
@@ -90,6 +123,100 @@ void main() {
     expect(find.text('Cotton Candy'), findsOneWidget);
     expect(find.text('Balance will refresh shortly'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('includes localized expiry in the single row semantics label', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('en'),
+        child: CandyRewardReceiptDialog(receipt: cottonReceipt),
+      ),
+    );
+
+    expect(
+      find.bySemanticsLabel(
+        RegExp(
+          r'^Cotton Candy, added 20, balance will refresh shortly, '
+          r'Expires .+$',
+        ),
+      ),
+      findsOneWidget,
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('uses a non-duplicated unavailable balance semantics branch', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('en'),
+        child: CandyRewardReceiptDialog(receipt: unavailableCottonReceipt),
+      ),
+    );
+
+    expect(
+      find.bySemanticsLabel(
+        'Cotton Candy, added 20, balance will refresh shortly',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel(RegExp(r'current balance Balance')),
+      findsNothing,
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('keeps confirmation reachable in a narrow short 2x viewport', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 360);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('en'),
+        textScaler: const TextScaler.linear(2),
+        child: Builder(
+          builder: (context) => FilledButton(
+            onPressed: () => showCandyRewardReceiptDialog(
+              context,
+              crowdedReceipt,
+              supportingMessage:
+                  'Your updated balance may take a moment to appear.',
+            ),
+            child: const Text('Open crowded receipt'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open crowded receipt'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    final scrollable = find.descendant(
+      of: find.byType(CandyRewardReceiptDialog),
+      matching: find.byType(Scrollable),
+    );
+    await tester.scrollUntilVisible(
+      find.text('Confirm'),
+      200,
+      scrollable: scrollable,
+    );
+    expect(find.text('Confirm').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('Confirm').hitTestable());
+    await tester.pumpAndSettle();
+    expect(find.byType(CandyRewardReceiptDialog), findsNothing);
   });
 
   testWidgets('dismisses through the localized confirmation action', (

@@ -2422,5 +2422,19 @@
       "granted": {"type": "String"},
       "balance": {"type": "String"}
     }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}, added {granted}, balance will refresh shortly",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "granted": {"type": "String"}
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}, {expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {"type": "String"},
+      "expiry": {"type": "String"}
+    }
   }
 }

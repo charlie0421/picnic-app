@@ -1975,4 +1975,20 @@ class AppLocalizationsMy extends AppLocalizations {
   ) {
     return '$currency, added $granted, current balance $balance';
   }
+
+  @override
+  String candy_reward_receipt_semantics_balance_unavailable(
+    String currency,
+    String granted,
+  ) {
+    return '$currency, added $granted, balance will refresh shortly';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_with_expiry(
+    String receipt,
+    String expiry,
+  ) {
+    return '$receipt, $expiry';
+  }
 }

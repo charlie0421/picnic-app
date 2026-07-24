@@ -33,45 +33,41 @@ class CandyRewardReceiptDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 360, maxHeight: 560),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l10n.candy_reward_receipt_title,
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 18),
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: receipt.items
-                        .map((item) => CandyRewardReceiptRow(item: item))
-                        .toList(growable: false),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.candy_reward_receipt_title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 18),
+                ...receipt.items.map(
+                  (item) => CandyRewardReceiptRow(item: item),
+                ),
+                if (supportingMessage != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    supportingMessage!,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(l10n.candy_reward_receipt_confirm),
                   ),
                 ),
-              ),
-              if (supportingMessage != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  supportingMessage!,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
               ],
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(l10n.candy_reward_receipt_confirm),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -90,12 +86,28 @@ class CandyRewardReceiptRow extends StatelessWidget {
     final currency = _currencyLabel(l10n, item.currency);
     final granted = _formatAmount(context, item.grantedAmount);
     final balance = item.balanceAfter == null
-        ? l10n.candy_reward_receipt_balance_unavailable
+        ? null
         : _formatAmount(context, item.balanceAfter!);
+    final baseSemantics = balance == null
+        ? l10n.candy_reward_receipt_semantics_balance_unavailable(
+            currency,
+            granted,
+          )
+        : l10n.candy_reward_receipt_semantics(currency, granted, balance);
+    final expiry = item.expiresAt == null
+        ? null
+        : l10n.candy_reward_receipt_expiry(
+            _formatExpiry(context, item.expiresAt!),
+          );
 
     return Semantics(
       container: true,
-      label: l10n.candy_reward_receipt_semantics(currency, granted, balance),
+      label: expiry == null
+          ? baseSemantics
+          : l10n.candy_reward_receipt_semantics_with_expiry(
+              baseSemantics,
+              expiry,
+            ),
       excludeSemantics: true,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -123,29 +135,24 @@ class CandyRewardReceiptRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    item.balanceAfter == null
+                    l10n.candy_reward_receipt_amount(granted),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    balance == null
                         ? l10n.candy_reward_receipt_balance_unavailable
                         : l10n.candy_reward_receipt_balance(balance),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  if (item.expiresAt case final expiresAt?) ...[
+                  if (expiry != null) ...[
                     const SizedBox(height: 4),
-                    Text(
-                      l10n.candy_reward_receipt_expiry(
-                        _formatExpiry(context, expiresAt),
-                      ),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
+                    Text(expiry, style: Theme.of(context).textTheme.bodySmall),
                   ],
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              l10n.candy_reward_receipt_amount(granted),
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -169,12 +176,45 @@ String _currencyAsset(WalletCurrency currency) => switch (currency) {
 };
 
 String _formatAmount(BuildContext context, BigInt amount) =>
-    formatWalletAmount(amount).replaceAll(
-      ',',
-      NumberFormat.decimalPattern(
-        Localizations.localeOf(context).toLanguageTag(),
-      ).symbols.GROUP_SEP,
-    );
+    formatCandyRewardAmount(amount, Localizations.localeOf(context));
+
+String formatCandyRewardAmount(BigInt amount, Locale locale) {
+  final format = NumberFormat.decimalPattern(locale.toLanguageTag());
+  final symbols = format.symbols;
+  final integerPattern = symbols.DECIMAL_PATTERN.split('.').first;
+  final patternGroups = integerPattern.split(',');
+  final primaryGroupSize = _placeholderCount(patternGroups.last);
+  final secondaryGroupSize = patternGroups.length > 2
+      ? _placeholderCount(patternGroups[patternGroups.length - 2])
+      : primaryGroupSize;
+  final digits = amount.abs().toString();
+  final groups = <String>[];
+  var end = digits.length;
+  var groupSize = primaryGroupSize;
+
+  while (end > 0) {
+    final start = (end - groupSize).clamp(0, end);
+    groups.add(digits.substring(start, end));
+    end = start;
+    groupSize = secondaryGroupSize;
+  }
+
+  final grouped = groups.reversed.join(symbols.GROUP_SEP);
+  final localized = _localizeDigits(grouped, symbols.ZERO_DIGIT);
+  return amount.isNegative ? '${symbols.MINUS_SIGN}$localized' : localized;
+}
+
+int _placeholderCount(String pattern) =>
+    pattern.replaceAll(RegExp('[^#0]'), '').length;
+
+String _localizeDigits(String value, String zeroDigit) {
+  final offset = zeroDigit.runes.single - '0'.codeUnitAt(0);
+  if (offset == 0) return value;
+  return value.replaceAllMapped(
+    RegExp(r'[0-9]'),
+    (match) => String.fromCharCode(match[0]!.codeUnitAt(0) + offset),
+  );
+}
 
 String _formatExpiry(BuildContext context, DateTime value) => DateFormat.yMd(
   Localizations.localeOf(context).toLanguageTag(),
