@@ -61,9 +61,26 @@ void main() {
       expect(find.text('9,007,199,254,740,993'), findsOneWidget);
       expect(find.textContaining('오늘 만료 10'), findsOneWidget);
       expect(find.textContaining('다음 만료'), findsOneWidget);
+      expect(find.byKey(const Key('wallet-star-card')), findsOneWidget);
+      expect(find.byKey(const Key('wallet-bonus-card')), findsOneWidget);
+      expect(find.byKey(const Key('wallet-cotton-card')), findsOneWidget);
+      expect(find.byKey(const Key('wallet-cotton-expiry')), findsOneWidget);
       for (final label in ['스타캔디', '보너스 스타캔디', '코튼캔디']) {
         expect(tester.widget<Text>(find.text(label)).textAlign, TextAlign.left);
       }
+
+      final cottonCard = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byKey(const Key('wallet-cotton-card')),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      final decoration = cottonCard.decoration! as BoxDecoration;
+      expect(decoration.color, const Color(0xFFFFF7FB));
+      expect(decoration.border, isNotNull);
+      expect(tester.takeException(), isNull);
     },
   );
 }
