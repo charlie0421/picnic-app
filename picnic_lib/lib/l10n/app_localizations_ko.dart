@@ -1852,4 +1852,37 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get ad_reward_not_granted => '보상이 지급되지 않았어요';
+
+  @override
+  String get candy_reward_receipt_title => '캔디가 적립됐어요!';
+
+  @override
+  String get candy_reward_receipt_confirm => '확인';
+
+  @override
+  String candy_reward_receipt_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String candy_reward_receipt_balance(String amount) {
+    return '현재 보유 $amount';
+  }
+
+  @override
+  String get candy_reward_receipt_balance_unavailable => '잔액은 잠시 후 갱신돼요';
+
+  @override
+  String candy_reward_receipt_expiry(String date) {
+    return '$date 만료';
+  }
+
+  @override
+  String candy_reward_receipt_semantics(
+    String currency,
+    String granted,
+    String balance,
+  ) {
+    return '$currency, $granted 적립, 현재 보유 $balance';
+  }
 }

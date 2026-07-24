@@ -2542,5 +2542,28 @@
   "candy_boost_late_purchase_explanation": "인증에 예상보다 오래 걸렸지만 구매가 정상적으로 완료되었습니다.",
   "ad_reward_pending": "보상을 확인하고 있어요",
   "ad_reward_granted": "코튼캔디를 받았어요",
-  "ad_reward_not_granted": "보상이 지급되지 않았어요"
+  "ad_reward_not_granted": "보상이 지급되지 않았어요",
+  "candy_reward_receipt_title": "캔디가 적립됐어요!",
+  "candy_reward_receipt_confirm": "확인",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "candy_reward_receipt_balance": "현재 보유 {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "candy_reward_receipt_balance_unavailable": "잔액은 잠시 후 갱신돼요",
+  "candy_reward_receipt_expiry": "{date} 만료",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "candy_reward_receipt_semantics": "{currency}, {granted} 적립, 현재 보유 {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "granted": {"type": "String"},
+      "balance": {"type": "String"}
+    }
+  }
 }

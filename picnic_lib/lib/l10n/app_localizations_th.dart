@@ -1902,4 +1902,38 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get ad_reward_not_granted => 'The reward was not granted';
+
+  @override
+  String get candy_reward_receipt_title => 'Candy added!';
+
+  @override
+  String get candy_reward_receipt_confirm => 'Confirm';
+
+  @override
+  String candy_reward_receipt_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String candy_reward_receipt_balance(String amount) {
+    return 'Current balance $amount';
+  }
+
+  @override
+  String get candy_reward_receipt_balance_unavailable =>
+      'Balance will refresh shortly';
+
+  @override
+  String candy_reward_receipt_expiry(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String candy_reward_receipt_semantics(
+    String currency,
+    String granted,
+    String balance,
+  ) {
+    return '$currency, added $granted, current balance $balance';
+  }
 }

@@ -3622,6 +3622,52 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The reward was not granted'**
   String get ad_reward_not_granted;
+
+  /// No description provided for @candy_reward_receipt_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Candy added!'**
+  String get candy_reward_receipt_title;
+
+  /// No description provided for @candy_reward_receipt_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get candy_reward_receipt_confirm;
+
+  /// No description provided for @candy_reward_receipt_amount.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount}'**
+  String candy_reward_receipt_amount(String amount);
+
+  /// No description provided for @candy_reward_receipt_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance {amount}'**
+  String candy_reward_receipt_balance(String amount);
+
+  /// No description provided for @candy_reward_receipt_balance_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance will refresh shortly'**
+  String get candy_reward_receipt_balance_unavailable;
+
+  /// No description provided for @candy_reward_receipt_expiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String candy_reward_receipt_expiry(String date);
+
+  /// No description provided for @candy_reward_receipt_semantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{currency}, added {granted}, current balance {balance}'**
+  String candy_reward_receipt_semantics(
+    String currency,
+    String granted,
+    String balance,
+  );
 }
 
 class _AppLocalizationsDelegate

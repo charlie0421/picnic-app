@@ -2399,5 +2399,28 @@
   "candy_boost_late_purchase_explanation": "Authentication took longer than expected, but the purchase completed successfully.",
   "ad_reward_pending": "Checking your reward",
   "ad_reward_granted": "Cotton Candy received",
-  "ad_reward_not_granted": "The reward was not granted"
+  "ad_reward_not_granted": "The reward was not granted",
+  "candy_reward_receipt_title": "Candy added!",
+  "candy_reward_receipt_confirm": "Confirm",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "candy_reward_receipt_balance": "Current balance {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "candy_reward_receipt_balance_unavailable": "Balance will refresh shortly",
+  "candy_reward_receipt_expiry": "Expires {date}",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "candy_reward_receipt_semantics": "{currency}, added {granted}, current balance {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "granted": {"type": "String"},
+      "balance": {"type": "String"}
+    }
+  }
 }
