@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
-import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
+import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
 
 class AdRewardDialogHost extends ConsumerStatefulWidget {
@@ -148,20 +149,17 @@ class _AdRewardDialogBodyState extends State<AdRewardDialogBody> {
 
   @override
   Widget build(BuildContext context) {
-    final granted = widget.status.state == AdRewardState.granted;
+    final receipt = receiptFromAdReward(widget.status);
+    if (receipt != null) {
+      return CandyRewardReceiptDialog(receipt: receipt);
+    }
     return AlertDialog(
-      title: Text(
-        granted
-            ? AppLocalizations.of(context).ad_reward_granted
-            : AppLocalizations.of(context).ad_reward_not_granted,
-      ),
-      content: granted
-          ? Text(formatWalletAmount(widget.status.grant!.amount))
-          : Text(widget.status.state.name.toUpperCase()),
+      title: Text(AppLocalizations.of(context).ad_reward_not_granted),
+      content: Text(widget.status.state.name.toUpperCase()),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('OK'),
+          child: Text(AppLocalizations.of(context).confirm),
         ),
       ],
     );

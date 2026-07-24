@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/data/repositories/ad_reward_repository.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart';
@@ -76,6 +77,28 @@ AdRewardStatusModel denied() => AdRewardStatusModel(
     cotton: BigInt.zero,
     cottonExpiringAmount: BigInt.zero,
     cottonNextExpiresAt: null,
+    snapshotAt: DateTime.utc(2026),
+  ),
+  snapshotAt: DateTime.utc(2026),
+);
+
+AdRewardStatusModel granted() => AdRewardStatusModel(
+  reference: reference,
+  state: AdRewardState.granted,
+  grant: AdRewardGrantModel(
+    id: 'grant-1',
+    currency: WalletCurrency.cottonCandy,
+    amount: BigInt.one,
+    grantedAt: DateTime.utc(2026),
+    expiresAt: DateTime.utc(2026, 2),
+  ),
+  wallet: WalletSummaryModel(
+    contractVersion: 'wallet.v1',
+    star: BigInt.zero,
+    bonus: BigInt.zero,
+    cotton: BigInt.one,
+    cottonExpiringAmount: BigInt.one,
+    cottonNextExpiresAt: DateTime.utc(2026, 2),
     snapshotAt: DateTime.utc(2026),
   ),
   snapshotAt: DateTime.utc(2026),
@@ -163,6 +186,39 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(find.text('The reward was not granted'), findsOneWidget);
+    expect(repository.acknowledged, [reference]);
+    await tester.pump();
+    expect(repository.acknowledged, [reference]);
+  });
+
+  testWidgets('granted reward renders receipt and acknowledges once', (
+    tester,
+  ) async {
+    final repository = _Repository();
+    final store = PendingAdRewardStore(_MemoryStorage());
+    final container = ProviderContainer(
+      overrides: [
+        adRewardRepositoryProvider.overrideWithValue(repository),
+        pendingAdRewardStoreProvider.overrideWithValue(store),
+        adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+        adRewardDelayProvider.overrideWithValue((_) async {}),
+      ],
+    );
+    addTearDown(container.dispose);
+    await store.add('user-a', reference);
+    final recovery = container
+        .read(adRewardRecoveryProvider.notifier)
+        .recover('user-a');
+    repository.statusCompleter.complete(granted());
+    await recovery;
+    await tester.pumpWidget(app(container));
+    expect(repository.acknowledged, isEmpty);
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Candy added!'), findsOneWidget);
+    expect(find.text('Cotton Candy'), findsOneWidget);
+    expect(find.text('+1'), findsOneWidget);
     expect(repository.acknowledged, [reference]);
     await tester.pump();
     expect(repository.acknowledged, [reference]);
