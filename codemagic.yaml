@@ -41,20 +41,25 @@ workflows:
         script: |
           cd picnic_app
 
-          : "${PICNIC_STAGING_SUPABASE_URL:?PICNIC_STAGING_SUPABASE_URL is required}"
-          : "${PICNIC_STAGING_SUPABASE_ANON_KEY:?PICNIC_STAGING_SUPABASE_ANON_KEY is required}"
-          : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
-          jq --arg url "$PICNIC_STAGING_SUPABASE_URL" \
-            --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
-            '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=($url + "/storage/v1") | .supabase.storage.anon_key=$key' \
-            config/prod.json > config/dev.json
-          PANGLE_ENVIRONMENT=sandbox \
-            PAYMENT_ENVIRONMENT=sandbox \
-            PICNIC_PANGLE_IOS_APP_ID= \
-            PICNIC_PANGLE_ANDROID_APP_ID= \
-            PICNIC_PANGLE_IOS_REWARDED_ID= \
-            PICNIC_PANGLE_ANDROID_REWARDED_ID= \
-            dart run tool/verify_environment_isolation.dart --environment=dev
+          # Staging build only: rewrite dev.json to the staging Supabase target
+          # and prove non-production isolation. The production deploy path must
+          # not depend on staging secrets, so it is skipped entirely.
+          if [ "${DEPLOY_TARGET:-staging}" != "production" ]; then
+            : "${PICNIC_STAGING_SUPABASE_URL:?PICNIC_STAGING_SUPABASE_URL is required}"
+            : "${PICNIC_STAGING_SUPABASE_ANON_KEY:?PICNIC_STAGING_SUPABASE_ANON_KEY is required}"
+            : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
+            jq --arg url "$PICNIC_STAGING_SUPABASE_URL" \
+              --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
+              '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=($url + "/storage/v1") | .supabase.storage.anon_key=$key' \
+              config/prod.json > config/dev.json
+            PANGLE_ENVIRONMENT=sandbox \
+              PAYMENT_ENVIRONMENT=sandbox \
+              PICNIC_PANGLE_IOS_APP_ID= \
+              PICNIC_PANGLE_ANDROID_APP_ID= \
+              PICNIC_PANGLE_IOS_REWARDED_ID= \
+              PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+              dart run tool/verify_environment_isolation.dart --environment=dev
+          fi
 
           echo "=== Flutter 패키지 설치 ==="
           flutter packages pub get
@@ -294,19 +299,29 @@ workflows:
 
           # Shorebird release ios는 xcarchive를 생성함
           # --export-options-plist를 전달하여 IPA도 함께 생성
-          shorebird release ios \
-            --dart-define=ENVIRONMENT=dev \
-            --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
-            --dart-define=PANGLE_ENVIRONMENT=sandbox \
-            --dart-define=PAYMENT_ENVIRONMENT=sandbox \
-            --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
-            --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
-            --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
-            --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
-            --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
-            --no-confirm \
-            --flutter-version=3.41.4 \
-            -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
+          if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+            shorebird release ios \
+              --dart-define=ENVIRONMENT=prod \
+              --dart-define=PANGLE_ENVIRONMENT=prod \
+              --dart-define=PAYMENT_ENVIRONMENT=prod \
+              --no-confirm \
+              --flutter-version=3.41.4 \
+              -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
+          else
+            shorebird release ios \
+              --dart-define=ENVIRONMENT=dev \
+              --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+              --dart-define=PANGLE_ENVIRONMENT=sandbox \
+              --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+              --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+              --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+              --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+              --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+              --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+              --no-confirm \
+              --flutter-version=3.41.4 \
+              -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
+          fi
 
           RELEASE_EXIT_CODE=${PIPESTATUS[0]}
 
@@ -376,6 +391,40 @@ workflows:
               echo "⚠️ xcarchive를 찾을 수 없어 flutter build ipa 실행..."
               # 이 경우는 패치가 작동하지 않을 수 있음 (경고 표시)
               echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
+              if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+                flutter build ipa \
+                  --release \
+                  --dart-define=ENVIRONMENT=prod \
+                  --dart-define=PANGLE_ENVIRONMENT=prod \
+                  --dart-define=PAYMENT_ENVIRONMENT=prod \
+                  --export-options-plist=ios/ExportOptions.plist
+              else
+                flutter build ipa \
+                  --release \
+                  --dart-define=ENVIRONMENT=dev \
+                  --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+                  --dart-define=PANGLE_ENVIRONMENT=sandbox \
+                  --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+                  --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+                  --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+                  --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+                  --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+                  --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+                  --export-options-plist=ios/ExportOptions.plist
+              fi
+            fi
+          else
+            # Shorebird 릴리즈 실패 시 fallback (패치 작동 안함)
+            echo "=== Fallback: flutter build ipa ==="
+            echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
+            if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+              flutter build ipa \
+                --release \
+                --dart-define=ENVIRONMENT=prod \
+                --dart-define=PANGLE_ENVIRONMENT=prod \
+                --dart-define=PAYMENT_ENVIRONMENT=prod \
+                --export-options-plist=ios/ExportOptions.plist
+            else
               flutter build ipa \
                 --release \
                 --dart-define=ENVIRONMENT=dev \
@@ -389,22 +438,6 @@ workflows:
                 --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
                 --export-options-plist=ios/ExportOptions.plist
             fi
-          else
-            # Shorebird 릴리즈 실패 시 fallback (패치 작동 안함)
-            echo "=== Fallback: flutter build ipa ==="
-            echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
-            flutter build ipa \
-              --release \
-              --dart-define=ENVIRONMENT=dev \
-              --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
-              --dart-define=PANGLE_ENVIRONMENT=sandbox \
-              --dart-define=PAYMENT_ENVIRONMENT=sandbox \
-              --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
-              --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
-              --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
-              --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
-              --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
-              --export-options-plist=ios/ExportOptions.plist
           fi
 
           if [ ! -f "build/ios/ipa/"*.ipa ]; then
