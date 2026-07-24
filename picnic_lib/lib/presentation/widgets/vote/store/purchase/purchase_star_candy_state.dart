@@ -957,7 +957,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           _buildProductItem(serverProducts[index], storeProducts),
       separatorBuilder: (BuildContext context, int index) =>
           const Divider(color: AppColors.grey200, height: 24),
-      itemCount: storeProducts.length,
+      itemCount: serverProducts.length,
     );
   }
 
@@ -966,8 +966,13 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     List<ProductDetails> storeProducts,
   ) {
     final productId = serverProduct['id'] as String;
+    final hasStoreProduct = storeProducts.any(
+      (product) => product.id == productId,
+    );
     final isButtonEnabled =
-        !_isInitializing && !_purchaseAttempts.contains(productId);
+        hasStoreProduct &&
+        !_isInitializing &&
+        !_purchaseAttempts.contains(productId);
     final isCurrentProductLoading = _purchaseAttempts.contains(productId);
     final campaign = ref
         .watch(activePromotionCampaignProvider(PromotionSurface.store))

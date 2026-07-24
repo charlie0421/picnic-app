@@ -41,7 +41,7 @@ class ServerProducts extends _$ServerProducts {
       return products;
     } catch (e, s) {
       logger.e('Supabase products fetch error', error: e, stackTrace: s);
-      
+
       // Supabase 초기화 문제인지 확인
       if (ProductProviderHelper.isSupabaseInitError(e.toString())) {
         logger.w('Supabase 초기화 문제 감지. 재시도 예약...');
@@ -50,7 +50,7 @@ class ServerProducts extends _$ServerProducts {
           ref.invalidateSelf();
         });
       }
-      
+
       throw Exception('Error fetching products: $e');
     }
   }
@@ -74,7 +74,8 @@ class StoreProducts extends _$StoreProducts {
   }
 
   Future<List<ProductDetails>> _loadProducts(
-      List<Map<String, dynamic>> serverProducts) async {
+    List<Map<String, dynamic>> serverProducts,
+  ) async {
     final InAppPurchase inAppPurchase = InAppPurchase.instance;
 
     try {
@@ -87,7 +88,8 @@ class StoreProducts extends _$StoreProducts {
         serverProducts,
         isAndroid: Platform.isAndroid,
         appNamePrefix: Environment.inappAppNamePrefix,
-        androidPrefix: Environment.currentEnvironment == 'prod' ||
+        androidPrefix:
+            Environment.currentEnvironment == 'prod' ||
                 Environment.currentEnvironment == 'test'
             ? ''
             : Environment.paymentProductNamespace,
@@ -101,12 +103,13 @@ class StoreProducts extends _$StoreProducts {
         );
       }
 
-      final ProductDetailsResponse response =
-          await inAppPurchase.queryProductDetails(productIds);
+      final ProductDetailsResponse response = await inAppPurchase
+          .queryProductDetails(productIds);
 
       if (response.notFoundIDs.isNotEmpty) {
-        logger
-            .i('Some product IDs were not recognized: ${response.notFoundIDs}');
+        logger.i(
+          'Some product IDs were not recognized: ${response.notFoundIDs}',
+        );
       }
 
       if (response.productDetails.isEmpty) {
@@ -115,6 +118,16 @@ class StoreProducts extends _$StoreProducts {
 
       return response.productDetails;
     } catch (e, s) {
+      if (ProductProviderHelper.shouldUseServerCatalogPreview(
+        environment: Environment.currentEnvironment,
+        error: e,
+      )) {
+        logger.w(
+          'Sandbox App Store catalog is not isolated; '
+          'showing the server catalog with purchases disabled.',
+        );
+        return const <ProductDetails>[];
+      }
       logger.e('Error loading products: $e', stackTrace: s);
       throw Exception('Error loading products: $e');
     }

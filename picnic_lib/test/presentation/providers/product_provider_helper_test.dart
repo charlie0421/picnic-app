@@ -25,42 +25,48 @@ void main() {
 
   group('ProductProviderHelper.findProductById', () {
     test('returns correct product when id matches', () {
-      final result =
-          ProductProviderHelper.findProductById(sampleProducts, 'product_500');
+      final result = ProductProviderHelper.findProductById(
+        sampleProducts,
+        'product_500',
+      );
       expect(result, isNotNull);
       expect(result!['id'], 'product_500');
       expect(result['price'], 5500);
     });
 
     test('returns first product when id matches first item', () {
-      final result =
-          ProductProviderHelper.findProductById(sampleProducts, 'product_100');
+      final result = ProductProviderHelper.findProductById(
+        sampleProducts,
+        'product_100',
+      );
       expect(result, isNotNull);
       expect(result!['price'], 1200);
     });
 
     test('returns last product when id matches last item', () {
       final result = ProductProviderHelper.findProductById(
-          sampleProducts, 'PRODUCT_1000');
+        sampleProducts,
+        'PRODUCT_1000',
+      );
       expect(result, isNotNull);
       expect(result!['votes'], 1000);
     });
 
     test('returns null when id does not match any product', () {
-      final result =
-          ProductProviderHelper.findProductById(sampleProducts, 'nonexistent');
+      final result = ProductProviderHelper.findProductById(
+        sampleProducts,
+        'nonexistent',
+      );
       expect(result, isNull);
     });
 
     test('returns null when products list is null', () {
-      final result =
-          ProductProviderHelper.findProductById(null, 'product_100');
+      final result = ProductProviderHelper.findProductById(null, 'product_100');
       expect(result, isNull);
     });
 
     test('returns null when products list is empty', () {
-      final result =
-          ProductProviderHelper.findProductById([], 'product_100');
+      final result = ProductProviderHelper.findProductById([], 'product_100');
       expect(result, isNull);
     });
 
@@ -70,8 +76,10 @@ void main() {
     });
 
     test('is case-sensitive for id matching', () {
-      final result =
-          ProductProviderHelper.findProductById(sampleProducts, 'product_1000');
+      final result = ProductProviderHelper.findProductById(
+        sampleProducts,
+        'product_1000',
+      );
       expect(result, isNull); // 'PRODUCT_1000' != 'product_1000'
     });
   });
@@ -80,7 +88,7 @@ void main() {
     test('builds the canonical staging Android query id', () {
       final result = ProductProviderHelper.buildProductIds(
         [
-          {'id': 'Star10000'}
+          {'id': 'Star10000'},
         ],
         isAndroid: true,
         appNamePrefix: '',
@@ -139,7 +147,7 @@ void main() {
     test('handles empty prefix on non-Android', () {
       final result = ProductProviderHelper.buildProductIds(
         [
-          {'id': 'test_id'}
+          {'id': 'test_id'},
         ],
         isAndroid: false,
         appNamePrefix: '',
@@ -159,11 +167,13 @@ void main() {
     test('throws Exception for empty list', () {
       expect(
         () => ProductProviderHelper.validateProductsNotEmpty([]),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'message',
-          contains('No products found'),
-        )),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'message',
+            contains('No products found'),
+          ),
+        ),
       );
     });
   });
@@ -171,21 +181,51 @@ void main() {
   group('ProductProviderHelper.validateSandboxProductIds', () {
     test('rejects a production product id in a sandbox catalog', () {
       expect(
-        () => ProductProviderHelper.validateSandboxProductIds(
-          {'STAR100'},
-          namespace: 'staging.',
-        ),
+        () => ProductProviderHelper.validateSandboxProductIds({
+          'STAR100',
+        }, namespace: 'staging.'),
         throwsStateError,
       );
     });
 
     test('accepts only explicitly namespaced sandbox product ids', () {
       expect(
-        () => ProductProviderHelper.validateSandboxProductIds(
-          {'staging.STAR100'},
-          namespace: 'staging.',
-        ),
+        () => ProductProviderHelper.validateSandboxProductIds({
+          'staging.STAR100',
+        }, namespace: 'staging.'),
         returnsNormally,
+      );
+    });
+  });
+
+  group('ProductProviderHelper.shouldUseServerCatalogPreview', () {
+    test('uses a disabled server catalog preview in staging', () {
+      expect(
+        ProductProviderHelper.shouldUseServerCatalogPreview(
+          environment: 'dev',
+          error: StateError('Sandbox product catalog is not isolated'),
+        ),
+        isTrue,
+      );
+    });
+
+    test('never masks the same catalog error in production', () {
+      expect(
+        ProductProviderHelper.shouldUseServerCatalogPreview(
+          environment: 'prod',
+          error: StateError('Sandbox product catalog is not isolated'),
+        ),
+        isFalse,
+      );
+    });
+
+    test('does not mask unrelated store failures', () {
+      expect(
+        ProductProviderHelper.shouldUseServerCatalogPreview(
+          environment: 'dev',
+          error: Exception('Store is not available'),
+        ),
+        isFalse,
       );
     });
   });
@@ -194,7 +234,8 @@ void main() {
     test('returns true for "Project not specified" error', () {
       expect(
         ProductProviderHelper.isSupabaseInitError(
-            'Error: Project not specified in request'),
+          'Error: Project not specified in request',
+        ),
         isTrue,
       );
     });
@@ -202,7 +243,8 @@ void main() {
     test('returns true for "not initialized" error', () {
       expect(
         ProductProviderHelper.isSupabaseInitError(
-            'Supabase client not initialized'),
+          'Supabase client not initialized',
+        ),
         isTrue,
       );
     });
@@ -215,10 +257,7 @@ void main() {
     });
 
     test('returns false for empty string', () {
-      expect(
-        ProductProviderHelper.isSupabaseInitError(''),
-        isFalse,
-      );
+      expect(ProductProviderHelper.isSupabaseInitError(''), isFalse);
     });
 
     test('is case-sensitive', () {

@@ -57,6 +57,15 @@ void main() {
       expect(find.text('스타캔디'), findsOneWidget);
       expect(find.text('보너스 스타캔디'), findsOneWidget);
       expect(find.text('코튼캔디'), findsOneWidget);
+      for (var index = 0; index < 3; index++) {
+        final column = tester.widget<Column>(
+          find.descendant(
+            of: find.byType(WalletCurrencySegment).at(index),
+            matching: find.byType(Column),
+          ),
+        );
+        expect(column.crossAxisAlignment, CrossAxisAlignment.start);
+      }
     });
 
     testWidgets('centers compact segment content when alignment is center', (

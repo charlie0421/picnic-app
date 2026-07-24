@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/config/payment_product_id_policy.dart';
 
 /// Pure helper methods extracted from ProductProvider for testability.
-@visibleForTesting
 class ProductProviderHelper {
   /// Finds a product by its ID from a list of products.
   /// Returns null if the list is null, empty, or no product matches.
@@ -28,13 +26,15 @@ class ProductProviderHelper {
     String environment = 'prod',
   }) {
     return serverProducts
-        .map((product) => PaymentProductIdPolicy.effectiveProductId(
-              environment: environment,
-              isAndroid: isAndroid,
-              paymentNamespace: androidPrefix,
-              serverProductId: product['id'].toString(),
-              iosAppPrefix: appNamePrefix,
-            ))
+        .map(
+          (product) => PaymentProductIdPolicy.effectiveProductId(
+            environment: environment,
+            isAndroid: isAndroid,
+            paymentNamespace: androidPrefix,
+            serverProductId: product['id'].toString(),
+            iosAppPrefix: appNamePrefix,
+          ),
+        )
         .toSet();
   }
 
@@ -54,6 +54,15 @@ class ProductProviderHelper {
         productIds.any((productId) => !productId.startsWith(namespace))) {
       throw StateError('Sandbox product catalog is not isolated');
     }
+  }
+
+  static bool shouldUseServerCatalogPreview({
+    required String environment,
+    required Object error,
+  }) {
+    if (environment == 'prod' || environment == 'test') return false;
+    return error is StateError &&
+        error.message == 'Sandbox product catalog is not isolated';
   }
 
   /// Checks if an error message indicates a Supabase initialization issue.
