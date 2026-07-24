@@ -6,12 +6,27 @@ import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 
 @immutable
 class CandyRewardReceiptItem {
-  CandyRewardReceiptItem({
+  factory CandyRewardReceiptItem({
+    required WalletCurrency currency,
+    required BigInt grantedAmount,
+    required BigInt? balanceAfter,
+    DateTime? expiresAt,
+  }) {
+    assert(grantedAmount > BigInt.zero);
+    return CandyRewardReceiptItem._(
+      currency: currency,
+      grantedAmount: grantedAmount,
+      balanceAfter: balanceAfter,
+      expiresAt: expiresAt,
+    );
+  }
+
+  const CandyRewardReceiptItem._({
     required this.currency,
     required this.grantedAmount,
     required this.balanceAfter,
     this.expiresAt,
-  }) : assert(grantedAmount > BigInt.zero);
+  });
 
   final WalletCurrency currency;
   final BigInt grantedAmount;
@@ -21,11 +36,24 @@ class CandyRewardReceiptItem {
 
 @immutable
 class CandyRewardReceipt {
-  CandyRewardReceipt({
+  factory CandyRewardReceipt({
+    required String referenceKey,
+    required List<CandyRewardReceiptItem> items,
+    String? supportingMessageKey,
+  }) {
+    assert(items.isNotEmpty);
+    return CandyRewardReceipt._(
+      referenceKey: referenceKey,
+      items: items,
+      supportingMessageKey: supportingMessageKey,
+    );
+  }
+
+  const CandyRewardReceipt._({
     required this.referenceKey,
     required this.items,
     this.supportingMessageKey,
-  }) : assert(items.length > 0);
+  });
 
   final String referenceKey;
   final List<CandyRewardReceiptItem> items;
