@@ -42,9 +42,9 @@ void main() {
             body: Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(builder: (_) => page),
-                  );
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute<void>(builder: (_) => page));
                 },
                 child: const Text('open'),
               ),
@@ -61,93 +61,96 @@ void main() {
 
   group('infinite pulse escape — close button always rendered', () {
     testWidgets(
-        'close (X) button is rendered while controller is null (loadAd never completes)',
-        (WidgetTester tester) async {
-      final completer = Completer<({String videoUrl, String? ctaUrl, bool blocked})>();
-      final page = AdShortformFullscreenPage(
-        videoUrl: '',
-        onViewComplete: legacyViewResponse,
-        onMore: () async {},
-        loadAd: () => completer.future, // never completes -> controller null
-      );
+      'close (X) button is rendered while controller is null (loadAd never completes)',
+      (WidgetTester tester) async {
+        final completer =
+            Completer<({String videoUrl, String? ctaUrl, bool blocked})>();
+        final page = AdShortformFullscreenPage(
+          videoUrl: '',
+          onViewComplete: legacyViewResponse,
+          onMore: () async {},
+          loadAd: () => completer.future, // never completes -> controller null
+        );
 
-      await pumpPageInRoute(tester, page: page);
+        await pumpPageInRoute(tester, page: page);
 
-      // The page is on screen but the controller has not initialized.
-      expect(find.byType(AdShortformFullscreenPage), findsOneWidget);
-      // Escape hatch: the close icon must be rendered even with null controller.
-      expect(find.byIcon(Icons.close), findsOneWidget);
-    });
+        // The page is on screen but the controller has not initialized.
+        expect(find.byType(AdShortformFullscreenPage), findsOneWidget);
+        // Escape hatch: the close icon must be rendered even with null controller.
+        expect(find.byIcon(Icons.close), findsOneWidget);
+        final closeTarget = find.byKey(const Key('ad-shortform-close'));
+        expect(closeTarget, findsOneWidget);
+        expect(tester.getSize(closeTarget).width, greaterThanOrEqualTo(48));
+        expect(tester.getSize(closeTarget).height, greaterThanOrEqualTo(48));
+      },
+    );
 
     testWidgets(
-        'tapping close while controller is null pops the route (no infinite pulse)',
-        (WidgetTester tester) async {
-      final completer = Completer<({String videoUrl, String? ctaUrl, bool blocked})>();
-      final page = AdShortformFullscreenPage(
-        videoUrl: '',
-        onViewComplete: legacyViewResponse,
-        onMore: () async {},
-        loadAd: () => completer.future,
-      );
+      'tapping close while controller is null pops the route (no infinite pulse)',
+      (WidgetTester tester) async {
+        final completer =
+            Completer<({String videoUrl, String? ctaUrl, bool blocked})>();
+        final page = AdShortformFullscreenPage(
+          videoUrl: '',
+          onViewComplete: legacyViewResponse,
+          onMore: () async {},
+          loadAd: () => completer.future,
+        );
 
-      await pumpPageInRoute(tester, page: page);
-      expect(find.byType(AdShortformFullscreenPage), findsOneWidget);
+        await pumpPageInRoute(tester, page: page);
+        expect(find.byType(AdShortformFullscreenPage), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.close));
-      // Let the pop + route exit transition settle. pumpAndSettle would hang on
-      // the infinite pulse animation, so pump fixed frames instead.
-      await pumpAndIgnoreErrors(tester);
-      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 400));
-      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 400));
+        await tester.tap(find.byIcon(Icons.close));
+        // Let the pop + route exit transition settle. pumpAndSettle would hang on
+        // the infinite pulse animation, so pump fixed frames instead.
+        await pumpAndIgnoreErrors(tester);
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 400));
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 400));
 
-      // Route popped — the user escaped the stuck loader.
-      expect(find.byType(AdShortformFullscreenPage), findsNothing);
-    });
+        // Route popped — the user escaped the stuck loader.
+        expect(find.byType(AdShortformFullscreenPage), findsNothing);
+      },
+    );
   });
 
-  group('empty / failed videoUrl surfaces error (not silent infinite pulse)',
-      () {
+  group('empty / failed videoUrl surfaces error (not silent infinite pulse)', () {
     testWidgets(
-        'empty videoUrl with blocked=false shows error dialog and pops route',
-        (WidgetTester tester) async {
-      final page = AdShortformFullscreenPage(
-        videoUrl: '',
-        onViewComplete: legacyViewResponse,
-        onMore: () async {},
-        loadAd: () async => (videoUrl: '', ctaUrl: null, blocked: false),
-      );
+      'empty videoUrl with blocked=false shows error dialog and pops route',
+      (WidgetTester tester) async {
+        final page = AdShortformFullscreenPage(
+          videoUrl: '',
+          onViewComplete: legacyViewResponse,
+          onMore: () async {},
+          loadAd: () async => (videoUrl: '', ctaUrl: null, blocked: false),
+        );
 
-      await pumpPageInRoute(tester, page: page);
-      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+        await pumpPageInRoute(tester, page: page);
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
 
-      // An error dialog is shown rather than pulsing forever.
-      expect(find.byType(Dialog), findsOneWidget);
-      expect(
-        find.text('광고 로드에 실패했습니다. 다시 시도해주세요.'),
-        findsOneWidget,
-      );
-    });
+        // An error dialog is shown rather than pulsing forever.
+        expect(find.byType(Dialog), findsOneWidget);
+        expect(find.text('광고 로드에 실패했습니다. 다시 시도해주세요.'), findsOneWidget);
+      },
+    );
 
     testWidgets(
-        'blocked=true (anti-abuse) does NOT show an error dialog (silent pop)',
-        (WidgetTester tester) async {
-      final page = AdShortformFullscreenPage(
-        videoUrl: '',
-        onViewComplete: legacyViewResponse,
-        onMore: () async {},
-        loadAd: () async => (videoUrl: '', ctaUrl: null, blocked: true),
-      );
+      'blocked=true (anti-abuse) does NOT show an error dialog (silent pop)',
+      (WidgetTester tester) async {
+        final page = AdShortformFullscreenPage(
+          videoUrl: '',
+          onViewComplete: legacyViewResponse,
+          onMore: () async {},
+          loadAd: () async => (videoUrl: '', ctaUrl: null, blocked: true),
+        );
 
-      await pumpPageInRoute(tester, page: page);
-      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+        await pumpPageInRoute(tester, page: page);
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
 
-      // anti-abuse path handles its own rate-limited dialog; the page must not
-      // raise a duplicate video-load error dialog.
-      expect(
-        find.text('광고 로드에 실패했습니다. 다시 시도해주세요.'),
-        findsNothing,
-      );
-    });
+        // anti-abuse path handles its own rate-limited dialog; the page must not
+        // raise a duplicate video-load error dialog.
+        expect(find.text('광고 로드에 실패했습니다. 다시 시도해주세요.'), findsNothing);
+      },
+    );
   });
 }
 

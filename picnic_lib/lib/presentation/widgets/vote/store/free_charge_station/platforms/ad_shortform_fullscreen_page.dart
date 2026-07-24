@@ -53,6 +53,27 @@ class AdShortformLogic {
         position >= (duration - const Duration(milliseconds: 150));
   }
 
+  static bool shouldReportView({
+    required bool isInitialized,
+    required bool isPlaying,
+    required Duration position,
+    required Duration duration,
+  }) {
+    if (!isInitialized || duration <= Duration.zero) return false;
+    if (isPlaybackComplete(
+      isInitialized: isInitialized,
+      position: position,
+      duration: duration,
+    )) {
+      return true;
+    }
+    final remaining = duration - position;
+    return !isPlaying &&
+        position > Duration.zero &&
+        !remaining.isNegative &&
+        remaining <= const Duration(seconds: 1);
+  }
+
   /// Whether close action can happen immediately (video finished + reward done).
   static bool canCloseImmediately({
     required bool isInitialized,
@@ -80,6 +101,23 @@ class AdShortformLogic {
     required bool rewarding,
   }) {
     return finished && viewReported && !rewarding;
+  }
+
+  /// CTA navigation is independent from reward completion. Once the button is
+  /// visible, it stays actionable unless the reward callback owns the UI.
+  static bool isCtaActionEnabled({
+    required bool visible,
+    required bool rewarding,
+  }) {
+    return visible && !rewarding;
+  }
+
+  static bool isCloseActionEnabled({
+    required bool finished,
+    required bool viewReported,
+    required bool rewarding,
+  }) {
+    return true;
   }
 
   /// Whether the loader overlay should be visible.
@@ -343,8 +381,9 @@ class _AdShortformFullscreenPageState
       });
     }
     // 재생 완료 시 자동 적립 시작 (중복 방지)
-    if (AdShortformLogic.isPlaybackComplete(
+    if (AdShortformLogic.shouldReportView(
           isInitialized: value.isInitialized,
+          isPlaying: value.isPlaying,
           position: value.position,
           duration: value.duration,
         ) &&
@@ -408,17 +447,30 @@ class _AdShortformFullscreenPageState
   /// in the loader. [onTap] is null when the close action is intentionally
   /// disabled (e.g. reward in progress at the end of playback).
   Widget _buildCloseIcon({required VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 24,
-        height: 24,
-        decoration: BoxDecoration(
-          color: AppColors.grey300,
-          shape: BoxShape.circle,
-          border: Border.all(color: AppColors.grey500),
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: 'Close',
+      child: GestureDetector(
+        key: const Key('ad-shortform-close'),
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: AppColors.grey300,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.grey500),
+              ),
+              child: Icon(Icons.close, color: AppColors.grey500, size: 20),
+            ),
+          ),
         ),
-        child: Icon(Icons.close, color: AppColors.grey500, size: 18),
       ),
     );
   }
@@ -569,8 +621,8 @@ class _AdShortformFullscreenPageState
               // 닫기(X) 버튼은 controller 가 null(로딩/실패) 이어도 항상 렌더해
               // 무한펄스에 갇히지 않게 한다. 카운트다운 뱃지는 controller 가 있을 때만.
               Positioned(
-                top: pad.top - 12,
-                right: 24,
+                top: pad.top,
+                right: 12,
                 child: ctrl == null
                     ? Row(
                         mainAxisSize: MainAxisSize.min,
@@ -593,12 +645,6 @@ class _AdShortformFullscreenPageState
                               AdShortformLogic.shouldShowCountdown(
                                 finished: finished,
                                 remainingSeconds: remaining,
-                              );
-                          final canCloseNow =
-                              AdShortformLogic.isCtaButtonEnabled(
-                                finished: finished,
-                                viewReported: _viewReported,
-                                rewarding: _rewarding,
                               );
                           return Row(
                             mainAxisSize: MainAxisSize.min,
@@ -636,11 +682,7 @@ class _AdShortformFullscreenPageState
                                   ),
                                 ),
                               const SizedBox(width: 8),
-                              _buildCloseIcon(
-                                onTap: finished
-                                    ? (canCloseNow ? _handleClosePressed : null)
-                                    : _handleClosePressed,
-                              ),
+                              _buildCloseIcon(onTap: _handleClosePressed),
                             ],
                           );
                         },
@@ -673,9 +715,8 @@ class _AdShortformFullscreenPageState
                             return const SizedBox.shrink();
                           }
                           final bool enabled =
-                              AdShortformLogic.isCtaButtonEnabled(
-                                finished: finished,
-                                viewReported: _viewReported,
+                              AdShortformLogic.isCtaActionEnabled(
+                                visible: true,
                                 rewarding: _rewarding,
                               );
                           return ElevatedButton(
