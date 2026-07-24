@@ -151,7 +151,7 @@ void main() {
   });
 
   group('reward presentation', () {
-    test('wallet-aware response suppresses local dialog/profile UX', () {
+    test('wallet-aware response refreshes profile without legacy dialog', () {
       final reward = AdRewardStatusModel.fromJson(
         jsonDecode(
               File(
@@ -168,6 +168,11 @@ void main() {
       ).copyWith(reward: reward);
       expect(AdShortformLogic.shouldSuppressLocalWalletUx(response), isTrue);
       expect(AdShortformLogic.shouldUseLegacyBonusUx(response), isFalse);
+      expect(
+        AdShortformLogic.walletSummaryToApply(response),
+        same(reward.wallet),
+      );
+      expect(AdShortformLogic.shouldRefreshLegacyProfile(response), isFalse);
     });
 
     test('legacy positive reward preserves Bonus success UX', () async {

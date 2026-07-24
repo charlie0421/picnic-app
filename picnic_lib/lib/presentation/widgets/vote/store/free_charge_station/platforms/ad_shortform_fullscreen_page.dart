@@ -12,7 +12,9 @@ import 'package:picnic_lib/presentation/widgets/ui/loading_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 
 /// Pure logic helpers for AdShortformFullscreenPage, testable without widget tree.
 @visibleForTesting
@@ -23,6 +25,14 @@ class AdShortformLogic {
   static bool shouldSuppressLocalWalletUx(
     InternalShortformViewResponse response,
   ) => response.reward != null;
+
+  static WalletSummaryModel? walletSummaryToApply(
+    InternalShortformViewResponse response,
+  ) => response.reward?.wallet;
+
+  static bool shouldRefreshLegacyProfile(
+    InternalShortformViewResponse response,
+  ) => response.ok && response.reward == null;
 
   static String legacyBonusSuccessMessage(
     String baseMessage,
@@ -417,10 +427,19 @@ class _AdShortformFullscreenPageState
         });
       }
     }
+    final wallet = response == null
+        ? null
+        : AdShortformLogic.walletSummaryToApply(response);
+    if (wallet != null && mounted) {
+      ref.read(walletSummaryProvider.notifier).setSummary(wallet);
+    } else if (response != null &&
+        AdShortformLogic.shouldRefreshLegacyProfile(response) &&
+        mounted) {
+      await ref.read(userInfoProvider.notifier).getUserProfiles();
+    }
     if (response != null &&
         AdShortformLogic.shouldUseLegacyBonusUx(response) &&
         mounted) {
-      await ref.read(userInfoProvider.notifier).getUserProfiles();
       if (!mounted) return;
       showSimpleDialog(
         // 국제화된 성공 메시지 사용, 버튼 없음
