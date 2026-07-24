@@ -135,25 +135,36 @@ void main() {
           ),
         ),
       );
+      final presentation = Completer<void>();
       String? presentedMessage;
       final handler = PurchaseDialogHandler(
         context: context,
         purchaseService: _MockPurchaseService(),
         receiptContext: () => context,
-        receiptPresenter: (context, receipt, {supportingMessage}) async {
+        receiptPresenter: (context, receipt, {supportingMessage}) {
           presentedMessage = supportingMessage;
+          return presentation.future;
         },
       );
 
-      await handler.showLatePurchaseSuccessDialog(
-        result: result(),
-        displayedCampaign: null,
-      );
+      var completed = false;
+      final future = handler
+          .showLatePurchaseSuccessDialog(
+            result: result(),
+            displayedCampaign: null,
+          )
+          .then((_) => completed = true);
+      await tester.pump();
 
       expect(
         presentedMessage,
         AppLocalizations.of(context).candy_boost_late_purchase_explanation,
       );
+      expect(completed, isFalse);
+
+      presentation.complete();
+      await future;
+      expect(completed, isTrue);
     });
   });
 
