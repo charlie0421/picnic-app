@@ -25,6 +25,22 @@ class ReusedPurchaseException implements Exception {
   String toString() => 'ReusedPurchaseException: $message';
 }
 
+/// 응답은 정상적으로 도착했지만 정산 계약(스키마)을 만족하지 않아
+/// 해석할 수 없는 경우의 예외.
+///
+/// 서버는 이미 정산을 마친 상태이므로 재전송은 중복 요청만 만든다.
+/// 따라서 이 예외는 재시도 대상이 아니며, "응답을 못 받은" 네트워크/타임아웃
+/// 실패와 구분되어 상위로 전달된다.
+class ReceiptResponseContractException implements Exception {
+  final String message;
+  final Object? cause;
+
+  ReceiptResponseContractException({required this.message, this.cause});
+
+  @override
+  String toString() => 'ReceiptResponseContractException: $message';
+}
+
 class ReceiptVerificationService {
   static const String _sandboxEnvironment = 'sandbox';
   static const String _productionEnvironment = 'production';
@@ -93,6 +109,10 @@ class ReceiptVerificationService {
       } catch (e) {
         if (e is ReusedPurchaseException) {
           // 중복은 그대로 상위로 전달하여 성공 플로우를 막는다
+          rethrow;
+        }
+        if (e is ReceiptResponseContractException) {
+          // 서버 정산은 이미 끝났고 응답만 해석하지 못한 상태 → 재전송 금지
           rethrow;
         }
         logger.w('🍎 JWS 파싱/멱등 처리 실패 - 일반 경로로 진행: $e');
@@ -231,14 +251,23 @@ class ReceiptVerificationService {
             .timeout(timeoutDuration);
 
         logger.i('Verification successful');
-        if (response.data is! Map) {
-          throw const FormatException(
-            'verify_receipt response must be an object',
+        // 응답이 도착한 뒤의 파싱 실패는 영구적인 계약 오류이므로
+        // 전송 실패(재시도 대상)와 분리해서 처리한다.
+        try {
+          if (response.data is! Map) {
+            throw const FormatException(
+              'verify_receipt response must be an object',
+            );
+          }
+          return PurchaseSettlementResultModel.fromJson(
+            Map<String, dynamic>.from(response.data as Map),
+          );
+        } catch (parseError) {
+          throw ReceiptResponseContractException(
+            message: 'verify_receipt response could not be parsed: $parseError',
+            cause: parseError,
           );
         }
-        return PurchaseSettlementResultModel.fromJson(
-          Map<String, dynamic>.from(response.data as Map),
-        );
       } catch (error) {
         lastException = error is Exception
             ? error
@@ -254,6 +283,16 @@ class ReceiptVerificationService {
 
         // ReusedPurchaseException은 재시도하지 않음
         if (error is ReusedPurchaseException) {
+          rethrow;
+        }
+
+        // 서버 응답을 받았으나 해석할 수 없는 경우는 영구 오류 → 재시도하지 않음
+        // (서버는 이미 정산했으므로 재전송하면 중복 요청만 발생)
+        if (error is ReceiptResponseContractException) {
+          logger.e(
+            '$verificationType verification response contract violated - '
+            'not retrying: ${error.message}',
+          );
           rethrow;
         }
 

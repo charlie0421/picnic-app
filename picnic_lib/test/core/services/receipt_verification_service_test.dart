@@ -1,8 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../helpers/mock_supabase.dart';
 
@@ -963,6 +967,77 @@ void main() {
           'user-id',
           'sandbox',
         );
+      });
+    });
+
+    group('verify_receipt response contract violations', () {
+      late int invokeCount;
+
+      /// verify_receipt가 항상 200 + [body]로 응답하는 mock 클라이언트를 설치하고
+      /// 실제 호출 횟수를 센다.
+      void installCountingVerifyReceiptMock(Object body) {
+        tearDownMockSupabase();
+        SharedPreferences.setMockInitialValues({});
+        invokeCount = 0;
+        testSupabaseClient = SupabaseClient(
+          'http://localhost:54321',
+          'test-anon-key-for-testing-purposes-only',
+          httpClient: MockClient((request) async {
+            if (request.url.path.contains('/functions/v1/verify_receipt')) {
+              invokeCount++;
+              return http.Response(
+                jsonEncode(body),
+                200,
+                request: request,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            return http.Response(
+              '{}',
+              200,
+              request: request,
+              headers: {'content-type': 'application/json'},
+            );
+          }),
+          authOptions: const AuthClientOptions(autoRefreshToken: false),
+        );
+      }
+
+      test('contract-violating settlement payload is not retried', () async {
+        // 서버는 이미 정산·지급을 끝내고 200으로 응답했지만
+        // promotion 이 null 이라 canonical parser 가 거부하는 계약 위반 응답.
+        installCountingVerifyReceiptMock(
+          _purchaseResult()..['promotion'] = null,
+        );
+
+        await expectLater(
+          service.verifyReceipt(
+            'receipt-data',
+            'com.app.coins',
+            'user-id',
+            'production',
+          ),
+          throwsA(isA<ReceiptResponseContractException>()),
+        );
+
+        // 도착한 응답을 파싱하지 못한 것은 영구 오류이므로 재전송 금지.
+        expect(invokeCount, 1);
+      });
+
+      test('non-object response body is not retried either', () async {
+        installCountingVerifyReceiptMock(const ['not', 'an', 'object']);
+
+        await expectLater(
+          service.verifyReceipt(
+            'receipt-data',
+            'com.app.coins',
+            'user-id',
+            'production',
+          ),
+          throwsA(isA<ReceiptResponseContractException>()),
+        );
+
+        expect(invokeCount, 1);
       });
     });
   });
