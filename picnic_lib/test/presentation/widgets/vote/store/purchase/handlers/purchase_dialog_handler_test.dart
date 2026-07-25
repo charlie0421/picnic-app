@@ -42,10 +42,12 @@ void main() {
     BigInt? baseStarAmount,
     BigInt? baseBonusAmount,
     bool replayed = false,
+    bool replayCausedByRetry = false,
   }) => PurchaseSettlementResultModel(
     contractVersion: 'wallet.v1',
     operationId: 'operation',
     replayed: replayed,
+    replayCausedByRetry: replayCausedByRetry,
     baseStarAmount: baseStarAmount ?? BigInt.from(100),
     baseBonusAmount: baseBonusAmount ?? BigInt.from(20),
     promotion: state == null
@@ -172,9 +174,14 @@ void main() {
   });
 
   /// A replayed settlement is the server telling us this operation was already
-  /// applied: the candy was credited on the original settlement, and this
-  /// delivery grants nothing. Presenting the grant amounts again would tell the
-  /// user they just received candy they already had.
+  /// applied. Whether the user is still owed the grant receipt depends on *who*
+  /// applied it:
+  ///
+  /// - an earlier delivery or session settled it, so the user was already shown
+  ///   the amounts -- acknowledge the purchase without repeating them;
+  /// - our own verification retry settled it, because the first attempt landed
+  ///   on the server and then failed in transport -- the user has seen nothing,
+  ///   so the receipt is still owed and must be presented in full.
   group('replayed settlement presentation', () {
     Future<PurchaseDialogHandler> pumpRealHandler(WidgetTester tester) async {
       await tester.pumpWidget(
@@ -308,6 +315,89 @@ void main() {
     );
 
     testWidgets(
+      'replay caused by our own retry renders the grant amounts and the '
+      'promotion notice',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showSuccessDialog(
+            result: result(
+              state: PurchasePromotionState.pendingTime,
+              replayed: true,
+              replayCausedByRetry: true,
+            ),
+            displayedCampaign: campaign(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsOneWidget);
+        expect(find.text('+100'), findsOneWidget);
+        expect(find.text('+20'), findsOneWidget);
+        expect(
+          find.text(l10n.candy_boost_promotion_checking),
+          findsOneWidget,
+          reason:
+              'the user has not seen this settlement, so the promotion notice '
+              'is owed just as on a first delivery',
+        );
+        expect(find.text(l10n.dialog_message_purchase_success), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'replay caused by our own retry renders the late grant amounts',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showLatePurchaseSuccessDialog(
+            result: result(replayed: true, replayCausedByRetry: true),
+            displayedCampaign: null,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsOneWidget);
+        expect(find.text('+100'), findsOneWidget);
+        expect(find.text('+20'), findsOneWidget);
+        expect(
+          find.text(l10n.candy_boost_late_purchase_explanation),
+          findsOneWidget,
+        );
+        expect(find.text(l10n.dialog_message_purchase_success), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'a replay we did not cause is a redelivery and stays suppressed',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showSuccessDialog(
+            result: result(
+              state: PurchasePromotionState.pendingTime,
+              replayed: true,
+            ),
+            displayedCampaign: campaign(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsNothing);
+        expect(find.text('+100'), findsNothing);
+        expect(find.text('+20'), findsNothing);
+        expect(find.text(l10n.candy_boost_promotion_checking), findsNothing);
+        expect(find.text(l10n.dialog_message_purchase_success), findsOneWidget);
+      },
+    );
+
+    testWidgets(
       'non-replayed late settlement still renders the grant amounts',
       (tester) async {
         final handler = await pumpRealHandler(tester);
@@ -351,8 +441,15 @@ void main() {
     );
   });
 
-  test('replayed purchase yields no grant receipt', () {
+  test('a redelivered settlement yields no grant receipt', () {
     expect(receiptFromPurchase(result(replayed: true)), isNull);
+  });
+
+  test('a replay our own retry caused still yields the grant receipt', () {
+    expect(
+      receiptFromPurchase(result(replayed: true, replayCausedByRetry: true)),
+      isNotNull,
+    );
   });
 
   test('normal purchase receipt contains only positive star reward', () {

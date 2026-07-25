@@ -1040,5 +1040,111 @@ void main() {
         expect(invokeCount, 1);
       });
     });
+
+    /// `replayed` says the server had already applied the operation. It does
+    /// not say who put it there, and the retry loop below can be the culprit:
+    /// a request that settles on the server and then fails in transport is
+    /// re-sent against the same idempotency key, and the replay comes back for
+    /// candy the user has never been shown.
+    group('replay attribution', () {
+      late int invokeCount;
+
+      /// Installs a verify_receipt mock that fails the first
+      /// [failuresBeforeSuccess] requests the way a lost response does - the
+      /// generic retry branch that a timeout also lands in - and then answers
+      /// with [body].
+      void installFlakyVerifyReceiptMock(
+        Object body, {
+        required int failuresBeforeSuccess,
+      }) {
+        tearDownMockSupabase();
+        SharedPreferences.setMockInitialValues({});
+        invokeCount = 0;
+        testSupabaseClient = SupabaseClient(
+          'http://localhost:54321',
+          'test-anon-key-for-testing-purposes-only',
+          httpClient: MockClient((request) async {
+            if (request.url.path.contains('/functions/v1/verify_receipt')) {
+              invokeCount++;
+              if (invokeCount <= failuresBeforeSuccess) {
+                return http.Response('upstream lost', 502, request: request);
+              }
+              return http.Response(
+                jsonEncode(body),
+                200,
+                request: request,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            return http.Response(
+              '{}',
+              200,
+              request: request,
+              headers: {'content-type': 'application/json'},
+            );
+          }),
+          authOptions: const AuthClientOptions(autoRefreshToken: false),
+        );
+      }
+
+      test('a replay answering our own retry is attributed to us', () async {
+        installFlakyVerifyReceiptMock(
+          _purchaseResult()..['replayed'] = true,
+          failuresBeforeSuccess: 1,
+        );
+
+        final result = await service.verifyReceipt(
+          'receipt-data',
+          'com.app.coins',
+          'user-id',
+          'production',
+        );
+
+        expect(invokeCount, 2);
+        expect(result.replayed, isTrue);
+        expect(
+          result.replayCausedByRetry,
+          isTrue,
+          reason:
+              'our first request settled it, so the user has been shown '
+              'nothing and the grant receipt is still owed',
+        );
+      });
+
+      test('a replay on the very first request is not ours', () async {
+        installFlakyVerifyReceiptMock(
+          _purchaseResult()..['replayed'] = true,
+          failuresBeforeSuccess: 0,
+        );
+
+        final result = await service.verifyReceipt(
+          'receipt-data',
+          'com.app.coins',
+          'user-id',
+          'production',
+        );
+
+        expect(invokeCount, 1);
+        expect(result.replayed, isTrue);
+        expect(result.replayCausedByRetry, isFalse);
+      });
+
+      test('a fresh settlement is never attributed to a retry', () async {
+        installFlakyVerifyReceiptMock(
+          _purchaseResult(),
+          failuresBeforeSuccess: 1,
+        );
+
+        final result = await service.verifyReceipt(
+          'receipt-data',
+          'com.app.coins',
+          'user-id',
+          'production',
+        );
+
+        expect(result.replayed, isFalse);
+        expect(result.replayCausedByRetry, isFalse);
+      });
+    });
   });
 }

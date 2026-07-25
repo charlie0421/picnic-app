@@ -38,10 +38,9 @@ void main() {
     ]);
   });
 
-  test('replayed purchase yields no receipt even with positive amounts', () {
-    // A replayed settlement re-reports an operation that was already applied.
-    // The candy was credited on the original settlement, so there is no new
-    // grant to receipt.
+  test('redelivered purchase yields no receipt even with positive amounts', () {
+    // An earlier delivery or session settled this operation and showed the
+    // amounts, so this delivery grants nothing the user has not already seen.
     expect(
       receiptFromPurchase(
         purchaseResult(
@@ -52,6 +51,25 @@ void main() {
         ),
       ),
       isNull,
+    );
+  });
+
+  test('a replay our own verification retry caused still yields a receipt', () {
+    // The first attempt settled on the server and then failed in transport, so
+    // the retry sees `replayed` for candy the user was never shown.
+    final receipt = receiptFromPurchase(
+      purchaseResult(
+        baseStar: BigInt.from(100),
+        baseBonus: BigInt.from(20),
+        promoBonus: BigInt.from(30),
+        replayed: true,
+        replayCausedByRetry: true,
+      ),
+    );
+
+    expect(
+      receipt!.items.map((item) => item.grantedAmount),
+      [BigInt.from(100), BigInt.from(50)],
     );
   });
 
@@ -130,10 +148,12 @@ PurchaseSettlementResultModel purchaseResult({
   required BigInt baseBonus,
   required BigInt promoBonus,
   bool replayed = false,
+  bool replayCausedByRetry = false,
 }) => PurchaseSettlementResultModel(
   contractVersion: 'wallet.v1',
   operationId: 'operation-1',
   replayed: replayed,
+  replayCausedByRetry: replayCausedByRetry,
   baseStarAmount: baseStar,
   baseBonusAmount: baseBonus,
   promotion: PurchasePromotionResultModel(

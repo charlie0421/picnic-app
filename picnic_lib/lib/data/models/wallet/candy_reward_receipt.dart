@@ -94,12 +94,14 @@ CandyRewardReceipt? receiptFromAdReward(AdRewardStatusModel status) {
 
 /// Builds the receipt for candy this settlement just added.
 ///
-/// A replayed settlement re-reports an operation the server had already
-/// applied: the candy was credited on the original settlement and this delivery
-/// grants nothing, so it has no receipt. `result.wallet` still carries the
+/// A redelivered settlement re-reports an operation an earlier delivery or
+/// session already settled *and already showed*: the candy was credited then
+/// and this delivery grants nothing new to report, so it has no receipt. A
+/// replay our own verification retry caused is not a redelivery - the user was
+/// shown nothing - and keeps its receipt. `result.wallet` still carries the
 /// current balance and is applied by the caller either way.
 CandyRewardReceipt? receiptFromPurchase(PurchaseSettlementResultModel result) {
-  if (result.replayed) return null;
+  if (isSettlementRedelivery(result)) return null;
   final promo = result.promotion;
   final promoBonus = promo?.state == PurchasePromotionState.granted
       ? promo!.promoBonusAmount

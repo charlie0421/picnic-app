@@ -89,6 +89,19 @@ abstract class PurchaseSettlementResultModel
     required BigInt baseBonusAmount,
     required PurchasePromotionResultModel? promotion,
     required WalletSummaryModel wallet,
+
+    /// How *this* client came to see a `replayed` settlement. Never part of the
+    /// wire contract: the server cannot know whose retry it is answering.
+    ///
+    /// `ReceiptVerificationService` sets it when a `replayed` settlement comes
+    /// back to a request it sent *after* an earlier request for the same
+    /// receipt. That earlier request settled on the server and then failed in
+    /// transport, so the replay is one we caused ourselves and nothing has been
+    /// shown to the user yet. Absent that, a `replayed` settlement was put
+    /// there by an earlier delivery or session.
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    @Default(false)
+    bool replayCausedByRetry,
   }) = _PurchaseSettlementResultModel;
 
   factory PurchaseSettlementResultModel.fromJson(Map<String, dynamic> json) =>
@@ -97,6 +110,18 @@ abstract class PurchaseSettlementResultModel
     Map<String, dynamic> json,
   ) => parseLegacyPurchaseSettlement(json);
 }
+
+/// Whether this delivery re-reports a settlement this client has already
+/// presented, i.e. one the user has been shown a receipt for.
+///
+/// `replayed` alone does not answer that. The retry loop in
+/// `ReceiptVerificationService` re-sends a request whose response was lost in
+/// transport; if the server had already settled it, the retry gets the original
+/// amounts back with `replayed: true` while the user has still seen nothing. A
+/// replay we did not cause is one an earlier delivery or session settled, and
+/// only that one is a redelivery.
+bool isSettlementRedelivery(PurchaseSettlementResultModel result) =>
+    result.replayed && !result.replayCausedByRetry;
 
 void validatePurchasePromotion(PurchasePromotionResultModel promotion) {
   final pending = promotion.state == PurchasePromotionState.pendingTime;

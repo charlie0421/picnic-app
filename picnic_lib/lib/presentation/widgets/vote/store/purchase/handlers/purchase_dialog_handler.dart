@@ -381,8 +381,8 @@ class PurchaseDialogHandler {
       logger.e('Navigator context is null in showSuccessDialog');
       return;
     }
-    if (result.replayed) {
-      _showReplayedAcknowledgement(context);
+    if (isSettlementRedelivery(result)) {
+      _showRedeliveryAcknowledgement(context);
       return;
     }
     final receipt = receiptFromPurchase(result);
@@ -411,8 +411,8 @@ class PurchaseDialogHandler {
       logger.e('Navigator context is null in showLatePurchaseSuccessDialog');
       return;
     }
-    if (result.replayed) {
-      _showReplayedAcknowledgement(context);
+    if (isSettlementRedelivery(result)) {
+      _showRedeliveryAcknowledgement(context);
       return;
     }
     final receipt = receiptFromPurchase(result);
@@ -426,14 +426,17 @@ class PurchaseDialogHandler {
     );
   }
 
-  /// ♻️ 재전달(replay)된 정산 안내
+  /// ♻️ 재전달(redelivery)된 정산 안내
   ///
-  /// A replayed settlement re-reports an operation the server had already
-  /// applied. The purchase did succeed, so this is not an error, but the candy
-  /// was credited on the original settlement: showing the grant receipt again
-  /// would tell the user they just received candy they already had. The balance
-  /// stays correct because the caller applies `result.wallet` regardless.
-  void _showReplayedAcknowledgement(BuildContext context) {
+  /// A redelivered settlement re-reports an operation an earlier delivery or
+  /// session already settled and already presented. The purchase did succeed,
+  /// so this is not an error, but showing the grant receipt again would tell
+  /// the user they just received candy they already had. The balance stays
+  /// correct because the caller applies `result.wallet` regardless.
+  ///
+  /// A `replayed` settlement our own verification retry provoked never gets
+  /// here: nothing was presented for it, so it takes the normal receipt path.
+  void _showRedeliveryAcknowledgement(BuildContext context) {
     showSimpleDialog(
       content: AppLocalizations.of(context).dialog_message_purchase_success,
     );

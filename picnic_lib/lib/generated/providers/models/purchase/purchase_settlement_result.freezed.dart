@@ -290,7 +290,16 @@ as String?,
 /// @nodoc
 mixin _$PurchaseSettlementResultModel {
 
-@JsonKey(name: 'contract_version') String get contractVersion;@JsonKey(name: 'operation_id') String get operationId; bool get replayed;@JsonKey(name: 'base_star_amount')@WalletAmountConverter() BigInt get baseStarAmount;@JsonKey(name: 'base_bonus_amount')@WalletAmountConverter() BigInt get baseBonusAmount; PurchasePromotionResultModel? get promotion; WalletSummaryModel get wallet;
+@JsonKey(name: 'contract_version') String get contractVersion;@JsonKey(name: 'operation_id') String get operationId; bool get replayed;@JsonKey(name: 'base_star_amount')@WalletAmountConverter() BigInt get baseStarAmount;@JsonKey(name: 'base_bonus_amount')@WalletAmountConverter() BigInt get baseBonusAmount; PurchasePromotionResultModel? get promotion; WalletSummaryModel get wallet;/// How *this* client came to see a `replayed` settlement. Never part of the
+/// wire contract: the server cannot know whose retry it is answering.
+///
+/// `ReceiptVerificationService` sets it when a `replayed` settlement comes
+/// back to a request it sent *after* an earlier request for the same
+/// receipt. That earlier request settled on the server and then failed in
+/// transport, so the replay is one we caused ourselves and nothing has been
+/// shown to the user yet. Absent that, a `replayed` settlement was put
+/// there by an earlier delivery or session.
+@JsonKey(includeFromJson: false, includeToJson: false) bool get replayCausedByRetry;
 /// Create a copy of PurchaseSettlementResultModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -303,16 +312,16 @@ $PurchaseSettlementResultModelCopyWith<PurchaseSettlementResultModel> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PurchaseSettlementResultModel&&(identical(other.contractVersion, contractVersion) || other.contractVersion == contractVersion)&&(identical(other.operationId, operationId) || other.operationId == operationId)&&(identical(other.replayed, replayed) || other.replayed == replayed)&&(identical(other.baseStarAmount, baseStarAmount) || other.baseStarAmount == baseStarAmount)&&(identical(other.baseBonusAmount, baseBonusAmount) || other.baseBonusAmount == baseBonusAmount)&&(identical(other.promotion, promotion) || other.promotion == promotion)&&(identical(other.wallet, wallet) || other.wallet == wallet));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PurchaseSettlementResultModel&&(identical(other.contractVersion, contractVersion) || other.contractVersion == contractVersion)&&(identical(other.operationId, operationId) || other.operationId == operationId)&&(identical(other.replayed, replayed) || other.replayed == replayed)&&(identical(other.baseStarAmount, baseStarAmount) || other.baseStarAmount == baseStarAmount)&&(identical(other.baseBonusAmount, baseBonusAmount) || other.baseBonusAmount == baseBonusAmount)&&(identical(other.promotion, promotion) || other.promotion == promotion)&&(identical(other.wallet, wallet) || other.wallet == wallet)&&(identical(other.replayCausedByRetry, replayCausedByRetry) || other.replayCausedByRetry == replayCausedByRetry));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,contractVersion,operationId,replayed,baseStarAmount,baseBonusAmount,promotion,wallet);
+int get hashCode => Object.hash(runtimeType,contractVersion,operationId,replayed,baseStarAmount,baseBonusAmount,promotion,wallet,replayCausedByRetry);
 
 @override
 String toString() {
-  return 'PurchaseSettlementResultModel(contractVersion: $contractVersion, operationId: $operationId, replayed: $replayed, baseStarAmount: $baseStarAmount, baseBonusAmount: $baseBonusAmount, promotion: $promotion, wallet: $wallet)';
+  return 'PurchaseSettlementResultModel(contractVersion: $contractVersion, operationId: $operationId, replayed: $replayed, baseStarAmount: $baseStarAmount, baseBonusAmount: $baseBonusAmount, promotion: $promotion, wallet: $wallet, replayCausedByRetry: $replayCausedByRetry)';
 }
 
 
@@ -323,7 +332,7 @@ abstract mixin class $PurchaseSettlementResultModelCopyWith<$Res>  {
   factory $PurchaseSettlementResultModelCopyWith(PurchaseSettlementResultModel value, $Res Function(PurchaseSettlementResultModel) _then) = _$PurchaseSettlementResultModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'contract_version') String contractVersion,@JsonKey(name: 'operation_id') String operationId, bool replayed,@JsonKey(name: 'base_star_amount')@WalletAmountConverter() BigInt baseStarAmount,@JsonKey(name: 'base_bonus_amount')@WalletAmountConverter() BigInt baseBonusAmount, PurchasePromotionResultModel? promotion, WalletSummaryModel wallet
+@JsonKey(name: 'contract_version') String contractVersion,@JsonKey(name: 'operation_id') String operationId, bool replayed,@JsonKey(name: 'base_star_amount')@WalletAmountConverter() BigInt baseStarAmount,@JsonKey(name: 'base_bonus_amount')@WalletAmountConverter() BigInt baseBonusAmount, PurchasePromotionResultModel? promotion, WalletSummaryModel wallet,@JsonKey(includeFromJson: false, includeToJson: false) bool replayCausedByRetry
 });
 
 
@@ -340,7 +349,7 @@ class _$PurchaseSettlementResultModelCopyWithImpl<$Res>
 
 /// Create a copy of PurchaseSettlementResultModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? contractVersion = null,Object? operationId = null,Object? replayed = null,Object? baseStarAmount = null,Object? baseBonusAmount = null,Object? promotion = freezed,Object? wallet = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? contractVersion = null,Object? operationId = null,Object? replayed = null,Object? baseStarAmount = null,Object? baseBonusAmount = null,Object? promotion = freezed,Object? wallet = null,Object? replayCausedByRetry = null,}) {
   return _then(_self.copyWith(
 contractVersion: null == contractVersion ? _self.contractVersion : contractVersion // ignore: cast_nullable_to_non_nullable
 as String,operationId: null == operationId ? _self.operationId : operationId // ignore: cast_nullable_to_non_nullable
@@ -349,7 +358,8 @@ as bool,baseStarAmount: null == baseStarAmount ? _self.baseStarAmount : baseStar
 as BigInt,baseBonusAmount: null == baseBonusAmount ? _self.baseBonusAmount : baseBonusAmount // ignore: cast_nullable_to_non_nullable
 as BigInt,promotion: freezed == promotion ? _self.promotion : promotion // ignore: cast_nullable_to_non_nullable
 as PurchasePromotionResultModel?,wallet: null == wallet ? _self.wallet : wallet // ignore: cast_nullable_to_non_nullable
-as WalletSummaryModel,
+as WalletSummaryModel,replayCausedByRetry: null == replayCausedByRetry ? _self.replayCausedByRetry : replayCausedByRetry // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 /// Create a copy of PurchaseSettlementResultModel
@@ -369,7 +379,7 @@ $PurchasePromotionResultModelCopyWith<$Res>? get promotion {
 @override
 @pragma('vm:prefer-inline')
 $WalletSummaryModelCopyWith<$Res> get wallet {
-
+  
   return $WalletSummaryModelCopyWith<$Res>(_self.wallet, (value) {
     return _then(_self.copyWith(wallet: value));
   });
@@ -455,10 +465,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'contract_version')  String contractVersion, @JsonKey(name: 'operation_id')  String operationId,  bool replayed, @JsonKey(name: 'base_star_amount')@WalletAmountConverter()  BigInt baseStarAmount, @JsonKey(name: 'base_bonus_amount')@WalletAmountConverter()  BigInt baseBonusAmount,  PurchasePromotionResultModel? promotion,  WalletSummaryModel wallet)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'contract_version')  String contractVersion, @JsonKey(name: 'operation_id')  String operationId,  bool replayed, @JsonKey(name: 'base_star_amount')@WalletAmountConverter()  BigInt baseStarAmount, @JsonKey(name: 'base_bonus_amount')@WalletAmountConverter()  BigInt baseBonusAmount,  PurchasePromotionResultModel? promotion,  WalletSummaryModel wallet, @JsonKey(includeFromJson: false, includeToJson: false)  bool replayCausedByRetry)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PurchaseSettlementResultModel() when $default != null:
-return $default(_that.contractVersion,_that.operationId,_that.replayed,_that.baseStarAmount,_that.baseBonusAmount,_that.promotion,_that.wallet);case _:
+return $default(_that.contractVersion,_that.operationId,_that.replayed,_that.baseStarAmount,_that.baseBonusAmount,_that.promotion,_that.wallet,_that.replayCausedByRetry);case _:
   return orElse();
 
 }
@@ -476,10 +486,10 @@ return $default(_that.contractVersion,_that.operationId,_that.replayed,_that.bas
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'contract_version')  String contractVersion, @JsonKey(name: 'operation_id')  String operationId,  bool replayed, @JsonKey(name: 'base_star_amount')@WalletAmountConverter()  BigInt baseStarAmount, @JsonKey(name: 'base_bonus_amount')@WalletAmountConverter()  BigInt baseBonusAmount,  PurchasePromotionResultModel? promotion,  WalletSummaryModel wallet)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'contract_version')  String contractVersion, @JsonKey(name: 'operation_id')  String operationId,  bool replayed, @JsonKey(name: 'base_star_amount')@WalletAmountConverter()  BigInt baseStarAmount, @JsonKey(name: 'base_bonus_amount')@WalletAmountConverter()  BigInt baseBonusAmount,  PurchasePromotionResultModel? promotion,  WalletSummaryModel wallet, @JsonKey(includeFromJson: false, includeToJson: false)  bool replayCausedByRetry)  $default,) {final _that = this;
 switch (_that) {
 case _PurchaseSettlementResultModel():
-return $default(_that.contractVersion,_that.operationId,_that.replayed,_that.baseStarAmount,_that.baseBonusAmount,_that.promotion,_that.wallet);case _:
+return $default(_that.contractVersion,_that.operationId,_that.replayed,_that.baseStarAmount,_that.baseBonusAmount,_that.promotion,_that.wallet,_that.replayCausedByRetry);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -496,10 +506,10 @@ return $default(_that.contractVersion,_that.operationId,_that.replayed,_that.bas
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'contract_version')  String contractVersion, @JsonKey(name: 'operation_id')  String operationId,  bool replayed, @JsonKey(name: 'base_star_amount')@WalletAmountConverter()  BigInt baseStarAmount, @JsonKey(name: 'base_bonus_amount')@WalletAmountConverter()  BigInt baseBonusAmount,  PurchasePromotionResultModel? promotion,  WalletSummaryModel wallet)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'contract_version')  String contractVersion, @JsonKey(name: 'operation_id')  String operationId,  bool replayed, @JsonKey(name: 'base_star_amount')@WalletAmountConverter()  BigInt baseStarAmount, @JsonKey(name: 'base_bonus_amount')@WalletAmountConverter()  BigInt baseBonusAmount,  PurchasePromotionResultModel? promotion,  WalletSummaryModel wallet, @JsonKey(includeFromJson: false, includeToJson: false)  bool replayCausedByRetry)?  $default,) {final _that = this;
 switch (_that) {
 case _PurchaseSettlementResultModel() when $default != null:
-return $default(_that.contractVersion,_that.operationId,_that.replayed,_that.baseStarAmount,_that.baseBonusAmount,_that.promotion,_that.wallet);case _:
+return $default(_that.contractVersion,_that.operationId,_that.replayed,_that.baseStarAmount,_that.baseBonusAmount,_that.promotion,_that.wallet,_that.replayCausedByRetry);case _:
   return null;
 
 }
@@ -511,7 +521,7 @@ return $default(_that.contractVersion,_that.operationId,_that.replayed,_that.bas
 @JsonSerializable()
 
 class _PurchaseSettlementResultModel implements PurchaseSettlementResultModel {
-  const _PurchaseSettlementResultModel({@JsonKey(name: 'contract_version') required this.contractVersion, @JsonKey(name: 'operation_id') required this.operationId, required this.replayed, @JsonKey(name: 'base_star_amount')@WalletAmountConverter() required this.baseStarAmount, @JsonKey(name: 'base_bonus_amount')@WalletAmountConverter() required this.baseBonusAmount, required this.promotion, required this.wallet});
+  const _PurchaseSettlementResultModel({@JsonKey(name: 'contract_version') required this.contractVersion, @JsonKey(name: 'operation_id') required this.operationId, required this.replayed, @JsonKey(name: 'base_star_amount')@WalletAmountConverter() required this.baseStarAmount, @JsonKey(name: 'base_bonus_amount')@WalletAmountConverter() required this.baseBonusAmount, required this.promotion, required this.wallet, @JsonKey(includeFromJson: false, includeToJson: false) this.replayCausedByRetry = false});
   factory _PurchaseSettlementResultModel.fromJson(Map<String, dynamic> json) => _$PurchaseSettlementResultModelFromJson(json);
 
 @override@JsonKey(name: 'contract_version') final  String contractVersion;
@@ -521,6 +531,16 @@ class _PurchaseSettlementResultModel implements PurchaseSettlementResultModel {
 @override@JsonKey(name: 'base_bonus_amount')@WalletAmountConverter() final  BigInt baseBonusAmount;
 @override final  PurchasePromotionResultModel? promotion;
 @override final  WalletSummaryModel wallet;
+/// How *this* client came to see a `replayed` settlement. Never part of the
+/// wire contract: the server cannot know whose retry it is answering.
+///
+/// `ReceiptVerificationService` sets it when a `replayed` settlement comes
+/// back to a request it sent *after* an earlier request for the same
+/// receipt. That earlier request settled on the server and then failed in
+/// transport, so the replay is one we caused ourselves and nothing has been
+/// shown to the user yet. Absent that, a `replayed` settlement was put
+/// there by an earlier delivery or session.
+@override@JsonKey(includeFromJson: false, includeToJson: false) final  bool replayCausedByRetry;
 
 /// Create a copy of PurchaseSettlementResultModel
 /// with the given fields replaced by the non-null parameter values.
@@ -535,16 +555,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PurchaseSettlementResultModel&&(identical(other.contractVersion, contractVersion) || other.contractVersion == contractVersion)&&(identical(other.operationId, operationId) || other.operationId == operationId)&&(identical(other.replayed, replayed) || other.replayed == replayed)&&(identical(other.baseStarAmount, baseStarAmount) || other.baseStarAmount == baseStarAmount)&&(identical(other.baseBonusAmount, baseBonusAmount) || other.baseBonusAmount == baseBonusAmount)&&(identical(other.promotion, promotion) || other.promotion == promotion)&&(identical(other.wallet, wallet) || other.wallet == wallet));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PurchaseSettlementResultModel&&(identical(other.contractVersion, contractVersion) || other.contractVersion == contractVersion)&&(identical(other.operationId, operationId) || other.operationId == operationId)&&(identical(other.replayed, replayed) || other.replayed == replayed)&&(identical(other.baseStarAmount, baseStarAmount) || other.baseStarAmount == baseStarAmount)&&(identical(other.baseBonusAmount, baseBonusAmount) || other.baseBonusAmount == baseBonusAmount)&&(identical(other.promotion, promotion) || other.promotion == promotion)&&(identical(other.wallet, wallet) || other.wallet == wallet)&&(identical(other.replayCausedByRetry, replayCausedByRetry) || other.replayCausedByRetry == replayCausedByRetry));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,contractVersion,operationId,replayed,baseStarAmount,baseBonusAmount,promotion,wallet);
+int get hashCode => Object.hash(runtimeType,contractVersion,operationId,replayed,baseStarAmount,baseBonusAmount,promotion,wallet,replayCausedByRetry);
 
 @override
 String toString() {
-  return 'PurchaseSettlementResultModel(contractVersion: $contractVersion, operationId: $operationId, replayed: $replayed, baseStarAmount: $baseStarAmount, baseBonusAmount: $baseBonusAmount, promotion: $promotion, wallet: $wallet)';
+  return 'PurchaseSettlementResultModel(contractVersion: $contractVersion, operationId: $operationId, replayed: $replayed, baseStarAmount: $baseStarAmount, baseBonusAmount: $baseBonusAmount, promotion: $promotion, wallet: $wallet, replayCausedByRetry: $replayCausedByRetry)';
 }
 
 
@@ -555,7 +575,7 @@ abstract mixin class _$PurchaseSettlementResultModelCopyWith<$Res> implements $P
   factory _$PurchaseSettlementResultModelCopyWith(_PurchaseSettlementResultModel value, $Res Function(_PurchaseSettlementResultModel) _then) = __$PurchaseSettlementResultModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'contract_version') String contractVersion,@JsonKey(name: 'operation_id') String operationId, bool replayed,@JsonKey(name: 'base_star_amount')@WalletAmountConverter() BigInt baseStarAmount,@JsonKey(name: 'base_bonus_amount')@WalletAmountConverter() BigInt baseBonusAmount, PurchasePromotionResultModel? promotion, WalletSummaryModel wallet
+@JsonKey(name: 'contract_version') String contractVersion,@JsonKey(name: 'operation_id') String operationId, bool replayed,@JsonKey(name: 'base_star_amount')@WalletAmountConverter() BigInt baseStarAmount,@JsonKey(name: 'base_bonus_amount')@WalletAmountConverter() BigInt baseBonusAmount, PurchasePromotionResultModel? promotion, WalletSummaryModel wallet,@JsonKey(includeFromJson: false, includeToJson: false) bool replayCausedByRetry
 });
 
 
@@ -572,7 +592,7 @@ class __$PurchaseSettlementResultModelCopyWithImpl<$Res>
 
 /// Create a copy of PurchaseSettlementResultModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? contractVersion = null,Object? operationId = null,Object? replayed = null,Object? baseStarAmount = null,Object? baseBonusAmount = null,Object? promotion = freezed,Object? wallet = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? contractVersion = null,Object? operationId = null,Object? replayed = null,Object? baseStarAmount = null,Object? baseBonusAmount = null,Object? promotion = freezed,Object? wallet = null,Object? replayCausedByRetry = null,}) {
   return _then(_PurchaseSettlementResultModel(
 contractVersion: null == contractVersion ? _self.contractVersion : contractVersion // ignore: cast_nullable_to_non_nullable
 as String,operationId: null == operationId ? _self.operationId : operationId // ignore: cast_nullable_to_non_nullable
@@ -581,7 +601,8 @@ as bool,baseStarAmount: null == baseStarAmount ? _self.baseStarAmount : baseStar
 as BigInt,baseBonusAmount: null == baseBonusAmount ? _self.baseBonusAmount : baseBonusAmount // ignore: cast_nullable_to_non_nullable
 as BigInt,promotion: freezed == promotion ? _self.promotion : promotion // ignore: cast_nullable_to_non_nullable
 as PurchasePromotionResultModel?,wallet: null == wallet ? _self.wallet : wallet // ignore: cast_nullable_to_non_nullable
-as WalletSummaryModel,
+as WalletSummaryModel,replayCausedByRetry: null == replayCausedByRetry ? _self.replayCausedByRetry : replayCausedByRetry // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -602,7 +623,7 @@ $PurchasePromotionResultModelCopyWith<$Res>? get promotion {
 @override
 @pragma('vm:prefer-inline')
 $WalletSummaryModelCopyWith<$Res> get wallet {
-
+  
   return $WalletSummaryModelCopyWith<$Res>(_self.wallet, (value) {
     return _then(_self.copyWith(wallet: value));
   });

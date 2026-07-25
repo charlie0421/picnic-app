@@ -41,6 +41,18 @@ class ReceiptResponseContractException implements Exception {
   String toString() => 'ReceiptResponseContractException: $message';
 }
 
+/// verify_receipt 요청을 실제로 몇 번 전송했는지 세는 카운터.
+///
+/// Counts the verify_receipt requests this client actually put on the wire for
+/// one receipt - across the retry loop and across the iOS fallback that starts
+/// a second loop. A `replayed` settlement answering the very first request was
+/// settled by somebody else (an earlier delivery or session); answering any
+/// later request it was settled by a request of ours whose response was lost,
+/// which is a replay we caused and the user has not seen.
+class _SentVerificationRequests {
+  int count = 0;
+}
+
 class ReceiptVerificationService {
   static const String _sandboxEnvironment = 'sandbox';
   static const String _productionEnvironment = 'production';
@@ -88,6 +100,9 @@ class ReceiptVerificationService {
     final receiptFormat = _detectReceiptFormat(receipt);
     logger.i('Receipt format: $receiptFormat');
 
+    // 이 영수증에 대해 실제로 전송한 요청 수 (replay 귀속 판별용)
+    final sentRequests = _SentVerificationRequests();
+
     late final PurchaseSettlementResultModel result;
     if (Platform.isIOS) {
       // iOS: 동일 JWS 재전송 방지 (멱등 키: transactionId + signedDate)
@@ -104,6 +119,7 @@ class ReceiptVerificationService {
           userId,
           environment,
           receiptFormat,
+          sentRequests,
         );
         await _idemCacheAdd(idemKey);
       } catch (e) {
@@ -116,12 +132,14 @@ class ReceiptVerificationService {
           rethrow;
         }
         logger.w('🍎 JWS 파싱/멱등 처리 실패 - 일반 경로로 진행: $e');
+        // 같은 카운터를 그대로 넘겨, 위 루프가 이미 보낸 요청도 replay 귀속에 반영한다.
         result = await _verifyiOSReceipt(
           receipt,
           productId,
           userId,
           environment,
           receiptFormat,
+          sentRequests,
         );
       }
     } else {
@@ -130,6 +148,7 @@ class ReceiptVerificationService {
         productId,
         userId,
         environment,
+        sentRequests,
       );
     }
 
@@ -168,6 +187,7 @@ class ReceiptVerificationService {
     String userId,
     String environment,
     String receiptFormat,
+    _SentVerificationRequests sentRequests,
   ) async {
     logger.i('iOS receipt verification - Format: $receiptFormat');
 
@@ -179,7 +199,7 @@ class ReceiptVerificationService {
       receiptFormat: receiptFormat,
     );
 
-    return _callVerificationFunction(requestBody, 'iOS');
+    return _callVerificationFunction(requestBody, 'iOS', sentRequests);
   }
 
   /// Android 영수증 검증
@@ -188,6 +208,7 @@ class ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
+    _SentVerificationRequests sentRequests,
   ) async {
     logger.i('🤖 Android 영수증 검증 시작');
     logger.i('  - Product ID: $productId');
@@ -212,7 +233,11 @@ class ReceiptVerificationService {
     );
 
     logger.i('🚀 Android 서버 검증 호출 시작 (clientTrace: $clientTraceId)');
-    final result = await _callVerificationFunction(requestBody, 'Android');
+    final result = await _callVerificationFunction(
+      requestBody,
+      'Android',
+      sentRequests,
+    );
     // 성공 시 큐에서 제거
     await ReceiptQueueService().removeByClientTraceId(clientTraceId);
     logger.i('✅ Android 영수증 검증 완료');
@@ -223,6 +248,7 @@ class ReceiptVerificationService {
   Future<PurchaseSettlementResultModel> _callVerificationFunction(
     Map<String, dynamic> requestBody,
     String verificationType,
+    _SentVerificationRequests sentRequests,
   ) async {
     // 환경에 따른 타임아웃 설정
     final environment = requestBody['environment'] as String;
@@ -243,6 +269,11 @@ class ReceiptVerificationService {
     Exception? lastException;
 
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      // 이 요청을 보내기 전에 이미 보낸 요청이 있으면, 돌아온 replay 는 우리가
+      // 만든 것이다: 앞선 요청이 서버에서 정산됐고 응답만 유실된 경우이므로
+      // 사용자는 아직 아무것도 보지 못했다.
+      final replayWouldAnswerOurOwnRequest = sentRequests.count > 0;
+      sentRequests.count++;
       try {
         logger.i('$verificationType verification attempt $attempt/$maxRetries');
 
@@ -259,9 +290,12 @@ class ReceiptVerificationService {
               'verify_receipt response must be an object',
             );
           }
-          return PurchaseSettlementResultModel.fromJson(
+          final settlement = PurchaseSettlementResultModel.fromJson(
             Map<String, dynamic>.from(response.data as Map),
           );
+          return settlement.replayed && replayWouldAnswerOurOwnRequest
+              ? settlement.copyWith(replayCausedByRetry: true)
+              : settlement;
         } catch (parseError) {
           throw ReceiptResponseContractException(
             message: 'verify_receipt response could not be parsed: $parseError',
