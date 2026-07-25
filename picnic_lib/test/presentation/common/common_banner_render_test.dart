@@ -357,7 +357,7 @@ void main() {
       expect(find.text('단일 배너'), findsNothing);
     });
 
-    testWidgets('HOME campaign error withholds ordinary content', (
+    testWidgets('HOME campaign error still renders ordinary content', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -373,7 +373,7 @@ void main() {
       );
       await tester.pump();
       await tester.pump();
-      expect(find.text('단일 배너'), findsNothing);
+      expect(find.text('단일 배너'), findsOneWidget);
     });
 
     testWidgets('inactive owned campaign suppresses ordinary owned rows', (

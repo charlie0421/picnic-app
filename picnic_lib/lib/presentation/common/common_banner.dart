@@ -258,11 +258,10 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
                 ),
               ),
               loading: _buildBannerShimmer,
-              error: (error, stackTrace) => buildErrorView(
-                context,
-                error: error.toString(),
-                stackTrace: stackTrace,
-              ),
+              // 캠페인 조회 실패 시 일반 베너로 degrade
+              // 캠페인 데이터가 없어 owned 필터링은 못 하므로 대체 대상 베너가
+              // 원본으로 노출될 수 있으나, 전체 미노출보다는 낫다
+              error: (_, _) => _renderSlides(_ordinarySlides(data)),
             );
       },
       loading: _buildBannerShimmer,
