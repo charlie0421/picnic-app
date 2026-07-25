@@ -8,6 +8,15 @@ import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/services/locale_service.dart';
 
+/// 프로덕션 ScreenUtil 기준 디자인 크기.
+///
+/// `.w` / `.h` / `.r` 이 몇 배로 환산되는지를 결정하므로, 레이아웃(특히 오버플로)
+/// 회귀 테스트는 이 값을 그대로 써야 실제 앱과 같은 기하를 측정한다.
+const Size kAppDesignSize = Size(393, 892);
+
+/// 프로덕션 ScreenUtil `splitScreenMode`. [kAppDesignSize] 와 같은 이유로 공개한다.
+const bool kAppSplitScreenMode = true;
+
 /// app.dart 파일에서 공통으로 사용되는 앱 빌드 로직을 담은 유틸리티 클래스
 ///
 /// 두 앱(picnic_app, ttja_app)의 app.dart 파일에서 중복되는 UI 빌드 로직을
@@ -38,9 +47,9 @@ class AppBuilder {
   }) {
     // ScreenUtil 초기화 문제를 해결하기 위한 개선된 구현
     return ScreenUtilInit(
-      designSize: const Size(393, 892),
+      designSize: kAppDesignSize,
       minTextAdapt: true,
-      splitScreenMode: true,
+      splitScreenMode: kAppSplitScreenMode,
       // ScreenUtil 초기화 오류를 잡아 처리하는 builder 추가
       builder: (context, child) {
         // child가 null인 경우에도 안전하게 처리
