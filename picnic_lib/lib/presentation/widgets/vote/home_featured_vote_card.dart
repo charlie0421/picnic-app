@@ -31,6 +31,15 @@ class HomeFeaturedVoteCard extends ConsumerStatefulWidget {
   /// 1위 항목의 득표 점유율(0.0 ~ 1.0).
   final double percent;
 
+  /// 카드 프레임(테두리 + 라운드 + 글로우)을 그리는 최상위 [Container].
+  ///
+  /// 캐러셀 로딩 플레이스홀더가 같은 프레임을 쓰는지 테스트가 확인한다.
+  /// 키가 없으면 `find.descendant(..., Container).first` 로 찾아야 하는데,
+  /// 카드 안에는 [ShareSection] 등 다른 [Container] 도 있어 트리가 조금만
+  /// 바뀌어도 조용히 엉뚱한 위젯을 비교하게 된다.
+  @visibleForTesting
+  static const Key frameKey = ValueKey('home_featured_vote_card.frame');
+
   const HomeFeaturedVoteCard({
     super.key,
     required this.vote,
@@ -113,6 +122,7 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
         (vote.voteItem?.isNotEmpty ?? false) ? vote.voteItem!.first : null;
 
     return Container(
+      key: HomeFeaturedVoteCard.frameKey,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: AppColors.primary500.withValues(alpha: 0.25)),

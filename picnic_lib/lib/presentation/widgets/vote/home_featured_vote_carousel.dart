@@ -49,12 +49,15 @@ abstract final class FeaturedVoteSkeletonKeys {
   static const Key saveButton = ValueKey('featured_vote_skeleton.save');
   static const Key shareButton = ValueKey('featured_vote_skeleton.share');
 
-  /// 위에서 아래로 렌더되는 순서.
-  static const List<Key> blocksTopToBottom = <Key>[
-    title,
-    timer,
-    hero,
-    saveButton,
+  /// 위에서 아래로 렌더되는 행. 한 행 안의 키는 왼쪽에서 오른쪽 순서다.
+  ///
+  /// 테스트는 이 목록만 훑으므로, 여기에 없는 블록은 지워도 초록이 뜬다.
+  /// 새 블록을 추가하면 반드시 여기에도 넣을 것.
+  static const List<List<Key>> rowsTopToBottom = <List<Key>>[
+    <Key>[title],
+    <Key>[timer],
+    <Key>[hero],
+    <Key>[saveButton, shareButton],
   ];
 }
 
@@ -159,7 +162,14 @@ class _HomeFeaturedVoteCarouselState
 /// 된다. 그래서 카드 프레임(흰 배경 / 테두리 / 글로우)은 Shimmer **바깥**에 두고,
 /// Shimmer 는 배경이 없는 [Column] 만 감싼다. 그러면 반짝이는 건 흰색 블록들뿐이고
 /// 그 사이 여백은 알파 0 이라 카드 배경이 비쳐, 골격이 실제로 눈에 보인다.
-/// 저장소 안의 같은 패턴: `VideoListItemSkeleton`, `VoteDetailSkeleton`.
+///
+/// 저장소 안의 같은 패턴: `VideoListItemSkeleton` — 불투명한 `Card` 가 Shimmer
+/// **바깥**에 있고 안쪽에는 흰 블록만 있다.
+///
+/// 반대 사례(따라 하지 말 것): `VoteDetailSkeleton` 은 최상위 `Shimmer` 안에
+/// `Container(color: Colors.white)` 를 두어(`vote_detail_skeleton.dart` 의
+/// `_buildVoteListSkeletonStatic`) 투표 목록 영역 전체가 지금도 구조 없는 회색
+/// 덩어리 하나로 렌더된다. 여기서 그 구조를 베끼면 이 위젯도 같은 버그를 얻는다.
 class _FeaturedVoteCardSkeleton extends StatelessWidget {
   const _FeaturedVoteCardSkeleton();
 
