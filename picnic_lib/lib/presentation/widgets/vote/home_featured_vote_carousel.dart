@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/presentation/providers/active_featured_votes_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_card.dart';
-import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:shimmer/shimmer.dart';
 
 /// 홈 "현재 진행중인 투표" 가로 캐러셀.
 ///
@@ -45,7 +45,7 @@ class _HomeFeaturedVoteCarouselState
         height: _height,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: const VoteCardSkeleton(status: VoteCardStatus.ongoing),
+          child: const _FeaturedVoteCardSkeleton(),
         ),
       ),
       error: (e, s) => const SizedBox.shrink(),
@@ -82,6 +82,88 @@ class _HomeFeaturedVoteCarouselState
           ],
         );
       },
+    );
+  }
+}
+
+/// 캐러셀 로딩 플레이스홀더.
+///
+/// 캐러셀은 자식에게 `_height` 만큼의 **tight** 높이를 물려주므로, 여기에는
+/// 그 높이 안에 반드시 들어가는 위젯만 넣을 수 있다. 세로 리스트용
+/// `VoteCardSkeleton` 은 자연 높이가 고정(기기별 460~524px)이라 뷰포트(372px)를
+/// 항상 초과해 매 콜드 스타트마다 하단이 잘렸다(iPhone 17 Pro 기준 131px).
+///
+/// 그래서 실제로 로드될 [HomeFeaturedVoteCard] 와 같은 골격(제목 / 타이머 /
+/// 히어로 이미지 / 공유 바)을 쓰되, 히어로 영역을 [Expanded] 로 둬서 남는 높이를
+/// 흡수하게 한다. 고정 높이 합(상단 74 + 하단 52)만 뷰포트보다 작으면 되므로
+/// 어떤 기기/텍스트 배율에서도 오버플로가 구조적으로 불가능하다.
+class _FeaturedVoteCardSkeleton extends StatelessWidget {
+  const _FeaturedVoteCardSkeleton();
+
+  Widget _bar(double width, double height, double radius) => Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(radius),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.grey300,
+      highlightColor: AppColors.grey100,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.grey00,
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(
+            color: AppColors.primary500.withValues(alpha: 0.25),
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 제목 + 남은시간 (고정 높이)
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 16, 16.w, 8),
+              child: Column(
+                children: [
+                  _bar(180.w, 22, 8.r),
+                  const SizedBox(height: 8),
+                  _bar(160.w, 20, 4.r),
+                ],
+              ),
+            ),
+            // 1위 큰 이미지 자리 — 남은 공간을 채운다.
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 4, 16.w, 0),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.r),
+                  ),
+                ),
+              ),
+            ),
+            // 저장/공유 바 (ShareSection 과 동일한 세로 예산: 16 + 32 + 4)
+            Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _bar(120.w, 32, 16.r),
+                  SizedBox(width: 16.w),
+                  _bar(120.w, 32, 16.r),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
