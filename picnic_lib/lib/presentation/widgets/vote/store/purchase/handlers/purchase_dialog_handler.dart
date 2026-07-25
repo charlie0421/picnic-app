@@ -381,6 +381,10 @@ class PurchaseDialogHandler {
       logger.e('Navigator context is null in showSuccessDialog');
       return;
     }
+    if (result.replayed) {
+      _showReplayedAcknowledgement(context);
+      return;
+    }
     final receipt = receiptFromPurchase(result);
     if (receipt == null) return;
     final checking =
@@ -407,6 +411,10 @@ class PurchaseDialogHandler {
       logger.e('Navigator context is null in showLatePurchaseSuccessDialog');
       return;
     }
+    if (result.replayed) {
+      _showReplayedAcknowledgement(context);
+      return;
+    }
     final receipt = receiptFromPurchase(result);
     if (receipt == null) return;
     await _receiptPresenter(
@@ -415,6 +423,19 @@ class PurchaseDialogHandler {
       supportingMessage: AppLocalizations.of(
         context,
       ).candy_boost_late_purchase_explanation,
+    );
+  }
+
+  /// ♻️ 재전달(replay)된 정산 안내
+  ///
+  /// A replayed settlement re-reports an operation the server had already
+  /// applied. The purchase did succeed, so this is not an error, but the candy
+  /// was credited on the original settlement: showing the grant receipt again
+  /// would tell the user they just received candy they already had. The balance
+  /// stays correct because the caller applies `result.wallet` regardless.
+  void _showReplayedAcknowledgement(BuildContext context) {
+    showSimpleDialog(
+      content: AppLocalizations.of(context).dialog_message_purchase_success,
     );
   }
 

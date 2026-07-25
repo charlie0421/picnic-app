@@ -30,6 +30,17 @@ void main() {
     expect(results.last.promotion!.promoBonusAmount, BigInt.from(20));
   });
 
+  test('canonical fixture preserves the replayed flag', () {
+    final results = cases
+        .map(
+          (value) => PurchaseSettlementResultModel.fromJson(
+            Map<String, dynamic>.from(value as Map),
+          ),
+        )
+        .toList();
+    expect(results.map((e) => e.replayed), [false, false, true]);
+  });
+
   test('canonical parser rejects numeric amount and null promotion', () {
     final numeric = Map<String, dynamic>.from(cases.first as Map);
     numeric['base_star_amount'] = 100;

@@ -11,8 +11,10 @@ import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler.dart';
 
+import '../../../../../../helpers/test_app.dart';
 import '../../../../../../helpers/test_environment.dart';
 
 class _MockPurchaseService extends Mock implements PurchaseService {}
@@ -39,10 +41,11 @@ void main() {
     BigInt? amount,
     BigInt? baseStarAmount,
     BigInt? baseBonusAmount,
+    bool replayed = false,
   }) => PurchaseSettlementResultModel(
     contractVersion: 'wallet.v1',
     operationId: 'operation',
-    replayed: false,
+    replayed: replayed,
     baseStarAmount: baseStarAmount ?? BigInt.from(100),
     baseBonusAmount: baseBonusAmount ?? BigInt.from(20),
     promotion: state == null
@@ -166,6 +169,190 @@ void main() {
       await future;
       expect(completed, isTrue);
     });
+  });
+
+  /// A replayed settlement is the server telling us this operation was already
+  /// applied: the candy was credited on the original settlement, and this
+  /// delivery grants nothing. Presenting the grant amounts again would tell the
+  /// user they just received candy they already had.
+  group('replayed settlement presentation', () {
+    Future<PurchaseDialogHandler> pumpRealHandler(WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildTestApp(const SizedBox.shrink(), locale: const Locale('en')),
+      );
+      await tester.pumpAndSettle();
+      return PurchaseDialogHandler(
+        context: navigatorKey.currentContext!,
+        purchaseService: _MockPurchaseService(),
+      );
+    }
+
+    testWidgets(
+      'replayed late settlement never reaches the receipt presenter',
+      (tester) async {
+        late BuildContext context;
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (value) {
+                context = value;
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        CandyRewardReceipt? presentedReceipt;
+        final handler = PurchaseDialogHandler(
+          context: context,
+          purchaseService: _MockPurchaseService(),
+          receiptContext: () => context,
+          receiptPresenter: (context, receipt, {supportingMessage}) async {
+            presentedReceipt = receipt;
+          },
+        );
+
+        await handler.showLatePurchaseSuccessDialog(
+          result: result(replayed: true),
+          displayedCampaign: null,
+        );
+        await tester.pump();
+
+        expect(presentedReceipt, isNull);
+      },
+    );
+
+    testWidgets(
+      'replayed plain settlement never reaches the receipt presenter',
+      (tester) async {
+        late BuildContext context;
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (value) {
+                context = value;
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        CandyRewardReceipt? presentedReceipt;
+        final handler = PurchaseDialogHandler(
+          context: context,
+          purchaseService: _MockPurchaseService(),
+          receiptContext: () => context,
+          receiptPresenter: (context, receipt, {supportingMessage}) async {
+            presentedReceipt = receipt;
+          },
+        );
+
+        await handler.showSuccessDialog(
+          result: result(
+            state: PurchasePromotionState.granted,
+            amount: BigInt.from(30),
+            replayed: true,
+          ),
+          displayedCampaign: campaign(),
+        );
+        await tester.pump();
+
+        expect(presentedReceipt, isNull);
+      },
+    );
+
+    testWidgets(
+      'replayed late settlement shows success without grant amounts',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showLatePurchaseSuccessDialog(
+            result: result(replayed: true),
+            displayedCampaign: null,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsNothing);
+        expect(find.text('+100'), findsNothing);
+        expect(find.text('+20'), findsNothing);
+        expect(find.text(l10n.dialog_message_purchase_success), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'replayed plain settlement shows success without grant amounts',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showSuccessDialog(
+            result: result(replayed: true),
+            displayedCampaign: null,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsNothing);
+        expect(find.text('+100'), findsNothing);
+        expect(find.text('+20'), findsNothing);
+        expect(find.text(l10n.dialog_message_purchase_success), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'non-replayed late settlement still renders the grant amounts',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showLatePurchaseSuccessDialog(
+            result: result(),
+            displayedCampaign: null,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsOneWidget);
+        expect(find.text('+100'), findsOneWidget);
+        expect(find.text('+20'), findsOneWidget);
+        expect(
+          find.text(l10n.candy_boost_late_purchase_explanation),
+          findsOneWidget,
+        );
+        expect(find.text(l10n.dialog_message_purchase_success), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'non-replayed plain settlement still renders the grant amounts',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showSuccessDialog(result: result(), displayedCampaign: null),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsOneWidget);
+        expect(find.text('+100'), findsOneWidget);
+        expect(find.text('+20'), findsOneWidget);
+        expect(find.text(l10n.dialog_message_purchase_success), findsNothing);
+      },
+    );
+  });
+
+  test('replayed purchase yields no grant receipt', () {
+    expect(receiptFromPurchase(result(replayed: true)), isNull);
   });
 
   test('normal purchase receipt contains only positive star reward', () {

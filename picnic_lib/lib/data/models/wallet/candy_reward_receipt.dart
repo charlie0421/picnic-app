@@ -92,7 +92,14 @@ CandyRewardReceipt? receiptFromAdReward(AdRewardStatusModel status) {
   );
 }
 
+/// Builds the receipt for candy this settlement just added.
+///
+/// A replayed settlement re-reports an operation the server had already
+/// applied: the candy was credited on the original settlement and this delivery
+/// grants nothing, so it has no receipt. `result.wallet` still carries the
+/// current balance and is applied by the caller either way.
 CandyRewardReceipt? receiptFromPurchase(PurchaseSettlementResultModel result) {
+  if (result.replayed) return null;
   final promo = result.promotion;
   final promoBonus = promo?.state == PurchasePromotionState.granted
       ? promo!.promoBonusAmount

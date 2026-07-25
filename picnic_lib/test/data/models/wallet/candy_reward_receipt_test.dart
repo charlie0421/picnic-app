@@ -38,6 +38,23 @@ void main() {
     ]);
   });
 
+  test('replayed purchase yields no receipt even with positive amounts', () {
+    // A replayed settlement re-reports an operation that was already applied.
+    // The candy was credited on the original settlement, so there is no new
+    // grant to receipt.
+    expect(
+      receiptFromPurchase(
+        purchaseResult(
+          baseStar: BigInt.from(100),
+          baseBonus: BigInt.from(20),
+          promoBonus: BigInt.from(30),
+          replayed: true,
+        ),
+      ),
+      isNull,
+    );
+  });
+
   test('ad receipt accepts only a granted positive grant', () {
     expect(receiptFromAdReward(grantedAd(amount: BigInt.one)), isNotNull);
     expect(receiptFromAdReward(deniedAd()), isNull);
@@ -112,10 +129,11 @@ PurchaseSettlementResultModel purchaseResult({
   required BigInt baseStar,
   required BigInt baseBonus,
   required BigInt promoBonus,
+  bool replayed = false,
 }) => PurchaseSettlementResultModel(
   contractVersion: 'wallet.v1',
   operationId: 'operation-1',
-  replayed: false,
+  replayed: replayed,
   baseStarAmount: baseStar,
   baseBonusAmount: baseBonus,
   promotion: PurchasePromotionResultModel(
