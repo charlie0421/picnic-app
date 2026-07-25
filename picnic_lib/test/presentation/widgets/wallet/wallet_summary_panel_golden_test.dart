@@ -52,7 +52,17 @@ Widget buildWalletGoldenApp(WalletSummaryModel wallet) => ProviderScope(
       locale: const Locale('ko'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const Material(child: WalletSummaryPanel()),
+      // Production hosts (my_page ListView, the withdraw bottom sheet and
+      // StorePointInfo) all let the panel take its intrinsic height, so the
+      // golden surface must do the same instead of forcing it to fill the
+      // window. The RepaintBoundary makes the captured golden exactly the
+      // panel's bounds rather than the whole test surface.
+      home: const Material(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: RepaintBoundary(child: WalletSummaryPanel()),
+        ),
+      ),
     ),
   ),
 );
@@ -63,7 +73,9 @@ void main() {
   });
 
   testWidgets('three-currency wallet golden', (tester) async {
-    tester.view.physicalSize = const Size(1179, 510);
+    // 393 x 200 logical pixels. The panel measures 178 logical pixels tall at
+    // this width, so the surface leaves headroom instead of clipping it.
+    tester.view.physicalSize = const Size(1179, 600);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -99,8 +111,20 @@ void main() {
     );
     expect(amountBounds.left, greaterThanOrEqualTo(firstSegmentBounds.left));
     expect(amountBounds.right, lessThanOrEqualTo(firstSegmentBounds.right));
-    expect(fittedBounds.left, firstSegmentBounds.left + 4);
-    expect(fittedBounds.right, firstSegmentBounds.right - 4);
+    // The amount must span the segment's whole content box so long values
+    // scale down instead of clipping. The content box is the card rect inset
+    // by its 1px border plus EdgeInsets.fromLTRB(8, _, 6, _) of card padding.
+    const cardBorder = 1.0;
+    const cardPaddingLeft = 8.0;
+    const cardPaddingRight = 6.0;
+    expect(
+      fittedBounds.left,
+      firstSegmentBounds.left + cardBorder + cardPaddingLeft,
+    );
+    expect(
+      fittedBounds.right,
+      firstSegmentBounds.right - cardBorder - cardPaddingRight,
+    );
     await expectLater(
       find.byType(WalletSummaryPanel),
       matchesGoldenFile('../../../goldens/wallet_summary_panel.png'),
