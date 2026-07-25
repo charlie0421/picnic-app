@@ -131,4 +131,53 @@ void main() {
     await result.subscription.cancel();
     await signals.close();
   });
+
+  test(
+    'polling failure after a signal never escapes as an unhandled async error',
+    () async {
+      final uncaught = <Object>[];
+      final reported = <Object>[];
+      final signals = StreamController<void>.broadcast();
+      final claim = PangleClaimModel(
+        reference: const AdRewardReference(
+          type: AdRewardReferenceType.pangleClaim,
+          id: 'claim-a',
+        ),
+        platform: 'android',
+        signedToken: 'token',
+        expiresAt: DateTime.utc(2030),
+      );
+      PangleClaimPreflightResult? result;
+      await runZonedGuarded(() async {
+        result =
+            await PangleClaimPreflight(
+              createClaim:
+                  ({
+                    required platform,
+                    required placementId,
+                    required clientRequestId,
+                  }) async => claim,
+              persist: (_, _) async {},
+              pollingSignals: signals.stream,
+              poll: (_, _) async =>
+                  throw const FormatException('Ad reward status decode failed'),
+              load: (_, _) async => true,
+              onPollError: (error, _) => reported.add(error),
+            ).execute(
+              ownerUserId: 'user-a',
+              platform: 'android',
+              placementId: 'placement',
+              clientRequestId: 'request',
+            );
+        signals.add(null);
+        await Future<void>.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
+      }, (error, stackTrace) => uncaught.add(error));
+
+      expect(uncaught, isEmpty);
+      expect(reported.single, isFormatException);
+      await result?.subscription.cancel();
+      await signals.close();
+    },
+  );
 }

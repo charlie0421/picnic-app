@@ -120,8 +120,9 @@ Widget app(ProviderContainer container) => UncontrolledProviderScope(
 
 Widget scheduledApp(
   ProviderContainer container,
-  void Function(VoidCallback callback) schedule,
-) => UncontrolledProviderScope(
+  void Function(VoidCallback callback) schedule, {
+  void Function(Object error, StackTrace stackTrace)? onAcknowledgeError,
+}) => UncontrolledProviderScope(
   container: container,
   child: MaterialApp(
     localizationsDelegates: const [
@@ -133,6 +134,7 @@ Widget scheduledApp(
     supportedLocales: AppLocalizations.supportedLocales,
     home: AdRewardDialogHost(
       schedulePostFrame: schedule,
+      onAcknowledgeError: onAcknowledgeError,
       child: const Scaffold(body: Text('home')),
     ),
   ),
@@ -415,6 +417,118 @@ void main() {
       expect(await store.readAll('user-a'), isEmpty);
     },
   );
+
+  testWidgets(
+    'owner change before the dialog first frame never escapes as an unhandled error',
+    (tester) async {
+      var owner = 'user-a';
+      final repository = _QueueRepository()..statuses[reference] = denied();
+      final store = PendingAdRewardStore(_MemoryStorage());
+      final scheduled = <VoidCallback>[];
+      final failures = <Object>[];
+      final container = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(repository),
+          pendingAdRewardStoreProvider.overrideWithValue(store),
+          adRewardOwnerReaderProvider.overrideWithValue(() => owner),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+        ],
+      );
+      addTearDown(container.dispose);
+      await store.add('user-a', reference);
+      await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+      await tester.pumpWidget(
+        scheduledApp(
+          container,
+          scheduled.add,
+          onAcknowledgeError: (error, _) => failures.add(error),
+        ),
+      );
+      expect(scheduled, hasLength(1));
+
+      scheduled.single();
+      owner = 'user-b';
+      await tester.pump();
+      await tester.pump();
+
+      expect(failures.single, isStateError);
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(repository.acknowledged, isEmpty);
+      expect(
+        (await store.readAll('user-a')).single.state,
+        PendingAdRewardLocalState.pendingDisplay,
+      );
+
+      await tester.tap(find.text('Confirm'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
+      if (scheduled.length > 1) {
+        scheduled.last();
+        await tester.pump();
+        await tester.pump();
+      }
+      expect(find.byType(AlertDialog), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'failed first-frame tombstone drains the queue and stays recoverable',
+    (tester) async {
+      final repository = _QueueRepository()..statuses[reference] = denied();
+      final store = _AckPendingFailingStore(_MemoryStorage());
+      final scheduled = <VoidCallback>[];
+      final failures = <Object>[];
+      final container = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(repository),
+          pendingAdRewardStoreProvider.overrideWithValue(store),
+          adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+        ],
+      );
+      addTearDown(container.dispose);
+      await store.add('user-a', reference);
+      final notifier = container.read(adRewardRecoveryProvider.notifier);
+      await notifier.recover('user-a');
+      await tester.pumpWidget(
+        scheduledApp(
+          container,
+          scheduled.add,
+          onAcknowledgeError: (error, _) => failures.add(error),
+        ),
+      );
+      expect(scheduled, hasLength(1));
+
+      scheduled.single();
+      await tester.pump();
+      await tester.pump();
+
+      expect(failures.single, isFormatException);
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(repository.acknowledged, isEmpty);
+      expect(
+        (await store.readAll('user-a')).single.state,
+        PendingAdRewardLocalState.pendingDisplay,
+      );
+      expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+
+      await tester.tap(find.text('Confirm'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(scheduled, hasLength(1));
+
+      await notifier.recover('user-a');
+      await tester.pump();
+      expect(scheduled, hasLength(2));
+      scheduled.last();
+      await tester.pump();
+      await tester.pump();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(repository.acknowledged, [reference]);
+      expect(await store.readAll('user-a'), isEmpty);
+      expect(failures, hasLength(1));
+    },
+  );
 }
 
 class _QueueRepository extends _Repository {
@@ -422,4 +536,23 @@ class _QueueRepository extends _Repository {
   @override
   Future<AdRewardStatusModel> getStatus(AdRewardReference reference) async =>
       statuses[reference]!;
+}
+
+/// Mirrors a corrupt `pending_ad_rewards_v1` entry: the first tombstone write
+/// rethrows the `FormatException` that `readAll` raises on bad JSON.
+class _AckPendingFailingStore extends PendingAdRewardStore {
+  _AckPendingFailingStore(super.storage);
+  int failures = 1;
+
+  @override
+  Future<void> markAckPending(
+    String userId,
+    AdRewardReference reference,
+  ) async {
+    if (failures > 0) {
+      failures--;
+      throw const FormatException('Invalid pending ad rewards');
+    }
+    return super.markAckPending(userId, reference);
+  }
 }

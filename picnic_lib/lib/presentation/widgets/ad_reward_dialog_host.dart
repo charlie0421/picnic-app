@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -13,10 +14,12 @@ class AdRewardDialogHost extends ConsumerStatefulWidget {
     super.key,
     required this.child,
     this.schedulePostFrame,
+    this.onAcknowledgeError,
   });
 
   final Widget child;
   final void Function(VoidCallback callback)? schedulePostFrame;
+  final void Function(Object error, StackTrace stackTrace)? onAcknowledgeError;
 
   @override
   ConsumerState<AdRewardDialogHost> createState() => _AdRewardDialogHostState();
@@ -58,6 +61,7 @@ class _AdRewardDialogHostState extends ConsumerState<AdRewardDialogHost> {
       return;
     }
     _dialogOpen = true;
+    final report = widget.onAcknowledgeError ?? _logAcknowledgeFailure;
     try {
       await showDialog<void>(
         context: context,
@@ -67,6 +71,15 @@ class _AdRewardDialogHostState extends ConsumerState<AdRewardDialogHost> {
           onFirstFrame: () => ref
               .read(adRewardRecoveryProvider.notifier)
               .acknowledgeAfterRender(queued),
+          onAcknowledgeError: (error, stackTrace) {
+            // Drop the reward from the in-memory queue so a failed ACK can
+            // never re-present the same dialog forever. The durable record is
+            // untouched, so an un-acknowledged reward stays recoverable.
+            if (mounted) {
+              ref.read(adRewardRecoveryProvider.notifier).discardDialog(queued);
+            }
+            report(error, stackTrace);
+          },
         ),
       );
     } finally {
@@ -75,6 +88,14 @@ class _AdRewardDialogHostState extends ConsumerState<AdRewardDialogHost> {
         _scheduleDialog(ref.read(adRewardRecoveryProvider));
       }
     }
+  }
+
+  void _logAcknowledgeFailure(Object error, StackTrace stackTrace) {
+    logger.e(
+      'Ad reward acknowledgement failed',
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   @override
@@ -117,11 +138,13 @@ class AdRewardDialogBody extends StatefulWidget {
     required this.status,
     required this.onFirstFrame,
     this.schedulePostFrame,
+    this.onAcknowledgeError,
   });
 
   final AdRewardStatusModel status;
   final Future<void> Function() onFirstFrame;
   final void Function(VoidCallback callback)? schedulePostFrame;
+  final void Function(Object error, StackTrace stackTrace)? onAcknowledgeError;
 
   @override
   State<AdRewardDialogBody> createState() => _AdRewardDialogBodyState();
@@ -136,7 +159,12 @@ class _AdRewardDialogBodyState extends State<AdRewardDialogBody> {
     void invoke() {
       if (!mounted || _didAcknowledge) return;
       _didAcknowledge = true;
-      unawaited(widget.onFirstFrame());
+      final report = widget.onAcknowledgeError;
+      unawaited(
+        widget.onFirstFrame().catchError((Object error, StackTrace stackTrace) {
+          report?.call(error, stackTrace);
+        }),
+      );
     }
 
     final scheduler = widget.schedulePostFrame;

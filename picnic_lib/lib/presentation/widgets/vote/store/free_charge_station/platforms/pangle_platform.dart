@@ -39,6 +39,7 @@ class PangleClaimPreflight {
     required this.poll,
     required this.load,
     this.loadTimeout = const Duration(seconds: 5),
+    this.onPollError,
   });
   final PangleClaimCreator createClaim;
   final Future<void> Function(String, AdRewardReference) persist;
@@ -46,6 +47,7 @@ class PangleClaimPreflight {
   final Future<void> Function(String, AdRewardReference) poll;
   final Future<bool> Function(String, String) load;
   final Duration loadTimeout;
+  final void Function(Object error, StackTrace stackTrace)? onPollError;
 
   Future<PangleClaimPreflightResult> execute({
     required String ownerUserId,
@@ -60,7 +62,14 @@ class PangleClaimPreflight {
     );
     await persist(ownerUserId, claim.reference);
     final subscription = pollingSignals.listen((_) {
-      unawaited(poll(ownerUserId, claim.reference));
+      unawaited(
+        poll(ownerUserId, claim.reference).catchError((
+          Object error,
+          StackTrace stackTrace,
+        ) {
+          onPollError?.call(error, stackTrace);
+        }),
+      );
     });
     try {
       final loaded = await load(
@@ -222,6 +231,13 @@ class PanglePlatform extends AdPlatform {
                 .read(adRewardRecoveryProvider.notifier)
                 .poll(ownerUserId: owner, reference: reference),
             load: PangleAds.loadRewardedAd,
+            onPollError: (error, stackTrace) {
+              logError(
+                'Pangle reward polling failed',
+                error: error,
+                stackTrace: stackTrace,
+              );
+            },
           ).execute(
             ownerUserId: ownerUserId,
             platform: platform,

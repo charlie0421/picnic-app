@@ -232,6 +232,34 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     }
   }
 
+  /// Drops [queued] from the in-memory dialog queue after its first-frame
+  /// acknowledgement failed, so a failed ACK can never re-present the same
+  /// dialog. The durable record is left untouched: a genuinely un-acknowledged
+  /// reward is re-polled and re-queued by the next recovery attempt.
+  void discardDialog(OwnedAdRewardStatus queued) {
+    final ownerUserId = queued.ownerUserId;
+    final generation = queued.generation;
+    if (!_isCurrent(ownerUserId, generation)) return;
+    final key = _key(ownerUserId, queued.status.reference);
+    if (state.dialogQueue.isEmpty ||
+        state.dialogQueue.first.generation != generation ||
+        _key(
+              state.dialogQueue.first.ownerUserId,
+              state.dialogQueue.first.status.reference,
+            ) !=
+            key) {
+      return;
+    }
+    _queued.remove(key);
+    state = state.copyWith(
+      dialogQueue: state.dialogQueue
+          .where(
+            (value) => _key(value.ownerUserId, value.status.reference) != key,
+          )
+          .toList(growable: false),
+    );
+  }
+
   Future<void> acknowledgeAfterRender(OwnedAdRewardStatus queued) async {
     final ownerUserId = queued.ownerUserId;
     final status = queued.status;
