@@ -35,14 +35,20 @@ class _FakeWalletRepository extends WalletRepository {
   }
 }
 
-/// Repository whose history responses only resolve when the test says so,
-/// so overlapping `loadNext()` calls can be landed out of order.
+/// Repository whose cursor-page responses only resolve when the test says so,
+/// so a `loadNext()` response can be landed at a chosen moment.
 class _ControlledWalletRepository extends WalletRepository {
-  _ControlledWalletRepository({required this.pages})
+  _ControlledWalletRepository({required this.pages, this.firstPageOnRebuild})
     : super(_UnusedSupabaseClient());
 
   final Map<String?, CurrencyHistoryPageModel> pages;
+
+  /// Served instead of `pages[null]` from the second build onwards, so a
+  /// rebuild can be seen to replace the list a request was started against.
+  final CurrencyHistoryPageModel? firstPageOnRebuild;
+
   final List<String?> cursors = [];
+  int firstPageCalls = 0;
   final List<MapEntry<String, Completer<CurrencyHistoryPageModel>>> _pending =
       [];
 
@@ -53,7 +59,12 @@ class _ControlledWalletRepository extends WalletRepository {
     int limit = 20,
   }) {
     cursors.add(cursor);
-    if (cursor == null) return Future.value(pages[null]!);
+    if (cursor == null) {
+      firstPageCalls++;
+      return Future.value(
+        firstPageCalls > 1 ? (firstPageOnRebuild ?? pages[null]!) : pages[null]!,
+      );
+    }
     final completer = Completer<CurrencyHistoryPageModel>();
     _pending.add(MapEntry(cursor, completer));
     return completer.future;
@@ -64,15 +75,6 @@ class _ControlledWalletRepository extends WalletRepository {
     final entry = _pending.lastWhere((entry) => entry.key == cursor);
     _pending.remove(entry);
     entry.value.complete(pages[cursor]!);
-  }
-
-  /// Resolves every request for [cursor] that is still in flight, oldest first.
-  void completeRemaining(String cursor) {
-    final entries = _pending.where((entry) => entry.key == cursor).toList();
-    _pending.removeWhere((entry) => entry.key == cursor);
-    for (final entry in entries) {
-      entry.value.complete(pages[cursor]!);
-    }
   }
 }
 
@@ -189,8 +191,13 @@ void main() {
     },
   );
 
+  // `loadNext` sets its in-flight flag synchronously, before its first await,
+  // so a second call while a page is outstanding returns without requesting
+  // anything. Two `loadNext` responses can therefore never be in flight at once
+  // and cannot land out of order - the guard makes that unreachable by
+  // construction. What this test pins is the guard itself.
   test(
-    'a slow loadNext landing late never drops a page nor rewinds the cursor',
+    'a second scroll-end notification while a page is in flight is dropped',
     () async {
       final repository = _ControlledWalletRepository(
         pages: {
@@ -217,11 +224,24 @@ void main() {
       final notifier = container.read(provider.notifier);
 
       // Two scroll-end notifications in a row, before the first response lands.
-      final slow = notifier.loadNext();
-      final fast = notifier.loadNext();
+      final inFlight = notifier.loadNext();
+      var duplicateSettled = false;
+      final duplicate = notifier.loadNext();
+      unawaited(duplicate.then((_) => duplicateSettled = true));
       await _flush();
 
-      // The response that started last comes back first.
+      expect(
+        duplicateSettled,
+        isTrue,
+        reason: 'the duplicate notification is dropped, not queued behind the '
+            'outstanding request',
+      );
+      expect(
+        repository.cursors,
+        [null, 'cursor-2'],
+        reason: 'the duplicate notification must not reach the repository',
+      );
+
       repository.completeLatest('cursor-2');
       await _flush();
 
@@ -230,17 +250,13 @@ void main() {
       await _flush();
       repository.completeLatest('cursor-3');
       await _flush();
-
-      // Finally the very first, slow response arrives - it must not clobber
-      // the newer state it never saw.
-      repository.completeRemaining('cursor-2');
-      await _flush();
-      await Future.wait([slow, fast, third]);
+      await Future.wait([inFlight, duplicate, third]);
 
       final page = container.read(provider).value!;
       expect([for (final item in page.items) item.id], ['1', '2', '3']);
       expect(page.nextCursor, isNull);
       expect(page.totalCount, BigInt.from(3));
+      expect(repository.cursors, [null, 'cursor-2', 'cursor-3']);
 
       for (var i = 1; i < observed.length; i++) {
         expect(
@@ -251,6 +267,62 @@ void main() {
               '${observed[i - 1]} to ${observed[i]}',
         );
       }
+    },
+  );
+
+  // The in-flight guard rules out two overlapping `loadNext` calls, but not a
+  // rebuild: `build` re-runs on the same notifier when a dependency is
+  // invalidated, so the list a request was started against can be replaced
+  // while that request is still outstanding. This is the case the merge in
+  // `loadNext` reads `state.value` for instead of its pre-await snapshot.
+  test(
+    'a page landing after a rebuild extends the rebuilt list, not the snapshot',
+    () async {
+      final repository = _ControlledWalletRepository(
+        pages: {
+          null: _page([_item('1')], 'cursor-2', totalCount: BigInt.one),
+          'cursor-2': _page([_item('2')], null, totalCount: BigInt.from(3)),
+        },
+        firstPageOnRebuild: _page(
+          [_item('1'), _item('9')],
+          'cursor-2',
+          totalCount: BigInt.two,
+        ),
+      );
+      final container = ProviderContainer(
+        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
+      );
+      addTearDown(container.dispose);
+
+      final provider = currencyHistoryProvider(WalletCurrency.cottonCandy);
+      container.listen(provider, (previous, next) {});
+      await container.read(provider.future);
+
+      // The next page is requested against ['1'] ...
+      final inFlight = container.read(provider.notifier).loadNext();
+      await _flush();
+
+      // ... and while it is outstanding the provider rebuilds, so the list the
+      // request was started against no longer exists.
+      container.invalidate(provider);
+      await container.read(provider.future);
+      expect([
+        for (final item in container.read(provider).value!.items) item.id,
+      ], ['1', '9']);
+
+      repository.completeLatest('cursor-2');
+      await _flush();
+      await inFlight;
+
+      final page = container.read(provider).value!;
+      expect(
+        [for (final item in page.items) item.id],
+        ['1', '9', '2'],
+        reason:
+            'the late page must extend the list it actually landed in; merging '
+            'into the pre-await snapshot would drop the refreshed item',
+      );
+      expect(page.nextCursor, isNull);
     },
   );
 
