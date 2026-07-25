@@ -44,4 +44,26 @@ void main() {
 
     expect(find.text('-10'), findsOneWidget);
   });
+
+  // The panel above this list renders 1,300 while a row rendered 1300, so the
+  // same balance was shown two ways in one flow. Group digits here as well.
+  testWidgets('groups digits like every other wallet surface', (tester) async {
+    await tester.pumpWidget(
+      buildTestApp(
+        CurrencyHistoryListItem(item: _item(delta: BigInt.from(1300))),
+      ),
+    );
+
+    expect(find.text('+1,300'), findsOneWidget);
+  });
+
+  testWidgets('groups digits for debits too', (tester) async {
+    await tester.pumpWidget(
+      buildTestApp(
+        CurrencyHistoryListItem(item: _item(delta: BigInt.from(-1234567))),
+      ),
+    );
+
+    expect(find.text('-1,234,567'), findsOneWidget);
+  });
 }

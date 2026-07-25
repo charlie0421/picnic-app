@@ -15,7 +15,11 @@ class CurrencyHistoryListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final delta = item.delta;
-    final signedDelta = delta > BigInt.zero ? '+$delta' : delta.toString();
+    // formatWalletAmount groups digits and carries the minus itself, so only
+    // the plus has to be added here. Every other wallet surface uses it.
+    final signedDelta = delta > BigInt.zero
+        ? '+${formatWalletAmount(delta)}'
+        : formatWalletAmount(delta);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
