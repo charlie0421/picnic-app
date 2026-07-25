@@ -8,6 +8,63 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/pur
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_settlement_step.dart';
 
+import 'recording_receipt_dialogs.dart';
+
+/// The production safety manager with the settlement calls timestamped.
+///
+/// Every override still runs the real body, so the step is driven against real
+/// safety state rather than a script. Recording is the only addition, and it is
+/// what makes the documented order observable: nothing on the manager's public
+/// surface distinguishes "completePurchaseSession ran" from "it ran second".
+class _RecordingSafetyManager extends PurchaseSafetyManager {
+  _RecordingSafetyManager({
+    required super.loadingKey,
+    required super.resetPurchaseState,
+    required this.events,
+  });
+
+  final List<String> events;
+
+  @override
+  bool isLatePurchaseForProduct(String productId) {
+    events.add('readLateness');
+    return super.isLatePurchaseForProduct(productId);
+  }
+
+  @override
+  void completePurchaseSession(String productId) {
+    events.add('completePurchaseSession');
+    super.completePurchaseSession(productId);
+  }
+
+  @override
+  Future<void> performPostPurchaseCleanup({
+    required String productId,
+    required String transactionId,
+    PurchaseDetails? completedPurchase,
+  }) {
+    events.add('performPostPurchaseCleanup');
+    return super.performPostPurchaseCleanup(
+      productId: productId,
+      transactionId: transactionId,
+      completedPurchase: completedPurchase,
+    );
+  }
+}
+
+/// The production attempt registry with `finish` timestamped.
+class _RecordingRegistry extends PurchaseCampaignAttemptRegistry {
+  _RecordingRegistry(this.events);
+
+  final List<String> events;
+
+  @override
+  bool finish(PurchaseDetails purchase, String attemptId) {
+    events.add('finish');
+    return super.finish(purchase, attemptId);
+  }
+}
+
 /// Late-purchase settlement, driven through the production settlement step.
 ///
 /// The 90s safety net can fire while receipt verification is still running: the
@@ -18,10 +75,15 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_set
 /// Unlike `purchase_late_settlement_test.dart`, which reads lateness itself and
 /// therefore only pins `PurchaseSafetyManager`, these tests hand the whole
 /// settlement to [PurchaseSettlementStep] and let it decide. The step performs
-/// the reads and the teardown in production order, so the ordering constraint -
-/// lateness must be read before `completePurchaseSession` and
-/// `cleanupAllTimersOnSuccess` destroy the state it is derived from - is under
-/// test here, not just the predicate.
+/// the reads and the teardown in production order, so the ordering constraints
+/// the class documents are under test here, not just the predicate:
+///
+/// - lateness is read before `completePurchaseSession` and
+///   `cleanupAllTimersOnSuccess` destroy the state it is derived from;
+/// - the session is released, and the transaction recorded, before anything is
+///   presented;
+/// - the wallet is credited before the receipt claims it was, mounted or not;
+/// - the attempt is not finished until the awaited receipt has been dismissed.
 ///
 /// The collaborators below are wired exactly the way `PurchaseStarCandyState`
 /// wires them: the manager and registry are the real objects, and the callbacks
@@ -35,16 +97,19 @@ void main() {
     'wasCancelled': false,
   };
 
-  late PurchaseCampaignAttemptRegistry registry;
-  late PurchaseSafetyManager manager;
+  late _RecordingRegistry registry;
+  late _RecordingSafetyManager manager;
+  late List<String> events;
   late int timeoutMessages;
 
   setUp(() {
     timeoutMessages = 0;
-    registry = PurchaseCampaignAttemptRegistry();
-    manager = PurchaseSafetyManager(
+    events = [];
+    registry = _RecordingRegistry(events);
+    manager = _RecordingSafetyManager(
       loadingKey: GlobalKey<LoadingOverlayWithIconState>(),
       resetPurchaseState: () {},
+      events: events,
     );
     manager.onTimeoutUIReset = () => timeoutMessages++;
     manager.onProductTimeout = (timedOutProduct, timedOutAttempt) {
@@ -118,18 +183,62 @@ void main() {
 
   /// Hands the verified result to the production settlement step.
   ///
-  /// `cleanupAllTimersOnSuccess` mirrors `PurchaseStarCandyState`, whose
-  /// `PurchaseProcessor.cleanupAllTimersOnSuccess` calls straight through to
-  /// the manager. That call clears the triggered safety timeout, so wiring it
-  /// faithfully is what makes a mis-ordered read observable.
-  Future<({int plain, int late, WalletSummaryModel? wallet})> settle(
+  /// `cleanupAllTimersOnSuccess` narrows what production injects.
+  /// `PurchaseStarCandyState` passes `_cleanupAllTimersOnSuccess`, which is
+  /// `PurchaseProcessor.cleanupAllTimersOnSuccess`: the manager call below plus
+  /// `RestorePurchaseHandler.cleanupTimersOnPurchaseSuccess()` and
+  /// `InAppPurchaseService.cleanupTimersOnPurchaseSuccess(productId)`, all three
+  /// inside a try/catch.
+  ///
+  /// Only the manager call is reproduced here, deliberately:
+  ///
+  /// - It is the only one of the three whose effect the step can observe. It
+  ///   clears `_safetyTimeoutTriggered`, which is exactly what makes a lateness
+  ///   read moved below this point report every late purchase as plain. The
+  ///   other two touch timers the step never reads.
+  /// - Reproducing them faithfully means constructing a real `PurchaseService`,
+  ///   which initialises StoreKit/Play, flushes the receipt queue and reaches
+  ///   Supabase - the whole plugin stack, hung off an ordering test.
+  ///
+  /// The narrowing is safe in the direction that matters. Production's version
+  /// cannot throw (`PurchaseProcessor.runTimerCleanupGuarded` swallows, and
+  /// `purchase_processor_test.dart` pins that), so the step is entitled to treat
+  /// this seam as a plain `void` call - which is all the stand-in below is.
+  Future<
+    ({
+      int plain,
+      int late,
+      WalletSummaryModel? wallet,
+      List<String> cleanedUpProducts,
+      int hideLoadingCalls,
+      int resetProductCalls,
+      bool? attemptHeldDuringReceipt,
+      bool? walletAppliedDuringReceipt,
+    })
+  >
+  settle(
     WidgetTester tester,
     String product,
-    String id,
-  ) async {
-    var plainReceipts = 0;
-    var lateReceipts = 0;
+    String id, {
+    bool isMounted = true,
+  }) async {
     WalletSummaryModel? appliedWallet;
+    final cleanedUpProducts = <String>[];
+    var hideLoadingCalls = 0;
+    var resetProductCalls = 0;
+    bool? attemptHeldDuringReceipt;
+    bool? walletAppliedDuringReceipt;
+
+    final dialogs = RecordingReceiptDialogs(
+      whilePresenting: () async {
+        events.add('receipt');
+        // What a second tap on the tile behind the receipt would see: both
+        // `_canPurchase` and `_handlePurchase` gate on
+        // `_purchaseAttempts.contains(productId)`.
+        attemptHeldDuringReceipt = registry.contains(product);
+        walletAppliedDuringReceipt = appliedWallet != null;
+      },
+    );
 
     final settling = const PurchaseSettlementStep().settle(
       safetyManager: manager,
@@ -137,13 +246,22 @@ void main() {
       purchaseDetails: transactionFor(product),
       result: verified(),
       attempt: attemptFor(product, id),
-      cleanupAllTimersOnSuccess: (_) => manager.cleanupAllTimersOnSuccess(),
-      applyWalletSummary: (wallet) => appliedWallet = wallet,
-      isMounted: () => true,
-      resetProductPurchaseState: manager.resetProductState,
-      hideLoading: () {},
-      showSuccess: (_, _) async => plainReceipts++,
-      showLateSuccess: (_, _) async => lateReceipts++,
+      cleanupAllTimersOnSuccess: (cleanedProduct) {
+        events.add('cleanupAllTimersOnSuccess');
+        cleanedUpProducts.add(cleanedProduct);
+        manager.cleanupAllTimersOnSuccess();
+      },
+      applyWalletSummary: (wallet) {
+        events.add('applyWalletSummary');
+        appliedWallet = wallet;
+      },
+      isMounted: () => isMounted,
+      resetProductPurchaseState: (resetProduct) {
+        resetProductCalls++;
+        manager.resetProductState(resetProduct);
+      },
+      hideLoading: () => hideLoadingCalls++,
+      receiptDialogs: dialogs,
     );
 
     // The step awaits PurchaseSafetyManager.performPostPurchaseCleanup, which
@@ -151,7 +269,16 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await settling;
 
-    return (plain: plainReceipts, late: lateReceipts, wallet: appliedWallet);
+    return (
+      plain: dialogs.plainReceipts,
+      late: dialogs.lateReceipts,
+      wallet: appliedWallet,
+      cleanedUpProducts: cleanedUpProducts,
+      hideLoadingCalls: hideLoadingCalls,
+      resetProductCalls: resetProductCalls,
+      attemptHeldDuringReceipt: attemptHeldDuringReceipt,
+      walletAppliedDuringReceipt: walletAppliedDuringReceipt,
+    );
   }
 
   testWidgets('purchase verified after its safety timeout settles as late', (
@@ -217,17 +344,155 @@ void main() {
     manager.disposeSafetyTimer();
   });
 
-  testWidgets('settled attempt is released so the product can be bought again', (
+  testWidgets('settlement runs every step the class documents, in order', (
     tester,
   ) async {
+    await launch(productId, attemptId);
+    final presented = await settle(tester, productId, attemptId);
+
+    expect(events, [
+      'readLateness',
+      'completePurchaseSession',
+      'cleanupAllTimersOnSuccess',
+      'performPostPurchaseCleanup',
+      'applyWalletSummary',
+      'receipt',
+      'finish',
+    ]);
+    expect(
+      presented.cleanedUpProducts,
+      [productId],
+      reason:
+          'InAppPurchaseService.cleanupTimersOnPurchaseSuccess is keyed by '
+          'product, so the settled product id must be forwarded',
+    );
+
+    manager.disposeSafetyTimer();
+  });
+
+  testWidgets('the attempt keeps blocking a second tap until the receipt is '
+      'dismissed', (tester) async {
+    await launch(productId, attemptId);
+    final presented = await settle(tester, productId, attemptId);
+
+    expect(
+      presented.attemptHeldDuringReceipt,
+      isTrue,
+      reason:
+          'a tap behind the receipt must reach showPurchaseAlreadyPendingDialog; '
+          'finishing the attempt first leaves only the per-product cooldown '
+          'between the user and a second charge',
+    );
+    expect(
+      registry.contains(productId),
+      isFalse,
+      reason: 'the attempt is released once the receipt has been dismissed',
+    );
+
+    manager.disposeSafetyTimer();
+  });
+
+  testWidgets('the wallet is credited before the receipt reports the balance', (
+    tester,
+  ) async {
+    await launch(productId, attemptId);
+    final presented = await settle(tester, productId, attemptId);
+
+    expect(
+      presented.walletAppliedDuringReceipt,
+      isTrue,
+      reason:
+          'the receipt renders the granted amount against walletSummaryProvider, '
+          'which must already hold the post-purchase balance',
+    );
+
+    manager.disposeSafetyTimer();
+  });
+
+  testWidgets('settling a purchase releases the session for the next one', (
+    tester,
+  ) async {
+    await launch(productId, attemptId);
+    expect(
+      manager.canAttemptPurchase(),
+      isFalse,
+      reason: 'the launch holds the purchase session',
+    );
+
+    await settle(tester, productId, attemptId);
+
+    expect(
+      manager.canAttemptPurchase(),
+      isTrue,
+      reason:
+          'without completePurchaseSession _isPurchaseInProgress stays true and '
+          'every later purchase in the session is blocked',
+    );
+
+    manager.disposeSafetyTimer();
+  });
+
+  testWidgets('the settled transaction is recorded so a redelivery is not '
+      'charged again', (tester) async {
     await launch(productId, attemptId);
     await settle(tester, productId, attemptId);
 
     expect(
+      manager.isActualPurchase(
+        purchaseDetails: transactionFor(productId),
+        isActivePurchasing: false,
+        pendingProductId: null,
+      ),
+      isFalse,
+      reason:
+          'performPostPurchaseCleanup records the real transaction id; without '
+          'it the store redelivering the same transaction is taken for a fresh '
+          'purchase',
+    );
+
+    manager.disposeSafetyTimer();
+  });
+
+  testWidgets('a receipt verified after the user leaves the store still '
+      'credits the wallet', (tester) async {
+    await launch(productId, attemptId);
+
+    final presented = await settle(
+      tester,
+      productId,
+      attemptId,
+      isMounted: false,
+    );
+
+    expect(
+      presented.wallet,
+      isNotNull,
+      reason:
+          'the candy was granted server-side when the receipt verified; leaving '
+          'the store must not leave walletSummaryProvider on the old balance',
+    );
+    expect(
+      presented.plain + presented.late,
+      0,
+      reason: 'there is no store on screen to present a receipt to',
+    );
+    expect(presented.hideLoadingCalls, 0);
+    expect(presented.resetProductCalls, 0);
+    expect(
       registry.contains(productId),
       isFalse,
-      reason: 'the step must finish the attempt it settled',
+      reason:
+          'the attempt must be released with nothing to present to, or the '
+          'product stays locked for the rest of the session',
     );
+    expect(events, [
+      'readLateness',
+      'completePurchaseSession',
+      'cleanupAllTimersOnSuccess',
+      'performPostPurchaseCleanup',
+      'applyWalletSummary',
+      'finish',
+    ]);
 
     manager.disposeSafetyTimer();
   });

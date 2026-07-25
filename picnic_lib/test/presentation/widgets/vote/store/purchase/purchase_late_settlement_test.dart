@@ -6,6 +6,8 @@ import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart'
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_safety_manager.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
 
+import 'recording_receipt_dialogs.dart';
+
 /// Late-purchase settlement regression.
 ///
 /// The 90s safety net can fire while receipt verification is still running: the
@@ -85,16 +87,14 @@ void main() {
 
   /// Mirrors the settlement branch of `_processActivePurchase`.
   Future<({int plain, int late})> settle(String product, String id) async {
-    var plainReceipts = 0;
-    var lateReceipts = 0;
+    final dialogs = RecordingReceiptDialogs();
     await const PurchaseSettlementPresentation().present(
       result: verified(),
       attempt: attemptFor(product, id),
       isLate: manager.isLatePurchaseForProduct(product),
-      showSuccess: (_, _) async => plainReceipts++,
-      showLateSuccess: (_, _) async => lateReceipts++,
+      dialogs: dialogs,
     );
-    return (plain: plainReceipts, late: lateReceipts);
+    return (plain: dialogs.plainReceipts, late: dialogs.lateReceipts);
   }
 
   testWidgets('purchase verified after its safety timeout settles as late', (

@@ -13,6 +13,7 @@ import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
 
 enum PurchaseSuccessKind { generic, checking, granted }
 
@@ -97,7 +98,7 @@ bool shouldShowDebugInfo(Map<String, dynamic> envInfo) {
 }
 
 /// 🎭 구매 관련 다이얼로그 관리자
-class PurchaseDialogHandler {
+class PurchaseDialogHandler implements PurchaseReceiptDialogs {
   final BuildContext _context;
   final PurchaseService _purchaseService;
   final BuildContext? Function() _receiptContext;
@@ -371,6 +372,7 @@ class PurchaseDialogHandler {
   }
 
   /// 🎉 구매 성공 다이얼로그
+  @override
   Future<void> showSuccessDialog({
     required PurchaseSettlementResultModel result,
     required ActivePromotionCampaignModel? displayedCampaign,
@@ -400,6 +402,7 @@ class PurchaseDialogHandler {
   }
 
   /// ⏰ 늦은 구매 성공 다이얼로그
+  @override
   Future<void> showLatePurchaseSuccessDialog({
     required PurchaseSettlementResultModel result,
     required ActivePromotionCampaignModel? displayedCampaign,

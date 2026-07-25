@@ -382,16 +382,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           isMounted: () => mounted,
           resetProductPurchaseState: _resetProductPurchaseState,
           hideLoading: () => _loadingKey.currentState?.hide(),
-          showSuccess: (sameResult, displayedCampaign) =>
-              _dialogHandler.showSuccessDialog(
-                result: sameResult,
-                displayedCampaign: displayedCampaign,
-              ),
-          showLateSuccess: (sameResult, displayedCampaign) =>
-              _dialogHandler.showLatePurchaseSuccessDialog(
-                result: sameResult,
-                displayedCampaign: displayedCampaign,
-              ),
+          receiptDialogs: _dialogHandler,
         );
       },
       (error) async {

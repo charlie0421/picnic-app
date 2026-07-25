@@ -24,6 +24,17 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_cam
 /// product from the manager's active set, step 3 clears the triggered safety
 /// timeout - so the read in step 1 cannot be moved below either of them.
 ///
+/// Two more orderings are load-bearing and are pinned in the tests:
+///
+/// - The wallet is applied before the receipt is presented, and it is applied
+///   whether or not the store is still mounted. The candy was granted
+///   server-side when the receipt verified; skipping this leaves
+///   `walletSummaryProvider` reporting a stale balance.
+/// - `attempts.finish` runs *after* the awaited receipt dialog returns. While
+///   the dialog is on screen the attempt must still be registered, because
+///   `_purchaseAttempts.contains()` is what makes a second tap hit
+///   `showPurchaseAlreadyPendingDialog` instead of a second charge.
+///
 /// Everything that is genuinely bound to the widget (mount state, `setState`,
 /// the loading overlay, the Riverpod container) enters as a callback so the
 /// step never reaches into widget state.
@@ -46,8 +57,7 @@ class PurchaseSettlementStep {
     required bool Function() isMounted,
     required void Function(String productId) resetProductPurchaseState,
     required VoidCallback hideLoading,
-    required PresentPurchaseSettlement showSuccess,
-    required PresentPurchaseSettlement showLateSuccess,
+    required PurchaseReceiptDialogs receiptDialogs,
   }) async {
     final productId = purchaseDetails.productID;
 
@@ -87,8 +97,7 @@ class PurchaseSettlementStep {
         result: result,
         attempt: attempt,
         isLate: isLatePurchase,
-        showSuccess: showSuccess,
-        showLateSuccess: showLateSuccess,
+        dialogs: receiptDialogs,
       );
     }
     attempts.finish(purchaseDetails, attempt.attemptId);

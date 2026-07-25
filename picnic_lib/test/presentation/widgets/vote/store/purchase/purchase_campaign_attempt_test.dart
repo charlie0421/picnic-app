@@ -8,6 +8,8 @@ import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart'
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
 
+import 'recording_receipt_dialogs.dart';
+
 void main() {
   PurchaseCampaignAttempt attempt(String id, String product) =>
       PurchaseCampaignAttempt(
@@ -201,25 +203,21 @@ void main() {
           snapshotAt: DateTime.utc(2026),
         ),
       );
-      PurchaseSettlementResultModel? dialogResult;
-      ActivePromotionCampaignModel? dialogCampaign;
+      final dialogs = RecordingReceiptDialogs();
 
       await deliverVerifiedPurchaseResult(verified, (serviceResult) {
         return const PurchaseSettlementPresentation().present(
           result: serviceResult,
           attempt: launchAttempt,
           isLate: false,
-          showSuccess: (result, displayedCampaign) async {
-            dialogResult = result;
-            dialogCampaign = displayedCampaign;
-          },
-          showLateSuccess: (result, displayedCampaign) async {},
+          dialogs: dialogs,
         );
       });
 
-      expect(identical(dialogResult, verified), isTrue);
-      expect(identical(dialogCampaign, campaign), isTrue);
-      expect(dialogCampaign!.campaignVersionId, 'version-at-launch');
+      expect(dialogs.plainReceipts, 1);
+      expect(identical(dialogs.results.single, verified), isTrue);
+      expect(identical(dialogs.campaigns.single, campaign), isTrue);
+      expect(dialogs.campaigns.single!.campaignVersionId, 'version-at-launch');
     },
   );
 
@@ -246,31 +244,24 @@ void main() {
         );
         final launchAttempt = attempt('attempt', 'STAR100');
         final dialogCompleter = Completer<void>();
-        var normalCalls = 0;
-        var lateCalls = 0;
+        final dialogs = RecordingReceiptDialogs(
+          whilePresenting: () => dialogCompleter.future,
+        );
 
         final presentation = const PurchaseSettlementPresentation().present(
           result: verified,
           attempt: launchAttempt,
           isLate: isLate,
-          showSuccess: (result, displayedCampaign) {
-            expect(identical(result, verified), isTrue);
-            normalCalls++;
-            return dialogCompleter.future;
-          },
-          showLateSuccess: (result, displayedCampaign) {
-            expect(identical(result, verified), isTrue);
-            lateCalls++;
-            return dialogCompleter.future;
-          },
+          dialogs: dialogs,
         );
         var completed = false;
         presentation.then((_) => completed = true);
 
         await Future<void>.delayed(Duration.zero);
         expect(completed, isFalse);
-        expect(normalCalls, isLate ? 0 : 1);
-        expect(lateCalls, isLate ? 1 : 0);
+        expect(identical(dialogs.results.single, verified), isTrue);
+        expect(dialogs.plainReceipts, isLate ? 0 : 1);
+        expect(dialogs.lateReceipts, isLate ? 1 : 0);
 
         dialogCompleter.complete();
         await presentation;
