@@ -14,10 +14,7 @@ void main() {
     'supabase': {
       'url': 'https://test.supabase.co',
       'anon_key': 'a' * 120,
-      'storage': {
-        'url': 'https://storage.test.co',
-        'anon_key': 'storage_key',
-      },
+      'storage': {'url': 'https://storage.test.co', 'anon_key': 'storage_key'},
     },
     'auth': {
       'apple': {'client_id': 'a', 'redirect_uri': 'r'},
@@ -63,26 +60,20 @@ void main() {
     },
     'logging': {'level': 'debug'},
     'ads': {
-      'tapjoy': {
-        'android_sdk_key': 'tj_android',
-        'ios_sdk_key': 'tj_ios',
-      },
+      'tapjoy': {'android_sdk_key': 'tj_android', 'ios_sdk_key': 'tj_ios'},
     },
   };
 
   setUp(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMessageHandler(
-      'flutter/assets',
-      (ByteData? message) async {
-        final codec = const StringCodec();
-        final requestedAsset = codec.decodeMessage(message!);
-        if (requestedAsset == 'config/test.json') {
-          return codec.encodeMessage(json.encode(testConfig));
-        }
-        return null;
-      },
-    );
+        .setMockMessageHandler('flutter/assets', (ByteData? message) async {
+          final codec = const StringCodec();
+          final requestedAsset = codec.decodeMessage(message!);
+          if (requestedAsset == 'config/test.json') {
+            return codec.encodeMessage(json.encode(testConfig));
+          }
+          return null;
+        });
     await Environment.initConfig('test');
   });
 
@@ -106,9 +97,7 @@ void main() {
       });
 
       test('returns true when products table returns empty list', () async {
-        setupMockSupabase({
-          'products': <Map<String, dynamic>>[],
-        });
+        setupMockSupabase({'products': <Map<String, dynamic>>[]});
 
         final result = await SupabaseHealthCheck.checkSupabaseHealth();
         expect(result, isTrue);
@@ -132,21 +121,20 @@ void main() {
       test('returns false when URL does not start with https', () async {
         // Create a config with http:// instead of https://
         final badUrlConfig = Map<String, dynamic>.from(testConfig);
-        badUrlConfig['supabase'] = Map<String, dynamic>.from(testConfig['supabase'] as Map);
+        badUrlConfig['supabase'] = Map<String, dynamic>.from(
+          testConfig['supabase'] as Map,
+        );
         (badUrlConfig['supabase'] as Map)['url'] = 'http://test.supabase.co';
 
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMessageHandler(
-          'flutter/assets',
-          (ByteData? message) async {
-            final codec = const StringCodec();
-            final requestedAsset = codec.decodeMessage(message!);
-            if (requestedAsset == 'config/badurl.json') {
-              return codec.encodeMessage(json.encode(badUrlConfig));
-            }
-            return null;
-          },
-        );
+            .setMockMessageHandler('flutter/assets', (ByteData? message) async {
+              final codec = const StringCodec();
+              final requestedAsset = codec.decodeMessage(message!);
+              if (requestedAsset == 'config/badurl.json') {
+                return codec.encodeMessage(json.encode(badUrlConfig));
+              }
+              return null;
+            });
         await Environment.initConfig('badurl');
 
         setupMockSupabase({});
@@ -167,23 +155,48 @@ void main() {
         };
 
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMessageHandler(
-          'flutter/assets',
-          (ByteData? message) async {
-            final codec = const StringCodec();
-            final requestedAsset = codec.decodeMessage(message!);
-            if (requestedAsset == 'config/shortkey.json') {
-              return codec.encodeMessage(json.encode(shortKeyConfig));
-            }
-            return null;
-          },
-        );
+            .setMockMessageHandler('flutter/assets', (ByteData? message) async {
+              final codec = const StringCodec();
+              final requestedAsset = codec.decodeMessage(message!);
+              if (requestedAsset == 'config/shortkey.json') {
+                return codec.encodeMessage(json.encode(shortKeyConfig));
+              }
+              return null;
+            });
         await Environment.initConfig('shortkey');
 
         setupMockSupabase({});
 
         final result = await SupabaseHealthCheck.checkSupabaseHealth();
         expect(result, isFalse);
+      });
+
+      test('accepts a Supabase publishable key', () async {
+        final publishableKeyConfig = Map<String, dynamic>.from(testConfig);
+        publishableKeyConfig['supabase'] = {
+          'url': 'https://test.supabase.co',
+          'anon_key': 'sb_publishable_12345678901234567890123456789012',
+          'storage': {
+            'url': 'https://storage.test.co',
+            'anon_key': 'storage_key',
+          },
+        };
+
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMessageHandler('flutter/assets', (ByteData? message) async {
+              final codec = const StringCodec();
+              final requestedAsset = codec.decodeMessage(message!);
+              if (requestedAsset == 'config/publishablekey.json') {
+                return codec.encodeMessage(json.encode(publishableKeyConfig));
+              }
+              return null;
+            });
+        await Environment.initConfig('publishablekey');
+
+        setupMockSupabase({'products': <Map<String, dynamic>>[]});
+
+        final result = await SupabaseHealthCheck.checkSupabaseHealth();
+        expect(result, isTrue);
       });
     });
 
@@ -214,17 +227,14 @@ void main() {
         };
 
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMessageHandler(
-          'flutter/assets',
-          (ByteData? message) async {
-            final codec = const StringCodec();
-            final requestedAsset = codec.decodeMessage(message!);
-            if (requestedAsset == 'config/badurl2.json') {
-              return codec.encodeMessage(json.encode(badUrlConfig));
-            }
-            return null;
-          },
-        );
+            .setMockMessageHandler('flutter/assets', (ByteData? message) async {
+              final codec = const StringCodec();
+              final requestedAsset = codec.decodeMessage(message!);
+              if (requestedAsset == 'config/badurl2.json') {
+                return codec.encodeMessage(json.encode(badUrlConfig));
+              }
+              return null;
+            });
         await Environment.initConfig('badurl2');
 
         setupMockSupabase({});

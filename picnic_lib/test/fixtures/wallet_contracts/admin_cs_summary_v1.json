@@ -1,0 +1,22 @@
+{
+  "user_id": "00000000-0000-4000-8000-000000000701",
+  "balances": {
+    "STAR_CANDY": "100",
+    "BONUS_STAR_CANDY": "20",
+    "COTTON_CANDY": "5"
+  },
+  "open_debt": {
+    "STAR_CANDY": "0",
+    "BONUS_STAR_CANDY": "3"
+  },
+  "cotton_expiring_amount": "5",
+  "cotton_next_expires_at": "2026-07-28T00:00:00.000Z",
+  "invariant_status": "OK",
+  "authoritative_totals": {
+    "STAR_CANDY": "100",
+    "BONUS_STAR_CANDY": "20",
+    "COTTON_CANDY": "5"
+  },
+  "recent_operation": null,
+  "snapshot_at": "2026-07-21T00:00:00.000Z"
+}

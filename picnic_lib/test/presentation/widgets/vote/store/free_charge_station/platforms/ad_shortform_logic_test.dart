@@ -314,6 +314,63 @@ void main() {
     });
   });
 
+  group('AdShortformLogic.isCtaActionEnabled', () {
+    test('enables a visible CTA before reward completion', () {
+      expect(
+        AdShortformLogic.isCtaActionEnabled(visible: true, rewarding: false),
+        isTrue,
+      );
+    });
+
+    test('disables CTA while reward callback is in progress', () {
+      expect(
+        AdShortformLogic.isCtaActionEnabled(visible: true, rewarding: true),
+        isFalse,
+      );
+    });
+  });
+
+  test('close remains enabled when reward callback did not complete', () {
+    expect(
+      AdShortformLogic.isCloseActionEnabled(
+        finished: true,
+        viewReported: false,
+        rewarding: false,
+      ),
+      isTrue,
+    );
+  });
+
+  test(
+    'reports completion when HLS playback stops slightly before duration',
+    () {
+      expect(
+        AdShortformLogic.shouldReportView(
+          isInitialized: true,
+          isPlaying: false,
+          position: const Duration(milliseconds: 30500),
+          duration: const Duration(seconds: 31),
+        ),
+        isTrue,
+      );
+    },
+  );
+
+  test(
+    'does not report completion when playback is paused far from the end',
+    () {
+      expect(
+        AdShortformLogic.shouldReportView(
+          isInitialized: true,
+          isPlaying: false,
+          position: const Duration(seconds: 10),
+          duration: const Duration(seconds: 31),
+        ),
+        isFalse,
+      );
+    },
+  );
+
   group('AdShortformLogic.shouldShowLoader', () {
     test('returns true when loading', () {
       expect(
@@ -433,16 +490,18 @@ void main() {
       );
     });
 
-    test('does not error when blocked by anti-abuse (route already popping)',
-        () {
-      expect(
-        AdShortformLogic.shouldErrorOnEmptyVideoUrl(
-          videoUrl: '',
-          blocked: true,
-        ),
-        isFalse,
-      );
-    });
+    test(
+      'does not error when blocked by anti-abuse (route already popping)',
+      () {
+        expect(
+          AdShortformLogic.shouldErrorOnEmptyVideoUrl(
+            videoUrl: '',
+            blocked: true,
+          ),
+          isFalse,
+        );
+      },
+    );
 
     test('does not error when videoUrl is present', () {
       expect(
@@ -454,16 +513,18 @@ void main() {
       );
     });
 
-    test('does not error when videoUrl present even if (impossibly) blocked',
-        () {
-      expect(
-        AdShortformLogic.shouldErrorOnEmptyVideoUrl(
-          videoUrl: 'https://example.com/v.m3u8',
-          blocked: true,
-        ),
-        isFalse,
-      );
-    });
+    test(
+      'does not error when videoUrl present even if (impossibly) blocked',
+      () {
+        expect(
+          AdShortformLogic.shouldErrorOnEmptyVideoUrl(
+            videoUrl: 'https://example.com/v.m3u8',
+            blocked: true,
+          ),
+          isFalse,
+        );
+      },
+    );
   });
 
   group('AdShortformLogic.shouldShowCountdown', () {

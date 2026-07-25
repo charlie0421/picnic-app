@@ -1,0 +1,9 @@
+{
+  "ok": false,
+  "domain_code": "WALLET_RELEASE_GATE_BLOCKED",
+  "retryable": false,
+  "operation_id": null,
+  "audit_id": null,
+  "payload": null,
+  "support_ref": null
+}

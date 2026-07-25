@@ -1,9 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
+  WalletSummaryModel wallet({
+    String star = '0',
+    String bonus = '0',
+    String cotton = '0',
+  }) => WalletSummaryModel(
+    contractVersion: 'wallet.v1',
+    star: BigInt.parse(star),
+    bonus: BigInt.parse(bonus),
+    cotton: BigInt.parse(cotton),
+    cottonExpiringAmount: BigInt.zero,
+    cottonNextExpiresAt: null,
+    snapshotAt: DateTime.utc(2026, 7, 21),
+  );
+
   group('VotingDialogHelper', () {
     group('invokeVotingWithAuthRecovery', () {
       test('refreshes after the first auth 401 and retries once', () async {
@@ -288,6 +305,16 @@ void main() {
         );
       });
 
+      test('normalizes whitespace and case', () {
+        expect(
+          VotingDialogHelper.shouldUseJmaDialog(
+            isPicPortal: false,
+            partner: '  JmA  ',
+          ),
+          isTrue,
+        );
+      });
+
       test('returns false for PIC portal even with jma partner', () {
         expect(
           VotingDialogHelper.shouldUseJmaDialog(
@@ -315,6 +342,28 @@ void main() {
             partner: 'other',
           ),
           isFalse,
+        );
+      });
+    });
+
+    group('general wallet balance', () {
+      test('includes Cotton and remains exact above JS safe integer', () {
+        final summary = wallet(star: '9007199254740993', cotton: '5');
+        expect(
+          VotingDialogHelper.hasGeneralVoteBalance(
+            summary,
+            BigInt.parse('9007199254740998'),
+          ),
+          isTrue,
+        );
+      });
+
+      test('caps use-all at server maximum', () {
+        expect(
+          VotingDialogHelper.cappedGeneralVoteBalance(
+            wallet(star: '9007199254740993'),
+          ),
+          BigInt.from(2147483647),
         );
       });
     });
@@ -604,6 +653,43 @@ void main() {
           VotingDialogHelper.hasPartnerLogo(isPartnership: true, partner: ''),
           isFalse,
         );
+      });
+    });
+
+    group('bestEffortWalletRefresh', () {
+      test('completes and reports the error when refresh throws', () async {
+        Object? reported;
+
+        await VotingDialogHelper.bestEffortWalletRefresh(
+          () async => throw StateError('wallet down'),
+          onError: (error, _) => reported = error,
+        );
+
+        expect(reported, isA<StateError>());
+      });
+
+      test('completes within the timeout when refresh never resolves', () async {
+        Object? reported;
+        final hang = Completer<void>();
+
+        await VotingDialogHelper.bestEffortWalletRefresh(
+          () => hang.future,
+          timeout: const Duration(milliseconds: 20),
+          onError: (error, _) => reported = error,
+        );
+
+        expect(reported, isA<TimeoutException>());
+      });
+
+      test('does not report an error when refresh succeeds', () async {
+        Object? reported;
+
+        await VotingDialogHelper.bestEffortWalletRefresh(
+          () async {},
+          onError: (error, _) => reported = error,
+        );
+
+        expect(reported, isNull);
       });
     });
   });

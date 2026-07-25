@@ -58,10 +58,7 @@ class _VoteHistoryHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          formatLocalDateTime(
-            item.createdAt,
-            format: 'yyyy.MM.dd HH:mm:ss',
-          ),
+          formatLocalDateTime(item.createdAt, format: 'yyyy.MM.dd HH:mm:ss'),
           style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
         ),
         if (isPartnership)
@@ -177,8 +174,9 @@ class _VoteUsage extends StatelessWidget {
     final isPartnership = item.vote.isPartnership ?? false;
     final starUsage = item.starCandyUsage ?? 0;
     final bonusUsage = item.starCandyBonusUsage ?? 0;
+    final cottonUsage = item.cottonCandyUsage ?? 0;
 
-    if (starUsage == 0 && bonusUsage == 0) {
+    if (starUsage == 0 && bonusUsage == 0 && cottonUsage == 0) {
       return const SizedBox.shrink();
     }
 
@@ -215,6 +213,24 @@ class _VoteUsage extends StatelessWidget {
       );
       children.add(SizedBox(width: 2.w));
       children.add(Text(formatNumberWithComma(bonusUsage), style: numberStyle));
+    }
+
+    if (cottonUsage > 0) {
+      if (starUsage > 0 || bonusUsage > 0) {
+        children.add(SizedBox(width: 8.w));
+      }
+      children.add(
+        Image.asset(
+          'assets/icons/store/currency_cotton_candy.png',
+          package: 'picnic_lib',
+          width: 36,
+          height: 36,
+        ),
+      );
+      children.add(SizedBox(width: 2.w));
+      children.add(
+        Text(formatNumberWithComma(cottonUsage), style: numberStyle),
+      );
     }
 
     return Container(

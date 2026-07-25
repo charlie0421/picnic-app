@@ -1,15 +1,12 @@
-/// E2E 통합 테스트 진입점
-///
-/// 모든 플로우 테스트를 하나의 진입점에서 실행합니다.
-/// 실행: flutter test integration_test/app_test.dart
+// 모든 E2E 플로우 테스트의 통합 진입점입니다.
 import 'package:integration_test/integration_test.dart';
-import 'package:flutter_test/flutter_test.dart';
 
 import 'flows/app_launch_test.dart' as app_launch;
 import 'flows/login_flow_test.dart' as login_flow;
 import 'flows/vote_flow_test.dart' as vote_flow;
 import 'flows/search_flow_test.dart' as search_flow;
 import 'flows/mypage_flow_test.dart' as mypage_flow;
+import 'flows/ad_reward_recovery_flow_test.dart' as ad_reward_recovery_flow;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -28,4 +25,6 @@ void main() {
 
   // 마이페이지 플로우 테스트
   mypage_flow.main();
+
+  ad_reward_recovery_flow.main();
 }

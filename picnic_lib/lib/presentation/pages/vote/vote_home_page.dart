@@ -20,6 +20,8 @@ import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
@@ -143,6 +145,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
       backgroundColor: Colors.white,
       onRefresh: () async {
         ref.invalidate(asyncBannerListProvider(location: 'vote_home'));
+        ref.invalidate(activePromotionCampaignProvider(PromotionSurface.home));
         ref.invalidate(asyncRewardListProvider);
 
         setState(() {

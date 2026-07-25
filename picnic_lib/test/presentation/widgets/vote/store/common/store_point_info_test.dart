@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 
 import '../../../../../helpers/ignore_image_errors.dart';
@@ -40,32 +39,31 @@ void main() {
       // Widget rendered
       expect(find.byType(StorePointInfo), findsOneWidget);
 
-      // Title via VoteCommonTitle
-      expect(find.byType(VoteCommonTitle), findsOneWidget);
+      expect(find.text('Test Title'), findsOneWidget);
 
       // UnderlinedText for policy guide
       expect(find.byType(UnderlinedText), findsWidgets);
     });
 
-    testWidgets('renders Stack with positioned title', (tester) async {
+    testWidgets('uses content height and does not overflow a compact request', (
+      tester,
+    ) async {
       await pumpWidgetAndIgnoreErrors(
         tester,
         buildTestApp(
-          const StorePointInfo(
-            title: 'Star Candy',
-            width: 200,
-            height: 100,
-          ),
+          const StorePointInfo(title: 'Star Candy', width: 200, height: 100),
           loggedIn: false,
         ),
       );
       await pumpAndIgnoreErrors(tester);
 
-      expect(find.byType(Stack), findsWidgets);
       expect(find.byType(StorePointInfo), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
-    testWidgets('renders with custom topMargin and titlePadding', (tester) async {
+    testWidgets('renders with custom topMargin and titlePadding', (
+      tester,
+    ) async {
       await pumpWidgetAndIgnoreErrors(
         tester,
         buildTestApp(
@@ -87,10 +85,7 @@ void main() {
     testWidgets('renders with default constructor values', (tester) async {
       await pumpWidgetAndIgnoreErrors(
         tester,
-        buildTestApp(
-          const StorePointInfo(title: 'Default'),
-          loggedIn: false,
-        ),
+        buildTestApp(const StorePointInfo(title: 'Default'), loggedIn: false),
       );
       await pumpAndIgnoreErrors(tester);
 

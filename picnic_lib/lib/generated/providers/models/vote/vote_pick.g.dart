@@ -30,6 +30,10 @@ _VotePickModel _$VotePickModelFromJson(Map<String, dynamic> json) =>
             'star_candy_bonus_usage',
             (v) => (v as num?)?.toInt(),
           ),
+          cottonCandyUsage: $checkedConvert(
+            'cotton_candy_usage',
+            (v) => (v as num?)?.toInt(),
+          ),
           createdAt: $checkedConvert(
             'created_at',
             (v) => v == null ? null : DateTime.parse(v as String),
@@ -45,6 +49,7 @@ _VotePickModel _$VotePickModelFromJson(Map<String, dynamic> json) =>
         'voteItem': 'vote_item',
         'starCandyUsage': 'star_candy_usage',
         'starCandyBonusUsage': 'star_candy_bonus_usage',
+        'cottonCandyUsage': 'cotton_candy_usage',
         'createdAt': 'created_at',
         'updatedAt': 'updated_at',
       },
@@ -58,6 +63,7 @@ Map<String, dynamic> _$VotePickModelToJson(_VotePickModel instance) =>
       'amount': instance.amount,
       'star_candy_usage': instance.starCandyUsage,
       'star_candy_bonus_usage': instance.starCandyBonusUsage,
+      'cotton_candy_usage': instance.cottonCandyUsage,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
     };

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum VotingAuthRecoveryPhase {
@@ -33,6 +34,24 @@ class VotingAuthRecoveryEvent {
 /// logic that doesn't depend on Flutter widgets or Riverpod providers.
 class VotingDialogHelper {
   const VotingDialogHelper._();
+
+  /// Best-effort wallet refresh for post-failure recovery.
+  ///
+  /// A vote failure must surface its error and restore the dialog immediately;
+  /// the follow-up wallet refresh is advisory only. This never rethrows and is
+  /// bounded by [timeout], so a hanging or failing refresh can neither block
+  /// dialog dismissal nor mask the original vote error.
+  static Future<void> bestEffortWalletRefresh(
+    Future<void> Function() refresh, {
+    Duration timeout = const Duration(seconds: 5),
+    void Function(Object error, StackTrace stackTrace)? onError,
+  }) async {
+    try {
+      await refresh().timeout(timeout);
+    } catch (error, stackTrace) {
+      onError?.call(error, stackTrace);
+    }
+  }
 
   static Future<T> invokeVotingWithAuthRecovery<T>({
     required Future<T> Function() invoke,
@@ -148,19 +167,27 @@ class VotingDialogHelper {
   ///
   /// Returns `true` only when the portal is *not* PIC and the partner field
   /// (case-insensitive) equals `'jma'`.
-  @visibleForTesting
   static bool shouldUseJmaDialog({
     required bool isPicPortal,
     required String? partner,
   }) {
-    if (isPicPortal) return false;
-    return partner?.toLowerCase() == 'jma';
+    return !isPicPortal && partner?.trim().toLowerCase() == 'jma';
   }
 
   /// Returns the Supabase Edge Function name to invoke for a vote.
-  @visibleForTesting
   static String getVotingFunctionName({required bool isPicPortal}) {
     return isPicPortal ? 'pic-voting-v2' : 'voting-v2';
+  }
+
+  static bool hasGeneralVoteBalance(WalletSummaryModel wallet, BigInt amount) =>
+      amount <= wallet.cotton + wallet.bonus + wallet.star;
+
+  static const int generalVoteMaximum = 2147483647;
+
+  static BigInt cappedGeneralVoteBalance(WalletSummaryModel wallet) {
+    final balance = wallet.cotton + wallet.bonus + wallet.star;
+    final maximum = BigInt.from(generalVoteMaximum);
+    return balance > maximum ? maximum : balance;
   }
 
   // ---------------------------------------------------------------------------

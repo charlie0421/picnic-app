@@ -12,6 +12,7 @@ import '../../../helpers/factories/vote_factory.dart';
 VotePickModel _createMockVotePick({
   int starCandyUsage = 100,
   int starCandyBonusUsage = 50,
+  int cottonCandyUsage = 0,
   bool isPartnership = false,
   String? partner,
   String artistName = '테스트 아티스트',
@@ -19,10 +20,7 @@ VotePickModel _createMockVotePick({
 }) {
   return VotePickModel(
     id: 1,
-    vote: VoteFactory.create(
-      isPartnership: isPartnership,
-      partner: partner,
-    ),
+    vote: VoteFactory.create(isPartnership: isPartnership, partner: partner),
     voteItem: VoteItemFactory.create(
       artist: ArtistModel(
         id: 1,
@@ -35,9 +33,10 @@ VotePickModel _createMockVotePick({
         ),
       ),
     ),
-    amount: 10,
+    amount: starCandyUsage + starCandyBonusUsage + cottonCandyUsage,
     starCandyUsage: starCandyUsage,
     starCandyBonusUsage: starCandyBonusUsage,
+    cottonCandyUsage: cottonCandyUsage,
     createdAt: DateTime(2025, 1, 15, 10, 30, 0),
     updatedAt: DateTime(2025, 1, 15, 10, 30, 0),
   );
@@ -49,13 +48,54 @@ void main() {
   });
 
   group('VoteHistoryListItem', () {
+    testWidgets('renders cotton candy usage and preserves total usage', (
+      tester,
+    ) async {
+      final oldHandler = FlutterError.onError;
+      FlutterError.onError = (details) {
+        final message = details.toString();
+        if (message.contains('Unable to load asset') ||
+            message.contains('IMAGE RESOURCE') ||
+            message.contains('overflowed')) {
+          return;
+        }
+        oldHandler?.call(details);
+      };
+      final item = _createMockVotePick(
+        starCandyUsage: 3,
+        starCandyBonusUsage: 4,
+        cottonCandyUsage: 7,
+      );
+
+      await tester.pumpWidget(
+        buildTestApp(
+          SingleChildScrollView(child: VoteHistoryListItem(item: item)),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('3'), findsOneWidget);
+      expect(find.text('4'), findsOneWidget);
+      expect(find.text('7'), findsOneWidget);
+      expect(
+        (item.starCandyUsage ?? 0) +
+            (item.starCandyBonusUsage ?? 0) +
+            (item.cottonCandyUsage ?? 0),
+        item.amount,
+      );
+
+      FlutterError.onError = oldHandler;
+    });
+
     testWidgets('renders with basic vote pick data', (tester) async {
       final oldHandler = FlutterError.onError;
       FlutterError.onError = (details) {
         final msg = details.toString();
         if (msg.contains('Unable to load asset') ||
             msg.contains('IMAGE RESOURCE') ||
-            msg.contains('overflowed')) return;
+            msg.contains('overflowed')) {
+          return;
+        }
         oldHandler?.call(details);
       };
 
@@ -77,14 +117,17 @@ void main() {
       FlutterError.onError = oldHandler;
     });
 
-    testWidgets('renders with zero candy usage (empty usage section)',
-        (tester) async {
+    testWidgets('renders with zero candy usage (empty usage section)', (
+      tester,
+    ) async {
       final oldHandler = FlutterError.onError;
       FlutterError.onError = (details) {
         final msg = details.toString();
         if (msg.contains('Unable to load asset') ||
             msg.contains('IMAGE RESOURCE') ||
-            msg.contains('overflowed')) return;
+            msg.contains('overflowed')) {
+          return;
+        }
         oldHandler?.call(details);
       };
 
@@ -113,7 +156,9 @@ void main() {
         final msg = details.toString();
         if (msg.contains('Unable to load asset') ||
             msg.contains('IMAGE RESOURCE') ||
-            msg.contains('overflowed')) return;
+            msg.contains('overflowed')) {
+          return;
+        }
         oldHandler?.call(details);
       };
 
@@ -142,7 +187,9 @@ void main() {
         final msg = details.toString();
         if (msg.contains('Unable to load asset') ||
             msg.contains('IMAGE RESOURCE') ||
-            msg.contains('overflowed')) return;
+            msg.contains('overflowed')) {
+          return;
+        }
         oldHandler?.call(details);
       };
 
@@ -171,7 +218,9 @@ void main() {
         final msg = details.toString();
         if (msg.contains('Unable to load asset') ||
             msg.contains('IMAGE RESOURCE') ||
-            msg.contains('overflowed')) return;
+            msg.contains('overflowed')) {
+          return;
+        }
         oldHandler?.call(details);
       };
 
@@ -201,7 +250,9 @@ void main() {
         final msg = details.toString();
         if (msg.contains('Unable to load asset') ||
             msg.contains('IMAGE RESOURCE') ||
-            msg.contains('overflowed')) return;
+            msg.contains('overflowed')) {
+          return;
+        }
         oldHandler?.call(details);
       };
 

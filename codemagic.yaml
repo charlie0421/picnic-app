@@ -29,11 +29,100 @@ workflows:
       tag_patterns:
         - pattern: 'picnic-v*'
           include: true
+        - pattern: 'picnic-staging-v*'
+          include: true
       cancel_previous_builds: true
     scripts:
+      - name: Derive the deploy target from the release tag
+        script: |
+          set -e
+          # The tag decides the target, so there is no run-time variable a human
+          # can forget to set:
+          #   picnic-staging-v*  -> staging
+          #   picnic-v*          -> production
+          # The two patterns cannot both match the same tag: `picnic-staging-v1.2.3`
+          # does not match `picnic-v*`.
+          #
+          # CM_TAG is Codemagic's built-in variable, documented as "The tag being
+          # built if started from a tag webhook, unset otherwise", so requiring it
+          # stops a non-tag build from guessing a target.
+          # https://docs.codemagic.io/yaml-basic-configuration/environment-variables/
+          : "${CM_TAG:?is unset; this workflow only runs from a release tag}"
+          case "$CM_TAG" in
+            picnic-staging-v*)
+              DEPLOY_TARGET=staging
+              ;;
+            picnic-v*)
+              DEPLOY_TARGET=production
+              ;;
+            *)
+              echo "Tag '$CM_TAG' maps to no deploy target; expected picnic-v* or picnic-staging-v*" >&2
+              exit 1
+              ;;
+          esac
+          : "${DEPLOY_TARGET:?was not derived from the tag; refusing to guess a deploy target}"
+          echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"
+          echo "Deploy target: $DEPLOY_TARGET (from tag $CM_TAG)"
+      - name: Verify environment isolation policy
+        script: |
+          set -e
+          python3 -c "import yaml" 2>/dev/null || pip3 install --quiet pyyaml
+          python3 test_codemagic_environment_isolation.py
+          python3 test_codemagic_environment_isolation.py --self-test
+      - name: Verify protected production target when requested
+        script: |
+          # set -e: a NO-GO from the guard must fail the step, not be discarded.
+          set -e
+          # Assert the *propagated* value too. If the `$CM_ENV` hand-off from the
+          # derivation step ever breaks, DEPLOY_TARGET is empty here and the test
+          # below would silently take the staging branch.
+          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
+          if [ "$DEPLOY_TARGET" = "production" ]; then
+            cd picnic_app
+            dart run tool/verify_release_target.dart --target=production
+          fi
+      - name: Run picnic_app release guard tests
+        script: |
+          set -e
+          # The release-target and environment-isolation guards live in
+          # picnic_app/test/config. picnic_lib's suite never loads them, so
+          # without this step they would rot unnoticed until a release broke.
+          # Runs after verify_release_target.dart on purpose: that guard requires
+          # a clean checkout, and `flutter test` implies a pub get that can touch
+          # the tracked pubspec.lock.
+          cd picnic_app
+          flutter test
       - name: Get Flutter packages and prepare iOS
         script: |
+          # set -e: verify_environment_isolation.dart below is not the last
+          # command in this step, so without it a NO-GO exit status would be
+          # overwritten by the trailing `flutter`/`ls` commands and the build
+          # would keep going and publish a mis-targeted app.
+          set -e
+          # Assert the *propagated* value too: an empty DEPLOY_TARGET would take
+          # the staging branch below instead of stopping the build.
+          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
           cd picnic_app
+
+          # Staging build only: rewrite dev.json to the staging Supabase target
+          # and prove non-production isolation. The production deploy path must
+          # not depend on staging secrets, so it is skipped entirely.
+          if [ "$DEPLOY_TARGET" != "production" ]; then
+            : "${PICNIC_STAGING_SUPABASE_URL:?PICNIC_STAGING_SUPABASE_URL is required}"
+            : "${PICNIC_STAGING_SUPABASE_ANON_KEY:?PICNIC_STAGING_SUPABASE_ANON_KEY is required}"
+            : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
+            jq --arg url "$PICNIC_STAGING_SUPABASE_URL" \
+              --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
+              '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=($url + "/storage/v1") | .supabase.storage.anon_key=$key' \
+              config/prod.json > config/dev.json
+            PANGLE_ENVIRONMENT=sandbox \
+              PAYMENT_ENVIRONMENT=sandbox \
+              PICNIC_PANGLE_IOS_APP_ID= \
+              PICNIC_PANGLE_ANDROID_APP_ID= \
+              PICNIC_PANGLE_IOS_REWARDED_ID= \
+              PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+              dart run tool/verify_environment_isolation.dart --environment=dev
+          fi
 
           echo "=== Flutter 패키지 설치 ==="
           flutter packages pub get
@@ -219,6 +308,11 @@ workflows:
 
       - name: Shorebird iOS Release and Build IPA
         script: |
+          # Assert the *propagated* value too: an empty DEPLOY_TARGET would fall
+          # into the staging branch of every test below and ship a staging IPA to
+          # App Store Connect. `:?` exits a non-interactive shell on its own, so
+          # this holds even though this step deliberately runs without `set -e`.
+          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
           export PATH="$HOME/.shorebird/bin:$PATH"
           cd picnic_app
 
@@ -273,11 +367,29 @@ workflows:
 
           # Shorebird release ios는 xcarchive를 생성함
           # --export-options-plist를 전달하여 IPA도 함께 생성
-          shorebird release ios \
-            --dart-define=ENVIRONMENT=prod \
-            --no-confirm \
-            --flutter-version=3.41.4 \
-            -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
+          if [ "$DEPLOY_TARGET" = "production" ]; then
+            shorebird release ios \
+              --dart-define=ENVIRONMENT=prod \
+              --dart-define=PANGLE_ENVIRONMENT=prod \
+              --dart-define=PAYMENT_ENVIRONMENT=prod \
+              --no-confirm \
+              --flutter-version=3.41.4 \
+              -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
+          else
+            shorebird release ios \
+              --dart-define=ENVIRONMENT=dev \
+              --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+              --dart-define=PANGLE_ENVIRONMENT=sandbox \
+              --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+              --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+              --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+              --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+              --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+              --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+              --no-confirm \
+              --flutter-version=3.41.4 \
+              -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
+          fi
 
           RELEASE_EXIT_CODE=${PIPESTATUS[0]}
 
@@ -347,19 +459,53 @@ workflows:
               echo "⚠️ xcarchive를 찾을 수 없어 flutter build ipa 실행..."
               # 이 경우는 패치가 작동하지 않을 수 있음 (경고 표시)
               echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
-              flutter build ipa \
-                --release \
-                --dart-define=ENVIRONMENT=prod \
-                --export-options-plist=ios/ExportOptions.plist
+              if [ "$DEPLOY_TARGET" = "production" ]; then
+                flutter build ipa \
+                  --release \
+                  --dart-define=ENVIRONMENT=prod \
+                  --dart-define=PANGLE_ENVIRONMENT=prod \
+                  --dart-define=PAYMENT_ENVIRONMENT=prod \
+                  --export-options-plist=ios/ExportOptions.plist
+              else
+                flutter build ipa \
+                  --release \
+                  --dart-define=ENVIRONMENT=dev \
+                  --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+                  --dart-define=PANGLE_ENVIRONMENT=sandbox \
+                  --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+                  --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+                  --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+                  --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+                  --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+                  --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+                  --export-options-plist=ios/ExportOptions.plist
+              fi
             fi
           else
             # Shorebird 릴리즈 실패 시 fallback (패치 작동 안함)
             echo "=== Fallback: flutter build ipa ==="
             echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
-            flutter build ipa \
-              --release \
-              --dart-define=ENVIRONMENT=prod \
-              --export-options-plist=ios/ExportOptions.plist
+            if [ "$DEPLOY_TARGET" = "production" ]; then
+              flutter build ipa \
+                --release \
+                --dart-define=ENVIRONMENT=prod \
+                --dart-define=PANGLE_ENVIRONMENT=prod \
+                --dart-define=PAYMENT_ENVIRONMENT=prod \
+                --export-options-plist=ios/ExportOptions.plist
+            else
+              flutter build ipa \
+                --release \
+                --dart-define=ENVIRONMENT=dev \
+                --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+                --dart-define=PANGLE_ENVIRONMENT=sandbox \
+                --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+                --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+                --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+                --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+                --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+                --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+                --export-options-plist=ios/ExportOptions.plist
+            fi
           fi
 
           if [ ! -f "build/ios/ipa/"*.ipa ]; then
@@ -510,8 +656,71 @@ workflows:
       tag_patterns:
         - pattern: 'picnic-v*'
           include: true
+        - pattern: 'picnic-staging-v*'
+          include: true
       cancel_previous_builds: true
     scripts:
+      - name: Derive the deploy target from the release tag
+        script: |
+          set -e
+          # The tag decides the target, so there is no run-time variable a human
+          # can forget to set:
+          #   picnic-staging-v*  -> staging
+          #   picnic-v*          -> production
+          # The two patterns cannot both match the same tag: `picnic-staging-v1.2.3`
+          # does not match `picnic-v*`.
+          #
+          # CM_TAG is Codemagic's built-in variable, documented as "The tag being
+          # built if started from a tag webhook, unset otherwise", so requiring it
+          # stops a non-tag build from guessing a target.
+          # https://docs.codemagic.io/yaml-basic-configuration/environment-variables/
+          : "${CM_TAG:?is unset; this workflow only runs from a release tag}"
+          case "$CM_TAG" in
+            picnic-staging-v*)
+              DEPLOY_TARGET=staging
+              ;;
+            picnic-v*)
+              DEPLOY_TARGET=production
+              ;;
+            *)
+              echo "Tag '$CM_TAG' maps to no deploy target; expected picnic-v* or picnic-staging-v*" >&2
+              exit 1
+              ;;
+          esac
+          : "${DEPLOY_TARGET:?was not derived from the tag; refusing to guess a deploy target}"
+          echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"
+          echo "Deploy target: $DEPLOY_TARGET (from tag $CM_TAG)"
+      - name: Verify environment isolation policy
+        script: |
+          set -e
+          python3 -c "import yaml" 2>/dev/null || pip3 install --quiet pyyaml
+          python3 test_codemagic_environment_isolation.py
+          python3 test_codemagic_environment_isolation.py --self-test
+      - name: Verify deployment target
+        script: |
+          # set -e: a NO-GO from the guard must fail the step, not be discarded.
+          set -e
+          # Assert the *propagated* value too. If the `$CM_ENV` hand-off from the
+          # derivation step ever breaks, DEPLOY_TARGET is empty here and the test
+          # below would silently take the staging branch.
+          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
+          cd picnic_app
+          if [ "$DEPLOY_TARGET" = "production" ]; then
+            dart run tool/verify_release_target.dart --target=production
+          else
+            echo "Staging target selected; isolation is verified after config/dev.json is generated."
+          fi
+      - name: Run picnic_app release guard tests
+        script: |
+          set -e
+          # The release-target and environment-isolation guards live in
+          # picnic_app/test/config. picnic_lib's suite never loads them, so
+          # without this step they would rot unnoticed until a release broke.
+          # Runs after verify_release_target.dart on purpose: that guard requires
+          # a clean checkout, and `flutter test` implies a pub get that can touch
+          # the tracked pubspec.lock.
+          cd picnic_app
+          flutter test
       - name: Install Shorebird CLI
         script: |
           if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
@@ -532,6 +741,14 @@ workflows:
 
       - name: Flutter Environment Setup
         script: |
+          # set -e: verify_environment_isolation.dart below is not the last
+          # command in this step, so without it a NO-GO exit status would be
+          # overwritten by the trailing `flutter packages pub get` and the build
+          # would keep going and publish a mis-targeted app.
+          set -e
+          # Assert the *propagated* value too: an empty DEPLOY_TARGET would take
+          # the staging branch below instead of stopping the build.
+          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
           cd picnic_app
           echo "=== Flutter 환경 준비 ==="
           echo "🎯 Flutter + Shorebird 통합 빌드 시스템"
@@ -546,6 +763,22 @@ workflows:
           flutter --version
           
           echo "=== Flutter 패키지 설치 ==="
+          if [ "$DEPLOY_TARGET" != "production" ]; then
+            : "${PICNIC_STAGING_SUPABASE_URL:?PICNIC_STAGING_SUPABASE_URL is required}"
+            : "${PICNIC_STAGING_SUPABASE_ANON_KEY:?PICNIC_STAGING_SUPABASE_ANON_KEY is required}"
+            : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
+            jq --arg url "$PICNIC_STAGING_SUPABASE_URL" \
+              --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
+              '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=($url + "/storage/v1") | .supabase.storage.anon_key=$key' \
+              config/prod.json > config/dev.json
+            PANGLE_ENVIRONMENT=sandbox \
+              PAYMENT_ENVIRONMENT=sandbox \
+              PICNIC_PANGLE_IOS_APP_ID= \
+              PICNIC_PANGLE_ANDROID_APP_ID= \
+              PICNIC_PANGLE_IOS_REWARDED_ID= \
+              PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+              dart run tool/verify_environment_isolation.dart --environment=dev
+          fi
           flutter packages pub get
 
       - name: Run unit tests with coverage
@@ -583,6 +816,11 @@ workflows:
 
       - name: Shorebird Android Release and Build AAB
         script: |
+          # Assert the *propagated* value too: an empty DEPLOY_TARGET would fall
+          # into the staging branch of every test below and ship a staging AAB to
+          # Google Play. `:?` exits a non-interactive shell on its own, so this
+          # holds even though this step deliberately runs without `set -e`.
+          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
           export PATH="$HOME/.shorebird/bin:$PATH"
           cd picnic_app
 
@@ -619,11 +857,29 @@ workflows:
           echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
           SKIP_SHOREBIRD=false
 
-          shorebird release android \
-            --dart-define=ENVIRONMENT=prod \
-            --no-confirm \
-            --flutter-version=3.41.4 \
-            --verbose 2>&1 | tee /tmp/shorebird_release.log
+          if [ "$DEPLOY_TARGET" = "production" ]; then
+            shorebird release android \
+              --dart-define=ENVIRONMENT=prod \
+              --dart-define=PANGLE_ENVIRONMENT=prod \
+              --dart-define=PAYMENT_ENVIRONMENT=prod \
+              --no-confirm \
+              --flutter-version=3.41.4 \
+              --verbose 2>&1 | tee /tmp/shorebird_release.log
+          else
+            shorebird release android \
+              --dart-define=ENVIRONMENT=dev \
+              --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+              --dart-define=PANGLE_ENVIRONMENT=sandbox \
+              --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+              --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+              --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+              --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+              --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+              --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+              --no-confirm \
+              --flutter-version=3.41.4 \
+              --verbose 2>&1 | tee /tmp/shorebird_release.log
+          fi
 
           RELEASE_EXIT_CODE=${PIPESTATUS[0]}
 
@@ -658,9 +914,25 @@ workflows:
           if [ "$SHOREBIRD_AAB_EXISTS" = "false" ]; then
             echo "⚠️ WARNING: flutter build appbundle로 생성된 AAB는 Shorebird 패치를 받을 수 없습니다!"
             echo "📦 Flutter AAB 빌드 (fallback)..."
-            flutter build appbundle \
-              --release \
-              --dart-define=ENVIRONMENT=prod
+            if [ "$DEPLOY_TARGET" = "production" ]; then
+              flutter build appbundle \
+                --release \
+                --dart-define=ENVIRONMENT=prod \
+                --dart-define=PANGLE_ENVIRONMENT=prod \
+                --dart-define=PAYMENT_ENVIRONMENT=prod
+            else
+              flutter build appbundle \
+                --release \
+                --dart-define=ENVIRONMENT=dev \
+                --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+                --dart-define=PANGLE_ENVIRONMENT=sandbox \
+                --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+                --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+                --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+                --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+                --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+                --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE
+            fi
 
             if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
               echo "✅ AAB 빌드 완료 (Shorebird 패치 미지원)"
@@ -851,10 +1123,14 @@ workflows:
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
-    # NOTE: tag-based triggering 제거됨 (2026-04-26).
-    # 패치는 로컬에서 `picnic_app/scripts/shorebird-patch.sh` 로 진행.
-    # Codemagic 워크플로우는 보존하되 수동 트리거(=콘솔에서 직접 빌드 시작) 전용.
+    # Production patches are manual and require protected exact-SHA evidence.
     scripts:
+      - name: Verify protected production target
+        script: |
+          # set -e: a NO-GO from the guard must fail the step, not be discarded.
+          set -e
+          cd picnic_app
+          dart run tool/verify_release_target.dart --target=production
       - name: Setup and Patch iOS
         script: |
           echo "=== Shorebird iOS 패치 ==="
@@ -902,6 +1178,8 @@ workflows:
             --allow-native-diffs \
             --allow-asset-diffs \
             --dart-define=ENVIRONMENT=prod \
+            --dart-define=PANGLE_ENVIRONMENT=prod \
+            --dart-define=PAYMENT_ENVIRONMENT=prod \
             --verbose \
             -- --no-codesign
 
@@ -1001,10 +1279,14 @@ workflows:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
         - $HOME/.gradle/caches
-    # NOTE: tag-based triggering 제거됨 (2026-04-26).
-    # 패치는 로컬에서 `picnic_app/scripts/shorebird-patch.sh` 로 진행.
-    # Codemagic 워크플로우는 보존하되 수동 트리거(=콘솔에서 직접 빌드 시작) 전용.
+    # Production patches are manual and require protected exact-SHA evidence.
     scripts:
+      - name: Verify protected production target
+        script: |
+          # set -e: a NO-GO from the guard must fail the step, not be discarded.
+          set -e
+          cd picnic_app
+          dart run tool/verify_release_target.dart --target=production
       - name: Setup and Patch Android
         script: |
           echo "=== Shorebird Android 패치 ==="
@@ -1056,6 +1338,8 @@ workflows:
             --allow-native-diffs \
             --allow-asset-diffs \
             --dart-define=ENVIRONMENT=prod \
+            --dart-define=PANGLE_ENVIRONMENT=prod \
+            --dart-define=PAYMENT_ENVIRONMENT=prod \
             --verbose
 
           PATCH_EXIT_CODE=$?
@@ -1134,4 +1418,3 @@ workflows:
         notify:
           success: true
           failure: true
-

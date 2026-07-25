@@ -28,6 +28,7 @@ void main() {
         'amount': 100,
         'star_candy_usage': 50,
         'star_candy_bonus_usage': 10,
+        'cotton_candy_usage': 7,
         'created_at': '2024-06-15T10:00:00.000Z',
         'updated_at': '2024-06-15T10:00:00.000Z',
         'vote': {
@@ -60,6 +61,7 @@ void main() {
       final pick = VotePickModel.fromJson(json);
       expect(pick.id, 1);
       expect(pick.amount, 100);
+      expect(pick.cottonCandyUsage, 7);
     });
 
     test('fromJson with minimal nested data', () {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 
@@ -9,6 +11,26 @@ import '../../../../helpers/mock_data.dart';
 import '../../../../helpers/mock_supabase.dart';
 import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_environment.dart';
+
+class _WalletSummaryOverride extends WalletSummary {
+  _WalletSummaryOverride(this.summary);
+
+  final WalletSummaryModel summary;
+
+  @override
+  Future<WalletSummaryModel> build() async => summary;
+}
+
+WalletSummaryModel _wallet({required int star, required int bonus}) =>
+    WalletSummaryModel(
+      contractVersion: 'wallet.v1',
+      star: BigInt.from(star),
+      bonus: BigInt.from(bonus),
+      cotton: BigInt.zero,
+      cottonExpiringAmount: BigInt.zero,
+      cottonNextExpiresAt: null,
+      snapshotAt: DateTime.utc(2026, 7, 21),
+    );
 
 /// Additional coverage tests for VotingDialog, covering:
 /// - Check all option toggle
@@ -46,8 +68,9 @@ void main() {
   });
 
   group('VotingDialog - Check All', () {
-    testWidgets('tapping check all fills entire star candy amount',
-        (tester) async {
+    testWidgets('tapping check all fills entire star candy amount', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -59,8 +82,12 @@ void main() {
             voteItemModel: MockData.voteItem(),
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 500, starCandyBonus: 50),
+          userProfile: MockData.userProfile(starCandy: 500, starCandyBonus: 50),
+          extraOverrides: [
+            walletSummaryProvider.overrideWith(
+              () => _WalletSummaryOverride(_wallet(star: 500, bonus: 50)),
+            ),
+          ],
         ),
       );
       await tester.pumpAndSettle();
@@ -94,8 +121,12 @@ void main() {
             voteItemModel: MockData.voteItem(),
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 200, starCandyBonus: 0),
+          userProfile: MockData.userProfile(starCandy: 200, starCandyBonus: 0),
+          extraOverrides: [
+            walletSummaryProvider.overrideWith(
+              () => _WalletSummaryOverride(_wallet(star: 200, bonus: 0)),
+            ),
+          ],
         ),
       );
       await tester.pumpAndSettle();
@@ -133,8 +164,7 @@ void main() {
             voteItemModel: MockData.voteItem(),
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 1000, starCandyBonus: 0),
+          userProfile: MockData.userProfile(starCandy: 1000, starCandyBonus: 0),
         ),
       );
       await tester.pumpAndSettle();
@@ -153,14 +183,12 @@ void main() {
       );
 
       // The clear button is wrapped in a GestureDetector at the end of the Row
-      final clearGesture = find.byWidgetPredicate(
-        (widget) {
-          if (widget is GestureDetector && widget.child is SvgPicture) {
-            return true;
-          }
-          return false;
-        },
-      );
+      final clearGesture = find.byWidgetPredicate((widget) {
+        if (widget is GestureDetector && widget.child is SvgPicture) {
+          return true;
+        }
+        return false;
+      });
 
       if (clearGesture.evaluate().isNotEmpty) {
         await tester.tap(clearGesture.first);
@@ -184,8 +212,7 @@ void main() {
             voteItemModel: MockData.voteItem(),
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 10, starCandyBonus: 0),
+          userProfile: MockData.userProfile(starCandy: 10, starCandyBonus: 0),
         ),
       );
       await tester.pumpAndSettle();
@@ -211,8 +238,7 @@ void main() {
             voteItemModel: MockData.voteItem(),
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 1000, starCandyBonus: 0),
+          userProfile: MockData.userProfile(starCandy: 1000, starCandyBonus: 0),
         ),
       );
       await tester.pumpAndSettle();
@@ -239,8 +265,7 @@ void main() {
             voteItemModel: MockData.voteItem(),
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 0, starCandyBonus: 0),
+          userProfile: MockData.userProfile(starCandy: 0, starCandyBonus: 0),
         ),
       );
       await tester.pumpAndSettle();
@@ -250,8 +275,9 @@ void main() {
   });
 
   group('VotingDialog - Partnership bubble', () {
-    testWidgets('partnership vote shows partner name in bubble',
-        (tester) async {
+    testWidgets('partnership vote shows partner name in bubble', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -270,8 +296,9 @@ void main() {
         'start_at': DateTime.now()
             .subtract(const Duration(days: 1))
             .toIso8601String(),
-        'stop_at':
-            DateTime.now().add(const Duration(days: 7)).toIso8601String(),
+        'stop_at': DateTime.now()
+            .add(const Duration(days: 7))
+            .toIso8601String(),
         'is_ended': false,
         'is_upcoming': false,
         'is_partnership': true,
@@ -296,8 +323,9 @@ void main() {
   });
 
   group('VotingDialog - Artist with empty image', () {
-    testWidgets('artist with empty string image shows default icon',
-        (tester) async {
+    testWidgets('artist with empty string image shows default icon', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -331,8 +359,9 @@ void main() {
   });
 
   group('VotingDialog - Artist group with null image when artist id is 0', () {
-    testWidgets('shows default icon for artist group with null image',
-        (tester) async {
+    testWidgets('shows default icon for artist group with null image', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -341,10 +370,7 @@ void main() {
         'id': 1,
         'vote_total': 100,
         'vote_id': 1,
-        'artist': <String, dynamic>{
-          'id': 0,
-          'name': <String, dynamic>{},
-        },
+        'artist': <String, dynamic>{'id': 0, 'name': <String, dynamic>{}},
         'artist_group': <String, dynamic>{
           'id': 1,
           'name': <String, dynamic>{'ko': 'TWICE'},
@@ -395,8 +421,9 @@ void main() {
   });
 
   group('VotingDialog - Input formatting edge cases', () {
-    testWidgets('single digit input is not formatted with comma',
-        (tester) async {
+    testWidgets('single digit input is not formatted with comma', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1125, 2436);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -408,8 +435,7 @@ void main() {
             voteItemModel: MockData.voteItem(),
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 1000, starCandyBonus: 0),
+          userProfile: MockData.userProfile(starCandy: 1000, starCandyBonus: 0),
         ),
       );
       await tester.pumpAndSettle();
@@ -433,8 +459,10 @@ void main() {
             voteItemModel: MockData.voteItem(),
             portalType: VotePortal.vote,
           ),
-          userProfile:
-              MockData.userProfile(starCandy: 10000000, starCandyBonus: 0),
+          userProfile: MockData.userProfile(
+            starCandy: 10000000,
+            starCandyBonus: 0,
+          ),
         ),
       );
       await tester.pumpAndSettle();

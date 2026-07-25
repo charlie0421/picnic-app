@@ -1,18 +1,62 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../helpers/mock_supabase.dart';
 
+Map<String, dynamic> _purchaseResult() => {
+      'contract_version': 'wallet.v1',
+      'operation_id': '00000000-0000-4000-8000-000000000001',
+      'replayed': false,
+      'base_star_amount': '100',
+      'base_bonus_amount': '20',
+      'promotion': {
+        'resolution_id': '00000000-0000-4000-8000-000000000002',
+        'state': 'INELIGIBLE',
+        'campaign_version_id': null,
+        'promo_bonus_amount': '0',
+        'domain_code': null,
+      },
+      'wallet': {
+        'contract_version': 'wallet.v1',
+        'star': '100',
+        'bonus': '20',
+        'cotton': '5',
+        'cotton_expiring_amount': '5',
+        'cotton_next_expires_at': null,
+        'snapshot_at': '2026-07-21T00:00:00.000Z',
+      },
+    };
+
 void main() {
+  test('non-production payment verification rejects production environment', () {
+    expect(
+      ReceiptVerificationService.isPaymentEnvironmentAllowed(
+        buildEnvironment: 'dev',
+        requestedEnvironment: 'production',
+      ),
+      isFalse,
+    );
+    expect(
+      ReceiptVerificationService.isPaymentEnvironmentAllowed(
+        buildEnvironment: 'dev',
+        requestedEnvironment: 'sandbox',
+      ),
+      isTrue,
+    );
+  });
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     setupMockSupabase({
-      'functions:verify_receipt': {'success': true},
+      'functions:verify_receipt': _purchaseResult(),
     }, userId: 'test-user-id');
   });
 
@@ -914,11 +958,7 @@ void main() {
         tearDownMockSupabase();
         SharedPreferences.setMockInitialValues({});
         setupMockSupabase({
-          'functions:verify_receipt': {
-            'success': true,
-            'coins_added': 100,
-            'balance': 500,
-          },
+          'functions:verify_receipt': _purchaseResult(),
         }, userId: 'test-user');
 
         await service.verifyReceipt(
@@ -927,6 +967,183 @@ void main() {
           'user-id',
           'sandbox',
         );
+      });
+    });
+
+    group('verify_receipt response contract violations', () {
+      late int invokeCount;
+
+      /// verify_receipt가 항상 200 + [body]로 응답하는 mock 클라이언트를 설치하고
+      /// 실제 호출 횟수를 센다.
+      void installCountingVerifyReceiptMock(Object body) {
+        tearDownMockSupabase();
+        SharedPreferences.setMockInitialValues({});
+        invokeCount = 0;
+        testSupabaseClient = SupabaseClient(
+          'http://localhost:54321',
+          'test-anon-key-for-testing-purposes-only',
+          httpClient: MockClient((request) async {
+            if (request.url.path.contains('/functions/v1/verify_receipt')) {
+              invokeCount++;
+              return http.Response(
+                jsonEncode(body),
+                200,
+                request: request,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            return http.Response(
+              '{}',
+              200,
+              request: request,
+              headers: {'content-type': 'application/json'},
+            );
+          }),
+          authOptions: const AuthClientOptions(autoRefreshToken: false),
+        );
+      }
+
+      test('contract-violating settlement payload is not retried', () async {
+        // 서버는 이미 정산·지급을 끝내고 200으로 응답했지만
+        // promotion 이 null 이라 canonical parser 가 거부하는 계약 위반 응답.
+        installCountingVerifyReceiptMock(
+          _purchaseResult()..['promotion'] = null,
+        );
+
+        await expectLater(
+          service.verifyReceipt(
+            'receipt-data',
+            'com.app.coins',
+            'user-id',
+            'production',
+          ),
+          throwsA(isA<ReceiptResponseContractException>()),
+        );
+
+        // 도착한 응답을 파싱하지 못한 것은 영구 오류이므로 재전송 금지.
+        expect(invokeCount, 1);
+      });
+
+      test('non-object response body is not retried either', () async {
+        installCountingVerifyReceiptMock(const ['not', 'an', 'object']);
+
+        await expectLater(
+          service.verifyReceipt(
+            'receipt-data',
+            'com.app.coins',
+            'user-id',
+            'production',
+          ),
+          throwsA(isA<ReceiptResponseContractException>()),
+        );
+
+        expect(invokeCount, 1);
+      });
+    });
+
+    /// `replayed` says the server had already applied the operation. It does
+    /// not say who put it there, and the retry loop below can be the culprit:
+    /// a request that settles on the server and then fails in transport is
+    /// re-sent against the same idempotency key, and the replay comes back for
+    /// candy the user has never been shown.
+    group('replay attribution', () {
+      late int invokeCount;
+
+      /// Installs a verify_receipt mock that fails the first
+      /// [failuresBeforeSuccess] requests the way a lost response does - the
+      /// generic retry branch that a timeout also lands in - and then answers
+      /// with [body].
+      void installFlakyVerifyReceiptMock(
+        Object body, {
+        required int failuresBeforeSuccess,
+      }) {
+        tearDownMockSupabase();
+        SharedPreferences.setMockInitialValues({});
+        invokeCount = 0;
+        testSupabaseClient = SupabaseClient(
+          'http://localhost:54321',
+          'test-anon-key-for-testing-purposes-only',
+          httpClient: MockClient((request) async {
+            if (request.url.path.contains('/functions/v1/verify_receipt')) {
+              invokeCount++;
+              if (invokeCount <= failuresBeforeSuccess) {
+                return http.Response('upstream lost', 502, request: request);
+              }
+              return http.Response(
+                jsonEncode(body),
+                200,
+                request: request,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            return http.Response(
+              '{}',
+              200,
+              request: request,
+              headers: {'content-type': 'application/json'},
+            );
+          }),
+          authOptions: const AuthClientOptions(autoRefreshToken: false),
+        );
+      }
+
+      test('a replay answering our own retry is attributed to us', () async {
+        installFlakyVerifyReceiptMock(
+          _purchaseResult()..['replayed'] = true,
+          failuresBeforeSuccess: 1,
+        );
+
+        final result = await service.verifyReceipt(
+          'receipt-data',
+          'com.app.coins',
+          'user-id',
+          'production',
+        );
+
+        expect(invokeCount, 2);
+        expect(result.replayed, isTrue);
+        expect(
+          result.replayCausedByRetry,
+          isTrue,
+          reason:
+              'our first request settled it, so the user has been shown '
+              'nothing and the grant receipt is still owed',
+        );
+      });
+
+      test('a replay on the very first request is not ours', () async {
+        installFlakyVerifyReceiptMock(
+          _purchaseResult()..['replayed'] = true,
+          failuresBeforeSuccess: 0,
+        );
+
+        final result = await service.verifyReceipt(
+          'receipt-data',
+          'com.app.coins',
+          'user-id',
+          'production',
+        );
+
+        expect(invokeCount, 1);
+        expect(result.replayed, isTrue);
+        expect(result.replayCausedByRetry, isFalse);
+      });
+
+      test('a fresh settlement is never attributed to a retry', () async {
+        installFlakyVerifyReceiptMock(
+          _purchaseResult(),
+          failuresBeforeSuccess: 1,
+        );
+
+        final result = await service.verifyReceipt(
+          'receipt-data',
+          'com.app.coins',
+          'user-id',
+          'production',
+        );
+
+        expect(result.replayed, isFalse);
+        expect(result.replayCausedByRetry, isFalse);
       });
     });
   });
