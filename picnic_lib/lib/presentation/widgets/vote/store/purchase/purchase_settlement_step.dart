@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
-import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_safety_manager.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/wallet_summary_applier.dart';
 
 /// Settles a purchase whose receipt has just been verified.
 ///
@@ -29,15 +29,22 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_cam
 /// - The wallet is applied before the receipt is presented, and it is applied
 ///   whether or not the store is still mounted. The candy was granted
 ///   server-side when the receipt verified; skipping this leaves
-///   `walletSummaryProvider` reporting a stale balance.
-/// - `attempts.finish` runs *after* the awaited receipt dialog returns. While
-///   the dialog is on screen the attempt must still be registered, because
-///   `_purchaseAttempts.contains()` is what makes a second tap hit
-///   `showPurchaseAlreadyPendingDialog` instead of a second charge.
+///   `walletSummaryProvider` reporting a stale balance. This is why the write
+///   arrives as a [WalletSummaryApplier] and not as a closure: the production
+///   applier holds the Riverpod container, captured while the store was
+///   mounted, so it still lands once the store is gone.
+/// - `attempts.finish` runs *after* the awaited receipt dialog returns, so an
+///   attempt that is still registered when settlement starts stays registered
+///   for as long as the receipt is on screen: `_purchaseAttempts.contains()`
+///   is what makes a second tap hit `showPurchaseAlreadyPendingDialog` instead
+///   of a second charge. That only covers settlements that arrive inside the
+///   safety window - for a late one `PurchaseStarCandyState`'s
+///   `onProductTimeout` already dropped the attempt when the 90s timer fired,
+///   and the per-product cooldown is all that stands behind the receipt.
 ///
-/// Everything that is genuinely bound to the widget (mount state, `setState`,
-/// the loading overlay, the Riverpod container) enters as a callback so the
-/// step never reaches into widget state.
+/// The rest of what is genuinely bound to the widget (mount state, `setState`,
+/// the loading overlay) enters as a callback so the step never reaches into
+/// widget state.
 class PurchaseSettlementStep {
   const PurchaseSettlementStep({
     PurchaseSettlementPresentation presentation =
@@ -53,7 +60,7 @@ class PurchaseSettlementStep {
     required PurchaseSettlementResultModel result,
     required PurchaseCampaignAttempt attempt,
     required void Function(String productId) cleanupAllTimersOnSuccess,
-    required void Function(WalletSummaryModel wallet) applyWalletSummary,
+    required WalletSummaryApplier applyWalletSummary,
     required bool Function() isMounted,
     required void Function(String productId) resetProductPurchaseState,
     required VoidCallback hideLoading,

@@ -1,12 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_safety_manager.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_settlement_step.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/wallet_summary_applier.dart';
 
 import 'recording_receipt_dialogs.dart';
 
@@ -65,6 +70,28 @@ class _RecordingRegistry extends PurchaseCampaignAttemptRegistry {
   }
 }
 
+/// Timestamps the wallet write, and forwards it to [delegate] when one is
+/// given.
+///
+/// The delegate is how the unmounted test drives the *production*
+/// [ContainerWalletSummaryApplier] rather than a stand-in: the step's contract
+/// is that the wallet lands with the store gone, and only something bound to
+/// the Riverpod container instead of a `State` can do that.
+class _RecordingApplier implements WalletSummaryApplier {
+  _RecordingApplier(this.events, {this.delegate});
+
+  final List<String> events;
+  final WalletSummaryApplier? delegate;
+  WalletSummaryModel? applied;
+
+  @override
+  void call(WalletSummaryModel wallet) {
+    events.add('applyWalletSummary');
+    applied = wallet;
+    delegate?.call(wallet);
+  }
+}
+
 /// Late-purchase settlement, driven through the production settlement step.
 ///
 /// The 90s safety net can fire while receipt verification is still running: the
@@ -80,9 +107,11 @@ class _RecordingRegistry extends PurchaseCampaignAttemptRegistry {
 ///
 /// - lateness is read before `completePurchaseSession` and
 ///   `cleanupAllTimersOnSuccess` destroy the state it is derived from;
-/// - the session is released, and the transaction recorded, before anything is
-///   presented;
+/// - the session is released, and the transaction recorded - not merely
+///   started - before anything is presented;
 /// - the wallet is credited before the receipt claims it was, mounted or not;
+/// - the loading overlay is dismissed and the tile unlocked before the receipt
+///   goes up;
 /// - the attempt is not finished until the awaited receipt has been dismissed.
 ///
 /// The collaborators below are wired exactly the way `PurchaseStarCandyState`
@@ -221,14 +250,15 @@ void main() {
     String product,
     String id, {
     bool isMounted = true,
+    WalletSummaryApplier? applyWalletSummary,
   }) async {
-    WalletSummaryModel? appliedWallet;
     final cleanedUpProducts = <String>[];
     var hideLoadingCalls = 0;
     var resetProductCalls = 0;
     bool? attemptHeldDuringReceipt;
     bool? walletAppliedDuringReceipt;
 
+    final applier = _RecordingApplier(events, delegate: applyWalletSummary);
     final dialogs = RecordingReceiptDialogs(
       whilePresenting: () async {
         events.add('receipt');
@@ -236,7 +266,7 @@ void main() {
         // `_canPurchase` and `_handlePurchase` gate on
         // `_purchaseAttempts.contains(productId)`.
         attemptHeldDuringReceipt = registry.contains(product);
-        walletAppliedDuringReceipt = appliedWallet != null;
+        walletAppliedDuringReceipt = applier.applied != null;
       },
     );
 
@@ -251,16 +281,17 @@ void main() {
         cleanedUpProducts.add(cleanedProduct);
         manager.cleanupAllTimersOnSuccess();
       },
-      applyWalletSummary: (wallet) {
-        events.add('applyWalletSummary');
-        appliedWallet = wallet;
-      },
+      applyWalletSummary: applier,
       isMounted: () => isMounted,
       resetProductPurchaseState: (resetProduct) {
+        events.add('resetProductPurchaseState');
         resetProductCalls++;
         manager.resetProductState(resetProduct);
       },
-      hideLoading: () => hideLoadingCalls++,
+      hideLoading: () {
+        events.add('hideLoading');
+        hideLoadingCalls++;
+      },
       receiptDialogs: dialogs,
     );
 
@@ -272,7 +303,7 @@ void main() {
     return (
       plain: dialogs.plainReceipts,
       late: dialogs.lateReceipts,
-      wallet: appliedWallet,
+      wallet: applier.applied,
       cleanedUpProducts: cleanedUpProducts,
       hideLoadingCalls: hideLoadingCalls,
       resetProductCalls: resetProductCalls,
@@ -280,6 +311,43 @@ void main() {
       walletAppliedDuringReceipt: walletAppliedDuringReceipt,
     );
   }
+
+  /// The same wiring as [settle], but the in-flight future is handed back
+  /// instead of being driven to completion.
+  ///
+  /// [settle] can only observe what a settlement did once it is over, so it
+  /// cannot tell "awaited" from "started and abandoned". The two tests that
+  /// pin *when* the step hands control on need to inspect the settlement while
+  /// it is still suspended.
+  Future<void> startSettlement(
+    String product,
+    String id, {
+    Future<void> Function()? whilePresenting,
+  }) => const PurchaseSettlementStep().settle(
+    safetyManager: manager,
+    attempts: registry,
+    purchaseDetails: transactionFor(product),
+    result: verified(),
+    attempt: attemptFor(product, id),
+    cleanupAllTimersOnSuccess: (cleanedProduct) {
+      events.add('cleanupAllTimersOnSuccess');
+      manager.cleanupAllTimersOnSuccess();
+    },
+    applyWalletSummary: _RecordingApplier(events),
+    isMounted: () => true,
+    resetProductPurchaseState: (resetProduct) {
+      events.add('resetProductPurchaseState');
+      manager.resetProductState(resetProduct);
+    },
+    hideLoading: () => events.add('hideLoading'),
+    receiptDialogs: RecordingReceiptDialogs(
+      whilePresenting:
+          whilePresenting ??
+          () async {
+            events.add('receipt');
+          },
+    ),
+  );
 
   testWidgets('purchase verified after its safety timeout settles as late', (
     tester,
@@ -356,6 +424,8 @@ void main() {
       'cleanupAllTimersOnSuccess',
       'performPostPurchaseCleanup',
       'applyWalletSummary',
+      'resetProductPurchaseState',
+      'hideLoading',
       'receipt',
       'finish',
     ]);
@@ -387,6 +457,116 @@ void main() {
       registry.contains(productId),
       isFalse,
       reason: 'the attempt is released once the receipt has been dismissed',
+    );
+
+    manager.disposeSafetyTimer();
+  });
+
+  testWidgets('settlement suspends for as long as the receipt is on screen', (
+    tester,
+  ) async {
+    await launch(productId, attemptId);
+
+    // The production receipt is a dialog: `showSuccessDialog` awaits the
+    // presenter, which only returns when the user dismisses it. Standing in
+    // for that with a future the test controls is the only way to observe the
+    // step *while* the receipt is up.
+    final dismissed = Completer<void>();
+    final settling = startSettlement(
+      productId,
+      attemptId,
+      whilePresenting: () {
+        events.add('receipt');
+        return dismissed.future;
+      },
+    );
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(
+      events.last,
+      'receipt',
+      reason: 'the receipt must be on screen at this point',
+    );
+    expect(
+      events,
+      isNot(contains('finish')),
+      reason:
+          'the receipt is awaited, so nothing past it may run while it is up; '
+          'releasing the attempt here reopens the second-charge window the '
+          'awaited dialog exists to close',
+    );
+    expect(registry.contains(productId), isTrue);
+
+    dismissed.complete();
+    await settling;
+
+    expect(events.last, 'finish');
+    expect(registry.contains(productId), isFalse);
+
+    manager.disposeSafetyTimer();
+  });
+
+  testWidgets('nothing past the transaction record runs until it has been '
+      'written', (tester) async {
+    await launch(productId, attemptId);
+
+    final settling = startSettlement(productId, attemptId);
+    // Flush every microtask. performPostPurchaseCleanup does not return on
+    // one - it delays - so anything visible here ran without waiting for it.
+    await tester.pump(Duration.zero);
+
+    expect(
+      events,
+      [
+        'readLateness',
+        'completePurchaseSession',
+        'cleanupAllTimersOnSuccess',
+        'performPostPurchaseCleanup',
+      ],
+      reason:
+          'the cleanup is awaited, not merely started: it is what records the '
+          'transaction id, and a redelivery of the same transaction arriving '
+          'before that write lands is taken for a fresh purchase',
+    );
+
+    await tester.pump(const Duration(seconds: 1));
+    await settling;
+    expect(events.last, 'finish');
+
+    manager.disposeSafetyTimer();
+  });
+
+  testWidgets('the overlay is dismissed and the tile unlocked before the '
+      'receipt', (tester) async {
+    await launch(productId, attemptId);
+    final presented = await settle(tester, productId, attemptId);
+
+    expect(
+      presented.hideLoadingCalls,
+      1,
+      reason:
+          'this is the only place a completed purchase dismisses the overlay - '
+          'every other hide() in the widget is on an error or cancel branch - '
+          'so dropping it leaves the spinner sitting on top of the receipt',
+    );
+    expect(
+      presented.resetProductCalls,
+      1,
+      reason:
+          'resetProductState drops the product from the active set and stops '
+          'its safety timer; without it the tile stays in its purchasing state '
+          'and the timer fires behind the receipt',
+    );
+    expect(
+      events.sublist(events.indexOf('applyWalletSummary')),
+      [
+        'applyWalletSummary',
+        'resetProductPurchaseState',
+        'hideLoading',
+        'receipt',
+        'finish',
+      ],
+      reason: 'both must have run before the receipt goes up',
     );
 
     manager.disposeSafetyTimer();
@@ -457,11 +637,29 @@ void main() {
       'credits the wallet', (tester) async {
     await launch(productId, attemptId);
 
+    // The production applier, writing to a real container, is what settles the
+    // wallet here - not a stand-in. `PurchaseStarCandyState` used to hand this
+    // seam `ref.read(walletSummaryProvider.notifier).setSummary`, and
+    // `ConsumerState.ref` throws the moment `mounted` is false, so with a
+    // closure in its place this test certified something the app could not do.
+    // `wallet_summary_applier_test.dart` pins that the production applier
+    // survives the store's unmount; the step's parameter type is what keeps a
+    // `ref` closure out of the call site.
+    final container = ProviderContainer(
+      overrides: [
+        walletSummaryProvider.overrideWithBuild(
+          (ref, notifier) => Completer<WalletSummaryModel>().future,
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
     final presented = await settle(
       tester,
       productId,
       attemptId,
       isMounted: false,
+      applyWalletSummary: ContainerWalletSummaryApplier.forContainer(container),
     );
 
     expect(
@@ -470,6 +668,11 @@ void main() {
       reason:
           'the candy was granted server-side when the receipt verified; leaving '
           'the store must not leave walletSummaryProvider on the old balance',
+    );
+    expect(
+      container.read(walletSummaryProvider).value,
+      same(presented.wallet),
+      reason: 'and the balance the store reads on its way back in is that one',
     );
     expect(
       presented.plain + presented.late,

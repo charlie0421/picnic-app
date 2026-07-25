@@ -15,7 +15,6 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
@@ -37,6 +36,7 @@ import 'purchase_helper.dart';
 import 'purchase_processor.dart';
 import 'purchase_campaign_attempt.dart';
 import 'purchase_settlement_step.dart';
+import 'wallet_summary_applier.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
@@ -48,6 +48,13 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   late final RestorePurchaseHandler _restoreHandler;
   late final PurchaseSafetyManager _safetyManager;
   late final PurchaseDialogHandler _dialogHandler;
+
+  /// Bound in [initState], while this state is guaranteed to be mounted.
+  ///
+  /// A settlement can land after the user has left the store - receipt
+  /// verification outlives the route - and `ref` throws once `mounted` is
+  /// false, so the wallet write must not go through it.
+  late final WalletSummaryApplier _applyWalletSummary;
   bool _transactionsCleared = false;
   bool _isInitializing = true;
   final Set<String> _currentlyProcessingIDs = {};
@@ -63,6 +70,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   void initState() {
     super.initState();
     logger.d('[PurchaseStarCandyState] initState called');
+
+    _applyWalletSummary = ContainerWalletSummaryApplier.of(context);
 
     _rotationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -377,8 +386,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           result: result,
           attempt: attempt,
           cleanupAllTimersOnSuccess: _cleanupAllTimersOnSuccess,
-          applyWalletSummary: (wallet) =>
-              ref.read(walletSummaryProvider.notifier).setSummary(wallet),
+          applyWalletSummary: _applyWalletSummary,
           isMounted: () => mounted,
           resetProductPurchaseState: _resetProductPurchaseState,
           hideLoading: () => _loadingKey.currentState?.hide(),
