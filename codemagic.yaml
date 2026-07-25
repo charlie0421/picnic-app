@@ -31,9 +31,30 @@ workflows:
           include: true
       cancel_previous_builds: true
     scripts:
+      - name: Require an explicit deploy target
+        script: |
+          set -e
+          # Fail closed. Both production and staging ship from the same
+          # `picnic-v*` tag, so an unset DEPLOY_TARGET must stop the build
+          # rather than silently pick one and upload it to App Store Connect.
+          : "${DEPLOY_TARGET:?must be set to 'production' or 'staging'; refusing to guess a deploy target}"
+          case "$DEPLOY_TARGET" in
+            production|staging) ;;
+            *)
+              echo "Unknown DEPLOY_TARGET '$DEPLOY_TARGET' (expected 'production' or 'staging')" >&2
+              exit 1
+              ;;
+          esac
+          echo "Deploy target: $DEPLOY_TARGET"
+      - name: Verify environment isolation policy
+        script: |
+          set -e
+          python3 -c "import yaml" 2>/dev/null || pip3 install --quiet pyyaml
+          python3 test_codemagic_environment_isolation.py
+          python3 test_codemagic_environment_isolation.py --self-test
       - name: Verify protected production target when requested
         script: |
-          if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+          if [ "$DEPLOY_TARGET" = "production" ]; then
             cd picnic_app
             dart run tool/verify_release_target.dart --target=production
           fi
@@ -44,7 +65,7 @@ workflows:
           # Staging build only: rewrite dev.json to the staging Supabase target
           # and prove non-production isolation. The production deploy path must
           # not depend on staging secrets, so it is skipped entirely.
-          if [ "${DEPLOY_TARGET:-staging}" != "production" ]; then
+          if [ "$DEPLOY_TARGET" != "production" ]; then
             : "${PICNIC_STAGING_SUPABASE_URL:?PICNIC_STAGING_SUPABASE_URL is required}"
             : "${PICNIC_STAGING_SUPABASE_ANON_KEY:?PICNIC_STAGING_SUPABASE_ANON_KEY is required}"
             : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
@@ -299,7 +320,7 @@ workflows:
 
           # Shorebird release ios는 xcarchive를 생성함
           # --export-options-plist를 전달하여 IPA도 함께 생성
-          if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+          if [ "$DEPLOY_TARGET" = "production" ]; then
             shorebird release ios \
               --dart-define=ENVIRONMENT=prod \
               --dart-define=PANGLE_ENVIRONMENT=prod \
@@ -391,7 +412,7 @@ workflows:
               echo "⚠️ xcarchive를 찾을 수 없어 flutter build ipa 실행..."
               # 이 경우는 패치가 작동하지 않을 수 있음 (경고 표시)
               echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
-              if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+              if [ "$DEPLOY_TARGET" = "production" ]; then
                 flutter build ipa \
                   --release \
                   --dart-define=ENVIRONMENT=prod \
@@ -417,7 +438,7 @@ workflows:
             # Shorebird 릴리즈 실패 시 fallback (패치 작동 안함)
             echo "=== Fallback: flutter build ipa ==="
             echo "⚠️ WARNING: flutter build ipa로 생성된 IPA는 Shorebird 패치를 받을 수 없습니다!"
-            if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+            if [ "$DEPLOY_TARGET" = "production" ]; then
               flutter build ipa \
                 --release \
                 --dart-define=ENVIRONMENT=prod \
@@ -590,10 +611,31 @@ workflows:
           include: true
       cancel_previous_builds: true
     scripts:
+      - name: Require an explicit deploy target
+        script: |
+          set -e
+          # Fail closed. Both production and staging ship from the same
+          # `picnic-v*` tag, so an unset DEPLOY_TARGET must stop the build
+          # rather than silently pick one and upload it to Google Play.
+          : "${DEPLOY_TARGET:?must be set to 'production' or 'staging'; refusing to guess a deploy target}"
+          case "$DEPLOY_TARGET" in
+            production|staging) ;;
+            *)
+              echo "Unknown DEPLOY_TARGET '$DEPLOY_TARGET' (expected 'production' or 'staging')" >&2
+              exit 1
+              ;;
+          esac
+          echo "Deploy target: $DEPLOY_TARGET"
+      - name: Verify environment isolation policy
+        script: |
+          set -e
+          python3 -c "import yaml" 2>/dev/null || pip3 install --quiet pyyaml
+          python3 test_codemagic_environment_isolation.py
+          python3 test_codemagic_environment_isolation.py --self-test
       - name: Verify deployment target
         script: |
           cd picnic_app
-          if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+          if [ "$DEPLOY_TARGET" = "production" ]; then
             dart run tool/verify_release_target.dart --target=production
           else
             echo "Staging target selected; isolation is verified after config/dev.json is generated."
@@ -632,7 +674,7 @@ workflows:
           flutter --version
           
           echo "=== Flutter 패키지 설치 ==="
-          if [ "${DEPLOY_TARGET:-staging}" != "production" ]; then
+          if [ "$DEPLOY_TARGET" != "production" ]; then
             : "${PICNIC_STAGING_SUPABASE_URL:?PICNIC_STAGING_SUPABASE_URL is required}"
             : "${PICNIC_STAGING_SUPABASE_ANON_KEY:?PICNIC_STAGING_SUPABASE_ANON_KEY is required}"
             : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
@@ -721,7 +763,7 @@ workflows:
           echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
           SKIP_SHOREBIRD=false
 
-          if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+          if [ "$DEPLOY_TARGET" = "production" ]; then
             shorebird release android \
               --dart-define=ENVIRONMENT=prod \
               --dart-define=PANGLE_ENVIRONMENT=prod \
@@ -778,7 +820,7 @@ workflows:
           if [ "$SHOREBIRD_AAB_EXISTS" = "false" ]; then
             echo "⚠️ WARNING: flutter build appbundle로 생성된 AAB는 Shorebird 패치를 받을 수 없습니다!"
             echo "📦 Flutter AAB 빌드 (fallback)..."
-            if [ "${DEPLOY_TARGET:-staging}" = "production" ]; then
+            if [ "$DEPLOY_TARGET" = "production" ]; then
               flutter build appbundle \
                 --release \
                 --dart-define=ENVIRONMENT=prod \

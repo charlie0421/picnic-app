@@ -30,6 +30,13 @@ for arg in "$@"; do
   esac
 done
 
+# Deployment isolation is a policy invariant, not a Flutter test, so it runs
+# here as well as in CI. --self-test proves the guard still detects a broken
+# codemagic.yaml; a guard that cannot fail is worse than no guard.
+echo "=== codemagic 환경 격리 정책 검증 ==="
+python3 "$PROJECT_DIR/test_codemagic_environment_isolation.py"
+python3 "$PROJECT_DIR/test_codemagic_environment_isolation.py" --self-test
+
 echo "=== picnic_lib 테스트 실행 ==="
 cd "$LIB_DIR"
 
