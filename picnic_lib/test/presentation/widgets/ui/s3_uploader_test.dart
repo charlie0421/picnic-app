@@ -70,6 +70,26 @@ void main() {
   });
 
   group('S3Uploader uploadFile error handling', () {
+    test('빈 자격증명은 파일 처리 전에 업로드를 거부한다', () async {
+      final disabledUploader = S3Uploader(
+        accessKey: ' ',
+        secretKey: '',
+        region: 'ap-northeast-2',
+        bucketName: 'bucket',
+      );
+
+      await expectLater(
+        disabledUploader.uploadFile('post/image', Object(), (_) {}),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            'Community integration is disabled',
+          ),
+        ),
+      );
+    });
+
     test('throws exception for non-File and non-Uint8List input', () async {
       expect(
         () => uploader.uploadFile('folder', 'invalid_file', (p) {}),
