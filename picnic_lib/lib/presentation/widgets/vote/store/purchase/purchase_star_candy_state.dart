@@ -36,6 +36,7 @@ import 'handlers/purchase_dialog_handler.dart';
 import 'purchase_helper.dart';
 import 'purchase_processor.dart';
 import 'purchase_campaign_attempt.dart';
+import 'purchase_settlement_step.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
@@ -52,8 +53,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   final Set<String> _currentlyProcessingIDs = {};
   final PurchaseCampaignAttemptRegistry _purchaseAttempts =
       PurchaseCampaignAttemptRegistry();
-  final PurchaseSettlementPresentation _settlementPresentation =
-      const PurchaseSettlementPresentation();
+  final PurchaseSettlementStep _settlementStep = const PurchaseSettlementStep();
 
   void _removeAttempt(String productId, String attemptId) {
     _purchaseAttempts.removeIfMatches(productId, attemptId);
@@ -370,57 +370,29 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     await _purchaseService.handleOptimizedPurchase(
       purchaseDetails,
       (result) async {
-        // The safety timeout can fire while receipt verification is still
-        // running, so lateness must be read here - when the verified result
-        // lands - and before completePurchaseSession/_cleanupAllTimersOnSuccess
-        // below clear the safety state.
-        final isLatePurchase = _safetyManager.isLatePurchaseForProduct(
-          purchaseDetails.productID,
+        await _settlementStep.settle(
+          safetyManager: _safetyManager,
+          attempts: _purchaseAttempts,
+          purchaseDetails: purchaseDetails,
+          result: result,
+          attempt: attempt,
+          cleanupAllTimersOnSuccess: _cleanupAllTimersOnSuccess,
+          applyWalletSummary: (wallet) =>
+              ref.read(walletSummaryProvider.notifier).setSummary(wallet),
+          isMounted: () => mounted,
+          resetProductPurchaseState: _resetProductPurchaseState,
+          hideLoading: () => _loadingKey.currentState?.hide(),
+          showSuccess: (sameResult, displayedCampaign) =>
+              _dialogHandler.showSuccessDialog(
+                result: sameResult,
+                displayedCampaign: displayedCampaign,
+              ),
+          showLateSuccess: (sameResult, displayedCampaign) =>
+              _dialogHandler.showLatePurchaseSuccessDialog(
+                result: sameResult,
+                displayedCampaign: displayedCampaign,
+              ),
         );
-        logger.i(
-          '[PurchaseStarCandyState] Purchase successful (late: $isLatePurchase)',
-        );
-
-        // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
-        _safetyManager.completePurchaseSession(purchaseDetails.productID);
-
-        // 🧹 모든 타이머 완전 정리 (정상 구매 완료 시)
-        _cleanupAllTimersOnSuccess(purchaseDetails.productID);
-
-        // 🧹 구매 완료 후 클린 작업 수행 (동기 처리로 완전성 보장)
-        final transactionId =
-            purchaseDetails.purchaseID ??
-            '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
-
-        // 🧹 동기로 클린 작업 실행 - 완료까지 기다림 (확실성 우선)
-        await _safetyManager.performPostPurchaseCleanup(
-          productId: purchaseDetails.productID,
-          transactionId: transactionId,
-          completedPurchase: purchaseDetails,
-        );
-
-        ref.read(walletSummaryProvider.notifier).setSummary(result.wallet);
-        if (mounted) {
-          _resetProductPurchaseState(purchaseDetails.productID);
-          _loadingKey.currentState?.hide();
-
-          await _settlementPresentation.present(
-            result: result,
-            attempt: attempt,
-            isLate: isLatePurchase,
-            showSuccess: (sameResult, displayedCampaign) =>
-                _dialogHandler.showSuccessDialog(
-                  result: sameResult,
-                  displayedCampaign: displayedCampaign,
-                ),
-            showLateSuccess: (sameResult, displayedCampaign) =>
-                _dialogHandler.showLatePurchaseSuccessDialog(
-                  result: sameResult,
-                  displayedCampaign: displayedCampaign,
-                ),
-          );
-        }
-        _purchaseAttempts.finish(purchaseDetails, attempt.attemptId);
       },
       (error) async {
         if (mounted) {
