@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/current_applications_section.dart'
     hide ArtistNameUtils;
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/search_and_results_section.dart';
@@ -11,6 +14,36 @@ import '../../../../helpers/mock_data.dart';
 import '../../../../helpers/mock_supabase.dart';
 import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_environment.dart';
+
+class FailingVoteItemRequestService extends Fake
+    implements VoteItemRequestService {
+  FailingVoteItemRequestService({
+    this.failInitial = false,
+    this.failSearch = false,
+  });
+
+  final bool failInitial;
+  final bool failSearch;
+
+  @override
+  Future<Map<String, dynamic>> loadAllApplicationsByArtist() async {
+    if (failInitial) throw Exception('internal table detail');
+    return {
+      'artistApplicationSummaries': <Map<String, dynamic>>[],
+      'totalApplications': 0,
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> searchArtistsWithPagination(
+    String query, {
+    required int page,
+    required int pageSize,
+  }) async {
+    if (failSearch) throw Exception('internal table detail');
+    return {'artists': <dynamic>[], 'hasMore': false, 'currentPage': page};
+  }
+}
 
 void main() {
   late void Function() restore;
@@ -43,14 +76,105 @@ void main() {
   }
 
   group('VoteItemRequestDialog render - logged in states', () {
-    testWidgets('renders all main sections when logged in',
-        (WidgetTester tester) async {
+    testWidgets('검색창은 정상 Backspace 입력을 처리하고 focus를 유지한다', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestAppPage(
+          Material(
+            child: VoteItemRequestDialog(
+              vote: testVote,
+              service: FailingVoteItemRequestService(),
+            ),
+          ),
+          loggedIn: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(TextField));
+      await tester.pump();
+      final editable = tester.widget<EditableText>(find.byType(EditableText));
+      expect(editable.focusNode.hasFocus, isTrue);
+
+      await tester.enterText(find.byType(TextField), 'ab');
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+      await tester.pump();
+
+      expect(editable.controller.text, 'a');
+      expect(editable.focusNode.hasFocus, isTrue);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
+      'shows a generic error and stops loading when initial load fails',
+      (WidgetTester tester) async {
+        final service = FailingVoteItemRequestService(failInitial: true);
+
+        await tester.pumpWidget(
+          buildTestAppPage(
+            Material(
+              child: VoteItemRequestDialog(vote: testVote, service: service),
+            ),
+            loggedIn: true,
+            locale: const Locale('en'),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(
+            AppLocalizations.of(
+              tester.element(find.byType(VoteItemRequestDialog)),
+            ).message_error_occurred,
+          ),
+          findsOneWidget,
+        );
+        expect(find.textContaining('internal table detail'), findsNothing);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+      },
+    );
+
+    testWidgets('shows a generic error and stops searching when search fails', (
+      WidgetTester tester,
+    ) async {
+      final service = FailingVoteItemRequestService(failSearch: true);
+
+      await tester.pumpWidget(
+        buildTestAppPage(
+          Material(
+            child: VoteItemRequestDialog(vote: testVote, service: service),
+          ),
+          loggedIn: true,
+          locale: const Locale('en'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(TextField), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'artist');
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          AppLocalizations.of(
+            tester.element(find.byType(VoteItemRequestDialog)),
+          ).common_text_search_error,
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('internal table detail'), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    });
+
+    testWidgets('renders all main sections when logged in', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          Material(
-            child: VoteItemRequestDialog(vote: testVote),
-          ),
+          Material(child: VoteItemRequestDialog(vote: testVote)),
           loggedIn: true,
         ),
       );
@@ -66,9 +190,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          Material(
-            child: VoteItemRequestDialog(vote: testVote),
-          ),
+          Material(child: VoteItemRequestDialog(vote: testVote)),
           loggedIn: true,
           locale: const Locale('en'),
         ),
@@ -81,9 +203,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          Material(
-            child: VoteItemRequestDialog(vote: testVote),
-          ),
+          Material(child: VoteItemRequestDialog(vote: testVote)),
           loggedIn: true,
           locale: const Locale('ja'),
         ),
@@ -98,9 +218,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          Material(
-            child: VoteItemRequestDialog(vote: testVote),
-          ),
+          Material(child: VoteItemRequestDialog(vote: testVote)),
           loggedIn: false,
         ),
       );
@@ -122,9 +240,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          Material(
-            child: VoteItemRequestDialog(vote: upcomingVote),
-          ),
+          Material(child: VoteItemRequestDialog(vote: upcomingVote)),
           loggedIn: true,
         ),
       );
@@ -134,18 +250,12 @@ void main() {
     });
 
     testWidgets('renders with ended vote', (WidgetTester tester) async {
-      final endedVote = MockData.vote(
-        id: 20,
-        titleKo: '종료 투표',
-        isEnded: true,
-      );
+      final endedVote = MockData.vote(id: 20, titleKo: '종료 투표', isEnded: true);
 
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          Material(
-            child: VoteItemRequestDialog(vote: endedVote),
-          ),
+          Material(child: VoteItemRequestDialog(vote: endedVote)),
           loggedIn: true,
         ),
       );
@@ -153,8 +263,9 @@ void main() {
       expect(find.byType(VoteItemRequestDialog), findsOneWidget);
     });
 
-    testWidgets('renders with birthday category vote',
-        (WidgetTester tester) async {
+    testWidgets('renders with birthday category vote', (
+      WidgetTester tester,
+    ) async {
       final birthdayVote = MockData.vote(
         id: 30,
         titleKo: '생일 축하 투표',
@@ -164,9 +275,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          Material(
-            child: VoteItemRequestDialog(vote: birthdayVote),
-          ),
+          Material(child: VoteItemRequestDialog(vote: birthdayVote)),
           loggedIn: true,
         ),
       );
@@ -174,8 +283,7 @@ void main() {
       expect(find.byType(VoteItemRequestDialog), findsOneWidget);
     });
 
-    testWidgets('renders with null category vote',
-        (WidgetTester tester) async {
+    testWidgets('renders with null category vote', (WidgetTester tester) async {
       final noCategoryVote = MockData.vote(
         id: 40,
         titleKo: '카테고리 없는 투표',
@@ -185,9 +293,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          Material(
-            child: VoteItemRequestDialog(vote: noCategoryVote),
-          ),
+          Material(child: VoteItemRequestDialog(vote: noCategoryVote)),
           loggedIn: true,
         ),
       );
@@ -197,8 +303,9 @@ void main() {
   });
 
   group('VoteItemRequestDialog render - with mock application data', () {
-    testWidgets('renders with existing application summaries from mock',
-        (WidgetTester tester) async {
+    testWidgets('renders with existing application summaries from mock', (
+      WidgetTester tester,
+    ) async {
       setupMockSupabase({
         'vote_item_request_users': <Map<String, dynamic>>[
           {
@@ -217,9 +324,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          Material(
-            child: VoteItemRequestDialog(vote: testVote),
-          ),
+          Material(child: VoteItemRequestDialog(vote: testVote)),
           loggedIn: true,
         ),
       );
@@ -229,8 +334,9 @@ void main() {
   });
 
   group('VoteItemRequestDialog render - showVoteItemRequestDialog', () {
-    testWidgets('opens and closes dialog via function',
-        (WidgetTester tester) async {
+    testWidgets('opens and closes dialog via function', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -262,8 +368,7 @@ void main() {
       expect(find.byType(VoteItemRequestDialog), findsNothing);
     });
 
-    testWidgets('dialog is barrier dismissible',
-        (WidgetTester tester) async {
+    testWidgets('dialog is barrier dismissible', (WidgetTester tester) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -296,8 +401,9 @@ void main() {
   });
 
   group('CurrentApplicationsSection render', () {
-    testWidgets('renders loading state with shimmer',
-        (WidgetTester tester) async {
+    testWidgets('renders loading state with shimmer', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -315,8 +421,9 @@ void main() {
       expect(find.byIcon(Icons.leaderboard_rounded), findsOneWidget);
     });
 
-    testWidgets('renders empty state with no applications',
-        (WidgetTester tester) async {
+    testWidgets('renders empty state with no applications', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -334,8 +441,9 @@ void main() {
       expect(find.byIcon(Icons.inbox_outlined), findsOneWidget);
     });
 
-    testWidgets('renders with application summaries',
-        (WidgetTester tester) async {
+    testWidgets('renders with application summaries', (
+      WidgetTester tester,
+    ) async {
       final summaries = <Map<String, dynamic>>[
         {
           'artist': {
@@ -392,8 +500,9 @@ void main() {
       expect(find.byType(CurrentApplicationsSection), findsOneWidget);
     });
 
-    testWidgets('renders with null artist data in summary',
-        (WidgetTester tester) async {
+    testWidgets('renders with null artist data in summary', (
+      WidgetTester tester,
+    ) async {
       final summaries = <Map<String, dynamic>>[
         {
           'artist': null,
@@ -420,8 +529,9 @@ void main() {
       expect(find.text('알 수 없는 아티스트'), findsOneWidget);
     });
 
-    testWidgets('renders mixed status counts correctly',
-        (WidgetTester tester) async {
+    testWidgets('renders mixed status counts correctly', (
+      WidgetTester tester,
+    ) async {
       final summaries = <Map<String, dynamic>>[
         {
           'artist': {

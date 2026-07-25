@@ -31,18 +31,19 @@ void main() {
   }
 
   group('SearchResultActionButton', () {
-    testWidgets('shows CircularProgressIndicator when isLoading=true',
-        (tester) async {
+    testWidgets('shows CircularProgressIndicator when isLoading=true', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildWidget(isLoading: true));
       await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('shows submit button when shouldShowApplicationButton=true',
-        (tester) async {
-      await tester.pumpWidget(
-          buildWidget(shouldShowApplicationButton: true));
+    testWidgets('shows submit button when shouldShowApplicationButton=true', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildWidget(shouldShowApplicationButton: true));
       await tester.pump();
       // Clear Image.asset error from PulseLoadingIndicator
       tester.takeException();
@@ -54,17 +55,18 @@ void main() {
 
     testWidgets('button is disabled when isSubmitting=true', (tester) async {
       bool pressed = false;
-      await tester.pumpWidget(buildWidget(
-        shouldShowApplicationButton: true,
-        isSubmitting: true,
-        onPressed: () => pressed = true,
-      ));
+      await tester.pumpWidget(
+        buildWidget(
+          shouldShowApplicationButton: true,
+          isSubmitting: true,
+          onPressed: () => pressed = true,
+        ),
+      );
       await tester.pump();
       // Clear Image.asset error from PulseLoadingIndicator
       tester.takeException();
 
-      final button = tester.widget<ElevatedButton>(
-          find.byType(ElevatedButton));
+      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
       expect(button.onPressed, isNull);
 
       await tester.tap(find.byType(ElevatedButton));
@@ -95,10 +97,17 @@ void main() {
     });
 
     testWidgets('shows status text for pending status', (tester) async {
-      await tester.pumpWidget(buildWidget(status: '대기중'));
+      const pendingLabel = '대기중';
+      await tester.pumpWidget(buildWidget(status: pendingLabel));
       await tester.pumpAndSettle();
 
-      expect(find.text('대기중'), findsOneWidget);
+      expect(find.byIcon(Icons.schedule_rounded), findsOneWidget);
+      final text = tester.widget<Text>(find.text(pendingLabel));
+      expect(text.style?.color, Colors.orange);
+      final container = tester.widget<Container>(find.byType(Container).last);
+      final decoration = container.decoration! as BoxDecoration;
+      final border = decoration.border! as Border;
+      expect(border.top.color, Colors.orange.withValues(alpha: 0.3));
     });
 
     testWidgets('shows SizedBox.shrink as default fallback', (tester) async {
@@ -111,13 +120,14 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
-    testWidgets('onPressed callback fires when button tapped',
-        (tester) async {
+    testWidgets('onPressed callback fires when button tapped', (tester) async {
       bool pressed = false;
-      await tester.pumpWidget(buildWidget(
-        shouldShowApplicationButton: true,
-        onPressed: () => pressed = true,
-      ));
+      await tester.pumpWidget(
+        buildWidget(
+          shouldShowApplicationButton: true,
+          onPressed: () => pressed = true,
+        ),
+      );
       await tester.pump();
       // Clear Image.asset error from PulseLoadingIndicator
       tester.takeException();
