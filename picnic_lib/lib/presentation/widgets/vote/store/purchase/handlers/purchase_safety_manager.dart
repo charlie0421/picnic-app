@@ -718,6 +718,14 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     return isLate;
   }
 
+  /// 늦은 구매인지 판별 (상품 단위)
+  ///
+  /// 상품별 안전망 타임아웃은 해당 상품을 활성 목록에서 제거하므로, 타임아웃 이후에
+  /// 검증이 도착한 구매만 늦은 구매로 판별된다. 다른 상품이 타임아웃되어도 진행 중인
+  /// 이 상품의 구매는 영향을 받지 않는다.
+  bool isLatePurchaseForProduct(String productId) =>
+      isLatePurchase(_activeProducts.contains(productId));
+
   /// 늦은 구매 성공 리셋
   void resetLatePurchaseSuccess() {
     _safetyTimeoutTriggered = false;

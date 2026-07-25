@@ -363,16 +363,23 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
     const isActualPurchase = true;
 
-    final isLatePurchase = _safetyManager.isLatePurchase(true);
-
     logger.i(
-      '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase)',
+      '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase)',
     );
 
     await _purchaseService.handleOptimizedPurchase(
       purchaseDetails,
       (result) async {
-        logger.i('[PurchaseStarCandyState] Purchase successful');
+        // The safety timeout can fire while receipt verification is still
+        // running, so lateness must be read here - when the verified result
+        // lands - and before completePurchaseSession/_cleanupAllTimersOnSuccess
+        // below clear the safety state.
+        final isLatePurchase = _safetyManager.isLatePurchaseForProduct(
+          purchaseDetails.productID,
+        );
+        logger.i(
+          '[PurchaseStarCandyState] Purchase successful (late: $isLatePurchase)',
+        );
 
         // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
         _safetyManager.completePurchaseSession(purchaseDetails.productID);
