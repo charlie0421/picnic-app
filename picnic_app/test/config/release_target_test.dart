@@ -11,8 +11,8 @@ guard.ReleaseTargetInput validInput() => const guard.ReleaseTargetInput(
       environment: 'prod',
       headSha: 'abc',
       requestedSha: 'abc',
-      mainSha: 'abc',
       tagSha: 'abc',
+      releaseCommitOnMain: true,
       approvalReference: 'approval-1',
       manifestChecksum: 'checksum',
       expectedManifestChecksum: 'checksum',
@@ -26,14 +26,16 @@ void main() {
     expect(guard.verifyReleaseTarget(validInput()), isNull);
   });
 
-  test('rejects local, mismatched SHA, missing evidence, and unknown target',
+  test('rejects local, off-main commit, missing evidence, and unknown target',
       () {
     expect(
       guard.verifyReleaseTarget(validInput().copyWith(ciProvider: 'local')),
       isNotNull,
     );
     expect(
-      guard.verifyReleaseTarget(validInput().copyWith(mainSha: 'ancestor')),
+      guard.verifyReleaseTarget(
+        validInput().copyWith(releaseCommitOnMain: false),
+      ),
       isNotNull,
     );
     expect(
@@ -44,6 +46,34 @@ void main() {
       guard.verifyReleaseTarget(validInput().copyWith(target: 'preview')),
       isNotNull,
     );
+  });
+
+  test('a tag stays releasable after main advances past it', () {
+    // The release commit is pinned by headSha/requestedSha/tagSha. Requiring it
+    // to also equal `git rev-parse origin/main` made every tag expire the
+    // instant the next commit landed on main, which is every tag in this repo.
+    expect(guard.verifyReleaseTarget(validInput()), isNull);
+  });
+
+  test('an off-main commit is never releasable, however well attested', () {
+    final error = guard.verifyReleaseTarget(
+      validInput().copyWith(releaseCommitOnMain: false),
+    );
+    expect(error, isNotNull);
+    expect(error, contains('main'));
+  });
+
+  test('ancestry alone cannot substitute for the exact tagged commit', () {
+    // Being on main must not make an arbitrary commit releasable: head,
+    // RELEASE_SHA and the tag still have to name one and the same commit.
+    for (final input in <guard.ReleaseTargetInput>[
+      validInput().copyWith(headSha: 'other'),
+      validInput().copyWith(requestedSha: 'other'),
+      validInput().copyWith(tagSha: 'other'),
+      validInput().copyWith(tagSha: ''),
+    ]) {
+      expect(guard.verifyReleaseTarget(input), isNotNull);
+    }
   });
 
   test('guard errors never include evidence values', () {
@@ -140,7 +170,20 @@ supabase --debug functions deploy hello --project-ref approved-staging-ref
       workingDirectory: Directory.current.path,
       environment: {
         ...Platform.environment,
-        'RELEASE_APPROVAL_REFERENCE': sentinel
+        // Blanked explicitly: this test asserts the CLI fails closed, so it
+        // must not depend on the ambient environment. Inheriting a real
+        // production release environment would otherwise make it fail on the
+        // one build that matters.
+        'CI_PROVIDER': '',
+        'PRODUCTION_RELEASE_EVENT': '',
+        'ENVIRONMENT': '',
+        'RELEASE_SHA': '',
+        'RELEASE_TAG': '',
+        'RELEASE_MANIFEST': '',
+        'RELEASE_MANIFEST_SHA256': '',
+        'ENVIRONMENT_ISOLATION_EVIDENCE': '',
+        'SECURITY_EVIDENCE': '',
+        'RELEASE_APPROVAL_REFERENCE': sentinel,
       },
     );
     expect(result.exitCode, 1);

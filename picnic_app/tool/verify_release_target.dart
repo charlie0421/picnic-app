@@ -137,8 +137,8 @@ class ReleaseTargetInput {
     required this.environment,
     required this.headSha,
     required this.requestedSha,
-    required this.mainSha,
     required this.tagSha,
+    required this.releaseCommitOnMain,
     required this.approvalReference,
     required this.manifestChecksum,
     required this.expectedManifestChecksum,
@@ -147,7 +147,16 @@ class ReleaseTargetInput {
     required this.checkoutClean,
   });
   final String target, ciProvider, event, environment;
-  final String headSha, requestedSha, mainSha, tagSha;
+  final String headSha, requestedSha, tagSha;
+
+  /// Whether the tagged commit is contained in main's history.
+  ///
+  /// Deliberately not "equals main's tip": main advances independently of a
+  /// release tag, and requiring equality made a tag stop being releasable the
+  /// moment the next commit landed. Containment still means the commit was
+  /// reviewed and merged, and the exact-SHA checks above keep the release
+  /// pinned to the one commit the tag names.
+  final bool releaseCommitOnMain;
   final String approvalReference, manifestChecksum, expectedManifestChecksum;
   final String isolationEvidence, securityEvidence;
   final bool checkoutClean;
@@ -159,8 +168,8 @@ class ReleaseTargetInput {
     String? environment,
     String? headSha,
     String? requestedSha,
-    String? mainSha,
     String? tagSha,
+    bool? releaseCommitOnMain,
     String? approvalReference,
     String? manifestChecksum,
     String? expectedManifestChecksum,
@@ -175,8 +184,8 @@ class ReleaseTargetInput {
         environment: environment ?? this.environment,
         headSha: headSha ?? this.headSha,
         requestedSha: requestedSha ?? this.requestedSha,
-        mainSha: mainSha ?? this.mainSha,
         tagSha: tagSha ?? this.tagSha,
+        releaseCommitOnMain: releaseCommitOnMain ?? this.releaseCommitOnMain,
         approvalReference: approvalReference ?? this.approvalReference,
         manifestChecksum: manifestChecksum ?? this.manifestChecksum,
         expectedManifestChecksum:
@@ -194,11 +203,16 @@ String? verifyReleaseTarget(ReleaseTargetInput input) {
   }
   if (input.environment != 'prod') return 'production environment required';
   if (!input.checkoutClean) return 'checkout must be clean';
-  if ([input.headSha, input.requestedSha, input.mainSha, input.tagSha]
-          .any((v) => v.isEmpty) ||
-      {input.headSha, input.requestedSha, input.mainSha, input.tagSha}.length !=
-          1) {
+  // The release is pinned to one exact commit: what is checked out, what
+  // RELEASE_SHA asks for, and what the tag names must all be the same commit.
+  if ([input.headSha, input.requestedSha, input.tagSha].any((v) => v.isEmpty) ||
+      {input.headSha, input.requestedSha, input.tagSha}.length != 1) {
     return 'exact release SHA mismatch';
+  }
+  // ...and that commit must have reached main. Ancestry, not tip equality:
+  // a reviewed release point does not stop being one because main moved on.
+  if (!input.releaseCommitOnMain) {
+    return 'release commit is not contained in main';
   }
   if (input.approvalReference.isEmpty) return 'approval reference missing';
   if (input.manifestChecksum.isEmpty ||
@@ -228,6 +242,9 @@ Future<void> main(List<String> args) async {
       return;
     }
     final head = _git(['rev-parse', 'HEAD']);
+    final tagSha = env['RELEASE_TAG'] == null || env['RELEASE_TAG']!.isEmpty
+        ? ''
+        : _tryGit(['rev-list', '-n', '1', env['RELEASE_TAG']!]) ?? '';
     final input = ReleaseTargetInput(
       target: target,
       ciProvider: env['CI_PROVIDER'] ?? '',
@@ -235,9 +252,8 @@ Future<void> main(List<String> args) async {
       environment: env['ENVIRONMENT'] ?? '',
       headSha: head,
       requestedSha: env['RELEASE_SHA'] ?? '',
-      mainSha: _git(['rev-parse', 'origin/main']),
-      tagSha:
-          _git(['rev-list', '-n', '1', env['RELEASE_TAG'] ?? '__missing__']),
+      tagSha: tagSha,
+      releaseCommitOnMain: _isContainedInMain(tagSha),
       approvalReference: env['RELEASE_APPROVAL_REFERENCE'] ?? '',
       manifestChecksum: _sha256(env['RELEASE_MANIFEST'] ?? ''),
       expectedManifestChecksum: env['RELEASE_MANIFEST_SHA256'] ?? '',
@@ -259,9 +275,49 @@ Future<void> main(List<String> args) async {
 }
 
 String _git(List<String> args) {
+  final result = _tryGit(args);
+  if (result == null) throw StateError('git check failed');
+  return result;
+}
+
+/// Runs git, returning `null` instead of throwing when the command fails.
+///
+/// Used where "git cannot answer this" is a legitimate answer that should be
+/// reported precisely, rather than collapsing into the catch-all NO-GO.
+String? _tryGit(List<String> args) {
   final result = Process.runSync('git', args, workingDirectory: '..');
-  if (result.exitCode != 0) throw StateError('git check failed');
+  if (result.exitCode != 0) return null;
   return (result.stdout as String).trim();
+}
+
+/// Refs that may hold the reviewed integration branch, in order of authority.
+///
+/// A tag-only or single-branch CI checkout does not always have a remote
+/// tracking ref; the previous implementation ran `git rev-parse origin/main`
+/// unconditionally, so such a checkout threw and every release became a NO-GO
+/// with a message that blamed the runner instead of the missing ref.
+const mainRefCandidates = <String>[
+  'refs/remotes/origin/main',
+  'refs/heads/main',
+];
+
+/// Whether [commit] is reachable from main, i.e. it was merged and reviewed.
+///
+/// Fails closed: if no main ref can be resolved at all, nothing here can
+/// establish that the commit was reviewed, so the release does not proceed.
+bool _isContainedInMain(String commit) {
+  if (commit.isEmpty) return false;
+  for (final ref in mainRefCandidates) {
+    final mainSha = _tryGit(['rev-parse', '--verify', '$ref^{commit}']);
+    if (mainSha == null || mainSha.isEmpty) continue;
+    final ancestry = Process.runSync(
+      'git',
+      ['merge-base', '--is-ancestor', commit, mainSha],
+      workingDirectory: '..',
+    );
+    return ancestry.exitCode == 0;
+  }
+  return false;
 }
 
 String _sha256(String path) {
