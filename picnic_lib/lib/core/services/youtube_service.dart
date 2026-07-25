@@ -30,9 +30,21 @@ class YouTubeContentService {
   static final YouTubeContentService _instance =
       YouTubeContentService._internal();
 
+  final http.Client _httpClient;
+  final String Function() _apiKeyProvider;
+
   factory YouTubeContentService() => _instance;
 
-  YouTubeContentService._internal();
+  YouTubeContentService._internal()
+    : _httpClient = http.Client(),
+      _apiKeyProvider = (() => Environment.youtubeApiKey);
+
+  @visibleForTesting
+  YouTubeContentService.test({
+    required http.Client httpClient,
+    required String Function() apiKeyProvider,
+  }) : _httpClient = httpClient,
+       _apiKeyProvider = apiKeyProvider;
 
   Future<VideoInfo> fetchYoutubeInfo(String url) async {
     if (kIsWeb) {
@@ -83,8 +95,9 @@ class YouTubeContentService {
     return VideoInfo(
       id: data['videoId'] ?? videoId,
       title: decodeHtmlEntities(data['title'] ?? 'YouTube Video'),
-      channelTitle:
-          decodeHtmlEntities(data['channelTitle'] ?? 'Unknown Channel'),
+      channelTitle: decodeHtmlEntities(
+        data['channelTitle'] ?? 'Unknown Channel',
+      ),
       channelThumbnail: data['channelThumbnail'] ?? '',
       thumbnailUrl: thumbnailUrl,
       viewCount: int.tryParse(data['viewCount']?.toString() ?? '0') ?? 0,
@@ -99,13 +112,19 @@ class YouTubeContentService {
       throw Exception('Invalid YouTube URL');
     }
 
-    final apiKey = Environment.youtubeApiKey;
+    final apiKey = _apiKeyProvider().trim();
+    if (apiKey.isEmpty) {
+      return createFallbackVideoInfo(url);
+    }
 
     try {
       // Fetch video data and channel data in parallel
-      final videoFuture =
-          http.get(Uri.parse('https://www.googleapis.com/youtube/v3/videos?'
-              'part=snippet,statistics&id=$videoId&key=$apiKey'));
+      final videoFuture = _httpClient.get(
+        Uri.parse(
+          'https://www.googleapis.com/youtube/v3/videos?'
+          'part=snippet,statistics&id=$videoId&key=$apiKey',
+        ),
+      );
 
       final data = await videoFuture;
       if (data.statusCode != 200) {
@@ -122,9 +141,12 @@ class YouTubeContentService {
 
       // Fetch channel data separately
       final channelId = snippet['channelId'];
-      final channelResponse = await http
-          .get(Uri.parse('https://www.googleapis.com/youtube/v3/channels?'
-              'part=snippet&id=$channelId&key=$apiKey'));
+      final channelResponse = await _httpClient.get(
+        Uri.parse(
+          'https://www.googleapis.com/youtube/v3/channels?'
+          'part=snippet&id=$channelId&key=$apiKey',
+        ),
+      );
 
       final channelData = json.decode(channelResponse.body);
       final channelThumbnail = extractChannelThumbnail(channelData);
@@ -148,7 +170,8 @@ class YouTubeContentService {
     final thumbnails = snippet?['thumbnails'] as Map<String, dynamic>?;
 
     // Select best thumbnail: maxres > high > fallback
-    final thumbnailUrl = thumbnails?['maxres']?['url'] ??
+    final thumbnailUrl =
+        thumbnails?['maxres']?['url'] ??
         thumbnails?['high']?['url'] ??
         'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
 
@@ -158,8 +181,7 @@ class YouTubeContentService {
       channelTitle: decodeHtmlEntities(snippet?['channelTitle'] ?? ''),
       channelThumbnail: channelThumbnail,
       thumbnailUrl: thumbnailUrl,
-      viewCount:
-          int.tryParse(statistics?['viewCount'] ?? '0') ?? 0,
+      viewCount: int.tryParse(statistics?['viewCount'] ?? '0') ?? 0,
       publishedAt:
           DateTime.tryParse(snippet?['publishedAt'] ?? '') ?? DateTime.now(),
     );
