@@ -54,5 +54,9 @@ picnic_app/key.properties
 
 # 테스트 커버리지
 **/coverage/
+
+# 환경 격리 가드 실행 부산물
+__pycache__/
+*.pyc
 supabase/.temp/**
 supabase/.branches/**

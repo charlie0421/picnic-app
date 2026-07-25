@@ -54,12 +54,30 @@ workflows:
           python3 test_codemagic_environment_isolation.py --self-test
       - name: Verify protected production target when requested
         script: |
+          # set -e: a NO-GO from the guard must fail the step, not be discarded.
+          set -e
           if [ "$DEPLOY_TARGET" = "production" ]; then
             cd picnic_app
             dart run tool/verify_release_target.dart --target=production
           fi
+      - name: Run picnic_app release guard tests
+        script: |
+          set -e
+          # The release-target and environment-isolation guards live in
+          # picnic_app/test/config. picnic_lib's suite never loads them, so
+          # without this step they would rot unnoticed until a release broke.
+          # Runs after verify_release_target.dart on purpose: that guard requires
+          # a clean checkout, and `flutter test` implies a pub get that can touch
+          # the tracked pubspec.lock.
+          cd picnic_app
+          flutter test
       - name: Get Flutter packages and prepare iOS
         script: |
+          # set -e: verify_environment_isolation.dart below is not the last
+          # command in this step, so without it a NO-GO exit status would be
+          # overwritten by the trailing `flutter`/`ls` commands and the build
+          # would keep going and publish a mis-targeted app.
+          set -e
           cd picnic_app
 
           # Staging build only: rewrite dev.json to the staging Supabase target
@@ -634,12 +652,25 @@ workflows:
           python3 test_codemagic_environment_isolation.py --self-test
       - name: Verify deployment target
         script: |
+          # set -e: a NO-GO from the guard must fail the step, not be discarded.
+          set -e
           cd picnic_app
           if [ "$DEPLOY_TARGET" = "production" ]; then
             dart run tool/verify_release_target.dart --target=production
           else
             echo "Staging target selected; isolation is verified after config/dev.json is generated."
           fi
+      - name: Run picnic_app release guard tests
+        script: |
+          set -e
+          # The release-target and environment-isolation guards live in
+          # picnic_app/test/config. picnic_lib's suite never loads them, so
+          # without this step they would rot unnoticed until a release broke.
+          # Runs after verify_release_target.dart on purpose: that guard requires
+          # a clean checkout, and `flutter test` implies a pub get that can touch
+          # the tracked pubspec.lock.
+          cd picnic_app
+          flutter test
       - name: Install Shorebird CLI
         script: |
           if [ "${ENABLE_SHOREBIRD:-false}" != "true" ]; then
@@ -660,6 +691,11 @@ workflows:
 
       - name: Flutter Environment Setup
         script: |
+          # set -e: verify_environment_isolation.dart below is not the last
+          # command in this step, so without it a NO-GO exit status would be
+          # overwritten by the trailing `flutter packages pub get` and the build
+          # would keep going and publish a mis-targeted app.
+          set -e
           cd picnic_app
           echo "=== Flutter 환경 준비 ==="
           echo "🎯 Flutter + Shorebird 통합 빌드 시스템"
@@ -1033,6 +1069,8 @@ workflows:
     scripts:
       - name: Verify protected production target
         script: |
+          # set -e: a NO-GO from the guard must fail the step, not be discarded.
+          set -e
           cd picnic_app
           dart run tool/verify_release_target.dart --target=production
       - name: Setup and Patch iOS
@@ -1187,6 +1225,8 @@ workflows:
     scripts:
       - name: Verify protected production target
         script: |
+          # set -e: a NO-GO from the guard must fail the step, not be discarded.
+          set -e
           cd picnic_app
           dart run tool/verify_release_target.dart --target=production
       - name: Setup and Patch Android

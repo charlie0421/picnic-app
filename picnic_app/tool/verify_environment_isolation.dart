@@ -1,3 +1,19 @@
+// Validates the environment artifact that this build will actually ship.
+//
+// Scope. This tool owns exactly one question: does the `config/<env>.json`
+// file *as it exists on disk right now* describe an isolated environment?
+// It deliberately does not reconstruct, patch or second-guess that file --
+// an earlier revision overlaid the staging Supabase tuple from the
+// environment before validating, which meant the generated file's real
+// contents were never checked and a verbatim copy of production passed.
+//
+// The complementary question -- do the build commands in codemagic.yaml pass
+// the defines that belong to this target? -- is owned by
+// test_codemagic_environment_isolation.py, which resolves the DEPLOY_TARGET
+// branch of every release invocation and pins its defines (including the env
+// prefix used to invoke *this* tool) to the required tuple. Neither guard can
+// be satisfied by restating its own inputs.
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -12,11 +28,9 @@ Future<void> main(List<String> args) async {
     return;
   }
   try {
+    // Read-only: whatever the build step generated is what gets validated.
     final config = _load('config/$environment.json');
     final production = environment == 'prod' ? null : _load('config/prod.json');
-    if (environment == 'dev') {
-      _applyPublicDevConfig(config, Platform.environment);
-    }
     final result = SupabaseEnvironmentPolicy.validate(
       environment: environment,
       config: config,
@@ -52,19 +66,6 @@ Future<void> main(List<String> args) async {
 
 Map<String, dynamic> _load(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
-
-void _applyPublicDevConfig(
-    Map<String, dynamic> config, Map<String, String> env) {
-  final url = env['PICNIC_STAGING_SUPABASE_URL'];
-  final key = env['PICNIC_STAGING_SUPABASE_ANON_KEY'];
-  if (url == null || key == null) return;
-  final supabase = config['supabase'] as Map<String, dynamic>;
-  final storage = supabase['storage'] as Map<String, dynamic>;
-  supabase['url'] = url;
-  supabase['anon_key'] = key;
-  storage['url'] = url;
-  storage['anon_key'] = key;
-}
 
 String? _option(List<String> args, String name) {
   final prefix = '--$name=';

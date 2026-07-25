@@ -17,6 +17,7 @@ fi
 
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 LIB_DIR="$PROJECT_DIR/picnic_lib"
+APP_DIR="$PROJECT_DIR/picnic_app"
 THRESHOLD=60
 NO_COV=false
 HTML_REPORT=false
@@ -36,6 +37,12 @@ done
 echo "=== codemagic 환경 격리 정책 검증 ==="
 python3 "$PROJECT_DIR/test_codemagic_environment_isolation.py"
 python3 "$PROJECT_DIR/test_codemagic_environment_isolation.py" --self-test
+
+# picnic_app/test/config holds the release-target and environment-isolation
+# guards. picnic_lib's suite never loads them, so they run here (and in the tag
+# workflows) rather than nowhere at all.
+echo "=== picnic_app 릴리즈 가드 테스트 실행 ==="
+(cd "$APP_DIR" && flutter test test/config)
 
 echo "=== picnic_lib 테스트 실행 ==="
 cd "$LIB_DIR"
