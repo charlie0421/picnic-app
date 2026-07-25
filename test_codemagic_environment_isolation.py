@@ -15,20 +15,38 @@ Structure
 
 DEPLOY_TARGET handling
 ----------------------
-1. ``DEPLOY_TARGET`` is fail-closed. It may not be given a default with any
-   form of shell defaulting (``:-`` ``-`` ``:=`` ``=`` ``:+`` ``+``), may not
-   be assigned by the workflow or by ``environment.vars``, and every
-   dual-target workflow must assert it with ``${DEPLOY_TARGET:?...}``.
-2. Its *value* is constrained to a known allow-list by a
-   ``case "$DEPLOY_TARGET" in`` block whose catch-all exits non-zero, and that
-   step must run before anything else that reads DEPLOY_TARGET or builds.
-   Without it, ``Production`` or ``production `` survive ``${DEPLOY_TARGET:?}``
-   and fall into the staging branch.
-3. Every ``if``/``elif`` that mentions DEPLOY_TARGET must be a *pure* two-way
+The deploy target is decided by the *tag*, not by a CI variable a human has to
+remember to set: ``picnic-v*`` is production, ``picnic-staging-v*`` is staging.
+Both patterns fire the same workflow, which derives ``DEPLOY_TARGET`` from
+``CM_TAG`` -- Codemagic's built-in "the tag being built if started from a tag
+webhook, unset otherwise" [1] -- and hands it to the later steps through
+``$CM_ENV``.
+
+1. Exactly one step may assign ``DEPLOY_TARGET``, and only from the tag: a
+   ``case "$CM_TAG" in`` whose branches assign a literal target and whose ``*)``
+   catch-all exits non-zero. ``CM_TAG`` itself must be required (``${CM_TAG:?}``),
+   never defaulted and never assigned. The derived value leaves the step only
+   through ``echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"``.
+2. The tag patterns must line up with the targets: each trigger pattern maps to
+   exactly one target and each target to exactly one pattern, no two patterns
+   overlap, and a pattern that names a target must map to that target -- a
+   staging tag may not build production, nor the reverse.
+3. ``DEPLOY_TARGET`` is fail-closed everywhere. It may not be given a default
+   with any form of shell defaulting (``:-`` ``-`` ``:=`` ``=`` ``:+`` ``+``),
+   may not be set by ``environment.vars``, and *every* step that reads it must
+   open with its own unconditional ``: "${DEPLOY_TARGET:?...}"``. That last rule
+   is what keeps a broken ``$CM_ENV`` hand-off from being fatal: with an empty
+   ``DEPLOY_TARGET`` every ``[ "$DEPLOY_TARGET" = "production" ]`` test quietly
+   takes the staging branch and publishes, which is Critical 1 all over again.
+4. The derivation step must run before any step that reads DEPLOY_TARGET,
+   builds, or carries a governed build define.
+5. Every ``if``/``elif`` that mentions DEPLOY_TARGET must be a *pure* two-way
    test on it. ``[ "$DEPLOY_TARGET" = "production" ] && [ "$X" = "y" ]`` is not
    a deploy-target switch: at run time ``DEPLOY_TARGET=production X=n`` takes
    the ``else`` branch and builds staging. Such a condition is refused rather
    than trusted to label its branches.
+
+[1] https://docs.codemagic.io/yaml-basic-configuration/environment-variables/
 
 Build/release correctness
 -------------------------
@@ -73,6 +91,7 @@ Exits 0 when every invariant holds, 1 otherwise.
 """
 
 import copy
+import itertools
 import re
 import sys
 from collections import namedtuple
@@ -215,15 +234,44 @@ PURE_DEPLOY_TEST = re.compile(
 # are deliberately excluded; every other operator restores the silent fallback
 # that Critical 1 was about.
 DEPLOY_SOFT_DEFAULT = re.compile(r"\$\{DEPLOY_TARGET\s*:?[-=+]")
-# The workflow choosing its own deploy target instead of taking it from CI.
+# Any spelling of the workflow setting DEPLOY_TARGET, including the `$CM_ENV`
+# hand-off (`echo "DEPLOY_TARGET=..." >> "$CM_ENV"`), which sets it for every
+# later step. Only the sanctioned derivation shape is allowed to match.
 DEPLOY_ASSIGNMENT = re.compile(
     r"(?<![\w./-])(?:export\s+|declare\s+|typeset\s+|readonly\s+)?DEPLOY_TARGET="
 )
 DEPLOY_REQUIRE = re.compile(r"\$\{DEPLOY_TARGET:\?")
+# The assert as a standalone, unconditional command. `echo "${DEPLOY_TARGET:?}"`
+# also contains the operator but is not a guard, so the whole line is matched.
+DEPLOY_ASSERT_LINE = re.compile(r'^:\s+"\$\{DEPLOY_TARGET:\?')
+# Reading the variable. `DEPLOY_TARGET=staging` is an assignment, not a read.
+DEPLOY_READ = re.compile(r"\$\{?DEPLOY_TARGET\b")
 PRODUCTION_GATE = re.compile(r"verify_release_target\.dart\s+--target=production")
 
-CASE_HEAD = re.compile(r"^case\s+\"?\$\{?DEPLOY_TARGET\}?\"?\s+in\b")
+# Codemagic's built-in tag variable: "The tag being built if started from a tag
+# webhook, unset otherwise".
+# https://docs.codemagic.io/yaml-basic-configuration/environment-variables/
+TAG_VARIABLE = "CM_TAG"
+TAG_CASE_HEAD = re.compile(r"^case\s+\"?\$\{?CM_TAG\}?\"?\s+in\b")
+TAG_ASSERT_LINE = re.compile(r'^:\s+"\$\{CM_TAG:\?')
+TAG_SOFT_DEFAULT = re.compile(r"\$\{CM_TAG\s*:?[-=+]")
+TAG_ASSIGNMENT = re.compile(
+    r"(?<![\w./-])(?:export\s+|declare\s+|typeset\s+|readonly\s+)?CM_TAG="
+)
+
+# The one sanctioned way the derived target crosses a step boundary. This file
+# already uses the idiom for SIGNING_PROFILE_NAME; anything else -- a literal
+# value, a different variable -- is an unsanctioned assignment.
+CM_ENV_EXPORT = re.compile(
+    r'^echo\s+"DEPLOY_TARGET=\$\{?DEPLOY_TARGET\}?"\s*>>\s*"\$\{?CM_ENV\}?"\s*$'
+)
+# `DEPLOY_TARGET=staging` and nothing else: no expansion, no substitution.
+DEPLOY_LITERAL_ASSIGNMENT = re.compile(
+    r"^DEPLOY_TARGET=(?P<quote>['\"]?)(?P<value>[A-Za-z0-9_-]+)(?P=quote)$"
+)
+
 CASE_LABEL = re.compile(r"^(?P<pattern>[^()]*?)\)")
+CATCH_ALL = "*"
 NONZERO_EXIT = re.compile(r"\bexit\s+(?!0\b)\S+")
 
 # --- shell shape helpers ---------------------------------------------------
@@ -643,8 +691,9 @@ def check_deploy_target_fail_closed(workflows, dual_target):
         for path, value in _find_key(workflow.get("environment"), "DEPLOY_TARGET"):
             failures.append(
                 f"{name}: `environment.{path}` hard-codes DEPLOY_TARGET={value!r}; "
-                f"the deploy target must come from the build trigger, or every "
-                f"`picnic-v*` tag ships the same target no matter what was requested"
+                f"the deploy target must be derived from the tag that started the "
+                f"build, or every tag ships the same target no matter which one "
+                f"was pushed"
             )
 
         for step_name, script in script_blocks(workflow):
@@ -656,12 +705,6 @@ def check_deploy_target_fail_closed(workflows, dual_target):
                         f"unset variable silently picks a deploy target; only "
                         f'`${{DEPLOY_TARGET:?...}}` is allowed: {line!r}'
                     )
-                if DEPLOY_ASSIGNMENT.search(line):
-                    failures.append(
-                        f"{where}: the workflow assigns DEPLOY_TARGET itself, which "
-                        f"defeats the `${{DEPLOY_TARGET:?}}` assert; it must be "
-                        f"supplied by the build trigger: {line!r}"
-                    )
                 if DEPLOY_REQUIRE.search(line):
                     asserted = True
         if not asserted:
@@ -672,14 +715,23 @@ def check_deploy_target_fail_closed(workflows, dual_target):
     return failures
 
 
-def _parse_deploy_target_case(script):
-    """Parse the `case "$DEPLOY_TARGET" in` allow-list of a script.
+def _strip_terminator(text):
+    return re.sub(r"\s*;;\s*$", "", text).strip()
 
-    Returns (labels, catch_all_body) or None when there is no such block, and
-    raises :class:`GuardError` when there is one but it cannot be read.
+
+def _parse_case(script, head_pattern):
+    """Parse the `case ... in` block whose head matches ``head_pattern``.
+
+    Returns ``(labels, bodies, head_line, esac_line)`` -- ``bodies`` maps each
+    label to the :class:`ScriptLine` list of its branch, with the ``;;``
+    terminators removed -- or ``None`` when the script has no such block.
+    Raises :class:`GuardError` when a block is present but cannot be read: an
+    allow-list this guard cannot parse must never pass silently.
     """
-    lines = [line.text for line in scan(script)]
-    head = next((i for i, text in enumerate(lines) if CASE_HEAD.match(text)), None)
+    lines = list(scan(script))
+    head = next(
+        (i for i, line in enumerate(lines) if head_pattern.match(line.text)), None
+    )
     if head is None:
         return None
 
@@ -687,28 +739,108 @@ def _parse_deploy_target_case(script):
     bodies = {}
     current = None
     expecting_label = True
-    for text in lines[head + 1 :]:
+    for line in lines[head + 1 :]:
+        text = line.text
         if text.startswith("esac"):
-            return labels, bodies
+            return labels, bodies, lines[head], line
         if expecting_label:
             match = CASE_LABEL.match(text)
             if not match:
                 raise GuardError(
-                    f"cannot read the `case \"$DEPLOY_TARGET\"` allow-list: expected "
-                    f"a pattern label, got {text!r}"
+                    f"cannot read the `case \"${TAG_VARIABLE}\"` mapping: expected a "
+                    f"pattern label, got {text!r}"
                 )
             current = match.group("pattern").strip()
+            if current in bodies:
+                raise GuardError(
+                    f"the `case \"${TAG_VARIABLE}\"` mapping repeats the label "
+                    f"{current!r}, so only the first branch can ever run"
+                )
             labels.append(current)
-            rest = text[match.end() :].strip()
-            bodies[current] = [rest] if rest else []
-            expecting_label = rest.endswith(";;")
+            rest = _strip_terminator(text[match.end() :])
+            bodies[current] = [line._replace(text=rest)] if rest else []
+            expecting_label = text.rstrip().endswith(";;")
         else:
-            bodies[current].append(text)
-            if text.endswith(";;"):
-                expecting_label = True
+            body = _strip_terminator(text)
+            if body:
+                bodies[current].append(line._replace(text=body))
+            expecting_label = text.rstrip().endswith(";;")
     raise GuardError(
-        "the `case \"$DEPLOY_TARGET\"` allow-list is never closed with `esac`"
+        f"the `case \"${TAG_VARIABLE}\"` mapping is never closed with `esac`"
     )
+
+
+def _has_tag_case(script):
+    return any(TAG_CASE_HEAD.match(line.text) for line in scan(script))
+
+
+def _prefix_glob(pattern):
+    """The literal prefix of a ``<literal>*`` tag pattern, or None.
+
+    Restricting the grammar to a literal prefix plus one trailing ``*`` is what
+    makes overlap decidable: two such patterns can match the same tag if and
+    only if one prefix is a prefix of the other. Anything richer is refused
+    rather than guessed at.
+    """
+    if pattern.count("*") != 1 or not pattern.endswith("*"):
+        return None
+    prefix = pattern[:-1]
+    if not prefix or re.search(r"[?\[\]]", prefix):
+        return None
+    return prefix
+
+
+def _declared_target(prefix):
+    """The deploy target a tag pattern names, by this repo's tag convention.
+
+    ``picnic-staging-v*`` names staging. The unqualified release tag
+    ``picnic-v*`` names no target and is therefore production. Returns None when
+    the pattern names more than one target and is thus ambiguous.
+    """
+    tokens = {token for token in re.split(r"[^A-Za-z0-9]+", prefix.lower()) if token}
+    named = tokens & {target.lower() for target in ALLOWED_DEPLOY_TARGETS}
+    if len(named) > 1:
+        return None
+    if named:
+        return named.pop()
+    return PRODUCTION
+
+
+def _trigger_tag_patterns(name, workflow):
+    """(included tag patterns, failures) for a workflow's `triggering` block."""
+    triggering = workflow.get("triggering")
+    if not isinstance(triggering, dict):
+        return [], [
+            f"{name}: `triggering` is not a mapping, so the tags that fire this "
+            f"workflow -- and therefore the targets it can ship -- cannot be read"
+        ]
+    entries = triggering.get("tag_patterns")
+    if not isinstance(entries, list) or not entries:
+        return [], [
+            f"{name}: has no `triggering.tag_patterns` list, so nothing pins which "
+            f"tags fire this workflow and the tag can no longer decide the target"
+        ]
+
+    patterns = []
+    failures = []
+    for index, entry in enumerate(entries):
+        if isinstance(entry, str):
+            patterns.append(entry)
+        elif isinstance(entry, dict) and "pattern" in entry:
+            if entry.get("include") is True:
+                patterns.append(str(entry["pattern"]))
+            else:
+                failures.append(
+                    f"{name}: `triggering.tag_patterns[{index}]` is not a plain "
+                    f"include ({entry!r}); this guard only reasons about an "
+                    f"include-list where each pattern maps to exactly one target"
+                )
+        else:
+            failures.append(
+                f"{name}: `triggering.tag_patterns[{index}]` has no `pattern` key: "
+                f"{entry!r}"
+            )
+    return patterns, failures
 
 
 def _step_needs_validated_target(script):
@@ -726,87 +858,302 @@ def _step_needs_validated_target(script):
     return False
 
 
-def check_deploy_target_allowlist(workflows, dual_target):
-    """DEPLOY_TARGET's *value* must be constrained to a known allow-list.
+def check_deploy_target_derived_from_tag(workflows, dual_target):
+    """DEPLOY_TARGET must come from the tag, in exactly one sanctioned step.
 
-    `${DEPLOY_TARGET:?}` only proves the variable is non-empty. `Production`
-    and `production ` (trailing space) sail through it and then fall into the
-    staging branch of every `[ "$DEPLOY_TARGET" = "production" ]` test, so a
-    production tag ships a staging app. Only an explicit allow-list that aborts
-    on anything else closes that.
+    The tag decides the target so nobody has to remember a CI variable, but that
+    only holds if the derivation is the *single* place the value is produced and
+    it really reads the tag. A second assignment anywhere, a value invented from
+    something other than `$CM_TAG`, a mapping that sends a staging tag to
+    production, overlapping patterns, a missing catch-all or a missing
+    `$CM_ENV` hand-off all put a staging build back on the production path.
     """
     failures = []
     for name in dual_target:
-        steps = list(script_blocks(workflows[name]))
-        assert_at = next(
-            (i for i, (_, script) in enumerate(steps) if DEPLOY_REQUIRE.search(script)),
-            None,
-        )
-        if assert_at is None:
-            # check_deploy_target_fail_closed already reports the missing assert.
+        workflow = workflows[name]
+        steps = list(script_blocks(workflow))
+
+        # --- the tag variable itself must be required, never defaulted ------
+        for step_name, script in script_blocks(workflow):
+            where = f"{name} / {step_name!r}"
+            for line in scan(script):
+                if TAG_SOFT_DEFAULT.search(line.text):
+                    failures.append(
+                        f"{where}: {TAG_VARIABLE} read with a shell default, so a "
+                        f"build that started from no tag invents one and derives a "
+                        f"deploy target from it; only "
+                        f'`${{{TAG_VARIABLE}:?...}}` is allowed: {line.text!r}'
+                    )
+                if TAG_ASSIGNMENT.search(line.text):
+                    failures.append(
+                        f"{where}: the workflow assigns {TAG_VARIABLE} itself, so the "
+                        f"deploy target stops following the tag that started the "
+                        f"build: {line.text!r}"
+                    )
+
+        # --- exactly one step may assign DEPLOY_TARGET ----------------------
+        assigning = [
+            (index, step_name, script)
+            for index, (step_name, script) in enumerate(steps)
+            if any(DEPLOY_ASSIGNMENT.search(line.text) for line in scan(script))
+        ]
+        if not assigning:
+            failures.append(
+                f"{name}: nothing derives DEPLOY_TARGET from the tag; expected a "
+                f'step with `case "${TAG_VARIABLE}" in` that assigns it and exports '
+                f'it with `echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"`'
+            )
             continue
-        step_name, script = steps[assert_at]
-        where = f"{name} / {step_name!r}"
+
+        with_case = [entry for entry in assigning if _has_tag_case(entry[2])]
+        if len(with_case) > 1:
+            failures.append(
+                f"{name}: DEPLOY_TARGET is derived from the tag in more than one "
+                f"step ({[entry[1] for entry in with_case]}); the later one silently "
+                f"overrides the earlier"
+            )
+        derive_index, derive_name, derive_script = (with_case or assigning)[0]
+        where = f"{name} / {derive_name!r}"
+
+        for index, (step_name, script) in enumerate(steps):
+            if index == derive_index:
+                continue
+            for line in scan(script):
+                if DEPLOY_ASSIGNMENT.search(line.text):
+                    failures.append(
+                        f"{name} / {step_name!r}: assigns DEPLOY_TARGET outside the "
+                        f"tag-derivation step {derive_name!r}, so a later step can "
+                        f"override the target the tag chose: {line.text!r}"
+                    )
+
+        if not with_case:
+            failures.append(
+                f"{where}: assigns DEPLOY_TARGET but not from the release tag; "
+                f'expected `case "${TAG_VARIABLE}" in` so the tag, and nothing else, '
+                f"decides what is published"
+            )
+            continue
 
         try:
-            parsed = _parse_deploy_target_case(script)
+            parsed = _parse_case(derive_script, TAG_CASE_HEAD)
         except GuardError as exc:
             failures.append(f"{where}: {exc}")
-            parsed = None
+            continue
+        labels, bodies, case_head, esac = parsed
+        lines = list(scan(derive_script))
 
-        if parsed is None:
+        tag_asserts = [
+            line
+            for line in lines
+            if TAG_ASSERT_LINE.match(line.text) and line.depth == 0
+        ]
+        if not tag_asserts or min(l.lineno for l in tag_asserts) > case_head.lineno:
             failures.append(
-                f"{where}: no `case \"$DEPLOY_TARGET\" in production|staging) ... "
-                f"*) exit 1 ;; esac` allow-list. `${{DEPLOY_TARGET:?}}` only rejects "
-                f"an *empty* value, so 'Production' or 'production ' would pass it "
-                f"and then take the staging branch of every deploy-target test"
+                f'{where}: {TAG_VARIABLE} is not asserted with an unconditional '
+                f'`: "${{{TAG_VARIABLE}:?...}}"` before the tag is mapped, so a build '
+                f"that did not start from a tag reaches the mapping with an empty "
+                f"value instead of stopping with a clear message"
+            )
+
+        # --- the mapping itself ---------------------------------------------
+        mapping = {}
+        for label in labels:
+            body = bodies[label]
+            if label == CATCH_ALL:
+                if any(DEPLOY_ASSIGNMENT.search(l.text) for l in body):
+                    failures.append(
+                        f"{where}: the `*)` catch-all of the tag mapping assigns "
+                        f"DEPLOY_TARGET instead of refusing to guess: "
+                        f"{[l.text for l in body]}"
+                    )
+                if not any(NONZERO_EXIT.search(l.text) for l in body):
+                    failures.append(
+                        f"{where}: the `*)` catch-all of the tag mapping does not "
+                        f"`exit` non-zero, so a tag that matches no pattern falls "
+                        f"through with DEPLOY_TARGET unset and the build continues"
+                    )
+                continue
+            assigns = [l for l in body if DEPLOY_ASSIGNMENT.search(l.text)]
+            if len(assigns) != 1:
+                failures.append(
+                    f"{where}: tag pattern {label!r} makes {len(assigns)} "
+                    f"DEPLOY_TARGET assignments, expected exactly one"
+                )
+                continue
+            match = DEPLOY_LITERAL_ASSIGNMENT.match(assigns[0].text)
+            if not match or match.group("value") not in ALLOWED_DEPLOY_TARGETS:
+                failures.append(
+                    f"{where}: tag pattern {label!r} does not assign DEPLOY_TARGET a "
+                    f"literal {sorted(ALLOWED_DEPLOY_TARGETS)} value, so what it "
+                    f"ships depends on something other than the tag: "
+                    f"{assigns[0].text!r}"
+                )
+                continue
+            mapping[label] = match.group("value")
+
+        if CATCH_ALL not in labels:
+            failures.append(
+                f"{where}: the tag mapping has no `*)` catch-all, so a tag that "
+                f"matches no pattern leaves DEPLOY_TARGET unset and the build "
+                f"continues instead of failing closed"
+            )
+
+        prefixes = {}
+        for label in mapping:
+            prefix = _prefix_glob(label)
+            if prefix is None:
+                failures.append(
+                    f"{where}: tag pattern {label!r} is not a literal prefix followed "
+                    f"by a single trailing `*`, so this guard cannot prove it does "
+                    f"not also match the other target's tags"
+                )
+            else:
+                prefixes[label] = prefix
+
+        for first, second in itertools.combinations(sorted(prefixes), 2):
+            if prefixes[first].startswith(prefixes[second]) or prefixes[
+                second
+            ].startswith(prefixes[first]):
+                failures.append(
+                    f"{where}: tag patterns {first!r} and {second!r} overlap, so one "
+                    f"tag matches both and which target it ships depends on the "
+                    f"order of the `case` branches"
+                )
+
+        for label, target in sorted(mapping.items()):
+            if label not in prefixes:
+                continue
+            declared = _declared_target(prefixes[label])
+            if declared is None:
+                failures.append(
+                    f"{where}: tag pattern {label!r} names more than one deploy "
+                    f"target, so what it is meant to ship is ambiguous"
+                )
+            elif declared != target:
+                failures.append(
+                    f"{where}: tag pattern {label!r} maps to {target!r} but names "
+                    f"{declared!r}; a staging tag must not build production, nor a "
+                    f"production tag staging"
+                )
+
+        if sorted(mapping.values()) != sorted(ALLOWED_DEPLOY_TARGETS):
+            failures.append(
+                f"{where}: the tag mapping covers {sorted(mapping.values())}, "
+                f"expected exactly {sorted(ALLOWED_DEPLOY_TARGETS)} -- one tag "
+                f"pattern per deploy target, none unreachable and none reachable "
+                f"from two patterns"
+            )
+
+        trigger_patterns, trigger_failures = _trigger_tag_patterns(name, workflow)
+        failures += trigger_failures
+        if not trigger_failures and sorted(trigger_patterns) != sorted(mapping):
+            failures.append(
+                f"{name}: the workflow triggers on tag patterns "
+                f"{sorted(trigger_patterns)} but the derivation maps "
+                f"{sorted(mapping)}; a trigger with no mapping aborts every build it "
+                f"fires, and a mapping with no trigger is dead code hiding a target"
+            )
+
+        # --- the derived value must actually reach the later steps ----------
+        exports = [line for line in lines if CM_ENV_EXPORT.match(line.text)]
+        if not exports:
+            failures.append(
+                f"{where}: the derived DEPLOY_TARGET is never exported with "
+                f'`echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"`, so it dies with '
+                f"this step and every later step reads it empty"
             )
         else:
-            labels, bodies = parsed
-            literals = set()
-            for label in labels:
-                if label == "*":
-                    continue
-                for alternative in label.split("|"):
-                    literals.add(alternative.strip().strip("'\""))
-            if literals != set(ALLOWED_DEPLOY_TARGETS):
+            if len(exports) > 1:
                 failures.append(
-                    f"{where}: the DEPLOY_TARGET allow-list accepts "
-                    f"{sorted(literals)}, expected {sorted(ALLOWED_DEPLOY_TARGETS)}"
+                    f"{where}: DEPLOY_TARGET is written to `$CM_ENV` "
+                    f"{len(exports)} times; the last write silently wins"
                 )
-            wildcards = [
-                label
-                for label in literals
-                if not re.fullmatch(r"[A-Za-z0-9_-]+", label)
-            ]
-            if wildcards:
+            export = exports[0]
+            if export.depth != 0:
                 failures.append(
-                    f"{where}: DEPLOY_TARGET allow-list pattern(s) {sorted(wildcards)} "
-                    f"are globs, not literals, so unintended values match"
+                    f"{where}: the `$CM_ENV` export of DEPLOY_TARGET is nested inside "
+                    f"a block, so it may not run at all: {export.text!r}"
                 )
-            if "*" not in labels:
+            if export.lineno < esac.lineno:
                 failures.append(
-                    f"{where}: the DEPLOY_TARGET allow-list has no `*)` catch-all, so "
-                    f"an unknown value falls through and the build continues"
+                    f"{where}: DEPLOY_TARGET is exported to `$CM_ENV` before the tag "
+                    f"mapping finishes, so the exported value is not the derived one"
                 )
-            elif not any(NONZERO_EXIT.search(line) for line in bodies.get("*", [])):
+
+        sanctioned = {
+            line.lineno
+            for body in bodies.values()
+            for line in body
+            if DEPLOY_ASSIGNMENT.search(line.text)
+        } | {line.lineno for line in exports}
+        for line in lines:
+            if DEPLOY_ASSIGNMENT.search(line.text) and line.lineno not in sanctioned:
                 failures.append(
-                    f"{where}: the `*)` branch of the DEPLOY_TARGET allow-list does "
-                    f"not `exit` non-zero, so an unknown value only logs a warning"
+                    f'{where}: DEPLOY_TARGET is assigned outside the `case '
+                    f'"${TAG_VARIABLE}"` mapping and outside the single `$CM_ENV` '
+                    f"export, so its value no longer follows the tag: {line.text!r}"
                 )
 
         earlier = [
-            i
-            for i, (_, other) in enumerate(steps)
-            if i < assert_at and _step_needs_validated_target(other)
+            step_name
+            for index, (step_name, script) in enumerate(steps)
+            if index < derive_index and _step_needs_validated_target(script)
         ]
         if earlier:
             failures.append(
-                f"{name}: the DEPLOY_TARGET assert runs as step {assert_at + 1}, after "
-                f"step(s) {[steps[i][0] for i in earlier]} that already read "
-                f"DEPLOY_TARGET or build; it must run first or those steps act on an "
-                f"unvalidated target"
+                f"{name}: the tag-derivation step runs as step {derive_index + 1}, "
+                f"after step(s) {earlier} that already read DEPLOY_TARGET, build, or "
+                f"carry a governed build define; it must run first or those steps act "
+                f"on a target the tag has not yet chosen"
             )
+    return failures
+
+
+def check_deploy_target_consumers_assert(workflows, dual_target):
+    """Every step that reads DEPLOY_TARGET must assert it first, itself.
+
+    The derivation hands the value on through `$CM_ENV`. If that propagation
+    ever breaks -- a renamed variable, a step that runs in a different shell, a
+    Codemagic change -- `$DEPLOY_TARGET` is simply empty in the later steps, and
+    every `[ "$DEPLOY_TARGET" = "production" ]` test then takes the *staging*
+    branch and publishes it. A per-step `: "${DEPLOY_TARGET:?...}"` turns that
+    silent mis-target back into a failed build, which is what Critical 1 was
+    about. It has to be unconditional and it has to come before the first read:
+    an assert nested in an `if`, or placed after the test it is meant to
+    protect, protects nothing.
+    """
+    failures = []
+    for name in dual_target:
+        for step_name, script in script_blocks(workflows[name]):
+            where = f"{name} / {step_name!r}"
+            lines = list(scan(script))
+            reads = [
+                line
+                for line in lines
+                if DEPLOY_READ.search(line.text)
+                and not DEPLOY_ASSERT_LINE.match(line.text)
+            ]
+            if not reads:
+                continue
+            asserts = [
+                line
+                for line in lines
+                if DEPLOY_ASSERT_LINE.match(line.text) and line.depth == 0
+            ]
+            if not asserts:
+                failures.append(
+                    f"{where}: reads DEPLOY_TARGET without its own "
+                    f'`: "${{DEPLOY_TARGET:?...}}"` assert, so if the `$CM_ENV` '
+                    f"hand-off breaks this step runs with an empty target and takes "
+                    f"the staging branch: {reads[0].text!r}"
+                )
+            elif min(line.lineno for line in asserts) > reads[0].lineno:
+                failures.append(
+                    f"{where}: the `${{DEPLOY_TARGET:?...}}` assert runs on line "
+                    f"{min(line.lineno for line in asserts)}, after DEPLOY_TARGET is "
+                    f"first read on line {reads[0].lineno}, so the read it is meant "
+                    f"to protect happens first: {reads[0].text!r}"
+                )
     return failures
 
 
@@ -1190,7 +1537,8 @@ def run_checks(text=None):
     dual_target, production_only, failures = classify_workflows(workflows)
     failures = list(failures)
     failures += check_deploy_target_fail_closed(workflows, dual_target)
-    failures += check_deploy_target_allowlist(workflows, dual_target)
+    failures += check_deploy_target_derived_from_tag(workflows, dual_target)
+    failures += check_deploy_target_consumers_assert(workflows, dual_target)
     failures += check_deploy_conditions_are_simple(
         workflows, dual_target, production_only
     )
@@ -1299,17 +1647,17 @@ def mutate_deploy_default_via_test(text):
     )
 
 
-def mutate_drop_deploy_target_allowlist(text):
-    """Delete the value allow-list, leaving only the non-empty assert.
+def mutate_drop_tag_case_mapping(text):
+    """Delete the whole `case "$CM_TAG"` mapping.
 
-    `Production` and `production ` then survive `${DEPLOY_TARGET:?}` and fall
-    into the staging branch of every deploy-target test.
+    DEPLOY_TARGET is then exported to `$CM_ENV` from nothing at all, so the tag
+    stops deciding anything.
     """
     out = []
     skipping = False
     for line in text.splitlines():
         stripped = line.strip()
-        if not skipping and CASE_HEAD.match(stripped):
+        if not skipping and TAG_CASE_HEAD.match(stripped):
             skipping = True
             continue
         if skipping:
@@ -1318,6 +1666,191 @@ def mutate_drop_deploy_target_allowlist(text):
             continue
         out.append(line)
     return "\n".join(out) + "\n"
+
+
+def mutate_drop_tag_case_catchall(text):
+    """Delete the `*)` branch, so an unmapped tag leaves DEPLOY_TARGET unset."""
+    out = []
+    in_case = False
+    skipping = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if TAG_CASE_HEAD.match(stripped):
+            in_case = True
+        if in_case and not skipping and stripped == "*)":
+            skipping = True
+            continue
+        if skipping:
+            if stripped == ";;":
+                skipping = False
+            continue
+        if stripped == "esac":
+            in_case = False
+        out.append(line)
+    return "\n".join(out) + "\n"
+
+
+def mutate_swap_tag_target_mapping(text):
+    """Point the staging tag at production and the production tag at staging.
+
+    Only the two `case` labels move, so every other line -- including both
+    `DEPLOY_TARGET=` assignments -- is byte-identical. Nothing textual gives it
+    away; only the pattern/target relationship does.
+    """
+    staging = "            picnic-staging-v*)"
+    production = "            picnic-v*)"
+    out = []
+    for line in text.splitlines():
+        if line == staging:
+            out.append(production)
+        elif line == production:
+            out.append(staging)
+        else:
+            out.append(line)
+    return "\n".join(out) + "\n"
+
+
+def mutate_overlapping_tag_patterns(text):
+    """Broaden the staging pattern until it also matches production tags.
+
+    `picnic-*` matches `picnic-v1.2.3`, so a production tag now matches both
+    branches and its target depends on which `case` label comes first.
+    """
+    return text.replace("picnic-staging-v*", "picnic-*")
+
+
+def mutate_trigger_pattern_without_mapping(text):
+    """Add a third trigger pattern that the derivation does not map."""
+    return text.replace(
+        "        - pattern: 'picnic-staging-v*'\n          include: true\n",
+        "        - pattern: 'picnic-staging-v*'\n          include: true\n"
+        "        - pattern: 'picnic-hotfix-v*'\n          include: true\n",
+    )
+
+
+def mutate_derive_deploy_target_from_branch(text):
+    """Derive the target from the branch instead of the tag.
+
+    `CM_BRANCH` on a tag build is whatever branch the tag points into, so the
+    target stops being a property of the released artefact.
+    """
+    return text.replace('case "$CM_TAG" in', 'case "$CM_BRANCH" in').replace(
+        ': "${CM_TAG:?is unset; this workflow only runs from a release tag}"',
+        ': "${CM_BRANCH:?is unset}"',
+    )
+
+
+def mutate_override_deploy_target_in_later_step(text):
+    """Overwrite the derived target in a later step."""
+    anchor = (
+        "      - name: Verify environment isolation policy\n"
+        "        script: |\n"
+        "          set -e\n"
+    )
+    if anchor not in text:
+        raise AssertionError("self-test anchor not found in codemagic.yaml")
+    return text.replace(anchor, anchor + "          DEPLOY_TARGET=staging\n")
+
+
+def mutate_export_hardcoded_deploy_target(text):
+    """Export a constant to `$CM_ENV` instead of the derived value."""
+    return text.replace(
+        'echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"',
+        'echo "DEPLOY_TARGET=staging" >> "$CM_ENV"',
+    )
+
+
+def mutate_drop_cm_env_export(text):
+    """Never hand the derived target to the later steps.
+
+    Every consumer then reads an empty DEPLOY_TARGET -- which, without the
+    per-step asserts, is exactly the silent staging build of Critical 1.
+    """
+    return "\n".join(
+        line
+        for line in text.splitlines()
+        if line.strip() != 'echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"'
+    ) + "\n"
+
+
+def mutate_drop_tag_requirement(text):
+    """Stop requiring the tag variable."""
+    return "\n".join(
+        line for line in text.splitlines() if ': "${CM_TAG:?' not in line
+    ) + "\n"
+
+
+def mutate_default_tag_variable(text):
+    """Give the tag variable a default, so a tagless build still ships."""
+    return text.replace('case "$CM_TAG" in', 'case "${CM_TAG:-picnic-v0.0.0}" in')
+
+
+def mutate_drop_consumer_deploy_asserts(text):
+    """Let the consumer steps read DEPLOY_TARGET with no assert of their own.
+
+    The derivation step keeps its assert, so a workflow-level "is it asserted
+    somewhere" check still passes while a broken `$CM_ENV` hand-off silently
+    routes every build into the staging branch.
+    """
+    return "\n".join(
+        line
+        for line in text.splitlines()
+        if "was not propagated from the tag-derivation step" not in line
+    ) + "\n"
+
+
+def mutate_nest_consumer_deploy_asserts(text):
+    """Keep the consumer asserts in the text but only inside a branch that never
+    runs, so an empty DEPLOY_TARGET reaches the deploy-target tests anyway."""
+    anchor = ': "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"'
+    out = []
+    for line in text.splitlines():
+        if line.strip() == anchor:
+            indent = line[: len(line) - len(line.lstrip())]
+            out.append(f'{indent}if [ -n "$UNSET_FLAG" ]; then')
+            out.append(f"{indent}  {anchor}")
+            out.append(f"{indent}fi")
+        else:
+            out.append(line)
+    return "\n".join(out) + "\n"
+
+
+def mutate_derivation_step_after_consumer(text):
+    """Run the tag derivation after a step that already reads DEPLOY_TARGET."""
+    data = yaml.safe_load(text)
+    moved = False
+    for workflow in data["workflows"].values():
+        steps = workflow.get("scripts") or []
+        scripts = [
+            step.get("script") if isinstance(step, dict) else None for step in steps
+        ]
+        derive = next(
+            (
+                i
+                for i, script in enumerate(scripts)
+                if isinstance(script, str) and _has_tag_case(script)
+            ),
+            None,
+        )
+        if derive is None:
+            continue
+        consumer = next(
+            (
+                i
+                for i, script in enumerate(scripts)
+                if i != derive
+                and isinstance(script, str)
+                and _step_needs_validated_target(script)
+            ),
+            None,
+        )
+        if consumer is None or consumer < derive:
+            continue
+        steps[derive], steps[consumer] = steps[consumer], steps[derive]
+        moved = True
+    if not moved:
+        raise AssertionError("no derivation step to relocate")
+    return _dump(data)
 
 
 def mutate_relocate_deploy_target_assert(text):
@@ -1536,9 +2069,54 @@ SELF_TESTS = (
         mutate_deploy_default_via_test,
         True,
     ),
+    ("tag -> target mapping deleted", mutate_drop_tag_case_mapping, True),
     (
-        "DEPLOY_TARGET value allow-list deleted",
-        mutate_drop_deploy_target_allowlist,
+        "tag mapping left without a fail-closed catch-all",
+        mutate_drop_tag_case_catchall,
+        True,
+    ),
+    (
+        "staging tag mapped to production and vice versa",
+        mutate_swap_tag_target_mapping,
+        True,
+    ),
+    ("tag patterns broadened until they overlap", mutate_overlapping_tag_patterns, True),
+    (
+        "a trigger tag pattern with no target mapped to it",
+        mutate_trigger_pattern_without_mapping,
+        True,
+    ),
+    (
+        "deploy target derived from the branch instead of the tag",
+        mutate_derive_deploy_target_from_branch,
+        True,
+    ),
+    (
+        "derived target overridden by a later step",
+        mutate_override_deploy_target_in_later_step,
+        True,
+    ),
+    (
+        "a constant exported to $CM_ENV instead of the derived target",
+        mutate_export_hardcoded_deploy_target,
+        True,
+    ),
+    ("derived target never handed to the later steps", mutate_drop_cm_env_export, True),
+    ("tag variable no longer required", mutate_drop_tag_requirement, True),
+    ("tag variable given a default", mutate_default_tag_variable, True),
+    (
+        "consumer steps read DEPLOY_TARGET with no assert of their own",
+        mutate_drop_consumer_deploy_asserts,
+        True,
+    ),
+    (
+        "consumer asserts nested inside a branch that never runs",
+        mutate_nest_consumer_deploy_asserts,
+        True,
+    ),
+    (
+        "tag derivation moved after a step that reads DEPLOY_TARGET",
+        mutate_derivation_step_after_consumer,
         True,
     ),
     (
