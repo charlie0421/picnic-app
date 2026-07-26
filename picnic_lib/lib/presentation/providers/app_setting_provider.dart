@@ -90,14 +90,9 @@ class Setting {
     final area = await globalStorage.loadData('area', 'all');
 
     // 언어 유효성 검사: 빈 값이거나 지원되지 않는 언어일 경우 'ko'로 설정
-    // 마이그레이션: 과거에 저장된 'zh'는 기본적으로 'zh_CN'으로 전환
-    String normalizedLanguage = language ?? 'ko';
-    if (normalizedLanguage == 'zh') {
-      normalizedLanguage = 'zh_CN';
-    }
-    if (normalizedLanguage == 'bn') {
-      normalizedLanguage = 'bn_BD';
-    }
+    // 마이그레이션: 지역 없는 'zh' / 'bn' 은 지역 변형으로 전환
+    // (규칙의 단일 출처는 constants.dart 의 canonicalLanguageCode)
+    final normalizedLanguage = canonicalLanguageCode(language ?? 'ko');
 
     final fixedLanguage =
         (normalizedLanguage.isEmpty ||
