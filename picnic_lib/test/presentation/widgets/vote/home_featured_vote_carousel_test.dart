@@ -16,7 +16,6 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../helpers/factories/artist_factory.dart';
 import '../../../helpers/factories/vote_factory.dart';
-import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
@@ -166,23 +165,13 @@ Future<void> _pumpLoading(WidgetTester tester) => _pumpCarousel(
       ],
     );
 
-/// 이 PR 범위 밖의 알려진 선행 결함.
-///
-/// [HomeFeaturedVoteCard] 의 제목/타이머 Row 가 캐러셀 페이지 폭에서 가로로
-/// 넘친다(`home_featured_vote_card.dart` 의 [CountdownTimer] 행, 기기별 19~78px).
-/// 카드 자체를 단독으로 페이지 폭에 놓아도 재현되는 별개 버그라 여기서 고치지
-/// 않는다. 다만 "예외를 전부 비운다" 로 넘기면 이 테스트가 어떤 렌더 오류에도
-/// 실패하지 못하게 되므로, **이 하나만** 통과시킨다.
-final Matcher _isKnownCardRowOverflow = isA<FlutterError>().having(
-  (e) => e.toString(),
-  'toString()',
-  allOf(
-    contains('A RenderFlex overflowed by'),
-    contains('on the right'),
-  ),
-);
-
 /// [completer] 를 완료시켜 실제 카드가 그려질 때까지 프레임을 돌린다.
+///
+/// 예전에는 여기서 예외를 훑으며 [HomeFeaturedVoteCard] 의 남은시간 Row 가 내는
+/// 가로 오버플로(기기별 19~78px)만 허용 목록으로 통과시켰다. 그 결함은
+/// `countdown_timer.dart` 에서 고쳐졌고
+/// (`home_featured_vote_card_test.dart` 의 `fits the carousel page` 그룹이 회귀를
+/// 막는다), 이제 이 전환에서는 어떤 예외도 나오면 안 된다.
 Future<void> _completeWithData(
   WidgetTester tester,
   Completer<List<FeaturedVoteEntry>> completer, {
@@ -191,15 +180,11 @@ Future<void> _completeWithData(
   completer.complete(_entries(count));
   await tester.pump();
   await tester.pump();
-  for (Object? error = tester.takeException();
-      error != null;
-      error = tester.takeException()) {
-    expect(
-      error,
-      _isKnownCardRowOverflow,
-      reason: '허용된 선행 오버플로 외의 예외가 났다 — 플레이스홀더/카드 렌더가 깨졌다',
-    );
-  }
+  expect(
+    tester.takeException(),
+    isNull,
+    reason: '로딩 -> 로드 전환에서 예외가 났다 — 플레이스홀더/카드 렌더가 깨졌다',
+  );
 }
 
 /// [_captureBoundary] 서브트리를 논리 픽셀 1:1 로 뜬 비트맵.
@@ -269,11 +254,14 @@ Future<_Capture> _captureCarousel(WidgetTester tester) async {
 }
 
 void main() {
-  late void Function() restoreImages;
-
+  // `suppressImageErrors()` 를 쓰지 않는다. 그 헬퍼는 `FlutterError.onError` 를
+  // 빈 함수로 갈아끼우는데, 그러면 flutter_test 바인딩이 예외를 주워담지 못해
+  // 이 파일의 `tester.takeException()` 단언이 **전부 무조건 통과**하게 된다.
+  // (그래서 예전의 "알려진 오버플로만 허용" 루프도 사실 한 번도 돌지 않았다.)
+  // 이 스위트는 이미지 로드를 [PicnicCachedNetworkImage.disableTimeoutForTest]
+  // 로 막고 있어 억제 없이도 초록이다.
   setUp(() {
     initTestColors();
-    restoreImages = suppressImageErrors();
     VisibilityDetectorController.instance.updateInterval = Duration.zero;
     setupMockSupabase({});
     PicnicCachedNetworkImage.disableTimeoutForTest = true;
@@ -282,7 +270,6 @@ void main() {
   tearDown(() {
     PicnicCachedNetworkImage.disableTimeoutForTest = false;
     tearDownMockSupabase();
-    restoreImages();
   });
 
   group('HomeFeaturedVoteCarousel loading placeholder', () {
