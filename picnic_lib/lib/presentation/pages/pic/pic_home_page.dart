@@ -28,6 +28,14 @@ import 'package:picnic_lib/enums.dart';
 import '../../providers/celeb_list_provider.dart';
 import '../../providers/app_setting_provider.dart';
 
+/// pic 홈 상단 배너의 종횡비.
+///
+/// 배너 본체와 로딩/에러 플레이스홀더가 **모두** 이 값을 쓴다. 갈라지면 데이터가
+/// 도착하는 순간 배너 아래 내용이 그 차이만큼 위아래로 튄다. 예전 플레이스홀더는
+/// `화면폭 * 0.5` 짜리 상자였는데 배너는 16:9(= 폭 * 0.5625)라, 크기가 맞는
+/// 플레이스홀더를 넣었어도 402pt 기기에서 25px 튀었을 자리다.
+const double kPicHomeBannerAspectRatio = 16 / 9;
+
 class PicHomePage extends ConsumerStatefulWidget {
   const PicHomePage({super.key});
 
@@ -130,18 +138,22 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                 children: [
                   asyncBannerListState.when(
                     data: (data) {
-                      return const CommonBanner('pic_home', 16 / 9);
+                      return const CommonBanner(
+                        'pic_home',
+                        kPicHomeBannerAspectRatio,
+                      );
                     },
-                    loading: () => SizedBox(
-                      width: ui.getPlatformScreenSize(context).width,
-                      height: ui.getPlatformScreenSize(context).width * .5,
-                      child: const VoteCardSkeleton(
-                        status: VoteCardStatus.ongoing,
-                      ),
+                    // 배너 자리는 배너 모양으로 잡는다. 세로 리스트용
+                    // VoteCardSkeleton 을 넣으면 안 된다 — 자연 높이가 기기별
+                    // 460~524px 로 고정이라 어떤 배너 상자에도 들어가지 않는다.
+                    loading: () => const CommonBannerSkeleton(
+                      aspectRatio: kPicHomeBannerAspectRatio,
                     ),
-                    error: (error, stackTrace) => SizedBox(
-                      width: ui.getPlatformScreenSize(context).width,
-                      height: ui.getPlatformScreenSize(context).width * .5,
+                    // 실패해도 자리는 그대로 비워 둔다(기존 동작). 높이는
+                    // 로딩/데이터와 같은 비율에서 나와야 세 상태가 서로 안 튄다.
+                    error: (error, stackTrace) => const AspectRatio(
+                      aspectRatio: kPicHomeBannerAspectRatio,
+                      child: SizedBox.expand(),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -164,8 +176,12 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           ],
         );
       },
-      loading: () => const Column(
-        children: [
+      // 로드된 화면과 같은 ListView 다. Column 이면 뷰포트 높이에 묶이는데
+      // VoteCardSkeleton 은 자연 높이가 기기별 460~524px 로 고정이라 3장이면
+      // 어떤 지원 기기에서도 화면을 넘긴다(402x874 기준 636px). 스크롤로 피하는
+      // 게 아니라, 로딩 상태도 로드된 상태와 같은 스크롤 컨테이너를 쓰는 것이다.
+      loading: () => ListView(
+        children: const [
           VoteCardSkeleton(status: VoteCardStatus.ongoing),
           VoteCardSkeleton(status: VoteCardStatus.ongoing),
           VoteCardSkeleton(status: VoteCardStatus.ongoing),

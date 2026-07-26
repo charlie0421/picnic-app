@@ -12,7 +12,6 @@ import 'package:picnic_lib/presentation/common/custom_pagination.dart';
 import 'package:picnic_lib/presentation/common/candy_boost_banner.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
-import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -152,17 +151,8 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
     );
   }
 
-  Widget _buildBannerShimmer() {
-    final width = ref.watch(globalMediaQueryProvider).size.width;
-    return Shimmer.fromColors(
-      baseColor: AppColors.grey300,
-      highlightColor: AppColors.grey100,
-      child: AspectRatio(
-        aspectRatio: widget.aspectRatio,
-        child: Container(width: width, color: Colors.white),
-      ),
-    );
-  }
+  Widget _buildBannerShimmer() =>
+      CommonBannerSkeleton(aspectRatio: widget.aspectRatio);
 
   Widget _buildBannerItem(BannerModel item) {
     String title = getLocaleTextFromJson(item.title);
@@ -269,6 +259,41 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         context,
         error: error.toString(),
         stackTrace: stackTrace,
+      ),
+    );
+  }
+}
+
+/// 배너가 아직 없을 때 배너와 **같은 사각형**을 차지하는 플레이스홀더.
+///
+/// [CommonBanner] 자신의 로딩 브랜치가 쓰고, 배너를 감싸 자기 로딩 브랜치를
+/// 따로 그리는 호출부(`pic_home_page.dart`)도 이걸 쓴다. 두 곳이 각자
+/// 플레이스홀더를 만들면 종횡비가 갈라져 데이터가 도착하는 순간 배너 아래
+/// 내용이 통째로 위아래로 튄다. 실제로 pic 홈은 `width * 0.5` 짜리 상자에
+/// 세로 리스트용 `VoteCardSkeleton`(자연 높이 460~524)을 넣어, 로딩 중 매번
+/// 300px 안팎의 오버플로를 내면서 배너와도 다른 높이를 잡고 있었다.
+///
+/// 높이를 직접 받지 않고 [aspectRatio] 만 받는 것이 요점이다. 배너 본체가
+/// `AspectRatio` 로 크기를 정하므로, 같은 비율만 넘기면 어떤 폭에서도 두 상태의
+/// 사각형이 자동으로 일치한다.
+class CommonBannerSkeleton extends StatelessWidget {
+  const CommonBannerSkeleton({super.key, required this.aspectRatio});
+
+  /// 대신 서 있는 배너의 종횡비. 호출부는 배너에 넘기는 값을 그대로 넘겨야 한다.
+  final double aspectRatio;
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.grey300,
+      highlightColor: AppColors.grey100,
+      // 배너는 이미지 한 장이라 골격이 따로 없다 — 사각형 하나가 곧 배너다.
+      // (Shimmer 는 자식을 BlendMode.srcIn 으로 덮으므로 안쪽에 여러 블록을
+      // 두려면 불투명 배경을 Shimmer 밖으로 빼야 한다. 여기는 블록이 하나뿐이라
+      // 그 문제가 없다.)
+      child: AspectRatio(
+        aspectRatio: aspectRatio,
+        child: const ColoredBox(color: Colors.white),
       ),
     );
   }
