@@ -25,7 +25,29 @@ class WalletSummary extends _$WalletSummary {
     );
   }
 
+  /// Applies the balance a settled operation came back with.
+  ///
+  /// Three call sites write here - a settled vote, a watched rewarded ad, and a
+  /// verified purchase - and each carries the wallet as of *its own* server
+  /// response. They are independent round trips, so they can land out of order:
+  /// receipt verification takes as long as the network takes, and an ad watched
+  /// while it is in flight settles first. Applying the purchase's snapshot
+  /// afterwards would put the displayed balance back to before the ad until the
+  /// next [refresh].
+  ///
+  /// [WalletSummaryModel.snapshotAt] is the server's own ordering of those
+  /// responses, which is why the contract carries it; an older one is dropped.
+  /// Equal stamps take the later write - two responses stamped the same instant
+  /// describe the same balance.
+  ///
+  /// [refresh] deliberately does not come through here: an explicit re-read is
+  /// the newest thing there is.
   void setSummary(WalletSummaryModel summary) {
+    final current = state.value;
+    if (current != null && summary.snapshotAt.isBefore(current.snapshotAt)) {
+      logger.i('⏪ 이전 스냅샷 무시: ${summary.snapshotAt} < ${current.snapshotAt}');
+      return;
+    }
     state = AsyncData(summary);
   }
 }

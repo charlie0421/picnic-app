@@ -133,11 +133,30 @@ class PurchaseCampaignAttemptRegistry {
   }
 }
 
-typedef PresentPurchaseSettlement =
-    Future<void> Function(
-      PurchaseSettlementResultModel result,
-      ActivePromotionCampaignModel? displayedCampaign,
-    );
+/// The two receipt dialogs a settled purchase can be presented with.
+///
+/// Implemented in production by `PurchaseDialogHandler`.
+///
+/// This is deliberately one object rather than two interchangeable
+/// `Future<void> Function(result, campaign)` parameters. With two callbacks the
+/// caller picks the pairing, and handing the late presenter to the plain slot -
+/// the regression `2a0592811` fixed - is a swap no test downstream of the
+/// caller can see, because both sides have the same type. Passing the pair as
+/// one object leaves nothing to swap: the routing decision lives in
+/// [PurchaseSettlementPresentation.present] below, where it is under test.
+abstract interface class PurchaseReceiptDialogs {
+  /// 🎉 The plain receipt for a purchase that settled inside the safety window.
+  Future<void> showSuccessDialog({
+    required PurchaseSettlementResultModel result,
+    required ActivePromotionCampaignModel? displayedCampaign,
+  });
+
+  /// ⏰ The receipt for a purchase the user was already told had timed out.
+  Future<void> showLatePurchaseSuccessDialog({
+    required PurchaseSettlementResultModel result,
+    required ActivePromotionCampaignModel? displayedCampaign,
+  });
+}
 
 /// Production seam between PurchaseService's verified result callback and the
 /// dialog layer. It deliberately forwards the same immutable result and the
@@ -149,10 +168,14 @@ class PurchaseSettlementPresentation {
     required PurchaseSettlementResultModel result,
     required PurchaseCampaignAttempt attempt,
     required bool isLate,
-    required PresentPurchaseSettlement showSuccess,
-    required PresentPurchaseSettlement showLateSuccess,
-  }) => (isLate ? showLateSuccess : showSuccess)(
-    result,
-    attempt.displayedCampaign,
-  );
+    required PurchaseReceiptDialogs dialogs,
+  }) => isLate
+      ? dialogs.showLatePurchaseSuccessDialog(
+          result: result,
+          displayedCampaign: attempt.displayedCampaign,
+        )
+      : dialogs.showSuccessDialog(
+          result: result,
+          displayedCampaign: attempt.displayedCampaign,
+        );
 }

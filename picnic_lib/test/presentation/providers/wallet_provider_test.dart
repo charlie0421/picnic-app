@@ -62,7 +62,9 @@ class _ControlledWalletRepository extends WalletRepository {
     if (cursor == null) {
       firstPageCalls++;
       return Future.value(
-        firstPageCalls > 1 ? (firstPageOnRebuild ?? pages[null]!) : pages[null]!,
+        firstPageCalls > 1
+            ? (firstPageOnRebuild ?? pages[null]!)
+            : pages[null]!,
       );
     }
     final completer = Completer<CurrencyHistoryPageModel>();
@@ -99,15 +101,16 @@ class _FailingHistoryRepository extends WalletRepository {
 /// Drains the microtask queue so pending `loadNext()` continuations run.
 Future<void> _flush() => Future<void>.delayed(Duration.zero);
 
-WalletSummaryModel _summary(int cotton) => WalletSummaryModel(
-  contractVersion: 'wallet.v1',
-  star: BigInt.zero,
-  bonus: BigInt.zero,
-  cotton: BigInt.from(cotton),
-  cottonExpiringAmount: BigInt.zero,
-  cottonNextExpiresAt: null,
-  snapshotAt: DateTime.utc(2026, 7, 21),
-);
+WalletSummaryModel _summary(int cotton, {DateTime? snapshotAt}) =>
+    WalletSummaryModel(
+      contractVersion: 'wallet.v1',
+      star: BigInt.zero,
+      bonus: BigInt.zero,
+      cotton: BigInt.from(cotton),
+      cottonExpiringAmount: BigInt.zero,
+      cottonNextExpiresAt: null,
+      snapshotAt: snapshotAt ?? DateTime.utc(2026, 7, 21),
+    );
 
 CurrencyHistoryItemModel _item(String id) => CurrencyHistoryItemModel(
   id: id,
@@ -233,7 +236,8 @@ void main() {
       expect(
         duplicateSettled,
         isTrue,
-        reason: 'the duplicate notification is dropped, not queued behind the '
+        reason:
+            'the duplicate notification is dropped, not queued behind the '
             'outstanding request',
       );
       expect(
@@ -306,9 +310,10 @@ void main() {
       // request was started against no longer exists.
       container.invalidate(provider);
       await container.read(provider.future);
-      expect([
-        for (final item in container.read(provider).value!.items) item.id,
-      ], ['1', '9']);
+      expect(
+        [for (final item in container.read(provider).value!.items) item.id],
+        ['1', '9'],
+      );
 
       repository.completeLatest('cursor-2');
       await _flush();
@@ -368,4 +373,110 @@ void main() {
       );
     },
   );
+
+  // Every settled operation answers with the wallet as of its own response, and
+  // the three that write one - a vote, a rewarded ad, a verified purchase - are
+  // independent round trips. Receipt verification is the slow one: an ad
+  // watched while a purchase is being verified settles first, and the purchase
+  // response that lands afterwards still describes the balance from before the
+  // ad. `snapshotAt` is what tells them apart.
+  group('setSummary orders settlements by the server\'s own stamp', () {
+    ProviderContainer settledContainer(WalletSummaryModel first) {
+      final repository = _FakeWalletRepository(
+        summaries: [first],
+        pages: const {},
+      );
+      final container = ProviderContainer(
+        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
+      );
+      addTearDown(container.dispose);
+      return container;
+    }
+
+    test(
+      'a settlement stamped before the balance on screen is dropped',
+      () async {
+        final ad = _summary(
+          30,
+          snapshotAt: DateTime.utc(2026, 7, 21, 12, 0, 10),
+        );
+        final container = settledContainer(_summary(0));
+        await container.read(walletSummaryProvider.future);
+        final notifier = container.read(walletSummaryProvider.notifier);
+
+        notifier.setSummary(ad);
+        // The purchase's receipt verification started before the ad and finished
+        // after it, so its snapshot predates the reward.
+        notifier.setSummary(
+          _summary(10, snapshotAt: DateTime.utc(2026, 7, 21, 12, 0, 5)),
+        );
+
+        expect(
+          container.read(walletSummaryProvider).value,
+          same(ad),
+          reason:
+              'the later-arriving purchase response describes a balance from '
+              'before the ad; applying it rolls the displayed cotton back until '
+              'the next refresh',
+        );
+      },
+    );
+
+    test('a settlement stamped after it replaces the balance', () async {
+      final container = settledContainer(_summary(0));
+      await container.read(walletSummaryProvider.future);
+      final notifier = container.read(walletSummaryProvider.notifier);
+
+      notifier.setSummary(
+        _summary(30, snapshotAt: DateTime.utc(2026, 7, 21, 12, 0, 5)),
+      );
+      final purchase = _summary(
+        40,
+        snapshotAt: DateTime.utc(2026, 7, 21, 12, 0, 10),
+      );
+      notifier.setSummary(purchase);
+
+      expect(container.read(walletSummaryProvider).value, same(purchase));
+    });
+
+    test(
+      'two responses stamped the same instant take the later write',
+      () async {
+        final stamp = DateTime.utc(2026, 7, 21, 12);
+        final container = settledContainer(_summary(0));
+        await container.read(walletSummaryProvider.future);
+        final notifier = container.read(walletSummaryProvider.notifier);
+
+        notifier.setSummary(_summary(30, snapshotAt: stamp));
+        final second = _summary(40, snapshotAt: stamp);
+        notifier.setSummary(second);
+
+        expect(
+          container.read(walletSummaryProvider).value,
+          same(second),
+          reason:
+              'equal stamps are not evidence of staleness, and dropping the '
+              'second one would strand a settlement the server did apply',
+        );
+      },
+    );
+
+    test('a settlement lands while the first read is still in flight', () {
+      // Nothing to compare against yet: the store can be left before
+      // walletSummaryProvider has ever resolved.
+      final container = ProviderContainer(
+        overrides: [
+          walletSummaryProvider.overrideWithBuild(
+            (ref, notifier) => Completer<WalletSummaryModel>().future,
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final settled = _summary(10, snapshotAt: DateTime.utc(2020));
+      container.read(walletSummaryProvider.notifier).setSummary(settled);
+
+      expect(container.read(walletSummaryProvider).value, same(settled));
+    });
+  });
 }

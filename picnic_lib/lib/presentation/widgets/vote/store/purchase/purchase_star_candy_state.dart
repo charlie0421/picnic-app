@@ -15,7 +15,6 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
@@ -36,6 +35,8 @@ import 'handlers/purchase_dialog_handler.dart';
 import 'purchase_helper.dart';
 import 'purchase_processor.dart';
 import 'purchase_campaign_attempt.dart';
+import 'purchase_settlement_step.dart';
+import 'wallet_summary_applier.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
@@ -47,13 +48,32 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   late final RestorePurchaseHandler _restoreHandler;
   late final PurchaseSafetyManager _safetyManager;
   late final PurchaseDialogHandler _dialogHandler;
+
+  /// Bound in [initState], while this state is guaranteed to be mounted.
+  ///
+  /// A settlement can land after the user has left the store - receipt
+  /// verification outlives the route - and `ref` throws once `mounted` is
+  /// false, so the wallet write must not go through it.
+  ///
+  /// The binding has to be eager. Writing this as a `late final` *initializer*
+  /// compiles and keeps the suite green, but then the capture runs on first
+  /// read - inside the settlement callback, where the context is already
+  /// defunct - which is the bug this field exists to close.
+  /// `purchase_after_leaving_store_test.dart` reads it for the first time from
+  /// an unmounted store, which is the only place that distinction shows.
+  late final WalletSummaryApplier _applyWalletSummary;
+
+  /// The wallet write a settlement will use, exposed so a test can be the
+  /// first thing to read it - after the store is gone.
+  @visibleForTesting
+  WalletSummaryApplier get walletSummaryApplier => _applyWalletSummary;
+
   bool _transactionsCleared = false;
   bool _isInitializing = true;
   final Set<String> _currentlyProcessingIDs = {};
   final PurchaseCampaignAttemptRegistry _purchaseAttempts =
       PurchaseCampaignAttemptRegistry();
-  final PurchaseSettlementPresentation _settlementPresentation =
-      const PurchaseSettlementPresentation();
+  final PurchaseSettlementStep _settlementStep = const PurchaseSettlementStep();
 
   void _removeAttempt(String productId, String attemptId) {
     _purchaseAttempts.removeIfMatches(productId, attemptId);
@@ -64,13 +84,17 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     super.initState();
     logger.d('[PurchaseStarCandyState] initState called');
 
+    _applyWalletSummary = ContainerWalletSummaryApplier.of(context);
+
     _rotationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
     _purchaseService = PurchaseService(
-      ref: ref,
+      // Not `ref`: the service reads providers on the far side of receipt
+      // verification, which the user is free to walk out on.
+      container: ProviderScope.containerOf(context, listen: false),
       inAppPurchaseService: InAppPurchaseService(),
       receiptVerificationService: ReceiptVerificationService(),
       analyticsService: AnalyticsService(),
@@ -370,57 +394,19 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     await _purchaseService.handleOptimizedPurchase(
       purchaseDetails,
       (result) async {
-        // The safety timeout can fire while receipt verification is still
-        // running, so lateness must be read here - when the verified result
-        // lands - and before completePurchaseSession/_cleanupAllTimersOnSuccess
-        // below clear the safety state.
-        final isLatePurchase = _safetyManager.isLatePurchaseForProduct(
-          purchaseDetails.productID,
+        await _settlementStep.settle(
+          safetyManager: _safetyManager,
+          attempts: _purchaseAttempts,
+          purchaseDetails: purchaseDetails,
+          result: result,
+          attempt: attempt,
+          cleanupAllTimersOnSuccess: _cleanupAllTimersOnSuccess,
+          applyWalletSummary: _applyWalletSummary,
+          isMounted: () => mounted,
+          resetProductPurchaseState: _resetProductPurchaseState,
+          hideLoading: () => _loadingKey.currentState?.hide(),
+          receiptDialogs: _dialogHandler,
         );
-        logger.i(
-          '[PurchaseStarCandyState] Purchase successful (late: $isLatePurchase)',
-        );
-
-        // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
-        _safetyManager.completePurchaseSession(purchaseDetails.productID);
-
-        // 🧹 모든 타이머 완전 정리 (정상 구매 완료 시)
-        _cleanupAllTimersOnSuccess(purchaseDetails.productID);
-
-        // 🧹 구매 완료 후 클린 작업 수행 (동기 처리로 완전성 보장)
-        final transactionId =
-            purchaseDetails.purchaseID ??
-            '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
-
-        // 🧹 동기로 클린 작업 실행 - 완료까지 기다림 (확실성 우선)
-        await _safetyManager.performPostPurchaseCleanup(
-          productId: purchaseDetails.productID,
-          transactionId: transactionId,
-          completedPurchase: purchaseDetails,
-        );
-
-        ref.read(walletSummaryProvider.notifier).setSummary(result.wallet);
-        if (mounted) {
-          _resetProductPurchaseState(purchaseDetails.productID);
-          _loadingKey.currentState?.hide();
-
-          await _settlementPresentation.present(
-            result: result,
-            attempt: attempt,
-            isLate: isLatePurchase,
-            showSuccess: (sameResult, displayedCampaign) =>
-                _dialogHandler.showSuccessDialog(
-                  result: sameResult,
-                  displayedCampaign: displayedCampaign,
-                ),
-            showLateSuccess: (sameResult, displayedCampaign) =>
-                _dialogHandler.showLatePurchaseSuccessDialog(
-                  result: sameResult,
-                  displayedCampaign: displayedCampaign,
-                ),
-          );
-        }
-        _purchaseAttempts.finish(purchaseDetails, attempt.attemptId);
       },
       (error) async {
         if (mounted) {

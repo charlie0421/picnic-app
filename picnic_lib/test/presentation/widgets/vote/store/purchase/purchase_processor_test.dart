@@ -3,6 +3,35 @@ import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_processor.dart';
 
 void main() {
+  /// The guarantee `PurchaseSettlementStep` settles against.
+  ///
+  /// `cleanupAllTimersOnSuccess` tears down three independent timer owners -
+  /// `PurchaseSafetyManager`, `RestorePurchaseHandler` and
+  /// `InAppPurchaseService` - after the charge has gone through but before the
+  /// wallet is credited and the receipt is shown. The step takes it as a plain
+  /// `void` seam and has no catch of its own, so anything escaping this cleanup
+  /// would abort a settlement whose money has already moved.
+  ///
+  /// Driving the three real collaborators would mean constructing a live
+  /// `PurchaseService` (StoreKit/Play init, receipt queue, Supabase), so the
+  /// guard itself is what is pinned here.
+  group('PurchaseProcessor.runTimerCleanupGuarded', () {
+    test('swallows a throwing timer owner', () {
+      expect(
+        () => PurchaseProcessor.runTimerCleanupGuarded(
+          () => throw StateError('timer owner already disposed'),
+        ),
+        returnsNormally,
+      );
+    });
+
+    test('runs the cleanup it is given', () {
+      var ran = 0;
+      PurchaseProcessor.runTimerCleanupGuarded(() => ran++);
+      expect(ran, 1);
+    });
+  });
+
   group('PurchaseProcessor.classifyError', () {
     test('returns showPendingMessage for errPrevTransactionPending', () {
       expect(
