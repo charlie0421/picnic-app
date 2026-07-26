@@ -50,8 +50,8 @@ class MockCelebGalleryList extends AsyncCelebGalleryList {
 }
 
 void main() {
-  // 격리 — pic 홈이 세로로 749px 넘친다(스크롤 컨테이너 없이 Column 에 쌓임).
-  // 페이지 구조 변경이라 여기서 안 고친다.
+  // 격리 — pic 홈이 세로로 넘친다(단독 실행 시 749px, 스크롤 컨테이너 없이
+  // Column 에 쌓인다). 페이지 구조 변경이라 여기서 안 고친다.
   allowKnownDefects(const ['A RenderFlex overflowed by']);
   late void Function() restore;
 
