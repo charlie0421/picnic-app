@@ -53,15 +53,42 @@ RestoreCallback suppressImageErrors() {
   return () => FlutterError.onError = origOnError;
 }
 
+/// 현재 테스트에서 "이미 알려진 결함" 으로 통과시키기로 한 에러 메시지 조각들.
+/// 테스트마다 초기화된다([_ensureFilterInstalled] 의 tearDown).
+final Set<String> _knownDefects = <String>{};
+
+bool _isKnownDefect(Object error) {
+  if (_knownDefects.isEmpty) return false;
+  final text = error.toString();
+  return _knownDefects.any(text.contains);
+}
+
+/// 아직 못 고친 **프로덕션 결함 하나**를 이름으로 지목해, 그 group 안에서만
+/// 통과시킨다. `main()` 이나 `group()` 본문에서 호출한다.
+///
+/// 여기 적은 문자열을 포함하는 에러만 넘어가고 나머지는 그대로 테스트를 깨뜨린다
+/// — 즉 이 위젯에 **다른** 결함이 새로 생기면 여전히 빨간불이 된다.
+/// 반드시 결함 위치와 왜 여기서 안 고치는지를 주석으로 남길 것.
+void allowKnownDefects(List<String> defects) {
+  setUp(() => _knownDefects.addAll(defects));
+  tearDown(_knownDefects.clear);
+}
+
 /// 현재 테스트 본문에 필터가 설치돼 있는지 표시. `addTearDown` 으로 자동 복원한다.
 bool _filterInstalled = false;
 
 void _ensureFilterInstalled() {
   if (_filterInstalled) return;
-  final restore = suppressImageErrors();
+  final origOnError = FlutterError.onError;
+  FlutterError.onError = (details) {
+    if (_isExpectedImageDetails(details)) return;
+    if (_isKnownDefect(details.exception)) return;
+    origOnError?.call(details);
+  };
   _filterInstalled = true;
   addTearDown(() {
-    restore();
+    FlutterError.onError = origOnError;
+    _knownDefects.clear();
     _filterInstalled = false;
   });
 }
@@ -74,10 +101,19 @@ void _ensureFilterInstalled() {
 /// 부수 효과로 남은 테스트 구간에 이미지 에러 필터를 설치한다 — 그래야 이후
 /// 프레임의 이미지 에러가 `_pendingExceptionDetails` 를 차지해서 진짜 에러와
 /// "Multiple exceptions" 로 뭉개지는 일을 막을 수 있다.
-void drainExpectedImageErrors(WidgetTester tester) {
+/// [knownDefects] 는 **이미 알려진 프로덕션 결함 하나**를 이름으로 지목해 통과시키는
+/// 좁은 화이트리스트다. 여기 적힌 문자열을 포함하는 에러만 넘어가고, 그 외 에러는
+/// 여전히 테스트를 깨뜨린다. 반드시 "왜 아직 못 고쳤는지" 주석과 함께 쓴다.
+/// 지정한 순간부터 그 테스트가 끝날 때까지 적용된다.
+void drainExpectedImageErrors(
+  WidgetTester tester, {
+  Iterable<String> knownDefects = const <String>[],
+}) {
   _ensureFilterInstalled();
+  _knownDefects.addAll(knownDefects);
   for (Object? e = tester.takeException(); e != null; e = tester.takeException()) {
     if (isExpectedImageOrAssetError(e)) continue;
+    if (_isKnownDefect(e)) continue;
     if (e is Error) {
       final stack = e.stackTrace;
       if (stack != null) Error.throwWithStackTrace(e, stack);
@@ -88,15 +124,25 @@ void drainExpectedImageErrors(WidgetTester tester) {
 }
 
 /// `tester.pump()` 후 이미지/에셋 계열 예외만 무시한다.
-Future<void> pumpAndIgnoreErrors(WidgetTester tester, [Duration? duration]) async {
+Future<void> pumpAndIgnoreErrors(
+  WidgetTester tester, [
+  Duration? duration,
+  Iterable<String> knownDefects = const <String>[],
+]) async {
   _ensureFilterInstalled();
+  _knownDefects.addAll(knownDefects);
   await tester.pump(duration);
   drainExpectedImageErrors(tester);
 }
 
 /// `tester.pumpWidget()` 후 이미지/에셋 계열 예외만 무시한다.
-Future<void> pumpWidgetAndIgnoreErrors(WidgetTester tester, Widget widget) async {
+Future<void> pumpWidgetAndIgnoreErrors(
+  WidgetTester tester,
+  Widget widget, {
+  Iterable<String> knownDefects = const <String>[],
+}) async {
   _ensureFilterInstalled();
+  _knownDefects.addAll(knownDefects);
   await tester.pumpWidget(widget);
   drainExpectedImageErrors(tester);
 }
