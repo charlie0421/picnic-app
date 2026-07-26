@@ -55,9 +55,9 @@ void main() {
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('SplashImage render', () {
@@ -140,7 +140,7 @@ void main() {
 
       // Pump additional time to let post frame callbacks execute
       await tester.pump(const Duration(seconds: 2));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(SplashImage), findsOneWidget);
     });
@@ -160,7 +160,7 @@ void main() {
       // Pump extra frames to let animations settle
       for (int i = 0; i < 3; i++) {
         await tester.pump(const Duration(milliseconds: 500));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(SplashImage), findsOneWidget);
@@ -474,7 +474,7 @@ void main() {
       // Pump multiple times to exercise timer callbacks
       for (int i = 0; i < 5; i++) {
         await tester.pump(const Duration(seconds: 1));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(SplashImage), findsOneWidget);

@@ -70,9 +70,9 @@ void main() {
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('VoteItemRequestDialog render - logged in states', () {
@@ -356,14 +356,14 @@ void main() {
       // Open dialog
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteItemRequestDialog), findsOneWidget);
 
       // Close dialog
       await tester.tap(find.byIcon(Icons.close_rounded));
       await tester.pumpAndSettle();
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteItemRequestDialog), findsNothing);
     });
@@ -387,14 +387,14 @@ void main() {
 
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteItemRequestDialog), findsOneWidget);
 
       // Tap outside to dismiss
       await tester.tapAt(const Offset(10, 10));
       await tester.pumpAndSettle();
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteItemRequestDialog), findsNothing);
     });

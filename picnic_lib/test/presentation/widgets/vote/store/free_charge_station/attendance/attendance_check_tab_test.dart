@@ -280,11 +280,11 @@ void main() {
             ],
           ),
         );
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump();
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump();
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
 
         expect(find.byType(AttendanceCheckTab), findsOneWidget);
       } finally {

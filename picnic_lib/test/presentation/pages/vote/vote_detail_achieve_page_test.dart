@@ -1094,9 +1094,9 @@ void main() {
 
     Future<void> pumpAndDrain(WidgetTester tester, widget) async {
       await tester.pumpWidget(widget);
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     }
 
     testWidgets('renders without crashing', (WidgetTester tester) async {
@@ -1149,9 +1149,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, -300),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 200));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -1175,9 +1175,9 @@ void main() {
         buildTestAppPage(const VoteDetailAchievePage(voteId: 1)),
       );
       await tester.pumpWidget(buildTestAppPage(const SizedBox()));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(milliseconds: 300));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     });
   });
 }

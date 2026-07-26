@@ -71,7 +71,7 @@ void main() {
           await pumpAndIgnoreErrors(tester);
           await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
         } catch (_) {}
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -91,7 +91,7 @@ void main() {
           await tester.tap(newButton.first, warnIfMissed: false);
           await pumpAndIgnoreErrors(tester);
         } catch (_) {}
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -126,7 +126,7 @@ void main() {
           await pumpAndIgnoreErrors(tester);
         } catch (_) {}
       }
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     });
 
     testWidgets('renders with artistId 0',
@@ -157,7 +157,7 @@ void main() {
           await pumpAndIgnoreErrors(tester);
         } catch (_) {}
       }
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     });
   });
 }

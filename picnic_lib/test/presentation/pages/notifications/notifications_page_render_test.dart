@@ -111,9 +111,9 @@ void main() {
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('NotificationsPage render interactions', () {
@@ -150,7 +150,7 @@ void main() {
       );
 
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
@@ -163,7 +163,7 @@ void main() {
       );
 
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       // vote, post, qna icons
       expect(find.byType(NotificationsPage), findsOneWidget);
@@ -179,7 +179,7 @@ void main() {
       await tester.drag(find.byType(ListView), const Offset(0, 300));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
@@ -191,7 +191,7 @@ void main() {
       );
 
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
       expect(find.byType(ListView), findsOneWidget);
@@ -212,7 +212,7 @@ void main() {
       );
 
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
@@ -232,7 +232,7 @@ void main() {
       );
 
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
@@ -251,7 +251,7 @@ void main() {
       );
 
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
@@ -268,7 +268,7 @@ void main() {
       );
 
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
@@ -283,7 +283,7 @@ void main() {
       );
 
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
@@ -329,7 +329,7 @@ void main() {
       );
 
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });

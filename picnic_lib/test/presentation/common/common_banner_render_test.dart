@@ -199,9 +199,9 @@ void main() {
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('CommonBanner render', () {
@@ -217,7 +217,7 @@ void main() {
       );
 
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(CommonBanner), findsOneWidget);
     });
@@ -236,7 +236,7 @@ void main() {
       );
 
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(CommonBanner), findsOneWidget);
     });
@@ -257,7 +257,7 @@ void main() {
       );
 
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(CommonBanner), findsOneWidget);
     });
@@ -274,7 +274,7 @@ void main() {
       );
 
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(CommonBanner), findsOneWidget);
     });
@@ -293,7 +293,7 @@ void main() {
       );
 
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(CommonBanner), findsOneWidget);
     });
@@ -312,7 +312,7 @@ void main() {
       );
 
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(CommonBanner), findsOneWidget);
     });

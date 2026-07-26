@@ -37,10 +37,10 @@ void main() {
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget,
       {int pumps = 3}) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     for (var i = 0; i < pumps; i++) {
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     }
   }
 

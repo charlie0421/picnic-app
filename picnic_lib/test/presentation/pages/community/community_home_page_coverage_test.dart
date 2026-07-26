@@ -100,10 +100,10 @@ void main() {
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget,
       {int pumps = 3}) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     for (var i = 0; i < pumps; i++) {
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     }
   }
 
@@ -165,7 +165,7 @@ void main() {
 
       // Pump extra to let post-frame callbacks run
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(CommunityHomePage), findsOneWidget);
     });
@@ -246,7 +246,7 @@ void main() {
       if (secondArtist.evaluate().isNotEmpty) {
         await tester.tap(secondArtist.first);
         await tester.pump(const Duration(milliseconds: 500));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(CommunityHomePage), findsOneWidget);

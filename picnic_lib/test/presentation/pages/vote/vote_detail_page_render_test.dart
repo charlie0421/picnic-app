@@ -120,9 +120,9 @@ void main() {
 
   Future<void> pumpAndDrain(WidgetTester tester, widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('VoteDetailPage render', () {
@@ -216,9 +216,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, -300),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 300));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -233,7 +233,7 @@ void main() {
       // Pump multiple times to simulate timer ticks
       for (int i = 0; i < 3; i++) {
         await tester.pump(const Duration(seconds: 1));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(VoteDetailPage), findsOneWidget);
@@ -268,9 +268,9 @@ void main() {
         for (int i = 0; i < 3; i++) {
           await tester.drag(scrollable.first, const Offset(0, -500),
               warnIfMissed: false);
-          while (tester.takeException() != null) {}
+          drainExpectedImageErrors(tester);
           await tester.pump(const Duration(milliseconds: 200));
-          while (tester.takeException() != null) {}
+          drainExpectedImageErrors(tester);
         }
       }
     });
@@ -312,9 +312,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, 300),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 500));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -454,9 +454,9 @@ void main() {
 
       // The item list builds on the frame after the fetch resolves.
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       // 5000 of 8000 total → raw count plus share.
       expect(find.text('5,000'), findsOneWidget);
@@ -475,9 +475,9 @@ void main() {
 
       // The item list builds on the frame after the fetch resolves.
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.text('62.50%'), findsOneWidget);
       expect(find.text('5,000'), findsNothing);
@@ -593,9 +593,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, -200),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 200));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(VoteDetailPage), findsOneWidget);
@@ -637,7 +637,7 @@ void main() {
       // Pump for 3 seconds to allow timer (2s interval) to fire
       for (int i = 0; i < 6; i++) {
         await tester.pump(const Duration(seconds: 1));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(VoteDetailPage), findsOneWidget);
@@ -731,9 +731,9 @@ void main() {
           const SizedBox(),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(milliseconds: 300));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     });
 
     testWidgets('renders with pic portal and multiple items',
@@ -761,9 +761,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, -300),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 200));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -794,9 +794,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, -500),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 200));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(VoteDetailPage), findsOneWidget);

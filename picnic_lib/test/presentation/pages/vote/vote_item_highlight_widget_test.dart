@@ -23,9 +23,9 @@ void main() {
   /// Pump the widget and drain any errors from missing SVG assets, etc.
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     await tester.pump(const Duration(milliseconds: 300));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   /// Build a [VoteItemHighlightWidget] with sensible defaults.

@@ -106,9 +106,9 @@ void main() {
 
   Future<void> pumpAndDrain(WidgetTester tester, widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('VoteDetailAchievePage render', () {
@@ -168,9 +168,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, -400),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 300));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -185,11 +185,11 @@ void main() {
       // Pump multiple times to simulate timer ticks
       for (int i = 0; i < 3; i++) {
         await tester.pump(const Duration(seconds: 1));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
       // Pump with zero duration to let confetti/animation controllers settle
       await tester.pump(Duration.zero);
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteDetailAchievePage), findsOneWidget);
     }, skip: true);
@@ -224,9 +224,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, -600),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 200));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -332,9 +332,9 @@ void main() {
         for (int i = 0; i < 3; i++) {
           await tester.drag(scrollable.first, const Offset(0, -400),
               warnIfMissed: false);
-          while (tester.takeException() != null) {}
+          drainExpectedImageErrors(tester);
           await tester.pump(const Duration(milliseconds: 200));
-          while (tester.takeException() != null) {}
+          drainExpectedImageErrors(tester);
         }
       }
 
@@ -411,9 +411,9 @@ void main() {
           const SizedBox(),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(milliseconds: 300));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     });
 
     testWidgets('renders with English locale',
@@ -483,9 +483,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, 300),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 500));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
   });

@@ -23,10 +23,10 @@ void main() {
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget,
       {int pumps = 3}) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     for (var i = 0; i < pumps; i++) {
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     }
   }
 
@@ -368,7 +368,7 @@ void main() {
       expect(markAllBtn, findsOneWidget);
       await tester.tap(markAllBtn);
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
@@ -403,7 +403,7 @@ void main() {
       if (listTile.evaluate().isNotEmpty) {
         await tester.tap(listTile.first);
         await tester.pump(const Duration(seconds: 1));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(NotificationsPage), findsOneWidget);
@@ -424,7 +424,7 @@ void main() {
       await tester.drag(find.byType(ListView), const Offset(0, 300));
       await tester.pump();
       await tester.pump(const Duration(seconds: 2));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });

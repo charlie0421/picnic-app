@@ -73,9 +73,9 @@ void main() {
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('JmaVotingDialog render', () {
@@ -256,9 +256,9 @@ void main() {
       final textField = find.byType(TextField);
       if (textField.evaluate().isNotEmpty) {
         await tester.enterText(textField.first, '10');
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 300));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 

@@ -26,9 +26,9 @@ void main() {
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('FAQPage render', () {
@@ -36,7 +36,7 @@ void main() {
         (WidgetTester tester) async {
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -82,7 +82,7 @@ void main() {
 
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
       // Should show category chips
@@ -126,7 +126,7 @@ void main() {
 
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
       // Tap the expansion tile to show the answer
@@ -134,7 +134,7 @@ void main() {
       if (expansionTile.evaluate().isNotEmpty) {
         await tester.tap(expansionTile.first);
         await tester.pump(const Duration(milliseconds: 500));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -179,14 +179,14 @@ void main() {
 
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       // Tap a category chip to filter
       final chips = find.byType(ChoiceChip);
       if (chips.evaluate().length > 1) {
         await tester.tap(chips.at(1));
         await tester.pump(const Duration(milliseconds: 300));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(FAQPage), findsOneWidget);
@@ -220,7 +220,7 @@ void main() {
         buildTestAppPage(const FAQPage(), locale: const Locale('en')),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -253,7 +253,7 @@ void main() {
         buildTestAppPage(const FAQPage(), locale: const Locale('ja')),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -284,7 +284,7 @@ void main() {
 
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });

@@ -1629,9 +1629,9 @@ void main() {
 
     Future<void> pumpAndDrain(WidgetTester tester, widget) async {
       await tester.pumpWidget(widget);
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     }
 
     testWidgets('renders without crashing', (WidgetTester tester) async {
@@ -1705,9 +1705,9 @@ void main() {
       );
       // Replace widget to trigger dispose
       await tester.pumpWidget(buildTestAppPage(const SizedBox()));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(milliseconds: 300));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     });
   });
 }
