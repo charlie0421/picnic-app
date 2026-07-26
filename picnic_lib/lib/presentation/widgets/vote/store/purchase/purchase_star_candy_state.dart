@@ -54,7 +54,20 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   /// A settlement can land after the user has left the store - receipt
   /// verification outlives the route - and `ref` throws once `mounted` is
   /// false, so the wallet write must not go through it.
+  ///
+  /// The binding has to be eager. Writing this as a `late final` *initializer*
+  /// compiles and keeps the suite green, but then the capture runs on first
+  /// read - inside the settlement callback, where the context is already
+  /// defunct - which is the bug this field exists to close.
+  /// `purchase_after_leaving_store_test.dart` reads it for the first time from
+  /// an unmounted store, which is the only place that distinction shows.
   late final WalletSummaryApplier _applyWalletSummary;
+
+  /// The wallet write a settlement will use, exposed so a test can be the
+  /// first thing to read it - after the store is gone.
+  @visibleForTesting
+  WalletSummaryApplier get walletSummaryApplier => _applyWalletSummary;
+
   bool _transactionsCleared = false;
   bool _isInitializing = true;
   final Set<String> _currentlyProcessingIDs = {};
@@ -79,7 +92,9 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     );
 
     _purchaseService = PurchaseService(
-      ref: ref,
+      // Not `ref`: the service reads providers on the far side of receipt
+      // verification, which the user is free to walk out on.
+      container: ProviderScope.containerOf(context, listen: false),
       inAppPurchaseService: InAppPurchaseService(),
       receiptVerificationService: ReceiptVerificationService(),
       analyticsService: AnalyticsService(),

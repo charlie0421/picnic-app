@@ -685,8 +685,14 @@ void main() {
       registry.contains(productId),
       isFalse,
       reason:
-          'the attempt must be released with nothing to present to, or the '
-          'product stays locked for the rest of the session',
+          'the release sits outside the mount check, on the same side as the '
+          'wallet write and for the same reason: `mounted` says whether there '
+          'is a widget to draw, not whether the purchase is over. It is not '
+          'that the product would otherwise stay locked - `_purchaseAttempts` '
+          'belongs to the State, so a store the user opens again starts from '
+          'an empty registry - it is that pulling bookkeeping inside the '
+          '`if (isMounted())` block is exactly the mistake that lost the '
+          'wallet write',
     );
     expect(events, [
       'readLateness',

@@ -32,7 +32,11 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/wallet_summa
 ///   `walletSummaryProvider` reporting a stale balance. This is why the write
 ///   arrives as a [WalletSummaryApplier] and not as a closure: the production
 ///   applier holds the Riverpod container, captured while the store was
-///   mounted, so it still lands once the store is gone.
+///   mounted, so it still lands once the store is gone. Reaching this step at
+///   all with the store gone is `PurchaseService`'s side of the same rule -
+///   it reads providers through that container too, and no failure downstream
+///   of receipt verification may turn a settled purchase into an `onError`.
+///   `purchase_after_leaving_store_test.dart` drives that whole path.
 /// - `attempts.finish` runs *after* the awaited receipt dialog returns, so an
 ///   attempt that is still registered when settlement starts stays registered
 ///   for as long as the receipt is on screen: `_purchaseAttempts.contains()`
