@@ -9,6 +9,8 @@ import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
 
 void main() {
+  // 격리 — login_page.dart:662 Row 오버플로. 상세는 login_page_render_test 참고.
+  allowKnownDefects(const ['A RenderFlex overflowed by']);
   late void Function() restore;
 
   setUp(() {

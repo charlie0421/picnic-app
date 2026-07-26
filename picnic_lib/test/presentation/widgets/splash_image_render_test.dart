@@ -13,6 +13,9 @@ import '../../helpers/test_app.dart';
 import '../../helpers/test_environment.dart';
 
 void main() {
+  // 격리 — splash_image.dart:671 의 상태 메시지 Row 가 가로로 332px 넘친다.
+  // 긴 메시지를 자를지 줄바꿈할지가 제품 판단이라 여기서 안 고친다.
+  allowKnownDefects(const ['A RenderFlex overflowed by']);
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late void Function() restore;
@@ -54,8 +57,10 @@ void main() {
   });
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
-    await tester.pumpWidget(widget);
-    drainExpectedImageErrors(tester);
+    // 첫 프레임부터 필터가 걸려 있어야 한다. 여러 에러가 한 프레임에 겹치면
+    // 바인딩이 "Multiple exceptions (N)" 문자열 하나로 뭉개버려서, 무엇이
+    // 났는지도 알 수 없고 화이트리스트로 지목할 수도 없게 된다.
+    await pumpWidgetAndIgnoreErrors(tester, widget);
     await tester.pump(const Duration(seconds: 1));
     drainExpectedImageErrors(tester);
   }

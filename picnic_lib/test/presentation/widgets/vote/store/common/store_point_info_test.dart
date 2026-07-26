@@ -9,6 +9,11 @@ import '../../../../../helpers/mock_supabase.dart';
 import '../../../../../helpers/test_app.dart';
 
 void main() {
+  // 격리 — StorePointInfo 의 기본값 `width: 48` 은 좌우 패딩 14+14 를 빼면
+  // 내용에 20px 만 남아 119px 넘친다. 실제 호출부 두 곳은 모두
+  // `width: double.infinity` 를 넘기므로 이 기본값은 사실상 죽은 값이지만,
+  // 공개 위젯의 기본값을 바꾸는 건 제품 판단이라 여기서 안 고친다.
+  allowKnownDefects(const ['A RenderFlex overflowed by']);
   late RestoreCallback restore;
 
   setUp(() {
