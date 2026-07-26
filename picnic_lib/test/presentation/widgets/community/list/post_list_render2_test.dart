@@ -68,9 +68,9 @@ void main() {
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('PostList render - artist type with data', () {
@@ -85,8 +85,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
         ),
       );
@@ -111,8 +111,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
         ),
       );
@@ -132,8 +132,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
         ),
       );
@@ -154,8 +154,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.board, 'board-123'),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.board, 'board-123'))],
           ),
         ),
       );
@@ -176,8 +176,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.board, 'board-123'),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.board, 'board-123'))],
           ),
         ),
       );
@@ -205,8 +205,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
           communityState: CommunityState(currentArtist: artist),
         ),
@@ -228,8 +228,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
           communityState: const CommunityState(),
         ),
@@ -250,8 +250,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
           locale: const Locale('en'),
         ),
@@ -270,8 +270,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
           locale: const Locale('ja'),
         ),
@@ -293,8 +293,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
           loggedIn: false,
         ),
@@ -316,8 +316,8 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
         ),
       );
