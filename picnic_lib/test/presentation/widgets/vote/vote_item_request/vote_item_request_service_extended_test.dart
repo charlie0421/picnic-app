@@ -63,7 +63,11 @@ void main() {
       'image': 'artist-a.png',
       'artist_group': {'id': 100, 'name': {'ko': '그룹 A', 'en': 'Group A'}},
     });
-    expect(summaries.last['artist'], {'id': 11, 'name': {'und': '가수 A'}});
+    // 아티스트 테이블에 없는 아티스트는 뷰의 이름으로 폴백한다. 키는
+    // 'ko' 여야 한다 — 뷰의 `artist_name` 이 `a.name->>'ko'` 이고,
+    // `ArtistNameUtils.getDisplayName` 은 ko/en 만 읽으므로 다른 키는
+    // 이름이 있어도 "알 수 없는 아티스트"로 렌더된다.
+    expect(summaries.last['artist'], {'id': 11, 'name': {'ko': '가수 A'}});
     expect(summaries.first, containsPair('totalApplications', 7));
     expect(summaries.first, containsPair('pendingCount', 4));
     expect(summaries.first, containsPair('approvedCount', 3));

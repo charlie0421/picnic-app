@@ -65,6 +65,24 @@ void main() {
       AppLocalizations.of(navigatorKey.currentContext!)
           .vote_item_request_status_pending,
     );
+
+    // 와이어 레벨 스코핑 단언. 이 mock 하네스는 `.eq()` 필터를 무시하고
+    // 픽스처 전체를 돌려주므로, 위의 "current-user vs other-user" 구분은
+    // 클라이언트 측 가드만 검증한다 — 쿼리에서 `.eq('user_id', ...)` 를
+    // 지워도 응답 기반 단언은 전부 통과한다 (검증 완료: 이 단언이 없으면
+    // 스코핑 제거 시에도 영역 550개 테스트가 모두 green 이었다).
+    // 교차 사용자 행을 와이어로 다시 가져오는 회귀는 여기서만 잡힌다.
+    final ownStatusRequests = capturedMockRequests.where(
+      (uri) => uri.path.contains('vote_item_request_users'),
+    );
+    expect(ownStatusRequests, isNotEmpty,
+        reason: '자기 신청 상태 쿼리가 vote_item_request_users 로 나가야 한다');
+    for (final uri in ownStatusRequests) {
+      expect(uri.queryParameters['user_id'], 'eq.current-user',
+          reason: 'vote_item_request_users 쿼리는 반드시 현재 사용자로 '
+              '스코핑되어야 한다 — 스코핑이 빠지면 교차 사용자 행을 '
+              '와이어로 가져오게 된다: $uri');
+    }
   });
 
   group('VoteItemRequestRepository - getVoteItemRequestCount', () {

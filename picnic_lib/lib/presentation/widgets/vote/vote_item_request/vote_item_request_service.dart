@@ -510,9 +510,13 @@ class VoteItemRequestService {
 
         artistApplicationSummaries.add({
           'artistId': artistId,
+          // 아티스트 테이블 조회가 실패했을 때의 폴백. 뷰의 `artist_name` 은
+          // `a.name->>'ko'` 이므로 'ko' 키가 맞다 — 'und' 같은 임의 키를 쓰면
+          // `ArtistNameUtils.getDisplayName` (ko/en 만 읽음) 이 렌더하지 못해
+          // 이름이 있는데도 "알 수 없는 아티스트"로 표시된다.
           'artist': artistInfoById[artistId] ?? {
             'id': artistId,
-            'name': {'und': artistName},
+            'name': {'ko': artistName},
           },
           'totalApplications': totalCount,
           'pendingCount': pendingCount,

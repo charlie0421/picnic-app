@@ -36,19 +36,24 @@ class VoteItemRequestCountSummary {
       final status = raw['request_status'];
       final count = raw['request_count'];
       if (artistId is! int ||
-          artistName is! String ||
-          artistName.trim().isEmpty ||
           status is! String ||
           status.trim().isEmpty ||
           count is! int ||
           count < 0) {
         continue;
       }
+      // `artist_name` 은 뷰에서 `a.name->>'ko'` 라 ko 이름이 없는
+      // 아티스트면 정당하게 null 이 온다. 이름은 표시에만 필요하므로
+      // 행을 버리면 안 된다 — 버리면 그 아티스트의 신청 수가 전체
+      // 합계에서 조용히 사라진다. 이름 키 맵에서만 제외한다.
+      final hasName = artistName is String && artistName.trim().isNotEmpty;
       totalCount += count;
       countsByArtistId[artistId] = (countsByArtistId[artistId] ?? 0) + count;
-      countsByArtistName[artistName] =
-          (countsByArtistName[artistName] ?? 0) + count;
-      artistNamesById.putIfAbsent(artistId, () => artistName);
+      if (hasName) {
+        countsByArtistName[artistName] =
+            (countsByArtistName[artistName] ?? 0) + count;
+        artistNamesById.putIfAbsent(artistId, () => artistName);
+      }
       final statuses = statusCountsByArtistId.putIfAbsent(
         artistId,
         () => <String, int>{},
