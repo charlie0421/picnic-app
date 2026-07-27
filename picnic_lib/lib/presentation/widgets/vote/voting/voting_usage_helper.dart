@@ -8,7 +8,6 @@ class VotingUsageHelper {
   /// Uses bonus candy first, then regular star candy for the remainder.
   ///
   /// Returns a map with 'star_candy_usage' and 'star_candy_bonus_usage'.
-  @visibleForTesting
   static Map<String, int> calculateUsage({
     required int totalAmount,
     required int starCandyBonus,
@@ -162,14 +161,16 @@ class VotingUsageHelper {
     }
 
     if (voteAmount > maxPossibleVotes) {
-      final msg = maxVotesExceededMessage?.call(maxPossibleVotes) ??
+      final msg =
+          maxVotesExceededMessage?.call(maxPossibleVotes) ??
           'Max votes exceeded: $maxPossibleVotes';
       return (canVote: false, validationMessage: msg);
     }
 
     if (requiredStarCandy > totalStarCandy) {
       final shortfall = requiredStarCandy - totalStarCandy;
-      final msg = starCandyShortageMessage?.call(shortfall) ??
+      final msg =
+          starCandyShortageMessage?.call(shortfall) ??
           'Star candy shortage: $shortfall';
       return (canVote: false, validationMessage: msg);
     }

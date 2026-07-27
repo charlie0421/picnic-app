@@ -62,7 +62,7 @@ TextStyle getTextStyle(AppTypo typo, [Color? color]) {
   return TextStyle(
     color: color,
     fontSize: typo._size,
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard', package: 'picnic_lib',
     fontWeight: typo.weight,
     letterSpacing: typo.letterSpacing,
     // height: typo.height,

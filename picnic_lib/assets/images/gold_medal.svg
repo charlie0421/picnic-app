@@ -1,0 +1,18 @@
+<svg width="44" height="56" viewBox="0 0 44 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- ribbon tails (behind disc) -->
+  <path d="M9 3 L17 4 L22.5 27 L15 30 Z" fill="#8B6CF6"/>
+  <path d="M35 3 L27 4 L21.5 27 L29 30 Z" fill="#A78BFA"/>
+  <!-- medal disc -->
+  <circle cx="22" cy="38" r="16" fill="url(#goldGrad)"/>
+  <circle cx="22" cy="38" r="16" stroke="#C8880F" stroke-width="1.6"/>
+  <circle cx="22" cy="38" r="11.5" fill="none" stroke="#FFF3C4" stroke-width="1.2" opacity="0.75"/>
+  <!-- 5-point star -->
+  <path d="M22 32 L23.53 36.40 L28.18 36.49 L24.47 39.30 L25.82 43.76 L22 41.10 L18.18 43.76 L19.53 39.30 L15.82 36.49 L20.47 36.40 Z" fill="#FFF6D5"/>
+  <defs>
+    <radialGradient id="goldGrad" cx="0.4" cy="0.35" r="0.85">
+      <stop offset="0" stop-color="#FFE9A3"/>
+      <stop offset="0.55" stop-color="#F6C445"/>
+      <stop offset="1" stop-color="#E0A000"/>
+    </radialGradient>
+  </defs>
+</svg>

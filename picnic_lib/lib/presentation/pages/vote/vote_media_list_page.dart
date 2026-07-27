@@ -4,7 +4,6 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/data/models/vote/video_info.dart';
-import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
@@ -173,10 +172,10 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage>
       if (!mounted) return;
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
-            showTopMenu: true,
+            showTopMenu: false, // 상단 제목 스트립 제거 (홈/투표와 일관)
             showMyPoint: false,
             showBottomNavigation: true,
-            pageTitle: AppLocalizations.of(context).nav_media,
+            pageTitle: '',
           );
     });
   }

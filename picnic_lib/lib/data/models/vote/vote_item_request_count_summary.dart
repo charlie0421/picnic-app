@@ -1,0 +1,72 @@
+import 'dart:collection';
+
+class VoteItemRequestCountSummary {
+  VoteItemRequestCountSummary._({
+    required this.totalCount,
+    required Map<int, int> countsByArtistId,
+    required Map<String, int> countsByArtistName,
+    required Map<int, String> artistNamesById,
+    required Map<int, Map<String, int>> statusCountsByArtistId,
+  }) : countsByArtistId = UnmodifiableMapView(countsByArtistId),
+       countsByArtistName = UnmodifiableMapView(countsByArtistName),
+       artistNamesById = UnmodifiableMapView(artistNamesById),
+       statusCountsByArtistId = UnmodifiableMapView(
+         statusCountsByArtistId.map(
+           (key, value) => MapEntry(key, UnmodifiableMapView(value)),
+         ),
+       );
+
+  final int totalCount;
+  final Map<int, int> countsByArtistId;
+  final Map<String, int> countsByArtistName;
+  final Map<int, String> artistNamesById;
+  final Map<int, Map<String, int>> statusCountsByArtistId;
+
+  factory VoteItemRequestCountSummary.fromRows(List<dynamic> rows) {
+    var totalCount = 0;
+    final countsByArtistId = <int, int>{};
+    final countsByArtistName = <String, int>{};
+    final artistNamesById = <int, String>{};
+    final statusCountsByArtistId = <int, Map<String, int>>{};
+
+    for (final raw in rows) {
+      if (raw is! Map) continue;
+      final artistId = raw['artist_id'];
+      final artistName = raw['artist_name'];
+      final status = raw['request_status'];
+      final count = raw['request_count'];
+      if (artistId is! int ||
+          status is! String ||
+          status.trim().isEmpty ||
+          count is! int ||
+          count < 0) {
+        continue;
+      }
+      // `artist_name` 은 뷰에서 `a.name->>'ko'` 라 ko 이름이 없는
+      // 아티스트면 정당하게 null 이 온다. 이름은 표시에만 필요하므로
+      // 행을 버리면 안 된다 — 버리면 그 아티스트의 신청 수가 전체
+      // 합계에서 조용히 사라진다. 이름 키 맵에서만 제외한다.
+      final hasName = artistName is String && artistName.trim().isNotEmpty;
+      totalCount += count;
+      countsByArtistId[artistId] = (countsByArtistId[artistId] ?? 0) + count;
+      if (hasName) {
+        countsByArtistName[artistName] =
+            (countsByArtistName[artistName] ?? 0) + count;
+        artistNamesById.putIfAbsent(artistId, () => artistName);
+      }
+      final statuses = statusCountsByArtistId.putIfAbsent(
+        artistId,
+        () => <String, int>{},
+      );
+      statuses[status] = (statuses[status] ?? 0) + count;
+    }
+
+    return VoteItemRequestCountSummary._(
+      totalCount: totalCount,
+      countsByArtistId: countsByArtistId,
+      countsByArtistName: countsByArtistName,
+      artistNamesById: artistNamesById,
+      statusCountsByArtistId: statusCountsByArtistId,
+    );
+  }
+}

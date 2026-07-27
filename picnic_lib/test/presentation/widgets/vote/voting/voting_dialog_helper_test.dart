@@ -1,8 +1,223 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
+  WalletSummaryModel wallet({
+    String star = '0',
+    String bonus = '0',
+    String cotton = '0',
+  }) => WalletSummaryModel(
+    contractVersion: 'wallet.v1',
+    star: BigInt.parse(star),
+    bonus: BigInt.parse(bonus),
+    cotton: BigInt.parse(cotton),
+    cottonExpiringAmount: BigInt.zero,
+    cottonNextExpiresAt: null,
+    snapshotAt: DateTime.utc(2026, 7, 21),
+  );
+
   group('VotingDialogHelper', () {
+    group('invokeVotingWithAuthRecovery', () {
+      test('refreshes after the first auth 401 and retries once', () async {
+        var invokes = 0;
+        var refreshes = 0;
+        final events = <VotingAuthRecoveryEvent>[];
+
+        final result = await VotingDialogHelper.invokeVotingWithAuthRecovery(
+          invoke: () async {
+            invokes++;
+            if (invokes == 1) {
+              throw const FunctionException(
+                status: 401,
+                details: 'Invalid JWT',
+              );
+            }
+            return 'ok';
+          },
+          refresh: () async {
+            refreshes++;
+            return true;
+          },
+          onRecovery: events.add,
+        );
+
+        expect(result, 'ok');
+        expect(invokes, 2);
+        expect(refreshes, 1);
+        expect(events.map((event) => event.phase), [
+          VotingAuthRecoveryPhase.refreshStarted,
+          VotingAuthRecoveryPhase.refreshSucceeded,
+        ]);
+        expect(events.map((event) => event.status), everyElement(401));
+      });
+
+      test('stops after the retried request is also unauthorized', () async {
+        var invokes = 0;
+        final events = <VotingAuthRecoveryEvent>[];
+
+        await expectLater(
+          VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
+            invoke: () async {
+              invokes++;
+              throw const FunctionException(
+                status: 401,
+                details: 'Invalid JWT',
+              );
+            },
+            refresh: () async => true,
+            onRecovery: events.add,
+          ),
+          throwsA(
+            isA<EdgeAuthRecoveryException>().having(
+              (error) => error.reason,
+              'reason',
+              EdgeAuthRecoveryFailureReason.retryUnauthorized,
+            ),
+          ),
+        );
+
+        expect(invokes, 2);
+        expect(events.last.phase, VotingAuthRecoveryPhase.retryFailed);
+        expect(events.last.status, 401);
+      });
+
+      for (final status in [400, 403, 500]) {
+        test('does not refresh for FunctionException $status', () async {
+          var refreshes = 0;
+
+          await expectLater(
+            VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
+              invoke: () async => throw FunctionException(status: status),
+              refresh: () async {
+                refreshes++;
+                return true;
+              },
+            ),
+            throwsA(
+              isA<FunctionException>().having(
+                (error) => error.status,
+                'status',
+                status,
+              ),
+            ),
+          );
+
+          expect(refreshes, 0);
+        });
+      }
+
+      test(
+        'reports retry_failed with safe 429 status and preserves error',
+        () async {
+          var invokes = 0;
+          final retryError = const FunctionException(
+            status: 429,
+            details: 'sensitive request details',
+          );
+          final events = <VotingAuthRecoveryEvent>[];
+
+          await expectLater(
+            VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
+              invoke: () async {
+                invokes++;
+                if (invokes == 1) {
+                  throw const FunctionException(status: 401);
+                }
+                throw retryError;
+              },
+              refresh: () async => true,
+              onRecovery: events.add,
+            ),
+            throwsA(same(retryError)),
+          );
+
+          expect(events.last.phase, VotingAuthRecoveryPhase.retryFailed);
+          expect(events.last.status, 429);
+        },
+      );
+
+      test('keeps 429 backoff inside the post-refresh invoke', () async {
+        var authInvokes = 0;
+        var transportInvokes = 0;
+        var backoffs = 0;
+        final events = <VotingAuthRecoveryEvent>[];
+
+        Future<String> invokeWith429Backoff() async {
+          authInvokes++;
+          if (authInvokes == 1) {
+            throw const FunctionException(status: 401);
+          }
+          while (true) {
+            try {
+              transportInvokes++;
+              if (transportInvokes == 1) {
+                throw const FunctionException(status: 429);
+              }
+              return 'ok';
+            } on FunctionException catch (error) {
+              if (error.status != 429) rethrow;
+              backoffs++;
+            }
+          }
+        }
+
+        final result = await VotingDialogHelper.invokeVotingWithAuthRecovery(
+          invoke: invokeWith429Backoff,
+          refresh: () async => true,
+          onRecovery: events.add,
+        );
+
+        expect(result, 'ok');
+        expect(authInvokes, 2);
+        expect(transportInvokes, 2);
+        expect(backoffs, 1);
+        expect(
+          events.map((event) => event.phase),
+          isNot(contains(VotingAuthRecoveryPhase.retryFailed)),
+        );
+      });
+
+      test('builds only the agreed low-cardinality Sentry tags', () {
+        final tags = VotingDialogHelper.authRecoveryTags(
+          portal: 'pic',
+          event: const VotingAuthRecoveryEvent(
+            VotingAuthRecoveryPhase.retryFailed,
+            status: 500,
+          ),
+        );
+
+        expect(tags, {
+          'portal': 'pic',
+          'phase': 'retry_failed',
+          'status': '500',
+        });
+      });
+
+      test('reports refresh failure without exposing its cause', () async {
+        final events = <VotingAuthRecoveryEvent>[];
+
+        await expectLater(
+          VotingDialogHelper.invokeVotingWithAuthRecovery<void>(
+            invoke: () async => throw const FunctionException(
+              status: 401,
+              details: 'Invalid JWT',
+            ),
+            refresh: () async => false,
+            onRecovery: events.add,
+          ),
+          throwsA(isA<EdgeAuthRecoveryException>()),
+        );
+
+        expect(events.last.phase, VotingAuthRecoveryPhase.refreshFailed);
+        expect(events.last.status, 401);
+      });
+    });
+
     // -------------------------------------------------------------------------
     // resolveArtistImageUrl
     // -------------------------------------------------------------------------
@@ -51,16 +266,19 @@ void main() {
         );
       });
 
-      test('returns null artist image when artistId is non-zero but image is null', () {
-        expect(
-          VotingDialogHelper.resolveArtistImageUrl(
-            artistId: 1,
-            artistImage: null,
-            artistGroupImage: 'https://img/group.png',
-          ),
-          isNull,
-        );
-      });
+      test(
+        'returns null artist image when artistId is non-zero but image is null',
+        () {
+          expect(
+            VotingDialogHelper.resolveArtistImageUrl(
+              artistId: 1,
+              artistImage: null,
+              artistGroupImage: 'https://img/group.png',
+            ),
+            isNull,
+          );
+        },
+      );
     });
 
     // -------------------------------------------------------------------------
@@ -82,6 +300,16 @@ void main() {
           VotingDialogHelper.shouldUseJmaDialog(
             isPicPortal: false,
             partner: 'JMA',
+          ),
+          isTrue,
+        );
+      });
+
+      test('normalizes whitespace and case', () {
+        expect(
+          VotingDialogHelper.shouldUseJmaDialog(
+            isPicPortal: false,
+            partner: '  JmA  ',
           ),
           isTrue,
         );
@@ -114,6 +342,28 @@ void main() {
             partner: 'other',
           ),
           isFalse,
+        );
+      });
+    });
+
+    group('general wallet balance', () {
+      test('includes Cotton and remains exact above JS safe integer', () {
+        final summary = wallet(star: '9007199254740993', cotton: '5');
+        expect(
+          VotingDialogHelper.hasGeneralVoteBalance(
+            summary,
+            BigInt.parse('9007199254740998'),
+          ),
+          isTrue,
+        );
+      });
+
+      test('caps use-all at server maximum', () {
+        expect(
+          VotingDialogHelper.cappedGeneralVoteBalance(
+            wallet(star: '9007199254740993'),
+          ),
+          BigInt.from(2147483647),
         );
       });
     });
@@ -393,22 +643,53 @@ void main() {
 
       test('returns false when partner is null', () {
         expect(
-          VotingDialogHelper.hasPartnerLogo(
-            isPartnership: true,
-            partner: null,
-          ),
+          VotingDialogHelper.hasPartnerLogo(isPartnership: true, partner: null),
           isFalse,
         );
       });
 
       test('returns false when partner is empty', () {
         expect(
-          VotingDialogHelper.hasPartnerLogo(
-            isPartnership: true,
-            partner: '',
-          ),
+          VotingDialogHelper.hasPartnerLogo(isPartnership: true, partner: ''),
           isFalse,
         );
+      });
+    });
+
+    group('bestEffortWalletRefresh', () {
+      test('completes and reports the error when refresh throws', () async {
+        Object? reported;
+
+        await VotingDialogHelper.bestEffortWalletRefresh(
+          () async => throw StateError('wallet down'),
+          onError: (error, _) => reported = error,
+        );
+
+        expect(reported, isA<StateError>());
+      });
+
+      test('completes within the timeout when refresh never resolves', () async {
+        Object? reported;
+        final hang = Completer<void>();
+
+        await VotingDialogHelper.bestEffortWalletRefresh(
+          () => hang.future,
+          timeout: const Duration(milliseconds: 20),
+          onError: (error, _) => reported = error,
+        );
+
+        expect(reported, isA<TimeoutException>());
+      });
+
+      test('does not report an error when refresh succeeds', () async {
+        Object? reported;
+
+        await VotingDialogHelper.bestEffortWalletRefresh(
+          () async {},
+          onError: (error, _) => reported = error,
+        );
+
+        expect(reported, isNull);
       });
     });
   });

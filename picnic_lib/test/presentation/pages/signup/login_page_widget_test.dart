@@ -3,12 +3,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
+import '../../../helpers/load_test_fonts.dart';
 import '../../../helpers/mock_data.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
 
 void main() {
+  // 프로덕션 폰트를 올린다 — 없으면 flutter_test 기본 폰트(글리프마다 1em)가
+  // 텍스트를 과대 측정해서 로그인 버튼 Row 가 없는 오버플로를 낸다.
+  // 상세는 login_page_render_test.dart 의 setUpAll 주석 참고.
+  setUpAll(loadTestFonts);
+
   late void Function() restore;
 
   setUp(() {

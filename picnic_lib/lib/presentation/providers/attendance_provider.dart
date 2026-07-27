@@ -211,12 +211,31 @@ class Attendance extends _$Attendance {
       logger.w('Could not retrieve device ID for attendance-check header: $e');
     }
 
-    final response = await supabase.functions.invoke(
-      'attendance-check',
-      method: method,
-      body: body,
-      headers: extraHeaders,
-    );
+    final FunctionResponse response;
+    try {
+      response = await supabase.functions.invoke(
+        'attendance-check',
+        method: method,
+        body: body,
+        headers: extraHeaders,
+      );
+    } on FunctionException catch (e) {
+      // 중복 출석(ALREADY_CHECKED)은 서버가 HTTP 409 로 응답하므로
+      // supabase.functions.invoke 가 2xx 파싱 이전에 FunctionException 을
+      // throw 한다 → 아래 success/ALREADY_CHECKED graceful 분기가 실행되지
+      // 않아 정상 중복탭이 checkIn 의 catch 에서 에러로 Sentry 보고돼 왔다
+      // (PICNIC-APP-4ZX). 여기서 409 + ALREADY_CHECKED 만 잡아 기존
+      // onAlreadyChecked 경로로 통일하고(→ 빈 맵 반환 → checkIn 은 null),
+      // 그 외 FunctionException 은 rethrow 해 호출자의 기존 에러 처리
+      // (401/403 세션갱신·anti-abuse·5xx)를 그대로 유지한다.
+      if (e.status == 409 &&
+          _extractAttendanceErrorCode(e.details) == 'ALREADY_CHECKED' &&
+          onAlreadyChecked != null) {
+        onAlreadyChecked();
+        return const {};
+      }
+      rethrow;
+    }
 
     final raw = response.data;
     if (raw == null) {
@@ -249,6 +268,24 @@ class Attendance extends _$Attendance {
     }
 
     return parsed['data'] as Map<String, dynamic>;
+  }
+
+  /// FunctionException.details 의 nested `{error: {code: ...}}` 에서 error code
+  /// 를 추출한다. details 는 supabase_flutter 버전/응답에 따라 Map 또는
+  /// JSON String 일 수 있어 양쪽을 방어적으로 처리한다. 매칭 실패 시 null.
+  static String? _extractAttendanceErrorCode(dynamic details) {
+    dynamic body = details;
+    if (body is String) {
+      try {
+        body = jsonDecode(body);
+      } catch (_) {
+        return null;
+      }
+    }
+    if (body is! Map) return null;
+    final error = body['error'];
+    if (error is Map) return error['code']?.toString();
+    return null;
   }
 
   /// 세션을 갱신한 후 _fetchStatus를 1회 재시도

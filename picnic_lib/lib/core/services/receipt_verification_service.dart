@@ -9,7 +9,9 @@ import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 이미 처리된 구매에 대한 예외
@@ -21,6 +23,34 @@ class ReusedPurchaseException implements Exception {
 
   @override
   String toString() => 'ReusedPurchaseException: $message';
+}
+
+/// 응답은 정상적으로 도착했지만 정산 계약(스키마)을 만족하지 않아
+/// 해석할 수 없는 경우의 예외.
+///
+/// 서버는 이미 정산을 마친 상태이므로 재전송은 중복 요청만 만든다.
+/// 따라서 이 예외는 재시도 대상이 아니며, "응답을 못 받은" 네트워크/타임아웃
+/// 실패와 구분되어 상위로 전달된다.
+class ReceiptResponseContractException implements Exception {
+  final String message;
+  final Object? cause;
+
+  ReceiptResponseContractException({required this.message, this.cause});
+
+  @override
+  String toString() => 'ReceiptResponseContractException: $message';
+}
+
+/// verify_receipt 요청을 실제로 몇 번 전송했는지 세는 카운터.
+///
+/// Counts the verify_receipt requests this client actually put on the wire for
+/// one receipt - across the retry loop and across the iOS fallback that starts
+/// a second loop. A `replayed` settlement answering the very first request was
+/// settled by somebody else (an earlier delivery or session); answering any
+/// later request it was settled by a request of ours whose response was lost,
+/// which is a replay we caused and the user has not seen.
+class _SentVerificationRequests {
+  int count = 0;
 }
 
 class ReceiptVerificationService {
@@ -46,12 +76,20 @@ class ReceiptVerificationService {
   }
 
   /// 영수증 검증 메인 메서드
-  Future<void> verifyReceipt(
+  Future<PurchaseSettlementResultModel> verifyReceipt(
     String receipt,
     String productId,
     String userId,
     String environment,
   ) async {
+    if (Environment.isInitialized &&
+        Environment.currentEnvironment != 'test' &&
+        !isPaymentEnvironmentAllowed(
+          buildEnvironment: Environment.currentEnvironment,
+          requestedEnvironment: environment,
+        )) {
+      throw StateError('Payment environment rejected by build policy');
+    }
     logger.i('=== Receipt Verification Started ===');
     logger.i('Platform: ${Platform.isIOS ? 'iOS' : 'Android'}');
     logger.i('Environment: $environment');
@@ -62,6 +100,10 @@ class ReceiptVerificationService {
     final receiptFormat = _detectReceiptFormat(receipt);
     logger.i('Receipt format: $receiptFormat');
 
+    // 이 영수증에 대해 실제로 전송한 요청 수 (replay 귀속 판별용)
+    final sentRequests = _SentVerificationRequests();
+
+    late final PurchaseSettlementResultModel result;
     if (Platform.isIOS) {
       // iOS: 동일 JWS 재전송 방지 (멱등 키: transactionId + signedDate)
       try {
@@ -71,12 +113,13 @@ class ReceiptVerificationService {
           // 중복으로 간주하여 예외를 던져 상위에서 성공 UI를 띄우지 않도록 함
           throw ReusedPurchaseException(message: 'Duplicate iOS receipt');
         }
-        await _verifyiOSReceipt(
+        result = await _verifyiOSReceipt(
           receipt,
           productId,
           userId,
           environment,
           receiptFormat,
+          sentRequests,
         );
         await _idemCacheAdd(idemKey);
       } catch (e) {
@@ -84,20 +127,47 @@ class ReceiptVerificationService {
           // 중복은 그대로 상위로 전달하여 성공 플로우를 막는다
           rethrow;
         }
+        if (e is ReceiptResponseContractException) {
+          // 서버 정산은 이미 끝났고 응답만 해석하지 못한 상태 → 재전송 금지
+          rethrow;
+        }
         logger.w('🍎 JWS 파싱/멱등 처리 실패 - 일반 경로로 진행: $e');
-        await _verifyiOSReceipt(
+        // 같은 카운터를 그대로 넘겨, 위 루프가 이미 보낸 요청도 replay 귀속에 반영한다.
+        result = await _verifyiOSReceipt(
           receipt,
           productId,
           userId,
           environment,
           receiptFormat,
+          sentRequests,
         );
       }
     } else {
-      await _verifyAndroidReceipt(receipt, productId, userId, environment);
+      result = await _verifyAndroidReceipt(
+        receipt,
+        productId,
+        userId,
+        environment,
+        sentRequests,
+      );
     }
 
     logger.i('=== Receipt Verification Completed ===');
+    return result;
+  }
+
+  @visibleForTesting
+  static bool isPaymentEnvironmentAllowed({
+    required String buildEnvironment,
+    required String requestedEnvironment,
+  }) {
+    if (buildEnvironment == 'prod') {
+      return requestedEnvironment == _productionEnvironment;
+    }
+    if (buildEnvironment == 'local' || buildEnvironment == 'dev') {
+      return requestedEnvironment == _sandboxEnvironment;
+    }
+    return false;
   }
 
   /// 입력 값 검증
@@ -111,12 +181,13 @@ class ReceiptVerificationService {
   }
 
   /// iOS 영수증 검증
-  Future<void> _verifyiOSReceipt(
+  Future<PurchaseSettlementResultModel> _verifyiOSReceipt(
     String receipt,
     String productId,
     String userId,
     String environment,
     String receiptFormat,
+    _SentVerificationRequests sentRequests,
   ) async {
     logger.i('iOS receipt verification - Format: $receiptFormat');
 
@@ -128,15 +199,16 @@ class ReceiptVerificationService {
       receiptFormat: receiptFormat,
     );
 
-    await _callVerificationFunction(requestBody, 'iOS');
+    return _callVerificationFunction(requestBody, 'iOS', sentRequests);
   }
 
   /// Android 영수증 검증
-  Future<void> _verifyAndroidReceipt(
+  Future<PurchaseSettlementResultModel> _verifyAndroidReceipt(
     String receipt,
     String productId,
     String userId,
     String environment,
+    _SentVerificationRequests sentRequests,
   ) async {
     logger.i('🤖 Android 영수증 검증 시작');
     logger.i('  - Product ID: $productId');
@@ -161,16 +233,22 @@ class ReceiptVerificationService {
     );
 
     logger.i('🚀 Android 서버 검증 호출 시작 (clientTrace: $clientTraceId)');
-    await _callVerificationFunction(requestBody, 'Android');
+    final result = await _callVerificationFunction(
+      requestBody,
+      'Android',
+      sentRequests,
+    );
     // 성공 시 큐에서 제거
     await ReceiptQueueService().removeByClientTraceId(clientTraceId);
     logger.i('✅ Android 영수증 검증 완료');
+    return result;
   }
 
   /// 검증 함수 호출 (재시도 로직 포함)
-  Future<void> _callVerificationFunction(
+  Future<PurchaseSettlementResultModel> _callVerificationFunction(
     Map<String, dynamic> requestBody,
     String verificationType,
+    _SentVerificationRequests sentRequests,
   ) async {
     // 환경에 따른 타임아웃 설정
     final environment = requestBody['environment'] as String;
@@ -191,15 +269,39 @@ class ReceiptVerificationService {
     Exception? lastException;
 
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      // 이 요청을 보내기 전에 이미 보낸 요청이 있으면, 돌아온 replay 는 우리가
+      // 만든 것이다: 앞선 요청이 서버에서 정산됐고 응답만 유실된 경우이므로
+      // 사용자는 아직 아무것도 보지 못했다.
+      final replayWouldAnswerOurOwnRequest = sentRequests.count > 0;
+      sentRequests.count++;
       try {
         logger.i('$verificationType verification attempt $attempt/$maxRetries');
 
-        await supabase.functions
+        final response = await supabase.functions
             .invoke('verify_receipt', body: requestBody) // 함수 이름 변경
             .timeout(timeoutDuration);
 
         logger.i('Verification successful');
-        return; // 성공 시 즉시 반환
+        // 응답이 도착한 뒤의 파싱 실패는 영구적인 계약 오류이므로
+        // 전송 실패(재시도 대상)와 분리해서 처리한다.
+        try {
+          if (response.data is! Map) {
+            throw const FormatException(
+              'verify_receipt response must be an object',
+            );
+          }
+          final settlement = PurchaseSettlementResultModel.fromJson(
+            Map<String, dynamic>.from(response.data as Map),
+          );
+          return settlement.replayed && replayWouldAnswerOurOwnRequest
+              ? settlement.copyWith(replayCausedByRetry: true)
+              : settlement;
+        } catch (parseError) {
+          throw ReceiptResponseContractException(
+            message: 'verify_receipt response could not be parsed: $parseError',
+            cause: parseError,
+          );
+        }
       } catch (error) {
         lastException = error is Exception
             ? error
@@ -215,6 +317,16 @@ class ReceiptVerificationService {
 
         // ReusedPurchaseException은 재시도하지 않음
         if (error is ReusedPurchaseException) {
+          rethrow;
+        }
+
+        // 서버 응답을 받았으나 해석할 수 없는 경우는 영구 오류 → 재시도하지 않음
+        // (서버는 이미 정산했으므로 재전송하면 중복 요청만 발생)
+        if (error is ReceiptResponseContractException) {
+          logger.e(
+            '$verificationType verification response contract violated - '
+            'not retrying: ${error.message}',
+          );
           rethrow;
         }
 
@@ -246,6 +358,10 @@ class ReceiptVerificationService {
   /// 환경 감지
   Future<String> getEnvironment() async {
     logger.d('Determining environment...');
+
+    if (Environment.isInitialized && Environment.currentEnvironment != 'test') {
+      return Environment.paymentEnvironment;
+    }
 
     if (kDebugMode) {
       logger.d('Debug mode detected - using sandbox');

@@ -15,6 +15,8 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
@@ -23,13 +25,18 @@ import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:uuid/uuid.dart';
 import 'handlers/restore_purchase_handler.dart';
 import 'handlers/purchase_safety_manager.dart';
 import 'handlers/purchase_dialog_handler.dart';
 import 'purchase_helper.dart';
 import 'purchase_processor.dart';
+import 'purchase_campaign_attempt.dart';
+import 'purchase_settlement_step.dart';
+import 'wallet_summary_applier.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
@@ -41,17 +48,43 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   late final RestorePurchaseHandler _restoreHandler;
   late final PurchaseSafetyManager _safetyManager;
   late final PurchaseDialogHandler _dialogHandler;
-  String? _pendingProductId;
+
+  /// Bound in [initState], while this state is guaranteed to be mounted.
+  ///
+  /// A settlement can land after the user has left the store - receipt
+  /// verification outlives the route - and `ref` throws once `mounted` is
+  /// false, so the wallet write must not go through it.
+  ///
+  /// The binding has to be eager. Writing this as a `late final` *initializer*
+  /// compiles and keeps the suite green, but then the capture runs on first
+  /// read - inside the settlement callback, where the context is already
+  /// defunct - which is the bug this field exists to close.
+  /// `purchase_after_leaving_store_test.dart` reads it for the first time from
+  /// an unmounted store, which is the only place that distinction shows.
+  late final WalletSummaryApplier _applyWalletSummary;
+
+  /// The wallet write a settlement will use, exposed so a test can be the
+  /// first thing to read it - after the store is gone.
+  @visibleForTesting
+  WalletSummaryApplier get walletSummaryApplier => _applyWalletSummary;
+
   bool _transactionsCleared = false;
-  bool _isActivePurchasing = false;
   bool _isInitializing = true;
-  bool _isPurchasing = false;
   final Set<String> _currentlyProcessingIDs = {};
+  final PurchaseCampaignAttemptRegistry _purchaseAttempts =
+      PurchaseCampaignAttemptRegistry();
+  final PurchaseSettlementStep _settlementStep = const PurchaseSettlementStep();
+
+  void _removeAttempt(String productId, String attemptId) {
+    _purchaseAttempts.removeIfMatches(productId, attemptId);
+  }
 
   @override
   void initState() {
     super.initState();
     logger.d('[PurchaseStarCandyState] initState called');
+
+    _applyWalletSummary = ContainerWalletSummaryApplier.of(context);
 
     _rotationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -59,7 +92,9 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     );
 
     _purchaseService = PurchaseService(
-      ref: ref,
+      // Not `ref`: the service reads providers on the far side of receipt
+      // verification, which the user is free to walk out on.
+      container: ProviderScope.containerOf(context, listen: false),
       inAppPurchaseService: InAppPurchaseService(),
       receiptVerificationService: ReceiptVerificationService(),
       analyticsService: AnalyticsService(),
@@ -75,7 +110,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
     _safetyManager = PurchaseSafetyManager(
       loadingKey: _loadingKey,
-      resetPurchaseState: _resetPurchaseState,
+      resetPurchaseState: _resetAllPurchaseState,
     );
 
     _dialogHandler = PurchaseDialogHandler(
@@ -89,10 +124,17 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     // 🎯 심플 타임아웃 처리: 직접 콜백 설정
     _safetyManager.onTimeoutUIReset = () {
       if (mounted) {
-        _resetPurchaseState();
+        setState(() {});
+        _loadingKey.currentState?.hide();
         final l10n = AppLocalizations.of(context);
         showSimpleDialog(content: l10n.purchase_timeout_message);
       }
+    };
+    _safetyManager.onProductTimeout = (productId, attemptId) {
+      if (attemptId != null) {
+        _purchaseAttempts.removeIfMatches(productId, attemptId);
+      }
+      if (mounted) setState(() {});
     };
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -159,7 +201,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
     logger.d(
       '''[PurchaseStarCandyState] Purchase update received:
-Total: ${purchaseDetailsList.length} | Active: $_isActivePurchasing | Cleared: $_transactionsCleared
+Total: ${purchaseDetailsList.length} | Cleared: $_transactionsCleared
 Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Purchased: ${statusCounts['purchased']} | Error: ${statusCounts['error']} | Canceled: ${statusCounts['canceled']}''',
     );
 
@@ -192,7 +234,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         error: e,
         stackTrace: s,
       );
-      _resetPurchaseState();
       _loadingKey.currentState?.hide();
       if (navigatorKey.currentContext != null) {
         await _dialogHandler.showErrorDialog(
@@ -222,7 +263,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     if (purchaseDetails.status == PurchaseStatus.pending &&
-        !_isActivePurchasing) {
+        !_purchaseAttempts.contains(purchaseDetails.productID)) {
       logger.i(
         '[PurchaseStarCandyState] Purchase pending for ${purchaseDetails.productID}',
       );
@@ -241,18 +282,30 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
-    if (_shouldProcessActivePurchase(purchaseDetails)) {
-      await _processActivePurchase(purchaseDetails);
+    final boundAttempt =
+        _purchaseAttempts.bind(purchaseDetails) ??
+        _purchaseAttempts.currentTerminalWithoutId(purchaseDetails);
+    if (boundAttempt == null &&
+        purchaseDetails.status != PurchaseStatus.pending) {
+      logger.w(
+        '[PurchaseStarCandyState] Rejecting orphan, restored, stale, or '
+        'duplicate transaction: ${purchaseDetails.purchaseID}',
+      );
       return;
     }
 
-    await _processErrorAndCancel(purchaseDetails);
+    if (_shouldProcessActivePurchase(purchaseDetails)) {
+      await _processActivePurchase(purchaseDetails, boundAttempt);
+      return;
+    }
+
+    await _processErrorAndCancel(purchaseDetails, boundAttempt);
   }
 
   /// 초기화 중 pending 구매 강제 완료 여부 확인
   bool _shouldForceCompletePending(PurchaseDetails purchaseDetails) {
     return PurchaseHelper.shouldForceCompletePending(
-      isActivePurchasing: _isActivePurchasing,
+      isActivePurchasing: _purchaseAttempts.contains(purchaseDetails.productID),
       transactionsCleared: _transactionsCleared,
       purchaseDetails: purchaseDetails,
     );
@@ -261,7 +314,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   /// 초기화 중 무시할 구매 여부 확인
   bool _shouldIgnoreDuringInit(PurchaseDetails purchaseDetails) {
     return PurchaseHelper.shouldIgnoreDuringInit(
-      isActivePurchasing: _isActivePurchasing,
+      isActivePurchasing: _purchaseAttempts.contains(purchaseDetails.productID),
       transactionsCleared: _transactionsCleared,
       purchaseDetails: purchaseDetails,
     );
@@ -287,14 +340,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   bool _shouldProcessActivePurchaseIOS(PurchaseDetails purchaseDetails) {
     return PurchaseHelper.shouldProcessActivePurchaseIOS(
       purchaseDetails: purchaseDetails,
-      isActivePurchasing: _isActivePurchasing,
-      isSafetyTimeoutTriggered: _safetyManager.isSafetyTimeoutTriggered,
-      safetyTimeoutTime: _safetyManager.safetyTimeoutTime,
-      isActualPurchaseCheck: (pd) => _safetyManager.isActualPurchase(
-        purchaseDetails: pd,
-        isActivePurchasing: _isActivePurchasing,
-        pendingProductId: _pendingProductId,
-      ),
+      isActivePurchasing: _purchaseAttempts.contains(purchaseDetails.productID),
+      // Transaction identity was already bound by _processPurchaseDetail.
+      // Legacy global safety fields must not be transaction authority.
+      isSafetyTimeoutTriggered: false,
+      safetyTimeoutTime: null,
+      isActualPurchaseCheck: (_) => true,
     );
   }
 
@@ -302,14 +353,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   bool _shouldProcessActivePurchaseAndroid(PurchaseDetails purchaseDetails) {
     return PurchaseHelper.shouldProcessActivePurchaseAndroid(
       purchaseDetails: purchaseDetails,
-      isActivePurchasing: _isActivePurchasing,
-      isSafetyTimeoutTriggered: _safetyManager.isSafetyTimeoutTriggered,
-      safetyTimeoutTime: _safetyManager.safetyTimeoutTime,
-      isActualPurchaseCheck: (pd) => _safetyManager.isActualPurchase(
-        purchaseDetails: pd,
-        isActivePurchasing: _isActivePurchasing,
-        pendingProductId: _pendingProductId,
-      ),
+      isActivePurchasing: _purchaseAttempts.contains(purchaseDetails.productID),
+      isSafetyTimeoutTriggered: false,
+      safetyTimeoutTime: null,
+      isActualPurchaseCheck: (_) => true,
     );
   }
 
@@ -328,68 +375,50 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   }
 
   /// 활성 구매 처리
-  Future<void> _processActivePurchase(PurchaseDetails purchaseDetails) async {
-    final isActualPurchase = _safetyManager.isActualPurchase(
-      purchaseDetails: purchaseDetails,
-      isActivePurchasing: _isActivePurchasing,
-      pendingProductId: _pendingProductId,
-    );
-
-    final isLatePurchase = _safetyManager.isLatePurchase(_isActivePurchasing);
+  Future<void> _processActivePurchase(
+    PurchaseDetails purchaseDetails,
+    PurchaseCampaignAttempt? boundAttempt,
+  ) async {
+    final attempt = boundAttempt;
+    if (attempt == null) {
+      throw StateError(
+        'Actual purchase event has no matching execution context',
+      );
+    }
+    const isActualPurchase = true;
 
     logger.i(
-      '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase)',
+      '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase)',
     );
 
     await _purchaseService.handleOptimizedPurchase(
       purchaseDetails,
-      () async {
-        logger.i('[PurchaseStarCandyState] Purchase successful');
-
-        // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
-        _safetyManager.completePurchaseSession(purchaseDetails.productID);
-
-        // 🧹 모든 타이머 완전 정리 (정상 구매 완료 시)
-        _cleanupAllTimersOnSuccess(purchaseDetails.productID);
-
-        // 🧹 구매 완료 후 클린 작업 수행 (동기 처리로 완전성 보장)
-        final transactionId =
-            purchaseDetails.purchaseID ??
-            '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
-
-        // 🧹 동기로 클린 작업 실행 - 완료까지 기다림 (확실성 우선)
-        await _safetyManager.performPostPurchaseCleanup(
-          productId: purchaseDetails.productID,
-          transactionId: transactionId,
-          completedPurchase: purchaseDetails,
+      (result) async {
+        await _settlementStep.settle(
+          safetyManager: _safetyManager,
+          attempts: _purchaseAttempts,
+          purchaseDetails: purchaseDetails,
+          result: result,
+          attempt: attempt,
+          cleanupAllTimersOnSuccess: _cleanupAllTimersOnSuccess,
+          applyWalletSummary: _applyWalletSummary,
+          isMounted: () => mounted,
+          resetProductPurchaseState: _resetProductPurchaseState,
+          hideLoading: () => _loadingKey.currentState?.hide(),
+          receiptDialogs: _dialogHandler,
         );
-
-        await ref.read(userInfoProvider.notifier).getUserProfiles();
-
-        if (mounted) {
-          _resetPurchaseState();
-          _loadingKey.currentState?.hide();
-
-          if (isLatePurchase) {
-            await _dialogHandler.showLatePurchaseSuccessDialog();
-          } else {
-            await _dialogHandler.showSuccessDialog();
-          }
-        }
       },
       (error) async {
         if (mounted) {
           // ✅ UI만 리셋하고 쿨다운은 유지하여 즉시 연속 구매 차단
           _safetyManager.resetUIOnly(reason: '구매 에러/중복 처리 후 UI만 리셋');
           _loadingKey.currentState?.hide();
-          setState(() => _isPurchasing = false);
 
           final action = PurchaseProcessor.classifyError(error);
 
           switch (action) {
             case PurchaseErrorAction.showPendingMessage:
               // 엣지(서버)에서 중복 처리됨 → '스토어 처리 중' 안내만
-              setState(() => _isPurchasing = false);
               if (navigatorKey.currentContext != null) {
                 showSimpleDialog(
                   content: AppLocalizations.of(
@@ -398,17 +427,14 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 );
               }
               // iOS JWS 반복 중복 완화: 강제 쿨다운(상품별) 60초 적용하여 루프 차단
-              if (_pendingProductId != null) {
-                _safetyManager.activateDuplicateCooldown(
-                  productId: _pendingProductId,
-                  cooldown: const Duration(minutes: 1),
-                );
-              }
+              _safetyManager.activateDuplicateCooldown(
+                productId: attempt.productId,
+                cooldown: const Duration(minutes: 1),
+              );
               break;
 
             case PurchaseErrorAction.showCooldownMessage:
               // 쿨다운 위반도 동일하게 안내만, 추가 쿨타임 미적용
-              setState(() => _isPurchasing = false);
               if (navigatorKey.currentContext != null) {
                 showSimpleDialog(
                   content: AppLocalizations.of(
@@ -420,23 +446,22 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
             case PurchaseErrorAction.duplicateWithCooldown:
               // 문자열 기반 중복 케이스도 동일 처리: 안내만
-              setState(() => _isPurchasing = false);
               // iOS 캐시성 중복 신호 완화용 강제 쿨다운(상품별) 60초
-              if (_pendingProductId != null) {
-                _safetyManager.activateDuplicateCooldown(
-                  productId: _pendingProductId,
-                  cooldown: const Duration(minutes: 1),
-                );
-              }
+              _safetyManager.activateDuplicateCooldown(
+                productId: attempt.productId,
+                cooldown: const Duration(minutes: 1),
+              );
               break;
 
             case PurchaseErrorAction.showMappedError:
               logger.e('[PurchaseStarCandyState] Purchase error: $error');
+              final errorType = PurchaseProcessor.mapErrorToType(error);
+              if (errorType != PurchaseErrorType.timeout &&
+                  errorType != PurchaseErrorType.networkError) {
+                _removeAttempt(purchaseDetails.productID, attempt.attemptId);
+              }
               final l10n = AppLocalizations.of(navigatorKey.currentContext!);
-              final msg = _resolveErrorMessage(
-                PurchaseProcessor.mapErrorToType(error),
-                l10n,
-              );
+              final msg = _resolveErrorMessage(errorType, l10n);
               await _dialogHandler.showErrorDialog(msg);
               break;
           }
@@ -447,7 +472,16 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   }
 
   /// 에러 및 취소 처리
-  Future<void> _processErrorAndCancel(PurchaseDetails purchaseDetails) async {
+  Future<void> _processErrorAndCancel(
+    PurchaseDetails purchaseDetails,
+    PurchaseCampaignAttempt? boundAttempt,
+  ) async {
+    final attempt = boundAttempt;
+    if (attempt != null) {
+      if (!_purchaseAttempts.finish(purchaseDetails, attempt.attemptId)) {
+        _removeAttempt(purchaseDetails.productID, attempt.attemptId);
+      }
+    }
     if (purchaseDetails.status == PurchaseStatus.error) {
       logger.e(
         '[PurchaseStarCandyState] Purchase error: ${purchaseDetails.error?.message}',
@@ -457,7 +491,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
       if (mounted) {
         // ✅ 일반 오류: 상품별 쿨타임 적용하지 않음 (초기화는 굳이 강제하지 않음)
-        _resetPurchaseState();
+        _resetProductPurchaseState(purchaseDetails.productID);
         _loadingKey.currentState?.hide();
 
         if (!isCanceled) {
@@ -519,17 +553,22 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
   }
 
-  void _resetPurchaseState() {
+  void _resetProductPurchaseState(
+    String productId, {
+    String? attemptId,
+    bool terminal = false,
+  }) {
+    _safetyManager.resetProductState(productId);
+    if (terminal && attemptId != null) {
+      _purchaseAttempts.removeIfMatches(productId, attemptId);
+    }
+    if (mounted) setState(() {});
+  }
+
+  void _resetAllPurchaseState() {
     _safetyManager.disposeSafetyTimer();
-    _safetyManager.resetInternalState(reason: '전체 상태 리셋'); // 🚨 내부 상태도 완전 리셋!
-
-    setState(() {
-      _isActivePurchasing = false;
-      _pendingProductId = null;
-      _isPurchasing = false;
-    });
-
-    _safetyManager.resetLatePurchaseSuccess();
+    _safetyManager.resetInternalState(reason: '명시적 전체 세션 리셋');
+    if (mounted) setState(() {});
   }
 
   Future<void> _handleBuyButtonPressed(
@@ -561,13 +600,44 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     // 🔒 구매 확인 다이얼로그 표시
+    final campaigns = ref.read(
+      activePromotionCampaignProvider(PromotionSurface.store),
+    );
+    final displayedCampaign = campaigns.value?.items
+        .where((campaign) => campaign.showInStore)
+        .firstOrNull;
+    final productId = serverProduct['id'] as String;
+    if (_purchaseAttempts.contains(productId)) {
+      await _dialogHandler.showPurchaseAlreadyPendingDialog();
+      return;
+    }
     final confirmed = await _dialogHandler.showPurchaseConfirmDialog(
       serverProduct: serverProduct,
       storeProducts: storeProducts,
+      displayedCampaign: displayedCampaign,
     );
 
     if (confirmed == true && context.mounted) {
-      await _processPurchase(context, serverProduct, storeProducts);
+      final attempt = PurchaseCampaignAttempt(
+        attemptId: const Uuid().v4(),
+        productId: productId,
+        displayedCampaign: displayedCampaign,
+      );
+      if (!_purchaseAttempts.begin(attempt)) {
+        await _dialogHandler.showPurchaseAlreadyPendingDialog();
+        return;
+      }
+      try {
+        await _processPurchase(
+          context,
+          serverProduct,
+          storeProducts,
+          attemptId: attempt.attemptId,
+        );
+      } catch (_) {
+        _removeAttempt(productId, attempt.attemptId);
+        rethrow;
+      }
     }
   }
 
@@ -575,8 +645,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   Future<void> _processPurchase(
     BuildContext context,
     Map<String, dynamic> serverProduct,
-    List<ProductDetails> storeProducts,
-  ) async {
+    List<ProductDetails> storeProducts, {
+    required String attemptId,
+  }) async {
     // 🛡️ 복원 정리 완료 대기 가드
     if (!_restoreHandler.isProactiveCleanupCompleted) {
       logger.w('🛡️ 복원 정리가 아직 완료되지 않음 - 구매 차단');
@@ -585,6 +656,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           content: 'Purchase preparation in progress. Please try again later.',
         );
       }
+      _removeAttempt(serverProduct['id'] as String, attemptId);
       return;
     }
 
@@ -596,7 +668,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       );
       final purchaseStartTime = DateTime.now();
 
-      if (!context.mounted) return;
+      if (!context.mounted) {
+        _removeAttempt(serverProduct['id'] as String, attemptId);
+        return;
+      }
       _loadingKey.currentState?.show();
 
       // 즉시 구매 시작
@@ -609,21 +684,28 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         '[PurchaseStarCandyState] Purchase preparation completed - Duration: ${preparationDuration.inMilliseconds}ms',
       );
 
-      _isActivePurchasing = true;
-      _pendingProductId = serverProduct['id'];
       _transactionsCleared = true;
 
       final purchaseResult = await _purchaseService.initiatePurchase(
         serverProduct['id'],
         onSuccess: () async {
+          if (_purchaseAttempts[serverProduct['id']]?.attemptId != attemptId) {
+            throw StateError('Stale purchase launch callback');
+          }
           logger.i('[PurchaseStarCandyState] Purchase success callback');
-          setState(() => _isPurchasing = false);
         },
         onError: (message) async {
+          if (_purchaseAttempts[serverProduct['id']]?.attemptId != attemptId) {
+            return;
+          }
           logger.e(
             '[PurchaseStarCandyState] Purchase error callback: $message',
           );
-          _resetPurchaseState();
+          _resetProductPurchaseState(
+            serverProduct['id'] as String,
+            attemptId: attemptId,
+            terminal: true,
+          );
           if (mounted) {
             _loadingKey.currentState?.hide();
             await _dialogHandler.showErrorDialog(message);
@@ -631,14 +713,22 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         },
       );
 
-      await _handlePurchaseResult(purchaseResult);
+      await _handlePurchaseResult(
+        purchaseResult,
+        productId: serverProduct['id'] as String,
+        attemptId: attemptId,
+      );
     } catch (e, s) {
       logger.e(
         '[PurchaseStarCandyState] Error starting purchase: $e',
         error: e,
         stackTrace: s,
       );
-      _resetPurchaseState();
+      _resetProductPurchaseState(
+        serverProduct['id'] as String,
+        attemptId: attemptId,
+        terminal: true,
+      );
       if (mounted) {
         _loadingKey.currentState?.hide();
         if (navigatorKey.currentContext != null) {
@@ -655,8 +745,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 구매 가능 여부 확인 (상품별 쿨타임 적용)
   bool _canPurchase({required String productId}) {
-    if (_isPurchasing) {
-      logger.w('[PurchaseStarCandyState] Purchase already in progress');
+    if (_purchaseAttempts.contains(productId)) {
+      logger.w('[PurchaseStarCandyState] Product purchase already in progress');
       showSimpleDialog(
         content: AppLocalizations.of(context).purchase_in_progress_message,
       );
@@ -679,37 +769,41 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 구매 시작 상태 설정
   void _setPurchaseStartState(String productId) {
-    setState(() {
-      _isPurchasing = true;
-    });
     // 🛡️ 구매 시도 기록 시 상품 ID도 함께 전달
     _safetyManager.recordPurchaseAttempt(productId: productId);
   }
 
   /// 구매 결과 처리 - 취소와 에러를 구분
   Future<void> _handlePurchaseResult(
-    Map<String, dynamic> purchaseResult,
-  ) async {
+    Map<String, dynamic> purchaseResult, {
+    required String productId,
+    required String attemptId,
+  }) async {
     if (purchaseResult['wasCancelled'] == true) {
       if (mounted) {
-        _resetPurchaseState();
+        _resetProductPurchaseState(productId);
         _loadingKey.currentState?.hide();
         // 사용자가 직접 취소한 경우 팝업 표시
         showSimpleDialog(
           content: AppLocalizations.of(context).purchase_cancelled_message,
         );
       }
+      _purchaseAttempts.applyLaunchResult(productId, attemptId, purchaseResult);
       return;
     }
 
+    _purchaseAttempts.applyLaunchResult(productId, attemptId, purchaseResult);
+
     await _safetyManager.handlePurchaseResult(
       purchaseResult,
-      _isActivePurchasing,
+      _purchaseAttempts.contains(productId),
       (errorMessage) async {
         if (mounted) {
           await _dialogHandler.showErrorDialog(errorMessage);
         }
       },
+      productId: productId,
+      attemptId: attemptId,
     );
   }
 
@@ -856,7 +950,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           _buildProductItem(serverProducts[index], storeProducts),
       separatorBuilder: (BuildContext context, int index) =>
           const Divider(color: AppColors.grey200, height: 24),
-      itemCount: storeProducts.length,
+      itemCount: serverProducts.length,
     );
   }
 
@@ -864,9 +958,21 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
   ) {
-    final isButtonEnabled = !_isInitializing && !_isPurchasing;
-    final isCurrentProductLoading =
-        _isPurchasing && _pendingProductId == serverProduct['id'];
+    final productId = serverProduct['id'] as String;
+    final hasStoreProduct = storeProducts.any(
+      (product) => product.id == productId,
+    );
+    final isButtonEnabled =
+        hasStoreProduct &&
+        !_isInitializing &&
+        !_purchaseAttempts.contains(productId);
+    final isCurrentProductLoading = _purchaseAttempts.contains(productId);
+    final campaign = ref
+        .watch(activePromotionCampaignProvider(PromotionSurface.store))
+        .value
+        ?.items
+        .where((item) => item.showInStore)
+        .firstOrNull;
 
     return StoreListTile(
       icon: Image.asset(
@@ -889,6 +995,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           ],
         ),
       ),
+      badge: campaign == null ? null : CandyBoostBadge(campaign: campaign),
       isLoading: isCurrentProductLoading,
       buttonText: '${serverProduct['price']} \$',
       buttonOnPressed: isButtonEnabled

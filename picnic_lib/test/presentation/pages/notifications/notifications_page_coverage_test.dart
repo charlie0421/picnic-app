@@ -22,11 +22,13 @@ void main() {
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget,
       {int pumps = 3}) async {
-    await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
+    // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
+    // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
+    await pumpWidgetAndIgnoreErrors(tester, widget);
     for (var i = 0; i < pumps; i++) {
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     }
   }
 
@@ -368,7 +370,7 @@ void main() {
       expect(markAllBtn, findsOneWidget);
       await tester.tap(markAllBtn);
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
@@ -403,7 +405,7 @@ void main() {
       if (listTile.evaluate().isNotEmpty) {
         await tester.tap(listTile.first);
         await tester.pump(const Duration(seconds: 1));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(NotificationsPage), findsOneWidget);
@@ -424,7 +426,7 @@ void main() {
       await tester.drag(find.byType(ListView), const Offset(0, 300));
       await tester.pump();
       await tester.pump(const Duration(seconds: 2));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(NotificationsPage), findsOneWidget);
     });

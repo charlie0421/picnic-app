@@ -57,12 +57,15 @@ Map<String, dynamic> _voteItemRow({
   };
 }
 
+/// [nullTitle] 은 운영자가 보상 제목을 비워둔 행을 재현한다.
+/// `RewardModel.title` 은 `thumbnail` 과 같은 순수 nullable 컬럼이다.
 Map<String, dynamic> _voteAchieveRow({
   int id = 1,
   int voteId = 1,
   int rewardId = 1,
   int order = 1,
   int amount = 10000,
+  bool nullTitle = false,
 }) {
   return {
     'id': id,
@@ -72,7 +75,7 @@ Map<String, dynamic> _voteAchieveRow({
     'amount': amount,
     'reward': {
       'id': rewardId,
-      'title': {'ko': '포토카드'},
+      'title': nullTitle ? null : {'ko': '포토카드'},
       'thumbnail': null,
     },
     'vote': _voteRow(id: voteId),
@@ -104,11 +107,38 @@ void main() {
     tearDownMockSupabase();
   });
 
+  /// 실제 콘텐츠를 단언하는 테스트용. provider 두 개가 순차로(바깥 → 안쪽)
+  /// 구독되므로 프레임을 몇 번 더 돌려야 둘 다 resolve 된다.
+  ///
+  /// 100ms 씩 굴리는 것은 의도적이다 — 1초를 넘기면 `_updateTimer` 주기와
+  /// `BannerAdWidget._scheduleRetry` 의 취소 불가 재시도가 발화해 테스트 종료
+  /// 시점에 `!timersPending` 단언이 터진다.
+  Future<void> pumpUntilContent(WidgetTester tester, widget) async {
+    await pumpWidgetAndIgnoreErrors(tester, widget);
+    for (var i = 0; i < 4; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+      drainExpectedImageErrors(tester);
+    }
+  }
+
+  /// 콘텐츠가 실제로 그려지면 [BannerAdWidget] 이 마운트되고, 그 `_scheduleRetry`
+  /// 는 취소 불가능한 `Future.delayed` 를 남긴다 (최대 25초). 언마운트한 뒤
+  /// 만료시키지 않으면 테스트 종료 시 `!timersPending` 이 터진다.
+  ///
+  /// 기존 테스트들이 이걸 안 겪는 이유는 1회 pump 로는 페이지가 아직 비어 있어
+  /// 배너 자체가 마운트되지 않기 때문이다.
+  Future<void> settle(WidgetTester tester) async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 30));
+  }
+
   Future<void> pumpAndDrain(WidgetTester tester, widget) async {
-    await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
+    // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
+    // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
+    await pumpWidgetAndIgnoreErrors(tester, widget);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('VoteDetailAchievePage render', () {
@@ -134,7 +164,7 @@ void main() {
         ],
       });
 
-      await pumpAndDrain(
+      await pumpUntilContent(
         tester,
         buildTestAppPage(
           const VoteDetailAchievePage(voteId: 1, votePortal: VotePortal.pic),
@@ -142,6 +172,39 @@ void main() {
       );
 
       expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+      // 페이지가 존재한다는 것만으로는 부족하다. 상세 provider 에 votePortal 을
+      // 넘기지 않으면 `pic_vote` 대신 `vote` 를 조회해 상세가 널로 돌아오고,
+      // 상세가 바깥 게이트이므로 페이지 전체가 SizedBox.shrink() 가 된다.
+      // 위 단언만으로는 그 백지 상태도 그대로 통과한다.
+      expect(find.text('리워드1'), findsOneWidget);
+      expect(find.text('포토카드'), findsOneWidget);
+
+      await settle(tester);
+    });
+
+    testWidgets('reward with null title does not crash the milestone ladder', (
+      WidgetTester tester,
+    ) async {
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': [_voteItemRow(id: 1, voteTotal: 5000)],
+        'vote_achieve': [
+          _voteAchieveRow(id: 1, order: 1, amount: 10000, nullTitle: true),
+        ],
+      });
+
+      await pumpUntilContent(
+        tester,
+        buildTestAppPage(const VoteDetailAchievePage(voteId: 1)),
+      );
+
+      // 제목이 널이면 빈 문자열로 접히고 사다리는 계속 그려져야 한다.
+      // `reward.title!` 로 되돌리면 여기서 널 단언이 터진다.
+      expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+      expect(find.text('리워드1'), findsOneWidget);
+      expect(find.text('포토카드'), findsNothing);
+
+      await settle(tester);
     });
 
     testWidgets('renders logged out state', (WidgetTester tester) async {
@@ -156,22 +219,46 @@ void main() {
       expect(find.byType(VoteDetailAchievePage), findsOneWidget);
     });
 
+    // 이 페이지의 스크롤러는 CustomScrollView 가 아니라 SingleChildScrollView
+    // 다. 예전 버전은 `if (find.byType(CustomScrollView)...isNotEmpty)` 가
+    // 항상 거짓이라 드래그가 한 번도 실행되지 않는 죽은 테스트였다.
     testWidgets('scroll the achieve page', (WidgetTester tester) async {
-      await pumpAndDrain(
+      await pumpUntilContent(
         tester,
         buildTestAppPage(
           const VoteDetailAchievePage(voteId: 1),
         ),
       );
 
-      final scrollable = find.byType(CustomScrollView);
-      if (scrollable.evaluate().isNotEmpty) {
-        await tester.drag(scrollable.first, const Offset(0, -400),
-            warnIfMissed: false);
-        while (tester.takeException() != null) {}
-        await tester.pump(const Duration(milliseconds: 300));
-        while (tester.takeException() != null) {}
-      }
+      // 콘텐츠가 로드된 뒤에만 마일스톤 사다리 스크롤러가 존재한다.
+      expect(find.text('리워드1'), findsOneWidget);
+      final scrollable = find.byType(SingleChildScrollView);
+      expect(scrollable, findsOneWidget);
+
+      final position = tester
+          .state<ScrollableState>(
+            find.descendant(of: scrollable, matching: find.byType(Scrollable)),
+          )
+          .position;
+      expect(
+        position.maxScrollExtent,
+        greaterThan(0),
+        reason: '사다리가 뷰포트보다 길어야 스크롤 자체를 검증할 수 있다',
+      );
+      expect(position.pixels, 0);
+
+      await tester.drag(scrollable, const Offset(0, -300), warnIfMissed: false);
+      drainExpectedImageErrors(tester);
+      await tester.pump(const Duration(milliseconds: 300));
+      drainExpectedImageErrors(tester);
+
+      expect(
+        position.pixels,
+        greaterThan(0),
+        reason: '드래그 후 스크롤 오프셋이 실제로 움직여야 한다',
+      );
+
+      await settle(tester);
     });
 
     testWidgets('timer ticks for countdown', (WidgetTester tester) async {
@@ -185,11 +272,11 @@ void main() {
       // Pump multiple times to simulate timer ticks
       for (int i = 0; i < 3; i++) {
         await tester.pump(const Duration(seconds: 1));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
       // Pump with zero duration to let confetti/animation controllers settle
       await tester.pump(Duration.zero);
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteDetailAchievePage), findsOneWidget);
     }, skip: true);
@@ -210,7 +297,7 @@ void main() {
         ],
       });
 
-      await pumpAndDrain(
+      await pumpUntilContent(
         tester,
         buildTestAppPage(
           const VoteDetailAchievePage(voteId: 1),
@@ -219,15 +306,17 @@ void main() {
 
       expect(find.byType(VoteDetailAchievePage), findsOneWidget);
 
-      // Scroll down through milestones
-      final scrollable = find.byType(CustomScrollView);
-      if (scrollable.evaluate().isNotEmpty) {
-        await tester.drag(scrollable.first, const Offset(0, -600),
-            warnIfMissed: false);
-        while (tester.takeException() != null) {}
-        await tester.pump(const Duration(milliseconds: 200));
-        while (tester.takeException() != null) {}
-      }
+      // Scroll down through milestones (스크롤러는 SingleChildScrollView 다 —
+      // CustomScrollView 를 찾던 예전 if 블록은 한 번도 실행되지 않았다)
+      await tester.drag(find.byType(SingleChildScrollView),
+          const Offset(0, -600),
+          warnIfMissed: false);
+      drainExpectedImageErrors(tester);
+      await tester.pump(const Duration(milliseconds: 200));
+      drainExpectedImageErrors(tester);
+      expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+
+      await settle(tester);
     });
 
     testWidgets('renders with ended vote in achieve page',
@@ -319,26 +408,26 @@ void main() {
         ],
       });
 
-      await pumpAndDrain(
+      await pumpUntilContent(
         tester,
         buildTestAppPage(
           const VoteDetailAchievePage(voteId: 1),
         ),
       );
 
-      // Scroll to see all milestones
-      final scrollable = find.byType(CustomScrollView);
-      if (scrollable.evaluate().isNotEmpty) {
-        for (int i = 0; i < 3; i++) {
-          await tester.drag(scrollable.first, const Offset(0, -400),
-              warnIfMissed: false);
-          while (tester.takeException() != null) {}
-          await tester.pump(const Duration(milliseconds: 200));
-          while (tester.takeException() != null) {}
-        }
+      // Scroll to see all milestones (스크롤러는 SingleChildScrollView 다)
+      for (int i = 0; i < 3; i++) {
+        await tester.drag(find.byType(SingleChildScrollView),
+            const Offset(0, -400),
+            warnIfMissed: false);
+        drainExpectedImageErrors(tester);
+        await tester.pump(const Duration(milliseconds: 200));
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+
+      await settle(tester);
     });
 
     testWidgets('renders with upcoming vote in achieve page',
@@ -411,9 +500,9 @@ void main() {
           const SizedBox(),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(milliseconds: 300));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     });
 
     testWidgets('renders with English locale',
@@ -471,22 +560,11 @@ void main() {
       expect(find.byType(VoteDetailAchievePage), findsOneWidget);
     });
 
-    testWidgets('pull to refresh', (WidgetTester tester) async {
-      await pumpAndDrain(
-        tester,
-        buildTestAppPage(
-          const VoteDetailAchievePage(voteId: 1),
-        ),
-      );
-
-      final scrollable = find.byType(CustomScrollView);
-      if (scrollable.evaluate().isNotEmpty) {
-        await tester.drag(scrollable.first, const Offset(0, 300),
-            warnIfMissed: false);
-        while (tester.takeException() != null) {}
-        await tester.pump(const Duration(milliseconds: 500));
-        while (tester.takeException() != null) {}
-      }
-    });
+    // NOTE: 'pull to refresh' 테스트는 삭제했다. 이 페이지에는
+    // RefreshIndicator 가 없어서(형제 페이지 vote_detail_page.dart:485 에는
+    // 있다) 검증할 동작 자체가 존재하지 않는다 — 예전 테스트는
+    // CustomScrollView 를 찾는 항상-거짓 if 로 감싸여 아무것도 실행하지 않는
+    // 죽은 테스트였다. 이 페이지도 당겨서 새로고침을 지원해야 하는지는
+    // 테스트가 아니라 제품 결정이므로, 기능 추가 대신 리포트로 남긴다.
   });
 }

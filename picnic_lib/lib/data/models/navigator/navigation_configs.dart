@@ -9,8 +9,9 @@ import 'package:picnic_lib/presentation/pages/community/community_my_page.dart';
 import 'package:picnic_lib/presentation/pages/community/goonghap_list_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/home_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_media_list_page.dart';
 
 class NavigationConfigs {
@@ -20,17 +21,17 @@ class NavigationConfigs {
       color: voteMainColor,
       pages: const [
         BottomNavigationItem(
-          title: 'nav_vote',
-          assetPath: 'assets/icons/bottom/vote.svg',
+          title: 'nav_home',
+          assetPath: 'assets/icons/bottom/home.svg',
           index: 0,
-          pageWidget: VoteHomePage(),
+          pageWidget: HomePage(),
           needLogin: false,
         ),
         BottomNavigationItem(
-          title: 'nav_community',
-          assetPath: 'assets/icons/bottom/community.svg',
+          title: 'nav_vote',
+          assetPath: 'assets/icons/bottom/vote.svg',
           index: 1,
-          pageWidget: CommunityHomePage(),
+          pageWidget: VoteListPage(),
           needLogin: false,
         ),
         BottomNavigationItem(

@@ -9,9 +9,9 @@ import 'package:picnic_lib/presentation/pages/community/community_my_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/pic_chart_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/home_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_media_list_page.dart';
 
 ScreenInfo voteScreenInfo = ScreenInfo(
@@ -46,17 +46,17 @@ ScreenInfo mypageScreenInfo = ScreenInfo(
 
 List<BottomNavigationItem> votePages = [
   const BottomNavigationItem(
-    title: 'nav_vote',
-    assetPath: 'assets/icons/bottom/vote.svg',
+    title: 'nav_home',
+    assetPath: 'assets/icons/bottom/home.svg',
     index: 0,
-    pageWidget: VoteHomePage(),
+    pageWidget: HomePage(),
     needLogin: false,
   ),
   const BottomNavigationItem(
-    title: 'nav_picchart',
-    assetPath: 'assets/icons/bottom/pic_chart.svg',
+    title: 'nav_vote',
+    assetPath: 'assets/icons/bottom/vote.svg',
     index: 1,
-    pageWidget: PicChartPage(),
+    pageWidget: VoteListPage(),
     needLogin: false,
   ),
   const BottomNavigationItem(

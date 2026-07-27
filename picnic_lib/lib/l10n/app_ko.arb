@@ -620,6 +620,10 @@
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
+  "label_home_current_vote": "현재 진행중인 투표",
+  "@label_home_current_vote": {
+    "description": "Auto-generated metadata for key 'label_home_current_vote'."
+  },
   "label_input_input": "입력",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
@@ -1398,6 +1402,14 @@
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
+  "text_vote_gap_behind_leader": "1위와 {gap}표 차이!",
+  "@text_vote_gap_behind_leader": {
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
   "text_vote_rank": "순위 {rank}",
   "@text_vote_rank": {
     "description": "Auto-generated metadata for key 'text_vote_rank'.",
@@ -1816,9 +1828,9 @@
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
-  "bonus_candy_earn_period_1_to_15": "01일 00:00:00(KST) ~ 14일 23:59:59(KST)",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  "bonus_candy_earn_period_1_to_14": "01일 00:00:00(KST) ~ 14일 23:59:59(KST)",
+  "@bonus_candy_earn_period_1_to_14": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_14'."
   },
   "goonghap_snackbar_need_birthday": "생년월일을 입력해주세요.",
   "@goonghap_snackbar_need_birthday": {
@@ -1957,15 +1969,15 @@
       }
     }
   },
-  "bonus_candy_earn_period_16_to_end": "15일 00:00:00(KST) ~ 말일 23:59:59(KST)",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  "bonus_candy_earn_period_15_to_end": "15일 00:00:00(KST) ~ 말일 23:59:59(KST)",
+  "@bonus_candy_earn_period_15_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'."
   },
   "error_message_withdrawal": "탈퇴한 회원입니다.",
   "@error_message_withdrawal": {
     "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
-  "text_achievement": "🎉 지금까지 ${count}개의 목표를 달성했습니다! 🎉",
+  "text_achievement": "🎉 지금까지 {count}개의 목표를 달성했습니다! 🎉",
   "@text_achievement": {
     "description": "Auto-generated metadata for key 'text_achievement'.",
     "placeholders": {
@@ -2505,5 +2517,67 @@
   "button_cs_inquiry": "고객센터 문의",
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
+  },
+  "wallet_star_candy": "스타캔디",
+  "wallet_bonus_star_candy": "보너스 스타캔디",
+  "wallet_cotton_candy": "코튼캔디",
+  "wallet_cotton_expires_today": "오늘 만료 {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "서버 지갑 스냅샷에서 오늘 만료되는 코튼캔디 수량",
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "wallet_cotton_next_expiry": "다음 만료 {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "서버 지갑 스냅샷의 다음 코튼캔디 만료 시각",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "wallet_load_failed": "지갑 정보를 불러오지 못했습니다.",
+  "wallet_history_title": "캔디 내역",
+  "wallet_history_empty": "아직 내역이 없습니다.",
+  "candy_boost_day": "캔디 부스트 데이",
+  "candy_boost_exact_double": "기본 지급 + 추가 보너스 100%",
+  "candy_boost_extra_bonus": "기본 지급 + 추가 보너스",
+  "candy_boost_promotion_checking": "프로모션 확인 중",
+  "candy_boost_purchase_pending": "동일 상품의 구매가 처리 중입니다.",
+  "candy_boost_late_purchase_explanation": "인증에 예상보다 오래 걸렸지만 구매가 정상적으로 완료되었습니다.",
+  "ad_reward_pending": "보상을 확인하고 있어요",
+  "ad_reward_granted": "코튼캔디를 받았어요",
+  "ad_reward_not_granted": "보상이 지급되지 않았어요",
+  "candy_reward_receipt_title": "캔디가 적립됐어요!",
+  "candy_reward_receipt_confirm": "확인",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "candy_reward_receipt_balance": "현재 보유 {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "candy_reward_receipt_balance_unavailable": "잔액은 잠시 후 갱신돼요",
+  "candy_reward_receipt_expiry": "{date} 만료",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "candy_reward_receipt_semantics": "{currency}, {granted} 적립, 현재 보유 {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "granted": {"type": "String"},
+      "balance": {"type": "String"}
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}, {granted} 적립, 잔액은 잠시 후 갱신",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "granted": {"type": "String"}
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}, {expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {"type": "String"},
+      "expiry": {"type": "String"}
+    }
   }
 }

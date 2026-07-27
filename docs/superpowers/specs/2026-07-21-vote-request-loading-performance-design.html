@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>투표 신청 데이터 로딩 성능 검증 설계</title>
+  <style>
+    body { max-width: 900px; margin: 40px auto; padding: 0 24px; font: 16px/1.7 system-ui, sans-serif; color: #202124; }
+    h1, h2 { line-height: 1.3; }
+    code { padding: 2px 5px; border-radius: 4px; background: #f1f3f4; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #dadce0; text-align: left; vertical-align: top; }
+    .note { padding: 14px 16px; border-left: 4px solid #1a73e8; background: #f8fbff; }
+  </style>
+</head>
+<body>
+  <h1>Task 39.9: 투표 신청 데이터 로딩 성능 검증 설계</h1>
+
+  <p><strong>대상:</strong> <code>VoteItemRequestService</code>의 검색 결과 enrichment 배치 처리<br>
+     <strong>제약:</strong> 실제 DB·네트워크·RLS를 변경하거나 호출하지 않는다.</p>
+
+  <h2>1. 현재 구조</h2>
+  <ul>
+    <li>UI 검색 페이지 크기는 20명이며, 결과를 먼저 표시한 뒤 신청 정보를 백그라운드에서 enrichment한다.</li>
+    <li>enrichment는 최대 50명씩 나누며 로그인 사용자는 배치당 3개, 비로그인 사용자는 2개 쿼리를 병렬 시작한다.</li>
+    <li>50명 초과 배치는 순차 처리하므로 100명은 로그인 기준 최대 6개 쿼리가 필요하다.</li>
+    <li>응답 행 필터링에 이름 <code>List.contains</code>를 반복해 데이터 증가 시 선형 lookup 비용이 중첩된다.</li>
+  </ul>
+
+  <h2>2. 선택한 접근</h2>
+  <table>
+    <thead><tr><th>영역</th><th>설계</th></tr></thead>
+    <tbody>
+      <tr><td>배치 계획</td><td>기존 pure helper의 <code>splitIntoBatches</code>를 운영 서비스가 직접 사용한다. 기본 batch size는 50을 유지한다.</td></tr>
+      <tr><td>구조 검증</td><td>0·1·50·51·100·120명에 대한 배치 개수, 최대 크기, 누락·중복 부재를 결정적으로 검증한다.</td></tr>
+      <tr><td>쿼리 상한</td><td><code>ceil(artistCount / 50) × (로그인 3 / 비로그인 2)</code>를 helper로 계산하고 경계값을 테스트한다.</td></tr>
+      <tr><td>lookup</td><td>배치 내 아티스트 이름을 <code>Set&lt;String&gt;</code>으로 수집해 응답 행 membership lookup을 평균 O(1)로 변경한다.</td></tr>
+      <tr><td>시간 측정</td><td>CI pass/fail에 Stopwatch 절대 시간을 사용하지 않는다. mock 시간은 Supabase·기기 성능을 대표하지 못한다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 변경 경계</h2>
+  <ul>
+    <li><code>vote_item_request_service_helper.dart</code>: batch size 상수와 구조적 쿼리 수 계산 함수</li>
+    <li><code>vote_item_request_service.dart</code>: helper 기반 배치 분할과 Set lookup 사용</li>
+    <li><code>vote_item_request_service_helper_test.dart</code>: 경계·상한·데이터 보존 테스트</li>
+  </ul>
+
+  <h2>4. 하지 않는 것</h2>
+  <ul>
+    <li>서버 RPC, view, index, RLS, migration 변경</li>
+    <li>배치 병렬 실행으로 DB 부하를 늘리는 변경</li>
+    <li>실제 latency, payload byte, p95를 mock 결과로 주장</li>
+    <li>현재 호출되지 않는 legacy N+1 경로의 별도 리팩터링</li>
+  </ul>
+
+  <h2>5. 후속 운영 측정</h2>
+  <div class="note">
+    실제 최적화가 필요하면 staging에서 검색과 enrichment를 분리 측정하고, 반환 row·byte,
+    cold/warm p50·p95, 전체 투표 row 증가에 따른 변화, DB EXPLAIN과 index를 확인한다.
+    문제가 확인될 때만 artist_id 필터 또는 서버 집계 RPC를 별도 설계한다.
+  </div>
+
+  <h2>6. 완료 조건</h2>
+  <ul>
+    <li>운영 서비스가 검증된 batch helper를 사용한다.</li>
+    <li>0·50·51·100 경계에서 배치와 쿼리 상한 테스트가 통과한다.</li>
+    <li>lookup 입력이 Set으로 구성되고 동작 결과가 유지된다.</li>
+    <li>관련 서비스·helper 테스트와 정적 분석이 통과한다.</li>
+    <li>실제 DB와 원격 설정에는 변경이 없다.</li>
+  </ul>
+</body>
+</html>

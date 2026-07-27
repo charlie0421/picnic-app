@@ -28,19 +28,6 @@ class VoteHomeHelper {
   }
 
   // ---------------------------------------------------------------------------
-  // Query area resolution
-  // ---------------------------------------------------------------------------
-
-  /// When the user selects "pic-chart" the actual query area sent to the
-  /// backend must be `'all'`. For every other area the value is passed through.
-  static String resolveQueryArea(String area) {
-    return area == 'pic-chart' ? 'all' : area;
-  }
-
-  /// Returns `true` when the selected area is the PIC-CHART virtual area.
-  static bool isPicChart(String area) => area == 'pic-chart';
-
-  // ---------------------------------------------------------------------------
   // Deduplication
   // ---------------------------------------------------------------------------
 
@@ -60,28 +47,6 @@ class VoteHomeHelper {
   // ---------------------------------------------------------------------------
   // Category filtering
   // ---------------------------------------------------------------------------
-
-  /// Filter votes depending on the selected area.
-  ///
-  /// * **pic-chart** – keep only votes whose category contains `image` or
-  ///   `weekly`.
-  /// * **specific area** (e.g. `kpop`, `musical`) – exclude votes whose
-  ///   category contains `image` or `weekly`.
-  /// * **all** – no filtering; every vote passes through.
-  static List<VoteModel> filterByArea(List<VoteModel> votes, String area) {
-    if (area == 'pic-chart') {
-      return votes.where((v) {
-        final cat = (v.voteCategory ?? '').toLowerCase();
-        return cat.contains('image') || cat.contains('weekly');
-      }).toList();
-    } else if (area != 'all') {
-      return votes.where((v) {
-        final cat = (v.voteCategory ?? '').toLowerCase();
-        return !(cat.contains('image') || cat.contains('weekly'));
-      }).toList();
-    }
-    return votes;
-  }
 
   /// Returns `true` when a vote's category is considered an image/weekly type.
   static bool isImageOrWeeklyCategory(String? voteCategory) {
@@ -176,22 +141,5 @@ class VoteHomeHelper {
   /// Calculate the target cache size after a partial eviction.
   static int targetCacheSize(int maximumBytes) {
     return (maximumBytes * cacheTargetRatio).round();
-  }
-
-  // ---------------------------------------------------------------------------
-  // Combined pipeline (matches _fetch logic)
-  // ---------------------------------------------------------------------------
-
-  /// Execute the full post-fetch pipeline: deduplicate, filter, sort, slice.
-  static List<VoteModel> processFetchResults({
-    required List<VoteModel> voteItems,
-    required List<VoteModel> picItems,
-    required String area,
-    int size = pageSize,
-  }) {
-    var combined = deduplicateVotes(voteItems, picItems);
-    combined = filterByArea(combined, area);
-    combined = sortByStopAtAsc(combined);
-    return takePageSlice(combined, size);
   }
 }

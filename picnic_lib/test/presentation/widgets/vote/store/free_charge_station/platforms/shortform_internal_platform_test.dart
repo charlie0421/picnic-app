@@ -194,31 +194,6 @@ void main() {
     });
   });
 
-  group('Error retry logic', () {
-    test('detects expired token error', () {
-      bool shouldRetry(String errorMessage) {
-        final msg = errorMessage.toLowerCase();
-        return msg.contains('expired') || msg.contains('bad request');
-      }
-
-      expect(shouldRetry('Token expired'), isTrue);
-      expect(shouldRetry('Bad Request'), isTrue);
-      expect(shouldRetry('Network timeout'), isFalse);
-      expect(shouldRetry(''), isFalse);
-    });
-
-    test('retry only happens once after reissue', () {
-      int retryCount = 0;
-      const maxRetries = 1;
-
-      bool canRetry() => retryCount < maxRetries;
-
-      expect(canRetry(), isTrue);
-      retryCount++;
-      expect(canRetry(), isFalse);
-    });
-  });
-
   group('Video progress tracking', () {
     test('view called when position reaches duration', () {
       bool viewCalled = false;

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
@@ -25,8 +24,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      // 구분자 좌우 여백은 이제 문자열의 공백이 아니라 레이아웃(Padding)이 낸다.
+      // 공백으로 여백을 내면 폰트/텍스트 배율에 따라 행 폭이 널뛴다 —
+      // 그래서 카드 안에서 가로로 넘쳤다(countdown_timer.dart 참고).
       // Should render time separators
-      expect(find.text(' : '), findsWidgets);
+      expect(find.text(':'), findsWidgets);
       expect(find.byType(CountdownTimer), findsOneWidget);
     });
 
@@ -44,7 +46,7 @@ void main() {
 
       expect(find.byType(CountdownTimer), findsOneWidget);
       // Should show upcoming label and time
-      expect(find.text(' : '), findsWidgets);
+      expect(find.text(':'), findsWidgets);
     });
 
     testWidgets('renders end status text', (tester) async {
@@ -61,7 +63,7 @@ void main() {
 
       expect(find.byType(CountdownTimer), findsOneWidget);
       // End status should NOT show time separators
-      expect(find.text(' : '), findsNothing);
+      expect(find.text(':'), findsNothing);
     });
 
     testWidgets('renders with past end time shows zero', (tester) async {
@@ -109,7 +111,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should show 'D' unit for days
-      expect(find.text(' D '), findsOneWidget);
+      expect(find.text('D'), findsOneWidget);
     });
 
     testWidgets('timer updates every second', (tester) async {

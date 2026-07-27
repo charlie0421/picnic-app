@@ -1,0 +1,9 @@
+{
+  "contract_version": "wallet.v1",
+  "star": "9007199254740993",
+  "bonus": "250",
+  "cotton": "40",
+  "cotton_expiring_amount": "10",
+  "cotton_next_expires_at": "2026-07-22T00:00:00.000Z",
+  "snapshot_at": "2026-07-21T00:00:00.000Z"
+}

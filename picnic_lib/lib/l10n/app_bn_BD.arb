@@ -1191,6 +1191,14 @@
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
+  "text_vote_gap_behind_leader": "১ম স্থান থেকে {gap} ভোট পিছিয়ে!",
+  "@text_vote_gap_behind_leader": {
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
   "text_vote_rank": "র‌্যাঙ্ক {rank}",
   "@text_vote_rank": {
     "placeholders": {
@@ -1674,9 +1682,9 @@
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
-  "bonus_candy_earn_period_1_to_15": "1 ম 00:00:00 ~ 15 ম 23:59:59",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  "bonus_candy_earn_period_1_to_14": "১ম 00:00:00 ~ ১৪তম 23:59:59",
+  "@bonus_candy_earn_period_1_to_14": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_14'."
   },
   "goonghap_snackbar_need_birthday": "আপনার জন্ম তারিখ লিখুন দয়া করে।",
   "@goonghap_snackbar_need_birthday": {
@@ -1809,9 +1817,9 @@
       }
     }
   },
-  "bonus_candy_earn_period_16_to_end": "16 তম 00:00:00 ~ মাসের শেষ 23:59:59",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  "bonus_candy_earn_period_15_to_end": "১৫তম 00:00:00 ~ মাসের শেষ 23:59:59",
+  "@bonus_candy_earn_period_15_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'."
   },
   "error_message_withdrawal": "একজন সদস্য যিনি সাবস্ক্রাইব করেছেন।",
   "@error_message_withdrawal": {
@@ -1962,15 +1970,15 @@
     "description": "সাপ্তাহিক ভোট তথ্য পপআপ শিরোনাম (BD)"
   },
   "weekly_vote_info_body": "পিকনিকের Hall of Fame Award প্রতি সপ্তাহে অনুষ্ঠিত হয়!\n\nপ্রতি সপ্তাহের বিজয়ী বছরশেষের 'Hall of Fame Award'-এর প্রার্থী হিসেবে স্বয়ংক্রিয়ভাবে নিবন্ধিত হয়,\n\nএবং বছরে মোট ৫০ জন সাপ্তাহিক বিজয়ী নির্বাচিত হয়।\n\n(※ একটি শিল্পী একবার জিতলে, সেই বছরে সাপ্তাহিক ভোটের প্রার্থী থেকে বাদ দেওয়া হয়।)",
-  "label_setting_patch_section_title": "Patch status",
+  "label_setting_patch_section_title": "প্যাচের অবস্থা",
   "@label_setting_patch_section_title": {
     "description": "Title for the patch status section in Settings."
   },
-  "label_setting_patch_check_button": "Check for patches",
+  "label_setting_patch_check_button": "প্যাচ চেক করুন",
   "@label_setting_patch_check_button": {
     "description": "Button label for manually checking Shorebird patches."
   },
-  "label_setting_patch_apply_button": "Apply update",
+  "label_setting_patch_apply_button": "আপডেট প্রয়োগ করুন",
   "@label_setting_patch_apply_button": {
     "description": "Button label for manually applying a downloaded patch."
   },
@@ -1978,7 +1986,7 @@
   "@label_setting_patch_checking": {
     "description": "Status text shown while patch status check is running."
   },
-  "label_setting_patch_last_checked": "Last checked: {time}",
+  "label_setting_patch_last_checked": "সর্বশেষ চেক: {time}",
   "@label_setting_patch_last_checked": {
     "description": "Label that shows when the patch status was last checked.",
     "placeholders": {
@@ -1991,15 +1999,15 @@
   "@label_setting_patch_status_restart_required": {
     "description": "Status label when a restart is required to apply a patch."
   },
-  "label_setting_patch_status_downloaded": "Update downloaded",
+  "label_setting_patch_status_downloaded": "আপডেট ডাউনলোড সম্পন্ন",
   "@label_setting_patch_status_downloaded": {
     "description": "Status label when a patch has been downloaded."
   },
-  "label_setting_patch_status_available": "Update available",
+  "label_setting_patch_status_available": "আপডেট উপলব্ধ",
   "@label_setting_patch_status_available": {
     "description": "Status label when a patch is available."
   },
-  "label_setting_patch_status_current_patch": "Current patch: {patchNumber}",
+  "label_setting_patch_status_current_patch": "বর্তমান প্যাচ: {patchNumber}",
   "@label_setting_patch_status_current_patch": {
     "description": "Status label showing the current patch number.",
     "placeholders": {
@@ -2008,7 +2016,7 @@
       }
     }
   },
-  "label_setting_patch_status_none": "No patch applied",
+  "label_setting_patch_status_none": "কোনো প্যাচ প্রয়োগ করা হয়নি",
   "@label_setting_patch_status_none": {
     "description": "Status label when no patch is applied."
   },
@@ -2020,11 +2028,11 @@
   "@message_setting_patch_restart_hint_ios": {
     "description": "iOS-specific hint for restarting the app to apply patch"
   },
-  "message_setting_patch_web_not_supported": "Patch updates aren't available on web.",
+  "message_setting_patch_web_not_supported": "ওয়েব পরিবেশে প্যাচ ব্যবহার করা যায় না।",
   "@message_setting_patch_web_not_supported": {
     "description": "Warning shown when patch actions are attempted on web platforms."
   },
-  "message_setting_patch_update_available": "A new patch is available.",
+  "message_setting_patch_update_available": "একটি নতুন প্যাচ উপলব্ধ আছে।",
   "@message_setting_patch_update_available": {
     "description": "Snackbar text when a patch update is available."
   },
@@ -2032,7 +2040,7 @@
   "@message_setting_patch_update_success": {
     "description": "Snackbar text when a patch update completes successfully."
   },
-  "message_setting_patch_update_failed": "Failed to apply the patch: {error}",
+  "message_setting_patch_update_failed": "প্যাচ প্রয়োগ করতে ব্যর্থ হয়েছে: {error}",
   "@message_setting_patch_update_failed": {
     "description": "Snackbar text when applying a patch fails.",
     "placeholders": {
@@ -2041,7 +2049,7 @@
       }
     }
   },
-  "message_setting_patch_status_failed": "Failed to check patch status: {error}",
+  "message_setting_patch_status_failed": "প্যাচের অবস্থা চেক করতে ব্যর্থ হয়েছে: {error}",
   "@message_setting_patch_status_failed": {
     "description": "Snackbar text when checking patch status fails.",
     "placeholders": {
@@ -2050,11 +2058,11 @@
       }
     }
   },
-  "message_setting_patch_status_unavailable": "Patch status unavailable. Please try again later.",
+  "message_setting_patch_status_unavailable": "প্যাচের অবস্থা চেক করা যাচ্ছে না। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
   "@message_setting_patch_status_unavailable": {
     "description": "Snackbar text when patch status is unavailable (e.g., offline)."
   },
-  "message_setting_patch_up_to_date": "You're already on the latest patch.",
+  "message_setting_patch_up_to_date": "আপনি ইতিমধ্যে সর্বশেষ প্যাচ ব্যবহার করছেন।",
   "@message_setting_patch_up_to_date": {
     "description": "Snackbar text when the user is already on the latest patch."
   },
@@ -2090,7 +2098,7 @@
   "@notification_patch_downloaded_body": {
     "description": "Local push notification body when a patch has been downloaded."
   },
-  "label_setting_patch_number": " / Patch: {patchNumber}",
+  "label_setting_patch_number": " / প্যাচ: {patchNumber}",
   "@label_setting_patch_number": {
     "description": "Suffix appended to build information to show the current patch number.",
     "placeholders": {

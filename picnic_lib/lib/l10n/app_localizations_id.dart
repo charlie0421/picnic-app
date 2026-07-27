@@ -444,6 +444,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_hint_comment => 'Tinggalkan komentar.';
 
   @override
+  String get label_home_current_vote => 'Current Vote';
+
+  @override
   String get label_input_input => 'Masukan';
 
   @override
@@ -946,6 +949,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_vote_complete => 'Pemungutan suara selesai';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return '$gap suara di belakang #1';
+  }
+
+  @override
   String text_vote_rank(int rank) {
     return 'Rank $rank';
   }
@@ -1325,7 +1333,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Persetujuan atas persyaratan telah selesai.';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 =>
+  String get bonus_candy_earn_period_1_to_14 =>
       '01 00:00:00 ~ 14 23:59:59 (KST)';
 
   @override
@@ -1427,7 +1435,7 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
+  String get bonus_candy_earn_period_15_to_end =>
       '15 00:00:00 ~ Akhir bulan 23:59:59 (KST)';
 
   @override
@@ -1870,4 +1878,111 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get button_cs_inquiry => 'Hubungi Support';
+
+  @override
+  String get wallet_star_candy => 'Star Candy';
+
+  @override
+  String get wallet_bonus_star_candy => 'Bonus Star Candy';
+
+  @override
+  String get wallet_cotton_candy => 'Cotton Candy';
+
+  @override
+  String wallet_cotton_expires_today(String amount) {
+    return 'Expires today: $amount';
+  }
+
+  @override
+  String wallet_cotton_next_expiry(String date) {
+    return 'Next expiry: $date';
+  }
+
+  @override
+  String get wallet_load_failed => 'Could not load wallet.';
+
+  @override
+  String get wallet_history_title => 'Candy history';
+
+  @override
+  String get wallet_history_empty => 'No history yet.';
+
+  @override
+  String get candy_boost_day => 'Candy Boost Day';
+
+  @override
+  String get candy_boost_exact_double => 'Base reward + 100% extra bonus';
+
+  @override
+  String get candy_boost_extra_bonus => 'Base reward + extra bonus';
+
+  @override
+  String get candy_boost_promotion_checking => 'Promotion review in progress';
+
+  @override
+  String get candy_boost_purchase_pending =>
+      'A purchase for this product is already being processed.';
+
+  @override
+  String get candy_boost_late_purchase_explanation =>
+      'Authentication took longer than expected, but the purchase completed successfully.';
+
+  @override
+  String get ad_reward_pending => 'Checking your reward';
+
+  @override
+  String get ad_reward_granted => 'Cotton Candy received';
+
+  @override
+  String get ad_reward_not_granted => 'The reward was not granted';
+
+  @override
+  String get candy_reward_receipt_title => 'Candy added!';
+
+  @override
+  String get candy_reward_receipt_confirm => 'Confirm';
+
+  @override
+  String candy_reward_receipt_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String candy_reward_receipt_balance(String amount) {
+    return 'Current balance $amount';
+  }
+
+  @override
+  String get candy_reward_receipt_balance_unavailable =>
+      'Balance will refresh shortly';
+
+  @override
+  String candy_reward_receipt_expiry(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String candy_reward_receipt_semantics(
+    String currency,
+    String granted,
+    String balance,
+  ) {
+    return '$currency, added $granted, current balance $balance';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_balance_unavailable(
+    String currency,
+    String granted,
+  ) {
+    return '$currency, added $granted, balance will refresh shortly';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_with_expiry(
+    String receipt,
+    String expiry,
+  ) {
+    return '$receipt, $expiry';
+  }
 }

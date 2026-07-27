@@ -372,7 +372,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String label_ads_limits(int hourly, int daily) {
-    return '$hourly တစ်နာရီလျှင် ';
+    return 'တစ်နာရီလျှင် $hourly ကြိမ်၊ တစ်နေ့လျှင် $daily ကြိမ်';
   }
 
   @override
@@ -448,6 +448,9 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get label_hint_comment => 'မှတ်ချက်ချန်ထားပါ။';
+
+  @override
+  String get label_home_current_vote => 'Current Vote';
 
   @override
   String get label_input_input => 'အင်ပွတ်ပြုလုပ်';
@@ -951,8 +954,13 @@ class AppLocalizationsMy extends AppLocalizations {
   String get text_vote_complete => 'အပြည့်အဝမဲပေး';
 
   @override
+  String text_vote_gap_behind_leader(String gap) {
+    return 'ပထမနေရာထက် မဲ $gap မဲ နောက်ကျနေသည်!';
+  }
+
+  @override
   String text_vote_rank(int rank) {
-    return '__phph_0__ အဆင့်';
+    return 'အဆင့် $rank';
   }
 
   @override
@@ -1329,8 +1337,8 @@ class AppLocalizationsMy extends AppLocalizations {
       'စည်းကမ်းချက်များကိုလက်ခံခြင်းသည်ပြီးပြည့်စုံသည်။';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 =>
-      '၁ ရက် ၀၀:၀၀:၀၀ ~ ၁၅ ရက် ၂၃:၅၉:၅၉';
+  String get bonus_candy_earn_period_1_to_14 =>
+      '၁ ရက် ၀၀:၀၀:၀၀ ~ ၁၄ ရက် ၂၃:၅၉:၅၉';
 
   @override
   String get goonghap_snackbar_need_birthday =>
@@ -1434,8 +1442,8 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
-  String get bonus_candy_earn_period_16_to_end =>
-      '၁၆ ရက် ၀၀:၀၀:၀၀ ~ လကုန် ၂၃:၅၉:၅၉';
+  String get bonus_candy_earn_period_15_to_end =>
+      '၁၅ ရက် ၀၀:၀၀:၀၀ ~ လကုန် ၂၃:၅၉:၅၉';
 
   @override
   String get error_message_withdrawal =>
@@ -1443,7 +1451,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String text_achievement(int count) {
-    return '__ \$ __ ph_0__ ဂိုးများကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉';
+    return '$count ပန်းတိုင်များကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉';
   }
 
   @override
@@ -1486,7 +1494,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String post_replying_comment(String nickname) {
-    return '__ph_0 __... တုံ့ပြန်ခြင်း';
+    return '$nickname... တုံ့ပြန်ခြင်း';
   }
 
   @override
@@ -1876,4 +1884,111 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get button_cs_inquiry => 'Customer Support သို့ ဆက်သွယ်ပါ';
+
+  @override
+  String get wallet_star_candy => 'Star Candy';
+
+  @override
+  String get wallet_bonus_star_candy => 'Bonus Star Candy';
+
+  @override
+  String get wallet_cotton_candy => 'Cotton Candy';
+
+  @override
+  String wallet_cotton_expires_today(String amount) {
+    return 'Expires today: $amount';
+  }
+
+  @override
+  String wallet_cotton_next_expiry(String date) {
+    return 'Next expiry: $date';
+  }
+
+  @override
+  String get wallet_load_failed => 'Could not load wallet.';
+
+  @override
+  String get wallet_history_title => 'Candy history';
+
+  @override
+  String get wallet_history_empty => 'No history yet.';
+
+  @override
+  String get candy_boost_day => 'Candy Boost Day';
+
+  @override
+  String get candy_boost_exact_double => 'Base reward + 100% extra bonus';
+
+  @override
+  String get candy_boost_extra_bonus => 'Base reward + extra bonus';
+
+  @override
+  String get candy_boost_promotion_checking => 'Promotion review in progress';
+
+  @override
+  String get candy_boost_purchase_pending =>
+      'A purchase for this product is already being processed.';
+
+  @override
+  String get candy_boost_late_purchase_explanation =>
+      'Authentication took longer than expected, but the purchase completed successfully.';
+
+  @override
+  String get ad_reward_pending => 'Checking your reward';
+
+  @override
+  String get ad_reward_granted => 'Cotton Candy received';
+
+  @override
+  String get ad_reward_not_granted => 'The reward was not granted';
+
+  @override
+  String get candy_reward_receipt_title => 'Candy added!';
+
+  @override
+  String get candy_reward_receipt_confirm => 'Confirm';
+
+  @override
+  String candy_reward_receipt_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String candy_reward_receipt_balance(String amount) {
+    return 'Current balance $amount';
+  }
+
+  @override
+  String get candy_reward_receipt_balance_unavailable =>
+      'Balance will refresh shortly';
+
+  @override
+  String candy_reward_receipt_expiry(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String candy_reward_receipt_semantics(
+    String currency,
+    String granted,
+    String balance,
+  ) {
+    return '$currency, added $granted, current balance $balance';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_balance_unavailable(
+    String currency,
+    String granted,
+  ) {
+    return '$currency, added $granted, balance will refresh shortly';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_with_expiry(
+    String receipt,
+    String expiry,
+  ) {
+    return '$receipt, $expiry';
+  }
 }

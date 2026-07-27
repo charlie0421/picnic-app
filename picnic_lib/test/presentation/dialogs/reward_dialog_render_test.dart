@@ -40,10 +40,12 @@ void main() {
   }
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
-    await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
+    // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
+    // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
+    await pumpWidgetAndIgnoreErrors(tester, widget);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('RewardDialog render', () {
@@ -130,6 +132,27 @@ void main() {
       await pumpAndDrain(tester, buildTestApp(RewardDialog(data: reward)));
 
       expect(find.byType(RewardDialog), findsOneWidget);
+    });
+
+    testWidgets('reward with null title renders instead of crashing', (
+      WidgetTester tester,
+    ) async {
+      // `RewardModel.title` 은 순수 nullable DB 컬럼이다 — 운영자가 제목을
+      // 비워두면 실제로 널이 온다. `widget.data.title!` 로 되돌리면 다이얼로그
+      // 전체가 RenderErrorBox 가 되어 여기서 널 단언이 터진다.
+      const reward = RewardModel(id: 1, title: null, thumbnail: null);
+
+      await pumpAndDrain(
+        tester,
+        buildTestApp(const RewardDialog(data: reward)),
+      );
+
+      expect(find.byType(RewardDialog), findsOneWidget);
+      expect(
+        find.byType(ErrorWidget),
+        findsNothing,
+        reason: '제목이 널이면 빈 문자열로 접히고 다이얼로그는 계속 그려져야 한다',
+      );
     });
   });
 

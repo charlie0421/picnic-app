@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$VotePickModel {
 
-@JsonKey(name: 'id') int get id;@JsonKey(name: 'vote') VoteModel get vote;@JsonKey(name: 'vote_item') VoteItemModel get voteItem;@JsonKey(name: 'amount') int? get amount;@JsonKey(name: 'star_candy_usage') int? get starCandyUsage;@JsonKey(name: 'star_candy_bonus_usage') int? get starCandyBonusUsage;@JsonKey(name: 'created_at') DateTime? get createdAt;@JsonKey(name: 'updated_at') DateTime? get updatedAt;
+@JsonKey(name: 'id') int get id;@JsonKey(name: 'vote') VoteModel get vote;@JsonKey(name: 'vote_item') VoteItemModel get voteItem;@JsonKey(name: 'amount') int? get amount;@JsonKey(name: 'star_candy_usage') int? get starCandyUsage;@JsonKey(name: 'star_candy_bonus_usage') int? get starCandyBonusUsage;@JsonKey(name: 'cotton_candy_usage') int? get cottonCandyUsage;@JsonKey(name: 'created_at') DateTime? get createdAt;@JsonKey(name: 'updated_at') DateTime? get updatedAt;
 /// Create a copy of VotePickModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $VotePickModelCopyWith<VotePickModel> get copyWith => _$VotePickModelCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is VotePickModel&&(identical(other.id, id) || other.id == id)&&(identical(other.vote, vote) || other.vote == vote)&&(identical(other.voteItem, voteItem) || other.voteItem == voteItem)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.starCandyUsage, starCandyUsage) || other.starCandyUsage == starCandyUsage)&&(identical(other.starCandyBonusUsage, starCandyBonusUsage) || other.starCandyBonusUsage == starCandyBonusUsage)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VotePickModel&&(identical(other.id, id) || other.id == id)&&(identical(other.vote, vote) || other.vote == vote)&&(identical(other.voteItem, voteItem) || other.voteItem == voteItem)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.starCandyUsage, starCandyUsage) || other.starCandyUsage == starCandyUsage)&&(identical(other.starCandyBonusUsage, starCandyBonusUsage) || other.starCandyBonusUsage == starCandyBonusUsage)&&(identical(other.cottonCandyUsage, cottonCandyUsage) || other.cottonCandyUsage == cottonCandyUsage)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,vote,voteItem,amount,starCandyUsage,starCandyBonusUsage,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,vote,voteItem,amount,starCandyUsage,starCandyBonusUsage,cottonCandyUsage,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'VotePickModel(id: $id, vote: $vote, voteItem: $voteItem, amount: $amount, starCandyUsage: $starCandyUsage, starCandyBonusUsage: $starCandyBonusUsage, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'VotePickModel(id: $id, vote: $vote, voteItem: $voteItem, amount: $amount, starCandyUsage: $starCandyUsage, starCandyBonusUsage: $starCandyBonusUsage, cottonCandyUsage: $cottonCandyUsage, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $VotePickModelCopyWith<$Res>  {
   factory $VotePickModelCopyWith(VotePickModel value, $Res Function(VotePickModel) _then) = _$VotePickModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'id') int id,@JsonKey(name: 'vote') VoteModel vote,@JsonKey(name: 'vote_item') VoteItemModel voteItem,@JsonKey(name: 'amount') int? amount,@JsonKey(name: 'star_candy_usage') int? starCandyUsage,@JsonKey(name: 'star_candy_bonus_usage') int? starCandyBonusUsage,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
+@JsonKey(name: 'id') int id,@JsonKey(name: 'vote') VoteModel vote,@JsonKey(name: 'vote_item') VoteItemModel voteItem,@JsonKey(name: 'amount') int? amount,@JsonKey(name: 'star_candy_usage') int? starCandyUsage,@JsonKey(name: 'star_candy_bonus_usage') int? starCandyBonusUsage,@JsonKey(name: 'cotton_candy_usage') int? cottonCandyUsage,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
 });
 
 
@@ -65,7 +65,7 @@ class _$VotePickModelCopyWithImpl<$Res>
 
 /// Create a copy of VotePickModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? vote = null,Object? voteItem = null,Object? amount = freezed,Object? starCandyUsage = freezed,Object? starCandyBonusUsage = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? vote = null,Object? voteItem = null,Object? amount = freezed,Object? starCandyUsage = freezed,Object? starCandyBonusUsage = freezed,Object? cottonCandyUsage = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,vote: null == vote ? _self.vote : vote // ignore: cast_nullable_to_non_nullable
@@ -73,6 +73,7 @@ as VoteModel,voteItem: null == voteItem ? _self.voteItem : voteItem // ignore: c
 as VoteItemModel,amount: freezed == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as int?,starCandyUsage: freezed == starCandyUsage ? _self.starCandyUsage : starCandyUsage // ignore: cast_nullable_to_non_nullable
 as int?,starCandyBonusUsage: freezed == starCandyBonusUsage ? _self.starCandyBonusUsage : starCandyBonusUsage // ignore: cast_nullable_to_non_nullable
+as int?,cottonCandyUsage: freezed == cottonCandyUsage ? _self.cottonCandyUsage : cottonCandyUsage // ignore: cast_nullable_to_non_nullable
 as int?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
@@ -178,10 +179,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'vote')  VoteModel vote, @JsonKey(name: 'vote_item')  VoteItemModel voteItem, @JsonKey(name: 'amount')  int? amount, @JsonKey(name: 'star_candy_usage')  int? starCandyUsage, @JsonKey(name: 'star_candy_bonus_usage')  int? starCandyBonusUsage, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'vote')  VoteModel vote, @JsonKey(name: 'vote_item')  VoteItemModel voteItem, @JsonKey(name: 'amount')  int? amount, @JsonKey(name: 'star_candy_usage')  int? starCandyUsage, @JsonKey(name: 'star_candy_bonus_usage')  int? starCandyBonusUsage, @JsonKey(name: 'cotton_candy_usage')  int? cottonCandyUsage, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _VotePickModel() when $default != null:
-return $default(_that.id,_that.vote,_that.voteItem,_that.amount,_that.starCandyUsage,_that.starCandyBonusUsage,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.vote,_that.voteItem,_that.amount,_that.starCandyUsage,_that.starCandyBonusUsage,_that.cottonCandyUsage,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -199,10 +200,10 @@ return $default(_that.id,_that.vote,_that.voteItem,_that.amount,_that.starCandyU
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'vote')  VoteModel vote, @JsonKey(name: 'vote_item')  VoteItemModel voteItem, @JsonKey(name: 'amount')  int? amount, @JsonKey(name: 'star_candy_usage')  int? starCandyUsage, @JsonKey(name: 'star_candy_bonus_usage')  int? starCandyBonusUsage, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'vote')  VoteModel vote, @JsonKey(name: 'vote_item')  VoteItemModel voteItem, @JsonKey(name: 'amount')  int? amount, @JsonKey(name: 'star_candy_usage')  int? starCandyUsage, @JsonKey(name: 'star_candy_bonus_usage')  int? starCandyBonusUsage, @JsonKey(name: 'cotton_candy_usage')  int? cottonCandyUsage, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _VotePickModel():
-return $default(_that.id,_that.vote,_that.voteItem,_that.amount,_that.starCandyUsage,_that.starCandyBonusUsage,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.vote,_that.voteItem,_that.amount,_that.starCandyUsage,_that.starCandyBonusUsage,_that.cottonCandyUsage,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -219,10 +220,10 @@ return $default(_that.id,_that.vote,_that.voteItem,_that.amount,_that.starCandyU
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'vote')  VoteModel vote, @JsonKey(name: 'vote_item')  VoteItemModel voteItem, @JsonKey(name: 'amount')  int? amount, @JsonKey(name: 'star_candy_usage')  int? starCandyUsage, @JsonKey(name: 'star_candy_bonus_usage')  int? starCandyBonusUsage, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'vote')  VoteModel vote, @JsonKey(name: 'vote_item')  VoteItemModel voteItem, @JsonKey(name: 'amount')  int? amount, @JsonKey(name: 'star_candy_usage')  int? starCandyUsage, @JsonKey(name: 'star_candy_bonus_usage')  int? starCandyBonusUsage, @JsonKey(name: 'cotton_candy_usage')  int? cottonCandyUsage, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _VotePickModel() when $default != null:
-return $default(_that.id,_that.vote,_that.voteItem,_that.amount,_that.starCandyUsage,_that.starCandyBonusUsage,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.vote,_that.voteItem,_that.amount,_that.starCandyUsage,_that.starCandyBonusUsage,_that.cottonCandyUsage,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -234,7 +235,7 @@ return $default(_that.id,_that.vote,_that.voteItem,_that.amount,_that.starCandyU
 @JsonSerializable()
 
 class _VotePickModel extends VotePickModel {
-  const _VotePickModel({@JsonKey(name: 'id') required this.id, @JsonKey(name: 'vote') required this.vote, @JsonKey(name: 'vote_item') required this.voteItem, @JsonKey(name: 'amount') required this.amount, @JsonKey(name: 'star_candy_usage') this.starCandyUsage, @JsonKey(name: 'star_candy_bonus_usage') this.starCandyBonusUsage, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'updated_at') required this.updatedAt}): super._();
+  const _VotePickModel({@JsonKey(name: 'id') required this.id, @JsonKey(name: 'vote') required this.vote, @JsonKey(name: 'vote_item') required this.voteItem, @JsonKey(name: 'amount') required this.amount, @JsonKey(name: 'star_candy_usage') this.starCandyUsage, @JsonKey(name: 'star_candy_bonus_usage') this.starCandyBonusUsage, @JsonKey(name: 'cotton_candy_usage') this.cottonCandyUsage, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'updated_at') required this.updatedAt}): super._();
   factory _VotePickModel.fromJson(Map<String, dynamic> json) => _$VotePickModelFromJson(json);
 
 @override@JsonKey(name: 'id') final  int id;
@@ -243,6 +244,7 @@ class _VotePickModel extends VotePickModel {
 @override@JsonKey(name: 'amount') final  int? amount;
 @override@JsonKey(name: 'star_candy_usage') final  int? starCandyUsage;
 @override@JsonKey(name: 'star_candy_bonus_usage') final  int? starCandyBonusUsage;
+@override@JsonKey(name: 'cotton_candy_usage') final  int? cottonCandyUsage;
 @override@JsonKey(name: 'created_at') final  DateTime? createdAt;
 @override@JsonKey(name: 'updated_at') final  DateTime? updatedAt;
 
@@ -259,16 +261,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VotePickModel&&(identical(other.id, id) || other.id == id)&&(identical(other.vote, vote) || other.vote == vote)&&(identical(other.voteItem, voteItem) || other.voteItem == voteItem)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.starCandyUsage, starCandyUsage) || other.starCandyUsage == starCandyUsage)&&(identical(other.starCandyBonusUsage, starCandyBonusUsage) || other.starCandyBonusUsage == starCandyBonusUsage)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VotePickModel&&(identical(other.id, id) || other.id == id)&&(identical(other.vote, vote) || other.vote == vote)&&(identical(other.voteItem, voteItem) || other.voteItem == voteItem)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.starCandyUsage, starCandyUsage) || other.starCandyUsage == starCandyUsage)&&(identical(other.starCandyBonusUsage, starCandyBonusUsage) || other.starCandyBonusUsage == starCandyBonusUsage)&&(identical(other.cottonCandyUsage, cottonCandyUsage) || other.cottonCandyUsage == cottonCandyUsage)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,vote,voteItem,amount,starCandyUsage,starCandyBonusUsage,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,vote,voteItem,amount,starCandyUsage,starCandyBonusUsage,cottonCandyUsage,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'VotePickModel(id: $id, vote: $vote, voteItem: $voteItem, amount: $amount, starCandyUsage: $starCandyUsage, starCandyBonusUsage: $starCandyBonusUsage, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'VotePickModel(id: $id, vote: $vote, voteItem: $voteItem, amount: $amount, starCandyUsage: $starCandyUsage, starCandyBonusUsage: $starCandyBonusUsage, cottonCandyUsage: $cottonCandyUsage, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -279,7 +281,7 @@ abstract mixin class _$VotePickModelCopyWith<$Res> implements $VotePickModelCopy
   factory _$VotePickModelCopyWith(_VotePickModel value, $Res Function(_VotePickModel) _then) = __$VotePickModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'id') int id,@JsonKey(name: 'vote') VoteModel vote,@JsonKey(name: 'vote_item') VoteItemModel voteItem,@JsonKey(name: 'amount') int? amount,@JsonKey(name: 'star_candy_usage') int? starCandyUsage,@JsonKey(name: 'star_candy_bonus_usage') int? starCandyBonusUsage,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
+@JsonKey(name: 'id') int id,@JsonKey(name: 'vote') VoteModel vote,@JsonKey(name: 'vote_item') VoteItemModel voteItem,@JsonKey(name: 'amount') int? amount,@JsonKey(name: 'star_candy_usage') int? starCandyUsage,@JsonKey(name: 'star_candy_bonus_usage') int? starCandyBonusUsage,@JsonKey(name: 'cotton_candy_usage') int? cottonCandyUsage,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
 });
 
 
@@ -296,7 +298,7 @@ class __$VotePickModelCopyWithImpl<$Res>
 
 /// Create a copy of VotePickModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? vote = null,Object? voteItem = null,Object? amount = freezed,Object? starCandyUsage = freezed,Object? starCandyBonusUsage = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? vote = null,Object? voteItem = null,Object? amount = freezed,Object? starCandyUsage = freezed,Object? starCandyBonusUsage = freezed,Object? cottonCandyUsage = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_VotePickModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,vote: null == vote ? _self.vote : vote // ignore: cast_nullable_to_non_nullable
@@ -304,6 +306,7 @@ as VoteModel,voteItem: null == voteItem ? _self.voteItem : voteItem // ignore: c
 as VoteItemModel,amount: freezed == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as int?,starCandyUsage: freezed == starCandyUsage ? _self.starCandyUsage : starCandyUsage // ignore: cast_nullable_to_non_nullable
 as int?,starCandyBonusUsage: freezed == starCandyBonusUsage ? _self.starCandyBonusUsage : starCandyBonusUsage // ignore: cast_nullable_to_non_nullable
+as int?,cottonCandyUsage: freezed == cottonCandyUsage ? _self.cottonCandyUsage : cottonCandyUsage // ignore: cast_nullable_to_non_nullable
 as int?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,

@@ -947,6 +947,12 @@ abstract class AppLocalizations {
   /// **'Leave a comment.'**
   String get label_hint_comment;
 
+  /// Auto-generated metadata for key 'label_home_current_vote'.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Vote'**
+  String get label_home_current_vote;
+
   /// Auto-generated metadata for key 'label_input_input'.
   ///
   /// In en, this message translates to:
@@ -1895,6 +1901,12 @@ abstract class AppLocalizations {
   /// **'Voting complete'**
   String get text_vote_complete;
 
+  /// No description provided for @text_vote_gap_behind_leader.
+  ///
+  /// In en, this message translates to:
+  /// **'{gap} votes behind #1'**
+  String text_vote_gap_behind_leader(String gap);
+
   /// No description provided for @text_vote_rank.
   ///
   /// In en, this message translates to:
@@ -2585,11 +2597,11 @@ abstract class AppLocalizations {
   /// **'Acceptance of the terms is complete.'**
   String get message_agreement_success;
 
-  /// Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'.
+  /// Auto-generated metadata for key 'bonus_candy_earn_period_1_to_14'.
   ///
   /// In en, this message translates to:
-  /// **'1st 00:00:00 ~ 15th 23:59:59'**
-  String get bonus_candy_earn_period_1_to_15;
+  /// **'1st 00:00:00 ~ 14th 23:59:59'**
+  String get bonus_candy_earn_period_1_to_14;
 
   /// Auto-generated metadata for key 'goonghap_snackbar_need_birthday'.
   ///
@@ -2747,11 +2759,11 @@ abstract class AppLocalizations {
   /// **'You need {shortage} more star candies.'**
   String jma_voting_star_candy_shortage(int shortage);
 
-  /// Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'.
+  /// Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'.
   ///
   /// In en, this message translates to:
-  /// **'16th 00:00:00 ~ end of month 23:59:59'**
-  String get bonus_candy_earn_period_16_to_end;
+  /// **'15th 00:00:00 ~ end of month 23:59:59'**
+  String get bonus_candy_earn_period_15_to_end;
 
   /// Auto-generated metadata for key 'error_message_withdrawal'.
   ///
@@ -3508,6 +3520,172 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Contact Support'**
   String get button_cs_inquiry;
+
+  /// No description provided for @wallet_star_candy.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy'**
+  String get wallet_star_candy;
+
+  /// No description provided for @wallet_bonus_star_candy.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus Star Candy'**
+  String get wallet_bonus_star_candy;
+
+  /// No description provided for @wallet_cotton_candy.
+  ///
+  /// In en, this message translates to:
+  /// **'Cotton Candy'**
+  String get wallet_cotton_candy;
+
+  /// Cotton Candy amount that expires today from the server wallet snapshot
+  ///
+  /// In en, this message translates to:
+  /// **'Expires today: {amount}'**
+  String wallet_cotton_expires_today(String amount);
+
+  /// Next Cotton Candy expiry from the server wallet snapshot
+  ///
+  /// In en, this message translates to:
+  /// **'Next expiry: {date}'**
+  String wallet_cotton_next_expiry(String date);
+
+  /// No description provided for @wallet_load_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load wallet.'**
+  String get wallet_load_failed;
+
+  /// No description provided for @wallet_history_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Candy history'**
+  String get wallet_history_title;
+
+  /// No description provided for @wallet_history_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No history yet.'**
+  String get wallet_history_empty;
+
+  /// No description provided for @candy_boost_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Candy Boost Day'**
+  String get candy_boost_day;
+
+  /// No description provided for @candy_boost_exact_double.
+  ///
+  /// In en, this message translates to:
+  /// **'Base reward + 100% extra bonus'**
+  String get candy_boost_exact_double;
+
+  /// No description provided for @candy_boost_extra_bonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Base reward + extra bonus'**
+  String get candy_boost_extra_bonus;
+
+  /// No description provided for @candy_boost_promotion_checking.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotion review in progress'**
+  String get candy_boost_promotion_checking;
+
+  /// No description provided for @candy_boost_purchase_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'A purchase for this product is already being processed.'**
+  String get candy_boost_purchase_pending;
+
+  /// No description provided for @candy_boost_late_purchase_explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication took longer than expected, but the purchase completed successfully.'**
+  String get candy_boost_late_purchase_explanation;
+
+  /// No description provided for @ad_reward_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking your reward'**
+  String get ad_reward_pending;
+
+  /// No description provided for @ad_reward_granted.
+  ///
+  /// In en, this message translates to:
+  /// **'Cotton Candy received'**
+  String get ad_reward_granted;
+
+  /// No description provided for @ad_reward_not_granted.
+  ///
+  /// In en, this message translates to:
+  /// **'The reward was not granted'**
+  String get ad_reward_not_granted;
+
+  /// No description provided for @candy_reward_receipt_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Candy added!'**
+  String get candy_reward_receipt_title;
+
+  /// No description provided for @candy_reward_receipt_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get candy_reward_receipt_confirm;
+
+  /// No description provided for @candy_reward_receipt_amount.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount}'**
+  String candy_reward_receipt_amount(String amount);
+
+  /// No description provided for @candy_reward_receipt_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance {amount}'**
+  String candy_reward_receipt_balance(String amount);
+
+  /// No description provided for @candy_reward_receipt_balance_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance will refresh shortly'**
+  String get candy_reward_receipt_balance_unavailable;
+
+  /// No description provided for @candy_reward_receipt_expiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String candy_reward_receipt_expiry(String date);
+
+  /// No description provided for @candy_reward_receipt_semantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{currency}, added {granted}, current balance {balance}'**
+  String candy_reward_receipt_semantics(
+    String currency,
+    String granted,
+    String balance,
+  );
+
+  /// No description provided for @candy_reward_receipt_semantics_balance_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'{currency}, added {granted}, balance will refresh shortly'**
+  String candy_reward_receipt_semantics_balance_unavailable(
+    String currency,
+    String granted,
+  );
+
+  /// No description provided for @candy_reward_receipt_semantics_with_expiry.
+  ///
+  /// In en, this message translates to:
+  /// **'{receipt}, {expiry}'**
+  String candy_reward_receipt_semantics_with_expiry(
+    String receipt,
+    String expiry,
+  );
 }
 
 class _AppLocalizationsDelegate

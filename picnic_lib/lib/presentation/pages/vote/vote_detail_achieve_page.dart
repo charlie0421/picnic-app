@@ -101,11 +101,25 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
     _updateTimer?.cancel();
     _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (!_isDisposed && mounted) {
+        // 폴링은 화면이 watch 하는 것과 **같은** provider 인스턴스를 갱신해야
+        // 한다. votePortal 을 빼면 pic 포털에서 아무도 안 보는 인스턴스를
+        // 새로고침하게 되고 화면은 영원히 갱신되지 않는다.
         // ignore: unused_result
-        ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
+        ref.refresh(
+          asyncVoteItemListProvider(
+            voteId: widget.voteId,
+            votePortal: widget.votePortal,
+          ),
+        );
 
-        final voteItemData =
-            ref.read(asyncVoteItemListProvider(voteId: widget.voteId)).value;
+        final voteItemData = ref
+            .read(
+              asyncVoteItemListProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ),
+            )
+            .value;
         if (voteItemData == null || voteItemData.isEmpty) return;
 
         final firstItem = voteItemData[0];
@@ -439,6 +453,51 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
 
   @override
   Widget build(BuildContext context) {
+    // 이 페이지는 서로 독립인 두 future 위에 있다 — 투표 상세와 순위 목록.
+    //
+    // 예전에는 순위 목록이 바깥 게이트였고, 그 `data:` 브랜치 안에서 상세를
+    // `ref.read(...).value!` 로 읽었다. 그런데 상세는 **바로 그 브랜치에서 처음
+    // 구독**되므로(`_buildVoteInfo`), 그 프레임의 상세는 언제나 `AsyncLoading`
+    // 이었다. 타이밍 문제가 아니라 페이지를 열 때마다 확정적으로 빌드가 죽는
+    // 구조였다.
+    //
+    // 그래서 vote_detail_page.dart 와 같은 순서로 뒤집는다 — 상세가 바깥,
+    // 순위 목록이 안쪽. 이러면 아이템 행을 그리는 시점엔 [VoteModel] 이 이미
+    // 값으로 손에 들어와 있어서 널 단언 자체가 사라진다.
+    return ref
+        .watch(
+          asyncVoteDetailProvider(
+            voteId: widget.voteId,
+            votePortal: widget.votePortal,
+          ),
+        )
+        .when(
+          data: (voteModel) {
+            // fetch 가 실패하면 예외 대신 null 을 돌려준다
+            // (`AsyncVoteDetail.fetch`). vote_detail_page.dart 와 같은 처리.
+            if (voteModel == null) return const SizedBox.shrink();
+            return _buildBody(voteModel);
+          },
+          // SizedBox.expand 가 없으면 셔머(SingleChildScrollView)가 콘텐츠
+          // 높이(793px)로 수축해, 데이터가 도착하는 순간 페이지가 로드 높이
+          // (892px)로 99px 점프한다. vote_detail_page.dart 의 로딩 브랜치와
+          // 같은 처리. 이 페이지는 로드 브랜치에 Expanded 가 있어 어차피
+          // 유한한 높이의 부모를 전제하므로, expand 가 무한 제약을 만날
+          // 일은 없다.
+          loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
+          error:
+              (error, stackTrace) => buildErrorView(
+                context,
+                error: error.toString(),
+                stackTrace: stackTrace,
+              ),
+        );
+  }
+
+  /// 순위 목록 브랜치. `when` 을 그대로 쓰는 이유는 1초 폴링 새로고침 때 화면이
+  /// 스켈레톤으로 되돌아가지 않게 하기 위해서다 — `AsyncValue.when` 의
+  /// `skipLoadingOnRefresh` 기본값이 그 처리를 해 준다.
+  Widget _buildBody(VoteModel voteModel) {
     return ref
         .watch(
           asyncVoteItemListProvider(
@@ -451,8 +510,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
             if (data.isEmpty) return const SizedBox.shrink();
             return Column(
               children: [
-                _buildVoteInfo(),
-                _buildAchieveItem(data[0]!),
+                _buildVoteInfo(voteModel),
+                _buildVoteItem(context, voteModel, data[0]!),
                 Expanded(
                   child: SingleChildScrollView(
                     controller: _scrollController,
@@ -462,7 +521,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
               ],
             );
           },
-          loading: () => _buildLoadingShimmer(),
+          // 바깥 게이트의 로딩 브랜치와 같은 이유 — 아이템 목록만 늦게 올 때도
+          // 셔머가 뷰포트를 가득 채워야 로드 시점에 높이가 점프하지 않는다.
+          loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
           error:
               (error, stackTrace) => buildErrorView(
                 context,
@@ -472,65 +533,45 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
         );
   }
 
-  Widget _buildVoteInfo() {
+  Widget _buildVoteInfo(VoteModel voteModel) {
     final width = MediaQuery.of(context).size.width;
-    return ref
-        .watch(asyncVoteDetailProvider(voteId: widget.voteId))
-        .when(
-          data: (voteModel) {
-            if (voteModel == null) return const SizedBox.shrink();
-
-            return Column(
-              children: [
-                if (voteModel.mainImage != null &&
-                    voteModel.mainImage!.isNotEmpty)
-                  SizedBox(
-                    width: width,
-                    child: PicnicCachedNetworkImage(
-                      imageUrl: voteModel.mainImage!,
-                      width: width,
-                      memCacheWidth: width.toInt(),
-                    ),
-                  ),
-                const SizedBox(height: 36),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 57.w),
-                  child: VoteCommonTitle(
-                    title: getLocaleTextFromJson(voteModel.title),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 18,
-                  child: Text(
-                    formatVotePeriod(voteModel.startAt, voteModel.stopAt),
-                    style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: BannerAdWidget(
-                    configKey: 'VOTE_DETAIL',
-                    adSize: AdSize.largeBanner,
-                  ),
-                ),
-                const SizedBox(height: 18),
-              ],
-            );
-          },
-          loading: () => _buildLoadingShimmer(),
-          error:
-              (error, stackTrace) => buildErrorView(
-                context,
-                error: error.toString(),
-                stackTrace: stackTrace,
-              ),
-        );
-  }
-
-  Widget _buildAchieveItem(VoteItemModel data) {
-    return _buildVoteItem(context, data, 0);
+    return Column(
+      children: [
+        if (voteModel.mainImage != null && voteModel.mainImage!.isNotEmpty)
+          SizedBox(
+            width: width,
+            child: PicnicCachedNetworkImage(
+              imageUrl: voteModel.mainImage!,
+              width: width,
+              memCacheWidth: width.toInt(),
+            ),
+          ),
+        const SizedBox(height: 36),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 57.w),
+          child: VoteCommonTitle(
+            title: getLocaleTextFromJson(voteModel.title),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 18,
+          child: Text(
+            formatVotePeriod(voteModel.startAt, voteModel.stopAt),
+            style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: BannerAdWidget(
+            configKey: 'VOTE_DETAIL',
+            adSize: AdSize.largeBanner,
+          ),
+        ),
+        const SizedBox(height: 18),
+      ],
+    );
   }
 
   Widget _buildLevelItem(VoteItemModel data) {
@@ -682,14 +723,18 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
     );
   }
 
-  Widget _buildVoteItem(BuildContext context, VoteItemModel item, int index) {
+  Widget _buildVoteItem(
+    BuildContext context,
+    VoteModel voteModel,
+    VoteItemModel item,
+  ) {
     return AnimatedContainer(
       padding: EdgeInsets.symmetric(horizontal: 34.w),
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => _handleVoteItemTap(context, item),
+        onTap: () => _handleVoteItemTap(context, voteModel, item),
         child: Row(
           children: [
             SizedBox(width: 8.w),
@@ -750,10 +795,11 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
               ),
             ),
             SizedBox(width: 16.w),
-            if (!ref
-                .read(asyncVoteDetailProvider(voteId: widget.voteId))
-                .value!
-                .isEnded!)
+            // `isEnded` 는 모델 상으로만 nullable 이다 — `AsyncVoteDetail.fetch`
+            // 가 응답에 직접 심어 주는 값이라(`response['is_ended'] = ...`)
+            // 모델이 non-null 인 한 이 필드도 non-null 이다. 서버 컬럼이 아니라
+            // 클라이언트 계산값이므로 누락될 경로가 없다.
+            if (!voteModel.isEnded!)
               Container(
                 alignment: Alignment.bottomCenter,
                 height: 80,
@@ -865,9 +911,14 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
     );
   }
 
-  Future<void> _handleVoteItemTap(BuildContext context, VoteItemModel item) async {
-    final voteDetail =
-        ref.read(asyncVoteDetailProvider(voteId: widget.voteId)).value!;
+  /// [voteDetail] 은 이 행을 그린 프레임에서 값으로 넘어온다. 상세가 아직
+  /// 로딩 중이면 행 자체가 존재하지 않으므로(build 의 바깥 게이트), 여기서
+  /// 프로바이더를 다시 읽어 널 단언할 일이 없다.
+  Future<void> _handleVoteItemTap(
+    BuildContext context,
+    VoteModel voteDetail,
+    VoteItemModel item,
+  ) async {
     if (voteDetail.isEnded!) {
       showSimpleDialog(
         content: AppLocalizations.of(context).message_vote_is_ended,
@@ -922,8 +973,12 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                     ),
                   ),
                   Text(
+                    // thumbnail 과 같은 이유로 단언하지 않는다 — `title` 도 순수
+                    // nullable 컬럼(`RewardModel.title`)이라 운영자가 비워두면
+                    // 널이고, 여기서 터지면 마일스톤 사다리 전체가 에러 박스가
+                    // 된다. `getLocaleTextFromJson` 은 빈 맵을 '' 로 처리한다.
                     getLocaleTextFromJson(
-                      achievements[rewardIndex].reward.title!,
+                      achievements[rewardIndex].reward.title ?? const {},
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -956,7 +1011,12 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(25),
                     child: PicnicCachedNetworkImage(
-                      imageUrl: achievements[rewardIndex].reward.thumbnail!,
+                      // `thumbnail` 은 운영자가 이미지를 안 올리면 실제로 null 이다
+                      // (`RewardModel` 의 순수 nullable 컬럼 — is_ended 처럼
+                      // 클라이언트가 채워 주는 값이 아니다). 단언하면 마일스톤
+                      // 사다리 전체가 에러 박스로 바뀐다. reward_dialog.dart /
+                      // reward_list_section.dart 와 같은 처리로 맞춘다.
+                      imageUrl: achievements[rewardIndex].reward.thumbnail ?? '',
                       width: 50,
                       memCacheWidth: 50,
                     ),
