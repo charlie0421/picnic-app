@@ -210,15 +210,11 @@ void main() {
   // 5.1px)이라 남은시간 행의 폭 수요를 76px(수정 전) / 22px(수정 후) 부풀리고,
   // 히어로 행에서는 배율 1.8 이상에서 실제로는 없는 오버플로를 만든다.
   //
-  // Pretendard 를 물리는 게 완전한 정답은 아니다. `style.dart` 의 `getTextStyle`
-  // 은 `fontFamily: 'Pretendard'` 를 요청하는데 앱 번들이 등록하는 이름은
-  // `packages/picnic_lib/Pretendard` 라서, **현재 프로덕션은 Pretendard 가 아니라
-  // 플랫폼 기본 폰트(Android Roboto / iOS SF Pro)로 렌더된다**(별도 이슈).
-  // 그래도 이 행의 폭 수요는 Pretendard 202.8px, Roboto 202.7px, SF Pro 204.8px
-  // 로 서로 0.5px 안쪽이고 하네스 폰트(224.5px)만 20px 넘게 떨어져 있다. 셋 중
-  // 아무거나로 재도 같은 결론이 나오는 구간에 있으므로, 실제로 쓸 수 있는 폰트
-  // 중에서는 Pretendard 가 프로덕션에 가장 가깝다. (그 이슈가 고쳐지면
-  // 프로덕션이 문자 그대로 Pretendard 가 된다.)
+  // 한때 `getTextStyle` 이 `package:` 없이 맨 'Pretendard' 를 요청해 프로덕션이
+  // 플랫폼 기본 폰트로 렌더되는 이슈가 있었고, 그때는 "Pretendard 로 재도
+  // Roboto/SF Pro 와 0.5px 안쪽" 이라는 근거로 이 폰트를 물렸다. 그 이슈가
+  // 고쳐진 지금은 프로덕션이 문자 그대로 Pretendard 이므로, 여기 측정이 곧
+  // 프로덕션 측정이다.
   //
   // [loadTestFonts] 는 Regular(400)/Bold(700)만 물린다. 이 행이 쓰는 w500 은
   // Regular 로 대체되는데 폭 차이는 0.3px 수준이라 결론에 영향이 없다. 골든

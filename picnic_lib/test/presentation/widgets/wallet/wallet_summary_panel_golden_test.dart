@@ -48,7 +48,7 @@ Widget buildWalletGoldenApp(WalletSummaryModel wallet) => ProviderScope(
   child: DefaultAssetBundle(
     bundle: goldenAssetBundle,
     child: MaterialApp(
-      theme: ThemeData(fontFamily: 'Pretendard'),
+      theme: ThemeData(fontFamily: 'packages/picnic_lib/Pretendard'),
       locale: const Locale('ko'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
