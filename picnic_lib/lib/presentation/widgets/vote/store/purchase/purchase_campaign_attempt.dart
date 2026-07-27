@@ -29,14 +29,21 @@ class PurchaseCampaignAttemptRegistry {
   final Map<String, String> _attemptByTransaction = {};
   final Set<String> _completedTransactions = {};
 
+  /// Supabase 카탈로그 ID는 대문자(STAR100), Google Play 이벤트의 productID는
+  /// 소문자(star100)다. Casing만 다른 같은 상품이 같은 컨텍스트로 모이지 않으면
+  /// 정상 결제 이벤트가 orphan으로 폐기된다.
+  static String canonicalProductKey(String productId) =>
+      productId.trim().toUpperCase();
+
   PurchaseCampaignAttempt? operator [](String productId) =>
-      _byProduct[productId]?.attempt;
-  bool contains(String productId) => _byProduct.containsKey(productId);
+      _byProduct[canonicalProductKey(productId)]?.attempt;
+  bool contains(String productId) =>
+      _byProduct.containsKey(canonicalProductKey(productId));
 
   bool begin(PurchaseCampaignAttempt attempt) =>
       _byProduct
           .putIfAbsent(
-            attempt.productId,
+            canonicalProductKey(attempt.productId),
             () => PurchaseExecutionContext(
               attempt: attempt,
               launchedAt: _now().toUtc(),
@@ -46,8 +53,9 @@ class PurchaseCampaignAttemptRegistry {
       attempt;
 
   bool removeIfMatches(String productId, String attemptId) {
-    if (_byProduct[productId]?.attempt.attemptId != attemptId) return false;
-    _byProduct.remove(productId);
+    final key = canonicalProductKey(productId);
+    if (_byProduct[key]?.attempt.attemptId != attemptId) return false;
+    _byProduct.remove(key);
     return true;
   }
 
@@ -59,7 +67,7 @@ class PurchaseCampaignAttemptRegistry {
     final terminal =
         result['wasCancelled'] == true || result['success'] != true;
     if (terminal) return removeIfMatches(productId, attemptId);
-    final context = _byProduct[productId];
+    final context = _byProduct[canonicalProductKey(productId)];
     if (context?.attempt.attemptId == attemptId) context!.launched = true;
     return false;
   }
@@ -70,7 +78,7 @@ class PurchaseCampaignAttemptRegistry {
   /// identity. Restores are recovery traffic and never consume a live launch.
   PurchaseCampaignAttempt? bind(PurchaseDetails purchase) {
     final transactionId = purchase.purchaseID;
-    final context = _byProduct[purchase.productID];
+    final context = _byProduct[canonicalProductKey(purchase.productID)];
     final transactionAt = _transactionAt(purchase);
     if (transactionId == null ||
         transactionId.isEmpty ||
@@ -83,9 +91,8 @@ class PurchaseCampaignAttemptRegistry {
     }
     final existingAttemptId = _attemptByTransaction[transactionId];
     if (existingAttemptId != null) {
-      final context = _byProduct[purchase.productID];
-      return context?.attempt.attemptId == existingAttemptId
-          ? context!.attempt
+      return context.attempt.attemptId == existingAttemptId
+          ? context.attempt
           : null;
     }
     if (!context.launched || context.transactionId != null) {
@@ -102,7 +109,7 @@ class PurchaseCampaignAttemptRegistry {
             purchase.status != PurchaseStatus.canceled)) {
       return null;
     }
-    final context = _byProduct[purchase.productID];
+    final context = _byProduct[canonicalProductKey(purchase.productID)];
     final transactionAt = _transactionAt(purchase);
     return context != null &&
             context.launched &&

@@ -125,6 +125,29 @@ void main() {
   );
 
   test(
+    'lowercase Play event binds to the uppercase catalog attempt',
+    () {
+      // Android: Supabase 카탈로그 ID는 STAR200, Play 이벤트 productID는 star200.
+      final registry = PurchaseCampaignAttemptRegistry();
+      registry.begin(attempt('a', 'STAR200'));
+      expect(registry.contains('star200'), isTrue);
+      registry.applyLaunchResult('STAR200', 'a', {
+        'success': true,
+        'wasCancelled': false,
+      });
+
+      final playEvent = transaction(
+        'star200',
+        'GPA.1234-5678',
+        PurchaseStatus.purchased,
+      );
+      expect(registry.bind(playEvent)?.attemptId, 'a');
+      expect(registry.finish(playEvent, 'a'), isTrue);
+      expect(registry.contains('STAR200'), isFalse);
+    },
+  );
+
+  test(
     'two products bind independently while restore and orphan are rejected',
     () {
       final registry = PurchaseCampaignAttemptRegistry();
