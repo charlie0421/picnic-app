@@ -113,6 +113,15 @@ class StoreProducts extends _$StoreProducts {
       }
 
       if (response.productDetails.isEmpty) {
+        if (ProductProviderHelper.shouldPreviewEmptyStoreCatalog(
+          environment: Environment.currentEnvironment,
+        )) {
+          logger.w(
+            'Store returned no products in sandbox; '
+            'showing the server catalog with purchases disabled.',
+          );
+          return const <ProductDetails>[];
+        }
         throw Exception('No products found in the store');
       }
 

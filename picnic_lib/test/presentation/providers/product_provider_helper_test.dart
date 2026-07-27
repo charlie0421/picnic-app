@@ -230,6 +230,41 @@ void main() {
     });
   });
 
+  group('ProductProviderHelper.shouldPreviewEmptyStoreCatalog', () {
+    // 스테이징(dev 환경 빌드)의 Android 는 결정에 따라 상품이 스토어에
+    // 없다 — 네임스페이스가 붙은 ID 는 어디에도 등록되지 않는다. 그때
+    // raw 오류 대신 서버 카탈로그(구매 비활성)를 보여준다.
+    test('previews on an empty store in sandbox', () {
+      expect(
+        ProductProviderHelper.shouldPreviewEmptyStoreCatalog(
+          environment: 'dev',
+        ),
+        isTrue,
+      );
+      expect(
+        ProductProviderHelper.shouldPreviewEmptyStoreCatalog(
+          environment: 'local',
+        ),
+        isTrue,
+      );
+    });
+
+    test('an empty store in production is still an error', () {
+      expect(
+        ProductProviderHelper.shouldPreviewEmptyStoreCatalog(
+          environment: 'prod',
+        ),
+        isFalse,
+      );
+      expect(
+        ProductProviderHelper.shouldPreviewEmptyStoreCatalog(
+          environment: 'test',
+        ),
+        isFalse,
+      );
+    });
+  });
+
   group('ProductProviderHelper.isSupabaseInitError', () {
     test('returns true for "Project not specified" error', () {
       expect(

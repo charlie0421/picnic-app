@@ -643,6 +643,10 @@ class AppLocalizationsMy extends AppLocalizations {
       'ပုံရိပ်ကိုကယ်တင်ခြင်းသို့ရောက်ပြီ';
 
   @override
+  String get message_store_products_load_failed =>
+      'Couldn\'t load the store products. Please try again later.';
+
+  @override
   String get message_vote_is_ended => 'စစ်တမ်းပိတ်လိုက်သည်';
 
   @override

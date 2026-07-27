@@ -632,6 +632,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get message_pic_pic_save_success => 'ภาพได้รับการบันทึกแล้ว';
 
   @override
+  String get message_store_products_load_failed =>
+      'Couldn\'t load the store products. Please try again later.';
+
+  @override
   String get message_vote_is_ended => 'แบบสำรวจปิด';
 
   @override

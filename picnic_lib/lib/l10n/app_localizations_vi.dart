@@ -638,6 +638,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get message_pic_pic_save_success => 'Hình ảnh đã được lưu.';
 
   @override
+  String get message_store_products_load_failed =>
+      'Couldn\'t load the store products. Please try again later.';
+
+  @override
   String get message_vote_is_ended => 'Cuộc thăm dò ý kiến ​​đóng cửa';
 
   @override

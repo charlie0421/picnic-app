@@ -818,6 +818,7 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
+  "message_store_products_load_failed": "Couldn't load the store products. Please try again later.",
   "message_vote_is_ended": "Poll closed",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -2381,12 +2382,20 @@
   "wallet_cotton_expires_today": "Expires today: {amount}",
   "@wallet_cotton_expires_today": {
     "description": "Cotton Candy amount that expires today from the server wallet snapshot",
-    "placeholders": {"amount": {"type": "String"}}
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "wallet_cotton_next_expiry": "Next expiry: {date}",
   "@wallet_cotton_next_expiry": {
     "description": "Next Cotton Candy expiry from the server wallet snapshot",
-    "placeholders": {"date": {"type": "String"}}
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "wallet_load_failed": "Could not load wallet.",
   "wallet_history_title": "Candy history",
@@ -2404,37 +2413,63 @@
   "candy_reward_receipt_confirm": "Confirm",
   "candy_reward_receipt_amount": "+{amount}",
   "@candy_reward_receipt_amount": {
-    "placeholders": {"amount": {"type": "String"}}
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "candy_reward_receipt_balance": "Current balance {amount}",
   "@candy_reward_receipt_balance": {
-    "placeholders": {"amount": {"type": "String"}}
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "candy_reward_receipt_balance_unavailable": "Balance will refresh shortly",
   "candy_reward_receipt_expiry": "Expires {date}",
   "@candy_reward_receipt_expiry": {
-    "placeholders": {"date": {"type": "String"}}
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "candy_reward_receipt_semantics": "{currency}, added {granted}, current balance {balance}",
   "@candy_reward_receipt_semantics": {
     "placeholders": {
-      "currency": {"type": "String"},
-      "granted": {"type": "String"},
-      "balance": {"type": "String"}
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
     }
   },
   "candy_reward_receipt_semantics_balance_unavailable": "{currency}, added {granted}, balance will refresh shortly",
   "@candy_reward_receipt_semantics_balance_unavailable": {
     "placeholders": {
-      "currency": {"type": "String"},
-      "granted": {"type": "String"}
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      }
     }
   },
   "candy_reward_receipt_semantics_with_expiry": "{receipt}, {expiry}",
   "@candy_reward_receipt_semantics_with_expiry": {
     "placeholders": {
-      "receipt": {"type": "String"},
-      "expiry": {"type": "String"}
+      "receipt": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
     }
   }
 }

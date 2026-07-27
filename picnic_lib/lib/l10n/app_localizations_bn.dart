@@ -637,6 +637,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get message_pic_pic_save_success => 'চিত্রটি সংরক্ষণ করা হয়েছে।';
 
   @override
+  String get message_store_products_load_failed =>
+      'Couldn\'t load the store products. Please try again later.';
+
+  @override
   String get message_vote_is_ended => 'পোল বন্ধ';
 
   @override
