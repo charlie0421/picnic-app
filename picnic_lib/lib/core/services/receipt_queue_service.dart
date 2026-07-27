@@ -135,10 +135,16 @@ class ReceiptQueueService {
           'verify_receipt',
           body: body,
         );
+        // 성공 판정은 foreground 검증과 같은 기준을 공유해야 한다:
+        // 레거시 서버는 {success: true, ...}, wallet.v1 서버는 정산 객체
+        // 자체(contract_version == 'wallet.v1')를 200으로 반환한다.
+        // 후자를 실패로 오판하면 이미 정산된 영수증을 영원히 재전송한다.
+        final data = response.data;
         final ok =
             response.status == 200 &&
-            response.data != null &&
-            response.data['success'] == true;
+            data is Map &&
+            (data['success'] == true ||
+                data['contract_version'] == 'wallet.v1');
         if (ok) {
           logger.i('✅ 큐 전송 성공: ${item['client_trace_id']}');
           continue; // drop

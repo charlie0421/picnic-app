@@ -295,6 +295,37 @@ void main() {
       });
     });
 
+    group('flushPending wallet.v1 success', () {
+      test('wallet.v1 settlement response (success 키 없음) removes item',
+          () async {
+        setupMockSupabase({
+          'functions:verify_receipt': {
+            'contract_version': 'wallet.v1',
+            'operation_id': '00000000-0000-4000-8000-000000000001',
+            'replayed': true,
+            'base_star_amount': '100',
+            'base_bonus_amount': '0',
+            'promotion': null,
+            'wallet': {},
+          },
+        });
+
+        await service.enqueueAndroid(
+          receipt: 'test-receipt',
+          productId: 'test-product',
+          userId: 'test-user',
+          environment: 'sandbox',
+        );
+
+        await service.flushPending();
+
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        final items = (json.decode(raw!) as List).cast<Map<String, dynamic>>();
+        expect(items, isEmpty);
+      });
+    });
+
     group('flushPending non-2xx handling', () {
       test('409 with confirmed grant removes item from queue', () async {
         setupMockSupabase(
