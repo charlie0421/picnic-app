@@ -8,15 +8,21 @@ import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../helpers/ignore_image_errors.dart';
+import '../../helpers/load_test_fonts.dart';
 import '../../helpers/mock_supabase.dart';
 import '../../helpers/test_app.dart';
 import '../../helpers/test_environment.dart';
 
 void main() {
-  // 격리 — splash_image.dart:671 의 상태 메시지 Row 가 가로로 332px 넘친다.
-  // 긴 메시지를 자를지 줄바꿈할지가 제품 판단이라 여기서 안 고친다.
-  allowKnownDefects(const ['A RenderFlex overflowed by']);
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  // 프로덕션 폰트를 올린다 — 없으면 flutter_test 기본 폰트(글리프마다 1em)가
+  // 텍스트를 과대 측정해서 상태 메시지 Row 가 없는 오버플로를 낸다.
+  // 상세는 login_page_render_test.dart 의 setUpAll 주석 참고.
+  //
+  // 아래 setUp 이 'flutter/assets' 메시지 핸들러를 목으로 바꾸므로, 실제 폰트
+  // 바이트를 읽는 이 호출은 반드시 그 전(= setUpAll)에 일어나야 한다.
+  setUpAll(loadTestFonts);
 
   late void Function() restore;
   bool _envInitialized = false;
