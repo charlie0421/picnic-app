@@ -53,8 +53,14 @@ RestoreCallback suppressImageErrors() {
   return () => FlutterError.onError = origOnError;
 }
 
-/// 현재 테스트에서 "이미 알려진 결함" 으로 통과시키기로 한 에러 메시지 조각들.
-/// 테스트마다 초기화된다([_ensureFilterInstalled] 의 tearDown).
+/// 현재 **테스트 하나** 안에서 "이미 알려진 결함" 으로 통과시키기로 한 에러 메시지
+/// 조각들. 테스트가 끝나면 비워진다([_ensureFilterInstalled] 의 addTearDown).
+///
+/// 채우는 방법은 하나뿐이다 — [drainExpectedImageErrors] /
+/// [pumpWidgetAndIgnoreErrors] 의 `knownDefects` 인자. 즉 격리를 선언하는 순간
+/// 반드시 drain 도 함께 일어나므로, "선언은 했는데 drain 을 안 불러서 조용히
+/// 무효" 인 상태가 만들어질 수 없다. (이전의 파일 단위 `allowKnownDefects` 는
+/// 그 함정이 있었고, 게다가 한 번 부르면 파일 전체 테스트에 걸렸다.)
 final Set<String> _knownDefects = <String>{};
 
 bool _isKnownDefect(Object error) {
@@ -63,15 +69,18 @@ bool _isKnownDefect(Object error) {
   return _knownDefects.any(text.contains);
 }
 
-/// 아직 못 고친 **프로덕션 결함 하나**를 이름으로 지목해, 그 group 안에서만
-/// 통과시킨다. `main()` 이나 `group()` 본문에서 호출한다.
+/// 필터가 통과시킨 에러의 [FlutterErrorDetails] 를 테스트 단위로 보관한다.
 ///
-/// 여기 적은 문자열을 포함하는 에러만 넘어가고 나머지는 그대로 테스트를 깨뜨린다
-/// — 즉 이 위젯에 **다른** 결함이 새로 생기면 여전히 빨간불이 된다.
-/// 반드시 결함 위치와 왜 여기서 안 고치는지를 주석으로 남길 것.
-void allowKnownDefects(List<String> defects) {
-  setUp(() => _knownDefects.addAll(defects));
-  tearDown(_knownDefects.clear);
+/// `tester.takeException()` 은 예외 객체만 돌려주고 "어느 위젯이 원인이었는지"
+/// (`The relevant error-causing widget was ...`) 는 버린다. drain 이 진짜 결함을
+/// 다시 던질 때 그 정보를 되살리려고 여기 남겨 둔다.
+final List<FlutterErrorDetails> _seenDetails = <FlutterErrorDetails>[];
+
+FlutterErrorDetails? _detailsFor(Object exception) {
+  for (final details in _seenDetails) {
+    if (identical(details.exception, exception)) return details;
+  }
+  return null;
 }
 
 /// 현재 테스트 본문에 필터가 설치돼 있는지 표시. `addTearDown` 으로 자동 복원한다.
@@ -83,28 +92,55 @@ void _ensureFilterInstalled() {
   FlutterError.onError = (details) {
     if (_isExpectedImageDetails(details)) return;
     if (_isKnownDefect(details.exception)) return;
+    _seenDetails.add(details);
     origOnError?.call(details);
   };
   _filterInstalled = true;
   addTearDown(() {
     FlutterError.onError = origOnError;
     _knownDefects.clear();
+    _seenDetails.clear();
     _filterInstalled = false;
   });
 }
 
+/// drain 이 걸러내지 못한 예외를, 진단 정보를 최대한 붙여서 다시 던진다.
+///
+/// 그냥 `throw e` 하면 스택이 이 헬퍼를 가리키고 `FlutterErrorDetails` 가 통째로
+/// 사라져서, 정작 이 PR 이 사려던 "어느 위젯이 터뜨렸는지" 를 잃는다.
+Never _rethrowWithDiagnostics(Object e) {
+  final details = _detailsFor(e);
+  if (details != null) {
+    // FlutterErrorDetails.toString() 은 에러 요약 + `The relevant error-causing
+    // widget was` + informationCollector 출력까지 전부 렌더한다.
+    Error.throwWithStackTrace(
+      TestFailure(details.toString()),
+      details.stack ?? StackTrace.current,
+    );
+  }
+  if (e is Error) {
+    final stack = e.stackTrace;
+    if (stack != null) Error.throwWithStackTrace(e, stack);
+  }
+  // ignore: only_throw_errors
+  throw e;
+}
+
 /// 이미 기록된 예외 중 **이미지/에셋 계열만** 비운다.
 ///
-/// 그 외 예외는 다시 던져서 진짜 위젯 결함이 조용히 통과하지 않게 한다.
-/// 원래 스택을 최대한 보존한다([Error] 는 자신의 `stackTrace` 를 들고 있다).
+/// 그 외 예외는 다시 던져서 진짜 위젯 결함이 조용히 통과하지 않게 한다. 이때
+/// [FlutterErrorDetails] 를 되살려 던지므로 "어느 위젯이 원인이었는지" 까지 그대로
+/// 보고된다([_rethrowWithDiagnostics]).
 ///
 /// 부수 효과로 남은 테스트 구간에 이미지 에러 필터를 설치한다 — 그래야 이후
 /// 프레임의 이미지 에러가 `_pendingExceptionDetails` 를 차지해서 진짜 에러와
 /// "Multiple exceptions" 로 뭉개지는 일을 막을 수 있다.
-/// [knownDefects] 는 **이미 알려진 프로덕션 결함 하나**를 이름으로 지목해 통과시키는
-/// 좁은 화이트리스트다. 여기 적힌 문자열을 포함하는 에러만 넘어가고, 그 외 에러는
-/// 여전히 테스트를 깨뜨린다. 반드시 "왜 아직 못 고쳤는지" 주석과 함께 쓴다.
-/// 지정한 순간부터 그 테스트가 끝날 때까지 적용된다.
+///
+/// [knownDefects] 는 **아직 못 고친 프로덕션 결함 하나**를 에러 메시지로 지목해
+/// 통과시키는 좁은 화이트리스트다. 여기 적힌 문자열을 포함하는 에러만 넘어가고,
+/// 그 외 에러는 여전히 테스트를 깨뜨린다. 적용 범위는 **이 호출이 일어난 테스트
+/// 하나** 뿐이고 테스트가 끝나면 사라진다 — 같은 파일의 다른 테스트는 그대로
+/// 살아 있다. 반드시 "결함 위치 + 왜 아직 못 고쳤는지" 주석과 함께 쓴다.
 void drainExpectedImageErrors(
   WidgetTester tester, {
   Iterable<String> knownDefects = const <String>[],
@@ -114,12 +150,7 @@ void drainExpectedImageErrors(
   for (Object? e = tester.takeException(); e != null; e = tester.takeException()) {
     if (isExpectedImageOrAssetError(e)) continue;
     if (_isKnownDefect(e)) continue;
-    if (e is Error) {
-      final stack = e.stackTrace;
-      if (stack != null) Error.throwWithStackTrace(e, stack);
-    }
-    // ignore: only_throw_errors
-    throw e;
+    _rethrowWithDiagnostics(e);
   }
 }
 
@@ -127,15 +158,16 @@ void drainExpectedImageErrors(
 Future<void> pumpAndIgnoreErrors(
   WidgetTester tester, [
   Duration? duration,
-  Iterable<String> knownDefects = const <String>[],
 ]) async {
   _ensureFilterInstalled();
-  _knownDefects.addAll(knownDefects);
   await tester.pump(duration);
   drainExpectedImageErrors(tester);
 }
 
 /// `tester.pumpWidget()` 후 이미지/에셋 계열 예외만 무시한다.
+///
+/// [knownDefects] 는 [drainExpectedImageErrors] 와 같은 의미다 — 이 테스트 하나에만
+/// 적용되는 격리. 첫 프레임부터 터지는 결함은 여기서 지목해야 한다.
 Future<void> pumpWidgetAndIgnoreErrors(
   WidgetTester tester,
   Widget widget, {

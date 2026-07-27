@@ -50,9 +50,6 @@ class MockCelebGalleryList extends AsyncCelebGalleryList {
 }
 
 void main() {
-  // 격리 — pic 홈이 세로로 넘친다(단독 실행 시 749px, 스크롤 컨테이너 없이
-  // Column 에 쌓인다). 페이지 구조 변경이라 여기서 안 고친다.
-  allowKnownDefects(const ['A RenderFlex overflowed by']);
   late void Function() restore;
 
   setUp(() {
@@ -82,12 +79,30 @@ void main() {
     tearDownMockSupabase();
   });
 
-  Future<void> pumpAndDrain(WidgetTester tester, widget) async {
-    await tester.pumpWidget(widget);
-    drainExpectedImageErrors(tester);
+  Future<void> pumpAndDrain(
+    WidgetTester tester,
+    widget, {
+    Iterable<String> knownDefects = const <String>[],
+  }) async {
+    // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
+    // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
+    // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
+    await pumpWidgetAndIgnoreErrors(tester, widget, knownDefects: knownDefects);
     await tester.pump(const Duration(seconds: 1));
     drainExpectedImageErrors(tester);
   }
+
+  /// 격리 — PicHomePage 를 띄우는 테스트에만 붙인다.
+  ///
+  /// pic_home_page.dart:167 의 `loading:` 브랜치가 스크롤 컨테이너 없이 bare
+  /// `Column` 에 `VoteCardSkeleton` 3장을 쌓아서, 첫 프레임이 세로로 749px 넘친다.
+  /// 데이터가 도착한 뒤(`data:` 브랜치, :123 의 `ListView`)에는 안 넘치므로 사용자가
+  /// 보는 건 스켈레톤 프레임 한 장뿐이고, pic 은 운영 중인 포털도 아니라 우선순위가
+  /// 낮다. 스켈레톤을 스크롤 가능한 컨테이너에 넣는 게 맞는 수정이다.
+  ///
+  /// 같은 파일의 `CelebDropDown render` 그룹은 이 결함과 무관하므로 격리하지 않는다
+  /// — 거기서 오버플로가 나면 그대로 실패해야 한다.
+  const picHomeLoadingOverflow = ['A RenderFlex overflowed by'];
 
   group('PicHomePage render', () {
     testWidgets('renders with celeb data', (WidgetTester tester) async {
@@ -102,6 +117,7 @@ void main() {
                 .overrideWith(MockCelebGalleryList.new),
           ],
         ),
+        knownDefects: picHomeLoadingOverflow,
       );
 
       expect(find.byType(PicHomePage), findsOneWidget);
@@ -120,6 +136,7 @@ void main() {
                 .overrideWith(MockCelebGalleryList.new),
           ],
         ),
+        knownDefects: picHomeLoadingOverflow,
       );
 
       expect(find.byType(PicHomePage), findsOneWidget);
@@ -140,6 +157,7 @@ void main() {
                 .overrideWith(MockCelebGalleryList.new),
           ],
         ),
+        knownDefects: picHomeLoadingOverflow,
       );
 
       await tester.pump(const Duration(milliseconds: 500));
@@ -161,6 +179,7 @@ void main() {
                 .overrideWith(MockCelebGalleryList.new),
           ],
         ),
+        knownDefects: picHomeLoadingOverflow,
       );
 
       await tester.pump(const Duration(milliseconds: 500));
