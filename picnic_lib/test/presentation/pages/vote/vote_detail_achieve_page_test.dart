@@ -814,25 +814,11 @@ void main() {
   });
 
   group('Timer and update logic', () {
-    test('isDisposed prevents timer callback', () {
-      bool isDisposed = true;
-      bool callbackExecuted = false;
-
-      if (!isDisposed) {
-        callbackExecuted = true;
-      }
-      expect(callbackExecuted, isFalse);
-    });
-
-    test('mounted check prevents setState', () {
-      bool mounted = false;
-      bool stateUpdated = false;
-
-      if (mounted) {
-        stateUpdated = true;
-      }
-      expect(stateUpdated, isFalse);
-    });
+    // NOTE: 'isDisposed prevents timer callback' / 'mounted check prevents
+    // setState' 테스트는 삭제했다. 로컬 bool 상수를 만들어 스스로 검사하는
+    // 동어반복이라 프로덕션 코드를 전혀 실행하지 않았고(dead_code 분석 경고의
+    // 원인), 페이지의 실제 dispose/타이머 동작은 위젯 테스트
+    // ('dispose cleans up without error' 등)가 담당한다.
 
     test('first item extraction from vote item data', () {
       final voteItemData = [
@@ -1140,21 +1126,46 @@ void main() {
       expect(find.byType(VoteDetailAchievePage), findsOneWidget);
     });
 
+    // 이 페이지의 스크롤러는 CustomScrollView 가 아니라 SingleChildScrollView
+    // 다. 예전 버전은 `if (find.byType(CustomScrollView)...isNotEmpty)` 가
+    // 항상 거짓이라 드래그가 한 번도 실행되지 않는 죽은 테스트였다.
     testWidgets('renders and can be scrolled', (WidgetTester tester) async {
       await pumpAndDrain(
         tester,
         buildTestAppPage(const VoteDetailAchievePage(voteId: 1)),
       );
-      expect(find.byType(VoteDetailAchievePage), findsOneWidget);
-
-      final scrollable = find.byType(CustomScrollView);
-      if (scrollable.evaluate().isNotEmpty) {
-        await tester.drag(scrollable.first, const Offset(0, -300),
-            warnIfMissed: false);
-        drainExpectedImageErrors(tester);
-        await tester.pump(const Duration(milliseconds: 200));
+      // 두 프로바이더(상세 → 순위 목록)가 순차 구독되므로 콘텐츠까지 프레임을
+      // 몇 번 더 돌린다.
+      for (var i = 0; i < 3; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
         drainExpectedImageErrors(tester);
       }
+      expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+      expect(find.text('리워드1'), findsOneWidget);
+
+      final scrollable = find.byType(SingleChildScrollView);
+      expect(scrollable, findsOneWidget);
+      final position = tester
+          .state<ScrollableState>(
+            find.descendant(of: scrollable, matching: find.byType(Scrollable)),
+          )
+          .position;
+      expect(position.maxScrollExtent, greaterThan(0),
+          reason: '사다리가 뷰포트보다 길어야 스크롤 자체를 검증할 수 있다');
+      expect(position.pixels, 0);
+
+      await tester.drag(scrollable, const Offset(0, -300), warnIfMissed: false);
+      drainExpectedImageErrors(tester);
+      await tester.pump(const Duration(milliseconds: 200));
+      drainExpectedImageErrors(tester);
+
+      expect(position.pixels, greaterThan(0),
+          reason: '드래그 후 스크롤 오프셋이 실제로 움직여야 한다');
+
+      // 콘텐츠가 로드되면 BannerAdWidget 의 취소 불가 재시도 타이머가 남는다 —
+      // 언마운트 후 만료시킨다.
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(seconds: 30));
     });
 
     testWidgets('renders with no achieve milestones', (WidgetTester tester) async {
