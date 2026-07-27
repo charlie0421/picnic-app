@@ -283,11 +283,9 @@ void main() {
       // app_localizations 는 `Locale('zh')` 를 지원 목록에 넣어두었는데
       // constants.dart 의 languageMap 에는 'zh_CN'/'zh_TW' 만 있고 'zh' 가 없다.
       // login_page.dart:284 의 `languageMap[appSettingState.language]!` 가 그대로
-      // null 단언이라 언어가 'zh' 인 사용자는 로그인 화면에서 크래시한다.
-      //
-      // 이건 main 에서 #85(`languageLabel()` 폴백)로 이미 고쳐졌다. 이 브랜치는
-      // 아직 그 커밋을 안 받았을 뿐이므로, main 을 머지하는 순간 이 격리는
-      // 통째로 지워야 한다 — 그때 이 테스트는 격리 없이 그냥 통과해야 한다.
+      // 예전에는 `languageMap[appSettingState.language]!` 이 맨 'zh' 에 대해
+      // 던졌다. #85 가 `languageLabel()` 폴백으로 고쳤고 그 커밋이 이제
+      // 이 브랜치에도 들어와 있으므로, 격리 없이 그냥 통과해야 한다.
       await pumpWidgetAndIgnoreErrors(
         tester,
         buildTestAppPage(
@@ -296,7 +294,6 @@ void main() {
           locale: const Locale('zh'),
           setting: MockData.setting(language: 'zh'),
         ),
-        knownDefects: const ['Null check operator used on a null value'],
       );
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
