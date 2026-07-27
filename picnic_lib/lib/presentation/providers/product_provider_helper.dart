@@ -46,6 +46,18 @@ class ProductProviderHelper {
     }
   }
 
+  /// 샌드박스에서 네임스페이스 격리 검증([validateSandboxProductIds])을
+  /// 수행해야 하는지 여부.
+  ///
+  /// 프로덕션 SKU 옵트인([Environment.sandboxUsesProductionStoreSkus])이
+  /// 켜진 빌드는 격리가 아니라 "프로덕션 상품으로 테스트"가 목적이므로
+  /// 검증을 건너뛴다 — 그 결정 자체가 CI 설정에 명시돼 있다.
+  static bool requiresSandboxIsolation({
+    required String environment,
+    required bool usesProductionSkus,
+  }) =>
+      environment != 'prod' && environment != 'test' && !usesProductionSkus;
+
   static void validateSandboxProductIds(
     Set<String> productIds, {
     required String namespace,

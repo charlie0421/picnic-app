@@ -15,6 +15,19 @@ class Environment {
   static const _paymentProductNamespace = String.fromEnvironment(
     'PICNIC_PAYMENT_PRODUCT_NAMESPACE',
   );
+
+  /// 샌드박스(스테이징) 빌드가 스토어에서 **프로덕션 SKU 를 그대로** 조회하게
+  /// 하는 명시적 옵트인. CI 스테이징 워크플로만 켠다.
+  ///
+  /// 기본(false)에서는 [ProductProviderHelper.validateSandboxProductIds] 가
+  /// 네임스페이스 격리를 강제하므로, 로컬/dev 빌드가 실수로 프로덕션
+  /// 카탈로그(= 실결제 가능)를 여는 사고를 막는다. 이 플래그는 그 보호를
+  /// "스테이징에서 프로덕션 상품으로 테스트한다"는 운영 결정에 한해
+  /// 의도적으로 해제한다. 구매 과금은 스토어 계정 설정(Apple sandbox 계정 /
+  /// Google Play 라이선스 테스터)이 담당한다.
+  static const _sandboxUsesProductionStoreSkus = bool.fromEnvironment(
+    'PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS',
+  );
   static const _pangleRuntimeConfig = <String, String>{
     'ios_app_id': String.fromEnvironment('PICNIC_PANGLE_IOS_APP_ID'),
     'android_app_id': String.fromEnvironment('PICNIC_PANGLE_ANDROID_APP_ID'),
@@ -99,6 +112,10 @@ class Environment {
   static String get paymentProductNamespace => _currentEnvironment == 'prod'
       ? inappAppNamePrefix
       : _paymentProductNamespace;
+
+  /// 프로덕션에서는 항상 false — 이 플래그는 샌드박스 전용 의미만 갖는다.
+  static bool get sandboxUsesProductionStoreSkus =>
+      _currentEnvironment != 'prod' && _sandboxUsesProductionStoreSkus;
 
   // 중첩된 설정값을 가져오는 헬퍼 메서드
   static dynamic _getValue(List<String> path) {

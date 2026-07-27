@@ -230,6 +230,44 @@ void main() {
     });
   });
 
+  group('ProductProviderHelper.requiresSandboxIsolation', () {
+    // 프로덕션 SKU 옵트인(PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS)이 켜진
+    // 샌드박스는 격리 검증을 건너뛴다 — "스테이징은 프로덕션 상품으로
+    // 테스트"라는 명시된 운영 결정. 옵트인이 없으면 로컬/dev 의 실결제
+    // 사고 방지를 위해 검증이 강제된다.
+    test('sandbox without the opt-in still requires isolation', () {
+      expect(
+        ProductProviderHelper.requiresSandboxIsolation(
+          environment: 'dev',
+          usesProductionSkus: false,
+        ),
+        isTrue,
+      );
+    });
+
+    test('the explicit opt-in waives isolation in sandbox', () {
+      expect(
+        ProductProviderHelper.requiresSandboxIsolation(
+          environment: 'dev',
+          usesProductionSkus: true,
+        ),
+        isFalse,
+      );
+    });
+
+    test('production never runs the sandbox isolation check', () {
+      for (final usesProductionSkus in [true, false]) {
+        expect(
+          ProductProviderHelper.requiresSandboxIsolation(
+            environment: 'prod',
+            usesProductionSkus: usesProductionSkus,
+          ),
+          isFalse,
+        );
+      }
+    });
+  });
+
   group('ProductProviderHelper.shouldPreviewEmptyStoreCatalog', () {
     // 스테이징(dev 환경 빌드)의 Android 는 결정에 따라 상품이 스토어에
     // 없다 — 네임스페이스가 붙은 ID 는 어디에도 등록되지 않는다. 그때
