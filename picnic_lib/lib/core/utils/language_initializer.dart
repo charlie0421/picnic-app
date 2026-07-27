@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
@@ -34,35 +35,17 @@ class LanguageInitializer {
           appSetting.language == defaultLanguage) {
         try {
           // 디바이스의 시스템 로케일 가져오기
-          final deviceLocale = ui.PlatformDispatcher.instance.locale;
-          final deviceLanguage = deviceLocale.languageCode;
+          // (WidgetsBinding 경유 - 테스트에서 주입 가능하고 프로덕션에서는
+          //  ui.PlatformDispatcher.instance 와 동일한 객체다)
+          final deviceLocale =
+              WidgetsBinding.instance.platformDispatcher.locale;
+          final detectedLanguage = resolveDeviceLanguage(deviceLocale);
 
-          // 지원되는 언어인지 확인
-          if (Setting.supportedLanguages.contains(deviceLanguage) ||
-              Setting.supportedLanguages.contains(
-                '${deviceLanguage}_${deviceLocale.countryCode}',
-              )) {
-            // zh_CN, zh_TW 등 지역 코드가 있는 경우 처리
-            String detectedLanguage = deviceLanguage;
-            if (deviceLanguage == 'zh') {
-              if (deviceLocale.countryCode == 'TW') {
-                detectedLanguage = 'zh_TW'; // Flutter 앱 형식
-              } else {
-                detectedLanguage = 'zh_CN'; // Flutter 앱 형식
-              }
-            } else if (deviceLanguage == 'bn') {
-              detectedLanguage = 'bn_BD'; // Flutter 앱 형식
-            } else if (deviceLocale.countryCode != null &&
-                Setting.supportedLanguages.contains(
-                  '${deviceLanguage}_${deviceLocale.countryCode}',
-                )) {
-              detectedLanguage =
-                  '${deviceLanguage}_${deviceLocale.countryCode}';
-            }
-
+          // 지원되는 언어인 경우에만 적용한다. null 이면 기본 언어로 남는다.
+          if (detectedLanguage != null) {
             targetLanguage = detectedLanguage;
             logger.i(
-              '디바이스 언어 감지: $detectedLanguage (device: ${deviceLocale.languageCode}_${deviceLocale.countryCode})',
+              '디바이스 언어 감지: $detectedLanguage (device: ${deviceLocale.toLanguageTag()})',
             );
 
             // 디바이스 언어를 로컬 스토리지에 저장
@@ -117,6 +100,53 @@ class LanguageInitializer {
         return (false, defaultLanguage);
       }
     }
+  }
+
+  /// 디바이스 로케일을 앱이 지원하는 언어 코드로 변환한다.
+  /// 지원하지 않는 언어면 null 을 돌려주고, 호출부는 기본 언어를 유지한다.
+  ///
+  /// 조회는 정규화된(canonical) 코드로 한다. `Setting.supportedLanguages` 는
+  /// 지역 없는 `zh` / `bn` 을 일부러 빼기 때문에, 디바이스가 준 코드를 그대로
+  /// 넣으면 지역 코드가 없는 중국어/벵골어 기기가 전부 미지원으로 떨어졌다.
+  ///
+  /// 1. 지역 코드가 있으면 `<lang>_<REGION>` 을 정규화해서 먼저 찾는다.
+  ///    (`zh_TW` 처럼 지역 변형을 실제로 서비스하는 언어를 잡는다)
+  /// 2. 실패하면 지역 없는 언어 코드를 정규화해서 찾는다.
+  ///    (`en_GB` → `en` 처럼 우리가 안 가진 지역은 언어 단위로 떨어뜨린다)
+  @visibleForTesting
+  static String? resolveDeviceLanguage(ui.Locale deviceLocale) {
+    final supported = Setting.supportedLanguages;
+    final region = _lookupRegion(deviceLocale);
+
+    if (region != null && region.isNotEmpty) {
+      final regional = canonicalLanguageCode(
+        '${deviceLocale.languageCode}_$region',
+      );
+      if (supported.contains(regional)) return regional;
+    }
+
+    final language = canonicalLanguageCode(deviceLocale.languageCode);
+    return supported.contains(language) ? language : null;
+  }
+
+  /// 조회에 사용할 지역 코드. 지역 정보가 전혀 없으면 null.
+  ///
+  /// 중국어는 지역보다 표기 체계(scriptCode)가 우선한다. iOS/Android 모두
+  /// "중국어(간체) + 홍콩" 같은 조합을 `zh-Hans-HK` 로 보고하는데, 지역만
+  /// 보면 번체로 잘못 판정된다. 어떤 지역이 간체/번체인지에 대한 규칙 자체는
+  /// [canonicalLanguageCode] 가 단독으로 갖고 있고, 여기서는 "표기 체계가
+  /// 지역을 이긴다"만 정한다. scriptCode 는 `ui.Locale` 에만 있는 개념이라
+  /// 문자열 코드를 받는 [canonicalLanguageCode] 로 내릴 수 없다.
+  static String? _lookupRegion(ui.Locale deviceLocale) {
+    if (deviceLocale.languageCode == 'zh') {
+      switch (deviceLocale.scriptCode) {
+        case 'Hans':
+          return 'CN';
+        case 'Hant':
+          return 'TW';
+      }
+    }
+    return deviceLocale.countryCode;
   }
 
   /// 앱의 언어를 변경합니다.

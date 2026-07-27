@@ -84,7 +84,12 @@ Map<String, String> languageMap = {
   'my': 'မြန်မာ',
 };
 
-/// 지역 코드가 없는 언어 코드를 앱이 실제로 사용하는 지역 변형으로 정규화한다.
+/// 앱이 번체 번역(`zh_TW`)을 제공하는 중국어권 지역.
+///
+/// 나머지 중국어권 지역(CN/SG/…)과 지역 코드가 없는 `zh` 는 간체(`zh_CN`)로 본다.
+const Set<String> _traditionalChineseRegions = {'TW', 'HK', 'MO'};
+
+/// 언어 코드를 앱이 실제로 사용하는 지역 변형으로 정규화한다.
 ///
 /// `AppLocalizations.supportedLocales` 는 ARB 파일에서 생성되므로 지역 없는
 /// `zh` / `bn` 을 포함하지만, 앱은 이 둘을 단독으로 취급하지 않는다
@@ -92,11 +97,22 @@ Map<String, String> languageMap = {
 /// 저장된 값에 대해 [Setting.load] 가 수행하는 마이그레이션과 동일한 규칙이며,
 /// 이 함수가 그 규칙의 단일 출처다.
 ///
+/// 중국어/벵골어는 앱이 서비스하는 변형이 정해져 있으므로 지역 코드가 붙어
+/// 있어도 그 변형으로 접는다. 앱은 중국어를 간체/번체 두 가지로만 서비스하고
+/// (`zh_CN` / `zh_TW`), 벵골어는 `bn_BD` 하나만 서비스한다. 따라서
+/// `zh_HK` / `zh_MO` → `zh_TW`, `zh_SG` → `zh_CN`, `bn_IN` → `bn_BD` 가 된다.
+/// 디바이스 로케일 감지(`LanguageInitializer`)와 저장값 마이그레이션이
+/// 같은 규칙을 쓰도록 하기 위한 것이다.
+///
 /// 매핑이 없는 코드는 그대로 돌려준다.
 String canonicalLanguageCode(String code) {
-  switch (code) {
+  final separator = code.indexOf('_');
+  final language = separator == -1 ? code : code.substring(0, separator);
+  final region = separator == -1 ? '' : code.substring(separator + 1);
+
+  switch (language) {
     case 'zh':
-      return 'zh_CN';
+      return _traditionalChineseRegions.contains(region) ? 'zh_TW' : 'zh_CN';
     case 'bn':
       return 'bn_BD';
     default:
