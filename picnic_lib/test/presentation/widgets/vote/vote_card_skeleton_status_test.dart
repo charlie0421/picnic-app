@@ -152,28 +152,27 @@ void main() {
       expect(skeleton3, isNotNull);
     });
 
-    testWidgets('ongoing and ended show more structure than upcoming',
+    testWidgets('every status renders its own content block skeleton',
         (WidgetTester tester) async {
-      // Pump ongoing
-      await tester.pumpWidget(
-        buildTestWidget(const VoteCardSkeleton(status: VoteCardStatus.ongoing)),
-      );
-      await tester.pump();
-      final ongoingShimmerCount =
-          find.byType(Shimmer).evaluate().length;
-
-      // Pump upcoming
-      await tester.pumpWidget(
-        buildTestWidget(
-            const VoteCardSkeleton(status: VoteCardStatus.upcoming)),
-      );
-      await tester.pump();
-      final upcomingShimmerCount =
-          find.byType(Shimmer).evaluate().length;
-
-      // Ongoing has vote items container with Shimmer + header Shimmer + footer Shimmer
-      // Upcoming only has header Shimmer + footer Shimmer (no vote items container)
-      expect(ongoingShimmerCount, greaterThan(upcomingShimmerCount));
+      // 예전에는 "upcoming 은 ongoing 보다 구조가 덜하다"(셔머 수 비교)를
+      // 고정했지만, upcoming 에 실카드의 썸네일 그리드에 대응하는 자리
+      // 표시자가 생기면서(Δ386px 점프 수정) 그 전제가 의도적으로 깨졌다.
+      // 이제 불변식은 "어느 상태든 헤더/콘텐츠/푸터 셔머가 모두 있다"이다.
+      for (final status in [
+        VoteCardStatus.ongoing,
+        VoteCardStatus.ended,
+        VoteCardStatus.upcoming,
+      ]) {
+        await tester.pumpWidget(
+          buildTestWidget(VoteCardSkeleton(status: status)),
+        );
+        await tester.pump();
+        expect(
+          find.byType(Shimmer).evaluate().length,
+          greaterThanOrEqualTo(3),
+          reason: '$status 스켈레톤은 헤더·콘텐츠·푸터 셔머를 모두 가져야 한다',
+        );
+      }
     });
   });
 }

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
@@ -61,6 +63,43 @@ class VoteCardSkeleton extends StatelessWidget {
               child: _buildFooterSkeleton(),
             ),
           ],
+
+          // 예정 썸네일 그리드 자리 표시자. 실카드
+          // (`vote_info_card.dart` `_buildUpcomingThumbnailGrid`)와 같은 세로
+          // 치수 — 마진 16 + 패딩 12/12 + clamp(200, 340, 화면높이×0.36).
+          // 이 블록이 없던 시절엔 스켈레톤이 실카드보다 386px 짧아서 데이터
+          // 도착 순간 리스트가 그만큼 점프했다. 치수 일치는
+          // vote_card_skeleton_extent_test.dart 가 실카드를 직접 측정해
+          // 고정한다.
+          if (status == VoteCardStatus.upcoming)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(top: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(40),
+                border: Border.all(color: Colors.grey[300]!, width: 1.5.w),
+              ),
+              child: SizedBox(
+                height: math.max(
+                  200.0,
+                  math.min(
+                    340.0,
+                    MediaQuery.of(context).size.height * 0.36,
+                  ),
+                ),
+                child: Shimmer.fromColors(
+                  baseColor: AppColors.grey300,
+                  highlightColor: AppColors.grey100,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
           // 하단 정보 (예정 투표용)
           if (status == VoteCardStatus.upcoming) ...[
@@ -385,7 +424,7 @@ class VoteCardSkeleton extends StatelessWidget {
     // Shimmer 는 자식을 BlendMode.srcIn ShaderMask 로 덮으므로(shimmer 3.0.0
     // `_Shimmer.paint`), 프레임이 Shimmer 안에 있으면 그 위의 아이템 블록들이
     // 배경과 한 덩어리로 칠해져 구조 없는 회색 라운드 사각형만 남는다.
-    // 같은 패턴: vote_detail_skeleton.dart, vote_card_skeleton_vs.dart 등.
+    // 같은 패턴: vote_detail_skeleton.dart 등.
     return Container(
       width: double.infinity,
       height: 260,
