@@ -202,6 +202,48 @@ void main() {
     });
   });
 
+  group('VoteCardSkeleton - vote items frame shimmer structure', () {
+    /// 투표 아이템 컨테이너의 불투명 프레임(흰 배경 + 테두리 + 라운드 40).
+    final itemsFrame = find.byWidgetPredicate((widget) {
+      if (widget is! Container) return false;
+      final decoration = widget.decoration;
+      return decoration is BoxDecoration &&
+          decoration.color == Colors.white &&
+          decoration.border != null &&
+          decoration.borderRadius == BorderRadius.circular(40);
+    }, description: 'opaque vote items frame');
+
+    // Shimmer 는 자식을 BlendMode.srcIn ShaderMask 로 덮으므로, 불투명한 흰
+    // 프레임이 Shimmer 안에 있으면 그 위의 아이템 블록들이 배경과 한 덩어리로
+    // 칠해져 구조 없는 회색 라운드 사각형만 남는다(수정 전 상태).
+    for (final status in [VoteCardStatus.ongoing, VoteCardStatus.ended]) {
+      testWidgets('$status keeps the opaque items frame outside the shimmer',
+          (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestApp(
+            SingleChildScrollView(
+              child: VoteCardSkeleton(status: status),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(itemsFrame, findsOneWidget);
+        expect(
+          find.descendant(of: find.byType(Shimmer), matching: itemsFrame),
+          findsNothing,
+          reason: '불투명한 아이템 프레임은 Shimmer 밖에 있어야 한다 — 안에 '
+              '있으면 srcIn 마스크가 프레임과 블록을 한 덩어리로 칠한다',
+        );
+        expect(
+          find.descendant(of: itemsFrame, matching: find.byType(Shimmer)),
+          findsOneWidget,
+          reason: '아이템 프레임은 자기 Shimmer 를 직접 들고 있어야 한다',
+        );
+      });
+    }
+  });
+
   group('VoteCardSkeleton - footer skeleton variants', () {
     testWidgets('upcoming footer has single shimmer row element',
         (WidgetTester tester) async {

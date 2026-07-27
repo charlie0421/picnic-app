@@ -329,7 +329,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
               addAutomaticKeepAlives: true,
               addRepaintBoundaries: true,
               itemBuilder: (context, index) {
-                final title = getLocaleTextFromJson(data[index].title!);
+                // `title` 은 순수 nullable 컬럼(`RewardModel.title`)이라
+                // 운영자가 비워두면 널이고, 단언하면 리워드 행 전체가 에러
+                // 박스가 된다. `getLocaleTextFromJson` 은 빈 맵을 '' 로
+                // 처리한다.
+                final title =
+                    getLocaleTextFromJson(data[index].title ?? const {});
                 final isHighPriority = index < 3;
 
                 return GestureDetector(

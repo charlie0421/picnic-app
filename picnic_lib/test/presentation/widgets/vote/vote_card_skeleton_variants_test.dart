@@ -44,7 +44,9 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(Shimmer), findsOneWidget);
+      // 프레임(헤더·컨텐츠) 카드가 각자 자기 Shimmer 를 든다 — 위젯 전체를 하나의
+      // Shimmer 로 감싸면 불투명 프레임이 srcIn 마스크에 먹혀 골격이 사라진다.
+      expect(find.byType(Shimmer), findsNWidgets(2));
     });
 
     testWidgets('contains 3 circle containers for ranks', (tester) async {
@@ -81,7 +83,9 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(Shimmer), findsOneWidget);
+      // 프레임(헤더·컨텐츠) 카드가 각자 자기 Shimmer 를 든다 — 위젯 전체를 하나의
+      // Shimmer 로 감싸면 불투명 프레임이 srcIn 마스크에 먹혀 골격이 사라진다.
+      expect(find.byType(Shimmer), findsNWidgets(2));
     });
 
     testWidgets('is a StatelessWidget with const constructor', (tester) async {
@@ -107,7 +111,9 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(Shimmer), findsOneWidget);
+      // 프레임(헤더·컨텐츠) 카드가 각자 자기 Shimmer 를 든다 — 위젯 전체를 하나의
+      // Shimmer 로 감싸면 불투명 프레임이 srcIn 마스크에 먹혀 골격이 사라진다.
+      expect(find.byType(Shimmer), findsNWidgets(2));
     });
 
     testWidgets('contains two item columns and VS placeholder', (tester) async {
