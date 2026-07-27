@@ -601,9 +601,15 @@ class _PicnicCachedNetworkImageState
   @override
   Widget build(BuildContext context) {
     // C4: 빠른 플링 중이면 디코드/네트워크를 미루고 placeholder 만 그린다.
-    // 스크롤이 멎으면 Scrollable 이 이 컨텍스트를 다시 빌드하여 실제 이미지로 전환.
+    //
+    // recommendDeferredLoadingForContext 는 inherited 의존성을 **만들지
+    // 않으므로**, 스크롤이 멎어도 이 위젯은 저절로 재빌드되지 않는다 — 재시도
+    // 예약이 없으면 플링 중에 빌드된 아이템이 영구 placeholder 로 남는다
+    // (테스트로 재현: 정지 후 2초가 지나도 복귀하지 않았다). Flutter 의
+    // ScrollAwareImageProvider 가 같은 이유로 같은 패턴을 쓴다.
     if (widget.deferDuringFastScroll &&
         Scrollable.recommendDeferredLoadingForContext(context)) {
+      _scheduleDeferredRetry();
       return _buildSafePlaceholder();
     }
 
@@ -627,6 +633,22 @@ class _PicnicCachedNetworkImageState
       onVisibilityChanged: _onVisibilityChanged,
       child: _buildSafeMainWidget(),
     );
+  }
+
+  /// C4 지연 중 다음 프레임에 재평가를 예약한다.
+  ///
+  /// 플링이 계속이면 다시 placeholder(값싼 경로)로 떨어지고, 멎었으면 실제
+  /// 이미지로 전환된다. 프레임당 한 번만 예약되며, 지연 상태가 아니면 아무
+  /// 비용도 없다.
+  bool _deferredRetryScheduled = false;
+
+  void _scheduleDeferredRetry() {
+    if (_deferredRetryScheduled) return;
+    _deferredRetryScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _deferredRetryScheduled = false;
+      if (mounted) setState(() {});
+    });
   }
 
   /// 안전한 플레이스홀더 빌드 (크기 보장)
