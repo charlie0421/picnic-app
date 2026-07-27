@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -18,6 +15,7 @@ import '../../../helpers/factories/artist_factory.dart';
 import '../../../helpers/factories/vote_factory.dart';
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_supabase.dart';
+import '../../../helpers/pixel_probe.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
 
@@ -92,9 +90,6 @@ Matcher _closeToRect(Rect expected) => isA<Rect>()
     .having((r) => r.top, 'top', closeTo(expected.top, 0.01))
     .having((r) => r.width, 'width', closeTo(expected.width, 0.01))
     .having((r) => r.height, 'height', closeTo(expected.height, 0.01));
-
-String _hex(Color color) =>
-    color.toARGB32().toRadixString(16).padLeft(8, '0');
 
 void _useDevice(WidgetTester tester, Size size) {
   tester.view.devicePixelRatio = 3.0;
@@ -202,71 +197,10 @@ Future<void> _completeWithData(
   }
 }
 
-/// [_captureBoundary] 서브트리를 논리 픽셀 1:1 로 뜬 비트맵.
-///
-/// 골든이 못 잡는 건 "왜" 다. 픽셀을 직접 읽으면 어떤 위젯 종류를 썼는지와
-/// 무관하게 "여백에 카드 배경이 보이는가", "블록이 실제로 칠해지는가" 를
-/// 그대로 물을 수 있다. 금지 위젯 목록을 늘리는 방식은 우회 방법도 같이 늘어난다.
-class _Capture {
-  _Capture(this._rgba, this.width, this.height, this.origin);
-
-  final Uint8List _rgba;
-  final int width;
-  final int height;
-
-  /// 캡처 좌상단의 전역 좌표.
-  final Offset origin;
-
-  /// 전역 좌표 [global] 픽셀의 ARGB 16진 문자열.
-  String at(Offset global) {
-    final local = global - origin;
-    final x = local.dx.floor();
-    final y = local.dy.floor();
-    expect(
-      x >= 0 && x < width && y >= 0 && y < height,
-      isTrue,
-      reason: '$global 이 캡처(${width}x$height @ $origin) 밖이다',
-    );
-    final i = (y * width + x) * 4;
-    return ((_rgba[i + 3] << 24) |
-            (_rgba[i] << 16) |
-            (_rgba[i + 1] << 8) |
-            _rgba[i + 2])
-        .toRadixString(16)
-        .padLeft(8, '0');
-  }
-
-  /// [global] 사각형 안에서 [color] 가 **아닌** 픽셀의 비율.
-  double fractionNot(Color color, Rect global) {
-    final background = _hex(color);
-    var other = 0;
-    var total = 0;
-    for (var y = global.top.ceil(); y < global.bottom.floor(); y++) {
-      for (var x = global.left.ceil(); x < global.right.floor(); x++) {
-        total++;
-        if (at(Offset(x.toDouble(), y.toDouble())) != background) other++;
-      }
-    }
-    return other / total;
-  }
-}
-
-Future<_Capture> _captureCarousel(WidgetTester tester) async {
-  final finder = find.byKey(_captureBoundary);
-  final boundary = tester.renderObject<RenderRepaintBoundary>(finder);
-  final image = (await tester.runAsync(boundary.toImage))!;
-  final data = (await tester.runAsync(
-    () => image.toByteData(format: ui.ImageByteFormat.rawRgba),
-  ))!;
-  final capture = _Capture(
-    data.buffer.asUint8List(),
-    image.width,
-    image.height,
-    tester.getRect(finder).topLeft,
-  );
-  image.dispose();
-  return capture;
-}
+/// [_captureBoundary] 서브트리의 실제 픽셀. 프로브 구현은
+/// `test/helpers/pixel_probe.dart` 에 있다 (스켈레톤 회귀 테스트 공용).
+Future<PixelProbe> _captureCarousel(WidgetTester tester) =>
+    capturePixels(tester, find.byKey(_captureBoundary));
 
 void main() {
   late void Function() restoreImages;
@@ -540,7 +474,7 @@ void main() {
             final rect = tester.getRect(find.byKey(key));
             expect(
               capture.at(rect.center),
-              _hex(AppColors.grey300),
+              colorHex(AppColors.grey300),
               reason: '$key 중앙이 셔머 베이스 색으로 칠해져 있어야 한다 '
                   '— 흰색이면 카드 배경과 구분되지 않아 사용자에겐 없는 것과 같다',
             );
@@ -564,7 +498,7 @@ void main() {
           );
           expect(
             capture.at(gap),
-            _hex(AppColors.grey00),
+            colorHex(AppColors.grey00),
             reason: '${rows[i - 1]} 와 ${rows[i]} 사이에서 카드 배경이 보여야 한다 '
                 '— 회색이면 Shimmer 안의 불투명 배경이 골격을 통째로 삼킨 것이다',
           );
@@ -573,7 +507,7 @@ void main() {
         for (final dx in [frameRect.left + 4, frameRect.right - 4]) {
           expect(
             capture.at(Offset(dx, frameRect.center.dy)),
-            _hex(AppColors.grey00),
+            colorHex(AppColors.grey00),
             reason: '카드 좌우 여백에서 배경이 보여야 한다',
           );
         }

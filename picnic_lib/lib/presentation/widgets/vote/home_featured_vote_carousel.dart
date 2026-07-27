@@ -164,12 +164,10 @@ class _HomeFeaturedVoteCarouselState
 /// 그 사이 여백은 알파 0 이라 카드 배경이 비쳐, 골격이 실제로 눈에 보인다.
 ///
 /// 저장소 안의 같은 패턴: `VideoListItemSkeleton` — 불투명한 `Card` 가 Shimmer
-/// **바깥**에 있고 안쪽에는 흰 블록만 있다.
-///
-/// 반대 사례(따라 하지 말 것): `VoteDetailSkeleton` 은 최상위 `Shimmer` 안에
-/// `Container(color: Colors.white)` 를 두어(`vote_detail_skeleton.dart` 의
-/// `_buildVoteListSkeletonStatic`) 투표 목록 영역 전체가 지금도 구조 없는 회색
-/// 덩어리 하나로 렌더된다. 여기서 그 구조를 베끼면 이 위젯도 같은 버그를 얻는다.
+/// **바깥**에 있고 안쪽에는 흰 블록만 있다. `VoteDetailSkeleton` 의 투표 목록
+/// 카드도 같다(예전에는 반대였다 — 최상위 `Shimmer` 안에
+/// `Container(color: Colors.white)` 를 둬서 목록 전체가 구조 없는 회색 덩어리
+/// 하나로 렌더됐다).
 class _FeaturedVoteCardSkeleton extends StatelessWidget {
   const _FeaturedVoteCardSkeleton();
 
