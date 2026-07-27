@@ -1628,10 +1628,12 @@ void main() {
     });
 
     Future<void> pumpAndDrain(WidgetTester tester, widget) async {
-      await tester.pumpWidget(widget);
-      while (tester.takeException() != null) {}
+      // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
+      // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
+      // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
+      await pumpWidgetAndIgnoreErrors(tester, widget);
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     }
 
     testWidgets('renders without crashing', (WidgetTester tester) async {
@@ -1705,9 +1707,9 @@ void main() {
       );
       // Replace widget to trigger dispose
       await tester.pumpWidget(buildTestAppPage(const SizedBox()));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(milliseconds: 300));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     });
   });
 }

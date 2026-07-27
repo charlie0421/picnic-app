@@ -651,7 +651,7 @@ class _MyPageState extends ConsumerState<MyPage>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              languageMap[currentLanguage] ?? currentLanguage,
+              languageLabel(currentLanguage),
               style: getTextStyle(AppTypo.body14M, AppColors.grey900),
             ),
             SvgPicture.asset(

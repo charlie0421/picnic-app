@@ -3,12 +3,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
+import '../../../helpers/load_test_fonts.dart';
 import '../../../helpers/mock_data.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
 
 void main() {
+  // 프로덕션 폰트(Pretendard)를 실제로 올린다.
+  //
+  // 이게 없으면 flutter_test 의 기본 테스트 폰트(모든 글리프가 1em 정사각형)로
+  // 텍스트를 재는데, 그 폰트는 실제 Pretendard 보다 훨씬 넓다. 로그인 버튼 Row 가
+  // 여기서 오버플로로 보였던 건 순전히 그 때문이다 — 프로덕션 기하(393x892,
+  // kAppDesignSize, splitScreenMode) 로 구글 버튼만 따로 재보면 테스트 폰트로는
+  // 52px 넘치고 Pretendard 로는 0px 다. 즉 버튼 디자인 문제가 아니라 하네스 문제였고,
+  // 폰트를 올리면 이 파일의 오버플로는 전부 사라진다.
+  //
+  // 전역(`flutter_test_config.dart`)으로 올리지 않는 건 12k 개 테스트의 텍스트
+  // 기하가 한꺼번에 바뀌기 때문이다. 오버플로를 검사하는 파일에서만 켠다.
+  setUpAll(loadTestFonts);
+
   late void Function() restore;
 
   setUp(() {
@@ -264,7 +278,16 @@ void main() {
     });
 
     testWidgets('renders with Chinese locale', (WidgetTester tester) async {
-      await tester.pumpWidget(
+      // 격리 — 이 테스트 하나에만 적용된다.
+      //
+      // app_localizations 는 `Locale('zh')` 를 지원 목록에 넣어두었는데
+      // constants.dart 의 languageMap 에는 'zh_CN'/'zh_TW' 만 있고 'zh' 가 없다.
+      // login_page.dart:284 의 `languageMap[appSettingState.language]!` 가 그대로
+      // 예전에는 `languageMap[appSettingState.language]!` 이 맨 'zh' 에 대해
+      // 던졌다. #85 가 `languageLabel()` 폴백으로 고쳤고 그 커밋이 이제
+      // 이 브랜치에도 들어와 있으므로, 격리 없이 그냥 통과해야 한다.
+      await pumpWidgetAndIgnoreErrors(
+        tester,
         buildTestAppPage(
           const LoginPage(),
           loggedIn: false,

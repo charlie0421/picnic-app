@@ -281,7 +281,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  languageMap[appSettingState.language]!,
+                  languageLabel(appSettingState.language),
                   style: getTextStyle(AppTypo.body16M, AppColors.grey900),
                 ),
               ),

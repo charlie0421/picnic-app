@@ -75,6 +75,19 @@ Widget buildTestApp(
 }
 
 /// 페이지 전체를 테스트할 때 사용 (Scaffold 없이)
+///
+/// Scaffold 는 일부러 씌우지 않는다 — 프로덕션에서도 페이지들은 자기 Scaffold 를
+/// 갖지 않고 앱 셸 안에 얹힌다. 다만 셸이 제공하는 **Material 조상**은 재현해야
+/// 한다. 그게 없으면 ListTile 같은 머티리얼 위젯이 "No Material widget found" 로
+/// 죽는데, 이건 위젯 결함이 아니라 하네스 결함이다.
+/// [MaterialType.transparency] 라서 배경(및 elevation/그림자)은 그리지 않는다
+/// (material.dart `_MaterialState.build` 의 `if (type == transparency)` 분기).
+///
+/// 다만 **기본 텍스트 스타일은 바뀐다** — `Material` 은 type 과 무관하게 자식을
+/// 항상 `AnimatedDefaultTextStyle(theme.textTheme.bodyMedium)` 로 감싼다
+/// (material.dart:476). 그래도 이게 맞는 하네스다: 프로덕션에서도 페이지는 앱 셸의
+/// `Material` 아래에 얹히므로 같은 기본 스타일을 받는다. 즉 이 래핑은 부작용이
+/// 아니라 프로덕션 재현이다.
 Widget buildTestAppPage(
   Widget page, {
   Navigation? navigation,
@@ -111,7 +124,7 @@ Widget buildTestAppPage(
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
-        home: page,
+        home: Material(type: MaterialType.transparency, child: page),
       ),
     ),
   );
