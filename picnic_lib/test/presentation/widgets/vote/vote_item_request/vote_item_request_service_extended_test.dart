@@ -1,14 +1,78 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
+import 'package:picnic_lib/presentation/providers/vote_item_request_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
 import '../../../../helpers/mock_supabase.dart';
+import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_environment.dart';
 
 void main() {
   setUp(() {
     initTestColors();
+  });
+
+  testWidgets('artist summaries preserve the consumed aggregate shape',
+      (tester) async {
+    setupMockSupabase({
+      'vote_item_request_status_summary': [
+        {'vote_id': 1, 'artist_id': 10, 'artist_name': '가수 A', 'request_status': 'pending', 'request_count': 4},
+        {'vote_id': 1, 'artist_id': 10, 'artist_name': '가수 A', 'request_status': 'approved', 'request_count': 3},
+        {'vote_id': 1, 'artist_id': 11, 'artist_name': '가수 A', 'request_status': 'rejected', 'request_count': 2},
+      ],
+      'vote_item_request_users': [
+        {'id': 'current-request', 'vote_id': 1, 'user_id': 'current-user', 'artist_id': 10, 'status': 'pending', 'created_at': '2024-01-15T10:00:00Z', 'updated_at': '2024-01-15T10:00:00Z'},
+      ],
+      'artist': [
+        {'id': 10, 'name': {'ko': '가수 A', 'en': 'Singer A'}, 'image': 'artist-a.png', 'artist_group': {'id': 100, 'name': {'ko': '그룹 A', 'en': 'Group A'}}},
+      ],
+    }, userId: 'current-user');
+    addTearDown(tearDownMockSupabase);
+
+    late WidgetRef widgetRef;
+    await tester.pumpWidget(buildTestApp(
+      Consumer(builder: (context, ref, child) {
+        widgetRef = ref;
+        return const SizedBox();
+      }),
+      extraOverrides: [
+        voteItemRequestRepositoryProvider.overrideWithValue(
+          VoteItemRequestRepository(supabase: testSupabaseClient!),
+        ),
+      ],
+    ));
+    await tester.pumpAndSettle();
+
+    final result = await VoteItemRequestService(
+      ref: widgetRef,
+      voteId: '1',
+      supabase: testSupabaseClient!,
+    ).loadAllApplicationsByArtist();
+    final summaries = result['artistApplicationSummaries'] as List<Map<String, dynamic>>;
+
+    expect(result['totalApplications'], 9);
+    expect(summaries.map((summary) => summary['artistId']), [10, 11]);
+    expect(summaries.first['artist'], {
+      'id': 10,
+      'name': {'ko': '가수 A', 'en': 'Singer A'},
+      'image': 'artist-a.png',
+      'artist_group': {'id': 100, 'name': {'ko': '그룹 A', 'en': 'Group A'}},
+    });
+    // 아티스트 테이블에 없는 아티스트는 뷰의 이름으로 폴백한다. 키는
+    // 'ko' 여야 한다 — 뷰의 `artist_name` 이 `a.name->>'ko'` 이고,
+    // `ArtistNameUtils.getDisplayName` 은 ko/en 만 읽으므로 다른 키는
+    // 이름이 있어도 "알 수 없는 아티스트"로 렌더된다.
+    expect(summaries.last['artist'], {'id': 11, 'name': {'ko': '가수 A'}});
+    expect(summaries.first, containsPair('totalApplications', 7));
+    expect(summaries.first, containsPair('pendingCount', 4));
+    expect(summaries.first, containsPair('approvedCount', 3));
+    expect(summaries.first.containsKey('requests'), isFalse);
+    expect(summaries.first.containsKey('latestRequest'), isFalse);
   });
 
   group('ArtistApplicationInfo - copyWith comprehensive', () {

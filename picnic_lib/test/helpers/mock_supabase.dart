@@ -22,6 +22,14 @@ String _createFakeJwt(String userId) {
   return '$header.$payload.$signature';
 }
 
+/// 마지막 setup 이후 mock 클라이언트가 받은 요청 URI 기록.
+///
+/// 이 하네스는 `.eq()` 필터를 무시하고 테이블 픽스처 전체를 돌려주므로,
+/// "쿼리가 사용자로 스코핑되는가" 같은 보안 속성은 응답만으로는 테스트할 수
+/// 없다. 그런 속성은 여기 기록된 URI 의 쿼리 파라미터
+/// (예: `user_id=eq.<uid>`) 를 단언해서 와이어 레벨로 고정한다.
+final List<Uri> capturedMockRequests = [];
+
 /// Supabase 테스트용 Mock HTTP 응답 설정
 ///
 /// 사용법:
@@ -74,10 +82,12 @@ void _setupClient(Map<String, dynamic> tableResponses, {
   Map<String, int>? tableStatusCodes,
 }) {
   final fakeJwt = userId != null ? _createFakeJwt(userId) : null;
+  capturedMockRequests.clear();
 
   final mockClient = MockClient((request) async {
     final uri = request.url;
     final path = uri.path;
+    capturedMockRequests.add(uri);
 
     // Auth endpoints
     if (path.contains('/auth/')) {
@@ -224,4 +234,5 @@ void _setupClient(Map<String, dynamic> tableResponses, {
 /// Mock Supabase 정리
 void tearDownMockSupabase() {
   testSupabaseClient = null;
+  capturedMockRequests.clear();
 }
