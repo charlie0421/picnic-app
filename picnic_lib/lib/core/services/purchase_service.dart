@@ -116,18 +116,28 @@ class PurchaseService {
   }
 
   /// 구매 처리 (단순화)
+  ///
+  /// Android에서 completePurchase()는 곧 소비(consume)다. 소비된 구매는
+  /// Google에서 사라져 어떤 경로로도 복구할 수 없으므로, 서버 정산이
+  /// 확인된 경우에만 완료 처리한다. iOS는 기존과 동일하게 항상 완료한다
+  /// (StoreKit 트랜잭션은 finish하지 않으면 반복 재전달된다).
   Future<void> handleOptimizedPurchase(
     PurchaseDetails purchaseDetails,
     PurchaseSuccess onSuccess,
     Function(String) onError, {
     required bool isActualPurchase,
   }) async {
+    var settlementConfirmed = false;
     try {
       if (isActualPurchase) {
         logger.i('=== 🚀 신규 구매 처리 ===');
         logger.i('Product: ${purchaseDetails.productID}');
 
-        await _handleActualPurchase(purchaseDetails, onSuccess, onError);
+        settlementConfirmed = await _handleActualPurchase(
+          purchaseDetails,
+          onSuccess,
+          onError,
+        );
 
         logger.i('=== ✅ 신규 구매 완료 ===');
       } else {
@@ -147,7 +157,22 @@ class PurchaseService {
 
       onError('GENERIC');
     } finally {
-      await _completePurchaseIfNeeded(purchaseDetails);
+      if (settlementConfirmed) {
+        // Android: consume(소비)까지, iOS: finish. 실패는 정산 결과를
+        // 뒤집으면 안 되므로 로그만 남긴다(다음 reconcile이 재시도).
+        await inAppPurchaseService
+            .finalizeSettledPurchase(purchaseDetails)
+            .catchError((e) {
+          logger.w('정산 확정 구매 완료 처리 실패(다음 reconcile 재시도): $e');
+        });
+      } else if (Platform.isIOS) {
+        await _completePurchaseIfNeeded(purchaseDetails);
+      } else {
+        logger.w(
+          '⏸️ 서버 정산 미확인 - 구매 완료(consume) 보류: '
+          '${purchaseDetails.productID} (큐/reconcile이 재시도)',
+        );
+      }
     }
   }
 
@@ -222,6 +247,7 @@ class PurchaseService {
 
       final purchaseResult = await inAppPurchaseService.makePurchase(
         productDetails,
+        applicationUserName: currentUser.id,
       );
 
       if (!purchaseResult) {
@@ -359,7 +385,10 @@ class PurchaseService {
   }
 
   /// 실제 구매 처리 (단순화)
-  Future<void> _handleActualPurchase(
+  ///
+  /// 반환값은 "서버 정산 확정" 여부다: 검증 성공, 또는 지급 완료가 확인된
+  /// 중복(409)일 때만 true. 그 외에는 구매를 완료(consume)하면 안 된다.
+  Future<bool> _handleActualPurchase(
     PurchaseDetails purchaseDetails,
     PurchaseSuccess onSuccess,
     Function(String) onError,
@@ -401,6 +430,7 @@ class PurchaseService {
 
       await deliverVerifiedPurchaseResult(result, onSuccess);
       logger.i('✅ 실제 구매 검증 완료 ($platform)');
+      return true;
     } on ReusedPurchaseException catch (e) {
       logger.w('🔄 JWT 재사용 감지 ($platform) - StoreKit 캐시 문제: ${e.message}');
       _processingProducts.remove(purchaseDetails.productID);
@@ -424,6 +454,9 @@ class PurchaseService {
 
       // JWS 재사용: 명확한 안내 메시지 키 전달
       onError(PurchaseConstants.errPrevTransactionPending);
+      // 지급 완료가 확인된 중복이면 소비해도 안전하다. 확인되지 않은
+      // 중복(영수증만 있고 지급 실패)은 남겨 두어 재시도를 보존한다.
+      return e.grantConfirmed;
     } catch (e, s) {
       logger.e('❌ 실제 구매 처리 중 오류 ($platform): $e', stackTrace: s);
       _processingProducts.remove(purchaseDetails.productID);
@@ -451,8 +484,13 @@ class PurchaseService {
   ) async {
     logger.i('🚫 복원된 구매 무시: ${purchaseDetails.productID}');
 
-    // 🔥 복원 구매는 완전히 무시하고 조용히 완료 처리만 함
-    await _completePurchaseIfNeeded(purchaseDetails);
+    // iOS: 조용히 finish만 해서 반복 재전달을 막는다.
+    // Android: 복원(restored)으로 온 미소비 구매를 여기서 완료하면 검증 없이
+    // 소비되어 복구가 불가능해진다. reconcile(과거 구매 재검증)이 검증 후
+    // 소비하므로 여기서는 손대지 않는다.
+    if (Platform.isIOS) {
+      await _completePurchaseIfNeeded(purchaseDetails);
+    }
 
     // 진행 상태에서 제거 (혹시 있다면)
     _processingProducts.remove(purchaseDetails.productID);
@@ -632,6 +670,11 @@ class PurchaseService {
       final addition = InAppPurchase.instance
           .getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
       final resp = await addition.queryPastPurchases();
+      if (resp.error != null) {
+        // 빈 목록과 조회 실패는 다르다. 실패면 다음 기회에 다시 시도해야
+        // 하므로 명시적으로 남긴다.
+        logger.w('⚠️ 과거 구매 조회 오류: ${resp.error}');
+      }
       if (resp.pastPurchases.isEmpty) {
         logger.i('ℹ️ 과거 구매 없음');
         return;
@@ -646,21 +689,44 @@ class PurchaseService {
       final environment = await receiptVerificationService.getEnvironment();
 
       for (final p in resp.pastPurchases) {
-        // 이미 소비/완료 여부는 스토어 상태에 의존적이므로, 영수증을 큐에 적재해 서버 멱등 처리에 위임
         final receipt = p.verificationData.serverVerificationData;
         if (receipt.isEmpty) continue;
 
-        final clientTraceId = await ReceiptQueueService().enqueueAndroid(
-          receipt: receipt,
-          productId: p.productID,
-          userId: currentUser.id,
-          environment: environment,
-        );
-        logger.i('🧾 과거 구매 큐 적재: ${p.productID} trace=$clientTraceId');
+        // 서버는 구매 토큰 기준으로 멱등하므로 직접 재검증한다.
+        // (verifyReceipt가 내부에서 큐 적재→성공 시 제거를 수행하므로
+        // 실패해도 항목이 큐에 남아 이후 플러시가 재시도한다.)
+        // 소비(consume)는 적립이 확인된 뒤에만 한다 — 소비가 먼저면
+        // 실패 시 복구 수단이 사라진다.
+        try {
+          await receiptVerificationService.verifyReceipt(
+            receipt,
+            p.productID,
+            currentUser.id,
+            environment,
+          );
+          await inAppPurchaseService.finalizeSettledPurchase(p).catchError((e) {
+            logger.w('과거 구매 소비 실패(다음 reconcile에서 재시도): $e');
+          });
+          logger.i('♻️ 과거 구매 정산+소비 완료: ${p.productID}');
+        } on ReusedPurchaseException catch (e) {
+          if (e.grantConfirmed) {
+            // 이미 지급까지 끝난 구매 → 소비만 하면 된다.
+            await inAppPurchaseService.finalizeSettledPurchase(p).catchError((
+              err,
+            ) {
+              logger.w('과거 구매 소비 실패(다음 reconcile에서 재시도): $err');
+            });
+            logger.i('♻️ 기지급 과거 구매 소비 완료: ${p.productID}');
+          } else {
+            logger.w('과거 구매 중복이나 지급 미확인 - 소비 보류: ${p.productID}');
+          }
+        } catch (e) {
+          logger.w('과거 구매 재검증 실패(큐 유지): ${p.productID} ($e)');
+        }
       }
 
       await ReceiptQueueService().flushPending();
-      logger.i('✅ Android 과거 구매 재검증 플러시 완료');
+      logger.i('✅ Android 과거 구매 재검증 완료');
     } catch (e, s) {
       logger.e('Android 과거 구매 조회/재검증 실패: $e', stackTrace: s);
     }

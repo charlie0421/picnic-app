@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/billing_client_wrappers.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
@@ -266,6 +268,7 @@ class InAppPurchaseService {
   Future<bool> makePurchase(
     ProductDetails productDetails, {
     bool isConsumable = true,
+    String? applicationUserName,
   }) async {
     logger.i('🚀 즉시 구매 시작: ${productDetails.id} (${productDetails.price})');
 
@@ -326,15 +329,25 @@ class InAppPurchaseService {
         return true; // 성공적으로 "구매 요청"했다고 반환 (실제로는 타임아웃만 대기)
       }
 
+      // Android에서 applicationUserName은 BillingFlow의 obfuscatedAccountId로
+      // 전달되어 Google 구매에 구매자 계정이 각인된다. wallet.v1 서버
+      // (cotton-candy-engine verify_receipt)는 이 값과 정산 대상 user id의
+      // 일치를 요구하므로(GOOGLE_OWNER_MISMATCH), 누락 시 스테이징/신서버
+      // 검증이 전부 실패한다. 결제 도중 계정이 바뀌어도 원 구매자에게만
+      // 적립되도록 하는 소유자 바인딩이기도 하다.
       final purchaseParam = PurchaseParam(
         productDetails: productDetails,
-        applicationUserName: null,
+        applicationUserName: applicationUserName,
       );
 
+      // Android는 autoConsume을 끈다: 소비(consume)는 서버 정산이 확인된
+      // 뒤에만 completePurchase()로 수행한다. 그래야 검증 실패/이벤트 유실
+      // 시 구매가 Google에 남아 queryPastPurchases()로 복구할 수 있다.
+      // iOS는 플러그인이 autoConsume=true를 강제한다(assert).
       final result = isConsumable
           ? await InAppPurchase.instance.buyConsumable(
               purchaseParam: purchaseParam,
-              autoConsume: true,
+              autoConsume: Platform.isIOS,
             )
           : await InAppPurchase.instance.buyNonConsumable(
               purchaseParam: purchaseParam,
@@ -487,6 +500,39 @@ class InAppPurchaseService {
       logger.e('Complete purchase failed: $e');
       rethrow;
     }
+  }
+
+  /// 서버 정산이 확정된 구매의 최종 완료 처리.
+  ///
+  /// Android에서 completePurchase()는 acknowledge만 수행한다
+  /// (in_app_purchase_android 0.4.0+8). consumable은 consume까지 해야
+  /// 재구매가 가능하고 queryPastPurchases에서 사라지므로, autoConsume을 끈
+  /// 대신 여기서 명시적으로 소비한다. consume 실패 시 acknowledge로
+  /// fallback해 최소한 3일 미확인 자동환불은 막고, 구매가 스토어에 남아
+  /// 다음 reconcile이 소비를 재시도한다.
+  Future<void> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
+    if (!Platform.isAndroid) {
+      await completePurchase(purchaseDetails);
+      return;
+    }
+    try {
+      final addition = InAppPurchase.instance
+          .getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
+      final result = await addition.consumePurchase(purchaseDetails);
+      if (result.responseCode == BillingResponse.ok) {
+        logger.i('✅ 정산 확정 구매 소비(consume) 완료: ${purchaseDetails.productID}');
+        return;
+      }
+      logger.w(
+        '⚠️ consume 실패(${result.responseCode}) - acknowledge로 fallback: '
+        '${purchaseDetails.productID}',
+      );
+    } catch (e) {
+      logger.w('⚠️ consume 예외 - acknowledge로 fallback: $e');
+    }
+    await completePurchase(purchaseDetails).catchError((e) {
+      logger.w('acknowledge fallback도 실패(다음 reconcile 재시도): $e');
+    });
   }
 
   Future<void> clearTransactions({bool includePendingPurchases = false}) async {

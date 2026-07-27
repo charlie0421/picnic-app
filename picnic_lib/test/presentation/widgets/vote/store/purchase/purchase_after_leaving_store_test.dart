@@ -75,8 +75,19 @@ class _StoreStandInState extends ConsumerState<_StoreStandIn> {
 /// it - `pendingCompletePurchase` is false on the transaction below, so
 /// `_completePurchaseIfNeeded` never calls through either.
 class _MockInAppPurchaseService extends Mock implements InAppPurchaseService {
+  /// 서버 정산이 확정된 뒤 최종 완료(consume/finish)가 호출된 횟수.
+  ///
+  /// 정산 성공 경로는 정확히 1회여야 한다: 0회면 미소비 잔류(재구매 차단),
+  /// 정산 실패에 호출되면 복구 불가능한 선소비다.
+  int settledFinalizations = 0;
+
   @override
   Future<void> clearPendingPurchasesOnStartup() async {}
+
+  @override
+  Future<void> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
+    settledFinalizations++;
+  }
 }
 
 /// Returns a settled receipt without going near the network.
@@ -149,6 +160,7 @@ void main() {
   late _RecordingDuplicatePrevention duplicates;
   late _RecordingAnalytics analytics;
   late _SettlingVerification verification;
+  late _MockInAppPurchaseService plugin;
   late PurchaseService service;
   late RecordingReceiptDialogs dialogs;
   late List<String> errors;
@@ -236,9 +248,10 @@ void main() {
     verification = _SettlingVerification(verified);
     duplicates = _RecordingDuplicatePrevention(store.ref);
     analytics = _RecordingAnalytics();
+    plugin = _MockInAppPurchaseService();
     service = PurchaseService(
       container: store.container,
-      inAppPurchaseService: _MockInAppPurchaseService(),
+      inAppPurchaseService: plugin,
       receiptVerificationService: verification,
       analyticsService: analytics,
       duplicatePreventionService: duplicates,
@@ -315,6 +328,12 @@ void main() {
     await deliverVerifiedPurchase(tester);
 
     expect(verification.verifications, 1);
+    expect(
+      plugin.settledFinalizations,
+      1,
+      reason:
+          '정산이 확정된 구매는 정확히 1회 최종 완료(consume/finish)되어야 한다',
+    );
     expect(
       analytics.logged,
       [_productId],

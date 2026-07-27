@@ -187,7 +187,13 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     _restoreHandler.dispose();
     _safetyManager.disposeSafetyTimer();
     _rotationController.dispose();
-    _purchaseService.inAppPurchaseService.dispose();
+    // 구매 스트림 구독은 유지한다. 여기서 dispose()로 구독을 끊으면 결제창
+    // 진행 중 화면을 떠났을 때 도착하는 결제 완료 이벤트가 버려져 영구
+    // 미적립이 된다(스트림은 broadcast라 리스너 없는 이벤트는 유실).
+    // 검증/지갑 반영은 화면이 아니라 앱 수명의 container를 통해 동작하고,
+    // 다음 스토어 진입 시 initialize()가 콜백만 새 화면으로 교체한다.
+    // 타이머류만 정리한다.
+    _purchaseService.inAppPurchaseService.cleanupPurchaseTimersOnSuccess();
     super.dispose();
   }
 
@@ -257,7 +263,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       '[PurchaseStarCandyState] Processing: ${purchaseDetails.status} for ${purchaseDetails.productID}',
     );
 
-    if (_shouldForceCompletePending(purchaseDetails)) {
+    // Android에서 pending 구매를 완료(consume)하는 것은 계약 위반이고,
+    // 결제 완료 전 소비 시도가 된다. iOS의 막힌 StoreKit 트랜잭션 정리
+    // 용도로만 유지한다.
+    if (Platform.isIOS && _shouldForceCompletePending(purchaseDetails)) {
       await _forceCompletePendingPurchase(purchaseDetails);
       return;
     }
@@ -271,6 +280,17 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     if (_shouldIgnoreDuringInit(purchaseDetails)) {
+      if (!Platform.isIOS &&
+          purchaseDetails.status == PurchaseStatus.purchased) {
+        // 초기화 중이라도 Android의 실결제 이벤트는 버리면 안 된다.
+        // (autoConsume 시절 유실 사고의 한 경로) UI 없이 정산만 태운다.
+        logger.w(
+          '[PurchaseStarCandyState] Purchased event during init - running '
+          'headless settlement: ${purchaseDetails.purchaseID}',
+        );
+        await _settleOrphanPurchase(purchaseDetails);
+        return;
+      }
       logger.i(
         '[PurchaseStarCandyState] Ignoring ${purchaseDetails.status} during initialization: ${purchaseDetails.productID}',
       );
@@ -287,6 +307,19 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         _purchaseAttempts.currentTerminalWithoutId(purchaseDetails);
     if (boundAttempt == null &&
         purchaseDetails.status != PurchaseStatus.pending) {
+      if (!Platform.isIOS &&
+          purchaseDetails.status == PurchaseStatus.purchased) {
+        // Android: 실결제가 끝난 이벤트는 UI 어템프트가 없어도(90초 타임아웃
+        // 뒤 도착, 화면 재진입, 기기 시계 오차 등) 반드시 정산까지 태운다.
+        // 여기서 버리면 사용자는 과금됐는데 캔디가 영구 미적립된다.
+        // 성공 다이얼로그 등 UI만 생략한다.
+        logger.w(
+          '[PurchaseStarCandyState] Orphan purchased event - running '
+          'headless settlement: ${purchaseDetails.purchaseID}',
+        );
+        await _settleOrphanPurchase(purchaseDetails);
+        return;
+      }
       logger.w(
         '[PurchaseStarCandyState] Rejecting orphan, restored, stale, or '
         'duplicate transaction: ${purchaseDetails.purchaseID}',
@@ -300,6 +333,35 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     await _processErrorAndCancel(purchaseDetails, boundAttempt);
+  }
+
+  /// UI 어템프트 없이 도착한 실결제 이벤트의 정산.
+  ///
+  /// 영수증 검증 → 서버 적립 → (확정 시) 구매 완료(consume)와 지갑 반영까지
+  /// 수행하되, 성공 다이얼로그는 띄우지 않는다. 검증 실패 시 구매는
+  /// 소비되지 않고 남아 큐/reconcile이 재시도한다.
+  Future<void> _settleOrphanPurchase(PurchaseDetails purchaseDetails) async {
+    try {
+      await _purchaseService.handleOptimizedPurchase(
+        purchaseDetails,
+        (result) async {
+          _applyWalletSummary(result.wallet);
+          logger.i(
+            '[PurchaseStarCandyState] Orphan settlement credited: '
+            '${purchaseDetails.purchaseID}',
+          );
+        },
+        (error) {
+          logger.w('[PurchaseStarCandyState] Orphan settlement error: $error');
+        },
+        isActualPurchase: true,
+      );
+    } catch (e, s) {
+      logger.e(
+        '[PurchaseStarCandyState] Orphan settlement failed: $e',
+        stackTrace: s,
+      );
+    }
   }
 
   /// 초기화 중 pending 구매 강제 완료 여부 확인
