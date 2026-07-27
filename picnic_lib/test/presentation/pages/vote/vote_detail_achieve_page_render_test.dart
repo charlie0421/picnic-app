@@ -80,6 +80,12 @@ Map<String, dynamic> _voteAchieveRow({
 }
 
 void main() {
+  // 격리(quarantine) — 아직 안 고친 프로덕션 결함 1건.
+  // vote_detail_achieve_page.dart:755 가 빌드 도중
+  // `ref.read(asyncVoteDetailProvider(...)).value!` 로 단언한다. 아이템 목록
+  // 프로바이더가 먼저 resolve 되고 상세 프로바이더는 아직 loading 인 프레임이
+  // 있어서 null 이 된다. 무엇을 그려야 하는지는 제품 판단이라 여기서 안 고친다.
+  // 이 한 메시지만 통과시키므로 다른 결함이 새로 생기면 그대로 실패한다.
   late void Function() restore;
 
   setUp(() {
@@ -104,11 +110,33 @@ void main() {
     tearDownMockSupabase();
   });
 
+  /// 격리 — **VoteDetailAchievePage 를 실제로 띄우는 테스트에만** 적용된다.
+  ///
+  /// vote_detail_achieve_page.dart:449 의 `build()` 는
+  /// `asyncVoteItemListProvider.when(data:)` 안에서 화면을 만드는데, 그 안의
+  /// `_buildVoteItem`(:755)이 **다른** 프로바이더를
+  /// `ref.read(asyncVoteDetailProvider(...)).value!` 로 단언한다. 두 future 는
+  /// 독립이라 아이템 목록이 먼저 resolve 되는 프레임에서는 상세가 아직 loading 이고,
+  /// 그 프레임의 빌드가 통째로 죽는다. 실제 사용자에게 보이는 결함이며, 같은 패턴이
+  /// :870 `_handleVoteItemTap` 에도 있다.
+  ///
+  /// 고치려면 그 프레임에 무엇을 그릴지(상세 로딩 shimmer? 카운트만?) 정해야 해서
+  /// 제품 판단이 필요하다. 이 PR 에서 유일하게 남는 "진짜 프로덕션 결함" 격리다.
+  ///
+  /// 이 문자열을 포함하는 에러만 통과한다 — 다른 결함이 새로 생기면 그대로 실패한다.
+  const achieveDetailNullCheck = ['Null check operator used on a null value'];
+
   Future<void> pumpAndDrain(WidgetTester tester, widget) async {
-    await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
+    // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
+    // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
+    await pumpWidgetAndIgnoreErrors(
+      tester,
+      widget,
+      knownDefects: achieveDetailNullCheck,
+    );
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('VoteDetailAchievePage render', () {
@@ -168,9 +196,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, -400),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 300));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -185,11 +213,11 @@ void main() {
       // Pump multiple times to simulate timer ticks
       for (int i = 0; i < 3; i++) {
         await tester.pump(const Duration(seconds: 1));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
       // Pump with zero duration to let confetti/animation controllers settle
       await tester.pump(Duration.zero);
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteDetailAchievePage), findsOneWidget);
     }, skip: true);
@@ -224,9 +252,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, -600),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 200));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -332,9 +360,9 @@ void main() {
         for (int i = 0; i < 3; i++) {
           await tester.drag(scrollable.first, const Offset(0, -400),
               warnIfMissed: false);
-          while (tester.takeException() != null) {}
+          drainExpectedImageErrors(tester);
           await tester.pump(const Duration(milliseconds: 200));
-          while (tester.takeException() != null) {}
+          drainExpectedImageErrors(tester);
         }
       }
 
@@ -411,9 +439,9 @@ void main() {
           const SizedBox(),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(milliseconds: 300));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     });
 
     testWidgets('renders with English locale',
@@ -483,9 +511,9 @@ void main() {
       if (scrollable.evaluate().isNotEmpty) {
         await tester.drag(scrollable.first, const Offset(0, 300),
             warnIfMissed: false);
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
         await tester.pump(const Duration(milliseconds: 500));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
   });

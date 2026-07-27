@@ -29,8 +29,8 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
         ),
       );
@@ -44,8 +44,8 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.board, 'board-123'),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.board, 'board-123'))],
           ),
         ),
       );
@@ -58,8 +58,8 @@ void main() {
     testWidgets('renders fortune button text', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          const Expanded(
-            child: PostList(PostListType.artist, 1),
+          const Column(
+            children: [Expanded(child: PostList(PostListType.artist, 1))],
           ),
         ),
       );

@@ -34,7 +34,7 @@ void main() {
           const PostViewPage('test-post-id', syncNavigation: false),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
       // Should show loading indicator when waiting
@@ -50,11 +50,11 @@ void main() {
           const PostViewPage('nonexistent-post', syncNavigation: false),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
       // After loading completes with error, should show retry or error UI
@@ -69,7 +69,7 @@ void main() {
           const PostViewPage('test-post-id', syncNavigation: false),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
     });
@@ -83,7 +83,7 @@ void main() {
           locale: const Locale('ko'),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
     });
@@ -95,7 +95,7 @@ void main() {
           locale: const Locale('en'),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
     });
@@ -107,7 +107,7 @@ void main() {
           locale: const Locale('ja'),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
     });
@@ -124,7 +124,7 @@ void main() {
           ),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
     });
@@ -136,7 +136,7 @@ void main() {
           const PostViewPage('', syncNavigation: false),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
     });
@@ -148,7 +148,7 @@ void main() {
           const PostViewPage('12345', syncNavigation: false),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
     });
@@ -163,7 +163,7 @@ void main() {
           loggedIn: false,
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
     });
