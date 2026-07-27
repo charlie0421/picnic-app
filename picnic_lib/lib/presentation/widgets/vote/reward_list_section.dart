@@ -76,7 +76,10 @@ class RewardListSection extends ConsumerWidget {
   }
 
   Widget _rewardCard(BuildContext context, RewardModel reward, int index) {
-    final title = getLocaleTextFromJson(reward.title!);
+    // `title` 은 thumbnail 과 같은 순수 nullable 컬럼(`RewardModel.title`)이라
+    // 운영자가 비워두면 널이고, 단언하면 리워드 그리드 전체가 에러 박스가
+    // 된다. `getLocaleTextFromJson` 은 빈 맵을 '' 로 처리한다.
+    final title = getLocaleTextFromJson(reward.title ?? const {});
     final isHighPriority = index < 4;
 
     return GestureDetector(

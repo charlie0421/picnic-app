@@ -80,8 +80,13 @@ class VoteCardColumnAchieve extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(100),
+                      // `thumbnail` 은 운영자가 이미지를 안 올리면 실제로 null
+                      // 인 순수 nullable 컬럼(`RewardModel.thumbnail`)이다.
+                      // 단언하면 달성 카드 전체가 에러 박스로 바뀐다.
+                      // reward_dialog.dart / reward_list_section.dart 와 같은
+                      // 처리로 맞춘다.
                       child: PicnicCachedNetworkImage(
-                          imageUrl: rank.reward.thumbnail!,
+                          imageUrl: rank.reward.thumbnail ?? '',
                           width: 100,
                           height: 100),
                     ),

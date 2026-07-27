@@ -133,6 +133,27 @@ void main() {
 
       expect(find.byType(RewardDialog), findsOneWidget);
     });
+
+    testWidgets('reward with null title renders instead of crashing', (
+      WidgetTester tester,
+    ) async {
+      // `RewardModel.title` 은 순수 nullable DB 컬럼이다 — 운영자가 제목을
+      // 비워두면 실제로 널이 온다. `widget.data.title!` 로 되돌리면 다이얼로그
+      // 전체가 RenderErrorBox 가 되어 여기서 널 단언이 터진다.
+      const reward = RewardModel(id: 1, title: null, thumbnail: null);
+
+      await pumpAndDrain(
+        tester,
+        buildTestApp(const RewardDialog(data: reward)),
+      );
+
+      expect(find.byType(RewardDialog), findsOneWidget);
+      expect(
+        find.byType(ErrorWidget),
+        findsNothing,
+        reason: '제목이 널이면 빈 문자열로 접히고 다이얼로그는 계속 그려져야 한다',
+      );
+    });
   });
 
   group('RewardSection render', () {

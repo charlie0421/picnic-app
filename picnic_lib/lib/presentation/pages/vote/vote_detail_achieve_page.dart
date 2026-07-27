@@ -478,7 +478,13 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
             if (voteModel == null) return const SizedBox.shrink();
             return _buildBody(voteModel);
           },
-          loading: () => _buildLoadingShimmer(),
+          // SizedBox.expand 가 없으면 셔머(SingleChildScrollView)가 콘텐츠
+          // 높이(793px)로 수축해, 데이터가 도착하는 순간 페이지가 로드 높이
+          // (892px)로 99px 점프한다. vote_detail_page.dart 의 로딩 브랜치와
+          // 같은 처리. 이 페이지는 로드 브랜치에 Expanded 가 있어 어차피
+          // 유한한 높이의 부모를 전제하므로, expand 가 무한 제약을 만날
+          // 일은 없다.
+          loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
           error:
               (error, stackTrace) => buildErrorView(
                 context,
@@ -515,7 +521,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
               ],
             );
           },
-          loading: () => _buildLoadingShimmer(),
+          // 바깥 게이트의 로딩 브랜치와 같은 이유 — 아이템 목록만 늦게 올 때도
+          // 셔머가 뷰포트를 가득 채워야 로드 시점에 높이가 점프하지 않는다.
+          loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
           error:
               (error, stackTrace) => buildErrorView(
                 context,
