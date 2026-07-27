@@ -2,6 +2,53 @@
 ///
 /// All methods are static and side-effect free.
 class AppInitializerHelper {
+  /// Sentry 가 [FlutterErrorDetails.silent] 프레임워크 에러를 리포팅할지 여부
+  /// (`SentryFlutterOptions.reportSilentFlutterErrors` 로 그대로 들어간다).
+  ///
+  /// **false = 리포팅하지 않는다. 의도된 결정이다.**
+  ///
+  /// 상수로 빼 둔 이유는 이 값이 정책 결정이기 때문이다 — 프로덕션
+  /// (`AppInitializer.initializeSentry`) 과 이 결정을 고정한 테스트
+  /// (`app_initializer_global_error_handling_test.dart`) 가 같은 상수를 읽으므로,
+  /// true 로 뒤집는 순간 테스트가 빨개진다.
+  ///
+  /// ## 왜 리포팅하지 않는가
+  ///
+  /// `silent` 는 "프레임워크가 스스로 노이즈라고 표시한 에러" 다. 이 앱에서
+  /// 이 플래그를 다는 실질적 생산자는 이미지 파이프라인 하나뿐이다 —
+  /// `MultiFrameImageStreamCompleter` 의 codec/chunk/frame 실패
+  /// (`image_stream.dart:910,985,998,1085`) 와 `ImageProvider.resolve` 실패
+  /// (`image_provider.dart:403`, 프레임워크 주석부터가
+  /// `silent: true, // could be a network error or whatnot`). 즉 CDN/네트워크/
+  /// 디스크 같은 사용자 환경 문제이고, 앱은 placeholder 로 graceful degrade
+  /// 한다. 우리가 고칠 코드가 없다.
+  ///
+  /// 게다가 이건 [shouldFilterSentryEvent] 가 이미 걷어내고 있는 바로 그
+  /// 부류다 — `ClientException`/`SocketException`/`HandshakeException`/
+  /// `Failed host lookup`/`TimeoutException`, 그리고 `SqfliteDatabaseException`
+  /// 의 "cache_store 의 image cache 쓰기 실패"(PICNIC-APP-547/52R/52S)까지.
+  /// silent 를 리포팅하지 않는 것은 그 정책의 일반화이지 예외가 아니다.
+  /// 반대로 `NetworkImageLoadException` 같은 타입은 그 어떤 필터 규칙에도
+  /// 걸리지 않으므로, 켜 두면 CDN 장애 때 사용자 × 실패 이미지 수만큼
+  /// 무필터로 쌓인다 (앱 전반이 `CachedNetworkImage` 기반이다).
+  ///
+  /// ## 무엇을 잃는가 (정직하게)
+  ///
+  /// release 빌드에서 이미지 로드 실패의 관측 수단이 **전부** 사라진다.
+  /// Sentry 이벤트가 없고, `FlutterError.dumpErrorToConsole` 은 release 에서
+  /// silent 를 건너뛰며, `logger` 의 `DevelopmentFilter` 는 release 에서 모든
+  /// 로그를 버린다. debug 빌드에서는 콘솔에 그대로 다 보인다.
+  ///
+  /// 그 대가를 감수하는 이유: CDN 가용성은 CDN/uptime 모니터링이 볼 문제이지
+  /// crash reporting 쿼터로 살 신호가 아니다. 필요해지면 이 상수 하나만
+  /// true 로 바꾸면 되고, 그때는 `shouldFilterSentryEvent` 에 이미지 전용
+  /// 필터를 함께 넣는 편이 낫다.
+  ///
+  /// 참고: 이 상수는 Sentry 리포팅만 통제한다. 프레임워크 기본 핸들러
+  /// (`FlutterError.presentError`) 와 우리 `logger.e` 는 silent 여부와 무관하게
+  /// 항상 호출된다 — `AppInitializer.initializeGlobalErrorHandling` 참조.
+  static const bool reportSilentFlutterErrors = false;
+
   /// Determines whether a Sentry event should be filtered (dropped).
   ///
   /// Returns `true` if the event should be discarded (not sent to Sentry).
