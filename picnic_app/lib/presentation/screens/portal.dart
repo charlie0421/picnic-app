@@ -2,14 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
-import 'package:picnic_lib/presentation/common/portal_menu_item.dart';
 import 'package:picnic_lib/presentation/common/top/top_menu.dart';
-import 'package:picnic_lib/presentation/common/top/attendance_icon_button.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_notifications.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -59,77 +57,84 @@ class _PortalState extends ConsumerState<Portal> {
                   height: 36,
                   alignment: Alignment.center,
                   child: userInfoState.when(
-                          data: (data) => data != null
-                              ? GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    Scaffold.of(context).openDrawer();
-                                  },
-                                  child: ProfileImageContainer(
-                                    avatarUrl: data.avatarUrl,
-                                    width: 36,
-                                    height: 36,
-                                    borderRadius: 8.r,
-                                  ))
-                              : GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () =>
-                                      Scaffold.of(context).openDrawer(),
-                                  child: const DefaultAvatar()),
-                          error: (error, stackTrace) => GestureDetector(
+                    data: (data) => data != null
+                        ? GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              Scaffold.of(context).openDrawer();
+                            },
+                            child: ProfileImageContainer(
+                              avatarUrl: data.avatarUrl,
+                              width: 36,
+                              height: 36,
+                              borderRadius: 8.r,
+                            ))
+                        : GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => Scaffold.of(context).openDrawer(),
-                            child: const DefaultAvatar(),
-                          ),
-                          loading: () => SizedBox(
-                            width: 36,
-                            height: 36,
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.r),
-                                child: buildPlaceholderImage()),
-                          ),
-                        ),
+                            child: const DefaultAvatar()),
+                    error: (error, stackTrace) => GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Scaffold.of(context).openDrawer(),
+                      child: const DefaultAvatar(),
+                    ),
+                    loading: () => SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: buildPlaceholderImage()),
+                    ),
+                  ),
                 );
               },
             ),
             leadingWidth: 52.w,
             titleSpacing: 0,
-            title: Container(
+            centerTitle: true,
+            title: SizedBox(
               height: 26,
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(right: 24.w),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    if (Environment.currentEnvironment != 'prod')
-                      Text(Environment.currentEnvironment),
-                    const PortalMenuItem(portalType: PortalType.vote),
-                    const PortalMenuItem(portalType: PortalType.goongHap),
-                    userInfoState.when(
-                      data: (userInfo) {
-                        if (userInfo != null && (userInfo.isAdmin ?? false)) {
-                          return const Row(children: [
-                            PortalMenuItem(portalType: PortalType.pic),
-                            PortalMenuItem(portalType: PortalType.novel),
-                          ]);
-                        } else {
-                          return Container();
-                        }
-                      },
-                      error: (error, stackTrace) => const SizedBox(),
-                      loading: () => const SizedBox(),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 앱 워드마크 로고 (중앙 정렬)
+                  SvgPicture.asset(
+                    'assets/images/fortune/picnic_logo.svg',
+                    package: 'picnic_lib',
+                    height: 20,
+                    fit: BoxFit.contain,
+                  ),
+                  if (Environment.currentEnvironment == 'dev') ...[
+                    SizedBox(width: 8.w),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF7C4DFF),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 7.w,
+                          vertical: 3.h,
+                        ),
+                        child: Text(
+                          'STAGING',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
-                ),
+                ],
               ),
             ),
             actions: [
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
-                  AttendanceIconButton(),
-                  SizedBox(width: 2),
                   TopRightNotifications(),
                 ],
               ),

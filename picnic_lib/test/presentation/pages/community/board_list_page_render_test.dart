@@ -90,7 +90,7 @@ void main() {
         } catch (_) {
           // TextField may not have a usable EditableText state
         }
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -111,7 +111,7 @@ void main() {
         } catch (_) {
           // TextField may not have a usable EditableText state
         }
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -300,7 +300,7 @@ void main() {
           await pumpAndIgnoreErrors(tester);
           await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 500));
         } catch (_) {}
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -325,7 +325,7 @@ void main() {
           await pumpAndIgnoreErrors(tester);
           await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 500));
         } catch (_) {}
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -414,7 +414,7 @@ void main() {
           await pumpAndIgnoreErrors(tester);
           await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 500));
         } catch (_) {}
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
     });
 
@@ -435,7 +435,7 @@ void main() {
       await tester.pumpWidget(
         buildTestAppPage(const SizedBox()),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 200));
     });
   });

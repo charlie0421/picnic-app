@@ -17,6 +17,33 @@ class CountdownTimer extends StatefulWidget {
     this.onRefresh,
   });
 
+  /// 남은시간 숫자 타일 한 변.
+  ///
+  /// 이 안의 글자는 [AppTypo.caption12M] — `getTextStyle` 은 폰트 크기를
+  /// ScreenUtil 로 환산하지 않으므로 기기와 무관하게 12px 이다. 담는 그릇도
+  /// 같은 이유로 고정 크기를 유지한다(글자는 그대로인데 타일만 줄면 글자가
+  /// 타일 밖으로 삐져나온다).
+  static const double digitSize = 18;
+
+  /// 숫자 타일 좌우 마진. 같은 단위의 두 자리는 `2 * digitGap` 만큼 벌어진다.
+  static const double digitGap = 1;
+
+  /// 단위 구분자(`D`, `:`) 좌우 여백.
+  ///
+  /// 예전에는 구분자 문자열이 `' : '` 처럼 **공백으로** 여백을 냈다. 공백 폭은
+  /// 폰트와 텍스트 배율에 따라 달라져서(같은 12px 에서도 Pretendard 5.1px,
+  /// 테스트 폰트 13.5px) 이 행의 폭 수요를 예측할 수 없게 만들고, 배율을 올리면
+  /// 여백까지 같이 커졌다. 여백은 레이아웃으로 내고 문자열에는 글자만 둔다.
+  static const double separatorGap = 4;
+
+  /// 왼쪽에서 [index] 번째 숫자 타일에 붙는 키.
+  ///
+  /// 카드가 좁아졌을 때 "타일이 몇 개 그려졌고 화면에서 몇 픽셀인가" 를 테스트가
+  /// 직접 잴 수 있어야, 오버플로를 [FittedBox]/스크롤뷰/타일 축소로 숨기는
+  /// 우회를 회귀로 잡을 수 있다.
+  @visibleForTesting
+  static Key digitKey(int index) => ValueKey('countdown_timer.digit.$index');
+
   @override
   State<CountdownTimer> createState() => _CountdownTimerState();
 }
@@ -84,6 +111,18 @@ class _CountdownTimerState extends State<CountdownTimer> {
     final minutes = _timeLeft.inMinutes.remainder(60);
     final seconds = _timeLeft.inSeconds.remainder(60);
 
+    // 타일 키는 행 전체에서 왼쪽부터 이어진다 — 일(日)이 세 자리가 되어도
+    // 번호가 밀리지 않게 한 카운터로 센다.
+    var digitIndex = 0;
+    List<Widget> unit(int value, [String? label]) {
+      final digits = value.toString().padLeft(2, '0');
+      return <Widget>[
+        for (var i = 0; i < digits.length; i++)
+          _buildTimeCircle(digits[i], digitIndex++),
+        if (label != null) _buildSeparator(label),
+      ];
+    }
+
     return Column(
       children: [
         if (widget.status == VoteStatus.upcoming)
@@ -106,22 +145,16 @@ class _CountdownTimerState extends State<CountdownTimer> {
           ),
         if (widget.status != VoteStatus.end)
           SizedBox(
-            height: 18,
+            height: CountdownTimer.digitSize,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                ..._buildTimeUnit(totalDays, 'D'),
-                ..._buildTimeUnit(hours),
-                Text(
-                  ' : ',
-                  style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
-                ),
-                ..._buildTimeUnit(minutes),
-                Text(
-                  ' : ',
-                  style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
-                ),
-                ..._buildTimeUnit(seconds),
+                ...unit(totalDays, 'D'),
+                ...unit(hours),
+                _buildSeparator(':'),
+                ...unit(minutes),
+                _buildSeparator(':'),
+                ...unit(seconds),
               ],
             ),
           ),
@@ -129,27 +162,27 @@ class _CountdownTimerState extends State<CountdownTimer> {
     );
   }
 
-  List<Widget> _buildTimeUnit(int value, [String? unit]) {
-    final digits = value.toString().padLeft(2, '0');
-    return [
-      ...List.generate(digits.length, (index) {
-        return _buildTimeCircle(digits[index]);
-      }),
-      if (unit != null)
-        Text(
-          ' $unit ',
-          style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
-        ),
-    ];
+  Widget _buildSeparator(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: CountdownTimer.separatorGap,
+      ),
+      child: Text(
+        text,
+        style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
+      ),
+    );
   }
 
-  Widget _buildTimeCircle(String time) {
+  Widget _buildTimeCircle(String time, int index) {
     return Container(
-      width: 18,
-      height: 18,
+      key: CountdownTimer.digitKey(index),
+      width: CountdownTimer.digitSize,
+      height: CountdownTimer.digitSize,
       alignment: Alignment.center,
-      // padding: EdgeInsets.symmetric(horizontal: 5.w),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(
+        horizontal: CountdownTimer.digitGap,
+      ),
       decoration: BoxDecoration(
         color: _color,
         borderRadius: BorderRadius.circular(4),

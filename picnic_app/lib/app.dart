@@ -23,10 +23,13 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
+import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
 
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
 import 'package:picnic_lib/presentation/widgets/patch_restart_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
@@ -53,6 +56,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   Widget? initScreen;
   StreamSubscription? _authSubscription;
   StreamSubscription? _appLinksSubscription;
+  String? _activeRewardUserId;
+  bool _rewardRecoveryReady = false;
 
   // 앱이 이미 초기화되었는지 여부를 추적하는 플래그
   bool _isAppInitialized = false;
@@ -128,6 +133,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     logger.i('SDK 초기화 대기 중...');
     await MainInitializer.sdkReady;
     logger.i('SDK 초기화 완료');
+    _initializeRewardRecovery();
 
     // anti-abuse ip_hash prefetch — fire-and-forget. 실패는 IpHashService 내부에서 swallow.
     // 보호 대상 호출(광고/출석/아티스트요청) 전에 캐시가 채워지면 hint 송신, 안 채워지면
@@ -234,8 +240,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       routes: routes,
       title: 'PICNIC',
       theme: _getCurrentTheme(ref),
-      home: PatchRestartDialogListener(
-        child: UpdateDialog(child: currentScreen),
+      home: AdRewardDialogHost(
+        child: PatchRestartDialogListener(
+          child: UpdateDialog(child: currentScreen),
+        ),
       ),
       localizationsDelegates: [
         // picnic_lib의 ARB 파일 기반 번역 (gen-l10n으로 생성)
@@ -248,6 +256,32 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   Future<void> _retryConnection() async {
     await AppInitializer.retryConnection(ref);
+  }
+
+  void _syncRewardOwner(String? nextUserId) {
+    final recovery = ref.read(adRewardRecoveryProvider.notifier);
+    if (_activeRewardUserId != nextUserId) {
+      recovery.resetForLogout();
+      _activeRewardUserId = nextUserId;
+    }
+    if (nextUserId != null) {
+      unawaited(
+        recovery
+            .recover(nextUserId)
+            .catchError((Object error, StackTrace stack) {
+          logger.e('광고 보상 복구 실패', error: error, stackTrace: stack);
+        }),
+      );
+    }
+  }
+
+  void _initializeRewardRecovery() {
+    if (_rewardRecoveryReady) return;
+    _rewardRecoveryReady = true;
+    _syncRewardOwner(supabase.auth.currentUser?.id);
+    _authSubscription = supabase.auth.onAuthStateChange.listen((authState) {
+      _syncRewardOwner(authState.session?.user.id);
+    });
   }
 
   ThemeData _getCurrentTheme(WidgetRef ref) {
@@ -290,6 +324,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         logger.i('앱이 포그라운드로 복귀');
         // Sync app badge with unread notifications count
         AppBadgeService.syncBadgeWithUnreadCount();
+        if (_rewardRecoveryReady) {
+          _syncRewardOwner(supabase.auth.currentUser?.id);
+        }
         break;
       case AppLifecycleState.inactive:
         // 앱이 비활성화될 때

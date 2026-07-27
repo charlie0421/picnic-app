@@ -1,0 +1,35 @@
+{
+  "items": [
+    {
+      "id": "101",
+      "currency": "STAR_CANDY",
+      "event_type": "PURCHASE",
+      "origin": "mobile_purchase",
+      "delta": "100",
+      "balance_effect": "90",
+      "expires_at": "2027-07-21T00:00:00.000Z",
+      "purchase_id": "00000000-0000-4000-8000-000000000101",
+      "refund_id": null,
+      "grant_id": null,
+      "operation_id": "00000000-0000-4000-8000-000000000201",
+      "created_at": "2026-07-21T00:00:00.000Z"
+    },
+    {
+      "id": "202",
+      "currency": "COTTON_CANDY",
+      "event_type": "VOTE",
+      "origin": "wallet",
+      "delta": "-5",
+      "balance_effect": "-5",
+      "expires_at": null,
+      "purchase_id": null,
+      "refund_id": null,
+      "grant_id": "302",
+      "operation_id": "00000000-0000-4000-8000-000000000202",
+      "created_at": "2026-07-20T23:59:00.000Z"
+    }
+  ],
+  "total_count": "2",
+  "next_cursor": null,
+  "snapshot_at": "2026-07-21T00:00:00.000Z"
+}

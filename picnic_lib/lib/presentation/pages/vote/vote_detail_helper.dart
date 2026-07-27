@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 
@@ -5,6 +7,41 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 /// All methods are static and free of widget/state dependencies.
 class VoteDetailHelper {
   VoteDetailHelper._();
+
+  /// Fraction digits used to render [pct] as a percentage string.
+  ///
+  /// Two significant digits, clamped to 2..4. picnic votes are extremely
+  /// top-heavy — the top three candidates hold 90%+ and everyone below rank 4
+  /// falls off a cliff — so a fixed two-decimal format collapses most of the
+  /// list to "0.00%".
+  static int sharePercentDecimals(double pct) {
+    if (pct <= 0) return 2;
+    final magnitude = (math.log(pct) / math.ln10).floor();
+    return (2 - magnitude - 1).clamp(2, 4);
+  }
+
+  /// Format [votes] as a share of [total].
+  ///
+  /// Returns an em dash when there is nothing to show, and a floor marker
+  /// rather than a string of zeros for vanishingly small shares.
+  static String formatSharePercent(int? votes, int total) {
+    final v = votes ?? 0;
+    if (v <= 0 || total <= 0) return '—';
+
+    final pct = v / total * 100;
+    if (pct < 0.0001) return '<0.0001%';
+
+    return '${pct.toStringAsFixed(sharePercentDecimals(pct))}%';
+  }
+
+  /// Sum of every item's voteTotal. Null items and null totals count as 0.
+  static int sumVoteTotals(List<VoteItemModel?> items) {
+    var sum = 0;
+    for (final item in items) {
+      sum += item?.voteTotal ?? 0;
+    }
+    return sum;
+  }
 
   /// Compute rank map from a list of vote items.
   /// Items with the same voteTotal share the same rank.
@@ -67,6 +104,39 @@ class VoteDetailHelper {
     }
 
     return ranks;
+  }
+
+  /// Pick the single item that should carry the "N votes behind #1" tooltip.
+  ///
+  /// Returns null unless exactly one item holds rank 2 and its gap to the
+  /// leader is positive. [computeRanks] uses competition ranking, so a tie at
+  /// rank 2 yields several rank-2 items (the tooltip would be drawn on each)
+  /// and a tie at rank 1 yields no rank-2 item at all.
+  static GapTooltipTarget? pickGapTooltipTarget(
+    List<VoteItemModel?> items,
+    Map<int, int> ranks,
+  ) {
+    int? leaderVotes;
+    VoteItemModel? runnerUp;
+    var rank2Count = 0;
+
+    for (final item in items) {
+      if (item == null) continue;
+      final rank = ranks[item.id];
+      if (rank == 1) {
+        leaderVotes ??= item.voteTotal ?? 0;
+      } else if (rank == 2) {
+        rank2Count++;
+        runnerUp = item;
+      }
+    }
+
+    if (leaderVotes == null || runnerUp == null || rank2Count != 1) return null;
+
+    final gap = leaderVotes - (runnerUp.voteTotal ?? 0);
+    if (gap <= 0) return null;
+
+    return GapTooltipTarget(itemId: runnerUp.id, gapVotes: gap);
   }
 
   /// Compare two lists of VoteItemModel by id and voteTotal.
@@ -306,4 +376,12 @@ class RankChangeResult {
   final bool rankUp;
 
   const RankChangeResult({required this.changed, required this.rankUp});
+}
+
+/// Result of [VoteDetailHelper.pickGapTooltipTarget].
+class GapTooltipTarget {
+  final int itemId;
+  final int gapVotes;
+
+  const GapTooltipTarget({required this.itemId, required this.gapVotes});
 }

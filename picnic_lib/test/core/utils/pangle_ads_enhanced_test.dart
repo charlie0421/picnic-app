@@ -20,29 +20,29 @@ void main() {
   }) {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('pangle_native_channel'),
-      (MethodCall call) async {
-        log.add(call);
-        switch (call.method) {
-          case 'initPangle':
-            return initResult;
-          case 'loadRewardedAd':
-            return loadResult;
-          case 'showRewardedAd':
-            return showResult;
-          default:
-            return null;
-        }
-      },
-    );
+          const MethodChannel('pangle_native_channel'),
+          (MethodCall call) async {
+            log.add(call);
+            switch (call.method) {
+              case 'initPangle':
+                return initResult;
+              case 'loadRewardedAd':
+                return loadResult;
+              case 'showRewardedAd':
+                return showResult;
+              default:
+                return null;
+            }
+          },
+        );
   }
 
   void clearMockChannel() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('pangle_native_channel'),
-      null,
-    );
+          const MethodChannel('pangle_native_channel'),
+          null,
+        );
   }
 
   tearDown(() {
@@ -107,7 +107,6 @@ void main() {
         dismissed = true;
       });
 
-      PangleAds.setOnProfileRefreshNeeded(() {});
       await PangleAds.testAdDismissed();
 
       // Allow stream event to propagate
@@ -116,57 +115,15 @@ void main() {
       await sub.cancel();
     });
 
-    test('refreshProfileManually calls callback', () {
-      var count = 0;
-      PangleAds.setOnProfileRefreshNeeded(() => count++);
-      PangleAds.refreshProfileManually();
-      PangleAds.refreshProfileManually();
-      PangleAds.refreshProfileManually();
-      expect(count, 3);
-    });
-
-    test('setOnProfileRefreshNeeded replaces callback', () {
-      var first = 0;
-      var second = 0;
-      PangleAds.setOnProfileRefreshNeeded(() => first++);
-      PangleAds.refreshProfileManually();
-      expect(first, 1);
-      expect(second, 0);
-
-      PangleAds.setOnProfileRefreshNeeded(() => second++);
-      PangleAds.refreshProfileManually();
-      expect(first, 1);
-      expect(second, 1);
-    });
-
-    test('showRewardedAdWithProfileRefresh schedules delayed refresh',
-        () async {
-      setupMockChannel(showResult: true);
-      var refreshed = false;
-      PangleAds.setOnProfileRefreshNeeded(() => refreshed = true);
-
-      final result = await PangleAds.showRewardedAdWithProfileRefresh();
-      expect(result, isTrue);
-      // The delayed refresh happens after 5 seconds (we don't wait for it)
-    });
-
-    test('showRewardedAdWithProfileRefresh with failure still schedules refresh',
-        () async {
-      setupMockChannel(showResult: false);
-      var refreshCount = 0;
-      PangleAds.setOnProfileRefreshNeeded(() => refreshCount++);
-
-      final result = await PangleAds.showRewardedAdWithProfileRefresh();
-      expect(result, isFalse);
-      // Delayed refresh still scheduled
-    });
-
     test('loadRewardedAd passes correct arguments', () async {
       setupMockChannel(loadResult: true);
-      await PangleAds.loadRewardedAd('my_placement', 'my_user');
+      await PangleAds.loadRewardedAd(
+        'my_placement',
+        'my_user,android,v2.token',
+      );
       expect(log.first.arguments, {
         'placementId': 'my_placement',
-        'userId': 'my_user',
+        'mediaExtra': 'my_user,android,v2.token',
       });
     });
 
@@ -174,15 +131,15 @@ void main() {
       setupMockChannel(loadResult: true);
       final result = await PangleAds.loadRewardedAd('', '');
       expect(result, isTrue);
-      expect(log.first.arguments, {'placementId': '', 'userId': ''});
+      expect(log.first.arguments, {'placementId': '', 'mediaExtra': ''});
     });
 
     test('loadRewardedAd returns false when null result', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('pangle_native_channel'),
-        (MethodCall call) async => null,
-      );
+            const MethodChannel('pangle_native_channel'),
+            (MethodCall call) async => null,
+          );
       final result = await PangleAds.loadRewardedAd('p', 'u');
       expect(result, isFalse);
     });
@@ -190,9 +147,9 @@ void main() {
     test('showRewardedAd returns false when null result', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('pangle_native_channel'),
-        (MethodCall call) async => null,
-      );
+            const MethodChannel('pangle_native_channel'),
+            (MethodCall call) async => null,
+          );
       final result = await PangleAds.showRewardedAd();
       expect(result, isFalse);
     });

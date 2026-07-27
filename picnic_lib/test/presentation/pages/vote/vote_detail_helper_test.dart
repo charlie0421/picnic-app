@@ -703,4 +703,170 @@ void main() {
       );
     });
   });
+
+  // ── formatSharePercent / sharePercentDecimals ────────────────────────
+
+  group('sharePercentDecimals', () {
+    test('clamps to 2 for values >= 1', () {
+      expect(VoteDetailHelper.sharePercentDecimals(35.1972), 2);
+      expect(VoteDetailHelper.sharePercentDecimals(100.0), 2);
+      expect(VoteDetailHelper.sharePercentDecimals(1.0), 2);
+    });
+
+    test('keeps 2 decimals down to 0.1', () {
+      expect(VoteDetailHelper.sharePercentDecimals(0.1790), 2);
+    });
+
+    test('widens to 3 decimals below 0.1', () {
+      expect(VoteDetailHelper.sharePercentDecimals(0.0763), 3);
+    });
+
+    test('widens to 4 decimals below 0.01', () {
+      expect(VoteDetailHelper.sharePercentDecimals(0.0032), 4);
+    });
+
+    test('clamps to 4 for very small values', () {
+      expect(VoteDetailHelper.sharePercentDecimals(0.00001), 4);
+    });
+  });
+
+  group('formatSharePercent', () {
+    test('formats the leader with two decimals', () {
+      expect(VoteDetailHelper.formatSharePercent(711479, 2021408), '35.20%');
+    });
+
+    test('keeps two significant digits as the value shrinks', () {
+      expect(VoteDetailHelper.formatSharePercent(1790, 1000000), '0.18%');
+      expect(VoteDetailHelper.formatSharePercent(763, 1000000), '0.076%');
+      expect(VoteDetailHelper.formatSharePercent(32, 1000000), '0.0032%');
+    });
+
+    test('rounds rather than truncates', () {
+      // 35.199% -> 35.20%, not 35.19%
+      expect(VoteDetailHelper.formatSharePercent(35199, 100000), '35.20%');
+    });
+
+    test('shows a floor marker below 0.0001%', () {
+      expect(VoteDetailHelper.formatSharePercent(1, 2891788), '<0.0001%');
+    });
+
+    test('shows an em dash for zero votes', () {
+      expect(VoteDetailHelper.formatSharePercent(0, 1000), '—');
+    });
+
+    test('shows an em dash for null votes', () {
+      expect(VoteDetailHelper.formatSharePercent(null, 1000), '—');
+    });
+
+    test('shows an em dash when the total is zero', () {
+      expect(VoteDetailHelper.formatSharePercent(0, 0), '—');
+      expect(VoteDetailHelper.formatSharePercent(10, 0), '—');
+    });
+
+    test('renders a single-item vote as 100.00%', () {
+      expect(VoteDetailHelper.formatSharePercent(500, 500), '100.00%');
+    });
+  });
+
+  group('sumVoteTotals', () {
+    test('returns 0 for an empty list', () {
+      expect(VoteDetailHelper.sumVoteTotals([]), 0);
+    });
+
+    test('treats null items and null voteTotal as 0', () {
+      final items = [_item(id: 1, voteTotal: 10), null, _item(id: 2, voteTotal: null)];
+      expect(VoteDetailHelper.sumVoteTotals(items), 10);
+    });
+
+    test('sums every item', () {
+      final items = [
+        _item(id: 1, voteTotal: 100),
+        _item(id: 2, voteTotal: 250),
+        _item(id: 3, voteTotal: 1),
+      ];
+      expect(VoteDetailHelper.sumVoteTotals(items), 351);
+    });
+  });
+
+  // ── pickGapTooltipTarget ─────────────────────────────────────────────
+
+  group('pickGapTooltipTarget', () {
+    GapTooltipTarget? pick(List<VoteItemModel?> items) =>
+        VoteDetailHelper.pickGapTooltipTarget(
+          items,
+          VoteDetailHelper.computeRanks(items),
+        );
+
+    test('returns null for an empty list', () {
+      expect(pick([]), isNull);
+    });
+
+    test('returns null when there is only a leader', () {
+      expect(pick([_item(id: 1, voteTotal: 100)]), isNull);
+    });
+
+    test('picks the sole runner-up and the raw vote gap', () {
+      final target = pick([
+        _item(id: 1, voteTotal: 95304),
+        _item(id: 2, voteTotal: 87666),
+        _item(id: 3, voteTotal: 86729),
+      ]);
+      expect(target, isNotNull);
+      expect(target!.itemId, 2);
+      expect(target.gapVotes, 7638);
+    });
+
+    test('returns null when two items tie for rank 2', () {
+      // competition ranking -> both get rank 2, tooltip would be drawn twice
+      expect(
+        pick([
+          _item(id: 1, voteTotal: 100),
+          _item(id: 2, voteTotal: 50),
+          _item(id: 3, voteTotal: 50),
+        ]),
+        isNull,
+      );
+    });
+
+    test('returns null when the leaders tie, because rank 2 does not exist', () {
+      // ranks are 1, 1, 3 -- nobody holds rank 2
+      expect(
+        pick([
+          _item(id: 1, voteTotal: 100),
+          _item(id: 2, voteTotal: 100),
+          _item(id: 3, voteTotal: 10),
+        ]),
+        isNull,
+      );
+    });
+
+    test('returns null when the gap is zero', () {
+      // a zero gap can only happen via a tie, which computeRanks collapses,
+      // but guard the arithmetic anyway
+      final items = [_item(id: 1, voteTotal: 10), _item(id: 2, voteTotal: 10)];
+      expect(
+        VoteDetailHelper.pickGapTooltipTarget(items, {1: 1, 2: 2}),
+        isNull,
+      );
+    });
+
+    test('treats a null voteTotal on the runner-up as zero', () {
+      final target = pick([
+        _item(id: 1, voteTotal: 40),
+        _item(id: 2, voteTotal: null),
+      ]);
+      expect(target!.itemId, 2);
+      expect(target.gapVotes, 40);
+    });
+
+    test('ignores null items', () {
+      final target = pick([
+        _item(id: 1, voteTotal: 30),
+        null,
+        _item(id: 2, voteTotal: 10),
+      ]);
+      expect(target!.itemId, 2);
+      expect(target.gapVotes, 20);
+    });
+  });
 }

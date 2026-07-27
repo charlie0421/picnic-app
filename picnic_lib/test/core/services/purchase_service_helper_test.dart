@@ -248,6 +248,47 @@ void main() {
   // findProductDetails
   // ==================================================================
   group('findProductDetails', () {
+    test('staging Android query id selects the same product', () {
+      final products = [_makeProduct('staging.star10000')];
+      final result = helper.findProductDetails(
+        storeProducts: products,
+        serverProductId: 'STAR10000',
+        isAndroid: true,
+        inappAppNamePrefix: '',
+        environment: 'dev',
+        paymentProductNamespace: 'staging.',
+      );
+      expect(result.id, 'staging.star10000');
+    });
+
+    test('staging Android rejects a product from the wrong namespace', () {
+      final products = [_makeProduct('other.star10000')];
+      expect(
+        () => helper.findProductDetails(
+          storeProducts: products,
+          serverProductId: 'STAR10000',
+          isAndroid: true,
+          inappAppNamePrefix: '',
+          environment: 'dev',
+          paymentProductNamespace: 'staging.',
+        ),
+        throwsException,
+      );
+    });
+
+    test('production Android remains unprefixed and case normalized', () {
+      final products = [_makeProduct('star10000')];
+      final result = helper.findProductDetails(
+        storeProducts: products,
+        serverProductId: 'Star10000',
+        isAndroid: true,
+        inappAppNamePrefix: '',
+        environment: 'prod',
+        paymentProductNamespace: 'staging.',
+      );
+      expect(result.id, 'star10000');
+    });
+
     test('finds Android product by uppercase ID match', () {
       final products = [
         _makeProduct('star10000'),

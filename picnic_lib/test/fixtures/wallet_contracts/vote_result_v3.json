@@ -1,0 +1,22 @@
+{
+  "votePickId": 301,
+  "updatedVoteTotal": 1017,
+  "addedVoteTotal": 17,
+  "updatedAt": "2026-07-21T00:00:00.000Z",
+  "operation_id": "00000000-0000-4000-8000-000000000301",
+  "replayed": false,
+  "usage": {
+    "cotton_candy_usage": "5",
+    "star_candy_bonus_usage": "7",
+    "star_candy_usage": "5"
+  },
+  "wallet": {
+    "contract_version": "wallet.v1",
+    "star": "95",
+    "bonus": "23",
+    "cotton": "0",
+    "cotton_expiring_amount": "0",
+    "cotton_next_expires_at": null,
+    "snapshot_at": "2026-07-21T00:00:00.000Z"
+  }
+}

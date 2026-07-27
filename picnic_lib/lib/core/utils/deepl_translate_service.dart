@@ -4,6 +4,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 
 class DeepLTranslationService {
   final DeepL _deepl;
+  final String _apiKey;
   final bool debugMode;
   static const int _maxAttempts = 3;
   static const Duration _retryDelay = Duration(seconds: 1);
@@ -21,11 +22,14 @@ class DeepLTranslationService {
   DeepLTranslationService({
     required String apiKey,
     this.debugMode = true,
-  }) : _deepl = DeepL(authKey: apiKey);
+  })  : _apiKey = apiKey,
+        _deepl = DeepL(authKey: apiKey);
 
   /// Translates text to target language
   Future<String> translateText(
       String text, String sourceLang, String targetLang) async {
+    _ensureCredentialsAvailable();
+
     logger.i('Translating: "$text" to $targetLang');
     int attempts = 0;
 
@@ -61,6 +65,12 @@ class DeepLTranslationService {
     logger.i(
         'Failed to translate after $_maxAttempts attempts. Using original text.');
     return text;
+  }
+
+  void _ensureCredentialsAvailable() {
+    if (_apiKey.trim().isEmpty) {
+      throw StateError('Community integration is disabled');
+    }
   }
 
   /// Translates text while preserving placeholders

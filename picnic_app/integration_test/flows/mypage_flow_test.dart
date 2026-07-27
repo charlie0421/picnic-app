@@ -1,7 +1,7 @@
-/// 마이페이지 플로우 테스트
-///
-/// 사용자 프로필, 설정, 포인트 등
-/// 마이페이지 관련 주요 사용자 플로우를 검증합니다.
+// 마이페이지 플로우 테스트
+//
+// 사용자 프로필, 설정, 포인트 등
+// 마이페이지 관련 주요 사용자 플로우를 검증합니다.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -54,8 +54,7 @@ void main() {
       // TODO: 확인 후 로그인 화면으로 이동 확인
     });
 
-    testWidgets('비로그인 상태에서 마이페이지 접근 시 로그인 유도 화면이 표시되어야 함',
-        (tester) async {
+    testWidgets('비로그인 상태에서 마이페이지 접근 시 로그인 유도 화면이 표시되어야 함', (tester) async {
       // TODO: MockScenario.unauthenticated로 재초기화 후 테스트
       // TODO: 마이페이지 탭 선택 시 로그인 유도 화면/다이얼로그 표시 확인
     });

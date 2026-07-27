@@ -68,6 +68,104 @@ void main() {
     });
   });
 
+  // PICNIC-APP-4ZX: attendance-check 는 중복 출석을 HTTP 409
+  // {error:{code:ALREADY_CHECKED}} 로 응답한다. 409 는 supabase.functions.invoke
+  // 가 FunctionException 을 throw 하므로, _invokeAndParse 가 이를 잡아
+  // onAlreadyChecked 로 통일해야 정상 중복탭이 에러로 Sentry 보고되지 않는다.
+  group('Attendance checkIn — 409 ALREADY_CHECKED (PICNIC-APP-4ZX)', () {
+    Map<String, dynamic> validFetchStatusBody() => {
+          'success': true,
+          'data': {
+            'weeklyStatus': {
+              'weekStart': '2026-03-09',
+              'weekEnd': '2026-03-15',
+              'days': [],
+              'checkedCount': 2,
+              'totalRequired': 7,
+              'isWeeklyBonusEligible': false,
+              'isNewUser': false,
+            },
+            'todayChecked': false,
+            'serverTimeKST': '2026-03-11T15:00:00+09:00',
+            'deadlineKST': '2026-03-12T00:00:00+09:00',
+          },
+        };
+
+    tearDown(() {
+      tearDownMockSupabase();
+    });
+
+    test('409 ALREADY_CHECKED → checkIn returns null and sets '
+        'todayChecked=true (에러로 처리하지 않음)', () async {
+      await setupMockSupabaseWithAuth(
+        {
+          // build() → _fetchStatus (GET): 정상 200
+          'functions:attendance-check:GET': validFetchStatusBody(),
+          // checkIn (POST): 중복 출석 → 409 ALREADY_CHECKED
+          'functions:attendance-check:POST': {
+            'success': false,
+            'error': {
+              'code': 'ALREADY_CHECKED',
+              'message': 'Already checked in today',
+            },
+          },
+        },
+        userId: 'test-user-id',
+        functionStatusCodes: {'functions:attendance-check:POST': 409},
+      );
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      // attendanceProvider 는 auto-dispose 라 read 사이에 dispose 된다.
+      // 명시적 listener 로 테스트 동안 mount 를 유지한다.
+      final sub = container.listen(attendanceProvider, (_, __) {});
+      addTearDown(sub.close);
+
+      final initial = await container.read(attendanceProvider.future);
+      expect(initial.todayChecked, isFalse);
+
+      final notifier = container.read(attendanceProvider.notifier);
+      final result = await notifier.checkIn();
+
+      // ALREADY_CHECKED → 예외 대신 null 반환
+      expect(result, isNull);
+      // onAlreadyChecked → 오늘 출석 완료 상태로 표시
+      expect(container.read(attendanceProvider).value?.todayChecked, isTrue);
+    });
+
+    test('409 with a non-ALREADY_CHECKED code → rethrows as AttendanceException '
+        '(회귀 보호: ALREADY_CHECKED 만 가로챈다)', () async {
+      await setupMockSupabaseWithAuth(
+        {
+          'functions:attendance-check:GET': validFetchStatusBody(),
+          'functions:attendance-check:POST': {
+            'success': false,
+            'error': {'code': 'SOME_OTHER_ERROR', 'message': 'nope'},
+          },
+        },
+        userId: 'test-user-id',
+        functionStatusCodes: {'functions:attendance-check:POST': 409},
+      );
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final sub = container.listen(attendanceProvider, (_, __) {});
+      addTearDown(sub.close);
+
+      await container.read(attendanceProvider.future);
+      final notifier = container.read(attendanceProvider.notifier);
+
+      await expectLater(
+        notifier.checkIn(),
+        throwsA(
+          isA<AttendanceException>().having(
+            (e) => e.type,
+            'type',
+            AttendanceErrorType.server,
+          ),
+        ),
+      );
+    });
+  });
+
   group('AttendanceCheckResult', () {
     test('stores reward amounts', () {
       const result = AttendanceCheckResult(

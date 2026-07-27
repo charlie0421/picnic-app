@@ -46,8 +46,8 @@ void main() {
     test('vote 포탈은 4개 페이지', () {
       final pages = NavigationConfigs.getPages(PortalType.vote);
       expect(pages.length, equals(4));
-      expect(pages[0].title, equals('nav_vote'));
-      expect(pages[1].title, equals('nav_community'));
+      expect(pages[0].title, equals('nav_home'));
+      expect(pages[1].title, equals('nav_vote'));
       expect(pages[2].title, equals('nav_media'));
       expect(pages[3].title, equals('nav_store'));
     });

@@ -93,7 +93,6 @@ void main() {
       expect(widget.enableMemoryOptimization, true);
       expect(widget.enableProgressiveLoading, true);
       expect(widget.maxConcurrentLoads, isNull);
-      expect(widget.bypassConcurrencyGate, isFalse);
     });
 
     test('custom values are set correctly', () {
@@ -117,7 +116,6 @@ void main() {
         enableMemoryOptimization: false,
         enableProgressiveLoading: false,
         maxConcurrentLoads: 4,
-        bypassConcurrencyGate: true,
       );
 
       expect(widget.imageUrl, 'https://example.com/custom.png');
@@ -139,7 +137,6 @@ void main() {
       expect(widget.enableMemoryOptimization, false);
       expect(widget.enableProgressiveLoading, false);
       expect(widget.maxConcurrentLoads, 4);
-      expect(widget.bypassConcurrencyGate, isTrue);
     });
 
     test('const constructor is supported', () {

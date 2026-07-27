@@ -40,6 +40,8 @@ class UserInfo extends _$UserInfo {
     }
 
     try {
+      // Legacy profile balances remain for compatibility; new wallet UI must
+      // read authoritative balances from walletSummaryProvider.
       final response = await supabase
           .from('user_profiles')
           .select(

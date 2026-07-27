@@ -460,7 +460,7 @@
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
-  "label_ads_limits": "{hourly} တစ်နာရီလျှင် ",
+  "label_ads_limits": "တစ်နာရီလျှင် {hourly} ကြိမ်၊ တစ်နေ့လျှင် {daily} ကြိမ်",
   "@label_ads_limits": {
     "placeholders": {
       "hourly": {
@@ -1203,7 +1203,15 @@
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
-  "text_vote_rank": "__phph_0__ အဆင့်",
+  "text_vote_gap_behind_leader": "ပထမနေရာထက် မဲ {gap} မဲ နောက်ကျနေသည်!",
+  "@text_vote_gap_behind_leader": {
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
+  "text_vote_rank": "အဆင့် {rank}",
   "@text_vote_rank": {
     "placeholders": {
       "rank": {
@@ -1682,9 +1690,9 @@
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
-  "bonus_candy_earn_period_1_to_15": "၁ ရက် ၀၀:၀၀:၀၀ ~ ၁၅ ရက် ၂၃:၅၉:၅၉",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  "bonus_candy_earn_period_1_to_14": "၁ ရက် ၀၀:၀၀:၀၀ ~ ၁၄ ရက် ၂၃:၅၉:၅၉",
+  "@bonus_candy_earn_period_1_to_14": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_14'."
   },
   "goonghap_snackbar_need_birthday": "ကျေးဇူးပြု. သင်၏မွေးနေ့ကိုထည့်ပါ။",
   "@goonghap_snackbar_need_birthday": {
@@ -1817,15 +1825,15 @@
       }
     }
   },
-  "bonus_candy_earn_period_16_to_end": "၁၆ ရက် ၀၀:၀၀:၀၀ ~ လကုန် ၂၃:၅၉:၅၉",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  "bonus_candy_earn_period_15_to_end": "၁၅ ရက် ၀၀:၀၀:၀၀ ~ လကုန် ၂၃:၅၉:၅၉",
+  "@bonus_candy_earn_period_15_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'."
   },
   "error_message_withdrawal": "နုတ်ထွက်ထားသော အဖွဲ့ဝင်များသည် ဤလုပ်ဆောင်ချက်ကို အသုံးပြု၍မရပါ။",
   "@error_message_withdrawal": {
     "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
-  "text_achievement": "__ $ __ ph_0__ ဂိုးများကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉",
+  "text_achievement": "{count} ပန်းတိုင်များကိုယခုအချိန်အထိသင်ရောက်ရှိခဲ့သည်။ 🎉",
   "@text_achievement": {
     "placeholders": {
       "count": {
@@ -1877,7 +1885,7 @@
   "@goonghap_new_ask": {
     "description": "Auto-generated metadata for key 'goonghap_new_ask'."
   },
-  "post_replying_comment": "__ph_0 __... တုံ့ပြန်ခြင်း",
+  "post_replying_comment": "{nickname}... တုံ့ပြန်ခြင်း",
   "@post_replying_comment": {
     "placeholders": {
       "nickname": {

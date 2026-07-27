@@ -717,6 +717,9 @@ void main() {
     late void Function() restore;
 
     setUp(() {
+      // GoonghapInputPage 는 빌드 중 AppColors.primary500 → Environment._config
+      // 를 읽는다. 초기화하지 않으면 LateInitializationError 로 죽는다.
+      initTestEnvironment();
       setupMockSupabase({
         'goonghap_results': <dynamic>[],
       });
@@ -814,7 +817,7 @@ void main() {
 
       // Replace widget to trigger dispose
       await tester.pumpWidget(buildTestAppPage(const SizedBox()));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 200));
     });
   });

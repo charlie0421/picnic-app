@@ -27,6 +27,7 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
     private var rewardedAd: PAGRewardedAd? = null
     private var isSDKInitialized = false
     private var appID: String? = null
+    private var sandboxPlacementId: String? = null
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         applicationContext = flutterPluginBinding.applicationContext
@@ -55,27 +56,64 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
             "initPangle" -> {
                 val appId = call.argument<String>("appId")
                 val userId = call.argument<String>("userId")
-                if (appId != null) {
+                val environment = call.argument<String>("environment") ?: "prod"
+                val productionAppId = call.argument<String>("productionAppId")
+                val requestedSandboxPlacement = call.argument<String>("sandboxPlacementId")
+                val productionPlacementId = call.argument<String>("productionPlacementId")
+                val sandboxConfigValid = environment != "sandbox" ||
+                    (appId != null &&
+                        appId.isNotEmpty() &&
+                        productionAppId != null &&
+                        appId != productionAppId &&
+                        !requestedSandboxPlacement.isNullOrEmpty() &&
+                        requestedSandboxPlacement != productionPlacementId)
+                if (appId != null &&
+                    environment in setOf("prod", "sandbox") &&
+                    sandboxConfigValid
+                ) {
                     appID = appId
+                    sandboxPlacementId =
+                        if (environment == "sandbox") requestedSandboxPlacement else null
                     initPangle(appId, userId, result)
                 } else {
-                    result.error("InvalidParams", "App ID is null", null)
+                    result.error("InvalidParams", "Valid SDK configuration is required", null)
                 }
             }
             "loadRewardedAd" -> {
-                val placementId = call.argument<String>("placementId")!!
-                val userId = call.argument<String>("userId")
-                if (userId != null) {
-                    if (isSDKInitialized) {
-                        loadRewardedAd(placementId, userId, result)
-                    } else if (appID != null) {
-                        println("SDK가 초기화되지 않았습니다. 재초기화 시도 중...")
-                        initPangle(appID!!, userId)
-                    } else {
+                val placementId = call.argument<String>("placementId")
+                    ?: return result.error("InvalidParams", "placementId is required", null)
+                if (sandboxPlacementId != null && placementId != sandboxPlacementId) {
+                    return result.error(
+                        "InvalidSandboxPlacement",
+                        "Sandbox placement rejected",
+                        null,
+                    )
+                }
+                val mediaExtra = call.argument<String>("mediaExtra")
+                    ?: return result.error("InvalidParams", "mediaExtra is required", null)
+                try {
+                    val validated = PangleMediaExtra.requireV2(mediaExtra)
+                    val configuredAppId = appID
+                    if (!isSDKInitialized && configuredAppId == null) {
                         result.error("NotInitialized", "Pangle SDK가 초기화되지 않았습니다", null)
+                        return
                     }
-                } else {
-                    result.error("InvalidParams", "User ID is null", null)
+                    PangleLoadCoordinator.run(
+                        initialized = isSDKInitialized,
+                        initialize = { completion ->
+                            initPangle(
+                                configuredAppId!!,
+                                null,
+                                completion = completion,
+                            )
+                        },
+                        placementId = placementId,
+                        mediaExtra = validated,
+                        load = { id, extra -> loadRewardedAd(id, extra, result) },
+                        fail = { error -> result.error("InitFailed", error.message, null) },
+                    )
+                } catch (_: IllegalArgumentException) {
+                    result.error("InvalidMediaExtra", "Signed v2 mediaExtra is required", null)
                 }
             }
             "showRewardedAd" -> {
@@ -91,12 +129,18 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.setMethodCallHandler(null)
     }
 
-    private fun initPangle(appId: String, userId: String?, flutterResult: Result? = null) {
-        println("Flutter에서 Pangle SDK 초기화 시작 - appId: $appId, userId: $userId")
+    private fun initPangle(
+        appId: String,
+        userId: String?,
+        flutterResult: Result? = null,
+        completion: ((kotlin.Result<Unit>) -> Unit)? = null,
+    ) {
+        println("Flutter에서 Pangle SDK 초기화 시작")
 
         if (isSDKInitialized && appID == appId) {
             println("Pangle SDK가 이미 초기화되어 있습니다.")
             flutterResult?.success(true)
+            completion?.invoke(kotlin.Result.success(Unit))
             return
         }
 
@@ -111,23 +155,25 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
                 isSDKInitialized = true
                 appID = appId
                 flutterResult?.success(true)
+                completion?.invoke(kotlin.Result.success(Unit))
             }
 
             override fun fail(code: Int, msg: String) {
                 println("Pangle SDK 초기화 실패: $msg (코드: $code)")
                 isSDKInitialized = false
                 flutterResult?.error("InitFailed", msg, null)
+                completion?.invoke(kotlin.Result.failure(IllegalStateException(msg)))
             }
         })
     }
 
-    private fun loadRewardedAd(placementId: String, userId: String, result: Result) {
-        println("리워드 광고 로드 시작 - placementId: $placementId, userId: $userId")
+    private fun loadRewardedAd(placementId: String, mediaExtra: String, result: Result) {
+        println("리워드 광고 로드 시작 - placementId: $placementId")
 
         rewardedAd = null
         val request = PAGRewardedRequest()
         val extraInfo = hashMapOf<String, Any>()
-        extraInfo["media_extra"] = "$userId,android"
+        extraInfo["media_extra"] = mediaExtra
         request.extraInfo = extraInfo
 
         Handler(Looper.getMainLooper()).postDelayed({
@@ -159,18 +205,18 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
             rewardedAd?.setAdInteractionListener(object : PAGRewardedAdInteractionListener {
                 override fun onAdShowed() {
                     println("리워드 광고가 표시됨")
-                    channel.invokeMethod("onAdShowed", null)
+                    channel.invokeMethod(PangleEventNames.AD_SHOWN, null)
                 }
 
                 override fun onAdClicked() {
                     println("리워드 광고가 클릭됨")
-                    channel.invokeMethod("onAdClicked", null)
+                    channel.invokeMethod(PangleEventNames.AD_CLICKED, null)
                 }
 
                 override fun onAdDismissed() {
                     println("리워드 광고가 닫힘")
                     rewardedAd = null
-                    channel.invokeMethod("onAdClosed", null)
+                    channel.invokeMethod(PangleEventNames.AD_DISMISSED, null)
                 }
 
                 override fun onUserEarnedReward(item: PAGRewardItem) {
@@ -179,16 +225,16 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
                         "amount" to item.rewardAmount,
                         "name" to item.rewardName
                     )
-                    channel.invokeMethod("onUserEarnedReward", rewardData)
+                    channel.invokeMethod(PangleEventNames.REWARD_EARNED, rewardData)
                 }
 
                 override fun onUserEarnedRewardFail(code: Int, msg: String) {
                     println("사용자 보상 획득 실패: $msg (코드: $code)")
                     val errorData = mapOf(
                         "code" to code,
-                        "message" to msg
+                        "errorMessage" to msg
                     )
-                    channel.invokeMethod("onUserEarnedRewardFail", errorData)
+                    channel.invokeMethod(PangleEventNames.REWARD_FAILED, errorData)
                 }
             })
 

@@ -1,6 +1,5 @@
 // import 'dart:convert';
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
@@ -10,8 +9,13 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/a
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:video_player/video_player.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/presentation/providers/ad_reward_provider.dart';
+import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_fullscreen_page.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_session.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow.dart';
 
 class ShortformInternalPlatform extends AdPlatform {
   ShortformInternalPlatform(
@@ -25,7 +29,7 @@ class ShortformInternalPlatform extends AdPlatform {
   static const String _cloudfrontBase =
       'https://d2jrkjksiktw4e.cloudfront.net/picnic/videos/output';
   static final RegExp _uuidPattern = RegExp(
-    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
   );
 
   @visibleForTesting
@@ -88,6 +92,7 @@ class ShortformInternalPlatform extends AdPlatform {
   String? _ctaUrl;
   VideoPlayerController? _controller;
   bool _viewCalled = false;
+  final _rewardSession = InternalShortformRewardSession();
 
   @override
   Future<void> initialize() async {
@@ -112,9 +117,7 @@ class ShortformInternalPlatform extends AdPlatform {
           pageBuilder: (_, _, _) => AdShortformFullscreenPage(
             videoUrl: _videoUrl ?? '',
             ctaUrl: _ctaUrl,
-            onViewComplete: () async {
-              await _callView();
-            },
+            onViewComplete: _callView,
             onMore: () async {
               await _callMore();
             },
@@ -147,14 +150,14 @@ class ShortformInternalPlatform extends AdPlatform {
         final deviceId = await DeviceManager.getDeviceId();
         reissueHeaders['X-Device-Id'] = deviceId;
       } catch (e) {
-        logWarning('Could not retrieve device ID for ad-shortform-issue reissue header: $e');
+        logWarning(
+          'Could not retrieve device ID for ad-shortform-issue reissue header: $e',
+        );
       }
-      final res = await SupabaseClient(supabaseUrl, Environment.supabaseAnonKey)
-          .functions
-          .invoke(
-            'ad-shortform-issue',
-            headers: reissueHeaders,
-          );
+      final res = await SupabaseClient(
+        supabaseUrl,
+        Environment.supabaseAnonKey,
+      ).functions.invoke('ad-shortform-issue', headers: reissueHeaders);
       if (res.data == null) throw Exception('issue failed');
       final json = res.data as Map<String, dynamic>;
       final ad = json['ad'] as Map<String, dynamic>?;
@@ -170,7 +173,9 @@ class ShortformInternalPlatform extends AdPlatform {
     } catch (e, s) {
       final aa = mapToAntiAbuseException(e);
       if (aa is AntiAbuseException) {
-        logWarning('ad-shortform-issue (reissue) blocked: channel=${aa.channel}');
+        logWarning(
+          'ad-shortform-issue (reissue) blocked: channel=${aa.channel}',
+        );
         _showRateLimitedAndCloseRoute(aa.channel);
         return;
       }
@@ -184,41 +189,47 @@ class ShortformInternalPlatform extends AdPlatform {
   /// fullscreen 의 _initializeFlow 가 에러 다이얼로그를 띄운다. blocked 플래그로
   /// "anti-abuse 가 이미 pop 예약" vs "그냥 실패/빈값" 을 구분해 무한펄스를 막는다.
   Future<({String videoUrl, String? ctaUrl, bool blocked})>
-      _issueAdTokensFromRoute() async {
+  _issueAdTokensFromRoute() async {
+    final ownerUserId = supabase.auth.currentUser?.id;
+    if (ownerUserId == null) {
+      throw StateError('Authenticated user required for ad reward issue');
+    }
     final supabaseUrl = Environment.supabaseUrl;
     final token = supabase.auth.currentSession?.accessToken ?? '';
     // Attach X-Device-Id for anti-abuse device-cohort signal.
     // Graceful: if retrieval fails the request proceeds without the header.
-    final Map<String, String> issueHeaders = {
-      'Authorization': 'Bearer $token',
-    };
+    final Map<String, String> issueHeaders = {'Authorization': 'Bearer $token'};
     try {
       final deviceId = await DeviceManager.getDeviceId();
       issueHeaders['X-Device-Id'] = deviceId;
     } catch (e) {
-      logWarning('Could not retrieve device ID for ad-shortform-issue header: $e');
+      logWarning(
+        'Could not retrieve device ID for ad-shortform-issue header: $e',
+      );
     }
     try {
-      final res =
-          await SupabaseClient(supabaseUrl, Environment.supabaseAnonKey)
-              .functions
-              .invoke(
-        'ad-shortform-issue',
-        headers: issueHeaders,
+      final issueClient = SupabaseClient(
+        supabaseUrl,
+        Environment.supabaseAnonKey,
       );
-      if (res.data == null) {
-        throw Exception('issue failed');
-      }
-      final json = res.data as Map<String, dynamic>;
-      final ad = json['ad'] as Map<String, dynamic>?;
-      final tokens = json['tokens'] as Map<String, dynamic>?;
-      _videoUrl = ad?['video_url'] as String?;
-      _ctaUrl = ad?['cta_url'] as String?;
-      // 임시: ads/* 또는 /video(s)/output/* 경로를 CloudFront HLS 마스터로 동적 치환
-      _videoUrl = rewriteVideoUrlIfNeeded(_videoUrl);
+      final result = await InternalShortformIssueFlow(
+        currentOwner: () => supabase.auth.currentUser?.id,
+        invokeIssue: () async => (await issueClient.functions.invoke(
+          'ad-shortform-issue',
+          headers: issueHeaders,
+        )).data,
+        persist: (owner, reference) => _rewardSession.bindIssued(
+          owner: owner,
+          issuedReference: reference,
+          persist: ref.read(pendingAdRewardStoreProvider).add,
+        ),
+        rewriteVideoUrl: rewriteVideoUrlIfNeeded,
+      ).issue();
+      _videoUrl = result.videoUrl;
+      _ctaUrl = result.ctaUrl;
       logInfo('issued (route) video_url: ${_videoUrl ?? ''}');
-      _viewToken = tokens?['view_token'] as String?;
-      _moreToken = tokens?['more_token'] as String?;
+      _viewToken = result.viewToken;
+      _moreToken = result.moreToken;
       return (videoUrl: _videoUrl ?? '', ctaUrl: _ctaUrl, blocked: false);
     } catch (e) {
       final aa = mapToAntiAbuseException(e);
@@ -257,47 +268,34 @@ class ShortformInternalPlatform extends AdPlatform {
     }
   }
 
-  Future<void> _callView() async {
-    if ((_viewToken ?? '').isEmpty) return;
-    try {
-      logInfo('callView start');
-      final supabaseUrl = Environment.supabaseUrl;
-      final token = supabase.auth.currentSession?.accessToken ?? '';
-      final client = SupabaseClient(supabaseUrl, Environment.supabaseAnonKey);
-      await client.functions.invoke(
-        'callback-ad-shortform-view',
-        headers: {'Authorization': 'Bearer $token'},
-        body: {'token': _viewToken},
-      );
-      logInfo('callView success');
-      commonUtils.refreshUserProfile();
-    } catch (e, s) {
-      // 만료 시 1회 재발급 후 재시도
-      final msg = e.toString().toLowerCase();
-      if (msg.contains('expired') || msg.contains('bad request')) {
-        try {
-          logWarning('callView expired -> reissue & retry');
-          await _reissueTokens();
-          final supabaseUrl = Environment.supabaseUrl;
-          final token = supabase.auth.currentSession?.accessToken ?? '';
-          final client = SupabaseClient(
-            supabaseUrl,
-            Environment.supabaseAnonKey,
-          );
-          await client.functions.invoke(
-            'callback-ad-shortform-view',
-            headers: {'Authorization': 'Bearer $token'},
-            body: {'token': _viewToken},
-          );
-          logInfo('callView retry success');
-          commonUtils.refreshUserProfile();
-          return;
-        } catch (e2, s2) {
-          logError('view failed (retry)', error: e2, stackTrace: s2);
-        }
-      }
-      logError('view failed', error: e, stackTrace: s);
+  Future<InternalShortformViewResponse> _callView() async {
+    if (_rewardSession.reference == null) {
+      throw StateError('No issued impression for view callback');
     }
+    if ((_viewToken ?? '').isEmpty) {
+      throw StateError('No issued view token');
+    }
+    return InternalShortformViewRecoveryFlow(
+      view: InternalShortformViewFlow(
+        session: _rewardSession,
+        currentOwner: () => supabase.auth.currentUser?.id,
+        invokeCallback: () async => (await supabase.functions.invoke(
+          'callback-ad-shortform-view',
+          body: {'token': _viewToken},
+        )).data,
+        parse: ref.read(adRewardRepositoryProvider).parseInternalViewResponse,
+      ),
+      poll: (ownerUserId, reference) => ref
+          .read(adRewardRecoveryProvider.notifier)
+          .poll(ownerUserId: ownerUserId, reference: reference),
+      onPollError: (error, stackTrace) {
+        logError(
+          'Internal reward polling failed',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      },
+    ).report();
   }
 
   Future<void> _callMore() async {

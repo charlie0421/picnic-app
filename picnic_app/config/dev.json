@@ -1,10 +1,10 @@
 {
   "supabase": {
-    "url": "https://xtijtefcycoeqludlngc.supabase.co",
-    "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWp0ZWZjeWNvZXFsdWRsbmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU4OTEyNzQsImV4cCI6MjAzMTQ2NzI3NH0.k0Viu8kgOnkJ7-tnrDTmqpe6TdtZCYkqmH_5vUvcv_k",
+    "url": "",
+    "anon_key": "",
     "storage": {
-      "url": "https://api.picnic.fan",
-      "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWp0ZWZjeWNvZXFsdWRsbmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU4OTEyNzQsImV4cCI6MjAzMTQ2NzI3NH0.k0Viu8kgOnkJ7-tnrDTmqpe6TdtZCYkqmH_5vUvcv_k"
+      "url": "",
+      "anon_key": ""
     }
   },
   "auth": {
@@ -35,16 +35,16 @@
   "storage": {
     "cdn_url": "https://cdn.picnic.fan/picnic",
     "aws": {
-      "access_key_id": "AKIA4MTWN2EOHQLM2CVX",
-      "secret_access_key": "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",
+      "access_key_id": "",
+      "secret_access_key": "",
       "region": "ap-northeast-2",
       "s3_bucket": "picnic-prod-cdn",
       "s3_bucket_url": "https://picnic-fan.s3.ap-northeast-2.amazonaws.com"
     }
   },
   "api_keys": {
-    "youtube": "AIzaSyCaLg2a8kx1-JYh878enFIqyvVH5VNqYxk",
-    "deepl": "ef2715c3-89d7-4b1b-a95b-e1fd3b7d734e:fx",
+    "youtube": "",
+    "deepl": "",
     "branch": "key_live_dsiXNxlgIa3pmcn6eK0djnjmzucZNIS4"
   },
   "app": {

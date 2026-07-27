@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_fullscreen_page.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay.dart';
 
@@ -25,7 +26,7 @@ void main() {
         buildTestAppPage(
           AdShortformFullscreenPage(
             videoUrl: 'https://example.com/video.mp4',
-            onViewComplete: () async {},
+            onViewComplete: legacyViewResponse,
             onMore: () async {},
           ),
         ),
@@ -44,7 +45,7 @@ void main() {
           AdShortformFullscreenPage(
             videoUrl: 'https://example.com/video.mp4',
             ctaUrl: 'https://example.com/cta',
-            onViewComplete: () async {},
+            onViewComplete: legacyViewResponse,
             onMore: () async {},
           ),
         ),
@@ -60,7 +61,7 @@ void main() {
         buildTestAppPage(
           AdShortformFullscreenPage(
             videoUrl: 'https://example.com/video.mp4',
-            onViewComplete: () async {},
+            onViewComplete: legacyViewResponse,
             onMore: () async {},
           ),
         ),
@@ -80,7 +81,7 @@ void main() {
         buildTestAppPage(
           AdShortformFullscreenPage(
             videoUrl: 'https://example.com/fallback.mp4',
-            onViewComplete: () async {},
+            onViewComplete: legacyViewResponse,
             onMore: () async {},
             loadAd: () async {
               loadAdCalled = true;
@@ -101,3 +102,11 @@ void main() {
     });
   });
 }
+
+Future<InternalShortformViewResponse> legacyViewResponse() async =>
+    const InternalShortformViewResponse(
+      ok: true,
+      rewardAdded: 1,
+      impressionId: '00000000-0000-4000-8000-000000000402',
+      newBonus: 1,
+    );

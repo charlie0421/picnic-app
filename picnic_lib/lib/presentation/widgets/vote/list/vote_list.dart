@@ -5,6 +5,7 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -54,6 +55,12 @@ class _VoteListState extends ConsumerState<VoteList> {
     bool isRefresh = false,
   }) async {
     if (_noMoreItems && !isInitialLoad && !isRefresh) {
+      // 더 가져올 게 없으면 즉시 리턴하되, 진행 표시 플래그는 반드시 되돌린다.
+      // 안 그러면 하단 VoteCardSkeleton(진행 표시)이 카드를 영구히 덮어
+      // 회색 잔상처럼 남는다.
+      if (_isFetchingMore) {
+        _setStateIfMounted(() => _isFetchingMore = false);
+      }
       return;
     }
     // 디버그 상태 로그 추가
@@ -84,44 +91,27 @@ class _VoteListState extends ConsumerState<VoteList> {
           ? 'id_${DateTime.now().millisecondsSinceEpoch}'
           : 'id';
 
-      // PIC-CHART 선택 시 area는 'all'로 처리
-      final isPicChart = widget.area == 'pic-chart';
-      final queryArea = isPicChart ? 'all' : widget.area;
-
       final newItems = await ref.read(
         asyncVoteListProvider(
           _pageKey,
           _pageSize,
           sortKey,
           'DESC',
-          queryArea,
+          widget.area,
           status: widget.status,
           category: widget.category,
           votePortal: widget.portal,
         ).future,
       );
 
-      // 포털 또는 PIC-CHART area에 따라 카테고리 필터 적용 (대소문자 무시)
-      // ALL 선택 시 모든 투표 표시 (필터링 없음)
-      // 특정 area(kpop, musical) 선택 시 image/weekly 제외
-      List<VoteModel> filteredItems = newItems;
-      if (widget.portal == VotePortal.pic || isPicChart) {
-        filteredItems = newItems.where((v) {
-          final cat = (v.voteCategory ?? '').toLowerCase();
-          final isImage = cat.contains('image');
-          final isWeekly = cat.contains('weekly');
-          return isImage || isWeekly;
-        }).toList();
-      } else if (widget.area != 'all') {
-        // 특정 area 선택 시 image/weekly 제외
-        filteredItems = newItems.where((v) {
-          final cat = (v.voteCategory ?? '').toLowerCase();
-          final isImage = cat.contains('image');
-          final isWeekly = cat.contains('weekly');
-          return !(isImage || isWeekly);
-        }).toList();
-      }
-      // widget.area == 'all'인 경우 필터링 없이 모든 투표 표시
+      // vote 포탈 탭은 areas 배열(area)로만 분류 — 카테고리 후처리 없음.
+      // 레거시 PIC 포탈(딥링크 전용)만 이미지/위클리 후처리를 유지한다.
+      List<VoteModel> filteredItems = widget.portal == VotePortal.pic
+          ? newItems.where((v) {
+              final cat = (v.voteCategory ?? '').toLowerCase();
+              return cat.contains('image') || cat.contains('weekly');
+            }).toList()
+          : newItems;
 
       // 빈 페이지가 반환될 경우 몇 페이지 앞당겨 건너뛰기(최대 3회 시도)
       if (!isInitialLoad && filteredItems.isEmpty && _items.isNotEmpty) {
@@ -135,25 +125,18 @@ class _VoteListState extends ConsumerState<VoteList> {
                 _pageSize,
                 sortKey,
                 'DESC',
-                queryArea,
+                widget.area,
                 status: widget.status,
                 category: widget.category,
                 votePortal: widget.portal,
               ).future,
             );
-            // ALL이면 필터링 없이 모든 항목
-            if (widget.area == 'all' && widget.portal != VotePortal.pic && !isPicChart) {
-              filteredItems = nextItems;
-            } else {
-              filteredItems = nextItems.where((v) {
-                final cat = (v.voteCategory ?? '').toLowerCase();
-                final isImage = cat.contains('image');
-                final isWeekly = cat.contains('week');
-                return (widget.portal == VotePortal.pic || isPicChart)
-                    ? (isImage || isWeekly)
-                    : !(isImage || isWeekly);
-              }).toList();
-            }
+            filteredItems = widget.portal == VotePortal.pic
+                ? nextItems.where((v) {
+                    final cat = (v.voteCategory ?? '').toLowerCase();
+                    return cat.contains('image') || cat.contains('weekly');
+                  }).toList()
+                : nextItems;
             if (filteredItems.isNotEmpty) {
               // tempPage까지 소비한 것으로 간주하여 pageKey를 넘겨둠
               _pageKey = tempPage + 1;
@@ -198,8 +181,9 @@ class _VoteListState extends ConsumerState<VoteList> {
   }
 
   void _onPageChanged(int index) {
-    // 마지막 아이템에 도달하면 추가 fetch
-    if (!_isFetchingMore && index == _items.length - 1) {
+    // 마지막 아이템에 도달하면 추가 fetch. 더 없을 땐(_noMoreItems) 트리거하지
+    // 않아 진행 스켈레톤이 뜨지 않게 한다.
+    if (!_isFetchingMore && !_noMoreItems && index == _items.length - 1) {
       _setStateIfMounted(() {
         _isFetchingMore = true;
       });
@@ -234,7 +218,7 @@ class _VoteListState extends ConsumerState<VoteList> {
   Widget build(BuildContext context) {
     if (_isLoading && _items.isEmpty) {
       return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [VoteCardSkeleton(status: _getSkeletonStatus(null))],
       );
     }
@@ -270,7 +254,7 @@ class _VoteListState extends ConsumerState<VoteList> {
               }
 
               return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   VoteInfoCard(
                     context: context,
@@ -281,19 +265,14 @@ class _VoteListState extends ConsumerState<VoteList> {
               );
             },
           ),
+          // 추가 로드 중 표시: 카드를 덮는 풀사이즈 스켈레톤 대신 하단 중앙에
+          // 작은 펄스만 띄운다(현재 카드를 가려 회색 잔상처럼 보이던 문제 방지).
           if (_isFetchingMore)
-            Positioned(
-              bottom: 0,
+            const Positioned(
+              bottom: 16,
               left: 0,
               right: 0,
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: VoteCardSkeleton(
-                  status: _getSkeletonStatus(
-                    _items.isNotEmpty ? _items[_items.length - 1] : null,
-                  ),
-                ),
-              ),
+              child: Center(child: SmallPulseLoadingIndicator()),
             ),
         ],
       ),

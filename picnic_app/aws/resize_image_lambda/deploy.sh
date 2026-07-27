@@ -1,3 +1,6 @@
-rm myFunction.zip
-zip -r myFunction.zip ./
-aws lambda --region=us-east-1 update-function-code --function-name ResizingImages --zip-file fileb://myFunction.zip --profile picnic
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "NO-GO: direct Lambda mutation is disabled."
+echo "Use the approved protected CI deployment at the exact release SHA."
+exit 1

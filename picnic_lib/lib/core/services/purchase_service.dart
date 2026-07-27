@@ -17,10 +17,19 @@ import 'package:picnic_lib/core/services/purchase_service_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 import 'package:picnic_lib/core/services/receipt_queue_service.dart';
+import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
+
+typedef PurchaseSuccess =
+    Future<void> Function(PurchaseSettlementResultModel result);
+
+Future<void> deliverVerifiedPurchaseResult(
+  PurchaseSettlementResultModel result,
+  PurchaseSuccess onSuccess,
+) => onSuccess(result);
 
 class PurchaseService {
   PurchaseService({
-    required this.ref,
+    required this.container,
     required this.inAppPurchaseService,
     required this.receiptVerificationService,
     required this.analyticsService,
@@ -44,7 +53,17 @@ class PurchaseService {
     }
   }
 
-  final WidgetRef ref;
+  /// The Riverpod container, captured while the store was mounted.
+  ///
+  /// Not a [WidgetRef]: the reads below outlive the store. Receipt verification
+  /// takes as long as the network takes, and the user is free to leave the
+  /// store while it runs - `ConsumerState.ref` throws the moment `mounted` is
+  /// false, so a read reached through the widget turns a purchase the server
+  /// has already settled into an exception on the success path. The container
+  /// belongs to the app-level `ProviderScope` and outlives the route, so the
+  /// same read still lands. Same reason `WalletSummaryApplier` exists for the
+  /// wallet write at the end of that path.
+  final ProviderContainer container;
   final InAppPurchaseService inAppPurchaseService;
   final ReceiptVerificationService receiptVerificationService;
   final AnalyticsService analyticsService;
@@ -99,7 +118,7 @@ class PurchaseService {
   /// 구매 처리 (단순화)
   Future<void> handleOptimizedPurchase(
     PurchaseDetails purchaseDetails,
-    VoidCallback onSuccess,
+    PurchaseSuccess onSuccess,
     Function(String) onError, {
     required bool isActualPurchase,
   }) async {
@@ -173,8 +192,8 @@ class PurchaseService {
       );
 
       // 3. 제품 정보 확인
-      final storeProducts = await ref.read(storeProductsProvider.future);
-      final serverProduct = ref
+      final storeProducts = await container.read(storeProductsProvider.future);
+      final serverProduct = container
           .read(serverProductsProvider.notifier)
           .getProductDetailById(productId);
 
@@ -342,7 +361,7 @@ class PurchaseService {
   /// 실제 구매 처리 (단순화)
   Future<void> _handleActualPurchase(
     PurchaseDetails purchaseDetails,
-    VoidCallback onSuccess,
+    PurchaseSuccess onSuccess,
     Function(String) onError,
   ) async {
     final platform = Platform.isIOS ? 'iOS' : 'Android';
@@ -362,7 +381,7 @@ class PurchaseService {
 
       // 🔥 영수증 검증 (서버 검증 단계만 - 타임아웃 있음)
       logger.i('🔍 서버 영수증 검증 시작 ($platform)');
-      await _verifyReceipt(purchaseDetails, environment);
+      final result = await _verifyReceipt(purchaseDetails, environment);
       logger.i('✅ 서버 영수증 검증 완료 ($platform)');
 
       await _logPurchaseAnalytics(purchaseDetails);
@@ -380,7 +399,7 @@ class PurchaseService {
         );
       }
 
-      onSuccess();
+      await deliverVerifiedPurchaseResult(result, onSuccess);
       logger.i('✅ 실제 구매 검증 완료 ($platform)');
     } on ReusedPurchaseException catch (e) {
       logger.w('🔄 JWT 재사용 감지 ($platform) - StoreKit 캐시 문제: ${e.message}');
@@ -427,7 +446,7 @@ class PurchaseService {
   /// 복원된 구매 처리 (무시)
   Future<void> _handleRestoredPurchase(
     PurchaseDetails purchaseDetails,
-    VoidCallback onSuccess,
+    PurchaseSuccess onSuccess,
     Function(String) onError,
   ) async {
     logger.i('🚫 복원된 구매 무시: ${purchaseDetails.productID}');
@@ -470,7 +489,7 @@ class PurchaseService {
   }
 
   /// 영수증 검증 (단순화 - 서비스에 위임)
-  Future<void> _verifyReceipt(
+  Future<PurchaseSettlementResultModel> _verifyReceipt(
     PurchaseDetails purchaseDetails,
     String environment,
   ) async {
@@ -481,7 +500,7 @@ class PurchaseService {
     logger.i('Environment: $environment');
 
     // ReceiptVerificationService가 타임아웃 + 재시도 로직을 모두 처리
-    await receiptVerificationService.verifyReceipt(
+    final result = await receiptVerificationService.verifyReceipt(
       receiptData,
       purchaseDetails.productID,
       currentUser.id,
@@ -489,22 +508,40 @@ class PurchaseService {
     );
 
     logger.i('✅ 영수증 검증 완료');
+    return result;
   }
 
   /// 구매 애널리틱스 로깅
+  ///
+  /// Runs between "the receipt verified" and "the caller is told the purchase
+  /// succeeded", and therefore must not be able to fail the purchase. By the
+  /// time it runs the candy is already granted server-side; letting it throw
+  /// hands the settled purchase to the catch in [_handleActualPurchase], which
+  /// records `completePurchase(success: false)` for a purchase that succeeded
+  /// and calls `onError` instead of `onSuccess` - so the settlement, and with
+  /// it the wallet write, never runs.
+  ///
+  /// [AnalyticsService] already swallows its own failures. What could throw is
+  /// the *lookup* this needs to name the product: the provider read, and the
+  /// `PRODUCT_NOT_FOUND` below when the store catalogue does not carry an id it
+  /// just sold. Neither says anything about whether the user was charged.
   Future<void> _logPurchaseAnalytics(PurchaseDetails purchaseDetails) async {
-    final storeProducts = await ref.read(storeProductsProvider.future);
-    final productDetails = storeProducts.firstWhere(
-      (product) => product.id == purchaseDetails.productID,
-      orElse: () => throw Exception('PRODUCT_NOT_FOUND'),
-    );
+    try {
+      final storeProducts = await container.read(storeProductsProvider.future);
+      final productDetails = storeProducts.firstWhere(
+        (product) => product.id == purchaseDetails.productID,
+        orElse: () => throw Exception('PRODUCT_NOT_FOUND'),
+      );
 
-    logger.i('애널리틱스 로깅...');
-    await analyticsService.logPurchaseEvent(
-      productDetails,
-      transactionId: purchaseDetails.purchaseID,
-    );
-    logger.i('애널리틱스 로깅 완료');
+      logger.i('애널리틱스 로깅...');
+      await analyticsService.logPurchaseEvent(
+        productDetails,
+        transactionId: purchaseDetails.purchaseID,
+      );
+      logger.i('애널리틱스 로깅 완료');
+    } catch (e, s) {
+      logger.e('애널리틱스 로깅 실패 - 구매 결과에는 영향 없음: $e', stackTrace: s);
+    }
   }
 
   /// 구매 완료 처리
@@ -528,6 +565,8 @@ class PurchaseService {
       serverProductId: serverProduct['id'] as String,
       isAndroid: isAndroid(),
       inappAppNamePrefix: Environment.inappAppNamePrefix,
+      environment: Environment.currentEnvironment,
+      paymentProductNamespace: Environment.paymentProductNamespace,
     );
   }
 

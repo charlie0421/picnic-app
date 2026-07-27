@@ -8,12 +8,21 @@ import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../helpers/ignore_image_errors.dart';
+import '../../helpers/load_test_fonts.dart';
 import '../../helpers/mock_supabase.dart';
 import '../../helpers/test_app.dart';
 import '../../helpers/test_environment.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  // 프로덕션 폰트를 올린다 — 없으면 flutter_test 기본 폰트(글리프마다 1em)가
+  // 텍스트를 과대 측정해서 상태 메시지 Row 가 없는 오버플로를 낸다.
+  // 상세는 login_page_render_test.dart 의 setUpAll 주석 참고.
+  //
+  // 아래 setUp 이 'flutter/assets' 메시지 핸들러를 목으로 바꾸므로, 실제 폰트
+  // 바이트를 읽는 이 호출은 반드시 그 전(= setUpAll)에 일어나야 한다.
+  setUpAll(loadTestFonts);
 
   late void Function() restore;
   bool _envInitialized = false;
@@ -54,10 +63,12 @@ void main() {
   });
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
-    await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    // 첫 프레임부터 필터가 걸려 있어야 한다. 여러 에러가 한 프레임에 겹치면
+    // 바인딩이 "Multiple exceptions (N)" 문자열 하나로 뭉개버려서, 무엇이
+    // 났는지도 알 수 없고 화이트리스트로 지목할 수도 없게 된다.
+    await pumpWidgetAndIgnoreErrors(tester, widget);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('SplashImage render', () {
@@ -140,7 +151,7 @@ void main() {
 
       // Pump additional time to let post frame callbacks execute
       await tester.pump(const Duration(seconds: 2));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(SplashImage), findsOneWidget);
     });
@@ -160,7 +171,7 @@ void main() {
       // Pump extra frames to let animations settle
       for (int i = 0; i < 3; i++) {
         await tester.pump(const Duration(milliseconds: 500));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(SplashImage), findsOneWidget);
@@ -474,7 +485,7 @@ void main() {
       // Pump multiple times to exercise timer callbacks
       for (int i = 0; i < 5; i++) {
         await tester.pump(const Duration(seconds: 1));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(SplashImage), findsOneWidget);

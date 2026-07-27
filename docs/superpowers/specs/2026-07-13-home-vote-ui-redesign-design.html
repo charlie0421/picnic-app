@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Picnic 홈/투표 UI 개편 v2.2 — 설계 문서</title>
+<style>
+  :root {
+    --bg: #f6f8fc; --surface: #ffffff; --surface-2: #f3f6ff;
+    --text: #202634; --muted: #667085; --line: #e6ebf3;
+    --mint: #83fbc8; --mint-2: #ddfff4; --purple: #8b6cf6; --purple-2: #a78bfa;
+    --green: #e9fbf3; --green-line: #bfead5; --amber: #fff8e8; --amber-line: #f2ddb0;
+    --red: #fdecec; --red-line: #f4c9c9;
+    --shadow: 0 12px 30px rgba(26,31,44,.08); --radius: 18px; --radius-sm: 12px; --max: 1080px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--text); line-height: 1.65;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, #fafeff 0%, var(--bg) 100%);
+  }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 32px 20px 80px; }
+  .hero {
+    background: linear-gradient(135deg, var(--mint) 0%, var(--mint-2) 100%);
+    border-radius: 28px; padding: 32px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.75);
+  }
+  .eyebrow { display:inline-block; padding:6px 12px; border-radius:999px; background:rgba(255,255,255,.8); color:#345248; font-size:13px; font-weight:700; }
+  h1 { margin: 14px 0 10px; font-size: clamp(28px, 4vw, 40px); line-height: 1.12; }
+  .lead { margin: 0; max-width: 820px; color:#385449; font-size:16px; }
+  .meta { margin-top:20px; display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+  .meta-card { background:rgba(255,255,255,.78); border:1px solid rgba(255,255,255,.95); border-radius:var(--radius-sm); padding:12px 14px; }
+  .meta-card .k { display:block; font-size:12px; color:#5b736a; margin-bottom:4px; }
+  .meta-card .v { font-size:14px; font-weight:700; word-break:break-word; }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); margin-top:22px; }
+  h2 { margin:0 0 14px; font-size:22px; line-height:1.2; }
+  h3 { margin:22px 0 10px; font-size:17px; line-height:1.3; }
+  h4 { margin:16px 0 6px; font-size:15px; color:#3a4256; }
+  p { margin:0 0 12px; color:#313847; }
+  ul, ol { margin:8px 0 0; padding-left:20px; }
+  li { margin:6px 0; }
+  .muted { color:var(--muted); }
+  code { background:#f1f0fb; border:1px solid #e5e2f7; border-radius:6px; padding:1px 6px; font-size:13px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:#5b46c7; word-break:break-word; }
+  pre { background:#1f2330; color:#e7e9f2; border-radius:14px; padding:16px 18px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:none; border:none; color:inherit; padding:0; }
+  .table-scroll { overflow-x:auto; margin-top:12px; }
+  table { width:100%; border-collapse:collapse; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  th, td { text-align:left; vertical-align:top; padding:12px 14px; border-bottom:1px solid var(--line); font-size:14px; }
+  th { background:#f7f9fc; color:#5d6678; font-size:13px; white-space:nowrap; }
+  tr:last-child td { border-bottom:0; }
+  .note { margin-top:14px; padding:14px 16px; border-radius:14px; font-size:14px; }
+  .note.info { background:#f3f7ff; border:1px solid #d9e5ff; color:#35507a; }
+  .note.warn { background:var(--amber); border:1px solid var(--amber-line); color:#735313; }
+  .note.good { background:var(--green); border:1px solid var(--green-line); color:#21553d; }
+  .note.risk { background:var(--red); border:1px solid var(--red-line); color:#8a2f2f; }
+  .pill { display:inline-block; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:700; }
+  .pill.add { background:#e7f8ef; color:#0c7a43; } .pill.del { background:#fdecec; color:#b3261e; }
+  .pill.keep { background:#eef1f6; color:#4a5468; } .pill.mod { background:#fff4e5; color:#8a5a00; }
+  .flow { display:grid; gap:10px; margin-top:12px; }
+  .flow-item { display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border-radius:14px; background:var(--surface-2); border:1px solid #dfe7ff; }
+  .num { width:26px; height:26px; flex:0 0 26px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; color:#fff; font-size:13px; font-weight:700; background:linear-gradient(135deg,var(--purple),var(--purple-2)); }
+  .toc { columns:2; column-gap:26px; }
+  .toc a { color:#4a5468; text-decoration:none; }
+  .toc a:hover { color:var(--purple); text-decoration:underline; }
+  .footer { margin-top:28px; text-align:center; color:var(--muted); font-size:13px; }
+  @media (max-width:820px){ .card{padding:20px;} .toc{columns:1;} th,td{padding:10px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="hero">
+    <span class="eyebrow">개발 설계 문서 · Claude Code · rev2 (area 재활용)</span>
+    <h1>Picnic 앱 홈/투표 UI 개편 v2.2 — 설계</h1>
+    <p class="lead">PRD v2.2.1을 현재 코드베이스에 매핑한 구현 준비 문서. 투표 종류는 <strong>기존 <code>area</code> 필드를 재활용</strong>해 백엔드 변경 없이 최소 수정으로 처리한다.</p>
+    <div class="meta">
+      <div class="meta-card"><span class="k">작성일</span><span class="v">2026-07-13</span></div>
+      <div class="meta-card"><span class="k">브랜치</span><span class="v">feat/home-vote-ui-redesign</span></div>
+      <div class="meta-card"><span class="k">대상</span><span class="v">picnic-app (단일 레포)</span></div>
+      <div class="meta-card"><span class="k">백엔드</span><span class="v">스키마 변경 없음</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>목차</h2>
+    <div class="toc">
+      <p><a href="#s1">1. 목표 / 비목표</a><br>
+      <a href="#s2">2. 확정된 의사결정</a><br>
+      <a href="#s3">3. 영향 범위</a><br>
+      <a href="#s4">4. 현재 구조 매핑</a></p>
+      <p><a href="#s5">5. 변경 설계</a><br>
+      <a href="#s6">6. 검증 계획</a><br>
+      <a href="#s7">7. 오픈 이슈</a><br>
+      <a href="#s8">8. 리스크</a></p>
+    </div>
+  </section>
+
+  <!-- 1 -->
+  <section class="card" id="s1">
+    <h2>1. 목표 / 비목표</h2>
+    <h3>목표</h3>
+    <ul>
+      <li>홈 진입 구조 단순화 (미사용 상단 기능 제거).</li>
+      <li>홈(요약형 허브)과 투표 페이지(탐색형 리스트)의 목적 분리.</li>
+      <li>투표 종류 탭 도입(가로 스크롤·스와이프). <strong>기존 <code>area</code> 필드 재활용</strong> — 백엔드 신설 없이 최소 변경.</li>
+    </ul>
+    <h3>비목표 <span class="muted">(이번 범위에서 건드리지 않음)</span></h3>
+    <ul>
+      <li>투표 상세 페이지 세부 레이아웃 · 저장/공유 내부 로직.</li>
+      <li>홈 진행중 투표 카드의 최종 비주얼(기능만 구현).</li>
+      <li>궁합/PIC/커뮤니티 포탈 화면 자체(코드·딥링크 보존, 상단 진입점만 제거).</li>
+    </ul>
+  </section>
+
+  <!-- 2 -->
+  <section class="card" id="s2">
+    <h2>2. 확정된 의사결정 <span class="muted">(사용자 승인 2026-07-13)</span></h2>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>항목</th><th>결정</th></tr></thead>
+      <tbody>
+        <tr><td>투표 종류 탭 데이터 소스</td><td><strong>기존 <code>area</code> 필드 재활용</strong> (스키마 변경 없음). 탭 목록은 앱 const config</td></tr>
+        <tr><td>탭 ↔ area 매핑</td><td>PICNIC→<code>kpop</code> / PIC CHART→<code>pic-chart</code> / MUSICAL→<code>musical</code> / SPOTLIGHT→<code>spotlight</code>. 기존 재태깅 없음</td></tr>
+        <tr><td>탭 라벨</td><td><strong>전부 영어 하드코딩</strong> (PICNIC / PIC CHART / MUSICAL / SPOTLIGHT)</td></tr>
+        <tr><td>상단 Vote/Goong-Hap 버튼 · 커뮤니티 탭 제거</td><td><strong>상단 진입점만 제거.</strong> 궁합/PIC/커뮤니티 포탈 코드·딥링크는 보존</td></tr>
+        <tr><td>홈 "현재 진행중인 투표" 대표 선정</td><td><strong>곧 종료되는 진행중</strong> (active 중 <code>stop_at ASC</code> 첫 1건)</td></tr>
+        <tr><td>작업 분할</td><td><strong>단일 워크트리에서 한 번에</strong> (앱 1 PR)</td></tr>
+        <tr><td>"흰색 영역 전체 삭제" 해석</td><td>민트 AppBar 아래 <code>TopMenu</code> 보조 스트립(별사탕 + area 드롭다운 + 페이지 타이틀) 제거. 스크린 본문은 유지</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>2.1 DB 실측 근거 (탭↔area 매핑)</h3>
+    <p><code>vote.areas</code>에 실제 존재하는 값은 <code>kpop</code>(179건), <code>musical</code>(24건) 둘뿐. <code>pic-chart</code>/<code>spotlight</code>는 데이터 없음.</p>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>탭</th><th>area 코드</th><th>현재 데이터</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>PICNIC</td><td><code>kpop</code></td><td>179건</td><td>생일/데뷔/위클리/image 등 기존 전부 커버</td></tr>
+        <tr><td>PIC CHART</td><td><code>pic-chart</code></td><td>0건</td><td>신규. 중앙데일리 콘텐츠 태깅 시 노출</td></tr>
+        <tr><td>MUSICAL</td><td><code>musical</code></td><td>24건</td><td>기존 그대로</td></tr>
+        <tr><td>SPOTLIGHT</td><td><code>spotlight</code></td><td>0건</td><td>신규. 지하철 콘텐츠 태깅 시 노출</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="note good">스키마 변경·기존 재태깅 불필요. PIC CHART/SPOTLIGHT는 admin이 <code>votes.areas</code>에 값 추가 전까지 빈 목록(정상 동작).</div>
+  </section>
+
+  <!-- 3 -->
+  <section class="card" id="s3">
+    <h2>3. 영향 범위 <span class="muted">(단일 레포)</span></h2>
+    <ul>
+      <li><strong>picnic-app 만</strong> 변경. 백엔드 마이그레이션 없음.</li>
+      <li>신규 area 값(<code>pic-chart</code>/<code>spotlight</code>)은 스키마가 아니라 <strong>데이터</strong> — admin이 vote 생성/편집 시 <code>areas</code> 배열에 값을 넣으면 즉시 해당 탭에 노출(앱 배포와 독립).</li>
+    </ul>
+  </section>
+
+  <!-- 4 -->
+  <section class="card" id="s4">
+    <h2>4. 현재 구조 매핑 <span class="muted">(탐색 결과 요약)</span></h2>
+
+    <h3>4.1 하단 네비게이션</h3>
+    <ul>
+      <li><code>NavigationConfigs._screenInfoMap</code>(<code>navigation_configs.dart</code> L16–139)가 <strong>실제 렌더 소스</strong>. vote 탭(L18–51): <code>nav_vote</code>/<code>nav_community</code>/<code>nav_media</code>/<code>nav_store</code>.</li>
+      <li><code>bottom_navigation_menu.dart</code>의 <code>voteScreenInfo</code>는 vestigial(<code>pages.length</code>만 사용) → 정합 위해 함께 수정.</li>
+      <li><code>home.svg</code> 아이콘 이미 존재.</li>
+    </ul>
+
+    <h3>4.2 상단 헤더 — <code>portal.dart</code> (L22–169)</h3>
+    <ul>
+      <li><span class="pill del">제거</span> Vote/Goong-Hap <code>PortalMenuItem</code>(L107–108), <code>AttendanceIconButton</code>(L131).</li>
+      <li><span class="pill keep">유지</span> 프로필 leading(L55–95), 알림 <code>TopRightNotifications</code>(L133), 민트 AppBar.</li>
+    </ul>
+
+    <h3>4.3 헤더 제어 메커니즘</h3>
+    <ul>
+      <li><code>settingNavigation({showPortal, showBottomNavigation, showTopMenu, showMyPoint, topRightMenu, pageTitle})</code>를 각 페이지가 <code>_updateNavigation()</code>에서 호출.</li>
+      <li><code>showTopMenu:false</code> → <code>portal.dart</code>의 <code>if (showTopMenu) const TopMenu()</code> 스킵 → 흰색 스트립(별사탕+area드롭다운+타이틀) 통째 제거. <strong>홈/투표 화면에서만 false.</strong></li>
+    </ul>
+
+    <h3>4.4 투표 페이지 — <code>vote_list_page.dart</code></h3>
+    <ul>
+      <li>상태 탭: <code>TabBar</code>+<code>TabBarView</code>(<code>NeverScrollableScrollPhysics</code> → 스와이프 불가). 인덱스 <code>PageStorage</code> persist.</li>
+      <li>카테고리 드롭다운 <code>AreaSelector</code>(제거 대상).</li>
+      <li>데이터 <code>AsyncVoteList.build(page, limit, sort, order, area, {...})</code> — <strong><code>area != 'all'</code>이면 이미 <code>.contains('areas',[area])</code> 서버 필터 적용</strong>. 종류 탭이 이 area를 그대로 활용.</li>
+      <li>카드 <code>VoteInfoCard</code>(1~3위) 유지.</li>
+    </ul>
+
+    <h3>4.5 홈 카드 · 리워드 · 배너 · 미디어</h3>
+    <ul>
+      <li><code>VoteInfoCard</code> 공용(수정 금지) → 홈은 별도 카드. <code>CountdownTimer</code> / <code>ShareSection</code> 재사용.</li>
+      <li>리워드 <code>_buildRewardList</code>(가로 스크롤, <code>asyncRewardListProvider</code>), 배너 <code>CommonBanner('vote_home', 786/400)</code>.</li>
+      <li>미디어 <code>media</code> <code>id DESC</code>, 모델 <code>VideoInfo</code>. 가로 캐러셀 없음 → 리워드 패턴 복제.</li>
+    </ul>
+  </section>
+
+  <!-- 5 -->
+  <section class="card" id="s5">
+    <h2>5. 변경 설계</h2>
+
+    <h3>5.1 하단 탭바 + 헤더</h3>
+    <ol>
+      <li><code>navigation_configs.dart</code> vote pages 재정의: community 제거, <strong>홈0(<code>HomePage</code>)/투표1(<code>VoteListPage</code>)/미디어2/상점3</strong>. <code>bottom_navigation_menu.dart</code> 동기화.</li>
+      <li><code>portal.dart</code>: Vote/Goong-Hap 버튼 + 출석체크 제거. 프로필/알림/민트 유지.</li>
+      <li>홈·투표 페이지가 <code>settingNavigation(showTopMenu:false)</code> 호출 → 흰색 스트립 제거.</li>
+      <li>포탈 전환·궁합/PIC/커뮤니티 화면 코드 보존.</li>
+    </ol>
+
+    <h3>5.2 투표 종류 탭 (area 재활용, 백엔드 무변경)</h3>
+    <p>탭 목록은 앱 const config. 신규 종류 추가 = config 1줄 + <code>votes.areas</code> 태깅(DB 테이블 불필요). 라벨은 영어 리터럴. <strong>provider/모델 변경 없음.</strong></p>
+<pre><code>const _voteTabs = [
+  ('PICNIC',    'kpop'),
+  ('PIC CHART', 'pic-chart'),
+  ('MUSICAL',   'musical'),
+  ('SPOTLIGHT', 'spotlight'),
+];</code></pre>
+
+    <h3>5.3 투표 페이지 재구성 (<code>vote_list_page.dart</code>)</h3>
+    <ul>
+      <li><strong>투표 종류 탭</strong>: <code>_voteTabs</code> 기반 <code>TabBar(isScrollable:true)</code> + <code>TabBarView</code>(스와이프 허용). <code>TabController.length = _voteTabs.length</code>.</li>
+      <li><strong>상태 필터 드롭다운</strong>: 진행중/종료됨/예정됨, 기본값 <strong>항상 진행중</strong>, 페이지 로컬 state(재진입 미저장 — <code>PageStorage</code> 제거).</li>
+      <li>각 탭 = <code>VoteList(status, VoteCategory.all, tab.area, portal: VotePortal.vote)</code>. area가 서버 필터로 걸림.</li>
+      <li>페이지 타이틀은 본문에서 렌더(<code>showTopMenu:false</code>). admin 디버그는 드롭다운 <code>(Admin)</code> 항목으로 편입(선택).</li>
+    </ul>
+
+    <h3>5.4 홈 화면 (<code>HomePage</code> 신규)</h3>
+    <div class="flow">
+      <div class="flow-item"><span class="num">1</span><div><strong>배너</strong> — <code>CommonBanner('vote_home', 786/400)</code></div></div>
+      <div class="flow-item"><span class="num">2</span><div><strong>현재 진행중 투표 카드</strong> — 별도 provider 없이 <code>asyncVoteListProvider(1, 1, 'id', 'DESC', 'all', status: active, category: all)</code> 첫 1건 재사용. <code>HomeFeaturedVoteCard</code>(신규): rank-1만·낮은 높이, 제목/<code>CountdownTimer</code>/<code>ShareSection</code></div></div>
+      <div class="flow-item"><span class="num">3</span><div><strong>리워드 목록</strong> — <code>RewardListSection</code>으로 추출·재사용</div></div>
+      <div class="flow-item"><span class="num">4</span><div><strong>미디어 최신 6</strong> — <code>asyncLatestMediaProvider</code>(신규), 리워드와 동일 가로 캐러셀, 탭 시 유튜브</div></div>
+    </div>
+
+    <h3>5.5 신규 / 수정 파일</h3>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>구분</th><th>파일</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill add">신규</span></td><td><code>HomePage</code>, <code>HomeFeaturedVoteCard</code>, <code>RewardListSection</code>, <code>LatestMediaSection</code>, <code>asyncLatestMediaProvider</code></td></tr>
+        <tr><td><span class="pill mod">수정</span></td><td><code>navigation_configs.dart</code>, <code>bottom_navigation_menu.dart</code>, <code>portal.dart</code>, <code>vote_list_page.dart</code>, l10n(<code>label_home_current_vote</code> 1개)</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="note info"><strong>vote_type 테이블·모델·provider, VoteModel 변경, VoteList voteTypeId 스레딩은 전부 불필요</strong> — <code>area</code> 재활용으로 삭제됨.</div>
+  </section>
+
+  <!-- 6 -->
+  <section class="card" id="s6">
+    <h2>6. 검증 계획</h2>
+    <ul>
+      <li><code>flutter analyze</code> + 변경 파일 대상 <code>flutter test</code>(picnic_lib).</li>
+      <li>코드 생성(신규 provider): <code>cd picnic_lib &amp;&amp; dart run build_runner build --delete-conflicting-outputs</code>.</li>
+      <li>l10n: <code>flutter gen-l10n</code>(picnic_lib).</li>
+      <li>수동: 하단탭 4개, 홈 4섹션, 종류 탭 스와이프 + 상태 드롭다운 기본 진행중 + 재진입 리셋, 미디어 6개. <strong>PIC CHART/SPOTLIGHT는 태깅 전까지 빈 목록(정상).</strong> 마이그레이션 불필요라 즉시 실행 가능.</li>
+    </ul>
+  </section>
+
+  <!-- 7 -->
+  <section class="card" id="s7">
+    <h2>7. 오픈 이슈 <span class="muted">(PRD상 미확정 — 그대로 둠)</span></h2>
+    <ul>
+      <li>홈 진행중 카드 최종 비율/텍스트 배치.</li>
+      <li>미디어 최종 레이아웃(본 구현은 가로 스크롤로 확정).</li>
+      <li>종류 탭이 매우 많을 때 탭 폭/스크롤 UX 세부 정책.</li>
+    </ul>
+  </section>
+
+  <!-- 8 -->
+  <section class="card" id="s8">
+    <h2>8. 리스크</h2>
+    <div class="note risk">persist 인덱스 시프트로 재실행 시 잘못된 탭 진입 → 진입 시 홈(0) 고정/클램프로 방어.</div>
+    <div class="note risk"><code>top_menu</code>/<code>portal</code>은 vote 외 포탈에도 공유 → <code>showTopMenu</code> 게이팅으로 vote 대상 화면만 변경, 회귀 주의.</div>
+    <div class="note risk">신규 area(pic-chart/spotlight) 태깅 전까지 해당 탭 빈 목록 — 빈 상태 UI(<code>VoteNoItem</code>) 필요.</div>
+    <div class="note risk">기존 <code>AreaSelector</code>/<code>appSettingProvider.area</code> 흐름 제거 시 다른 화면(pic list 등) 회귀 없는지 확인.</div>
+  </section>
+
+  <div class="footer">Picnic 앱 홈/투표 UI 개편 v2.2 · 설계 문서 rev2 (area 재활용) · 2026-07-13</div>
+</div>
+</body>
+</html>

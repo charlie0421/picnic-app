@@ -59,78 +59,6 @@ void main() {
     });
   });
 
-  group('PangleAdsHelper.isUnknownAdEvent', () {
-    test('returns true when method contains "ad" (lowercase)', () {
-      expect(PangleAdsHelper.isUnknownAdEvent('customAdEvent'), isTrue);
-    });
-
-    test('returns true when method contains "Ad" (mixed case)', () {
-      expect(PangleAdsHelper.isUnknownAdEvent('onNewAdLoaded'), isTrue);
-    });
-
-    test('returns true when method contains "AD" (uppercase)', () {
-      expect(PangleAdsHelper.isUnknownAdEvent('SOME_AD_EVENT'), isTrue);
-    });
-
-    test('returns false when method does not contain "ad"', () {
-      expect(PangleAdsHelper.isUnknownAdEvent('onRewardEarned'), isFalse);
-    });
-
-    test('returns false for empty string', () {
-      expect(PangleAdsHelper.isUnknownAdEvent(''), isFalse);
-    });
-
-    test('returns true for just "ad"', () {
-      expect(PangleAdsHelper.isUnknownAdEvent('ad'), isTrue);
-    });
-  });
-
-  group('PangleAdsHelper.extractTimestamp', () {
-    test('returns timestamp from arguments when present', () {
-      final result = PangleAdsHelper.extractTimestamp({
-        'timestamp': 1234567890,
-      });
-      expect(result, 1234567890);
-    });
-
-    test('returns timestamp as string when stored as string', () {
-      final result = PangleAdsHelper.extractTimestamp({
-        'timestamp': '1234567890',
-      });
-      expect(result, '1234567890');
-    });
-
-    test('falls back to current time when timestamp key is missing', () {
-      final before = DateTime.now().millisecondsSinceEpoch / 1000;
-      final result = PangleAdsHelper.extractTimestamp({'other': 'value'});
-      final after = DateTime.now().millisecondsSinceEpoch / 1000;
-
-      expect(result, isA<double>());
-      expect((result as double), greaterThanOrEqualTo(before));
-      expect(result, lessThanOrEqualTo(after));
-    });
-
-    test('falls back to current time when arguments is null', () {
-      final before = DateTime.now().millisecondsSinceEpoch / 1000;
-      final result = PangleAdsHelper.extractTimestamp(null);
-      final after = DateTime.now().millisecondsSinceEpoch / 1000;
-
-      expect(result, isA<double>());
-      expect((result as double), greaterThanOrEqualTo(before));
-      expect(result, lessThanOrEqualTo(after));
-    });
-
-    test('falls back to current time for empty map', () {
-      final before = DateTime.now().millisecondsSinceEpoch / 1000;
-      final result = PangleAdsHelper.extractTimestamp({});
-      final after = DateTime.now().millisecondsSinceEpoch / 1000;
-
-      expect(result, isA<double>());
-      expect((result as double), greaterThanOrEqualTo(before));
-      expect(result, lessThanOrEqualTo(after));
-    });
-  });
-
   group('PangleAdsHelper.parseRewardArgs', () {
     test('parses valid map arguments', () {
       final result = PangleAdsHelper.parseRewardArgs({
@@ -190,9 +118,7 @@ void main() {
     });
 
     test('returns default message when errorMessage key is missing', () {
-      final result = PangleAdsHelper.extractErrorMessage({
-        'other': 'data',
-      });
+      final result = PangleAdsHelper.extractErrorMessage({'other': 'data'});
       expect(result, '\uc54c \uc218 \uc5c6\ub294 \uc624\ub958');
     });
 
@@ -225,52 +151,8 @@ void main() {
     });
 
     test('extracts empty string error message', () {
-      final result = PangleAdsHelper.extractErrorMessage({
-        'errorMessage': '',
-      });
+      final result = PangleAdsHelper.extractErrorMessage({'errorMessage': ''});
       expect(result, '');
-    });
-  });
-
-  group('PangleAdsHelper.shouldRefreshProfile', () {
-    test('returns true for onAdDismissed', () {
-      expect(PangleAdsHelper.shouldRefreshProfile('onAdDismissed'), isTrue);
-    });
-
-    test('returns true for onAdClosed', () {
-      expect(PangleAdsHelper.shouldRefreshProfile('onAdClosed'), isTrue);
-    });
-
-    test('returns true for onRewardEarned', () {
-      expect(PangleAdsHelper.shouldRefreshProfile('onRewardEarned'), isTrue);
-    });
-
-    test('returns true for onRewardFailed', () {
-      expect(PangleAdsHelper.shouldRefreshProfile('onRewardFailed'), isTrue);
-    });
-
-    test('returns false for onAdShown', () {
-      expect(PangleAdsHelper.shouldRefreshProfile('onAdShown'), isFalse);
-    });
-
-    test('returns false for onAdClicked', () {
-      expect(PangleAdsHelper.shouldRefreshProfile('onAdClicked'), isFalse);
-    });
-
-    test('returns true for unknown event containing "ad"', () {
-      expect(PangleAdsHelper.shouldRefreshProfile('customAdEvent'), isTrue);
-    });
-
-    test('returns true for unknown event containing "Ad"', () {
-      expect(PangleAdsHelper.shouldRefreshProfile('onNewAdLoaded'), isTrue);
-    });
-
-    test('returns false for unknown event not containing "ad"', () {
-      expect(PangleAdsHelper.shouldRefreshProfile('onSomethingElse'), isFalse);
-    });
-
-    test('returns false for empty string', () {
-      expect(PangleAdsHelper.shouldRefreshProfile(''), isFalse);
     });
   });
 }

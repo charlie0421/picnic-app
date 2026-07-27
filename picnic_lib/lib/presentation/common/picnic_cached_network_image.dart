@@ -66,16 +66,14 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final ImagePriority priority; // 이미지 로딩 우선순위
   final bool enableMemoryOptimization; // 메모리 최적화 활성화
   final bool enableProgressiveLoading; // 점진적 로딩 활성화
-  final int? maxConcurrentLoads; // 최대 동시 로딩 수
+
+  /// 앱 레벨 동시 로딩 제한은 제거되었다(HTTP 클라이언트가 커넥션 풀링으로 제어).
+  /// 하위 호환을 위해 파라미터는 남기지만 더 이상 아무 효과가 없다.
+  @Deprecated('앱 레벨 동시 로딩 제한 제거됨 — 이 값은 무시된다')
+  final int? maxConcurrentLoads;
 
   final Widget? errorWidget; // 커스텀 에러 위젯
   final bool showLoadingOverlay;
-
-  /// true면 앱 레벨 8-슬롯 동시 로딩 게이트(_maxConcurrentLoads)와
-  /// 동시 로딩 수 기반 저대역폭 휴리스틱을 우회한다.
-  /// 고정 extent 리스트(예: 투표 상세)처럼 sliver 뷰포트가 이미
-  /// 가시성 게이트 역할을 하는 경우에만 true로 켠다. 기본값은 기존 동작.
-  final bool bypassConcurrencyGate;
 
   // C3: 리스트 전용 요청 가중치 축소(다른 화면 영향 없음 — 기본값 null = 현재 동작 유지).
   // maxQualityOverride: 단일(저복잡도) URL 의 q 값을 이 값으로 제한.
@@ -109,8 +107,8 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.priority = ImagePriority.normal,
     this.enableMemoryOptimization = true,
     this.enableProgressiveLoading = true,
+    @Deprecated('앱 레벨 동시 로딩 제한 제거됨 — 이 값은 무시된다')
     this.maxConcurrentLoads,
-    this.bypassConcurrencyGate = false,
     this.maxQualityOverride,
     this.maxResolutionMultiplierCap,
     this.deferDuringFastScroll = false,
@@ -132,23 +130,29 @@ class _PicnicCachedNetworkImageState
   bool _shouldLoadImage = false; // Lazy Loading 제어
   bool _isVisible = false; // 가시성 상태
   bool _isImageLoaded = false;
-  // 이 인스턴스가 전역 동시 로딩 카운터(_currentLoadingCount)를 증가시켰는지 여부.
-  // none/bypass 전략은 _startLoading 을 거치지 않으므로 슬롯을 점유하지 않는다.
-  // 이 플래그로 "증가시킨 인스턴스만 감소/대기열 해제"하도록 per-instance 균형을 맞춘다.
-  bool _didIncrementCount = false;
   DateTime? _loadStartTime;
   int _retryCount = 0;
   Timer? _lazyLoadTimer;
+  Timer? _retryTimer; // 재시도 백오프 (취소 가능)
   List<String>? _cachedUrls; // 동일 위젯 생명주기 동안 고정된 URL 세트
+
+  /// VisibilityDetector 의 Key 는 위젯 식별자일 뿐 아니라 visibility_detector
+  /// 패키지의 **전역 static map**(`_updates`, `_lastVisibility`) 의 키로도 쓰인다.
+  ///
+  /// 예전에는 이 Key 를 `Key('lazy_image_$imageUrl')` — 즉 이미지 URL 로 만들었다.
+  /// 그래서 같은 이미지가 화면에 두 번 이상 나오면(인기 아티스트가 여러 투표 카드의
+  /// top3 에 걸리거나, 예정 투표 썸네일 그리드에 동시 노출) 키가 충돌해
+  /// `_updates[key] = callback` 이 서로를 덮어썼고, 한쪽 인스턴스는 가시성 콜백을
+  /// 영영 받지 못해 `_shouldLoadImage` 가 false 인 채로 남았다 — 로딩을 시작조차
+  /// 못 하고 shimmer 만 보였다. 형제 위젯이 아니면 Flutter 가 중복 Key 에러도 내지
+  /// 않아 조용히 오동작한다.
+  ///
+  /// 따라서 인스턴스마다 고유한 키를 쓴다.
+  final Key _visibilityKey = UniqueKey();
 
   static const Duration _defaultTimeout = Duration(seconds: 30);
   static const int _defaultMaxRetries = 2;
   static const Duration _maxBackoffDelay = Duration(seconds: 30);
-
-  // 동시 로딩 제어 (CachedNetworkImage와 별개로 앱 레벨에서 제어)
-  static int _currentLoadingCount = 0;
-  static const int _maxConcurrentLoads = 8;
-  static final List<Completer<void>> _loadingQueue = [];
 
   // 성능 모니터링용 (CachedNetworkImage 캐시와는 별개)
   static final Map<String, DateTime> _lastSnapshotTimes = {};
@@ -164,12 +168,9 @@ class _PicnicCachedNetworkImageState
   _scrollAwareContext;
 
   bool get isGif => widget.imageUrl.toLowerCase().endsWith('.gif');
-  bool get isLowBandwidth => _isLowBandwidthConnection();
 
   Duration get effectiveTimeout => widget.timeout ?? _defaultTimeout;
   int get effectiveMaxRetries => widget.maxRetries ?? _defaultMaxRetries;
-  int get maxConcurrentLoads =>
-      widget.maxConcurrentLoads ?? _maxConcurrentLoads;
 
   Duration _calculateBackoffDelay(int retryCount) {
     final baseDelay = Duration(milliseconds: 500);
@@ -316,14 +317,20 @@ class _PicnicCachedNetworkImageState
   }
 
   /// Lazy Loading 트리거
+  ///
+  /// 예전에는 앱 레벨에서 동시 로딩을 8개로 제한하고 초과분을 전역 큐에 넣었으나,
+  /// (1) 실제 다운로드 동시성은 flutter_cache_manager 가 이미 제어한다 —
+  ///     WebHelper 가 concurrentFetches(기본 10)를 넘는 요청을 내부 큐에 넣는다
+  ///     (flutter_cache_manager/lib/src/web/web_helper.dart). 따라서 앱 레벨의
+  ///     추가 게이트는 중복이고,
+  /// (2) 전역 카운터가 acquire/release 불일치(dispose 무조건 감소 + math.max
+  ///     clamp)로 부정확해 큐 게이트가 사실상 발동하지 않았으며,
+  /// (3) 카운터를 정확히 만들면 리스트 화면(항상 8개 이상 동시 로딩)에서 무관한
+  ///     이미지가 큐에 갇히거나 저대역폭 오판(_isLowBandwidthConnection)이 켜지는
+  ///     회귀를 낳았다.
+  /// → 전역 동시성 제어를 제거하고, 우선순위 기반 지연만 유지한다.
   void _triggerLazyLoad() {
     if (_shouldLoadImage || !mounted) return;
-
-    if (!widget.bypassConcurrencyGate &&
-        _currentLoadingCount >= maxConcurrentLoads) {
-      _queueLoading();
-      return;
-    }
 
     final delay = _calculateLoadDelay();
 
@@ -353,51 +360,27 @@ class _PicnicCachedNetworkImageState
     }
   }
 
-  /// 로딩 대기열에 추가
-  void _queueLoading() {
-    final completer = Completer<void>();
-    _loadingQueue.add(completer);
-
-    completer.future.then((_) {
-      if (mounted && !_shouldLoadImage) {
-        _startLoading();
-      }
-    });
-  }
-
   /// 로딩 시작
   void _startLoading() {
     if (!mounted) return;
 
-    _currentLoadingCount++;
-    _didIncrementCount = true;
     setState(() {
       _shouldLoadImage = true;
       _isImageLoaded = false;
     });
   }
 
-  /// 로딩 완료 처리
-  void _onLoadingComplete() {
-    // 이 인스턴스가 실제로 슬롯을 점유한 경우(=카운터를 증가시킨 경우)에만
-    // 감소시키고 대기열에서 하나를 해제한다. none/bypass 전략처럼 _startLoading 을
-    // 거치지 않은 인스턴스는 공유 대기열을 건드리지 않아 8-슬롯 캡이 깨지지 않는다.
-    if (!_didIncrementCount) return;
-
-    _currentLoadingCount = math.max(0, _currentLoadingCount - 1);
-    _didIncrementCount = false;
-
-    if (_loadingQueue.isNotEmpty) {
-      final nextCompleter = _loadingQueue.removeAt(0);
-      nextCompleter.complete();
-    }
-  }
-
   @override
   void dispose() {
     _lazyLoadTimer?.cancel();
+    _retryTimer?.cancel();
+    // visibility_detector 는 RenderObject dispose 시 전역 맵을 정리하지 않고,
+    // `_lastVisibility` 는 "보이지 않게 될 때"만 엔트리를 지운다. 즉 보이는 상태로
+    // dispose 되면(라우트 pop, 리스트 축소, pull-to-refresh) 엔트리가 영구히 남는다.
+    // URL 기반 키일 때는 distinct URL 수만큼 유한했지만, 위의 인스턴스 고유 키는
+    // dispose 마다 하나씩 무한히 늘어나므로 반드시 직접 정리해 줘야 한다.
+    VisibilityDetectorController.instance.forget(_visibilityKey);
     _scrollAwareContext.dispose();
-    _onLoadingComplete();
     super.dispose();
   }
 
@@ -494,7 +477,18 @@ class _PicnicCachedNetworkImageState
 
     // URL이 변경된 경우에만 상태 재설정
     if (oldWidget.imageUrl != widget.imageUrl && mounted) {
+      _lazyLoadTimer?.cancel();
+      _retryTimer?.cancel(); // 이전 URL 로 예약된 재시도가 새 로드를 깨지 않도록
+      // 인스턴스 고유 키를 쓰면서부터 Element 가 재사용되므로, URL 이 바뀌어도
+      // VisibilityDetector 는 가시성 "변화" 가 없다고 보고 콜백을 다시 주지 않는다.
+      // 아래에서 상태를 재설정하고, 이미 보이는 중이면 직접 로드를 재트리거한다.
       setState(() {
+        // 이전 URL 로 계산된 변환 URL 캐시를 반드시 버려야 한다.
+        // (버리지 않으면 재활용된 리스트 셀이 이전 후보 이미지를 계속 보여준다.)
+        _cachedUrls = null;
+        // cacheKey 에 섞이는 재시도 토큰도 새 URL 기준으로 초기화한다.
+        _reloadToken = 0;
+        _retryCount = 0;
         _loading = true;
         _hasError = false;
         _shouldLoadImage =
@@ -502,6 +496,17 @@ class _PicnicCachedNetworkImageState
         _isImageLoaded = false;
         _loadStartTime = null;
       });
+
+      // 이미 화면에 보이는 상태에서 URL 만 바뀐 경우: 가시성 콜백이 다시 오지
+      // 않으므로 직접 재트리거한다. (전역 슬롯 기계장치를 제거했으므로 여기서
+      // 재트리거해도 카운터/큐 부작용이 없다.)
+      if (!_shouldLoadImage && _isVisible) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && !_shouldLoadImage && _isVisible) {
+            _triggerLazyLoad();
+          }
+        });
+      }
     }
     // URL이 같다면 기존 상태 유지 (로딩 상태 초기화하지 않음)
   }
@@ -610,7 +615,7 @@ class _PicnicCachedNetworkImageState
     // 이미지 로드가 필요하지 않은 경우 플레이스홀더 표시
     if (!_shouldLoadImage) {
       return VisibilityDetector(
-        key: Key('lazy_image_${widget.imageUrl}'),
+        key: _visibilityKey,
         onVisibilityChanged: _onVisibilityChanged,
         child: _buildSafePlaceholder(),
       );
@@ -618,7 +623,7 @@ class _PicnicCachedNetworkImageState
 
     // 이미지 로드
     return VisibilityDetector(
-      key: Key('lazy_image_${widget.imageUrl}'),
+      key: _visibilityKey,
       onVisibilityChanged: _onVisibilityChanged,
       child: _buildSafeMainWidget(),
     );
@@ -675,41 +680,30 @@ class _PicnicCachedNetworkImageState
     final mediaQuery = MediaQuery.of(context);
     final devicePixelRatio = mediaQuery.devicePixelRatio;
 
-    final isLowBandwidth = _isLowBandwidthConnection();
-
     if (UniversalPlatform.isAndroid) {
-      return isLowBandwidth ? 1.0 : math.min(devicePixelRatio * 1.1, 2.5);
+      return math.min(devicePixelRatio * 1.1, 2.5);
     }
 
     if (isIPad(context)) {
-      return isLowBandwidth ? 2.0 : math.min(devicePixelRatio * 1.3, 4.0);
+      return math.min(devicePixelRatio * 1.3, 4.0);
     }
 
-    return isLowBandwidth ? 1.2 : math.min(devicePixelRatio * 1.2, 2.5);
+    return math.min(devicePixelRatio * 1.2, 2.5);
   }
 
-  /// 저대역폭 연결 상태 확인
-  bool _isLowBandwidthConnection() {
-    // 동시 로딩 게이트를 우회하는 위젯은 전역 로딩 수에 영향받지 않는다.
-    if (widget.bypassConcurrencyGate) return false;
-    // 동시 로딩 수가 많으면 저대역폭으로 간주
-    return _currentLoadingCount > maxConcurrentLoads * 0.8;
-  }
+  // NOTE: 과거에는 "동시 로딩 수 > 최대치의 80%" 를 저대역폭 신호로 보고 해상도를
+  // 낮추고(dpr 강등) 작은 이미지까지 3단계 progressive 로 전환했다. 그러나
+  //   (1) 동시 로딩 수는 대역폭 지표가 아니다 — 리스트 화면에서 8개 이상이 동시에
+  //       로딩되는 건 정상이며 항상 임계를 넘는다,
+  //   (2) 결과가 _cachedUrls 에 `??=` 로 고정되어 이미지가 영구히 블러로 남고,
+  //   (3) 3단계 전환은 혼잡한 상황에서 오히려 요청 수를 3배로 늘린다.
+  // 신뢰할 수 있는 대역폭 신호가 없으므로 이 heuristic 을 제거했다.
 
   List<String> _getTransformedUrls(
     BuildContext context,
     double resolutionMultiplier,
   ) {
-    final isLowBandwidth = _isLowBandwidthConnection();
     final imageSize = _estimateImageComplexity();
-
-    if (isLowBandwidth) {
-      return [
-        _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.4, 25),
-        _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.8, 55),
-        _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 75),
-      ];
-    }
 
     switch (imageSize) {
       case ImageComplexity.low:
@@ -1039,7 +1033,6 @@ class _PicnicCachedNetworkImageState
 
     if (_shouldRetry(url, error)) {
       logger.i('이미지 로드 재시도 준비: $url');
-      _onLoadingComplete();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() {
@@ -1109,7 +1102,11 @@ class _PicnicCachedNetworkImageState
       '이미지 로드 재시도 예정: $url (시도: $_retryCount/$effectiveMaxRetries, 지연: ${delay.inSeconds}초)',
     );
 
-    Future.delayed(delay, () {
+    // 취소 가능한 Timer 를 쓴다. 예전에는 Future.delayed(취소 불가)라, URL 이
+    // 교체되거나(dispose/didUpdateWidget) 원래 요청이 뒤늦게 성공한 뒤에도
+    // 예약된 재시도가 발화해 _reloadToken 을 올리고 이미 표시된 이미지를 지웠다.
+    _retryTimer?.cancel();
+    _retryTimer = Timer(delay, () {
       if (mounted) {
         setState(() {
           _reloadToken++;
@@ -1196,6 +1193,12 @@ class _PicnicCachedNetworkImageState
     _loadStartTime = null;
     _lastTimeoutLogTimes.remove(url);
 
+    // 예약된 재시도가 남아 있으면 취소한다. (타임아웃 등으로 재시도를 예약해 둔 뒤
+    // 원래 요청이 뒤늦게 성공하는 경우, 그대로 두면 재시도가 _reloadToken 을 올려
+    // 방금 표시된 이미지를 지우고 처음부터 다시 받는다.)
+    _retryTimer?.cancel();
+    _retryTimer = null;
+
     // 성공적으로 로딩된 이미지 URL을 글로벌 Set에 추가
     // 다음 번 위젯 재생성 시 즉시 표시됨
     _successfullyLoadedImageUrls.add(widget.imageUrl);
@@ -1209,8 +1212,6 @@ class _PicnicCachedNetworkImageState
         });
       }
     });
-
-    _onLoadingComplete();
 
     final warningThreshold = Environment.imageLoadWarningThreshold;
     final errorThreshold = Environment.imageLoadErrorThreshold;
@@ -1269,7 +1270,6 @@ class _PicnicCachedNetworkImageState
     });
 
     _loadStartTime = null;
-    _onLoadingComplete();
 
     if (kDebugMode) {
       // logger.throttledWarn('이미지 로딩 오류: $error (URL: $url)', errorKey);

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>투표 요청 화면 키보드 assertion 대응</title>
+</head>
+<body>
+  <main>
+    <h1>투표 요청 화면 키보드 assertion 대응</h1>
+
+    <section>
+      <h2>증상</h2>
+      <p>
+        투표 요청 화면에서 키를 입력하거나 창 포커스가 바뀔 때
+        <code>KeyUpEvent</code> 또는 <code>HardwareKeyboard</code>의 physical key
+        assertion이 발생한다. 이는 Flutter가 추적하는 pressed-key 상태와 실제
+        키 이벤트의 down/up 순서가 일치하지 않는다는 뜻이다.
+      </p>
+    </section>
+
+    <section>
+      <h2>즉시 복구</h2>
+      <ol>
+        <li>현재 입력 필드의 focus를 해제한다.</li>
+        <li><strong>Hot Restart</strong>를 실행한다.</li>
+        <li>계속 발생하면 앱을 <strong>완전 종료</strong>한 뒤 다시 시작한다.</li>
+        <li>
+          그래도 복구되지 않으면 <code>flutter clean</code>과
+          <code>flutter pub get</code>을 순서대로 실행하고 앱을 다시 빌드한다.
+        </li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>수집할 증거</h2>
+      <p>재현 직후 아래 정보를 빠짐없이 기록한다.</p>
+      <ul>
+        <li>assertion을 포함한 전체 stack trace</li>
+        <li>OS 버전과 기기 또는 에뮬레이터 정보</li>
+        <li><code>flutter doctor -v</code> 출력과 Flutter revision</li>
+        <li>debug, profile, release 중 재현된 build mode</li>
+        <li>직전에 hot reload 또는 Hot Restart를 실행했는지 여부</li>
+        <li>재현 시점의 window focus 상태와 포커스 전환 순서</li>
+        <li>실제로 누른 키의 down/up 순서와 반복 입력 여부</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>금지 조치</h2>
+      <ul>
+        <li>Flutter의 pressed-key 내부 상태를 직접 조작하지 않는다.</li>
+        <li><code>KeyUpEvent</code>를 무시하여 assertion을 우회하지 않는다.</li>
+        <li>문제를 숨기기 위해 Backspace 입력을 다른 동작으로 대체하지 않는다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>에스컬레이션</h2>
+      <p>
+        앱을 완전 종료하고 다시 시작한 뒤에도 정상적인 key down/up 순서에서
+        재현되면, 수집한 증거와 재현 가능한 최소 프로젝트를 첨부해 Flutter
+        upstream에 보고한다.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

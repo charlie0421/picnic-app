@@ -1191,6 +1191,14 @@
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
+  "text_vote_gap_behind_leader": "{gap} votos detrás del n.º 1",
+  "@text_vote_gap_behind_leader": {
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
   "text_vote_rank": "Rango {rank}",
   "@text_vote_rank": {
     "placeholders": {
@@ -1674,9 +1682,9 @@
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
-  "bonus_candy_earn_period_1_to_15": "1 00:00:00 ~ 15 23:59:59",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  "bonus_candy_earn_period_1_to_14": "1 00:00:00 ~ 14 23:59:59",
+  "@bonus_candy_earn_period_1_to_14": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_14'."
   },
   "goonghap_snackbar_need_birthday": "Ingrese su fecha de nacimiento.",
   "@goonghap_snackbar_need_birthday": {
@@ -1809,9 +1817,9 @@
       }
     }
   },
-  "bonus_candy_earn_period_16_to_end": "16 00:00:00 ~ finales de mes 23:59:59",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  "bonus_candy_earn_period_15_to_end": "15 00:00:00 ~ finales de mes 23:59:59",
+  "@bonus_candy_earn_period_15_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'."
   },
   "error_message_withdrawal": "Un miembro que ha dejado de suscribirse.",
   "@error_message_withdrawal": {
