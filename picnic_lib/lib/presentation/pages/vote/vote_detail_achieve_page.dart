@@ -513,9 +513,19 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                 _buildVoteInfo(voteModel),
                 _buildVoteItem(context, voteModel, data[0]!),
                 Expanded(
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(children: [_buildLevelItem(data[0]!)]),
+                  // 형제 vote_detail_page 와 같은 당겨서-새로고침. 이 페이지의
+                  // 스크롤 영역은 마일스톤 사다리뿐이라 인디케이터도 여기 단다.
+                  child: RefreshIndicator(
+                    color: AppColors.primary500,
+                    backgroundColor: Colors.white,
+                    onRefresh: _refreshVoteData,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      // 사다리가 뷰포트보다 짧아도 당길 수 있어야 한다 —
+                      // 기본 physics 는 내용이 짧으면 오버스크롤 자체가 없다.
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(children: [_buildLevelItem(data[0]!)]),
+                    ),
                   ),
                 ),
               ],
@@ -531,6 +541,32 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                 stackTrace: stackTrace,
               ),
         );
+  }
+
+  /// 당겨서-새로고침: 상세와 아이템 목록을 함께 갱신한다.
+  ///
+  /// vote_detail_page 의 onRefresh 와 같은 계약 — 양쪽 모두 8초 타임아웃을
+  /// 걸어, 네트워크가 죽어 있어도 인디케이터가 영원히 돌지 않게 한다.
+  /// (`.future` 를 기다려야 인디케이터가 실제 완료 시점까지 표시된다.)
+  Future<void> _refreshVoteData() async {
+    await Future.wait([
+      ref
+          .refresh(
+            asyncVoteDetailProvider(
+              voteId: widget.voteId,
+              votePortal: widget.votePortal,
+            ).future,
+          )
+          .timeout(const Duration(seconds: 8), onTimeout: () => null),
+      ref
+          .refresh(
+            asyncVoteItemListProvider(
+              voteId: widget.voteId,
+              votePortal: widget.votePortal,
+            ).future,
+          )
+          .timeout(const Duration(seconds: 8), onTimeout: () => []),
+    ]);
   }
 
   Widget _buildVoteInfo(VoteModel voteModel) {
