@@ -57,12 +57,15 @@ Map<String, dynamic> _voteItemRow({
   };
 }
 
+/// [nullTitle] 은 운영자가 보상 제목을 비워둔 행을 재현한다.
+/// `RewardModel.title` 은 `thumbnail` 과 같은 순수 nullable 컬럼이다.
 Map<String, dynamic> _voteAchieveRow({
   int id = 1,
   int voteId = 1,
   int rewardId = 1,
   int order = 1,
   int amount = 10000,
+  bool nullTitle = false,
 }) {
   return {
     'id': id,
@@ -72,7 +75,7 @@ Map<String, dynamic> _voteAchieveRow({
     'amount': amount,
     'reward': {
       'id': rewardId,
-      'title': {'ko': '포토카드'},
+      'title': nullTitle ? null : {'ko': '포토카드'},
       'thumbnail': null,
     },
     'vote': _voteRow(id: voteId),
@@ -103,6 +106,31 @@ void main() {
     restore();
     tearDownMockSupabase();
   });
+
+  /// 실제 콘텐츠를 단언하는 테스트용. provider 두 개가 순차로(바깥 → 안쪽)
+  /// 구독되므로 프레임을 몇 번 더 돌려야 둘 다 resolve 된다.
+  ///
+  /// 100ms 씩 굴리는 것은 의도적이다 — 1초를 넘기면 `_updateTimer` 주기와
+  /// `BannerAdWidget._scheduleRetry` 의 취소 불가 재시도가 발화해 테스트 종료
+  /// 시점에 `!timersPending` 단언이 터진다.
+  Future<void> pumpUntilContent(WidgetTester tester, widget) async {
+    await pumpWidgetAndIgnoreErrors(tester, widget);
+    for (var i = 0; i < 4; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+      drainExpectedImageErrors(tester);
+    }
+  }
+
+  /// 콘텐츠가 실제로 그려지면 [BannerAdWidget] 이 마운트되고, 그 `_scheduleRetry`
+  /// 는 취소 불가능한 `Future.delayed` 를 남긴다 (최대 25초). 언마운트한 뒤
+  /// 만료시키지 않으면 테스트 종료 시 `!timersPending` 이 터진다.
+  ///
+  /// 기존 테스트들이 이걸 안 겪는 이유는 1회 pump 로는 페이지가 아직 비어 있어
+  /// 배너 자체가 마운트되지 않기 때문이다.
+  Future<void> settle(WidgetTester tester) async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 30));
+  }
 
   Future<void> pumpAndDrain(WidgetTester tester, widget) async {
     // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
@@ -136,7 +164,7 @@ void main() {
         ],
       });
 
-      await pumpAndDrain(
+      await pumpUntilContent(
         tester,
         buildTestAppPage(
           const VoteDetailAchievePage(voteId: 1, votePortal: VotePortal.pic),
@@ -144,6 +172,39 @@ void main() {
       );
 
       expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+      // 페이지가 존재한다는 것만으로는 부족하다. 상세 provider 에 votePortal 을
+      // 넘기지 않으면 `pic_vote` 대신 `vote` 를 조회해 상세가 널로 돌아오고,
+      // 상세가 바깥 게이트이므로 페이지 전체가 SizedBox.shrink() 가 된다.
+      // 위 단언만으로는 그 백지 상태도 그대로 통과한다.
+      expect(find.text('리워드1'), findsOneWidget);
+      expect(find.text('포토카드'), findsOneWidget);
+
+      await settle(tester);
+    });
+
+    testWidgets('reward with null title does not crash the milestone ladder', (
+      WidgetTester tester,
+    ) async {
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': [_voteItemRow(id: 1, voteTotal: 5000)],
+        'vote_achieve': [
+          _voteAchieveRow(id: 1, order: 1, amount: 10000, nullTitle: true),
+        ],
+      });
+
+      await pumpUntilContent(
+        tester,
+        buildTestAppPage(const VoteDetailAchievePage(voteId: 1)),
+      );
+
+      // 제목이 널이면 빈 문자열로 접히고 사다리는 계속 그려져야 한다.
+      // `reward.title!` 로 되돌리면 여기서 널 단언이 터진다.
+      expect(find.byType(VoteDetailAchievePage), findsOneWidget);
+      expect(find.text('리워드1'), findsOneWidget);
+      expect(find.text('포토카드'), findsNothing);
+
+      await settle(tester);
     });
 
     testWidgets('renders logged out state', (WidgetTester tester) async {

@@ -101,11 +101,25 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
     _updateTimer?.cancel();
     _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (!_isDisposed && mounted) {
+        // 폴링은 화면이 watch 하는 것과 **같은** provider 인스턴스를 갱신해야
+        // 한다. votePortal 을 빼면 pic 포털에서 아무도 안 보는 인스턴스를
+        // 새로고침하게 되고 화면은 영원히 갱신되지 않는다.
         // ignore: unused_result
-        ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
+        ref.refresh(
+          asyncVoteItemListProvider(
+            voteId: widget.voteId,
+            votePortal: widget.votePortal,
+          ),
+        );
 
-        final voteItemData =
-            ref.read(asyncVoteItemListProvider(voteId: widget.voteId)).value;
+        final voteItemData = ref
+            .read(
+              asyncVoteItemListProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ),
+            )
+            .value;
         if (voteItemData == null || voteItemData.isEmpty) return;
 
         final firstItem = voteItemData[0];
@@ -451,7 +465,12 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
     // 순위 목록이 안쪽. 이러면 아이템 행을 그리는 시점엔 [VoteModel] 이 이미
     // 값으로 손에 들어와 있어서 널 단언 자체가 사라진다.
     return ref
-        .watch(asyncVoteDetailProvider(voteId: widget.voteId))
+        .watch(
+          asyncVoteDetailProvider(
+            voteId: widget.voteId,
+            votePortal: widget.votePortal,
+          ),
+        )
         .when(
           data: (voteModel) {
             // fetch 가 실패하면 예외 대신 null 을 돌려준다
@@ -946,8 +965,12 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                     ),
                   ),
                   Text(
+                    // thumbnail 과 같은 이유로 단언하지 않는다 — `title` 도 순수
+                    // nullable 컬럼(`RewardModel.title`)이라 운영자가 비워두면
+                    // 널이고, 여기서 터지면 마일스톤 사다리 전체가 에러 박스가
+                    // 된다. `getLocaleTextFromJson` 은 빈 맵을 '' 로 처리한다.
                     getLocaleTextFromJson(
-                      achievements[rewardIndex].reward.title!,
+                      achievements[rewardIndex].reward.title ?? const {},
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
