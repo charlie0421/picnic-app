@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_gain_indicator.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
@@ -137,6 +138,54 @@ void main() {
       );
 
       expect(find.byType(VoteDetailPage), findsOneWidget);
+    });
+
+    // Regression: the search box must actually PAINT in the non-empty list
+    // branch. The previous sliver-overlay construct (0-height SliverToBoxAdapter
+    // + OverflowBox as the 2nd child of a SliverMainAxisGroup) had
+    // paintExtent==0 → SliverGeometry.visible==false → the group skipped
+    // painting it entirely, so the search field was invisible on every vote
+    // that had results. Assert it renders with a non-zero size.
+    testWidgets('search box renders with non-zero size in non-empty list',
+        (WidgetTester tester) async {
+      setupMockSupabase({
+        'vote': [_voteRow()],
+        'vote_item': [
+          _voteItemRow(id: 1, voteTotal: 5000, artistNameKo: '지민', artistId: 10),
+          _voteItemRow(id: 2, voteTotal: 3000, artistNameKo: '정국', artistId: 11),
+        ],
+      });
+
+      await pumpAndDrain(
+        tester,
+        buildTestAppPage(
+          const VoteDetailPage(voteId: 1),
+        ),
+      );
+
+      // The vote-item list (which now hosts the search box as its leading
+      // sliver) sits below the header, so on the small test surface it can
+      // start beyond the lazy-build cacheExtent. Scroll it into view first.
+      final searchBox = find.byType(EnhancedSearchBox);
+      final scrollable = find.byType(CustomScrollView);
+      if (searchBox.evaluate().isEmpty && scrollable.evaluate().isNotEmpty) {
+        for (int i = 0; i < 5 && searchBox.evaluate().isEmpty; i++) {
+          await tester.drag(scrollable.first, const Offset(0, -200),
+              warnIfMissed: false);
+          while (tester.takeException() != null) {}
+          await tester.pump(const Duration(milliseconds: 200));
+          while (tester.takeException() != null) {}
+        }
+      }
+
+      // The search field must be present...
+      expect(searchBox, findsOneWidget);
+
+      // ...and laid out with a real, non-zero rendered size (not collapsed
+      // into a 0-height adapter that never paints — the prior bug).
+      final size = tester.getSize(searchBox);
+      expect(size.height, greaterThan(0));
+      expect(size.width, greaterThan(0));
     });
 
     testWidgets('renders with pic portal', (WidgetTester tester) async {
