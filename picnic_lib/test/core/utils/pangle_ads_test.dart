@@ -21,29 +21,29 @@ void main() {
   }) {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('pangle_native_channel'),
-      (MethodCall call) async {
-        log.add(call);
-        switch (call.method) {
-          case 'initPangle':
-            return initResult;
-          case 'loadRewardedAd':
-            return loadResult;
-          case 'showRewardedAd':
-            return showResult;
-          default:
-            return null;
-        }
-      },
-    );
+          const MethodChannel('pangle_native_channel'),
+          (MethodCall call) async {
+            log.add(call);
+            switch (call.method) {
+              case 'initPangle':
+                return initResult;
+              case 'loadRewardedAd':
+                return loadResult;
+              case 'showRewardedAd':
+                return showResult;
+              default:
+                return null;
+            }
+          },
+        );
   }
 
   void clearMockChannel() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('pangle_native_channel'),
-      null,
-    );
+          const MethodChannel('pangle_native_channel'),
+          null,
+        );
   }
 
   tearDown(() {
@@ -60,6 +60,56 @@ void main() {
       expect(log.first.arguments, {'appId': 'test_app_id'});
     });
 
+    test('passes explicit sandbox mode to native SDK initialization', () async {
+      setupMockChannel(initResult: true);
+      await PangleAds.initPangle(
+        'test_app_id',
+        environment: 'sandbox',
+        productionAppId: 'production_app_id',
+        sandboxPlacementId: 'sandbox_slot',
+        productionPlacementId: 'production_slot',
+      );
+      expect(log.single.arguments, {
+        'appId': 'test_app_id',
+        'environment': 'sandbox',
+        'productionAppId': 'production_app_id',
+        'sandboxPlacementId': 'sandbox_slot',
+        'productionPlacementId': 'production_slot',
+      });
+    });
+
+    test(
+      'sandbox rejects production app id before native SDK invocation',
+      () async {
+        setupMockChannel(initResult: true);
+        final result = await PangleAds.initPangle(
+          'same_app_id',
+          environment: 'sandbox',
+          productionAppId: 'same_app_id',
+          sandboxPlacementId: 'sandbox_slot',
+          productionPlacementId: 'production_slot',
+        );
+        expect(result, isFalse);
+        expect(log, isEmpty);
+      },
+    );
+
+    test(
+      'sandbox rejects production placement before native SDK invocation',
+      () async {
+        setupMockChannel(initResult: true);
+        final result = await PangleAds.initPangle(
+          'sandbox_app_id',
+          environment: 'sandbox',
+          productionAppId: 'production_app_id',
+          sandboxPlacementId: 'same_slot',
+          productionPlacementId: 'same_slot',
+        );
+        expect(result, isFalse);
+        expect(log, isEmpty);
+      },
+    );
+
     test('returns false on failure', () async {
       setupMockChannel(initResult: false);
       final result = await PangleAds.initPangle('test_app_id');
@@ -69,11 +119,11 @@ void main() {
     test('returns false on PlatformException', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('pangle_native_channel'),
-        (MethodCall call) async {
-          throw PlatformException(code: 'ERROR', message: 'init failed');
-        },
-      );
+            const MethodChannel('pangle_native_channel'),
+            (MethodCall call) async {
+              throw PlatformException(code: 'ERROR', message: 'init failed');
+            },
+          );
       final result = await PangleAds.initPangle('test_app_id');
       expect(result, isFalse);
     });
@@ -81,11 +131,11 @@ void main() {
     test('returns false on unexpected exception', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('pangle_native_channel'),
-        (MethodCall call) async {
-          throw Exception('unexpected');
-        },
-      );
+            const MethodChannel('pangle_native_channel'),
+            (MethodCall call) async {
+              throw Exception('unexpected');
+            },
+          );
       final result = await PangleAds.initPangle('test_app_id');
       expect(result, isFalse);
     });
@@ -93,11 +143,11 @@ void main() {
     test('returns false when null result', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('pangle_native_channel'),
-        (MethodCall call) async {
-          return null;
-        },
-      );
+            const MethodChannel('pangle_native_channel'),
+            (MethodCall call) async {
+              return null;
+            },
+          );
       final result = await PangleAds.initPangle('test_app_id');
       expect(result, isFalse);
     });
@@ -106,44 +156,54 @@ void main() {
   group('PangleAds.loadRewardedAd', () {
     test('returns true on success', () async {
       setupMockChannel(loadResult: true);
-      final result =
-          await PangleAds.loadRewardedAd('placement_123', 'user_456');
+      final result = await PangleAds.loadRewardedAd(
+        'placement_123',
+        'user_456,android,v2.signed',
+      );
       expect(result, isTrue);
       expect(log.first.method, 'loadRewardedAd');
-      expect(log.first.arguments,
-          {'placementId': 'placement_123', 'userId': 'user_456'});
+      expect(log.first.arguments, {
+        'placementId': 'placement_123',
+        'mediaExtra': 'user_456,android,v2.signed',
+      });
     });
 
     test('returns false on failure', () async {
       setupMockChannel(loadResult: false);
-      final result =
-          await PangleAds.loadRewardedAd('placement_123', 'user_456');
+      final result = await PangleAds.loadRewardedAd(
+        'placement_123',
+        'user_456',
+      );
       expect(result, isFalse);
     });
 
     test('returns false on PlatformException', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('pangle_native_channel'),
-        (MethodCall call) async {
-          throw PlatformException(code: 'ERROR', message: 'load failed');
-        },
+            const MethodChannel('pangle_native_channel'),
+            (MethodCall call) async {
+              throw PlatformException(code: 'ERROR', message: 'load failed');
+            },
+          );
+      final result = await PangleAds.loadRewardedAd(
+        'placement_123',
+        'user_456',
       );
-      final result =
-          await PangleAds.loadRewardedAd('placement_123', 'user_456');
       expect(result, isFalse);
     });
 
     test('returns false on unexpected exception', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('pangle_native_channel'),
-        (MethodCall call) async {
-          throw Exception('unexpected');
-        },
+            const MethodChannel('pangle_native_channel'),
+            (MethodCall call) async {
+              throw Exception('unexpected');
+            },
+          );
+      final result = await PangleAds.loadRewardedAd(
+        'placement_123',
+        'user_456',
       );
-      final result =
-          await PangleAds.loadRewardedAd('placement_123', 'user_456');
       expect(result, isFalse);
     });
   });
@@ -165,11 +225,11 @@ void main() {
     test('returns false on PlatformException', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('pangle_native_channel'),
-        (MethodCall call) async {
-          throw PlatformException(code: 'ERROR', message: 'show failed');
-        },
-      );
+            const MethodChannel('pangle_native_channel'),
+            (MethodCall call) async {
+              throw PlatformException(code: 'ERROR', message: 'show failed');
+            },
+          );
       final result = await PangleAds.showRewardedAd();
       expect(result, isFalse);
     });
@@ -177,78 +237,23 @@ void main() {
     test('returns false on unexpected exception', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('pangle_native_channel'),
-        (MethodCall call) async {
-          throw Exception('unexpected');
-        },
-      );
+            const MethodChannel('pangle_native_channel'),
+            (MethodCall call) async {
+              throw Exception('unexpected');
+            },
+          );
       final result = await PangleAds.showRewardedAd();
       expect(result, isFalse);
     });
   });
 
-  group('PangleAds.setOnProfileRefreshNeeded', () {
-    test('sets callback', () {
-      var called = false;
-      PangleAds.setOnProfileRefreshNeeded(() {
-        called = true;
-      });
-      // Verify the callback was set (we can test via refreshProfileManually)
-      PangleAds.refreshProfileManually();
-      expect(called, isTrue);
-    });
-  });
-
-  group('PangleAds.refreshProfileManually', () {
-    test('calls the callback when set', () {
-      var callCount = 0;
-      PangleAds.setOnProfileRefreshNeeded(() {
-        callCount++;
-      });
-      PangleAds.refreshProfileManually();
-      expect(callCount, 1);
-      PangleAds.refreshProfileManually();
-      expect(callCount, 2);
-    });
-
-    test('does nothing when callback is not set', () {
-      // Reset by setting null indirectly (we can't access _onProfileRefreshNeeded)
-      // But dispose resets it
-      // Just verify no crash
-      PangleAds.setOnProfileRefreshNeeded(() {});
-      // This should not crash even if the callback throws
-      expect(() => PangleAds.refreshProfileManually(), returnsNormally);
-    });
-  });
-
   group('PangleAds.testAdDismissed', () {
     test('completes without error', () async {
-      PangleAds.setOnProfileRefreshNeeded(() {});
       await expectLater(PangleAds.testAdDismissed(), completes);
     });
 
     test('completes without callback', () async {
-      // Set a no-op callback so we can test
-      PangleAds.setOnProfileRefreshNeeded(() {});
       await expectLater(PangleAds.testAdDismissed(), completes);
-    });
-  });
-
-  group('PangleAds.showRewardedAdWithProfileRefresh', () {
-    test('returns true on success and schedules refresh', () async {
-      setupMockChannel(showResult: true);
-      var refreshed = false;
-      PangleAds.setOnProfileRefreshNeeded(() {
-        refreshed = true;
-      });
-      final result = await PangleAds.showRewardedAdWithProfileRefresh();
-      expect(result, isTrue);
-    });
-
-    test('returns false on failure', () async {
-      setupMockChannel(showResult: false);
-      final result = await PangleAds.showRewardedAdWithProfileRefresh();
-      expect(result, isFalse);
     });
   });
 
@@ -261,6 +266,7 @@ void main() {
       expect(PangleAds.onAdDismissed, isA<Stream<void>>());
       expect(PangleAds.onRewardEarned, isA<Stream<Map<String, dynamic>>>());
       expect(PangleAds.onRewardFailed, isA<Stream<String>>());
+      expect(PangleAds.pollingSignals, isA<Stream<void>>());
     });
 
     test('listenToAdDismissed returns subscription', () {
@@ -271,5 +277,28 @@ void main() {
       expect(sub, isA<StreamSubscription<void>>());
       sub.cancel();
     });
+  });
+
+  test('dismiss, earned and failed events are polling signals', () async {
+    setupMockChannel();
+    await PangleAds.initPangle('app');
+    var signals = 0;
+    final sub = PangleAds.pollingSignals.listen((_) => signals++);
+    final codec = const StandardMethodCodec();
+    for (final call in <MethodCall>[
+      const MethodCall('onAdDismissed'),
+      const MethodCall('onRewardEarned', {'rewardAmount': 1}),
+      const MethodCall('onRewardFailed', {'errorMessage': 'nope'}),
+    ]) {
+      await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .handlePlatformMessage(
+            'pangle_native_channel',
+            codec.encodeMethodCall(call),
+            (_) {},
+          );
+    }
+    await Future<void>.delayed(Duration.zero);
+    expect(signals, 3);
+    await sub.cancel();
   });
 }

@@ -14,6 +14,7 @@ class StoreListTile extends StatelessWidget {
     this.isLoading = false,
     this.index,
     this.buttonScale,
+    this.badge,
   });
 
   final Image icon;
@@ -24,6 +25,7 @@ class StoreListTile extends StatelessWidget {
   final bool isLoading;
   final int? index;
   final double? buttonScale;
+  final Widget? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +42,16 @@ class StoreListTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center, // center로 변경
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                title, 
+                Row(
+                  children: [
+                    Flexible(child: title),
+                    if (badge != null) ...[SizedBox(width: 6.w), badge!],
+                  ],
+                ),
                 if (subtitle != null) ...[
                   SizedBox(height: 4), // 간격 추가
-                  subtitle!
-                ]
+                  subtitle!,
+                ],
               ],
             ),
           ),
@@ -58,10 +65,7 @@ class StoreListTile extends StatelessWidget {
                       height: 16,
                       child: const SmallPulseLoadingIndicator(),
                     )
-                  : Text(
-                      buttonText,
-                      style: getTextStyle(AppTypo.body14B),
-                    ),
+                  : Text(buttonText, style: getTextStyle(AppTypo.body14B)),
             ),
           ),
         ],

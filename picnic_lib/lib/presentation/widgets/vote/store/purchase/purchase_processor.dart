@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
@@ -63,7 +64,7 @@ class PurchaseProcessor {
   }) {
     logger.i('[PurchaseProcessor] 모든 타이머 정리 시작: $productId');
 
-    try {
+    runTimerCleanupGuarded(() {
       // 1. PurchaseSafetyManager 타이머 정리
       safetyManager.cleanupAllTimersOnSuccess();
 
@@ -76,6 +77,26 @@ class PurchaseProcessor {
       );
 
       logger.i('[PurchaseProcessor] 모든 타이머 정리 완료: $productId');
+    });
+  }
+
+  /// Runs a timer teardown and swallows whatever it throws.
+  ///
+  /// This is the guarantee `PurchaseSettlementStep` settles against. By the
+  /// time timers are torn down the charge has gone through and the wallet is
+  /// about to be credited, so a failing timer owner must never abort the
+  /// settlement: the step takes `cleanupAllTimersOnSuccess` as a plain `void`
+  /// seam and has no catch of its own, so an exception escaping here would
+  /// skip the post-purchase cleanup, the wallet update and the receipt.
+  ///
+  /// Extracted so that guarantee is reachable from a test. [cleanupAllTimersOnSuccess]
+  /// itself needs a live `PurchaseService` - StoreKit/Play init plus the
+  /// receipt queue - to construct its collaborators, which is more than a
+  /// try/catch is worth.
+  @visibleForTesting
+  static void runTimerCleanupGuarded(void Function() cleanup) {
+    try {
+      cleanup();
     } catch (e) {
       logger.w('[PurchaseProcessor] 타이머 정리 중 경고: $e');
       // 타이머 정리 실패해도 구매는 이미 성공했으므로 계속 진행

@@ -69,10 +69,12 @@ void main() {
   });
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
-    await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
+    // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
+    // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
+    await pumpWidgetAndIgnoreErrors(tester, widget);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('VoteItemRequestDialog render - logged in states', () {
@@ -365,14 +367,14 @@ void main() {
       // Open dialog
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteItemRequestDialog), findsOneWidget);
 
       // Close dialog
       await tester.tap(find.byIcon(Icons.close_rounded));
       await tester.pumpAndSettle();
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteItemRequestDialog), findsNothing);
     });
@@ -396,14 +398,14 @@ void main() {
 
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteItemRequestDialog), findsOneWidget);
 
       // Tap outside to dismiss
       await tester.tapAt(const Offset(10, 10));
       await tester.pumpAndSettle();
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(VoteItemRequestDialog), findsNothing);
     });
@@ -416,12 +418,16 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: CurrentApplicationsSection(
-              artistApplicationSummaries: [],
-              totalApplications: 0,
-              isLoading: true,
-            ),
+          const Column(
+            children: [
+              Expanded(
+                child: CurrentApplicationsSection(
+                  artistApplicationSummaries: [],
+                  totalApplications: 0,
+                  isLoading: true,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -436,12 +442,16 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const Expanded(
-            child: CurrentApplicationsSection(
-              artistApplicationSummaries: [],
-              totalApplications: 0,
-              isLoading: false,
-            ),
+          const Column(
+            children: [
+              Expanded(
+                child: CurrentApplicationsSection(
+                  artistApplicationSummaries: [],
+                  totalApplications: 0,
+                  isLoading: false,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -496,12 +506,16 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          Expanded(
-            child: CurrentApplicationsSection(
-              artistApplicationSummaries: summaries,
-              totalApplications: 10,
-              isLoading: false,
-            ),
+          Column(
+            children: [
+              Expanded(
+                child: CurrentApplicationsSection(
+                  artistApplicationSummaries: summaries,
+                  totalApplications: 10,
+                  isLoading: false,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -524,12 +538,16 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          Expanded(
-            child: CurrentApplicationsSection(
-              artistApplicationSummaries: summaries,
-              totalApplications: 1,
-              isLoading: false,
-            ),
+          Column(
+            children: [
+              Expanded(
+                child: CurrentApplicationsSection(
+                  artistApplicationSummaries: summaries,
+                  totalApplications: 1,
+                  isLoading: false,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -558,12 +576,16 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          Expanded(
-            child: CurrentApplicationsSection(
-              artistApplicationSummaries: summaries,
-              totalApplications: 4,
-              isLoading: false,
-            ),
+          Column(
+            children: [
+              Expanded(
+                child: CurrentApplicationsSection(
+                  artistApplicationSummaries: summaries,
+                  totalApplications: 4,
+                  isLoading: false,
+                ),
+              ),
+            ],
           ),
         ),
       );

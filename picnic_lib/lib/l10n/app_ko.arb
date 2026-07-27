@@ -2517,5 +2517,67 @@
   "button_cs_inquiry": "고객센터 문의",
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
+  },
+  "wallet_star_candy": "스타캔디",
+  "wallet_bonus_star_candy": "보너스 스타캔디",
+  "wallet_cotton_candy": "코튼캔디",
+  "wallet_cotton_expires_today": "오늘 만료 {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "서버 지갑 스냅샷에서 오늘 만료되는 코튼캔디 수량",
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "wallet_cotton_next_expiry": "다음 만료 {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "서버 지갑 스냅샷의 다음 코튼캔디 만료 시각",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "wallet_load_failed": "지갑 정보를 불러오지 못했습니다.",
+  "wallet_history_title": "캔디 내역",
+  "wallet_history_empty": "아직 내역이 없습니다.",
+  "candy_boost_day": "캔디 부스트 데이",
+  "candy_boost_exact_double": "기본 지급 + 추가 보너스 100%",
+  "candy_boost_extra_bonus": "기본 지급 + 추가 보너스",
+  "candy_boost_promotion_checking": "프로모션 확인 중",
+  "candy_boost_purchase_pending": "동일 상품의 구매가 처리 중입니다.",
+  "candy_boost_late_purchase_explanation": "인증에 예상보다 오래 걸렸지만 구매가 정상적으로 완료되었습니다.",
+  "ad_reward_pending": "보상을 확인하고 있어요",
+  "ad_reward_granted": "코튼캔디를 받았어요",
+  "ad_reward_not_granted": "보상이 지급되지 않았어요",
+  "candy_reward_receipt_title": "캔디가 적립됐어요!",
+  "candy_reward_receipt_confirm": "확인",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "candy_reward_receipt_balance": "현재 보유 {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "candy_reward_receipt_balance_unavailable": "잔액은 잠시 후 갱신돼요",
+  "candy_reward_receipt_expiry": "{date} 만료",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "candy_reward_receipt_semantics": "{currency}, {granted} 적립, 현재 보유 {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "granted": {"type": "String"},
+      "balance": {"type": "String"}
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}, {granted} 적립, 잔액은 잠시 후 갱신",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "granted": {"type": "String"}
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}, {expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {"type": "String"},
+      "expiry": {"type": "String"}
+    }
   }
 }

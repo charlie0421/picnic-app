@@ -1,7 +1,7 @@
-/// 검색 화면 로봇
-///
-/// 검색 관련 UI 인터랙션을 캡슐화합니다.
-/// Robot 패턴을 사용하여 테스트 코드의 가독성과 재사용성을 높입니다.
+// 검색 화면 로봇
+//
+// 검색 관련 UI 인터랙션을 캡슐화합니다.
+// Robot 패턴을 사용하여 테스트 코드의 가독성과 재사용성을 높입니다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

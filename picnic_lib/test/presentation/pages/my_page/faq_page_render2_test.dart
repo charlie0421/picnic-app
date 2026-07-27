@@ -27,10 +27,12 @@ void main() {
   });
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
-    await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
+    // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
+    // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
+    await pumpWidgetAndIgnoreErrors(tester, widget);
     await tester.pump(const Duration(seconds: 1));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('FAQPage render - language setting variants', () {
@@ -45,7 +47,7 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -61,7 +63,7 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -76,7 +78,7 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -87,7 +89,7 @@ void main() {
         (WidgetTester tester) async {
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
       expect(find.byType(Column), findsWidgets);
@@ -97,7 +99,7 @@ void main() {
         (WidgetTester tester) async {
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(SingleChildScrollView), findsWidgets);
     });
@@ -106,7 +108,7 @@ void main() {
         (WidgetTester tester) async {
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       // Even with no data, the ALL category chip should be shown
       expect(find.byType(ChoiceChip), findsWidgets);
@@ -124,7 +126,7 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -139,7 +141,7 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -175,7 +177,7 @@ void main() {
 
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -236,7 +238,7 @@ void main() {
 
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -273,7 +275,7 @@ void main() {
 
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -304,7 +306,7 @@ void main() {
 
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
@@ -328,7 +330,7 @@ void main() {
 
       await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
       await tester.pump(const Duration(milliseconds: 500));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });

@@ -112,6 +112,13 @@ class AppInitializer {
       // Dart-side (SentryHttpClient/dio) 캡쳐 동작은 그대로 유지한다.
       options.captureNativeFailedRequests = false;
 
+      // FlutterErrorDetails.silent 프레임워크 에러(사실상 이미지 파이프라인
+      // 전용)를 리포팅할지. SDK 기본값과 같은 false 지만, "우연히 기본값"이
+      // 아니라 결정이라는 걸 드러내려고 명시적으로 대입한다.
+      // 근거와 트레이드오프는 상수 doc 참조.
+      options.reportSilentFlutterErrors =
+          AppInitializerHelper.reportSilentFlutterErrors;
+
       options.beforeSend = (event, hint) {
         final exception = event.exceptions?.firstOrNull;
         final exceptionValue = exception?.value ?? '';
@@ -208,21 +215,149 @@ class AppInitializer {
     }
   }
 
+  /// [initializeGlobalErrorHandling] 이 이미 설치됐는지. 두 번 호출하면 핸들러가
+  /// 이중으로 감싸져 에러 1건당 `logger.e` 가 두 번 찍힌다.
+  static bool _globalErrorHandlingInstalled = false;
+
+  /// 테스트에서 [initializeGlobalErrorHandling] 을 다시 설치할 수 있게 하는
+  /// 리셋. 프로덕션 호출처는 [initializeBasics] 하나뿐이다.
+  @visibleForTesting
+  static void resetGlobalErrorHandlingForTest() {
+    _globalErrorHandlingInstalled = false;
+  }
+
+  /// 전역 에러 핸들러 설치. [initializeBasics] 에서 호출되므로
+  /// [initializeSentry] 보다 **먼저** 실행된다. 중복 설치를 막기 위해 멱등하다
+  /// (두 번째 호출은 no-op).
+  ///
+  /// ## 호출 순서 계약
+  ///
+  /// `SentryFlutter.init` 은 `FlutterErrorIntegration` 과 `OnErrorIntegration`
+  /// 을 설치한다. 둘 다 init 시점의 핸들러를 보관했다가 호출하는 *체이닝*
+  /// 이지만, 리포팅과 위임의 순서는 서로 반대다:
+  ///
+  /// * `FlutterErrorIntegration` — 먼저 리포팅하고 마지막에 위임
+  ///   (`flutter_error_integration.dart` 의 `captureEvent` → `_defaultOnError`):
+  ///
+  ///     framework → Sentry integration (리포팅) → 이 핸들러 (진단 출력)
+  ///
+  /// * `OnErrorIntegration` — 먼저 위임하고, 그 반환값(`handled`)으로
+  ///   mechanism 을 채운 뒤에 리포팅한다
+  ///   (`on_error_integration.dart:44` → `:88`):
+  ///
+  ///     framework → 이 핸들러 (진단 출력) → Sentry integration (리포팅)
+  ///
+  /// 순서는 다르지만 역할 분담은 같다 — **리포팅은 Sentry 통합이, 로컬 진단은
+  /// 이 핸들러가.** 이 핸들러가 직접 `Sentry.captureException` 을 부르지 않는
+  /// 이유다.
+  ///
+  /// ## 왜 [FlutterError.presentError] 를 덮어쓰면 안 되는가
+  ///
+  /// [FlutterError.onError] 의 기본값은 [FlutterError.presentError] 다. 여기에
+  /// 그냥 대입해 버리면 실패한 위젯을 지목하는 정보가 전부 사라진다 —
+  /// `details.context`, `details.library`, 그리고 결정적으로
+  /// `details.informationCollector` (debugCreator 위젯 체인
+  /// "Row ← SizedBox ← Center ← MyScreen ← …" 를 담고 있다). 이게 없으면
+  /// `RenderFlex overflowed by N pixels` 를 어느 위젯이 냈는지 특정할 수 없다.
+  /// 게다가 overflow 리포팅 자체가 `RenderFlex.paint` 의 `assert` 안에 있어
+  /// debug 빌드에서만 발생하므로, 콘솔이 이 정보를 볼 수 있는 유일한 경로다.
+  ///
+  /// ## silent 프레임워크 에러는 Sentry 로 가지 않는다 (의도)
+  ///
+  /// `FlutterErrorIntegration` 은 `details.silent == true` 인 에러를 건너뛴다
+  /// (`flutter_error_integration.dart:35`). 이 핸들러가 직접 캡쳐하지 않으므로,
+  /// silent 에러의 Sentry 이벤트도 함께 사라진다. 부수효과가 아니라 결정이며,
+  /// 근거·트레이드오프·되돌리는 법은
+  /// [AppInitializerHelper.reportSilentFlutterErrors] 에 적어 뒀다.
+  /// (프레임워크 기본 핸들러 위임과 아래 `logger.e` 는 silent 여부와 무관하게
+  /// 항상 실행된다.)
+  ///
+  /// ## PlatformDispatcher 경로는 이 앱에서 죽어 있다
+  ///
+  /// `PlatformDispatcher.onError` 는 VM 진입점(`sky_engine/lib/ui/hooks.dart`
+  /// 의 `_onError` → `PlatformDispatcher._dispatchError`) 에서만 도달한다. 즉
+  /// 에러가 모든 guarded zone 을 빠져나가 isolate 까지 올라왔을 때만 불린다.
+  /// 그런데 `MainInitializer.initializeApp` 은 바인딩 초기화와 `runApp` 을
+  /// 통째로 `runZonedGuarded` 로 감싸고, guarded zone 은 uncaught async 에러를
+  /// *소비*한다 (바깥 zone 으로 재전파하지 않는다). 따라서 이 앱에서는
+  /// `PlatformDispatcher.onError` 도, 그걸 감싸는 `OnErrorIntegration` 도 실제로
+  /// 한 번도 불리지 않는다. 살아 있는 비동기 경로는 `MainInitializer` 의
+  /// `runZonedGuarded` onError 핸들러이고, 그쪽이 `Sentry.captureException` 을
+  /// 직접 호출한다 (그래서 이중 리포팅도 없다).
+  ///
+  /// 그럼에도 지우지 않는다. 이 메서드는 자기 호출자를 모르고, zone 래핑은
+  /// `MainInitializer` 의 구현 세부이지 타입으로 강제되는 계약이 아니다. 새
+  /// 진입점이 생기거나 zone 이 걷히면 이 핸들러가 그대로 정답이 되고, 특히
+  /// web 은 `OnErrorIntegration` 자체가 설치되지 않으므로 아래 [kIsWeb] 캡쳐가
+  /// 유일한 안전망이다. 안 불리므로 런타임 비용은 0 이고, 유일한 비용이던
+  /// "죽어 있다는 사실을 아무도 모르는 것" 은 이 주석이 없앤다.
   static Future<void> initializeGlobalErrorHandling() async {
+    if (_globalErrorHandlingInstalled) return;
+    _globalErrorHandlingInstalled = true;
+
+    // 기존 핸들러를 보관해 두고 감싼다.
+    final previousFlutterOnError = FlutterError.onError;
+
+    // 우리가 감싸는 대상이 프레임워크 기본 핸들러인가?
+    //
+    // `FlutterError.onError` 의 초기값은 `presentError` 의 *스냅샷* 이다
+    // (`static FlutterExceptionHandler? onError = presentError`, 정적 필드라
+    // 1회만 평가된다). 그래서 이 스냅샷을 그대로 붙들고 있으면, DevTools 가
+    // structured errors 를 켜며 `FlutterError.presentError` 를
+    // `_reportStructuredError` 로 바꿔치기해도(widget_inspector.dart) 반영되지
+    // 않는다. 기본 핸들러를 감싼 경우에 한해 위임을 에러 발생 *시점*의
+    // `FlutterError.presentError` 로 미뤄 그 스왑을 살린다. 누군가 명시적으로
+    // 다른 핸들러를 꽂아 뒀다면 그건 그대로 존중한다. null(에러 출력을
+    // 의도적으로 끈 경우)도 진단을 잃지 않도록 같은 갈래로 보낸다.
+    final delegateToLivePresentError = previousFlutterOnError == null ||
+        identical(previousFlutterOnError, FlutterError.presentError);
+
     FlutterError.onError = (details) {
-      // Flutter 프레임워크 에러
+      // Flutter 프레임워크 에러.
+      // 1) 프레임워크 기본 진단 출력 — debug 빌드에서 에러 박스에
+      //    "The relevant error-causing widget was: …" 와 위젯 생성 체인을 찍는다.
+      if (delegateToLivePresentError) {
+        FlutterError.presentError(details);
+      } else {
+        // delegateToLivePresentError 가 false 라는 것 자체가 non-null 을
+        // 뜻하므로(위 `previousFlutterOnError == null ||`) 분석기가 승격한다.
+        previousFlutterOnError(details);
+      }
+
+      // 2) 우리 구조화 로그.
       logger.e(
         'Flutter Error',
         error: details.exception,
         stackTrace: details.stack,
       );
-      Sentry.captureException(details.exception, stackTrace: details.stack);
+
+      // 3) Sentry.captureException 을 여기서 호출하지 않는 것은 의도적이다.
+      //    SentryFlutter.init 이 설치하는 FlutterErrorIntegration 이 이 핸들러를
+      //    감싸고 있고, 이미 FlutterErrorDetails 전체(context/library/
+      //    informationCollector)와 `FlutterError` mechanism 을 붙여 리포팅한다.
+      //    여기서 또 캡쳐하면 mechanism/context 가 없는 빈약한 두 번째 이벤트가
+      //    생기고, 그게 DeduplicationEventProcessor 경합에서 지기 때문에
+      //    "안 보일 뿐" 실제로는 이중 캡쳐다.
     };
 
+    final previousPlatformOnError = PlatformDispatcher.instance.onError;
+
+    // 아래 핸들러는 이 앱에서 실제로 불리지 않는다 (doc 의 "PlatformDispatcher
+    // 경로는 이 앱에서 죽어 있다" 참조). 미래의 진입점/zone 변경과 web 을 위한
+    // 안전망으로만 남긴다.
     PlatformDispatcher.instance.onError = (error, stack) {
       // Dart Isolate 에러 (비동기 등)
+      previousPlatformOnError?.call(error, stack);
+
       logger.e('Unhandled Asynchronous Error', error: error, stackTrace: stack);
-      Sentry.captureException(error, stackTrace: stack);
+
+      // FlutterError 경로와 같은 이유로 기본적으로는 캡쳐하지 않는다 —
+      // OnErrorIntegration 이 이 핸들러를 감싸고 직접 리포팅한다.
+      // 단 web 에서는 PlatformDispatcher.onError 가 지원되지 않아
+      // OnErrorIntegration 이 아예 설치되지 않으므로, 안전망으로 남긴다.
+      if (kIsWeb) {
+        Sentry.captureException(error, stackTrace: stack);
+      }
       return true; // 에러가 처리되었음을 알림
     };
   }

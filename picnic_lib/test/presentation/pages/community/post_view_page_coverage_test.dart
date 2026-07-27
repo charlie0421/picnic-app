@@ -70,10 +70,10 @@ void main() {
     int pumps = 5,
   }) async {
     await tester.pumpWidget(widget);
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
     for (var i = 0; i < pumps; i++) {
       await tester.pump(const Duration(seconds: 1));
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
     }
   }
 
@@ -81,7 +81,7 @@ void main() {
   Future<void> cleanUp(WidgetTester tester) async {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 2));
-    while (tester.takeException() != null) {}
+    drainExpectedImageErrors(tester);
   }
 
   group('PostViewPage coverage - post data renders (with auth)', () {
@@ -243,11 +243,11 @@ void main() {
           const PostViewPage('nonexistent', syncNavigation: false),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       // Pump multiple times to let the FutureBuilder complete with error
       for (var i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 500));
-        while (tester.takeException() != null) {}
+        drainExpectedImageErrors(tester);
       }
 
       expect(find.byType(PostViewPage), findsOneWidget);
@@ -265,7 +265,7 @@ void main() {
           const PostViewPage('test-id', syncNavigation: false),
         ),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
 
       expect(find.byType(PostViewPage), findsOneWidget);
       expect(find.byType(LargePulseLoadingIndicator), findsOneWidget);

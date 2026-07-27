@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "id": "00000000-0000-4000-8000-000000000801",
+      "kind": "mobile_purchase",
+      "allocations": [
+        {
+          "component": "BASE_STAR",
+          "currency": "STAR_CANDY",
+          "gross_delta": "100",
+          "wallet_delta": "90",
+          "debt_delta": "10"
+        }
+      ],
+      "provider_occurred_at": "2026-07-20T23:59:00.000Z",
+      "campaign_version_id": "00000000-0000-4000-8000-000000000802",
+      "audit_id": "00000000-0000-4000-8000-000000000803",
+      "operation_id": "00000000-0000-4000-8000-000000000801",
+      "created_at": "2026-07-21T00:00:00.000Z"
+    }
+  ],
+  "total_count": "1",
+  "next_cursor": null,
+  "snapshot_at": "2026-07-21T00:00:00.000Z"
+}

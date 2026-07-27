@@ -113,7 +113,7 @@ void main() {
       await tester.pumpWidget(
         buildTestAppPage(const SizedBox()),
       );
-      while (tester.takeException() != null) {}
+      drainExpectedImageErrors(tester);
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 200));
     });
   });

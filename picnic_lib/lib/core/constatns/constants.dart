@@ -84,4 +84,34 @@ Map<String, String> languageMap = {
   'my': 'မြန်မာ',
 };
 
+/// 지역 코드가 없는 언어 코드를 앱이 실제로 사용하는 지역 변형으로 정규화한다.
+///
+/// `AppLocalizations.supportedLocales` 는 ARB 파일에서 생성되므로 지역 없는
+/// `zh` / `bn` 을 포함하지만, 앱은 이 둘을 단독으로 취급하지 않는다
+/// (`languageMap` / `countryMap` / `Setting.supportedLanguages` 모두 12개).
+/// 저장된 값에 대해 [Setting.load] 가 수행하는 마이그레이션과 동일한 규칙이며,
+/// 이 함수가 그 규칙의 단일 출처다.
+///
+/// 매핑이 없는 코드는 그대로 돌려준다.
+String canonicalLanguageCode(String code) {
+  switch (code) {
+    case 'zh':
+      return 'zh_CN';
+    case 'bn':
+      return 'bn_BD';
+    default:
+      return code;
+  }
+}
+
+/// 언어 코드의 표시 이름을 반환한다. 어떤 입력에도 예외를 던지지 않는다.
+///
+/// [languageMap] 은 손으로 관리되는 반면 `Setting.supportedLanguages` 는
+/// `AppLocalizations.supportedLocales` 에서 파생되어 자동으로 늘어난다.
+/// 라벨이 없는 코드는 코드 자체를 보여주는 최후 폴백으로 처리하고,
+/// 실제로 그런 코드가 생기지 않는지는 테스트로 고정한다
+/// (`login_page_language_label_test.dart`).
+String languageLabel(String code) =>
+    languageMap[canonicalLanguageCode(code)] ?? code;
+
 const Size webDesignSize = Size(600, 800);

@@ -1,18 +1,535 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+import 'package:picnic_lib/core/services/purchase_service.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
+import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
+import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler.dart';
 
+import '../../../../../../helpers/test_app.dart';
 import '../../../../../../helpers/test_environment.dart';
 
-/// Tests for PurchaseDialogHandler extracted pure logic functions.
-///
-/// Widget testing is blocked because PurchaseDialogHandler requires
-/// PurchaseService (which depends on in_app_purchase native plugin)
-/// and the dialog content depends on navigatorKey.currentContext.
-/// Instead, we test the extracted pure logic functions directly.
+class _MockPurchaseService extends Mock implements PurchaseService {}
+
 void main() {
   setUpAll(() {
     initTestColors();
+  });
+
+  ActivePromotionCampaignModel campaign() => ActivePromotionCampaignModel(
+    campaignId: 'campaign',
+    campaignVersionId: 'version',
+    code: 'BOOST',
+    displayName: const {'en': 'Boost'},
+    extraBonusBps: 999999,
+    windowStartsAt: DateTime.utc(2026),
+    windowEndsAt: DateTime.utc(2027),
+    showInStore: true,
+    showHomeBanner: false,
+  );
+  PurchaseSettlementResultModel result({
+    PurchasePromotionState? state,
+    String? version = 'version',
+    BigInt? amount,
+    BigInt? baseStarAmount,
+    BigInt? baseBonusAmount,
+    bool replayed = false,
+    bool replayCausedByRetry = false,
+  }) => PurchaseSettlementResultModel(
+    contractVersion: 'wallet.v1',
+    operationId: 'operation',
+    replayed: replayed,
+    replayCausedByRetry: replayCausedByRetry,
+    baseStarAmount: baseStarAmount ?? BigInt.from(100),
+    baseBonusAmount: baseBonusAmount ?? BigInt.from(20),
+    promotion: state == null
+        ? null
+        : PurchasePromotionResultModel(
+            resolutionId: 'resolution',
+            state: state,
+            campaignVersionId: version,
+            promoBonusAmount: amount ?? BigInt.zero,
+            domainCode: state == PurchasePromotionState.pendingTime
+                ? 'PROMO_REVIEW_REQUIRED'
+                : null,
+          ),
+    wallet: WalletSummaryModel(
+      contractVersion: 'wallet.v1',
+      star: BigInt.zero,
+      bonus: BigInt.zero,
+      cotton: BigInt.zero,
+      cottonExpiringAmount: BigInt.zero,
+      cottonNextExpiresAt: null,
+      snapshotAt: DateTime.utc(2026),
+    ),
+  );
+
+  group('receipt presentation wiring', () {
+    testWidgets('success selects checking message and awaits presenter', (
+      tester,
+    ) async {
+      late BuildContext context;
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (value) {
+              context = value;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      final presentation = Completer<void>();
+      CandyRewardReceipt? presentedReceipt;
+      String? presentedMessage;
+      final handler = PurchaseDialogHandler(
+        context: context,
+        purchaseService: _MockPurchaseService(),
+        receiptContext: () => context,
+        receiptPresenter: (context, receipt, {supportingMessage}) {
+          presentedReceipt = receipt;
+          presentedMessage = supportingMessage;
+          return presentation.future;
+        },
+      );
+
+      var completed = false;
+      final future = handler
+          .showSuccessDialog(
+            result: result(state: PurchasePromotionState.pendingTime),
+            displayedCampaign: campaign(),
+          )
+          .then((_) => completed = true);
+      await tester.pump();
+
+      expect(presentedReceipt!.items, isNotEmpty);
+      expect(
+        presentedMessage,
+        AppLocalizations.of(context).candy_boost_promotion_checking,
+      );
+      expect(completed, isFalse);
+
+      presentation.complete();
+      await future;
+      expect(completed, isTrue);
+    });
+
+    testWidgets('late success selects late explanation', (tester) async {
+      late BuildContext context;
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (value) {
+              context = value;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      final presentation = Completer<void>();
+      String? presentedMessage;
+      final handler = PurchaseDialogHandler(
+        context: context,
+        purchaseService: _MockPurchaseService(),
+        receiptContext: () => context,
+        receiptPresenter: (context, receipt, {supportingMessage}) {
+          presentedMessage = supportingMessage;
+          return presentation.future;
+        },
+      );
+
+      var completed = false;
+      final future = handler
+          .showLatePurchaseSuccessDialog(
+            result: result(),
+            displayedCampaign: null,
+          )
+          .then((_) => completed = true);
+      await tester.pump();
+
+      expect(
+        presentedMessage,
+        AppLocalizations.of(context).candy_boost_late_purchase_explanation,
+      );
+      expect(completed, isFalse);
+
+      presentation.complete();
+      await future;
+      expect(completed, isTrue);
+    });
+  });
+
+  /// A replayed settlement is the server telling us this operation was already
+  /// applied. Whether the user is still owed the grant receipt depends on *who*
+  /// applied it:
+  ///
+  /// - an earlier delivery or session settled it, so the user was already shown
+  ///   the amounts -- acknowledge the purchase without repeating them;
+  /// - our own verification retry settled it, because the first attempt landed
+  ///   on the server and then failed in transport -- the user has seen nothing,
+  ///   so the receipt is still owed and must be presented in full.
+  group('replayed settlement presentation', () {
+    Future<PurchaseDialogHandler> pumpRealHandler(WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildTestApp(const SizedBox.shrink(), locale: const Locale('en')),
+      );
+      await tester.pumpAndSettle();
+      return PurchaseDialogHandler(
+        context: navigatorKey.currentContext!,
+        purchaseService: _MockPurchaseService(),
+      );
+    }
+
+    testWidgets(
+      'replayed late settlement never reaches the receipt presenter',
+      (tester) async {
+        late BuildContext context;
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (value) {
+                context = value;
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        CandyRewardReceipt? presentedReceipt;
+        final handler = PurchaseDialogHandler(
+          context: context,
+          purchaseService: _MockPurchaseService(),
+          receiptContext: () => context,
+          receiptPresenter: (context, receipt, {supportingMessage}) async {
+            presentedReceipt = receipt;
+          },
+        );
+
+        await handler.showLatePurchaseSuccessDialog(
+          result: result(replayed: true),
+          displayedCampaign: null,
+        );
+        await tester.pump();
+
+        expect(presentedReceipt, isNull);
+      },
+    );
+
+    testWidgets(
+      'replayed plain settlement never reaches the receipt presenter',
+      (tester) async {
+        late BuildContext context;
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (value) {
+                context = value;
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        CandyRewardReceipt? presentedReceipt;
+        final handler = PurchaseDialogHandler(
+          context: context,
+          purchaseService: _MockPurchaseService(),
+          receiptContext: () => context,
+          receiptPresenter: (context, receipt, {supportingMessage}) async {
+            presentedReceipt = receipt;
+          },
+        );
+
+        await handler.showSuccessDialog(
+          result: result(
+            state: PurchasePromotionState.granted,
+            amount: BigInt.from(30),
+            replayed: true,
+          ),
+          displayedCampaign: campaign(),
+        );
+        await tester.pump();
+
+        expect(presentedReceipt, isNull);
+      },
+    );
+
+    testWidgets(
+      'replayed late settlement shows success without grant amounts',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showLatePurchaseSuccessDialog(
+            result: result(replayed: true),
+            displayedCampaign: null,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsNothing);
+        expect(find.text('+100'), findsNothing);
+        expect(find.text('+20'), findsNothing);
+        expect(find.text(l10n.dialog_message_purchase_success), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'replayed plain settlement shows success without grant amounts',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showSuccessDialog(
+            result: result(replayed: true),
+            displayedCampaign: null,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsNothing);
+        expect(find.text('+100'), findsNothing);
+        expect(find.text('+20'), findsNothing);
+        expect(find.text(l10n.dialog_message_purchase_success), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'replay caused by our own retry renders the grant amounts and the '
+      'promotion notice',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showSuccessDialog(
+            result: result(
+              state: PurchasePromotionState.pendingTime,
+              replayed: true,
+              replayCausedByRetry: true,
+            ),
+            displayedCampaign: campaign(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsOneWidget);
+        expect(find.text('+100'), findsOneWidget);
+        expect(find.text('+20'), findsOneWidget);
+        expect(
+          find.text(l10n.candy_boost_promotion_checking),
+          findsOneWidget,
+          reason:
+              'the user has not seen this settlement, so the promotion notice '
+              'is owed just as on a first delivery',
+        );
+        expect(find.text(l10n.dialog_message_purchase_success), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'replay caused by our own retry renders the late grant amounts',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showLatePurchaseSuccessDialog(
+            result: result(replayed: true, replayCausedByRetry: true),
+            displayedCampaign: null,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsOneWidget);
+        expect(find.text('+100'), findsOneWidget);
+        expect(find.text('+20'), findsOneWidget);
+        expect(
+          find.text(l10n.candy_boost_late_purchase_explanation),
+          findsOneWidget,
+        );
+        expect(find.text(l10n.dialog_message_purchase_success), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'a replay we did not cause is a redelivery and stays suppressed',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showSuccessDialog(
+            result: result(
+              state: PurchasePromotionState.pendingTime,
+              replayed: true,
+            ),
+            displayedCampaign: campaign(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsNothing);
+        expect(find.text('+100'), findsNothing);
+        expect(find.text('+20'), findsNothing);
+        expect(find.text(l10n.candy_boost_promotion_checking), findsNothing);
+        expect(find.text(l10n.dialog_message_purchase_success), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'non-replayed late settlement still renders the grant amounts',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showLatePurchaseSuccessDialog(
+            result: result(),
+            displayedCampaign: null,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsOneWidget);
+        expect(find.text('+100'), findsOneWidget);
+        expect(find.text('+20'), findsOneWidget);
+        expect(
+          find.text(l10n.candy_boost_late_purchase_explanation),
+          findsOneWidget,
+        );
+        expect(find.text(l10n.dialog_message_purchase_success), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'non-replayed plain settlement still renders the grant amounts',
+      (tester) async {
+        final handler = await pumpRealHandler(tester);
+        final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+
+        unawaited(
+          handler.showSuccessDialog(result: result(), displayedCampaign: null),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.candy_reward_receipt_title), findsOneWidget);
+        expect(find.text('+100'), findsOneWidget);
+        expect(find.text('+20'), findsOneWidget);
+        expect(find.text(l10n.dialog_message_purchase_success), findsNothing);
+      },
+    );
+  });
+
+  test('a redelivered settlement yields no grant receipt', () {
+    expect(receiptFromPurchase(result(replayed: true)), isNull);
+  });
+
+  test('a replay our own retry caused still yields the grant receipt', () {
+    expect(
+      receiptFromPurchase(result(replayed: true, replayCausedByRetry: true)),
+      isNotNull,
+    );
+  });
+
+  test('normal purchase receipt contains only positive star reward', () {
+    final receipt = receiptFromPurchase(
+      result(baseStarAmount: BigInt.from(100), baseBonusAmount: BigInt.zero),
+    );
+
+    expect(receipt!.items.map((item) => item.currency), [
+      WalletCurrency.starCandy,
+    ]);
+  });
+
+  test('promotion receipt combines base and promo bonus from server', () {
+    final receipt = receiptFromPurchase(
+      result(
+        state: PurchasePromotionState.granted,
+        amount: BigInt.from(30),
+        baseStarAmount: BigInt.from(100),
+        baseBonusAmount: BigInt.from(20),
+      ),
+    );
+
+    expect(
+      receipt!.items
+          .singleWhere((item) => item.currency == WalletCurrency.bonusStarCandy)
+          .grantedAmount,
+      BigInt.from(50),
+    );
+  });
+
+  test('success decision uses server amount only for matching GRANTED', () {
+    final decision = decidePurchaseSuccess(
+      result(state: PurchasePromotionState.granted, amount: BigInt.from(37)),
+      campaign(),
+    );
+    expect(decision.kind, PurchaseSuccessKind.granted);
+    expect(decision.promoBonusAmount, BigInt.from(37));
+  });
+
+  test('pending and eligible use checking presentation', () {
+    for (final state in [
+      PurchasePromotionState.pendingTime,
+      PurchasePromotionState.eligible,
+    ]) {
+      expect(
+        decidePurchaseSuccess(result(state: state), campaign()).kind,
+        PurchaseSuccessKind.checking,
+      );
+    }
+  });
+
+  test('all non-claim cases use generic presentation', () {
+    expect(
+      decidePurchaseSuccess(result(), campaign()).kind,
+      PurchaseSuccessKind.generic,
+    );
+    for (final state in [
+      PurchasePromotionState.ineligible,
+      PurchasePromotionState.rejected,
+      PurchasePromotionState.cancelledByRefund,
+    ]) {
+      expect(
+        decidePurchaseSuccess(result(state: state), campaign()).kind,
+        PurchaseSuccessKind.generic,
+      );
+    }
+    expect(
+      decidePurchaseSuccess(
+        result(state: PurchasePromotionState.granted),
+        null,
+      ).kind,
+      PurchaseSuccessKind.generic,
+    );
+    expect(
+      decidePurchaseSuccess(
+        result(state: PurchasePromotionState.granted, version: 'other'),
+        campaign(),
+      ).kind,
+      PurchaseSuccessKind.generic,
+    );
   });
 
   group('parseProductDescription', () {
@@ -29,8 +546,7 @@ void main() {
     });
 
     test('handles description with multiple + separators', () {
-      final result =
-          parseProductDescription('스타캔디 100개 + 보너스 10개 + 추가 5개');
+      final result = parseProductDescription('스타캔디 100개 + 보너스 10개 + 추가 5개');
       expect(result.mainDescription, '스타캔디 100개');
       expect(result.bonusDescription, '+보너스 10개 + 추가 5개');
     });
@@ -66,8 +582,7 @@ void main() {
     });
 
     test('preserves whitespace trimming', () {
-      final result =
-          parseProductDescription('  스타캔디 100개  +  보너스 10개  ');
+      final result = parseProductDescription('  스타캔디 100개  +  보너스 10개  ');
       expect(result.mainDescription, '스타캔디 100개');
       expect(result.bonusDescription, '+보너스 10개');
     });
@@ -131,7 +646,8 @@ void main() {
         'installerStore': 'com.apple.testflight',
       };
       // isTestFlight will be true
-      final isTestFlight = envInfo['environment'] == 'sandbox' &&
+      final isTestFlight =
+          envInfo['environment'] == 'sandbox' &&
           !(envInfo['isDebugMode'] as bool) &&
           (envInfo['installerStore'] == 'com.apple.testflight' ||
               envInfo['installerStore'] == null);
@@ -145,7 +661,8 @@ void main() {
         'isDebugMode': true,
         'installerStore': null,
       };
-      final isTestFlight = envInfo['environment'] == 'sandbox' &&
+      final isTestFlight =
+          envInfo['environment'] == 'sandbox' &&
           !(envInfo['isDebugMode'] as bool) &&
           (envInfo['installerStore'] == 'com.apple.testflight' ||
               envInfo['installerStore'] == null);
@@ -160,7 +677,8 @@ void main() {
         'isDebugMode': false,
         'installerStore': 'com.apple',
       };
-      final isTestFlight = envInfo['environment'] == 'sandbox' &&
+      final isTestFlight =
+          envInfo['environment'] == 'sandbox' &&
           !(envInfo['isDebugMode'] as bool) &&
           (envInfo['installerStore'] == 'com.apple.testflight' ||
               envInfo['installerStore'] == null);
@@ -173,7 +691,8 @@ void main() {
         'isDebugMode': false,
         'installerStore': null,
       };
-      final isTestFlight = envInfo['environment'] == 'sandbox' &&
+      final isTestFlight =
+          envInfo['environment'] == 'sandbox' &&
           !(envInfo['isDebugMode'] as bool) &&
           (envInfo['installerStore'] == 'com.apple.testflight' ||
               envInfo['installerStore'] == null);
@@ -237,7 +756,8 @@ void main() {
         'isDebugMode': false,
       };
 
-      final debugInfo = '''
+      final debugInfo =
+          '''
 환경: ${envInfo['environment']}
 플랫폼: ${envInfo['platform']}
 설치 스토어: ${envInfo['installerStore'] ?? 'null'}
@@ -258,9 +778,7 @@ void main() {
     });
 
     test('debug info handles null installer store', () {
-      final envInfo = <String, dynamic>{
-        'installerStore': null,
-      };
+      final envInfo = <String, dynamic>{'installerStore': null};
 
       final store = envInfo['installerStore'] ?? 'null';
       expect(store, 'null');

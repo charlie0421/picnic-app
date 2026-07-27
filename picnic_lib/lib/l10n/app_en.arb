@@ -2374,5 +2374,67 @@
   "button_cs_inquiry": "Contact Support",
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
+  },
+  "wallet_star_candy": "Star Candy",
+  "wallet_bonus_star_candy": "Bonus Star Candy",
+  "wallet_cotton_candy": "Cotton Candy",
+  "wallet_cotton_expires_today": "Expires today: {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "Cotton Candy amount that expires today from the server wallet snapshot",
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "wallet_cotton_next_expiry": "Next expiry: {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "Next Cotton Candy expiry from the server wallet snapshot",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "wallet_load_failed": "Could not load wallet.",
+  "wallet_history_title": "Candy history",
+  "wallet_history_empty": "No history yet.",
+  "candy_boost_day": "Candy Boost Day",
+  "candy_boost_exact_double": "Base reward + 100% extra bonus",
+  "candy_boost_extra_bonus": "Base reward + extra bonus",
+  "candy_boost_promotion_checking": "Promotion review in progress",
+  "candy_boost_purchase_pending": "A purchase for this product is already being processed.",
+  "candy_boost_late_purchase_explanation": "Authentication took longer than expected, but the purchase completed successfully.",
+  "ad_reward_pending": "Checking your reward",
+  "ad_reward_granted": "Cotton Candy received",
+  "ad_reward_not_granted": "The reward was not granted",
+  "candy_reward_receipt_title": "Candy added!",
+  "candy_reward_receipt_confirm": "Confirm",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "candy_reward_receipt_balance": "Current balance {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "candy_reward_receipt_balance_unavailable": "Balance will refresh shortly",
+  "candy_reward_receipt_expiry": "Expires {date}",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "candy_reward_receipt_semantics": "{currency}, added {granted}, current balance {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "granted": {"type": "String"},
+      "balance": {"type": "String"}
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}, added {granted}, balance will refresh shortly",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "granted": {"type": "String"}
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}, {expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {"type": "String"},
+      "expiry": {"type": "String"}
+    }
   }
 }
