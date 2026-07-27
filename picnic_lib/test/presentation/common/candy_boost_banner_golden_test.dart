@@ -21,7 +21,7 @@ final activeCampaignFixture = ActivePromotionCampaignsModel.fromJson(
 
 Widget buildCampaignGoldenApp(ActivePromotionCampaignModel campaign) =>
     MaterialApp(
-      theme: ThemeData(fontFamily: 'Pretendard'),
+      theme: ThemeData(fontFamily: 'packages/picnic_lib/Pretendard'),
       locale: const Locale('ko'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
