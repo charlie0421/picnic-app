@@ -41,8 +41,11 @@ class ControllableActiveFeaturedVotes extends AsyncActiveFeaturedVotes {
 }
 
 /// 실기기 논리 해상도(포인트). iOS 최소 지원(15.4)에 들어오는 최소 기기부터
-/// 현행 최대 기기까지 커버한다.
+/// 현행 최대 기기까지 커버한다. `home_featured_vote_card_test.dart` 와 같은
+/// 매트릭스 — 같은 위젯의 같은 기하를 재므로 두 파일이 갈라지면 안 된다.
+/// 320dp 는 카드의 남은시간 행이 실제로 잘려 보이던 폭이라 하한이 거기다.
 const _devices = <String, Size>{
+  'narrow Android (320x640)': Size(320, 640),
   'iPhone SE 2/3 (375x667)': Size(375, 667),
   'iPhone 13 mini (375x812)': Size(375, 812),
   'iPhone 14 (390x844)': Size(390, 844),
