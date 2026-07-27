@@ -386,6 +386,7 @@ workflows:
               --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
               --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
               --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+              --dart-define=PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS=true \
               --no-confirm \
               --flutter-version=3.41.4 \
               -- --export-options-plist=ios/ExportOptions.plist 2>&1 | tee /tmp/shorebird_release.log
@@ -478,6 +479,7 @@ workflows:
                   --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
                   --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
                   --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+                  --dart-define=PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS=true \
                   --export-options-plist=ios/ExportOptions.plist
               fi
             fi
@@ -504,6 +506,7 @@ workflows:
                 --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
                 --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
                 --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+                --dart-define=PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS=true \
                 --export-options-plist=ios/ExportOptions.plist
             fi
           fi
@@ -876,6 +879,7 @@ workflows:
               --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
               --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
               --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+              --dart-define=PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS=true \
               --no-confirm \
               --flutter-version=3.41.4 \
               --verbose 2>&1 | tee /tmp/shorebird_release.log
@@ -931,7 +935,8 @@ workflows:
                 --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
                 --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
                 --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
-                --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE
+                --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+                --dart-define=PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS=true
             fi
 
             if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then

@@ -88,18 +88,29 @@ class StoreProducts extends _$StoreProducts {
         serverProducts,
         isAndroid: Platform.isAndroid,
         appNamePrefix: Environment.inappAppNamePrefix,
+        // 프로덕션 SKU 옵트인이 켜진 샌드박스(스테이징)는 접두사 없이
+        // 프로덕션 SKU 를 그대로 조회한다 — Android 에서 실제 스토어 상품이
+        // 뜨게 하는 유일한 경로다 (iOS 는 원래부터 프로덕션 ID).
         androidPrefix:
             Environment.currentEnvironment == 'prod' ||
-                Environment.currentEnvironment == 'test'
+                Environment.currentEnvironment == 'test' ||
+                Environment.sandboxUsesProductionStoreSkus
             ? ''
             : Environment.paymentProductNamespace,
         environment: Environment.currentEnvironment,
       );
-      if (Environment.currentEnvironment != 'prod' &&
-          Environment.currentEnvironment != 'test') {
+      if (ProductProviderHelper.requiresSandboxIsolation(
+        environment: Environment.currentEnvironment,
+        usesProductionSkus: Environment.sandboxUsesProductionStoreSkus,
+      )) {
         ProductProviderHelper.validateSandboxProductIds(
           productIds,
           namespace: Environment.paymentProductNamespace.toLowerCase(),
+        );
+      } else if (Environment.sandboxUsesProductionStoreSkus) {
+        logger.i(
+          'Sandbox store queries production SKUs by explicit opt-in '
+          '(PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS).',
         );
       }
 
