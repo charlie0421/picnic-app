@@ -175,8 +175,17 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(_refreshInterval(), (_) async {
+    var tick = 0;
+    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (!mounted) return;
+      // Refresh cadence: live votes poll every tick, ended/upcoming every
+      // 5th — decided PER TICK. isEnded/isUpcoming are only known after the
+      // first build, so choosing the Timer.periodic interval up front always
+      // ran ended votes at 1s in practice (runtime-measured: 3 polls in
+      // 3.5s); the 5s relaxation only kicked in after a pause/resume
+      // recreated the timer.
+      tick++;
+      if ((isEnded || isUpcoming) && tick % 5 != 0) return;
       // Suppress polling while the user is actively scrolling; the deferred
       // refresh fires once on settle via _onScrollSettle().
       // Self-healing watchdog: if the gate has been raised longer than
@@ -237,15 +246,6 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     } finally {
       _isRefreshingItems = false;
     }
-  }
-
-  /// Refresh cadence: 1s for live votes; widen to 5s once the vote is
-  /// ended/upcoming since totals no longer change meaningfully.
-  Duration _refreshInterval() {
-    if (isEnded || isUpcoming) {
-      return const Duration(seconds: 5);
-    }
-    return const Duration(seconds: 1);
   }
 
   void _initializeRanks() {
