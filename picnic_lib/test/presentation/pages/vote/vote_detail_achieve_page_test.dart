@@ -192,8 +192,6 @@ List<VoteAchieve> checkMilestoneAchievement(
 }
 
 void main() {
-  // 격리 — 위 render 테스트와 같은 결함(vote_detail_achieve_page.dart:755 의
-  // `.value!`). 상세 프로바이더가 loading 인 프레임에서 null 을 만난다.
   setUp(() {
     initTestColors();
   });
@@ -1094,22 +1092,11 @@ void main() {
       tearDownMockSupabase();
     });
 
-    /// 격리 — 이 그룹(페이지를 실제로 띄우는 테스트 6개)에만 적용된다.
-    /// 같은 파일의 나머지 순수 로직 테스트들은 그대로 살아 있다.
-    ///
-    /// vote_detail_achieve_page.dart:755 의 `.value!`.
-    /// 상세는 vote_detail_achieve_page_render_test.dart 의 같은 이름 상수 주석 참고.
-    const achieveDetailNullCheck = ['Null check operator used on a null value'];
-
     Future<void> pumpAndDrain(WidgetTester tester, widget) async {
       // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
       // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
       // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
-      await pumpWidgetAndIgnoreErrors(
-        tester,
-        widget,
-        knownDefects: achieveDetailNullCheck,
-      );
+      await pumpWidgetAndIgnoreErrors(tester, widget);
       await tester.pump(const Duration(seconds: 1));
       drainExpectedImageErrors(tester);
     }
