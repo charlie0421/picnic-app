@@ -18,7 +18,7 @@ import '../../../helpers/test_environment.dart';
 /// 종류)를 못 박는다. 실제 Supabase 없이 관측 가능한 지점까지만 간다 —
 /// 투표 다이얼로그가 뜨는 것까지가 경계고, 투표 제출은 다루지 않는다.
 
-Map<String, dynamic> _voteRow({int id = 1, DateTime? stopAt}) {
+Map<String, dynamic> _voteRow({int id = 1, DateTime? stopAt, DateTime? startAt}) {
   final now = DateTime.now().toUtc();
   return {
     'id': id,
@@ -31,7 +31,7 @@ Map<String, dynamic> _voteRow({int id = 1, DateTime? stopAt}) {
     'vote_item': null,
     'created_at': now.toIso8601String(),
     'visible_at': now.subtract(const Duration(days: 2)).toIso8601String(),
-    'start_at': now.subtract(const Duration(days: 1)).toIso8601String(),
+    'start_at': (startAt ?? now.subtract(const Duration(days: 1))).toIso8601String(),
     'stop_at': (stopAt ?? now.add(const Duration(days: 7))).toIso8601String(),
     'is_ended': false,
     'is_upcoming': false,
@@ -76,8 +76,8 @@ Map<String, dynamic> _voteAchieveRow({int id = 1, int amount = 10000}) {
   };
 }
 
-Map<String, dynamic> _fixtures({DateTime? stopAt}) => {
-      'vote': [_voteRow(stopAt: stopAt)],
+Map<String, dynamic> _fixtures({DateTime? stopAt, DateTime? startAt}) => {
+      'vote': [_voteRow(stopAt: stopAt, startAt: startAt)],
       'vote_item': [_voteItemRow()],
       'vote_achieve': [_voteAchieveRow()],
     };
@@ -217,6 +217,60 @@ void main() {
         find.text('투표 마감됨'),
         findsOneWidget,
         reason: '종료된 투표 탭은 마감 안내 다이얼로그를 띄워야 한다',
+      );
+      expect(find.byType(VotingDialog), findsNothing);
+      await settle(tester);
+    });
+
+    testWidgets('logged-out tap on an ended vote still shows the ended notice',
+        (tester) async {
+      // 게이트 **순서** 핀: isEnded 체크가 로그인 체크보다 앞이다. 순서를
+      // 뒤집는 회귀(로그인 체크 선행)는 이 조합에서만 드러난다 — 위의
+      // 로그인+종료 테스트는 순서를 바꿔도 통과한다 (리뷰에서 실증).
+      setupMockSupabase(_fixtures(
+        stopAt: DateTime.now().toUtc().subtract(const Duration(days: 1)),
+      ));
+      await pumpPage(tester, loggedIn: false);
+
+      await tapVoteItemRow(tester);
+
+      expect(
+        find.text('투표 마감됨'),
+        findsOneWidget,
+        reason: '종료 안내가 로그인 여부보다 먼저다',
+      );
+      expect(
+        find.text('로그인이 필요합니다'),
+        findsNothing,
+        reason: '종료된 투표에서 로그인부터 요구하면 게이트 순서 회귀다',
+      );
+      await settle(tester);
+    });
+
+    testWidgets('tap on an upcoming vote shows the upcoming notice', (
+      tester,
+    ) async {
+      // isUpcoming 분기 커버리지. 이 분기를 no-op 으로 만들어도 기존 스위트
+      // 전체가 green 이었다 (리뷰에서 실증) — 이 테스트가 유일한 핀이다.
+      final now = DateTime.now().toUtc();
+      await setupMockSupabaseWithAuth(
+        {
+          ..._fixtures(
+            startAt: now.add(const Duration(days: 1)),
+            stopAt: now.add(const Duration(days: 7)),
+          ),
+          'user_profiles': [_userProfileRow('test-user-1')],
+        },
+        userId: 'test-user-1',
+      );
+      await pumpPage(tester, loggedIn: true);
+
+      await tapVoteItemRow(tester);
+
+      expect(
+        find.text('예정된 투표입니다.'),
+        findsOneWidget,
+        reason: '예정 투표 탭은 예정 안내 다이얼로그를 띄워야 한다',
       );
       expect(find.byType(VotingDialog), findsNothing);
       await settle(tester);
