@@ -1,6 +1,7 @@
 {
   "bn": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -31,6 +32,7 @@
 
   "bn_BD": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -61,6 +63,7 @@
 
   "es": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -91,6 +94,7 @@
 
   "fil": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -121,6 +125,7 @@
 
   "id": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -151,6 +156,7 @@
 
   "ja": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -181,6 +187,7 @@
 
   "my": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -211,6 +218,7 @@
 
   "th": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -241,6 +249,7 @@
 
   "vi": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -271,6 +280,7 @@
 
   "zh": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -301,6 +311,7 @@
 
   "zh_CN": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",
@@ -331,6 +342,7 @@
 
   "zh_TW": [
     "label_home_current_vote",
+    "message_store_products_load_failed",
     "wallet_star_candy",
     "wallet_bonus_star_candy",
     "wallet_cotton_candy",

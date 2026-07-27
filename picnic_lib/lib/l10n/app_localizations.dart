@@ -1319,6 +1319,12 @@ abstract class AppLocalizations {
   /// **'The image has been saved.'**
   String get message_pic_pic_save_success;
 
+  /// No description provided for @message_store_products_load_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the store products. Please try again later.'**
+  String get message_store_products_load_failed;
+
   /// Auto-generated metadata for key 'message_vote_is_ended'.
   ///
   /// In en, this message translates to:

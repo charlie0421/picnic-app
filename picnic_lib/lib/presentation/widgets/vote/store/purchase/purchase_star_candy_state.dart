@@ -969,12 +969,42 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       data: (serverProducts) {
         return storeProductsAsyncValue.when(
           loading: () => _buildShimmer(),
-          error: (error, stackTrace) =>
-              Text('Error loading store products: $error'),
+          // raw 예외 문자열('Exception: Exception: ...')이 그대로 노출되던
+          // 자리다. 원인은 이미 provider 가 로깅하므로 사용자에게는
+          // 로컬라이즈된 안내와 재시도만 보여준다.
+          error: (error, stackTrace) => _buildStoreProductsError(),
           data: (storeProducts) =>
               _buildProductList(serverProducts, storeProducts),
         );
       },
+    );
+  }
+
+  Widget _buildStoreProductsError() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 24.h),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              AppLocalizations.of(context).message_store_products_load_failed,
+              textAlign: TextAlign.center,
+              style: getTextStyle(AppTypo.body14M, AppColors.grey600),
+            ),
+            SizedBox(height: 8.h),
+            TextButton(
+              onPressed: () {
+                ref.invalidate(storeProductsProvider);
+              },
+              child: Text(
+                AppLocalizations.of(context).label_retry,
+                style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

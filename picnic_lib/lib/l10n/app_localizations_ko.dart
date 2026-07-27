@@ -623,6 +623,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get message_pic_pic_save_success => '이미지가 저장되었습니다.';
 
   @override
+  String get message_store_products_load_failed =>
+      '상품 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.';
+
+  @override
   String get message_vote_is_ended => '투표 마감됨';
 
   @override

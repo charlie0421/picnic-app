@@ -637,6 +637,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get message_pic_pic_save_success => 'The image has been saved.';
 
   @override
+  String get message_store_products_load_failed =>
+      'Couldn\'t load the store products. Please try again later.';
+
+  @override
   String get message_vote_is_ended => 'Poll closed';
 
   @override
