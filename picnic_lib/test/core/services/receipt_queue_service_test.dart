@@ -295,6 +295,147 @@ void main() {
       });
     });
 
+    group('flushPending wallet.v1 success', () {
+      test('wallet.v1 settlement response (success 키 없음) removes item',
+          () async {
+        setupMockSupabase({
+          'functions:verify_receipt': {
+            'contract_version': 'wallet.v1',
+            'operation_id': '00000000-0000-4000-8000-000000000001',
+            'replayed': true,
+            'base_star_amount': '100',
+            'base_bonus_amount': '0',
+            'promotion': null,
+            'wallet': {},
+          },
+        });
+
+        await service.enqueueAndroid(
+          receipt: 'test-receipt',
+          productId: 'test-product',
+          userId: 'test-user',
+          environment: 'sandbox',
+        );
+
+        await service.flushPending();
+
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        final items = (json.decode(raw!) as List).cast<Map<String, dynamic>>();
+        expect(items, isEmpty);
+      });
+    });
+
+    group('flushPending non-2xx handling', () {
+      test('409 with confirmed grant removes item from queue', () async {
+        setupMockSupabase(
+          {
+            'functions:verify_receipt': {
+              'success': false,
+              'code': 'DUPLICATE_RECEIPT',
+              'message': '이미 처리된 구매입니다.',
+            },
+          },
+          functionStatusCodes: {'functions:verify_receipt': 409},
+        );
+
+        await service.enqueueAndroid(
+          receipt: 'test-receipt',
+          productId: 'test-product',
+          userId: 'test-user',
+          environment: 'sandbox',
+        );
+
+        await service.flushPending();
+
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        final items = (json.decode(raw!) as List).cast<Map<String, dynamic>>();
+        expect(items, isEmpty);
+      });
+
+      test('409 with failed reward grant keeps item for retry', () async {
+        // 서버는 영수증만 있고 보상 지급이 실패해도 409를 반환한다.
+        // 이 큐 항목이 유일한 재시도 수단이므로 지우면 안 된다.
+        setupMockSupabase(
+          {
+            'functions:verify_receipt': {
+              'success': false,
+              'code': 'DUPLICATE_RECEIPT',
+              'message': '이미 처리된 구매입니다. 보상 지급에 실패했습니다.',
+            },
+          },
+          functionStatusCodes: {'functions:verify_receipt': 409},
+        );
+
+        await service.enqueueAndroid(
+          receipt: 'test-receipt',
+          productId: 'test-product',
+          userId: 'test-user',
+          environment: 'sandbox',
+        );
+
+        await service.flushPending();
+
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        final items = (json.decode(raw!) as List).cast<Map<String, dynamic>>();
+        expect(items.length, 1);
+        expect(items[0]['attempt'], 1);
+      });
+
+      test('duplicateConfirmsGrant is conservative on unknown bodies', () {
+        expect(
+          ReceiptQueueService.duplicateConfirmsGrant({
+            'code': 'DUPLICATE_RECEIPT',
+            'message': '이미 처리된 구매입니다.',
+          }),
+          isTrue,
+        );
+        expect(
+          ReceiptQueueService.duplicateConfirmsGrant({
+            'code': 'DUPLICATE_RECEIPT',
+            'message': '이미 처리된 구매입니다. 보상 지급에 실패했습니다.',
+          }),
+          isFalse,
+        );
+        expect(ReceiptQueueService.duplicateConfirmsGrant(null), isFalse);
+        expect(ReceiptQueueService.duplicateConfirmsGrant('text'), isFalse);
+        expect(
+          ReceiptQueueService.duplicateConfirmsGrant({'code': 'OTHER'}),
+          isFalse,
+        );
+      });
+
+      test('500 keeps item with backoff for retry', () async {
+        setupMockSupabase(
+          {
+            'functions:verify_receipt': {'error': 'Internal server error'},
+          },
+          functionStatusCodes: {'functions:verify_receipt': 500},
+        );
+
+        await service.enqueueAndroid(
+          receipt: 'test-receipt',
+          productId: 'test-product',
+          userId: 'test-user',
+          environment: 'sandbox',
+        );
+
+        await service.flushPending();
+
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        final items = (json.decode(raw!) as List).cast<Map<String, dynamic>>();
+        expect(items.length, 1);
+        expect(items[0]['attempt'], 1);
+        expect(
+          items[0]['nextAt'],
+          greaterThan(DateTime.now().millisecondsSinceEpoch),
+        );
+      });
+    });
+
     group('_computeNextAt backoff', () {
       // We can indirectly test this by causing a failure and checking the nextAt
       test('failed send increments attempt and sets future nextAt', () async {

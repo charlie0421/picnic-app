@@ -154,19 +154,26 @@ void main() {
     expect(result.reason, contains('production Pangle'));
   });
 
-  test('requires a separate payment product namespace outside prod', () {
-    final result = SupabaseEnvironmentPolicy.validate(
-      environment: 'dev',
-      stagingProjectRef: 'staging-ref',
-      config: config(
-        url: 'https://staging-ref.supabase.co',
-        storageUrl: 'https://staging-ref.supabase.co/storage/v1',
-      ),
-      pangleEnvironment: 'sandbox',
-      paymentEnvironment: 'sandbox',
-      pangleRuntimeConfig: sandboxPangle,
-    );
-    expect(result.isValid, isFalse);
-    expect(result.reason, contains('payment product namespace'));
-  });
+  test(
+    'allows an empty payment product namespace outside prod '
+    '(production SKU + license tester mode)',
+    () {
+      // 네임스페이스 미설정 dev 빌드는 프로덕션 SKU를 그대로 사용한다.
+      // wallet.v1 서버가 정규화된 SKU로 Google을 조회하므로 이 구성이
+      // 서버 설계와 정합하며, 과금 없는 테스트는 Play 라이선스 테스터가
+      // 보장한다.
+      final result = SupabaseEnvironmentPolicy.validate(
+        environment: 'dev',
+        stagingProjectRef: 'staging-ref',
+        config: config(
+          url: 'https://staging-ref.supabase.co',
+          storageUrl: 'https://staging-ref.supabase.co/storage/v1',
+        ),
+        pangleEnvironment: 'sandbox',
+        paymentEnvironment: 'sandbox',
+        pangleRuntimeConfig: sandboxPangle,
+      );
+      expect(result.isValid, isTrue);
+    },
+  );
 }

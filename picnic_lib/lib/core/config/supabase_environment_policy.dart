@@ -61,12 +61,10 @@ class SupabaseEnvironmentPolicy {
           'partial Pangle sandbox tuple',
         );
       }
-      if ((paymentProductNamespace ?? '').trim().isEmpty) {
-        return const SupabaseEnvironmentPolicyResult(
-          false,
-          'missing payment product namespace',
-        );
-      }
+      // 결제 상품 네임스페이스는 선택이다. 비어 있으면 dev 빌드가
+      // 프로덕션 SKU를 그대로 사용한다(라이선스 테스터 결제 전제) —
+      // wallet.v1 서버가 정규화된 SKU로 Google을 조회하므로 이쪽이 정합.
+      // 설정된 경우에만 프로덕션 prefix와의 충돌을 검사한다.
       if (productionConfig != null && configuredPangleItems != 0) {
         final productionPangle = _map(_map(productionConfig['ads'])['pangle']);
         if (pangleKeys.any(

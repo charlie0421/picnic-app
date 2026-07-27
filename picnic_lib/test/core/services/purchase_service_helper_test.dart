@@ -276,6 +276,25 @@ void main() {
       );
     });
 
+    test(
+      'dev Android without namespace falls back to the production SKU',
+      () {
+        // 네임스페이스 미설정 dev 빌드는 프로덕션 SKU를 그대로 쓴다
+        // (라이선스 테스터 결제). wallet.v1 서버가 정규화 SKU로 Google을
+        // 조회하므로 이 경로가 서버 설계와 정합하다.
+        final products = [_makeProduct('star10000')];
+        final result = helper.findProductDetails(
+          storeProducts: products,
+          serverProductId: 'STAR10000',
+          isAndroid: true,
+          inappAppNamePrefix: '',
+          environment: 'dev',
+          paymentProductNamespace: '',
+        );
+        expect(result.id, 'star10000');
+      },
+    );
+
     test('production Android remains unprefixed and case normalized', () {
       final products = [_makeProduct('star10000')];
       final result = helper.findProductDetails(

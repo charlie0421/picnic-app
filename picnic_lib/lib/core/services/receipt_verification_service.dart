@@ -19,7 +19,18 @@ class ReusedPurchaseException implements Exception {
   final String message;
   final String? receiptId;
 
-  ReusedPurchaseException({required this.message, this.receiptId});
+  /// 서버 응답이 "보상 지급까지 완료된 중복"임을 확인한 경우 true.
+  ///
+  /// 서버는 영수증 행만 있고 보상 지급이 실패한 경우에도 409를 반환하므로,
+  /// 이 값이 true일 때만 구매를 완료(consume)해도 안전하다. false면 구매를
+  /// 남겨 두어야 큐/reconcile이 재시도할 수 있다.
+  final bool grantConfirmed;
+
+  ReusedPurchaseException({
+    required this.message,
+    this.receiptId,
+    this.grantConfirmed = false,
+  });
 
   @override
   String toString() => 'ReusedPurchaseException: $message';
@@ -312,6 +323,9 @@ class ReceiptVerificationService {
           logger.w('Duplicate receipt detected (409 Conflict)');
           throw ReusedPurchaseException(
             message: PurchaseConstants.errPrevTransactionPending,
+            grantConfirmed: ReceiptQueueService.duplicateConfirmsGrant(
+              error.details,
+            ),
           );
         }
 
