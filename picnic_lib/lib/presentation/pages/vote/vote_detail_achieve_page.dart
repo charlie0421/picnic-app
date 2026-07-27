@@ -478,7 +478,13 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
             if (voteModel == null) return const SizedBox.shrink();
             return _buildBody(voteModel);
           },
-          loading: () => _buildLoadingShimmer(),
+          // SizedBox.expand 가 없으면 셔머(SingleChildScrollView)가 콘텐츠
+          // 높이(793px)로 수축해, 데이터가 도착하는 순간 페이지가 로드 높이
+          // (892px)로 99px 점프한다. vote_detail_page.dart 의 로딩 브랜치와
+          // 같은 처리. 이 페이지는 로드 브랜치에 Expanded 가 있어 어차피
+          // 유한한 높이의 부모를 전제하므로, expand 가 무한 제약을 만날
+          // 일은 없다.
+          loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
           error:
               (error, stackTrace) => buildErrorView(
                 context,
@@ -507,15 +513,27 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                 _buildVoteInfo(voteModel),
                 _buildVoteItem(context, voteModel, data[0]!),
                 Expanded(
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(children: [_buildLevelItem(data[0]!)]),
+                  // 형제 vote_detail_page 와 같은 당겨서-새로고침. 이 페이지의
+                  // 스크롤 영역은 마일스톤 사다리뿐이라 인디케이터도 여기 단다.
+                  child: RefreshIndicator(
+                    color: AppColors.primary500,
+                    backgroundColor: Colors.white,
+                    onRefresh: _refreshVoteData,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      // 사다리가 뷰포트보다 짧아도 당길 수 있어야 한다 —
+                      // 기본 physics 는 내용이 짧으면 오버스크롤 자체가 없다.
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(children: [_buildLevelItem(data[0]!)]),
+                    ),
                   ),
                 ),
               ],
             );
           },
-          loading: () => _buildLoadingShimmer(),
+          // 바깥 게이트의 로딩 브랜치와 같은 이유 — 아이템 목록만 늦게 올 때도
+          // 셔머가 뷰포트를 가득 채워야 로드 시점에 높이가 점프하지 않는다.
+          loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
           error:
               (error, stackTrace) => buildErrorView(
                 context,
@@ -523,6 +541,32 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                 stackTrace: stackTrace,
               ),
         );
+  }
+
+  /// 당겨서-새로고침: 상세와 아이템 목록을 함께 갱신한다.
+  ///
+  /// vote_detail_page 의 onRefresh 와 같은 계약 — 양쪽 모두 8초 타임아웃을
+  /// 걸어, 네트워크가 죽어 있어도 인디케이터가 영원히 돌지 않게 한다.
+  /// (`.future` 를 기다려야 인디케이터가 실제 완료 시점까지 표시된다.)
+  Future<void> _refreshVoteData() async {
+    await Future.wait([
+      ref
+          .refresh(
+            asyncVoteDetailProvider(
+              voteId: widget.voteId,
+              votePortal: widget.votePortal,
+            ).future,
+          )
+          .timeout(const Duration(seconds: 8), onTimeout: () => null),
+      ref
+          .refresh(
+            asyncVoteItemListProvider(
+              voteId: widget.voteId,
+              votePortal: widget.votePortal,
+            ).future,
+          )
+          .timeout(const Duration(seconds: 8), onTimeout: () => []),
+    ]);
   }
 
   Widget _buildVoteInfo(VoteModel voteModel) {

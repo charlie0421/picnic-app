@@ -2,6 +2,7 @@
 
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -146,8 +147,24 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
         totalsMap[row['id'] as int] = (row['vote_total'] as int?) ?? 0;
       }
 
-      final updatedList = state.value!.map<VoteItemModel>((item) {
-        if (item != null && totalsMap.containsKey(item.id)) {
+      final currentList = state.value!;
+      final changedIds = VoteDetailHelper.diffChangedItemIds(
+        currentList,
+        totalsMap,
+      );
+
+      // Nothing actually changed since last poll: do NOT reassign state.
+      // Keeping the same list identity prevents the 1Hz rebuild storm —
+      // ref.watch consumers see an identical AsyncValue and skip rebuilding.
+      if (changedIds.isEmpty) {
+        return;
+      }
+
+      // Reuse unchanged item object identities; only copyWith the changed
+      // ones. (VoteItemModel is freezed: copyWith allocates a new instance,
+      // so we avoid it for items that didn't move.)
+      final updatedList = currentList.map<VoteItemModel>((item) {
+        if (item != null && changedIds.contains(item.id)) {
           return item.copyWith(voteTotal: totalsMap[item.id]);
         }
         return item!;

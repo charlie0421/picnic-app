@@ -75,6 +75,16 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final Widget? errorWidget; // 커스텀 에러 위젯
   final bool showLoadingOverlay;
 
+  // C3: 리스트 전용 요청 가중치 축소(다른 화면 영향 없음 — 기본값 null = 현재 동작 유지).
+  // maxQualityOverride: 단일(저복잡도) URL 의 q 값을 이 값으로 제한.
+  // maxResolutionMultiplierCap: _getResolutionMultiplier 결과를 이 값으로 clamp.
+  final int? maxQualityOverride;
+  final double? maxResolutionMultiplierCap;
+
+  // C4: 빠른 플링 중에는 실제 이미지 대신 placeholder 를 보여주고, 스크롤이 멎으면 로드.
+  // Scrollable.recommendDeferredLoadingForContext 게이트. 기본 false = 현재 동작.
+  final bool deferDuringFastScroll;
+
   const PicnicCachedNetworkImage({
     super.key,
     required this.imageUrl,
@@ -99,6 +109,9 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.enableProgressiveLoading = true,
     @Deprecated('앱 레벨 동시 로딩 제한 제거됨 — 이 값은 무시된다')
     this.maxConcurrentLoads,
+    this.maxQualityOverride,
+    this.maxResolutionMultiplierCap,
+    this.deferDuringFastScroll = false,
   });
 
   /// 테스트 환경에서 이미지 로딩 타이머 비활성화 (pending timer assertion 방지)
@@ -236,7 +249,7 @@ class _PicnicCachedNetworkImageState
       if (mounted) {
         _cachedUrls ??= _getTransformedUrls(
           context,
-          _getResolutionMultiplier(context),
+          _capResolution(_getResolutionMultiplier(context)),
         );
       }
     });
@@ -542,7 +555,7 @@ class _PicnicCachedNetworkImageState
     // 최초 계산된 URL 고정 사용 (빌드마다 변하지 않도록)
     _cachedUrls ??= _getTransformedUrls(
       context,
-      _getResolutionMultiplier(context),
+      _capResolution(_getResolutionMultiplier(context)),
     );
     final urls = _cachedUrls!;
     final primaryUrl = urls.last;
@@ -587,6 +600,19 @@ class _PicnicCachedNetworkImageState
 
   @override
   Widget build(BuildContext context) {
+    // C4: 빠른 플링 중이면 디코드/네트워크를 미루고 placeholder 만 그린다.
+    //
+    // recommendDeferredLoadingForContext 는 inherited 의존성을 **만들지
+    // 않으므로**, 스크롤이 멎어도 이 위젯은 저절로 재빌드되지 않는다 — 재시도
+    // 예약이 없으면 플링 중에 빌드된 아이템이 영구 placeholder 로 남는다
+    // (테스트로 재현: 정지 후 2초가 지나도 복귀하지 않았다). Flutter 의
+    // ScrollAwareImageProvider 가 같은 이유로 같은 패턴을 쓴다.
+    if (widget.deferDuringFastScroll &&
+        Scrollable.recommendDeferredLoadingForContext(context)) {
+      _scheduleDeferredRetry();
+      return _buildSafePlaceholder();
+    }
+
     // Lazy Loading이 비활성화된 경우 바로 이미지 렌더링
     if (widget.lazyLoadingStrategy == LazyLoadingStrategy.none) {
       return _buildSafeMainWidget();
@@ -607,6 +633,22 @@ class _PicnicCachedNetworkImageState
       onVisibilityChanged: _onVisibilityChanged,
       child: _buildSafeMainWidget(),
     );
+  }
+
+  /// C4 지연 중 다음 프레임에 재평가를 예약한다.
+  ///
+  /// 플링이 계속이면 다시 placeholder(값싼 경로)로 떨어지고, 멎었으면 실제
+  /// 이미지로 전환된다. 프레임당 한 번만 예약되며, 지연 상태가 아니면 아무
+  /// 비용도 없다.
+  bool _deferredRetryScheduled = false;
+
+  void _scheduleDeferredRetry() {
+    if (_deferredRetryScheduled) return;
+    _deferredRetryScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _deferredRetryScheduled = false;
+      if (mounted) setState(() {});
+    });
   }
 
   /// 안전한 플레이스홀더 빌드 (크기 보장)
@@ -649,6 +691,13 @@ class _PicnicCachedNetworkImageState
     );
   }
 
+  /// C3: 리스트 전용 dpr 상한 적용. 기본(null)이면 변형 없음.
+  double _capResolution(double multiplier) {
+    final cap = widget.maxResolutionMultiplierCap;
+    if (cap == null) return multiplier;
+    return math.min(multiplier, cap);
+  }
+
   double _getResolutionMultiplier(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final devicePixelRatio = mediaQuery.devicePixelRatio;
@@ -680,7 +729,14 @@ class _PicnicCachedNetworkImageState
 
     switch (imageSize) {
       case ImageComplexity.low:
-        return [_getTransformedUrl(widget.imageUrl, resolutionMultiplier, 85)];
+        // C3: 리스트가 maxQualityOverride 를 넘기면 그 값을, 아니면 기존 85.
+        return [
+          _getTransformedUrl(
+            widget.imageUrl,
+            resolutionMultiplier,
+            widget.maxQualityOverride ?? 85,
+          ),
+        ];
       case ImageComplexity.medium:
         return [
           _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.6, 40),

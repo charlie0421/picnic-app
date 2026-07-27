@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Master 완전 제거 설계</title>
+</head>
+<body>
+  <main>
+    <h1>Task Master 완전 제거 설계</h1>
+
+    <h2>목표</h2>
+    <p>picnic-app 저장소와 개발 환경에서 Task Master의 데이터, 규칙, 설정, 실행 파일을 모두 제거하고 이후 작업 관리는 Superpowers 워크플로만 사용한다.</p>
+
+    <h2>제거 범위</h2>
+    <ul>
+      <li><code>.taskmaster/</code> 전체와 저장된 작업·PRD·보고서·설정을 삭제한다.</li>
+      <li>Task Master 전용 규칙인 <code>.clinerules/taskmaster.md</code>, <code>.cursor/rules/taskmaster*</code>, <code>.github/instructions/taskmaster.md</code>, <code>.roo/rules/taskmaster.md</code>, <code>.trae/rules/taskmaster.md</code>, <code>.windsurf/rules/taskmaster.md</code>를 삭제한다.</li>
+      <li>내용 전체가 Task Master 통합 안내인 루트 <code>CLAUDE.md</code>와 관련 루트 에이전트 규칙 파일의 Task Master 전용 내용을 제거한다.</li>
+      <li><code>.gitignore</code>, MCP 설정, 에이전트 설정 및 패키지 설정에서 Task Master 관련 항목만 제거한다.</li>
+      <li><code>/usr/local/bin/task-master</code>의 실제 설치 출처를 확인한 뒤 해당 전역 패키지를 정식 패키지 관리자 명령으로 제거한다.</li>
+    </ul>
+
+    <h2>보존 범위</h2>
+    <ul>
+      <li>앱·라이브러리·Supabase 코드와 Superpowers 설계 및 구현 문서는 보존한다.</li>
+      <li>Task Master와 무관한 에디터 및 에이전트 규칙은 보존한다.</li>
+      <li>현재 작업 트리의 다른 미커밋 변경은 수정하거나 되돌리지 않는다.</li>
+      <li>삭제 이력은 Git에 남겨 필요 시 복구할 수 있게 한다.</li>
+    </ul>
+
+    <h2>실행 순서</h2>
+    <ol>
+      <li>추적 파일, 숨김 파일, MCP 구성 및 전역 실행 파일의 소유 패키지를 다시 식별한다.</li>
+      <li>저장소의 Task Master 전용 파일을 삭제하고 공유 설정에서는 관련 블록만 제거한다.</li>
+      <li>전역 CLI를 설치 방식에 맞는 제거 명령으로 삭제한다.</li>
+      <li>전체 저장소 검색, Git 상태, 실행 파일 탐색으로 잔여 항목을 검증한다.</li>
+    </ol>
+
+    <h2>검증 기준</h2>
+    <ul>
+      <li><code>.taskmaster/</code> 및 Task Master 전용 규칙 파일이 존재하지 않는다.</li>
+      <li>소스와 활성 설정에서 <code>task-master</code>, <code>taskmaster-ai</code>, <code>.taskmaster</code> 참조가 발견되지 않는다. 삭제 설계·계획 문서의 설명은 검증 검색에서 제외한다.</li>
+      <li><code>command -v task-master</code>가 실행 파일을 반환하지 않는다.</li>
+      <li>Task Master와 무관한 기존 미커밋 파일은 그대로 유지된다.</li>
+    </ul>
+
+    <h2>실패 처리</h2>
+    <p>전역 CLI의 설치 출처가 불명확하면 실행 파일을 직접 삭제하지 않고 소유 패키지를 먼저 추적한다. 공유 설정 파일을 수정할 때는 Task Master 블록만 제거하며, 구문 검증에 실패하면 해당 파일 수정만 중단하고 원인을 확인한다.</p>
+  </main>
+</body>
+</html>

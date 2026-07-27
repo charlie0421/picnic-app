@@ -1,11 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
 import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/providers/vote_item_request_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
 import '../../../../helpers/mock_supabase.dart';
+import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_environment.dart';
 
 void main() {
@@ -13,20 +20,96 @@ void main() {
     initTestColors();
   });
 
+  testWidgets('search enrichment uses aggregate counts and current-user status',
+      (tester) async {
+    setupMockSupabase({
+      'vote_item_request_status_summary': [
+        {'vote_id': 1, 'artist_id': 10, 'artist_name': '가수 A', 'request_status': 'pending', 'request_count': 4},
+        {'vote_id': 1, 'artist_id': 10, 'artist_name': '가수 A', 'request_status': 'approved', 'request_count': 3},
+      ],
+      'vote_item_request_users': [
+        {'vote_id': 1, 'user_id': 'current-user', 'artist_id': 10, 'status': 'pending', 'artist': {'name': {'ko': '가수 A', 'en': 'Singer A'}}},
+        {'vote_id': 1, 'user_id': 'other-user', 'artist_id': 10, 'status': 'rejected', 'artist': {'name': {'ko': '가수 A', 'en': 'Singer A'}}},
+      ],
+      'vote_item': <Map<String, dynamic>>[],
+    }, userId: 'current-user');
+    addTearDown(tearDownMockSupabase);
+
+    late WidgetRef widgetRef;
+    await tester.pumpWidget(buildTestApp(
+      Consumer(builder: (context, ref, child) {
+        widgetRef = ref;
+        return const SizedBox();
+      }),
+      extraOverrides: [
+        voteItemRequestRepositoryProvider.overrideWithValue(
+          VoteItemRequestRepository(supabase: testSupabaseClient!),
+        ),
+      ],
+    ));
+    await tester.pumpAndSettle();
+
+    final service = VoteItemRequestService(
+      ref: widgetRef,
+      voteId: '1',
+      supabase: testSupabaseClient!,
+    );
+    final result = await service.loadApplicationDataForResults(
+      const [ArtistModel(id: 10, name: {'ko': '가수 A', 'en': 'Singer A'})],
+      'current-user',
+    );
+
+    expect(result['10']!.applicationCount, 7);
+    expect(
+      result['10']!.applicationStatus,
+      AppLocalizations.of(navigatorKey.currentContext!)
+          .vote_item_request_status_pending,
+    );
+
+    // 와이어 레벨 스코핑 단언. 이 mock 하네스는 `.eq()` 필터를 무시하고
+    // 픽스처 전체를 돌려주므로, 위의 "current-user vs other-user" 구분은
+    // 클라이언트 측 가드만 검증한다 — 쿼리에서 `.eq('user_id', ...)` 를
+    // 지워도 응답 기반 단언은 전부 통과한다 (검증 완료: 이 단언이 없으면
+    // 스코핑 제거 시에도 영역 550개 테스트가 모두 green 이었다).
+    // 교차 사용자 행을 와이어로 다시 가져오는 회귀는 여기서만 잡힌다.
+    final ownStatusRequests = capturedMockRequests.where(
+      (uri) => uri.path.contains('vote_item_request_users'),
+    );
+    expect(ownStatusRequests, isNotEmpty,
+        reason: '자기 신청 상태 쿼리가 vote_item_request_users 로 나가야 한다');
+    for (final uri in ownStatusRequests) {
+      expect(uri.queryParameters['user_id'], 'eq.current-user',
+          reason: 'vote_item_request_users 쿼리는 반드시 현재 사용자로 '
+              '스코핑되어야 한다 — 스코핑이 빠지면 교차 사용자 행을 '
+              '와이어로 가져오게 된다: $uri');
+    }
+  });
+
   group('VoteItemRequestRepository - getVoteItemRequestCount', () {
     setUp(() {
       setupMockSupabase({
-        'vote_item_request_users': [
-          {'id': 'req-1', 'vote_id': 1, 'user_id': 'u1', 'artist_id': 10, 'status': 'pending'},
-          {'id': 'req-2', 'vote_id': 1, 'user_id': 'u2', 'artist_id': 11, 'status': 'pending'},
-          {'id': 'req-3', 'vote_id': 1, 'user_id': 'u3', 'artist_id': 10, 'status': 'approved'},
+        'vote_item_request_status_summary': [
+          {
+            'vote_id': 1,
+            'artist_id': 10,
+            'artist_name': '가수 A',
+            'request_status': 'pending',
+            'request_count': 2,
+          },
+          {
+            'vote_id': 1,
+            'artist_id': 10,
+            'artist_name': '가수 A',
+            'request_status': 'approved',
+            'request_count': 1,
+          },
         ],
       }, userId: 'test-user-id');
     });
 
     tearDown(() => tearDownMockSupabase());
 
-    test('returns count of request rows', () async {
+    test('returns total count from aggregate rows', () async {
       final repo = VoteItemRequestRepository(supabase: testSupabaseClient!);
       final count = await repo.getVoteItemRequestCount(1);
       expect(count, 3);
@@ -36,7 +119,7 @@ void main() {
   group('VoteItemRequestRepository - getVoteItemRequestCount empty', () {
     setUp(() {
       setupMockSupabase({
-        'vote_item_request_users': [],
+        'vote_item_request_status_summary': [],
       }, userId: 'test-user-id');
     });
 

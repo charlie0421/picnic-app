@@ -391,6 +391,65 @@ void main() {
     group('성공 경로 값 검증', () {
       tearDown(supabase_harness.tearDownMockSupabase);
 
+      test('getVoteItemRequestCountSummary는 아티스트별 합계와 전체 합계를 반환한다', () async {
+        supabase_harness.setupMockSupabase({
+          'vote_item_request_status_summary': [
+            {
+              'vote_id': 7,
+              'artist_id': 10,
+              'artist_name': '가수 A',
+              'request_status': 'pending',
+              'request_count': 2,
+            },
+            {
+              'vote_id': 7,
+              'artist_id': 10,
+              'artist_name': '가수 A',
+              'request_status': 'approved',
+              'request_count': 1,
+            },
+          ],
+        });
+        final repository = VoteItemRequestRepository(
+          supabase: supabase_options.testSupabaseClient!,
+        );
+
+        final summary = await repository.getVoteItemRequestCountSummary(7);
+
+        expect(summary.totalCount, 3);
+        expect(summary.countsByArtistId, {10: 3});
+        expect(summary.countsByArtistName, {'가수 A': 3});
+        expect(summary.statusCountsByArtistId, {
+          10: {'pending': 2, 'approved': 1},
+        });
+      });
+
+      test('getVoteItemRequestCount는 집계 뷰의 totalCount를 반환한다', () async {
+        supabase_harness.setupMockSupabase({
+          'vote_item_request_status_summary': [
+            {
+              'vote_id': 7,
+              'artist_id': 10,
+              'artist_name': '가수 A',
+              'request_status': 'pending',
+              'request_count': 2,
+            },
+            {
+              'vote_id': 7,
+              'artist_id': 10,
+              'artist_name': '가수 A',
+              'request_status': 'approved',
+              'request_count': 1,
+            },
+          ],
+        });
+        final repository = VoteItemRequestRepository(
+          supabase: supabase_options.testSupabaseClient!,
+        );
+
+        expect(await repository.getVoteItemRequestCount(7), 3);
+      });
+
       test('getApplicationCountByTitle은 정확한 count를 반환한다', () async {
         supabase_harness.setupMockSupabase({
           'artist': [

@@ -381,21 +381,26 @@ class VoteCardSkeleton extends StatelessWidget {
   }
 
   Widget _buildVoteItemsContainer() {
-    return Shimmer.fromColors(
-      baseColor: AppColors.grey300,
-      highlightColor: AppColors.grey100,
-      child: Container(
-        width: double.infinity,
-        height: 260,
-        padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(40),
-          border: Border.all(
-            color: Colors.grey[300]!,
-            width: 1.5,
-          ),
+    // 불투명한 카드 프레임(흰 배경 + 테두리)은 Shimmer **바깥**에 있어야 한다.
+    // Shimmer 는 자식을 BlendMode.srcIn ShaderMask 로 덮으므로(shimmer 3.0.0
+    // `_Shimmer.paint`), 프레임이 Shimmer 안에 있으면 그 위의 아이템 블록들이
+    // 배경과 한 덩어리로 칠해져 구조 없는 회색 라운드 사각형만 남는다.
+    // 같은 패턴: vote_detail_skeleton.dart, vote_card_skeleton_vs.dart 등.
+    return Container(
+      width: double.infinity,
+      height: 260,
+      padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(40),
+        border: Border.all(
+          color: Colors.grey[300]!,
+          width: 1.5,
         ),
+      ),
+      child: Shimmer.fromColors(
+        baseColor: AppColors.grey300,
+        highlightColor: AppColors.grey100,
         child: _buildVoteItemsSkeleton(),
       ),
     );

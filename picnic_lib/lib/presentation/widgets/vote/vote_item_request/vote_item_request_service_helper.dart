@@ -4,6 +4,8 @@ import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item
 /// Extracted for testability - all methods are static and pure
 /// (no Flutter/widget dependencies, no Supabase calls, no Riverpod).
 class VoteItemRequestServiceHelper {
+  static const int enrichmentBatchSize = 50;
+
   // ---------------------------------------------------------------------------
   // Pagination
   // ---------------------------------------------------------------------------
@@ -59,6 +61,19 @@ class VoteItemRequestServiceHelper {
     return listLength > maxBatchSize;
   }
 
+  static int estimateEnrichmentQueryCount({
+    required int artistCount,
+    required bool hasUser,
+  }) {
+    if (artistCount < 0) {
+      throw ArgumentError.value(artistCount, 'artistCount', 'must not be negative');
+    }
+    if (artistCount == 0) return 0;
+    final batchCount = (artistCount + enrichmentBatchSize - 1) ~/
+        enrichmentBatchSize;
+    return batchCount * (hasUser ? 3 : 2);
+  }
+
   // ---------------------------------------------------------------------------
   // Artist name extraction
   // ---------------------------------------------------------------------------
@@ -81,6 +96,12 @@ class VoteItemRequestServiceHelper {
       if (extracted.en.isNotEmpty) names.add(extracted.en);
     }
     return names;
+  }
+
+  static Set<String> collectArtistNameSet(
+    List<Map<String, dynamic>> artistNameMaps,
+  ) {
+    return collectArtistNames(artistNameMaps).toSet();
   }
 
   // ---------------------------------------------------------------------------

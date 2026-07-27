@@ -70,6 +70,42 @@ class VoteDetailHelper {
     return ranks;
   }
 
+  /// Compute rank map from a list ALREADY sorted by voteTotal descending.
+  ///
+  /// O(n): does NOT sort. Callers must pass a list whose non-null items are in
+  /// descending voteTotal order (e.g. the output of [AsyncVoteItemList], which
+  /// always orders by vote_total desc). Items with equal voteTotal share the
+  /// same rank; the next distinct (lower) value resumes at the 1-based position
+  /// of the first item in its block — i.e. ties skip ranks, matching
+  /// [computeRanks]. null entries and null voteTotals (treated as 0) are
+  /// handled without consuming a rank slot for nulls.
+  static Map<int, int> computeRanksFromSorted(
+    List<VoteItemModel?> sortedDescItems,
+  ) {
+    final ranks = <int, int>{};
+
+    int position = 0; // 1-based count of non-null items seen so far
+    int currentRank = 1;
+    int? previousVoteTotal;
+
+    for (final item in sortedDescItems) {
+      if (item == null) continue;
+
+      position++;
+      final voteTotal = item.voteTotal ?? 0;
+
+      if (previousVoteTotal == null || voteTotal != previousVoteTotal) {
+        currentRank = position;
+      }
+      // else: tie -> keep currentRank
+
+      ranks[item.id] = currentRank;
+      previousVoteTotal = voteTotal;
+    }
+
+    return ranks;
+  }
+
   /// Pick the single item that should carry the "N votes behind #1" tooltip.
   ///
   /// Returns null unless exactly one item holds rank 2 and its gap to the
@@ -123,6 +159,43 @@ class VoteDetailHelper {
     }
 
     return true;
+  }
+
+  /// Return the set of item ids whose [voteTotal] differs from the matching
+  /// entry in [newTotals], or whose id is present in [newTotals] but not in
+  /// [current] (newly present). A null item voteTotal is treated as 0.
+  ///
+  /// Ids that appear in [current] but are absent from [newTotals] are NOT
+  /// reported as changed (no fresh value = no signal). Null items in
+  /// [current] are ignored.
+  ///
+  /// O(n + m). Used by [AsyncVoteItemList.refreshVoteTotals] to skip
+  /// state reassignment entirely when the 1Hz poll returns no actual change.
+  static Set<int> diffChangedItemIds(
+    List<VoteItemModel?> current,
+    Map<int, int> newTotals,
+  ) {
+    final changed = <int>{};
+    final seen = <int>{};
+
+    for (final item in current) {
+      if (item == null) continue;
+      seen.add(item.id);
+      final newTotal = newTotals[item.id];
+      if (newTotal == null) continue; // no fresh value -> no signal
+      if (newTotal != (item.voteTotal ?? 0)) {
+        changed.add(item.id);
+      }
+    }
+
+    // ids present in the fresh totals but not in current = newly present
+    for (final id in newTotals.keys) {
+      if (!seen.contains(id)) {
+        changed.add(id);
+      }
+    }
+
+    return changed;
   }
 
   /// Return the text from [nameMap] whose language matches the [query].

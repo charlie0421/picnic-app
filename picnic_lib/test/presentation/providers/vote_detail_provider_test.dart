@@ -449,6 +449,109 @@ void main() {
     });
   });
 
+  group('AsyncVoteItemList - refreshVoteTotals', () {
+    late ProviderContainer container;
+
+    final voteItems = [
+      {
+        'id': 10,
+        'vote_id': 1,
+        'vote_total': 500,
+        'artist': {
+          'id': 100,
+          'name': {'ko': '아이유', 'en': 'IU'},
+          'image': null,
+          'artist_group': null,
+        },
+        'artist_group': null,
+        'deleted_at': null,
+      },
+      {
+        'id': 11,
+        'vote_id': 1,
+        'vote_total': 300,
+        'artist': {
+          'id': 101,
+          'name': {'ko': '뷔', 'en': 'V'},
+          'image': null,
+          'artist_group': null,
+        },
+        'artist_group': null,
+        'deleted_at': null,
+      },
+    ];
+
+    setUp(() {
+      setupMockSupabase({
+        'vote_item': voteItems,
+      });
+      container = ProviderContainer();
+    });
+
+    tearDown(() {
+      container.dispose();
+      tearDownMockSupabase();
+    });
+
+    test('no-op when totals unchanged: preserves list identity', () async {
+      await container.read(asyncVoteItemListProvider(voteId: 1).future);
+      final before = container.read(asyncVoteItemListProvider(voteId: 1)).value;
+
+      final notifier =
+          container.read(asyncVoteItemListProvider(voteId: 1).notifier);
+      // Mock returns the same vote_total values (500/300) for the
+      // refreshVoteTotals select -> diffChangedItemIds is empty.
+      await notifier.refreshVoteTotals(voteId: 1);
+
+      final after = container.read(asyncVoteItemListProvider(voteId: 1)).value;
+      // Same List instance: no reassignment happened.
+      expect(identical(before, after), isTrue);
+    });
+
+    test('preserves identity of unchanged items when one item changes',
+        () async {
+      await container.read(asyncVoteItemListProvider(voteId: 1).future);
+      final before = container.read(asyncVoteItemListProvider(voteId: 1)).value!;
+      final beforeItem10 = before.firstWhere((i) => i!.id == 10);
+      final beforeItem11 = before.firstWhere((i) => i!.id == 11);
+
+      // Mutate only item 11's total in the mock data source so the next
+      // refreshVoteTotals select returns a changed value for id 11 only.
+      voteItems[1]['vote_total'] = 999;
+
+      final notifier =
+          container.read(asyncVoteItemListProvider(voteId: 1).notifier);
+      await notifier.refreshVoteTotals(voteId: 1);
+
+      final after = container.read(asyncVoteItemListProvider(voteId: 1)).value!;
+      final afterItem10 = after.firstWhere((i) => i!.id == 10);
+      final afterItem11 = after.firstWhere((i) => i!.id == 11);
+
+      // Unchanged item keeps its exact object identity.
+      expect(identical(beforeItem10, afterItem10), isTrue);
+      // Changed item is a new (copyWith-ed) instance with the new total.
+      expect(identical(beforeItem11, afterItem11), isFalse);
+      expect(afterItem11!.voteTotal, 999);
+      // List itself was reassigned (changedIds was non-empty).
+      expect(identical(before, after), isFalse);
+    });
+
+    test('re-sorts when a lower item overtakes a higher one', () async {
+      await container.read(asyncVoteItemListProvider(voteId: 1).future);
+
+      voteItems[1]['vote_total'] = 1000; // id 11 overtakes id 10 (500)
+
+      final notifier =
+          container.read(asyncVoteItemListProvider(voteId: 1).notifier);
+      await notifier.refreshVoteTotals(voteId: 1);
+
+      final after = container.read(asyncVoteItemListProvider(voteId: 1)).value!;
+      expect(after[0]!.id, 11);
+      expect(after[0]!.voteTotal, 1000);
+      expect(after[1]!.id, 10);
+    });
+  });
+
   group('fetchVoteAchieve', () {
     late ProviderContainer container;
 

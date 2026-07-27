@@ -83,7 +83,14 @@ class _RewardDialogState extends State<RewardDialog> {
               height: 48,
               margin: EdgeInsets.symmetric(horizontal: 30.w),
               child: VoteCommonTitle(
-                title: getLocaleTextFromJson(widget.data.title!, context),
+                // `title` 은 순수 nullable 컬럼(`RewardModel.title`)이라
+                // 운영자가 비워두면 널이다. 단언하면 다이얼로그 전체가 에러
+                // 박스가 된다. `getLocaleTextFromJson` 은 빈 맵을 '' 로
+                // 처리한다 (thumbnail 의 `?? ''` 와 같은 방침).
+                title: getLocaleTextFromJson(
+                  widget.data.title ?? const {},
+                  context,
+                ),
               ),
             ),
           ),

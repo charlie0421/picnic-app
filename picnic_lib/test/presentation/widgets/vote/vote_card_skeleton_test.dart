@@ -39,7 +39,9 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(Shimmer), findsOneWidget);
+      // 프레임(헤더·컨텐츠) 카드가 각자 자기 Shimmer 를 든다 — 위젯 전체를 하나의
+      // Shimmer 로 감싸면 불투명 프레임이 srcIn 마스크에 먹혀 골격이 사라진다.
+      expect(find.byType(Shimmer), findsNWidgets(2));
     });
 
     testWidgets('Column 위젯이 포함되어 있는지 확인', (WidgetTester tester) async {
@@ -79,7 +81,9 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(Shimmer), findsOneWidget);
+      // 프레임(헤더·컨텐츠) 카드가 각자 자기 Shimmer 를 든다 — 위젯 전체를 하나의
+      // Shimmer 로 감싸면 불투명 프레임이 srcIn 마스크에 먹혀 골격이 사라진다.
+      expect(find.byType(Shimmer), findsNWidgets(2));
     });
 
     testWidgets('Column 위젯이 포함되어 있는지 확인', (WidgetTester tester) async {
@@ -108,7 +112,9 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(Shimmer), findsOneWidget);
+      // 프레임(헤더·컨텐츠) 카드가 각자 자기 Shimmer 를 든다 — 위젯 전체를 하나의
+      // Shimmer 로 감싸면 불투명 프레임이 srcIn 마스크에 먹혀 골격이 사라진다.
+      expect(find.byType(Shimmer), findsNWidgets(2));
     });
 
     testWidgets('VS 영역에 Row 위젯이 포함되어 있는지 확인', (WidgetTester tester) async {

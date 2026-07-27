@@ -3,6 +3,7 @@ import 'package:picnic_lib/core/errors/vote_request_exceptions.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/rate_limited_handler.dart';
+import 'package:picnic_lib/data/models/vote/vote_item_request_count_summary.dart';
 import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -26,15 +27,25 @@ class VoteItemRequestRepository {
 
   /// 투표 아이템 요청 수 조회
   Future<int> getVoteItemRequestCount(int voteId) async {
+    final summary = await getVoteItemRequestCountSummary(voteId);
+    return summary.totalCount;
+  }
+
+  /// 투표 아이템 요청 집계 조회
+  Future<VoteItemRequestCountSummary> getVoteItemRequestCountSummary(
+    int voteId,
+  ) async {
     try {
       final response = await _supabase
-          .from('vote_item_request_users')
-          .select('id')
+          .from('vote_item_request_status_summary')
+          .select(
+            'vote_id, artist_id, artist_name, request_status, request_count',
+          )
           .eq('vote_id', voteId);
 
-      return (response as List).length;
+      return VoteItemRequestCountSummary.fromRows(response as List);
     } catch (e) {
-      _mapRepositoryError('투표 아이템 요청 수 조회', e);
+      _mapRepositoryError('투표 아이템 요청 집계 조회', e);
     }
   }
 

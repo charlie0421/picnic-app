@@ -30,8 +30,8 @@ import 'package:picnic_lib/presentation/widgets/vote/voting/voting_usage_helper.
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 Future showVotingDialog({
@@ -506,6 +506,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // (사용자가 다른 탭으로 이동/뒤로가기) catch 블록의 provider 접근이 안전
     // 하도록 함수 시작 시 container 를 보관 (PICNIC-APP-530).
     final container = ProviderScope.containerOf(context);
+    // invoke(2xx) 도달 여부. invoke 자체 실패(=팝업 원인)와, 성공 후 후처리에서
+    // throw 된 경우를 텔레메트리에서 구분(vote_fail_phase)하기 위한 플래그.
+    bool invokeSucceeded = false;
     try {
       // 옵티미스틱 업데이트: 즉시 로컬 투표 수 반영
       final itemId = widget.voteItemModel.id;
@@ -532,6 +535,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           },
           onRecovery: _recordAuthRecoveryEvent,
         );
+        invokeSucceeded = true; // 2xx 도달 — 서버측 투표는 성공
         container
             .read(walletSummaryProvider.notifier)
             .setSummary(result.wallet);
@@ -559,6 +563,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           },
           onRecovery: _recordAuthRecoveryEvent,
         );
+        invokeSucceeded = true; // 2xx 도달 — 서버측 투표는 성공
         container.read(userInfoProvider.notifier).getUserProfiles();
         final responseData = Map<String, dynamic>.from(response.data as Map);
         final serverTotal = responseData['updatedVoteTotal'] as int?;
@@ -613,6 +618,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         Navigator.of(context).pop();
       }
 
+      // 복구(rollback/pop) 이후에 best-effort 텔레메트리. 절대 복구를 막지 않는다.
+      _reportVoteFailure(e, afterInvoke: invokeSucceeded);
       _showVotingFailDialog(e);
 
       // 실패 후 wallet refresh 는 timeout 과 자체 오류 처리를 가진 best-effort.
@@ -631,6 +638,67 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       } else {
         container.read(userInfoProvider.notifier).getUserProfiles();
       }
+    }
+  }
+
+  // [계측] vote 실패 원인 분포(429/403/400/500 등)를 측정하기 위한 텔레메트리.
+  // catch 의 logger.e 는 Sentry 로 전송되지 않고, beforeSend 는 FunctionException
+  // 을 필터링하므로 그동안 투표 실패가 어디에도 집계되지 않았다. exception 이 없는
+  // captureMessage 는 beforeSend(app_initializer)의 exceptionType 기준 필터를
+  // 통과하므로, 'vote_failed' 단일 이슈를 status/reason/phase tag 로 group-by 해
+  // 분포를 측정한다.
+  // 주의: retry(429) 는 catch 도달 전이라 '최종 사용자에게 보인 실패'만 집계된다
+  //   (재시도로 회복된 일시적 429 는 미포함 — 팝업 원인 측정에는 정확).
+  //   실제 제출 실패만 보려면 vote_fail_phase:invoke 로 필터(post_invoke 는 2xx 후
+  //   클라 후처리 throw 로, 서버측 투표는 성공한 케이스).
+  static int _voteFailReportCount = 0; // 세션당 상한(단일 클라 이벤트 폭주 방지)
+
+  void _reportVoteFailure(Object? error, {required bool afterInvoke}) {
+    // 텔레메트리는 best-effort — 어떤 경우에도 복구 경로를 깨지 않는다.
+    try {
+      // 세션당 상한. 교차 사용자 스파이크는 Sentry inbound spike-protection 위임.
+      if (_voteFailReportCount >= 50) return;
+      _voteFailReportCount++;
+
+      String status = 'unknown';
+      String reason = 'none';
+      if (error is FunctionException) {
+        status = error.status.toString();
+        final details = error.details;
+        if (details is Map) {
+          reason = (details['reason'] ?? details['error'] ?? 'none').toString();
+        } else if (details is String && details.trim().isNotEmpty) {
+          reason = details.trim(); // gateway/HTML/plaintext 등 비-JSON 본문
+        }
+      } else if (error != null) {
+        status = 'exception';
+        reason = 'type:${error.runtimeType}';
+      }
+      // Sentry tag 길이/카디널리티 가드(~200자 제한)
+      if (reason.length > 80) reason = reason.substring(0, 80);
+      final phase = afterInvoke ? 'post_invoke' : 'invoke';
+
+      unawaited(Sentry.captureMessage(
+        'vote_failed',
+        level: SentryLevel.warning,
+        withScope: (scope) {
+          scope.fingerprint = ['vote_failed']; // 단일 이슈 고정(분포 측정용)
+          scope.setTag('vote_fail_status', status);
+          scope.setTag('vote_fail_reason', reason);
+          scope.setTag('vote_fail_phase', phase);
+          scope.setTag('vote_portal',
+              widget.portalType == VotePortal.vote ? 'vote' : 'pic');
+          scope.setContexts('vote_fail', {
+            'status': status,
+            'reason': reason,
+            'phase': phase,
+            'vote_id': widget.voteModel.id,
+            'vote_item_id': widget.voteItemModel.id,
+          });
+        },
+      ));
+    } catch (_) {
+      // 의도적으로 무시: 계측 실패가 투표 복구 흐름에 영향 주지 않도록.
     }
   }
 

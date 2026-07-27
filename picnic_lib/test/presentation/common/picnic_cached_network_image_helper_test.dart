@@ -527,4 +527,27 @@ void main() {
       );
     });
   });
+
+  // ── capResolution (C3 list-scoped dpr cap) ──────────────────────────
+  group('capResolution (C3 list-scoped dpr cap)', () {
+    test('returns multiplier unchanged when cap is null', () {
+      expect(PicnicCachedNetworkImageHelper.capResolution(2.5, null), 2.5);
+    });
+
+    test('clamps multiplier down to cap when above', () {
+      expect(PicnicCachedNetworkImageHelper.capResolution(2.5, 2.0), 2.0);
+    });
+
+    test('leaves multiplier unchanged when below cap', () {
+      expect(PicnicCachedNetworkImageHelper.capResolution(1.2, 2.0), 1.2);
+    });
+
+    test('leaves multiplier unchanged when equal to cap', () {
+      expect(PicnicCachedNetworkImageHelper.capResolution(2.0, 2.0), 2.0);
+    });
+
+    test('clamps high dpr (e.g. iPad 4.0) down to 2.0', () {
+      expect(PicnicCachedNetworkImageHelper.capResolution(4.0, 2.0), 2.0);
+    });
+  });
 }
