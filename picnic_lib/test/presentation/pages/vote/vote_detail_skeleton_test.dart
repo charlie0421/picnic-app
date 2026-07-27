@@ -149,6 +149,15 @@ void main() {
         previousBottom = rowRect.bottom;
       }
 
+      // 행 개수는 리터럴로 고정한다. VoteDetailSkeletonKeys.itemCount 를 그대로
+      // 쓰면 프로덕션이 행을 1개나 0개로 줄여도 파생된 기대값이 같이 줄어들어
+      // 전부 초록이 된다 — 이 파일이 막으려는 회귀가 바로 그것이다.
+      expect(
+        VoteDetailSkeletonKeys.itemCount,
+        5,
+        reason: '스켈레톤은 투표 목록처럼 보이도록 5개 행을 그린다',
+      );
+
       // 아이템 행 안쪽은 순위 / 썸네일 / 이름·점수 / 액션 순으로 왼쪽에서
       // 오른쪽으로 놓인다. 열이 겹치면 실제 아이템 행처럼 읽히지 않는다.
       for (var i = 0; i < VoteDetailSkeletonKeys.itemCount; i++) {
