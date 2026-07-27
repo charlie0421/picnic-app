@@ -10,6 +10,21 @@
 ///     still reaches the handler that was installed before ours, and
 ///  2. one framework error still produces exactly **one** Sentry capture.
 ///
+/// Three further properties are pinned because nothing else does:
+///
+///  3. a `silent` framework error produces **no** Sentry event. Dropping the
+///     handler's own `Sentry.captureException` also dropped these, since
+///     `FlutterErrorIntegration` skips them. That is a deliberate decision, not
+///     a side effect — see
+///     [AppInitializerHelper.reportSilentFlutterErrors], which both production
+///     and the test below read, so flipping it turns this red;
+///  4. delegation goes through the *live* [FlutterError.presentError] when we
+///     wrapped the framework default, so DevTools toggling structured errors
+///     mid-session is honoured rather than pinned to an install-time snapshot;
+///  5. the two `logger.e` calls happen, and happen exactly once — they are the
+///     whole reason this handler still exists next to the Sentry integrations,
+///     and installing twice must not double them.
+///
 /// ## Why these tests use sentry_flutter internals
 ///
 /// The handler's correctness is entirely about how it *composes* with the two
@@ -34,10 +49,13 @@
 /// behaviour.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
+import 'package:picnic_lib/core/utils/app_initializer_helper.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 // ignore_for_file: implementation_imports, invalid_use_of_internal_member
 import 'package:sentry_flutter/src/integrations/flutter_error_integration.dart';
@@ -79,6 +97,10 @@ class _SentryHarness {
       // "exactly one capture" measure the captures our code *issues* rather
       // than the ones that happen to survive a race inside the SDK.
       ..enableDeduplication = false
+      // Read the production decision rather than restating it: if this flips to
+      // true, the "silent errors are not reported" test below fails.
+      ..reportSilentFlutterErrors =
+          AppInitializerHelper.reportSilentFlutterErrors
       ..beforeSend = (event, hint) {
         capturedEvents.add(event);
         return event;
@@ -128,6 +150,9 @@ VoidCallback _snapshotGlobals() {
   final flutterOnError = FlutterError.onError;
   final presentError = FlutterError.presentError;
   final platformOnError = PlatformDispatcher.instance.onError;
+  // Installation is idempotent in production, so every test that wants to
+  // install has to clear the flag first.
+  AppInitializer.resetGlobalErrorHandlingForTest();
   var done = false;
   void restore() {
     if (done) return;
@@ -135,10 +160,42 @@ VoidCallback _snapshotGlobals() {
     FlutterError.onError = flutterOnError;
     FlutterError.presentError = presentError;
     PlatformDispatcher.instance.onError = platformOnError;
+    AppInitializer.resetGlobalErrorHandlingForTest();
   }
 
   addTearDown(restore);
   return restore;
+}
+
+/// Everything `logger` writes while [body] runs.
+///
+/// `logger` is a top-level final in `picnic_lib/core/utils/logger.dart` with no
+/// seam, but its `ConsoleOutput` goes through `print`, which resolves against
+/// `Zone.current` — so a zone with a `print` handler captures it.
+List<String> _capturePrints(void Function() body) {
+  final lines = <String>[];
+  runZoned(
+    body,
+    zoneSpecification: ZoneSpecification(
+      print: (self, parent, zone, line) => lines.add(line),
+    ),
+  );
+  return lines;
+}
+
+/// A [FlutterErrorDetails] shaped like the one the framework builds, used by the
+/// tests that invoke `FlutterError.onError` directly instead of going through a
+/// real render failure.
+FlutterErrorDetails _details(Object exception, {bool silent = false}) {
+  return FlutterErrorDetails(
+    exception: exception,
+    stack: StackTrace.current,
+    library: silent ? 'image resource service' : 'rendering library',
+    context: ErrorDescription(
+      silent ? 'resolving an image codec' : 'during layout',
+    ),
+    silent: silent,
+  );
 }
 
 void main() {
@@ -262,6 +319,118 @@ void main() {
         );
       },
     );
+
+    testWidgets(
+      'a silent framework error is deliberately not reported to Sentry',
+      (tester) async {
+        final restoreGlobals = _snapshotGlobals();
+
+        final sentry = _SentryHarness();
+        await sentry.start();
+        addTearDown(sentry.stop);
+
+        FlutterError.onError = FlutterError.presentError;
+        await AppInitializer.initializeGlobalErrorHandling();
+        final integration = FlutterErrorIntegration();
+        integration.call(HubAdapter(), sentry.options);
+        addTearDown(integration.close);
+
+        // Shaped like what MultiFrameImageStreamCompleter reports when the
+        // image CDN fails: image_stream.dart:910/985/998/1085 and
+        // image_provider.dart:403 all pass `silent: true`.
+        FlutterError.onError!(_details(StateError('image codec'), silent: true));
+        await tester.runAsync(() => Future<void>.delayed(_settleDelay));
+        restoreGlobals();
+
+        expect(
+          sentry.capturedEvents,
+          isEmpty,
+          reason: 'silent framework errors are intentionally not reported - '
+              'see AppInitializerHelper.reportSilentFlutterErrors for why. '
+              'Flipping that constant must fail this test, not change '
+              'behaviour quietly.',
+        );
+        expect(sentry.transport.envelopes, isEmpty);
+      },
+    );
+
+    testWidgets(
+      'delegates through the live presentError so a later swap is honoured',
+      (tester) async {
+        final restoreGlobals = _snapshotGlobals();
+
+        // Production state at install time: `FlutterError.onError` still holds
+        // the snapshot of `presentError` taken when the static was initialised.
+        FlutterError.onError = FlutterError.presentError;
+        await AppInitializer.initializeGlobalErrorHandling();
+
+        // What WidgetInspectorService does when DevTools toggles
+        // `ext.flutter.inspector.structuredErrors` on, i.e. after we installed.
+        final presented = <FlutterErrorDetails>[];
+        FlutterError.presentError = presented.add;
+
+        FlutterError.onError!(_details(StateError('probe')));
+        restoreGlobals();
+
+        expect(
+          presented,
+          hasLength(1),
+          reason: 'holding the install-time snapshot would send this to the '
+              'old dumpErrorToConsole and silently ignore the swap',
+        );
+      },
+    );
+
+    testWidgets('keeps an explicitly installed handler over presentError',
+        (tester) async {
+      final restoreGlobals = _snapshotGlobals();
+
+      final received = <FlutterErrorDetails>[];
+      final presented = <FlutterErrorDetails>[];
+      FlutterError.onError = received.add;
+      await AppInitializer.initializeGlobalErrorHandling();
+      FlutterError.presentError = presented.add;
+
+      FlutterError.onError!(_details(StateError('probe')));
+      restoreGlobals();
+
+      expect(received, hasLength(1));
+      expect(
+        presented,
+        isEmpty,
+        reason: 'the live-presentError path is only for the framework default; '
+            'a deliberately installed handler must not be bypassed',
+      );
+    });
+
+    testWidgets('logs the framework error through logger.e exactly once',
+        (tester) async {
+      final restoreGlobals = _snapshotGlobals();
+
+      FlutterError.onError = (_) {};
+      await AppInitializer.initializeGlobalErrorHandling();
+      // Installation is idempotent: a second call must not wrap the first, or
+      // every framework error would be logged twice.
+      await AppInitializer.initializeGlobalErrorHandling();
+
+      final printed = _capturePrints(() {
+        FlutterError.onError!(_details(StateError('flutter-log-probe')));
+      });
+      restoreGlobals();
+
+      final output = printed.join('\n');
+      expect(
+        output,
+        contains('Flutter Error'),
+        reason: 'the structured on-device log is the reason this handler is '
+            'not handed wholesale to the Sentry integrations',
+      );
+      expect(
+        'flutter-log-probe'.allMatches(output),
+        hasLength(1),
+        reason: 'a second installGlobalErrorHandling must be a no-op',
+      );
+    });
   });
 
   group('initializeGlobalErrorHandling - PlatformDispatcher.onError', () {
@@ -329,6 +498,30 @@ void main() {
       expect(
         sentry.capturedEvents.single.exceptions?.first.mechanism?.type,
         'PlatformDispatcher.onError',
+      );
+    });
+
+    test('logs the async error through logger.e exactly once', () async {
+      final restoreGlobals = _snapshotGlobals();
+
+      PlatformDispatcher.instance.onError = null;
+      await AppInitializer.initializeGlobalErrorHandling();
+      await AppInitializer.initializeGlobalErrorHandling();
+
+      final printed = _capturePrints(() {
+        PlatformDispatcher.instance.onError!(
+          StateError('async-log-probe'),
+          StackTrace.current,
+        );
+      });
+      restoreGlobals();
+
+      final output = printed.join('\n');
+      expect(output, contains('Unhandled Asynchronous Error'));
+      expect(
+        'async-log-probe'.allMatches(output),
+        hasLength(1),
+        reason: 'a second installGlobalErrorHandling must be a no-op',
       );
     });
   });
