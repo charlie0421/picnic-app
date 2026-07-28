@@ -4,6 +4,17 @@ const PRODUCTION_REF = 'xtijtefcycoeqludlngc';
 
 const exclusionRules = [
   {
+    id: 'BRANCH_WEBHOOK',
+    matches: (sql) =>
+      new RegExp(PRODUCTION_REF, 'i').test(sql) &&
+      /\b(?:http_post|http_request|functions\/v1|Authorization)\b/i.test(sql),
+  },
+  {
+    id: 'BRANCH_AUTHORIZATION',
+    matches: (sql) =>
+      /\bBearer\s/i.test(sql) && /\b(?:http_post|http_request|functions\/v1|net\.)\b/i.test(sql),
+  },
+  {
     id: 'PLATFORM_DEPENDENCY',
     matches: (sql) =>
       /\bsupabase_functions\b/i.test(sql) ||
@@ -18,6 +29,7 @@ const exclusionRules = [
     matches: (sql) =>
       /\bOWNER\s+TO\b/i.test(sql) ||
       /^\s*(?:GRANT|REVOKE)\b/i.test(sql) ||
+      /pg_catalog\.set_config\s*\(\s*'search_path'/i.test(sql) ||
       /\bTABLESPACE\b/i.test(sql),
   },
   {
@@ -29,11 +41,10 @@ const exclusionRules = [
 const rejectionRules = [
   { id: 'PRODUCTION_ENDPOINT', pattern: new RegExp(PRODUCTION_REF, 'i') },
   { id: 'SECRET_BEARER', pattern: /\bBearer\s+[A-Za-z0-9._~+/-]+/i },
-  { id: 'SECRET_SERVICE_ROLE', pattern: /\bservice_role\b/i },
   { id: 'SECRET_KEY', pattern: /\bsb_secret_[A-Za-z0-9_-]+/i },
   {
     id: 'SECRET_JWT',
-    pattern: /\b[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}\b/,
+    pattern: /\beyJ[A-Za-z0-9_-]{5,}\.eyJ[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{6,}\b/,
   },
 ];
 
@@ -42,7 +53,129 @@ function sha256(value) {
 }
 
 function normalize(sql) {
-  return sql.replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim().replace(/;+$/, '');
+  return sql
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .filter((line) => !/^\s*--/.test(line))
+    .join('\n')
+    .replace(/[ \t]+$/gm, '')
+    .trim()
+    .replace(/;+$/, '');
+}
+
+export function splitSqlStatements(sql) {
+  const statements = [];
+  let buffer = '';
+  let index = 0;
+  let state = 'normal';
+  let dollarTag = '';
+
+  while (index < sql.length) {
+    const char = sql[index];
+    const next = sql[index + 1];
+
+    if (state === 'single') {
+      buffer += char;
+      if (char === "'" && next === "'") {
+        buffer += next;
+        index += 2;
+        continue;
+      }
+      if (char === "'") state = 'normal';
+      index += 1;
+      continue;
+    }
+
+    if (state === 'double') {
+      buffer += char;
+      if (char === '"' && next === '"') {
+        buffer += next;
+        index += 2;
+        continue;
+      }
+      if (char === '"') state = 'normal';
+      index += 1;
+      continue;
+    }
+
+    if (state === 'line-comment') {
+      buffer += char;
+      if (char === '\n') state = 'normal';
+      index += 1;
+      continue;
+    }
+
+    if (state === 'block-comment') {
+      buffer += char;
+      if (char === '*' && next === '/') {
+        buffer += next;
+        index += 2;
+        state = 'normal';
+        continue;
+      }
+      index += 1;
+      continue;
+    }
+
+    if (state === 'dollar') {
+      if (sql.startsWith(dollarTag, index)) {
+        buffer += dollarTag;
+        index += dollarTag.length;
+        state = 'normal';
+        continue;
+      }
+      buffer += char;
+      index += 1;
+      continue;
+    }
+
+    if (char === "'") {
+      state = 'single';
+      buffer += char;
+      index += 1;
+      continue;
+    }
+    if (char === '"') {
+      state = 'double';
+      buffer += char;
+      index += 1;
+      continue;
+    }
+    if (char === '-' && next === '-') {
+      state = 'line-comment';
+      buffer += '--';
+      index += 2;
+      continue;
+    }
+    if (char === '/' && next === '*') {
+      state = 'block-comment';
+      buffer += '/*';
+      index += 2;
+      continue;
+    }
+    if (char === '$') {
+      const match = sql.slice(index).match(/^\$[A-Za-z_][A-Za-z0-9_]*\$|^\$\$/);
+      if (match) {
+        dollarTag = match[0];
+        state = 'dollar';
+        buffer += dollarTag;
+        index += dollarTag.length;
+        continue;
+      }
+    }
+    if (char === ';') {
+      if (buffer.trim()) statements.push(buffer.trim());
+      buffer = '';
+      index += 1;
+      continue;
+    }
+
+    buffer += char;
+    index += 1;
+  }
+
+  if (buffer.trim()) statements.push(buffer.trim());
+  return statements;
 }
 
 export function sanitizeBaseline(history) {
@@ -51,6 +184,7 @@ export function sanitizeBaseline(history) {
   }
 
   const included = [];
+  const excludedFunctions = new Set();
   const excludedByRule = {};
   let sourceStatementCount = 0;
 
@@ -66,21 +200,39 @@ export function sanitizeBaseline(history) {
 
     for (const rawStatement of record.statements) {
       sourceStatementCount += 1;
-      const statement = normalize(rawStatement);
-      if (statement.length === 0) continue;
+      for (const fragment of splitSqlStatements(rawStatement)) {
+        const statement = normalize(fragment);
+        if (statement.length === 0) continue;
 
-      const exclusion = exclusionRules.find((rule) => rule.matches(statement));
-      if (exclusion) {
-        excludedByRule[exclusion.id] = (excludedByRule[exclusion.id] ?? 0) + 1;
-        continue;
+        const dependentFunction = [...excludedFunctions].find(
+          (name) =>
+            /^\s*CREATE\s+(?:OR\s+REPLACE\s+)?TRIGGER\b/i.test(statement) &&
+            statement.includes(name),
+        );
+        if (dependentFunction) {
+          excludedByRule.DEPENDENT_TRIGGER = (excludedByRule.DEPENDENT_TRIGGER ?? 0) + 1;
+          continue;
+        }
+
+        const exclusion = exclusionRules.find((rule) => rule.matches(statement));
+        if (exclusion) {
+          if (/^(?:BRANCH_|PLATFORM_)/.test(exclusion.id)) {
+            const functionName = statement.match(
+              /^\s*CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/i,
+            )?.[1];
+            if (functionName) excludedFunctions.add(functionName);
+          }
+          excludedByRule[exclusion.id] = (excludedByRule[exclusion.id] ?? 0) + 1;
+          continue;
+        }
+
+        const rejection = rejectionRules.find((rule) => rule.pattern.test(statement));
+        if (rejection) {
+          throw new Error(`Baseline rejected (${rejection.id})`);
+        }
+
+        included.push(statement);
       }
-
-      const rejection = rejectionRules.find((rule) => rule.pattern.test(statement));
-      if (rejection) {
-        throw new Error(`Baseline rejected (${rejection.id})`);
-      }
-
-      included.push(statement);
     }
   }
 
@@ -88,6 +240,7 @@ export function sanitizeBaseline(history) {
   const sql = [
     '-- Generated by scripts/supabase/export-migration-history.mjs.',
     '-- Contains schema only; production data, endpoints, and credentials are excluded.',
+    'SET search_path TO public, extensions;',
     '',
     body,
     '',

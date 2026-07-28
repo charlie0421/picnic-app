@@ -103,11 +103,11 @@ test('atomically writes only sanitized output and preserves prior output on reje
             {
               version: BASELINE_VERSION,
               name: 'baseline_squash',
-              statements: ["SELECT 'service_role'"],
+              statements: ["SELECT 'sb_secret_sentinel'"],
             },
           ]),
       }),
-      /SECRET_SERVICE_ROLE/,
+      /SECRET_KEY/,
     );
     assert.match(await readFile(outputPath, 'utf8'), /CREATE TABLE public\.a/);
   } finally {

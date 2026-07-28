@@ -4,6 +4,7 @@
     "name": "baseline_squash",
     "statements": [
       "SET transaction_timeout = 0",
+      "SELECT pg_catalog.set_config('search_path', '', false)",
       "CREATE TABLE public.example (id bigint PRIMARY KEY)",
       "ALTER TABLE public.example ENABLE ROW LEVEL SECURITY",
       "CREATE TRIGGER webhook AFTER INSERT ON public.example FOR EACH ROW EXECUTE FUNCTION supabase_functions.http_request('https://project.supabase.co', 'POST', '{\"Authorization\":\"Bearer header.payload.signature\"}', '{}', '1000')",
