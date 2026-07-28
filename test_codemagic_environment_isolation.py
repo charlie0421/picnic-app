@@ -583,8 +583,14 @@ def classify_workflows(workflows):
     release workflows pick their target at run time from DEPLOY_TARGET, so they
     are the ones Critical 1 is about; the rest (manual Shorebird patches) are
     production-only and must never carry a non-production define at all.
+
+    A tag-triggered workflow whose every trigger pattern starts with
+    ``picnic-staging-`` can only ever be fired by a staging tag; it is
+    classified staging-only and must never carry a production define, nor is it
+    required to have a production build path.
     """
     dual_target = []
+    staging_only = []
     production_only = []
     failures = []
 
@@ -607,7 +613,16 @@ def classify_workflows(workflows):
                 f"{name}: publishes a build but has no `scripts` block; the key "
                 f"was renamed or removed and nothing here can be verified"
             )
-        (dual_target if tag_triggered else production_only).append(name)
+        if not tag_triggered:
+            production_only.append(name)
+        else:
+            patterns, _ = _trigger_tag_patterns(name, workflow)
+            if patterns and all(
+                pattern.startswith("picnic-staging-") for pattern in patterns
+            ):
+                staging_only.append(name)
+            else:
+                dual_target.append(name)
 
     if not dual_target:
         failures.append(
@@ -615,7 +630,7 @@ def classify_workflows(workflows):
             "found in codemagic.yaml; either the release path moved or a key was "
             "renamed, and this guard refuses to pass vacuously"
         )
-    return dual_target, production_only, failures
+    return dual_target, staging_only, production_only, failures
 
 
 # ---------------------------------------------------------------------------
@@ -858,7 +873,9 @@ def _step_needs_validated_target(script):
     return False
 
 
-def check_deploy_target_derived_from_tag(workflows, dual_target):
+def check_deploy_target_derived_from_tag(
+    workflows, dual_target, expected_targets=None
+):
     """DEPLOY_TARGET must come from the tag, in exactly one sanctioned step.
 
     The tag decides the target so nobody has to remember a CI variable, but that
@@ -868,6 +885,9 @@ def check_deploy_target_derived_from_tag(workflows, dual_target):
     production, overlapping patterns, a missing catch-all or a missing
     `$CM_ENV` hand-off all put a staging build back on the production path.
     """
+    expected = sorted(
+        ALLOWED_DEPLOY_TARGETS if expected_targets is None else set(expected_targets)
+    )
     failures = []
     for name in dual_target:
         workflow = workflows[name]
@@ -1036,10 +1056,10 @@ def check_deploy_target_derived_from_tag(workflows, dual_target):
                     f"production tag staging"
                 )
 
-        if sorted(mapping.values()) != sorted(ALLOWED_DEPLOY_TARGETS):
+        if sorted(mapping.values()) != expected:
             failures.append(
                 f"{where}: the tag mapping covers {sorted(mapping.values())}, "
-                f"expected exactly {sorted(ALLOWED_DEPLOY_TARGETS)} -- one tag "
+                f"expected exactly {expected} -- one tag "
                 f"pattern per deploy target, none unreachable and none reachable "
                 f"from two patterns"
             )
@@ -1199,6 +1219,39 @@ def check_production_gate_runs_in_production(workflows, dual_target):
             failures.append(
                 f"{name}: verify_release_target.dart --target=production never runs "
                 f"in the production branch, so production releases ship ungated"
+            )
+    return failures
+
+
+def check_staging_only_stays_staging(workflows, staging_only):
+    """A staging-only workflow must never carry a production define at all.
+
+    Its trigger patterns prove no production tag can fire it, so a production
+    define anywhere in it is either dead code or -- worse -- a patch built with
+    production config shipped to the staging release channel.
+    """
+    failures = []
+    for name in staging_only:
+        shipped = False
+        for step_name, script in script_blocks(workflows[name]):
+            where = f"{name} / {step_name!r}"
+            for line, context in deploy_contexts(script):
+                executable = executable_part(line)
+                if PROD_DEFINE.search(executable):
+                    failures.append(
+                        f"{where}: production build define in a staging-only "
+                        f"workflow: {line!r}"
+                    )
+                if (
+                    RELEASE_INVOCATION.search(executable)
+                    and context == NON_PRODUCTION
+                ):
+                    shipped = True
+        if not shipped:
+            failures.append(
+                f"{name}: no executable staging invocation found inside the "
+                f"non-production branch, so this staging-only workflow ships "
+                f"nothing this guard can check"
             )
     return failures
 
@@ -1534,24 +1587,31 @@ def run_checks(text=None):
     except GuardError as exc:
         return [str(exc)]
 
-    dual_target, production_only, failures = classify_workflows(workflows)
+    dual_target, staging_only, production_only, failures = classify_workflows(
+        workflows
+    )
     failures = list(failures)
-    failures += check_deploy_target_fail_closed(workflows, dual_target)
+    tag_driven = dual_target + staging_only
+    failures += check_deploy_target_fail_closed(workflows, tag_driven)
     failures += check_deploy_target_derived_from_tag(workflows, dual_target)
-    failures += check_deploy_target_consumers_assert(workflows, dual_target)
+    failures += check_deploy_target_derived_from_tag(
+        workflows, staging_only, expected_targets=("staging",)
+    )
+    failures += check_deploy_target_consumers_assert(workflows, tag_driven)
     failures += check_deploy_conditions_are_simple(
-        workflows, dual_target, production_only
+        workflows, tag_driven, production_only
     )
     failures += check_production_path_exists(workflows, dual_target, production_only)
     failures += check_production_gate_runs_in_production(workflows, dual_target)
-    failures += check_branch_correct_defines(workflows, dual_target, production_only)
+    failures += check_staging_only_stays_staging(workflows, staging_only)
+    failures += check_branch_correct_defines(workflows, tag_driven, production_only)
     failures += check_release_invocation_defines(
-        workflows, dual_target, production_only
+        workflows, tag_driven, production_only
     )
-    failures += check_isolation_verifier_inputs(workflows, dual_target)
+    failures += check_isolation_verifier_inputs(workflows, tag_driven)
     failures += check_guard_failure_fails_the_step(workflows)
-    failures += check_isolation_guard_runs_in_ci(workflows, dual_target)
-    failures += check_app_guard_tests_run(workflows, dual_target)
+    failures += check_isolation_guard_runs_in_ci(workflows, tag_driven)
+    failures += check_app_guard_tests_run(workflows, tag_driven)
     return failures
 
 
@@ -2025,7 +2085,7 @@ def mutate_clone_tag_workflow_as_staging(text):
     """
     data = yaml.safe_load(text)
     workflows = data["workflows"]
-    dual_target, _, _ = classify_workflows(workflows)
+    dual_target, _, _, _ = classify_workflows(workflows)
     if not dual_target:
         raise AssertionError("no dual-target workflow to clone")
     source = dual_target[0]
@@ -2052,8 +2112,110 @@ def mutate_drop_app_guard_tests(text):
     ) + "\n"
 
 
+def _staging_patch_tail(text):
+    """(head, tail) split at the first staging-only patch workflow."""
+    marker = "picnic-app-staging-patch-ios:"
+    index = text.find(marker)
+    if index < 0:
+        return text, ""
+    return text[:index], text[index:]
+
+
+def mutate_staging_patch_prod_define(text):
+    """A staging-only patch invocation ships ENVIRONMENT=prod."""
+    head, tail = _staging_patch_tail(text)
+    return head + tail.replace(
+        "--dart-define=ENVIRONMENT=dev", "--dart-define=ENVIRONMENT=prod", 1
+    )
+
+
+def mutate_staging_patch_unguarded_invocation(text):
+    """The staging patch command escapes its DEPLOY_TARGET guard."""
+    head, tail = _staging_patch_tail(text)
+    newline = chr(10)
+    guarded = (
+        '          if [ "$DEPLOY_TARGET" != "production" ]; then'
+        + newline
+        + "          shorebird patch ios"
+    )
+    tail = tail.replace(guarded, "          shorebird patch ios", 1)
+    tail = tail.replace(
+        newline + "          fi" + newline + '          echo "✅ iOS',
+        newline + '          echo "✅ iOS',
+        1,
+    )
+    return head + tail
+
+
+def mutate_staging_patch_trigger_widened(text):
+    """A production tag pattern sneaks into the staging-only trigger."""
+    head, tail = _staging_patch_tail(text)
+    anchor = (
+        "        - pattern: 'picnic-staging-patch-v*'"
+        + chr(10)
+        + "          include: true"
+    )
+    return head + tail.replace(
+        anchor,
+        anchor
+        + chr(10)
+        + "        - pattern: 'picnic-v*'"
+        + chr(10)
+        + "          include: true",
+        1,
+    )
+
+
+def mutate_staging_patch_drop_consumer_assert(text):
+    """The patch step reads DEPLOY_TARGET without asserting it first."""
+    head, tail = _staging_patch_tail(text)
+    anchor = (
+        '          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"'
+        + chr(10)
+        + "          # Staging-only workflow:"
+    )
+    return head + tail.replace(
+        anchor, "          # Staging-only workflow:", 1
+    )
+
+
+def mutate_staging_patch_catchall_assigns(text):
+    """The staging patch tag catch-all guesses a target instead of refusing."""
+    head, tail = _staging_patch_tail(text)
+    refusal = (
+        "            *) echo \"Tag '$CM_TAG' is not a staging patch tag; "
+        'refusing" >&2; exit 1 ;;'
+    )
+    return head + tail.replace(refusal, "            *) DEPLOY_TARGET=staging ;;", 1)
+
+
 SELF_TESTS = (
     ("unmutated config is accepted", mutate_identity, False),
+    (
+        "staging-only patch ships a production define",
+        mutate_staging_patch_prod_define,
+        True,
+    ),
+    (
+        "staging-only patch invocation escapes its deploy guard",
+        mutate_staging_patch_unguarded_invocation,
+        True,
+    ),
+    (
+        "staging-only trigger widened to a production tag",
+        mutate_staging_patch_trigger_widened,
+        True,
+    ),
+    (
+        "staging-only patch step drops its DEPLOY_TARGET assert",
+        mutate_staging_patch_drop_consumer_assert,
+        True,
+    ),
+    (
+        "staging-only tag catch-all guesses a target",
+        mutate_staging_patch_catchall_assigns,
+        True,
+    ),
     ("yaml round-trip alone introduces nothing", mutate_yaml_roundtrip, False),
     ("production guard polarity inverted", mutate_flip_production_guard, True),
     ("production path only in a comment", mutate_comment_out_production_path, True),

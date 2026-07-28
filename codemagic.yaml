@@ -1423,3 +1423,316 @@ workflows:
         notify:
           success: true
           failure: true
+
+  # ───────────────────────────────────────────────────────────────────
+  # Staging OTA patches.
+  #
+  # The production patch workflows above are gated on protected exact-SHA
+  # evidence and build with production defines — they can NOT patch a
+  # staging release (built with ENVIRONMENT=dev + the staging Supabase
+  # config). Patching a staging release with production defines would ship
+  # code that talks to the wrong backend, so staging gets its own pair of
+  # workflows, triggered only by `picnic-staging-patch-v*` tags.
+  #
+  # The dart-define set below MUST stay identical to the staging release
+  # blocks of picnic-app-ios / picnic-app-android — a patch is the same
+  # app, minus the native shell.
+  picnic-app-staging-patch-ios:
+    name: Picnic App - iOS Staging Patch (Shorebird)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      groups:
+        - shorebird-config
+        - picnic_env
+        - sentry-config
+      flutter: 3.41.4
+      xcode: 26.3
+      cocoapods: default
+      vars:
+        APP_NAME: "picnic_app"
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: 'picnic-staging-patch-v*'
+          include: true
+      cancel_previous_builds: true
+    scripts:
+      - name: Derive the deploy target from the staging patch tag
+        script: |
+          set -e
+          # This workflow exists ONLY for staging patches. Anything else -
+          # including a production patch tag routed here by mistake - stops.
+          : "${CM_TAG:?is unset; this workflow only runs from a staging patch tag}"
+          case "$CM_TAG" in
+            picnic-staging-patch-v*) DEPLOY_TARGET=staging ;;
+            *) echo "Tag '$CM_TAG' is not a staging patch tag; refusing" >&2; exit 1 ;;
+          esac
+          : "${DEPLOY_TARGET:?was not derived from the tag; refusing to guess a deploy target}"
+          echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"
+      - name: Verify environment isolation policy
+        script: |
+          set -e
+          python3 -c "import yaml" 2>/dev/null || pip3 install --quiet pyyaml
+          python3 test_codemagic_environment_isolation.py
+          python3 test_codemagic_environment_isolation.py --self-test
+      - name: Rewrite dev.json to the staging Supabase target
+        script: |
+          set -e
+          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
+          cd picnic_app
+          # Identical to the staging branch of the release workflow: the patch
+          # must bundle the same config the release bundled, and the isolation
+          # verifier must prove it points at staging before anything ships.
+          if [ "$DEPLOY_TARGET" != "production" ]; then
+            : "${PICNIC_STAGING_SUPABASE_URL:?PICNIC_STAGING_SUPABASE_URL is required}"
+            : "${PICNIC_STAGING_SUPABASE_ANON_KEY:?PICNIC_STAGING_SUPABASE_ANON_KEY is required}"
+            : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
+            jq --arg url "$PICNIC_STAGING_SUPABASE_URL" \
+              --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
+              '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=($url + "/storage/v1") | .supabase.storage.anon_key=$key' \
+              config/prod.json > config/dev.json
+            PANGLE_ENVIRONMENT=sandbox \
+              PAYMENT_ENVIRONMENT=sandbox \
+              PICNIC_PANGLE_IOS_APP_ID= \
+              PICNIC_PANGLE_ANDROID_APP_ID= \
+              PICNIC_PANGLE_IOS_REWARDED_ID= \
+              PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+              dart run tool/verify_environment_isolation.dart --environment=dev
+          fi
+      - name: Run picnic_app release guard tests
+        script: |
+          set -e
+          cd picnic_app
+          flutter test
+      - name: Setup and Patch iOS (staging)
+        script: |
+          set -e
+          echo "=== Shorebird iOS 스테이징 패치 ==="
+
+          if [ -d "$HOME/.shorebird" ]; then
+            rm -rf "$HOME/.shorebird"
+          fi
+          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          export PATH="$HOME/.shorebird/bin:$PATH"
+          shorebird --version
+
+          : "${SHOREBIRD_TOKEN:?SHOREBIRD_TOKEN is required}"
+
+          cd picnic_app
+          flutter pub get
+          (cd ios && pod install)
+
+          # Shorebird release 는 pubspec 의 전체 버전(빌드 번호 포함)으로
+          # 등록된다 — 잘라내면 릴리스를 못 찾는다.
+          RELEASE_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //' | tr -d ' ')
+          echo "패치 대상 릴리스: $RELEASE_VERSION"
+
+          # --allow-asset-diffs: dev.json 재작성은 릴리스와 바이트 동일해야
+          #   하지만, 무해한 메타데이터 차이로 패치가 막히는 것을 피한다.
+          #   (Shorebird 패치는 Dart 코드만 나른다 - 에셋이 실제로 바뀌었다면
+          #   패치가 아니라 새 릴리스가 필요하다.)
+          # --allow-native-diffs 는 의도적으로 뺐다: 네이티브가 바뀌었는데
+          #   패치로 내보내면 런타임이 깨진다. 그 경우는 시끄럽게 실패해야 한다.
+          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
+          # Staging-only workflow: there is deliberately NO production branch
+          # here - production patches belong to picnic-app-patch-* with their
+          # protected exact-SHA gate. The tag derivation can only ever yield
+          # "staging", and this guard keeps the invocation inside a
+          # DEPLOY_TARGET check so the isolation verifier can see its defines.
+          if [ "$DEPLOY_TARGET" != "production" ]; then
+          shorebird patch ios \
+            --release-version=$RELEASE_VERSION \
+            --no-confirm \
+            --allow-asset-diffs \
+            --dart-define=ENVIRONMENT=dev \
+            --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+            --dart-define=PANGLE_ENVIRONMENT=sandbox \
+            --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+            --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+            --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+            --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+            --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+            --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+            --dart-define=PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS=true \
+            --verbose \
+            -- --no-codesign
+          fi
+          echo "✅ iOS 스테이징 패치 배포 완료"
+      - name: Sentry 패치 디버그 심볼 업로드 (iOS)
+        script: |
+          # 릴리스와 다른 debug-id 를 갖는 패치 AOT 심볼 업로드
+          # (PICNIC-APP-45E 재발 방지 — patch 워크플로와 동일).
+          set -e
+          cd picnic_app
+          if [ -z "$SENTRY_AUTH_TOKEN" ] || [ -z "$SENTRY_ORG" ] || [ -z "$SENTRY_PROJECT" ]; then
+            echo "⚠️ Sentry 환경변수 누락 — symbol 업로드 건너뜀"
+            exit 0
+          fi
+          curl -sL https://sentry.io/get-cli/ | bash
+          export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+          sentry-cli --version || { echo "⚠️ sentry-cli 설치 실패"; exit 0; }
+          sentry-cli debug-files upload \
+            --org "$SENTRY_ORG" \
+            --project "$SENTRY_PROJECT" \
+            --include-sources \
+            build/ios/ 2>&1 || echo "⚠️ Flutter 심볼 업로드 실패 (무시)"
+    publishing:
+      slack:
+        channel: '#codemagic-picnic'
+        notify_on_build_start: true
+        notify:
+          success: true
+          failure: true
+
+  picnic-app-staging-patch-android:
+    name: Picnic App - Android Staging Patch (Shorebird)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      groups:
+        - shorebird-config
+        - picnic_env
+        - sentry-config
+      flutter: 3.41.4
+      java: 17
+      vars:
+        APP_NAME: "picnic_app"
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.gradle/caches
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: 'picnic-staging-patch-v*'
+          include: true
+      cancel_previous_builds: true
+    scripts:
+      - name: Derive the deploy target from the staging patch tag
+        script: |
+          set -e
+          # This workflow exists ONLY for staging patches. Anything else -
+          # including a production patch tag routed here by mistake - stops.
+          : "${CM_TAG:?is unset; this workflow only runs from a staging patch tag}"
+          case "$CM_TAG" in
+            picnic-staging-patch-v*) DEPLOY_TARGET=staging ;;
+            *) echo "Tag '$CM_TAG' is not a staging patch tag; refusing" >&2; exit 1 ;;
+          esac
+          : "${DEPLOY_TARGET:?was not derived from the tag; refusing to guess a deploy target}"
+          echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"
+      - name: Verify environment isolation policy
+        script: |
+          set -e
+          python3 -c "import yaml" 2>/dev/null || pip3 install --quiet pyyaml
+          python3 test_codemagic_environment_isolation.py
+          python3 test_codemagic_environment_isolation.py --self-test
+      - name: Rewrite dev.json to the staging Supabase target
+        script: |
+          set -e
+          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
+          cd picnic_app
+          # Identical to the staging branch of the release workflow: the patch
+          # must bundle the same config the release bundled, and the isolation
+          # verifier must prove it points at staging before anything ships.
+          if [ "$DEPLOY_TARGET" != "production" ]; then
+            : "${PICNIC_STAGING_SUPABASE_URL:?PICNIC_STAGING_SUPABASE_URL is required}"
+            : "${PICNIC_STAGING_SUPABASE_ANON_KEY:?PICNIC_STAGING_SUPABASE_ANON_KEY is required}"
+            : "${PICNIC_STAGING_SUPABASE_PROJECT_REF:?PICNIC_STAGING_SUPABASE_PROJECT_REF is required}"
+            jq --arg url "$PICNIC_STAGING_SUPABASE_URL" \
+              --arg key "$PICNIC_STAGING_SUPABASE_ANON_KEY" \
+              '.supabase.url=$url | .supabase.anon_key=$key | .supabase.storage.url=($url + "/storage/v1") | .supabase.storage.anon_key=$key' \
+              config/prod.json > config/dev.json
+            PANGLE_ENVIRONMENT=sandbox \
+              PAYMENT_ENVIRONMENT=sandbox \
+              PICNIC_PANGLE_IOS_APP_ID= \
+              PICNIC_PANGLE_ANDROID_APP_ID= \
+              PICNIC_PANGLE_IOS_REWARDED_ID= \
+              PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+              dart run tool/verify_environment_isolation.dart --environment=dev
+          fi
+      - name: Run picnic_app release guard tests
+        script: |
+          set -e
+          cd picnic_app
+          flutter test
+      - name: Setup and Patch Android (staging)
+        script: |
+          set -e
+          echo "=== Shorebird Android 스테이징 패치 ==="
+
+          if [ -d "$HOME/.shorebird" ]; then
+            rm -rf "$HOME/.shorebird"
+          fi
+          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          export PATH="$HOME/.shorebird/bin:$PATH"
+          shorebird --version
+
+          : "${SHOREBIRD_TOKEN:?SHOREBIRD_TOKEN is required}"
+
+          mkdir -p $HOME/.gradle
+          cat > $HOME/.gradle/gradle.properties << 'GRADLE'
+          org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
+          org.gradle.daemon=true
+          android.enableJetifier=true
+          android.useAndroidX=true
+          GRADLE
+
+          cd picnic_app
+          flutter pub get
+
+          RELEASE_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //' | tr -d ' ')
+          echo "패치 대상 릴리스: $RELEASE_VERSION"
+
+          : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
+          # Staging-only workflow: there is deliberately NO production branch
+          # here - production patches belong to picnic-app-patch-* with their
+          # protected exact-SHA gate. The tag derivation can only ever yield
+          # "staging", and this guard keeps the invocation inside a
+          # DEPLOY_TARGET check so the isolation verifier can see its defines.
+          if [ "$DEPLOY_TARGET" != "production" ]; then
+          shorebird patch android \
+            --release-version=$RELEASE_VERSION \
+            --no-confirm \
+            --allow-asset-diffs \
+            --dart-define=ENVIRONMENT=dev \
+            --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=$PICNIC_STAGING_SUPABASE_PROJECT_REF \
+            --dart-define=PANGLE_ENVIRONMENT=sandbox \
+            --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+            --dart-define=PICNIC_PANGLE_IOS_APP_ID= \
+            --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+            --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= \
+            --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+            --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE=$PICNIC_PAYMENT_PRODUCT_NAMESPACE \
+            --dart-define=PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS=true \
+            --verbose
+          fi
+          echo "✅ Android 스테이징 패치 배포 완료"
+      - name: Sentry 패치 디버그 심볼 업로드 (Android)
+        script: |
+          set -e
+          cd picnic_app
+          if [ -z "$SENTRY_AUTH_TOKEN" ] || [ -z "$SENTRY_ORG" ] || [ -z "$SENTRY_PROJECT" ]; then
+            echo "⚠️ Sentry 환경변수 누락 — symbol 업로드 건너뜀"
+            exit 0
+          fi
+          curl -sL https://sentry.io/get-cli/ | bash
+          export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+          sentry-cli --version || { echo "⚠️ sentry-cli 설치 실패"; exit 0; }
+          sentry-cli debug-files upload \
+            --org "$SENTRY_ORG" \
+            --project "$SENTRY_PROJECT" \
+            --include-sources \
+            build/app/ 2>&1 || echo "⚠️ Flutter 심볼 업로드 실패 (무시)"
+    publishing:
+      slack:
+        channel: '#codemagic-picnic'
+        notify_on_build_start: true
+        notify:
+          success: true
+          failure: true
