@@ -18,7 +18,12 @@ const exclusionRules = [
     id: 'PLATFORM_DEPENDENCY',
     matches: (sql) =>
       /\bsupabase_functions\b/i.test(sql) ||
-      /\b(?:CREATE|ALTER|DROP)\s+(?:SCHEMA|TABLE|FUNCTION|VIEW|TYPE|POLICY|TRIGGER)[\s\S]*?\b(?:auth|storage|realtime|extensions|vault|net|cron)\./i.test(sql),
+      /^\s*(?:CREATE|ALTER|DROP)\s+SCHEMA\s+"?(?:auth|storage|realtime|extensions|vault|net|cron)"?\b/i.test(
+        sql,
+      ) ||
+      /^\s*(?:CREATE(?:\s+OR\s+REPLACE)?|ALTER|DROP)\s+(?:TABLE|FUNCTION|VIEW|TYPE|POLICY|TRIGGER)\s+(?:IF\s+(?:NOT\s+)?EXISTS\s+)?"?(?:auth|storage|realtime|extensions|vault|net|cron)"?\./i.test(
+        sql,
+      ),
   },
   {
     id: 'UNSUPPORTED_POSTGRES_SETTING',

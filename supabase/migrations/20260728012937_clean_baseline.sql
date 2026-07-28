@@ -14668,6 +14668,10 @@ DROP POLICY IF EXISTS "vote_item_request_users_select_policy"
 DROP POLICY IF EXISTS "vote_item_request_users_select_own"
   ON public.vote_item_request_users;
 
+CREATE POLICY "vote_item_request_users_select_own"
+  ON public.vote_item_request_users FOR SELECT TO authenticated
+  USING (auth.uid() = user_id);
+
 DROP POLICY IF EXISTS "vote_item_request_users_update_policy"
   ON public.vote_item_request_users;
 
@@ -14767,3 +14771,39 @@ DROP TRIGGER IF EXISTS "alarm-artist-request"
 
 DROP TRIGGER IF EXISTS "alarm-qna-message"
   ON public.qna_messages;
+
+-- CLEAN BASELINE SCHEMA OVERLAY
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_sc_bonus_user_tx ON public.star_candy_bonus_history USING btree (user_id, transaction_id);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_admob_created_at_desc ON public.transaction_admob USING btree (created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_internal_created_at_desc ON public.transaction_internal USING btree (created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_pangle_created_at_desc ON public.transaction_pangle USING btree (created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_pincrux_created_at_desc ON public.transaction_pincrux USING btree (created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_tapjoy_created_at_desc ON public.transaction_tapjoy USING btree (created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_unity_created_at_desc ON public.transaction_unity USING btree (created_at DESC);
+
+ALTER TABLE "public"."vote_item_request_users" DROP CONSTRAINT IF EXISTS "vote_item_request_users_status_check";
+
+ALTER TABLE "public"."vote_item_request_users" ADD CONSTRAINT "vote_item_request_users_status_check" CHECK (status::text = ANY (ARRAY['pending'::character varying, 'approved'::character varying, 'rejected'::character varying, 'in-progress'::character varying, 'cancelled'::character varying]::text[]));
+
+ALTER TABLE "public"."vote_item_requests_backup" DROP CONSTRAINT IF EXISTS "vote_item_requests_status_check";
+
+ALTER TABLE "public"."vote_item_requests_backup" ADD CONSTRAINT "vote_item_requests_status_check" CHECK (status::text = ANY (ARRAY['pending'::character varying, 'approved'::character varying, 'rejected'::character varying, 'in-progress'::character varying, 'cancelled'::character varying]::text[]));
+
+DROP POLICY IF EXISTS "Admin can access all audit logs" ON "public"."audit_logs";
+
+CREATE POLICY "Admin can access all audit logs"
+ON "public"."audit_logs"
+AS PERMISSIVE
+FOR ALL
+TO "public"
+USING ((EXISTS ( SELECT 1
+   FROM (admin_user_roles aur
+     JOIN admin_roles ar ON ((aur.role_id = ar.id)))
+  WHERE ((aur.user_id = auth.uid()) AND ((ar.name)::text = ANY ((ARRAY['super_admin'::character varying, 'admin'::character varying])::text[]))))));

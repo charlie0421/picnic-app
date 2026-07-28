@@ -76,6 +76,20 @@ test('allows service_role as a database role identifier', () => {
   assert.match(result.sql, /TO service_role/);
 });
 
+test('keeps application policies that call auth.uid()', () => {
+  const result = sanitizeBaseline([
+    {
+      version: '20260425161337',
+      name: 'baseline_squash',
+      statements: [
+        'CREATE POLICY own_rows ON public.safe_table FOR SELECT TO authenticated USING (auth.uid() = user_id)',
+      ],
+    },
+  ]);
+  assert.match(result.sql, /CREATE POLICY own_rows/);
+  assert.match(result.sql, /auth\.uid\(\)/);
+});
+
 test('excludes branch-specific webhook statements before inspecting embedded credentials', () => {
   const result = sanitizeBaseline([
     {
