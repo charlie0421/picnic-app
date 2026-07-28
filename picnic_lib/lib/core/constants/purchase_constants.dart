@@ -29,6 +29,14 @@ class PurchaseConstants {
   static const Duration initializationDelay = Duration(seconds: 2);
   static const Duration cacheRefreshDelay = Duration(seconds: 1);
 
+  /// 스토어 이벤트의 transactionDate(스토어 서버 시계)를 구매 시작 시각
+  /// (기기 시계)과 비교할 때 허용하는 오차. iOS의 transactionDate는 Apple
+  /// 서버 시계라 기기 시계보다 몇 초 이를 수 있는데, 오차 허용 없이
+  /// 비교하면 정상 구매 전부가 stale로 오분류되어 조용히 폐기된다.
+  /// 진짜 유령 트랜잭션(이전 세션의 미완료 결제)은 통상 몇 분~며칠
+  /// 전이므로 10분 창으로도 계속 걸러진다.
+  static const Duration purchaseClockSkewTolerance = Duration(minutes: 10);
+
   // 재시도 관련
   static const int maxRetries = 3; // Production 환경
   static const int sandboxMaxRetries = 5; // Sandbox 환경 (더 많은 재시도)

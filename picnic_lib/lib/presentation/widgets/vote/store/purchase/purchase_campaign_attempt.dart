@@ -1,3 +1,4 @@
+import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -85,8 +86,7 @@ class PurchaseCampaignAttemptRegistry {
         purchase.status == PurchaseStatus.restored ||
         _completedTransactions.contains(transactionId) ||
         context == null ||
-        transactionAt == null ||
-        transactionAt.isBefore(context.launchedAt)) {
+        _staleBeforeLaunch(context, transactionAt)) {
       return null;
     }
     final existingAttemptId = _attemptByTransaction[transactionId];
@@ -113,11 +113,28 @@ class PurchaseCampaignAttemptRegistry {
     final transactionAt = _transactionAt(purchase);
     return context != null &&
             context.launched &&
-            transactionAt != null &&
-            !transactionAt.isBefore(context.launchedAt)
+            !_staleBeforeLaunch(context, transactionAt)
         ? context.attempt
         : null;
   }
+
+  /// 이벤트가 이 시도보다 "명백히 과거"인지.
+  ///
+  /// transactionDate는 스토어 서버 시계(iOS는 Apple), launchedAt은 기기
+  /// 시계라 그대로 비교하면 기기 시계가 조금만 빨라도 방금 산 구매가
+  /// 전부 stale로 폐기된다 (iOS 무한 로딩, 2026-07-28). 허용 오차를
+  /// 넘어서는 과거만 stale로 보고, transactionDate가 null이면 시간으로는
+  /// 판정하지 않는다 — 신원은 transactionId + launched 게이트가 지킨다.
+  static bool _staleBeforeLaunch(
+    PurchaseExecutionContext context,
+    DateTime? transactionAt,
+  ) =>
+      transactionAt != null &&
+      transactionAt.isBefore(
+        context.launchedAt.subtract(
+          PurchaseConstants.purchaseClockSkewTolerance,
+        ),
+      );
 
   DateTime? _transactionAt(PurchaseDetails purchase) {
     final raw = purchase.transactionDate;
