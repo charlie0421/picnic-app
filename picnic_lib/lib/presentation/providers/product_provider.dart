@@ -65,8 +65,15 @@ class StoreProducts extends _$StoreProducts {
   @override
   FutureOr<List<ProductDetails>> build() async {
     try {
+      // 스토어 가용성 확인은 서버 카탈로그와 독립이므로 병렬로 시작해
+      // 첫 진입 shimmer 시간을 줄인다. 서버 조회가 먼저 실패해 이 future를
+      // 기다리지 못하고 빠져나가도 unhandled async error가 되지 않도록
+      // ignore()로 오류 청취자를 미리 붙여 둔다 (아래 await에서는 그대로
+      // rethrow된다).
+      final availability = InAppPurchase.instance.isAvailable();
+      availability.ignore();
       final serverProducts = await ref.watch(serverProductsProvider.future);
-      return _loadProducts(serverProducts);
+      return _loadProducts(serverProducts, availability);
     } catch (e, s) {
       logger.e('Error in StoreProducts build: $e', stackTrace: s);
       rethrow;
@@ -75,11 +82,12 @@ class StoreProducts extends _$StoreProducts {
 
   Future<List<ProductDetails>> _loadProducts(
     List<Map<String, dynamic>> serverProducts,
+    Future<bool> availability,
   ) async {
     final InAppPurchase inAppPurchase = InAppPurchase.instance;
 
     try {
-      final bool available = await inAppPurchase.isAvailable();
+      final bool available = await availability;
       if (!available) {
         throw Exception('Store is not available');
       }
