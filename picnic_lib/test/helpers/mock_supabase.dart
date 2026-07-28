@@ -30,6 +30,13 @@ String _createFakeJwt(String userId) {
 /// (예: `user_id=eq.<uid>`) 를 단언해서 와이어 레벨로 고정한다.
 final List<Uri> capturedMockRequests = [];
 
+/// 함수 키별 상태코드 **큐**. 호출마다 앞에서 하나씩 소비하고, 비면
+/// [setupMockSupabase] 의 functionStatusCodes(고정값) → 200 순으로 폴백한다.
+///
+/// "첫 호출은 401, 재시도는 200" 같은 순서 의존 시나리오(예: 만료 토큰
+/// auth 복구)를 결정론적으로 만들 때 쓴다.
+final Map<String, List<int>> functionStatusQueues = {};
+
 /// Supabase 테스트용 Mock HTTP 응답 설정
 ///
 /// 사용법:
@@ -83,6 +90,7 @@ void _setupClient(Map<String, dynamic> tableResponses, {
 }) {
   final fakeJwt = userId != null ? _createFakeJwt(userId) : null;
   capturedMockRequests.clear();
+  functionStatusQueues.clear();
 
   final mockClient = MockClient((request) async {
     final uri = request.url;
@@ -141,7 +149,10 @@ void _setupClient(Map<String, dynamic> tableResponses, {
 
       if (tableResponses.containsKey(responseKey)) {
         final statusCodeKey = tableResponses.containsKey(methodKey) ? methodKey : genericKey;
-        final statusCode = functionStatusCodes?[statusCodeKey] ?? 200;
+        final queued = functionStatusQueues[statusCodeKey] ?? functionStatusQueues[genericKey];
+        final statusCode = (queued != null && queued.isNotEmpty)
+            ? queued.removeAt(0)
+            : functionStatusCodes?[statusCodeKey] ?? 200;
         return http.Response(
           jsonEncode(tableResponses[responseKey]),
           statusCode,
@@ -235,4 +246,5 @@ void _setupClient(Map<String, dynamic> tableResponses, {
 void tearDownMockSupabase() {
   testSupabaseClient = null;
   capturedMockRequests.clear();
+  functionStatusQueues.clear();
 }
