@@ -600,6 +600,11 @@ class AppInitializer {
   static void _initializeBackgroundTasks(WidgetRef ref) {
     Future.microtask(() async {
       try {
+        // 제품 프리로드는 푸시 초기화와 독립인데, 푸시의 APNS 토큰 폴링이
+        // 콜드스타트에서 10초 이상 걸릴 수 있어 뒤에 두면 스토어 첫 진입이
+        // 그만큼 shimmer로 비어 보인다. 먼저 시작해 병렬로 진행한다.
+        final productsPreload = _loadProducts(ref);
+
         // 푸시 토큰 등록
         await PushTokenService.initialize(
           onNotificationTap: (RemoteMessage msg) {
@@ -627,8 +632,8 @@ class AppInitializer {
         // 앱 배지 동기화
         AppBadgeService.syncBadgeWithUnreadCount();
 
-        // 제품 정보 로드
-        await _loadProducts(ref);
+        // 제품 정보 로드 (위에서 이미 시작한 프리로드 합류)
+        await productsPreload;
         logger.i('백그라운드: 제품 정보 로드 완료');
       } catch (e, s) {
         logger.e('백그라운드 초기화 중 오류 발생', error: e, stackTrace: s);
