@@ -117,6 +117,19 @@ class Environment {
   static bool get sandboxUsesProductionStoreSkus =>
       _currentEnvironment != 'prod' && _sandboxUsesProductionStoreSkus;
 
+  /// 스토어 상품 ID 계산에 쓸 Android 네임스페이스의 **단일 출처**.
+  ///
+  /// 카탈로그 조회(product_provider) · 구매 매칭(purchase_service) ·
+  /// 구매 버튼 활성 판정(purchase_star_candy_state) 세 곳이 반드시 같은
+  /// 값을 써야 한다 — 하나라도 어긋나면 "카탈로그엔 뜨는데 버튼이 죽는"
+  /// 반쪽 동작이 된다 (실제로 있었던 회귀).
+  static String get storeQueryNamespace =>
+      _currentEnvironment == 'prod' ||
+          _currentEnvironment == 'test' ||
+          sandboxUsesProductionStoreSkus
+      ? ''
+      : _paymentProductNamespace;
+
   // 중첩된 설정값을 가져오는 헬퍼 메서드
   static dynamic _getValue(List<String> path) {
     dynamic current = _config;
