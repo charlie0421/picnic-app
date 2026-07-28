@@ -306,9 +306,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
-    final boundAttempt =
-        _purchaseAttempts.bind(purchaseDetails) ??
-        _purchaseAttempts.currentTerminalWithoutId(purchaseDetails);
+    // purchased 이벤트가 런치 확정보다 먼저 도착하는 레이스를 흡수한다 -
+    // 유예 없이 orphan으로 보내면 적립은 되지만 영수증 다이얼로그가
+    // 생략된다 (iOS 실기기, 2026-07-28).
+    final boundAttempt = await _purchaseAttempts.bindWithLaunchGrace(
+      purchaseDetails,
+    );
     if (boundAttempt == null &&
         purchaseDetails.status != PurchaseStatus.pending) {
       if (purchaseDetails.status == PurchaseStatus.purchased) {

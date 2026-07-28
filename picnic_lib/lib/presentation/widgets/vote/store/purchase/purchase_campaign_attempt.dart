@@ -103,6 +103,30 @@ class PurchaseCampaignAttemptRegistry {
     return context.attempt;
   }
 
+  /// bind()에 짧은 런치 유예를 더한 버전.
+  ///
+  /// 스토어 처리가 매우 빠르면(재인증 직후의 Apple 샌드박스 등) purchased
+  /// 이벤트가 initiatePurchase의 런치 결과(applyLaunchResult →
+  /// launched=true)보다 먼저 도착해 launched 게이트에 걸린다. 그대로
+  /// orphan으로 보내면 적립은 되지만 영수증 다이얼로그가 생략된다
+  /// (iOS 실기기, 2026-07-28). 시도가 등록돼 있는 동안 잠깐 기다렸다가
+  /// 다시 bind한다. 런치가 실패로 끝나면 시도가 제거되어 즉시 중단된다.
+  Future<PurchaseCampaignAttempt?> bindWithLaunchGrace(
+    PurchaseDetails purchase, {
+    int retries = 15,
+    Duration delay = const Duration(milliseconds: 200),
+  }) async {
+    var attempt = bind(purchase) ?? currentTerminalWithoutId(purchase);
+    while (attempt == null &&
+        retries-- > 0 &&
+        purchase.status == PurchaseStatus.purchased &&
+        contains(purchase.productID)) {
+      await Future.delayed(delay);
+      attempt = bind(purchase) ?? currentTerminalWithoutId(purchase);
+    }
+    return attempt;
+  }
+
   PurchaseCampaignAttempt? currentTerminalWithoutId(PurchaseDetails purchase) {
     if (purchase.purchaseID != null ||
         (purchase.status != PurchaseStatus.error &&

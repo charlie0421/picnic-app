@@ -70,6 +70,44 @@ void main() {
     expect(registry.bind(event('STAR100', transactionAt: historical)), isNull);
   });
 
+  test('purchased event arriving before the launch result still binds within '
+      'the grace window', () async {
+    // 재인증 직후의 Apple 샌드박스는 purchased 이벤트를 initiatePurchase의
+    // 런치 결과보다 먼저 보낼 수 있다. 유예 없이는 launched 게이트에 걸려
+    // orphan(다이얼로그 없는 정산)으로 빠진다 (iOS 실기기, 2026-07-28).
+    final registry = PurchaseCampaignAttemptRegistry(now: () => launchClock);
+    registry.begin(attempt('a', 'STAR100'));
+
+    final binding = registry.bindWithLaunchGrace(
+      event('STAR100', transactionAt: launchClock),
+      delay: const Duration(milliseconds: 1),
+    );
+    await Future.delayed(const Duration(milliseconds: 5));
+    registry.applyLaunchResult('STAR100', 'a', {
+      'success': true,
+      'wasCancelled': false,
+    });
+
+    expect((await binding)?.attemptId, 'a');
+  });
+
+  test('grace binding gives up once the attempt is gone (launch failed)', () async {
+    final registry = PurchaseCampaignAttemptRegistry(now: () => launchClock);
+    registry.begin(attempt('a', 'STAR100'));
+
+    final binding = registry.bindWithLaunchGrace(
+      event('STAR100', transactionAt: launchClock),
+      delay: const Duration(milliseconds: 1),
+    );
+    await Future.delayed(const Duration(milliseconds: 5));
+    registry.applyLaunchResult('STAR100', 'a', {
+      'success': false,
+      'wasCancelled': true,
+    });
+
+    expect(await binding, isNull);
+  });
+
   test('terminal event without id or transactionDate matches the launched '
       'attempt', () {
     final registry = launchedRegistry();
