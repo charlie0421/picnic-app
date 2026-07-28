@@ -428,6 +428,10 @@ void main() {
       'hideLoading',
       'receipt',
       'finish',
+      // finish는 어템프트를 제거만 할 뿐 위젯을 다시 그리지 않는다.
+      // 마지막 반영이 없으면 구매 버튼이 로딩 상태로 남는다
+      // (iOS 실기기 재현, 2026-07-28).
+      'resetProductPurchaseState',
     ]);
     expect(
       presented.cleanedUpProducts,
@@ -500,7 +504,10 @@ void main() {
     dismissed.complete();
     await settling;
 
-    expect(events.last, 'finish');
+    expect(events.sublist(events.length - 2), [
+      'finish',
+      'resetProductPurchaseState',
+    ]);
     expect(registry.contains(productId), isFalse);
 
     manager.disposeSafetyTimer();
@@ -531,7 +538,10 @@ void main() {
 
     await tester.pump(const Duration(seconds: 1));
     await settling;
-    expect(events.last, 'finish');
+    expect(events.sublist(events.length - 2), [
+      'finish',
+      'resetProductPurchaseState',
+    ]);
 
     manager.disposeSafetyTimer();
   });
@@ -551,11 +561,13 @@ void main() {
     );
     expect(
       presented.resetProductCalls,
-      1,
+      2,
       reason:
           'resetProductState drops the product from the active set and stops '
           'its safety timer; without it the tile stays in its purchasing state '
-          'and the timer fires behind the receipt',
+          'and the timer fires behind the receipt. It runs again after '
+          'finish so the attempt removal is actually rendered - without that '
+          'the buy button stays in its loading state (iOS, 2026-07-28)',
     );
     expect(
       events.sublist(events.indexOf('applyWalletSummary')),
@@ -565,6 +577,7 @@ void main() {
         'hideLoading',
         'receipt',
         'finish',
+        'resetProductPurchaseState',
       ],
       reason: 'both must have run before the receipt goes up',
     );
