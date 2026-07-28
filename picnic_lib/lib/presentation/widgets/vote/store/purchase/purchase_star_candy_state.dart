@@ -32,6 +32,9 @@ import 'package:uuid/uuid.dart';
 import 'handlers/restore_purchase_handler.dart';
 import 'handlers/purchase_safety_manager.dart';
 import 'handlers/purchase_dialog_handler.dart';
+import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/purchase_service_helper.dart';
+
 import 'purchase_helper.dart';
 import 'purchase_processor.dart';
 import 'purchase_campaign_attempt.dart';
@@ -1051,8 +1054,17 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     List<ProductDetails> storeProducts,
   ) {
     final productId = serverProduct['id'] as String;
-    final hasStoreProduct = storeProducts.any(
-      (product) => product.id == productId,
+    // 스토어 ID 는 정책에 따라 변형된다 (Android 는 소문자 SKU, iOS 는
+    // 접두사). 서버 ID 와의 raw 비교는 Android 에서 구조적으로 false 라
+    // (서버 STARxxx vs Play starxxx) 버튼이 전부 죽는다 — 반드시
+    // 카탈로그 조회·구매 매칭과 같은 정책 함수로 판정한다.
+    final hasStoreProduct = const PurchaseServiceHelper().storeHasProduct(
+      storeProducts: storeProducts,
+      serverProductId: productId,
+      isAndroid: Platform.isAndroid,
+      inappAppNamePrefix: Environment.inappAppNamePrefix,
+      environment: Environment.currentEnvironment,
+      paymentProductNamespace: Environment.storeQueryNamespace,
     );
     final isButtonEnabled =
         hasStoreProduct &&

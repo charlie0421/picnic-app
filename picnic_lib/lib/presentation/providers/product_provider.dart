@@ -88,15 +88,9 @@ class StoreProducts extends _$StoreProducts {
         serverProducts,
         isAndroid: Platform.isAndroid,
         appNamePrefix: Environment.inappAppNamePrefix,
-        // 프로덕션 SKU 옵트인이 켜진 샌드박스(스테이징)는 접두사 없이
-        // 프로덕션 SKU 를 그대로 조회한다 — Android 에서 실제 스토어 상품이
-        // 뜨게 하는 유일한 경로다 (iOS 는 원래부터 프로덕션 ID).
-        androidPrefix:
-            Environment.currentEnvironment == 'prod' ||
-                Environment.currentEnvironment == 'test' ||
-                Environment.sandboxUsesProductionStoreSkus
-            ? ''
-            : Environment.paymentProductNamespace,
+        // 단일 출처(Environment.storeQueryNamespace) — 구매 매칭·버튼
+        // 판정과 반드시 같은 값이어야 한다.
+        androidPrefix: Environment.storeQueryNamespace,
         environment: Environment.currentEnvironment,
       );
       if (ProductProviderHelper.requiresSandboxIsolation(

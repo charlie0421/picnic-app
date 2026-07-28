@@ -693,4 +693,116 @@ void main() {
       }
     });
   });
+
+  group('storeHasProduct — 구매 버튼 활성 판정', () {
+    // 실제 회귀: 서버 ID 는 대문자 STARxxx, Play SKU 는 소문자 강제.
+    // raw 비교(product.id == serverId)는 Android 에서 구조적으로 false 라
+    // 스토어에 상품이 떠 있는데 구매 버튼이 전부 죽었다 (252b7c54b 도입,
+    // 미출시). findProductDetails 와 같은 정책이어야 한다.
+    const helper = PurchaseServiceHelper();
+
+    test('Android: 프로덕션 SKU(소문자)와 서버 ID(대문자)를 매칭한다', () {
+      expect(
+        helper.storeHasProduct(
+          storeProducts: [_makeProduct('star100')],
+          serverProductId: 'STAR100',
+          isAndroid: true,
+          inappAppNamePrefix: '',
+          environment: 'dev',
+          paymentProductNamespace: '', // 프로덕션 SKU 옵트인 상태
+        ),
+        isTrue,
+        reason: 'raw 비교로 되돌리면 여기서 실패한다',
+      );
+    });
+
+    test('Android: 네임스페이스 격리 모드에서는 접두사 ID 로 매칭한다', () {
+      expect(
+        helper.storeHasProduct(
+          storeProducts: [_makeProduct('staging.star100')],
+          serverProductId: 'STAR100',
+          isAndroid: true,
+          inappAppNamePrefix: '',
+          environment: 'dev',
+          paymentProductNamespace: 'staging.',
+        ),
+        isTrue,
+      );
+    });
+
+    test('iOS: 접두사 규칙으로 매칭한다', () {
+      expect(
+        helper.storeHasProduct(
+          storeProducts: [_makeProduct('PICNICSTAR100')],
+          serverProductId: 'STAR100',
+          isAndroid: false,
+          inappAppNamePrefix: 'PICNIC',
+          environment: 'dev',
+        ),
+        isTrue,
+      );
+      // 접두사 없는 iOS (현 프로덕션 설정: prefix '')
+      expect(
+        helper.storeHasProduct(
+          storeProducts: [_makeProduct('STAR100')],
+          serverProductId: 'STAR100',
+          isAndroid: false,
+          inappAppNamePrefix: '',
+          environment: 'dev',
+        ),
+        isTrue,
+      );
+    });
+
+    test('카탈로그에 없는 상품은 false — 버튼이 비활성이어야 한다', () {
+      expect(
+        helper.storeHasProduct(
+          storeProducts: [_makeProduct('star100')],
+          serverProductId: 'STAR9999',
+          isAndroid: true,
+          inappAppNamePrefix: '',
+          environment: 'dev',
+          paymentProductNamespace: '',
+        ),
+        isFalse,
+      );
+    });
+
+    test('findProductDetails 와 판정이 항상 일치한다', () {
+      // 두 함수가 다른 정책을 쓰기 시작하면 "버튼은 활성인데 구매에서
+      // 상품을 못 찾는" (또는 그 반대) 반쪽 동작이 된다.
+      final products = [_makeProduct('star100'), _makeProduct('PICNICSTAR200')];
+      for (final c in [
+        ('STAR100', true, '', ''),
+        ('STAR200', false, 'PICNIC', ''),
+        ('STAR300', true, '', ''),
+      ]) {
+        final (serverId, isAndroid, iosPrefix, ns) = c;
+        final has = helper.storeHasProduct(
+          storeProducts: products,
+          serverProductId: serverId,
+          isAndroid: isAndroid,
+          inappAppNamePrefix: iosPrefix,
+          environment: 'dev',
+          paymentProductNamespace: ns,
+        );
+        ProductDetails? found;
+        try {
+          found = helper.findProductDetails(
+            storeProducts: products,
+            serverProductId: serverId,
+            isAndroid: isAndroid,
+            inappAppNamePrefix: iosPrefix,
+            environment: 'dev',
+            paymentProductNamespace: ns,
+          );
+        } catch (_) {
+          found = null;
+        }
+        expect(has, found != null,
+            reason: '$serverId: storeHasProduct=$has 인데 '
+                'findProductDetails=${found != null}');
+      }
+    });
+  });
 }

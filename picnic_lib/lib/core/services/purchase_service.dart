@@ -604,13 +604,8 @@ class PurchaseService {
       isAndroid: isAndroid(),
       inappAppNamePrefix: Environment.inappAppNamePrefix,
       environment: Environment.currentEnvironment,
-      // 카탈로그 조회(product_provider)와 반드시 같은 규칙이어야 한다 —
-      // 프로덕션 SKU 옵트인이 켜진 샌드박스는 접두사 없이 조회했으므로
-      // 구매 시에도 접두사 없는 ID 로 찾는다. 어긋나면 카탈로그에는 뜨는데
-      // 구매 버튼에서 '스토어에서 상품을 찾을 수 없습니다'가 난다.
-      paymentProductNamespace: Environment.sandboxUsesProductionStoreSkus
-          ? ''
-          : Environment.paymentProductNamespace,
+      // 단일 출처 — 카탈로그 조회·버튼 판정과 반드시 같은 값.
+      paymentProductNamespace: Environment.storeQueryNamespace,
     );
   }
 
