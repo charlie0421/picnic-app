@@ -1137,6 +1137,7 @@ workflows:
         script: |
           # set -e: a NO-GO from the guard must fail the step, not be discarded.
           set -e
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
           cd picnic_app
           dart run tool/verify_release_target.dart --target=production
       - name: Setup and Patch iOS
@@ -1295,6 +1296,7 @@ workflows:
         script: |
           # set -e: a NO-GO from the guard must fail the step, not be discarded.
           set -e
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
           cd picnic_app
           dart run tool/verify_release_target.dart --target=production
       - name: Setup and Patch Android
