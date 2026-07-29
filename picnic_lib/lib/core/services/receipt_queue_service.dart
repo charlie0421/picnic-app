@@ -175,6 +175,12 @@ class ReceiptQueueService {
           logger.w('🚫 취소 확정 구매, 큐 제거: ${item['client_trace_id']}');
           continue;
         }
+        // 422는 wallet.v1 워커의 명시적 비재시도 판정 - 재전송해도 결코
+        // 성공하지 못하는 영수증이 큐를 영원히 돌지 않게 제거한다.
+        if (e.status == 422) {
+          logger.w('🚫 서버 영구 거부(422), 큐 제거: ${item['client_trace_id']}');
+          continue;
+        }
         final attempt = (item['attempt'] ?? 0) + 1;
         item['attempt'] = attempt;
         item['nextAt'] = _computeNextAt(attempt);

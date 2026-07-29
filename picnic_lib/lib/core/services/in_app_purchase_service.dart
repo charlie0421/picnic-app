@@ -168,25 +168,40 @@ class InAppPurchaseService {
     logger.i('✨ 앱 시작: 처리되지 않은 구매 정리 완료');
   }
 
-  /// iOS의 SKPaymentQueue에 남아있는 트랜잭션을 직접 정리합니다.
+  /// iOS의 SKPaymentQueue에 남아있는 트랜잭션 중 실패분만 정리합니다.
+  ///
+  /// purchased/restored 트랜잭션은 **과금이 끝난 회수 자산**이다 - 여기서
+  /// finish하면 서버 재검증 기회가 영원히 사라진다(과금-미적립). 실제로
+  /// 초기 스테이징에서 검증 실패로 남은 결제들이 이 강제 정리에 전부
+  /// 소멸했다 (2026-07-28). 그 트랜잭션들은 purchaseStream 재전달이
+  /// 검증→적립→finish로 처리하므로 여기서는 건드리지 않고, 결제가
+  /// 성립하지 않은 failed만 정리해 큐 막힘을 푼다.
   Future<void> _clearIosPendingTransactions() async {
     if (!Platform.isIOS) {
       return;
     }
-    logger.i('iOS: SKPaymentQueue의 pending 트랜잭션 직접 정리 시작');
+    logger.i('iOS: SKPaymentQueue의 실패 트랜잭션 정리 시작');
     try {
       final transactions = await SKPaymentQueueWrapper().transactions();
       if (transactions.isEmpty) {
-        logger.i('iOS: SKPaymentQueue에 정리할 pending 트랜잭션 없음');
+        logger.i('iOS: SKPaymentQueue에 정리할 트랜잭션 없음');
         return;
       }
-      logger.w('iOS: ${transactions.length}개의 pending 트랜잭션 발견. 강제 정리 시작.');
       for (final transaction in transactions) {
+        if (transaction.transactionState !=
+            SKPaymentTransactionStateWrapper.failed) {
+          logger.i(
+            'iOS: 트랜잭션 보존(재전달 처리 대상): '
+            '${transaction.transactionIdentifier} '
+            '(${transaction.transactionState})',
+          );
+          continue;
+        }
         try {
           await SKPaymentQueueWrapper().finishTransaction(transaction);
-          logger.i('iOS: 트랜잭션 강제 완료: ${transaction.transactionIdentifier}');
+          logger.i('iOS: 실패 트랜잭션 정리: ${transaction.transactionIdentifier}');
         } catch (e) {
-          logger.e('iOS: 트랜잭션 강제 완료 실패: ${transaction.transactionIdentifier}, error: $e');
+          logger.e('iOS: 실패 트랜잭션 정리 실패: ${transaction.transactionIdentifier}, error: $e');
         }
       }
     } catch (e) {
@@ -286,8 +301,19 @@ class InAppPurchaseService {
         logger.w('🚫 StoreKit에서 이미 진행 중인 구매 감지: ${productDetails.id}');
         logger.w('   → 진행 중인 구매: ${currentPendingPurchases.length}개');
 
-        // 기존 pending 구매들 정리
+        // 기존 pending 중 결제가 성립하지 않은 것(error/canceled)만 정리한다.
+        // purchased/restored는 과금이 끝난 회수 자산 - 여기서 완료하면
+        // 검증 없이 영수증이 소멸한다(과금-미적립). 재전달 파이프라인이
+        // 검증→적립→finish로 처리하도록 남겨 둔다.
         for (final pendingPurchase in currentPendingPurchases) {
+          if (pendingPurchase.status == PurchaseStatus.purchased ||
+              pendingPurchase.status == PurchaseStatus.restored) {
+            logger.i(
+              '📋 결제 완료 트랜잭션 보존(재전달 처리 대상): '
+              '${pendingPurchase.productID}',
+            );
+            continue;
+          }
           logger.i('📋 기존 pending 구매 완료 처리: ${pendingPurchase.productID}');
           await completePurchase(pendingPurchase).catchError((e) {
             logger.w('기존 pending 구매 완료 실패: $e');
