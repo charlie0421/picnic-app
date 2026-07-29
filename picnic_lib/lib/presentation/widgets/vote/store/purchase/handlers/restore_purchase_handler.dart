@@ -70,14 +70,23 @@ class RestorePurchaseHandler {
   }
 
   /// 복원 완료까지 스마트 대기
+  ///
+  /// 예전 구현은 "경과 2초 + 1초 조용"을 요구해 복원 건이 0개인 보통의
+  /// 진입에서도 최소 ~2.1초를 무조건 소모했고, 이 대기가 스토어 첫 진입
+  /// 로딩을 그대로 늘렸다. 복원 이벤트가 하나도 없으면 짧은 유예만 두고
+  /// 즉시 빠져나가고, 이벤트가 있었을 때만 1초 조용 규칙을 적용한다.
   Future<void> _waitForRestoreCompletion(DateTime startTime) async {
     const maxWaitTime = Duration(seconds: 10);
+    // restorePurchases()가 반환된 직후에도 스트림 전달이 살짝 늦을 수
+    // 있어, 이벤트 0건이어도 이만큼은 기다려 준다.
+    const quietGraceWithoutEvents = Duration(milliseconds: 700);
+    const quietAfterEvents = Duration(seconds: 1);
     int lastProcessedCount = 0;
-    DateTime? lastProcessTime = DateTime.now();
+    DateTime lastProcessTime = DateTime.now();
 
     while (DateTime.now().isBefore(startTime.add(maxWaitTime)) &&
         _isWaitingForRestoreCompletion) {
-      await Future.delayed(Duration(milliseconds: 300));
+      await Future.delayed(Duration(milliseconds: 100));
 
       if (_restoredPurchaseCount > lastProcessedCount) {
         lastProcessedCount = _restoredPurchaseCount;
@@ -85,14 +94,13 @@ class RestorePurchaseHandler {
         logger.d('🧹 새로운 복원 처리 감지: $_restoredPurchaseCount개');
       }
 
-      final elapsed = DateTime.now().difference(startTime);
-      if (elapsed.inMilliseconds > 2000) {
-        final timeSinceLastProcess =
-            DateTime.now().difference(lastProcessTime!);
-        if (timeSinceLastProcess.inMilliseconds > 1000) {
-          logger.i('🧹 복원 처리 완료 감지');
-          _isWaitingForRestoreCompletion = false;
-        }
+      final quietFor = DateTime.now().difference(lastProcessTime);
+      final requiredQuiet = lastProcessedCount == 0
+          ? quietGraceWithoutEvents
+          : quietAfterEvents;
+      if (quietFor > requiredQuiet) {
+        logger.i('🧹 복원 처리 완료 감지 ($lastProcessedCount개)');
+        _isWaitingForRestoreCompletion = false;
       }
     }
   }

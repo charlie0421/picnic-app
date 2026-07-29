@@ -61,6 +61,33 @@ class PurchaseServiceHelper {
     return '구매 시작 중 오류가 발생했습니다';
   }
 
+  /// 스토어 카탈로그에 [serverProductId] 에 해당하는 상품이 있는지.
+  ///
+  /// [findProductDetails] 와 **동일한** ID 정책으로 판정한다. 구매 버튼
+  /// 활성 여부가 이 함수를 쓰므로, 정책이 어긋나면 버튼이 항상 죽거나
+  /// (서버 ID 는 대문자 STARxxx, Play SKU 는 소문자 강제 — raw 비교는
+  /// Android 에서 구조적으로 false) 눌리는데 구매가 실패한다.
+  bool storeHasProduct({
+    required List<ProductDetails> storeProducts,
+    required String serverProductId,
+    required bool isAndroid,
+    required String inappAppNamePrefix,
+    String environment = 'prod',
+    String paymentProductNamespace = '',
+  }) {
+    final expectedId = PaymentProductIdPolicy.effectiveProductId(
+      environment: environment,
+      isAndroid: isAndroid,
+      paymentNamespace: paymentProductNamespace,
+      serverProductId: serverProductId,
+      iosAppPrefix: inappAppNamePrefix,
+    );
+    return storeProducts.any(
+      (element) =>
+          (isAndroid ? element.id.toLowerCase() : element.id) == expectedId,
+    );
+  }
+
   /// 상품 세부 정보 찾기 (store products에서 server product ID 매칭)
   ProductDetails findProductDetails({
     required List<ProductDetails> storeProducts,

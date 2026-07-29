@@ -65,8 +65,15 @@ class StoreProducts extends _$StoreProducts {
   @override
   FutureOr<List<ProductDetails>> build() async {
     try {
+      // 스토어 가용성 확인은 서버 카탈로그와 독립이므로 병렬로 시작해
+      // 첫 진입 shimmer 시간을 줄인다. 서버 조회가 먼저 실패해 이 future를
+      // 기다리지 못하고 빠져나가도 unhandled async error가 되지 않도록
+      // ignore()로 오류 청취자를 미리 붙여 둔다 (아래 await에서는 그대로
+      // rethrow된다).
+      final availability = InAppPurchase.instance.isAvailable();
+      availability.ignore();
       final serverProducts = await ref.watch(serverProductsProvider.future);
-      return _loadProducts(serverProducts);
+      return _loadProducts(serverProducts, availability);
     } catch (e, s) {
       logger.e('Error in StoreProducts build: $e', stackTrace: s);
       rethrow;
@@ -75,11 +82,12 @@ class StoreProducts extends _$StoreProducts {
 
   Future<List<ProductDetails>> _loadProducts(
     List<Map<String, dynamic>> serverProducts,
+    Future<bool> availability,
   ) async {
     final InAppPurchase inAppPurchase = InAppPurchase.instance;
 
     try {
-      final bool available = await inAppPurchase.isAvailable();
+      final bool available = await availability;
       if (!available) {
         throw Exception('Store is not available');
       }
@@ -88,15 +96,9 @@ class StoreProducts extends _$StoreProducts {
         serverProducts,
         isAndroid: Platform.isAndroid,
         appNamePrefix: Environment.inappAppNamePrefix,
-        // 프로덕션 SKU 옵트인이 켜진 샌드박스(스테이징)는 접두사 없이
-        // 프로덕션 SKU 를 그대로 조회한다 — Android 에서 실제 스토어 상품이
-        // 뜨게 하는 유일한 경로다 (iOS 는 원래부터 프로덕션 ID).
-        androidPrefix:
-            Environment.currentEnvironment == 'prod' ||
-                Environment.currentEnvironment == 'test' ||
-                Environment.sandboxUsesProductionStoreSkus
-            ? ''
-            : Environment.paymentProductNamespace,
+        // 단일 출처(Environment.storeQueryNamespace) — 구매 매칭·버튼
+        // 판정과 반드시 같은 값이어야 한다.
+        androidPrefix: Environment.storeQueryNamespace,
         environment: Environment.currentEnvironment,
       );
       if (ProductProviderHelper.requiresSandboxIsolation(

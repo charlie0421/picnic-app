@@ -117,10 +117,12 @@ class PurchaseService {
 
   /// 구매 처리 (단순화)
   ///
-  /// Android에서 completePurchase()는 곧 소비(consume)다. 소비된 구매는
-  /// Google에서 사라져 어떤 경로로도 복구할 수 없으므로, 서버 정산이
-  /// 확인된 경우에만 완료 처리한다. iOS는 기존과 동일하게 항상 완료한다
-  /// (StoreKit 트랜잭션은 finish하지 않으면 반복 재전달된다).
+  /// 스토어 완료 처리(iOS finish / Android acknowledge·consume)는
+  /// 영수증의 마지막 재시도 경로를 끊는 행위이므로 서버 정산이 확인된
+  /// 경우에만 실행한다. 미확정 실패는 종류를 불문하고 트랜잭션을 남겨
+  /// StoreKit 재전달(iOS)·큐/reconcile(Android)이 재시도하게 한다 —
+  /// 예전에는 iOS를 무조건 finish해서, 일시적 네트워크 실패만으로도
+  /// 과금된 영수증이 소멸(과금-미적립)할 수 있었다.
   Future<void> handleOptimizedPurchase(
     PurchaseDetails purchaseDetails,
     PurchaseSuccess onSuccess,
@@ -128,6 +130,7 @@ class PurchaseService {
     required bool isActualPurchase,
   }) async {
     var settlementConfirmed = false;
+    Object? settlementFailure;
     try {
       if (isActualPurchase) {
         logger.i('=== 🚀 신규 구매 처리 ===');
@@ -151,6 +154,7 @@ class PurchaseService {
       }
     } catch (e, s) {
       logger.e('❌ 구매 처리 오류: $e', stackTrace: s);
+      settlementFailure = e;
 
       // 🔥 오류 시 진행 상태 정리
       _processingProducts.remove(purchaseDetails.productID);
@@ -165,12 +169,21 @@ class PurchaseService {
             .catchError((e) {
           logger.w('정산 확정 구매 완료 처리 실패(다음 reconcile 재시도): $e');
         });
-      } else if (Platform.isIOS) {
-        await _completePurchaseIfNeeded(purchaseDetails);
       } else {
+        // 미확정 실패는 종류를 불문하고 스토어 트랜잭션을 파괴하지 않는다.
+        // - 일시 실패(네트워크·5xx·타임아웃·인증): iOS는 StoreKit 재전달이,
+        //   Android는 큐/reconcile이 재시도한다.
+        // - 서버 영구 거부(422)조차 여기서 finish/consume하지 않는다:
+        //   잘못 정리하면 과금된 영수증이 소멸하고(과금-미적립), Android는
+        //   acknowledge/consume이 "미승인 구매 3일 자동 환불"이라는
+        //   사용자의 마지막 구제책까지 차단한다. 잘못 보존한 비용은
+        //   앱 시작마다의 재검증 노이즈뿐이며, 그 비대칭 때문에 보존이
+        //   항상 이긴다. (영구 거부의 클라이언트 큐 재전송 중단은
+        //   isPermanentSettlementRejection이 큐 계층에서 따로 처리한다.)
         logger.w(
-          '⏸️ 서버 정산 미확인 - 구매 완료(consume) 보류: '
-          '${purchaseDetails.productID} (큐/reconcile이 재시도)',
+          '⏸️ 서버 정산 미확인 - 구매 완료 처리 보류: '
+          '${purchaseDetails.productID} (재전달/큐가 재시도, '
+          '실패: $settlementFailure)',
         );
       }
     }
@@ -604,13 +617,8 @@ class PurchaseService {
       isAndroid: isAndroid(),
       inappAppNamePrefix: Environment.inappAppNamePrefix,
       environment: Environment.currentEnvironment,
-      // 카탈로그 조회(product_provider)와 반드시 같은 규칙이어야 한다 —
-      // 프로덕션 SKU 옵트인이 켜진 샌드박스는 접두사 없이 조회했으므로
-      // 구매 시에도 접두사 없는 ID 로 찾는다. 어긋나면 카탈로그에는 뜨는데
-      // 구매 버튼에서 '스토어에서 상품을 찾을 수 없습니다'가 난다.
-      paymentProductNamespace: Environment.sandboxUsesProductionStoreSkus
-          ? ''
-          : Environment.paymentProductNamespace,
+      // 단일 출처 — 카탈로그 조회·버튼 판정과 반드시 같은 값.
+      paymentProductNamespace: Environment.storeQueryNamespace,
     );
   }
 

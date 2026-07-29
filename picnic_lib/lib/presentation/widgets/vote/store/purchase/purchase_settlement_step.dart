@@ -112,5 +112,12 @@ class PurchaseSettlementStep {
       );
     }
     attempts.finish(purchaseDetails, attempt.attemptId);
+    // finish가 어템프트를 제거해도 위젯이 스스로 다시 그리지는 않는다.
+    // 직전 setState는 다이얼로그가 뜨기 전이라 구매 버튼이 "어템프트
+    // 등록됨(로딩)" 상태로 그려진 채 남는다 (iOS 실기기 재현, 2026-07-28).
+    // 제거된 상태를 화면에 반영한다.
+    if (isMounted()) {
+      resetProductPurchaseState(productId);
+    }
   }
 }

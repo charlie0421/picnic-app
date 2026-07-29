@@ -32,6 +32,9 @@ import 'package:uuid/uuid.dart';
 import 'handlers/restore_purchase_handler.dart';
 import 'handlers/purchase_safety_manager.dart';
 import 'handlers/purchase_dialog_handler.dart';
+import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/purchase_service_helper.dart';
+
 import 'purchase_helper.dart';
 import 'purchase_processor.dart';
 import 'purchase_campaign_attempt.dart';
@@ -280,10 +283,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     if (_shouldIgnoreDuringInit(purchaseDetails)) {
-      if (!Platform.isIOS &&
-          purchaseDetails.status == PurchaseStatus.purchased) {
-        // 초기화 중이라도 Android의 실결제 이벤트는 버리면 안 된다.
+      if (purchaseDetails.status == PurchaseStatus.purchased) {
+        // 초기화 중이라도 실결제 이벤트는 버리면 안 된다.
         // (autoConsume 시절 유실 사고의 한 경로) UI 없이 정산만 태운다.
+        // iOS도 포함: 여기서 버려진 iOS 결제는 다음 실행의
+        // _clearIosPendingTransactions가 검증 없이 finish해 영구 유실된다.
         logger.w(
           '[PurchaseStarCandyState] Purchased event during init - running '
           'headless settlement: ${purchaseDetails.purchaseID}',
@@ -302,17 +306,20 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
-    final boundAttempt =
-        _purchaseAttempts.bind(purchaseDetails) ??
-        _purchaseAttempts.currentTerminalWithoutId(purchaseDetails);
+    // purchased 이벤트가 런치 확정보다 먼저 도착하는 레이스를 흡수한다 -
+    // 유예 없이 orphan으로 보내면 적립은 되지만 영수증 다이얼로그가
+    // 생략된다 (iOS 실기기, 2026-07-28).
+    final boundAttempt = await _purchaseAttempts.bindWithLaunchGrace(
+      purchaseDetails,
+    );
     if (boundAttempt == null &&
         purchaseDetails.status != PurchaseStatus.pending) {
-      if (!Platform.isIOS &&
-          purchaseDetails.status == PurchaseStatus.purchased) {
-        // Android: 실결제가 끝난 이벤트는 UI 어템프트가 없어도(90초 타임아웃
-        // 뒤 도착, 화면 재진입, 기기 시계 오차 등) 반드시 정산까지 태운다.
-        // 여기서 버리면 사용자는 과금됐는데 캔디가 영구 미적립된다.
-        // 성공 다이얼로그 등 UI만 생략한다.
+      if (purchaseDetails.status == PurchaseStatus.purchased) {
+        // 실결제가 끝난 이벤트는 UI 어템프트에 bind되지 않아도(90초 타임아웃
+        // 뒤 도착, 화면 재진입, 기기·스토어 시계 오차 등) 반드시 정산까지
+        // 태운다. 여기서 버리면 사용자는 과금됐는데 캔디가 영구 미적립된다.
+        // iOS 제외 금지: 이 경로를 iOS에서 막았던 동안 모든 iOS 구매가
+        // 무한 로딩 + 미적립이었다 (2026-07-28). 성공 다이얼로그만 생략한다.
         logger.w(
           '[PurchaseStarCandyState] Orphan purchased event - running '
           'headless settlement: ${purchaseDetails.purchaseID}',
@@ -341,11 +348,26 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   /// 수행하되, 성공 다이얼로그는 띄우지 않는다. 검증 실패 시 구매는
   /// 소비되지 않고 남아 큐/reconcile이 재시도한다.
   Future<void> _settleOrphanPurchase(PurchaseDetails purchaseDetails) async {
+    // 이 상품의 시도가 화면에서 진행 중인데 이벤트가 bind에 실패해 orphan으로
+    // 떨어진 경우(시계 오차 등), 정산이 끝나는 대로 스피너와 시도 상태를
+    // 반드시 풀어 준다 — 안 풀면 90초 안전망까지 무한 로딩으로 보인다.
+    final liveAttempt = _purchaseAttempts[purchaseDetails.productID];
+    void releaseLiveAttempt() {
+      if (liveAttempt == null || !mounted) return;
+      _resetProductPurchaseState(
+        purchaseDetails.productID,
+        attemptId: liveAttempt.attemptId,
+        terminal: true,
+      );
+      _loadingKey.currentState?.hide();
+    }
+
     try {
       await _purchaseService.handleOptimizedPurchase(
         purchaseDetails,
         (result) async {
           _applyWalletSummary(result.wallet);
+          releaseLiveAttempt();
           logger.i(
             '[PurchaseStarCandyState] Orphan settlement credited: '
             '${purchaseDetails.purchaseID}',
@@ -353,6 +375,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         },
         (error) {
           logger.w('[PurchaseStarCandyState] Orphan settlement error: $error');
+          releaseLiveAttempt();
         },
         isActualPurchase: true,
       );
@@ -361,6 +384,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         '[PurchaseStarCandyState] Orphan settlement failed: $e',
         stackTrace: s,
       );
+      releaseLiveAttempt();
     }
   }
 
@@ -1051,8 +1075,17 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     List<ProductDetails> storeProducts,
   ) {
     final productId = serverProduct['id'] as String;
-    final hasStoreProduct = storeProducts.any(
-      (product) => product.id == productId,
+    // 스토어 ID 는 정책에 따라 변형된다 (Android 는 소문자 SKU, iOS 는
+    // 접두사). 서버 ID 와의 raw 비교는 Android 에서 구조적으로 false 라
+    // (서버 STARxxx vs Play starxxx) 버튼이 전부 죽는다 — 반드시
+    // 카탈로그 조회·구매 매칭과 같은 정책 함수로 판정한다.
+    final hasStoreProduct = const PurchaseServiceHelper().storeHasProduct(
+      storeProducts: storeProducts,
+      serverProductId: productId,
+      isAndroid: Platform.isAndroid,
+      inappAppNamePrefix: Environment.inappAppNamePrefix,
+      environment: Environment.currentEnvironment,
+      paymentProductNamespace: Environment.storeQueryNamespace,
     );
     final isButtonEnabled =
         hasStoreProduct &&

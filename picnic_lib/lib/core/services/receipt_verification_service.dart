@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
@@ -36,6 +37,25 @@ class ReusedPurchaseException implements Exception {
   String toString() => 'ReusedPurchaseException: $message';
 }
 
+/// 서버가 이 영수증을 영구 거부(비재시도)했는지.
+///
+/// **클라이언트 큐의 재전송을 멈추는 판정에만 쓴다.** 스토어 트랜잭션
+/// (StoreKit finish / Play consume·acknowledge) 파괴에는 절대 쓰지 않는다
+/// — 오판 시 과금된 영수증이 소멸하고, Android는 미승인 구매의 3일 자동
+/// 환불이라는 사용자 구제책까지 차단하기 때문이다. 큐 항목 제거는
+/// 오판해도 스토어측 재전달·reconcile 경로가 남는다.
+///
+/// 서버의 명시적 비재시도 판정인 422만 포함한다:
+/// - 400 제외: wallet.v1 verify_receipt의 핸들러 catch-all이 임의 예외를
+///   400으로 돌려주므로 일시 오류가 섞인다.
+/// - 403 제외: 레거시 검증 서버는 IP 차단에도 403을 주므로 영수증 자체에
+///   대한 영구 판정이 아니다.
+/// - 409 제외: 중복은 [ReusedPurchaseException.grantConfirmed]가 소비
+///   안전 여부를 따로 판정한다.
+/// - 401·5xx·타임아웃 제외: 재시도로 회복될 수 있다.
+bool isPermanentSettlementRejection(Object? error) =>
+    error is FunctionException && error.status == 422;
+
 /// 응답은 정상적으로 도착했지만 정산 계약(스키마)을 만족하지 않아
 /// 해석할 수 없는 경우의 예외.
 ///
@@ -60,7 +80,8 @@ class ReceiptResponseContractException implements Exception {
 /// settled by somebody else (an earlier delivery or session); answering any
 /// later request it was settled by a request of ours whose response was lost,
 /// which is a replay we caused and the user has not seen.
-class _SentVerificationRequests {
+@visibleForTesting
+class SentVerificationRequests {
   int count = 0;
 }
 
@@ -112,7 +133,7 @@ class ReceiptVerificationService {
     logger.i('Receipt format: $receiptFormat');
 
     // 이 영수증에 대해 실제로 전송한 요청 수 (replay 귀속 판별용)
-    final sentRequests = _SentVerificationRequests();
+    final sentRequests = SentVerificationRequests();
 
     late final PurchaseSettlementResultModel result;
     if (Platform.isIOS) {
@@ -121,8 +142,16 @@ class ReceiptVerificationService {
         final idemKey = _makeIdemKeyFromJWS(receipt);
         if (await _idemCacheContains(idemKey)) {
           logger.w('🍎 동일 JWS 재전송 차단: $idemKey');
-          // 중복으로 간주하여 예외를 던져 상위에서 성공 UI를 띄우지 않도록 함
-          throw ReusedPurchaseException(message: 'Duplicate iOS receipt');
+          // 중복으로 간주하여 예외를 던져 상위에서 성공 UI를 띄우지 않도록 함.
+          // 이 캐시는 서버 정산이 성공한 직후에만 기록되므로(아래
+          // _idemCacheAdd), 캐시 히트 = 지급 확정 중복이다. grantConfirmed를
+          // 세워야 상위가 트랜잭션을 finish한다 - 아니면 정산 성공 후
+          // finish만 일시 실패한 트랜잭션이 재전달될 때마다 여기 걸려
+          // 영원히 완료되지 못한다.
+          throw ReusedPurchaseException(
+            message: 'Duplicate iOS receipt',
+            grantConfirmed: true,
+          );
         }
         result = await _verifyiOSReceipt(
           receipt,
@@ -198,7 +227,7 @@ class ReceiptVerificationService {
     String userId,
     String environment,
     String receiptFormat,
-    _SentVerificationRequests sentRequests,
+    SentVerificationRequests sentRequests,
   ) async {
     logger.i('iOS receipt verification - Format: $receiptFormat');
 
@@ -210,7 +239,7 @@ class ReceiptVerificationService {
       receiptFormat: receiptFormat,
     );
 
-    return _callVerificationFunction(requestBody, 'iOS', sentRequests);
+    return callVerificationFunction(requestBody, 'iOS', sentRequests);
   }
 
   /// Android 영수증 검증
@@ -219,7 +248,7 @@ class ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
-    _SentVerificationRequests sentRequests,
+    SentVerificationRequests sentRequests,
   ) async {
     logger.i('🤖 Android 영수증 검증 시작');
     logger.i('  - Product ID: $productId');
@@ -244,22 +273,35 @@ class ReceiptVerificationService {
     );
 
     logger.i('🚀 Android 서버 검증 호출 시작 (clientTrace: $clientTraceId)');
-    final result = await _callVerificationFunction(
-      requestBody,
-      'Android',
-      sentRequests,
-    );
-    // 성공 시 큐에서 제거
-    await ReceiptQueueService().removeByClientTraceId(clientTraceId);
-    logger.i('✅ Android 영수증 검증 완료');
-    return result;
+    try {
+      final result = await callVerificationFunction(
+        requestBody,
+        'Android',
+        sentRequests,
+      );
+      // 성공 시 큐에서 제거
+      await ReceiptQueueService().removeByClientTraceId(clientTraceId);
+      logger.i('✅ Android 영수증 검증 완료');
+      return result;
+    } catch (e) {
+      if (isPermanentSettlementRejection(e)) {
+        // 영구 거부(422) 영수증을 큐에 남기면 앱 시작마다 재전송만 된다.
+        await ReceiptQueueService().removeByClientTraceId(clientTraceId);
+        logger.w('🚫 서버 영구 거부 - 큐에서 제거 (clientTrace: $clientTraceId)');
+      }
+      rethrow;
+    }
   }
 
   /// 검증 함수 호출 (재시도 로직 포함)
-  Future<PurchaseSettlementResultModel> _callVerificationFunction(
+  /// 검증 재시도 루프 본체. 플랫폼 분기(iOS/Android 요청 구성) 밖의 공통
+  /// 경로라서 테스트가 직접 진입한다 — 401 auth 복구와 fail-fast 는 여기서
+  /// 고정된다.
+  @visibleForTesting
+  Future<PurchaseSettlementResultModel> callVerificationFunction(
     Map<String, dynamic> requestBody,
     String verificationType,
-    _SentVerificationRequests sentRequests,
+    SentVerificationRequests sentRequests,
   ) async {
     // 환경에 따른 타임아웃 설정
     final environment = requestBody['environment'] as String;
@@ -288,9 +330,28 @@ class ReceiptVerificationService {
       try {
         logger.i('$verificationType verification attempt $attempt/$maxRetries');
 
-        final response = await supabase.functions
-            .invoke('verify_receipt', body: requestBody) // 함수 이름 변경
-            .timeout(timeoutDuration);
+        // 액세스 토큰이 만료된 채 도착하면 게이트웨이가 함수 실행 전에
+        // 401 을 돌려준다. 결제 시트에 머무는 동안 토큰이 만료되는 것은
+        // 정상 시나리오라(실측: 스테이징에서 8회 연속 401), 같은 토큰으로
+        // 재시도만 반복하면 전부 실패한다 — 투표 경로와 동일하게 401 이면
+        // 세션을 갱신하고 한 번 더 시도한다.
+        final response = await invokeWithAuthRecovery(
+          invoke: () => supabase.functions
+              .invoke('verify_receipt', body: requestBody)
+              .timeout(timeoutDuration),
+          refresh: () async {
+            logger.w(
+              '$verificationType verification got 401 - refreshing session',
+            );
+            final refreshed = await supabase.auth.refreshSession();
+            final ok = refreshed.session != null;
+            logger.i(
+              'Session refresh ${ok ? 'succeeded' : 'failed'} for '
+              '$verificationType verification retry',
+            );
+            return ok;
+          },
+        );
 
         logger.i('Verification successful');
         // 응답이 도착한 뒤의 파싱 실패는 영구적인 계약 오류이므로
@@ -331,6 +392,18 @@ class ReceiptVerificationService {
 
         // ReusedPurchaseException은 재시도하지 않음
         if (error is ReusedPurchaseException) {
+          rethrow;
+        }
+
+        // 세션 갱신까지 실패한 401 은 재시도해도 같은 결과다 — 백오프
+        // 루프로 사용자를 붙잡아 두는 대신 즉시 실패시켜 오류 안내로
+        // 빠진다. (StoreKit 트랜잭션은 미완료로 남아 다음 실행에서
+        // 재전달되므로 구매가 유실되지 않는다.)
+        if (error is EdgeAuthRecoveryException) {
+          logger.e(
+            '$verificationType verification auth recovery failed '
+            '(${error.reason.name}) - not retrying',
+          );
           rethrow;
         }
 
