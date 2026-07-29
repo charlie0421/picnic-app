@@ -46,7 +46,7 @@ Map<String, dynamic> _requestBody() => {
     };
 
 int _verifyCalls() => capturedMockRequests
-    .where((u) => u.path.contains('/functions/v1/verify_receipt'))
+    .where((u) => u.path.contains('/functions/v1/verify-receipt-v2'))
     .length;
 
 int _refreshCalls() => capturedMockRequests
@@ -61,7 +61,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await setupMockSupabaseWithAuth({
-      'functions:verify_receipt': _settlement(),
+      'functions:verify-receipt-v2': _settlement(),
     }, userId: 'test-user-id');
     // 로그인/초기화 트래픽은 집계에서 제외한다.
     capturedMockRequests.clear();
@@ -71,7 +71,7 @@ void main() {
 
   group('receipt verification auth recovery', () {
     test('만료 토큰(401)이면 세션을 갱신해 재시도하고 성공한다', () async {
-      functionStatusQueues['functions:verify_receipt'] = [401];
+      functionStatusQueues['functions:verify-receipt-v2'] = [401];
 
       final result = await ReceiptVerificationService().callVerificationFunction(
         _requestBody(),
@@ -88,7 +88,7 @@ void main() {
     });
 
     test('갱신 후에도 401 이면 백오프 루프 없이 즉시 실패한다', () async {
-      functionStatusQueues['functions:verify_receipt'] = [401, 401];
+      functionStatusQueues['functions:verify-receipt-v2'] = [401, 401];
 
       await expectLater(
         ReceiptVerificationService().callVerificationFunction(
@@ -108,7 +108,7 @@ void main() {
 
     test('401 이 아닌 실패는 auth 복구 없이 기존 재시도 규칙을 따른다', () async {
       // 500 은 갱신 대상이 아니다 — refresh_token 호출이 없어야 한다.
-      functionStatusQueues['functions:verify_receipt'] = [500];
+      functionStatusQueues['functions:verify-receipt-v2'] = [500];
 
       final result = await ReceiptVerificationService().callVerificationFunction(
         _requestBody(),

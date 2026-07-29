@@ -14,7 +14,7 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     setupMockSupabase({
-      'functions:verify_receipt': {'success': true},
+      'functions:verify-receipt-v2': {'success': true},
     });
     service = ReceiptQueueService();
   });
@@ -187,7 +187,7 @@ void main() {
       test('successfully sends receipt and removes from queue', () async {
         // Setup mock that returns success
         setupMockSupabase({
-          'functions:verify_receipt': {'success': true},
+          'functions:verify-receipt-v2': {'success': true},
         });
 
         await service.enqueueAndroid(
@@ -243,7 +243,7 @@ void main() {
 
       test('sends items whose nextAt is in the past', () async {
         setupMockSupabase({
-          'functions:verify_receipt': {'success': true},
+          'functions:verify-receipt-v2': {'success': true},
         });
 
         final prefs = await SharedPreferences.getInstance();
@@ -275,7 +275,7 @@ void main() {
 
       test('items with nextAt 0 are sent immediately', () async {
         setupMockSupabase({
-          'functions:verify_receipt': {'success': true},
+          'functions:verify-receipt-v2': {'success': true},
         });
 
         await service.enqueueAndroid(
@@ -299,7 +299,7 @@ void main() {
       test('wallet.v1 settlement response (success 키 없음) removes item',
           () async {
         setupMockSupabase({
-          'functions:verify_receipt': {
+          'functions:verify-receipt-v2': {
             'contract_version': 'wallet.v1',
             'operation_id': '00000000-0000-4000-8000-000000000001',
             'replayed': true,
@@ -330,13 +330,13 @@ void main() {
       test('409 with confirmed grant removes item from queue', () async {
         setupMockSupabase(
           {
-            'functions:verify_receipt': {
+            'functions:verify-receipt-v2': {
               'success': false,
               'code': 'DUPLICATE_RECEIPT',
               'message': '이미 처리된 구매입니다.',
             },
           },
-          functionStatusCodes: {'functions:verify_receipt': 409},
+          functionStatusCodes: {'functions:verify-receipt-v2': 409},
         );
 
         await service.enqueueAndroid(
@@ -359,13 +359,13 @@ void main() {
         // 이 큐 항목이 유일한 재시도 수단이므로 지우면 안 된다.
         setupMockSupabase(
           {
-            'functions:verify_receipt': {
+            'functions:verify-receipt-v2': {
               'success': false,
               'code': 'DUPLICATE_RECEIPT',
               'message': '이미 처리된 구매입니다. 보상 지급에 실패했습니다.',
             },
           },
-          functionStatusCodes: {'functions:verify_receipt': 409},
+          functionStatusCodes: {'functions:verify-receipt-v2': 409},
         );
 
         await service.enqueueAndroid(
@@ -410,9 +410,9 @@ void main() {
       test('500 keeps item with backoff for retry', () async {
         setupMockSupabase(
           {
-            'functions:verify_receipt': {'error': 'Internal server error'},
+            'functions:verify-receipt-v2': {'error': 'Internal server error'},
           },
-          functionStatusCodes: {'functions:verify_receipt': 500},
+          functionStatusCodes: {'functions:verify-receipt-v2': 500},
         );
 
         await service.enqueueAndroid(
@@ -441,7 +441,7 @@ void main() {
       test('failed send increments attempt and sets future nextAt', () async {
         // Setup mock that returns failure (non-200 or success=false)
         setupMockSupabase({
-          'functions:verify_receipt': {'success': false},
+          'functions:verify-receipt-v2': {'success': false},
         });
 
         await service.enqueueAndroid(
@@ -468,7 +468,7 @@ void main() {
 
       test('multiple failed sends increment attempt count', () async {
         setupMockSupabase({
-          'functions:verify_receipt': {'success': false},
+          'functions:verify-receipt-v2': {'success': false},
         });
 
         await service.enqueueAndroid(

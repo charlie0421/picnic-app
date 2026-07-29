@@ -132,7 +132,7 @@ class ReceiptQueueService {
         };
 
         final response = await supabase.functions.invoke(
-          'verify_receipt',
+          PurchaseConstants.receiptVerificationFunction,
           body: body,
         );
         // 성공 판정은 foreground 검증과 같은 기준을 공유해야 한다:
