@@ -237,4 +237,41 @@ void main() {
       );
     });
   });
+
+  group('PurchaseProcessor.isTerminalMappedError', () {
+    // 종결 여부는 `_processActivePurchase`의 showMappedError 분기가 어템프트와
+    // 90초 안전망 타이머를 함께 내릴지 결정한다. 종결인데 살려 두면 에러
+    // 다이얼로그 뒤에 "구매 처리 지연" 팝업이 또 뜨고(1.3.0 베타), 비종결인데
+    // 내리면 늦게 도착한 정산이 바인딩할 어템프트를 잃는다.
+    test('timeout and network failures keep the attempt alive', () {
+      expect(
+        PurchaseProcessor.isTerminalMappedError(PurchaseErrorType.timeout),
+        isFalse,
+      );
+      expect(
+        PurchaseProcessor.isTerminalMappedError(PurchaseErrorType.networkError),
+        isFalse,
+      );
+    });
+
+    test('every other mapped error ends the attempt', () {
+      const terminal = [
+        PurchaseErrorType.previousTransactionPending,
+        PurchaseErrorType.receiptVerificationFailed,
+        PurchaseErrorType.userNotAuthenticated,
+        PurchaseErrorType.productNotFound,
+        PurchaseErrorType.purchaseFailed,
+        PurchaseErrorType.serverError,
+        PurchaseErrorType.purchaseCancelled,
+        PurchaseErrorType.purchaseInProgress,
+      ];
+      for (final type in terminal) {
+        expect(
+          PurchaseProcessor.isTerminalMappedError(type),
+          isTrue,
+          reason: '$type must tear the attempt and its safety timer down',
+        );
+      }
+    });
+  });
 }

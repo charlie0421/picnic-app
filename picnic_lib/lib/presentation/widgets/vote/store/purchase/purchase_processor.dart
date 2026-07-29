@@ -160,6 +160,17 @@ class PurchaseProcessor {
     }
   }
 
+  /// 매핑 에러가 이 구매 시도를 종결시키는지.
+  ///
+  /// 타임아웃/네트워크 오류는 정산이 늦게 도착해 아직 성사될 수 있으므로
+  /// 어템프트(와 90초 안전망 타이머)를 살려 둔다. 그 외 매핑 에러는
+  /// 사용자에게 종결 실패로 안내한 것이므로, 어템프트와 함께 해당 상품의
+  /// 지연 알림 타이머까지 내려야 에러 다이얼로그 뒤에 "구매 처리 지연"
+  /// 팝업이 또 뜨지 않는다 (1.3.0 베타 회귀).
+  static bool isTerminalMappedError(PurchaseErrorType type) =>
+      type != PurchaseErrorType.timeout &&
+      type != PurchaseErrorType.networkError;
+
   static bool _isDuplicateErrorString(String error) {
     return error.contains('StoreKit 캐시 문제') ||
         error.contains('중복 영수증') ||
