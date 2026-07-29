@@ -1,3 +1,4 @@
+import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -85,8 +86,7 @@ class PurchaseCampaignAttemptRegistry {
         purchase.status == PurchaseStatus.restored ||
         _completedTransactions.contains(transactionId) ||
         context == null ||
-        transactionAt == null ||
-        transactionAt.isBefore(context.launchedAt)) {
+        _staleBeforeLaunch(context, transactionAt)) {
       return null;
     }
     final existingAttemptId = _attemptByTransaction[transactionId];
@@ -103,6 +103,30 @@ class PurchaseCampaignAttemptRegistry {
     return context.attempt;
   }
 
+  /// bind()에 짧은 런치 유예를 더한 버전.
+  ///
+  /// 스토어 처리가 매우 빠르면(재인증 직후의 Apple 샌드박스 등) purchased
+  /// 이벤트가 initiatePurchase의 런치 결과(applyLaunchResult →
+  /// launched=true)보다 먼저 도착해 launched 게이트에 걸린다. 그대로
+  /// orphan으로 보내면 적립은 되지만 영수증 다이얼로그가 생략된다
+  /// (iOS 실기기, 2026-07-28). 시도가 등록돼 있는 동안 잠깐 기다렸다가
+  /// 다시 bind한다. 런치가 실패로 끝나면 시도가 제거되어 즉시 중단된다.
+  Future<PurchaseCampaignAttempt?> bindWithLaunchGrace(
+    PurchaseDetails purchase, {
+    int retries = 15,
+    Duration delay = const Duration(milliseconds: 200),
+  }) async {
+    var attempt = bind(purchase) ?? currentTerminalWithoutId(purchase);
+    while (attempt == null &&
+        retries-- > 0 &&
+        purchase.status == PurchaseStatus.purchased &&
+        contains(purchase.productID)) {
+      await Future.delayed(delay);
+      attempt = bind(purchase) ?? currentTerminalWithoutId(purchase);
+    }
+    return attempt;
+  }
+
   PurchaseCampaignAttempt? currentTerminalWithoutId(PurchaseDetails purchase) {
     if (purchase.purchaseID != null ||
         (purchase.status != PurchaseStatus.error &&
@@ -113,11 +137,28 @@ class PurchaseCampaignAttemptRegistry {
     final transactionAt = _transactionAt(purchase);
     return context != null &&
             context.launched &&
-            transactionAt != null &&
-            !transactionAt.isBefore(context.launchedAt)
+            !_staleBeforeLaunch(context, transactionAt)
         ? context.attempt
         : null;
   }
+
+  /// 이벤트가 이 시도보다 "명백히 과거"인지.
+  ///
+  /// transactionDate는 스토어 서버 시계(iOS는 Apple), launchedAt은 기기
+  /// 시계라 그대로 비교하면 기기 시계가 조금만 빨라도 방금 산 구매가
+  /// 전부 stale로 폐기된다 (iOS 무한 로딩, 2026-07-28). 허용 오차를
+  /// 넘어서는 과거만 stale로 보고, transactionDate가 null이면 시간으로는
+  /// 판정하지 않는다 — 신원은 transactionId + launched 게이트가 지킨다.
+  static bool _staleBeforeLaunch(
+    PurchaseExecutionContext context,
+    DateTime? transactionAt,
+  ) =>
+      transactionAt != null &&
+      transactionAt.isBefore(
+        context.launchedAt.subtract(
+          PurchaseConstants.purchaseClockSkewTolerance,
+        ),
+      );
 
   DateTime? _transactionAt(PurchaseDetails purchase) {
     final raw = purchase.transactionDate;

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/wallet/currency_history.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
@@ -5,6 +8,7 @@ import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/data/repositories/wallet_repository.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part '../../generated/providers/wallet_provider.g.dart';
 
@@ -14,8 +18,39 @@ WalletRepository walletRepository(Ref ref) => WalletRepository(supabase);
 @Riverpod(keepAlive: true)
 class WalletSummary extends _$WalletSummary {
   @override
-  Future<WalletSummaryModel> build() {
-    return ref.watch(walletRepositoryProvider).getSummary();
+  Future<WalletSummaryModel> build() async {
+    final repository = ref.watch(walletRepositoryProvider);
+
+    // 테스트 하네스는 supabase 전역을 초기화하지 않고 repository만
+    // override하므로, 인증 연동은 실제 앱 환경에서만 건다.
+    if (Environment.isInitialized && Environment.currentEnvironment != 'test') {
+      // 로그인/로그아웃이 일어나면 항상 최신 세션 기준으로 다시 읽는다.
+      // keepAlive라 이 구독이 없으면 아래 콜드스타트 실패(또는 이전 계정의
+      // 잔액)가 명시적 refresh 전까지 눌러앉는다.
+      final authEvents = supabase.auth.onAuthStateChange.listen((change) {
+        if (change.event == AuthChangeEvent.signedIn ||
+            change.event == AuthChangeEvent.signedOut) {
+          ref.invalidateSelf();
+        }
+      });
+      ref.onDispose(authEvents.cancel);
+
+      // 콜드스타트에서 세션 복구보다 먼저 실행되면 RPC가 익명으로 나가
+      // WALLET_UNAUTHENTICATED로 실패한다 (iOS 홈 배너 재현, 2026-07-28).
+      // 세션이 아직 없으면 복구 이벤트를 잠깐 기다린다. 진짜 비로그인이면
+      // 그대로 진행해 서버 응답에 맡기고, 이후 로그인은 위 구독이 처리한다.
+      if (supabase.auth.currentSession == null) {
+        try {
+          await supabase.auth.onAuthStateChange
+              .firstWhere((change) => change.session != null)
+              .timeout(const Duration(seconds: 3));
+        } on TimeoutException {
+          // fall through
+        }
+      }
+    }
+
+    return repository.getSummary();
   }
 
   Future<void> refresh() async {
