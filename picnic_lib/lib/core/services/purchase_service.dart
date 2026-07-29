@@ -123,11 +123,22 @@ class PurchaseService {
   /// StoreKit 재전달(iOS)·큐/reconcile(Android)이 재시도하게 한다 —
   /// 예전에는 iOS를 무조건 finish해서, 일시적 네트워크 실패만으로도
   /// 과금된 영수증이 소멸(과금-미적립)할 수 있었다.
+  ///
+  /// [onAlreadySettled] is the success path for a purchase the server reports
+  /// as *already* settled - a grant-confirmed duplicate. There is no settlement
+  /// object to hand over (the response carries only the duplicate verdict), but
+  /// the grant exists server-side, so this is a success and must be reported as
+  /// one: the caller releases the product's spinner, re-reads the wallet and
+  /// stops holding the purchase open. Reporting it through [onError] instead -
+  /// what this did until 1.3.0 - left the store tile spinning until the 90s
+  /// safety net fired, showed the user an error for candy they already own, and
+  /// armed a duplicate cooldown that blocked the retry.
   Future<void> handleOptimizedPurchase(
     PurchaseDetails purchaseDetails,
     PurchaseSuccess onSuccess,
     Function(String) onError, {
     required bool isActualPurchase,
+    Future<void> Function()? onAlreadySettled,
   }) async {
     var settlementConfirmed = false;
     Object? settlementFailure;
@@ -140,6 +151,7 @@ class PurchaseService {
           purchaseDetails,
           onSuccess,
           onError,
+          onAlreadySettled: onAlreadySettled,
         );
 
         logger.i('=== ✅ 신규 구매 완료 ===');
@@ -412,8 +424,9 @@ class PurchaseService {
   Future<bool> _handleActualPurchase(
     PurchaseDetails purchaseDetails,
     PurchaseSuccess onSuccess,
-    Function(String) onError,
-  ) async {
+    Function(String) onError, {
+    Future<void> Function()? onAlreadySettled,
+  }) async {
     final platform = Platform.isIOS ? 'iOS' : 'Android';
     logger.i('🎯 실제 구매 처리 시작 ($platform) - 영수증 검증');
     logger.i('  - Product ID: ${purchaseDetails.productID}');
@@ -449,15 +462,44 @@ class PurchaseService {
         );
       }
 
-      await deliverVerifiedPurchaseResult(result, onSuccess);
+      await _presentSettlementGuarded(
+        () => deliverVerifiedPurchaseResult(result, onSuccess),
+        purchaseDetails,
+      );
       logger.i('✅ 실제 구매 검증 완료 ($platform)');
       return true;
     } on ReusedPurchaseException catch (e) {
       logger.w('🔄 JWT 재사용 감지 ($platform) - StoreKit 캐시 문제: ${e.message}');
       _processingProducts.remove(purchaseDetails.productID);
 
-      // 🛡️ 중복 방지 서비스에 실패 알림
       final currentUser = supabase.auth.currentUser;
+      if (e.grantConfirmed) {
+        // 서버가 "이 영수증은 지급까지 끝났다"고 확인한 중복이다. 사용자
+        // 입장에서 이것은 성공이며, 실패로 보고하면 (1) 이미 받은 캔디에
+        // 대해 오류 안내가 뜨고 (2) 상품 스피너가 90초 안전망까지 내려가지
+        // 않고 (3) 중복 쿨다운이 재시도까지 막는다. 1.3.0 베타의 "실패한
+        // 구매의 버튼이 영구 로딩" 리포트가 이 경로다 — iOS 멱등 캐시
+        // (SharedPreferences)는 앱을 재시작해도 살아 있으므로 재전달마다
+        // 같은 예외가 되풀이됐다.
+        logger.w('♻️ 서버 지급 확정 중복 - 정산 성공으로 처리 ($platform)');
+        if (currentUser != null) {
+          // success: true는 진행 상태와 함께 영구 저장된 구매 진행 마커
+          // (last_purchase_attempt_/authentication_start_/
+          // background_purchase_)까지 정리한다.
+          duplicatePreventionService.completePurchase(
+            purchaseDetails.productID,
+            currentUser.id,
+            success: true,
+          );
+        }
+        if (onAlreadySettled != null) {
+          await _presentSettlementGuarded(onAlreadySettled, purchaseDetails);
+        }
+        // 지급이 확인된 중복만 스토어 트랜잭션을 완료(finish/consume)한다.
+        return true;
+      }
+
+      // 🛡️ 중복 방지 서비스에 실패 알림
       if (currentUser != null) {
         duplicatePreventionService.completePurchase(
           purchaseDetails.productID,
@@ -466,18 +508,11 @@ class PurchaseService {
         );
       }
 
-      // 중복 감지 시: 서비스 레벨 실패 처리 + 남은 쿨다운 안내 메시지 구성
-      duplicatePreventionService.completePurchase(
-        purchaseDetails.productID,
-        supabase.auth.currentUser?.id ?? '',
-        success: false,
-      );
-
       // JWS 재사용: 명확한 안내 메시지 키 전달
       onError(PurchaseConstants.errPrevTransactionPending);
-      // 지급 완료가 확인된 중복이면 소비해도 안전하다. 확인되지 않은
-      // 중복(영수증만 있고 지급 실패)은 남겨 두어 재시도를 보존한다.
-      return e.grantConfirmed;
+      // 지급이 확인되지 않은 중복(영수증만 있고 지급 실패)은 트랜잭션을
+      // 남겨 두어 재시도를 보존한다.
+      return false;
     } catch (e, s) {
       logger.e('❌ 실제 구매 처리 중 오류 ($platform): $e', stackTrace: s);
       _processingProducts.remove(purchaseDetails.productID);
@@ -568,6 +603,36 @@ class PurchaseService {
 
     logger.i('✅ 영수증 검증 완료');
     return result;
+  }
+
+  /// Runs the caller's settlement presentation and swallows whatever it throws.
+  ///
+  /// Everything downstream of a verified receipt is presentation: the wallet
+  /// write, the receipt dialog, the spinner teardown. The grant already exists
+  /// server-side, so a failure there says nothing about whether the purchase
+  /// settled - but letting it escape makes `_handleActualPurchase` return
+  /// through its catch, which reports `settlementConfirmed = false` and so
+  /// *preserves* the store transaction. On iOS that transaction is re-delivered
+  /// on every launch, and because the iOS idempotency cache has already
+  /// recorded the receipt, every re-delivery comes back as a duplicate instead
+  /// of a settlement - the permanent limbo behind the stuck buy button.
+  ///
+  /// Preserving a transaction is the right default for an *unconfirmed*
+  /// settlement only. Once the server has confirmed the grant, finishing is
+  /// what stops the loop, so a presentation failure must not veto it.
+  Future<void> _presentSettlementGuarded(
+    Future<void> Function() present,
+    PurchaseDetails purchaseDetails,
+  ) async {
+    try {
+      await present();
+    } catch (e, s) {
+      logger.e(
+        '정산 결과 표시 실패 - 서버 정산은 이미 확정: ${purchaseDetails.productID}',
+        error: e,
+        stackTrace: s,
+      );
+    }
   }
 
   /// 구매 애널리틱스 로깅

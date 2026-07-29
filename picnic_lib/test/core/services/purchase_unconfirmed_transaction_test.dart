@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:mockito/mockito.dart';
+import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,10 +29,12 @@ void main() {
   const userId = 'user-1';
 
   late _CountingPlugin plugin;
-  late _ThrowingVerification verification;
+  late ReceiptVerificationService verification;
   late PurchaseService service;
   late ProviderContainer container;
+  late DuplicatePreventionService duplicates;
   late List<String> errors;
+  late int alreadySettledReports;
 
   PurchaseDetails transaction() {
     final details = PurchaseDetails(
@@ -51,14 +56,27 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await setupMockSupabaseWithAuth(const {}, userId: userId);
     errors = [];
+    alreadySettledReports = 0;
   });
 
   tearDown(tearDownMockSupabase);
 
-  Future<void> run(WidgetTester tester, Object failure) async {
+  /// Wires a real [PurchaseService] the way `PurchaseStarCandyState` does, with
+  /// only the two collaborators that leave the device replaced.
+  Future<void> build(
+    WidgetTester tester,
+    ReceiptVerificationService stub,
+  ) async {
     late WidgetRef capturedRef;
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          // Named for analytics after the receipt verifies. Overridden so the
+          // catalogue lookup cannot reach the store plugin from a test host.
+          storeProductsProvider.overrideWithBuild(
+            (ref, notifier) => <ProductDetails>[],
+          ),
+        ],
         child: Consumer(
           builder: (context, ref, _) {
             capturedRef = ref;
@@ -69,21 +87,27 @@ void main() {
       ),
     );
 
-    verification = _ThrowingVerification(failure);
+    verification = stub;
     plugin = _CountingPlugin();
+    duplicates = DuplicatePreventionService(capturedRef);
     service = PurchaseService(
       container: container,
       inAppPurchaseService: plugin,
       receiptVerificationService: verification,
       analyticsService: AnalyticsService(),
-      duplicatePreventionService: DuplicatePreventionService(capturedRef),
+      duplicatePreventionService: duplicates,
       onPurchaseUpdate: (_) {},
     );
+  }
+
+  Future<void> run(WidgetTester tester, Object failure) async {
+    await build(tester, _ThrowingVerification(failure));
     await service.handleOptimizedPurchase(
       transaction(),
       (_) async {},
       errors.add,
       isActualPurchase: true,
+      onAlreadySettled: () async => alreadySettledReports++,
     );
   }
 
@@ -124,6 +148,97 @@ void main() {
             '성공 후 finish만 실패한 트랜잭션이 림보에 갇히지 않는다');
   });
 
+  testWidgets('a duplicate whose grant is confirmed is reported as a '
+      'settlement, not an error', (tester) async {
+    // 1.3.0 internal beta, iOS: a product whose first settlement failed
+    // server-side and was settled afterwards kept its buy button spinning.
+    // Every re-delivery of the preserved transaction hit the persisted iOS JWS
+    // idempotency cache, which throws grantConfirmed: true - and that was
+    // reported through onError, so the store's error branch left the attempt
+    // registered (the tile stays `isLoading`), showed "이전 거래 처리 중" for
+    // candy the user already owned, and armed a 60s duplicate cooldown.
+    await run(
+      tester,
+      ReusedPurchaseException(message: 'duplicate', grantConfirmed: true),
+    );
+
+    expect(alreadySettledReports, 1,
+        reason: '서버가 지급까지 확인한 중복은 성공 경로로 보고되어야 한다 '
+            '- 스피너 해제·지갑 재조회가 여기 달려 있다');
+    expect(errors, isEmpty,
+        reason: '이미 정산된 구매를 오류로 보고하면 사용자는 받은 캔디에 대해 '
+            '실패 안내를 받고, 어템프트가 살아남아 버튼이 로딩에 잠긴다');
+  });
+
+  testWidgets('a settled duplicate clears the persisted in-progress markers',
+      (tester) async {
+    await build(
+      tester,
+      _ThrowingVerification(
+        ReusedPurchaseException(message: 'duplicate', grantConfirmed: true),
+      ),
+    );
+
+    duplicates.registerPurchaseAttempt(productId, userId);
+    duplicates.registerAuthenticationStart(productId, userId);
+    await tester.pump();
+
+    const key = '${productId}_$userId';
+    final prefs = await SharedPreferences.getInstance();
+    expect(
+      prefs.getInt('${PurchaseConstants.lastPurchaseAttemptKey}$key'),
+      isNotNull,
+      reason: '전제: 구매 시작이 진행 마커를 남긴다',
+    );
+
+    await service.handleOptimizedPurchase(
+      transaction(),
+      (_) async {},
+      errors.add,
+      isActualPurchase: true,
+      onAlreadySettled: () async => alreadySettledReports++,
+    );
+    await tester.pump();
+
+    expect(
+      prefs.getInt('${PurchaseConstants.lastPurchaseAttemptKey}$key'),
+      isNull,
+      reason: '정산이 확인된 구매의 진행 마커를 남기면 다음 실행까지 살아남는다',
+    );
+    expect(
+      prefs.getInt('${PurchaseConstants.authenticationStartKey}$key'),
+      isNull,
+    );
+    expect(
+      prefs.getInt('${PurchaseConstants.backgroundPurchaseKey}$key'),
+      isNull,
+    );
+  });
+
+  testWidgets('a settled purchase is finished even when presenting it throws',
+      (tester) async {
+    // The other half of the same limbo: if anything downstream of verification
+    // throws (wallet write, receipt dialog, spinner teardown), the settlement
+    // used to unwind through _handleActualPurchase's catch, which preserves the
+    // store transaction. The idempotency cache has already recorded the
+    // receipt by then, so every later re-delivery answers as a duplicate and
+    // the transaction can never be finished.
+    await build(tester, _SettledVerification());
+    await service.handleOptimizedPurchase(
+      transaction(),
+      (_) async => throw StateError('presentation blew up'),
+      errors.add,
+      isActualPurchase: true,
+      onAlreadySettled: () async => alreadySettledReports++,
+    );
+
+    expect(plugin.finalized, 1,
+        reason: '영수증이 검증된 순간 지급은 서버에서 끝났다 - 표시 실패가 '
+            '트랜잭션 보존(=재전달 루프)을 유발해서는 안 된다');
+    expect(errors, isEmpty,
+        reason: '정산은 성공했다 - 표시 실패는 정산 실패가 아니다');
+  });
+
   testWidgets('a settlement failure surfaces exactly one error to the UI',
       (tester) async {
     // _handleActualPurchase는 rethrow 전에 onError로 실패를 보고한다.
@@ -150,6 +265,11 @@ void main() {
     expect(plugin.finalized, 0);
     expect(plugin.completed, 0,
         reason: '지급 미확정 중복은 남겨야 큐/reconcile이 재시도한다');
+    expect(alreadySettledReports, 0,
+        reason: '지급이 확인되지 않은 중복은 성공이 아니다 - 스피너를 풀거나 '
+            '성공 안내를 띄우면 미적립을 적립으로 오인시킨다');
+    expect(errors, [PurchaseConstants.errPrevTransactionPending],
+        reason: '미확정 중복은 종전대로 "스토어 처리 중" 안내 경로를 탄다');
   });
 }
 
@@ -172,6 +292,37 @@ class _ThrowingVerification extends ReceiptVerificationService {
   ) async {
     throw failure;
   }
+}
+
+/// 검증이 정상 정산으로 끝나는 스텁.
+class _SettledVerification extends ReceiptVerificationService {
+  @override
+  Future<String> getEnvironment() async => 'sandbox';
+
+  @override
+  Future<PurchaseSettlementResultModel> verifyReceipt(
+    String receipt,
+    String productId,
+    String userId,
+    String environment,
+  ) async =>
+      PurchaseSettlementResultModel(
+        contractVersion: 'wallet.v1',
+        operationId: 'operation',
+        replayed: true,
+        baseStarAmount: BigInt.from(200),
+        baseBonusAmount: BigInt.zero,
+        promotion: null,
+        wallet: WalletSummaryModel(
+          contractVersion: 'wallet.v1',
+          star: BigInt.from(1600),
+          bonus: BigInt.from(81),
+          cotton: BigInt.zero,
+          cottonExpiringAmount: BigInt.zero,
+          cottonNextExpiresAt: null,
+          snapshotAt: DateTime.utc(2026, 7),
+        ),
+      );
 }
 
 class _CountingPlugin extends Mock implements InAppPurchaseService {

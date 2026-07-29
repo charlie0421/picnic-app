@@ -120,4 +120,78 @@ class PurchaseSettlementStep {
       resetProductPurchaseState(productId);
     }
   }
+
+  /// Settles a purchase the server reports as **already settled**.
+  ///
+  /// The grant-confirmed duplicate path: the receipt was accepted by the server
+  /// in an earlier delivery or session, so the response carries the verdict but
+  /// no amounts. Everything [settle] does still has to happen - the safety net
+  /// comes down, the attempt is released, the balance is brought up to date -
+  /// with two differences forced by the missing amounts:
+  ///
+  /// - the wallet is *re-read* ([refreshWallet]) instead of written from a
+  ///   response that has no balance in it;
+  /// - there is no grant receipt to present, so the caller may pass an
+  ///   [acknowledge] dialog instead (the store does; the headless orphan path
+  ///   passes none).
+  ///
+  /// The attempt is released before anything is presented, which is the
+  /// opposite of [settle]. [settle] holds the attempt behind the awaited
+  /// receipt so a second tap hits `showPurchaseAlreadyPendingDialog` rather
+  /// than a second charge; here the whole point is to unstick a tile that has
+  /// been spinning since a settlement the user never saw resolve, and
+  /// [PurchaseSafetyManager.completePurchaseSession] above has already recorded
+  /// the product's cooldown, which is what a second tap now meets.
+  ///
+  /// [attempt] is nullable: this also runs from the headless orphan path, where
+  /// a re-delivered transaction can be settled with no UI attempt at all.
+  Future<void> settleServerConfirmed({
+    required PurchaseSafetyManager safetyManager,
+    required PurchaseCampaignAttemptRegistry attempts,
+    required PurchaseDetails purchaseDetails,
+    required PurchaseCampaignAttempt? attempt,
+    required void Function(String productId) cleanupAllTimersOnSuccess,
+    required WalletSummaryRefresher refreshWallet,
+    required bool Function() isMounted,
+    required void Function(String productId) resetProductPurchaseState,
+    required VoidCallback hideLoading,
+    Future<void> Function()? acknowledge,
+  }) async {
+    final productId = purchaseDetails.productID;
+    logger.i(
+      '[PurchaseStarCandyState] Purchase already settled server-side: '
+      '${purchaseDetails.purchaseID}',
+    );
+
+    // 🛡️ 안전망 타이머·활성 상품 상태를 성공 경로와 동일하게 내린다.
+    // 이걸 빼면 90초 뒤 "구매 처리 지연" 팝업이 이미 정산된 구매에 뜬다.
+    safetyManager.completePurchaseSession(productId);
+    cleanupAllTimersOnSuccess(productId);
+
+    // 지급은 서버에서 이미 끝났고 응답에는 금액이 없다 → 다시 읽는다.
+    // 실패해도 스피너 해제를 막아서는 안 된다(네트워크 상태가 버튼을
+    // 영구 잠그는 것이 이 버그의 본질이었다).
+    try {
+      await refreshWallet.refresh();
+    } catch (e, s) {
+      logger.w(
+        '[PurchaseStarCandyState] Wallet refresh after a settled duplicate '
+        'failed: $e',
+        stackTrace: s,
+      );
+    }
+
+    if (attempt != null &&
+        !attempts.finish(purchaseDetails, attempt.attemptId)) {
+      // 재전달된 트랜잭션은 이 어템프트에 bind되지 않았을 수 있다(런치보다
+      // 과거인 트랜잭션은 stale로 걸러진다). 그래도 스피너는 내려야 한다.
+      attempts.removeIfMatches(productId, attempt.attemptId);
+    }
+
+    if (isMounted()) {
+      resetProductPurchaseState(productId);
+      hideLoading();
+      await acknowledge?.call();
+    }
+  }
 }

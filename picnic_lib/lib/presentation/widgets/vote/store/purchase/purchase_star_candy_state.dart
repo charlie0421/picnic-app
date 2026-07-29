@@ -66,6 +66,11 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   /// an unmounted store, which is the only place that distinction shows.
   late final WalletSummaryApplier _applyWalletSummary;
 
+  /// The wallet re-read used by settlements that arrive without amounts (a
+  /// grant-confirmed duplicate). Bound eagerly for the same reason as
+  /// [_applyWalletSummary].
+  late final WalletSummaryRefresher _refreshWalletSummary;
+
   /// The wallet write a settlement will use, exposed so a test can be the
   /// first thing to read it - after the store is gone.
   @visibleForTesting
@@ -88,6 +93,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     logger.d('[PurchaseStarCandyState] initState called');
 
     _applyWalletSummary = ContainerWalletSummaryApplier.of(context);
+    _refreshWalletSummary = ContainerWalletSummaryRefresher.of(context);
 
     _rotationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -372,12 +378,40 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             '[PurchaseStarCandyState] Orphan settlement credited: '
             '${purchaseDetails.purchaseID}',
           );
+          // 이 정산은 사용자가 아무 안내도 받지 못한 것이다 — 원 결제가
+          // 실패로 끝났다가 서버에서 나중에 정산된 재전달이 대표적이다
+          // (1.3.0 베타 STAR200). 금액이 있는 정산이고 스토어가 화면에
+          // 있으면 공용 영수증 다이얼로그로 알린다. 이미 제시된 재전달은
+          // showSuccessDialog가 재전달 안내로 스스로 라우팅하므로, 받은 적
+          // 없는 캔디를 받았다고 두 번 말하는 일은 생기지 않는다.
+          // 화면이 없으면 종전대로 무음이다: navigatorKey는 앱 전역이라
+          // 스토어 밖에서 영수증을 띄우면 엉뚱한 화면 위로 뜬다.
+          if (mounted) {
+            await _dialogHandler.showSuccessDialog(
+              result: result,
+              displayedCampaign: liveAttempt?.displayedCampaign,
+            );
+          }
         },
         (error) {
           logger.w('[PurchaseStarCandyState] Orphan settlement error: $error');
           releaseLiveAttempt();
         },
         isActualPurchase: true,
+        // 이미 서버에서 정산된 재전달이다. 금액이 없으니 지갑은 다시 읽고,
+        // 스피너·안전망은 성공과 똑같이 내린다. 성공 다이얼로그를 띄우지
+        // 않는 것만 orphan 경로의 기존 정책과 같다.
+        onAlreadySettled: () => _settlementStep.settleServerConfirmed(
+          safetyManager: _safetyManager,
+          attempts: _purchaseAttempts,
+          purchaseDetails: purchaseDetails,
+          attempt: liveAttempt,
+          cleanupAllTimersOnSuccess: _cleanupAllTimersOnSuccess,
+          refreshWallet: _refreshWalletSummary,
+          isMounted: () => mounted,
+          resetProductPurchaseState: _resetProductPurchaseState,
+          hideLoading: () => _loadingKey.currentState?.hide(),
+        ),
       );
     } catch (e, s) {
       logger.e(
@@ -563,6 +597,21 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         }
       },
       isActualPurchase: isActualPurchase,
+      // 서버가 지급까지 확정한 중복은 성공이다. 실패로 다루던 동안 이 상품의
+      // 버튼은 90초 안전망까지 로딩에 잠긴 채 남고(그 뒤 "구매 처리 지연"
+      // 팝업), 지갑은 갱신되지 않고, 60초 중복 쿨다운이 재시도까지 막았다.
+      onAlreadySettled: () => _settlementStep.settleServerConfirmed(
+        safetyManager: _safetyManager,
+        attempts: _purchaseAttempts,
+        purchaseDetails: purchaseDetails,
+        attempt: attempt,
+        cleanupAllTimersOnSuccess: _cleanupAllTimersOnSuccess,
+        refreshWallet: _refreshWalletSummary,
+        isMounted: () => mounted,
+        resetProductPurchaseState: _resetProductPurchaseState,
+        hideLoading: () => _loadingKey.currentState?.hide(),
+        acknowledge: _dialogHandler.showAlreadySettledDialog,
+      ),
     );
   }
 

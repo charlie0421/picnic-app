@@ -288,6 +288,13 @@ class ReceiptVerificationService {
         // 영구 거부(422) 영수증을 큐에 남기면 앱 시작마다 재전송만 된다.
         await ReceiptQueueService().removeByClientTraceId(clientTraceId);
         logger.w('🚫 서버 영구 거부 - 큐에서 제거 (clientTrace: $clientTraceId)');
+      } else if (e is ReusedPurchaseException && e.grantConfirmed) {
+        // 지급까지 확정된 중복은 정산이 끝난 영수증이다. 큐에 남겨 두면
+        // 같은 409를 영원히 다시 받는다. 지급이 확인되지 않은 중복
+        // (grantConfirmed == false)은 큐 항목이 유일한 재시도 수단이므로
+        // 반드시 남긴다.
+        await ReceiptQueueService().removeByClientTraceId(clientTraceId);
+        logger.w('♻️ 지급 확정 중복 - 큐에서 제거 (clientTrace: $clientTraceId)');
       }
       rethrow;
     }

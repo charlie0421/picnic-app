@@ -445,6 +445,21 @@ class PurchaseDialogHandler implements PurchaseReceiptDialogs {
     );
   }
 
+  /// ♻️ 서버가 이미 정산을 확정한 구매(지급 확정 중복)의 안내.
+  ///
+  /// The duplicate verdict carries no amounts, so there is no receipt to build
+  /// - but the purchase did succeed, and until 1.3.0 this case was shown an
+  /// *error* ("이전 거래 처리 중") for candy the user already owned. The success
+  /// acknowledgement is the same one a redelivered settlement gets.
+  Future<void> showAlreadySettledDialog() async {
+    final context = _receiptContext();
+    if (context == null) {
+      logger.e('Navigator context is null in showAlreadySettledDialog');
+      return;
+    }
+    _showRedeliveryAcknowledgement(context);
+  }
+
   Future<void> showPurchaseAlreadyPendingDialog() async {
     showSimpleDialog(
       content: AppLocalizations.of(_context).candy_boost_purchase_pending,

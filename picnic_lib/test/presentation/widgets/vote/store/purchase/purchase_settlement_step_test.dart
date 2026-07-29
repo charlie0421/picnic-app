@@ -92,6 +92,20 @@ class _RecordingApplier implements WalletSummaryApplier {
   }
 }
 
+/// Timestamps the wallet re-read a settlement without amounts falls back to.
+class _RecordingRefresher implements WalletSummaryRefresher {
+  _RecordingRefresher(this.events, this._onRefresh);
+
+  final List<String> events;
+  final void Function() _onRefresh;
+
+  @override
+  Future<void> refresh() async {
+    events.add('refreshWallet');
+    _onRefresh();
+  }
+}
+
 /// Late-purchase settlement, driven through the production settlement step.
 ///
 /// The 90s safety net can fire while receipt verification is still running: the
@@ -600,6 +614,185 @@ void main() {
     );
 
     manager.disposeSafetyTimer();
+  });
+
+  /// Hands an already-settled purchase to the production step.
+  ///
+  /// This is the grant-confirmed duplicate: the server says the receipt was
+  /// settled in an earlier delivery or session, so there are no amounts to
+  /// apply - only a balance to re-read and a tile to unstick.
+  Future<
+    ({
+      int refreshes,
+      int acknowledgements,
+      int hideLoadingCalls,
+      int resetProductCalls,
+    })
+  >
+  settleServerConfirmed(
+    WidgetTester tester,
+    String product,
+    String? id, {
+    bool isMounted = true,
+    bool refreshFails = false,
+  }) async {
+    var refreshes = 0;
+    var acknowledgements = 0;
+    var hideLoadingCalls = 0;
+    var resetProductCalls = 0;
+
+    final settling = const PurchaseSettlementStep().settleServerConfirmed(
+      safetyManager: manager,
+      attempts: registry,
+      purchaseDetails: transactionFor(product),
+      attempt: id == null ? null : attemptFor(product, id),
+      cleanupAllTimersOnSuccess: (cleanedProduct) {
+        events.add('cleanupAllTimersOnSuccess');
+        manager.cleanupAllTimersOnSuccess();
+      },
+      refreshWallet: _RecordingRefresher(events, () {
+        refreshes++;
+        if (refreshFails) throw StateError('offline');
+      }),
+      isMounted: () => isMounted,
+      resetProductPurchaseState: (resetProduct) {
+        events.add('resetProductPurchaseState');
+        resetProductCalls++;
+        manager.resetProductState(resetProduct);
+      },
+      hideLoading: () {
+        events.add('hideLoading');
+        hideLoadingCalls++;
+      },
+      acknowledge: () async {
+        events.add('acknowledge');
+        acknowledgements++;
+      },
+    );
+
+    await tester.pump();
+    await settling;
+
+    return (
+      refreshes: refreshes,
+      acknowledgements: acknowledgements,
+      hideLoadingCalls: hideLoadingCalls,
+      resetProductCalls: resetProductCalls,
+    );
+  }
+
+  group('already settled server-side (grant-confirmed duplicate)', () {
+    testWidgets('releases the tile, re-reads the wallet and acknowledges', (
+      tester,
+    ) async {
+      await launch(productId, attemptId);
+      registry.bind(transactionFor(productId));
+
+      final settled = await settleServerConfirmed(
+        tester,
+        productId,
+        attemptId,
+      );
+
+      expect(
+        registry.contains(productId),
+        isFalse,
+        reason:
+            'this is the stuck-spinner bug: the buy button reads '
+            '`_purchaseAttempts.contains(productId)`, so an attempt left '
+            'registered by an already-settled purchase keeps the tile spinning',
+      );
+      expect(
+        settled.refreshes,
+        1,
+        reason:
+            'the duplicate verdict carries no amounts, so the credited balance '
+            'can only come from a re-read',
+      );
+      expect(settled.acknowledgements, 1);
+      expect(settled.hideLoadingCalls, 1);
+      expect(settled.resetProductCalls, 1);
+      expect(
+        manager.canAttemptPurchase(),
+        isTrue,
+        reason: 'the purchase session must be released like any settlement',
+      );
+
+      await tester.pump(const Duration(seconds: 91));
+      expect(
+        timeoutMessages,
+        0,
+        reason:
+            'the safety net has to come down with the settlement, or an already '
+            'settled purchase raises the "구매 처리 지연" popup 90s later',
+      );
+
+      manager.disposeSafetyTimer();
+    });
+
+    testWidgets('releases an attempt the re-delivered transaction never bound '
+        'to', (tester) async {
+      // A transaction preserved from an earlier session carries that session's
+      // transactionDate, which `bind` rejects as stale - so the attempt the
+      // user's tap registered was never keyed by this transaction id and
+      // `finish` cannot find it. The tile still has to come out of loading.
+      await launch(productId, attemptId);
+
+      final settled = await settleServerConfirmed(
+        tester,
+        productId,
+        attemptId,
+      );
+
+      expect(registry.contains(productId), isFalse);
+      expect(settled.refreshes, 1);
+
+      manager.disposeSafetyTimer();
+    });
+
+    testWidgets('a failed wallet re-read still releases the tile', (
+      tester,
+    ) async {
+      await launch(productId, attemptId);
+
+      final settled = await settleServerConfirmed(
+        tester,
+        productId,
+        attemptId,
+        refreshFails: true,
+      );
+
+      expect(
+        registry.contains(productId),
+        isFalse,
+        reason:
+            'the network must not be able to leave the button permanently '
+            'locked - that is the defect being fixed',
+      );
+      expect(settled.acknowledgements, 1);
+
+      manager.disposeSafetyTimer();
+    });
+
+    testWidgets('the headless orphan path settles with no attempt and presents '
+        'nothing', (tester) async {
+      // A re-delivered transaction picked up at store entry, before the user
+      // has tapped anything: there is no attempt and no dialog, but the balance
+      // must still be brought up to date and the transaction released.
+      final settled = await settleServerConfirmed(
+        tester,
+        productId,
+        null,
+        isMounted: false,
+      );
+
+      expect(settled.refreshes, 1);
+      expect(settled.acknowledgements, 0);
+      expect(settled.hideLoadingCalls, 0);
+      expect(settled.resetProductCalls, 0);
+
+      manager.disposeSafetyTimer();
+    });
   });
 
   testWidgets('settling a purchase releases the session for the next one', (

@@ -1146,5 +1146,83 @@ void main() {
         expect(result.replayCausedByRetry, isFalse);
       });
     });
+
+    /// 409 중복 응답과 영수증 큐(`receipt_queue_v1`)의 관계.
+    ///
+    /// 큐 항목은 지급이 확인되지 않은 영수증의 마지막 재시도 수단이므로
+    /// 함부로 지우면 과금-미적립이 된다. 반대로 지급까지 끝난 중복을
+    /// 남겨 두면 같은 409를 영원히 다시 받는다.
+    group('duplicate receipts and the retry queue', () {
+      void installDuplicateVerifyReceiptMock({required bool grantConfirmed}) {
+        tearDownMockSupabase();
+        SharedPreferences.setMockInitialValues({});
+        setupMockSupabase({
+          'functions:verify-receipt-v2': {
+            'code': 'DUPLICATE_RECEIPT',
+            'grant_confirmed': grantConfirmed,
+            'message': 'duplicate receipt',
+          },
+        }, userId: 'test-user-id', functionStatusCodes: {
+          'functions:verify-receipt-v2': 409,
+        });
+      }
+
+      Future<List<dynamic>> queuedItems() async {
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        return raw == null || raw.isEmpty
+            ? const []
+            : json.decode(raw) as List<dynamic>;
+      }
+
+      test('a duplicate whose grant is confirmed is dropped from the queue',
+          () async {
+        installDuplicateVerifyReceiptMock(grantConfirmed: true);
+
+        await expectLater(
+          service.verifyReceipt(
+            'receipt-data',
+            'STAR200',
+            'test-user-id',
+            'sandbox',
+          ),
+          throwsA(
+            isA<ReusedPurchaseException>()
+                .having((e) => e.grantConfirmed, 'grantConfirmed', isTrue),
+          ),
+        );
+
+        expect(
+          await queuedItems(),
+          isEmpty,
+          reason: '정산이 끝난 영수증을 큐에 남기면 앱 시작마다 같은 409를 '
+              '다시 받는다',
+        );
+      });
+
+      test('a duplicate whose grant is unconfirmed stays queued', () async {
+        installDuplicateVerifyReceiptMock(grantConfirmed: false);
+
+        await expectLater(
+          service.verifyReceipt(
+            'receipt-data',
+            'STAR200',
+            'test-user-id',
+            'sandbox',
+          ),
+          throwsA(
+            isA<ReusedPurchaseException>()
+                .having((e) => e.grantConfirmed, 'grantConfirmed', isFalse),
+          ),
+        );
+
+        expect(
+          await queuedItems(),
+          hasLength(1),
+          reason: '영수증 행만 있고 지급이 실패한 중복은 큐 항목이 유일한 '
+              '재시도 수단이다',
+        );
+      });
+    });
   });
 }
