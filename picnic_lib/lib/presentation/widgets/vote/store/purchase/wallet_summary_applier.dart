@@ -17,6 +17,36 @@ abstract interface class WalletSummaryApplier {
   void call(WalletSummaryModel wallet);
 }
 
+/// Re-reads the wallet from the server.
+///
+/// The companion of [WalletSummaryApplier] for the settlements that arrive
+/// *without* a balance to apply: a duplicate the server reports as
+/// grant-confirmed carries only the verdict, not the amounts, yet the candy is
+/// already credited. Applying nothing would leave the displayed balance on the
+/// pre-purchase value until something else happened to refresh it.
+///
+/// Same container-not-`ref` rule as [WalletSummaryApplier], for the same
+/// reason: this runs on the far side of receipt verification, which the user is
+/// free to walk out on.
+abstract interface class WalletSummaryRefresher {
+  Future<void> refresh();
+}
+
+/// The production refresher: it re-reads through the [ProviderContainer],
+/// captured while the store was still mounted.
+final class ContainerWalletSummaryRefresher implements WalletSummaryRefresher {
+  ContainerWalletSummaryRefresher.of(BuildContext context)
+    : this.forContainer(ProviderScope.containerOf(context, listen: false));
+
+  const ContainerWalletSummaryRefresher.forContainer(this._container);
+
+  final ProviderContainer _container;
+
+  @override
+  Future<void> refresh() =>
+      _container.read(walletSummaryProvider.notifier).refresh();
+}
+
 /// The production applier: it writes through the [ProviderContainer], captured
 /// while the store was still mounted.
 ///
