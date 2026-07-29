@@ -37,6 +37,25 @@ class ReusedPurchaseException implements Exception {
   String toString() => 'ReusedPurchaseException: $message';
 }
 
+/// 서버가 이 영수증을 영구 거부(비재시도)했는지.
+///
+/// **클라이언트 큐의 재전송을 멈추는 판정에만 쓴다.** 스토어 트랜잭션
+/// (StoreKit finish / Play consume·acknowledge) 파괴에는 절대 쓰지 않는다
+/// — 오판 시 과금된 영수증이 소멸하고, Android는 미승인 구매의 3일 자동
+/// 환불이라는 사용자 구제책까지 차단하기 때문이다. 큐 항목 제거는
+/// 오판해도 스토어측 재전달·reconcile 경로가 남는다.
+///
+/// 서버의 명시적 비재시도 판정인 422만 포함한다:
+/// - 400 제외: wallet.v1 verify_receipt의 핸들러 catch-all이 임의 예외를
+///   400으로 돌려주므로 일시 오류가 섞인다.
+/// - 403 제외: 레거시 검증 서버는 IP 차단에도 403을 주므로 영수증 자체에
+///   대한 영구 판정이 아니다.
+/// - 409 제외: 중복은 [ReusedPurchaseException.grantConfirmed]가 소비
+///   안전 여부를 따로 판정한다.
+/// - 401·5xx·타임아웃 제외: 재시도로 회복될 수 있다.
+bool isPermanentSettlementRejection(Object? error) =>
+    error is FunctionException && error.status == 422;
+
 /// 응답은 정상적으로 도착했지만 정산 계약(스키마)을 만족하지 않아
 /// 해석할 수 없는 경우의 예외.
 ///
@@ -123,8 +142,16 @@ class ReceiptVerificationService {
         final idemKey = _makeIdemKeyFromJWS(receipt);
         if (await _idemCacheContains(idemKey)) {
           logger.w('🍎 동일 JWS 재전송 차단: $idemKey');
-          // 중복으로 간주하여 예외를 던져 상위에서 성공 UI를 띄우지 않도록 함
-          throw ReusedPurchaseException(message: 'Duplicate iOS receipt');
+          // 중복으로 간주하여 예외를 던져 상위에서 성공 UI를 띄우지 않도록 함.
+          // 이 캐시는 서버 정산이 성공한 직후에만 기록되므로(아래
+          // _idemCacheAdd), 캐시 히트 = 지급 확정 중복이다. grantConfirmed를
+          // 세워야 상위가 트랜잭션을 finish한다 - 아니면 정산 성공 후
+          // finish만 일시 실패한 트랜잭션이 재전달될 때마다 여기 걸려
+          // 영원히 완료되지 못한다.
+          throw ReusedPurchaseException(
+            message: 'Duplicate iOS receipt',
+            grantConfirmed: true,
+          );
         }
         result = await _verifyiOSReceipt(
           receipt,
@@ -246,15 +273,24 @@ class ReceiptVerificationService {
     );
 
     logger.i('🚀 Android 서버 검증 호출 시작 (clientTrace: $clientTraceId)');
-    final result = await callVerificationFunction(
-      requestBody,
-      'Android',
-      sentRequests,
-    );
-    // 성공 시 큐에서 제거
-    await ReceiptQueueService().removeByClientTraceId(clientTraceId);
-    logger.i('✅ Android 영수증 검증 완료');
-    return result;
+    try {
+      final result = await callVerificationFunction(
+        requestBody,
+        'Android',
+        sentRequests,
+      );
+      // 성공 시 큐에서 제거
+      await ReceiptQueueService().removeByClientTraceId(clientTraceId);
+      logger.i('✅ Android 영수증 검증 완료');
+      return result;
+    } catch (e) {
+      if (isPermanentSettlementRejection(e)) {
+        // 영구 거부(422) 영수증을 큐에 남기면 앱 시작마다 재전송만 된다.
+        await ReceiptQueueService().removeByClientTraceId(clientTraceId);
+        logger.w('🚫 서버 영구 거부 - 큐에서 제거 (clientTrace: $clientTraceId)');
+      }
+      rethrow;
+    }
   }
 
   /// 검증 함수 호출 (재시도 로직 포함)
