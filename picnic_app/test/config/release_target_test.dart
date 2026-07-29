@@ -10,24 +10,17 @@ guard.ReleaseTargetInput validInput() => const guard.ReleaseTargetInput(
       event: 'production-release',
       environment: 'prod',
       headSha: 'abc',
-      requestedSha: 'abc',
       tagSha: 'abc',
       releaseCommitOnMain: true,
-      approvalReference: 'approval-1',
-      manifestChecksum: 'checksum',
-      expectedManifestChecksum: 'checksum',
-      isolationEvidence: 'complete',
-      securityEvidence: 'complete',
       checkoutClean: true,
     );
 
 void main() {
-  test('accepts only complete exact-SHA protected runner evidence', () {
+  test('accepts a clean main-contained tag build on the protected runner', () {
     expect(guard.verifyReleaseTarget(validInput()), isNull);
   });
 
-  test('rejects local, off-main commit, missing evidence, and unknown target',
-      () {
+  test('rejects local runner, off-main commit, and unknown target', () {
     expect(
       guard.verifyReleaseTarget(validInput().copyWith(ciProvider: 'local')),
       isNotNull,
@@ -39,19 +32,15 @@ void main() {
       isNotNull,
     );
     expect(
-      guard.verifyReleaseTarget(validInput().copyWith(securityEvidence: '')),
-      isNotNull,
-    );
-    expect(
       guard.verifyReleaseTarget(validInput().copyWith(target: 'preview')),
       isNotNull,
     );
   });
 
   test('a tag stays releasable after main advances past it', () {
-    // The release commit is pinned by headSha/requestedSha/tagSha. Requiring it
-    // to also equal `git rev-parse origin/main` made every tag expire the
-    // instant the next commit landed on main, which is every tag in this repo.
+    // The release commit is pinned by headSha/tagSha. Requiring it to also
+    // equal `git rev-parse origin/main` made every tag expire the instant the
+    // next commit landed on main, which is every tag in this repo.
     expect(guard.verifyReleaseTarget(validInput()), isNull);
   });
 
@@ -64,11 +53,10 @@ void main() {
   });
 
   test('ancestry alone cannot substitute for the exact tagged commit', () {
-    // Being on main must not make an arbitrary commit releasable: head,
-    // RELEASE_SHA and the tag still have to name one and the same commit.
+    // Being on main must not make an arbitrary commit releasable: what is
+    // checked out and what the tag names still have to be the same commit.
     for (final input in <guard.ReleaseTargetInput>[
       validInput().copyWith(headSha: 'other'),
-      validInput().copyWith(requestedSha: 'other'),
       validInput().copyWith(tagSha: 'other'),
       validInput().copyWith(tagSha: ''),
     ]) {
@@ -76,28 +64,45 @@ void main() {
     }
   });
 
-  test('guard errors never include evidence values', () {
+  test('guard errors never include input values', () {
     const sentinel = 'do-not-print-secret';
     final error = guard.verifyReleaseTarget(
-      validInput().copyWith(approvalReference: sentinel, headSha: 'wrong'),
+      validInput().copyWith(tagSha: sentinel, headSha: 'wrong'),
     );
+    expect(error, isNotNull);
     expect(error, isNot(contains(sentinel)));
   });
 
-  test('rejects every required release evidence failure independently', () {
+  test('rejects every accident-protection failure independently', () {
     final invalid = <guard.ReleaseTargetInput>[
       validInput().copyWith(checkoutClean: false),
-      validInput().copyWith(requestedSha: 'requested-mismatch'),
       validInput().copyWith(tagSha: 'tag-mismatch'),
-      validInput().copyWith(approvalReference: ''),
-      validInput().copyWith(expectedManifestChecksum: 'mismatch'),
-      validInput().copyWith(isolationEvidence: ''),
       validInput().copyWith(event: 'tag'),
       validInput().copyWith(environment: 'dev'),
     ];
     for (final input in invalid) {
       expect(guard.verifyReleaseTarget(input), isNotNull);
     }
+  });
+
+  test('tag name comes from CM_TAG with RELEASE_TAG as fallback', () {
+    expect(
+      guard.resolveReleaseTagName(
+        {'CM_TAG': 'picnic-v1.3.0', 'RELEASE_TAG': 'picnic-v0.0.1'},
+      ),
+      'picnic-v1.3.0',
+    );
+    expect(
+      guard.resolveReleaseTagName({'RELEASE_TAG': 'picnic-v1.3.0'}),
+      'picnic-v1.3.0',
+    );
+    expect(
+      guard.resolveReleaseTagName(
+        {'CM_TAG': '', 'RELEASE_TAG': 'picnic-v1.3.0'},
+      ),
+      'picnic-v1.3.0',
+    );
+    expect(guard.resolveReleaseTagName({}), isEmpty);
   });
 
   test('static scan rejects dangerous executable developer script lines', () {
@@ -177,13 +182,10 @@ supabase --debug functions deploy hello --project-ref approved-staging-ref
         'CI_PROVIDER': '',
         'PRODUCTION_RELEASE_EVENT': '',
         'ENVIRONMENT': '',
-        'RELEASE_SHA': '',
         'RELEASE_TAG': '',
-        'RELEASE_MANIFEST': '',
-        'RELEASE_MANIFEST_SHA256': '',
-        'ENVIRONMENT_ISOLATION_EVIDENCE': '',
-        'SECURITY_EVIDENCE': '',
-        'RELEASE_APPROVAL_REFERENCE': sentinel,
+        // A sentinel tag name: whatever the guard prints, it must be the
+        // static NO-GO reason, never an environment value.
+        'CM_TAG': sentinel,
       },
     );
     expect(result.exitCode, 1);
