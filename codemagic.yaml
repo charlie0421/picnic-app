@@ -78,6 +78,9 @@ workflows:
           # below would silently take the staging branch.
           : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
           if [ "$DEPLOY_TARGET" = "production" ]; then
+            # Tag builds check out a detached clone with no main ref, so the
+            # guard's main-ancestry check cannot see main without this fetch.
+            git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
             cd picnic_app
             dart run tool/verify_release_target.dart --target=production
           fi
