@@ -1,3 +1,14 @@
+// Solo-operator Option B (2026-07-29).
+//
+// This guard's remaining purpose is mis-target and accident protection:
+// "only the real Codemagic production lane, on a clean checkout of a
+// main-contained tag commit, can build production." The per-release human
+// ceremony (RELEASE_SHA, approval reference, manifest checksum, isolation and
+// security evidence) was deliberately removed — a pushed picnic-v* tag IS the
+// release trigger. The only environment variables the guard reads are the
+// one-time static markers of the protected Codemagic group (CI_PROVIDER,
+// PRODUCTION_RELEASE_EVENT, ENVIRONMENT) plus the tag name Codemagic supplies
+// (CM_TAG, with RELEASE_TAG as a compatibility fallback).
 import 'dart:io';
 
 const defaultDeveloperScriptPaths = <String>[
@@ -136,29 +147,21 @@ class ReleaseTargetInput {
     required this.event,
     required this.environment,
     required this.headSha,
-    required this.requestedSha,
     required this.tagSha,
     required this.releaseCommitOnMain,
-    required this.approvalReference,
-    required this.manifestChecksum,
-    required this.expectedManifestChecksum,
-    required this.isolationEvidence,
-    required this.securityEvidence,
     required this.checkoutClean,
   });
   final String target, ciProvider, event, environment;
-  final String headSha, requestedSha, tagSha;
+  final String headSha, tagSha;
 
   /// Whether the tagged commit is contained in main's history.
   ///
   /// Deliberately not "equals main's tip": main advances independently of a
   /// release tag, and requiring equality made a tag stop being releasable the
   /// moment the next commit landed. Containment still means the commit was
-  /// reviewed and merged, and the exact-SHA checks above keep the release
+  /// reviewed and merged, and the exact-SHA check above keeps the release
   /// pinned to the one commit the tag names.
   final bool releaseCommitOnMain;
-  final String approvalReference, manifestChecksum, expectedManifestChecksum;
-  final String isolationEvidence, securityEvidence;
   final bool checkoutClean;
 
   ReleaseTargetInput copyWith({
@@ -167,14 +170,8 @@ class ReleaseTargetInput {
     String? event,
     String? environment,
     String? headSha,
-    String? requestedSha,
     String? tagSha,
     bool? releaseCommitOnMain,
-    String? approvalReference,
-    String? manifestChecksum,
-    String? expectedManifestChecksum,
-    String? isolationEvidence,
-    String? securityEvidence,
     bool? checkoutClean,
   }) =>
       ReleaseTargetInput(
@@ -183,15 +180,8 @@ class ReleaseTargetInput {
         event: event ?? this.event,
         environment: environment ?? this.environment,
         headSha: headSha ?? this.headSha,
-        requestedSha: requestedSha ?? this.requestedSha,
         tagSha: tagSha ?? this.tagSha,
         releaseCommitOnMain: releaseCommitOnMain ?? this.releaseCommitOnMain,
-        approvalReference: approvalReference ?? this.approvalReference,
-        manifestChecksum: manifestChecksum ?? this.manifestChecksum,
-        expectedManifestChecksum:
-            expectedManifestChecksum ?? this.expectedManifestChecksum,
-        isolationEvidence: isolationEvidence ?? this.isolationEvidence,
-        securityEvidence: securityEvidence ?? this.securityEvidence,
         checkoutClean: checkoutClean ?? this.checkoutClean,
       );
 }
@@ -203,10 +193,9 @@ String? verifyReleaseTarget(ReleaseTargetInput input) {
   }
   if (input.environment != 'prod') return 'production environment required';
   if (!input.checkoutClean) return 'checkout must be clean';
-  // The release is pinned to one exact commit: what is checked out, what
-  // RELEASE_SHA asks for, and what the tag names must all be the same commit.
-  if ([input.headSha, input.requestedSha, input.tagSha].any((v) => v.isEmpty) ||
-      {input.headSha, input.requestedSha, input.tagSha}.length != 1) {
+  // The release is pinned to one exact commit: what is checked out and what
+  // the tag names must be the same commit.
+  if (input.tagSha.isEmpty || input.tagSha != input.headSha) {
     return 'exact release SHA mismatch';
   }
   // ...and that commit must have reached main. Ancestry, not tip equality:
@@ -214,16 +203,17 @@ String? verifyReleaseTarget(ReleaseTargetInput input) {
   if (!input.releaseCommitOnMain) {
     return 'release commit is not contained in main';
   }
-  if (input.approvalReference.isEmpty) return 'approval reference missing';
-  if (input.manifestChecksum.isEmpty ||
-      input.manifestChecksum != input.expectedManifestChecksum) {
-    return 'release manifest checksum mismatch';
-  }
-  if (input.isolationEvidence != 'complete' ||
-      input.securityEvidence != 'complete') {
-    return 'release evidence incomplete';
-  }
   return null;
+}
+
+/// Resolves the release tag name from the environment.
+///
+/// CM_TAG is Codemagic's built-in "the tag being built" variable; the
+/// RELEASE_TAG fallback keeps older invocations working.
+String resolveReleaseTagName(Map<String, String> env) {
+  final cmTag = env['CM_TAG'] ?? '';
+  if (cmTag.isNotEmpty) return cmTag;
+  return env['RELEASE_TAG'] ?? '';
 }
 
 Future<void> main(List<String> args) async {
@@ -242,23 +232,17 @@ Future<void> main(List<String> args) async {
       return;
     }
     final head = _git(['rev-parse', 'HEAD']);
-    final tagSha = env['RELEASE_TAG'] == null || env['RELEASE_TAG']!.isEmpty
-        ? ''
-        : _tryGit(['rev-list', '-n', '1', env['RELEASE_TAG']!]) ?? '';
+    final tagName = resolveReleaseTagName(env);
+    final tagSha =
+        tagName.isEmpty ? '' : _tryGit(['rev-list', '-n', '1', tagName]) ?? '';
     final input = ReleaseTargetInput(
       target: target,
       ciProvider: env['CI_PROVIDER'] ?? '',
       event: env['PRODUCTION_RELEASE_EVENT'] ?? '',
       environment: env['ENVIRONMENT'] ?? '',
       headSha: head,
-      requestedSha: env['RELEASE_SHA'] ?? '',
       tagSha: tagSha,
       releaseCommitOnMain: _isContainedInMain(tagSha),
-      approvalReference: env['RELEASE_APPROVAL_REFERENCE'] ?? '',
-      manifestChecksum: _sha256(env['RELEASE_MANIFEST'] ?? ''),
-      expectedManifestChecksum: env['RELEASE_MANIFEST_SHA256'] ?? '',
-      isolationEvidence: env['ENVIRONMENT_ISOLATION_EVIDENCE'] ?? '',
-      securityEvidence: env['SECURITY_EVIDENCE'] ?? '',
       checkoutClean: _git(['status', '--porcelain']).isEmpty,
     );
     final error = verifyReleaseTarget(input);
@@ -318,13 +302,6 @@ bool _isContainedInMain(String commit) {
     return ancestry.exitCode == 0;
   }
   return false;
-}
-
-String _sha256(String path) {
-  if (path.isEmpty || !File(path).existsSync()) return '';
-  final result = Process.runSync('shasum', ['-a', '256', path]);
-  if (result.exitCode != 0) return '';
-  return (result.stdout as String).split(RegExp(r'\s+')).first;
 }
 
 String? _option(List<String> args, String name) {
