@@ -712,6 +712,7 @@ workflows:
           : "${DEPLOY_TARGET:?was not propagated from the tag-derivation step}"
           cd picnic_app
           if [ "$DEPLOY_TARGET" = "production" ]; then
+            git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
             dart run tool/verify_release_target.dart --target=production
           else
             echo "Staging target selected; isolation is verified after config/dev.json is generated."
