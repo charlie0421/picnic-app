@@ -1,0 +1,7 @@
+release: picnic-v1.3.0
+version: 1.3.0+130000
+scope: cotton-candy generation cutover (wallet.v1 engine, verify-receipt-v2)
+approval: https://github.com/charlie0421/picnic-app/pull/108
+server_precondition: production Phase 1a applied 2026-07-29 (picnic-supabase#72, history 20260729900001-38)
+verification: 3x local cutover rehearsal green; staging E2E purchase/vote/cotton verified on real devices
+rollout: simultaneous 100% manual release + same-day forced update (version.force_version); cotton flags dark until 1b
