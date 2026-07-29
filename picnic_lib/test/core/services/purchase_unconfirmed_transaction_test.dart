@@ -29,6 +29,7 @@ void main() {
   late _ThrowingVerification verification;
   late PurchaseService service;
   late ProviderContainer container;
+  late List<String> errors;
 
   PurchaseDetails transaction() {
     final details = PurchaseDetails(
@@ -49,6 +50,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await setupMockSupabaseWithAuth(const {}, userId: userId);
+    errors = [];
   });
 
   tearDown(tearDownMockSupabase);
@@ -80,7 +82,7 @@ void main() {
     await service.handleOptimizedPurchase(
       transaction(),
       (_) async {},
-      (_) {},
+      errors.add,
       isActualPurchase: true,
     );
   }
@@ -120,6 +122,23 @@ void main() {
     expect(plugin.finalized, 1,
         reason: '지급 확정 중복(멱등 캐시 히트 포함)은 finalize해야 정산 '
             '성공 후 finish만 실패한 트랜잭션이 림보에 갇히지 않는다');
+  });
+
+  testWidgets('a settlement failure surfaces exactly one error to the UI',
+      (tester) async {
+    // _handleActualPurchase는 rethrow 전에 onError로 실패를 보고한다.
+    // handleOptimizedPurchase의 catch가 같은 실패를 GENERIC으로 또 보고하면
+    // 하나의 정산 실패에 에러 다이얼로그가 두 번 뜨고, 타임아웃류 실패에서는
+    // 그중 하나가 "구매 처리 지연" 팝업으로 보인다 (1.3.0 베타).
+    await run(
+      tester,
+      FunctionException(status: 503, details: null, reasonPhrase: 'test'),
+    );
+    expect(errors, hasLength(1),
+        reason: '하나의 정산 실패는 UI에 정확히 한 번만 보고되어야 한다');
+    expect(plugin.finalized, 0,
+        reason: '보고 중복 제거는 UI 계층의 일이다 - 트랜잭션 보존은 그대로');
+    expect(plugin.completed, 0);
   });
 
   testWidgets('a duplicate whose grant is unconfirmed keeps the transaction',

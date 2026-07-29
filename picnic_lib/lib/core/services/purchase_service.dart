@@ -159,7 +159,15 @@ class PurchaseService {
       // 🔥 오류 시 진행 상태 정리
       _processingProducts.remove(purchaseDetails.productID);
 
-      onError('GENERIC');
+      // _handleActualPurchase는 rethrow 전에 이미 onError로 실패를 보고했다.
+      // 여기서 또 부르면 하나의 정산 실패에 에러 다이얼로그가 두 번 뜨고
+      // (타임아웃류 실패에서는 그중 하나가 "구매 처리 지연" 팝업이다 -
+      // 1.3.0 베타), 타임아웃·네트워크에서 살려 두기로 한 어템프트까지
+      // GENERIC(종결) 매핑이 제거해 버린다. 자체 보고가 없는 복원 경로의
+      // 실패만 여기서 보고한다.
+      if (!isActualPurchase) {
+        onError('GENERIC');
+      }
     } finally {
       if (settlementConfirmed) {
         // Android: consume(소비)까지, iOS: finish. 실패는 정산 결과를

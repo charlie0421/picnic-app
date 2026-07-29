@@ -542,9 +542,18 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             case PurchaseErrorAction.showMappedError:
               logger.e('[PurchaseStarCandyState] Purchase error: $error');
               final errorType = PurchaseProcessor.mapErrorToType(error);
-              if (errorType != PurchaseErrorType.timeout &&
-                  errorType != PurchaseErrorType.networkError) {
-                _removeAttempt(purchaseDetails.productID, attempt.attemptId);
+              if (PurchaseProcessor.isTerminalMappedError(errorType)) {
+                // 종결 실패에서 어템프트만 지우면 launch 때 armed된 90초
+                // 안전망 타이머가 살아남아, 에러 다이얼로그 뒤에 "구매 처리
+                // 지연" 팝업을 또 띄운다 (1.3.0 베타). 타이머·활성 상품
+                // 상태까지 함께 내린다. 스토어 트랜잭션 보존과 큐 재시도는
+                // PurchaseService 쪽에서 결정되므로 여기 UI 정리의 영향을
+                // 받지 않는다.
+                _resetProductPurchaseState(
+                  purchaseDetails.productID,
+                  attemptId: attempt.attemptId,
+                  terminal: true,
+                );
               }
               final l10n = AppLocalizations.of(navigatorKey.currentContext!);
               final msg = _resolveErrorMessage(errorType, l10n);
