@@ -1580,6 +1580,35 @@ def check_app_guard_tests_run(workflows, dual_target):
     return failures
 
 
+def check_patch_release_version_is_full(workflows):
+    """Patch workflows must target the full release version.
+
+    Shorebird releases are registered under the full pubspec version
+    (e.g. 1.2.39+123904, confirmed empirically on staging 2026-07-28).
+    Deriving RELEASE_VERSION with the build number stripped
+    (`cut -d'+' -f1`) makes `shorebird patch` unable to find its
+    release, so every patch run fails - the production patch workflows
+    shipped with exactly that truncation.
+    """
+    failures = []
+    truncation = re.compile(r"cut\s+-d\s*['\"]?\+")
+    for name, workflow in workflows.items():
+        for step_name, script in script_blocks(workflow):
+            if "shorebird patch" not in script:
+                continue
+            for line in script.splitlines():
+                stripped = line.strip()
+                if stripped.startswith("RELEASE_VERSION=") and truncation.search(
+                    stripped
+                ):
+                    failures.append(
+                        f"{name} / {step_name}: RELEASE_VERSION strips the "
+                        "build number, but shorebird releases use the full "
+                        "version - the patch cannot find its release"
+                    )
+    return failures
+
+
 def run_checks(text=None):
     """Return the list of isolation violations for a codemagic.yaml text."""
     try:
@@ -1612,6 +1641,7 @@ def run_checks(text=None):
     failures += check_guard_failure_fails_the_step(workflows)
     failures += check_isolation_guard_runs_in_ci(workflows, tag_driven)
     failures += check_app_guard_tests_run(workflows, tag_driven)
+    failures += check_patch_release_version_is_full(workflows)
     return failures
 
 
@@ -2189,8 +2219,23 @@ def mutate_staging_patch_catchall_assigns(text):
     return head + tail.replace(refusal, "            *) DEPLOY_TARGET=staging ;;", 1)
 
 
+def mutate_patch_release_version_truncated(text):
+    return text.replace(
+        "RELEASE_VERSION=$(grep \"^version:\" pubspec.yaml"
+        " | sed 's/version: //' | tr -d ' ')",
+        "RELEASE_VERSION=$(grep \"^version:\" pubspec.yaml"
+        " | sed 's/version: //' | cut -d'+' -f1)",
+        1,
+    )
+
+
 SELF_TESTS = (
     ("unmutated config is accepted", mutate_identity, False),
+    (
+        "patch workflow strips the build number from RELEASE_VERSION",
+        mutate_patch_release_version_truncated,
+        True,
+    ),
     (
         "staging-only patch ships a production define",
         mutate_staging_patch_prod_define,
