@@ -29,6 +29,13 @@ class PurchaseConstants {
   static const Duration initializationDelay = Duration(seconds: 2);
   static const Duration cacheRefreshDelay = Duration(seconds: 1);
 
+  /// 영수증 검증 엣지 함수 이름.
+  ///
+  /// 프로덕션 전환 전략 C(엔드포인트 버저닝): 레거시 `verify_receipt` 는
+  /// 구버전 앱 전용으로 동결되고, cotton-candy 세대는 이 이름을 호출한다.
+  /// 두 이름의 호출량 비율이 세대 전환 진행률 지표다.
+  static const String receiptVerificationFunction = 'verify-receipt-v2';
+
   /// 스토어 이벤트의 transactionDate(스토어 서버 시계)를 구매 시작 시각
   /// (기기 시계)과 비교할 때 허용하는 오차. iOS의 transactionDate는 Apple
   /// 서버 시계라 기기 시계보다 몇 초 이를 수 있는데, 오차 허용 없이

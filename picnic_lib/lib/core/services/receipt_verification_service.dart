@@ -337,7 +337,8 @@ class ReceiptVerificationService {
         // 세션을 갱신하고 한 번 더 시도한다.
         final response = await invokeWithAuthRecovery(
           invoke: () => supabase.functions
-              .invoke('verify_receipt', body: requestBody)
+              .invoke(PurchaseConstants.receiptVerificationFunction,
+                  body: requestBody)
               .timeout(timeoutDuration),
           refresh: () async {
             logger.w(

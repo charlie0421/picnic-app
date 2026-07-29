@@ -56,7 +56,7 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     setupMockSupabase({
-      'functions:verify_receipt': _purchaseResult(),
+      'functions:verify-receipt-v2': _purchaseResult(),
     }, userId: 'test-user-id');
   });
 
@@ -958,7 +958,7 @@ void main() {
         tearDownMockSupabase();
         SharedPreferences.setMockInitialValues({});
         setupMockSupabase({
-          'functions:verify_receipt': _purchaseResult(),
+          'functions:verify-receipt-v2': _purchaseResult(),
         }, userId: 'test-user');
 
         await service.verifyReceipt(
@@ -983,7 +983,7 @@ void main() {
           'http://localhost:54321',
           'test-anon-key-for-testing-purposes-only',
           httpClient: MockClient((request) async {
-            if (request.url.path.contains('/functions/v1/verify_receipt')) {
+            if (request.url.path.contains('/functions/v1/verify-receipt-v2')) {
               invokeCount++;
               return http.Response(
                 jsonEncode(body),
@@ -1064,7 +1064,7 @@ void main() {
           'http://localhost:54321',
           'test-anon-key-for-testing-purposes-only',
           httpClient: MockClient((request) async {
-            if (request.url.path.contains('/functions/v1/verify_receipt')) {
+            if (request.url.path.contains('/functions/v1/verify-receipt-v2')) {
               invokeCount++;
               if (invokeCount <= failuresBeforeSuccess) {
                 return http.Response('upstream lost', 502, request: request);
