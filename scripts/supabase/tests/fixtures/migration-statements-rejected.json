@@ -1,0 +1,9 @@
+[
+  {
+    "version": "20260425161337",
+    "name": "baseline_squash",
+    "statements": [
+      "CREATE FUNCTION public.leak() RETURNS text LANGUAGE sql AS 'SELECT ''eyJfake0.eyJfake1.signature'''"
+    ]
+  }
+]

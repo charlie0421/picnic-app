@@ -1,0 +1,22 @@
+[
+  {
+    "version": "20260425161337",
+    "name": "baseline_squash",
+    "statements": [
+      "SET transaction_timeout = 0",
+      "SELECT pg_catalog.set_config('search_path', '', false)",
+      "CREATE TABLE public.example (id bigint PRIMARY KEY)",
+      "ALTER TABLE public.example ENABLE ROW LEVEL SECURITY",
+      "CREATE TRIGGER webhook AFTER INSERT ON public.example FOR EACH ROW EXECUTE FUNCTION supabase_functions.http_request('https://project.supabase.co', 'POST', '{\"Authorization\":\"Bearer header.payload.signature\"}', '{}', '1000')",
+      "ALTER TABLE public.example OWNER TO postgres",
+      "INSERT INTO public.example(id) VALUES (1)"
+    ]
+  },
+  {
+    "version": "20260427041411",
+    "name": "add_example_index",
+    "statements": [
+      "CREATE INDEX example_id_idx ON public.example(id)"
+    ]
+  }
+]
