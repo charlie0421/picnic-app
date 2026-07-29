@@ -92,6 +92,31 @@ CandyRewardReceipt? receiptFromAdReward(AdRewardStatusModel status) {
   );
 }
 
+/// Builds the receipt for a legacy internal-shortform view response.
+///
+/// The legacy contract carries no [AdRewardStatusModel]: the server credits
+/// bonus star candy and reports only the credited amount (`reward_added`) and
+/// the post-credit bonus balance (`new_bonus`, absent on older backends). A
+/// wallet-aware response (`reward` present) has its receipt presented by the
+/// ad reward recovery flow instead, so it yields none here.
+CandyRewardReceipt? receiptFromInternalShortformView(
+  InternalShortformViewResponse response,
+) {
+  if (response.reward != null || response.rewardAdded <= 0) return null;
+  final newBonus = response.newBonus;
+  return CandyRewardReceipt(
+    referenceKey:
+        'AD:${AdRewardReferenceType.internalImpression.wireValue}:${response.impressionId}:LEGACY',
+    items: [
+      CandyRewardReceiptItem(
+        currency: WalletCurrency.bonusStarCandy,
+        grantedAmount: BigInt.from(response.rewardAdded),
+        balanceAfter: newBonus == null ? null : BigInt.from(newBonus),
+      ),
+    ],
+  );
+}
+
 /// Builds the receipt for candy this settlement just added.
 ///
 /// A redelivered settlement re-reports an operation an earlier delivery or

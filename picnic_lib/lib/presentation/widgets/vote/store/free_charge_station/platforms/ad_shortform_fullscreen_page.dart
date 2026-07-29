@@ -12,7 +12,9 @@ import 'package:picnic_lib/presentation/widgets/ui/loading_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 
@@ -34,12 +36,30 @@ class AdShortformLogic {
     InternalShortformViewResponse response,
   ) => response.ok && response.reward == null;
 
-  static String legacyBonusSuccessMessage(
-    String baseMessage,
-    InternalShortformViewResponse response,
-  ) {
-    final newBonus = response.newBonus;
-    return newBonus == null ? baseMessage : '$baseMessage ($newBonus)';
+  /// Applies the credited reward to the wallet summary (별사탕 파우치).
+  ///
+  /// Runs through the app-level [ProviderContainer], captured while the page
+  /// was mounted - the same move as the purchase flow's
+  /// `ContainerWalletSummaryApplier` - because the candy was credited
+  /// server-side the moment the view callback settled: even if the user
+  /// already left the ad route, the pouch must reflect the new balance.
+  ///
+  /// A wallet-aware response carries the settled balance and is written as-is;
+  /// a legacy response carries no wallet snapshot, so the summary is re-read
+  /// from the server. (Was: legacy path refreshed the user profile only,
+  /// which left `walletSummaryProvider` - and the pouch it drives - stale.)
+  static Future<void> applyRewardOutcome({
+    required ProviderContainer container,
+    required InternalShortformViewResponse response,
+  }) async {
+    final wallet = walletSummaryToApply(response);
+    if (wallet != null) {
+      container.read(walletSummaryProvider.notifier).setSummary(wallet);
+      return;
+    }
+    if (shouldRefreshLegacyProfile(response)) {
+      await container.read(walletSummaryProvider.notifier).refresh();
+    }
   }
 
   /// Whether the countdown (<= 5s remaining) should start.
@@ -229,9 +249,16 @@ class _AdShortformFullscreenPageState
   Timer? _watchdog;
   bool _errorDialogShown = false;
 
+  /// App-level Riverpod container, captured while this route is mounted, so a
+  /// reward that settles after the user already closed the ad can still update
+  /// the wallet summary (cf. `ContainerWalletSummaryApplier` in the purchase
+  /// settlement path - `ConsumerState.ref` throws once unmounted).
+  late final ProviderContainer _rewardContainer;
+
   @override
   void initState() {
     super.initState();
+    _rewardContainer = ProviderScope.containerOf(context, listen: false);
     _enterImmersive();
     _startWatchdog();
     _initializeFlow();
@@ -427,27 +454,27 @@ class _AdShortformFullscreenPageState
         });
       }
     }
-    final wallet = response == null
-        ? null
-        : AdShortformLogic.walletSummaryToApply(response);
-    if (wallet != null && mounted) {
-      ref.read(walletSummaryProvider.notifier).setSummary(wallet);
-    } else if (response != null &&
-        AdShortformLogic.shouldRefreshLegacyProfile(response) &&
-        mounted) {
+    if (response == null) return;
+    // 서버는 이미 적립을 끝냈으므로 파우치(walletSummaryProvider) 반영은 페이지
+    // mount 여부와 무관하게 실행한다 - 구매 정산이 WalletSummaryApplier 로
+    // 지갑을 쓰는 것과 같은 이유. (기존엔 mounted 뒤에서 프로필만 갱신해
+    // 광고를 닫고 상점으로 돌아오면 파우치가 이전 잔액으로 남았다.)
+    await AdShortformLogic.applyRewardOutcome(
+      container: _rewardContainer,
+      response: response,
+    );
+    if (AdShortformLogic.shouldRefreshLegacyProfile(response) && mounted) {
       await ref.read(userInfoProvider.notifier).getUserProfiles();
     }
-    if (response != null &&
-        AdShortformLogic.shouldUseLegacyBonusUx(response) &&
-        mounted) {
-      if (!mounted) return;
-      showSimpleDialog(
-        // 국제화된 성공 메시지 사용, 버튼 없음
-        content: AdShortformLogic.legacyBonusSuccessMessage(
-          AppLocalizations.of(context).ad_reward_success_message,
-          response,
-        ),
-      );
+    if (AdShortformLogic.shouldUseLegacyBonusUx(response)) {
+      // 구매 성공과 동일한 공용 적립 영수증 다이얼로그를 재사용한다
+      // (적립 수량 + 현재 잔액). wallet-aware 응답의 영수증은
+      // AdRewardDialogHost 가 담당하므로 여기는 legacy 응답만 온다.
+      final receipt = receiptFromInternalShortformView(response);
+      final dialogContext = mounted ? context : navigatorKey.currentContext;
+      if (receipt != null && dialogContext != null && dialogContext.mounted) {
+        await showCandyRewardReceiptDialog(dialogContext, receipt);
+      }
     }
   }
 

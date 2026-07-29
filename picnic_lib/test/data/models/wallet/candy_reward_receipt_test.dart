@@ -90,6 +90,67 @@ void main() {
     });
   }
 
+  test('legacy internal shortform view yields a bonus candy receipt', () {
+    final receipt = receiptFromInternalShortformView(
+      const InternalShortformViewResponse(
+        ok: true,
+        rewardAdded: 3,
+        impressionId: 'impression-1',
+        newBonus: 54,
+      ),
+    );
+
+    expect(receipt!.referenceKey, 'AD:INTERNAL_IMPRESSION:impression-1:LEGACY');
+    final item = receipt.items.single;
+    expect(item.currency, WalletCurrency.bonusStarCandy);
+    expect(item.grantedAmount, BigInt.from(3));
+    expect(item.balanceAfter, BigInt.from(54));
+    expect(item.expiresAt, isNull);
+  });
+
+  test('legacy internal shortform receipt survives a missing balance', () {
+    // Older backends omit new_bonus; the dialog then renders its
+    // balance-unavailable line instead of a stale number.
+    final receipt = receiptFromInternalShortformView(
+      const InternalShortformViewResponse(
+        ok: true,
+        rewardAdded: 1,
+        impressionId: 'impression-1',
+        newBonus: null,
+      ),
+    );
+
+    expect(receipt!.items.single.balanceAfter, isNull);
+  });
+
+  test('wallet-aware internal shortform view yields no legacy receipt', () {
+    // The recovery flow presents the receipt for a wallet-aware response;
+    // building one here too would show the grant twice.
+    final response = InternalShortformViewResponse(
+      ok: true,
+      rewardAdded: 3,
+      impressionId: 'impression-1',
+      newBonus: null,
+      reward: grantedAd(amount: BigInt.from(3)),
+    );
+
+    expect(receiptFromInternalShortformView(response), isNull);
+  });
+
+  test('a zero legacy reward yields no receipt', () {
+    expect(
+      receiptFromInternalShortformView(
+        const InternalShortformViewResponse(
+          ok: true,
+          rewardAdded: 0,
+          impressionId: 'impression-1',
+          newBonus: 54,
+        ),
+      ),
+      isNull,
+    );
+  });
+
   for (final amount in [BigInt.zero, BigInt.from(-1)]) {
     test('receipt item rejects a non-positive granted amount: $amount', () {
       expect(
