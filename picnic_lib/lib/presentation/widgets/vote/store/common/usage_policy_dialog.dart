@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -38,19 +42,38 @@ TextStyle _t(AppTypo typo, Color color, {double height = 1.25}) =>
 String _fillMonth(String s, String token, String value) =>
     s.replaceAll(RegExp(RegExp.escape(token), caseSensitive: false), value);
 
-/// 섹션 구분선. `thickness` 를 명시해야 한다 — 예전 코드의
+/// **블록 경계** 구분선 — 공개 블록과 공개 블록 사이에만 쓴다.
+///
+/// `thickness` 를 명시해야 한다 — 예전 코드의
 /// `Divider(color: ..., height: 12.h)` 는 11.7px 를 예약하고 sub-pixel 잉크를
 /// 그렸다(앱 어디에도 `DividerThemeData` 가 없다).
 const Widget _hairline = Divider(
+  color: AppColors.grey300,
+  thickness: 1,
+  height: 1,
+);
+
+/// **블록 안** 규칙 그룹 구분선.
+///
+/// 블록 경계선과 같은 굵기 · 같은 색 · 같은 폭으로 그리면 펼친 본문에서 두 단계
+/// 위계가 납작해져 "구분 없는 행의 나열" 로 읽힌다. 그래서 한 단계 밝은 grey200
+/// 에 왼쪽 들여쓰기를 줘서 종속 관계를 만든다.
+Widget _groupLine() => Divider(
   color: AppColors.grey200,
   thickness: 1,
   height: 1,
+  indent: 16.w,
 );
 
 /// 레이블 위 / 값 아래로 쌓은 정의쌍. 표 대신 쓰는 유일한 행 형태다.
 ///
 /// 폭이 293px(393dp 기준) 로 예전 표 셀(122~126px)의 2.3배라서 ko/en 은 줄바꿈이
 /// 사라지고, bn/fil 은 가운데 정렬된 단어 조각 대신 정상적으로 아래로 흐른다.
+///
+/// 세로 간격은 이 파일 전체에서 **스케일하지 않은 정수**다: 화면이 짧아졌다고
+/// 행간까지 줄면 밀도만 올라가서 이번 리디자인이 고치려는 문제로 되돌아간다.
+/// 반대로 가로 간격은 폭을 따라가야 하므로 `.w` 를 붙인다. 두 축의 단위가 다른
+/// 건 실수가 아니라 이 규칙 때문이다.
 Widget _pair(String label, String value, {bool expiry = false}) => Padding(
   padding: const EdgeInsets.only(bottom: 12),
   child: Column(
@@ -60,9 +83,14 @@ Widget _pair(String label, String value, {bool expiry = false}) => Padding(
       const SizedBox(height: 4),
       Text(
         value,
+        // 소멸 시점 · 소멸일은 이 다이얼로그에서 가장 중요한 값이다. 강조는
+        // 색이 아니라 **굵기**로 준다 — point900(#EB4A71) 은 흰 배경에서
+        // 3.65:1 이고 14px 는 WCAG 의 large-text 기준(18.66px bold) 아래라
+        // 4.5:1 이 적용되므로 값에 쓰면 AA 미달이다. 분홍은 의미를 나르는
+        // 섹션 강조(카드 레이블)에만 남긴다.
         style: _t(
-          AppTypo.body14M,
-          expiry ? AppColors.point900 : AppColors.grey900,
+          expiry ? AppTypo.body14B : AppTypo.body14M,
+          AppColors.grey900,
           height: 1.35,
         ),
       ),
@@ -202,18 +230,25 @@ class UsagePolicyPopup extends ConsumerWidget {
     final rows = _sortedBonusRows(expiringData);
 
     return Padding(
-      // top / bottom 은 의도적으로 **스케일하지 않은 정수**다.
-      // - 64: 셸의 타이틀 칩은 하드코딩 48px 인데 `60.h` 는 splitScreenMode 때문에
-      //   700dp 미만 기기에서 47.1px 로 줄어 칩과 겹친다.
-      // - 56: 셸이 `BorderRadius.circular(120.r)` 로 antiAlias 클립한다. 바닥에서
-      //   d 만큼 위의 코너 침범량은 R - sqrt(R^2 - (R-d)^2) 이고, 411.4dp 에서
-      //   d=48 은 25.5px(가로 패딩 25.1px)로 0.4px 모자란다. d=56 은 19.9px.
-      //   이 패딩은 스크롤 뷰 **밖**이라 어떤 스크롤 위치에서도 글자가 코너
-      //   웨지로 들어가지 않는다.
-      padding: EdgeInsets.fromLTRB(24.w, 64, 24.w, 56),
-      child: _ScrollFadeBody(
+      // 위 여백만 스크롤 뷰 **밖**이다: 셸의 타이틀 칩은 하드코딩 48px 인데
+      // `60.h` 는 splitScreenMode 때문에 700dp 미만 기기에서 47.1px 로 줄어 칩과
+      // 겹친다. 그래서 스케일하지 않은 64 를 쓰고, 내용이 칩 아래로 스크롤해
+      // 들어가지 않게 뷰포트를 여기서 시작한다.
+      padding: const EdgeInsets.only(top: 64),
+      child: _ScrollBody(
+        // 좌우 · 아래 여백은 스크롤 뷰 **안**이다.
+        // - 좌우를 안에 넣으면 뷰포트가 카드 안쪽 폭 전체를 차지해서, 잘림이
+        //   카드 경계에서 일어난다. 예전에는 패딩이 밖에 있어서 잘린 글자가
+        //   테두리보다 56px 위에 떠 있었고 그게 "잘려 보인다" 의 정체였다.
+        // - 아래 36 은 코너 클립 여유다. 셸이 `BorderRadius.circular(120.r)` 로
+        //   antiAlias 클립하므로 바닥에서 d 만큼 위의 코너 침범량은
+        //   R - sqrt(R^2 - (R-2r-d)^2) 이고, 가장 넓은 411.4dp 에서 이 값이 가로
+        //   패딩(25.1px) 이하가 되려면 d >= 43.9 다. 접힌 헤더의 마지막 잉크는
+        //   자기 아래 패딩 12 를 더 갖고 있으므로 36+12=48 로 여유가 남는다.
+        //   (스크롤 도중 코너에 들어가는 구간은 바닥 신호가 덮는다.)
+        contentPadding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 36),
         children: [
-          if (walletState != null) ...[
+          if (walletState != null && !bonusLoadFailed) ...[
             _buildHero(context, expiringData, walletState),
             const SizedBox(height: 16),
           ],
@@ -242,11 +277,15 @@ class UsagePolicyPopup extends ConsumerWidget {
             children: _exampleChildren(context),
           ),
           _hairline,
-          // 오너가 정책을 항상 보이게 하고 싶다면 여기 `initiallyExpanded: true`
-          // 한 줄이 전부다(레이아웃은 그대로).
+          // 정책은 **항상 펼쳐 둔다.** 여기에는 "소멸 된 캔디는 복구되지
+          // 않으니, 기간 내에 꼭 사용해 주세요" 같은 소비자 고지 문구가 들어
+          // 있고, 접힌 본문은 위젯 트리에서 아예 빠지므로 접어 두면 '아래에
+          // 있다' 가 아니라 '보여주지 않는다' 가 된다. 리디자인 전에는 전부
+          // 무조건 렌더됐으니 접는 쪽이 고지 수준의 후퇴다.
           _Disclosure(
             key: const Key('candy-policy-section'),
             title: localizations.bonus_candy_policy_title,
+            initiallyExpanded: true,
             children: _policyChildren(context),
           ),
         ],
@@ -274,6 +313,11 @@ class UsagePolicyPopup extends ConsumerWidget {
   /// 보너스 만료는 매월 15일 00:00 (KST) 이므로(`computeBonusExpiry`), 달력에서
   /// 15일을 하드코딩하는 대신 서버가 준 소멸 예정 데이터에서 "이번 달 몫이
   /// 오늘 만료되는가"를 판정한다 — 경계 규칙이 서버와 어긋날 수 없게.
+  ///
+  /// 보너스 조회가 **실패**했을 때는 이 줄을 아예 그리지 않는다(호출부에서
+  /// 걸러진다). `expiringData == null` 이면 `bonusExpiringToday` 가 0 을 주므로
+  /// 코튼캔디만 적힌 단정문이 나오고, 실제 소멸일인 15일에는 그 문장이 틀리기
+  /// 때문이다. 실패 사실은 보너스 카드가 말한다.
   Widget _buildHero(
     BuildContext context,
     List<Map<String, dynamic>?>? expiringData,
@@ -463,9 +507,11 @@ class UsagePolicyPopup extends ConsumerWidget {
                         alignment: Alignment.centerRight,
                         child: Text(
                           numberFormat.format(rows[i]['expiring_amount'] ?? 0),
+                          // 금액도 값이다 — point900 대신 grey900. 분홍 배경 위
+                          // point900 은 3.37:1 이라 14px bold 에서도 AA 미달이다.
                           style: _t(
                             AppTypo.body14B,
-                            AppColors.point900,
+                            AppColors.grey900,
                             height: 1.20,
                           ),
                         ),
@@ -480,6 +526,19 @@ class UsagePolicyPopup extends ConsumerWidget {
             Text(
               localizations.bonus_candy_expiration_policy_load_fail,
               style: _t(AppTypo.body14M, AppColors.grey600, height: 1.35),
+            ),
+          ] else ...[
+            // 소멸 예정 행이 하나도 없는 상태(비로그인 · 예정 없음)에서도 카드가
+            // 제목만 남은 빈 분홍 막대가 되면 안 된다 — 로딩 스켈레톤이나 깨진
+            // 카드로 읽힌다. 코튼캔디 카드의 규칙 한 줄과 짝이 되도록 보너스의
+            // 월별 소멸 규칙을 적는다. **새 문구를 만들지 않고** 기존 키
+            // (소멸 시점 / 다음달 15일 / 다다음달 15일) 만 이어 붙인다.
+            const SizedBox(height: 8),
+            Text(
+              '${localizations.bonus_candy_expiration_policy_expiration_date} : '
+              '${localizations.bonus_candy_expiration_next_month} / '
+              '${localizations.bonus_candy_expiration_month_after_next}',
+              style: _t(AppTypo.body14R, AppColors.grey600, height: 1.45),
             ),
           ],
         ],
@@ -501,7 +560,7 @@ class UsagePolicyPopup extends ConsumerWidget {
         l.bonus_candy_expiration_next_month,
         expiry: true,
       ),
-      _hairline,
+      _groupLine(),
       const SizedBox(height: 12),
       _pair(
         l.bonus_candy_expiration_policy_earn_period,
@@ -536,7 +595,7 @@ class UsagePolicyPopup extends ConsumerWidget {
         fill(l.bonus_candy_example_1_expire),
         expiry: true,
       ),
-      _hairline,
+      _groupLine(),
       const SizedBox(height: 12),
       _pair(l.bonus_candy_example_earn_date, fill(l.bonus_candy_example_2_earn)),
       _pair(
@@ -557,35 +616,57 @@ class UsagePolicyPopup extends ConsumerWidget {
   }
 }
 
-/// 하나뿐인 스크롤 영역 + 바닥 페이드.
+/// 하나뿐인 스크롤 영역 + 바닥 '아래에 더 있다' 신호.
 ///
 /// `ConstrainedBox` 가 높이 상한을 정하고, `Stack` 이 loose bounded 제약을
 /// 넘기므로 `SingleChildScrollView` 는 `min(내용, 상한)` 으로 **내용에 붙는다**.
 /// 예전 구조(`Column(max)` + `Expanded`)는 로그아웃 상태에서도 카드를 658px 로
 /// 고정해 157px 의 흰 여백을 남겼다.
 ///
-/// 페이드는 실제로 뒤에 가려진 내용이 있을 때만 보인다. 안드로이드/iOS 의
-/// `MaterialScrollBehavior` 는 스크롤바를 그리지 않아서(`return child`) 이게
-/// 유일하게 가능한 '아래에 더 있다' 신호다.
-class _ScrollFadeBody extends StatefulWidget {
-  const _ScrollFadeBody({required this.children});
+/// 좌우 · 아래 여백을 [contentPadding] 으로 **스크롤 뷰 안**에 넣는다. 그래서
+/// 뷰포트가 카드 안쪽 경계까지 닿고, 넘치는 내용의 잘림이 카드 테두리에서
+/// 일어난다. 패딩이 스크롤 뷰 밖에 있던 예전 구조에서는 잘린 글자가 테두리보다
+/// 56px 위에 떠 있어서 스크롤 신호가 아니라 렌더링 오류로 읽혔다.
+///
+/// 바닥 신호는 세 겹이고, 실제로 가려진 내용이 있을 때만 켜진다.
+/// 1. 바닥 56px 흰 그라디언트 — 셸의 `BorderRadius.circular(120.r)` 코너 웨지에
+///    글자가 들어가는 구간(바닥에서 ~44px 아래)을 덮는다. 곡선에 씹힌 글자가
+///    보이지 않게 하는 게 목적이다.
+/// 2. 그 위 가운데의 아래 화살표 — 흰 카드에 흰 그라디언트는 그 자체로 보이지
+///    않으므로, '더 있다' 를 실제로 말하는 건 이 화살표다.
+/// 3. 위쪽 32px 흰 그라디언트 — 스크롤한 뒤 뷰포트 위 경계에서 글자가 생으로
+///    잘리는 걸 부드럽게 만든다. 타이틀 칩과 잘린 줄 사이에 16px 흰 여백이 있어서
+///    그냥 두면 바닥에서 고친 것과 같은 "떠 있는 잘림" 이 위에서 생긴다.
+///
+/// 스크롤바는 쓸 수 없다. 카드 바닥이 스타디움 곡선이라 오른쪽 끝 트랙이 곡선에
+/// 잘린다 — 411.4dp 에서 침범량이 3px 이하가 되려면 트랙이 바닥에서 86px 위에서
+/// 끝나야 하고, 그러면 정작 필요한 순간에 썸이 사라진다. 가로 중앙이 카드 바닥
+/// 근처에서 유일하게 안전한 자리다.
+class _ScrollBody extends StatefulWidget {
+  const _ScrollBody({required this.children, required this.contentPadding});
 
   final List<Widget> children;
+  final EdgeInsets contentPadding;
 
   @override
-  State<_ScrollFadeBody> createState() => _ScrollFadeBodyState();
+  State<_ScrollBody> createState() => _ScrollBodyState();
 }
 
-class _ScrollFadeBodyState extends State<_ScrollFadeBody> {
-  static const double _fadeHeight = 32;
+class _ScrollBodyState extends State<_ScrollBody> {
+  static const double _bottomCueHeight = 56;
+  static const double _topCueHeight = 32;
 
   final ScrollController _controller = ScrollController();
-  final ValueNotifier<bool> _hasMore = ValueNotifier<bool>(false);
+
+  /// `(위에 더 있다, 아래에 더 있다)`.
+  final ValueNotifier<(bool, bool)> _edges = ValueNotifier<(bool, bool)>(
+    (false, false),
+  );
 
   @override
   void dispose() {
     _controller.dispose();
-    _hasMore.dispose();
+    _edges.dispose();
     super.dispose();
   }
 
@@ -594,10 +675,16 @@ class _ScrollFadeBodyState extends State<_ScrollFadeBody> {
   void _syncLater() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final next = _controller.hasClients &&
-          _controller.position.hasContentDimensions &&
-          _controller.position.extentAfter > 1.0;
-      if (_hasMore.value != next) _hasMore.value = next;
+      final ready =
+          _controller.hasClients &&
+          _controller.position.hasContentDimensions;
+      final next = ready
+          ? (
+              _controller.position.extentBefore > 1.0,
+              _controller.position.extentAfter > 1.0,
+            )
+          : (false, false);
+      if (_edges.value != next) _edges.value = next;
     });
   }
 
@@ -607,30 +694,44 @@ class _ScrollFadeBodyState extends State<_ScrollFadeBody> {
 
     return Stack(
       children: [
-        NotificationListener<ScrollNotification>(
+        // 공개 블록을 펼쳐서 **내용 높이**가 바뀔 때는 `ScrollMetricsNotification`
+        // 만 온다. `ScrollNotification` 은 `LayoutChangedNotification` 의 하위
+        // 타입이고 `ScrollMetricsNotification` 은 `Notification` 직속이라 둘은
+        // 형제 관계다(scroll_position.dart:1157). 스크롤 알림만 듣던 예전
+        // 코드에서는 펼친 직후 220px 가 화면 밖에 생겨도 신호가 뜨지 않았고,
+        // 사용자가 손으로 끌어야 비로소 나타났다.
+        NotificationListener<ScrollMetricsNotification>(
           onNotification: (_) {
             _syncLater();
             return false;
           },
-          child: SingleChildScrollView(
-            controller: _controller,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: widget.children,
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (_) {
+              _syncLater();
+              return false;
+            },
+            child: SingleChildScrollView(
+              controller: _controller,
+              padding: widget.contentPadding,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: widget.children,
+              ),
             ),
           ),
         ),
         Positioned(
+          key: const Key('scroll-cue-top'),
           left: 0,
           right: 0,
-          bottom: 0,
-          height: _fadeHeight,
+          top: 0,
+          height: _topCueHeight,
           child: IgnorePointer(
-            child: ValueListenableBuilder<bool>(
-              valueListenable: _hasMore,
-              builder: (context, hasMore, _) => AnimatedOpacity(
-                opacity: hasMore ? 1 : 0,
+            child: ValueListenableBuilder<(bool, bool)>(
+              valueListenable: _edges,
+              builder: (context, edges, _) => AnimatedOpacity(
+                opacity: edges.$1 ? 1 : 0,
                 duration: const Duration(milliseconds: 150),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -638,9 +739,58 @@ class _ScrollFadeBodyState extends State<_ScrollFadeBody> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
+                        AppColors.grey00,
+                        AppColors.grey00.withValues(alpha: 0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          key: const Key('scroll-cue-bottom'),
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: _bottomCueHeight,
+          child: IgnorePointer(
+            child: ValueListenableBuilder<(bool, bool)>(
+              valueListenable: _edges,
+              builder: (context, edges, _) => AnimatedOpacity(
+                opacity: edges.$2 ? 1 : 0,
+                duration: const Duration(milliseconds: 150),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      // 0.45 에서 이미 불투명해야 한다. 코너 웨지가 커지는
+                      // 구간(바닥에서 ~30px 아래)이 반투명하게 남으면 곡선에
+                      // 잘린 글자 조각이 그대로 보인다.
+                      stops: const [0, 0.45, 1],
+                      colors: [
                         AppColors.grey00.withValues(alpha: 0),
                         AppColors.grey00,
+                        AppColors.grey00,
                       ],
+                    ),
+                  ),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: SvgPicture.asset(
+                        'assets/icons/arrow_down_style=line.svg',
+                        package: 'picnic_lib',
+                        width: 20.w,
+                        height: 20.w,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.grey400,
+                          BlendMode.srcIn,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -676,29 +826,73 @@ class _Disclosure extends StatefulWidget {
 }
 
 class _DisclosureState extends State<_Disclosure> {
+  /// 펼침 애니메이션 길이.
+  static const Duration _growth = Duration(milliseconds: 200);
+
   late bool _open = widget.initiallyExpanded;
-  final GlobalKey _bodyKey = GlobalKey();
+  final GlobalKey _blockKey = GlobalKey();
+  Timer? _revealTimer;
+
+  @override
+  void dispose() {
+    _revealTimer?.cancel();
+    super.dispose();
+  }
 
   void _toggle() {
     setState(() => _open = !_open);
+    _revealTimer?.cancel();
     if (!_open) return;
-    // 새로 드러난 내용을 화면 안으로 끌어온다 — "내 내용을 잘라먹었다" 는
-    // 인식을 직접 공격하는 부분.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _bodyKey.currentContext;
-      if (ctx == null || !ctx.mounted) return;
-      Scrollable.ensureVisible(
-        ctx,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-        alignment: 0.1,
-      );
-    });
+    // **성장이 끝난 뒤에** 스크롤한다. 다음 프레임에 바로 스크롤하면
+    // `AnimatedSize` 가 아직 본문을 0 높이로 클립하고 있어서 스크롤 뷰의
+    // `maxScrollExtent` 가 최종값보다 작고, 목표 오프셋이
+    // `applyBoundaryConditions` 에 잘려 0 으로 주저앉는다. 예전 코드
+    // (`addPostFrameCallback` + `Scrollable.ensureVisible`) 가 한 번도 스크롤하지
+    // 못한 이유가 이것이다 — 펼쳐도 pixels 는 정확히 0.0 에 머물렀다.
+    _revealTimer = Timer(_growth + const Duration(milliseconds: 32), _reveal);
+  }
+
+  /// 새로 드러난 본문을 화면 안으로 끌어온다 — "내 내용을 잘라먹었다" 는
+  /// 인식을 직접 공격하는 부분.
+  ///
+  /// 블록 바닥을 뷰포트 바닥에 맞추는 오프셋(`toEnd`)과 블록 머리를 뷰포트 위에
+  /// 맞추는 오프셋(`toStart`) 중 **작은 쪽**으로 간다. 블록이 뷰포트보다 짧으면
+  /// 딱 필요한 만큼만 올라가고, 더 길면 제목을 남긴 채 본문을 최대한 보여준다
+  /// (`ensureVisible` 의 `keepVisibleAtEnd` 는 후자에서 제목을 밀어낸다).
+  void _reveal() {
+    if (!mounted || !_open) return;
+    final ctx = _blockKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject();
+    if (box is! RenderBox || !box.hasSize || !box.attached) return;
+    final position = Scrollable.maybeOf(ctx)?.position;
+    if (position == null ||
+        !position.hasPixels ||
+        !position.hasContentDimensions) {
+      return;
+    }
+    final viewport = RenderAbstractViewport.maybeOf(box);
+    if (viewport == null) return;
+
+    final toEnd = viewport.getOffsetToReveal(box, 1).offset;
+    // 이미 블록 전체가 보이면 화면을 흔들지 않는다.
+    if (toEnd <= position.pixels + 1) return;
+    final toStart = viewport.getOffsetToReveal(box, 0).offset;
+    final target = math
+        .min(toEnd, toStart)
+        .clamp(position.minScrollExtent, position.maxScrollExtent);
+    if ((target - position.pixels).abs() < 1) return;
+    position.animateTo(
+      target,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      key: _blockKey,
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -742,14 +936,13 @@ class _DisclosureState extends State<_Disclosure> {
           ),
         ),
         AnimatedSize(
-          duration: const Duration(milliseconds: 200),
+          duration: _growth,
           curve: Curves.easeOut,
           alignment: Alignment.topCenter,
           child: _open
               // 본문에 좌측 들여쓰기를 주지 않는다 — 값에 293px 전체가 필요하다.
               // 종속 관계는 레이블의 grey500 색으로 표현한다.
               ? Padding(
-                  key: _bodyKey,
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

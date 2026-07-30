@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/data/models/wallet/currency_history.dart';
@@ -114,7 +115,16 @@ Future<void> _pumpPopup(
 AppLocalizations _l10n(WidgetTester tester) =>
     AppLocalizations.of(tester.element(find.byType(UsagePolicyPopup)));
 
+/// ARB 에 리터럴로 박힌 불릿 접두사를 위젯과 같은 규칙으로 떼어낸다.
+String _stripBullet(String raw) =>
+    raw.replaceFirst(RegExp(r'^\s*[-•·]\s*'), '');
+
 /// 접힘 헤더는 스크롤 밖에 있을 수 있다. 눌러야 하면 먼저 화면 안으로 끌어온다.
+///
+/// 탭 이후에 `pumpAndSettle` 만 하면 부족하다. 펼침 애니메이션(200ms) 이 끝난
+/// 뒤에 스크롤을 걸기 위해 위젯이 232ms 타이머를 쓰는데, 그 사이에 예약된
+/// 프레임이 없으면 `pumpAndSettle` 은 200ms 에서 멈춰서 타이머가 발화하지 않는다
+/// (가짜 시계라서 실기기와 달리 저절로 흐르지 않는다).
 Future<void> _openDisclosure(WidgetTester tester, String title) async {
   final header = find.text(title);
   expect(header, findsOneWidget, reason: 'disclosure header "$title"');
@@ -122,6 +132,26 @@ Future<void> _openDisclosure(WidgetTester tester, String title) async {
   await tester.pumpAndSettle();
   await tester.tap(header);
   await tester.pumpAndSettle();
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.pumpAndSettle();
+}
+
+/// 이미 펼쳐진 블록은 건드리지 않는다 — 누르면 오히려 닫힌다.
+bool _isOpen(WidgetTester tester, String title) {
+  final l = _l10n(tester);
+  if (title == l.bonus_candy_expiration_time_title) {
+    return find
+        .text(l.bonus_candy_expiration_policy_earn_period)
+        .evaluate()
+        .isNotEmpty;
+  }
+  if (title == l.bonus_candy_example_title) {
+    return find.text(l.bonus_candy_example_earn_date).evaluate().isNotEmpty;
+  }
+  return find
+      .text(_stripBullet(l.bonus_candy_policy_1))
+      .evaluate()
+      .isNotEmpty;
 }
 
 Future<void> _openAllDisclosures(WidgetTester tester) async {
@@ -131,11 +161,7 @@ Future<void> _openAllDisclosures(WidgetTester tester) async {
     l.bonus_candy_example_title,
     l.bonus_candy_policy_title,
   ]) {
-    // 소멸 시점 안내는 소멸 예정 행이 없을 때 이미 펼쳐져 있다.
-    final alreadyOpen =
-        title == l.bonus_candy_expiration_time_title &&
-        find.text(l.bonus_candy_expiration_policy_earn_period).evaluate().isNotEmpty;
-    if (alreadyOpen) continue;
+    if (_isOpen(tester, title)) continue;
     await _openDisclosure(tester, title);
   }
 }
@@ -150,6 +176,58 @@ Finder get _shellFinder => find.descendant(
 
 ScrollPosition _position(WidgetTester tester) =>
     tester.state<ScrollableState>(find.byType(Scrollable)).position;
+
+double _cueOpacity(WidgetTester tester, {bool top = false}) => tester
+    .widget<AnimatedOpacity>(
+      find.descendant(
+        of: find.byKey(Key(top ? 'scroll-cue-top' : 'scroll-cue-bottom')),
+        matching: find.byType(AnimatedOpacity),
+      ),
+    )
+    .opacity;
+
+Rect _globalRect(Element element) {
+  final box = element.renderObject! as RenderBox;
+  return box.localToGlobal(Offset.zero) & box.size;
+}
+
+/// 셸의 실제 클립 경로.
+///
+/// `Container(clipBehavior: Clip.antiAlias)` 는 `BoxDecoration.getClipPath` 를
+/// 쓰고, 그건 테두리 두께를 빼지 않은 **바깥** 라운드 사각형이다
+/// (large_popup.dart:36-47). 즉 카드 바닥 근처에서 쓸 수 있는 가로 폭은
+/// `BorderRadius.circular(120.r)` 만큼 급격히 줄어든다.
+RRect _shellClip(WidgetTester tester) => RRect.fromRectAndRadius(
+  tester.getRect(_shellFinder),
+  Radius.circular(ScreenUtil().radius(120)),
+);
+
+/// 지금 화면에서 읽으라고 내놓은 모든 텍스트가 코너 웨지 밖에 있는지 본다.
+///
+/// 바닥 신호(56px)에 덮이는 구간은 제외한다 — 거기 있는 글자는 스크롤 도중
+/// 흰색으로 지워지는 게 설계다. 뷰포트 위로 밀려난 글자도 제외한다(뷰포트가
+/// 자기 경계에서 잘라내므로 카드 코너와 무관하다).
+void _expectTextInsideClip(WidgetTester tester, {required String at}) {
+  final clip = _shellClip(tester);
+  final viewport = tester.getRect(find.byType(SingleChildScrollView));
+  final cue = _position(tester).extentAfter > 1 ? 56.0 : 0.0;
+  final offenders = <String>[];
+  for (final element in find.byType(Text).evaluate()) {
+    final rect = _globalRect(element);
+    if (rect.isEmpty) continue;
+    if (rect.top < viewport.top - 0.01) continue;
+    if (rect.bottom > viewport.bottom - cue + 0.01) continue;
+    final outside = <Offset>[
+      rect.topLeft,
+      rect.topRight,
+      rect.bottomLeft,
+      rect.bottomRight,
+    ].where((p) => !clip.contains(p));
+    if (outside.isEmpty) continue;
+    offenders.add('"${(element.widget as Text).data}" $rect');
+  }
+  expect(offenders, isEmpty, reason: 'clipped by the card corner arc ($at)');
+}
 
 void main() {
   // 이 패키지에는 flutter_test_config.dart 가 없어서 파일마다 직접 폰트를
@@ -197,32 +275,35 @@ void main() {
     }
   });
 
-  group('T2 코너 클립 안전 여백', () {
-    // 셸은 BorderRadius.circular(120.r) 로 antiAlias 클립한다. 스크롤 뷰포트가
-    // 카드 바닥에서 56px 이상 떨어져 있어야 어떤 스크롤 위치에서도 글자가 코너
-    // 웨지에 들어가지 않는다.
-    for (final size in const [Size(320, 640), Size(411.4, 914.3)]) {
-      testWidgets('${size.width}x${size.height}', (tester) async {
-        await _pumpPopup(tester, size: size);
+  group('T2 코너 클립 안전 — 쉬는 상태와 끝까지 내린 상태', () {
+    // 뷰포트는 이제 카드 안쪽 경계까지 닿는다(패딩이 스크롤 뷰 안으로 들어갔다).
+    // 그래서 "뷰포트가 바닥에서 몇 px 떨어졌나" 대신, 실제 클립 경로로 **글자
+    // 사각형이 코너 웨지에 들어가는지**를 직접 본다.
+    for (final size in const [
+      Size(320, 640),
+      Size(360, 800),
+      Size(411.4, 914.3),
+    ]) {
+      for (final scale in const [1.0, 1.3]) {
+        testWidgets('${size.width}x${size.height} x$scale', (tester) async {
+          await _pumpPopup(tester, size: size, textScale: scale);
 
-        final shellRect = tester.getRect(_shellFinder);
-        final scrollRect = tester.getRect(find.byType(SingleChildScrollView));
-        expect(
-          shellRect.bottom - scrollRect.bottom,
-          greaterThanOrEqualTo(55.0),
-          reason: 'viewport bottom must sit >= 56px above the card edge',
-        );
+          // 뷰포트가 카드 안쪽 경계까지 닿아야 한다 — 잘림이 테두리에서
+          // 일어나야 스크롤 신호로 읽힌다. 남는 건 셸의 2.r 테두리뿐이다.
+          final gap =
+              tester.getRect(_shellFinder).bottom -
+              tester.getRect(find.byType(SingleChildScrollView)).bottom;
+          expect(gap, lessThan(4.0), reason: 'viewport must reach the card edge');
 
-        // 끝까지 스크롤해도 뷰포트 자체는 그대로다(패딩이 스크롤 뷰 밖이므로).
-        final position = _position(tester);
-        position.jumpTo(position.maxScrollExtent);
-        await tester.pumpAndSettle();
-        final scrolledRect = tester.getRect(find.byType(SingleChildScrollView));
-        expect(
-          tester.getRect(_shellFinder).bottom - scrolledRect.bottom,
-          greaterThanOrEqualTo(55.0),
-        );
-      });
+          _expectTextInsideClip(tester, at: 'at rest');
+
+          await _openAllDisclosures(tester);
+          final position = _position(tester);
+          position.jumpTo(position.maxScrollExtent);
+          await tester.pumpAndSettle();
+          _expectTextInsideClip(tester, at: 'at maxScrollExtent');
+        });
+      }
     }
   });
 
@@ -239,7 +320,11 @@ void main() {
       // 헤더는 접혀 있어도 보인다.
       expect(find.text(l.bonus_candy_example_title), findsOneWidget);
       expect(find.byKey(const Key('candy-policy-section')), findsOneWidget);
-      expect(find.text(l.bonus_candy_policy_1.substring(2)), findsNothing);
+      // 정책은 소비자 고지라서 **처음부터 펼쳐져 있다**. 접힌 본문은 트리에서
+      // 빠지므로, 접어 두면 '아래에 있다' 가 아니라 '안 보여준다' 가 된다.
+      expect(find.text(_stripBullet(l.bonus_candy_policy_1)), findsOneWidget);
+      expect(find.text(_stripBullet(l.bonus_candy_policy_2)), findsOneWidget);
+      expect(find.text(_stripBullet(l.bonus_candy_policy_3)), findsOneWidget);
 
       await _openDisclosure(tester, l.bonus_candy_example_title);
       // 레이블은 그룹마다 반복돼 행이 스스로를 설명한다.
@@ -343,6 +428,11 @@ void main() {
         find.text(l.bonus_candy_expiration_policy_earn_period),
         findsNWidgets(2),
       );
+
+      // 보너스를 모르는 상태에서 "오늘 만료 : 코튼캔디 N" 이라고 단정하면 안
+      // 된다. 실제 소멸일(매월 15일 KST)에는 그 문장이 틀린다.
+      expect(find.byKey(const Key('expiry-today-summary')), findsNothing);
+      expect(find.text(l.expiring_today_cotton_only('10')), findsNothing);
     });
 
     testWidgets('비로그인: 히어로가 없고 두 카드와 세 구분선은 남는다', (
@@ -353,11 +443,22 @@ void main() {
         size: const Size(393, 873),
         loggedIn: false,
       );
+      final l = _l10n(tester);
       expect(find.byKey(const Key('expiry-today-summary')), findsNothing);
       expect(find.byKey(const Key('cotton-candy-section')), findsOneWidget);
       expect(find.byKey(const Key('bonus-star-candy-section')), findsOneWidget);
       // 표를 지운 뒤에도 구분선은 남아야 한다(기존 테스트 :281 이 이걸 본다).
       expect(find.byType(Divider), findsWidgets);
+
+      // 소멸 예정 행이 없어도 보너스 카드는 제목만 남은 빈 분홍 막대가 되면
+      // 안 된다 — 코튼캔디 카드의 규칙 한 줄과 짝이 되는 문장을 갖는다.
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('bonus-star-candy-section')),
+          matching: find.textContaining(l.bonus_candy_expiration_next_month),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('0 소멸 예정은 긴급 강조색을 쓰지 않는다', (tester) async {
@@ -400,6 +501,98 @@ void main() {
       );
       expect(hero.style?.fontSize, 14.0);
       expect(hero.style?.fontWeight, FontWeight.w500);
+    });
+  });
+
+  group('T7 펼치면 드러난 내용을 화면 안으로 끌어온다', () {
+    // 예전 구현(`addPostFrameCallback` + `Scrollable.ensureVisible`)은 성장 중에
+    // 목표 오프셋이 `applyBoundaryConditions` 에 잘려서 pixels 가 정확히 0.0 에
+    // 머물렀다. 펼쳤는데 셰브런만 돌고 아무 일도 안 일어나는 상태였다.
+    for (final size in const [Size(320, 568), Size(320, 640)]) {
+      testWidgets('${size.width}x${size.height}', (tester) async {
+        await _pumpPopup(tester, size: size);
+        final l = _l10n(tester);
+        final position = _position(tester);
+        expect(position.pixels, 0.0);
+
+        // 이 헤더는 쉬는 상태에서 이미 화면에 있다. `tester.ensureVisible` 로
+        // 미리 스크롤하면 위젯이 스크롤했는지 테스트가 스크롤했는지 구분할 수
+        // 없어지므로, 여기서는 절대 쓰지 않는다.
+        final header = find.text(l.bonus_candy_expiration_time_title);
+        expect(
+          tester.getRect(header).bottom,
+          lessThan(tester.getRect(find.byType(SingleChildScrollView)).bottom),
+        );
+        await tester.tap(header);
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pumpAndSettle();
+
+        expect(
+          position.pixels,
+          greaterThan(0.0),
+          reason: 'expanding must scroll the revealed body into view',
+        );
+        // 드러난 첫 행이 뷰포트 안에 완전히 들어와야 한다.
+        final viewport = tester.getRect(find.byType(SingleChildScrollView));
+        final firstRow = tester.getRect(
+          find.text(l.bonus_candy_expiration_policy_earn_period).first,
+        );
+        expect(firstRow.top, greaterThanOrEqualTo(viewport.top - 0.01));
+        expect(firstRow.bottom, lessThanOrEqualTo(viewport.bottom + 0.01));
+        // 제목은 밀려나지 않는다 — 블록이 뷰포트보다 길어도 머리는 남긴다.
+        expect(
+          tester.getRect(header).top,
+          greaterThanOrEqualTo(viewport.top - 0.01),
+        );
+      });
+    }
+  });
+
+  group('T8 바닥 신호', () {
+    testWidgets('내용이 다 보이면 꺼져 있다 (360x800 = 보고된 기기)', (
+      tester,
+    ) async {
+      await _pumpPopup(tester, size: const Size(360, 800));
+      expect(_position(tester).maxScrollExtent, 0.0);
+      expect(_cueOpacity(tester), 0.0);
+    });
+
+    testWidgets('펼쳐서 내용이 넘치면 손대지 않아도 켜진다 (360x800)', (
+      tester,
+    ) async {
+      await _pumpPopup(tester, size: const Size(360, 800));
+      final l = _l10n(tester);
+      final position = _position(tester);
+      expect(_cueOpacity(tester), 0.0);
+
+      // 이 기기에서는 소멸 시점 안내를 펼쳐도 블록 자체는 뷰포트 안에 들어가서
+      // **스크롤이 일어나지 않는다**. 즉 ScrollNotification 도 오지 않는다.
+      // 그래도 아래로 밀려난 예시 · 정책이 생기므로 신호는 켜져야 한다 —
+      // 내용 크기 변화는 ScrollMetricsNotification 으로만 오기 때문에, 이걸
+      // 듣지 않으면 사용자가 손으로 끌기 전까지 신호가 뜨지 않는다.
+      await _openDisclosure(tester, l.bonus_candy_expiration_time_title);
+
+      expect(position.pixels, 0.0, reason: 'no scroll happened in this case');
+      expect(position.extentAfter, greaterThan(1.0));
+      expect(_cueOpacity(tester), 1.0);
+    });
+
+    testWidgets('끝까지 내리면 아래 신호가 꺼지고 위 신호가 켜진다 (320x568)', (
+      tester,
+    ) async {
+      await _pumpPopup(tester, size: const Size(320, 568));
+      final position = _position(tester);
+      expect(position.maxScrollExtent, greaterThan(0.0));
+      expect(_cueOpacity(tester), 1.0);
+      expect(_cueOpacity(tester, top: true), 0.0);
+
+      position.jumpTo(position.maxScrollExtent);
+      await tester.pumpAndSettle();
+      expect(_cueOpacity(tester), 0.0);
+      // 위쪽도 같은 문제를 갖는다: 뷰포트 위 경계에서 글자가 생으로 잘리고 그
+      // 위에 흰 여백이 남는다.
+      expect(_cueOpacity(tester, top: true), 1.0);
     });
   });
 }
