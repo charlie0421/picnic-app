@@ -54,12 +54,28 @@ void main() {
         reason: 'no ghost active-product entry may survive settlement');
   });
 
-  test('cooldown recorded at settlement casing blocks an immediate '
-      're-purchase asked for with the server casing', () {
+  test('a cooldown armed at settlement casing blocks a re-purchase asked for '
+      'with the server casing', () {
+    // 명시적 쿨다운(정산 미확정 / 지급 미확정 중복)만 재구매를 막는다. 정산이
+    // 끝난 구매는 막지 않는다 - 그 차단이 "이전 결제가 스토어에서 처리 중입니다"
+    // 라는 거짓 안내로 정상적인 연속 구매를 막았다.
     manager.recordPurchaseAttempt(productId: 'STAR100');
-    manager.completePurchaseSession('star100');
+    manager.activateDuplicateCooldown(
+      productId: 'star100',
+      cooldown: const Duration(minutes: 1),
+    );
 
     expect(manager.canAttemptPurchaseForProduct('STAR100'), isFalse,
         reason: 'the per-product cooldown must apply across ID casings');
+  });
+
+  test('a settled purchase leaves the same product immediately buyable', () {
+    manager.recordPurchaseAttempt(productId: 'STAR100');
+    manager.completePurchaseSession('star100');
+
+    expect(manager.canAttemptPurchaseForProduct('STAR100'), isTrue,
+        reason: '소비형 상품의 연속 구매는 정상 동작이다 - 이미 적립까지 끝난 '
+            '결제를 근거로 막으면 사용자는 거짓 "처리 중" 안내를 받는다 '
+            '(1.3.0 TestFlight patch 8)');
   });
 }

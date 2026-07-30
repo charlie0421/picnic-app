@@ -224,7 +224,11 @@ void main() {
 
       manager.completePurchaseSession('rapid');
       expect(manager.canAttemptPurchase(), isTrue);
-      expect(manager.canAttemptPurchaseForProduct('rapid'), isFalse); // cooldown
+      // 정산이 끝난 구매는 재구매를 막지 않는다 (patch 8 오차단).
+      expect(manager.canAttemptPurchaseForProduct('rapid'), isTrue);
+
+      manager.activateDuplicateCooldown(productId: 'rapid');
+      expect(manager.canAttemptPurchaseForProduct('rapid'), isFalse);
 
       manager.clearProductCooldown('rapid');
       expect(manager.canAttemptPurchaseForProduct('rapid'), isTrue);

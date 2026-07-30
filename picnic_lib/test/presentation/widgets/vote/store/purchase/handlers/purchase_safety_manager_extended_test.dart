@@ -43,7 +43,7 @@ void main() {
   group('Product-specific cooldown', () {
     test('clearProductCooldown removes all state for product', () {
       manager.recordPurchaseAttempt(productId: 'prod_a');
-      manager.completePurchaseSession('prod_a');
+      manager.markSettlementPending('prod_a');
 
       // Cooldown active
       expect(manager.canAttemptPurchaseForProduct('prod_a'), isFalse);
@@ -54,8 +54,10 @@ void main() {
     });
 
     test('remainingCooldownForProduct returns Duration during cooldown', () {
-      manager.recordPurchaseAttempt(productId: 'prod_b');
-      manager.completePurchaseSession('prod_b');
+      manager.activateDuplicateCooldown(
+        productId: 'prod_b',
+        cooldown: const Duration(minutes: 1),
+      );
 
       final remaining = manager.remainingCooldownForProduct('prod_b');
       expect(remaining, isNotNull);
@@ -135,6 +137,10 @@ void main() {
   group('resetUIOnly', () {
     test('resets purchase in progress but keeps cooldown', () {
       manager.recordPurchaseAttempt(productId: 'test');
+      manager.activateDuplicateCooldown(
+        productId: 'test',
+        cooldown: const Duration(minutes: 1),
+      );
       manager.completePurchaseSession('test');
 
       // Cooldown active for product

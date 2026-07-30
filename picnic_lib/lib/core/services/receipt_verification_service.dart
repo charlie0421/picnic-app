@@ -90,6 +90,14 @@ class ReceiptVerificationService {
   static const String _sandboxEnvironment = 'sandbox';
   static const String _productionEnvironment = 'production';
 
+  /// Whether this build talks to StoreKit.
+  ///
+  /// Injectable because the iOS-only idempotency-cache branch of
+  /// [verifyReceipt] is where a re-delivered transaction is decided, and a host
+  /// test (`Platform.isIOS == false`) could otherwise never reach it.
+  @visibleForTesting
+  bool isIOSPlatform = Platform.isIOS;
+
   /// 디버깅용 환경 정보 반환
   Future<Map<String, dynamic>> getEnvironmentInfo() async {
     final packageInfo = await PackageInfo.fromPlatform();
@@ -124,7 +132,7 @@ class ReceiptVerificationService {
       throw StateError('Payment environment rejected by build policy');
     }
     logger.i('=== Receipt Verification Started ===');
-    logger.i('Platform: ${Platform.isIOS ? 'iOS' : 'Android'}');
+    logger.i('Platform: ${isIOSPlatform ? 'iOS' : 'Android'}');
     logger.i('Environment: $environment');
     logger.i('Product: $productId');
 
@@ -136,66 +144,246 @@ class ReceiptVerificationService {
     // 이 영수증에 대해 실제로 전송한 요청 수 (replay 귀속 판별용)
     final sentRequests = SentVerificationRequests();
 
-    late final PurchaseSettlementResultModel result;
-    if (Platform.isIOS) {
-      // iOS: 동일 JWS 재전송 방지 (멱등 키: transactionId + signedDate)
-      try {
-        final idemKey = _makeIdemKeyFromJWS(receipt);
-        if (await _idemCacheContains(idemKey)) {
-          logger.w('🍎 동일 JWS 재전송 차단: $idemKey');
-          // 중복으로 간주하여 예외를 던져 상위에서 성공 UI를 띄우지 않도록 함.
-          // 이 캐시는 서버 정산이 성공한 직후에만 기록되므로(아래
-          // _idemCacheAdd), 캐시 히트 = 지급 확정 중복이다. grantConfirmed를
-          // 세워야 상위가 트랜잭션을 finish한다 - 아니면 정산 성공 후
-          // finish만 일시 실패한 트랜잭션이 재전달될 때마다 여기 걸려
-          // 영원히 완료되지 못한다.
-          throw ReusedPurchaseException(
-            message: 'Duplicate iOS receipt',
-            grantConfirmed: true,
+    final result = isIOSPlatform
+        ? await _verifyiOSWithIdempotency(
+            receipt,
+            productId,
+            userId,
+            environment,
+            receiptFormat,
+            sentRequests,
+          )
+        : await _settleOrPromoteDuplicate(
+            run: () => _verifyAndroidReceipt(
+              receipt,
+              productId,
+              userId,
+              environment,
+              sentRequests,
+            ),
+            receipt: receipt,
+            productId: productId,
+            userId: userId,
+            environment: environment,
+            receiptFormat: receiptFormat,
           );
-        }
-        result = await _verifyiOSReceipt(
-          receipt,
-          productId,
-          userId,
-          environment,
-          receiptFormat,
-          sentRequests,
-        );
-        await _idemCacheAdd(idemKey);
-      } catch (e) {
-        if (e is ReusedPurchaseException) {
-          // 중복은 그대로 상위로 전달하여 성공 플로우를 막는다
-          rethrow;
-        }
-        if (e is ReceiptResponseContractException) {
-          // 서버 정산은 이미 끝났고 응답만 해석하지 못한 상태 → 재전송 금지
-          rethrow;
-        }
-        logger.w('🍎 JWS 파싱/멱등 처리 실패 - 일반 경로로 진행: $e');
-        // 같은 카운터를 그대로 넘겨, 위 루프가 이미 보낸 요청도 replay 귀속에 반영한다.
-        result = await _verifyiOSReceipt(
-          receipt,
-          productId,
-          userId,
-          environment,
-          receiptFormat,
-          sentRequests,
-        );
-      }
-    } else {
-      result = await _verifyAndroidReceipt(
-        receipt,
-        productId,
-        userId,
-        environment,
-        sentRequests,
-      );
-    }
 
     logger.i('=== Receipt Verification Completed ===');
     return result;
   }
+
+  /// iOS 검증 + 동일 JWS 재전달 처리 (멱등 키: transactionId + signedDate).
+  ///
+  /// iOS 는 서버 정산이 확인되지 않은 트랜잭션을 **절대** finish 하지 않는다
+  /// (과금-미적립 방지). 그 결과 아직 finish 되지 않은 과거 트랜잭션은
+  /// StoreKit 이 새 구매와 나란히, 앱 실행마다 다시 전달한다 — 정상 동작이다.
+  ///
+  /// 예전에는 그 재전달이 이 멱등 캐시에 걸리는 순간
+  /// [ReusedPurchaseException] 이 되어 `ERR_PREV_TX` → "이전 결제가 스토어에서
+  /// 처리 중입니다. 잠시 후 다시 시도해 주세요." 로 보고됐다. 이미 지급까지
+  /// 끝난 구매에 대한 거짓 경고이고, 연속 구매 중이던 사용자에게는 방금 성공한
+  /// 결제가 실패한 것처럼 보였다 (1.3.0 TestFlight patch 8).
+  ///
+  /// 지금은 로컬 기억으로 추측하지 않고 서버에 다시 묻는다: wallet.v1 인테이크는
+  /// 이미 아는 트랜잭션에 REPLAY(200 + 정본 정산)로 답하므로 이 질문은 싸고
+  /// 멱등하다. 서버에 닿지 못한 경우에만 로컬 기록으로 폴백한다.
+  Future<PurchaseSettlementResultModel> _verifyiOSWithIdempotency(
+    String receipt,
+    String productId,
+    String userId,
+    String environment,
+    String receiptFormat,
+    SentVerificationRequests sentRequests,
+  ) async {
+    try {
+      final idemKey = _makeIdemKeyFromJWS(receipt);
+      if (await _idemCacheContains(idemKey)) {
+        logger.w('🍎 이미 정산한 JWS 재전달 - 서버에 정산 상태 재확인: $idemKey');
+        final settled = await confirmSettlementWithServer(
+          receipt: receipt,
+          productId: productId,
+          userId: userId,
+          environment: environment,
+          receiptFormat: receiptFormat,
+          // 이 캐시에 있는 영수증은 이미 정산되어 사용자가 결과를 본 것이다.
+          alreadyPresented: true,
+        );
+        if (settled != null) {
+          // 정산이 끝난 영수증의 durable 기록은 더 이상 필요 없다.
+          final queueKey = ReceiptQueueService.iosClientTraceId(receipt);
+          if (queueKey != null) {
+            await ReceiptQueueService().removeByClientTraceId(queueKey);
+          }
+          return settled;
+        }
+        // 서버 판정을 얻지 못했다. 이 캐시는 200 정산 직후에만 기록되므로
+        // (아래 _idemCacheAdd) 지급은 확정된 것으로 다룬다 — grantConfirmed 를
+        // 세워야 상위가 트랜잭션을 finish 해서 재전달 루프가 끊긴다.
+        throw ReusedPurchaseException(
+          message: 'Duplicate iOS receipt',
+          grantConfirmed: true,
+        );
+      }
+
+      final result = await _settleOrPromoteDuplicate(
+        run: () => _verifyiOSReceipt(
+          receipt,
+          productId,
+          userId,
+          environment,
+          receiptFormat,
+          sentRequests,
+        ),
+        receipt: receipt,
+        productId: productId,
+        userId: userId,
+        environment: environment,
+        receiptFormat: receiptFormat,
+      );
+      // 캐시 쓰기 실패가 아래 폴백을 타고 정산 요청을 한 번 더 보내서는
+      // 안 된다 - 정산은 이미 끝났다.
+      try {
+        await _idemCacheAdd(idemKey);
+      } catch (e) {
+        logger.w('🍎 멱등 캐시 기록 실패(정산은 이미 확정): $e');
+      }
+      return result;
+    } catch (e) {
+      if (e is ReusedPurchaseException) {
+        // 중복 판정은 그대로 상위로 전달한다 (상위가 지급 확정 여부로 갈린다).
+        rethrow;
+      }
+      if (e is ReceiptResponseContractException) {
+        // 서버 정산은 이미 끝났고 응답만 해석하지 못한 상태 → 재전송 금지
+        rethrow;
+      }
+      if (PurchaseFailureClassifier.isPermanentRejection(e)) {
+        // 서버가 이 본문에 판정을 내렸다 - 다시 보내도 같은 답이다.
+        rethrow;
+      }
+      logger.w('🍎 JWS 파싱/멱등 처리 실패 - 일반 경로로 진행: $e');
+      // 같은 카운터를 그대로 넘겨, 위 루프가 이미 보낸 요청도 replay 귀속에 반영한다.
+      return await _verifyiOSReceipt(
+        receipt,
+        productId,
+        userId,
+        environment,
+        receiptFormat,
+        sentRequests,
+      );
+    }
+  }
+
+  /// 중복(409) 판정을 서버의 정산 응답으로 승격시킨다.
+  ///
+  /// 레거시 `verify_receipt` 는 "영수증 행만 있고 지급은 실패했다" 와
+  /// "지급까지 끝났다" 를 **둘 다** 409 로 답한다. 그 구분을 클라이언트가
+  /// 로컬 정보로 추측하면 이미 지급된 구매를 실패로 안내하거나(=거짓 경고),
+  /// 미지급 구매를 성공으로 안내하게 된다. 그래서 서버에 정본 정산을 한 번 더
+  /// 물어보고, 답이 정산이면 그 정산으로 계속 진행한다.
+  ///
+  /// 서버가 정산을 확인해 주지 못하면 원래의 중복 예외를 그대로 올려보낸다 —
+  /// 그 경로는 트랜잭션을 보존한다.
+  Future<PurchaseSettlementResultModel> _settleOrPromoteDuplicate({
+    required Future<PurchaseSettlementResultModel> Function() run,
+    required String receipt,
+    required String productId,
+    required String userId,
+    required String environment,
+    required String receiptFormat,
+  }) async {
+    try {
+      return await run();
+    } on ReusedPurchaseException catch (e) {
+      if (e.grantConfirmed) rethrow;
+      logger.w('♻️ 지급 미확정 중복 - 서버에 정산 상태 재확인');
+      final settled = await confirmSettlementWithServer(
+        receipt: receipt,
+        productId: productId,
+        userId: userId,
+        environment: environment,
+        receiptFormat: receiptFormat,
+        // 지급이 확인되지 않은 중복은 사용자가 아무 결과도 보지 못한
+        // 상태다 - 정산이 확인되면 정본 영수증을 보여줘야 한다.
+        alreadyPresented: false,
+      );
+      if (settled == null) rethrow;
+      logger.w('♻️ 중복 판정이 서버 정산으로 확인됨 - 정산 성공으로 처리');
+      return settled;
+    }
+  }
+
+  /// 서버에 "이 영수증은 이미 정산됐는가" 를 다시 묻는다.
+  ///
+  /// 큐에 적재하지 않는다: 이 호출은 새 결제의 최초 전송이 아니라 이미
+  /// 정산됐을 가능성이 큰 영수증의 상태 조회이고, Android 큐 키는 난수라
+  /// 적재하면 같은 구매가 큐에 계속 쌓인다.
+  ///
+  /// `null` 은 "서버 판정을 얻지 못했다" 는 뜻이다(네트워크·타임아웃·다시
+  /// 중복 응답·영구 거부). 호출자는 그때 로컬 정보로 폴백한다.
+  @visibleForTesting
+  Future<PurchaseSettlementResultModel?> confirmSettlementWithServer({
+    required String receipt,
+    required String productId,
+    required String userId,
+    required String environment,
+    required String receiptFormat,
+    required bool alreadyPresented,
+  }) async {
+    try {
+      final settlement = await callVerificationFunction(
+        _requestBodyFor(
+          receipt: receipt,
+          productId: productId,
+          userId: userId,
+          environment: environment,
+          receiptFormat: receiptFormat,
+          clientTraceId: 'reverify-${DateTime.now().millisecondsSinceEpoch}',
+        ),
+        isIOSPlatform ? 'iOS' : 'Android',
+        SentVerificationRequests(),
+      );
+      // 재전달은 사용자가 이미 영수증을 본 정산이다 → `replayed` 를 그대로
+      // 두어 공용 다이얼로그가 "재전달 안내" 로 라우팅되게 한다. 반대로
+      // 지급 미확정 중복은 아무것도 보지 못한 상태이므로 정본 영수증을
+      // 보여줘야 한다 (`replayCausedByRetry` 의 정의 그대로: 우리가 만든
+      // replay 이고 사용자는 아직 아무것도 못 봤다).
+      return alreadyPresented || !settlement.replayed
+          ? settlement
+          : settlement.copyWith(replayCausedByRetry: true);
+    } catch (e) {
+      logger.w('중복 영수증의 서버 정산 재확인 실패 - 로컬 판정으로 폴백: $e');
+      return null;
+    }
+  }
+
+  /// verify-receipt-v2 요청 본문.
+  ///
+  /// 플랫폼 분기와 [ReceiptFormatHelper] 접촉을 한곳으로 모은다 — 정산 상태를
+  /// 다시 묻는 경로가 최초 전송과 다른 본문을 보내면 서버는 다른 트랜잭션으로
+  /// 읽는다. (`clientTraceId` 는 Android 본문에만 실린다.)
+  Map<String, dynamic> _requestBodyFor({
+    required String receipt,
+    required String productId,
+    required String userId,
+    required String environment,
+    required String receiptFormat,
+    required String clientTraceId,
+  }) => isIOSPlatform
+      ? ReceiptFormatHelper.buildIOSRequestBody(
+          receipt: receipt,
+          productId: productId,
+          userId: userId,
+          environment: environment,
+          receiptFormat: receiptFormat,
+        )
+      : ReceiptFormatHelper.buildAndroidRequestBody(
+          receipt: receipt,
+          productId: productId,
+          userId: userId,
+          environment: environment,
+          clientTraceId: clientTraceId,
+        );
 
   @visibleForTesting
   static bool isPaymentEnvironmentAllowed({
@@ -248,12 +436,13 @@ class ReceiptVerificationService {
       environment: environment,
     );
 
-    final requestBody = ReceiptFormatHelper.buildIOSRequestBody(
+    final requestBody = _requestBodyFor(
       receipt: receipt,
       productId: productId,
       userId: userId,
       environment: environment,
       receiptFormat: receiptFormat,
+      clientTraceId: clientTraceId,
     );
 
     final result = await callVerificationFunction(
@@ -291,11 +480,15 @@ class ReceiptVerificationService {
       environment: environment,
     );
 
-    final requestBody = ReceiptFormatHelper.buildAndroidRequestBody(
+    final requestBody = _requestBodyFor(
       receipt: receipt,
       productId: productId,
       userId: userId,
       environment: environment,
+      receiptFormat: ReceiptFormatHelper.verificationFormatFor(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: receipt,
+      ),
       clientTraceId: clientTraceId,
     );
 

@@ -81,7 +81,9 @@ class ReceiptQueueService {
   /// JWS 파싱 실패 시 같은 영수증으로 두 번째 루프를 돈다. 키가 매번
   /// 달라지면 같은 트랜잭션이 큐에 계속 쌓이므로 transactionId 로 고정한다.
   /// 파싱할 수 없는 영수증은 null → 난수 키로 폴백한다.
-  @visibleForTesting
+  ///
+  /// 프로덕션 API 다: 이미 정산된 트랜잭션의 재전달을 처리하는
+  /// `ReceiptVerificationService` 도 이 키로 해당 항목을 큐에서 지운다.
   static String? iosClientTraceId(String receipt) {
     final transactionId = ReceiptFormatHelper.appleTransactionIdFromJWS(receipt);
     return transactionId == null ? null : 'ios-$transactionId';

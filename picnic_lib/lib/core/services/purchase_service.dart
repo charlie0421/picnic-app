@@ -401,18 +401,26 @@ class PurchaseService {
       onSuccess();
       logger.i('Purchase successfully completed: ${purchaseDetails.productID}');
     } on ReusedPurchaseException catch (e) {
-      // 동일 JWS 재사용 케이스: 명확한 안내 메시지 반환
       logger.w('🔄 JWT 재사용 감지 (handleSuccessfulPurchase) - ${e.message}');
-      // 실패로 기록 (쿨다운 경로에서 활용)
       final currentUser = supabase.auth.currentUser;
       if (currentUser != null) {
         duplicatePreventionService.completePurchase(
           purchaseDetails.productID,
           currentUser.id,
-          success: false,
+          // 지급이 확정된 중복은 사용자 입장에서 성공이다 - 영구 저장된
+          // 진행 마커까지 정리해야 다음 실행에 유령으로 남지 않는다.
+          success: e.grantConfirmed,
         );
       }
-      onError(PurchaseConstants.errPrevTransactionPending);
+      if (e.grantConfirmed) {
+        // 서버가 지급까지 확인한 중복은 성공으로 보고한다. 오류로 보고하면
+        // 이미 받은 캔디에 대해 실패 안내가 뜬다.
+        onSuccess();
+        return;
+      }
+      // 지급 미확정 중복은 실패가 아니라 미확정이다 -
+      // [_handleActualPurchase] 의 같은 분기와 이유가 같다.
+      onError(PurchaseConstants.errProcessing);
       rethrow;
     } catch (e, s) {
       logger.e('Error in handleSuccessfulPurchase: $e', stackTrace: s);
@@ -512,8 +520,17 @@ class PurchaseService {
         );
       }
 
-      // JWS 재사용: 명확한 안내 메시지 키 전달
-      onError(PurchaseConstants.errPrevTransactionPending);
+      // 여기까지 왔다는 것은 서버에 다시 물어봐도(ReceiptVerificationService
+      // 의 재확인 경로) 정산을 확인해 주지 못했다는 뜻이다: 영수증은 서버가
+      // 알고 있는데 지급은 확정되지 않았다. 결제는 접수된 상태이므로 이것은
+      // **실패가 아니라 미확정**이다.
+      //
+      // 예전에는 `ERR_PREV_TX` 를 보고했고, 그 코드는 "이전 결제가 스토어에서
+      // 처리 중입니다. 잠시 후 다시 시도해 주세요." 로 표시된다 — 소비형
+      // 상품에서 재시도를 권하는 문장이라 되돌릴 수 없는 이중 과금을
+      // 유도한다. PROCESSING 은 같은 사실을 "접수됐고 처리되면 자동
+      // 적립된다"로 안내하고, 그 상품의 재구매만 정산 쿨다운으로 막는다.
+      onError(PurchaseConstants.errProcessing);
       // 지급이 확인되지 않은 중복(영수증만 있고 지급 실패)은 트랜잭션을
       // 남겨 두어 재시도를 보존한다.
       return false;

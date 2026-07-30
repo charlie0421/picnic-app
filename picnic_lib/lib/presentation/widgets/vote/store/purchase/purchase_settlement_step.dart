@@ -82,7 +82,14 @@ class PurchaseSettlementStep {
     );
 
     // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
-    safetyManager.completePurchaseSession(productId);
+    //
+    // 재전달된 정산(=이전 전달·이전 세션이 이미 정산하고 사용자에게 보여 준
+    // 결과)은 새 결제가 아니다. 그것 때문에 재구매 쿨다운을 세우면 지금 하려는
+    // 정상 구매가 "이전 결제가 스토어에서 처리 중" 으로 막힌다.
+    safetyManager.completePurchaseSession(
+      productId,
+      armRepurchaseCooldown: !isSettlementRedelivery(result),
+    );
 
     // 🧹 모든 타이머 완전 정리 (정상 구매 완료 시)
     cleanupAllTimersOnSuccess(productId);
@@ -165,7 +172,15 @@ class PurchaseSettlementStep {
 
     // 🛡️ 안전망 타이머·활성 상품 상태를 성공 경로와 동일하게 내린다.
     // 이걸 빼면 90초 뒤 "구매 처리 지연" 팝업이 이미 정산된 구매에 뜬다.
-    safetyManager.completePurchaseSession(productId);
+    //
+    // 단, 재구매 쿨다운은 세우지 않는다: 이 경로는 정의상 **이미 정산된**
+    // 트랜잭션의 재전달이고, 사용자가 지금 하려는 구매를 그 때문에 막으면
+    // "이전 결제가 스토어에서 처리 중입니다" 라는 거짓 안내로 정상 구매가
+    // 차단된다 (1.3.0 TestFlight patch 8).
+    safetyManager.completePurchaseSession(
+      productId,
+      armRepurchaseCooldown: false,
+    );
     cleanupAllTimersOnSuccess(productId);
 
     // 지급은 서버에서 이미 끝났고 응답에는 금액이 없다 → 다시 읽는다.

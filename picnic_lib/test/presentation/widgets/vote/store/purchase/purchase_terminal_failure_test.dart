@@ -24,6 +24,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_pro
 /// `PurchaseStarCandyState.initState` wires them.
 void main() {
   const productId = 'STAR100';
+  const otherProductId = 'STAR500';
   const attemptId = 'attempt-1';
   const launchSucceeded = <String, dynamic>{
     'success': true,
@@ -269,6 +270,101 @@ void main() {
       expect(manager.markSettlementPending(productId), isFalse,
           reason: '이전 시도의 "이미 안내함" 표시가 남아 이번 시도의 안내를 '
               '삼키면 사용자는 아무 설명도 못 받는다');
+    });
+
+    testWidgets('정산 미확정 쿨다운은 그 상품만 막는다', (tester) async {
+      await launch(productId, attemptId);
+      settlementPending(productId, attemptId);
+
+      expect(manager.canAttemptPurchaseForProduct(otherProductId), isTrue,
+          reason: 'PR #118 의 5분 쿨다운은 이중 과금을 막기 위한 것이므로 '
+              '해당 상품에만 적용된다 - 다른 상품의 구매를 막을 이유가 없다');
+      expect(manager.isSettlementPending(otherProductId), isFalse);
+    });
+  });
+
+  // =========================================================================
+  // 구매 전 가드의 범위 (patch 8 연속 구매 오차단)
+  //
+  // iOS 는 서버 정산이 확인되지 않은 트랜잭션을 절대 finish 하지 않으므로,
+  // 아직 정산되지 않은/이미 정산됐지만 finish 되지 않은 과거 결제는 앱 실행
+  // 마다·새 구매와 나란히 다시 전달된다. **새 구매는 그 때문에 막혀서는 안
+  // 된다.** 가드는 "같은 상품의 진행 중인 시도" 만 막을 수 있다.
+  // =========================================================================
+  group('구매 전 가드의 범위', () {
+    testWidgets('미정산 상품이 다른 상품의 새 구매를 막지 않는다', (tester) async {
+      await launch(productId, attemptId);
+
+      // STAR100 의 정산이 아직 도착하지 않았다.
+      expect(registry.contains(productId), isTrue, reason: '전제: 진행 중');
+
+      expect(manager.canAttemptPurchaseForProduct(otherProductId), isTrue,
+          reason: '연속 구매의 다음 상품이 열려 있어야 한다');
+      expect(registry.contains(otherProductId), isFalse);
+      expect(
+        registry.begin(
+          PurchaseCampaignAttempt(
+            attemptId: 'attempt-other',
+            productId: otherProductId,
+            displayedCampaign: null,
+          ),
+        ),
+        isTrue,
+        reason: '어템프트 등록도 상품별이라 다른 상품은 그대로 시작된다',
+      );
+
+      manager.disposeSafetyTimer();
+    });
+
+    testWidgets('안전망이 울린 미정산 상품도 다른 상품을 막지 않는다', (tester) async {
+      await launch(productId, attemptId);
+      await tester.pump(const Duration(seconds: 91));
+      expect(timeoutMessages, 1, reason: '전제: 안전망 발동');
+
+      expect(manager.canAttemptPurchaseForProduct(otherProductId), isTrue);
+    });
+
+    testWidgets('이미 정산된 트랜잭션의 재전달은 같은 상품의 새 구매도 막지 않는다', (
+      tester,
+    ) async {
+      // `PurchaseSettlementStep.settleServerConfirmed` 가 하는 호출 그대로.
+      // 재전달은 새 결제가 아니므로 재구매 쿨다운을 세우지 않는다.
+      manager.completePurchaseSession(productId, armRepurchaseCooldown: false);
+
+      expect(manager.canAttemptPurchaseForProduct(productId), isTrue,
+          reason: '이 오차단이 바로 사고 증상이다: 재전달 하나가 "이전 결제가 '
+              '스토어에서 처리 중입니다. 잠시 후 다시 시도해 주세요." 로 정상 '
+              '구매를 막았다 - 처리 중인 결제는 없고 이미 적립까지 끝났다');
+      expect(manager.canAttemptPurchaseForProduct(otherProductId), isTrue);
+      expect(manager.remainingCooldownForProduct(productId), isNull);
+    });
+
+    testWidgets('같은 상품의 진행 중인 시도는 그대로 막힌다', (tester) async {
+      await launch(productId, attemptId);
+
+      expect(registry.contains(productId), isTrue,
+          reason: '_canPurchase 의 첫 가드 - 두 번째 탭은 "구매 진행 중" 안내로 '
+              '간다');
+      expect(manager.canAttemptPurchaseForProduct(productId), isFalse,
+          reason: '진행 중 상품은 _activeProducts 에 있어 재구매가 막힌다 - '
+              '이 가드를 잃으면 한 상품에 두 번 과금될 수 있다');
+
+      manager.disposeSafetyTimer();
+    });
+
+    testWidgets('재전달 정산이 진행 중인 다른 상품의 세션을 지우지 않는다', (tester) async {
+      await launch(otherProductId, 'attempt-other');
+      expect(manager.canAttemptPurchase(), isFalse, reason: '전제: 진행 중');
+
+      // 진행 중인 STAR500 결제와 나란히 도착한 STAR100 재전달의 정산.
+      manager.completePurchaseSession(productId, armRepurchaseCooldown: false);
+
+      expect(manager.canAttemptPurchase(), isFalse,
+          reason: '전역 진행 플래그를 재전달이 내리면, 진행 중인 결제의 '
+              '복원 신호 판별(_shouldProcessRestoredIOS)이 뒤집힌다');
+      expect(manager.canAttemptPurchaseForProduct(otherProductId), isFalse);
+
+      manager.disposeSafetyTimer();
     });
   });
 }

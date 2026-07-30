@@ -543,15 +543,20 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
           switch (action) {
             case PurchaseErrorAction.showPendingMessage:
-              // 엣지(서버)에서 중복 처리됨 → '스토어 처리 중' 안내만
+              // 정산 단계에서 도착한 중복 판정. 결제는 이미 접수됐으므로
+              // "잠시 후 다시 시도해 주세요"(previousTransactionPendingError)로
+              // 안내하면 사용자는 같은 소비형 상품을 한 번 더 결제하고, 그
+              // 이중 과금은 되돌릴 수 없다. "접수됐고 처리되면 자동 적립된다"로
+              // 안내한다. (지급이 확정된 중복은 애초에 여기 오지 않는다 —
+              // onAlreadySettled 정산 경로를 탄다.)
               if (navigatorKey.currentContext != null) {
                 showSimpleDialog(
                   content: AppLocalizations.of(
                     navigatorKey.currentContext!,
-                  ).previousTransactionPendingError,
+                  ).purchase_payment_accepted_message,
                 );
               }
-              // iOS JWS 반복 중복 완화: 강제 쿨다운(상품별) 60초 적용하여 루프 차단
+              // 이 상품만 쿨다운으로 막는다 - 다른 상품의 구매는 열려 있다.
               _safetyManager.activateDuplicateCooldown(
                 productId: attempt.productId,
                 cooldown: const Duration(minutes: 1),
@@ -940,6 +945,14 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         '[PurchaseStarCandyState] Purchase cooldown active (per product)',
       );
       final l10n = AppLocalizations.of(context);
+      // 여기 도달했다는 것은 이 상품에 **명시적** 쿨다운이 걸려 있다는 뜻이다:
+      // 서버 정산이 진행 중이거나, 지급이 확인되지 않은 중복이 관측된 상태.
+      // 두 문구 모두 그 상태에 대해 사실이다. 정산이 끝난 구매는 더 이상 이
+      // 가드에 걸리지 않는다 — 걸리던 동안 소비형 상품의 정상적인 연속 구매가
+      // "이전 결제가 스토어에서 처리 중입니다" 라는 거짓 안내로 막혔다
+      // (1.3.0 TestFlight patch 8). 자세한 근거는
+      // PurchaseSafetyManager.canAttemptPurchaseForProduct 주석.
+      //
       // 정산 진행 중으로 막은 쿨다운은 "잠시 후 다시 시도하세요"의 반대를
       // 안내해야 한다 - 이미 결제된 소비형 상품을 다시 결제하면 안 된다.
       showSimpleDialog(
