@@ -5,6 +5,8 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/wallet/wallet_summary_skeleton.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class WalletSummaryPanel extends ConsumerWidget {
   const WalletSummaryPanel({
@@ -22,8 +24,16 @@ class WalletSummaryPanel extends ConsumerWidget {
     return ref
         .watch(walletSummaryProvider)
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => Text(localizations.wallet_load_failed),
+          // 백그라운드 재조회(구매/광고 정산 뒤) 중에는 마지막으로 확인된
+          // 잔액을 계속 보여준다 — `skipLoadingOnRefresh` 기본값 그대로.
+          loading: () => WalletSummarySkeleton(compact: compact),
+          // 실패는 **회복 가능한 상태**여야 한다. 이 카드가 실패를 막다른 문구
+          // 하나로만 알리던 동안 사용자에게 남은 수단은 앱 강제 종료뿐이었다.
+          error: (error, stackTrace) => _WalletSummaryError(
+            message: localizations.wallet_load_failed,
+            retryLabel: localizations.common_retry_label,
+            onRetry: () => ref.read(walletSummaryProvider.notifier).refresh(),
+          ),
           data: (wallet) => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -100,6 +110,80 @@ class WalletSummaryPanel extends ConsumerWidget {
       MainAxisAlignment.end => CrossAxisAlignment.end,
       _ => CrossAxisAlignment.start,
     };
+  }
+}
+
+/// 파우치의 실패 상태. 문구 + 재시도.
+///
+/// 재시도는 `WalletSummary.refresh()` — 스토어 헤더의 새로고침, 구매/광고 정산
+/// 뒤의 재조회와 같은 경로다. 그 경로는 [kWalletSummaryReadTimeout] 으로 상한이
+/// 걸려 있으므로 재시도가 다시 무한 로딩으로 돌아갈 수 없다.
+class _WalletSummaryError extends StatelessWidget {
+  const _WalletSummaryError({
+    required this.message,
+    required this.retryLabel,
+    required this.onRetry,
+  });
+
+  final String message;
+  final String retryLabel;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('wallet-summary-error'),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.grey100,
+        border: Border.all(color: AppColors.grey200),
+        borderRadius: BorderRadius.circular(17),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF514A58),
+            ),
+          ),
+          const SizedBox(height: 10),
+          GestureDetector(
+            key: const Key('wallet-summary-retry'),
+            behavior: HitTestBehavior.opaque,
+            onTap: onRetry,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: const Color(0xFF9A7BFA)),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.refresh, size: 14, color: Color(0xFF7C58E8)),
+                  const SizedBox(width: 4),
+                  Text(
+                    retryLabel,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF7C58E8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

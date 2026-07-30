@@ -64,7 +64,7 @@ final class WalletSummaryProvider
     : super(
         from: null,
         argument: null,
-        retry: null,
+        retry: walletSummaryRetry,
         name: r'walletSummaryProvider',
         isAutoDispose: false,
         dependencies: null,
@@ -79,7 +79,7 @@ final class WalletSummaryProvider
   WalletSummary create() => WalletSummary();
 }
 
-String _$walletSummaryHash() => r'2e723949081fe6d153dbbb5a4bb60911914793f7';
+String _$walletSummaryHash() => r'f1ab34c474f649d0523ca582b4c487b810d53a21';
 
 abstract class _$WalletSummary extends $AsyncNotifier<WalletSummaryModel> {
   FutureOr<WalletSummaryModel> build();
@@ -142,7 +142,7 @@ final class CurrencyHistoryProvider
   }
 }
 
-String _$currencyHistoryHash() => r'5846001f8ddf1a060251321558336b373de70ba5';
+String _$currencyHistoryHash() => r'4d9a77529e8e369c5a75959254cf3b1d3ff43c44';
 
 final class CurrencyHistoryFamily extends $Family
     with
