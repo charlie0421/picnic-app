@@ -5,11 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:picnic_lib/core/services/global_purchase_listener.dart';
+// `InAppPurchaseService` 확장(cleanupPurchaseTimersOnSuccess)이 이 라이브러리의
+// part 파일에 있어, 타입만 전달돼도 확장 사용에는 직접 import 가 필요하다.
+import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
-import 'package:picnic_lib/services/duplicate_prevention_service.dart';
+import 'package:picnic_lib/presentation/providers/global_purchase_provider.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -20,10 +24,7 @@ import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
-import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
-import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -43,7 +44,19 @@ import 'wallet_summary_applier.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
+  /// The app-level purchase service. **Not constructed here.**
+  ///
+  /// Building one here is what made the store the only subscriber to
+  /// `InAppPurchase.purchaseStream`, so every purchase event that arrived
+  /// without a store on screen was dropped (broadcast stream, no listener).
+  /// `GlobalPurchaseListener` owns the subscription for the process lifetime;
+  /// this screen borrows the same service and registers itself as the
+  /// presentation surface for as long as it is mounted.
   late final PurchaseService _purchaseService;
+
+  /// This screen's claim on presentation, released in [dispose].
+  PurchaseSurfaceRegistration? _surface;
+
   late final AnimationController _rotationController;
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
       GlobalKey<LoadingOverlayWithIconState>();
@@ -100,16 +113,13 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       vsync: this,
     );
 
-    _purchaseService = PurchaseService(
-      // Not `ref`: the service reads providers on the far side of receipt
-      // verification, which the user is free to walk out on.
-      container: ProviderScope.containerOf(context, listen: false),
-      inAppPurchaseService: InAppPurchaseService(),
-      receiptVerificationService: ReceiptVerificationService(),
-      analyticsService: AnalyticsService(),
-      duplicatePreventionService: DuplicatePreventionService(ref),
-      onPurchaseUpdate: _onPurchaseUpdate,
-    );
+    // 앱 수명 리스너에서 서비스를 빌려 오고, 화면이 살아 있는 동안만
+    // "표시 서피스"로 등록한다. 여기서 PurchaseService 를 새로 만들면 구매
+    // 스트림 구독이 화면 수명에 묶여, 화면이 없는 동안 도착한 결제 이벤트가
+    // 아무에게도 전달되지 않는다 (broadcast 스트림이라 유실).
+    final listener = ref.read(globalPurchaseListenerProvider);
+    _purchaseService = listener.purchaseService;
+    _surface = listener.attachSurface(_onPurchaseUpdate);
 
     _restoreHandler = RestorePurchaseHandler(
       purchaseService: _purchaseService,
@@ -201,11 +211,14 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     _restoreHandler.dispose();
     _safetyManager.disposeSafetyTimer();
     _rotationController.dispose();
-    // 구매 스트림 구독은 유지한다. 여기서 dispose()로 구독을 끊으면 결제창
-    // 진행 중 화면을 떠났을 때 도착하는 결제 완료 이벤트가 버려져 영구
-    // 미적립이 된다(스트림은 broadcast라 리스너 없는 이벤트는 유실).
-    // 검증/지갑 반영은 화면이 아니라 앱 수명의 container를 통해 동작하고,
-    // 다음 스토어 진입 시 initialize()가 콜백만 새 화면으로 교체한다.
+    // 구매 스트림 구독은 여기서 끊지 않는다 - 애초에 이 화면의 것이 아니다.
+    // 표시 서피스만 반납하면, 이 뒤에 도착하는 결제 완료 이벤트는
+    // GlobalPurchaseListener 의 무화면 정산이 받아 검증·적립·지갑 반영까지
+    // 수행한다 (그리고 띄울 화면이 있으면 공용 영수증까지). 예전에는 구독을
+    // 유지한 채 dispose 된 State 의 콜백이 계속 이벤트를 받았고, 그래서
+    // "화면이 없는 동안"은 첫 스토어 진입 이후에만 커버됐다.
+    _surface?.detach();
+    _surface = null;
     // 타이머류만 정리한다.
     _purchaseService.inAppPurchaseService.cleanupPurchaseTimersOnSuccess();
     super.dispose();

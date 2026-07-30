@@ -24,6 +24,8 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
+import 'package:picnic_lib/presentation/providers/global_purchase_provider.dart';
+import 'package:picnic_lib/core/services/global_purchase_listener.dart';
 
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
@@ -59,6 +61,18 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   String? _activeRewardUserId;
   bool _rewardRecoveryReady = false;
 
+  /// The process-lifetime owner of purchase delivery.
+  ///
+  /// Held here because `_AppState` is the longest-lived thing in the tree and
+  /// already the `WidgetsBindingObserver` the resume sweep needs. Reading the
+  /// provider in [initState] is what makes the `purchaseStream` subscription
+  /// exist from the first frame; before this, the only subscription was created
+  /// by the store screen, so a purchase that completed while no store was
+  /// mounted (app killed mid-purchase, Ask to Buy approved later, purchase made
+  /// on another device) reached nobody and had to be recovered by asking the
+  /// user to open the store.
+  GlobalPurchaseListener? _purchaseListener;
+
   // 앱이 이미 초기화되었는지 여부를 추적하는 플래그
   bool _isAppInitialized = false;
 
@@ -80,6 +94,13 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     // 라우트 설정
     AppLifecycleInitializer.setupAppRoutes(ref, _appSpecificRoutes);
+
+    // 구매 스트림 구독을 앱 첫 프레임에 세운다. iOS 는 큐 옵저버가 붙는
+    // 순간(= 이 read) 미완료 트랜잭션을 재전달하므로 이보다 늦으면 그 이벤트를
+    // 놓친다. 스토어 화면은 같은 인스턴스를 빌려 쓰기만 하므로 구독은 프로세스
+    // 전체에서 하나다. 미완료 결제 리컨사일은 세션이 필요해서
+    // _initializeAppBasics(SDK 준비 후)로 미룬다.
+    _initializeGlobalPurchaseListener();
 
     // 디버그 모드에서 디바이스 정보 로깅
     if (kDebugMode) {
@@ -134,6 +155,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     await MainInitializer.sdkReady;
     logger.i('SDK 초기화 완료');
     _initializeRewardRecovery();
+    // 미완료 결제 리컨사일은 세션이 복원된 뒤에 돌아야 한다 (Supabase 는
+    // runApp 이후 Phase 2 에서 초기화된다). 구독 자체는 initState 에서 이미
+    // 세워져 있으므로, 그 사이에 도착하는 재전달 이벤트는 유실되지 않는다.
+    _sweepUnfinishedPurchases();
 
     // anti-abuse ip_hash prefetch — fire-and-forget. 실패는 IpHashService 내부에서 swallow.
     // 보호 대상 호출(광고/출석/아티스트요청) 전에 캐시가 채워지면 hint 송신, 안 채워지면
@@ -275,6 +300,30 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     }
   }
 
+  void _initializeGlobalPurchaseListener() {
+    if (_purchaseListener != null) return;
+    try {
+      _purchaseListener = ref.read(globalPurchaseListenerProvider);
+    } catch (e, stackTrace) {
+      // 스토어 플러그인 초기화 실패로 앱 자체가 뜨지 못하게 하지는 않는다.
+      // 이 경우 예전과 같은 상태(스토어 화면이 열릴 때 복구)로 떨어진다.
+      logger.e('전역 구매 리스너 초기화 실패', error: e, stackTrace: stackTrace);
+    }
+  }
+
+  void _sweepUnfinishedPurchases() {
+    final purchases = _purchaseListener;
+    if (purchases == null) return;
+    unawaited(
+      purchases.sweepOnColdStart().then(
+        (report) => logger.i('콜드 스타트 미완료 결제 스윕: $report'),
+        onError: (Object error, StackTrace stack) {
+          logger.e('콜드 스타트 미완료 결제 스윕 실패', error: error, stackTrace: stack);
+        },
+      ),
+    );
+  }
+
   void _initializeRewardRecovery() {
     if (_rewardRecoveryReady) return;
     _rewardRecoveryReady = true;
@@ -326,6 +375,22 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         AppBadgeService.syncBadgeWithUnreadCount();
         if (_rewardRecoveryReady) {
           _syncRewardOwner(supabase.auth.currentUser?.id);
+        }
+        // 미완료 결제 리컨사일. 콜드 스타트에서는 스토어가 스스로 재전달하지만
+        // resume 에는 그런 것이 없다 - Ask to Buy 승인이나 포그라운드에서
+        // 실패한 정산이 다음 실행까지 갇혀 있던 자리다. 리스너가 자체
+        // 레이트리밋을 걸므로(최소 5분 간격, 스토어 화면이 열려 있으면 생략)
+        // 앱 전환을 반복해도 재검증 폭풍이 되지 않는다.
+        final purchases = _purchaseListener;
+        if (purchases != null) {
+          unawaited(
+            purchases.sweepOnResume().then(
+              (report) => logger.i('resume 미완료 결제 스윕: $report'),
+              onError: (Object error, StackTrace stack) {
+                logger.e('resume 미완료 결제 스윕 실패', error: error, stackTrace: stack);
+              },
+            ),
+          );
         }
         break;
       case AppLifecycleState.inactive:

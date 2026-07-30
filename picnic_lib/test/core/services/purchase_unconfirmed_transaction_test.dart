@@ -5,11 +5,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:mockito/mockito.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
+import 'package:picnic_lib/core/services/unfinished_purchase_source.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
@@ -436,6 +438,465 @@ void main() {
         reason: '정산이 확인된 트랜잭션은 finish 해야 재전달 루프가 끊긴다 - '
             '이 트랜잭션이 다음 스토어 진입에서 자동 정리되는 근거');
   });
+
+  // =========================================================================
+  // 미완료 트랜잭션 스윕 (iOS 를 Android 와 대칭으로).
+  //
+  // iOS 에는 리컨사일이 아예 없었다: _reconcileAndroidPastPurchases 는 Android
+  // 전용이고 restorePurchases() 는 복구용으로 호출되지 않았다. 그래서 정산이
+  // 확인되지 않아 **의도적으로 보존된** iOS 트랜잭션은 다음 콜드 스타트에
+  // StoreKit 이 재전달해 줄 때까지 갇혀 있었다 — 그리고 그 재전달을 받을
+  // 리스너도 스토어 화면이 열릴 때까지 없었다.
+  //
+  // 스윕이 싼 이유는 서버가 만들어 줬다: 이미 정산된 트랜잭션 재전송은 200 +
+  // 정본 wallet.v1 (engine PR #78), 영구 사망 intake 는 422 (PR #77). 그래서
+  // 같은 큐를 반복해 훑어도 수렴한다.
+  //
+  // 여기서 고정하는 것은 스윕이 **기존 정산 경로의 규칙을 그대로** 따른다는
+  // 점이다: 검증이 먼저, 완료(finish/consume)는 서버가 지급을 확인한 뒤에만.
+  // =========================================================================
+  group('unfinished transaction sweep', () {
+    late _FakeUnfinishedSource source;
+    late DateTime now;
+
+    PurchaseDetails unfinished({String id = 'tx-sweep'}) {
+      final details = PurchaseDetails(
+        purchaseID: id,
+        productID: productId,
+        verificationData: PurchaseVerificationData(
+          localVerificationData: 'local',
+          serverVerificationData: 'app-receipt',
+          source: 'test',
+        ),
+        transactionDate: '1785228000000',
+        status: PurchaseStatus.purchased,
+      );
+      details.pendingCompletePurchase = true;
+      return details;
+    }
+
+    /// Wires a [PurchaseService] whose store enumeration is [scan] and whose
+    /// clock the test drives, so rate limiting is asserted rather than waited
+    /// out.
+    Future<void> buildWithSource(
+      WidgetTester tester,
+      ReceiptVerificationService stub,
+      UnfinishedPurchaseScan scan, {
+      bool sweepOnStart = false,
+      Duration resumeSweepInterval = const Duration(minutes: 5),
+    }) async {
+      late WidgetRef capturedRef;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            storeProductsProvider.overrideWithBuild(
+              (ref, notifier) => <ProductDetails>[],
+            ),
+          ],
+          child: Consumer(
+            builder: (context, ref, _) {
+              capturedRef = ref;
+              container = ProviderScope.containerOf(context, listen: false);
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      verification = stub;
+      plugin = _CountingPlugin();
+      duplicates = DuplicatePreventionService(capturedRef);
+      source = _FakeUnfinishedSource(scan);
+      service = PurchaseService(
+        container: container,
+        inAppPurchaseService: plugin,
+        receiptVerificationService: verification,
+        analyticsService: AnalyticsService(),
+        duplicatePreventionService: duplicates,
+        onPurchaseUpdate: (_) {},
+        unfinishedPurchaseSource: source,
+        clock: () => now,
+        resumeSweepInterval: resumeSweepInterval,
+        sweepOnStart: sweepOnStart,
+      );
+    }
+
+    setUp(() => now = DateTime.utc(2026, 7, 30, 12));
+
+    testWidgets('settles a pre-existing unfinished transaction and finishes it',
+        (tester) async {
+      await buildWithSource(
+        tester,
+        _SettledVerification(),
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(report.found, 1);
+      expect(report.settled, 1);
+      expect(report.preserved, 0);
+      expect(plugin.finalized, 1,
+          reason: '서버가 정산을 확인한 뒤에만 완료 처리한다 - 이게 재전달 '
+              '루프를 끊는 유일한 지점이다');
+    });
+
+    testWidgets('is a no-op when the store holds nothing unfinished',
+        (tester) async {
+      final stub = _SettledVerification();
+      await buildWithSource(tester, stub, const UnfinishedPurchaseScan());
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(source.scans, 1, reason: '스토어에는 물어봐야 한다');
+      expect(report.found, 0);
+      expect(report.settled, 0);
+      expect(plugin.finalized, 0);
+      expect(plugin.completed, 0,
+          reason: '훑을 것이 없으면 아무 트랜잭션도 건드리지 않는다');
+    });
+
+    testWidgets('an unconfirmed outcome during a sweep preserves the '
+        'transaction', (tester) async {
+      await buildWithSource(
+        tester,
+        _ThrowingVerification(
+          FunctionException(status: 503, details: null, reasonPhrase: 'test'),
+        ),
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(report.found, 1);
+      expect(report.settled, 0);
+      expect(report.preserved, 1);
+      expect(plugin.finalized, 0,
+          reason: '스윕이 미확정 트랜잭션을 소비하면 과금된 영수증이 소멸한다 '
+              '- 스윕은 복구 수단이지 정리 수단이 아니다');
+      expect(plugin.completed, 0);
+    });
+
+    testWidgets('even a permanent rejection (422) found by a sweep is not '
+        'destroyed', (tester) async {
+      await buildWithSource(
+        tester,
+        _ThrowingVerification(
+          FunctionException(status: 422, details: null, reasonPhrase: 'test'),
+        ),
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(report.preserved, 1);
+      expect(plugin.finalized, 0,
+          reason: '422 는 클라이언트 큐 재전송 중단에만 쓰인다 - 스토어 '
+              '트랜잭션 파괴 권한은 여기에도 없다');
+    });
+
+    testWidgets('a grant-confirmed duplicate found by a sweep is finished',
+        (tester) async {
+      await buildWithSource(
+        tester,
+        _ThrowingVerification(
+          ReusedPurchaseException(message: 'duplicate', grantConfirmed: true),
+        ),
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(report.settled, 1);
+      expect(plugin.finalized, 1,
+          reason: '지급이 끝난 트랜잭션이 미완료로 남아 있으면 매 실행마다 '
+              '재전달된다 - 스윕이 끊어 줘야 한다');
+    });
+
+    testWidgets('a duplicate whose grant is unconfirmed is preserved by a '
+        'sweep', (tester) async {
+      await buildWithSource(
+        tester,
+        _ThrowingVerification(
+          ReusedPurchaseException(message: 'duplicate', grantConfirmed: false),
+        ),
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(report.preserved, 1);
+      expect(plugin.finalized, 0);
+    });
+
+    testWidgets('nothing is verified while nobody is signed in', (tester) async {
+      final stub = _SettledVerification();
+      await buildWithSource(
+        tester,
+        stub,
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+      // 세션 없는 클라이언트로 교체한다 (로그아웃 상태).
+      setupMockSupabase(const {});
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(report.outcome, PurchaseSweepOutcome.notSignedIn);
+      expect(report.found, 1);
+      expect(report.preserved, 1,
+          reason: '검증할 계정이 없으면 트랜잭션은 그대로 두고 로그인 뒤에 '
+              '다시 훑는다');
+      expect(plugin.finalized, 0);
+    });
+
+    testWidgets('a sweep that found nobody signed in does not consume the '
+        'cold-start run', (tester) async {
+      // Supabase 는 runApp **이후** Phase 2 에서 초기화된다. 콜드 스타트 스윕이
+      // 세션 복원을 앞지르는 것은 정상 시나리오이고, 그때 아무것도 물어보지
+      // 못한 실행이 "한 번 돌았다"로 소진되면 과금된 트랜잭션이 다음 실행까지
+      // 갇힌다.
+      final stub = _SettledVerification();
+      await buildWithSource(
+        tester,
+        stub,
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+      setupMockSupabase(const {});
+
+      final beforeLogin = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.coldStart,
+      );
+      expect(beforeLogin.outcome, PurchaseSweepOutcome.notSignedIn);
+
+      await setupMockSupabaseWithAuth(const {}, userId: userId);
+      final afterLogin = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.coldStart,
+      );
+
+      expect(afterLogin.outcome, PurchaseSweepOutcome.completed);
+      expect(afterLogin.settled, 1);
+      expect(plugin.finalized, 1);
+    });
+
+    testWidgets('a sweep whose store enumeration throws does not consume the '
+        'cold-start run', (tester) async {
+      // 부팅 직후에는 `supabase` 게터 자체가 StateError 를 던질 수 있다.
+      await buildWithSource(
+        tester,
+        _SettledVerification(),
+        const UnfinishedPurchaseScan(),
+      );
+      final throwing = _ThrowingUnfinishedSource();
+      service = PurchaseService(
+        container: container,
+        inAppPurchaseService: plugin,
+        receiptVerificationService: verification,
+        analyticsService: AnalyticsService(),
+        duplicatePreventionService: duplicates,
+        onPurchaseUpdate: (_) {},
+        unfinishedPurchaseSource: throwing,
+        clock: () => now,
+        sweepOnStart: false,
+      );
+
+      final failed = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.coldStart,
+      );
+      expect(failed.outcome, PurchaseSweepOutcome.failed);
+
+      throwing.shouldThrow = false;
+      final retried = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.coldStart,
+      );
+      expect(retried.outcome, PurchaseSweepOutcome.completed,
+          reason: '실패한 스윕이 유일한 콜드 스타트 기회를 소진해서는 안 된다');
+    });
+
+    testWidgets('the cold-start sweep runs exactly once per process',
+        (tester) async {
+      await buildWithSource(
+        tester,
+        _SettledVerification(),
+        const UnfinishedPurchaseScan(),
+        sweepOnStart: true,
+      );
+      // 생성자의 unawaited 스윕이 완료될 시간을 준다.
+      await tester.pump();
+      expect(source.scans, 1);
+
+      final again = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.coldStart,
+      );
+
+      expect(again.outcome, PurchaseSweepOutcome.throttled);
+      expect(source.scans, 1);
+    });
+
+    testWidgets('resume sweeps are rate-limited to one per interval',
+        (tester) async {
+      await buildWithSource(
+        tester,
+        _SettledVerification(),
+        const UnfinishedPurchaseScan(),
+        resumeSweepInterval: const Duration(minutes: 5),
+      );
+
+      final first = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.resume,
+      );
+      expect(first.outcome, PurchaseSweepOutcome.completed);
+
+      now = now.add(const Duration(minutes: 4, seconds: 59));
+      final tooSoon = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.resume,
+      );
+      expect(tooSoon.outcome, PurchaseSweepOutcome.throttled,
+          reason: '앱 전환을 반복하는 사용자가 같은 큐를 매번 재검증하게 '
+              '만들면 안 된다');
+      expect(source.scans, 1);
+
+      now = now.add(const Duration(seconds: 2));
+      final allowed = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.resume,
+      );
+      expect(allowed.outcome, PurchaseSweepOutcome.completed);
+      expect(source.scans, 2);
+    });
+
+    testWidgets('a host with no store makes the sweep an inert no-op',
+        (tester) async {
+      // 기본 소스는 Platform 으로 정해지고, 테스트 호스트에는 스토어가 없다.
+      // 이 경로가 예외를 던지면 앱 시작이 깨진다.
+      await build(tester, _SettledVerification());
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.coldStart,
+      );
+
+      expect(report.outcome, PurchaseSweepOutcome.unsupported);
+    });
+  });
+
+  // =========================================================================
+  // iOS 큐에서 무엇을 "미완료 결제" 로 볼지.
+  // =========================================================================
+  group('IosPaymentQueueSource', () {
+    SKPaymentTransactionWrapper txn(
+      SKPaymentTransactionStateWrapper state, {
+      String? id,
+    }) =>
+        SKPaymentTransactionWrapper(
+          payment: SKPaymentWrapper(productIdentifier: productId),
+          transactionState: state,
+          transactionIdentifier: id,
+          transactionTimeStamp: 1785228000,
+        );
+
+    test('only purchased transactions are swept', () async {
+      final scanned = await IosPaymentQueueSource(
+        readTransactions: () async => [
+          txn(SKPaymentTransactionStateWrapper.purchasing),
+          txn(SKPaymentTransactionStateWrapper.deferred),
+          txn(SKPaymentTransactionStateWrapper.failed),
+          txn(SKPaymentTransactionStateWrapper.restored, id: 'restored-1'),
+          txn(SKPaymentTransactionStateWrapper.purchased, id: 'paid-1'),
+        ],
+        readReceipt: () async => 'base64-app-receipt',
+      ).scan();
+
+      expect(
+        scanned.purchases.map((p) => p.purchaseID),
+        ['paid-1'],
+        reason: 'purchasing 은 아직 돈이 아니고 StoreKit 이 finish 를 금지한다; '
+            'deferred(Ask to Buy 대기) 는 승인되면 purchased 로 다시 온다; '
+            'failed 는 과금이 아니다; restored 는 기기 단위 앱 영수증으로 '
+            '남의 결제를 지금 로그인한 계정에 정산시킬 수 있어 제외한다',
+      );
+      expect(
+        scanned.purchases.single.verificationData.serverVerificationData,
+        'base64-app-receipt',
+        reason: '스윕된 트랜잭션은 실시간 구매와 **같은 모양**으로 서버에 '
+            '도착해야 한다 - StoreKit 1 의 serverVerificationData 는 앱 '
+            '영수증이다',
+      );
+      expect(scanned.error, isNull);
+    });
+
+    test('an unreadable app receipt is reported instead of sent', () async {
+      final scanned = await IosPaymentQueueSource(
+        readTransactions: () async => [
+          txn(SKPaymentTransactionStateWrapper.purchased, id: 'paid-1'),
+        ],
+        readReceipt: () async => '',
+      ).scan();
+
+      expect(scanned.purchases, isEmpty);
+      expect(scanned.error, isNotNull,
+          reason: '빈 영수증을 검증에 보내면 서버가 영구 거부(422)로 답할 수 '
+              '있고, 그 판정이 되돌릴 수 없다. 모른다고 남겨 다음 스윕이 '
+              '다시 시도해야 한다');
+    });
+
+    test('an empty queue is an empty scan, not an error', () async {
+      final scanned = await IosPaymentQueueSource(
+        readTransactions: () async => [],
+        readReceipt: () async => fail('영수증은 정산 대상이 있을 때만 읽는다'),
+      ).scan();
+
+      expect(scanned.isEmpty, isTrue);
+      expect(scanned.error, isNull);
+    });
+  });
+}
+
+/// A stand-in store enumeration, so a sweep can be driven without StoreKit or
+/// Play.
+class _FakeUnfinishedSource implements UnfinishedPurchaseSource {
+  _FakeUnfinishedSource(this._scan);
+
+  final UnfinishedPurchaseScan _scan;
+
+  /// How many times the store was asked. The rate-limiting assertions are all
+  /// about this number.
+  int scans = 0;
+
+  @override
+  String get label => 'fake';
+
+  @override
+  Future<UnfinishedPurchaseScan> scan() async {
+    scans++;
+    return _scan;
+  }
+}
+
+/// Stands in for a store enumeration that cannot answer yet - which is what
+/// `supabase` does before its Phase 2 initialisation finishes.
+class _ThrowingUnfinishedSource implements UnfinishedPurchaseSource {
+  bool shouldThrow = true;
+
+  @override
+  String get label => 'throwing';
+
+  @override
+  Future<UnfinishedPurchaseScan> scan() async {
+    if (shouldThrow) throw StateError('store not ready');
+    return const UnfinishedPurchaseScan();
+  }
 }
 
 /// 검증이 지정된 실패를 던지거나 (ReusedPurchaseException은 실제 서비스와

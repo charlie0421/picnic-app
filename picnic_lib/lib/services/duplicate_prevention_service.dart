@@ -12,7 +12,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// 사용자의 중복 신청 및 중복 구매를 방지하기 위한 서비스입니다.
 /// 메모리 캐싱과 로컬 저장소를 통해 효율적인 중복 감지를 지원합니다.
 class DuplicatePreventionService {
-  final WidgetRef _ref;
+  /// Resolves the vote-request repository on demand.
+  ///
+  /// A closure rather than a stored `WidgetRef` because this service now has two
+  /// lifetimes: the store screen's (built from a `WidgetRef`) and the app's
+  /// (built from the app-level `ProviderContainer`, for
+  /// `GlobalPurchaseListener`, whose purchase path runs with no widget mounted).
+  final VoteItemRequestRepository Function() _readRepository;
 
   // 투표 메모리 캐시: userId_voteId -> hasRequested
   final Map<String, bool> _voteCache = {};
@@ -42,10 +48,16 @@ class DuplicatePreventionService {
       Duration(milliseconds: 500); // 2초 → 0.5초로 단축 (매우 빠른 클릭만 차단)
 // 5회 → 10회로 증가 (매우 관대하게)
 
-  DuplicatePreventionService(this._ref);
+  DuplicatePreventionService(WidgetRef ref)
+    : _readRepository = (() => ref.read(voteItemRequestRepositoryProvider));
 
-  VoteItemRequestRepository get _repository =>
-      _ref.read(voteItemRequestRepositoryProvider);
+  /// The app-scoped spelling: reads through the container, which outlives every
+  /// route.
+  DuplicatePreventionService.forContainer(ProviderContainer container)
+    : _readRepository =
+          (() => container.read(voteItemRequestRepositoryProvider));
+
+  VoteItemRequestRepository get _repository => _readRepository();
 
   /// 사용자가 특정 투표에 이미 신청했는지 확인 (캐싱 지원)
   ///

@@ -147,8 +147,37 @@ class InAppPurchaseService {
     }
   }
 
+  /// How many times a subscription to `purchaseStream` has actually been
+  /// created in this process.
+  ///
+  /// The invariant this pins is "exactly one delivery path for the process
+  /// lifetime". `purchaseStream` is a broadcast stream, so a second subscriber
+  /// would receive every event *as well* - two settlements for one charge, two
+  /// receipt dialogs, and two chances to finish a transaction. The guard below
+  /// makes that impossible; this counter is how a test proves it, and it is why
+  /// opening and closing the store must not move it.
+  int get purchaseStreamSubscriptions => _purchaseStreamSubscriptions;
+  int _purchaseStreamSubscriptions = 0;
+
+  /// How many times a handler has been registered.
+  ///
+  /// One in a healthy process: [GlobalPurchaseListener] is the only owner.
+  /// A second registration means something re-took the delivery path (a Phoenix
+  /// restart legitimately does), and the log below says so.
+  int get purchaseHandlerRegistrations => _purchaseHandlerRegistrations;
+  int _purchaseHandlerRegistrations = 0;
+
   void initialize(Function(List<PurchaseDetails>) onPurchaseUpdate) {
+    if (_streamInitialized && !identical(_onPurchaseUpdate, onPurchaseUpdate)) {
+      // 구매 이벤트 전달 경로는 앱 수명 동안 하나여야 한다. 여기서 핸들러가
+      // 교체되는 것은 정상 경로가 아니다(Phoenix 재시작/핫 리스타트가 새
+      // 트리를 세우는 경우만 정당하다). 이전에는 스토어 화면이 열릴 때마다
+      // 교체됐고, 그래서 스토어가 없는 동안 도착한 이벤트는 아무도 받지
+      // 않았다.
+      logger.w('⚠️ 구매 스트림 핸들러 교체 - 전달 경로 소유자가 바뀐다');
+    }
     _onPurchaseUpdate = onPurchaseUpdate;
+    _purchaseHandlerRegistrations++;
     _initializePurchaseStream();
   }
 
@@ -249,6 +278,7 @@ class InAppPurchaseService {
     );
 
     _streamInitialized = true;
+    _purchaseStreamSubscriptions++;
     logger.d('Purchase stream initialized successfully');
   }
 
