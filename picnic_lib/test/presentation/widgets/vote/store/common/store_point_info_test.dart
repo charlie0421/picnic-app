@@ -173,4 +173,34 @@ void main() {
       expect(widget.titlePadding, 12);
     });
   });
+
+  testWidgets('새로고침 버튼은 파우치 카드 안에 렌더링된다', (WidgetTester tester) async {
+    var taps = 0;
+    await tester.pumpWidget(
+      buildTestAppPage(
+        StorePointInfo(
+          title: '별사탕 파우치',
+          width: double.infinity,
+          refreshButton: GestureDetector(
+            key: const Key('pouch-refresh'),
+            onTap: () => taps++,
+            child: const Icon(Icons.refresh),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // 카드(StorePointInfo) 하위 트리에 있어야 한다 — 스토어 헤더가 아니라.
+    expect(
+      find.descendant(
+        of: find.byType(StorePointInfo),
+        matching: find.byKey(const Key('pouch-refresh')),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('pouch-refresh')));
+    expect(taps, 1);
+  });
 }

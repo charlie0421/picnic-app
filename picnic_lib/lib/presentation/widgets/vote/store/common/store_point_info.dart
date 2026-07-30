@@ -17,6 +17,7 @@ class StorePointInfo extends ConsumerStatefulWidget {
     this.height = 36,
     this.titlePadding,
     this.topMargin = 20,
+    this.refreshButton,
   });
 
   final double? width;
@@ -24,6 +25,10 @@ class StorePointInfo extends ConsumerStatefulWidget {
   final String title;
   final double? titlePadding;
   final double topMargin;
+
+  /// 파우치 새로고침. 스토어 헤더에 따로 떠 있던 것을 카드 안으로 옮겼다
+  /// (오너 스펙). 동작은 그대로 — 프로필과 지갑 요약을 함께 다시 읽는다.
+  final Widget? refreshButton;
 
   @override
   ConsumerState<StorePointInfo> createState() => _StorePointInfoState();
@@ -82,6 +87,10 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
                   underlineGap: 0,
                 ),
               ),
+              if (widget.refreshButton case final refresh?) ...[
+                const SizedBox(width: 10),
+                refresh,
+              ],
             ],
           ),
           const SizedBox(height: 12),

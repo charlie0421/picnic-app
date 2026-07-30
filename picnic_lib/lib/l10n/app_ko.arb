@@ -1610,7 +1610,7 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "소멸 예정 보너스 안내",
+  "expiring_bonus_candy_guide": "소멸 예정 캔디 안내",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
@@ -1704,7 +1704,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- 별사탕 사용 시, 소멸일이 임박한 보너스 별사탕부터 순서대로 차감됩니다.",
+  "bonus_candy_policy_2": "- 캔디 사용 시, 소멸일이 임박한 순서대로 차감됩니다. (코튼캔디->보너스 스타캔디->스타캔디)",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1773,7 +1773,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- 소멸된 보너스 별사탕는 복구되지 않으니, 기간 내에 꼭 사용해 주세요.",
+  "bonus_candy_policy_3": "- 소멸 된 캔디는 복구되지 않으니, 기간 내에 꼭 사용해 주세요",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1809,7 +1809,7 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "보너스 별사탕 정책",
+  "bonus_candy_policy_title": "Picnic! 캔디 정책",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
@@ -1935,7 +1935,7 @@
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- 무료 충전소 적립 보너스 별사탕, 구매 시 추가로 지급된 보너스 별사탕은 소멸 기한이 정해져 있습니다.",
+  "bonus_candy_policy_1": "- 보너스 스타캔디와 코튼캔디는 소멸 기한이 정해져 있습니다.",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -2618,5 +2618,30 @@
         "type": "String"
       }
     }
+  },
+  "expiring_today_cotton_only": "오늘 만료 : 코튼캔디 {cotton}",
+  "@expiring_today_cotton_only": {
+    "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
+    "placeholders": {
+      "cotton": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_and_bonus": "오늘 만료 : 코튼캔디 {cotton} + 보너스 스타캔디 {bonus}",
+  "@expiring_today_cotton_and_bonus": {
+    "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
+    "placeholders": {
+      "cotton": {
+        "type": "String"
+      },
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "cotton_candy_daily_expiry_notice": "매일 자정 00:00:00 (KST) 에 소멸됩니다.",
+  "@cotton_candy_daily_expiry_notice": {
+    "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }
 }

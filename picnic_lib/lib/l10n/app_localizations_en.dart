@@ -1152,7 +1152,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jma_voting_exchange_failed_title => 'Exchange Failed';
 
   @override
-  String get expiring_bonus_candy_guide => 'Expiring Bonus Guide';
+  String get expiring_bonus_candy_guide => 'Expiring Candy Guide';
 
   @override
   String get qna_form_title_hint =>
@@ -1231,7 +1231,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_2 =>
-      '- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.';
+      '- Candy is spent in order of the nearest expiration date. (Cotton Candy -> Bonus Star Candy -> Star Candy)';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -1287,7 +1287,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_3 =>
-      '- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.';
+      '- Expired candy cannot be restored, so please use it within the period.';
 
   @override
   String get message_update_nickname_fail =>
@@ -1315,7 +1315,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get title_dialog_success => 'Success';
 
   @override
-  String get bonus_candy_policy_title => 'Bonus Star Candy Policy';
+  String get bonus_candy_policy_title => 'Picnic! Candy Policy';
 
   @override
   String get bonus_candy_example_expiration_date => 'Expiration Date';
@@ -1415,7 +1415,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_1 =>
-      '- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.';
+      '- Bonus Star Candy and Cotton Candy have expiration dates.';
 
   @override
   String get goonghap_perfect_score_exists_title =>
@@ -1986,4 +1986,18 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return '$receipt, $expiry';
   }
+
+  @override
+  String expiring_today_cotton_only(String cotton) {
+    return 'Expiring today: Cotton Candy $cotton';
+  }
+
+  @override
+  String expiring_today_cotton_and_bonus(String cotton, String bonus) {
+    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+  }
+
+  @override
+  String get cotton_candy_daily_expiry_notice =>
+      'Expires daily at 00:00:00 (KST).';
 }

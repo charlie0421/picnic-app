@@ -1467,7 +1467,7 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "Expiring Bonus Guide",
+  "expiring_bonus_candy_guide": "Expiring Candy Guide",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
@@ -1571,7 +1571,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.",
+  "bonus_candy_policy_2": "- Candy is spent in order of the nearest expiration date. (Cotton Candy -> Bonus Star Candy -> Star Candy)",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1639,7 +1639,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.",
+  "bonus_candy_policy_3": "- Expired candy cannot be restored, so please use it within the period.",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1675,7 +1675,7 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "Bonus Star Candy Policy",
+  "bonus_candy_policy_title": "Picnic! Candy Policy",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
@@ -1798,7 +1798,7 @@
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.",
+  "bonus_candy_policy_1": "- Bonus Star Candy and Cotton Candy have expiration dates.",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -2475,5 +2475,30 @@
         "type": "String"
       }
     }
+  },
+  "expiring_today_cotton_only": "Expiring today: Cotton Candy {cotton}",
+  "@expiring_today_cotton_only": {
+    "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
+    "placeholders": {
+      "cotton": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_and_bonus": "Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
+  "@expiring_today_cotton_and_bonus": {
+    "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
+    "placeholders": {
+      "cotton": {
+        "type": "String"
+      },
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
+  "@cotton_candy_daily_expiry_notice": {
+    "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }
 }

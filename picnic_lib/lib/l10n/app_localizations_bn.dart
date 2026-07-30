@@ -1983,6 +1983,20 @@ class AppLocalizationsBn extends AppLocalizations {
   ) {
     return '$receipt, $expiry';
   }
+
+  @override
+  String expiring_today_cotton_only(String cotton) {
+    return 'Expiring today: Cotton Candy $cotton';
+  }
+
+  @override
+  String expiring_today_cotton_and_bonus(String cotton, String bonus) {
+    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+  }
+
+  @override
+  String get cotton_candy_daily_expiry_notice =>
+      'Expires daily at 00:00:00 (KST).';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -3851,4 +3865,18 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get button_cs_inquiry => 'সাপোর্টের সাথে যোগাযোগ করুন';
+
+  @override
+  String expiring_today_cotton_only(String cotton) {
+    return 'Expiring today: Cotton Candy $cotton';
+  }
+
+  @override
+  String expiring_today_cotton_and_bonus(String cotton, String bonus) {
+    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+  }
+
+  @override
+  String get cotton_candy_daily_expiry_notice =>
+      'Expires daily at 00:00:00 (KST).';
 }

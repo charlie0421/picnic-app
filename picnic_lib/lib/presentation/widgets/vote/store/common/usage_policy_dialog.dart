@@ -49,8 +49,10 @@ class UsagePolicyPopup extends ConsumerWidget {
     final isLoggedIn = isSupabaseLoggedSafely;
 
     return LargePopupWidget(
+      // 링크(스토어 파우치 카드)와 팝업 헤더가 서로 다른 문구를 쓰고 있었다.
+      // 같은 화면을 지칭하므로 하나로 통일한다.
       titleWidget: VoteCommonTitle(
-        title: localizations.expiring_soon_bonus_candy,
+        title: localizations.expiring_bonus_candy_guide,
       ),
       content: ConstrainedBox(
         constraints: BoxConstraints(
@@ -90,21 +92,62 @@ class UsagePolicyPopup extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (expiringData != null && expiringData.isNotEmpty) ...[
-            _buildExpiringBonusSection(context, expiringData),
-            SizedBox(height: 20.h),
-          ],
           if (walletState != null) ...[
+            _buildTodayExpirySummary(context, expiringData, walletState),
+            SizedBox(height: 12.h),
             _buildCottonStateSection(context, walletState),
             SizedBox(height: 20.h),
           ],
           Expanded(
             child: SingleChildScrollView(
-              child: _buildPolicyDetailsSection(context),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildBonusStarCandySection(context, expiringData),
+                  SizedBox(height: 20.h),
+                  // 정책은 배경 없이 최하단.
+                  _buildPolicyDetailsSection(context),
+                ],
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  /// `오늘 만료 : 코튼캔디 N + 보너스 스타캔디 N`
+  ///
+  /// 보너스 스타캔디는 **오늘 실제로 소멸되는 금액이 있을 때만** 붙는다.
+  /// 보너스 만료는 매월 15일 00:00 (KST) 이므로(`computeBonusExpiry`), 달력에서
+  /// 15일을 하드코딩하는 대신 서버가 준 소멸 예정 데이터에서 "이번 달 몫이
+  /// 오늘 만료되는가"를 판정한다 — 경계 규칙이 서버와 어긋날 수 없게.
+  Widget _buildTodayExpirySummary(
+    BuildContext context,
+    List<Map<String, dynamic>?>? expiringData,
+    AsyncValue<WalletSummaryModel> walletState,
+  ) {
+    final localizations = AppLocalizations.of(context);
+    final numberFormat = NumberFormat('#,###');
+    final cotton = switch (walletState) {
+      AsyncData(:final value) => value.cottonExpiringAmount,
+      _ => BigInt.zero,
+    };
+    final bonus = bonusExpiringToday(expiringData);
+
+    final text = bonus > 0
+        ? localizations.expiring_today_cotton_and_bonus(
+            numberFormat.format(cotton.toInt()),
+            numberFormat.format(bonus),
+          )
+        : localizations.expiring_today_cotton_only(
+            numberFormat.format(cotton.toInt()),
+          );
+
+    return Text(
+      text,
+      key: const Key('expiry-today-summary'),
+      style: getTextStyle(AppTypo.body14B, AppColors.grey800),
     );
   }
 
@@ -127,9 +170,12 @@ class UsagePolicyPopup extends ConsumerWidget {
     WalletSummaryModel wallet,
   ) {
     final localizations = AppLocalizations.of(context);
-    final expiry = buildCottonExpiryText(context, wallet);
+    // "다음 만료" 줄은 제거(오너 스펙). 코튼캔디는 매일 자정에 소멸되므로
+    // 날짜를 나열하는 대신 규칙 한 줄로 안내한다.
+    final expiry = localizations.cotton_candy_daily_expiry_notice;
 
     return Container(
+      key: const Key('cotton-candy-section'),
       width: double.infinity,
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
@@ -154,30 +200,32 @@ class UsagePolicyPopup extends ConsumerWidget {
               ),
             ],
           ),
-          if (expiry != null) ...[
-            SizedBox(height: 8.h),
-            Text(
-              expiry,
-              textAlign: TextAlign.left,
-              style: getTextStyle(AppTypo.caption12M, AppColors.grey700),
-            ),
-          ],
+          SizedBox(height: 8.h),
+          Text(
+            expiry,
+            textAlign: TextAlign.left,
+            style: getTextStyle(AppTypo.caption12M, AppColors.grey700),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildExpiringBonusSection(
+  /// 보너스 스타캔디 구역 — 코튼캔디 구역의 형제. 배경색만 다르게 두고,
+  /// 기존에 정책 본문에 흩어져 있던 소멸 시점 안내와 예시를 이 안으로 모았다.
+  Widget _buildBonusStarCandySection(
     BuildContext context,
-    List<Map<String, dynamic>?> expiringData,
+    List<Map<String, dynamic>?>? expiringData,
   ) {
     final localizations = AppLocalizations.of(context);
-    final numberFormat = NumberFormat('#,###');
 
     return Container(
+      key: const Key('bonus-star-candy-section'),
+      width: double.infinity,
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: AppColors.primary500.withValues(alpha: 0.1),
+        // 코튼캔디 구역과 구분되는 배경 (파우치의 보너스 강조색 계열).
+        color: const Color(0xFFFFF1F7),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
@@ -187,19 +235,50 @@ class UsagePolicyPopup extends ConsumerWidget {
             children: [
               Image.asset(
                 'assets/icons/store/bonus.png',
-                width: 16.w,
-                height: 16.w,
+                width: 20.w,
+                height: 20.w,
                 package: 'picnic_lib',
               ),
               SizedBox(width: 8.w),
               Text(
-                localizations.expiring_soon_bonus_candy,
+                localizations.wallet_bonus_star_candy,
                 style: getTextStyle(AppTypo.body14B, AppColors.primary500),
               ),
             ],
           ),
-          SizedBox(height: 12.h),
-          ...expiringData.map((e) {
+          if (expiringData != null && expiringData.isNotEmpty) ...[
+            SizedBox(height: 12.h),
+            _buildExpiringBonusRows(context, expiringData),
+          ],
+          SizedBox(height: 16.h),
+          _buildPolicyItem(
+            context,
+            localizations.bonus_candy_expiration_time_title,
+            isTitle: true,
+          ),
+          _buildSimplifiedExpirationTable(context),
+          SizedBox(height: 16.h),
+          _buildPolicyItem(
+            context,
+            localizations.bonus_candy_example_title,
+            isTitle: true,
+          ),
+          _buildExampleTable(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExpiringBonusRows(
+    BuildContext context,
+    List<Map<String, dynamic>?> expiringData,
+  ) {
+    final numberFormat = NumberFormat('#,###');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...expiringData.map((e) {
             if (e == null) return const SizedBox.shrink();
             final amount = e['expiring_amount'] ?? 0;
             return Padding(
@@ -221,25 +300,19 @@ class UsagePolicyPopup extends ConsumerWidget {
                 ],
               ),
             );
-          }),
-        ],
-      ),
+        }),
+      ],
     );
   }
 
+  /// 캔디 정책 — 배경 없이 최하단.
   Widget _buildPolicyDetailsSection(BuildContext context) {
     final localizations = AppLocalizations.of(context);
 
     return Column(
+      key: const Key('candy-policy-section'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildPolicyItem(
-          context,
-          localizations.bonus_candy_expiration_time_title,
-          isTitle: true,
-        ),
-        _buildSimplifiedExpirationTable(context),
-        SizedBox(height: 20.h),
         _buildPolicyItem(
           context,
           localizations.bonus_candy_policy_title,
@@ -248,14 +321,7 @@ class UsagePolicyPopup extends ConsumerWidget {
         _buildPolicyItem(context, localizations.bonus_candy_policy_1),
         _buildPolicyItem(context, localizations.bonus_candy_policy_2),
         _buildPolicyItem(context, localizations.bonus_candy_policy_3),
-        SizedBox(height: 20.h),
-        _buildPolicyItem(
-          context,
-          localizations.bonus_candy_example_title,
-          isTitle: true,
-        ),
-        _buildExampleTable(context),
-        SizedBox(height: 20.h),
+        SizedBox(height: 8.h),
       ],
     );
   }
@@ -465,4 +531,31 @@ class UsagePolicyPopup extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// 오늘(KST) 소멸되는 보너스 스타캔디 금액. 소멸일이 아니면 0.
+///
+/// 보너스 만료는 매월 15일 00:00 (KST) 이다(`computeBonusExpiry`). 달력 15일을
+/// 코드에 박는 대신 서버가 준 월별 소멸 예정 데이터에서 "이번 달 몫"을 찾아
+/// 판정하므로, 서버가 규칙을 바꾸면 화면도 따라간다.
+int bonusExpiringToday(
+  List<Map<String, dynamic>?>? expiringData, {
+  DateTime? nowUtc,
+}) {
+  if (expiringData == null) return 0;
+  final kstNow = (nowUtc ?? DateTime.now().toUtc()).add(
+    const Duration(hours: 9),
+  );
+  if (kstNow.day != 15) return 0;
+  final thisMonth =
+      '${kstNow.year.toString().padLeft(4, '0')}-'
+      '${kstNow.month.toString().padLeft(2, '0')}';
+  for (final row in expiringData) {
+    if (row == null) continue;
+    if (row['prediction_month']?.toString() != thisMonth) continue;
+    final amount = row['expiring_amount'];
+    if (amount is num) return amount.toInt();
+    return int.tryParse(amount?.toString() ?? '') ?? 0;
+  }
+  return 0;
 }
