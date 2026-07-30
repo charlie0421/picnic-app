@@ -231,6 +231,22 @@ class ReceiptVerificationService {
   ) async {
     logger.i('iOS receipt verification - Format: $receiptFormat');
 
+    // iOS 도 검증 전에 큐에 적재한다. 검증이 중단되면(앱 강제 종료, 네트워크
+    // 단절) 이 항목이 클라이언트에 남는 유일한 durable 기록이고, 없으면
+    // 사용자가 스토어에 다시 진입할 때까지 복구 계기가 아예 없다.
+    // 키는 StoreKit transactionId 기반이라 미완료 트랜잭션 재전달과 아래
+    // JWS 폴백 재검증이 큐를 부풀리지 않는다.
+    //
+    // 적재는 "검증 재전송" 만 가능하게 한다 — 미확인 스토어 트랜잭션을
+    // finish/consume 하는 판단에는 절대 관여하지 않는다.
+    final clientTraceId = await ReceiptQueueService().enqueue(
+      platform: ReceiptQueueService.platformIOS,
+      receipt: receipt,
+      productId: productId,
+      userId: userId,
+      environment: environment,
+    );
+
     final requestBody = ReceiptFormatHelper.buildIOSRequestBody(
       receipt: receipt,
       productId: productId,
@@ -239,7 +255,16 @@ class ReceiptVerificationService {
       receiptFormat: receiptFormat,
     );
 
-    return callVerificationFunction(requestBody, 'iOS', sentRequests);
+    final result = await callVerificationFunction(
+      requestBody,
+      'iOS',
+      sentRequests,
+    );
+    // 정산이 끝난 항목만 제거한다. 실패는 분류하지 않고 큐에 남겨,
+    // flushPending 이 스스로의 정책(422 만 제거, 그 외 백오프 유지)으로
+    // 판단하게 한다.
+    await ReceiptQueueService().removeByClientTraceId(clientTraceId);
+    return result;
   }
 
   /// Android 영수증 검증
@@ -257,7 +282,8 @@ class ReceiptVerificationService {
     logger.i('  - Receipt length: ${receipt.length}');
 
     // 큐에 적재하고 client_trace_id 생성
-    final clientTraceId = await ReceiptQueueService().enqueueAndroid(
+    final clientTraceId = await ReceiptQueueService().enqueue(
+      platform: ReceiptQueueService.platformAndroid,
       receipt: receipt,
       productId: productId,
       userId: userId,

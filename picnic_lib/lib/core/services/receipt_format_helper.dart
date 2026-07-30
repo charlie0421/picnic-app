@@ -75,6 +75,53 @@ class ReceiptFormatHelper {
     }
   }
 
+  /// Extract the StoreKit `transactionId` from a JWS receipt.
+  ///
+  /// Unlike [makeIdemKeyFromJWS] this deliberately does NOT mix in
+  /// `signedDate`: it is used as the durable queue key, and the key for one
+  /// store transaction must stay stable across re-deliveries of that same
+  /// transaction. Returns null when the receipt is not a parseable StoreKit2
+  /// JWS (callers fall back to a random key).
+  static String? appleTransactionIdFromJWS(String jws) {
+    try {
+      if (!isStoreKit2JWT(jws)) return null;
+      final parts = jws.split('.');
+      String normalize(String s) {
+        s = s.replaceAll('-', '+').replaceAll('_', '/');
+        while (s.length % 4 != 0) {
+          s += '=';
+        }
+        return s;
+      }
+
+      final payload = json.decode(
+        utf8.decode(base64.decode(normalize(parts[1]))),
+      );
+      if (payload is! Map) return null;
+      final transactionId =
+          (payload['transactionId'] ?? payload['originalTransactionId'] ?? '')
+              .toString();
+      return transactionId.isEmpty ? null : transactionId;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// The `format` value verify-receipt-v2 request bodies carry, per platform.
+  ///
+  /// Single source of truth shared by the foreground request builders below
+  /// and by the durable receipt queue's re-send path, so the two can never
+  /// drift. (The queue used to hardcode `google_play` for every entry.)
+  static String verificationFormatFor({
+    required String platform,
+    required String receipt,
+  }) {
+    if (platform.toLowerCase() == 'ios') {
+      return getIOSReceiptFormatParam(detectReceiptFormat(receipt));
+    }
+    return 'google_play';
+  }
+
   /// Determine the iOS receipt format string for the verification request body.
   @visibleForTesting
   static String getIOSReceiptFormatParam(String receiptFormat) {
