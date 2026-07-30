@@ -60,8 +60,34 @@ class _AdRewardDialogHostState extends ConsumerState<AdRewardDialogHost> {
         ref.read(adRewardOwnerReaderProvider)() != queued.ownerUserId) {
       return;
     }
-    _dialogOpen = true;
     final report = widget.onAcknowledgeError ?? _logAcknowledgeFailure;
+
+    // 지급되지 않은 종결 상태(ABANDONED/DENIED/EXPIRED)는 화면에 띄우지 않는다.
+    // 사용자에게 줄 새 정보가 없고, 상태 이름을 그대로 보여 주는 모달이 실행
+    // 직후 여러 장 쌓인다(실측: 지갑 엔진 이전 광고 시청분이 ABANDONED 로
+    // 채워지면서 일부 테스터에게 6장). 확인(acknowledge)은 그대로 수행해야
+    // 큐에서 빠지고 다음 실행에 다시 폴링되지 않는다.
+    if (queued.status.state != AdRewardState.granted) {
+      _dialogOpen = true;
+      try {
+        await ref
+            .read(adRewardRecoveryProvider.notifier)
+            .acknowledgeAfterRender(queued);
+      } catch (error, stackTrace) {
+        if (mounted) {
+          ref.read(adRewardRecoveryProvider.notifier).discardDialog(queued);
+        }
+        report(error, stackTrace);
+      } finally {
+        _dialogOpen = false;
+        if (mounted) {
+          _scheduleDialog(ref.read(adRewardRecoveryProvider));
+        }
+      }
+      return;
+    }
+
+    _dialogOpen = true;
     try {
       await showDialog<void>(
         context: context,

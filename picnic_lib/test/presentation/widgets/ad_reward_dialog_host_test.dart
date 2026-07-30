@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
@@ -181,13 +182,15 @@ void main() {
     final recovery = container
         .read(adRewardRecoveryProvider.notifier)
         .recover('user-a');
-    repository.statusCompleter.complete(denied());
+    repository.statusCompleter.complete(granted());
     await recovery;
     await tester.pumpWidget(app(container));
     expect(repository.acknowledged, isEmpty);
     await tester.pump();
     await tester.pump();
-    expect(find.text('The reward was not granted'), findsOneWidget);
+    // 지급된 보상은 영수증 다이얼로그로 보여 준다. 비지급 종결 상태는
+    // 다이얼로그 없이 확인만 하고 큐에서 빠진다(아래 별도 케이스).
+    expect(find.text('Candy added!'), findsOneWidget);
     expect(repository.acknowledged, [reference]);
     await tester.pump();
     expect(repository.acknowledged, [reference]);
@@ -247,8 +250,8 @@ void main() {
       type: AdRewardReferenceType.internalImpression,
       id: '00000000-0000-4000-8000-000000000002',
     );
-    repository.statuses[a] = denied();
-    repository.statuses[b] = denied().copyWith(reference: b);
+    repository.statuses[a] = granted();
+    repository.statuses[b] = granted().copyWith(reference: b);
     await store.add('user-a', a);
     await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
     await tester.pumpWidget(scheduledApp(container, scheduled.add));
@@ -265,12 +268,12 @@ void main() {
     expect(bState.activeUserId, 'user-b');
     expect(bState.dialogQueue.single.status.reference, b);
     expect(repository.acknowledged, isEmpty);
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(CandyRewardReceiptDialog), findsNothing);
 
     scheduled.last();
     await tester.pump();
     await tester.pump();
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(CandyRewardReceiptDialog), findsOneWidget);
     expect(repository.acknowledged, [b]);
   });
 
@@ -283,7 +286,7 @@ void main() {
       localizationsDelegates: const [AppLocalizations.delegate],
       supportedLocales: AppLocalizations.supportedLocales,
       home: AdRewardDialogBody(
-        status: denied(),
+        status: granted(),
         schedulePostFrame: scheduled.add,
         onFirstFrame: () async => acknowledgements++,
       ),
@@ -306,7 +309,7 @@ void main() {
   testWidgets('same-owner same-reference stale host callback is rejected', (
     tester,
   ) async {
-    final repository = _QueueRepository()..statuses[reference] = denied();
+    final repository = _QueueRepository()..statuses[reference] = granted();
     final store = PendingAdRewardStore(_MemoryStorage());
     final scheduled = <VoidCallback>[];
     final container = ProviderContainer(
@@ -330,13 +333,13 @@ void main() {
     expect(scheduled, hasLength(2));
     scheduled.first();
     await tester.pump();
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(CandyRewardReceiptDialog), findsNothing);
     expect(repository.acknowledged, isEmpty);
 
     scheduled.last();
     await tester.pump();
     await tester.pump();
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(CandyRewardReceiptDialog), findsOneWidget);
     expect(repository.acknowledged, [reference]);
   });
 
@@ -377,7 +380,7 @@ void main() {
       ).issue();
       expect(issue.videoUrl, isNotEmpty);
       expect((await store.readAll('user-a')).single.reference, issuedReference);
-      repository.statuses[issuedReference] = denied().copyWith(
+      repository.statuses[issuedReference] = granted().copyWith(
         reference: issuedReference,
       );
       late Future<void> pollCompletion;
@@ -410,7 +413,7 @@ void main() {
       expect(scheduled, hasLength(1));
       scheduled.single();
       await tester.pump();
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(CandyRewardReceiptDialog), findsOneWidget);
       await tester.pump();
       await tester.pump();
       expect(repository.acknowledged, [issuedReference]);
@@ -422,7 +425,7 @@ void main() {
     'owner change before the dialog first frame never escapes as an unhandled error',
     (tester) async {
       var owner = 'user-a';
-      final repository = _QueueRepository()..statuses[reference] = denied();
+      final repository = _QueueRepository()..statuses[reference] = granted();
       final store = PendingAdRewardStore(_MemoryStorage());
       final scheduled = <VoidCallback>[];
       final failures = <Object>[];
@@ -452,29 +455,29 @@ void main() {
       await tester.pump();
 
       expect(failures.single, isStateError);
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(CandyRewardReceiptDialog), findsOneWidget);
       expect(repository.acknowledged, isEmpty);
       expect(
         (await store.readAll('user-a')).single.state,
         PendingAdRewardLocalState.pendingDisplay,
       );
 
-      await tester.tap(find.text('Confirm'));
+      await tester.tap(find.text('Confirm').first);
       await tester.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CandyRewardReceiptDialog), findsNothing);
       if (scheduled.length > 1) {
         scheduled.last();
         await tester.pump();
         await tester.pump();
       }
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CandyRewardReceiptDialog), findsNothing);
     },
   );
 
   testWidgets(
     'failed first-frame tombstone drains the queue and stays recoverable',
     (tester) async {
-      final repository = _QueueRepository()..statuses[reference] = denied();
+      final repository = _QueueRepository()..statuses[reference] = granted();
       final store = _AckPendingFailingStore(_MemoryStorage());
       final scheduled = <VoidCallback>[];
       final failures = <Object>[];
@@ -504,7 +507,7 @@ void main() {
       await tester.pump();
 
       expect(failures.single, isFormatException);
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(CandyRewardReceiptDialog), findsOneWidget);
       expect(repository.acknowledged, isEmpty);
       expect(
         (await store.readAll('user-a')).single.state,
@@ -512,9 +515,9 @@ void main() {
       );
       expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
 
-      await tester.tap(find.text('Confirm'));
+      await tester.tap(find.text('Confirm').first);
       await tester.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CandyRewardReceiptDialog), findsNothing);
       expect(scheduled, hasLength(1));
 
       await notifier.recover('user-a');
@@ -523,12 +526,54 @@ void main() {
       scheduled.last();
       await tester.pump();
       await tester.pump();
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(CandyRewardReceiptDialog), findsOneWidget);
       expect(repository.acknowledged, [reference]);
       expect(await store.readAll('user-a'), isEmpty);
       expect(failures, hasLength(1));
     },
   );
+
+  testWidgets(
+    '비지급 종결 상태는 다이얼로그 없이 확인만 하고 큐에서 빠진다',
+    (tester) async {
+      // 지갑 엔진 도입 전 광고 시청분이 ABANDONED 로 채워지면서, 실행 직후
+      // "보상이 지급되지 않았어요 / ABANDONED" 모달이 여러 장 쌓였다.
+      final repository = _QueueRepository()
+        ..statuses[reference] = denied().copyWith(
+          state: AdRewardState.abandoned,
+        );
+      final store = PendingAdRewardStore(_MemoryStorage());
+      final scheduled = <VoidCallback>[];
+      final container = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(repository),
+          pendingAdRewardStoreProvider.overrideWithValue(store),
+          adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+        ],
+      );
+      addTearDown(container.dispose);
+      await store.add('user-a', reference);
+      final notifier = container.read(adRewardRecoveryProvider.notifier);
+      await notifier.recover('user-a');
+
+      await tester.pumpWidget(scheduledApp(container, scheduled.add));
+      expect(scheduled, hasLength(1));
+      scheduled.single();
+      await tester.pumpAndSettle();
+
+      // 사용자에게는 아무것도 뜨지 않는다.
+      expect(find.byType(CandyRewardReceiptDialog), findsNothing);
+      expect(find.text('The reward was not granted'), findsNothing);
+      // 그러나 서버 확인은 남아서 다음 실행에 다시 폴링되지 않는다.
+      expect(repository.acknowledged, contains(reference));
+      expect(
+        container.read(adRewardRecoveryProvider).dialogQueue,
+        isEmpty,
+      );
+    },
+  );
+
 }
 
 class _QueueRepository extends _Repository {
