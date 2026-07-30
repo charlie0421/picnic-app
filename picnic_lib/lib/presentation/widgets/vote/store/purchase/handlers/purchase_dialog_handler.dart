@@ -39,6 +39,50 @@ Future<void> _showPurchaseReceipt(
   supportingMessage: supportingMessage,
 );
 
+/// Presents a verified settlement to the user - the **single** routing rule for
+/// "the server settled this, tell the user".
+///
+/// Two callers share it and must not drift apart: the store's
+/// [PurchaseDialogHandler] (a purchase the user is watching) and
+/// [GlobalPurchaseListener]'s headless settlement (a purchase that arrived with
+/// no store on screen - an Ask to Buy approval, a recovered transaction, a
+/// settlement that landed after the user walked away). Both have to make the
+/// same call about *what* to show, because the difference is only whether a
+/// route was mounted.
+///
+/// The rule: a redelivered settlement is acknowledged, never re-presented as a
+/// fresh grant. It re-reports an operation an earlier delivery already settled
+/// and already showed, so the receipt would tell the user they just received
+/// candy they already had. The balance stays correct either way - the caller
+/// applies `result.wallet` regardless.
+Future<void> presentPurchaseSettlement(
+  BuildContext context,
+  PurchaseSettlementResultModel result, {
+  String? supportingMessage,
+  PurchaseReceiptPresenter presenter = _showPurchaseReceipt,
+}) async {
+  if (isSettlementRedelivery(result)) {
+    acknowledgePurchaseSettlement(context);
+    return;
+  }
+  final receipt = receiptFromPurchase(result);
+  if (receipt == null) return;
+  await presenter(context, receipt, supportingMessage: supportingMessage);
+}
+
+/// ♻️ 재전달(redelivery)·기지급 중복 정산의 안내.
+///
+/// A settlement with no amounts to show - either a redelivery of an operation
+/// already presented, or a duplicate the server reports as grant-confirmed
+/// (whose response carries the verdict but no amounts). The purchase did
+/// succeed, and until 1.3.0 the second case was shown an *error* ("이전 거래
+/// 처리 중") for candy the user already owned.
+void acknowledgePurchaseSettlement(BuildContext context) {
+  showSimpleDialog(
+    content: AppLocalizations.of(context).dialog_message_purchase_success,
+  );
+}
+
 PurchaseSuccessDecision decidePurchaseSuccess(
   PurchaseSettlementResultModel result,
   ActivePromotionCampaignModel? displayedCampaign,
@@ -383,21 +427,16 @@ class PurchaseDialogHandler implements PurchaseReceiptDialogs {
       logger.e('Navigator context is null in showSuccessDialog');
       return;
     }
-    if (isSettlementRedelivery(result)) {
-      _showRedeliveryAcknowledgement(context);
-      return;
-    }
-    final receipt = receiptFromPurchase(result);
-    if (receipt == null) return;
     final checking =
         result.promotion?.state == PurchasePromotionState.pendingTime ||
         result.promotion?.state == PurchasePromotionState.eligible;
-    await _receiptPresenter(
+    await presentPurchaseSettlement(
       context,
-      receipt,
+      result,
       supportingMessage: checking
           ? AppLocalizations.of(context).candy_boost_promotion_checking
           : null,
+      presenter: _receiptPresenter,
     );
   }
 
@@ -414,50 +453,28 @@ class PurchaseDialogHandler implements PurchaseReceiptDialogs {
       logger.e('Navigator context is null in showLatePurchaseSuccessDialog');
       return;
     }
-    if (isSettlementRedelivery(result)) {
-      _showRedeliveryAcknowledgement(context);
-      return;
-    }
-    final receipt = receiptFromPurchase(result);
-    if (receipt == null) return;
-    await _receiptPresenter(
+    await presentPurchaseSettlement(
       context,
-      receipt,
+      result,
       supportingMessage: AppLocalizations.of(
         context,
       ).candy_boost_late_purchase_explanation,
-    );
-  }
-
-  /// ♻️ 재전달(redelivery)된 정산 안내
-  ///
-  /// A redelivered settlement re-reports an operation an earlier delivery or
-  /// session already settled and already presented. The purchase did succeed,
-  /// so this is not an error, but showing the grant receipt again would tell
-  /// the user they just received candy they already had. The balance stays
-  /// correct because the caller applies `result.wallet` regardless.
-  ///
-  /// A `replayed` settlement our own verification retry provoked never gets
-  /// here: nothing was presented for it, so it takes the normal receipt path.
-  void _showRedeliveryAcknowledgement(BuildContext context) {
-    showSimpleDialog(
-      content: AppLocalizations.of(context).dialog_message_purchase_success,
+      presenter: _receiptPresenter,
     );
   }
 
   /// ♻️ 서버가 이미 정산을 확정한 구매(지급 확정 중복)의 안내.
   ///
-  /// The duplicate verdict carries no amounts, so there is no receipt to build
-  /// - but the purchase did succeed, and until 1.3.0 this case was shown an
-  /// *error* ("이전 거래 처리 중") for candy the user already owned. The success
-  /// acknowledgement is the same one a redelivered settlement gets.
+  /// The duplicate verdict carries no amounts, so there is no receipt to build.
+  /// Same acknowledgement a redelivered settlement gets - see
+  /// [acknowledgePurchaseSettlement].
   Future<void> showAlreadySettledDialog() async {
     final context = _receiptContext();
     if (context == null) {
       logger.e('Navigator context is null in showAlreadySettledDialog');
       return;
     }
-    _showRedeliveryAcknowledgement(context);
+    acknowledgePurchaseSettlement(context);
   }
 
   Future<void> showPurchaseAlreadyPendingDialog() async {

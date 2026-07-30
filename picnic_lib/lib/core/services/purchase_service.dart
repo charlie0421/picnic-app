@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
@@ -13,6 +12,7 @@ import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/core/services/purchase_service_helper.dart';
+import 'package:picnic_lib/core/services/unfinished_purchase_source.dart';
 // 🔥 복잡한 가드 시스템 제거 - 단순 중복 방지만 사용
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/services/duplicate_prevention_service.dart';
@@ -27,6 +27,83 @@ Future<void> deliverVerifiedPurchaseResult(
   PurchaseSuccess onSuccess,
 ) => onSuccess(result);
 
+/// Why a recovery sweep was started.
+enum PurchaseSweepTrigger {
+  /// Once per process, from the constructor.
+  coldStart,
+
+  /// The app came back to the foreground.
+  resume,
+
+  /// Explicitly asked for (debug tooling, tests).
+  manual,
+}
+
+enum PurchaseSweepOutcome {
+  /// The store was asked and every transaction it returned was driven through
+  /// verification.
+  completed,
+
+  /// Rate limiting declined this run.
+  throttled,
+
+  /// Another sweep was already running.
+  concurrent,
+
+  /// There is no store on this host (unit tests, desktop).
+  unsupported,
+
+  /// Nobody was signed in, so there was no account to settle against.
+  ///
+  /// Distinct from [completed] because it does not consume the run: a cold-start
+  /// sweep can easily beat session restore (Supabase is initialised *after*
+  /// `runApp`), and a sweep that never asked the server must not be the reason a
+  /// charged transaction waits for the next launch.
+  notSignedIn,
+
+  /// The enumeration or the reconcile threw. Also does not consume the run.
+  failed,
+}
+
+/// What one sweep found and what it managed to do about it, so the log line is
+/// a fact and not a guess.
+class PurchaseSweepReport {
+  const PurchaseSweepReport({
+    required this.trigger,
+    required this.outcome,
+    this.source,
+    this.found = 0,
+    this.settled = 0,
+    this.preserved = 0,
+    this.scanError,
+  });
+
+  final PurchaseSweepTrigger trigger;
+  final PurchaseSweepOutcome outcome;
+  final String? source;
+
+  /// Transactions the store still held open.
+  final int found;
+
+  /// Of those, the ones the server settled (or confirmed already settled) and
+  /// which are therefore now finished/consumed.
+  final int settled;
+
+  /// Of those, the ones left untouched because the settlement was not
+  /// confirmed. These stay recoverable by design.
+  final int preserved;
+
+  final Object? scanError;
+
+  bool get ran => outcome == PurchaseSweepOutcome.completed;
+
+  @override
+  String toString() =>
+      'PurchaseSweepReport(${trigger.name}, ${outcome.name}, '
+      'source: $source, found: $found, settled: $settled, '
+      'preserved: $preserved, scanError: $scanError)';
+}
+
 class PurchaseService {
   PurchaseService({
     required this.container,
@@ -35,7 +112,14 @@ class PurchaseService {
     required this.analyticsService,
     required this.duplicatePreventionService,
     required void Function(List<PurchaseDetails>) onPurchaseUpdate,
-  }) {
+    UnfinishedPurchaseSource? unfinishedPurchaseSource,
+    DateTime Function() clock = DateTime.now,
+    Duration resumeSweepInterval = const Duration(minutes: 5),
+    bool sweepOnStart = true,
+  }) : unfinishedPurchaseSource =
+           unfinishedPurchaseSource ?? defaultUnfinishedPurchaseSource(),
+       _clock = clock,
+       _resumeSweepInterval = resumeSweepInterval {
     inAppPurchaseService.initialize(onPurchaseUpdate);
     inAppPurchaseService.clearPendingPurchasesOnStartup();
 
@@ -44,12 +128,29 @@ class PurchaseService {
 
     logger.i('✅ PurchaseService 초기화 완료 - 강화된 중복 방지 시스템 활성화');
 
-    // 앱 시작 시 큐 플러시
-    unawaited(ReceiptQueueService().flushPending());
+    // 앱 시작 시 큐 플러시.
+    //
+    // 이제 이 생성자는 앱 첫 프레임에 돈다(예전에는 스토어 화면 진입). 그
+    // 시점에는 Supabase 초기화(runApp 이후 Phase 2)가 아직 끝나지 않았을 수
+    // 있고, 그러면 큐 전송이 던진다. 큐는 durable 하므로 다음 플러시가
+    // 재시도하지만, 미처리 async 예외로 새는 것은 막는다.
+    unawaited(
+      ReceiptQueueService().flushPending().catchError((Object e) {
+        logger.w('영수증 큐 플러시 실패(다음 기회에 재시도): $e');
+      }),
+    );
 
-    // 안드로이드: 과거 미처리 구매 점검
-    if (Platform.isAndroid) {
-      unawaited(_reconcileAndroidPastPurchases());
+    // 콜드 스타트 리컨사일: 스토어가 아직 미완료로 들고 있는 결제를 검증에
+    // 태운다. Android 는 queryPastPurchases, iOS 는 SKPaymentQueue 로 같은
+    // 루프를 돈다.
+    //
+    // 기본값은 켜져 있지만 `GlobalPurchaseListener` 는 끄고
+    // [sweepUnfinishedPurchases] 를 SDK 초기화 뒤에 직접 부른다 - 세션 복원
+    // 전에 훑으면 정산할 계정이 없다.
+    if (sweepOnStart) {
+      unawaited(
+        sweepUnfinishedPurchases(trigger: PurchaseSweepTrigger.coldStart),
+      );
     }
   }
 
@@ -68,6 +169,24 @@ class PurchaseService {
   final ReceiptVerificationService receiptVerificationService;
   final AnalyticsService analyticsService;
   final DuplicatePreventionService duplicatePreventionService;
+
+  /// How the unfinished transactions of *this* build's store are enumerated.
+  ///
+  /// Null on a host with no store, which is what makes the sweep a no-op in
+  /// unit tests instead of an exception.
+  final UnfinishedPurchaseSource? unfinishedPurchaseSource;
+
+  final DateTime Function() _clock;
+  final Duration _resumeSweepInterval;
+
+  bool _coldStartSweepDone = false;
+  bool _sweepInFlight = false;
+  DateTime? _lastSweepAt;
+
+  /// When the last sweep actually ran. Exposed so the rate limiting can be
+  /// asserted rather than assumed.
+  @visibleForTesting
+  DateTime? get lastSweepAt => _lastSweepAt;
 
   /// Helper for pure logic methods (testable without platform dependencies)
   final PurchaseServiceHelper helper = const PurchaseServiceHelper();
@@ -772,72 +891,200 @@ class PurchaseService {
     unawaited(ReceiptQueueService().flushPending());
   }
 
-  Future<void> _reconcileAndroidPastPurchases() async {
-    try {
-      logger.i('🔍 Android 과거 구매 조회 시작');
-      final addition = InAppPurchase.instance
-          .getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
-      final resp = await addition.queryPastPurchases();
-      if (resp.error != null) {
-        // 빈 목록과 조회 실패는 다르다. 실패면 다음 기회에 다시 시도해야
-        // 하므로 명시적으로 남긴다.
-        logger.w('⚠️ 과거 구매 조회 오류: ${resp.error}');
-      }
-      if (resp.pastPurchases.isEmpty) {
-        logger.i('ℹ️ 과거 구매 없음');
-        return;
-      }
-
-      final currentUser = supabase.auth.currentUser;
-      if (currentUser == null) {
-        logger.w('ℹ️ 로그인되지 않아 과거 구매 재검증 생략');
-        return;
-      }
-
-      final environment = await receiptVerificationService.getEnvironment();
-
-      for (final p in resp.pastPurchases) {
-        final receipt = p.verificationData.serverVerificationData;
-        if (receipt.isEmpty) continue;
-
-        // 서버는 구매 토큰 기준으로 멱등하므로 직접 재검증한다.
-        // (verifyReceipt가 내부에서 큐 적재→성공 시 제거를 수행하므로
-        // 실패해도 항목이 큐에 남아 이후 플러시가 재시도한다.)
-        // 소비(consume)는 적립이 확인된 뒤에만 한다 — 소비가 먼저면
-        // 실패 시 복구 수단이 사라진다.
-        try {
-          await receiptVerificationService.verifyReceipt(
-            receipt,
-            p.productID,
-            currentUser.id,
-            environment,
-          );
-          await inAppPurchaseService.finalizeSettledPurchase(p).catchError((e) {
-            logger.w('과거 구매 소비 실패(다음 reconcile에서 재시도): $e');
-          });
-          logger.i('♻️ 과거 구매 정산+소비 완료: ${p.productID}');
-        } on ReusedPurchaseException catch (e) {
-          if (e.grantConfirmed) {
-            // 이미 지급까지 끝난 구매 → 소비만 하면 된다.
-            await inAppPurchaseService.finalizeSettledPurchase(p).catchError((
-              err,
-            ) {
-              logger.w('과거 구매 소비 실패(다음 reconcile에서 재시도): $err');
-            });
-            logger.i('♻️ 기지급 과거 구매 소비 완료: ${p.productID}');
-          } else {
-            logger.w('과거 구매 중복이나 지급 미확인 - 소비 보류: ${p.productID}');
-          }
-        } catch (e) {
-          logger.w('과거 구매 재검증 실패(큐 유지): ${p.productID} ($e)');
-        }
-      }
-
-      await ReceiptQueueService().flushPending();
-      logger.i('✅ Android 과거 구매 재검증 완료');
-    } catch (e, s) {
-      logger.e('Android 과거 구매 조회/재검증 실패: $e', stackTrace: s);
+  /// Drives every transaction the store still holds open through the existing
+  /// verification/settlement path.
+  ///
+  /// This is the recovery half of the money path, and it is now symmetric
+  /// across the two stores: Android enumerates through `queryPastPurchases`,
+  /// iOS through `SKPaymentQueue` (see [UnfinishedPurchaseSource]). Both feed
+  /// the same loop, and the loop's rule is unchanged from the Android-only
+  /// version it grew out of: **verify first, finish only once the server has
+  /// confirmed the grant.** Finishing first would destroy the receipt's last
+  /// retry path if verification then failed.
+  ///
+  /// It is cheap and it terminates because the server made it so: re-sending an
+  /// already-settled transaction answers 200 with the canonical `wallet.v1`
+  /// settlement (engine PR #78) and a permanently dead intake answers 422
+  /// (PR #77). So a sweep over the same queue converges - every transaction
+  /// either gets settled and finished, or is answered as un-settleable and left
+  /// alone for a human to look at.
+  ///
+  /// Rate limiting is the caller-visible contract: exactly once per cold start,
+  /// and at most once per [_resumeSweepInterval] on resume. Without it, a user
+  /// flicking between apps would re-verify the same queue on every foreground.
+  Future<PurchaseSweepReport> sweepUnfinishedPurchases({
+    required PurchaseSweepTrigger trigger,
+  }) async {
+    final source = unfinishedPurchaseSource;
+    if (source == null) {
+      return PurchaseSweepReport(
+        trigger: trigger,
+        outcome: PurchaseSweepOutcome.unsupported,
+      );
     }
+
+    if (_sweepInFlight) {
+      logger.i('⏭️ 미완료 구매 스윕이 이미 진행 중 - ${trigger.name} 요청 무시');
+      return PurchaseSweepReport(
+        trigger: trigger,
+        outcome: PurchaseSweepOutcome.concurrent,
+        source: source.label,
+      );
+    }
+
+    if (!_sweepAllowed(trigger)) {
+      logger.i(
+        '⏭️ 미완료 구매 스윕 제한(${trigger.name}) - 마지막 실행: $_lastSweepAt',
+      );
+      return PurchaseSweepReport(
+        trigger: trigger,
+        outcome: PurchaseSweepOutcome.throttled,
+        source: source.label,
+      );
+    }
+
+    _sweepInFlight = true;
+    final previousColdStartDone = _coldStartSweepDone;
+    final previousSweepAt = _lastSweepAt;
+    if (trigger == PurchaseSweepTrigger.coldStart) {
+      _coldStartSweepDone = true;
+    }
+    _lastSweepAt = _clock();
+
+    try {
+      final report = await _reconcileUnfinishedPurchases(source, trigger);
+      if (report.outcome == PurchaseSweepOutcome.notSignedIn) {
+        // 이 실행은 소진하지 않는다 - 서버에 물어본 적이 없으므로 다음 기회에
+        // 다시 훑어야 한다.
+        _coldStartSweepDone = previousColdStartDone;
+        _lastSweepAt = previousSweepAt;
+      }
+      logger.i('✅ 미완료 구매 스윕 완료: $report');
+      return report;
+    } catch (e, s) {
+      // 부팅 직후에는 Supabase 초기화(runApp 이후 Phase 2)보다 먼저 도달할 수
+      // 있고, 그때 `supabase` 게터는 StateError 를 던진다. 실패한 스윕이 이
+      // 실행을 소진하면 과금된 트랜잭션이 다음 콜드 스타트까지 기다린다.
+      _coldStartSweepDone = previousColdStartDone;
+      _lastSweepAt = previousSweepAt;
+      logger.e('미완료 구매 스윕 실패(${source.label}): $e', stackTrace: s);
+      return PurchaseSweepReport(
+        trigger: trigger,
+        outcome: PurchaseSweepOutcome.failed,
+        source: source.label,
+        scanError: e,
+      );
+    } finally {
+      _sweepInFlight = false;
+    }
+  }
+
+  bool _sweepAllowed(PurchaseSweepTrigger trigger) {
+    switch (trigger) {
+      case PurchaseSweepTrigger.coldStart:
+        return !_coldStartSweepDone;
+      case PurchaseSweepTrigger.manual:
+        return true;
+      case PurchaseSweepTrigger.resume:
+        final last = _lastSweepAt;
+        if (last == null) return true;
+        return _clock().difference(last) >= _resumeSweepInterval;
+    }
+  }
+
+  Future<PurchaseSweepReport> _reconcileUnfinishedPurchases(
+    UnfinishedPurchaseSource source,
+    PurchaseSweepTrigger trigger,
+  ) async {
+    logger.i('🔍 미완료 구매 조회 시작 (${source.label}, ${trigger.name})');
+    final scan = await source.scan();
+    if (scan.error != null) {
+      // 빈 목록과 조회 실패는 다르다. 실패면 다음 기회에 다시 시도해야
+      // 하므로 명시적으로 남긴다.
+      logger.w('⚠️ 미완료 구매 조회 오류: ${scan.error}');
+    }
+    if (scan.isEmpty) {
+      logger.i('ℹ️ 미완료 구매 없음 (${source.label})');
+      return PurchaseSweepReport(
+        trigger: trigger,
+        outcome: PurchaseSweepOutcome.completed,
+        source: source.label,
+        scanError: scan.error,
+      );
+    }
+
+    final currentUser = supabase.auth.currentUser;
+    if (currentUser == null) {
+      logger.w('ℹ️ 로그인되지 않아 미완료 구매 재검증 생략 (${scan.purchases.length}건 보존)');
+      return PurchaseSweepReport(
+        trigger: trigger,
+        outcome: PurchaseSweepOutcome.notSignedIn,
+        source: source.label,
+        found: scan.purchases.length,
+        preserved: scan.purchases.length,
+        scanError: scan.error,
+      );
+    }
+
+    final environment = await receiptVerificationService.getEnvironment();
+
+    var found = 0;
+    var settled = 0;
+    var preserved = 0;
+
+    for (final p in scan.purchases) {
+      final receipt = p.verificationData.serverVerificationData;
+      if (receipt.isEmpty) continue;
+      found++;
+
+      // 서버는 트랜잭션(구매 토큰 / 트랜잭션 ID) 기준으로 멱등하므로 직접
+      // 재검증한다. (verifyReceipt가 내부에서 큐 적재→성공 시 제거를
+      // 수행하므로 실패해도 항목이 큐에 남아 이후 플러시가 재시도한다.)
+      // 소비(consume)/finish는 적립이 확인된 뒤에만 한다 — 소비가 먼저면
+      // 실패 시 복구 수단이 사라진다.
+      try {
+        await receiptVerificationService.verifyReceipt(
+          receipt,
+          p.productID,
+          currentUser.id,
+          environment,
+        );
+        await inAppPurchaseService.finalizeSettledPurchase(p).catchError((e) {
+          logger.w('미완료 구매 완료 처리 실패(다음 스윕에서 재시도): $e');
+        });
+        settled++;
+        logger.i('♻️ 미완료 구매 정산+완료: ${p.productID} (${p.purchaseID})');
+      } on ReusedPurchaseException catch (e) {
+        if (e.grantConfirmed) {
+          // 이미 지급까지 끝난 구매 → 스토어 완료 처리만 하면 된다.
+          await inAppPurchaseService.finalizeSettledPurchase(p).catchError((
+            err,
+          ) {
+            logger.w('미완료 구매 완료 처리 실패(다음 스윕에서 재시도): $err');
+          });
+          settled++;
+          logger.i('♻️ 기지급 미완료 구매 완료 처리: ${p.productID}');
+        } else {
+          preserved++;
+          logger.w('미완료 구매 중복이나 지급 미확인 - 완료 처리 보류: ${p.productID}');
+        }
+      } catch (e) {
+        preserved++;
+        logger.w('미완료 구매 재검증 실패(트랜잭션·큐 유지): ${p.productID} ($e)');
+      }
+    }
+
+    await ReceiptQueueService().flushPending();
+
+    return PurchaseSweepReport(
+      trigger: trigger,
+      outcome: PurchaseSweepOutcome.completed,
+      source: source.label,
+      found: found,
+      settled: settled,
+      preserved: preserved,
+      scanError: scan.error,
+    );
   }
 
   /// 모든 진행 중인 구매 상태 강제 정리 (긴급 상황용)
