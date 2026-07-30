@@ -20,6 +20,7 @@ import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
@@ -1036,6 +1037,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         backgroundColor: Colors.white,
         onRefresh: () async {
           ref.read(userInfoProvider.notifier).getUserProfiles();
+          // 파우치(별사탕 파우치)는 walletSummaryProvider 가 그린다. 프로필만
+          // 다시 읽으면 파우치가 실패해 있을 때 화면을 당겨도 회복되지 않는다.
+          await ref.read(walletSummaryProvider.notifier).refresh();
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -1076,6 +1080,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       onTap: () {
         _rotationController.forward(from: 0);
         ref.read(userInfoProvider.notifier).getUserProfiles();
+        // 헤더 새로고침은 파우치도 함께 다시 읽는다 (같은 이유: 위 onRefresh).
+        ref.read(walletSummaryProvider.notifier).refresh();
       },
       child: RotationTransition(
         turns: Tween(begin: 0.0, end: 1.0).animate(
