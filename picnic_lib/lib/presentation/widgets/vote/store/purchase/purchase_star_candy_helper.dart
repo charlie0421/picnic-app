@@ -31,9 +31,14 @@ class PurchaseStarCandyHelper {
         return 'error_user_not_authenticated';
       case 'PRODUCT_NOT_FOUND':
         return 'error_product_not_found';
+      // 결제 접수 완료 / 정산 미확정. 둘 다 "실패했으니 다시 시도하세요"가
+      // 아니라 "접수됐고 처리되면 자동 적립된다"로 안내해야 한다 —
+      // 재시도를 권하면 소비형 상품에서 이중 과금이 된다.
+      case PurchaseConstants.errProcessing:
       case PurchaseConstants.errTimeout:
-        return 'purchase_timeout_message';
+        return 'purchase_payment_accepted_message';
       case PurchaseConstants.errAuthTimeout:
+      case PurchaseConstants.errPaymentInvalid:
         return 'dialog_message_purchase_failed';
       case PurchaseConstants.errNetwork:
         return 'error_network_connection';

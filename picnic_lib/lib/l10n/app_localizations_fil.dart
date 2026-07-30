@@ -1284,6 +1284,10 @@ class AppLocalizationsFil extends AppLocalizations {
       'Ang pagproseso ng pagbili ay masyadong mahaba.\nMangyaring subukang muli mamaya.';
 
   @override
+  String get purchase_payment_accepted_message =>
+      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Paparating';
 
   @override

@@ -10,6 +10,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
+import 'package:picnic_lib/core/services/purchase_failure_classifier.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
@@ -447,6 +448,26 @@ class ReceiptVerificationService {
           logger.e(
             '$verificationType verification response contract violated - '
             'not retrying: ${error.message}',
+          );
+          rethrow;
+        }
+
+        // 서버가 이 요청에 대해 판정을 내린 실패(422 비재시도 / 400 계약
+        // 위반 / 403 거부)는 같은 본문을 다시 보내도 같은 답이 온다.
+        // 그런데도 루프를 계속 돌리면 사용자를 2초+4초 더 붙잡아 둔 뒤
+        // 같은 실패를 알리게 되고, 그 사이에 90초 안전망이 먼저 울려
+        // "구매 처리 지연" 팝업과 오류 다이얼로그가 겹친다. 즉시 실패시켜
+        // 정확한 안내로 빠진다.
+        //
+        // 이 fail-fast 가 안전한 이유는 여기서 아무것도 파괴하지 않기
+        // 때문이다: 스토어 트랜잭션은 미확정으로 남고(handleOptimizedPurchase
+        // 의 finally), 큐 항목은 422 에서만 제거된다
+        // (isPermanentSettlementRejection). 정말로 일시 오류였던 400 은
+        // 다음 실행의 재전달·큐 플러시가 다시 시도한다.
+        if (PurchaseFailureClassifier.isPermanentRejection(error)) {
+          logger.e(
+            '$verificationType verification rejected by the server '
+            '(status ${(error as FunctionException).status}) - not retrying',
           );
           rethrow;
         }

@@ -142,9 +142,12 @@ class PurchaseProcessor {
         return PurchaseErrorType.userNotAuthenticated;
       case 'PRODUCT_NOT_FOUND':
         return PurchaseErrorType.productNotFound;
+      case PurchaseConstants.errProcessing:
+        return PurchaseErrorType.processing;
       case PurchaseConstants.errTimeout:
         return PurchaseErrorType.timeout;
       case PurchaseConstants.errAuthTimeout:
+      case PurchaseConstants.errPaymentInvalid:
         return PurchaseErrorType.purchaseFailed;
       case PurchaseConstants.errNetwork:
         return PurchaseErrorType.networkError;
@@ -162,14 +165,30 @@ class PurchaseProcessor {
 
   /// 매핑 에러가 이 구매 시도를 종결시키는지.
   ///
-  /// 타임아웃/네트워크 오류는 정산이 늦게 도착해 아직 성사될 수 있으므로
-  /// 어템프트(와 90초 안전망 타이머)를 살려 둔다. 그 외 매핑 에러는
-  /// 사용자에게 종결 실패로 안내한 것이므로, 어템프트와 함께 해당 상품의
-  /// 지연 알림 타이머까지 내려야 에러 다이얼로그 뒤에 "구매 처리 지연"
-  /// 팝업이 또 뜨지 않는다 (1.3.0 베타 회귀).
+  /// 타임아웃/네트워크/정산 진행 중 오류는 정산이 늦게 도착해 아직 성사될
+  /// 수 있으므로 종결 실패로 다루지 않는다. 그 외 매핑 에러는 사용자에게
+  /// 종결 실패로 안내한 것이므로, 어템프트와 함께 해당 상품의 지연 알림
+  /// 타이머까지 내려야 에러 다이얼로그 뒤에 "구매 처리 지연" 팝업이 또
+  /// 뜨지 않는다 (1.3.0 베타 회귀).
   static bool isTerminalMappedError(PurchaseErrorType type) =>
+      type != PurchaseErrorType.processing &&
       type != PurchaseErrorType.timeout &&
       type != PurchaseErrorType.networkError;
+
+  /// 결제는 접수됐고 정산 결과만 아직 모르는 유형인지.
+  ///
+  /// 이 유형은 "실패"가 아니다. 사용자에게 재시도를 권하면 소비형 상품을
+  /// 한 번 더 결제하게 되고, 그 이중 과금은 되돌릴 수 없다. 대신
+  /// "접수됐고 처리되면 자동 적립된다"고 알리고 해당 상품의 재구매를
+  /// 쿨다운으로 막는다.
+  ///
+  /// [PurchaseErrorType.networkError] 는 제외한다: 이 코드는 런치 단계
+  /// (아직 과금 없음)에서도 나오므로 "네트워크를 확인하세요"가 맞는
+  /// 안내다. 정산 단계의 소켓/타임아웃 실패는 타입 분류에서
+  /// [PurchaseErrorType.processing] 으로 들어온다.
+  static bool isSettlementPending(PurchaseErrorType type) =>
+      type == PurchaseErrorType.processing ||
+      type == PurchaseErrorType.timeout;
 
   static bool _isDuplicateErrorString(String error) {
     return error.contains('StoreKit 캐시 문제') ||
@@ -201,6 +220,9 @@ enum PurchaseErrorType {
   receiptVerificationFailed,
   userNotAuthenticated,
   productNotFound,
+
+  /// 결제 접수 완료, 정산 결과 미확정. 실패가 아니다.
+  processing,
   timeout,
   purchaseFailed,
   networkError,

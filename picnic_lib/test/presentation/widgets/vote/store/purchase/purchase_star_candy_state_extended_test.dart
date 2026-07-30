@@ -543,8 +543,9 @@ void main() {
             return 'error_user_not_authenticated';
           case 'PRODUCT_NOT_FOUND':
             return 'error_product_not_found';
+          case PurchaseConstants.errProcessing:
           case PurchaseConstants.errTimeout:
-            return 'purchase_timeout_message';
+            return 'purchase_payment_accepted_message';
           case PurchaseConstants.errAuthTimeout:
             return 'dialog_message_purchase_failed';
           case PurchaseConstants.errNetwork:
@@ -570,7 +571,10 @@ void main() {
       expect(mapError('RECEIPT_VERIFICATION_FAILED'), 'error_receipt_verification_failed');
       expect(mapError('USER_NOT_AUTHENTICATED'), 'error_user_not_authenticated');
       expect(mapError('PRODUCT_NOT_FOUND'), 'error_product_not_found');
-      expect(mapError(PurchaseConstants.errTimeout), 'purchase_timeout_message');
+      expect(mapError(PurchaseConstants.errTimeout),
+          'purchase_payment_accepted_message');
+      expect(mapError(PurchaseConstants.errProcessing),
+          'purchase_payment_accepted_message');
       expect(mapError(PurchaseConstants.errAuthTimeout), 'dialog_message_purchase_failed');
       expect(mapError(PurchaseConstants.errNetwork), 'error_network_connection');
       expect(mapError(PurchaseConstants.errServer), 'network_error_message');

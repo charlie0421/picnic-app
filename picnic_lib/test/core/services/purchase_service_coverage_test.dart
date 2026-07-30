@@ -1,36 +1,36 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/core/services/purchase_service_helper.dart';
 
 /// Coverage-focused tests for PurchaseService logic patterns.
 ///
-/// PurchaseService cannot be instantiated in tests because it requires
+/// PurchaseService itself cannot be instantiated in tests because it requires
 /// WidgetRef, InAppPurchaseService (starts platform timers), Supabase auth,
-/// and ReceiptQueueService. Instead, we test the logic patterns from
-/// _getErrorMessage and _getDetailedErrorMessage as pure functions.
+/// and ReceiptQueueService. The classification logic it delegates to, however,
+/// lives in [PurchaseServiceHelper] and *is* constructible - so these groups
+/// call the real thing.
+///
+/// They used to re-implement it locally. That is how the C-1 defect stayed
+/// invisible: the copy here asserted `contains('timeout')` behaved as intended
+/// while production, running the same expression against
+/// `TimeoutException.toString()` ("TimeoutException after ...", no lowercase
+/// 'timeout'), classified a settling purchase as a terminal failure. A mirror
+/// that can drift from what ships is worse than no test.
 void main() {
   group('_getErrorMessage logic (mirrors PurchaseService._getErrorMessage)', () {
-    String getErrorMessage(String? errorCode) {
-      if (errorCode == null) return 'GENERIC';
-
-      switch (errorCode) {
-        case 'payment_invalid':
-          return '결제 정보가 유효하지 않습니다.';
-        case 'payment_canceled':
-          return PurchaseConstants.errPurchaseCanceled;
-        case 'store_problem':
-          return PurchaseConstants.errServer;
-        default:
-          return 'GENERIC';
-      }
-    }
+    String getErrorMessage(String? errorCode) => const PurchaseServiceHelper()
+        .getErrorMessage(errorCode == null
+            ? null
+            : IAPError(source: 'test', code: errorCode, message: ''));
 
     test('null error returns GENERIC', () {
       expect(getErrorMessage(null), 'GENERIC');
     });
 
-    test('payment_invalid returns Korean message', () {
-      expect(getErrorMessage('payment_invalid'), '결제 정보가 유효하지 않습니다.');
+    test('payment_invalid returns an error code, not a Korean sentence', () {
+      expect(
+          getErrorMessage('payment_invalid'), PurchaseConstants.errPaymentInvalid);
     });
 
     test('payment_canceled returns ERR_PURCHASE_CANCELED constant', () {
@@ -54,41 +54,22 @@ void main() {
   group(
       '_getDetailedErrorMessage logic (mirrors PurchaseService._getDetailedErrorMessage)',
       () {
-    String getDetailedErrorMessage(String errorString) {
-      if (errorString.contains('Receipt verification failed')) {
-        return 'RECEIPT_VERIFICATION_FAILED';
-      } else if (errorString.contains('timeout') ||
-          errorString.contains('타임아웃')) {
-        return PurchaseConstants.errTimeout;
-      } else if (errorString.contains('Touch ID') ||
-          errorString.contains('Face ID')) {
-        return PurchaseConstants.errAuthTimeout;
-      } else if (errorString.contains('USER_NOT_AUTHENTICATED')) {
-        return 'USER_NOT_AUTHENTICATED';
-      } else if (errorString.contains('PRODUCT_NOT_FOUND')) {
-        return 'PRODUCT_NOT_FOUND';
-      } else if (errorString.toLowerCase().contains('network')) {
-        return PurchaseConstants.errNetwork;
-      } else if (errorString.toLowerCase().contains('server')) {
-        return PurchaseConstants.errServer;
-      }
-
-      return 'GENERIC';
-    }
+    String getDetailedErrorMessage(String errorString) =>
+        const PurchaseServiceHelper().getDetailedErrorMessage(errorString);
 
     test('Receipt verification failed', () {
       expect(getDetailedErrorMessage('Receipt verification failed'),
           'RECEIPT_VERIFICATION_FAILED');
     });
 
-    test('timeout in English', () {
+    test('timeout in English is settlement-pending, not a failure', () {
       expect(getDetailedErrorMessage('Connection timeout'),
-          PurchaseConstants.errTimeout);
+          PurchaseConstants.errProcessing);
     });
 
-    test('timeout in Korean (타임아웃)', () {
+    test('timeout in Korean (타임아웃) is settlement-pending', () {
       expect(getDetailedErrorMessage('요청 타임아웃 발생'),
-          PurchaseConstants.errTimeout);
+          PurchaseConstants.errProcessing);
     });
 
     test('Touch ID error', () {
@@ -130,29 +111,22 @@ void main() {
     });
   });
 
-  group('Error message user-friendly mapping logic (mirrors initiatePurchase)',
-      () {
-    String getUserMessage(String errorString) {
-      String userMessage = '구매 시작 중 오류가 발생했습니다';
-      if (errorString.contains('상품 정보')) {
-        userMessage = '상품 정보를 찾을 수 없습니다. 잠시 후 다시 시도해주세요.';
-      } else if (errorString.contains('네트워크')) {
-        userMessage = '네트워크 연결을 확인해주세요.';
-      }
-      return userMessage;
-    }
+  group('Launch-failure error codes (initiatePurchase)', () {
+    String getCode(String errorString) =>
+        const PurchaseServiceHelper().getPurchaseInitiationErrorCode(
+          errorString,
+        );
 
     test('product info error', () {
-      expect(getUserMessage('상품 정보를 찾을 수 없습니다'),
-          '상품 정보를 찾을 수 없습니다. 잠시 후 다시 시도해주세요.');
+      expect(getCode('상품 정보를 찾을 수 없습니다'), 'PRODUCT_NOT_FOUND');
     });
 
     test('network error', () {
-      expect(getUserMessage('네트워크 오류 발생'), '네트워크 연결을 확인해주세요.');
+      expect(getCode('네트워크 오류 발생'), PurchaseConstants.errNetwork);
     });
 
     test('generic error', () {
-      expect(getUserMessage('Unknown error'), '구매 시작 중 오류가 발생했습니다');
+      expect(getCode('Unknown error'), 'GENERIC');
     });
   });
 
@@ -212,20 +186,20 @@ void main() {
       final result = {
         'success': false,
         'wasCancelled': false,
-        'errorMessage': '구매 요청을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.',
+        'errorMessage': 'GENERIC',
       };
       expect(result['success'], isFalse);
       expect(result['wasCancelled'], isFalse);
       expect(result['errorMessage'], isNotNull);
     });
 
-    test('login required result format', () {
+    test('login required result format carries a code, not Korean text', () {
       final result = {
         'success': false,
         'wasCancelled': false,
-        'errorMessage': '로그인이 필요합니다',
+        'errorMessage': 'USER_NOT_AUTHENTICATED',
       };
-      expect(result['errorMessage'], '로그인이 필요합니다');
+      expect(result['errorMessage'], 'USER_NOT_AUTHENTICATED');
     });
 
     test('duplicate prevention deny result includes denyType', () {

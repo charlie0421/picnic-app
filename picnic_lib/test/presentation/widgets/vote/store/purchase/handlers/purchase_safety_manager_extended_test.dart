@@ -235,7 +235,9 @@ void main() {
         },
       );
 
-      expect(receivedError, equals('구매 처리 중 오류가 발생했습니다.'));
+      // 에러 코드여야 한다 - 여기서 한국어 문장을 만들면 로케일과 무관하게
+      // 한국어 오류가 다이얼로그에 올라간다.
+      expect(receivedError, equals('GENERIC'));
     });
   });
 

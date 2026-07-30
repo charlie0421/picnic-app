@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -254,6 +257,79 @@ void main() {
     expect(plugin.finalized, 0,
         reason: '보고 중복 제거는 UI 계층의 일이다 - 트랜잭션 보존은 그대로');
     expect(plugin.completed, 0);
+  });
+
+  // =========================================================================
+  // C-1: 정산 실패가 UI 에 어떤 코드로 보고되는지.
+  //
+  // 트랜잭션 보존 정책(위 그룹)과 별개로, **사용자에게 무엇이라고 알리는지**가
+  // 이중 과금을 만든다. 서버 워커의 리스는 60초이고 정산은 cron 재시도까지
+  // 수 분이 걸릴 수 있는데 클라이언트 예산은 30초 + 2·4초다. 그래서 여기서
+  // 종결 실패로 보고하면 **적립 직전의 결제**가 실패로 안내되고, 사용자는
+  // 그 안내를 따라 같은 소비형 상품을 한 번 더 결제한다.
+  // =========================================================================
+  testWidgets('a timeout is reported as settlement-pending, not a failure',
+      (tester) async {
+    // 회귀 재현: errorString.contains('timeout') 은 TimeoutException 을
+    // 잡지 못한다 ("TimeoutException after 0:00:30.000000: Future not
+    // completed" — 소문자 timeout 이 없다). 그래서 GENERIC → purchaseFailed
+    // (종결)로 떨어졌다.
+    await run(tester, TimeoutException('verify', const Duration(seconds: 30)));
+
+    expect(errors, [PurchaseConstants.errProcessing],
+        reason: 'GENERIC 으로 떨어지면 "나중에 다시 시도해주세요" 가 뜨고 '
+            '사용자는 정산 중인 소비형 상품을 다시 결제한다');
+    expect(plugin.finalized, 0, reason: '미확정이므로 트랜잭션은 그대로 보존');
+  });
+
+  testWidgets('a 503 is reported as settlement-pending', (tester) async {
+    await run(
+      tester,
+      FunctionException(status: 503, details: null, reasonPhrase: 'test'),
+    );
+
+    expect(errors, [PurchaseConstants.errProcessing],
+        reason: 'FunctionException 에는 매칭할 단어가 없어 503 과 422 가 하나의 '
+            '다이얼로그로 붕괴했다');
+  });
+
+  testWidgets('a 422 is reported as a permanent verification failure',
+      (tester) async {
+    await run(
+      tester,
+      FunctionException(status: 422, details: null, reasonPhrase: 'test'),
+    );
+
+    expect(errors, ['RECEIPT_VERIFICATION_FAILED'],
+        reason: '서버가 의도적으로 구분한 비재시도 판정은 접수 안내가 아니라 '
+            '종결 실패로 안내되어야 한다');
+  });
+
+  testWidgets('503 and 422 do not collapse into the same report',
+      (tester) async {
+    await run(
+      tester,
+      FunctionException(status: 503, details: null, reasonPhrase: 'test'),
+    );
+    final retryable = List<String>.from(errors);
+
+    errors.clear();
+    await run(
+      tester,
+      FunctionException(status: 422, details: null, reasonPhrase: 'test'),
+    );
+
+    expect(retryable, isNot(errors),
+        reason: '서버의 503 vs 422 구분이 클라이언트에서 살아 있어야 한다');
+  });
+
+  testWidgets('a settlement-pending failure still reports exactly once',
+      (tester) async {
+    // 분류가 바뀌어도 "하나의 실패 = 하나의 보고" 는 유지된다.
+    await run(tester, const SocketException('connection reset'));
+
+    expect(errors, hasLength(1));
+    expect(errors.single, PurchaseConstants.errProcessing);
   });
 
   testWidgets('a duplicate whose grant is unconfirmed keeps the transaction',
