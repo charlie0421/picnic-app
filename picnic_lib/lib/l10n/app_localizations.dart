@@ -2288,7 +2288,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'expiring_bonus_candy_guide'.
   ///
   /// In en, this message translates to:
-  /// **'Expiring Bonus Guide'**
+  /// **'Expiring Candy Guide'**
   String get expiring_bonus_candy_guide;
 
   /// Auto-generated metadata for key 'qna_form_title_hint'.
@@ -2426,7 +2426,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'bonus_candy_policy_2'.
   ///
   /// In en, this message translates to:
-  /// **'- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.'**
+  /// **'- Candy is spent in order of the nearest expiration date. (Cotton Candy -> Bonus Star Candy -> Star Candy)'**
   String get bonus_candy_policy_2;
 
   /// No description provided for @goonghap_purchase_message.
@@ -2522,7 +2522,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'bonus_candy_policy_3'.
   ///
   /// In en, this message translates to:
-  /// **'- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.'**
+  /// **'- Expired candy cannot be restored, so please use it within the period.'**
   String get bonus_candy_policy_3;
 
   /// Auto-generated metadata for key 'message_update_nickname_fail'.
@@ -2576,7 +2576,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'bonus_candy_policy_title'.
   ///
   /// In en, this message translates to:
-  /// **'Bonus Star Candy Policy'**
+  /// **'Picnic! Candy Policy'**
   String get bonus_candy_policy_title;
 
   /// Auto-generated metadata for key 'bonus_candy_example_expiration_date'.
@@ -2738,7 +2738,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'bonus_candy_policy_1'.
   ///
   /// In en, this message translates to:
-  /// **'- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.'**
+  /// **'- Bonus Star Candy and Cotton Candy have expiration dates.'**
   String get bonus_candy_policy_1;
 
   /// Auto-generated metadata for key 'goonghap_perfect_score_exists_title'.
@@ -3698,6 +3698,24 @@ abstract class AppLocalizations {
     String receipt,
     String expiry,
   );
+
+  /// Auto-generated metadata for key 'expiring_today_cotton_only'.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiring today: Cotton Candy {cotton}'**
+  String expiring_today_cotton_only(String cotton);
+
+  /// Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}'**
+  String expiring_today_cotton_and_bonus(String cotton, String bonus);
+
+  /// Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires daily at 00:00:00 (KST).'**
+  String get cotton_candy_daily_expiry_notice;
 }
 
 class _AppLocalizationsDelegate

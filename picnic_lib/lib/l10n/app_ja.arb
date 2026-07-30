@@ -2431,5 +2431,30 @@
   "button_cs_inquiry": "サポートに問い合わせる",
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
+  },
+  "expiring_today_cotton_only": "Expiring today: Cotton Candy {cotton}",
+  "@expiring_today_cotton_only": {
+    "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
+    "placeholders": {
+      "cotton": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_and_bonus": "Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
+  "@expiring_today_cotton_and_bonus": {
+    "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
+    "placeholders": {
+      "cotton": {
+        "type": "String"
+      },
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
+  "@cotton_candy_daily_expiry_notice": {
+    "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }
 }

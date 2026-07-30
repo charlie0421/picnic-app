@@ -1046,14 +1046,13 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           child: ListView(
             children: [
               const SizedBox(height: 16),
-              if (isLoggedIn) ...[
-                _buildHeaderSection(),
-                const SizedBox(height: 8),
-              ],
               StorePointInfo(
                 title: AppLocalizations.of(context).label_star_candy_pouch,
                 width: double.infinity,
                 height: 120,
+                // 새로고침은 파우치 카드 안으로 (오너 스펙). 헤더 행은 아이콘
+                // 하나만 담고 있었으므로 함께 사라진다.
+                refreshButton: isLoggedIn ? _buildRefreshButton() : null,
               ),
               const SizedBox(height: 12),
               const Divider(color: AppColors.grey200, height: 32),
@@ -1065,13 +1064,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHeaderSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [_buildRefreshButton()],
     );
   }
 

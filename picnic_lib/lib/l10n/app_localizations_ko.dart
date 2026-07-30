@@ -1113,7 +1113,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get jma_voting_exchange_failed_title => '교환 실패';
 
   @override
-  String get expiring_bonus_candy_guide => '소멸 예정 보너스 안내';
+  String get expiring_bonus_candy_guide => '소멸 예정 캔디 안내';
 
   @override
   String get qna_form_title_hint => '제목을 5자 이상 입력해주세요.';
@@ -1189,7 +1189,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_2 =>
-      '- 별사탕 사용 시, 소멸일이 임박한 보너스 별사탕부터 순서대로 차감됩니다.';
+      '- 캔디 사용 시, 소멸일이 임박한 순서대로 차감됩니다. (코튼캔디->보너스 스타캔디->스타캔디)';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -1241,8 +1241,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get post_write_board_post => '게시글 작성';
 
   @override
-  String get bonus_candy_policy_3 =>
-      '- 소멸된 보너스 별사탕는 복구되지 않으니, 기간 내에 꼭 사용해 주세요.';
+  String get bonus_candy_policy_3 => '- 소멸 된 캔디는 복구되지 않으니, 기간 내에 꼭 사용해 주세요';
 
   @override
   String get message_update_nickname_fail => '닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요.';
@@ -1269,7 +1268,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get title_dialog_success => '성공';
 
   @override
-  String get bonus_candy_policy_title => '보너스 별사탕 정책';
+  String get bonus_candy_policy_title => 'Picnic! 캔디 정책';
 
   @override
   String get bonus_candy_example_expiration_date => '소멸일';
@@ -1359,8 +1358,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get jma_voting_daily_limit_exhausted => '오늘 보너스 투표 갯수를 모두 사용했습니다.';
 
   @override
-  String get bonus_candy_policy_1 =>
-      '- 무료 충전소 적립 보너스 별사탕, 구매 시 추가로 지급된 보너스 별사탕은 소멸 기한이 정해져 있습니다.';
+  String get bonus_candy_policy_1 => '- 보너스 스타캔디와 코튼캔디는 소멸 기한이 정해져 있습니다.';
 
   @override
   String get goonghap_perfect_score_exists_title => '이미 우승한 궁합 데이터';
@@ -1909,4 +1907,18 @@ class AppLocalizationsKo extends AppLocalizations {
   ) {
     return '$receipt, $expiry';
   }
+
+  @override
+  String expiring_today_cotton_only(String cotton) {
+    return '오늘 만료 : 코튼캔디 $cotton';
+  }
+
+  @override
+  String expiring_today_cotton_and_bonus(String cotton, String bonus) {
+    return '오늘 만료 : 코튼캔디 $cotton + 보너스 스타캔디 $bonus';
+  }
+
+  @override
+  String get cotton_candy_daily_expiry_notice =>
+      '매일 자정 00:00:00 (KST) 에 소멸됩니다.';
 }
