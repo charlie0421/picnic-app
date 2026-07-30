@@ -1266,6 +1266,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Xử lý mua hàng đang mất quá nhiều thời gian.\nVui lòng thử lại sau.';
 
   @override
+  String get purchase_payment_accepted_message =>
+      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Sắp tới';
 
   @override

@@ -210,18 +210,28 @@ class PurchaseService {
   }
 
   /// 구매 시작 (강화된 중복 방지) - 취소와 에러를 구분하여 반환
-  Future<Map<String, dynamic>> initiatePurchase(
-    String productId, {
-    required VoidCallback onSuccess,
-    required Function(String) onError,
-  }) async {
+  ///
+  /// **반환하는 결과 맵이 이 단계 실패의 유일한 보고 경로다.** 예전에는
+  /// 같은 실패를 `onError(...)` 로도 보고했는데, 스토어 화면은 그 콜백에서
+  /// `showErrorDialog` 를 띄우고 반환된 맵도 `PurchaseSafetyManager
+  /// .handlePurchaseResult` 를 거쳐 다시 `showErrorDialog` 를 띄운다 —
+  /// 하나의 실패에 다이얼로그가 두 장 겹쳐 뜬다. 결과 맵을 유일한 보고
+  /// 경로로 남긴 이유는 그것이 취소 여부(`wasCancelled`)와 차단 유형
+  /// (`denyType`)까지 함께 나르고, 상태 정리(어템프트 해제·쿨다운·스피너)가
+  /// 이미 그 경로에 붙어 있기 때문이다.
+  ///
+  /// `errorMessage` 는 사용자 문장이 아니라 **에러 코드**다. arb 매핑은
+  /// 호출자(UI)가 한다.
+  ///
+  /// 정산 단계(`handleOptimizedPurchase`)는 별개다 — 그쪽은 `onError` 가
+  /// 유일한 보고 경로다.
+  Future<Map<String, dynamic>> initiatePurchase(String productId) async {
     final currentUser = supabase.auth.currentUser;
     if (currentUser == null) {
-      onError('로그인이 필요합니다');
       return {
         'success': false,
         'wasCancelled': false,
-        'errorMessage': '로그인이 필요합니다',
+        'errorMessage': 'USER_NOT_AUTHENTICATED',
       };
     }
 
@@ -232,7 +242,6 @@ class PurchaseService {
 
       if (!validation.allowed) {
         logger.w('🚫 구매 중복 방지 검증 실패: ${validation.reason}');
-        onError(validation.reason!);
         return {
           'success': false,
           'wasCancelled': false,
@@ -303,12 +312,11 @@ class PurchaseService {
             currentUser.id,
             success: false,
           );
-          const errorMessage = '구매 요청을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.';
-          onError(errorMessage);
           return {
             'success': false,
             'wasCancelled': false,
-            'errorMessage': errorMessage,
+            // 런치 자체가 실패했다 - 아직 과금이 없으므로 재시도 안내가 맞다.
+            'errorMessage': 'GENERIC',
           };
         }
       } else {
@@ -325,14 +333,10 @@ class PurchaseService {
         success: false,
       );
 
-      // 사용자 친화적 오류 메시지
-      final userMessage = helper.getUserFriendlyErrorMessage(e);
-
-      onError(userMessage);
       return {
         'success': false,
         'wasCancelled': false,
-        'errorMessage': userMessage,
+        'errorMessage': helper.getPurchaseInitiationErrorCode(e),
       };
     }
   }

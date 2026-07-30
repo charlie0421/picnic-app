@@ -26,12 +26,14 @@ void main() {
     test('creates denied result with reason', () {
       final result = PurchaseValidationResult(
         allowed: false,
-        reason: '너무 빠른 연속 클릭입니다.',
+        reason: PurchaseConstants.errInProgress,
         type: PurchaseDenyType.cooldown,
       );
 
       expect(result.allowed, isFalse);
-      expect(result.reason, '너무 빠른 연속 클릭입니다.');
+      // reason 은 그대로 다이얼로그에 표시되므로 한국어 문장이 아니라 에러
+      // 코드여야 한다 (arb 매핑은 UI 계층에서).
+      expect(result.reason, PurchaseConstants.errInProgress);
       expect(result.type, PurchaseDenyType.cooldown);
     });
   });

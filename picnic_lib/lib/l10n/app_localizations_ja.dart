@@ -1224,6 +1224,10 @@ class AppLocalizationsJa extends AppLocalizations {
       '購入処理に時間がかかりすぎています。\\nしばらくしてから再度お試しください。';
 
   @override
+  String get purchase_payment_accepted_message =>
+      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+
+  @override
   String get label_tabbar_vote_upcoming => '予定';
 
   @override

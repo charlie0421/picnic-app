@@ -77,13 +77,37 @@ void main() {
       );
     });
 
-    test('maps TIMEOUT to purchase_timeout_message', () {
+    test('maps TIMEOUT to the payment-accepted message', () {
+      // 예전 문구(purchase_timeout_message: "나중에 다시 시도해주세요")는
+      // 소비형 상품의 재결제를 권해 이중 과금을 유도했다.
       expect(
         PurchaseStarCandyHelper.errorCodeToMessageKey(
           PurchaseConstants.errTimeout,
         ),
-        'purchase_timeout_message',
+        'purchase_payment_accepted_message',
       );
+    });
+
+    test('maps PROCESSING to the payment-accepted message', () {
+      expect(
+        PurchaseStarCandyHelper.errorCodeToMessageKey(
+          PurchaseConstants.errProcessing,
+        ),
+        'purchase_payment_accepted_message',
+      );
+    });
+
+    test('no mapped message invites a retry for a settlement-pending code', () {
+      for (final code in [
+        PurchaseConstants.errProcessing,
+        PurchaseConstants.errTimeout,
+      ]) {
+        expect(
+          PurchaseStarCandyHelper.errorCodeToMessageKey(code),
+          'purchase_payment_accepted_message',
+          reason: '$code',
+        );
+      }
     });
 
     test('maps AUTH_TIMEOUT to dialog_message_purchase_failed', () {

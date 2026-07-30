@@ -1264,6 +1264,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'ক্রয় প্রসেসিং খুব বেশি সময় নিচ্ছে।\nপরে আবার চেষ্টা করুন।';
 
   @override
+  String get purchase_payment_accepted_message =>
+      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
@@ -3233,6 +3237,10 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get purchase_timeout_message =>
       'ক্রয় প্রসেসিং খুব বেশি সময় নিচ্ছে।\nপরে আবার চেষ্টা করুন।';
+
+  @override
+  String get purchase_payment_accepted_message =>
+      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
 
   @override
   String get label_tabbar_vote_upcoming => 'আসন্ন';

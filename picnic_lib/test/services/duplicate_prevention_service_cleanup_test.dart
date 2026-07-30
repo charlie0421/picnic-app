@@ -119,6 +119,12 @@ void main() {
       });
       expect(result2!.allowed, isFalse);
       expect(result2.type, PurchaseDenyType.cooldown);
+      // reason 은 `PurchaseService.initiatePurchase` 의 결과 맵을 통해 그대로
+      // 다이얼로그에 올라간다. 한국어 문장('너무 빠른 연속 클릭입니다.')이던
+      // 동안 로케일과 무관하게 한국어 오류가 노출됐다.
+      expect(result2.reason, PurchaseConstants.errInProgress,
+          reason: 'reason 은 arb 로 매핑될 에러 코드여야 한다');
+      expect(RegExp(r'[가-힣]').hasMatch(result2.reason!), isFalse);
     });
   });
 

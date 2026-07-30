@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/restore_purchase_handler.dart';
@@ -26,6 +27,23 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
   Timer? _safetyTimer;
   final Map<String, Timer> _safetyTimersByProduct = {};
+
+  /// 상품별 안전망이 이미 발동해 사용자에게 안내가 한 번 갔는지.
+  ///
+  /// 정산 미확정 안내는 두 경로로 도착한다: 90초 안전망, 그리고 그보다
+  /// 늦게 끝나는 검증 재시도 루프의 결과. 예산 계산상 안전망이 먼저 울리는
+  /// 것이 정상이므로(90초 < 30초×3 + 백오프), 나중에 도착한 결과가 같은
+  /// 안내를 한 번 더 띄우지 않게 이 플래그로 막는다.
+  final Set<String> _timeoutAnnouncedProducts = {};
+
+  /// 서버 정산이 진행 중이라 재구매를 막아 둔 상품.
+  final Set<String> _settlementPendingProducts = {};
+
+  /// 상품별 안전망 타이머가 발동할 때 알려 줄 어템프트 ID.
+  ///
+  /// 타이머를 앞당겨 발동시키는 [markSettlementPending] 가 콜백에 같은
+  /// 어템프트를 넘겨야 한다.
+  final Map<String, String?> _safetyAttemptByProduct = {};
   bool _safetyTimeoutTriggered = false;
   DateTime? _safetyTimeoutTime;
   VoidCallback? onTimeoutUIReset;
@@ -66,8 +84,10 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     if (productId != null) {
       final key = _key(productId);
       _safetyTimersByProduct.remove(key)?.cancel();
+      _safetyAttemptByProduct[key] = attemptId;
       _safetyTimersByProduct[key] = Timer(_safetyTimeout, () {
         _safetyTimersByProduct.remove(key);
+        _safetyAttemptByProduct.remove(key);
         _handleSafetyTimeout(productId);
         onProductTimeout?.call(productId, attemptId);
       });
@@ -91,6 +111,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   void stopSafetyTimer({String? productId}) {
     if (productId != null) {
       _safetyTimersByProduct.remove(_key(productId))?.cancel();
+      _safetyAttemptByProduct.remove(_key(productId));
       return;
     }
     if (_safetyTimer?.isActive == true) {
@@ -107,6 +128,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       timer.cancel();
     }
     _safetyTimersByProduct.clear();
+    _safetyAttemptByProduct.clear();
     logger.i('🛡️ 안전망 타이머 정리 완료');
   }
 
@@ -120,11 +142,71 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     _loadingKey.currentState?.hide();
     if (productId != null) {
       _activeProducts.remove(_key(productId));
+      _timeoutAnnouncedProducts.add(_key(productId));
     } else {
       _resetPurchaseState();
     }
 
     onTimeoutUIReset?.call();
+  }
+
+  /// 서버 정산이 아직 진행 중임이 확인된 상품의 UI 정리 + 재구매 차단.
+  ///
+  /// 상품별 안전망 타이머는 "사용자를 스피너 앞에 방치하지 않는다"는
+  /// 보험이다. 정산이 진행 중이라는 사실이 **확인된** 순간 그 보험은 목적을
+  /// 다했고, 타이머를 그대로 남겨 두면 같은 안내가 90초 뒤 한 번 더 뜬다
+  /// (= C-4 의 중복 다이얼로그). 그래서 타이머를 앞당겨 내리고, 상품을
+  /// 활성 목록에서 빼 스피너를 풀고, 대신 쿨다운으로 재구매를 막는다.
+  ///
+  /// 늦게 도착하는 정산이 유실되지는 않는다: 어템프트에 bind 되지 않은
+  /// `purchased` 이벤트는 `_settleOrphanPurchase` 의 무헤드 정산 경로가
+  /// 받아 지갑까지 반영한다. 이 타이머는 그 경로의 전제가 아니다.
+  ///
+  /// 반환값은 **이미 안내가 한 번 갔는지**다. true 면 호출자는 안내를
+  /// 다시 띄우지 않는다.
+  bool markSettlementPending(
+    String productId, {
+    Duration cooldown = PurchaseConstants.settlementPendingCooldown,
+  }) {
+    final key = _key(productId);
+    final alreadyAnnounced = _timeoutAnnouncedProducts.contains(key);
+
+    _safetyTimersByProduct.remove(key)?.cancel();
+    _safetyAttemptByProduct.remove(key);
+    _activeProducts.remove(key);
+    _isPurchaseInProgress = false;
+    _settlementPendingProducts.add(key);
+    _timeoutAnnouncedProducts.add(key);
+
+    // 늦은 정산이 도착하면 "인증이 오래 걸렸지만 구매는 완료됐다" 안내로
+    // 라우팅되도록, 안전망이 울린 것과 동일한 상태로 만든다.
+    _safetyTimeoutTriggered = true;
+    _safetyTimeoutTime ??= DateTime.now();
+
+    activateDuplicateCooldown(productId: productId, cooldown: cooldown);
+    _loadingKey.currentState?.hide();
+
+    logger.w(
+      '⏳ 서버 정산 진행 중 - 스피너 해제 + 재구매 ${cooldown.inSeconds}s 차단: '
+      '$productId (안내 기존 발송: $alreadyAnnounced)',
+    );
+    return alreadyAnnounced;
+  }
+
+  /// 이 상품이 "정산 진행 중"으로 재구매 차단된 상태인지.
+  ///
+  /// 쿨다운 안내 문구를 고르는 데 쓴다. 일반 쿨다운은 "잠시 후 다시
+  /// 시도"가 맞지만, 정산 진행 중인 상품은 그 반대(다시 결제하지 말 것)를
+  /// 안내해야 한다.
+  bool isSettlementPending(String productId) {
+    final key = _key(productId);
+    if (!_settlementPendingProducts.contains(key)) return false;
+    final until = _productCooldownUntil[key];
+    if (until == null || !DateTime.now().isBefore(until)) {
+      _settlementPendingProducts.remove(key);
+      return false;
+    }
+    return true;
   }
 
   /// 🎯 심플 구매 가능 체크 + 연속 구매 보호 (적응형 쿨다운)
@@ -265,15 +347,31 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   }
 
   /// ⏱️ 상품별 남은 쿨다운 시간 반환 (없으면 null)
+  ///
+  /// 강제 쿨다운(`activateDuplicateCooldown` / `markSettlementPending` 이
+  /// 세우는 오버라이드)까지 포함한다. 적응형 창만 보던 동안 이 값은 실제로
+  /// 구매를 막는 시간보다 짧게 보고했다 — [canAttemptPurchaseForProduct] 가
+  /// 오버라이드를 먼저 보기 때문이다.
   Duration? remainingCooldownForProduct(String productId) {
-    final lastForProduct = _lastPurchaseTimeByProduct[_key(productId)];
-    if (lastForProduct == null) return null;
-    final required = _getAdaptiveCooldownForProduct(productId);
-    final elapsed = DateTime.now().difference(lastForProduct);
-    if (elapsed < required) {
-      return required - elapsed;
+    final now = DateTime.now();
+    Duration? remaining;
+
+    final until = _productCooldownUntil[_key(productId)];
+    if (until != null && now.isBefore(until)) {
+      remaining = until.difference(now);
     }
-    return null;
+
+    final lastForProduct = _lastPurchaseTimeByProduct[_key(productId)];
+    if (lastForProduct != null) {
+      final required = _getAdaptiveCooldownForProduct(productId);
+      final elapsed = now.difference(lastForProduct);
+      if (elapsed < required) {
+        final adaptive = required - elapsed;
+        if (remaining == null || adaptive > remaining) remaining = adaptive;
+      }
+    }
+
+    return remaining;
   }
 
   /// 🧹 상품별 쿨타임/세션 상태 초기화 (일반 오류/취소 시 사용)
@@ -282,6 +380,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     _consecutivePurchaseCountByProduct.remove(_key(productId));
     _firstPurchaseInSessionByProduct.remove(_key(productId));
     _productCooldownUntil.remove(_key(productId));
+    _settlementPendingProducts.remove(_key(productId));
+    _timeoutAnnouncedProducts.remove(_key(productId));
     if (_currentProductId != null && _key(_currentProductId!) == _key(productId)) {
       _currentProductId = null;
     }
@@ -294,6 +394,10 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     _lastPurchaseTime = DateTime.now();
     if (productId != null) {
       _activeProducts.add(_key(productId));
+      // 새 시도는 새 안내 사이클이다. 이전 시도의 "이미 안내함" 표시를
+      // 남겨 두면 이번 시도의 정산 미확정 안내가 조용히 삼켜진다.
+      _timeoutAnnouncedProducts.remove(_key(productId));
+      _settlementPendingProducts.remove(_key(productId));
       // 성공 시에만 상품별 쿨타임을 적용하므로 여기서는 상품 ID만 저장
       _currentProductId = productId;
     }
@@ -744,6 +848,10 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   }
 
   /// 구매 결과 처리
+  ///
+  /// [showErrorDialog] 에 넘기는 값은 사용자 문장이 아니라 **에러 코드**다.
+  /// arb 매핑은 UI 계층(`PurchaseStarCandyState`)이 한다 — 여기서 한국어
+  /// 문장을 만들면 비한국어 사용자에게 한국어 오류가 노출된다.
   Future<void> handlePurchaseResult(
     Map<String, dynamic> purchaseResult,
     bool isActivePurchasing,
@@ -773,7 +881,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
         _resetPurchaseState();
       }
       _loadingKey.currentState?.hide();
-      await showErrorDialog(errorMessage ?? '구매 처리 중 오류가 발생했습니다.');
+      await showErrorDialog(errorMessage ?? 'GENERIC');
     } else {
       logger.i('[심플] 구매 시작 성공');
       startSafetyTimer(productId: productId, attemptId: attemptId);

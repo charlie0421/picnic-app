@@ -1214,6 +1214,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get purchase_timeout_message => '购买处理时间过长。\\n请稍后重试。';
 
   @override
+  String get purchase_payment_accepted_message =>
+      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
@@ -3085,6 +3089,10 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get purchase_timeout_message => '购买处理时间过长。\\n请稍后重试。';
 
   @override
+  String get purchase_payment_accepted_message =>
+      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+
+  @override
   String get label_tabbar_vote_upcoming => '即将推出';
 
   @override
@@ -4847,6 +4855,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get purchase_timeout_message => '購買處理時間過長。\\n請稍後重試。';
+
+  @override
+  String get purchase_payment_accepted_message =>
+      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
 
   @override
   String get label_tabbar_vote_upcoming => '即將推出';

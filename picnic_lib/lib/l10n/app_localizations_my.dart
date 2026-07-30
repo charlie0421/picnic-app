@@ -1273,6 +1273,10 @@ class AppLocalizationsMy extends AppLocalizations {
       'ဝယ်ယူမှုလုပ်ဆောင်ခြင်းအချိန်ကြာမြင့်လွန်းသည်။\nထပ်ကြိုးစားပါ။';
 
   @override
+  String get purchase_payment_accepted_message =>
+      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'လာမည့်';
 
   @override

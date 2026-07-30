@@ -108,6 +108,73 @@ void main() {
     });
   });
 
+  /// C-1: "결제는 접수됐지만 정산 결과를 아직 모른다" 를 종결 실패와 구분한다.
+  ///
+  /// 클라이언트 예산은 30초 타임아웃 + 2·4초 백오프인데 서버 워커의 리스는
+  /// 60초이고 실패한 오퍼레이션은 cron 재시도를 탄다. 그래서 이 구분이
+  /// 없으면 **정산이 진행 중인 결제**가 종결 실패로 안내되고, 사용자는 그
+  /// 안내를 따라 같은 소비형 상품을 한 번 더 결제한다.
+  group('PurchaseProcessor 정산 미확정 분류', () {
+    test('PROCESSING 은 processing 타입으로 매핑된다', () {
+      expect(
+        PurchaseProcessor.mapErrorToType(PurchaseConstants.errProcessing),
+        PurchaseErrorType.processing,
+      );
+    });
+
+    test('processing 은 종결 실패가 아니다', () {
+      expect(
+        PurchaseProcessor.isTerminalMappedError(PurchaseErrorType.processing),
+        isFalse,
+        reason: '종결로 다루면 어템프트와 안전망이 함께 철거되고, 사용자는 '
+            '적립 직전의 결제를 실패로 안내받는다',
+      );
+    });
+
+    test('processing 과 timeout 만 "접수됨" 안내를 받는다', () {
+      final pending = PurchaseErrorType.values
+          .where(PurchaseProcessor.isSettlementPending)
+          .toSet();
+      expect(pending, {
+        PurchaseErrorType.processing,
+        PurchaseErrorType.timeout,
+      });
+    });
+
+    test('networkError 는 접수 안내 대상이 아니다', () {
+      // 런치 단계(아직 과금 없음)에서도 나오는 코드라 "네트워크를
+      // 확인하세요"가 맞다. 정산 단계의 소켓/타임아웃 실패는 타입 분류에서
+      // processing 으로 들어온다.
+      expect(
+        PurchaseProcessor.isSettlementPending(PurchaseErrorType.networkError),
+        isFalse,
+      );
+    });
+
+    test('종결 실패는 접수 안내를 절대 받지 않는다', () {
+      for (final type in [
+        PurchaseErrorType.receiptVerificationFailed,
+        PurchaseErrorType.userNotAuthenticated,
+        PurchaseErrorType.productNotFound,
+        PurchaseErrorType.purchaseFailed,
+        PurchaseErrorType.serverError,
+        PurchaseErrorType.purchaseCancelled,
+      ]) {
+        expect(PurchaseProcessor.isSettlementPending(type), isFalse,
+            reason: '$type');
+        expect(PurchaseProcessor.isTerminalMappedError(type), isTrue,
+            reason: '$type - 종결 실패의 기존 동작은 그대로여야 한다');
+      }
+    });
+
+    test('ERR_PAYMENT_INVALID 는 종결 실패로 매핑된다', () {
+      expect(
+        PurchaseProcessor.mapErrorToType(PurchaseConstants.errPaymentInvalid),
+        PurchaseErrorType.purchaseFailed,
+      );
+    });
+  });
+
   group('PurchaseProcessor.mapErrorToType', () {
     group('returns previousTransactionPending for pending/duplicate codes', () {
       test('errPrevTransactionPending', () {

@@ -29,6 +29,15 @@ class PurchaseConstants {
   static const Duration initializationDelay = Duration(seconds: 2);
   static const Duration cacheRefreshDelay = Duration(seconds: 1);
 
+  /// 정산이 서버에서 아직 진행 중인 상품의 재구매를 막는 시간.
+  ///
+  /// 클라이언트 예산(30초 타임아웃 × 재시도)이 끝나도 서버 정산은 끝나지
+  /// 않았을 수 있다: wallet-operation-worker의 리스는 60초이고, 실패한
+  /// 오퍼레이션은 cron 재시도를 타서 수 분이 걸릴 수 있다. 그 구간에
+  /// 소비형 상품의 구매 버튼을 열어 두면 사용자는 "적립이 안 됐다"고
+  /// 판단해 같은 상품을 한 번 더 결제한다 — 되돌릴 수 없는 이중 과금이다.
+  static const Duration settlementPendingCooldown = Duration(minutes: 5);
+
   /// 영수증 검증 엣지 함수 이름.
   ///
   /// 프로덕션 전환 전략 C(엔드포인트 버저닝): 레거시 `verify_receipt` 는
@@ -66,6 +75,17 @@ class PurchaseConstants {
   static const String errInProgress = 'ERR_IN_PROGRESS';
   static const String errTimeout = 'TIMEOUT';
   static const String errAuthTimeout = 'AUTH_TIMEOUT';
+
+  /// 결제는 접수됐지만 서버 정산 결과를 아직 모르는 상태.
+  ///
+  /// 실패 코드가 아니다. 타임아웃·소켓 오류·5xx·서버가 재시도 가능하다고
+  /// 표시한 응답이 여기로 모인다. UI 는 이 코드를 "실패했으니 다시
+  /// 시도하세요"가 아니라 "접수됐고 처리되면 자동 적립된다"로 안내해야
+  /// 한다 — 소비형 상품에서 재시도를 권하면 이중 과금이 된다.
+  static const String errProcessing = 'PROCESSING';
+
+  /// 스토어가 결제 정보 자체를 거부한 경우(IAPError `payment_invalid`).
+  static const String errPaymentInvalid = 'ERR_PAYMENT_INVALID';
   static const String errNetwork = 'NETWORK';
   static const String errServer = 'SERVER';
   static const String errConcurrent = 'ERR_CONCURRENT';

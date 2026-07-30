@@ -2483,6 +2483,12 @@ abstract class AppLocalizations {
   /// **'Purchase processing is taking too long.\nPlease try again later.'**
   String get purchase_timeout_message;
 
+  /// Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.'**
+  String get purchase_payment_accepted_message;
+
   /// Auto-generated metadata for key 'label_tabbar_vote_upcoming'.
   ///
   /// In en, this message translates to:

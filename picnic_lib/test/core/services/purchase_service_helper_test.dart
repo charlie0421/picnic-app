@@ -1,8 +1,14 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/core/services/purchase_failure_classifier.dart';
 import 'package:picnic_lib/core/services/purchase_service_helper.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show FunctionException;
 
 /// A fake IAPError for testing (IAPError has no public constructor usable
 /// directly, so we use the in_app_purchase package's IAPError which does).
@@ -37,9 +43,11 @@ void main() {
       expect(helper.getErrorMessage(null), 'GENERIC');
     });
 
-    test('payment_invalid returns Korean message', () {
+    test('payment_invalid returns an error code, never a Korean sentence', () {
+      // App Review 리뷰어를 포함한 비한국어 사용자가 한국어 오류 문장을
+      // 그대로 보던 자리다. 문장은 arb 에서 온다.
       final error = _makeIAPError('payment_invalid');
-      expect(helper.getErrorMessage(error), '결제 정보가 유효하지 않습니다.');
+      expect(helper.getErrorMessage(error), PurchaseConstants.errPaymentInvalid);
     });
 
     test('payment_canceled returns ERR_PURCHASE_CANCELED', () {
@@ -87,14 +95,14 @@ void main() {
     test('timeout in English', () {
       expect(
         helper.getDetailedErrorMessage(Exception('Connection timeout')),
-        PurchaseConstants.errTimeout,
+        PurchaseConstants.errProcessing,
       );
     });
 
     test('timeout in Korean', () {
       expect(
         helper.getDetailedErrorMessage(Exception('요청 타임아웃 발생')),
-        PurchaseConstants.errTimeout,
+        PurchaseConstants.errProcessing,
       );
     });
 
@@ -172,7 +180,7 @@ void main() {
     test('works with StateError', () {
       expect(
         helper.getDetailedErrorMessage(StateError('timeout occurred')),
-        PurchaseConstants.errTimeout,
+        PurchaseConstants.errProcessing,
       );
     });
 
@@ -198,48 +206,192 @@ void main() {
   });
 
   // ==================================================================
-  // getUserFriendlyErrorMessage
+  // getPurchaseInitiationErrorCode
+  //
+  // 런치 단계 실패도 사용자 문장이 아니라 **에러 코드**를 돌려준다. 예전에
+  // 여기서 만든 한국어 문장('상품 정보를 찾을 수 없습니다…' 등)이 그대로
+  // 다이얼로그에 올라가, 로케일과 무관하게 한국어 오류가 노출됐다.
   // ==================================================================
-  group('getUserFriendlyErrorMessage', () {
-    test('product info error returns product message', () {
+  group('getPurchaseInitiationErrorCode', () {
+    test('product info error maps to PRODUCT_NOT_FOUND', () {
       expect(
-        helper.getUserFriendlyErrorMessage(Exception('상품 정보를 찾을 수 없습니다')),
-        '상품 정보를 찾을 수 없습니다. 잠시 후 다시 시도해주세요.',
+        helper.getPurchaseInitiationErrorCode(Exception('상품 정보를 찾을 수 없습니다')),
+        'PRODUCT_NOT_FOUND',
       );
     });
 
-    test('network error returns network message', () {
+    test('store catalogue miss also maps to PRODUCT_NOT_FOUND', () {
+      // _findProductDetails 가 던지는 내부 문장.
       expect(
-        helper.getUserFriendlyErrorMessage(Exception('네트워크 오류 발생')),
-        '네트워크 연결을 확인해주세요.',
+        helper.getPurchaseInitiationErrorCode(
+          Exception('스토어에서 상품을 찾을 수 없습니다'),
+        ),
+        'PRODUCT_NOT_FOUND',
       );
     });
 
-    test('generic error returns default message', () {
+    test('network error maps to NETWORK', () {
       expect(
-        helper.getUserFriendlyErrorMessage(Exception('Unknown error')),
-        '구매 시작 중 오류가 발생했습니다',
+        helper.getPurchaseInitiationErrorCode(Exception('네트워크 오류 발생')),
+        PurchaseConstants.errNetwork,
       );
     });
 
-    test('empty error returns default message', () {
+    test('English network error maps to NETWORK too', () {
       expect(
-        helper.getUserFriendlyErrorMessage(''),
-        '구매 시작 중 오류가 발생했습니다',
+        helper.getPurchaseInitiationErrorCode(Exception('Network unreachable')),
+        PurchaseConstants.errNetwork,
       );
     });
 
-    test('product info keyword partial match', () {
+    test('generic error maps to GENERIC', () {
       expect(
-        helper.getUserFriendlyErrorMessage(Exception('서버에서 상품 정보를 가져올 수 없음')),
-        '상품 정보를 찾을 수 없습니다. 잠시 후 다시 시도해주세요.',
+        helper.getPurchaseInitiationErrorCode(Exception('Unknown error')),
+        'GENERIC',
       );
     });
 
-    test('network keyword partial match', () {
+    test('empty error maps to GENERIC', () {
+      expect(helper.getPurchaseInitiationErrorCode(''), 'GENERIC');
+    });
+
+    test('never returns a Korean sentence', () {
+      for (final error in <Object>[
+        Exception('상품 정보를 찾을 수 없습니다'),
+        Exception('네트워크 연결 실패'),
+        Exception('Unknown error'),
+        TimeoutException('boom'),
+      ]) {
+        final code = helper.getPurchaseInitiationErrorCode(error);
+        expect(
+          RegExp(r'[가-힣]').hasMatch(code),
+          isFalse,
+          reason: '$error -> "$code" 에 한글이 섞이면 그대로 UI 에 노출된다',
+        );
+      }
+    });
+
+    test('a launch that timed out is not reported as a failure', () {
       expect(
-        helper.getUserFriendlyErrorMessage(Exception('네트워크 연결 실패')),
-        '네트워크 연결을 확인해주세요.',
+        helper.getPurchaseInitiationErrorCode(TimeoutException('launch')),
+        PurchaseConstants.errProcessing,
+      );
+    });
+  });
+
+  // ==================================================================
+  // C-1: 타입/상태 코드 기반 분류
+  //
+  // 회귀 재현: 예전 구현은 errorString.contains('timeout') 으로 타임아웃을
+  // 판별했다. TimeoutException.toString() 은 "TimeoutException after
+  // 0:00:30.000000: Future not completed" — 소문자 'timeout' 이 없으므로
+  // GENERIC → purchaseFailed(종결 실패)로 떨어졌다. FunctionException 은
+  // 매칭할 단어가 아예 없어 503(재시도 가능)과 422(영구 거부)가 같은
+  // 다이얼로그로 붕괴했다.
+  // ==================================================================
+  group('C-1 정산 실패 분류 (타입/상태 코드)', () {
+    FunctionException status(int code, {Object? details}) =>
+        FunctionException(status: code, details: details, reasonPhrase: 'test');
+
+    test('TimeoutException.toString() 에는 소문자 timeout 이 없다 (회귀 전제)', () {
+      expect(
+        TimeoutException('x', const Duration(seconds: 30))
+            .toString()
+            .contains('timeout'),
+        isFalse,
+        reason: '이 전제가 깨지면 문자열 매칭 회귀의 재현 조건이 사라진다',
+      );
+    });
+
+    test('TimeoutException 은 비종결(PROCESSING) 이다', () {
+      expect(
+        helper.getDetailedErrorMessage(
+          TimeoutException('x', const Duration(seconds: 30)),
+        ),
+        PurchaseConstants.errProcessing,
+      );
+    });
+
+    test('SocketException / HttpException / ClientException 도 비종결', () {
+      for (final error in <Object>[
+        const SocketException('connection reset'),
+        const HttpException('bad gateway'),
+        http.ClientException('connection closed'),
+      ]) {
+        expect(
+          helper.getDetailedErrorMessage(error),
+          PurchaseConstants.errProcessing,
+          reason: '$error - 응답을 못 받았으니 정산 여부를 알 수 없다',
+        );
+      }
+    });
+
+    test('5xx 는 모두 비종결', () {
+      for (final code in [500, 502, 503, 504]) {
+        expect(
+          helper.getDetailedErrorMessage(status(code)),
+          PurchaseConstants.errProcessing,
+          reason: 'HTTP $code',
+        );
+      }
+    });
+
+    test('서버가 retryable 로 표시한 응답은 상태 코드와 무관하게 비종결', () {
+      expect(
+        helper.getDetailedErrorMessage(
+          status(409, details: {'retryable': true}),
+        ),
+        PurchaseConstants.errProcessing,
+      );
+      expect(
+        helper.getDetailedErrorMessage(
+          status(409, details: {
+            'error': {'retryable': true},
+          }),
+        ),
+        PurchaseConstants.errProcessing,
+      );
+    });
+
+    test('422/400/403 은 영구 거부 - 재전송으로 뒤집히지 않는다', () {
+      for (final code in PurchaseFailureClassifier.permanentStatuses) {
+        expect(
+          helper.getDetailedErrorMessage(status(code)),
+          'RECEIPT_VERIFICATION_FAILED',
+          reason: 'HTTP $code',
+        );
+      }
+    });
+
+    test('503 과 422 는 서로 다른 결과로 갈린다', () {
+      // 서버가 의도적으로 구분한 두 응답이 하나의 다이얼로그로 붕괴하던 자리.
+      expect(
+        helper.getDetailedErrorMessage(status(503)),
+        isNot(helper.getDetailedErrorMessage(status(422))),
+      );
+    });
+
+    test('응답 계약 위반은 비종결 - 서버 정산은 이미 끝났다', () {
+      expect(
+        helper.getDetailedErrorMessage(
+          ReceiptResponseContractException(message: 'schema mismatch'),
+        ),
+        PurchaseConstants.errProcessing,
+      );
+    });
+
+    test('분류기는 문자열을 보지 않는다', () {
+      // 'timeout' 이라는 단어가 없어도 타입만으로 판정되어야 한다.
+      expect(
+        PurchaseFailureClassifier.isStillProcessing(
+          TimeoutException('Future not completed'),
+        ),
+        isTrue,
+      );
+      expect(
+        PurchaseFailureClassifier.isStillProcessing(Exception('timeout')),
+        isFalse,
+        reason: '단순 Exception 은 타입 분류 대상이 아니다 (문자열 폴백이 처리)',
       );
     });
   });
@@ -562,7 +714,7 @@ void main() {
       // "timeout" comes before "network" in the check order
       expect(
         helper.getDetailedErrorMessage(Exception('timeout network error')),
-        PurchaseConstants.errTimeout,
+        PurchaseConstants.errProcessing,
       );
     });
 
@@ -570,7 +722,7 @@ void main() {
       // "timeout" check is before "Touch ID" check
       expect(
         helper.getDetailedErrorMessage(Exception('timeout Touch ID')),
-        PurchaseConstants.errTimeout,
+        PurchaseConstants.errProcessing,
       );
     });
 
@@ -591,28 +743,21 @@ void main() {
   });
 
   // ==================================================================
-  // getUserFriendlyErrorMessage - additional
+  // getPurchaseInitiationErrorCode - additional
   // ==================================================================
-  group('getUserFriendlyErrorMessage - additional', () {
-    test('null input returns default', () {
-      expect(
-        helper.getUserFriendlyErrorMessage(null),
-        '구매 시작 중 오류가 발생했습니다',
-      );
+  group('getPurchaseInitiationErrorCode - additional', () {
+    test('null input returns GENERIC', () {
+      expect(helper.getPurchaseInitiationErrorCode(null), 'GENERIC');
     });
 
-    test('integer input returns default', () {
-      expect(
-        helper.getUserFriendlyErrorMessage(42),
-        '구매 시작 중 오류가 발생했습니다',
-      );
+    test('integer input returns GENERIC', () {
+      expect(helper.getPurchaseInitiationErrorCode(42), 'GENERIC');
     });
 
     test('priority: 상품 정보 over 네트워크', () {
       expect(
-        helper.getUserFriendlyErrorMessage(
-            Exception('상품 정보 네트워크 오류')),
-        '상품 정보를 찾을 수 없습니다. 잠시 후 다시 시도해주세요.',
+        helper.getPurchaseInitiationErrorCode(Exception('상품 정보 네트워크 오류')),
+        'PRODUCT_NOT_FOUND',
       );
     });
   });

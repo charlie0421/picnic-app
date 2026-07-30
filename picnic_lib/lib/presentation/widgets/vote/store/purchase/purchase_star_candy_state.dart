@@ -136,7 +136,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         setState(() {});
         _loadingKey.currentState?.hide();
         final l10n = AppLocalizations.of(context);
-        showSimpleDialog(content: l10n.purchase_timeout_message);
+        // 90초가 지났다는 것은 "실패했다"가 아니다. 서버 워커의 리스는
+        // 60초이고 정산은 cron 재시도를 거쳐 수 분이 걸릴 수 있으므로,
+        // 이 시점의 진실은 "접수됐고 아직 처리 중"이다. 예전 문구
+        // (purchase_timeout_message: "나중에 다시 시도해주세요")는 소비형
+        // 상품의 재결제를 권해 이중 과금을 유도했다.
+        showSimpleDialog(content: l10n.purchase_payment_accepted_message);
       }
     };
     _safetyManager.onProductTimeout = (productId, attemptId) {
@@ -574,8 +579,40 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
               break;
 
             case PurchaseErrorAction.showMappedError:
-              logger.e('[PurchaseStarCandyState] Purchase error: $error');
               final errorType = PurchaseProcessor.mapErrorToType(error);
+
+              if (PurchaseProcessor.isSettlementPending(errorType)) {
+                // 결제는 접수됐고 정산 결과만 아직 모른다 (타임아웃 · 소켓
+                // 오류 · 5xx · 서버의 retryable 응답). 클라이언트 예산은
+                // 30초×재시도지만 서버 워커의 리스는 60초이고 실패한
+                // 오퍼레이션은 cron 재시도를 타므로, 여기서 종결 실패로
+                // 안내하면 **적립 직전의 결제**를 실패로 알리는 셈이 된다.
+                // 사용자는 그 안내를 따라 같은 소비형 상품을 한 번 더
+                // 결제하고, 그 이중 과금은 되돌릴 수 없다.
+                logger.w(
+                  '[PurchaseStarCandyState] Settlement still pending: $error',
+                );
+                // 스피너를 풀고(안 풀면 무한 로딩), 90초 지연 팝업 타이머를
+                // 앞당겨 내리고(안 내리면 같은 안내가 두 번 뜬다), 이 상품의
+                // 재구매를 쿨다운으로 막는다.
+                final alreadyAnnounced = _safetyManager.markSettlementPending(
+                  attempt.productId,
+                );
+                _purchaseAttempts.removeIfMatches(
+                  attempt.productId,
+                  attempt.attemptId,
+                );
+                if (mounted) setState(() {});
+                // 늦게 도착하는 정산은 유실되지 않는다: bind 되지 않은
+                // purchased 이벤트를 _settleOrphanPurchase 가 받아 지갑까지
+                // 반영하고 영수증을 띄운다.
+                if (!alreadyAnnounced) {
+                  await _presentPurchaseFailure(error);
+                }
+                break;
+              }
+
+              logger.e('[PurchaseStarCandyState] Purchase error: $error');
               if (PurchaseProcessor.isTerminalMappedError(errorType)) {
                 // 종결 실패에서 어템프트만 지우면 launch 때 armed된 90초
                 // 안전망 타이머가 살아남아, 에러 다이얼로그 뒤에 "구매 처리
@@ -589,9 +626,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   terminal: true,
                 );
               }
-              final l10n = AppLocalizations.of(navigatorKey.currentContext!);
-              final msg = _resolveErrorMessage(errorType, l10n);
-              await _dialogHandler.showErrorDialog(msg);
+              await _presentPurchaseFailure(error);
               break;
           }
         }
@@ -671,6 +706,27 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     );
   }
 
+  /// 구매 실패 코드를 사용자 안내로 바꾸는 **유일한** 표시 지점.
+  ///
+  /// 런치 단계(`initiatePurchase` 결과 맵)와 정산 단계(`onError`)가 모두
+  /// 여기로 모인다. 코드를 arb 문장으로 바꾸는 일이 두 곳에 흩어져 있으면
+  /// 한쪽이 원문(한국어 하드코딩)을 그대로 띄우는 상태로 남는다.
+  Future<void> _presentPurchaseFailure(String errorCode) async {
+    if (!mounted) return;
+    final dialogContext = navigatorKey.currentContext ?? context;
+    final l10n = AppLocalizations.of(dialogContext);
+    final type = PurchaseProcessor.mapErrorToType(errorCode);
+    final message = _resolveErrorMessage(type, l10n);
+
+    if (PurchaseProcessor.isSettlementPending(type)) {
+      // 실패가 아니라 "접수됨" 안내다. 빨간 오류 다이얼로그로 띄우면
+      // 사용자는 결제가 무효가 됐다고 읽고 다시 결제한다.
+      showSimpleDialog(content: message);
+      return;
+    }
+    await _dialogHandler.showErrorDialog(message);
+  }
+
   /// PurchaseErrorType을 i18n 메시지 문자열로 변환
   String _resolveErrorMessage(PurchaseErrorType type, AppLocalizations l10n) {
     switch (type) {
@@ -682,8 +738,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         return l10n.error_user_not_authenticated;
       case PurchaseErrorType.productNotFound:
         return l10n.error_product_not_found;
+      case PurchaseErrorType.processing:
       case PurchaseErrorType.timeout:
-        return l10n.purchase_timeout_message;
+        return l10n.purchase_payment_accepted_message;
       case PurchaseErrorType.networkError:
         return l10n.error_network_connection;
       case PurchaseErrorType.serverError:
@@ -797,7 +854,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       logger.w('🛡️ 복원 정리가 아직 완료되지 않음 - 구매 차단');
       if (mounted) {
         showSimpleDialog(
-          content: 'Purchase preparation in progress. Please try again later.',
+          content: AppLocalizations.of(context).purchase_initializing_message,
         );
       }
       _removeAttempt(serverProduct['id'] as String, attemptId);
@@ -830,31 +887,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
       _transactionsCleared = true;
 
+      // 런치 결과는 반환된 맵 하나로만 보고된다 - onError 콜백을 함께
+      // 받던 동안 하나의 런치 실패에 다이얼로그가 두 장 겹쳐 떴다
+      // (콜백에서 한 번, _handlePurchaseResult → PurchaseSafetyManager
+      // .handlePurchaseResult 에서 또 한 번).
       final purchaseResult = await _purchaseService.initiatePurchase(
         serverProduct['id'],
-        onSuccess: () async {
-          if (_purchaseAttempts[serverProduct['id']]?.attemptId != attemptId) {
-            throw StateError('Stale purchase launch callback');
-          }
-          logger.i('[PurchaseStarCandyState] Purchase success callback');
-        },
-        onError: (message) async {
-          if (_purchaseAttempts[serverProduct['id']]?.attemptId != attemptId) {
-            return;
-          }
-          logger.e(
-            '[PurchaseStarCandyState] Purchase error callback: $message',
-          );
-          _resetProductPurchaseState(
-            serverProduct['id'] as String,
-            attemptId: attemptId,
-            terminal: true,
-          );
-          if (mounted) {
-            _loadingKey.currentState?.hide();
-            await _dialogHandler.showErrorDialog(message);
-          }
-        },
       );
 
       await _handlePurchaseResult(
@@ -901,9 +939,13 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       logger.w(
         '[PurchaseStarCandyState] Purchase cooldown active (per product)',
       );
-      // 일반 쿨다운 문구 제거 → 스토어 처리 중 문구로 통일
+      final l10n = AppLocalizations.of(context);
+      // 정산 진행 중으로 막은 쿨다운은 "잠시 후 다시 시도하세요"의 반대를
+      // 안내해야 한다 - 이미 결제된 소비형 상품을 다시 결제하면 안 된다.
       showSimpleDialog(
-        content: AppLocalizations.of(context).previousTransactionPendingError,
+        content: _safetyManager.isSettlementPending(productId)
+            ? l10n.purchase_payment_accepted_message
+            : l10n.previousTransactionPendingError,
       );
       return false;
     }
@@ -941,11 +983,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     await _safetyManager.handlePurchaseResult(
       purchaseResult,
       _purchaseAttempts.contains(productId),
-      (errorMessage) async {
-        if (mounted) {
-          await _dialogHandler.showErrorDialog(errorMessage);
-        }
-      },
+      // errorMessage 는 에러 코드다 (arb 매핑은 _presentPurchaseFailure).
+      _presentPurchaseFailure,
       productId: productId,
       attemptId: attemptId,
     );

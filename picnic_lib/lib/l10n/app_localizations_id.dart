@@ -1270,6 +1270,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Proses pembelian memakan waktu terlalu lama.\\nSilakan coba lagi nanti.';
 
   @override
+  String get purchase_payment_accepted_message =>
+      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Mendatang';
 
   @override

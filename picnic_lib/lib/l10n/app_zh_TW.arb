@@ -1602,6 +1602,10 @@
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
+  "purchase_payment_accepted_message": "Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.",
+  "@purchase_payment_accepted_message": {
+    "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
+  },
   "label_tabbar_vote_upcoming": "即將推出",
   "@label_tabbar_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."

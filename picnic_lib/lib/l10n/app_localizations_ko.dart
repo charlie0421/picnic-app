@@ -1222,6 +1222,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '구매 처리 시간이 너무 오래 걸리고 있습니다.\n나중에 다시 시도해주세요.';
 
   @override
+  String get purchase_payment_accepted_message =>
+      '결제가 접수되었습니다. 처리가 끝나면 스타캔디가 자동으로 적립됩니다.\n다시 결제하지 마세요.';
+
+  @override
   String get label_tabbar_vote_upcoming => '예정됨';
 
   @override

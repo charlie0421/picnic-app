@@ -40,7 +40,8 @@ void main() {
         },
       );
 
-      expect(receivedMessage, contains('구매 처리 중 오류'));
+      // 에러 코드여야 한다 - 한국어 문장을 만들면 로케일과 무관하게 노출된다.
+      expect(receivedMessage, 'GENERIC');
       expect(resetCallCount, 1);
     });
 
