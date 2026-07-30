@@ -53,17 +53,22 @@ void main() {
       expect(manager.canAttemptPurchaseForProduct('STAR500'), isTrue);
     });
 
-    test('returns false during cooldown after purchase completion', () {
+    test('a settled purchase does not refuse the next one', () {
+      // 정산이 끝난 구매는 재구매를 막는 근거가 아니다: 그 차단이 "이전 결제가
+      // 스토어에서 처리 중입니다. 잠시 후 다시 시도해 주세요." 로 안내되어
+      // 소비형 상품의 정상적인 연속 구매를 막았다 (1.3.0 TestFlight patch 8).
       manager.recordPurchaseAttempt(productId: 'product_a');
       manager.completePurchaseSession('product_a');
-      // Immediately after completion, cooldown should be active
-      expect(manager.canAttemptPurchaseForProduct('product_a'), isFalse);
+      expect(manager.canAttemptPurchaseForProduct('product_a'), isTrue);
     });
 
     test('different products have independent cooldowns', () {
-      manager.recordPurchaseAttempt(productId: 'product_a');
-      manager.completePurchaseSession('product_a');
+      manager.activateDuplicateCooldown(
+        productId: 'product_a',
+        cooldown: const Duration(minutes: 1),
+      );
       // product_b should not be affected by product_a cooldown
+      expect(manager.canAttemptPurchaseForProduct('product_a'), isFalse);
       expect(manager.canAttemptPurchaseForProduct('product_b'), isTrue);
     });
 
@@ -142,17 +147,23 @@ void main() {
 
   group('clearProductCooldown', () {
     test('clears cooldown for specific product', () {
-      manager.recordPurchaseAttempt(productId: 'product_a');
-      manager.completePurchaseSession('product_a');
+      manager.activateDuplicateCooldown(
+        productId: 'product_a',
+        cooldown: const Duration(minutes: 1),
+      );
       manager.clearProductCooldown('product_a');
       expect(manager.canAttemptPurchaseForProduct('product_a'), isTrue);
     });
 
     test('does not affect other products', () {
-      manager.recordPurchaseAttempt(productId: 'product_a');
-      manager.completePurchaseSession('product_a');
-      manager.recordPurchaseAttempt(productId: 'product_b');
-      manager.completePurchaseSession('product_b');
+      manager.activateDuplicateCooldown(
+        productId: 'product_a',
+        cooldown: const Duration(minutes: 1),
+      );
+      manager.activateDuplicateCooldown(
+        productId: 'product_b',
+        cooldown: const Duration(minutes: 1),
+      );
       manager.clearProductCooldown('product_a');
       // product_b cooldown should still be active
       expect(manager.canAttemptPurchaseForProduct('product_b'), isFalse);
@@ -195,9 +206,18 @@ void main() {
       expect(manager.remainingCooldownForProduct('unknown'), isNull);
     });
 
-    test('returns duration after product purchase', () {
+    test('returns null once a purchase has settled', () {
       manager.recordPurchaseAttempt(productId: 'test');
       manager.completePurchaseSession('test');
+      expect(manager.remainingCooldownForProduct('test'), isNull,
+          reason: '실제로 막는 시간만 보고한다 - 정산이 끝난 구매는 막지 않는다');
+    });
+
+    test('returns the enforced duration while a cooldown is armed', () {
+      manager.activateDuplicateCooldown(
+        productId: 'test',
+        cooldown: const Duration(minutes: 1),
+      );
       final remaining = manager.remainingCooldownForProduct('test');
       expect(remaining, isNotNull);
       expect(remaining!.inSeconds, greaterThan(0));

@@ -174,7 +174,9 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     _safetyTimersByProduct.remove(key)?.cancel();
     _safetyAttemptByProduct.remove(key);
     _activeProducts.remove(key);
-    _isPurchaseInProgress = false;
+    // 이 상품만 내린다 - 다른 상품의 구매가 진행 중이면 그 진행 상태는
+    // 유지되어야 한다.
+    _isPurchaseInProgress = _activeProducts.isNotEmpty;
     _settlementPendingProducts.add(key);
     _timeoutAnnouncedProducts.add(key);
 
@@ -220,14 +222,34 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     return true;
   }
 
-  /// 🎯 상품별 구매 가능 체크 (1분 쿨타임을 개별 상품 기준으로 적용)
+  /// 🎯 상품별 구매 가능 체크.
+  ///
+  /// 구매를 거절할 수 있는 근거는 **두 가지뿐**이다:
+  ///
+  /// 1. 이 상품의 결제가 지금 진행 중이다([_activeProducts]).
+  /// 2. 이 상품에 명시적 쿨다운이 걸려 있다([_productCooldownUntil]) — 즉
+  ///    정산이 서버에서 아직 진행 중이거나([markSettlementPending]) 지급이
+  ///    확인되지 않은 중복이 관측된([activateDuplicateCooldown]) 상태다.
+  ///    둘 다 "다시 결제하면 이중 과금" 인 상태이므로 막는 것이 맞다.
+  ///
+  /// **정산이 끝난 구매는 근거가 아니다.** 예전에는 성공 직후
+  /// `_lastPurchaseTimeByProduct` 를 근거로 같은 상품을 60초 동안 거절했고,
+  /// UI 는 그것을 "이전 결제가 스토어에서 처리 중입니다. 잠시 후 다시 시도해
+  /// 주세요." 로 안내했다 — 처리 중인 결제는 없고 그 결제는 이미 적립까지
+  /// 끝났으므로 사실이 아니며, 소비형 상품의 정상적인 연속 구매가 그 거짓
+  /// 안내로 막혔다 (1.3.0 TestFlight patch 8). 우발적 재결제는 어템프트 등록
+  /// (`_purchaseAttempts`, 영수증 다이얼로그가 닫힐 때까지 유지) · 구매 확인
+  /// 다이얼로그 · 스토어 결제 시트 · 300ms 연타 방지가 막는다.
+  ///
+  /// [_lastPurchaseTimeByProduct] 와 연속 구매 카운트는 그대로 유지된다:
+  /// 명시적 쿨다운의 **길이**를 정하는 [_getAdaptiveCooldownForProduct] 가
+  /// 그 값을 읽는다.
   bool canAttemptPurchaseForProduct(String productId) {
     if (_activeProducts.contains(_key(productId))) {
       logger.w('🛡️ 동일 상품 구매 진행 중 - 추가 구매 차단: $productId');
       return false;
     }
 
-    // 1) 강제(오버라이드) 쿨타임 우선 적용
     final until = _productCooldownUntil[_key(productId)];
     if (until != null) {
       final now = DateTime.now();
@@ -237,24 +259,9 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
           '🛡️ [상품별] 강제 쿨다운 차단: $productId - 남은 ${remaining.inSeconds}s, 종료 예정: ${until.toIso8601String()}',
         );
         return false;
-      } else {
-        // 만료된 오버라이드는 제거
-        _productCooldownUntil.remove(_key(productId));
       }
-    }
-
-    final lastForProduct = _lastPurchaseTimeByProduct[_key(productId)];
-    if (lastForProduct != null) {
-      final elapsed = DateTime.now().difference(lastForProduct);
-      final requiredCooldown = _getAdaptiveCooldownForProduct(productId);
-      if (elapsed < requiredCooldown) {
-        final remaining = requiredCooldown - elapsed;
-        final endsAt = DateTime.now().add(remaining).toIso8601String();
-        logger.w(
-          '🛡️ [상품별] 구매 쿨다운 차단: $productId - 남은 ${remaining.inSeconds}s (경과 ${elapsed.inSeconds}s / 필요 ${requiredCooldown.inSeconds}s), 종료 예정: $endsAt',
-        );
-        return false;
-      }
+      // 만료된 오버라이드는 제거
+      _productCooldownUntil.remove(_key(productId));
     }
 
     return true;
@@ -348,30 +355,18 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
   /// ⏱️ 상품별 남은 쿨다운 시간 반환 (없으면 null)
   ///
-  /// 강제 쿨다운(`activateDuplicateCooldown` / `markSettlementPending` 이
-  /// 세우는 오버라이드)까지 포함한다. 적응형 창만 보던 동안 이 값은 실제로
-  /// 구매를 막는 시간보다 짧게 보고했다 — [canAttemptPurchaseForProduct] 가
-  /// 오버라이드를 먼저 보기 때문이다.
+  /// **실제로 구매를 막는 시간**만 보고한다 — 즉 [canAttemptPurchaseForProduct]
+  /// 가 보는 명시적 오버라이드(`activateDuplicateCooldown` /
+  /// `markSettlementPending`)뿐이다. 정산이 끝난 구매의 적응형 창은 더 이상
+  /// 구매를 막지 않으므로(같은 메서드의 주석 참고) 여기서 보고하면 없는 차단을
+  /// 있다고 말하는 셈이 된다.
   Duration? remainingCooldownForProduct(String productId) {
     final now = DateTime.now();
-    Duration? remaining;
-
     final until = _productCooldownUntil[_key(productId)];
     if (until != null && now.isBefore(until)) {
-      remaining = until.difference(now);
+      return until.difference(now);
     }
-
-    final lastForProduct = _lastPurchaseTimeByProduct[_key(productId)];
-    if (lastForProduct != null) {
-      final required = _getAdaptiveCooldownForProduct(productId);
-      final elapsed = now.difference(lastForProduct);
-      if (elapsed < required) {
-        final adaptive = required - elapsed;
-        if (remaining == null || adaptive > remaining) remaining = adaptive;
-      }
-    }
-
-    return remaining;
+    return null;
   }
 
   /// 🧹 상품별 쿨타임/세션 상태 초기화 (일반 오류/취소 시 사용)
@@ -410,24 +405,45 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   }
 
   /// 🎯 심플 구매 완료 + 타이머 정리 (3줄로 해결!)
-  void completePurchaseSession(String productId) {
+  ///
+  /// [armRepurchaseCooldown] 이 false 면 이 상품의 재구매 쿨다운을 새로 세우지
+  /// 않는다. **이미 정산이 끝난 트랜잭션의 재전달**을 처리할 때 쓴다.
+  ///
+  /// iOS 는 정산이 확인되지 않은 트랜잭션을 절대 finish 하지 않으므로, 아직
+  /// finish 되지 않은 과거 결제는 앱 실행마다·새 구매와 나란히 다시 전달된다.
+  /// 그 재전달을 새 결제처럼 다뤄 쿨다운을 세우면, 정작 사용자가 지금 하려는
+  /// 구매가 "이전 결제가 스토어에서 처리 중입니다. 잠시 후 다시 시도해
+  /// 주세요." 로 막힌다 — 처리 중인 결제는 없고, 그 결제는 이미 적립까지
+  /// 끝났다 (1.3.0 TestFlight patch 8 의 연속 구매 오차단).
+  void completePurchaseSession(
+    String productId, {
+    bool armRepurchaseCooldown = true,
+  }) {
     final transactionId =
         '${productId}_${DateTime.now().millisecondsSinceEpoch}';
-    _isPurchaseInProgress = false;
     _activeProducts.remove(_key(productId));
+    // 다른 상품의 결제가 아직 진행 중이면 전역 진행 플래그를 내리지 않는다 -
+    // 재전달 하나가 진행 중인 다른 구매의 상태를 지우면 안 된다.
+    _isPurchaseInProgress = _activeProducts.isNotEmpty;
     _lastProcessedTransactionId = transactionId;
-    // ✅ 성공 직후에도 연속 구매를 막기 위해 최근 시도 시간을 현재로 갱신
-    _lastPurchaseTime = DateTime.now();
-    _currentProductId = productId;
-    _lastPurchaseTimeByProduct[_key(productId)] = _lastPurchaseTime!;
-    _firstPurchaseInSessionByProduct[_key(productId)] ??= _lastPurchaseTime!;
-    _consecutivePurchaseCountByProduct[_key(productId)] =
-        (_consecutivePurchaseCountByProduct[_key(productId)] ?? 0) + 1;
+
+    if (armRepurchaseCooldown) {
+      // ✅ 성공 직후에도 연속 구매를 막기 위해 최근 시도 시간을 현재로 갱신
+      _lastPurchaseTime = DateTime.now();
+      _currentProductId = productId;
+      _lastPurchaseTimeByProduct[_key(productId)] = _lastPurchaseTime!;
+      _firstPurchaseInSessionByProduct[_key(productId)] ??= _lastPurchaseTime!;
+      _consecutivePurchaseCountByProduct[_key(productId)] =
+          (_consecutivePurchaseCountByProduct[_key(productId)] ?? 0) + 1;
+    }
 
     // 🛡️ 정상 구매 완료 시 안전망 타이머 정리
     stopSafetyTimer(productId: productId);
 
-    logger.i('🎯 구매 완료: $transactionId (타이머 정리됨)');
+    logger.i(
+      '🎯 구매 완료: $transactionId '
+      '(타이머 정리됨, 재구매 쿨다운: $armRepurchaseCooldown)',
+    );
   }
 
   /// 🧹 모든 타이머 완전 정리 (정상 구매 완료 시)

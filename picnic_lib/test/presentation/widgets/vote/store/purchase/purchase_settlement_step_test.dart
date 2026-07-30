@@ -37,10 +37,22 @@ class _RecordingSafetyManager extends PurchaseSafetyManager {
   }
 
   @override
-  void completePurchaseSession(String productId) {
+  void completePurchaseSession(
+    String productId, {
+    bool armRepurchaseCooldown = true,
+  }) {
     events.add('completePurchaseSession');
-    super.completePurchaseSession(productId);
+    armedRepurchaseCooldown = armRepurchaseCooldown;
+    super.completePurchaseSession(
+      productId,
+      armRepurchaseCooldown: armRepurchaseCooldown,
+    );
   }
+
+  /// What the last settlement asked for. A re-delivery must not arm a cooldown:
+  /// it is not a fresh charge, and blocking the next purchase because of it is
+  /// the false "이전 결제가 스토어에서 처리 중입니다" block.
+  bool? armedRepurchaseCooldown;
 
   @override
   Future<void> performPostPurchaseCleanup({
@@ -181,23 +193,24 @@ void main() {
     ),
   );
 
-  PurchaseSettlementResultModel verified() => PurchaseSettlementResultModel(
-    contractVersion: 'wallet.v1',
-    operationId: 'operation',
-    replayed: false,
-    baseStarAmount: BigInt.from(100),
-    baseBonusAmount: BigInt.zero,
-    promotion: null,
-    wallet: WalletSummaryModel(
-      contractVersion: 'wallet.v1',
-      star: BigInt.from(100),
-      bonus: BigInt.zero,
-      cotton: BigInt.zero,
-      cottonExpiringAmount: BigInt.zero,
-      cottonNextExpiresAt: null,
-      snapshotAt: DateTime.utc(2026),
-    ),
-  );
+  PurchaseSettlementResultModel verified({bool replayed = false}) =>
+      PurchaseSettlementResultModel(
+        contractVersion: 'wallet.v1',
+        operationId: 'operation',
+        replayed: replayed,
+        baseStarAmount: BigInt.from(100),
+        baseBonusAmount: BigInt.zero,
+        promotion: null,
+        wallet: WalletSummaryModel(
+          contractVersion: 'wallet.v1',
+          star: BigInt.from(100),
+          bonus: BigInt.zero,
+          cotton: BigInt.zero,
+          cottonExpiringAmount: BigInt.zero,
+          cottonNextExpiresAt: null,
+          snapshotAt: DateTime.utc(2026),
+        ),
+      );
 
   /// Runs the production launch sequence, then delivers the store event.
   ///
@@ -265,6 +278,7 @@ void main() {
     String id, {
     bool isMounted = true,
     WalletSummaryApplier? applyWalletSummary,
+    PurchaseSettlementResultModel? result,
   }) async {
     final cleanedUpProducts = <String>[];
     var hideLoadingCalls = 0;
@@ -288,7 +302,7 @@ void main() {
       safetyManager: manager,
       attempts: registry,
       purchaseDetails: transactionFor(product),
-      result: verified(),
+      result: result ?? verified(),
       attempt: attemptFor(product, id),
       cleanupAllTimersOnSuccess: (cleanedProduct) {
         events.add('cleanupAllTimersOnSuccess');
@@ -774,6 +788,72 @@ void main() {
       manager.disposeSafetyTimer();
     });
 
+    testWidgets('does not arm a re-purchase cooldown for the settled product', (
+      tester,
+    ) async {
+      // 이 경로는 정의상 **이미 정산된** 트랜잭션의 재전달이다. iOS 는 정산이
+      // 확인되지 않은 트랜잭션을 절대 finish 하지 않으므로 그런 재전달은 앱
+      // 실행마다·새 구매와 나란히 도착한다. 그걸 새 결제처럼 다뤄 쿨다운을
+      // 세우면, 정작 사용자가 지금 하려는 구매가 `_canPurchase` 에서 "이전
+      // 결제가 스토어에서 처리 중입니다. 잠시 후 다시 시도해 주세요." 로
+      // 막힌다 - 처리 중인 결제는 없고 그 결제는 이미 적립까지 끝났다
+      // (1.3.0 TestFlight patch 8).
+      await launch(productId, attemptId);
+
+      await settleServerConfirmed(tester, productId, attemptId);
+
+      expect(
+        manager.armedRepurchaseCooldown,
+        isFalse,
+        reason: '재전달은 새 결제가 아니다',
+      );
+      expect(
+        manager.canAttemptPurchaseForProduct(productId),
+        isTrue,
+        reason:
+            'this is the false consecutive-purchase block: the next genuine '
+            'purchase of the same product must not be refused because a '
+            'transaction that was already credited got re-delivered',
+      );
+      expect(manager.remainingCooldownForProduct(productId), isNull);
+      expect(
+        manager.isSettlementPending(productId),
+        isFalse,
+        reason: '정산은 끝났다 - "정산 진행 중" 상태로 표시해서는 안 된다',
+      );
+
+      manager.disposeSafetyTimer();
+    });
+
+    testWidgets('settling one product\'s redelivery leaves another product\'s '
+        'live purchase alone', (tester) async {
+      // 새 구매(STAR500)가 결제창에 있는 동안 과거 트랜잭션(STAR100)이
+      // 재전달되는 것이 patch 8 의 실제 상황이다.
+      await launch(otherProductId, 'attempt-other');
+
+      await settleServerConfirmed(tester, productId, null);
+
+      expect(
+        manager.canAttemptPurchase(),
+        isFalse,
+        reason:
+            'another product is still mid-purchase; a redelivery settling must '
+            'not clear the global in-progress flag out from under it',
+      );
+      expect(
+        manager.canAttemptPurchaseForProduct(otherProductId),
+        isFalse,
+        reason: '진행 중인 상품의 가드는 그대로 유지된다',
+      );
+      expect(
+        registry.contains(otherProductId),
+        isTrue,
+        reason: '재전달 정산이 다른 상품의 어템프트를 지워서는 안 된다',
+      );
+
+      manager.disposeSafetyTimer();
+    });
+
     testWidgets('the headless orphan path settles with no attempt and presents '
         'nothing', (tester) async {
       // A re-delivered transaction picked up at store entry, before the user
@@ -790,6 +870,71 @@ void main() {
       expect(settled.acknowledgements, 0);
       expect(settled.hideLoadingCalls, 0);
       expect(settled.resetProductCalls, 0);
+
+      manager.disposeSafetyTimer();
+    });
+  });
+
+  group('a settlement never refuses the next purchase', () {
+    testWidgets('a fresh settlement releases the product', (tester) async {
+      await launch(productId, attemptId);
+      await settle(tester, productId, attemptId);
+
+      expect(
+        manager.armedRepurchaseCooldown,
+        isTrue,
+        reason: '방금 과금이 일어난 상품이다 - 연속 구매 카운트는 갱신된다',
+      );
+      expect(
+        manager.canAttemptPurchaseForProduct(productId),
+        isTrue,
+        reason:
+            'a settled consumable is immediately buyable again; refusing it as '
+            '"이전 결제가 스토어에서 처리 중입니다" is the false consecutive-'
+            'purchase block (1.3.0 TestFlight patch 8). The second charge is '
+            'still gated by the attempt registry, the confirm dialog and the '
+            'store payment sheet',
+      );
+      expect(manager.remainingCooldownForProduct(productId), isNull);
+
+      manager.disposeSafetyTimer();
+    });
+
+    testWidgets('a redelivered settlement does not even count as a charge', (
+      tester,
+    ) async {
+      await launch(productId, attemptId);
+
+      // `replayed` + 우리 재시도가 만든 것이 아님 = 이전 전달/세션이 이미
+      // 정산하고 사용자에게 보여 준 결과의 재전달.
+      final redelivered = verified(replayed: true);
+      expect(isSettlementRedelivery(redelivered), isTrue, reason: '전제');
+
+      await settle(tester, productId, attemptId, result: redelivered);
+
+      expect(
+        manager.armedRepurchaseCooldown,
+        isFalse,
+        reason:
+            'a redelivery is not a fresh charge, so it must not inflate the '
+            'consecutive-purchase count that lengthens future cooldowns',
+      );
+      expect(manager.canAttemptPurchaseForProduct(productId), isTrue);
+
+      manager.disposeSafetyTimer();
+    });
+
+    testWidgets('a settled product never blocks a different product', (
+      tester,
+    ) async {
+      await launch(productId, attemptId);
+      await settle(tester, productId, attemptId);
+
+      expect(
+        manager.canAttemptPurchaseForProduct(otherProductId),
+        isTrue,
+        reason: '가드는 상품별이다 - 연속 구매의 다음 상품을 막으면 안 된다',
+      );
 
       manager.disposeSafetyTimer();
     });

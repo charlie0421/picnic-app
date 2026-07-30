@@ -51,12 +51,20 @@ void main() {
       manager.recordPurchaseAttempt(productId: 'prod_a');
       manager.completePurchaseSession('prod_a');
 
-      // Third purchase (should trigger extended cooldown)
+      // Third purchase (a duplicate verdict now picks the extended cooldown)
       manager.recordPurchaseAttempt(productId: 'prod_a');
       manager.completePurchaseSession('prod_a');
 
-      // Cooldown should be active
+      // 정산이 끝난 구매 자체는 재구매를 막지 않는다. 연속 구매 카운트는
+      // 명시적 쿨다운의 **길이**를 정하는 데만 쓰인다.
+      expect(manager.canAttemptPurchaseForProduct('prod_a'), isTrue);
+
+      manager.activateDuplicateCooldown(productId: 'prod_a');
       expect(manager.canAttemptPurchaseForProduct('prod_a'), isFalse);
+      expect(
+        manager.remainingCooldownForProduct('prod_a')!.inSeconds,
+        greaterThan(0),
+      );
     });
 
     test('product-specific consecutive count is tracked independently', () {

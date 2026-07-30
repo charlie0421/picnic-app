@@ -14,6 +14,7 @@ import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart'
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_processor.dart';
 import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -344,8 +345,96 @@ void main() {
     expect(alreadySettledReports, 0,
         reason: '지급이 확인되지 않은 중복은 성공이 아니다 - 스피너를 풀거나 '
             '성공 안내를 띄우면 미적립을 적립으로 오인시킨다');
-    expect(errors, [PurchaseConstants.errPrevTransactionPending],
-        reason: '미확정 중복은 종전대로 "스토어 처리 중" 안내 경로를 탄다');
+    expect(errors, [PurchaseConstants.errProcessing],
+        reason: '서버에 다시 물어도 정산을 확인해 주지 못한 중복이다. 결제는 '
+            '접수됐으므로 실패가 아니라 미확정이다 - 예전의 ERR_PREV_TX 는 '
+            '"잠시 후 다시 시도해 주세요" 로 표시되어 소비형 상품의 이중 '
+            '과금을 유도했다');
+  });
+
+  testWidgets('the unconfirmed duplicate report is non-blocking and never '
+      'tells the user to pay again', (tester) async {
+    await run(
+      tester,
+      ReusedPurchaseException(message: 'duplicate', grantConfirmed: false),
+    );
+
+    final type = PurchaseProcessor.mapErrorToType(errors.single);
+    expect(PurchaseProcessor.isSettlementPending(type), isTrue,
+        reason: '"접수됐고 처리되면 자동 적립된다" 안내 경로여야 한다 - 빨간 '
+            '오류 다이얼로그로 띄우면 사용자는 결제가 무효가 됐다고 읽는다');
+    expect(PurchaseProcessor.isTerminalMappedError(type), isFalse,
+        reason: '정산이 아직 도착할 수 있으므로 종결 실패로 다루면 안 된다');
+    expect(
+      PurchaseProcessor.classifyError(errors.single),
+      PurchaseErrorAction.showMappedError,
+      reason: 'ERR_PREV_TX 의 showPendingMessage 분기(= "이전 결제가 스토어에서 '
+          '처리 중입니다. 잠시 후 다시 시도해 주세요.")를 더 이상 타지 않는다',
+    );
+  });
+
+  testWidgets('the launch debounce blocks only the same product', (
+    tester,
+  ) async {
+    // 구매 전 가드는 "같은 상품의 진행 중인 시도" 만 막을 수 있다. 연타 방지
+    // 창(300ms)이 상품 단위가 아니면, 연속 구매의 다음 상품이 첫 상품 때문에
+    // 막힌다.
+    await build(tester, _SettledVerification());
+
+    duplicates.registerPurchaseAttempt(productId, userId);
+
+    final same = await duplicates.validatePurchaseAttempt(productId, userId);
+    final other = await duplicates.validatePurchaseAttempt('STAR500', userId);
+
+    expect(same.allowed, isFalse,
+        reason: '같은 상품의 연타는 계속 막아야 한다');
+    expect(same.reason, PurchaseConstants.errInProgress);
+    expect(other.allowed, isTrue,
+        reason: '다른 상품은 첫 상품의 진행 여부와 무관하게 열려 있어야 한다');
+  });
+
+  // =========================================================================
+  // 재전달된(이미 정산된) 트랜잭션은 정산 성공으로 끝난다.
+  //
+  // iOS 는 정산이 확인되지 않은 트랜잭션을 절대 finish 하지 않으므로, 아직
+  // finish 되지 않은 과거 결제는 StoreKit 이 새 구매와 나란히 다시 전달한다.
+  // 그 재전달이 로컬 멱등 캐시에 걸려 "이전 결제가 스토어에서 처리 중입니다"
+  // 로 보고되던 것이 patch 8 의 연속 구매 오차단이다.
+  // =========================================================================
+  testWidgets('an already-settled JWS redelivery settles from the server and '
+      'finishes the transaction', (tester) async {
+    // 멱등 캐시 히트가 이제 서버 재확인으로 이어지고, 서버는 이미 아는
+    // 트랜잭션에 REPLAY(정본 정산)로 답한다 — 그 계약은
+    // receipt_verification_service_test.dart 의 'already-settled redelivery is
+    // resolved by the server' 그룹이 실제 서비스로 고정한다. 여기서는 그
+    // 정산이 상위 구매 경로에서 무엇이 되는지를 고정한다: 오류가 아니라 금액
+    // 있는 정산이고, 트랜잭션은 finish 된다.
+    await build(tester, _SettledVerification());
+
+    PurchaseSettlementResultModel? settled;
+    await service.handleOptimizedPurchase(
+      transaction(),
+      (result) async => settled = result,
+      errors.add,
+      isActualPurchase: true,
+      onAlreadySettled: () async => alreadySettledReports++,
+    );
+
+    expect(errors, isEmpty,
+        reason: '이미 적립까지 끝난 구매에 오류 다이얼로그가 뜨면 사용자는 '
+            '방금 성공한 결제가 실패했다고 읽는다 (patch 8 의 "이전 결제가 '
+            '스토어에서 처리 중입니다" 오차단)');
+    expect(settled, isNotNull,
+        reason: '금액 있는 정산 경로로 들어가야 한다 - 지갑을 재조회 추측이 '
+            '아니라 응답으로 맞춘다');
+    expect(settled!.replayed, isTrue);
+    expect(isSettlementRedelivery(settled!), isTrue,
+        reason: '우리 재시도가 만든 replay 가 아니므로 공용 다이얼로그가 '
+            '"재전달 안내" 로 라우팅된다 - 받은 적 없는 캔디를 받았다고 두 번 '
+            '말하지 않는다');
+    expect(plugin.finalized, 1,
+        reason: '정산이 확인된 트랜잭션은 finish 해야 재전달 루프가 끊긴다 - '
+            '이 트랜잭션이 다음 스토어 진입에서 자동 정리되는 근거');
   });
 }
 

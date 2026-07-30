@@ -222,29 +222,25 @@ void main() {
 
   group('Multiple product cooldown interactions', () {
     test('recording and completing multiple different products', () {
-      manager.recordPurchaseAttempt(productId: 'a');
-      manager.completePurchaseSession('a');
+      for (final product in ['a', 'b', 'c']) {
+        manager.recordPurchaseAttempt(productId: product);
+        manager.completePurchaseSession(product);
+      }
 
-      manager.recordPurchaseAttempt(productId: 'b');
-      manager.completePurchaseSession('b');
-
-      manager.recordPurchaseAttempt(productId: 'c');
-      manager.completePurchaseSession('c');
-
-      // All products should be in cooldown
-      expect(manager.canAttemptPurchaseForProduct('a'), isFalse);
-      expect(manager.canAttemptPurchaseForProduct('b'), isFalse);
-      expect(manager.canAttemptPurchaseForProduct('c'), isFalse);
-
-      // New product should be fine
+      // 정산이 끝난 구매는 재구매를 막지 않는다 (patch 8 오차단).
+      expect(manager.canAttemptPurchaseForProduct('a'), isTrue);
+      expect(manager.canAttemptPurchaseForProduct('b'), isTrue);
+      expect(manager.canAttemptPurchaseForProduct('c'), isTrue);
       expect(manager.canAttemptPurchaseForProduct('d'), isTrue);
     });
 
     test('clearing one product cooldown does not affect others', () {
-      manager.recordPurchaseAttempt(productId: 'x');
-      manager.completePurchaseSession('x');
-      manager.recordPurchaseAttempt(productId: 'y');
-      manager.completePurchaseSession('y');
+      for (final product in ['x', 'y']) {
+        manager.activateDuplicateCooldown(
+          productId: product,
+          cooldown: const Duration(minutes: 1),
+        );
+      }
 
       manager.clearProductCooldown('x');
       expect(manager.canAttemptPurchaseForProduct('x'), isTrue);
@@ -266,7 +262,7 @@ void main() {
     test('remainingCooldownForProduct returns null after clearProductCooldown',
         () {
       manager.recordPurchaseAttempt(productId: 'prod');
-      manager.completePurchaseSession('prod');
+      manager.markSettlementPending('prod');
       expect(manager.remainingCooldownForProduct('prod'), isNotNull);
 
       manager.clearProductCooldown('prod');

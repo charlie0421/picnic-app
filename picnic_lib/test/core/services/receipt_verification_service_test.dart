@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:picnic_lib/core/services/receipt_format_helper.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +33,12 @@ Map<String, dynamic> _purchaseResult() => {
         'cotton_next_expires_at': null,
         'snapshot_at': '2026-07-21T00:00:00.000Z',
       },
+    };
+
+/// 서버가 이미 아는 트랜잭션에 돌려주는 REPLAY 정산.
+Map<String, dynamic> _replayedPurchaseResult() => {
+      ..._purchaseResult(),
+      'replayed': true,
     };
 
 void main() {
@@ -1221,6 +1228,179 @@ void main() {
           hasLength(1),
           reason: '영수증 행만 있고 지급이 실패한 중복은 큐 항목이 유일한 '
               '재시도 수단이다',
+        );
+      });
+    });
+
+    /// 이미 정산된 트랜잭션의 **재전달**은 서버가 판정한다.
+    ///
+    /// iOS 는 정산이 확인되지 않은 트랜잭션을 절대 finish 하지 않으므로(과금
+    /// -미적립 방지), 아직 finish 되지 않은 과거 결제는 StoreKit 이 새 구매와
+    /// 나란히 다시 전달한다 — 정상 동작이다. 예전에는 그 재전달이 로컬 멱등
+    /// 캐시(`sent_receipts_idem_keys`)에 걸리는 순간 서버에 묻지도 않고
+    /// [ReusedPurchaseException] 이 되어, 상위에서 `ERR_PREV_TX` → "이전 결제가
+    /// 스토어에서 처리 중입니다. 잠시 후 다시 시도해 주세요." 로 표시됐다.
+    /// 이미 적립까지 끝난 구매에 대한 거짓 경고이고, 연속 구매를 하던 사용자에게는
+    /// 방금 성공한 결제가 실패한 것처럼 보였다 (1.3.0 TestFlight patch 8).
+    ///
+    /// wallet.v1 인테이크는 이미 아는 트랜잭션에 REPLAY(200 + 정본 정산)로
+    /// 답하므로, 로컬 기억으로 추측하는 대신 서버에 다시 묻는 것이 싸고 정확하다.
+    group('already-settled redelivery is resolved by the server', () {
+      const receipt = 'redelivered-receipt';
+
+      void installStatusQueue(
+        Map<String, dynamic> body,
+        List<int> statuses,
+      ) {
+        tearDownMockSupabase();
+        SharedPreferences.setMockInitialValues({
+          // 정산이 성공한 직후 기록되는 그 캐시를 미리 심는다.
+          'sent_receipts_idem_keys': <String>[
+            ReceiptFormatHelper.makeIdemKeyFromJWS(receipt),
+          ],
+        });
+        setupMockSupabase({
+          'functions:verify-receipt-v2': body,
+        }, userId: 'test-user-id');
+        functionStatusQueues['functions:verify-receipt-v2'] = statuses;
+      }
+
+      int verifyCalls() => capturedMockRequests
+          .where((u) => u.path.contains('/functions/v1/verify-receipt-v2'))
+          .length;
+
+      test('a cache hit asks the server and settles from its answer', () async {
+        installStatusQueue(_replayedPurchaseResult(), [200]);
+        final iosService = ReceiptVerificationService()..isIOSPlatform = true;
+
+        final result = await iosService.verifyReceipt(
+          receipt,
+          'STAR200',
+          'test-user-id',
+          'sandbox',
+        );
+
+        expect(
+          verifyCalls(),
+          1,
+          reason: '로컬 캐시로 추측하지 않고 서버에 실제로 물어봐야 한다 - '
+              '서버가 이 트랜잭션의 정산 여부에 대한 유일한 권위다',
+        );
+        expect(
+          result.replayed,
+          isTrue,
+          reason: '서버는 이미 아는 트랜잭션에 REPLAY 로 답한다',
+        );
+        expect(
+          result.replayCausedByRetry,
+          isFalse,
+          reason: '이 replay 는 우리 재시도가 만든 것이 아니라 이전 전달이 '
+              '정산해 둔 것이다 - 공용 다이얼로그가 "재전달 안내" 로 라우팅되어 '
+              '받은 적 없는 캔디를 받았다고 두 번 말하지 않는다',
+        );
+        expect(
+          result.wallet.star,
+          BigInt.from(100),
+          reason: '정본 정산이 돌아오므로 지갑을 추측이 아니라 응답으로 맞춘다',
+        );
+      });
+
+      test('the server answer replaces the blocking duplicate exception',
+          () async {
+        installStatusQueue(_replayedPurchaseResult(), [200]);
+        final iosService = ReceiptVerificationService()..isIOSPlatform = true;
+
+        // 예전 동작: 서버에 묻지도 않고 ReusedPurchaseException 을 던졌고,
+        // 그것이 ERR_PREV_TX("잠시 후 다시 시도해 주세요")로 표시됐다.
+        await expectLater(
+          iosService.verifyReceipt(
+            receipt,
+            'STAR200',
+            'test-user-id',
+            'sandbox',
+          ),
+          completes,
+        );
+      });
+
+      test('an unreachable server falls back to the local settled record',
+          () async {
+        // 422 는 서버의 명시적 판정이라 재시도 루프가 즉시 끝난다(빠른 폴백
+        // 경로). 이 캐시는 200 정산 직후에만 기록되므로 지급은 확정된 것으로
+        // 다뤄야 한다 - grantConfirmed 를 세워야 상위가 트랜잭션을 finish 해서
+        // 재전달 루프가 끊긴다.
+        installStatusQueue(_purchaseResult(), [422]);
+        final iosService = ReceiptVerificationService()..isIOSPlatform = true;
+
+        await expectLater(
+          iosService.verifyReceipt(
+            receipt,
+            'STAR200',
+            'test-user-id',
+            'sandbox',
+          ),
+          throwsA(
+            isA<ReusedPurchaseException>()
+                .having((e) => e.grantConfirmed, 'grantConfirmed', isTrue),
+          ),
+        );
+      });
+
+      test('a 409 whose grant is unconfirmed is promoted when the server '
+          'confirms the settlement', () async {
+        // Android/레거시 경로: 첫 응답은 409(지급 미확정), 다시 물으면 정본
+        // 정산이 돌아온다. 그 정산으로 계속 진행해야 사용자가 받은 캔디에
+        // 대해 오류를 보지 않는다.
+        tearDownMockSupabase();
+        SharedPreferences.setMockInitialValues({});
+        setupMockSupabase({
+          'functions:verify-receipt-v2': _replayedPurchaseResult(),
+        }, userId: 'test-user-id');
+        functionStatusQueues['functions:verify-receipt-v2'] = [409, 200];
+
+        final result = await ReceiptVerificationService().verifyReceipt(
+          'unconfirmed-duplicate-receipt',
+          'STAR200',
+          'test-user-id',
+          'sandbox',
+        );
+
+        expect(result.replayed, isTrue);
+        expect(
+          result.replayCausedByRetry,
+          isTrue,
+          reason: '지급 미확정 중복은 사용자가 아무 결과도 보지 못한 상태다 - '
+              '정산이 확인되면 재전달 안내가 아니라 정본 영수증을 보여줘야 한다',
+        );
+      });
+
+      test('a 409 the server will not confirm still raises the duplicate',
+          () async {
+        tearDownMockSupabase();
+        SharedPreferences.setMockInitialValues({});
+        setupMockSupabase({
+          'functions:verify-receipt-v2': {
+            'code': 'DUPLICATE_RECEIPT',
+            'grant_confirmed': false,
+            'message': '지급 실패',
+          },
+        }, userId: 'test-user-id', functionStatusCodes: {
+          'functions:verify-receipt-v2': 409,
+        });
+
+        await expectLater(
+          ReceiptVerificationService().verifyReceipt(
+            'unconfirmed-duplicate-receipt',
+            'STAR200',
+            'test-user-id',
+            'sandbox',
+          ),
+          throwsA(
+            isA<ReusedPurchaseException>()
+                .having((e) => e.grantConfirmed, 'grantConfirmed', isFalse),
+          ),
+          reason: '서버가 지급을 확인해 주지 못하면 성공으로 다뤄서는 안 된다 - '
+              '트랜잭션 보존이 유일한 재시도 수단이다',
         );
       });
     });

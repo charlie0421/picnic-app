@@ -593,7 +593,23 @@ class InAppPurchaseService {
   // Sandbox/diagnostic methods are in in_app_purchase_service_sandbox.dart (part file)
 
   /// 🧹 정상 구매 완료 시 타이머 정리
+  ///
+  /// 여기서 내리는 타이머와 `_currentPurchasingProductId` 는 **하나의** 진행
+  /// 중인 구매에 속한 상태다. 그래서 다른 상품의 정산이(특히 아직 finish 되지
+  /// 않은 과거 트랜잭션의 재전달이) 이 정리를 호출하면, 지금 결제창에 있는
+  /// 구매의 타임아웃 추적을 대신 지운다 — 그 구매가 응답 없이 멈추면 타임아웃
+  /// 콜백이 아예 발동하지 않는다. 진행 중인 상품과 일치할 때만(또는 진행 중인
+  /// 구매가 없을 때만) 정리한다.
   void cleanupTimersOnPurchaseSuccess(String productId) {
+    final inFlight = _currentPurchasingProductId;
+    if (inFlight != null &&
+        inFlight.trim().toUpperCase() != productId.trim().toUpperCase()) {
+      logger.i(
+        '🧹 ⏭️ 진행 중인 다른 구매($inFlight)의 타이머는 보존: $productId',
+      );
+      return;
+    }
+
     logger.i('🧹 ✅ InAppPurchaseService 타이머 정리 시작: $productId (정상 구매 성공 시)');
 
     // 🧹 통합 타이머 정리 메서드 호출
