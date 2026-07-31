@@ -161,7 +161,7 @@ class _VoteUsage extends StatelessWidget {
       );
     } else {
       return Image.asset(
-        'assets/icons/store/star_100.png',
+        'assets/icons/store/currency_star_candy.png',
         package: 'picnic_lib',
         width: iconContainerSize,
         height: iconContainerSize,

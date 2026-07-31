@@ -456,6 +456,10 @@
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
+  "label_ads_get_cotton_candy": "從廣告中獲取棉花糖",
+  "@label_ads_get_cotton_candy": {"description": "Free charge station ads section title."},
+  "free_charge_ads_reward": "+棉花糖 {reward} 已獲得",
+  "@free_charge_ads_reward": {"description": "Reward copy for an ad in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
   "label_ads_limits": "{hourly} 每小時， {daily} 每天",
   "@label_ads_limits": {
     "placeholders": {
@@ -599,6 +603,10 @@
   "@label_mission_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
+  "label_mission_get_bonus_star_candy": "從任務中獲取獎勵星星糖果",
+  "@label_mission_get_bonus_star_candy": {"description": "Free charge station missions section title."},
+  "free_charge_mission_reward": "+獎勵星星糖果 {reward} 已獲得",
+  "@free_charge_mission_reward": {"description": "Reward copy for a mission in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
   "label_mission_short": "使命",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2383,6 +2391,7 @@
   },
   "wallet_star_candy": "星星糖",
   "wallet_bonus_star_candy": "獎勵星星糖",
+  "bonus_star_candy_expiration_guide": "獎勵星星糖失效時間說明",
   "wallet_cotton_candy": "棉花糖",
   "wallet_cotton_expires_today": "今日失效 {amount}",
   "@wallet_cotton_expires_today": {

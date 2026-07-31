@@ -65,8 +65,10 @@ class FreeChargeContent extends ConsumerWidget {
                     'assets/icons/reset_style=line.svg',
                     width: 24,
                     height: 24,
-                    colorFilter:
-                        ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+                    colorFilter: ColorFilter.mode(
+                      AppColors.primary500,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
               ),
@@ -81,8 +83,10 @@ class FreeChargeContent extends ConsumerWidget {
           const SizedBox(height: 8),
 
           // 미션 섹션
-          _buildSectionHeader(context,
-              AppLocalizations.of(context).label_mission_get_star_candy),
+          _buildSectionHeader(
+            context,
+            AppLocalizations.of(context).label_mission_get_bonus_star_candy,
+          ),
           const SizedBox(height: 4),
           _buildItemsList(missions, context, loadingState),
 
@@ -90,7 +94,9 @@ class FreeChargeContent extends ConsumerWidget {
 
           // 광고 섹션
           _buildSectionHeader(
-              context, AppLocalizations.of(context).label_ads_get_star_candy),
+            context,
+            AppLocalizations.of(context).label_ads_get_cotton_candy,
+          ),
           const SizedBox(height: 4),
           _buildItemsList(ads, context, loadingState),
 
@@ -104,10 +110,7 @@ class FreeChargeContent extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-        ),
+        Text(title, style: getTextStyle(AppTypo.body14B, AppColors.grey900)),
         const SizedBox(height: 2),
         const Divider(height: 1, thickness: 1, color: AppColors.grey200),
       ],
@@ -153,8 +156,10 @@ class FreeChargeContent extends ConsumerWidget {
         index: item.isMission ? null : item.index,
         title: Text(
           item.title,
-          style: getTextStyle(AppTypo.caption12B, AppColors.grey900)
-              .copyWith(height: 1),
+          style: getTextStyle(
+            AppTypo.caption12B,
+            AppColors.grey900,
+          ).copyWith(height: 1),
         ),
         buttonText: _getButtonText(item, isLoading, context),
         buttonOnPressed: isLoading ? null : item.onPressed,
@@ -170,10 +175,17 @@ class FreeChargeContent extends ConsumerWidget {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text:
-                          '+${AppLocalizations.of(context).label_bonus} ${item.bonusText}',
-                      style:
-                          getTextStyle(AppTypo.caption12B, AppColors.point900),
+                      text: item.isMission
+                          ? AppLocalizations.of(
+                              context,
+                            ).free_charge_mission_reward(item.bonusText)
+                          : AppLocalizations.of(
+                              context,
+                            ).free_charge_ads_reward(item.bonusText),
+                      style: getTextStyle(
+                        AppTypo.caption12B,
+                        AppColors.point900,
+                      ),
                     ),
                   ],
                 ),
@@ -184,7 +196,10 @@ class FreeChargeContent extends ConsumerWidget {
   }
 
   String _getButtonText(
-      ChargeStationItem item, bool isLoading, BuildContext context) {
+    ChargeStationItem item,
+    bool isLoading,
+    BuildContext context,
+  ) {
     if (isLoading) {
       return AppLocalizations.of(context).label_loading_ads;
     }

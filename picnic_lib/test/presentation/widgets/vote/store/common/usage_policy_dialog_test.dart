@@ -142,6 +142,37 @@ void main() {
       expect(find.byType(UsagePolicyPopup), findsOneWidget);
     });
 
+    testWidgets('shows the Bonus Star Candy expiration guide header', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const Material(color: Colors.transparent, child: UsagePolicyPopup()),
+          loggedIn: false,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final header = find.ancestor(
+        of: find.text('보너스 스타캔디 소멸 시점 안내'),
+        matching: find.byType(Row),
+      );
+      expect(header, findsOneWidget);
+      expect(
+        find.descendant(
+          of: header,
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is Image &&
+                widget.image is AssetImage &&
+                (widget.image as AssetImage).assetName ==
+                    'assets/icons/store/currency_bonus_star_candy.png',
+          ),
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets(
       'shows Cotton Candy expiry only from the server wallet snapshot',
       (WidgetTester tester) async {
@@ -178,11 +209,11 @@ void main() {
         expect(find.textContaining('오늘 만료 : 코튼캔디 10'), findsOneWidget);
         // "다음 만료" 줄은 제거됨 — 코튼캔디는 소멸 규칙 한 줄로 안내한다.
         expect(find.textContaining('다음 만료'), findsNothing);
+        expect(find.text('매일 자정 00:00:00 (KST) 에 소멸됩니다.'), findsOneWidget);
         expect(
-          find.text('매일 자정 00:00:00 (KST) 에 소멸됩니다.'),
+          find.byKey(const Key('bonus-star-candy-section')),
           findsOneWidget,
         );
-        expect(find.byKey(const Key('bonus-star-candy-section')), findsOneWidget);
         expect(find.byKey(const Key('candy-policy-section')), findsOneWidget);
       },
     );
@@ -291,29 +322,20 @@ void main() {
     test('소멸일(15일 KST)에는 그 달 몫을 돌려준다', () {
       // 2026-08-15 00:30 KST == 2026-08-14 15:30 UTC
       expect(
-        bonusExpiringToday(
-          data,
-          nowUtc: DateTime.utc(2026, 8, 14, 15, 30),
-        ),
+        bonusExpiringToday(data, nowUtc: DateTime.utc(2026, 8, 14, 15, 30)),
         120,
       );
     });
 
     test('소멸일이 아니면 0 (줄에 보너스가 붙지 않는다)', () {
-      expect(
-        bonusExpiringToday(data, nowUtc: DateTime.utc(2026, 8, 20, 3)),
-        0,
-      );
+      expect(bonusExpiringToday(data, nowUtc: DateTime.utc(2026, 8, 20, 3)), 0);
     });
 
     test('그 달 예정분이 없으면 0', () {
       expect(
-        bonusExpiringToday(
-          const [
-            {'prediction_month': '2026-09', 'expiring_amount': 30},
-          ],
-          nowUtc: DateTime.utc(2026, 8, 14, 15, 30),
-        ),
+        bonusExpiringToday(const [
+          {'prediction_month': '2026-09', 'expiring_amount': 30},
+        ], nowUtc: DateTime.utc(2026, 8, 14, 15, 30)),
         0,
       );
     });

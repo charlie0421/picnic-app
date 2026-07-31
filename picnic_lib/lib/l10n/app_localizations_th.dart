@@ -364,6 +364,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get label_ads_get_star_candy => 'รับ Candy Star จากโฆษณา';
 
   @override
+  String get label_ads_get_cotton_candy => 'รับลูกอมสายไหมจากโฆษณา';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+ลูกอมสายไหม $reward ที่ได้รับ';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly ต่อชั่วโมง $daily ต่อวัน';
   }
@@ -468,6 +476,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get label_mission_get_star_candy => 'รับ Candy Star จากภารกิจ';
+
+  @override
+  String get label_mission_get_bonus_star_candy => 'รับลูกอมดาวโบนัสจากภารกิจ';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+ลูกอมดาวโบนัส $reward ที่ได้รับ';
+  }
 
   @override
   String get label_mission_short => 'ภารกิจ';
@@ -1859,6 +1875,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get wallet_bonus_star_candy => 'ลูกอมดาวโบนัส';
+
+  @override
+  String get bonus_star_candy_expiration_guide =>
+      'คำแนะนำเวลาหมดอายุของลูกอมดาวโบนัส';
 
   @override
   String get wallet_cotton_candy => 'ลูกอมสายไหม';

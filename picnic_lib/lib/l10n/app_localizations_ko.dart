@@ -358,6 +358,14 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_ads_get_star_candy => '광고에서 별사탕 받기';
 
   @override
+  String get label_ads_get_cotton_candy => '광고에서 코튼캔디 받기';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+코튼캔디 $reward 획득';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '시간당 $hourly회, 일일 $daily회';
   }
@@ -461,6 +469,14 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get label_mission_get_star_candy => '미션에서 별사탕 받기';
+
+  @override
+  String get label_mission_get_bonus_star_candy => '미션에서 보너스 스타캔디 받기';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+보너스 스타캔디 $reward 획득';
+  }
 
   @override
   String get label_mission_short => '미션';
@@ -1808,6 +1824,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get wallet_bonus_star_candy => '보너스 스타캔디';
+
+  @override
+  String get bonus_star_candy_expiration_guide => '보너스 스타캔디 소멸 시점 안내';
 
   @override
   String get wallet_cotton_candy => '코튼캔디';

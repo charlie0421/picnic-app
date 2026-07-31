@@ -369,6 +369,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get label_ads_get_star_candy => 'বিজ্ঞাপন থেকে স্টার ক্যান্ডি পান';
 
   @override
+  String get label_ads_get_cotton_candy => 'বিজ্ঞাপন থেকে কটন ক্যান্ডি পান';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+কটন ক্যান্ডি $reward অর্জিত';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly প্রতি ঘন্টা, $daily প্রতিদিন';
   }
@@ -475,6 +483,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get label_mission_get_star_candy => 'মিশনগুলি থেকে স্টার ক্যান্ডি পান';
+
+  @override
+  String get label_mission_get_bonus_star_candy =>
+      'মিশন থেকে বোনাস স্টার ক্যান্ডি পান';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+বোনাস স্টার ক্যান্ডি $reward অর্জিত';
+  }
 
   @override
   String get label_mission_short => 'Mission';
@@ -1885,6 +1902,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get wallet_bonus_star_candy => 'বোনাস স্টার ক্যান্ডি';
 
   @override
+  String get bonus_star_candy_expiration_guide =>
+      'বোনাস স্টার ক্যান্ডির মেয়াদোত্তীর্ণ সময়ের নির্দেশিকা';
+
+  @override
   String get wallet_cotton_candy => 'কটন ক্যান্ডি';
 
   @override
@@ -2365,6 +2386,14 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get label_ads_get_star_candy => 'বিজ্ঞাপন থেকে স্টার ক্যান্ডি পান';
 
   @override
+  String get label_ads_get_cotton_candy => 'বিজ্ঞাপন থেকে কটন ক্যান্ডি পান';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+কটন ক্যান্ডি $reward অর্জিত';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly প্রতি ঘন্টা, $daily প্রতিদিন';
   }
@@ -2471,6 +2500,15 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get label_mission_get_star_candy => 'মিশনগুলি থেকে স্টার ক্যান্ডি পান';
+
+  @override
+  String get label_mission_get_bonus_star_candy =>
+      'মিশন থেকে বোনাস স্টার ক্যান্ডি পান';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+বোনাস স্টার ক্যান্ডি $reward অর্জিত';
+  }
 
   @override
   String get label_mission_short => 'মিশন';
@@ -3880,6 +3918,10 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get wallet_bonus_star_candy => 'বোনাস স্টার ক্যান্ডি';
+
+  @override
+  String get bonus_star_candy_expiration_guide =>
+      'বোনাস স্টার ক্যান্ডির মেয়াদোত্তীর্ণ সময়ের নির্দেশিকা';
 
   @override
   String get wallet_cotton_candy => 'কটন ক্যান্ডি';

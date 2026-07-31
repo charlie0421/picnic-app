@@ -455,6 +455,10 @@
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
+  "label_ads_get_cotton_candy": "広告を見てわたあめをもらう",
+  "@label_ads_get_cotton_candy": {"description": "Free charge station ads section title."},
+  "free_charge_ads_reward": "+わたあめ {reward} 獲得",
+  "@free_charge_ads_reward": {"description": "Reward copy for an ad in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
   "label_ads_limits": "1時間あたり{hourly}回、1日{daily}回",
   "@label_ads_limits": {
     "placeholders": {
@@ -598,6 +602,10 @@
   "@label_mission_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
+  "label_mission_get_bonus_star_candy": "ミッションでボーナス星飴をもらう",
+  "@label_mission_get_bonus_star_candy": {"description": "Free charge station missions section title."},
+  "free_charge_mission_reward": "+ボーナス星飴 {reward} 獲得",
+  "@free_charge_mission_reward": {"description": "Reward copy for a mission in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
   "label_mission_short": "ミッション",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2439,6 +2447,7 @@
   },
   "wallet_star_candy": "スターキャンディ",
   "wallet_bonus_star_candy": "ボーナススターキャンディ",
+  "bonus_star_candy_expiration_guide": "ボーナススターキャンディの有効期限案内",
   "wallet_cotton_candy": "コットンキャンディ",
   "wallet_cotton_expires_today": "本日消滅 {amount}",
   "@wallet_cotton_expires_today": {

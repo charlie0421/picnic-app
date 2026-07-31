@@ -58,12 +58,8 @@ const Widget _hairline = Divider(
 /// 블록 경계선과 같은 굵기 · 같은 색 · 같은 폭으로 그리면 펼친 본문에서 두 단계
 /// 위계가 납작해져 "구분 없는 행의 나열" 로 읽힌다. 그래서 한 단계 밝은 grey200
 /// 에 왼쪽 들여쓰기를 줘서 종속 관계를 만든다.
-Widget _groupLine() => Divider(
-  color: AppColors.grey200,
-  thickness: 1,
-  height: 1,
-  indent: 16.w,
-);
+Widget _groupLine() =>
+    Divider(color: AppColors.grey200, thickness: 1, height: 1, indent: 16.w);
 
 /// 레이블 위 / 값 아래로 쌓은 정의쌍. 표 대신 쓰는 유일한 행 형태다.
 ///
@@ -79,7 +75,10 @@ Widget _pair(String label, String value, {bool expiry = false}) => Padding(
   child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: _t(AppTypo.caption12M, AppColors.grey500, height: 1.20)),
+      Text(
+        label,
+        style: _t(AppTypo.caption12M, AppColors.grey500, height: 1.20),
+      ),
       const SizedBox(height: 4),
       Text(
         value,
@@ -177,23 +176,25 @@ class UsagePolicyPopup extends ConsumerWidget {
           maxHeight: MediaQuery.sizeOf(context).height * 0.82 - 28,
         ),
         child: isLoggedIn
-            ? ref.watch(expireBonusProvider).when(
-                data: (data) => _buildPolicyContent(
-                  context,
-                  data,
-                  ref.watch(walletSummaryProvider),
-                ),
-                loading: () => _buildLoading(),
-                // 보너스 조회 실패가 다이얼로그 전체를 대체하지 않는다. 코튼캔디
-                // 규칙 · 소멸 시점 · 예시 · 정책은 그대로 보이고, 실패는 보너스
-                // 카드 안에서만 말한다.
-                error: (error, stack) => _buildPolicyContent(
-                  context,
-                  null,
-                  ref.watch(walletSummaryProvider),
-                  bonusLoadFailed: true,
-                ),
-              )
+            ? ref
+                  .watch(expireBonusProvider)
+                  .when(
+                    data: (data) => _buildPolicyContent(
+                      context,
+                      data,
+                      ref.watch(walletSummaryProvider),
+                    ),
+                    loading: () => _buildLoading(),
+                    // 보너스 조회 실패가 다이얼로그 전체를 대체하지 않는다. 코튼캔디
+                    // 규칙 · 소멸 시점 · 예시 · 정책은 그대로 보이고, 실패는 보너스
+                    // 카드 안에서만 말한다.
+                    error: (error, stack) => _buildPolicyContent(
+                      context,
+                      null,
+                      ref.watch(walletSummaryProvider),
+                      bonusLoadFailed: true,
+                    ),
+                  )
             : _buildPolicyContent(context, null, null),
       ),
     );
@@ -418,7 +419,11 @@ class UsagePolicyPopup extends ConsumerWidget {
               Expanded(
                 child: Text(
                   localizations.wallet_cotton_candy,
-                  style: _t(AppTypo.body14B, AppColors.primary500, height: 1.20),
+                  style: _t(
+                    AppTypo.body14B,
+                    AppColors.primary500,
+                    height: 1.20,
+                  ),
                 ),
               ),
             ],
@@ -467,7 +472,7 @@ class UsagePolicyPopup extends ConsumerWidget {
               SizedBox(width: 8.w),
               Expanded(
                 child: Text(
-                  localizations.wallet_bonus_star_candy,
+                  localizations.bonus_star_candy_expiration_guide,
                   style: _t(AppTypo.body14B, AppColors.point900, height: 1.20),
                 ),
               ),
@@ -589,7 +594,10 @@ class UsagePolicyPopup extends ConsumerWidget {
     }
 
     return [
-      _pair(l.bonus_candy_example_earn_date, fill(l.bonus_candy_example_1_earn)),
+      _pair(
+        l.bonus_candy_example_earn_date,
+        fill(l.bonus_candy_example_1_earn),
+      ),
       _pair(
         l.bonus_candy_example_expiration_date,
         fill(l.bonus_candy_example_1_expire),
@@ -597,7 +605,10 @@ class UsagePolicyPopup extends ConsumerWidget {
       ),
       _groupLine(),
       const SizedBox(height: 12),
-      _pair(l.bonus_candy_example_earn_date, fill(l.bonus_candy_example_2_earn)),
+      _pair(
+        l.bonus_candy_example_earn_date,
+        fill(l.bonus_candy_example_2_earn),
+      ),
       _pair(
         l.bonus_candy_example_expiration_date,
         fill(l.bonus_candy_example_2_expire),
@@ -659,9 +670,10 @@ class _ScrollBodyState extends State<_ScrollBody> {
   final ScrollController _controller = ScrollController();
 
   /// `(위에 더 있다, 아래에 더 있다)`.
-  final ValueNotifier<(bool, bool)> _edges = ValueNotifier<(bool, bool)>(
-    (false, false),
-  );
+  final ValueNotifier<(bool, bool)> _edges = ValueNotifier<(bool, bool)>((
+    false,
+    false,
+  ));
 
   @override
   void dispose() {
@@ -676,8 +688,7 @@ class _ScrollBodyState extends State<_ScrollBody> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final ready =
-          _controller.hasClients &&
-          _controller.position.hasContentDimensions;
+          _controller.hasClients && _controller.position.hasContentDimensions;
       final next = ready
           ? (
               _controller.position.extentBefore > 1.0,
@@ -912,7 +923,11 @@ class _DisclosureState extends State<_Disclosure> {
                   Expanded(
                     child: Text(
                       widget.title,
-                      style: _t(AppTypo.body14B, AppColors.grey900, height: 1.20),
+                      style: _t(
+                        AppTypo.body14B,
+                        AppColors.grey900,
+                        height: 1.20,
+                      ),
                     ),
                   ),
                   SizedBox(width: 8.w),

@@ -368,6 +368,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_ads_get_star_candy => 'Get Star Candy from Ads';
 
   @override
+  String get label_ads_get_cotton_candy => 'Get Cotton Candy from Ads';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+Cotton Candy $reward earned';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly per hour, $daily per day';
   }
@@ -473,6 +481,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get label_mission_get_star_candy => 'Get Star Candy from Missions';
+
+  @override
+  String get label_mission_get_bonus_star_candy =>
+      'Get Bonus Star Candy from Missions';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+Bonus Star Candy $reward earned';
+  }
 
   @override
   String get label_mission_short => 'Mission';
@@ -1885,6 +1902,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wallet_bonus_star_candy => 'Bonus Star Candy';
+
+  @override
+  String get bonus_star_candy_expiration_guide =>
+      'Bonus Star Candy Expiration Guide';
 
   @override
   String get wallet_cotton_candy => 'Cotton Candy';

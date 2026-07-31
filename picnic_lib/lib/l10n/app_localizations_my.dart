@@ -371,6 +371,14 @@ class AppLocalizationsMy extends AppLocalizations {
   String get label_ads_get_star_candy => 'ကြော်ငြာမှကြယ်ပွင့်သကြားလုံးကိုရယူပါ';
 
   @override
+  String get label_ads_get_cotton_candy => 'ကြော်ငြာမှ ချည်သကြားလုံးကိုရယူပါ';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+ချည်သကြားလုံး $reward ရရှိသည်';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return 'တစ်နာရီလျှင် $hourly ကြိမ်၊ တစ်နေ့လျှင် $daily ကြိမ်';
   }
@@ -478,6 +486,15 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get label_mission_get_star_candy => 'မစ်ရှင်မှကြယ်ပွင့်သကြားလုံးရယူပါ';
+
+  @override
+  String get label_mission_get_bonus_star_candy =>
+      'မစ်ရှင်မှ အပိုဆုကြယ်သကြားလုံးကိုရယူပါ';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+အပိုဆုကြယ်သကြားလုံး $reward ရရှိသည်';
+  }
 
   @override
   String get label_mission_short => 'တိုက်ခိုက်ရေးလုပ်ငန်းတာဝန်';
@@ -1899,6 +1916,10 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get wallet_bonus_star_candy => 'ဘောနပ်ကြယ်ပွင့်သကြားလုံး';
+
+  @override
+  String get bonus_star_candy_expiration_guide =>
+      'ဘောနပ်ကြယ်ပွင့်သကြားလုံး သက်တမ်းကုန်ဆုံးချိန် လမ်းညွှန်';
 
   @override
   String get wallet_cotton_candy => 'ဝါဂွမ်းသကြားလုံး';

@@ -459,6 +459,10 @@
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
+  "label_ads_get_cotton_candy": "Get Cotton Candy from Ads",
+  "@label_ads_get_cotton_candy": {"description": "Free charge station ads section title."},
+  "free_charge_ads_reward": "+Cotton Candy {reward} earned",
+  "@free_charge_ads_reward": {"description": "Reward copy for an ad in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
   "label_ads_limits": "{hourly} per hour, {daily} per day",
   "@label_ads_limits": {
     "placeholders": {
@@ -602,6 +606,10 @@
   "@label_mission_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
+  "label_mission_get_bonus_star_candy": "Get Bonus Star Candy from Missions",
+  "@label_mission_get_bonus_star_candy": {"description": "Free charge station missions section title."},
+  "free_charge_mission_reward": "+Bonus Star Candy {reward} earned",
+  "@free_charge_mission_reward": {"description": "Reward copy for a mission in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
   "label_mission_short": "Mission",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2382,6 +2390,7 @@
   },
   "wallet_star_candy": "Star Candy",
   "wallet_bonus_star_candy": "Bonus Star Candy",
+  "bonus_star_candy_expiration_guide": "Bonus Star Candy Expiration Guide",
   "wallet_cotton_candy": "Cotton Candy",
   "wallet_cotton_expires_today": "Expires today: {amount}",
   "@wallet_cotton_expires_today": {

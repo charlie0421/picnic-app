@@ -368,6 +368,14 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_ads_get_star_candy => 'Lấy kẹo sao từ quảng cáo';
 
   @override
+  String get label_ads_get_cotton_candy => 'Nhận Kẹo Bông Gòn từ quảng cáo';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+Kẹo Bông Gòn $reward đã nhận';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly mỗi giờ, $daily mỗi ngày';
   }
@@ -473,6 +481,15 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get label_mission_get_star_candy => 'Nhận Star Candy từ các nhiệm vụ';
+
+  @override
+  String get label_mission_get_bonus_star_candy =>
+      'Nhận Kẹo Sao Thưởng từ nhiệm vụ';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+Kẹo Sao Thưởng $reward đã nhận';
+  }
 
   @override
   String get label_mission_short => 'Nhiệm vụ';
@@ -1888,6 +1905,10 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get wallet_bonus_star_candy => 'Bonus Star Candy';
+
+  @override
+  String get bonus_star_candy_expiration_guide =>
+      'Hướng dẫn thời điểm hết hạn của Bonus Star Candy';
 
   @override
   String get wallet_cotton_candy => 'Cotton Candy';
