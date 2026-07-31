@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_types.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/charge_station_item.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_content.dart';
@@ -12,52 +11,54 @@ import '../../../../../helpers/test_app.dart';
 
 void main() {
   late RestoreCallback restore;
-  late AnimationController animationController;
-  late AnimationController rotationController;
-  late Animation<double> buttonScaleAnimation;
 
   Widget buildWidget({
     List<ChargeStationItem> Function(BuildContext)? missionBuilder,
     List<ChargeStationItem> Function(BuildContext)? adBuilder,
     bool loggedIn = true,
+    Locale locale = const Locale('ko'),
   }) {
     return buildTestApp(
       _AnimationHost(
         builder: (ac, rc) {
-          animationController = ac;
-          rotationController = rc;
-          buttonScaleAnimation = Tween<double>(begin: 0.5, end: 2.0).animate(ac);
+          final buttonScaleAnimation = Tween<double>(
+            begin: 0.5,
+            end: 2.0,
+          ).animate(ac);
           return FreeChargeContent(
             buttonScaleAnimation: buttonScaleAnimation,
             onPolicyTap: () {},
-            missionItemBuilder: missionBuilder ??
+            missionItemBuilder:
+                missionBuilder ??
                 (_) => [
-                      ChargeStationItem(
-                        id: 'tapjoy',
-                        title: 'Mission #1',
-                        isMission: true,
-                        platformType: AdPlatformType.tapjoy,
-                        onPressed: () {},
-                        bonusText: 'Unlimited',
-                      ),
-                    ],
-            adItemBuilder: adBuilder ??
+                  ChargeStationItem(
+                    id: 'tapjoy',
+                    title: 'Mission #1',
+                    isMission: true,
+                    platformType: AdPlatformType.tapjoy,
+                    onPressed: () {},
+                    bonusText: 'Unlimited',
+                  ),
+                ],
+            adItemBuilder:
+                adBuilder ??
                 (_) => [
-                      ChargeStationItem(
-                        id: 'admob',
-                        title: 'Ad #1',
-                        isMission: false,
-                        platformType: AdPlatformType.admob,
-                        onPressed: () {},
-                        bonusText: '1',
-                      ),
-                    ],
+                  ChargeStationItem(
+                    id: 'admob',
+                    title: 'Ad #1',
+                    isMission: false,
+                    platformType: AdPlatformType.admob,
+                    onPressed: () {},
+                    bonusText: '1',
+                  ),
+                ],
             onPincruxOfferwallPressed: () {},
             rotationController: rc,
           );
         },
       ),
       loggedIn: loggedIn,
+      locale: locale,
     );
   }
 
@@ -89,6 +90,61 @@ void main() {
       expect(find.byType(Divider), findsWidgets);
       expect(find.byType(Text), findsWidgets);
     });
+
+    testWidgets('shows reward type specific Korean copy for missions and ads', (
+      tester,
+    ) async {
+      await pumpWidgetAndIgnoreErrors(tester, buildWidget());
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester);
+
+      expect(find.text('미션에서 보너스 스타캔디 받기'), findsOneWidget);
+      expect(find.text('광고에서 코튼캔디 받기'), findsOneWidget);
+      expect(find.text('+보너스 스타캔디 Unlimited 획득'), findsOneWidget);
+      expect(find.text('+코튼캔디 1 획득'), findsOneWidget);
+    });
+
+    testWidgets(
+      'does not overflow long Spanish mission copy at 320px and 1.3x text',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 640);
+        tester.view.devicePixelRatio = 1;
+        tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+        await pumpWidgetAndIgnoreErrors(
+          tester,
+          buildWidget(
+            loggedIn: false,
+            locale: const Locale('es'),
+            missionBuilder: (_) => [
+              ChargeStationItem(
+                id: 'tapjoy',
+                title: 'Recompensas ilimitadas',
+                isMission: true,
+                platformType: AdPlatformType.tapjoy,
+                onPressed: () {},
+                bonusText: 'Recompensas ilimitadas',
+              ),
+            ],
+            adBuilder: (_) => [],
+          ),
+        );
+        await pumpAndIgnoreErrors(tester);
+        await pumpAndIgnoreErrors(tester);
+
+        expect(tester.takeException(), isNull);
+        expect(
+          find.text(
+            '+Caramelo de Estrella de Bonificación '
+            'Recompensas ilimitadas obtenido',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
 
     testWidgets('shows StorePointInfo when logged in', (tester) async {
       await pumpWidgetAndIgnoreErrors(tester, buildWidget(loggedIn: true));

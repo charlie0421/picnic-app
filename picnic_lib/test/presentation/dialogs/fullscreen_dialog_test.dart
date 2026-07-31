@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsAction;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
@@ -28,9 +30,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: FullScreenDialog(
-              child: const Text('Test Content'),
-            ),
+            body: FullScreenDialog(child: const Text('Test Content')),
           ),
         ),
       );
@@ -39,15 +39,12 @@ void main() {
       expect(find.text('Test Content'), findsOneWidget);
     });
 
-    testWidgets('shows default close button when no custom closeButton',
-        (tester) async {
+    testWidgets('shows default close button when no custom closeButton', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: FullScreenDialog(
-              child: const Text('Content'),
-            ),
-          ),
+          home: Scaffold(body: FullScreenDialog(child: const Text('Content'))),
         ),
       );
       await tester.pump();
@@ -55,13 +52,34 @@ void main() {
       expect(find.byIcon(Icons.close), findsOneWidget);
     });
 
+    testWidgets('default close action has a localized button semantic', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const FullScreenDialog(child: Text('Content')),
+          loggedIn: false,
+        ),
+      );
+      await tester.pump();
+
+      final node = tester.getSemantics(find.bySemanticsLabel('닫기'));
+      final data = node.getSemanticsData();
+      expect(data.label, '닫기');
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.hasAction(SemanticsAction.tap), isTrue);
+      semantics.dispose();
+    });
+
     testWidgets('shows custom close button when provided', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: FullScreenDialog(
-              child: const Text('Content'),
               closeButton: const Icon(Icons.cancel),
+              child: const Text('Content'),
             ),
           ),
         ),
@@ -70,6 +88,38 @@ void main() {
 
       expect(find.byIcon(Icons.cancel), findsOneWidget);
       expect(find.byIcon(Icons.close), findsNothing);
+    });
+
+    testWidgets('keeps close button inside top and right safe insets', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(
+              padding: EdgeInsets.only(top: 100, right: 100),
+            ),
+            child: Scaffold(body: FullScreenDialog(child: Text('Content'))),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final buttonRect = tester.getRect(
+        find.ancestor(
+          of: find.byIcon(Icons.close),
+          matching: find.byType(GestureDetector),
+        ),
+      );
+      expect(buttonRect.top, greaterThanOrEqualTo(100));
+      expect(buttonRect.right, lessThanOrEqualTo(800 - 100));
+      final safeArea = tester.widget<SafeArea>(
+        find.ancestor(
+          of: find.byIcon(Icons.close),
+          matching: find.byType(SafeArea),
+        ),
+      );
+      expect(safeArea.minimum, const EdgeInsets.only(top: 50, right: 15));
     });
 
     testWidgets('is a StatefulWidget', (tester) async {
@@ -82,8 +132,8 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: FullScreenDialog(
-              child: const Text('Content'),
               borderRadius: BorderRadius.circular(20),
+              child: const Text('Content'),
             ),
           ),
         ),
@@ -102,9 +152,8 @@ void main() {
                 onPressed: () {
                   showDialog(
                     context: context,
-                    builder: (_) => FullScreenDialog(
-                      child: const Text('Dialog Content'),
-                    ),
+                    builder: (_) =>
+                        FullScreenDialog(child: const Text('Dialog Content')),
                   );
                 },
                 child: const Text('Open'),
@@ -168,8 +217,9 @@ void main() {
       expect(find.text('Dialog from builder'), findsOneWidget);
     });
 
-    testWidgets('dialog can be dismissed when barrierDismissible is true',
-        (tester) async {
+    testWidgets('dialog can be dismissed when barrierDismissible is true', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         buildTestApp(
           Builder(
@@ -178,9 +228,8 @@ void main() {
                 showFullScreenDialog(
                   context: context,
                   barrierDismissible: true,
-                  builder: (ctx) => const Center(
-                    child: Text('Dismissible Dialog'),
-                  ),
+                  builder: (ctx) =>
+                      const Center(child: Text('Dismissible Dialog')),
                 );
               },
               child: const Text('Show'),

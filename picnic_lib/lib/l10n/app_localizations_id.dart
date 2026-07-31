@@ -366,6 +366,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_ads_get_star_candy => 'Dapatkan Permen Bintang dari Iklan';
 
   @override
+  String get label_ads_get_cotton_candy => 'Dapatkan Permen Kapas dari Iklan';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+Permen Kapas $reward diperoleh';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly per jam, $daily per hari';
   }
@@ -473,6 +481,15 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get label_mission_get_star_candy =>
       'Dapatkan Permen Bintang dari Misi';
+
+  @override
+  String get label_mission_get_bonus_star_candy =>
+      'Dapatkan Permen Bintang Bonus dari Misi';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+Permen Bintang Bonus $reward diperoleh';
+  }
 
   @override
   String get label_mission_short => 'Misi';
@@ -1893,6 +1910,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get wallet_bonus_star_candy => 'Bonus Star Candy';
+
+  @override
+  String get bonus_star_candy_expiration_guide =>
+      'Panduan Kedaluwarsa Bonus Star Candy';
 
   @override
   String get wallet_cotton_candy => 'Cotton Candy';

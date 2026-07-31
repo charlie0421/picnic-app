@@ -1223,7 +1223,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     return StoreListTile(
       icon: Image.asset(
         package: 'picnic_lib',
-        'assets/icons/store/star_${serverProduct['id'].replaceAll('STAR', '')}.png',
+        'assets/icons/store/currency_star_candy.png',
         width: 48.w,
         height: 48,
       ),

@@ -48,6 +48,44 @@ void main() {
   });
 
   group('VoteHistoryListItem', () {
+    testWidgets(
+      'renders the standard star candy currency icon for regular votes',
+      (tester) async {
+        final oldHandler = FlutterError.onError;
+        FlutterError.onError = (details) {
+          final message = details.toString();
+          if (message.contains('Unable to load asset') ||
+              message.contains('IMAGE RESOURCE') ||
+              message.contains('overflowed')) {
+            return;
+          }
+          oldHandler?.call(details);
+        };
+        addTearDown(() => FlutterError.onError = oldHandler);
+
+        await tester.pumpWidget(
+          buildTestApp(
+            SingleChildScrollView(
+              child: VoteHistoryListItem(
+                item: _createMockVotePick(starCandyBonusUsage: 0),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        final starCandyImage = tester
+            .widgetList<Image>(find.byType(Image))
+            .singleWhere((image) => image.width == 36 && image.height == 36);
+        final imageProvider = starCandyImage.image as AssetImage;
+
+        expect(
+          imageProvider.assetName,
+          'assets/icons/store/currency_star_candy.png',
+        );
+      },
+    );
+
     testWidgets('renders cotton candy usage and preserves total usage', (
       tester,
     ) async {

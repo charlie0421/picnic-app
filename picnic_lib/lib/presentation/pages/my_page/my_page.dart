@@ -107,7 +107,7 @@ class _MyPageState extends ConsumerState<MyPage>
                 // 프로필
                 data != null ? _buildProfile() : _buildNonLogin(),
                 // 캔디 정보
-                isSupabaseLoggedSafely
+                isSupabaseLoggedSafely && (data?.isAdmin ?? false)
                     ? const Align(
                         alignment: Alignment.centerLeft,
                         child: StarCandyInfoText(
@@ -147,7 +147,9 @@ class _MyPageState extends ConsumerState<MyPage>
                 // Notifications
                 if (data != null && (data.isAdmin ?? false))
                   PicnicListItem(
-                    leading: AppLocalizations.of(context).label_mypage_notifications,
+                    leading: AppLocalizations.of(
+                      context,
+                    ).label_mypage_notifications,
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     onTap: () => ref
                         .read(navigationInfoProvider.notifier)
@@ -227,16 +229,14 @@ class _MyPageState extends ConsumerState<MyPage>
                     leading: 'Reset & Reload GDPR',
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     onTap: () async {
-                      SnackbarUtil().info(
-                        'GDPR 동의 초기화 중...',
-                        context: context,
-                      );
+                      SnackbarUtil().info('GDPR 동의 초기화 중...', context: context);
 
                       // 현재 상태 로깅
                       await ConsentService().logCurrentState();
 
                       // 초기화 및 재초기화
-                      final success = await ConsentService().resetAndReinitialize();
+                      final success = await ConsentService()
+                          .resetAndReinitialize();
 
                       // 재초기화 후 상태 로깅
                       await ConsentService().logCurrentState();
@@ -271,9 +271,9 @@ class _MyPageState extends ConsumerState<MyPage>
     if (title == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
-            pageTitle: title,
-          );
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(pageTitle: title);
     });
   }
 
@@ -530,15 +530,17 @@ class _MyPageState extends ConsumerState<MyPage>
                   }
                   try {
                     Navigator.of(context).pop();
-                    
+
                     // DB에 언어 업데이트 (비동기)
                     try {
-                      await ref.read(userInfoProvider.notifier).updateLanguage(langCode);
+                      await ref
+                          .read(userInfoProvider.notifier)
+                          .updateLanguage(langCode);
                     } catch (e) {
                       // DB 업데이트 실패는 로그만 남기고 계속 진행 (앱 동작에는 영향 없음)
                       logger.w('user_profiles.language 업데이트 실패', error: e);
                     }
-                    
+
                     // 로컬 스토리지에 언어 저장
                     ref.read(appSettingProvider.notifier).setLanguage(langCode);
 
@@ -704,5 +706,4 @@ class _MyPageState extends ConsumerState<MyPage>
       ),
     );
   }
-
 }

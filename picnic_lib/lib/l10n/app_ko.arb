@@ -516,6 +516,10 @@
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
+  "label_ads_get_cotton_candy": "광고에서 코튼캔디 받기",
+  "@label_ads_get_cotton_candy": {"description": "무료충전소 광고 섹션 제목"},
+  "free_charge_ads_reward": "+코튼캔디 {reward} 획득",
+  "@free_charge_ads_reward": {"description": "무료충전소 광고 보상 문구", "placeholders": {"reward": {"type": "String"}}},
   "label_ads_limits": "시간당 {hourly}회, 일일 {daily}회",
   "@label_ads_limits": {
     "description": "Auto-generated metadata for key 'label_ads_limits'.",
@@ -660,6 +664,10 @@
   "@label_mission_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
+  "label_mission_get_bonus_star_candy": "미션에서 보너스 스타캔디 받기",
+  "@label_mission_get_bonus_star_candy": {"description": "무료충전소 미션 섹션 제목"},
+  "free_charge_mission_reward": "+보너스 스타캔디 {reward} 획득",
+  "@free_charge_mission_reward": {"description": "무료충전소 미션 보상 문구", "placeholders": {"reward": {"type": "String"}}},
   "label_mission_short": "미션",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2525,6 +2533,7 @@
   },
   "wallet_star_candy": "스타캔디",
   "wallet_bonus_star_candy": "보너스 스타캔디",
+  "bonus_star_candy_expiration_guide": "보너스 스타캔디 소멸 시점 안내",
   "wallet_cotton_candy": "코튼캔디",
   "wallet_cotton_expires_today": "오늘 만료 {amount}",
   "@wallet_cotton_expires_today": {

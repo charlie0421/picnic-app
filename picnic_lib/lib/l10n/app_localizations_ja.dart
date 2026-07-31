@@ -357,6 +357,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_ads_get_star_candy => '広告を見て星飴をもらう';
 
   @override
+  String get label_ads_get_cotton_candy => '広告を見てわたあめをもらう';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+わたあめ $reward 獲得';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '1時間あたり$hourly回、1日$daily回';
   }
@@ -460,6 +468,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get label_mission_get_star_candy => 'ミッションで星飴をもらう';
+
+  @override
+  String get label_mission_get_bonus_star_candy => 'ミッションでボーナス星飴をもらう';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+ボーナス星飴 $reward 獲得';
+  }
 
   @override
   String get label_mission_short => 'ミッション';
@@ -1810,6 +1826,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get wallet_bonus_star_candy => 'ボーナススターキャンディ';
+
+  @override
+  String get bonus_star_candy_expiration_guide => 'ボーナススターキャンディの有効期限案内';
 
   @override
   String get wallet_cotton_candy => 'コットンキャンディ';

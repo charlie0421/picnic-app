@@ -355,6 +355,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_ads_get_star_candy => '从广告中获取星星糖果';
 
   @override
+  String get label_ads_get_cotton_candy => '从广告中获取棉花糖';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+棉花糖 $reward 已获得';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly 每小时， $daily 每天';
   }
@@ -457,6 +465,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get label_mission_get_star_candy => '从任务中获取星星糖果';
+
+  @override
+  String get label_mission_get_bonus_star_candy => '从任务中获取奖励星星糖果';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+奖励星星糖果 $reward 已获得';
+  }
 
   @override
   String get label_mission_short => 'Mission';
@@ -1784,6 +1800,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wallet_bonus_star_candy => '奖励星星糖';
 
   @override
+  String get bonus_star_candy_expiration_guide => '奖励星星糖失效时间说明';
+
+  @override
   String get wallet_cotton_candy => '棉花糖';
 
   @override
@@ -2246,6 +2265,14 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get label_ads_get_star_candy => '从广告中获取星星糖果';
 
   @override
+  String get label_ads_get_cotton_candy => '从广告中获取棉花糖';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+棉花糖 $reward 已获得';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly 每小时， $daily 每天';
   }
@@ -2348,6 +2375,14 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get label_mission_get_star_candy => '从任务中获取星星糖果';
+
+  @override
+  String get label_mission_get_bonus_star_candy => '从任务中获取奖励星星糖果';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+奖励星星糖果 $reward 已获得';
+  }
 
   @override
   String get label_mission_short => '使命';
@@ -3675,6 +3710,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get wallet_bonus_star_candy => '奖励星星糖';
 
   @override
+  String get bonus_star_candy_expiration_guide => '奖励星星糖失效时间说明';
+
+  @override
   String get wallet_cotton_candy => '棉花糖';
 
   @override
@@ -4137,6 +4175,14 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get label_ads_get_star_candy => '從廣告中獲取星星糖果';
 
   @override
+  String get label_ads_get_cotton_candy => '從廣告中獲取棉花糖';
+
+  @override
+  String free_charge_ads_reward(String reward) {
+    return '+棉花糖 $reward 已獲得';
+  }
+
+  @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly 每小時， $daily 每天';
   }
@@ -4239,6 +4285,14 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get label_mission_get_star_candy => '從任務中獲取星星糖果';
+
+  @override
+  String get label_mission_get_bonus_star_candy => '從任務中獲取獎勵星星糖果';
+
+  @override
+  String free_charge_mission_reward(String reward) {
+    return '+獎勵星星糖果 $reward 已獲得';
+  }
 
   @override
   String get label_mission_short => '使命';
@@ -5565,6 +5619,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get wallet_bonus_star_candy => '獎勵星星糖';
+
+  @override
+  String get bonus_star_candy_expiration_guide => '獎勵星星糖失效時間說明';
 
   @override
   String get wallet_cotton_candy => '棉花糖';

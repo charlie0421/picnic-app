@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 
 Future<void> loadTestFonts() async {
@@ -19,4 +21,25 @@ Future<void> loadTestFonts() async {
       ),
     );
   await loader.load();
+
+  var directory = File(Platform.resolvedExecutable).parent;
+  File? materialIcons;
+  while (directory.path != directory.parent.path) {
+    final candidate = File(
+      '${directory.path}/bin/cache/artifacts/material_fonts/'
+      'MaterialIcons-Regular.otf',
+    );
+    if (await candidate.exists()) {
+      materialIcons = candidate;
+      break;
+    }
+    directory = directory.parent;
+  }
+  if (materialIcons == null) {
+    throw StateError('Flutter Material Icons font was not found');
+  }
+
+  final materialLoader = FontLoader('MaterialIcons')
+    ..addFont(materialIcons.readAsBytes().then(ByteData.sublistView));
+  await materialLoader.load();
 }

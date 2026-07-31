@@ -803,6 +803,18 @@ abstract class AppLocalizations {
   /// **'Get Star Candy from Ads'**
   String get label_ads_get_star_candy;
 
+  /// Free charge station ads section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Cotton Candy from Ads'**
+  String get label_ads_get_cotton_candy;
+
+  /// Reward copy for an ad in the free charge station.
+  ///
+  /// In en, this message translates to:
+  /// **'+Cotton Candy {reward} earned'**
+  String free_charge_ads_reward(String reward);
+
   /// No description provided for @label_ads_limits.
   ///
   /// In en, this message translates to:
@@ -1006,6 +1018,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get Star Candy from Missions'**
   String get label_mission_get_star_candy;
+
+  /// Free charge station missions section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Bonus Star Candy from Missions'**
+  String get label_mission_get_bonus_star_candy;
+
+  /// Reward copy for a mission in the free charge station.
+  ///
+  /// In en, this message translates to:
+  /// **'+Bonus Star Candy {reward} earned'**
+  String free_charge_mission_reward(String reward);
 
   /// Auto-generated metadata for key 'label_mission_short'.
   ///
@@ -3544,6 +3568,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bonus Star Candy'**
   String get wallet_bonus_star_candy;
+
+  /// No description provided for @bonus_star_candy_expiration_guide.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus Star Candy Expiration Guide'**
+  String get bonus_star_candy_expiration_guide;
 
   /// No description provided for @wallet_cotton_candy.
   ///

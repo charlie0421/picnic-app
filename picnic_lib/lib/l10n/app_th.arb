@@ -456,6 +456,10 @@
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
+  "label_ads_get_cotton_candy": "รับลูกอมสายไหมจากโฆษณา",
+  "@label_ads_get_cotton_candy": {"description": "Free charge station ads section title."},
+  "free_charge_ads_reward": "+ลูกอมสายไหม {reward} ที่ได้รับ",
+  "@free_charge_ads_reward": {"description": "Reward copy for an ad in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
   "label_ads_limits": "{hourly} ต่อชั่วโมง {daily} ต่อวัน",
   "@label_ads_limits": {
     "placeholders": {
@@ -599,6 +603,10 @@
   "@label_mission_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
+  "label_mission_get_bonus_star_candy": "รับลูกอมดาวโบนัสจากภารกิจ",
+  "@label_mission_get_bonus_star_candy": {"description": "Free charge station missions section title."},
+  "free_charge_mission_reward": "+ลูกอมดาวโบนัส {reward} ที่ได้รับ",
+  "@free_charge_mission_reward": {"description": "Reward copy for a mission in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
   "label_mission_short": "ภารกิจ",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2383,6 +2391,7 @@
   },
   "wallet_star_candy": "ลูกอมดาว",
   "wallet_bonus_star_candy": "ลูกอมดาวโบนัส",
+  "bonus_star_candy_expiration_guide": "คำแนะนำเวลาหมดอายุของลูกอมดาวโบนัส",
   "wallet_cotton_candy": "ลูกอมสายไหม",
   "wallet_cotton_expires_today": "หมดอายุวันนี้ {amount}",
   "@wallet_cotton_expires_today": {
