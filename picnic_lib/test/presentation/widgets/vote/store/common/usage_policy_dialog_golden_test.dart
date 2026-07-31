@@ -25,18 +25,10 @@ import '../../../../../helpers/test_environment.dart';
 
 /// 소멸 예정 캔디 안내 팝업 골든.
 ///
-/// 두 가지를 고정한다.
-/// 1. **쉬는 상태** — 히어로 한 줄, 두 재화 카드, 소멸 시점 안내 · 예시는 접힘,
-///    정책은 펼침(소비자 고지라 기본 노출).
-/// 2. **펼친 상태 + 넘치는 상태** — 리디자인의 두 결함(잘림이 카드 테두리가
-///    아니라 그보다 56px 위에서 일어나던 것, 펼쳐도 스크롤이 안 되던 것)은
-///    전부 여기서만 보이므로 접힌 골든만으로는 회귀를 잡을 수 없었다.
-///
-/// **예시 블록은 어떤 골든에서도 펼치지 않는다.** 예시 문구는
-/// `DateTime.now().month` 로 만들어지므로 펼치면 골든이 매달 깨진다.
-/// `prediction_month` 를 2099 로 둔 이유도 같다: `bonusExpiringToday` 는 매월
-/// 15일에만 0 이 아닌 값을 돌려주므로, 실제 연월을 쓰면 그 달 15일에 히어로
-/// 문구가 바뀌어 골든이 깨진다.
+/// 모든 정책 본문이 처음부터 보이는 상태와, 작은 화면의 상단·하단 스크롤
+/// 상태를 고정한다. `prediction_month` 를 2099 로 둔 이유는
+/// `bonusExpiringToday` 가 매월 15일에만 0 이 아닌 값을 돌려주므로, 실제 연월을
+/// 쓰면 그 달 15일에 히어로 문구가 바뀌어 골든이 깨지기 때문이다.
 ///
 /// vi 골든은 비 ko/en 로케일의 레이아웃 회귀를 대표로 잡는다. 코튼캔디·지갑
 /// 계열 키는 한때 ko/en ARB 에만 있어 vi 화면이 반영어로 고정돼 있었지만,
@@ -165,19 +157,6 @@ Future<void> _pumpGolden(
   await tester.pumpAndSettle();
 }
 
-/// 소멸 시점 안내를 펼친다. 예시는 날짜 의존 때문에 건드리지 않는다.
-///
-/// 탭 뒤에 `pumpAndSettle` 만 하면 부족하다 — 펼침이 끝난 뒤 스크롤을 걸기 위해
-/// 232ms 타이머를 쓰는데, 그 사이 예약된 프레임이 없으면 가짜 시계가 거기까지
-/// 흐르지 않는다.
-Future<void> _openTimingRules(WidgetTester tester) async {
-  final l = AppLocalizations.of(tester.element(find.byType(UsagePolicyPopup)));
-  await tester.tap(find.text(l.bonus_candy_expiration_time_title));
-  await tester.pumpAndSettle();
-  await tester.pump(const Duration(milliseconds: 300));
-  await tester.pumpAndSettle();
-}
-
 void main() {
   setUpAll(() async {
     await loadTestFonts();
@@ -192,9 +171,9 @@ void main() {
     tearDownMockSupabase();
   });
 
-  // 320dp 다음으로 좁은 실사용 하한. 이 크기에서는 기본 화면이 이미
-  // 117.5px 넘치므로 바닥 신호(그라디언트 + 아래 화살표)가 함께 고정된다.
-  testWidgets('collapsed default, ko, 360x640', (tester) async {
+  // 320dp 다음으로 좁은 실사용 하한. 정적 정책 본문 때문에 바닥 신호
+  // (그라디언트 + 아래 화살표)가 함께 고정된다.
+  testWidgets('static initial content, ko, 360x640', (tester) async {
     await _pumpGolden(
       tester,
       size: const Size(360, 640),
@@ -209,7 +188,7 @@ void main() {
     );
   });
 
-  testWidgets('collapsed default, ko, 390x844', (tester) async {
+  testWidgets('static initial content, ko, 390x844', (tester) async {
     await _pumpGolden(
       tester,
       size: const Size(390, 844),
@@ -225,7 +204,9 @@ void main() {
   });
 
   // OS 큰 글씨. 카드가 내용에 붙으므로 높이만 자라고 잘리지 않아야 한다.
-  testWidgets('collapsed default, ko, 390x844, textScaler 1.3', (tester) async {
+  testWidgets('static initial content, ko, 390x844, textScaler 1.3', (
+    tester,
+  ) async {
     await _pumpGolden(
       tester,
       size: const Size(390, 844),
@@ -242,7 +223,7 @@ void main() {
 
   // 긴 번역 로케일. vi 는 wallet_* 키가 없어 영어로 폴백하므로
   // 'Cotton Candy' / 'Bonus Star Candy' 라벨 폭까지 같이 고정된다.
-  testWidgets('collapsed default, vi, 390x844', (tester) async {
+  testWidgets('static initial content, vi, 390x844', (tester) async {
     await _pumpGolden(
       tester,
       size: const Size(390, 844),
@@ -259,7 +240,9 @@ void main() {
   // 레포가 하한으로 못박아 둔 가장 좁고 낮은 기기. **기본 화면이 넘치는 유일한
   // 크기대**라서, 잘림이 카드 테두리에서 일어나는지와 바닥 신호가 켜지는지를
   // 이 골든이 잡는다(리뷰에서 지적된, 픽셀 커버리지가 비어 있던 자리).
-  testWidgets('collapsed default, ko, 320x568 (overflowing)', (tester) async {
+  testWidgets('static initial content, ko, 320x568 (overflowing)', (
+    tester,
+  ) async {
     await _pumpGolden(
       tester,
       size: const Size(320, 568),
@@ -281,21 +264,14 @@ void main() {
     );
   });
 
-  // 펼친 상태를 스크롤 양끝에서 고정한다.
-  //
-  // 360x640 에서는 펼친 블록이 뷰포트 안에 들어가서 자동 스크롤이 **일어나지
-  // 않는다**(pixels == 0). 그래도 아래로 밀려난 예시 · 정책이 생기므로 바닥
-  // 신호는 켜져야 한다 — 이 골든이 그 조합을 고정한다. 아래쪽 골든은 끝까지
-  // 내렸을 때 마지막 줄이 코너 곡선에 씹히지 않고 신호가 사라지는 걸 잡는다.
-  testWidgets('timing rules expanded, ko, 360x640 (top / bottom)', (
-    tester,
-  ) async {
+  // 정적 본문의 스크롤 양끝을 고정한다. 아래쪽 골든은 끝까지 내렸을 때 마지막
+  // 줄이 코너 곡선에 씹히지 않고 바닥 신호가 사라지는 걸 잡는다.
+  testWidgets('static content, ko, 360x640 (top / bottom)', (tester) async {
     await _pumpGolden(
       tester,
       size: const Size(360, 640),
       locale: const Locale('ko'),
     );
-    await _openTimingRules(tester);
     final position = tester
         .state<ScrollableState>(find.byType(Scrollable))
         .position;
@@ -321,9 +297,10 @@ void main() {
 
   // 소멸 예정 행이 하나도 없는 상태. 예전에는 보너스 카드가 아이콘 + 레이블만
   // 남은 빈 분홍 막대로 렌더돼 로딩 스켈레톤처럼 보였다 — 흔한 상태(예정 없는
-  // 로그인 사용자 전부 + 비로그인)라서 골든으로 못박는다. 이 상태에서는 소멸
-  // 시점 안내가 처음부터 펼쳐진다(개인 행이 없으면 그 매뉴얼이 곧 답이다).
-  testWidgets('no upcoming rows, ko, 390x844', (tester) async {
+  // 로그인 사용자 전부 + 비로그인)라서 골든으로 못박는다.
+  testWidgets('static content with no upcoming rows, ko, 390x844', (
+    tester,
+  ) async {
     await _pumpGolden(
       tester,
       size: const Size(390, 844),
@@ -338,14 +315,13 @@ void main() {
     );
   });
 
-  // 가장 작은 지원 화면에서 펼친 본문과 남은 스크롤 영역을 고정한다.
-  testWidgets('timing rules expanded, ko, 320x568', (tester) async {
+  // 가장 작은 지원 화면에서 정적 본문과 남은 스크롤 영역을 고정한다.
+  testWidgets('static content, ko, 320x568', (tester) async {
     await _pumpGolden(
       tester,
       size: const Size(320, 568),
       locale: const Locale('ko'),
     );
-    await _openTimingRules(tester);
     expect(
       tester
           .state<ScrollableState>(find.byType(Scrollable))
