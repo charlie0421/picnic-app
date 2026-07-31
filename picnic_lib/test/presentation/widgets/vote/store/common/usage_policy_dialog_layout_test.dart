@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/data/models/wallet/currency_history.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
@@ -118,50 +119,6 @@ AppLocalizations _l10n(WidgetTester tester) =>
 String _stripBullet(String raw) =>
     raw.replaceFirst(RegExp(r'^\s*[-•·]\s*'), '');
 
-/// 접힘 헤더는 스크롤 밖에 있을 수 있다. 눌러야 하면 먼저 화면 안으로 끌어온다.
-///
-/// 탭 이후에 `pumpAndSettle` 만 하면 부족하다. 펼침 애니메이션(200ms) 이 끝난
-/// 뒤에 스크롤을 걸기 위해 위젯이 232ms 타이머를 쓰는데, 그 사이에 예약된
-/// 프레임이 없으면 `pumpAndSettle` 은 200ms 에서 멈춰서 타이머가 발화하지 않는다
-/// (가짜 시계라서 실기기와 달리 저절로 흐르지 않는다).
-Future<void> _openDisclosure(WidgetTester tester, String title) async {
-  final header = find.text(title);
-  expect(header, findsOneWidget, reason: 'disclosure header "$title"');
-  await tester.ensureVisible(header);
-  await tester.pumpAndSettle();
-  await tester.tap(header);
-  await tester.pumpAndSettle();
-  await tester.pump(const Duration(milliseconds: 300));
-  await tester.pumpAndSettle();
-}
-
-/// 이미 펼쳐진 블록은 건드리지 않는다 — 누르면 오히려 닫힌다.
-bool _isOpen(WidgetTester tester, String title) {
-  final l = _l10n(tester);
-  if (title == l.bonus_candy_expiration_time_title) {
-    return find
-        .text(l.bonus_candy_expiration_policy_earn_period)
-        .evaluate()
-        .isNotEmpty;
-  }
-  if (title == l.bonus_candy_example_title) {
-    return find.text(l.bonus_candy_example_earn_date).evaluate().isNotEmpty;
-  }
-  return find.text(_stripBullet(l.bonus_candy_policy_1)).evaluate().isNotEmpty;
-}
-
-Future<void> _openAllDisclosures(WidgetTester tester) async {
-  final l = _l10n(tester);
-  for (final title in [
-    l.bonus_candy_expiration_time_title,
-    l.bonus_candy_example_title,
-    l.bonus_candy_policy_title,
-  ]) {
-    if (_isOpen(tester, title)) continue;
-    await _openDisclosure(tester, title);
-  }
-}
-
 Finder get _shellFinder => find.byType(FullScreenDialog);
 
 ScrollPosition _position(WidgetTester tester) =>
@@ -249,8 +206,6 @@ void main() {
                 textScale: scale,
               );
               expect(tester.takeException(), isNull);
-              await _openAllDisclosures(tester);
-              expect(tester.takeException(), isNull);
             },
           );
         }
@@ -276,7 +231,6 @@ void main() {
 
           _expectTextInsideClip(tester, at: 'at rest');
 
-          await _openAllDisclosures(tester);
           final position = _position(tester);
           position.jumpTo(position.maxScrollExtent);
           await tester.pumpAndSettle();
@@ -286,46 +240,31 @@ void main() {
     }
   });
 
-  group('T3 점진적 공개', () {
-    testWidgets('소멸 예정 행이 있으면 예시는 접혀 있고, 눌러야 열린다', (tester) async {
+  group('T3 정적 정책 공개', () {
+    testWidgets('세 정책 본문을 탭 없이 표시하고 헤더 화살표를 두지 않는다', (tester) async {
       await _pumpPopup(tester, size: const Size(393, 873));
       final l = _l10n(tester);
 
-      // 접힌 본문은 트리에서 아예 빠진다(Offstage 가 아니다).
-      expect(find.text(l.bonus_candy_example_earn_date), findsNothing);
       expect(
         find.text(l.bonus_candy_expiration_policy_earn_period),
-        findsNothing,
+        findsNWidgets(2),
       );
-      // 헤더는 접혀 있어도 보인다.
-      expect(find.text(l.bonus_candy_example_title), findsOneWidget);
-      expect(find.byKey(const Key('candy-policy-section')), findsOneWidget);
-      // 정책은 소비자 고지라서 **처음부터 펼쳐져 있다**. 접힌 본문은 트리에서
-      // 빠지므로, 접어 두면 '아래에 있다' 가 아니라 '안 보여준다' 가 된다.
-      expect(find.text(_stripBullet(l.bonus_candy_policy_1)), findsOneWidget);
-      expect(find.text(_stripBullet(l.bonus_candy_policy_2)), findsOneWidget);
-      expect(find.text(_stripBullet(l.bonus_candy_policy_3)), findsOneWidget);
-
-      await _openDisclosure(tester, l.bonus_candy_example_title);
-      // 레이블은 그룹마다 반복돼 행이 스스로를 설명한다.
       expect(find.text(l.bonus_candy_example_earn_date), findsNWidgets(2));
-      expect(
-        find.text(l.bonus_candy_example_expiration_date),
-        findsNWidgets(2),
-      );
-    });
+      expect(find.text(_stripBullet(l.bonus_candy_policy_1)), findsOneWidget);
 
-    testWidgets('소멸 예정 행이 없으면 소멸 시점 안내가 처음부터 펼쳐진다', (tester) async {
-      await _pumpPopup(tester, size: const Size(393, 873), bonusRows: const []);
-      final l = _l10n(tester);
-      expect(
-        find.text(l.bonus_candy_expiration_policy_earn_period),
-        findsNWidgets(2),
-      );
-      expect(find.text(l.bonus_candy_earn_period_1_to_14), findsOneWidget);
-      expect(find.text(l.bonus_candy_earn_period_15_to_end), findsOneWidget);
-      // 예시는 그대로 접혀 있다.
-      expect(find.text(l.bonus_candy_example_earn_date), findsNothing);
+      for (final sectionKey in const [
+        Key('bonus-expiry-rules-section'),
+        Key('bonus-expiry-example-section'),
+        Key('candy-policy-section'),
+      ]) {
+        expect(
+          find.descendant(
+            of: find.byKey(sectionKey),
+            matching: find.byType(SvgPicture),
+          ),
+          findsNothing,
+        );
+      }
     });
 
     testWidgets('소멸 예정 행은 prediction_month 오름차순으로 정렬된다', (tester) async {
@@ -336,9 +275,9 @@ void main() {
     });
   });
 
-  testWidgets('T4 기본 상태에서는 스크롤이 없다 (393x873, ko, 소멸 예정 2건)', (tester) async {
+  testWidgets('T4 정적 본문도 전체 화면 셸 안에서 스크롤한다', (tester) async {
     await _pumpPopup(tester, size: const Size(393, 873));
-    expect(_position(tester).maxScrollExtent, 0.0);
+    expect(_position(tester).maxScrollExtent, greaterThan(0.0));
 
     // 셸은 이전의 0.82H 라운드 카드가 아니라 정확히 전체 화면을 사용한다.
     final shellRect = tester.getRect(_shellFinder);
@@ -362,7 +301,6 @@ void main() {
           locale: locale,
           loggedIn: false,
         );
-        await _openDisclosure(tester, _l10n(tester).bonus_candy_example_title);
 
         final leaked = tester
             .widgetList<Text>(find.byType(Text))
@@ -468,64 +406,10 @@ void main() {
     });
   });
 
-  group('T7 펼친 내용이 전체 화면 뷰포트 안에 드러난다', () {
-    for (final size in const [Size(320, 568), Size(320, 640)]) {
-      testWidgets('${size.width}x${size.height}', (tester) async {
-        await _pumpPopup(tester, size: size);
-        final l = _l10n(tester);
-        final position = _position(tester);
-        expect(position.pixels, 0.0);
-
-        // 이 헤더는 쉬는 상태에서 이미 화면에 있다. `tester.ensureVisible` 로
-        // 미리 스크롤하면 위젯이 스크롤했는지 테스트가 스크롤했는지 구분할 수
-        // 없어지므로, 여기서는 절대 쓰지 않는다.
-        final header = find.text(l.bonus_candy_expiration_time_title);
-        expect(
-          tester.getRect(header).bottom,
-          lessThan(tester.getRect(find.byType(SingleChildScrollView)).bottom),
-        );
-        await tester.tap(header);
-        await tester.pumpAndSettle();
-        await tester.pump(const Duration(milliseconds: 300));
-        await tester.pumpAndSettle();
-
-        // 드러난 첫 행이 뷰포트 안에 완전히 들어와야 한다.
-        final viewport = tester.getRect(find.byType(SingleChildScrollView));
-        final firstRow = tester.getRect(
-          find.text(l.bonus_candy_expiration_policy_earn_period).first,
-        );
-        expect(firstRow.top, greaterThanOrEqualTo(viewport.top - 0.01));
-        expect(firstRow.bottom, lessThanOrEqualTo(viewport.bottom + 0.01));
-        // 제목은 밀려나지 않는다 — 블록이 뷰포트보다 길어도 머리는 남긴다.
-        expect(
-          tester.getRect(header).top,
-          greaterThanOrEqualTo(viewport.top - 0.01),
-        );
-      });
-    }
-  });
-
   group('T8 바닥 신호', () {
-    testWidgets('내용이 다 보이면 꺼져 있다 (360x800 = 보고된 기기)', (tester) async {
+    testWidgets('정적 본문이 넘치면 처음부터 켜져 있다 (360x800)', (tester) async {
       await _pumpPopup(tester, size: const Size(360, 800));
-      expect(_position(tester).maxScrollExtent, 0.0);
-      expect(_cueOpacity(tester), 0.0);
-    });
-
-    testWidgets('펼쳐서 내용이 넘치면 손대지 않아도 켜진다 (360x800)', (tester) async {
-      await _pumpPopup(tester, size: const Size(360, 800));
-      final l = _l10n(tester);
       final position = _position(tester);
-      expect(_cueOpacity(tester), 0.0);
-
-      // 이 기기에서는 소멸 시점 안내를 펼쳐도 블록 자체는 뷰포트 안에 들어가서
-      // **스크롤이 일어나지 않는다**. 즉 ScrollNotification 도 오지 않는다.
-      // 그래도 아래로 밀려난 예시 · 정책이 생기므로 신호는 켜져야 한다 —
-      // 내용 크기 변화는 ScrollMetricsNotification 으로만 오기 때문에, 이걸
-      // 듣지 않으면 사용자가 손으로 끌기 전까지 신호가 뜨지 않는다.
-      await _openDisclosure(tester, l.bonus_candy_expiration_time_title);
-
-      expect(position.pixels, 0.0, reason: 'no scroll happened in this case');
       expect(position.extentAfter, greaterThan(1.0));
       expect(_cueOpacity(tester), 1.0);
     });

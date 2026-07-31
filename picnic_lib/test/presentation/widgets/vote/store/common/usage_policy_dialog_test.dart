@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -98,6 +99,23 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(UsagePolicyPopup), findsOneWidget);
+    });
+
+    testWidgets('centers the policy title within UsagePolicyPopup', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const Material(color: Colors.transparent, child: UsagePolicyPopup()),
+          loggedIn: false,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final popup = tester.getRect(find.byType(UsagePolicyPopup));
+      final title = tester.getRect(find.byType(VoteCommonTitle));
+
+      expect(title.center.dx, closeTo(popup.center.dx, 0.01));
     });
 
     testWidgets('renders policy content with scrollable area', (

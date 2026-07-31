@@ -1,8 +1,4 @@
-import 'dart:async';
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -147,11 +143,10 @@ class UsagePolicyPopup extends ConsumerWidget {
         child: Column(
           children: [
             Padding(
-              // 공통 전체 화면 셸의 닫기 버튼(top: 50, right: 15)과 제목이
-              // 겹치지 않도록 오른쪽 64px를 비운다.
-              padding: EdgeInsets.fromLTRB(24.w, 24, 64, 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
+              // 오른쪽 닫기 버튼과 같은 폭을 왼쪽에도 비워 제목을 화면 중심에
+              // 고정한다.
+              padding: const EdgeInsets.fromLTRB(64, 24, 64, 16),
+              child: Center(
                 child: VoteCommonTitle(
                   title: localizations.expiring_bonus_candy_guide,
                 ),
@@ -234,33 +229,21 @@ class UsagePolicyPopup extends ConsumerWidget {
           // '지금' 과 '규칙' 의 경계.
           const SizedBox(height: 24),
           _hairline,
-          // 세 공개 블록에 모두 키를 준다. 히어로는 지갑 상태에 따라 붙었다
-          // 떨어지므로 Column 의 자식 수가 바뀌는데, 키가 없으면 위치 기반
-          // 매칭이 어긋나 펼침 상태가 옆 블록으로 옮겨갈 수 있다.
-          _Disclosure(
+          _PolicySection(
             key: const Key('bonus-expiry-rules-section'),
             title: localizations.bonus_candy_expiration_time_title,
-            // 보여줄 개인 소멸 예정 행이 없으면(비로그인 · 조회 실패 · 예정 없음)
-            // 이 매뉴얼이 곧 답이다.
-            initiallyExpanded: rows.isEmpty,
             children: _timingRuleChildren(context),
           ),
           _hairline,
-          _Disclosure(
+          _PolicySection(
             key: const Key('bonus-expiry-example-section'),
             title: localizations.bonus_candy_example_title,
             children: _exampleChildren(context),
           ),
           _hairline,
-          // 정책은 **항상 펼쳐 둔다.** 여기에는 "소멸 된 캔디는 복구되지
-          // 않으니, 기간 내에 꼭 사용해 주세요" 같은 소비자 고지 문구가 들어
-          // 있고, 접힌 본문은 위젯 트리에서 아예 빠지므로 접어 두면 '아래에
-          // 있다' 가 아니라 '보여주지 않는다' 가 된다. 리디자인 전에는 전부
-          // 무조건 렌더됐으니 접는 쪽이 고지 수준의 후퇴다.
-          _Disclosure(
+          _PolicySection(
             key: const Key('candy-policy-section'),
             title: localizations.bonus_candy_policy_title,
-            initiallyExpanded: true,
             children: _policyChildren(context),
           ),
         ],
@@ -772,162 +755,36 @@ class _ScrollBodyState extends State<_ScrollBody> {
   }
 }
 
-/// 파일 안에서만 쓰는 작은 접기/펼치기.
-///
-/// `ExpansionTile` 을 쓰지 않는다: `ListTileTheme` / `ExpansionTileTheme` 상속을
-/// 끌고 오고, 앱의 SVG 아이콘 세트와 맞지 않는 MaterialIcons 셰브런을 싣고,
-/// (Flutter 3.41 의 `Expansible` 경로에서) 접힌 본문을 `Offstage` +
-/// `TickerMode(false)` 로 감싸서 `find.text` 와 스크린리더에서 사라지게 만든다.
-class _Disclosure extends StatefulWidget {
-  const _Disclosure({
+class _PolicySection extends StatelessWidget {
+  const _PolicySection({
     super.key,
     required this.title,
     required this.children,
-    this.initiallyExpanded = false,
   });
 
   final String title;
   final List<Widget> children;
-  final bool initiallyExpanded;
 
   @override
-  State<_Disclosure> createState() => _DisclosureState();
-}
-
-class _DisclosureState extends State<_Disclosure> {
-  /// 펼침 애니메이션 길이.
-  static const Duration _growth = Duration(milliseconds: 200);
-
-  late bool _open = widget.initiallyExpanded;
-  final GlobalKey _blockKey = GlobalKey();
-  Timer? _revealTimer;
-
-  @override
-  void dispose() {
-    _revealTimer?.cancel();
-    super.dispose();
-  }
-
-  void _toggle() {
-    setState(() => _open = !_open);
-    _revealTimer?.cancel();
-    if (!_open) return;
-    // **성장이 끝난 뒤에** 스크롤한다. 다음 프레임에 바로 스크롤하면
-    // `AnimatedSize` 가 아직 본문을 0 높이로 클립하고 있어서 스크롤 뷰의
-    // `maxScrollExtent` 가 최종값보다 작고, 목표 오프셋이
-    // `applyBoundaryConditions` 에 잘려 0 으로 주저앉는다. 예전 코드
-    // (`addPostFrameCallback` + `Scrollable.ensureVisible`) 가 한 번도 스크롤하지
-    // 못한 이유가 이것이다 — 펼쳐도 pixels 는 정확히 0.0 에 머물렀다.
-    _revealTimer = Timer(_growth + const Duration(milliseconds: 32), _reveal);
-  }
-
-  /// 새로 드러난 본문을 화면 안으로 끌어온다 — "내 내용을 잘라먹었다" 는
-  /// 인식을 직접 공격하는 부분.
-  ///
-  /// 블록 바닥을 뷰포트 바닥에 맞추는 오프셋(`toEnd`)과 블록 머리를 뷰포트 위에
-  /// 맞추는 오프셋(`toStart`) 중 **작은 쪽**으로 간다. 블록이 뷰포트보다 짧으면
-  /// 딱 필요한 만큼만 올라가고, 더 길면 제목을 남긴 채 본문을 최대한 보여준다
-  /// (`ensureVisible` 의 `keepVisibleAtEnd` 는 후자에서 제목을 밀어낸다).
-  void _reveal() {
-    if (!mounted || !_open) return;
-    final ctx = _blockKey.currentContext;
-    if (ctx == null) return;
-    final box = ctx.findRenderObject();
-    if (box is! RenderBox || !box.hasSize || !box.attached) return;
-    final position = Scrollable.maybeOf(ctx)?.position;
-    if (position == null ||
-        !position.hasPixels ||
-        !position.hasContentDimensions) {
-      return;
-    }
-    final viewport = RenderAbstractViewport.maybeOf(box);
-    if (viewport == null) return;
-
-    final toEnd = viewport.getOffsetToReveal(box, 1).offset;
-    // 이미 블록 전체가 보이면 화면을 흔들지 않는다.
-    if (toEnd <= position.pixels + 1) return;
-    final toStart = viewport.getOffsetToReveal(box, 0).offset;
-    final target = math
-        .min(toEnd, toStart)
-        .clamp(position.minScrollExtent, position.maxScrollExtent);
-    if ((target - position.pixels).abs() < 1) return;
-    position.animateTo(
-      target,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      key: _blockKey,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Semantics(
-          button: true,
-          expanded: _open,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _toggle,
-            child: Container(
-              // minHeight 여야 한다 — 2.0x 텍스트 배율의 bn 에서 제목이 줄바꿈
-              // 되면 고정 48 은 세로로 넘친다.
-              constraints: const BoxConstraints(minHeight: 48),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.title,
-                      style: _t(
-                        AppTypo.body14B,
-                        AppColors.grey900,
-                        height: 1.20,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  AnimatedRotation(
-                    turns: _open ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: SvgPicture.asset(
-                      'assets/icons/arrow_down_style=line.svg',
-                      package: 'picnic_lib',
-                      width: 16.w,
-                      height: 16.w,
-                      colorFilter: ColorFilter.mode(
-                        _open ? AppColors.grey500 : AppColors.grey400,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Text(
+          title,
+          style: _t(AppTypo.body14B, AppColors.grey900, height: 1.20),
         ),
-        AnimatedSize(
-          duration: _growth,
-          curve: Curves.easeOut,
-          alignment: Alignment.topCenter,
-          child: _open
-              // 본문에 좌측 들여쓰기를 주지 않는다 — 값에 293px 전체가 필요하다.
-              // 종속 관계는 레이블의 grey500 색으로 표현한다.
-              ? Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: widget.children,
-                  ),
-                )
-              : const SizedBox(width: double.infinity, height: 0),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children,
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }
 
 /// 오늘(KST) 소멸되는 보너스 스타캔디 금액. 소멸일이 아니면 0.
