@@ -344,6 +344,52 @@ void main() {
       expect(find.text('3월 20일 14:00(KST)'), findsOneWidget);
       expect(find.text('5월 15일 00:00(KST)'), findsOneWidget);
     });
+
+    testWidgets('rolls the month after next from November into January', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestAppPage(
+          Material(
+            color: Colors.transparent,
+            child: UsagePolicyPopup(
+              exampleReferenceDate: DateTime.utc(2032, 11, 1),
+            ),
+          ),
+          loggedIn: false,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('11월 10일 14:00(KST)'), findsOneWidget);
+      expect(find.text('12월 15일 00:00(KST)'), findsOneWidget);
+      expect(find.text('11월 20일 14:00(KST)'), findsOneWidget);
+      expect(find.text('1월 15일 00:00(KST)'), findsOneWidget);
+      expect(find.textContaining('13월'), findsNothing);
+    });
+
+    testWidgets('uses the KST month at a UTC month boundary', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestAppPage(
+          Material(
+            color: Colors.transparent,
+            child: UsagePolicyPopup(
+              // 2032-12-01 00:30 KST.
+              exampleReferenceDate: DateTime.utc(2032, 11, 30, 15, 30),
+            ),
+          ),
+          loggedIn: false,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('12월 10일 14:00(KST)'), findsOneWidget);
+      expect(find.text('1월 15일 00:00(KST)'), findsOneWidget);
+      expect(find.text('12월 20일 14:00(KST)'), findsOneWidget);
+      expect(find.text('2월 15일 00:00(KST)'), findsOneWidget);
+    });
   });
 
   group('bonusExpiringToday', () {

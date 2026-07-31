@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsAction;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
@@ -48,6 +50,27 @@ void main() {
       await tester.pump();
 
       expect(find.byIcon(Icons.close), findsOneWidget);
+    });
+
+    testWidgets('default close action has a localized button semantic', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const FullScreenDialog(child: Text('Content')),
+          loggedIn: false,
+        ),
+      );
+      await tester.pump();
+
+      final node = tester.getSemantics(find.bySemanticsLabel('닫기'));
+      final data = node.getSemanticsData();
+      expect(data.label, '닫기');
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.hasAction(SemanticsAction.tap), isTrue);
+      semantics.dispose();
     });
 
     testWidgets('shows custom close button when provided', (tester) async {

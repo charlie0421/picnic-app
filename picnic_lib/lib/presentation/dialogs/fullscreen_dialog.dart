@@ -81,20 +81,25 @@ class _FullScreenDialogState extends State<FullScreenDialog> {
   }
 
   Widget _buildCloseButton() {
-    return GestureDetector(
-      onTap: () {
-        if (context.mounted) {
-          Navigator.of(context).pop();
-        }
-      },
-      child: Container(
-        width: FullScreenDialogConstants.closeButtonSize,
-        height: FullScreenDialogConstants.closeButtonSize,
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.5),
-          shape: BoxShape.circle,
+    return Semantics(
+      label: MaterialLocalizations.of(context).closeButtonLabel,
+      button: true,
+      container: true,
+      child: GestureDetector(
+        onTap: () {
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: Container(
+          width: FullScreenDialogConstants.closeButtonSize,
+          height: FullScreenDialogConstants.closeButtonSize,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.5),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.close, color: Colors.white),
         ),
-        child: const Icon(Icons.close, color: Colors.white),
       ),
     );
   }

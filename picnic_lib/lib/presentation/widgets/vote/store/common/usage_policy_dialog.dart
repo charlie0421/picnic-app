@@ -12,6 +12,8 @@ import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 
+const _kstOffset = Duration(hours: 9);
+
 // ---------------------------------------------------------------------------
 // 이 파일 전용 헬퍼
 // ---------------------------------------------------------------------------
@@ -243,7 +245,7 @@ class UsagePolicyPopup extends ConsumerWidget {
             title: localizations.bonus_candy_example_title,
             children: _exampleChildren(
               context,
-              exampleReferenceDate ?? DateTime.now(),
+              (exampleReferenceDate ?? DateTime.now()).toUtc().add(_kstOffset),
             ),
           ),
           _hairline,
@@ -545,8 +547,11 @@ class UsagePolicyPopup extends ConsumerWidget {
   List<Widget> _exampleChildren(BuildContext context, DateTime now) {
     final l = AppLocalizations.of(context);
     final currentMonth = now.month.toString();
-    final nextMonth = (now.month % 12 + 1).toString();
-    final afterNextMonth = (now.month % 12 + 2).toString();
+    final nextMonth = DateTime.utc(now.year, now.month + 1).month.toString();
+    final afterNextMonth = DateTime.utc(
+      now.year,
+      now.month + 2,
+    ).month.toString();
 
     // 긴 토큰부터 치환한다.
     String fill(String raw) {
@@ -802,9 +807,7 @@ int bonusExpiringToday(
   DateTime? nowUtc,
 }) {
   if (expiringData == null) return 0;
-  final kstNow = (nowUtc ?? DateTime.now().toUtc()).add(
-    const Duration(hours: 9),
-  );
+  final kstNow = (nowUtc ?? DateTime.now().toUtc()).add(_kstOffset);
   if (kstNow.day != 15) return 0;
   final thisMonth =
       '${kstNow.year.toString().padLeft(4, '0')}-'
