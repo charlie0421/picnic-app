@@ -56,7 +56,7 @@ The centered-title test must fail if asymmetric right-only close-button space
 returns. The static-content test must fail if any section body is omitted
 until interaction.
 
-### Task 2: Replace disclosures with static sections
+#### Implement the centered title and static sections
 
 **Files:**
 - Modify: `picnic_lib/lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart`
@@ -153,7 +153,7 @@ git add \
 git commit -m "fix(store): show policy sections expanded"
 ```
 
-### Task 3: Replace interaction goldens with static-content goldens
+### Task 2: Replace interaction goldens with static-content goldens
 
 **Files:**
 - Modify: `picnic_lib/test/presentation/widgets/vote/store/common/usage_policy_dialog_golden_test.dart`
@@ -201,13 +201,13 @@ Inspect:
 Confirm the title is centered, every section is expanded, no section arrows
 remain, the close icon is correct, and small/large-text layouts scroll cleanly.
 
-### Task 4: Verify and update PR #127
+### Task 3: Verify and update PR #127
 
 **Files:**
 - Review all changed production, test, spec, plan, and golden files
 
 **Interfaces:**
-- Consumes: Tasks 1–3
+- Consumes: Tasks 1–2
 - Produces: reviewed and pushed PR update ready for user visual approval
 
 - [ ] **Step 1: Format and run scoped analysis**
