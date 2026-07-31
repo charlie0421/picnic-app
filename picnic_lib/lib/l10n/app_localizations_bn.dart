@@ -447,7 +447,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get label_hint_comment => 'একটি মন্তব্য দিন।';
 
   @override
-  String get label_home_current_vote => 'Current Vote';
+  String get label_home_current_vote => 'চলমান ভোট';
 
   @override
   String get label_input_input => 'Input';
@@ -638,7 +638,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get message_store_products_load_failed =>
-      'Couldn\'t load the store products. Please try again later.';
+      'পণ্যের তালিকা লোড করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পরে আবার চেষ্টা করুন।';
 
   @override
   String get message_vote_is_ended => 'পোল বন্ধ';
@@ -1151,7 +1151,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get jma_voting_exchange_failed_title => 'এক্সচেঞ্জ ব্যর্থ হয়েছে';
 
   @override
-  String get expiring_bonus_candy_guide => 'বোনাস গাইড মেয়াদোত্তীর্ণ';
+  String get expiring_bonus_candy_guide =>
+      'মেয়াদ শেষ হতে যাওয়া ক্যান্ডি নির্দেশিকা';
 
   @override
   String get qna_form_title_hint => 'কমপক্ষে 5 টি অক্ষরের একটি শিরোনাম লিখুন।';
@@ -1230,7 +1231,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_2 =>
-      '- স্টার ক্যান্ডি ব্যবহার করার সময়, নিকটতম মেয়াদোত্তীর্ণের তারিখ সহ বোনাস স্টার ক্যান্ডি প্রথমে কেটে নেওয়া হবে।';
+      '- ক্যান্ডি ব্যবহারের সময়, নিকটতম মেয়াদ শেষের তারিখ অনুযায়ী ক্রমান্বয়ে কাটা হয়। (কটন ক্যান্ডি -> বোনাস স্টার ক্যান্ডি -> স্টার ক্যান্ডি)';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -1265,7 +1266,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get purchase_payment_accepted_message =>
-      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+      'আপনার পেমেন্ট গৃহীত হয়েছে। প্রক্রিয়া শেষ হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে।\nঅনুগ্রহ করে আবার পেমেন্ট করবেন না।';
 
   @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
@@ -1285,7 +1286,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_3 =>
-      '- মেয়াদোত্তীর্ণ বোনাস স্টার ক্যান্ডি পুনরুদ্ধার করা যায় না, সুতরাং দয়া করে পিরিয়ডের মধ্যে এটি ব্যবহার করতে ভুলবেন না।';
+      '- মেয়াদোত্তীর্ণ ক্যান্ডি পুনরুদ্ধার করা যায় না, তাই নির্ধারিত সময়ের মধ্যে ব্যবহার করুন।';
 
   @override
   String get message_update_nickname_fail =>
@@ -1313,7 +1314,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get title_dialog_success => 'Success';
 
   @override
-  String get bonus_candy_policy_title => 'বোনাস তারকা ক্যান্ডি নীতি';
+  String get bonus_candy_policy_title => 'Picnic! ক্যান্ডি নীতি';
 
   @override
   String get bonus_candy_example_expiration_date => 'মেয়াদ শেষ হওয়ার তারিখ';
@@ -1410,7 +1411,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_1 =>
-      '- ফ্রি চার্জিং স্টেশন থেকে বোনাস তারকা ক্যান্ডির এবং ক্রয়ের থেকে বোনাস তারকা ক্যান্ডির মেয়াদ শেষ হওয়ার তারিখ রয়েছে।';
+      '- বোনাস স্টার ক্যান্ডি ও কটন ক্যান্ডির মেয়াদ শেষ হওয়ার তারিখ নির্ধারিত থাকে।';
 
   @override
   String get goonghap_perfect_score_exists_title => 'ইতিমধ্যে জিতেছে ডেটা মেলে';
@@ -1878,67 +1879,67 @@ class AppLocalizationsBn extends AppLocalizations {
   String get button_cs_inquiry => 'সাপোর্টের সাথে যোগাযোগ করুন';
 
   @override
-  String get wallet_star_candy => 'Star Candy';
+  String get wallet_star_candy => 'স্টার ক্যান্ডি';
 
   @override
-  String get wallet_bonus_star_candy => 'Bonus Star Candy';
+  String get wallet_bonus_star_candy => 'বোনাস স্টার ক্যান্ডি';
 
   @override
-  String get wallet_cotton_candy => 'Cotton Candy';
+  String get wallet_cotton_candy => 'কটন ক্যান্ডি';
 
   @override
   String wallet_cotton_expires_today(String amount) {
-    return 'Expires today: $amount';
+    return 'আজ মেয়াদ শেষ $amount';
   }
 
   @override
   String wallet_cotton_next_expiry(String date) {
-    return 'Next expiry: $date';
+    return 'পরবর্তী মেয়াদ শেষ $date';
   }
 
   @override
-  String get wallet_load_failed => 'Could not load wallet.';
+  String get wallet_load_failed => 'ওয়ালেট তথ্য লোড করা যায়নি।';
 
   @override
-  String get wallet_history_title => 'Candy history';
+  String get wallet_history_title => 'ক্যান্ডি ইতিহাস';
 
   @override
-  String get wallet_history_empty => 'No history yet.';
+  String get wallet_history_empty => 'এখনও কোনো ইতিহাস নেই।';
 
   @override
   String get candy_boost_day => 'Candy Boost Day';
 
   @override
-  String get candy_boost_exact_double => 'Base reward + 100% extra bonus';
+  String get candy_boost_exact_double => 'মূল পুরস্কার + অতিরিক্ত বোনাস 100%';
 
   @override
-  String get candy_boost_extra_bonus => 'Base reward + extra bonus';
+  String get candy_boost_extra_bonus => 'মূল পুরস্কার + অতিরিক্ত বোনাস';
 
   @override
-  String get candy_boost_promotion_checking => 'Promotion review in progress';
+  String get candy_boost_promotion_checking => 'প্রোমোশন যাচাই চলছে';
 
   @override
   String get candy_boost_purchase_pending =>
-      'A purchase for this product is already being processed.';
+      'এই পণ্যের একটি ক্রয় ইতিমধ্যে প্রক্রিয়াধীন রয়েছে।';
 
   @override
   String get candy_boost_late_purchase_explanation =>
-      'Authentication took longer than expected, but the purchase completed successfully.';
+      'প্রত্যাশার চেয়ে যাচাইকরণে বেশি সময় লেগেছে, তবে ক্রয়টি সফলভাবে সম্পন্ন হয়েছে।';
 
   @override
-  String get ad_reward_pending => 'Checking your reward';
+  String get ad_reward_pending => 'আপনার পুরস্কার যাচাই করা হচ্ছে';
 
   @override
-  String get ad_reward_granted => 'Cotton Candy received';
+  String get ad_reward_granted => 'কটন ক্যান্ডি পেয়েছেন';
 
   @override
-  String get ad_reward_not_granted => 'The reward was not granted';
+  String get ad_reward_not_granted => 'পুরস্কার দেওয়া হয়নি';
 
   @override
-  String get candy_reward_receipt_title => 'Candy added!';
+  String get candy_reward_receipt_title => 'ক্যান্ডি যোগ হয়েছে!';
 
   @override
-  String get candy_reward_receipt_confirm => 'Confirm';
+  String get candy_reward_receipt_confirm => 'নিশ্চিত করুন';
 
   @override
   String candy_reward_receipt_amount(String amount) {
@@ -1947,16 +1948,16 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String candy_reward_receipt_balance(String amount) {
-    return 'Current balance $amount';
+    return 'বর্তমান ব্যালেন্স $amount';
   }
 
   @override
   String get candy_reward_receipt_balance_unavailable =>
-      'Balance will refresh shortly';
+      'ব্যালেন্স শীঘ্রই আপডেট হবে';
 
   @override
   String candy_reward_receipt_expiry(String date) {
-    return 'Expires $date';
+    return 'মেয়াদ শেষ $date';
   }
 
   @override
@@ -1965,7 +1966,7 @@ class AppLocalizationsBn extends AppLocalizations {
     String granted,
     String balance,
   ) {
-    return '$currency, added $granted, current balance $balance';
+    return '$currency, যোগ হয়েছে $granted, বর্তমান ব্যালেন্স $balance';
   }
 
   @override
@@ -1973,7 +1974,7 @@ class AppLocalizationsBn extends AppLocalizations {
     String currency,
     String granted,
   ) {
-    return '$currency, added $granted, balance will refresh shortly';
+    return '$currency, যোগ হয়েছে $granted, ব্যালেন্স শীঘ্রই আপডেট হবে';
   }
 
   @override
@@ -1986,17 +1987,17 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String expiring_today_cotton_only(String cotton) {
-    return 'Expiring today: Cotton Candy $cotton';
+    return 'আজ মেয়াদ শেষ: কটন ক্যান্ডি $cotton';
   }
 
   @override
   String expiring_today_cotton_and_bonus(String cotton, String bonus) {
-    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+    return 'আজ মেয়াদ শেষ: কটন ক্যান্ডি $cotton + বোনাস স্টার ক্যান্ডি $bonus';
   }
 
   @override
   String get cotton_candy_daily_expiry_notice =>
-      'Expires daily at 00:00:00 (KST).';
+      'প্রতিদিন 00:00:00 (KST)-এ মেয়াদ শেষ হয়।';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -2442,6 +2443,9 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get label_hint_comment => 'একটি মন্তব্য দিন।';
 
   @override
+  String get label_home_current_vote => 'চলমান ভোট';
+
+  @override
   String get label_input_input => 'ইনপুট';
 
   @override
@@ -2627,6 +2631,10 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get message_pic_pic_save_success => 'চিত্রটি সংরক্ষণ করা হয়েছে।';
+
+  @override
+  String get message_store_products_load_failed =>
+      'পণ্যের তালিকা লোড করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পরে আবার চেষ্টা করুন।';
 
   @override
   String get message_vote_is_ended => 'পোল বন্ধ';
@@ -3140,7 +3148,8 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get jma_voting_exchange_failed_title => 'এক্সচেঞ্জ ব্যর্থ হয়েছে';
 
   @override
-  String get expiring_bonus_candy_guide => 'বোনাস গাইড মেয়াদোত্তীর্ণ';
+  String get expiring_bonus_candy_guide =>
+      'মেয়াদ শেষ হতে যাওয়া ক্যান্ডি নির্দেশিকা';
 
   @override
   String get qna_form_title_hint => 'কমপক্ষে 5 টি অক্ষরের একটি শিরোনাম লিখুন।';
@@ -3219,7 +3228,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get bonus_candy_policy_2 =>
-      '- স্টার ক্যান্ডি ব্যবহার করার সময়, নিকটতম মেয়াদোত্তীর্ণের তারিখ সহ বোনাস স্টার ক্যান্ডি প্রথমে কেটে নেওয়া হবে।';
+      '- ক্যান্ডি ব্যবহারের সময়, নিকটতম মেয়াদ শেষের তারিখ অনুযায়ী ক্রমান্বয়ে কাটা হয়। (কটন ক্যান্ডি -> বোনাস স্টার ক্যান্ডি -> স্টার ক্যান্ডি)';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -3254,7 +3263,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get purchase_payment_accepted_message =>
-      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+      'আপনার পেমেন্ট গৃহীত হয়েছে। প্রক্রিয়া শেষ হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে।\nঅনুগ্রহ করে আবার পেমেন্ট করবেন না।';
 
   @override
   String get label_tabbar_vote_upcoming => 'আসন্ন';
@@ -3274,7 +3283,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get bonus_candy_policy_3 =>
-      '- মেয়াদোত্তীর্ণ বোনাস স্টার ক্যান্ডি পুনরুদ্ধার করা যায় না, সুতরাং দয়া করে পিরিয়ডের মধ্যে এটি ব্যবহার করতে ভুলবেন না।';
+      '- মেয়াদোত্তীর্ণ ক্যান্ডি পুনরুদ্ধার করা যায় না, তাই নির্ধারিত সময়ের মধ্যে ব্যবহার করুন।';
 
   @override
   String get message_update_nickname_fail =>
@@ -3302,7 +3311,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get title_dialog_success => 'সাফল্য';
 
   @override
-  String get bonus_candy_policy_title => 'বোনাস তারকা ক্যান্ডি নীতি';
+  String get bonus_candy_policy_title => 'Picnic! ক্যান্ডি নীতি';
 
   @override
   String get bonus_candy_example_expiration_date => 'মেয়াদ শেষ হওয়ার তারিখ';
@@ -3399,7 +3408,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get bonus_candy_policy_1 =>
-      '- ফ্রি চার্জিং স্টেশন থেকে বোনাস তারকা ক্যান্ডির এবং ক্রয়ের থেকে বোনাস তারকা ক্যান্ডির মেয়াদ শেষ হওয়ার তারিখ রয়েছে।';
+      '- বোনাস স্টার ক্যান্ডি ও কটন ক্যান্ডির মেয়াদ শেষ হওয়ার তারিখ নির্ধারিত থাকে।';
 
   @override
   String get goonghap_perfect_score_exists_title => 'ইতিমধ্যে জিতেছে ডেটা মেলে';
@@ -3867,16 +3876,123 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get button_cs_inquiry => 'সাপোর্টের সাথে যোগাযোগ করুন';
 
   @override
+  String get wallet_star_candy => 'স্টার ক্যান্ডি';
+
+  @override
+  String get wallet_bonus_star_candy => 'বোনাস স্টার ক্যান্ডি';
+
+  @override
+  String get wallet_cotton_candy => 'কটন ক্যান্ডি';
+
+  @override
+  String wallet_cotton_expires_today(String amount) {
+    return 'আজ মেয়াদ শেষ $amount';
+  }
+
+  @override
+  String wallet_cotton_next_expiry(String date) {
+    return 'পরবর্তী মেয়াদ শেষ $date';
+  }
+
+  @override
+  String get wallet_load_failed => 'ওয়ালেট তথ্য লোড করা যায়নি।';
+
+  @override
+  String get wallet_history_title => 'ক্যান্ডি ইতিহাস';
+
+  @override
+  String get wallet_history_empty => 'এখনও কোনো ইতিহাস নেই।';
+
+  @override
+  String get candy_boost_day => 'Candy Boost Day';
+
+  @override
+  String get candy_boost_exact_double => 'মূল পুরস্কার + অতিরিক্ত বোনাস 100%';
+
+  @override
+  String get candy_boost_extra_bonus => 'মূল পুরস্কার + অতিরিক্ত বোনাস';
+
+  @override
+  String get candy_boost_promotion_checking => 'প্রোমোশন যাচাই চলছে';
+
+  @override
+  String get candy_boost_purchase_pending =>
+      'এই পণ্যের একটি ক্রয় ইতিমধ্যে প্রক্রিয়াধীন রয়েছে।';
+
+  @override
+  String get candy_boost_late_purchase_explanation =>
+      'প্রত্যাশার চেয়ে যাচাইকরণে বেশি সময় লেগেছে, তবে ক্রয়টি সফলভাবে সম্পন্ন হয়েছে।';
+
+  @override
+  String get ad_reward_pending => 'আপনার পুরস্কার যাচাই করা হচ্ছে';
+
+  @override
+  String get ad_reward_granted => 'কটন ক্যান্ডি পেয়েছেন';
+
+  @override
+  String get ad_reward_not_granted => 'পুরস্কার দেওয়া হয়নি';
+
+  @override
+  String get candy_reward_receipt_title => 'ক্যান্ডি যোগ হয়েছে!';
+
+  @override
+  String get candy_reward_receipt_confirm => 'নিশ্চিত করুন';
+
+  @override
+  String candy_reward_receipt_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String candy_reward_receipt_balance(String amount) {
+    return 'বর্তমান ব্যালেন্স $amount';
+  }
+
+  @override
+  String get candy_reward_receipt_balance_unavailable =>
+      'ব্যালেন্স শীঘ্রই আপডেট হবে';
+
+  @override
+  String candy_reward_receipt_expiry(String date) {
+    return 'মেয়াদ শেষ $date';
+  }
+
+  @override
+  String candy_reward_receipt_semantics(
+    String currency,
+    String granted,
+    String balance,
+  ) {
+    return '$currency, যোগ হয়েছে $granted, বর্তমান ব্যালেন্স $balance';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_balance_unavailable(
+    String currency,
+    String granted,
+  ) {
+    return '$currency, যোগ হয়েছে $granted, ব্যালেন্স শীঘ্রই আপডেট হবে';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_with_expiry(
+    String receipt,
+    String expiry,
+  ) {
+    return '$receipt, $expiry';
+  }
+
+  @override
   String expiring_today_cotton_only(String cotton) {
-    return 'Expiring today: Cotton Candy $cotton';
+    return 'আজ মেয়াদ শেষ: কটন ক্যান্ডি $cotton';
   }
 
   @override
   String expiring_today_cotton_and_bonus(String cotton, String bonus) {
-    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+    return 'আজ মেয়াদ শেষ: কটন ক্যান্ডি $cotton + বোনাস স্টার ক্যান্ডি $bonus';
   }
 
   @override
   String get cotton_candy_daily_expiry_notice =>
-      'Expires daily at 00:00:00 (KST).';
+      'প্রতিদিন 00:00:00 (KST)-এ মেয়াদ শেষ হয়।';
 }

@@ -445,7 +445,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_hint_comment => 'Để lại một bình luận.';
 
   @override
-  String get label_home_current_vote => 'Current Vote';
+  String get label_home_current_vote => 'Bình chọn đang diễn ra';
 
   @override
   String get label_input_input => 'Đầu vào';
@@ -639,7 +639,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get message_store_products_load_failed =>
-      'Couldn\'t load the store products. Please try again later.';
+      'Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.';
 
   @override
   String get message_vote_is_ended => 'Cuộc thăm dò ý kiến ​​đóng cửa';
@@ -1153,7 +1153,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get jma_voting_exchange_failed_title => 'Trao đổi thất bại';
 
   @override
-  String get expiring_bonus_candy_guide => 'Hướng dẫn tiền thưởng hết hạn';
+  String get expiring_bonus_candy_guide => 'Hướng dẫn về Candy sắp hết hạn';
 
   @override
   String get qna_form_title_hint =>
@@ -1232,7 +1232,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_2 =>
-      '- Khi sử dụng Star Candy, Candy Star Bonus với ngày hết hạn gần nhất sẽ được khấu trừ trước.';
+      '- Khi sử dụng, Candy sẽ bị trừ theo thứ tự ngày hết hạn gần nhất. (Cotton Candy -> Bonus Star Candy -> Star Candy)';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -1267,7 +1267,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get purchase_payment_accepted_message =>
-      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+      'Đã nhận được thanh toán của bạn. Star Candy sẽ tự động được cộng sau khi xử lý hoàn tất.\nVui lòng không thanh toán lại.';
 
   @override
   String get label_tabbar_vote_upcoming => 'Sắp tới';
@@ -1287,7 +1287,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_3 =>
-      '- Candy Star Star Star hết hạn không thể được phục hồi, vì vậy hãy chắc chắn sử dụng nó trong khoảng thời gian.';
+      '- Candy đã hết hạn không thể khôi phục, vui lòng sử dụng trong thời hạn.';
 
   @override
   String get message_update_nickname_fail =>
@@ -1316,7 +1316,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get title_dialog_success => 'Thành công';
 
   @override
-  String get bonus_candy_policy_title => 'Chính sách kẹo ngôi sao tiền thưởng';
+  String get bonus_candy_policy_title => 'Chính sách Candy của Picnic!';
 
   @override
   String get bonus_candy_example_expiration_date => 'Ngày hết hạn';
@@ -1417,7 +1417,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_1 =>
-      '- Bonus Star Candy từ các trạm sạc miễn phí và tiền thưởng Star Candy từ các giao dịch mua có ngày hết hạn.';
+      '- Bonus Star Candy và Cotton Candy đều có thời hạn sử dụng.';
 
   @override
   String get goonghap_perfect_score_exists_title => 'Đã thắng dữ liệu phù hợp';
@@ -1894,57 +1894,57 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String wallet_cotton_expires_today(String amount) {
-    return 'Expires today: $amount';
+    return 'Hết hạn hôm nay $amount';
   }
 
   @override
   String wallet_cotton_next_expiry(String date) {
-    return 'Next expiry: $date';
+    return 'Lần hết hạn tiếp theo $date';
   }
 
   @override
-  String get wallet_load_failed => 'Could not load wallet.';
+  String get wallet_load_failed => 'Không thể tải thông tin ví.';
 
   @override
-  String get wallet_history_title => 'Candy history';
+  String get wallet_history_title => 'Lịch sử Candy';
 
   @override
-  String get wallet_history_empty => 'No history yet.';
+  String get wallet_history_empty => 'Chưa có lịch sử.';
 
   @override
   String get candy_boost_day => 'Candy Boost Day';
 
   @override
-  String get candy_boost_exact_double => 'Base reward + 100% extra bonus';
+  String get candy_boost_exact_double => 'Thưởng cơ bản + thưởng thêm 100%';
 
   @override
-  String get candy_boost_extra_bonus => 'Base reward + extra bonus';
+  String get candy_boost_extra_bonus => 'Thưởng cơ bản + thưởng thêm';
 
   @override
-  String get candy_boost_promotion_checking => 'Promotion review in progress';
+  String get candy_boost_promotion_checking => 'Đang kiểm tra khuyến mãi';
 
   @override
   String get candy_boost_purchase_pending =>
-      'A purchase for this product is already being processed.';
+      'Giao dịch mua sản phẩm này đang được xử lý.';
 
   @override
   String get candy_boost_late_purchase_explanation =>
-      'Authentication took longer than expected, but the purchase completed successfully.';
+      'Xác thực mất nhiều thời gian hơn dự kiến, nhưng giao dịch mua đã hoàn tất thành công.';
 
   @override
-  String get ad_reward_pending => 'Checking your reward';
+  String get ad_reward_pending => 'Đang kiểm tra phần thưởng của bạn';
 
   @override
-  String get ad_reward_granted => 'Cotton Candy received';
+  String get ad_reward_granted => 'Đã nhận Cotton Candy';
 
   @override
-  String get ad_reward_not_granted => 'The reward was not granted';
+  String get ad_reward_not_granted => 'Phần thưởng chưa được trao';
 
   @override
-  String get candy_reward_receipt_title => 'Candy added!';
+  String get candy_reward_receipt_title => 'Đã cộng Candy!';
 
   @override
-  String get candy_reward_receipt_confirm => 'Confirm';
+  String get candy_reward_receipt_confirm => 'Xác nhận';
 
   @override
   String candy_reward_receipt_amount(String amount) {
@@ -1953,16 +1953,16 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String candy_reward_receipt_balance(String amount) {
-    return 'Current balance $amount';
+    return 'Số dư hiện tại $amount';
   }
 
   @override
   String get candy_reward_receipt_balance_unavailable =>
-      'Balance will refresh shortly';
+      'Số dư sẽ sớm được cập nhật';
 
   @override
   String candy_reward_receipt_expiry(String date) {
-    return 'Expires $date';
+    return 'Hết hạn $date';
   }
 
   @override
@@ -1971,7 +1971,7 @@ class AppLocalizationsVi extends AppLocalizations {
     String granted,
     String balance,
   ) {
-    return '$currency, added $granted, current balance $balance';
+    return '$currency, đã cộng $granted, số dư hiện tại $balance';
   }
 
   @override
@@ -1979,7 +1979,7 @@ class AppLocalizationsVi extends AppLocalizations {
     String currency,
     String granted,
   ) {
-    return '$currency, added $granted, balance will refresh shortly';
+    return '$currency, đã cộng $granted, số dư sẽ sớm được cập nhật';
   }
 
   @override
@@ -1992,15 +1992,15 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String expiring_today_cotton_only(String cotton) {
-    return 'Expiring today: Cotton Candy $cotton';
+    return 'Hết hạn hôm nay: Cotton Candy $cotton';
   }
 
   @override
   String expiring_today_cotton_and_bonus(String cotton, String bonus) {
-    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+    return 'Hết hạn hôm nay: Cotton Candy $cotton + Bonus Star Candy $bonus';
   }
 
   @override
   String get cotton_candy_daily_expiry_notice =>
-      'Expires daily at 00:00:00 (KST).';
+      'Hết hạn vào 00:00:00 (KST) mỗi ngày.';
 }

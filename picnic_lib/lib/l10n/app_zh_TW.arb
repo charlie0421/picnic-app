@@ -559,6 +559,10 @@
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
+  "label_home_current_vote": "目前進行中的投票",
+  "@label_home_current_vote": {
+    "description": "Auto-generated metadata for key 'label_home_current_vote'."
+  },
   "label_input_input": "輸入",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
@@ -811,6 +815,7 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
+  "message_store_products_load_failed": "無法載入商品清單，請稍後再試。",
   "message_vote_is_ended": "投票結束",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1463,7 +1468,7 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "即將失效獎勵說明",
+  "expiring_bonus_candy_guide": "即將失效糖果說明",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
@@ -1558,7 +1563,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- 使用星星糖時，將從臨近失效日期的獎勵星星糖開始依次扣除。",
+  "bonus_candy_policy_2": "- 使用糖果時，將按失效日期臨近的順序依次扣除。（棉花糖->獎勵星星糖->星星糖）",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1602,7 +1607,7 @@
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
-  "purchase_payment_accepted_message": "Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.",
+  "purchase_payment_accepted_message": "已收到您的付款。處理完成後，星星糖將自動入帳。\n請勿重複付款。",
   "@purchase_payment_accepted_message": {
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
@@ -1626,7 +1631,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- 已失效的獎勵星星糖無法恢復，請務必在期限內使用。",
+  "bonus_candy_policy_3": "- 已失效的糖果無法恢復，請務必在期限內使用。",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1662,7 +1667,7 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "獎勵星星糖政策",
+  "bonus_candy_policy_title": "Picnic! 糖果政策",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
@@ -1785,7 +1790,7 @@
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- 透過免費充值站獲得的獎勵星星糖，以及購買時額外贈送的獎勵星星糖，均設有失效期限。",
+  "bonus_candy_policy_1": "- 獎勵星星糖和棉花糖均設有失效期限。",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -2376,7 +2381,103 @@
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
   },
-  "expiring_today_cotton_only": "Expiring today: Cotton Candy {cotton}",
+  "wallet_star_candy": "星星糖",
+  "wallet_bonus_star_candy": "獎勵星星糖",
+  "wallet_cotton_candy": "棉花糖",
+  "wallet_cotton_expires_today": "今日失效 {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "Cotton Candy amount that expires today from the server wallet snapshot",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_cotton_next_expiry": "下次失效 {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "Next Cotton Candy expiry from the server wallet snapshot",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_load_failed": "無法載入錢包資訊。",
+  "wallet_history_title": "糖果紀錄",
+  "wallet_history_empty": "尚無紀錄。",
+  "candy_boost_day": "糖果加倍日",
+  "candy_boost_exact_double": "基礎發放 + 額外獎勵100%",
+  "candy_boost_extra_bonus": "基礎發放 + 額外獎勵",
+  "candy_boost_promotion_checking": "正在確認促銷活動",
+  "candy_boost_purchase_pending": "同一商品的購買正在處理中。",
+  "candy_boost_late_purchase_explanation": "認證耗時比預期長，但購買已正常完成。",
+  "ad_reward_pending": "正在確認獎勵",
+  "ad_reward_granted": "已獲得棉花糖",
+  "ad_reward_not_granted": "獎勵未發放",
+  "candy_reward_receipt_title": "糖果已入帳！",
+  "candy_reward_receipt_confirm": "確認",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance": "目前持有 {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance_unavailable": "餘額稍後將自動更新",
+  "candy_reward_receipt_expiry": "{date} 失效",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics": "{currency}，發放 {granted}，目前持有 {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}，發放 {granted}，餘額稍後更新",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}，{expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_only": "今日失效：棉花糖 {cotton}",
   "@expiring_today_cotton_only": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
     "placeholders": {
@@ -2385,7 +2486,7 @@
       }
     }
   },
-  "expiring_today_cotton_and_bonus": "Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
+  "expiring_today_cotton_and_bonus": "今日失效：棉花糖 {cotton} + 獎勵星星糖 {bonus}",
   "@expiring_today_cotton_and_bonus": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
     "placeholders": {
@@ -2397,7 +2498,7 @@
       }
     }
   },
-  "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
+  "cotton_candy_daily_expiry_notice": "每天 00:00:00（KST）失效。",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }

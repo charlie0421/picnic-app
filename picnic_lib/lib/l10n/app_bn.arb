@@ -741,6 +741,10 @@
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
+  "label_home_current_vote": "চলমান ভোট",
+  "@label_home_current_vote": {
+    "description": "Auto-generated metadata for key 'label_home_current_vote'."
+  },
   "label_input_input": "Input",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
@@ -989,6 +993,7 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
+  "message_store_products_load_failed": "পণ্যের তালিকা লোড করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পরে আবার চেষ্টা করুন।",
   "message_vote_is_ended": "পোল বন্ধ",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1625,7 +1630,7 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "বোনাস গাইড মেয়াদোত্তীর্ণ",
+  "expiring_bonus_candy_guide": "মেয়াদ শেষ হতে যাওয়া ক্যান্ডি নির্দেশিকা",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
@@ -1728,7 +1733,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- স্টার ক্যান্ডি ব্যবহার করার সময়, নিকটতম মেয়াদোত্তীর্ণের তারিখ সহ বোনাস স্টার ক্যান্ডি প্রথমে কেটে নেওয়া হবে।",
+  "bonus_candy_policy_2": "- ক্যান্ডি ব্যবহারের সময়, নিকটতম মেয়াদ শেষের তারিখ অনুযায়ী ক্রমান্বয়ে কাটা হয়। (কটন ক্যান্ডি -> বোনাস স্টার ক্যান্ডি -> স্টার ক্যান্ডি)",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1772,7 +1777,7 @@
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
-  "purchase_payment_accepted_message": "Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.",
+  "purchase_payment_accepted_message": "আপনার পেমেন্ট গৃহীত হয়েছে। প্রক্রিয়া শেষ হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে।\nঅনুগ্রহ করে আবার পেমেন্ট করবেন না।",
   "@purchase_payment_accepted_message": {
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
@@ -1796,7 +1801,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- মেয়াদোত্তীর্ণ বোনাস স্টার ক্যান্ডি পুনরুদ্ধার করা যায় না, সুতরাং দয়া করে পিরিয়ডের মধ্যে এটি ব্যবহার করতে ভুলবেন না।",
+  "bonus_candy_policy_3": "- মেয়াদোত্তীর্ণ ক্যান্ডি পুনরুদ্ধার করা যায় না, তাই নির্ধারিত সময়ের মধ্যে ব্যবহার করুন।",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1832,7 +1837,7 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "বোনাস তারকা ক্যান্ডি নীতি",
+  "bonus_candy_policy_title": "Picnic! ক্যান্ডি নীতি",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
@@ -1955,7 +1960,7 @@
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- ফ্রি চার্জিং স্টেশন থেকে বোনাস তারকা ক্যান্ডির এবং ক্রয়ের থেকে বোনাস তারকা ক্যান্ডির মেয়াদ শেষ হওয়ার তারিখ রয়েছে।",
+  "bonus_candy_policy_1": "- বোনাস স্টার ক্যান্ডি ও কটন ক্যান্ডির মেয়াদ শেষ হওয়ার তারিখ নির্ধারিত থাকে।",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -2372,7 +2377,103 @@
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
   },
-  "expiring_today_cotton_only": "Expiring today: Cotton Candy {cotton}",
+  "wallet_star_candy": "স্টার ক্যান্ডি",
+  "wallet_bonus_star_candy": "বোনাস স্টার ক্যান্ডি",
+  "wallet_cotton_candy": "কটন ক্যান্ডি",
+  "wallet_cotton_expires_today": "আজ মেয়াদ শেষ {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "Cotton Candy amount that expires today from the server wallet snapshot",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_cotton_next_expiry": "পরবর্তী মেয়াদ শেষ {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "Next Cotton Candy expiry from the server wallet snapshot",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_load_failed": "ওয়ালেট তথ্য লোড করা যায়নি।",
+  "wallet_history_title": "ক্যান্ডি ইতিহাস",
+  "wallet_history_empty": "এখনও কোনো ইতিহাস নেই।",
+  "candy_boost_day": "Candy Boost Day",
+  "candy_boost_exact_double": "মূল পুরস্কার + অতিরিক্ত বোনাস 100%",
+  "candy_boost_extra_bonus": "মূল পুরস্কার + অতিরিক্ত বোনাস",
+  "candy_boost_promotion_checking": "প্রোমোশন যাচাই চলছে",
+  "candy_boost_purchase_pending": "এই পণ্যের একটি ক্রয় ইতিমধ্যে প্রক্রিয়াধীন রয়েছে।",
+  "candy_boost_late_purchase_explanation": "প্রত্যাশার চেয়ে যাচাইকরণে বেশি সময় লেগেছে, তবে ক্রয়টি সফলভাবে সম্পন্ন হয়েছে।",
+  "ad_reward_pending": "আপনার পুরস্কার যাচাই করা হচ্ছে",
+  "ad_reward_granted": "কটন ক্যান্ডি পেয়েছেন",
+  "ad_reward_not_granted": "পুরস্কার দেওয়া হয়নি",
+  "candy_reward_receipt_title": "ক্যান্ডি যোগ হয়েছে!",
+  "candy_reward_receipt_confirm": "নিশ্চিত করুন",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance": "বর্তমান ব্যালেন্স {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance_unavailable": "ব্যালেন্স শীঘ্রই আপডেট হবে",
+  "candy_reward_receipt_expiry": "মেয়াদ শেষ {date}",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics": "{currency}, যোগ হয়েছে {granted}, বর্তমান ব্যালেন্স {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}, যোগ হয়েছে {granted}, ব্যালেন্স শীঘ্রই আপডেট হবে",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}, {expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_only": "আজ মেয়াদ শেষ: কটন ক্যান্ডি {cotton}",
   "@expiring_today_cotton_only": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
     "placeholders": {
@@ -2381,7 +2482,7 @@
       }
     }
   },
-  "expiring_today_cotton_and_bonus": "Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
+  "expiring_today_cotton_and_bonus": "আজ মেয়াদ শেষ: কটন ক্যান্ডি {cotton} + বোনাস স্টার ক্যান্ডি {bonus}",
   "@expiring_today_cotton_and_bonus": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
     "placeholders": {
@@ -2393,7 +2494,7 @@
       }
     }
   },
-  "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
+  "cotton_candy_daily_expiry_notice": "প্রতিদিন 00:00:00 (KST)-এ মেয়াদ শেষ হয়।",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }

@@ -440,7 +440,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get label_hint_comment => 'แสดงความคิดเห็น';
 
   @override
-  String get label_home_current_vote => 'Current Vote';
+  String get label_home_current_vote => 'โหวตที่กำลังดำเนินอยู่';
 
   @override
   String get label_input_input => 'ป้อนข้อมูล';
@@ -633,7 +633,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get message_store_products_load_failed =>
-      'Couldn\'t load the store products. Please try again later.';
+      'ไม่สามารถโหลดรายการสินค้าได้ กรุณาลองใหม่อีกครั้งภายหลัง';
 
   @override
   String get message_vote_is_ended => 'แบบสำรวจปิด';
@@ -1139,7 +1139,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get jma_voting_exchange_failed_title => 'การแลกเปลี่ยนล้มเหลว';
 
   @override
-  String get expiring_bonus_candy_guide => 'คู่มือโบนัสที่หมดอายุ';
+  String get expiring_bonus_candy_guide => 'คำแนะนำลูกอมที่ใกล้หมดอายุ';
 
   @override
   String get qna_form_title_hint => 'โปรดป้อนชื่ออย่างน้อย 5 อักขระ';
@@ -1216,7 +1216,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_2 =>
-      '- เมื่อใช้ลูกอมดาวลูกอมโบนัสดาวที่มีวันหมดอายุที่ใกล้ที่สุดจะถูกหักก่อน';
+      '- เมื่อใช้ลูกอม ระบบจะหักตามลำดับวันหมดอายุที่ใกล้ที่สุดก่อน (ลูกอมสายไหม -> ลูกอมดาวโบนัส -> ลูกอมดาว)';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -1250,7 +1250,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get purchase_payment_accepted_message =>
-      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+      'ได้รับการชำระเงินของคุณแล้ว ลูกอมดาวจะเข้าบัญชีโดยอัตโนมัติเมื่อประมวลผลเสร็จสิ้น\nกรุณาอย่าชำระเงินซ้ำ';
 
   @override
   String get label_tabbar_vote_upcoming => 'ที่กำลังจะมาถึง';
@@ -1270,7 +1270,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_3 =>
-      '- ไม่สามารถกู้คืนลูกอมดาวโบนัสที่หมดอายุได้ดังนั้นโปรดตรวจสอบให้แน่ใจว่าได้ใช้ภายในระยะเวลา';
+      '- ลูกอมที่หมดอายุแล้วไม่สามารถกู้คืนได้ กรุณาใช้ภายในระยะเวลาที่กำหนด';
 
   @override
   String get message_update_nickname_fail =>
@@ -1299,7 +1299,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get title_dialog_success => 'ความสำเร็จ';
 
   @override
-  String get bonus_candy_policy_title => 'นโยบายลูกอมโบนัสดาว';
+  String get bonus_candy_policy_title => 'นโยบายลูกอมของ Picnic!';
 
   @override
   String get bonus_candy_example_expiration_date => 'วันหมดอายุ';
@@ -1395,7 +1395,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_1 =>
-      '- ขนมโบนัสดาวจากสถานีชาร์จฟรีและลูกอมโบนัสดาวจากการซื้อมีวันหมดอายุ';
+      '- ลูกอมดาวโบนัสและลูกอมสายไหมมีวันหมดอายุ';
 
   @override
   String get goonghap_perfect_score_exists_title => 'ชนะข้อมูลการจับคู่แล้ว';
@@ -1855,67 +1855,67 @@ class AppLocalizationsTh extends AppLocalizations {
   String get button_cs_inquiry => 'ติดต่อฝ่ายสนับสนุน';
 
   @override
-  String get wallet_star_candy => 'Star Candy';
+  String get wallet_star_candy => 'ลูกอมดาว';
 
   @override
-  String get wallet_bonus_star_candy => 'Bonus Star Candy';
+  String get wallet_bonus_star_candy => 'ลูกอมดาวโบนัส';
 
   @override
-  String get wallet_cotton_candy => 'Cotton Candy';
+  String get wallet_cotton_candy => 'ลูกอมสายไหม';
 
   @override
   String wallet_cotton_expires_today(String amount) {
-    return 'Expires today: $amount';
+    return 'หมดอายุวันนี้ $amount';
   }
 
   @override
   String wallet_cotton_next_expiry(String date) {
-    return 'Next expiry: $date';
+    return 'หมดอายุครั้งถัดไป $date';
   }
 
   @override
-  String get wallet_load_failed => 'Could not load wallet.';
+  String get wallet_load_failed => 'ไม่สามารถโหลดข้อมูลกระเป๋าได้';
 
   @override
-  String get wallet_history_title => 'Candy history';
+  String get wallet_history_title => 'ประวัติลูกอม';
 
   @override
-  String get wallet_history_empty => 'No history yet.';
+  String get wallet_history_empty => 'ยังไม่มีประวัติ';
 
   @override
   String get candy_boost_day => 'Candy Boost Day';
 
   @override
-  String get candy_boost_exact_double => 'Base reward + 100% extra bonus';
+  String get candy_boost_exact_double => 'รางวัลพื้นฐาน + โบนัสเพิ่ม 100%';
 
   @override
-  String get candy_boost_extra_bonus => 'Base reward + extra bonus';
+  String get candy_boost_extra_bonus => 'รางวัลพื้นฐาน + โบนัสเพิ่ม';
 
   @override
-  String get candy_boost_promotion_checking => 'Promotion review in progress';
+  String get candy_boost_promotion_checking => 'กำลังตรวจสอบโปรโมชั่น';
 
   @override
   String get candy_boost_purchase_pending =>
-      'A purchase for this product is already being processed.';
+      'มีการซื้อสินค้านี้ที่กำลังประมวลผลอยู่แล้ว';
 
   @override
   String get candy_boost_late_purchase_explanation =>
-      'Authentication took longer than expected, but the purchase completed successfully.';
+      'การยืนยันตัวตนใช้เวลานานกว่าที่คาดไว้ แต่การซื้อเสร็จสมบูรณ์แล้ว';
 
   @override
-  String get ad_reward_pending => 'Checking your reward';
+  String get ad_reward_pending => 'กำลังตรวจสอบรางวัลของคุณ';
 
   @override
-  String get ad_reward_granted => 'Cotton Candy received';
+  String get ad_reward_granted => 'ได้รับลูกอมสายไหมแล้ว';
 
   @override
-  String get ad_reward_not_granted => 'The reward was not granted';
+  String get ad_reward_not_granted => 'ไม่มีการมอบรางวัล';
 
   @override
-  String get candy_reward_receipt_title => 'Candy added!';
+  String get candy_reward_receipt_title => 'เพิ่มลูกอมแล้ว!';
 
   @override
-  String get candy_reward_receipt_confirm => 'Confirm';
+  String get candy_reward_receipt_confirm => 'ยืนยัน';
 
   @override
   String candy_reward_receipt_amount(String amount) {
@@ -1924,16 +1924,16 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String candy_reward_receipt_balance(String amount) {
-    return 'Current balance $amount';
+    return 'ยอดคงเหลือปัจจุบัน $amount';
   }
 
   @override
   String get candy_reward_receipt_balance_unavailable =>
-      'Balance will refresh shortly';
+      'ยอดคงเหลือจะอัปเดตในไม่ช้า';
 
   @override
   String candy_reward_receipt_expiry(String date) {
-    return 'Expires $date';
+    return 'หมดอายุ $date';
   }
 
   @override
@@ -1942,7 +1942,7 @@ class AppLocalizationsTh extends AppLocalizations {
     String granted,
     String balance,
   ) {
-    return '$currency, added $granted, current balance $balance';
+    return '$currency, เพิ่ม $granted, ยอดคงเหลือปัจจุบัน $balance';
   }
 
   @override
@@ -1950,7 +1950,7 @@ class AppLocalizationsTh extends AppLocalizations {
     String currency,
     String granted,
   ) {
-    return '$currency, added $granted, balance will refresh shortly';
+    return '$currency, เพิ่ม $granted, ยอดคงเหลือจะอัปเดตในไม่ช้า';
   }
 
   @override
@@ -1963,15 +1963,15 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String expiring_today_cotton_only(String cotton) {
-    return 'Expiring today: Cotton Candy $cotton';
+    return 'หมดอายุวันนี้: ลูกอมสายไหม $cotton';
   }
 
   @override
   String expiring_today_cotton_and_bonus(String cotton, String bonus) {
-    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+    return 'หมดอายุวันนี้: ลูกอมสายไหม $cotton + ลูกอมดาวโบนัส $bonus';
   }
 
   @override
   String get cotton_candy_daily_expiry_notice =>
-      'Expires daily at 00:00:00 (KST).';
+      'หมดอายุทุกวันเวลา 00:00:00 น. (KST)';
 }

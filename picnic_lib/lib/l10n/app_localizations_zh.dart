@@ -429,7 +429,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_hint_comment => '发表评论。';
 
   @override
-  String get label_home_current_vote => 'Current Vote';
+  String get label_home_current_vote => '当前进行中的投票';
 
   @override
   String get label_input_input => 'Input';
@@ -619,8 +619,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get message_pic_pic_save_success => '图像已保存。';
 
   @override
-  String get message_store_products_load_failed =>
-      'Couldn\'t load the store products. Please try again later.';
+  String get message_store_products_load_failed => '无法加载商品列表，请稍后再试。';
 
   @override
   String get message_vote_is_ended => '投票结束';
@@ -1108,7 +1107,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get jma_voting_exchange_failed_title => '兑换失败';
 
   @override
-  String get expiring_bonus_candy_guide => '即将失效奖励说明';
+  String get expiring_bonus_candy_guide => '即将失效糖果说明';
 
   @override
   String get qna_form_title_hint => '请输入至少5个字的标题。';
@@ -1182,7 +1181,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vote_item_request_status_in_progress => 'In Progress';
 
   @override
-  String get bonus_candy_policy_2 => '- 使用星星糖时，将从临近失效日期的奖励星星糖开始依次扣除。';
+  String get bonus_candy_policy_2 =>
+      '- 使用糖果时，将按失效日期临近的顺序依次扣除。（棉花糖->奖励星星糖->星星糖）';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -1215,7 +1215,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get purchase_payment_accepted_message =>
-      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+      '已收到您的付款。处理完成后，星星糖将自动到账。\n请勿重复付款。';
 
   @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
@@ -1233,7 +1233,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get post_write_board_post => '创建一个职位';
 
   @override
-  String get bonus_candy_policy_3 => '- 已失效的奖励星星糖无法恢复，请务必在期限内使用。';
+  String get bonus_candy_policy_3 => '- 已失效的糖果无法恢复，请务必在期限内使用。';
 
   @override
   String get message_update_nickname_fail => '昵称更改失败。\n请选择其他昵称。';
@@ -1260,7 +1260,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get title_dialog_success => 'Success';
 
   @override
-  String get bonus_candy_policy_title => '奖励星星糖政策';
+  String get bonus_candy_policy_title => 'Picnic! 糖果政策';
 
   @override
   String get bonus_candy_example_expiration_date => '失效日期';
@@ -1349,8 +1349,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get jma_voting_daily_limit_exhausted => '今天的奖励投票次数已全部用完。';
 
   @override
-  String get bonus_candy_policy_1 =>
-      '- 通过免费充值站获得的奖励星星糖，以及购买时额外赠送的奖励星星糖，均设有失效期限。';
+  String get bonus_candy_policy_1 => '- 奖励星星糖和棉花糖均设有失效期限。';
 
   @override
   String get goonghap_perfect_score_exists_title => '已获胜比赛数据';
@@ -1779,67 +1778,65 @@ class AppLocalizationsZh extends AppLocalizations {
   String get button_cs_inquiry => '联系客服';
 
   @override
-  String get wallet_star_candy => 'Star Candy';
+  String get wallet_star_candy => '星星糖';
 
   @override
-  String get wallet_bonus_star_candy => 'Bonus Star Candy';
+  String get wallet_bonus_star_candy => '奖励星星糖';
 
   @override
-  String get wallet_cotton_candy => 'Cotton Candy';
+  String get wallet_cotton_candy => '棉花糖';
 
   @override
   String wallet_cotton_expires_today(String amount) {
-    return 'Expires today: $amount';
+    return '今日失效 $amount';
   }
 
   @override
   String wallet_cotton_next_expiry(String date) {
-    return 'Next expiry: $date';
+    return '下次失效 $date';
   }
 
   @override
-  String get wallet_load_failed => 'Could not load wallet.';
+  String get wallet_load_failed => '无法加载钱包信息。';
 
   @override
-  String get wallet_history_title => 'Candy history';
+  String get wallet_history_title => '糖果记录';
 
   @override
-  String get wallet_history_empty => 'No history yet.';
+  String get wallet_history_empty => '暂无记录。';
 
   @override
-  String get candy_boost_day => 'Candy Boost Day';
+  String get candy_boost_day => '糖果加倍日';
 
   @override
-  String get candy_boost_exact_double => 'Base reward + 100% extra bonus';
+  String get candy_boost_exact_double => '基础发放 + 额外奖励100%';
 
   @override
-  String get candy_boost_extra_bonus => 'Base reward + extra bonus';
+  String get candy_boost_extra_bonus => '基础发放 + 额外奖励';
 
   @override
-  String get candy_boost_promotion_checking => 'Promotion review in progress';
+  String get candy_boost_promotion_checking => '正在确认促销活动';
 
   @override
-  String get candy_boost_purchase_pending =>
-      'A purchase for this product is already being processed.';
+  String get candy_boost_purchase_pending => '同一商品的购买正在处理中。';
 
   @override
-  String get candy_boost_late_purchase_explanation =>
-      'Authentication took longer than expected, but the purchase completed successfully.';
+  String get candy_boost_late_purchase_explanation => '认证耗时比预期长，但购买已正常完成。';
 
   @override
-  String get ad_reward_pending => 'Checking your reward';
+  String get ad_reward_pending => '正在确认奖励';
 
   @override
-  String get ad_reward_granted => 'Cotton Candy received';
+  String get ad_reward_granted => '已获得棉花糖';
 
   @override
-  String get ad_reward_not_granted => 'The reward was not granted';
+  String get ad_reward_not_granted => '奖励未发放';
 
   @override
-  String get candy_reward_receipt_title => 'Candy added!';
+  String get candy_reward_receipt_title => '糖果已到账！';
 
   @override
-  String get candy_reward_receipt_confirm => 'Confirm';
+  String get candy_reward_receipt_confirm => '确认';
 
   @override
   String candy_reward_receipt_amount(String amount) {
@@ -1848,16 +1845,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String candy_reward_receipt_balance(String amount) {
-    return 'Current balance $amount';
+    return '当前持有 $amount';
   }
 
   @override
-  String get candy_reward_receipt_balance_unavailable =>
-      'Balance will refresh shortly';
+  String get candy_reward_receipt_balance_unavailable => '余额稍后将自动更新';
 
   @override
   String candy_reward_receipt_expiry(String date) {
-    return 'Expires $date';
+    return '$date 失效';
   }
 
   @override
@@ -1866,7 +1862,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String granted,
     String balance,
   ) {
-    return '$currency, added $granted, current balance $balance';
+    return '$currency，发放 $granted，当前持有 $balance';
   }
 
   @override
@@ -1874,7 +1870,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String currency,
     String granted,
   ) {
-    return '$currency, added $granted, balance will refresh shortly';
+    return '$currency，发放 $granted，余额稍后更新';
   }
 
   @override
@@ -1882,22 +1878,21 @@ class AppLocalizationsZh extends AppLocalizations {
     String receipt,
     String expiry,
   ) {
-    return '$receipt, $expiry';
+    return '$receipt，$expiry';
   }
 
   @override
   String expiring_today_cotton_only(String cotton) {
-    return 'Expiring today: Cotton Candy $cotton';
+    return '今日失效：棉花糖 $cotton';
   }
 
   @override
   String expiring_today_cotton_and_bonus(String cotton, String bonus) {
-    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+    return '今日失效：棉花糖 $cotton + 奖励星星糖 $bonus';
   }
 
   @override
-  String get cotton_candy_daily_expiry_notice =>
-      'Expires daily at 00:00:00 (KST).';
+  String get cotton_candy_daily_expiry_notice => '每天 00:00:00（KST）失效。';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -2325,6 +2320,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get label_hint_comment => '发表评论。';
 
   @override
+  String get label_home_current_vote => '当前进行中的投票';
+
+  @override
   String get label_input_input => '输入';
 
   @override
@@ -2510,6 +2508,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get message_pic_pic_save_success => '图像已保存。';
+
+  @override
+  String get message_store_products_load_failed => '无法加载商品列表，请稍后再试。';
 
   @override
   String get message_vote_is_ended => '投票结束';
@@ -2997,7 +2998,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get jma_voting_exchange_failed_title => '兑换失败';
 
   @override
-  String get expiring_bonus_candy_guide => '即将失效奖励说明';
+  String get expiring_bonus_candy_guide => '即将失效糖果说明';
 
   @override
   String get qna_form_title_hint => '请输入至少5个字的标题。';
@@ -3071,7 +3072,8 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get vote_item_request_status_in_progress => '正在处理中';
 
   @override
-  String get bonus_candy_policy_2 => '- 使用星星糖时，将从临近失效日期的奖励星星糖开始依次扣除。';
+  String get bonus_candy_policy_2 =>
+      '- 使用糖果时，将按失效日期临近的顺序依次扣除。（棉花糖->奖励星星糖->星星糖）';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -3104,7 +3106,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get purchase_payment_accepted_message =>
-      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+      '已收到您的付款。处理完成后，星星糖将自动到账。\n请勿重复付款。';
 
   @override
   String get label_tabbar_vote_upcoming => '即将推出';
@@ -3122,7 +3124,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get post_write_board_post => '创建一个职位';
 
   @override
-  String get bonus_candy_policy_3 => '- 已失效的奖励星星糖无法恢复，请务必在期限内使用。';
+  String get bonus_candy_policy_3 => '- 已失效的糖果无法恢复，请务必在期限内使用。';
 
   @override
   String get message_update_nickname_fail => '昵称更改失败。\n请选择其他昵称。';
@@ -3149,7 +3151,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get title_dialog_success => '成功';
 
   @override
-  String get bonus_candy_policy_title => '奖励星星糖政策';
+  String get bonus_candy_policy_title => 'Picnic! 糖果政策';
 
   @override
   String get bonus_candy_example_expiration_date => '失效日期';
@@ -3238,8 +3240,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get jma_voting_daily_limit_exhausted => '今天的奖励投票次数已全部用完。';
 
   @override
-  String get bonus_candy_policy_1 =>
-      '- 通过免费充值站获得的奖励星星糖，以及购买时额外赠送的奖励星星糖，均设有失效期限。';
+  String get bonus_candy_policy_1 => '- 奖励星星糖和棉花糖均设有失效期限。';
 
   @override
   String get goonghap_perfect_score_exists_title => '已获胜比赛数据';
@@ -3668,18 +3669,121 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get button_cs_inquiry => '联系客服';
 
   @override
+  String get wallet_star_candy => '星星糖';
+
+  @override
+  String get wallet_bonus_star_candy => '奖励星星糖';
+
+  @override
+  String get wallet_cotton_candy => '棉花糖';
+
+  @override
+  String wallet_cotton_expires_today(String amount) {
+    return '今日失效 $amount';
+  }
+
+  @override
+  String wallet_cotton_next_expiry(String date) {
+    return '下次失效 $date';
+  }
+
+  @override
+  String get wallet_load_failed => '无法加载钱包信息。';
+
+  @override
+  String get wallet_history_title => '糖果记录';
+
+  @override
+  String get wallet_history_empty => '暂无记录。';
+
+  @override
+  String get candy_boost_day => '糖果加倍日';
+
+  @override
+  String get candy_boost_exact_double => '基础发放 + 额外奖励100%';
+
+  @override
+  String get candy_boost_extra_bonus => '基础发放 + 额外奖励';
+
+  @override
+  String get candy_boost_promotion_checking => '正在确认促销活动';
+
+  @override
+  String get candy_boost_purchase_pending => '同一商品的购买正在处理中。';
+
+  @override
+  String get candy_boost_late_purchase_explanation => '认证耗时比预期长，但购买已正常完成。';
+
+  @override
+  String get ad_reward_pending => '正在确认奖励';
+
+  @override
+  String get ad_reward_granted => '已获得棉花糖';
+
+  @override
+  String get ad_reward_not_granted => '奖励未发放';
+
+  @override
+  String get candy_reward_receipt_title => '糖果已到账！';
+
+  @override
+  String get candy_reward_receipt_confirm => '确认';
+
+  @override
+  String candy_reward_receipt_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String candy_reward_receipt_balance(String amount) {
+    return '当前持有 $amount';
+  }
+
+  @override
+  String get candy_reward_receipt_balance_unavailable => '余额稍后将自动更新';
+
+  @override
+  String candy_reward_receipt_expiry(String date) {
+    return '$date 失效';
+  }
+
+  @override
+  String candy_reward_receipt_semantics(
+    String currency,
+    String granted,
+    String balance,
+  ) {
+    return '$currency，发放 $granted，当前持有 $balance';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_balance_unavailable(
+    String currency,
+    String granted,
+  ) {
+    return '$currency，发放 $granted，余额稍后更新';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_with_expiry(
+    String receipt,
+    String expiry,
+  ) {
+    return '$receipt，$expiry';
+  }
+
+  @override
   String expiring_today_cotton_only(String cotton) {
-    return 'Expiring today: Cotton Candy $cotton';
+    return '今日失效：棉花糖 $cotton';
   }
 
   @override
   String expiring_today_cotton_and_bonus(String cotton, String bonus) {
-    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+    return '今日失效：棉花糖 $cotton + 奖励星星糖 $bonus';
   }
 
   @override
-  String get cotton_candy_daily_expiry_notice =>
-      'Expires daily at 00:00:00 (KST).';
+  String get cotton_candy_daily_expiry_notice => '每天 00:00:00（KST）失效。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4107,6 +4211,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get label_hint_comment => '發表評論。';
 
   @override
+  String get label_home_current_vote => '目前進行中的投票';
+
+  @override
   String get label_input_input => '輸入';
 
   @override
@@ -4292,6 +4399,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get message_pic_pic_save_success => '影象已儲存。';
+
+  @override
+  String get message_store_products_load_failed => '無法載入商品清單，請稍後再試。';
 
   @override
   String get message_vote_is_ended => '投票結束';
@@ -4779,7 +4889,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get jma_voting_exchange_failed_title => '兌換失敗';
 
   @override
-  String get expiring_bonus_candy_guide => '即將失效獎勵說明';
+  String get expiring_bonus_candy_guide => '即將失效糖果說明';
 
   @override
   String get qna_form_title_hint => '請輸入至少5個字的標題。';
@@ -4853,7 +4963,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get vote_item_request_status_in_progress => '正在處理中';
 
   @override
-  String get bonus_candy_policy_2 => '- 使用星星糖時，將從臨近失效日期的獎勵星星糖開始依次扣除。';
+  String get bonus_candy_policy_2 =>
+      '- 使用糖果時，將按失效日期臨近的順序依次扣除。（棉花糖->獎勵星星糖->星星糖）';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -4886,7 +4997,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get purchase_payment_accepted_message =>
-      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+      '已收到您的付款。處理完成後，星星糖將自動入帳。\n請勿重複付款。';
 
   @override
   String get label_tabbar_vote_upcoming => '即將推出';
@@ -4904,7 +5015,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get post_write_board_post => '建立一個職位';
 
   @override
-  String get bonus_candy_policy_3 => '- 已失效的獎勵星星糖無法恢復，請務必在期限內使用。';
+  String get bonus_candy_policy_3 => '- 已失效的糖果無法恢復，請務必在期限內使用。';
 
   @override
   String get message_update_nickname_fail => '暱稱更改失敗。\n請選擇其他暱稱。';
@@ -4931,7 +5042,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get title_dialog_success => '成功';
 
   @override
-  String get bonus_candy_policy_title => '獎勵星星糖政策';
+  String get bonus_candy_policy_title => 'Picnic! 糖果政策';
 
   @override
   String get bonus_candy_example_expiration_date => '失效日期';
@@ -5020,8 +5131,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get jma_voting_daily_limit_exhausted => '今天的獎勵投票次數已全部用完。';
 
   @override
-  String get bonus_candy_policy_1 =>
-      '- 透過免費充值站獲得的獎勵星星糖，以及購買時額外贈送的獎勵星星糖，均設有失效期限。';
+  String get bonus_candy_policy_1 => '- 獎勵星星糖和棉花糖均設有失效期限。';
 
   @override
   String get goonghap_perfect_score_exists_title => '已獲勝比賽資料';
@@ -5451,16 +5561,119 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get button_cs_inquiry => '聯絡客服';
 
   @override
+  String get wallet_star_candy => '星星糖';
+
+  @override
+  String get wallet_bonus_star_candy => '獎勵星星糖';
+
+  @override
+  String get wallet_cotton_candy => '棉花糖';
+
+  @override
+  String wallet_cotton_expires_today(String amount) {
+    return '今日失效 $amount';
+  }
+
+  @override
+  String wallet_cotton_next_expiry(String date) {
+    return '下次失效 $date';
+  }
+
+  @override
+  String get wallet_load_failed => '無法載入錢包資訊。';
+
+  @override
+  String get wallet_history_title => '糖果紀錄';
+
+  @override
+  String get wallet_history_empty => '尚無紀錄。';
+
+  @override
+  String get candy_boost_day => '糖果加倍日';
+
+  @override
+  String get candy_boost_exact_double => '基礎發放 + 額外獎勵100%';
+
+  @override
+  String get candy_boost_extra_bonus => '基礎發放 + 額外獎勵';
+
+  @override
+  String get candy_boost_promotion_checking => '正在確認促銷活動';
+
+  @override
+  String get candy_boost_purchase_pending => '同一商品的購買正在處理中。';
+
+  @override
+  String get candy_boost_late_purchase_explanation => '認證耗時比預期長，但購買已正常完成。';
+
+  @override
+  String get ad_reward_pending => '正在確認獎勵';
+
+  @override
+  String get ad_reward_granted => '已獲得棉花糖';
+
+  @override
+  String get ad_reward_not_granted => '獎勵未發放';
+
+  @override
+  String get candy_reward_receipt_title => '糖果已入帳！';
+
+  @override
+  String get candy_reward_receipt_confirm => '確認';
+
+  @override
+  String candy_reward_receipt_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String candy_reward_receipt_balance(String amount) {
+    return '目前持有 $amount';
+  }
+
+  @override
+  String get candy_reward_receipt_balance_unavailable => '餘額稍後將自動更新';
+
+  @override
+  String candy_reward_receipt_expiry(String date) {
+    return '$date 失效';
+  }
+
+  @override
+  String candy_reward_receipt_semantics(
+    String currency,
+    String granted,
+    String balance,
+  ) {
+    return '$currency，發放 $granted，目前持有 $balance';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_balance_unavailable(
+    String currency,
+    String granted,
+  ) {
+    return '$currency，發放 $granted，餘額稍後更新';
+  }
+
+  @override
+  String candy_reward_receipt_semantics_with_expiry(
+    String receipt,
+    String expiry,
+  ) {
+    return '$receipt，$expiry';
+  }
+
+  @override
   String expiring_today_cotton_only(String cotton) {
-    return 'Expiring today: Cotton Candy $cotton';
+    return '今日失效：棉花糖 $cotton';
   }
 
   @override
   String expiring_today_cotton_and_bonus(String cotton, String bonus) {
-    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+    return '今日失效：棉花糖 $cotton + 獎勵星星糖 $bonus';
   }
 
   @override
-  String get cotton_candy_daily_expiry_notice =>
-      'Expires daily at 00:00:00 (KST).';
+  String get cotton_candy_daily_expiry_notice => '每天 00:00:00（KST）失效。';
 }

@@ -558,6 +558,10 @@
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
+  "label_home_current_vote": "Kasalukuyang Botohan",
+  "@label_home_current_vote": {
+    "description": "Auto-generated metadata for key 'label_home_current_vote'."
+  },
   "label_input_input": "Input",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
@@ -810,6 +814,7 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
+  "message_store_products_load_failed": "Hindi ma-load ang listahan ng mga produkto. Pakisubukang muli mamaya.",
   "message_vote_is_ended": "Sarado ang poll",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1462,7 +1467,7 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "Nag -expire ng gabay sa bonus",
+  "expiring_bonus_candy_guide": "Gabay sa Malapit nang Mag-expire na Candy",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
@@ -1558,7 +1563,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- Kapag gumagamit ng Star Candy, ang bonus star candy na may pinakamalapit na petsa ng pag -expire ay ibabawas muna.",
+  "bonus_candy_policy_2": "- Ginagamit ang Candy ayon sa pagkakasunod ng pinakamalapit na petsa ng pag-expire. (Cotton Candy -> Bonus Star Candy -> Star Candy)",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1602,7 +1607,7 @@
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
-  "purchase_payment_accepted_message": "Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.",
+  "purchase_payment_accepted_message": "Natanggap na ang iyong bayad. Awtomatikong maikakredito ang iyong Star Candy kapag natapos ang pagproseso.\nHuwag nang magbayad muli.",
   "@purchase_payment_accepted_message": {
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
@@ -1626,7 +1631,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- Ang nag -expire na bonus star candy ay hindi mababawi, kaya't siguraduhing gamitin ito sa loob ng panahon.",
+  "bonus_candy_policy_3": "- Hindi na maibabalik ang nag-expire na Candy, kaya gamitin ito sa loob ng panahon.",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1662,7 +1667,7 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "Patakaran sa Bonus Star Candy",
+  "bonus_candy_policy_title": "Patakaran sa Candy ng Picnic!",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
@@ -1785,7 +1790,7 @@
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- Ang bonus star candy mula sa mga libreng istasyon ng singilin at bonus star candy mula sa mga pagbili ay may petsa ng pag -expire.",
+  "bonus_candy_policy_1": "- May petsa ng pag-expire ang Bonus Star Candy at Cotton Candy.",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -2376,7 +2381,103 @@
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
   },
-  "expiring_today_cotton_only": "Expiring today: Cotton Candy {cotton}",
+  "wallet_star_candy": "Star Candy",
+  "wallet_bonus_star_candy": "Bonus Star Candy",
+  "wallet_cotton_candy": "Cotton Candy",
+  "wallet_cotton_expires_today": "Mag-e-expire ngayon {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "Cotton Candy amount that expires today from the server wallet snapshot",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_cotton_next_expiry": "Susunod na pag-expire {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "Next Cotton Candy expiry from the server wallet snapshot",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_load_failed": "Hindi ma-load ang wallet.",
+  "wallet_history_title": "Kasaysayan ng Candy",
+  "wallet_history_empty": "Wala pang kasaysayan.",
+  "candy_boost_day": "Candy Boost Day",
+  "candy_boost_exact_double": "Batayang gantimpala + dagdag na 100% bonus",
+  "candy_boost_extra_bonus": "Batayang gantimpala + dagdag na bonus",
+  "candy_boost_promotion_checking": "Sinusuri ang promosyon",
+  "candy_boost_purchase_pending": "May pinoprosesong pagbili na para sa produktong ito.",
+  "candy_boost_late_purchase_explanation": "Mas natagalan ang authentication kaysa inaasahan, pero matagumpay na nakumpleto ang pagbili.",
+  "ad_reward_pending": "Sinusuri ang iyong gantimpala",
+  "ad_reward_granted": "Nakatanggap ng Cotton Candy",
+  "ad_reward_not_granted": "Hindi naibigay ang gantimpala",
+  "candy_reward_receipt_title": "Naidagdag na ang Candy!",
+  "candy_reward_receipt_confirm": "Kumpirmahin",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance": "Kasalukuyang balanse {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance_unavailable": "Maa-update ang balanse sa ilang sandali",
+  "candy_reward_receipt_expiry": "Mag-e-expire sa {date}",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics": "{currency}, naidagdag {granted}, kasalukuyang balanse {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}, naidagdag {granted}, maa-update ang balanse sa ilang sandali",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}, {expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_only": "Mag-e-expire ngayon: Cotton Candy {cotton}",
   "@expiring_today_cotton_only": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
     "placeholders": {
@@ -2385,7 +2486,7 @@
       }
     }
   },
-  "expiring_today_cotton_and_bonus": "Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
+  "expiring_today_cotton_and_bonus": "Mag-e-expire ngayon: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
   "@expiring_today_cotton_and_bonus": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
     "placeholders": {
@@ -2397,7 +2498,7 @@
       }
     }
   },
-  "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
+  "cotton_candy_daily_expiry_notice": "Nag-e-expire araw-araw sa 00:00:00 (KST).",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }

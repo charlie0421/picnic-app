@@ -450,7 +450,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get label_hint_comment => 'မှတ်ချက်ချန်ထားပါ။';
 
   @override
-  String get label_home_current_vote => 'Current Vote';
+  String get label_home_current_vote => 'လက်ရှိ မဲပေးပွဲ';
 
   @override
   String get label_input_input => 'အင်ပွတ်ပြုလုပ်';
@@ -644,7 +644,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get message_store_products_load_failed =>
-      'Couldn\'t load the store products. Please try again later.';
+      'ကုန်ပစ္စည်းစာရင်းကို ဖွင့်၍မရပါ။ ခဏအကြာတွင် ထပ်စမ်းကြည့်ပါ။';
 
   @override
   String get message_vote_is_ended => 'စစ်တမ်းပိတ်လိုက်သည်';
@@ -1159,7 +1159,8 @@ class AppLocalizationsMy extends AppLocalizations {
   String get jma_voting_exchange_failed_title => 'လဲလှယ်မှုမအောင်မြင်ပါ';
 
   @override
-  String get expiring_bonus_candy_guide => 'သက်တမ်းကုန်ဆုံးမည့်ဘောနပ်လမ်းညွှန်';
+  String get expiring_bonus_candy_guide =>
+      'သက်တမ်းကုန်ဆုံးမည့် သကြားလုံးလမ်းညွှန်';
 
   @override
   String get qna_form_title_hint =>
@@ -1238,7 +1239,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_2 =>
-      '- ကြယ်ပွင့်သကြားလုံးအသုံးပြုသောအခါ သက်တမ်းနီးစပ်ဆုံးဘောနပ်ကြယ်ပွင့်သကြားလုံးကိုအရင်သုံးမည်။';
+      '- သကြားလုံးအသုံးပြုသောအခါ သက်တမ်းကုန်ဆုံးရက် အနီးဆုံးမှစ၍ အစဉ်လိုက်နုတ်ယူပါသည်။ (ဝါဂွမ်းသကြားလုံး -> ဘောနပ်ကြယ်ပွင့်သကြားလုံး -> ကြယ်ပွင့်သကြားလုံး)';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -1274,7 +1275,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get purchase_payment_accepted_message =>
-      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+      'သင့်ငွေပေးချေမှုကို လက်ခံရရှိပြီးပါပြီ။ လုပ်ဆောင်မှုပြီးဆုံးသည်နှင့် ကြယ်ပွင့်သကြားလုံးများ အလိုအလျောက် ထည့်သွင်းပေးပါမည်။\nထပ်မံ ငွေမပေးချေပါနှင့်။';
 
   @override
   String get label_tabbar_vote_upcoming => 'လာမည့်';
@@ -1294,7 +1295,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_3 =>
-      '- သက်တမ်းကုန်ဆုံးသွားသောဘောနပ်ကြယ်ပွင့်သကြားလုံးကိုပြန်ရ၍မရပါ။';
+      '- သက်တမ်းကုန်ဆုံးသွားသော သကြားလုံးများကို ပြန်လည်ရယူ၍မရသောကြောင့် သတ်မှတ်ကာလအတွင်း အသုံးပြုပါ။';
 
   @override
   String get message_update_nickname_fail =>
@@ -1324,7 +1325,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get title_dialog_success => 'အောင်မြင်ခြင်း';
 
   @override
-  String get bonus_candy_policy_title => 'ဘောနပ်ကြယ်ပွင့်သကြားလုံးမူဝါဒ';
+  String get bonus_candy_policy_title => 'Picnic! သကြားလုံးမူဝါဒ';
 
   @override
   String get bonus_candy_example_expiration_date => 'သက်တမ်းကုန်ဆုံးရက်';
@@ -1425,7 +1426,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_1 =>
-      '- အခမဲ့အားသွင်းစခန်းများနှင့်ဆုလာဘ်များမှရရှိသောဘောနပ်ကြယ်ပွင့်သကြားလုံးသည်သက်တမ်းကုန်ဆုံးသည်။';
+      '- ဘောနပ်ကြယ်ပွင့်သကြားလုံးနှင့် ဝါဂွမ်းသကြားလုံးတို့တွင် သက်တမ်းကုန်ဆုံးရက် သတ်မှတ်ထားပါသည်။';
 
   @override
   String get goonghap_perfect_score_exists_title => 'ပြီးသားအနိုင်ရဒေတာဒေတာ';
@@ -1894,67 +1895,67 @@ class AppLocalizationsMy extends AppLocalizations {
   String get button_cs_inquiry => 'Customer Support သို့ ဆက်သွယ်ပါ';
 
   @override
-  String get wallet_star_candy => 'Star Candy';
+  String get wallet_star_candy => 'ကြယ်ပွင့်သကြားလုံး';
 
   @override
-  String get wallet_bonus_star_candy => 'Bonus Star Candy';
+  String get wallet_bonus_star_candy => 'ဘောနပ်ကြယ်ပွင့်သကြားလုံး';
 
   @override
-  String get wallet_cotton_candy => 'Cotton Candy';
+  String get wallet_cotton_candy => 'ဝါဂွမ်းသကြားလုံး';
 
   @override
   String wallet_cotton_expires_today(String amount) {
-    return 'Expires today: $amount';
+    return 'ယနေ့ ကုန်ဆုံးမည် $amount';
   }
 
   @override
   String wallet_cotton_next_expiry(String date) {
-    return 'Next expiry: $date';
+    return 'နောက်တစ်ကြိမ် ကုန်ဆုံးမည့်ရက် $date';
   }
 
   @override
-  String get wallet_load_failed => 'Could not load wallet.';
+  String get wallet_load_failed => 'ပိုက်ဆံအိတ်အချက်အလက်ကို ဖွင့်၍မရပါ။';
 
   @override
-  String get wallet_history_title => 'Candy history';
+  String get wallet_history_title => 'သကြားလုံးမှတ်တမ်း';
 
   @override
-  String get wallet_history_empty => 'No history yet.';
+  String get wallet_history_empty => 'မှတ်တမ်းမရှိသေးပါ။';
 
   @override
   String get candy_boost_day => 'Candy Boost Day';
 
   @override
-  String get candy_boost_exact_double => 'Base reward + 100% extra bonus';
+  String get candy_boost_exact_double => 'အခြေခံဆု + ထပ်ဆောင်းဘောနပ် 100%';
 
   @override
-  String get candy_boost_extra_bonus => 'Base reward + extra bonus';
+  String get candy_boost_extra_bonus => 'အခြေခံဆု + ထပ်ဆောင်းဘောနပ်';
 
   @override
-  String get candy_boost_promotion_checking => 'Promotion review in progress';
+  String get candy_boost_promotion_checking => 'ပရိုမိုးရှင်းကို စစ်ဆေးနေပါသည်';
 
   @override
   String get candy_boost_purchase_pending =>
-      'A purchase for this product is already being processed.';
+      'ဤကုန်ပစ္စည်းအတွက် ဝယ်ယူမှုတစ်ခုကို လုပ်ဆောင်နေပြီးဖြစ်ပါသည်။';
 
   @override
   String get candy_boost_late_purchase_explanation =>
-      'Authentication took longer than expected, but the purchase completed successfully.';
+      'အတည်ပြုချက် မျှော်လင့်ထားသည်ထက် ကြာခဲ့သော်လည်း ဝယ်ယူမှု အောင်မြင်စွာ ပြီးဆုံးပါပြီ။';
 
   @override
-  String get ad_reward_pending => 'Checking your reward';
+  String get ad_reward_pending => 'သင့်ဆုကို စစ်ဆေးနေပါသည်';
 
   @override
-  String get ad_reward_granted => 'Cotton Candy received';
+  String get ad_reward_granted => 'ဝါဂွမ်းသကြားလုံး ရရှိပါပြီ';
 
   @override
-  String get ad_reward_not_granted => 'The reward was not granted';
+  String get ad_reward_not_granted => 'ဆုမပေးအပ်ခဲ့ပါ';
 
   @override
-  String get candy_reward_receipt_title => 'Candy added!';
+  String get candy_reward_receipt_title => 'သကြားလုံး ထည့်သွင်းပြီးပါပြီ!';
 
   @override
-  String get candy_reward_receipt_confirm => 'Confirm';
+  String get candy_reward_receipt_confirm => 'အတည်ပြု';
 
   @override
   String candy_reward_receipt_amount(String amount) {
@@ -1963,16 +1964,16 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String candy_reward_receipt_balance(String amount) {
-    return 'Current balance $amount';
+    return 'လက်ရှိလက်ကျန် $amount';
   }
 
   @override
   String get candy_reward_receipt_balance_unavailable =>
-      'Balance will refresh shortly';
+      'လက်ကျန်ကို မကြာမီ အသစ်ပြင်ဆင်ပါမည်';
 
   @override
   String candy_reward_receipt_expiry(String date) {
-    return 'Expires $date';
+    return '$date ကုန်ဆုံးမည်';
   }
 
   @override
@@ -1981,7 +1982,7 @@ class AppLocalizationsMy extends AppLocalizations {
     String granted,
     String balance,
   ) {
-    return '$currency, added $granted, current balance $balance';
+    return '$currency၊ $granted ထည့်သွင်းပြီး၊ လက်ရှိလက်ကျန် $balance';
   }
 
   @override
@@ -1989,7 +1990,7 @@ class AppLocalizationsMy extends AppLocalizations {
     String currency,
     String granted,
   ) {
-    return '$currency, added $granted, balance will refresh shortly';
+    return '$currency၊ $granted ထည့်သွင်းပြီး၊ လက်ကျန်ကို မကြာမီ ပြင်ဆင်ပါမည်';
   }
 
   @override
@@ -1997,20 +1998,20 @@ class AppLocalizationsMy extends AppLocalizations {
     String receipt,
     String expiry,
   ) {
-    return '$receipt, $expiry';
+    return '$receipt၊ $expiry';
   }
 
   @override
   String expiring_today_cotton_only(String cotton) {
-    return 'Expiring today: Cotton Candy $cotton';
+    return 'ယနေ့ သက်တမ်းကုန်ဆုံးမည်: ဝါဂွမ်းသကြားလုံး $cotton';
   }
 
   @override
   String expiring_today_cotton_and_bonus(String cotton, String bonus) {
-    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+    return 'ယနေ့ သက်တမ်းကုန်ဆုံးမည်: ဝါဂွမ်းသကြားလုံး $cotton + ဘောနပ်ကြယ်ပွင့်သကြားလုံး $bonus';
   }
 
   @override
   String get cotton_candy_daily_expiry_notice =>
-      'Expires daily at 00:00:00 (KST).';
+      'နေ့စဉ် 00:00:00 (KST) တွင် သက်တမ်းကုန်ဆုံးပါသည်။';
 }

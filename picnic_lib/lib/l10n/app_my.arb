@@ -563,6 +563,10 @@
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
+  "label_home_current_vote": "လက်ရှိ မဲပေးပွဲ",
+  "@label_home_current_vote": {
+    "description": "Auto-generated metadata for key 'label_home_current_vote'."
+  },
   "label_input_input": "အင်ပွတ်ပြုလုပ်",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
@@ -815,6 +819,7 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
+  "message_store_products_load_failed": "ကုန်ပစ္စည်းစာရင်းကို ဖွင့်၍မရပါ။ ခဏအကြာတွင် ထပ်စမ်းကြည့်ပါ။",
   "message_vote_is_ended": "စစ်တမ်းပိတ်လိုက်သည်",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1463,7 +1468,7 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "သက်တမ်းကုန်ဆုံးမည့်ဘောနပ်လမ်းညွှန်",
+  "expiring_bonus_candy_guide": "သက်တမ်းကုန်ဆုံးမည့် သကြားလုံးလမ်းညွှန်",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
@@ -1566,7 +1571,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- ကြယ်ပွင့်သကြားလုံးအသုံးပြုသောအခါ သက်တမ်းနီးစပ်ဆုံးဘောနပ်ကြယ်ပွင့်သကြားလုံးကိုအရင်သုံးမည်။",
+  "bonus_candy_policy_2": "- သကြားလုံးအသုံးပြုသောအခါ သက်တမ်းကုန်ဆုံးရက် အနီးဆုံးမှစ၍ အစဉ်လိုက်နုတ်ယူပါသည်။ (ဝါဂွမ်းသကြားလုံး -> ဘောနပ်ကြယ်ပွင့်သကြားလုံး -> ကြယ်ပွင့်သကြားလုံး)",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1610,7 +1615,7 @@
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
-  "purchase_payment_accepted_message": "Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.",
+  "purchase_payment_accepted_message": "သင့်ငွေပေးချေမှုကို လက်ခံရရှိပြီးပါပြီ။ လုပ်ဆောင်မှုပြီးဆုံးသည်နှင့် ကြယ်ပွင့်သကြားလုံးများ အလိုအလျောက် ထည့်သွင်းပေးပါမည်။\nထပ်မံ ငွေမပေးချေပါနှင့်။",
   "@purchase_payment_accepted_message": {
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
@@ -1634,7 +1639,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- သက်တမ်းကုန်ဆုံးသွားသောဘောနပ်ကြယ်ပွင့်သကြားလုံးကိုပြန်ရ၍မရပါ။",
+  "bonus_candy_policy_3": "- သက်တမ်းကုန်ဆုံးသွားသော သကြားလုံးများကို ပြန်လည်ရယူ၍မရသောကြောင့် သတ်မှတ်ကာလအတွင်း အသုံးပြုပါ။",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1670,7 +1675,7 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "ဘောနပ်ကြယ်ပွင့်သကြားလုံးမူဝါဒ",
+  "bonus_candy_policy_title": "Picnic! သကြားလုံးမူဝါဒ",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
@@ -1793,7 +1798,7 @@
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- အခမဲ့အားသွင်းစခန်းများနှင့်ဆုလာဘ်များမှရရှိသောဘောနပ်ကြယ်ပွင့်သကြားလုံးသည်သက်တမ်းကုန်ဆုံးသည်။",
+  "bonus_candy_policy_1": "- ဘောနပ်ကြယ်ပွင့်သကြားလုံးနှင့် ဝါဂွမ်းသကြားလုံးတို့တွင် သက်တမ်းကုန်ဆုံးရက် သတ်မှတ်ထားပါသည်။",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -2375,7 +2380,103 @@
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
   },
-  "expiring_today_cotton_only": "Expiring today: Cotton Candy {cotton}",
+  "wallet_star_candy": "ကြယ်ပွင့်သကြားလုံး",
+  "wallet_bonus_star_candy": "ဘောနပ်ကြယ်ပွင့်သကြားလုံး",
+  "wallet_cotton_candy": "ဝါဂွမ်းသကြားလုံး",
+  "wallet_cotton_expires_today": "ယနေ့ ကုန်ဆုံးမည် {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "Cotton Candy amount that expires today from the server wallet snapshot",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_cotton_next_expiry": "နောက်တစ်ကြိမ် ကုန်ဆုံးမည့်ရက် {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "Next Cotton Candy expiry from the server wallet snapshot",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_load_failed": "ပိုက်ဆံအိတ်အချက်အလက်ကို ဖွင့်၍မရပါ။",
+  "wallet_history_title": "သကြားလုံးမှတ်တမ်း",
+  "wallet_history_empty": "မှတ်တမ်းမရှိသေးပါ။",
+  "candy_boost_day": "Candy Boost Day",
+  "candy_boost_exact_double": "အခြေခံဆု + ထပ်ဆောင်းဘောနပ် 100%",
+  "candy_boost_extra_bonus": "အခြေခံဆု + ထပ်ဆောင်းဘောနပ်",
+  "candy_boost_promotion_checking": "ပရိုမိုးရှင်းကို စစ်ဆေးနေပါသည်",
+  "candy_boost_purchase_pending": "ဤကုန်ပစ္စည်းအတွက် ဝယ်ယူမှုတစ်ခုကို လုပ်ဆောင်နေပြီးဖြစ်ပါသည်။",
+  "candy_boost_late_purchase_explanation": "အတည်ပြုချက် မျှော်လင့်ထားသည်ထက် ကြာခဲ့သော်လည်း ဝယ်ယူမှု အောင်မြင်စွာ ပြီးဆုံးပါပြီ။",
+  "ad_reward_pending": "သင့်ဆုကို စစ်ဆေးနေပါသည်",
+  "ad_reward_granted": "ဝါဂွမ်းသကြားလုံး ရရှိပါပြီ",
+  "ad_reward_not_granted": "ဆုမပေးအပ်ခဲ့ပါ",
+  "candy_reward_receipt_title": "သကြားလုံး ထည့်သွင်းပြီးပါပြီ!",
+  "candy_reward_receipt_confirm": "အတည်ပြု",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance": "လက်ရှိလက်ကျန် {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance_unavailable": "လက်ကျန်ကို မကြာမီ အသစ်ပြင်ဆင်ပါမည်",
+  "candy_reward_receipt_expiry": "{date} ကုန်ဆုံးမည်",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics": "{currency}၊ {granted} ထည့်သွင်းပြီး၊ လက်ရှိလက်ကျန် {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}၊ {granted} ထည့်သွင်းပြီး၊ လက်ကျန်ကို မကြာမီ ပြင်ဆင်ပါမည်",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}၊ {expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_only": "ယနေ့ သက်တမ်းကုန်ဆုံးမည်: ဝါဂွမ်းသကြားလုံး {cotton}",
   "@expiring_today_cotton_only": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
     "placeholders": {
@@ -2384,7 +2485,7 @@
       }
     }
   },
-  "expiring_today_cotton_and_bonus": "Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
+  "expiring_today_cotton_and_bonus": "ယနေ့ သက်တမ်းကုန်ဆုံးမည်: ဝါဂွမ်းသကြားလုံး {cotton} + ဘောနပ်ကြယ်ပွင့်သကြားလုံး {bonus}",
   "@expiring_today_cotton_and_bonus": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
     "placeholders": {
@@ -2396,7 +2497,7 @@
       }
     }
   },
-  "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
+  "cotton_candy_daily_expiry_notice": "နေ့စဉ် 00:00:00 (KST) တွင် သက်တမ်းကုန်ဆုံးပါသည်။",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }

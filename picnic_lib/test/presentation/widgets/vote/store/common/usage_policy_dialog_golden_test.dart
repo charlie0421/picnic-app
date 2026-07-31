@@ -38,11 +38,9 @@ import '../../../../../helpers/test_environment.dart';
 /// 15일에만 0 이 아닌 값을 돌려주므로, 실제 연월을 쓰면 그 달 15일에 히어로
 /// 문구가 바뀌어 골든이 깨진다.
 ///
-/// **ko 이외 로케일의 반영어 화면은 의도한 결과다** (회귀가 아니다).
-/// `wallet_cotton_candy` · `wallet_bonus_star_candy` ·
-/// `cotton_candy_daily_expiry_notice` · `expiring_today_cotton_only` 은 ko/en
-/// ARB 에만 있어서 vi/th/bn 등은 영어로 폴백한다. vi 골든은 그 상태를 그대로
-/// 고정한다 — 번역 유입은 별도 작업이다.
+/// vi 골든은 비 ko/en 로케일의 레이아웃 회귀를 대표로 잡는다. 코튼캔디·지갑
+/// 계열 키는 한때 ko/en ARB 에만 있어 vi 화면이 반영어로 고정돼 있었지만,
+/// 2026-07 재번역으로 전 로케일 번역이 채워져 현재 골든은 완전한 vi 화면이다.
 class _UnusedClient extends Fake implements SupabaseClient {}
 
 class _WalletRepository extends WalletRepository {
