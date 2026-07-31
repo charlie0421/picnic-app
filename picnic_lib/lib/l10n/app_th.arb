@@ -559,6 +559,10 @@
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
+  "label_home_current_vote": "โหวตที่กำลังดำเนินอยู่",
+  "@label_home_current_vote": {
+    "description": "Auto-generated metadata for key 'label_home_current_vote'."
+  },
   "label_input_input": "ป้อนข้อมูล",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
@@ -811,6 +815,7 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
+  "message_store_products_load_failed": "ไม่สามารถโหลดรายการสินค้าได้ กรุณาลองใหม่อีกครั้งภายหลัง",
   "message_vote_is_ended": "แบบสำรวจปิด",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1463,7 +1468,7 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "คู่มือโบนัสที่หมดอายุ",
+  "expiring_bonus_candy_guide": "คำแนะนำลูกอมที่ใกล้หมดอายุ",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
@@ -1558,7 +1563,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- เมื่อใช้ลูกอมดาวลูกอมโบนัสดาวที่มีวันหมดอายุที่ใกล้ที่สุดจะถูกหักก่อน",
+  "bonus_candy_policy_2": "- เมื่อใช้ลูกอม ระบบจะหักตามลำดับวันหมดอายุที่ใกล้ที่สุดก่อน (ลูกอมสายไหม -> ลูกอมดาวโบนัส -> ลูกอมดาว)",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1602,7 +1607,7 @@
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
-  "purchase_payment_accepted_message": "Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.",
+  "purchase_payment_accepted_message": "ได้รับการชำระเงินของคุณแล้ว ลูกอมดาวจะเข้าบัญชีโดยอัตโนมัติเมื่อประมวลผลเสร็จสิ้น\nกรุณาอย่าชำระเงินซ้ำ",
   "@purchase_payment_accepted_message": {
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
@@ -1626,7 +1631,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- ไม่สามารถกู้คืนลูกอมดาวโบนัสที่หมดอายุได้ดังนั้นโปรดตรวจสอบให้แน่ใจว่าได้ใช้ภายในระยะเวลา",
+  "bonus_candy_policy_3": "- ลูกอมที่หมดอายุแล้วไม่สามารถกู้คืนได้ กรุณาใช้ภายในระยะเวลาที่กำหนด",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1662,7 +1667,7 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "นโยบายลูกอมโบนัสดาว",
+  "bonus_candy_policy_title": "นโยบายลูกอมของ Picnic!",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
@@ -1785,7 +1790,7 @@
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- ขนมโบนัสดาวจากสถานีชาร์จฟรีและลูกอมโบนัสดาวจากการซื้อมีวันหมดอายุ",
+  "bonus_candy_policy_1": "- ลูกอมดาวโบนัสและลูกอมสายไหมมีวันหมดอายุ",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -2376,7 +2381,103 @@
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
   },
-  "expiring_today_cotton_only": "Expiring today: Cotton Candy {cotton}",
+  "wallet_star_candy": "ลูกอมดาว",
+  "wallet_bonus_star_candy": "ลูกอมดาวโบนัส",
+  "wallet_cotton_candy": "ลูกอมสายไหม",
+  "wallet_cotton_expires_today": "หมดอายุวันนี้ {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "Cotton Candy amount that expires today from the server wallet snapshot",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_cotton_next_expiry": "หมดอายุครั้งถัดไป {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "Next Cotton Candy expiry from the server wallet snapshot",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_load_failed": "ไม่สามารถโหลดข้อมูลกระเป๋าได้",
+  "wallet_history_title": "ประวัติลูกอม",
+  "wallet_history_empty": "ยังไม่มีประวัติ",
+  "candy_boost_day": "Candy Boost Day",
+  "candy_boost_exact_double": "รางวัลพื้นฐาน + โบนัสเพิ่ม 100%",
+  "candy_boost_extra_bonus": "รางวัลพื้นฐาน + โบนัสเพิ่ม",
+  "candy_boost_promotion_checking": "กำลังตรวจสอบโปรโมชั่น",
+  "candy_boost_purchase_pending": "มีการซื้อสินค้านี้ที่กำลังประมวลผลอยู่แล้ว",
+  "candy_boost_late_purchase_explanation": "การยืนยันตัวตนใช้เวลานานกว่าที่คาดไว้ แต่การซื้อเสร็จสมบูรณ์แล้ว",
+  "ad_reward_pending": "กำลังตรวจสอบรางวัลของคุณ",
+  "ad_reward_granted": "ได้รับลูกอมสายไหมแล้ว",
+  "ad_reward_not_granted": "ไม่มีการมอบรางวัล",
+  "candy_reward_receipt_title": "เพิ่มลูกอมแล้ว!",
+  "candy_reward_receipt_confirm": "ยืนยัน",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance": "ยอดคงเหลือปัจจุบัน {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance_unavailable": "ยอดคงเหลือจะอัปเดตในไม่ช้า",
+  "candy_reward_receipt_expiry": "หมดอายุ {date}",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics": "{currency}, เพิ่ม {granted}, ยอดคงเหลือปัจจุบัน {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}, เพิ่ม {granted}, ยอดคงเหลือจะอัปเดตในไม่ช้า",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}, {expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_only": "หมดอายุวันนี้: ลูกอมสายไหม {cotton}",
   "@expiring_today_cotton_only": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
     "placeholders": {
@@ -2385,7 +2486,7 @@
       }
     }
   },
-  "expiring_today_cotton_and_bonus": "Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
+  "expiring_today_cotton_and_bonus": "หมดอายุวันนี้: ลูกอมสายไหม {cotton} + ลูกอมดาวโบนัส {bonus}",
   "@expiring_today_cotton_and_bonus": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
     "placeholders": {
@@ -2397,7 +2498,7 @@
       }
     }
   },
-  "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
+  "cotton_candy_daily_expiry_notice": "หมดอายุทุกวันเวลา 00:00:00 น. (KST)",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }

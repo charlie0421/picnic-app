@@ -558,6 +558,10 @@
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
+  "label_home_current_vote": "開催中の投票",
+  "@label_home_current_vote": {
+    "description": "Auto-generated metadata for key 'label_home_current_vote'."
+  },
   "label_input_input": "入力",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
@@ -810,6 +814,7 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
+  "message_store_products_load_failed": "商品リストを読み込めませんでした。しばらくしてからもう一度お試しください。",
   "message_vote_is_ended": "投票は終了しました",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1474,7 +1479,7 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "消滅予定ボーナス案内",
+  "expiring_bonus_candy_guide": "消滅予定キャンディのご案内",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
@@ -1614,7 +1619,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- スターキャンディを使用する際、有効期限が最も近いボーナススターキャンディから先に消費されます。",
+  "bonus_candy_policy_2": "- キャンディ使用時は、消滅日が近い順に消費されます。（コットンキャンディ->ボーナススターキャンディ->スターキャンディ）",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1658,7 +1663,7 @@
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
-  "purchase_payment_accepted_message": "Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.",
+  "purchase_payment_accepted_message": "決済を受け付けました。処理が完了すると、スターキャンディが自動的に付与されます。\nもう一度お支払いしないでください。",
   "@purchase_payment_accepted_message": {
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
@@ -1682,7 +1687,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- 有効期限が切れたボーナススターキャンディは復元できませんので、期間内に必ずご使用ください。",
+  "bonus_candy_policy_3": "- 消滅したキャンディは復元できませんので、期間内にご使用ください。",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1718,7 +1723,7 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "ボーナススターキャンディのポリシー",
+  "bonus_candy_policy_title": "Picnic! キャンディポリシー",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
@@ -1841,7 +1846,7 @@
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- 無料チャージステーションからのボーナススターキャンディ、および購入時のボーナススターキャンディには有効期限があります。",
+  "bonus_candy_policy_1": "- ボーナススターキャンディとコットンキャンディには消滅期限があります。",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -2432,7 +2437,103 @@
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
   },
-  "expiring_today_cotton_only": "Expiring today: Cotton Candy {cotton}",
+  "wallet_star_candy": "スターキャンディ",
+  "wallet_bonus_star_candy": "ボーナススターキャンディ",
+  "wallet_cotton_candy": "コットンキャンディ",
+  "wallet_cotton_expires_today": "本日消滅 {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "Cotton Candy amount that expires today from the server wallet snapshot",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_cotton_next_expiry": "次回消滅 {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "Next Cotton Candy expiry from the server wallet snapshot",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_load_failed": "ウォレット情報を読み込めませんでした。",
+  "wallet_history_title": "キャンディ履歴",
+  "wallet_history_empty": "まだ履歴がありません。",
+  "candy_boost_day": "キャンディブーストデー",
+  "candy_boost_exact_double": "基本付与 + 追加ボーナス100%",
+  "candy_boost_extra_bonus": "基本付与 + 追加ボーナス",
+  "candy_boost_promotion_checking": "プロモーションを確認中",
+  "candy_boost_purchase_pending": "同じ商品の購入処理が進行中です。",
+  "candy_boost_late_purchase_explanation": "認証に時間がかかりましたが、購入は正常に完了しました。",
+  "ad_reward_pending": "報酬を確認しています",
+  "ad_reward_granted": "コットンキャンディを獲得しました",
+  "ad_reward_not_granted": "報酬は付与されませんでした",
+  "candy_reward_receipt_title": "キャンディが付与されました！",
+  "candy_reward_receipt_confirm": "確認",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance": "現在の保有 {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance_unavailable": "残高はまもなく更新されます",
+  "candy_reward_receipt_expiry": "{date} 消滅",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics": "{currency}、{granted} 付与、現在の保有 {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}、{granted} 付与、残高はまもなく更新",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}、{expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_only": "本日消滅：コットンキャンディ {cotton}",
   "@expiring_today_cotton_only": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
     "placeholders": {
@@ -2441,7 +2542,7 @@
       }
     }
   },
-  "expiring_today_cotton_and_bonus": "Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
+  "expiring_today_cotton_and_bonus": "本日消滅：コットンキャンディ {cotton} + ボーナススターキャンディ {bonus}",
   "@expiring_today_cotton_and_bonus": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
     "placeholders": {
@@ -2453,7 +2554,7 @@
       }
     }
   },
-  "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
+  "cotton_candy_daily_expiry_notice": "毎日 00:00:00（KST）に消滅します。",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }

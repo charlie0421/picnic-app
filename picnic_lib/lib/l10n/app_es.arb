@@ -559,6 +559,10 @@
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
+  "label_home_current_vote": "Votación en curso",
+  "@label_home_current_vote": {
+    "description": "Auto-generated metadata for key 'label_home_current_vote'."
+  },
   "label_input_input": "Aporte",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
@@ -811,6 +815,7 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
+  "message_store_products_load_failed": "No se pudo cargar la lista de productos. Inténtalo de nuevo más tarde.",
   "message_vote_is_ended": "Encuesta cerrada",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1463,7 +1468,7 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "Guía de bonificación que vence",
+  "expiring_bonus_candy_guide": "Guía de Candy por vencer",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
@@ -1558,7 +1563,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- Al usar Star Candy, el bono Star Candy con la fecha de vencimiento más cercana se deducirá primero.",
+  "bonus_candy_policy_2": "- El Candy se consume en orden según la fecha de vencimiento más cercana. (Cotton Candy -> Bonus Star Candy -> Star Candy)",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1602,7 +1607,7 @@
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
-  "purchase_payment_accepted_message": "Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.",
+  "purchase_payment_accepted_message": "Tu pago ha sido recibido. Tus Star Candy se acreditarán automáticamente cuando termine el procesamiento.\nPor favor, no vuelvas a pagar.",
   "@purchase_payment_accepted_message": {
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
@@ -1626,7 +1631,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- No se pueden recuperar los dulces de estrella de Bonus vencidos, así que asegúrese de usarlo dentro del período.",
+  "bonus_candy_policy_3": "- El Candy vencido no se puede recuperar, así que úsalo dentro del período.",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1662,7 +1667,7 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "Política de dulces de estrella de bonificación",
+  "bonus_candy_policy_title": "Política de Candy de Picnic!",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
@@ -1785,7 +1790,7 @@
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- Bonus Star Candy de estaciones de carga gratuitas y dulces de estrellas de bonificación de compras tienen una fecha de vencimiento.",
+  "bonus_candy_policy_1": "- Bonus Star Candy y Cotton Candy tienen fecha de vencimiento.",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -2376,7 +2381,103 @@
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
   },
-  "expiring_today_cotton_only": "Expiring today: Cotton Candy {cotton}",
+  "wallet_star_candy": "Star Candy",
+  "wallet_bonus_star_candy": "Bonus Star Candy",
+  "wallet_cotton_candy": "Cotton Candy",
+  "wallet_cotton_expires_today": "Vence hoy {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "Cotton Candy amount that expires today from the server wallet snapshot",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_cotton_next_expiry": "Próximo vencimiento {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "Next Cotton Candy expiry from the server wallet snapshot",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_load_failed": "No se pudo cargar la billetera.",
+  "wallet_history_title": "Historial de Candy",
+  "wallet_history_empty": "Aún no hay historial.",
+  "candy_boost_day": "Candy Boost Day",
+  "candy_boost_exact_double": "Recompensa base + bono extra del 100%",
+  "candy_boost_extra_bonus": "Recompensa base + bono extra",
+  "candy_boost_promotion_checking": "Verificando la promoción",
+  "candy_boost_purchase_pending": "Ya hay una compra de este producto en proceso.",
+  "candy_boost_late_purchase_explanation": "La autenticación tardó más de lo esperado, pero la compra se completó correctamente.",
+  "ad_reward_pending": "Verificando tu recompensa",
+  "ad_reward_granted": "Cotton Candy recibido",
+  "ad_reward_not_granted": "La recompensa no fue otorgada",
+  "candy_reward_receipt_title": "¡Candy acreditado!",
+  "candy_reward_receipt_confirm": "Confirmar",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance": "Saldo actual {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance_unavailable": "El saldo se actualizará en breve",
+  "candy_reward_receipt_expiry": "Vence {date}",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics": "{currency}, acreditado {granted}, saldo actual {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}, acreditado {granted}, el saldo se actualizará en breve",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}, {expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_only": "Vence hoy: Cotton Candy {cotton}",
   "@expiring_today_cotton_only": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
     "placeholders": {
@@ -2385,7 +2486,7 @@
       }
     }
   },
-  "expiring_today_cotton_and_bonus": "Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
+  "expiring_today_cotton_and_bonus": "Vence hoy: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
   "@expiring_today_cotton_and_bonus": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
     "placeholders": {
@@ -2397,7 +2498,7 @@
       }
     }
   },
-  "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
+  "cotton_candy_daily_expiry_notice": "Vence todos los días a las 00:00:00 (KST).",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }

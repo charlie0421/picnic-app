@@ -559,6 +559,10 @@
   "@label_hint_comment": {
     "description": "Auto-generated metadata for key 'label_hint_comment'."
   },
+  "label_home_current_vote": "Bình chọn đang diễn ra",
+  "@label_home_current_vote": {
+    "description": "Auto-generated metadata for key 'label_home_current_vote'."
+  },
   "label_input_input": "Đầu vào",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
@@ -811,6 +815,7 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
+  "message_store_products_load_failed": "Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.",
   "message_vote_is_ended": "Cuộc thăm dò ý kiến ​​đóng cửa",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1463,7 +1468,7 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "expiring_bonus_candy_guide": "Hướng dẫn tiền thưởng hết hạn",
+  "expiring_bonus_candy_guide": "Hướng dẫn về Candy sắp hết hạn",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
   },
@@ -1558,7 +1563,7 @@
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
-  "bonus_candy_policy_2": "- Khi sử dụng Star Candy, Candy Star Bonus với ngày hết hạn gần nhất sẽ được khấu trừ trước.",
+  "bonus_candy_policy_2": "- Khi sử dụng, Candy sẽ bị trừ theo thứ tự ngày hết hạn gần nhất. (Cotton Candy -> Bonus Star Candy -> Star Candy)",
   "@bonus_candy_policy_2": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
   },
@@ -1602,7 +1607,7 @@
   "@purchase_timeout_message": {
     "description": "Auto-generated metadata for key 'purchase_timeout_message'."
   },
-  "purchase_payment_accepted_message": "Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.",
+  "purchase_payment_accepted_message": "Đã nhận được thanh toán của bạn. Star Candy sẽ tự động được cộng sau khi xử lý hoàn tất.\nVui lòng không thanh toán lại.",
   "@purchase_payment_accepted_message": {
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
@@ -1626,7 +1631,7 @@
   "@post_write_board_post": {
     "description": "Auto-generated metadata for key 'post_write_board_post'."
   },
-  "bonus_candy_policy_3": "- Candy Star Star Star hết hạn không thể được phục hồi, vì vậy hãy chắc chắn sử dụng nó trong khoảng thời gian.",
+  "bonus_candy_policy_3": "- Candy đã hết hạn không thể khôi phục, vui lòng sử dụng trong thời hạn.",
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
@@ -1662,7 +1667,7 @@
   "@title_dialog_success": {
     "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
-  "bonus_candy_policy_title": "Chính sách kẹo ngôi sao tiền thưởng",
+  "bonus_candy_policy_title": "Chính sách Candy của Picnic!",
   "@bonus_candy_policy_title": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
   },
@@ -1785,7 +1790,7 @@
   "@jma_voting_daily_limit_exhausted": {
     "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
-  "bonus_candy_policy_1": "- Bonus Star Candy từ các trạm sạc miễn phí và tiền thưởng Star Candy từ các giao dịch mua có ngày hết hạn.",
+  "bonus_candy_policy_1": "- Bonus Star Candy và Cotton Candy đều có thời hạn sử dụng.",
   "@bonus_candy_policy_1": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
   },
@@ -2376,7 +2381,103 @@
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
   },
-  "expiring_today_cotton_only": "Expiring today: Cotton Candy {cotton}",
+  "wallet_star_candy": "Star Candy",
+  "wallet_bonus_star_candy": "Bonus Star Candy",
+  "wallet_cotton_candy": "Cotton Candy",
+  "wallet_cotton_expires_today": "Hết hạn hôm nay {amount}",
+  "@wallet_cotton_expires_today": {
+    "description": "Cotton Candy amount that expires today from the server wallet snapshot",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_cotton_next_expiry": "Lần hết hạn tiếp theo {date}",
+  "@wallet_cotton_next_expiry": {
+    "description": "Next Cotton Candy expiry from the server wallet snapshot",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wallet_load_failed": "Không thể tải thông tin ví.",
+  "wallet_history_title": "Lịch sử Candy",
+  "wallet_history_empty": "Chưa có lịch sử.",
+  "candy_boost_day": "Candy Boost Day",
+  "candy_boost_exact_double": "Thưởng cơ bản + thưởng thêm 100%",
+  "candy_boost_extra_bonus": "Thưởng cơ bản + thưởng thêm",
+  "candy_boost_promotion_checking": "Đang kiểm tra khuyến mãi",
+  "candy_boost_purchase_pending": "Giao dịch mua sản phẩm này đang được xử lý.",
+  "candy_boost_late_purchase_explanation": "Xác thực mất nhiều thời gian hơn dự kiến, nhưng giao dịch mua đã hoàn tất thành công.",
+  "ad_reward_pending": "Đang kiểm tra phần thưởng của bạn",
+  "ad_reward_granted": "Đã nhận Cotton Candy",
+  "ad_reward_not_granted": "Phần thưởng chưa được trao",
+  "candy_reward_receipt_title": "Đã cộng Candy!",
+  "candy_reward_receipt_confirm": "Xác nhận",
+  "candy_reward_receipt_amount": "+{amount}",
+  "@candy_reward_receipt_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance": "Số dư hiện tại {amount}",
+  "@candy_reward_receipt_balance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_balance_unavailable": "Số dư sẽ sớm được cập nhật",
+  "candy_reward_receipt_expiry": "Hết hạn {date}",
+  "@candy_reward_receipt_expiry": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics": "{currency}, đã cộng {granted}, số dư hiện tại {balance}",
+  "@candy_reward_receipt_semantics": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_balance_unavailable": "{currency}, đã cộng {granted}, số dư sẽ sớm được cập nhật",
+  "@candy_reward_receipt_semantics_balance_unavailable": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "candy_reward_receipt_semantics_with_expiry": "{receipt}, {expiry}",
+  "@candy_reward_receipt_semantics_with_expiry": {
+    "placeholders": {
+      "receipt": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
+    }
+  },
+  "expiring_today_cotton_only": "Hết hạn hôm nay: Cotton Candy {cotton}",
   "@expiring_today_cotton_only": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_only'.",
     "placeholders": {
@@ -2385,7 +2486,7 @@
       }
     }
   },
-  "expiring_today_cotton_and_bonus": "Expiring today: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
+  "expiring_today_cotton_and_bonus": "Hết hạn hôm nay: Cotton Candy {cotton} + Bonus Star Candy {bonus}",
   "@expiring_today_cotton_and_bonus": {
     "description": "Auto-generated metadata for key 'expiring_today_cotton_and_bonus'.",
     "placeholders": {
@@ -2397,7 +2498,7 @@
       }
     }
   },
-  "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
+  "cotton_candy_daily_expiry_notice": "Hết hạn vào 00:00:00 (KST) mỗi ngày.",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   }

@@ -451,7 +451,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get label_hint_comment => 'Deja un comentario.';
 
   @override
-  String get label_home_current_vote => 'Current Vote';
+  String get label_home_current_vote => 'Votación en curso';
 
   @override
   String get label_input_input => 'Aporte';
@@ -645,7 +645,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get message_store_products_load_failed =>
-      'Couldn\'t load the store products. Please try again later.';
+      'No se pudo cargar la lista de productos. Inténtalo de nuevo más tarde.';
 
   @override
   String get message_vote_is_ended => 'Encuesta cerrada';
@@ -1164,7 +1164,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get jma_voting_exchange_failed_title => 'El intercambio falló';
 
   @override
-  String get expiring_bonus_candy_guide => 'Guía de bonificación que vence';
+  String get expiring_bonus_candy_guide => 'Guía de Candy por vencer';
 
   @override
   String get qna_form_title_hint =>
@@ -1243,7 +1243,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_2 =>
-      '- Al usar Star Candy, el bono Star Candy con la fecha de vencimiento más cercana se deducirá primero.';
+      '- El Candy se consume en orden según la fecha de vencimiento más cercana. (Cotton Candy -> Bonus Star Candy -> Star Candy)';
 
   @override
   String goonghap_purchase_message(String artistName) {
@@ -1280,7 +1280,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get purchase_payment_accepted_message =>
-      'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
+      'Tu pago ha sido recibido. Tus Star Candy se acreditarán automáticamente cuando termine el procesamiento.\nPor favor, no vuelvas a pagar.';
 
   @override
   String get label_tabbar_vote_upcoming => 'Próximo';
@@ -1300,7 +1300,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_3 =>
-      '- No se pueden recuperar los dulces de estrella de Bonus vencidos, así que asegúrese de usarlo dentro del período.';
+      '- El Candy vencido no se puede recuperar, así que úsalo dentro del período.';
 
   @override
   String get message_update_nickname_fail =>
@@ -1329,8 +1329,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get title_dialog_success => 'Éxito';
 
   @override
-  String get bonus_candy_policy_title =>
-      'Política de dulces de estrella de bonificación';
+  String get bonus_candy_policy_title => 'Política de Candy de Picnic!';
 
   @override
   String get bonus_candy_example_expiration_date => 'Fecha de expiración';
@@ -1430,7 +1429,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get bonus_candy_policy_1 =>
-      '- Bonus Star Candy de estaciones de carga gratuitas y dulces de estrellas de bonificación de compras tienen una fecha de vencimiento.';
+      '- Bonus Star Candy y Cotton Candy tienen fecha de vencimiento.';
 
   @override
   String get goonghap_perfect_score_exists_title =>
@@ -1912,57 +1911,58 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String wallet_cotton_expires_today(String amount) {
-    return 'Expires today: $amount';
+    return 'Vence hoy $amount';
   }
 
   @override
   String wallet_cotton_next_expiry(String date) {
-    return 'Next expiry: $date';
+    return 'Próximo vencimiento $date';
   }
 
   @override
-  String get wallet_load_failed => 'Could not load wallet.';
+  String get wallet_load_failed => 'No se pudo cargar la billetera.';
 
   @override
-  String get wallet_history_title => 'Candy history';
+  String get wallet_history_title => 'Historial de Candy';
 
   @override
-  String get wallet_history_empty => 'No history yet.';
+  String get wallet_history_empty => 'Aún no hay historial.';
 
   @override
   String get candy_boost_day => 'Candy Boost Day';
 
   @override
-  String get candy_boost_exact_double => 'Base reward + 100% extra bonus';
+  String get candy_boost_exact_double =>
+      'Recompensa base + bono extra del 100%';
 
   @override
-  String get candy_boost_extra_bonus => 'Base reward + extra bonus';
+  String get candy_boost_extra_bonus => 'Recompensa base + bono extra';
 
   @override
-  String get candy_boost_promotion_checking => 'Promotion review in progress';
+  String get candy_boost_promotion_checking => 'Verificando la promoción';
 
   @override
   String get candy_boost_purchase_pending =>
-      'A purchase for this product is already being processed.';
+      'Ya hay una compra de este producto en proceso.';
 
   @override
   String get candy_boost_late_purchase_explanation =>
-      'Authentication took longer than expected, but the purchase completed successfully.';
+      'La autenticación tardó más de lo esperado, pero la compra se completó correctamente.';
 
   @override
-  String get ad_reward_pending => 'Checking your reward';
+  String get ad_reward_pending => 'Verificando tu recompensa';
 
   @override
-  String get ad_reward_granted => 'Cotton Candy received';
+  String get ad_reward_granted => 'Cotton Candy recibido';
 
   @override
-  String get ad_reward_not_granted => 'The reward was not granted';
+  String get ad_reward_not_granted => 'La recompensa no fue otorgada';
 
   @override
-  String get candy_reward_receipt_title => 'Candy added!';
+  String get candy_reward_receipt_title => '¡Candy acreditado!';
 
   @override
-  String get candy_reward_receipt_confirm => 'Confirm';
+  String get candy_reward_receipt_confirm => 'Confirmar';
 
   @override
   String candy_reward_receipt_amount(String amount) {
@@ -1971,16 +1971,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String candy_reward_receipt_balance(String amount) {
-    return 'Current balance $amount';
+    return 'Saldo actual $amount';
   }
 
   @override
   String get candy_reward_receipt_balance_unavailable =>
-      'Balance will refresh shortly';
+      'El saldo se actualizará en breve';
 
   @override
   String candy_reward_receipt_expiry(String date) {
-    return 'Expires $date';
+    return 'Vence $date';
   }
 
   @override
@@ -1989,7 +1989,7 @@ class AppLocalizationsEs extends AppLocalizations {
     String granted,
     String balance,
   ) {
-    return '$currency, added $granted, current balance $balance';
+    return '$currency, acreditado $granted, saldo actual $balance';
   }
 
   @override
@@ -1997,7 +1997,7 @@ class AppLocalizationsEs extends AppLocalizations {
     String currency,
     String granted,
   ) {
-    return '$currency, added $granted, balance will refresh shortly';
+    return '$currency, acreditado $granted, el saldo se actualizará en breve';
   }
 
   @override
@@ -2010,15 +2010,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String expiring_today_cotton_only(String cotton) {
-    return 'Expiring today: Cotton Candy $cotton';
+    return 'Vence hoy: Cotton Candy $cotton';
   }
 
   @override
   String expiring_today_cotton_and_bonus(String cotton, String bonus) {
-    return 'Expiring today: Cotton Candy $cotton + Bonus Star Candy $bonus';
+    return 'Vence hoy: Cotton Candy $cotton + Bonus Star Candy $bonus';
   }
 
   @override
   String get cotton_candy_daily_expiry_notice =>
-      'Expires daily at 00:00:00 (KST).';
+      'Vence todos los días a las 00:00:00 (KST).';
 }
