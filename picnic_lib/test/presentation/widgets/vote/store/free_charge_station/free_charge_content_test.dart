@@ -104,6 +104,29 @@ void main() {
       expect(find.text('+코튼캔디 1 획득'), findsOneWidget);
     });
 
+    testWidgets('renders currency icons for mission and ad reward rows', (
+      tester,
+    ) async {
+      await pumpWidgetAndIgnoreErrors(tester, buildWidget());
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester);
+
+      final rewardIcons = tester
+          .widgetList<Image>(find.byType(Image))
+          .map((image) => image.image)
+          .whereType<AssetImage>()
+          .map((image) => image.assetName);
+
+      expect(
+        rewardIcons,
+        contains('assets/icons/store/currency_bonus_star_candy.png'),
+      );
+      expect(
+        rewardIcons,
+        contains('assets/icons/store/currency_cotton_candy.png'),
+      );
+    });
+
     testWidgets(
       'does not overflow long Spanish mission copy at 320px and 1.3x text',
       (tester) async {
