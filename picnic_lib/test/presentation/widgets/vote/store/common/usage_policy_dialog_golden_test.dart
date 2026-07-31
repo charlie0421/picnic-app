@@ -12,9 +12,9 @@ import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/data/repositories/wallet_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
-import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -124,14 +124,8 @@ Widget _buildGoldenApp({
             ).copyWith(textScaler: TextScaler.linear(textScale)),
             child: child!,
           ),
-          // 프로덕션에서는 팝업이 스크림 위에 얹힌다. 골든은 팝업 자체의 경계만
-          // 잡으면 되므로 RepaintBoundary 로 감싼다.
-          home: const Material(
-            color: Color(0xFF3C3C43),
-            child: Center(
-              child: RepaintBoundary(child: UsagePolicyPopup()),
-            ),
-          ),
+          // 전체 화면 다이얼로그 자체를 화면 경계까지 캡처한다.
+          home: const RepaintBoundary(child: UsagePolicyPopup()),
         ),
       ),
     ),
@@ -152,11 +146,7 @@ Future<void> _pumpGolden(
   addTearDown(tester.view.resetDevicePixelRatio);
 
   await tester.pumpWidget(
-    _buildGoldenApp(
-      locale: locale,
-      textScale: textScale,
-      bonusRows: bonusRows,
-    ),
+    _buildGoldenApp(locale: locale, textScale: textScale, bonusRows: bonusRows),
   );
 
   final context = tester.element(find.byType(UsagePolicyPopup));
@@ -205,20 +195,32 @@ void main() {
   // 320dp 다음으로 좁은 실사용 하한. 이 크기에서는 기본 화면이 이미
   // 117.5px 넘치므로 바닥 신호(그라디언트 + 아래 화살표)가 함께 고정된다.
   testWidgets('collapsed default, ko, 360x640', (tester) async {
-    await _pumpGolden(tester, size: const Size(360, 640), locale: const Locale('ko'));
+    await _pumpGolden(
+      tester,
+      size: const Size(360, 640),
+      locale: const Locale('ko'),
+    );
     expect(find.byType(Image), findsNWidgets(2));
     await expectLater(
-      find.byType(LargePopupWidget),
-      matchesGoldenFile('../../../../../goldens/usage_policy_dialog_ko_360x640.png'),
+      find.byType(FullScreenDialog),
+      matchesGoldenFile(
+        '../../../../../goldens/usage_policy_dialog_ko_360x640.png',
+      ),
     );
   });
 
   testWidgets('collapsed default, ko, 390x844', (tester) async {
-    await _pumpGolden(tester, size: const Size(390, 844), locale: const Locale('ko'));
+    await _pumpGolden(
+      tester,
+      size: const Size(390, 844),
+      locale: const Locale('ko'),
+    );
     expect(find.byType(Image), findsNWidgets(2));
     await expectLater(
-      find.byType(LargePopupWidget),
-      matchesGoldenFile('../../../../../goldens/usage_policy_dialog_ko_390x844.png'),
+      find.byType(FullScreenDialog),
+      matchesGoldenFile(
+        '../../../../../goldens/usage_policy_dialog_ko_390x844.png',
+      ),
     );
   });
 
@@ -231,7 +233,7 @@ void main() {
       textScale: 1.3,
     );
     await expectLater(
-      find.byType(LargePopupWidget),
+      find.byType(FullScreenDialog),
       matchesGoldenFile(
         '../../../../../goldens/usage_policy_dialog_ko_390x844_scale1_3.png',
       ),
@@ -241,10 +243,16 @@ void main() {
   // 긴 번역 로케일. vi 는 wallet_* 키가 없어 영어로 폴백하므로
   // 'Cotton Candy' / 'Bonus Star Candy' 라벨 폭까지 같이 고정된다.
   testWidgets('collapsed default, vi, 390x844', (tester) async {
-    await _pumpGolden(tester, size: const Size(390, 844), locale: const Locale('vi'));
+    await _pumpGolden(
+      tester,
+      size: const Size(390, 844),
+      locale: const Locale('vi'),
+    );
     await expectLater(
-      find.byType(LargePopupWidget),
-      matchesGoldenFile('../../../../../goldens/usage_policy_dialog_vi_390x844.png'),
+      find.byType(FullScreenDialog),
+      matchesGoldenFile(
+        '../../../../../goldens/usage_policy_dialog_vi_390x844.png',
+      ),
     );
   });
 
@@ -252,14 +260,21 @@ void main() {
   // 크기대**라서, 잘림이 카드 테두리에서 일어나는지와 바닥 신호가 켜지는지를
   // 이 골든이 잡는다(리뷰에서 지적된, 픽셀 커버리지가 비어 있던 자리).
   testWidgets('collapsed default, ko, 320x568 (overflowing)', (tester) async {
-    await _pumpGolden(tester, size: const Size(320, 568), locale: const Locale('ko'));
+    await _pumpGolden(
+      tester,
+      size: const Size(320, 568),
+      locale: const Locale('ko'),
+    );
     expect(
-      tester.state<ScrollableState>(find.byType(Scrollable)).position.extentAfter,
+      tester
+          .state<ScrollableState>(find.byType(Scrollable))
+          .position
+          .extentAfter,
       greaterThan(1.0),
       reason: 'this golden is meant to pin the overflowing state',
     );
     await expectLater(
-      find.byType(LargePopupWidget),
+      find.byType(FullScreenDialog),
       matchesGoldenFile(
         '../../../../../goldens/usage_policy_dialog_ko_320x568_collapsed.png',
       ),
@@ -275,7 +290,11 @@ void main() {
   testWidgets('timing rules expanded, ko, 360x640 (top / bottom)', (
     tester,
   ) async {
-    await _pumpGolden(tester, size: const Size(360, 640), locale: const Locale('ko'));
+    await _pumpGolden(
+      tester,
+      size: const Size(360, 640),
+      locale: const Locale('ko'),
+    );
     await _openTimingRules(tester);
     final position = tester
         .state<ScrollableState>(find.byType(Scrollable))
@@ -283,7 +302,7 @@ void main() {
     expect(position.pixels, 0.0);
     expect(position.extentAfter, greaterThan(1.0));
     await expectLater(
-      find.byType(LargePopupWidget),
+      find.byType(FullScreenDialog),
       matchesGoldenFile(
         '../../../../../goldens/usage_policy_dialog_ko_360x640_expanded.png',
       ),
@@ -293,7 +312,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(position.extentAfter, lessThan(1.0));
     await expectLater(
-      find.byType(LargePopupWidget),
+      find.byType(FullScreenDialog),
       matchesGoldenFile(
         '../../../../../goldens/usage_policy_dialog_ko_360x640_expanded_bottom.png',
       ),
@@ -312,27 +331,30 @@ void main() {
       bonusRows: const [],
     );
     await expectLater(
-      find.byType(LargePopupWidget),
+      find.byType(FullScreenDialog),
       matchesGoldenFile(
         '../../../../../goldens/usage_policy_dialog_ko_390x844_no_rows.png',
       ),
     );
   });
 
-  // 자동 스크롤이 실제로 일어나는 크기. 펼친 뒤 화면이 따라 움직여서 드러난
-  // 본문이 보이는 상태를 픽셀로 고정한다 — 예전 구현에서는 pixels 가 0.0 에
-  // 머물러 이 화면이 존재하지 않았다.
-  testWidgets('timing rules expanded after auto-scroll, ko, 320x568', (
-    tester,
-  ) async {
-    await _pumpGolden(tester, size: const Size(320, 568), locale: const Locale('ko'));
+  // 가장 작은 지원 화면에서 펼친 본문과 남은 스크롤 영역을 고정한다.
+  testWidgets('timing rules expanded, ko, 320x568', (tester) async {
+    await _pumpGolden(
+      tester,
+      size: const Size(320, 568),
+      locale: const Locale('ko'),
+    );
     await _openTimingRules(tester);
     expect(
-      tester.state<ScrollableState>(find.byType(Scrollable)).position.pixels,
-      greaterThan(0.0),
+      tester
+          .state<ScrollableState>(find.byType(Scrollable))
+          .position
+          .extentAfter,
+      greaterThan(0),
     );
     await expectLater(
-      find.byType(LargePopupWidget),
+      find.byType(FullScreenDialog),
       matchesGoldenFile(
         '../../../../../goldens/usage_policy_dialog_ko_320x568_expanded.png',
       ),

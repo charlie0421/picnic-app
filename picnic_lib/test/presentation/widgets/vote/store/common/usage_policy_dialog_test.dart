@@ -6,8 +6,10 @@ import 'package:picnic_lib/data/models/wallet/currency_history.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/data/repositories/wallet_repository.dart';
+import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -54,7 +56,7 @@ void main() {
   });
 
   group('UsagePolicyPopup', () {
-    testWidgets('renders when opened via showUsagePolicyDialog', (
+    testWidgets('renders fullscreen dialog and closes from its close button', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -74,6 +76,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(UsagePolicyPopup), findsOneWidget);
+      expect(find.byType(FullScreenDialog), findsOneWidget);
+      expect(find.byType(LargePopupWidget), findsNothing);
+
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(UsagePolicyPopup), findsNothing);
+      expect(find.byType(FullScreenDialog), findsNothing);
     });
 
     testWidgets('renders UsagePolicyPopup directly', (
@@ -269,7 +279,7 @@ void main() {
       expect(find.text('지갑 정보를 불러오지 못했습니다.'), findsOneWidget);
     });
 
-    testWidgets('showUsagePolicyDialog uses general dialog with transitions', (
+    testWidgets('showUsagePolicyDialog settles without a scale transition', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -286,7 +296,7 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.text('Open'));
-      // Pump a few frames to observe transition animation
+      // 공통 전체 화면 라우트의 전환 시간이 끝날 때까지 진행한다.
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));

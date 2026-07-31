@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/data/models/wallet/currency_history.dart';
@@ -7,9 +6,9 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/data/repositories/wallet_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
-import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -148,10 +147,7 @@ bool _isOpen(WidgetTester tester, String title) {
   if (title == l.bonus_candy_example_title) {
     return find.text(l.bonus_candy_example_earn_date).evaluate().isNotEmpty;
   }
-  return find
-      .text(_stripBullet(l.bonus_candy_policy_1))
-      .evaluate()
-      .isNotEmpty;
+  return find.text(_stripBullet(l.bonus_candy_policy_1)).evaluate().isNotEmpty;
 }
 
 Future<void> _openAllDisclosures(WidgetTester tester) async {
@@ -166,13 +162,7 @@ Future<void> _openAllDisclosures(WidgetTester tester) async {
   }
 }
 
-Finder get _shellFinder => find.descendant(
-  of: find.byType(LargePopupWidget),
-  // 셸의 카드 Container 만 antiAlias 클립을 켠다 (large_popup.dart:38).
-  matching: find.byWidgetPredicate(
-    (w) => w is Container && w.clipBehavior == Clip.antiAlias,
-  ),
-);
+Finder get _shellFinder => find.byType(FullScreenDialog);
 
 ScrollPosition _position(WidgetTester tester) =>
     tester.state<ScrollableState>(find.byType(Scrollable)).position;
@@ -191,16 +181,9 @@ Rect _globalRect(Element element) {
   return box.localToGlobal(Offset.zero) & box.size;
 }
 
-/// 셸의 실제 클립 경로.
-///
-/// `Container(clipBehavior: Clip.antiAlias)` 는 `BoxDecoration.getClipPath` 를
-/// 쓰고, 그건 테두리 두께를 빼지 않은 **바깥** 라운드 사각형이다
-/// (large_popup.dart:36-47). 즉 카드 바닥 근처에서 쓸 수 있는 가로 폭은
-/// `BorderRadius.circular(120.r)` 만큼 급격히 줄어든다.
-RRect _shellClip(WidgetTester tester) => RRect.fromRectAndRadius(
-  tester.getRect(_shellFinder),
-  Radius.circular(ScreenUtil().radius(120)),
-);
+/// 전체 화면 셸은 라운드 코너 없이 화면 경계에서 콘텐츠를 자른다.
+RRect _shellClip(WidgetTester tester) =>
+    RRect.fromRectAndRadius(tester.getRect(_shellFinder), Radius.zero);
 
 /// 지금 화면에서 읽으라고 내놓은 모든 텍스트가 코너 웨지 밖에 있는지 본다.
 ///
@@ -275,10 +258,7 @@ void main() {
     }
   });
 
-  group('T2 코너 클립 안전 — 쉬는 상태와 끝까지 내린 상태', () {
-    // 뷰포트는 이제 카드 안쪽 경계까지 닿는다(패딩이 스크롤 뷰 안으로 들어갔다).
-    // 그래서 "뷰포트가 바닥에서 몇 px 떨어졌나" 대신, 실제 클립 경로로 **글자
-    // 사각형이 코너 웨지에 들어가는지**를 직접 본다.
+  group('T2 전체 화면 경계 안전 — 쉬는 상태와 끝까지 내린 상태', () {
     for (final size in const [
       Size(320, 640),
       Size(360, 800),
@@ -288,12 +268,11 @@ void main() {
         testWidgets('${size.width}x${size.height} x$scale', (tester) async {
           await _pumpPopup(tester, size: size, textScale: scale);
 
-          // 뷰포트가 카드 안쪽 경계까지 닿아야 한다 — 잘림이 테두리에서
-          // 일어나야 스크롤 신호로 읽힌다. 남는 건 셸의 2.r 테두리뿐이다.
-          final gap =
-              tester.getRect(_shellFinder).bottom -
-              tester.getRect(find.byType(SingleChildScrollView)).bottom;
-          expect(gap, lessThan(4.0), reason: 'viewport must reach the card edge');
+          final shell = tester.getRect(_shellFinder);
+          expect(shell.left, closeTo(0, 0.01));
+          expect(shell.top, closeTo(0, 0.01));
+          expect(shell.width, closeTo(size.width, 0.01));
+          expect(shell.height, closeTo(size.height, 0.01));
 
           _expectTextInsideClip(tester, at: 'at rest');
 
@@ -308,15 +287,16 @@ void main() {
   });
 
   group('T3 점진적 공개', () {
-    testWidgets('소멸 예정 행이 있으면 예시는 접혀 있고, 눌러야 열린다', (
-      tester,
-    ) async {
+    testWidgets('소멸 예정 행이 있으면 예시는 접혀 있고, 눌러야 열린다', (tester) async {
       await _pumpPopup(tester, size: const Size(393, 873));
       final l = _l10n(tester);
 
       // 접힌 본문은 트리에서 아예 빠진다(Offstage 가 아니다).
       expect(find.text(l.bonus_candy_example_earn_date), findsNothing);
-      expect(find.text(l.bonus_candy_expiration_policy_earn_period), findsNothing);
+      expect(
+        find.text(l.bonus_candy_expiration_policy_earn_period),
+        findsNothing,
+      );
       // 헤더는 접혀 있어도 보인다.
       expect(find.text(l.bonus_candy_example_title), findsOneWidget);
       expect(find.byKey(const Key('candy-policy-section')), findsOneWidget);
@@ -335,14 +315,8 @@ void main() {
       );
     });
 
-    testWidgets('소멸 예정 행이 없으면 소멸 시점 안내가 처음부터 펼쳐진다', (
-      tester,
-    ) async {
-      await _pumpPopup(
-        tester,
-        size: const Size(393, 873),
-        bonusRows: const [],
-      );
+    testWidgets('소멸 예정 행이 없으면 소멸 시점 안내가 처음부터 펼쳐진다', (tester) async {
+      await _pumpPopup(tester, size: const Size(393, 873), bonusRows: const []);
       final l = _l10n(tester);
       expect(
         find.text(l.bonus_candy_expiration_policy_earn_period),
@@ -354,9 +328,7 @@ void main() {
       expect(find.text(l.bonus_candy_example_earn_date), findsNothing);
     });
 
-    testWidgets('소멸 예정 행은 prediction_month 오름차순으로 정렬된다', (
-      tester,
-    ) async {
+    testWidgets('소멸 예정 행은 prediction_month 오름차순으로 정렬된다', (tester) async {
       await _pumpPopup(tester, size: const Size(393, 873));
       final first = tester.getTopLeft(find.text('2026-08-15 (KST)'));
       final second = tester.getTopLeft(find.text('2026-09-15 (KST)'));
@@ -364,15 +336,13 @@ void main() {
     });
   });
 
-  testWidgets('T4 기본 상태에서는 스크롤이 없다 (393x873, ko, 소멸 예정 2건)', (
-    tester,
-  ) async {
+  testWidgets('T4 기본 상태에서는 스크롤이 없다 (393x873, ko, 소멸 예정 2건)', (tester) async {
     await _pumpPopup(tester, size: const Size(393, 873));
     expect(_position(tester).maxScrollExtent, 0.0);
 
-    // 카드가 내용에 붙는다 — 예전처럼 0.82H 짜리 빈 상자가 되지 않는다.
+    // 셸은 이전의 0.82H 라운드 카드가 아니라 정확히 전체 화면을 사용한다.
     final shellRect = tester.getRect(_shellFinder);
-    expect(shellRect.height, lessThan(873 * 0.82 - 28));
+    expect(shellRect, const Rect.fromLTWH(0, 0, 393, 873));
   });
 
   group('T5 예시 플레이스홀더 치환 (대소문자 무관)', () {
@@ -435,14 +405,8 @@ void main() {
       expect(find.text(l.expiring_today_cotton_only('10')), findsNothing);
     });
 
-    testWidgets('비로그인: 히어로가 없고 두 카드와 세 구분선은 남는다', (
-      tester,
-    ) async {
-      await _pumpPopup(
-        tester,
-        size: const Size(393, 873),
-        loggedIn: false,
-      );
+    testWidgets('비로그인: 히어로가 없고 두 카드와 세 구분선은 남는다', (tester) async {
+      await _pumpPopup(tester, size: const Size(393, 873), loggedIn: false);
       final l = _l10n(tester);
       expect(find.byKey(const Key('expiry-today-summary')), findsNothing);
       expect(find.byKey(const Key('cotton-candy-section')), findsOneWidget);
@@ -504,10 +468,7 @@ void main() {
     });
   });
 
-  group('T7 펼치면 드러난 내용을 화면 안으로 끌어온다', () {
-    // 예전 구현(`addPostFrameCallback` + `Scrollable.ensureVisible`)은 성장 중에
-    // 목표 오프셋이 `applyBoundaryConditions` 에 잘려서 pixels 가 정확히 0.0 에
-    // 머물렀다. 펼쳤는데 셰브런만 돌고 아무 일도 안 일어나는 상태였다.
+  group('T7 펼친 내용이 전체 화면 뷰포트 안에 드러난다', () {
     for (final size in const [Size(320, 568), Size(320, 640)]) {
       testWidgets('${size.width}x${size.height}', (tester) async {
         await _pumpPopup(tester, size: size);
@@ -528,11 +489,6 @@ void main() {
         await tester.pump(const Duration(milliseconds: 300));
         await tester.pumpAndSettle();
 
-        expect(
-          position.pixels,
-          greaterThan(0.0),
-          reason: 'expanding must scroll the revealed body into view',
-        );
         // 드러난 첫 행이 뷰포트 안에 완전히 들어와야 한다.
         final viewport = tester.getRect(find.byType(SingleChildScrollView));
         final firstRow = tester.getRect(
@@ -550,17 +506,13 @@ void main() {
   });
 
   group('T8 바닥 신호', () {
-    testWidgets('내용이 다 보이면 꺼져 있다 (360x800 = 보고된 기기)', (
-      tester,
-    ) async {
+    testWidgets('내용이 다 보이면 꺼져 있다 (360x800 = 보고된 기기)', (tester) async {
       await _pumpPopup(tester, size: const Size(360, 800));
       expect(_position(tester).maxScrollExtent, 0.0);
       expect(_cueOpacity(tester), 0.0);
     });
 
-    testWidgets('펼쳐서 내용이 넘치면 손대지 않아도 켜진다 (360x800)', (
-      tester,
-    ) async {
+    testWidgets('펼쳐서 내용이 넘치면 손대지 않아도 켜진다 (360x800)', (tester) async {
       await _pumpPopup(tester, size: const Size(360, 800));
       final l = _l10n(tester);
       final position = _position(tester);
@@ -578,9 +530,7 @@ void main() {
       expect(_cueOpacity(tester), 1.0);
     });
 
-    testWidgets('끝까지 내리면 아래 신호가 꺼지고 위 신호가 켜진다 (320x568)', (
-      tester,
-    ) async {
+    testWidgets('끝까지 내리면 아래 신호가 꺼지고 위 신호가 켜진다 (320x568)', (tester) async {
       await _pumpPopup(tester, size: const Size(320, 568));
       final position = _position(tester);
       expect(position.maxScrollExtent, greaterThan(0.0));

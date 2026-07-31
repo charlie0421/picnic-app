@@ -9,9 +9,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
-import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -128,30 +128,9 @@ Widget _bullet(String raw) {
 }
 
 Future<void> showUsagePolicyDialog(BuildContext context) {
-  return showGeneralDialog(
+  return showFullScreenDialog(
     context: context,
-    barrierDismissible: true,
-    barrierLabel: '',
-    transitionDuration: const Duration(milliseconds: 300),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return const Material(
-        color: Colors.transparent,
-        child: UsagePolicyPopup(),
-      );
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      final curvedAnimation = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeInOut,
-      );
-      return ScaleTransition(
-        scale: Tween<double>(begin: 0.5, end: 1.0).animate(curvedAnimation),
-        child: FadeTransition(
-          opacity: Tween<double>(begin: 0.0, end: 1.0).animate(curvedAnimation),
-          child: child,
-        ),
-      );
-    },
+    builder: (_) => const UsagePolicyPopup(),
   );
 }
 
@@ -163,39 +142,46 @@ class UsagePolicyPopup extends ConsumerWidget {
     final localizations = AppLocalizations.of(context);
     final isLoggedIn = isSupabaseLoggedSafely;
 
-    return LargePopupWidget(
-      // 링크(스토어 파우치 카드)와 팝업 헤더가 서로 다른 문구를 쓰고 있었다.
-      // 같은 화면을 지칭하므로 하나로 통일한다.
-      titleWidget: VoteCommonTitle(
-        title: localizations.expiring_bonus_candy_guide,
-      ),
-      content: ConstrainedBox(
-        constraints: BoxConstraints(
-          // 셸 밖의 24px '닫기' 행 + 카드 좌우 2px 테두리(2x2)를 미리 빼서
-          // 팝업 전체가 화면의 0.82 를 절대 넘지 않게 한다.
-          maxHeight: MediaQuery.sizeOf(context).height * 0.82 - 28,
+    return FullScreenDialog(
+      child: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              // 공통 전체 화면 셸의 닫기 버튼(top: 50, right: 15)과 제목이
+              // 겹치지 않도록 오른쪽 64px를 비운다.
+              padding: EdgeInsets.fromLTRB(24.w, 24, 64, 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: VoteCommonTitle(
+                  title: localizations.expiring_bonus_candy_guide,
+                ),
+              ),
+            ),
+            Expanded(
+              child: isLoggedIn
+                  ? ref
+                        .watch(expireBonusProvider)
+                        .when(
+                          data: (data) => _buildPolicyContent(
+                            context,
+                            data,
+                            ref.watch(walletSummaryProvider),
+                          ),
+                          loading: () => _buildLoading(),
+                          // 보너스 조회 실패가 다이얼로그 전체를 대체하지 않는다.
+                          // 코튼캔디 규칙 · 소멸 시점 · 예시 · 정책은 그대로
+                          // 보이고, 실패는 보너스 카드 안에서만 말한다.
+                          error: (error, stack) => _buildPolicyContent(
+                            context,
+                            null,
+                            ref.watch(walletSummaryProvider),
+                            bonusLoadFailed: true,
+                          ),
+                        )
+                  : _buildPolicyContent(context, null, null),
+            ),
+          ],
         ),
-        child: isLoggedIn
-            ? ref
-                  .watch(expireBonusProvider)
-                  .when(
-                    data: (data) => _buildPolicyContent(
-                      context,
-                      data,
-                      ref.watch(walletSummaryProvider),
-                    ),
-                    loading: () => _buildLoading(),
-                    // 보너스 조회 실패가 다이얼로그 전체를 대체하지 않는다. 코튼캔디
-                    // 규칙 · 소멸 시점 · 예시 · 정책은 그대로 보이고, 실패는 보너스
-                    // 카드 안에서만 말한다.
-                    error: (error, stack) => _buildPolicyContent(
-                      context,
-                      null,
-                      ref.watch(walletSummaryProvider),
-                      bonusLoadFailed: true,
-                    ),
-                  )
-            : _buildPolicyContent(context, null, null),
       ),
     );
   }
@@ -231,22 +217,10 @@ class UsagePolicyPopup extends ConsumerWidget {
     final rows = _sortedBonusRows(expiringData);
 
     return Padding(
-      // 위 여백만 스크롤 뷰 **밖**이다: 셸의 타이틀 칩은 하드코딩 48px 인데
-      // `60.h` 는 splitScreenMode 때문에 700dp 미만 기기에서 47.1px 로 줄어 칩과
-      // 겹친다. 그래서 스케일하지 않은 64 를 쓰고, 내용이 칩 아래로 스크롤해
-      // 들어가지 않게 뷰포트를 여기서 시작한다.
-      padding: const EdgeInsets.only(top: 64),
+      padding: EdgeInsets.zero,
       child: _ScrollBody(
-        // 좌우 · 아래 여백은 스크롤 뷰 **안**이다.
-        // - 좌우를 안에 넣으면 뷰포트가 카드 안쪽 폭 전체를 차지해서, 잘림이
-        //   카드 경계에서 일어난다. 예전에는 패딩이 밖에 있어서 잘린 글자가
-        //   테두리보다 56px 위에 떠 있었고 그게 "잘려 보인다" 의 정체였다.
-        // - 아래 36 은 코너 클립 여유다. 셸이 `BorderRadius.circular(120.r)` 로
-        //   antiAlias 클립하므로 바닥에서 d 만큼 위의 코너 침범량은
-        //   R - sqrt(R^2 - (R-2r-d)^2) 이고, 가장 넓은 411.4dp 에서 이 값이 가로
-        //   패딩(25.1px) 이하가 되려면 d >= 43.9 다. 접힌 헤더의 마지막 잉크는
-        //   자기 아래 패딩 12 를 더 갖고 있으므로 36+12=48 로 여유가 남는다.
-        //   (스크롤 도중 코너에 들어가는 구간은 바닥 신호가 덮는다.)
+        // 좌우 · 아래 여백을 스크롤 콘텐츠에 포함해 마지막 정책 문장까지
+        // 화면 경계와 충분한 간격을 유지한다.
         contentPadding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 36),
         children: [
           if (walletState != null && !bonusLoadFailed) ...[
@@ -629,30 +603,14 @@ class UsagePolicyPopup extends ConsumerWidget {
 
 /// 하나뿐인 스크롤 영역 + 바닥 '아래에 더 있다' 신호.
 ///
-/// `ConstrainedBox` 가 높이 상한을 정하고, `Stack` 이 loose bounded 제약을
-/// 넘기므로 `SingleChildScrollView` 는 `min(내용, 상한)` 으로 **내용에 붙는다**.
-/// 예전 구조(`Column(max)` + `Expanded`)는 로그아웃 상태에서도 카드를 658px 로
-/// 고정해 157px 의 흰 여백을 남겼다.
+/// 전체 화면 셸의 `Expanded` 가 높이 상한을 정하고, `Stack` 이 loose bounded
+/// 제약을 넘기므로 `SingleChildScrollView` 는 내용이 짧으면 내용에 붙고 길면
+/// 남은 화면 높이 안에서 스크롤한다.
 ///
-/// 좌우 · 아래 여백을 [contentPadding] 으로 **스크롤 뷰 안**에 넣는다. 그래서
-/// 뷰포트가 카드 안쪽 경계까지 닿고, 넘치는 내용의 잘림이 카드 테두리에서
-/// 일어난다. 패딩이 스크롤 뷰 밖에 있던 예전 구조에서는 잘린 글자가 테두리보다
-/// 56px 위에 떠 있어서 스크롤 신호가 아니라 렌더링 오류로 읽혔다.
+/// 좌우 · 아래 여백은 [contentPadding] 으로 스크롤 뷰 안에 둔다.
 ///
-/// 바닥 신호는 세 겹이고, 실제로 가려진 내용이 있을 때만 켜진다.
-/// 1. 바닥 56px 흰 그라디언트 — 셸의 `BorderRadius.circular(120.r)` 코너 웨지에
-///    글자가 들어가는 구간(바닥에서 ~44px 아래)을 덮는다. 곡선에 씹힌 글자가
-///    보이지 않게 하는 게 목적이다.
-/// 2. 그 위 가운데의 아래 화살표 — 흰 카드에 흰 그라디언트는 그 자체로 보이지
-///    않으므로, '더 있다' 를 실제로 말하는 건 이 화살표다.
-/// 3. 위쪽 32px 흰 그라디언트 — 스크롤한 뒤 뷰포트 위 경계에서 글자가 생으로
-///    잘리는 걸 부드럽게 만든다. 타이틀 칩과 잘린 줄 사이에 16px 흰 여백이 있어서
-///    그냥 두면 바닥에서 고친 것과 같은 "떠 있는 잘림" 이 위에서 생긴다.
-///
-/// 스크롤바는 쓸 수 없다. 카드 바닥이 스타디움 곡선이라 오른쪽 끝 트랙이 곡선에
-/// 잘린다 — 411.4dp 에서 침범량이 3px 이하가 되려면 트랙이 바닥에서 86px 위에서
-/// 끝나야 하고, 그러면 정작 필요한 순간에 썸이 사라진다. 가로 중앙이 카드 바닥
-/// 근처에서 유일하게 안전한 자리다.
+/// 위·아래 흰 그라디언트와 아래 화살표는 실제로 가려진 내용이 있을 때만 켜져
+/// 스크롤 가능성을 알린다.
 class _ScrollBody extends StatefulWidget {
   const _ScrollBody({required this.children, required this.contentPadding});
 
