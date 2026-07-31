@@ -153,6 +153,7 @@ class FreeChargeContent extends ConsumerWidget {
       ),
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w),
       child: StoreListTile(
+        flexibleHeight: true,
         index: item.isMission ? null : item.index,
         title: Text(
           item.title,

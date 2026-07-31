@@ -15,6 +15,7 @@ class StoreListTile extends StatelessWidget {
     this.index,
     this.buttonScale,
     this.badge,
+    this.flexibleHeight = false,
   });
 
   final Image icon;
@@ -26,50 +27,60 @@ class StoreListTile extends StatelessWidget {
   final int? index;
   final double? buttonScale;
   final Widget? badge;
+  final bool flexibleHeight;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: subtitle != null ? 64 : 48, // subtitle이 있으면 높이 증가
-      width: buttonScale,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          icon,
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, // center로 변경
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(child: title),
-                    if (badge != null) ...[SizedBox(width: 6.w), badge!],
-                  ],
-                ),
-                if (subtitle != null) ...[
-                  SizedBox(height: 4), // 간격 추가
-                  subtitle!,
+    final content = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        icon,
+        SizedBox(width: 16.w),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center, // center로 변경
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(child: title),
+                  if (badge != null) ...[SizedBox(width: 6.w), badge!],
                 ],
+              ),
+              if (subtitle != null) ...[
+                SizedBox(height: 4), // 간격 추가
+                subtitle!,
               ],
-            ),
+            ],
           ),
-          SizedBox(
-            height: 32,
-            child: ElevatedButton(
-              onPressed: isLoading ? null : buttonOnPressed,
-              child: isLoading
-                  ? SizedBox(
-                      width: 16.w,
-                      height: 16,
-                      child: const SmallPulseLoadingIndicator(),
-                    )
-                  : Text(buttonText, style: getTextStyle(AppTypo.body14B)),
-            ),
+        ),
+        SizedBox(
+          height: 32,
+          child: ElevatedButton(
+            onPressed: isLoading ? null : buttonOnPressed,
+            child: isLoading
+                ? SizedBox(
+                    width: 16.w,
+                    height: 16,
+                    child: const SmallPulseLoadingIndicator(),
+                  )
+                : Text(buttonText, style: getTextStyle(AppTypo.body14B)),
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+
+    if (flexibleHeight) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(minHeight: subtitle != null ? 64 : 48),
+        child: SizedBox(width: buttonScale, child: content),
+      );
+    }
+
+    return SizedBox(
+      height: subtitle != null ? 64 : 48,
+      width: buttonScale,
+      child: content,
     );
   }
 }

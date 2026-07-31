@@ -16,6 +16,7 @@ void main() {
     List<ChargeStationItem> Function(BuildContext)? missionBuilder,
     List<ChargeStationItem> Function(BuildContext)? adBuilder,
     bool loggedIn = true,
+    Locale locale = const Locale('ko'),
   }) {
     return buildTestApp(
       _AnimationHost(
@@ -57,6 +58,7 @@ void main() {
         },
       ),
       loggedIn: loggedIn,
+      locale: locale,
     );
   }
 
@@ -101,6 +103,48 @@ void main() {
       expect(find.text('+보너스 스타캔디 Unlimited 획득'), findsOneWidget);
       expect(find.text('+코튼캔디 1 획득'), findsOneWidget);
     });
+
+    testWidgets(
+      'does not overflow long Spanish mission copy at 320px and 1.3x text',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 640);
+        tester.view.devicePixelRatio = 1;
+        tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+        await pumpWidgetAndIgnoreErrors(
+          tester,
+          buildWidget(
+            loggedIn: false,
+            locale: const Locale('es'),
+            missionBuilder: (_) => [
+              ChargeStationItem(
+                id: 'tapjoy',
+                title: 'Recompensas ilimitadas',
+                isMission: true,
+                platformType: AdPlatformType.tapjoy,
+                onPressed: () {},
+                bonusText: 'Recompensas ilimitadas',
+              ),
+            ],
+            adBuilder: (_) => [],
+          ),
+        );
+        await pumpAndIgnoreErrors(tester);
+        await pumpAndIgnoreErrors(tester);
+
+        expect(tester.takeException(), isNull);
+        expect(
+          find.text(
+            '+Caramelo de Estrella de Bonificación '
+            'Recompensas ilimitadas obtenido',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
 
     testWidgets('shows StorePointInfo when logged in', (tester) async {
       await pumpWidgetAndIgnoreErrors(tester, buildWidget(loggedIn: true));
