@@ -18,10 +18,14 @@ Future<T?> showFullScreenDialog<T>({
     barrierDismissible: barrierDismissible,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     transitionDuration: FullScreenDialogConstants.transitionDuration,
-    pageBuilder: (BuildContext buildContext, Animation<double> animation,
-        Animation<double> secondaryAnimation) {
-      return builder(buildContext);
-    },
+    pageBuilder:
+        (
+          BuildContext buildContext,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return builder(buildContext);
+        },
   );
 }
 
@@ -62,18 +66,14 @@ class _FullScreenDialogState extends State<FullScreenDialog> {
         child: Stack(
           children: [
             widget.child,
-            if (widget.closeButton != null)
-              Positioned(
-                top: 50,
-                right: 15,
-                child: widget.closeButton!,
-              )
-            else
-              Positioned(
-                top: 50,
-                right: 15,
-                child: _buildCloseButton(),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: SafeArea(
+                minimum: const EdgeInsets.only(top: 50, right: 15),
+                child: widget.closeButton ?? _buildCloseButton(),
               ),
+            ),
           ],
         ),
       ),
