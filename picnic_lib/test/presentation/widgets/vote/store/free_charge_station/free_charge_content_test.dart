@@ -111,19 +111,18 @@ void main() {
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester);
 
-      final rewardIcons = tester
-          .widgetList<Image>(find.byType(Image))
-          .map((image) => image.image)
-          .whereType<AssetImage>()
-          .map((image) => image.assetName);
+      final rewardTiles = tester.widgetList<StoreListTile>(
+        find.byType(StoreListTile),
+      );
 
+      expect(rewardTiles, hasLength(2));
       expect(
-        rewardIcons,
-        contains('assets/icons/store/currency_bonus_star_candy.png'),
+        (rewardTiles.first.icon.image as AssetImage).assetName,
+        'assets/icons/store/currency_bonus_star_candy.png',
       );
       expect(
-        rewardIcons,
-        contains('assets/icons/store/currency_cotton_candy.png'),
+        (rewardTiles.last.icon.image as AssetImage).assetName,
+        'assets/icons/store/currency_cotton_candy.png',
       );
     });
 
