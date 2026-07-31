@@ -85,6 +85,8 @@ const _bonusRows = [
   {'prediction_month': '2099-08', 'expiring_amount': 1200},
 ];
 
+final _goldenExampleReferenceDate = DateTime.utc(2026, 7, 1);
+
 Widget _buildGoldenApp({
   required Locale locale,
   required double textScale,
@@ -117,7 +119,11 @@ Widget _buildGoldenApp({
             child: child!,
           ),
           // 전체 화면 다이얼로그 자체를 화면 경계까지 캡처한다.
-          home: const RepaintBoundary(child: UsagePolicyPopup()),
+          home: RepaintBoundary(
+            child: UsagePolicyPopup(
+              exampleReferenceDate: _goldenExampleReferenceDate,
+            ),
+          ),
         ),
       ),
     ),

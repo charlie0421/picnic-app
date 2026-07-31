@@ -323,21 +323,26 @@ void main() {
       expect(find.byType(UsagePolicyPopup), findsOneWidget);
     });
 
-    testWidgets('renders example table with current month calculations', (
+    testWidgets('renders example months from an injected reference date', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         buildTestAppPage(
-          const Material(color: Colors.transparent, child: UsagePolicyPopup()),
+          Material(
+            color: Colors.transparent,
+            child: UsagePolicyPopup(
+              exampleReferenceDate: DateTime.utc(2032, 3, 1),
+            ),
+          ),
           loggedIn: false,
         ),
       );
       await tester.pumpAndSettle();
 
-      // The example table should be rendered inside the policy details
-      expect(find.byType(UsagePolicyPopup), findsOneWidget);
-      // Table rows should contain Divider widgets
-      expect(find.byType(Divider), findsWidgets);
+      expect(find.text('3월 10일 14:00(KST)'), findsOneWidget);
+      expect(find.text('4월 15일 00:00(KST)'), findsOneWidget);
+      expect(find.text('3월 20일 14:00(KST)'), findsOneWidget);
+      expect(find.text('5월 15일 00:00(KST)'), findsOneWidget);
     });
   });
 

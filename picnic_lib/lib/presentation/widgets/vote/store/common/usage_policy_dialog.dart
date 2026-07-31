@@ -131,7 +131,10 @@ Future<void> showUsagePolicyDialog(BuildContext context) {
 }
 
 class UsagePolicyPopup extends ConsumerWidget {
-  const UsagePolicyPopup({super.key});
+  const UsagePolicyPopup({super.key, this.exampleReferenceDate});
+
+  /// 골든처럼 예시 월을 재현해야 하는 호출자만 기준일을 고정한다.
+  final DateTime? exampleReferenceDate;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -238,7 +241,10 @@ class UsagePolicyPopup extends ConsumerWidget {
           _PolicySection(
             key: const Key('bonus-expiry-example-section'),
             title: localizations.bonus_candy_example_title,
-            children: _exampleChildren(context),
+            children: _exampleChildren(
+              context,
+              exampleReferenceDate ?? DateTime.now(),
+            ),
           ),
           _hairline,
           _PolicySection(
@@ -536,9 +542,8 @@ class UsagePolicyPopup extends ConsumerWidget {
     ];
   }
 
-  List<Widget> _exampleChildren(BuildContext context) {
+  List<Widget> _exampleChildren(BuildContext context, DateTime now) {
     final l = AppLocalizations.of(context);
-    final now = DateTime.now();
     final currentMonth = now.month.toString();
     final nextMonth = (now.month % 12 + 1).toString();
     final afterNextMonth = (now.month % 12 + 2).toString();
