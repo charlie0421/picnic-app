@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 
@@ -8,6 +9,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_d
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class StorePointInfo extends ConsumerStatefulWidget {
   const StorePointInfo({
@@ -18,6 +20,8 @@ class StorePointInfo extends ConsumerStatefulWidget {
     this.titlePadding,
     this.topMargin = 20,
     this.refreshButton,
+    this.onRefresh,
+    this.refreshController,
   });
 
   final double? width;
@@ -29,6 +33,8 @@ class StorePointInfo extends ConsumerStatefulWidget {
   /// 파우치 새로고침. 스토어 헤더에 따로 떠 있던 것을 카드 안으로 옮겼다
   /// (오너 스펙). 동작은 그대로 — 프로필과 지갑 요약을 함께 다시 읽는다.
   final Widget? refreshButton;
+  final VoidCallback? onRefresh;
+  final AnimationController? refreshController;
 
   @override
   ConsumerState<StorePointInfo> createState() => _StorePointInfoState();
@@ -90,6 +96,9 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
               if (widget.refreshButton case final refresh?) ...[
                 const SizedBox(width: 10),
                 refresh,
+              ] else if (widget.onRefresh != null) ...[
+                const SizedBox(width: 10),
+                _buildRefreshButton(),
               ],
             ],
           ),
@@ -120,6 +129,33 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildRefreshButton() {
+    final icon = SvgPicture.asset(
+      package: 'picnic_lib',
+      'assets/icons/reset_style=line.svg',
+      width: 24,
+      height: 24,
+      colorFilter: ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+    );
+    final child = widget.refreshController == null
+        ? icon
+        : RotationTransition(
+            turns: Tween(begin: 0.0, end: 1.0).animate(
+              CurvedAnimation(
+                parent: widget.refreshController!,
+                curve: Curves.easeInOut,
+              ),
+            ),
+            child: icon,
+          );
+
+    return GestureDetector(
+      key: const Key('store-point-info-refresh'),
+      onTap: widget.onRefresh,
+      child: child,
     );
   }
 }
