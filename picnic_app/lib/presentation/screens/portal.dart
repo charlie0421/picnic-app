@@ -30,24 +30,22 @@ class _PortalState extends ConsumerState<Portal> {
   @override
   Widget build(BuildContext context) {
     final navigationNotifier = ref.watch(navigationInfoProvider.notifier);
-    final showTopMenu =
-        ref.watch(navigationInfoProvider.select((value) => value.showTopMenu));
+    final showTopMenu = ref.watch(
+      navigationInfoProvider.select((value) => value.showTopMenu),
+    );
     final userInfoState = ref.watch(userInfoProvider);
     return Container(
-      decoration: BoxDecoration(
-        gradient: commonGradient,
-      ),
+      decoration: BoxDecoration(gradient: commonGradient),
       child: FixedWidthLayout(
         child: Scaffold(
           key: scaffoldKey,
           drawerEnableOpenDragGesture: false,
-          drawer: const Drawer(
-            width: double.infinity,
-            child: MyPageScreen(),
-          ),
+          drawer: const Drawer(width: double.infinity, child: MyPageScreen()),
           appBar: AppBar(
-            toolbarHeight: ref.watch(
-                    navigationInfoProvider.select((value) => value.showPortal))
+            toolbarHeight:
+                ref.watch(
+                  navigationInfoProvider.select((value) => value.showPortal),
+                )
                 ? 56
                 : 0,
             leading: Builder(
@@ -68,11 +66,13 @@ class _PortalState extends ConsumerState<Portal> {
                               width: 36,
                               height: 36,
                               borderRadius: 8.r,
-                            ))
+                            ),
+                          )
                         : GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => Scaffold.of(context).openDrawer(),
-                            child: const DefaultAvatar()),
+                            child: const DefaultAvatar(),
+                          ),
                     error: (error, stackTrace) => GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () => Scaffold.of(context).openDrawer(),
@@ -82,8 +82,9 @@ class _PortalState extends ConsumerState<Portal> {
                       width: 36,
                       height: 36,
                       child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.r),
-                          child: buildPlaceholderImage()),
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: buildPlaceholderImage(),
+                      ),
                     ),
                   ),
                 );
@@ -93,7 +94,7 @@ class _PortalState extends ConsumerState<Portal> {
             titleSpacing: 0,
             centerTitle: true,
             title: SizedBox(
-              height: 26,
+              height: 28,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -101,7 +102,7 @@ class _PortalState extends ConsumerState<Portal> {
                   SvgPicture.asset(
                     'assets/images/fortune/picnic_logo.svg',
                     package: 'picnic_lib',
-                    height: 20,
+                    height: 24,
                     fit: BoxFit.contain,
                   ),
                   if (Environment.currentEnvironment == 'dev') ...[
@@ -134,9 +135,7 @@ class _PortalState extends ConsumerState<Portal> {
             actions: [
               Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  TopRightNotifications(),
-                ],
+                children: const [TopRightNotifications()],
               ),
             ],
           ),
@@ -145,26 +144,26 @@ class _PortalState extends ConsumerState<Portal> {
               final mainContent = kIsWeb
                   ? Center(
                       child: SizedBox(
-                      width: webDesignSize.width,
-                      child: Column(children: [
-                        if (showTopMenu) const TopMenu(),
-                        Expanded(child: navigationNotifier.getScreen())
-                      ]),
-                    ))
+                        width: webDesignSize.width,
+                        child: Column(
+                          children: [
+                            if (showTopMenu) const TopMenu(),
+                            Expanded(child: navigationNotifier.getScreen()),
+                          ],
+                        ),
+                      ),
+                    )
                   : SizedBox(
                       width: constraints.maxWidth,
                       height: constraints.maxHeight,
-                      child: Column(children: [
-                        if (showTopMenu) const TopMenu(),
-                        Expanded(child: navigationNotifier.getScreen()),
-                      ]),
+                      child: Column(
+                        children: [
+                          if (showTopMenu) const TopMenu(),
+                          Expanded(child: navigationNotifier.getScreen()),
+                        ],
+                      ),
                     );
-              return Stack(
-                children: [
-                  mainContent,
-                  const PopupCarousel(),
-                ],
-              );
+              return Stack(children: [mainContent, const PopupCarousel()]);
             },
           ),
         ),

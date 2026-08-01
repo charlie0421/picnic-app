@@ -11,12 +11,13 @@ class TopRightNotifications extends ConsumerWidget {
     final unreadAsync = ref.watch(unreadNotificationsCountProvider);
     final count = unreadAsync.maybeWhen(data: (v) => v, orElse: () => 0);
 
-    Widget bell = const Icon(Icons.notifications);
+    const bellIcon = Icon(Icons.notifications, size: 24);
+    Widget bell = bellIcon;
     if (count > 0) {
       bell = Stack(
         clipBehavior: Clip.none,
         children: [
-          const Icon(Icons.notifications),
+          bellIcon,
           Positioned(
             right: -2,
             top: -2,
