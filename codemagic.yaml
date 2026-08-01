@@ -1143,6 +1143,7 @@ workflows:
           dart run tool/verify_release_target.dart --target=production
       - name: Setup and Patch iOS
         script: |
+          set -euo pipefail
           echo "=== Shorebird iOS 패치 ==="
           echo "🎯 OTA 업데이트 배포 (앱 서명 불필요)"
           echo ""
@@ -1166,13 +1167,24 @@ workflows:
           echo "✅ SHOREBIRD_TOKEN 설정됨"
 
           # 3. Flutter 환경 준비
-          cd picnic_app
+          # Codemagic 작업 디렉터리가 레포 루트인지 앱 디렉터리인지에
+          # 관계없이 pubspec 기준 디렉터리를 고정한다.
+          if [ -f pubspec.yaml ]; then
+            APP_ROOT="$(pwd)"
+          elif [ -f picnic_app/pubspec.yaml ]; then
+            APP_ROOT="$(pwd)/picnic_app"
+          else
+            echo "❌ picnic_app/pubspec.yaml을 찾을 수 없습니다"
+            exit 1
+          fi
+          cd "$APP_ROOT"
 
           echo "📦 Flutter 패키지 설치..."
           flutter pub get
 
-          echo "📦 CocoaPods 설치..."
-          cd ios && pod install && cd ..
+          # Shorebird Dart 패치는 CocoaPods 재설치가 필요하지 않다.
+          # 네이티브 의존성 캐시 장애가 패치 경로를 오염시키지 않도록
+          # pod install은 생략하고 기존 iOS 릴리스 아티팩트를 사용한다.
 
           # 4. iOS 패치 생성 및 배포
           echo "🚀 iOS 패치 생성 중..."
@@ -1181,7 +1193,11 @@ workflows:
           # pubspec.yaml에서 전체 버전 추출 (빌드 번호 포함).
           # Shorebird 릴리스는 전체 버전(예: 1.2.39+123904)으로 등록되므로
           # 빌드 번호를 잘라내면 릴리스를 찾지 못해 패치가 실패한다.
-          RELEASE_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //' | tr -d ' ')
+          RELEASE_VERSION=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1 | tr -d ' ')
+          if [ -z "$RELEASE_VERSION" ]; then
+            echo "❌ pubspec.yaml에서 release version을 읽을 수 없습니다"
+            exit 1
+          fi
           echo "📦 패치 대상 버전: $RELEASE_VERSION"
 
           shorebird patch ios \
