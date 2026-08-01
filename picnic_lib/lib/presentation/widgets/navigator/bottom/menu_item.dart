@@ -28,6 +28,9 @@ class MenuItem extends ConsumerWidget {
 
     final index = navigationInfo.getBottomNavigationIndex();
     final bool isSelected = index == this.index;
+    final iconSize = assetPath.endsWith('/media.svg')
+        ? NavBarConstants.bottomNavMediaIconSize
+        : NavBarConstants.bottomNavIconSize;
 
     return SizedBox(
       height: 52,
@@ -41,8 +44,8 @@ class MenuItem extends ConsumerWidget {
         },
         child: Center(
           child: SizedBox(
-            width: NavBarConstants.bottomNavIconSize,
-            height: NavBarConstants.bottomNavIconSize,
+            width: iconSize,
+            height: iconSize,
             child: SvgPicture.asset(
               package: 'picnic_lib',
               assetPath,

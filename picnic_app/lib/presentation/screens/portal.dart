@@ -51,8 +51,8 @@ class _PortalState extends ConsumerState<Portal> {
             leading: Builder(
               builder: (BuildContext context) {
                 return Container(
-                  width: 36,
-                  height: 36,
+                  width: 40,
+                  height: 40,
                   alignment: Alignment.center,
                   child: userInfoState.when(
                     data: (data) => data != null
@@ -63,8 +63,8 @@ class _PortalState extends ConsumerState<Portal> {
                             },
                             child: ProfileImageContainer(
                               avatarUrl: data.avatarUrl,
-                              width: 36,
-                              height: 36,
+                              width: 40,
+                              height: 40,
                               borderRadius: 8.r,
                             ),
                           )
@@ -90,11 +90,11 @@ class _PortalState extends ConsumerState<Portal> {
                 );
               },
             ),
-            leadingWidth: 52.w,
+            leadingWidth: 56.w,
             titleSpacing: 0,
             centerTitle: true,
             title: SizedBox(
-              height: 28,
+              height: 32,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -102,7 +102,7 @@ class _PortalState extends ConsumerState<Portal> {
                   SvgPicture.asset(
                     'assets/images/fortune/picnic_logo.svg',
                     package: 'picnic_lib',
-                    height: 24,
+                    height: 28,
                     fit: BoxFit.contain,
                   ),
                   if (Environment.currentEnvironment == 'dev') ...[

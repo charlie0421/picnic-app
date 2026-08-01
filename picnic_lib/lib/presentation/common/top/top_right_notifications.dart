@@ -11,7 +11,7 @@ class TopRightNotifications extends ConsumerWidget {
     final unreadAsync = ref.watch(unreadNotificationsCountProvider);
     final count = unreadAsync.maybeWhen(data: (v) => v, orElse: () => 0);
 
-    const bellIcon = Icon(Icons.notifications, size: 24);
+    const bellIcon = Icon(Icons.notifications, size: 28);
     Widget bell = bellIcon;
     if (count > 0) {
       bell = Stack(
@@ -40,8 +40,8 @@ class TopRightNotifications extends ConsumerWidget {
     }
 
     return SizedBox(
-      width: 36,
-      height: 36,
+      width: 40,
+      height: 40,
       child: IconButton(
         icon: bell,
         onPressed: () {
