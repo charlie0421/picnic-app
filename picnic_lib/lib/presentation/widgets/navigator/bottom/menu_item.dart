@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
+import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -40,14 +41,15 @@ class MenuItem extends ConsumerWidget {
         },
         child: Center(
           child: SizedBox(
-            width: 32,
-            height: 32,
+            width: NavBarConstants.bottomNavIconSize,
+            height: NavBarConstants.bottomNavIconSize,
             child: SvgPicture.asset(
               package: 'picnic_lib',
               assetPath,
               colorFilter: ColorFilter.mode(
-                  isSelected ? AppColors.grey900 : AppColors.grey400,
-                  BlendMode.srcIn),
+                isSelected ? AppColors.grey900 : AppColors.grey400,
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ),
