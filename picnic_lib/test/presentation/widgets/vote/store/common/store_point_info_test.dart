@@ -203,4 +203,22 @@ void main() {
     await tester.tap(find.byKey(const Key('pouch-refresh')));
     expect(taps, 1);
   });
+
+  testWidgets('공통 파우치가 새로고침 동작을 직접 제공한다', (WidgetTester tester) async {
+    var taps = 0;
+    await tester.pumpWidget(
+      buildTestAppPage(
+        StorePointInfo(
+          title: '별사탕 파우치',
+          width: double.infinity,
+          onRefresh: () => taps++,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('store-point-info-refresh')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('store-point-info-refresh')));
+    expect(taps, 1);
+  });
 }

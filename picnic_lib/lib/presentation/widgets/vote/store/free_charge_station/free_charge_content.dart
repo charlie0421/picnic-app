@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/charge_station_item.dart';
@@ -46,38 +46,16 @@ class FreeChargeContent extends ConsumerWidget {
         children: [
           if (isLogged) ...[
             const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () {
-                  rotationController.forward(from: 0);
-                  ref.read(userInfoProvider.notifier).getUserProfiles();
-                },
-                child: RotationTransition(
-                  turns: Tween(begin: 0.0, end: 1.0).animate(
-                    CurvedAnimation(
-                      parent: rotationController,
-                      curve: Curves.easeInOut,
-                    ),
-                  ),
-                  child: SvgPicture.asset(
-                    package: 'picnic_lib',
-                    'assets/icons/reset_style=line.svg',
-                    width: 24,
-                    height: 24,
-                    colorFilter: ColorFilter.mode(
-                      AppColors.primary500,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 4),
             StorePointInfo(
               title: AppLocalizations.of(context).label_star_candy_pouch,
               width: double.infinity,
-              height: 100,
+              height: 120,
+              refreshController: rotationController,
+              onRefresh: () {
+                rotationController.forward(from: 0);
+                ref.read(userInfoProvider.notifier).getUserProfiles();
+                ref.read(walletSummaryProvider.notifier).refresh();
+              },
             ),
           ],
           const SizedBox(height: 8),

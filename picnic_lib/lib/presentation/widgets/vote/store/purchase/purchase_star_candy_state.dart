@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/global_purchase_listener.dart';
 // `InAppPurchaseService` 확장(cleanupPurchaseTimersOnSuccess)이 이 라이브러리의
@@ -1050,9 +1049,14 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 title: AppLocalizations.of(context).label_star_candy_pouch,
                 width: double.infinity,
                 height: 120,
-                // 새로고침은 파우치 카드 안으로 (오너 스펙). 헤더 행은 아이콘
-                // 하나만 담고 있었으므로 함께 사라진다.
-                refreshButton: isLoggedIn ? _buildRefreshButton() : null,
+                refreshController: _rotationController,
+                onRefresh: isLoggedIn
+                    ? () {
+                        _rotationController.forward(from: 0);
+                        ref.read(userInfoProvider.notifier).getUserProfiles();
+                        ref.read(walletSummaryProvider.notifier).refresh();
+                      }
+                    : null,
               ),
               const SizedBox(height: 12),
               const Divider(color: AppColors.grey200, height: 32),
@@ -1062,29 +1066,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
               const SizedBox(height: 36),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRefreshButton() {
-    return GestureDetector(
-      onTap: () {
-        _rotationController.forward(from: 0);
-        ref.read(userInfoProvider.notifier).getUserProfiles();
-        // 헤더 새로고침은 파우치도 함께 다시 읽는다 (같은 이유: 위 onRefresh).
-        ref.read(walletSummaryProvider.notifier).refresh();
-      },
-      child: RotationTransition(
-        turns: Tween(begin: 0.0, end: 1.0).animate(
-          CurvedAnimation(parent: _rotationController, curve: Curves.easeInOut),
-        ),
-        child: SvgPicture.asset(
-          package: 'picnic_lib',
-          'assets/icons/reset_style=line.svg',
-          width: 24,
-          height: 24,
-          colorFilter: ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
         ),
       ),
     );
