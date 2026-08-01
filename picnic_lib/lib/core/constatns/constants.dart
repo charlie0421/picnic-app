@@ -25,7 +25,10 @@ class NavBarConstants {
   static const double bottomNavHeight = 52.0;
 
   /// 하단 내비게이션 아이콘의 공통 표시 크기
-  static const double bottomNavIconSize = 24.0;
+  static const double bottomNavIconSize = 28.0;
+
+  /// 미디어 아이콘은 원본 도형이 더 꽉 차 보여 광학 보정한다.
+  static const double bottomNavMediaIconSize = 24.0;
 
   /// 내비 외곽 하단 마진 (콘텐츠 패딩 계산에도 사용)
   static const double bottomNavOuterMargin = 16.0;
