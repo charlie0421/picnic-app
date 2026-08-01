@@ -167,7 +167,9 @@ class FreeChargeContent extends ConsumerWidget {
         isLoading: isLoading,
         icon: Image.asset(
           package: 'picnic_lib',
-          'assets/icons/store/star_100.png',
+          item.isMission
+              ? 'assets/icons/store/currency_bonus_star_candy.png'
+              : 'assets/icons/store/currency_cotton_candy.png',
           width: 40.w,
           height: 40.w,
         ),
