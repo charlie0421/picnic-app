@@ -23,7 +23,7 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_list_page.d
 import 'package:picnic_lib/presentation/pages/my_page/setting_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_artist_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_history_page.dart';
-import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/faq_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/notice_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
@@ -38,12 +38,8 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'dart:async';
 import 'package:picnic_lib/presentation/pages/notifications/notifications_page.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:picnic_lib/core/services/consent_service.dart';
 
 class MyPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_mypage';
@@ -173,15 +169,6 @@ class _MyPageState extends ConsumerState<MyPage>
                       : showRequireLoginDialog(),
                 ),
 
-                if (data?.isAdmin ?? false)
-                  PicnicListItem(
-                    leading: AppLocalizations.of(context).wallet_history_title,
-                    assetPath: 'assets/icons/arrow_right_style=line.svg',
-                    onTap: () => ref
-                        .read(navigationInfoProvider.notifier)
-                        .setCurrentMyPage(const CurrencyHistoryPage()),
-                  ),
-
                 // Setting
                 PicnicListItem(
                   leading: AppLocalizations.of(context).label_mypage_setting,
@@ -190,67 +177,13 @@ class _MyPageState extends ConsumerState<MyPage>
                       .read(navigationInfoProvider.notifier)
                       .setCurrentMyPage(const SettingPage()),
                 ),
-
-                // --- Admin / Test Menus ---
-                if (data != null && (data.isAdmin ?? false))
-                  const Divider(color: AppColors.grey200),
-
-                // 충전내역
-                if (data != null && (data.isAdmin ?? false))
+                if (data?.isAdmin ?? false)
                   PicnicListItem(
-                    leading: AppLocalizations.of(
-                      context,
-                    ).label_mypage_charge_history,
+                    leading: '관리자',
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
-                    onTap: () {},
-                  ),
-                // Ad Inspector (미디에이션 테스트용)
-                if (data != null && (data.isAdmin ?? false))
-                  PicnicListItem(
-                    leading: 'Ad Inspector',
-                    assetPath: 'assets/icons/arrow_right_style=line.svg',
-                    onTap: () {
-                      MobileAds.instance.openAdInspector((error) {
-                        if (error != null) {
-                          logger.e('Ad Inspector error: ${error.message}');
-                        } else {
-                          logger.i('Ad Inspector closed');
-                        }
-                      });
-                    },
-                  ),
-                // GDPR 동의 초기화 및 재시작 (테스트용)
-                if (data != null && (data.isAdmin ?? false))
-                  PicnicListItem(
-                    leading: 'Reset & Reload GDPR',
-                    assetPath: 'assets/icons/arrow_right_style=line.svg',
-                    onTap: () async {
-                      SnackbarUtil().info('GDPR 동의 초기화 중...', context: context);
-
-                      // 현재 상태 로깅
-                      await ConsentService().logCurrentState();
-
-                      // 초기화 및 재초기화
-                      final success = await ConsentService()
-                          .resetAndReinitialize();
-
-                      // 재초기화 후 상태 로깅
-                      await ConsentService().logCurrentState();
-
-                      if (context.mounted) {
-                        if (success) {
-                          SnackbarUtil().success(
-                            'GDPR 동의가 재초기화되었습니다. EEA 모드면 동의 폼이 표시됩니다.',
-                            context: context,
-                          );
-                        } else {
-                          SnackbarUtil().error(
-                            'GDPR 재초기화 실패. 로그를 확인하세요.',
-                            context: context,
-                          );
-                        }
-                      }
-                    },
+                    onTap: () => ref
+                        .read(navigationInfoProvider.notifier)
+                        .setCurrentMyPage(const AdminMenuPage()),
                   ),
               ],
             ),
