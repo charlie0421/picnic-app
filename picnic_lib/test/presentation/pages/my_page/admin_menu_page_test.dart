@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/navigation_stack.dart';
+import 'package:picnic_lib/presentation/controllers/admin_gdpr_reset_controller.dart';
 import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/charge_history_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
@@ -91,5 +92,59 @@ void main() {
 
     expect(find.text('접근 권한이 없습니다.'), findsOneWidget);
     expect(find.text('캔디 내역'), findsNothing);
+  });
+
+  testWidgets('reloads the app once after a successful GDPR reset', (
+    tester,
+  ) async {
+    var reloads = 0;
+    final controller = AdminGdprResetController(
+      resetAndReinitialize: () async => true,
+      logCurrentState: () async {},
+    );
+
+    await tester.pumpWidget(
+      buildTestAppPage(
+        AdminMenuPage(
+          gdprResetController: controller,
+          reloadApp: (_) => reloads++,
+        ),
+        userProfile: MockData.userProfile(isAdmin: true),
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+
+    await tester.tap(find.text('Reset & Reload GDPR'));
+    await pumpAndIgnoreErrors(tester);
+    await pumpAndIgnoreErrors(tester);
+
+    expect(reloads, 1);
+  });
+
+  testWidgets('does not reload the app after a failed GDPR reset', (
+    tester,
+  ) async {
+    var reloads = 0;
+    final controller = AdminGdprResetController(
+      resetAndReinitialize: () async => false,
+      logCurrentState: () async {},
+    );
+
+    await tester.pumpWidget(
+      buildTestAppPage(
+        AdminMenuPage(
+          gdprResetController: controller,
+          reloadApp: (_) => reloads++,
+        ),
+        userProfile: MockData.userProfile(isAdmin: true),
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+
+    await tester.tap(find.text('Reset & Reload GDPR'));
+    await pumpAndIgnoreErrors(tester);
+    await pumpAndIgnoreErrors(tester);
+
+    expect(reloads, 0);
   });
 }
