@@ -66,6 +66,12 @@ void main() {
         await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
 
         expect(find.byType(StorePointInfo), findsOneWidget);
+        await tester.scrollUntilVisible(
+          find.text('알림함'),
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(find.text('알림함'), findsOneWidget);
         expect(find.text('캔디 내역'), findsNothing);
       },
     );
@@ -90,6 +96,12 @@ void main() {
 
       expect(find.byType(StorePointInfo), findsOneWidget);
       await tester.scrollUntilVisible(
+        find.text('알림함'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('알림함'), findsOneWidget);
+      await tester.scrollUntilVisible(
         find.text('캔디 내역'),
         300,
         scrollable: find.byType(Scrollable).first,
@@ -113,6 +125,12 @@ void main() {
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
       expect(find.byType(MyPage), findsOneWidget);
       expect(find.byType(StorePointInfo), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('설정'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('알림함'), findsNothing);
       expect(
         find.descendant(
           of: find.byType(StorePointInfo),
