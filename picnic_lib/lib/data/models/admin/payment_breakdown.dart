@@ -19,10 +19,10 @@ class PaymentBreakdownItem {
   final String key;
   final BigInt payCount;
 
-  /// Decimal text as returned by the reporting RPC.
+  /// Decimal text normalized from the reporting RPC.
   ///
-  /// Keeping this as text prevents a JSON number from being widened through
-  /// `double` before it reaches a financial/admin surface.
+  /// Keeping the display value as text prevents additional binary
+  /// floating-point conversions in the presentation layer.
   final String revenueUsd;
 
   factory PaymentBreakdownItem.fromJson(Map<String, dynamic> json) {
@@ -38,22 +38,64 @@ class PaymentBreakdownItem {
     if (key is! String || key.isEmpty) {
       throw const FormatException('Payment breakdown key must be a string');
     }
-    if (payCount is! String || !RegExp(r'^[0-9]+$').hasMatch(payCount)) {
-      throw const FormatException(
-        'Payment breakdown pay_cnt must be a decimal string',
-      );
-    }
-    if (revenueUsd is! String ||
-        !RegExp(r'^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$').hasMatch(revenueUsd)) {
-      throw const FormatException(
-        'Payment breakdown revenue_usd must be a decimal string',
-      );
-    }
-
     return PaymentBreakdownItem(
       key: key,
-      payCount: BigInt.parse(payCount),
-      revenueUsd: revenueUsd,
+      payCount: _parsePayCount(payCount),
+      revenueUsd: _normalizeRevenueUsd(revenueUsd),
     );
+  }
+
+  static BigInt _parsePayCount(Object? value) {
+    if (value is String && RegExp(r'^[0-9]+$').hasMatch(value)) {
+      return BigInt.parse(value);
+    }
+    if (value is int && value >= 0) return BigInt.from(value);
+    if (value is double &&
+        value.isFinite &&
+        value >= 0 &&
+        value == value.truncateToDouble() &&
+        value <= 9007199254740991) {
+      return BigInt.from(value.toInt());
+    }
+    throw const FormatException(
+      'Payment breakdown pay_cnt must be a non-negative integer',
+    );
+  }
+
+  static String _normalizeRevenueUsd(Object? value) {
+    final decimal = switch (value) {
+      String value => value,
+      int value => value.toString(),
+      double value when value.isFinite => _expandExponent(value.toString()),
+      _ => throw const FormatException(
+        'Payment breakdown revenue_usd must be a finite decimal',
+      ),
+    };
+    if (!RegExp(r'^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$').hasMatch(decimal)) {
+      throw const FormatException(
+        'Payment breakdown revenue_usd must be a finite decimal',
+      );
+    }
+    return decimal;
+  }
+
+  static String _expandExponent(String value) {
+    final parts = value.split(RegExp('[eE]'));
+    if (parts.length == 1) return value;
+
+    final mantissa = parts[0];
+    final exponent = int.parse(parts[1]);
+    final negative = mantissa.startsWith('-');
+    final unsigned = negative ? mantissa.substring(1) : mantissa;
+    final decimalOffset = unsigned.indexOf('.');
+    final integerLength = decimalOffset == -1 ? unsigned.length : decimalOffset;
+    final digits = unsigned.replaceAll('.', '');
+    final point = integerLength + exponent;
+    final normalized = point <= 0
+        ? '0.${'0' * -point}$digits'
+        : point >= digits.length
+        ? '$digits${'0' * (point - digits.length)}'
+        : '${digits.substring(0, point)}.${digits.substring(point)}';
+    return negative ? '-$normalized' : normalized;
   }
 }
