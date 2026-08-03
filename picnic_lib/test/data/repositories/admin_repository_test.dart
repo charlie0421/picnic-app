@@ -32,18 +32,14 @@ SupabaseClient _clientFor(
 
 void main() {
   test(
-    'sends the platform breakdown RPC contract and preserves exact values',
+    'sends the platform breakdown RPC contract and parses Supabase JSON numbers',
     () async {
       late Uri requestedUri;
       late Map<String, dynamic> requestedBody;
       final repository = AdminRepository(
         _clientFor(
           [
-            {
-              'key': 'google_play',
-              'pay_cnt': '9007199254740993',
-              'revenue_usd': '123456789.123456789',
-            },
+            {'key': 'google_play', 'pay_cnt': 12, 'revenue_usd': 32.5},
           ],
           onRequest: (uri, body) {
             requestedUri = uri;
@@ -64,8 +60,30 @@ void main() {
       });
       expect(items, hasLength(1));
       expect(items.single.key, 'google_play');
-      expect(items.single.payCount, BigInt.parse('9007199254740993'));
-      expect(items.single.revenueUsd, '123456789.123456789');
+      expect(items.single.payCount, BigInt.from(12));
+      expect(items.single.revenueUsd, '32.5');
+    },
+  );
+
+  test(
+    'preserves exact integer and decimal strings when already provided',
+    () async {
+      final repository = AdminRepository(
+        _clientFor([
+          {
+            'key': 'google_play',
+            'pay_cnt': '9007199254740993',
+            'revenue_usd': '123456789.123456789',
+          },
+        ]),
+      );
+
+      final item = (await repository.getPaymentBreakdown(
+        dimension: PaymentBreakdownDimension.platform,
+      )).single;
+
+      expect(item.payCount, BigInt.parse('9007199254740993'));
+      expect(item.revenueUsd, '123456789.123456789');
     },
   );
 
@@ -96,4 +114,59 @@ void main() {
       });
     },
   );
+
+  for (final invalid in <({String name, Map<String, Object?> row})>[
+    (
+      name: 'a non-string key',
+      row: {'key': 1, 'pay_cnt': 1, 'revenue_usd': 1.0},
+    ),
+    (name: 'an empty key', row: {'key': '', 'pay_cnt': 1, 'revenue_usd': 1.0}),
+    (
+      name: 'a fractional pay count',
+      row: {'key': 'google_play', 'pay_cnt': 1.5, 'revenue_usd': 1.0},
+    ),
+    (
+      name: 'a non-decimal revenue',
+      row: {'key': 'google_play', 'pay_cnt': 1, 'revenue_usd': true},
+    ),
+    (
+      name: 'an unexpected key',
+      row: {
+        'key': 'google_play',
+        'pay_cnt': 1,
+        'revenue_usd': 1.0,
+        'unexpected': true,
+      },
+    ),
+  ]) {
+    test('rejects a payment breakdown row with ${invalid.name}', () async {
+      final repository = AdminRepository(_clientFor([invalid.row]));
+
+      await expectLater(
+        repository.getPaymentBreakdown(
+          dimension: PaymentBreakdownDimension.platform,
+        ),
+        throwsFormatException,
+      );
+    });
+  }
+
+  test('rejects non-finite numeric revenue before it reaches the UI', () {
+    expect(
+      () => PaymentBreakdownItem.fromJson({
+        'key': 'google_play',
+        'pay_cnt': 1,
+        'revenue_usd': double.nan,
+      }),
+      throwsFormatException,
+    );
+    expect(
+      () => PaymentBreakdownItem.fromJson({
+        'key': 'google_play',
+        'pay_cnt': 1,
+        'revenue_usd': double.infinity,
+      }),
+      throwsFormatException,
+    );
+  });
 }
