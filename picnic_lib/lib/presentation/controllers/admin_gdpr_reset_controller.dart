@@ -1,3 +1,5 @@
+import 'dart:async';
+
 typedef GdprResetCallback = Future<bool> Function();
 typedef GdprStateLogCallback = Future<void> Function();
 
@@ -26,15 +28,14 @@ class AdminGdprResetController {
 
     _isRunning = true;
     try {
-      await _logStateBestEffort();
       return await _resetAndReinitialize()
           ? AdminGdprResetResult.success
           : AdminGdprResetResult.failure;
     } catch (_) {
       return AdminGdprResetResult.failure;
     } finally {
-      await _logStateBestEffort();
       _isRunning = false;
+      unawaited(_logStateBestEffort());
     }
   }
 

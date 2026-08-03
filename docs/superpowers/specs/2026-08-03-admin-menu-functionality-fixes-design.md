@@ -8,7 +8,7 @@
 
 - 운영 `get_currency_history` RPC는 `wallet.cotton_read_enabled`가 꺼져 있을 때 `COTTON_CANDY` 요청에 `WALLET_COTTON_READ_DISABLED`를 반환한다. 현재 운영 플래그는 `false`다.
 - `충전 내역`의 `onTap`은 관리자 메뉴 이동 전부터 빈 함수였고 연결된 화면이 없다.
-- 운영 DB에는 super admin 전용 `get_payment_breakdown(p_start, p_end, p_dimension)` RPC가 있으며 `platform`과 `product` 집계를 반환한다.
+- 운영 DB에는 `get_payment_breakdown(p_start, p_end, p_dimension)` RPC가 있으며 `platform`과 `product` 집계를 반환한다. 함수 이름과 달리 `public.is_super_admin()` helper는 `is_super_admin OR is_admin`을 뜻하므로, 이 RPC의 권한 범위는 해당 helper가 정의하는 관리자다.
 - GDPR 콜백은 reset 전에 상태 조회를 기다린다. 상태 조회가 실패하면 reset에 도달하지 못하고, 성공해도 이름과 달리 앱을 reload하지 않는다.
 - 새 `AdminMenuPage`의 목록은 기존 MyPage에 있던 `EdgeInsets.symmetric(horizontal: 16)` 컨테이너를 사용하지 않는다.
 
@@ -54,7 +54,7 @@
 - `get_payment_breakdown`의 `revenue_usd` 값만 `numeric` JSON 숫자에서 decimal 문자열로 변경하는 새 마이그레이션을 추가한다.
 - 함수의 권한 검사, 필터, 집계, 나머지 반환 필드는 변경하지 않는다.
 - Edge Function은 변경하지 않는다.
-- 앱의 `isAdmin` 화면 가드와 DB의 `is_super_admin()` 검사를 함께 유지한다. 앱 관리자이지만 super admin이 아닌 계정은 RPC 오류 상태를 보게 되며 데이터가 노출되지 않는다.
+- 앱의 `isAdmin` 화면 가드와 DB의 `is_super_admin()` 검사를 함께 유지한다. DB helper는 `is_super_admin OR is_admin`을 관리자 권한으로 정의하므로 앱과 RPC 모두 이 관리자 범위를 사용하며, 비관리자에게는 데이터를 노출하지 않는다.
 
 ## 테스트
 

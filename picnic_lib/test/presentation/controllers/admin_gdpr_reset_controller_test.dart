@@ -15,9 +15,27 @@ void main() {
       final result = await controller.reset();
 
       expect(result, AdminGdprResetResult.success);
-      expect(logCalls, 2);
+      expect(logCalls, 1);
       expect(controller.isRunning, isFalse);
     });
+
+    test(
+      'returns and releases busy state when result logging never completes',
+      () async {
+        final logCompleter = Completer<void>();
+        final controller = AdminGdprResetController(
+          resetAndReinitialize: () async => true,
+          logCurrentState: () => logCompleter.future,
+        );
+
+        final result = await controller.reset().timeout(
+          const Duration(milliseconds: 100),
+        );
+
+        expect(result, AdminGdprResetResult.success);
+        expect(controller.isRunning, isFalse);
+      },
+    );
 
     test('returns failure when the consent reset returns false', () async {
       final controller = AdminGdprResetController(
