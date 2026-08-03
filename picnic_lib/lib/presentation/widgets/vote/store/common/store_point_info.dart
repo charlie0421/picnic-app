@@ -18,7 +18,7 @@ class StorePointInfo extends ConsumerStatefulWidget {
     this.width = 48,
     this.height = 36,
     this.titlePadding,
-    this.topMargin = 20,
+    this.topMargin = 0,
     this.refreshButton,
     this.onRefresh,
     this.refreshController,

@@ -106,10 +106,12 @@ class _MyPageState extends ConsumerState<MyPage>
                 const SizedBox(height: 24),
                 // 프로필
                 data != null ? _buildProfile() : _buildNonLogin(),
+                const SizedBox(height: 16),
                 StorePointInfo(
                   title: AppLocalizations.of(context).label_star_candy_pouch,
                   width: double.infinity,
                 ),
+                const SizedBox(height: 24),
 
                 // Language
                 Text(

@@ -141,6 +141,35 @@ void main() {
       expect(find.text('캔디 내역'), findsNothing);
     });
 
+    testWidgets('keeps 16px and 24px space around the candy pouch', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const MyPage(),
+          loggedIn: false,
+          extraOverrides: [
+            asyncBookmarkedArtistsProvider.overrideWith(
+              MockBookmarkedArtists.new,
+            ),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+
+      final pouchRect = tester.getRect(find.byType(StorePointInfo));
+      final previousRect = tester.getRect(
+        find.byWidgetPredicate(
+          (widget) => widget is GestureDetector && widget.child is Row,
+        ),
+      );
+      final nextRect = tester.getRect(find.text('언어 설정'));
+
+      expect(pouchRect.top - previousRect.bottom, 16);
+      expect(nextRect.top - pouchRect.bottom, 24);
+    });
+
     testWidgets('renders admin user with admin menus', (
       WidgetTester tester,
     ) async {

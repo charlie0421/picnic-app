@@ -1287,7 +1287,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                       }
                     : null,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               const Divider(color: AppColors.grey200, height: 32),
               _buildProductsList(),
               const Divider(color: AppColors.grey200, height: 32),

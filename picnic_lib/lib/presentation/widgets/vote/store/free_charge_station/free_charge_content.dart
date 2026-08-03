@@ -57,8 +57,9 @@ class FreeChargeContent extends ConsumerWidget {
                 ref.read(walletSummaryProvider.notifier).refresh();
               },
             ),
+            const SizedBox(height: 16),
           ],
-          const SizedBox(height: 8),
+          if (!isLogged) const SizedBox(height: 8),
 
           // 미션 섹션
           _buildSectionHeader(

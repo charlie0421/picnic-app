@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 
@@ -32,6 +33,40 @@ void main() {
   });
 
   group('StoreListTile widget', () {
+    testWidgets('keeps 16px space around the candy pouch', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PurchaseStarCandy(),
+          extraOverrides: [
+            serverProductsProvider.overrideWithBuild(
+              (ref, notifier) => [
+                {
+                  'id': 'STAR100',
+                  'price': 1.99,
+                  'description': {'ko': '스타 캔디 100개', 'en': '100 Star Candies'},
+                },
+              ],
+            ),
+            storeProductsProvider.overrideWithBuild(
+              (ref, notifier) => const <ProductDetails>[],
+            ),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 3));
+
+      final pouchRect = tester.getRect(find.byType(StorePointInfo));
+      final previousRect = tester.getRect(find.byType(ListView).first);
+      final nextRect = tester.getRect(find.byType(Divider).first);
+
+      expect(pouchRect.top - previousRect.top, 16);
+      expect(nextRect.top - pouchRect.bottom, 16);
+    });
+
     testWidgets('renders the standard star candy currency icon for purchases', (
       WidgetTester tester,
     ) async {
