@@ -11,7 +11,6 @@ import 'package:picnic_lib/presentation/widgets/wallet/currency_history_list_ite
 const _historyCurrencies = [
   WalletCurrency.starCandy,
   WalletCurrency.bonusStarCandy,
-  WalletCurrency.cottonCandy,
 ];
 
 class CurrencyHistoryPage extends ConsumerStatefulWidget {
@@ -46,25 +45,27 @@ class _CurrencyHistoryPageState extends ConsumerState<CurrencyHistoryPage> {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
       length: _historyCurrencies.length,
-      child: Column(
-        children: [
-          TabBar(
-            tabs: [
-              Tab(text: l10n.wallet_star_candy),
-              Tab(text: l10n.wallet_bonus_star_candy),
-              Tab(text: l10n.wallet_cotton_candy),
-            ],
-          ),
-          const Expanded(
-            child: TabBarView(
-              children: [
-                _CurrencyHistoryTab(currency: WalletCurrency.starCandy),
-                _CurrencyHistoryTab(currency: WalletCurrency.bonusStarCandy),
-                _CurrencyHistoryTab(currency: WalletCurrency.cottonCandy),
+      child: Padding(
+        key: const Key('currency-history-content'),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          children: [
+            TabBar(
+              tabs: [
+                Tab(text: l10n.wallet_star_candy),
+                Tab(text: l10n.wallet_bonus_star_candy),
               ],
             ),
-          ),
-        ],
+            const Expanded(
+              child: TabBarView(
+                children: [
+                  _CurrencyHistoryTab(currency: WalletCurrency.starCandy),
+                  _CurrencyHistoryTab(currency: WalletCurrency.bonusStarCandy),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
