@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
+import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
@@ -72,17 +75,24 @@ void main() {
           scrollable: find.byType(Scrollable).first,
         );
         expect(find.text('알림함'), findsOneWidget);
+        await tester.scrollUntilVisible(
+          find.text('설정'),
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
         expect(find.text('캔디 내역'), findsNothing);
+        expect(find.text('관리자'), findsNothing);
       },
     );
 
-    testWidgets('shows the candy banner for an admin user', (
+    testWidgets('shows only the administrator entry for an admin user', (
       WidgetTester tester,
     ) async {
       await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
       await tester.pumpWidget(
         buildTestAppPage(
-          const MyPage(),
+          const MyPageScreen(),
+          navigation: Navigation.initial(),
           userProfile: MockData.userProfile(isAdmin: true),
           extraOverrides: [
             asyncBookmarkedArtistsProvider.overrideWith(
@@ -94,19 +104,21 @@ void main() {
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
 
-      expect(find.byType(StorePointInfo), findsOneWidget);
+      expect(find.byType(MyPage), findsOneWidget);
       await tester.scrollUntilVisible(
-        find.text('알림함'),
+        find.text('관리자'),
         300,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.text('알림함'), findsOneWidget);
-      await tester.scrollUntilVisible(
-        find.text('캔디 내역'),
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
-      expect(find.text('캔디 내역'), findsOneWidget);
+      expect(find.text('관리자'), findsOneWidget);
+      expect(find.text('캔디 내역'), findsNothing);
+      expect(find.text('충전 내역'), findsNothing);
+      expect(find.text('Ad Inspector'), findsNothing);
+      expect(find.text('Reset & Reload GDPR'), findsNothing);
+
+      await tester.tap(find.text('관리자'));
+      await pumpAndIgnoreErrors(tester);
+      expect(find.byType(AdminMenuPage), findsOneWidget);
     });
 
     testWidgets('renders logged-out state', (WidgetTester tester) async {
@@ -139,6 +151,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('캔디 내역'), findsNothing);
+      expect(find.text('관리자'), findsNothing);
     });
 
     testWidgets('keeps 16px and 24px space around the candy pouch', (
