@@ -154,7 +154,7 @@ void main() {
       expect(widget.title, 'Test');
       expect(widget.width, 48);
       expect(widget.height, 36);
-      expect(widget.topMargin, 20);
+      expect(widget.topMargin, 0);
       expect(widget.titlePadding, isNull);
     });
 
@@ -172,6 +172,33 @@ void main() {
       expect(widget.topMargin, 30);
       expect(widget.titlePadding, 12);
     });
+  });
+
+  testWidgets('default top margin adds no space before the pouch', (
+    WidgetTester tester,
+  ) async {
+    await pumpWidgetAndIgnoreErrors(
+      tester,
+      buildTestApp(
+        Column(
+          children: const [
+            Text('previous section'),
+            StorePointInfo(
+              title: 'Star Candy',
+              width: double.infinity,
+              height: 120,
+            ),
+          ],
+        ),
+        loggedIn: false,
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+
+    final previousRect = tester.getRect(find.text('previous section'));
+    final pouchRect = tester.getRect(find.byType(StorePointInfo));
+
+    expect(pouchRect.top - previousRect.bottom, 0);
   });
 
   testWidgets('새로고침 버튼은 파우치 카드 안에 렌더링된다', (WidgetTester tester) async {

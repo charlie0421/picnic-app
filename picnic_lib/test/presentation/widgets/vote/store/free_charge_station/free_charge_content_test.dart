@@ -177,12 +177,40 @@ void main() {
       expect(find.byType(StorePointInfo), findsOneWidget);
     });
 
+    testWidgets('keeps 16px space around the logged-in candy pouch', (
+      tester,
+    ) async {
+      await pumpWidgetAndIgnoreErrors(tester, buildWidget(loggedIn: true));
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester);
+
+      final pouchRect = tester.getRect(find.byType(StorePointInfo));
+      final previousRect = tester.getRect(find.byType(ListView));
+      final nextRect = tester.getRect(find.text('미션에서 보너스 스타캔디 받기'));
+
+      expect(pouchRect.top - previousRect.top, 16);
+      expect(nextRect.top - pouchRect.bottom, 16);
+    });
+
     testWidgets('hides StorePointInfo when logged out', (tester) async {
       await pumpWidgetAndIgnoreErrors(tester, buildWidget(loggedIn: false));
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester);
 
       expect(find.byType(StorePointInfo), findsNothing);
+    });
+
+    testWidgets('leaves no logged-in pouch spacing when logged out', (
+      tester,
+    ) async {
+      await pumpWidgetAndIgnoreErrors(tester, buildWidget(loggedIn: false));
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester);
+
+      final listRect = tester.getRect(find.byType(ListView));
+      final missionRect = tester.getRect(find.text('미션에서 보너스 스타캔디 받기'));
+
+      expect(missionRect.top - listRect.top, 8);
     });
 
     testWidgets('renders empty missions list', (tester) async {
