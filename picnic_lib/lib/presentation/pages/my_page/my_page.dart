@@ -140,7 +140,7 @@ class _MyPageState extends ConsumerState<MyPage>
                       .setCurrentMyPage(const FAQPage()),
                 ),
                 // Notifications
-                if (data != null && (data.isAdmin ?? false))
+                if (data != null)
                   PicnicListItem(
                     leading: AppLocalizations.of(
                       context,
