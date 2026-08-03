@@ -130,16 +130,21 @@ class ConsentService {
   Future<bool> resetAndReinitialize() async {
     logger.i('[ConsentService] 동의 상태 초기화 및 재초기화 시작');
 
-    // UMP 동의 상태 초기화
-    ConsentInformation.instance.reset();
-    _isInitialized = false;
-    _initCompleter = null;
+    try {
+      // UMP 동의 상태 초기화
+      ConsentInformation.instance.reset();
+      _isInitialized = false;
+      _initCompleter = null;
 
-    // 잠시 대기 후 재초기화
-    await Future.delayed(const Duration(milliseconds: 500));
+      // 잠시 대기 후 재초기화
+      await Future.delayed(const Duration(milliseconds: 500));
 
-    // 재초기화
-    return await initialize();
+      // 재초기화
+      return await initialize();
+    } catch (e, s) {
+      logger.e('[ConsentService] 동의 상태 재초기화 실패', error: e, stackTrace: s);
+      return false;
+    }
   }
 
   /// 개인정보 보호 옵션 폼 표시 (설정에서 다시 동의 변경 시)
