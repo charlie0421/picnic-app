@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy_web.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 
 class PurchaseScreen extends StatelessWidget {
   static const String routeName = '/purchase';
@@ -8,6 +8,6 @@ class PurchaseScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: PurchaseStarCandyWeb());
+    return const Scaffold(body: PurchaseStarCandy());
   }
 }
