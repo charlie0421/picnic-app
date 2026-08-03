@@ -457,9 +457,18 @@
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
   "label_ads_get_cotton_candy": "从广告中获取棉花糖",
-  "@label_ads_get_cotton_candy": {"description": "Free charge station ads section title."},
+  "@label_ads_get_cotton_candy": {
+    "description": "Free charge station ads section title."
+  },
   "free_charge_ads_reward": "+棉花糖 {reward} 已获得",
-  "@free_charge_ads_reward": {"description": "Reward copy for an ad in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_ads_reward": {
+    "description": "Reward copy for an ad in the free charge station.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_ads_limits": "{hourly} 每小时， {daily} 每天",
   "@label_ads_limits": {
     "placeholders": {
@@ -604,9 +613,18 @@
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
   "label_mission_get_bonus_star_candy": "从任务中获取奖励星星糖果",
-  "@label_mission_get_bonus_star_candy": {"description": "Free charge station missions section title."},
+  "@label_mission_get_bonus_star_candy": {
+    "description": "Free charge station missions section title."
+  },
   "free_charge_mission_reward": "+奖励星星糖果 {reward} 已获得",
-  "@free_charge_mission_reward": {"description": "Reward copy for a mission in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_mission_reward": {
+    "description": "Reward copy for a mission in the free charge station.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_mission_short": "使命",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2316,42 +2334,6 @@
   "notifications_mark_all_read": "全部已读",
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
-  },
-  "label_attendance_check": "签到",
-  "@label_attendance_check": {
-    "description": "Attendance check tab label"
-  },
-  "label_attendance_check_in": "签到",
-  "@label_attendance_check_in": {
-    "description": "Check in button label"
-  },
-  "label_attendance_checked": "已签到",
-  "@label_attendance_checked": {
-    "description": "Already checked in label"
-  },
-  "label_attendance_deadline": "今日截止",
-  "@label_attendance_deadline": {
-    "description": "Deadline timer label"
-  },
-  "label_attendance_weekly_bonus": "周奖励",
-  "@label_attendance_weekly_bonus": {
-    "description": "Weekly bonus label"
-  },
-  "label_attendance_weekly_bonus_desc": "连续7天签到即可获得周日奖励！",
-  "@label_attendance_weekly_bonus_desc": {
-    "description": "Weekly bonus description"
-  },
-  "label_attendance_kst_notice": "以韩国时间(KST)为准",
-  "@label_attendance_kst_notice": {
-    "description": "KST timezone notice"
-  },
-  "label_attendance_new_user_notice": "首周福利！完成剩余天数即可获得奖励！",
-  "@label_attendance_new_user_notice": {
-    "description": "New user benefit notice"
-  },
-  "label_attendance_ad_watch": "看广告",
-  "@label_attendance_ad_watch": {
-    "description": "Watch ad tab label"
   },
   "error_anti_abuse_ad_title": "观看广告",
   "@error_anti_abuse_ad_title": {

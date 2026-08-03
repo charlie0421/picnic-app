@@ -1739,33 +1739,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notifications_mark_all_read => '全部已读';
 
   @override
-  String get label_attendance_check => '签到';
-
-  @override
-  String get label_attendance_check_in => '签到';
-
-  @override
-  String get label_attendance_checked => '已签到';
-
-  @override
-  String get label_attendance_deadline => '今日截止';
-
-  @override
-  String get label_attendance_weekly_bonus => '周奖励';
-
-  @override
-  String get label_attendance_weekly_bonus_desc => '连续7天签到即可获得周日奖励！';
-
-  @override
-  String get label_attendance_kst_notice => '以韩国时间(KST)为准';
-
-  @override
-  String get label_attendance_new_user_notice => '首周福利！完成剩余天数即可获得奖励！';
-
-  @override
-  String get label_attendance_ad_watch => '看广告';
-
-  @override
   String get error_anti_abuse_ad_title => '观看广告';
 
   @override
@@ -3647,33 +3620,6 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get notifications_mark_all_read => '全部已读';
-
-  @override
-  String get label_attendance_check => '签到';
-
-  @override
-  String get label_attendance_check_in => '签到';
-
-  @override
-  String get label_attendance_checked => '已签到';
-
-  @override
-  String get label_attendance_deadline => '今日截止';
-
-  @override
-  String get label_attendance_weekly_bonus => '周奖励';
-
-  @override
-  String get label_attendance_weekly_bonus_desc => '连续7天签到即可获得周日奖励！';
-
-  @override
-  String get label_attendance_kst_notice => '以韩国时间(KST)为准';
-
-  @override
-  String get label_attendance_new_user_notice => '首周福利！完成剩余天数即可获得奖励！';
-
-  @override
-  String get label_attendance_ad_watch => '看广告';
 
   @override
   String get error_anti_abuse_ad_title => '观看广告';
@@ -5558,33 +5504,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get notifications_mark_all_read => '全部已讀';
-
-  @override
-  String get label_attendance_check => '簽到';
-
-  @override
-  String get label_attendance_check_in => '簽到';
-
-  @override
-  String get label_attendance_checked => '已簽到';
-
-  @override
-  String get label_attendance_deadline => '今日截止';
-
-  @override
-  String get label_attendance_weekly_bonus => '週獎勵';
-
-  @override
-  String get label_attendance_weekly_bonus_desc => '連續7天簽到即可獲得週日獎勵！';
-
-  @override
-  String get label_attendance_kst_notice => '以韓國時間(KST)為準';
-
-  @override
-  String get label_attendance_new_user_notice => '首週福利！完成剩餘天數即可獲得獎勵！';
-
-  @override
-  String get label_attendance_ad_watch => '看廣告';
 
   @override
   String get error_anti_abuse_ad_title => '觀看廣告';

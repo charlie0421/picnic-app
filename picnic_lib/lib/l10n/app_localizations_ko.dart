@@ -1763,33 +1763,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notifications_mark_all_read => '모두 읽기';
 
   @override
-  String get label_attendance_check => '출석체크';
-
-  @override
-  String get label_attendance_check_in => '출석하기';
-
-  @override
-  String get label_attendance_checked => '출석 완료';
-
-  @override
-  String get label_attendance_deadline => '오늘 마감까지';
-
-  @override
-  String get label_attendance_weekly_bonus => '주간 완성 보너스';
-
-  @override
-  String get label_attendance_weekly_bonus_desc => '7일 모두 출석하면 일요일에 지급!';
-
-  @override
-  String get label_attendance_kst_notice => '한국시간(KST) 기준';
-
-  @override
-  String get label_attendance_new_user_notice => '가입 첫 주 혜택! 남은 요일만 채우면 보너스!';
-
-  @override
-  String get label_attendance_ad_watch => '광고 시청';
-
-  @override
   String get error_anti_abuse_ad_title => '광고 시청';
 
   @override

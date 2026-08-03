@@ -1836,35 +1836,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifications_mark_all_read => 'সব পড়ুন';
 
   @override
-  String get label_attendance_check => 'উপস্থিতি';
-
-  @override
-  String get label_attendance_check_in => 'চেক ইন';
-
-  @override
-  String get label_attendance_checked => 'চেক ইন হয়েছে';
-
-  @override
-  String get label_attendance_deadline => 'আজকের সময়সীমা';
-
-  @override
-  String get label_attendance_weekly_bonus => 'সাপ্তাহিক বোনাস';
-
-  @override
-  String get label_attendance_weekly_bonus_desc =>
-      '৭ দিন চেক ইন করে রবিবার বোনাস পান!';
-
-  @override
-  String get label_attendance_kst_notice => 'KST (UTC+9) সময় অনুযায়ী';
-
-  @override
-  String get label_attendance_new_user_notice =>
-      'প্রথম সপ্তাহের সুবিধা! বাকি দিনগুলো পূরণ করে বোনাস পান!';
-
-  @override
-  String get label_attendance_ad_watch => 'বিজ্ঞাপন দেখুন';
-
-  @override
   String get error_anti_abuse_ad_title => 'বিজ্ঞাপন দেখুন';
 
   @override
@@ -3852,35 +3823,6 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get notifications_mark_all_read => 'সব পড়ুন';
-
-  @override
-  String get label_attendance_check => 'উপস্থিতি';
-
-  @override
-  String get label_attendance_check_in => 'চেক ইন';
-
-  @override
-  String get label_attendance_checked => 'চেক ইন হয়েছে';
-
-  @override
-  String get label_attendance_deadline => 'আজকের সময়সীমা';
-
-  @override
-  String get label_attendance_weekly_bonus => 'সাপ্তাহিক বোনাস';
-
-  @override
-  String get label_attendance_weekly_bonus_desc =>
-      '৭ দিন চেক ইন করে রবিবার বোনাস পান!';
-
-  @override
-  String get label_attendance_kst_notice => 'KST (UTC+9) সময় অনুযায়ী';
-
-  @override
-  String get label_attendance_new_user_notice =>
-      'প্রথম সপ্তাহের সুবিধা! বাকি দিনগুলো পূরণ করে বোনাস পান!';
-
-  @override
-  String get label_attendance_ad_watch => 'বিজ্ঞাপন দেখুন';
 
   @override
   String get error_anti_abuse_ad_title => 'বিজ্ঞাপন দেখুন';

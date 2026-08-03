@@ -542,15 +542,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -1109,15 +1100,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -1676,15 +1658,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -2243,15 +2216,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -2810,15 +2774,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -3377,15 +3332,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -3944,15 +3890,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -4511,15 +4448,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -5078,15 +5006,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -5645,15 +5564,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -6212,15 +6122,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -6780,15 +6681,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -7347,15 +7239,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {
@@ -7914,15 +7797,6 @@ void main() {
       expect(l10n.patch_button_restart_now, isA<String>());
       expect(l10n.patch_button_understood, isA<String>());
       expect(l10n.notifications_mark_all_read, isA<String>());
-      expect(l10n.label_attendance_check, isA<String>());
-      expect(l10n.label_attendance_check_in, isA<String>());
-      expect(l10n.label_attendance_checked, isA<String>());
-      expect(l10n.label_attendance_deadline, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus, isA<String>());
-      expect(l10n.label_attendance_weekly_bonus_desc, isA<String>());
-      expect(l10n.label_attendance_kst_notice, isA<String>());
-      expect(l10n.label_attendance_new_user_notice, isA<String>());
-      expect(l10n.label_attendance_ad_watch, isA<String>());
     });
 
     test('parameterized methods return strings', () {

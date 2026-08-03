@@ -35,7 +35,6 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/a
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_types.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/charge_station_item.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_content.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/attendance/attendance_check_tab.dart';
 
 // 광고 플랫폼 추상 클래스
 class FreeChargeStation extends ConsumerStatefulWidget {

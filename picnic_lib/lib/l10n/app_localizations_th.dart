@@ -1811,35 +1811,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get notifications_mark_all_read => 'อ่านทั้งหมด';
 
   @override
-  String get label_attendance_check => 'เช็คอิน';
-
-  @override
-  String get label_attendance_check_in => 'เช็คอิน';
-
-  @override
-  String get label_attendance_checked => 'เช็คอินแล้ว';
-
-  @override
-  String get label_attendance_deadline => 'กำหนดวันนี้';
-
-  @override
-  String get label_attendance_weekly_bonus => 'โบนัสรายสัปดาห์';
-
-  @override
-  String get label_attendance_weekly_bonus_desc =>
-      'เช็คอินครบ 7 วัน รับโบนัสวันอาทิตย์!';
-
-  @override
-  String get label_attendance_kst_notice => 'อ้างอิงเวลาเกาหลี (KST)';
-
-  @override
-  String get label_attendance_new_user_notice =>
-      'สิทธิพิเศษสัปดาห์แรก! เช็คอินวันที่เหลือเพื่อรับโบนัส!';
-
-  @override
-  String get label_attendance_ad_watch => 'ดูโฆษณา';
-
-  @override
   String get error_anti_abuse_ad_title => 'ดูโฆษณา';
 
   @override

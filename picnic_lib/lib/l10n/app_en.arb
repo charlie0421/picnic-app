@@ -460,9 +460,18 @@
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
   "label_ads_get_cotton_candy": "Get Cotton Candy from Ads",
-  "@label_ads_get_cotton_candy": {"description": "Free charge station ads section title."},
+  "@label_ads_get_cotton_candy": {
+    "description": "Free charge station ads section title."
+  },
   "free_charge_ads_reward": "+Cotton Candy {reward} earned",
-  "@free_charge_ads_reward": {"description": "Reward copy for an ad in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_ads_reward": {
+    "description": "Reward copy for an ad in the free charge station.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_ads_limits": "{hourly} per hour, {daily} per day",
   "@label_ads_limits": {
     "placeholders": {
@@ -607,9 +616,18 @@
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
   "label_mission_get_bonus_star_candy": "Get Bonus Star Candy from Missions",
-  "@label_mission_get_bonus_star_candy": {"description": "Free charge station missions section title."},
+  "@label_mission_get_bonus_star_candy": {
+    "description": "Free charge station missions section title."
+  },
   "free_charge_mission_reward": "+Bonus Star Candy {reward} earned",
-  "@free_charge_mission_reward": {"description": "Reward copy for a mission in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_mission_reward": {
+    "description": "Reward copy for a mission in the free charge station.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_mission_short": "Mission",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2315,42 +2333,6 @@
   "notifications_mark_all_read": "Read all",
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
-  },
-  "label_attendance_check": "Attendance",
-  "@label_attendance_check": {
-    "description": "Attendance check tab label"
-  },
-  "label_attendance_check_in": "Check In",
-  "@label_attendance_check_in": {
-    "description": "Check in button label"
-  },
-  "label_attendance_checked": "Checked In",
-  "@label_attendance_checked": {
-    "description": "Already checked in label"
-  },
-  "label_attendance_deadline": "Today's deadline",
-  "@label_attendance_deadline": {
-    "description": "Deadline timer label"
-  },
-  "label_attendance_weekly_bonus": "Weekly Bonus",
-  "@label_attendance_weekly_bonus": {
-    "description": "Weekly bonus label"
-  },
-  "label_attendance_weekly_bonus_desc": "Check in all 7 days for Sunday bonus!",
-  "@label_attendance_weekly_bonus_desc": {
-    "description": "Weekly bonus description"
-  },
-  "label_attendance_kst_notice": "Based on KST (UTC+9)",
-  "@label_attendance_kst_notice": {
-    "description": "KST timezone notice"
-  },
-  "label_attendance_new_user_notice": "First week perk! Complete remaining days for bonus!",
-  "@label_attendance_new_user_notice": {
-    "description": "New user benefit notice"
-  },
-  "label_attendance_ad_watch": "Watch Ads",
-  "@label_attendance_ad_watch": {
-    "description": "Watch ad tab label"
   },
   "error_anti_abuse_ad_title": "Watch Ads",
   "@error_anti_abuse_ad_title": {

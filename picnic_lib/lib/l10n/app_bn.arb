@@ -639,9 +639,18 @@
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
   "label_ads_get_cotton_candy": "বিজ্ঞাপন থেকে কটন ক্যান্ডি পান",
-  "@label_ads_get_cotton_candy": {"description": "Free charge station ads section title."},
+  "@label_ads_get_cotton_candy": {
+    "description": "Free charge station ads section title."
+  },
   "free_charge_ads_reward": "+কটন ক্যান্ডি {reward} অর্জিত",
-  "@free_charge_ads_reward": {"description": "Reward copy for an ad in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_ads_reward": {
+    "description": "Reward copy for an ad in the free charge station.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_ads_limits": "{hourly} প্রতি ঘন্টা, {daily} প্রতিদিন",
   "@label_ads_limits": {
     "placeholders": {
@@ -786,9 +795,18 @@
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
   "label_mission_get_bonus_star_candy": "মিশন থেকে বোনাস স্টার ক্যান্ডি পান",
-  "@label_mission_get_bonus_star_candy": {"description": "Free charge station missions section title."},
+  "@label_mission_get_bonus_star_candy": {
+    "description": "Free charge station missions section title."
+  },
   "free_charge_mission_reward": "+বোনাস স্টার ক্যান্ডি {reward} অর্জিত",
-  "@free_charge_mission_reward": {"description": "Reward copy for a mission in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_mission_reward": {
+    "description": "Reward copy for a mission in the free charge station.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_mission_short": "Mission",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2312,42 +2330,6 @@
   "notifications_mark_all_read": "সব পড়ুন",
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
-  },
-  "label_attendance_check": "উপস্থিতি",
-  "@label_attendance_check": {
-    "description": "Attendance check tab label"
-  },
-  "label_attendance_check_in": "চেক ইন",
-  "@label_attendance_check_in": {
-    "description": "Check in button label"
-  },
-  "label_attendance_checked": "চেক ইন হয়েছে",
-  "@label_attendance_checked": {
-    "description": "Already checked in label"
-  },
-  "label_attendance_deadline": "আজকের সময়সীমা",
-  "@label_attendance_deadline": {
-    "description": "Deadline timer label"
-  },
-  "label_attendance_weekly_bonus": "সাপ্তাহিক বোনাস",
-  "@label_attendance_weekly_bonus": {
-    "description": "Weekly bonus label"
-  },
-  "label_attendance_weekly_bonus_desc": "৭ দিন চেক ইন করে রবিবার বোনাস পান!",
-  "@label_attendance_weekly_bonus_desc": {
-    "description": "Weekly bonus description"
-  },
-  "label_attendance_kst_notice": "KST (UTC+9) সময় অনুযায়ী",
-  "@label_attendance_kst_notice": {
-    "description": "KST timezone notice"
-  },
-  "label_attendance_new_user_notice": "প্রথম সপ্তাহের সুবিধা! বাকি দিনগুলো পূরণ করে বোনাস পান!",
-  "@label_attendance_new_user_notice": {
-    "description": "New user benefit notice"
-  },
-  "label_attendance_ad_watch": "বিজ্ঞাপন দেখুন",
-  "@label_attendance_ad_watch": {
-    "description": "Watch ad tab label"
   },
   "error_anti_abuse_ad_title": "বিজ্ঞাপন দেখুন",
   "@error_anti_abuse_ad_title": {
