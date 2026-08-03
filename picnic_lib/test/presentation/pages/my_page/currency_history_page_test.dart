@@ -52,7 +52,7 @@ class _HistoryRepository extends WalletRepository {
 void main() {
   setUpAll(initTestColors);
 
-  testWidgets('shows three currencies in wallet order and switches history', (
+  testWidgets('shows only star candy tabs and never requests cotton candy', (
     tester,
   ) async {
     final repository = _HistoryRepository();
@@ -69,32 +69,19 @@ void main() {
 
     expect(find.text('스타캔디'), findsOneWidget);
     expect(find.text('보너스 스타캔디'), findsOneWidget);
-    expect(find.text('코튼캔디'), findsOneWidget);
+    expect(find.text('코튼캔디'), findsNothing);
     expect(find.text('-10'), findsOneWidget);
 
-    await tester.tap(find.text('코튼캔디'));
+    await tester.tap(find.text('보너스 스타캔디'));
     await tester.pumpAndSettle();
 
-    expect(find.text('+30'), findsOneWidget);
-    final list = find.byType(Scrollable).last;
-    ScrollEndNotification(
-      metrics: FixedScrollMetrics(
-        minScrollExtent: 0,
-        maxScrollExtent: 0,
-        pixels: 0,
-        viewportDimension: 600,
-        axisDirection: AxisDirection.down,
-        devicePixelRatio: 1,
-      ),
-      context: tester.element(list),
-    ).dispatch(tester.element(list));
-    await tester.pump();
-    expect(
-      repository.calls.where(
-        (currency) => currency == WalletCurrency.cottonCandy,
-      ),
-      hasLength(1),
+    expect(repository.calls, contains(WalletCurrency.bonusStarCandy));
+    expect(repository.calls, isNot(contains(WalletCurrency.cottonCandy)));
+
+    final content = tester.widget<Padding>(
+      find.byKey(const Key('currency-history-content')),
     );
+    expect(content.padding, const EdgeInsets.symmetric(horizontal: 16));
   });
 
   testWidgets('blocks currency history for a regular user', (tester) async {

@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/navigation_stack.dart';
 import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/charge_history_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
 import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
 
@@ -37,6 +39,43 @@ void main() {
     await tester.tap(find.text('캔디 내역'));
     await pumpAndIgnoreErrors(tester);
     expect(find.byType(CurrencyHistoryPage), findsOneWidget);
+  });
+
+  testWidgets('opens charge history from the administrator menu', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildTestAppPage(
+        const MyPageScreen(),
+        navigation: Navigation(
+          drawerNavigationStack: NavigationStack(
+            initialPage: const AdminMenuPage(),
+          ),
+        ),
+        userProfile: MockData.userProfile(isAdmin: true),
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+
+    await tester.tap(find.text('충전 내역'));
+    await pumpAndIgnoreErrors(tester);
+
+    expect(find.byType(ChargeHistoryPage), findsOneWidget);
+  });
+
+  testWidgets('uses an exact 16px horizontal content inset', (tester) async {
+    await tester.pumpWidget(
+      buildTestAppPage(
+        const AdminMenuPage(),
+        userProfile: MockData.userProfile(isAdmin: true),
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+
+    final content = tester.widget<Padding>(
+      find.byKey(const Key('admin-menu-content')),
+    );
+    expect(content.padding, const EdgeInsets.symmetric(horizontal: 16));
   });
 
   testWidgets('denies a non-admin direct access to administrator tools', (

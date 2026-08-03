@@ -7,6 +7,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/core/services/consent_service.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
+import 'package:picnic_lib/presentation/pages/my_page/charge_history_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -50,59 +51,64 @@ class _AdminMenuPageState extends ConsumerState<AdminMenuPage>
         }
 
         return Scaffold(
-          body: ListView(
-            children: [
-              PicnicListItem(
-                leading: '캔디 내역',
-                assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: _openCurrencyHistory,
-              ),
-              PicnicListItem(
-                leading: '충전 내역',
-                assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: () {},
-              ),
-              PicnicListItem(
-                leading: 'Ad Inspector',
-                assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: () {
-                  MobileAds.instance.openAdInspector((error) {
-                    if (error != null) {
-                      logger.e('Ad Inspector error: ${error.message}');
-                    } else {
-                      logger.i('Ad Inspector closed');
+          body: Padding(
+            key: const Key('admin-menu-content'),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ListView(
+              children: [
+                PicnicListItem(
+                  leading: '캔디 내역',
+                  assetPath: 'assets/icons/arrow_right_style=line.svg',
+                  onTap: _openCurrencyHistory,
+                ),
+                PicnicListItem(
+                  leading: '충전 내역',
+                  assetPath: 'assets/icons/arrow_right_style=line.svg',
+                  onTap: _openChargeHistory,
+                ),
+                PicnicListItem(
+                  leading: 'Ad Inspector',
+                  assetPath: 'assets/icons/arrow_right_style=line.svg',
+                  onTap: () {
+                    MobileAds.instance.openAdInspector((error) {
+                      if (error != null) {
+                        logger.e('Ad Inspector error: ${error.message}');
+                      } else {
+                        logger.i('Ad Inspector closed');
+                      }
+                    });
+                  },
+                ),
+                PicnicListItem(
+                  leading: 'Reset & Reload GDPR',
+                  assetPath: 'assets/icons/arrow_right_style=line.svg',
+                  onTap: () async {
+                    SnackbarUtil().info('GDPR 동의 초기화 중...', context: context);
+
+                    await ConsentService().logCurrentState();
+
+                    final success = await ConsentService()
+                        .resetAndReinitialize();
+
+                    await ConsentService().logCurrentState();
+
+                    if (context.mounted) {
+                      if (success) {
+                        SnackbarUtil().success(
+                          'GDPR 동의가 재초기화되었습니다. EEA 모드면 동의 폼이 표시됩니다.',
+                          context: context,
+                        );
+                      } else {
+                        SnackbarUtil().error(
+                          'GDPR 재초기화 실패. 로그를 확인하세요.',
+                          context: context,
+                        );
+                      }
                     }
-                  });
-                },
-              ),
-              PicnicListItem(
-                leading: 'Reset & Reload GDPR',
-                assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: () async {
-                  SnackbarUtil().info('GDPR 동의 초기화 중...', context: context);
-
-                  await ConsentService().logCurrentState();
-
-                  final success = await ConsentService().resetAndReinitialize();
-
-                  await ConsentService().logCurrentState();
-
-                  if (context.mounted) {
-                    if (success) {
-                      SnackbarUtil().success(
-                        'GDPR 동의가 재초기화되었습니다. EEA 모드면 동의 폼이 표시됩니다.',
-                        context: context,
-                      );
-                    } else {
-                      SnackbarUtil().error(
-                        'GDPR 재초기화 실패. 로그를 확인하세요.',
-                        context: context,
-                      );
-                    }
-                  }
-                },
-              ),
-            ],
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -116,6 +122,12 @@ class _AdminMenuPageState extends ConsumerState<AdminMenuPage>
     ref
         .read(navigationInfoProvider.notifier)
         .setCurrentMyPage(const CurrencyHistoryPage());
+  }
+
+  void _openChargeHistory() {
+    ref
+        .read(navigationInfoProvider.notifier)
+        .setCurrentMyPage(const ChargeHistoryPage());
   }
 
   void _updateNavigation() {
