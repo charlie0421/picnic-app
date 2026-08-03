@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
-import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_data.dart';
@@ -47,26 +47,28 @@ void main() {
       expect(find.byType(MyPage), findsOneWidget);
     });
 
-    testWidgets('does not show the candy banner for a regular user', (
-      WidgetTester tester,
-    ) async {
-      await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
-      await tester.pumpWidget(
-        buildTestAppPage(
-          const MyPage(),
-          userProfile: MockData.userProfile(isAdmin: false),
-          extraOverrides: [
-            asyncBookmarkedArtistsProvider.overrideWith(
-              MockBookmarkedArtists.new,
-            ),
-          ],
-        ),
-      );
-      await pumpAndIgnoreErrors(tester);
-      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+    testWidgets(
+      'shows the shared candy pouch without history for a regular user',
+      (WidgetTester tester) async {
+        await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
+        await tester.pumpWidget(
+          buildTestAppPage(
+            const MyPage(),
+            userProfile: MockData.userProfile(isAdmin: false),
+            extraOverrides: [
+              asyncBookmarkedArtistsProvider.overrideWith(
+                MockBookmarkedArtists.new,
+              ),
+            ],
+          ),
+        );
+        await pumpAndIgnoreErrors(tester);
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
 
-      expect(find.byType(StarCandyInfoText), findsNothing);
-    });
+        expect(find.byType(StorePointInfo), findsOneWidget);
+        expect(find.text('캔디 내역'), findsNothing);
+      },
+    );
 
     testWidgets('shows the candy banner for an admin user', (
       WidgetTester tester,
@@ -86,7 +88,13 @@ void main() {
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
 
-      expect(find.byType(StarCandyInfoText), findsOneWidget);
+      expect(find.byType(StorePointInfo), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('캔디 내역'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('캔디 내역'), findsOneWidget);
     });
 
     testWidgets('renders logged-out state', (WidgetTester tester) async {
@@ -104,6 +112,15 @@ void main() {
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
       expect(find.byType(MyPage), findsOneWidget);
+      expect(find.byType(StorePointInfo), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(StorePointInfo),
+          matching: find.text('로그인해 주세요'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('캔디 내역'), findsNothing);
     });
 
     testWidgets('renders admin user with admin menus', (

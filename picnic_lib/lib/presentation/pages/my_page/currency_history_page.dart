@@ -4,6 +4,7 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/wallet/currency_history_list_item.dart';
 
@@ -37,6 +38,11 @@ class _CurrencyHistoryPageState extends ConsumerState<CurrencyHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin =
+        ref.watch(userInfoProvider.select((state) => state.value?.isAdmin)) ??
+        false;
+    if (!isAdmin) return const SizedBox.shrink();
+
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
       length: _historyCurrencies.length,

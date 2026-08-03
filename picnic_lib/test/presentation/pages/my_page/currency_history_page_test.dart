@@ -9,6 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
+import '../../../helpers/mock_data.dart';
 
 class _UnusedSupabaseClient extends Fake implements SupabaseClient {}
 
@@ -58,6 +59,7 @@ void main() {
     await tester.pumpWidget(
       buildTestApp(
         const CurrencyHistoryPage(),
+        userProfile: MockData.userProfile(isAdmin: true),
         extraOverrides: [
           walletRepositoryProvider.overrideWithValue(repository),
         ],
@@ -93,5 +95,22 @@ void main() {
       ),
       hasLength(1),
     );
+  });
+
+  testWidgets('blocks currency history for a regular user', (tester) async {
+    final repository = _HistoryRepository();
+    await tester.pumpWidget(
+      buildTestApp(
+        const CurrencyHistoryPage(),
+        userProfile: MockData.userProfile(isAdmin: false),
+        extraOverrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('스타캔디'), findsNothing);
+    expect(repository.calls, isEmpty);
   });
 }
