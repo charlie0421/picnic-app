@@ -456,9 +456,18 @@
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
   "label_ads_get_cotton_candy": "広告を見てわたあめをもらう",
-  "@label_ads_get_cotton_candy": {"description": "Free charge station ads section title."},
+  "@label_ads_get_cotton_candy": {
+    "description": "Free charge station ads section title."
+  },
   "free_charge_ads_reward": "+わたあめ {reward} 獲得",
-  "@free_charge_ads_reward": {"description": "Reward copy for an ad in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_ads_reward": {
+    "description": "Reward copy for an ad in the free charge station.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_ads_limits": "1時間あたり{hourly}回、1日{daily}回",
   "@label_ads_limits": {
     "placeholders": {
@@ -603,9 +612,18 @@
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
   "label_mission_get_bonus_star_candy": "ミッションでボーナス星飴をもらう",
-  "@label_mission_get_bonus_star_candy": {"description": "Free charge station missions section title."},
+  "@label_mission_get_bonus_star_candy": {
+    "description": "Free charge station missions section title."
+  },
   "free_charge_mission_reward": "+ボーナス星飴 {reward} 獲得",
-  "@free_charge_mission_reward": {"description": "Reward copy for a mission in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_mission_reward": {
+    "description": "Reward copy for a mission in the free charge station.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_mission_short": "ミッション",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2372,42 +2390,6 @@
   "notifications_mark_all_read": "全て既読",
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
-  },
-  "label_attendance_check": "出席チェック",
-  "@label_attendance_check": {
-    "description": "Attendance check tab label"
-  },
-  "label_attendance_check_in": "出席する",
-  "@label_attendance_check_in": {
-    "description": "Check in button label"
-  },
-  "label_attendance_checked": "出席完了",
-  "@label_attendance_checked": {
-    "description": "Already checked in label"
-  },
-  "label_attendance_deadline": "今日の締切",
-  "@label_attendance_deadline": {
-    "description": "Deadline timer label"
-  },
-  "label_attendance_weekly_bonus": "週間ボーナス",
-  "@label_attendance_weekly_bonus": {
-    "description": "Weekly bonus label"
-  },
-  "label_attendance_weekly_bonus_desc": "7日間すべて出席で日曜ボーナス！",
-  "@label_attendance_weekly_bonus_desc": {
-    "description": "Weekly bonus description"
-  },
-  "label_attendance_kst_notice": "韓国時間(KST)基準",
-  "@label_attendance_kst_notice": {
-    "description": "KST timezone notice"
-  },
-  "label_attendance_new_user_notice": "初週特典！残りの日を埋めてボーナスGET！",
-  "@label_attendance_new_user_notice": {
-    "description": "New user benefit notice"
-  },
-  "label_attendance_ad_watch": "広告を見る",
-  "@label_attendance_ad_watch": {
-    "description": "Watch ad tab label"
   },
   "error_anti_abuse_ad_title": "広告視聴",
   "@error_anti_abuse_ad_title": {

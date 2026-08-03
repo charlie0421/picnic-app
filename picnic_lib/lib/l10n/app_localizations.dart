@@ -3449,60 +3449,6 @@ abstract class AppLocalizations {
   /// **'Read all'**
   String get notifications_mark_all_read;
 
-  /// Attendance check tab label
-  ///
-  /// In en, this message translates to:
-  /// **'Attendance'**
-  String get label_attendance_check;
-
-  /// Check in button label
-  ///
-  /// In en, this message translates to:
-  /// **'Check In'**
-  String get label_attendance_check_in;
-
-  /// Already checked in label
-  ///
-  /// In en, this message translates to:
-  /// **'Checked In'**
-  String get label_attendance_checked;
-
-  /// Deadline timer label
-  ///
-  /// In en, this message translates to:
-  /// **'Today\'s deadline'**
-  String get label_attendance_deadline;
-
-  /// Weekly bonus label
-  ///
-  /// In en, this message translates to:
-  /// **'Weekly Bonus'**
-  String get label_attendance_weekly_bonus;
-
-  /// Weekly bonus description
-  ///
-  /// In en, this message translates to:
-  /// **'Check in all 7 days for Sunday bonus!'**
-  String get label_attendance_weekly_bonus_desc;
-
-  /// KST timezone notice
-  ///
-  /// In en, this message translates to:
-  /// **'Based on KST (UTC+9)'**
-  String get label_attendance_kst_notice;
-
-  /// New user benefit notice
-  ///
-  /// In en, this message translates to:
-  /// **'First week perk! Complete remaining days for bonus!'**
-  String get label_attendance_new_user_notice;
-
-  /// Watch ad tab label
-  ///
-  /// In en, this message translates to:
-  /// **'Watch Ads'**
-  String get label_attendance_ad_watch;
-
   /// Anti-abuse rate-limited dialog title for ad-watch channel
   ///
   /// In en, this message translates to:

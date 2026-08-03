@@ -461,9 +461,18 @@
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
   "label_ads_get_cotton_candy": "ကြော်ငြာမှ ချည်သကြားလုံးကိုရယူပါ",
-  "@label_ads_get_cotton_candy": {"description": "Free charge station ads section title."},
+  "@label_ads_get_cotton_candy": {
+    "description": "Free charge station ads section title."
+  },
   "free_charge_ads_reward": "+ချည်သကြားလုံး {reward} ရရှိသည်",
-  "@free_charge_ads_reward": {"description": "Reward copy for an ad in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_ads_reward": {
+    "description": "Reward copy for an ad in the free charge station.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_ads_limits": "တစ်နာရီလျှင် {hourly} ကြိမ်၊ တစ်နေ့လျှင် {daily} ကြိမ်",
   "@label_ads_limits": {
     "placeholders": {
@@ -608,9 +617,18 @@
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
   "label_mission_get_bonus_star_candy": "မစ်ရှင်မှ အပိုဆုကြယ်သကြားလုံးကိုရယူပါ",
-  "@label_mission_get_bonus_star_candy": {"description": "Free charge station missions section title."},
+  "@label_mission_get_bonus_star_candy": {
+    "description": "Free charge station missions section title."
+  },
   "free_charge_mission_reward": "+အပိုဆုကြယ်သကြားလုံး {reward} ရရှိသည်",
-  "@free_charge_mission_reward": {"description": "Reward copy for a mission in the free charge station.", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_mission_reward": {
+    "description": "Reward copy for a mission in the free charge station.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_mission_short": "တိုက်ခိုက်ရေးလုပ်ငန်းတာဝန်",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2315,42 +2333,6 @@
   "notifications_mark_all_read": "အားလုံးဖတ်",
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
-  },
-  "label_attendance_check": "တက်ရောက်မှုစစ်ဆေးခြင်း",
-  "@label_attendance_check": {
-    "description": "Attendance check tab label"
-  },
-  "label_attendance_check_in": "စစ်ဆေးမည်",
-  "@label_attendance_check_in": {
-    "description": "Check in button label"
-  },
-  "label_attendance_checked": "စစ်ဆေးပြီးပါပြီ",
-  "@label_attendance_checked": {
-    "description": "Already checked in label"
-  },
-  "label_attendance_deadline": "ယနေ့သတ်မှတ်ချိန်",
-  "@label_attendance_deadline": {
-    "description": "Deadline timer label"
-  },
-  "label_attendance_weekly_bonus": "အပတ်စဉ်ဆုလာဘ်",
-  "@label_attendance_weekly_bonus": {
-    "description": "Weekly bonus label"
-  },
-  "label_attendance_weekly_bonus_desc": "ရက် ၇ ရက်လုံး စစ်ဆေးပြီး တနင်္ဂနွေဆုလာဘ်ရယူပါ!",
-  "@label_attendance_weekly_bonus_desc": {
-    "description": "Weekly bonus description"
-  },
-  "label_attendance_kst_notice": "KST (UTC+9) အချိန်အတိုင်း",
-  "@label_attendance_kst_notice": {
-    "description": "KST timezone notice"
-  },
-  "label_attendance_new_user_notice": "ပထမအပတ်အထူးခံစားခွင့်! ကျန်ရက်များဖြည့်၍ ဆုလာဘ်ရယူပါ!",
-  "@label_attendance_new_user_notice": {
-    "description": "New user benefit notice"
-  },
-  "label_attendance_ad_watch": "ကြော်ငြာကြည့်ရန်",
-  "@label_attendance_ad_watch": {
-    "description": "Watch ad tab label"
   },
   "error_anti_abuse_ad_title": "ကြော်ငြာကြည့်ရန်",
   "@error_anti_abuse_ad_title": {

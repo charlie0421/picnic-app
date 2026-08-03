@@ -517,9 +517,18 @@
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
   "label_ads_get_cotton_candy": "광고에서 코튼캔디 받기",
-  "@label_ads_get_cotton_candy": {"description": "무료충전소 광고 섹션 제목"},
+  "@label_ads_get_cotton_candy": {
+    "description": "무료충전소 광고 섹션 제목"
+  },
   "free_charge_ads_reward": "+코튼캔디 {reward} 획득",
-  "@free_charge_ads_reward": {"description": "무료충전소 광고 보상 문구", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_ads_reward": {
+    "description": "무료충전소 광고 보상 문구",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_ads_limits": "시간당 {hourly}회, 일일 {daily}회",
   "@label_ads_limits": {
     "description": "Auto-generated metadata for key 'label_ads_limits'.",
@@ -665,9 +674,18 @@
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
   "label_mission_get_bonus_star_candy": "미션에서 보너스 스타캔디 받기",
-  "@label_mission_get_bonus_star_candy": {"description": "무료충전소 미션 섹션 제목"},
+  "@label_mission_get_bonus_star_candy": {
+    "description": "무료충전소 미션 섹션 제목"
+  },
   "free_charge_mission_reward": "+보너스 스타캔디 {reward} 획득",
-  "@free_charge_mission_reward": {"description": "무료충전소 미션 보상 문구", "placeholders": {"reward": {"type": "String"}}},
+  "@free_charge_mission_reward": {
+    "description": "무료충전소 미션 보상 문구",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
   "label_mission_short": "미션",
   "@label_mission_short": {
     "description": "Auto-generated metadata for key 'label_mission_short'."
@@ -2458,42 +2476,6 @@
   "notifications_mark_all_read": "모두 읽기",
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
-  },
-  "label_attendance_check": "출석체크",
-  "@label_attendance_check": {
-    "description": "Attendance check tab label"
-  },
-  "label_attendance_check_in": "출석하기",
-  "@label_attendance_check_in": {
-    "description": "Check in button label"
-  },
-  "label_attendance_checked": "출석 완료",
-  "@label_attendance_checked": {
-    "description": "Already checked in label"
-  },
-  "label_attendance_deadline": "오늘 마감까지",
-  "@label_attendance_deadline": {
-    "description": "Deadline timer label"
-  },
-  "label_attendance_weekly_bonus": "주간 완성 보너스",
-  "@label_attendance_weekly_bonus": {
-    "description": "Weekly bonus label"
-  },
-  "label_attendance_weekly_bonus_desc": "7일 모두 출석하면 일요일에 지급!",
-  "@label_attendance_weekly_bonus_desc": {
-    "description": "Weekly bonus description"
-  },
-  "label_attendance_kst_notice": "한국시간(KST) 기준",
-  "@label_attendance_kst_notice": {
-    "description": "KST timezone notice"
-  },
-  "label_attendance_new_user_notice": "가입 첫 주 혜택! 남은 요일만 채우면 보너스!",
-  "@label_attendance_new_user_notice": {
-    "description": "New user benefit notice"
-  },
-  "label_attendance_ad_watch": "광고 시청",
-  "@label_attendance_ad_watch": {
-    "description": "Watch ad tab label"
   },
   "error_anti_abuse_ad_title": "광고 시청",
   "@error_anti_abuse_ad_title": {

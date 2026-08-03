@@ -1859,35 +1859,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get notifications_mark_all_read => 'Leer todo';
 
   @override
-  String get label_attendance_check => 'Asistencia';
-
-  @override
-  String get label_attendance_check_in => 'Registrarse';
-
-  @override
-  String get label_attendance_checked => 'Registrado';
-
-  @override
-  String get label_attendance_deadline => 'Límite de hoy';
-
-  @override
-  String get label_attendance_weekly_bonus => 'Bono semanal';
-
-  @override
-  String get label_attendance_weekly_bonus_desc =>
-      '¡Regístrate los 7 días para el bono del domingo!';
-
-  @override
-  String get label_attendance_kst_notice => 'Basado en KST (UTC+9)';
-
-  @override
-  String get label_attendance_new_user_notice =>
-      '¡Beneficio de primera semana! ¡Completa los días restantes para el bono!';
-
-  @override
-  String get label_attendance_ad_watch => 'Ver anuncios';
-
-  @override
   String get error_anti_abuse_ad_title => 'Ver anuncios';
 
   @override
