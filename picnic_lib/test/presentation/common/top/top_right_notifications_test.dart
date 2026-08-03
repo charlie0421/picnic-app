@@ -12,8 +12,9 @@ void main() {
   });
 
   group('TopRightNotifications', () {
-    testWidgets('renders notification bell icon when count is 0 (no badge)',
-        (WidgetTester tester) async {
+    testWidgets('renders notification bell icon when count is 0 (no badge)', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestApp(
           const TopRightNotifications(),
@@ -30,8 +31,9 @@ void main() {
       expect(find.text('9+'), findsNothing);
     });
 
-    testWidgets('shows badge with count when count > 0',
-        (WidgetTester tester) async {
+    testWidgets('shows badge with count when count > 0', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestApp(
           const TopRightNotifications(),
@@ -60,8 +62,9 @@ void main() {
       expect(find.text('9+'), findsOneWidget);
     });
 
-    testWidgets('contains IconButton with tooltip 알림',
-        (WidgetTester tester) async {
+    testWidgets('contains IconButton with tooltip 알림', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestApp(
           const TopRightNotifications(),
@@ -76,8 +79,9 @@ void main() {
       expect(iconButton.tooltip, '알림');
     });
 
-    testWidgets('SizedBox has width: 36, height: 36',
-        (WidgetTester tester) async {
+    testWidgets('SizedBox has width: 40, height: 40', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestApp(
           const TopRightNotifications(),
@@ -89,8 +93,8 @@ void main() {
       await tester.pumpAndSettle();
 
       final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox).first);
-      expect(sizedBox.width, 36);
-      expect(sizedBox.height, 36);
+      expect(sizedBox.width, 40);
+      expect(sizedBox.height, 40);
     });
   });
 }
