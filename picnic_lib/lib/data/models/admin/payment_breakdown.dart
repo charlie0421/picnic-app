@@ -19,10 +19,7 @@ class PaymentBreakdownItem {
   final String key;
   final BigInt payCount;
 
-  /// Decimal text normalized from the reporting RPC.
-  ///
-  /// Keeping the display value as text prevents additional binary
-  /// floating-point conversions in the presentation layer.
+  /// Exact decimal text from the reporting RPC.
   final String revenueUsd;
 
   factory PaymentBreakdownItem.fromJson(Map<String, dynamic> json) {
@@ -41,7 +38,7 @@ class PaymentBreakdownItem {
     return PaymentBreakdownItem(
       key: key,
       payCount: _parsePayCount(payCount),
-      revenueUsd: _normalizeRevenueUsd(revenueUsd),
+      revenueUsd: _parseRevenueUsd(revenueUsd),
     );
   }
 
@@ -62,40 +59,13 @@ class PaymentBreakdownItem {
     );
   }
 
-  static String _normalizeRevenueUsd(Object? value) {
-    final decimal = switch (value) {
-      String value => value,
-      int value => value.toString(),
-      double value when value.isFinite => _expandExponent(value.toString()),
-      _ => throw const FormatException(
-        'Payment breakdown revenue_usd must be a finite decimal',
-      ),
-    };
-    if (!RegExp(r'^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$').hasMatch(decimal)) {
+  static String _parseRevenueUsd(Object? value) {
+    if (value is! String ||
+        !RegExp(r'^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$').hasMatch(value)) {
       throw const FormatException(
-        'Payment breakdown revenue_usd must be a finite decimal',
+        'Payment breakdown revenue_usd must be a decimal string',
       );
     }
-    return decimal;
-  }
-
-  static String _expandExponent(String value) {
-    final parts = value.split(RegExp('[eE]'));
-    if (parts.length == 1) return value;
-
-    final mantissa = parts[0];
-    final exponent = int.parse(parts[1]);
-    final negative = mantissa.startsWith('-');
-    final unsigned = negative ? mantissa.substring(1) : mantissa;
-    final decimalOffset = unsigned.indexOf('.');
-    final integerLength = decimalOffset == -1 ? unsigned.length : decimalOffset;
-    final digits = unsigned.replaceAll('.', '');
-    final point = integerLength + exponent;
-    final normalized = point <= 0
-        ? '0.${'0' * -point}$digits'
-        : point >= digits.length
-        ? '$digits${'0' * (point - digits.length)}'
-        : '${digits.substring(0, point)}.${digits.substring(point)}';
-    return negative ? '-$normalized' : normalized;
+    return value;
   }
 }
