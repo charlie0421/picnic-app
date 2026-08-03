@@ -3,6 +3,11 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  const aclStatements = [
+    'REVOKE EXECUTE ON FUNCTION public.get_payment_breakdown(timestamptz, timestamptz, text) FROM PUBLIC, anon;',
+    'GRANT EXECUTE ON FUNCTION public.get_payment_breakdown(timestamptz, timestamptz, text) TO authenticated;',
+  ];
+
   test('payment breakdown migration preserves its admin aggregation contract', () {
     final migration = File(
       '../supabase/migrations/20260803085209_cast_payment_breakdown_revenue_to_text.sql',
@@ -38,5 +43,18 @@ void main() {
         "jsonb_build_object('key', key, 'pay_cnt', pay_cnt, 'revenue_usd', revenue_usd::text)",
       ),
     );
+    for (final statement in aclStatements) {
+      expect(migration, contains(statement));
+    }
+  });
+
+  test('payment breakdown ACL follow-up migration is reproducible', () {
+    final migration = File(
+      '../supabase/migrations/20260803091257_enforce_payment_breakdown_acl.sql',
+    ).readAsStringSync();
+
+    for (final statement in aclStatements) {
+      expect(migration, contains(statement));
+    }
   });
 }
