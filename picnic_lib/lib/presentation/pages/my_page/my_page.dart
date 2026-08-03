@@ -32,7 +32,7 @@ import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_pro
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
-import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
@@ -106,15 +106,10 @@ class _MyPageState extends ConsumerState<MyPage>
                 const SizedBox(height: 24),
                 // 프로필
                 data != null ? _buildProfile() : _buildNonLogin(),
-                // 캔디 정보
-                isSupabaseLoggedSafely && (data?.isAdmin ?? false)
-                    ? const Align(
-                        alignment: Alignment.centerLeft,
-                        child: StarCandyInfoText(
-                          alignment: MainAxisAlignment.start,
-                        ),
-                      )
-                    : const SizedBox(height: 16),
+                StorePointInfo(
+                  title: AppLocalizations.of(context).label_star_candy_pouch,
+                  width: double.infinity,
+                ),
 
                 // Language
                 Text(
@@ -176,15 +171,14 @@ class _MyPageState extends ConsumerState<MyPage>
                       : showRequireLoginDialog(),
                 ),
 
-                PicnicListItem(
-                  leading: AppLocalizations.of(context).wallet_history_title,
-                  assetPath: 'assets/icons/arrow_right_style=line.svg',
-                  onTap: () => data != null
-                      ? ref
-                            .read(navigationInfoProvider.notifier)
-                            .setCurrentMyPage(const CurrencyHistoryPage())
-                      : showRequireLoginDialog(),
-                ),
+                if (data?.isAdmin ?? false)
+                  PicnicListItem(
+                    leading: AppLocalizations.of(context).wallet_history_title,
+                    assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    onTap: () => ref
+                        .read(navigationInfoProvider.notifier)
+                        .setCurrentMyPage(const CurrencyHistoryPage()),
+                  ),
 
                 // Setting
                 PicnicListItem(
