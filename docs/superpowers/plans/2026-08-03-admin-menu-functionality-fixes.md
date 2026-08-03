@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- DB 스키마와 Edge Function은 변경하지 않는다.
+- `get_payment_breakdown`의 `revenue_usd`만 decimal 문자열로 반환하도록 새 Supabase 마이그레이션을 추가하고 Edge Function은 변경하지 않는다.
 - 충전 내역은 기존 `get_payment_breakdown` RPC의 `platform` 및 `product` 차원을 사용한다.
 - 충전 내역은 결제 건수와 USD 매출을 표시한다.
 - 관리자 메뉴, 캔디 내역, 충전 내역의 좌우 패딩은 정확히 16px이다.
@@ -30,15 +30,17 @@
 - Create: `picnic_lib/lib/presentation/pages/my_page/charge_history_page.dart`
 - Create: `picnic_lib/test/data/repositories/admin_repository_test.dart`
 - Create: `picnic_lib/test/presentation/pages/my_page/charge_history_page_test.dart`
+- Create: `supabase/migrations/<generated_timestamp>_cast_payment_breakdown_revenue_to_text.sql`
 - Modify: generated provider files only when the repository's established Riverpod generation workflow requires them
 
 **Interfaces:**
 - Produces: `PaymentBreakdownItem(key: String, payCount: BigInt, revenueUsd: Decimal/string-safe value)`, `AdminRepository.getPaymentBreakdown({required PaymentBreakdownDimension dimension})`, Riverpod providers for both dimensions, `const ChargeHistoryPage()`
-- Consumes: Supabase RPC `get_payment_breakdown` with `p_start: null`, `p_end: null`, and `p_dimension` equal to `platform` or `product`
+- Consumes: Supabase RPC `get_payment_breakdown` with `p_start: null`, `p_end: null`, and `p_dimension` equal to `platform` or `product`; `revenue_usd` is returned as decimal text
 
 - [ ] Write repository tests that assert exact RPC name/parameters and strict parsing of `key`, `pay_cnt`, and `revenue_usd`.
 - [ ] Run repository tests and verify RED because the model/repository do not exist.
-- [ ] Implement the minimal model and repository; preserve decimal revenue without binary floating-point conversion.
+- [ ] Generate a Supabase migration and change only `get_payment_breakdown`'s `revenue_usd` JSON field to `revenue_usd::text`.
+- [ ] Implement the minimal model and repository; accept `revenue_usd` only as decimal text so it never passes through binary floating point.
 - [ ] Write widget tests for admin platform/product tabs, rows, loading/error/empty state, non-admin access denial, and exact 16px horizontal content inset.
 - [ ] Run widget tests and verify RED because the page/provider do not exist.
 - [ ] Implement `ChargeHistoryPage`, title `충전 내역`, direct admin guard, two tabs, and list rows.

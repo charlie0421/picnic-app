@@ -51,8 +51,9 @@
 
 ## Supabase 변경 범위
 
-- 운영 스키마나 Edge Function은 변경하지 않는다.
-- 기존 `get_payment_breakdown` RPC만 읽기 호출한다.
+- `get_payment_breakdown`의 `revenue_usd` 값만 `numeric` JSON 숫자에서 decimal 문자열로 변경하는 새 마이그레이션을 추가한다.
+- 함수의 권한 검사, 필터, 집계, 나머지 반환 필드는 변경하지 않는다.
+- Edge Function은 변경하지 않는다.
 - 앱의 `isAdmin` 화면 가드와 DB의 `is_super_admin()` 검사를 함께 유지한다. 앱 관리자이지만 super admin이 아닌 계정은 RPC 오류 상태를 보게 되며 데이터가 노출되지 않는다.
 
 ## 테스트
@@ -66,6 +67,7 @@
 
 ## 배포
 
+- Supabase 마이그레이션을 운영에 적용하고 함수 정의와 반환 타입을 다시 확인한다.
 - 기존 PR 브랜치에 커밋하고 푸시한다.
 - `picnic_app/pubspec.yaml`의 `1.3.0+130001`을 확인한다.
 - 태그와 Codemagic 없이 로컬 Shorebird로 iOS와 Android stable 패치를 생성한다.
