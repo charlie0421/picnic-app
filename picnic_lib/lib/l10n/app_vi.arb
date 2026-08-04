@@ -2493,5 +2493,13 @@
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   },
+  "expiry_quantity_currency": "Loại tiền",
+  "expiry_quantity_date": "Ngày hết hạn",
+  "expiry_quantity_amount": "Số lượng",
+  "expiry_policy_guide": "Chính sách hết hạn",
+  "expiry_quantity_title": "Kẹo sắp hết hạn của tôi",
+  "expiry_quantity_description": "Số lượng dự kiến hết hạn trong tài khoản hiện tại.",
+  "expiry_policy_description": "Quy định hết hạn theo từng loại tiền.",
+  "bonus_expiry_policy_summary": "Phần nhận từ ngày 1–14 hết hạn vào ngày 15 tháng sau; phần nhận từ ngày 15 đến cuối tháng hết hạn lúc 00:00 (KST) ngày 15 của tháng kế tiếp nữa.",
   "expiry_tonight_at_midnight": "Nửa đêm nay"
 }

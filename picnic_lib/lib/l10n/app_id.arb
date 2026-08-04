@@ -2549,5 +2549,13 @@
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   },
+  "expiry_quantity_currency": "Mata uang",
+  "expiry_quantity_date": "Tanggal kedaluwarsa",
+  "expiry_quantity_amount": "Jumlah",
+  "expiry_policy_guide": "Kebijakan kedaluwarsa",
+  "expiry_quantity_title": "Candy yang akan kedaluwarsa",
+  "expiry_quantity_description": "Jumlah yang dijadwalkan kedaluwarsa pada akun saat ini.",
+  "expiry_policy_description": "Ketentuan kedaluwarsa menurut mata uang.",
+  "bonus_expiry_policy_summary": "Perolehan tanggal 1–14 kedaluwarsa tanggal 15 bulan berikutnya; perolehan tanggal 15–akhir bulan kedaluwarsa pukul 00.00 (KST) tanggal 15 dua bulan berikutnya.",
   "expiry_tonight_at_midnight": "Tengah malam ini"
 }

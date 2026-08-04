@@ -2549,5 +2549,13 @@
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   },
+  "expiry_quantity_currency": "通貨",
+  "expiry_quantity_date": "失効予定日",
+  "expiry_quantity_amount": "数量",
+  "expiry_policy_guide": "失効ポリシー",
+  "expiry_quantity_title": "失効予定のキャンディ",
+  "expiry_quantity_description": "現在のアカウントで失効予定の数量です。",
+  "expiry_policy_description": "通貨ごとの失効基準です。",
+  "bonus_expiry_policy_summary": "1〜14日に獲得した分は翌月15日、15日〜月末に獲得した分は翌々月15日00:00（KST）に失効します。",
   "expiry_tonight_at_midnight": "今夜0時"
 }

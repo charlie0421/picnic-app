@@ -1992,33 +1992,33 @@ class AppLocalizationsBn extends AppLocalizations {
       'প্রতিদিন 00:00:00 (KST)-এ মেয়াদ শেষ হয়।';
 
   @override
-  String get expiry_quantity_currency => 'Currency';
+  String get expiry_quantity_currency => 'মুদ্রা';
 
   @override
-  String get expiry_quantity_date => 'Expiry date';
+  String get expiry_quantity_date => 'মেয়াদ শেষের তারিখ';
 
   @override
-  String get expiry_quantity_amount => 'Amount';
+  String get expiry_quantity_amount => 'পরিমাণ';
 
   @override
   String get expiry_tonight_at_midnight => 'আজ মধ্যরাতে';
 
   @override
-  String get expiry_policy_guide => 'Expiration policy';
+  String get expiry_policy_guide => 'মেয়াদ শেষের নীতি';
 
   @override
-  String get expiry_quantity_title => 'My expiring candy';
+  String get expiry_quantity_title => 'আমার মেয়াদ শেষ হতে যাওয়া ক্যান্ডি';
 
   @override
   String get expiry_quantity_description =>
-      'Scheduled expiration amounts for the current account.';
+      'বর্তমান অ্যাকাউন্টে মেয়াদ শেষ হওয়ার নির্ধারিত পরিমাণ।';
 
   @override
-  String get expiry_policy_description => 'Expiration rules by currency.';
+  String get expiry_policy_description => 'মুদ্রাভেদে মেয়াদ শেষের নিয়ম।';
 
   @override
   String get bonus_expiry_policy_summary =>
-      'Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.';
+      '১–১৪ তারিখে অর্জিত অংশ পরের মাসের ১৫ তারিখে এবং ১৫–মাসের শেষ দিনে অর্জিত অংশ তার পরের মাসের ১৫ তারিখ ০০:০০ (KST)-এ মেয়াদ শেষ হবে।';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -4010,5 +4010,31 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
       'প্রতিদিন 00:00:00 (KST)-এ মেয়াদ শেষ হয়।';
 
   @override
+  String get expiry_quantity_currency => 'মুদ্রা';
+
+  @override
+  String get expiry_quantity_date => 'মেয়াদ শেষের তারিখ';
+
+  @override
+  String get expiry_quantity_amount => 'পরিমাণ';
+
+  @override
   String get expiry_tonight_at_midnight => 'আজ মধ্যরাতে';
+
+  @override
+  String get expiry_policy_guide => 'মেয়াদ শেষের নীতি';
+
+  @override
+  String get expiry_quantity_title => 'আমার মেয়াদ শেষ হতে যাওয়া ক্যান্ডি';
+
+  @override
+  String get expiry_quantity_description =>
+      'বর্তমান অ্যাকাউন্টে মেয়াদ শেষ হওয়ার নির্ধারিত পরিমাণ।';
+
+  @override
+  String get expiry_policy_description => 'মুদ্রাভেদে মেয়াদ শেষের নিয়ম।';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      '১–১৪ তারিখে অর্জিত অংশ পরের মাসের ১৫ তারিখে এবং ১৫–মাসের শেষ দিনে অর্জিত অংশ তার পরের মাসের ১৫ তারিখ ০০:০০ (KST)-এ মেয়াদ শেষ হবে।';
 }

@@ -331,7 +331,11 @@ class UsagePolicyPopup extends ConsumerWidget {
           Expanded(flex: 4, child: cell(date)),
           Expanded(
             flex: 2,
-            child: cell(amount, align: TextAlign.right, bold: true),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: cell(amount, align: TextAlign.right, bold: true),
+            ),
           ),
         ],
       ),

@@ -2008,31 +2008,32 @@ class AppLocalizationsMy extends AppLocalizations {
       'နေ့စဉ် 00:00:00 (KST) တွင် သက်တမ်းကုန်ဆုံးပါသည်။';
 
   @override
-  String get expiry_quantity_currency => 'Currency';
+  String get expiry_quantity_currency => 'ငွေကြေး';
 
   @override
-  String get expiry_quantity_date => 'Expiry date';
+  String get expiry_quantity_date => 'သက်တမ်းကုန်ရက်';
 
   @override
-  String get expiry_quantity_amount => 'Amount';
+  String get expiry_quantity_amount => 'ပမာဏ';
 
   @override
   String get expiry_tonight_at_midnight => 'ယနေ့ည သန်းခေါင်ယံ';
 
   @override
-  String get expiry_policy_guide => 'Expiration policy';
+  String get expiry_policy_guide => 'သက်တမ်းကုန်မူဝါဒ';
 
   @override
-  String get expiry_quantity_title => 'My expiring candy';
+  String get expiry_quantity_title => 'သက်တမ်းကုန်တော့မည့် ကန်ဒီများ';
 
   @override
   String get expiry_quantity_description =>
-      'Scheduled expiration amounts for the current account.';
+      'လက်ရှိအကောင့်တွင် သက်တမ်းကုန်ရန် သတ်မှတ်ထားသော ပမာဏများ။';
 
   @override
-  String get expiry_policy_description => 'Expiration rules by currency.';
+  String get expiry_policy_description =>
+      'ငွေကြေးအမျိုးအစားအလိုက် သက်တမ်းကုန်စည်းမျဉ်းများ။';
 
   @override
   String get bonus_expiry_policy_summary =>
-      'Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.';
+      '၁–၁၄ ရက်အတွင်း ရရှိသောပမာဏသည် နောက်လ ၁၅ ရက်တွင်၊ ၁၅ ရက်မှ လကုန်အတွင်း ရရှိသောပမာဏသည် နောက်တစ်လကျော် ၁၅ ရက် 00:00 (KST) တွင် သက်တမ်းကုန်မည်။';
 }

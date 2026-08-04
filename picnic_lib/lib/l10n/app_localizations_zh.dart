@@ -1887,33 +1887,32 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cotton_candy_daily_expiry_notice => '每天 00:00:00（KST）失效。';
 
   @override
-  String get expiry_quantity_currency => 'Currency';
+  String get expiry_quantity_currency => '貨幣';
 
   @override
-  String get expiry_quantity_date => 'Expiry date';
+  String get expiry_quantity_date => '到期日';
 
   @override
-  String get expiry_quantity_amount => 'Amount';
+  String get expiry_quantity_amount => '數量';
 
   @override
   String get expiry_tonight_at_midnight => '今晚午夜';
 
   @override
-  String get expiry_policy_guide => 'Expiration policy';
+  String get expiry_policy_guide => '到期政策';
 
   @override
-  String get expiry_quantity_title => 'My expiring candy';
+  String get expiry_quantity_title => '我的即將到期糖果';
 
   @override
-  String get expiry_quantity_description =>
-      'Scheduled expiration amounts for the current account.';
+  String get expiry_quantity_description => '目前帳戶中預計到期的數量。';
 
   @override
-  String get expiry_policy_description => 'Expiration rules by currency.';
+  String get expiry_policy_description => '各貨幣的到期標準。';
 
   @override
   String get bonus_expiry_policy_summary =>
-      'Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.';
+      '1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3799,7 +3798,32 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get cotton_candy_daily_expiry_notice => '每天 00:00:00（KST）失效。';
 
   @override
+  String get expiry_quantity_currency => '货币';
+
+  @override
+  String get expiry_quantity_date => '到期日';
+
+  @override
+  String get expiry_quantity_amount => '数量';
+
+  @override
   String get expiry_tonight_at_midnight => '今晚午夜';
+
+  @override
+  String get expiry_policy_guide => '到期政策';
+
+  @override
+  String get expiry_quantity_title => '我的即将到期糖果';
+
+  @override
+  String get expiry_quantity_description => '当前账户中预计到期的数量。';
+
+  @override
+  String get expiry_policy_description => '各货币的到期标准。';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      '1～14日获得的部分于下月15日到期；15日至月底获得的部分于下下月15日00:00（KST）到期。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -5686,5 +5710,30 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get cotton_candy_daily_expiry_notice => '每天 00:00:00（KST）失效。';
 
   @override
+  String get expiry_quantity_currency => '貨幣';
+
+  @override
+  String get expiry_quantity_date => '到期日';
+
+  @override
+  String get expiry_quantity_amount => '數量';
+
+  @override
   String get expiry_tonight_at_midnight => '今晚午夜';
+
+  @override
+  String get expiry_policy_guide => '到期政策';
+
+  @override
+  String get expiry_quantity_title => '我的即將到期糖果';
+
+  @override
+  String get expiry_quantity_description => '目前帳戶中預計到期的數量。';
+
+  @override
+  String get expiry_policy_description => '各貨幣的到期標準。';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      '1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。';
 }

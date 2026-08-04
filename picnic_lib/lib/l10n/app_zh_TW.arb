@@ -2493,5 +2493,13 @@
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
   },
+  "expiry_quantity_currency": "貨幣",
+  "expiry_quantity_date": "到期日",
+  "expiry_quantity_amount": "數量",
+  "expiry_policy_guide": "到期政策",
+  "expiry_quantity_title": "我的即將到期糖果",
+  "expiry_quantity_description": "目前帳戶中預計到期的數量。",
+  "expiry_policy_description": "各貨幣的到期標準。",
+  "bonus_expiry_policy_summary": "1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。",
   "expiry_tonight_at_midnight": "今晚午夜"
 }

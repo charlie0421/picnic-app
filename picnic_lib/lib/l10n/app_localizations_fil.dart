@@ -2032,28 +2032,29 @@ class AppLocalizationsFil extends AppLocalizations {
   String get expiry_quantity_currency => 'Currency';
 
   @override
-  String get expiry_quantity_date => 'Expiry date';
+  String get expiry_quantity_date => 'Petsa ng pag-expire';
 
   @override
-  String get expiry_quantity_amount => 'Amount';
+  String get expiry_quantity_amount => 'Dami';
 
   @override
   String get expiry_tonight_at_midnight => 'Hatinggabi ngayong gabi';
 
   @override
-  String get expiry_policy_guide => 'Expiration policy';
+  String get expiry_policy_guide => 'Patakaran sa pag-expire';
 
   @override
-  String get expiry_quantity_title => 'My expiring candy';
+  String get expiry_quantity_title => 'Aking mag-e-expire na candy';
 
   @override
   String get expiry_quantity_description =>
-      'Scheduled expiration amounts for the current account.';
+      'Mga halagang nakatakdang mag-expire sa kasalukuyang account.';
 
   @override
-  String get expiry_policy_description => 'Expiration rules by currency.';
+  String get expiry_policy_description =>
+      'Pamantayan ng pag-expire ayon sa currency.';
 
   @override
   String get bonus_expiry_policy_summary =>
-      'Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.';
+      'Ang nakuha mula ika-1 hanggang ika-14 ay mag-e-expire sa ika-15 ng susunod na buwan; ang nakuha mula ika-15 hanggang katapusan ng buwan ay mag-e-expire nang 00:00 (KST) sa ika-15 ng susunod pang buwan.';
 }

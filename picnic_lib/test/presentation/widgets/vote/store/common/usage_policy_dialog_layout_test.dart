@@ -299,6 +299,15 @@ void main() {
       final second = tester.getTopLeft(find.text('2026-09-15'));
       expect(first.dy, lessThan(second.dy));
     });
+
+    testWidgets('큰 소멸 수량은 한 줄 안에서 축소된다', (tester) async {
+      await _pumpPopup(tester, size: const Size(320, 640));
+      final amount = find.text('1,200');
+      expect(
+        find.ancestor(of: amount, matching: find.byType(FittedBox)),
+        findsOneWidget,
+      );
+    });
   });
 
   testWidgets('T4 전체 화면 셸 안에서 본문을 스크롤한다', (tester) async {
