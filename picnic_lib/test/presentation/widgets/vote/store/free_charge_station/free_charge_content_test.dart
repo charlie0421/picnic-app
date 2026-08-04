@@ -100,7 +100,8 @@ void main() {
 
       expect(find.text('미션에서 보너스 스타캔디 받기'), findsOneWidget);
       expect(find.text('광고에서 코튼캔디 받기'), findsOneWidget);
-      expect(find.text('+보너스 스타캔디 Unlimited 획득'), findsOneWidget);
+      expect(find.text('+보너스 스타캔디 획득'), findsOneWidget);
+      expect(find.textContaining('Unlimited'), findsNothing);
       expect(find.text('+코튼캔디 1 획득'), findsOneWidget);
     });
 

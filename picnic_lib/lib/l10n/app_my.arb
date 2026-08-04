@@ -2491,5 +2491,14 @@
   "cotton_candy_daily_expiry_notice": "နေ့စဉ် 00:00:00 (KST) တွင် သက်တမ်းကုန်ဆုံးပါသည်။",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
-  }
+  },
+  "expiry_quantity_currency": "ငွေကြေး",
+  "expiry_quantity_date": "သက်တမ်းကုန်ရက်",
+  "expiry_quantity_amount": "ပမာဏ",
+  "expiry_policy_guide": "သက်တမ်းကုန်မူဝါဒ",
+  "expiry_quantity_title": "သက်တမ်းကုန်တော့မည့် ကန်ဒီများ",
+  "expiry_quantity_description": "လက်ရှိအကောင့်တွင် သက်တမ်းကုန်ရန် သတ်မှတ်ထားသော ပမာဏများ။",
+  "expiry_policy_description": "ငွေကြေးအမျိုးအစားအလိုက် သက်တမ်းကုန်စည်းမျဉ်းများ။",
+  "bonus_expiry_policy_summary": "၁–၁၄ ရက်အတွင်း ရရှိသောပမာဏသည် နောက်လ ၁၅ ရက်တွင်၊ ၁၅ ရက်မှ လကုန်အတွင်း ရရှိသောပမာဏသည် နောက်တစ်လကျော် ၁၅ ရက် 00:00 (KST) တွင် သက်တမ်းကုန်မည်။",
+  "expiry_tonight_at_midnight": "ယနေ့ည သန်းခေါင်ယံ"
 }

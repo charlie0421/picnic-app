@@ -2014,4 +2014,34 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get cotton_candy_daily_expiry_notice =>
       'Vence todos los días a las 00:00:00 (KST).';
+
+  @override
+  String get expiry_quantity_currency => 'Moneda';
+
+  @override
+  String get expiry_quantity_date => 'Fecha de vencimiento';
+
+  @override
+  String get expiry_quantity_amount => 'Cantidad';
+
+  @override
+  String get expiry_tonight_at_midnight => 'Esta noche a medianoche';
+
+  @override
+  String get expiry_policy_guide => 'Política de vencimiento';
+
+  @override
+  String get expiry_quantity_title => 'Mis caramelos por vencer';
+
+  @override
+  String get expiry_quantity_description =>
+      'Cantidades programadas para vencer en la cuenta actual.';
+
+  @override
+  String get expiry_policy_description =>
+      'Criterios de vencimiento por moneda.';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      'Lo obtenido del día 1 al 14 vence el día 15 del mes siguiente; lo obtenido del día 15 al fin de mes vence a las 00:00 (KST) del día 15 del mes subsiguiente.';
 }

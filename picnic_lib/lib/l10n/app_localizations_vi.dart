@@ -1995,4 +1995,34 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get cotton_candy_daily_expiry_notice =>
       'Hết hạn vào 00:00:00 (KST) mỗi ngày.';
+
+  @override
+  String get expiry_quantity_currency => 'Loại tiền';
+
+  @override
+  String get expiry_quantity_date => 'Ngày hết hạn';
+
+  @override
+  String get expiry_quantity_amount => 'Số lượng';
+
+  @override
+  String get expiry_tonight_at_midnight => 'Nửa đêm nay';
+
+  @override
+  String get expiry_policy_guide => 'Chính sách hết hạn';
+
+  @override
+  String get expiry_quantity_title => 'Kẹo sắp hết hạn của tôi';
+
+  @override
+  String get expiry_quantity_description =>
+      'Số lượng dự kiến hết hạn trong tài khoản hiện tại.';
+
+  @override
+  String get expiry_policy_description =>
+      'Quy định hết hạn theo từng loại tiền.';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      'Phần nhận từ ngày 1–14 hết hạn vào ngày 15 tháng sau; phần nhận từ ngày 15 đến cuối tháng hết hạn lúc 00:00 (KST) ngày 15 của tháng kế tiếp nữa.';
 }

@@ -2000,4 +2000,34 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get cotton_candy_daily_expiry_notice =>
       'Kedaluwarsa setiap hari pukul 00:00:00 (KST).';
+
+  @override
+  String get expiry_quantity_currency => 'Mata uang';
+
+  @override
+  String get expiry_quantity_date => 'Tanggal kedaluwarsa';
+
+  @override
+  String get expiry_quantity_amount => 'Jumlah';
+
+  @override
+  String get expiry_tonight_at_midnight => 'Tengah malam ini';
+
+  @override
+  String get expiry_policy_guide => 'Kebijakan kedaluwarsa';
+
+  @override
+  String get expiry_quantity_title => 'Candy yang akan kedaluwarsa';
+
+  @override
+  String get expiry_quantity_description =>
+      'Jumlah yang dijadwalkan kedaluwarsa pada akun saat ini.';
+
+  @override
+  String get expiry_policy_description =>
+      'Ketentuan kedaluwarsa menurut mata uang.';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      'Perolehan tanggal 1–14 kedaluwarsa tanggal 15 bulan berikutnya; perolehan tanggal 15–akhir bulan kedaluwarsa pukul 00.00 (KST) tanggal 15 dua bulan berikutnya.';
 }

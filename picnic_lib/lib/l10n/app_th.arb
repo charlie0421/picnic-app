@@ -2492,5 +2492,14 @@
   "cotton_candy_daily_expiry_notice": "หมดอายุทุกวันเวลา 00:00:00 น. (KST)",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
-  }
+  },
+  "expiry_quantity_currency": "สกุลเงิน",
+  "expiry_quantity_date": "วันที่หมดอายุ",
+  "expiry_quantity_amount": "จำนวน",
+  "expiry_policy_guide": "นโยบายการหมดอายุ",
+  "expiry_quantity_title": "แคนดี้ของฉันที่กำลังจะหมดอายุ",
+  "expiry_quantity_description": "จำนวนที่กำหนดให้หมดอายุในบัญชีปัจจุบัน",
+  "expiry_policy_description": "เกณฑ์การหมดอายุแยกตามสกุลเงิน",
+  "bonus_expiry_policy_summary": "ส่วนที่ได้รับวันที่ 1–14 จะหมดอายุวันที่ 15 ของเดือนถัดไป ส่วนที่ได้รับวันที่ 15–สิ้นเดือนจะหมดอายุเวลา 00:00 น. (KST) วันที่ 15 ของเดือนถัดจากเดือนหน้า",
+  "expiry_tonight_at_midnight": "เที่ยงคืนคืนนี้"
 }

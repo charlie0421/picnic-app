@@ -475,7 +475,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String free_charge_mission_reward(String reward) {
-    return '+보너스 스타캔디 $reward 획득';
+    return '+보너스 스타캔디 획득';
   }
 
   @override
@@ -1913,4 +1913,32 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get cotton_candy_daily_expiry_notice =>
       '매일 자정 00:00:00 (KST) 에 소멸됩니다.';
+
+  @override
+  String get expiry_quantity_currency => '재화';
+
+  @override
+  String get expiry_quantity_date => '소멸 예정일';
+
+  @override
+  String get expiry_quantity_amount => '수량';
+
+  @override
+  String get expiry_tonight_at_midnight => '오늘밤 자정';
+
+  @override
+  String get expiry_policy_guide => '소멸 정책 안내';
+
+  @override
+  String get expiry_quantity_title => '내 소멸 예정 캔디';
+
+  @override
+  String get expiry_quantity_description => '현재 계정에서 예정된 소멸 수량입니다.';
+
+  @override
+  String get expiry_policy_description => '재화별 소멸 기준입니다.';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      '1~14일 적립분은 다음달 15일, 15일~말일 적립분은 다다음달 15일 00:00(KST)에 소멸됩니다.';
 }

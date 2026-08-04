@@ -677,7 +677,7 @@
   "@label_mission_get_bonus_star_candy": {
     "description": "무료충전소 미션 섹션 제목"
   },
-  "free_charge_mission_reward": "+보너스 스타캔디 {reward} 획득",
+  "free_charge_mission_reward": "+보너스 스타캔디 획득",
   "@free_charge_mission_reward": {
     "description": "무료충전소 미션 보상 문구",
     "placeholders": {
@@ -2634,5 +2634,14 @@
   "cotton_candy_daily_expiry_notice": "매일 자정 00:00:00 (KST) 에 소멸됩니다.",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
-  }
+  },
+  "expiry_quantity_currency": "재화",
+  "expiry_quantity_date": "소멸 예정일",
+  "expiry_quantity_amount": "수량",
+  "expiry_tonight_at_midnight": "오늘밤 자정",
+  "expiry_policy_guide": "소멸 정책 안내",
+  "expiry_quantity_title": "내 소멸 예정 캔디",
+  "expiry_quantity_description": "현재 계정에서 예정된 소멸 수량입니다.",
+  "expiry_policy_description": "재화별 소멸 기준입니다.",
+  "bonus_expiry_policy_summary": "1~14일 적립분은 다음달 15일, 15일~말일 적립분은 다다음달 15일 00:00(KST)에 소멸됩니다."
 }

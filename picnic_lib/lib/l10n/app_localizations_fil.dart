@@ -2027,4 +2027,34 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get cotton_candy_daily_expiry_notice =>
       'Nag-e-expire araw-araw sa 00:00:00 (KST).';
+
+  @override
+  String get expiry_quantity_currency => 'Currency';
+
+  @override
+  String get expiry_quantity_date => 'Petsa ng pag-expire';
+
+  @override
+  String get expiry_quantity_amount => 'Dami';
+
+  @override
+  String get expiry_tonight_at_midnight => 'Hatinggabi ngayong gabi';
+
+  @override
+  String get expiry_policy_guide => 'Patakaran sa pag-expire';
+
+  @override
+  String get expiry_quantity_title => 'Aking mag-e-expire na candy';
+
+  @override
+  String get expiry_quantity_description =>
+      'Mga halagang nakatakdang mag-expire sa kasalukuyang account.';
+
+  @override
+  String get expiry_policy_description =>
+      'Pamantayan ng pag-expire ayon sa currency.';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      'Ang nakuha mula ika-1 hanggang ika-14 ay mag-e-expire sa ika-15 ng susunod na buwan; ang nakuha mula ika-15 hanggang katapusan ng buwan ay mag-e-expire nang 00:00 (KST) sa ika-15 ng susunod pang buwan.';
 }

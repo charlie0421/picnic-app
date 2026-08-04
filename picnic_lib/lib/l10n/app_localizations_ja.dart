@@ -1914,4 +1914,32 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get cotton_candy_daily_expiry_notice => '毎日 00:00:00（KST）に消滅します。';
+
+  @override
+  String get expiry_quantity_currency => '通貨';
+
+  @override
+  String get expiry_quantity_date => '失効予定日';
+
+  @override
+  String get expiry_quantity_amount => '数量';
+
+  @override
+  String get expiry_tonight_at_midnight => '今夜0時';
+
+  @override
+  String get expiry_policy_guide => '失効ポリシー';
+
+  @override
+  String get expiry_quantity_title => '失効予定のキャンディ';
+
+  @override
+  String get expiry_quantity_description => '現在のアカウントで失効予定の数量です。';
+
+  @override
+  String get expiry_policy_description => '通貨ごとの失効基準です。';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      '1〜14日に獲得した分は翌月15日、15日〜月末に獲得した分は翌々月15日00:00（KST）に失効します。';
 }

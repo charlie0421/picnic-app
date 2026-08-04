@@ -223,30 +223,42 @@ class UsagePolicyPopup extends ConsumerWidget {
         // 화면 경계와 충분한 간격을 유지한다.
         contentPadding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 36),
         children: [
-          if (walletState != null && !bonusLoadFailed) ...[
-            _buildHero(context, expiringData, walletState),
-            const SizedBox(height: 16),
-          ],
-          _buildCottonCard(context),
-          // 두 재화 카드는 한 쌍이라 일부러 좁게 붙인다.
-          const SizedBox(height: 8),
-          _buildBonusCard(context, rows, bonusLoadFailed: bonusLoadFailed),
-          // '지금' 과 '규칙' 의 경계.
-          const SizedBox(height: 24),
-          _hairline,
-          _PolicySection(
-            key: const Key('bonus-expiry-rules-section'),
-            title: localizations.bonus_candy_expiration_time_title,
-            children: _timingRuleChildren(context),
-          ),
-          _hairline,
-          _PolicySection(
-            key: const Key('bonus-expiry-example-section'),
-            title: localizations.bonus_candy_example_title,
-            children: _exampleChildren(
-              context,
-              (exampleReferenceDate ?? DateTime.now()).toUtc().add(_kstOffset),
+          if (walletState != null) ...[
+            Text(
+              localizations.expiry_quantity_title,
+              style: _t(AppTypo.body16B, AppColors.grey900, height: 1.25),
             ),
+            const SizedBox(height: 4),
+            Text(
+              localizations.expiry_quantity_description,
+              style: _t(AppTypo.caption12R, AppColors.grey500, height: 1.35),
+            ),
+            const SizedBox(height: 12),
+            _buildExpiryTable(
+              context,
+              rows,
+              walletState,
+              bonusLoadFailed: bonusLoadFailed,
+            ),
+            const SizedBox(height: 24),
+          ],
+          Text(
+            localizations.expiry_policy_guide,
+            style: _t(AppTypo.body16B, AppColors.grey900, height: 1.25),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            localizations.expiry_policy_description,
+            style: _t(AppTypo.caption12R, AppColors.grey500, height: 1.35),
+          ),
+          const SizedBox(height: 12),
+          _buildCottonCard(context),
+          const SizedBox(height: 8),
+          _buildBonusPolicyCard(context),
+          const SizedBox(height: 24),
+          _buildExampleCard(
+            context,
+            (exampleReferenceDate ?? DateTime.now()).toUtc().add(_kstOffset),
           ),
           _hairline,
           _PolicySection(
@@ -255,6 +267,158 @@ class UsagePolicyPopup extends ConsumerWidget {
             children: _policyChildren(context),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildExpiryTable(
+    BuildContext context,
+    List<Map<String, dynamic>> rows,
+    AsyncValue<WalletSummaryModel> walletState, {
+    required bool bonusLoadFailed,
+  }) {
+    final l = AppLocalizations.of(context);
+    final format = NumberFormat('#,###');
+    final cotton = switch (walletState) {
+      AsyncData(:final value) => format.format(
+        value.cottonExpiringAmount.toInt(),
+      ),
+      _ => null,
+    };
+
+    Widget cell(
+      String text, {
+      TextAlign align = TextAlign.left,
+      bool bold = false,
+    }) => Text(
+      text,
+      textAlign: align,
+      style: _t(
+        bold ? AppTypo.body14B : AppTypo.caption12M,
+        bold ? AppColors.grey900 : AppColors.grey600,
+        height: 1.25,
+      ),
+    );
+
+    Widget row({
+      required String icon,
+      required String currency,
+      required String date,
+      required String amount,
+      required Color color,
+      Key? key,
+    }) => Container(
+      key: key,
+      color: color,
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 5,
+            child: Row(
+              children: [
+                Image.asset(
+                  icon,
+                  package: 'picnic_lib',
+                  width: 20.w,
+                  height: 20.w,
+                ),
+                SizedBox(width: 8.w),
+                Expanded(child: cell(currency, bold: true)),
+              ],
+            ),
+          ),
+          Expanded(flex: 4, child: cell(date)),
+          Expanded(
+            flex: 2,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: cell(amount, align: TextAlign.right, bold: true),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final body = <Widget>[];
+    if (cotton != null) {
+      body.add(
+        row(
+          key: const Key('cotton-expiry-row'),
+          icon: 'assets/icons/store/currency_cotton_candy.png',
+          currency: l.wallet_cotton_candy,
+          date: l.expiry_tonight_at_midnight,
+          amount: cotton,
+          color: AppColors.primary500.withValues(alpha: 0.10),
+        ),
+      );
+    } else {
+      body.add(
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: walletState.when(
+            data: (_) => const SizedBox.shrink(),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) => cell(l.wallet_load_failed),
+          ),
+        ),
+      );
+    }
+    for (final item in rows) {
+      body.add(
+        row(
+          icon: 'assets/icons/store/currency_bonus_star_candy.png',
+          currency: l.wallet_bonus_star_candy,
+          date: '${item['prediction_month']}-15',
+          amount: format.format(item['expiring_amount'] ?? 0),
+          color: AppColors.point500.withValues(alpha: 0.14),
+        ),
+      );
+    }
+    if (bonusLoadFailed) {
+      body.add(
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: cell(l.bonus_candy_expiration_policy_load_fail),
+        ),
+      );
+    }
+
+    return ClipRRect(
+      key: const Key('expiry-quantity-table'),
+      borderRadius: BorderRadius.circular(12.r),
+      child: DecoratedBox(
+        decoration: BoxDecoration(border: Border.all(color: AppColors.grey200)),
+        child: Column(
+          children: [
+            Container(
+              color: AppColors.grey100,
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: cell(l.expiry_quantity_currency, bold: true),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: cell(l.expiry_quantity_date, bold: true),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: cell(
+                      l.expiry_quantity_amount,
+                      align: TextAlign.right,
+                      bold: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ...body,
+          ],
+        ),
       ),
     );
   }
@@ -271,88 +435,6 @@ class UsagePolicyPopup extends ConsumerWidget {
       ),
     );
     return rows;
-  }
-
-  /// `오늘 만료 : 코튼캔디 N + 보너스 스타캔디 N`
-  ///
-  /// 보너스 스타캔디는 **오늘 실제로 소멸되는 금액이 있을 때만** 붙는다.
-  /// 보너스 만료는 매월 15일 00:00 (KST) 이므로(`computeBonusExpiry`), 달력에서
-  /// 15일을 하드코딩하는 대신 서버가 준 소멸 예정 데이터에서 "이번 달 몫이
-  /// 오늘 만료되는가"를 판정한다 — 경계 규칙이 서버와 어긋날 수 없게.
-  ///
-  /// 보너스 조회가 **실패**했을 때는 이 줄을 아예 그리지 않는다(호출부에서
-  /// 걸러진다). `expiringData == null` 이면 `bonusExpiringToday` 가 0 을 주므로
-  /// 코튼캔디만 적힌 단정문이 나오고, 실제 소멸일인 15일에는 그 문장이 틀리기
-  /// 때문이다. 실패 사실은 보너스 카드가 말한다.
-  Widget _buildHero(
-    BuildContext context,
-    List<Map<String, dynamic>?>? expiringData,
-    AsyncValue<WalletSummaryModel> walletState,
-  ) {
-    final localizations = AppLocalizations.of(context);
-    final numberFormat = NumberFormat('#,###');
-    final cotton = switch (walletState) {
-      AsyncData(:final value) => value.cottonExpiringAmount,
-      _ => BigInt.zero,
-    };
-    final bonus = bonusExpiringToday(expiringData);
-    // 0 에 긴급 강조색을 쓰지 않는다.
-    final urgent = cotton > BigInt.zero || bonus > 0;
-
-    final text = bonus > 0
-        ? localizations.expiring_today_cotton_and_bonus(
-            numberFormat.format(cotton.toInt()),
-            numberFormat.format(bonus),
-          )
-        : localizations.expiring_today_cotton_only(
-            numberFormat.format(cotton.toInt()),
-          );
-
-    final Widget slot = walletState.when(
-      data: (_) => Text(
-        text,
-        style: urgent
-            ? _t(AppTypo.body16B, AppColors.grey900, height: 1.30)
-            : _t(AppTypo.body14M, AppColors.grey600, height: 1.35),
-      ),
-      loading: () => Align(
-        alignment: Alignment.centerLeft,
-        child: SizedBox(
-          width: 16.w,
-          height: 16.w,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: AppColors.primary500,
-          ),
-        ),
-      ),
-      error: (error, stackTrace) => Text(
-        localizations.wallet_load_failed,
-        style: _t(AppTypo.body14M, AppColors.grey600, height: 1.35),
-      ),
-    );
-
-    return Row(
-      key: const Key('expiry-today-summary'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: SvgPicture.asset(
-            'assets/icons/information_style=fill.svg',
-            package: 'picnic_lib',
-            width: 16.w,
-            height: 16.w,
-            colorFilter: ColorFilter.mode(
-              urgent ? AppColors.point900 : AppColors.grey400,
-              BlendMode.srcIn,
-            ),
-          ),
-        ),
-        SizedBox(width: 8.w),
-        Expanded(child: slot),
-      ],
-    );
   }
 
   /// 코튼캔디 카드. 개인 데이터가 아니라 **규칙**을 말하므로 지갑 상태와
@@ -404,16 +486,11 @@ class UsagePolicyPopup extends ConsumerWidget {
   }
 
   /// 보너스 스타캔디 카드 — 코튼캔디 카드의 형제. 배경색과 강조색만 다르다.
-  Widget _buildBonusCard(
-    BuildContext context,
-    List<Map<String, dynamic>> rows, {
-    required bool bonusLoadFailed,
-  }) {
+  Widget _buildBonusPolicyCard(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    final numberFormat = NumberFormat('#,###');
 
     return Container(
-      key: const Key('bonus-star-candy-section'),
+      key: const Key('bonus-expiry-rules-section'),
       width: double.infinity,
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
@@ -443,105 +520,15 @@ class UsagePolicyPopup extends ConsumerWidget {
               ),
             ],
           ),
-          if (rows.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            for (var i = 0; i < rows.length; i++) ...[
-              if (i > 0) const SizedBox(height: 8),
-              MergeSemantics(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 2:1 로 나눈다. Row 의 flex 배분은 "Flexible 이 안 쓴 공간을
-                    // Expanded 가 먹는" 방식이 아니라 flex 비율대로 자르는
-                    // 방식이므로, 1:1 로 두면 40px 밖에 필요 없는 금액이 절반을
-                    // 쥐고 날짜가 1.3x 배율에서 두 줄로 접힌다.
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        '${rows[i]['prediction_month']}-15 (KST)',
-                        style: _t(
-                          AppTypo.caption12M,
-                          AppColors.grey600,
-                          height: 1.20,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    // 잔액은 절대 잘라 쓰지 않는다 — 줄여서 보여준다.
-                    // Flexible 이 아니라 Expanded 여야 금액이 카드 오른쪽 끝에
-                    // 붙는다(Flexible 은 남는 공간을 뒤에 흘려버린다).
-                    Expanded(
-                      flex: 1,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          numberFormat.format(rows[i]['expiring_amount'] ?? 0),
-                          // 금액도 값이다 — point900 대신 grey900. 분홍 배경 위
-                          // point900 은 3.37:1 이라 14px bold 에서도 AA 미달이다.
-                          style: _t(
-                            AppTypo.body14B,
-                            AppColors.grey900,
-                            height: 1.20,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ] else if (bonusLoadFailed) ...[
-            const SizedBox(height: 12),
-            Text(
-              localizations.bonus_candy_expiration_policy_load_fail,
-              style: _t(AppTypo.body14M, AppColors.grey600, height: 1.35),
-            ),
-          ] else ...[
-            // 소멸 예정 행이 하나도 없는 상태(비로그인 · 예정 없음)에서도 카드가
-            // 제목만 남은 빈 분홍 막대가 되면 안 된다 — 로딩 스켈레톤이나 깨진
-            // 카드로 읽힌다. 코튼캔디 카드의 규칙 한 줄과 짝이 되도록 보너스의
-            // 월별 소멸 규칙을 적는다. **새 문구를 만들지 않고** 기존 키
-            // (소멸 시점 / 다음달 15일 / 다다음달 15일) 만 이어 붙인다.
-            const SizedBox(height: 8),
-            Text(
-              '${localizations.bonus_candy_expiration_policy_expiration_date} : '
-              '${localizations.bonus_candy_expiration_next_month} / '
-              '${localizations.bonus_candy_expiration_month_after_next}',
-              style: _t(AppTypo.body14R, AppColors.grey600, height: 1.45),
-            ),
-          ],
+          const SizedBox(height: 8),
+          Text(
+            key: const Key('bonus-policy-summary'),
+            localizations.bonus_expiry_policy_summary,
+            style: _t(AppTypo.caption12R, AppColors.grey600, height: 1.55),
+          ),
         ],
       ),
     );
-  }
-
-  /// 소멸 시점 안내 — 예전 표의 **헤더 셀이 행 레이블**이 된다. 그룹마다
-  /// 반복하므로 모든 행이 스스로를 설명하고, bn/fil 에서 줄바꿈이 나도 무해하다.
-  List<Widget> _timingRuleChildren(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return [
-      _pair(
-        l.bonus_candy_expiration_policy_earn_period,
-        l.bonus_candy_earn_period_1_to_14,
-      ),
-      _pair(
-        l.bonus_candy_expiration_policy_expiration_date,
-        l.bonus_candy_expiration_next_month,
-        expiry: true,
-      ),
-      _groupLine(),
-      const SizedBox(height: 12),
-      _pair(
-        l.bonus_candy_expiration_policy_earn_period,
-        l.bonus_candy_earn_period_15_to_end,
-      ),
-      _pair(
-        l.bonus_candy_expiration_policy_expiration_date,
-        l.bonus_candy_expiration_month_after_next,
-        expiry: true,
-      ),
-    ];
   }
 
   List<Widget> _exampleChildren(BuildContext context, DateTime now) {
@@ -582,6 +569,67 @@ class UsagePolicyPopup extends ConsumerWidget {
         expiry: true,
       ),
     ];
+  }
+
+  Widget _buildExampleCard(BuildContext context, DateTime now) {
+    final l = AppLocalizations.of(context);
+    final values = _exampleChildren(context, now)
+        .whereType<Padding>()
+        .map((padding) => padding.child)
+        .whereType<Column>()
+        .map((column) => column.children.whereType<Text>().last.data ?? '')
+        .toList();
+
+    Widget exampleRow(Key key, String earn, String expire) => Padding(
+      key: key,
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              earn,
+              style: _t(AppTypo.caption12R, AppColors.grey600, height: 1.35),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            child: Text(
+              '→',
+              style: _t(AppTypo.body14B, AppColors.primary500, height: 1.0),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              expire,
+              style: _t(AppTypo.caption12B, AppColors.grey900, height: 1.35),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return Container(
+      key: const Key('bonus-expiry-example-section'),
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 10, bottom: 20),
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: AppColors.grey100,
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.bonus_candy_example_title,
+            style: _t(AppTypo.body14B, AppColors.grey900, height: 1.2),
+          ),
+          const SizedBox(height: 6),
+          exampleRow(const Key('bonus-example-row-1'), values[0], values[1]),
+          exampleRow(const Key('bonus-example-row-2'), values[2], values[3]),
+        ],
+      ),
+    );
   }
 
   List<Widget> _policyChildren(BuildContext context) {
@@ -781,9 +829,15 @@ class _PolicySection extends StatelessWidget {
     children: [
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Text(
-          title,
-          style: _t(AppTypo.body14B, AppColors.grey900, height: 1.20),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: _t(AppTypo.body14B, AppColors.grey900, height: 1.20),
+              ),
+            ),
+          ],
         ),
       ),
       Padding(

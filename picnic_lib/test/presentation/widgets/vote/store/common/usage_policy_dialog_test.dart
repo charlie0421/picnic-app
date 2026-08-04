@@ -170,7 +170,7 @@ void main() {
       expect(find.byType(UsagePolicyPopup), findsOneWidget);
     });
 
-    testWidgets('shows the Bonus Star Candy expiration guide header', (
+    testWidgets('shows the Bonus Star Candy expiration guide policy title', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -181,14 +181,15 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final header = find.ancestor(
-        of: find.text('보너스 스타캔디 소멸 시점 안내'),
-        matching: find.byType(Row),
+      final section = find.byKey(const Key('bonus-expiry-rules-section'));
+      expect(section, findsOneWidget);
+      expect(
+        find.descendant(of: section, matching: find.text('보너스 스타캔디 소멸 시점 안내')),
+        findsOneWidget,
       );
-      expect(header, findsOneWidget);
       expect(
         find.descendant(
-          of: header,
+          of: section,
           matching: find.byWidgetPredicate(
             (widget) =>
                 widget is Image &&
@@ -197,6 +198,25 @@ void main() {
                     'assets/icons/store/currency_bonus_star_candy.png',
           ),
         ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows the full guide title in the Bonus policy card', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const Material(color: Colors.transparent, child: UsagePolicyPopup()),
+          loggedIn: false,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final card = find.byKey(const Key('bonus-expiry-rules-section'));
+      expect(card, findsOneWidget);
+      expect(
+        find.descendant(of: card, matching: find.text('보너스 스타캔디 소멸 시점 안내')),
         findsOneWidget,
       );
     });
@@ -232,14 +252,14 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('코튼캔디'), findsOneWidget);
-        // 오늘 만료 요약은 두 재화를 한 줄로 합친다. 보너스는 소멸일에만 붙는다.
-        expect(find.textContaining('오늘 만료 : 코튼캔디 10'), findsOneWidget);
+        expect(find.text('코튼캔디'), findsNWidgets(2));
+        expect(find.text('오늘밤 자정'), findsOneWidget);
+        expect(find.text('10'), findsOneWidget);
         // "다음 만료" 줄은 제거됨 — 코튼캔디는 소멸 규칙 한 줄로 안내한다.
         expect(find.textContaining('다음 만료'), findsNothing);
         expect(find.text('매일 자정 00:00:00 (KST) 에 소멸됩니다.'), findsOneWidget);
         expect(
-          find.byKey(const Key('bonus-star-candy-section')),
+          find.byKey(const Key('bonus-expiry-rules-section')),
           findsOneWidget,
         );
         expect(find.byKey(const Key('candy-policy-section')), findsOneWidget);

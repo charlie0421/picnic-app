@@ -1965,4 +1965,33 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get cotton_candy_daily_expiry_notice =>
       'หมดอายุทุกวันเวลา 00:00:00 น. (KST)';
+
+  @override
+  String get expiry_quantity_currency => 'สกุลเงิน';
+
+  @override
+  String get expiry_quantity_date => 'วันที่หมดอายุ';
+
+  @override
+  String get expiry_quantity_amount => 'จำนวน';
+
+  @override
+  String get expiry_tonight_at_midnight => 'เที่ยงคืนคืนนี้';
+
+  @override
+  String get expiry_policy_guide => 'นโยบายการหมดอายุ';
+
+  @override
+  String get expiry_quantity_title => 'แคนดี้ของฉันที่กำลังจะหมดอายุ';
+
+  @override
+  String get expiry_quantity_description =>
+      'จำนวนที่กำหนดให้หมดอายุในบัญชีปัจจุบัน';
+
+  @override
+  String get expiry_policy_description => 'เกณฑ์การหมดอายุแยกตามสกุลเงิน';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      'ส่วนที่ได้รับวันที่ 1–14 จะหมดอายุวันที่ 15 ของเดือนถัดไป ส่วนที่ได้รับวันที่ 15–สิ้นเดือนจะหมดอายุเวลา 00:00 น. (KST) วันที่ 15 ของเดือนถัดจากเดือนหน้า';
 }
