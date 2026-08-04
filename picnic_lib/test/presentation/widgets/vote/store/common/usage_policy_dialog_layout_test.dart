@@ -11,6 +11,7 @@ import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
+import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../helpers/load_test_fonts.dart';
@@ -241,15 +242,40 @@ void main() {
   });
 
   group('T3 정적 정책 공개', () {
+    testWidgets('보너스 정책과 예시는 승인 시안의 문장형 행으로 표시된다', (tester) async {
+      await _pumpPopup(tester, size: const Size(393, 873));
+
+      expect(find.text('내 소멸 예정 캔디'), findsOneWidget);
+      expect(find.text('현재 계정에서 예정된 소멸 수량입니다.'), findsOneWidget);
+      expect(find.text('재화별 소멸 기준입니다.'), findsOneWidget);
+      expect(find.byKey(const Key('bonus-policy-summary')), findsOneWidget);
+      expect(
+        find.text(
+          '1~14일 적립분은 다음달 15일, 15일~말일 적립분은 '
+          '다다음달 15일 00:00(KST)에 소멸됩니다.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('bonus-example-row-1')), findsOneWidget);
+      expect(find.byKey(const Key('bonus-example-row-2')), findsOneWidget);
+
+      final policy = find.byKey(const Key('bonus-expiry-rules-section'));
+      expect(
+        find.descendant(
+          of: policy,
+          matching: find.byKey(const Key('bonus-policy-pairs')),
+        ),
+        findsNothing,
+      );
+    });
+
     testWidgets('세 정책 본문을 탭 없이 표시하고 헤더 화살표를 두지 않는다', (tester) async {
       await _pumpPopup(tester, size: const Size(393, 873));
       final l = _l10n(tester);
 
-      expect(
-        find.text(l.bonus_candy_expiration_policy_earn_period),
-        findsNWidgets(2),
-      );
-      expect(find.text(l.bonus_candy_example_earn_date), findsNWidgets(2));
+      expect(find.byKey(const Key('bonus-policy-summary')), findsOneWidget);
+      expect(find.byKey(const Key('bonus-example-row-1')), findsOneWidget);
+      expect(find.byKey(const Key('bonus-example-row-2')), findsOneWidget);
       expect(find.text(_stripBullet(l.bonus_candy_policy_1)), findsOneWidget);
 
       for (final sectionKey in const [
@@ -269,13 +295,13 @@ void main() {
 
     testWidgets('소멸 예정 행은 prediction_month 오름차순으로 정렬된다', (tester) async {
       await _pumpPopup(tester, size: const Size(393, 873));
-      final first = tester.getTopLeft(find.text('2026-08-15 (KST)'));
-      final second = tester.getTopLeft(find.text('2026-09-15 (KST)'));
+      final first = tester.getTopLeft(find.text('2026-08-15'));
+      final second = tester.getTopLeft(find.text('2026-09-15'));
       expect(first.dy, lessThan(second.dy));
     });
   });
 
-  testWidgets('T4 정적 본문도 전체 화면 셸 안에서 스크롤한다', (tester) async {
+  testWidgets('T4 전체 화면 셸 안에서 본문을 스크롤한다', (tester) async {
     await _pumpPopup(tester, size: const Size(393, 873));
     expect(_position(tester).maxScrollExtent, greaterThan(0.0));
 
@@ -325,17 +351,16 @@ void main() {
       // 실패는 보너스 카드 안에서만 말하고, 나머지는 전부 살아 있다.
       expect(
         find.text(l.bonus_candy_expiration_policy_load_fail),
-        findsOneWidget,
+        findsWidgets,
       );
       expect(find.byKey(const Key('cotton-candy-section')), findsOneWidget);
-      expect(find.byKey(const Key('bonus-star-candy-section')), findsOneWidget);
+      expect(
+        find.byKey(const Key('bonus-expiry-rules-section')),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key('candy-policy-section')), findsOneWidget);
       expect(find.text(l.cotton_candy_daily_expiry_notice), findsOneWidget);
-      // 개인 행이 없으니 소멸 시점 안내는 펼쳐져 있다.
-      expect(
-        find.text(l.bonus_candy_expiration_policy_earn_period),
-        findsNWidgets(2),
-      );
+      expect(find.byKey(const Key('bonus-policy-summary')), findsOneWidget);
 
       // 보너스를 모르는 상태에서 "오늘 만료 : 코튼캔디 N" 이라고 단정하면 안
       // 된다. 실제 소멸일(매월 15일 KST)에는 그 문장이 틀린다.
@@ -343,12 +368,16 @@ void main() {
       expect(find.text(l.expiring_today_cotton_only('10')), findsNothing);
     });
 
-    testWidgets('비로그인: 히어로가 없고 두 카드와 세 구분선은 남는다', (tester) async {
+    testWidgets('비로그인: 개인 수량 표 없이 두 정책 카드는 남는다', (tester) async {
       await _pumpPopup(tester, size: const Size(393, 873), loggedIn: false);
       final l = _l10n(tester);
       expect(find.byKey(const Key('expiry-today-summary')), findsNothing);
+      expect(find.byKey(const Key('expiry-quantity-table')), findsNothing);
       expect(find.byKey(const Key('cotton-candy-section')), findsOneWidget);
-      expect(find.byKey(const Key('bonus-star-candy-section')), findsOneWidget);
+      expect(
+        find.byKey(const Key('bonus-expiry-rules-section')),
+        findsOneWidget,
+      );
       // 표를 지운 뒤에도 구분선은 남아야 한다(기존 테스트 :281 이 이걸 본다).
       expect(find.byType(Divider), findsWidgets);
 
@@ -356,14 +385,14 @@ void main() {
       // 안 된다 — 코튼캔디 카드의 규칙 한 줄과 짝이 되는 문장을 갖는다.
       expect(
         find.descendant(
-          of: find.byKey(const Key('bonus-star-candy-section')),
-          matching: find.textContaining(l.bonus_candy_expiration_next_month),
+          of: find.byKey(const Key('bonus-expiry-rules-section')),
+          matching: find.text(l.bonus_expiry_policy_summary),
         ),
-        findsOneWidget,
+        findsWidgets,
       );
     });
 
-    testWidgets('0 소멸 예정은 긴급 강조색을 쓰지 않는다', (tester) async {
+    testWidgets('0 소멸 예정도 수량 표에 중립적인 값으로 표시한다', (tester) async {
       final zero = WalletSummaryModel(
         contractVersion: 'wallet.v1',
         star: BigInt.zero,
@@ -395,14 +424,14 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final hero = tester.widget<Text>(
+      expect(find.byKey(const Key('expiry-quantity-table')), findsOneWidget);
+      final amount = tester.widget<Text>(
         find.descendant(
-          of: find.byKey(const Key('expiry-today-summary')),
-          matching: find.byType(Text),
+          of: find.byKey(const Key('cotton-expiry-row')),
+          matching: find.text('0'),
         ),
       );
-      expect(hero.style?.fontSize, 14.0);
-      expect(hero.style?.fontWeight, FontWeight.w500);
+      expect(amount.style?.color, AppColors.grey900);
     });
   });
 

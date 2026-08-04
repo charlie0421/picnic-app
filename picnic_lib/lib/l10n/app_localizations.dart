@@ -3692,6 +3692,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expires daily at 00:00:00 (KST).'**
   String get cotton_candy_daily_expiry_notice;
+
+  /// No description provided for @expiry_quantity_currency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get expiry_quantity_currency;
+
+  /// No description provided for @expiry_quantity_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry date'**
+  String get expiry_quantity_date;
+
+  /// No description provided for @expiry_quantity_amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get expiry_quantity_amount;
+
+  /// No description provided for @expiry_tonight_at_midnight.
+  ///
+  /// In en, this message translates to:
+  /// **'Tonight at midnight'**
+  String get expiry_tonight_at_midnight;
+
+  /// No description provided for @expiry_policy_guide.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiration policy'**
+  String get expiry_policy_guide;
+
+  /// No description provided for @expiry_quantity_title.
+  ///
+  /// In en, this message translates to:
+  /// **'My expiring candy'**
+  String get expiry_quantity_title;
+
+  /// No description provided for @expiry_quantity_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled expiration amounts for the current account.'**
+  String get expiry_quantity_description;
+
+  /// No description provided for @expiry_policy_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiration rules by currency.'**
+  String get expiry_policy_description;
+
+  /// No description provided for @bonus_expiry_policy_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.'**
+  String get bonus_expiry_policy_summary;
 }
 
 class _AppLocalizationsDelegate

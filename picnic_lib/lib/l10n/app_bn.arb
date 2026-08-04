@@ -2488,5 +2488,6 @@
   "cotton_candy_daily_expiry_notice": "প্রতিদিন 00:00:00 (KST)-এ মেয়াদ শেষ হয়।",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
-  }
+  },
+  "expiry_tonight_at_midnight": "আজ মধ্যরাতে"
 }

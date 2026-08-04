@@ -2491,5 +2491,14 @@
   "cotton_candy_daily_expiry_notice": "Expires daily at 00:00:00 (KST).",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
-  }
+  },
+  "expiry_quantity_currency": "Currency",
+  "expiry_quantity_date": "Expiry date",
+  "expiry_quantity_amount": "Amount",
+  "expiry_tonight_at_midnight": "Tonight at midnight",
+  "expiry_policy_guide": "Expiration policy",
+  "expiry_quantity_title": "My expiring candy",
+  "expiry_quantity_description": "Scheduled expiration amounts for the current account.",
+  "expiry_policy_description": "Expiration rules by currency.",
+  "bonus_expiry_policy_summary": "Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next."
 }

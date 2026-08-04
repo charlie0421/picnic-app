@@ -2491,5 +2491,6 @@
   "cotton_candy_daily_expiry_notice": "နေ့စဉ် 00:00:00 (KST) တွင် သက်တမ်းကုန်ဆုံးပါသည်။",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
-  }
+  },
+  "expiry_tonight_at_midnight": "ယနေ့ည သန်းခေါင်ယံ"
 }

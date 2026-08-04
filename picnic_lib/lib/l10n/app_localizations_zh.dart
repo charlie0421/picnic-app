@@ -1885,6 +1885,35 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cotton_candy_daily_expiry_notice => '每天 00:00:00（KST）失效。';
+
+  @override
+  String get expiry_quantity_currency => 'Currency';
+
+  @override
+  String get expiry_quantity_date => 'Expiry date';
+
+  @override
+  String get expiry_quantity_amount => 'Amount';
+
+  @override
+  String get expiry_tonight_at_midnight => '今晚午夜';
+
+  @override
+  String get expiry_policy_guide => 'Expiration policy';
+
+  @override
+  String get expiry_quantity_title => 'My expiring candy';
+
+  @override
+  String get expiry_quantity_description =>
+      'Scheduled expiration amounts for the current account.';
+
+  @override
+  String get expiry_policy_description => 'Expiration rules by currency.';
+
+  @override
+  String get bonus_expiry_policy_summary =>
+      'Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3768,6 +3797,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get cotton_candy_daily_expiry_notice => '每天 00:00:00（KST）失效。';
+
+  @override
+  String get expiry_tonight_at_midnight => '今晚午夜';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -5652,4 +5684,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get cotton_candy_daily_expiry_notice => '每天 00:00:00（KST）失效。';
+
+  @override
+  String get expiry_tonight_at_midnight => '今晚午夜';
 }

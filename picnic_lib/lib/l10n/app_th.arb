@@ -2492,5 +2492,6 @@
   "cotton_candy_daily_expiry_notice": "หมดอายุทุกวันเวลา 00:00:00 น. (KST)",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
-  }
+  },
+  "expiry_tonight_at_midnight": "เที่ยงคืนคืนนี้"
 }

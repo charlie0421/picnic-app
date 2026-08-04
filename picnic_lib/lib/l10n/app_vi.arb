@@ -2492,5 +2492,6 @@
   "cotton_candy_daily_expiry_notice": "Hết hạn vào 00:00:00 (KST) mỗi ngày.",
   "@cotton_candy_daily_expiry_notice": {
     "description": "Auto-generated metadata for key 'cotton_candy_daily_expiry_notice'."
-  }
+  },
+  "expiry_tonight_at_midnight": "Nửa đêm nay"
 }
