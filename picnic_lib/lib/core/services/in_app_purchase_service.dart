@@ -28,6 +28,63 @@ class InAppPurchaseService {
   // 🧹 백그라운드 정리용 타이머 (필요 시 사용)
   Timer? _backgroundCleanupTimer;
 
+  /// [performBackgroundCleanup] 본체가 실제로 실행된 횟수.
+  ///
+  /// single-flight 게이트가 겹치는 호출을 진행 중인 실행에 합류시키는지
+  /// 테스트가 확인하는 지표다.
+  @visibleForTesting
+  int backgroundCleanupRunCount = 0;
+
+  /// 진행 중인 [performBackgroundCleanup] 실행(single-flight 게이트).
+  ///
+  /// 이 게이트가 없으면 연속 구매마다 [InAppPurchaseCacheManager
+  /// .scheduleBackgroundCleanup]이 5초 뒤 새 정리를 예약하고, 그 정리의
+  /// `verifyAndCleanRemaining()`이 매번 `getPurchaseUpdates(800s)`로 새
+  /// 스트림 구독을 연다. 이전 구매의 정리가 아직 끝나지 않았으면 그 구독은
+  /// 살아 있는 채로 남고, `purchaseStream`은 broadcast라 다음 구매 이벤트가
+  /// 오면 그때까지 쌓인 모든 이전 구독이 동시에 깨어나 각자
+  /// `completePurchase()`를 중복 실행한다 - 연속 구매가 늘수록 매 이벤트마다
+  /// 처리량이 배수로 늘어나 결제가 점점 느려진다.
+  Future<void>? _backgroundCleanupInFlight;
+
+  /// 진행 중인 정리에 합류한 호출이 있었는지.
+  ///
+  /// single-flight 게이트만 있으면, 진행 중인 정리가 이미 자신의
+  /// `getPurchaseUpdates(800s)` 대기에 들어간 뒤에 도착한 구매는 그 정리에
+  /// 합류할 뿐 자신의 pending 상태를 다시 훑히지 못한 채 끝난다 - 그 사이
+  /// 도착한 이벤트가 우연히 그 대기를 깨우지 않는 한, 진행 중인 정리가 보는
+  /// 스냅샷에는 늦게 합류한 구매의 상태가 반영되지 않을 수 있다. 이 플래그는
+  /// 진행 중인 정리가 끝난 직후 신선한 정리를 한 번 더(딱 한 번만) 돌려
+  /// 그 구간을 메운다.
+  bool _backgroundCleanupRerunRequested = false;
+
+  /// `_subscription`/`_streamInitialized` 를 만지는 4개 캐시-리셋 메서드
+  /// (fastCacheClear/comprehensiveClear/aggressiveCacheClear/
+  /// backgroundCacheClear) 사이의 직렬화 게이트.
+  ///
+  /// 이 게이트가 없으면, 예를 들어 스토어 화면이 열리며 부르는
+  /// `clearTransactions()` 와 이전 구매의 백그라운드 정리가 부르는
+  /// `backgroundCacheClear()` 가 겹칠 때 한쪽의 cancel/재구독이 다른 쪽의
+  /// 진행 중인 재구독을 밟을 수 있다 - 최악의 경우 구독을 잃거나(이벤트
+  /// 유실) 중복 구독(이중 정산)으로 이어진다.
+  Future<void>? _cacheResetInFlight;
+
+  /// 캐시-리셋 직렬화 게이트가 실제로 겹침을 막았는지 테스트가 확인하는
+  /// 진입/종료 로그.
+  @visibleForTesting
+  final List<String> cacheResetLog = [];
+
+  /// 진행 중인 [InAppPurchaseCacheManager.getPurchaseUpdates] 대기를 즉시
+  /// 끝내는 콜백들.
+  ///
+  /// `verifyAndCleanRemaining()` 의 800초 대기처럼, dispose() 시점에 이미
+  /// 열려 있던 대기는 예전엔 스스로 타임아웃되거나 스트림 이벤트를 받을
+  /// 때까지 끊을 방법이 없었다. dispose() 가 이 목록의 콜백을 모두 불러
+  /// 그 자리에서(빈 결과로) 끝낸다 - 취소만 하고 안 끝내면, 그 결과를
+  /// 기다리던 `_performBackgroundCleanup()` 의 finally 가 영원히 돌지 않아
+  /// `_backgroundCleanupInFlight` 가 해제되지 않는다.
+  final List<void Function()> _pendingUpdateResolvers = [];
+
   // 🔍 마지막 구매 시도의 취소 여부 추적
   bool _lastPurchaseWasCancelled = false;
 
@@ -653,6 +710,15 @@ class InAppPurchaseService {
 
     _purchaseTimeoutTimer?.cancel();
     _backgroundCleanupTimer?.cancel(); // 🧹 백그라운드 정리 타이머도 정리
+    // 진행 중인 정리가 합류된 채 남긴 재실행 요청도 함께 무효화한다 -
+    // 그대로 두면 dispose() 이후에 최대 800초짜리 새 스트림 구독이 열린다.
+    _backgroundCleanupRerunRequested = false;
+    // 이미 열려 있던 getPurchaseUpdates() 대기(최악의 경우
+    // verifyAndCleanRemaining()의 800초 대기)도 그 자리에서 끝낸다 - 구독만
+    // 끊으면 그 결과를 기다리던 finally 가 영원히 돌지 않는다.
+    for (final resolve in List<void Function()>.from(_pendingUpdateResolvers)) {
+      resolve();
+    }
     _subscription?.cancel();
     _purchaseController?.close();
     _streamInitialized = false;

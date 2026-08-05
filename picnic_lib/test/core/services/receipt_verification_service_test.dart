@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_format_helper.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -496,6 +497,58 @@ void main() {
 
         final loaded = sp.getStringList('sent_receipts_idem_keys');
         expect(loaded!.first, startsWith('raw:'));
+      });
+    });
+
+    group('idem cache growth bound', () {
+      test(
+          'a successful iOS verification caps the idem cache and evicts the '
+          'oldest key instead of growing forever', () async {
+        final seedKeys = List.generate(
+          PurchaseConstants.maxIdemCacheEntries,
+          (i) => 'seed-key-$i',
+        );
+        SharedPreferences.setMockInitialValues({
+          'sent_receipts_idem_keys': seedKeys,
+        });
+        setupMockSupabase({
+          'functions:verify-receipt-v2': _purchaseResult(),
+        }, userId: 'test-user-id');
+
+        final header = base64Url.encode(utf8.encode('{"alg":"ES256"}'));
+        final payload = base64Url.encode(utf8.encode(
+          '{"transactionId":"brand-new-tx","signedDate":"2026-08-04T00:00:00Z"}',
+        ));
+        final newReceipt = '$header.$payload.sig';
+
+        final iosService = ReceiptVerificationService()..isIOSPlatform = true;
+        await iosService.verifyReceipt(
+          newReceipt,
+          'STAR200',
+          'test-user-id',
+          'sandbox',
+        );
+
+        final sp = await SharedPreferences.getInstance();
+        final stored = sp.getStringList('sent_receipts_idem_keys')!;
+
+        expect(
+          stored.length,
+          PurchaseConstants.maxIdemCacheEntries,
+          reason: '캐시가 상한을 넘지 않고 오래된 키를 밀어내야 한다',
+        );
+        expect(
+          stored.contains('seed-key-0'),
+          isFalse,
+          reason: '가장 오래된 키부터 제거되어야 한다',
+        );
+        expect(
+          stored.contains(
+            ReceiptFormatHelper.makeIdemKeyFromJWS(newReceipt),
+          ),
+          isTrue,
+          reason: '방금 정산된 영수증의 키는 남아 있어야 한다',
+        );
       });
     });
 

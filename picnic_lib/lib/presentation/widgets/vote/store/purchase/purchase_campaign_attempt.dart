@@ -117,23 +117,51 @@ class PurchaseCampaignAttemptRegistry {
     Duration delay = const Duration(milliseconds: 200),
   }) async {
     var attempt = bind(purchase) ?? currentTerminalWithoutId(purchase);
-    while (attempt == null &&
-        retries-- > 0 &&
-        purchase.status == PurchaseStatus.purchased &&
-        contains(purchase.productID)) {
+    while (attempt == null && retries-- > 0 && _hasPendingLaunchRace(purchase)) {
       await Future.delayed(delay);
       attempt = bind(purchase) ?? currentTerminalWithoutId(purchase);
     }
     return attempt;
   }
 
+  /// 이 이벤트가 아직 [launched] 세팅 전인 활성 시도를 만날 수 있는 상태인지.
+  ///
+  /// `purchased` 뿐 아니라 `error`/`canceled` 도 같은 레이스를 겪는다 -
+  /// 스토어 스트림이 initiatePurchase()의 launched=true 세팅보다 먼저
+  /// 도착할 수 있다. productID가 없는 이벤트는 활성 시도가 남아 있는 한
+  /// (어느 상품인지는 [currentTerminalWithoutId] 가 재시도 시점에 다시
+  /// 판별한다) 계속 재시도할 후보가 있다고 본다.
+  bool _hasPendingLaunchRace(PurchaseDetails purchase) {
+    if (purchase.status != PurchaseStatus.purchased &&
+        purchase.status != PurchaseStatus.error &&
+        purchase.status != PurchaseStatus.canceled) {
+      return false;
+    }
+    return purchase.productID.trim().isEmpty
+        ? _byProduct.isNotEmpty
+        : contains(purchase.productID);
+  }
+
   PurchaseCampaignAttempt? currentTerminalWithoutId(PurchaseDetails purchase) {
-    if (purchase.purchaseID != null ||
+    // Android Play Billing 은 식별자 없는 에러/취소에서 purchaseID 를 null이
+    // 아니라 빈 문자열로 채워 보낸다 (실기기 재현: responseCode 3). null과
+    // 동일하게 "식별자 없음"으로 다뤄야 한다.
+    final hasTransactionId =
+        purchase.purchaseID != null && purchase.purchaseID!.isNotEmpty;
+    if (hasTransactionId ||
         (purchase.status != PurchaseStatus.error &&
             purchase.status != PurchaseStatus.canceled)) {
       return null;
     }
-    final context = _byProduct[canonicalProductKey(purchase.productID)];
+    var context = _byProduct[canonicalProductKey(purchase.productID)];
+    // Android Play Billing 에러/취소는 productID까지 빈 채로 도착할 수 있다
+    // (실기기 재현: responseCode 3, 결제창을 뒤로가기로 닫음). 상품ID로 못
+    // 붙이면 orphan으로 폐기되고, 그 경로는 로딩 오버레이를 내리지 않아
+    // 스피너가 무한정 남는다. 활성 시도가 정확히 하나뿐이면 판별 불가능한
+    // 상태가 아니므로 그 시도로 본다 - 둘 이상이면 여전히 폐기한다.
+    if (context == null && purchase.productID.trim().isEmpty) {
+      context = _byProduct.length == 1 ? _byProduct.values.single : null;
+    }
     final transactionAt = _transactionAt(purchase);
     return context != null &&
             context.launched &&

@@ -674,21 +674,36 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     PurchaseCampaignAttempt? boundAttempt,
   ) async {
     final attempt = boundAttempt;
+    // Android Play Billing 에러/취소는 productID가 빈 채로 도착할 수 있다
+    // (실기기 재현: responseCode 3). boundAttempt 가 있으면 그게 바인딩 시점에
+    // 판별된 진짜 상품ID이므로 그것을 우선한다 - purchaseDetails.productID를
+    // 그대로 쓰면 버튼 로딩·90초 안전망 타이머가 엉뚱한(빈) 키를 리셋해
+    // STAR100 쪽은 그대로 남는다.
+    final productId = attempt?.productId ?? purchaseDetails.productID;
     if (attempt != null) {
       if (!_purchaseAttempts.finish(purchaseDetails, attempt.attemptId)) {
-        _removeAttempt(purchaseDetails.productID, attempt.attemptId);
+        _removeAttempt(productId, attempt.attemptId);
       }
     }
-    if (purchaseDetails.status == PurchaseStatus.error) {
-      logger.e(
-        '[PurchaseStarCandyState] Purchase error: ${purchaseDetails.error?.message}',
-      );
+    // Android는 결제창을 벗어난 취소를 error가 아니라 canceled 상태로 스트림에
+    // 태운다. 이 분기가 error만 처리하던 동안 canceled 이벤트는 로딩도 내리지
+    // 않고 상태도 리셋되지 않은 채 조용히 지나가, 90초 안전망까지 무한 로딩으로
+    // 보였다 (실기기 재현, 2026-08-05).
+    if (purchaseDetails.status == PurchaseStatus.error ||
+        purchaseDetails.status == PurchaseStatus.canceled) {
+      final isCanceled =
+          purchaseDetails.status == PurchaseStatus.canceled ||
+          _isPurchaseCanceled(purchaseDetails);
 
-      final isCanceled = _isPurchaseCanceled(purchaseDetails);
+      if (purchaseDetails.status == PurchaseStatus.error) {
+        logger.e(
+          '[PurchaseStarCandyState] Purchase error: ${purchaseDetails.error?.message}',
+        );
+      }
 
       if (mounted) {
         // ✅ 일반 오류: 상품별 쿨타임 적용하지 않음 (초기화는 굳이 강제하지 않음)
-        _resetProductPurchaseState(purchaseDetails.productID);
+        _resetProductPurchaseState(productId);
         _loadingKey.currentState?.hide();
 
         if (!isCanceled) {

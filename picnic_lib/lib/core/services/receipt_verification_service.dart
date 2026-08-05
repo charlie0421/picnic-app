@@ -753,9 +753,13 @@ class ReceiptVerificationService {
 
   Future<void> _idemCacheAdd(String key) async {
     final sp = await SharedPreferences.getInstance();
-    final s = await _loadIdemCache()
-      ..add(key);
-    await sp.setStringList(_spKeySentReceipts, s.toList());
+    // Set 은 삽입 순서를 보장하지 않으므로, FIFO 로 오래된 키를 잘라내려면
+    // 리스트로 다뤄야 한다.
+    final existing = sp.getStringList(_spKeySentReceipts) ?? <String>[];
+    final list = existing.where((k) => k != key).toList()..add(key);
+    final overflow = list.length - PurchaseConstants.maxIdemCacheEntries;
+    final trimmed = overflow > 0 ? list.sublist(overflow) : list;
+    await sp.setStringList(_spKeySentReceipts, trimmed);
   }
 
   String _makeIdemKeyFromJWS(String jws) {

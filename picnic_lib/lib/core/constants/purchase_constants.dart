@@ -102,6 +102,30 @@ class PurchaseConstants {
   static const String lastPurchaseAttemptKey = 'last_purchase_attempt_';
   static const String authenticationStartKey = 'authentication_start_';
   static const String backgroundPurchaseKey = 'background_purchase_';
+
+  /// iOS 재전달 멱등 캐시(`sent_receipts_idem_keys`)가 보관하는 최대 키 수.
+  ///
+  /// 상한이 없으면 기기 설치 수명 내내 성공한 구매마다 키가 하나씩 쌓이고,
+  /// 매 검증 호출마다 전체 리스트를 읽어 Set으로 변환하는 비용도 그만큼
+  /// 커진다. 오래된 키부터 잘라내도 안전한 이유는 이 캐시가 최적화용
+  /// 지름길일 뿐이기 때문이다 — 캐시에 없으면 서버에 정산 여부를 다시
+  /// 묻는 경로로 폴백하므로(`confirmSettlementWithServer`), 잘못 비워도
+  /// 정확성이 아니라 왕복 한 번만 더 든다.
+  static const int maxIdemCacheEntries = 500;
+
+  /// 영수증 큐(`receipt_queue_v1`)가 보관하는 항목의 최대 나이.
+  ///
+  /// 이 기간이 지나도 정산되지 않은(200) 항목은 로컬 큐에서만 지운다 -
+  /// 스토어 트랜잭션 자체는 건드리지 않으므로(finish/consume 되지 않은 채
+  /// 남는다), 다음 콜드 스타트·재개 스윕([PurchaseService
+  /// .sweepUnfinishedPurchases])이 스토어에서 직접 다시 찾아내 재검증한다.
+  /// 이 큐는 빠른 재시도 경로일 뿐 정산의 유일한 기록이 아니므로, 잘라내도
+  /// 안전하다 - 최악의 경우 다음 스윕까지 재시도가 느려질 뿐이다.
+  static const Duration receiptQueueMaxAge = Duration(days: 7);
+
+  /// 영수증 큐가 보관하는 최대 항목 수. 상한을 넘으면 가장 오래된 항목부터
+  /// 잘라낸다(FIFO) - 마찬가지로 스토어 쪽 재전달·리컨사일이 회수한다.
+  static const int receiptQueueMaxEntries = 200;
 }
 
 /// 구매 처리 결과 타입
