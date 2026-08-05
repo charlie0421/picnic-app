@@ -229,13 +229,15 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     return PurchaseHelper.isPurchaseCanceled(purchaseDetails);
   }
 
-  /// 상품ID·거래ID 어느 쪽으로도 특정 시도에 묶일 수 없는 이벤트인지.
+  /// 특정 시도에 안전하게 묶일 수 없는 이벤트인지.
+  ///
+  /// 거래ID(purchaseID)가 없으면 productID가 있어도 묶지 않는다 - productID는
+  /// 거래 식별자가 아니고, 레지스트리는 상품당 컨텍스트를 하나만 들고 있어
+  /// 이미 정리된 이전 시도의 지연 이벤트가 같은 상품의 새 시도를 잘못 지울
+  /// 수 있다 (Codex Frontier 리뷰, PR #137).
   bool _isIdentityless(PurchaseDetails purchaseDetails) {
-    final hasProductId = purchaseDetails.productID.trim().isNotEmpty;
-    final hasTransactionId =
-        purchaseDetails.purchaseID != null &&
-        purchaseDetails.purchaseID!.isNotEmpty;
-    return !hasProductId && !hasTransactionId;
+    return purchaseDetails.purchaseID == null ||
+        purchaseDetails.purchaseID!.isEmpty;
   }
 
   void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) async {

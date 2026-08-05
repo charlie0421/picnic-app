@@ -379,6 +379,42 @@ void main() {
         );
       });
 
+      // Codex Frontier 리뷰 지적 (PR #137): enqueue()가 새 항목을 더한 뒤
+      // 상한을 다시 넘는 극단적 상황을 방어하려고 sublist(overflow)로 한 번
+      // 더 잘라내는데, 이 경로는 onItemsEvicted를 호출하지 않았다. 그러면
+      // 잘린 결제의 회수용 리컨사일이 즉시 걸리지 않고 다음 콜드스타트/
+      // 재개까지 미뤄진다 - _pruneStale의 정리와 같은 보장을 못 받는다.
+      test(
+          'onItemsEvicted also fires when enqueue itself has to trim the '
+          'freshly-added item back down to the cap', () async {
+        var evictedCallCount = 0;
+        service.onItemsEvicted = () => evictedCallCount++;
+        addTearDown(() => service.onItemsEvicted = null);
+
+        final seedCount = PurchaseConstants.receiptQueueMaxEntries;
+        final seeded = List.generate(
+          seedCount,
+          (i) => itemAged('seed-$i', Duration(minutes: seedCount - i)),
+        );
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('receipt_queue_v1', json.encode(seeded));
+
+        await service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'brand-new-receipt',
+          productId: 'STAR200',
+          userId: 'user-1',
+          environment: 'sandbox',
+        );
+
+        expect(
+          evictedCallCount,
+          1,
+          reason: '_pruneStale 경로와 동일하게, 이 트림도 실제로 항목을 '
+              '잘라냈으니 즉시 리컨사일을 걸 수 있어야 한다',
+        );
+      });
+
       test('onItemsEvicted does NOT fire when nothing is pruned', () async {
         var evictedCallCount = 0;
         service.onItemsEvicted = () => evictedCallCount++;

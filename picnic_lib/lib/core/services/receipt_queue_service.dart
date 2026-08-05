@@ -242,6 +242,7 @@ class ReceiptQueueService {
     final overflow = items.length - PurchaseConstants.receiptQueueMaxEntries;
     final toSave = overflow > 0 ? items.sublist(overflow) : items;
     await _saveQueue(toSave);
+    if (overflow > 0) onItemsEvicted?.call();
     logger.i('📥 큐 적재: $clientTraceId ($normalizedPlatform/$productId)');
     return clientTraceId;
   });

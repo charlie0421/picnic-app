@@ -425,6 +425,49 @@ void main() {
       },
     );
 
+    // Codex Frontier 리뷰 3차 지적 (PR #137): productID는 있고 purchaseID만
+    // 없는 종결 이벤트는 여전히 currentTerminalWithoutId()가 상품ID만으로
+    // 활성 시도에 결합했다. productID는 거래 식별자가 아니므로, 위와 완전히
+    // 같은 재시도 오결합 위험이 남는다 - A의 지연된 종결 이벤트(productID는
+    // 있지만 purchaseID 없음)가 A의 안전망 종료 후 시작된 B(같은 상품)에
+    // 도착하면 B가 잘못 지워진다.
+    test(
+      'a delayed event with a real productID but no purchaseID cannot cancel a '
+      'fresh retry of the same product either', () async {
+        final registry = PurchaseCampaignAttemptRegistry();
+        registry.begin(attempt('a', 'STAR100'));
+        registry.applyLaunchResult('STAR100', 'a', {
+          'success': true,
+          'wasCancelled': false,
+        });
+        registry.removeIfMatches('STAR100', 'a'); // 90초 안전망으로 제거.
+
+        registry.begin(attempt('b', 'STAR100')); // 즉시 재시도.
+        registry.applyLaunchResult('STAR100', 'b', {
+          'success': true,
+          'wasCancelled': false,
+        });
+
+        final staleEvent = PurchaseDetails(
+          productID: 'STAR100',
+          purchaseID: null,
+          transactionDate: null,
+          status: PurchaseStatus.canceled,
+          verificationData: PurchaseVerificationData(
+            localVerificationData: 'local',
+            serverVerificationData: 'server',
+            source: 'test',
+          ),
+        );
+
+        final bound = await registry.bindWithLaunchGrace(staleEvent);
+
+        expect(bound, isNull);
+        expect(registry.contains('STAR100'), isTrue);
+        expect(registry['STAR100']!.attemptId, 'b');
+      },
+    );
+
     test(
       'stays unresolved when two different products are active',
       () async {
@@ -449,14 +492,16 @@ void main() {
   // ===========================================================================
   // `purchased` 이벤트에만 적용되던 런치 유예(위 bindWithLaunchGrace 주석 참고,
   // iOS 실기기 2026-07-28)와 같은 클래스의 레이스가 error/canceled 에도
-  // 이론적으로 적용된다: 스토어 스트림이 initiatePurchase()의 launched=true
-  // 세팅보다 먼저 에러/취소를 전달하면, productID가 있어도 단 한 번의 bind
+  // 적용된다: 스토어 스트림이 initiatePurchase()의 launched=true 세팅보다
+  // 먼저 에러/취소를 전달하면, 거래ID(purchaseID)가 있어도 단 한 번의 bind
   // 시도만으로는 launched 게이트에 걸려 실패한다. 재시도가 없으면 이 레이스를
-  // 이긴 이벤트는 orphan으로 영구 폐기되고 로딩 오버레이가 남는다.
+  // 이긴 이벤트는 orphan으로 영구 폐기되고 로딩 오버레이가 남는다. (거래ID가
+  // 없는 error/canceled 이벤트는 재시도해도 절대 bind되지 않으므로 이 테스트
+  // 대상이 아니다 - 위 '식별자 없는 에러/취소 이벤트' 그룹 참고.)
   // ===========================================================================
   test(
-    'an error event retries through the same launch race a purchased event already gets',
-    () async {
+    'an error event with a real transaction id retries through the same '
+    'launch race a purchased event already gets', () async {
       final registry = PurchaseCampaignAttemptRegistry();
       registry.begin(attempt('a', 'STAR100'));
       // launched 는 아직 false - 레이스 윈도우를 흉내낸다.
@@ -469,7 +514,7 @@ void main() {
 
       final errorEvent = PurchaseDetails(
         productID: 'STAR100',
-        purchaseID: null,
+        purchaseID: 'txn-error-1',
         transactionDate: null,
         status: PurchaseStatus.error,
         verificationData: PurchaseVerificationData(
