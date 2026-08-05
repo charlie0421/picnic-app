@@ -623,10 +623,23 @@ class InAppPurchaseService {
   /// 대신 여기서 명시적으로 소비한다. consume 실패 시 acknowledge로
   /// fallback해 최소한 3일 미확인 자동환불은 막고, 구매가 스토어에 남아
   /// 다음 reconcile이 소비를 재시도한다.
-  Future<void> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
+  ///
+  /// 반환값은 스토어 트랜잭션이 실제로 소비/승인됐는지다 - 호출자
+  /// (`PurchaseService._reconcileUnfinishedPurchases`)가 이 값으로
+  /// settled/preserved를 가른다. consume과 acknowledge fallback이 모두
+  /// 실패해도 예외를 던지지 않는다(다음 reconcile이 재시도하도록 트랜잭션을
+  /// 보존하는 게 목적이므로) - 그래서 실패를 false로 명시해야 한다. 예외를
+  /// 던지지 않으면서 항상 성공한 것처럼 반환하면(과거 버전의 버그) 호출자는
+  /// Play 큐에 미소비 트랜잭션이 남아 있는데도 "완료"로 믿게 된다.
+  Future<bool> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
     if (!Platform.isAndroid) {
-      await completePurchase(purchaseDetails);
-      return;
+      try {
+        await completePurchase(purchaseDetails);
+        return true;
+      } catch (e) {
+        logger.w('완료 처리 실패(다음 reconcile 재시도): $e');
+        return false;
+      }
     }
     try {
       final addition = InAppPurchase.instance
@@ -634,7 +647,7 @@ class InAppPurchaseService {
       final result = await addition.consumePurchase(purchaseDetails);
       if (result.responseCode == BillingResponse.ok) {
         logger.i('✅ 정산 확정 구매 소비(consume) 완료: ${purchaseDetails.productID}');
-        return;
+        return true;
       }
       logger.w(
         '⚠️ consume 실패(${result.responseCode}) - acknowledge로 fallback: '
@@ -643,9 +656,13 @@ class InAppPurchaseService {
     } catch (e) {
       logger.w('⚠️ consume 예외 - acknowledge로 fallback: $e');
     }
-    await completePurchase(purchaseDetails).catchError((e) {
+    try {
+      await completePurchase(purchaseDetails);
+      return true;
+    } catch (e) {
       logger.w('acknowledge fallback도 실패(다음 reconcile 재시도): $e');
-    });
+      return false;
+    }
   }
 
   Future<void> clearTransactions({bool includePendingPurchases = false}) async {

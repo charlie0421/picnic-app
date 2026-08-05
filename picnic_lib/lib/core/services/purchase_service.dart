@@ -334,11 +334,15 @@ class PurchaseService {
       if (settlementConfirmed) {
         // Android: consume(소비)까지, iOS: finish. 실패는 정산 결과를
         // 뒤집으면 안 되므로 로그만 남긴다(다음 reconcile이 재시도).
-        await inAppPurchaseService
-            .finalizeSettledPurchase(purchaseDetails)
-            .catchError((e) {
-          logger.w('정산 확정 구매 완료 처리 실패(다음 reconcile 재시도): $e');
-        });
+        final finalized = await inAppPurchaseService.finalizeSettledPurchase(
+          purchaseDetails,
+        );
+        if (!finalized) {
+          logger.w(
+            '정산 확정 구매 완료 처리 실패(다음 reconcile 재시도): '
+            '${purchaseDetails.productID}',
+          );
+        }
       } else {
         // 미확정 실패는 종류를 불문하고 스토어 트랜잭션을 파괴하지 않는다.
         // - 일시 실패(네트워크·5xx·타임아웃·인증): iOS는 StoreKit 재전달이,
@@ -1195,8 +1199,13 @@ class PurchaseService {
   /// 어디로 셀지 정하는 데 쓰인다.
   Future<bool> _tryFinalize(PurchaseDetails purchase) async {
     try {
-      await inAppPurchaseService.finalizeSettledPurchase(purchase);
-      return true;
+      final finalized = await inAppPurchaseService.finalizeSettledPurchase(
+        purchase,
+      );
+      if (!finalized) {
+        logger.w('미완료 구매 완료 처리 실패(다음 스윕에서 재시도): ${purchase.productID}');
+      }
+      return finalized;
     } catch (e) {
       logger.w('미완료 구매 완료 처리 실패(다음 스윕에서 재시도): $e');
       return false;

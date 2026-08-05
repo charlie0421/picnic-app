@@ -393,8 +393,9 @@ class _FakePlugin extends Mock implements InAppPurchaseService {
   }
 
   @override
-  Future<void> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
+  Future<bool> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
     finalized++;
+    return true;
   }
 }
 

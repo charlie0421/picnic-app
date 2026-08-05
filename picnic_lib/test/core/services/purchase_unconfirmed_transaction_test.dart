@@ -560,7 +560,7 @@ void main() {
         _SettledVerification(),
         UnfinishedPurchaseScan(purchases: [unfinished()]),
       );
-      plugin.finalizeShouldThrow = true;
+      plugin.finalizeSucceeds = false;
 
       final report = await service.sweepUnfinishedPurchases(
         trigger: PurchaseSweepTrigger.manual,
@@ -1249,7 +1249,13 @@ class _SettledVerification extends ReceiptVerificationService {
 class _CountingPlugin extends Mock implements InAppPurchaseService {
   int completed = 0;
   int finalized = 0;
-  bool finalizeShouldThrow = false;
+
+  /// 실제 [InAppPurchaseService.finalizeSettledPurchase] 는 consume/
+  /// acknowledge가 모두 실패해도 예외를 던지지 않고 false를 반환한다 - 다음
+  /// reconcile이 재시도할 수 있도록 트랜잭션을 보존하는 게 목적이기
+  /// 때문이다 (Codex Frontier 리뷰, PR #137: 예외를 던지는 가짜는 실제
+  /// Android 경로를 대표하지 못한다).
+  bool finalizeSucceeds = true;
 
   @override
   void initialize(Function(List<PurchaseDetails>) onPurchaseUpdate) {}
@@ -1263,10 +1269,9 @@ class _CountingPlugin extends Mock implements InAppPurchaseService {
   }
 
   @override
-  Future<void> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
-    if (finalizeShouldThrow) {
-      throw Exception('billing client unreachable');
-    }
+  Future<bool> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
+    if (!finalizeSucceeds) return false;
     finalized++;
+    return true;
   }
 }
