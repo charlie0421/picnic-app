@@ -116,60 +116,44 @@ class PurchaseCampaignAttemptRegistry {
     int retries = 15,
     Duration delay = const Duration(milliseconds: 200),
   }) async {
-    var attempt = bind(purchase) ?? currentTerminalWithoutId(purchase);
+    var attempt = bind(purchase);
     while (attempt == null && retries-- > 0 && _hasPendingLaunchRace(purchase)) {
       await Future.delayed(delay);
-      attempt = bind(purchase) ?? currentTerminalWithoutId(purchase);
+      attempt = bind(purchase);
     }
     return attempt;
   }
 
   /// 이 이벤트가 아직 [launched] 세팅 전인 활성 시도를 만날 수 있는 상태인지.
   ///
+  /// [bind] 는 거래ID(purchaseID)가 있는 이벤트만 처리한다 - 거래ID가 없는
+  /// 이벤트는 재시도해도 절대 bind되지 않으므로(아래 참고) 재시도할 이유가
+  /// 없다.
+  ///
   /// `purchased` 뿐 아니라 `error`/`canceled` 도 같은 레이스를 겪는다 -
   /// 스토어 스트림이 initiatePurchase()의 launched=true 세팅보다 먼저
-  /// 도착할 수 있다. 상품ID가 있는 이벤트만 재시도한다 - 상품ID가 없는
-  /// 이벤트는 애초에 어떤 시도와도 안전하게 묶을 수 없으므로(아래
-  /// [currentTerminalWithoutId] 참고) 재시도할 이유가 없다.
+  /// 도착할 수 있다.
   bool _hasPendingLaunchRace(PurchaseDetails purchase) {
     if (purchase.status != PurchaseStatus.purchased &&
         purchase.status != PurchaseStatus.error &&
         purchase.status != PurchaseStatus.canceled) {
       return false;
     }
-    return purchase.productID.trim().isNotEmpty &&
-        contains(purchase.productID);
-  }
-
-  /// purchaseID 없이 도착한 error/canceled 이벤트를, 상품ID로는 붙일 수
-  /// 있지만 아직 launched 게이트에 걸린 시도에 묶는다.
-  ///
-  /// 상품ID조차 없는 이벤트는(Android Play Billing 에러/취소가 그럴 수
-  /// 있다 - 실기기 재현: responseCode 3) 절대 묶지 않는다. "활성 시도가
-  /// 하나뿐이니 그 시도로 본다"는 발견적 규칙은 시간 경계를 증명할 수
-  /// 없어서, 이미 안전망으로 정리된 다른(또는 같은) 상품의 지연 이벤트가
-  /// 방금 시작된 무관한 시도를 잘못 지워버릴 수 있다 (Codex Frontier
-  /// 리뷰, PR #137 - 120초 활동 창 완화안도 동일 상품 재시도와 창 만료
-  /// 후 지연 도착에는 뚫렸다). 식별자가 전혀 없는 이벤트는 호출자
-  /// (`_processPurchaseDetail`)가 어떤 시도에도 손대지 않고 전역 로딩
-  /// 오버레이만 내리는 것으로 대응한다.
-  PurchaseCampaignAttempt? currentTerminalWithoutId(PurchaseDetails purchase) {
     final hasTransactionId =
         purchase.purchaseID != null && purchase.purchaseID!.isNotEmpty;
-    if (hasTransactionId ||
-        purchase.productID.trim().isEmpty ||
-        (purchase.status != PurchaseStatus.error &&
-            purchase.status != PurchaseStatus.canceled)) {
-      return null;
-    }
-    final context = _byProduct[canonicalProductKey(purchase.productID)];
-    final transactionAt = _transactionAt(purchase);
-    return context != null &&
-            context.launched &&
-            !_staleBeforeLaunch(context, transactionAt)
-        ? context.attempt
-        : null;
+    return hasTransactionId && contains(purchase.productID);
   }
+
+  // 거래ID(purchaseID) 없는 error/canceled 이벤트를 상품ID만으로 활성
+  // 시도에 묶는 폴백(구 currentTerminalWithoutId)은 제거했다. productID는
+  // 거래 식별자가 아니고 레지스트리는 상품당 컨텍스트를 하나만 들고 있으므로,
+  // 상품ID만으로 매칭하면 이미 안전망으로 정리된 이전 시도의 지연 이벤트가
+  // 같은 상품의 새 시도(재시도/재구매)를 잘못 지울 수 있다 (Codex Frontier
+  // 리뷰, PR #137 - productID가 전혀 없는 경우의 "유일한 활성 시도" 발견적
+  // 규칙도, productID는 있지만 purchaseID가 없는 경우의 상품 매칭도 둘 다
+  // 이 위험을 갖고 있었다). 거래ID 없는 error/canceled 이벤트는 어떤 시도와도
+  // 묶지 않는다 - 호출자(`PurchaseStarCandyState._processPurchaseDetail`)가
+  // 전역 로딩 오버레이만 내리는 것으로 대응한다.
 
   /// 이벤트가 이 시도보다 "명백히 과거"인지.
   ///

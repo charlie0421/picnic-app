@@ -108,8 +108,15 @@ void main() {
     expect(await binding, isNull);
   });
 
-  test('terminal event without id or transactionDate matches the launched '
-      'attempt', () {
+  // `currentTerminalWithoutId` (상품ID만으로 거래ID 없는 종결 이벤트를
+  // 활성 시도에 묶던 폴백)는 제거됐다: productID는 거래 식별자가 아니고
+  // 레지스트리는 상품당 컨텍스트를 하나만 들고 있어, 이미 안전망으로
+  // 정리된 이전 시도의 지연 이벤트가 같은 상품의 새 시도를 잘못 지울 수
+  // 있었다 (Codex Frontier 리뷰, PR #137). 거래ID 없는 종결 이벤트는 이제
+  // bind()로도 절대 묶이지 않는다 - 무한 로딩 문제는
+  // `PurchaseStarCandyState`가 시도를 건드리지 않고 전역 로딩만 내리는
+  // 것으로 대응한다.
+  test('terminal event without id or transactionDate never binds', () {
     final registry = launchedRegistry();
     final canceled = event(
       'STAR100',
@@ -117,6 +124,6 @@ void main() {
       transactionAt: null,
       status: PurchaseStatus.canceled,
     );
-    expect(registry.currentTerminalWithoutId(canceled)?.attemptId, 'a');
+    expect(registry.bind(canceled), isNull);
   });
 }
