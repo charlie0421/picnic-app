@@ -399,6 +399,100 @@ void main() {
       },
     );
 
+    // Codex Frontier 리뷰 지적 (PR #137): A가 90초 안전망으로 제거된 뒤 B가
+    // 시작되고, 그 후 A의 지연된 식별자 없는 이벤트가 도착하면 "유일한 활성
+    // 시도" 규칙이 B에 잘못 결합한다 - B의 시도·로딩·안전망이 지워지고, B가
+    // 나중에 실제로 성공하면 orphan 처리되어 캠페인 연결과 영수증 다이얼로그를
+    // 잃는다. 최근(120초 내) 서로 다른 상품이 활동했다면 폴백을 거부해야 한다.
+    test(
+      'refuses the sole-active fallback when a different product was active recently',
+      () async {
+        var now = DateTime.utc(2026, 8, 5, 12, 0, 0);
+        final registry = PurchaseCampaignAttemptRegistry(now: () => now);
+
+        registry.begin(attempt('a', 'STAR100'));
+        registry.applyLaunchResult('STAR100', 'a', {
+          'success': true,
+          'wasCancelled': false,
+        });
+        // A가 90초 안전망으로 제거된다.
+        registry.removeIfMatches('STAR100', 'a');
+
+        // 1초 뒤 완전히 다른 상품 B가 시작되고 즉시 launched 된다 - 지금 이
+        // 레지스트리엔 B 하나뿐이다.
+        now = now.add(const Duration(seconds: 1));
+        registry.begin(attempt('b', 'STAR500'));
+        registry.applyLaunchResult('STAR500', 'b', {
+          'success': true,
+          'wasCancelled': false,
+        });
+
+        // A의 지연된 취소가 뒤늦게 도착한다. B가 유일한 활성 시도라는 것만으로
+        // 이 이벤트를 B에 결합해선 안 된다 - A(STAR100)가 최근에 있었다.
+        final bound = await registry.bindWithLaunchGrace(
+          identityless(PurchaseStatus.canceled),
+        );
+
+        expect(bound, isNull);
+        expect(
+          registry.contains('STAR500'),
+          isTrue,
+          reason: 'B의 시도는 이 모호한 이벤트로 지워지면 안 된다',
+        );
+      },
+    );
+
+    test(
+      'still resolves the sole-active fallback when no other product has been active recently',
+      () async {
+        var now = DateTime.utc(2026, 8, 5, 12, 0, 0);
+        final registry = PurchaseCampaignAttemptRegistry(now: () => now);
+
+        registry.begin(attempt('a', 'STAR100'));
+        registry.applyLaunchResult('STAR100', 'a', {
+          'success': true,
+          'wasCancelled': false,
+        });
+        now = now.add(const Duration(seconds: 1));
+
+        final bound = await registry.bindWithLaunchGrace(
+          identityless(PurchaseStatus.canceled),
+        );
+
+        expect(bound?.attemptId, 'a');
+      },
+    );
+
+    test(
+      'trusts the fallback again once the other product activity has aged out',
+      () async {
+        var now = DateTime.utc(2026, 8, 5, 12, 0, 0);
+        final registry = PurchaseCampaignAttemptRegistry(now: () => now);
+
+        registry.begin(attempt('a', 'STAR100'));
+        registry.applyLaunchResult('STAR100', 'a', {
+          'success': true,
+          'wasCancelled': false,
+        });
+        registry.removeIfMatches('STAR100', 'a');
+
+        // 3분(120초 관찰 창을 넘김) 뒤 B가 시작된다 - A의 활동은 더 이상
+        // "최근"이 아니다.
+        now = now.add(const Duration(minutes: 3));
+        registry.begin(attempt('b', 'STAR500'));
+        registry.applyLaunchResult('STAR500', 'b', {
+          'success': true,
+          'wasCancelled': false,
+        });
+
+        final bound = await registry.bindWithLaunchGrace(
+          identityless(PurchaseStatus.canceled),
+        );
+
+        expect(bound?.attemptId, 'b');
+      },
+    );
+
     test(
       'stays unresolved when the sole context has not launched yet',
       () async {

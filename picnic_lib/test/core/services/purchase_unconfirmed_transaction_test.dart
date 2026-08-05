@@ -545,6 +545,37 @@ void main() {
               '루프를 끊는 유일한 지점이다');
     });
 
+    // Codex Frontier 리뷰 지적 (PR #137): 서버 정산(verifyReceipt)은
+    // 성공했는데 스토어 쪽 완료 처리(consume/acknowledge)가 실패하면, 그
+    // 실패를 삼키고도 settled++ 로 세서 preserved==0인 "completed" 를
+    // 보고했다. RestorePurchaseHandler 의 구매 게이트는 이제 preserved==0을
+    // "검증 완료"로 신뢰하므로, 실제로는 Play 큐에 미소비 트랜잭션이 남아
+    // 있는데도 구매를 열어줘 다음 구매가 ITEM_ALREADY_OWNED 로 실패할 수
+    // 있다.
+    testWidgets(
+        'a settlement whose store-side finalize fails is preserved, not '
+        'reported settled', (tester) async {
+      await buildWithSource(
+        tester,
+        _SettledVerification(),
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+      plugin.finalizeShouldThrow = true;
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(report.found, 1);
+      expect(report.settled, 0,
+          reason: '스토어 완료 처리가 실패했으니 아직 끝난 게 아니다');
+      expect(report.preserved, 1,
+          reason: 'preserved==0 은 구매 게이트가 신뢰하는 신호다 - 미소비 '
+              '트랜잭션을 완료로 세면 다음 구매가 ITEM_ALREADY_OWNED 로 '
+              '막힌다');
+      expect(plugin.finalized, 0);
+    });
+
     testWidgets(
         'shouldAbort checked right after the scan skips verification '
         'entirely and preserves everything found', (tester) async {
@@ -1218,6 +1249,7 @@ class _SettledVerification extends ReceiptVerificationService {
 class _CountingPlugin extends Mock implements InAppPurchaseService {
   int completed = 0;
   int finalized = 0;
+  bool finalizeShouldThrow = false;
 
   @override
   void initialize(Function(List<PurchaseDetails>) onPurchaseUpdate) {}
@@ -1232,6 +1264,9 @@ class _CountingPlugin extends Mock implements InAppPurchaseService {
 
   @override
   Future<void> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
+    if (finalizeShouldThrow) {
+      throw Exception('billing client unreachable');
+    }
     finalized++;
   }
 }

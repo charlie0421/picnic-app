@@ -1132,21 +1132,26 @@ class PurchaseService {
           currentUser.id,
           environment,
         );
-        await inAppPurchaseService.finalizeSettledPurchase(p).catchError((e) {
-          logger.w('미완료 구매 완료 처리 실패(다음 스윕에서 재시도): $e');
-        });
-        settled++;
-        logger.i('♻️ 미완료 구매 정산+완료: ${p.productID} (${p.purchaseID})');
+        if (await _tryFinalize(p)) {
+          settled++;
+          logger.i('♻️ 미완료 구매 정산+완료: ${p.productID} (${p.purchaseID})');
+        } else {
+          // 서버 정산은 끝났지만 스토어 완료 처리(consume/acknowledge)가
+          // 실패했다 - Play 큐엔 여전히 미소비 트랜잭션이 남아 있으므로
+          // settled로 세면 안 된다. preserved로 세야 구매 게이트
+          // (preserved==0을 "검증 완료"로 신뢰한다)가 다음 구매를 실제로
+          // 열어도 되는 상태로 오판하지 않는다.
+          preserved++;
+        }
       } on ReusedPurchaseException catch (e) {
         if (e.grantConfirmed) {
           // 이미 지급까지 끝난 구매 → 스토어 완료 처리만 하면 된다.
-          await inAppPurchaseService.finalizeSettledPurchase(p).catchError((
-            err,
-          ) {
-            logger.w('미완료 구매 완료 처리 실패(다음 스윕에서 재시도): $err');
-          });
-          settled++;
-          logger.i('♻️ 기지급 미완료 구매 완료 처리: ${p.productID}');
+          if (await _tryFinalize(p)) {
+            settled++;
+            logger.i('♻️ 기지급 미완료 구매 완료 처리: ${p.productID}');
+          } else {
+            preserved++;
+          }
         } else {
           preserved++;
           logger.w('미완료 구매 중복이나 지급 미확인 - 완료 처리 보류: ${p.productID}');
@@ -1181,6 +1186,21 @@ class PurchaseService {
       preserved: preserved,
       scanError: scan.error,
     );
+  }
+
+  /// 스토어 완료 처리(consume/acknowledge)를 시도하고 성공 여부를 반환한다.
+  ///
+  /// 실패해도 예외를 던지지 않는다 - 트랜잭션은 큐에 그대로 남아 다음
+  /// 스윕이 재시도한다. 반환값은 호출자가 이 항목을 settled/preserved 중
+  /// 어디로 셀지 정하는 데 쓰인다.
+  Future<bool> _tryFinalize(PurchaseDetails purchase) async {
+    try {
+      await inAppPurchaseService.finalizeSettledPurchase(purchase);
+      return true;
+    } catch (e) {
+      logger.w('미완료 구매 완료 처리 실패(다음 스윕에서 재시도): $e');
+      return false;
+    }
   }
 
   /// 모든 진행 중인 구매 상태 강제 정리 (긴급 상황용)
