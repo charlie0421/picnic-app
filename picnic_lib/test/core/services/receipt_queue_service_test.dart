@@ -197,6 +197,290 @@ void main() {
       });
     });
 
+    group('queue growth bound (TTL/count cap)', () {
+      Map<String, dynamic> itemAged(String traceId, Duration age) => {
+            'client_trace_id': traceId,
+            'receipt': 'receipt-for-$traceId',
+            'productId': 'STAR100',
+            'user_id': 'user-1',
+            'platform': 'android',
+            'environment': 'sandbox',
+            'format': 'google_play',
+            'attempt': 5,
+            // 아직 도래하지 않은 백오프 - 실제 정산 시도 없이 순수하게
+            // 정리(prune) 로직만 관찰한다.
+            'nextAt': DateTime.now()
+                .add(const Duration(hours: 1))
+                .millisecondsSinceEpoch,
+            'createdAt':
+                DateTime.now().subtract(age).toIso8601String(),
+          };
+
+      Future<List<dynamic>> queuedItems() async {
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        return raw == null || raw.isEmpty
+            ? const []
+            : json.decode(raw) as List<dynamic>;
+      }
+
+      test(
+          'flushPending drops entries older than receiptQueueMaxAge, keeps '
+          'fresh ones', () async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'receipt_queue_v1',
+          json.encode([
+            itemAged(
+              'stale',
+              PurchaseConstants.receiptQueueMaxAge + const Duration(days: 1),
+            ),
+            itemAged('fresh', const Duration(hours: 1)),
+          ]),
+        );
+
+        await service.flushPending();
+
+        final items = await queuedItems();
+        expect(
+          items.map((e) => e['client_trace_id']),
+          ['fresh'],
+          reason:
+              '오래돼도 정산 못 한 항목은 로컬 큐에서만 지운다 - 스토어 '
+              '트랜잭션은 손대지 않으므로(finish/consume 안 함) 다음 '
+              '콜드스타트/재개 스윕이 스토어에서 직접 다시 찾아내 '
+              '재검증한다',
+        );
+      });
+
+      test(
+          'flushPending caps total entries at receiptQueueMaxEntries, '
+          'evicting the oldest first', () async {
+        final seedCount = PurchaseConstants.receiptQueueMaxEntries + 3;
+        final seeded = List.generate(
+          seedCount,
+          (i) => itemAged('seed-$i', Duration(minutes: seedCount - i)),
+        );
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('receipt_queue_v1', json.encode(seeded));
+
+        await service.flushPending();
+
+        final items = await queuedItems();
+        expect(items.length, PurchaseConstants.receiptQueueMaxEntries);
+        expect(
+          items.map((e) => e['client_trace_id']),
+          isNot(contains('seed-0')),
+          reason: '가장 오래된(제일 먼저 넣은) 항목부터 잘려야 한다',
+        );
+        expect(
+          items.last['client_trace_id'],
+          'seed-${seedCount - 1}',
+          reason: '가장 최근 항목은 남아 있어야 한다',
+        );
+      });
+
+      test(
+          'overflow eviction goes by actual createdAt, not list position - '
+          'a stray old entry out of order is still the one dropped',
+          () async {
+        // 리스트 순서와 실제 나이가 어긋난 상황(동시 쓰기·복구된 데이터
+        // 등)을 흉내낸다: 목록의 첫 항목이 오히려 가장 최근이고, 목록
+        // 중간의 항목이 실제로는 가장 오래됐다.
+        final seedCount = PurchaseConstants.receiptQueueMaxEntries + 1;
+        final seeded = List.generate(
+          seedCount,
+          (i) => itemAged('seed-$i', const Duration(minutes: 10)),
+        );
+        // seed-3 만 실제로 훨씬 오래된 것으로 만든다.
+        final oldestIndex = 3;
+        seeded[oldestIndex] = itemAged(
+          'seed-$oldestIndex',
+          const Duration(days: 3),
+        );
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('receipt_queue_v1', json.encode(seeded));
+
+        await service.flushPending();
+
+        final items = await queuedItems();
+        expect(items.length, PurchaseConstants.receiptQueueMaxEntries);
+        expect(
+          items.map((e) => e['client_trace_id']),
+          isNot(contains('seed-$oldestIndex')),
+          reason:
+              '목록에서는 앞쪽이 아니어도, 실제 createdAt 이 가장 오래된 '
+              '항목이 잘려야 한다 - 목록 순서에만 의존하면 동시 쓰기나 '
+              '복구된 데이터에서 엉뚱한(더 최근) 항목이 잘릴 수 있다',
+        );
+        expect(items.map((e) => e['client_trace_id']), contains('seed-0'));
+      });
+
+      test('enqueue itself enforces the count cap immediately, not just on '
+          'the next flush', () async {
+        final seedCount = PurchaseConstants.receiptQueueMaxEntries;
+        final seeded = List.generate(
+          seedCount,
+          (i) => itemAged('seed-$i', Duration(minutes: seedCount - i)),
+        );
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('receipt_queue_v1', json.encode(seeded));
+
+        await service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'brand-new-receipt',
+          productId: 'STAR200',
+          userId: 'user-1',
+          environment: 'sandbox',
+        );
+
+        final items = await queuedItems();
+        expect(
+          items.length,
+          PurchaseConstants.receiptQueueMaxEntries,
+          reason:
+              '재개 스윕은 최대 5분마다만 돈다 - enqueue 시점에도 상한을 '
+              '지키지 않으면, 포그라운드에 오래 머물며 연속 구매하는 '
+              '동안 다음 flush 전까지 큐가 상한을 넘어 계속 자란다',
+        );
+        expect(
+          items.map((e) => e['client_trace_id']),
+          isNot(contains('seed-0')),
+        );
+      });
+
+      test('onItemsEvicted fires when pruning actually drops entries',
+          () async {
+        var evictedCallCount = 0;
+        service.onItemsEvicted = () => evictedCallCount++;
+        addTearDown(() => service.onItemsEvicted = null);
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'receipt_queue_v1',
+          json.encode([
+            itemAged(
+              'stale',
+              PurchaseConstants.receiptQueueMaxAge + const Duration(days: 1),
+            ),
+          ]),
+        );
+
+        await service.flushPending();
+
+        expect(
+          evictedCallCount,
+          1,
+          reason:
+              '잘려나간 항목의 실제 결제 복구는 다음 콜드스타트/재개까지 '
+              '기다리지 않고, 이 콜백을 통해 즉시 리컨사일을 걸 수 있어야 '
+              '한다',
+        );
+      });
+
+      test('onItemsEvicted does NOT fire when nothing is pruned', () async {
+        var evictedCallCount = 0;
+        service.onItemsEvicted = () => evictedCallCount++;
+        addTearDown(() => service.onItemsEvicted = null);
+
+        await service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'fresh-receipt',
+          productId: 'STAR100',
+          userId: 'user-1',
+          environment: 'sandbox',
+        );
+
+        expect(
+          evictedCallCount,
+          0,
+          reason: '아무것도 안 잘렸는데 매번 리컨사일을 걸면 정상적인 '
+              '연속 구매마다 불필요한 스토어 조회가 발생한다',
+        );
+      });
+    });
+
+    group('concurrent mutation safety', () {
+      Future<List<dynamic>> queuedItems() async {
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        return raw == null || raw.isEmpty
+            ? const []
+            : json.decode(raw) as List<dynamic>;
+      }
+
+      test(
+          'two concurrent enqueue calls for different receipts both survive '
+          '(no lost update)', () async {
+        // await 없이 동시에 호출한다 - 실제 구매 도중 enqueue 가, 다른
+        // 스레드가 아니라 같은 이벤트 루프에서 겹치는 상황(예: 연속
+        // 구매·큐 플러시와 동시)을 흉내낸다.
+        final future1 = service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'receipt-A',
+          productId: 'product-A',
+          userId: 'user-1',
+          environment: 'sandbox',
+        );
+        final future2 = service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'receipt-B',
+          productId: 'product-B',
+          userId: 'user-1',
+          environment: 'sandbox',
+        );
+
+        await Future.wait([future1, future2]);
+
+        final items = await queuedItems();
+        expect(
+          items.map((e) => e['productId']),
+          containsAll(['product-A', 'product-B']),
+          reason:
+              '두 enqueue 가 직렬화되지 않으면 같은 스냅샷을 읽고 나중에 '
+              '저장한 쪽이 먼저 저장된 영수증을 통째로 덮어써, 과금된 '
+              '구매 하나가 이 durable 큐에서 조용히 사라진다',
+        );
+      });
+
+      test(
+          'enqueue racing with _dropItem (as flushPending would call it) '
+          'does not lose the new enqueue', () async {
+        final existingTraceId = await service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'existing-receipt',
+          productId: 'existing-product',
+          userId: 'user-1',
+          environment: 'sandbox',
+        );
+
+        final dropFuture = service.removeByClientTraceId(existingTraceId);
+        final enqueueFuture = service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'new-receipt',
+          productId: 'new-product',
+          userId: 'user-1',
+          environment: 'sandbox',
+        );
+
+        await Future.wait([dropFuture, enqueueFuture]);
+
+        final items = await queuedItems();
+        expect(
+          items.map((e) => e['productId']),
+          contains('new-product'),
+          reason: '동시에 진행 중인 제거 작업이 새로 적재된 영수증까지 '
+              '함께 지워서는 안 된다',
+        );
+        expect(
+          items.map((e) => e['client_trace_id']),
+          isNot(contains(existingTraceId)),
+          reason: '반대로 제거도 실제로 반영되어야 한다',
+        );
+      });
+    });
+
     group('flushPending', () {
       test('successfully sends receipt and removes from queue', () async {
         // Setup mock that returns success

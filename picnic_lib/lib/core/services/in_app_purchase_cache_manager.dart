@@ -6,8 +6,45 @@ part of 'in_app_purchase_service.dart';
 /// pending transaction cleanup, and background cleanup scheduling.
 /// Separated from the main service to keep the file manageable.
 extension InAppPurchaseCacheManager on InAppPurchaseService {
+  /// [fastCacheClear]/[comprehensiveClear]/[aggressiveCacheClear]/
+  /// [backgroundCacheClear] 를 직렬화한다.
+  ///
+  /// 넷 다 `_subscription`/`_streamInitialized` 를 cancel→재구독하는데,
+  /// 락 없이 겹치면 한쪽의 재구독을 다른 쪽의 cancel 이 밟을 수 있다.
+  /// single-flight("합류")가 아니라 대기열인 이유는 네 메서드가 서로 다른
+  /// 일을 하기 때문이다 - comprehensiveClear 를 부른 호출자는
+  /// processPendingTransactions() 가 실제로 실행되길 기대하므로, 진행 중인
+  /// 다른 리셋에 그냥 편승시킬 수 없다. while 루프인 이유는 단순
+  /// if-게이트로는 세 번째 이상의 동시 호출이 두 번째가 세운 락을 보지
+  /// 못하고 함께 새 락을 세워버릴 수 있기 때문이다(대기 중 깨어난 순서대로
+  /// 다시 확인해야 한다).
+  Future<void> _runCacheReset(String name, Future<void> Function() body) async {
+    while (_cacheResetInFlight != null) {
+      try {
+        await _cacheResetInFlight;
+      } catch (_) {
+        // 이전 리셋의 실패는 이 호출의 실행 여부와 무관하다.
+      }
+    }
+    final completer = Completer<void>();
+    _cacheResetInFlight = completer.future;
+    cacheResetLog.add('enter:$name');
+    try {
+      await body();
+    } finally {
+      cacheResetLog.add('exit:$name');
+      completer.complete();
+      if (identical(_cacheResetInFlight, completer.future)) {
+        _cacheResetInFlight = null;
+      }
+    }
+  }
+
   /// ⚡ 초고속 캐시 클리어 (pending 구매 처리 없음)
-  Future<void> fastCacheClear() async {
+  Future<void> fastCacheClear() =>
+      _runCacheReset('fastCacheClear', _fastCacheClear);
+
+  Future<void> _fastCacheClear() async {
     logger.i('⚡ 초고속 캐시 클리어 시작');
 
     try {
@@ -50,7 +87,10 @@ extension InAppPurchaseCacheManager on InAppPurchaseService {
   }
 
   /// 🚀 실제 pending 구매 처리 후 캐시 정리
-  Future<void> comprehensiveClear() async {
+  Future<void> comprehensiveClear() =>
+      _runCacheReset('comprehensiveClear', _comprehensiveClear);
+
+  Future<void> _comprehensiveClear() async {
     logger.i('🚀 실제 pending 구매 처리 시작');
 
     try {
@@ -142,33 +182,35 @@ extension InAppPurchaseCacheManager on InAppPurchaseService {
   }
 
   /// Purchase stream에서 업데이트 가져오기
+  ///
+  /// 완료 경로(타임아웃/이벤트/에러) 모두, 그리고 [InAppPurchaseService
+  /// .dispose] 에 의한 강제 종료까지 하나의 `finish()` 로 모은다 - dispose
+  /// 가 구독만 끊고 이 Future 를 안 끝내면, 이 결과를 기다리던 호출자(예:
+  /// `verifyAndCleanRemaining()`)는 앱이 죽을 때까지 응답을 못 받는다.
   Future<List<PurchaseDetails>> getPurchaseUpdates(Duration timeout) async {
     final completer = Completer<List<PurchaseDetails>>();
     late StreamSubscription subscription;
+    late Timer timer;
+    late void Function() resolve;
 
-    final timer = Timer(timeout, () {
-      if (!completer.isCompleted) {
-        subscription.cancel();
-        completer.complete([]);
-      }
-    });
+    void finish(List<PurchaseDetails> result) {
+      if (completer.isCompleted) return;
+      subscription.cancel();
+      timer.cancel();
+      _pendingUpdateResolvers.remove(resolve);
+      completer.complete(result);
+    }
+
+    resolve = () => finish(const <PurchaseDetails>[]);
+
+    timer = Timer(timeout, () => finish(const <PurchaseDetails>[]));
 
     subscription = InAppPurchase.instance.purchaseStream.listen(
-      (purchaseDetailsList) {
-        if (!completer.isCompleted) {
-          subscription.cancel();
-          timer.cancel();
-          completer.complete(purchaseDetailsList);
-        }
-      },
-      onError: (error) {
-        if (!completer.isCompleted) {
-          subscription.cancel();
-          timer.cancel();
-          completer.complete([]);
-        }
-      },
+      (purchaseDetailsList) => finish(purchaseDetailsList),
+      onError: (error) => finish(const <PurchaseDetails>[]),
     );
+
+    _pendingUpdateResolvers.add(resolve);
 
     return completer.future;
   }
@@ -182,7 +224,10 @@ extension InAppPurchaseCacheManager on InAppPurchaseService {
     }
   }
 
-  Future<void> aggressiveCacheClear() async {
+  Future<void> aggressiveCacheClear() =>
+      _runCacheReset('aggressiveCacheClear', _aggressiveCacheClear);
+
+  Future<void> _aggressiveCacheClear() async {
     logger.d('Performing aggressive cache clear...');
 
     try {
@@ -292,7 +337,24 @@ extension InAppPurchaseCacheManager on InAppPurchaseService {
   }
 
   /// 🧹 백그라운드에서 조용히 pending 구매 정리 (적극적 방식)
-  Future<void> performBackgroundCleanup() async {
+  ///
+  /// single-flight: 진행 중인 정리가 있으면 새로 시작하지 않고 그 future 에
+  /// 합류한다. 그렇지 않으면 연속 구매마다 겹치는 [_performBackgroundCleanup]
+  /// 실행이 각자 `getPurchaseUpdates(800s)` 구독을 열어 둔 채 쌓인다.
+  /// 합류만 하고 끝나면 늦게 도착한 구매의 상태를 아무도 다시 훑지 않으므로,
+  /// 진행 중인 정리가 끝난 직후 한 번(합류가 몇 번이었든 단 한 번)
+  /// 재실행한다.
+  Future<void> performBackgroundCleanup() {
+    final inFlight = _backgroundCleanupInFlight;
+    if (inFlight != null) {
+      _backgroundCleanupRerunRequested = true;
+      return inFlight;
+    }
+    return _backgroundCleanupInFlight = _performBackgroundCleanup();
+  }
+
+  Future<void> _performBackgroundCleanup() async {
+    backgroundCleanupRunCount++;
     logger.i('🧹 적극적 백그라운드 정리 시작 (사용자 대기 없음)');
 
     try {
@@ -314,6 +376,12 @@ extension InAppPurchaseCacheManager on InAppPurchaseService {
     } catch (e) {
       logger.w('🧹 백그라운드 정리 중 오류 (무시): $e');
       // 백그라운드 작업이므로 실패해도 계속 진행
+    } finally {
+      _backgroundCleanupInFlight = null;
+      if (_backgroundCleanupRerunRequested) {
+        _backgroundCleanupRerunRequested = false;
+        unawaited(performBackgroundCleanup());
+      }
     }
   }
 
@@ -345,7 +413,10 @@ extension InAppPurchaseCacheManager on InAppPurchaseService {
   }
 
   /// 🔥 적극적 백그라운드 캐시 정리
-  Future<void> backgroundCacheClear() async {
+  Future<void> backgroundCacheClear() =>
+      _runCacheReset('backgroundCacheClear', _backgroundCacheClear);
+
+  Future<void> _backgroundCacheClear() async {
     logger.i('🔥 적극적 캐시 정리 시작');
 
     try {

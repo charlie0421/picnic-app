@@ -22,8 +22,6 @@ class RestorePurchaseHandler {
 
   bool _isProactiveCleanupMode = false;
   bool _isProactiveCleanupCompleted = false;
-  bool _isWaitingForRestoreCompletion = false;
-  int _restoredPurchaseCount = 0;
   Timer? _pulseLoadingTimer;
 
   RestorePurchaseHandler({
@@ -39,70 +37,100 @@ class RestorePurchaseHandler {
     _safetyManager = safetyManager;
   }
 
-  /// 페이지 진입 시 예방적 복원 정리 실행
+  /// 페이지 진입 시 예방적 미완료 구매 정리 실행
+  ///
+  /// 예전에는 [InAppPurchaseService.restorePurchases]를 호출하고 완료
+  /// 신호가 없는 그 API 특성상 700ms~10초를 "조용해질 때까지" 추측하며
+  /// 기다렸다 - 소비성 상품(별사탕)은 애초에 스토어의 restore 대상도
+  /// 아니라 이 호출 자체가 목적에 안 맞았다. 지금은 [GlobalPurchaseListener]
+  /// 의 콜드스타트/재개 스윕과 같은 경로([PurchaseService.sweepUnfinishedPurchases])
+  /// 로 큐를 직접 읽는다 - 완료 신호가 진짜로 있어서 기다릴 이유가 없으면
+  /// 즉시 끝난다.
   Future<void> performProactiveCleanup() async {
     final platform = Theme.of(_context).platform;
     final startTime = DateTime.now();
 
     try {
-      logger.i('🧹 예방적 복원 구매 정리 시작 (${platform.name})');
+      logger.i('🧹 예방적 미완료 구매 정리 시작 (${platform.name})');
 
-      _restoredPurchaseCount = 0;
-      _isWaitingForRestoreCompletion = true;
       _showPulseLoading();
       _isProactiveCleanupMode = true;
 
-      await _purchaseService.inAppPurchaseService.restorePurchases();
-      await _waitForRestoreCompletion(startTime);
+      final verified = await _sweepUntilResolved();
+
+      // 정리가 100ms 안에 끝났으면(이제 흔한 경우) 아직 안 보인 스피너를
+      // 마저 띄우는 지연 타이머를 취소한다 - 안 그러면 화면이 이미 숨긴
+      // 뒤에 스피너가 다시 튀어나와 걸린 채로 남는다.
+      _pulseLoadingTimer?.cancel();
+      _pulseLoadingTimer = null;
 
       _isProactiveCleanupMode = false;
-      _isWaitingForRestoreCompletion = false;
-      _isProactiveCleanupCompleted = true;
+      // 큐를 실제로 확인해서 비어 있었을 때만 구매를 허용한다. 확인하지
+      // 못한 채(failed/notSignedIn/unsupported/throttled/경합 끝 포기)
+      // 이 플래그를 세우면, 그 값을 그대로 신뢰하는 _processPurchase 의
+      // 가드(isProactiveCleanupCompleted)가 "확인 못 했다"를 "확인해보니
+      // 안전했다"로 오인해 미검증 상태에서 구매를 열어준다. 로딩 화면
+      // 자체는 이 함수가 반환하는 순간 어차피 풀리므로(_isInitializing 은
+      // 이 Future 완료만 본다), 여기서 실패를 그대로 두어도 무한 스피너가
+      // 되지는 않는다 - 다만 재시도하려면 화면을 나갔다 다시 들어와야
+      // 한다(새 RestorePurchaseHandler 로 다시 시도).
+      _isProactiveCleanupCompleted = verified;
 
       final duration = DateTime.now().difference(startTime);
       logger.i(
-          '🧹 예방적 복원 정리 완료 - ${duration.inMilliseconds}ms, $_restoredPurchaseCount개');
+        '🧹 예방적 정리 ${verified ? '완료' : '미검증 종료'} - ${duration.inMilliseconds}ms',
+      );
     } catch (e) {
-      logger.e('🧹 예방적 복원 정리 오류: $e');
+      logger.e('🧹 예방적 정리 오류: $e');
       _cleanupState();
-      _isProactiveCleanupCompleted = true;
     }
   }
 
-  /// 복원 완료까지 스마트 대기
+  /// 앱의 콜드스타트/재개 스윕이 아직 돌고 있으면 [PurchaseSweepOutcome.concurrent]
+  /// 로 즉시 돌아온다. 이 화면은 attachSurface() 로 진입 시점에 이미
+  /// surface 로 등록되는데, 등록된 surface 는 진행 중이던 전역 스윕을
+  /// abort 시킨다([GlobalPurchaseListener.sweepOnColdStart]/`sweepOnResume`
+  /// 의 shouldAbort). 즉 "잠깐 기다렸다 포기"하면 전역 스윕은 abort 로
+  /// 끝나고 이 화면의 재시도도 concurrent 만 반복하다 포기해, 어느 쪽도
+  /// 큐를 실제로 확인하지 못한 채 구매가 열릴 수 있다. 고정 시간을 재시도
+  /// 간격으로 추측하는 대신, 경합 중인 스윕이 실제로 끝나는 신호
+  /// ([PurchaseService.waitForInFlightSweep])를 기다린 뒤 우리 스윕을
+  /// 다시 시도한다.
   ///
-  /// 예전 구현은 "경과 2초 + 1초 조용"을 요구해 복원 건이 0개인 보통의
-  /// 진입에서도 최소 ~2.1초를 무조건 소모했고, 이 대기가 스토어 첫 진입
-  /// 로딩을 그대로 늘렸다. 복원 이벤트가 하나도 없으면 짧은 유예만 두고
-  /// 즉시 빠져나가고, 이벤트가 있었을 때만 1초 조용 규칙을 적용한다.
-  Future<void> _waitForRestoreCompletion(DateTime startTime) async {
-    const maxWaitTime = Duration(seconds: 10);
-    // restorePurchases()가 반환된 직후에도 스트림 전달이 살짝 늦을 수
-    // 있어, 이벤트 0건이어도 이만큼은 기다려 준다.
-    const quietGraceWithoutEvents = Duration(milliseconds: 700);
-    const quietAfterEvents = Duration(seconds: 1);
-    int lastProcessedCount = 0;
-    DateTime lastProcessTime = DateTime.now();
-
-    while (DateTime.now().isBefore(startTime.add(maxWaitTime)) &&
-        _isWaitingForRestoreCompletion) {
-      await Future.delayed(Duration(milliseconds: 100));
-
-      if (_restoredPurchaseCount > lastProcessedCount) {
-        lastProcessedCount = _restoredPurchaseCount;
-        lastProcessTime = DateTime.now();
-        logger.d('🧹 새로운 복원 처리 감지: $_restoredPurchaseCount개');
+  /// `true` 를 반환하는 건 "큐를 실제로 확인했고 비어 있었다" 뿐이다.
+  /// 그 외(failed/notSignedIn/unsupported/throttled/경합 끝 포기)는
+  /// 전부 `false` - 호출자가 이 결과를 "구매해도 안전하다"는 뜻으로
+  /// 오인하지 않도록, 여기서 outcome 을 감추지 않고 그대로 반환한다.
+  Future<bool> _sweepUntilResolved() async {
+    const maxAttempts = 3;
+    const inFlightWaitTimeout = Duration(seconds: 8);
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      final report = await _purchaseService.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+      // completed 는 "큐를 확인했고 비어 있었다"만 의미해야 한다.
+      // scanError 가 같이 와 있다면(정상적으로는 PurchaseService 가 그런
+      // 경우 failed 를 돌려주지만, 방어적으로 다시 확인한다) "확인 못
+      // 했다"를 "확인해보니 없었다"로 오인한 것이니 검증된 것으로 치지
+      // 않는다. preserved > 0 도 마찬가지다 - abort 되지 않아 outcome 은
+      // completed 라도, 검증에 실패했거나 지급 미확인이라 큐에 그대로
+      // 남겨둔 항목이 있다는 뜻이라 "비어 있었다"가 아니다
+      // (_reconcileUnfinishedPurchases 의 catch 분기 참고).
+      if (report.outcome == PurchaseSweepOutcome.completed &&
+          report.scanError == null &&
+          report.preserved == 0) {
+        return true;
       }
-
-      final quietFor = DateTime.now().difference(lastProcessTime);
-      final requiredQuiet = lastProcessedCount == 0
-          ? quietGraceWithoutEvents
-          : quietAfterEvents;
-      if (quietFor > requiredQuiet) {
-        logger.i('🧹 복원 처리 완료 감지 ($lastProcessedCount개)');
-        _isWaitingForRestoreCompletion = false;
+      if (report.outcome != PurchaseSweepOutcome.concurrent) {
+        logger.w('🧹 미완료 구매 확인 실패(${report.outcome.name}) - 검증되지 않음');
+        return false;
       }
+      await _purchaseService
+          .waitForInFlightSweep()
+          .timeout(inFlightWaitTimeout, onTimeout: () {});
     }
+    logger.w('🧹 미완료 구매 스윕이 계속 다른 스윕과 경합 - 검증 없이 재시도 포기');
+    return false;
   }
 
   /// 펄스 로딩 표시
@@ -113,7 +141,13 @@ class RestorePurchaseHandler {
     logger.i('🔄 펄스 로딩 시작: $platformEmoji 복원 구매 정리 중');
 
     _loadingKey.currentState?.hide();
-    Timer(Duration(milliseconds: 100), () {
+    // 짧게 끝나는 정리에는 스피너를 아예 안 보여주는 디바운스다 - 100ms
+    // 안에 정리가 끝나면 [performProactiveCleanup] 이 이 타이머를
+    // 취소한다. 예전엔 정리 자체가 항상 700ms+ 걸려서 취소할 일이 없었는데
+    // (그래서 참조를 안 남겨도 티가 안 났다), 이제는 대부분 이 창 안에
+    // 끝나므로 참조를 안 남기면 이미 화면이 숨긴 뒤에 스피너가 다시
+    // 튀어나와 걸린 채로 남는다.
+    _pulseLoadingTimer = Timer(Duration(milliseconds: 100), () {
       _loadingKey.currentState?.show();
     });
   }
@@ -186,8 +220,7 @@ class RestorePurchaseHandler {
     final platform = Theme.of(_context).platform;
 
     if (_isProactiveCleanupMode) {
-      _restoredPurchaseCount++;
-      logger.i('🧹 예방적 정리: 복원 구매 조용히 완료 처리 [$_restoredPurchaseCount개째]');
+      logger.i('🧹 예방적 정리 중 도착한 복원 신호 조용히 완료 처리');
 
       if (purchaseDetails.pendingCompletePurchase) {
         await _purchaseService.inAppPurchaseService
@@ -207,17 +240,14 @@ class RestorePurchaseHandler {
   /// 정리 작업
   void _cleanupState() {
     _isProactiveCleanupMode = false;
-    _isWaitingForRestoreCompletion = false;
+    _pulseLoadingTimer?.cancel();
+    _pulseLoadingTimer = null;
   }
 
   /// 🧹 모든 타이머 정리 (정상 구매 완료 시)
   void cleanupTimersOnPurchaseSuccess() {
-    // 1️⃣ 펄스 로딩 타이머 정리
     _pulseLoadingTimer?.cancel();
     _pulseLoadingTimer = null;
-
-    // 2️⃣ 대기 상태 정리
-    _isWaitingForRestoreCompletion = false;
 
     logger.i('🧹 ✅ RestoreHandler 타이머 정리 완료 (정상 구매 성공 시)');
   }
@@ -225,7 +255,6 @@ class RestorePurchaseHandler {
   void dispose() {
     _pulseLoadingTimer?.cancel();
     _cleanupState();
-    _restoredPurchaseCount = 0;
   }
 
   // Getters

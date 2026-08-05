@@ -1,9 +1,14 @@
+import 'dart:async';
+
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late InAppPurchaseService service;
 
   setUp(() {
@@ -213,6 +218,178 @@ void main() {
       service.setDebugMode(true);
       service.setForceTimeoutSimulation(true);
       service.dispose();
+    });
+  });
+
+  group('performBackgroundCleanup single-flight', () {
+    test(
+        'a second call while one is still running joins it instead of '
+        'starting an overlapping run, then triggers one fresh rerun once it '
+        'settles', () {
+      fakeAsync((async) {
+        final before = service.backgroundCleanupRunCount;
+
+        service.performBackgroundCleanup();
+        service.performBackgroundCleanup();
+
+        // verifyAndCleanRemaining()의 getPurchaseUpdates(800s) 대기까지
+        // 가상 시간을 모두 흘려보내 두 호출과 그 뒤의 재실행까지 끝나게 한다.
+        async.elapse(const Duration(seconds: 1800));
+
+        expect(
+          service.backgroundCleanupRunCount - before,
+          2,
+          reason:
+              '두 번째 호출은 진행 중인 정리에 합류해 겹치는 구독을 새로 열지 '
+              '않아야 하지만(스택 방지), 그 합류만으로 끝나면 두 번째 구매 '
+              '이후에 새로 들어온 pending 상태를 아무도 다시 훑지 않는다 - '
+              '진행 중이던 정리가 끝난 직후 한 번 더 신선하게 돌아야 한다',
+        );
+      });
+    });
+
+    test(
+        'several joins while one run is in-flight coalesce into a single '
+        'rerun, not one rerun per join', () {
+      fakeAsync((async) {
+        final before = service.backgroundCleanupRunCount;
+
+        service.performBackgroundCleanup();
+        service.performBackgroundCleanup();
+        service.performBackgroundCleanup();
+        service.performBackgroundCleanup();
+
+        async.elapse(const Duration(seconds: 1800));
+
+        expect(
+          service.backgroundCleanupRunCount - before,
+          2,
+          reason:
+              '진행 중인 정리에 합류한 호출이 여럿이어도 재실행은 한 번만 '
+              '예약되어야 한다 - 합류할 때마다 재실행을 하나씩 예약하면 '
+              '결국 겹쳐 쌓이는 원래 버그로 돌아간다',
+        );
+      });
+    });
+
+    test('dispose cancels a pending rerun so it does not fire after teardown',
+        () {
+      fakeAsync((async) {
+        final before = service.backgroundCleanupRunCount;
+
+        service.performBackgroundCleanup();
+        service.performBackgroundCleanup(); // joins in-flight, requests rerun
+        service.dispose();
+
+        async.elapse(const Duration(seconds: 1800));
+
+        expect(
+          service.backgroundCleanupRunCount - before,
+          1,
+          reason:
+              'dispose() 이후에도 예약된 rerun 이 실행되면 이미 정리된 '
+              '서비스가 최대 800초짜리 새 스트림 구독을 연다 - dispose 는 '
+              '대기 중인 rerun 요청도 함께 무효화해야 한다',
+        );
+      });
+    });
+  });
+
+  group('cache-reset serialization', () {
+    // 이 그룹은 오직 _runCacheReset 의 대기열/직렬화 논리만 검증한다.
+    // aggressiveCacheClear 는 플랫폼과 무관하게 항상 _initializePurchaseStream()
+    // 을 불러 InAppPurchase.instance.purchaseStream 에 진짜(비-fake) 구독을
+    // 만든다 - fakeAsync 는 진짜 스트림/플랫폼 채널 비동기를 흘려보내지 못해
+    // 그 구독의 cancel() 이 다음 테스트에서 영원히 안 끝나는 await 로 샌다.
+    // 나머지 세 메서드는 테스트 호스트(비-iOS)에서 subscription 을 전혀
+    // 건드리지 않으므로, 그 셋만으로 직렬화를 안전하게 증명한다.
+    test(
+        'fastCacheClear and comprehensiveClear do not run concurrently - '
+        'the second waits for the first to finish', () {
+      fakeAsync((async) {
+        final before = service.cacheResetLog.length;
+
+        // 둘 다 await 없이 동시에 호출한다(연속 구매/화면 진입이 겹치는
+        // 상황을 흉내낸다).
+        service.fastCacheClear();
+        service.comprehensiveClear();
+
+        async.elapse(const Duration(seconds: 10));
+
+        final log = service.cacheResetLog.sublist(before);
+        expect(
+          log,
+          [
+            'enter:fastCacheClear',
+            'exit:fastCacheClear',
+            'enter:comprehensiveClear',
+            'exit:comprehensiveClear',
+          ],
+          reason:
+              '넷 다 같은 _subscription/_streamInitialized 를 건드리는 '
+              '메서드군이다 - 겹쳐 실행되면(enter:A, enter:B, ... 순서로 '
+              '나타남) 한쪽의 cancel/재구독이 다른 쪽을 밟아 구독을 잃거나 '
+              '이중 구독(이중 정산)이 될 수 있다',
+        );
+      });
+    });
+
+    test(
+        'three concurrent cache-reset calls still serialize (not just '
+        'pairwise)', () {
+      fakeAsync((async) {
+        final before = service.cacheResetLog.length;
+
+        service.fastCacheClear();
+        service.comprehensiveClear();
+        service.backgroundCacheClear();
+
+        async.elapse(const Duration(seconds: 10));
+
+        final log = service.cacheResetLog.sublist(before);
+        // 겹치지 않았다면 모든 enter 바로 다음은 같은 이름의 exit 이어야
+        // 한다 - 3개 이상이 얽혀도 깨지기 쉬운 단순 if-게이트가 아니라
+        // 제대로 된 대기열인지 이 지점에서 갈린다.
+        for (var i = 0; i < log.length; i += 2) {
+          final name = log[i].split(':')[1];
+          expect(log[i], 'enter:$name');
+          expect(log[i + 1], 'exit:$name');
+        }
+        expect(log.length, 6);
+      });
+    });
+  });
+
+  group('dispose cancels in-flight getPurchaseUpdates listeners', () {
+    test(
+        'dispose resolves an in-flight 800s getPurchaseUpdates() immediately '
+        'instead of leaving it hanging', () {
+      fakeAsync((async) {
+        var completed = false;
+        unawaited(
+          service.getPurchaseUpdates(const Duration(seconds: 800)).then((_) {
+            completed = true;
+          }),
+        );
+
+        // 800초 타임아웃이나 스트림 이벤트 어느 쪽도 아직 오지 않은 시점.
+        async.elapse(const Duration(seconds: 1));
+        expect(completed, isFalse);
+
+        service.dispose();
+        async.elapse(Duration.zero);
+
+        expect(
+          completed,
+          isTrue,
+          reason:
+              'dispose() 뒤에도 이 Future 가 안 끝나면, 이걸 기다리던 '
+              'verifyAndCleanRemaining()/_performBackgroundCleanup() 의 '
+              'finally 도 영원히 안 돌아 _backgroundCleanupInFlight 가 '
+              '해제되지 않는다 - dispose 이후 그 앱 세션의 모든 후속 '
+              '백그라운드 정리가 영구히 막힌다',
+        );
+      });
     });
   });
 

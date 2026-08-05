@@ -63,6 +63,14 @@ enum PurchaseSweepOutcome {
 
   /// The enumeration or the reconcile threw. Also does not consume the run.
   failed,
+
+  /// [PurchaseService.sweepUnfinishedPurchases]'s `shouldAbort` callback
+  /// turned true mid-run - typically because a store screen attached while
+  /// this sweep was in flight. Anything not yet verified/finished is
+  /// preserved untouched, since the mounted screen's own restore logic may
+  /// now be racing the same transactions. Does not consume the run: the
+  /// caller genuinely never got a clean shot at the server.
+  aborted,
 }
 
 /// What one sweep found and what it managed to do about it, so the log line is
@@ -140,6 +148,13 @@ class PurchaseService {
       }),
     );
 
+    // `ReceiptQueueService.onItemsEvicted` 는 여기서 연결하지 않는다.
+    // eviction 이 스토어 화면이 떠 있는 동안 일어나면, 화면이 진행 중일
+    // 수도 있는 자체 복원 정리와 리컨사일이 경합해서는 안 되는데, 이
+    // 클래스는 스토어 화면이 떠 있는지(surface) 모른다. 그래서
+    // `GlobalPurchaseListener` 가 그 콜백을 설정한다 - 화면이 없을 때만
+    // 걸고, 화면이 진행 중이면 화면이 닫힐 때까지 미룬다.
+
     // 콜드 스타트 리컨사일: 스토어가 아직 미완료로 들고 있는 결제를 검증에
     // 태운다. Android 는 queryPastPurchases, iOS 는 SKPaymentQueue 로 같은
     // 루프를 돈다.
@@ -182,6 +197,22 @@ class PurchaseService {
   bool _coldStartSweepDone = false;
   bool _sweepInFlight = false;
   DateTime? _lastSweepAt;
+
+  /// Completes when the currently in-flight sweep's `finally` block runs.
+  /// `null` when no sweep is running.
+  ///
+  /// A caller that gets [PurchaseSweepOutcome.concurrent] learned nothing
+  /// about the queue - the sweep it collided with might itself abort (a
+  /// store screen attaching mid-sweep) without ever finishing a real check.
+  /// Blindly retrying on a fixed delay can outlast the other sweep and give
+  /// up before either one actually looked at the queue. Waiting on this
+  /// signal instead means the retry starts the instant the lock is free, and
+  /// is themselves the one to perform the real check.
+  Completer<void>? _sweepDoneSignal;
+
+  /// Resolves once no sweep is in flight - immediately if none is running.
+  Future<void> waitForInFlightSweep() =>
+      _sweepDoneSignal?.future ?? Future<void>.value();
 
   /// When the last sweep actually ran. Exposed so the rate limiting can be
   /// asserted rather than assumed.
@@ -912,8 +943,16 @@ class PurchaseService {
   /// Rate limiting is the caller-visible contract: exactly once per cold start,
   /// and at most once per [_resumeSweepInterval] on resume. Without it, a user
   /// flicking between apps would re-verify the same queue on every foreground.
+  /// [shouldAbort] is checked after the store scan returns, and again before
+  /// each transaction the sweep is about to verify/finish - not just once at
+  /// entry. A caller that knows about a mounted store surface (currently only
+  /// `GlobalPurchaseListener`) uses it to back off mid-flight if a screen
+  /// attaches while this sweep is already running: a check made only before
+  /// the scan would miss a screen attaching during the (often slow) scan or
+  /// between transactions.
   Future<PurchaseSweepReport> sweepUnfinishedPurchases({
     required PurchaseSweepTrigger trigger,
+    bool Function()? shouldAbort,
   }) async {
     final source = unfinishedPurchaseSource;
     if (source == null) {
@@ -944,6 +983,7 @@ class PurchaseService {
     }
 
     _sweepInFlight = true;
+    _sweepDoneSignal = Completer<void>();
     final previousColdStartDone = _coldStartSweepDone;
     final previousSweepAt = _lastSweepAt;
     if (trigger == PurchaseSweepTrigger.coldStart) {
@@ -952,10 +992,16 @@ class PurchaseService {
     _lastSweepAt = _clock();
 
     try {
-      final report = await _reconcileUnfinishedPurchases(source, trigger);
-      if (report.outcome == PurchaseSweepOutcome.notSignedIn) {
-        // 이 실행은 소진하지 않는다 - 서버에 물어본 적이 없으므로 다음 기회에
-        // 다시 훑어야 한다.
+      final report = await _reconcileUnfinishedPurchases(
+        source,
+        trigger,
+        shouldAbort,
+      );
+      if (report.outcome == PurchaseSweepOutcome.notSignedIn ||
+          report.outcome == PurchaseSweepOutcome.aborted ||
+          report.outcome == PurchaseSweepOutcome.failed) {
+        // 이 실행은 소진하지 않는다 - 서버에 정산을 제대로 시도하지 못했으니
+        // 다음 기회에 다시 훑어야 한다.
         _coldStartSweepDone = previousColdStartDone;
         _lastSweepAt = previousSweepAt;
       }
@@ -976,6 +1022,8 @@ class PurchaseService {
       );
     } finally {
       _sweepInFlight = false;
+      _sweepDoneSignal?.complete();
+      _sweepDoneSignal = null;
     }
   }
 
@@ -995,13 +1043,22 @@ class PurchaseService {
   Future<PurchaseSweepReport> _reconcileUnfinishedPurchases(
     UnfinishedPurchaseSource source,
     PurchaseSweepTrigger trigger,
+    bool Function()? shouldAbort,
   ) async {
     logger.i('🔍 미완료 구매 조회 시작 (${source.label}, ${trigger.name})');
     final scan = await source.scan();
     if (scan.error != null) {
-      // 빈 목록과 조회 실패는 다르다. 실패면 다음 기회에 다시 시도해야
-      // 하므로 명시적으로 남긴다.
+      // 빈 목록과 조회 실패는 다르다 - "확인해보니 없었다"가 아니라
+      // "확인하지 못했다"이므로 completed 로 뭉개면 안 된다. 호출자(스토어
+      // 화면의 구매 게이트 등)가 이 둘을 구분하지 못하면 실제로는 검증하지
+      // 못한 채로 "정리 완료"로 보일 수 있다.
       logger.w('⚠️ 미완료 구매 조회 오류: ${scan.error}');
+      return PurchaseSweepReport(
+        trigger: trigger,
+        outcome: PurchaseSweepOutcome.failed,
+        source: source.label,
+        scanError: scan.error,
+      );
     }
     if (scan.isEmpty) {
       logger.i('ℹ️ 미완료 구매 없음 (${source.label})');
@@ -1009,6 +1066,22 @@ class PurchaseService {
         trigger: trigger,
         outcome: PurchaseSweepOutcome.completed,
         source: source.label,
+      );
+    }
+
+    // 스토어 조회(비동기, 종종 느림) 도중 조건이 바뀌었을 수 있으니 여기서
+    // 한 번 더 확인한다 - 진입 시점 검사만으로는 스캔 도중 붙는 화면을
+    // 놓친다.
+    if (shouldAbort?.call() ?? false) {
+      logger.i(
+        '⏭️ 미완료 구매 스윕 중단(조건 변경) - ${scan.purchases.length}건 보존',
+      );
+      return PurchaseSweepReport(
+        trigger: trigger,
+        outcome: PurchaseSweepOutcome.aborted,
+        source: source.label,
+        found: scan.purchases.length,
+        preserved: scan.purchases.length,
         scanError: scan.error,
       );
     }
@@ -1031,8 +1104,18 @@ class PurchaseService {
     var found = 0;
     var settled = 0;
     var preserved = 0;
+    var aborted = false;
 
-    for (final p in scan.purchases) {
+    for (var i = 0; i < scan.purchases.length; i++) {
+      if (shouldAbort?.call() ?? false) {
+        // 이미 처리한 항목은 되돌리지 않는다 - 남은 항목만 손대지 않고
+        // 보존한다.
+        aborted = true;
+        preserved += scan.purchases.length - i;
+        logger.i('⏭️ 미완료 구매 스윕 중단(조건 변경) - 남은 항목 보존');
+        break;
+      }
+      final p = scan.purchases[i];
       final receipt = p.verificationData.serverVerificationData;
       if (receipt.isEmpty) continue;
       found++;
@@ -1074,11 +1157,24 @@ class PurchaseService {
       }
     }
 
-    await ReceiptQueueService().flushPending();
+    // 루프를 정상적으로 다 돌았어도, 마지막 항목의 검증/완료 처리를
+    // 기다리는 동안 화면이 다시 붙었을 수 있다 - 루프 안 검사만으로는 이
+    // 틈을 못 잡는다. 트레일링 플러시 직전에 한 번 더 확인한다.
+    if (!aborted && (shouldAbort?.call() ?? false)) {
+      aborted = true;
+      logger.i('⏭️ 트레일링 큐 플러시 생략(조건 변경)');
+    }
+    // 중단됐으면 큐 플러시도 건너뛴다 - 화면이 다시 붙어 자체 정리를 하는
+    // 중일 수 있는 상황에서 굳이 서버 왕복을 더 만들 이유가 없다.
+    if (!aborted) {
+      await ReceiptQueueService().flushPending();
+    }
 
     return PurchaseSweepReport(
       trigger: trigger,
-      outcome: PurchaseSweepOutcome.completed,
+      outcome: aborted
+          ? PurchaseSweepOutcome.aborted
+          : PurchaseSweepOutcome.completed,
       source: source.label,
       found: found,
       settled: settled,

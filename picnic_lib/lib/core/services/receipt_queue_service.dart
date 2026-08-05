@@ -49,6 +49,49 @@ class ReceiptQueueService {
   /// 진행 중인 플러시(single-flight 게이트).
   Future<void>? _inFlightFlush;
 
+  /// 큐에 대한 모든 read-modify-write(로드→수정→저장)를 직렬화하는 락.
+  ///
+  /// [flushPending]의 single-flight는 "플러시끼리" 겹치지 않게만 한다.
+  /// 그런데 `enqueue()`(실제 구매 도중, 플러시와 무관하게 호출됨)와
+  /// `_scheduleRetry`/`_dropItem`(플러시가 항목별로 호출)은 전부 독립적으로
+  /// 큐 전체를 다시 읽고 다시 쓴다 - 이 락이 없으면 두 호출이 같은 스냅샷을
+  /// 읽은 뒤 나중에 저장하는 쪽이 먼저 저장된 쪽의 변경(예: 방금 적재된
+  /// 새 영수증)을 통째로 덮어써 조용히 사라질 수 있다. 스토어 쪽 리컨사일이
+  /// 있어 영구 손실은 아니지만, 이 큐가 존재하는 이유(durable *빠른*
+  /// 재시도 경로) 자체가 깨진다.
+  Future<void>? _mutationLock;
+
+  Future<T> _withMutationLock<T>(Future<T> Function() body) async {
+    while (_mutationLock != null) {
+      try {
+        await _mutationLock;
+      } catch (_) {
+        // 이전 뮤테이션의 실패는 이번 호출 실행 여부와 무관하다.
+      }
+    }
+    final completer = Completer<void>();
+    _mutationLock = completer.future;
+    try {
+      return await body();
+    } finally {
+      completer.complete();
+      if (identical(_mutationLock, completer.future)) {
+        _mutationLock = null;
+      }
+    }
+  }
+
+  /// [_pruneStale]이 항목을 실제로 잘랐을 때 알림을 받는 콜백.
+  ///
+  /// 이 서비스는 `PurchaseService`/`GlobalPurchaseListener`를 알지 못한다
+  /// (역방향 의존 방지 - `PurchaseService`가 이미 이 클래스를 가져다 쓴다).
+  /// 그래서 스토어 리컨사일을 직접 걸지 않고, 상위 오케스트레이션이 설정한
+  /// 콜백으로만 "지금 뭔가 잘렸다"를 알린다. 잘린 항목의 실제 결제는
+  /// 원래도 스토어 트랜잭션이 미확정으로 남아 있어 다음 콜드스타트/재개
+  /// 스윕이 되찾지만, 콜백을 설정해 두면 그 회수를 다음 기회까지 미루지
+  /// 않고 즉시 시도할 수 있다.
+  void Function()? onItemsEvicted;
+
   Future<SharedPreferences> get _prefs async => SharedPreferences.getInstance();
 
   Future<List<Map<String, dynamic>>> _loadQueue() async {
@@ -89,30 +132,82 @@ class ReceiptQueueService {
     return transactionId == null ? null : 'ios-$transactionId';
   }
 
+  DateTime? _parseCreatedAt(Map<String, dynamic> item) {
+    final raw = item['createdAt'] as String?;
+    return raw == null ? null : DateTime.tryParse(raw);
+  }
+
+  /// [_pruneStale]이 지운 항목이 있으면 그 결과를 저장한다. `enqueue`/
+  /// `_flushPending` 양쪽에서 재사용해, 두 경로 모두 상한을 즉시 지킨다.
+  ///
+  /// 잘라내도 안전한 이유: 이 큐는 검증 재전송의 *빠른* 경로일 뿐이다.
+  /// 스토어 트랜잭션은 절대 finish/consume 하지 않으므로, 여기서 잘린
+  /// 항목의 실제 결제는 다음 콜드 스타트·재개 스윕(`PurchaseService
+  /// .sweepUnfinishedPurchases`)이 스토어(`queryPastPurchases`/
+  /// `SKPaymentQueue`)에서 직접 다시 찾아내 재검증한다. 그 스윕은 스토어
+  /// 화면이 떠 있는 동안은 건너뛰므로(`GlobalPurchaseListener
+  /// .sweepOnResume`), "다음 콜드 스타트, 또는 스토어 화면을 벗어난 뒤의
+  /// 재개 시점까지" 재시도가 늦어질 수 있다는 뜻이다 - 정산 기록 자체가
+  /// 사라지지는 않지만, 5분 안에 반드시 재시도된다는 보장은 아니다.
+  Future<List<Map<String, dynamic>>> _pruneStale(
+    List<Map<String, dynamic>> items,
+  ) async {
+    final now = DateTime.now();
+    final fresh = items.where((item) {
+      final createdAt = _parseCreatedAt(item);
+      if (createdAt == null) return true; // createdAt 없는/파싱 불가 옛 항목은 보존
+      return now.difference(createdAt) <= PurchaseConstants.receiptQueueMaxAge;
+    }).toList();
+
+    final overflow = fresh.length - PurchaseConstants.receiptQueueMaxEntries;
+    List<Map<String, dynamic>> trimmed = fresh;
+    if (overflow > 0) {
+      // 실제 createdAt 기준으로 가장 오래된 것부터 자른다 - 리스트 순서에만
+      // 의존하면 동시 쓰기나 복구된 데이터에서 실제로는 최근인 항목이
+      // 잘릴 수 있다. createdAt 을 못 읽는 항목은 안전 쪽으로(가장 오래된
+      // 것으로) 취급해 먼저 잘린다.
+      final byAge = [...fresh]..sort((a, b) {
+        final da = _parseCreatedAt(a);
+        final db = _parseCreatedAt(b);
+        if (da == null && db == null) return 0;
+        if (da == null) return -1;
+        if (db == null) return 1;
+        return da.compareTo(db);
+      });
+      final toDrop = byAge.take(overflow).toSet();
+      trimmed = fresh.where((item) => !toDrop.contains(item)).toList();
+    }
+
+    if (trimmed.length != items.length) {
+      logger.w(
+        '🧹 영수증 큐 정리: ${items.length - trimmed.length}건 제거'
+        '(TTL/상한, 남은 건: ${trimmed.length}) - 스토어 재전달·리컨사일이 회수한다',
+      );
+      await _saveQueue(trimmed);
+      onItemsEvicted?.call();
+    }
+    return trimmed;
+  }
+
   /// 검증 요청을 큐에 적재하고 `client_trace_id` 를 돌려준다.
   ///
   /// [platform] 은 `'android'` 또는 `'ios'`. 요청 본문 재구성에 필요한
   /// 필드(receipt/productId/user_id/environment/format)를 모두 저장하므로
   /// [flushPending] 이 플랫폼별로 올바른 본문을 다시 만들 수 있다.
-  ///
-  /// TODO(receipt-queue): 무한 성장 방어가 없다. `createdAt` 은 기록만 되고
-  /// 아무도 읽지 않으며, 영구 거부(422)도 성공도 아닌 항목은 백오프 상한
-  /// 5분으로 영원히 재전송된다. TTL·건수 상한과 purchaseToken 기준 upsert 는
-  /// 이 패치에서 의도적으로 제외했다(별도 작업).
   Future<String> enqueue({
     required String platform,
     required String receipt,
     required String productId,
     required String userId,
     required String environment,
-  }) async {
+  }) => _withMutationLock(() async {
     final normalizedPlatform = platform.toLowerCase();
     final clientTraceId = normalizedPlatform == platformIOS
         ? (iosClientTraceId(receipt) ??
               _generateClientTraceId(normalizedPlatform))
         : _generateClientTraceId(normalizedPlatform);
 
-    final items = await _loadQueue();
+    final items = await _pruneStale(await _loadQueue());
 
     // 같은 키가 이미 있으면 새로 쌓지 않고 기존 항목을 재사용한다. iOS 키는
     // 결정적이라 재전달/폴백 재검증이 이 경로를 타고, Android 키는 난수라
@@ -140,10 +235,16 @@ class ReceiptQueueService {
       'createdAt': DateTime.now().toIso8601String(),
       'nextAt': 0,
     });
-    await _saveQueue(items);
+    // enqueue 는 방금 프룬한 스냅샷에 새 항목 하나를 더할 뿐이므로, 그
+    // 결과가 다시 상한을 넘을 수 없다(프룬 직후 길이 <= 상한이었고 +1).
+    // 그래도 상한이 0으로 설정되는 극단적 상황을 방어하려면 한 번 더
+    // 잘라내는 편이 안전하다.
+    final overflow = items.length - PurchaseConstants.receiptQueueMaxEntries;
+    final toSave = overflow > 0 ? items.sublist(overflow) : items;
+    await _saveQueue(toSave);
     logger.i('📥 큐 적재: $clientTraceId ($normalizedPlatform/$productId)');
     return clientTraceId;
-  }
+  });
 
   Future<void> removeByClientTraceId(String clientTraceId) =>
       _dropItem(clientTraceId, '🧹 큐 제거');
@@ -233,7 +334,9 @@ class ReceiptQueueService {
     // 양보한다(동기 예외로 게이트가 완료된 future 에 고정되는 것 방지).
     await Future<void>.value();
     try {
-      final snapshot = await _loadQueue();
+      final snapshot = await _withMutationLock(
+        () async => _pruneStale(await _loadQueue()),
+      );
       if (snapshot.isEmpty) return;
       logger.i('🧾 영수증 큐 플러시 시작: ${snapshot.length}건');
 
@@ -343,25 +446,27 @@ class ReceiptQueueService {
   ///
   /// 스냅샷 전체를 되쓰지 않는 것이 핵심이다 — 되쓰면 invoke 대기 중에
   /// 적재된 신규 구매(=과금된 영수증의 유일한 durable 기록)가 사라진다.
-  Future<void> _scheduleRetry(String clientTraceId, String reason) async {
-    final items = await _loadQueue();
-    final index = items.indexWhere(
-      (e) => e['client_trace_id'] == clientTraceId,
-    );
-    if (index < 0) return;
-    final attempt = ((items[index]['attempt'] as num?)?.toInt() ?? 0) + 1;
-    items[index]['attempt'] = attempt;
-    items[index]['nextAt'] = _computeNextAt(attempt);
-    await _saveQueue(items);
-    logger.w('⏳ 큐 전송 실패($reason), 재시도 예약: $clientTraceId');
-  }
+  Future<void> _scheduleRetry(String clientTraceId, String reason) =>
+      _withMutationLock(() async {
+        final items = await _loadQueue();
+        final index = items.indexWhere(
+          (e) => e['client_trace_id'] == clientTraceId,
+        );
+        if (index < 0) return;
+        final attempt = ((items[index]['attempt'] as num?)?.toInt() ?? 0) + 1;
+        items[index]['attempt'] = attempt;
+        items[index]['nextAt'] = _computeNextAt(attempt);
+        await _saveQueue(items);
+        logger.w('⏳ 큐 전송 실패($reason), 재시도 예약: $clientTraceId');
+      });
 
-  Future<void> _dropItem(String clientTraceId, String reason) async {
-    final items = await _loadQueue();
-    final before = items.length;
-    items.removeWhere((e) => e['client_trace_id'] == clientTraceId);
-    if (items.length == before) return;
-    await _saveQueue(items);
-    logger.i('$reason: $clientTraceId');
-  }
+  Future<void> _dropItem(String clientTraceId, String reason) =>
+      _withMutationLock(() async {
+        final items = await _loadQueue();
+        final before = items.length;
+        items.removeWhere((e) => e['client_trace_id'] == clientTraceId);
+        if (items.length == before) return;
+        await _saveQueue(items);
+        logger.i('$reason: $clientTraceId');
+      });
 }

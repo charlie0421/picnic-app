@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
+import 'package:picnic_lib/core/services/receipt_queue_service.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
@@ -83,6 +84,48 @@ class PurchaseSurfaceRegistration {
   void detach() => _owner._detachSurface(this);
 }
 
+/// 화면 없이 도착한 구매 이벤트가 [GlobalPurchaseListener]의 직렬화된
+/// `_headlessWork` 체인에서 실제 정산을 기다리는 깊이를 추적한다.
+///
+/// 정산(네트워크 검증)이 이벤트 도착 속도를 못 따라가면 이 깊이가 계속
+/// 자란다. 이벤트를 버려 큐를 자르는 건 안전하지 않다 - "purchased"
+/// 이벤트를 잃으면 과금-미적립이 된다. 그래서 자르는 대신 관측 가능하게만
+/// 만든다: 임계값에 처음 도달했을 때 한 번 경고하고, 큐가 완전히 빠졌다가
+/// 다시 밀리기 시작하면 별개의 지연 사건으로 보고 다시 경고한다.
+@visibleForTesting
+class HeadlessQueueDepthTracker {
+  HeadlessQueueDepthTracker({this.warnThreshold = 10, this.onWarn});
+
+  final int warnThreshold;
+  final void Function(int depth)? onWarn;
+
+  int _depth = 0;
+  int get depth => _depth;
+
+  int _peak = 0;
+  int get peak => _peak;
+
+  /// 이번 밀림 사건에서 이미 경고했는지. 완전히 비워질 때만(0 으로 돌아갈
+  /// 때만) 다시 내려간다 - 임계값을 살짝 스치는 정도로는 별개의 사건으로
+  /// 치지 않는다(9↔10 을 오가는 정상적인 처리 흐름이 매번 경고를 새로
+  /// 울리면 안 된다).
+  bool _warned = false;
+
+  void enqueue() {
+    _depth++;
+    if (_depth > _peak) _peak = _depth;
+    if (_depth >= warnThreshold && !_warned) {
+      _warned = true;
+      onWarn?.call(_depth);
+    }
+  }
+
+  void dequeue() {
+    if (_depth > 0) _depth--;
+    if (_depth == 0) _warned = false;
+  }
+}
+
 /// Owns purchase delivery for the whole process.
 ///
 /// ## The gap this closes
@@ -149,6 +192,10 @@ class GlobalPurchaseListener {
       container,
       handlePurchaseUpdates,
     );
+    // 이 콜백은 `PurchaseService`가 아니라 여기서 소유한다 - eviction 이
+    // 스토어 화면이 떠 있는 동안 일어나면 그 화면의 자체 복원 정리와
+    // 경합해서는 안 되는데, `hasSurface` 를 아는 건 이 클래스뿐이다.
+    ReceiptQueueService().onItemsEvicted = _onQueueItemsEvicted;
   }
 
   /// The app-level Riverpod container.
@@ -170,6 +217,32 @@ class GlobalPurchaseListener {
   PurchaseSurfaceRegistration? _surface;
   Future<void> _headlessWork = Future<void>.value();
 
+  /// 화면이 떠 있어 미뤄 둔 eviction 리컨사일이 있는지.
+  ///
+  /// `_onQueueItemsEvicted`가 화면이 떠 있는 동안 잘림을 통지받으면 이걸
+  /// true 로 남기고 아무것도 안 한다. 이후 화면이 닫히면(`_detachSurface`)
+  /// 이 플래그를 보고 `manual` 트리거로(재개 스로틀을 무시하고) 즉시
+  /// 시도한다 - 일반 `sweepOnResume()`에 맡기면 스로틀이나 다른 진행 중인
+  /// 스윕에 막혀 이 특정 eviction 이 아무 재시도 없이 그냥 사라질 수 있다.
+  bool _evictionReconcilePending = false;
+
+  /// `_surface`가 바뀔 때마다(붙거나 떨어질 때마다) 증가한다.
+  ///
+  /// eviction/detach 로 시작한 스윕은 스토어 조회(비동기, 종종 느림) 도중
+  /// 새 화면이 붙었다가 다시 떨어져도(빠른 route 전환) 그 사실을 알아야
+  /// 한다 - `hasSurface`만 보면 "지금은" 화면이 없어도 그 사이에 화면이
+  /// 있었다는 사실을 놓친다.
+  int _surfaceGeneration = 0;
+
+  /// 무화면 정산 대기열 깊이. 이벤트를 버리진 않지만, 정산이 밀리기
+  /// 시작하면(임계값 도달) 관측할 수 있게 경고 로그를 남긴다.
+  final HeadlessQueueDepthTracker _headlessQueueDepth = HeadlessQueueDepthTracker(
+    onWarn: (depth) => logger.w(
+      '[GlobalPurchaseListener] 무화면 정산 대기열이 $depth건까지 쌓임 - '
+      '정산이 이벤트 도착 속도를 못 따라가는 중',
+    ),
+  );
+
   /// Whether a store screen currently owns presentation.
   bool get hasSurface => _surface != null;
 
@@ -177,6 +250,10 @@ class GlobalPurchaseListener {
   /// never waits on it - stream delivery is fire-and-forget by nature.
   @visibleForTesting
   Future<void> get pendingHeadlessWork => _headlessWork;
+
+  /// 테스트가 대기열 깊이/최고치를 확인할 수 있게 노출한다.
+  @visibleForTesting
+  HeadlessQueueDepthTracker get headlessQueueDepth => _headlessQueueDepth;
 
   static PurchaseService _buildPurchaseService(
     ProviderContainer container,
@@ -211,6 +288,7 @@ class GlobalPurchaseListener {
     }
     final registration = PurchaseSurfaceRegistration._(this, handler);
     _surface = registration;
+    _surfaceGeneration++;
     logger.i('[GlobalPurchaseListener] 구매 UI 서피스 연결');
     return registration;
   }
@@ -218,7 +296,77 @@ class GlobalPurchaseListener {
   void _detachSurface(PurchaseSurfaceRegistration registration) {
     if (!identical(_surface, registration)) return;
     _surface = null;
+    _surfaceGeneration++;
     logger.i('[GlobalPurchaseListener] 구매 UI 서피스 해제 - 이후 이벤트는 무화면 정산');
+
+    if (_evictionReconcilePending) {
+      unawaited(_attemptPendingEvictionReconcile());
+      return;
+    }
+
+    // 스토어 화면이 떠 있는 동안은 재개 스윕이 생략된다(sweepOnResume) -
+    // 화면을 벗어나는 이 시점이 그 구간에 놓쳤을 수 있는 리컨사일을 되찾을
+    // 첫 기회다. 실제 앱 재개(백그라운드→포그라운드)를 기다리면, 화면만
+    // 오래 띄워 둔 채 서버 장애를 겪은 사용자는 화면을 닫은 뒤에도 한참
+    // 지나야 재시도된다. 재개 스로틀(최대 5분당 1회)은 그대로 적용되므로
+    // 화면을 자주 여닫아도 스팸이 되지 않는다.
+    unawaited(sweepOnResume());
+  }
+
+  /// 큐(receipt_queue_v1)에서 TTL/상한으로 항목이 잘렸을 때의 콜백.
+  ///
+  /// 항상 pending 플래그부터 세운다 - 화면이 없어 바로 시도하더라도, 다른
+  /// 스윕과 겹쳐(`concurrent`) 이번엔 시도조차 못 할 수 있고, 그러면
+  /// 플래그가 다시 서서 다음 detach/재개/콜드스타트 중 먼저 오는 쪽이
+  /// 이어받는다.
+  void _onQueueItemsEvicted() {
+    _evictionReconcilePending = true;
+    if (hasSurface) {
+      logger.i(
+        '[GlobalPurchaseListener] 스토어 화면이 열려 있어 eviction 리컨사일을 '
+        '화면 종료 후로 미룸',
+      );
+      return;
+    }
+    unawaited(_attemptPendingEvictionReconcile());
+  }
+
+  /// 보류 중인 eviction 리컨사일이 있으면 처리를 시도한다.
+  ///
+  /// `_onQueueItemsEvicted`(화면 없을 때)/`_detachSurface`/`sweepOnResume`/
+  /// `sweepOnColdStart` 가 모두 이 하나의 진입점을 공유한다 - 어느 쪽을
+  /// 통해서든 pending 이 생기면, 그다음에 실제로 오는 기회(꼭 detach 가
+  /// 아니어도)가 이어받아야 "다른 스윕과 겹쳐 계속 놓치는" 시나리오가
+  /// 생기지 않는다.
+  Future<void> _attemptPendingEvictionReconcile() async {
+    if (!_evictionReconcilePending || hasSurface) return;
+    _evictionReconcilePending = false;
+    // 재개 스로틀에 막혀 조용히 사라지면 안 되므로 manual 트리거로
+    // 강행한다(`_sweepAllowed`가 manual 은 항상 허용한다).
+    final report = await _guardedSweep(trigger: PurchaseSweepTrigger.manual);
+    if (report.outcome == PurchaseSweepOutcome.concurrent) {
+      // 다른 스윕과 겹쳐 이번에도 시도조차 못 했다 - 기회를 잃지 않도록
+      // 다시 대기시킨다.
+      _evictionReconcilePending = true;
+    }
+  }
+
+  /// [purchaseService.sweepUnfinishedPurchases]를, 시작 시점 이후로 화면이
+  /// 붙었는지(또는 붙었다 떨어졌는지)를 계속 확인하는 `shouldAbort`와 함께
+  /// 부른다.
+  ///
+  /// 시작 전에 한 번만 `hasSurface`를 확인하는 것으로는 부족하다 - 스토어
+  /// 조회는 비동기라 그 도중에 화면이 붙을 수 있고, 그러면 그 화면의 자체
+  /// 복원 로직과 검증/완료 처리가 경합한다.
+  Future<PurchaseSweepReport> _guardedSweep({
+    required PurchaseSweepTrigger trigger,
+  }) {
+    final generationAtStart = _surfaceGeneration;
+    return purchaseService.sweepUnfinishedPurchases(
+      trigger: trigger,
+      shouldAbort: () =>
+          hasSurface || _surfaceGeneration != generationAtStart,
+    );
   }
 
   /// The one entry point for every purchase event in the process.
@@ -233,15 +381,26 @@ class GlobalPurchaseListener {
       '[GlobalPurchaseListener] 화면 없이 도착한 구매 이벤트 '
       '${purchases.length}건 - 무화면 정산 실행',
     );
+    _headlessQueueDepth.enqueue();
     // 직렬화한다: 같은 상품의 이벤트가 연달아 오면 동시 정산이 서버에 중복
     // 검증을 던지고, 그중 하나는 중복 판정으로 되돌아온다.
     _headlessWork = _headlessWork.then(
-      (_) => _settleWithoutSurface(purchases),
+      (_) => _settleQueuedWithoutSurface(purchases),
       onError: (Object e, StackTrace s) {
         logger.e('[GlobalPurchaseListener] 이전 무화면 정산 실패', error: e, stackTrace: s);
-        return _settleWithoutSurface(purchases);
+        return _settleQueuedWithoutSurface(purchases);
       },
     );
+  }
+
+  Future<void> _settleQueuedWithoutSurface(
+    List<PurchaseDetails> purchases,
+  ) async {
+    try {
+      await _settleWithoutSurface(purchases);
+    } finally {
+      _headlessQueueDepth.dequeue();
+    }
   }
 
   Future<void> _settleWithoutSurface(List<PurchaseDetails> purchases) async {
@@ -357,33 +516,50 @@ class GlobalPurchaseListener {
   /// and Supabase is initialised after `runApp`. A sweep that runs before
   /// session restore reports `notSignedIn` and does not consume the run, so this
   /// is belt-and-braces rather than the only guard.
-  Future<PurchaseSweepReport> sweepOnColdStart() =>
-      purchaseService.sweepUnfinishedPurchases(
-        trigger: PurchaseSweepTrigger.coldStart,
-      );
+  Future<PurchaseSweepReport> sweepOnColdStart() async {
+    // detach 로 이어받지 못한(다른 스윕과 겹쳐 concurrent 로 재무장된)
+    // 보류 중인 eviction 리컨사일이 있으면, 콜드 스타트가 먼저 이어받는다.
+    await _attemptPendingEvictionReconcile();
+    return _guardedSweep(trigger: PurchaseSweepTrigger.coldStart);
+  }
 
   /// The resume half.
   ///
   /// Skipped while a store screen is mounted: the store runs its own proactive
   /// restore cleanup on entry and may have a purchase in flight, and a sweep
   /// racing that would push the same transaction through verification twice.
-  Future<PurchaseSweepReport> sweepOnResume() {
+  /// Guarded for the rest of its run too - a screen can attach *during* the
+  /// (async, often slow) store scan, after this entry check already passed.
+  Future<PurchaseSweepReport> sweepOnResume() async {
     if (hasSurface) {
       logger.i('[GlobalPurchaseListener] 스토어 화면이 열려 있어 resume 스윕 생략');
-      return Future.value(
-        const PurchaseSweepReport(
-          trigger: PurchaseSweepTrigger.resume,
-          outcome: PurchaseSweepOutcome.concurrent,
-        ),
+      return const PurchaseSweepReport(
+        trigger: PurchaseSweepTrigger.resume,
+        outcome: PurchaseSweepOutcome.concurrent,
       );
     }
-    return purchaseService.sweepUnfinishedPurchases(
-      trigger: PurchaseSweepTrigger.resume,
-    );
+    // detach 로 이어받지 못한 보류 중인 eviction 리컨사일이 있으면 재개가
+    // 먼저 이어받는다 - 이게 소진되면 방금 갱신된 _lastSweepAt 때문에
+    // 아래의 일반 resume 스윕은 대개 스로틀에 걸려 자연히 생략된다(중복
+    // 왕복 없음).
+    await _attemptPendingEvictionReconcile();
+    return _guardedSweep(trigger: PurchaseSweepTrigger.resume);
   }
 
   void dispose() {
     _surface = null;
+    // `ReceiptQueueService` 는 싱글턴이다 - 이 콜백을 무조건 지우면, 이
+    // listener 가 dispose 된 뒤 새 listener 가 만들어지기 전에 eviction 이
+    // 나면 아무도 못 듣고, 반대로 이미 새 listener 가 자기 콜백을 등록한
+    // 뒤에 옛 listener 를 dispose 하면 새 콜백을 지워버릴 수 있다. 지금도
+    // 내가 등록한 콜백일 때만 지운다.
+    // 같은 인스턴스에서 같은 메서드를 다시 tear-off 하면 `identical()`이
+    // 항상 참을 보장하지는 않으므로(구현에 따라 다름) `==`를 쓴다 - Dart는
+    // 메서드 tear-off의 동등성(`==`)은 "같은 리시버 + 같은 메서드"면 항상
+    // 참이라고 보장한다.
+    if (ReceiptQueueService().onItemsEvicted == _onQueueItemsEvicted) {
+      ReceiptQueueService().onItemsEvicted = null;
+    }
     purchaseService.dispose();
   }
 }

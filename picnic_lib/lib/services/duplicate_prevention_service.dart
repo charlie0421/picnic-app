@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/errors/vote_request_exceptions.dart';
 import 'package:picnic_lib/data/repositories/vote_item_request_repository.dart';
@@ -35,6 +36,14 @@ class DuplicatePreventionService {
   // 🛡️ 구매 중복 방지 관련
   final Map<String, DateTime> _purchaseAttempts =
       {}; // productId_userId -> timestamp
+
+  /// [_purchaseAttempts]에 남아 있는 항목 수.
+  ///
+  /// 성공한 구매마다 키가 쌓이기만 하고 지워지지 않으면 프로세스 수명
+  /// 내내(서로 다른 상품×사용자 조합 수만큼) 자라는데, 이 값으로 그 회귀를
+  /// 테스트가 직접 확인한다.
+  @visibleForTesting
+  int get purchaseAttemptsTrackedCount => _purchaseAttempts.length;
   final Map<String, DateTime> _authenticationStarts =
       {}; // productId_userId -> timestamp
   final Map<String, DateTime> _backgroundPurchases =
@@ -221,6 +230,7 @@ class DuplicatePreventionService {
 
     if (success) {
       // 성공 시 모든 상태 정리
+      _purchaseAttempts.remove(key);
       _authenticationStarts.remove(key);
       _backgroundPurchases.remove(key);
       logger.i('✅ 구매 성공 완료 처리: $key');

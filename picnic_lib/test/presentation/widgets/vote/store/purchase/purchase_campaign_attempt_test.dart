@@ -319,4 +319,142 @@ void main() {
     expect(registry['STAR100']?.attemptId, 'new');
     expect(PurchaseCampaignAttemptRegistry().bind(historical), isNull);
   });
+
+  // ===========================================================================
+  // Android Play Billing 에러/취소는 productID·purchaseID 없이 도착할 수 있다
+  // (실기기 재현, 2026-08-05: responseCode 3, 결제창을 뒤로가기로 닫음).
+  // 상품ID로 못 붙이면 orphan으로 폐기되는데, 그 경로엔 로딩 오버레이를 내리는
+  // 코드가 없어 스피너가 영원히 남는다. 활성 시도가 정확히 하나뿐이면 그 시도로
+  // 본다 - 둘 이상이면 여전히 판별할 수 없으므로 폐기한다.
+  // ===========================================================================
+  group('식별자 없는 에러/취소 이벤트', () {
+    PurchaseDetails identityless(
+      PurchaseStatus status, {
+      String purchaseID = '',
+    }) => PurchaseDetails(
+      productID: '',
+      purchaseID: purchaseID,
+      transactionDate: null,
+      status: status,
+      verificationData: PurchaseVerificationData(
+        localVerificationData: 'local',
+        serverVerificationData: 'server',
+        source: 'test',
+      ),
+    );
+
+    test(
+      'binds to the sole active launched attempt when the error carries no identity',
+      () async {
+        final registry = PurchaseCampaignAttemptRegistry();
+        registry.begin(attempt('a', 'STAR100'));
+        registry.applyLaunchResult('STAR100', 'a', {
+          'success': true,
+          'wasCancelled': false,
+        });
+
+        final bound = await registry.bindWithLaunchGrace(
+          identityless(PurchaseStatus.error),
+        );
+
+        expect(bound?.attemptId, 'a');
+      },
+    );
+
+    test(
+      'binds a cancel with no identity the same way as an error',
+      () async {
+        final registry = PurchaseCampaignAttemptRegistry();
+        registry.begin(attempt('a', 'STAR100'));
+        registry.applyLaunchResult('STAR100', 'a', {
+          'success': true,
+          'wasCancelled': false,
+        });
+
+        final bound = await registry.bindWithLaunchGrace(
+          identityless(PurchaseStatus.canceled),
+        );
+
+        expect(bound?.attemptId, 'a');
+      },
+    );
+
+    test(
+      'stays unresolved when two products are active and neither can be picked',
+      () async {
+        final registry = PurchaseCampaignAttemptRegistry();
+        for (final entry in [('a', 'STAR100'), ('b', 'STAR500')]) {
+          registry.begin(attempt(entry.$1, entry.$2));
+          registry.applyLaunchResult(entry.$2, entry.$1, {
+            'success': true,
+            'wasCancelled': false,
+          });
+        }
+
+        final bound = await registry.bindWithLaunchGrace(
+          identityless(PurchaseStatus.error),
+        );
+
+        expect(bound, isNull);
+      },
+    );
+
+    test(
+      'stays unresolved when the sole context has not launched yet',
+      () async {
+        final registry = PurchaseCampaignAttemptRegistry();
+        registry.begin(attempt('a', 'STAR100'));
+        // applyLaunchResult 를 부르지 않았다 - launched 는 여전히 false.
+
+        final bound = await registry.bindWithLaunchGrace(
+          identityless(PurchaseStatus.error),
+        );
+
+        expect(bound, isNull);
+      },
+    );
+  });
+
+  // ===========================================================================
+  // `purchased` 이벤트에만 적용되던 런치 유예(위 bindWithLaunchGrace 주석 참고,
+  // iOS 실기기 2026-07-28)와 같은 클래스의 레이스가 error/canceled 에도
+  // 이론적으로 적용된다: 스토어 스트림이 initiatePurchase()의 launched=true
+  // 세팅보다 먼저 에러/취소를 전달하면, productID가 있어도 단 한 번의 bind
+  // 시도만으로는 launched 게이트에 걸려 실패한다. 재시도가 없으면 이 레이스를
+  // 이긴 이벤트는 orphan으로 영구 폐기되고 로딩 오버레이가 남는다.
+  // ===========================================================================
+  test(
+    'an error event retries through the same launch race a purchased event already gets',
+    () async {
+      final registry = PurchaseCampaignAttemptRegistry();
+      registry.begin(attempt('a', 'STAR100'));
+      // launched 는 아직 false - 레이스 윈도우를 흉내낸다.
+      Future<void>.delayed(const Duration(milliseconds: 150), () {
+        registry.applyLaunchResult('STAR100', 'a', {
+          'success': true,
+          'wasCancelled': false,
+        });
+      });
+
+      final errorEvent = PurchaseDetails(
+        productID: 'STAR100',
+        purchaseID: null,
+        transactionDate: null,
+        status: PurchaseStatus.error,
+        verificationData: PurchaseVerificationData(
+          localVerificationData: 'local',
+          serverVerificationData: 'server',
+          source: 'test',
+        ),
+      );
+
+      final bound = await registry.bindWithLaunchGrace(
+        errorEvent,
+        retries: 5,
+        delay: const Duration(milliseconds: 100),
+      );
+
+      expect(bound?.attemptId, 'a');
+    },
+  );
 }

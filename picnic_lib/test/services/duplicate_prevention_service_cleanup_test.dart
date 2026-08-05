@@ -212,6 +212,34 @@ void main() {
       );
     });
 
+    testWidgets(
+        'success removes the in-memory purchase-attempt entry, not just its '
+        'storage mirror', (tester) async {
+      final service = await createService(tester);
+
+      await tester.runAsync(() async {
+        service.registerPurchaseAttempt('product-1', 'user-1');
+        await Future.delayed(const Duration(milliseconds: 200));
+      });
+
+      expect(service.purchaseAttemptsTrackedCount, 1);
+
+      await tester.runAsync(() async {
+        service.completePurchase('product-1', 'user-1', success: true);
+        await Future.delayed(const Duration(milliseconds: 200));
+      });
+
+      expect(
+        service.purchaseAttemptsTrackedCount,
+        0,
+        reason:
+            '성공 시 _authenticationStarts/_backgroundPurchases 와 그 '
+            'SharedPreferences 미러는 모두 지워지는데 _purchaseAttempts 만 '
+            '메모리에 남으면, 서로 다른 상품×사용자 조합을 성공적으로 구매할 '
+            '때마다 이 맵이 프로세스 수명 내내 계속 자란다',
+      );
+    });
+
     testWidgets('failure still clears storage', (tester) async {
       final service = await createService(tester);
 
