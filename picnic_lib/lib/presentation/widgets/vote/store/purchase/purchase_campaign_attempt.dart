@@ -30,6 +30,21 @@ class PurchaseCampaignAttemptRegistry {
   final Map<String, String> _attemptByTransaction = {};
   final Set<String> _completedTransactions = {};
 
+  /// 상품별 최근 활동(런치/제거) 시각. [currentTerminalWithoutId]의 "유일한
+  /// 활성 시도" 폴백이 서로 다른 상품의 지연 도착 이벤트와 뒤섞이지 않도록
+  /// 쓰인다 - 이 창(90초 안전망 + 여유) 안에 다른 상품이 활동했다면 지금
+  /// 활성 시도가 하나뿐이어도 판별 불가로 본다.
+  static const Duration _recentActivityWindow = Duration(seconds: 120);
+  final Map<String, DateTime> _lastActivityByProduct = {};
+
+  void _recordActivity(String key) {
+    final now = _now();
+    _lastActivityByProduct[key] = now;
+    _lastActivityByProduct.removeWhere(
+      (_, at) => now.difference(at) > _recentActivityWindow,
+    );
+  }
+
   /// Supabase 카탈로그 ID는 대문자(STAR100), Google Play 이벤트의 productID는
   /// 소문자(star100)다. Casing만 다른 같은 상품이 같은 컨텍스트로 모이지 않으면
   /// 정상 결제 이벤트가 orphan으로 폐기된다.
@@ -41,21 +56,25 @@ class PurchaseCampaignAttemptRegistry {
   bool contains(String productId) =>
       _byProduct.containsKey(canonicalProductKey(productId));
 
-  bool begin(PurchaseCampaignAttempt attempt) =>
-      _byProduct
-          .putIfAbsent(
-            canonicalProductKey(attempt.productId),
-            () => PurchaseExecutionContext(
-              attempt: attempt,
-              launchedAt: _now().toUtc(),
-            ),
-          )
-          .attempt ==
-      attempt;
+  bool begin(PurchaseCampaignAttempt attempt) {
+    final key = canonicalProductKey(attempt.productId);
+    final result =
+        _byProduct.putIfAbsent(
+          key,
+          () => PurchaseExecutionContext(
+            attempt: attempt,
+            launchedAt: _now().toUtc(),
+          ),
+        ).attempt ==
+        attempt;
+    if (result) _recordActivity(key);
+    return result;
+  }
 
   bool removeIfMatches(String productId, String attemptId) {
     final key = canonicalProductKey(productId);
     if (_byProduct[key]?.attempt.attemptId != attemptId) return false;
+    _recordActivity(key);
     _byProduct.remove(key);
     return true;
   }
@@ -157,10 +176,22 @@ class PurchaseCampaignAttemptRegistry {
     // Android Play Billing 에러/취소는 productID까지 빈 채로 도착할 수 있다
     // (실기기 재현: responseCode 3, 결제창을 뒤로가기로 닫음). 상품ID로 못
     // 붙이면 orphan으로 폐기되고, 그 경로는 로딩 오버레이를 내리지 않아
-    // 스피너가 무한정 남는다. 활성 시도가 정확히 하나뿐이면 판별 불가능한
-    // 상태가 아니므로 그 시도로 본다 - 둘 이상이면 여전히 폐기한다.
+    // 스피너가 무한정 남는다. 활성 시도가 정확히 하나뿐이고, 최근 창(120초)
+    // 안에 다른 상품이 활동한 적이 없을 때만 그 시도로 본다 - 그렇지 않으면
+    // 이미 안전망으로 정리된 다른 상품의 지연 이벤트가 지금 막 시작된 무관한
+    // 시도를 잘못 지워버릴 수 있다 (Codex Frontier 리뷰, PR #137).
     if (context == null && purchase.productID.trim().isEmpty) {
-      context = _byProduct.length == 1 ? _byProduct.values.single : null;
+      final sole = _byProduct.length == 1 ? _byProduct.values.single : null;
+      final distinctRecentProducts = _lastActivityByProduct.keys.toSet();
+      final onlyThisProductRecentlyActive =
+          distinctRecentProducts.isEmpty ||
+          (distinctRecentProducts.length == 1 &&
+              sole != null &&
+              distinctRecentProducts.single ==
+                  canonicalProductKey(sole.attempt.productId));
+      context = (sole != null && onlyThisProductRecentlyActive)
+          ? sole
+          : null;
     }
     final transactionAt = _transactionAt(purchase);
     return context != null &&
