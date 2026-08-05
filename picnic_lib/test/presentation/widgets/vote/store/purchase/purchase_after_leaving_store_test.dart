@@ -88,8 +88,9 @@ class _MockInAppPurchaseService extends Mock implements InAppPurchaseService {
   Future<void> clearPendingPurchasesOnStartup() async {}
 
   @override
-  Future<void> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
+  Future<bool> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
     settledFinalizations++;
+    return true;
   }
 }
 

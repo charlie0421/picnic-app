@@ -229,6 +229,15 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     return PurchaseHelper.isPurchaseCanceled(purchaseDetails);
   }
 
+  /// 상품ID·거래ID 어느 쪽으로도 특정 시도에 묶일 수 없는 이벤트인지.
+  bool _isIdentityless(PurchaseDetails purchaseDetails) {
+    final hasProductId = purchaseDetails.productID.trim().isNotEmpty;
+    final hasTransactionId =
+        purchaseDetails.purchaseID != null &&
+        purchaseDetails.purchaseID!.isNotEmpty;
+    return !hasProductId && !hasTransactionId;
+  }
+
   void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) async {
     final statusCounts = _getStatusCounts(purchaseDetailsList);
 
@@ -349,6 +358,25 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           'headless settlement: ${purchaseDetails.purchaseID}',
         );
         await _settleOrphanPurchase(purchaseDetails);
+        return;
+      }
+      if (_isIdentityless(purchaseDetails) &&
+          (purchaseDetails.status == PurchaseStatus.error ||
+              purchaseDetails.status == PurchaseStatus.canceled)) {
+        // Android Play Billing 에러/취소는 productID·purchaseID 없이
+        // 도착할 수 있다 (실기기 재현: responseCode 3). 어떤 시도의
+        // 것인지 판별할 방법이 없으므로(시간 경계를 증명할 수 없는
+        // 발견적 매칭은 다른 시도를 잘못 지울 위험이 있어 폐기했다 -
+        // Codex Frontier 리뷰, PR #137) 시도 상태는 건드리지 않는다.
+        // 전역 로딩 오버레이만 내려 최소한 화면이 무한정 잠기지는
+        // 않게 한다 - 실제로 진행 중인 시도가 있었다면 그 상품의
+        // 버튼 로딩·안전망은 그대로 유지되어 자기 완결 경로나 90초
+        // 안전망으로 정리된다.
+        logger.w(
+          '[PurchaseStarCandyState] Identity-less ${purchaseDetails.status} '
+          '- releasing global loading only, no attempt touched',
+        );
+        if (mounted) _loadingKey.currentState?.hide();
         return;
       }
       logger.w(

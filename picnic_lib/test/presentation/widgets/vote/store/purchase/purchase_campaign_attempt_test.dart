@@ -322,10 +322,16 @@ void main() {
 
   // ===========================================================================
   // Android Play Billing 에러/취소는 productID·purchaseID 없이 도착할 수 있다
-  // (실기기 재현, 2026-08-05: responseCode 3, 결제창을 뒤로가기로 닫음).
-  // 상품ID로 못 붙이면 orphan으로 폐기되는데, 그 경로엔 로딩 오버레이를 내리는
-  // 코드가 없어 스피너가 영원히 남는다. 활성 시도가 정확히 하나뿐이면 그 시도로
-  // 본다 - 둘 이상이면 여전히 판별할 수 없으므로 폐기한다.
+  // (실기기 재현, 2026-08-05: responseCode 3, 결제창을 뒤로가기로 닫음). 시간
+  // 경계를 증명할 방법이 전혀 없는 이벤트를 "유일한 활성 시도"에 자동으로
+  // 묶는 발견적 규칙은 시도해 봤지만(2026-08-05, 120초 활동 창), Codex
+  // Frontier 재검토에서 동일 상품 재시도와 창 만료 후 지연 도착 두 경로 모두
+  // 뚫린다는 지적을 받고 폐기했다: 이미 안전망으로 정리된 시도의 지연
+  // 이벤트가 방금 시작된 무관한(같은 상품이어도) 시도를 잘못 지워 로딩·
+  // 안전망을 지우고 성공한 구매를 orphan으로 만들 수 있었다. 식별자 없는
+  // 이벤트는 절대 어떤 시도에도 묶이지 않는다 - 로딩 오버레이 자체를 못
+  // 내리는 문제는 호출자(`_processPurchaseDetail`)가 시도 상태를 건드리지
+  // 않고 전역 로딩만 내리는 것으로 해결한다.
   // ===========================================================================
   group('식별자 없는 에러/취소 이벤트', () {
     PurchaseDetails identityless(
@@ -344,7 +350,7 @@ void main() {
     );
 
     test(
-      'binds to the sole active launched attempt when the error carries no identity',
+      'never binds an identity-less error to any attempt, even the sole active one',
       () async {
         final registry = PurchaseCampaignAttemptRegistry();
         registry.begin(attempt('a', 'STAR100'));
@@ -357,12 +363,17 @@ void main() {
           identityless(PurchaseStatus.error),
         );
 
-        expect(bound?.attemptId, 'a');
+        expect(bound, isNull);
+        expect(
+          registry.contains('STAR100'),
+          isTrue,
+          reason: '식별자 없는 이벤트가 유일한 활성 시도를 지워서는 안 된다',
+        );
       },
     );
 
     test(
-      'binds a cancel with no identity the same way as an error',
+      'never binds an identity-less cancel either',
       () async {
         final registry = PurchaseCampaignAttemptRegistry();
         registry.begin(attempt('a', 'STAR100'));
@@ -375,12 +386,47 @@ void main() {
           identityless(PurchaseStatus.canceled),
         );
 
-        expect(bound?.attemptId, 'a');
+        expect(bound, isNull);
+      },
+    );
+
+    // Codex Frontier 리뷰가 지적한 정확한 회귀 시나리오 (PR #137): A가 90초
+    // 안전망으로 제거된 뒤 같은 상품으로 B가 새로 시작되고, 그 후 A의 지연된
+    // 식별자 없는 이벤트가 도착한다. "유일한 활성 시도" 발견적 규칙은
+    // 상품이 같으므로 이 경우를 절대 구분할 수 없었다 - 그래서 폐기했다.
+    test(
+      'a delayed identity-less event cannot cancel a fresh retry of the same product',
+      () async {
+        final registry = PurchaseCampaignAttemptRegistry();
+        registry.begin(attempt('a', 'STAR100'));
+        registry.applyLaunchResult('STAR100', 'a', {
+          'success': true,
+          'wasCancelled': false,
+        });
+        registry.removeIfMatches('STAR100', 'a'); // 90초 안전망으로 제거.
+
+        registry.begin(attempt('b', 'STAR100')); // 즉시 재시도.
+        registry.applyLaunchResult('STAR100', 'b', {
+          'success': true,
+          'wasCancelled': false,
+        });
+
+        final bound = await registry.bindWithLaunchGrace(
+          identityless(PurchaseStatus.canceled),
+        );
+
+        expect(bound, isNull);
+        expect(
+          registry.contains('STAR100'),
+          isTrue,
+          reason: 'B의 재시도는 A의 지연 이벤트로 지워지면 안 된다',
+        );
+        expect(registry['STAR100']!.attemptId, 'b');
       },
     );
 
     test(
-      'stays unresolved when two products are active and neither can be picked',
+      'stays unresolved when two different products are active',
       () async {
         final registry = PurchaseCampaignAttemptRegistry();
         for (final entry in [('a', 'STAR100'), ('b', 'STAR500')]) {
@@ -390,115 +436,6 @@ void main() {
             'wasCancelled': false,
           });
         }
-
-        final bound = await registry.bindWithLaunchGrace(
-          identityless(PurchaseStatus.error),
-        );
-
-        expect(bound, isNull);
-      },
-    );
-
-    // Codex Frontier 리뷰 지적 (PR #137): A가 90초 안전망으로 제거된 뒤 B가
-    // 시작되고, 그 후 A의 지연된 식별자 없는 이벤트가 도착하면 "유일한 활성
-    // 시도" 규칙이 B에 잘못 결합한다 - B의 시도·로딩·안전망이 지워지고, B가
-    // 나중에 실제로 성공하면 orphan 처리되어 캠페인 연결과 영수증 다이얼로그를
-    // 잃는다. 최근(120초 내) 서로 다른 상품이 활동했다면 폴백을 거부해야 한다.
-    test(
-      'refuses the sole-active fallback when a different product was active recently',
-      () async {
-        var now = DateTime.utc(2026, 8, 5, 12, 0, 0);
-        final registry = PurchaseCampaignAttemptRegistry(now: () => now);
-
-        registry.begin(attempt('a', 'STAR100'));
-        registry.applyLaunchResult('STAR100', 'a', {
-          'success': true,
-          'wasCancelled': false,
-        });
-        // A가 90초 안전망으로 제거된다.
-        registry.removeIfMatches('STAR100', 'a');
-
-        // 1초 뒤 완전히 다른 상품 B가 시작되고 즉시 launched 된다 - 지금 이
-        // 레지스트리엔 B 하나뿐이다.
-        now = now.add(const Duration(seconds: 1));
-        registry.begin(attempt('b', 'STAR500'));
-        registry.applyLaunchResult('STAR500', 'b', {
-          'success': true,
-          'wasCancelled': false,
-        });
-
-        // A의 지연된 취소가 뒤늦게 도착한다. B가 유일한 활성 시도라는 것만으로
-        // 이 이벤트를 B에 결합해선 안 된다 - A(STAR100)가 최근에 있었다.
-        final bound = await registry.bindWithLaunchGrace(
-          identityless(PurchaseStatus.canceled),
-        );
-
-        expect(bound, isNull);
-        expect(
-          registry.contains('STAR500'),
-          isTrue,
-          reason: 'B의 시도는 이 모호한 이벤트로 지워지면 안 된다',
-        );
-      },
-    );
-
-    test(
-      'still resolves the sole-active fallback when no other product has been active recently',
-      () async {
-        var now = DateTime.utc(2026, 8, 5, 12, 0, 0);
-        final registry = PurchaseCampaignAttemptRegistry(now: () => now);
-
-        registry.begin(attempt('a', 'STAR100'));
-        registry.applyLaunchResult('STAR100', 'a', {
-          'success': true,
-          'wasCancelled': false,
-        });
-        now = now.add(const Duration(seconds: 1));
-
-        final bound = await registry.bindWithLaunchGrace(
-          identityless(PurchaseStatus.canceled),
-        );
-
-        expect(bound?.attemptId, 'a');
-      },
-    );
-
-    test(
-      'trusts the fallback again once the other product activity has aged out',
-      () async {
-        var now = DateTime.utc(2026, 8, 5, 12, 0, 0);
-        final registry = PurchaseCampaignAttemptRegistry(now: () => now);
-
-        registry.begin(attempt('a', 'STAR100'));
-        registry.applyLaunchResult('STAR100', 'a', {
-          'success': true,
-          'wasCancelled': false,
-        });
-        registry.removeIfMatches('STAR100', 'a');
-
-        // 3분(120초 관찰 창을 넘김) 뒤 B가 시작된다 - A의 활동은 더 이상
-        // "최근"이 아니다.
-        now = now.add(const Duration(minutes: 3));
-        registry.begin(attempt('b', 'STAR500'));
-        registry.applyLaunchResult('STAR500', 'b', {
-          'success': true,
-          'wasCancelled': false,
-        });
-
-        final bound = await registry.bindWithLaunchGrace(
-          identityless(PurchaseStatus.canceled),
-        );
-
-        expect(bound?.attemptId, 'b');
-      },
-    );
-
-    test(
-      'stays unresolved when the sole context has not launched yet',
-      () async {
-        final registry = PurchaseCampaignAttemptRegistry();
-        registry.begin(attempt('a', 'STAR100'));
-        // applyLaunchResult 를 부르지 않았다 - launched 는 여전히 false.
 
         final bound = await registry.bindWithLaunchGrace(
           identityless(PurchaseStatus.error),
