@@ -32,6 +32,69 @@ void main() {
     expect(find.byType(Image), findsNWidgets(2));
   });
 
+  testWidgets('very long amounts at large text scale do not overflow', (
+    tester,
+  ) async {
+    // Terra 리뷰 권고: WidgetSpan(아이콘+숫자 Row)은 줄임표로 잘리지 않는
+    // 단일 블록이라, 좁은 폭·큰 배율에서 오버플로하면 FlutterError 가
+    // 던져진다. FittedBox(scaleDown) 가 이를 막는지 위젯 단위로 검증한다.
+    await tester.pumpWidget(
+      buildTestApp(
+        const MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(2.0)),
+          child: Center(
+            child: SizedBox(
+              width: 120,
+              child: RewardBreakdown(
+                baseAmount: 999999999,
+                bonusAmount: 888888888,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(RewardBreakdown), findsOneWidget);
+  });
+
+  testWidgets('realistic tile width at 1.3 text scale does not overflow', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(375, 220));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      buildTestApp(
+        MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(1.3)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: StoreListTile(
+              icon: Image.asset(
+                'assets/icons/store/currency_star_candy.png',
+                package: 'picnic_lib',
+                width: 48,
+                height: 48,
+              ),
+              title: const Text('STAR7000'),
+              subtitle: const RewardBreakdown(
+                baseAmount: 7000,
+                bonusAmount: 1800,
+              ),
+              buttonText: '\$79.99',
+              buttonOnPressed: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('hides bonus section when amount is zero', (tester) async {
     await tester.pumpWidget(
       testApp(const RewardBreakdown(baseAmount: 100, bonusAmount: 0)),
