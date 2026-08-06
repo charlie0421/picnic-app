@@ -27,7 +27,7 @@ void main() {
     testWidgets('safety timeout invokes onTimeoutUIReset and resetPurchaseState',
         (tester) async {
       bool callbackCalled = false;
-      manager.onTimeoutUIReset = () {
+      manager.onTimeoutUIReset = (_) {
         callbackCalled = true;
       };
 

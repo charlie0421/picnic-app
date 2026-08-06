@@ -1234,6 +1234,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '已收到您的付款。处理完成后，星星糖将自动到账。\n请勿重复付款。';
 
   @override
+  String get purchase_payment_unconfirmed_message =>
+      '尚未确认您的付款。您可能尚未在商店的付款页面完成付款。\n如果您已完成付款，处理完成后星星糖将自动到账，请勿重复付款。';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
@@ -3145,6 +3149,10 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
       '已收到您的付款。处理完成后，星星糖将自动到账。\n请勿重复付款。';
 
   @override
+  String get purchase_payment_unconfirmed_message =>
+      '尚未确认您的付款。您可能尚未在商店的付款页面完成付款。\n如果您已完成付款，处理完成后星星糖将自动到账，请勿重复付款。';
+
+  @override
   String get label_tabbar_vote_upcoming => '即将推出';
 
   @override
@@ -5054,6 +5062,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get purchase_payment_accepted_message =>
       '已收到您的付款。處理完成後，星星糖將自動入帳。\n請勿重複付款。';
+
+  @override
+  String get purchase_payment_unconfirmed_message =>
+      '尚未確認您的付款。您可能尚未在商店的付款頁面完成付款。\n如果您已完成付款，處理完成後星星糖將自動入帳，請勿重複付款。';
 
   @override
   String get label_tabbar_vote_upcoming => '即將推出';

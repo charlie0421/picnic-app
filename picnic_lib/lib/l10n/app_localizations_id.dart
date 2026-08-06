@@ -1292,6 +1292,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Pembayaran Anda telah diterima. Star Candy akan masuk secara otomatis setelah proses selesai.\nMohon jangan membayar lagi.';
 
   @override
+  String get purchase_payment_unconfirmed_message =>
+      'Pembayaran Anda belum terkonfirmasi. Pembayaran mungkin belum selesai di layar pembayaran toko.\nJika Anda sudah membayar, Star Candy akan masuk secara otomatis setelah proses selesai. Mohon jangan membayar lagi.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Mendatang';
 
   @override

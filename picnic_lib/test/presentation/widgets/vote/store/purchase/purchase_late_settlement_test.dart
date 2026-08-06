@@ -37,7 +37,7 @@ void main() {
       loadingKey: GlobalKey<LoadingOverlayWithIconState>(),
       resetPurchaseState: () {},
     );
-    manager.onTimeoutUIReset = () => timeoutMessages++;
+    manager.onTimeoutUIReset = (_) => timeoutMessages++;
     manager.onProductTimeout = (timedOutProduct, timedOutAttempt) {
       if (timedOutAttempt != null) {
         registry.removeIfMatches(timedOutProduct, timedOutAttempt);

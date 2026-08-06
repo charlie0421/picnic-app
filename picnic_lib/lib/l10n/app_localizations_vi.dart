@@ -1287,6 +1287,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Đã nhận được thanh toán của bạn. Star Candy sẽ tự động được cộng sau khi xử lý hoàn tất.\nVui lòng không thanh toán lại.';
 
   @override
+  String get purchase_payment_unconfirmed_message =>
+      'Chưa xác nhận được thanh toán của bạn. Có thể bạn chưa hoàn tất thanh toán trên màn hình thanh toán của cửa hàng.\nNếu bạn đã thanh toán, Star Candy sẽ tự động được cộng sau khi xử lý hoàn tất. Vui lòng không thanh toán lại.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Sắp tới';
 
   @override

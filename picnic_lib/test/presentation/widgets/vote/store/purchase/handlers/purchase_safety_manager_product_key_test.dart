@@ -29,7 +29,7 @@ void main() {
     fakeAsync((async) {
       var timeoutFired = false;
       var productTimeoutFired = false;
-      manager.onTimeoutUIReset = () => timeoutFired = true;
+      manager.onTimeoutUIReset = (_) => timeoutFired = true;
       manager.onProductTimeout = (_, __) => productTimeoutFired = true;
 
       manager.startSafetyTimer(productId: 'STAR100', attemptId: 'a1');

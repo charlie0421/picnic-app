@@ -1807,6 +1807,10 @@
   "@purchase_payment_accepted_message": {
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
+  "purchase_payment_unconfirmed_message": "আপনার পেমেন্ট এখনও নিশ্চিত হয়নি। স্টোরের পেমেন্ট স্ক্রিনে পেমেন্ট এখনও সম্পন্ন না-ও হয়ে থাকতে পারে।\nইতিমধ্যে পেমেন্ট করে থাকলে, প্রক্রিয়া শেষ হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে। অনুগ্রহ করে আবার পেমেন্ট করবেন না।",
+  "@purchase_payment_unconfirmed_message": {
+    "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
+  },
   "label_tabbar_vote_upcoming": "Upcoming",
   "@label_tabbar_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
