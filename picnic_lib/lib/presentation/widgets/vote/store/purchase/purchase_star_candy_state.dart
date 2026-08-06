@@ -159,7 +159,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     _restoreHandler.setSafetyManager(_safetyManager);
 
     // 🎯 심플 타임아웃 처리: 직접 콜백 설정
-    _safetyManager.onTimeoutUIReset = (productId) {
+    _safetyManager.onTimeoutUIReset = (productId) async {
       if (mounted) {
         setState(() {});
         _loadingKey.currentState?.hide();
@@ -191,11 +191,43 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         );
         _launchLifecycle.clear(productId);
         if (notice == PurchaseTimeoutNotice.suppressed) {
-          logger.i(
-            '[PurchaseStarCandyState] Safety timeout for $productId '
-            'suppressed - identity-less cancellation observed with no '
-            'purchase evidence',
+          // 관찰(신원 없는 취소)만으로는 인과를 증명할 수 없다 - 이전
+          // 세대의 지연 취소가 새 시도에 잘못 기록됐을 가능성을 배제할 수
+          // 없으므로, 생략 전에 스토어 큐를 실측으로 재확인한다. 판정은
+          // boolean 요약이 아니라 리포트로 한다: 스윕이 발견 즉시 정산에
+          // 성공하면(found>0, settled>0, preserved==0) 요약은 "비어
+          // 있음"과 구분되지 않는데, 그 경우는 실결제가 있었던 것이므로
+          // 무통보로 생략하면 안 된다 (Sol 머지 게이트 리뷰, PR #137).
+          // **큐를 확인했고 애초에 아무것도 없었을 때만** 생략한다.
+          final report = await _restoreHandler.resolveStoreQueueSweep();
+          if (!mounted) return;
+          final verifiedEmpty =
+              report != null &&
+              report.outcome == PurchaseSweepOutcome.completed &&
+              report.scanError == null &&
+              report.found == 0 &&
+              report.preserved == 0;
+          if (verifiedEmpty) {
+            logger.i(
+              '[PurchaseStarCandyState] Safety timeout for $productId '
+              'suppressed - identity-less cancellation observed, no '
+              'purchase evidence, store queue verified empty',
+            );
+            return;
+          }
+          // 스윕이 방금 실결제를 정산했다면 지갑에 반영부터 한다 - 안내
+          // 없이 잔액만 바뀌어 있으면 더 혼란스럽다.
+          if (report != null && report.settled > 0) {
+            await _refreshWalletSummary.refresh();
+            if (!mounted) return;
+          }
+          logger.w(
+            '[PurchaseStarCandyState] Suppression aborted for $productId - '
+            'store queue not verified empty '
+            '(found=${report?.found}, settled=${report?.settled}, '
+            'preserved=${report?.preserved}), keeping the warning',
           );
+          showSimpleDialog(content: l10n.purchase_payment_accepted_message);
           return;
         }
         showSimpleDialog(

@@ -174,12 +174,17 @@ class PurchaseLaunchLifecycleTracker {
   }
 
   /// 식별자 없는 취소/에러가 도착했다. 어느 시도의 것인지 증명할 수 없으므로
-  /// (그래서 attempt/타이머도 지우지 못한다) 관찰 중인 모든 런치에 기록한다.
-  /// 상태 판정이 아니라 문구/표시 판정에만 쓰인다.
+  /// (그래서 attempt/타이머도 지우지 못한다) **활성 관찰이 정확히 하나일
+  /// 때만** 그 시도의 것으로 기록한다. 둘 이상이면 기록하지 않는다 - 다른
+  /// 상품의 취소가 실결제 시도(이벤트 지연 중)의 이중 결제 경고까지 지울 수
+  /// 있기 때문이다 (Sol 머지 게이트 리뷰, PR #137). 기록하지 못한 비용은
+  /// 취소한 사용자에게 팝업이 한 번 더 보이는 것뿐이고(현상 유지), 잘못
+  /// 기록한 비용은 경고 유실이므로 보수 쪽을 택한다. 상태 판정이 아니라
+  /// 문구/표시 판정에만 쓰인다.
   void recordIdentitylessCancellation() {
-    for (final observation in _observationsByProduct.values) {
-      observation.identitylessCancellationObserved = true;
-    }
+    final distinctObservations = _observationsByProduct.values.toSet();
+    if (distinctObservations.length != 1) return;
+    distinctObservations.single.identitylessCancellationObserved = true;
   }
 
   /// 이 상품의 구매 증거(pending/purchased/restored 이벤트)가 도착했다.

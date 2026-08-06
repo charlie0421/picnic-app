@@ -624,13 +624,21 @@ class InAppPurchaseService {
   /// fallback해 최소한 3일 미확인 자동환불은 막고, 구매가 스토어에 남아
   /// 다음 reconcile이 소비를 재시도한다.
   ///
-  /// 반환값은 스토어 트랜잭션이 실제로 소비/승인됐는지다 - 호출자
-  /// (`PurchaseService._reconcileUnfinishedPurchases`)가 이 값으로
+  /// 반환값은 스토어 트랜잭션이 **실제로 소비(consume)까지 끝났는지**다 -
+  /// 호출자(`PurchaseService._reconcileUnfinishedPurchases`)가 이 값으로
   /// settled/preserved를 가른다. consume과 acknowledge fallback이 모두
   /// 실패해도 예외를 던지지 않는다(다음 reconcile이 재시도하도록 트랜잭션을
   /// 보존하는 게 목적이므로) - 그래서 실패를 false로 명시해야 한다. 예외를
   /// 던지지 않으면서 항상 성공한 것처럼 반환하면(과거 버전의 버그) 호출자는
   /// Play 큐에 미소비 트랜잭션이 남아 있는데도 "완료"로 믿게 된다.
+  ///
+  /// acknowledge fallback **성공도 완료가 아니다** (Sol 머지 게이트 리뷰,
+  /// PR #137): 소비형 상품이 acknowledge만 된 상태는 3일 자동환불은 막지만
+  /// Play에는 여전히 소유(owned)로 남아 다음 구매가 ITEM_ALREADY_OWNED로
+  /// 실패한다. true를 돌리면 스윕이 settled로 세어 preserved==0을 근거로
+  /// 구매 게이트를 여는데, 그 게이트가 연 구매는 실제로는 실패할 상태다.
+  /// fallback은 환불 차단용으로 실행하되 반환은 false로 해 reconcile이
+  /// consume을 재시도하게 한다.
   Future<bool> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
     if (!Platform.isAndroid) {
       try {
@@ -658,7 +666,12 @@ class InAppPurchaseService {
     }
     try {
       await completePurchase(purchaseDetails);
-      return true;
+      logger.w(
+        '⚠️ acknowledge fallback 성공 - 환불 창은 닫혔지만 미소비 상태이므로 '
+        '보존으로 보고(다음 reconcile이 consume 재시도): '
+        '${purchaseDetails.productID}',
+      );
+      return false;
     } catch (e) {
       logger.w('acknowledge fallback도 실패(다음 reconcile 재시도): $e');
       return false;
