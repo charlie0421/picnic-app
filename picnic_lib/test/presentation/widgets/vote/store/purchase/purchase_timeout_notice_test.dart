@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_safety_manager.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
@@ -213,22 +214,56 @@ void main() {
           reason: 'B 는 아직 시트 안일 수 있으므로 미확정 문구를 받아야 한다');
     });
 
-    test('식별자 없는 취소는 관찰 중인 모든 런치에, 구매 증거는 해당 상품에만 기록된다', () {
+    test('식별자 없는 취소는 활성 관찰이 하나일 때만 기록된다', () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      tracker.recordLaunch('STAR100');
+      tracker.recordIdentitylessCancellation();
+      expect(
+        tracker.observationFor('STAR100').identitylessCancellationObserved,
+        isTrue,
+        reason: '단독 시도의 취소는 그 시도의 것으로 볼 수 있다',
+      );
+    });
+
+    test('시도가 둘 이상이면 식별자 없는 취소를 어느 쪽에도 기록하지 않는다 (경고 보존)', () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      // A 는 실결제 진행 중(이벤트 지연으로 증거 아직 없음), B 는 취소됨.
+      tracker.recordLaunch('STAR100');
+      tracker.recordLaunch('STAR200');
+      tracker.recordResumed();
+      tracker.recordIdentitylessCancellation();
+
+      expect(
+        tracker.observationFor('STAR100').identitylessCancellationObserved,
+        isFalse,
+        reason: 'B 의 취소가 A(실결제, 이벤트 지연)의 이중 결제 경고를 지우면 안 된다',
+      );
+      expect(
+        tracker.observationFor('STAR200').identitylessCancellationObserved,
+        isFalse,
+        reason: '귀속 불가 - 취소한 쪽도 팝업이 한 번 더 보일 뿐(현상 유지)',
+      );
+    });
+
+    test('별칭 키는 하나의 관찰로 세므로 단독 시도 판정을 깨지 않는다', () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      tracker.recordLaunch('STAR100', storeAliases: ['PICNICSTAR100']);
+      tracker.recordIdentitylessCancellation();
+      expect(
+        tracker.observationFor('STAR100').identitylessCancellationObserved,
+        isTrue,
+        reason: '별칭 2개 키가 같은 관찰 객체이므로 활성 관찰은 여전히 1개다',
+      );
+    });
+
+    test('구매 증거는 해당 상품에만 기록된다', () {
       final tracker = PurchaseLaunchLifecycleTracker();
       tracker.recordLaunch('STAR100');
       tracker.recordLaunch('STAR200');
-
       tracker.recordPurchaseEvidence('STAR100');
-      tracker.recordIdentitylessCancellation();
 
-      final a = tracker.observationFor('STAR100');
-      expect(a.purchaseEvidenceObserved, isTrue);
-      expect(a.identitylessCancellationObserved, isTrue,
-          reason: '식별자가 없으니 어느 시도의 취소인지 모른다 - 모두에 기록');
-
-      final b = tracker.observationFor('STAR200');
-      expect(b.purchaseEvidenceObserved, isFalse);
-      expect(b.identitylessCancellationObserved, isTrue);
+      expect(tracker.observationFor('STAR100').purchaseEvidenceObserved, isTrue);
+      expect(tracker.observationFor('STAR200').purchaseEvidenceObserved, isFalse);
     });
 
     test('런치 기록이 없는 상품의 관찰값은 보수적이다 (생략·미확정 트리거 금지)', () {
@@ -433,20 +468,27 @@ void main() {
     late PurchaseSafetyManager manager;
     late PurchaseLaunchLifecycleTracker tracker;
     late Map<String, String> shownMessageKeyByProduct;
+    late Future<PurchaseSweepReport?> Function() resolveStoreQueueSweep;
 
     setUp(() {
       tracker = PurchaseLaunchLifecycleTracker(
         canonicalize: PurchaseCampaignAttemptRegistry.canonicalProductKey,
       );
       shownMessageKeyByProduct = {};
+      // 기본값: 큐를 확인했고 애초에 비어 있었다.
+      resolveStoreQueueSweep = () async => const PurchaseSweepReport(
+            trigger: PurchaseSweepTrigger.manual,
+            outcome: PurchaseSweepOutcome.completed,
+          );
       manager = PurchaseSafetyManager(
         loadingKey: GlobalKey<LoadingOverlayWithIconState>(),
         resetPurchaseState: () {},
       );
       // purchase_star_candy_state.dart 의 onTimeoutUIReset 콜백과 동일한
-      // 분기 구조: 타이머가 알려 준 productId → tracker 관찰값 → resolver.
-      // suppressed 는 production 과 동일하게 아무 문구도 기록하지 않는다.
-      manager.onTimeoutUIReset = (productId) {
+      // 분기 구조: 타이머가 알려 준 productId → tracker 관찰값 → resolver
+      // → (suppressed 면) 스토어 큐 실측 재확인. 큐가 비어 있음이 확인된
+      // 경우에만 문구를 생략하고, 아니면 접수 경고를 유지한다.
+      manager.onTimeoutUIReset = (productId) async {
         final observation = tracker.observationFor(productId);
         final notice = resolvePurchaseTimeoutNotice(
           isIOS: false,
@@ -458,7 +500,18 @@ void main() {
           purchaseEvidenceObserved: observation.purchaseEvidenceObserved,
         );
         tracker.clear(productId);
-        if (notice == PurchaseTimeoutNotice.suppressed) return;
+        if (notice == PurchaseTimeoutNotice.suppressed) {
+          final report = await resolveStoreQueueSweep();
+          final verifiedEmpty = report != null &&
+              report.outcome == PurchaseSweepOutcome.completed &&
+              report.scanError == null &&
+              report.found == 0 &&
+              report.preserved == 0;
+          if (verifiedEmpty) return;
+          shownMessageKeyByProduct[productId ?? '<global>'] =
+              'purchase_payment_accepted_message';
+          return;
+        }
         shownMessageKeyByProduct[productId ?? '<global>'] =
             notice == PurchaseTimeoutNotice.paymentUnconfirmed
                 ? 'purchase_payment_unconfirmed_message'
@@ -528,11 +581,43 @@ void main() {
       tracker.recordIdentitylessCancellation();
 
       await tester.pump(const Duration(seconds: 91));
+      await tester.pump(); // 큐 재확인 비동기 완료 대기
 
       expect(shownMessageKeyByProduct, isEmpty,
           reason: '방금 취소한 사용자에게 "접수됐다" 안내는 무의미하다');
       expect(manager.isSafetyTimeoutTriggered, isTrue,
           reason: '타이머·상태 정리는 그대로 일어나야 한다 - 표시만 생략');
+    });
+
+    testWidgets(
+        '이전 세대의 지연 취소가 잘못 기록돼도 큐에서 실결제가 발견되면 경고를 유지한다 '
+        '(Sol 머지 게이트: 세대 교차, found=1/settled=1/preserved=0)', (tester) async {
+      // A 시도 종료 → 같은 상품 B 재런치(유일 관찰) → A 의 지연된 식별자
+      // 없는 취소 도착(B 에 기록됨) → B 는 실결제인데 이벤트가 90초 이상
+      // 지연. 관찰만으로는 suppressed 로 판정되지만, 실결제라면 스토어
+      // 큐에 미소비 트랜잭션이 남아 있으므로 실측 재확인이 경고를 지킨다.
+      // 핵심: 스윕이 발견 즉시 정산에 **성공**해도(found=1, settled=1,
+      // preserved=0) "애초에 비어 있었음"이 아니므로 생략하면 안 된다.
+      resolveStoreQueueSweep = () async => const PurchaseSweepReport(
+            trigger: PurchaseSweepTrigger.manual,
+            outcome: PurchaseSweepOutcome.completed,
+            found: 1,
+            settled: 1,
+          );
+
+      tracker.recordLaunch('STAR100');
+      manager.startSafetyTimer(productId: 'STAR100', attemptId: 'attempt-b');
+      tracker.recordResumed();
+      tracker.recordIdentitylessCancellation(); // 사실은 이전 세대 A 의 취소
+
+      await tester.pump(const Duration(seconds: 91));
+      await tester.pump(); // 큐 재확인 비동기 완료 대기
+
+      expect(
+        shownMessageKeyByProduct['STAR100'],
+        'purchase_payment_accepted_message',
+        reason: '큐 미확인/잔존 시 이중 결제 경고가 유일한 안전장치다',
+      );
     });
 
     testWidgets('취소가 관측돼도 구매 증거가 있으면 팝업(접수 문구)은 유지된다',

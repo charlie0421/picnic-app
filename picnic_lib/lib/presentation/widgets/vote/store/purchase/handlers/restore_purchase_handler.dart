@@ -102,35 +102,50 @@ class RestorePurchaseHandler {
   /// 전부 `false` - 호출자가 이 결과를 "구매해도 안전하다"는 뜻으로
   /// 오인하지 않도록, 여기서 outcome 을 감추지 않고 그대로 반환한다.
   Future<bool> _sweepUntilResolved() async {
+    final report = await resolveStoreQueueSweep();
+    if (report == null) return false;
+    // completed 는 "큐를 확인했고 비어 있었다"만 의미해야 한다.
+    // scanError 가 같이 와 있다면(정상적으로는 PurchaseService 가 그런
+    // 경우 failed 를 돌려주지만, 방어적으로 다시 확인한다) "확인 못
+    // 했다"를 "확인해보니 없었다"로 오인한 것이니 검증된 것으로 치지
+    // 않는다. preserved > 0 도 마찬가지다 - abort 되지 않아 outcome 은
+    // completed 라도, 검증에 실패했거나 지급 미확인이라 큐에 그대로
+    // 남겨둔 항목이 있다는 뜻이라 "비어 있었다"가 아니다
+    // (_reconcileUnfinishedPurchases 의 catch 분기 참고).
+    if (report.outcome == PurchaseSweepOutcome.completed &&
+        report.scanError == null &&
+        report.preserved == 0) {
+      return true;
+    }
+    logger.w('🧹 미완료 구매 확인 실패(${report.outcome.name}) - 검증되지 않음');
+    return false;
+  }
+
+  /// 스토어 큐 스윕을 경합이 풀릴 때까지 재시도해 **결과 리포트**를 돌려준다.
+  ///
+  /// 경합이 끝내 풀리지 않으면 null - 호출자는 이것을 "확인 실패"로 다뤄야
+  /// 한다. [verifyStoreQueueClean] 의 boolean 은 이 리포트의 요약인데, 90초
+  /// 안전망의 "사실상 취소" 팝업 생략 판정처럼 **큐가 애초에 비어
+  /// 있었는지(found==0)** 와 **방금 뭔가를 정산했는지(settled>0)** 를
+  /// 구분해야 하는 호출자는 리포트를 직접 봐야 한다 - 스윕이 발견 즉시
+  /// 정산에 성공하면 boolean 요약은 true 가 되어 "비어 있었다"와 "방금
+  /// 실결제를 처리했다"가 구분되지 않는다 (Sol 머지 게이트 리뷰, PR #137).
+  Future<PurchaseSweepReport?> resolveStoreQueueSweep() async {
     const maxAttempts = 3;
     const inFlightWaitTimeout = Duration(seconds: 8);
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
       final report = await _purchaseService.sweepUnfinishedPurchases(
         trigger: PurchaseSweepTrigger.manual,
       );
-      // completed 는 "큐를 확인했고 비어 있었다"만 의미해야 한다.
-      // scanError 가 같이 와 있다면(정상적으로는 PurchaseService 가 그런
-      // 경우 failed 를 돌려주지만, 방어적으로 다시 확인한다) "확인 못
-      // 했다"를 "확인해보니 없었다"로 오인한 것이니 검증된 것으로 치지
-      // 않는다. preserved > 0 도 마찬가지다 - abort 되지 않아 outcome 은
-      // completed 라도, 검증에 실패했거나 지급 미확인이라 큐에 그대로
-      // 남겨둔 항목이 있다는 뜻이라 "비어 있었다"가 아니다
-      // (_reconcileUnfinishedPurchases 의 catch 분기 참고).
-      if (report.outcome == PurchaseSweepOutcome.completed &&
-          report.scanError == null &&
-          report.preserved == 0) {
-        return true;
-      }
       if (report.outcome != PurchaseSweepOutcome.concurrent) {
-        logger.w('🧹 미완료 구매 확인 실패(${report.outcome.name}) - 검증되지 않음');
-        return false;
+        return report;
       }
       await _purchaseService
           .waitForInFlightSweep()
           .timeout(inFlightWaitTimeout, onTimeout: () {});
     }
     logger.w('🧹 미완료 구매 스윕이 계속 다른 스윕과 경합 - 검증 없이 재시도 포기');
-    return false;
+    return null;
   }
 
   /// 큐를 실제로 다시 확인해 비어 있는지 검증한다.
