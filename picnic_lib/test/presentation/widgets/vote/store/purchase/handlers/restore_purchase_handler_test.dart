@@ -118,6 +118,48 @@ void main() {
     await tester.pump(const Duration(milliseconds: 150));
   });
 
+  // 재구매 시도 시 남아있는 시도를 정리해도 되는지 확인할 때 쓰는 공개
+  // 메서드. performProactiveCleanup과 같은 신호(_sweepUntilResolved)를
+  // 재사용하므로, "큐를 실제로 확인했고 비어 있었다"만 true를 반환해야
+  // 한다.
+  testWidgets(
+      'verifyStoreQueueClean returns true when the store queue is actually '
+      'empty', (tester) async {
+    await build(tester, _FakeUnfinishedSource(const UnfinishedPurchaseScan()));
+
+    late bool clean;
+    await tester.runAsync(() async {
+      clean = await handler.verifyStoreQueueClean();
+    });
+
+    expect(clean, isTrue);
+
+    handler.dispose();
+    await tester.pump(const Duration(milliseconds: 150));
+  });
+
+  testWidgets(
+      'verifyStoreQueueClean returns false when the scan itself fails - a '
+      'failure to check is not the same as "checked, nothing there"',
+      (tester) async {
+    await build(
+      tester,
+      _FakeUnfinishedSource(
+        UnfinishedPurchaseScan(error: Exception('billing client down')),
+      ),
+    );
+
+    late bool clean;
+    await tester.runAsync(() async {
+      clean = await handler.verifyStoreQueueClean();
+    });
+
+    expect(clean, isFalse);
+
+    handler.dispose();
+    await tester.pump(const Duration(milliseconds: 150));
+  });
+
   testWidgets(
       'retries when the app\'s own cold-start/resume sweep is mid-flight, '
       'instead of declaring the queue clean without checking it',
