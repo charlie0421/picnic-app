@@ -66,6 +66,96 @@ void main() {
       );
     });
 
+    test('사실상 취소(취소 관측 + 증거 없음 + 시트 닫힘)는 플랫폼 무관하게 팝업을 생략한다', () {
+      for (final isIOS in [true, false]) {
+        expect(
+          resolvePurchaseTimeoutNotice(
+            isIOS: isIOS,
+            resumedSincePurchaseLaunch: true,
+            currentLifecycleState: AppLifecycleState.resumed,
+            identitylessCancellationObserved: true,
+            purchaseEvidenceObserved: false,
+          ),
+          PurchaseTimeoutNotice.suppressed,
+          reason: '취소했고 구매 흔적이 0이면 접수 안내는 무의미하다 (isIOS=$isIOS)',
+        );
+      }
+    });
+
+    test('resumed 이벤트를 놓쳤어도 현재 전면이면 시트 닫힘으로 인정한다 (Sol 2차 MEDIUM-1)', () {
+      // iOS 는 resumed 이벤트가 purchase() 반환(=recordLaunch)보다 먼저
+      // 지나가 관찰이 false 로 남을 수 있다. 타임아웃 시점에 앱이 전면이면
+      // 시트는 확실히 닫혀 있으므로 취소 억제가 동작해야 한다.
+      for (final isIOS in [true, false]) {
+        expect(
+          resolvePurchaseTimeoutNotice(
+            isIOS: isIOS,
+            resumedSincePurchaseLaunch: false,
+            currentLifecycleState: AppLifecycleState.resumed,
+            identitylessCancellationObserved: true,
+            purchaseEvidenceObserved: false,
+          ),
+          PurchaseTimeoutNotice.suppressed,
+          reason: 'isIOS=$isIOS',
+        );
+      }
+    });
+
+    test('시트가 닫힌 적 없는(방치) 시도는 취소가 관측돼도 생략하지 않는다', () {
+      // 진짜 사용자 취소는 항상 시트가 닫힌 뒤다. resumed 없는 시도에 대한
+      // 취소 관측은 다른 시도의 것일 수밖에 없으므로 생략 근거가 아니다.
+      expect(
+        resolvePurchaseTimeoutNotice(
+          isIOS: false,
+          resumedSincePurchaseLaunch: false,
+          currentLifecycleState: AppLifecycleState.paused,
+          identitylessCancellationObserved: true,
+          purchaseEvidenceObserved: false,
+        ),
+        PurchaseTimeoutNotice.paymentUnconfirmed,
+      );
+    });
+
+    test('구매 증거가 하나라도 있으면 취소가 관측돼도 팝업을 생략하지 않는다', () {
+      expect(
+        resolvePurchaseTimeoutNotice(
+          isIOS: true,
+          resumedSincePurchaseLaunch: true,
+          currentLifecycleState: AppLifecycleState.resumed,
+          identitylessCancellationObserved: true,
+          purchaseEvidenceObserved: true,
+        ),
+        PurchaseTimeoutNotice.paymentAccepted,
+        reason: '증거가 있는 시도의 팝업은 이중 결제 안전장치라 유지해야 한다',
+      );
+      // Android 에서 증거는 있는데 아직 시트 안이면(카드 승인 지연 등)
+      // 미확정 문구가 맞다.
+      expect(
+        resolvePurchaseTimeoutNotice(
+          isIOS: false,
+          resumedSincePurchaseLaunch: false,
+          currentLifecycleState: AppLifecycleState.paused,
+          identitylessCancellationObserved: true,
+          purchaseEvidenceObserved: true,
+        ),
+        PurchaseTimeoutNotice.paymentUnconfirmed,
+      );
+    });
+
+    test('취소 관측이 없으면 구매 증거가 없어도 팝업은 유지된다', () {
+      expect(
+        resolvePurchaseTimeoutNotice(
+          isIOS: true,
+          resumedSincePurchaseLaunch: true,
+          currentLifecycleState: AppLifecycleState.resumed,
+          identitylessCancellationObserved: false,
+          purchaseEvidenceObserved: false,
+        ),
+        PurchaseTimeoutNotice.paymentAccepted,
+        reason: '이벤트가 아무것도 안 온 경우는 취소 확신이 없다 - 안전 기본값 유지',
+      );
+    });
+
     test('iOS: 어떤 조합에서도 기존 접수 문구를 유지한다 (회귀 금지)', () {
       for (final resumed in [true, false]) {
         for (final state in [
@@ -123,6 +213,209 @@ void main() {
           reason: 'B 는 아직 시트 안일 수 있으므로 미확정 문구를 받아야 한다');
     });
 
+    test('식별자 없는 취소는 관찰 중인 모든 런치에, 구매 증거는 해당 상품에만 기록된다', () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      tracker.recordLaunch('STAR100');
+      tracker.recordLaunch('STAR200');
+
+      tracker.recordPurchaseEvidence('STAR100');
+      tracker.recordIdentitylessCancellation();
+
+      final a = tracker.observationFor('STAR100');
+      expect(a.purchaseEvidenceObserved, isTrue);
+      expect(a.identitylessCancellationObserved, isTrue,
+          reason: '식별자가 없으니 어느 시도의 취소인지 모른다 - 모두에 기록');
+
+      final b = tracker.observationFor('STAR200');
+      expect(b.purchaseEvidenceObserved, isFalse);
+      expect(b.identitylessCancellationObserved, isTrue);
+    });
+
+    test('런치 기록이 없는 상품의 관찰값은 보수적이다 (생략·미확정 트리거 금지)', () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      tracker.recordIdentitylessCancellation();
+
+      final unknown = tracker.observationFor('UNKNOWN');
+      expect(unknown.resumedSinceLaunch, isTrue);
+      expect(unknown.purchaseEvidenceObserved, isTrue);
+      expect(unknown.identitylessCancellationObserved, isFalse);
+
+      final global = tracker.observationFor(null);
+      expect(global.identitylessCancellationObserved, isFalse);
+    });
+
+    test('런치 확정 전에 도착한 구매 증거는 latch 됐다가 런치에 병합된다 (Sol 2차 HIGH-2)', () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      // purchased 이벤트가 런치 확정보다 먼저 도착하는 레이스
+      // (bindWithLaunchGrace 가 흡수하는 것과 동일).
+      tracker.recordPurchaseEvidence('STAR100');
+      tracker.recordLaunch('STAR100');
+      tracker.recordIdentitylessCancellation();
+      tracker.recordResumed();
+
+      expect(
+        tracker.observationFor('STAR100').purchaseEvidenceObserved,
+        isTrue,
+        reason: '실결제 증거가 런치 리셋에 지워지면 팝업이 잘못 생략된다',
+      );
+    });
+
+    test('스토어 별칭 ID 로 도착한 증거가 서버 ID 시도로 모인다 (Sol 2차 HIGH-3)', () {
+      final tracker = PurchaseLaunchLifecycleTracker(
+        canonicalize: PurchaseCampaignAttemptRegistry.canonicalProductKey,
+      );
+      // iOS: 이벤트가 앱 접두사 붙은 스토어 ID 로 도착.
+      tracker.recordLaunch('STAR100', storeAliases: ['PICNICSTAR100']);
+      tracker.recordPurchaseEvidence('picnicSTAR100');
+      expect(tracker.observationFor('STAR100').purchaseEvidenceObserved, isTrue);
+      tracker.clear('STAR100');
+      expect(
+        tracker.observationFor('PICNICSTAR100').purchaseEvidenceObserved,
+        isTrue,
+        reason: 'clear 는 별칭 키까지 정리해 보수적 기본값으로 돌아가야 한다',
+      );
+
+      // Android dev: 네임스페이스 SKU 로 도착.
+      tracker.recordLaunch('STAR100', storeAliases: ['staging.star100']);
+      tracker.recordPurchaseEvidence('STAGING.STAR100');
+      expect(tracker.observationFor('star100').purchaseEvidenceObserved, isTrue);
+    });
+
+    test('시도 없는 이벤트는 latch 하지 않는다 - production 게이트 재현 (Sol 2차 MEDIUM-2)', () {
+      final tracker = PurchaseLaunchLifecycleTracker(
+        canonicalize: PurchaseCampaignAttemptRegistry.canonicalProductKey,
+      );
+      final registry = PurchaseCampaignAttemptRegistry();
+      // purchase_star_candy_state.dart 의 증거 관찰 게이트와 동일한 조건
+      // (스토어 표기 역해석 포함).
+      void observeEvidence(
+        String productId, {
+        String iosAppPrefix = '',
+        String androidNamespace = '',
+      }) {
+        final matches =
+            tracker.hasObservation(productId) ||
+            serverProductIdCandidatesForStoreEvent(
+              productId,
+              iosAppPrefix: iosAppPrefix,
+              androidNamespace: androidNamespace,
+            ).any(registry.contains);
+        if (matches) {
+          tracker.recordPurchaseEvidence(productId);
+        }
+      }
+
+      // 초기화 정리/재전달로 도착한 restored - 활성 시도 없음 → 관찰 금지.
+      observeEvidence('STAR100');
+
+      // 이후 정상 시도: latch 오염이 없어야 취소 억제가 동작한다.
+      tracker.recordLaunch('STAR100');
+      tracker.recordResumed();
+      tracker.recordIdentitylessCancellation();
+      expect(
+        tracker.observationFor('STAR100').purchaseEvidenceObserved,
+        isFalse,
+        reason: '과거 구매의 이벤트가 새 시도의 취소 억제를 무력화하면 안 된다',
+      );
+
+      // 활성 시도가 있는 이벤트-선행 레이스는 여전히 latch 된다 (HIGH-2).
+      registry.begin(
+        const PurchaseCampaignAttempt(
+          attemptId: 'a2',
+          productId: 'STAR200',
+          displayedCampaign: null,
+        ),
+      );
+      observeEvidence('star200');
+      tracker.recordLaunch('STAR200');
+      expect(
+        tracker.observationFor('STAR200').purchaseEvidenceObserved,
+        isTrue,
+      );
+
+      // 스토어 별칭 표기(iOS 접두사·Android 네임스페이스)로 도착한 이벤트도
+      // 역해석으로 게이트를 통과해 latch 된다 (Sol 재검증2의 별칭 레이스).
+      registry.begin(
+        const PurchaseCampaignAttempt(
+          attemptId: 'a3',
+          productId: 'STAR300',
+          displayedCampaign: null,
+        ),
+      );
+      observeEvidence('PICNICSTAR300', iosAppPrefix: 'PICNIC');
+      tracker.recordLaunch('STAR300', storeAliases: ['PICNICSTAR300']);
+      expect(
+        tracker.observationFor('STAR300').purchaseEvidenceObserved,
+        isTrue,
+        reason: 'iOS 접두사 표기의 런치 전 증거가 유실되면 안 된다',
+      );
+
+      registry.begin(
+        const PurchaseCampaignAttempt(
+          attemptId: 'a4',
+          productId: 'STAR400',
+          displayedCampaign: null,
+        ),
+      );
+      observeEvidence('staging.star400', androidNamespace: 'staging.');
+      tracker.recordLaunch('STAR400', storeAliases: ['staging.star400']);
+      expect(
+        tracker.observationFor('STAR400').purchaseEvidenceObserved,
+        isTrue,
+        reason: 'Android 네임스페이스 표기의 런치 전 증거가 유실되면 안 된다',
+      );
+    });
+
+    test('serverProductIdCandidatesForStoreEvent 는 접두사/네임스페이스를 역해석한다', () {
+      expect(
+        serverProductIdCandidatesForStoreEvent(
+          'PICNICSTAR100',
+          iosAppPrefix: 'PICNIC',
+          androidNamespace: '',
+        ),
+        containsAll(['PICNICSTAR100', 'STAR100']),
+      );
+      expect(
+        serverProductIdCandidatesForStoreEvent(
+          'staging.star100',
+          iosAppPrefix: '',
+          androidNamespace: 'STAGING.',
+        ),
+        containsAll(['staging.star100', 'star100']),
+      );
+      // 접두사 설정이 비어 있으면(현재 전 환경) 원본 그대로 하나뿐이다.
+      expect(
+        serverProductIdCandidatesForStoreEvent(
+          'star100',
+          iosAppPrefix: '',
+          androidNamespace: '',
+        ),
+        ['star100'],
+      );
+      // 접두사와 동일한 문자열 자체는 후보를 만들지 않는다.
+      expect(
+        serverProductIdCandidatesForStoreEvent(
+          'PICNIC',
+          iosAppPrefix: 'PICNIC',
+          androidNamespace: '',
+        ),
+        ['PICNIC'],
+      );
+    });
+
+    test('새 런치는 이전 시도의 취소/증거 관찰을 초기화한다', () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      tracker.recordLaunch('STAR100');
+      tracker.recordPurchaseEvidence('STAR100');
+      tracker.recordIdentitylessCancellation();
+
+      tracker.recordLaunch('STAR100');
+      final observation = tracker.observationFor('STAR100');
+      expect(observation.resumedSinceLaunch, isFalse);
+      expect(observation.purchaseEvidenceObserved, isFalse);
+      expect(observation.identitylessCancellationObserved, isFalse);
+    });
+
     test('안전망 타이머와 같은 canonical 상품 키를 쓸 수 있다 (STAR100 vs star100)', () {
       final tracker = PurchaseLaunchLifecycleTracker(
         canonicalize: PurchaseCampaignAttemptRegistry.canonicalProductKey,
@@ -151,15 +444,21 @@ void main() {
         resetPurchaseState: () {},
       );
       // purchase_star_candy_state.dart 의 onTimeoutUIReset 콜백과 동일한
-      // 분기 구조: 타이머가 알려 준 productId → tracker 조회 → resolver.
+      // 분기 구조: 타이머가 알려 준 productId → tracker 관찰값 → resolver.
+      // suppressed 는 production 과 동일하게 아무 문구도 기록하지 않는다.
       manager.onTimeoutUIReset = (productId) {
+        final observation = tracker.observationFor(productId);
         final notice = resolvePurchaseTimeoutNotice(
           isIOS: false,
-          resumedSincePurchaseLaunch: tracker.resumedSinceLaunch(productId),
+          resumedSincePurchaseLaunch: observation.resumedSinceLaunch,
           // 방치 시나리오: 앱은 Play 시트 뒤에서 paused 상태다.
           currentLifecycleState: AppLifecycleState.paused,
+          identitylessCancellationObserved:
+              observation.identitylessCancellationObserved,
+          purchaseEvidenceObserved: observation.purchaseEvidenceObserved,
         );
         tracker.clear(productId);
+        if (notice == PurchaseTimeoutNotice.suppressed) return;
         shownMessageKeyByProduct[productId ?? '<global>'] =
             notice == PurchaseTimeoutNotice.paymentUnconfirmed
                 ? 'purchase_payment_unconfirmed_message'
@@ -216,6 +515,40 @@ void main() {
         shownMessageKeyByProduct['STAR200'],
         'purchase_payment_unconfirmed_message',
         reason: 'B 는 방치 상태다',
+      );
+    });
+
+    testWidgets('사실상 취소(식별자 없는 취소 + 증거 없음)는 90초에 팝업이 뜨지 않는다',
+        (tester) async {
+      // 사용자가 시트에서 취소 → 취소 이벤트가 ID 없이 도착해 타이머는
+      // 살아남고, resumed 로 복귀한 상태.
+      tracker.recordLaunch('STAR100');
+      manager.startSafetyTimer(productId: 'STAR100', attemptId: 'attempt-1');
+      tracker.recordResumed();
+      tracker.recordIdentitylessCancellation();
+
+      await tester.pump(const Duration(seconds: 91));
+
+      expect(shownMessageKeyByProduct, isEmpty,
+          reason: '방금 취소한 사용자에게 "접수됐다" 안내는 무의미하다');
+      expect(manager.isSafetyTimeoutTriggered, isTrue,
+          reason: '타이머·상태 정리는 그대로 일어나야 한다 - 표시만 생략');
+    });
+
+    testWidgets('취소가 관측돼도 구매 증거가 있으면 팝업(접수 문구)은 유지된다',
+        (tester) async {
+      tracker.recordLaunch('STAR100');
+      manager.startSafetyTimer(productId: 'STAR100', attemptId: 'attempt-1');
+      tracker.recordResumed();
+      tracker.recordPurchaseEvidence('star100'); // 스토어 소문자 SKU 로 도착
+      tracker.recordIdentitylessCancellation();
+
+      await tester.pump(const Duration(seconds: 91));
+
+      expect(
+        shownMessageKeyByProduct['STAR100'],
+        'purchase_payment_accepted_message',
+        reason: '증거가 있는 시도의 팝업은 이중 결제 안전장치다',
       );
     });
 
