@@ -45,7 +45,7 @@ class UserInfo extends _$UserInfo {
       final response = await supabase
           .from('user_profiles')
           .select(
-            'id,avatar_url,star_candy,nickname,email,star_candy_bonus,is_admin,birth_date,gender,birth_time,deleted_at,user_agreement(id,terms,privacy)',
+            'id,avatar_url,star_candy,nickname,email,star_candy_bonus,is_admin,is_super_admin,birth_date,gender,birth_time,deleted_at,user_agreement(id,terms,privacy)',
           )
           .eq('id', supabase.auth.currentUser!.id)
           .maybeSingle();

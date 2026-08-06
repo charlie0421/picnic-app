@@ -37,10 +37,12 @@ class _CurrencyHistoryPageState extends ConsumerState<CurrencyHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isAdmin =
-        ref.watch(userInfoProvider.select((state) => state.value?.isAdmin)) ??
+    final hasAdminAccess =
+        ref.watch(
+          userInfoProvider.select((state) => state.value?.hasAdminAccess),
+        ) ??
         false;
-    if (!isAdmin) return const SizedBox.shrink();
+    if (!hasAdminAccess) return const SizedBox.shrink();
 
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(

@@ -177,7 +177,7 @@ class _MyPageState extends ConsumerState<MyPage>
                       .read(navigationInfoProvider.notifier)
                       .setCurrentMyPage(const SettingPage()),
                 ),
-                if (data?.isAdmin ?? false)
+                if (data?.hasAdminAccess ?? false)
                   PicnicListItem(
                     leading: '관리자',
                     assetPath: 'assets/icons/arrow_right_style=line.svg',

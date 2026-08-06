@@ -64,7 +64,7 @@ class _AdminMenuPageState extends ConsumerState<AdminMenuPage>
 
     return userInfoState.when(
       data: (data) {
-        if (!(data?.isAdmin ?? false)) {
+        if (!(data?.hasAdminAccess ?? false)) {
           return const Scaffold(body: Center(child: Text('접근 권한이 없습니다.')));
         }
 

@@ -39,12 +39,14 @@ class MockData {
     int starCandyBonus = 10,
     int jmaCandy = 50,
     bool isAdmin = false,
+    bool? isSuperAdmin,
   }) {
     return UserProfilesModel(
       id: id,
       nickname: nickname,
       avatarUrl: avatarUrl,
       isAdmin: isAdmin,
+      isSuperAdmin: isSuperAdmin,
       starCandy: starCandy,
       starCandyBonus: starCandyBonus,
       jmaCandy: jmaCandy,
