@@ -20,7 +20,7 @@ class StoreListTile extends StatelessWidget {
 
   final Image icon;
   final Text title;
-  final Text? subtitle;
+  final Widget? subtitle;
   final String buttonText;
   final VoidCallback? buttonOnPressed; // 여기를 VoidCallback?로 변경
   final bool isLoading;

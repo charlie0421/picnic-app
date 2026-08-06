@@ -13,7 +13,6 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/global_purchase_provider.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
@@ -23,6 +22,7 @@ import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/common/reward_breakdown.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
@@ -1441,15 +1441,16 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         serverProduct['id'],
         style: getTextStyle(AppTypo.body16B, AppColors.grey900),
       ),
-      subtitle: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: getLocaleTextFromJson(serverProduct['description']),
-              style: getTextStyle(AppTypo.caption12B, AppColors.point900),
-            ),
-          ],
-        ),
+      subtitle: RewardBreakdown(
+        baseAmount: (serverProduct['star_candy'] as num?)?.toInt() ?? 0,
+        // Supabase products uses `star_candy_bonus`; keep the API spelling as
+        // a fallback for older/web catalog payloads.
+        bonusAmount:
+            ((serverProduct['star_candy_bonus'] ??
+                        serverProduct['bonus_star_candy'])
+                    as num?)
+                ?.toInt() ??
+            0,
       ),
       badge: campaign == null ? null : CandyBoostBadge(campaign: campaign),
       isLoading: isCurrentProductLoading,
