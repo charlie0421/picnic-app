@@ -1287,6 +1287,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.';
 
   @override
+  String get purchase_payment_unconfirmed_message =>
+      'Your payment has not been confirmed yet. You may not have completed the payment on the store\'s payment screen.\nIf you have already paid, your Star Candy will be credited automatically once processing finishes — please do not pay again.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override

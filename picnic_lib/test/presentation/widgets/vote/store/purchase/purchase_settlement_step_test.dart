@@ -166,7 +166,7 @@ void main() {
       resetPurchaseState: () {},
       events: events,
     );
-    manager.onTimeoutUIReset = () => timeoutMessages++;
+    manager.onTimeoutUIReset = (_) => timeoutMessages++;
     manager.onProductTimeout = (timedOutProduct, timedOutAttempt) {
       if (timedOutAttempt != null) {
         registry.removeIfMatches(timedOutProduct, timedOutAttempt);

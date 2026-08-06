@@ -1637,6 +1637,10 @@
   "@purchase_payment_accepted_message": {
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
+  "purchase_payment_unconfirmed_message": "ยังไม่สามารถยืนยันการชำระเงินของคุณได้ คุณอาจยังทำการชำระเงินไม่เสร็จสิ้นในหน้าชำระเงินของสโตร์\nหากคุณชำระเงินแล้ว ลูกอมดาวจะเข้าบัญชีโดยอัตโนมัติเมื่อประมวลผลเสร็จสิ้น กรุณาอย่าชำระเงินซ้ำ",
+  "@purchase_payment_unconfirmed_message": {
+    "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
+  },
   "label_tabbar_vote_upcoming": "ที่กำลังจะมาถึง",
   "@label_tabbar_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."

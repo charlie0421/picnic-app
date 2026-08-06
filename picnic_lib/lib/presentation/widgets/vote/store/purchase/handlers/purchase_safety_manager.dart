@@ -46,7 +46,12 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   final Map<String, String?> _safetyAttemptByProduct = {};
   bool _safetyTimeoutTriggered = false;
   DateTime? _safetyTimeoutTime;
-  VoidCallback? onTimeoutUIReset;
+
+  /// 타임아웃 안내 표시 콜백. 어느 상품의 타이머가 울렸는지(전역 타이머면
+  /// null)를 전달한다 - UI 가 시도별 관찰 상태(resumed 수신 여부)로 문구를
+  /// 고를 수 있어야 하기 때문이다. 상품별 타이머가 공존할 때 productId 없이
+  /// 는 다른 시도의 상태를 읽게 된다.
+  void Function(String? productId)? onTimeoutUIReset;
   void Function(String productId, String? attemptId)? onProductTimeout;
 
   // 🎯 3-State 심플 솔루션 - 이것만으로 모든 문제 해결!
@@ -147,7 +152,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       _resetPurchaseState();
     }
 
-    onTimeoutUIReset?.call();
+    onTimeoutUIReset?.call(productId);
   }
 
   /// 서버 정산이 아직 진행 중임이 확인된 상품의 UI 정리 + 재구매 차단.

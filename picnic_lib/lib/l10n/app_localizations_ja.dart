@@ -1244,6 +1244,10 @@ class AppLocalizationsJa extends AppLocalizations {
       '決済を受け付けました。処理が完了すると、スターキャンディが自動的に付与されます。\nもう一度お支払いしないでください。';
 
   @override
+  String get purchase_payment_unconfirmed_message =>
+      'まだ決済が確認できていません。ストアの決済画面で決済が完了していない可能性があります。\nすでにお支払いを完了された場合は、処理が完了するとスターキャンディが自動的に付与されますので、もう一度お支払いしないでください。';
+
+  @override
   String get label_tabbar_vote_upcoming => '予定';
 
   @override

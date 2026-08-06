@@ -38,12 +38,13 @@ import 'package:picnic_lib/core/services/purchase_service_helper.dart';
 
 import 'purchase_helper.dart';
 import 'purchase_processor.dart';
+import 'purchase_timeout_notice.dart';
 import 'purchase_campaign_attempt.dart';
 import 'purchase_settlement_step.dart';
 import 'wallet_summary_applier.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   /// The app-level purchase service. **Not constructed here.**
   ///
   /// Building one here is what made the store the only subscriber to
@@ -91,6 +92,20 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
   bool _transactionsCleared = false;
   bool _isInitializing = true;
+
+  /// 구매 런치 성공(스토어 결제 시트 표시) 이후 앱이 resumed 이벤트를
+  /// 받았는지 - **상품별** 관찰.
+  ///
+  /// Android 는 Play 결제 시트가 열려 있는 동안 앱이 inactive/paused 로
+  /// 내려가고 시트가 닫혀야 resumed 로 복귀하므로, 90초 안전망이 울릴 때까지
+  /// 그 시도의 값이 false 면 사용자가 아직 시트 안에 있다(방치 포함)고 본다 —
+  /// 문구 분기는 [resolvePurchaseTimeoutNotice] 참고. 키는 안전망 타이머와
+  /// 같은 canonical 상품 키를 쓴다 (Android 는 타이머가 서버 ID 로 시작되고
+  /// 이벤트는 소문자 SKU 로 도착하므로 통일 필수).
+  final PurchaseLaunchLifecycleTracker _launchLifecycle =
+      PurchaseLaunchLifecycleTracker(
+        canonicalize: PurchaseCampaignAttemptRegistry.canonicalProductKey,
+      );
   final Set<String> _currentlyProcessingIDs = {};
   final PurchaseCampaignAttemptRegistry _purchaseAttempts =
       PurchaseCampaignAttemptRegistry();
@@ -104,6 +119,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   void initState() {
     super.initState();
     logger.d('[PurchaseStarCandyState] initState called');
+
+    WidgetsBinding.instance.addObserver(this);
 
     _applyWalletSummary = ContainerWalletSummaryApplier.of(context);
     _refreshWalletSummary = ContainerWalletSummaryRefresher.of(context);
@@ -141,7 +158,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     _restoreHandler.setSafetyManager(_safetyManager);
 
     // 🎯 심플 타임아웃 처리: 직접 콜백 설정
-    _safetyManager.onTimeoutUIReset = () {
+    _safetyManager.onTimeoutUIReset = (productId) {
       if (mounted) {
         setState(() {});
         _loadingKey.currentState?.hide();
@@ -151,7 +168,26 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         // 이 시점의 진실은 "접수됐고 아직 처리 중"이다. 예전 문구
         // (purchase_timeout_message: "나중에 다시 시도해주세요")는 소비형
         // 상품의 재결제를 권해 이중 과금을 유도했다.
-        showSimpleDialog(content: l10n.purchase_payment_accepted_message);
+        //
+        // 단, Android 에서 **이 시도의** 런치 후 앱이 한 번도 resumed 되지
+        // 않았다면 사용자가 아직 Play 결제 시트 안에 있을 수 있다 — 그 경우
+        // "결제가 접수되었습니다" 는 아직 일어나지 않았을 결제를 단정하므로,
+        // 접수를 전제하지 않는 문구로 안내한다 (재결제 금지 안내는 두 문구
+        // 모두 유지한다). 판정은 타이머가 알려 준 productId 의 관찰값만
+        // 쓴다 - 다른 상품의 런치가 이 시도의 이력을 덮으면 안 된다.
+        final notice = resolvePurchaseTimeoutNotice(
+          isIOS: Platform.isIOS,
+          resumedSincePurchaseLaunch: _launchLifecycle.resumedSinceLaunch(
+            productId,
+          ),
+          currentLifecycleState: WidgetsBinding.instance.lifecycleState,
+        );
+        _launchLifecycle.clear(productId);
+        showSimpleDialog(
+          content: notice == PurchaseTimeoutNotice.paymentUnconfirmed
+              ? l10n.purchase_payment_unconfirmed_message
+              : l10n.purchase_payment_accepted_message,
+        );
       }
     };
     _safetyManager.onProductTimeout = (productId, attemptId) {
@@ -207,7 +243,15 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _launchLifecycle.recordResumed();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _restoreHandler.dispose();
     _safetyManager.disposeSafetyTimer();
     _rotationController.dispose();
@@ -823,6 +867,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     bool terminal = false,
   }) {
     _safetyManager.resetProductState(productId);
+    // 타이머가 내려간 시도는 더 이상 타임아웃 문구 판정이 없다 - 관찰 종료.
+    _launchLifecycle.clear(productId);
     if (terminal && attemptId != null) {
       _purchaseAttempts.removeIfMatches(productId, attemptId);
     }
@@ -1080,6 +1126,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     _purchaseAttempts.applyLaunchResult(productId, attemptId, purchaseResult);
+
+    if (purchaseResult['success'] == true) {
+      // 런치가 성공했다 = 스토어 결제 시트가 이제 사용자 앞에 있다(Android).
+      // 이 시점 이후의 resumed 수신 여부가 "시트를 닫고 나왔는지"의 근거다.
+      _launchLifecycle.recordLaunch(productId);
+    }
 
     await _safetyManager.handlePurchaseResult(
       purchaseResult,

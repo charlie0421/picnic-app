@@ -1307,6 +1307,10 @@ class AppLocalizationsFil extends AppLocalizations {
       'Natanggap na ang iyong bayad. Awtomatikong maikakredito ang iyong Star Candy kapag natapos ang pagproseso.\nHuwag nang magbayad muli.';
 
   @override
+  String get purchase_payment_unconfirmed_message =>
+      'Hindi pa nakukumpirma ang iyong bayad. Maaaring hindi mo pa natapos ang pagbabayad sa payment screen ng store.\nKung nakabayad ka na, awtomatikong maikakredito ang iyong Star Candy kapag natapos ang pagproseso. Huwag nang magbayad muli.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Paparating';
 
   @override

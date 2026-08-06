@@ -30,7 +30,7 @@ void main() {
 
   group('Safety timeout with onTimeoutUIReset callback', () {
     testWidgets('triggers callback after timeout', (tester) async {
-      manager.onTimeoutUIReset = () {
+      manager.onTimeoutUIReset = (_) {
         timeoutUIResetCalled = true;
       };
 

@@ -1242,6 +1242,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '결제가 접수되었습니다. 처리가 끝나면 스타캔디가 자동으로 적립됩니다.\n다시 결제하지 마세요.';
 
   @override
+  String get purchase_payment_unconfirmed_message =>
+      '아직 결제가 확인되지 않았습니다. 스토어 결제 화면에서 결제가 완료되지 않았을 수 있습니다.\n이미 결제하셨다면 처리가 끝나는 대로 스타캔디가 자동으로 적립되니, 다시 결제하지 마세요.';
+
+  @override
   String get label_tabbar_vote_upcoming => '예정됨';
 
   @override

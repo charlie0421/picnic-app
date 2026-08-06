@@ -2513,6 +2513,12 @@ abstract class AppLocalizations {
   /// **'Your payment has been received. Your Star Candy will be credited automatically once processing finishes.\nPlease do not pay again.'**
   String get purchase_payment_accepted_message;
 
+  /// Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment has not been confirmed yet. You may not have completed the payment on the store\'s payment screen.\nIf you have already paid, your Star Candy will be credited automatically once processing finishes — please do not pay again.'**
+  String get purchase_payment_unconfirmed_message;
+
   /// Auto-generated metadata for key 'label_tabbar_vote_upcoming'.
   ///
   /// In en, this message translates to:

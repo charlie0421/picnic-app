@@ -1286,6 +1286,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার পেমেন্ট গৃহীত হয়েছে। প্রক্রিয়া শেষ হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে।\nঅনুগ্রহ করে আবার পেমেন্ট করবেন না।';
 
   @override
+  String get purchase_payment_unconfirmed_message =>
+      'আপনার পেমেন্ট এখনও নিশ্চিত হয়নি। স্টোরের পেমেন্ট স্ক্রিনে পেমেন্ট এখনও সম্পন্ন না-ও হয়ে থাকতে পারে।\nইতিমধ্যে পেমেন্ট করে থাকলে, প্রক্রিয়া শেষ হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে। অনুগ্রহ করে আবার পেমেন্ট করবেন না।';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
@@ -3302,6 +3306,10 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get purchase_payment_accepted_message =>
       'আপনার পেমেন্ট গৃহীত হয়েছে। প্রক্রিয়া শেষ হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে।\nঅনুগ্রহ করে আবার পেমেন্ট করবেন না।';
+
+  @override
+  String get purchase_payment_unconfirmed_message =>
+      'আপনার পেমেন্ট এখনও নিশ্চিত হয়নি। স্টোরের পেমেন্ট স্ক্রিনে পেমেন্ট এখনও সম্পন্ন না-ও হয়ে থাকতে পারে।\nইতিমধ্যে পেমেন্ট করে থাকলে, প্রক্রিয়া শেষ হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে। অনুগ্রহ করে আবার পেমেন্ট করবেন না।';
 
   @override
   String get label_tabbar_vote_upcoming => 'আসন্ন';
