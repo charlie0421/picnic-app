@@ -34,6 +34,7 @@ import 'handlers/restore_purchase_handler.dart';
 import 'handlers/purchase_safety_manager.dart';
 import 'handlers/purchase_dialog_handler.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/config/payment_product_id_policy.dart';
 import 'package:picnic_lib/core/services/purchase_service_helper.dart';
 
 import 'purchase_helper.dart';
@@ -173,16 +174,30 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         // 않았다면 사용자가 아직 Play 결제 시트 안에 있을 수 있다 — 그 경우
         // "결제가 접수되었습니다" 는 아직 일어나지 않았을 결제를 단정하므로,
         // 접수를 전제하지 않는 문구로 안내한다 (재결제 금지 안내는 두 문구
-        // 모두 유지한다). 판정은 타이머가 알려 준 productId 의 관찰값만
-        // 쓴다 - 다른 상품의 런치가 이 시도의 이력을 덮으면 안 된다.
+        // 모두 유지한다). 그리고 식별자 없는 취소가 관측됐고 구매 증거가
+        // 전혀 없는 시도(= 사실상 취소, 취소 이벤트가 ID 없이 와서 타이머를
+        // 못 지운 경우)는 팝업 자체를 생략한다 — 방금 취소한 사용자에게
+        // "접수됐다" 는 안내는 무의미하다 (iOS 실기기, 2026-08-06). 판정은
+        // 타이머가 알려 준 productId 의 관찰값만 쓴다 - 다른 상품의 런치가
+        // 이 시도의 이력을 덮으면 안 된다.
+        final observation = _launchLifecycle.observationFor(productId);
         final notice = resolvePurchaseTimeoutNotice(
           isIOS: Platform.isIOS,
-          resumedSincePurchaseLaunch: _launchLifecycle.resumedSinceLaunch(
-            productId,
-          ),
+          resumedSincePurchaseLaunch: observation.resumedSinceLaunch,
           currentLifecycleState: WidgetsBinding.instance.lifecycleState,
+          identitylessCancellationObserved:
+              observation.identitylessCancellationObserved,
+          purchaseEvidenceObserved: observation.purchaseEvidenceObserved,
         );
         _launchLifecycle.clear(productId);
+        if (notice == PurchaseTimeoutNotice.suppressed) {
+          logger.i(
+            '[PurchaseStarCandyState] Safety timeout for $productId '
+            'suppressed - identity-less cancellation observed with no '
+            'purchase evidence',
+          );
+          return;
+        }
         showSimpleDialog(
           content: notice == PurchaseTimeoutNotice.paymentUnconfirmed
               ? l10n.purchase_payment_unconfirmed_message
@@ -345,6 +360,26 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       '[PurchaseStarCandyState] Processing: ${purchaseDetails.status} for ${purchaseDetails.productID}',
     );
 
+    // 순수 관찰: 이 상품의 구매 증거가 도착했다. 아래의 어떤 게이트에서
+    // 이벤트가 버려지든, 90초 안전망의 "사실상 취소" 판정(팝업 생략)은
+    // 구매 흔적이 하나라도 있으면 절대 내려지면 안 된다.
+    //
+    // 단, 이 화면의 시도와 무관한 이벤트(초기화 정리의 restored, 과거
+    // 구매의 재전달 orphan)까지 기록하면 latch 가 미래 시도를 오염시켜
+    // 정당한 취소 억제가 무력화된다 (Sol 2차 재검증 MEDIUM-2). 런치 관찰이
+    // 이미 있거나(별칭 포함) 이 상품의 attempt 가 살아 있는 이벤트만
+    // 관찰한다. 게이트에 걸려 놓친 증거의 결과는 "팝업 생략 조건이 하나 덜
+    // 채워짐" = 팝업 표시 쪽이므로 안전 방향이다.
+    if ((purchaseDetails.status == PurchaseStatus.pending ||
+            purchaseDetails.status == PurchaseStatus.purchased ||
+            purchaseDetails.status == PurchaseStatus.restored) &&
+        purchaseDetails.productID.isNotEmpty &&
+        _storeEventBelongsToLiveObservationOrAttempt(
+          purchaseDetails.productID,
+        )) {
+      _launchLifecycle.recordPurchaseEvidence(purchaseDetails.productID);
+    }
+
     // Android에서 pending 구매를 완료(consume)하는 것은 계약 위반이고,
     // 결제 완료 전 소비 시도가 된다. iOS의 막힌 StoreKit 트랜잭션 정리
     // 용도로만 유지한다.
@@ -422,6 +457,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           '[PurchaseStarCandyState] Identity-less ${purchaseDetails.status} '
           '- releasing global loading only, no attempt touched',
         );
+        // 순수 관찰: 어느 시도의 취소인지 증명할 수 없어 상태는 못 지우지만,
+        // 90초 안전망이 울릴 때 "구매 증거 없음 + 취소 관측"이면 접수
+        // 팝업을 생략하는 근거로는 쓴다 (틀려도 팝업이 한 번 더 뜰 뿐,
+        // 상태를 잘못 지우는 위험이 없다).
+        _launchLifecycle.recordIdentitylessCancellation();
         if (mounted) _loadingKey.currentState?.hide();
         return;
       }
@@ -438,6 +478,22 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     await _processErrorAndCancel(purchaseDetails, boundAttempt);
+  }
+
+  /// 이 스토어 이벤트가 살아 있는 런치 관찰 또는 활성 attempt 의 것인지.
+  ///
+  /// 이벤트의 productID 는 스토어 표기(iOS 접두사·Android 네임스페이스)일
+  /// 수 있으므로, 관찰 별칭 키와 서버 ID 역해석 후보 양쪽으로 조회한다.
+  /// 어느 쪽에도 없으면 이 화면의 시도와 무관한 이벤트(초기화 정리의
+  /// restored, 과거 구매 재전달)다 - 그런 이벤트를 latch 하면 미래 시도의
+  /// 취소 억제를 오염시킨다 (Sol 2차 재검증 MEDIUM-2).
+  bool _storeEventBelongsToLiveObservationOrAttempt(String eventProductId) {
+    if (_launchLifecycle.hasObservation(eventProductId)) return true;
+    return serverProductIdCandidatesForStoreEvent(
+      eventProductId,
+      iosAppPrefix: Environment.inappAppNamePrefix,
+      androidNamespace: Environment.storeQueryNamespace,
+    ).any(_purchaseAttempts.contains);
   }
 
   /// UI 어템프트 없이 도착한 실결제 이벤트의 정산.
@@ -1130,7 +1186,21 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     if (purchaseResult['success'] == true) {
       // 런치가 성공했다 = 스토어 결제 시트가 이제 사용자 앞에 있다(Android).
       // 이 시점 이후의 resumed 수신 여부가 "시트를 닫고 나왔는지"의 근거다.
-      _launchLifecycle.recordLaunch(productId);
+      // 스토어 이벤트는 서버 ID 가 아니라 스토어 상품 ID(iOS 앱 접두사,
+      // Android dev 네임스페이스)로 도착하므로, 그 표기를 별칭으로 함께
+      // 등록해야 구매 증거가 이 시도로 모인다.
+      _launchLifecycle.recordLaunch(
+        productId,
+        storeAliases: [
+          PaymentProductIdPolicy.effectiveProductId(
+            environment: Environment.currentEnvironment,
+            isAndroid: Platform.isAndroid,
+            paymentNamespace: Environment.storeQueryNamespace,
+            serverProductId: productId,
+            iosAppPrefix: Environment.inappAppNamePrefix,
+          ),
+        ],
+      );
     }
 
     await _safetyManager.handlePurchaseResult(
