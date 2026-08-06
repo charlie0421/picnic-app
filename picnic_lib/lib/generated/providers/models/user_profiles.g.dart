@@ -27,6 +27,7 @@ _UserProfilesModel _$UserProfilesModelFromJson(Map<String, dynamic> json) =>
                 : UserAgreement.fromJson(v as Map<String, dynamic>),
           ),
           isAdmin: $checkedConvert('is_admin', (v) => v as bool?),
+          isSuperAdmin: $checkedConvert('is_super_admin', (v) => v as bool?),
           starCandy: $checkedConvert('star_candy', (v) => (v as num?)?.toInt()),
           starCandyBonus: $checkedConvert(
             'star_candy_bonus',
@@ -48,6 +49,7 @@ _UserProfilesModel _$UserProfilesModelFromJson(Map<String, dynamic> json) =>
         'deletedAt': 'deleted_at',
         'userAgreement': 'user_agreement',
         'isAdmin': 'is_admin',
+        'isSuperAdmin': 'is_super_admin',
         'starCandy': 'star_candy',
         'starCandyBonus': 'star_candy_bonus',
         'jmaCandy': 'jma_candy',
@@ -65,6 +67,7 @@ Map<String, dynamic> _$UserProfilesModelToJson(_UserProfilesModel instance) =>
       'deleted_at': instance.deletedAt?.toIso8601String(),
       'user_agreement': instance.userAgreement?.toJson(),
       'is_admin': instance.isAdmin,
+      'is_super_admin': instance.isSuperAdmin,
       'star_candy': instance.starCandy,
       'star_candy_bonus': instance.starCandyBonus,
       'jma_candy': instance.jmaCandy,

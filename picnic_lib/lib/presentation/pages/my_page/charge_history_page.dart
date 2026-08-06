@@ -26,10 +26,12 @@ class _ChargeHistoryPageState extends ConsumerState<ChargeHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isAdmin =
-        ref.watch(userInfoProvider.select((state) => state.value?.isAdmin)) ??
+    final hasAdminAccess =
+        ref.watch(
+          userInfoProvider.select((state) => state.value?.hasAdminAccess),
+        ) ??
         false;
-    if (!isAdmin) {
+    if (!hasAdminAccess) {
       return const Center(child: Text('접근 권한이 없습니다.'));
     }
 
