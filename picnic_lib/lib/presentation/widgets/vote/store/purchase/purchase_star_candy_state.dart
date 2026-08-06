@@ -859,7 +859,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
-    if (!_canPurchase(productId: serverProduct['id'] as String)) {
+    final productId = serverProduct['id'] as String;
+    await _reconcileStaleAttemptIfQueueClean(productId);
+    if (!context.mounted) return;
+
+    if (!_canPurchase(productId: productId)) {
       return;
     }
 
@@ -870,7 +874,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     final displayedCampaign = campaigns.value?.items
         .where((campaign) => campaign.showInStore)
         .firstOrNull;
-    final productId = serverProduct['id'] as String;
     if (_purchaseAttempts.contains(productId)) {
       await _dialogHandler.showPurchaseAlreadyPendingDialog();
       return;
@@ -985,6 +988,33 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         }
       }
       rethrow;
+    }
+  }
+
+  /// 거래ID 없는 취소/실패 이벤트(양쪽 플랫폼 다 흔하다 - iOS는
+  /// transactionIdentifier가 실패/취소 트랜잭션엔 거의 항상 없고, Android
+  /// Play Billing responseCode 3은 productID까지 없을 수 있다) 때문에 90초
+  /// 안전망까지 레지스트리에 남아있는 시도를, 사용자가 즉시 재구매를
+  /// 시도하면 "구매 진행 중"으로 막는 대신 정리를 시도한다.
+  ///
+  /// 그냥 지우면 안 된다 - 그 시도가 실제로는 아직 스토어에 살아있는
+  /// 트랜잭션일 수 있다. [RestorePurchaseHandler.verifyStoreQueueClean]로
+  /// 큐를 직접 다시 조회해, 정말 아무것도 안 남았을 때만 정리한다. 조회
+  /// 자체가 실패하거나 뭔가 남아있으면 그대로 둬서 `_canPurchase`가 기존
+  /// 안내로 막게 한다.
+  Future<void> _reconcileStaleAttemptIfQueueClean(String productId) async {
+    final stale = _purchaseAttempts[productId];
+    if (stale == null) return;
+
+    final queueIsClean = await _restoreHandler.verifyStoreQueueClean();
+    if (!queueIsClean) return;
+    if (!mounted) return;
+
+    if (_purchaseAttempts.removeIfMatches(productId, stale.attemptId)) {
+      _safetyManager.resetProductState(productId);
+      logger.i(
+        '🧹 재시도 시 남은 시도 정리: $productId (스토어 큐 확인됨)',
+      );
     }
   }
 

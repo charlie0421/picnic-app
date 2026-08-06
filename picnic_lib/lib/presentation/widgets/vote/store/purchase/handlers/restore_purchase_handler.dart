@@ -133,6 +133,14 @@ class RestorePurchaseHandler {
     return false;
   }
 
+  /// 큐를 실제로 다시 확인해 비어 있는지 검증한다.
+  ///
+  /// [performProactiveCleanup]과 같은 신호([_sweepUntilResolved])를
+  /// 재사용한다 - 예를 들어 거래ID 없는 취소/실패 이벤트 때문에 90초
+  /// 안전망까지 레지스트리에 남아있는 시도가, 재구매를 다시 시도하는
+  /// 시점에 실제로도 스토어에 걸려있는지 확인할 때 쓴다.
+  Future<bool> verifyStoreQueueClean() => _sweepUntilResolved();
+
   /// 펄스 로딩 표시
   void _showPulseLoading() {
     final platform = Theme.of(_context).platform;
