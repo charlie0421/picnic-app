@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>출석 보상 폐지 — 1b 차단 해제 검증</title>
+<style>
+  body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;max-width:1040px;margin:40px auto;padding:0 24px;line-height:1.75;color:#1a1a2e}
+  h1{border-bottom:3px solid #7c6ff0;padding-bottom:10px}
+  h2{margin-top:2.4em;border-left:4px solid #7c6ff0;padding-left:10px}
+  h3{margin-top:1.7em;color:#3a3a5e}
+  .tw{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+  th,td{border:1px solid #d8d8e8;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#f2f0ff}
+  code{background:#f4f4f8;padding:1px 5px;border-radius:4px;font-size:.92em}
+  pre{background:#f4f4f8;padding:12px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55}
+  .ok{background:#e8f7ee;border-left:5px solid #0a8f4a;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .warn{background:#fff4e5;border-left:5px solid #ff9800;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .stop{background:#fdecea;border-left:5px solid #c0392b;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .meta{color:#666;font-size:13px}
+  li{margin:5px 0}
+  .k{font-weight:700;color:#c0392b}
+</style>
+</head>
+<body>
+<h1>출석 보상 폐지 — 1b 차단 해제 검증</h1>
+<p class="meta">작성 2026-07-31 (v2 — 오너 확인 "출석 보상 폐지" 반영, A/B/C 옵션 비교였던 v1 을 대체) · 검증 기준 앱 <code>picnic-app@d6ff164d7</code>(=1.3.0 제출 기준 커밋), 엔진 <code>picnic-supabase-cotton-candy-engine</code></p>
+
+<div class="ok">
+<b>결론</b> — 출석 보상 폐지는 <b>1.3.0 코드에 이미 실질 반영</b>돼 있다(보상 RPC 를 부를 수 있는 UI 진입점이 전부 끊김). 따라서 핸드오프 §5-4 "출석 재화 단위 60/120↔1/7 제품 결정" 항목은 <b>해소</b>되고, <b>1b 는 출석 때문에 막히지 않는다</b>. 서버 마이그레이션·엣지 함수 수정·앱 릴리스 모두 불필요. 남는 것은 잔여 리스크 2건(§3)과 정리 부채(§4)뿐이다.
+</div>
+
+<h2>1. 무엇이 문제였나 (요약)</h2>
+<p>엣지 함수 <code>attendance-check</code> 는 출석 체크 시 60(일일)/120(주간)을 DB 함수 <code>process_attendance_check</code> 에 전달한다. 1b 가 교체하는 wallet 본문은 1/7 만 정답으로 하드코딩하고 불일치 시 <code>WALLET_ATTENDANCE_REWARD_MISMATCH</code> 로 raise 한다(<code>prod-cutover/1b/06:28-29,54-56</code>). 즉 <b>출석 기능이 살아 있다면</b> 1b 적용 순간 출석이 전량 실패하는 구조였고, 이것이 MANIFEST 오픈리스크 #2 였다.</p>
+
+<h2>2. 폐지가 코드에 반영됐다는 근거 (1.3.0 = origin/main 검증)</h2>
+<div class="tw"><table>
+<tr><th>#</th><th>확인 내용</th><th>근거</th></tr>
+<tr><td>1</td><td>보상 RPC 를 부르는 것은 <code>checkIn()</code> 뿐이고, <code>attendanceProvider.build()</code> 는 <b>상태 조회만</b> 한다 (보상 RPC 미경유)</td><td><code>picnic_lib/lib/presentation/providers/attendance_provider.dart:20,27,93</code></td></tr>
+<tr><td>2</td><td><code>checkIn()</code> 호출자는 출석 다이얼로그/탭 UI 뿐인데, 그 진입점 <code>AttendanceIconButton</code> 은 <b>어디서도 참조되지 않는 고아 위젯</b>이다 (헤더에서 제거됨: 커밋 <code>f89dae324</code> "remove … attendance from top bar", 이동 이력 <code>8b1a81819</code>)</td><td><code>attendance_icon_button.dart</code> 참조 검색 0건</td></tr>
+<tr><td>3</td><td>무료 충전소의 출석 탭도 제거됨 — <code>free_charge_station.dart</code> 에 <code>attendance_check_tab</code> 은 <b>미사용 import 만</b> 남아 있음</td><td><code>free_charge_station.dart:38</code> (본문 사용 0건)</td></tr>
+<tr><td>4</td><td><code>app_initializer.dart</code> 의 <code>ref.invalidate(attendanceProvider)</code> 2곳은 리스너가 없으면 재빌드를 일으키지 않고, 리스너가 될 위젯이 전부 고아라 <b>런타임에 provider 자체가 빌드되지 않는다</b></td><td><code>app_initializer.dart:779,813</code></td></tr>
+</table></div>
+<p>정리하면: 1.3.0 사용자는 출석 화면에 도달할 수 없고, 도달 불가이므로 <code>checkIn()</code> → 60/120 전달 → 1b 본문 raise 경로는 <b>실행될 수 없다</b>.</p>
+
+<h2>3. 잔여 리스크 2건 (수용 가능, 인지만)</h2>
+<ol>
+<li><b>강업을 뚫는 구버전 코호트.</b> 강업(ForceUpdateOverlay)은 checkUpdate 가 깨진 일부 구 릴리스 코호트에 노출되지 않는다(기존 확인 사항). 이 사용자들의 구버전 앱에는 출석 UI 가 살아 있으므로, <b>1b 이후 출석 체크 시 에러</b>를 보게 된다. 폐지가 제품 결정이므로 조용한 성공보다 명시적 실패가 오히려 정합 — 다만 CS 문의 가능성이 있으니 응대 한 줄("출석 보상은 종료되었습니다. 최신 버전으로 업데이트해 주세요")을 CS 런북에 추가해 두면 된다.</li>
+<li><b>1b 본문의 raise 는 트립와이어로 남는다.</b> 폐지 후 누군가 출석 경로를 되살리면(코드 복원·수동 호출) 60/120 전달 시 즉시 실패한다. 이는 결함이 아니라 <b>의도치 않은 부활을 막는 안전장치</b>로 작동하므로 그대로 둔다. SQL 커버리지 테스트의 1/7 계약 고정도 이제 본문과 정합이라 수정 불필요.</li>
+</ol>
+
+<h2>4. 후속 정리 부채 (급하지 않음, 1b 와 무관)</h2>
+<ul>
+<li><b>앱 데드코드 제거</b> (chore PR 1건 감): <code>AttendanceIconButton</code> · <code>attendance_dialog.dart</code> · <code>attendance_check_tab.dart</code> 외 attendance 위젯 일체(하드코딩 +60/+120 포함), <code>free_charge_station.dart:38</code> 미사용 import, <code>app_initializer.dart</code> 의 invalidate 2곳, attendance 위젯 테스트. <code>attendanceProvider</code> 와 관련 l10n 키(<code>label_attendance_weekly_bonus</code> 등)도 함께.</li>
+<li><b>엣지 함수 <code>attendance-check</code> 회수</b>: 강업 완료 후(구세대 트래픽 소멸 후) 배포 목록에서 제거하거나 410 응답으로 교체. 롤아웃 매니페스트에서도 제외.</li>
+<li><b>문서 정리</b>: MANIFEST 오픈리스크 #2 를 "출석 보상 폐지로 해소(2026-07-31)"로 닫고, 핸드오프 §5-4 항목 제거. <code>attendance_check</code> 테이블·레지스트리(1b 의 migrated 마킹)는 손댈 필요 없음 — 테이블은 0행 그대로 유지된다.</li>
+</ul>
+
+<h2>5. 폐지 전제가 뒤집힐 경우를 위한 기록</h2>
+<p>출석 보상을 부활시키게 되면 그때는 v1 분석의 결정이 되살아난다: 서버 본문(1/7)·엣지 함수(60/120)·앱 하드코딩(+60/+120)·SQL 테스트(1/7)·앱 위젯 테스트(60/120) <b>5곳의 수치를 한 세트로 정합</b>시켜야 하며, 1/7 은 보너스 스타캔디 배선이므로 "코튼 1개/일" 의도라면 <code>credit_star_bonus_with_debt</code> → 코튼 발행 경로 재배선이 별도로 필요하다. 상세는 git 이력의 본 문서 v1 참조.</p>
+
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>cotton-candy 프로덕션 전환 — 핸드오프</title>
+<style>
+  body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;max-width:1040px;margin:40px auto;padding:0 24px;line-height:1.75;color:#1a1a2e}
+  h1{border-bottom:3px solid #7c6ff0;padding-bottom:10px}
+  h2{margin-top:2.4em;border-left:4px solid #7c6ff0;padding-left:10px}
+  h3{margin-top:1.7em;color:#3a3a5e}
+  .tw{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+  th,td{border:1px solid #d8d8e8;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#f2f0ff}
+  code{background:#f4f4f8;padding:1px 5px;border-radius:4px;font-size:.92em}
+  pre{background:#f4f4f8;padding:12px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55}
+  .ok{background:#e8f7ee;border-left:5px solid #0a8f4a;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .warn{background:#fff4e5;border-left:5px solid #ff9800;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .stop{background:#fdecea;border-left:5px solid #c0392b;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .meta{color:#666;font-size:13px}
+  li{margin:5px 0}
+  .k{font-weight:700;color:#c0392b}
+</style>
+</head>
+<body>
+<h1>cotton-candy 프로덕션 전환 — 핸드오프</h1>
+<p class="meta">기준 시각 2026-07-31 · 앱 <code>picnic-app@d6ff164d7</code> · 엔진 <code>picnic-supabase@8437f5a</code> · 프로덕션 <code>xtijtefcycoeqludlngc</code> · 스테이징 <code>jkjhvogcnjrzuhpynzqo</code></p>
+
+<div class="ok">
+<b>한 줄 요약</b> — 프로덕션 서버는 <b>1a(가산 전용)까지 적용</b>돼 신·구 세대가 공존 중이고, 신 앱 <b>1.3.0+130000</b> 은 내부 트랙에서 결제·광고 E2E 검증을 마쳤다. 남은 큰 이벤트는 <b>①심사 제출 → ②동시 출시 + 당일 강업 → ③1b(컷오버) → ④코튼·프로모션 점등</b> 넷뿐이다.
+</div>
+
+<h2>1. 지금 무엇이 돌고 있나</h2>
+<h3>1.1 프로덕션 서버</h3>
+<div class="tw"><table>
+<tr><th>영역</th><th>상태</th></tr>
+<tr><td>마이그레이션</td><td>1a 38개 적용(이력 <code>20260729900001~38</code>) + 이후 운영 마이그레이션 3건. 마지막 적용 <code>202607301701</code></td></tr>
+<tr><td>엣지 함수</td><td><code>verify-receipt-v2</code>(신 앱 전용) · <code>wallet-provider-event</code> · <code>wallet-operation-worker</code> · <code>wallet-expiry-worker</code> · <code>wallet-reconciliation</code> · <code>wallet-alert-dispatcher</code> · <code>ad-reward-claim/status</code> · <code>process-ads-reward</code> · <code>ad-shortform-issue</code>(갱신본)</td></tr>
+<tr><td>레거시 <code>verify_receipt</code></td><td><b>무변경</b>(구세대 앱 전용). 코드 해시 <code>3d84bfe1…</code> — 버전 숫자는 시크릿 설정만으로도 오르므로 <b>해시로 판정</b>할 것</td></tr>
+<tr><td>크론</td><td>operation-worker(1분) · expiry(5분) · reconciliation(1시간) · stale-claim(10분) · heartbeat(5분) · purchase-backlog(1분) · alert-dispatcher(1분)</td></tr>
+<tr><td>인박스 / 알림</td><td>미종결 인박스 <b>0건</b>, 열린 알림 5건(과거 하트비트·DEAD 잔재, 전부 발송 표시됨)</td></tr>
+</table></div>
+
+<h3>1.2 런타임 플래그 (프로덕션) — 전부 의도된 상태</h3>
+<div class="tw"><table>
+<tr><th>플래그</th><th>값</th><th>의미 / 언제 바뀌나</th></tr>
+<tr><td><code>wallet.cotton_read/spend/expiry_enabled</code></td><td>false</td><td>코튼 전면 비공개. <b>1b 이후 일괄 ON</b>(오너 결정 ②안)</td></tr>
+<tr><td><code>ads.internal_reward_mode</code> · <code>ads.pangle_reward_mode</code></td><td><code>"bonus"</code></td><td>광고 보상 = 레거시와 동일한 보너스 스타캔디. <code>"cotton"</code> 은 게이트가 1b 를 요구</td></tr>
+<tr><td><code>ads.pangle_claim_mode</code></td><td><code>"shadow"</code></td><td>팽글 클레임 그림자 모드</td></tr>
+<tr><td><code>ads.cotton_popup_enabled</code></td><td>false</td><td>코튼 팝업</td></tr>
+<tr><td><code>candy_boost_write_enabled</code> · <code>promotion_surfaces_enabled</code></td><td>false</td><td>월–수 이벤트 지급/배너. 캠페인 활성화와 함께 ON</td></tr>
+<tr><td><code>refund_reversal_enabled</code> · <code>debt_recovery_enabled</code> · <code>admin_financial_commands_enabled</code></td><td>false</td><td>운영 준비 후</td></tr>
+<tr><td><code>wallet.star_projection_check_enabled</code></td><td>false</td><td><b>1a 창 한정</b>. 레거시 소비가 <code>star_candy_history</code> 에 없어 오탐만 만든다. <b>1b 에서 true</b></td></tr>
+</table></div>
+
+<h3>1.3 앱</h3>
+<div class="tw"><table>
+<tr><th>채널</th><th>릴리스</th><th>최신 패치</th><th>비고</th></tr>
+<tr><td>프로덕션(테플 / Play 내부)</td><td><code>1.3.0+130000</code> (태그 <code>picnic-v1.3.0</code>)</td><td><b>Android #18 / iOS #19</b></td><td>심사 제출 대상. 오늘까지의 모든 픽스 포함</td></tr>
+<tr><td>스테이징(테플)</td><td><code>1.2.39+123904</code></td><td>Android #20 / iOS #21</td><td><span class="k">프로덕션보다 3라운드 뒤처짐</span> — 팝업 개편·광고 모달 제거·디자인 개편 미포함</td></tr>
+</table></div>
+<p>Shorebird 는 릴리스마다 <b>단일 번호 시퀀스</b>를 쓰므로 플랫폼별 번호가 하나씩 어긋나 보인다. 기기는 자기 플랫폼의 최신 번호만 받는다.</p>
+
+<h2>2. 아키텍처에서 반드시 지켜야 하는 불변식</h2>
+<div class="stop">
+<ol>
+<li><b>미확정 스토어 트랜잭션은 절대 finish/consume 하지 않는다.</b> 서버가 지급을 확정(<code>grantConfirmed</code>/정산 결과)했을 때만 종료한다. 과거에 이 규칙을 깨서 캔디 손실 + Android 3일 자동환불 경로 소멸이 동시에 일어났다.</li>
+<li><b>서버가 authoritative.</b> 클라이언트는 영수증을 전달할 뿐, 금액·환경·지급 여부를 주장하지 않는다.</li>
+<li><b>인박스는 멱등, 터미널 행은 불변.</b> 같은 구매의 재전송은 <b>replay</b>로 응답한다(신원 컬럼 비교). StoreKit 은 재전달마다 JWS 를 <b>재서명</b>하므로 페이로드 해시로 동일성을 판단하면 안 된다.</li>
+<li><b>422 = 영구 거부, 503 = 재시도 가능.</b> 클라이언트 큐는 <b>200 또는 422 에서만</b> 항목을 제거한다.</li>
+<li><b>레거시 경로는 1b 전까지 손대지 않는다.</b> <code>user_profiles</code>·<code>star_candy_%</code> 직접 쓰기 권한, 레거시 RPC 실행권, 레거시 트리거는 1b 세트에 있다.</li>
+</ol>
+</div>
+
+<h2>3. 절차 (런북)</h2>
+
+<h3>3.1 OTA 패치 발행</h3>
+<p>Codemagic 이 아니라 <b>로컬 <code>shorebird patch</code></b>. 워크트리 <code>/Users/charlie.hyun/Repositories/picnic-app-patch-130</code> 를 <code>origin/main</code> 으로 맞춘 뒤 <code>picnic_app/</code> 에서 실행한다. 플랫폼당 1회씩, <b>백그라운드로 돌리면 중단될 수 있으니 전경 실행 권장</b>.</p>
+<pre>git -C ~/Repositories/picnic-app-patch-130 fetch origin -q
+git -C ~/Repositories/picnic-app-patch-130 checkout -q origin/main --detach
+cd ~/Repositories/picnic-app-patch-130/picnic_app
+
+# 프로덕션
+shorebird patch android --release-version=1.3.0+130000 \
+  --dart-define=ENVIRONMENT=prod --dart-define=PANGLE_ENVIRONMENT=prod \
+  --dart-define=PAYMENT_ENVIRONMENT=prod \
+  --allow-native-diffs --allow-asset-diffs --no-confirm
+# ios 도 동일 (플랫폼만 교체)
+
+# 스테이징 (define 세트가 다름 — 릴리스와 동일해야 한다)
+shorebird patch android --release-version=1.2.39+123904 \
+  --dart-define=ENVIRONMENT=dev \
+  --dart-define=PICNIC_STAGING_SUPABASE_PROJECT_REF=jkjhvogcnjrzuhpynzqo \
+  --dart-define=PANGLE_ENVIRONMENT=sandbox --dart-define=PAYMENT_ENVIRONMENT=sandbox \
+  --dart-define=PICNIC_PANGLE_IOS_APP_ID= --dart-define=PICNIC_PANGLE_ANDROID_APP_ID= \
+  --dart-define=PICNIC_PANGLE_IOS_REWARDED_ID= --dart-define=PICNIC_PANGLE_ANDROID_REWARDED_ID= \
+  --dart-define=PICNIC_PAYMENT_PRODUCT_NAMESPACE= \
+  --dart-define=PICNIC_SANDBOX_USES_PRODUCTION_STORE_SKUS=true \
+  --allow-native-diffs --allow-asset-diffs --no-confirm
+
+shorebird patches list --release-version=1.3.0+130000   # 발행 확인</pre>
+<p>기기 적용은 <b>완전 종료 → 실행(다운로드) → 완전 종료 → 실행(적용)</b>. Android 는 <code>adb logcat | grep shorebird</code> 로 <code>Patch N is already installed</code> 확인 가능.</p>
+
+<h3>3.2 프로덕션 앱 릴리스</h3>
+<p>버전은 <code>picnic_app/pubspec.yaml</code> 의 <code>version:</code> 이 결정하고, <b><code>picnic-v*</code> 태그 푸시가 곧 릴리스 트리거</b>다(Codemagic 이 태그 패턴으로 타깃을 유도). 릴리스 가드는 <b>Option B</b> 로 단순화돼 있어 릴리스마다 넣는 값이 없다 — <code>picnic_env</code> 그룹의 정적 마커 3개만 유지하면 된다.</p>
+<pre>CI_PROVIDER=codemagic
+PRODUCTION_RELEASE_EVENT=production-release
+ENVIRONMENT=prod</pre>
+<p>가드가 확인하는 것: 진짜 Codemagic 프로덕션 레인 · 클린 체크아웃 · <code>CM_TAG</code> 가 가리키는 커밋 = HEAD = main 에 포함. <b>UI 수동 빌드는 <code>CM_TAG</code> 가 없어 설계상 차단</b>된다.</p>
+
+<h3>3.3 마이그레이션 적용</h3>
+<p>프로덕션은 이력 버전이 로컬과 달라 <code>supabase db push</code> 를 쓸 수 없다. 러너로 적용한다(파일 + 이력 INSERT 를 <b>한 트랜잭션</b>으로).</p>
+<pre>ENGINE=~/Repositories/picnic-supabase-cotton-candy-engine
+mkdir -p /tmp/mig && cp $ENGINE/supabase/migrations/&lt;파일&gt;.sql /tmp/mig/01_&lt;파일&gt;.sql
+$ENGINE/supabase/prod-cutover/runner.sh xtijtefcycoeqludlngc /tmp/mig &lt;이력접두어&gt;
+# 스테이징은 그냥: cd $ENGINE && supabase db push</pre>
+<p>러너 주의: 파일 정렬은 <code>LC_ALL=C</code> 고정(그러지 않으면 <code>_validate</code> 가 본체보다 먼저 실행됨), <code>*_concurrent.sql</code> 은 문장 단위 비트랜잭션 레인으로 전송된다.</p>
+
+<h3>3.4 1b (컷오버) — 강업 완료 후</h3>
+<p>스크립트: <code>supabase/prod-cutover/1b/</code> (14개). 기준 문서: <code>supabase/prod-cutover/MANIFEST.md</code>.</p>
+<ol>
+<li><b>프리플라이트</b> <code>supabase/prod-cutover/preflight-1b.sql</code> — A(보너스 투영 드리프트) · B(receipts 중복) · C(톰스톤 형식) · D(비톰스톤 무기한 밴) 이 <b>전부 0</b>, E(회수 대상 DISABLED 함수 24종) 리뷰 완료여야 한다.</li>
+<li><b>롤백 킷</b>: 교체 대상 레거시 함수 원문을 <code>pg_get_functiondef()</code> 로 스냅샷.</li>
+<li><b>적용</b>: 러너로 1b 순차 적용(엄격 assert 는 마지막 <code>36_verify_strict_manifest.sql</code>).</li>
+<li><b>함수 배포 순서</b>: <code>check-ads-count</code>(레포 최신 기준) → 1b 마이그레이션 → <code>callback-ad-shortform-view</code>. <span class="k">두 함수를 롤아웃 매니페스트에 넣는 것은 1b 창에서만</span> — 미리 넣으면 5키 변형이 프로덕션에 나가 레거시 적립이 깨진다.</li>
+<li><b>플래그</b>: cotton read/spend/expiry + 광고 모드 <code>cotton</code> + <code>wallet.star_projection_check_enabled=true</code>.</li>
+<li><b>공지 전 프로덕션 스모크</b>: 프로덕션 빌드로 광고 적립→파우치→투표 사용 E2E. 이상 시 <b>적립 모드만 <code>paused</code></b> 로 롤백(원장 append-only, 데이터 정리 불필요).</li>
+</ol>
+
+<h3>3.5 월–수 이벤트(캔디 부스트) 점등</h3>
+<p>앱 코드는 <b>이미 1.3.0 에 포함</b>(캠페인 조회·배너 위젯·구매 화면 연결). 서버 상태: <code>CANDY_BOOST_DAY</code> 캠페인이 <b>월(1)~수(3) 00:00 Asia/Seoul, +100%(10000bps)</b> 로 정의돼 있으나 <b>버전 1 은 비활성</b>(표면 <code>[]</code>·배너 null) — 구매 정산이 캠페인 행을 STRICT 조회하기 때문에 넣어 둔 최소 시드다.</p>
+<ol>
+<li>실제 크리에이티브로 <b>버전 2 INSERT</b> (버전은 불변 — v1 을 수정하지 말 것).</li>
+<li>홈 배너 노출은 <code>banner</code> 통합이 1b 에 있으므로 <b>1b 이후</b>. 배너 없이 구매 부스트만 먼저 켜는 것은 표면 없이 v2 를 활성화하면 가능.</li>
+<li><code>candy_boost_write_enabled</code> · <code>promotion_surfaces_enabled</code> ON → 지급 검증.</li>
+</ol>
+
+<h3>3.6 QA용 코튼 지급 (스테이징 전용)</h3>
+<p>프로덕션은 read 플래그가 꺼져 있어 지급해도 보이지 않고, 발행 게이트가 1b 를 요구한다. <b>프로필 직접 UPDATE 는 금지</b>(원장 없는 잔액 = 진짜 드리프트). 스테이징에서는 원장을 거치는 경로로 지급한다.</p>
+<pre>-- 관리자 전원에게 100개 (claim 행 → grant_ad_cotton). 만료: 당일 자정 KST
+--   provider='pangle' 경로는 claim_id 필수, impression_id 는 null 이어야 한다
+--   operation_key 로 중복 지급이 막히므로 날짜를 키에 넣는다</pre>
+<p>실행 예시는 세션 로그 참조(2026-07-31, 관리자 9명 × 100개 = 900 지급). 재지급이 필요하면 키의 날짜만 바꾸면 된다.</p>
+
+<h2>4. 반드시 알고 있어야 할 함정</h2>
+<div class="warn">
+<ul>
+<li><b>Edge 런타임</b>: node:crypto <code>X509Certificate.checkIssued/.verify</code> 미구현. 애플 체인 검증은 WebCrypto+DER 파서 구현 — 되돌리면 전 애플 정산 사망.</li>
+<li><b>함수 배포</b>: 크론 전용 함수는 반드시 <code>--no-verify-jwt</code>. 빠뜨리면 게이트웨이 401 로 정산 레인 전체가 죽는다. Docker 번들링이 실패하면 <code>--use-api</code> 로 우회.</li>
+<li><b>Vault ops 시드</b>: <code>wallet_worker_attestation_secret</code> 는 <b>어떤 마이그레이션에도 없다</b>. 엣지 env <code>WALLET_WORKER_ATTESTATION_SECRET</code> 와 <b>같은 값</b>이어야 하며, 없으면 전 구매가 재시도 가능 실패로 조용히 적체된다(실제 사고).</li>
+<li><b>로컬 리허설</b>: baseline 스키마에 <b>프로덕션 URL 이 박힌 DB 웹훅 트리거</b>가 있다(<code>alarm-receipt</code> on <code>receipts</code> 등). <code>db reset</code> 직후 <code>tgfoid='supabase_functions.http_request'::regproc</code> 인 트리거를 전부 드롭하지 않으면 로컬 픽스처가 <b>실제 Slack 알림</b>을 쏜다.</li>
+<li><b>레포 위생</b>: <code>picnic-app</code> 메인 폴더의 로컬 <code>main</code> 이 뒤처져 있을 수 있다 — 작업 전 <code>git fetch</code> 후 <b><code>origin/main</code> 기준</b>으로 워크트리를 만들 것.</li>
+<li><b>SQL 스위트</b>: 프로덕션형 상태에서만 유효한 테스트가 있고, 스위트가 커밋된 픽스처를 남겨 <b>연속 2회 실행 시</b> 일부가 실패한다(사전 존재 특성). 판단 전 <code>db reset</code>.</li>
+</ul>
+</div>
+
+<h2>5. 남은 결정 / 미완 항목</h2>
+<div class="tw"><table>
+<tr><th>#</th><th>항목</th><th>비고</th></tr>
+<tr><td>1</td><td><b>심사 제출</b></td><td>QA 통과 시 진행. 제출본은 스토어 빌드(패치 적용 전)로 시작해 첫 실행에서 패치를 받는다</td></tr>
+<tr><td>2</td><td><b>강업 시점</b></td><td>양 스토어 100% 공개 확인 + 내부 스모크 후 <b>당일</b>. <code>version.force_version</code> 상향. 단계 출시 중에는 금지(탈출구 없음)</td></tr>
+<tr><td>3</td><td>스테이징 앱 동기화</td><td>프로덕션보다 3라운드 뒤처짐. 코튼 QA 를 새 UI 로 하려면 패치 발행 필요</td></tr>
+<tr><td>4</td><td>출석 재화 단위</td><td>엣지 fn 60/120 ↔ wallet 본문 1/7 <b>비호환</b>. 1b 전 제품 결정 + 스테이징 실증 필수(현재 1a 는 레거시 본문이라 정상)</td></tr>
+<tr><td>5</td><td>다국어 재번역</td><td>정책·제목 등 변경된 키 4종은 비 ko/en 로케일에 구 번역이 남아 있음. 신규 키는 영문 시드</td></tr>
+<tr><td>6</td><td>팝업 잔여 결정</td><td>예시 섹션 기본 접힘 유지 여부 · 제로 상태 전용 키 · 베트남어 제목 잘림(공용 타이틀 위젯) · bn/fil/th/vi 문구 노출 변경 릴리스 노트</td></tr>
+<tr><td>7</td><td>CS 대응 준비</td><td>Ask to Buy·타기기 결제·결제시트 중 앱 종료는 <b>인테이크에 흔적이 없어</b> 알림으로도 못 잡는다 → 문의 응대 문구 + 수동 지급 절차</td></tr>
+<tr><td>8</td><td>백로그</td><td>서버발 자동 복구(ASSN/RTDN) · 환불 처리 · 라이선스 테스터 이중 환경 클레임 인덱스 · <code>alarm-receipt</code> 비인증 스푸핑</td></tr>
+</table></div>
+
+<h2>6. 참조</h2>
+<ul>
+<li><b>분할 기준·리허설 판정</b>: <code>picnic-supabase/supabase/prod-cutover/MANIFEST.md</code></li>
+<li><b>1a 차단 감사 전문</b>: <code>picnic-app-cotton-candy-policy/phase1-migration-audit-report.html</code></li>
+<li><b>결제 흐름 개선 계획(검증 12건)</b>: <code>picnic-app-cotton-candy-policy/purchase-flow-improvement-plan.html</code></li>
+<li><b>배포 계획·페이싱·1b 런북</b>: <code>picnic-app-cotton-candy-policy/production-deployment-plan.html</code></li>
+<li><b>주요 PR</b>: 엔진 #72(분할) #76~#78(하드닝·멱등) #79(알림·게이트) #80(배포본 회수) · 앱 #108(버전) #110(가드 B안) #114~#124(픽스·UI)</li>
+</ul>
+
+<h2>7. 빠른 상태 점검 쿼리</h2>
+<pre>-- 프로덕션 한 눈에
+select
+  (select count(*) from public.wallet_provider_event_inbox
+     where status not in ('SUCCEEDED','DEAD'))                        as inbox_open,
+  (select count(*) from public.ops_alerts where resolved_at is null)   as alerts_open,
+  (select json_agg(json_build_object('k',flag_key,'v',value_json) order by flag_key)
+     from public.wallet_runtime_flags)                                 as flags,
+  (select json_agg(jobname order by jobname) from cron.job
+     where jobname like 'wallet%')                                     as crons;
+
+-- 특정 구매 추적 (txid 로)
+select idempotency_key, status, attempt_count, last_error_code, result_type
+from public.wallet_provider_event_inbox
+where purchase_provider_transaction_id = '&lt;txid&gt;';
+
+-- 이중 적립 점검
+select transaction_id, count(*) from public.star_candy_history
+where transaction_id like 'purchase:%' group by 1 having count(*) &gt; 1;</pre>
+<p class="meta">결제 이슈 제보 시 확인 순서: ① 기기 패치 번호 ② 인박스 status/attempt/last_error_code ③ 원장 중복 여부 ④ 엣지 로그(verify-receipt-v2 / wallet-provider-event 상태코드).</p>
+
+</body>
+</html>

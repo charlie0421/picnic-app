@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Phase 1 wallet 마이그레이션 감사 — 적용 차단 보고</title>
+<style>
+  body { font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; line-height: 1.7; color: #1a1a2e; }
+  h1 { border-bottom: 3px solid #c0392b; padding-bottom: 8px; }
+  h2 { margin-top: 2.2em; border-left: 4px solid #c0392b; padding-left: 10px; }
+  h3 { margin-top: 1.6em; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+  th, td { border: 1px solid #d8d8e8; padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #fdf0ee; }
+  code { background: #f4f4f8; padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+  pre { background: #f4f4f8; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+  .verdict { background: #fdecea; border-left: 5px solid #c0392b; padding: 14px 18px; border-radius: 4px; font-size: 15.5px; }
+  .ok { background: #e8f7ee; border-left: 5px solid #0a8f4a; padding: 12px 16px; border-radius: 4px; }
+  .warn { background: #fff4e5; border-left: 4px solid #ff9800; padding: 10px 14px; border-radius: 4px; margin: 10px 0; }
+  .sev-b { color: #c0392b; font-weight: 700; }
+  .sev-c { color: #b35c00; font-weight: 600; }
+  .done { color: #0a8f4a; font-weight: 600; }
+  li { margin: 4px 0; }
+  .meta { color: #666; font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>Phase 1 wallet 마이그레이션 감사 — 적용 차단 보고</h1>
+<p class="meta">2026-07-29 · 대상: picnic-supabase wallet 마이그레이션 36개 (20260721090000 ~ 20260725000000) → 프로덕션(xtijtefcycoeqludlngc) 적용 가부 · 감사: 전 파일 정독(9,078줄) + 핵심 주장 소스 교차검증</p>
+
+<div class="verdict">
+<b>판정: 현 상태로는 프로덕션에 적용 불가.</b><br>
+이 마이그레이션 세트는 "dark install(무영향 설치)" 이 아니라 <b>컷오버 세트</b>다. 스테이징(신세대 앱만 존재)용으로 설계되어, 레거시 경로를 <b>교체·차단하는 것 자체가 목적</b>인 문장들이 포함돼 있다. 지금 적용하면 <b>현행 프로덕션 앱의 구매 적립이 즉시 죽고</b>, 일부 문장은 프로덕션 데이터 상태에 따라 마이그레이션 자체가 중단된다. Phase 1 의 "기존 앱 무영향" 전제가 이 세트에 대해 성립하지 않는다.
+</div>
+
+<h2>1. 이미 완료된 것 (안전 — 롤백 불필요)</h2>
+<div class="ok">
+아래는 전부 <b>호출자가 없는 dark 리소스</b>라 현행 앱에 영향이 없으며, 어떤 분할안을 택해도 그대로 쓰인다.
+</div>
+<table>
+<tr><th>항목</th><th>내용</th></tr>
+<tr><td>함수 시크릿 3종</td><td><code>APPLE_ROOT_CA_SHA256</code>(스테이징과 동일 핀 — 다이제스트 일치 확인), <code>WALLET_CRON_SECRET</code>·<code>WALLET_WORKER_ATTESTATION_SECRET</code>(프로덕션 전용 신규 난수)</td></tr>
+<tr><td>Vault</td><td><code>wallet_cron_secret</code> 등록 (DB 내부 난수 생성). <code>supabase_functions_url</code> 은 기존재(<code>…/functions/v1</code> 형식, 크론 SQL 의 URL 조립과 호환 확인)</td></tr>
+<tr><td>엣지 함수 5종 배포</td><td>wallet-operation-worker / wallet-expiry-worker / wallet-reconciliation (verify_jwt=false) · wallet-provider-event / verify-receipt-v2 (verify_jwt=true) — 스테이징과 동일 구성. 크론이 등록되지 않았으므로 전부 유휴 상태</td></tr>
+<tr><td><code>verify_receipt</code> 무변경</td><td>코드 해시 <code>3d84bfe1…</code>·updated_at(2025-12-30) 이전 스냅샷과 동일. 버전 숫자 증가(162→163)는 시크릿 설정에 따른 메타데이터 카운터일 뿐</td></tr>
+<tr><td>적용 러너</td><td>파일+이력기록을 단일 트랜잭션으로 묶는 러너 작성·검증 완료(스테이징에서 오류 시 전체 롤백 실증). <b>실행하지 않음</b></td></tr>
+</table>
+<p>참고: 마이그레이션 이력 조사에서 프로덕션의 anti-abuse 계열 이력이 로컬 파일과 <b>버전 번호가 어긋나</b> 있어 <code>supabase db push</code> 는 어차피 사용 불가(이미 적용된 DDL 재적용 위험). 별도 <code>migration repair</code> 정리가 필요하다 — Phase 1 과 독립적인 기존 부채.</p>
+
+<h2>2. 차단 사유 — 소스에서 직접 확인한 결정적 증거</h2>
+<p>감사 에이전트의 BLOCKER 28건 중, 아래 4건은 내가 소스에서 라인 단위로 재확인했다. 각각 단독으로도 적용 불가 사유다.</p>
+<table>
+<tr><th>#</th><th>파일:라인</th><th>내용</th><th>프로덕션 영향</th></tr>
+<tr><td class="sev-b">B14</td><td><code>20260721110000:51-62</code></td><td><code>user_profiles</code>·<code>star_candy_%</code>(히스토리 포함)·시퀀스에 대한 INSERT/UPDATE/DELETE 를 <b>service_role 포함</b> 전 롤에서 회수하는 동적 루프</td><td><b>레거시 <code>verify_receipt</code>(v163) 의 적립 즉사</b> — 이 함수는 service_role 로 <code>star_candy_history</code> INSERT + <code>user_profiles</code> UPDATE 를 직접 수행한다. 적용 순간부터 모든 구매 적립 실패</td></tr>
+<tr><td class="sev-b">B12</td><td><code>20260721095500:379-382</code></td><td><code>perform_vote_transaction</code>·<code>process_vote</code>·<code>use_star_candy_bonus</code>(2종) 실행권을 public/anon/authenticated 에서 회수, 재부여 없음</td><td>구버전 앱이 이 RPC 를 직접 호출하는 경로(구세대일수록 확률 높음)의 투표/캔디 사용 즉사. 엣지 함수 경유(service_role) 경로만 생존</td></tr>
+<tr><td class="sev-b">B5/B6</td><td><code>20260721092000:106-240</code></td><td><code>process_attendance_check</code>·<code>upsert_ad_bonus</code> 를 wallet 엔진 경유 본문으로 <b>동일 시그니처 교체</b> + authenticated 실행권 회수. <code>increment_star_candy*</code> 3종은 양수 적립 시 무조건 raise 로 교체</td><td>출석·광고 보상의 의미 변경(강한 검증·하드코딩 보상량·dark 플래그 경유). ACL 은 엣지 함수 경로만 생존, 직접 RPC 경로 즉사</td></tr>
+<tr><td class="sev-b">B3</td><td><code>20260721091500</code> + <code>20260721095500:329-332</code></td><td>보너스 투영 일치 검증(<code>assert_bonus_reconciliation_ready</code>) 전량 스캔 + CHECK VALIDATE. 이후엔 constraint trigger 로 상시 강제</td><td>프로덕션 <code>user_profiles.star_candy_bonus</code> 와 히스토리 합계에 <b>드리프트가 1행이라도 있으면 마이그레이션 중단</b>. 통과해도 이후 레거시 보너스 쓰기가 드리프트 사용자에서 상시 실패</td></tr>
+</table>
+
+<h3>그 외 감사에서 확인된 주요 리스크 (요약)</h3>
+<table>
+<tr><th>분류</th><th>항목</th></tr>
+<tr><td>적용 시점 중단 위험</td><td><span class="sev-b">B10</span> <code>receipts</code> 유니크 인덱스 — 중복 존재 시 abort + 빌드 중 쓰기 차단. <span class="sev-b">B24</span> <code>ad_impressions</code> 전행 UPDATE+제약 검증 — 수 분급 쓰기 정지. <span class="sev-b">B27</span> <code>vote_pick</code> 유니크 인덱스 — 투표 쓰기 정지 창</td></tr>
+<tr><td>레거시 의미 변경</td><td><span class="sev-b">B9</span> <code>process_paypal_capture/portone</code> 를 enqueue-only 로 교체(웹 결제 적립 중단 — 단, pic 포털 미운영이라 실질 영향 낮음). <span class="sev-b">B13</span> <code>handle_receipt_deletion</code> no-op 화. <span class="sev-b">B11</span> PIC/궁합 결제 RPC 리네임+락 추가. <span class="sev-b">B18</span> 레거시 어드민 보너스 조정 RPC 영구 비활성</td></tr>
+<tr><td>계정 수명주기</td><td><span class="sev-b">B19</span> soft-delete 된 <code>user_profiles</code> 행의 모든 UPDATE 거부 트리거(기존 삭제 계정의 닉네임 형식이 불일치). <span class="sev-b">B20</span> <code>auth.users</code> 트리거 — <code>banned_until='infinity'</code> 사용자의 로그인/토큰 갱신 실패. <span class="sev-b">B21</span> <code>auth.users</code> DELETE 를 취소하고 톰스톤으로 전환(레거시 삭제 플로우 의미 변경)</td></tr>
+<tr><td>데이터 오염</td><td><span class="sev-b">B23</span> <code>banner</code> 테이블에 <b>placehold.co 데모 이미지의 실배너 행 INSERT</b> — 프로덕션 vote_home 표면에 노출 위험. <span class="sev-b">B22</span> <code>banner</code> RLS 활성화로 기존 배너 CRUD 차단. <span class="sev-b">B16</span> <code>admin_role_permissions</code> DELETE 후 재구성</td></tr>
+<tr><td>블랙박스</td><td><span class="sev-b">B15</span> "wallet 관련 문자열을 포함하는 모든 service_role 실행 가능 함수" 를 <b>런타임에 계산해</b> 일괄 실행권 회수 — 프로덕션의 미지 함수까지 휩쓸릴 수 있어 실행 전 예측 불가</td></tr>
+</table>
+
+<h2>3. 부수 발견 (프로덕션과 무관하게 수정 필요)</h2>
+<table>
+<tr><th>#</th><th>발견</th><th>조치</th></tr>
+<tr><td class="sev-c">F1</td><td><b>게이트 자충돌 (B28)</b>: <code>20260723173327</code> 이 <code>get_active_promotion_campaigns</code> 실행권을 anon 에 부여하는데, <code>20260723023056</code> 의 릴리스 게이트는 anon 실행권이 있으면 <code>promotion_surfaces_enabled</code> 활성화를 영구 거부. <b>스테이징에도 이미 적용된 상태</b> — Phase 4 의 프로모션 표면 활성화가 현재 불가능</td><td>둘 중 하나 수정하는 엔진 픽스 필요 (강업과 무관, 캠페인 시작 전까지만)</td></tr>
+<tr><td class="sev-c">F2</td><td><b>lazy 시딩 계획은 무의미했음</b>: 엔진은 자체 잔액 원장을 두지 않고 <code>user_profiles.star_candy/star_candy_bonus</code> 를 그대로 잔액 저장소로 쓴다(+ <code>cotton_candy</code> 컬럼 추가). 즉 "레거시 잔액 → 원장 시딩" 자체가 필요 없음. 대신 <b>보너스 투영 드리프트 정리(사전 reconciliation)</b> 가 진짜 선행 작업(B3 통과 조건)</td><td>계획 문서 정정 (이 문서와 함께 반영)</td></tr>
+<tr><td class="sev-c">F3</td><td>크론 등록 직후 <code>wallet-heartbeat-alert-evaluator</code> 가 하트비트 0 상태에서 <code>ops_alerts</code> WARNING 을 즉시 생성 — dark 설치여도 알림 노이즈 발생</td><td>1a 설계 시 등록 순서/유예 고려</td></tr>
+</table>
+
+<h2>4. 선택지와 권고</h2>
+<table>
+<tr><th></th><th>내용</th><th>평가</th></tr>
+<tr><td><b>1안 — Phase 1a/1b 분할 (권고)</b></td><td>세트를 둘로 재편성:<br><b>1a (가산 전용, 지금 적용)</b> — 신규 스키마/테이블/롤/신규 이름 RPC/크론/플래그 시딩만. 레거시 객체에 대한 교체·REVOKE·트리거·제약 전부 제외. verify-receipt-v2 가 동작하는 데 필요한 최소 완결 집합.<br><b>1b (컷오버, 강업 완료 후)</b> — 교체·REVOKE·트리거·제약·검증. v162 은퇴와 같은 시점에 적용</td><td>전략 C(두 세대 공존)와 정합. 엔진이 user_profiles 를 공유하므로 공존은 구조적으로 자연스러움(F2). 다만 9,078줄 재편성 + 파일 내부 결합(B15 manifest assert, 095500 의 리네임 결합 등) 해체가 필요한 <b>실질 엔지니어링 작업</b>이고, 1a 결과물은 스테이징과 별도 검증 필요</td></tr>
+<tr><td>2안 — 전체 세트를 강업 완료 후 일괄 적용</td><td>DB 를 레거시 그대로 두고, 구세대 트래픽이 소멸한 뒤 36개 일괄 적용 + 앱 출시</td><td><b>전략 C 와 상충</b> — 신세대 앱은 엔진 없이는 출시할 수 없으므로 단계 출시·공존 창 자체가 사라짐(사실상 B안 빅뱅 회귀). 비권고</td></tr>
+<tr><td>3안 — 세트 그대로 적용</td><td>—</td><td>불가 (§2)</td></tr>
+</table>
+
+<div class="warn">
+<b>1안 채택 시 선행 조건</b>: ① 1a/1b 분류 기준 확정(위 감사의 B/C 목록이 그대로 분류 입력이 됨) ② B3 대비 프로덕션 보너스 투영 드리프트 측정(읽기 전용) ③ F1 게이트 자충돌 픽스 ④ B23 placeholder 배너 INSERT 제거 ⑤ 1a 를 스테이징 클린 DB 에 리허설
+</div>
+
+<h2>5. 현재 상태 요약</h2>
+<ul>
+<li class="done">✅ Phase 1 중 함수·시크릿·Vault 는 완료 (dark, 무영향)</li>
+<li><b>⏸ DB 마이그레이션은 적용 보류</b> — 위 결정 대기. 크론 미등록이므로 배포된 함수들은 유휴</li>
+<li>프로덕션 레거시 경로는 오늘 작업 전과 완전히 동일하게 동작 중 (verify_receipt 코드 해시로 확인)</li>
+</ul>
+
+<p class="meta">근거 전문: 감사 에이전트 리포트(BLOCKER 28건·CAUTION 22건·크론 5종·플래그 12종·시딩 부재 확인) — 핵심 4건은 본 문서 §2 에서 소스 라인 재검증됨.</p>
+</body>
+</html>
