@@ -142,7 +142,36 @@ Widget scheduledApp(
 );
 
 void main() {
-  testWidgets('checking indicator never acknowledges', (tester) async {
+  testWidgets('post-ad checking indicator never acknowledges', (tester) async {
+    final repository = _Repository();
+    final store = PendingAdRewardStore(_MemoryStorage());
+    final container = ProviderContainer(
+      overrides: [
+        adRewardRepositoryProvider.overrideWithValue(repository),
+        pendingAdRewardStoreProvider.overrideWithValue(store),
+        adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+        adRewardDelayProvider.overrideWithValue((_) async {}),
+      ],
+    );
+    addTearDown(container.dispose);
+    await store.add('user-a', reference);
+    unawaited(
+      container
+          .read(adRewardRecoveryProvider.notifier)
+          .poll(ownerUserId: 'user-a', reference: reference),
+    );
+    await tester.pumpWidget(app(container));
+    await tester.pump();
+    expect(find.text('Checking your reward'), findsOneWidget);
+    expect(repository.acknowledged, isEmpty);
+  });
+
+  testWidgets('launch recovery never raises the checking indicator', (
+    tester,
+  ) async {
+    // 앱 실행 시 "보상을 확인하고 있어요" 가 오래 남던 자리. 서버가 끝내
+    // 해소하지 않는 레퍼런스는 로컬 레코드로 계속 남기 때문에, 스윕이
+    // 배너를 띄우면 실행/포그라운드마다 같은 안내가 다시 붙는다.
     final repository = _Repository();
     final store = PendingAdRewardStore(_MemoryStorage());
     final container = ProviderContainer(
@@ -160,7 +189,7 @@ void main() {
     );
     await tester.pumpWidget(app(container));
     await tester.pump();
-    expect(find.text('Checking your reward'), findsOneWidget);
+    expect(find.text('Checking your reward'), findsNothing);
     expect(repository.acknowledged, isEmpty);
   });
 
