@@ -235,14 +235,23 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
             timeout: const Duration(seconds: 12), // 베너는 조금 더 긴 타임아웃
             maxRetries: 3, // 베너는 더 많은 재시도
             // width/height 는 논리 픽셀 렌더 크기 — 없으면 CDN URL 에 w/h
-            // 리사이즈 파라미터가 붙지 않아 원본 크기를 그대로 내려받는다.
-            // DPR 보정은 위젯 내부(resolutionMultiplier)에서 곱해진다.
+            // 리사이즈 파라미터가 붙지 않아 원본을 그대로 내려받는다. 공유
+            // 위젯이 w/h 에 DPR 배율(resolutionMultiplier)을 곱해 물리 px
+            // 로 보낸다.
             //
-            // 한계: 공유 위젯 _getTransformedUrl 이 w/h 에 multiplier 를
-            // 곱하면서 dpr 도 함께 보내는 기존 결함 때문에 Imgix 가 배율을
-            // 이중 적용해(실측 DPR3: w=2000&h=1125&dpr=2.5 → 최종 5000px
-            // 요청, fit=max 로 원본 상한) 현재는 절감 효과가 거의 없다.
-            // 그 결함이 고쳐지면 이 호출부가 의도대로 동작한다.
+            // cdn.picnic.fan 은 Imgix 가 아니라 CloudFront + 커스텀
+            // 리사이저다 (코디네이터 프로덕션 실측 2026-08-07): 요청은
+            // 302 로 /cache/..._w{w}_h{h}_f{format}_q{q}.{ext} 캐시 키에
+            // 리다이렉트되고 (h 미지정 시 _hauto_, 비율 유지 리사이즈),
+            // dpr·fm 파라미터는 완전히 무시되며 (dpr=1 과 dpr=2.5 가 동일
+            // 캐시 키·동일 바이트, fm=webp 도 _fpng_/image/png 로 응답)
+            // fit·auto 는 캐시 키에 포함되지 않는다. dpr 이 무시되므로
+            // 공유 위젯이 물리 px w/h 를 보내는 현행 동작이 옳다.
+            // 원본보다 큰 w 는 업스케일 없이 원본 크기로 클램프되고 q=80
+            // 재인코딩만으로도 절감된다 — vote_home 배너 4개 표본에서 원본
+            // 대비 약 58-60% 감소 (예: banner/18 320,602→132,426 bytes).
+            // webp 전환은 클라이언트 파라미터로는 되지 않으므로 CDN 쪽
+            // 과제다.
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.width / widget.aspectRatio,
             // 베너 크기에 맞는 메모리 캐시 설정
