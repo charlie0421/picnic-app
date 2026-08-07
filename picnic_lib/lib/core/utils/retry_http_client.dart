@@ -303,6 +303,14 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
   }
 
   bool _shouldRetry(Exception error) {
+    // _sendWithTimeout 은 SocketException 을 NetworkError 로 감싸서 던진다.
+    // 이 분기가 없으면 감싸진 예외가 아래 타입 검사에도, 문자열 검사에도
+    // 걸리지 않아 콜드스타트의 "Failed host lookup" 이 재시도 없이 즉시
+    // _createErrorResponse 의 가짜 500 으로 떨어진다.
+    if (error is NetworkError) {
+      return error.isRetryable;
+    }
+
     if (error is SocketException ||
         error is TimeoutException ||
         error is ClientException) {
