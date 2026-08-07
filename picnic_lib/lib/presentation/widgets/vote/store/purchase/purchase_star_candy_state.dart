@@ -1050,15 +1050,27 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     required String attemptId,
   }) async {
     // 🛡️ 복원 정리 완료 대기 가드
+    //
+    // 게이트가 닫혀 있으면 **지금 다시 검증한다**. 진입 시 스윕 한 번의
+    // 결과를 그대로 래치하면, 로그인 전에 스토어를 열었거나(notSignedIn)
+    // 부팅 직후 조회가 실패한 사용자는 안내문("잠시 후 다시 시도해주세요")과
+    // 달리 아무리 다시 눌러도 영구히 막힌다 - iOS 첫 구매 시도에 "초기화
+    // 중입니다"가 뜨던 경로다 (2026-08-07). 재검증도 실패하면 예전과 똑같이
+    // 막는다: "확인하지 못했다"는 여전히 구매 허용 사유가 아니다.
     if (!_restoreHandler.isProactiveCleanupCompleted) {
-      logger.w('🛡️ 복원 정리가 아직 완료되지 않음 - 구매 차단');
-      if (mounted) {
-        showSimpleDialog(
-          content: AppLocalizations.of(context).purchase_initializing_message,
-        );
+      final l10n = AppLocalizations.of(context);
+      _loadingKey.currentState?.show();
+      final verified = await _restoreHandler.ensureProactiveCleanupCompleted();
+      if (!verified || !mounted) {
+        _loadingKey.currentState?.hide();
+        _removeAttempt(serverProduct['id'] as String, attemptId);
+        if (verified || !mounted) return;
+        logger.w('🛡️ 복원 정리가 재검증에도 실패 - 구매 차단');
+        setState(() {});
+        showSimpleDialog(content: l10n.purchase_initializing_message);
+        return;
       }
-      _removeAttempt(serverProduct['id'] as String, attemptId);
-      return;
+      logger.i('🛡️ 복원 정리 재검증 통과 - 구매 진행');
     }
 
     _setPurchaseStartState(serverProduct['id']);
