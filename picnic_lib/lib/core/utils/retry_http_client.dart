@@ -86,9 +86,23 @@ class RetryHttpClient extends http.BaseClient {
       // skip buffering entirely instead of reading into memory only to
       // discard it a moment later. Same retry trade-off as the fallback
       // below: a body failure on this response will not be retried.
+      //
+      // preserveContentLength: false -- dart:io's HttpClient defaults to
+      // autoUncompress=true, which transparently gunzips the body but
+      // leaves Content-Length as the *compressed* size the server sent, so
+      // this header can understate the real (decompressed) byte count we
+      // are about to stream. Verified via package:http 1.6.0 that
+      // Response.fromStream recomputes contentLength from actual received
+      // bytes rather than trusting a StreamedResponse's declared value, so
+      // this mismatch is not an active regression through that path today
+      // -- but nothing stops another caller from reading
+      // StreamedResponse.contentLength directly, so don't hand out a
+      // number we can no longer vouch for once we've stopped counting
+      // bytes ourselves.
       return _copyStreamedResponse(
         response,
         _withDeadline(response.stream, remaining),
+        preserveContentLength: false,
       );
     }
 
@@ -112,6 +126,16 @@ class RetryHttpClient extends http.BaseClient {
           completed = true;
           break;
         }
+        // Checked after add, so a single chunk can push `bytes` up to one
+        // chunk-size past the cap. Not worth guarding against: that chunk
+        // is already fully resident in memory as `iterator.current` the
+        // moment moveNext() returns, whether or not we also copy it into
+        // `bytes`, so refusing the copy wouldn't lower peak memory -- it
+        // would only require holding the chunk aside and threading it
+        // through _prefixedStream as a separate pending element. Real HTTP
+        // chunk sizes are tens of KB at most, an order of magnitude below
+        // the multi-MB cap this guards, so the bound this loop provides
+        // ("effectively capped", not "capped to the byte") is good enough.
         bytes.add(iterator.current);
         if (bytes.length > maxBufferedResponseBytes) {
           overCap = true;
@@ -139,6 +163,10 @@ class RetryHttpClient extends http.BaseClient {
       return _copyStreamedResponse(
         response,
         _withDeadline(_prefixedStream(prefix, iterator), timeLeft),
+        // We only ever counted the prefix, not the full body -- we don't
+        // know the real total, and the declared Content-Length (if any)
+        // has the same gzip-mismatch caveat as the precheck branch above.
+        preserveContentLength: false,
       );
     }
 
@@ -156,15 +184,66 @@ class RetryHttpClient extends http.BaseClient {
   }
 
   /// Replays [prefix] (bytes already consumed from [rest]) followed by
-  /// whatever [rest] yields next, without losing or duplicating any bytes.
+  /// whatever [rest] yields next, without losing or duplicating any bytes,
+  /// and cancels [rest] on every exit path -- normal completion, an
+  /// upstream error, or the consumer (here, _withDeadline) cancelling
+  /// early -- so the subscription/socket backing it is never left
+  /// dangling.
+  ///
+  /// This can't be a plain `async*` generator: cancelling the *output*
+  /// stream's subscription does not interrupt a `StreamIterator.moveNext()`
+  /// that's already in flight, since that's a plain awaited Future the
+  /// async* machinery knows nothing about -- it only notices cancellation
+  /// the next time the generator body resumes and reaches a `yield`. If
+  /// the underlying source never emits or completes (a stalled
+  /// connection), that await never resumes on its own, so an `async*` body
+  /// would never call `rest.cancel()`, leaking the subscription/socket
+  /// exactly as described in review. Driving `rest` from an explicit
+  /// `onCancel` handler on our own controller calls `cancel()` immediately
+  /// regardless of what `rest.moveNext()` is doing.
   Stream<List<int>> _prefixedStream(
     List<int> prefix,
     StreamIterator<List<int>> rest,
-  ) async* {
-    if (prefix.isNotEmpty) yield prefix;
-    while (await rest.moveNext()) {
-      yield rest.current;
+  ) {
+    late StreamController<List<int>> controller;
+    var finished = false;
+
+    Future<void> finish() async {
+      if (finished) return;
+      finished = true;
+      await _cancelSafely(rest.cancel);
     }
+
+    Future<void> pump() async {
+      try {
+        if (prefix.isNotEmpty) {
+          controller.add(prefix);
+        }
+        while (!finished) {
+          final hasNext = await rest.moveNext();
+          if (finished) break;
+          if (!hasNext) break;
+          controller.add(rest.current);
+        }
+      } catch (error, stackTrace) {
+        if (!finished) {
+          controller.addError(error, stackTrace);
+        }
+      } finally {
+        await finish();
+        if (!controller.isClosed) {
+          unawaited(controller.close());
+        }
+      }
+    }
+
+    controller = StreamController<List<int>>(
+      sync: true,
+      onListen: () => unawaited(pump()),
+      onCancel: finish,
+    );
+
+    return controller.stream;
   }
 
   bool _requiresStreamingResponse(
@@ -178,12 +257,13 @@ class RetryHttpClient extends http.BaseClient {
 
   http.StreamedResponse _copyStreamedResponse(
     http.StreamedResponse response,
-    Stream<List<int>> stream,
-  ) {
+    Stream<List<int>> stream, {
+    bool preserveContentLength = true,
+  }) {
     return http.StreamedResponse(
       stream,
       response.statusCode,
-      contentLength: response.contentLength,
+      contentLength: preserveContentLength ? response.contentLength : null,
       request: response.request,
       headers: response.headers,
       isRedirect: response.isRedirect,

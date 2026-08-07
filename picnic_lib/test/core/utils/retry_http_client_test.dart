@@ -170,6 +170,75 @@ class _CountingChunkedClient extends http.BaseClient {
   }
 }
 
+/// A client whose response body only yields each chunk once the test
+/// explicitly calls [releaseNext] for it. Lets a test prove RetryHttpClient
+/// made a decision (e.g. skipped buffering, or returned before the whole
+/// body was available) *without* needing every chunk to have arrived --
+/// something an eagerly-yielding fake stream can't distinguish from "read
+/// everything, then decide."
+class _GatedChunkedClient extends http.BaseClient {
+  _GatedChunkedClient(this.chunks, {this.contentLength});
+
+  final List<List<int>> chunks;
+  final int? contentLength;
+  int callCount = 0;
+  List<Completer<void>> _gates = [];
+
+  void releaseNext() {
+    final gate = _gates.firstWhere(
+      (g) => !g.isCompleted,
+      orElse: () => throw StateError('No more gated chunks to release'),
+    );
+    gate.complete();
+  }
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    callCount++;
+    _gates = List.generate(chunks.length, (_) => Completer<void>());
+    return http.StreamedResponse(
+      _stream(),
+      200,
+      contentLength: contentLength,
+      request: request,
+    );
+  }
+
+  Stream<List<int>> _stream() async* {
+    for (var i = 0; i < chunks.length; i++) {
+      await _gates[i].future;
+      yield chunks[i];
+    }
+  }
+}
+
+/// A client whose response stream is backed by a real [StreamController],
+/// so a test can observe (via [sourceCanceled]) whether cancelling the
+/// RetryHttpClient response actually tears down the underlying
+/// subscription -- the real-world stand-in for the socket being closed --
+/// rather than just abandoning a Dart Future while the "connection" is
+/// left open. It never closes on its own, simulating a stalled connection:
+/// the only way it ever ends is via cancellation.
+class _CancelTrackingStreamClient extends http.BaseClient {
+  _CancelTrackingStreamClient(this.leadingChunks);
+
+  final List<List<int>> leadingChunks;
+  bool sourceCanceled = false;
+  int callCount = 0;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    callCount++;
+    final controller = StreamController<List<int>>(
+      onCancel: () => sourceCanceled = true,
+    );
+    for (final chunk in leadingChunks) {
+      controller.add(chunk);
+    }
+    return http.StreamedResponse(controller.stream, 200, request: request);
+  }
+}
+
 void main() {
   group('NetworkError', () {
     test('stores message and isRetryable', () {
@@ -686,7 +755,7 @@ void main() {
         http.Request('GET', Uri.parse('https://example.com/big'));
 
     test(
-        'responses at or under maxBufferedResponseBytes still buffer and '
+        'responses under maxBufferedResponseBytes still buffer and '
         'retry body failures', () async {
       final inner = _FailingBodyThenSucceedClient();
       final client = RetryHttpClient(
@@ -705,29 +774,75 @@ void main() {
     });
 
     test(
-        'streams and preserves already-read bytes when the response exceeds '
-        'maxBufferedResponseBytes', () async {
-      final chunkA = List<int>.generate(10, (i) => i);
-      final chunkB = List<int>.generate(10, (i) => 100 + i);
-      final inner = _CountingChunkedClient([chunkA, chunkB]);
+        'a response exactly at maxBufferedResponseBytes (the inclusive '
+        'boundary) still buffers and retries body failures', () async {
+      // `{"ok": true}` from _FailingBodyThenSucceedClient is exactly 12
+      // bytes; pin the cap comparison at that exact boundary so a `>` vs
+      // `>=` regression is caught instead of only ever being tested with
+      // headroom to spare.
+      final inner = _FailingBodyThenSucceedClient();
       final client = RetryHttpClient(
         inner,
-        maxAttempts: 3,
+        maxAttempts: 2,
+        maxBufferedResponseBytes: 12,
+      );
+
+      final response =
+          await client.get(Uri.parse('https://example.com/exact'));
+
+      expect(response.statusCode, 200);
+      expect(response.body, '{"ok": true}');
+      expect(inner.callCount, 2,
+          reason: 'a body exactly at the cap must still be buffered '
+              '(and thus retryable) -- only bytes strictly over the cap '
+              'should fall back to streaming');
+      client.close();
+    });
+
+    test(
+        'genuinely streams later chunks as they arrive instead of reading '
+        'the whole body before returning, once maxBufferedResponseBytes is '
+        'exceeded', () async {
+      final chunkA = List<int>.generate(20, (i) => i); // alone exceeds cap
+      final chunkB = List<int>.generate(5, (i) => 100 + i);
+      final inner = _GatedChunkedClient([chunkA, chunkB]);
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 1,
         maxBufferedResponseBytes: 16,
       );
 
-      final response = await client.send(makeGetRequest());
-      final body = await response.stream
-          .fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
+      final sendFuture = client.send(makeGetRequest());
+      // Let the request start so the per-call gates exist, then release
+      // only the first (over-cap) chunk. chunkB stays gated.
+      await Future<void>.delayed(Duration.zero);
+      inner.releaseNext();
 
-      expect(body, equals([...chunkA, ...chunkB]));
+      final response = await sendFuture.timeout(const Duration(seconds: 2));
       expect(inner.callCount, 1);
+
+      final received = <int>[];
+      final sub = response.stream.listen(received.addAll);
+
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(received, equals(chunkA),
+          reason: 'chunkB is still gated -- if the implementation secretly '
+              'buffered the whole body before returning from send(), this '
+              'assertion would need chunkB to already be present, which is '
+              'impossible since it has not been released yet');
+
+      inner.releaseNext();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(received, equals([...chunkA, ...chunkB]));
+
+      await sub.cancel();
       client.close();
     });
 
     test(
         'does not retry a body failure once the response exceeded '
-        'maxBufferedResponseBytes', () async {
+        'maxBufferedResponseBytes, and does not re-expose the unverified '
+        'Content-Length', () async {
       final chunkA = List<int>.generate(20, (i) => i);
       final inner = _CountingChunkedClient(
         [chunkA],
@@ -740,6 +855,10 @@ void main() {
       );
 
       final response = await client.send(makeGetRequest());
+
+      // We only ever counted a partial prefix, never the true total, so
+      // the fallback response must not claim a contentLength.
+      expect(response.contentLength, isNull);
 
       // The raw inner stream error is wrapped into a NetworkError by
       // _sendWithTimeout before _bufferResponse ever sees it (see the
@@ -756,33 +875,106 @@ void main() {
     });
 
     test(
-        'a Content-Length already over the cap skips buffering even when '
-        'the actual bytes read stay small, so body failures do not retry',
-        () async {
-      final inner = _StubClient(
-        (req) async => http.StreamedResponse(
-          (() async* {
-            yield [1, 2, 3];
-            throw const SocketException('body broke');
-          })(),
-          200,
-          contentLength: 1000,
-          request: req,
-        ),
+        'a Content-Length already over the cap skips buffering immediately '
+        '-- before any body bytes are read -- and does not re-expose that '
+        'Content-Length (it may be the gzip-compressed size while the '
+        'stream is decompressed)', () async {
+      final inner = _GatedChunkedClient(
+        [List<int>.generate(4, (i) => i)],
+        contentLength: 1000, // declared over the cap; body stays gated
       );
       final client = RetryHttpClient(
         inner,
-        maxAttempts: 3,
+        maxAttempts: 1,
+        timeout: const Duration(milliseconds: 200),
+        maxBufferedResponseBytes: 16,
+      );
+
+      // If the Content-Length precheck regressed (e.g. buffering is
+      // attempted regardless), _bufferResponse would block on the first
+      // gated -- and never released here before this await -- chunk until
+      // its own internal per-chunk timeout fires, and send() would return
+      // a synthetic 500 instead of throwing, so bound this with a timeout
+      // as a backstop rather than relying on that alone.
+      final response =
+          await client.send(makeGetRequest()).timeout(
+                const Duration(milliseconds: 800),
+              );
+
+      expect(response.statusCode, 200,
+          reason: 'a synthetic 500 here means the Content-Length precheck '
+              'did not short-circuit and _bufferResponse instead blocked '
+              'trying to read a body it should never have attempted to '
+              'buffer');
+      expect(response.contentLength, isNull);
+
+      inner.releaseNext();
+      final body = await response.stream
+          .fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
+      expect(body, equals([0, 1, 2, 3]));
+      client.close();
+    });
+
+    test(
+        'a deadline timeout during the buffer-cap fallback cancels the '
+        'underlying subscription instead of leaking it', () async {
+      final bigChunk = List<int>.generate(20, (i) => i); // alone > cap
+      final inner = _CancelTrackingStreamClient([bigChunk]);
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 1,
+        timeout: const Duration(milliseconds: 40),
         maxBufferedResponseBytes: 16,
       );
 
       final response = await client.send(makeGetRequest());
 
+      // The fake source never closes on its own (simulating a stalled
+      // connection past the cap), so the only way this drain ends is the
+      // deadline timer firing.
       await expectLater(
         response.stream.drain<void>(),
-        throwsA(isA<NetworkError>()),
+        throwsA(anything),
       );
-      expect(inner.callCount, 1);
+
+      // _cancelSafely bounds cleanup at _streamCleanupTimeout (100ms);
+      // give it a little headroom to actually run.
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+
+      expect(inner.sourceCanceled, isTrue,
+          reason:
+              'the deadline firing must cancel the real subscription behind '
+              'the fallback stream (via _prefixedStream), or the '
+              'subscription/socket leaks indefinitely since nothing else '
+              'will ever stop it');
+      client.close();
+    });
+
+    test(
+        'the consumer cancelling the buffer-cap fallback stream early '
+        'cancels the underlying subscription instead of leaking it',
+        () async {
+      final bigChunk = List<int>.generate(20, (i) => i); // alone > cap
+      final inner = _CancelTrackingStreamClient([bigChunk]);
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 1,
+        timeout: const Duration(seconds: 5),
+        maxBufferedResponseBytes: 16,
+      );
+
+      final response = await client.send(makeGetRequest());
+
+      final sub = response.stream.listen((_) {});
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      await sub.cancel();
+
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+
+      expect(inner.sourceCanceled, isTrue,
+          reason: 'the consumer abandoning the fallback stream before it '
+              'completes must cancel the underlying subscription instead '
+              'of leaking it');
       client.close();
     });
   });
