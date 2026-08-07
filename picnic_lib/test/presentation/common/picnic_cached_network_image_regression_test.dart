@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -217,17 +218,127 @@ void main() {
 
       final images = loadedImages(tester);
       expect(images, hasLength(10));
-      // 테스트 뷰의 devicePixelRatio 는 3.0(mock) → 배수는 2.5 로 clamp 되어
-      // 정상 URL 은 dpr=2.5 를 가진다. 저대역폭 강등이 켜지면 dpr 이 1.0/1.2 로
-      // 떨어지므로, dpr 파라미터 값을 정확히 파싱해 1.x 강등이 없음을 검증한다.
-      final dprRe = RegExp(r'[?&]dpr=([\d.]+)');
-      for (final w in images) {
-        final m = dprRe.firstMatch(w.imageUrl);
-        expect(m, isNotNull, reason: 'dpr 파라미터가 있어야 한다: ${w.imageUrl}');
-        final dpr = double.parse(m!.group(1)!);
-        expect(dpr, greaterThan(2.0),
-            reason: '동시 로딩 포화가 해상도 강등(dpr<=2)을 유발하면 안 된다: ${w.imageUrl}');
+      // CDN 은 dpr 파라미터를 무시하므로(2026-08-07 실측) 더 이상 URL 에 실리지
+      // 않는다. 대신 dpr 기반 해상도 배율은 여전히 w 파라미터 산출에 쓰이므로,
+      // 저대역폭 강등이 없다는 걸 w 값으로 검증한다. 테스트 뷰의
+      // devicePixelRatio 는 3.0(mock) → 배수는 2.5 로 clamp 되어 정상 URL 은
+      // w=100(40*2.5) 을 가진다. 저대역폭 강등이 켜지면 배수가 1.0/1.2 로
+      // 떨어져 w 가 40~48 로 줄어든다.
+      final wRe = RegExp(r'[?&]w=(\d+)');
+      for (final img in images) {
+        final m = wRe.firstMatch(img.imageUrl);
+        expect(m, isNotNull, reason: 'w 파라미터가 있어야 한다: ${img.imageUrl}');
+        final w = int.parse(m!.group(1)!);
+        expect(w, greaterThan(80),
+            reason: '동시 로딩 포화가 해상도 강등(배수<=2)을 유발하면 안 된다: ${img.imageUrl}');
       }
+    });
+  });
+
+  group('CDN 이 무시하는 파라미터 제거 (f/fm 이중 다운로드 결함)', () {
+    // 배경: cdn.picnic.fan(CloudFront + 커스텀 리사이저)의 캐시 키는
+    // `_w{w}_h{h}_f{format}_q{q}` 뿐이며, 실측 결과 dpr/fm 은 응답에 아무
+    // 영향을 주지 않는다(2026-08-07). 예전엔 f/fm 값이
+    // WebPSupportChecker.instance.supportInfo 의 비동기 초기화(Phase 2,
+    // runApp 이후 완료) 에 좌우돼, 초기 프레임엔 f=jpg URL 을, 이후
+    // 재생성된 위젯은 f=webp URL 을 만들었다 — 서버는 둘 다 같은 바이트를
+    // 주지만 캐시 키가 곧 URL 이라 같은 이미지를 두 번 받아 두 번
+    // 저장했다.
+    tearDown(() {
+      WebPSupportChecker.instance.reset();
+    });
+
+    testWidgets('URL 에 서버가 무시하는 dpr/fm/f/fl/auto/fit 파라미터가 없어야 한다',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://example.com/dead-params.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      final deadParamRe = RegExp(r'[?&](dpr|fm|f|fl|auto|fit)=');
+      for (final img in images) {
+        expect(deadParamRe.hasMatch(img.imageUrl), isFalse,
+            reason: '서버가 무시하는 파라미터가 URL 에 남아 있으면 안 된다: ${img.imageUrl}');
+      }
+    });
+
+    testWidgets('URL 에 서버가 실제로 쓰는 w/h/q 파라미터는 있어야 한다',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://example.com/live-params.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+
+    testWidgets('WebPSupportChecker.supportInfo 가 null 이어도(Phase 2 초기화 전) 항상 같은 URL 을 만들어야 한다',
+        (tester) async {
+      // WebPSupportChecker.instance.checkSupport() 는 device_info_plus 의
+      // 플랫폼 채널을 호출해 테스트 하네스에서 응답 없이 걸린다(기존
+      // webp_support_checker_test.dart 도 이를 피해 checkSupport() 를
+      // 직접 호출하지 않는다). 따라서 여기서는 실제 상태 전이(null →
+      // WebPSupportInfo) 를 흉내내는 대신, 위젯 코드가
+      // WebPSupportChecker 를 더 이상 참조하지 않는다는 것 자체를 —
+      // supportInfo 가 null(=Phase 2 초기화 전, 예전엔 f=jpg 를 만들던
+      // 상태) 인 채로 같은 파라미터의 위젯을 두 번 독립적으로 빌드해도
+      // 항상 동일한 URL 이 나온다는 사실로 검증한다.
+      WebPSupportChecker.instance.reset();
+      expect(WebPSupportChecker.instance.supportInfo, isNull);
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://example.com/webp-independent.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+      final first = loadedImages(tester).map((w) => w.imageUrl).toSet();
+      expect(first, isNotEmpty);
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            key: ValueKey('second-build'),
+            imageUrl: 'https://example.com/webp-independent.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+      final second = loadedImages(tester).map((w) => w.imageUrl).toSet();
+      expect(second, isNotEmpty);
+
+      expect(
+        second,
+        first,
+        reason: '같은 imageUrl/width/height 로 다시 빌드해도 URL(=캐시 키)이 달라지면 안 된다 — '
+            '달라지면 같은 이미지를 두 번 다운로드/저장하는 결함이 재발한 것이다.',
+      );
     });
   });
 

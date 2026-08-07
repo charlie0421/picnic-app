@@ -9,7 +9,6 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/presentation/common/image_shimmer_loading.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -186,6 +185,42 @@ class _PicnicCachedNetworkImageState
     return computed > 0 ? computed : 1;
   }
 
+  /// [KNOWN ISSUE — 별도 후속 작업, 이 함수는 아직 고치지 않았다]
+  ///
+  /// 여기서 계산한 값은 `CachedNetworkImage.memCacheWidth/Height` 로 흘러
+  /// 들어가 Flutter 엔진의 `ResizeImage.width/height` 가 된다. Flutter SDK
+  /// 문서(`packages/flutter/lib/src/painting/image_provider.dart`,
+  /// `ResizeImage.width` 1274-1281행, 클래스 문서 1230-1236·1251-1252행)에
+  /// 따르면 이 값은 **디코드해서 캐시할 비트맵의 물리 픽셀(physical pixel)
+  /// 수**다 — 논리(dp) 픽셀이 아니고, devicePixelRatio 를 자동으로 반영하지도
+  /// 않는다. SDK 문서의 예제조차 `MediaQuery.widthOf(context) ~/ 2` 같은
+  /// 논리값을 그대로 넣는 함정을 보여준다.
+  ///
+  /// 그런데 이 함수는 `explicit`(호출부가 넘긴 memCacheWidth/Height)이든
+  /// `fallback`(위젯의 논리 width/height)이든 논리 px 기준값에 1.0 또는 0.5
+  /// 배율만 곱한다 — DPR 을 전혀 반영하지 않는다. 반면 CDN 다운로드 URL 의
+  /// w/h(`_getTransformedUrl`)는 `_getResolutionMultiplier`(DPR 기반, 최대
+  /// 2.5~4.0배)로 정확히 물리 픽셀 목표를 계산한다. **두 경로의 단위가
+  /// 불일치한다:** DPR 2.5~4 기기에서 물리 픽셀 기준 100~160px 이미지를
+  /// 내려받고도 여기서는 40px(예: width=40dp) 로만 디코드해 캐시하므로,
+  /// 렌더 시 화면이 요구하는 물리 픽셀로 다시 업스케일되어 흐릿해지고
+  /// 내려받은 고해상도 데이터도 버려진다.
+  ///
+  /// 올바른 정렬 방향은 **CDN 요청은 물리 px 로 유지한 채 이 함수를 물리 px
+  /// 로 끌어올리는 것**이다 — 반대로 CDN w/h 를 논리 px 로 낮추면 레티나
+  /// 선명도 자체를 잃는다.
+  ///
+  /// 지금 고치지 않은 이유: 이 위젯을 쓰는 45곳 중 최소 10곳이 memCacheWidth/
+  /// Height 를 명시적으로 넘기며(`explicit` 경로), 전부 DPR 을 반영하지 않은
+  /// 원시 숫자다 — avatar_container.dart, common_banner.dart,
+  /// vote_detail_page.dart(2곳), vote_detail_achieve_page.dart(2곳),
+  /// vote_home_page.dart, board_list_page.dart, common_artist_widget.dart,
+  /// artist_search_result_item.dart, goonghap_card.dart. `explicit` 값까지
+  /// DPR 을 반영하려면(그래야 실사용 대부분에 효과가 있다) 앱 전역 디코드
+  /// 메모리가 최대 DPR² 배(모바일 캡 2.5 → 6.25배, iPad 캡 4.0 → 16배)까지
+  /// 늘 수 있어, 저사양 기기 OOM 위험을 실기기로 검증하기 전에는 단독으로
+  /// 판단하지 않기로 했다(2026-08-07). 호출부 44곳을 흔드는 변경이라 이번
+  /// PR(서버가 무시하는 CDN 파라미터 제거)과 롤백 단위를 분리한다.
   int _computeCacheDimension(
     int? explicit,
     double? fallback,
@@ -214,14 +249,6 @@ class _PicnicCachedNetworkImageState
       buffer.write('_lq');
     }
     return buffer.toString();
-  }
-
-  String _formatDpr(double value) {
-    final fixed = value.toStringAsFixed(2);
-    final trimmed = fixed
-        .replaceAll(RegExp(r'0+$'), '')
-        .replaceAll(RegExp(r'\.$'), '');
-    return trimmed.isEmpty ? '1' : trimmed;
   }
 
   @override
@@ -764,6 +791,15 @@ class _PicnicCachedNetworkImageState
     return ImageComplexity.high;
   }
 
+  /// CDN(cdn.picnic.fan, CloudFront + 커스텀 리사이저) 변환 URL을 만든다.
+  ///
+  /// 서버가 실제로 쓰는 파라미터는 w/h/q 뿐이다(2026-08-07 프로덕션 실측).
+  /// dpr/fm/f/fl/auto/fit 은 캐시 키(`_w{w}_h{h}_f{format}_q{q}`)에 반영되지
+  /// 않거나 응답에 아무 영향을 주지 않는다 — 특히 f/fm 은 WebPSupportChecker의
+  /// Phase 2 비동기 초기화(runApp 이후 완료)에 좌우되어, 초기 프레임엔 f=jpg로
+  /// 이후 재빌드에선 f=webp로 서로 다른 URL(=서로 다른 캐시 키)을 만들었고,
+  /// 서버는 둘 다 같은 바이트를 주므로 동일 이미지를 두 번 받아 두 번 저장하는
+  /// 결함이 있었다. w/h/q만 보내 이 결함을 없앤다.
   String _getTransformedUrl(
     String key,
     double resolutionMultiplier,
@@ -794,29 +830,6 @@ class _PicnicCachedNetworkImageState
         widgetHeight,
         resolutionMultiplier,
       ).toString();
-    }
-
-    if (!isGif) {
-      final supportsWebP =
-          WebPSupportChecker.instance.supportInfo != null &&
-          WebPSupportChecker.instance.supportInfo!.webp;
-
-      if (supportsWebP) {
-        queryParameters['f'] = 'webp';
-      } else {
-        queryParameters['f'] = 'jpg';
-      }
-
-      queryParameters.addAll({
-        'fm': queryParameters['f']!,
-        'auto': 'compress,format',
-        'fit': 'max',
-        'dpr': _formatDpr(resolutionMultiplier),
-      });
-
-      if (queryParameters['f'] == 'jpg') {
-        queryParameters['fl'] = 'progressive';
-      }
     }
 
     return uri.replace(queryParameters: queryParameters).toString();

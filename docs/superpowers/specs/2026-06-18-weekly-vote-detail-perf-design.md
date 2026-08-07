@@ -23,7 +23,8 @@
 ### R2 — 이미지 재로딩 폭풍 (라이브 투표의 "느린 이미지" 핵심)
 - 이미지 위젯 key에 순위가 포함됨: `_buildNetworkImage` `ValueKey('image_${itemId}_rank_$actualRank')` (`:1079-1080`), `_buildImageWithFallback` `'cached_image_${imageUrl}_rank_$actualRank'` (`:1111`).
 - 순위가 바뀌면 key가 바뀌어 **이미지 State가 dispose+재생성 → 동일 사진을 다시 resolve/재로드**. 라이브 투표는 순위가 계속 흔들리므로 **지속적 재로딩 폭풍**.
-- 이미지 자체는 이미 서버 리사이즈 썸네일(cdn.picnic.fan imgix w/h/q, `picnic_cached_network_image.dart:668/696-752`)이라 "원본이 커서"가 아님.
+- 이미지 자체는 이미 서버 리사이즈 썸네일(cdn.picnic.fan — CloudFront + 커스텀 리사이저, Imgix 아님. 실측상 w/h/q만 동작, dpr·fm은 무시됨, `picnic_cached_network_image.dart:668/696-752`)이라 "원본이 커서"가 아님.
+  - (2026-08-07 추가 발견, 별도 후속 과제) 서버 리사이즈는 물리 px 로 정확하지만, `memCacheWidth/Height`(→ Flutter `ResizeImage`)는 논리 px 에 배율만 곱해 DPR 을 반영하지 않는다 — 두 경로의 단위 불일치로 고DPR 기기에서 디코드 해상도가 화면 요구보다 낮아 흐려질 수 있다. 수정하려면 호출부(44곳 중 10곳 이상이 memCacheWidth 를 명시적으로 넘김) 전반의 메모리 사용량이 최대 DPR² 배 늘 수 있어 실기기 검증 없이 단독 수정하지 않았다. 근거: `picnic_cached_network_image.dart` `_computeCacheDimension` 주석.
 - 추가로 `PicnicCachedNetworkImage`의 무거운 부속: per-row `VisibilityDetector` (`:573`), **전역 8-슬롯 동시로드 세마포어**(`_maxConcurrentLoads=8` `:126`, `_currentLoadingCount` `:298`)가 오히려 직렬화, 저대역폭 휴리스틱(`:646`)이 스크롤 중 cacheKey를 뒤집어 캐시 미스.
 
 ### R3 — 가상화 무력화 (목록 전체 eager build)
