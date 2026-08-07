@@ -53,6 +53,31 @@ enum PurchaseTimeoutNotice {
 /// 안에 도착하지 않은 드문 경우에 이 팝업이 유일한 이중 결제 안전장치이므로,
 /// 구매 증거가 전혀 없을 때만 생략한다. 두 값 모두 판단 근거가 없으면
 /// 보수적 기본값(증거 있음/취소 없음)으로 두어 기존 안내가 유지되게 한다.
+/// 이 시도의 스토어 결제 시트가 **닫혀 있는가** - 순수 lifecycle 판정.
+///
+/// Android 는 Play 결제 시트가 별도 Activity 라 시트가 떠 있는 동안 앱이
+/// resumed 로 복귀하지 못한다. 그래서 "런치 이후 resumed 를 한 번도 못
+/// 받았고 지금도 전면이 아니다" = **사용자가 그 상품의 결제 시트 안에 있다**
+/// 이고, 이것은 `queryPastPurchases` 가 구조적으로 답할 수 없는 사실이다
+/// (Play 는 진행 중인 결제 Activity 를 어떤 쿼리로도 노출하지 않는다).
+///
+/// 두 신호를 OR 로 보는 이유: resumed *이벤트* 는 런치 반환보다 먼저 지나가
+/// 관찰이 리셋될 수 있으므로(iOS), 현재 전면 상태를 이중 안전장치로 함께
+/// 본다. 판단 근거가 없으면([currentLifecycleState] 가 null 이고 관찰도
+/// 없으면) 관찰 기본값이 보수적으로 "닫힘" 이라, 시트 보호가 아니라 기존
+/// 동작이 유지된다.
+///
+/// [resolvePurchaseTimeoutNotice] 의 취소 억제 판정과
+/// [PurchaseCampaignAttemptRegistry.cancellationCandidates] 의 증거 (a) 가
+/// **같은 함수**를 쓴다. 두 곳이 각자 조건을 들고 있으면 한쪽만 고쳐졌을 때
+/// 조용히 어긋난다.
+bool isPurchaseSheetClosed({
+  required bool resumedSincePurchaseLaunch,
+  required AppLifecycleState? currentLifecycleState,
+}) =>
+    resumedSincePurchaseLaunch ||
+    currentLifecycleState == AppLifecycleState.resumed;
+
 PurchaseTimeoutNotice resolvePurchaseTimeoutNotice({
   required bool isIOS,
   required bool resumedSincePurchaseLaunch,
@@ -69,9 +94,10 @@ PurchaseTimeoutNotice resolvePurchaseTimeoutNotice({
   // 반환보다 먼저 지나가 관찰이 리셋될 수 있어(이벤트만 요구하면 iOS 취소
   // 억제가 레이스로 무력화된다, Sol 2차 재검증 MEDIUM-1) 현재 상태를
   // 함께 본다.
-  final sheetClosed =
-      resumedSincePurchaseLaunch ||
-      currentLifecycleState == AppLifecycleState.resumed;
+  final sheetClosed = isPurchaseSheetClosed(
+    resumedSincePurchaseLaunch: resumedSincePurchaseLaunch,
+    currentLifecycleState: currentLifecycleState,
+  );
   if (identitylessCancellationObserved &&
       !purchaseEvidenceObserved &&
       sheetClosed) {

@@ -22,6 +22,11 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_cam
 /// 무엇이 정리 후보가 되는지(=진행 중인 정상 결제를 지키는 규칙)는
 /// `purchase_cancelled_attempt_reconcile_test.dart` 가 본다.
 void main() {
+  /// 이 파일의 시나리오는 전부 "사용자가 결제 시트를 닫고 앱으로 돌아온 뒤"
+  /// 다 - 취소든 구매든 시트를 나와야 다음 행동이 있다. 시트가 **열려 있는**
+  /// 동안의 보호는 `purchase_cancelled_attempt_reconcile_test.dart` 가 본다.
+  bool sheetClosed(String productId) => true;
+
   PurchaseCampaignAttempt attempt(String productId, String attemptId) =>
       PurchaseCampaignAttempt(
         attemptId: attemptId,
@@ -67,6 +72,7 @@ void main() {
         // 찾아봤고 없으니 그대로 돌아가, STAR100 이 계속 남았다.
         final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
           attempts: attempts,
+          isPaymentSheetClosed: sheetClosed,
           verifyStoreQueueEmpty: () async => true,
         );
 
@@ -92,6 +98,7 @@ void main() {
       var scans = 0;
       final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
         attempts: attempts,
+        isPaymentSheetClosed: sheetClosed,
         verifyStoreQueueEmpty: () async {
           scans++;
           return true;
@@ -112,6 +119,7 @@ void main() {
 
         final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
           attempts: attempts,
+          isPaymentSheetClosed: sheetClosed,
           // verifiedEmpty == false: 조회 실패, 남은 트랜잭션, 진행 중인 결제,
           // 또는 방금 정산한 실결제. 어느 쪽이든 지우면 안 된다.
           verifyStoreQueueEmpty: () async => false,
@@ -134,6 +142,7 @@ void main() {
 
         final pending = reconcileCancelledAttemptsIfQueueEmpty(
           attempts: attempts,
+          isPaymentSheetClosed: sheetClosed,
           verifyStoreQueueEmpty: () async {
             scanStarted.complete();
             await releaseScan.future;
@@ -169,6 +178,7 @@ void main() {
 
         final pending = reconcileCancelledAttemptsIfQueueEmpty(
           attempts: attempts,
+          isPaymentSheetClosed: sheetClosed,
           verifyStoreQueueEmpty: () async {
             scanStarted.complete();
             await releaseScan.future;
@@ -198,6 +208,7 @@ void main() {
 
         final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
           attempts: attempts,
+          isPaymentSheetClosed: sheetClosed,
           verifyStoreQueueEmpty: () async {
             scans++;
             return true;
@@ -215,6 +226,7 @@ void main() {
 
       final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
         attempts: attempts,
+        isPaymentSheetClosed: sheetClosed,
         verifyStoreQueueEmpty: () async => true,
         isStillLive: () => false,
       );
@@ -244,7 +256,9 @@ void main() {
       beginCancelled(attempts, 'STAR100', 'a-1');
       beginCancelled(attempts, 'star200', 'b-1');
 
-      final snapshot = attempts.cancellationCandidates;
+      final snapshot = attempts.cancellationCandidates(
+        isPaymentSheetClosed: sheetClosed,
+      );
       for (final a in snapshot) {
         attempts.removeIfMatches(a.productId, a.attemptId);
       }
