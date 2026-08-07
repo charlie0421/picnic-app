@@ -237,6 +237,12 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
             // width/height 는 논리 픽셀 렌더 크기 — 없으면 CDN URL 에 w/h
             // 리사이즈 파라미터가 붙지 않아 원본 크기를 그대로 내려받는다.
             // DPR 보정은 위젯 내부(resolutionMultiplier)에서 곱해진다.
+            //
+            // 한계: 공유 위젯 _getTransformedUrl 이 w/h 에 multiplier 를
+            // 곱하면서 dpr 도 함께 보내는 기존 결함 때문에 Imgix 가 배율을
+            // 이중 적용해(실측 DPR3: w=2000&h=1125&dpr=2.5 → 최종 5000px
+            // 요청, fit=max 로 원본 상한) 현재는 절감 효과가 거의 없다.
+            // 그 결함이 고쳐지면 이 호출부가 의도대로 동작한다.
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.width / widget.aspectRatio,
             // 베너 크기에 맞는 메모리 캐시 설정
