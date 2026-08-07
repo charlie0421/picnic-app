@@ -43,6 +43,37 @@ void main() {
       expect(result.length, 2);
     });
 
+    test('query excludes soft-deleted rows and keeps open-ended windows', () async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      await container
+          .read(asyncBannerListProvider(location: 'vote_home').future);
+
+      final uri = capturedMockRequests
+          .singleWhere((u) => u.path.contains('/rest/v1/banner'));
+      final params = uri.queryParametersAll;
+
+      // 소프트 딜리트 배너 제외 (레포 컨벤션: deleted_at=is.null)
+      expect(params['deleted_at'], ['is.null']);
+
+      // "지금 유효" 술어: start_at/end_at 각각 NULL 을 무제한으로 해석해야
+      // 한다. 단일 or 술어는 (start_at IS NULL AND end_at IS NOT NULL) 행을
+      // 누락하므로, 컬럼별 null-허용 조건 2개가 AND 로 걸려야 한다.
+      final ors = params['or'] ?? [];
+      expect(ors, hasLength(2));
+      expect(
+        ors.where((o) =>
+            o.contains('start_at.is.null') && o.contains('start_at.lte.')),
+        hasLength(1),
+      );
+      expect(
+        ors.where(
+            (o) => o.contains('end_at.is.null') && o.contains('end_at.gte.')),
+        hasLength(1),
+      );
+    });
+
     test('banner fields are correctly parsed', () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
