@@ -359,6 +359,88 @@ void main() {
       expect(find.text('단일 배너'), findsNothing);
     });
 
+    testWidgets('HOME campaign stuck past wait cap degrades to ordinary', (
+      tester,
+    ) async {
+      final pending = Completer<ActivePromotionCampaignsModel>();
+      await tester.pumpWidget(
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+            activePromotionCampaignProvider(
+              PromotionSurface.home,
+            ).overrideWith((ref) => pending.future),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      // 상한 이전에는 기존 보류 동작 유지
+      expect(find.text('단일 배너'), findsNothing);
+
+      await tester.pump(commonBannerCampaignWaitCap);
+      await tester.pump();
+      drainExpectedImageErrors(tester);
+      expect(find.text('단일 배너'), findsOneWidget);
+    });
+
+    testWidgets('HOME campaign arriving after cap upgrades from degrade', (
+      tester,
+    ) async {
+      final pending = Completer<ActivePromotionCampaignsModel>();
+      await tester.pumpWidget(
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          locale: const Locale('en'),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+            activePromotionCampaignProvider(
+              PromotionSurface.home,
+            ).overrideWith((ref) => pending.future),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump(commonBannerCampaignWaitCap);
+      await tester.pump();
+      drainExpectedImageErrors(tester);
+      expect(find.byType(CandyBoostBanner), findsNothing);
+
+      pending.complete(homeCampaign());
+      await tester.pump();
+      await tester.pump();
+      drainExpectedImageErrors(tester);
+      expect(find.byType(CandyBoostBanner), findsOneWidget);
+    });
+
+    testWidgets('campaign data before cap cancels the degrade task', (
+      tester,
+    ) async {
+      final scheduler = _Scheduler();
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          CommonBanner('vote_home', 16 / 9, scheduler: scheduler),
+          locale: const Locale('en'),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+            activePromotionCampaignProvider(
+              PromotionSurface.home,
+            ).overrideWith((ref) async => homeCampaign()),
+          ],
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      final capTasks = [
+        for (var i = 0; i < scheduler.delays.length; i++)
+          if (scheduler.delays[i] == commonBannerCampaignWaitCap)
+            scheduler.tasks[i],
+      ];
+      expect(capTasks, isNotEmpty);
+      expect(capTasks.every((task) => task.cancelled), isTrue);
+    });
+
     testWidgets('HOME campaign error still renders ordinary content', (
       tester,
     ) async {

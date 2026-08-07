@@ -37,6 +37,14 @@ class CommonBanner extends ConsumerStatefulWidget {
   ConsumerState<CommonBanner> createState() => _CommonBannerState();
 }
 
+/// 캠페인 RPC 대기 상한. 이 시간 안에 응답이 없으면 HOME 배너는 캠페인 없이
+/// 일반 슬라이드로 degrade 렌더한다.
+///
+/// 상한은 반드시 이 위젯 안에서만 적용한다 — RPC provider/리포지토리 레벨에
+/// 걸면 스토어 구매 플로우(purchase_star_candy_state)가 같은 provider 를 읽어
+/// 보너스 안내·기록이 오염된다 (PR #143 회귀의 원인).
+const Duration commonBannerCampaignWaitCap = Duration(seconds: 5);
+
 Duration commonBannerSlideDuration(int milliseconds) =>
     Duration(milliseconds: milliseconds > 0 ? milliseconds : 3000);
 
@@ -47,6 +55,8 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
   int _currentIndex = 0;
   SwiperController? _swiperController;
   CommonBannerScheduledTask? _autoplayTask;
+  CommonBannerScheduledTask? _campaignWaitTask;
+  bool _campaignWaitExpired = false;
 
   @override
   void initState() {
@@ -57,8 +67,25 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
   @override
   void dispose() {
     _autoplayTask?.cancel();
+    _campaignWaitTask?.cancel();
     _swiperController?.dispose();
     super.dispose();
+  }
+
+  void _armCampaignWaitCap() {
+    if (_campaignWaitTask != null) return;
+    _campaignWaitTask = widget.scheduler.schedule(
+      commonBannerCampaignWaitCap,
+      () {
+        if (mounted) setState(() => _campaignWaitExpired = true);
+      },
+    );
+  }
+
+  void _clearCampaignWaitCap({required bool resetExpired}) {
+    _campaignWaitTask?.cancel();
+    _campaignWaitTask = null;
+    if (resetExpired) _campaignWaitExpired = false;
   }
 
   void _startAutoplay(List<CommonBannerSlide> slides) {
@@ -250,18 +277,33 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         return ref
             .watch(activePromotionCampaignProvider(PromotionSurface.home))
             .when(
-              data: (campaigns) => _renderSlides(
-                _homeSlides(
-                  data,
-                  campaigns,
-                  Localizations.localeOf(context).languageCode,
-                ),
-              ),
-              loading: _buildBannerShimmer,
+              data: (campaigns) {
+                _clearCampaignWaitCap(resetExpired: true);
+                return _renderSlides(
+                  _homeSlides(
+                    data,
+                    campaigns,
+                    Localizations.localeOf(context).languageCode,
+                  ),
+                );
+              },
+              loading: () {
+                // 상한 초과 시 캠페인 없이 degrade 렌더. provider 는 건드리지
+                // 않으므로 스토어가 읽는 캠페인 상태는 오염되지 않고, 늦게라도
+                // 응답이 오면 data 분기가 캠페인 슬라이드로 복구한다.
+                if (_campaignWaitExpired) {
+                  return _renderSlides(_ordinarySlides(data));
+                }
+                _armCampaignWaitCap();
+                return _buildBannerShimmer();
+              },
               // 캠페인 조회 실패 시 일반 베너로 degrade
               // 캠페인 데이터가 없어 owned 필터링은 못 하므로 대체 대상 베너가
               // 원본으로 노출될 수 있으나, 전체 미노출보다는 낫다
-              error: (_, _) => _renderSlides(_ordinarySlides(data)),
+              error: (_, _) {
+                _clearCampaignWaitCap(resetExpired: false);
+                return _renderSlides(_ordinarySlides(data));
+              },
             );
       },
       loading: _buildBannerShimmer,
