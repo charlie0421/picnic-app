@@ -288,7 +288,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _launchLifecycle.recordResumed();
+      return;
     }
+    // 비전면 전이는 "결제 시트가 실제로 열렸다"의 증거다 - 정리 후보 판정은
+    // 이 전이를 거친 뒤의 resumed 복귀만 "시트가 닫혔다"로 인정한다
+    // (isPurchaseSheetProvenClosed).
+    _launchLifecycle.recordLeftForeground();
   }
 
   @override
@@ -1118,6 +1123,13 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       // 받던 동안 하나의 런치 실패에 다이얼로그가 두 장 겹쳐 떴다
       // (콜백에서 한 번, _handlePurchaseResult → PurchaseSafetyManager
       // .handlePurchaseResult 에서 또 한 번).
+      //
+      // 런치 **직전**의 비전면 전이 순번을 읽어 둔다. 런치 호출이 도는 동안
+      // 전이가 있었는지가 스토어의 반환 시맨틱을 가른다: iOS 는 시트 상호
+      // 작용이 끝나야 반환하므로 전이가 이 안에서 지나가고, Android 는 시트가
+      // 뜨기 전에 반환하므로 전이가 없다. 이 한 값이 시트 닫힘 판정의 관찰
+      // 창을 "런치 요청 이후"로 열어, 플랫폼 분기 없이 두 스토어를 맞춘다.
+      final foregroundExitsAtLaunchStart = _launchLifecycle.foregroundExitCount;
       final purchaseResult = await _purchaseService.initiatePurchase(
         serverProduct['id'],
       );
@@ -1126,6 +1138,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         purchaseResult,
         productId: serverProduct['id'] as String,
         attemptId: attemptId,
+        foregroundExitsAtLaunchStart: foregroundExitsAtLaunchStart,
       );
     } catch (e, s) {
       logger.e(
@@ -1152,19 +1165,28 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
   }
 
-  /// 이 상품의 스토어 결제 시트가 닫혀 있는가 - 정리 후보 판정의 증거 (a).
+  /// 이 상품의 스토어 결제 시트가 닫혔음이 **증명됐는가** - 정리 후보 판정의
+  /// 증거 (a).
   ///
   /// Android 는 Play 결제 시트가 별도 Activity 라, 시트가 떠 있는 동안
   /// `queryPastPurchases` 는 빈 큐를 답한다. 그 구멍을 메우는 것이 이
-  /// lifecycle 관찰이다 - 런치 이후 resumed 를 못 받았고 지금도 전면이
-  /// 아니면 사용자는 아직 그 시트 안에 있다 (Sol 3차 재검증 #2). 90초
-  /// 안전망의 취소 억제 판정과 **같은 함수**를 쓴다.
-  bool _isPaymentSheetClosed(String productId) => isPurchaseSheetClosed(
-    resumedSincePurchaseLaunch: _launchLifecycle
-        .observationFor(productId)
-        .resumedSinceLaunch,
-    currentLifecycleState: WidgetsBinding.instance.lifecycleState,
-  );
+  /// lifecycle 관찰이다 (Sol 3차 재검증 #2).
+  ///
+  /// 90초 안내 문구 판정([isPurchaseSheetClosed])과 **다른 술어**를 쓴다.
+  /// 문구 쪽은 "지금 전면이면 닫힘"이라는 느슨한 판정이라, Play 결제 Activity
+  /// 가 아직 전면에 오지 않은 런치 직후의 창에서 시트를 닫힘으로 오판한다.
+  /// 문구가 틀리면 팝업이 한 번 더 보일 뿐이지만, 여기서 틀리면 결제 시트 안에
+  /// 있는 사용자의 시도가 지워진다 (Sol 4차 재검증 MAJOR). 그래서 정리 쪽만
+  /// **비전면 전이를 거친 뒤의 복귀**라는 양성 증거를 요구한다.
+  bool _isPaymentSheetClosed(String productId) {
+    final observation = _launchLifecycle.observationFor(productId);
+    return isPurchaseSheetProvenClosed(
+      leftForegroundSincePurchaseLaunch: observation.leftForegroundSinceLaunch,
+      returnedToForegroundSincePurchaseLaunch:
+          observation.returnedToForegroundSinceLaunch,
+      currentLifecycleState: WidgetsBinding.instance.lifecycleState,
+    );
+  }
 
   /// 거래ID 없는 취소/실패 이벤트(양쪽 플랫폼 다 흔하다 - iOS는
   /// transactionIdentifier가 실패/취소 트랜잭션엔 거의 항상 없고, Android
@@ -1277,6 +1299,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     Map<String, dynamic> purchaseResult, {
     required String productId,
     required String attemptId,
+    required int foregroundExitsAtLaunchStart,
   }) async {
     if (purchaseResult['wasCancelled'] == true) {
       if (mounted) {
@@ -1301,6 +1324,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       // 등록해야 구매 증거가 이 시도로 모인다.
       _launchLifecycle.recordLaunch(
         productId,
+        // 관찰 창은 런치 요청 시점부터다 - iOS 는 시트의 비전면→resumed
+        // 사이클이 런치 호출 안에서 끝나므로, 반환 시점부터 세면 그 사이클을
+        // 통째로 놓쳐 취소된 시도가 영영 정리 후보가 되지 못한다.
+        foregroundExitsAtLaunchStart: foregroundExitsAtLaunchStart,
         storeAliases: [
           PaymentProductIdPolicy.effectiveProductId(
             environment: Environment.currentEnvironment,

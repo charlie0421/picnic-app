@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_timeout_notice.dart';
 
 /// 진행 중인 정상 결제를 지키는 규칙 - 무엇이 정리 **후보**가 되는가.
 ///
@@ -235,6 +237,205 @@ void main() {
 
         expect(await pending, isEmpty);
         expect(attempts.contains('STAR100'), isTrue);
+      },
+    );
+  });
+
+  /// 4라운드 반례: 시트 닫힘 판정을 **지금 resumed 인가**로 하면, Play 결제
+  /// Activity 가 아직 전면에 오지 않은 런치 직후의 창에서 시트가 "닫힘"으로
+  /// 오판된다. 거기에 지연된 이전 종결 관측이 겹치면 방금 시트를 띄운 시도가
+  /// 후보가 되고, Android 큐는 그 결제를 볼 수 없어 empty 로 답하므로 결제
+  /// 시트 안에 있는 사용자의 시도가 지워진다.
+  ///
+  /// 여기서는 production 배선(tracker → isPurchaseSheetProvenClosed →
+  /// cancellationCandidates)을 그대로 조립해 검증한다.
+  group('Sol 4차 재검증 - 런치 직후의 resumed 는 시트 닫힘이 아니다', () {
+    late PurchaseLaunchLifecycleTracker tracker;
+    late AppLifecycleState lifecycle;
+
+    /// `PurchaseStarCandyState._isPaymentSheetClosed` 와 동일한 술어.
+    bool provenClosed(String productId) {
+      final observation = tracker.observationFor(productId);
+      return isPurchaseSheetProvenClosed(
+        leftForegroundSincePurchaseLaunch:
+            observation.leftForegroundSinceLaunch,
+        returnedToForegroundSincePurchaseLaunch:
+            observation.returnedToForegroundSinceLaunch,
+        currentLifecycleState: lifecycle,
+      );
+    }
+
+    setUp(() {
+      tracker = PurchaseLaunchLifecycleTracker(
+        canonicalize: PurchaseCampaignAttemptRegistry.canonicalProductKey,
+      );
+      lifecycle = AppLifecycleState.resumed;
+    });
+
+    test(
+      'Android: 런치가 막 반환됐고 앱이 아직 resumed 인 시도는, 지연된 이전 '
+      '종결 관측이 있어도 후보가 되지 않는다',
+      () async {
+        final attempts = PurchaseCampaignAttemptRegistry();
+        final live = attempt('STAR100', 'live');
+        attempts.begin(live);
+
+        // Android: buyConsumable 은 결제 Activity 가 전면에 오기 **전에**
+        // true 로 돌아온다 - 런치 호출이 도는 동안 비전면 전이가 없다.
+        final exitsAtLaunchStart = tracker.foregroundExitCount;
+        resolveLaunch(attempts, live);
+        tracker.recordLaunch(
+          'STAR100',
+          foregroundExitsAtLaunchStart: exitsAtLaunchStart,
+        );
+        expect(lifecycle, AppLifecycleState.resumed, reason: '시트는 아직 뜨는 중');
+
+        // 이전 시도의 종결 이벤트가 이제야 도착했다 (도착 시각은 이 런치보다
+        // 뒤라 시간 조건을 통과한다).
+        attempts.recordIdentitylessTermination();
+
+        expect(
+          attempts.cancellationCandidates(isPaymentSheetClosed: provenClosed),
+          isEmpty,
+          reason: '비전면 전이를 본 적이 없다 = 시트는 열리기 전이거나 열려 있다',
+        );
+
+        var scans = 0;
+        final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
+          attempts: attempts,
+          isPaymentSheetClosed: provenClosed,
+          // Android queryPastPurchases: 진행 중인 결제 Activity 는 안 보인다.
+          verifyStoreQueueEmpty: () async {
+            scans++;
+            return true;
+          },
+        );
+
+        expect(cleared, isEmpty);
+        expect(attempts.contains('STAR100'), isTrue);
+        expect(scans, 0, reason: '후보가 없으면 스토어 왕복도 없다');
+      },
+    );
+
+    test(
+      'Android: 시트가 뜬 뒤(비전면)에도 후보가 아니고, 사용자가 닫고 돌아와야 '
+      '비로소 정리된다',
+      () async {
+        final attempts = PurchaseCampaignAttemptRegistry();
+        final a = attempt('STAR100', 'a-1');
+        attempts.begin(a);
+        final exitsAtLaunchStart = tracker.foregroundExitCount;
+        resolveLaunch(attempts, a);
+        tracker.recordLaunch(
+          'STAR100',
+          foregroundExitsAtLaunchStart: exitsAtLaunchStart,
+        );
+        attempts.recordIdentitylessTermination();
+
+        // 시트가 전면에 왔다: inactive → paused.
+        lifecycle = AppLifecycleState.inactive;
+        tracker.recordLeftForeground();
+        lifecycle = AppLifecycleState.paused;
+        tracker.recordLeftForeground();
+        expect(
+          attempts.cancellationCandidates(isPaymentSheetClosed: provenClosed),
+          isEmpty,
+          reason: '나갔지만 아직 돌아오지 않았다 = 사용자가 시트 안에 있다',
+        );
+
+        // 사용자가 취소하고 앱으로 돌아왔다.
+        lifecycle = AppLifecycleState.resumed;
+        tracker.recordResumed();
+
+        final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
+          attempts: attempts,
+          isPaymentSheetClosed: provenClosed,
+          verifyStoreQueueEmpty: () async => true,
+        );
+
+        expect(
+          cleared.map((a) => a.productId),
+          ['STAR100'],
+          reason: '원래 고치려던 결함(취소 후 스피너 잔존)은 그대로 고쳐져야 한다',
+        );
+      },
+    );
+
+    test(
+      'iOS: 시트 사이클이 런치 호출 안에서 끝나므로 반환 직후에 이미 닫힘으로 '
+      '인정된다 - 관찰 창이 런치 **요청** 시점부터라 플랫폼 분기가 필요 없다',
+      () async {
+        final attempts = PurchaseCampaignAttemptRegistry();
+        final a = attempt('STAR100', 'a-1');
+        attempts.begin(a);
+
+        final exitsAtLaunchStart = tracker.foregroundExitCount;
+        // StoreKit purchase() 가 도는 동안 시트가 떴다 닫힌다. resumed
+        // 이벤트는 런치 반환보다 **먼저** 지나간다 (Sol 2차 MEDIUM-1).
+        lifecycle = AppLifecycleState.inactive;
+        tracker.recordLeftForeground();
+        lifecycle = AppLifecycleState.resumed;
+        tracker.recordResumed();
+
+        resolveLaunch(attempts, a);
+        tracker.recordLaunch(
+          'STAR100',
+          foregroundExitsAtLaunchStart: exitsAtLaunchStart,
+        );
+        attempts.recordIdentitylessTermination();
+
+        final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
+          attempts: attempts,
+          isPaymentSheetClosed: provenClosed,
+          // iOS 는 사용자가 시트 안에 있으면 liveInFlight 로 false 가 된다.
+          // 여기서는 이미 나온 상태라 큐가 비어 있다.
+          verifyStoreQueueEmpty: () async => true,
+        );
+
+        expect(cleared.map((a) => a.productId), ['STAR100']);
+      },
+    );
+
+    test(
+      '한 상품의 시트 전이가 다른 상품의 런치 직후 시도를 닫힘으로 만들지 '
+      '않는다 - 전이는 그 시점에 살아 있는 관찰에만 붙는다',
+      () async {
+        final attempts = PurchaseCampaignAttemptRegistry();
+        // A: 시트를 열었다 닫고 나온 시도.
+        final a = attempt('STAR100', 'a-1');
+        attempts.begin(a);
+        final exitsBeforeA = tracker.foregroundExitCount;
+        resolveLaunch(attempts, a);
+        tracker.recordLaunch(
+          'STAR100',
+          foregroundExitsAtLaunchStart: exitsBeforeA,
+        );
+        lifecycle = AppLifecycleState.paused;
+        tracker.recordLeftForeground();
+        lifecycle = AppLifecycleState.resumed;
+        tracker.recordResumed();
+
+        // B: 방금 런치했고 시트는 아직 뜨는 중.
+        final b = attempt('STAR200', 'b-1');
+        attempts.begin(b);
+        final exitsBeforeB = tracker.foregroundExitCount;
+        resolveLaunch(attempts, b);
+        tracker.recordLaunch(
+          'STAR200',
+          foregroundExitsAtLaunchStart: exitsBeforeB,
+        );
+
+        attempts.recordIdentitylessTermination();
+
+        // A 는 증거 (b)(뒤이은 런치)로도, 증거 (a)(시트 닫힘)로도 후보다.
+        // B 는 어느 쪽으로도 후보가 아니어야 한다.
+        expect(
+          attempts
+              .cancellationCandidates(isPaymentSheetClosed: provenClosed)
+              .map((a) => a.productId),
+          ['STAR100'],
+        );
+        expect(provenClosed('STAR200'), isFalse);
       },
     );
   });
