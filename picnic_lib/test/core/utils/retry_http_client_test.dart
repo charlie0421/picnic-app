@@ -57,6 +57,49 @@ class _SucceedingClient extends http.BaseClient {
   }
 }
 
+class _HangingBodyClient extends http.BaseClient {
+  final List<StreamController<List<int>>> _controllers = [];
+  int callCount = 0;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    callCount++;
+    final controller = StreamController<List<int>>();
+    _controllers.add(controller);
+    return http.StreamedResponse(controller.stream, 200, request: request);
+  }
+
+  @override
+  void close() {
+    for (final controller in _controllers) {
+      if (!controller.isClosed) {
+        controller.close();
+      }
+    }
+  }
+}
+
+class _FailingBodyThenSucceedClient extends http.BaseClient {
+  int callCount = 0;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    callCount++;
+    if (callCount == 1) {
+      return http.StreamedResponse(
+        Stream.error(const SocketException('body connection reset')),
+        200,
+        request: request,
+      );
+    }
+    return http.StreamedResponse(
+      Stream.fromIterable([utf8.encode('{"ok": true}')]),
+      200,
+      request: request,
+    );
+  }
+}
+
 void main() {
   group('NetworkError', () {
     test('stores message and isRetryable', () {
@@ -80,12 +123,12 @@ void main() {
         expect(NetworkError.isRetryableError('content size exceeds limit'), isFalse);
       });
 
-      test('returns false for connection closed', () {
-        expect(NetworkError.isRetryableError('connection closed by peer'), isFalse);
+      test('returns true for connection closed', () {
+        expect(NetworkError.isRetryableError('connection closed by peer'), isTrue);
       });
 
-      test('returns false for connection reset', () {
-        expect(NetworkError.isRetryableError('connection reset by peer'), isFalse);
+      test('returns true for connection reset', () {
+        expect(NetworkError.isRetryableError('connection reset by peer'), isTrue);
       });
 
       test('returns true for timeout errors', () {
@@ -142,26 +185,22 @@ void main() {
     // - Exceptions with "connection" in toString -> NetworkError
     // - All other exceptions -> ClientException
     //
-    // _shouldRetry returns true for: SocketException, TimeoutException,
-    // ClientException, or string-matching on connection closed/reset,
-    // broken pipe, before full header, content size exceeds.
+    // _shouldRetry returns true for: retryable NetworkError,
+    // SocketException, TimeoutException, ClientException, or string-matching
+    // on connection closed/reset, broken pipe, before full header.
 
     http.Request makeGetRequest() =>
         http.Request('GET', Uri.parse('https://example.com/test'));
 
-    test('SocketException is wrapped to NetworkError and does not retry '
-        '(NetworkError is not in _shouldRetry type checks)', () async {
+    test('GET retries SocketException up to maxAttempts', () async {
       final inner = _FailingClient(
-        const SocketException('Connection refused'),
+        const SocketException('Failed host lookup'),
       );
       final client = RetryHttpClient(inner, maxAttempts: 3);
 
       final response = await client.send(makeGetRequest());
 
-      // SocketException -> NetworkError("Network connection error: ...") ->
-      // NetworkError is not SocketException/TimeoutException/ClientException,
-      // and toString doesn't match any string patterns -> no retry
-      expect(inner.callCount, equals(1));
+      expect(inner.callCount, equals(3));
       expect(response.statusCode, equals(500));
       client.close();
     });
@@ -182,7 +221,7 @@ void main() {
 
     test('retries on ClientException (re-wrapped as ClientException)',
         () async {
-      // ClientException with "connection" -> NetworkError (no retry)
+      // ClientException with "connection" -> retryable NetworkError
       // ClientException without "connection" -> re-wrapped as ClientException
       final inner = _FailingClient(
         http.ClientException('Some failure'),
@@ -247,9 +286,8 @@ void main() {
       client.close();
     });
 
-    test(
-        'exception with "content size exceeds" (no "connection") is wrapped '
-        'to ClientException -> retries because ClientException', () async {
+    test('does not retry when content size exceeds the declared limit',
+        () async {
       final inner = _FailingClient(
         Exception('content size exceeds limit'),
       );
@@ -257,7 +295,7 @@ void main() {
 
       final response = await client.send(makeGetRequest());
 
-      expect(inner.callCount, equals(2));
+      expect(inner.callCount, equals(1));
       expect(response.statusCode, equals(500));
       client.close();
     });
@@ -384,6 +422,65 @@ void main() {
           .send(http.Request('DELETE', Uri.parse('https://example.com')));
 
       expect(inner.callCount, equals(1));
+      client.close();
+    });
+  });
+
+  group('unstreamed response body timeout and retry', () {
+    test('GET retries when the response body never completes', () async {
+      final inner = _HangingBodyClient();
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 2,
+        timeout: const Duration(milliseconds: 25),
+      );
+
+      try {
+        final response = await client
+            .get(Uri.parse('https://example.com/hanging-body'))
+            .timeout(const Duration(seconds: 1));
+
+        expect(response.statusCode, 500);
+        expect(inner.callCount, 2);
+      } finally {
+        client.close();
+      }
+    });
+
+    test('GET retries a response body stream error and can recover', () async {
+      final inner = _FailingBodyThenSucceedClient();
+      final client = RetryHttpClient(inner, maxAttempts: 2);
+
+      final response = await client.get(
+        Uri.parse('https://example.com/body-error'),
+      );
+
+      expect(response.statusCode, 200);
+      expect(response.body, '{"ok": true}');
+      expect(inner.callCount, 2);
+      client.close();
+    });
+
+    test('send preserves streaming by returning after response headers',
+        () async {
+      final inner = _HangingBodyClient();
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 1,
+        timeout: const Duration(milliseconds: 25),
+      );
+
+      final response = await client
+          .send(
+            http.Request(
+              'GET',
+              Uri.parse('https://example.com/streaming-response'),
+            ),
+          )
+          .timeout(const Duration(milliseconds: 100));
+
+      expect(response.statusCode, 200);
+      expect(inner.callCount, 1);
       client.close();
     });
   });

@@ -59,8 +59,8 @@ void main() {
     test('isRetryableError with various messages', () {
       expect(
           NetworkError.isRetryableError('content size exceeds limit'), isFalse);
-      expect(NetworkError.isRetryableError('connection closed'), isFalse);
-      expect(NetworkError.isRetryableError('connection reset'), isFalse);
+      expect(NetworkError.isRetryableError('connection closed'), isTrue);
+      expect(NetworkError.isRetryableError('connection reset'), isTrue);
       expect(NetworkError.isRetryableError('normal error'), isTrue);
       expect(NetworkError.isRetryableError(''), isTrue);
     });
@@ -107,11 +107,8 @@ void main() {
   });
 
   group('RetryHttpClient - _shouldRetry with different exceptions', () {
-    test('NetworkError without connection pattern is wrapped to ClientException and retried',
+    test('does not retry a NetworkError marked non-retryable',
         () async {
-      // NetworkError thrown by _FailingClient -> caught by _sendWithTimeout
-      // -> not SocketException, toString doesn't contain "connection"
-      // -> wrapped as ClientException -> _shouldRetry returns true for ClientException
       final inner = _FailingClient(
         NetworkError('some random error', isRetryable: false),
       );
@@ -119,8 +116,7 @@ void main() {
 
       await client.send(makeGetRequest());
 
-      // ClientException is retryable, so all 3 attempts are made
-      expect(inner.callCount, 3);
+      expect(inner.callCount, 1);
       client.close();
     });
 

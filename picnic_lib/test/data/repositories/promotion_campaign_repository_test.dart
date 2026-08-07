@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -9,6 +10,32 @@ import 'package:picnic_lib/data/repositories/promotion_campaign_repository.dart'
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
+  test('getActive throws a TimeoutException after five seconds', () async {
+    final client = SupabaseClient(
+      'http://localhost:54321',
+      'test-anon-key',
+      httpClient: MockClient((request) => Completer<http.Response>().future),
+      authOptions: const AuthClientOptions(autoRefreshToken: false),
+    );
+    addTearDown(client.dispose);
+    final stopwatch = Stopwatch()..start();
+
+    await expectLater(
+      PromotionCampaignRepository(client)
+          .getActive(PromotionSurface.home)
+          .timeout(
+            const Duration(seconds: 7),
+            onTimeout: () => throw StateError(
+              'getActive did not enforce its own timeout',
+            ),
+          ),
+      throwsA(isA<TimeoutException>()),
+    );
+
+    expect(stopwatch.elapsed, greaterThanOrEqualTo(const Duration(seconds: 4)));
+    expect(stopwatch.elapsed, lessThan(const Duration(seconds: 6)));
+  });
+
   test('uses server clock RPC without an at parameter', () async {
     late Uri requestedUri;
     late Map<String, dynamic> requestedBody;

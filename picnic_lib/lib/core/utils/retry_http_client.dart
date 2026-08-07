@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -17,9 +18,7 @@ class NetworkError implements Exception {
   String toString() => 'NetworkError: $message';
 
   static bool isRetryableError(String message) {
-    return !message.contains('content size exceeds') &&
-        !message.contains('connection closed') &&
-        !message.contains('connection reset');
+    return !message.toLowerCase().contains('content size exceeds');
   }
 }
 
@@ -112,12 +111,78 @@ class RetryHttpClient extends http.BaseClient {
         throw ArgumentError('Invalid request body "$body".');
       }
     }
-    final streamed = await send(request);
-    return _ensureRequestPresent(
-      await http.Response.fromStream(streamed),
+    return _sendWithRetry<http.Response>(
       request,
+      sendAttempt: (copiedRequest) =>
+          _sendUnstreamedWithTimeout(copiedRequest, request),
+      createErrorResponse: (lastException, originalRequest) async =>
+          _ensureRequestPresent(
+            await http.Response.fromStream(
+              _createErrorResponse(lastException, originalRequest),
+            ),
+            originalRequest,
+          ),
     );
   }
+
+  Future<http.Response> _sendUnstreamedWithTimeout(
+    http.BaseRequest request,
+    http.BaseRequest fallback,
+  ) async {
+    final stopwatch = Stopwatch()..start();
+    final streamed = await _sendWithTimeout(request);
+    final remaining = timeout - stopwatch.elapsed;
+    if (remaining <= Duration.zero) {
+      throw _requestTimeoutException();
+    }
+    return _bufferResponse(streamed, fallback, remaining);
+  }
+
+  Future<http.Response> _bufferResponse(
+    http.StreamedResponse response,
+    http.BaseRequest fallback,
+    Duration remaining,
+  ) async {
+    final bytes = BytesBuilder(copy: false);
+    final iterator = StreamIterator<List<int>>(response.stream);
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      while (true) {
+        final timeLeft = remaining - stopwatch.elapsed;
+        if (timeLeft <= Duration.zero) {
+          throw _requestTimeoutException();
+        }
+        final hasNext = await iterator.moveNext().timeout(
+          timeLeft,
+          onTimeout: () => throw _requestTimeoutException(),
+        );
+        if (!hasNext) break;
+        bytes.add(iterator.current);
+      }
+    } finally {
+      stopwatch.stop();
+      await iterator.cancel();
+    }
+
+    return _ensureRequestPresent(
+      http.Response.bytes(
+        bytes.takeBytes(),
+        response.statusCode,
+        request: response.request,
+        headers: response.headers,
+        isRedirect: response.isRedirect,
+        persistentConnection: response.persistentConnection,
+        reasonPhrase: response.reasonPhrase,
+      ),
+      fallback,
+    );
+  }
+
+  TimeoutException _requestTimeoutException() => TimeoutException(
+    'Request timed out after ${timeout.inSeconds} seconds',
+    timeout,
+  );
 
   /// Guarantees [response.request] is non-null.
   ///
@@ -142,7 +207,22 @@ class RetryHttpClient extends http.BaseClient {
   }
 
   @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+  Future<http.StreamedResponse> send(http.BaseRequest request) =>
+      _sendWithRetry<http.StreamedResponse>(
+        request,
+        sendAttempt: _sendWithTimeout,
+        createErrorResponse: _createErrorResponse,
+      );
+
+  Future<T> _sendWithRetry<T>(
+    http.BaseRequest request, {
+    required Future<T> Function(http.BaseRequest request) sendAttempt,
+    required FutureOr<T> Function(
+      Exception? lastException,
+      http.BaseRequest request,
+    )
+    createErrorResponse,
+  }) async {
     Exception? lastException;
     // 비멱등 요청(예: POST/PUT/PATCH/DELETE)은 재시도하지 않음
     final int attemptsAllowed = _isIdempotent(request.method) ? maxAttempts : 1;
@@ -165,22 +245,18 @@ class RetryHttpClient extends http.BaseClient {
 
         final copiedRequest = await _copyRequest(request);
 
-        try {
-          final response = await _sendWithTimeout(copiedRequest);
+        final response = await sendAttempt(copiedRequest);
 
-          // 성공적인 응답 처리 - 연결 풀 업데이트
-          _connectionPool[hostKey] = DateTime.now();
+        // 성공적인 응답 처리 - 연결 풀 업데이트
+        _connectionPool[hostKey] = DateTime.now();
 
-          return response;
-        } catch (e) {
-          // 네트워크 오류 발생 시 연결 리셋
-          if (_shouldResetConnection(e as Exception)) {
-            _resetConnection(hostKey);
-          }
-          rethrow;
-        }
+        return response;
       } catch (e) {
         lastException = e is Exception ? e : Exception(e.toString());
+
+        if (_shouldResetConnection(lastException)) {
+          _resetConnection(request.url.host);
+        }
 
         final detailedLog = _createDetailedErrorLog(
           lastException,
@@ -198,7 +274,7 @@ class RetryHttpClient extends http.BaseClient {
     }
 
     logger.e('All retry attempts failed for ${request.url}');
-    return _createErrorResponse(lastException, request);
+    return createErrorResponse(lastException, request);
   }
 
   void _cleanupOldConnections() {
@@ -225,10 +301,7 @@ class RetryHttpClient extends http.BaseClient {
           .timeout(
             timeout,
             onTimeout: () {
-              throw TimeoutException(
-                'Request timed out after ${timeout.inSeconds} seconds',
-                timeout,
-              );
+              throw _requestTimeoutException();
             },
           );
 
@@ -253,6 +326,8 @@ class RetryHttpClient extends http.BaseClient {
         request: request,
       );
     } on TimeoutException {
+      rethrow;
+    } on NetworkError {
       rethrow;
     } catch (e, s) {
       logger.e('Error sending request', error: e, stackTrace: s);
@@ -303,6 +378,14 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
   }
 
   bool _shouldRetry(Exception error) {
+    if (!NetworkError.isRetryableError(error.toString())) {
+      return false;
+    }
+
+    if (error is NetworkError) {
+      return error.isRetryable;
+    }
+
     if (error is SocketException ||
         error is TimeoutException ||
         error is ClientException) {
@@ -314,7 +397,6 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
         errorString.contains('connection reset') ||
         errorString.contains('broken pipe') ||
         errorString.contains('before full header was received') ||
-        errorString.contains('content size exceeds') ||
         (error is HttpException &&
             (errorString.contains('connection closed') ||
                 errorString.contains('connection reset')));
