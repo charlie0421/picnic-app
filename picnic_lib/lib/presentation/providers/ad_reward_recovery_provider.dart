@@ -85,6 +85,19 @@ class AdRewardRecoveryState {
 class AdRewardRecovery extends _$AdRewardRecovery {
   final _polling = <String>{};
   final _acknowledging = <String>{};
+
+  /// Claims a reference for the dialog pipeline, from the moment a terminal
+  /// status is queued until the reference leaves that pipeline for good.
+  ///
+  /// The claim deliberately outlives the `dialogQueue` entry. Background and
+  /// foreground ladders run side by side on one reference (see [_pollForOwner]),
+  /// so a sibling poller can still be walking its 30 seconds of delays while the
+  /// first poller's terminal status is already on screen. Releasing the claim
+  /// when the dialog is acknowledged would let that late sibling re-read the
+  /// same GRANTED status and queue it a second time - a second dialog and a
+  /// second `acknowledge` for one reward. Only [discardDialog] releases it,
+  /// because that is the one path where nothing was acknowledged and the
+  /// reference genuinely has to be recoverable again.
   final _queued = <String>{};
   var _generation = 0;
 
@@ -230,8 +243,9 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     final key = _key(ownerUserId, reference);
     // The mode is part of the token so a background sweep already in flight
     // cannot swallow the foreground poll the user is actually waiting on.
-    // Duplicate `get_ad_reward_status` reads are harmless; `_queued` still
-    // admits the reference to the dialog queue exactly once.
+    // Duplicate `get_ad_reward_status` reads are harmless; `_queued` admits the
+    // reference to the dialog queue exactly once and holds that claim across
+    // the acknowledgement, so the slower ladder cannot re-queue behind it.
     final pollToken = '$generation:${interactive ? 'fg' : 'bg'}:$key';
     if (!_polling.add(pollToken)) return;
     final delays = interactive
@@ -280,6 +294,10 @@ class AdRewardRecovery extends _$AdRewardRecovery {
   /// acknowledgement failed, so a failed ACK can never re-present the same
   /// dialog. The durable record is left untouched: a genuinely un-acknowledged
   /// reward is re-polled and re-queued by the next recovery attempt.
+  ///
+  /// This is the only place the [_queued] claim is released, and it is only
+  /// reachable before [acknowledgeAfterRender] persisted its tombstone - so
+  /// nothing was acknowledged and re-arming the reference is the point.
   void discardDialog(OwnedAdRewardStatus queued) {
     final ownerUserId = queued.ownerUserId;
     final generation = queued.generation;
@@ -325,28 +343,41 @@ class AdRewardRecovery extends _$AdRewardRecovery {
       throw StateError('Ad reward is no longer the active dialog');
     }
 
-    final store = ref.read(pendingAdRewardStoreProvider);
-    await store.markAckPending(ownerUserId, status.reference);
-    if (!_isCurrent(ownerUserId, generation)) {
-      throw StateError('Ad reward owner is no longer active');
-    }
-    _queued.remove(key);
-    state = state.copyWith(
-      references: state.references
-          .where((value) => _key(ownerUserId, value) != key)
-          .toList(growable: false),
-      dialogQueue: state.dialogQueue
-          .where(
-            (value) => _key(value.ownerUserId, value.status.reference) != key,
-          )
-          .toList(growable: false),
-    );
+    // Persisting the tombstone and calling `acknowledge` is one critical
+    // section per reference: `acknowledge` is a payout input, not progress UI,
+    // so two runs racing here would spend the same reward twice.
+    final ackToken = '$generation:$key';
+    if (!_acknowledging.add(ackToken)) return;
     try {
-      await ref.read(adRewardRepositoryProvider).acknowledge(status.reference);
-      if (!_isCurrent(ownerUserId, generation)) return;
-      await store.remove(ownerUserId, status.reference);
-    } catch (_) {
-      // The durable ACK_PENDING tombstone prevents redisplay and is retried.
+      final store = ref.read(pendingAdRewardStoreProvider);
+      await store.markAckPending(ownerUserId, status.reference);
+      if (!_isCurrent(ownerUserId, generation)) {
+        throw StateError('Ad reward owner is no longer active');
+      }
+      // `_queued` is intentionally *not* released here. See its declaration:
+      // dropping the claim now is what let a sibling ladder re-queue the same
+      // reference while this acknowledgement was still in flight.
+      state = state.copyWith(
+        references: state.references
+            .where((value) => _key(ownerUserId, value) != key)
+            .toList(growable: false),
+        dialogQueue: state.dialogQueue
+            .where(
+              (value) => _key(value.ownerUserId, value.status.reference) != key,
+            )
+            .toList(growable: false),
+      );
+      try {
+        await ref
+            .read(adRewardRepositoryProvider)
+            .acknowledge(status.reference);
+        if (!_isCurrent(ownerUserId, generation)) return;
+        await store.remove(ownerUserId, status.reference);
+      } catch (_) {
+        // The durable ACK_PENDING tombstone prevents redisplay and is retried.
+      }
+    } finally {
+      _acknowledging.remove(ackToken);
     }
   }
 }
