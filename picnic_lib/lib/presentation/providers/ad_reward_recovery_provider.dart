@@ -18,17 +18,21 @@ const adRewardPollDelays = [
   Duration(seconds: 15),
 ];
 
-/// Startup/resume reconciliation reads every reference exactly once.
+/// Startup/resume reconciliation replays the same bounded ladder, silently.
 ///
-/// Recovery used to replay [adRewardPollDelays]. That made the sweep a 30
-/// second wait, and because a reference the server never resolves is never
-/// removed from `pending_ad_rewards_v1` (only a successful acknowledgement
-/// deletes it), the same 30 seconds were paid again on every cold start and
-/// every foreground - which is what kept `ad_reward_pending` on screen. A
-/// sweep has no user action to wait out: it reads the current state, hands
-/// anything terminal to the dialog queue, and lets the next launch/resume
-/// pick up whatever was still pending.
-const adRewardRecoveryPollDelays = <Duration>[];
+/// The sweep must keep rechecking: a reference recovered as PENDING can be
+/// granted by the server seconds later, and if nobody re-reads it while the app
+/// stays in the foreground the user is never told about a reward that has
+/// already been paid out, and the acknowledgement that clears it is deferred to
+/// the next launch. So the window stays as wide as [adRewardPollDelays].
+///
+/// What the sweep does *not* do is raise `checkingReferences`. That set drives
+/// the "보상을 확인하고 있어요" banner, and because a reference the server never
+/// resolves is never removed from `pending_ad_rewards_v1` (only a successful
+/// acknowledgement deletes it), letting the sweep own the banner re-armed the
+/// full 30 seconds of it on every cold start and every foreground. The wait is
+/// the right behaviour; showing it for a wait the user did not trigger is not.
+const adRewardRecoveryPollDelays = adRewardPollDelays;
 
 typedef AdRewardDelay = Future<void> Function(Duration duration);
 typedef AdRewardOwnerReader = String? Function();
