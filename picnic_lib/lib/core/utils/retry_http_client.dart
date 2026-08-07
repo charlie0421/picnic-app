@@ -199,9 +199,16 @@ class RetryHttpClient extends http.BaseClient {
       // 타이머를 리셋하고, sink.close() 로 하류가 done 을 받으면 원본
       // 구독과 타이머가 함께 정리된다.
       //
-      // 이 시점에 send() 는 이미 반환된 뒤라 본문 타임아웃 에러는 재시도
-      // 루프를 다시 타지 않는다. 특히 비멱등(결제) 요청이 본문 스톨로
-      // 재전송되는 일은 구조적으로 불가능하다.
+      // 이 시점에 send() 는 이미 반환된 뒤라 본문 타임아웃 에러는 *이
+      // 클래스의* 재시도 루프에는 다시 들어오지 않는다. 단, 이는
+      // RetryHttpClient 내부에 한정된 사실이다. 상위 레이어는 자기 재시도
+      // 정책을 따로 가진다 — 예: ReceiptVerificationService 는
+      // invoke(...).timeout(30s/60s) 으로 본문 소비까지 감싸고 catch-all
+      // 백오프로 같은 POST 를 재전송한다. 그 경로의 replay 는 이 변경
+      // 이전에도 (총 타임아웃 → TimeoutException 경유로) 이미 일어나던
+      // 동작이고, 서버 영수증 멱등성 + 409 duplicate 판정으로 처리된다.
+      // test/core/services/receipt_verification_body_stall_replay_test.dart
+      // 가 그 경로를 고정한다.
       return http.StreamedResponse(
         response.stream.handleError((error, stackTrace) {
           logger.e(

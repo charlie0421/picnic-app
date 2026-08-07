@@ -802,10 +802,15 @@ void main() {
       retryClient.close();
     });
 
-    test('stalled body on a POST does not trigger a second attempt', () async {
-      // Payment invariant: the body stall surfaces AFTER send() has returned
-      // the headers, so it must never re-enter the retry loop — a retried
-      // non-idempotent request could double-charge.
+    test(
+        'stalled body on a POST does not re-enter RetryHttpClient\'s own '
+        'retry loop', () async {
+      // Scope: this asserts only RetryHttpClient's internal loop. The stall
+      // surfaces AFTER send() has returned the headers, so THIS class never
+      // re-sends. Upper layers may still retry by their own policy (e.g.
+      // ReceiptVerificationService's catch-all backoff re-sends the same
+      // POST); that path is covered by
+      // test/core/services/receipt_verification_body_stall_replay_test.dart.
       final inner = _StallingBodyClient();
       final retryClient = RetryHttpClient(
         inner,
@@ -823,7 +828,9 @@ void main() {
 
       expect(outcome, isA<NetworkError>());
       expect(inner.callCount, equals(1),
-          reason: 'a body-stall on a non-idempotent request must not retry');
+          reason: 'RetryHttpClient itself must not re-send a non-idempotent '
+              'request on a body stall (upper-layer retry policy is out of '
+              'this test\'s scope)');
       retryClient.close();
     });
 
@@ -889,6 +896,56 @@ void main() {
       expect(inner.sourceCancelled, isTrue,
           reason: 'cancelling the wrapped stream must cancel the inner one');
       client.close();
+    });
+
+    test(
+        'event-less empty bodies (HEAD / 204 / 304 / Content-Length: 0) '
+        'complete immediately without waiting out the inactivity budget',
+        () async {
+      // Stream.empty() delivers done with NO data events. Stream.timeout
+      // must cancel its timer on done rather than fire it or wait for it.
+      // Every case runs through the AuthHttpClient-style path (send()).
+      const budget = Duration(seconds: 1);
+      final cases = <String, _EmptyBodyClient>{
+        'HEAD 200': _EmptyBodyClient(200),
+        'GET 204 No Content': _EmptyBodyClient(204),
+        'GET 304 Not Modified': _EmptyBodyClient(304),
+        'GET 200 Content-Length: 0':
+            _EmptyBodyClient(200, responseHeaders: {'content-length': '0'}),
+      };
+
+      final clients = <RetryHttpClient>[];
+      for (final entry in cases.entries) {
+        final retryClient = RetryHttpClient(
+          entry.value,
+          maxAttempts: 1,
+          bodyInactivityTimeout: budget,
+        );
+        clients.add(retryClient);
+        final authLike = _AuthLikeClient(retryClient);
+        final url = Uri.parse('https://example.com/empty');
+
+        final stopwatch = Stopwatch()..start();
+        final response = entry.key.startsWith('HEAD')
+            ? await authLike.head(url)
+            : await authLike.get(url);
+        stopwatch.stop();
+
+        expect(response.statusCode, equals(entry.value.statusCode),
+            reason: entry.key);
+        expect(response.bodyBytes, isEmpty, reason: entry.key);
+        expect(stopwatch.elapsed, lessThan(budget),
+            reason: '${entry.key}: an empty body must complete on done, '
+                'not after the inactivity budget');
+      }
+
+      // Quiet period past the budget: a leaked/late timer would addError
+      // into a closed sink and surface as an unhandled async error, which
+      // fails the test.
+      await Future.delayed(budget + const Duration(milliseconds: 300));
+      for (final c in clients) {
+        c.close();
+      }
     });
 
     test('default bodyInactivityTimeout is 30 seconds and separate from '
@@ -990,6 +1047,25 @@ class _StallingBodyClient extends http.BaseClient {
     }
     // Intentionally never closed: simulates a body that stalls after headers.
     return http.StreamedResponse(controller.stream, 200, request: request);
+  }
+}
+
+/// Returns the given status with a genuinely event-less empty body
+/// (`Stream.empty()`), unlike responses that emit one empty chunk.
+class _EmptyBodyClient extends http.BaseClient {
+  final int statusCode;
+  final Map<String, String> responseHeaders;
+
+  _EmptyBodyClient(this.statusCode, {this.responseHeaders = const {}});
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    return http.StreamedResponse(
+      const Stream<List<int>>.empty(),
+      statusCode,
+      headers: responseHeaders,
+      request: request,
+    );
   }
 }
 
