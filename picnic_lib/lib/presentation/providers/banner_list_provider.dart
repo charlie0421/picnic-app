@@ -4,6 +4,18 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../generated/providers/banner_list_provider.g.dart';
 
+/// "지금 유효한 배너" PostgREST 술어 (or= 파라미터 2개, AND 결합).
+///
+/// 컬럼별로 NULL=무제한 해석을 유지해야 (start_at IS NULL AND end_at IS NOT
+/// NULL) 행이 누락되지 않는다. 단일 or 술어로 합치면 그 조합이 빠진다.
+List<String> bannerActiveWindowOrFilters(DateTime nowUtc) {
+  final nowIso = nowUtc.toIso8601String();
+  return [
+    'start_at.is.null,start_at.lte.$nowIso',
+    'end_at.is.null,end_at.gte.$nowIso',
+  ];
+}
+
 @riverpod
 class AsyncBannerList extends _$AsyncBannerList {
   @override
@@ -14,17 +26,16 @@ class AsyncBannerList extends _$AsyncBannerList {
   Future<List<BannerModel>> _fetchBannerList({required String location}) async {
     final now = DateTime.now().toUtc();
 
-    final nowIso = now.toIso8601String();
-    // "지금 유효한 배너": start_at/end_at 은 각각 NULL 이면 무제한으로
-    // 해석한다. or 를 컬럼별로 나눠 AND 로 걸어야 (start_at IS NULL AND
-    // end_at IS NOT NULL) 행이 누락되지 않는다.
-    final response = await supabase
+    final windowFilters = bannerActiveWindowOrFilters(now);
+    var query = supabase
         .from('banner')
         .select('id, title, thumbnail, image, duration, link')
         .eq('location', location)
-        .filter('deleted_at', 'is', null)
-        .or('start_at.is.null,start_at.lte.$nowIso')
-        .or('end_at.is.null,end_at.gte.$nowIso')
+        .filter('deleted_at', 'is', null);
+    for (final filter in windowFilters) {
+      query = query.or(filter);
+    }
+    final response = await query
         .order('order', ascending: true)
         .order('start_at', ascending: false);
 
