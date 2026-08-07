@@ -152,7 +152,7 @@ void main() {
     addTearDown(container.dispose);
   });
 
-  test('unions local and server references and sweeps each once', () async {
+  test('unions local and server references and sweeps both', () async {
     final local = _reference(1);
     final server = _reference(2);
     await store.add('user-a', local);
@@ -166,11 +166,16 @@ void main() {
       local,
       server,
     });
-    // 시작/복귀 스윕은 광고 직후 폴링 사다리를 재생하지 않는다. 사다리를
-    // 재생하면 서버가 끝내 해소하지 않는 레퍼런스 하나가 실행/포그라운드마다
-    // 30초를 다시 태운다.
-    expect(delays, isEmpty);
-    expect(repository.reads, unorderedEquals(<AdRewardReference>[local, server]));
+    // 터미널 상태는 첫 조회에서 끝나고, 아직 PENDING 인 레퍼런스만 사다리를
+    // 끝까지 태운다. 사다리는 배너 없이 조용히 돈다.
+    expect(delays, adRewardRecoveryPollDelays);
+    expect(
+      repository.reads,
+      unorderedEquals(<AdRewardReference>[
+        for (var i = 0; i <= adRewardRecoveryPollDelays.length; i++) local,
+        server,
+      ]),
+    );
     expect(repository.acknowledged, isEmpty);
     expect(
       container
@@ -201,7 +206,7 @@ void main() {
     expect(container.read(adRewardRecoveryProvider).checkingReferences, isEmpty);
   });
 
-  test('a stuck reference costs one read per launch, not a ladder', () async {
+  test('a stuck reference replays the ladder silently on every launch', () async {
     final stuck = _reference(1);
     await store.add('user-a', stuck);
     repository.statuses[stuck] = [_status(stuck, AdRewardState.pending)];
@@ -212,10 +217,49 @@ void main() {
 
     // 로컬 레코드는 그대로 남아 다음 실행에서도 다시 조회된다(보상 유실 없음).
     expect((await store.readAll('user-a')).single.reference, stuck);
-    expect(repository.reads, [stuck, stuck]);
-    expect(delays, isEmpty);
+    final ladder = adRewardRecoveryPollDelays.length + 1;
+    expect(repository.reads, List.filled(ladder * 2, stuck));
+    expect(delays, [...adRewardRecoveryPollDelays, ...adRewardRecoveryPollDelays]);
+    // 사다리를 두 번 태워도 배너는 한 번도 뜨지 않는다. 실행마다 다시 붙던
+    // "보상을 확인하고 있어요" 가 사라진 자리.
     expect(container.read(adRewardRecoveryProvider).checkingReferences, isEmpty);
     expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+  });
+
+  test('sweep catches a pending -> granted flip and acknowledges it', () async {
+    // 스윕이 한 번만 읽고 끝나면, 재개 직후 서버가 확정한 보상을 앱이 계속
+    // 포그라운드에 있는 동안 아무도 다시 읽지 않아 다이얼로그와 ACK 가 다음
+    // 실행까지 밀린다. 사다리는 그 전이를 같은 세션에서 잡아야 한다.
+    final flipping = _reference(1);
+    await store.add('user-a', flipping);
+    repository.statuses[flipping] = [
+      _status(flipping, AdRewardState.pending),
+      _status(flipping, AdRewardState.granted),
+    ];
+    final bannerDuringSweep = <Set<AdRewardReference>>[];
+    delay = (duration) async {
+      delays.add(duration);
+      bannerDuringSweep.add(
+        container.read(adRewardRecoveryProvider).checkingReferences,
+      );
+    };
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+
+    await notifier.recover('user-a');
+
+    expect(repository.reads, [flipping, flipping]);
+    expect(delays, [adRewardRecoveryPollDelays.first]);
+    expect(bannerDuringSweep, [isEmpty]);
+    final queued = container.read(adRewardRecoveryProvider).dialogQueue.single;
+    expect(queued.status.reference, flipping);
+    expect(queued.status.state, AdRewardState.granted);
+
+    await notifier.acknowledgeAfterRender(queued);
+
+    expect(repository.acknowledged, [flipping]);
+    expect(await store.readAll('user-a'), isEmpty);
+    expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+    expect(container.read(adRewardRecoveryProvider).checkingReferences, isEmpty);
   });
 
   test('post-ad poll shows the banner and replays the backoff ladder', () async {
@@ -265,7 +309,10 @@ void main() {
     gate.complete();
     await sweep;
     await polling;
-    expect(delays, adRewardPollDelays);
+    // 두 모드가 각자의 사다리를 끝까지 태운다. 같은 토큰을 쓰면 사용자가
+    // 실제로 기다리는 포그라운드 폴링이 스윕에 먹혀 사라졌다.
+    expect(delays, hasLength(adRewardPollDelays.length * 2));
+    expect(delays.toSet(), adRewardPollDelays.toSet());
     expect(container.read(adRewardRecoveryProvider).checkingReferences, isEmpty);
   });
 
