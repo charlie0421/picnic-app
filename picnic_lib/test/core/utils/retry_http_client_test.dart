@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:picnic_lib/core/utils/retry_http_client.dart';
+import 'package:supabase/src/auth_http_client.dart';
 
 /// A mock client that always throws the given exception.
 class _FailingClient extends http.BaseClient {
@@ -79,6 +80,50 @@ class _HangingBodyClient extends http.BaseClient {
   }
 }
 
+class _HangingBodyAndCancelClient extends http.BaseClient {
+  int callCount = 0;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    callCount++;
+    final controller = StreamController<List<int>>(
+      onCancel: () => Completer<void>().future,
+    );
+    return http.StreamedResponse(controller.stream, 200, request: request);
+  }
+}
+
+class _ChunkThenHangClient extends http.BaseClient {
+  _ChunkThenHangClient(this.contentType);
+
+  final String contentType;
+  final List<StreamController<List<int>>> _controllers = [];
+  int callCount = 0;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    callCount++;
+    final controller = StreamController<List<int>>();
+    _controllers.add(controller);
+    controller.add([1, 2, 3]);
+    return http.StreamedResponse(
+      controller.stream,
+      200,
+      headers: {'content-type': contentType},
+      request: request,
+    );
+  }
+
+  @override
+  void close() {
+    for (final controller in _controllers) {
+      if (!controller.isClosed) {
+        controller.close();
+      }
+    }
+  }
+}
+
 class _FailingBodyThenSucceedClient extends http.BaseClient {
   int callCount = 0;
 
@@ -90,7 +135,7 @@ class _FailingBodyThenSucceedClient extends http.BaseClient {
         Stream.error(const SocketException('body connection reset')),
         200,
         request: request,
-      );
+          );
     }
     return http.StreamedResponse(
       Stream.fromIterable([utf8.encode('{"ok": true}')]),
@@ -447,6 +492,30 @@ void main() {
       }
     });
 
+    test('body timeout preserves the error when stream cancellation hangs',
+        () async {
+      final inner = _HangingBodyAndCancelClient();
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 1,
+        timeout: const Duration(milliseconds: 25),
+      );
+
+      final response = await client
+          .get(Uri.parse('https://example.com/hanging-cancel'))
+          .timeout(
+            const Duration(milliseconds: 250),
+            onTimeout: () => throw StateError(
+              'stream cancellation hid the request timeout',
+            ),
+          );
+
+      expect(response.statusCode, 500);
+      expect(response.headers['X-Error-Type'], 'TimeoutException');
+      expect(inner.callCount, 1);
+      client.close();
+    });
+
     test('GET retries a response body stream error and can recover', () async {
       final inner = _FailingBodyThenSucceedClient();
       final client = RetryHttpClient(inner, maxAttempts: 2);
@@ -461,12 +530,12 @@ void main() {
       client.close();
     });
 
-    test('send preserves streaming by returning after response headers',
+    test('idempotent send retries when the response body never completes',
         () async {
       final inner = _HangingBodyClient();
       final client = RetryHttpClient(
         inner,
-        maxAttempts: 1,
+        maxAttempts: 2,
         timeout: const Duration(milliseconds: 25),
       );
 
@@ -477,11 +546,113 @@ void main() {
               Uri.parse('https://example.com/streaming-response'),
             ),
           )
-          .timeout(const Duration(milliseconds: 100));
+          .timeout(const Duration(seconds: 1));
 
-      expect(response.statusCode, 200);
+      expect(response.statusCode, 500);
+      expect(inner.callCount, 2);
+      client.close();
+    });
+
+    test('AuthHttpClient BaseClient.get inherits the body timeout', () async {
+      final inner = _HangingBodyClient();
+      final retryClient = RetryHttpClient(
+        inner,
+        maxAttempts: 2,
+        timeout: const Duration(milliseconds: 25),
+      );
+      final authClient = AuthHttpClient(
+        'anon-key',
+        retryClient,
+        () async => null,
+      );
+
+      final response = await authClient
+          .get(Uri.parse('https://example.com/rest/v1/banner'))
+          .timeout(const Duration(seconds: 1));
+
+      expect(response.statusCode, 500);
+      expect(inner.callCount, 2);
+      authClient.close();
+    });
+
+    test('non-idempotent send ends a stalled body without retrying', () async {
+      final inner = _HangingBodyClient();
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 3,
+        timeout: const Duration(milliseconds: 25),
+      );
+
+      final response = await client.send(
+        http.Request(
+          'POST',
+          Uri.parse('https://example.com/rest/v1/rpc/test'),
+        ),
+      );
+
+      await expectLater(
+        response.stream.drain<void>().timeout(
+          const Duration(milliseconds: 250),
+          onTimeout: () => throw StateError('response stream stayed pending'),
+        ),
+        throwsA(isA<TimeoutException>()),
+      );
       expect(inner.callCount, 1);
       client.close();
+    });
+
+    test('stream deadline includes time before body subscription', () async {
+      final inner = _HangingBodyClient();
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 1,
+        timeout: const Duration(milliseconds: 250),
+      );
+
+      final response = await client.send(
+        http.Request(
+          'POST',
+          Uri.parse('https://example.com/rest/v1/rpc/test'),
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+
+      await expectLater(
+        response.stream.drain<void>().timeout(
+          const Duration(milliseconds: 150),
+          onTimeout: () => throw StateError(
+            'deadline restarted when the body was subscribed',
+          ),
+        ),
+        throwsA(isA<TimeoutException>()),
+      );
+      client.close();
+    });
+
+    test('known Supabase streaming responses return after headers', () async {
+      final cases = {
+        '/storage/v1/object/file': 'application/octet-stream',
+        '/functions/v1/events': 'text/event-stream',
+      };
+
+      for (final entry in cases.entries) {
+        final inner = _ChunkThenHangClient(entry.value);
+        final client = RetryHttpClient(
+          inner,
+          maxAttempts: 2,
+          timeout: const Duration(milliseconds: 250),
+        );
+
+        final response = await client
+            .send(
+              http.Request('GET', Uri.parse('https://example.com${entry.key}')),
+            )
+            .timeout(const Duration(milliseconds: 100));
+
+        expect(await response.stream.first, [1, 2, 3]);
+        expect(inner.callCount, 1);
+        client.close();
+      }
     });
   });
 
@@ -681,9 +852,9 @@ void main() {
     // a `Null check operator used on a null value` TypeError that
     // bubbles up as an unhandled error and pollutes Sentry.
     //
-    // RetryHttpClient overrides get/post/put/patch/delete/head and runs
-    // every Response through _ensureRequestPresent so postgrest can
-    // never observe a null request, regardless of inner-client behavior.
+    // RetryHttpClient.send rebuilds every StreamedResponse with the copied
+    // request, so BaseClient.get/post and AuthHttpClient wrappers always
+    // produce a request-bearing Response for postgrest.
 
     /// Inner client that simulates the buggy path: returns a
     /// StreamedResponse with `request: null` so we can verify our
@@ -810,7 +981,7 @@ void main() {
 
   group('upgrade-guard: postgrest version compatibility', () {
     // When postgrest_dart is upgraded, verify that:
-    //   1. RetryHttpClient's _ensureRequestPresent invariant still applies
+    //   1. RetryHttpClient.send's request propagation still applies
     //      (postgrest's `_parseResponse` may have changed).
     //   2. The version is in the known-handled set; if not, manually re-audit
     //      `lib/src/postgrest_builder.dart` for `response.request!` patterns.
@@ -844,8 +1015,8 @@ void main() {
             'postgrest version "$version" is not in the known-handled set '
             '$knownHandledVersions. Re-audit '
             'lib/src/postgrest_builder.dart for `response.request!` '
-            'patterns and confirm RetryHttpClient.{get,post,put,patch,delete,head} '
-            'still ensure response.request != null. After audit, add the new '
+            'patterns and confirm RetryHttpClient.send still ensures '
+            'response.request != null. After audit, add the new '
             'version to knownHandledVersions in this test.',
       );
     });

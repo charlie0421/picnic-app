@@ -23,6 +23,8 @@ class NetworkError implements Exception {
 }
 
 class RetryHttpClient extends http.BaseClient {
+  static const _streamCleanupTimeout = Duration(milliseconds: 100);
+
   final http.Client _inner;
   final int maxAttempts;
   final Duration timeout;
@@ -40,112 +42,36 @@ class RetryHttpClient extends http.BaseClient {
     this.keepAlive = const Duration(seconds: 60),
   });
 
-  // postgrest 2.6.0/2.7.0 dereferences `response.request!.method` in
-  // _parseResponse on non-2xx paths. If `request` is null on the http.Response
-  // reaching postgrest, a TypeError is thrown to the user. We override the
-  // high-level methods used by postgrest (get/post/put/patch/delete/head) so
-  // we can convert StreamedResponse -> Response ourselves and guarantee that
-  // the resulting Response always carries a non-null `request`.
-  @override
-  Future<http.Response> get(Uri url, {Map<String, String>? headers}) =>
-      _sendUnstreamedSafe('GET', url, headers, null, null);
-
-  @override
-  Future<http.Response> head(Uri url, {Map<String, String>? headers}) =>
-      _sendUnstreamedSafe('HEAD', url, headers, null, null);
-
-  @override
-  Future<http.Response> post(
-    Uri url, {
-    Map<String, String>? headers,
-    Object? body,
-    Encoding? encoding,
-  }) =>
-      _sendUnstreamedSafe('POST', url, headers, body, encoding);
-
-  @override
-  Future<http.Response> put(
-    Uri url, {
-    Map<String, String>? headers,
-    Object? body,
-    Encoding? encoding,
-  }) =>
-      _sendUnstreamedSafe('PUT', url, headers, body, encoding);
-
-  @override
-  Future<http.Response> patch(
-    Uri url, {
-    Map<String, String>? headers,
-    Object? body,
-    Encoding? encoding,
-  }) =>
-      _sendUnstreamedSafe('PATCH', url, headers, body, encoding);
-
-  @override
-  Future<http.Response> delete(
-    Uri url, {
-    Map<String, String>? headers,
-    Object? body,
-    Encoding? encoding,
-  }) =>
-      _sendUnstreamedSafe('DELETE', url, headers, body, encoding);
-
-  Future<http.Response> _sendUnstreamedSafe(
-    String method,
-    Uri url,
-    Map<String, String>? headers,
-    Object? body,
-    Encoding? encoding,
-  ) async {
-    final request = http.Request(method, url);
-    if (headers != null) request.headers.addAll(headers);
-    if (encoding != null) request.encoding = encoding;
-    if (body != null) {
-      if (body is String) {
-        request.body = body;
-      } else if (body is List) {
-        request.bodyBytes = body.cast<int>();
-      } else if (body is Map) {
-        request.bodyFields = body.cast<String, String>();
-      } else {
-        throw ArgumentError('Invalid request body "$body".');
-      }
-    }
-    return _sendWithRetry<http.Response>(
-      request,
-      sendAttempt: (copiedRequest) =>
-          _sendUnstreamedWithTimeout(copiedRequest, request),
-      createErrorResponse: (lastException, originalRequest) async =>
-          _ensureRequestPresent(
-            await http.Response.fromStream(
-              _createErrorResponse(lastException, originalRequest),
-            ),
-            originalRequest,
-          ),
-    );
-  }
-
-  Future<http.Response> _sendUnstreamedWithTimeout(
+  Future<http.StreamedResponse> _sendAttempt(
     http.BaseRequest request,
-    http.BaseRequest fallback,
   ) async {
     final stopwatch = Stopwatch()..start();
     final streamed = await _sendWithTimeout(request);
     final remaining = timeout - stopwatch.elapsed;
-    if (remaining <= Duration.zero) {
-      throw _requestTimeoutException();
+
+    // Buffer idempotent JSON-style responses so body failures can retry before
+    // any bytes escape. Storage downloads and SSE stay streamed to avoid
+    // buffering large or unbounded payloads; their streams still get a total
+    // request deadline below.
+    if (_isIdempotent(request.method) &&
+        !_requiresStreamingResponse(request, streamed)) {
+      return _bufferResponse(streamed, remaining);
     }
-    return _bufferResponse(streamed, fallback, remaining);
+
+    return _copyStreamedResponse(
+      streamed,
+      _withDeadline(streamed.stream, remaining),
+    );
   }
 
-  Future<http.Response> _bufferResponse(
+  Future<http.StreamedResponse> _bufferResponse(
     http.StreamedResponse response,
-    http.BaseRequest fallback,
     Duration remaining,
   ) async {
     final bytes = BytesBuilder(copy: false);
     final iterator = StreamIterator<List<int>>(response.stream);
     final stopwatch = Stopwatch()..start();
+    var completed = false;
 
     try {
       while (true) {
@@ -157,48 +83,25 @@ class RetryHttpClient extends http.BaseClient {
           timeLeft,
           onTimeout: () => throw _requestTimeoutException(),
         );
-        if (!hasNext) break;
+        if (!hasNext) {
+          completed = true;
+          break;
+        }
         bytes.add(iterator.current);
       }
     } finally {
       stopwatch.stop();
-      await iterator.cancel();
+      if (!completed) {
+        await _cancelSafely(iterator.cancel);
+      }
     }
 
-    return _ensureRequestPresent(
-      http.Response.bytes(
-        bytes.takeBytes(),
-        response.statusCode,
-        request: response.request,
-        headers: response.headers,
-        isRedirect: response.isRedirect,
-        persistentConnection: response.persistentConnection,
-        reasonPhrase: response.reasonPhrase,
-      ),
-      fallback,
-    );
-  }
-
-  TimeoutException _requestTimeoutException() => TimeoutException(
-    'Request timed out after ${timeout.inSeconds} seconds',
-    timeout,
-  );
-
-  /// Guarantees [response.request] is non-null.
-  ///
-  /// postgrest's `_parseResponse` does `response.request!.method` on the
-  /// error branch. If the underlying http stack ever yields a Response with
-  /// `request == null` (observed on Android in production), we rebuild it
-  /// here using [fallback] so postgrest can never throw a null-check error.
-  http.Response _ensureRequestPresent(
-    http.Response response,
-    http.BaseRequest fallback,
-  ) {
-    if (response.request != null) return response;
-    return http.Response.bytes(
-      response.bodyBytes,
+    final body = bytes.takeBytes();
+    return http.StreamedResponse(
+      Stream.value(body),
       response.statusCode,
-      request: fallback,
+      contentLength: body.length,
+      request: response.request,
       headers: response.headers,
       isRedirect: response.isRedirect,
       persistentConnection: response.persistentConnection,
@@ -206,11 +109,109 @@ class RetryHttpClient extends http.BaseClient {
     );
   }
 
+  bool _requiresStreamingResponse(
+    http.BaseRequest request,
+    http.StreamedResponse response,
+  ) {
+    final contentType = response.headers['content-type']?.toLowerCase() ?? '';
+    return request.url.path.startsWith('/storage/v1/') ||
+        contentType.startsWith('text/event-stream');
+  }
+
+  http.StreamedResponse _copyStreamedResponse(
+    http.StreamedResponse response,
+    Stream<List<int>> stream,
+  ) {
+    return http.StreamedResponse(
+      stream,
+      response.statusCode,
+      contentLength: response.contentLength,
+      request: response.request,
+      headers: response.headers,
+      isRedirect: response.isRedirect,
+      persistentConnection: response.persistentConnection,
+      reasonPhrase: response.reasonPhrase,
+    );
+  }
+
+  Stream<List<int>> _withDeadline(
+    Stream<List<int>> source,
+    Duration remaining,
+  ) {
+    late StreamController<List<int>> controller;
+    StreamSubscription<List<int>>? subscription;
+    Timer? deadline;
+    final subscriptionDelay = Stopwatch()..start();
+    var finished = false;
+
+    void finish() {
+      if (finished) return;
+      finished = true;
+      deadline?.cancel();
+      unawaited(controller.close());
+    }
+
+    controller = StreamController<List<int>>(
+      sync: true,
+      onListen: () {
+        final timeLeft = remaining - subscriptionDelay.elapsed;
+        subscriptionDelay.stop();
+        if (timeLeft <= Duration.zero) {
+          controller.addError(_requestTimeoutException());
+          finish();
+          return;
+        }
+
+        deadline = Timer(timeLeft, () {
+          if (finished) return;
+          controller.addError(_requestTimeoutException());
+          final activeSubscription = subscription;
+          if (activeSubscription != null) {
+            unawaited(_cancelSafely(activeSubscription.cancel));
+          }
+          finish();
+        });
+        subscription = source.listen(
+          controller.add,
+          onError: (Object error, StackTrace stackTrace) {
+            if (finished) return;
+            controller.addError(error, stackTrace);
+            finish();
+          },
+          onDone: finish,
+        );
+      },
+      onPause: () => subscription?.pause(),
+      onResume: () => subscription?.resume(),
+      onCancel: () {
+        deadline?.cancel();
+        final activeSubscription = subscription;
+        if (activeSubscription == null) return null;
+        return _cancelSafely(activeSubscription.cancel);
+      },
+    );
+
+    return controller.stream;
+  }
+
+  Future<void> _cancelSafely(Future<void> Function() cancel) async {
+    try {
+      await cancel().timeout(_streamCleanupTimeout);
+    } catch (_) {
+      // Cleanup is best-effort and must never replace the request failure.
+    }
+  }
+
+  TimeoutException _requestTimeoutException() => TimeoutException(
+    'Request timed out after ${timeout.inSeconds} seconds',
+    timeout,
+  );
+
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) =>
       _sendWithRetry<http.StreamedResponse>(
         request,
-        sendAttempt: _sendWithTimeout,
+        sendAttempt: _sendAttempt,
         createErrorResponse: _createErrorResponse,
       );
 

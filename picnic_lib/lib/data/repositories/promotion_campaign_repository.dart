@@ -10,6 +10,8 @@ class PromotionCampaignRepository {
   Future<ActivePromotionCampaignsModel> getActive(
     PromotionSurface surface,
   ) async {
+    // Future.timeout does not cancel the in-flight RPC. The transport client
+    // still owns its response deadline (RetryHttpClient defaults to 30s).
     final value = await client.rpc(
       'get_active_promotion_campaigns',
       params: {'surface': surface.wireValue},
