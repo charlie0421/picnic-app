@@ -29,6 +29,7 @@ class PurchaseCampaignAttemptRegistry {
   final Map<String, PurchaseExecutionContext> _byProduct = {};
   final Map<String, String> _attemptByTransaction = {};
   final Set<String> _completedTransactions = {};
+  DateTime? _identitylessTerminalAt;
 
   /// Supabase 카탈로그 ID는 대문자(STAR100), Google Play 이벤트의 productID는
   /// 소문자(star100)다. Casing만 다른 같은 상품이 같은 컨텍스트로 모이지 않으면
@@ -42,14 +43,55 @@ class PurchaseCampaignAttemptRegistry {
       _byProduct.containsKey(canonicalProductKey(productId));
 
   /// 지금 등록돼 있는 모든 상품의 시도 **스냅샷**.
-  ///
-  /// 스냅샷인 것이 핵심이다 - [reconcileStaleAttemptsIfQueueEmpty] 는 스토어
-  /// 큐 조회(비동기)를 사이에 두고 이 목록을 지우므로, 조회가 도는 동안
-  /// 시작된 새 시도는 이 목록에 없어 절대 지워지지 않는다.
   List<PurchaseCampaignAttempt> get activeAttempts =>
       _byProduct.values.map((c) => c.attempt).toList(growable: false);
 
   bool get isEmpty => _byProduct.isEmpty;
+
+  /// 어느 시도의 것인지 증명할 수 없는 종결 이벤트(취소·실패)를 관측했다고
+  /// 기록한다.
+  ///
+  /// 귀속이 아니다 - 이 호출은 어떤 시도도 지우지 않고, 시도 하나를 지목하지도
+  /// 않는다. 기록하는 사실은 딱 하나, **"이 시각에 결제 하나가 끝났다"** 이다.
+  /// [cancellationCandidates] 가 이 시각을 시도별 [PurchaseExecutionContext.
+  /// launchedAt] 과 비교해, 그 뒤에 시작된 시도는 후보에서 제외한다.
+  void recordIdentitylessTermination() =>
+      _identitylessTerminalAt = _now().toUtc();
+
+  /// 스토어 큐를 실제로 확인한 뒤 호출한다 - 관측 하나가 검증된 스윕 한 번을
+  /// 넘어서 계속 남아 미래의 정리를 정당화하지 못하게 소진시킨다.
+  void consumeIdentitylessTermination() => _identitylessTerminalAt = null;
+
+  bool get hasIdentitylessTermination => _identitylessTerminalAt != null;
+
+  /// 정리해도 되는 **후보** 시도들. 후보라는 것이 곧 정리 사유는 아니다 -
+  /// 호출자([reconcileCancelledAttemptsIfQueueEmpty])가 여기에 "스토어 큐에
+  /// 살아 있는 결제가 하나도 없었다"는 실측을 더해야 실제로 지운다.
+  ///
+  /// 후보 조건은 전부 **이 시도가 더 이상 살아 있지 않다는 양성 증거**다:
+  ///
+  /// 1. [PurchaseExecutionContext.launched] - 런치 호출이 이미 반환됐다.
+  ///    아직 반환 전이면 initiatePurchase 가 돌고 있는 정상 진행 중 시도다.
+  /// 2. [PurchaseExecutionContext.transactionId] 가 null - 이 시도에 묶인
+  ///    스토어 트랜잭션이 없다. 묶여 있다면 실결제가 정산 중이라는 뜻이다.
+  /// 3. 이 시도가 시작된 **뒤에** 식별자 없는 종결 이벤트를 관측했다. 관측이
+  ///    아예 없으면 아무것도 후보가 아니다 - 큐가 비어 보인다는 사실만으로는
+  ///    정리하지 않는다. iOS 는 purchasing/deferred 를 정산 대상에서 빼므로
+  ///    사용자가 결제 시트 안에 있는 동안에도 "정산 대상 없음"이 나온다
+  ///    (Sol 교차 리뷰 MAJOR, 2026-08-07).
+  List<PurchaseCampaignAttempt> get cancellationCandidates {
+    final terminalAt = _identitylessTerminalAt;
+    if (terminalAt == null) return const [];
+    return _byProduct.values
+        .where(
+          (c) =>
+              c.launched &&
+              c.transactionId == null &&
+              !terminalAt.isBefore(c.launchedAt),
+        )
+        .map((c) => c.attempt)
+        .toList(growable: false);
+  }
 
   bool begin(PurchaseCampaignAttempt attempt) =>
       _byProduct
@@ -204,19 +246,33 @@ class PurchaseCampaignAttemptRegistry {
   }
 }
 
-/// 스토어 큐가 **애초에 비어 있었을 때만** 남아 있는 모든 시도를 정리한다.
+/// 관측된 취소로 종결됐을 수 있는 시도를, 스토어 큐 실측이 그것을 뒷받침할
+/// 때만 정리한다.
 ///
-/// 거래ID 없는 취소/실패 이벤트(iOS 는 실패·취소 트랜잭션에 거의 항상
-/// transactionIdentifier 가 없고, Android Play Billing responseCode 3 은
-/// productID 까지 없다)는 어떤 시도의 것인지 증명할 수 없어 레지스트리를
-/// 건드리지 못한다 - 그 불변식은 여기서도 유지된다. 이 정리는 **이벤트를
-/// 귀속시키는 것이 아니라** 스토어 큐를 실측한 결과로만 판단한다: 큐에
-/// 아무것도 없었다면 어떤 상품에도 살아 있는 트랜잭션이 없다는 뜻이므로,
-/// 레지스트리에 남은 것은 UI 상태일 뿐이다.
+/// 두 가지 독립된 증거를 **모두** 요구한다.
 ///
-/// 이전에는 이 정리가 **사용자가 누른 그 상품**에만 걸려 있었다. 그래서
-/// 상품 A 를 취소한 뒤 상품 B 를 사면 A 의 버튼이 90초 안전망이 울릴
-/// 때까지 로딩 스피너로 남았다 (실기기 재현, 2026-08-07).
+/// 1. [PurchaseCampaignAttemptRegistry.cancellationCandidates] - 시도별
+///    양성 증거. 관측된 종결 이벤트가 없으면 후보가 아예 없고, 그 관측보다
+///    나중에 시작된 시도·런치가 아직 안 끝난 시도·실결제 트랜잭션이 묶인
+///    시도는 후보에서 빠진다.
+/// 2. [verifyStoreQueueEmpty] - 스토어 큐에 정산 대상도 **살아 있는 결제도**
+///    (iOS purchasing/deferred) 없었다는 실측.
+///
+/// 왜 둘 다인가. 큐가 비어 보이는 것은 stale 의 증명이 아니다 - iOS 는
+/// 사용자가 결제 시트 안에 있는 동안에도 정산 대상을 0건으로 답한다. "큐
+/// empty" 하나만 근거로 등록된 시도 전부를 지우면, 다른 상품 탭이나 지연된
+/// 식별자 없는 취소가 스윕을 트리거했을 때 **지금 결제가 진행 중인 정상
+/// 시도와 그 이중결제 가드**까지 같이 지워질 수 있다 (Sol 교차 리뷰 MAJOR,
+/// 2026-08-07). 반대로 관측 하나만으로 지우는 것은 PR #137 이 막아 둔 귀속
+/// 오류다 - 거래ID 없는 이벤트는 어떤 시도의 것인지 증명하지 못한다. 두
+/// 증거를 교차시키면 어느 쪽 오류도 나지 않는다: 관측은 "결제 하나가
+/// 끝났다"만 말하고, 어느 시도가 끝났는지는 큐 실측이 답한다.
+///
+/// 원래 고치려던 결함은 그대로 고쳐진다. 상품 A 를 취소하면 취소 관측이
+/// 기록되고, A 의 실패 트랜잭션은 살아 있는 결제로 세지 않으므로(iOS
+/// `failed` 는 결제가 아니라 **끝난** 결제다) 큐 실측이 empty 로 답해 A 가
+/// 정리된다 - 사용자가 이어서 상품 B 를 사더라도 A 의 버튼 스피너는 90초
+/// 안전망을 기다리지 않고 내려간다 (실기기 재현, 2026-08-07).
 ///
 /// [verifyStoreQueueEmpty] 는 "확인했고 비어 있었다"만 true 여야 한다.
 /// 스윕이 실결제를 발견해 그 자리에서 정산한 경우(found>0, settled>0)는
@@ -225,15 +281,20 @@ class PurchaseCampaignAttemptRegistry {
 ///
 /// 반환값은 실제로 지워진 시도들이다. 호출자가 상품별 후처리(안전망 타이머
 /// 해제, 런치 관찰 종료, 리페인트)를 한다.
-Future<List<PurchaseCampaignAttempt>> reconcileStaleAttemptsIfQueueEmpty({
+Future<List<PurchaseCampaignAttempt>> reconcileCancelledAttemptsIfQueueEmpty({
   required PurchaseCampaignAttemptRegistry attempts,
   required Future<bool> Function() verifyStoreQueueEmpty,
   bool Function()? isStillLive,
 }) async {
-  final snapshot = attempts.activeAttempts;
+  // 스냅샷인 것이 핵심이다 - 스토어 큐 조회(비동기)를 사이에 두고 이 목록을
+  // 지우므로, 조회가 도는 동안 시작된 새 시도는 이 목록에 없어 지워지지 않는다.
+  final snapshot = attempts.cancellationCandidates;
   if (snapshot.isEmpty) return const [];
 
   if (!await verifyStoreQueueEmpty()) return const [];
+  // 큐를 실제로 확인했다 - 관측을 소진해, 이 관측 하나가 앞으로의 정리까지
+  // 계속 정당화하지 못하게 한다.
+  attempts.consumeIdentitylessTermination();
   if (!(isStillLive?.call() ?? true)) return const [];
 
   final cleared = <PurchaseCampaignAttempt>[];

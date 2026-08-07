@@ -13,7 +13,11 @@ import 'package:picnic_lib/core/utils/logger.dart';
 /// again on the next sweep. Collapsing them is how a charged-but-uncredited
 /// purchase becomes invisible.
 class UnfinishedPurchaseScan {
-  const UnfinishedPurchaseScan({this.purchases = const [], this.error});
+  const UnfinishedPurchaseScan({
+    this.purchases = const [],
+    this.error,
+    this.liveInFlight = 0,
+  });
 
   /// Transactions the store still holds open, in the shape the verification
   /// path already accepts.
@@ -21,6 +25,19 @@ class UnfinishedPurchaseScan {
 
   /// Non-null when the enumeration itself failed.
   final Object? error;
+
+  /// Transactions the store is holding that are **not settleable yet because a
+  /// payment is still live** - iOS `purchasing` (the user is inside the payment
+  /// sheet / Face ID prompt) and `deferred` (Ask to Buy awaiting a guardian).
+  ///
+  /// [purchases] deliberately excludes these: there is no money to settle and
+  /// StoreKit forbids finishing them. But "nothing to settle" is not "nothing
+  /// is happening", and a caller that is deciding whether some *other* state
+  /// may be discarded has to know the difference. Without this count an empty
+  /// [purchases] reads as "the queue was empty", which is exactly what the
+  /// queue looks like while the user is still staring at the payment sheet
+  /// (Sol 교차 리뷰 MAJOR, 2026-08-07).
+  final int liveInFlight;
 
   bool get isEmpty => purchases.isEmpty;
 }
@@ -47,6 +64,14 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
   @override
   String get label => 'Android/queryPastPurchases';
 
+  /// `liveInFlight` stays 0 here and that is a statement about Play, not an
+  /// omission: `queryPurchases` answers with owned purchases, so a slow payment
+  /// still settling arrives as a `pending` [PurchaseDetails] inside
+  /// [UnfinishedPurchaseScan.purchases] (found > 0, which already blocks every
+  /// "the queue was empty" caller). A billing flow the user is *inside* is not
+  /// visible to any query - but it is also not concurrent with anything that
+  /// could ask, because Play runs the flow in its own activity and refuses a
+  /// second one.
   @override
   Future<UnfinishedPurchaseScan> scan() async {
     final addition = InAppPurchase.instance
@@ -105,6 +130,16 @@ class IosPaymentQueueSource implements UnfinishedPurchaseSource {
   @override
   String get label => 'iOS/SKPaymentQueue';
 
+  /// `purchasing`/`deferred` are counted separately rather than dropped.
+  ///
+  /// `failed` and `restored` are deliberately *not* counted as live: a failed
+  /// transaction is a payment that already ended (that is exactly the cancel
+  /// this app has to be able to clean up after), and `restored` never appears
+  /// for consumables.
+  static bool _isLiveInFlight(SKPaymentTransactionWrapper t) =>
+      t.transactionState == SKPaymentTransactionStateWrapper.purchasing ||
+      t.transactionState == SKPaymentTransactionStateWrapper.deferred;
+
   @override
   Future<UnfinishedPurchaseScan> scan() async {
     final transactions = await _readTransactions();
@@ -114,15 +149,16 @@ class IosPaymentQueueSource implements UnfinishedPurchaseSource {
               t.transactionState == SKPaymentTransactionStateWrapper.purchased,
         )
         .toList();
+    final liveInFlight = transactions.where(_isLiveInFlight).length;
 
     if (settleable.isEmpty) {
       if (transactions.isNotEmpty) {
         logger.i(
           'iOS 스윕: 큐에 ${transactions.length}건이 있으나 정산 대상(purchased)은 '
-          '없음',
+          '없음 (진행 중 $liveInFlight건)',
         );
       }
-      return const UnfinishedPurchaseScan();
+      return UnfinishedPurchaseScan(liveInFlight: liveInFlight);
     }
 
     final receipt = await _readReceipt();
@@ -135,6 +171,7 @@ class IosPaymentQueueSource implements UnfinishedPurchaseSource {
           'iOS 앱 영수증을 읽을 수 없어 ${settleable.length}건의 미완료 '
           '트랜잭션을 검증에 보내지 않음',
         ),
+        liveInFlight: liveInFlight,
       );
     }
 
@@ -145,6 +182,7 @@ class IosPaymentQueueSource implements UnfinishedPurchaseSource {
                 as PurchaseDetails,
           )
           .toList(),
+      liveInFlight: liveInFlight,
     );
   }
 }
