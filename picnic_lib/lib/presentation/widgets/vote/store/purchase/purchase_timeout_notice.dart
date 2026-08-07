@@ -95,10 +95,12 @@ bool isPurchaseSheetClosed({
 /// 전이를 거쳤는가**를 본다. 시트가 뜨면 반드시 비전면 전이가 먼저 일어나므로,
 /// 그 전이를 보지 못했다면 시트는 아직 열리기 전이거나 열려 있는 중이다.
 ///
-/// 관찰 창은 런치 **반환** 이 아니라 런치 **요청** 시점부터다
-/// ([PurchaseLaunchLifecycleTracker.recordLaunch] 의
+/// 관찰 창은 런치 **반환** 이 아니라 스토어 런치 호출(`buyConsumable`)
+/// **직전**부터다 ([PurchaseLaunchLifecycleTracker.recordLaunch] 의
 /// `foregroundExitsAtLaunchStart`). 이 한 칸이 플랫폼 분기 없이 두 스토어를
-/// 모두 맞춘다.
+/// 모두 맞춘다. 구매 버튼을 누른 시점이 아니라 런치 호출 직전인 이유는,
+/// 그 사이의 중복 방지 검증·상품 조회 중에 일어난 백그라운드 왕복이
+/// 결제 시트의 것으로 오인되면 안 되기 때문이다 (Sol 5차 재검증 MAJOR).
 ///
 /// - iOS: StoreKit 은 시트 상호작용이 끝나야 런치 호출이 반환된다. 즉 전이
 ///   (비전면 → resumed)가 **런치 호출이 도는 동안** 전부 지나가고, 반환 시점의
@@ -215,10 +217,17 @@ class PurchaseLaunchLifecycleTracker {
   /// [PurchaseExecutionContext.launchSuccessSequence] 와 같다 - 우리가 직접
   /// 세므로 기기 시계나 이벤트 도착 지연에 흔들리지 않는다.
   ///
-  /// 호출자는 스토어 런치 호출 **직전에** 이 값을 읽어 두었다가
-  /// [recordLaunch] 에 되돌려 준다. 그러면 "런치 호출이 도는 동안 전이가
-  /// 있었는가"를 알 수 있고, 그것이 iOS(블로킹 반환)와 Android(즉시 반환)를
-  /// 플랫폼 분기 없이 가른다 - [isPurchaseSheetProvenClosed] 참고.
+  /// 호출자는 스토어 결제 플로를 실제로 여는 호출(`buyConsumable`) **직전에**
+  /// 이 값을 읽어 두었다가 [recordLaunch] 에 되돌려 준다. 그러면 "런치 호출이
+  /// 도는 동안 전이가 있었는가"를 알 수 있고, 그것이 iOS(블로킹 반환)와
+  /// Android(즉시 반환)를 플랫폼 분기 없이 가른다 -
+  /// [isPurchaseSheetProvenClosed] 참고.
+  ///
+  /// **더 이른 시점에서 읽으면 안 된다.** 구매 진입부터 실제 런치까지는
+  /// 중복 방지 검증·상품 조회·pending 조회라는 비동기 사전 처리가 있고, 그
+  /// 동안의 백그라운드 왕복까지 창에 들어오면 시트가 뜨기도 전에
+  /// `leftForeground` 가 서서 방금 시작한 시도가 정리 후보가 된다
+  /// (Sol 5차 재검증 MAJOR).
   int get foregroundExitCount => _foregroundExitCount;
   int _foregroundExitCount = 0;
 

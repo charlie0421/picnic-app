@@ -1129,9 +1129,21 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       // 작용이 끝나야 반환하므로 전이가 이 안에서 지나가고, Android 는 시트가
       // 뜨기 전에 반환하므로 전이가 없다. 이 한 값이 시트 닫힘 판정의 관찰
       // 창을 "런치 요청 이후"로 열어, 플랫폼 분기 없이 두 스토어를 맞춘다.
-      final foregroundExitsAtLaunchStart = _launchLifecycle.foregroundExitCount;
+      //
+      // 기준점은 `initiatePurchase` **호출 직전이 아니라** 스토어가 결제
+      // 플로를 실제로 여는 순간에 잡는다. 그 사이에는 중복 방지 검증과 상품
+      // 조회, StoreKit pending 조회라는 비동기 왕복이 있고, 그 동안 사용자가
+      // 앱을 잠깐 벗어났다 돌아오면(알림 확인, 전화 등) 여기서 읽은 순번이
+      // 오염돼 - 시트가 뜨기도 전에 `leftForeground` 가 서고, 아직 resumed 인
+      // 현재 상태와 겹쳐 방금 시작한 시도가 정리 후보가 된다 (Sol 5차 재검증
+      // MAJOR). 콜백은 `buyConsumable` 직전에 동기로 불리므로 그 이전의
+      // 왕복은 관찰 창 밖으로 빠진다.
+      int? foregroundExitsAtLaunchStart;
       final purchaseResult = await _purchaseService.initiatePurchase(
         serverProduct['id'],
+        onStoreLaunchStart: () {
+          foregroundExitsAtLaunchStart = _launchLifecycle.foregroundExitCount;
+        },
       );
 
       await _handlePurchaseResult(
@@ -1299,7 +1311,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     Map<String, dynamic> purchaseResult, {
     required String productId,
     required String attemptId,
-    required int foregroundExitsAtLaunchStart,
+    // null = 스토어 런치 자체에 도달하지 못했다(사전 검증 차단, 상품 조회
+    // 실패, 디버그 타임아웃 시뮬레이션). 관찰 창을 열 근거가 없으므로
+    // `recordLaunch` 는 보수적으로 "전이 없음"으로 시작한다 - 결코 정리
+    // 후보가 되지 않는 쪽이다.
+    required int? foregroundExitsAtLaunchStart,
   }) async {
     if (purchaseResult['wasCancelled'] == true) {
       if (mounted) {
@@ -1324,9 +1340,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       // 등록해야 구매 증거가 이 시도로 모인다.
       _launchLifecycle.recordLaunch(
         productId,
-        // 관찰 창은 런치 요청 시점부터다 - iOS 는 시트의 비전면→resumed
-        // 사이클이 런치 호출 안에서 끝나므로, 반환 시점부터 세면 그 사이클을
-        // 통째로 놓쳐 취소된 시도가 영영 정리 후보가 되지 못한다.
+        // 관찰 창은 스토어 런치 호출(`buyConsumable`) 시점부터다 - iOS 는
+        // 시트의 비전면→resumed 사이클이 그 호출 안에서 끝나므로, 반환
+        // 시점부터 세면 그 사이클을 통째로 놓쳐 취소된 시도가 영영 정리
+        // 후보가 되지 못한다. 반대로 그보다 이르게(사전 처리 이전) 잡으면
+        // 시트와 무관한 왕복이 섞여 들어온다.
         foregroundExitsAtLaunchStart: foregroundExitsAtLaunchStart,
         storeAliases: [
           PaymentProductIdPolicy.effectiveProductId(

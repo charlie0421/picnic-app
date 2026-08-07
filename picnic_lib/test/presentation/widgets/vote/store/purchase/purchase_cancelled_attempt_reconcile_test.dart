@@ -440,6 +440,225 @@ void main() {
     );
   });
 
+  /// 5라운드 반례: 관찰 창의 기준점을 **구매 진입 시점**에 잡으면, 그 뒤의
+  /// 비동기 사전 처리(중복 방지 검증, 상품 조회, StoreKit pending 조회)가
+  /// 도는 동안 일어난 백그라운드 왕복까지 창 안에 들어온다. 그러면 결제 시트가
+  /// 뜨기도 전에 `leftForeground` 가 서고, 아직 resumed 인 현재 상태와 겹쳐
+  /// 방금 시작한 시도가 다시 정리 후보가 된다 - 4라운드에서 막았던 바로 그
+  /// 결함이 다른 경로로 돌아온다.
+  ///
+  /// 그래서 기준점은 스토어가 결제 플로를 실제로 여는 호출(`buyConsumable`)
+  /// **직전**에 잡는다 (`InAppPurchaseService.makePurchase` 의
+  /// `onStoreLaunchStart` → `PurchaseService.initiatePurchase` 패스스루).
+  group('Sol 5차 재검증 - 기준점은 스토어 런치 직전이지 구매 진입 시점이 아니다', () {
+    late PurchaseLaunchLifecycleTracker tracker;
+    late AppLifecycleState lifecycle;
+
+    /// `PurchaseStarCandyState._isPaymentSheetClosed` 와 동일한 술어.
+    bool provenClosed(String productId) {
+      final observation = tracker.observationFor(productId);
+      return isPurchaseSheetProvenClosed(
+        leftForegroundSincePurchaseLaunch:
+            observation.leftForegroundSinceLaunch,
+        returnedToForegroundSincePurchaseLaunch:
+            observation.returnedToForegroundSinceLaunch,
+        currentLifecycleState: lifecycle,
+      );
+    }
+
+    setUp(() {
+      tracker = PurchaseLaunchLifecycleTracker(
+        canonicalize: PurchaseCampaignAttemptRegistry.canonicalProductKey,
+      );
+      lifecycle = AppLifecycleState.resumed;
+    });
+
+    /// `PurchaseService.initiatePurchase` 의 형태를 그대로 흉내낸다:
+    /// **비동기 사전 처리 → 스토어 런치 콜백 → 런치 호출**.
+    Future<void> initiatePurchase({
+      required Future<void> Function() preflight,
+      required void Function() onStoreLaunchStart,
+      Future<void> Function()? duringStoreLaunch,
+    }) async {
+      await preflight();
+      onStoreLaunchStart();
+      if (duringStoreLaunch != null) await duringStoreLaunch();
+    }
+
+    /// 사전 처리가 도는 동안 사용자가 알림을 확인하고 돌아왔다.
+    Future<void> backgroundRoundTrip() async {
+      lifecycle = AppLifecycleState.paused;
+      tracker.recordLeftForeground();
+      await Future<void>.delayed(Duration.zero);
+      lifecycle = AppLifecycleState.resumed;
+      tracker.recordResumed();
+    }
+
+    test(
+      'Android: 사전 처리 중의 백그라운드 왕복은 결제 시트의 것이 아니다 - '
+      '방금 런치한 시도는 후보가 되지 않는다',
+      () async {
+        final attempts = PurchaseCampaignAttemptRegistry();
+        final live = attempt('STAR100', 'live');
+        attempts.begin(live);
+
+        // 오염되던 옛 기준점: 구매 진입 시점.
+        final exitsAtEntry = tracker.foregroundExitCount;
+        int? exitsAtStoreLaunch;
+
+        await initiatePurchase(
+          preflight: backgroundRoundTrip,
+          onStoreLaunchStart: () {
+            exitsAtStoreLaunch = tracker.foregroundExitCount;
+          },
+        );
+
+        expect(
+          exitsAtStoreLaunch,
+          isNot(exitsAtEntry),
+          reason: '사전 처리 중 왕복이 있었다 = 두 기준점이 실제로 갈린다',
+        );
+
+        // Android: buyConsumable 은 결제 Activity 가 전면에 오기 전에
+        // 돌아온다 - 런치 호출이 도는 동안엔 전이가 없다.
+        resolveLaunch(attempts, live);
+        tracker.recordLaunch(
+          'STAR100',
+          foregroundExitsAtLaunchStart: exitsAtStoreLaunch,
+        );
+
+        // 지연된 이전 종결 관측이 이제야 도착한다.
+        attempts.recordIdentitylessTermination();
+
+        expect(
+          provenClosed('STAR100'),
+          isFalse,
+          reason: '시트가 뜬 뒤의 전이를 본 적이 없다',
+        );
+
+        var scans = 0;
+        final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
+          attempts: attempts,
+          isPaymentSheetClosed: provenClosed,
+          verifyStoreQueueEmpty: () async {
+            scans++;
+            return true;
+          },
+        );
+
+        expect(cleared, isEmpty);
+        expect(attempts.contains('STAR100'), isTrue);
+        expect(scans, 0, reason: '후보가 없으면 스토어 왕복도 없다');
+      },
+    );
+
+    test(
+      '반례 확인: 같은 왕복을 진입 시점 기준점으로 재면 후보가 됐다 - 이 '
+      '테스트가 헛돌지 않음을 증명한다',
+      () async {
+        final attempts = PurchaseCampaignAttemptRegistry();
+        final live = attempt('STAR100', 'live');
+        attempts.begin(live);
+
+        final exitsAtEntry = tracker.foregroundExitCount;
+        await initiatePurchase(
+          preflight: backgroundRoundTrip,
+          onStoreLaunchStart: () {},
+        );
+
+        resolveLaunch(attempts, live);
+        tracker.recordLaunch(
+          'STAR100',
+          // 옛 배선: 진입 시점 값.
+          foregroundExitsAtLaunchStart: exitsAtEntry,
+        );
+        attempts.recordIdentitylessTermination();
+
+        expect(
+          provenClosed('STAR100'),
+          isTrue,
+          reason: '시트와 무관한 왕복이 "시트가 열렸다 닫혔다"로 오인된다',
+        );
+        expect(
+          attempts
+              .cancellationCandidates(isPaymentSheetClosed: provenClosed)
+              .map((a) => a.productId),
+          ['STAR100'],
+          reason: '결제 시트에 들어가려는 시도가 지워질 후보가 된다',
+        );
+      },
+    );
+
+    test(
+      'iOS: 사전 처리 중 왕복을 창에서 뺐어도 런치 호출 안의 시트 사이클은 '
+      '그대로 잡힌다 - 블로킹 반환 성질이 유지된다',
+      () async {
+        final attempts = PurchaseCampaignAttemptRegistry();
+        final a = attempt('STAR100', 'a-1');
+        attempts.begin(a);
+
+        int? exitsAtStoreLaunch;
+        await initiatePurchase(
+          // 사전 처리 중 왕복 (시트와 무관).
+          preflight: backgroundRoundTrip,
+          onStoreLaunchStart: () {
+            exitsAtStoreLaunch = tracker.foregroundExitCount;
+          },
+          // StoreKit purchase() 는 시트 상호작용이 끝나야 반환한다.
+          duringStoreLaunch: () async {
+            lifecycle = AppLifecycleState.inactive;
+            tracker.recordLeftForeground();
+            await Future<void>.delayed(Duration.zero);
+            lifecycle = AppLifecycleState.resumed;
+            tracker.recordResumed();
+          },
+        );
+
+        resolveLaunch(attempts, a);
+        tracker.recordLaunch(
+          'STAR100',
+          foregroundExitsAtLaunchStart: exitsAtStoreLaunch,
+        );
+        attempts.recordIdentitylessTermination();
+
+        final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
+          attempts: attempts,
+          isPaymentSheetClosed: provenClosed,
+          verifyStoreQueueEmpty: () async => true,
+        );
+
+        expect(
+          cleared.map((a) => a.productId),
+          ['STAR100'],
+          reason: 'iOS 취소 정리 경로가 그대로 살아 있어야 한다',
+        );
+      },
+    );
+
+    test(
+      '스토어 런치에 도달하지 못하면 기준점이 없다(null) - 보수적으로 '
+      '"전이 없음"이라 후보가 되지 않는다',
+      () async {
+        final attempts = PurchaseCampaignAttemptRegistry();
+        final a = attempt('STAR100', 'a-1');
+        attempts.begin(a);
+
+        // 사전 검증에서 막혀 콜백이 불리지 않았다.
+        await backgroundRoundTrip();
+
+        resolveLaunch(attempts, a);
+        tracker.recordLaunch('STAR100', foregroundExitsAtLaunchStart: null);
+        attempts.recordIdentitylessTermination();
+
+        expect(provenClosed('STAR100'), isFalse);
+        expect(
+          attempts.cancellationCandidates(isPaymentSheetClosed: provenClosed),
+          isEmpty,
+        );
+      },
+    );
+  });
+
   group('증거 (b) - 뒤이은 런치 성공이 이전 플로의 종료를 증명한다', () {
     test(
       '취소 이벤트가 아예 도착하지 않아도, 다음 상품의 런치가 성공하면 이전 '

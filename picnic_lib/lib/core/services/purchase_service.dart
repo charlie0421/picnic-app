@@ -406,7 +406,17 @@ class PurchaseService {
   ///
   /// 정산 단계(`handleOptimizedPurchase`)는 별개다 — 그쪽은 `onError` 가
   /// 유일한 보고 경로다.
-  Future<Map<String, dynamic>> initiatePurchase(String productId) async {
+  ///
+  /// [onStoreLaunchStart] 는 스토어 결제 플로가 실제로 열리는 순간
+  /// (`InAppPurchaseService.makePurchase` 안의 `buyConsumable` 직전)에
+  /// 동기적으로 불린다. 이 메서드 진입부터 그 지점까지는 중복 방지 검증과
+  /// 상품 조회라는 **비동기 사전 처리**가 있으므로, 호출자가 진입 시점에
+  /// lifecycle 기준점을 잡으면 그 사전 처리 중의 백그라운드 왕복까지
+  /// 결제 시트의 것으로 오인된다 (Sol 5차 재검증 MAJOR).
+  Future<Map<String, dynamic>> initiatePurchase(
+    String productId, {
+    void Function()? onStoreLaunchStart,
+  }) async {
     final currentUser = supabase.auth.currentUser;
     if (currentUser == null) {
       return {
@@ -471,6 +481,7 @@ class PurchaseService {
       final purchaseResult = await inAppPurchaseService.makePurchase(
         productDetails,
         applicationUserName: currentUser.id,
+        onStoreLaunchStart: onStoreLaunchStart,
       );
 
       if (!purchaseResult) {
