@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR #73 코튼캔디 — 완료 보고 및 배포 전 점검</title>
+<style>
+  :root{--ink:#17202a;--muted:#58636f;--line:#dce3e8;--paper:#fff;--canvas:#f5f7f9;
+        --danger:#b42318;--danger-bg:#fff0ee;--warn:#8a5700;--warn-bg:#fff7df;
+        --ok:#067647;--ok-bg:#e9f8f0;--accent:#6f4cff;--accent-bg:#eeeaff;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--canvas);color:var(--ink);line-height:1.68;
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+  main{width:min(1080px,calc(100% - 32px));margin:32px auto 72px}
+  header,section{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+                 padding:28px;margin-bottom:18px;box-shadow:0 8px 24px rgba(17,24,39,.04)}
+  h1,h2,h3{line-height:1.3;margin-top:0}
+  h1{font-size:30px;margin-bottom:8px}
+  h2{font-size:22px;border-bottom:1px solid var(--line);padding-bottom:10px}
+  h3{font-size:17px;margin:26px 0 8px}
+  p{margin:8px 0 14px}
+  ul,ol{padding-left:22px} li+li{margin-top:6px}
+  code{background:#eef1f4;padding:2px 6px;border-radius:5px;font-size:.9em;
+       font-family:"SFMono-Regular",Consolas,monospace}
+  pre{background:#111827;color:#eef2ff;padding:16px;border-radius:12px;overflow-x:auto;
+      font:13px/1.55 "SFMono-Regular",Consolas,monospace}
+  .tablewrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}
+  th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
+  th{background:#f2f4f7}
+  .box{border-left:5px solid;border-radius:10px;padding:16px 18px;margin:14px 0}
+  .b-danger{border-color:var(--danger);background:var(--danger-bg)}
+  .b-warn{border-color:#eaaa08;background:var(--warn-bg)}
+  .b-ok{border-color:var(--ok);background:var(--ok-bg)}
+  .b-accent{border-color:var(--accent);background:var(--accent-bg)}
+  .muted{color:var(--muted)}
+  .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:18px}
+  .meta div{padding:12px;background:#f8fafb;border:1px solid var(--line);border-radius:10px}
+  .label{color:var(--muted);font-size:12px;display:block}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+       padding:3px 9px;border-radius:999px;margin-right:8px;vertical-align:2px}
+  .t-fixed{background:var(--ok-bg);color:var(--ok)}
+  .t-open{background:var(--warn-bg);color:var(--warn)}
+  .t-none{background:#eef1f4;color:var(--muted)}
+  @media (max-width:640px){main{width:calc(100% - 18px);margin-top:10px}
+    header,section{padding:20px;border-radius:12px}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>PR #73 코튼캔디 — 완료 보고</h1>
+  <p class="muted">리뷰 차단 사항 해결부터 머지까지. 배포 전 점검 항목 포함.</p>
+  <div class="meta">
+    <div><span class="label">상태</span><strong>#73 · #74 · #75 모두 MERGED</strong></div>
+    <div><span class="label">main head</span><code>341c44609</code></div>
+    <div><span class="label">이번 작업 커밋</span>18개 (리뷰 이후)</div>
+    <div><span class="label">최종 테스트</span>12,148 통과 / 1 기존 실패</div>
+  </div>
+  <div class="box b-danger">
+    <strong>배포 전 필수 — Codemagic 변수 3개를 먼저 설정해야 합니다.</strong>
+    설정하지 않으면 staging 태그를 밀어도 빌드가 첫 단계에서 중단됩니다. 자세한 내용은 아래 1절.
+  </div>
+</header>
+
+<section>
+  <h2>1. 배포 전 필수 조치</h2>
+
+  <h3>Codemagic 변수 3개 추가</h3>
+  <p>아래 세 변수는 <strong>이번 브랜치가 처음 요구하는 것</strong>입니다. 머지 직전 <code>main</code> 의
+  <code>codemagic.yaml</code> 에는 참조가 0건이었으므로 기존에 설정돼 있을 수 없습니다.
+  현재 <code>${VAR:?}</code> 로 필수화돼 있어 미설정 시 빌드가 즉시 실패합니다.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>변수</th><th>값</th></tr></thead>
+    <tbody>
+      <tr><td><code>PICNIC_STAGING_SUPABASE_URL</code></td><td>staging Supabase 프로젝트 URL</td></tr>
+      <tr><td><code>PICNIC_STAGING_SUPABASE_ANON_KEY</code></td><td>staging anon key</td></tr>
+      <tr><td><code>PICNIC_STAGING_SUPABASE_PROJECT_REF</code></td><td>staging project ref — <strong>URL 의 서브도메인과 정확히 일치해야 함</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><code>picnic_env</code> 그룹에 넣으면 됩니다. project ref 가 URL 과 불일치하면 앱이 기동 시
+  <code>SupabaseEnvironmentPolicy</code> 에서 <code>StateError</code> 로 종료합니다.</p>
+
+  <div class="box b-accent">
+    <strong>설정하면 안 되는 것:</strong> <code>DEPLOY_TARGET</code>. 이제 태그에서 파생되며,
+    <code>environment.vars</code> 에 존재하면 가드가 빌드를 실패시킵니다.<br>
+    <strong>설정 불필요:</strong> <code>PICNIC_PANGLE_*</code> 4개 — staging 빌드 명령에 빈 값으로 인라인 전달됩니다.
+  </div>
+
+  <h3>production 태그에만 추가로 필요한 것</h3>
+  <p><code>verify_release_target.dart --target=production</code> 이 production 분기를 게이팅하며
+  <code>CI_PROVIDER</code>, <code>PRODUCTION_RELEASE_EVENT</code>, <code>ENVIRONMENT</code>,
+  <code>RELEASE_SHA</code>, <code>RELEASE_TAG</code>, <code>RELEASE_APPROVAL_REFERENCE</code>,
+  <code>RELEASE_MANIFEST</code>(+체크섬), <code>*_EVIDENCE</code> 를 읽습니다.
+  staging 태그는 이 경로를 타지 않습니다.</p>
+</section>
+
+<section>
+  <h2>2. 릴리스 절차 변경</h2>
+  <p>production 과 staging 이 같은 <code>picnic-v*</code> 태그를 공유하고 런타임 변수로 갈리던 구조를,
+  <strong>태그가 대상을 결정</strong>하도록 바꿨습니다. 사람이 잊을 수 있는 설정 단계가 사라집니다.</p>
+<pre>picnic-v1.2.3          →  production
+picnic-staging-v1.2.3  →  staging</pre>
+  <ul>
+    <li>두 패턴은 한 태그에 동시 매칭되지 않습니다 (<code>picnic-staging-v…</code> 는 <code>picnic-v*</code> 에 걸리지 않음)</li>
+    <li>매핑되지 않는 태그는 첫 단계에서 명시적으로 실패합니다</li>
+    <li>태그 없는 수동 실행은 더 이상 불가능합니다 (의도된 동작)</li>
+    <li>같은 커밋을 양쪽에 올리려면 태그 2개가 필요합니다</li>
+    <li>Shorebird 패치 워크플로는 변경 없음 — production 전용, 수동, SHA 게이트 유지</li>
+  </ul>
+</section>
+
+<section>
+  <h2>3. 해결된 차단 사항</h2>
+
+  <h3><span class="tag t-fixed">해결</span>Critical 1 — production 태그가 staging 앱을 배포할 수 있었음</h3>
+  <p>모든 분기가 <code>${DEPLOY_TARGET:-staging}</code> 로 판정되는데 그 변수는 레포 어디에도 정의돼 있지 않았습니다.
+  즉 <strong>기본값이 staging 으로 fail-open</strong> 이었고, 태그 트리거도 하나뿐이었습니다.</p>
+  <p>머지 후 확인한 결과 이 변수는 Codemagic 에도 없었습니다. 따라서 이 상태로 production 태그를 밀었다면
+  staging backend·sandbox 결제로 빌드된 앱이 App Store Connect 에 업로드됐을 것입니다.
+  해당 워크플로가 <code>main</code> 에서 실행된 적이 없어 실제 사고는 발생하지 않았고, 태그 기반 전환으로
+  함정이 발동 전에 제거됐습니다.</p>
+
+  <h3><span class="tag t-fixed">해결</span>Critical 2 — 격리 가드가 회귀를 탐지하지 못했음</h3>
+  <p>가드가 <code>if</code> 조건에 <code>DEPLOY_TARGET</code> 문자열이 있으면 분기 방향을 보지 않고 통과시켰고,
+  production 경로 존재 여부는 원문 검색이라 주석도 만족시켰습니다. 재현 결과 production 가드의 비교 연산자를
+  뒤집어도 <code>PASS</code> 였습니다.</p>
+  <p>가드를 if/else/elif/fi 분기 컨텍스트를 해석하도록 재작성하고, 적대적 재리뷰가 찾은 사각지대 7건을 추가로 닫았습니다 —
+  결합 조건(<code>&amp;&amp;</code>/<code>||</code>), <code>set -e</code> 실효성(<code>||</code>·파이프·<code>set +e</code>·명령 치환),
+  모든 defaulting 연산자, 값 허용 목록, 워크플로 목록의 YAML 유도, 가드 자신의 CI 호출 강제, <code>flutter test</code> 경로 축소.
+  <strong>변형 self-test 40개</strong>를 갖췄고, 가드는 이제 두 태그 워크플로와 <code>run_tests.sh</code> 에서 실제로 실행됩니다
+  (이전에는 어디서도 실행되지 않았습니다).</p>
+
+  <h3><span class="tag t-fixed">해결</span>Critical 3 — 캠페인 조회 실패가 홈 배너 전체를 지웠음</h3>
+  <p><code>vote_home</code> 배너가 promotion RPC 에 하드 의존해, 실패 시 일반 배너까지 오류 박스로 대체됐습니다.
+  실패 시 일반 배너로 degrade 하도록 고쳤고 loading 분기(shimmer)는 유지했습니다.
+  <strong>로컬 실행으로 실물 검증했습니다</strong> — 5절 참조.</p>
+
+  <h3><span class="tag t-fixed">해결</span>Important 8건</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>영수증 재제출</td><td>파싱 실패를 일시적 오류로 오분류해 이미 정산된 영수증을 재제출. 계약 위반은 즉시 실패하도록 분리</td></tr>
+      <tr><td>보상 다이얼로그 무한 재표시</td><td>ACK 실패 시 큐에서 제거되지 않아 같은 영수증이 반복 표시. 큐에서 제거하되 durable 기록은 보존해 재복구 가능</td></tr>
+      <tr><td>Pangle 폴링 미처리 예외</td><td>형제 flow 의 <code>onPollError</code> 패턴으로 통일</td></tr>
+      <tr><td>늦은 구매 안내 사문화</td><td><code>isLatePurchase(true)</code> 로 항상 false. 판정 시점을 정산 도착 시점으로 옮기고 상품 단위로 변경</td></tr>
+      <tr><td>통화 내역 페이지네이션</td><td>in-flight 가드 없음 + await 이전 스냅샷 병합으로 페이지 유실·커서 되감김</td></tr>
+      <tr><td>replay 영수증</td><td>이미 적립된 캔디에 신규 적립 영수증 표시</td></tr>
+      <tr><td>edge function 오류 노출</td><td>원본 DB 메시지가 <code>domain_code</code> 로 반환. 고정 토큰으로 매핑, 테스트 1→24개</td></tr>
+      <tr><td>실패 골든 테스트</td><td>이 PR 이 추가했으나 어느 검증 범위에도 없어 드러나지 않았던 실패</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="box b-warn">
+    <strong>재리뷰가 제 수정에서 회귀 1건을 찾았습니다.</strong>
+    <code>replayed</code> 로 영수증을 숨긴 수정이 너무 넓었습니다. 서버가 정산을 끝낸 뒤 1회차가 타임아웃되면
+    2회차가 같은 멱등키로 <code>replayed: true</code> 를 받는데, 사용자는 아직 아무것도 보지 못한 상태입니다.
+    "우리가 보낸 요청에 대한 응답인지"를 기준으로 바꿔, 자체 재시도가 유발한 replay 는 정상 영수증을 표시하고
+    세션 간 재전달만 억제하도록 수정했습니다.
+  </div>
+</section>
+
+<section>
+  <h2>4. 범위 분리</h2>
+  <p>리뷰가 지적한 "309 파일" 중 대부분은 실제 코튼캔디 범위였습니다. 진짜 무관한 것은 브랜치 최하단의 두 워크스트림뿐이었고,
+  이를 분리해 별도 PR 로 머지했습니다. 보안 수정과 기능 PR 의 롤백 단위가 분리됩니다.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>PR</th><th>내용</th><th>규모</th></tr></thead>
+    <tbody>
+      <tr><td>#74</td><td>번들 자격증명 제거 (AWS/DeepL/YouTube)</td><td>12 파일</td></tr>
+      <tr><td>#75</td><td>vote item request 로컬 하드닝</td><td>14 커밋 / 15 파일</td></tr>
+      <tr><td>#73</td><td>코튼캔디 보상 흐름</td><td>91 커밋 / 269 파일</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="box b-ok">
+    <strong>#74 의 빈 자격증명은 production 에서 문제되지 않습니다.</strong>
+    설계 문서가 "현재 비활성화된 커뮤니티 코드는 향후 재활성화를 위해 보존하면서 자격증명만 제거한다"고 명시하고,
+    코드도 일치합니다 — YouTube 는 키 없이 폴백(공개 썸네일·기본 임베드), S3·DeepL 은 커뮤니티 전용이라
+    네트워크 요청 전에 <code>StateError('Community integration is disabled')</code> 로 종료합니다.
+    <code>region</code>, <code>s3_bucket</code>, <code>api_keys.branch</code> 는 그대로라 다른 기능에 영향이 없습니다.
+    커뮤니티 재활성화 시 자격증명 주입 방식을 새로 설계해야 합니다.
+  </div>
+</section>
+
+<section>
+  <h2>5. 로컬 실행 검증</h2>
+  <p>staging 설정으로 iOS 시뮬레이터에 실제 기동해 확인했습니다.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>항목</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>staging 격리</td><td>STAGING 배지 노출. 환경 검증을 통과해야만 기동 — 잘못된 조합은 <code>StateError</code></td></tr>
+      <tr><td>지갑 패널</td><td>3카드(스타캔디 1,300 / 보너스 52 / 코튼캔디 0), 코튼캔디 분홍 강조, 콤마 그룹핑 동작</td></tr>
+      <tr><td>캔디 내역</td><td>3통화 탭 정상</td></tr>
+      <tr><td><strong>Critical 3 degrade</strong></td><td><strong>로그아웃 상태에서 RPC 가 실제로 실패(<code>WALLET_UNAUTHENTICATED</code>)했음에도 배너 6개 정상 노출</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>degrade 경로가 실제로 발동한 상태임을 확인하기 위해, 앱과 동일한 읽기 전용 RPC 호출을 anon 으로 직접 실행해
+  실패를 확인했습니다. 수정 전이라면 같은 조건에서 배너 영역 전체가 오류 박스로 바뀌었을 화면입니다.</p>
+  <p class="muted">참고: 리뷰의 전제는 <code>revoke … from anon</code> 에 의한 <code>42501</code> 이었으나,
+  실제 staging 의 실패 모드는 함수 내부 인증 검사였습니다. 원인은 다르지만 클라이언트가 보는 결과는 동일합니다.</p>
+
+  <div class="box b-accent">
+    <strong>실행하지 않았으면 못 찾았을 것:</strong> 지갑 패널은 <code>1,300</code>, 바로 아래 내역 행은 <code>+1300</code>
+    으로 같은 잔액이 한 흐름 안에서 두 형식으로 표시되고 있었습니다. 1차 리뷰가 MINOR 로 지적했지만
+    실물을 보고서야 우선순위가 분명해졌습니다. 수정 완료.
+  </div>
+
+  <h3>부수적으로 관찰된 것</h3>
+  <ul>
+    <li><strong>기동 중 RenderFlex 오버플로 131px</strong> — 스택이 Sentry 핸들러까지만 잡혀 위젯 미특정. 관찰된 화면들은 정상</li>
+    <li><strong><code>registerToken</code> 404</strong> — staging 에 해당 edge function 부재. 이 PR 범위 밖</li>
+  </ul>
+</section>
+
+<section>
+  <h2>6. 남은 항목</h2>
+
+  <h3><span class="tag t-open">판단 필요</span>늦은 구매 순서 불변식이 고정되지 않음</h3>
+  <p>프로덕션 코드는 올바르지만, 회귀 2종(판정을 정산 정리 뒤로 이동 / 이전의 항상-false 형태로 복원)을 실제로 넣어봐도
+  전체 스위트가 초록이었습니다. 해당 불변식이 위젯을 통해서만 도달 가능한 익명 콜백 안에 있어,
+  고정하려면 정산 단계를 주입 가능한 형태로 추출해야 합니다. 결제 경로라 임의로 리팩터링하지 않았습니다.</p>
+
+  <h3><span class="tag t-open">정책 필요</span><code>merge-base --is-ancestor</code> 의 범위</h3>
+  <p>기존 게이트는 릴리스 태그가 <code>main</code> 의 tip 과 같아야 해서, 이 레포의 기존 태그 6개 중
+  <strong>어느 것도 릴리스가 불가능했습니다.</strong> 이것이 운영자를 staging 기본값 경로로 되돌리던 원인이라
+  containment 로 완화했습니다(정확한 SHA 핀 고정은 유지).</p>
+  <p>다만 containment 는 한때 <code>main</code> 의 조상이었던 커밋을 모두 허용하므로, non-squash 병합에서는
+  나중에 고쳐진 WIP 커밋 트리로도 릴리스가 가능합니다. squash 머지 정책을 강제할지 결정이 필요합니다.</p>
+
+  <h3><span class="tag t-none">기존</span>그 외</h3>
+  <ul>
+    <li><code>navigation_configs_test</code> 1건 실패 — <code>main</code> 에서도 동일하게 실패하는 기존 결함</li>
+    <li>Kotlin junit · Swift <code>RunnerTests</code> 가 어느 파이프라인에서도 실행되지 않음</li>
+    <li>staging <code>dev.json</code> 이 <code>prod.json</code> 복사로 생성돼 비-Supabase production 값이 staging 빌드에 포함됨 (#74 로 노출 표면은 축소)</li>
+    <li>shortform degraded 응답에서 복구 폴링 미실행 — legacy 응답 형태와 조건이 겹쳐 의도 확인 필요</li>
+  </ul>
+</section>
+
+<section>
+  <h2>7. 검증하지 못한 영역</h2>
+  <div class="box b-warn">
+    아래는 단위 테스트 통과로 대체할 수 없는 항목입니다. 완료로 표현하지 않았습니다.
+  </div>
+  <ul>
+    <li><strong>StoreKit sandbox 실제 구매 E2E</strong> — sandbox 상품과 실기기 필요</li>
+    <li><strong>광고 보상 수신 흐름</strong> — SDK 동작, 실기기 필요</li>
+    <li><strong>중복 적립 방지</strong> — edge function 에 replay 가드가 없고 전적으로
+      <code>settle_shortform_view_reward</code> 에 위임하는데, 해당 SQL 은 <code>picnic-supabase</code> 소관입니다.
+      추가한 replay 테스트는 "같은 토큰 두 번 → 409, grant 로 오인 불가"라는 이 함수의 계약만 증명합니다</li>
+    <li><strong>Codemagic 러너에서의 실제 실행</strong> — 태그 파생, 격리 가드(PyYAML 설치 폴백 포함),
+      <code>picnic_app</code> 가드 테스트는 로컬에서만 통과했습니다</li>
+  </ul>
+</section>
+
+<section>
+  <h2>8. 검증 요약</h2>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>대상</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td><code>picnic_lib</code> 전체 (머지 후)</td><td>12,148 통과 / 6 skip / 1 실패(기존)</td></tr>
+      <tr><td><code>picnic_app</code> 릴리스 가드</td><td>25 통과</td></tr>
+      <tr><td>deno edge function</td><td>24 통과 (기존 1개)</td></tr>
+      <tr><td>환경 격리 가드</td><td>PASS + self-test 40개 변형</td></tr>
+      <tr><td>analyzer</td><td>신규 경고 0</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="muted">이 문서는 로컬 산출물입니다. 레포에 커밋하지 않습니다.</p>
+</section>
+
+</main>
+</body>
+</html>

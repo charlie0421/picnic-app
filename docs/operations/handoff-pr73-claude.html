@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Picnic App PR #73 — Claude Handoff</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #58636f;
+      --line: #dce3e8;
+      --paper: #ffffff;
+      --canvas: #f5f7f9;
+      --accent: #6f4cff;
+      --accent-soft: #eeeaff;
+      --danger: #b42318;
+      --danger-soft: #fff0ee;
+      --warn: #8a5700;
+      --warn-soft: #fff7df;
+      --ok: #067647;
+      --ok-soft: #e9f8f0;
+      --code: #111827;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR",
+        sans-serif;
+      line-height: 1.68;
+    }
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 32px auto 72px;
+    }
+    header, section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.04);
+    }
+    h1, h2, h3 { line-height: 1.3; margin-top: 0; }
+    h1 { font-size: 30px; margin-bottom: 8px; }
+    h2 { font-size: 22px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+    h3 { font-size: 17px; margin-top: 24px; margin-bottom: 8px; }
+    p { margin: 8px 0 14px; }
+    ul, ol { padding-left: 24px; }
+    li + li { margin-top: 6px; }
+    a { color: var(--accent); }
+    code {
+      background: #eef1f4;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      background: var(--code);
+      color: #eef2ff;
+      padding: 18px;
+      border-radius: 12px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font: 13px/1.55 "SFMono-Regular", Consolas, monospace;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f2f4f7; }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .meta div {
+      padding: 12px;
+      background: #f8fafb;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    .label { color: var(--muted); font-size: 12px; display: block; }
+    .callout {
+      border-left: 5px solid;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 14px 0;
+    }
+    .danger { border-color: var(--danger); background: var(--danger-soft); }
+    .warn { border-color: #eaaa08; background: var(--warn-soft); }
+    .ok { border-color: var(--ok); background: var(--ok-soft); }
+    .accent { border-color: var(--accent); background: var(--accent-soft); }
+    .muted { color: var(--muted); }
+    .checklist li { margin-bottom: 8px; }
+    @media (max-width: 640px) {
+      main { width: min(100% - 18px, 1040px); margin-top: 10px; }
+      header, section { padding: 20px; border-radius: 12px; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Picnic App PR #73 — Claude Handoff</h1>
+    <p class="muted">코튼캔디 기능 PR의 최종 리뷰 차단 사항을 해결하고 안전하게 머지하기 위한 인수인계 문서</p>
+    <div class="meta">
+      <div><span class="label">Repository</span><code>/Users/charlie.hyun/Repositories/picnic-app</code></div>
+      <div><span class="label">Working tree</span><code>/Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy</code></div>
+      <div><span class="label">Branch</span><code>feat/cotton-candy-policy</code></div>
+      <div><span class="label">Pull request</span><a href="https://github.com/charlie0421/picnic-app/pull/73">github.com/charlie0421/picnic-app/pull/73</a></div>
+      <div><span class="label">Local HEAD</span><code>f6f11e97e9c7a0ee0fb287f2f9f3dc94eedf0b28</code></div>
+      <div><span class="label">Remote PR HEAD</span><code>bcc75d4c2a0eb95f8af273c1f071aaf4739811c8</code></div>
+      <div><span class="label">Base at handoff</span><code>50b6a1cb18288cb25e042bcdafee97ebbaf38fb2</code></div>
+      <div><span class="label">Status</span>PR open, GitHub <code>MERGEABLE / CLEAN</code>, local branch ahead 1</div>
+    </div>
+  </header>
+
+  <section>
+    <h2>1. Claude 시작 프롬프트</h2>
+    <p>아래 내용을 Claude Code에 그대로 전달하면 된다.</p>
+    <pre>작업 디렉터리는 /Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy 이다.
+브랜치는 feat/cotton-candy-policy, PR은 #73이다.
+
+먼저 다음 문서를 끝까지 읽어라.
+1. /Users/charlie.hyun/Repositories/GIT_BRANCHING_POLICY.md
+2. /Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy/docs/superpowers/specs/2026-07-24-pr73-merge-readiness-design.md
+3. /Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy/handoff-pr73-claude.html
+
+목표는 PR #73의 Critical/Important 리뷰 이슈를 해결하고 재검증한 뒤 머지 가능한 상태로 만드는 것이다.
+프로덕션 Supabase와 프로덕션 배포 설정에는 절대 변경을 적용하지 말고, staging 작업만 수행하라.
+
+반드시 보존할 사용자 로컬 변경:
+- picnic_app/config/dev.json
+- picnic_app/untranslated-messages.json
+- .playwright-cli/
+- .superpowers/brainstorm/
+- output/
+
+위 파일을 커밋, 삭제, 덮어쓰기, 정리하지 마라.
+handoff-pr73-claude.html도 전달용 로컬 산출물이므로 사용자가 명시하지 않는 한 PR에 커밋하지 마라.
+
+리뷰 차단 사항:
+1. codemagic.yaml의 iOS production 태그 workflow가 staging/dev/sandbox로 바뀐 문제
+2. Wallet core schema/RPC/grant/RLS를 만드는 repository migration 누락
+3. 일반 투표 실패 시 await wallet refresh가 오류 UI와 cleanup을 지연할 수 있는 문제
+4. 코튼캔디 범위를 벗어난 변경이 대량 포함된 문제
+
+설계 문서 기준으로 구현 계획을 작성한 뒤 TDD로 수정하라.
+Supabase migration은 빈 local DB에 전체 순차 적용하여 검증하라.
+수정 후 관련 Flutter tests, analyzer, migration reset/test, environment isolation tests를 실행하라.
+독립 코드 리뷰에서 Critical/Important 0건이어야 한다.
+커밋과 push는 conventional commits를 사용하라.
+main 머지 직전에는 반드시 사용자에게 정확히 “Vercel Preview URL 로 확인하셨나요?”라고 묻고 답을 기다려라.</pre>
+  </section>
+
+  <section>
+    <h2>2. 현재까지 완료된 작업</h2>
+    <ul>
+      <li>코튼캔디 Wallet 모델, repository, provider, 광고 적립 복구 흐름 구현</li>
+      <li>공통 B 타입 보상 영수증 구현: 코튼캔디 광고 보상과 구매 보상에서 공통 사용</li>
+      <li>구매 성공 시 스타캔디와 보너스 스타캔디를 함께 표시</li>
+      <li>영수증 통화별 이미지, locale-aware 큰 정수 포맷, 합성 접근성 라벨 적용</li>
+      <li>일반 투표를 Wallet v3 transaction으로 연결하고 Cotton 잔액을 포함</li>
+      <li>PIC 투표의 429 backoff와 인증 복구 유지</li>
+      <li>인증 재시도에서도 동일한 UUID request ID를 재사용하도록 리베이스 충돌 해결</li>
+      <li>Task Master 관련 파일 제거</li>
+      <li>PR #73 생성 및 최신 <code>main</code> 위로 rebase 완료</li>
+      <li>리베이스 후 원격 브랜치를 <code>bcc75d4c2</code>로 업데이트</li>
+      <li>머지 준비 설계 문서를 로컬 커밋 <code>f6f11e97e</code>로 추가</li>
+    </ul>
+    <div class="callout ok">
+      마지막 집중 검증에서 관련 Flutter 테스트 157개가 통과했고, 핵심 6개 파일의 <code>dart analyze</code> 결과는 <code>No issues found</code>였다.
+    </div>
+  </section>
+
+  <section>
+    <h2>3. 절대 보존해야 하는 작업트리 상태</h2>
+    <div class="callout danger">
+      아래 항목은 사용자 소유 변경이다. stash를 사용하더라도 반드시 복원하고, 커밋·삭제·덮어쓰기하지 않는다.
+    </div>
+    <pre> M picnic_app/config/dev.json
+ M picnic_app/untranslated-messages.json
+?? .playwright-cli/
+?? .superpowers/brainstorm/
+?? output/</pre>
+    <p><code>handoff-pr73-claude.html</code>은 이 인수인계 문서로 새로 추가된 로컬 산출물이다. 기본적으로 PR 커밋에서 제외한다.</p>
+  </section>
+
+  <section>
+    <h2>4. 최종 리뷰 결과</h2>
+    <h3>Critical 1 — iOS production workflow 오염</h3>
+    <p><code>codemagic.yaml</code>의 App Store Connect용 <code>picnic-app-ios</code> workflow가 <code>picnic-v*</code> 태그에서 실행되면서도, 기본 <code>DEPLOY_TARGET=staging</code>처럼 동작한다. build 단계가 production 분기 없이 다음 값을 사용한다.</p>
+    <ul>
+      <li><code>ENVIRONMENT=dev</code></li>
+      <li>staging Supabase URL/key/project ref</li>
+      <li><code>PAYMENT_ENVIRONMENT=sandbox</code></li>
+      <li><code>PANGLE_ENVIRONMENT=sandbox</code></li>
+    </ul>
+    <p>이 상태로 production 태그를 만들면 staging backend를 가리키는 앱이 App Store Connect에 업로드될 위험이 있다.</p>
+
+    <h3>Critical 2 — Wallet 기반 migration 누락</h3>
+    <p>앱은 다음 RPC를 호출하지만 repository의 migration 범위에는 core schema와 함수 생성 SQL이 완결되어 있지 않다.</p>
+    <ul>
+      <li><code>get_wallet_summary</code></li>
+      <li><code>get_currency_history</code></li>
+      <li><code>get_ad_reward_status</code></li>
+      <li><code>list_unacknowledged_ad_rewards</code></li>
+      <li><code>acknowledge_ad_reward</code></li>
+      <li><code>settle_shortform_view_reward</code></li>
+      <li>일반 투표 Wallet v3 backing function</li>
+    </ul>
+    <p>현재 reconciliation migration은 이미 존재한다고 가정한 <code>wallet_private.reconcile_wallet_batch</code>를 수정한다. 따라서 빈 DB에서 repository migration만으로 schema를 재현할 수 없다.</p>
+
+    <h3>Important 1 — 투표 실패 UI가 refresh에 종속</h3>
+    <p><code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog.dart</code>의 일반 투표 실패 경로에서 오류 UI와 cleanup 전에 <code>await walletSummaryProvider.refresh()</code>를 수행한다. RPC가 hang하면 오류 안내와 상태 복원이 지연되고, refresh 예외가 throw되면 원래 실패 처리 자체를 건너뛸 수 있다.</p>
+
+    <h3>Important 2 — PR 범위 과대</h3>
+    <p>리뷰 시점 기준 <strong>309개 파일, +36,577/-15,861</strong>이다. Shorebird startup, production release scripts, AWS deploy, YouTube/DeepL/network service, version bump 등 코튼캔디와 독립적인 변경이 포함돼 있다.</p>
+
+    <h3>Minor — production config의 비밀값 제거</h3>
+    <p><code>picnic_app/config/prod.json</code>의 AWS/YouTube/DeepL 값이 빈 값으로 변경됐다. 비밀 제거 방향은 맞지만 모든 production 주입 경로가 검증되지 않으면 기능 중단이 가능하므로 별도 변경으로 분리하는 편이 안전하다.</p>
+  </section>
+
+  <section>
+    <h2>5. 승인된 설계</h2>
+    <h3>목표</h3>
+    <p>PR 73을 프로덕션 배포 경로에 영향을 주지 않는 상태로 정리하고, 코튼캔디 보상·구매 영수증·일반 투표 Wallet v3 기능을 재현 가능한 migration 및 테스트와 함께 머지할 수 있게 한다.</p>
+
+    <h3>범위</h3>
+    <ul>
+      <li>코튼캔디 광고 보상 적립과 공통 보상 영수증</li>
+      <li>스타캔디·보너스 스타캔디 구매 영수증</li>
+      <li>일반 투표 Wallet v3 연동과 PIC 투표의 기존 재시도·인증 복구</li>
+      <li>staging 빌드의 명시적 격리</li>
+      <li>필요한 Wallet schema, RPC, RLS, grants, Edge Function</li>
+      <li>Task Master 제거</li>
+    </ul>
+
+    <h3>선택한 접근</h3>
+    <p><strong>안전 차단 수정 후 주제별 분리</strong>를 선택했다. 기존 staging 검증 자산과 충돌 해결을 보존하면서 production workflow, migration 완결성, 투표 실패 처리를 우선 보강한다. 코튼캔디에 필요 없는 변경은 목적별 후속 PR로 옮기거나 현 PR에서 제거한다.</p>
+
+    <h3>배포 구조</h3>
+    <ul>
+      <li>production workflow는 <code>ENVIRONMENT=prod</code>, production Supabase, production 결제·광고 설정을 유지한다.</li>
+      <li>staging은 별도 workflow 또는 서로 겹치지 않는 명시적 staging 태그로만 실행한다.</li>
+      <li>production 빌드는 staging 변수에 의존하지 않는다.</li>
+      <li>staging 빌드는 production endpoint/project ref가 감지되면 즉시 실패한다.</li>
+    </ul>
+
+    <h3>DB 구조</h3>
+    <ul>
+      <li>빈 staging DB에 repository migration을 순서대로 적용하면 Wallet 기능 전체가 생성돼야 한다.</li>
+      <li>특권 함수는 비노출 schema에 두고 <code>search_path</code>를 고정한다.</li>
+      <li>클라이언트 RPC는 <code>auth.uid()</code>를 검증한다.</li>
+      <li><code>PUBLIC</code> execute를 철회하고 필요한 함수에만 <code>authenticated</code> 권한을 부여한다.</li>
+      <li>노출 schema의 table은 RLS와 소유권 정책을 함께 적용한다.</li>
+    </ul>
+
+    <h3>투표 실패 처리</h3>
+    <ul>
+      <li>오류 UI와 로딩 상태 복원을 Wallet refresh보다 먼저 보장한다.</li>
+      <li>실패 후 refresh는 timeout과 자체 오류 처리를 가진 best-effort 동작으로 수행한다.</li>
+      <li>refresh 실패가 원래 투표 오류를 가리지 않는다.</li>
+      <li>일반 투표 auth retry는 최초 UUID request ID를 재사용한다.</li>
+      <li>PIC 429 backoff와 auth recovery는 변경하지 않는다.</li>
+    </ul>
+    <p>원본 설계 파일: <code>/Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy/docs/superpowers/specs/2026-07-24-pr73-merge-readiness-design.md</code></p>
+  </section>
+
+  <section>
+    <h2>6. 권장 실행 순서</h2>
+    <ol class="checklist">
+      <li><strong>상태 확인:</strong> 현재 checkout, remote HEAD, 사용자 dirty 파일, PR 상태를 다시 기록한다.</li>
+      <li><strong>상세 구현 계획:</strong> production/staging workflow 분리, migration 복원, vote failure TDD, 범위 분리를 독립 task로 작성한다.</li>
+      <li><strong>Codemagic TDD:</strong> production 태그가 prod 설정을 사용하고 staging 태그가 dev/sandbox만 사용하는 정적 테스트를 먼저 실패시킨다.</li>
+      <li><strong>Codemagic 수정:</strong> 서로 겹치지 않는 workflow/tag 정책으로 분리하고 environment isolation verifier를 양쪽 경로에 맞춘다.</li>
+      <li><strong>Migration provenance 조사:</strong> staging Supabase branch에 직접 적용된 Wallet schema/RPC의 원본 SQL 또는 schema diff를 찾는다. 추측으로 새 계약을 만들지 않는다.</li>
+      <li><strong>Migration 생성:</strong> Supabase CLI의 <code>supabase migration new &lt;name&gt;</code>을 사용하고, core schema → functions → grants/RLS → reconciliation 순서를 보장한다.</li>
+      <li><strong>Clean DB 검증:</strong> local Supabase를 빈 상태에서 reset하고 전체 migration 적용, 함수 존재·권한·RLS·인증 격리를 테스트한다.</li>
+      <li><strong>Vote failure RED:</strong> Wallet refresh가 완료되지 않거나 실패해도 cleanup과 오류 안내가 완료되는 테스트를 먼저 작성하고 올바르게 실패하는지 확인한다.</li>
+      <li><strong>Vote failure GREEN:</strong> refresh를 bounded best-effort로 바꾸고 관련 테스트를 통과시킨다.</li>
+      <li><strong>범위 분리:</strong> Shorebird/AWS/YouTube/DeepL/network 등 비관련 변경을 후속 브랜치로 보존한 뒤 PR #73에서 제거한다. 사용자 dirty 파일에는 손대지 않는다.</li>
+      <li><strong>전체 검증:</strong> Flutter tests, analyzer, environment isolation, Codemagic YAML 검사, local Supabase reset/test를 실행한다.</li>
+      <li><strong>독립 리뷰:</strong> Critical/Important 0건을 확인한다.</li>
+      <li><strong>push:</strong> 현재 local-only 설계 커밋과 수정 커밋을 원격에 push한다.</li>
+      <li><strong>머지 게이트:</strong> Preview 확인 질문에 대한 사용자 답변 후에만 머지한다.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>7. 재검증 명령 참고</h2>
+    <p>환경과 CLI 버전을 확인한 뒤 실제 파일 경로에 맞춰 실행한다. 명령을 추측하지 말고 각 CLI의 <code>--help</code>를 먼저 확인한다.</p>
+    <pre>cd /Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy
+git status --short
+git status -sb
+git rev-parse HEAD
+git ls-remote origin refs/heads/feat/cotton-candy-policy
+gh pr view 73 --json url,state,mergeable,mergeStateStatus,headRefOid,statusCheckRollup,reviews,comments
+
+cd picnic_lib
+flutter test \
+  test/data/models/wallet/candy_reward_receipt_test.dart \
+  test/presentation/dialogs/candy_reward_receipt_dialog_test.dart \
+  test/presentation/widgets/ad_reward_dialog_host_test.dart \
+  test/presentation/providers/ad_reward_recovery_provider_test.dart \
+  test/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler_test.dart \
+  test/presentation/widgets/vote/voting/voting_dialog_test.dart \
+  test/presentation/widgets/vote/voting/voting_dialog_helper_test.dart \
+  test/data/repositories/vote_transaction_repository_test.dart
+
+dart analyze \
+  lib/data/models/wallet/candy_reward_receipt.dart \
+  lib/presentation/dialogs/candy_reward_receipt_dialog.dart \
+  lib/presentation/widgets/ad_reward_dialog_host.dart \
+  lib/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler.dart \
+  lib/presentation/widgets/vote/voting/voting_dialog.dart \
+  lib/presentation/widgets/vote/voting/voting_dialog_helper.dart
+
+cd ../supabase
+supabase --version
+supabase --help
+supabase db --help
+supabase migration --help</pre>
+  </section>
+
+  <section>
+    <h2>8. Git 및 머지 제약</h2>
+    <ul>
+      <li>메인 폴더 <code>/Users/charlie.hyun/Repositories/picnic-app</code>는 항상 <code>main</code>에 둔다.</li>
+      <li>작업은 기존 sibling worktree에서 계속한다. 새 checkout/switch로 메인 폴더를 변경하지 않는다.</li>
+      <li>커밋 메시지는 Conventional Commits를 사용한다.</li>
+      <li><code>main</code> force push는 금지한다.</li>
+      <li>리베이스 후 feature branch push가 필요하면 사용자 변경을 보존한 상태에서 <code>--force-with-lease</code>만 사용한다.</li>
+      <li>UI/API 변경을 <code>main</code>에 머지하기 직전 반드시 <strong>“Vercel Preview URL 로 확인하셨나요?”</strong>라고 묻고 답을 기다린다.</li>
+      <li>이 Flutter repo에서 Vercel Preview URL이 생성되지 않더라도 확인 게이트 자체는 생략하지 않는다.</li>
+      <li>머지 후에도 사용자 dirty 파일 때문에 worktree를 자동 삭제하지 않는다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>9. 알려진 외부 상태 및 주의점</h2>
+    <ul>
+      <li>PR에는 GitHub status checks가 등록되어 있지 않았다. 로컬 검증을 생략하면 안 된다.</li>
+      <li>production Supabase는 이번 작업 범위 밖이며 변경해서는 안 된다.</li>
+      <li>staging DB에는 dashboard/branch 작업으로 schema가 존재할 수 있으나 repository migration의 완결성은 별도 문제다.</li>
+      <li>Wallet migration은 staging DB에서 schema를 가져오더라도 데이터 dump나 실제 사용자 데이터를 migration에 포함하면 안 된다.</li>
+      <li>StoreKit staging 상품은 namespace 정책 때문에 local sandbox E2E가 제한됐던 이력이 있다. 단위 테스트 통과를 실제 구매 E2E 완료로 표현하지 않는다.</li>
+      <li>App Store Connect beta review에는 같은 train의 다른 build가 review 중이라는 422가 발생한 이력이 있다. 코드 결함과 별개인 외부 상태다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>10. 완료 조건</h2>
+    <table>
+      <thead>
+        <tr><th>영역</th><th>완료 기준</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Production safety</td><td>production 태그 빌드가 prod backend/payment/Pangle을 사용하고 staging 변수 없이 검증된다.</td></tr>
+        <tr><td>Staging isolation</td><td>staging workflow가 dev/sandbox 전용이며 production endpoint/ref를 거부한다.</td></tr>
+        <tr><td>Database</td><td>빈 local DB에서 repository migration 전체가 적용되고 Wallet RPC 및 권한 테스트가 통과한다.</td></tr>
+        <tr><td>Vote failure</td><td>Wallet refresh hang/failure와 무관하게 UI cleanup 및 오류 안내가 완료된다.</td></tr>
+        <tr><td>Scope</td><td>PR #73에는 코튼캔디/Wallet/필수 staging/Task Master 제거만 남는다.</td></tr>
+        <tr><td>Quality</td><td>관련 tests/analyzer가 통과하고 독립 리뷰 Critical/Important가 0건이다.</td></tr>
+        <tr><td>Merge</td><td>GitHub checks 및 mergeability 확인 후 사용자 Preview 승인을 받고 main에 머지한다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>11. 인수 시점 Git 상태</h2>
+    <pre>Branch: feat/cotton-candy-policy
+Local HEAD: f6f11e97e9c7a0ee0fb287f2f9f3dc94eedf0b28
+Remote branch HEAD: bcc75d4c2a0eb95f8af273c1f071aaf4739811c8
+Local branch: ahead 1
+PR #73: OPEN, MERGEABLE, CLEAN
+Checks: none registered
+Reviews/comments: none on GitHub
+
+Latest commits:
+f6f11e97e docs(pr): define PR 73 merge readiness design
+bcc75d4c2 fix(wallet): harden candy reward receipts
+17140d54a test(wallet): verify late receipt presentation await
+1ca37063f test(wallet): verify reward receipt flows
+cc9b1f738 feat(store): present multi-candy purchase receipts
+1eabe13c3 feat(ads): present cotton reward receipts
+efd01d32e fix(wallet): harden reward receipt accessibility
+d4aeaa221 feat(wallet): add localized reward receipt dialog</pre>
+  </section>
+</main>
+</body>
+</html>

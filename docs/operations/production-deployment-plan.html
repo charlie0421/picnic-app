@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Picnic cotton-candy 프로덕션 배포 계획</title>
+<style>
+  body { font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; max-width: 900px; margin: 40px auto; padding: 0 24px; line-height: 1.7; color: #1a1a2e; }
+  h1 { border-bottom: 3px solid #7c6ff0; padding-bottom: 8px; }
+  h2 { margin-top: 2.2em; border-left: 4px solid #7c6ff0; padding-left: 10px; }
+  h3 { margin-top: 1.6em; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14.5px; }
+  th, td { border: 1px solid #d8d8e8; padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #f2f0ff; }
+  code { background: #f4f4f8; padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+  pre { background: #f4f4f8; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+  .warn { background: #fff4e5; border-left: 4px solid #ff9800; padding: 10px 14px; border-radius: 4px; margin: 10px 0; }
+  .done { color: #0a8f4a; font-weight: 600; }
+  .todo { color: #c0392b; font-weight: 600; }
+  .decide { color: #b35c00; font-weight: 600; }
+  li { margin: 4px 0; }
+  .meta { color: #666; font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>Picnic cotton-candy 프로덕션 배포 계획</h1>
+<p class="meta">작성 2026-07-29 · 스테이징 검증 완료 시점 기준 · 관련: production-release-rehearsal.html (Codemagic env 10종 체크리스트)</p>
+
+<h2>현재 상태 스냅샷</h2>
+<table>
+<tr><th>항목</th><th>상태</th></tr>
+<tr><td>스테이징 구매 E2E (Android · iOS 실기기)</td><td class="done">검증 완료 — 결제→검증(1회)→적립→영수증 팝업→잔액→버튼 복귀, 연속 구매 포함</td></tr>
+<tr><td>앱 수정 랜딩</td><td class="done">PR <a href="https://github.com/charlie0421/picnic-app/pull/103">picnic-app#103</a> (main+7커밋, 테스트 12,320개 통과)</td></tr>
+<tr><td>엔진 랜딩</td><td class="done">PR <a href="https://github.com/charlie0421/picnic-supabase/pull/69">picnic-supabase#69</a> (wallet.v1 전체, Deno 테스트 47개)</td></tr>
+<tr><td>스테이징 서버</td><td class="done">verify_receipt v8 · wallet-operation-worker v11 · APPLE_ROOT_CA_SHA256 설정</td></tr>
+<tr><td>스테이징 OTA</td><td class="done">패치 And#8 / iOS-123903#4 / iOS-123904#9</td></tr>
+<tr><td>프로덕션 (xtijtef…)</td><td>레거시 그대로 — verify_receipt v162, 지갑 스키마·워커 없음, 오늘 작업의 영향 0</td></tr>
+</table>
+
+<h2>Phase 0 — 사전 정리 (진행 중)</h2>
+<ul>
+<li class="done">✅ 두 레포 PR 생성 (#103, #69) — 리뷰·머지 대기</li>
+<li class="done">✅ iOS 실패 영수증 보존 — 미확정 구매는 종류 불문 스토어 트랜잭션 보존, 422 는 클라이언트 큐 중단에만 사용 (picnic-app#104, 이중 적대 리뷰 반영)</li>
+<li class="done">✅ 마이그레이션 히스토리 정합 — out-of-band 마이그레이션 원문 복구(picnic-supabase#70)로 <code>db push</code> 클린. 클린 베이스라인은 picnic-app#106 으로 랜딩 (dev 브랜치 재현용, 프로덕션 히스토리 불변)</li>
+<li class="done">✅ 프로덕션 패치 워크플로 전체 버전 사용 + 가드 체크·뮤테이션 추가 (picnic-app#105)</li>
+</ul>
+
+<h2>Phase 1 — 프로덕션 서버 준비 <span class="done">✅ 1a 적용 완료 (2026-07-29)</span></h2>
+<div class="warn"><b>Phase 1a 완료</b>: 분할 리허설 3차 통과 후 가산 전용 38개 적용 (이력 20260729900001~38, ad_impressions 백필 167만행 배치 소진). 배포 후 검증 전부 그린 — 크론 5종·워커 첫 주기 200·플래그 12종 dark·레거시 ACL 유지·비활성 캠페인 시드·톰스톤 트리거. <b>계정 삭제가 톰스톤(익명화) 방식으로 전환</b>됨 (유일한 의도적 레거시 의미 변경). 산출물: picnic-supabase#72 (분할 세트·러너·프리플라이트·F1 픽스 — 머지 후 스테이징 db push 필요). <b>1b 는 강업 완료 후</b> (프리플라이트 A~E 통과 조건).</div>
+<div class="warn"><b>전제 붕괴</b>: "기존 앱 무영향" 전제가 wallet 마이그레이션 세트에 대해 성립하지 않음이 전수 감사에서 확인됐다. 세트는 스테이징용 <b>컷오버 설계</b> — 레거시 RPC ~20개 동일 시그니처 교체, <code>user_profiles</code>·<code>star_candy_%</code> DML 을 <b>service_role 포함</b> 전 롤에서 회수(→ 레거시 verify_receipt 적립 즉사), 레거시 vote RPC 실행권 회수, 데이터 의존 abort(보너스 투영 드리프트·receipts 중복) 포함. 상세: <b>phase1-migration-audit-report.html</b>. 함수·시크릿·Vault 는 dark 리소스라 안전하게 완료됨.</div>
+<h3>체크리스트</h3>
+<table>
+<tr><th>구분</th><th>항목</th><th>비고</th></tr>
+<tr><td rowspan="2">DB</td><td class="todo">⏸ wallet 마이그레이션 적용 — 차단</td><td>1a(가산 전용, 지금)/1b(컷오버, 강업 완료 후) 분할 재설계 권고 — <span class="decide">사용자 결정 대기</span>. 적용 러너(파일+이력 단일 트랜잭션)는 준비·검증 완료</td></tr>
+<tr><td>레거시 잔액 시딩</td><td class="done">불필요로 판명 — 엔진이 <code>user_profiles.star_candy/bonus</code> 를 잔액 저장소로 공유(원장 이원화 없음). 진짜 선행 작업은 <b>보너스 투영 드리프트 사전 정리</b>(컷오버 abort 조건)</td></tr>
+<tr><td rowspan="2">Vault 시크릿</td><td class="done">✅ <code>wallet_cron_secret</code> 등록(DB 내부 난수) · <code>supabase_functions_url</code> 기존재 확인</td><td>2026-07-29 완료</td></tr>
+<tr><td class="done">✅ 함수 시크릿: <code>APPLE_ROOT_CA_SHA256</code>(스테이징과 동일 핀 검증) · <code>WALLET_CRON_SECRET</code> · <code>WALLET_WORKER_ATTESTATION_SECRET</code>(프로덕션 전용 신규)</td><td>GOOGLE_* 는 기존재, PACKAGE_NAME 은 코드 기본값 사용</td></tr>
+<tr><td rowspan="2">함수</td><td class="done">✅ 5종 배포 완료 — 워커 3종 verify_jwt=false · provider-event/verify-receipt-v2 true (스테이징 미러). <code>verify_receipt</code> 무변경 (코드 해시 <code>3d84bfe1…</code> 확인)</td><td>크론 미등록 → 전부 유휴(dark)</td></tr>
+<tr><td>플래그 dark 상태 확인</td><td>마이그레이션 적용 시점에 검증 (12종: boolean 9 false + enum 3 inert)</td></tr>
+<tr><td>검증</td><td>크론 1주기 후 워커 200 확인 · 인박스 빈 상태 · 하트비트 기록</td><td>1a 적용 후 실행. 첫 하트비트 전 ops_alerts WARNING 노이즈 유의</td></tr>
+</table>
+<h3>부수 발견 (엔진 픽스 필요)</h3>
+<ul>
+<li class="todo">게이트 자충돌: <code>20260723173327</code> 의 anon 그랜트가 <code>promotion_surfaces_enabled</code> 활성화를 영구 차단 (스테이징도 동일) — Phase 4 캠페인 시작 전까지 픽스</li>
+<li class="todo">B23: 마이그레이션이 placehold.co 데모 배너를 실 <code>banner</code> 테이블에 INSERT — 1a/1b 재편성 시 제거</li>
+<li>anti-abuse 마이그레이션 이력 버전 드리프트로 프로덕션 <code>db push</code> 사용 불가 — 별도 <code>migration repair</code> 부채</li>
+</ul>
+
+<h2>Phase 2 — 세대 전환 <span class="done">(확정: C. 엔드포인트 버저닝 + lazy 시딩 + 지표 기반 말미 강업)</span></h2>
+<p>구버전 앱은 패치 불가능한 인구이므로 그 경로(<code>verify_receipt</code> = v162)를 <b>동결</b>하고, cotton-candy 세대는 <b>새 이름</b>을 호출한다. 어댑터·세대 판별기 없이 두 세대가 안전하게 공존한다.</p>
+<ul>
+<li class="done">✅ <code>verify-receipt-v2</code> = wallet.v1 핸들러 재수출 (picnic-supabase#71) — 스테이징 배포 완료</li>
+<li class="done">✅ 클라이언트 호출 전환 — <code>PurchaseConstants.receiptVerificationFunction</code> 단일 상수 (picnic-app#107)</li>
+<li>전환 계측: v162 호출량 vs v2 호출량 비율 — <b>강업 후 잔존 확인용 검증 지표</b> (페이싱 드라이버 아님, 2026-07-29 개정)</li>
+<li class="done">✅ 페이싱 확정 (2026-07-29): <b>한 번에 출시(100%) + 당일 강업</b>. 강업은 서버 제어 하드 게이트(<code>version.force_version</code> → ForceUpdateOverlay 전면 차단, 2024-08 도입이라 필드 전 버전 커버) — 양 스토어 동시 수동 출시·공개 확인·내부 스모크 통과 후 발동. 소프트 넛지 생략. 1b 전까지 force_version 하향으로 가역(단, 이미 업데이트한 사용자는 복귀 불가 — OTA 가 유일 수정 경로)</li>
+<li>강업 전 확인: <code>version.url</code> 양 플랫폼 스토어 링크 정확성 · 신버전 최소 OS 의 구형 기기 배제 여부 · checkUpdate 깨진 구 릴리스 코호트는 게이트 미노출(잔존 트래픽으로 사후 측정, v162 이 살아있는 한 무해)</li>
+</ul>
+
+<h2>Phase 3 — 앱 릴리스</h2>
+<ul>
+<li class="done">✅ 버전 확정 <b>1.3.0+130000</b> (picnic-app#108) · <code>picnic-v1.3.0</code> 태그 푸시 (2026-07-29) → Codemagic 프로덕션 워크플로 <b>첫 실행 중</b>. 실패 시 env 10종(rehearsal 리포트) 점검 후 재태그</li>
+<li class="done">✅ 코튼 공개 방식 확정 (2026-07-29): <b>② 1b 일괄 공개</b> — 출시일에는 코튼 플래그 전부 dark 유지(파우치 미노출), 1b 적용 후 read/spend/expiry + 적립 모드를 함께 오픈</li>
+<li class="done">✅ 출시 방식 확정 (2026-07-29): 단계 출시 없이 <b>한 번에 100%</b>. 선행으로 같은 빌드를 <b>TestFlight 내부 + Play 내부 테스트 트랙</b>에 먼저 배포해 내부 스모크(결제 E2E — 테플=샌드박스 영수증·Play=테스트카드 — + 코튼 플로우, Codemagic·프로덕션 env·스토어 상품 검증) 후 그대로 심사 제출 → 양 스토어 <b>동시 수동 출시</b> → 당일 강업 + 코튼 플래그 ON. 내부 스모크는 1a 적용 후에만 유효</li>
+<li>Shorebird 프로덕션 릴리스 생성 → 이후 핫픽스는 로컬 OTA 패치 절차 (staging-deploy-state 메모리에 절차 기록됨)</li>
+</ul>
+
+<h2>1b 런북 추가 항목 (2026-07-30 확정)</h2>
+<div class="warn"><b>광고 함수 3중 분기</b> — <code>callback-ad-shortform-view</code>: 프로덕션 v35(4키, 직접 쓰기+upsert_ad_bonus) / 스테이징 v8(5키, RPC 경유, 신 앱이 파싱하는 형태) / 레포 origin/main(3키, 어디에도 배포 안 됨)이 모두 달랐다. 배포본을 회수해 레포를 스테이징 계약(5키)에 맞췄고(picnic-supabase#80), 프로덕션·스테이징 원본은 <code>ops/wallet/deployed-snapshots/</code> 에 DO-NOT-DEPLOY 스냅샷으로 보관. <b>두 변형을 교차 배포하면 안 된다.</b></div>
+<table>
+<tr><th>순서</th><th>항목</th><th>주의</th></tr>
+<tr><td>1</td><td><code>check-ads-count</code> 배포 (레포 최신 브랜치 기준)</td><td class="warn-inline">머지 전 <code>main</code> 에서 배포하면 프로덕션의 AdMob OS 차단(<code>admob_disabled_os='ios,android'</code>)이 되돌아간다 — #80 에서 중첩 사본 통합으로 해소, 단일 사본 가드 테스트 추가</td></tr>
+<tr><td>2</td><td>1b 마이그레이션 + 워커/함수 배포</td><td>prod-cutover/1b + runner</td></tr>
+<tr><td>3</td><td><code>callback-ad-shortform-view</code> 배포 (같은 창에서 즉시)</td><td>코튼 적립 경로로 전환되는 시점과 일치해야 함</td></tr>
+<tr><td>4</td><td>롤아웃 매니페스트에 위 두 함수 추가</td><td class="warn-inline"><b>지금 추가하면 안 된다</b> — 1b 이전에 롤아웃이 돌면 5키 변형이 프로덕션에 나가 레거시 적립 경로가 깨진다. 1b 창에서 추가</td></tr>
+<tr><td>5</td><td><code>wallet.star_projection_check_enabled</code> = true</td><td>1a 기간 오탐(레거시 소비가 star_candy_history 미기록) 때문에 false 로 시드됨. 모든 차감이 엔진을 통과한 뒤 켠다</td></tr>
+<tr><td>6</td><td>출석 재화 단위 정합</td><td>엣지 fn 60/120 ↔ wallet 본문 1/7 — 제품 결정 후 스테이징 실증 (오픈리스크 #2)</td></tr>
+</table>
+
+<h2>Phase 4 — 플래그 점진 활성화</h2>
+<table>
+<tr><th>순서</th><th>플래그</th><th>시점</th></tr>
+<tr><td>1</td><td>cotton read / spend / expiry</td><td>앱 출시와 함께 (스테이징 검증 완료된 코어)</td></tr>
+<tr><td>2</td><td>candy_boost_write + promotion_surfaces</td><td>첫 프로모션 캠페인 시작 시 — 켜는 순간 대기 큐 자동 소화</td></tr>
+<tr><td>3</td><td>refund_reversal · debt_recovery</td><td>지표 안정화 후</td></tr>
+<tr><td>4</td><td>admin_financial_commands</td><td>운영 절차 준비 후</td></tr>
+</table>
+
+<h2>모니터링 · 롤백</h2>
+<ul>
+<li><b>지표</b>: verify_receipt 상태코드 분포 · inbox DEAD 율 · PROMOTION 재시도 적체 · reconciliation 결과 · Sentry 구매 이벤트</li>
+<li><b>지급 이상</b> → 플래그 오프만으로 지급 홀드 (원장 append-only, 데이터 롤백 불필요)</li>
+<li><b>함수 이상</b> → 이전 버전 재배포 · <b>앱 이상</b> → Shorebird 패치로 전진 수정</li>
+<li>정산은 서버 멱등(replay) — 클라이언트 재시도·재전달이 이중 적립 불가 (실기기 검증됨)</li>
+</ul>
+
+<h2>스테이징에서 배운 함정 (프로덕션 반복 금지)</h2>
+<ul>
+<li>Edge 런타임은 node:crypto <code>X509Certificate.checkIssued/.verify</code> 미구현 — 애플 검증은 WebCrypto 구현 유지 (되돌리면 전 애플 정산 사망)</li>
+<li><code>supabase functions deploy</code> 에 <code>--no-verify-jwt</code> 누락 시 크론 호출 전체 401</li>
+<li>supabase-js 클라이언트에 소문자 <code>authorization</code> 헤더 주입 금지 (기본 대문자 헤더와 comma-fold → GoTrue 전면 거부)</li>
+<li>구버전 워크트리에서 패치 빌드 금지 — 반드시 origin/main 기준 확인</li>
+<li>라이선스 테스터 미승인(acknowledge 안 된) 구매는 구글이 수 분 내 자동취소 — acknowledge 경로가 살아있는지로 회귀 감지 가능</li>
+</ul>
+
+<h2>사용자 결정 대기</h2>
+<ol>
+<li class="done">✅ Phase 2 전략 — <b>C(엔드포인트 버저닝) + lazy 시딩 + 지표 기반 말미 강업</b> 확정 (2026-07-29)</li>
+<li class="done">✅ 잔액 시딩 — lazy(adoptive) 확정 → <b>2026-07-29 감사로 불필요 판명</b> (엔진이 user_profiles 잔액 공유; 대신 보너스 투영 드리프트 사전 정리가 선행 작업)</li>
+<li class="done">✅ Phase 1 착수 승인 (2026-07-29) — 함수·시크릿·Vault 완료, <b>DB 마이그레이션은 감사 차단으로 보류</b></li>
+<li class="done">✅ Phase 1a/1b 분할 승인·착수 (2026-07-29) — picnic-supabase <code>feat/prod-cutover-split</code> 브랜치, <code>supabase/prod-cutover/MANIFEST.md</code> 가 분류 기준</li>
+<li class="done">✅ 출시 페이싱 — 한 번에 100% + 당일 강업, 내부 베타(테플/Play 내부 트랙) 선행 (2026-07-29)</li>
+<li>(별건) 스테이징 보너스 플래그 선행 테스트 여부</li>
+</ol>
+</body>
+</html>
