@@ -64,14 +64,29 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
   @override
   String get label => 'Android/queryPastPurchases';
 
-  /// `liveInFlight` stays 0 here and that is a statement about Play, not an
-  /// omission: `queryPurchases` answers with owned purchases, so a slow payment
-  /// still settling arrives as a `pending` [PurchaseDetails] inside
+  /// `liveInFlight` stays 0 here, and that is a **limit of Play's API, not a
+  /// statement that nothing is live**.
+  ///
+  /// `queryPurchases` answers with owned purchases, so a slow payment still
+  /// settling arrives as a `pending` [PurchaseDetails] inside
   /// [UnfinishedPurchaseScan.purchases] (found > 0, which already blocks every
-  /// "the queue was empty" caller). A billing flow the user is *inside* is not
-  /// visible to any query - but it is also not concurrent with anything that
-  /// could ask, because Play runs the flow in its own activity and refuses a
-  /// second one.
+  /// "the queue was empty" caller). But a billing flow the user is *inside* is
+  /// invisible to every query Play offers: the flow runs in Play's own
+  /// activity, and nothing is owned until it completes. So while the user
+  /// stares at the payment sheet this scan reports an empty queue with
+  /// `liveInFlight == 0` - indistinguishable from "nothing is happening".
+  ///
+  /// An earlier revision of this comment claimed the in-flight case could not
+  /// be concurrent with a scan, because Play refuses a second billing flow.
+  /// That is wrong: Play refuses a second *flow*, not a *query*, and the
+  /// purchase stream keeps delivering while the app is paused - so a delayed
+  /// event from an earlier attempt can trigger a sweep in the middle of a live
+  /// payment (Sol 3차 재검증 #2).
+  ///
+  /// Callers must therefore never read an empty Android scan as proof that a
+  /// registered attempt is dead. The evidence that closes this gap is lifecycle
+  /// state, not the queue - see
+  /// [PurchaseCampaignAttemptRegistry.cancellationCandidates].
   @override
   Future<UnfinishedPurchaseScan> scan() async {
     final addition = InAppPurchase.instance

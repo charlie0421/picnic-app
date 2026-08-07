@@ -1152,6 +1152,20 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
   }
 
+  /// 이 상품의 스토어 결제 시트가 닫혀 있는가 - 정리 후보 판정의 증거 (a).
+  ///
+  /// Android 는 Play 결제 시트가 별도 Activity 라, 시트가 떠 있는 동안
+  /// `queryPastPurchases` 는 빈 큐를 답한다. 그 구멍을 메우는 것이 이
+  /// lifecycle 관찰이다 - 런치 이후 resumed 를 못 받았고 지금도 전면이
+  /// 아니면 사용자는 아직 그 시트 안에 있다 (Sol 3차 재검증 #2). 90초
+  /// 안전망의 취소 억제 판정과 **같은 함수**를 쓴다.
+  bool _isPaymentSheetClosed(String productId) => isPurchaseSheetClosed(
+    resumedSincePurchaseLaunch: _launchLifecycle
+        .observationFor(productId)
+        .resumedSinceLaunch,
+    currentLifecycleState: WidgetsBinding.instance.lifecycleState,
+  );
+
   /// 거래ID 없는 취소/실패 이벤트(양쪽 플랫폼 다 흔하다 - iOS는
   /// transactionIdentifier가 실패/취소 트랜잭션엔 거의 항상 없고, Android
   /// Play Billing responseCode 3은 productID까지 없을 수 있다) 때문에 90초
@@ -1163,21 +1177,26 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   /// 로딩 스피너로 남았다 (실기기 재현, 2026-08-07). 취소 이벤트를 A 에
   /// 귀속시키는 것이 아니다 - 그 불변식(식별자 없는 이벤트는 attempt 를
   /// 지우지 못한다)은 그대로다. 지우는 근거는 두 증거의 교차다:
-  /// 취소 관측이 있고(=결제 하나가 끝났다), 스토어 큐에 살아 있는 결제가
-  /// 하나도 없다(=지금 진행 중인 정상 결제는 없다).
+  /// **그 시도의 결제 플로가 끝났다는 증명**(뒤이은 런치 성공, 또는 그 시도의
+  /// 결제 시트가 닫힌 뒤 관측된 종결)과, 스토어 큐에 정산 대상도 살아 있는
+  /// 결제도 없다는 실측(=그 시도가 돈을 남기지 않았다).
   ///
   /// 후보 산정은 [PurchaseCampaignAttemptRegistry.cancellationCandidates] 가
-  /// 한다 - 관측이 없거나, 시도가 그 관측보다 나중에 시작됐거나, 런치가
-  /// 아직 안 끝났거나, 실결제 트랜잭션이 묶여 있으면 후보가 아니다.
+  /// 한다 - 런치가 아직 안 끝났거나, 실결제 트랜잭션이 묶여 있거나, 플로
+  /// 종료 증명이 없으면 후보가 아니다. 특히 **사용자가 아직 그 상품의 Play
+  /// 결제 시트 안에 있으면 절대 후보가 되지 않는다** - Android 는 그 상태를
+  /// 큐로 증명할 수 없어 lifecycle 로 판정한다 (Sol 3차 재검증 #2).
   ///
   /// 조회가 실패하거나, 뭔가 남아 있거나, 결제가 진행 중이거나, 스윕이 그
   /// 자리에서 실결제를 정산했다면 아무것도 지우지 않는다 - `_canPurchase` 가
   /// 기존 안내로 막고 90초 안전망이 제 일을 한다.
   ///
-  /// 같은 시점에 여러 경로(구매 버튼, 식별자 없는 취소 이벤트)가 부를 수
-  /// 있으므로 단일 비행으로 묶어 스토어 왕복을 중복시키지 않는다.
+  /// 같은 시점에 여러 경로(구매 버튼, 런치 성공, 식별자 없는 취소 이벤트)가
+  /// 부를 수 있으므로 단일 비행으로 묶어 스토어 왕복을 중복시키지 않는다.
   Future<void> _reconcileCancelledAttempts() {
-    if (_purchaseAttempts.cancellationCandidates.isEmpty) {
+    if (_purchaseAttempts
+        .cancellationCandidates(isPaymentSheetClosed: _isPaymentSheetClosed)
+        .isEmpty) {
       return Future<void>.value();
     }
     return _cancelledAttemptReconcile ??= _runCancelledAttemptReconcile();
@@ -1189,6 +1208,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     try {
       final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
         attempts: _purchaseAttempts,
+        isPaymentSheetClosed: _isPaymentSheetClosed,
         verifyStoreQueueEmpty: _restoreHandler.verifyStoreQueueEmpty,
         isStillLive: () => mounted,
       );
@@ -1200,7 +1220,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         _launchLifecycle.clear(attempt.productId);
         logger.i(
           '🧹 취소된 시도 정리: ${attempt.productId} '
-          '(취소 관측 + 스토어 큐에 살아 있는 결제 없음)',
+          '(결제 플로 종료 증명 + 스토어 큐에 살아 있는 결제 없음)',
         );
       }
       // 정리된 상품의 버튼 스피너를 실제로 내리는 것은 이 리페인트다.
@@ -1291,6 +1311,19 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           ),
         ],
       );
+      // 이 런치가 성공했다 = 스토어가 이 플로를 받아들였다 = **이전 시도의
+      // 결제 플로는 끝났다**. 스토어는 동시에 하나의 결제 플로만 허용하므로
+      // 이건 추론이 아니라 스토어 자신의 증명이다. 취소 이벤트가 식별자
+      // 없이 도착했거나 아예 도착하지 않아 남아 있던 이전 시도의 스피너를
+      // 여기서 내린다 (증거 (b) - 원래 결함인 "A 취소 후 B 구매 시 A 스피너
+      // 잔존"의 이벤트 비의존 경로).
+      //
+      // 방금 런치한 이 시도는 지워지지 않는다: 자기 자신이 최신 런치라
+      // 증거 (b) 가 성립하지 않고, Android 는 지금 시트가 열려 있어 증거
+      // (a) 도 성립하지 않는다.
+      if (_currentlyProcessingIDs.isEmpty) {
+        unawaited(_reconcileCancelledAttempts());
+      }
     }
 
     await _safetyManager.handlePurchaseResult(
