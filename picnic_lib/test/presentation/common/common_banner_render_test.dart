@@ -442,12 +442,15 @@ void main() {
       expect(find.byType(CandyBoostBanner), findsOneWidget);
     });
 
-    testWidgets('refetch during the shimmer episode does not extend the cap', (
+    testWidgets(
+        'refetch without remount does not extend the cap in the same state', (
       tester,
     ) async {
-      // 상한은 "사용자가 shimmer 를 연속으로 본 시간"을 재므로, loading 중
-      // provider 재조회가 있어도 리셋되지 않는다 (riverpod 이 loading→loading
-      // 을 dedupe 해 위젯이 관측할 수도 없다).
+      // 같은 위젯 state 가 유지되는 동안의 보장이다: 상한은 "사용자가
+      // shimmer 를 연속으로 본 시간"을 재므로 loading 중 bare invalidate 가
+      // 있어도 리셋되지 않는다 (riverpod 이 loading→loading 을 dedupe 해
+      // 위젯이 관측할 수도 없다). pull-to-refresh 처럼 UniqueKey remount 를
+      // 동반하는 경로는 새 episode 다 — 아래 remount 테스트가 고정한다.
       await tester.pumpWidget(
         buildTestApp(
           const CommonBanner('vote_home', 16 / 9),
@@ -476,7 +479,9 @@ void main() {
       expect(find.text('단일 배너'), findsOneWidget);
     });
 
-    testWidgets('degrade persists across refetch until campaign data arrives', (
+    testWidgets(
+        'degrade persists across refetch in the same state until data arrives',
+        (
       tester,
     ) async {
       final completers = <Completer<ActivePromotionCampaignsModel>>[];
@@ -519,6 +524,51 @@ void main() {
       await tester.pump();
       drainExpectedImageErrors(tester);
       expect(find.byType(CandyBoostBanner), findsOneWidget);
+    });
+
+    testWidgets('pull-to-refresh remount starts a fresh cap episode', (
+      tester,
+    ) async {
+      // 실사용 refresh 경로(vote_home_page.dart:152, home_page.dart:83)는
+      // invalidate 직후 UniqueKey 로 CommonBanner 를 remount 한다. 새
+      // state 는 새 episode 로 full cap 을 다시 잰다 — 새로고침은 "다시
+      // 기다리겠다"는 명시적 의사표시이므로 의도된 동작으로 고정한다.
+      final pending = Completer<ActivePromotionCampaignsModel>();
+      final overrides = <dynamic>[
+        asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+        activePromotionCampaignProvider(
+          PromotionSurface.home,
+        ).overrideWith((ref) => pending.future),
+      ];
+      Widget app(Key bannerKey) => buildTestApp(
+        CommonBanner('vote_home', 16 / 9, key: bannerKey),
+        extraOverrides: overrides,
+      );
+
+      await tester.pumpWidget(app(const ValueKey('episode-1')));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 4));
+
+      // t=4s: 사용자 pull-to-refresh 재현 — invalidate + remount
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(CommonBanner)),
+      );
+      container.invalidate(
+        activePromotionCampaignProvider(PromotionSurface.home),
+      );
+      await tester.pumpWidget(app(const ValueKey('episode-2')));
+      await tester.pump();
+
+      // 구 episode 의 잔여 시간(1초)로는 degrade 하지 않는다
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(find.text('단일 배너'), findsNothing);
+
+      // remount 시점부터 full cap 이 지나면 degrade
+      await tester.pump(commonBannerCampaignWaitCap);
+      await tester.pump();
+      drainExpectedImageErrors(tester);
+      expect(find.text('단일 배너'), findsOneWidget);
     });
 
     testWidgets('campaign data before cap cancels the degrade task', (
