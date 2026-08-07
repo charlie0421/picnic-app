@@ -367,10 +367,20 @@ class InAppPurchaseService {
     });
   }
 
+  /// [onStoreLaunchStart] 는 스토어 결제 플로를 실제로 여는 호출
+  /// (`buyConsumable`/`buyNonConsumable`) **직전에** 동기적으로 불린다.
+  ///
+  /// 호출자가 "이 결제 시트에 대한 lifecycle 관찰"의 기준점을 잡는 자리다.
+  /// `makePurchase` 진입 시점이 아니라 여기여야 하는 이유는, 진입 이후에도
+  /// pending 조회(`_getPendingPurchasesForProduct`)라는 스토어 왕복이
+  /// 한 번 더 있고, 그 사이의 백그라운드 왕복까지 기준점 안에 들어오면
+  /// 시트가 뜨기도 전에 "시트가 열렸다 닫혔다"로 오판되기 때문이다
+  /// (Sol 5차 재검증 MAJOR).
   Future<bool> makePurchase(
     ProductDetails productDetails, {
     bool isConsumable = true,
     String? applicationUserName,
+    void Function()? onStoreLaunchStart,
   }) async {
     logger.i('🚀 즉시 구매 시작: ${productDetails.id} (${productDetails.price})');
 
@@ -457,6 +467,11 @@ class InAppPurchaseService {
       // 뒤에만 completePurchase()로 수행한다. 그래야 검증 실패/이벤트 유실
       // 시 구매가 Google에 남아 queryPastPurchases()로 복구할 수 있다.
       // iOS는 플러그인이 autoConsume=true를 강제한다(assert).
+      //
+      // 여기부터가 "스토어 결제 플로 런치"다 - 이 줄과 아래 호출 사이에는
+      // await 가 없으므로, 기준점 이후의 비전면 전이는 전부 이 결제 시트의
+      // 것이다.
+      onStoreLaunchStart?.call();
       final result = isConsumable
           ? await InAppPurchase.instance.buyConsumable(
               purchaseParam: purchaseParam,
