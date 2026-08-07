@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -391,6 +393,196 @@ void main() {
     mockedHandler.dispose();
     await tester.pump(const Duration(milliseconds: 150));
   });
+
+  /// 실기기 재현 (2026-08-07): 앱 설치 후 **처음** 구매를 눌렀는데
+  /// "초기화 중입니다. 잠시 후 다시 시도해주세요"가 뜬다.
+  ///
+  /// 구매 버튼은 `_isInitializing` 동안 아예 비활성이므로 이 문구가 실제로
+  /// 나오는 곳은 `_processPurchase` 의 `isProactiveCleanupCompleted` 가드뿐인데,
+  /// 그 플래그는 화면 진입 시 스윕 **한 번**의 결과를 그대로 래치한다. 그때
+  /// 검증에 실패하는 정상적인 이유가 여럿 있다 - 스토어 화면은 비로그인으로도
+  /// 열리므로 진입 스윕이 notSignedIn 으로 끝나고(로그인은 구매 버튼을 눌러야
+  /// 뜬다), 부팅 직후 조회 실패(failed), 콜드스타트 스윕과의 경합
+  /// (concurrent 3회 포기)도 있다. 래치되면 안내문이 약속하는 "잠시 후 다시
+  /// 시도"가 실제로는 아무 일도 하지 않아, 사용자는 화면을 나갔다 다시
+  /// 들어오기 전까지 영구히 구매가 막힌다.
+  group('purchase gate re-verification', () {
+    Future<_ScriptedPurchaseService> buildScripted(WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: Consumer(
+            builder: (context, ref, _) {
+              capturedContext = context;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      return _ScriptedPurchaseService(
+        container: ProviderScope.containerOf(capturedContext, listen: false),
+        inAppPurchaseService: _FakePlugin(),
+        receiptVerificationService: _FakeVerification(),
+        analyticsService: AnalyticsService(),
+        duplicatePreventionService: DuplicatePreventionService.forContainer(
+          ProviderScope.containerOf(capturedContext, listen: false),
+        ),
+        onPurchaseUpdate: (_) {},
+        unfinishedPurchaseSource:
+            _FakeUnfinishedSource(const UnfinishedPurchaseScan()),
+        sweepOnStart: false,
+      );
+    }
+
+    testWidgets(
+        'a store entered before sign-in re-opens the gate on the next '
+        'purchase attempt instead of blocking it forever', (tester) async {
+      final scripted = await buildScripted(tester);
+      scripted
+        ..scriptedOutcome = PurchaseSweepOutcome.notSignedIn
+        ..scriptedFound = 1
+        ..scriptedPreserved = 1;
+
+      final handler = RestorePurchaseHandler(
+        purchaseService: scripted,
+        loadingKey: GlobalKey<LoadingOverlayWithIconState>(),
+        context: capturedContext,
+      );
+
+      await handler
+          .performProactiveCleanup()
+          .timeout(const Duration(seconds: 2));
+      expect(
+        handler.isProactiveCleanupCompleted,
+        isFalse,
+        reason: 'entering the store signed out cannot verify the queue',
+      );
+
+      // 사용자가 구매를 눌러 로그인 다이얼로그를 거쳐 로그인했고, 이제 큐를
+      // 실제로 확인할 수 있다.
+      scripted
+        ..scriptedOutcome = PurchaseSweepOutcome.completed
+        ..scriptedFound = 0
+        ..scriptedPreserved = 0;
+
+      late bool verified;
+      await tester.runAsync(() async {
+        verified = await handler.ensureProactiveCleanupCompleted();
+      });
+
+      expect(verified, isTrue);
+      expect(
+        handler.isProactiveCleanupCompleted,
+        isTrue,
+        reason: 'the gate must be re-checkable, not a write-once latch - '
+            'otherwise "please try again in a moment" is a lie and the user '
+            'has to leave and re-enter the store to buy anything',
+      );
+
+      handler.dispose();
+      await tester.pump(const Duration(milliseconds: 150));
+    });
+
+    testWidgets(
+        'a re-check that still cannot verify the queue keeps the gate shut',
+        (tester) async {
+      final scripted = await buildScripted(tester);
+      scripted.scriptedOutcome = PurchaseSweepOutcome.failed;
+
+      final handler = RestorePurchaseHandler(
+        purchaseService: scripted,
+        loadingKey: GlobalKey<LoadingOverlayWithIconState>(),
+        context: capturedContext,
+      );
+
+      await handler
+          .performProactiveCleanup()
+          .timeout(const Duration(seconds: 2));
+
+      late bool verified;
+      await tester.runAsync(() async {
+        verified = await handler.ensureProactiveCleanupCompleted();
+      });
+
+      expect(verified, isFalse);
+      expect(
+        handler.isProactiveCleanupCompleted,
+        isFalse,
+        reason: '"could not check" is still not "checked and safe" - the '
+            're-check must not become a way around the double-charge guard',
+      );
+
+      handler.dispose();
+      await tester.pump(const Duration(milliseconds: 150));
+    });
+
+    testWidgets('an already-open gate costs no extra store round trip',
+        (tester) async {
+      final scripted = await buildScripted(tester);
+      scripted.scriptedOutcome = PurchaseSweepOutcome.completed;
+
+      final handler = RestorePurchaseHandler(
+        purchaseService: scripted,
+        loadingKey: GlobalKey<LoadingOverlayWithIconState>(),
+        context: capturedContext,
+      );
+
+      await handler
+          .performProactiveCleanup()
+          .timeout(const Duration(seconds: 2));
+      expect(handler.isProactiveCleanupCompleted, isTrue);
+      final sweepsAfterEntry = scripted.callCount;
+
+      late bool verified;
+      await tester.runAsync(() async {
+        verified = await handler.ensureProactiveCleanupCompleted();
+      });
+
+      expect(verified, isTrue);
+      expect(scripted.callCount, sweepsAfterEntry);
+
+      handler.dispose();
+      await tester.pump(const Duration(milliseconds: 150));
+    });
+
+    testWidgets('concurrent re-checks share one sweep', (tester) async {
+      final scripted = await buildScripted(tester);
+      scripted.scriptedOutcome = PurchaseSweepOutcome.failed;
+
+      final handler = RestorePurchaseHandler(
+        purchaseService: scripted,
+        loadingKey: GlobalKey<LoadingOverlayWithIconState>(),
+        context: capturedContext,
+      );
+
+      await handler
+          .performProactiveCleanup()
+          .timeout(const Duration(seconds: 2));
+      final sweepsAfterEntry = scripted.callCount;
+
+      await tester.runAsync(() async {
+        scripted
+          ..scriptedOutcome = PurchaseSweepOutcome.completed
+          ..gate = Completer<void>();
+
+        final first = handler.ensureProactiveCleanupCompleted();
+        final second = handler.ensureProactiveCleanupCompleted();
+        scripted.gate!.complete();
+
+        expect(await first, isTrue);
+        expect(await second, isTrue);
+      });
+
+      expect(
+        scripted.callCount - sweepsAfterEntry,
+        1,
+        reason: 'the store button and any other caller must not each fire '
+            'their own queue scan',
+      );
+
+      handler.dispose();
+      await tester.pump(const Duration(milliseconds: 150));
+    });
+  });
 }
 
 class _FakeUnfinishedSource implements UnfinishedPurchaseSource {
@@ -435,6 +627,10 @@ class _ScriptedPurchaseService extends PurchaseService {
 
   /// Carried on the scripted report when [scriptedOutcome] is set.
   int scriptedPreserved = 0;
+  int scriptedFound = 0;
+
+  /// Lets a test hold a sweep open, to prove concurrent callers share one.
+  Completer<void>? gate;
 
   @override
   Future<PurchaseSweepReport> sweepUnfinishedPurchases({
@@ -442,6 +638,7 @@ class _ScriptedPurchaseService extends PurchaseService {
     bool Function()? shouldAbort,
   }) async {
     callCount++;
+    await gate?.future;
     final outcome = scriptedOutcome ??
         (callCount < 3
             ? PurchaseSweepOutcome.concurrent
@@ -449,6 +646,7 @@ class _ScriptedPurchaseService extends PurchaseService {
     return PurchaseSweepReport(
       trigger: trigger,
       outcome: outcome,
+      found: scriptedOutcome == null ? 0 : scriptedFound,
       preserved: scriptedOutcome == null ? 0 : scriptedPreserved,
     );
   }

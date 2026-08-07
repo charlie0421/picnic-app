@@ -156,6 +156,39 @@ class RestorePurchaseHandler {
   /// 시점에 실제로도 스토어에 걸려있는지 확인할 때 쓴다.
   Future<bool> verifyStoreQueueClean() => _sweepUntilResolved();
 
+  /// 구매 게이트를 **지금** 다시 검증한다. 이미 열려 있으면 그대로 true.
+  ///
+  /// [isProactiveCleanupCompleted] 는 화면 진입 시 딱 한 번 계산되는데,
+  /// 그때 검증에 실패하는 정상적인 이유가 여럿 있다 - 로그인 전에 스토어를
+  /// 열어 두었거나(notSignedIn: 스토어 화면은 비로그인으로도 열리고, 구매
+  /// 버튼을 눌러야 로그인 다이얼로그가 뜬다), 부팅 직후라 스토어 조회가
+  /// 일시적으로 실패했거나(failed), 콜드스타트 스윕과 계속 경합했거나
+  /// (concurrent 3회 포기). 그 결과가 그대로 래치되면 안내 문구가 약속하는
+  /// "잠시 후 다시 시도해주세요"가 실제로는 아무 일도 하지 않는다 - 사용자는
+  /// 화면을 나갔다 다시 들어와 새 핸들러를 만들기 전까지 영구히 구매가
+  /// 막힌다 (iOS 첫 구매 시도에 "초기화 중입니다"가 뜨는 경로, 2026-08-07).
+  ///
+  /// 게이트는 단조롭다: 여기서 false → true 로만 바뀌고, 이미 열린 게이트를
+  /// 다시 닫지 않는다. 그리고 "확인하지 못했다"는 여전히 통과가 아니다 -
+  /// 미검증 상태로 구매를 열어 주던 옛 구멍은 그대로 막혀 있다.
+  Future<bool> ensureProactiveCleanupCompleted() {
+    if (_isProactiveCleanupCompleted) return Future.value(true);
+    return _revalidation ??= _revalidateProactiveCleanup();
+  }
+
+  Future<bool>? _revalidation;
+
+  Future<bool> _revalidateProactiveCleanup() async {
+    try {
+      final verified = await _sweepUntilResolved();
+      if (verified) _isProactiveCleanupCompleted = true;
+      logger.i('🛡️ 구매 게이트 재검증: ${verified ? '통과' : '여전히 미검증'}');
+      return verified;
+    } finally {
+      _revalidation = null;
+    }
+  }
+
   /// 펄스 로딩 표시
   void _showPulseLoading() {
     final platform = Theme.of(_context).platform;
