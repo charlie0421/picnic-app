@@ -25,10 +25,21 @@ class NetworkError implements Exception {
 class RetryHttpClient extends http.BaseClient {
   static const _streamCleanupTimeout = Duration(milliseconds: 100);
 
+  // Buffering the whole body doubles its memory cost (this buffer, then
+  // http's own BaseClient._sendUnstreamed buffers it again into a
+  // Response), so it must stay bounded. Banner/vote/community-list JSON
+  // responses that this retry path exists to protect are typically tens to
+  // a few hundred KB (PostgREST's default page size caps rows returned per
+  // call); 5 MiB leaves an order of magnitude of headroom for those while
+  // still bounding worst-case duplicated memory to ~10 MiB per in-flight
+  // request instead of unbounded growth on large exports/dumps.
+  static const int _defaultMaxBufferedResponseBytes = 5 * 1024 * 1024;
+
   final http.Client _inner;
   final int maxAttempts;
   final Duration timeout;
   final Duration keepAlive;
+  final int maxBufferedResponseBytes;
 
   // Connection pool 관리를 위한 변수들
   final Map<String, DateTime> _connectionPool = {};
@@ -40,6 +51,7 @@ class RetryHttpClient extends http.BaseClient {
     this.maxAttempts = 3,
     this.timeout = const Duration(seconds: 30),
     this.keepAlive = const Duration(seconds: 60),
+    this.maxBufferedResponseBytes = _defaultMaxBufferedResponseBytes,
   });
 
   Future<http.StreamedResponse> _sendAttempt(
@@ -68,10 +80,23 @@ class RetryHttpClient extends http.BaseClient {
     http.StreamedResponse response,
     Duration remaining,
   ) async {
+    final declaredLength = response.contentLength;
+    if (declaredLength != null && declaredLength > maxBufferedResponseBytes) {
+      // Content-Length already tells us this would blow the buffer cap;
+      // skip buffering entirely instead of reading into memory only to
+      // discard it a moment later. Same retry trade-off as the fallback
+      // below: a body failure on this response will not be retried.
+      return _copyStreamedResponse(
+        response,
+        _withDeadline(response.stream, remaining),
+      );
+    }
+
     final bytes = BytesBuilder(copy: false);
     final iterator = StreamIterator<List<int>>(response.stream);
     final stopwatch = Stopwatch()..start();
     var completed = false;
+    var overCap = false;
 
     try {
       while (true) {
@@ -88,12 +113,33 @@ class RetryHttpClient extends http.BaseClient {
           break;
         }
         bytes.add(iterator.current);
+        if (bytes.length > maxBufferedResponseBytes) {
+          overCap = true;
+          break;
+        }
       }
     } finally {
       stopwatch.stop();
-      if (!completed) {
+      if (!completed && !overCap) {
         await _cancelSafely(iterator.cancel);
       }
+    }
+
+    if (overCap) {
+      // The actual body turned out to exceed the cap even without a
+      // Content-Length hint (or Content-Length was absent/chunked). Fall
+      // back to streaming the rest of the body directly, replaying the
+      // bytes already read so nothing already consumed from `iterator` is
+      // lost. This request's body will NOT be retried on failure from here
+      // on -- that trade-off is intentional: re-issuing a multi-MB request
+      // to recover from a body error would double the memory/bandwidth
+      // cost this cap exists to avoid.
+      final prefix = bytes.takeBytes();
+      final timeLeft = remaining - stopwatch.elapsed;
+      return _copyStreamedResponse(
+        response,
+        _withDeadline(_prefixedStream(prefix, iterator), timeLeft),
+      );
     }
 
     final body = bytes.takeBytes();
@@ -107,6 +153,18 @@ class RetryHttpClient extends http.BaseClient {
       persistentConnection: response.persistentConnection,
       reasonPhrase: response.reasonPhrase,
     );
+  }
+
+  /// Replays [prefix] (bytes already consumed from [rest]) followed by
+  /// whatever [rest] yields next, without losing or duplicating any bytes.
+  Stream<List<int>> _prefixedStream(
+    List<int> prefix,
+    StreamIterator<List<int>> rest,
+  ) async* {
+    if (prefix.isNotEmpty) yield prefix;
+    while (await rest.moveNext()) {
+      yield rest.current;
+    }
   }
 
   bool _requiresStreamingResponse(
@@ -320,6 +378,7 @@ class RetryHttpClient extends http.BaseClient {
           );
         }),
         response.statusCode,
+        contentLength: response.contentLength,
         headers: response.headers,
         isRedirect: response.isRedirect,
         persistentConnection: response.persistentConnection,

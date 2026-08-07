@@ -145,6 +145,31 @@ class _FailingBodyThenSucceedClient extends http.BaseClient {
   }
 }
 
+/// A mock client that emits a fixed sequence of chunks, optionally throwing
+/// [thenError] after the last chunk, to test the buffer-cap fallback path.
+class _CountingChunkedClient extends http.BaseClient {
+  _CountingChunkedClient(this.chunks, {this.thenError});
+
+  final List<List<int>> chunks;
+  final Object? thenError;
+  int callCount = 0;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    callCount++;
+    return http.StreamedResponse(_stream(), 200, request: request);
+  }
+
+  Stream<List<int>> _stream() async* {
+    for (final chunk in chunks) {
+      yield chunk;
+    }
+    if (thenError != null) {
+      throw thenError!;
+    }
+  }
+}
+
 void main() {
   group('NetworkError', () {
     test('stores message and isRetryable', () {
@@ -653,6 +678,112 @@ void main() {
         expect(inner.callCount, 1);
         client.close();
       }
+    });
+  });
+
+  group('buffered response cap fallback', () {
+    http.Request makeGetRequest() =>
+        http.Request('GET', Uri.parse('https://example.com/big'));
+
+    test(
+        'responses at or under maxBufferedResponseBytes still buffer and '
+        'retry body failures', () async {
+      final inner = _FailingBodyThenSucceedClient();
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 2,
+        maxBufferedResponseBytes: 16,
+      );
+
+      final response =
+          await client.get(Uri.parse('https://example.com/small'));
+
+      expect(response.statusCode, 200);
+      expect(response.body, '{"ok": true}');
+      expect(inner.callCount, 2);
+      client.close();
+    });
+
+    test(
+        'streams and preserves already-read bytes when the response exceeds '
+        'maxBufferedResponseBytes', () async {
+      final chunkA = List<int>.generate(10, (i) => i);
+      final chunkB = List<int>.generate(10, (i) => 100 + i);
+      final inner = _CountingChunkedClient([chunkA, chunkB]);
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 3,
+        maxBufferedResponseBytes: 16,
+      );
+
+      final response = await client.send(makeGetRequest());
+      final body = await response.stream
+          .fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
+
+      expect(body, equals([...chunkA, ...chunkB]));
+      expect(inner.callCount, 1);
+      client.close();
+    });
+
+    test(
+        'does not retry a body failure once the response exceeded '
+        'maxBufferedResponseBytes', () async {
+      final chunkA = List<int>.generate(20, (i) => i);
+      final inner = _CountingChunkedClient(
+        [chunkA],
+        thenError: const SocketException('body broke after cap'),
+      );
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 3,
+        maxBufferedResponseBytes: 16,
+      );
+
+      final response = await client.send(makeGetRequest());
+
+      // The raw inner stream error is wrapped into a NetworkError by
+      // _sendWithTimeout before _bufferResponse ever sees it (see the
+      // `response.stream.handleError` in _sendWithTimeout), so the
+      // fallback stream surfaces a NetworkError here rather than the
+      // original SocketException. What matters for this test is that the
+      // error is NOT swallowed and retried -- callCount stays at 1.
+      await expectLater(
+        response.stream.drain<void>(),
+        throwsA(isA<NetworkError>()),
+      );
+      expect(inner.callCount, 1);
+      client.close();
+    });
+
+    test(
+        'a Content-Length already over the cap skips buffering even when '
+        'the actual bytes read stay small, so body failures do not retry',
+        () async {
+      final inner = _StubClient(
+        (req) async => http.StreamedResponse(
+          (() async* {
+            yield [1, 2, 3];
+            throw const SocketException('body broke');
+          })(),
+          200,
+          contentLength: 1000,
+          request: req,
+        ),
+      );
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 3,
+        maxBufferedResponseBytes: 16,
+      );
+
+      final response = await client.send(makeGetRequest());
+
+      await expectLater(
+        response.stream.drain<void>(),
+        throwsA(isA<NetworkError>()),
+      );
+      expect(inner.callCount, 1);
+      client.close();
     });
   });
 
