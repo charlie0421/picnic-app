@@ -151,10 +151,21 @@ class RestorePurchaseHandler {
   /// 큐를 실제로 다시 확인해 비어 있는지 검증한다.
   ///
   /// [performProactiveCleanup]과 같은 신호([_sweepUntilResolved])를
-  /// 재사용한다 - 예를 들어 거래ID 없는 취소/실패 이벤트 때문에 90초
-  /// 안전망까지 레지스트리에 남아있는 시도가, 재구매를 다시 시도하는
-  /// 시점에 실제로도 스토어에 걸려있는지 확인할 때 쓴다.
+  /// 재사용한다 - 구매 게이트와 같은 판정("정산되지 않은 채 남은 것이
+  /// 없는가")이 필요한 곳에서 쓴다. 스윕이 실결제를 발견해 그 자리에서
+  /// 정산했다면(found>0, settled>0, preserved==0) 이 요약은 true 다.
   Future<bool> verifyStoreQueueClean() => _sweepUntilResolved();
+
+  /// 큐가 **애초에 비어 있었는지** 검증한다 (found==0).
+  ///
+  /// [verifyStoreQueueClean] 보다 엄격하다. 남아 있는 시도를 정리해도 되는지
+  /// 판단할 때는 이쪽을 써야 한다 - "확인해보니 아무것도 없었다"와 "방금
+  /// 실결제를 찾아 정산했다"를 뭉개면, 돈이 오간 시도를 아무 안내 없이
+  /// 지워버린다 (Sol 머지 게이트 리뷰, PR #137 과 같은 근거).
+  Future<bool> verifyStoreQueueEmpty() async {
+    final report = await resolveStoreQueueSweep();
+    return report?.verifiedEmpty ?? false;
+  }
 
   /// 구매 게이트를 **지금** 다시 검증한다. 이미 열려 있으면 그대로 true.
   ///

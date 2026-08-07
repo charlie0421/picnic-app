@@ -41,6 +41,16 @@ class PurchaseCampaignAttemptRegistry {
   bool contains(String productId) =>
       _byProduct.containsKey(canonicalProductKey(productId));
 
+  /// 지금 등록돼 있는 모든 상품의 시도 **스냅샷**.
+  ///
+  /// 스냅샷인 것이 핵심이다 - [reconcileStaleAttemptsIfQueueEmpty] 는 스토어
+  /// 큐 조회(비동기)를 사이에 두고 이 목록을 지우므로, 조회가 도는 동안
+  /// 시작된 새 시도는 이 목록에 없어 절대 지워지지 않는다.
+  List<PurchaseCampaignAttempt> get activeAttempts =>
+      _byProduct.values.map((c) => c.attempt).toList(growable: false);
+
+  bool get isEmpty => _byProduct.isEmpty;
+
   bool begin(PurchaseCampaignAttempt attempt) =>
       _byProduct
           .putIfAbsent(
@@ -192,6 +202,49 @@ class PurchaseCampaignAttemptRegistry {
     _attemptByTransaction.remove(transactionId);
     return removeIfMatches(purchase.productID, attemptId);
   }
+}
+
+/// 스토어 큐가 **애초에 비어 있었을 때만** 남아 있는 모든 시도를 정리한다.
+///
+/// 거래ID 없는 취소/실패 이벤트(iOS 는 실패·취소 트랜잭션에 거의 항상
+/// transactionIdentifier 가 없고, Android Play Billing responseCode 3 은
+/// productID 까지 없다)는 어떤 시도의 것인지 증명할 수 없어 레지스트리를
+/// 건드리지 못한다 - 그 불변식은 여기서도 유지된다. 이 정리는 **이벤트를
+/// 귀속시키는 것이 아니라** 스토어 큐를 실측한 결과로만 판단한다: 큐에
+/// 아무것도 없었다면 어떤 상품에도 살아 있는 트랜잭션이 없다는 뜻이므로,
+/// 레지스트리에 남은 것은 UI 상태일 뿐이다.
+///
+/// 이전에는 이 정리가 **사용자가 누른 그 상품**에만 걸려 있었다. 그래서
+/// 상품 A 를 취소한 뒤 상품 B 를 사면 A 의 버튼이 90초 안전망이 울릴
+/// 때까지 로딩 스피너로 남았다 (실기기 재현, 2026-08-07).
+///
+/// [verifyStoreQueueEmpty] 는 "확인했고 비어 있었다"만 true 여야 한다.
+/// 스윕이 실결제를 발견해 그 자리에서 정산한 경우(found>0, settled>0)는
+/// false 여야 한다 - 그건 "아무 일도 없었다"가 아니라 "방금 돈이 오갔다"라서,
+/// 시도를 조용히 지우면 영수증도 안전망도 없이 사라진다.
+///
+/// 반환값은 실제로 지워진 시도들이다. 호출자가 상품별 후처리(안전망 타이머
+/// 해제, 런치 관찰 종료, 리페인트)를 한다.
+Future<List<PurchaseCampaignAttempt>> reconcileStaleAttemptsIfQueueEmpty({
+  required PurchaseCampaignAttemptRegistry attempts,
+  required Future<bool> Function() verifyStoreQueueEmpty,
+  bool Function()? isStillLive,
+}) async {
+  final snapshot = attempts.activeAttempts;
+  if (snapshot.isEmpty) return const [];
+
+  if (!await verifyStoreQueueEmpty()) return const [];
+  if (!(isStillLive?.call() ?? true)) return const [];
+
+  final cleared = <PurchaseCampaignAttempt>[];
+  for (final attempt in snapshot) {
+    // removeIfMatches: 조회가 도는 동안 같은 상품에서 새 시도가 시작됐다면
+    // attemptId 가 달라 지워지지 않는다.
+    if (attempts.removeIfMatches(attempt.productId, attempt.attemptId)) {
+      cleared.add(attempt);
+    }
+  }
+  return cleared;
 }
 
 /// The two receipt dialogs a settled purchase can be presented with.
