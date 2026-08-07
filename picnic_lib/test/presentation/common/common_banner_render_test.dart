@@ -9,6 +9,7 @@ import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/common/candy_boost_banner.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/custom_pagination.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -357,6 +358,33 @@ void main() {
       );
       await tester.pump();
       expect(find.text('단일 배너'), findsNothing);
+    });
+
+    testWidgets('banner image carries its rendered size for CDN resize', (
+      tester,
+    ) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const CommonBanner('pic_home', 16 / 9),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+          ],
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      drainExpectedImageErrors(tester);
+
+      final image = tester.widget<PicnicCachedNetworkImage>(
+        find.byType(PicnicCachedNetworkImage),
+      );
+      final expectedWidth = MediaQuery.of(
+        tester.element(find.byType(CommonBanner)),
+      ).size.width;
+      // width/height 가 null 이면 CDN URL 에 w/h 리사이즈 파라미터가 붙지 않아
+      // 원본 크기를 그대로 내려받는다 (_getTransformedUrl 참조).
+      expect(image.width, expectedWidth);
+      expect(image.height, expectedWidth / (16 / 9));
     });
 
     testWidgets('HOME campaign stuck past wait cap degrades to ordinary', (
