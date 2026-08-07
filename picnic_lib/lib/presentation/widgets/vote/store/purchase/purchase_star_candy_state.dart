@@ -201,13 +201,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           // **큐를 확인했고 애초에 아무것도 없었을 때만** 생략한다.
           final report = await _restoreHandler.resolveStoreQueueSweep();
           if (!mounted) return;
-          final verifiedEmpty =
-              report != null &&
-              report.outcome == PurchaseSweepOutcome.completed &&
-              report.scanError == null &&
-              report.found == 0 &&
-              report.preserved == 0;
-          if (verifiedEmpty) {
+          if (report?.verifiedEmpty ?? false) {
             logger.i(
               '[PurchaseStarCandyState] Safety timeout for $productId '
               'suppressed - identity-less cancellation observed, no '
@@ -495,6 +489,21 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         // 상태를 잘못 지우는 위험이 없다).
         _launchLifecycle.recordIdentitylessCancellation();
         if (mounted) _loadingKey.currentState?.hide();
+        // 이벤트로는 어느 시도의 것인지 증명할 수 없지만, 스토어 큐를 다시
+        // 조회하는 것은 증명이 된다 - 큐가 애초에 비어 있으면 살아 있는
+        // 트랜잭션이 하나도 없다는 뜻이라 남은 시도는 UI 상태일 뿐이다.
+        // 이걸 안 하면 취소한 상품의 버튼이 90초 안전망까지 스피너로 남고,
+        // 사용자가 다른 상품을 사도 그대로다 (실기기 재현, 2026-08-07).
+        // 이벤트 처리를 스토어 왕복만큼 지연시키지 않도록 기다리지 않는다.
+        //
+        // 단, 거래ID 있는 이벤트가 지금 처리 중이면(= 실결제가 정산되는
+        // 중이면) 미룬다. 스윕은 발견한 트랜잭션을 스스로 검증·정산하므로,
+        // 진행 중인 정산과 겹치면 영수증 다이얼로그를 띄우는 화면 경로 대신
+        // 무음으로 처리될 수 있다. 그 경우 정리는 다음 구매 버튼 누름이나
+        // 90초 안전망이 이어받는다.
+        if (_currentlyProcessingIDs.isEmpty) {
+          unawaited(_reconcileStaleAttemptsIfQueueEmpty());
+        }
         return;
       }
       logger.w(
@@ -994,7 +1003,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     final productId = serverProduct['id'] as String;
-    await _reconcileStaleAttemptIfQueueClean(productId);
+    await _reconcileStaleAttemptsIfQueueEmpty();
     if (!context.mounted) return;
 
     if (!_canPurchase(productId: productId)) {
@@ -1140,27 +1149,51 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   /// 거래ID 없는 취소/실패 이벤트(양쪽 플랫폼 다 흔하다 - iOS는
   /// transactionIdentifier가 실패/취소 트랜잭션엔 거의 항상 없고, Android
   /// Play Billing responseCode 3은 productID까지 없을 수 있다) 때문에 90초
-  /// 안전망까지 레지스트리에 남아있는 시도를, 사용자가 즉시 재구매를
-  /// 시도하면 "구매 진행 중"으로 막는 대신 정리를 시도한다.
+  /// 안전망까지 레지스트리에 남아있는 시도를, 스토어 큐를 실측해 정리한다.
   ///
-  /// 그냥 지우면 안 된다 - 그 시도가 실제로는 아직 스토어에 살아있는
-  /// 트랜잭션일 수 있다. [RestorePurchaseHandler.verifyStoreQueueClean]로
-  /// 큐를 직접 다시 조회해, 정말 아무것도 안 남았을 때만 정리한다. 조회
-  /// 자체가 실패하거나 뭔가 남아있으면 그대로 둬서 `_canPurchase`가 기존
-  /// 안내로 막게 한다.
-  Future<void> _reconcileStaleAttemptIfQueueClean(String productId) async {
-    final stale = _purchaseAttempts[productId];
-    if (stale == null) return;
+  /// **상품 하나가 아니라 남아 있는 시도 전부**를 본다. 예전에는 사용자가
+  /// 누른 그 상품만 봤고, 그래서 상품 A 를 취소한 뒤 상품 B 를 사면 A 의
+  /// 버튼(`_purchaseAttempts.contains(A)`)이 90초 안전망이 울릴 때까지
+  /// 로딩 스피너로 남았다 (실기기 재현, 2026-08-07). 취소 이벤트를 A 에
+  /// 귀속시키는 것이 아니다 - 그 불변식(식별자 없는 이벤트는 attempt 를
+  /// 지우지 못한다)은 그대로다. 판단 근거는 오직 "스토어 큐를 다시 조회해
+  /// 보니 애초에 아무것도 없었다"이고, 그렇다면 어떤 상품에도 살아 있는
+  /// 트랜잭션이 없다는 뜻이다.
+  ///
+  /// 조회가 실패하거나, 뭔가 남아 있거나, 스윕이 그 자리에서 실결제를
+  /// 정산했다면 아무것도 지우지 않는다 - `_canPurchase` 가 기존 안내로 막고
+  /// 90초 안전망이 제 일을 한다.
+  ///
+  /// 같은 시점에 여러 경로(구매 버튼, 식별자 없는 취소 이벤트)가 부를 수
+  /// 있으므로 단일 비행으로 묶어 스토어 왕복을 중복시키지 않는다.
+  Future<void> _reconcileStaleAttemptsIfQueueEmpty() {
+    if (_purchaseAttempts.isEmpty) return Future<void>.value();
+    return _staleAttemptReconcile ??= _runStaleAttemptReconcile();
+  }
 
-    final queueIsClean = await _restoreHandler.verifyStoreQueueClean();
-    if (!queueIsClean) return;
-    if (!mounted) return;
+  Future<void>? _staleAttemptReconcile;
 
-    if (_purchaseAttempts.removeIfMatches(productId, stale.attemptId)) {
-      _safetyManager.resetProductState(productId);
-      logger.i(
-        '🧹 재시도 시 남은 시도 정리: $productId (스토어 큐 확인됨)',
+  Future<void> _runStaleAttemptReconcile() async {
+    try {
+      final cleared = await reconcileStaleAttemptsIfQueueEmpty(
+        attempts: _purchaseAttempts,
+        verifyStoreQueueEmpty: _restoreHandler.verifyStoreQueueEmpty,
+        isStillLive: () => mounted,
       );
+      if (cleared.isEmpty) return;
+      for (final attempt in cleared) {
+        _safetyManager.resetProductState(attempt.productId);
+        // 타이머가 내려간 시도는 더 이상 타임아웃 문구 판정이 없다 - 관찰을
+        // 남겨 두면 다음 시도의 취소 억제 판정을 오염시킨다.
+        _launchLifecycle.clear(attempt.productId);
+        logger.i(
+          '🧹 남은 시도 정리: ${attempt.productId} (스토어 큐가 비어 있음을 확인)',
+        );
+      }
+      // 정리된 상품의 버튼 스피너를 실제로 내리는 것은 이 리페인트다.
+      if (mounted) setState(() {});
+    } finally {
+      _staleAttemptReconcile = null;
     }
   }
 

@@ -105,6 +105,19 @@ class PurchaseSweepReport {
 
   bool get ran => outcome == PurchaseSweepOutcome.completed;
 
+  /// 이 스윕이 **"큐를 확인했고 애초에 아무것도 없었다"** 를 증명하는가.
+  ///
+  /// [ran] 이나 `preserved == 0` 보다 엄격하다: `found > 0 && settled > 0 &&
+  /// preserved == 0` 인 스윕도 outcome 은 completed 지만, 그건 "비어 있었다"가
+  /// 아니라 "방금 실결제를 발견해 정산했다"이다. 두 사실을 뭉개면 실결제가
+  /// 있었던 시도를 "아무 일도 없었다"로 정리해 버린다 (Sol 머지 게이트 리뷰,
+  /// PR #137 - 90초 취소 억제 판정이 같은 이유로 리포트를 직접 본다).
+  bool get verifiedEmpty =>
+      outcome == PurchaseSweepOutcome.completed &&
+      scanError == null &&
+      found == 0 &&
+      preserved == 0;
+
   @override
   String toString() =>
       'PurchaseSweepReport(${trigger.name}, ${outcome.name}, '

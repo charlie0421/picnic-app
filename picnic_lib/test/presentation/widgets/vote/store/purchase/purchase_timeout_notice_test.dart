@@ -502,12 +502,9 @@ void main() {
         tracker.clear(productId);
         if (notice == PurchaseTimeoutNotice.suppressed) {
           final report = await resolveStoreQueueSweep();
-          final verifiedEmpty = report != null &&
-              report.outcome == PurchaseSweepOutcome.completed &&
-              report.scanError == null &&
-              report.found == 0 &&
-              report.preserved == 0;
-          if (verifiedEmpty) return;
+          // 프로덕션과 같은 술어를 쓴다 (PurchaseSweepReport.verifiedEmpty):
+          // "확인했고 애초에 비어 있었다"만 생략 사유다.
+          if (report?.verifiedEmpty ?? false) return;
           shownMessageKeyByProduct[productId ?? '<global>'] =
               'purchase_payment_accepted_message';
           return;

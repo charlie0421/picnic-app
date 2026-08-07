@@ -583,6 +583,110 @@ void main() {
       await tester.pump(const Duration(milliseconds: 150));
     });
   });
+
+  /// 남아 있는 시도를 정리해도 되는지의 판정은 "큐가 애초에 비어 있었는지"라서
+  /// 구매 게이트의 판정("정산 안 된 채 남은 것이 없는지")보다 엄격하다.
+  group('verifyStoreQueueEmpty', () {
+    testWidgets(
+        'is false when the sweep found and settled a real payment, even '
+        'though the purchase gate summary says clean', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: Consumer(
+            builder: (context, ref, _) {
+              capturedContext = context;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      final scripted = _ScriptedPurchaseService(
+        container: ProviderScope.containerOf(capturedContext, listen: false),
+        inAppPurchaseService: _FakePlugin(),
+        receiptVerificationService: _FakeVerification(),
+        analyticsService: AnalyticsService(),
+        duplicatePreventionService: DuplicatePreventionService.forContainer(
+          ProviderScope.containerOf(capturedContext, listen: false),
+        ),
+        onPurchaseUpdate: (_) {},
+        unfinishedPurchaseSource:
+            _FakeUnfinishedSource(const UnfinishedPurchaseScan()),
+        sweepOnStart: false,
+      )
+        ..scriptedOutcome = PurchaseSweepOutcome.completed
+        ..scriptedFound = 1
+        ..scriptedSettled = 1;
+
+      final handler = RestorePurchaseHandler(
+        purchaseService: scripted,
+        loadingKey: GlobalKey<LoadingOverlayWithIconState>(),
+        context: capturedContext,
+      );
+
+      late bool clean;
+      late bool empty;
+      await tester.runAsync(() async {
+        clean = await handler.verifyStoreQueueClean();
+        empty = await handler.verifyStoreQueueEmpty();
+      });
+
+      expect(clean, isTrue, reason: 'nothing is left unsettled');
+      expect(
+        empty,
+        isFalse,
+        reason: 'money just moved - an attempt cleared on this evidence '
+            'would lose both its receipt and its safety net',
+      );
+
+      handler.dispose();
+      await tester.pump(const Duration(milliseconds: 150));
+    });
+
+    testWidgets('is true only when the queue was empty to begin with',
+        (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: Consumer(
+            builder: (context, ref, _) {
+              capturedContext = context;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      final scripted = _ScriptedPurchaseService(
+        container: ProviderScope.containerOf(capturedContext, listen: false),
+        inAppPurchaseService: _FakePlugin(),
+        receiptVerificationService: _FakeVerification(),
+        analyticsService: AnalyticsService(),
+        duplicatePreventionService: DuplicatePreventionService.forContainer(
+          ProviderScope.containerOf(capturedContext, listen: false),
+        ),
+        onPurchaseUpdate: (_) {},
+        unfinishedPurchaseSource:
+            _FakeUnfinishedSource(const UnfinishedPurchaseScan()),
+        sweepOnStart: false,
+      )..scriptedOutcome = PurchaseSweepOutcome.completed;
+
+      final handler = RestorePurchaseHandler(
+        purchaseService: scripted,
+        loadingKey: GlobalKey<LoadingOverlayWithIconState>(),
+        context: capturedContext,
+      );
+
+      late bool empty;
+      await tester.runAsync(() async {
+        empty = await handler.verifyStoreQueueEmpty();
+      });
+
+      expect(empty, isTrue);
+
+      handler.dispose();
+      await tester.pump(const Duration(milliseconds: 150));
+    });
+  });
 }
 
 class _FakeUnfinishedSource implements UnfinishedPurchaseSource {
@@ -628,6 +732,7 @@ class _ScriptedPurchaseService extends PurchaseService {
   /// Carried on the scripted report when [scriptedOutcome] is set.
   int scriptedPreserved = 0;
   int scriptedFound = 0;
+  int scriptedSettled = 0;
 
   /// Lets a test hold a sweep open, to prove concurrent callers share one.
   Completer<void>? gate;
@@ -647,6 +752,7 @@ class _ScriptedPurchaseService extends PurchaseService {
       trigger: trigger,
       outcome: outcome,
       found: scriptedOutcome == null ? 0 : scriptedFound,
+      settled: scriptedOutcome == null ? 0 : scriptedSettled,
       preserved: scriptedOutcome == null ? 0 : scriptedPreserved,
     );
   }
