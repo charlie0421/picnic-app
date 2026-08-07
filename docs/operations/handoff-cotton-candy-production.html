@@ -75,10 +75,10 @@
 <h2>3. 절차 (런북)</h2>
 
 <h3>3.1 OTA 패치 발행</h3>
-<p>Codemagic 이 아니라 <b>로컬 <code>shorebird patch</code></b>. 워크트리 <code>/Users/charlie.hyun/Repositories/picnic-app-patch-130</code> 를 <code>origin/main</code> 으로 맞춘 뒤 <code>picnic_app/</code> 에서 실행한다. 플랫폼당 1회씩, <b>백그라운드로 돌리면 중단될 수 있으니 전경 실행 권장</b>.</p>
-<pre>git -C ~/Repositories/picnic-app-patch-130 fetch origin -q
-git -C ~/Repositories/picnic-app-patch-130 checkout -q origin/main --detach
-cd ~/Repositories/picnic-app-patch-130/picnic_app
+<p>Codemagic 이 아니라 <b>로컬 <code>shorebird patch</code></b>. 워크트리 <code>/Users/charlie.hyun/orca/workspaces/picnic-app/ota-patch</code> 를 <code>origin/main</code> 으로 맞춘 뒤 <code>picnic_app/</code> 에서 실행한다. 플랫폼당 1회씩, <b>백그라운드로 돌리면 중단될 수 있으니 전경 실행 권장</b>.</p>
+<pre>git -C ~/orca/workspaces/picnic-app/ota-patch fetch origin -q
+git -C ~/orca/workspaces/picnic-app/ota-patch reset --hard origin/main -q
+cd ~/orca/workspaces/picnic-app/ota-patch/picnic_app
 
 # 프로덕션
 shorebird patch android --release-version=1.3.0+130000 \
