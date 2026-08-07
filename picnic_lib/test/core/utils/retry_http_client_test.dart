@@ -142,15 +142,16 @@ void main() {
     // - Exceptions with "connection" in toString -> NetworkError
     // - All other exceptions -> ClientException
     //
-    // _shouldRetry returns true for: SocketException, TimeoutException,
-    // ClientException, or string-matching on connection closed/reset,
-    // broken pipe, before full header, content size exceeds.
+    // _shouldRetry returns true for: NetworkError with isRetryable,
+    // SocketException, TimeoutException, ClientException, or string-matching
+    // on connection closed/reset, broken pipe, before full header,
+    // content size exceeds.
 
     http.Request makeGetRequest() =>
         http.Request('GET', Uri.parse('https://example.com/test'));
 
-    test('SocketException is wrapped to NetworkError and does not retry '
-        '(NetworkError is not in _shouldRetry type checks)', () async {
+    test('SocketException is wrapped to NetworkError and still retries',
+        () async {
       final inner = _FailingClient(
         const SocketException('Connection refused'),
       );
@@ -158,13 +159,48 @@ void main() {
 
       final response = await client.send(makeGetRequest());
 
-      // SocketException -> NetworkError("Network connection error: ...") ->
-      // NetworkError is not SocketException/TimeoutException/ClientException,
-      // and toString doesn't match any string patterns -> no retry
-      expect(inner.callCount, equals(1));
+      // SocketException -> NetworkError(isRetryable: true) ->
+      // _shouldRetry honours the flag -> all attempts are used.
+      expect(inner.callCount, equals(3));
       expect(response.statusCode, equals(500));
       client.close();
     });
+
+    test('cold-start DNS failure retries instead of failing on first attempt',
+        () async {
+      // The regression this guards: on a cold start the first Supabase
+      // request can hit "Failed host lookup" before DNS is warm. That message
+      // matches none of the string patterns below, so before NetworkError was
+      // recognised it fell straight through to the synthetic 500 and the home
+      // banner rendered an error view instead of retrying.
+      final inner = _FailingClient(
+        const SocketException(
+          "Failed host lookup: 'xtijtefcycoeqludlngc.supabase.co'",
+        ),
+      );
+      final client = RetryHttpClient(inner, maxAttempts: 3);
+
+      final response = await client.send(makeGetRequest());
+
+      expect(inner.callCount, equals(3));
+      expect(response.statusCode, equals(500));
+      client.close();
+    });
+
+    test('cold-start DNS failure recovers once the lookup succeeds', () async {
+      final inner = _FailThenSucceedClient(
+        const SocketException("Failed host lookup: 'example.com'"),
+        failCount: 1,
+      );
+      final client = RetryHttpClient(inner, maxAttempts: 3);
+
+      final response = await client.send(makeGetRequest());
+
+      expect(inner.callCount, equals(2));
+      expect(response.statusCode, equals(200));
+      client.close();
+    });
+
 
     test('retries on TimeoutException (rethrown as-is by _sendWithTimeout)',
         () async {
