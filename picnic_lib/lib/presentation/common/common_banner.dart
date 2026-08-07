@@ -234,6 +234,11 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
             lazyLoadingStrategy: LazyLoadingStrategy.none, // 베너는 즉시 로딩
             timeout: const Duration(seconds: 12), // 베너는 조금 더 긴 타임아웃
             maxRetries: 3, // 베너는 더 많은 재시도
+            // width/height 는 논리 픽셀 렌더 크기 — 없으면 CDN URL 에 w/h
+            // 리사이즈 파라미터가 붙지 않아 원본 크기를 그대로 내려받는다.
+            // DPR 보정은 위젯 내부(resolutionMultiplier)에서 곱해진다.
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.width / widget.aspectRatio,
             // 베너 크기에 맞는 메모리 캐시 설정
             memCacheWidth: MediaQuery.of(context).size.width.toInt(),
             memCacheHeight:
