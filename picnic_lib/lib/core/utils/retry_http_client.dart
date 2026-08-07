@@ -15,30 +15,21 @@ class NetworkError implements Exception {
 
   @override
   String toString() => 'NetworkError: $message';
-
-  static bool isRetryableError(String message) {
-    return !message.contains('content size exceeds') &&
-        !message.contains('connection closed') &&
-        !message.contains('connection reset');
-  }
 }
 
 class RetryHttpClient extends http.BaseClient {
   final http.Client _inner;
   final int maxAttempts;
   final Duration timeout;
-  final Duration keepAlive;
+  final Duration bodyInactivityTimeout;
 
-  // Connection pool 관리를 위한 변수들
-  final Map<String, DateTime> _connectionPool = {};
-  final Duration _connectionMaxAge = Duration(minutes: 5);
   final Random _random = Random();
 
   RetryHttpClient(
     this._inner, {
     this.maxAttempts = 3,
     this.timeout = const Duration(seconds: 30),
-    this.keepAlive = const Duration(seconds: 60),
+    this.bodyInactivityTimeout = const Duration(seconds: 30),
   });
 
   // postgrest 2.6.0/2.7.0 dereferences `response.request!.method` in
@@ -153,32 +144,8 @@ class RetryHttpClient extends http.BaseClient {
           logger.d('Request attempt $attempt/$maxAttempts to ${request.url}');
         }
 
-        final hostKey = request.url.host;
-        _cleanupOldConnections();
-
-        if (_connectionPool.containsKey(hostKey)) {
-          final lastUsed = _connectionPool[hostKey]!;
-          if (DateTime.now().difference(lastUsed) > _connectionMaxAge) {
-            _resetConnection(hostKey);
-          }
-        }
-
         final copiedRequest = await _copyRequest(request);
-
-        try {
-          final response = await _sendWithTimeout(copiedRequest);
-
-          // 성공적인 응답 처리 - 연결 풀 업데이트
-          _connectionPool[hostKey] = DateTime.now();
-
-          return response;
-        } catch (e) {
-          // 네트워크 오류 발생 시 연결 리셋
-          if (_shouldResetConnection(e as Exception)) {
-            _resetConnection(hostKey);
-          }
-          rethrow;
-        }
+        return await _sendWithTimeout(copiedRequest);
       } catch (e) {
         lastException = e is Exception ? e : Exception(e.toString());
 
@@ -201,17 +168,6 @@ class RetryHttpClient extends http.BaseClient {
     return _createErrorResponse(lastException, request);
   }
 
-  void _cleanupOldConnections() {
-    final now = DateTime.now();
-    _connectionPool.removeWhere(
-      (_, timestamp) => now.difference(timestamp) > _connectionMaxAge,
-    );
-  }
-
-  void _resetConnection(String hostKey) {
-    _connectionPool.remove(hostKey);
-  }
-
   Future<http.StreamedResponse> _sendWithTimeout(
     http.BaseRequest request,
   ) async {
@@ -232,7 +188,20 @@ class RetryHttpClient extends http.BaseClient {
             },
           );
 
-      // 안전한 응답 처리
+      // 안전한 응답 처리.
+      //
+      // `timeout` 은 헤더 수신(_inner.send)까지만 감싼다. 헤더 이후 본문이
+      // 멈추면 Response.fromStream 이 영원히 완료되지 않아 provider 가
+      // loading 에 갇힌다. 그래서 본문 스트림에는 별도의 inactivity 예산을
+      // 건다: 마지막 바이트 이후 bodyInactivityTimeout 동안 아무 데이터도
+      // 오지 않을 때만 실패한다. 총 소요시간 상한이 아니므로 바이트가 계속
+      // 흐르는 느린 회선은 실패하지 않는다. Stream.timeout 은 이벤트마다
+      // 타이머를 리셋하고, sink.close() 로 하류가 done 을 받으면 원본
+      // 구독과 타이머가 함께 정리된다.
+      //
+      // 이 시점에 send() 는 이미 반환된 뒤라 본문 타임아웃 에러는 재시도
+      // 루프를 다시 타지 않는다. 특히 비멱등(결제) 요청이 본문 스톨로
+      // 재전송되는 일은 구조적으로 불가능하다.
       return http.StreamedResponse(
         response.stream.handleError((error, stackTrace) {
           logger.e(
@@ -244,7 +213,23 @@ class RetryHttpClient extends http.BaseClient {
             'Stream processing error: $error',
             isRetryable: true,
           );
-        }),
+        }).timeout(
+          bodyInactivityTimeout,
+          onTimeout: (sink) {
+            logger.e(
+              'Response body stalled: no data for '
+              '${bodyInactivityTimeout.inSeconds}s from ${request.url}',
+            );
+            sink.addError(
+              NetworkError(
+                'Response body timed out after '
+                '${bodyInactivityTimeout.inSeconds}s of inactivity',
+                isRetryable: true,
+              ),
+            );
+            sink.close();
+          },
+        ),
         response.statusCode,
         headers: response.headers,
         isRedirect: response.isRedirect,
@@ -318,14 +303,14 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
     }
 
     final errorString = error.toString().toLowerCase();
+    // 'content size exceeds' 는 재시도 대상이 맞다: 통신사 프록시의
+    // Android gzip/Content-Length 불일치는 연결 종속적이라 새 연결로
+    // 재시도하면 대개 복구된다.
     return errorString.contains('connection closed') ||
         errorString.contains('connection reset') ||
         errorString.contains('broken pipe') ||
         errorString.contains('before full header was received') ||
-        errorString.contains('content size exceeds') ||
-        (error is HttpException &&
-            (errorString.contains('connection closed') ||
-                errorString.contains('connection reset')));
+        errorString.contains('content size exceeds');
   }
 
   bool _isIdempotent(String method) {
@@ -360,15 +345,7 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
 
   @override
   void close() {
-    _connectionPool.clear();
     _inner.close();
     super.close();
-  }
-
-  bool _shouldResetConnection(Exception error) {
-    final errorMessage = error.toString().toLowerCase();
-    return errorMessage.contains('connection') ||
-        errorMessage.contains('timeout') ||
-        errorMessage.contains('network');
   }
 }
