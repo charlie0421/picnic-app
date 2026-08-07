@@ -8,6 +8,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../generated/providers/ad_reward_recovery_provider.g.dart';
 
+/// Foreground ladder used right after the user finishes watching an ad, while
+/// the server-side grant callback lands. Six reads spread over 30 seconds.
 const adRewardPollDelays = [
   Duration(seconds: 1),
   Duration(seconds: 2),
@@ -15,6 +17,18 @@ const adRewardPollDelays = [
   Duration(seconds: 8),
   Duration(seconds: 15),
 ];
+
+/// Startup/resume reconciliation reads every reference exactly once.
+///
+/// Recovery used to replay [adRewardPollDelays]. That made the sweep a 30
+/// second wait, and because a reference the server never resolves is never
+/// removed from `pending_ad_rewards_v1` (only a successful acknowledgement
+/// deletes it), the same 30 seconds were paid again on every cold start and
+/// every foreground - which is what kept `ad_reward_pending` on screen. A
+/// sweep has no user action to wait out: it reads the current state, hands
+/// anything terminal to the dialog queue, and lets the next launch/resume
+/// pick up whatever was still pending.
+const adRewardRecoveryPollDelays = <Duration>[];
 
 typedef AdRewardDelay = Future<void> Function(Duration duration);
 typedef AdRewardOwnerReader = String? Function();
@@ -141,7 +155,7 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     state = state.copyWith(references: unique.values.toList(growable: false));
     await Future.wait<void>([
       for (final reference in unique.values)
-        _pollForOwner(ownerUserId, reference, generation),
+        _pollForOwner(ownerUserId, reference, generation, interactive: false),
     ]);
   }
 
@@ -155,7 +169,7 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     if (!state.references.any((value) => _key(ownerUserId, value) == key)) {
       state = state.copyWith(references: [...state.references, reference]);
     }
-    await _pollForOwner(ownerUserId, reference, generation);
+    await _pollForOwner(ownerUserId, reference, generation, interactive: true);
   }
 
   Future<void> _resumeAcknowledgement(
@@ -179,21 +193,54 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     }
   }
 
-  Future<void> _pollForOwner(
+  /// Drops [reference] from the "checking your reward" set.
+  ///
+  /// Deliberately weaker than [_isCurrent]: it does not consult the auth
+  /// reader. That set is progress UI only - never a payout input - so a
+  /// transient `currentUser == null` (a token refresh landing mid-poll) must
+  /// not be able to pin the banner on screen for the rest of the session.
+  /// The generation and owner checks still keep one owner's teardown from
+  /// touching another owner's state.
+  void _stopChecking(
     String ownerUserId,
     AdRewardReference reference,
     int generation,
-  ) async {
+  ) {
+    if (generation != _generation || state.activeUserId != ownerUserId) return;
+    if (!state.checkingReferences.contains(reference)) return;
+    state = state.copyWith(
+      checkingReferences: {
+        for (final value in state.checkingReferences)
+          if (value != reference) value,
+      },
+    );
+  }
+
+  Future<void> _pollForOwner(
+    String ownerUserId,
+    AdRewardReference reference,
+    int generation, {
+    required bool interactive,
+  }) async {
     if (!_isCurrent(ownerUserId, generation)) return;
     final key = _key(ownerUserId, reference);
-    final pollToken = '$generation:$key';
+    // The mode is part of the token so a background sweep already in flight
+    // cannot swallow the foreground poll the user is actually waiting on.
+    // Duplicate `get_ad_reward_status` reads are harmless; `_queued` still
+    // admits the reference to the dialog queue exactly once.
+    final pollToken = '$generation:${interactive ? 'fg' : 'bg'}:$key';
     if (!_polling.add(pollToken)) return;
-    state = state.copyWith(
-      checkingReferences: {...state.checkingReferences, reference},
-    );
+    final delays = interactive
+        ? adRewardPollDelays
+        : adRewardRecoveryPollDelays;
+    if (interactive) {
+      state = state.copyWith(
+        checkingReferences: {...state.checkingReferences, reference},
+      );
+    }
     try {
       final repository = ref.read(adRewardRepositoryProvider);
-      for (var attempt = 0; attempt <= adRewardPollDelays.length; attempt++) {
+      for (var attempt = 0; attempt <= delays.length; attempt++) {
         final status = await repository.getStatus(reference);
         if (!_isCurrent(ownerUserId, generation)) return;
         if (status.reference != reference) {
@@ -214,21 +261,14 @@ class AdRewardRecovery extends _$AdRewardRecovery {
           }
           return;
         }
-        if (attempt < adRewardPollDelays.length) {
-          await ref.read(adRewardDelayProvider)(adRewardPollDelays[attempt]);
+        if (attempt < delays.length) {
+          await ref.read(adRewardDelayProvider)(delays[attempt]);
           if (!_isCurrent(ownerUserId, generation)) return;
         }
       }
     } finally {
       _polling.remove(pollToken);
-      if (_isCurrent(ownerUserId, generation)) {
-        state = state.copyWith(
-          checkingReferences: {
-            for (final value in state.checkingReferences)
-              if (value != reference) value,
-          },
-        );
-      }
+      if (interactive) _stopChecking(ownerUserId, reference, generation);
     }
   }
 

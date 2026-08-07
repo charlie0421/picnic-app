@@ -27,6 +27,7 @@ class _FakeRepository implements AdRewardApi {
   final server = <AdRewardStatusModel>[];
   final statuses = <AdRewardReference, List<AdRewardStatusModel>>{};
   final acknowledged = <AdRewardReference>[];
+  final reads = <AdRewardReference>[];
   final ackGates = <AdRewardReference, Completer<void>>{};
   final statusGates = <AdRewardReference, Completer<void>>{};
   final listGates = <Completer<void>>[];
@@ -34,6 +35,7 @@ class _FakeRepository implements AdRewardApi {
 
   @override
   Future<AdRewardStatusModel> getStatus(AdRewardReference reference) async {
+    reads.add(reference);
     final gate = statusGates[reference];
     if (gate != null) await gate.future;
     final values = statuses[reference]!;
@@ -150,15 +152,12 @@ void main() {
     addTearDown(container.dispose);
   });
 
-  test('unions local and server references and uses fixed backoff', () async {
+  test('unions local and server references and sweeps each once', () async {
     final local = _reference(1);
     final server = _reference(2);
     await store.add('user-a', local);
     repository.server.add(_status(server, AdRewardState.granted));
-    repository.statuses[local] = List.generate(
-      6,
-      (_) => _status(local, AdRewardState.pending),
-    );
+    repository.statuses[local] = [_status(local, AdRewardState.pending)];
     repository.statuses[server] = [_status(server, AdRewardState.granted)];
 
     await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
@@ -167,7 +166,11 @@ void main() {
       local,
       server,
     });
-    expect(delays, adRewardPollDelays);
+    // 시작/복귀 스윕은 광고 직후 폴링 사다리를 재생하지 않는다. 사다리를
+    // 재생하면 서버가 끝내 해소하지 않는 레퍼런스 하나가 실행/포그라운드마다
+    // 30초를 다시 태운다.
+    expect(delays, isEmpty);
+    expect(repository.reads, unorderedEquals(<AdRewardReference>[local, server]));
     expect(repository.acknowledged, isEmpty);
     expect(
       container
@@ -180,32 +183,108 @@ void main() {
     );
   });
 
-  test('terminal poll is not blocked by another reference delay', () async {
+  test('startup sweep never raises the checking banner', () async {
     final pending = _reference(1);
-    final terminal = _reference(2);
     final gate = Completer<void>();
     await store.add('user-a', pending);
-    repository.server.add(_status(terminal, AdRewardState.granted));
-    repository.statuses[pending] = List.generate(
-      6,
-      (_) => _status(pending, AdRewardState.pending),
-    );
-    repository.statuses[terminal] = [_status(terminal, AdRewardState.granted)];
-    delay = (_) => gate.future;
+    repository.statuses[pending] = [_status(pending, AdRewardState.pending)];
+    repository.statusGates[pending] = gate;
 
     final recovery = container
         .read(adRewardRecoveryProvider.notifier)
         .recover('user-a');
     await Future<void>.delayed(Duration.zero);
     await Future<void>.delayed(Duration.zero);
-    final state = container.read(adRewardRecoveryProvider);
-    expect(state.checkingReferences, contains(pending));
-    expect(
-      state.dialogQueue.map((value) => value.status.reference),
-      contains(terminal),
-    );
+    expect(container.read(adRewardRecoveryProvider).checkingReferences, isEmpty);
     gate.complete();
     await recovery;
+    expect(container.read(adRewardRecoveryProvider).checkingReferences, isEmpty);
+  });
+
+  test('a stuck reference costs one read per launch, not a ladder', () async {
+    final stuck = _reference(1);
+    await store.add('user-a', stuck);
+    repository.statuses[stuck] = [_status(stuck, AdRewardState.pending)];
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+
+    await notifier.recover('user-a');
+    await notifier.recover('user-a');
+
+    // 로컬 레코드는 그대로 남아 다음 실행에서도 다시 조회된다(보상 유실 없음).
+    expect((await store.readAll('user-a')).single.reference, stuck);
+    expect(repository.reads, [stuck, stuck]);
+    expect(delays, isEmpty);
+    expect(container.read(adRewardRecoveryProvider).checkingReferences, isEmpty);
+    expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+  });
+
+  test('post-ad poll shows the banner and replays the backoff ladder', () async {
+    final watched = _reference(1);
+    repository.statuses[watched] = List.generate(
+      6,
+      (_) => _status(watched, AdRewardState.pending),
+    );
+    final gate = Completer<void>();
+    delay = (duration) {
+      delays.add(duration);
+      return delays.length == 1 ? gate.future : Future<void>.value();
+    };
+
+    final polling = container
+        .read(adRewardRecoveryProvider.notifier)
+        .poll(ownerUserId: 'user-a', reference: watched);
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+    expect(
+      container.read(adRewardRecoveryProvider).checkingReferences,
+      contains(watched),
+    );
+    gate.complete();
+    await polling;
+    expect(delays, adRewardPollDelays);
+    expect(container.read(adRewardRecoveryProvider).checkingReferences, isEmpty);
+  });
+
+  test('a background sweep cannot swallow the post-ad poll', () async {
+    final watched = _reference(1);
+    final gate = Completer<void>();
+    await store.add('user-a', watched);
+    repository.statuses[watched] = [_status(watched, AdRewardState.pending)];
+    repository.statusGates[watched] = gate;
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+
+    final sweep = notifier.recover('user-a');
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+    final polling = notifier.poll(ownerUserId: 'user-a', reference: watched);
+    await Future<void>.delayed(Duration.zero);
+    expect(
+      container.read(adRewardRecoveryProvider).checkingReferences,
+      contains(watched),
+    );
+    gate.complete();
+    await sweep;
+    await polling;
+    expect(delays, adRewardPollDelays);
+    expect(container.read(adRewardRecoveryProvider).checkingReferences, isEmpty);
+  });
+
+  test('checking banner clears when the session read blips mid-poll', () async {
+    final watched = _reference(1);
+    repository.statuses[watched] = [_status(watched, AdRewardState.pending)];
+    delay = (duration) async {
+      delays.add(duration);
+      // 토큰 갱신이 폴링 중간에 착지하면서 currentUser 가 잠깐 비는 상황.
+      owner = null;
+    };
+
+    await container
+        .read(adRewardRecoveryProvider.notifier)
+        .poll(ownerUserId: 'user-a', reference: watched);
+
+    expect(delays, [adRewardPollDelays.first]);
+    expect(container.read(adRewardRecoveryProvider).activeUserId, 'user-a');
+    expect(container.read(adRewardRecoveryProvider).checkingReferences, isEmpty);
   });
 
   test(
