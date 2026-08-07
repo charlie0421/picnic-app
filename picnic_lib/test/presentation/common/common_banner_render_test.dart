@@ -442,6 +442,85 @@ void main() {
       expect(find.byType(CandyBoostBanner), findsOneWidget);
     });
 
+    testWidgets('refetch during the shimmer episode does not extend the cap', (
+      tester,
+    ) async {
+      // 상한은 "사용자가 shimmer 를 연속으로 본 시간"을 재므로, loading 중
+      // provider 재조회가 있어도 리셋되지 않는다 (riverpod 이 loading→loading
+      // 을 dedupe 해 위젯이 관측할 수도 없다).
+      await tester.pumpWidget(
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+            activePromotionCampaignProvider(PromotionSurface.home).overrideWith(
+              (ref) => Completer<ActivePromotionCampaignsModel>().future,
+            ),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 4));
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(CommonBanner)),
+      );
+      container.invalidate(
+        activePromotionCampaignProvider(PromotionSurface.home),
+      );
+      await tester.pump();
+
+      // 재조회와 무관하게 shimmer 누적 5초 시점에 degrade
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      drainExpectedImageErrors(tester);
+      expect(find.text('단일 배너'), findsOneWidget);
+    });
+
+    testWidgets('degrade persists across refetch until campaign data arrives', (
+      tester,
+    ) async {
+      final completers = <Completer<ActivePromotionCampaignsModel>>[];
+      await tester.pumpWidget(
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          locale: const Locale('en'),
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+            activePromotionCampaignProvider(PromotionSurface.home).overrideWith(
+              (ref) {
+                final completer = Completer<ActivePromotionCampaignsModel>();
+                completers.add(completer);
+                return completer.future;
+              },
+            ),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump(commonBannerCampaignWaitCap);
+      await tester.pump();
+      drainExpectedImageErrors(tester);
+      expect(find.text('단일 배너'), findsOneWidget); // 만료 -> degrade
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(CommonBanner)),
+      );
+      container.invalidate(
+        activePromotionCampaignProvider(PromotionSurface.home),
+      );
+      await tester.pump();
+      await tester.pump();
+      // 만료 뒤 재조회는 shimmer 로 돌아가지 않고 일반 슬라이드를 유지한다
+      expect(find.text('단일 배너'), findsOneWidget);
+
+      // 재조회 세대의 data 가 도착하면 캠페인 슬라이드로 복구된다
+      completers.last.complete(homeCampaign());
+      await tester.pump();
+      await tester.pump();
+      drainExpectedImageErrors(tester);
+      expect(find.byType(CandyBoostBanner), findsOneWidget);
+    });
+
     testWidgets('campaign data before cap cancels the degrade task', (
       tester,
     ) async {

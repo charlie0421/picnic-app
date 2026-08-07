@@ -279,6 +279,14 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         if (widget.location != 'vote_home') {
           return _renderSlides(_ordinarySlides(data));
         }
+        // 상한의 의미는 "쿼리 세대당 5초"가 아니라 "이 표면이 shimmer 를
+        // 연속으로 보여줄 수 있는 시간의 상한"이다. loading 중 provider 가
+        // invalidate 돼도 상한은 이어서 흐르고(사용자 대기 시간은 리셋되지
+        // 않으므로), 만료 뒤의 재조회는 shimmer 대신 일반 슬라이드를 즉시
+        // 보여준다. 만료 상태는 캠페인 data 가 도착하면 해제된다.
+        // (riverpod 은 loading→loading 재조회를 == 동등으로 dedupe 해 위젯에
+        // 통지하지 않고 .future 도 미완료 future 를 재사용하므로, 세대별
+        // 상한은 위젯 레벨에서 결정론적으로 구현할 수 없기도 하다.)
         return ref
             .watch(activePromotionCampaignProvider(PromotionSurface.home))
             .when(
