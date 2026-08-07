@@ -35,8 +35,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 ///
 /// 실제 프로덕션 배선과 동일하게 SupabaseClient(httpClient: RetryHttpClient)
 /// 를 사용한다. SupabaseClient 는 내부에서 AuthHttpClient 로 감싸므로 이
-/// 테스트는 postgrest/functions → AuthHttpClient → BaseClient._sendUnstreamed
-/// → RetryHttpClient.send() 라는 실경로를 그대로 지난다.
+/// 테스트가 지나는 실경로는
+///   FunctionsClient.send → AuthHttpClient.send → RetryHttpClient.send
+/// 이다 (functions_client 는 _httpClient.send(request) 를 직접 호출한다).
+/// 참고로 PostgREST 트래픽은 get/post 진입이라
+///   AuthHttpClient(BaseClient._sendUnstreamed) → AuthHttpClient.send
+///   → RetryHttpClient.send
+/// 로 합류한다 — 어느 쪽이든 RetryHttpClient 는 send() 로만 통과한다.
 Map<String, dynamic> _settlement({required bool replayed}) => {
       'contract_version': 'wallet.v1',
       'operation_id': '00000000-0000-4000-8000-000000000001',
