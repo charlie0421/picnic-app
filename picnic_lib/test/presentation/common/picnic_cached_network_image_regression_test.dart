@@ -729,20 +729,62 @@ void main() {
     // FileService.get() 을 호출해 다운로드를 시도한다. 즉 cacheKey 개수 == 캐시
     // 조회 횟수이고, 콜드 캐시에서는 캐시 조회 횟수 == 다운로드 시도 횟수다.
     //
-    // 실제 다운로드 시도를 mock FileService 로 직접 세는 시도도 해봤다:
-    // PicnicCachedNetworkImage 에 테스트 전용 CacheManager 주입 지점을 추가하고
-    // (cacheManager: null → testCacheManagerOverride), FileService.get() 을
-    // 가로채는 커스텀 CacheManager 를 주입했다. 그런데 이 위젯은 항상
-    // memCacheWidth/Height 를 넘기므로 cached_network_image 내부가 "리사이즈
-    // 하려면 cacheManager 가 ImageCacheManager 여야 한다" 고 단언해 일반
-    // CacheManager 는 FileService.get() 에 닿기도 전에 죽었고, `CacheManager
-    // with ImageCacheManager` 서브클래스로 바꾸자 이번엔 CacheManager 생성자가
-    // 내부적으로 만드는 CacheStore 가 path_provider 플랫폼 채널을 기다리며
-    // 테스트를 무한정 멈춰 세웠다(실제로 120초 넘게 응답 없이 걸려 백그라운드
-    // 프로세스를 강제 종료해야 했다) — 이 하네스에는 path_provider 목이 없다.
-    // path_provider 플랫폼 채널 목을 새로 도입하는 건 이 항목의 범위를 넘는
-    // 별도 작업이라고 판단해, 되돌리고 위 cacheKey 기반 불변식을 그대로
-    // 유지하기로 했다.
+    // 실제 다운로드 시도를 mock FileService 로 직접 세는 시도를 두 라운드
+    // 해봤다.
+    //
+    // 1라운드: PicnicCachedNetworkImage 에 테스트 전용 CacheManager 주입
+    // 지점을 프로덕션 코드에 추가했다(cacheManager: null → 새 static 필드).
+    // memCacheWidth/Height 를 항상 넘기는 이 위젯 특성상 cached_network_image
+    // 내부가 "리사이즈하려면 cacheManager 가 ImageCacheManager 여야 한다" 고
+    // 단언해 일반 CacheManager 는 FileService.get() 에 닿기도 전에 죽었고,
+    // `CacheManager with ImageCacheManager` 로 바꾸자 CacheManager 생성자가
+    // 내부적으로 만드는 기본 CacheStore(sqflite 기반)가 path_provider 플랫폼
+    // 채널을 기다리며 테스트를 무한정 멈춰 세웠다(실측 120초 초과, 백그라운드
+    // 프로세스 강제 종료). 프로덕션에 테스트 전용 seam 을 추가한 것도 잘못된
+    // 판단이어서 되돌렸다.
+    //
+    // 2라운드(재검증 지적 반영): 리뷰어가 프로덕션 seam 없이 되는 우회 경로를
+    // 제시했다 — flutter_cache_manager 의 `Config` 생성자가 공개적으로 받는
+    // `repo`(CacheInfoRepository)/`fileSystem`(FileSystem)/`fileService`
+    // (FileService) 세 인자를 전부 테스트 전용 가짜로 주입하고,
+    // `CachedNetworkImageProvider.defaultCacheManager` **설정자**(getter 는
+    // 절대 먼저 읽지 않는다 — 읽으면 그 getter 자체가 진짜
+    // DefaultCacheManager() 생성을 트리거해 같은 path_provider 문제를 다시
+    // 밟는다)로 테스트 쪽에서만 교체한다. 실제로 패키지 소스
+    // (~/.pub-cache 의 flutter_cache_manager-3.4.1, cached_network_image-3.4.1)
+    // 를 컴파일러 피드백으로 왕복 확인하며 검증했다:
+    //   - `Config('key', repo: ..., fileSystem: ..., fileService: ...)` 는
+    //     실제로 세 인자를 다 받는다(생성자 시그니처 확인됨).
+    //   - `CacheInfoRepository`/`FileSystem` 을 순수 인메모리로 구현하면(즉
+    //     기본 sqflite 백엔드/path_provider 를 완전히 우회하면) CacheManager
+    //     생성이 더 이상 hang 하지 않는다.
+    //   - `MaterialApp(home: Scaffold(body: CachedNetworkImage(...)))` 처럼
+    //     Riverpod 없는 최소 트리에서, `defaultCacheManager` 설정 → 위젯
+    //     pump → FileService.get() 이 **정확히 1회 호출됨을 실측**했다(raw
+    //     CachedNetworkImage, memCacheWidth/Height 포함 양쪽 다 확인).
+    // 즉 리뷰어의 우회 경로 자체는 **틀리지 않았다.**
+    //
+    // 그런데 이 정확한 메커니즘을 (a) 이 스위트의 표준 하네스인 buildTestApp,
+    // (b) PicnicCachedNetworkImage, (c) 심지어 **빈 overrides 의 순정
+    // ProviderScope** 어느 것과 조합해도 FileService.get() 이 전혀 호출되지
+    // 않았다(요청 0회, 예외도 없음 — 조용히 아무 일도 안 일어남). 변수를
+    // 하나씩 제거하며 격리했다: PicnicCachedNetworkImage → raw
+    // CachedNetworkImage 로 바꿔도 재현, buildTestApp → 손으로 편 동일 트리로
+    // 바꿔도 재현, ScreenUtilInit 유무 무관, setupMockSupabase 유무 무관,
+    // defaultProviderOverrides 내용물 무관(overrides: const [] 로 완전히
+    // 비워도 재현) — 남은 유일한 변수는 `ProviderScope` 그 자체였다.
+    // PicnicCachedNetworkImage 는 ConsumerStatefulWidget 이라 ProviderScope
+    // 없이는 애초에 테스트할 수 없다.
+    //
+    // 결론: **직접 계수는 이 하네스에서 원리적으로는 가능하지만
+    // (ProviderScope 없는 위젯에 대해 실제로 성공시켰다), Riverpod
+    // ProviderScope 와 결합하면(우리 위젯 테스트에 필수) 작동하지 않는다.**
+    // 왜 ProviderScope 가 이 특정 비동기 체인을 막는지는(Riverpod 의 자체
+    // zone/에러 핸들링이 flutter_cache_manager 내부 Future 체인과 상호작용하는
+    // 것으로 추정되나 확증하지 못했다) 이 항목의 범위를 넘는 별도 조사가
+    // 필요하다고 판단해 더 파고들지 않았다. 프로덕션 seam 은 여전히 추가하지
+    // 않는다(이미 되돌린 결정이 옳다는 재검증 피드백을 그대로 따른다) — 위
+    // cacheKey 기반 불변식을 대신 유지한다.
     testWidgets('medium complexity(300x300) 외부 URL 은 단일 요청만 만든다',
         (tester) async {
       const externalUrl =
