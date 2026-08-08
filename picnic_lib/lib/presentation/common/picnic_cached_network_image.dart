@@ -791,23 +791,37 @@ class _PicnicCachedNetworkImageState
     return ImageComplexity.high;
   }
 
-  /// [uri] 의 호스트가 CDN(Environment.cdnUrl 파생) 호스트와 일치하는지 판정한다.
+  /// [uri] 가 CDN(Environment.cdnUrl 파생) 과 같은 origin 인지 판정한다.
   ///
-  /// Environment.cdnUrl 은 앱마다 경로를 포함할 수 있다
-  /// (picnic_app `https://cdn.picnic.fan/picnic` vs ttja_app
-  /// `https://cdn.picnic.fan/ttja`). 경로가 아니라 **호스트만** 비교한다 — 같은
-  /// 호스트 뒤는 물리적으로 동일한 CloudFront + 커스텀 리사이저이므로 w/h/q 처리
-  /// 방식이 경로와 무관하게 같다. 경로까지 일치를 요구하면(prefix 비교) 같은 CDN
-  /// 호스트가 다른 스코프 경로로 절대 URL 을 내려줄 때 변환 대상에서 빠지는
-  /// 오탐이 생긴다.
+  /// scheme + host + port 를 모두 비교한다 — host 만 비교하면
+  /// `http://cdn.picnic.fan`(scheme 다름)이나 `cdn.picnic.fan:8443`(port
+  /// 다름)처럼 물리적으로 별개인 origin 도 CDN 으로 오판정된다. 실측된
+  /// 리사이저 계약은 **HTTPS 기본 포트 origin** 에 대해서만 확인됐다(2026-08-07)
+  /// — 그 범위를 벗어난 origin 에 w/h/q 를 적용하면 서명 URL
+  /// (`?X-Amz-Signature=`, `?token=` 등)의 서명이 깨지거나, CDN 이 아닌 다른
+  /// 서버가 우리 파라미터를 오해석할 수 있다.
   ///
-  /// Environment 가 아직 초기화되지 않았으면(runApp 이전 레이스, 또는 이 값을
-  /// 세팅하지 않은 테스트) CDN 여부를 판정할 수 없으므로 안전하게 false 를
-  /// 반환한다 — 어느 쪽인지 모를 때는 원본 URL 을 건드리지 않는 쪽이 안전하다.
+  /// `Uri.port` 는 scheme 이 http/https 처럼 알려진 스킴이면 명시 포트가 없어도
+  /// 기본 포트(https=443, http=80)를 돌려준다 — 즉 `https://a.b` 와
+  /// `https://a.b:443` 은 별도 정규화 없이 port 비교만으로 이미 같게 취급된다
+  /// (dart:core Uri 동작 확인됨).
+  ///
+  /// host 는 trailing dot(FQDN 표기, `cdn.picnic.fan.`)을 제거하고 비교한다.
+  /// DNS 상 같은 호스트를 문자열이 다르다는 이유로 CDN 이 아니라고 판정하면
+  /// 얻는 안전 이득 없이 원본 대용량 이미지를 그대로 받게 된다. 반대 방향
+  /// 오탐(= CDN 이 아닌 host 가 trailing dot 때문에 CDN 으로 오판정)은 없다 —
+  /// dot 을 뗀 뒤에도 host 문자열 자체가 같아야 매치되기 때문이다.
   bool _isCdnUrl(Uri uri) {
     if (!Environment.isInitialized) return false;
-    final cdnHost = Uri.parse(Environment.cdnUrl).host.toLowerCase();
-    return uri.host.toLowerCase() == cdnHost;
+    final cdnUri = Uri.parse(Environment.cdnUrl);
+    return uri.scheme.toLowerCase() == cdnUri.scheme.toLowerCase() &&
+        _normalizeHost(uri.host) == _normalizeHost(cdnUri.host) &&
+        uri.port == cdnUri.port;
+  }
+
+  String _normalizeHost(String host) {
+    final lower = host.toLowerCase();
+    return lower.endsWith('.') ? lower.substring(0, lower.length - 1) : lower;
   }
 
   /// CDN(cdn.picnic.fan, CloudFront + 커스텀 리사이저) 변환 URL을 만든다.

@@ -406,6 +406,118 @@ void main() {
     });
   });
 
+  group('CDN 판정은 host 뿐 아니라 origin(scheme+host+port) 전체를 본다', () {
+    // 배경: host 문자열만 비교하면 scheme 이나 port 가 다른 별개 origin 도 CDN
+    // 으로 오판정된다. 실측된 리사이저 계약은 HTTPS 기본 포트 origin
+    // (test_environment.dart 의 cdn_url = https://test-cdn.example.com,
+    // 포트 미표기 = 443) 에 대해서만 확인됐다 — 그 범위를 벗어난 origin 에
+    // w/h/q 를 적용하면 서명 URL(`?X-Amz-Signature=`, `?token=`)의 서명이
+    // 깨지거나, 실은 CDN이 아닌 다른 서버가 우리 파라미터를 오해석할 수 있다.
+    testWidgets('scheme 이 다르면(http vs CDN 의 https) CDN 으로 보지 않는다',
+        (tester) async {
+      const externalUrl = 'http://test-cdn.example.com/img.jpg?sig=abc';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          externalUrl,
+          reason: 'CDN 과 host 는 같아도 scheme(http)이 다르면 별개 origin 이다 — '
+              '쿼리를 건드리면 안 된다: ${img.imageUrl}',
+        );
+      }
+    });
+
+    testWidgets('port 가 다르면(CDN 의 기본 443 이 아님) CDN 으로 보지 않는다',
+        (tester) async {
+      const externalUrl = 'https://test-cdn.example.com:8443/img.jpg?sig=abc';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          externalUrl,
+          reason: 'CDN 과 host/scheme 이 같아도 port(8443)가 다르면 별개 origin '
+              '이다 — 쿼리를 건드리면 안 된다: ${img.imageUrl}',
+        );
+      }
+    });
+
+    testWidgets('CDN 의 기본 포트를 명시해도(:443) 여전히 CDN 으로 본다',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com:443/artist/1.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+
+    testWidgets('CDN 호스트에 trailing dot(FQDN)이 붙어도 CDN 으로 본다',
+        (tester) async {
+      // 정책 결정: trailing dot(`cdn.picnic.fan.`)은 DNS 상 같은 호스트를
+      // 가리키는 표기일 뿐이다. 문자열이 다르다는 이유로 CDN이 아니라고
+      // 판정하면 얻는 안전 이득 없이 원본 대용량 이미지를 그대로 받게 되므로,
+      // 정규화해서 CDN 으로 인정한다. (반대 방향 오탐 — CDN이 아닌 host가
+      // trailing dot 때문에 CDN으로 오판정되는 경우는 없다. host 문자열 자체가
+      // 여전히 같아야 하기 때문이다.)
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com./artist/1.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+  });
+
   group('imageUrl 이 바뀔 때 (리스트 셀 재활용)', () {
     testWidgets('새 URL 로 렌더링해야 한다 (이전 URL 캐시를 버려야 함)', (tester) async {
       await tester.pumpWidget(
