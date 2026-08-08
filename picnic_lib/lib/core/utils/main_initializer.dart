@@ -89,12 +89,11 @@ class MainInitializer {
         group1.add(Firebase.initializeApp(options: firebaseOptions));
       }
       if (UniversalPlatform.isMobile) {
-        group1.add(AppInitializer.initializeWebP());
         group1.add(AppInitializer.initializeTimezone());
         group1.add(AppInitializer.initializePrivacyConsent());
       }
       await Future.wait(group1);
-      logger.i('SDK Group 1 초기화 완료 (Supabase, Firebase, WebP, Timezone, Privacy)');
+      logger.i('SDK Group 1 초기화 완료 (Supabase, Firebase, Timezone, Privacy)');
 
       // Supabase 헬스체크 (개발 환경에서만)
       if (kDebugMode) {
