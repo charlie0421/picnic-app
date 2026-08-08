@@ -206,7 +206,7 @@ void main() {
               for (int i = 0; i < 10; i++)
                 PicnicCachedNetworkImage(
                   key: ValueKey('res$i'),
-                  imageUrl: 'https://example.com/res$i.jpg',
+                  imageUrl: 'https://test-cdn.example.com/res$i.jpg',
                   width: 40,
                   height: 40,
                 ),
@@ -238,12 +238,17 @@ void main() {
   group('CDN 이 무시하는 파라미터 제거 (f/fm 이중 다운로드 결함)', () {
     // 배경: cdn.picnic.fan(CloudFront + 커스텀 리사이저)의 캐시 키는
     // `_w{w}_h{h}_f{format}_q{q}` 뿐이며, 실측 결과 dpr/fm 은 응답에 아무
-    // 영향을 주지 않는다(2026-08-07). 예전엔 f/fm 값이
+    // 영향을 주지 않는다(2026-08-07). 예전엔 f/fm 값이 (이제는 삭제된)
     // WebPSupportChecker.instance.supportInfo 의 비동기 초기화(Phase 2,
     // runApp 이후 완료) 에 좌우돼, 초기 프레임엔 f=jpg URL 을, 이후
     // 재생성된 위젯은 f=webp URL 을 만들었다 — 서버는 둘 다 같은 바이트를
     // 주지만 캐시 키가 곧 URL 이라 같은 이미지를 두 번 받아 두 번
     // 저장했다.
+    //
+    // imageUrl 은 CDN 호스트(test-cdn.example.com, test_environment.dart)로
+    // 둔다 — CDN 이 아닌 절대 URL 은 원본 그대로 반환되어(아래 'CDN 변환은
+    // 호스트로 스코프된다' 그룹 참고) 여기서 검증하려는 w/h/q 부여 자체가
+    // 일어나지 않는다.
     tearDown(() {
       WebPSupportChecker.instance.reset();
     });
@@ -253,7 +258,7 @@ void main() {
       await tester.pumpWidget(
         buildTestApp(
           const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/dead-params.jpg',
+            imageUrl: 'https://test-cdn.example.com/dead-params.jpg',
             width: 100,
             height: 100,
           ),
@@ -275,7 +280,7 @@ void main() {
       await tester.pumpWidget(
         buildTestApp(
           const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/live-params.jpg',
+            imageUrl: 'https://test-cdn.example.com/live-params.jpg',
             width: 100,
             height: 100,
           ),
@@ -294,22 +299,13 @@ void main() {
 
     testWidgets('WebPSupportChecker.supportInfo 가 null 이어도(Phase 2 초기화 전) 항상 같은 URL 을 만들어야 한다',
         (tester) async {
-      // WebPSupportChecker.instance.checkSupport() 는 device_info_plus 의
-      // 플랫폼 채널을 호출해 테스트 하네스에서 응답 없이 걸린다(기존
-      // webp_support_checker_test.dart 도 이를 피해 checkSupport() 를
-      // 직접 호출하지 않는다). 따라서 여기서는 실제 상태 전이(null →
-      // WebPSupportInfo) 를 흉내내는 대신, 위젯 코드가
-      // WebPSupportChecker 를 더 이상 참조하지 않는다는 것 자체를 —
-      // supportInfo 가 null(=Phase 2 초기화 전, 예전엔 f=jpg 를 만들던
-      // 상태) 인 채로 같은 파라미터의 위젯을 두 번 독립적으로 빌드해도
-      // 항상 동일한 URL 이 나온다는 사실로 검증한다.
       WebPSupportChecker.instance.reset();
       expect(WebPSupportChecker.instance.supportInfo, isNull);
 
       await tester.pumpWidget(
         buildTestApp(
           const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/webp-independent.jpg',
+            imageUrl: 'https://test-cdn.example.com/webp-independent.jpg',
             width: 100,
             height: 100,
           ),
@@ -323,7 +319,7 @@ void main() {
         buildTestApp(
           const PicnicCachedNetworkImage(
             key: ValueKey('second-build'),
-            imageUrl: 'https://example.com/webp-independent.jpg',
+            imageUrl: 'https://test-cdn.example.com/webp-independent.jpg',
             width: 100,
             height: 100,
           ),
@@ -339,6 +335,119 @@ void main() {
         reason: '같은 imageUrl/width/height 로 다시 빌드해도 URL(=캐시 키)이 달라지면 안 된다 — '
             '달라지면 같은 이미지를 두 번 다운로드/저장하는 결함이 재발한 것이다.',
       );
+    });
+  });
+
+  group('CDN 변환은 호스트로 스코프된다 (외부 절대 URL 은 원본 그대로)', () {
+    // 배경: 예전에는 절대 URL 이면 호스트가 무엇이든 uri.replace(queryParameters: ...)
+    // 로 원래 쿼리를 통째로 버리고 w/h/q 로 갈아끼웠다. 스플래시(서버가 내려주는
+    // scheduledSplashUrl), YouTube 썸네일(img.youtube.com, 하드코딩된 실제
+    // 외부 호스트), FAQ/게시글에 박제된 외부 이미지 URL 등이 실제로 이 경로를
+    // 탄다. 서명 URL(`?X-Amz-Signature=`, `?token=`)이 들어오면 서명이 깨지고,
+    // 실제 외부 CDN(Imgix/Cloudinary 등)이면 fit 등 원래 파라미터가 사라져
+    // 렌더링이 달라진다 — CDN 도입 이전부터 있던 선재 결함이다.
+    testWidgets('CDN 절대 URL 에는 w/h/q 가 붙는다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/picnic/artist/1.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          startsWith('https://test-cdn.example.com/picnic/artist/1.jpg?'),
+        );
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+
+    testWidgets('CDN 상대 경로는 cdnUrl 로 조립되고 w/h/q 가 붙는다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'artist/1.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          startsWith('https://test-cdn.example.com/artist/1.jpg?'),
+        );
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+
+    testWidgets('외부 절대 URL(쿼리 있음)은 쿼리를 보존한 채 원본 그대로 반환된다',
+        (tester) async {
+      const externalUrl =
+          'https://img.youtube.com/vi/abc123/mqdefault.jpg?token=signed-abc&expires=999';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          externalUrl,
+          reason: 'CDN 이 아닌 외부 호스트는 원래 쿼리를 보존한 채 아무 파라미터도 '
+              '추가되지 않고 원본 그대로 반환돼야 한다: ${img.imageUrl}',
+        );
+      }
+    });
+
+    testWidgets('외부 절대 URL(쿼리 없음)도 원본 그대로 반환된다', (tester) async {
+      const externalUrl = 'https://img.youtube.com/vi/abc123/mqdefault.jpg';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          externalUrl,
+          reason: '외부 호스트에는 w/h/q 를 포함해 아무 파라미터도 추가되면 안 된다: '
+              '${img.imageUrl}',
+        );
+      }
     });
   });
 

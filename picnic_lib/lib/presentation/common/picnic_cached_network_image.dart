@@ -791,6 +791,25 @@ class _PicnicCachedNetworkImageState
     return ImageComplexity.high;
   }
 
+  /// [uri] 의 호스트가 CDN(Environment.cdnUrl 파생) 호스트와 일치하는지 판정한다.
+  ///
+  /// Environment.cdnUrl 은 앱마다 경로를 포함할 수 있다
+  /// (picnic_app `https://cdn.picnic.fan/picnic` vs ttja_app
+  /// `https://cdn.picnic.fan/ttja`). 경로가 아니라 **호스트만** 비교한다 — 같은
+  /// 호스트 뒤는 물리적으로 동일한 CloudFront + 커스텀 리사이저이므로 w/h/q 처리
+  /// 방식이 경로와 무관하게 같다. 경로까지 일치를 요구하면(prefix 비교) 같은 CDN
+  /// 호스트가 다른 스코프 경로로 절대 URL 을 내려줄 때 변환 대상에서 빠지는
+  /// 오탐이 생긴다.
+  ///
+  /// Environment 가 아직 초기화되지 않았으면(runApp 이전 레이스, 또는 이 값을
+  /// 세팅하지 않은 테스트) CDN 여부를 판정할 수 없으므로 안전하게 false 를
+  /// 반환한다 — 어느 쪽인지 모를 때는 원본 URL 을 건드리지 않는 쪽이 안전하다.
+  bool _isCdnUrl(Uri uri) {
+    if (!Environment.isInitialized) return false;
+    final cdnHost = Uri.parse(Environment.cdnUrl).host.toLowerCase();
+    return uri.host.toLowerCase() == cdnHost;
+  }
+
   /// CDN(cdn.picnic.fan, CloudFront + 커스텀 리사이저) 변환 URL을 만든다.
   ///
   /// 서버가 실제로 쓰는 파라미터는 w/h/q 뿐이다(2026-08-07 프로덕션 실측).
@@ -800,6 +819,16 @@ class _PicnicCachedNetworkImageState
   /// 이후 재빌드에선 f=webp로 서로 다른 URL(=서로 다른 캐시 키)을 만들었고,
   /// 서버는 둘 다 같은 바이트를 주므로 동일 이미지를 두 번 받아 두 번 저장하는
   /// 결함이 있었다. w/h/q만 보내 이 결함을 없앤다.
+  ///
+  /// 이 변환은 **CDN 호스트로 스코프된다.** 상대 경로(Environment.cdnUrl 로
+  /// 조립됨)와 호스트가 CDN 인 절대 URL 에만 w/h/q 를 적용한다. 그 외 절대
+  /// URL(스플래시 서버가 내려주는 외부 이미지, YouTube 썸네일, 서명 URL 등)은
+  /// 원본을 그대로 반환한다 — 쿼리를 보존하고 아무 파라미터도 추가하지 않는다.
+  /// 예전에는 절대 URL이면 호스트를 가리지 않고 원래 쿼리를 통째로 w/h/q 로
+  /// 갈아끼웠는데, 이는 CDN 도입 이전부터 있던 선재 결함이었다 — 서명 URL
+  /// (`?X-Amz-Signature=`, `?token=` 등)이 들어오면 서명이 깨지고, 실제 외부
+  /// CDN(Imgix/Cloudinary 등)이면 fit 등 원래 파라미터가 사라져 렌더링이
+  /// 달라진다.
   String _getTransformedUrl(
     String key,
     double resolutionMultiplier,
@@ -809,12 +838,22 @@ class _PicnicCachedNetworkImageState
     final isAbsolute =
         normalizedKey.startsWith('http://') ||
         normalizedKey.startsWith('https://');
-    Uri uri = isAbsolute
-        ? Uri.parse(normalizedKey)
-        : Uri.parse(
-            '${Environment.cdnUrl}/${normalizedKey.startsWith('/') ? normalizedKey.substring(1) : normalizedKey}',
-          );
 
+    if (isAbsolute) {
+      final uri = Uri.parse(normalizedKey);
+      if (!_isCdnUrl(uri)) {
+        return normalizedKey;
+      }
+      return _withCdnQuery(uri, resolutionMultiplier, quality).toString();
+    }
+
+    final uri = Uri.parse(
+      '${Environment.cdnUrl}/${normalizedKey.startsWith('/') ? normalizedKey.substring(1) : normalizedKey}',
+    );
+    return _withCdnQuery(uri, resolutionMultiplier, quality).toString();
+  }
+
+  Uri _withCdnQuery(Uri uri, double resolutionMultiplier, int quality) {
     final Map<String, String> queryParameters = {'q': quality.toString()};
 
     final widgetWidth = widget.width;
@@ -832,7 +871,7 @@ class _PicnicCachedNetworkImageState
       ).toString();
     }
 
-    return uri.replace(queryParameters: queryParameters).toString();
+    return uri.replace(queryParameters: queryParameters);
   }
 
   /// 진보적 이미지 로딩 스택 구성
