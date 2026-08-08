@@ -466,9 +466,10 @@ class AppInitializer {
   // 초기 프레임과 이후 프레임이 서로 다른 캐시 키를 만들어 같은 이미지를 두 번
   // 받고 있었다) 소비처가 0 이 됐다.
   //
-  // WebPSupportChecker 클래스 자체는 남겨둔다 — 위젯이 더 이상 그것에 의존하지
-  // 않는다는 것을 고정하는 회귀 테스트가 참조한다
-  // (picnic_cached_network_image_regression_test.dart).
+  // WebPSupportChecker/WebPSupportHelper 클래스 자체도 소비처가 0 이 되어
+  // 함께 제거했다(picnic_cached_network_image_regression_test.dart 는
+  // "위젯이 WebP 상태와 무관하게 항상 같은 URL 을 만든다" 는 사실을 이제
+  // dead-param 부재 검증만으로 고정한다).
 
   static Future<void> initializeTimezone() async {
     logger.i('Initializing timezones...');

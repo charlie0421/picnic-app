@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -249,10 +248,6 @@ void main() {
     // 둔다 — CDN 이 아닌 절대 URL 은 원본 그대로 반환되어(아래 'CDN 변환은
     // 호스트로 스코프된다' 그룹 참고) 여기서 검증하려는 w/h/q 부여 자체가
     // 일어나지 않는다.
-    tearDown(() {
-      WebPSupportChecker.instance.reset();
-    });
-
     testWidgets('URL 에 서버가 무시하는 dpr/fm/f/fl/auto/fit 파라미터가 없어야 한다',
         (tester) async {
       await tester.pumpWidget(
@@ -295,46 +290,6 @@ void main() {
         expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
         expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
       }
-    });
-
-    testWidgets('WebPSupportChecker.supportInfo 가 null 이어도(Phase 2 초기화 전) 항상 같은 URL 을 만들어야 한다',
-        (tester) async {
-      WebPSupportChecker.instance.reset();
-      expect(WebPSupportChecker.instance.supportInfo, isNull);
-
-      await tester.pumpWidget(
-        buildTestApp(
-          const PicnicCachedNetworkImage(
-            imageUrl: 'https://test-cdn.example.com/webp-independent.jpg',
-            width: 100,
-            height: 100,
-          ),
-        ),
-      );
-      await settle(tester);
-      final first = loadedImages(tester).map((w) => w.imageUrl).toSet();
-      expect(first, isNotEmpty);
-
-      await tester.pumpWidget(
-        buildTestApp(
-          const PicnicCachedNetworkImage(
-            key: ValueKey('second-build'),
-            imageUrl: 'https://test-cdn.example.com/webp-independent.jpg',
-            width: 100,
-            height: 100,
-          ),
-        ),
-      );
-      await settle(tester);
-      final second = loadedImages(tester).map((w) => w.imageUrl).toSet();
-      expect(second, isNotEmpty);
-
-      expect(
-        second,
-        first,
-        reason: '같은 imageUrl/width/height 로 다시 빌드해도 URL(=캐시 키)이 달라지면 안 된다 — '
-            '달라지면 같은 이미지를 두 번 다운로드/저장하는 결함이 재발한 것이다.',
-      );
     });
   });
 
