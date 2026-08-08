@@ -528,6 +528,30 @@ void main() {
     // 결과적으로 같은 바이트를 서로 다른 캐시 키로 2~3 회 받는다 — #149 에서
     // 고친 f=jpg/f=webp 이중 다운로드와 정확히 같은 종류의 결함이 CDN 밖에서
     // 재발한 것이다.
+    //
+    // 이 그룹은 "실제 다운로드 시도 횟수" 를 직접 세지 않고 "생성되는
+    // CachedNetworkImage 위젯 수 / cacheKey 집합의 크기" 를 센다. 이것으로
+    // 충분한 이유(간접이지만 근거 있는 증거):
+    // flutter_cache_manager 의 CacheStore 는 URL 이 아니라 `key`(우리가 넘기는
+    // cacheKey)로 캐시 항목을 식별한다. 서로 다른 cacheKey 는 각각 독립된
+    // 캐시 조회를 만들고, 조회가 미스면 WebHelper.downloadFile 이 정확히 한 번
+    // FileService.get() 을 호출해 다운로드를 시도한다. 즉 cacheKey 개수 == 캐시
+    // 조회 횟수이고, 콜드 캐시에서는 캐시 조회 횟수 == 다운로드 시도 횟수다.
+    //
+    // 실제 다운로드 시도를 mock FileService 로 직접 세는 시도도 해봤다:
+    // PicnicCachedNetworkImage 에 테스트 전용 CacheManager 주입 지점을 추가하고
+    // (cacheManager: null → testCacheManagerOverride), FileService.get() 을
+    // 가로채는 커스텀 CacheManager 를 주입했다. 그런데 이 위젯은 항상
+    // memCacheWidth/Height 를 넘기므로 cached_network_image 내부가 "리사이즈
+    // 하려면 cacheManager 가 ImageCacheManager 여야 한다" 고 단언해 일반
+    // CacheManager 는 FileService.get() 에 닿기도 전에 죽었고, `CacheManager
+    // with ImageCacheManager` 서브클래스로 바꾸자 이번엔 CacheManager 생성자가
+    // 내부적으로 만드는 CacheStore 가 path_provider 플랫폼 채널을 기다리며
+    // 테스트를 무한정 멈춰 세웠다(실제로 120초 넘게 응답 없이 걸려 백그라운드
+    // 프로세스를 강제 종료해야 했다) — 이 하네스에는 path_provider 목이 없다.
+    // path_provider 플랫폼 채널 목을 새로 도입하는 건 이 항목의 범위를 넘는
+    // 별도 작업이라고 판단해, 되돌리고 위 cacheKey 기반 불변식을 그대로
+    // 유지하기로 했다.
     testWidgets('medium complexity(300x300) 외부 URL 은 단일 요청만 만든다',
         (tester) async {
       const externalUrl =
@@ -606,6 +630,50 @@ void main() {
             '$cacheKeys',
       );
     });
+  });
+
+  group('timeout Timer 는 dispose 시 취소된다 (Timer 누수 방지)', () {
+    // 배경: _buildCachedNetworkImage 의 30초 타임아웃 Timer 는 원래
+    // (이 브랜치 이전부터) 로컬 변수였다 — State 필드가 아니어서 dispose() 가
+    // 절대 참조할 수 없었다. CDN 밖 medium/high 이미지가 progressive 단계 없이
+    // 이 경로(단일 요청)를 타게 되면서 이 결함의 노출 빈도가 커졌다. 필드로
+    // 옮기고 dispose/URL 변경 시 취소하도록 고쳤다 — 이 테스트는 그 취소가
+    // 실제로 일어나는지 직접 검증한다.
+    testWidgets(
+      '비-CDN medium 이미지: 타임아웃 전에 위젯이 사라져도 pending Timer 가 남지 않는다',
+      (tester) async {
+        // 이 파일의 공통 setUp 은 모든 테스트에서 disableTimeoutForTest 를
+        // 켜 둔다(pending-timer 오탐 방지). 이 테스트만은 반대로 실제 Timer 가
+        // 걸리고 취소되는지를 검증해야 하므로 명시적으로 끈다.
+        PicnicCachedNetworkImage.disableTimeoutForTest = false;
+
+        await tester.pumpWidget(
+          buildTestApp(
+            const PicnicCachedNetworkImage(
+              imageUrl: 'https://img.youtube.com/vi/timeout-leak/mqdefault.jpg',
+              width: 300,
+              height: 300,
+            ),
+          ),
+        );
+        await settle(tester);
+
+        // effectiveTimeout(기본 30초) 이 지나기 전에 트리를 통째로 교체한다 —
+        // 사용자가 30초 이내에 화면을 떠나는 상황과 동일하다.
+        await tester.pumpWidget(buildTestApp(const SizedBox.shrink()));
+        await tester.pump(const Duration(seconds: 1));
+        drainExpectedExceptions(tester);
+
+        // 여기서 테스트 본문이 끝나면 flutter_test 프레임워크 자신이
+        // "A Timer is still pending" 불변식을 검사한다(TestWidgetsFlutterBinding
+        // ._verifyInvariants). _imageTimeoutTimer 가 dispose 에서 취소되지
+        // 않았다면 이 지점에서 프레임워크가 테스트를 실패시킨다 — 이 테스트
+        // 자체가 pending-timer 검출기다. 30초를 실제로 기다리지 않고도(가짜
+        // 시간이 아니라 진짜 Duration(seconds: 1) 만 흘렸다) 검증되는 이유는,
+        // 검사 대상이 "타임아웃이 발화했는가" 가 아니라 "Timer 가 아직
+        // 스케줄러에 등록돼 있는가" 이기 때문이다.
+      },
+    );
   });
 
   group('imageUrl 이 바뀔 때 (리스트 셀 재활용)', () {

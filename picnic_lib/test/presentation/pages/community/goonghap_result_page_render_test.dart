@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/community/goonghap.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/community/goonghap_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/goonghap_provider.dart';
 
@@ -63,17 +62,11 @@ void main() {
       'goonghap_results': <dynamic>[],
     });
     restore = suppressImageErrors();
-    // 아티스트 이미지가 비-CDN 절대 URL 이면 이제 progressive 단계 없이 단일
-    // 요청 경로(_buildCachedNetworkImage)를 타는데, 그 경로는 30초 타임아웃
-    // Timer 를 건다 — pump 후 위젯이 dispose 되면 "Timer is still pending"
-    // 로 깨진다.
-    PicnicCachedNetworkImage.disableTimeoutForTest = true;
   });
 
   tearDown(() {
     restore();
     tearDownMockSupabase();
-    PicnicCachedNetworkImage.disableTimeoutForTest = false;
   });
 
   group('GoonghapResultPage render', () {

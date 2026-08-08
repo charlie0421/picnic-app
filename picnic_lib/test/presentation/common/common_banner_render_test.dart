@@ -191,17 +191,11 @@ void main() {
     VisibilityDetectorController.instance.updateInterval = Duration.zero;
     setupMockSupabase({'banner': <dynamic>[]});
     restore = suppressImageErrors();
-    // 이 스위트의 배너 이미지는 example.com(비-CDN) 절대 URL 이라 이제
-    // progressive 단계 없이 단일 요청 경로(_buildCachedNetworkImage)를 타는데,
-    // 그 경로는 30초 타임아웃 Timer 를 건다 — pump 후 위젯이 dispose 되면
-    // "Timer is still pending" 로 깨진다.
-    PicnicCachedNetworkImage.disableTimeoutForTest = true;
   });
 
   tearDown(() {
     restore();
     tearDownMockSupabase();
-    PicnicCachedNetworkImage.disableTimeoutForTest = false;
   });
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {

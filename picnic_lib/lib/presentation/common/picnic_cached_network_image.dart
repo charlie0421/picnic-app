@@ -133,6 +133,7 @@ class _PicnicCachedNetworkImageState
   int _retryCount = 0;
   Timer? _lazyLoadTimer;
   Timer? _retryTimer; // 재시도 백오프 (취소 가능)
+  Timer? _imageTimeoutTimer; // 단일 이미지 로딩 타임아웃 — dispose/URL 변경 시 반드시 취소
   List<String>? _cachedUrls; // 동일 위젯 생명주기 동안 고정된 URL 세트
 
   /// VisibilityDetector 의 Key 는 위젯 식별자일 뿐 아니라 visibility_detector
@@ -401,6 +402,7 @@ class _PicnicCachedNetworkImageState
   void dispose() {
     _lazyLoadTimer?.cancel();
     _retryTimer?.cancel();
+    _imageTimeoutTimer?.cancel();
     // visibility_detector 는 RenderObject dispose 시 전역 맵을 정리하지 않고,
     // `_lastVisibility` 는 "보이지 않게 될 때"만 엔트리를 지운다. 즉 보이는 상태로
     // dispose 되면(라우트 pop, 리스트 축소, pull-to-refresh) 엔트리가 영구히 남는다.
@@ -506,6 +508,10 @@ class _PicnicCachedNetworkImageState
     if (oldWidget.imageUrl != widget.imageUrl && mounted) {
       _lazyLoadTimer?.cancel();
       _retryTimer?.cancel(); // 이전 URL 로 예약된 재시도가 새 로드를 깨지 않도록
+      // 이전 URL 로 건 타임아웃도 취소한다 — 안 하면 새 URL 로딩 중에 옛 URL
+      // 기준 타임아웃이 발화해 엉뚱한 재시도/에러 처리를 일으킬 수 있다.
+      _imageTimeoutTimer?.cancel();
+      _imageTimeoutTimer = null;
       // 인스턴스 고유 키를 쓰면서부터 Element 가 재사용되므로, URL 이 바뀌어도
       // VisibilityDetector 는 가시성 "변화" 가 없다고 보고 콜백을 다시 주지 않는다.
       // 아래에서 상태를 재설정하고, 이미 보이는 중이면 직접 로드를 재트리거한다.
@@ -1029,12 +1035,20 @@ class _PicnicCachedNetworkImageState
     int index,
   ) {
     try {
-      Timer? timeoutTimer;
-
       return StatefulBuilder(
         builder: (context, setState) {
-          if (_loading && timeoutTimer == null && !PicnicCachedNetworkImage.disableTimeoutForTest) {
-            timeoutTimer = Timer(effectiveTimeout, () {
+          // _imageTimeoutTimer 는 로컬 변수가 아니라 State 필드다 — 로컬
+          // 변수였을 때는(pre-existing) 이 위젯이 로딩 중에 재빌드될 때마다
+          // (StatefulBuilder 의 builder 클로저가 매번 새로 만들어지므로) 이전
+          // Timer 참조를 잃어버려 dispose 는 물론 정상 재빌드 중에도 취소할
+          // 수 없는 채로 최대 effectiveTimeout 만큼 살아남았다. 필드로 옮기면
+          // 재빌드를 넘나들며 같은 Timer 를 참조하므로 dispose/URL 변경 시
+          // 확실히 취소되고, 이미 예약돼 있으면 중복 예약도 되지 않는다.
+          if (_loading &&
+              _imageTimeoutTimer == null &&
+              !PicnicCachedNetworkImage.disableTimeoutForTest) {
+            _imageTimeoutTimer = Timer(effectiveTimeout, () {
+              _imageTimeoutTimer = null;
               if (!mounted) return;
               final stillLoading = _loading && !_hasError && !_isImageLoaded;
               if (!stillLoading) return;
@@ -1102,11 +1116,13 @@ class _PicnicCachedNetworkImageState
               );
             },
             errorWidget: (context, url, error) {
-              timeoutTimer?.cancel();
+              _imageTimeoutTimer?.cancel();
+              _imageTimeoutTimer = null;
               return _handleImageError(url, error, width, height);
             },
             imageBuilder: (context, imageProvider) {
-              timeoutTimer?.cancel();
+              _imageTimeoutTimer?.cancel();
+              _imageTimeoutTimer = null;
 
               // 이미지가 성공적으로 로드되면 즉시 로딩 상태 해제
               WidgetsBinding.instance.addPostFrameCallback((_) {
