@@ -764,27 +764,39 @@ void main() {
     //     CachedNetworkImage, memCacheWidth/Height 포함 양쪽 다 확인).
     // 즉 리뷰어의 우회 경로 자체는 **틀리지 않았다.**
     //
-    // 그런데 이 정확한 메커니즘을 (a) 이 스위트의 표준 하네스인 buildTestApp,
-    // (b) PicnicCachedNetworkImage, (c) 심지어 **빈 overrides 의 순정
-    // ProviderScope** 어느 것과 조합해도 FileService.get() 이 전혀 호출되지
-    // 않았다(요청 0회, 예외도 없음 — 조용히 아무 일도 안 일어남). 변수를
-    // 하나씩 제거하며 격리했다: PicnicCachedNetworkImage → raw
-    // CachedNetworkImage 로 바꿔도 재현, buildTestApp → 손으로 편 동일 트리로
-    // 바꿔도 재현, ScreenUtilInit 유무 무관, setupMockSupabase 유무 무관,
-    // defaultProviderOverrides 내용물 무관(overrides: const [] 로 완전히
-    // 비워도 재현) — 남은 유일한 변수는 `ProviderScope` 그 자체였다.
-    // PicnicCachedNetworkImage 는 ConsumerStatefulWidget 이라 ProviderScope
-    // 없이는 애초에 테스트할 수 없다.
+    // 2라운드 결론에서 "ProviderScope 가 막는다" 고 적었으나, 그 결론은
+    // **틀렸다.** 재검증 지적을 받고 PicnicCachedNetworkImage 를
+    // ConsumerStatefulWidget → StatefulWidget 으로 전환한 뒤(이 위젯은
+    // `ref.` 를 한 번도 쓰지 않았다 — ProviderScope 의존 자체가 불필요한
+    // 결합이었다) ProviderScope 없이 다시 실측했지만 **여전히
+    // FileService.get() 이 0회였다.** 즉 ProviderScope 는 애초에 원인이
+    // 아니었다.
     //
-    // 결론: **직접 계수는 이 하네스에서 원리적으로는 가능하지만
-    // (ProviderScope 없는 위젯에 대해 실제로 성공시켰다), Riverpod
-    // ProviderScope 와 결합하면(우리 위젯 테스트에 필수) 작동하지 않는다.**
-    // 왜 ProviderScope 가 이 특정 비동기 체인을 막는지는(Riverpod 의 자체
-    // zone/에러 핸들링이 flutter_cache_manager 내부 Future 체인과 상호작용하는
-    // 것으로 추정되나 확증하지 못했다) 이 항목의 범위를 넘는 별도 조사가
-    // 필요하다고 판단해 더 파고들지 않았다. 프로덕션 seam 은 여전히 추가하지
-    // 않는다(이미 되돌린 결정이 옳다는 재검증 피드백을 그대로 따른다) — 위
-    // cacheKey 기반 불변식을 대신 유지한다.
+    // 3라운드: 변수를 하나씩 격리해 정확한 원인을 찾았다. 이번엔 raw
+    // CachedNetworkImage 만으로(ProviderScope, PicnicCachedNetworkImage,
+    // buildTestApp 전부 배제한 최소 재현) 실측했다:
+    //   - `cacheKey` 파라미터를 아예 안 넘기면(=내부적으로 URL 을 키로 씀):
+    //     FileService.get() 1회 성공(1/2라운드에서 이미 확인).
+    //   - **`cacheKey` 를 URL 과 다른 값으로 넘기면(`'${url}_0'` 같은 형태)**:
+    //     ImageCacheManager 믹스인(리사이즈 어서션 통과에 필수) 조합에서
+    //     FileService.get() 이 0회로 재현됐다 — repo 를 상태 없는 항상-null
+    //     버전에서 실제로 저장/조회하는 상태 있는 인메모리 버전으로 바꿔도
+    //     동일했다(repo 구현 품질 문제가 아니라는 뜻).
+    // 즉 진짜 원인은 **"URL 과 다른 cacheKey" + "ImageCacheManager 리사이즈
+    // 경로"의 조합**이다 — Riverpod/ProviderScope/PicnicCachedNetworkImage
+    // 의 구조와는 무관하다.
+    //
+    // 이 위젯의 프로덕션 코드는 `_cacheKeyFor(url)` 로 항상 URL 과 다른
+    // cacheKey(재시도 토큰 `_reloadToken`, progressive 단계의 `_index`/`_lq`
+    // 접미어 포함)를 만든다 — 그래서 이 블로커는 테스트 하네스 설정을
+    // 바꿔서 피할 수 있는 게 아니라, cacheKey 를 실제로 쓰는 프로덕션 경로
+    // 자체에 걸린다. flutter_cache_manager 3.4.1 의 ImageCacheManager 리사이즈
+    // 오케스트레이션이 커스텀 key 를 이 테스트 하네스가 재현 가능한 방식으로
+    // 다루지 못하는 라이브러리 레벨 한계로 보이며, 더 깊은 원인(예: 원본
+    // 파일 기록과 리사이즈 기록을 서로 다른 key 공간으로 조율하는 내부
+    // 로직)은 이 항목 범위를 넘는 별도 조사가 필요하다고 판단해 더 파고들지
+    // 않았다. 프로덕션 seam 은 추가하지 않는다 — 위 cacheKey 기반 불변식을
+    // 대신 유지한다.
     testWidgets('medium complexity(300x300) 외부 URL 은 단일 요청만 만든다',
         (tester) async {
       const externalUrl =
