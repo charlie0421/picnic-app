@@ -752,6 +752,26 @@ class _PicnicCachedNetworkImageState
     BuildContext context,
     double resolutionMultiplier,
   ) {
+    // 변환이 적용되지 않는(=CDN 이 아닌) 절대 URL 은 _getTransformedUrl 이
+    // resolutionMultiplier/quality 인자와 무관하게 항상 원본 문자열을 그대로
+    // 돌려준다. medium/high complexity 에서 같은 imageUrl 을 인자만 바꿔
+    // 2~3번 호출해 progressive 단계를 만들면, 이런 URL 에서는 그 단계들이
+    // 전부 동일한 URL 이 된다. 그런데 캐시 키는 _cacheKeyFor 에서
+    // index/isLowQuality 로 단계별로 다르게 만들어지므로, 같은 바이트를
+    // 서로 다른 캐시 키로 2~3 회 받는다 — #149 에서 고친 f=jpg/f=webp 이중
+    // 다운로드와 정확히 같은 종류의 결함이 CDN 밖에서 재발한 것이다.
+    // 변환이 적용되지 않는 URL 은 단계를 나눠도 얻는 게 없으므로(모든 단계가
+    // 같은 원본 이미지를 요청) 단일 단계로 축약한다.
+    if (!_isTransformableUrl(widget.imageUrl)) {
+      return [
+        _getTransformedUrl(
+          widget.imageUrl,
+          resolutionMultiplier,
+          widget.maxQualityOverride ?? 85,
+        ),
+      ];
+    }
+
     final imageSize = _estimateImageComplexity();
 
     switch (imageSize) {
@@ -776,6 +796,21 @@ class _PicnicCachedNetworkImageState
           _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80),
         ];
     }
+  }
+
+  /// [key] 가 _getTransformedUrl 에서 실제로 CDN w/h/q 변환을 받는지 판정한다.
+  ///
+  /// 상대 경로는 항상 Environment.cdnUrl 로 조립되므로 변환 대상이고, 절대
+  /// URL 은 호스트가 CDN 인 경우에만 변환 대상이다. 이 값이 false 면
+  /// _getTransformedUrl 은 인자와 무관하게 원본을 그대로 돌려주므로,
+  /// _getTransformedUrls 가 progressive 단계를 나눌 이유가 없다.
+  bool _isTransformableUrl(String key) {
+    final normalizedKey = key.trim();
+    final isAbsolute =
+        normalizedKey.startsWith('http://') ||
+        normalizedKey.startsWith('https://');
+    if (!isAbsolute) return true;
+    return _isCdnUrl(Uri.parse(normalizedKey));
   }
 
   /// 이미지 복잡도를 추정합니다

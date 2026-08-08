@@ -518,6 +518,96 @@ void main() {
     });
   });
 
+  group('외부 URL 은 progressive 단계를 만들지 않는다 (중복 다운로드 방지)', () {
+    // 배경: 변환이 적용되지 않는(=CDN 이 아닌) 절대 URL 은 _getTransformedUrl 이
+    // resolutionMultiplier/quality 인자와 무관하게 항상 원본 문자열을 그대로
+    // 돌려준다. 그런데 _getTransformedUrls 는 medium/high complexity 에서
+    // 같은 imageUrl 을 인자만 바꿔 2~3번 호출해 progressive 단계를 만든다 —
+    // 외부 URL 에서는 이 단계들이 전부 동일한 URL 이 된다. 캐시 키는
+    // _cacheKeyFor 에서 index/isLowQuality 로 단계별로 다르게 만들어지므로,
+    // 결과적으로 같은 바이트를 서로 다른 캐시 키로 2~3 회 받는다 — #149 에서
+    // 고친 f=jpg/f=webp 이중 다운로드와 정확히 같은 종류의 결함이 CDN 밖에서
+    // 재발한 것이다.
+    testWidgets('medium complexity(300x300) 외부 URL 은 단일 요청만 만든다',
+        (tester) async {
+      const externalUrl =
+          'https://img.youtube.com/vi/progressive-dup-1/mqdefault.jpg';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 300,
+            height: 300,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      expect(
+        images.length,
+        1,
+        reason: '변환이 적용되지 않는 외부 URL 은 progressive 단계를 나눠도 URL '
+            '이 전부 같아지므로 단일 요청으로 축약해야 한다. 지금은 서로 다른 '
+            '캐시 키로 ${images.length}번 요청됨: '
+            '${images.map((w) => w.cacheKey).toList()}',
+      );
+      expect(images.single.imageUrl, externalUrl);
+    });
+
+    testWidgets('width/height 미지정(splash 케이스) 외부 URL 도 단일 요청만 만든다',
+        (tester) async {
+      const externalUrl =
+          'https://img.youtube.com/vi/progressive-dup-2/mqdefault.jpg';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(imageUrl: externalUrl),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      expect(
+        images.length,
+        1,
+        reason: 'width/height 미지정이면 기본값(400x400)으로 medium '
+            'complexity 가 되어 progressive 가 켜진다 — splash 케이스도 '
+            '외부 URL 이면 단일 요청이어야 한다. 지금은 '
+            '${images.length}번 요청됨: ${images.map((w) => w.cacheKey).toList()}',
+      );
+      expect(images.single.imageUrl, externalUrl);
+    });
+
+    testWidgets('같은 원본 URL 이 서로 다른 캐시 키로 중복 요청되면 안 된다',
+        (tester) async {
+      const externalUrl =
+          'https://img.youtube.com/vi/progressive-dup-3/mqdefault.jpg';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 300,
+            height: 300,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final cacheKeys = loadedImages(tester).map((w) => w.cacheKey).toSet();
+      expect(
+        cacheKeys.length,
+        1,
+        reason: '같은 원본 바이트를 서로 다른 캐시 키로 여러 번 받으면 안 된다: '
+            '$cacheKeys',
+      );
+    });
+  });
+
   group('imageUrl 이 바뀔 때 (리스트 셀 재활용)', () {
     testWidgets('새 URL 로 렌더링해야 한다 (이전 URL 캐시를 버려야 함)', (tester) async {
       await tester.pumpWidget(
