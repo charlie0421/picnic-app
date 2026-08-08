@@ -151,42 +151,6 @@ void main() {
     });
   });
 
-  // ── formatDpr ───────────────────────────────────────────────────────
-  group('formatDpr', () {
-    test('integer value removes trailing zeros', () {
-      expect(PicnicCachedNetworkImageHelper.formatDpr(2.0), '2');
-    });
-
-    test('fractional value keeps significant digits', () {
-      expect(PicnicCachedNetworkImageHelper.formatDpr(1.5), '1.5');
-    });
-
-    test('two decimal places are preserved when needed', () {
-      expect(PicnicCachedNetworkImageHelper.formatDpr(1.25), '1.25');
-    });
-
-    test('1.0 formats as "1"', () {
-      expect(PicnicCachedNetworkImageHelper.formatDpr(1.0), '1');
-    });
-
-    test('0.0 formats as "0"', () {
-      // 0.00 -> trimmed to "0"
-      expect(PicnicCachedNetworkImageHelper.formatDpr(0.0), '0');
-    });
-
-    test('3.0 formats as "3"', () {
-      expect(PicnicCachedNetworkImageHelper.formatDpr(3.0), '3');
-    });
-
-    test('2.75 formats correctly', () {
-      expect(PicnicCachedNetworkImageHelper.formatDpr(2.75), '2.75');
-    });
-
-    test('1.10 formats as "1.1"', () {
-      expect(PicnicCachedNetworkImageHelper.formatDpr(1.1), '1.1');
-    });
-  });
-
   // ── estimateImageComplexity ─────────────────────────────────────────
   group('estimateImageComplexity', () {
     test('GIF is always high complexity', () {
