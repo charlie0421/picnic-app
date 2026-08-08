@@ -78,7 +78,7 @@ class MainInitializer {
 
   /// runApp() 이후 SDK 초기화를 병렬로 실행
   ///
-  /// Group 1: 독립적인 SDK (Supabase, Firebase, WebP, Timezone, Privacy)
+  /// Group 1: 독립적인 SDK (Supabase, Firebase, Timezone, Privacy)
   /// Group 2: Group 1에 의존하는 SDK (Auth, Tapjoy, Branch, AdMob)
   static Future<void> _initializeSDKs(FirebaseOptions? firebaseOptions) async {
     try {
