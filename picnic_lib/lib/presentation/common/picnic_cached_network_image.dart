@@ -833,11 +833,23 @@ class _PicnicCachedNetworkImageState
   /// 반환할 뿐 죽지 않는다). 파싱 실패거나 스킴+authority 를 모두 갖추지
   /// 못하면 상대 경로로 취급한다 — 예전에도 그런 입력은 'http'로 시작하지
   /// 않으므로 상대 경로 취급이었다. 동작을 바꾸지 않는다.
+  ///
+  /// **스킴은 http/https 로만 제한한다.** `hasScheme && hasAuthority` 만으로
+  /// 판정하면 `ftp://`, `content://`, `asset://` 처럼 authority 를 갖는 다른
+  /// 스킴도 절대 네트워크 URL 로 오분류된다 — 예전(문자열 접두어 검사)에는
+  /// 이런 입력이 전부 'http'로 시작하지 않아 상대 경로로 취급됐고(즉
+  /// Environment.cdnUrl 뒤에 이어붙어 w/h/q 가 붙는 CDN 조립 경로를 탔다),
+  /// 이 위젯은 애초에 http(s) 네트워크 이미지만 다루는 CachedNetworkImage 라
+  /// 다른 스킴을 별도로 처리할 이유가 없다. scheme 을 http/https 로 제한해
+  /// 그 동작을 그대로 유지한다. `Uri.scheme` 은 이미 소문자로 정규화되므로
+  /// 대문자 변형(`FTP://`, `CONTENT://`)도 여기서 함께 걸러진다.
   ({bool isAbsolute, Uri? uri}) _classifyImageKey(String normalizedKey) {
     if (normalizedKey.isEmpty) return (isAbsolute: false, uri: null);
 
     final directUri = Uri.tryParse(normalizedKey);
-    if (directUri != null && directUri.hasScheme && directUri.hasAuthority) {
+    if (directUri != null &&
+        directUri.hasAuthority &&
+        (directUri.scheme == 'http' || directUri.scheme == 'https')) {
       return (isAbsolute: true, uri: directUri);
     }
 
