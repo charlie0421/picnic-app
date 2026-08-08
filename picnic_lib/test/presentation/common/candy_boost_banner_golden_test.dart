@@ -9,6 +9,7 @@ import 'package:picnic_lib/presentation/common/candy_boost_banner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../helpers/load_test_fonts.dart';
+import '../../helpers/test_environment.dart';
 
 Map<String, dynamic> loadGoldenFixture(String path) =>
     Map<String, dynamic>.from(jsonDecode(File(path).readAsStringSync()) as Map);
@@ -38,6 +39,9 @@ void main() {
   late Duration originalVisibilityInterval;
 
   setUpAll(() async {
+    // PicnicCachedNetworkImage 가 절대 URL 의 호스트를 CDN 과 비교하려면
+    // Environment.cdnUrl 을 읽어야 한다 — 초기화하지 않으면 late field 접근으로 죽는다.
+    initTestColors();
     await loadTestFonts();
     originalVisibilityInterval =
         VisibilityDetectorController.instance.updateInterval;
