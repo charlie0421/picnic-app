@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -514,6 +515,153 @@ void main() {
         expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
         expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
         expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+  });
+
+  group('절대 URL 판별은 Uri 파싱 기반이다 (문자열 접두어 검사 아님)', () {
+    // 배경: 예전에는 `key.startsWith('http://') || key.startsWith('https://')`
+    // 문자열 검사였다. 그래서 대문자 스킴(`HTTPS://...`)과 scheme 없는
+    // network-path reference(`//host/path`, protocol-relative URL)가 둘 다
+    // 절대 URL 인데도 상대 경로로 오인돼 Environment.cdnUrl 뒤에 그대로
+    // 이어붙어 URL 이 깨졌다. _classifyImageKey 가 Uri.tryParse 기반으로
+    // hasScheme/hasAuthority 를 직접 보도록 고쳤다.
+    testWidgets('대문자 스킴(HTTPS://)인 CDN URL 도 변환된다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'HTTPS://test-cdn.example.com/artist/upper.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          startsWith('https://test-cdn.example.com/artist/upper.jpg?'),
+          reason: '대문자 스킴이 상대 경로로 오인돼 cdnUrl 뒤에 그대로 '
+              '이어붙으면 안 된다: ${img.imageUrl}',
+        );
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+      }
+    });
+
+    testWidgets('대문자 스킴(HTTPS://)인 외부 URL 은 원본 대소문자 그대로 반환된다',
+        (tester) async {
+      const externalUrl = 'HTTPS://img.youtube.com/vi/upper-case/mqdefault.jpg';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          externalUrl,
+          reason: '외부 절대 URL 은 스킴 대소문자를 포함해 완전히 원본 그대로 '
+              '반환돼야 한다: ${img.imageUrl}',
+        );
+      }
+    });
+
+    testWidgets('scheme 없는 //host/path(protocol-relative) 는 CDN 호스트면 https 로 '
+        '승격돼 변환된다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: '//test-cdn.example.com/artist/protocol-relative.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          startsWith(
+            'https://test-cdn.example.com/artist/protocol-relative.jpg?',
+          ),
+          reason: '//host/path 를 상대 경로로 오인해 cdnUrl 뒤에 이어붙이면 '
+              '전혀 다른(깨진) URL 이 된다: ${img.imageUrl}',
+        );
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+      }
+    });
+
+    testWidgets(
+        'scheme 없는 //host/path 는 외부 호스트면 https 로 승격만 되고 변환은 없다',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: '//img.youtube.com/vi/protocol-relative/mqdefault.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          'https://img.youtube.com/vi/protocol-relative/mqdefault.jpg',
+          reason: '//host/path 는 https 로 승격되어야 fetch 가능한 URL이 된다 '
+              '(avatar_url_resolver.dart 의 resolveAvatarImageUrl 과 같은 관례). '
+              'CDN 이 아니므로 w/h/q 는 붙지 않아야 한다: ${img.imageUrl}',
+        );
+      }
+    });
+
+    testWidgets('빈 문자열/공백 imageUrl 은 예외 없이 상대 경로로 처리된다',
+        (tester) async {
+      // 빈 문자열/공백은 Uri.tryParse 로도 스킴+authority 를 못 갖추므로 상대
+      // 경로 취급이다 — 예전(문자열 접두어 검사)에도 'http'로 시작하지
+      // 않으므로 동일하게 상대 경로였다. 여기서는 Uri.tryParse 로 바꾼 뒤에도
+      // 예외 없이 같은 동작을 유지하는지만 확인한다(크래시 방지 회귀 테스트).
+      for (final blank in ['', '   ']) {
+        await tester.pumpWidget(
+          buildTestApp(
+            PicnicCachedNetworkImage(
+              key: ValueKey('blank-$blank'),
+              imageUrl: blank,
+              width: 100,
+              height: 100,
+            ),
+          ),
+        );
+        await settle(tester);
+
+        final images = loadedImages(tester);
+        expect(images, isNotEmpty);
+        for (final img in images) {
+          expect(
+            img.imageUrl,
+            startsWith(Environment.cdnUrl),
+            reason: '빈/공백 imageUrl 은 예외 없이 cdnUrl 기준 상대 경로로 '
+                '조립돼야 한다: ${img.imageUrl}',
+          );
+        }
       }
     });
   });

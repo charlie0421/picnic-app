@@ -804,6 +804,53 @@ class _PicnicCachedNetworkImageState
     }
   }
 
+  /// [key] 가 절대 URL 인지, 그렇다면 파싱된 [Uri] 가 무엇인지 판정한다.
+  ///
+  /// _getTransformedUrl 과 _isTransformableUrl 이 예전에는 각자
+  /// `key.startsWith('http://') || key.startsWith('https://')` 문자열 검사를
+  /// 중복해서 갖고 있었다 — 두 판정이 어긋날 수 있는 구조였고, 실제로도
+  /// 허점이 있었다:
+  ///  - `HTTPS://cdn.picnic.fan/x`(대문자 스킴) 은 절대 URL 인데 상대 경로로
+  ///    오인돼 Environment.cdnUrl 뒤에 그대로 이어붙어 URL 이 깨졌다.
+  ///  - `//cdn.picnic.fan/x`(스킴 없는 network-path reference, protocol-relative
+  ///    URL) 도 절대 URL 의 authority(호스트)를 갖는데 마찬가지로 상대 경로로
+  ///    오인됐다.
+  /// 이제 문자열 접두어가 아니라 `Uri.tryParse` 로 실제 파싱해 스킴/authority
+  /// 유무를 직접 본다. 이 메서드가 절대/상대 판정의 유일한 근거이고,
+  /// _getTransformedUrl 과 _isTransformableUrl 모두 이것만 호출한다.
+  ///
+  /// **`//host/path` 정책**: 이 코드베이스는 이미 avatar_url_resolver.dart 의
+  /// resolveAvatarImageUrl 에서 `//` 로 시작하는 protocol-relative URL 을
+  /// `https:` 로 승격해 처리하는 관례가 있다. 여기서도 같은 관례를 따라
+  /// **https 로 승격해 절대 URL로 취급한다.** 반대로(상대 경로로 취급해
+  /// Environment.cdnUrl 뒤에 이어붙이면) 원래 가리키던 호스트를 완전히 잃고
+  /// 엉뚱한 CDN 경로로 조립되는데, 이게 더 나쁘다 — 우리 앱은 http 로 이미지를
+  /// 받을 일이 없으므로 https 승격이 항상 안전한 선택이다.
+  ///
+  /// **빈 문자열·공백·이상한 문자** 입력은 `Uri.tryParse` 로 안전하게 처리한다
+  /// (Uri.parse 는 이런 입력에도 대개 성공하지만, 퍼센트 인코딩이 깨진 입력
+  /// 등에서는 FormatException 을 던질 수 있다 — tryParse 는 그 경우 null 을
+  /// 반환할 뿐 죽지 않는다). 파싱 실패거나 스킴+authority 를 모두 갖추지
+  /// 못하면 상대 경로로 취급한다 — 예전에도 그런 입력은 'http'로 시작하지
+  /// 않으므로 상대 경로 취급이었다. 동작을 바꾸지 않는다.
+  ({bool isAbsolute, Uri? uri}) _classifyImageKey(String normalizedKey) {
+    if (normalizedKey.isEmpty) return (isAbsolute: false, uri: null);
+
+    final directUri = Uri.tryParse(normalizedKey);
+    if (directUri != null && directUri.hasScheme && directUri.hasAuthority) {
+      return (isAbsolute: true, uri: directUri);
+    }
+
+    if (normalizedKey.startsWith('//')) {
+      final promoted = Uri.tryParse('https:$normalizedKey');
+      if (promoted != null && promoted.hasAuthority) {
+        return (isAbsolute: true, uri: promoted);
+      }
+    }
+
+    return (isAbsolute: false, uri: null);
+  }
+
   /// [key] 가 _getTransformedUrl 에서 실제로 CDN w/h/q 변환을 받는지 판정한다.
   ///
   /// 상대 경로는 항상 Environment.cdnUrl 로 조립되므로 변환 대상이고, 절대
@@ -811,12 +858,9 @@ class _PicnicCachedNetworkImageState
   /// _getTransformedUrl 은 인자와 무관하게 원본을 그대로 돌려주므로,
   /// _getTransformedUrls 가 progressive 단계를 나눌 이유가 없다.
   bool _isTransformableUrl(String key) {
-    final normalizedKey = key.trim();
-    final isAbsolute =
-        normalizedKey.startsWith('http://') ||
-        normalizedKey.startsWith('https://');
-    if (!isAbsolute) return true;
-    return _isCdnUrl(Uri.parse(normalizedKey));
+    final classified = _classifyImageKey(key.trim());
+    if (!classified.isAbsolute) return true;
+    return _isCdnUrl(classified.uri!);
   }
 
   /// 이미지 복잡도를 추정합니다
@@ -890,14 +934,17 @@ class _PicnicCachedNetworkImageState
     int quality,
   ) {
     final normalizedKey = key.trim();
-    final isAbsolute =
-        normalizedKey.startsWith('http://') ||
-        normalizedKey.startsWith('https://');
+    final classified = _classifyImageKey(normalizedKey);
 
-    if (isAbsolute) {
-      final uri = Uri.parse(normalizedKey);
+    if (classified.isAbsolute) {
+      final uri = classified.uri!;
       if (!_isCdnUrl(uri)) {
-        return normalizedKey;
+        // 원본을 그대로 반환한다 — 단, `//host/path`(스킴 없는 protocol-relative
+        // URL)는 예외다. 원본 문자열 자체는 스킴이 없어 그대로 돌려주면 fetch
+        // 불가능한 URL이 되므로, https 로 승격된 형태를 돌려줘야 실제로 유효한
+        // URL이 된다(_classifyImageKey 의 `//host/path` 정책 참고). 그 외의
+        // 모든 절대 URL은 대소문자·쿼리까지 완전히 그대로 보존된다.
+        return normalizedKey.startsWith('//') ? uri.toString() : normalizedKey;
       }
       return _withCdnQuery(uri, resolutionMultiplier, quality).toString();
     }
