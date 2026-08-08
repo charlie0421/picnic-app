@@ -69,18 +69,6 @@ class PicnicCachedNetworkImageHelper {
     return buffer.toString();
   }
 
-  /// Format a device pixel ratio value for use as a query parameter.
-  ///
-  /// Removes trailing zeros (e.g. 2.00 -> "2", 1.50 -> "1.5").
-  /// Returns "1" for empty result.
-  static String formatDpr(double value) {
-    final fixed = value.toStringAsFixed(2);
-    final trimmed = fixed
-        .replaceAll(RegExp(r'0+$'), '')
-        .replaceAll(RegExp(r'\.$'), '');
-    return trimmed.isEmpty ? '1' : trimmed;
-  }
-
   /// Estimate image complexity based on pixel count and whether it is a GIF.
   ///
   /// GIF images are always [ImageComplexity.high].
