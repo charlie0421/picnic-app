@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
@@ -42,7 +41,7 @@ enum ImagePriority {
 /// 위젯이 재생성되더라도 이미 로딩된 이미지는 즉시 표시됨
 final Set<String> _successfullyLoadedImageUrls = {};
 
-class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
+class PicnicCachedNetworkImage extends StatefulWidget {
   final String imageUrl;
   final double? width;
   final double? height;
@@ -118,12 +117,12 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   static bool disableTimeoutForTest = false;
 
   @override
-  ConsumerState<PicnicCachedNetworkImage> createState() =>
+  State<PicnicCachedNetworkImage> createState() =>
       _PicnicCachedNetworkImageState();
 }
 
 class _PicnicCachedNetworkImageState
-    extends ConsumerState<PicnicCachedNetworkImage> {
+    extends State<PicnicCachedNetworkImage> {
   bool _loading = false;
   bool _hasError = false;
   bool _shouldLoadImage = false; // Lazy Loading 제어
@@ -164,7 +163,7 @@ class _PicnicCachedNetworkImageState
   static final Map<String, DateTime> _lastTimeoutLogTimes = {};
   static const Duration _timeoutLogInterval = Duration(minutes: 3);
   int _reloadToken = 0;
-  late final DisposableBuildContext<ConsumerState<PicnicCachedNetworkImage>>
+  late final DisposableBuildContext<State<PicnicCachedNetworkImage>>
   _scrollAwareContext;
 
   bool get isGif => widget.imageUrl.toLowerCase().endsWith('.gif');
@@ -256,7 +255,7 @@ class _PicnicCachedNetworkImageState
   void initState() {
     super.initState();
     _scrollAwareContext =
-        DisposableBuildContext<ConsumerState<PicnicCachedNetworkImage>>(this);
+        DisposableBuildContext<State<PicnicCachedNetworkImage>>(this);
 
     // Lazy Loading 전략에 따른 초기화
     _initializeLazyLoading();
