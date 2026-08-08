@@ -664,6 +664,49 @@ void main() {
         }
       }
     });
+
+    testWidgets(
+        'http/https 가 아닌 스킴(ftp/content/asset, 대문자 포함)은 절대 네트워크 '
+        'URL 로 오분류되지 않는다', (tester) async {
+      // 배경: hasScheme && hasAuthority 만으로 판정하면 authority 를 갖는
+      // ftp://, content://, asset:// 같은 다른 스킴도 절대 네트워크 URL 로
+      // 오분류된다. 예전(문자열 접두어 검사)에는 이런 입력이 전부 'http'로
+      // 시작하지 않아 상대 경로 취급이었다(Environment.cdnUrl 뒤에 이어붙어
+      // w/h/q 가 붙었다) — 이 위젯이 다루는 건 http(s) 네트워크 이미지뿐이므로
+      // 그 동작을 그대로 유지해야 한다.
+      for (final key in [
+        'ftp://files.example.com/image.jpg',
+        'FTP://files.example.com/image.jpg',
+        'content://media/external/images/1',
+        'CONTENT://media/external/images/1',
+        'asset://images/local.png',
+      ]) {
+        await tester.pumpWidget(
+          buildTestApp(
+            PicnicCachedNetworkImage(
+              key: ValueKey('scheme-$key'),
+              imageUrl: key,
+              width: 100,
+              height: 100,
+            ),
+          ),
+        );
+        await settle(tester);
+
+        final images = loadedImages(tester);
+        expect(images, isNotEmpty, reason: 'key=$key');
+        for (final img in images) {
+          expect(
+            img.imageUrl,
+            startsWith('${Environment.cdnUrl}/$key'),
+            reason: 'http/https 가 아닌 스킴은 상대 경로로 cdnUrl 뒤에 '
+                '조립돼야 한다(예전과 동일) — 절대 네트워크 URL 로 오분류돼 '
+                '원본 그대로 반환되면 안 된다: key=$key, 실제=${img.imageUrl}',
+          );
+          expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        }
+      }
+    });
   });
 
   group('외부 URL 은 progressive 단계를 만들지 않는다 (중복 다운로드 방지)', () {
