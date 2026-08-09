@@ -370,6 +370,12 @@ class _PicnicCachedNetworkImageState
       _shouldLoadImage = true;
       _isImageLoaded = true;
       _loading = false;
+      // 이 분기는 "재사용"의 지배적 경로다 — 이미 로딩된 URL 은 여기서 곧장
+      // return 하므로 _onImageLoadSuccess(따라서 _rememberSuccessfullyLoadedImageUrl)
+      // 가 호출되지 않는다. 여기서 직접 갱신하지 않으면 hot URL 이 최초 삽입
+      // 위치에 고정된 채 밀려나는 FIFO 로 퇴화한다 — LRU 갱신은 반드시 여기서도
+      // 일어나야 한다.
+      _rememberSuccessfullyLoadedImageUrl(widget.imageUrl);
       return;
     }
 
