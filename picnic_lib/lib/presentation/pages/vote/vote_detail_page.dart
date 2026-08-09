@@ -1377,6 +1377,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       visibilityThreshold: 0.1,
       // C4: 이 리스트의 행 이미지는 최저 우선순위 + 플링 중 지연 로딩.
       priority: ImagePriority.low,
+      enableMemoryOptimization: true,
       enableProgressiveLoading: true,
       timeout: const Duration(seconds: 15), // 타임아웃을 15초로 증가 (네트워크 상태 고려)
       maxRetries: 2,

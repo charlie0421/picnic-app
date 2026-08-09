@@ -21,6 +21,7 @@ Future<void> _pumpImage(
   Widget? errorWidget,
   bool showLoadingOverlay = true,
   ImagePriority priority = ImagePriority.normal,
+  bool enableMemoryOptimization = true,
   int? memCacheWidth,
   int? memCacheHeight,
   Duration? lazyLoadDelay,
@@ -40,6 +41,7 @@ Future<void> _pumpImage(
         errorWidget: errorWidget,
         showLoadingOverlay: showLoadingOverlay,
         priority: priority,
+        enableMemoryOptimization: enableMemoryOptimization,
         memCacheWidth: memCacheWidth,
         memCacheHeight: memCacheHeight,
         lazyLoadDelay: lazyLoadDelay,
@@ -164,6 +166,16 @@ void main() {
         imageUrl: 'https://example.com/test.png',
         timeout: const Duration(seconds: 10),
         maxRetries: 5,
+      );
+      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
+    });
+
+    testWidgets('renders with enableMemoryOptimization false',
+        (WidgetTester tester) async {
+      await _pumpImage(
+        tester,
+        imageUrl: 'https://example.com/test.png',
+        enableMemoryOptimization: false,
       );
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });

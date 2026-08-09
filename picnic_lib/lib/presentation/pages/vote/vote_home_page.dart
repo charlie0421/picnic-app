@@ -360,6 +360,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
                               priority: isHighPriority
                                   ? ImagePriority.high
                                   : ImagePriority.normal,
+                              enableMemoryOptimization: true,
                               enableProgressiveLoading: !isHighPriority,
                               memCacheWidth: 120,
                               memCacheHeight: 100,

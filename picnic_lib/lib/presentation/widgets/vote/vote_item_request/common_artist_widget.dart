@@ -99,6 +99,7 @@ class CommonArtistWidget extends StatelessWidget {
                 width: width,
                 height: height,
                 priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
+                enableMemoryOptimization: true, // ✅ 메모리 최적화 활성화
                 memCacheWidth: width.toInt(), // ✅ 메모리 캐시 크기 지정
                 memCacheHeight: height.toInt(), // ✅ 메모리 캐시 크기 지정
                 timeout: const Duration(seconds: 10), // ✅ 타임아웃 설정
