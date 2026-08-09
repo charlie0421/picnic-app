@@ -46,18 +46,67 @@ enum ImagePriority {
 /// 들어간다. 이 Set 은 initState 시점(_cachedUrls 계산 전, 즉 cacheKey 를 아직
 /// 모르는 시점)에 원본 imageUrl 만으로 "이 세션에서 한 번은 성공했다"를 묻는
 /// 용도라 프레임워크 캐시와 키 공간이 다르다 — 대체 시 매치 실패로 조용히
-/// 스킵 로직이 죽는 회귀를 안고 가게 된다. 대신 세션 내 무한 누적만 막는다
-/// (FIFO cap — 삽입 순서상 가장 오래된 항목을 버린다. Set 리터럴 `{}` 은
-/// LinkedHashSet 이라 `.first` 가 삽입 순서를 보존한다).
+/// 스킵 로직이 죽는 회귀를 안고 가게 된다. 대신 세션 내 무한 누적만 막는다.
+///
+/// **LRU, FIFO 아님.** 삽입 순서상 가장 오래 재사용되지 않은(least-recently-
+/// used) 항목을 버린다 — [_rememberSuccessfullyLoadedImageUrl] 이 재사용 시
+/// 기존 엔트리를 지웠다 다시 넣어 "가장 최근" 위치(LinkedHashSet 삽입 순서상
+/// 맨 뒤)로 옮긴다. 단순 FIFO(재사용해도 위치 갱신 없음)였다면, 인기 아티스트
+/// 이미지처럼 반복 재사용되는(hot) URL 도 최초 삽입 시점 기준으로만 밀려나
+/// 상한을 넘기는 즉시 스킵 대상에서 빠지고 shimmer/loading-overlay 경로를 다시
+/// 탄다 — 자주 쓰는 이미지일수록 먼저 밀려나는 역설이 생긴다.
+///
+/// **상한 500 의 근거**: CDN 이미지 URL 은 보통
+/// `https://cdn.picnic.fan/.../<uuid>.jpg?w=400&h=400&q=85` 형태로 평균
+/// 100~160자(여유 있게 150자로 계산). Dart String 은 UTF-16 저장이라 문자당
+/// 2바이트, 문자열 인스턴스/LinkedHashSet 노드 오버헤드를 넉넉히 문자당 1바이트
+/// 추가로 잡아도 항목당 대략 450바이트, 500개 전체로 ~220KB — 이 위젯이 이미
+/// 유지하는 200MB 이미지 캐시에 비해 무시할 수 있는 크기다. 반면 한 화면(리스트/
+/// 그리드/캐러셀)에 동시에 걸리는 distinct 이미지 수는 보통 수십~한두 백 개
+/// 수준이라, LRU 갱신과 맞물리면 실사용 중 hot URL 이 이 상한 안에서 밀려날
+/// 일은 사실상 없다.
 const int _maxSuccessfullyLoadedImageUrls = 500;
 final Set<String> _successfullyLoadedImageUrls = {};
 
 void _rememberSuccessfullyLoadedImageUrl(String url) {
-  if (_successfullyLoadedImageUrls.contains(url)) return;
+  // 이미 있으면 지웠다 다시 넣어 "가장 최근 사용" 위치로 갱신한다(LRU).
+  _successfullyLoadedImageUrls.remove(url);
   if (_successfullyLoadedImageUrls.length >= _maxSuccessfullyLoadedImageUrls) {
     _successfullyLoadedImageUrls.remove(_successfullyLoadedImageUrls.first);
   }
   _successfullyLoadedImageUrls.add(url);
+}
+
+/// 테스트 전용: 세션 전역 상태인 [_successfullyLoadedImageUrls] 를 초기화한다.
+/// (top-level 전역이라 테스트 간 격리를 위해 필요.)
+@visibleForTesting
+void resetSuccessfullyLoadedImageUrlsForTest() {
+  _successfullyLoadedImageUrls.clear();
+}
+
+/// 테스트 전용: 상한 검증을 위해 현재 크기를 읽는다.
+@visibleForTesting
+int get successfullyLoadedImageUrlsCountForTest =>
+    _successfullyLoadedImageUrls.length;
+
+/// 테스트 전용: [_maxSuccessfullyLoadedImageUrls] 를 그대로 노출한다 — 테스트가
+/// 상한 숫자를 별도로 하드코딩해 두 값이 어긋나는 것을 막는다.
+@visibleForTesting
+int get successfullyLoadedImageUrlsCapacityForTest =>
+    _maxSuccessfullyLoadedImageUrls;
+
+/// 테스트 전용: 특정 URL 이 세션 성공 Set 에 남아있는지 확인한다.
+@visibleForTesting
+bool successfullyLoadedImageUrlsContainsForTest(String url) =>
+    _successfullyLoadedImageUrls.contains(url);
+
+/// 테스트 전용: 실제 이미지 디코드 성공 콜백 없이 LRU 상한/갱신 로직만
+/// 단위 테스트하기 위한 진입점. 헤드리스 테스트 환경에서는 네트워크 이미지
+/// 디코드가 항상 실패하므로, 위젯을 통한 진짜 성공 경로로는 이 Set 의
+/// 상한 동작을 검증할 수 없다.
+@visibleForTesting
+void rememberSuccessfullyLoadedImageUrlForTest(String url) {
+  _rememberSuccessfullyLoadedImageUrl(url);
 }
 
 class PicnicCachedNetworkImage extends StatefulWidget {
