@@ -38,8 +38,27 @@ enum ImagePriority {
 }
 
 /// 성공적으로 로딩된 이미지 URL을 추적하는 글로벌 Set
-/// 위젯이 재생성되더라도 이미 로딩된 이미지는 즉시 표시됨
+/// 위젯이 재생성되더라도 이미 로딩된 이미지는 즉시 표시됨(로딩 오버레이 스킵)
+///
+/// Flutter의 PaintingBinding.imageCache 로 대체할 수 없다 — 그 캐시는
+/// ImageProvider(오브젝트) 를 키로 쓰고, CachedNetworkImageProvider 의 키에는
+/// cacheKey(=_cacheKeyFor, _reloadToken/index/isLowQuality 를 섞어 만듦)까지
+/// 들어간다. 이 Set 은 initState 시점(_cachedUrls 계산 전, 즉 cacheKey 를 아직
+/// 모르는 시점)에 원본 imageUrl 만으로 "이 세션에서 한 번은 성공했다"를 묻는
+/// 용도라 프레임워크 캐시와 키 공간이 다르다 — 대체 시 매치 실패로 조용히
+/// 스킵 로직이 죽는 회귀를 안고 가게 된다. 대신 세션 내 무한 누적만 막는다
+/// (FIFO cap — 삽입 순서상 가장 오래된 항목을 버린다. Set 리터럴 `{}` 은
+/// LinkedHashSet 이라 `.first` 가 삽입 순서를 보존한다).
+const int _maxSuccessfullyLoadedImageUrls = 500;
 final Set<String> _successfullyLoadedImageUrls = {};
+
+void _rememberSuccessfullyLoadedImageUrl(String url) {
+  if (_successfullyLoadedImageUrls.contains(url)) return;
+  if (_successfullyLoadedImageUrls.length >= _maxSuccessfullyLoadedImageUrls) {
+    _successfullyLoadedImageUrls.remove(_successfullyLoadedImageUrls.first);
+  }
+  _successfullyLoadedImageUrls.add(url);
+}
 
 class PicnicCachedNetworkImage extends StatefulWidget {
   final String imageUrl;
@@ -1374,9 +1393,9 @@ class _PicnicCachedNetworkImageState
     _retryTimer?.cancel();
     _retryTimer = null;
 
-    // 성공적으로 로딩된 이미지 URL을 글로벌 Set에 추가
+    // 성공적으로 로딩된 이미지 URL을 글로벌 Set에 추가 (상한 있음)
     // 다음 번 위젯 재생성 시 즉시 표시됨
-    _successfullyLoadedImageUrls.add(widget.imageUrl);
+    _rememberSuccessfullyLoadedImageUrl(widget.imageUrl);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
