@@ -1063,4 +1063,67 @@ void main() {
       );
     });
   });
+
+  group('세션 성공 URL 추적 Set — 캐시 히트로 스킵되는 재사용 경로에서도 LRU 갱신', () {
+    setUp(() {
+      resetSuccessfullyLoadedImageUrlsForTest();
+    });
+
+    tearDown(() {
+      resetSuccessfullyLoadedImageUrlsForTest();
+    });
+
+    testWidgets(
+      '이미 로딩된 URL 을 다시 마운트(캐시 히트 → 로드 스킵)해도 LRU 위치가 갱신된다',
+      (tester) async {
+        // _initializeLazyLoading 의 isAlreadyLoaded 분기는 즉시 return 하므로
+        // _onImageLoadSuccess(→ _rememberSuccessfullyLoadedImageUrl) 를 타지
+        // 않는다 — 바로 이 분기에서도 갱신이 함께 일어나는지가 이 테스트의
+        // 핵심이다. 위의 두 테스트는 _rememberSuccessfullyLoadedImageUrl 을
+        // 직접 호출하므로 이 경로(재사용의 지배적 경로)의 결함을 잡지 못했다.
+        const hotUrl = 'https://example.com/cache-hit-hot.jpg';
+        final capacity = successfullyLoadedImageUrlsCapacityForTest;
+
+        // hotUrl 을 가장 먼저(=가장 밀려나기 쉬운, 가장 오래된 위치에) 넣고,
+        // 나머지로 상한을 채운다.
+        rememberSuccessfullyLoadedImageUrlForTest(hotUrl);
+        for (var i = 0; i < capacity - 1; i++) {
+          rememberSuccessfullyLoadedImageUrlForTest('https://example.com/img$i.jpg');
+        }
+        expect(successfullyLoadedImageUrlsCountForTest, capacity);
+        expect(successfullyLoadedImageUrlsContainsForTest(hotUrl), isTrue);
+
+        // hotUrl 을 다시 마운트한다 — 캐시 히트 경로(isAlreadyLoaded)를 태운다.
+        await tester.pumpWidget(
+          buildTestApp(
+            const PicnicCachedNetworkImage(
+              imageUrl: hotUrl,
+              width: 80,
+              height: 80,
+            ),
+          ),
+        );
+        await settle(tester);
+
+        // 마운트가 갱신을 동반했다면, 새 URL 을 딱 1개만 추가해도(FIFO였다면
+        // 여전히 가장 오래된 hotUrl 이 밀려났을 상황) hotUrl 은 살아남고,
+        // 대신 img0(hotUrl 다음으로 오래된 항목)이 밀려나야 한다.
+        rememberSuccessfullyLoadedImageUrlForTest('https://example.com/afterMount.jpg');
+
+        expect(successfullyLoadedImageUrlsCountForTest, capacity);
+        expect(
+          successfullyLoadedImageUrlsContainsForTest(hotUrl),
+          isTrue,
+          reason:
+              '캐시 히트로 로드를 스킵한 재사용도 LRU 갱신을 동반해야 한다 — '
+              '이 분기에서 갱신을 빼먹으면 이름만 LRU 고 동작은 FIFO 로 퇴화한다',
+        );
+        expect(
+          successfullyLoadedImageUrlsContainsForTest('https://example.com/img0.jpg'),
+          isFalse,
+          reason: '갱신되지 않은 그 다음 오래된 항목은 정상적으로 밀려나야 한다',
+        );
+      },
+    );
+  });
 }
