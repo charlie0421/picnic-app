@@ -63,7 +63,6 @@ class GoonghapCard extends ConsumerWidget {
       fit: BoxFit.cover,
       priority: ImagePriority.normal,
       lazyLoadingStrategy: LazyLoadingStrategy.none, // ❌
-      enableMemoryOptimization: true,
       enableProgressiveLoading: false, // ❌
       memCacheWidth: (150 * 1.5).toInt(),
       memCacheHeight: (150 * 1.5).toInt(),
