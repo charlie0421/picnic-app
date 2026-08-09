@@ -996,4 +996,71 @@ void main() {
       }
     });
   });
+
+  group('세션 성공 URL 추적 Set — LRU 상한', () {
+    setUp(() {
+      resetSuccessfullyLoadedImageUrlsForTest();
+    });
+
+    tearDown(() {
+      resetSuccessfullyLoadedImageUrlsForTest();
+    });
+
+    test('상한을 넘기면 가장 오래 재사용되지 않은 URL 이 밀려난다', () {
+      final capacity = successfullyLoadedImageUrlsCapacityForTest;
+      for (var i = 0; i < capacity; i++) {
+        rememberSuccessfullyLoadedImageUrlForTest('https://example.com/img$i.jpg');
+      }
+      expect(successfullyLoadedImageUrlsCountForTest, capacity);
+      expect(
+        successfullyLoadedImageUrlsContainsForTest('https://example.com/img0.jpg'),
+        isTrue,
+        reason: '상한에 도달하기 전이므로 아직 밀려나지 않아야 한다',
+      );
+
+      // capacity+1번째 URL을 추가하면 가장 오래된(=img0) 항목이 밀려나야 한다.
+      rememberSuccessfullyLoadedImageUrlForTest('https://example.com/imgNew.jpg');
+
+      expect(successfullyLoadedImageUrlsCountForTest, capacity);
+      expect(
+        successfullyLoadedImageUrlsContainsForTest('https://example.com/img0.jpg'),
+        isFalse,
+        reason: 'FIFO/LRU 모두 상한 도달 직후 첫 신규 삽입에서는 최초 항목이 밀려나야 한다',
+      );
+      expect(
+        successfullyLoadedImageUrlsContainsForTest('https://example.com/imgNew.jpg'),
+        isTrue,
+      );
+    });
+
+    test('반복 재사용된(hot) URL 은 상한을 넘겨도 밀려나지 않는다 (LRU, FIFO 아님)', () {
+      final capacity = successfullyLoadedImageUrlsCapacityForTest;
+      for (var i = 0; i < capacity; i++) {
+        rememberSuccessfullyLoadedImageUrlForTest('https://example.com/img$i.jpg');
+      }
+
+      // hot URL: img0을 다시 "성공"시켜 최근 사용 위치로 갱신한다.
+      const hotUrl = 'https://example.com/img0.jpg';
+      rememberSuccessfullyLoadedImageUrlForTest(hotUrl);
+
+      // 새 URL 을 100개 더 추가해도(단순 FIFO였다면 삽입 순서상 img0~img99가
+      // 밀려날 자리) hot URL 은 갱신된 최신 위치 덕에 살아남아야 한다.
+      for (var i = 0; i < 100; i++) {
+        rememberSuccessfullyLoadedImageUrlForTest('https://example.com/extra$i.jpg');
+      }
+
+      expect(successfullyLoadedImageUrlsCountForTest, capacity);
+      expect(
+        successfullyLoadedImageUrlsContainsForTest(hotUrl),
+        isTrue,
+        reason: '재사용으로 갱신된 URL 은 FIFO였다면 밀려났을 물량이 지나가도 살아남아야 한다',
+      );
+      // 반면 재사용되지 않은 img1(hot 갱신 전 img0 바로 다음 순서)은 밀려나야 한다.
+      expect(
+        successfullyLoadedImageUrlsContainsForTest('https://example.com/img1.jpg'),
+        isFalse,
+        reason: '재사용되지 않은 최오래 항목은 LRU 상에서도 정상적으로 밀려나야 한다',
+      );
+    });
+  });
 }
