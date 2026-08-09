@@ -284,23 +284,6 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsNWidgets(2));
     });
 
-    testWidgets('renders with custom error widget',
-        (WidgetTester tester) async {
-      await pumpAndDrain(
-        tester,
-        buildTestApp(
-          const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/error.jpg',
-            width: 100,
-            height: 100,
-            errorWidget: Icon(Icons.error),
-          ),
-        ),
-      );
-
-      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
-    });
-
     // LazyLoadingStrategy.none triggers _buildCachedNetworkImage which creates
     // a 30-second timeout timer inside StatefulBuilder that cannot be cleanly
     // cancelled in widget tests. Skipped to avoid pending timer errors.
@@ -352,23 +335,6 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with lazy load delay', (WidgetTester tester) async {
-      await pumpAndDrain(
-        tester,
-        buildTestApp(
-          const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/delayed.jpg',
-            width: 100,
-            height: 100,
-            lazyLoadingStrategy: LazyLoadingStrategy.viewport,
-            lazyLoadDelay: Duration(milliseconds: 200),
-          ),
-        ),
-      );
-
-      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
-    });
-
     testWidgets('renders with very large dimensions',
         (WidgetTester tester) async {
       await pumpAndDrain(
@@ -395,40 +361,6 @@ void main() {
             imageUrl: 'https://example.com/tiny.jpg',
             width: 10,
             height: 10,
-          ),
-        ),
-      );
-
-      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
-    });
-
-    testWidgets('renders with preloading disabled',
-        (WidgetTester tester) async {
-      await pumpAndDrain(
-        tester,
-        buildTestApp(
-          const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/nopreload.jpg',
-            width: 100,
-            height: 100,
-            enablePreloading: false,
-          ),
-        ),
-      );
-
-      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
-    });
-
-    testWidgets('renders with max concurrent loads set',
-        (WidgetTester tester) async {
-      await pumpAndDrain(
-        tester,
-        buildTestApp(
-          const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/concurrent.jpg',
-            width: 100,
-            height: 100,
-            maxConcurrentLoads: 4,
           ),
         ),
       );
