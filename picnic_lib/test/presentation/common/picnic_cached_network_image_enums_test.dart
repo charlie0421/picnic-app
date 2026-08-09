@@ -73,16 +73,11 @@ void main() {
       expect(widget.maxRetries, isNull);
       expect(widget.lazyLoadingStrategy, equals(LazyLoadingStrategy.viewport));
       expect(widget.visibilityThreshold, equals(0.1));
-      expect(widget.lazyLoadDelay, isNull);
       expect(widget.placeholder, isNull);
-      expect(widget.errorWidget, isNull);
       expect(widget.showLoadingOverlay, isTrue);
-      expect(widget.enablePreloading, isTrue);
-      expect(widget.preloadDistance, equals(200.0));
       expect(widget.priority, equals(ImagePriority.normal));
       expect(widget.enableMemoryOptimization, isTrue);
       expect(widget.enableProgressiveLoading, isTrue);
-      expect(widget.maxConcurrentLoads, isNull);
     });
 
     test('커스텀 값 설정', () {
@@ -96,12 +91,9 @@ void main() {
         lazyLoadingStrategy: LazyLoadingStrategy.none,
         visibilityThreshold: 0.5,
         showLoadingOverlay: false,
-        enablePreloading: false,
-        preloadDistance: 100.0,
         priority: ImagePriority.high,
         enableMemoryOptimization: false,
         enableProgressiveLoading: false,
-        maxConcurrentLoads: 4,
       );
       expect(widget.width, equals(200));
       expect(widget.height, equals(300));
@@ -111,12 +103,9 @@ void main() {
       expect(widget.lazyLoadingStrategy, equals(LazyLoadingStrategy.none));
       expect(widget.visibilityThreshold, equals(0.5));
       expect(widget.showLoadingOverlay, isFalse);
-      expect(widget.enablePreloading, isFalse);
-      expect(widget.preloadDistance, equals(100.0));
       expect(widget.priority, equals(ImagePriority.high));
       expect(widget.enableMemoryOptimization, isFalse);
       expect(widget.enableProgressiveLoading, isFalse);
-      expect(widget.maxConcurrentLoads, equals(4));
     });
 
     test('const 생성자 지원', () {

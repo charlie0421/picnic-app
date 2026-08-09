@@ -18,13 +18,11 @@ Future<void> _pumpImage(
   BorderRadius? borderRadius,
   LazyLoadingStrategy lazyLoadingStrategy = LazyLoadingStrategy.viewport,
   Widget? placeholder,
-  Widget? errorWidget,
   bool showLoadingOverlay = true,
   ImagePriority priority = ImagePriority.normal,
   bool enableMemoryOptimization = true,
   int? memCacheWidth,
   int? memCacheHeight,
-  Duration? lazyLoadDelay,
   Duration? timeout,
   int? maxRetries,
 }) async {
@@ -38,13 +36,11 @@ Future<void> _pumpImage(
         borderRadius: borderRadius,
         lazyLoadingStrategy: lazyLoadingStrategy,
         placeholder: placeholder,
-        errorWidget: errorWidget,
         showLoadingOverlay: showLoadingOverlay,
         priority: priority,
         enableMemoryOptimization: enableMemoryOptimization,
         memCacheWidth: memCacheWidth,
         memCacheHeight: memCacheHeight,
-        lazyLoadDelay: lazyLoadDelay,
         timeout: timeout,
         maxRetries: maxRetries,
       ),
@@ -85,16 +81,6 @@ void main() {
         tester,
         imageUrl: 'https://example.com/test.png',
         placeholder: const Icon(Icons.image),
-      );
-      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
-    });
-
-    testWidgets('renders with custom error widget',
-        (WidgetTester tester) async {
-      await _pumpImage(
-        tester,
-        imageUrl: 'https://example.com/test.png',
-        errorWidget: const Icon(Icons.error),
       );
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
@@ -145,16 +131,6 @@ void main() {
         imageUrl: 'https://example.com/test.png',
         memCacheWidth: 200,
         memCacheHeight: 200,
-      );
-      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
-    });
-
-    testWidgets('renders with lazy load delay',
-        (WidgetTester tester) async {
-      await _pumpImage(
-        tester,
-        imageUrl: 'https://example.com/test.png',
-        lazyLoadDelay: const Duration(milliseconds: 100),
       );
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });

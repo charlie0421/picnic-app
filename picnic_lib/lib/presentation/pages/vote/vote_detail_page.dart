@@ -1375,8 +1375,6 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       placeholder: _buildImagePlaceholder(),
       lazyLoadingStrategy: LazyLoadingStrategy.none, // sliver 뷰포트가 게이트
       visibilityThreshold: 0.1,
-      enablePreloading: true,
-      preloadDistance: 200.0,
       // C4: 이 리스트의 행 이미지는 최저 우선순위 + 플링 중 지연 로딩.
       priority: ImagePriority.low,
       enableMemoryOptimization: true,
