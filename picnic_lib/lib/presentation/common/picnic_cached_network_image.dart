@@ -240,6 +240,42 @@ class _PicnicCachedNetworkImageState
   // 엔트리를 기록하면 그 각각이 맵 전체를 훑는 O(n) 정리를 유발할 수 있다.
   static DateTime? _lastTimeoutLogSweep;
   static const Duration _timeoutLogSweepInterval = Duration(seconds: 30);
+
+  // 위 두 sweep 주기 제한은 "정리 비용"만 시간당으로 묶을 뿐, sweep 사이에
+  // 유입되는 엔트리 수(맵 카디널리티) 자체는 묶지 않는다 — CDN 장애로 30초
+  // sweep 주기 안에 distinct URL 수천 개가 동시에 실패/타임아웃되면, 다음
+  // sweep 이 돌기 전까지 두 맵 모두 무제한으로 커질 수 있다. 신규 키를 넣기
+  // 직전에 카디널리티 상한을 직접 걸어, sweep 타이밍과 무관하게 최악의 경우도
+  // 유계로 만든다.
+  //
+  // 상한 2000 의 근거: 두 맵 모두 "실패/타임아웃이 있었던 URL" 만 담으므로
+  // 값이 작다. CDN 이미지 URL 은 평균 100~160자(여유 있게 150자, UTF-16 2바이트
+  // +노드 오버헤드 감안 문자당 3바이트 ≈ 450바이트 — _successfullyLoadedImageUrls
+  // 산정과 동일 기준). _lastTimeoutLogTimes 는 값이 DateTime 하나(수십 바이트)라
+  // 항목당 대략 500바이트, 2000개 전체로 ~1MB. _failureHistory 는 값이
+  // List<DateTime> 이라 조금 더 크다 — _shouldRetry 가 recentFailures < 15 를
+  // 재시도 조건으로 쓰므로 항목당 최악 15개(각 수십 바이트)+List 오버헤드로
+  // 대략 1.1KB, 2000개 전체로도 ~2.2MB. 둘 다 이 위젯이 이미 유지하는 200MB
+  // 이미지 캐시에 비해 무시할 수 있는 크기이면서, "CDN 장애로 distinct URL
+  // 수천 개가 동시 실패" 시나리오를 sweep 이전에도 대부분 그대로 수용할 만큼
+  // 넉넉하다.
+  //
+  // 상한 도달 시 가장 오래 삽입된 키를 버린다 — LRU 가 아니라 FIFO다. 두 맵
+  // 모두 값이 "이 URL 에 대한 게이트 상태"일 뿐이고, 재사용(재실패/재타임아웃)
+  // 시에도 굳이 최신 위치로 옮길 필요가 없다: 잘못 버려도 결과가 완만하다 —
+  // 실패 이력을 잃으면 다음 실패 시 재시도 카운트가 0부터 다시 쌓일 뿐이고
+  // (더 관대해지는 쪽이라 안전 방향), 타임아웃 로그 시각을 잃으면 로그 한 줄이
+  // 중복될 뿐이다. _successfullyLoadedImageUrls 처럼 "재사용해도 밀려나면
+  // 안 되는" 사용자 가시적 요구가 없으므로, 갱신(touch)까지 갖춘 LRU 를 도입할
+  // 이유가 없다.
+  static const int _maxTrackedUrlMapEntries = 2000;
+
+  static void _capTrackedUrlMapSize<V>(Map<String, V> map, String incomingKey) {
+    if (map.containsKey(incomingKey)) return;
+    if (map.length >= _maxTrackedUrlMapEntries) {
+      map.remove(map.keys.first);
+    }
+  }
   int _reloadToken = 0;
   late final DisposableBuildContext<State<PicnicCachedNetworkImage>>
   _scrollAwareContext;
@@ -1208,6 +1244,7 @@ class _PicnicCachedNetworkImageState
               final lastLoggedAt = _lastTimeoutLogTimes[url];
               if (lastLoggedAt == null ||
                   now.difference(lastLoggedAt) >= _timeoutLogInterval) {
+                _capTrackedUrlMapSize(_lastTimeoutLogTimes, url);
                 _lastTimeoutLogTimes[url] = now;
 
                 final lastSweep = _lastTimeoutLogSweep;
@@ -1362,6 +1399,7 @@ class _PicnicCachedNetworkImageState
   // 동시에 실패할 때 이 경로가 O(실패 횟수 × distinct URL 수)가 된다.
   void _recordFailure(String url) {
     final now = DateTime.now();
+    _capTrackedUrlMapSize(_failureHistory, url);
     _failureHistory[url] = (_failureHistory[url] ?? [])..add(now);
 
     final lastSweep = _lastFailureHistorySweep;
@@ -1588,4 +1626,65 @@ class _PicnicCachedNetworkImageState
       // logger.throttledWarn('이미지 로딩 오류: $error (URL: $url)', errorKey);
     }
   }
+
+  // 테스트 전용: 실제 네트워크 실패/타임아웃 콜백 없이 _failureHistory/
+  // _lastTimeoutLogTimes 의 카디널리티 상한 로직만 단위 테스트하기 위한
+  // 진입점. 클래스가 private 이라 아래 static 멤버는 파일 하단의 public
+  // top-level 래퍼(resetImageLoadTrackingMapsForTest 등)를 통해서만
+  // 테스트 파일에 노출된다.
+  static void _resetTrackingMapsForTest() {
+    _failureHistory.clear();
+    _lastTimeoutLogTimes.clear();
+    _lastFailureHistorySweep = null;
+    _lastTimeoutLogSweep = null;
+  }
+
+  static void _recordFailureForTest(String url) {
+    _capTrackedUrlMapSize(_failureHistory, url);
+    _failureHistory[url] = (_failureHistory[url] ?? [])..add(DateTime.now());
+  }
+
+  static void _recordTimeoutLogForTest(String url) {
+    _capTrackedUrlMapSize(_lastTimeoutLogTimes, url);
+    _lastTimeoutLogTimes[url] = DateTime.now();
+  }
 }
+
+/// 테스트 전용: 세션 전역 상태인 실패/타임아웃 로그 추적 맵을 초기화한다.
+@visibleForTesting
+void resetImageLoadTrackingMapsForTest() {
+  _PicnicCachedNetworkImageState._resetTrackingMapsForTest();
+}
+
+/// 테스트 전용: [_PicnicCachedNetworkImageState._recordFailure] 의 카디널리티
+/// 상한 로직만 검증하기 위한 진입점.
+@visibleForTesting
+void recordFailureForTest(String url) {
+  _PicnicCachedNetworkImageState._recordFailureForTest(url);
+}
+
+/// 테스트 전용: 타임아웃 로그 상한 로직만 검증하기 위한 진입점.
+@visibleForTesting
+void recordTimeoutLogForTest(String url) {
+  _PicnicCachedNetworkImageState._recordTimeoutLogForTest(url);
+}
+
+@visibleForTesting
+int get failureHistoryCountForTest =>
+    _PicnicCachedNetworkImageState._failureHistory.length;
+
+@visibleForTesting
+int get lastTimeoutLogTimesCountForTest =>
+    _PicnicCachedNetworkImageState._lastTimeoutLogTimes.length;
+
+@visibleForTesting
+int get trackedUrlMapCapacityForTest =>
+    _PicnicCachedNetworkImageState._maxTrackedUrlMapEntries;
+
+@visibleForTesting
+bool failureHistoryContainsForTest(String url) =>
+    _PicnicCachedNetworkImageState._failureHistory.containsKey(url);
+
+@visibleForTesting
+bool lastTimeoutLogTimesContainsForTest(String url) =>
+    _PicnicCachedNetworkImageState._lastTimeoutLogTimes.containsKey(url);
