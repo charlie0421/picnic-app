@@ -166,6 +166,11 @@ class _PicnicCachedNetworkImageState
   static const Duration _memoryPressureLogInterval = Duration(minutes: 1);
   static final Map<String, DateTime> _lastTimeoutLogTimes = {};
   static const Duration _timeoutLogInterval = Duration(minutes: 3);
+  // URL 이 다시는 성공하지 않으면(영구 실패) _onImageLoadSuccess 의
+  // `_lastTimeoutLogTimes.remove(url)` 이 절대 발화하지 않아 엔트리가 영구히
+  // 남는다. 새 엔트리를 기록할 때마다 오래된 엔트리를 함께 정리해 "최근
+  // 1시간 내 타임아웃이 있었던 URL 집합" 으로 상한을 둔다.
+  static const Duration _timeoutLogRetention = Duration(hours: 1);
   int _reloadToken = 0;
   late final DisposableBuildContext<State<PicnicCachedNetworkImage>>
   _scrollAwareContext;
@@ -1117,6 +1122,9 @@ class _PicnicCachedNetworkImageState
               if (lastLoggedAt == null ||
                   now.difference(lastLoggedAt) >= _timeoutLogInterval) {
                 _lastTimeoutLogTimes[url] = now;
+                _lastTimeoutLogTimes.removeWhere(
+                  (key, time) => now.difference(time) >= _timeoutLogRetention,
+                );
                 logger.w('이미지 로딩 타임아웃: $url');
               }
 
@@ -1251,13 +1259,20 @@ class _PicnicCachedNetworkImageState
   }
 
   // 실패 기록
+  //
+  // 예전에는 url 별 리스트만 1시간 넘은 항목을 걸러냈다 — 그런데 그 필터는
+  // 해당 url 이 다시 실패해야만 실행되므로, 1시간 넘게 재실패가 없는 url 은
+  // 빈 리스트를 값으로 가진 채 맵 키로 영구히 남았다(distinct 실패 URL 수만큼
+  // 무한 누적). 매 호출마다 맵 전체를 훑어 "최근 1시간 내 실패가 있는 URL"
+  // 만 남기도록 정리한다.
   void _recordFailure(String url) {
     final now = DateTime.now();
     _failureHistory[url] = (_failureHistory[url] ?? [])..add(now);
 
-    _failureHistory[url]!.removeWhere(
-      (time) => now.difference(time).inHours > 1,
-    );
+    _failureHistory.removeWhere((key, times) {
+      times.removeWhere((time) => now.difference(time).inHours > 1);
+      return times.isEmpty;
+    });
   }
 
   // 재시도 여부 결정
