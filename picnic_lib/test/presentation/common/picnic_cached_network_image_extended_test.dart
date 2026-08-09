@@ -88,6 +88,7 @@ void main() {
       expect(widget.errorWidget, isNull);
       expect(widget.showLoadingOverlay, true);
       expect(widget.priority, ImagePriority.normal);
+      expect(widget.enableMemoryOptimization, true);
       expect(widget.enableProgressiveLoading, true);
     });
 
@@ -107,6 +108,7 @@ void main() {
         lazyLoadDelay: Duration(milliseconds: 100),
         showLoadingOverlay: false,
         priority: ImagePriority.high,
+        enableMemoryOptimization: false,
         enableProgressiveLoading: false,
       );
 
@@ -124,6 +126,7 @@ void main() {
       expect(widget.lazyLoadDelay, const Duration(milliseconds: 100));
       expect(widget.showLoadingOverlay, false);
       expect(widget.priority, ImagePriority.high);
+      expect(widget.enableMemoryOptimization, false);
       expect(widget.enableProgressiveLoading, false);
     });
 

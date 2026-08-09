@@ -95,6 +95,7 @@ class RewardListSection extends ConsumerWidget {
               fit: BoxFit.cover,
               priority:
                   isHighPriority ? ImagePriority.high : ImagePriority.normal,
+              enableMemoryOptimization: true,
               enableProgressiveLoading: !isHighPriority,
               lazyLoadingStrategy: isHighPriority
                   ? LazyLoadingStrategy.none

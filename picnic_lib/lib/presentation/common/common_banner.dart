@@ -229,6 +229,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
             fit: BoxFit.cover,
             // 베너 최적화 설정
             priority: ImagePriority.high, // 베너는 높은 우선순위
+            enableMemoryOptimization: true,
             enableProgressiveLoading: !isGif, // GIF가 아닌 경우만 점진적 로딩
             lazyLoadingStrategy: LazyLoadingStrategy.none, // 베너는 즉시 로딩
             timeout: const Duration(seconds: 12), // 베너는 조금 더 긴 타임아웃

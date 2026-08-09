@@ -43,33 +43,6 @@ class AppInitializer {
     logger.i('Widget binding initialized');
     BindingBase.debugZoneErrorsAreFatal = true;
     await initializeGlobalErrorHandling();
-    _configureImageCache();
-  }
-
-  /// 전역 `PaintingBinding.imageCache` 상한 설정.
-  ///
-  /// 예전에는 PicnicCachedNetworkImage(리프 위젯)의 initState 에서 매번 같은
-  /// 전역 값을 덮어썼다 — 위젯 인스턴스 수만큼 중복 실행됐고, 앱 전역 정책을
-  /// 리프 위젯이 정하는 것도 책임 소재가 잘못됐다. 앱 시작 시 한 번만
-  /// 설정한다. (게이트였던 enableMemoryOptimization 파라미터는 이 호출이
-  /// 위젯 밖으로 옮겨지며 no-op 이 되어 함께 제거했다.)
-  ///
-  /// 메모리 압박 시의 동적 정리(90% 초과 시 20% 축소)는 여기 두지 않는다 —
-  /// 그건 실제 이미지 로딩 이벤트(느린 로드, GIF 로딩 전)에 반응해야 하는
-  /// 런타임 로직이라 PicnicCachedNetworkImage 의
-  /// _clearPartialImageCache/_checkMemoryPressure 에 그대로 남겨둔다.
-  static void _configureImageCache() {
-    final imageCache = PaintingBinding.instance.imageCache;
-
-    if (kIsWeb) {
-      // 웹에서는 더 보수적인 설정
-      imageCache.maximumSizeBytes = 150 * 1024 * 1024; // 150MB
-      imageCache.maximumSize = 300; // 최대 300개 이미지
-    } else {
-      // 모바일에서는 메모리 사용 폭을 완화
-      imageCache.maximumSizeBytes = 200 * 1024 * 1024; // 200MB
-      imageCache.maximumSize = 500; // 최대 500개 이미지
-    }
   }
 
   /// MaterialApp 초기화 대기
