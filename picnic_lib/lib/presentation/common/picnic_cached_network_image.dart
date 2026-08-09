@@ -213,6 +213,16 @@ class _PicnicCachedNetworkImageState
   // 성능 모니터링용 (CachedNetworkImage 캐시와는 별개)
   static final Map<String, DateTime> _lastSnapshotTimes = {};
   static final Map<String, List<DateTime>> _failureHistory = {};
+  // _failureHistory 정리(removeWhere)는 맵 전체를 순회한다 — 실패 1건마다
+  // 매번 돌리면, CDN 장애 등으로 1시간 내 distinct URL 수천 개가 실패할 때
+  // 실패 처리 경로 전체가 O(실패 횟수 × distinct URL 수)가 된다. 정리 자체를
+  // 벽시계 기준으로 최소 이 간격만큼만 실행해, 실패가 몰릴 때도 정리 비용이
+  // 실패 1건당이 아니라 시간당으로 상한이 걸리게 한다. (정리를 건너뛴 사이에도
+  // 엔트리는 계속 추가되지만, 다음 정리 때 한 번에 걸러지므로 카디널리티
+  // 상한 자체는 그대로 유지된다 — 다만 걸러지는 시점이 최대 이 간격만큼
+  // 늦어질 수 있다.)
+  static DateTime? _lastFailureHistorySweep;
+  static const Duration _failureHistorySweepInterval = Duration(seconds: 30);
   static DateTime? _lastGlobalSnapshot;
   static int _snapshotCount = 0;
   static DateTime? _lastMemoryPressureLog;
@@ -224,6 +234,12 @@ class _PicnicCachedNetworkImageState
   // 남는다. 새 엔트리를 기록할 때마다 오래된 엔트리를 함께 정리해 "최근
   // 1시간 내 타임아웃이 있었던 URL 집합" 으로 상한을 둔다.
   static const Duration _timeoutLogRetention = Duration(hours: 1);
+  // _lastTimeoutLogTimes 정리도 위와 같은 이유로 벽시계 기준 주기 제한을 둔다 —
+  // 정리 자체는 (개별 URL 당) _timeoutLogInterval 을 넘길 때만 시도되지만,
+  // distinct URL 수천 개가 각자 자신의 3분 게이트를 넘기며 거의 동시에 새
+  // 엔트리를 기록하면 그 각각이 맵 전체를 훑는 O(n) 정리를 유발할 수 있다.
+  static DateTime? _lastTimeoutLogSweep;
+  static const Duration _timeoutLogSweepInterval = Duration(seconds: 30);
   int _reloadToken = 0;
   late final DisposableBuildContext<State<PicnicCachedNetworkImage>>
   _scrollAwareContext;
@@ -1187,9 +1203,15 @@ class _PicnicCachedNetworkImageState
               if (lastLoggedAt == null ||
                   now.difference(lastLoggedAt) >= _timeoutLogInterval) {
                 _lastTimeoutLogTimes[url] = now;
-                _lastTimeoutLogTimes.removeWhere(
-                  (key, time) => now.difference(time) >= _timeoutLogRetention,
-                );
+
+                final lastSweep = _lastTimeoutLogSweep;
+                if (lastSweep == null ||
+                    now.difference(lastSweep) >= _timeoutLogSweepInterval) {
+                  _lastTimeoutLogSweep = now;
+                  _lastTimeoutLogTimes.removeWhere(
+                    (key, time) => now.difference(time) >= _timeoutLogRetention,
+                  );
+                }
                 logger.w('이미지 로딩 타임아웃: $url');
               }
 
@@ -1328,16 +1350,23 @@ class _PicnicCachedNetworkImageState
   // 예전에는 url 별 리스트만 1시간 넘은 항목을 걸러냈다 — 그런데 그 필터는
   // 해당 url 이 다시 실패해야만 실행되므로, 1시간 넘게 재실패가 없는 url 은
   // 빈 리스트를 값으로 가진 채 맵 키로 영구히 남았다(distinct 실패 URL 수만큼
-  // 무한 누적). 매 호출마다 맵 전체를 훑어 "최근 1시간 내 실패가 있는 URL"
-  // 만 남기도록 정리한다.
+  // 무한 누적). 맵 전체를 훑어 "최근 1시간 내 실패가 있는 URL" 만 남기도록
+  // 정리하되, 그 정리 자체는 _failureHistorySweepInterval 마다 최대 한 번만
+  // 실행한다 — 실패 1건마다 매번 돌리면 CDN 장애로 distinct URL 수천 개가
+  // 동시에 실패할 때 이 경로가 O(실패 횟수 × distinct URL 수)가 된다.
   void _recordFailure(String url) {
     final now = DateTime.now();
     _failureHistory[url] = (_failureHistory[url] ?? [])..add(now);
 
-    _failureHistory.removeWhere((key, times) {
-      times.removeWhere((time) => now.difference(time).inHours > 1);
-      return times.isEmpty;
-    });
+    final lastSweep = _lastFailureHistorySweep;
+    if (lastSweep == null ||
+        now.difference(lastSweep) >= _failureHistorySweepInterval) {
+      _lastFailureHistorySweep = now;
+      _failureHistory.removeWhere((key, times) {
+        times.removeWhere((time) => now.difference(time).inHours > 1);
+        return times.isEmpty;
+      });
+    }
   }
 
   // 재시도 여부 결정
