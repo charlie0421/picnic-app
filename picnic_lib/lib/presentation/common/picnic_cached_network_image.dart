@@ -78,7 +78,6 @@ class PicnicCachedNetworkImage extends StatefulWidget {
 
   // 성능 최적화 관련 매개변수
   final ImagePriority priority; // 이미지 로딩 우선순위
-  final bool enableMemoryOptimization; // 메모리 최적화 활성화
   final bool enableProgressiveLoading; // 점진적 로딩 활성화
 
   final bool showLoadingOverlay;
@@ -109,7 +108,6 @@ class PicnicCachedNetworkImage extends StatefulWidget {
     this.placeholder,
     this.showLoadingOverlay = true,
     this.priority = ImagePriority.normal,
-    this.enableMemoryOptimization = true,
     this.enableProgressiveLoading = true,
     this.maxQualityOverride,
     this.maxResolutionMultiplierCap,

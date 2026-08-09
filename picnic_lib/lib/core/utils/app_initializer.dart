@@ -48,11 +48,11 @@ class AppInitializer {
 
   /// 전역 `PaintingBinding.imageCache` 상한 설정.
   ///
-  /// 예전에는 PicnicCachedNetworkImage(리프 위젯)의 initState 에서
-  /// enableMemoryOptimization 이 true(9곳 전부 기본값)일 때마다 이 설정을
-  /// 다시 대입했다 — 매번 같은 전역 값을 덮어쓸 뿐이라 위젯 인스턴스 수만큼
-  /// 중복 실행됐고, 앱 전역 정책을 리프 위젯이 정하는 것도 책임 소재가
-  /// 잘못됐다. 앱 시작 시 한 번만 설정한다.
+  /// 예전에는 PicnicCachedNetworkImage(리프 위젯)의 initState 에서 매번 같은
+  /// 전역 값을 덮어썼다 — 위젯 인스턴스 수만큼 중복 실행됐고, 앱 전역 정책을
+  /// 리프 위젯이 정하는 것도 책임 소재가 잘못됐다. 앱 시작 시 한 번만
+  /// 설정한다. (게이트였던 enableMemoryOptimization 파라미터는 이 호출이
+  /// 위젯 밖으로 옮겨지며 no-op 이 되어 함께 제거했다.)
   ///
   /// 메모리 압박 시의 동적 정리(90% 초과 시 20% 축소)는 여기 두지 않는다 —
   /// 그건 실제 이미지 로딩 이벤트(느린 로드, GIF 로딩 전)에 반응해야 하는

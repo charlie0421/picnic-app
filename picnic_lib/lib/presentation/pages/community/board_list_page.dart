@@ -361,7 +361,6 @@ class _BoardPageState extends ConsumerState<BoardListPage>
                       priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
                       lazyLoadingStrategy:
                           LazyLoadingStrategy.viewport, // ✅ 뷰포트 기반 지연로딩
-                      enableMemoryOptimization: true, // ✅ 메모리 최적화 활성화
                       enableProgressiveLoading: true, // ✅ 점진적 로딩으로 빠른 표시
                       memCacheWidth: 32, // ✅ 메모리 캐시 크기 지정
                       memCacheHeight: 32, // ✅ 메모리 캐시 크기 지정

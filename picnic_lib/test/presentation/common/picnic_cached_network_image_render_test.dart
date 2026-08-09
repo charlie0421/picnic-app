@@ -160,25 +160,6 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with memory optimization enabled',
-        (WidgetTester tester) async {
-      await pumpAndDrain(
-        tester,
-        buildTestApp(
-          const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/opt.jpg',
-            width: 150,
-            height: 150,
-            enableMemoryOptimization: true,
-            memCacheWidth: 150,
-            memCacheHeight: 150,
-          ),
-        ),
-      );
-
-      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
-    });
-
     testWidgets('renders with custom placeholder', (WidgetTester tester) async {
       await pumpAndDrain(
         tester,
@@ -344,7 +325,6 @@ void main() {
             imageUrl: 'https://example.com/large.jpg',
             width: 1000,
             height: 1000,
-            enableMemoryOptimization: true,
           ),
         ),
       );
@@ -418,7 +398,6 @@ void main() {
             height: 200,
             borderRadius: BorderRadius.circular(16),
             fit: BoxFit.cover,
-            enableMemoryOptimization: true,
             enableProgressiveLoading: true,
             priority: ImagePriority.high,
             lazyLoadingStrategy: LazyLoadingStrategy.progressive,
@@ -473,23 +452,6 @@ void main() {
             imageUrl: '/images/slash-path.jpg',
             width: 100,
             height: 100,
-          ),
-        ),
-      );
-
-      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
-    });
-
-    testWidgets('renders with memory optimization disabled',
-        (WidgetTester tester) async {
-      await pumpAndDrain(
-        tester,
-        buildTestApp(
-          const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/noopt.jpg',
-            width: 100,
-            height: 100,
-            enableMemoryOptimization: false,
           ),
         ),
       );
