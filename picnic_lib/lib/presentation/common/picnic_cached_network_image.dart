@@ -269,11 +269,6 @@ class _PicnicCachedNetworkImageState
     // Lazy Loading 전략에 따른 초기화
     _initializeLazyLoading();
 
-    // 메모리 최적화가 활성화된 경우에만 실행
-    if (widget.enableMemoryOptimization) {
-      _PicnicCachedNetworkImageState._optimizeImageCache();
-    }
-
     if (isGif) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _prepareGifLoading();
@@ -416,26 +411,6 @@ class _PicnicCachedNetworkImageState
     VisibilityDetectorController.instance.forget(_visibilityKey);
     _scrollAwareContext.dispose();
     super.dispose();
-  }
-
-  // 전역 캐시 최적화 상태 추적
-
-  /// Flutter ImageCache 설정 최적화
-  static void _optimizeImageCache() {
-    final imageCache = PaintingBinding.instance.imageCache;
-
-    if (kIsWeb) {
-      // 웹에서는 더 보수적인 설정
-      imageCache.maximumSizeBytes = 150 * 1024 * 1024; // 150MB
-      imageCache.maximumSize = 300; // 최대 300개 이미지
-    } else {
-      // 모바일에서는 메모리 사용 폭을 완화
-      imageCache.maximumSizeBytes = 200 * 1024 * 1024; // 200MB
-      imageCache.maximumSize = 500; // 최대 500개 이미지
-    }
-
-    // 캐시 정리 임계값을 더 높게 설정하여 빈번한 정리 방지
-    imageCache.pendingImageCount;
   }
 
   /// 부분적 이미지 캐시 정리 (더 스마트한 정리)
