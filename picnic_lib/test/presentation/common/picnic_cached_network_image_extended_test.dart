@@ -83,7 +83,9 @@ void main() {
       expect(widget.maxRetries, isNull);
       expect(widget.lazyLoadingStrategy, LazyLoadingStrategy.viewport);
       expect(widget.visibilityThreshold, 0.1);
+      expect(widget.lazyLoadDelay, isNull);
       expect(widget.placeholder, isNull);
+      expect(widget.errorWidget, isNull);
       expect(widget.showLoadingOverlay, true);
       expect(widget.priority, ImagePriority.normal);
       expect(widget.enableProgressiveLoading, true);
@@ -102,6 +104,7 @@ void main() {
         maxRetries: 5,
         lazyLoadingStrategy: LazyLoadingStrategy.none,
         visibilityThreshold: 0.5,
+        lazyLoadDelay: Duration(milliseconds: 100),
         showLoadingOverlay: false,
         priority: ImagePriority.high,
         enableProgressiveLoading: false,
@@ -118,6 +121,7 @@ void main() {
       expect(widget.maxRetries, 5);
       expect(widget.lazyLoadingStrategy, LazyLoadingStrategy.none);
       expect(widget.visibilityThreshold, 0.5);
+      expect(widget.lazyLoadDelay, const Duration(milliseconds: 100));
       expect(widget.showLoadingOverlay, false);
       expect(widget.priority, ImagePriority.high);
       expect(widget.enableProgressiveLoading, false);

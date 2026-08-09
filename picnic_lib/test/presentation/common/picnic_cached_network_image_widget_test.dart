@@ -126,6 +126,22 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
+    testWidgets('renders with custom error widget', (tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://example.com/custom-error.jpg',
+            width: 100,
+            height: 100,
+            errorWidget: Icon(Icons.broken_image),
+          ),
+        ),
+      );
+
+      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
+    });
+
     testWidgets('renders with borderRadius', (tester) async {
       await pumpAndDrain(
         tester,
@@ -159,7 +175,7 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with low priority', (tester) async {
+    testWidgets('renders with low priority and lazy load delay', (tester) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -168,6 +184,7 @@ void main() {
             width: 100,
             height: 100,
             priority: ImagePriority.low,
+            lazyLoadDelay: Duration(milliseconds: 100),
           ),
         ),
       );

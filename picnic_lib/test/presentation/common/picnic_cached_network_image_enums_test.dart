@@ -73,7 +73,9 @@ void main() {
       expect(widget.maxRetries, isNull);
       expect(widget.lazyLoadingStrategy, equals(LazyLoadingStrategy.viewport));
       expect(widget.visibilityThreshold, equals(0.1));
+      expect(widget.lazyLoadDelay, isNull);
       expect(widget.placeholder, isNull);
+      expect(widget.errorWidget, isNull);
       expect(widget.showLoadingOverlay, isTrue);
       expect(widget.priority, equals(ImagePriority.normal));
       expect(widget.enableProgressiveLoading, isTrue);

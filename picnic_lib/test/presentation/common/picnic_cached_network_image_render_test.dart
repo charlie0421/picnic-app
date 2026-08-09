@@ -265,6 +265,23 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsNWidgets(2));
     });
 
+    testWidgets('renders with custom error widget',
+        (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://example.com/error.jpg',
+            width: 100,
+            height: 100,
+            errorWidget: Icon(Icons.error),
+          ),
+        ),
+      );
+
+      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
+    });
+
     // LazyLoadingStrategy.none triggers _buildCachedNetworkImage which creates
     // a 30-second timeout timer inside StatefulBuilder that cannot be cleanly
     // cancelled in widget tests. Skipped to avoid pending timer errors.
@@ -309,6 +326,23 @@ void main() {
             width: 150,
             height: 150,
             fit: BoxFit.fill,
+          ),
+        ),
+      );
+
+      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
+    });
+
+    testWidgets('renders with lazy load delay', (WidgetTester tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://example.com/delayed.jpg',
+            width: 100,
+            height: 100,
+            lazyLoadingStrategy: LazyLoadingStrategy.viewport,
+            lazyLoadDelay: Duration(milliseconds: 200),
           ),
         ),
       );

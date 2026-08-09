@@ -74,12 +74,14 @@ class PicnicCachedNetworkImage extends StatefulWidget {
   // Lazy Loading 관련 매개변수
   final LazyLoadingStrategy lazyLoadingStrategy;
   final double visibilityThreshold; // 가시성 임계값 (0.0 ~ 1.0)
+  final Duration? lazyLoadDelay; // 지연 로딩 딜레이
   final Widget? placeholder; // 커스텀 플레이스홀더
 
   // 성능 최적화 관련 매개변수
   final ImagePriority priority; // 이미지 로딩 우선순위
   final bool enableProgressiveLoading; // 점진적 로딩 활성화
 
+  final Widget? errorWidget; // 커스텀 에러 위젯
   final bool showLoadingOverlay;
 
   // C3: 리스트 전용 요청 가중치 축소(다른 화면 영향 없음 — 기본값 null = 현재 동작 유지).
@@ -105,7 +107,9 @@ class PicnicCachedNetworkImage extends StatefulWidget {
     this.maxRetries,
     this.lazyLoadingStrategy = LazyLoadingStrategy.viewport,
     this.visibilityThreshold = 0.1,
+    this.lazyLoadDelay,
     this.placeholder,
+    this.errorWidget,
     this.showLoadingOverlay = true,
     this.priority = ImagePriority.normal,
     this.enableProgressiveLoading = true,
@@ -377,12 +381,15 @@ class _PicnicCachedNetworkImageState
 
   /// 로딩 지연 시간 계산
   Duration _calculateLoadDelay() {
+    final baseDelay = widget.lazyLoadDelay ?? Duration.zero;
+
     switch (widget.priority) {
       case ImagePriority.high:
-      case ImagePriority.normal:
         return Duration.zero;
+      case ImagePriority.normal:
+        return baseDelay;
       case ImagePriority.low:
-        return Duration(milliseconds: 200);
+        return baseDelay + Duration(milliseconds: 200);
     }
   }
 
@@ -1309,6 +1316,10 @@ class _PicnicCachedNetworkImageState
 
   // 에러 위젯 생성
   Widget _buildErrorWidget(double? width, double? height) {
+    if (widget.errorWidget != null) {
+      return SizedBox(width: width, height: height, child: widget.errorWidget);
+    }
+
     return SizedBox(
       width: width,
       height: height,
