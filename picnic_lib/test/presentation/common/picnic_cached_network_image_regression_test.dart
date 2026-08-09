@@ -1126,4 +1126,74 @@ void main() {
       },
     );
   });
+
+  group('실패/타임아웃 로그 추적 맵 — 카디널리티 하드 상한', () {
+    setUp(() {
+      resetImageLoadTrackingMapsForTest();
+    });
+
+    tearDown(() {
+      resetImageLoadTrackingMapsForTest();
+    });
+
+    test('_failureHistory 는 sweep 이전에도 하드 상한을 넘지 않는다', () {
+      final capacity = trackedUrlMapCapacityForTest;
+
+      // CDN 장애로 30초 sweep 주기 안에 distinct URL 이 상한보다 많이 실패하는
+      // 상황을 흉내낸다. sweep 이 아직 돌지 않았어도(테스트에서 시간 경과 없음)
+      // 카디널리티는 상한을 넘지 않아야 한다.
+      for (var i = 0; i < capacity + 500; i++) {
+        recordFailureForTest('https://example.com/fail$i.jpg');
+      }
+
+      expect(failureHistoryCountForTest, capacity);
+      // 가장 먼저 들어간(=가장 오래된) 키들이 버려졌어야 한다(FIFO).
+      expect(
+        failureHistoryContainsForTest('https://example.com/fail0.jpg'),
+        isFalse,
+      );
+      expect(
+        failureHistoryContainsForTest('https://example.com/fail${capacity + 499}.jpg'),
+        isTrue,
+      );
+    });
+
+    test('_lastTimeoutLogTimes 는 sweep 이전에도 하드 상한을 넘지 않는다', () {
+      final capacity = trackedUrlMapCapacityForTest;
+
+      for (var i = 0; i < capacity + 500; i++) {
+        recordTimeoutLogForTest('https://example.com/timeout$i.jpg');
+      }
+
+      expect(lastTimeoutLogTimesCountForTest, capacity);
+      expect(
+        lastTimeoutLogTimesContainsForTest('https://example.com/timeout0.jpg'),
+        isFalse,
+      );
+      expect(
+        lastTimeoutLogTimesContainsForTest(
+          'https://example.com/timeout${capacity + 499}.jpg',
+        ),
+        isTrue,
+      );
+    });
+
+    test('이미 존재하는 키를 갱신할 때는 카디널리티를 소모하지 않는다', () {
+      final capacity = trackedUrlMapCapacityForTest;
+      for (var i = 0; i < capacity; i++) {
+        recordFailureForTest('https://example.com/fail$i.jpg');
+      }
+      expect(failureHistoryCountForTest, capacity);
+
+      // 이미 있는 키를 다시 기록해도(재실패) 카디널리티가 늘지 않고, 다른
+      // 키가 밀려나지도 않아야 한다.
+      recordFailureForTest('https://example.com/fail0.jpg');
+
+      expect(failureHistoryCountForTest, capacity);
+      expect(
+        failureHistoryContainsForTest('https://example.com/fail0.jpg'),
+        isTrue,
+      );
+    });
+  });
 }
