@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기존 네이티브 시작 화면 복원 구현 계획</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    body { max-width: 980px; margin: 0 auto; padding: 40px 24px 64px; }
+    h1, h2, h3 { line-height: 1.25; }
+    h1 { margin-bottom: 1.5rem; }
+    h2, h3 { margin-top: 2rem; }
+    li + li { margin-top: 0.45rem; }
+    code {
+      padding: 0.12rem 0.35rem;
+      border-radius: 4px;
+      background: color-mix(in srgb, CanvasText 10%, Canvas);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border-radius: 8px;
+      background: color-mix(in srgb, CanvasText 8%, Canvas);
+    }
+    pre code { padding: 0; background: transparent; }
+    blockquote {
+      margin: 1rem 0;
+      padding: 0.75rem 1rem;
+      border-left: 4px solid #8b6cf6;
+      background: color-mix(in srgb, #8b6cf6 10%, Canvas);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기존 네이티브 시작 화면 복원 구현 계획</h1>
+
+    <blockquote>
+      <p><strong>에이전트 작업 규칙:</strong> 이 계획은 <code>superpowers:executing-plans</code> 절차로 순서대로 실행한다. 설정과 생성 바이너리는 단위 테스트 대신 기준 브랜치와의 바이트 단위 비교로 RED/GREEN을 검증한다.</p>
+    </blockquote>
+
+    <p><strong>목표:</strong> Android·iOS의 첫 번째 네이티브 시작 화면을 <code>main</code>의 기존 아이콘과 배경으로 복원하면서 두 번째 Flutter 스플래시와 반응형 레이아웃을 유지한다.</p>
+    <p><strong>구조:</strong> 네이티브 설정 1개와 생성 리소스 13개를 <code>main</code>에서 그대로 복원한다. <code>flutter_native_splash</code> 생성기는 실행하지 않으며, Flutter 위젯·테스트·이미지 에셋은 수정하지 않는다.</p>
+    <p><strong>기술:</strong> Flutter, Android XML/PNG 리소스, iOS Asset Catalog, Git 바이트 비교, Xcode profile 빌드</p>
+
+    <h2>전역 제약</h2>
+    <ul>
+      <li>첫 번째 네이티브 화면은 Android와 iOS 모두 <code>main</code>과 동일해야 한다.</li>
+      <li><code>picnic_app/assets/splash_key.png</code>와 <code>ResponsiveSplash</code>는 변경하지 않는다.</li>
+      <li><code>flutter_native_splash</code> 생성기를 다시 실행하지 않는다.</li>
+      <li>복원 대상은 아래 명시된 14개 경로로 제한한다.</li>
+      <li>실장비 확인은 디버그 직접 실행이 아닌 profile 빌드로 수행한다.</li>
+    </ul>
+
+    <hr>
+
+    <h2>파일 구조</h2>
+    <ul>
+      <li><strong>복원:</strong> <code>picnic_app/flutter_native_splash.yaml</code> — 기존 네이티브 스플래시 생성 설정</li>
+      <li><strong>복원:</strong> Android의 밀도별 <code>splash.png</code> 5개, 배경 PNG 2개, Android 12 스타일 XML 2개</li>
+      <li><strong>복원:</strong> iOS의 <code>LaunchBackground</code> PNG 1개와 <code>LaunchImage</code> PNG 3개</li>
+    </ul>
+
+    <h2>작업 1: 네이티브 시작 리소스 원상복원</h2>
+    <p><strong>입력:</strong> <code>main</code>의 기존 네이티브 시작 리소스</p>
+    <p><strong>출력:</strong> 첫 번째 시작 화면은 기존 아이콘, 두 번째 시작 화면은 현재 <code>ResponsiveSplash</code>인 빌드</p>
+
+    <ol>
+      <li>
+        <p><strong>RED: 현재 네이티브 리소스가 기준과 다른지 확인</strong></p>
+<pre><code>git diff --exit-code main -- \
+  picnic_app/flutter_native_splash.yaml \
+  picnic_app/android/app/src/main/res/drawable-hdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-mdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-v21/background.png \
+  picnic_app/android/app/src/main/res/drawable-xhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-xxhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-xxxhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable/background.png \
+  picnic_app/android/app/src/main/res/values-night-v31/styles.xml \
+  picnic_app/android/app/src/main/res/values-v31/styles.xml \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchBackground.imageset/background.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png</code></pre>
+        <p>예상 결과: 종료 코드 1. 커밋 <code>a93e296b1</code>이 14개 파일을 새 네이티브 일러스트로 바꿨기 때문에 diff가 출력된다.</p>
+      </li>
+
+      <li>
+        <p><strong>14개 경로를 <code>main</code> 상태로 복원</strong></p>
+<pre><code>git restore --source=main -- \
+  picnic_app/flutter_native_splash.yaml \
+  picnic_app/android/app/src/main/res/drawable-hdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-mdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-v21/background.png \
+  picnic_app/android/app/src/main/res/drawable-xhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-xxhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-xxxhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable/background.png \
+  picnic_app/android/app/src/main/res/values-night-v31/styles.xml \
+  picnic_app/android/app/src/main/res/values-v31/styles.xml \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchBackground.imageset/background.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png</code></pre>
+      </li>
+
+      <li>
+        <p><strong>GREEN: 기준 브랜치와 바이트 단위 일치 확인</strong></p>
+<pre><code>git diff --exit-code main -- \
+  picnic_app/flutter_native_splash.yaml \
+  picnic_app/android/app/src/main/res/drawable-hdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-mdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-v21/background.png \
+  picnic_app/android/app/src/main/res/drawable-xhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-xxhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-xxxhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable/background.png \
+  picnic_app/android/app/src/main/res/values-night-v31/styles.xml \
+  picnic_app/android/app/src/main/res/values-v31/styles.xml \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchBackground.imageset/background.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png</code></pre>
+        <p>예상 결과: 출력 없음, 종료 코드 0.</p>
+      </li>
+
+      <li>
+        <p><strong>XML과 변경 범위 검증</strong></p>
+<pre><code>xmllint --noout \
+  picnic_app/android/app/src/main/res/values-night-v31/styles.xml \
+  picnic_app/android/app/src/main/res/values-v31/styles.xml
+git diff --check
+git status --short</code></pre>
+        <p>예상 결과: XML 오류와 공백 오류가 없다. 작업 트리에는 복원 대상 14개 파일만 표시된다.</p>
+      </li>
+
+      <li>
+        <p><strong>Flutter 회귀 검증</strong></p>
+<pre><code>cd picnic_app
+flutter test
+flutter analyze
+cd ../picnic_lib
+flutter analyze lib/core/utils/system_ui_initializer.dart</code></pre>
+        <p>예상 결과: 전체 테스트와 두 분석기가 통과한다.</p>
+      </li>
+
+      <li>
+        <p><strong>profile 실장비 검증</strong></p>
+<pre><code>cd ../picnic_app
+flutter build ios --profile \
+  --dart-define=ENVIRONMENT=prod \
+  --dart-define=PANGLE_ENVIRONMENT=prod \
+  --dart-define=PAYMENT_ENVIRONMENT=prod
+xcrun devicectl device install app \
+  --device 00008101-001C39223498001E \
+  build/ios/iphoneos/Runner.app
+xcrun devicectl device process launch \
+  --device 00008101-001C39223498001E \
+  --activate --terminate-existing \
+  io.iconcasting.picnic.app</code></pre>
+        <p>예상 결과: 첫 번째 네이티브 화면은 기존 아이콘과 배경이며, 이어지는 두 번째 Flutter 화면은 일반 휴대폰 크기로 표시된다. 앱 프로세스가 실행 후 유지된다.</p>
+      </li>
+
+      <li>
+        <p><strong>Conventional Commit</strong></p>
+<pre><code>git add \
+  picnic_app/flutter_native_splash.yaml \
+  picnic_app/android/app/src/main/res/drawable-hdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-mdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-v21/background.png \
+  picnic_app/android/app/src/main/res/drawable-xhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-xxhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable-xxxhdpi/splash.png \
+  picnic_app/android/app/src/main/res/drawable/background.png \
+  picnic_app/android/app/src/main/res/values-night-v31/styles.xml \
+  picnic_app/android/app/src/main/res/values-v31/styles.xml \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchBackground.imageset/background.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png \
+  picnic_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png
+git commit -m "fix(splash): restore original native launch assets"</code></pre>
+      </li>
+    </ol>
+
+    <h2>작업 2: 원격 브랜치와 PR</h2>
+    <ol>
+      <li>
+        <p><strong>브랜치 푸시</strong></p>
+<pre><code>git push -u origin fix/splash-size</code></pre>
+      </li>
+      <li>
+        <p><strong>PR 본문 준비</strong></p>
+<pre><code>## Summary
+- Preserve the original Android and iOS native launch screen.
+- Restore the Flutter splash scale on conventional phones while bounding Fold and tablet layouts.
+- Remove the global portrait-only orientation lock.
+
+## Verification
+- `flutter test` (41 tests)
+- `flutter analyze` in `picnic_app`
+- `flutter analyze lib/core/utils/system_ui_initializer.dart` in `picnic_lib`
+- iPhone 12 mini profile build, install, launch, and visual check</code></pre>
+        <p>위 내용을 플랫폼이 요구하는 Markdown 형식으로 <code>/private/tmp/picnic-splash-pr-body.md</code>에 저장한다.</p>
+      </li>
+      <li>
+        <p><strong><code>main</code> 대상 PR 생성</strong></p>
+<pre><code>gh pr create \
+  --base main \
+  --head fix/splash-size \
+  --title "fix(splash): preserve native launch on responsive screens" \
+  --body-file /private/tmp/picnic-splash-pr-body.md</code></pre>
+        <p>PR 본문에는 네이티브 시작 화면 보존, Flutter 반응형 크기, 방향 잠금 제거, 테스트·분석기·profile 실장비 결과를 기록한다.</p>
+      </li>
+      <li>
+        <p><strong>Vercel Preview URL 확인</strong></p>
+<pre><code>PR=$(gh pr view --json number --jq .number)
+for i in $(seq 1 8); do
+  URL=$(gh api "repos/:owner/:repo/issues/$PR/comments" \
+    --jq '.[] | select(.user.login=="vercel[bot]") | .body' 2&gt;/dev/null \
+    | grep -oE 'https://[a-z0-9-]+\.vercel\.app' | head -1)
+  [ -n "$URL" ] &amp;&amp; echo "Preview: $URL" &amp;&amp; break
+  sleep 20
+done</code></pre>
+        <p>최대 8회 안에 URL이 없거나 명령이 실패하면 재시도하지 않고 조용히 종료한다.</p>
+      </li>
+    </ol>
+  </main>
+</body>
+</html>

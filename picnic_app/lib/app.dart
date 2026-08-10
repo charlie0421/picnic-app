@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:picnic_app/presentation/screens/portal.dart';
+import 'package:picnic_app/presentation/splash/responsive_splash.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/services/app_badge_service.dart';
@@ -234,7 +235,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       currentScreen = const BanScreen();
     } else if (!_isAppInitialized) {
       // 초기화 중 경량 로컬 스플래시만 표시 (네트워크/패치 체크 없음)
-      currentScreen = Image.asset('assets/splash.webp', fit: BoxFit.cover);
+      currentScreen = const ResponsiveSplash();
     } else if (!appInitState.hasNetwork) {
       logger.i('네트워크 오류 - 네트워크 오류 화면 표시');
       currentScreen = NetworkErrorScreen(onRetry: _retryConnection);

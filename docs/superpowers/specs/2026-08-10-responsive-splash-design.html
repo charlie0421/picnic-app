@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>반응형 스플래시 설계</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    body {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 40px 24px 64px;
+    }
+    h1, h2 { line-height: 1.25; }
+    h1 { margin-bottom: 2rem; }
+    h2 { margin-top: 2rem; }
+    li + li { margin-top: 0.45rem; }
+    code {
+      padding: 0.12rem 0.35rem;
+      border-radius: 4px;
+      background: color-mix(in srgb, CanvasText 10%, Canvas);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>반응형 스플래시 설계</h1>
+
+    <section>
+      <h2>목표</h2>
+      <p>첫 번째 Android·iOS 네이티브 시작 화면은 <code>main</code>의 기존 아이콘과 배경으로 복원한다. 앱 초기화 중 두 번째로 표시되는 Flutter 스플래시는 일반적인 세로형 휴대폰에서 이전과 비슷한 크기로 표시하고, Fold와 태블릿에서는 과도한 확대나 잘림 없이 반응형 레이아웃을 유지한다.</p>
+    </section>
+
+    <section>
+      <h2>설계</h2>
+      <p>앱 실행 시 첫 번째로 보이는 Android·iOS 네이티브 시작 화면은 이 브랜치에서 새 일러스트로 교체되기 전인 <code>main</code> 상태로 되돌린다. <code>flutter_native_splash.yaml</code>과 생성된 Android·iOS 시작 리소스 14개를 바이트 단위로 복원하며, 복원 후 생성기를 다시 실행하지 않는다.</p>
+      <p>Flutter가 첫 프레임을 그린 뒤 앱 초기화가 끝날 때까지 두 번째로 표시되는 <code>ResponsiveSplash</code>는 별도 레이어로 유지한다.</p>
+      <p>Flutter 스플래시는 기존 <code>#8B6CF6</code> 배경과 투명 핵심 일러스트를 유지한다. 72% 비율 축소를 제거하고 사용 가능한 창 전체를 레이아웃 대상으로 삼는다. 핵심 일러스트는 <code>BoxFit.contain</code>으로 전체가 보이게 하되, 최대 440x960 논리 픽셀에서 멈춰 Fold와 태블릿에서 과도하게 확대되지 않게 한다.</p>
+    </section>
+
+    <section>
+      <h2>레이아웃 계약</h2>
+      <ul>
+        <li>네이티브 시작 화면의 설정과 생성 리소스는 <code>main</code>과 동일해야 한다.</li>
+        <li>Android와 iOS를 함께 복원해 플랫폼별 설정 불일치를 만들지 않는다.</li>
+        <li>Flutter 스플래시 배경은 불투명한 <code>#8B6CF6</code>이다.</li>
+        <li>Flutter는 투명 핵심 이미지를 중앙에 배치하고 <code>BoxFit.contain</code>으로 표시한다.</li>
+        <li>Flutter 핵심 이미지는 사용 가능한 창 전체를 사용할 수 있으며, 최대 너비 440 논리 픽셀과 최대 높이 960 논리 픽셀로 제한한다.</li>
+        <li>일반적인 세로형 휴대폰에서는 별도 기기명이나 화면비 분기 없이 가용 공간 전체를 사용한다. 기존 투명 여백을 고려하면 실제 일러스트는 이전의 화면 전체 스플래시와 비슷한 크기로 표시된다.</li>
+        <li>남는 뷰포트 영역은 브랜드 배경색으로 유지하며 검정, 흰색 또는 투명으로 표시하지 않는다.</li>
+        <li>전역 화면 방향 잠금을 사용하지 않으며 폴더블, 태블릿, 멀티 윈도우는 OS가 제공한 실제 창 크기를 유지한다.</li>
+        <li><code>assets/splash.webp</code>와 <code>assets/splash_key.png</code>를 포함한 Flutter 이미지 에셋은 수정하지 않는다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <p>네이티브 설정과 생성 리소스 14개는 <code>git diff main -- &lt;native-paths&gt;</code> 결과가 비어 있는지 확인한다. 위젯 테스트는 360x800, 393x852, 430x932의 일반 세로형 휴대폰과 펼친 Fold 8의 1848x2448 세로 및 2448x1848 가로 제약 조건을 다룬다. 모든 뷰포트에서 <code>BoxFit.contain</code>과 오버플로 없음 검증을 유지한다. 일반 휴대폰에서는 이미지 레이아웃이 가용 너비와 높이의 95% 이상을 사용하고, Fold에서는 440x960 상한을 넘지 않는지 확인한다. 집중 테스트와 분석기를 통과한 뒤 iPhone 12 mini에 profile 빌드를 설치해 첫 번째 네이티브 아이콘 복원과 두 번째 Flutter 스플래시를 차례로 확인한다.</p>
+    </section>
+  </main>
+</body>
+</html>

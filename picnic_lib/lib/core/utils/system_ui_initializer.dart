@@ -75,15 +75,6 @@ class SystemUIInitializer {
           );
         }
       }
-
-      try {
-        await SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ]);
-      } catch (e, s) {
-        logger.e('화면 방향 설정 실패:', error: e, stackTrace: s);
-      }
     } catch (e, s) {
       logger.e('시스템 UI 초기화 중 오류 발생:', error: e, stackTrace: s);
     }

@@ -67,5 +67,6 @@ flutter:
         - config/
         - assets/login/
         - assets/splash.webp
+        - assets/splash_key.png
         - assets/app_icon_128.png
         - shorebird.yaml
