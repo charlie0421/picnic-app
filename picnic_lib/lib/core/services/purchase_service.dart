@@ -27,6 +27,32 @@ Future<void> deliverVerifiedPurchaseResult(
   PurchaseSuccess onSuccess,
 ) => onSuccess(result);
 
+/// Which path is asking for the GA4 `purchase` event.
+///
+/// The two differ in one thing only: whether `PurchaseDetails.status` is
+/// evidence about the transaction.
+enum PurchaseAnalyticsSource {
+  /// A live `purchaseStream` callback.
+  ///
+  /// Here the status is authoritative and `restored` means the store replayed
+  /// an entitlement the user already owns - not a new charge. Only
+  /// [PurchaseStatus.purchased] may be counted as revenue.
+  storeCallback,
+
+  /// [PurchaseService.sweepUnfinishedPurchases]'s recovery loop.
+  ///
+  /// Here the status carries no such meaning and must not gate the event.
+  /// `IosPaymentQueueSource` has *already* filtered the queue down to
+  /// `SKPaymentTransactionStateWrapper.purchased` before it builds any
+  /// `PurchaseDetails`, and Android's `queryPastPurchases` answers a
+  /// "past purchases" query - a label about how the row was enumerated, not
+  /// about whether money moved. What proves money moved on this path is the
+  /// same thing that proves it on the other: the server settled the receipt
+  /// and granted candy. Gating the sweep on a `purchased` status would delete
+  /// exactly the revenue the sweep exists to recover.
+  recoverySweep,
+}
+
 /// Why a recovery sweep was started.
 enum PurchaseSweepTrigger {
   /// Once per process, from the constructor.
@@ -549,10 +575,16 @@ class PurchaseService {
       _validateUserAuthentication();
       final environment = await receiptVerificationService.getEnvironment();
 
-      await _verifyReceipt(purchaseDetails, environment);
-      await _logPurchaseAnalytics(purchaseDetails);
+      final result = await _verifyReceipt(purchaseDetails, environment);
 
+      // 성공 보고가 먼저다 - 애널리틱스는 결제 결과에 아무 영향이 없으므로
+      // 사용자가 기다릴 이유가 없다.
       onSuccess();
+      await _logPurchaseAnalytics(
+        purchaseDetails,
+        result,
+        source: PurchaseAnalyticsSource.storeCallback,
+      );
       logger.i('Purchase successfully completed: ${purchaseDetails.productID}');
     } on ReusedPurchaseException catch (e) {
       logger.w('🔄 JWT 재사용 감지 (handleSuccessfulPurchase) - ${e.message}');
@@ -613,8 +645,6 @@ class PurchaseService {
       final result = await _verifyReceipt(purchaseDetails, environment);
       logger.i('✅ 서버 영수증 검증 완료 ($platform)');
 
-      await _logPurchaseAnalytics(purchaseDetails);
-
       // 🔥 구매 완료 시 진행 상태 제거
       _processingProducts.remove(purchaseDetails.productID);
 
@@ -632,6 +662,18 @@ class PurchaseService {
         () => deliverVerifiedPurchaseResult(result, onSuccess),
         purchaseDetails,
       );
+
+      // 정산 표시(지갑 반영·영수증·스피너 해제)가 끝난 뒤에 보낸다. 예전에는
+      // 검증 직후에 있어서, 네이티브 Firebase 채널이나 상품 카탈로그 조회가
+      // 정체되면 그만큼 적립 UX 가 통째로 밀렸다. 애널리틱스는 결제 결과에
+      // 영향을 주지 않으므로 뒤로 미룰 수 있고, 미뤄도 유실되지 않는다 —
+      // payload가 outbox에 먼저 남아 store 거래/다음 sweep과 무관하게 재시도된다.
+      await _logPurchaseAnalytics(
+        purchaseDetails,
+        result,
+        source: PurchaseAnalyticsSource.storeCallback,
+      );
+
       logger.i('✅ 실제 구매 검증 완료 ($platform)');
       return true;
     } on ReusedPurchaseException catch (e) {
@@ -824,23 +866,122 @@ class PurchaseService {
   /// the *lookup* this needs to name the product: the provider read, and the
   /// `PRODUCT_NOT_FOUND` below when the store catalogue does not carry an id it
   /// just sold. Neither says anything about whether the user was charged.
-  Future<void> _logPurchaseAnalytics(PurchaseDetails purchaseDetails) async {
+  ///
+  /// [result] is the settlement the server just confirmed, and it is what makes
+  /// this call safe to make at all: GA4 `purchase` feeds revenue reporting, so
+  /// it may only fire for a delivery that actually granted candy.
+  ///
+  /// **Whether this event has already been sent is decided by one thing: the
+  /// dedup record keyed on the transaction.** It used to be decided by
+  /// [isSettlementRedelivery] as well, and that was wrong in a way that loses
+  /// money permanently. `replayed` answers "did the server settle this receipt
+  /// before?", not "did this client already report it?". Those come apart the
+  /// moment a first run settles server-side and then dies - response lost in
+  /// transport, process killed - before analytics fires. Every later delivery
+  /// of that transaction arrives `replayed: true` with `replayCausedByRetry:
+  /// false` (the retry counter lives inside a single `verifyReceipt` call and
+  /// resets with the process), so the gate would suppress the event forever and
+  /// the charge would never appear in GA4 at all. `PurchaseAnalyticsDedup`
+  /// answers the question that actually matters, and it answers it from a
+  /// record of *sends*, which survives restarts. So the redelivery that
+  /// `replayed` was there to catch is still caught - by the dedup key.
+  ///
+  /// [source] decides whether `PurchaseDetails.status` gets a vote; see
+  /// [PurchaseAnalyticsSource]. On the live callback path a `restored`
+  /// transaction is not a new charge and must never be counted, even though the
+  /// rest of that path deliberately treats a bound `restored` event as a normal
+  /// purchase (iOS delivers late successes that way).
+  ///
+  /// The `base_amount` / `bonus_amount` item parameters are read off the same
+  /// settlement rather than recomputed from the catalogue, so what analytics
+  /// reports is what the server actually credited - promotion bonus included,
+  /// and only when the promotion was `GRANTED`.
+  ///
+  /// Bounded by [_analyticsBudget]. Nothing downstream of a settled purchase may
+  /// wait on analytics. 카탈로그는 이미 로드된 provider state만 읽고, 없으면
+  /// currency/value를 생략한다. Firebase native channel은 outbox background
+  /// drain만 접근하므로 이 경로가 기다리는 것은 bounded local persistence뿐이다.
+  ///
+  /// **The timeout here bounds this path's UX, not the dedup reservation.**
+  /// `Future.timeout` does not cancel what it gave up on, so a timeout fired
+  /// out here would leave the send still running and its reservation held by
+  /// nobody - and under the old marker-before-send order it left a *persisted*
+  /// "already sent" marker for an event that never went out, losing that
+  /// purchase from GA4 permanently. The same budget is therefore handed to
+  /// `logPurchaseEvent` as [AnalyticsService.defaultSendTimeout]'s override, so
+  /// the reservation is always settled - committed on a confirmed send,
+  /// released otherwise - by the code that took it out.
+  Future<void> _logPurchaseAnalytics(
+    PurchaseDetails purchaseDetails,
+    PurchaseSettlementResultModel result, {
+    required PurchaseAnalyticsSource source,
+  }) async {
     try {
-      final storeProducts = await container.read(storeProductsProvider.future);
-      final productDetails = storeProducts.firstWhere(
-        (product) => product.id == purchaseDetails.productID,
-        orElse: () => throw Exception('PRODUCT_NOT_FOUND'),
-      );
+      if (source == PurchaseAnalyticsSource.storeCallback &&
+          purchaseDetails.status != PurchaseStatus.purchased) {
+        logger.w(
+          '애널리틱스 로깅 생략 - 실결제 상태가 아님(${purchaseDetails.status}): '
+          '${purchaseDetails.productID}',
+        );
+        return;
+      }
 
-      logger.i('애널리틱스 로깅...');
-      await analyticsService.logPurchaseEvent(
-        productDetails,
-        transactionId: purchaseDetails.purchaseID,
-      );
-      logger.i('애널리틱스 로깅 완료');
+      await _sendPurchaseAnalytics(
+        purchaseDetails,
+        result,
+      ).timeout(_analyticsBudget);
     } catch (e, s) {
       logger.e('애널리틱스 로깅 실패 - 구매 결과에는 영향 없음: $e', stackTrace: s);
     }
+  }
+
+  /// How long the purchase path is willing to wait for analytics before it
+  /// gives up and moves on. The event is worth having; it is not worth holding
+  /// a settled purchase's UX behind.
+  static const Duration _analyticsBudget = Duration(seconds: 5);
+
+  Future<void> _sendPurchaseAnalytics(
+    PurchaseDetails purchaseDetails,
+    PurchaseSettlementResultModel result,
+  ) async {
+    // 정산이 확정된 뒤 카탈로그 future를 기다리면, 조회 실패/무한 지연이
+    // outbox 저장보다 먼저 발생해 store finish 후 매출 payload가 사라진다.
+    // 이미 메모리에 로드된 상세가 있으면 currency/value를 보강하고, 없으면
+    // 숫자를 지어내지 않은 채 거래/적립 사실부터 durable하게 남긴다.
+    ProductDetails? productDetails;
+    final cachedProducts = container.read(storeProductsProvider).value;
+    if (cachedProducts != null) {
+      for (final product in cachedProducts) {
+        if (product.id == purchaseDetails.productID) {
+          productDetails = product;
+          break;
+        }
+      }
+    }
+    if (productDetails == null) {
+      logger.w(
+        'purchase analytics 카탈로그 상세 없음 — currency/value는 '
+        '생략하고 정산 payload를 outbox에 보존: ${purchaseDetails.productID}',
+      );
+    }
+
+    final promotion = result.promotion;
+    final promoBonus = promotion?.state == PurchasePromotionState.granted
+        ? promotion!.promoBonusAmount
+        : BigInt.zero;
+
+    logger.i('애널리틱스 로깅...');
+    await analyticsService.logPurchasePayload(
+      storeProductId: purchaseDetails.productID,
+      currency: productDetails?.currencyCode,
+      value: productDetails?.rawPrice,
+      transactionId: purchaseDetails.purchaseID,
+      idempotencyFallbackKey: result.operationId,
+      baseAmount: result.baseStarAmount.toInt(),
+      bonusAmount: (result.baseBonusAmount + promoBonus).toInt(),
+      sendTimeout: _analyticsBudget,
+    );
+    logger.i('애널리틱스 로깅 완료');
   }
 
   /// 구매 완료 처리
@@ -976,9 +1117,7 @@ class PurchaseService {
     }
 
     if (!_sweepAllowed(trigger)) {
-      logger.i(
-        '⏭️ 미완료 구매 스윕 제한(${trigger.name}) - 마지막 실행: $_lastSweepAt',
-      );
+      logger.i('⏭️ 미완료 구매 스윕 제한(${trigger.name}) - 마지막 실행: $_lastSweepAt');
       return PurchaseSweepReport(
         trigger: trigger,
         outcome: PurchaseSweepOutcome.throttled,
@@ -1077,9 +1216,7 @@ class PurchaseService {
     // 한 번 더 확인한다 - 진입 시점 검사만으로는 스캔 도중 붙는 화면을
     // 놓친다.
     if (shouldAbort?.call() ?? false) {
-      logger.i(
-        '⏭️ 미완료 구매 스윕 중단(조건 변경) - ${scan.purchases.length}건 보존',
-      );
+      logger.i('⏭️ 미완료 구매 스윕 중단(조건 변경) - ${scan.purchases.length}건 보존');
       return PurchaseSweepReport(
         trigger: trigger,
         outcome: PurchaseSweepOutcome.aborted,
@@ -1130,11 +1267,21 @@ class PurchaseService {
       // 소비(consume)/finish는 적립이 확인된 뒤에만 한다 — 소비가 먼저면
       // 실패 시 복구 수단이 사라진다.
       try {
-        await receiptVerificationService.verifyReceipt(
+        final result = await receiptVerificationService.verifyReceipt(
           receipt,
           p.productID,
           currentUser.id,
           environment,
+        );
+        // 이 경로도 "검증 성공 = 적립 확정"이라 매출이다. 여기서 안 보내면
+        // 결제 직후 앱이 죽거나 네트워크가 끊겨 스윕이 대신 정산한 구매가
+        // GA4 에서 통째로 사라진다. 이전 세션이 이미 보낸 건이든 같은 결제를
+        // 반복 스윕한 것이든, 걸러내는 것은 거래 ID 중복 방어 하나다 —
+        // 정산의 재전달 플래그는 발송 증거가 아니다(_logPurchaseAnalytics 문서).
+        await _logPurchaseAnalytics(
+          p,
+          result,
+          source: PurchaseAnalyticsSource.recoverySweep,
         );
         if (await _tryFinalize(p)) {
           settled++;

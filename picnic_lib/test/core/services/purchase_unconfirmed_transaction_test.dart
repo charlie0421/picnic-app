@@ -8,7 +8,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:mockito/mockito.dart';
+import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
+import 'package:picnic_lib/core/analytics/ga4_sink.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/data/storage/local_storage.dart' as picnic_storage;
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/services/receipt_queue_service.dart';
@@ -18,6 +21,7 @@ import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart'
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_analytics_dedup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_processor.dart';
 import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -62,12 +66,25 @@ void main() {
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    // AnalyticsService() 기본 배선은 전역 outbox 로 간다. 실제 Firebase sink 는
+    // 테스트 호스트에서 항상 실패해 30초 재시도 Timer 가 pending 으로 남으므로
+    // (testWidgets 의 !timersPending 불변식 위반), 격리된 outbox 로 바꾼다.
+    AnalyticsOutbox.resetProcessStateForTest();
+    PurchaseAnalyticsDedup.resetProcessCache();
+    AnalyticsOutbox.overrideInstance(
+      AnalyticsOutbox(storage: _MemoryAnalyticsStorage(), sink: RecordingGa4Sink()),
+    );
     await setupMockSupabaseWithAuth(const {}, userId: userId);
     errors = [];
     alreadySettledReports = 0;
   });
 
-  tearDown(tearDownMockSupabase);
+  tearDown(() {
+    AnalyticsOutbox.resetProcessStateForTest();
+    PurchaseAnalyticsDedup.resetProcessCache();
+    AnalyticsOutbox.resetInstance();
+    tearDownMockSupabase();
+  });
 
   /// Wires a real [PurchaseService] the way `PurchaseStarCandyState` does, with
   /// only the two collaborators that leave the device replaced.
@@ -102,7 +119,7 @@ void main() {
       container: container,
       inAppPurchaseService: plugin,
       receiptVerificationService: verification,
-      analyticsService: AnalyticsService(),
+      analyticsService: _hermeticAnalyticsService(),
       duplicatePreventionService: duplicates,
       onPurchaseUpdate: (_) {},
     );
@@ -513,7 +530,7 @@ void main() {
         container: container,
         inAppPurchaseService: plugin,
         receiptVerificationService: verification,
-        analyticsService: AnalyticsService(),
+        analyticsService: _hermeticAnalyticsService(),
         duplicatePreventionService: duplicates,
         onPurchaseUpdate: (_) {},
         unfinishedPurchaseSource: source,
@@ -901,7 +918,7 @@ void main() {
         container: container,
         inAppPurchaseService: plugin,
         receiptVerificationService: verification,
-        analyticsService: AnalyticsService(),
+        analyticsService: _hermeticAnalyticsService(),
         duplicatePreventionService: duplicates,
         onPurchaseUpdate: (_) {},
         unfinishedPurchaseSource: throwing,
@@ -964,7 +981,7 @@ void main() {
         container: plainContainer,
         inAppPurchaseService: _CountingPlugin(),
         receiptVerificationService: _SettledVerification(),
-        analyticsService: AnalyticsService(),
+        analyticsService: _hermeticAnalyticsService(),
         duplicatePreventionService:
             DuplicatePreventionService.forContainer(plainContainer),
         onPurchaseUpdate: (_) {},
@@ -1274,4 +1291,35 @@ class _CountingPlugin extends Mock implements InAppPurchaseService {
     finalized++;
     return true;
   }
+}
+
+/// 기본 `AnalyticsService()` 는 dedup 마커를 `globalStorage`
+/// (`NonWebLocalStorage`의 프로세스 정적 SharedPreferences future) 로 읽는다.
+/// 그 정적 future 는 처음 접근한 테스트의 FakeAsync 존에 묶이므로, 뒤의
+/// 테스트가 같은 경로를 타면 완료가 전달되지 않아 ioTimeout 타이머도 못
+/// 미는 채 무한 대기한다(JWS 재전달 테스트의 10분 timeout). 저장소를
+/// 테스트 격리 인스턴스로 주입해 전역 정적을 우회한다.
+AnalyticsService _hermeticAnalyticsService() => AnalyticsService(
+      dedup: PurchaseAnalyticsDedup(storage: _MemoryAnalyticsStorage()),
+      outbox: AnalyticsOutbox(
+        storage: _MemoryAnalyticsStorage(),
+        sink: RecordingGa4Sink(),
+      ),
+    );
+
+class _MemoryAnalyticsStorage implements picnic_storage.LocalStorage {
+  final Map<String, String> _data = <String, String>{};
+
+  @override
+  Future<void> clearStorage() async => _data.clear();
+
+  @override
+  Future<String?> loadData(String key, String? defaultValue) async =>
+      _data[key] ?? defaultValue;
+
+  @override
+  Future<void> removeData(String key) async => _data.remove(key);
+
+  @override
+  Future<void> saveData(String key, String value) async => _data[key] = value;
 }

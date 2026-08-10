@@ -128,11 +128,17 @@ class _RecordingAnalytics extends AnalyticsService {
   final List<String> logged = [];
 
   @override
-  Future<void> logPurchaseEvent(
-    ProductDetails product, {
+  Future<void> logPurchasePayload({
+    required String storeProductId,
+    required String? currency,
+    required num? value,
     String? transactionId,
+    String? idempotencyFallbackKey,
+    num? baseAmount,
+    num? bonusAmount,
+    Duration sendTimeout = AnalyticsService.defaultSendTimeout,
   }) async {
-    logged.add(product.id);
+    logged.add(storeProductId);
   }
 }
 
@@ -335,8 +341,7 @@ void main() {
     expect(
       plugin.settledFinalizations,
       1,
-      reason:
-          '정산이 확정된 구매는 정확히 1회 최종 완료(consume/finish)되어야 한다',
+      reason: '정산이 확정된 구매는 정확히 1회 최종 완료(consume/finish)되어야 한다',
     );
     expect(
       analytics.logged,
@@ -387,12 +392,8 @@ void main() {
   testWidgets('a product the store catalogue does not carry still settles', (
     tester,
   ) async {
-    // The catalogue lookup exists only to name the product for analytics, and
-    // it runs after the receipt has verified - after the candy is granted. It
-    // has its own way to fail: the ids the catalogue is built from are
-    // prefixed per environment (`ProductProviderHelper.buildProductIds`), so a
-    // transaction whose id the catalogue does not carry throws
-    // PRODUCT_NOT_FOUND here. That says nothing about whether the user paid.
+    // 카탈로그에 SKU가 없어도 transaction/operation과 정산 수량은 이미 있다.
+    // currency/value를 지어내지는 않되 durable payload 자체는 남겨야 한다.
     await openStoreThenLeave(
       tester,
       storeCatalogue: () => [
@@ -418,8 +419,8 @@ void main() {
     );
     expect(
       analytics.logged,
-      isEmpty,
-      reason: 'there was no product to name, so nothing was logged',
+      <String>[_productId],
+      reason: 'catalogue miss must not erase an already-settled purchase',
     );
     expect(errors, isEmpty);
     expect(duplicates.outcomes, [true]);
@@ -569,16 +570,10 @@ void main() {
             '정산이 확정된 트랜잭션은 정확히 1회 완료(finish/consume)되어야 '
             '한다 - 이걸 빼면 매 실행마다 같은 트랜잭션이 재전달된다',
       );
-      expect(
-        headlessDuplicates.outcomes,
-        [true],
-        reason: '서버가 정산한 구매는 중복 방지 원장에도 성공으로 기록된다',
-      );
-      expect(
-        presenter.settlements,
-        isEmpty,
-        reason: '띄울 화면이 없으면 아무것도 띄우지 않는다',
-      );
+      expect(headlessDuplicates.outcomes, [
+        true,
+      ], reason: '서버가 정산한 구매는 중복 방지 원장에도 성공으로 기록된다');
+      expect(presenter.settlements, isEmpty, reason: '띄울 화면이 없으면 아무것도 띄우지 않는다');
       expect(
         analytics.logged,
         [_productId],
@@ -628,34 +623,36 @@ void main() {
       expect(headlessDuplicates.outcomes, [true]);
     });
 
-    test('an unconfirmed outcome preserves the transaction and says nothing',
-        () async {
-      // #119 의 무화면 판본: 미확정은 실패가 아니다. 무화면 경로에는 "다시 시도
-      // 해 주세요" 를 띄울 방법이 아예 없어야 한다 - 소비형 상품에서 그 안내는
-      // 되돌릴 수 없는 이중 과금을 만든다.
-      final listener = buildListener(
-        verificationStub: _FailingVerification(
-          FunctionException(status: 503, details: null, reasonPhrase: 'test'),
-        ),
-        uiSurfaceAvailable: true,
-      );
+    test(
+      'an unconfirmed outcome preserves the transaction and says nothing',
+      () async {
+        // #119 의 무화면 판본: 미확정은 실패가 아니다. 무화면 경로에는 "다시 시도
+        // 해 주세요" 를 띄울 방법이 아예 없어야 한다 - 소비형 상품에서 그 안내는
+        // 되돌릴 수 없는 이중 과금을 만든다.
+        final listener = buildListener(
+          verificationStub: _FailingVerification(
+            FunctionException(status: 503, details: null, reasonPhrase: 'test'),
+          ),
+          uiSurfaceAvailable: true,
+        );
 
-      listener.handlePurchaseUpdates([transaction]);
-      await listener.pendingHeadlessWork;
+        listener.handlePurchaseUpdates([transaction]);
+        await listener.pendingHeadlessWork;
 
-      expect(
-        plugin.settledFinalizations,
-        0,
-        reason: '미확정 트랜잭션을 완료하면 과금된 영수증이 소멸한다',
-      );
-      expect(presenter.settlements, isEmpty);
-      expect(presenter.acknowledgements, 0);
-      expect(
-        container.read(walletSummaryProvider).value,
-        isNull,
-        reason: '정산되지 않은 구매로 잔액을 움직여서는 안 된다',
-      );
-    });
+        expect(
+          plugin.settledFinalizations,
+          0,
+          reason: '미확정 트랜잭션을 완료하면 과금된 영수증이 소멸한다',
+        );
+        expect(presenter.settlements, isEmpty);
+        expect(presenter.acknowledgements, 0);
+        expect(
+          container.read(walletSummaryProvider).value,
+          isNull,
+          reason: '정산되지 않은 구매로 잔액을 움직여서는 안 된다',
+        );
+      },
+    );
 
     test('a mounted surface takes delivery and the headless path does not also '
         'run', () async {
@@ -740,45 +737,49 @@ void main() {
       expect(listener.hasSurface, isFalse);
     });
 
-    test('detaching the surface hands delivery back to the headless path',
-        () async {
-      final listener = buildListener(
-        verificationStub: _SettlingVerification(verified),
-        uiSurfaceAvailable: false,
-      );
-      var surfaceDeliveries = 0;
-      listener.attachSurface((_) => surfaceDeliveries++).detach();
+    test(
+      'detaching the surface hands delivery back to the headless path',
+      () async {
+        final listener = buildListener(
+          verificationStub: _SettlingVerification(verified),
+          uiSurfaceAvailable: false,
+        );
+        var surfaceDeliveries = 0;
+        listener.attachSurface((_) => surfaceDeliveries++).detach();
 
-      listener.handlePurchaseUpdates([transaction]);
-      await listener.pendingHeadlessWork;
+        listener.handlePurchaseUpdates([transaction]);
+        await listener.pendingHeadlessWork;
 
-      expect(surfaceDeliveries, 0);
-      expect(
-        plugin.settledFinalizations,
-        1,
-        reason:
-            '스토어를 닫는 순간부터 무화면 정산이 이어받는다 - 이 인수인계가 '
-            '없으면 화면을 닫은 뒤의 이벤트가 다시 유실된다',
-      );
-    });
+        expect(surfaceDeliveries, 0);
+        expect(
+          plugin.settledFinalizations,
+          1,
+          reason:
+              '스토어를 닫는 순간부터 무화면 정산이 이어받는다 - 이 인수인계가 '
+              '없으면 화면을 닫은 뒤의 이벤트가 다시 유실된다',
+        );
+      },
+    );
 
-    test('an old surface detaching cannot silence a store that just opened',
-        () async {
-      final listener = buildListener(
-        verificationStub: _SettlingVerification(verified),
-        uiSurfaceAvailable: false,
-      );
-      final stale = listener.attachSurface((_) {});
-      var freshDeliveries = 0;
-      listener.attachSurface((_) => freshDeliveries++);
+    test(
+      'an old surface detaching cannot silence a store that just opened',
+      () async {
+        final listener = buildListener(
+          verificationStub: _SettlingVerification(verified),
+          uiSurfaceAvailable: false,
+        );
+        final stale = listener.attachSurface((_) {});
+        var freshDeliveries = 0;
+        listener.attachSurface((_) => freshDeliveries++);
 
-      // 라우트 전환에서 이전 화면의 dispose 가 새 화면의 initState 뒤에 온다.
-      stale.detach();
+        // 라우트 전환에서 이전 화면의 dispose 가 새 화면의 initState 뒤에 온다.
+        stale.detach();
 
-      listener.handlePurchaseUpdates([transaction]);
-      expect(freshDeliveries, 1);
-      expect(listener.hasSurface, isTrue);
-    });
+        listener.handlePurchaseUpdates([transaction]);
+        expect(freshDeliveries, 1);
+        expect(listener.hasSurface, isTrue);
+      },
+    );
   });
 
   testWidgets('opening and closing the store twice leaves exactly one purchase '
@@ -816,7 +817,8 @@ void main() {
     expect(
       listener.hasSurface,
       isFalse,
-      reason: '앱만 떠 있는 상태에서는 표시 서피스가 없다 - 이 구간에 도착하는 '
+      reason:
+          '앱만 떠 있는 상태에서는 표시 서피스가 없다 - 이 구간에 도착하는 '
           '이벤트가 예전에 유실됐던 것들이다',
     );
 
@@ -840,8 +842,7 @@ void main() {
     expect(
       storeKit.purchaseHandlerRegistrations,
       registrationsAtLaunch,
-      reason:
-          '스토어 화면은 더 이상 전달 경로를 등록하지 않는다 - 서피스로만 붙는다',
+      reason: '스토어 화면은 더 이상 전달 경로를 등록하지 않는다 - 서피스로만 붙는다',
     );
   });
 }
@@ -850,7 +851,8 @@ void main() {
 ///
 /// `_RecordingDuplicatePrevention` above takes a `WidgetRef`, which is exactly
 /// what the app-level path must not need.
-class _RecordingContainerDuplicatePrevention extends DuplicatePreventionService {
+class _RecordingContainerDuplicatePrevention
+    extends DuplicatePreventionService {
   _RecordingContainerDuplicatePrevention(super.container)
     : super.forContainer();
 
@@ -913,11 +915,10 @@ class _DuplicateVerification extends ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
-  ) async =>
-      throw ReusedPurchaseException(
-        message: 'duplicate',
-        grantConfirmed: grantConfirmed,
-      );
+  ) async => throw ReusedPurchaseException(
+    message: 'duplicate',
+    grantConfirmed: grantConfirmed,
+  );
 }
 
 /// Verification fails with the given error.
@@ -935,8 +936,7 @@ class _FailingVerification extends ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
-  ) async =>
-      throw failure;
+  ) async => throw failure;
 }
 
 /// The store, mounted the way the app mounts it: inside a `ProviderScope` that
