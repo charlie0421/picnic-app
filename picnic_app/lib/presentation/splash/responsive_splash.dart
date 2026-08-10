@@ -22,7 +22,7 @@ class ResponsiveSplash extends StatelessWidget {
                 key: const Key('responsive-splash-fitted-box'),
                 fit: BoxFit.contain,
                 child: Image.asset(
-                  'assets/splash.webp',
+                  'assets/splash_key.png',
                   key: const Key('responsive-splash-key-image'),
                 ),
               ),

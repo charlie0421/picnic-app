@@ -28,4 +28,18 @@ void main() {
       BoxFit.contain,
     );
   });
+
+  testWidgets('renders the transparent splash key asset', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: ResponsiveSplash()));
+
+    final image = tester.widget<Image>(
+      find.byKey(const Key('responsive-splash-key-image')),
+    );
+
+    expect(image.image, isA<AssetImage>());
+    expect(
+      (image.image as AssetImage).assetName,
+      'assets/splash_key.png',
+    );
+  });
 }
