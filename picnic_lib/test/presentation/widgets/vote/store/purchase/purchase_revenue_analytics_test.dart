@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:mockito/mockito.dart';
 import 'package:picnic_lib/core/analytics/analytics.dart';
+import 'package:picnic_lib/core/analytics/purchase_price_memo.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
@@ -202,6 +203,9 @@ void main() {
     verification = _SettlingVerification(result);
 
     return PurchaseService(
+      purchasePriceMemo: PurchasePriceMemo(
+        storage: analyticsStorage ?? _FakeLocalStorage(),
+      ),
       container: container,
       inAppPurchaseService: plugin,
       receiptVerificationService: verification,

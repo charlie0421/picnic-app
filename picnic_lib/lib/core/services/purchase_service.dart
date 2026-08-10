@@ -483,6 +483,7 @@ class PurchaseService {
       unawaited(
         purchasePriceMemo.record(
           storeProductId: productDetails.id,
+          userId: currentUser.id,
           currency: productDetails.currencyCode,
           value: productDetails.rawPrice,
         ),
@@ -963,6 +964,27 @@ class PurchaseService {
   /// a settled purchase's UX behind.
   static const Duration _analyticsBudget = Duration(seconds: 5);
 
+  /// memo 조회에 허용하는 몫. 이 뒤로 dedup 예약과 outbox load/save 가
+  /// 이어지므로, 전체 [_analyticsBudget] 을 memo 가 잠식하면 정작 durable
+  /// payload 저장이 잘린다. 금액은 있으면 좋은 값이고 거래 기록은 반드시
+  /// 남아야 하는 값이다.
+  static const Duration _memoBudget = Duration(milliseconds: 800);
+
+  /// 스토어가 준 거래 시각. `PurchaseDetails.transactionDate` 는 epoch millis
+  /// 문자열이거나 null 이다. 파싱되지 않으면 null 로 두고, memo 조회는
+  /// "후보가 정확히 하나일 때만" 규칙으로 떨어진다.
+  static DateTime? _parseTransactionDate(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    final millis = int.tryParse(raw);
+    if (millis == null) return null;
+    if (millis.abs() > 8640000000000000) return null;
+    try {
+      return DateTime.fromMillisecondsSinceEpoch(millis);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _sendPurchaseAnalytics(
     PurchaseDetails purchaseDetails,
     PurchaseSettlementResultModel result,
@@ -981,28 +1003,40 @@ class PurchaseService {
         }
       }
     }
-    // 카탈로그가 아직 메모리에 없으면(주로 앱 재시작 직후 복구 스윕) 결제
-    // 시점에 남겨 둔 기록을 쓴다. 지금 카탈로그를 다시 읽는 것보다 정확하다 —
-    // 그 사이 가격이 바뀌었으면 실제 결제 금액과 다른 값이 들어간다.
-    String? currency = productDetails?.currencyCode;
-    num? value = productDetails?.rawPrice;
+    // 결제 시점 기록이 **카탈로그보다 우선**한다. 정산이 며칠 뒤에 일어나면
+    // 그 사이 가격 인상·프로모션 종료·환율 변경으로 카탈로그 값이 실제 결제
+    // 금액과 달라진다. 기록은 사용자가 보고 결제한 바로 그 가격이고, 정산
+    // 대상 사용자와 거래 시각으로 그 시도를 지목해 가져온다.
+    //
+    // 예산을 넘겨 준다 — 금액을 얻자고 outbox 저장을 굶기면 안 된다.
+    // Supabase 미초기화 등으로 전역 접근이 던지면 금액만 포기한다 —
+    // analytics 발송 자체를 잃으면 안 된다.
+    String? settlingUserId;
+    try {
+      settlingUserId = supabase.auth.currentUser?.id;
+    } catch (_) {}
 
-    if (productDetails == null) {
-      final memo = await purchasePriceMemo.lookup(purchaseDetails.productID);
-      if (memo != null) {
-        currency = memo.currency;
-        value = memo.value;
-        logger.i(
-          'purchase analytics 카탈로그 상세 없음 — 결제 시점 기록으로 '
-          '금액 복원: ${purchaseDetails.productID}',
-        );
-      } else {
-        logger.w(
-          'purchase analytics 카탈로그 상세·결제 시점 기록 모두 없음 — '
-          'currency/value는 생략하고 정산 payload를 outbox에 보존: '
-          '${purchaseDetails.productID}',
-        );
-      }
+    final memo = await purchasePriceMemo.takeFor(
+      storeProductId: purchaseDetails.productID,
+      userId: settlingUserId,
+      transactionAt: _parseTransactionDate(purchaseDetails.transactionDate),
+      budget: _memoBudget,
+    );
+
+    String? currency = memo?.currency ?? productDetails?.currencyCode;
+    num? value = memo?.value ?? productDetails?.rawPrice;
+
+    if (memo != null) {
+      logger.i(
+        'purchase analytics 결제 시점 기록으로 금액 확정: '
+        '${purchaseDetails.productID}',
+      );
+    } else if (productDetails == null) {
+      logger.w(
+        'purchase analytics 카탈로그 상세·결제 시점 기록 모두 없음 — '
+        'currency/value는 생략하고 정산 payload를 outbox에 보존: '
+        '${purchaseDetails.productID}',
+      );
     }
 
     final promotion = result.promotion;
