@@ -180,6 +180,72 @@ void main() {
     });
   });
 
+  /// 정리 후보 판정 전용 술어. 90초 문구 판정([isPurchaseSheetClosed])과
+  /// 갈라진 이유는 런치 직후의 창이다 - Android `buyConsumable` 은 Play 결제
+  /// Activity 가 전면에 오기 전에 반환하므로, 그 순간의 resumed 를 "닫힘"으로
+  /// 읽으면 결제 시트 안 사용자의 시도가 지워진다 (Sol 4차 재검증 MAJOR).
+  group('isPurchaseSheetProvenClosed', () {
+    test('전이를 본 적 없으면 지금 전면이어도 닫힘이 아니다 (4차 반례)', () {
+      expect(
+        isPurchaseSheetProvenClosed(
+          leftForegroundSincePurchaseLaunch: false,
+          returnedToForegroundSincePurchaseLaunch: false,
+          currentLifecycleState: AppLifecycleState.resumed,
+        ),
+        isFalse,
+      );
+    });
+
+    test('나갔지만 아직 안 돌아왔으면 닫힘이 아니다 - 사용자가 시트 안에 있다', () {
+      for (final state in [
+        AppLifecycleState.inactive,
+        AppLifecycleState.paused,
+        AppLifecycleState.hidden,
+        AppLifecycleState.detached,
+        null,
+      ]) {
+        expect(
+          isPurchaseSheetProvenClosed(
+            leftForegroundSincePurchaseLaunch: true,
+            returnedToForegroundSincePurchaseLaunch: false,
+            currentLifecycleState: state,
+          ),
+          isFalse,
+          reason: 'lifecycleState=$state',
+        );
+      }
+    });
+
+    test('나갔다가 돌아왔으면 이후 상태와 무관하게 닫힘이다', () {
+      for (final state in [
+        AppLifecycleState.resumed,
+        AppLifecycleState.paused,
+        null,
+      ]) {
+        expect(
+          isPurchaseSheetProvenClosed(
+            leftForegroundSincePurchaseLaunch: true,
+            returnedToForegroundSincePurchaseLaunch: true,
+            currentLifecycleState: state,
+          ),
+          isTrue,
+          reason: '시트는 이미 닫혔다 - 그 뒤의 백그라운드 전환은 무관하다',
+        );
+      }
+    });
+
+    test('resumed 이벤트를 놓쳤어도 나간 적이 있고 지금 전면이면 닫힘이다', () {
+      expect(
+        isPurchaseSheetProvenClosed(
+          leftForegroundSincePurchaseLaunch: true,
+          returnedToForegroundSincePurchaseLaunch: false,
+          currentLifecycleState: AppLifecycleState.resumed,
+        ),
+        isTrue,
+      );
+    });
+  });
+
   group('PurchaseLaunchLifecycleTracker', () {
     test('런치 기록이 없는 상품과 null(전역 타이머)은 접수 문구 쪽으로 판정된다', () {
       final tracker = PurchaseLaunchLifecycleTracker();
@@ -451,6 +517,91 @@ void main() {
       expect(observation.identitylessCancellationObserved, isFalse);
     });
 
+    test('비전면 전이를 거친 뒤의 복귀만 "돌아왔다"로 센다 (Sol 4차 재검증)', () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      tracker.recordLaunch('STAR100');
+
+      // 시트가 뜨기 전에 들어온 resumed - 닫힘의 증거가 아니다.
+      tracker.recordResumed();
+      var observation = tracker.observationFor('STAR100');
+      expect(observation.resumedSinceLaunch, isTrue,
+          reason: '90초 문구 판정이 쓰는 관찰값은 그대로 선다');
+      expect(observation.leftForegroundSinceLaunch, isFalse);
+      expect(observation.returnedToForegroundSinceLaunch, isFalse,
+          reason: '나간 적이 없으니 돌아온 것도 아니다');
+
+      // 시트가 떴다가 닫혔다.
+      tracker.recordLeftForeground();
+      observation = tracker.observationFor('STAR100');
+      expect(observation.leftForegroundSinceLaunch, isTrue);
+      expect(observation.returnedToForegroundSinceLaunch, isFalse);
+
+      tracker.recordResumed();
+      expect(
+        tracker.observationFor('STAR100').returnedToForegroundSinceLaunch,
+        isTrue,
+      );
+    });
+
+    test('전이 순번을 런치 요청 시점부터 세면 런치 중 지나간 전이도 잡힌다 (iOS 블로킹 반환)',
+        () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      final exitsAtLaunchStart = tracker.foregroundExitCount;
+
+      // purchase() 가 도는 동안 시트가 떴다 닫힌다.
+      tracker.recordLeftForeground();
+      tracker.recordResumed();
+
+      tracker.recordLaunch(
+        'STAR100',
+        foregroundExitsAtLaunchStart: exitsAtLaunchStart,
+      );
+
+      final observation = tracker.observationFor('STAR100');
+      expect(observation.leftForegroundSinceLaunch, isTrue,
+          reason: '런치 호출 중의 전이는 이 시도의 것이다');
+      expect(observation.returnedToForegroundSinceLaunch, isFalse,
+          reason: '복귀 이벤트는 관찰 생성 전에 지나갔다 - 현재 전면 상태가 이어받는다');
+    });
+
+    test('런치 요청 시점 이후 전이가 없으면 leftForeground 는 서지 않는다 (Android 즉시 반환)',
+        () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      final exitsAtLaunchStart = tracker.foregroundExitCount;
+      tracker.recordLaunch(
+        'STAR100',
+        foregroundExitsAtLaunchStart: exitsAtLaunchStart,
+      );
+      expect(
+        tracker.observationFor('STAR100').leftForegroundSinceLaunch,
+        isFalse,
+      );
+    });
+
+    test('새 런치는 전이 관찰도 초기화한다 - 이전 시도의 닫힘이 새 시도로 새지 않는다', () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      tracker.recordLaunch('STAR100');
+      tracker.recordLeftForeground();
+      tracker.recordResumed();
+      expect(
+        tracker.observationFor('STAR100').returnedToForegroundSinceLaunch,
+        isTrue,
+      );
+
+      final exits = tracker.foregroundExitCount;
+      tracker.recordLaunch('STAR100', foregroundExitsAtLaunchStart: exits);
+      final observation = tracker.observationFor('STAR100');
+      expect(observation.leftForegroundSinceLaunch, isFalse);
+      expect(observation.returnedToForegroundSinceLaunch, isFalse);
+    });
+
+    test('런치 관찰이 없는 상품은 정리 판정에서도 보수적 기본값(닫힘)이다', () {
+      final tracker = PurchaseLaunchLifecycleTracker();
+      final unknown = tracker.observationFor('UNKNOWN');
+      expect(unknown.leftForegroundSinceLaunch, isTrue);
+      expect(unknown.returnedToForegroundSinceLaunch, isTrue);
+    });
+
     test('안전망 타이머와 같은 canonical 상품 키를 쓸 수 있다 (STAR100 vs star100)', () {
       final tracker = PurchaseLaunchLifecycleTracker(
         canonicalize: PurchaseCampaignAttemptRegistry.canonicalProductKey,
@@ -502,12 +653,9 @@ void main() {
         tracker.clear(productId);
         if (notice == PurchaseTimeoutNotice.suppressed) {
           final report = await resolveStoreQueueSweep();
-          final verifiedEmpty = report != null &&
-              report.outcome == PurchaseSweepOutcome.completed &&
-              report.scanError == null &&
-              report.found == 0 &&
-              report.preserved == 0;
-          if (verifiedEmpty) return;
+          // 프로덕션과 같은 술어를 쓴다 (PurchaseSweepReport.verifiedEmpty):
+          // "확인했고 애초에 비어 있었다"만 생략 사유다.
+          if (report?.verifiedEmpty ?? false) return;
           shownMessageKeyByProduct[productId ?? '<global>'] =
               'purchase_payment_accepted_message';
           return;
@@ -635,6 +783,28 @@ void main() {
         'purchase_payment_accepted_message',
         reason: '증거가 있는 시도의 팝업은 이중 결제 안전장치다',
       );
+    });
+
+    testWidgets(
+        '비전면 전이 없이 받은 resumed 도 90초 분기에서는 그대로 시트 닫힘으로 센다 '
+        '(정리 판정만 엄격해졌고 문구 판정은 불변 - Sol 4차 재검증)', (tester) async {
+      // 정리 후보 판정은 이 관찰을 "닫힘 아님"으로 본다
+      // (returnedToForegroundSinceLaunch == false). 문구 판정은 예전 그대로
+      // resumedSinceLaunch 만 보므로 취소 억제가 계속 동작해야 한다.
+      tracker.recordLaunch('STAR100');
+      manager.startSafetyTimer(productId: 'STAR100', attemptId: 'attempt-1');
+      tracker.recordResumed(); // 앞선 비전면 전이 없음
+      tracker.recordIdentitylessCancellation();
+
+      final observation = tracker.observationFor('STAR100');
+      expect(observation.returnedToForegroundSinceLaunch, isFalse,
+          reason: '두 판정이 실제로 갈라져 있는 상황임을 고정한다');
+
+      await tester.pump(const Duration(seconds: 91));
+      await tester.pump();
+
+      expect(shownMessageKeyByProduct, isEmpty,
+          reason: '어제 배포된 패치(#24~#29)의 취소 억제 동작이 그대로여야 한다');
     });
 
     testWidgets('타이머가 정상 중지되면 어떤 문구도 뜨지 않는다', (tester) async {

@@ -75,31 +75,11 @@ void main() {
       expect(error.toString(), equals('NetworkError: something went wrong'));
     });
 
-    group('isRetryableError', () {
-      test('returns false for content size exceeds', () {
-        expect(NetworkError.isRetryableError('content size exceeds limit'), isFalse);
-      });
-
-      test('returns false for connection closed', () {
-        expect(NetworkError.isRetryableError('connection closed by peer'), isFalse);
-      });
-
-      test('returns false for connection reset', () {
-        expect(NetworkError.isRetryableError('connection reset by peer'), isFalse);
-      });
-
-      test('returns true for timeout errors', () {
-        expect(NetworkError.isRetryableError('request timed out'), isTrue);
-      });
-
-      test('returns true for generic errors', () {
-        expect(NetworkError.isRetryableError('something failed'), isTrue);
-      });
-
-      test('returns true for empty message', () {
-        expect(NetworkError.isRetryableError(''), isTrue);
-      });
-    });
+    // NetworkError.isRetryableError (static, message-string based) was
+    // removed: nothing in production ever called it, and its
+    // 'content size exceeds' verdict (non-retryable) contradicted
+    // _shouldRetry's correct retry-on-new-connection behavior. Retryability
+    // is decided solely by the wired-in `isRetryable` field + _shouldRetry.
   });
 
   group('RetryHttpClient', () {
@@ -108,12 +88,12 @@ void main() {
         http.Client(),
         maxAttempts: 5,
         timeout: const Duration(seconds: 60),
-        keepAlive: const Duration(seconds: 120),
+        bodyInactivityTimeout: const Duration(seconds: 90),
       );
       expect(client, isNotNull);
       expect(client.maxAttempts, equals(5));
       expect(client.timeout, equals(const Duration(seconds: 60)));
-      expect(client.keepAlive, equals(const Duration(seconds: 120)));
+      expect(client.bodyInactivityTimeout, equals(const Duration(seconds: 90)));
       client.close();
     });
 
@@ -142,15 +122,16 @@ void main() {
     // - Exceptions with "connection" in toString -> NetworkError
     // - All other exceptions -> ClientException
     //
-    // _shouldRetry returns true for: SocketException, TimeoutException,
-    // ClientException, or string-matching on connection closed/reset,
-    // broken pipe, before full header, content size exceeds.
+    // _shouldRetry returns true for: NetworkError with isRetryable,
+    // SocketException, TimeoutException, ClientException, or string-matching
+    // on connection closed/reset, broken pipe, before full header,
+    // content size exceeds.
 
     http.Request makeGetRequest() =>
         http.Request('GET', Uri.parse('https://example.com/test'));
 
-    test('SocketException is wrapped to NetworkError and does not retry '
-        '(NetworkError is not in _shouldRetry type checks)', () async {
+    test('SocketException is wrapped to NetworkError and still retries',
+        () async {
       final inner = _FailingClient(
         const SocketException('Connection refused'),
       );
@@ -158,13 +139,48 @@ void main() {
 
       final response = await client.send(makeGetRequest());
 
-      // SocketException -> NetworkError("Network connection error: ...") ->
-      // NetworkError is not SocketException/TimeoutException/ClientException,
-      // and toString doesn't match any string patterns -> no retry
-      expect(inner.callCount, equals(1));
+      // SocketException -> NetworkError(isRetryable: true) ->
+      // _shouldRetry honours the flag -> all attempts are used.
+      expect(inner.callCount, equals(3));
       expect(response.statusCode, equals(500));
       client.close();
     });
+
+    test('cold-start DNS failure retries instead of failing on first attempt',
+        () async {
+      // The regression this guards: on a cold start the first Supabase
+      // request can hit "Failed host lookup" before DNS is warm. That message
+      // matches none of the string patterns below, so before NetworkError was
+      // recognised it fell straight through to the synthetic 500 and the home
+      // banner rendered an error view instead of retrying.
+      final inner = _FailingClient(
+        const SocketException(
+          "Failed host lookup: 'xtijtefcycoeqludlngc.supabase.co'",
+        ),
+      );
+      final client = RetryHttpClient(inner, maxAttempts: 3);
+
+      final response = await client.send(makeGetRequest());
+
+      expect(inner.callCount, equals(3));
+      expect(response.statusCode, equals(500));
+      client.close();
+    });
+
+    test('cold-start DNS failure recovers once the lookup succeeds', () async {
+      final inner = _FailThenSucceedClient(
+        const SocketException("Failed host lookup: 'example.com'"),
+        failCount: 1,
+      );
+      final client = RetryHttpClient(inner, maxAttempts: 3);
+
+      final response = await client.send(makeGetRequest());
+
+      expect(inner.callCount, equals(2));
+      expect(response.statusCode, equals(200));
+      client.close();
+    });
+
 
     test('retries on TimeoutException (rethrown as-is by _sendWithTimeout)',
         () async {
@@ -501,29 +517,8 @@ void main() {
     });
   });
 
-  group('send() - connection pool age check', () {
-    test('old connection in pool gets reset on next request', () async {
-      final inner = _SucceedingClient();
-      final client = RetryHttpClient(
-        inner,
-        maxAttempts: 1,
-        keepAlive: Duration.zero, // connections expire immediately
-      );
-
-      // First request populates pool
-      await client
-          .send(http.Request('GET', Uri.parse('https://example.com/pool1')));
-      // Second request should find expired pool entry and reset
-      await client
-          .send(http.Request('GET', Uri.parse('https://example.com/pool2')));
-
-      expect(inner.callCount, equals(2));
-      client.close();
-    });
-  });
-
-  group('send() - HttpException path in _shouldResetConnection', () {
-    test('HttpException with connection closed triggers connection reset',
+  group('send() - HttpException with connection message', () {
+    test('HttpException with connection closed is wrapped to NetworkError',
         () async {
       final inner = _FailingClient(
         HttpException('connection closed while receiving data'),
@@ -538,7 +533,7 @@ void main() {
       client.close();
     });
 
-    test('HttpException with connection reset triggers connection reset',
+    test('HttpException with connection reset is wrapped to NetworkError',
         () async {
       final inner = _FailingClient(
         HttpException('connection reset by peer'),
@@ -711,6 +706,266 @@ void main() {
     });
   });
 
+  group('response body inactivity timeout', () {
+    // Regression this group guards: the 30s `timeout` only covers
+    // _inner.send() (headers). If the server stalls mid-body, the
+    // StreamedResponse future chain (Response.fromStream) never completes,
+    // the provider stays in loading forever, and the home banner shimmer
+    // spins indefinitely. The body must terminate in finite time.
+    //
+    // Design constraint (trap 2): the budget is an INACTIVITY window, not a
+    // total-duration deadline. As long as bytes keep flowing, a slow link
+    // must never fail — a 22s PostgREST response on slow mobile succeeded
+    // before and must keep succeeding.
+
+    /// Resolves with the fromStream result or error; the sentinel proves the
+    /// future did not hang past [patience].
+    Future<Object?> raceAgainstHang(
+      Future<http.Response> pending, {
+      Duration patience = const Duration(seconds: 5),
+    }) {
+      return Future.any<Object?>([
+        pending.then<Object?>((r) => r, onError: (Object e) => e),
+        Future.delayed(patience, () => 'HUNG'),
+      ]);
+    }
+
+    test('stalled body after headers fails with NetworkError in finite time',
+        () async {
+      final inner = _StallingBodyClient(leadingChunks: [
+        utf8.encode('{"partial":'),
+      ]);
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 3,
+        bodyInactivityTimeout: const Duration(milliseconds: 200),
+      );
+
+      final streamed = await client
+          .send(http.Request('GET', Uri.parse('https://example.com/stall')));
+      final outcome = await raceAgainstHang(http.Response.fromStream(streamed));
+
+      expect(outcome, isNot('HUNG'),
+          reason: 'stalled body must terminate within the inactivity budget');
+      expect(outcome, isA<NetworkError>());
+      expect((outcome as NetworkError).isRetryable, isTrue,
+          reason: 'a mid-body stall is connection-specific; a fresh '
+              'connection usually recovers, consistent with _shouldRetry');
+      client.close();
+    });
+
+    test('slow but active body is NOT killed by the inactivity budget',
+        () async {
+      // 10 chunks x 100ms = ~1s total, far above the 300ms inactivity budget.
+      // Under a total-duration deadline this would fail; under an inactivity
+      // window it must succeed because bytes keep flowing.
+      final inner = _SlowDripClient(
+        totalChunks: 10,
+        interval: const Duration(milliseconds: 100),
+      );
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 1,
+        bodyInactivityTimeout: const Duration(milliseconds: 300),
+      );
+
+      final streamed = await client
+          .send(http.Request('GET', Uri.parse('https://example.com/drip')));
+      final response = await http.Response.fromStream(streamed);
+
+      expect(response.statusCode, equals(200));
+      expect(response.bodyBytes.length, equals(10));
+      client.close();
+    });
+
+    test('fires on the AuthHttpClient-style path (send(), not get/post)',
+        () async {
+      // supabase wraps RetryHttpClient in AuthHttpClient, which overrides
+      // only send(); postgrest's get/post never reach RetryHttpClient's
+      // get/post overrides. The timeout must therefore live in send().
+      final inner = _StallingBodyClient();
+      final retryClient = RetryHttpClient(
+        inner,
+        maxAttempts: 3,
+        bodyInactivityTimeout: const Duration(milliseconds: 200),
+      );
+      final authLike = _AuthLikeClient(retryClient);
+
+      final outcome = await raceAgainstHang(
+        authLike.get(Uri.parse('https://example.com/supabase-path')),
+      );
+
+      expect(outcome, isNot('HUNG'),
+          reason: 'timeout must apply on the BaseClient._sendUnstreamed -> '
+              'send() route used by real Supabase traffic');
+      expect(outcome, isA<NetworkError>());
+      retryClient.close();
+    });
+
+    test(
+        'stalled body on a POST does not re-enter RetryHttpClient\'s own '
+        'retry loop', () async {
+      // Scope: this asserts only RetryHttpClient's internal loop. The stall
+      // surfaces AFTER send() has returned the headers, so THIS class never
+      // re-sends. Upper layers may still retry by their own policy (e.g.
+      // ReceiptVerificationService's catch-all backoff re-sends the same
+      // POST); that path is covered by
+      // test/core/services/receipt_verification_body_stall_replay_test.dart.
+      final inner = _StallingBodyClient();
+      final retryClient = RetryHttpClient(
+        inner,
+        maxAttempts: 3,
+        bodyInactivityTimeout: const Duration(milliseconds: 200),
+      );
+      final authLike = _AuthLikeClient(retryClient);
+
+      final outcome = await raceAgainstHang(
+        authLike.post(
+          Uri.parse('https://example.com/pay'),
+          body: '{"amount": 1}',
+        ),
+      );
+
+      expect(outcome, isA<NetworkError>());
+      expect(inner.callCount, equals(1),
+          reason: 'RetryHttpClient itself must not re-send a non-idempotent '
+              'request on a body stall (upper-layer retry policy is out of '
+              'this test\'s scope)');
+      retryClient.close();
+    });
+
+    test('stalled GET body is not re-requested either', () async {
+      // Even for idempotent requests the stall happens after send() returned,
+      // so the retry loop never sees it. This documents that the budget
+      // terminates the future; it does not re-fetch.
+      final inner = _StallingBodyClient();
+      final retryClient = RetryHttpClient(
+        inner,
+        maxAttempts: 3,
+        bodyInactivityTimeout: const Duration(milliseconds: 200),
+      );
+      final authLike = _AuthLikeClient(retryClient);
+
+      final outcome = await raceAgainstHang(
+        authLike.get(Uri.parse('https://example.com/idempotent')),
+      );
+
+      expect(outcome, isA<NetworkError>());
+      expect(inner.callCount, equals(1));
+      retryClient.close();
+    });
+
+    test('source body subscription is cancelled after the timeout fires',
+        () async {
+      final inner = _StallingBodyClient();
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 1,
+        bodyInactivityTimeout: const Duration(milliseconds: 200),
+      );
+
+      final streamed = await client
+          .send(http.Request('GET', Uri.parse('https://example.com/leak')));
+      await raceAgainstHang(http.Response.fromStream(streamed));
+      // Give cancellation microtasks a beat to propagate.
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      expect(inner.sourceCancelled, isTrue,
+          reason: 'the inner body stream must be cancelled on timeout, '
+              'or the socket/subscription leaks');
+      client.close();
+    });
+
+    test('downstream cancellation propagates to the source stream', () async {
+      final inner = _StallingBodyClient(leadingChunks: [
+        [1, 2, 3],
+      ]);
+      final client = RetryHttpClient(
+        inner,
+        maxAttempts: 1,
+        bodyInactivityTimeout: const Duration(seconds: 30),
+      );
+
+      final streamed = await client
+          .send(http.Request('GET', Uri.parse('https://example.com/cancel')));
+      final subscription = streamed.stream.listen((_) {});
+      await Future.delayed(const Duration(milliseconds: 50));
+      await subscription.cancel();
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      expect(inner.sourceCancelled, isTrue,
+          reason: 'cancelling the wrapped stream must cancel the inner one');
+      client.close();
+    });
+
+    test(
+        'event-less empty bodies (HEAD / 204 / 304 / Content-Length: 0) '
+        'complete immediately without waiting out the inactivity budget',
+        () async {
+      // Stream.empty() delivers done with NO data events. Stream.timeout
+      // must cancel its timer on done rather than fire it or wait for it.
+      // Every case runs through the AuthHttpClient-style path (send()).
+      const budget = Duration(seconds: 1);
+      final cases = <String, _EmptyBodyClient>{
+        'HEAD 200': _EmptyBodyClient(200),
+        'GET 204 No Content': _EmptyBodyClient(204),
+        'GET 304 Not Modified': _EmptyBodyClient(304),
+        'GET 200 Content-Length: 0':
+            _EmptyBodyClient(200, responseHeaders: {'content-length': '0'}),
+      };
+
+      final clients = <RetryHttpClient>[];
+      for (final entry in cases.entries) {
+        final retryClient = RetryHttpClient(
+          entry.value,
+          maxAttempts: 1,
+          bodyInactivityTimeout: budget,
+        );
+        clients.add(retryClient);
+        final authLike = _AuthLikeClient(retryClient);
+        final url = Uri.parse('https://example.com/empty');
+
+        final stopwatch = Stopwatch()..start();
+        final response = entry.key.startsWith('HEAD')
+            ? await authLike.head(url)
+            : await authLike.get(url);
+        stopwatch.stop();
+
+        expect(response.statusCode, equals(entry.value.statusCode),
+            reason: entry.key);
+        expect(response.bodyBytes, isEmpty, reason: entry.key);
+        expect(stopwatch.elapsed, lessThan(budget),
+            reason: '${entry.key}: an empty body must complete on done, '
+                'not after the inactivity budget');
+      }
+
+      // Quiet period past the budget: a leaked/late timer would addError
+      // into a closed sink and surface as an unhandled async error, which
+      // fails the test.
+      await Future.delayed(budget + const Duration(milliseconds: 300));
+      for (final c in clients) {
+        c.close();
+      }
+    });
+
+    test('default bodyInactivityTimeout is 30 seconds and separate from '
+        'the header timeout', () {
+      final client = RetryHttpClient(http.Client());
+      expect(client.bodyInactivityTimeout,
+          equals(const Duration(seconds: 30)));
+      // Separate knobs: changing one must not change the other.
+      final tuned = RetryHttpClient(
+        http.Client(),
+        timeout: const Duration(seconds: 10),
+        bodyInactivityTimeout: const Duration(seconds: 45),
+      );
+      expect(tuned.timeout, equals(const Duration(seconds: 10)));
+      expect(tuned.bodyInactivityTimeout, equals(const Duration(seconds: 45)));
+      client.close();
+      tuned.close();
+    });
+  });
+
   group('upgrade-guard: postgrest version compatibility', () {
     // When postgrest_dart is upgraded, verify that:
     //   1. RetryHttpClient's _ensureRequestPresent invariant still applies
@@ -753,6 +1008,81 @@ void main() {
       );
     });
   });
+}
+
+/// Mimics supabase's AuthHttpClient: extends BaseClient and overrides ONLY
+/// send(). postgrest calls _httpClient.get/post(...) on this layer, which
+/// routes through BaseClient._sendUnstreamed() -> send() -> inner.send().
+/// RetryHttpClient's own get/post overrides are never executed on this path,
+/// so anything we assert through this wrapper proves the behavior lives in
+/// RetryHttpClient.send().
+class _AuthLikeClient extends http.BaseClient {
+  final http.Client _inner;
+
+  _AuthLikeClient(this._inner);
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) =>
+      _inner.send(request);
+}
+
+/// Returns headers immediately, then serves a body stream controlled by the
+/// caller: emits [leadingChunks] then stalls forever (never closes) unless
+/// [chunkInterval] keeps emitting up to [totalChunks].
+class _StallingBodyClient extends http.BaseClient {
+  int callCount = 0;
+  bool sourceCancelled = false;
+  final List<List<int>> leadingChunks;
+
+  _StallingBodyClient({this.leadingChunks = const []});
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    callCount++;
+    final controller = StreamController<List<int>>(
+      onCancel: () => sourceCancelled = true,
+    );
+    for (final chunk in leadingChunks) {
+      controller.add(chunk);
+    }
+    // Intentionally never closed: simulates a body that stalls after headers.
+    return http.StreamedResponse(controller.stream, 200, request: request);
+  }
+}
+
+/// Returns the given status with a genuinely event-less empty body
+/// (`Stream.empty()`), unlike responses that emit one empty chunk.
+class _EmptyBodyClient extends http.BaseClient {
+  final int statusCode;
+  final Map<String, String> responseHeaders;
+
+  _EmptyBodyClient(this.statusCode, {this.responseHeaders = const {}});
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    return http.StreamedResponse(
+      const Stream<List<int>>.empty(),
+      statusCode,
+      headers: responseHeaders,
+      request: request,
+    );
+  }
+}
+
+/// Emits [totalChunks] chunks spaced [interval] apart, then closes. Total
+/// duration deliberately exceeds any single inactivity window under test.
+class _SlowDripClient extends http.BaseClient {
+  final int totalChunks;
+  final Duration interval;
+
+  _SlowDripClient({required this.totalChunks, required this.interval});
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    final stream = Stream<List<int>>.periodic(interval, (i) => [i])
+        .take(totalChunks);
+    return http.StreamedResponse(stream, 200, request: request);
+  }
 }
 
 /// Inner client backed by a caller-supplied response builder.

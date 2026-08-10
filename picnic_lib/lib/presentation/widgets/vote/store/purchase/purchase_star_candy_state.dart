@@ -201,13 +201,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           // **큐를 확인했고 애초에 아무것도 없었을 때만** 생략한다.
           final report = await _restoreHandler.resolveStoreQueueSweep();
           if (!mounted) return;
-          final verifiedEmpty =
-              report != null &&
-              report.outcome == PurchaseSweepOutcome.completed &&
-              report.scanError == null &&
-              report.found == 0 &&
-              report.preserved == 0;
-          if (verifiedEmpty) {
+          if (report?.verifiedEmpty ?? false) {
             logger.i(
               '[PurchaseStarCandyState] Safety timeout for $productId '
               'suppressed - identity-less cancellation observed, no '
@@ -225,7 +219,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
             '[PurchaseStarCandyState] Suppression aborted for $productId - '
             'store queue not verified empty '
             '(found=${report?.found}, settled=${report?.settled}, '
-            'preserved=${report?.preserved}), keeping the warning',
+            'preserved=${report?.preserved}, '
+            'liveInFlight=${report?.liveInFlight}), keeping the warning',
           );
           showSimpleDialog(content: l10n.purchase_payment_accepted_message);
           return;
@@ -293,7 +288,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _launchLifecycle.recordResumed();
+      return;
     }
+    // 비전면 전이는 "결제 시트가 실제로 열렸다"의 증거다 - 정리 후보 판정은
+    // 이 전이를 거친 뒤의 resumed 복귀만 "시트가 닫혔다"로 인정한다
+    // (isPurchaseSheetProvenClosed).
+    _launchLifecycle.recordLeftForeground();
   }
 
   @override
@@ -494,7 +494,27 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         // 팝업을 생략하는 근거로는 쓴다 (틀려도 팝업이 한 번 더 뜰 뿐,
         // 상태를 잘못 지우는 위험이 없다).
         _launchLifecycle.recordIdentitylessCancellation();
+        // 같은 순수 관찰을 레지스트리에도 남긴다. 귀속이 아니다 - 이 호출은
+        // 어떤 시도도 지우지 않고, "이 시각에 결제 하나가 끝났다"만 기록한다.
+        // 이 기록이 없으면 아래 정리는 후보를 하나도 만들지 못한다.
+        _purchaseAttempts.recordIdentitylessTermination();
         if (mounted) _loadingKey.currentState?.hide();
+        // 이벤트로는 어느 시도의 것인지 증명할 수 없지만, 이 관측과 스토어
+        // 큐 실측을 교차시키면 증명이 된다 - 결제 하나가 끝났고 큐에 살아
+        // 있는 결제가 하나도 없다면, 그 관측 전부터 런치돼 있고 트랜잭션이
+        // 묶이지 않은 시도는 UI 상태일 뿐이다. 이걸 안 하면 취소한 상품의
+        // 버튼이 90초 안전망까지 스피너로 남고, 사용자가 다른 상품을 사도
+        // 그대로다 (실기기 재현, 2026-08-07).
+        // 이벤트 처리를 스토어 왕복만큼 지연시키지 않도록 기다리지 않는다.
+        //
+        // 단, 거래ID 있는 이벤트가 지금 처리 중이면(= 실결제가 정산되는
+        // 중이면) 미룬다. 스윕은 발견한 트랜잭션을 스스로 검증·정산하므로,
+        // 진행 중인 정산과 겹치면 영수증 다이얼로그를 띄우는 화면 경로 대신
+        // 무음으로 처리될 수 있다. 그 경우 정리는 다음 구매 버튼 누름이나
+        // 90초 안전망이 이어받는다.
+        if (_currentlyProcessingIDs.isEmpty) {
+          unawaited(_reconcileCancelledAttempts());
+        }
         return;
       }
       logger.w(
@@ -994,7 +1014,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     final productId = serverProduct['id'] as String;
-    await _reconcileStaleAttemptIfQueueClean(productId);
+    await _reconcileCancelledAttempts();
     if (!context.mounted) return;
 
     if (!_canPurchase(productId: productId)) {
@@ -1050,15 +1070,27 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     required String attemptId,
   }) async {
     // 🛡️ 복원 정리 완료 대기 가드
+    //
+    // 게이트가 닫혀 있으면 **지금 다시 검증한다**. 진입 시 스윕 한 번의
+    // 결과를 그대로 래치하면, 로그인 전에 스토어를 열었거나(notSignedIn)
+    // 부팅 직후 조회가 실패한 사용자는 안내문("잠시 후 다시 시도해주세요")과
+    // 달리 아무리 다시 눌러도 영구히 막힌다 - iOS 첫 구매 시도에 "초기화
+    // 중입니다"가 뜨던 경로다 (2026-08-07). 재검증도 실패하면 예전과 똑같이
+    // 막는다: "확인하지 못했다"는 여전히 구매 허용 사유가 아니다.
     if (!_restoreHandler.isProactiveCleanupCompleted) {
-      logger.w('🛡️ 복원 정리가 아직 완료되지 않음 - 구매 차단');
-      if (mounted) {
-        showSimpleDialog(
-          content: AppLocalizations.of(context).purchase_initializing_message,
-        );
+      final l10n = AppLocalizations.of(context);
+      _loadingKey.currentState?.show();
+      final verified = await _restoreHandler.ensureProactiveCleanupCompleted();
+      if (!verified || !mounted) {
+        _loadingKey.currentState?.hide();
+        _removeAttempt(serverProduct['id'] as String, attemptId);
+        if (verified || !mounted) return;
+        logger.w('🛡️ 복원 정리가 재검증에도 실패 - 구매 차단');
+        setState(() {});
+        showSimpleDialog(content: l10n.purchase_initializing_message);
+        return;
       }
-      _removeAttempt(serverProduct['id'] as String, attemptId);
-      return;
+      logger.i('🛡️ 복원 정리 재검증 통과 - 구매 진행');
     }
 
     _setPurchaseStartState(serverProduct['id']);
@@ -1091,14 +1123,34 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       // 받던 동안 하나의 런치 실패에 다이얼로그가 두 장 겹쳐 떴다
       // (콜백에서 한 번, _handlePurchaseResult → PurchaseSafetyManager
       // .handlePurchaseResult 에서 또 한 번).
+      //
+      // 런치 **직전**의 비전면 전이 순번을 읽어 둔다. 런치 호출이 도는 동안
+      // 전이가 있었는지가 스토어의 반환 시맨틱을 가른다: iOS 는 시트 상호
+      // 작용이 끝나야 반환하므로 전이가 이 안에서 지나가고, Android 는 시트가
+      // 뜨기 전에 반환하므로 전이가 없다. 이 한 값이 시트 닫힘 판정의 관찰
+      // 창을 "런치 요청 이후"로 열어, 플랫폼 분기 없이 두 스토어를 맞춘다.
+      //
+      // 기준점은 `initiatePurchase` **호출 직전이 아니라** 스토어가 결제
+      // 플로를 실제로 여는 순간에 잡는다. 그 사이에는 중복 방지 검증과 상품
+      // 조회, StoreKit pending 조회라는 비동기 왕복이 있고, 그 동안 사용자가
+      // 앱을 잠깐 벗어났다 돌아오면(알림 확인, 전화 등) 여기서 읽은 순번이
+      // 오염돼 - 시트가 뜨기도 전에 `leftForeground` 가 서고, 아직 resumed 인
+      // 현재 상태와 겹쳐 방금 시작한 시도가 정리 후보가 된다 (Sol 5차 재검증
+      // MAJOR). 콜백은 `buyConsumable` 직전에 동기로 불리므로 그 이전의
+      // 왕복은 관찰 창 밖으로 빠진다.
+      int? foregroundExitsAtLaunchStart;
       final purchaseResult = await _purchaseService.initiatePurchase(
         serverProduct['id'],
+        onStoreLaunchStart: () {
+          foregroundExitsAtLaunchStart = _launchLifecycle.foregroundExitCount;
+        },
       );
 
       await _handlePurchaseResult(
         purchaseResult,
         productId: serverProduct['id'] as String,
         attemptId: attemptId,
+        foregroundExitsAtLaunchStart: foregroundExitsAtLaunchStart,
       );
     } catch (e, s) {
       logger.e(
@@ -1125,30 +1177,90 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
   }
 
+  /// 이 상품의 스토어 결제 시트가 닫혔음이 **증명됐는가** - 정리 후보 판정의
+  /// 증거 (a).
+  ///
+  /// Android 는 Play 결제 시트가 별도 Activity 라, 시트가 떠 있는 동안
+  /// `queryPastPurchases` 는 빈 큐를 답한다. 그 구멍을 메우는 것이 이
+  /// lifecycle 관찰이다 (Sol 3차 재검증 #2).
+  ///
+  /// 90초 안내 문구 판정([isPurchaseSheetClosed])과 **다른 술어**를 쓴다.
+  /// 문구 쪽은 "지금 전면이면 닫힘"이라는 느슨한 판정이라, Play 결제 Activity
+  /// 가 아직 전면에 오지 않은 런치 직후의 창에서 시트를 닫힘으로 오판한다.
+  /// 문구가 틀리면 팝업이 한 번 더 보일 뿐이지만, 여기서 틀리면 결제 시트 안에
+  /// 있는 사용자의 시도가 지워진다 (Sol 4차 재검증 MAJOR). 그래서 정리 쪽만
+  /// **비전면 전이를 거친 뒤의 복귀**라는 양성 증거를 요구한다.
+  bool _isPaymentSheetClosed(String productId) {
+    final observation = _launchLifecycle.observationFor(productId);
+    return isPurchaseSheetProvenClosed(
+      leftForegroundSincePurchaseLaunch: observation.leftForegroundSinceLaunch,
+      returnedToForegroundSincePurchaseLaunch:
+          observation.returnedToForegroundSinceLaunch,
+      currentLifecycleState: WidgetsBinding.instance.lifecycleState,
+    );
+  }
+
   /// 거래ID 없는 취소/실패 이벤트(양쪽 플랫폼 다 흔하다 - iOS는
   /// transactionIdentifier가 실패/취소 트랜잭션엔 거의 항상 없고, Android
   /// Play Billing responseCode 3은 productID까지 없을 수 있다) 때문에 90초
-  /// 안전망까지 레지스트리에 남아있는 시도를, 사용자가 즉시 재구매를
-  /// 시도하면 "구매 진행 중"으로 막는 대신 정리를 시도한다.
+  /// 안전망까지 레지스트리에 남아있는 시도를 정리한다.
   ///
-  /// 그냥 지우면 안 된다 - 그 시도가 실제로는 아직 스토어에 살아있는
-  /// 트랜잭션일 수 있다. [RestorePurchaseHandler.verifyStoreQueueClean]로
-  /// 큐를 직접 다시 조회해, 정말 아무것도 안 남았을 때만 정리한다. 조회
-  /// 자체가 실패하거나 뭔가 남아있으면 그대로 둬서 `_canPurchase`가 기존
-  /// 안내로 막게 한다.
-  Future<void> _reconcileStaleAttemptIfQueueClean(String productId) async {
-    final stale = _purchaseAttempts[productId];
-    if (stale == null) return;
+  /// **상품 하나가 아니라 후보 시도 전부**를 본다. 예전에는 사용자가 누른 그
+  /// 상품만 봤고, 그래서 상품 A 를 취소한 뒤 상품 B 를 사면 A 의
+  /// 버튼(`_purchaseAttempts.contains(A)`)이 90초 안전망이 울릴 때까지
+  /// 로딩 스피너로 남았다 (실기기 재현, 2026-08-07). 취소 이벤트를 A 에
+  /// 귀속시키는 것이 아니다 - 그 불변식(식별자 없는 이벤트는 attempt 를
+  /// 지우지 못한다)은 그대로다. 지우는 근거는 두 증거의 교차다:
+  /// **그 시도의 결제 플로가 끝났다는 증명**(뒤이은 런치 성공, 또는 그 시도의
+  /// 결제 시트가 닫힌 뒤 관측된 종결)과, 스토어 큐에 정산 대상도 살아 있는
+  /// 결제도 없다는 실측(=그 시도가 돈을 남기지 않았다).
+  ///
+  /// 후보 산정은 [PurchaseCampaignAttemptRegistry.cancellationCandidates] 가
+  /// 한다 - 런치가 아직 안 끝났거나, 실결제 트랜잭션이 묶여 있거나, 플로
+  /// 종료 증명이 없으면 후보가 아니다. 특히 **사용자가 아직 그 상품의 Play
+  /// 결제 시트 안에 있으면 절대 후보가 되지 않는다** - Android 는 그 상태를
+  /// 큐로 증명할 수 없어 lifecycle 로 판정한다 (Sol 3차 재검증 #2).
+  ///
+  /// 조회가 실패하거나, 뭔가 남아 있거나, 결제가 진행 중이거나, 스윕이 그
+  /// 자리에서 실결제를 정산했다면 아무것도 지우지 않는다 - `_canPurchase` 가
+  /// 기존 안내로 막고 90초 안전망이 제 일을 한다.
+  ///
+  /// 같은 시점에 여러 경로(구매 버튼, 런치 성공, 식별자 없는 취소 이벤트)가
+  /// 부를 수 있으므로 단일 비행으로 묶어 스토어 왕복을 중복시키지 않는다.
+  Future<void> _reconcileCancelledAttempts() {
+    if (_purchaseAttempts
+        .cancellationCandidates(isPaymentSheetClosed: _isPaymentSheetClosed)
+        .isEmpty) {
+      return Future<void>.value();
+    }
+    return _cancelledAttemptReconcile ??= _runCancelledAttemptReconcile();
+  }
 
-    final queueIsClean = await _restoreHandler.verifyStoreQueueClean();
-    if (!queueIsClean) return;
-    if (!mounted) return;
+  Future<void>? _cancelledAttemptReconcile;
 
-    if (_purchaseAttempts.removeIfMatches(productId, stale.attemptId)) {
-      _safetyManager.resetProductState(productId);
-      logger.i(
-        '🧹 재시도 시 남은 시도 정리: $productId (스토어 큐 확인됨)',
+  Future<void> _runCancelledAttemptReconcile() async {
+    try {
+      final cleared = await reconcileCancelledAttemptsIfQueueEmpty(
+        attempts: _purchaseAttempts,
+        isPaymentSheetClosed: _isPaymentSheetClosed,
+        verifyStoreQueueEmpty: _restoreHandler.verifyStoreQueueEmpty,
+        isStillLive: () => mounted,
       );
+      if (cleared.isEmpty) return;
+      for (final attempt in cleared) {
+        _safetyManager.resetProductState(attempt.productId);
+        // 타이머가 내려간 시도는 더 이상 타임아웃 문구 판정이 없다 - 관찰을
+        // 남겨 두면 다음 시도의 취소 억제 판정을 오염시킨다.
+        _launchLifecycle.clear(attempt.productId);
+        logger.i(
+          '🧹 취소된 시도 정리: ${attempt.productId} '
+          '(결제 플로 종료 증명 + 스토어 큐에 살아 있는 결제 없음)',
+        );
+      }
+      // 정리된 상품의 버튼 스피너를 실제로 내리는 것은 이 리페인트다.
+      if (mounted) setState(() {});
+    } finally {
+      _cancelledAttemptReconcile = null;
     }
   }
 
@@ -1199,6 +1311,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     Map<String, dynamic> purchaseResult, {
     required String productId,
     required String attemptId,
+    // null = 스토어 런치 자체에 도달하지 못했다(사전 검증 차단, 상품 조회
+    // 실패, 디버그 타임아웃 시뮬레이션). 관찰 창을 열 근거가 없으므로
+    // `recordLaunch` 는 보수적으로 "전이 없음"으로 시작한다 - 결코 정리
+    // 후보가 되지 않는 쪽이다.
+    required int? foregroundExitsAtLaunchStart,
   }) async {
     if (purchaseResult['wasCancelled'] == true) {
       if (mounted) {
@@ -1223,6 +1340,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       // 등록해야 구매 증거가 이 시도로 모인다.
       _launchLifecycle.recordLaunch(
         productId,
+        // 관찰 창은 스토어 런치 호출(`buyConsumable`) 시점부터다 - iOS 는
+        // 시트의 비전면→resumed 사이클이 그 호출 안에서 끝나므로, 반환
+        // 시점부터 세면 그 사이클을 통째로 놓쳐 취소된 시도가 영영 정리
+        // 후보가 되지 못한다. 반대로 그보다 이르게(사전 처리 이전) 잡으면
+        // 시트와 무관한 왕복이 섞여 들어온다.
+        foregroundExitsAtLaunchStart: foregroundExitsAtLaunchStart,
         storeAliases: [
           PaymentProductIdPolicy.effectiveProductId(
             environment: Environment.currentEnvironment,
@@ -1233,6 +1356,19 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           ),
         ],
       );
+      // 이 런치가 성공했다 = 스토어가 이 플로를 받아들였다 = **이전 시도의
+      // 결제 플로는 끝났다**. 스토어는 동시에 하나의 결제 플로만 허용하므로
+      // 이건 추론이 아니라 스토어 자신의 증명이다. 취소 이벤트가 식별자
+      // 없이 도착했거나 아예 도착하지 않아 남아 있던 이전 시도의 스피너를
+      // 여기서 내린다 (증거 (b) - 원래 결함인 "A 취소 후 B 구매 시 A 스피너
+      // 잔존"의 이벤트 비의존 경로).
+      //
+      // 방금 런치한 이 시도는 지워지지 않는다: 자기 자신이 최신 런치라
+      // 증거 (b) 가 성립하지 않고, Android 는 지금 시트가 열려 있어 증거
+      // (a) 도 성립하지 않는다.
+      if (_currentlyProcessingIDs.isEmpty) {
+        unawaited(_reconcileCancelledAttempts());
+      }
     }
 
     await _safetyManager.handlePurchaseResult(

@@ -163,6 +163,24 @@ Future<void> _pumpGolden(
   await tester.pumpAndSettle();
 }
 
+/// 통화 아이콘이 렌더됐는지 자산 이름으로 확인한다.
+///
+/// 예전에는 `find.byType(Image)` 개수를 2 로 못박았는데, 소멸 안내가 표
+/// 레이아웃으로 개편되면서(2026-08-04) 행마다 아이콘이 붙어 개수가 데이터에
+/// 따라 변한다. 개수 자체는 이 골든이 지키려는 성질이 아니다 - 지켜야 하는
+/// 것은 "두 통화 아이콘이 실제로 그려진다" 이므로 그렇게 단언한다.
+Finder _currencyIcon(String assetName) => find.byWidgetPredicate(
+      (widget) =>
+          widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName.contains(assetName),
+    );
+
+void _expectCurrencyIconsRendered() {
+  expect(_currencyIcon('currency_cotton_candy.png'), findsWidgets);
+  expect(_currencyIcon('currency_bonus_star_candy.png'), findsWidgets);
+}
+
 void main() {
   setUpAll(() async {
     await loadTestFonts();
@@ -185,7 +203,7 @@ void main() {
       size: const Size(360, 640),
       locale: const Locale('ko'),
     );
-    expect(find.byType(Image), findsNWidgets(2));
+    _expectCurrencyIconsRendered();
     await expectLater(
       find.byType(FullScreenDialog),
       matchesGoldenFile(
@@ -200,7 +218,7 @@ void main() {
       size: const Size(390, 844),
       locale: const Locale('ko'),
     );
-    expect(find.byType(Image), findsNWidgets(2));
+    _expectCurrencyIconsRendered();
     await expectLater(
       find.byType(FullScreenDialog),
       matchesGoldenFile(

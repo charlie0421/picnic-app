@@ -4,13 +4,12 @@ import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/presentation/common/image_shimmer_loading.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image_url_resolver.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -40,10 +39,78 @@ enum ImagePriority {
 }
 
 /// 성공적으로 로딩된 이미지 URL을 추적하는 글로벌 Set
-/// 위젯이 재생성되더라도 이미 로딩된 이미지는 즉시 표시됨
+/// 위젯이 재생성되더라도 이미 로딩된 이미지는 즉시 표시됨(로딩 오버레이 스킵)
+///
+/// Flutter의 PaintingBinding.imageCache 로 대체할 수 없다 — 그 캐시는
+/// ImageProvider(오브젝트) 를 키로 쓰고, CachedNetworkImageProvider 의 키에는
+/// 해상된 최종 URL과 같은 cacheKey가 들어간다. 이 Set 은 initState
+/// 시점(_cachedUrls 계산 전, 즉 해상 URL을 아직 모르는 시점)에 원본
+/// imageUrl 만으로 "이 세션에서 한 번은 성공했다"를 묻는
+/// 용도라 프레임워크 캐시와 키 공간이 다르다 — 대체 시 매치 실패로 조용히
+/// 스킵 로직이 죽는 회귀를 안고 가게 된다. 대신 세션 내 무한 누적만 막는다.
+///
+/// **LRU, FIFO 아님.** 삽입 순서상 가장 오래 재사용되지 않은(least-recently-
+/// used) 항목을 버린다 — [_rememberSuccessfullyLoadedImageUrl] 이 재사용 시
+/// 기존 엔트리를 지웠다 다시 넣어 "가장 최근" 위치(LinkedHashSet 삽입 순서상
+/// 맨 뒤)로 옮긴다. 단순 FIFO(재사용해도 위치 갱신 없음)였다면, 인기 아티스트
+/// 이미지처럼 반복 재사용되는(hot) URL 도 최초 삽입 시점 기준으로만 밀려나
+/// 상한을 넘기는 즉시 스킵 대상에서 빠지고 shimmer/loading-overlay 경로를 다시
+/// 탄다 — 자주 쓰는 이미지일수록 먼저 밀려나는 역설이 생긴다.
+///
+/// **상한 500 의 근거**: CDN 이미지 URL 은 보통
+/// `https://cdn.picnic.fan/.../<uuid>.jpg?w=400&h=400&q=85` 형태로 평균
+/// 100~160자(여유 있게 150자로 계산). Dart String 은 UTF-16 저장이라 문자당
+/// 2바이트, 문자열 인스턴스/LinkedHashSet 노드 오버헤드를 넉넉히 문자당 1바이트
+/// 추가로 잡아도 항목당 대략 450바이트, 500개 전체로 ~220KB — 이 위젯이 이미
+/// 유지하는 200MB 이미지 캐시에 비해 무시할 수 있는 크기다. 반면 한 화면(리스트/
+/// 그리드/캐러셀)에 동시에 걸리는 distinct 이미지 수는 보통 수십~한두 백 개
+/// 수준이라, LRU 갱신과 맞물리면 실사용 중 hot URL 이 이 상한 안에서 밀려날
+/// 일은 사실상 없다.
+const int _maxSuccessfullyLoadedImageUrls = 500;
 final Set<String> _successfullyLoadedImageUrls = {};
 
-class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
+void _rememberSuccessfullyLoadedImageUrl(String url) {
+  // 이미 있으면 지웠다 다시 넣어 "가장 최근 사용" 위치로 갱신한다(LRU).
+  _successfullyLoadedImageUrls.remove(url);
+  if (_successfullyLoadedImageUrls.length >= _maxSuccessfullyLoadedImageUrls) {
+    _successfullyLoadedImageUrls.remove(_successfullyLoadedImageUrls.first);
+  }
+  _successfullyLoadedImageUrls.add(url);
+}
+
+/// 테스트 전용: 세션 전역 상태인 [_successfullyLoadedImageUrls] 를 초기화한다.
+/// (top-level 전역이라 테스트 간 격리를 위해 필요.)
+@visibleForTesting
+void resetSuccessfullyLoadedImageUrlsForTest() {
+  _successfullyLoadedImageUrls.clear();
+}
+
+/// 테스트 전용: 상한 검증을 위해 현재 크기를 읽는다.
+@visibleForTesting
+int get successfullyLoadedImageUrlsCountForTest =>
+    _successfullyLoadedImageUrls.length;
+
+/// 테스트 전용: [_maxSuccessfullyLoadedImageUrls] 를 그대로 노출한다 — 테스트가
+/// 상한 숫자를 별도로 하드코딩해 두 값이 어긋나는 것을 막는다.
+@visibleForTesting
+int get successfullyLoadedImageUrlsCapacityForTest =>
+    _maxSuccessfullyLoadedImageUrls;
+
+/// 테스트 전용: 특정 URL 이 세션 성공 Set 에 남아있는지 확인한다.
+@visibleForTesting
+bool successfullyLoadedImageUrlsContainsForTest(String url) =>
+    _successfullyLoadedImageUrls.contains(url);
+
+/// 테스트 전용: 실제 이미지 디코드 성공 콜백 없이 LRU 상한/갱신 로직만
+/// 단위 테스트하기 위한 진입점. 헤드리스 테스트 환경에서는 네트워크 이미지
+/// 디코드가 항상 실패하므로, 위젯을 통한 진짜 성공 경로로는 이 Set 의
+/// 상한 동작을 검증할 수 없다.
+@visibleForTesting
+void rememberSuccessfullyLoadedImageUrlForTest(String url) {
+  _rememberSuccessfullyLoadedImageUrl(url);
+}
+
+class PicnicCachedNetworkImage extends StatefulWidget {
   final String imageUrl;
   final double? width;
   final double? height;
@@ -59,18 +126,11 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final double visibilityThreshold; // 가시성 임계값 (0.0 ~ 1.0)
   final Duration? lazyLoadDelay; // 지연 로딩 딜레이
   final Widget? placeholder; // 커스텀 플레이스홀더
-  final bool enablePreloading; // 미리 로딩 활성화
-  final double preloadDistance; // 미리 로딩 거리 (픽셀)
 
   // 성능 최적화 관련 매개변수
   final ImagePriority priority; // 이미지 로딩 우선순위
   final bool enableMemoryOptimization; // 메모리 최적화 활성화
   final bool enableProgressiveLoading; // 점진적 로딩 활성화
-
-  /// 앱 레벨 동시 로딩 제한은 제거되었다(HTTP 클라이언트가 커넥션 풀링으로 제어).
-  /// 하위 호환을 위해 파라미터는 남기지만 더 이상 아무 효과가 없다.
-  @Deprecated('앱 레벨 동시 로딩 제한 제거됨 — 이 값은 무시된다')
-  final int? maxConcurrentLoads;
 
   final Widget? errorWidget; // 커스텀 에러 위젯
   final bool showLoadingOverlay;
@@ -102,13 +162,9 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.placeholder,
     this.errorWidget,
     this.showLoadingOverlay = true,
-    this.enablePreloading = true,
-    this.preloadDistance = 200.0,
     this.priority = ImagePriority.normal,
     this.enableMemoryOptimization = true,
     this.enableProgressiveLoading = true,
-    @Deprecated('앱 레벨 동시 로딩 제한 제거됨 — 이 값은 무시된다')
-    this.maxConcurrentLoads,
     this.maxQualityOverride,
     this.maxResolutionMultiplierCap,
     this.deferDuringFastScroll = false,
@@ -119,12 +175,12 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   static bool disableTimeoutForTest = false;
 
   @override
-  ConsumerState<PicnicCachedNetworkImage> createState() =>
+  State<PicnicCachedNetworkImage> createState() =>
       _PicnicCachedNetworkImageState();
 }
 
 class _PicnicCachedNetworkImageState
-    extends ConsumerState<PicnicCachedNetworkImage> {
+    extends State<PicnicCachedNetworkImage> {
   bool _loading = false;
   bool _hasError = false;
   bool _shouldLoadImage = false; // Lazy Loading 제어
@@ -134,6 +190,7 @@ class _PicnicCachedNetworkImageState
   int _retryCount = 0;
   Timer? _lazyLoadTimer;
   Timer? _retryTimer; // 재시도 백오프 (취소 가능)
+  Timer? _imageTimeoutTimer; // 단일 이미지 로딩 타임아웃 — dispose/URL 변경 시 반드시 취소
   List<String>? _cachedUrls; // 동일 위젯 생명주기 동안 고정된 URL 세트
 
   /// VisibilityDetector 의 Key 는 위젯 식별자일 뿐 아니라 visibility_detector
@@ -157,14 +214,71 @@ class _PicnicCachedNetworkImageState
   // 성능 모니터링용 (CachedNetworkImage 캐시와는 별개)
   static final Map<String, DateTime> _lastSnapshotTimes = {};
   static final Map<String, List<DateTime>> _failureHistory = {};
+  // _failureHistory 정리(removeWhere)는 맵 전체를 순회한다 — 실패 1건마다
+  // 매번 돌리면, CDN 장애 등으로 1시간 내 distinct URL 수천 개가 실패할 때
+  // 실패 처리 경로 전체가 O(실패 횟수 × distinct URL 수)가 된다. 정리 자체를
+  // 벽시계 기준으로 최소 이 간격만큼만 실행해, 실패가 몰릴 때도 정리 비용이
+  // 실패 1건당이 아니라 시간당으로 상한이 걸리게 한다. (정리를 건너뛴 사이에도
+  // 엔트리는 계속 추가되지만, 다음 정리 때 한 번에 걸러지므로 카디널리티
+  // 상한 자체는 그대로 유지된다 — 다만 걸러지는 시점이 최대 이 간격만큼
+  // 늦어질 수 있다.)
+  static DateTime? _lastFailureHistorySweep;
+  static const Duration _failureHistorySweepInterval = Duration(seconds: 30);
   static DateTime? _lastGlobalSnapshot;
   static int _snapshotCount = 0;
   static DateTime? _lastMemoryPressureLog;
   static const Duration _memoryPressureLogInterval = Duration(minutes: 1);
   static final Map<String, DateTime> _lastTimeoutLogTimes = {};
   static const Duration _timeoutLogInterval = Duration(minutes: 3);
+  // URL 이 다시는 성공하지 않으면(영구 실패) _onImageLoadSuccess 의
+  // `_lastTimeoutLogTimes.remove(url)` 이 절대 발화하지 않아 엔트리가 영구히
+  // 남는다. 새 엔트리를 기록할 때마다 오래된 엔트리를 함께 정리해 "최근
+  // 1시간 내 타임아웃이 있었던 URL 집합" 으로 상한을 둔다.
+  static const Duration _timeoutLogRetention = Duration(hours: 1);
+  // _lastTimeoutLogTimes 정리도 위와 같은 이유로 벽시계 기준 주기 제한을 둔다 —
+  // 정리 자체는 (개별 URL 당) _timeoutLogInterval 을 넘길 때만 시도되지만,
+  // distinct URL 수천 개가 각자 자신의 3분 게이트를 넘기며 거의 동시에 새
+  // 엔트리를 기록하면 그 각각이 맵 전체를 훑는 O(n) 정리를 유발할 수 있다.
+  static DateTime? _lastTimeoutLogSweep;
+  static const Duration _timeoutLogSweepInterval = Duration(seconds: 30);
+
+  // 위 두 sweep 주기 제한은 "정리 비용"만 시간당으로 묶을 뿐, sweep 사이에
+  // 유입되는 엔트리 수(맵 카디널리티) 자체는 묶지 않는다 — CDN 장애로 30초
+  // sweep 주기 안에 distinct URL 수천 개가 동시에 실패/타임아웃되면, 다음
+  // sweep 이 돌기 전까지 두 맵 모두 무제한으로 커질 수 있다. 신규 키를 넣기
+  // 직전에 카디널리티 상한을 직접 걸어, sweep 타이밍과 무관하게 최악의 경우도
+  // 유계로 만든다.
+  //
+  // 상한 2000 의 근거: 두 맵 모두 "실패/타임아웃이 있었던 URL" 만 담으므로
+  // 값이 작다. CDN 이미지 URL 은 평균 100~160자(여유 있게 150자, UTF-16 2바이트
+  // +노드 오버헤드 감안 문자당 3바이트 ≈ 450바이트 — _successfullyLoadedImageUrls
+  // 산정과 동일 기준). _lastTimeoutLogTimes 는 값이 DateTime 하나(수십 바이트)라
+  // 항목당 대략 500바이트, 2000개 전체로 ~1MB. _failureHistory 는 값이
+  // List<DateTime> 이라 조금 더 크다 — _shouldRetry 가 recentFailures < 15 를
+  // 재시도 조건으로 쓰므로 항목당 최악 15개(각 수십 바이트)+List 오버헤드로
+  // 대략 1.1KB, 2000개 전체로도 ~2.2MB. 둘 다 이 위젯이 이미 유지하는 200MB
+  // 이미지 캐시에 비해 무시할 수 있는 크기이면서, "CDN 장애로 distinct URL
+  // 수천 개가 동시 실패" 시나리오를 sweep 이전에도 대부분 그대로 수용할 만큼
+  // 넉넉하다.
+  //
+  // 상한 도달 시 가장 오래 삽입된 키를 버린다 — LRU 가 아니라 FIFO다. 두 맵
+  // 모두 값이 "이 URL 에 대한 게이트 상태"일 뿐이고, 재사용(재실패/재타임아웃)
+  // 시에도 굳이 최신 위치로 옮길 필요가 없다: 잘못 버려도 결과가 완만하다 —
+  // 실패 이력을 잃으면 다음 실패 시 재시도 카운트가 0부터 다시 쌓일 뿐이고
+  // (더 관대해지는 쪽이라 안전 방향), 타임아웃 로그 시각을 잃으면 로그 한 줄이
+  // 중복될 뿐이다. _successfullyLoadedImageUrls 처럼 "재사용해도 밀려나면
+  // 안 되는" 사용자 가시적 요구가 없으므로, 갱신(touch)까지 갖춘 LRU 를 도입할
+  // 이유가 없다.
+  static const int _maxTrackedUrlMapEntries = 2000;
+
+  static void _capTrackedUrlMapSize<V>(Map<String, V> map, String incomingKey) {
+    if (map.containsKey(incomingKey)) return;
+    if (map.length >= _maxTrackedUrlMapEntries) {
+      map.remove(map.keys.first);
+    }
+  }
   int _reloadToken = 0;
-  late final DisposableBuildContext<ConsumerState<PicnicCachedNetworkImage>>
+  late final DisposableBuildContext<State<PicnicCachedNetworkImage>>
   _scrollAwareContext;
 
   bool get isGif => widget.imageUrl.toLowerCase().endsWith('.gif');
@@ -181,11 +295,42 @@ class _PicnicCachedNetworkImageState
     return delay > _maxBackoffDelay ? _maxBackoffDelay : delay;
   }
 
-  int _roundPixels(double value, double multiplier) {
-    final computed = (value * multiplier).round();
-    return computed > 0 ? computed : 1;
-  }
-
+  /// [KNOWN ISSUE — 별도 후속 작업, 이 함수는 아직 고치지 않았다]
+  ///
+  /// 여기서 계산한 값은 `CachedNetworkImage.memCacheWidth/Height` 로 흘러
+  /// 들어가 Flutter 엔진의 `ResizeImage.width/height` 가 된다. Flutter SDK
+  /// 문서(`packages/flutter/lib/src/painting/image_provider.dart`,
+  /// `ResizeImage.width` 1274-1281행, 클래스 문서 1230-1236·1251-1252행)에
+  /// 따르면 이 값은 **디코드해서 캐시할 비트맵의 물리 픽셀(physical pixel)
+  /// 수**다 — 논리(dp) 픽셀이 아니고, devicePixelRatio 를 자동으로 반영하지도
+  /// 않는다. SDK 문서의 예제조차 `MediaQuery.widthOf(context) ~/ 2` 같은
+  /// 논리값을 그대로 넣는 함정을 보여준다.
+  ///
+  /// 그런데 이 함수는 `explicit`(호출부가 넘긴 memCacheWidth/Height)이든
+  /// `fallback`(위젯의 논리 width/height)이든 논리 px 기준값에 1.0 또는 0.5
+  /// 배율만 곱한다 — DPR 을 전혀 반영하지 않는다. 반면 CDN 다운로드 URL 의
+  /// w/h([PicnicCachedNetworkImageUrlResolver])는 `_getResolutionMultiplier`
+  /// (DPR 기반, 최대 2.5~4.0배)로 정확히 물리 픽셀 목표를 계산한다. **두 경로의 단위가
+  /// 불일치한다:** DPR 2.5~4 기기에서 물리 픽셀 기준 100~160px 이미지를
+  /// 내려받고도 여기서는 40px(예: width=40dp) 로만 디코드해 캐시하므로,
+  /// 렌더 시 화면이 요구하는 물리 픽셀로 다시 업스케일되어 흐릿해지고
+  /// 내려받은 고해상도 데이터도 버려진다.
+  ///
+  /// 올바른 정렬 방향은 **CDN 요청은 물리 px 로 유지한 채 이 함수를 물리 px
+  /// 로 끌어올리는 것**이다 — 반대로 CDN w/h 를 논리 px 로 낮추면 레티나
+  /// 선명도 자체를 잃는다.
+  ///
+  /// 지금 고치지 않은 이유: 이 위젯을 쓰는 45곳 중 최소 10곳이 memCacheWidth/
+  /// Height 를 명시적으로 넘기며(`explicit` 경로), 전부 DPR 을 반영하지 않은
+  /// 원시 숫자다 — avatar_container.dart, common_banner.dart,
+  /// vote_detail_page.dart(2곳), vote_detail_achieve_page.dart(2곳),
+  /// vote_home_page.dart, board_list_page.dart, common_artist_widget.dart,
+  /// artist_search_result_item.dart, goonghap_card.dart. `explicit` 값까지
+  /// DPR 을 반영하려면(그래야 실사용 대부분에 효과가 있다) 앱 전역 디코드
+  /// 메모리가 최대 DPR² 배(모바일 캡 2.5 → 6.25배, iPad 캡 4.0 → 16배)까지
+  /// 늘 수 있어, 저사양 기기 OOM 위험을 실기기로 검증하기 전에는 단독으로
+  /// 판단하지 않기로 했다(2026-08-07). 호출부 44곳을 흔드는 변경이라 이번
+  /// PR(서버가 무시하는 CDN 파라미터 제거)과 롤백 단위를 분리한다.
   int _computeCacheDimension(
     int? explicit,
     double? fallback,
@@ -201,34 +346,13 @@ class _PicnicCachedNetworkImageState
     return math.max(1, (400 * multiplier).round());
   }
 
-  String _cacheKeyFor(String url, {int? index, bool isLowQuality = false}) {
-    final buffer = StringBuffer(url)
-      ..write('_')
-      ..write(_reloadToken);
-    if (index != null) {
-      buffer
-        ..write('_')
-        ..write(index);
-    }
-    if (isLowQuality) {
-      buffer.write('_lq');
-    }
-    return buffer.toString();
-  }
-
-  String _formatDpr(double value) {
-    final fixed = value.toStringAsFixed(2);
-    final trimmed = fixed
-        .replaceAll(RegExp(r'0+$'), '')
-        .replaceAll(RegExp(r'\.$'), '');
-    return trimmed.isEmpty ? '1' : trimmed;
-  }
+  String _cacheKeyFor(String url) => url;
 
   @override
   void initState() {
     super.initState();
     _scrollAwareContext =
-        DisposableBuildContext<ConsumerState<PicnicCachedNetworkImage>>(this);
+        DisposableBuildContext<State<PicnicCachedNetworkImage>>(this);
 
     // Lazy Loading 전략에 따른 초기화
     _initializeLazyLoading();
@@ -265,6 +389,12 @@ class _PicnicCachedNetworkImageState
       _shouldLoadImage = true;
       _isImageLoaded = true;
       _loading = false;
+      // 이 분기는 "재사용"의 지배적 경로다 — 이미 로딩된 URL 은 여기서 곧장
+      // return 하므로 _onImageLoadSuccess(따라서 _rememberSuccessfullyLoadedImageUrl)
+      // 가 호출되지 않는다. 여기서 직접 갱신하지 않으면 hot URL 이 최초 삽입
+      // 위치에 고정된 채 밀려나는 FIFO 로 퇴화한다 — LRU 갱신은 반드시 여기서도
+      // 일어나야 한다.
+      _rememberSuccessfullyLoadedImageUrl(widget.imageUrl);
       return;
     }
 
@@ -374,6 +504,7 @@ class _PicnicCachedNetworkImageState
   void dispose() {
     _lazyLoadTimer?.cancel();
     _retryTimer?.cancel();
+    _imageTimeoutTimer?.cancel();
     // visibility_detector 는 RenderObject dispose 시 전역 맵을 정리하지 않고,
     // `_lastVisibility` 는 "보이지 않게 될 때"만 엔트리를 지운다. 즉 보이는 상태로
     // dispose 되면(라우트 pop, 리스트 축소, pull-to-refresh) 엔트리가 영구히 남는다.
@@ -387,6 +518,15 @@ class _PicnicCachedNetworkImageState
   // 전역 캐시 최적화 상태 추적
 
   /// Flutter ImageCache 설정 최적화
+  ///
+  /// vote_home_page.dart 의 _optimizeImageCacheForPage() 가 캐시 사용률 70%
+  /// 초과 시 maximumSizeBytes 를 절반으로 낮췄다가 100ms 뒤 원복한다. 그 100ms
+  /// 사이에 이 위젯이 새로 마운트되면(리스트 화면은 항상 새 이미지 위젯을
+  /// 마운트한다) 여기서 즉시 원래 상한으로 되돌리는 것이 기존 동작이었다 —
+  /// enableMemoryOptimization 가 이 재설정을 게이트하므로, initState 밖으로
+  /// 옮기면(과거 5344101fb) vote_home_page 의 임시 축소가 100ms 내내 유지되어
+  /// eviction/메모리 압박 판정이 달라진다. vote_home_page 의 임시 축소 로직과
+  /// 함께 재설계하기 전까지는 위젯 안에 유지한다.
   static void _optimizeImageCache() {
     final imageCache = PaintingBinding.instance.imageCache;
 
@@ -479,6 +619,10 @@ class _PicnicCachedNetworkImageState
     if (oldWidget.imageUrl != widget.imageUrl && mounted) {
       _lazyLoadTimer?.cancel();
       _retryTimer?.cancel(); // 이전 URL 로 예약된 재시도가 새 로드를 깨지 않도록
+      // 이전 URL 로 건 타임아웃도 취소한다 — 안 하면 새 URL 로딩 중에 옛 URL
+      // 기준 타임아웃이 발화해 엉뚱한 재시도/에러 처리를 일으킬 수 있다.
+      _imageTimeoutTimer?.cancel();
+      _imageTimeoutTimer = null;
       // 인스턴스 고유 키를 쓰면서부터 Element 가 재사용되므로, URL 이 바뀌어도
       // VisibilityDetector 는 가시성 "변화" 가 없다고 보고 콜백을 다시 주지 않는다.
       // 아래에서 상태를 재설정하고, 이미 보이는 중이면 직접 로드를 재트리거한다.
@@ -486,7 +630,7 @@ class _PicnicCachedNetworkImageState
         // 이전 URL 로 계산된 변환 URL 캐시를 반드시 버려야 한다.
         // (버리지 않으면 재활용된 리스트 셀이 이전 후보 이미지를 계속 보여준다.)
         _cachedUrls = null;
-        // cacheKey 에 섞이는 재시도 토큰도 새 URL 기준으로 초기화한다.
+        // CachedNetworkImage의 ValueKey에 쓰는 재시도 토큰도 초기화한다.
         _reloadToken = 0;
         _retryCount = 0;
         _loading = true;
@@ -585,13 +729,7 @@ class _PicnicCachedNetworkImageState
                 child: buildImageLoadingOverlay(),
               ),
 
-            // 진보적 이미지 로딩 구현
-            if (urls.length > 1 && !_hasError)
-              _buildProgressiveImageStack(urls, imageWidth, imageHeight),
-
-            // 단일 이미지 또는 최종 이미지
-            if (urls.length == 1 || _hasError)
-              _buildCachedNetworkImage(primaryUrl, imageWidth, imageHeight, 0),
+            _buildCachedNetworkImage(primaryUrl, imageWidth, imageHeight),
           ],
         ),
       ),
@@ -725,30 +863,25 @@ class _PicnicCachedNetworkImageState
     BuildContext context,
     double resolutionMultiplier,
   ) {
-    final imageSize = _estimateImageComplexity();
+    final finalQuality = switch (_estimateImageComplexity()) {
+      // C3: 리스트가 maxQualityOverride 를 넘기면 그 값을, 아니면 기존 85.
+      ImageComplexity.low => widget.maxQualityOverride ?? 85,
+      ImageComplexity.medium || ImageComplexity.high => 80,
+    };
 
-    switch (imageSize) {
-      case ImageComplexity.low:
-        // C3: 리스트가 maxQualityOverride 를 넘기면 그 값을, 아니면 기존 85.
-        return [
-          _getTransformedUrl(
-            widget.imageUrl,
-            resolutionMultiplier,
-            widget.maxQualityOverride ?? 85,
-          ),
-        ];
-      case ImageComplexity.medium:
-        return [
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.6, 40),
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80),
-        ];
-      case ImageComplexity.high:
-        return [
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.3, 25),
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.6, 50),
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80),
-        ];
-    }
+    return PicnicCachedNetworkImageUrlResolver(
+      cdnUrl: Environment.isInitialized ? Environment.cdnUrl : null,
+    ).resolve(
+      imageUrl: widget.imageUrl,
+      width: widget.width,
+      height: widget.height,
+      variants: [
+        PicnicCachedNetworkImageUrlVariant(
+          resolutionMultiplier: resolutionMultiplier,
+          quality: finalQuality,
+        ),
+      ],
+    );
   }
 
   /// 이미지 복잡도를 추정합니다
@@ -764,176 +897,26 @@ class _PicnicCachedNetworkImageState
     return ImageComplexity.high;
   }
 
-  String _getTransformedUrl(
-    String key,
-    double resolutionMultiplier,
-    int quality,
-  ) {
-    final normalizedKey = key.trim();
-    final isAbsolute =
-        normalizedKey.startsWith('http://') ||
-        normalizedKey.startsWith('https://');
-    Uri uri = isAbsolute
-        ? Uri.parse(normalizedKey)
-        : Uri.parse(
-            '${Environment.cdnUrl}/${normalizedKey.startsWith('/') ? normalizedKey.substring(1) : normalizedKey}',
-          );
-
-    final Map<String, String> queryParameters = {'q': quality.toString()};
-
-    final widgetWidth = widget.width;
-    if (widgetWidth != null && widgetWidth.isFinite) {
-      queryParameters['w'] = _roundPixels(
-        widgetWidth,
-        resolutionMultiplier,
-      ).toString();
-    }
-    final widgetHeight = widget.height;
-    if (widgetHeight != null && widgetHeight.isFinite) {
-      queryParameters['h'] = _roundPixels(
-        widgetHeight,
-        resolutionMultiplier,
-      ).toString();
-    }
-
-    if (!isGif) {
-      final supportsWebP =
-          WebPSupportChecker.instance.supportInfo != null &&
-          WebPSupportChecker.instance.supportInfo!.webp;
-
-      if (supportsWebP) {
-        queryParameters['f'] = 'webp';
-      } else {
-        queryParameters['f'] = 'jpg';
-      }
-
-      queryParameters.addAll({
-        'fm': queryParameters['f']!,
-        'auto': 'compress,format',
-        'fit': 'max',
-        'dpr': _formatDpr(resolutionMultiplier),
-      });
-
-      if (queryParameters['f'] == 'jpg') {
-        queryParameters['fl'] = 'progressive';
-      }
-    }
-
-    return uri.replace(queryParameters: queryParameters).toString();
-  }
-
-  /// 진보적 이미지 로딩 스택 구성
-  Widget _buildProgressiveImageStack(
-    List<String> urls,
-    double? width,
-    double? height,
-  ) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Stack(
-        fit: StackFit.expand,
-        children: urls.asMap().entries.map((entry) {
-          final index = entry.key;
-          final url = entry.value;
-          final isLowQuality = index < urls.length - 1;
-
-          return _buildProgressiveImage(
-            url,
-            width,
-            height,
-            index,
-            isLowQuality: isLowQuality,
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  /// 진보적 로딩을 위한 개별 이미지 빌더
-  Widget _buildProgressiveImage(
-    String url,
-    double? width,
-    double? height,
-    int index, {
-    required bool isLowQuality,
-  }) {
-    return CachedNetworkImage(
-      imageUrl: url,
-      width: width,
-      height: height,
-      fit: widget.fit,
-      cacheManager: null,
-      cacheKey: _cacheKeyFor(url, index: index, isLowQuality: isLowQuality),
-      memCacheWidth: _computeCacheDimension(
-        widget.memCacheWidth,
-        width,
-        isLowQuality ? 0.5 : 1.0,
-      ),
-      memCacheHeight: _computeCacheDimension(
-        widget.memCacheHeight,
-        height,
-        isLowQuality ? 0.5 : 1.0,
-      ),
-      maxWidthDiskCache: isLowQuality ? 1000 : 2000,
-      maxHeightDiskCache: isLowQuality ? 1000 : 2000,
-      fadeInDuration: isLowQuality
-          ? const Duration(milliseconds: 100)
-          : const Duration(milliseconds: 300),
-      fadeOutDuration: isLowQuality
-          ? const Duration(milliseconds: 200)
-          : const Duration(milliseconds: 100),
-      placeholder: (context, url) {
-        if (!widget.showLoadingOverlay) {
-          return const SizedBox.shrink();
-        }
-        return index == 0
-            ? buildImageLoadingOverlay()
-            : const SizedBox.shrink();
-      },
-      errorWidget: (context, url, error) {
-        if (!isLowQuality) {
-          return _handleImageError(url, error, width, height);
-        }
-        return const SizedBox.shrink();
-      },
-      imageBuilder: (context, imageProvider) {
-        if (!isLowQuality) {
-          _onImageLoadSuccess(url);
-        }
-
-        final scrollAwareImageProvider = ScrollAwareImageProvider(
-          context: _scrollAwareContext,
-          imageProvider: imageProvider,
-        );
-
-        return AnimatedOpacity(
-          duration: Duration(milliseconds: isLowQuality ? 100 : 300),
-          opacity: 1.0,
-          child: Image(
-            image: scrollAwareImageProvider,
-            fit: widget.fit,
-            width: width,
-            height: height,
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildCachedNetworkImage(
     String url,
     double? width,
     double? height,
-    int index,
   ) {
     try {
-      Timer? timeoutTimer;
-
       return StatefulBuilder(
         builder: (context, setState) {
-          if (_loading && timeoutTimer == null && !PicnicCachedNetworkImage.disableTimeoutForTest) {
-            timeoutTimer = Timer(effectiveTimeout, () {
+          // _imageTimeoutTimer 는 로컬 변수가 아니라 State 필드다 — 로컬
+          // 변수였을 때는(pre-existing) 이 위젯이 로딩 중에 재빌드될 때마다
+          // (StatefulBuilder 의 builder 클로저가 매번 새로 만들어지므로) 이전
+          // Timer 참조를 잃어버려 dispose 는 물론 정상 재빌드 중에도 취소할
+          // 수 없는 채로 최대 effectiveTimeout 만큼 살아남았다. 필드로 옮기면
+          // 재빌드를 넘나들며 같은 Timer 를 참조하므로 dispose/URL 변경 시
+          // 확실히 취소되고, 이미 예약돼 있으면 중복 예약도 되지 않는다.
+          if (_loading &&
+              _imageTimeoutTimer == null &&
+              !PicnicCachedNetworkImage.disableTimeoutForTest) {
+            _imageTimeoutTimer = Timer(effectiveTimeout, () {
+              _imageTimeoutTimer = null;
               if (!mounted) return;
               final stillLoading = _loading && !_hasError && !_isImageLoaded;
               if (!stillLoading) return;
@@ -942,7 +925,17 @@ class _PicnicCachedNetworkImageState
               final lastLoggedAt = _lastTimeoutLogTimes[url];
               if (lastLoggedAt == null ||
                   now.difference(lastLoggedAt) >= _timeoutLogInterval) {
+                _capTrackedUrlMapSize(_lastTimeoutLogTimes, url);
                 _lastTimeoutLogTimes[url] = now;
+
+                final lastSweep = _lastTimeoutLogSweep;
+                if (lastSweep == null ||
+                    now.difference(lastSweep) >= _timeoutLogSweepInterval) {
+                  _lastTimeoutLogSweep = now;
+                  _lastTimeoutLogTimes.removeWhere(
+                    (key, time) => now.difference(time) >= _timeoutLogRetention,
+                  );
+                }
                 logger.w('이미지 로딩 타임아웃: $url');
               }
 
@@ -1001,11 +994,13 @@ class _PicnicCachedNetworkImageState
               );
             },
             errorWidget: (context, url, error) {
-              timeoutTimer?.cancel();
+              _imageTimeoutTimer?.cancel();
+              _imageTimeoutTimer = null;
               return _handleImageError(url, error, width, height);
             },
             imageBuilder: (context, imageProvider) {
-              timeoutTimer?.cancel();
+              _imageTimeoutTimer?.cancel();
+              _imageTimeoutTimer = null;
 
               // 이미지가 성공적으로 로드되면 즉시 로딩 상태 해제
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1075,13 +1070,28 @@ class _PicnicCachedNetworkImageState
   }
 
   // 실패 기록
+  //
+  // 예전에는 url 별 리스트만 1시간 넘은 항목을 걸러냈다 — 그런데 그 필터는
+  // 해당 url 이 다시 실패해야만 실행되므로, 1시간 넘게 재실패가 없는 url 은
+  // 빈 리스트를 값으로 가진 채 맵 키로 영구히 남았다(distinct 실패 URL 수만큼
+  // 무한 누적). 맵 전체를 훑어 "최근 1시간 내 실패가 있는 URL" 만 남기도록
+  // 정리하되, 그 정리 자체는 _failureHistorySweepInterval 마다 최대 한 번만
+  // 실행한다 — 실패 1건마다 매번 돌리면 CDN 장애로 distinct URL 수천 개가
+  // 동시에 실패할 때 이 경로가 O(실패 횟수 × distinct URL 수)가 된다.
   void _recordFailure(String url) {
     final now = DateTime.now();
+    _capTrackedUrlMapSize(_failureHistory, url);
     _failureHistory[url] = (_failureHistory[url] ?? [])..add(now);
 
-    _failureHistory[url]!.removeWhere(
-      (time) => now.difference(time).inHours > 1,
-    );
+    final lastSweep = _lastFailureHistorySweep;
+    if (lastSweep == null ||
+        now.difference(lastSweep) >= _failureHistorySweepInterval) {
+      _lastFailureHistorySweep = now;
+      _failureHistory.removeWhere((key, times) {
+        times.removeWhere((time) => now.difference(time).inHours > 1);
+        return times.isEmpty;
+      });
+    }
   }
 
   // 재시도 여부 결정
@@ -1221,9 +1231,9 @@ class _PicnicCachedNetworkImageState
     _retryTimer?.cancel();
     _retryTimer = null;
 
-    // 성공적으로 로딩된 이미지 URL을 글로벌 Set에 추가
+    // 성공적으로 로딩된 이미지 URL을 글로벌 Set에 추가 (상한 있음)
     // 다음 번 위젯 재생성 시 즉시 표시됨
-    _successfullyLoadedImageUrls.add(widget.imageUrl);
+    _rememberSuccessfullyLoadedImageUrl(widget.imageUrl);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -1297,4 +1307,65 @@ class _PicnicCachedNetworkImageState
       // logger.throttledWarn('이미지 로딩 오류: $error (URL: $url)', errorKey);
     }
   }
+
+  // 테스트 전용: 실제 네트워크 실패/타임아웃 콜백 없이 _failureHistory/
+  // _lastTimeoutLogTimes 의 카디널리티 상한 로직만 단위 테스트하기 위한
+  // 진입점. 클래스가 private 이라 아래 static 멤버는 파일 하단의 public
+  // top-level 래퍼(resetImageLoadTrackingMapsForTest 등)를 통해서만
+  // 테스트 파일에 노출된다.
+  static void _resetTrackingMapsForTest() {
+    _failureHistory.clear();
+    _lastTimeoutLogTimes.clear();
+    _lastFailureHistorySweep = null;
+    _lastTimeoutLogSweep = null;
+  }
+
+  static void _recordFailureForTest(String url) {
+    _capTrackedUrlMapSize(_failureHistory, url);
+    _failureHistory[url] = (_failureHistory[url] ?? [])..add(DateTime.now());
+  }
+
+  static void _recordTimeoutLogForTest(String url) {
+    _capTrackedUrlMapSize(_lastTimeoutLogTimes, url);
+    _lastTimeoutLogTimes[url] = DateTime.now();
+  }
 }
+
+/// 테스트 전용: 세션 전역 상태인 실패/타임아웃 로그 추적 맵을 초기화한다.
+@visibleForTesting
+void resetImageLoadTrackingMapsForTest() {
+  _PicnicCachedNetworkImageState._resetTrackingMapsForTest();
+}
+
+/// 테스트 전용: [_PicnicCachedNetworkImageState._recordFailure] 의 카디널리티
+/// 상한 로직만 검증하기 위한 진입점.
+@visibleForTesting
+void recordFailureForTest(String url) {
+  _PicnicCachedNetworkImageState._recordFailureForTest(url);
+}
+
+/// 테스트 전용: 타임아웃 로그 상한 로직만 검증하기 위한 진입점.
+@visibleForTesting
+void recordTimeoutLogForTest(String url) {
+  _PicnicCachedNetworkImageState._recordTimeoutLogForTest(url);
+}
+
+@visibleForTesting
+int get failureHistoryCountForTest =>
+    _PicnicCachedNetworkImageState._failureHistory.length;
+
+@visibleForTesting
+int get lastTimeoutLogTimesCountForTest =>
+    _PicnicCachedNetworkImageState._lastTimeoutLogTimes.length;
+
+@visibleForTesting
+int get trackedUrlMapCapacityForTest =>
+    _PicnicCachedNetworkImageState._maxTrackedUrlMapEntries;
+
+@visibleForTesting
+bool failureHistoryContainsForTest(String url) =>
+    _PicnicCachedNetworkImageState._failureHistory.containsKey(url);
+
+@visibleForTesting
+bool lastTimeoutLogTimesContainsForTest(String url) =>
+    _PicnicCachedNetworkImageState._lastTimeoutLogTimes.containsKey(url);

@@ -53,6 +53,75 @@ enum PurchaseTimeoutNotice {
 /// 안에 도착하지 않은 드문 경우에 이 팝업이 유일한 이중 결제 안전장치이므로,
 /// 구매 증거가 전혀 없을 때만 생략한다. 두 값 모두 판단 근거가 없으면
 /// 보수적 기본값(증거 있음/취소 없음)으로 두어 기존 안내가 유지되게 한다.
+/// 이 시도의 스토어 결제 시트가 **닫혀 있는가** - 순수 lifecycle 판정.
+///
+/// Android 는 Play 결제 시트가 별도 Activity 라 시트가 떠 있는 동안 앱이
+/// resumed 로 복귀하지 못한다. 그래서 "런치 이후 resumed 를 한 번도 못
+/// 받았고 지금도 전면이 아니다" = **사용자가 그 상품의 결제 시트 안에 있다**
+/// 이고, 이것은 `queryPastPurchases` 가 구조적으로 답할 수 없는 사실이다
+/// (Play 는 진행 중인 결제 Activity 를 어떤 쿼리로도 노출하지 않는다).
+///
+/// 두 신호를 OR 로 보는 이유: resumed *이벤트* 는 런치 반환보다 먼저 지나가
+/// 관찰이 리셋될 수 있으므로(iOS), 현재 전면 상태를 이중 안전장치로 함께
+/// 본다. 판단 근거가 없으면([currentLifecycleState] 가 null 이고 관찰도
+/// 없으면) 관찰 기본값이 보수적으로 "닫힘" 이라, 시트 보호가 아니라 기존
+/// 동작이 유지된다.
+///
+/// 이것은 **90초 안내 문구 판정 전용**이다. 시도를 지우는 정리 후보 판정은
+/// 이 술어를 쓰면 안 된다 - [isPurchaseSheetProvenClosed] 를 쓴다. 두 판정의
+/// 비용이 비대칭이기 때문이다: 문구를 틀리면 팝업이 한 번 더 보일 뿐이지만,
+/// 정리를 틀리면 **진행 중인 결제의 스피너와 이중결제 가드가 사라진다**.
+/// 그래서 문구 쪽은 "지금 전면이면 닫힌 것으로 본다"는 느슨한 판정을 유지하고
+/// (그 관대함이 iOS 취소 억제를 살린다), 정리 쪽은 양성 전이 증거를 요구한다.
+bool isPurchaseSheetClosed({
+  required bool resumedSincePurchaseLaunch,
+  required AppLifecycleState? currentLifecycleState,
+}) =>
+    resumedSincePurchaseLaunch ||
+    currentLifecycleState == AppLifecycleState.resumed;
+
+/// 이 시도의 결제 시트가 **닫혔음이 증명됐는가** - 정리 후보 판정 전용.
+///
+/// [isPurchaseSheetClosed] 와 갈라지는 이유는 딱 하나, **런치 직후의 창**이다.
+/// Android 의 `buyConsumable` 은 Play 결제 Activity 가 실제로 전면에 오기
+/// **전에** true 로 돌아온다. 그 짧은 순간 앱은 아직 resumed 이고, "지금
+/// 전면이다"만 보는 판정은 이제 막 시트를 띄운 시도를 "닫혔다"로 오판한다.
+/// 거기에 지연된 이전 종결 관측이 겹치면 그 시도가 후보가 되고, Android
+/// `queryPastPurchases` 는 진행 중인 결제 Activity 를 볼 수 없어 빈 큐로
+/// 답하므로 - 사용자가 결제 시트 안에 있는 채로 시도가 지워진다
+/// (Sol 4차 재검증 MAJOR).
+///
+/// 그래서 여기서는 "지금 resumed 인가"가 아니라 **런치 이후 실제로 비전면
+/// 전이를 거쳤는가**를 본다. 시트가 뜨면 반드시 비전면 전이가 먼저 일어나므로,
+/// 그 전이를 보지 못했다면 시트는 아직 열리기 전이거나 열려 있는 중이다.
+///
+/// 관찰 창은 런치 **반환** 이 아니라 스토어 런치 호출(`buyConsumable`)
+/// **직전**부터다 ([PurchaseLaunchLifecycleTracker.recordLaunch] 의
+/// `foregroundExitsAtLaunchStart`). 이 한 칸이 플랫폼 분기 없이 두 스토어를
+/// 모두 맞춘다. 구매 버튼을 누른 시점이 아니라 런치 호출 직전인 이유는,
+/// 그 사이의 중복 방지 검증·상품 조회 중에 일어난 백그라운드 왕복이
+/// 결제 시트의 것으로 오인되면 안 되기 때문이다 (Sol 5차 재검증 MAJOR).
+///
+/// - iOS: StoreKit 은 시트 상호작용이 끝나야 런치 호출이 반환된다. 즉 전이
+///   (비전면 → resumed)가 **런치 호출이 도는 동안** 전부 지나가고, 반환 시점의
+///   앱은 이미 전면이다. 요청 시점부터 세면 그 전이가 창 안에 들어와
+///   `leftForeground` 가 서고, 현재 resumed 와 합쳐져 곧바로 "닫힘"이 된다 -
+///   기존 iOS 취소 정리 경로가 그대로 산다.
+/// - Android: 런치 호출이 도는 동안에는 전이가 없다(시트는 아직 안 떴다).
+///   그래서 반환 직후에는 `leftForeground` 가 서지 않아 후보가 되지 않고,
+///   시트가 떠서 전이가 일어난 뒤 사용자가 닫고 돌아와야 비로소 닫힘이 된다.
+///
+/// 두 번째 항(`leftForeground && 지금 resumed`)은 resumed *이벤트* 를 놓친
+/// 경우의 이중 안전장치다 - 한 번 나갔던 앱이 지금 전면이라면 시트는 닫혔다.
+bool isPurchaseSheetProvenClosed({
+  required bool leftForegroundSincePurchaseLaunch,
+  required bool returnedToForegroundSincePurchaseLaunch,
+  required AppLifecycleState? currentLifecycleState,
+}) =>
+    returnedToForegroundSincePurchaseLaunch ||
+    (leftForegroundSincePurchaseLaunch &&
+        currentLifecycleState == AppLifecycleState.resumed);
+
 PurchaseTimeoutNotice resolvePurchaseTimeoutNotice({
   required bool isIOS,
   required bool resumedSincePurchaseLaunch,
@@ -69,9 +138,10 @@ PurchaseTimeoutNotice resolvePurchaseTimeoutNotice({
   // 반환보다 먼저 지나가 관찰이 리셋될 수 있어(이벤트만 요구하면 iOS 취소
   // 억제가 레이스로 무력화된다, Sol 2차 재검증 MEDIUM-1) 현재 상태를
   // 함께 본다.
-  final sheetClosed =
-      resumedSincePurchaseLaunch ||
-      currentLifecycleState == AppLifecycleState.resumed;
+  final sheetClosed = isPurchaseSheetClosed(
+    resumedSincePurchaseLaunch: resumedSincePurchaseLaunch,
+    currentLifecycleState: currentLifecycleState,
+  );
   if (identitylessCancellationObserved &&
       !purchaseEvidenceObserved &&
       sheetClosed) {
@@ -143,13 +213,41 @@ class PurchaseLaunchLifecycleTracker {
   /// 남아도 안전 방향 오류(팝업 표시)다.
   final Set<String> _evidenceBeforeLaunch = {};
 
+  /// 앱이 전면을 떠난 횟수(단조 증가). 시각이 아니라 순번인 이유는
+  /// [PurchaseExecutionContext.launchSuccessSequence] 와 같다 - 우리가 직접
+  /// 세므로 기기 시계나 이벤트 도착 지연에 흔들리지 않는다.
+  ///
+  /// 호출자는 스토어 결제 플로를 실제로 여는 호출(`buyConsumable`) **직전에**
+  /// 이 값을 읽어 두었다가 [recordLaunch] 에 되돌려 준다. 그러면 "런치 호출이
+  /// 도는 동안 전이가 있었는가"를 알 수 있고, 그것이 iOS(블로킹 반환)와
+  /// Android(즉시 반환)를 플랫폼 분기 없이 가른다 -
+  /// [isPurchaseSheetProvenClosed] 참고.
+  ///
+  /// **더 이른 시점에서 읽으면 안 된다.** 구매 진입부터 실제 런치까지는
+  /// 중복 방지 검증·상품 조회·pending 조회라는 비동기 사전 처리가 있고, 그
+  /// 동안의 백그라운드 왕복까지 창에 들어오면 시트가 뜨기도 전에
+  /// `leftForeground` 가 서서 방금 시작한 시도가 정리 후보가 된다
+  /// (Sol 5차 재검증 MAJOR).
+  int get foregroundExitCount => _foregroundExitCount;
+  int _foregroundExitCount = 0;
+
   /// 이 상품의 스토어 결제 시트가 이제 사용자 앞에 있다 - 관찰 시작.
   ///
   /// [storeAliases] 는 이 시도의 이벤트가 달고 도착할 수 있는 스토어 상품
   /// ID 들이다 (iOS 는 앱 접두사, Android dev 는 네임스페이스가 붙어 서버
   /// ID 와 canonical 키가 달라진다 - Sol 2차 리뷰 HIGH-3). 같은 관찰
   /// 객체를 별칭 키로도 등록해 어느 표기로 도착해도 같은 시도로 모인다.
-  void recordLaunch(String productId, {Iterable<String> storeAliases = const []}) {
+  ///
+  /// [foregroundExitsAtLaunchStart] 는 스토어 런치 호출 **직전**에 읽어 둔
+  /// [foregroundExitCount] 다. 이걸 넘겨 주면 비전면 전이의 관찰 창이 런치
+  /// **반환**이 아니라 런치 **요청** 시점부터 열려, 런치 호출이 도는 동안
+  /// 지나간 전이(iOS 블로킹 반환)도 이 시도의 것으로 잡힌다. 생략하면 창은
+  /// 반환 시점부터 열린다 - 보수적인 쪽(전이 없음 = 아직 닫힘 아님)이다.
+  void recordLaunch(
+    String productId, {
+    Iterable<String> storeAliases = const [],
+    int? foregroundExitsAtLaunchStart,
+  }) {
     final keys = <String>{
       _canonicalize(productId),
       for (final alias in storeAliases)
@@ -159,6 +257,9 @@ class PurchaseLaunchLifecycleTracker {
     observation.purchaseEvidenceObserved = keys.any(
       _evidenceBeforeLaunch.contains,
     );
+    observation.leftForegroundSinceLaunch =
+        _foregroundExitCount >
+        (foregroundExitsAtLaunchStart ?? _foregroundExitCount);
     _evidenceBeforeLaunch.removeAll(keys);
     for (final key in keys) {
       _observationsByProduct[key] = observation;
@@ -167,9 +268,28 @@ class PurchaseLaunchLifecycleTracker {
 
   /// resumed 복귀는 "열려 있던 결제 시트가 닫혔다"는 뜻이므로, 관찰 중인
   /// 모든 런치에 기록한다.
+  ///
+  /// 정리 후보 판정이 쓰는 것은 [PurchaseLaunchObservation.resumedSinceLaunch]
+  /// 가 아니라 **비전면 전이를 거친 뒤의** 복귀다. 전이를 본 적 없는 관찰은
+  /// 아직 시트가 뜨기 전이므로 이 resumed 는 "닫혔다"의 증거가 아니다.
   void recordResumed() {
     for (final observation in _observationsByProduct.values) {
       observation.resumedSinceLaunch = true;
+      if (observation.leftForegroundSinceLaunch) {
+        observation.returnedToForegroundSinceLaunch = true;
+      }
+    }
+  }
+
+  /// 앱이 전면을 떠났다(inactive/paused/hidden/detached).
+  ///
+  /// Android 는 Play 결제 시트가 별도 Activity 라 시트가 뜨면 반드시 이
+  /// 전이가 먼저 일어난다. 그래서 이 관찰이 "시트가 실제로 열렸다"의 증거이고,
+  /// 뒤이은 [recordResumed] 와 짝을 이뤄야 "닫혔다"가 된다.
+  void recordLeftForeground() {
+    _foregroundExitCount++;
+    for (final observation in _observationsByProduct.values) {
+      observation.leftForegroundSinceLaunch = true;
     }
   }
 
@@ -238,17 +358,35 @@ class PurchaseLaunchLifecycleTracker {
 class PurchaseLaunchObservation {
   PurchaseLaunchObservation._launched()
     : resumedSinceLaunch = false,
+      leftForegroundSinceLaunch = false,
+      returnedToForegroundSinceLaunch = false,
       purchaseEvidenceObserved = false,
       identitylessCancellationObserved = false;
 
   /// 판단 근거가 없을 때의 보수적 기본값: 어떤 적극적 판정(생략·미확정)도
   /// 트리거하지 않아 기존 접수 안내가 유지된다.
+  ///
+  /// 런치 관찰이 없는 상품은 정리 후보 판정에서도 기존 동작(시트 닫힘)을
+  /// 유지한다. 런치가 성공한 시도는 항상 관찰을 갖고 있으므로 - `recordLaunch`
+  /// 는 런치 결과 적용과 같은 동기 블록에서 불린다 - 이 기본값이 4차 반례의
+  /// "런치 직후" 창을 열어 주지는 않는다.
   PurchaseLaunchObservation._conservative()
     : resumedSinceLaunch = true,
+      leftForegroundSinceLaunch = true,
+      returnedToForegroundSinceLaunch = true,
       purchaseEvidenceObserved = true,
       identitylessCancellationObserved = false;
 
   bool resumedSinceLaunch;
+
+  /// 런치 이후(정확히는 런치 **요청** 이후) 앱이 전면을 떠난 적이 있는가.
+  /// 결제 시트가 실제로 열렸다는 증거다.
+  bool leftForegroundSinceLaunch;
+
+  /// 그 비전면 전이를 거친 **뒤에** resumed 로 복귀했는가. 결제 시트가
+  /// 닫혔다는 양성 증거이며, 정리 후보 판정이 요구하는 것이 이것이다.
+  bool returnedToForegroundSinceLaunch;
+
   bool purchaseEvidenceObserved;
   bool identitylessCancellationObserved;
 }

@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
-import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 
 void main() {
   group('VMDetectionConfig', () {
@@ -218,26 +217,6 @@ void main() {
       expect(VirtualMachineDetector.containsWholeToken(out, 'ranchu'), isTrue);
       expect(VirtualMachineDetector.containsWholeToken(out, 'test-keys'),
           isTrue);
-    });
-  });
-
-  group('WebPSupportInfo', () {
-    test('기본값은 모두 false', () {
-      const info = WebPSupportInfo();
-      expect(info.webp, isFalse);
-      expect(info.animatedWebp, isFalse);
-    });
-
-    test('모두 지원하는 경우', () {
-      const info = WebPSupportInfo(webp: true, animatedWebp: true);
-      expect(info.webp, isTrue);
-      expect(info.animatedWebp, isTrue);
-    });
-
-    test('기본 WebP만 지원하는 경우', () {
-      const info = WebPSupportInfo(webp: true, animatedWebp: false);
-      expect(info.webp, isTrue);
-      expect(info.animatedWebp, isFalse);
     });
   });
 }

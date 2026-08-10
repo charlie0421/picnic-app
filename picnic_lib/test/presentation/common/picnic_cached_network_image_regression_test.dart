@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -205,7 +206,7 @@ void main() {
               for (int i = 0; i < 10; i++)
                 PicnicCachedNetworkImage(
                   key: ValueKey('res$i'),
-                  imageUrl: 'https://example.com/res$i.jpg',
+                  imageUrl: 'https://test-cdn.example.com/res$i.jpg',
                   width: 40,
                   height: 40,
                 ),
@@ -217,18 +218,801 @@ void main() {
 
       final images = loadedImages(tester);
       expect(images, hasLength(10));
-      // 테스트 뷰의 devicePixelRatio 는 3.0(mock) → 배수는 2.5 로 clamp 되어
-      // 정상 URL 은 dpr=2.5 를 가진다. 저대역폭 강등이 켜지면 dpr 이 1.0/1.2 로
-      // 떨어지므로, dpr 파라미터 값을 정확히 파싱해 1.x 강등이 없음을 검증한다.
-      final dprRe = RegExp(r'[?&]dpr=([\d.]+)');
-      for (final w in images) {
-        final m = dprRe.firstMatch(w.imageUrl);
-        expect(m, isNotNull, reason: 'dpr 파라미터가 있어야 한다: ${w.imageUrl}');
-        final dpr = double.parse(m!.group(1)!);
-        expect(dpr, greaterThan(2.0),
-            reason: '동시 로딩 포화가 해상도 강등(dpr<=2)을 유발하면 안 된다: ${w.imageUrl}');
+      // CDN 은 dpr 파라미터를 무시하므로(2026-08-07 실측) 더 이상 URL 에 실리지
+      // 않는다. 대신 dpr 기반 해상도 배율은 여전히 w 파라미터 산출에 쓰이므로,
+      // 저대역폭 강등이 없다는 걸 w 값으로 검증한다. 테스트 뷰의
+      // devicePixelRatio 는 3.0(mock) → 배수는 2.5 로 clamp 되어 정상 URL 은
+      // w=100(40*2.5) 을 가진다. 저대역폭 강등이 켜지면 배수가 1.0/1.2 로
+      // 떨어져 w 가 40~48 로 줄어든다.
+      final wRe = RegExp(r'[?&]w=(\d+)');
+      for (final img in images) {
+        final m = wRe.firstMatch(img.imageUrl);
+        expect(m, isNotNull, reason: 'w 파라미터가 있어야 한다: ${img.imageUrl}');
+        final w = int.parse(m!.group(1)!);
+        expect(w, greaterThan(80),
+            reason: '동시 로딩 포화가 해상도 강등(배수<=2)을 유발하면 안 된다: ${img.imageUrl}');
       }
     });
+  });
+
+  group('CDN 이 무시하는 파라미터 제거 (f/fm 이중 다운로드 결함)', () {
+    // 배경: cdn.picnic.fan(CloudFront + 커스텀 리사이저)의 캐시 키는
+    // `_w{w}_h{h}_f{format}_q{q}` 뿐이며, 실측 결과 dpr/fm 은 응답에 아무
+    // 영향을 주지 않는다(2026-08-07). 예전엔 f/fm 값이 (이제는 삭제된)
+    // WebPSupportChecker.instance.supportInfo 의 비동기 초기화(Phase 2,
+    // runApp 이후 완료) 에 좌우돼, 초기 프레임엔 f=jpg URL 을, 이후
+    // 재생성된 위젯은 f=webp URL 을 만들었다 — 서버는 둘 다 같은 바이트를
+    // 주지만 캐시 키가 곧 URL 이라 같은 이미지를 두 번 받아 두 번
+    // 저장했다.
+    //
+    // imageUrl 은 CDN 호스트(test-cdn.example.com, test_environment.dart)로
+    // 둔다 — CDN 이 아닌 절대 URL 은 원본 그대로 반환되어(아래 'CDN 변환은
+    // 호스트로 스코프된다' 그룹 참고) 여기서 검증하려는 w/h/q 부여 자체가
+    // 일어나지 않는다.
+    testWidgets('URL 에 서버가 무시하는 dpr/fm/f/fl/auto/fit 파라미터가 없어야 한다',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/dead-params.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      final deadParamRe = RegExp(r'[?&](dpr|fm|f|fl|auto|fit)=');
+      for (final img in images) {
+        expect(deadParamRe.hasMatch(img.imageUrl), isFalse,
+            reason: '서버가 무시하는 파라미터가 URL 에 남아 있으면 안 된다: ${img.imageUrl}');
+      }
+    });
+
+    testWidgets('URL 에 서버가 실제로 쓰는 w/h/q 파라미터는 있어야 한다',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/live-params.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+  });
+
+  group('CDN 변환은 호스트로 스코프된다 (외부 절대 URL 은 원본 그대로)', () {
+    // 배경: 예전에는 절대 URL 이면 호스트가 무엇이든 uri.replace(queryParameters: ...)
+    // 로 원래 쿼리를 통째로 버리고 w/h/q 로 갈아끼웠다. 스플래시(서버가 내려주는
+    // scheduledSplashUrl), YouTube 썸네일(img.youtube.com, 하드코딩된 실제
+    // 외부 호스트), FAQ/게시글에 박제된 외부 이미지 URL 등이 실제로 이 경로를
+    // 탄다. 서명 URL(`?X-Amz-Signature=`, `?token=`)이 들어오면 서명이 깨지고,
+    // 실제 외부 CDN(Imgix/Cloudinary 등)이면 fit 등 원래 파라미터가 사라져
+    // 렌더링이 달라진다 — CDN 도입 이전부터 있던 선재 결함이다.
+    testWidgets('CDN 절대 URL 에는 w/h/q 가 붙는다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/picnic/artist/1.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          startsWith('https://test-cdn.example.com/picnic/artist/1.jpg?'),
+        );
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+
+    testWidgets('CDN 상대 경로는 cdnUrl 로 조립되고 w/h/q 가 붙는다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'artist/1.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          startsWith('https://test-cdn.example.com/artist/1.jpg?'),
+        );
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+
+    testWidgets('외부 절대 URL(쿼리 있음)은 쿼리를 보존한 채 원본 그대로 반환된다',
+        (tester) async {
+      const externalUrl =
+          'https://img.youtube.com/vi/abc123/mqdefault.jpg?token=signed-abc&expires=999';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          externalUrl,
+          reason: 'CDN 이 아닌 외부 호스트는 원래 쿼리를 보존한 채 아무 파라미터도 '
+              '추가되지 않고 원본 그대로 반환돼야 한다: ${img.imageUrl}',
+        );
+      }
+    });
+
+    testWidgets('외부 절대 URL(쿼리 없음)도 원본 그대로 반환된다', (tester) async {
+      const externalUrl = 'https://img.youtube.com/vi/abc123/mqdefault.jpg';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          externalUrl,
+          reason: '외부 호스트에는 w/h/q 를 포함해 아무 파라미터도 추가되면 안 된다: '
+              '${img.imageUrl}',
+        );
+      }
+    });
+  });
+
+  group('CDN 판정은 host 뿐 아니라 origin(scheme+host+port) 전체를 본다', () {
+    // 배경: host 문자열만 비교하면 scheme 이나 port 가 다른 별개 origin 도 CDN
+    // 으로 오판정된다. 실측된 리사이저 계약은 HTTPS 기본 포트 origin
+    // (test_environment.dart 의 cdn_url = https://test-cdn.example.com,
+    // 포트 미표기 = 443) 에 대해서만 확인됐다 — 그 범위를 벗어난 origin 에
+    // w/h/q 를 적용하면 서명 URL(`?X-Amz-Signature=`, `?token=`)의 서명이
+    // 깨지거나, 실은 CDN이 아닌 다른 서버가 우리 파라미터를 오해석할 수 있다.
+    testWidgets('scheme 이 다르면(http vs CDN 의 https) CDN 으로 보지 않는다',
+        (tester) async {
+      const externalUrl = 'http://test-cdn.example.com/img.jpg?sig=abc';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          externalUrl,
+          reason: 'CDN 과 host 는 같아도 scheme(http)이 다르면 별개 origin 이다 — '
+              '쿼리를 건드리면 안 된다: ${img.imageUrl}',
+        );
+      }
+    });
+
+    testWidgets('port 가 다르면(CDN 의 기본 443 이 아님) CDN 으로 보지 않는다',
+        (tester) async {
+      const externalUrl = 'https://test-cdn.example.com:8443/img.jpg?sig=abc';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          externalUrl,
+          reason: 'CDN 과 host/scheme 이 같아도 port(8443)가 다르면 별개 origin '
+              '이다 — 쿼리를 건드리면 안 된다: ${img.imageUrl}',
+        );
+      }
+    });
+
+    testWidgets('CDN 의 기본 포트를 명시해도(:443) 여전히 CDN 으로 본다',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com:443/artist/1.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+
+    testWidgets('CDN 호스트에 trailing dot(FQDN)이 붙어도 CDN 으로 본다',
+        (tester) async {
+      // 정책 결정: trailing dot(`cdn.picnic.fan.`)은 DNS 상 같은 호스트를
+      // 가리키는 표기일 뿐이다. 문자열이 다르다는 이유로 CDN이 아니라고
+      // 판정하면 얻는 안전 이득 없이 원본 대용량 이미지를 그대로 받게 되므로,
+      // 정규화해서 CDN 으로 인정한다. (반대 방향 오탐 — CDN이 아닌 host가
+      // trailing dot 때문에 CDN으로 오판정되는 경우는 없다. host 문자열 자체가
+      // 여전히 같아야 하기 때문이다.)
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com./artist/1.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]h=\d+')));
+        expect(img.imageUrl, matches(RegExp(r'[?&]q=\d+')));
+      }
+    });
+  });
+
+  group('절대 URL 판별은 Uri 파싱 기반이다 (문자열 접두어 검사 아님)', () {
+    // 배경: 예전에는 `key.startsWith('http://') || key.startsWith('https://')`
+    // 문자열 검사였다. 그래서 대문자 스킴(`HTTPS://...`)과 scheme 없는
+    // network-path reference(`//host/path`, protocol-relative URL)가 둘 다
+    // 절대 URL 인데도 상대 경로로 오인돼 Environment.cdnUrl 뒤에 그대로
+    // 이어붙어 URL 이 깨졌다. _classifyImageKey 가 Uri.tryParse 기반으로
+    // hasScheme/hasAuthority 를 직접 보도록 고쳤다.
+    testWidgets('대문자 스킴(HTTPS://)인 CDN URL 도 변환된다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'HTTPS://test-cdn.example.com/artist/upper.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          startsWith('https://test-cdn.example.com/artist/upper.jpg?'),
+          reason: '대문자 스킴이 상대 경로로 오인돼 cdnUrl 뒤에 그대로 '
+              '이어붙으면 안 된다: ${img.imageUrl}',
+        );
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+      }
+    });
+
+    testWidgets('대문자 스킴(HTTPS://)인 외부 URL 은 원본 대소문자 그대로 반환된다',
+        (tester) async {
+      const externalUrl = 'HTTPS://img.youtube.com/vi/upper-case/mqdefault.jpg';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          externalUrl,
+          reason: '외부 절대 URL 은 스킴 대소문자를 포함해 완전히 원본 그대로 '
+              '반환돼야 한다: ${img.imageUrl}',
+        );
+      }
+    });
+
+    testWidgets('scheme 없는 //host/path(protocol-relative) 는 CDN 호스트면 https 로 '
+        '승격돼 변환된다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: '//test-cdn.example.com/artist/protocol-relative.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          startsWith(
+            'https://test-cdn.example.com/artist/protocol-relative.jpg?',
+          ),
+          reason: '//host/path 를 상대 경로로 오인해 cdnUrl 뒤에 이어붙이면 '
+              '전혀 다른(깨진) URL 이 된다: ${img.imageUrl}',
+        );
+        expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+      }
+    });
+
+    testWidgets(
+        'scheme 없는 //host/path 는 외부 호스트면 https 로 승격만 되고 변환은 없다',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: '//img.youtube.com/vi/protocol-relative/mqdefault.jpg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      for (final img in images) {
+        expect(
+          img.imageUrl,
+          'https://img.youtube.com/vi/protocol-relative/mqdefault.jpg',
+          reason: '//host/path 는 https 로 승격되어야 fetch 가능한 URL이 된다 '
+              '(avatar_url_resolver.dart 의 resolveAvatarImageUrl 과 같은 관례). '
+              'CDN 이 아니므로 w/h/q 는 붙지 않아야 한다: ${img.imageUrl}',
+        );
+      }
+    });
+
+    testWidgets('빈 문자열/공백 imageUrl 은 예외 없이 상대 경로로 처리된다',
+        (tester) async {
+      // 빈 문자열/공백은 Uri.tryParse 로도 스킴+authority 를 못 갖추므로 상대
+      // 경로 취급이다 — 예전(문자열 접두어 검사)에도 'http'로 시작하지
+      // 않으므로 동일하게 상대 경로였다. 여기서는 Uri.tryParse 로 바꾼 뒤에도
+      // 예외 없이 같은 동작을 유지하는지만 확인한다(크래시 방지 회귀 테스트).
+      for (final blank in ['', '   ']) {
+        await tester.pumpWidget(
+          buildTestApp(
+            PicnicCachedNetworkImage(
+              key: ValueKey('blank-$blank'),
+              imageUrl: blank,
+              width: 100,
+              height: 100,
+            ),
+          ),
+        );
+        await settle(tester);
+
+        final images = loadedImages(tester);
+        expect(images, isNotEmpty);
+        for (final img in images) {
+          expect(
+            img.imageUrl,
+            startsWith(Environment.cdnUrl),
+            reason: '빈/공백 imageUrl 은 예외 없이 cdnUrl 기준 상대 경로로 '
+                '조립돼야 한다: ${img.imageUrl}',
+          );
+        }
+      }
+    });
+
+    testWidgets(
+        'http/https 가 아닌 스킴(ftp/content/asset, 대문자 포함)은 절대 네트워크 '
+        'URL 로 오분류되지 않는다', (tester) async {
+      // 배경: hasScheme && hasAuthority 만으로 판정하면 authority 를 갖는
+      // ftp://, content://, asset:// 같은 다른 스킴도 절대 네트워크 URL 로
+      // 오분류된다. 예전(문자열 접두어 검사)에는 이런 입력이 전부 'http'로
+      // 시작하지 않아 상대 경로 취급이었다(Environment.cdnUrl 뒤에 이어붙어
+      // w/h/q 가 붙었다) — 이 위젯이 다루는 건 http(s) 네트워크 이미지뿐이므로
+      // 그 동작을 그대로 유지해야 한다.
+      for (final key in [
+        'ftp://files.example.com/image.jpg',
+        'FTP://files.example.com/image.jpg',
+        'content://media/external/images/1',
+        'CONTENT://media/external/images/1',
+        'asset://images/local.png',
+      ]) {
+        await tester.pumpWidget(
+          buildTestApp(
+            PicnicCachedNetworkImage(
+              key: ValueKey('scheme-$key'),
+              imageUrl: key,
+              width: 100,
+              height: 100,
+            ),
+          ),
+        );
+        await settle(tester);
+
+        final images = loadedImages(tester);
+        expect(images, isNotEmpty, reason: 'key=$key');
+        for (final img in images) {
+          expect(
+            img.imageUrl,
+            startsWith('${Environment.cdnUrl}/$key'),
+            reason: 'http/https 가 아닌 스킴은 상대 경로로 cdnUrl 뒤에 '
+                '조립돼야 한다(예전과 동일) — 절대 네트워크 URL 로 오분류돼 '
+                '원본 그대로 반환되면 안 된다: key=$key, 실제=${img.imageUrl}',
+          );
+          expect(img.imageUrl, matches(RegExp(r'[?&]w=\d+')));
+        }
+      }
+    });
+  });
+
+  group('단일 최종 CDN URL/cache key 계약', () {
+    testWidgets('medium 이미지는 최종 URL 하나만 요청한다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/single-medium.jpg',
+            width: 300,
+            height: 300,
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+
+      expect(
+        loadedImages(tester),
+        hasLength(1),
+        reason: '300x300 medium 이미지는 progressive 변형이 아닌 '
+            '최종 URL 하나만 요청해야 한다',
+      );
+    });
+
+    testWidgets('high 이미지는 최종 URL 하나만 요청한다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/single-high.jpg',
+            width: 500,
+            height: 500,
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+
+      expect(
+        loadedImages(tester),
+        hasLength(1),
+        reason: '500x500 high 이미지는 progressive 변형이 아닌 '
+            '최종 URL 하나만 요청해야 한다',
+      );
+    });
+
+    testWidgets('cache key는 resolver가 만든 최종 URL과 정확히 같다',
+        (tester) async {
+      const resolvedUrl =
+          'https://test-cdn.example.com/final-key.jpg?q=80';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/final-key.jpg',
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+
+      final finalImage = loadedImages(tester).last;
+      expect(finalImage.imageUrl, resolvedUrl);
+      expect(finalImage.cacheKey, resolvedUrl);
+    });
+
+    testWidgets('imageUrl 변경 후 이전 cache key를 재사용하지 않는다',
+        (tester) async {
+      const oldResolvedUrl =
+          'https://test-cdn.example.com/cache-old.jpg?q=80';
+      const newResolvedUrl =
+          'https://test-cdn.example.com/cache-new.jpg?q=80';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/cache-old.jpg',
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+      final oldCacheKey = loadedImages(tester).last.cacheKey;
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/cache-new.jpg',
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+
+      final image = loadedImages(tester).last;
+      expect(image.imageUrl, newResolvedUrl);
+      expect(image.cacheKey, newResolvedUrl);
+      expect(image.cacheKey, isNot(oldCacheKey));
+      expect(image.cacheKey, isNot(oldResolvedUrl));
+    });
+  });
+
+  group('외부 URL 은 progressive 단계를 만들지 않는다 (중복 다운로드 방지)', () {
+    // 배경: 변환이 적용되지 않는(=CDN 이 아닌) 절대 URL 은 _getTransformedUrl 이
+    // resolutionMultiplier/quality 인자와 무관하게 항상 원본 문자열을 그대로
+    // 돌려준다. 기존 _getTransformedUrls 는 medium/high complexity 에서
+    // 같은 imageUrl 을 인자만 바꿔 2~3번 호출해 progressive 단계를 만들었다 —
+    // 외부 URL 에서는 이 단계들이 전부 동일한 URL 이 되었다. 캐시 키는
+    // _cacheKeyFor 에서 index/isLowQuality 로 단계별로 다르게 만들어졌으므로,
+    // 결과적으로 같은 바이트를 서로 다른 캐시 키로 2~3 회 받았다 — #149 에서
+    // 고친 f=jpg/f=webp 이중 다운로드와 정확히 같은 종류의 결함이 CDN 밖에서
+    // 재발한 것이다.
+    //
+    // 이 그룹은 "실제 다운로드 시도 횟수" 를 직접 세지 않고 "생성되는
+    // CachedNetworkImage 위젯 수 / cacheKey 집합의 크기" 를 센다. 이것으로
+    // 충분한 이유(간접이지만 근거 있는 증거):
+    // flutter_cache_manager 의 CacheStore 는 URL 이 아니라 `key`(우리가 넘기는
+    // cacheKey)로 캐시 항목을 식별한다. 서로 다른 cacheKey 는 각각 독립된
+    // 캐시 조회를 만들고, 조회가 미스면 WebHelper.downloadFile 이 정확히 한 번
+    // FileService.get() 을 호출해 다운로드를 시도한다. 즉 cacheKey 개수 == 캐시
+    // 조회 횟수이고, 콜드 캐시에서는 캐시 조회 횟수 == 다운로드 시도 횟수다.
+    //
+    // 실제 다운로드 시도를 mock FileService 로 직접 세는 시도를 두 라운드
+    // 해봤다.
+    //
+    // 1라운드: PicnicCachedNetworkImage 에 테스트 전용 CacheManager 주입
+    // 지점을 프로덕션 코드에 추가했다(cacheManager: null → 새 static 필드).
+    // memCacheWidth/Height 를 항상 넘기는 이 위젯 특성상 cached_network_image
+    // 내부가 "리사이즈하려면 cacheManager 가 ImageCacheManager 여야 한다" 고
+    // 단언해 일반 CacheManager 는 FileService.get() 에 닿기도 전에 죽었고,
+    // `CacheManager with ImageCacheManager` 로 바꾸자 CacheManager 생성자가
+    // 내부적으로 만드는 기본 CacheStore(sqflite 기반)가 path_provider 플랫폼
+    // 채널을 기다리며 테스트를 무한정 멈춰 세웠다(실측 120초 초과, 백그라운드
+    // 프로세스 강제 종료). 프로덕션에 테스트 전용 seam 을 추가한 것도 잘못된
+    // 판단이어서 되돌렸다.
+    //
+    // 2라운드(재검증 지적 반영): 리뷰어가 프로덕션 seam 없이 되는 우회 경로를
+    // 제시했다 — flutter_cache_manager 의 `Config` 생성자가 공개적으로 받는
+    // `repo`(CacheInfoRepository)/`fileSystem`(FileSystem)/`fileService`
+    // (FileService) 세 인자를 전부 테스트 전용 가짜로 주입하고,
+    // `CachedNetworkImageProvider.defaultCacheManager` **설정자**(getter 는
+    // 절대 먼저 읽지 않는다 — 읽으면 그 getter 자체가 진짜
+    // DefaultCacheManager() 생성을 트리거해 같은 path_provider 문제를 다시
+    // 밟는다)로 테스트 쪽에서만 교체한다. 실제로 패키지 소스
+    // (~/.pub-cache 의 flutter_cache_manager-3.4.1, cached_network_image-3.4.1)
+    // 를 컴파일러 피드백으로 왕복 확인하며 검증했다:
+    //   - `Config('key', repo: ..., fileSystem: ..., fileService: ...)` 는
+    //     실제로 세 인자를 다 받는다(생성자 시그니처 확인됨).
+    //   - `CacheInfoRepository`/`FileSystem` 을 순수 인메모리로 구현하면(즉
+    //     기본 sqflite 백엔드/path_provider 를 완전히 우회하면) CacheManager
+    //     생성이 더 이상 hang 하지 않는다.
+    //   - `MaterialApp(home: Scaffold(body: CachedNetworkImage(...)))` 처럼
+    //     Riverpod 없는 최소 트리에서, `defaultCacheManager` 설정 → 위젯
+    //     pump → FileService.get() 이 **정확히 1회 호출됨을 실측**했다(raw
+    //     CachedNetworkImage, memCacheWidth/Height 포함 양쪽 다 확인).
+    // 즉 리뷰어의 우회 경로 자체는 **틀리지 않았다.**
+    //
+    // 2라운드 결론에서 "ProviderScope 가 막는다" 고 적었으나, 그 결론은
+    // **틀렸다.** 재검증 지적을 받고 PicnicCachedNetworkImage 를
+    // ConsumerStatefulWidget → StatefulWidget 으로 전환한 뒤(이 위젯은
+    // `ref.` 를 한 번도 쓰지 않았다 — ProviderScope 의존 자체가 불필요한
+    // 결합이었다) ProviderScope 없이 다시 실측했지만 **여전히
+    // FileService.get() 이 0회였다.** 즉 ProviderScope 는 애초에 원인이
+    // 아니었다.
+    //
+    // 3라운드: 변수를 하나씩 격리해 정확한 원인을 찾았다. 이번엔 raw
+    // CachedNetworkImage 만으로(ProviderScope, PicnicCachedNetworkImage,
+    // buildTestApp 전부 배제한 최소 재현) 실측했다:
+    //   - `cacheKey` 파라미터를 아예 안 넘기면(=내부적으로 URL 을 키로 씀):
+    //     FileService.get() 1회 성공(1/2라운드에서 이미 확인).
+    //   - **`cacheKey` 를 URL 과 다른 값으로 넘기면(`'${url}_0'` 같은 형태)**:
+    //     ImageCacheManager 믹스인(리사이즈 어서션 통과에 필수) 조합에서
+    //     FileService.get() 이 0회로 재현됐다 — repo 를 상태 없는 항상-null
+    //     버전에서 실제로 저장/조회하는 상태 있는 인메모리 버전으로 바꿔도
+    //     동일했다(repo 구현 품질 문제가 아니라는 뜻).
+    // 즉 진짜 원인은 **"URL 과 다른 cacheKey" + "ImageCacheManager 리사이즈
+    // 경로"의 조합**이다 — Riverpod/ProviderScope/PicnicCachedNetworkImage
+    // 의 구조와는 무관하다.
+    //
+    // 이 위젯의 기존 프로덕션 코드는 `_cacheKeyFor(url)` 로 항상 URL 과 다른
+    // cacheKey(재시도 토큰 `_reloadToken`, progressive 단계의 `_index`/`_lq`
+    // 접미어 포함)를 만들었다 — 그래서 이 블로커는 테스트 하네스 설정을
+    // 바꿔서 피할 수 있는 게 아니라, cacheKey 를 실제로 쓰는 프로덕션 경로
+    // 자체에 걸린다. flutter_cache_manager 3.4.1 의 ImageCacheManager 리사이즈
+    // 오케스트레이션이 커스텀 key 를 이 테스트 하네스가 재현 가능한 방식으로
+    // 다루지 못하는 라이브러리 레벨 한계로 보이며, 더 깊은 원인(예: 원본
+    // 파일 기록과 리사이즈 기록을 서로 다른 key 공간으로 조율하는 내부
+    // 로직)은 이 항목 범위를 넘는 별도 조사가 필요하다고 판단해 더 파고들지
+    // 않았다. 프로덕션 seam 은 추가하지 않는다 — 위 cacheKey 기반 불변식을
+    // 대신 유지한다.
+    testWidgets('medium complexity(300x300) 외부 URL 은 단일 요청만 만든다',
+        (tester) async {
+      const externalUrl =
+          'https://img.youtube.com/vi/progressive-dup-1/mqdefault.jpg';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 300,
+            height: 300,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      expect(
+        images.length,
+        1,
+        reason: '변환이 적용되지 않는 외부 URL 은 progressive 단계를 나눠도 URL '
+            '이 전부 같아지므로 단일 요청으로 축약해야 한다. 지금은 서로 다른 '
+            '캐시 키로 ${images.length}번 요청됨: '
+            '${images.map((w) => w.cacheKey).toList()}',
+      );
+      expect(images.single.imageUrl, externalUrl);
+    });
+
+    testWidgets('width/height 미지정(splash 케이스) 외부 URL 도 단일 요청만 만든다',
+        (tester) async {
+      const externalUrl =
+          'https://img.youtube.com/vi/progressive-dup-2/mqdefault.jpg';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(imageUrl: externalUrl),
+        ),
+      );
+      await settle(tester);
+
+      final images = loadedImages(tester);
+      expect(images, isNotEmpty);
+      expect(
+        images.length,
+        1,
+        reason: 'width/height 미지정이면 기본값(400x400)으로 medium '
+            'complexity 가 되어 progressive 가 켜진다 — splash 케이스도 '
+            '외부 URL 이면 단일 요청이어야 한다. 지금은 '
+            '${images.length}번 요청됨: ${images.map((w) => w.cacheKey).toList()}',
+      );
+      expect(images.single.imageUrl, externalUrl);
+    });
+
+    testWidgets('같은 원본 URL 이 서로 다른 캐시 키로 중복 요청되면 안 된다',
+        (tester) async {
+      const externalUrl =
+          'https://img.youtube.com/vi/progressive-dup-3/mqdefault.jpg';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: externalUrl,
+            width: 300,
+            height: 300,
+          ),
+        ),
+      );
+      await settle(tester);
+
+      final cacheKeys = loadedImages(tester).map((w) => w.cacheKey).toSet();
+      expect(
+        cacheKeys.length,
+        1,
+        reason: '같은 원본 바이트를 서로 다른 캐시 키로 여러 번 받으면 안 된다: '
+            '$cacheKeys',
+      );
+    });
+  });
+
+  group('timeout Timer 는 dispose 시 취소된다 (Timer 누수 방지)', () {
+    // 배경: _buildCachedNetworkImage 의 30초 타임아웃 Timer 는 원래
+    // (이 브랜치 이전부터) 로컬 변수였다 — State 필드가 아니어서 dispose() 가
+    // 절대 참조할 수 없었다. CDN 밖 medium/high 이미지가 progressive 단계 없이
+    // 이 경로(단일 요청)를 타게 되면서 이 결함의 노출 빈도가 커졌다. 필드로
+    // 옮기고 dispose/URL 변경 시 취소하도록 고쳤다 — 이 테스트는 그 취소가
+    // 실제로 일어나는지 직접 검증한다.
+    testWidgets(
+      '비-CDN medium 이미지: 타임아웃 전에 위젯이 사라져도 pending Timer 가 남지 않는다',
+      (tester) async {
+        // 이 파일의 공통 setUp 은 모든 테스트에서 disableTimeoutForTest 를
+        // 켜 둔다(pending-timer 오탐 방지). 이 테스트만은 반대로 실제 Timer 가
+        // 걸리고 취소되는지를 검증해야 하므로 명시적으로 끈다.
+        PicnicCachedNetworkImage.disableTimeoutForTest = false;
+
+        await tester.pumpWidget(
+          buildTestApp(
+            const PicnicCachedNetworkImage(
+              imageUrl: 'https://img.youtube.com/vi/timeout-leak/mqdefault.jpg',
+              width: 300,
+              height: 300,
+            ),
+          ),
+        );
+        await settle(tester);
+
+        // effectiveTimeout(기본 30초) 이 지나기 전에 트리를 통째로 교체한다 —
+        // 사용자가 30초 이내에 화면을 떠나는 상황과 동일하다.
+        await tester.pumpWidget(buildTestApp(const SizedBox.shrink()));
+        await tester.pump(const Duration(seconds: 1));
+        drainExpectedExceptions(tester);
+
+        // 여기서 테스트 본문이 끝나면 flutter_test 프레임워크 자신이
+        // "A Timer is still pending" 불변식을 검사한다(TestWidgetsFlutterBinding
+        // ._verifyInvariants). _imageTimeoutTimer 가 dispose 에서 취소되지
+        // 않았다면 이 지점에서 프레임워크가 테스트를 실패시킨다 — 이 테스트
+        // 자체가 pending-timer 검출기다. 30초를 실제로 기다리지 않고도(가짜
+        // 시간이 아니라 진짜 Duration(seconds: 1) 만 흘렸다) 검증되는 이유는,
+        // 검사 대상이 "타임아웃이 발화했는가" 가 아니라 "Timer 가 아직
+        // 스케줄러에 등록돼 있는가" 이기 때문이다.
+      },
+    );
   });
 
   group('imageUrl 이 바뀔 때 (리스트 셀 재활용)', () {
@@ -304,6 +1088,206 @@ void main() {
       for (final image in after) {
         expect(image.imageUrl, contains('visible-second.jpg'));
       }
+    });
+  });
+
+  group('세션 성공 URL 추적 Set — LRU 상한', () {
+    setUp(() {
+      resetSuccessfullyLoadedImageUrlsForTest();
+    });
+
+    tearDown(() {
+      resetSuccessfullyLoadedImageUrlsForTest();
+    });
+
+    test('상한을 넘기면 가장 오래 재사용되지 않은 URL 이 밀려난다', () {
+      final capacity = successfullyLoadedImageUrlsCapacityForTest;
+      for (var i = 0; i < capacity; i++) {
+        rememberSuccessfullyLoadedImageUrlForTest('https://example.com/img$i.jpg');
+      }
+      expect(successfullyLoadedImageUrlsCountForTest, capacity);
+      expect(
+        successfullyLoadedImageUrlsContainsForTest('https://example.com/img0.jpg'),
+        isTrue,
+        reason: '상한에 도달하기 전이므로 아직 밀려나지 않아야 한다',
+      );
+
+      // capacity+1번째 URL을 추가하면 가장 오래된(=img0) 항목이 밀려나야 한다.
+      rememberSuccessfullyLoadedImageUrlForTest('https://example.com/imgNew.jpg');
+
+      expect(successfullyLoadedImageUrlsCountForTest, capacity);
+      expect(
+        successfullyLoadedImageUrlsContainsForTest('https://example.com/img0.jpg'),
+        isFalse,
+        reason: 'FIFO/LRU 모두 상한 도달 직후 첫 신규 삽입에서는 최초 항목이 밀려나야 한다',
+      );
+      expect(
+        successfullyLoadedImageUrlsContainsForTest('https://example.com/imgNew.jpg'),
+        isTrue,
+      );
+    });
+
+    test('반복 재사용된(hot) URL 은 상한을 넘겨도 밀려나지 않는다 (LRU, FIFO 아님)', () {
+      final capacity = successfullyLoadedImageUrlsCapacityForTest;
+      for (var i = 0; i < capacity; i++) {
+        rememberSuccessfullyLoadedImageUrlForTest('https://example.com/img$i.jpg');
+      }
+
+      // hot URL: img0을 다시 "성공"시켜 최근 사용 위치로 갱신한다.
+      const hotUrl = 'https://example.com/img0.jpg';
+      rememberSuccessfullyLoadedImageUrlForTest(hotUrl);
+
+      // 새 URL 을 100개 더 추가해도(단순 FIFO였다면 삽입 순서상 img0~img99가
+      // 밀려날 자리) hot URL 은 갱신된 최신 위치 덕에 살아남아야 한다.
+      for (var i = 0; i < 100; i++) {
+        rememberSuccessfullyLoadedImageUrlForTest('https://example.com/extra$i.jpg');
+      }
+
+      expect(successfullyLoadedImageUrlsCountForTest, capacity);
+      expect(
+        successfullyLoadedImageUrlsContainsForTest(hotUrl),
+        isTrue,
+        reason: '재사용으로 갱신된 URL 은 FIFO였다면 밀려났을 물량이 지나가도 살아남아야 한다',
+      );
+      // 반면 재사용되지 않은 img1(hot 갱신 전 img0 바로 다음 순서)은 밀려나야 한다.
+      expect(
+        successfullyLoadedImageUrlsContainsForTest('https://example.com/img1.jpg'),
+        isFalse,
+        reason: '재사용되지 않은 최오래 항목은 LRU 상에서도 정상적으로 밀려나야 한다',
+      );
+    });
+  });
+
+  group('세션 성공 URL 추적 Set — 캐시 히트로 스킵되는 재사용 경로에서도 LRU 갱신', () {
+    setUp(() {
+      resetSuccessfullyLoadedImageUrlsForTest();
+    });
+
+    tearDown(() {
+      resetSuccessfullyLoadedImageUrlsForTest();
+    });
+
+    testWidgets(
+      '이미 로딩된 URL 을 다시 마운트(캐시 히트 → 로드 스킵)해도 LRU 위치가 갱신된다',
+      (tester) async {
+        // _initializeLazyLoading 의 isAlreadyLoaded 분기는 즉시 return 하므로
+        // _onImageLoadSuccess(→ _rememberSuccessfullyLoadedImageUrl) 를 타지
+        // 않는다 — 바로 이 분기에서도 갱신이 함께 일어나는지가 이 테스트의
+        // 핵심이다. 위의 두 테스트는 _rememberSuccessfullyLoadedImageUrl 을
+        // 직접 호출하므로 이 경로(재사용의 지배적 경로)의 결함을 잡지 못했다.
+        const hotUrl = 'https://example.com/cache-hit-hot.jpg';
+        final capacity = successfullyLoadedImageUrlsCapacityForTest;
+
+        // hotUrl 을 가장 먼저(=가장 밀려나기 쉬운, 가장 오래된 위치에) 넣고,
+        // 나머지로 상한을 채운다.
+        rememberSuccessfullyLoadedImageUrlForTest(hotUrl);
+        for (var i = 0; i < capacity - 1; i++) {
+          rememberSuccessfullyLoadedImageUrlForTest('https://example.com/img$i.jpg');
+        }
+        expect(successfullyLoadedImageUrlsCountForTest, capacity);
+        expect(successfullyLoadedImageUrlsContainsForTest(hotUrl), isTrue);
+
+        // hotUrl 을 다시 마운트한다 — 캐시 히트 경로(isAlreadyLoaded)를 태운다.
+        await tester.pumpWidget(
+          buildTestApp(
+            const PicnicCachedNetworkImage(
+              imageUrl: hotUrl,
+              width: 80,
+              height: 80,
+            ),
+          ),
+        );
+        await settle(tester);
+
+        // 마운트가 갱신을 동반했다면, 새 URL 을 딱 1개만 추가해도(FIFO였다면
+        // 여전히 가장 오래된 hotUrl 이 밀려났을 상황) hotUrl 은 살아남고,
+        // 대신 img0(hotUrl 다음으로 오래된 항목)이 밀려나야 한다.
+        rememberSuccessfullyLoadedImageUrlForTest('https://example.com/afterMount.jpg');
+
+        expect(successfullyLoadedImageUrlsCountForTest, capacity);
+        expect(
+          successfullyLoadedImageUrlsContainsForTest(hotUrl),
+          isTrue,
+          reason:
+              '캐시 히트로 로드를 스킵한 재사용도 LRU 갱신을 동반해야 한다 — '
+              '이 분기에서 갱신을 빼먹으면 이름만 LRU 고 동작은 FIFO 로 퇴화한다',
+        );
+        expect(
+          successfullyLoadedImageUrlsContainsForTest('https://example.com/img0.jpg'),
+          isFalse,
+          reason: '갱신되지 않은 그 다음 오래된 항목은 정상적으로 밀려나야 한다',
+        );
+      },
+    );
+  });
+
+  group('실패/타임아웃 로그 추적 맵 — 카디널리티 하드 상한', () {
+    setUp(() {
+      resetImageLoadTrackingMapsForTest();
+    });
+
+    tearDown(() {
+      resetImageLoadTrackingMapsForTest();
+    });
+
+    test('_failureHistory 는 sweep 이전에도 하드 상한을 넘지 않는다', () {
+      final capacity = trackedUrlMapCapacityForTest;
+
+      // CDN 장애로 30초 sweep 주기 안에 distinct URL 이 상한보다 많이 실패하는
+      // 상황을 흉내낸다. sweep 이 아직 돌지 않았어도(테스트에서 시간 경과 없음)
+      // 카디널리티는 상한을 넘지 않아야 한다.
+      for (var i = 0; i < capacity + 500; i++) {
+        recordFailureForTest('https://example.com/fail$i.jpg');
+      }
+
+      expect(failureHistoryCountForTest, capacity);
+      // 가장 먼저 들어간(=가장 오래된) 키들이 버려졌어야 한다(FIFO).
+      expect(
+        failureHistoryContainsForTest('https://example.com/fail0.jpg'),
+        isFalse,
+      );
+      expect(
+        failureHistoryContainsForTest('https://example.com/fail${capacity + 499}.jpg'),
+        isTrue,
+      );
+    });
+
+    test('_lastTimeoutLogTimes 는 sweep 이전에도 하드 상한을 넘지 않는다', () {
+      final capacity = trackedUrlMapCapacityForTest;
+
+      for (var i = 0; i < capacity + 500; i++) {
+        recordTimeoutLogForTest('https://example.com/timeout$i.jpg');
+      }
+
+      expect(lastTimeoutLogTimesCountForTest, capacity);
+      expect(
+        lastTimeoutLogTimesContainsForTest('https://example.com/timeout0.jpg'),
+        isFalse,
+      );
+      expect(
+        lastTimeoutLogTimesContainsForTest(
+          'https://example.com/timeout${capacity + 499}.jpg',
+        ),
+        isTrue,
+      );
+    });
+
+    test('이미 존재하는 키를 갱신할 때는 카디널리티를 소모하지 않는다', () {
+      final capacity = trackedUrlMapCapacityForTest;
+      for (var i = 0; i < capacity; i++) {
+        recordFailureForTest('https://example.com/fail$i.jpg');
+      }
+      expect(failureHistoryCountForTest, capacity);
+
+      // 이미 있는 키를 다시 기록해도(재실패) 카디널리티가 늘지 않고, 다른
+      // 키가 밀려나지도 않아야 한다.
+      recordFailureForTest('https://example.com/fail0.jpg');
+
+      expect(failureHistoryCountForTest, capacity);
+      expect(
+        failureHistoryContainsForTest('https://example.com/fail0.jpg'),
+        isTrue,
+      );
     });
   });
 }

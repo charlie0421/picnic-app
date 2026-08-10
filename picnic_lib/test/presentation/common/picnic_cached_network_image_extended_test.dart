@@ -87,12 +87,9 @@ void main() {
       expect(widget.placeholder, isNull);
       expect(widget.errorWidget, isNull);
       expect(widget.showLoadingOverlay, true);
-      expect(widget.enablePreloading, true);
-      expect(widget.preloadDistance, 200.0);
       expect(widget.priority, ImagePriority.normal);
       expect(widget.enableMemoryOptimization, true);
       expect(widget.enableProgressiveLoading, true);
-      expect(widget.maxConcurrentLoads, isNull);
     });
 
     test('custom values are set correctly', () {
@@ -110,12 +107,9 @@ void main() {
         visibilityThreshold: 0.5,
         lazyLoadDelay: Duration(milliseconds: 100),
         showLoadingOverlay: false,
-        enablePreloading: false,
-        preloadDistance: 500.0,
         priority: ImagePriority.high,
         enableMemoryOptimization: false,
         enableProgressiveLoading: false,
-        maxConcurrentLoads: 4,
       );
 
       expect(widget.imageUrl, 'https://example.com/custom.png');
@@ -131,12 +125,9 @@ void main() {
       expect(widget.visibilityThreshold, 0.5);
       expect(widget.lazyLoadDelay, const Duration(milliseconds: 100));
       expect(widget.showLoadingOverlay, false);
-      expect(widget.enablePreloading, false);
-      expect(widget.preloadDistance, 500.0);
       expect(widget.priority, ImagePriority.high);
       expect(widget.enableMemoryOptimization, false);
       expect(widget.enableProgressiveLoading, false);
-      expect(widget.maxConcurrentLoads, 4);
     });
 
     test('const constructor is supported', () {

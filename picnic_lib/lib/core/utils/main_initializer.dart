@@ -80,7 +80,7 @@ class MainInitializer {
 
   /// runApp() 이후 SDK 초기화를 병렬로 실행
   ///
-  /// Group 1: 독립적인 SDK (Supabase, Firebase, WebP, Timezone, Privacy)
+  /// Group 1: 독립적인 SDK (Supabase, Firebase, Timezone, Privacy)
   /// Group 2: Group 1에 의존하는 SDK (Auth, Tapjoy, Branch, AdMob)
   static Future<void> _initializeSDKs(FirebaseOptions? firebaseOptions) async {
     try {
@@ -91,14 +91,11 @@ class MainInitializer {
         group1.add(Firebase.initializeApp(options: firebaseOptions));
       }
       if (UniversalPlatform.isMobile) {
-        group1.add(AppInitializer.initializeWebP());
         group1.add(AppInitializer.initializeTimezone());
         group1.add(AppInitializer.initializePrivacyConsent());
       }
       await Future.wait(group1);
-      logger.i(
-        'SDK Group 1 초기화 완료 (Supabase, Firebase, WebP, Timezone, Privacy)',
-      );
+      logger.i('SDK Group 1 초기화 완료 (Supabase, Firebase, Timezone, Privacy)');
 
       // Firebase가 준비된 첫 시점에 이전 프로세스의 미전송 GA4 payload를
       // 재시도한다. drain은 SDK/화면 초기화를 막지 않으며 각 sink 호출은 자체

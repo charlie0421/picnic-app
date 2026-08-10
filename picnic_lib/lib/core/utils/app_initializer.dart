@@ -25,7 +25,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
-import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
@@ -457,12 +456,20 @@ class AppInitializer {
   //   }
   // }
 
-  static Future<void> initializeWebP() async {
-    logger.i('Initializing WebP support...');
-    final supportInfo = await WebPSupportChecker.instance.checkSupport();
-    logger.i('WebP support: ${supportInfo.webp}, ${supportInfo.animatedWebp}');
-    logger.i('WebP support initialized');
-  }
+  // initializeWebP() 는 제거됐다.
+  //
+  // 이 초기화는 WebPSupportChecker.checkSupport() 로 device_info_plus 플랫폼
+  // 채널을 쳐서 OS 버전을 읽어왔지만, 그 결과(supportInfo)를 소비하는 곳은
+  // 자기 자신의 로그 한 줄뿐이었다. 유일한 실사용처였던
+  // PicnicCachedNetworkImage 가 CDN URL 에 f/fm 파라미터를 붙이지 않게 되면서
+  // (서버가 무시하는 파라미터였고, 이 체커의 Phase 2 비동기 초기화 때문에
+  // 초기 프레임과 이후 프레임이 서로 다른 캐시 키를 만들어 같은 이미지를 두 번
+  // 받고 있었다) 소비처가 0 이 됐다.
+  //
+  // WebPSupportChecker/WebPSupportHelper 클래스 자체도 소비처가 0 이 되어
+  // 함께 제거했다(picnic_cached_network_image_regression_test.dart 는
+  // "위젯이 WebP 상태와 무관하게 항상 같은 URL 을 만든다" 는 사실을 이제
+  // dead-param 부재 검증만으로 고정한다).
 
   static Future<void> initializeTimezone() async {
     logger.i('Initializing timezones...');

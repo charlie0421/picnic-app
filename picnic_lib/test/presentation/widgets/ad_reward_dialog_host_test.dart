@@ -87,6 +87,22 @@ AdRewardStatusModel denied() => AdRewardStatusModel(
   snapshotAt: DateTime.utc(2026),
 );
 
+AdRewardStatusModel pending() => AdRewardStatusModel(
+  reference: reference,
+  state: AdRewardState.pending,
+  grant: null,
+  wallet: WalletSummaryModel(
+    contractVersion: 'wallet.v1',
+    star: BigInt.zero,
+    bonus: BigInt.zero,
+    cotton: BigInt.zero,
+    cottonExpiringAmount: BigInt.zero,
+    cottonNextExpiresAt: null,
+    snapshotAt: DateTime.utc(2026),
+  ),
+  snapshotAt: DateTime.utc(2026),
+);
+
 AdRewardStatusModel granted() => AdRewardStatusModel(
   reference: reference,
   state: AdRewardState.granted,
@@ -153,7 +169,36 @@ Widget scheduledApp(
 );
 
 void main() {
-  testWidgets('checking indicator never acknowledges', (tester) async {
+  testWidgets('post-ad checking indicator never acknowledges', (tester) async {
+    final repository = _Repository();
+    final store = PendingAdRewardStore(_MemoryStorage());
+    final container = ProviderContainer(
+      overrides: [
+        adRewardRepositoryProvider.overrideWithValue(repository),
+        pendingAdRewardStoreProvider.overrideWithValue(store),
+        adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+        adRewardDelayProvider.overrideWithValue((_) async {}),
+      ],
+    );
+    addTearDown(container.dispose);
+    await store.add('user-a', reference);
+    unawaited(
+      container
+          .read(adRewardRecoveryProvider.notifier)
+          .poll(ownerUserId: 'user-a', reference: reference),
+    );
+    await tester.pumpWidget(app(container));
+    await tester.pump();
+    expect(find.text('Checking your reward'), findsOneWidget);
+    expect(repository.acknowledged, isEmpty);
+  });
+
+  testWidgets('launch recovery never raises the checking indicator', (
+    tester,
+  ) async {
+    // 앱 실행 시 "보상을 확인하고 있어요" 가 오래 남던 자리. 서버가 끝내
+    // 해소하지 않는 레퍼런스는 로컬 레코드로 계속 남기 때문에, 스윕이
+    // 배너를 띄우면 실행/포그라운드마다 같은 안내가 다시 붙는다.
     final repository = _Repository();
     final store = PendingAdRewardStore(_MemoryStorage());
     final container = ProviderContainer(
@@ -171,8 +216,39 @@ void main() {
     );
     await tester.pumpWidget(app(container));
     await tester.pump();
-    expect(find.text('Checking your reward'), findsOneWidget);
+    expect(find.text('Checking your reward'), findsNothing);
     expect(repository.acknowledged, isEmpty);
+  });
+
+  testWidgets('sweep still presents a reward granted after its first read', (
+    tester,
+  ) async {
+    // 배너를 없앤다고 재조회까지 없애면, 재개 직후 확정된 보상이 같은 세션에서
+    // 조용히 사라진다. 배너 없이도 사다리는 돌아야 한다.
+    final repository = _FlippingRepository();
+    final store = PendingAdRewardStore(_MemoryStorage());
+    final container = ProviderContainer(
+      overrides: [
+        adRewardRepositoryProvider.overrideWithValue(repository),
+        pendingAdRewardStoreProvider.overrideWithValue(store),
+        adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+        adRewardDelayProvider.overrideWithValue((_) async {}),
+      ],
+    );
+    addTearDown(container.dispose);
+    await store.add('user-a', reference);
+
+    await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+    await tester.pumpWidget(app(container));
+    await tester.pump();
+    await tester.pump();
+
+    expect(repository.reads, 2);
+    expect(find.text('Checking your reward'), findsNothing);
+    expect(find.text('Candy added!'), findsOneWidget);
+    expect(repository.acknowledged, [reference]);
+    await tester.pump();
+    expect(await store.readAll('user-a'), isEmpty);
   });
 
   testWidgets('terminal dialog acknowledges once after its first frame', (
@@ -708,6 +784,15 @@ class _QueueRepository extends _Repository {
   @override
   Future<AdRewardStatusModel> getStatus(AdRewardReference reference) async =>
       statuses[reference]!;
+}
+
+/// Serves PENDING once and the terminal state afterwards, so a sweep only sees
+/// the reward if it reads the reference more than once.
+class _FlippingRepository extends _Repository {
+  int reads = 0;
+  @override
+  Future<AdRewardStatusModel> getStatus(AdRewardReference reference) async =>
+      reads++ == 0 ? pending() : granted();
 }
 
 /// Mirrors a corrupt `pending_ad_rewards_v1` entry: the first tombstone write

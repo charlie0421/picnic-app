@@ -110,6 +110,7 @@ class PurchaseSweepReport {
     this.settled = 0,
     this.preserved = 0,
     this.scanError,
+    this.liveInFlight = 0,
   });
 
   final PurchaseSweepTrigger trigger;
@@ -129,13 +130,39 @@ class PurchaseSweepReport {
 
   final Object? scanError;
 
+  /// Transactions the store is holding with a **live payment** that is not
+  /// settleable yet - iOS `purchasing`/`deferred`. See
+  /// [UnfinishedPurchaseScan.liveInFlight].
+  final int liveInFlight;
+
   bool get ran => outcome == PurchaseSweepOutcome.completed;
+
+  /// 이 스윕이 **"큐를 확인했고 애초에 아무것도 없었다"** 를 증명하는가.
+  ///
+  /// [ran] 이나 `preserved == 0` 보다 엄격하다: `found > 0 && settled > 0 &&
+  /// preserved == 0` 인 스윕도 outcome 은 completed 지만, 그건 "비어 있었다"가
+  /// 아니라 "방금 실결제를 발견해 정산했다"이다. 두 사실을 뭉개면 실결제가
+  /// 있었던 시도를 "아무 일도 없었다"로 정리해 버린다 (Sol 머지 게이트 리뷰,
+  /// PR #137 - 90초 취소 억제 판정이 같은 이유로 리포트를 직접 본다).
+  ///
+  /// [liveInFlight] 도 0 이어야 한다. 정산 대상(purchased)이 없는 것과 큐가
+  /// 비어 있는 것은 다르다 - 사용자가 결제 시트 안에 있거나(iOS purchasing)
+  /// Ask to Buy 승인을 기다리는 동안(deferred) 정산할 것은 없지만 결제는
+  /// 살아 있다. 이 둘을 뭉개면 "큐가 비었다"가 진행 중인 정상 결제를 지워도
+  /// 된다는 증거로 오독된다 (Sol 교차 리뷰 MAJOR, 2026-08-07).
+  bool get verifiedEmpty =>
+      outcome == PurchaseSweepOutcome.completed &&
+      scanError == null &&
+      found == 0 &&
+      preserved == 0 &&
+      liveInFlight == 0;
 
   @override
   String toString() =>
       'PurchaseSweepReport(${trigger.name}, ${outcome.name}, '
       'source: $source, found: $found, settled: $settled, '
-      'preserved: $preserved, scanError: $scanError)';
+      'preserved: $preserved, liveInFlight: $liveInFlight, '
+      'scanError: $scanError)';
 }
 
 class PurchaseService {
@@ -405,7 +432,17 @@ class PurchaseService {
   ///
   /// 정산 단계(`handleOptimizedPurchase`)는 별개다 — 그쪽은 `onError` 가
   /// 유일한 보고 경로다.
-  Future<Map<String, dynamic>> initiatePurchase(String productId) async {
+  ///
+  /// [onStoreLaunchStart] 는 스토어 결제 플로가 실제로 열리는 순간
+  /// (`InAppPurchaseService.makePurchase` 안의 `buyConsumable` 직전)에
+  /// 동기적으로 불린다. 이 메서드 진입부터 그 지점까지는 중복 방지 검증과
+  /// 상품 조회라는 **비동기 사전 처리**가 있으므로, 호출자가 진입 시점에
+  /// lifecycle 기준점을 잡으면 그 사전 처리 중의 백그라운드 왕복까지
+  /// 결제 시트의 것으로 오인된다 (Sol 5차 재검증 MAJOR).
+  Future<Map<String, dynamic>> initiatePurchase(
+    String productId, {
+    void Function()? onStoreLaunchStart,
+  }) async {
     final currentUser = supabase.auth.currentUser;
     if (currentUser == null) {
       return {
@@ -470,6 +507,7 @@ class PurchaseService {
       final purchaseResult = await inAppPurchaseService.makePurchase(
         productDetails,
         applicationUserName: currentUser.id,
+        onStoreLaunchStart: onStoreLaunchStart,
       );
 
       if (!purchaseResult) {
@@ -1201,14 +1239,18 @@ class PurchaseService {
         outcome: PurchaseSweepOutcome.failed,
         source: source.label,
         scanError: scan.error,
+        liveInFlight: scan.liveInFlight,
       );
     }
     if (scan.isEmpty) {
-      logger.i('ℹ️ 미완료 구매 없음 (${source.label})');
+      logger.i(
+        'ℹ️ 미완료 구매 없음 (${source.label}, 진행 중 ${scan.liveInFlight}건)',
+      );
       return PurchaseSweepReport(
         trigger: trigger,
         outcome: PurchaseSweepOutcome.completed,
         source: source.label,
+        liveInFlight: scan.liveInFlight,
       );
     }
 
@@ -1224,6 +1266,7 @@ class PurchaseService {
         found: scan.purchases.length,
         preserved: scan.purchases.length,
         scanError: scan.error,
+        liveInFlight: scan.liveInFlight,
       );
     }
 
@@ -1237,6 +1280,7 @@ class PurchaseService {
         found: scan.purchases.length,
         preserved: scan.purchases.length,
         scanError: scan.error,
+        liveInFlight: scan.liveInFlight,
       );
     }
 
@@ -1336,6 +1380,7 @@ class PurchaseService {
       settled: settled,
       preserved: preserved,
       scanError: scan.error,
+      liveInFlight: scan.liveInFlight,
     );
   }
 

@@ -402,40 +402,6 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with preloading disabled',
-        (WidgetTester tester) async {
-      await pumpAndDrain(
-        tester,
-        buildTestApp(
-          const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/nopreload.jpg',
-            width: 100,
-            height: 100,
-            enablePreloading: false,
-          ),
-        ),
-      );
-
-      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
-    });
-
-    testWidgets('renders with max concurrent loads set',
-        (WidgetTester tester) async {
-      await pumpAndDrain(
-        tester,
-        buildTestApp(
-          const PicnicCachedNetworkImage(
-            imageUrl: 'https://example.com/concurrent.jpg',
-            width: 100,
-            height: 100,
-            maxConcurrentLoads: 4,
-          ),
-        ),
-      );
-
-      expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
-    });
-
     testWidgets('pumps timer ticks to trigger shimmer animation',
         (WidgetTester tester) async {
       await pumpAndDrain(
