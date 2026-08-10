@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Responsive Splash Design</title>
+  <title>반응형 스플래시 설계</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -29,36 +29,36 @@
 </head>
 <body>
   <main>
-    <h1>Responsive Splash Design</h1>
+    <h1>반응형 스플래시 설계</h1>
 
     <section>
-      <h2>Goal</h2>
-      <p>Eliminate Fold 8 letterboxing, large-screen crop, and native-to-Flutter splash discontinuities by making the splash a layered composition rather than a single portrait poster.</p>
+      <h2>목표</h2>
+      <p>스플래시를 세로형 포스터 한 장이 아닌 레이어 구조로 구성해 Fold 8의 레터박스, 대화면 잘림, 네이티브 화면과 Flutter 화면 사이의 불연속을 제거한다.</p>
     </section>
 
     <section>
-      <h2>Design</h2>
-      <p>Native Android and iOS display a full-window <code>#8B6CF6</code> background plus centered platform-appropriate artwork. On iOS, the launch image uses <code>scaleAspectFit</code> so the transparent key illustration scales with the available phone window instead of remaining at its intrinsic 1x size. The first Flutter frame uses the same background plus that transparent key illustration with <code>BoxFit.contain</code> and bounded maximum dimensions. The existing full-bleed <code>BoxFit.cover</code> poster is not used at startup.</p>
-      <p>Android 12 and later retain the system SplashScreen model: opaque background plus a masked icon. Android 11 and lower use a centered image over the same opaque background. iOS uses a generated launch storyboard with an aspect-fitted image. The Android 12 icon is not used as the Flutter key illustration.</p>
+      <h2>설계</h2>
+      <p>Android와 iOS 네이티브 화면은 창 전체를 채우는 <code>#8B6CF6</code> 배경과 플랫폼에 맞는 중앙 이미지를 표시한다. iOS 시작 이미지는 고유 1x 크기에 머무르지 않고 사용 가능한 휴대폰 창에 맞춰 투명 핵심 일러스트가 확대되도록 <code>scaleAspectFit</code>을 사용한다. Flutter 첫 프레임은 같은 배경 위에 동일한 투명 핵심 일러스트를 표시하며, 최대 크기를 제한한 상태에서 <code>BoxFit.contain</code>을 사용한다. 기존의 화면 전체 <code>BoxFit.cover</code> 포스터는 시작 화면에 사용하지 않는다.</p>
+      <p>Android 12 이상은 불투명 배경과 마스크 안전 아이콘으로 구성된 시스템 SplashScreen 모델을 유지한다. Android 11 이하는 같은 불투명 배경 위에 중앙 이미지를 사용한다. iOS는 비율을 유지해 맞춤 표시하는 이미지가 포함된 생성형 시작 스토리보드를 사용한다. Android 12 아이콘은 Flutter 핵심 일러스트로 사용하지 않는다.</p>
     </section>
 
     <section>
-      <h2>Layout Contract</h2>
+      <h2>레이아웃 계약</h2>
       <ul>
-        <li>The native and Flutter background is opaque <code>#8B6CF6</code>.</li>
-        <li>Flutter centers a transparent key image with <code>BoxFit.contain</code>.</li>
-        <li>The Flutter key image may use the full available window and is bounded to 440 logical pixels wide and 960 logical pixels tall.</li>
-        <li>On a 375x812 iPhone 12 mini window, the key image canvas occupies at least 95% of the viewport in both dimensions. With the existing transparent margins, the visible illustration is approximately 75% of the viewport width, matching the former full-bleed splash scale.</li>
-        <li>Excess viewport area remains the brand background; it is never black, white, or transparent.</li>
-        <li>No global orientation lock; foldables, tablets, and multi-window retain their available dimensions.</li>
-        <li>Preserve <code>assets/splash.webp</code> until the new transparent asset is visually reviewed; add the new asset non-destructively as <code>assets/splash_key.png</code>.</li>
-        <li>Do not replace or redraw native splash assets for the phone-scale correction; update only the iOS content mode and regenerated launch storyboard metadata.</li>
+        <li>네이티브와 Flutter 배경은 불투명한 <code>#8B6CF6</code>이다.</li>
+        <li>Flutter는 투명 핵심 이미지를 중앙에 배치하고 <code>BoxFit.contain</code>으로 표시한다.</li>
+        <li>Flutter 핵심 이미지는 사용 가능한 창 전체를 사용할 수 있으며, 최대 너비 440 논리 픽셀과 최대 높이 960 논리 픽셀로 제한한다.</li>
+        <li>375x812 iPhone 12 mini 창에서 핵심 이미지 캔버스는 가로와 세로 모두 뷰포트의 95% 이상을 차지한다. 기존 투명 여백을 고려하면 실제 일러스트는 뷰포트 너비의 약 75%로 표시되어 이전의 화면 전체 스플래시 크기와 비슷해진다.</li>
+        <li>남는 뷰포트 영역은 브랜드 배경색으로 유지하며 검정, 흰색 또는 투명으로 표시하지 않는다.</li>
+        <li>전역 화면 방향 잠금을 사용하지 않으며 폴더블, 태블릿, 멀티 윈도우는 OS가 제공한 실제 창 크기를 유지한다.</li>
+        <li>새 투명 에셋을 시각적으로 검토할 때까지 <code>assets/splash.webp</code>를 보존하고, 새 에셋은 기존 파일을 파괴하지 않는 방식으로 <code>assets/splash_key.png</code>에 추가한다.</li>
+        <li>휴대폰 크기 보정을 위해 네이티브 스플래시 에셋을 교체하거나 다시 그리지 않는다. iOS 콘텐츠 모드와 다시 생성된 시작 스토리보드 메타데이터만 갱신한다.</li>
       </ul>
     </section>
 
     <section>
-      <h2>Validation</h2>
-      <p>Widget tests cover 375x812 and 393x852 phones plus Fold 8 unfolded portrait and landscape constraints. Every viewport retains <code>BoxFit.contain</code> and no-overflow checks, while the 375x812 case also verifies the restored image-canvas occupancy. Generated iOS launch resources are validated after regenerating <code>flutter_native_splash</code>, followed by a physical iPhone 12 mini launch check.</p>
+      <h2>검증</h2>
+      <p>위젯 테스트는 375x812 및 393x852 휴대폰과 펼친 Fold 8의 세로·가로 제약 조건을 다룬다. 모든 뷰포트에서 <code>BoxFit.contain</code>과 오버플로 없음 검증을 유지하고, 375x812에서는 복원된 이미지 캔버스 점유율도 검증한다. <code>flutter_native_splash</code>를 다시 생성한 뒤 iOS 시작 리소스를 검증하고, 마지막으로 실제 iPhone 12 mini에서 실행 상태를 확인한다.</p>
     </section>
   </main>
 </body>
