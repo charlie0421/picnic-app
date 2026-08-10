@@ -9,6 +9,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/common/image_shimmer_loading.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image_url_resolver.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -294,11 +295,6 @@ class _PicnicCachedNetworkImageState
     return delay > _maxBackoffDelay ? _maxBackoffDelay : delay;
   }
 
-  int _roundPixels(double value, double multiplier) {
-    final computed = (value * multiplier).round();
-    return computed > 0 ? computed : 1;
-  }
-
   /// [KNOWN ISSUE — 별도 후속 작업, 이 함수는 아직 고치지 않았다]
   ///
   /// 여기서 계산한 값은 `CachedNetworkImage.memCacheWidth/Height` 로 흘러
@@ -313,8 +309,8 @@ class _PicnicCachedNetworkImageState
   /// 그런데 이 함수는 `explicit`(호출부가 넘긴 memCacheWidth/Height)이든
   /// `fallback`(위젯의 논리 width/height)이든 논리 px 기준값에 1.0 또는 0.5
   /// 배율만 곱한다 — DPR 을 전혀 반영하지 않는다. 반면 CDN 다운로드 URL 의
-  /// w/h(`_getTransformedUrl`)는 `_getResolutionMultiplier`(DPR 기반, 최대
-  /// 2.5~4.0배)로 정확히 물리 픽셀 목표를 계산한다. **두 경로의 단위가
+  /// w/h([PicnicCachedNetworkImageUrlResolver])는 `_getResolutionMultiplier`
+  /// (DPR 기반, 최대 2.5~4.0배)로 정확히 물리 픽셀 목표를 계산한다. **두 경로의 단위가
   /// 불일치한다:** DPR 2.5~4 기기에서 물리 픽셀 기준 100~160px 이미지를
   /// 내려받고도 여기서는 40px(예: width=40dp) 로만 디코드해 캐시하므로,
   /// 렌더 시 화면이 요구하는 물리 픽셀로 다시 업스케일되어 흐릿해지고
@@ -886,121 +882,49 @@ class _PicnicCachedNetworkImageState
     BuildContext context,
     double resolutionMultiplier,
   ) {
-    // 변환이 적용되지 않는(=CDN 이 아닌) 절대 URL 은 _getTransformedUrl 이
-    // resolutionMultiplier/quality 인자와 무관하게 항상 원본 문자열을 그대로
-    // 돌려준다. medium/high complexity 에서 같은 imageUrl 을 인자만 바꿔
-    // 2~3번 호출해 progressive 단계를 만들면, 이런 URL 에서는 그 단계들이
-    // 전부 동일한 URL 이 된다. 그런데 캐시 키는 _cacheKeyFor 에서
-    // index/isLowQuality 로 단계별로 다르게 만들어지므로, 같은 바이트를
-    // 서로 다른 캐시 키로 2~3 회 받는다 — #149 에서 고친 f=jpg/f=webp 이중
-    // 다운로드와 정확히 같은 종류의 결함이 CDN 밖에서 재발한 것이다.
-    // 변환이 적용되지 않는 URL 은 단계를 나눠도 얻는 게 없으므로(모든 단계가
-    // 같은 원본 이미지를 요청) 단일 단계로 축약한다.
-    if (!_isTransformableUrl(widget.imageUrl)) {
-      return [
-        _getTransformedUrl(
-          widget.imageUrl,
-          resolutionMultiplier,
-          widget.maxQualityOverride ?? 85,
-        ),
-      ];
-    }
-
     final imageSize = _estimateImageComplexity();
-
-    switch (imageSize) {
-      case ImageComplexity.low:
+    final variants = switch (imageSize) {
+      ImageComplexity.low => [
         // C3: 리스트가 maxQualityOverride 를 넘기면 그 값을, 아니면 기존 85.
-        return [
-          _getTransformedUrl(
-            widget.imageUrl,
-            resolutionMultiplier,
-            widget.maxQualityOverride ?? 85,
-          ),
-        ];
-      case ImageComplexity.medium:
-        return [
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.6, 40),
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80),
-        ];
-      case ImageComplexity.high:
-        return [
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.3, 25),
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.6, 50),
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80),
-        ];
-    }
-  }
+        PicnicCachedNetworkImageUrlVariant(
+          resolutionMultiplier: resolutionMultiplier,
+          quality: widget.maxQualityOverride ?? 85,
+        ),
+      ],
+      ImageComplexity.medium => [
+        PicnicCachedNetworkImageUrlVariant(
+          resolutionMultiplier: resolutionMultiplier * 0.6,
+          quality: 40,
+        ),
+        PicnicCachedNetworkImageUrlVariant(
+          resolutionMultiplier: resolutionMultiplier,
+          quality: 80,
+        ),
+      ],
+      ImageComplexity.high => [
+        PicnicCachedNetworkImageUrlVariant(
+          resolutionMultiplier: resolutionMultiplier * 0.3,
+          quality: 25,
+        ),
+        PicnicCachedNetworkImageUrlVariant(
+          resolutionMultiplier: resolutionMultiplier * 0.6,
+          quality: 50,
+        ),
+        PicnicCachedNetworkImageUrlVariant(
+          resolutionMultiplier: resolutionMultiplier,
+          quality: 80,
+        ),
+      ],
+    };
 
-  /// [key] 가 절대 URL 인지, 그렇다면 파싱된 [Uri] 가 무엇인지 판정한다.
-  ///
-  /// _getTransformedUrl 과 _isTransformableUrl 이 예전에는 각자
-  /// `key.startsWith('http://') || key.startsWith('https://')` 문자열 검사를
-  /// 중복해서 갖고 있었다 — 두 판정이 어긋날 수 있는 구조였고, 실제로도
-  /// 허점이 있었다:
-  ///  - `HTTPS://cdn.picnic.fan/x`(대문자 스킴) 은 절대 URL 인데 상대 경로로
-  ///    오인돼 Environment.cdnUrl 뒤에 그대로 이어붙어 URL 이 깨졌다.
-  ///  - `//cdn.picnic.fan/x`(스킴 없는 network-path reference, protocol-relative
-  ///    URL) 도 절대 URL 의 authority(호스트)를 갖는데 마찬가지로 상대 경로로
-  ///    오인됐다.
-  /// 이제 문자열 접두어가 아니라 `Uri.tryParse` 로 실제 파싱해 스킴/authority
-  /// 유무를 직접 본다. 이 메서드가 절대/상대 판정의 유일한 근거이고,
-  /// _getTransformedUrl 과 _isTransformableUrl 모두 이것만 호출한다.
-  ///
-  /// **`//host/path` 정책**: 이 코드베이스는 이미 avatar_url_resolver.dart 의
-  /// resolveAvatarImageUrl 에서 `//` 로 시작하는 protocol-relative URL 을
-  /// `https:` 로 승격해 처리하는 관례가 있다. 여기서도 같은 관례를 따라
-  /// **https 로 승격해 절대 URL로 취급한다.** 반대로(상대 경로로 취급해
-  /// Environment.cdnUrl 뒤에 이어붙이면) 원래 가리키던 호스트를 완전히 잃고
-  /// 엉뚱한 CDN 경로로 조립되는데, 이게 더 나쁘다 — 우리 앱은 http 로 이미지를
-  /// 받을 일이 없으므로 https 승격이 항상 안전한 선택이다.
-  ///
-  /// **빈 문자열·공백·이상한 문자** 입력은 `Uri.tryParse` 로 안전하게 처리한다
-  /// (Uri.parse 는 이런 입력에도 대개 성공하지만, 퍼센트 인코딩이 깨진 입력
-  /// 등에서는 FormatException 을 던질 수 있다 — tryParse 는 그 경우 null 을
-  /// 반환할 뿐 죽지 않는다). 파싱 실패거나 스킴+authority 를 모두 갖추지
-  /// 못하면 상대 경로로 취급한다 — 예전에도 그런 입력은 'http'로 시작하지
-  /// 않으므로 상대 경로 취급이었다. 동작을 바꾸지 않는다.
-  ///
-  /// **스킴은 http/https 로만 제한한다.** `hasScheme && hasAuthority` 만으로
-  /// 판정하면 `ftp://`, `content://`, `asset://` 처럼 authority 를 갖는 다른
-  /// 스킴도 절대 네트워크 URL 로 오분류된다 — 예전(문자열 접두어 검사)에는
-  /// 이런 입력이 전부 'http'로 시작하지 않아 상대 경로로 취급됐고(즉
-  /// Environment.cdnUrl 뒤에 이어붙어 w/h/q 가 붙는 CDN 조립 경로를 탔다),
-  /// 이 위젯은 애초에 http(s) 네트워크 이미지만 다루는 CachedNetworkImage 라
-  /// 다른 스킴을 별도로 처리할 이유가 없다. scheme 을 http/https 로 제한해
-  /// 그 동작을 그대로 유지한다. `Uri.scheme` 은 이미 소문자로 정규화되므로
-  /// 대문자 변형(`FTP://`, `CONTENT://`)도 여기서 함께 걸러진다.
-  ({bool isAbsolute, Uri? uri}) _classifyImageKey(String normalizedKey) {
-    if (normalizedKey.isEmpty) return (isAbsolute: false, uri: null);
-
-    final directUri = Uri.tryParse(normalizedKey);
-    if (directUri != null &&
-        directUri.hasAuthority &&
-        (directUri.scheme == 'http' || directUri.scheme == 'https')) {
-      return (isAbsolute: true, uri: directUri);
-    }
-
-    if (normalizedKey.startsWith('//')) {
-      final promoted = Uri.tryParse('https:$normalizedKey');
-      if (promoted != null && promoted.hasAuthority) {
-        return (isAbsolute: true, uri: promoted);
-      }
-    }
-
-    return (isAbsolute: false, uri: null);
-  }
-
-  /// [key] 가 _getTransformedUrl 에서 실제로 CDN w/h/q 변환을 받는지 판정한다.
-  ///
-  /// 상대 경로는 항상 Environment.cdnUrl 로 조립되므로 변환 대상이고, 절대
-  /// URL 은 호스트가 CDN 인 경우에만 변환 대상이다. 이 값이 false 면
-  /// _getTransformedUrl 은 인자와 무관하게 원본을 그대로 돌려주므로,
-  /// _getTransformedUrls 가 progressive 단계를 나눌 이유가 없다.
-  bool _isTransformableUrl(String key) {
-    final classified = _classifyImageKey(key.trim());
-    if (!classified.isAbsolute) return true;
-    return _isCdnUrl(classified.uri!);
+    return PicnicCachedNetworkImageUrlResolver(
+      cdnUrl: Environment.isInitialized ? Environment.cdnUrl : null,
+    ).resolve(
+      imageUrl: widget.imageUrl,
+      width: widget.width,
+      height: widget.height,
+      variants: variants,
+    );
   }
 
   /// 이미지 복잡도를 추정합니다
@@ -1014,106 +938,6 @@ class _PicnicCachedNetworkImageState
     if (pixelCount < 50000) return ImageComplexity.low;
     if (pixelCount < 200000) return ImageComplexity.medium;
     return ImageComplexity.high;
-  }
-
-  /// [uri] 가 CDN(Environment.cdnUrl 파생) 과 같은 origin 인지 판정한다.
-  ///
-  /// scheme + host + port 를 모두 비교한다 — host 만 비교하면
-  /// `http://cdn.picnic.fan`(scheme 다름)이나 `cdn.picnic.fan:8443`(port
-  /// 다름)처럼 물리적으로 별개인 origin 도 CDN 으로 오판정된다. 실측된
-  /// 리사이저 계약은 **HTTPS 기본 포트 origin** 에 대해서만 확인됐다(2026-08-07)
-  /// — 그 범위를 벗어난 origin 에 w/h/q 를 적용하면 서명 URL
-  /// (`?X-Amz-Signature=`, `?token=` 등)의 서명이 깨지거나, CDN 이 아닌 다른
-  /// 서버가 우리 파라미터를 오해석할 수 있다.
-  ///
-  /// `Uri.port` 는 scheme 이 http/https 처럼 알려진 스킴이면 명시 포트가 없어도
-  /// 기본 포트(https=443, http=80)를 돌려준다 — 즉 `https://a.b` 와
-  /// `https://a.b:443` 은 별도 정규화 없이 port 비교만으로 이미 같게 취급된다
-  /// (dart:core Uri 동작 확인됨).
-  ///
-  /// host 는 trailing dot(FQDN 표기, `cdn.picnic.fan.`)을 제거하고 비교한다.
-  /// DNS 상 같은 호스트를 문자열이 다르다는 이유로 CDN 이 아니라고 판정하면
-  /// 얻는 안전 이득 없이 원본 대용량 이미지를 그대로 받게 된다. 반대 방향
-  /// 오탐(= CDN 이 아닌 host 가 trailing dot 때문에 CDN 으로 오판정)은 없다 —
-  /// dot 을 뗀 뒤에도 host 문자열 자체가 같아야 매치되기 때문이다.
-  bool _isCdnUrl(Uri uri) {
-    if (!Environment.isInitialized) return false;
-    final cdnUri = Uri.parse(Environment.cdnUrl);
-    return uri.scheme.toLowerCase() == cdnUri.scheme.toLowerCase() &&
-        _normalizeHost(uri.host) == _normalizeHost(cdnUri.host) &&
-        uri.port == cdnUri.port;
-  }
-
-  String _normalizeHost(String host) {
-    final lower = host.toLowerCase();
-    return lower.endsWith('.') ? lower.substring(0, lower.length - 1) : lower;
-  }
-
-  /// CDN(cdn.picnic.fan, CloudFront + 커스텀 리사이저) 변환 URL을 만든다.
-  ///
-  /// 서버가 실제로 쓰는 파라미터는 w/h/q 뿐이다(2026-08-07 프로덕션 실측).
-  /// dpr/fm/f/fl/auto/fit 은 캐시 키(`_w{w}_h{h}_f{format}_q{q}`)에 반영되지
-  /// 않거나 응답에 아무 영향을 주지 않는다 — 특히 f/fm 은 WebPSupportChecker의
-  /// Phase 2 비동기 초기화(runApp 이후 완료)에 좌우되어, 초기 프레임엔 f=jpg로
-  /// 이후 재빌드에선 f=webp로 서로 다른 URL(=서로 다른 캐시 키)을 만들었고,
-  /// 서버는 둘 다 같은 바이트를 주므로 동일 이미지를 두 번 받아 두 번 저장하는
-  /// 결함이 있었다. w/h/q만 보내 이 결함을 없앤다.
-  ///
-  /// 이 변환은 **CDN 호스트로 스코프된다.** 상대 경로(Environment.cdnUrl 로
-  /// 조립됨)와 호스트가 CDN 인 절대 URL 에만 w/h/q 를 적용한다. 그 외 절대
-  /// URL(스플래시 서버가 내려주는 외부 이미지, YouTube 썸네일, 서명 URL 등)은
-  /// 원본을 그대로 반환한다 — 쿼리를 보존하고 아무 파라미터도 추가하지 않는다.
-  /// 예전에는 절대 URL이면 호스트를 가리지 않고 원래 쿼리를 통째로 w/h/q 로
-  /// 갈아끼웠는데, 이는 CDN 도입 이전부터 있던 선재 결함이었다 — 서명 URL
-  /// (`?X-Amz-Signature=`, `?token=` 등)이 들어오면 서명이 깨지고, 실제 외부
-  /// CDN(Imgix/Cloudinary 등)이면 fit 등 원래 파라미터가 사라져 렌더링이
-  /// 달라진다.
-  String _getTransformedUrl(
-    String key,
-    double resolutionMultiplier,
-    int quality,
-  ) {
-    final normalizedKey = key.trim();
-    final classified = _classifyImageKey(normalizedKey);
-
-    if (classified.isAbsolute) {
-      final uri = classified.uri!;
-      if (!_isCdnUrl(uri)) {
-        // 원본을 그대로 반환한다 — 단, `//host/path`(스킴 없는 protocol-relative
-        // URL)는 예외다. 원본 문자열 자체는 스킴이 없어 그대로 돌려주면 fetch
-        // 불가능한 URL이 되므로, https 로 승격된 형태를 돌려줘야 실제로 유효한
-        // URL이 된다(_classifyImageKey 의 `//host/path` 정책 참고). 그 외의
-        // 모든 절대 URL은 대소문자·쿼리까지 완전히 그대로 보존된다.
-        return normalizedKey.startsWith('//') ? uri.toString() : normalizedKey;
-      }
-      return _withCdnQuery(uri, resolutionMultiplier, quality).toString();
-    }
-
-    final uri = Uri.parse(
-      '${Environment.cdnUrl}/${normalizedKey.startsWith('/') ? normalizedKey.substring(1) : normalizedKey}',
-    );
-    return _withCdnQuery(uri, resolutionMultiplier, quality).toString();
-  }
-
-  Uri _withCdnQuery(Uri uri, double resolutionMultiplier, int quality) {
-    final Map<String, String> queryParameters = {'q': quality.toString()};
-
-    final widgetWidth = widget.width;
-    if (widgetWidth != null && widgetWidth.isFinite) {
-      queryParameters['w'] = _roundPixels(
-        widgetWidth,
-        resolutionMultiplier,
-      ).toString();
-    }
-    final widgetHeight = widget.height;
-    if (widgetHeight != null && widgetHeight.isFinite) {
-      queryParameters['h'] = _roundPixels(
-        widgetHeight,
-        resolutionMultiplier,
-      ).toString();
-    }
-
-    return uri.replace(queryParameters: queryParameters);
   }
 
   /// 진보적 이미지 로딩 스택 구성
