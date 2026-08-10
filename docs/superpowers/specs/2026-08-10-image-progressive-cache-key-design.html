@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>이미지 Progressive·Cache Key 단순화 설계</title>
+  <style>body{max-width:860px;margin:48px auto;padding:0 24px;font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033}h1,h2{line-height:1.25}code{background:#f1f4f8;border-radius:4px;padding:.15rem .35rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}li{margin:.45rem 0}.lead{color:#56627a}</style>
+</head>
+<body>
+  <h1>이미지 Progressive·Cache Key 단순화 설계</h1>
+  <p class="lead">PicnicCachedNetworkImage 2단계 · 2026-08-10</p>
+  <h2>목표</h2>
+  <p>다단계 progressive 이미지 요청을 제거하고, 각 이미지의 cache key를 최종 URL과 동일하게 만들어 URL·캐시 식별자·렌더링 순서를 하나의 값으로 정렬한다.</p>
+  <h2>범위</h2>
+  <ul>
+    <li>위젯이 low/medium/high에 따라 여러 URL을 생성하던 정책을 최종 URL 하나로 축소한다.</li>
+    <li>cache key에서 reload token, variant index, low-quality 접미사 의존을 제거하고 URL 자체를 사용한다.</li>
+    <li>URL 변경, 외부 URL, CDN URL, 동시 표시, 캐시 재사용을 회귀 테스트로 고정한다.</li>
+  </ul>
+  <h2>대안과 결정</h2>
+  <ol>
+    <li>기존 progressive 구조를 유지하며 key만 단순화: URL 배열과 인덱스 결합 위험이 남는다.</li>
+    <li><strong>단일 최종 URL + URL 동일 cache key(선택)</strong>: 중복 다운로드와 인덱스 기반 식별자를 없애고 테스트 가능성을 회복한다.</li>
+    <li>전역 이미지 캐시나 호출부까지 동시에 수정: 롤백 범위가 넓어져 이번 단계에서는 제외한다.</li>
+  </ol>
+  <h2>불변 조건</h2>
+  <ul>
+    <li>공개 생성자와 호출부 API는 바꾸지 않는다.</li>
+    <li>URL resolver의 CDN·외부 URL 계약, timeout·retry·URL 변경 lifecycle은 유지한다.</li>
+    <li><code>memCacheWidth</code>/DPR, 전역 <code>ImageCache</code>, lazy/priority 정책은 변경하지 않는다.</li>
+  </ul>
+  <h2>오류 처리와 검증</h2>
+  <p>외부 URL과 초기화되지 않은 Environment 경로는 원문 URL을 유지한다. 구현 전 새 단일 URL/cache key 계약 테스트를 RED로 확인하고, 이후 focused 회귀·전체 <code>picnic_lib</code> 테스트·정적 분석을 실행한다. 전체 스위트의 기존 실패는 변경 범위와 분리해 보고한다.</p>
+</body>
+</html>
