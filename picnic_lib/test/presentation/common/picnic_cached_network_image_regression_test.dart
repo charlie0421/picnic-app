@@ -709,14 +709,108 @@ void main() {
     });
   });
 
+  group('단일 최종 CDN URL/cache key 계약', () {
+    testWidgets('medium 이미지는 최종 URL 하나만 요청한다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/single-medium.jpg',
+            width: 300,
+            height: 300,
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+
+      expect(
+        loadedImages(tester),
+        hasLength(1),
+        reason: '300x300 medium 이미지는 progressive 변형이 아닌 '
+            '최종 URL 하나만 요청해야 한다',
+      );
+    });
+
+    testWidgets('high 이미지는 최종 URL 하나만 요청한다', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/single-high.jpg',
+            width: 500,
+            height: 500,
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+
+      expect(
+        loadedImages(tester),
+        hasLength(1),
+        reason: '500x500 high 이미지는 progressive 변형이 아닌 '
+            '최종 URL 하나만 요청해야 한다',
+      );
+    });
+
+    testWidgets('cache key는 resolver가 만든 최종 URL과 정확히 같다',
+        (tester) async {
+      const resolvedUrl =
+          'https://test-cdn.example.com/final-key.jpg?q=80';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/final-key.jpg',
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+
+      final finalImage = loadedImages(tester).last;
+      expect(finalImage.imageUrl, resolvedUrl);
+      expect(finalImage.cacheKey, resolvedUrl);
+    });
+
+    testWidgets('imageUrl 변경 후 이전 cache key를 재사용하지 않는다',
+        (tester) async {
+      const oldResolvedUrl =
+          'https://test-cdn.example.com/cache-old.jpg?q=80';
+      const newResolvedUrl =
+          'https://test-cdn.example.com/cache-new.jpg?q=80';
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/cache-old.jpg',
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+      final oldCacheKey = loadedImages(tester).last.cacheKey;
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PicnicCachedNetworkImage(
+            imageUrl: 'https://test-cdn.example.com/cache-new.jpg',
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+          ),
+        ),
+      );
+
+      final image = loadedImages(tester).last;
+      expect(image.imageUrl, newResolvedUrl);
+      expect(image.cacheKey, newResolvedUrl);
+      expect(image.cacheKey, isNot(oldCacheKey));
+      expect(image.cacheKey, isNot(oldResolvedUrl));
+    });
+  });
+
   group('외부 URL 은 progressive 단계를 만들지 않는다 (중복 다운로드 방지)', () {
     // 배경: 변환이 적용되지 않는(=CDN 이 아닌) 절대 URL 은 _getTransformedUrl 이
     // resolutionMultiplier/quality 인자와 무관하게 항상 원본 문자열을 그대로
-    // 돌려준다. 그런데 _getTransformedUrls 는 medium/high complexity 에서
-    // 같은 imageUrl 을 인자만 바꿔 2~3번 호출해 progressive 단계를 만든다 —
-    // 외부 URL 에서는 이 단계들이 전부 동일한 URL 이 된다. 캐시 키는
-    // _cacheKeyFor 에서 index/isLowQuality 로 단계별로 다르게 만들어지므로,
-    // 결과적으로 같은 바이트를 서로 다른 캐시 키로 2~3 회 받는다 — #149 에서
+    // 돌려준다. 기존 _getTransformedUrls 는 medium/high complexity 에서
+    // 같은 imageUrl 을 인자만 바꿔 2~3번 호출해 progressive 단계를 만들었다 —
+    // 외부 URL 에서는 이 단계들이 전부 동일한 URL 이 되었다. 캐시 키는
+    // _cacheKeyFor 에서 index/isLowQuality 로 단계별로 다르게 만들어졌으므로,
+    // 결과적으로 같은 바이트를 서로 다른 캐시 키로 2~3 회 받았다 — #149 에서
     // 고친 f=jpg/f=webp 이중 다운로드와 정확히 같은 종류의 결함이 CDN 밖에서
     // 재발한 것이다.
     //
@@ -786,9 +880,9 @@ void main() {
     // 경로"의 조합**이다 — Riverpod/ProviderScope/PicnicCachedNetworkImage
     // 의 구조와는 무관하다.
     //
-    // 이 위젯의 프로덕션 코드는 `_cacheKeyFor(url)` 로 항상 URL 과 다른
+    // 이 위젯의 기존 프로덕션 코드는 `_cacheKeyFor(url)` 로 항상 URL 과 다른
     // cacheKey(재시도 토큰 `_reloadToken`, progressive 단계의 `_index`/`_lq`
-    // 접미어 포함)를 만든다 — 그래서 이 블로커는 테스트 하네스 설정을
+    // 접미어 포함)를 만들었다 — 그래서 이 블로커는 테스트 하네스 설정을
     // 바꿔서 피할 수 있는 게 아니라, cacheKey 를 실제로 쓰는 프로덕션 경로
     // 자체에 걸린다. flutter_cache_manager 3.4.1 의 ImageCacheManager 리사이즈
     // 오케스트레이션이 커스텀 key 를 이 테스트 하네스가 재현 가능한 방식으로

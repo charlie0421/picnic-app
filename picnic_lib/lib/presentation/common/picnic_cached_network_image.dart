@@ -43,9 +43,9 @@ enum ImagePriority {
 ///
 /// Flutter의 PaintingBinding.imageCache 로 대체할 수 없다 — 그 캐시는
 /// ImageProvider(오브젝트) 를 키로 쓰고, CachedNetworkImageProvider 의 키에는
-/// cacheKey(=_cacheKeyFor, _reloadToken/index/isLowQuality 를 섞어 만듦)까지
-/// 들어간다. 이 Set 은 initState 시점(_cachedUrls 계산 전, 즉 cacheKey 를 아직
-/// 모르는 시점)에 원본 imageUrl 만으로 "이 세션에서 한 번은 성공했다"를 묻는
+/// 해상된 최종 URL과 같은 cacheKey가 들어간다. 이 Set 은 initState
+/// 시점(_cachedUrls 계산 전, 즉 해상 URL을 아직 모르는 시점)에 원본
+/// imageUrl 만으로 "이 세션에서 한 번은 성공했다"를 묻는
 /// 용도라 프레임워크 캐시와 키 공간이 다르다 — 대체 시 매치 실패로 조용히
 /// 스킵 로직이 죽는 회귀를 안고 가게 된다. 대신 세션 내 무한 누적만 막는다.
 ///
@@ -346,20 +346,7 @@ class _PicnicCachedNetworkImageState
     return math.max(1, (400 * multiplier).round());
   }
 
-  String _cacheKeyFor(String url, {int? index, bool isLowQuality = false}) {
-    final buffer = StringBuffer(url)
-      ..write('_')
-      ..write(_reloadToken);
-    if (index != null) {
-      buffer
-        ..write('_')
-        ..write(index);
-    }
-    if (isLowQuality) {
-      buffer.write('_lq');
-    }
-    return buffer.toString();
-  }
+  String _cacheKeyFor(String url) => url;
 
   @override
   void initState() {
@@ -643,7 +630,7 @@ class _PicnicCachedNetworkImageState
         // 이전 URL 로 계산된 변환 URL 캐시를 반드시 버려야 한다.
         // (버리지 않으면 재활용된 리스트 셀이 이전 후보 이미지를 계속 보여준다.)
         _cachedUrls = null;
-        // cacheKey 에 섞이는 재시도 토큰도 새 URL 기준으로 초기화한다.
+        // CachedNetworkImage의 ValueKey에 쓰는 재시도 토큰도 초기화한다.
         _reloadToken = 0;
         _retryCount = 0;
         _loading = true;
@@ -742,13 +729,7 @@ class _PicnicCachedNetworkImageState
                 child: buildImageLoadingOverlay(),
               ),
 
-            // 진보적 이미지 로딩 구현
-            if (urls.length > 1 && !_hasError)
-              _buildProgressiveImageStack(urls, imageWidth, imageHeight),
-
-            // 단일 이미지 또는 최종 이미지
-            if (urls.length == 1 || _hasError)
-              _buildCachedNetworkImage(primaryUrl, imageWidth, imageHeight, 0),
+            _buildCachedNetworkImage(primaryUrl, imageWidth, imageHeight),
           ],
         ),
       ),
@@ -882,39 +863,10 @@ class _PicnicCachedNetworkImageState
     BuildContext context,
     double resolutionMultiplier,
   ) {
-    final imageSize = _estimateImageComplexity();
-    final variants = switch (imageSize) {
-      ImageComplexity.low => [
-        // C3: 리스트가 maxQualityOverride 를 넘기면 그 값을, 아니면 기존 85.
-        PicnicCachedNetworkImageUrlVariant(
-          resolutionMultiplier: resolutionMultiplier,
-          quality: widget.maxQualityOverride ?? 85,
-        ),
-      ],
-      ImageComplexity.medium => [
-        PicnicCachedNetworkImageUrlVariant(
-          resolutionMultiplier: resolutionMultiplier * 0.6,
-          quality: 40,
-        ),
-        PicnicCachedNetworkImageUrlVariant(
-          resolutionMultiplier: resolutionMultiplier,
-          quality: 80,
-        ),
-      ],
-      ImageComplexity.high => [
-        PicnicCachedNetworkImageUrlVariant(
-          resolutionMultiplier: resolutionMultiplier * 0.3,
-          quality: 25,
-        ),
-        PicnicCachedNetworkImageUrlVariant(
-          resolutionMultiplier: resolutionMultiplier * 0.6,
-          quality: 50,
-        ),
-        PicnicCachedNetworkImageUrlVariant(
-          resolutionMultiplier: resolutionMultiplier,
-          quality: 80,
-        ),
-      ],
+    final finalQuality = switch (_estimateImageComplexity()) {
+      // C3: 리스트가 maxQualityOverride 를 넘기면 그 값을, 아니면 기존 85.
+      ImageComplexity.low => widget.maxQualityOverride ?? 85,
+      ImageComplexity.medium || ImageComplexity.high => 80,
     };
 
     return PicnicCachedNetworkImageUrlResolver(
@@ -923,7 +875,12 @@ class _PicnicCachedNetworkImageState
       imageUrl: widget.imageUrl,
       width: widget.width,
       height: widget.height,
-      variants: variants,
+      variants: [
+        PicnicCachedNetworkImageUrlVariant(
+          resolutionMultiplier: resolutionMultiplier,
+          quality: finalQuality,
+        ),
+      ],
     );
   }
 
@@ -940,110 +897,10 @@ class _PicnicCachedNetworkImageState
     return ImageComplexity.high;
   }
 
-  /// 진보적 이미지 로딩 스택 구성
-  Widget _buildProgressiveImageStack(
-    List<String> urls,
-    double? width,
-    double? height,
-  ) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Stack(
-        fit: StackFit.expand,
-        children: urls.asMap().entries.map((entry) {
-          final index = entry.key;
-          final url = entry.value;
-          final isLowQuality = index < urls.length - 1;
-
-          return _buildProgressiveImage(
-            url,
-            width,
-            height,
-            index,
-            isLowQuality: isLowQuality,
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  /// 진보적 로딩을 위한 개별 이미지 빌더
-  Widget _buildProgressiveImage(
-    String url,
-    double? width,
-    double? height,
-    int index, {
-    required bool isLowQuality,
-  }) {
-    return CachedNetworkImage(
-      imageUrl: url,
-      width: width,
-      height: height,
-      fit: widget.fit,
-      cacheManager: null,
-      cacheKey: _cacheKeyFor(url, index: index, isLowQuality: isLowQuality),
-      memCacheWidth: _computeCacheDimension(
-        widget.memCacheWidth,
-        width,
-        isLowQuality ? 0.5 : 1.0,
-      ),
-      memCacheHeight: _computeCacheDimension(
-        widget.memCacheHeight,
-        height,
-        isLowQuality ? 0.5 : 1.0,
-      ),
-      maxWidthDiskCache: isLowQuality ? 1000 : 2000,
-      maxHeightDiskCache: isLowQuality ? 1000 : 2000,
-      fadeInDuration: isLowQuality
-          ? const Duration(milliseconds: 100)
-          : const Duration(milliseconds: 300),
-      fadeOutDuration: isLowQuality
-          ? const Duration(milliseconds: 200)
-          : const Duration(milliseconds: 100),
-      placeholder: (context, url) {
-        if (!widget.showLoadingOverlay) {
-          return const SizedBox.shrink();
-        }
-        return index == 0
-            ? buildImageLoadingOverlay()
-            : const SizedBox.shrink();
-      },
-      errorWidget: (context, url, error) {
-        if (!isLowQuality) {
-          return _handleImageError(url, error, width, height);
-        }
-        return const SizedBox.shrink();
-      },
-      imageBuilder: (context, imageProvider) {
-        if (!isLowQuality) {
-          _onImageLoadSuccess(url);
-        }
-
-        final scrollAwareImageProvider = ScrollAwareImageProvider(
-          context: _scrollAwareContext,
-          imageProvider: imageProvider,
-        );
-
-        return AnimatedOpacity(
-          duration: Duration(milliseconds: isLowQuality ? 100 : 300),
-          opacity: 1.0,
-          child: Image(
-            image: scrollAwareImageProvider,
-            fit: widget.fit,
-            width: width,
-            height: height,
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildCachedNetworkImage(
     String url,
     double? width,
     double? height,
-    int index,
   ) {
     try {
       return StatefulBuilder(
