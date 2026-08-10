@@ -63,3 +63,6 @@ __pycache__/
 *.pyc
 supabase/.temp/**
 supabase/.branches/**
+
+# Orca 워커 중간 산출물 (커밋 대상 아님)
+.orca-notes/

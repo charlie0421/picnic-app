@@ -117,6 +117,10 @@ class ShortformInternalPlatform extends AdPlatform {
           pageBuilder: (_, _, _) => AdShortformFullscreenPage(
             videoUrl: _videoUrl ?? '',
             ctaUrl: _ctaUrl,
+            // ad_request 를 보낸 구좌의 GA4 컨텍스트를 그대로 넘겨,
+            // ad_impression / ad_click / earn_virtual_currency 가 같은
+            // 카테고리·재화로 기록되게 한다.
+            ga4: ga4AdContext,
             onViewComplete: _callView,
             onMore: () async {
               await _callMore();

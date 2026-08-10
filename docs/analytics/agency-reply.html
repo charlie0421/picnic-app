@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GA4 이벤트 택소노미 구현 회신 — Picnic App</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+    line-height: 1.75; max-width: 980px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem;
+    color: #1a1a1a; background: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { color: #e6e6e6; background: #16181c; }
+    th { background: #22262c; }
+    td, th { border-color: #3a3f47; }
+    code { background: #262b32; color: #e6e6e6; }
+    .box { background: #1c2026; border-color: #3a3f47; }
+    .ask { background: #1a2740; border-color: #3d5a8a; }
+    .note { background: #1c2026; border-color: #3a3f47; }
+    .muted, .sub { color: #9aa3ad; }
+    hr { border-color: #3a3f47; }
+  }
+  h1 { font-size: 1.75rem; margin-bottom: .35rem; letter-spacing: -.02em; }
+  h2 { font-size: 1.25rem; margin-top: 2.8rem; padding-bottom: .35rem; border-bottom: 2px solid currentColor; }
+  h3 { font-size: 1.02rem; margin-top: 2rem; }
+  .sub { color: #6b7280; margin-top: 0; font-size: .93rem; }
+  .muted { color: #6b7280; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .9rem; }
+  th, td { border: 1px solid #d7dbe0; padding: .5rem .65rem; text-align: left; vertical-align: top; }
+  th { background: #f3f5f7; font-weight: 600; }
+  td.n, th.n { text-align: center; white-space: nowrap; width: 2.6rem; }
+  code { background: #f0f2f5; padding: .12em .38em; border-radius: 3px; font-size: .89em;
+         font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .box { background: #f6f8fa; border: 1px solid #d7dbe0; border-left-width: 4px;
+         border-radius: 4px; padding: .9rem 1.1rem; margin: 1.1rem 0; }
+  .ask { background: #eef4ff; border-color: #b6cdf2; border-left-color: #3b6fc4; }
+  .note { background: #f6f8fa; border-color: #d7dbe0; border-left-color: #8d949c; }
+  .scroll { overflow-x: auto; }
+  ul, ol { padding-left: 1.35rem; }
+  li { margin: .35rem 0; }
+  hr { border: none; border-top: 1px solid #d7dbe0; margin: 2.5rem 0; }
+  .del { text-decoration: line-through; opacity: .65; }
+  .q { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>GA4 이벤트 택소노미 구현 회신</h1>
+<p class="sub">
+  Picnic App (모바일 앱, Flutter) · 2026-08-07<br>
+  대상 문서: 이벤트 택소노미 스프레드시트 (<code>1JfC-wGcm…B6p8</code>)
+</p>
+
+<h2>개요</h2>
+
+<p>전달해 주신 택소노미 기준으로 앱 구현을 완료했습니다. 정의된 10개 이벤트 중 <strong>9개</strong>와
+사용자 속성 3종을 적용했습니다.</p>
+
+<p>구현 과정에서 <strong>문서의 정의와 실제 앱 상태가 다른 지점 13건</strong>을 확인했습니다.
+그대로 적용하면 수집 데이터가 부정확해지는 항목들이라, 아래와 같이 처리하고 회신드립니다.</p>
+
+<div class="box ask">
+<p class="q">회신이 필요한 사항 3건 (A절)</p>
+<ol style="margin:.4rem 0 0">
+<li><code>click_attendance</code> 이벤트 제외 — 해당 기능이 앱에서 폐지되어 발생 자체가 불가합니다</li>
+<li>가상 재화 명칭 변경 — 문서의 <code>별사탕</code> 은 현재 앱에 존재하지 않는 명칭입니다</li>
+<li><code>vote</code> 이벤트 파라미터 3종 추가 승인</li>
+</ol>
+</div>
+
+<p>나머지 10건은 판단 근거와 함께 통지드리며(B절), 별도 회신 없이 진행 가능합니다.
+문서 갱신에 필요한 <strong>최종 전송값 대조표</strong>는 C절, <strong>GA4 맞춤 측정기준 등록 목록</strong>은 D절에 있습니다.</p>
+
+<hr>
+
+<h2>A. 회신이 필요한 사항</h2>
+
+<h3>A-1. <code>click_attendance</code> 이벤트 제외 요청</h3>
+
+<p><strong>상황</strong> — 문서에는 "출석체크 팝업에서 '출석하기' 버튼 클릭 시" 발생하는
+<code>click_attendance</code> 가 정의되어 있으나, <strong>출석 보상 기능이 제품에서 폐지</strong>되었고
+앱 코드에 이미 반영되어 있습니다.</p>
+
+<ul>
+<li>출석 버튼(<code>AttendanceIconButton</code>)은 어느 화면에서도 참조되지 않는 상태입니다</li>
+<li>무료 충전소의 출석 탭도 제거되었습니다</li>
+</ul>
+
+<p>즉 사용자가 도달할 수 있는 진입점이 없어 <strong>이 이벤트는 발생시킬 방법이 없습니다.</strong>
+계측을 위해 폐지된 기능의 UI를 되살리는 것은 적절하지 않다고 판단해 구현하지 않았습니다.</p>
+
+<div class="box ask">
+<p class="q">요청</p>
+<p>택소노미 문서에서 <code>click_attendance</code> 이벤트를 제외해 주시기 바랍니다.
+관련 파라미터(<code>virtual_currency_name</code>, <code>reward_amount</code>)는 다른 이벤트에서 계속 사용되므로 유지됩니다.</p>
+</div>
+
+<h3>A-2. 가상 재화 명칭 — <code>별사탕</code> → 실제 명칭</h3>
+
+<p><strong>상황</strong> — 문서는 <code>virtual_currency_name</code> 의 예시값을 전부
+<code>별사탕</code> / <code>보너스 별사탕</code> 으로 정의하고 있습니다. 그러나 현재 앱의 지갑 화면이
+실제로 표시하는 명칭은 다음 세 가지입니다.</p>
+
+<table>
+<thead><tr><th>실제 명칭</th><th>획득 경로</th><th>소비 경로</th></tr></thead>
+<tbody>
+<tr><td><code>스타캔디</code></td><td>인앱 구매</td><td>투표</td></tr>
+<tr><td><code>보너스 스타캔디</code></td><td>구매 프로모션</td><td>투표</td></tr>
+<tr><td><code>코튼캔디</code></td><td>광고 시청 · 미션</td><td>투표</td></tr>
+</tbody>
+</table>
+
+<div class="box">
+<p class="q">이것은 단순한 명칭 변경이 아닙니다</p>
+<p><strong>스타캔디와 코튼캔디는 서로 다른 재화로 공존합니다.</strong>
+구매로 지급되는 것은 스타캔디이고, 광고 시청으로 지급되는 것은 코튼캔디입니다.
+데이터 모델에도 <code>star_candy_usage</code> / <code>star_candy_bonus_usage</code> /
+<code>cotton_candy_usage</code> 세 필드가 별도로 존재합니다.</p>
+<p>문서의 예시값대로 양쪽 모두 <code>별사탕</code> 으로 전송하면,
+GA4 에서 <strong>"광고로 획득한 재화"와 "구매한 재화"가 하나의 디멘션 값으로 합쳐져</strong>
+재화별 분석이 불가능해집니다. 이에 실제 제품 명칭을 전송하도록 구현했습니다.</p>
+</div>
+
+<p><code>section_name</code> 도 같은 이유로 조정되었습니다.
+문서의 <code>광고에서 별사탕 받기</code> 는 앱 화면에 존재하지 않으며,
+실제 화면 문구는 <strong><code>광고에서 코튼캔디 받기</code></strong> 입니다.</p>
+
+<div class="box ask">
+<p class="q">요청</p>
+<p>문서의 <code>virtual_currency_name</code> 예시값을
+<code>스타캔디</code> / <code>보너스 스타캔디</code> / <code>코튼캔디</code> 로,
+<code>section_name</code> 을 <code>광고에서 코튼캔디 받기</code> 로 갱신해 주시기 바랍니다.
+리포트·대시보드에서 재화를 구분해 집계하실 수 있도록 확인 부탁드립니다.</p>
+</div>
+
+<h3>A-3. <code>vote</code> 이벤트 파라미터 3종 추가 승인 요청</h3>
+
+<p><strong>상황</strong> — 문서는 <code>vote</code> 이벤트에 재화 이름(<code>virtual_currency_name</code>)과
+수량(<code>reward_amount</code>) 을 각각 <strong>하나씩</strong> 정의하고 있습니다.
+그러나 실제 투표는 <strong>한 번에 여러 재화가 동시에 소모</strong>됩니다.</p>
+
+<p class="muted">예: 보너스 스타캔디 40개를 먼저 사용하고, 부족한 60개를 스타캔디로 채워 총 100개 투표</p>
+
+<p>단일 값으로는 이 상황을 표현할 수 없어 다음과 같이 처리했습니다.</p>
+
+<table>
+<thead><tr><th>파라미터</th><th>전송 방식</th></tr></thead>
+<tbody>
+<tr><td><code>virtual_currency_name</code></td><td>사용된 재화가 하나면 그 명칭, 복수면 <code>+</code> 로 결합 (예: <code>보너스 스타캔디+스타캔디</code>). 순서는 고정 정규화되어 같은 조합이 항상 같은 값으로 전송됩니다</td></tr>
+<tr><td><code>reward_amount</code></td><td>총 사용량 (문서 정의 유지)</td></tr>
+<tr><td colspan="2" style="padding-top:.7rem"><strong>아래 3개를 추가로 전송합니다 (문서에 없는 항목)</strong></td></tr>
+<tr><td><code>star_candy_usage</code></td><td>스타캔디 사용량 (Number, 미사용 시 파라미터 생략)</td></tr>
+<tr><td><code>star_candy_bonus_usage</code></td><td>보너스 스타캔디 사용량</td></tr>
+<tr><td><code>cotton_candy_usage</code></td><td>코튼캔디 사용량</td></tr>
+</tbody>
+</table>
+
+<p>결합 라벨만으로는 "이번 달 코튼캔디 총 소모량" 같은 기본적인 질문에 답할 수 없어 추가했습니다.
+파라미터명은 DB 필드명과 일치시켜 BigQuery 조인이 용이하도록 했습니다.</p>
+
+<p><strong>기존 정의를 변경하지 않는 가산 항목</strong>이므로 기존 리포트에는 영향이 없습니다.
+다만 문서에 없는 항목이라 승인을 요청드립니다.</p>
+
+<div class="box ask">
+<p class="q">요청</p>
+<p>위 3개 파라미터 추가에 대한 승인, 그리고 문서 반영 여부를 회신해 주시기 바랍니다.
+불필요하다고 판단하시면 제거하겠습니다.</p>
+</div>
+
+<hr>
+
+<h2>B. 통지 사항</h2>
+
+<p>별도 회신 없이 아래와 같이 적용했습니다. 이견이 있으시면 알려 주십시오.</p>
+
+<h3>B-1. <code>user_id</code> — 해시 처리하지 않음</h3>
+<p>문서는 "로그인한 ID의 해시값"을 요구하나, 본 앱의 로그인 식별자는
+<strong>무작위로 생성되는 UUID</strong> 로 개인 식별 정보가 아닙니다.
+이메일·전화번호 등은 애초에 GA4 로 전송하지 않습니다.</p>
+<p>해시를 적용할 경우 ⑴ 프라이버시 이득이 없고, ⑵ BigQuery export 와 내부 DB 간 조인이 끊겨
+퍼널·리텐션 분석이 불가능해지며, ⑶ 이미 원본 UUID 로 수집 중이라 동일 사용자가
+신규 사용자로 갈라져 기존 코호트가 단절됩니다. 이에 원본 값을 그대로 전송합니다.</p>
+
+<h3>B-2. <code>currency</code> 는 <code>undefined</code> 로 대체하지 않음 <span class="muted">(중요)</span></h3>
+<p>문서의 "정보가 없는 경우 값을 <code>undefined</code> 로 대체" 규칙을
+<code>currency</code> 에 적용하면, GA4 가 <strong>ISO 4217 위반 통화 코드로 판정해
+해당 <code>purchase</code> 의 매출(<code>value</code>)을 집계에서 통째로 제외</strong>합니다.</p>
+<p>따라서 <code>currency</code> 는 값이 없을 경우 <code>undefined</code> 대신
+<strong>파라미터 자체를 생략</strong>하며, 짝이 되는 <code>value</code> 도 함께 생략합니다.</p>
+
+<h3>B-3. Number 타입 파라미터도 <code>undefined</code> 대체 제외</h3>
+<p>GA4 는 하나의 파라미터 키를 맞춤 측정기준(문자열) 또는 맞춤 측정항목(숫자) 중
+<strong>한 가지 타입으로만</strong> 등록합니다. 숫자 파라미터에 <code>undefined</code> 문자열이 섞이면
+반대 타입의 값이 리포트에서 누락됩니다.</p>
+<p>대상: <code>reward_amount</code>, <code>value</code>, <code>base_amount</code>, <code>bonus_amount</code>,
+그리고 A-3 의 사용량 3종. 값이 없으면 파라미터를 생략합니다.
+<strong>문자열 파라미터는 문서 규칙대로 <code>undefined</code> 를 사용</strong>합니다.</p>
+
+<h3>B-4. 광고 플랫폼 값 — <code>AdMob</code> / <code>Google Ads</code> 아님</h3>
+<p>문서는 <code>ad_platform: AdMob</code>, <code>ad_source: Google Ads</code>,
+<code>ad_unit_name: reward_global_pick_1</code> 로 정의하고 있으나,
+현재 무료 충전소에서 실제 운영 중인 광고 구좌는 다음 두 가지입니다.</p>
+
+<table>
+<thead><tr><th>구좌</th><th><code>ad_platform</code></th><th><code>ad_source</code></th><th><code>ad_unit_name</code></th></tr></thead>
+<tbody>
+<tr><td>자체 숏폼 광고</td><td><code>internal-shortform</code></td><td><code>internal</code></td><td><code>undefined</code> <span class="muted">(SDK 유닛 개념 없음)</span></td></tr>
+<tr><td>Pangle</td><td><code>Pangle</code></td><td><code>Pangle</code></td><td>SDK 제공값</td></tr>
+</tbody>
+</table>
+
+<p><code>ad_format</code> 은 문서대로 <code>rewarded</code> 입니다.</p>
+<p class="muted">AdMob 리워드 광고는 현재 무료 충전소 UI 구좌에서 제외되어 있고,
+서버 사이드 검증(SSV) 방식이라 클라이언트가 적립 성공을 관측할 수 없어 계측 대상에서 제외했습니다.</p>
+
+<h3>B-5. <code>ad_click</code> 트리거 — 리워드 광고가 아닌 자체 숏폼 CTA</h3>
+<p>문서는 "광고 종료 후 '더보기' 버튼을 눌러 이동했을 때"로 정의하고 있으며,
+해당 UI 는 <strong>자체 숏폼 광고 전체화면의 CTA 버튼</strong>으로 실재합니다.
+<code>destination_type</code> 은 이동 목적지 유형(예: <code>youtube</code>)을 전송합니다.</p>
+
+<h3>B-6. 언어 코드 — <code>ja</code> → <code>jp</code> 변환 적용</h3>
+<p>앱 내부 언어 코드는 ISO 639-1 기준이라 일본어가 <code>ja</code> 입니다.
+문서는 <code>jp</code> 로 정의하고 있어, <strong>GA4 전송 시점에만</strong> <code>ja → jp</code> 로 변환합니다.
+변환하지 않으면 일본어 사용자 세그먼트가 문서 기준과 어긋나 잡히지 않습니다.</p>
+
+<h3>B-7. 지원 언어가 문서 정의보다 많음</h3>
+<p>문서는 <code>ko</code>, <code>en</code>, <code>jp</code> 세 가지만 예시로 정의하고 있으나,
+앱은 <strong>한국어·영어·일본어·인도네시아어·태국어·베트남어·중국어</strong> 등을 지원합니다.
+정의되지 않은 코드는 변환 없이 원본(<code>id</code>, <code>th</code>, <code>vi</code>, <code>zh</code> 등)으로 전송됩니다.
+리포트 세그먼트 구성 시 참고 부탁드립니다.</p>
+
+<h3>B-8. 사용자 속성 이름 불일치 — <code>language</code> 로 통일</h3>
+<p>"파라미터 리스트" 시트는 <code>language</code>, "공통 파라미터" 시트는 <code>selected_language</code> 로
+동일 항목을 다르게 표기하고 있습니다. <strong>사용자 속성(User)은 <code>language</code></strong>,
+<strong>이벤트 파라미터(Event)는 <code>selected_language</code></strong> 로 정리해 적용했습니다.</p>
+
+<h3>B-9. <code>sign_up</code> 판별 기준</h3>
+<p>인증 서버가 "이번 로그인이 신규 가입인지"를 응답에 직접 제공하지 않습니다.
+이에 계정 생성 시각과 최근 로그인 시각의 차이가 <strong>30초 이내</strong>면 신규 가입으로 판정하고,
+사용자별 1회 발송 마커를 기기에 영속 저장해 재발송을 차단합니다.</p>
+<p>세션 복원으로 로그인 이벤트가 재발화하는 경우에도 중복 전송되지 않도록 처리했습니다.
+판별 기준에 대한 의견이 있으시면 알려 주십시오.</p>
+
+<h3>B-10. <code>ad_impression</code> 자동 수집과의 중복 가능성</h3>
+<p><code>ad_impression</code> 은 Firebase↔AdMob 연동 시 SDK 가 자동 수집하는 이벤트명과 동일합니다.
+문서 정의대로 커스텀 전송하도록 구현했으나, <strong>연동 상태에 따라 중복 집계가 발생할 수 있습니다.</strong></p>
+<p>GA4 콘솔에서 자동 수집 활성화 여부를 확인해 주시고, 중복이 확인되면
+이벤트명 분리 등 대응 방향을 알려 주시기 바랍니다.</p>
+
+<p class="muted"><code>earn_virtual_currency</code> 는 GA4 표준이 <code>virtual_currency_name</code> + <code>value</code> 조합을 사용하나,
+문서 정의에 따라 수량을 <code>reward_amount</code> 로 전송합니다. (문서 기준 유지)</p>
+
+<hr>
+
+<h2>C. 최종 전송값 대조표</h2>
+
+<p>문서의 예시값과 실제 전송값이 다른 항목만 정리했습니다. 문서 갱신 시 참고해 주십시오.</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>파라미터</th><th>문서 예시값</th><th>실제 전송값</th><th>사유</th></tr></thead>
+<tbody>
+<tr><td><code>virtual_currency_name</code></td><td class="del">별사탕, 보너스 별사탕</td><td><code>스타캔디</code>, <code>보너스 스타캔디</code>, <code>코튼캔디</code><br>(투표 혼합 시 <code>+</code> 결합)</td><td>A-2</td></tr>
+<tr><td><code>section_name</code></td><td class="del">광고에서 별사탕 받기</td><td><code>광고에서 코튼캔디 받기</code></td><td>A-2</td></tr>
+<tr><td><code>ad_platform</code></td><td class="del">AdMob</td><td><code>internal-shortform</code>, <code>Pangle</code></td><td>B-4</td></tr>
+<tr><td><code>ad_source</code></td><td class="del">Google Ads</td><td><code>internal</code>, <code>Pangle</code></td><td>B-4</td></tr>
+<tr><td><code>ad_unit_name</code></td><td class="del">reward_global_pick_1</td><td>Pangle 은 SDK 제공값, 자체 숏폼은 <code>undefined</code></td><td>B-4</td></tr>
+<tr><td><code>selected_language</code> / <code>language</code></td><td>ko, en, jp</td><td><code>ko</code>, <code>en</code>, <code>jp</code> + <code>id</code>, <code>th</code>, <code>vi</code>, <code>zh</code> 등</td><td>B-6, B-7</td></tr>
+<tr><td><code>currency</code></td><td class="del">값 없으면 undefined</td><td>값 없으면 <strong>파라미터 생략</strong></td><td>B-2</td></tr>
+<tr><td>Number 파라미터 전체</td><td class="del">값 없으면 undefined</td><td>값 없으면 <strong>파라미터 생략</strong></td><td>B-3</td></tr>
+<tr><td><code>ad_category</code>, <code>mission_category</code></td><td>글로벌 픽 #1, 아시아 픽 #1</td><td>문서와 동일 (<code>글로벌 픽 #1</code>, <code>아시아 픽 #1</code>, <code>한국 픽 #1</code> …)</td><td>—</td></tr>
+<tr><td><code>earn_method</code></td><td>광고 리워드</td><td>문서와 동일</td><td>—</td></tr>
+<tr><td><code>ad_format</code></td><td>rewarded</td><td>문서와 동일</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="muted">위 값들은 기기 언어 설정과 무관하게 <strong>고정 전송</strong>됩니다.
+영어 기기와 한국어 기기가 같은 행동에 대해 다른 값을 보내지 않도록 처리했습니다.</p>
+
+<hr>
+
+<h2>D. GA4 맞춤 측정기준 / 측정항목 등록 목록</h2>
+
+<p>수집을 시작하기 전 GA4 콘솔에 등록이 필요한 항목입니다.</p>
+
+<h3>사용자 범위 (User)</h3>
+<table>
+<thead><tr><th>파라미터</th><th>범위</th><th>유형</th></tr></thead>
+<tbody>
+<tr><td><code>is_login</code></td><td>사용자</td><td>측정기준 (텍스트)</td></tr>
+<tr><td><code>language</code></td><td>사용자</td><td>측정기준 (텍스트)</td></tr>
+</tbody>
+</table>
+<p class="muted"><code>user_id</code> 는 GA4 기본 기능이므로 별도 등록이 필요하지 않습니다.</p>
+
+<h3>이벤트 범위 — 측정기준 (텍스트)</h3>
+<p><code>method</code>, <code>selected_language</code>, <code>virtual_currency_name</code>,
+<code>mission_category</code>, <code>section_name</code>, <code>ad_category</code>,
+<code>ad_platform</code>, <code>ad_source</code>, <code>ad_format</code>, <code>ad_unit_name</code>,
+<code>earn_method</code>, <code>destination_type</code>, <code>vote_id</code>, <code>vote_name</code>,
+<code>vote_reward</code>, <code>vote_start_date</code>, <code>vote_end_date</code>,
+<code>vote_artist_name</code>, <code>vote_artist_group</code></p>
+
+<h3>이벤트 범위 — 측정항목 (숫자)</h3>
+<p><code>reward_amount</code>, <code>star_candy_usage</code>,
+<code>star_candy_bonus_usage</code>, <code>cotton_candy_usage</code>
+<span class="muted">(뒤 3개는 A-3 승인 시)</span></p>
+
+<h3>상품 범위 (Item)</h3>
+<p><code>virtual_currency_name</code>, <code>base_amount</code>, <code>bonus_amount</code>
+<span class="muted">— <code>items</code> 배열의 커스텀 파라미터로 전송됩니다.
+<code>item_id</code>, <code>item_name</code> 은 GA4 표준 필드입니다.</span></p>
+
+<p class="muted"><code>transaction_id</code>, <code>currency</code>, <code>value</code> 는
+GA4 전자상거래 표준 파라미터이므로 별도 등록이 필요하지 않습니다.</p>
+
+<hr>
+
+<h2>E. 회신 요청 사항</h2>
+
+<table>
+<thead><tr><th class="n">#</th><th>항목</th><th>요청 내용</th></tr></thead>
+<tbody>
+<tr><td class="n">1</td><td><code>click_attendance</code></td><td>문서에서 제외 확인</td></tr>
+<tr><td class="n">2</td><td>재화 명칭</td><td><code>스타캔디</code>/<code>보너스 스타캔디</code>/<code>코튼캔디</code> 로 문서 갱신 및 리포트 반영 확인</td></tr>
+<tr><td class="n">3</td><td><code>vote</code> 파라미터 3종</td><td>추가 승인 또는 제거 요청</td></tr>
+<tr><td class="n">4</td><td><code>ad_impression</code></td><td>GA4 콘솔에서 AdMob 자동 수집 활성화 여부 확인 및 중복 대응 방향</td></tr>
+<tr><td class="n">5</td><td><code>sign_up</code> 판별 기준</td><td>30초 창 기준에 대한 의견 (이견 없으면 회신 불요)</td></tr>
+</tbody>
+</table>
+
+<p style="margin-top:2rem">B 절의 나머지 항목은 이견이 없으시면 별도 회신 없이 현재 구현대로 진행하겠습니다.
+추가 문의 사항이 있으시면 알려 주십시오.</p>
+
+</body>
+</html>

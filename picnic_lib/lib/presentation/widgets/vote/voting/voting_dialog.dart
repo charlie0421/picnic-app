@@ -23,6 +23,7 @@ import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/vote_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
@@ -536,6 +537,19 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           onRecovery: _recordAuthRecoveryEvent,
         );
         invokeSucceeded = true; // 2xx 도달 — 서버측 투표는 성공
+        // GA4 vote (스펙 §2-10). 2xx 이후에만 — 잔액 부족·마감·실패는 여기에
+        // 도달하지 못한다. 소모량은 서버 정산이 돌려준 usage 를 그대로 쓴다.
+        unawaited(
+          VoteAnalytics.logVote(
+            voteModel: widget.voteModel,
+            voteItemModel: widget.voteItemModel,
+            usage: {
+              WalletCurrency.starCandy: result.usage.starCandy,
+              WalletCurrency.bonusStarCandy: result.usage.bonusStarCandy,
+              WalletCurrency.cottonCandy: result.usage.cottonCandy,
+            },
+          ),
+        );
         container
             .read(walletSummaryProvider.notifier)
             .setSummary(result.wallet);
@@ -564,6 +578,23 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           onRecovery: _recordAuthRecoveryEvent,
         );
         invokeSucceeded = true; // 2xx 도달 — 서버측 투표는 성공
+        // pic 포털은 정산 응답에 usage 가 없다. 서버로 **보낸** 분해값이 곧
+        // 소모량이므로(엣지 함수가 그 값대로 차감한다) 재계산하지 않고 그대로
+        // 쓴다. 코튼캔디는 이 포털의 결제 수단이 아니라 항상 0 이다.
+        unawaited(
+          VoteAnalytics.logVote(
+            voteModel: widget.voteModel,
+            voteItemModel: widget.voteItemModel,
+            usage: {
+              WalletCurrency.starCandy: BigInt.from(
+                usage['star_candy_usage']!,
+              ),
+              WalletCurrency.bonusStarCandy: BigInt.from(
+                usage['star_candy_bonus_usage']!,
+              ),
+            },
+          ),
+        );
         container.read(userInfoProvider.notifier).getUserProfiles();
         final responseData = Map<String, dynamic>.from(response.data as Map);
         final serverTotal = responseData['updatedVoteTotal'] as int?;

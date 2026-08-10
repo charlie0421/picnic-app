@@ -9,6 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/pangle_ads.dart';
@@ -34,6 +35,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/a
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_types.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/charge_station_item.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_content.dart';
 
 // 광고 플랫폼 추상 클래스
@@ -51,6 +53,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   late final AnimationController _rotationController;
   late AdService _adService;
   bool _isInitializing = false;
+
+  /// 버튼 연타로 click_mission / ad_request 가 중복 발송되는 것을 막는다.
+  /// 광고 호출 자체는 억제하지 않고 로깅만 걸러낸다.
+  final Ga4ClickDebounce _ga4ClickDebounce = Ga4ClickDebounce();
 
   @override
   void initState() {
@@ -134,6 +140,41 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     }
   }
 
+  /// 미션 버튼 클릭 → `click_mission` (스펙 §2-4).
+  ///
+  /// 오퍼월 호출 **전** 사용자 의도 시점에 발송한다. analytics 실패가 오퍼월을
+  /// 막지 않도록 결과를 기다리지 않는다(레이어가 내부에서 예외를 로깅한다).
+  void _onMissionPressed(String platformId, String missionCategory) {
+    if (_ga4ClickDebounce.shouldLog('click_mission:$platformId')) {
+      unawaited(
+        PicnicAnalytics.instance.logClickMission(
+          missionCategory: missionCategory,
+        ),
+      );
+    }
+    _adService.getPlatform(platformId)?.showAd();
+  }
+
+  /// 광고 시청 버튼 클릭 → `ad_request` (스펙 §2-5).
+  ///
+  /// 같은 시청 건의 `ad_impression` / `ad_click` / `earn_virtual_currency` 가
+  /// 동일한 구좌 정보를 쓰도록 [FreeChargeAdGa4Context] 를 플랫폼에 주입한다.
+  void _onAdPressed(String platformId, FreeChargeAdGa4Context ga4) {
+    if (_ga4ClickDebounce.shouldLog('ad_request:$platformId')) {
+      unawaited(
+        PicnicAnalytics.instance.logAdRequest(
+          sectionName: ga4.sectionName,
+          adCategory: ga4.adCategory,
+          virtualCurrencyName: ga4.virtualCurrencyName,
+          rewardAmount: ga4.rewardAmount,
+        ),
+      );
+    }
+    final platform = _adService.getPlatform(platformId);
+    platform?.ga4AdContext = ga4;
+    platform?.showAd();
+  }
+
   // 미션 아이템 목록 생성
   List<ChargeStationItem> _buildMissionItems(BuildContext context) {
     var globalIndex = 0;
@@ -141,6 +182,12 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     final items = <ChargeStationItem>[];
 
     if (_adService.isPlatformAvailable('tapjoy')) {
+      // 클로저가 아니라 값으로 고정한다 — globalIndex 는 아래에서 증가하므로
+      // 콜백 안에서 읽으면 클릭 시점의 잘못된 순번이 실린다.
+      final missionCategory = FreeChargeGa4.pick(
+        FreeChargeGa4.categoryGlobalPick,
+        globalIndex + 1,
+      );
       items.add(
         ChargeStationItem(
           id: 'tapjoy',
@@ -148,7 +195,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
           isMission: true,
           platformType: AdPlatformType.tapjoy,
-          onPressed: () => _adService.getPlatform('tapjoy')?.showAd(),
+          onPressed: () => _onMissionPressed('tapjoy', missionCategory),
           bonusText: AppLocalizations.of(context).label_unlimited_rewards,
         ),
       );
@@ -156,6 +203,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     }
 
     if (_adService.isPlatformAvailable('pincrux')) {
+      final missionCategory = FreeChargeGa4.pick(
+        FreeChargeGa4.categoryKoreaPick,
+        koreaIndex + 1,
+      );
       items.add(
         ChargeStationItem(
           id: 'pincrux',
@@ -163,7 +214,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               '${AppLocalizations.of(context).label_korean_recommendation} #${koreaIndex + 1}',
           isMission: true,
           platformType: AdPlatformType.pincrux,
-          onPressed: () => _adService.getPlatform('pincrux')?.showAd(),
+          onPressed: () => _onMissionPressed('pincrux', missionCategory),
           bonusText: AppLocalizations.of(context).label_unlimited_rewards,
         ),
       );
@@ -179,8 +230,25 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     var asiaIndex = 0;
     final items = <ChargeStationItem>[];
 
+    // 광고 구좌의 지급 예정 수량은 UI 에 그대로 노출되는 bonusText 와 같은 값이다.
+    const adBonusText = '1';
+    final adRewardAmount = int.tryParse(adBonusText) ?? 1;
+
     // 글로벌 픽 #1: 내부 숏폼 광고
     if (_adService.isPlatformAvailable('internal-shortform')) {
+      final ga4 = FreeChargeAdGa4Context(
+        adPlatform: FreeChargeGa4.platformInternalShortform,
+        adSource: FreeChargeGa4.sourceInternalShortform,
+        // 자체 숏폼에는 광고 SDK 의 ad unit 개념이 없다. 추정값을 만들지 않고
+        // 비워 두면 T2 레이어가 'undefined' 로 대체한다.
+        adUnitName: null,
+        adCategory: FreeChargeGa4.pick(
+          FreeChargeGa4.categoryGlobalPick,
+          globalIndex + 1,
+        ),
+        virtualCurrencyName: FreeChargeGa4.adRewardCurrencyName,
+        rewardAmount: adRewardAmount,
+      );
       items.add(
         ChargeStationItem(
           id: 'internal-shortform',
@@ -188,8 +256,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
           isMission: false,
           platformType: AdPlatformType.custom,
-          onPressed: () => _adService.getPlatform('internal-shortform')?.showAd(),
-          bonusText: '1',
+          onPressed: () => _onAdPressed('internal-shortform', ga4),
+          bonusText: adBonusText,
         ),
       );
       globalIndex++;
@@ -198,6 +266,19 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     // AdMob 글로벌 구좌 제거됨
 
     if (_adService.isPlatformAvailable('pangle')) {
+      final ga4 = FreeChargeAdGa4Context(
+        adPlatform: FreeChargeGa4.platformPangle,
+        adSource: FreeChargeGa4.sourcePangle,
+        adUnitName: Platform.isIOS
+            ? Environment.pangleIosRewardedVideoId
+            : Environment.pangleAndroidRewardedVideoId,
+        adCategory: FreeChargeGa4.pick(
+          FreeChargeGa4.categoryAsiaPick,
+          asiaIndex + 1,
+        ),
+        virtualCurrencyName: FreeChargeGa4.adRewardCurrencyName,
+        rewardAmount: adRewardAmount,
+      );
       items.add(
         ChargeStationItem(
           id: 'pangle',
@@ -205,8 +286,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               '${AppLocalizations.of(context).label_asia_recommendation} #${asiaIndex + 1}',
           isMission: false,
           platformType: AdPlatformType.pangle,
-          onPressed: () => _adService.getPlatform('pangle')?.showAd(),
-          bonusText: '1',
+          onPressed: () => _onAdPressed('pangle', ga4),
+          bonusText: adBonusText,
         ),
       );
       asiaIndex++;

@@ -1,6 +1,7 @@
 // pangle_platform.dart
 
 import 'dart:async';
+import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
@@ -94,6 +95,14 @@ class PanglePlatform extends AdPlatform {
   StreamSubscription<void>? _pollingSubscription;
   AdRewardReference? _activeReference;
 
+  /// `ad_impression` 용 1회성 구독. SDK 의 노출 콜백(`onAdShown`)은 브로드캐스트
+  /// 스트림이라, 살려 두면 이후의 다른 시청 건까지 잡아 중복 발송된다.
+  /// 첫 이벤트 · 표시 실패 · dispose · 다음 시청 시작 중 무엇이든 먼저 오면 끊고,
+  /// 광고가 끝내 뜨지 않은 경우를 대비해 [_impressionListenTimeout] 로 자동 해제한다.
+  StreamSubscription<void>? _impressionSubscription;
+  Timer? _impressionTimeout;
+  static const Duration _impressionListenTimeout = Duration(seconds: 30);
+
   PanglePlatform(
     super.ref,
     super.context,
@@ -170,10 +179,20 @@ class PanglePlatform extends AdPlatform {
     if (adLoadSuccess) {
       try {
         startPerformanceLog('광고 표시');
-        await PangleAds.showRewardedAd();
+        // SDK 가 실제로 전체 화면 광고를 띄운 순간(onAdShown)에만 ad_impression 을
+        // 보내기 위해, show 호출 직전에 1회성 구독을 건다. 로드 실패 경로는
+        // 여기까지 오지 않으므로 실패 시 발송되지 않는다.
+        _listenForImpressionOnce();
+        final shown = await PangleAds.showRewardedAd();
+        if (!shown) {
+          // 표시 자체가 거부됐다 — 노출은 없었으므로 구독을 즉시 끊어
+          // 다음 시청 건의 onAdShown 을 잘못 집계하지 않게 한다.
+          _cancelImpressionListener();
+        }
         endPerformanceLog('광고 표시');
         stopAllAnimations();
       } catch (e, s) {
+        _cancelImpressionListener();
         logError(
           'Pangle 광고 표시 실패 상세:\n'
           '  error: $e\n'
@@ -195,6 +214,40 @@ class PanglePlatform extends AdPlatform {
       stopAllAnimations();
     }
     endPerformanceLog('광고 로드');
+  }
+
+  /// `ad_impression` (스펙 §2-6) 을 SDK 노출 콜백 1회에만 발송한다.
+  void _listenForImpressionOnce() {
+    _cancelImpressionListener();
+    final ga4 = ga4AdContext;
+    if (ga4 == null) return; // 구좌 컨텍스트 없이 임의값으로 보내지 않는다.
+
+    _impressionSubscription = PangleAds.onAdShown.listen((_) {
+      _cancelImpressionListener();
+      unawaited(
+        PicnicAnalytics.instance.logAdImpression(
+          adPlatform: ga4.adPlatform,
+          adSource: ga4.adSource,
+          adFormat: ga4.adFormat,
+          adUnitName: ga4.adUnitName,
+          sectionName: ga4.sectionName,
+          adCategory: ga4.adCategory,
+          virtualCurrencyName: ga4.virtualCurrencyName,
+          rewardAmount: ga4.rewardAmount,
+        ),
+      );
+    });
+    _impressionTimeout = Timer(
+      _impressionListenTimeout,
+      _cancelImpressionListener,
+    );
+  }
+
+  void _cancelImpressionListener() {
+    _impressionTimeout?.cancel();
+    _impressionTimeout = null;
+    unawaited(_impressionSubscription?.cancel());
+    _impressionSubscription = null;
   }
 
   Future<bool> _loadPangleAd() async {
@@ -280,6 +333,7 @@ class PanglePlatform extends AdPlatform {
 
   @override
   void dispose() {
+    _cancelImpressionListener();
     unawaited(_pollingSubscription?.cancel());
     _pollingSubscription = null;
     if (_activeReference != null) {

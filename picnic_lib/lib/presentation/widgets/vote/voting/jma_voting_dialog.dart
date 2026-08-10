@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
@@ -18,6 +19,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_helper.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/vote_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -1346,6 +1348,24 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         }
         throw Exception('Failed to vote');
       }
+
+      // GA4 vote (스펙 §2-10). status==200 을 통과한 뒤에만 — 일일 제한(429)과
+      // 그 외 실패는 위에서 반환/throw 되어 여기 도달하지 못한다.
+      // JMA 는 보너스가 1:1, 일반 별사탕이 30:1 이라 투표 수와 소모량이 다르다.
+      // 스펙의 reward_amount 는 "사용된 재화 수량"이므로 투표 수가 아니라
+      // _calculateUsage 가 낸 실제 소모량을 그대로 보낸다.
+      unawaited(
+        VoteAnalytics.logVote(
+          voteModel: widget.voteModel,
+          voteItemModel: widget.voteItemModel,
+          usage: {
+            WalletCurrency.starCandy: BigInt.from(usage['star_candy_usage']!),
+            WalletCurrency.bonusStarCandy: BigInt.from(
+              usage['star_candy_bonus_usage']!,
+            ),
+          },
+        ),
+      );
 
       await ref.read(userInfoProvider.notifier).getUserProfiles();
 
