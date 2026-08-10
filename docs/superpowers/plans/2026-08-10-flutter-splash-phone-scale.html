@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flutter 스플래시 일반 휴대폰 크기 복원 구현 계획</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    body { max-width: 980px; margin: 0 auto; padding: 40px 24px 64px; }
+    h1, h2, h3 { line-height: 1.25; }
+    h1 { margin-bottom: 1.5rem; }
+    h2, h3 { margin-top: 2rem; }
+    li + li { margin-top: 0.45rem; }
+    code {
+      padding: 0.12rem 0.35rem;
+      border-radius: 4px;
+      background: color-mix(in srgb, CanvasText 10%, Canvas);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border-radius: 8px;
+      background: color-mix(in srgb, CanvasText 8%, Canvas);
+    }
+    pre code { padding: 0; background: transparent; }
+    blockquote {
+      margin: 1rem 0;
+      padding: 0.75rem 1rem;
+      border-left: 4px solid #8b6cf6;
+      background: color-mix(in srgb, #8b6cf6 10%, Canvas);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Flutter 스플래시 일반 휴대폰 크기 복원 구현 계획</h1>
+
+    <blockquote>
+      <p><strong>에이전트 작업 규칙:</strong> 이 계획은 <code>superpowers:executing-plans</code> 절차로 순서대로 실행한다. 각 단계는 테스트 우선으로 진행한다.</p>
+    </blockquote>
+
+    <p><strong>목표:</strong> 첫 번째 네이티브 시작 화면은 그대로 두고, 두 번째 Flutter 스플래시를 일반 세로형 휴대폰에서 이전 크기로 복원하면서 Fold와 태블릿에서는 안전한 최대 크기를 유지한다.</p>
+    <p><strong>구조:</strong> <code>ResponsiveSplash</code>의 72% 축소 래퍼를 제거하고 중앙 <code>ConstrainedBox</code>에 최대 440x960 논리 픽셀을 적용한다. 기존 투명 이미지와 <code>BoxFit.contain</code>은 유지하며, 테스트는 일반 휴대폰의 화면 점유율과 Fold의 크기 상한을 실제 렌더 박스 크기로 검증한다.</p>
+    <p><strong>기술:</strong> Flutter, flutter_test, Material 위젯 레이아웃</p>
+
+    <h2>전역 제약</h2>
+    <ul>
+      <li><code>picnic_app/flutter_native_splash.yaml</code>, Android·iOS 시작 리소스, 스플래시 이미지 에셋은 수정하지 않는다.</li>
+      <li>배경색 <code>#8B6CF6</code>과 <code>assets/splash_key.png</code>를 유지한다.</li>
+      <li><code>BoxFit.contain</code>과 모든 뷰포트의 오버플로 없음 검증을 유지한다.</li>
+      <li>일반 휴대폰에 기기명 또는 화면비별 분기를 추가하지 않는다.</li>
+      <li>Fold·태블릿 이미지 레이아웃은 너비 440, 높이 960 논리 픽셀을 넘지 않는다.</li>
+    </ul>
+
+    <hr>
+
+    <h2>파일 구조</h2>
+    <ul>
+      <li><strong>수정:</strong> <code>picnic_app/test/presentation/splash/responsive_splash_test.dart</code> — 일반 휴대폰 점유율, Fold 상한, contain 및 무오버플로 계약을 검증한다.</li>
+      <li><strong>수정:</strong> <code>picnic_app/lib/presentation/splash/responsive_splash.dart</code> — 두 번째 Flutter 스플래시의 반응형 크기만 결정한다.</li>
+    </ul>
+
+    <h2>작업 1: 일반 휴대폰 크기와 대화면 상한 계약</h2>
+    <p><strong>입력:</strong> 기존 <code>ResponsiveSplash</code> 위젯과 키 <code>responsive-splash-fitted-box</code></p>
+    <p><strong>출력:</strong> 일반 휴대폰에서는 가용 크기의 95% 이상을 사용하고, Fold에서는 440x960을 넘지 않는 중앙 <code>FittedBox</code></p>
+
+    <ol>
+      <li>
+        <p><strong>실패 테스트 작성</strong></p>
+        <p>기존 공통 contain·무오버플로 반복 테스트에 360x800과 430x932를 추가한다. 별도 테스트에서 일반 휴대폰의 렌더 크기와 Fold의 상한을 다음과 같이 검증한다.</p>
+<pre><code>const phoneViewports = &lt;String, Size&gt;{
+  'compact phone portrait': Size(360, 800),
+  'phone portrait': Size(393, 852),
+  'large phone portrait': Size(430, 932),
+};
+
+for (final viewport in phoneViewports.entries) {
+  testWidgets(
+    'uses the available ${viewport.key} space without phone-specific branches',
+    (tester) async {
+      await tester.binding.setSurfaceSize(viewport.value);
+      addTearDown(() =&gt; tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(const MaterialApp(home: ResponsiveSplash()));
+
+      final fittedSize = tester.getSize(
+        find.byKey(const Key('responsive-splash-fitted-box')),
+      );
+      expect(fittedSize.width, greaterThanOrEqualTo(viewport.value.width * 0.95));
+      expect(fittedSize.height, greaterThanOrEqualTo(viewport.value.height * 0.95));
+    },
+  );
+}
+
+testWidgets('bounds the unfolded Fold artwork', (tester) async {
+  addTearDown(() =&gt; tester.binding.setSurfaceSize(null));
+  for (final viewport in const [Size(1848, 2448), Size(2448, 1848)]) {
+    await tester.binding.setSurfaceSize(viewport);
+    await tester.pumpWidget(const MaterialApp(home: ResponsiveSplash()));
+
+    final fittedSize = tester.getSize(
+      find.byKey(const Key('responsive-splash-fitted-box')),
+    );
+    expect(fittedSize.width, lessThanOrEqualTo(440));
+    expect(fittedSize.height, lessThanOrEqualTo(960));
+  }
+});</code></pre>
+      </li>
+
+      <li>
+        <p><strong>RED 확인</strong></p>
+<pre><code>cd picnic_app
+flutter test test/presentation/splash/responsive_splash_test.dart</code></pre>
+        <p>예상 결과: 기존 <code>FractionallySizedBox</code>의 72% 축소 때문에 일반 휴대폰 점유율 검증이 실패한다. 기존 contain 및 무오버플로 검증은 계속 통과해야 한다.</p>
+      </li>
+
+      <li>
+        <p><strong>최소 구현</strong></p>
+        <p><code>FractionallySizedBox</code>와 그 안쪽 <code>Center</code>를 제거하고 최대 높이를 960으로 변경한다.</p>
+<pre><code>child: Center(
+  child: ConstrainedBox(
+    constraints: const BoxConstraints(
+      maxWidth: 440,
+      maxHeight: 960,
+    ),
+    child: FittedBox(
+      key: const Key('responsive-splash-fitted-box'),
+      fit: BoxFit.contain,
+      child: Image.asset(
+        'assets/splash_key.png',
+        key: const Key('responsive-splash-key-image'),
+      ),
+    ),
+  ),
+),</code></pre>
+      </li>
+
+      <li>
+        <p><strong>GREEN 확인</strong></p>
+<pre><code>cd picnic_app
+flutter test test/presentation/splash/responsive_splash_test.dart test/widget_test.dart</code></pre>
+        <p>예상 결과: 모든 테스트가 통과하고 Flutter 레이아웃 예외가 없다.</p>
+      </li>
+
+      <li>
+        <p><strong>분석기 및 변경 범위 검증</strong></p>
+<pre><code>cd picnic_app
+flutter analyze
+cd ..
+git diff --check
+git diff --name-only</code></pre>
+        <p>예상 결과: 분석 오류가 없고, 구현 변경 파일은 <code>responsive_splash.dart</code>와 <code>responsive_splash_test.dart</code>뿐이다. 네이티브 시작 리소스와 이미지 에셋은 목록에 없어야 한다.</p>
+      </li>
+
+      <li>
+        <p><strong>iPhone 12 mini 표본 검증</strong></p>
+<pre><code>cd picnic_app
+flutter build ios --debug \
+  --dart-define=ENVIRONMENT=prod \
+  --dart-define=PANGLE_ENVIRONMENT=prod \
+  --dart-define=PAYMENT_ENVIRONMENT=prod
+xcrun devicectl device install app \
+  --device 00008101-001C39223498001E \
+  build/ios/iphoneos/Runner.app
+xcrun devicectl device process launch \
+  --device 00008101-001C39223498001E \
+  --terminate-existing io.iconcasting.picnic.app</code></pre>
+        <p>예상 결과: 설치와 실행이 성공한다. 실제 기기는 특정 크기 규칙의 근거가 아니라 일반 세로형 휴대폰의 표본으로만 확인한다.</p>
+      </li>
+
+      <li>
+        <p><strong>구현 커밋</strong></p>
+<pre><code>git add \
+  picnic_app/lib/presentation/splash/responsive_splash.dart \
+  picnic_app/test/presentation/splash/responsive_splash_test.dart
+git commit -m "fix(splash): restore responsive phone artwork scale"</code></pre>
+      </li>
+    </ol>
+  </main>
+</body>
+</html>
