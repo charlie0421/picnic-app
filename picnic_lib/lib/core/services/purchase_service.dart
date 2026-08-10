@@ -8,7 +8,6 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
-import 'package:picnic_lib/core/analytics/analytics.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
@@ -148,13 +147,11 @@ class PurchaseService {
     required this.duplicatePreventionService,
     required void Function(List<PurchaseDetails>) onPurchaseUpdate,
     UnfinishedPurchaseSource? unfinishedPurchaseSource,
-    PurchasePriceMemo? purchasePriceMemo,
     DateTime Function() clock = DateTime.now,
     Duration resumeSweepInterval = const Duration(minutes: 5),
     bool sweepOnStart = true,
   }) : unfinishedPurchaseSource =
            unfinishedPurchaseSource ?? defaultUnfinishedPurchaseSource(),
-       purchasePriceMemo = purchasePriceMemo ?? PurchasePriceMemo(),
        _clock = clock,
        _resumeSweepInterval = resumeSweepInterval {
     inAppPurchaseService.initialize(onPurchaseUpdate);
@@ -210,10 +207,6 @@ class PurchaseService {
   /// wallet write at the end of that path.
   final ProviderContainer container;
   final InAppPurchaseService inAppPurchaseService;
-
-  /// 결제 시점의 통화·금액 기록. 복구 스윕이 카탈로그보다 먼저 돌 때
-  /// `purchase` 의 매출이 비지 않도록 채워 준다.
-  final PurchasePriceMemo purchasePriceMemo;
   final ReceiptVerificationService receiptVerificationService;
   final AnalyticsService analyticsService;
   final DuplicatePreventionService duplicatePreventionService;
@@ -472,23 +465,6 @@ class PurchaseService {
 
       // 6. 실제 구매 시작
       final productDetails = _findProductDetails(storeProducts, serverProduct);
-
-      // 결제 시점의 통화·금액을 남긴다. 이 구매가 한 번에 끝나지 않고 다음
-      // 실행의 복구 스윕이 정산하면, 그 시점엔 카탈로그가 아직 로드되지
-      // 않았을 수 있어 매출이 비게 된다(_sendPurchaseAnalytics 참조).
-      //
-      // await 하지 않는다 — 결제 시트가 뜨기 전에 로컬 I/O 를 기다리게 하면
-      // 안 된다. 기록이 필요해지는 것은 다음 실행이고, 그 사이 인증·결제로
-      // 충분한 시간이 있다. 실패해도 금액이 비는 현재 동작으로 돌아갈 뿐이다.
-      unawaited(
-        purchasePriceMemo.record(
-          storeProductId: productDetails.id,
-          userId: currentUser.id,
-          currency: productDetails.currencyCode,
-          value: productDetails.rawPrice,
-        ),
-      );
-
       logger.i('🚀 StoreKit 구매 프로세스 시작 (Touch ID/Face ID 인증 포함)');
 
       final purchaseResult = await inAppPurchaseService.makePurchase(
@@ -964,27 +940,6 @@ class PurchaseService {
   /// a settled purchase's UX behind.
   static const Duration _analyticsBudget = Duration(seconds: 5);
 
-  /// memo 조회에 허용하는 몫. 이 뒤로 dedup 예약과 outbox load/save 가
-  /// 이어지므로, 전체 [_analyticsBudget] 을 memo 가 잠식하면 정작 durable
-  /// payload 저장이 잘린다. 금액은 있으면 좋은 값이고 거래 기록은 반드시
-  /// 남아야 하는 값이다.
-  static const Duration _memoBudget = Duration(milliseconds: 800);
-
-  /// 스토어가 준 거래 시각. `PurchaseDetails.transactionDate` 는 epoch millis
-  /// 문자열이거나 null 이다. 파싱되지 않으면 null 로 두고, memo 조회는
-  /// "후보가 정확히 하나일 때만" 규칙으로 떨어진다.
-  static DateTime? _parseTransactionDate(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    final millis = int.tryParse(raw);
-    if (millis == null) return null;
-    if (millis.abs() > 8640000000000000) return null;
-    try {
-      return DateTime.fromMillisecondsSinceEpoch(millis);
-    } catch (_) {
-      return null;
-    }
-  }
-
   Future<void> _sendPurchaseAnalytics(
     PurchaseDetails purchaseDetails,
     PurchaseSettlementResultModel result,
@@ -1003,39 +958,10 @@ class PurchaseService {
         }
       }
     }
-    // 결제 시점 기록이 **카탈로그보다 우선**한다. 정산이 며칠 뒤에 일어나면
-    // 그 사이 가격 인상·프로모션 종료·환율 변경으로 카탈로그 값이 실제 결제
-    // 금액과 달라진다. 기록은 사용자가 보고 결제한 바로 그 가격이고, 정산
-    // 대상 사용자와 거래 시각으로 그 시도를 지목해 가져온다.
-    //
-    // 예산을 넘겨 준다 — 금액을 얻자고 outbox 저장을 굶기면 안 된다.
-    // Supabase 미초기화 등으로 전역 접근이 던지면 금액만 포기한다 —
-    // analytics 발송 자체를 잃으면 안 된다.
-    String? settlingUserId;
-    try {
-      settlingUserId = supabase.auth.currentUser?.id;
-    } catch (_) {}
-
-    final memo = await purchasePriceMemo.takeFor(
-      storeProductId: purchaseDetails.productID,
-      userId: settlingUserId,
-      transactionAt: _parseTransactionDate(purchaseDetails.transactionDate),
-      budget: _memoBudget,
-    );
-
-    String? currency = memo?.currency ?? productDetails?.currencyCode;
-    num? value = memo?.value ?? productDetails?.rawPrice;
-
-    if (memo != null) {
-      logger.i(
-        'purchase analytics 결제 시점 기록으로 금액 확정: '
-        '${purchaseDetails.productID}',
-      );
-    } else if (productDetails == null) {
+    if (productDetails == null) {
       logger.w(
-        'purchase analytics 카탈로그 상세·결제 시점 기록 모두 없음 — '
-        'currency/value는 생략하고 정산 payload를 outbox에 보존: '
-        '${purchaseDetails.productID}',
+        'purchase analytics 카탈로그 상세 없음 — currency/value는 '
+        '생략하고 정산 payload를 outbox에 보존: ${purchaseDetails.productID}',
       );
     }
 
@@ -1047,8 +973,8 @@ class PurchaseService {
     logger.i('애널리틱스 로깅...');
     await analyticsService.logPurchasePayload(
       storeProductId: purchaseDetails.productID,
-      currency: currency,
-      value: value,
+      currency: productDetails?.currencyCode,
+      value: productDetails?.rawPrice,
       transactionId: purchaseDetails.purchaseID,
       idempotencyFallbackKey: result.operationId,
       baseAmount: result.baseStarAmount.toInt(),

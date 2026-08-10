@@ -33,8 +33,6 @@ import '../../../../../helpers/mock_providers.dart';
 import '../../../../../helpers/mock_supabase.dart';
 import '../../../../../helpers/test_environment.dart';
 import 'recording_receipt_dialogs.dart';
-import 'package:picnic_lib/core/analytics/purchase_price_memo.dart';
-import 'package:picnic_lib/data/storage/local_storage.dart' as picnic_storage;
 
 const _productId = 'STAR100';
 const _userId = 'user-1';
@@ -262,7 +260,6 @@ void main() {
     analytics = _RecordingAnalytics();
     plugin = _MockInAppPurchaseService();
     service = PurchaseService(
-      purchasePriceMemo: PurchasePriceMemo(storage: _MemoryStorage()),
       container: store.container,
       inAppPurchaseService: plugin,
       receiptVerificationService: verification,
@@ -539,7 +536,6 @@ void main() {
         refreshWalletSummary: refresher,
         purchaseServiceFactory: (appContainer, onPurchaseUpdate) =>
             PurchaseService(
-              purchasePriceMemo: PurchasePriceMemo(storage: _MemoryStorage()),
               container: appContainer,
               inAppPurchaseService: plugin,
               receiptVerificationService: verificationStub,
@@ -964,21 +960,3 @@ Widget _appAround(ProviderContainer container, Widget child) =>
         ),
       ),
     );
-
-/// `PurchasePriceMemo` 기본 배선은 `globalStorage` 로 간다. 그 정적
-/// SharedPreferences future 는 자신이 생성된 `testWidgets` 존에 묶여, 이후
-/// 다른 테스트에서 await 하면 영원히 완료되지 않는다(ioTimeout 도 pump 없이는
-/// 진행되지 않는다). 저장소를 쓰는 협력자는 전부 메모리로 바꾼다.
-class _MemoryStorage implements picnic_storage.LocalStorage {
-  final Map<String, String> _data = <String, String>{};
-
-  @override
-  Future<String?> loadData(String key, String? defaultValue) async =>
-      _data[key] ?? defaultValue;
-
-  @override
-  Future<void> saveData(String key, String value) async => _data[key] = value;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
