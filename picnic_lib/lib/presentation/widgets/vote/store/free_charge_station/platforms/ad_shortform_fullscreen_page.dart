@@ -12,8 +12,12 @@ import 'package:picnic_lib/presentation/widgets/ui/loading_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
+import 'package:picnic_lib/core/analytics/earn_analytics_store.dart';
 import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
@@ -195,6 +199,30 @@ class AdShortformLogic {
   }
 }
 
+/// Legacy shortform 응답도 granted-reward 경로와 같은 durable outbox 계약을 탄다.
+///
+/// 예전 코드는 위젯의 `_earnLogged`를 sink 호출 전에 true로 만들고 bool 결과를
+/// 버렸다. 실패하면 해당 impression이 다시 흐를 곳이 없어 영구 누락됐다. 이제
+/// 서버가 돌려준 impression reference를 idempotency key로 payload부터 저장한다.
+@visibleForTesting
+Future<bool> enqueueLegacyShortformEarnAnalytics({
+  required InternalShortformViewResponse response,
+  required FreeChargeAdGa4Context ga4,
+  EarnAnalyticsStore? store,
+}) {
+  return (store ?? EarnAnalyticsStore()).enqueueEarn(
+    reference:
+        '${AdRewardReferenceType.internalImpression.wireValue}:${response.impressionId}',
+    virtualCurrencyName: FreeChargeGa4.currencyName(
+      WalletCurrency.bonusStarCandy,
+    ),
+    rewardAmount: response.rewardAdded,
+    earnMethod: FreeChargeGa4.earnMethodRewardedAd,
+    sectionName: ga4.sectionName,
+    adCategory: ga4.adCategory,
+  );
+}
+
 class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   final String videoUrl;
   final String? ctaUrl;
@@ -210,6 +238,10 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   final Future<({String videoUrl, String? ctaUrl, bool blocked})> Function()?
   loadAd;
 
+  /// `ad_request` 를 발송한 구좌의 GA4 컨텍스트. null 이면 이 화면에서
+  /// 광고 이벤트를 보내지 않는다(임의값으로 채우지 않는다).
+  final FreeChargeAdGa4Context? ga4;
+
   const AdShortformFullscreenPage({
     super.key,
     required this.videoUrl,
@@ -217,6 +249,7 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
     required this.onMore,
     this.ctaUrl,
     this.loadAd,
+    this.ga4,
   });
 
   @override
@@ -248,6 +281,13 @@ class _AdShortformFullscreenPageState
 
   Timer? _watchdog;
   bool _errorDialogShown = false;
+
+  /// GA4 단발 발송 가드. 위젯 리빌드/리스너 재호출로 같은 시청 건의
+  /// ad_impression·earn_virtual_currency·ad_click 이 2번 나가지 않게 한다.
+  bool _impressionLogged = false;
+  bool _earnLogged = false;
+  bool _earnLogging = false;
+  bool _adClickLogged = false;
 
   /// App-level Riverpod container, captured while this route is mounted, so a
   /// reward that settles after the user already closed the ad can still update
@@ -378,6 +418,28 @@ class _AdShortformFullscreenPageState
       _showVideoLoadErrorDialog(e);
       return;
     }
+    // ad_impression (스펙 §2-6): 재생이 실제로 시작된 시점이 자체 숏폼 광고의
+    // '노출'이다. 로드/초기화 실패 경로는 위에서 return 되므로 여기 오지 않는다.
+    _logAdImpression();
+  }
+
+  /// `ad_impression` — 시청 건당 1회.
+  void _logAdImpression() {
+    final ga4 = widget.ga4;
+    if (ga4 == null || _impressionLogged) return;
+    _impressionLogged = true;
+    unawaited(
+      PicnicAnalytics.instance.logAdImpression(
+        adPlatform: ga4.adPlatform,
+        adSource: ga4.adSource,
+        adFormat: ga4.adFormat,
+        adUnitName: ga4.adUnitName,
+        sectionName: ga4.sectionName,
+        adCategory: ga4.adCategory,
+        virtualCurrencyName: ga4.virtualCurrencyName,
+        rewardAmount: ga4.rewardAmount,
+      ),
+    );
   }
 
   void _showVideoLoadErrorDialog(dynamic error) {
@@ -467,6 +529,18 @@ class _AdShortformFullscreenPageState
       await ref.read(userInfoProvider.notifier).getUserProfiles();
     }
     if (AdShortformLogic.shouldUseLegacyBonusUx(response)) {
+      // earn_virtual_currency (스펙 §2-7) — legacy 응답 경로.
+      //
+      // 발송 기준은 SDK 콜백이 아니라 **서버 적립 성공**이다:
+      //   - `onViewComplete()` 가 throw 하면 response 는 null 이라 여기 못 온다.
+      //   - `shouldUseLegacyBonusUx` == `reward == null && rewardAdded > 0`,
+      //     즉 서버가 적립 수량을 확정해 돌려준 경우에만 참이다.
+      //   - wallet-aware 응답(`reward != null`)은 서버 확정 시점이 적립 폴링
+      //     이후라, 중복을 피하려 여기서 보내지 않고 AdRewardDialogHost 가
+      //     granted 상태에서 한 번만 보낸다.
+      // legacy 계약은 보너스 스타캔디를 적립한다(receiptFromInternalShortformView).
+      _logEarnVirtualCurrency(response);
+
       // 구매 성공과 동일한 공용 적립 영수증 다이얼로그를 재사용한다
       // (적립 수량 + 현재 잔액). wallet-aware 응답의 영수증은
       // AdRewardDialogHost 가 담당하므로 여기는 legacy 응답만 온다.
@@ -572,14 +646,53 @@ class _AdShortformFullscreenPageState
     );
   }
 
+  /// `earn_virtual_currency` — 시청 건당 1회.
+  void _logEarnVirtualCurrency(InternalShortformViewResponse response) {
+    final ga4 = widget.ga4;
+    if (ga4 == null || _earnLogged || _earnLogging) return;
+    _earnLogging = true;
+    unawaited(
+      enqueueLegacyShortformEarnAnalytics(response: response, ga4: ga4)
+          .then((stored) {
+            _earnLogged = stored;
+          })
+          .whenComplete(() {
+            _earnLogging = false;
+          }),
+    );
+  }
+
   Future<void> _openCta(String url) async {
+    // ad_click (스펙 §2-8): '더보기'로 실제 이동한 시점. launchUrl 이 두 경로 모두
+    // 실패하면(예외) 이동하지 않으므로 발송하지 않는다.
     final uri = Uri.tryParse(url);
     if (uri == null) return;
+    bool launched;
     try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (_) {
-      await launchUrl(uri);
+      launched = await launchUrl(uri);
     }
+    // 이동에 실패했으면(false 반환) 클릭 이벤트를 보내지 않는다.
+    if (launched) _logAdClick(url);
+  }
+
+  /// `ad_click` — 시청 건당 1회.
+  void _logAdClick(String url) {
+    final ga4 = widget.ga4;
+    if (ga4 == null || _adClickLogged) return;
+    _adClickLogged = true;
+    unawaited(
+      PicnicAnalytics.instance.logAdClick(
+        adPlatform: ga4.adPlatform,
+        adSource: ga4.adSource,
+        adFormat: ga4.adFormat,
+        adUnitName: ga4.adUnitName,
+        sectionName: ga4.sectionName,
+        adCategory: ga4.adCategory,
+        destinationType: FreeChargeGa4.destinationType(url),
+      ),
+    );
   }
 
   @override

@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/analytics/earn_analytics_store.dart';
+import 'package:picnic_lib/core/analytics/ga4_sink.dart';
+import 'package:picnic_lib/core/analytics/ga4_taxonomy.dart';
+import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
@@ -115,7 +119,13 @@ Widget app(ProviderContainer container) => UncontrolledProviderScope(
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: AppLocalizations.supportedLocales,
-    home: const AdRewardDialogHost(child: Scaffold(body: Text('home'))),
+    // earn 마커/outbox 저장소를 주입하지 않으면 host 가 전역 저장소에 I/O 를
+    // 시작하고, 테스트 환경에서는 그 load 가 끝나지 않아 timeout Timer 가
+    // pending 으로 남는다(earnApp 과 같은 격리 규칙).
+    home: AdRewardDialogHost(
+      earnAnalyticsStore: EarnAnalyticsStore(storage: _MemoryStorage()),
+      child: const Scaffold(body: Text('home')),
+    ),
   ),
 );
 
@@ -136,6 +146,7 @@ Widget scheduledApp(
     home: AdRewardDialogHost(
       schedulePostFrame: schedule,
       onAcknowledgeError: onAcknowledgeError,
+      earnAnalyticsStore: EarnAnalyticsStore(storage: _MemoryStorage()),
       child: const Scaffold(body: Text('home')),
     ),
   ),
@@ -574,7 +585,123 @@ void main() {
     },
   );
 
+  group('earn_virtual_currency 중복 방어', () {
+    late RecordingGa4Sink sink;
+    late _MemoryStorage earnStorage;
+
+    setUp(() {
+      sink = RecordingGa4Sink();
+      PicnicAnalytics.overrideInstance(PicnicAnalytics(sink: sink));
+      earnStorage = _MemoryStorage();
+      EarnAnalyticsStore.resetProcessCacheForTest();
+    });
+
+    tearDown(() {
+      PicnicAnalytics.resetInstance();
+      EarnAnalyticsStore.resetProcessCacheForTest();
+    });
+
+    int earnCount() =>
+        sink.events.where((e) => e.name == Ga4Event.earnVirtualCurrency).length;
+
+    /// 한 번의 앱 실행. 위젯 트리와 프로세스 메모리(예약·전송확인 캐시)가 매번
+    /// 새로 생기고, 영속 저장소([earnStorage])만 실행 사이에 유지된다.
+    Future<void> runSession(WidgetTester tester) async {
+      // 앱 재시작 = 위젯 트리 전체 폐기. 같은 위젯 타입으로 바로 다시 pump 하면
+      // Flutter 가 State 를 재사용한다.
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      // 새 프로세스 = 빈 메모리. 영속 마커만 살아남는다.
+      EarnAnalyticsStore.resetProcessCacheForTest();
+
+      final repository = _QueueRepository()..statuses[reference] = granted();
+      final store = PendingAdRewardStore(_MemoryStorage());
+      final container = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(repository),
+          pendingAdRewardStoreProvider.overrideWithValue(store),
+          adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+        ],
+      );
+      addTearDown(container.dispose);
+      await store.add('user-a', reference);
+      await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+
+      await tester.pumpWidget(earnApp(container, earnStorage));
+      await tester.pumpAndSettle();
+      // 발송은 다이얼로그를 막지 않도록 unawaited 라, 예약 조회 → 전송 →
+      // 마커 커밋으로 이어지는 microtask 체인이 끝날 틈을 준다.
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(Duration.zero);
+      }
+    }
+
+    testWidgets('한 번의 실행에서는 1회 발송된다', (tester) async {
+      await runSession(tester);
+
+      expect(earnCount(), 1);
+    });
+
+    testWidgets(
+      'ACK 실패 후 재큐잉되는 다음 실행에서 다시 발송되지 않는다',
+      (tester) async {
+        // 위젯 메모리의 Set 은 프로세스마다 새로 생기므로, 영속 마커가 없으면
+        // 같은 적립이 실행마다 한 번씩 더 집계된다.
+        await runSession(tester);
+        expect(earnCount(), 1);
+
+        await runSession(tester);
+
+        expect(earnCount(), 1);
+      },
+    );
+
+    testWidgets('전송이 실패하면 마커가 남지 않고 다음 실행에서 다시 발송된다', (tester) async {
+      // blocker 였던 경로: sink 가 Firebase 미초기화로 조용히 no-op 했는데
+      // 마커는 발송 전에 이미 영속화돼 그 적립이 영구히 차단됐다.
+      sink.deliver = false;
+      await runSession(tester);
+      expect(earnCount(), 1, reason: '시도는 했다');
+
+      sink
+        ..deliver = true
+        ..clear();
+      await runSession(tester);
+
+      expect(earnCount(), 1, reason: '보내지 못한 적립은 다음 실행에서 다시 나가야 한다');
+    });
+
+    testWidgets('영속 마커가 비어 있는 다른 기기/계정은 정상 발송된다', (tester) async {
+      await runSession(tester);
+      expect(earnCount(), 1);
+
+      // 새 기기 = 새 저장소.
+      earnStorage = _MemoryStorage();
+      await runSession(tester);
+
+      expect(earnCount(), 2);
+    });
+  });
 }
+
+Widget earnApp(ProviderContainer container, LocalStorage earnStorage) =>
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: AdRewardDialogHost(
+          earnAnalyticsStore: EarnAnalyticsStore(storage: earnStorage),
+          child: const Scaffold(body: Text('home')),
+        ),
+      ),
+    );
 
 class _QueueRepository extends _Repository {
   final statuses = <AdRewardReference, AdRewardStatusModel>{};
