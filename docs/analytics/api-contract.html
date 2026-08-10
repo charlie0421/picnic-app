@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GA4 Analytics 레이어 공개 API 계약 (T2 산출물)</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+    line-height: 1.65; max-width: 1000px; margin: 0 auto; padding: 32px 24px 96px;
+  }
+  h1 { font-size: 1.7rem; border-bottom: 2px solid currentColor; padding-bottom: 8px; }
+  h2 { font-size: 1.25rem; margin-top: 2.4em; border-bottom: 1px solid rgba(128,128,128,.4); padding-bottom: 6px; }
+  h3 { font-size: 1.05rem; margin-top: 1.8em; }
+  code { font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-size: .9em;
+         background: rgba(128,128,128,.15); padding: 1px 5px; border-radius: 4px; }
+  pre { background: rgba(128,128,128,.12); padding: 14px 16px; border-radius: 8px;
+        overflow-x: auto; font-size: .85rem; line-height: 1.5; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .9rem; display: block; overflow-x: auto; }
+  th, td { border: 1px solid rgba(128,128,128,.45); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: rgba(128,128,128,.18); }
+  .note { border-left: 4px solid #d08770; background: rgba(208,129,112,.12);
+          padding: 10px 16px; margin: 1.2em 0; border-radius: 0 6px 6px 0; }
+  .ok { border-left-color: #6a9955; background: rgba(106,153,85,.12); }
+</style>
+</head>
+<body>
+
+<h1>GA4 Analytics 레이어 공개 API 계약</h1>
+<p>
+  기준 스펙: <code>docs/analytics/ga4-event-taxonomy.md</code><br>
+  구현 위치: <code>picnic_lib/lib/core/analytics/</code><br>
+  T3 / T4 는 이 계약만 보고 호출부를 붙이면 된다.
+</p>
+
+<h2>0. import</h2>
+<pre><code>import 'package:picnic_lib/core/analytics/analytics.dart'; // 배럴 (권장)
+// 또는 개별:
+// import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
+// import 'package:picnic_lib/core/analytics/ga4_purchase_item.dart';</code></pre>
+
+<h2>1. 진입점</h2>
+<pre><code>PicnicAnalytics.instance   // 프로덕션 싱글턴 (FirebaseGa4Sink)
+
+// 테스트에서만:
+PicnicAnalytics(sink: RecordingGa4Sink())
+PicnicAnalytics.overrideInstance(PicnicAnalytics analytics)  // @visibleForTesting
+PicnicAnalytics.resetInstance()                              // @visibleForTesting</code></pre>
+
+<div class="note">
+  모든 메서드는 <code>Future&lt;void&gt;</code> 를 반환하고 <strong>절대 throw 하지 않는다</strong>.
+  Firebase 미초기화 환경에서는 조용히 no-op 하며, 예외는 <code>logger.e</code> 로 남는다.
+  호출부에서 <code>try/catch</code> 로 감쌀 필요가 없고 <code>await</code> 도 선택이다.
+</div>
+
+<h2>2. 사용자 속성 (스펙 §1)</h2>
+<pre><code>Future&lt;void&gt; setUserProperties({
+  required String? userId,     // 해시하지 않은 Supabase auth UUID 원본
+  required bool isLogin,       // → is_login: 'Y' | 'N'
+  required String? language,   // → language: 'ko' | 'en' | 'jp' ...
+  String? userRole,            // 레거시 유지
+  String? locale,              // 레거시 유지
+  bool? isTester,              // 레거시 유지
+  String? appEnv,              // 레거시 유지
+});
+
+Future&lt;void&gt; clearUserProperties();  // user_id=null, is_login='N', 레거시 속성 제거</code></pre>
+
+<h3>기존 래퍼 (하위 호환 유지)</h3>
+<pre><code>// picnic_lib/lib/core/utils/firebase_analytics_utils.dart
+AppAnalytics.setUserAndSessionProperties({
+  required String userId,
+  String? userRole,
+  String? locale,
+  bool? isTester,
+  String? language,        // 신규. 생략하면 locale 을 사용
+  bool isLogin = true,     // 신규
+});
+
+AppAnalytics.clearUserAndSessionProperties();   // is_login='N' 으로 갱신
+AppAnalytics.buildNavigatorObservers();         // 변경 없음</code></pre>
+
+<h2>3. 이벤트 메서드 10종</h2>
+
+<p>
+  <strong>모든 String 파라미터는 nullable + required 명명 인자다.</strong>
+  값이 없으면(null/공백) 스펙 §2 규칙대로 <code>'undefined'</code> 로 대체되고
+  파라미터 자체는 남는다. 100자 초과 시 잘린다.
+</p>
+<p>
+  <strong>모든 Number 파라미터는 <code>num?</code> 이다.</strong>
+  null 이면 파라미터를 <strong>생략</strong>한다(문자열 <code>'undefined'</code> 를 넣지 않는다).
+  근거는 §5 참조.
+</p>
+
+<pre><code>// 1. login
+Future&lt;void&gt; logLogin({
+  required String? method,             // 'apple' | 'google' | 'kakao'
+  required String? selectedLanguage,
+});
+
+// 2. sign_up
+Future&lt;void&gt; logSignUp({
+  required String? method,
+  required String? selectedLanguage,
+});
+
+// 3. click_attendance
+Future&lt;void&gt; logClickAttendance({
+  required String? virtualCurrencyName,   // '별사탕' | '보너스 별사탕'
+  required num? rewardAmount,
+});
+
+// 4. click_mission
+Future&lt;void&gt; logClickMission({
+  required String? missionCategory,       // '글로벌 픽 #1'
+});
+
+// 5. ad_request
+Future&lt;void&gt; logAdRequest({
+  required String? sectionName,           // '광고에서 별사탕 받기'
+  required String? adCategory,            // '글로벌 픽 #1'
+  required String? virtualCurrencyName,   // '별사탕'
+  required num? rewardAmount,
+});
+
+// 6. ad_impression  (AdMob 자동수집과 중복 가능 — 코드 주석 참조)
+Future&lt;void&gt; logAdImpression({
+  required String? adPlatform,            // 'AdMob'
+  required String? adSource,              // 'Google Ads'
+  required String? adFormat,              // 'rewarded'
+  required String? adUnitName,            // 'reward_global_pick_1'
+  required String? sectionName,
+  required String? adCategory,
+  required String? virtualCurrencyName,
+  required num? rewardAmount,
+});
+
+// 7. earn_virtual_currency  (수량은 value 가 아니라 reward_amount)
+Future&lt;void&gt; logEarnVirtualCurrency({
+  required String? virtualCurrencyName,
+  required num? rewardAmount,
+  required String? earnMethod,            // '광고 리워드'
+  required String? sectionName,
+  required String? adCategory,
+});
+
+// 8. ad_click
+Future&lt;void&gt; logAdClick({
+  required String? adPlatform,
+  required String? adSource,
+  required String? adFormat,
+  required String? adUnitName,
+  required String? sectionName,
+  required String? adCategory,
+  required String? destinationType,       // 'youtube'
+});
+
+// 9. purchase  (Firebase logPurchase 사용 — items 배열 때문)
+Future&lt;void&gt; logPurchase({
+  required String? transactionId,         // '202607061530001'
+  required String? currency,              // 'USD'
+  required num? value,                    // 0.99
+  required List&lt;Ga4PurchaseItem&gt; items,
+});
+
+// 10. vote
+Future&lt;void&gt; logVote({
+  required String? virtualCurrencyName,
+  required num? rewardAmount,
+  required String? voteId,                // 'vote0023'
+  required String? voteName,              // '올해의 썸머킹'
+  required String? voteReward,
+  required String? voteStartDate,         // '2026.06.26'
+  required String? voteEndDate,           // '2026.07.10'
+  required String? voteArtistName,        // '제이엘'
+  required String? voteArtistGroup,       // '아홉'
+});</code></pre>
+
+<h3>Ga4PurchaseItem</h3>
+<pre><code>const Ga4PurchaseItem({
+  required String? itemId,                 // 'star100'        → 표준 item_id
+  required String? itemName,               // 'STAR100'        → 표준 item_name
+  required String? virtualCurrencyName,    // '별사탕'          → Item parameters
+  required num? baseAmount,                // 100              → Item parameters
+  required num? bonusAmount,               // 25               → Item parameters
+});</code></pre>
+<p>
+  <code>base_amount</code> / <code>bonus_amount</code> / <code>virtual_currency_name</code> 은
+  <code>AnalyticsEventItem</code> 의 표준 필드가 아니므로
+  <code>AnalyticsEventItem.parameters</code> 맵으로 전달된다 (firebase_analytics 12.1.3 에서 확인).
+</p>
+
+<h2>4. 상수</h2>
+<pre><code>Ga4Event.login / signUp / clickAttendance / clickMission / adRequest
+       / adImpression / earnVirtualCurrency / adClick / purchase / vote
+Ga4Event.all                  // List&lt;String&gt;
+
+Ga4Param.method / selectedLanguage / virtualCurrencyName / rewardAmount
+       / missionCategory / sectionName / adCategory / adPlatform / adSource
+       / adFormat / adUnitName / earnMethod / destinationType / transactionId
+       / currency / value / voteId / voteName / voteReward / voteStartDate
+       / voteEndDate / voteArtistName / voteArtistGroup
+       / itemId / itemName / baseAmount / bonusAmount
+
+Ga4UserProperty.isLogin / language / userRole / locale / isTester / appEnv
+Ga4Value.undefined ('undefined') / loggedIn ('Y') / loggedOut ('N')
+Ga4LoginMethod.apple / google / kakao / all
+
+Ga4Limits.maxEventNameLength (40) / maxParameterNameLength (40) / maxStringValueLength (100)</code></pre>
+
+<h2>5. 확정된 설계 결정</h2>
+<table>
+  <thead><tr><th>#</th><th>결정</th><th>근거</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>파라미터 <strong>값</strong>은 스프레드시트 한글 예시값 그대로
+          ('별사탕', '광고에서 별사탕 받기', '글로벌 픽 #1', '광고 리워드')</td>
+      <td>영문 슬러그로 정규화하면 스펙과 수집값이 갈라져 대행사 검수가 불가능해진다.
+          <code>Ga4Parameters.stringValue</code> 는 절대 값을 변환하지 않는다(길이 자르기 제외).</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><code>user_id</code> 는 Supabase auth UUID <strong>원본</strong>, 해시 없음</td>
+      <td>UUID 는 PII 가 아니고, 해시하면 BigQuery↔Supabase 조인과 기존 GA4 user_id
+          히스토리가 끊긴다. docs §1 및 코드 주석에 기록.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><code>ad_impression</code> 은 스펙대로 커스텀 logEvent</td>
+      <td>AdMob↔Firebase 연동 시 SDK 자동수집과 중복될 수 있음.
+          <code>Ga4Event.adImpression</code> / <code>logAdImpression</code> 주석에 경고 기록.</td>
+    </tr>
+    <tr>
+      <td>4a</td>
+      <td>String 파라미터: 값 없으면 <code>'undefined'</code>, <strong>파라미터는 유지</strong></td>
+      <td>스프레드시트 §2 규칙 그대로.</td>
+    </tr>
+    <tr>
+      <td>4b</td>
+      <td>Number 파라미터: 값 없으면 <strong>파라미터 생략</strong> + 경고 로그</td>
+      <td>GA4 는 커스텀 파라미터 키를 처음 관측된 타입에 따라 측정기준(text) 또는
+          측정항목(number) 중 하나로만 등록한다. <code>reward_amount</code> 에
+          숫자와 문자열 <code>'undefined'</code> 를 섞으면 등록된 타입과 다른 쪽 값이
+          리포트에서 통째로 누락된다 — 누락을 표시하려다 정상 값까지 잃는 교환.
+          docs §4-6 에 대행사 확인 항목으로 기록.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>6. login / sign_up 발송 규칙</h2>
+
+<p>
+  발송 지점: <code>AppInitializer.setupSupabaseAuthListener</code>
+  (<code>AuthChangeEvent.signedIn</code>). 소셜 로그인 3종이 모두 수렴하는
+  유일한 "통신 시점"이다. T3/T4 는 login/sign_up 을 직접 호출하지 않는다.
+</p>
+
+<table>
+  <thead><tr><th>문제</th><th>방어 수단</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>앱 재시작 시 세션 복원으로 <code>signedIn</code> 재발화 → login 중복</td>
+      <td><code>userId|last_sign_in_at</code> 서명을 <code>LocalStorage</code> 에 영속 저장.
+          서명이 같으면 발송하지 않는다. 실제 재로그인은 <code>last_sign_in_at</code> 이
+          갱신되므로 서명이 바뀌어 정상 발송된다.</td>
+    </tr>
+    <tr>
+      <td>매 로그인마다 sign_up 오발송</td>
+      <td><code>created_at</code> 과 <code>last_sign_in_at</code> 의 차이가 30초 이내일 때만
+          신규 가입으로 판정 (<code>AuthAnalyticsResolver.isFreshSignUp</code>).
+          추가로 사용자별 1회 마커를 영속 저장한다. 시각 파싱 실패 시 <code>false</code> —
+          잘못된 sign_up 폭주보다 1건 누락이 피해가 작다.</td>
+    </tr>
+    <tr>
+      <td>로그아웃 후 재로그인이 중복으로 오인</td>
+      <td><code>signedOut</code> 에서 <code>AuthAnalyticsReporter.onSignedOut()</code> 이
+          저장된 서명을 지운다.</td>
+    </tr>
+    <tr>
+      <td><code>method</code> 값 불일치</td>
+      <td>실측 결과 <code>AuthService.signInWithProvider</code> 가
+          <code>OAuthProvider.{google,apple,kakao}</code> 로 <code>signInWithIdToken</code> 을
+          호출하므로 <code>app_metadata.provider</code> 는 스펙 예시값과 <strong>동일</strong>하다.
+          매핑 테이블 불필요. 알 수 없는 값은 <code>'undefined'</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>7. 검증</h2>
+<div class="note ok">
+  <p><code>flutter analyze</code> (신규/변경 파일 7개 대상): <strong>1 issue</strong> —
+     <code>app_initializer.dart:73</code> Sentry <code>profilesSampleRate</code> experimental 경고.
+     본 작업 이전부터 존재하던 항목으로, 신규 도입 error/warning은 0.</p>
+  <p><code>flutter test test/core/</code>: <strong>3192 tests, All tests passed</strong>
+     (신규 analytics 테스트 62건 포함).</p>
+</div>
+
+</body>
+</html>

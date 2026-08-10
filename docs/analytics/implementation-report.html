@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GA4 이벤트 택소노미 Flutter 구현 리포트</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+    line-height: 1.7; max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 6rem;
+    color: #1a1a1a; background: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { color: #e6e6e6; background: #16181c; }
+    table { border-color: #3a3f47; }
+    th { background: #22262c; }
+    td, th { border-color: #3a3f47; }
+    code { background: #262b32; color: #e6e6e6; }
+    pre { background: #1c2026; border-color: #3a3f47; }
+    .box { background: #1c2026; border-color: #3a3f47; }
+    .warn { background: #3a2a12; border-color: #7a5a1e; }
+    .ok { background: #16301f; border-color: #2c6b41; }
+    a { color: #7fb3ff; }
+    .muted { color: #9aa3ad; }
+  }
+  h1 { font-size: 1.85rem; margin-bottom: .3rem; letter-spacing: -.02em; }
+  h2 { font-size: 1.3rem; margin-top: 2.6rem; padding-bottom: .35rem; border-bottom: 2px solid currentColor; }
+  h3 { font-size: 1.05rem; margin-top: 1.8rem; }
+  .sub { color: #6b7280; margin-top: 0; font-size: .95rem; }
+  .muted { color: #6b7280; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid #d7dbe0; padding: .5rem .65rem; text-align: left; vertical-align: top; }
+  th { background: #f3f5f7; font-weight: 600; }
+  td.n, th.n { text-align: right; white-space: nowrap; }
+  code { background: #f0f2f5; padding: .12em .38em; border-radius: 3px; font-size: .9em;
+         font-family: "SF Mono", Menlo, Consolas, monospace; }
+  pre { background: #f6f8fa; border: 1px solid #d7dbe0; border-radius: 6px;
+        padding: .85rem 1rem; overflow-x: auto; font-size: .86rem; }
+  pre code { background: none; padding: 0; }
+  .box { background: #f6f8fa; border: 1px solid #d7dbe0; border-left-width: 4px;
+         border-radius: 4px; padding: .85rem 1.1rem; margin: 1.1rem 0; }
+  .warn { background: #fff8e6; border-color: #e0b34d; border-left-color: #d99a00; }
+  .ok { background: #eefaf1; border-color: #9fd6b0; border-left-color: #2c8f4f; }
+  .scroll { overflow-x: auto; }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin: .3rem 0; }
+  .tag { display: inline-block; font-size: .78rem; padding: .1em .5em; border-radius: 3px;
+         background: #e5e8ec; color: #333; white-space: nowrap; }
+  @media (prefers-color-scheme: dark) { .tag { background: #333a42; color: #ddd; } }
+</style>
+</head>
+<body>
+
+<h1>GA4 이벤트 택소노미 Flutter 구현 리포트</h1>
+<p class="sub">
+  출처: <a href="https://docs.google.com/spreadsheets/d/1JfC-wGcmGYJIOxOyNGys1ypRsVGtvwDvkjliTX3B6p8/edit?gid=0#gid=0">이벤트 택소노미 스프레드시트</a><br>
+  작업 위치: <code>/Users/charlie.hyun/orca/workspaces/picnic-app/텍소노미</code> · 브랜치 <code>charlie0421/텍소노미</code> · <strong>미커밋</strong><br>
+  작성일: 2026-08-07
+</p>
+
+<h2>결론</h2>
+
+<div class="box ok">
+<p><strong>스프레드시트의 10개 이벤트 중 9개와 사용자 속성 3종을 구현했습니다.</strong>
+<code>click_attendance</code> 는 출석 보상이 제품에서 폐지되어 진입 UI가 없으므로 구현이 불가능합니다.</p>
+<p>구현 과정에서 반대 공급자 모델의 적대적 리뷰를 4회 돌려, <strong>배포됐다면 매출 데이터를 망가뜨렸을 결함 5건</strong>을 잡았습니다.
+마지막 검증에서 리뷰어는 배포 가능 판정을 냈습니다.</p>
+<p><strong>출시 전 제품 결정이 필요한 항목 1건</strong>이 남아 있습니다 (아래 §5).</p>
+</div>
+
+<h2>1. 검증 결과</h2>
+
+<p>모든 수치는 워커 보고가 아니라 <strong>코디네이터가 직접 실행한 결과</strong>입니다.</p>
+
+<table>
+<thead><tr><th>항목</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td><code>flutter test</code> (전체)</td><td><strong>12,789개 실행 / 실패 8건</strong></td></tr>
+<tr><td>실패 8건의 정체</td><td>전부 <code>usage_policy_dialog_golden_test.dart</code> 골든 픽셀 diff. 깨끗한 <code>HEAD</code>(<code>c1e7100be</code>) 워크트리에서 동일하게 <code>+0 -8</code> 재현 확인 → <strong>이번 작업의 회귀 아님</strong></td></tr>
+<tr><td><code>flutter analyze lib test</code></td><td>error 5건 — 전부 이번 작업이 <strong>수정하지 않은</strong> 파일 (<code>debug_dialog_handler.dart</code> 4건, <code>test/helpers/mocks/mock_services.dart</code> 1건). 해당 메서드는 <code>HEAD</code>에도 없는 기존 부채</td></tr>
+<tr><td>변경 영역 신규 error/warning</td><td><strong>0</strong></td></tr>
+<tr><td>변경 규모</td><td>57개 파일, +11,503 / −275</td></tr>
+</tbody>
+</table>
+
+<h2>2. 구현 내용</h2>
+
+<h3>이벤트 9종</h3>
+
+<div class="scroll">
+<table>
+<thead><tr><th>이벤트</th><th>트리거 지점</th><th>발송 조건</th></tr></thead>
+<tbody>
+<tr><td><code>login</code></td><td><code>app_initializer.dart</code> — <code>AuthChangeEvent.signedIn</code></td><td>세션 복원 재발화는 <code>userId|last_sign_in_at</code> 서명으로 차단</td></tr>
+<tr><td><code>sign_up</code></td><td>동일</td><td><code>created_at ≈ last_sign_in_at</code> 30초 창 + 사용자별 영속 마커. <code>login</code> 중복 판정과 <strong>독립</strong></td></tr>
+<tr><td><code>click_attendance</code></td><td colspan="2"><strong>미구현</strong> — 출석 보상 폐지로 진입 UI 부재</td></tr>
+<tr><td><code>click_mission</code></td><td><code>free_charge_station.dart</code> 미션 버튼</td><td>—</td></tr>
+<tr><td><code>ad_request</code></td><td><code>free_charge_station.dart</code> 시청 버튼</td><td>—</td></tr>
+<tr><td><code>ad_impression</code></td><td><code>admob_platform.dart</code> <code>onAdImpression</code> / 내부 숏폼</td><td>AdMob 자동수집과 중복 가능 (§4 #4)</td></tr>
+<tr><td><code>earn_virtual_currency</code></td><td>서버 적립 확정 시점</td><td>콜백만으로 발송하지 않음 — <strong>서버 확정 후</strong></td></tr>
+<tr><td><code>ad_click</code></td><td><code>shortform_internal_platform.dart</code> CTA</td><td>스펙과 달리 AdMob이 아닌 <strong>내부 숏폼</strong> 광고</td></tr>
+<tr><td><code>purchase</code></td><td><code>purchase_service.dart</code> 영수증 검증 성공 후</td><td>스토어 콜백만으로 발송 금지. 복원(restore) 구매 방어 게이트</td></tr>
+<tr><td><code>vote</code></td><td><code>voting_dialog.dart</code> 등 3종 다이얼로그</td><td>서버 제출 2xx 직후</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>durable analytics outbox</h3>
+
+<p>이벤트 payload를 sink 호출 전에 <code>analytics_ga4_outbox_v1</code>에 영속 저장하고,
+<strong>sink가 성공을 반환한 항목만</strong> 제거합니다. 스토어 거래·위젯·프로세스 수명과 독립적으로 재시도합니다.</p>
+
+<ul>
+<li>재시도: enqueue 직후 / Firebase 초기화 직후 / 실패 30초 뒤. I/O 2초, sink 5초 timeout</li>
+<li>동시성: storage-key 전역 mutex로 read-modify-write 직렬화, 항목별 in-flight 예약을 첫 <code>await</code> 전에 확보</li>
+<li>용량: pending 200건·30일(<code>purchase</code> 365일), delivered 500건·180일. 초과·만료는 전부 로그로 노출</li>
+</ul>
+
+<p><strong>이벤트별 중복/누락 정책</strong>을 갈랐습니다. GA4는 <code>transaction_id</code>로 <code>purchase</code>만 중복 제거하므로,
+그 근거를 다른 이벤트에 일괄 적용하면 지표가 부풀려집니다.</p>
+
+<table>
+<thead><tr><th>이벤트</th><th>정책</th></tr></thead>
+<tbody>
+<tr><td><code>purchase</code></td><td>at-least-once — GA4가 중복 흡수</td></tr>
+<tr><td><code>earn_virtual_currency</code> · <code>login</code> · <code>sign_up</code></td><td>sink <code>true</code> 후 <code>delivery_confirmed</code> checkpoint 저장 → cleanup 실패는 재전송하지 않음</td></tr>
+</tbody>
+</table>
+
+<h2>3. 리뷰가 잡아낸 결함</h2>
+
+<p>구현 → 리뷰 → 수정 → 재검증을 4회 반복했습니다. <strong>2·3차 재검증은 직전 수정이 새로 만든 blocker를 잡았습니다.</strong>
+1회로 끝냈다면 "고쳤다"고 믿으면서 같은 병을 다른 자리에 심은 채 배포됐을 것입니다.</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th class="n">라운드</th><th>발견</th><th>내용</th></tr></thead>
+<tbody>
+<tr><td class="n">1차</td><td><span class="tag">blocker</span> 매출 영구 누락</td><td><code>replayed</code> 플래그를 analytics 발송 증거로 오용 — 정산 재전달 여부와 발송 여부는 다른 사실</td></tr>
+<tr><td class="n"></td><td><span class="tag">blocker</span> 거래 ID 충돌</td><td><code>purchaseID</code> 없으면 <code>transaction_id='undefined'</code> → 서로 다른 결제가 같은 거래로 집계</td></tr>
+<tr><td class="n"></td><td><span class="tag">blocker</span> dedup 경쟁</td><td>메모리 확인 후 <code>await</code> 양보 → 동시 진입 시 둘 다 통과</td></tr>
+<tr><td class="n"></td><td><span class="tag">major</span> ×6</td><td><code>ja</code>/<code>jp</code> 불일치, 재화명 이중 관리, earn/auth 중복 방어 미비 등</td></tr>
+<tr><td class="n">2차</td><td><span class="tag">blocker</span> 마커 선기록</td><td><strong>1차 수정이 만든 결함.</strong> Sink가 실패를 성공처럼 삼키는데 마커를 전송 <em>전에</em> 저장 → 영구 누락</td></tr>
+<tr><td class="n"></td><td><span class="tag">major</span> ×4</td><td>저장 실패 은폐, lost update, 실효 용량 절반, auth 사용자 전환 오보고</td></tr>
+<tr><td class="n">3차</td><td><span class="tag">blocker</span> 재시도 경로 소멸</td><td><strong>2차 수정이 만든 결함.</strong> 스토어 거래를 analytics 실패와 무관하게 finish → 다시 흘러올 경로 없음</td></tr>
+<tr><td class="n"></td><td><span class="tag">major</span> ×5</td><td>legacy earn 우회, sink timeout 부재, 마이그레이션 중복 등</td></tr>
+<tr><td class="n">—</td><td><span class="tag">회귀</span> ×8</td><td>outbox 구현자가 샌드박스 제약으로 <strong>테스트를 한 번도 못 돌린 채</strong> 완료 보고 → 코디네이터가 전체 실행해 발견</td></tr>
+<tr><td class="n">4차</td><td><span class="tag">major</span> <code>sign_up</code> 영구 누락</td><td><code>sign_up</code> 저장만 실패 + <code>login</code> 성공 → login 서명이 <code>sign_up</code>까지 억제</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>추가로 드러난 것</h3>
+<ul>
+<li><strong><code>currency: 'undefined'</code> 가 GA4 매출을 통째로 무시하게 만들고 있었습니다.</strong>
+스펙의 "값이 없으면 <code>undefined</code>" 규칙을 <code>currency</code>에 적용한 결과인데, GA4는 ISO 4217 위반 통화면 <code>value</code>를 집계하지 않습니다.</li>
+<li><code>AnalyticsService</code>가 이미 <code>FirebaseAnalytics.instance.logEvent('purchase')</code>를 직접 호출하고 있었습니다.
+발견하지 못했다면 <code>purchase</code>가 2번 나가 매출이 2배로 잡혔을 것입니다.</li>
+</ul>
+
+<h2>4. 대행사 회신 항목</h2>
+
+<p>스펙과 실제 제품/코드가 어긋나는 지점입니다. 상세는 <code>docs/analytics/ga4-event-taxonomy.md</code> §4.</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th class="n">#</th><th>항목</th><th>처리</th></tr></thead>
+<tbody>
+<tr><td class="n">1</td><td><code>click_attendance</code> 구현 불가 — 출석 보상 폐지로 진입 UI 전량 제거</td><td>이벤트 제외 요청</td></tr>
+<tr><td class="n">2</td><td><code>user_id</code> 해싱 불필요 — Supabase UUID는 PII가 아니고, 해싱하면 BigQuery↔DB 조인과 기존 히스토리가 끊김</td><td>raw UUID 유지 통지</td></tr>
+<tr><td class="n">3</td><td>user property 이름 불일치 — 시트마다 <code>language</code> / <code>selected_language</code></td><td><code>language</code>로 통일</td></tr>
+<tr><td class="n">4</td><td><code>ad_impression</code> — AdMob↔Firebase 연동 시 GA4가 동일 이름을 자동 수집</td><td>GA4 콘솔 중복 확인 요청</td></tr>
+<tr><td class="n">5</td><td><code>earn_virtual_currency</code> 비표준 — GA4 표준은 <code>value</code>, 스펙은 <code>reward_amount</code></td><td>스펙대로 구현</td></tr>
+<tr><td class="n">6</td><td>Number 파라미터에 <code>undefined</code> 문자열을 넣으면 GA4가 키를 한 타입으로만 등록해 반대 타입이 통째로 누락</td><td>Number는 값 없으면 파라미터 생략</td></tr>
+<tr><td class="n">7</td><td><code>sign_up</code> 판별 — Supabase가 신규 가입 여부를 주지 않아 <code>created_at ≈ last_sign_in_at</code> 30초 창으로 판정</td><td>판별 기준 확인 요청</td></tr>
+<tr><td class="n">8</td><td><code>currency</code>는 <code>undefined</code> 대체 불가 (ISO 4217 위반 시 매출 무시)</td><td>값 없으면 <code>currency</code>·<code>value</code> 동시 생략</td></tr>
+<tr><td class="n">9</td><td><strong>재화 이름</strong> — 스펙은 <code>별사탕</code>이나 앱 지갑 UI 실제 표시는 <code>스타캔디</code>/<code>보너스 스타캔디</code>/<code>코튼캔디</code>.
+스타캔디와 코튼캔디는 <strong>별개로 공존하는 재화</strong>라 스펙대로 보내면 둘이 한 값으로 합쳐짐</td><td>제품 실제값 사용 통지</td></tr>
+<tr><td class="n">10</td><td><code>vote</code> 가산 파라미터 — 한 번의 투표에 여러 재화가 섞여 쓰이므로
+<code>star_candy_usage</code>/<code>star_candy_bonus_usage</code>/<code>cotton_candy_usage</code>를 추가 (DB 필드명과 일치)</td><td><strong>승인 요청</strong></td></tr>
+<tr><td class="n">11</td><td>언어 코드 — 앱은 <code>ja</code>, 스펙은 <code>jp</code></td><td>analytics 경계에서 <code>ja→jp</code> 정규화 적용</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>5. 출시 전 제품 결정이 필요한 항목</h2>
+
+<div class="box warn">
+<p><strong>카탈로그 미적재 복구 구매의 매출 누락</strong></p>
+<p>정산 확정 시점에 스토어 상품 카탈로그가 메모리에 없으면 <code>currency</code>/<code>value</code> 없이 <code>purchase</code>를 확정합니다.
+숫자를 지어내지 않고 거래 사실부터 durable하게 남기는 선택입니다.</p>
+<p>결과: <strong><code>purchase</code> 건수는 남지만 그 건의 매출액은 복원되지 않습니다.</strong> 수용 여부를 정해야 합니다.</p>
+</div>
+
+<p>그 외 문서화된 한계 5건은 <code>docs/analytics/ga4-event-taxonomy.md</code> §7에 있습니다 —
+non-purchase 이벤트의 좁은 중복 창, outbox 용량/만료, captured auth context의 귀속 경쟁,
+SharedPreferences 최초 실패의 고착, <code>ad_impression</code> 자동수집 중복.</p>
+
+<h2>6. 산출물</h2>
+
+<table>
+<thead><tr><th>경로</th><th>내용</th></tr></thead>
+<tbody>
+<tr><td><code>docs/analytics/ga4-event-taxonomy.md</code></td><td>구현 기준 문서 — 이벤트 정의, 대행사 확인 항목, outbox 설계, 알려진 한계</td></tr>
+<tr><td><code>picnic_lib/lib/core/analytics/</code></td><td>타입 안전한 GA4 레이어, durable outbox, Sink 계약, 재화명·언어 정규화</td></tr>
+<tr><td><code>.orca-notes/ga4_trigger_mapping.md</code></td><td>코드베이스 실측 트리거 지점 매핑</td></tr>
+<tr><td><code>.orca-notes/ga4-analytics-api-contract.html</code></td><td>공개 API 계약 전문</td></tr>
+</tbody>
+</table>
+
+<h2>7. 다음 단계</h2>
+
+<ol>
+<li>§5의 제품 결정 (카탈로그 미적재 복구 구매 매출 누락 수용 여부)</li>
+<li>대행사에 §4의 11개 항목 회신 — 특히 #1(<code>click_attendance</code> 제외), #9(재화명), #10(<code>vote</code> 가산 파라미터 승인)</li>
+<li>커밋 및 PR — <strong>아직 커밋하지 않았습니다.</strong> 요청하시면 진행합니다</li>
+<li>GA4 콘솔에서 맞춤 측정기준 등록 (스펙의 30개 파라미터)</li>
+<li>배포 후 <code>ad_impression</code> 자동수집 중복 여부 실측 확인</li>
+</ol>
+
+<p class="muted" style="margin-top:2.5rem">
+구현: Claude Opus 5 ×3, Codex GPT-5.6 Sol · 조사: Gemini 3.6 Flash High · 리뷰: Codex GPT-5.6 Sol ×4 · 수정: Claude Fable 5 ×2<br>
+반대 공급자 교차 리뷰 원칙에 따라 구현자와 리뷰어를 항상 다른 공급자로 배치했습니다.
+</p>
+
+</body>
+</html>
