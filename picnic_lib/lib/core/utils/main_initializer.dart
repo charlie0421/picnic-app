@@ -5,6 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
+import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -94,7 +96,19 @@ class MainInitializer {
         group1.add(AppInitializer.initializePrivacyConsent());
       }
       await Future.wait(group1);
-      logger.i('SDK Group 1 초기화 완료 (Supabase, Firebase, WebP, Timezone, Privacy)');
+      logger.i(
+        'SDK Group 1 초기화 완료 (Supabase, Firebase, WebP, Timezone, Privacy)',
+      );
+
+      // Firebase가 준비된 첫 시점에 이전 프로세스의 미전송 GA4 payload를
+      // 재시도한다. drain은 SDK/화면 초기화를 막지 않으며 각 sink 호출은 자체
+      // timeout을 가진다. auth 항목은 captured user로 보낸 뒤 이 reader의 현재
+      // 사용자(B 또는 logout)를 복원한다.
+      AnalyticsOutbox.configureActiveUserContext(
+        userIdReader: () => supabase.auth.currentUser?.id,
+        languageReader: Intl.getCurrentLocale,
+      );
+      unawaited(AnalyticsOutbox.instance.flush());
 
       // Supabase 헬스체크 (개발 환경에서만)
       if (kDebugMode) {
@@ -107,29 +121,49 @@ class MainInitializer {
 
       Future<void> otherSdksFuture = Future.value();
       if (UniversalPlatform.isMobile) {
-        otherSdksFuture = Future.wait([
-          AppInitializer.initializeTapjoy(),
-          FlutterBranchSdk.init(
-            enableLogging: true,
-            branchAttributionLevel: BranchAttributionLevel.NONE,
-          ),
-          _initializeAdMob(),
-        ]).then((_) {}).catchError((e, s) {
-          // 광고/딥링크 SDK 실패는 앱 사용에 치명적이지 않으므로 로깅만
-          logger.e('SDK Group 2 (non-auth) 초기화 실패', error: e, stackTrace: s);
-        });
+        otherSdksFuture =
+            Future.wait([
+              AppInitializer.initializeTapjoy(),
+              FlutterBranchSdk.init(
+                enableLogging: true,
+                branchAttributionLevel: BranchAttributionLevel.NONE,
+              ),
+              _initializeAdMob(),
+            ]).then((_) {}).catchError((e, s) {
+              // 광고/딥링크 SDK 실패는 앱 사용에 치명적이지 않으므로 로깅만
+              logger.e(
+                'SDK Group 2 (non-auth) 초기화 실패',
+                error: e,
+                stackTrace: s,
+              );
+            });
       }
 
       await Future.wait([authFuture, otherSdksFuture]);
       logger.i('SDK Group 2 초기화 완료 (Auth, Tapjoy, Branch, AdMob)');
 
-      // Analytics 사용자 속성 설정 (Auth 완료 후)
+      // Analytics 사용자 속성 설정 (Auth 완료 후).
+      //
+      // 여기서는 사용자 속성만 세팅하고 login 이벤트는 보내지 않는다.
+      // 이 경로는 앱 시작 시 "복원된 세션"이라 로그인 통신 시점이 아니다
+      // (택소노미 §2-1 트리거는 로그인 완료 통신 시점). login/sign_up 은
+      // AppInitializer.setupSupabaseAuthListener 가 담당한다.
       try {
         final user = supabase.auth.currentUser;
+        final currentLocale = Intl.getCurrentLocale();
         if (user != null) {
           await AppAnalytics.setUserAndSessionProperties(
             userId: user.id,
-            locale: Intl.getCurrentLocale(),
+            locale: currentLocale,
+            language: currentLocale,
+            isLogin: true,
+          );
+        } else {
+          // 비로그인 세션도 is_login='N' / language 는 세팅돼야 세그먼트가 갈린다.
+          await PicnicAnalytics.instance.setUserProperties(
+            userId: null,
+            isLogin: false,
+            language: currentLocale,
           );
         }
       } catch (_) {}

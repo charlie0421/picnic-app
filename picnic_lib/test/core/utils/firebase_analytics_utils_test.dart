@@ -1,6 +1,9 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/analytics/ga4_sink.dart';
+import 'package:picnic_lib/core/analytics/ga4_taxonomy.dart';
+import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
 import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
 
 void main() {
@@ -80,6 +83,82 @@ void main() {
           userRole: '',
           locale: '',
         );
+      });
+
+      test('accepts the new language / isLogin parameters', () async {
+        await AppAnalytics.setUserAndSessionProperties(
+          userId: 'user-lang',
+          language: 'jp',
+          isLogin: true,
+        );
+      });
+    });
+
+    // GA4 택소노미 §1 — AppAnalytics 는 PicnicAnalytics 로 위임하므로,
+    // 실제로 어떤 사용자 속성이 어떤 이름/값으로 나가는지는 싱크를 갈아끼워
+    // 검증한다.
+    group('GA4 사용자 속성 위임', () {
+      late RecordingGa4Sink sink;
+
+      setUp(() {
+        sink = RecordingGa4Sink();
+        PicnicAnalytics.overrideInstance(PicnicAnalytics(sink: sink));
+      });
+
+      tearDown(PicnicAnalytics.resetInstance);
+
+      test('user_id 는 해시 없이 원본 UUID 로 전달된다', () async {
+        const uuid = '7c9e6679-7425-40de-944b-e07fc1f90ae7';
+
+        await AppAnalytics.setUserAndSessionProperties(
+          userId: uuid,
+          locale: 'ko',
+        );
+
+        expect(sink.userIds, <String?>[uuid]);
+      });
+
+      test('is_login=Y 와 language 가 설정된다', () async {
+        await AppAnalytics.setUserAndSessionProperties(
+          userId: 'u1',
+          language: 'en',
+        );
+
+        expect(sink.userProperties[Ga4UserProperty.isLogin],
+            Ga4Value.loggedIn);
+        expect(sink.userProperties[Ga4UserProperty.language], 'en');
+      });
+
+      test('language 를 생략하면 locale 이 language 로 쓰인다', () async {
+        await AppAnalytics.setUserAndSessionProperties(
+          userId: 'u1',
+          locale: 'ko',
+        );
+
+        expect(sink.userProperties[Ga4UserProperty.language], 'ko');
+      });
+
+      test('레거시 속성 user_role / is_tester / app_env 가 유지된다', () async {
+        await AppAnalytics.setUserAndSessionProperties(
+          userId: 'u1',
+          userRole: 'admin',
+          locale: 'ko',
+          isTester: true,
+        );
+
+        expect(sink.userProperties[Ga4UserProperty.userRole], 'admin');
+        expect(sink.userProperties[Ga4UserProperty.locale], 'ko');
+        expect(sink.userProperties[Ga4UserProperty.isTester], 'true');
+        expect(sink.userProperties[Ga4UserProperty.appEnv], 'production');
+      });
+
+      test('로그아웃 시 is_login 이 N 으로 갱신된다', () async {
+        await AppAnalytics.setUserAndSessionProperties(userId: 'u1');
+        await AppAnalytics.clearUserAndSessionProperties();
+
+        expect(sink.userProperties[Ga4UserProperty.isLogin],
+            Ga4Value.loggedOut);
+        expect(sink.userIds.last, isNull);
       });
     });
 

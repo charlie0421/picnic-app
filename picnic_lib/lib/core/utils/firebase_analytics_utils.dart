@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
 import 'package:picnic_lib/core/navigation/app_route_observer.dart';
 
 /// SentryNavigatorObserver: 라우트 push/pop 을 브레드크럼으로 남기고 현재
@@ -40,55 +41,41 @@ class AppAnalytics {
     return observers;
   }
 
-  /// 사용자/세션 속성 설정
+  /// 사용자/세션 속성 설정 (GA4 택소노미 §1).
+  ///
+  /// 스펙이 요구하는 속성은 `user_id` / `is_login` / `language` 다.
+  /// 기존 `user_role` / `locale` / `is_tester` / `app_env` 는 기존 리포트가
+  /// 의존할 수 있어 제거하지 않고 그대로 유지한다.
+  ///
+  /// [userId] 는 **해시하지 않은** Supabase `auth.users.id` (UUID) 다.
+  /// 근거는 [PicnicAnalytics.setUserProperties] 주석 및
+  /// docs/analytics/ga4-event-taxonomy.md 참고.
+  ///
+  /// [language] 를 주지 않으면 [locale] 을 사용한다 — 두 값이 사실상 같은
+  /// 언어 코드이고, 기존 호출부가 locale 만 넘기던 경로를 깨지 않기 위함이다.
   static Future<void> setUserAndSessionProperties({
     required String userId,
     String? userRole,
     String? locale,
     bool? isTester,
+    String? language,
+    bool isLogin = true,
   }) async {
-    try {
-      final isInitialized = firebase_core.Firebase.apps.isNotEmpty;
-      if (!isInitialized) return;
-
-      final analytics = FirebaseAnalytics.instance;
-      await analytics.setUserId(id: userId);
-
-      // 사용자 속성
-      if (userRole != null && userRole.isNotEmpty) {
-        await analytics.setUserProperty(name: 'user_role', value: userRole);
-      }
-      if (locale != null && locale.isNotEmpty) {
-        await analytics.setUserProperty(name: 'locale', value: locale);
-      }
-      if (isTester != null) {
-        await analytics.setUserProperty(
-          name: 'is_tester',
-          value: isTester ? 'true' : 'false',
-        );
-      }
-
-      // 세션 관련 예시 속성 (필요 시 확장)
-      await analytics.setUserProperty(name: 'app_env', value: 'production');
-    } catch (_) {
-      // 에러 무시 (로그만 남기지 않음)
-    }
+    await PicnicAnalytics.instance.setUserProperties(
+      userId: userId,
+      isLogin: isLogin,
+      language: language ?? locale,
+      userRole: userRole,
+      locale: locale,
+      isTester: isTester,
+      appEnv: 'production',
+    );
   }
 
-  /// 사용자/세션 속성 해제 (로그아웃 등)
+  /// 사용자/세션 속성 해제 (로그아웃 등).
+  ///
+  /// `is_login` 은 제거하지 않고 `'N'` 으로 갱신한다 (스펙 §1).
   static Future<void> clearUserAndSessionProperties() async {
-    try {
-      final isInitialized = firebase_core.Firebase.apps.isNotEmpty;
-      if (!isInitialized) return;
-
-      final analytics = FirebaseAnalytics.instance;
-      await analytics.setUserId(id: null);
-
-      // 등록했던 속성들 초기화 (null로 설정하면 제거)
-      await analytics.setUserProperty(name: 'user_role', value: null);
-      await analytics.setUserProperty(name: 'locale', value: null);
-      await analytics.setUserProperty(name: 'is_tester', value: null);
-      await analytics.setUserProperty(name: 'app_env', value: null);
-    } catch (_) {}
+    await PicnicAnalytics.instance.clearUserProperties();
   }
 }

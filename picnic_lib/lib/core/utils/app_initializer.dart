@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:picnic_lib/core/analytics/auth_analytics_reporter.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/account_deletion_handler.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
@@ -44,7 +45,6 @@ class AppInitializer {
     logger.i('Widget binding initialized');
     BindingBase.debugZoneErrorsAreFatal = true;
     await initializeGlobalErrorHandling();
-
   }
 
   /// MaterialApp 초기화 대기
@@ -125,14 +125,16 @@ class AppInitializer {
 
         // App Hanging / ANR culprit 매칭용 — stack 의 광고 SDK frame 검출
         // (PICNIC-APP-45E/45S/56S 등의 PAG/GAD/Tapjoy/Branch 노이즈 차단).
-        final stackFrameFunctions = exception?.stackTrace?.frames
+        final stackFrameFunctions =
+            exception?.stackTrace?.frames
                 .map((f) => f.function ?? '')
                 .toList() ??
             const <String>[];
 
         // system-only ANR 판별용 — stack 이 전부 system frame (inApp=false) 이면
         // 우리가 분석할 수 있는 정보가 없는 ANR (PICNIC-APP-45E 등).
-        final stackFrameInApp = exception?.stackTrace?.frames
+        final stackFrameInApp =
+            exception?.stackTrace?.frames
                 .map((f) => f.inApp ?? false)
                 .toList() ??
             const <bool>[];
@@ -203,10 +205,7 @@ class AppInitializer {
           'shorebird.patch_number',
           patchNumber?.toString() ?? 'none',
         );
-        scope.setTag(
-          'shorebird.has_patch',
-          patchNumber != null ? 'yes' : 'no',
-        );
+        scope.setTag('shorebird.has_patch', patchNumber != null ? 'yes' : 'no');
       });
       logger.i('🏷️ Sentry shorebird tag set: patch_number=$patchNumber');
     } catch (e, st) {
@@ -308,7 +307,8 @@ class AppInitializer {
     // `FlutterError.presentError` 로 미뤄 그 스왑을 살린다. 누군가 명시적으로
     // 다른 핸들러를 꽂아 뒀다면 그건 그대로 존중한다. null(에러 출력을
     // 의도적으로 끈 경우)도 진단을 잃지 않도록 같은 갈래로 보낸다.
-    final delegateToLivePresentError = previousFlutterOnError == null ||
+    final delegateToLivePresentError =
+        previousFlutterOnError == null ||
         identical(previousFlutterOnError, FlutterError.presentError);
 
     FlutterError.onError = (details) {
@@ -664,10 +664,7 @@ class AppInitializer {
 
         ref
             .read(appInitializationProvider.notifier)
-            .updateState(
-              updateInfo: updateInfo,
-              isBanned: isBanned,
-            );
+            .updateState(updateInfo: updateInfo, isBanned: isBanned);
       } catch (e, s) {
         logger.e('모바일 초기화 중 오류 발생:', error: e, stackTrace: s);
       }
@@ -745,11 +742,47 @@ class AppInitializer {
         .updateState(hasNetwork: isOnline);
   }
 
-  static Future<void> initializeSystemUI() =>
-      SystemUIInitializer.initialize();
+  static Future<void> initializeSystemUI() => SystemUIInitializer.initialize();
+
+  /// GA4 login / sign_up 발송기. 로그인 서명을 영속 저장해 앱 재시작 시
+  /// 세션 복원으로 인한 중복 발송을 막는다.
+  static final AuthAnalyticsReporter _authAnalyticsReporter =
+      AuthAnalyticsReporter();
+
+  /// signedIn/signedOut 전체를 한 순서로 묶는다. Stream.listen의 async 콜백은
+  /// 이전 콜백 완료를 기다리지 않으므로, reporter만 직렬화해서는 그 앞의
+  /// set/clearUserProperties가 다른 사용자의 이벤트와 섞인다.
+  static Future<void> _authAnalyticsEventTail = Future<void>.value();
+  static const Duration _authAnalyticsStepTimeout = Duration(seconds: 5);
+
+  static Future<void> _serializeAuthAnalyticsEvent(
+    Future<void> Function() action,
+  ) {
+    final next = _authAnalyticsEventTail.then((_) => action());
+    _authAnalyticsEventTail = next.catchError((Object _) {});
+    return next;
+  }
+
+  /// 현재 살아 있는 auth 리스너. `initializeApp` 은 static 메서드라
+  /// (splash 재시도 / web 진입 / 초기화 재실행) 여러 번 돌 수 있고, 그때마다
+  /// 리스너를 새로 붙이면 하나의 `signedIn` 이 N번 처리되어 `login` /`sign_up`
+  /// 이 N번 발송된다. 항상 **정확히 하나**만 유지한다.
+  static StreamSubscription<AuthState>? _authListenerSubscription;
+
+  /// 이전 구독을 끊고 하나만 남긴다. (재설치는 새 [WidgetRef] 로 갈아끼우는
+  /// 의미도 있어, 무시하지 않고 교체한다 — 이전 ref 는 이미 폐기됐을 수 있다.)
+  @visibleForTesting
+  static void resetSupabaseAuthListenerForTest() {
+    unawaited(_authListenerSubscription?.cancel());
+    _authListenerSubscription = null;
+    _authAnalyticsEventTail = Future<void>.value();
+  }
 
   static void setupSupabaseAuthListener(WidgetRef ref) {
-    supabase.auth.onAuthStateChange.listen((data) async {
+    unawaited(_authListenerSubscription?.cancel());
+    _authListenerSubscription = supabase.auth.onAuthStateChange.listen((
+      data,
+    ) async {
       try {
         final session = data.session;
         if (session != null) {
@@ -757,53 +790,38 @@ class AppInitializer {
         }
 
         if (data.event == AuthChangeEvent.signedIn) {
-          try {
-            final userInfoState = ref.read(userInfoProvider);
-            final shouldFetchProfile = userInfoState.maybeWhen(
-              loading: () => false,
-              data: (profile) => profile == null,
-              orElse: () => true,
-            );
-
-            if (shouldFetchProfile) {
-              await ref.read(userInfoProvider.notifier).getUserProfiles();
-            } else {
-              logger.i('프로필 데이터가 이미 로드되어 중복 호출을 생략합니다.');
-            }
-          } catch (e) {
-            logger.e('getUserProfiles 호출 중 오류: $e');
-            // ref가 더 이상 유효하지 않을 수 있으므로 무시
-          }
-          try {
-            final user = supabase.auth.currentUser;
-            if (user != null) {
-              String? userRole;
-              try {
-                final p = ref.read(userInfoProvider).value;
-                if (p != null) {
-                  userRole = p.isAdmin == true ? 'admin' : 'user';
-                }
-              } catch (_) {}
-
-              String? locale;
-              try {
-                final appSetting = ref.read(appSettingProvider);
-                if (appSetting.language.isNotEmpty) {
-                  locale = appSetting.language;
-                }
-              } catch (_) {}
-
-              await AppAnalytics.setUserAndSessionProperties(
-                userId: user.id,
-                userRole: userRole,
-                locale: locale,
-                isTester: kDebugMode,
+          await handleSignedIn(
+            data,
+            ensureProfileLoaded: () async {
+              final userInfoState = ref.read(userInfoProvider);
+              final shouldFetchProfile = userInfoState.maybeWhen(
+                loading: () => false,
+                data: (profile) => profile == null,
+                orElse: () => true,
               );
-            }
-          } catch (_) {}
+
+              if (shouldFetchProfile) {
+                await ref.read(userInfoProvider.notifier).getUserProfiles();
+              } else {
+                logger.i('프로필 데이터가 이미 로드되어 중복 호출을 생략합니다.');
+              }
+            },
+            readUserRole: () {
+              final p = ref.read(userInfoProvider).value;
+              if (p == null) return null;
+              return p.isAdmin == true ? 'admin' : 'user';
+            },
+            readLocale: () {
+              final appSetting = ref.read(appSettingProvider);
+              return appSetting.language.isNotEmpty
+                  ? appSetting.language
+                  : null;
+            },
+            readActiveUserId: () => supabase.auth.currentUser?.id,
+          );
         } else if (data.event == AuthChangeEvent.signedOut) {
           logger.i('User signed out');
-          await AppAnalytics.clearUserAndSessionProperties();
+          await handleSignedOut();
         }
       } catch (e, s) {
         logger.e('인증 상태 변경 처리 중 오류:', error: e, stackTrace: s);
@@ -812,6 +830,162 @@ class AppInitializer {
 
     // 필요한 경우 나중에 구독 취소 로직 추가
     // (dispose 메서드가 있는 위젯 내에서 호출될 경우)
+  }
+
+  /// `signedIn` 이벤트 한 건의 analytics 처리.
+  ///
+  /// ## 이벤트의 주인은 첫 `await` 이전에 확정한다
+  ///
+  /// 리스너 콜백은 async 이고 Dart 의 스트림은 async 리스너의 완료를 기다리지
+  /// 않는다. 그래서 A 의 콜백이 프로필 fetch 에서 대기하는 동안 B 의
+  /// `signedIn` 이 들어올 수 있다. 예전 코드는 그 대기 뒤에 **전역**
+  /// `supabase.auth.currentUser` 를 읽었으므로, 그 시점에는 이미 B 였다 —
+  /// A 의 로그인이 B 의 것으로 보고되고, 뒤이은 B 의 콜백은 같은 서명으로
+  /// 중복 판정돼 걸러진다. 결과적으로 **A 의 login 이 통째로 사라진다.**
+  ///
+  /// 여기서는 `data.session!.user` 를 첫 `await` 전에 잡아 끝까지 들고 간다.
+  /// 이벤트마다 주인이 하나로 고정되므로 전환이 몇 번 일어나든 A 는 A 로,
+  /// B 는 B 로 보고된다.
+  ///
+  /// 부수효과를 콜백으로 받는 이유는 이 순서 자체를 테스트가 실제 이벤트
+  /// 객체로 구동할 수 있게 하기 위함이다.
+  @visibleForTesting
+  static Future<void> handleSignedIn(
+    AuthState data, {
+    required Future<void> Function() ensureProfileLoaded,
+    required String? Function() readUserRole,
+    required String? Function() readLocale,
+    required String? Function() readActiveUserId,
+    AuthAnalyticsReporter? reporter,
+    Future<void> Function({
+      required String userId,
+      String? userRole,
+      String? locale,
+      bool? isTester,
+      String? language,
+      bool isLogin,
+    })?
+    setUserProperties,
+  }) {
+    return _serializeAuthAnalyticsEvent(
+      () => _handleSignedInNow(
+        data,
+        ensureProfileLoaded: ensureProfileLoaded,
+        readUserRole: readUserRole,
+        readLocale: readLocale,
+        readActiveUserId: readActiveUserId,
+        reporter: reporter,
+        setUserProperties: setUserProperties,
+      ),
+    );
+  }
+
+  static Future<void> _handleSignedInNow(
+    AuthState data, {
+    required Future<void> Function() ensureProfileLoaded,
+    required String? Function() readUserRole,
+    required String? Function() readLocale,
+    required String? Function() readActiveUserId,
+    AuthAnalyticsReporter? reporter,
+    Future<void> Function({
+      required String userId,
+      String? userRole,
+      String? locale,
+      bool? isTester,
+      String? language,
+      bool isLogin,
+    })?
+    setUserProperties,
+  }) async {
+    final user = data.session?.user;
+    if (user == null) {
+      logger.w('signedIn 이벤트에 세션이 없다 — analytics 처리를 건너뛴다.');
+      return;
+    }
+
+    try {
+      await ensureProfileLoaded();
+    } catch (e, s) {
+      // ref 가 더 이상 유효하지 않을 수 있다. 프로필이 없어도 login 은 보낸다.
+      logger.e('getUserProfiles 호출 중 오류', error: e, stackTrace: s);
+    }
+
+    String? userRole;
+    try {
+      userRole = readUserRole();
+    } catch (_) {}
+
+    String? locale;
+    try {
+      locale = readLocale();
+    } catch (_) {}
+
+    try {
+      // 전역 사용자 속성은 "지금 로그인해 있는 사용자"의 것이어야 한다. A 의
+      // 콜백이 대기하는 사이 B 로 전환됐다면 A 를 다시 쓰면 안 된다 — 이후
+      // 모든 이벤트가 A 로 귀속된다. 반면 아래 login/sign_up 은 **이 이벤트의**
+      // 사실이므로 전환 여부와 무관하게 A 의 것으로 보고한다.
+      String? activeUserId;
+      try {
+        activeUserId = readActiveUserId();
+      } catch (_) {}
+
+      if (activeUserId == user.id) {
+        await (setUserProperties ?? AppAnalytics.setUserAndSessionProperties)(
+          userId: user.id,
+          userRole: userRole,
+          locale: locale,
+          isTester: kDebugMode,
+          language: locale,
+          isLogin: true,
+        ).timeout(_authAnalyticsStepTimeout);
+      } else {
+        logger.w(
+          '사용자 전환 감지 — 지난 사용자(${user.id})의 전역 속성 갱신을 건너뛴다. '
+          '현재 사용자: $activeUserId',
+        );
+      }
+
+      // GA4 login / sign_up (택소노미 §2-1, §2-2).
+      //
+      // 여기(auth 리스너)에서 보내는 이유: 로그인 "통신 시점"이자
+      // 소셜 로그인 3종(apple/google/kakao)이 모두 수렴하는 유일한
+      // 지점이다. 대신 세션 복원으로 signedIn 이 재발화하는 문제가
+      // 있어, AuthAnalyticsReporter 가 (userId + last_sign_in_at)
+      // 서명을 영속 저장해 중복을 차단한다.
+      await (reporter ?? _authAnalyticsReporter).onSignedIn(
+        userId: user.id,
+        provider: user.appMetadata['provider'] as String?,
+        createdAt: user.createdAt,
+        lastSignInAt: user.lastSignInAt,
+        selectedLanguage: locale,
+      );
+    } catch (e, s) {
+      logger.e('signedIn analytics 처리 중 오류', error: e, stackTrace: s);
+    }
+  }
+
+  @visibleForTesting
+  static Future<void> handleSignedOut({
+    AuthAnalyticsReporter? reporter,
+    Future<void> Function()? clearUserProperties,
+  }) {
+    return _serializeAuthAnalyticsEvent(() async {
+      try {
+        await (clearUserProperties ??
+                AppAnalytics.clearUserAndSessionProperties)()
+            .timeout(_authAnalyticsStepTimeout);
+      } on TimeoutException catch (e, s) {
+        logger.e(
+          'signedOut user property clear timeout',
+          error: e,
+          stackTrace: s,
+        );
+      } catch (e, s) {
+        logger.e('signedOut user property clear 실패', error: e, stackTrace: s);
+      }
+      await (reporter ?? _authAnalyticsReporter).onSignedOut();
+    });
   }
 
   static void setupBranchListener(WidgetRef ref) {

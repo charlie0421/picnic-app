@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
@@ -145,13 +146,24 @@ class AppBuilder {
         if (locale != null) {
           LocaleService.instance.updateLanguageCode(locale.languageCode);
           // logger.i('LocaleService 업데이트: ${locale.languageCode}');
-          // Analytics locale 동기화 (로그인 사용자에 한함)
+          // Analytics language / locale 동기화.
+          //
+          // 택소노미 §1 의 `language` 사용자 속성은 로그인 여부와 무관하게
+          // 최신 언어를 반영해야 하므로, 비로그인 사용자도 갱신한다.
           try {
             final user = supabase.auth.currentUser;
             if (user != null) {
               AppAnalytics.setUserAndSessionProperties(
                 userId: user.id,
                 locale: locale.languageCode,
+                language: locale.languageCode,
+                isLogin: true,
+              );
+            } else {
+              PicnicAnalytics.instance.setUserProperties(
+                userId: null,
+                isLogin: false,
+                language: locale.languageCode,
               );
             }
           } catch (_) {}
