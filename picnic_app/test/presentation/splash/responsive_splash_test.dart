@@ -3,31 +3,45 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_app/presentation/splash/responsive_splash.dart';
 
 void main() {
-  testWidgets('fills a wide viewport with a bounded contained key image', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(1224, 918));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
+  const viewports = <String, Size>{
+    'phone portrait': Size(393, 852),
+    'Fold 8 unfolded portrait': Size(1848, 2448),
+    'Fold 8 unfolded landscape': Size(2448, 1848),
+  };
 
-    await tester.pumpWidget(const MaterialApp(home: ResponsiveSplash()));
+  for (final viewport in viewports.entries) {
+    testWidgets(
+      'fills the ${viewport.key} viewport with a contained key image',
+      (tester) async {
+        await tester.binding.setSurfaceSize(viewport.value);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    expect(
-      find.byKey(const Key('responsive-splash-background')),
-      findsOneWidget,
+        await tester.pumpWidget(const MaterialApp(home: ResponsiveSplash()));
+
+        expect(
+          find.byKey(const Key('responsive-splash-background')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const Key('responsive-splash-key-image')),
+          findsOneWidget,
+        );
+        expect(
+          tester
+              .widget<FittedBox>(
+                find.byKey(const Key('responsive-splash-fitted-box')),
+              )
+              .fit,
+          BoxFit.contain,
+        );
+        expect(
+          tester.takeException(),
+          isNull,
+          reason: '${viewport.key} layout must not overflow',
+        );
+      },
     );
-    expect(
-      find.byKey(const Key('responsive-splash-key-image')),
-      findsOneWidget,
-    );
-    expect(
-      tester
-          .widget<FittedBox>(
-            find.byKey(const Key('responsive-splash-fitted-box')),
-          )
-          .fit,
-      BoxFit.contain,
-    );
-  });
+  }
 
   testWidgets('renders the transparent splash key asset', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: ResponsiveSplash()));
