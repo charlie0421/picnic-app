@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>이미지 Progressive·Cache Key 구현 계획</title><style>body{max-width:880px;margin:48px auto;padding:0 24px;font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033}h1,h2{line-height:1.25}code,pre{background:#f1f4f8;border-radius:5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}code{padding:.15rem .35rem}pre{padding:14px;overflow:auto}li{margin:.5rem 0}</style></head>
+<body>
+<h1>이미지 Progressive·Cache Key 구현 계획</h1>
+<p><strong>목표:</strong> 각 이미지를 단일 최종 URL로 로드하고 URL을 그대로 cache key로 사용한다.</p>
+<p><strong>구조:</strong> URL resolver는 그대로 두고, widget의 variant 선택과 URL 배열/인덱스 key 결합만 제거한다. 위젯 lifecycle과 공개 API는 유지한다.</p>
+<h2>전역 제약</h2><ul><li><code>memCacheWidth</code>/DPR·전역 ImageCache·lazy/priority·호출부 API는 수정하지 않는다.</li><li>URL 변경, 외부 URL, CDN URL, 동시 표시의 기존 계약은 유지한다.</li><li>production 코드는 반드시 실패한 테스트 뒤에 작성한다.</li></ul>
+<h2>작업 1: 단일 URL/cache key 계약 (RED)</h2>
+<ul><li>수정: <code>picnic_lib/test/presentation/common/picnic_cached_network_image_regression_test.dart</code></li><li>테스트: medium/high CDN 이미지가 하나의 요청만 만들고, cache key가 최종 URL과 동일하며, URL 변경 뒤 이전 key를 재사용하지 않음을 검증한다.</li><li>실행:<pre>flutter test test/presentation/common/picnic_cached_network_image_regression_test.dart</pre>예상: 기존 progressive URL/key 구현 때문에 새 단언이 실패한다.</li></ul>
+<h2>작업 2: 최소 위젯 변경 (GREEN)</h2>
+<ul><li>수정: <code>picnic_lib/lib/presentation/common/picnic_cached_network_image.dart</code></li><li><code>_getTransformedUrls</code>가 resolver에서 얻은 최종 URL 하나만 반환하게 하고, <code>_cacheKeyFor</code>는 URL을 반환하게 한다. URL 배열 index와 low-quality 분기는 제거한다.</li><li>작업 1 명령을 다시 실행해 통과시킨다.</li></ul>
+<h2>작업 3: 회귀 확인</h2>
+<ul><li>실행:<pre>flutter test test/presentation/common/picnic_cached_network_image_regression_test.dart test/presentation/common/picnic_cached_network_image_url_resolver_test.dart test/presentation/common/picnic_cached_network_image_uninitialized_environment_test.dart
+dart analyze lib/presentation/common/picnic_cached_network_image.dart</pre></li><li>전체 <code>picnic_lib</code> 테스트 결과는 기존 실패와 변경으로 인한 실패를 분리해 기록한다.</li></ul>
+</body></html>
