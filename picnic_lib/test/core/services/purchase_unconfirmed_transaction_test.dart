@@ -10,6 +10,7 @@ import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:mockito/mockito.dart';
 import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
 import 'package:picnic_lib/core/analytics/ga4_sink.dart';
+import 'package:picnic_lib/core/analytics/purchase_price_memo.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart' as picnic_storage;
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
@@ -116,6 +117,8 @@ void main() {
     plugin = _CountingPlugin();
     duplicates = DuplicatePreventionService(capturedRef);
     service = PurchaseService(
+      purchasePriceMemo:
+          PurchasePriceMemo(storage: _MemoryAnalyticsStorage()),
       container: container,
       inAppPurchaseService: plugin,
       receiptVerificationService: verification,
@@ -527,6 +530,8 @@ void main() {
       duplicates = DuplicatePreventionService(capturedRef);
       source = _FakeUnfinishedSource(scan);
       service = PurchaseService(
+        purchasePriceMemo:
+            PurchasePriceMemo(storage: _MemoryAnalyticsStorage()),
         container: container,
         inAppPurchaseService: plugin,
         receiptVerificationService: verification,
@@ -915,6 +920,8 @@ void main() {
       );
       final throwing = _ThrowingUnfinishedSource();
       service = PurchaseService(
+        purchasePriceMemo:
+            PurchasePriceMemo(storage: _MemoryAnalyticsStorage()),
         container: container,
         inAppPurchaseService: plugin,
         receiptVerificationService: verification,
@@ -978,6 +985,8 @@ void main() {
       var idleResolved = false;
       final gated = _GatedUnfinishedSource(gate.future);
       final probe = PurchaseService(
+        purchasePriceMemo:
+            PurchasePriceMemo(storage: _MemoryAnalyticsStorage()),
         container: plainContainer,
         inAppPurchaseService: _CountingPlugin(),
         receiptVerificationService: _SettledVerification(),

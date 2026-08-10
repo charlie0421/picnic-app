@@ -8,6 +8,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
+import 'package:picnic_lib/core/analytics/analytics.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
@@ -147,11 +148,13 @@ class PurchaseService {
     required this.duplicatePreventionService,
     required void Function(List<PurchaseDetails>) onPurchaseUpdate,
     UnfinishedPurchaseSource? unfinishedPurchaseSource,
+    PurchasePriceMemo? purchasePriceMemo,
     DateTime Function() clock = DateTime.now,
     Duration resumeSweepInterval = const Duration(minutes: 5),
     bool sweepOnStart = true,
   }) : unfinishedPurchaseSource =
            unfinishedPurchaseSource ?? defaultUnfinishedPurchaseSource(),
+       purchasePriceMemo = purchasePriceMemo ?? PurchasePriceMemo(),
        _clock = clock,
        _resumeSweepInterval = resumeSweepInterval {
     inAppPurchaseService.initialize(onPurchaseUpdate);
@@ -207,6 +210,10 @@ class PurchaseService {
   /// wallet write at the end of that path.
   final ProviderContainer container;
   final InAppPurchaseService inAppPurchaseService;
+
+  /// 결제 시점의 통화·금액 기록. 복구 스윕이 카탈로그보다 먼저 돌 때
+  /// `purchase` 의 매출이 비지 않도록 채워 준다.
+  final PurchasePriceMemo purchasePriceMemo;
   final ReceiptVerificationService receiptVerificationService;
   final AnalyticsService analyticsService;
   final DuplicatePreventionService duplicatePreventionService;
@@ -465,6 +472,22 @@ class PurchaseService {
 
       // 6. 실제 구매 시작
       final productDetails = _findProductDetails(storeProducts, serverProduct);
+
+      // 결제 시점의 통화·금액을 남긴다. 이 구매가 한 번에 끝나지 않고 다음
+      // 실행의 복구 스윕이 정산하면, 그 시점엔 카탈로그가 아직 로드되지
+      // 않았을 수 있어 매출이 비게 된다(_sendPurchaseAnalytics 참조).
+      //
+      // await 하지 않는다 — 결제 시트가 뜨기 전에 로컬 I/O 를 기다리게 하면
+      // 안 된다. 기록이 필요해지는 것은 다음 실행이고, 그 사이 인증·결제로
+      // 충분한 시간이 있다. 실패해도 금액이 비는 현재 동작으로 돌아갈 뿐이다.
+      unawaited(
+        purchasePriceMemo.record(
+          storeProductId: productDetails.id,
+          currency: productDetails.currencyCode,
+          value: productDetails.rawPrice,
+        ),
+      );
+
       logger.i('🚀 StoreKit 구매 프로세스 시작 (Touch ID/Face ID 인증 포함)');
 
       final purchaseResult = await inAppPurchaseService.makePurchase(
@@ -958,11 +981,28 @@ class PurchaseService {
         }
       }
     }
+    // 카탈로그가 아직 메모리에 없으면(주로 앱 재시작 직후 복구 스윕) 결제
+    // 시점에 남겨 둔 기록을 쓴다. 지금 카탈로그를 다시 읽는 것보다 정확하다 —
+    // 그 사이 가격이 바뀌었으면 실제 결제 금액과 다른 값이 들어간다.
+    String? currency = productDetails?.currencyCode;
+    num? value = productDetails?.rawPrice;
+
     if (productDetails == null) {
-      logger.w(
-        'purchase analytics 카탈로그 상세 없음 — currency/value는 '
-        '생략하고 정산 payload를 outbox에 보존: ${purchaseDetails.productID}',
-      );
+      final memo = await purchasePriceMemo.lookup(purchaseDetails.productID);
+      if (memo != null) {
+        currency = memo.currency;
+        value = memo.value;
+        logger.i(
+          'purchase analytics 카탈로그 상세 없음 — 결제 시점 기록으로 '
+          '금액 복원: ${purchaseDetails.productID}',
+        );
+      } else {
+        logger.w(
+          'purchase analytics 카탈로그 상세·결제 시점 기록 모두 없음 — '
+          'currency/value는 생략하고 정산 payload를 outbox에 보존: '
+          '${purchaseDetails.productID}',
+        );
+      }
     }
 
     final promotion = result.promotion;
@@ -973,8 +1013,8 @@ class PurchaseService {
     logger.i('애널리틱스 로깅...');
     await analyticsService.logPurchasePayload(
       storeProductId: purchaseDetails.productID,
-      currency: productDetails?.currencyCode,
-      value: productDetails?.rawPrice,
+      currency: currency,
+      value: value,
       transactionId: purchaseDetails.purchaseID,
       idempotencyFallbackKey: result.operationId,
       baseAmount: result.baseStarAmount.toInt(),

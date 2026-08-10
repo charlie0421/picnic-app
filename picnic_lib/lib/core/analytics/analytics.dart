@@ -16,4 +16,5 @@ export 'package:picnic_lib/core/analytics/ga4_parameters.dart';
 export 'package:picnic_lib/core/analytics/ga4_purchase_item.dart';
 export 'package:picnic_lib/core/analytics/ga4_sink.dart';
 export 'package:picnic_lib/core/analytics/ga4_taxonomy.dart';
+export 'package:picnic_lib/core/analytics/purchase_price_memo.dart';
 export 'package:picnic_lib/core/analytics/picnic_analytics.dart';
