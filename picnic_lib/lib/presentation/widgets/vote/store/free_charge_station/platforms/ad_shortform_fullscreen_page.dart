@@ -19,6 +19,7 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 
@@ -28,9 +29,9 @@ class AdShortformLogic {
   static bool shouldUseLegacyBonusUx(InternalShortformViewResponse response) =>
       response.reward == null && response.rewardAdded > 0;
 
-  static bool shouldSuppressLocalWalletUx(
+  static bool shouldPresentWalletRewardImmediately(
     InternalShortformViewResponse response,
-  ) => response.reward != null;
+  ) => response.reward?.state == AdRewardState.granted;
 
   static WalletSummaryModel? walletSummaryToApply(
     InternalShortformViewResponse response,
@@ -242,6 +243,11 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   /// 광고 이벤트를 보내지 않는다(임의값으로 채우지 않는다).
   final FreeChargeAdGa4Context? ga4;
 
+  /// Called after a wallet-aware reward receipt has rendered its first frame.
+  /// The platform acknowledges the durable pending record at this point.
+  final Future<void> Function(AdRewardStatusModel status)?
+  onWalletRewardPresented;
+
   const AdShortformFullscreenPage({
     super.key,
     required this.videoUrl,
@@ -250,6 +256,7 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
     this.ctaUrl,
     this.loadAd,
     this.ga4,
+    this.onWalletRewardPresented,
   });
 
   @override
@@ -528,6 +535,11 @@ class _AdShortformFullscreenPageState
     if (AdShortformLogic.shouldRefreshLegacyProfile(response) && mounted) {
       await ref.read(userInfoProvider.notifier).getUserProfiles();
     }
+    if (AdShortformLogic.shouldPresentWalletRewardImmediately(response) &&
+        mounted) {
+      await _showWalletRewardReceipt(response.reward!);
+      return;
+    }
     if (AdShortformLogic.shouldUseLegacyBonusUx(response)) {
       // earn_virtual_currency (스펙 §2-7) — legacy 응답 경로.
       //
@@ -550,6 +562,20 @@ class _AdShortformFullscreenPageState
         await showCandyRewardReceiptDialog(dialogContext, receipt);
       }
     }
+  }
+
+  Future<void> _showWalletRewardReceipt(AdRewardStatusModel status) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AdRewardDialogBody(
+        status: status,
+        onFirstFrame: () async {
+          final acknowledge = widget.onWalletRewardPresented;
+          if (acknowledge != null) await acknowledge(status);
+        },
+      ),
+    );
   }
 
   Widget _buildPulseOverlay(bool visible) {

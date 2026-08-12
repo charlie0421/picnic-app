@@ -281,6 +281,25 @@ void main() {
   });
 
   test(
+    'fullscreen first-frame acknowledgement clears its durable record',
+    () async {
+      final reference = _reference(30);
+      await store.add('user-a', reference);
+
+      await container
+          .read(adRewardRecoveryProvider.notifier)
+          .acknowledgePresented(
+            ownerUserId: 'user-a',
+            status: _status(reference, AdRewardState.granted),
+          );
+
+      expect(repository.acknowledged, [reference]);
+      expect(await store.readAll('user-a'), isEmpty);
+      expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+    },
+  );
+
+  test(
     'post-ad poll shows the banner and replays the backoff ladder',
     () async {
       final watched = _reference(1);

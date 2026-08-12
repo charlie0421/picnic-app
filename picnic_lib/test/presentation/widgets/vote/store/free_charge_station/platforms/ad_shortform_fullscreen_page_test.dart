@@ -155,7 +155,7 @@ void main() {
   });
 
   group('reward presentation', () {
-    test('wallet-aware response refreshes profile without legacy dialog', () {
+    test('granted wallet-aware response presents its receipt immediately', () {
       final reward = AdRewardStatusModel.fromJson(
         jsonDecode(
               File(
@@ -170,7 +170,10 @@ void main() {
         impressionId: '00000000-0000-4000-8000-000000000402',
         newBonus: null,
       ).copyWith(reward: reward);
-      expect(AdShortformLogic.shouldSuppressLocalWalletUx(response), isTrue);
+      expect(
+        AdShortformLogic.shouldPresentWalletRewardImmediately(response),
+        isTrue,
+      );
       expect(AdShortformLogic.shouldUseLegacyBonusUx(response), isFalse);
       expect(
         AdShortformLogic.walletSummaryToApply(response),
@@ -184,7 +187,10 @@ void main() {
       // (CandyRewardReceiptDialog) instead of the old "적립되었습니다 (N)"
       // toast that leaked the raw new_bonus value in parentheses.
       final response = await legacyViewResponse();
-      expect(AdShortformLogic.shouldSuppressLocalWalletUx(response), isFalse);
+      expect(
+        AdShortformLogic.shouldPresentWalletRewardImmediately(response),
+        isFalse,
+      );
       expect(AdShortformLogic.shouldUseLegacyBonusUx(response), isTrue);
       final receipt = receiptFromInternalShortformView(response)!;
       final item = receipt.items.single;
@@ -195,30 +201,33 @@ void main() {
   });
 
   group('AdShortformLogic.applyRewardOutcome', () {
-    test('legacy response re-reads the wallet summary (pouch refresh)', () async {
-      final repository = _FakeWalletRepository(
-        summaries: [_walletSummary(bonus: 53), _walletSummary(bonus: 54)],
-      );
-      final container = ProviderContainer(
-        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
-      );
-      addTearDown(container.dispose);
-      await container.read(walletSummaryProvider.future);
-      expect(repository.summaryCalls, 1);
+    test(
+      'legacy response re-reads the wallet summary (pouch refresh)',
+      () async {
+        final repository = _FakeWalletRepository(
+          summaries: [_walletSummary(bonus: 53), _walletSummary(bonus: 54)],
+        );
+        final container = ProviderContainer(
+          overrides: [walletRepositoryProvider.overrideWithValue(repository)],
+        );
+        addTearDown(container.dispose);
+        await container.read(walletSummaryProvider.future);
+        expect(repository.summaryCalls, 1);
 
-      await AdShortformLogic.applyRewardOutcome(
-        container: container,
-        response: await legacyViewResponse(),
-      );
+        await AdShortformLogic.applyRewardOutcome(
+          container: container,
+          response: await legacyViewResponse(),
+        );
 
-      // The legacy contract has no wallet snapshot, so the summary must be
-      // re-read; refreshing the user profile alone leaves the pouch stale.
-      expect(repository.summaryCalls, 2);
-      expect(
-        container.read(walletSummaryProvider).value!.bonus,
-        BigInt.from(54),
-      );
-    });
+        // The legacy contract has no wallet snapshot, so the summary must be
+        // re-read; refreshing the user profile alone leaves the pouch stale.
+        expect(repository.summaryCalls, 2);
+        expect(
+          container.read(walletSummaryProvider).value!.bonus,
+          BigInt.from(54),
+        );
+      },
+    );
 
     test('wallet-aware response applies the settled snapshot as-is', () async {
       final repository = _FakeWalletRepository(
@@ -301,30 +310,29 @@ WalletSummaryModel _walletSummary({
   snapshotAt: snapshotAt ?? DateTime.utc(2026, 7, 24),
 );
 
-InternalShortformViewResponse _walletAwareResponse(
-  WalletSummaryModel wallet,
-) => InternalShortformViewResponse(
-  ok: true,
-  rewardAdded: 3,
-  impressionId: '00000000-0000-4000-8000-000000000402',
-  newBonus: null,
-  reward: AdRewardStatusModel(
-    reference: const AdRewardReference(
-      type: AdRewardReferenceType.internalImpression,
-      id: '00000000-0000-4000-8000-000000000402',
-    ),
-    state: AdRewardState.granted,
-    grant: AdRewardGrantModel(
-      id: 'grant-1',
-      currency: WalletCurrency.cottonCandy,
-      amount: BigInt.from(3),
-      grantedAt: DateTime.utc(2026, 7, 25),
-      expiresAt: DateTime.utc(2026, 8, 25),
-    ),
-    wallet: wallet,
-    snapshotAt: wallet.snapshotAt,
-  ),
-);
+InternalShortformViewResponse _walletAwareResponse(WalletSummaryModel wallet) =>
+    InternalShortformViewResponse(
+      ok: true,
+      rewardAdded: 3,
+      impressionId: '00000000-0000-4000-8000-000000000402',
+      newBonus: null,
+      reward: AdRewardStatusModel(
+        reference: const AdRewardReference(
+          type: AdRewardReferenceType.internalImpression,
+          id: '00000000-0000-4000-8000-000000000402',
+        ),
+        state: AdRewardState.granted,
+        grant: AdRewardGrantModel(
+          id: 'grant-1',
+          currency: WalletCurrency.cottonCandy,
+          amount: BigInt.from(3),
+          grantedAt: DateTime.utc(2026, 7, 25),
+          expiresAt: DateTime.utc(2026, 8, 25),
+        ),
+        wallet: wallet,
+        snapshotAt: wallet.snapshotAt,
+      ),
+    );
 
 Future<InternalShortformViewResponse> legacyViewResponse() async =>
     const InternalShortformViewResponse(

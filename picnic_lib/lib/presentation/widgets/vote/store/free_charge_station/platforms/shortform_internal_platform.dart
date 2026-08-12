@@ -122,6 +122,7 @@ class ShortformInternalPlatform extends AdPlatform {
             // 카테고리·재화로 기록되게 한다.
             ga4: ga4AdContext,
             onViewComplete: _callView,
+            onWalletRewardPresented: _acknowledgeWalletRewardPresented,
             onMore: () async {
               await _callMore();
             },
@@ -300,6 +301,18 @@ class ShortformInternalPlatform extends AdPlatform {
         );
       },
     ).report();
+  }
+
+  Future<void> _acknowledgeWalletRewardPresented(
+    AdRewardStatusModel status,
+  ) async {
+    final ownerUserId = _rewardSession.ownerUserId;
+    if (ownerUserId == null) {
+      throw StateError('No issued owner for ad reward acknowledgement');
+    }
+    await ref
+        .read(adRewardRecoveryProvider.notifier)
+        .acknowledgePresented(ownerUserId: ownerUserId, status: status);
   }
 
   Future<void> _callMore() async {

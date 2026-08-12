@@ -132,7 +132,13 @@ class InternalShortformViewRecoveryFlow {
 
   Future<InternalShortformViewResponse> report() async {
     final response = await view.report();
-    if (response.reward == null) return response;
+    // A synchronously granted reward is presented by the fullscreen page while
+    // the ad is still open. Starting recovery here races that local receipt and
+    // delays it until the route has been dismissed.
+    if (response.reward == null ||
+        response.reward!.state == AdRewardState.granted) {
+      return response;
+    }
     final owner = view.session.ownerUserId!;
     final reference = view.session.reference!;
     unawaited(

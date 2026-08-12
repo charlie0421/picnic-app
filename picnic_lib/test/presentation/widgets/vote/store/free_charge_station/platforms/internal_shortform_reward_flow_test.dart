@@ -28,6 +28,11 @@ void main() {
     'snapshot_at': '2026-07-21T00:00:00.000Z',
   };
 
+  Map<String, dynamic> grantedRewardJson() => {
+    ...rewardJson(),
+    'state': 'GRANTED',
+  };
+
   test(
     'issues once and persists server UUID before returning playable result',
     () async {
@@ -97,6 +102,40 @@ void main() {
       expect(response.reward, isNotNull);
       expect(polled, [issue.reference]);
       pollGate.complete();
+    },
+  );
+
+  test(
+    'granted wallet-aware report leaves presentation to the fullscreen page',
+    () async {
+      final session = InternalShortformRewardSession();
+      await session.bindIssued(
+        owner: 'user-a',
+        issuedReference: const AdRewardReference(
+          type: AdRewardReferenceType.internalImpression,
+          id: impressionId,
+        ),
+        persist: (_, _) async {},
+      );
+      var polls = 0;
+      final response = await InternalShortformViewRecoveryFlow(
+        view: InternalShortformViewFlow(
+          session: session,
+          currentOwner: () => 'user-a',
+          invokeCallback: () async => {
+            'ok': true,
+            'reward_added': 0,
+            'impression_id': impressionId,
+            'new_bonus': null,
+            'reward': grantedRewardJson(),
+          },
+          parse: InternalShortformViewResponse.fromJson,
+        ),
+        poll: (_, _) async => polls++,
+      ).report();
+
+      expect(response.reward!.state, AdRewardState.granted);
+      expect(polls, 0);
     },
   );
 
