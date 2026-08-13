@@ -154,6 +154,40 @@ void main() {
   });
 
   group('PangleAds.loadRewardedAd', () {
+    // 회귀 가드 (PICNIC-2377): 네이티브 로드 오류는 **삼키지 말고 올려보낸다**.
+    //
+    // 예전엔 PlatformException 을 잡아 false 를 돌려줬다. 그러면 호출부는 그걸
+    // "지금 광고가 없다"(no-fill)로 해석해 하드코딩 라벨로 로깅하고, 사용자에겐
+    // "모든 광고 소진" 이 뜨며 Sentry 보고까지 생략됐다. 실제로 아시아픽 #1 은
+    // InvalidMediaExtra("Signed v2 mediaExtra is required")로 100% 실패하는
+    // 동안 이 경로 때문에 텔레메트리가 한 건도 남지 않았다.
+    //
+    // 네이티브가 명시적으로 false 를 주는 것만 no-fill 이다.
+    test('네이티브 오류(PlatformException)는 호출부로 전파된다', () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('pangle_native_channel'),
+            (MethodCall call) async {
+              log.add(call);
+              throw PlatformException(
+                code: 'InvalidMediaExtra',
+                message: 'Signed v2 mediaExtra is required',
+              );
+            },
+          );
+      await expectLater(
+        PangleAds.loadRewardedAd('placement', 'user,android,v2.token'),
+        throwsA(
+          isA<PlatformException>().having(
+            (e) => e.code,
+            'code',
+            'InvalidMediaExtra',
+          ),
+        ),
+      );
+      clearMockChannel();
+    });
+
     test('returns true on success', () async {
       setupMockChannel(loadResult: true);
       final result = await PangleAds.loadRewardedAd(
@@ -177,7 +211,13 @@ void main() {
       expect(result, isFalse);
     });
 
-    test('returns false on PlatformException', () async {
+    // 계약 변경 (PICNIC-2377): 네이티브 오류는 삼키지 않고 전파한다.
+    //
+    // 예전 두 테스트는 `expect(result, isFalse)` 로 **삼키는 동작을 계약으로
+    // 고정**하고 있었다. 그 동작 때문에 호출부가 네이티브 오류를 no-fill 로
+    // 오해해 "모든 광고 소진" 을 띄우고 Sentry 보고를 생략했고, 아시아픽 #1 이
+    // 100% 실패하는 동안 텔레메트리가 한 건도 남지 않았다.
+    test('PlatformException 은 호출부로 전파된다', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
             const MethodChannel('pangle_native_channel'),
@@ -185,14 +225,13 @@ void main() {
               throw PlatformException(code: 'ERROR', message: 'load failed');
             },
           );
-      final result = await PangleAds.loadRewardedAd(
-        'placement_123',
-        'user_456',
+      await expectLater(
+        PangleAds.loadRewardedAd('placement_123', 'user_456'),
+        throwsA(isA<PlatformException>()),
       );
-      expect(result, isFalse);
     });
 
-    test('returns false on unexpected exception', () async {
+    test('예상 못 한 예외도 전파된다', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
             const MethodChannel('pangle_native_channel'),
@@ -200,11 +239,10 @@ void main() {
               throw Exception('unexpected');
             },
           );
-      final result = await PangleAds.loadRewardedAd(
-        'placement_123',
-        'user_456',
+      await expectLater(
+        PangleAds.loadRewardedAd('placement_123', 'user_456'),
+        throwsA(anything),
       );
-      expect(result, isFalse);
     });
   });
 

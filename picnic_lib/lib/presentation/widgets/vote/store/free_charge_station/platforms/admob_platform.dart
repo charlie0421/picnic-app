@@ -95,14 +95,14 @@ class AdmobPlatform extends AdPlatform {
     } catch (e, s) {
       // 분류 근거로 실제 예외 텍스트를 넘긴다 — 일반 라벨을 넘기면 '광고 로드
       // 실패' 키워드에 걸려 모든 예외가 no-fill 로 삼켜진다(pangle 과 동일 함정).
+      //
+      // logAdLoadFailure 가 이미 사용자에게 안내한다(no-fill 이면 "소진",
+      // 그 외에는 label_ads_load_fail). 여기서 같은 문구를 또 띄우고 rethrow 까지
+      // 하면 safelyExecute → handleError 가 세 번째로 띄운다. 한 번의 실패에
+      // 다이얼로그를 세 번 닫게 만들지 않는다 — 안내는 logAdLoadFailure 에 맡기고
+      // 여기서는 애니메이션만 정리한다.
       logAdLoadFailure('AdMob', e, _adUnitId, e.toString(), s);
       stopAllAnimations();
-      if (context.mounted && !isDisposed) {
-        showSimpleDialog(
-            content: AppLocalizations.of(context).label_ads_load_fail,
-            type: DialogType.error);
-      }
-      rethrow;
     }
   }
 
