@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2377 코튼캔디 오픈 CS — 원인 조사 리포트</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1c1e21;
+    --muted: #5c6470;
+    --line: #dfe3e8;
+    --accent: #b4325e;
+    --code-bg: #f5f6f8;
+    --warn-bg: #fff6e5;
+    --warn-line: #e0a02a;
+    --bad-bg: #fdeced;
+    --bad-line: #d0454c;
+    --ok-bg: #eaf6ed;
+    --ok-line: #3f9a56;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0 auto;
+    max-width: 60rem;
+    padding: 2.5rem 1.5rem 6rem;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo",
+                 "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    font-size: 15px;
+    line-height: 1.72;
+    word-break: keep-all;
+  }
+  h1 { font-size: 1.85rem; line-height: 1.35; margin: 0 0 .4rem; letter-spacing: -.02em; }
+  h2 {
+    font-size: 1.25rem; margin: 3rem 0 .9rem; padding-bottom: .45rem;
+    border-bottom: 2px solid var(--line); letter-spacing: -.01em;
+  }
+  h3 { font-size: 1.02rem; margin: 1.9rem 0 .6rem; letter-spacing: -.01em; }
+  p { margin: .7rem 0; }
+  .sub { color: var(--muted); font-size: .9rem; margin: 0 0 1.6rem; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: .4rem 1.5rem;
+    padding: .9rem 1.1rem; margin: 1.4rem 0 2rem;
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px;
+    font-size: .87rem; color: var(--muted);
+  }
+  .meta b { color: var(--fg); font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; margin: 1.1rem 0; font-size: .9rem; }
+  th, td { border: 1px solid var(--line); padding: .55rem .7rem; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); font-weight: 600; }
+  code {
+    background: var(--code-bg); padding: .1rem .34rem; border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: .875em;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    border-radius: 6px; padding: .9rem 1.05rem; overflow-x: auto; font-size: .84rem; line-height: 1.62;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .box { border-radius: 8px; padding: .85rem 1.1rem; margin: 1.1rem 0; border: 1px solid; }
+  .box p:first-child { margin-top: 0; } .box p:last-child { margin-bottom: 0; }
+  .bad  { background: var(--bad-bg);  border-color: var(--bad-line); }
+  .warn { background: var(--warn-bg); border-color: var(--warn-line); }
+  .ok   { background: var(--ok-bg);   border-color: var(--ok-line); }
+  .tag {
+    display: inline-block; padding: .08rem .5rem; border-radius: 999px;
+    font-size: .74rem; font-weight: 700; letter-spacing: .02em; vertical-align: .08em;
+  }
+  .t-bad  { background: var(--bad-line);  color: #fff; }
+  .t-warn { background: var(--warn-line); color: #402c00; }
+  .t-ok   { background: var(--ok-line);   color: #fff; }
+  .path { color: var(--muted); font-size: .82rem; }
+  ul, ol { padding-left: 1.35rem; }
+  li { margin: .32rem 0; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 2.5rem 0; }
+  .footnote { color: var(--muted); font-size: .84rem; }
+</style>
+</head>
+<body>
+
+<h1>PICNIC-2377 · 코튼캔디 오픈 CS</h1>
+<p class="sub">원인 조사 리포트 — 코드·배포본 기반</p>
+
+<div class="meta">
+  <span><b>티켓</b> PICNIC-2377 (진행 중, 라벨 CS)</span>
+  <span><b>작성일</b> 2026-08-13</span>
+  <span><b>브랜치</b> charlie0421/picnic-2377-cs</span>
+  <span><b>기준 커밋</b> aef0327b8 (= origin/main)</span>
+  <span><b>앱 버전</b> 1.3.0+130007</span>
+  <span><b>대상 프로젝트</b> PICNIC-PROD (xtijtefcycoeqludlngc)</span>
+</div>
+
+<div class="box warn">
+<p><b>이 리포트의 범위.</b> 코드 수정은 포함하지 않는다. 저장소 코드, 프로덕션에 배포된 Edge Function 번들, DB 마이그레이션 스키마를 근거로 원인만 규명했다. 프로덕션 DB 실측이 필요한 항목은 <a href="#pending">§6 확인 대기</a>에 분리했다.</p>
+</div>
+
+<h2>1. 요약</h2>
+
+<table>
+<thead>
+<tr><th style="width:2.5rem">#</th><th>CS 내용</th><th style="width:8rem">상태</th><th>한 줄 결론</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>1</td>
+  <td>코튼캔디 시간당 10개 시청 리밋이 안 걸린 듯</td>
+  <td><span class="tag t-ok">해소 추정</span></td>
+  <td>2026-08-12 Edge Function 3종 재배포로 카운팅 경로가 정리됨. 리밋 값 자체는 <code>internal: hourly 10 / daily 120</code>으로 정상 존재.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>팝업이 영상 종료 후가 아니라 X를 눌러야 뜸</td>
+  <td><span class="tag t-ok">수정 완료</span></td>
+  <td><code>aef0327b8</code>로 main에 반영됨. <b>단, 아직 사용자에게 전달되지 않았다</b>(§3 참조).</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>글로벌 픽 #1 — 더보기 클릭 시 추가 적립 미동작</td>
+  <td><span class="tag t-ok">조치 완료</span></td>
+  <td>더보기 추가 적립은 <b>앱·서버 양쪽에서 의도적으로 비활성</b>이었고(<b>코튼캔디·보너스 스타캔디 모두</b>), <b>추가 보상을 하지 않는 것으로 확정</b>돼 죽은 배선을 제거했다. 별개 회귀였던 <b>더보기 조기 탭 시 시청 적립 유실</b>도 함께 수정. 상세 §7.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>아시아픽 #1 광고가 모두 소진 상태</td>
+  <td><span class="tag t-warn">오진 가능</span></td>
+  <td>“모든 광고 소진” 문구는 Pangle <b>모든 로드 실패에 붙는 catch-all</b>이며 동시에 Sentry 보고를 차단한다. 실제 no-fill인지 판별 불가.</td>
+</tr>
+</tbody>
+</table>
+
+<h3>구좌 ↔ 플랫폼 매핑 (선행 확인)</h3>
+<p>보고서 해석의 전제다. 구좌 이름은 코드에서 순번으로 생성된다.</p>
+<table>
+<thead><tr><th>UI 구좌</th><th>내부 id</th><th>실제 광고 소스</th></tr></thead>
+<tbody>
+<tr><td><b>글로벌 픽 #1</b></td><td><code>internal-shortform</code></td><td>자체 숏폼 광고 (<code>ad_campaigns</code> 테이블 + 자체 Edge Function)</td></tr>
+<tr><td><b>아시아픽 #1</b></td><td><code>pangle</code></td><td>Pangle SDK (외부 리워드 광고)</td></tr>
+</tbody>
+</table>
+<p class="path">근거: <code>free_charge_station.dart:235-292</code> — <code>label_global_recommendation #1</code> → <code>internal-shortform</code>, <code>label_asia_recommendation #1</code> → <code>pangle</code></p>
+
+<div class="box bad">
+<p><b>중요:</b> 4번의 “광고 소진”은 자체 광고 캠페인(<code>ad_campaigns.total_cap</code>)과 <b>무관하다</b>. 아시아픽 #1은 Pangle이므로 자체 캠페인 재고를 늘려도 해결되지 않는다.</p>
+</div>
+
+<hr>
+
+<h2>2. 3번 — 더보기 추가 적립 미동작 (핵심)</h2>
+
+<p>서로 다른 <b>두 개의 실제 원인</b>이 있다. CS 리포터가 어느 쪽을 관찰했는지에 따라 대응 범위가 달라진다.</p>
+
+<h3>원인 A — <code>more</code> 보상이 앱·서버 양쪽에서 비활성</h3>
+
+<p>더보기 추가 적립은 DB 스키마와 토큰 발급까지는 온전히 살아 있으나, <b>실제로 적립을 수행하는 두 지점이 모두 막혀 있다.</b></p>
+
+<table>
+<thead><tr><th style="width:11rem">계층</th><th style="width:6rem">상태</th><th>근거</th></tr></thead>
+<tbody>
+<tr>
+  <td>DB 스키마</td><td><span class="tag t-ok">살아있음</span></td>
+  <td><code>ad_campaigns.reward_more</code>, <code>ad_impressions.more_reward_granted_at</code>, <code>ad_reward_events.type CHECK IN ('view','more')</code><br>
+  <span class="path">supabase/migrations/20260728012937_clean_baseline.sql:4449, 4492, 4508</span></td>
+</tr>
+<tr>
+  <td><code>ad-shortform-issue</code></td><td><span class="tag t-ok">살아있음</span></td>
+  <td><code>more_token</code> 서명 발급 + <code>rewards.more: selected.reward_more</code> 응답<br>
+  <span class="path">프로덕션 v43 번들 index.ts:244-266</span></td>
+</tr>
+<tr>
+  <td><code>callback-ad-shortform-more</code></td><td><span class="tag t-bad">항상 409</span></td>
+  <td>토큰·사용자·만료 검증을 모두 통과해도 무조건 실패 반환. <b>재화 모드 분기 없음 — 코튼·보너스 공통</b><br>
+  <span class="path">프로덕션 v28 번들 index.ts:30</span></td>
+</tr>
+<tr>
+  <td>앱 (Flutter)</td><td><span class="tag t-bad">호출 안 함</span></td>
+  <td>더보기 탭 핸들러에서 <code>onMore()</code> 호출이 제거됨<br>
+  <span class="path">ad_shortform_fullscreen_page.dart:918</span></td>
+</tr>
+</tbody>
+</table>
+
+<p>배포된 <code>callback-ad-shortform-more</code>의 본문은 다음과 같다. 주석이 의도를 명시한다.</p>
+
+<pre><code>/**
+ * There is no wallet settlement contract for the legacy `more` reward.
+ * Keep this endpoint authenticated and fail closed until such a contract exists.
+ */
+export function createShortformMoreHandler(deps) {
+  return async (req) => {
+    // ... METHOD / UNAUTHORIZED / INVALID_TOKEN / ACTION_MISMATCH
+    // ... USER_MISMATCH / EXPIRED 검증을 모두 통과한 뒤 —
+    return domainError("SHORTFORM_MORE_REWARD_UNSUPPORTED", 409);
+  };
+}</code></pre>
+
+<p>앱 쪽도 대응되게 막혀 있다.</p>
+
+<pre><code>onPressed: enabled
+    ? () async {
+        debugPrint('[internal] more pressed');
+        // 적립은 재생 종료 시 자동 처리됨
+        await _openCta(cta!);
+        if (mounted) {
+          Navigator.of(navigatorKey.currentContext!).maybePop();
+        }
+        // widget.onMore()는 호출하지 않음 (More 보상 제거)   ← 여기
+      }
+    : null,</code></pre>
+
+<div class="box bad">
+<p><b>결론 A.</b> 운영에서 글로벌 픽 #1 캠페인에 <code>reward_more</code> 값을 설정하더라도 <b>그 값을 소비하는 코드 경로가 앱·서버 어디에도 없다.</b> 정산 계약(<code>settle_*</code> 계열 RPC)이 <code>view</code>에만 구현되어 있고 <code>more</code>에는 아직 없기 때문이며, 서버는 그 상태에서 잘못 적립되는 것을 막으려 fail-closed를 택했다.</p>
+<p>즉 이것은 버그가 아니라 <b>미구현 상태</b>다. 되살리려면 <code>more</code>용 정산 계약 신규 구현이 필요하다.</p>
+</div>
+
+<h4 style="font-size:.98rem;margin:1.7rem 0 .5rem">코튼캔디만 막힌 것이 아니다 — 보너스 스타캔디도 동일하게 막혀 있다</h4>
+
+<p>혼동하기 쉬운 지점이라 명시한다. 이 차단은 코튼캔디 전환과 무관하게 <b>두 재화 모두에 적용된다.</b></p>
+
+<table>
+<thead><tr><th style="width:12rem">재화</th><th>서버 (<code>callback-ad-shortform-more</code> v28)</th><th>앱</th></tr></thead>
+<tbody>
+<tr><td>코튼캔디</td><td><span class="tag t-bad">409</span> 정산 계약 없음</td><td><span class="tag t-bad">호출 안 함</span></td></tr>
+<tr><td>보너스 스타캔디 (legacy)</td><td><span class="tag t-bad">409</span> <b>동일 코드 · 분기 없음</b></td><td><span class="tag t-bad">호출 안 함</span></td></tr>
+</tbody>
+</table>
+
+<p>배포된 v28 번들 전체(49줄)를 확인한 결과다.</p>
+<ul>
+  <li><code>reward_mode</code>, <code>cotton</code>, <code>bonus</code>, <code>wallet_runtime_flags</code>를 읽는 코드가 <b>한 줄도 없다.</b> 모드 분기 자체가 존재하지 않는다.</li>
+  <li>service-role 클라이언트가 없다. 생성되는 것은 <b>인증 확인용 anon 클라이언트뿐</b>(index.ts:39-46)이라 어떤 원장에도 쓸 수단이 없다.</li>
+  <li>RPC 호출도, <code>transaction_internal</code> insert도 없다.</li>
+  <li>검증을 모두 통과한 뒤 index.ts:30에서 <b>무조건</b> 409로 끝난다.</li>
+</ul>
+
+<p>함수 상단 주석의 <b><code>legacy</code> <code>more</code> reward</b>라는 표현이 곧 보너스 스타캔디 경로를 가리킨다. 코튼 정산 계약이 없어서 코튼만 막은 것이 아니라, <b>레거시 보너스 적립분까지 통째로 미구현 상태로 두고 닫아놓은 것</b>이다.</p>
+
+<div class="box bad">
+<p><b>운영상 함의.</b> <code>ads.internal_reward_mode</code>를 <code>bonus</code>로 되돌려도 더보기 적립은 복구되지 않는다. 차단 지점이 모드 분기보다 <b>앞</b>에 있기 때문이다. 롤백으로 해결 가능한 사안이 아니다.</p>
+</div>
+
+<p class="footnote">앱 측 호출 제거는 2025-10 (<code>f15740d44</code> / <code>d44e6a34f</code>)에 도입되었다. 즉 오래된 결정이며 최근 회귀가 아니다. 한편 <code>callback-ad-shortform-more</code>는 이 저장소에 <b>커밋된 적이 한 번도 없어</b>(git 이력 없음) 배포본만 존재한다. 보너스 시절 실제 적립 로직이 어떤 형태였는지는 소스가 남아 있지 않으므로, <code>ad_reward_events</code>의 <code>type = 'more'</code> 이력으로만 역추적할 수 있다(§6-4).</p>
+
+<h3>원인 B — 더보기를 일찍 누르면 시청 적립까지 유실 <span class="tag t-bad">회귀</span></h3>
+
+<p>A와 독립적인, 최근 유입된 실제 결함이다. 사용자 체감은 “더보기를 눌렀더니 아무것도 안 들어왔다”로 A와 동일하게 나타난다.</p>
+
+<pre><code>잔여 5초 도달
+  → _ctaRevealStarted = true                        (ad_shortform_fullscreen_page.dart:480-488)
+  → shouldShowCtaButton(...) = true                 (:129  ctaRevealStarted || finished)
+  → isCtaActionEnabled(visible: true, rewarding:false) = true   (:143-148)
+                                                    ↑ 영상 종료 전인데 버튼이 이미 '활성'
+
+사용자가 더보기 탭
+  → _openCta(cta)  →  외부 브라우저 실행             (:691-704)
+  → Navigator.maybePop()                            (:913-917)
+  → dispose() → _controller.removeListener(_onProgress)  (:724-735)
+
+  ⇒ shouldReportView() 에 영원히 도달하지 못함        (:91-110)
+  ⇒ _startReward() 미실행  →  callback-ad-shortform-view 미호출
+  ⇒ 시청 적립 0</code></pre>
+
+<p>이 동작은 <code>4e79a32eb</code> (2026-07-25, <i>fix(ads): restore shortform controls and completion</i>)에서 유입되었다. 그 이전에는 다음 조건이었다.</p>
+
+<table>
+<thead><tr><th>시점</th><th>버튼 활성 조건</th><th>조기 탭 가능?</th></tr></thead>
+<tbody>
+<tr><td>~ 2026-07-25 이전</td><td><code>isCtaButtonEnabled = finished && viewReported && !rewarding</code></td><td>불가 — 적립 완료 전엔 비활성</td></tr>
+<tr><td>2026-07-25 이후 (현재)</td><td><code>isCtaActionEnabled = visible && !rewarding</code></td><td><b>가능 — 잔여 5초부터 활성</b></td></tr>
+</tbody>
+</table>
+
+<div class="box warn">
+<p><b>부수 확인:</b> 기존 <code>AdShortformLogic.isCtaButtonEnabled</code>는 현재 위젯에서 전혀 사용되지 않는 <b>데드코드</b>이며 테스트(<code>ad_shortform_logic_test.dart:260-315</code>)에만 남아 있다. 테스트가 통과하므로 이 회귀는 CI에서 잡히지 않았다.</p>
+</div>
+
+<div class="box bad">
+<p><b>결론 B.</b> 영상 종료 전 더보기를 누르면 <b>추가 적립은 물론 기본 시청 적립까지 전부 유실</b>된다. 잔여 5초 구간은 사용자가 “거의 다 봤다”고 인지하는 시점이라 실제 발생 빈도가 낮지 않을 것으로 본다.</p>
+</div>
+
+<hr>
+
+<h2>3. 2번 — 팝업 타이밍 (수정 완료, 미전달)</h2>
+
+<p><code>aef0327b8</code> <i>fix(rewards): show cotton receipt before closing ad</i> 가 main에 반영되어 있다. 변경 파일은 전부 Dart이며 네이티브·에셋 변경이 없다.</p>
+
+<pre><code>picnic_lib/lib/presentation/providers/ad_reward_recovery_provider.dart
+picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/
+  ├─ ad_shortform_fullscreen_page.dart
+  ├─ internal_shortform_reward_flow.dart
+  └─ shortform_internal_platform.dart
+(+ 대응 테스트 3종)</code></pre>
+
+<div class="box warn">
+<p><b>전달 상태 주의.</b> 코드는 main에 있으나 <b>사용자 단말에는 아직 반영되지 않았다.</b> Shorebird OTA 또는 신규 빌드가 나가야 CS 응답이 성립한다. 현재 <code>pubspec.yaml</code>은 <code>1.3.0+130007</code>이며, OTA 대상 릴리스와 패치 발행 여부를 배포 담당이 확인해야 한다.</p>
+<p>CS 회신 시 “수정됨”이 아니라 <b>“수정 완료, 다음 업데이트에 반영 예정”</b>으로 안내해야 한다.</p>
+</div>
+
+<hr>
+
+<h2>4. 1번 — 시간당 10개 리밋</h2>
+
+<p>리밋 정의는 정상적으로 존재한다.</p>
+
+<pre><code>const AD_LIMITS = {
+  admob:    { hourly: 10, daily: 120 },
+  unity:    { hourly: 10, daily: 120 },
+  pangle:   { hourly: 10, daily: 120 },
+  internal: { hourly: 10, daily: 120 },   // ← 글로벌 픽 #1
+};</code></pre>
+<p class="path">프로덕션 check-ads-count v82 · shared/services/ad-count-check/ad-count-check-service.ts:23-40</p>
+
+<p>카운팅은 런타임 플래그에 따라 <b>두 경로로 갈린다.</b></p>
+
+<table>
+<thead><tr><th style="width:12rem">조건</th><th>카운트 소스</th></tr></thead>
+<tbody>
+<tr>
+  <td><code>ads.internal_reward_mode</code> ≠ <code>cotton</code></td>
+  <td><code>transaction_internal</code> 에서 <code>action = 'view'</code> 인 행을 최근 1h / 24h 집계</td>
+</tr>
+<tr>
+  <td><code>ads.internal_reward_mode</code> = <code>cotton</code></td>
+  <td>RPC <code>get_cotton_ad_limit_status(p_user_id, p_platform)</code> 결과 사용</td>
+</tr>
+</tbody>
+</table>
+
+<p>레거시 경로에는 <code>'issue'</code> 레코드가 가용량을 깎지 않도록 하는 필터가 명시적으로 들어 있다.</p>
+
+<pre><code>// Only count actual view actions for internal so 'issue' records don't reduce availability
+if (platform === 'internal') {
+  query = query.eq('action', 'view');
+}</code></pre>
+
+<p>2026-08-12에 관련 Edge Function 3종이 모두 재배포되었다.</p>
+
+<table>
+<thead><tr><th>함수</th><th>버전</th><th>최종 배포 (UTC)</th></tr></thead>
+<tbody>
+<tr><td><code>callback-ad-shortform-view</code></td><td>36</td><td>2026-08-12 14:09:53</td></tr>
+<tr><td><code>callback-ad-shortform-more</code></td><td>28</td><td>2026-08-12 14:15:01</td></tr>
+<tr><td><code>check-ads-count</code></td><td>82</td><td>2026-08-12 15:30:46</td></tr>
+</tbody>
+</table>
+
+<div class="box ok">
+<p><b>판단.</b> 티켓에서 이미 체크 완료된 항목이며, 위 재배포 시각이 티켓 생성(2026-08-13) 직전인 점과 일치한다. 리밋 로직 자체에 결함은 발견되지 않았다.</p>
+</div>
+
+<div class="box warn">
+<p><b>남은 검증 포인트.</b> 배포된 <code>callback-ad-shortform-view</code>는 정산을 전부 RPC <code>settle_shortform_view_reward</code>에 위임한다(v36 index.ts:71). 이 RPC는 러너로만 적용되는 Phase-1 지갑 마이그레이션에 속해 저장소에 없다. <b>이 RPC가 <code>transaction_internal(action='view')</code> 행을 계속 기록하는지</b>가 레거시 카운팅 경로의 전제이므로, cotton 모드가 아닌 상태라면 이 한 가지를 반드시 확인해야 한다. 기록이 끊기면 시간당 카운트가 영구히 0이 되어 리밋이 절대 걸리지 않는다.</p>
+</div>
+
+<hr>
+
+<h2>5. 4번 — 아시아픽 #1 “광고 소진”</h2>
+
+<p>사용자가 본 문구는 다음 리소스다.</p>
+
+<pre><code>"dialog_title_ads_exhausted":   "모든 광고 소진"
+"dialog_content_ads_exhausted": "모든 광고가 소진되었습니다. 다음에 다시 시도해주세요."</code></pre>
+
+<p>이 다이얼로그는 <code>_showNoFillDialog()</code>가 띄우며, 호출 조건은 <code>isNonReportableAdError()</code>가 참인 <b>모든</b> 광고 로드 실패다.</p>
+
+<pre><code>void logAdLoadFailure(String platform, dynamic error, String adId,
+                      String message, StackTrace? stackTrace) {
+  logger.e(message, error: error);
+
+  if (isNonReportableAdError(platform, error, message)) {
+    logger.i('$platform 광고 에러 Sentry 보고 제외: $message');
+    if (context.mounted && !isDisposed) {
+      _showNoFillDialog();          // ← "모든 광고 소진"
+    }
+    return;                          // ← Sentry 보고 없이 종료
+  }
+  Sentry.captureException(...);
+}</code></pre>
+<p class="path">ad_platform.dart:301-341, 387-392</p>
+
+<p>판정 키워드 목록에 <code>'광고 로드 실패'</code>와 <code>'network error'</code>가 포함되어 있다(<code>ad_platform.dart:357-379</code>). 그런데 Pangle의 로드 실패 호출부가 넘기는 메시지가 정확히 그 문자열이다.</p>
+
+<table>
+<thead><tr><th>호출 지점</th><th>전달 message</th><th>키워드 매칭</th><th>결과</th></tr></thead>
+<tbody>
+<tr>
+  <td><code>pangle_platform.dart:206</code></td><td><code>'광고 로드 실패'</code></td>
+  <td><span class="tag t-bad">매칭</span></td><td>“소진” 표시 + Sentry 제외</td>
+</tr>
+<tr>
+  <td><code>pangle_platform.dart:316</code></td><td><code>'Pangle 광고 로드 실패'</code></td>
+  <td><span class="tag t-bad">매칭</span></td><td>“소진” 표시 + Sentry 제외</td>
+</tr>
+<tr>
+  <td><code>pangle_platform.dart:256</code></td><td><code>'광고 ID가 설정되지 않음'</code></td>
+  <td>비매칭</td><td>일반 에러 다이얼로그 + Sentry 보고</td>
+</tr>
+</tbody>
+</table>
+
+<div class="box bad">
+<p><b>결론.</b> Pangle의 <b>모든</b> 로드 예외 — 진짜 no-fill뿐 아니라 SDK 초기화 실패, 네트워크 오류, 지역/eCPM 필터, 계정·플레이스먼트 설정 문제까지 — 가 사용자에게는 똑같이 <b>“모든 광고가 소진되었습니다”</b>로 보이고, <b>동시에 Sentry 보고가 차단</b>된다.</p>
+<p>따라서 “아시아픽 #1이 소진 상태”라는 CS 진술은 <b>액면 그대로 신뢰할 수 없다.</b> 그리고 원인을 가릴 텔레메트리도 현재 남지 않는다.</p>
+</div>
+
+<p>프로덕션 Pangle 광고 ID는 <code>picnic_app/config/prod.json</code>의 <code>ads.pangle</code>에 4개 항목(<code>ios_app_id</code>, <code>android_app_id</code>, <code>ios_rewarded_video_id</code>, <code>android_rewarded_video_id</code>) 모두 설정되어 있으므로, 최소한 <b>ID 미설정 경로는 아니다.</b></p>
+
+<h3>참고 — 자체 캠페인의 재고 소모 시점 (글로벌 픽 #1 해당)</h3>
+<p>4번과 직접 관련은 없으나 같은 조사 중 확인된 사항이다. 자체 숏폼 캠페인의 <code>served_count</code>는 <b>시청 완료가 아니라 광고 발급 시점</b>에 증가한다.</p>
+<pre><code>// ad-shortform-issue v43 · index.ts:207
+const { error: servedErr } = await supabaseAdmin
+  .from("ad_campaigns")
+  .update({ served_count: (selected.served_count || 0) + 1 })
+  .eq("id", selected.id);</code></pre>
+<p><code>ad_campaigns_active</code> 뷰가 <code>total_cap IS NULL OR served_count &lt; total_cap</code>으로 필터하므로, 즉시 닫기·영상 로드 실패·워치독 타임아웃·중도 이탈이 모두 재고를 소모한다. 실제 시청 수보다 빠르게 캡에 도달해 캠페인이 노출 대상에서 빠질 수 있다.</p>
+
+<hr>
+
+<h2 id="pending">6. 확인 대기 — 프로덕션 DB</h2>
+
+<p>아래는 코드만으로 확정할 수 없어 DB 실측이 필요한 항목이다. 접속 정보 확보 후 갱신 예정.</p>
+
+<table>
+<thead><tr><th style="width:2rem">#</th><th>확인 대상</th><th>왜 필요한가</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>wallet_runtime_flags</code> 의 <code>ads.internal_reward_mode</code> 현재 값</td>
+    <td>1번의 카운팅 경로(레거시 vs cotton)를 결정한다.</td></tr>
+<tr><td>2</td><td><code>settle_shortform_view_reward</code> 정의 — <code>transaction_internal(action='view')</code> 기록 여부</td>
+    <td>레거시 경로일 때 시간당 리밋이 실제로 걸리는지의 전제.</td></tr>
+<tr><td>3</td><td><code>ad_campaigns</code> 중 글로벌 픽 #1 대상 행의 <code>reward_more</code>, <code>cta_url</code></td>
+    <td>운영이 더보기 보상을 설정해 둔 상태인지 확인 (원인 A의 운영 측 전제).</td></tr>
+<tr><td>4</td><td><code>ad_reward_events</code> 중 <code>type = 'more'</code> 행 존재 여부·최종 시각</td>
+    <td>더보기 적립이 과거 어느 시점까지 동작했는지 확정.</td></tr>
+<tr><td>5</td><td><code>ad_campaigns</code> 의 <code>status</code>, <code>total_cap</code>, <code>served_count</code>, <code>visible_to</code></td>
+    <td>글로벌 픽 #1 캠페인이 <code>ad_campaigns_active</code>에 남아 있는지 확인.</td></tr>
+</tbody>
+</table>
+
+<p class="footnote">아시아픽 #1(Pangle)은 자체 DB에 재고 개념이 없으므로 DB 조회 대상이 아니다. Pangle 대시보드의 fill rate·플레이스먼트 상태 확인이 필요하다.</p>
+
+<hr>
+
+<h2>7. 대응 — 결정과 조치</h2>
+
+<div class="box ok">
+<p><b>제품 결정 (2026-08-13).</b> 더보기 추가 보상은 <b>하지 않는 것으로 확정</b>됐다(선택지 3-A′). 더보기 버튼 자체는 유지하며, 광고주 랜딩 이동과 <code>ad_click</code> 계측만 담당한다.</p>
+</div>
+
+<h3>적용 완료 — 앱 (Dart 전용, OTA 가능)</h3>
+
+<p><b>3-A′ 죽은 보상 배선 제거.</b> 런타임 동작 변화는 없다. 이미 도달 불가였던 경로만 걷어냈다.</p>
+<table>
+<thead><tr><th style="width:20rem">파일</th><th>제거</th></tr></thead>
+<tbody>
+<tr><td><code>ad_shortform_fullscreen_page.dart</code></td><td><code>onMore</code> 필드·생성자 파라미터</td></tr>
+<tr><td><code>shortform_internal_platform.dart</code></td><td><code>onMore:</code> 전달부, <code>_callMore()</code>, <code>_moreToken</code>, <code>_reissueTokens()</code><sup>†</sup></td></tr>
+<tr><td><code>internal_shortform_reward_flow.dart</code></td><td><code>InternalShortformIssueResult.moreToken</code></td></tr>
+<tr><td>테스트 4개 파일</td><td><code>onMore</code> 참조 21건, 관련 테스트 2건</td></tr>
+</tbody>
+</table>
+<p class="path">† <code>_reissueTokens()</code> 의 유일한 호출처가 <code>_callMore()</code> 의 catch 블록이라 함께 죽었다.</p>
+
+<p><b>유지된 것:</b> 더보기 버튼 UI, <code>_openCta()</code>, <code>ctaUrl</code> 배선, <code>shouldShowCtaButton</code>, <code>isCtaActionEnabled</code>, 그리고 <code>ad_click</code> 계측(<code>:701</code> <code>if (launched) _logAdClick(url)</code>) 전부.</p>
+
+<p><b>3-B 시청 적립 유실 수정.</b> <code>AdShortformLogic.shouldCloseAfterCta(viewReported:)</code> 를 신설해, 시청 적립이 확정되기 전에는 CTA 탭 후 라우트를 닫지 않는다.</p>
+
+<div class="box warn">
+<p><b>왜 버튼 비활성화가 아닌가.</b> 회귀를 만든 <code>4e79a32eb</code> 는 원래 <b>X 버튼이 적립 완료 전까지 비활성이라 사용자가 갇히던 문제</b>를 고친 커밋이다(<code>canCloseNow = isCtaButtonEnabled(...)</code> 제거). 주석도 <i>"CTA navigation is independent from reward completion"</i> 로 의도를 명시한다. 따라서 구 <code>isCtaButtonEnabled</code> 조건을 복원하면 그 수정을 되돌리게 된다. 버튼은 계속 활성으로 두고 <b>닫는 시점만</b> 늦추는 것이 옳다.</p>
+<p>사용자는 브라우저에서 돌아와 남은 재생을 마치면 적립이 정상 처리되고, 그 사이 X 버튼은 항상 눌린다.</p>
+</div>
+
+<p><b>검증:</b> <code>flutter analyze</code> 44 issues — 변경 전 베이스라인과 동일(신규 0, error 0). <code>flutter test</code> 280건 전부 통과(신규 회귀 가드 2건 포함).</p>
+
+<h3>남은 조치</h3>
+
+<table>
+<thead><tr><th style="width:3rem">우선</th><th>조치</th><th style="width:9rem">범위</th><th style="width:8rem">담당</th></tr></thead>
+<tbody>
+<tr>
+  <td><span class="tag t-bad">높음</span></td>
+  <td><code>ad_campaigns.reward_more</code> 값 회수(0)<br>
+  <span class="path">값이 남아 있으면 "설정했는데 왜 적립이 안 되냐"가 그대로 재발한다</span></td>
+  <td>운영 / DB</td>
+  <td>운영</td>
+</tr>
+<tr>
+  <td><span class="tag t-bad">높음</span></td>
+  <td>어드민 UI 의 <code>reward_more</code> 입력 필드 제거·숨김</td>
+  <td>어드민</td>
+  <td>별도 레포</td>
+</tr>
+<tr>
+  <td><span class="tag t-warn">중간</span></td>
+  <td>Pangle 로드 실패를 <b>진짜 no-fill</b> 과 <b>기타 오류</b> 로 분리 — 오류는 Sentry 보고 유지, 문구도 분리 (§5)</td>
+  <td>앱 단독, Dart 전용</td>
+  <td><span class="tag t-ok">OTA 가능</span></td>
+</tr>
+<tr>
+  <td><span class="tag t-warn">중간</span></td>
+  <td>자체 캠페인 <code>served_count</code> 를 발급 시점이 아닌 시청 완료 시점 증가로 변경</td>
+  <td>Edge Function</td>
+  <td>Edge 배포</td>
+</tr>
+<tr>
+  <td>낮음</td>
+  <td><code>callback-ad-shortform-more</code> — <b>현상 유지 권장.</b> 호출자가 사라져 도달 불가이며, 삭제하면 구버전 앱에서 404 가 된다</td>
+  <td>Edge Function</td>
+  <td>—</td>
+</tr>
+<tr>
+  <td>낮음</td>
+  <td><code>ad-shortform-issue</code> 의 <code>more_token</code>·<code>rewards.more</code> 발급 중단 (선택 — 읽는 쪽이 없어 무해)</td>
+  <td>Edge Function</td>
+  <td>—</td>
+</tr>
+</tbody>
+</table>
+
+<div class="box warn">
+<p><b>3-A 는 닫혔다.</b> <code>more</code> 용 정산 계약 신규 구현은 이번 결정으로 필요 없어졌다. 다만 DB 컬럼(<code>reward_more</code>)과 과거 이력(<code>ad_reward_events.type='more'</code>, <code>more_reward_granted_at</code>)은 <b>보존한다</b> — 지난 데이터를 읽을 수 없게 되면 안 된다.</p>
+</div>
+
+<hr>
+<p class="footnote">
+조사 근거: 저장소 커밋 <code>aef0327b8</code> (= <code>origin/main</code>) 기준 소스,
+PICNIC-PROD 배포 번들 <code>ad-shortform-issue</code> v43 · <code>callback-ad-shortform-view</code> v36 ·
+<code>callback-ad-shortform-more</code> v28 · <code>check-ads-count</code> v82,
+마이그레이션 <code>20260728012937_clean_baseline.sql</code>.
+</p>
+
+</body>
+</html>

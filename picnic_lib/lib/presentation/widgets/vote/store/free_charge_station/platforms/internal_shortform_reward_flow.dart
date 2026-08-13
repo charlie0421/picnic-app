@@ -10,14 +10,12 @@ class InternalShortformIssueResult {
     required this.videoUrl,
     required this.ctaUrl,
     required this.viewToken,
-    required this.moreToken,
   });
   final String ownerUserId;
   final AdRewardReference reference;
   final String videoUrl;
   final String? ctaUrl;
   final String viewToken;
-  final String? moreToken;
 }
 
 class InternalShortformIssueFlow {
@@ -71,7 +69,6 @@ class InternalShortformIssueFlow {
         videoUrl: videoUrl,
         ctaUrl: ad['cta_url'] as String?,
         viewToken: viewToken,
-        moreToken: tokens['more_token'] as String?,
       );
     } on FormatException {
       rethrow;

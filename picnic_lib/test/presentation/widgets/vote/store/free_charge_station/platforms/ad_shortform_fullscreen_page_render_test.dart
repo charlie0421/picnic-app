@@ -27,7 +27,6 @@ void main() {
           AdShortformFullscreenPage(
             videoUrl: 'https://example.com/video.mp4',
             onViewComplete: legacyViewResponse,
-            onMore: () async {},
           ),
         ),
       );
@@ -46,7 +45,6 @@ void main() {
             videoUrl: 'https://example.com/video.mp4',
             ctaUrl: 'https://example.com/cta',
             onViewComplete: legacyViewResponse,
-            onMore: () async {},
           ),
         ),
       );
@@ -62,7 +60,6 @@ void main() {
           AdShortformFullscreenPage(
             videoUrl: 'https://example.com/video.mp4',
             onViewComplete: legacyViewResponse,
-            onMore: () async {},
           ),
         ),
       );
@@ -82,7 +79,6 @@ void main() {
           AdShortformFullscreenPage(
             videoUrl: 'https://example.com/fallback.mp4',
             onViewComplete: legacyViewResponse,
-            onMore: () async {},
             loadAd: () async {
               loadAdCalled = true;
               return (

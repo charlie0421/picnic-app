@@ -87,7 +87,6 @@ class ShortformInternalPlatform extends AdPlatform {
   }
 
   String? _viewToken;
-  String? _moreToken;
   String? _videoUrl;
   String? _ctaUrl;
   VideoPlayerController? _controller;
@@ -123,9 +122,6 @@ class ShortformInternalPlatform extends AdPlatform {
             ga4: ga4AdContext,
             onViewComplete: _callView,
             onWalletRewardPresented: _acknowledgeWalletRewardPresented,
-            onMore: () async {
-              await _callMore();
-            },
             loadAd: () async {
               // 라우트 진입 시점에 최신 광고/토큰 발급 (만료 최소화)
               logInfo('loadAd: issuing new tokens');
@@ -139,52 +135,6 @@ class ShortformInternalPlatform extends AdPlatform {
     } catch (e, s) {
       logError('play failed', error: e, stackTrace: s);
       rethrow;
-    }
-  }
-
-  Future<void> _reissueTokens() async {
-    try {
-      final supabaseUrl = Environment.supabaseUrl;
-      final token = supabase.auth.currentSession?.accessToken ?? '';
-      // Attach X-Device-Id for anti-abuse device-cohort signal.
-      // Graceful: if retrieval fails the request proceeds without the header.
-      final Map<String, String> reissueHeaders = {
-        'Authorization': 'Bearer $token',
-      };
-      try {
-        final deviceId = await DeviceManager.getDeviceId();
-        reissueHeaders['X-Device-Id'] = deviceId;
-      } catch (e) {
-        logWarning(
-          'Could not retrieve device ID for ad-shortform-issue reissue header: $e',
-        );
-      }
-      final res = await SupabaseClient(
-        supabaseUrl,
-        Environment.supabaseAnonKey,
-      ).functions.invoke('ad-shortform-issue', headers: reissueHeaders);
-      if (res.data == null) throw Exception('issue failed');
-      final json = res.data as Map<String, dynamic>;
-      final ad = json['ad'] as Map<String, dynamic>?;
-      final tokens = json['tokens'] as Map<String, dynamic>?;
-      // 비디오/CTA가 바뀔 수도 있으나, 콜백만 재시도할 목적이면 토큰만 갱신
-      _viewToken = tokens?['view_token'] as String?;
-      _moreToken = tokens?['more_token'] as String?;
-      if (ad != null) {
-        _videoUrl = ad['video_url'] as String? ?? _videoUrl;
-        _ctaUrl = ad['cta_url'] as String? ?? _ctaUrl;
-      }
-      logInfo('tokens reissued');
-    } catch (e, s) {
-      final aa = mapToAntiAbuseException(e);
-      if (aa is AntiAbuseException) {
-        logWarning(
-          'ad-shortform-issue (reissue) blocked: channel=${aa.channel}',
-        );
-        _showRateLimitedAndCloseRoute(aa.channel);
-        return;
-      }
-      logError('reissue failed', error: e, stackTrace: s);
     }
   }
 
@@ -234,7 +184,6 @@ class ShortformInternalPlatform extends AdPlatform {
       _ctaUrl = result.ctaUrl;
       logInfo('issued (route) video_url: ${_videoUrl ?? ''}');
       _viewToken = result.viewToken;
-      _moreToken = result.moreToken;
       return (videoUrl: _videoUrl ?? '', ctaUrl: _ctaUrl, blocked: false);
     } catch (e) {
       final aa = mapToAntiAbuseException(e);
@@ -313,48 +262,6 @@ class ShortformInternalPlatform extends AdPlatform {
     await ref
         .read(adRewardRecoveryProvider.notifier)
         .acknowledgePresented(ownerUserId: ownerUserId, status: status);
-  }
-
-  Future<void> _callMore() async {
-    if ((_moreToken ?? '').isEmpty) return;
-    try {
-      logInfo('callMore start');
-      final supabaseUrl = Environment.supabaseUrl;
-      final token = supabase.auth.currentSession?.accessToken ?? '';
-      final client = SupabaseClient(supabaseUrl, Environment.supabaseAnonKey);
-      await client.functions.invoke(
-        'callback-ad-shortform-more',
-        headers: {'Authorization': 'Bearer $token'},
-        body: {'token': _moreToken},
-      );
-      logInfo('callMore success');
-      commonUtils.refreshUserProfile();
-    } catch (e, s) {
-      final msg = e.toString().toLowerCase();
-      if (msg.contains('expired') || msg.contains('bad request')) {
-        try {
-          logWarning('callMore expired -> reissue & retry');
-          await _reissueTokens();
-          final supabaseUrl = Environment.supabaseUrl;
-          final token = supabase.auth.currentSession?.accessToken ?? '';
-          final client = SupabaseClient(
-            supabaseUrl,
-            Environment.supabaseAnonKey,
-          );
-          await client.functions.invoke(
-            'callback-ad-shortform-more',
-            headers: {'Authorization': 'Bearer $token'},
-            body: {'token': _moreToken},
-          );
-          logInfo('callMore retry success');
-          commonUtils.refreshUserProfile();
-          return;
-        } catch (e2, s2) {
-          logError('more failed (retry)', error: e2, stackTrace: s2);
-        }
-      }
-      logError('more failed', error: e, stackTrace: s);
-    }
   }
 
   @override

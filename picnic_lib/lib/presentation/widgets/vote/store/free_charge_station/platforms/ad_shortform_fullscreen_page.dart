@@ -147,6 +147,26 @@ class AdShortformLogic {
     return visible && !rewarding;
   }
 
+  /// Whether the ad route may close itself right after the CTA was opened.
+  ///
+  /// The CTA is only a landing-page hop; it must never cost the user the candy
+  /// they already watched for. Popping the route disposes the video controller,
+  /// which removes the `_onProgress` listener and with it the ONLY path to
+  /// `_startReward()` - so closing before the view reward has settled forfeits
+  /// the base watch reward entirely.
+  ///
+  /// The button becomes visible with 5s of playback left
+  /// ([shouldShowCtaButton]) and stays actionable by design
+  /// ([isCtaActionEnabled]), so "CTA tapped" and "reward settled" genuinely do
+  /// not imply each other. When the reward has not settled we leave the route
+  /// mounted: the user returns from the browser, playback finishes, and the
+  /// reward lands normally. The close (X) button stays available throughout, so
+  /// nobody is trapped.
+  ///
+  /// (Was: the route popped unconditionally, so tapping '더보기' during those
+  /// last 5 seconds dropped the view reward on the floor.)
+  static bool shouldCloseAfterCta({required bool viewReported}) => viewReported;
+
   static bool isCloseActionEnabled({
     required bool finished,
     required bool viewReported,
@@ -228,7 +248,6 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   final String videoUrl;
   final String? ctaUrl;
   final Future<InternalShortformViewResponse> Function() onViewComplete;
-  final Future<void> Function() onMore;
 
   /// Loads the ad at route-entry time.
   ///
@@ -252,7 +271,6 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
     super.key,
     required this.videoUrl,
     required this.onViewComplete,
-    required this.onMore,
     this.ctaUrl,
     this.loadAd,
     this.ga4,
@@ -908,14 +926,21 @@ class _AdShortformFullscreenPageState
                             onPressed: enabled
                                 ? () async {
                                     debugPrint('[internal] more pressed');
-                                    // 적립은 재생 종료 시 자동 처리됨
+                                    // '더보기'는 광고주 랜딩으로 보내고 `ad_click`
+                                    // 을 남기는 것이 전부다. 추가 적립은 하지
+                                    // 않기로 확정됐다(PICNIC-2377) - 적립은 재생
+                                    // 종료 시 시청 보상 한 건으로만 처리된다.
                                     await _openCta(cta!);
-                                    if (mounted) {
+                                    // 적립이 확정되기 전에 닫으면 컨트롤러가
+                                    // dispose 되어 시청 보상까지 날아간다.
+                                    if (AdShortformLogic.shouldCloseAfterCta(
+                                          viewReported: _viewReported,
+                                        ) &&
+                                        mounted) {
                                       Navigator.of(
                                         navigatorKey.currentContext!,
                                       ).maybePop();
                                     }
-                                    // widget.onMore()는 호출하지 않음 (More 보상 제거)
                                   }
                                 : null,
                             style: ElevatedButton.styleFrom(

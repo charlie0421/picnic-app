@@ -126,8 +126,9 @@ Picnic 모바일 앱 프로젝트 내 10개 GA4 이벤트에 대하여 실제 �
 
 ### 8. `ad_click` (광고 종료 후 '더보기' 버튼으로 이동)
 
-- **권장 호출 지점**: `picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/shortform_internal_platform.dart:121` (`_callMore()`) 및 `ad_shortform_fullscreen_page.dart:575` (`_openCta(String url)`)
-  - **이유**: 숏폼 광고 화면 하단 CTA '더보기' 버튼을 눌러 외부 링크로 이동하는 정확한 지점.
+- **실제 호출 지점**: `picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_fullscreen_page.dart:701` — `_openCta(String url)` 안에서 `launchUrl` 이 **성공(`true`) 했을 때만** `_logAdClick(url)` 호출.
+  - **이유**: 숏폼 광고 화면 하단 CTA '더보기' 버튼을 눌러 외부 링크로 실제 이동한 지점. 이동에 실패하면 클릭으로 집계하지 않는다.
+  - ⚠️ 이전 판에는 `shortform_internal_platform.dart` 의 `_callMore()` 가 호출 지점으로 함께 적혀 있었으나 **잘못된 기술**이었다. `_callMore()` 는 '더보기' 추가 적립용 서버 콜백이었고 UI 에서 호출된 적이 없으며, 추가 적립을 하지 않기로 확정(PICNIC-2377)되면서 제거됐다. `ad_click` 계측은 그와 무관하게 `_openCta()` 에서 그대로 발송된다.
 - **파라미터별 값 출처**:
   - `ad_platform`: `'internal-shortform'`
   - `ad_source`: `'internal'`
@@ -202,7 +203,7 @@ Picnic 모바일 앱 프로젝트 내 10개 GA4 이벤트에 대하여 실제 �
 - 따라서 커스텀 `ad_impression` 수동 발송을 추가하기 전에 Firebase-AdMob 자동 수집 활성화 여부를 반드시 확인해야 함 (중복 집계 위험).
 
 ### ③ '더보기' 버튼 (`ad_click` 트리거) UI 존재 여부
-- **내부 숏폼 광고 (`internal-shortform`)**: `AdShortformFullscreenPage` (lines 738~790) 화면 우하단에 CTA ('더보기' / 이동) 버튼이 **실제 UI로 구현되어 있음**. 클릭 시 `widget.onMore` → `_callMore()`가 호출되어 external browser로 URL 연결.
+- **내부 숏폼 광고 (`internal-shortform`)**: `AdShortformFullscreenPage` 화면 하단에 CTA ('더보기' / 이동) 버튼이 **실제 UI로 구현되어 있음**. 클릭 시 `_openCta(url)` 이 `launchUrl` 로 external browser 를 열고, 이동에 성공하면 `_logAdClick(url)` 로 `ad_click` 을 1회 발송한다. **추가 적립은 없다** — 더보기는 광고주 랜딩 이동과 클릭 계측만 담당한다(PICNIC-2377 결정).
 - **외부 SDK 광고 (AdMob, Pangle 등)**: SDK 플레이어가 자율 관리하므로 Flutter UI 차원의 별도 '더보기' 버튼은 없음.
 
 ---
