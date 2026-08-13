@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AdMob 되살리기 — 핸드오프</title>
+<style>
+  :root {
+    --bg:#fff; --fg:#1c1e21; --muted:#5c6470; --line:#dfe3e8; --accent:#b4325e;
+    --code-bg:#f5f6f8; --warn-bg:#fff6e5; --warn-line:#e0a02a;
+    --bad-bg:#fdeced; --bad-line:#d0454c; --ok-bg:#eaf6ed; --ok-line:#3f9a56;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0 auto; max-width:62rem; padding:2.5rem 1.5rem 6rem;
+    background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Segoe UI",Roboto,sans-serif;
+    font-size:15px; line-height:1.72; word-break:keep-all;
+  }
+  h1 { font-size:1.85rem; line-height:1.35; margin:0 0 .4rem; letter-spacing:-.02em; }
+  h2 { font-size:1.25rem; margin:3rem 0 .9rem; padding-bottom:.45rem; border-bottom:2px solid var(--line); }
+  h3 { font-size:1.02rem; margin:1.9rem 0 .6rem; }
+  h4 { font-size:.96rem; margin:1.5rem 0 .5rem; }
+  p { margin:.7rem 0; }
+  .sub { color:var(--muted); font-size:.9rem; margin:0 0 1.6rem; }
+  .meta {
+    display:flex; flex-wrap:wrap; gap:.4rem 1.5rem; padding:.9rem 1.1rem; margin:1.4rem 0 2rem;
+    background:var(--code-bg); border:1px solid var(--line); border-radius:8px;
+    font-size:.87rem; color:var(--muted);
+  }
+  .meta b { color:var(--fg); font-weight:600; }
+  table { border-collapse:collapse; width:100%; margin:1.1rem 0; font-size:.9rem; }
+  th,td { border:1px solid var(--line); padding:.55rem .7rem; text-align:left; vertical-align:top; }
+  th { background:var(--code-bg); font-weight:600; }
+  code { background:var(--code-bg); padding:.1rem .34rem; border-radius:4px;
+         font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.875em; }
+  pre { background:var(--code-bg); border:1px solid var(--line); border-left:3px solid var(--accent);
+        border-radius:6px; padding:.9rem 1.05rem; overflow-x:auto; font-size:.84rem; line-height:1.62; }
+  pre code { background:none; padding:0; font-size:inherit; }
+  .box { border-radius:8px; padding:.85rem 1.1rem; margin:1.1rem 0; border:1px solid; }
+  .box p:first-child { margin-top:0; } .box p:last-child { margin-bottom:0; }
+  .bad { background:var(--bad-bg); border-color:var(--bad-line); }
+  .warn { background:var(--warn-bg); border-color:var(--warn-line); }
+  .ok { background:var(--ok-bg); border-color:var(--ok-line); }
+  .tag { display:inline-block; padding:.08rem .5rem; border-radius:999px; font-size:.74rem; font-weight:700; }
+  .t-bad { background:var(--bad-line); color:#fff; }
+  .t-warn { background:var(--warn-line); color:#402c00; }
+  .t-ok { background:var(--ok-line); color:#fff; }
+  .path { color:var(--muted); font-size:.82rem; }
+  ul,ol { padding-left:1.35rem; } li { margin:.32rem 0; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.5rem 0; }
+  .footnote { color:var(--muted); font-size:.84rem; }
+</style>
+</head>
+<body>
+
+<h1>AdMob 되살리기 — 핸드오프</h1>
+<p class="sub">무료충전소 AdMob 구좌 복구 작업의 현재 상태·확정 사실·남은 일</p>
+
+<div class="meta">
+  <span><b>작성</b> 2026-08-13</span>
+  <span><b>브랜치</b> fix/admob-callback-stall</span>
+  <span><b>워크트리</b> /Users/charlie.hyun/orca/workspaces/picnic-app/admob-callback-stall</span>
+  <span><b>베이스</b> 2048fa016 (main)</span>
+  <span><b>커밋</b> 3개 · 미푸시</span>
+  <span><b>관련</b> PICNIC-2377</span>
+</div>
+
+<div class="box warn">
+<p><b>이 문서를 먼저 읽어야 하는 이유.</b> 이 작업의 출발점이던 전제 — "AdMob 콜백이 안 들어와서 멈춰서 UI 에서 제거했다" — 는 <b>서버 기록과 다르다</b>. 실제로는 어뷰징 사건이 있었고, 되살리기에 필요한 작업 목록이 그에 따라 달라진다(§2·§4). 조사 초기에 작성된 <code>docs/admob-revival-plan.md</code>(51KB)는 이 사실을 <b>모르고 쓰였으므로 §A 전제조건과 §E 롤아웃이 불완전하다</b>.</p>
+</div>
+
+<h2>1. 지금 무엇이 되어 있나</h2>
+
+<h3>커밋 3개 (미푸시, PR 미생성)</h3>
+
+<table>
+<thead><tr><th style="width:9rem">커밋</th><th>내용</th></tr></thead>
+<tbody>
+<tr><td><code>f1efbdd06</code></td><td><code>AdmobShowFlow</code> 상태 기계 도입 — 로드 15초·표시 10초 워치독, 세대 토큰으로 늦은 콜백 무시. <code>ad_impression</code> GA4 발송(Pangle 과 동등화). AdMob 전용 테스트 9케이스 신설(<b>기존 0건</b>)</td></tr>
+<tr><td><code>19f193a87</code></td><td>교차 리뷰 지적 반영 — blocker 3 + major 2 + minor 2</td></tr>
+<tr><td><code>5513a0af2</code></td><td>잔여 2건 마무리 — 배선 레벨 회귀 테스트</td></tr>
+</tbody>
+</table>
+
+<p><b>검증</b>(코디네이터가 독립 실행): <code>flutter analyze</code> <b>44건 = 변경 전 베이스라인</b>(신규 0, error 0), <code>flutter test test/.../free_charge_station/</code> <b>320건 전부 통과</b>.</p>
+
+<h3>고친 것 — 실재하던 결함</h3>
+
+<p>원 구현(<code>admob_platform.dart</code>)은 <b>로드·표시 두 단계 모두 타임아웃이 없었다</b>. <code>stopAllAnimations()</code> 를 부르는 경로가 SDK 콜백 5종뿐이라 콜백이 안 오면 로딩 UI 가 영구히 남는다. 콜백과 무관하게 UI 를 되돌리는 코드가 저장소 전체에 없었다. Pangle 은 로드 단계에 5초 타임아웃이 있어 <b>명확한 비대칭</b>이었다.</p>
+
+<p>커밋 <code>6fecae2fe</code>(UI 구좌 제거)는 <b>배선만 떼어냈고 결함은 그대로 남겼다</b>. <code>AdmobPlatform</code> 은 죽은 코드로 남아 <code>initialize()</code> 는 지금도 호출된다.</p>
+
+<h3>교차 리뷰에서 잡힌 것 (Sol, 2회 독립 리뷰)</h3>
+
+<table>
+<thead><tr><th style="width:6rem">심각도</th><th>내용</th><th style="width:5rem">상태</th></tr></thead>
+<tbody>
+<tr><td><span class="tag t-bad">BLOCKER</span></td><td>늦은 이전 세대 콜백이 <b>현재 세대 광고를 dispose</b> — 세대 검사 전에 <code>_disposePending()</code> 호출</td><td>해소</td></tr>
+<tr><td><span class="tag t-bad">BLOCKER</span></td><td><code>onShowed</code> 가 <code>_finish</code> 없이 워치독만 취소 → <b>terminal 영구 부재</b>. 게다가 테스트가 이 위반을 green 으로 고정</td><td>해소</td></tr>
+<tr><td><span class="tag t-bad">BLOCKER</span></td><td><code>AdService.dispose()</code> 가 <code>platform.dispose()</code> 미호출 → 화면 이탈 후 타이머·콜백 잔존, dispose 된 <code>AnimationController</code> 접근·네이티브 광고 누수</td><td>해소</td></tr>
+<tr><td>MAJOR</td><td>delegate 동기 throw 시 이중 terminal·다이얼로그</td><td>해소</td></tr>
+<tr><td>MAJOR</td><td>GA4 impression 이 콜백 시점의 mutable <code>ga4AdContext</code> 를 읽어 <b>다른 구좌로 오기록</b></td><td>해소</td></tr>
+<tr><td>MINOR</td><td><code>refreshUserProfile</code> attempt 별 dedup 미보장</td><td>해소</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>2. 확정된 사실 — AdMob 이 꺼진 진짜 이유</h2>
+
+<div class="box bad">
+<p><b>콜백 스톨이 아니라 어뷰징이다.</b> <code>picnic-supabase</code> 커밋 <code>d1562a4</code>(2026-04-11)와 사건 보고서 <code>docs/2026-04-11-vote-abuse-incident.md</code> 에 기록돼 있다.</p>
+<pre><code>fix: disable abused ad callback endpoints and add server-side daily limits
+
+- Disable callback-admob (403) — AdMob deactivated in app since 2026-03-02
+- Disable callback-unity (403)
+- Add server-side daily limit (120/day) to callback-pangle / shortform-view / more
+
+686 accounts deactivated for exploiting disabled AdMob callback endpoint.</code></pre>
+</div>
+
+<h3>사건 요약</h3>
+<ul>
+  <li>앱에서 비활성화된 <code>callback-admob</code> 엔드포인트를 <b>직접 호출</b>해 보너스 캔디 부정 획득</li>
+  <li>1~3분 간격 기계적 반복, <b>한 유저당 하루 최대 240건</b></li>
+  <li><b>686개 계정 탈퇴</b> (A등급 100건+ 467명, B등급 10~99건 218명, C등급 1명)</li>
+  <li>vote 209(05월 생일 남자) 어뷰저 <code>vote_pick</code> soft delete + 집계 재계산 — <b>1위가 바뀜</b></li>
+</ul>
+
+<h3>타임라인</h3>
+
+<table>
+<thead><tr><th style="width:9rem">날짜</th><th>사건</th></tr></thead>
+<tbody>
+<tr><td><b>2026-03-02</b></td><td><code>cbd5dd9</code> — <b>SSV 서명 검증(STRICT) 도입</b>. 같은 날 AdMob 앱에서 비활성화(iOS 서버 기반)</td></tr>
+<tr><td>2026-04-10</td><td><code>0d60e8f</code> ad anomaly detection and abuser safeguard. 글로벌 완전 제거</td></tr>
+<tr><td><b>2026-04-11</b></td><td><code>d1562a4</code> — 686계정 적발·탈퇴, <code>callback-admob</code> 403 차단, 전 채널 일일 120건 서버 제한 추가</td></tr>
+<tr><td>2026-04-11 09:06:10</td><td>마지막 <code>transaction_admob</code> 기록 (누계 <b>12,295,175건</b>)</td></tr>
+<tr><td>2026-04-11 09:06:12</td><td><code>callback-admob</code> v175 배포(403 스텁) — 이후 오늘까지 무변경</td></tr>
+</tbody>
+</table>
+
+<div class="box ok">
+<p><b>중요 — 어뷰징 벡터는 이미 닫혀 있다.</b> SSV 서명 검증이 <b>2026-03-02 에 STRICT 모드로 도입</b>됐다(<code>cbd5dd9</code>). 현재 <code>main</code> 의 <code>_shared/ad/platforms/admob-service.ts</code> 에도 <code>verifyAdMobSignature</code>(Google 공개키 조회 + ECDSA DER→P1363)가 그대로 있고 실패 시 <code>{isValid:false}</code> 로 차단한다. <code>d1562a4</code> 가 추가한 일일 한도 인프라(<code>base-ad-service.checkDailyLimit</code>)도 존재한다.</p>
+<p>즉 지금 403 인 것은 "방어가 없어서" 가 아니라 <b>"앱에서 안 쓰니 닫아두자"</b> 에 가깝다. 되살리기가 곧 어뷰징 재개방을 뜻하지는 않는다.</p>
+</div>
+
+<p class="footnote">미확정: 사건 보고서의 판별 기준이 <i>"2026-03-02 이후 콜백 10건+"</i> 인데, STRICT 검증이 같은 날 켜졌음에도 이후 콜백이 기록됐다는 점은 검증 통과 없이도 기록되는 경로가 있었거나 판별이 "시도" 기준이었음을 시사한다. 되살리기 전에 이 한 가지는 확인하는 편이 좋다.</p>
+
+<hr>
+
+<h2>3. 되살리기의 실제 남은 작업</h2>
+
+<table>
+<thead><tr><th style="width:2rem">#</th><th>항목</th><th style="width:7rem">상태</th><th style="width:8rem">배포 경로</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>SSV 서명 검증 (STRICT)</td><td><span class="tag t-ok">있음</span></td><td>—</td></tr>
+<tr><td>2</td><td>일일 서버 제한 인프라</td><td><span class="tag t-ok">있음</span><br><span class="path">admob 적용 여부는 확인 필요</span></td><td>—</td></tr>
+<tr><td>3</td><td>클라이언트 워치독</td><td><span class="tag t-ok">이번 작업</span></td><td>Dart — OTA 가능</td></tr>
+<tr><td>4</td><td><b><code>callback-admob</code> 403 스텁 → 실제 구현 복원</b></td><td><span class="tag t-bad">필요</span></td><td>Edge 배포</td></tr>
+<tr><td>5</td><td><b>코튼캔디 정산 경로 신설</b></td><td><span class="tag t-bad">필요</span></td><td>Edge + DB</td></tr>
+<tr><td>6</td><td>UI 구좌 복원 (<code>free_charge_station.dart</code>)</td><td><span class="tag t-warn">미착수</span></td><td>Dart — OTA 가능</td></tr>
+<tr><td>7</td><td><code>config.admob_disabled_os</code> 해제</td><td><span class="tag t-warn">마지막</span></td><td>DB 설정</td></tr>
+</tbody>
+</table>
+
+<h3>5번이 가장 큰 구멍 — 코튼 정산 경로 부재</h3>
+
+<p>AdMob 은 코튼캔디 전환에서 <b>아예 제외됐다</b>. 프로덕션 실측:</p>
+
+<table>
+<thead><tr><th>확인 항목</th><th>값</th></tr></thead>
+<tbody>
+<tr><td><code>cotton_candy_grants</code> 中 admob</td><td><b>0건</b></td></tr>
+<tr><td>코튼 지급 provider 종류</td><td><b>2종뿐</b> — <code>internal_shortform</code>, <code>pangle</code></td></tr>
+<tr><td><code>check-ads-count</code> 의 <code>COTTON_SOURCE_PROVIDERS</code></td><td><code>{internal, pangle}</code> — <b>admob 없음</b></td></tr>
+<tr><td><code>wallet_runtime_flags</code></td><td><code>ads.internal_reward_mode</code>, <code>ads.pangle_reward_mode</code> — <b><code>ads.admob_reward_mode</code> 없음</b></td></tr>
+</tbody>
+</table>
+
+<div class="box bad">
+<p><b>PICNIC-2377 의 Pangle 과 정확히 같은 구조다.</b> 조사 중 재현용으로 복원한 AdMob 구좌는 UI 에 <b>"+코튼캔디 1 획득"</b> 이라 표시했지만 서버에 그 코튼을 지급할 경로가 없다. 이 상태로 켜면 사용자가 광고를 보고 아무것도 못 받거나 레거시 보너스 스타캔디를 받는다.</p>
+<p><code>isCottonRewardMode('admob')</code> 은 <code>COTTON_SOURCE_PROVIDERS</code> 에 키가 없어 <b>항상 false</b> 를 반환한다.</p>
+</div>
+
+<hr>
+
+<h2>4. 알려진 공백 — 정직하게 남긴다</h2>
+
+<h4>4-1. 콜백 미수신은 끝내 재현하지 못했다</h4>
+<p>실기기(Galaxy S20+, 프로덕션 1.3.0+130007)로 시도했으나 <code>config.admob_disabled_os = 'ios,android'</code> 때문에 <code>checkAdsLimit</code> 이 <code>disabled:true</code> 를 반환해 <b><code>RewardedAd.load()</code> 에 도달조차 못 했다</b>. "이 광고는 일시적으로 사용할 수 없습니다" 다이얼로그로 깨끗이 종료됐다(멈춤 아님).</p>
+<p>워치독은 <b>"콜백이 안 와도 사용자가 갇히지 않게" 하는 방어</b>이지, 미수신의 근본 원인을 제거했다는 주장이 아니다.</p>
+
+<h4>4-2. Dart 워치독은 네이티브 ANR 을 막지 못한다</h4>
+<p>커밋 <code>4729cc5d7</code>(2026-05-13)이 Sentry App Hanging/ANR 14건·<b>200명+</b> 에서 <code>GAD_*</code>(AdMob) culprit 을 기록한다. 이는 광고 SDK 의 <b>네이티브 메인스레드 블로킹</b>이라, Dart 이벤트 루프에서 도는 타이머로는 UI 복구가 지연될 수 있다. <b>AdMob 을 다시 켜면 이 ANR 노출면도 함께 돌아온다.</b> 켜기 전 Play Console ANR 기준선을 기록하고 OS 별로 점진 해제할 것.</p>
+
+<h4>4-3. 테스트 사각지대 — 헬퍼는 지키지만 배선은 못 지킨다</h4>
+<p>Sol 최종 판정은 <b>"현 상태는 머지 불가"</b> 였다. 코디네이터가 실측으로 확인한 내용:</p>
+<pre><code># 분류 근거를 하드코딩 라벨로 퇴행 → 테스트 2건 실패 ✅ (가짜 green 제거됨)
+# 그러나 호출부가 헬퍼를 우회하도록 인라인 교체 → 320건 전부 통과 ❌</code></pre>
+<p>즉 <code>handleLoadFailedForFlow</code> 같은 추출 헬퍼는 테스트되지만, <b>프로덕션 호출부가 그 헬퍼를 쓰는지는 검증되지 않는다</b>. 같은 구조가 GA4 스냅샷과 <code>FreeChargeStation</code> dispose 에도 있다.</p>
+<p>근본 원인은 <code>AdmobPlatform</code> 이 위젯·<code>AnimationController</code>·Riverpod 에 묶여 있어 <b>호출부 자체를 테스트로 실행하기 어렵다</b>는 구조다. 그래서 워커가 반복적으로 헬퍼 추출이라는 우회로를 택했다. 진짜로 막으려면 <code>AdmobPlatform</code> 을 인스턴스화해 <code>showAd()</code> 를 돌리는 통합 테스트가 필요하고, 광고 SDK 목킹이 선행돼야 한다.</p>
+
+<h4>4-4. PangleMediationAdapter 는 notReady</h4>
+<p>실기기 캡처: AdMob 코어·Vungle·Meta 어댑터는 <code>ready</code> 인데 <b><code>PangleMediationAdapter</code> 만 <code>notReady</code></b> — <i>'does not implement the initialize() method'</i>. 우리는 Pangle 을 <b>직접 SDK 로도</b> 쓰고 있어(아시아 픽 #1) 중복이다.</p>
+<p>계획서 §C 는 <b>제거</b>를 권고한다(현재 기여 0 + 중복). <b>⚠️ 단 iOS 는 <code>pod 'Ads-Global'</code> 재추가가 필수</b> — 현재 iOS 의 Pangle SDK 를 이 어댑터가 끌어오고 있어 그냥 빼면 빌드가 깨진다. 네이티브 변경이라 OTA 불가, 별도 바이너리 릴리스 필요.</p>
+
+<hr>
+
+<h2>5. 산출물 위치</h2>
+
+<table>
+<thead><tr><th style="width:22rem">파일</th><th>내용</th></tr></thead>
+<tbody>
+<tr><td><code>docs/admob-callback-stall-investigation.md</code><br><span class="path">26KB · 미커밋</span></td><td>AdMob 콜백 배선 전수 조사 — 콜백 5종 지도, 멈춤 후보 A~D, <code>6fecae2fe</code> diff 분석, 워치독 부재 확인, Sentry ANR 정황</td></tr>
+<tr><td><code>docs/admob-callback-stall-repro-report.html</code><br><span class="path">13KB · 미커밋</span></td><td>실기기 재현 시도 — 서버 <code>disabled</code> 게이트로 재현 불가 결론과 그 근거</td></tr>
+<tr><td><code>docs/admob-revival-plan.md</code><br><span class="path">51KB · <code>19f193a87</code> 에 커밋됨</span></td><td>A~F 전 섹션 계획서. <b>⚠️ 어뷰징 사실을 모르고 작성됨</b> — §A 전제조건에 코튼 정산 경로·어뷰징 대응이 빠져 있어 이대로 진행하면 스테이징 검증(§E 단계 3)이 반드시 실패한다</td></tr>
+<tr><td><code>picnic-supabase</code> <code>docs/2026-04-11-vote-abuse-incident.md</code></td><td>어뷰징 사건 보고서 — 수법·판별 기준·686계정 조치·투표 재집계</td></tr>
+</tbody>
+</table>
+
+<p class="footnote">조사 보고서 원본은 <code>~/Repositories/picnic-app/docs/operations/admob-callback-stall-investigation.md</code> 에도 미커밋 상태로 있다(워커가 메인 레포에서 작업 후 워크트리로 복사).</p>
+
+<hr>
+
+<h2>6. 권장 진행 순서</h2>
+
+<ol>
+  <li><b>워치독 PR 먼저 분리해 올린다.</b> 3커밋은 그 자체로 완결된 결함 수정이고, AdMob 을 켜든 안 켜든 가치가 있다(현재 죽은 코드에 남은 실제 결함). Dart 전용이라 OTA 경로다. §4-3 테스트 사각지대는 PR 본문에 후속으로 명시한다.</li>
+  <li><b>계획서를 다시 쓴다.</b> §2 어뷰징 사실과 §3 코튼 정산 경로 부재를 반영해 §A 전제조건·§E 롤아웃을 재설계한다. PICNIC-2377 에서 배운 것을 반드시 넣을 것 — <b>두 저장소를 잇는 계약에 테스트가 없으면 같은 실패가 반복된다</b>(Pangle 에서 결함 3건이 전부 이 공백에서 나왔다).</li>
+  <li><b>서버 작업</b>(403 해제 + 코튼 정산 경로)을 별도 설계·구현한다. 배포 경로가 앱과 다르다.</li>
+  <li><b>스테이징 실검증</b> → OTA → 프로덕션 <code>admob_disabled_os</code> <b>android 먼저</b> 해제 → 48시간 ANR 모니터링 → ios.</li>
+</ol>
+
+<div class="box warn">
+<p><b>되살리기 자체를 재검토할 여지도 있다.</b> 686계정 어뷰징을 겪은 채널이고, 현재 Pangle·자체 숏폼 2개 구좌가 정상 작동 중이다(2026-08-13 기준 Pangle 코튼 지급 복구 완료). AdMob 수익이 §3 의 서버 작업량과 §4-2 의 ANR 노출 재개를 정당화하는지는 제품 판단이다.</p>
+</div>
+
+<hr>
+
+<h2>7. 이 작업의 오케스트레이션 기록</h2>
+
+<p>Orca Run <code>run_4784e766463b</code>. 라우팅은 <code>usage-aware-orchestration</code> auto → <b>claude-heavy 풀부스트</b>(Claude 69%/Fable 64%/Codex 3%, Claude 리셋 25시간).</p>
+
+<table>
+<thead><tr><th style="width:8rem">단계</th><th style="width:11rem">담당</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>조사</td><td>Sonnet (max)</td><td>26KB 보고서</td></tr>
+<tr><td>재현</td><td>Sonnet (max)</td><td>서버 차단으로 재현 불가 결론</td></tr>
+<tr><td>계획</td><td>Fable 5 (max)</td><td>51KB 계획서</td></tr>
+<tr><td>구현</td><td>Sonnet (max)</td><td><code>f1efbdd06</code></td></tr>
+<tr><td>적대적 리뷰 ×2</td><td>Sol (ultra→high)</td><td>blocker 3 · major 2 · minor 2</td></tr>
+<tr><td>리뷰 반영</td><td>Sonnet (max)</td><td><code>19f193a87</code></td></tr>
+<tr><td>재검증</td><td>Sol (high)</td><td>blocker 0, 부분 해소 2</td></tr>
+<tr><td>잔여 마무리</td><td>Sonnet (max)</td><td><code>5513a0af2</code></td></tr>
+<tr><td>최종 재검증</td><td>Sol (high)</td><td><b>머지 불가</b> — §4-3 배선 사각지대</td></tr>
+</tbody>
+</table>
+
+<h4>운영상 배운 것 (다음 오케스트레이션에 유용)</h4>
+<ul>
+  <li><code>worker-start --worktree current</code> 는 <b>코디네이터 터미널의 워크트리</b>로 해석된다. 셸 <code>cd</code> 로는 바뀌지 않는다. 다른 워크트리에 붙이려면 <code>terminal create</code> 후 <code>orchestration dispatch --to &lt;handle&gt; --inject</code> 를 쓴다.</li>
+  <li><code>check --wait --types worker_done,...</code> 는 <b>하트비트 도착에도 깨어나</b> 빈 배치로 즉시 반환한다. 타임아웃처럼 보이지만 아니다. dispatch 상태를 폴링하는 편이 확실하다.</li>
+  <li><code>dispatch --inject</code> 후 프롬프트가 입력만 되고 실행되지 않는 경우가 있다. 터미널을 읽어 확인하고 필요하면 Enter 를 보낸다.</li>
+  <li>Antigravity(<code>agy</code>)는 로그인 단계에서 진행되지 않아 드롭했다. 보조 선수는 선택 사항이므로 Claude 로 재배정하면 된다.</li>
+</ul>
+
+<hr>
+<p class="footnote">
+근거: <code>picnic-app</code> 워크트리 <code>fix/admob-callback-stall</code>(베이스 <code>2048fa016</code>),
+<code>picnic-supabase</code> 커밋 <code>cbd5dd9</code>·<code>0d60e8f</code>·<code>d1562a4</code>,
+PICNIC-PROD 배포본 <code>callback-admob</code> v175 · <code>check-ads-count</code> v82,
+PROD DB 실측(<code>transaction_admob</code>, <code>cotton_candy_grants</code>, <code>wallet_runtime_flags</code>, <code>config</code>),
+실기기 Galaxy S20+ (R3CNA099XJM) 프로덕션 빌드 1.3.0+130007 캡처.
+</p>
+
+</body>
+</html>
