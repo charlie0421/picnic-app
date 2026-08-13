@@ -161,28 +161,30 @@ class PangleAds {
     String placementId,
     String mediaExtra,
   ) async {
-    try {
-      logger.i('Loading rewarded ad with placementId: $placementId');
-      final result = await _channel.invokeMethod<bool>('loadRewardedAd', {
-        'placementId': placementId,
-        'mediaExtra': mediaExtra,
-      });
+    logger.i('Loading rewarded ad with placementId: $placementId');
+    // 네이티브 오류는 **삼키지 않는다**.
+    //
+    // 예전엔 PlatformException 을 잡아 false 를 돌려줬다. 호출부는 false 를
+    // "지금 광고가 없다"(no-fill)로 해석해 하드코딩 라벨로 로깅하므로,
+    // 사용자에겐 "모든 광고 소진" 이 뜨고 Sentry 보고도 생략됐다. 실제로
+    // 아시아픽 #1 이 InvalidMediaExtra("Signed v2 mediaExtra is required")로
+    // 100% 실패하는 동안 이 경로 때문에 텔레메트리가 한 건도 남지 않았다
+    // (PICNIC-2377).
+    //
+    // 예외를 올려보내면 `_loadPangleAd` 의 catch 가 실제 에러 텍스트로 분류해
+    // Sentry 에 보고하고 일반 오류 문구를 띄운다.
+    final result = await _channel.invokeMethod<bool>('loadRewardedAd', {
+      'placementId': placementId,
+      'mediaExtra': mediaExtra,
+    });
 
-      if (result ?? false) {
-        logger.i('Rewarded ad loaded successfully');
-      } else {
-        logger.e('Failed to load rewarded ad');
-        throw Exception('Pangle 광고 로드 실패');
-      }
-
-      return result ?? false;
-    } on PlatformException catch (e) {
-      logger.e('Error loading rewarded ad: ${e.message}');
-      return false;
-    } catch (e) {
-      logger.e('Unexpected error loading rewarded ad: $e');
-      return false;
+    // 네이티브가 **명시적으로 false** 를 준 경우만 진짜 no-fill 이다.
+    if (result ?? false) {
+      logger.i('Rewarded ad loaded successfully');
+      return true;
     }
+    logger.w('No rewarded ad available (native returned false)');
+    return false;
   }
 
   // 리워드 광고 표시

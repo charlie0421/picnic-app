@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 
 import '../../../../../helpers/test_environment.dart';
 
@@ -15,40 +15,10 @@ void main() {
   });
 
   group('Non-reportable ad error detection', () {
-    // Replicate _isNonReportableAdError logic
-    bool isNonReportableAdError(
-        String platform, dynamic error, String message) {
-      final lowercaseMessage = message.toLowerCase();
-
-      if (platform == 'AdMob' && error is LoadAdError) {
-        if (error.code == 1 || error.code == 2 || error.code == 3) {
-          return true;
-        }
-      }
-
-      final nonReportableKeywords = [
-        'no fill',
-        'nofill',
-        'no ad available',
-        'no ad to show',
-        'inventory unavailable',
-        'no ads available',
-        'not_ready',
-        'not ready',
-        'network error',
-        '광고 없음',
-        '광고 없습니다',
-        '광고가 없습니다',
-        '광고 로드 실패',
-        '광고 로드 시간 초과',
-        'sdk is not connected',
-        'server error with status code:-',
-        '작업을 완료할 수 없습니다',
-      ];
-
-      return nonReportableKeywords
-          .any((keyword) => lowercaseMessage.contains(keyword));
-    }
+    // 구현을 직접 호출한다 — 예전엔 키워드 목록을 통째로 복제해 검사했다.
+    // 그 방식은 구현이 바뀌어도 계속 통과하므로 아무것도 지키지 못한다
+    // (PICNIC-2377 에서 같은 패턴을 ad_platform_logic_test 에서 걷어냈다).
+    const isNonReportableAdError = AdPlatform.isNonReportableAdError;
 
     test('no fill message is non-reportable', () {
       expect(isNonReportableAdError('AdMob', 'error', 'No Fill'), isTrue);

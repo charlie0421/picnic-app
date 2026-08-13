@@ -180,4 +180,44 @@ void main() {
       await signals.close();
     },
   );
+
+  group('PangleClaimModel.mediaExtra 플랫폼 표기', () {
+    // 프로덕션 결함 (2026-07-29 ~ 2026-08-13, PICNIC-2377):
+    // ad-reward-claim 엣지 함수가 platform 을 toUpperCase() 해서 저장·응답하는데
+    // (`'android'` → `'ANDROID'`), 네이티브 검증기는 소문자 정확 일치를 요구한다.
+    //   Android: require(parts[1] == "android")
+    //   iOS    : parts[1] == "ios"
+    // 그래서 mediaExtra 가 `<uid>,ANDROID,v2.<token>` 이 되어 로드가 전부
+    // "Signed v2 mediaExtra is required" 로 거부됐다. 사용자에겐 "모든 광고
+    // 소진" 으로 보였다 — 클레임 1,452건에 지급 0건.
+    //
+    // 기존 테스트는 픽스처를 소문자로 만들어 이 경로를 한 번도 밟지 않았다.
+    PangleClaimModel claimWith(String platform) => PangleClaimModel(
+      reference: AdRewardReference(
+        type: AdRewardReferenceType.pangleClaim,
+        id: 'claim-a',
+      ),
+      platform: platform,
+      signedToken: 'signed-token',
+      expiresAt: DateTime.utc(2030),
+    );
+
+    test('서버가 대문자로 돌려줘도 네이티브 계약대로 소문자로 조립한다', () {
+      expect(
+        claimWith('ANDROID').mediaExtra('user-a'),
+        'user-a,android,v2.signed-token',
+      );
+      expect(
+        claimWith('IOS').mediaExtra('user-a'),
+        'user-a,ios,v2.signed-token',
+      );
+    });
+
+    test('이미 소문자면 그대로 둔다', () {
+      expect(
+        claimWith('android').mediaExtra('user-a'),
+        'user-a,android,v2.signed-token',
+      );
+    });
+  });
 }

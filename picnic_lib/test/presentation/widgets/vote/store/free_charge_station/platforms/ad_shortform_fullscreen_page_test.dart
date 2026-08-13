@@ -29,7 +29,6 @@ void main() {
         videoUrl: 'https://test.com/video.mp4',
         ctaUrl: 'https://test.com/cta',
         onViewComplete: legacyViewResponse,
-        onMore: () async {},
         loadAd: () async => (
           videoUrl: 'https://test.com/ad.mp4',
           ctaUrl: 'https://cta.com',
@@ -40,7 +39,6 @@ void main() {
       expect(widget.videoUrl, 'https://test.com/video.mp4');
       expect(widget.ctaUrl, 'https://test.com/cta');
       expect(widget.onViewComplete, isNotNull);
-      expect(widget.onMore, isNotNull);
       expect(widget.loadAd, isNotNull);
     });
 
@@ -48,7 +46,6 @@ void main() {
       final widget = AdShortformFullscreenPage(
         videoUrl: 'https://test.com/video.mp4',
         onViewComplete: legacyViewResponse,
-        onMore: () async {},
       );
 
       expect(widget.videoUrl, 'https://test.com/video.mp4');
@@ -60,7 +57,6 @@ void main() {
       final widget = AdShortformFullscreenPage(
         videoUrl: '',
         onViewComplete: legacyViewResponse,
-        onMore: () async {},
       );
       expect(widget.ctaUrl, isNull);
     });
@@ -69,7 +65,6 @@ void main() {
       final widget = AdShortformFullscreenPage(
         videoUrl: '',
         onViewComplete: legacyViewResponse,
-        onMore: () async {},
       );
       expect(widget.loadAd, isNull);
     });
@@ -78,7 +73,6 @@ void main() {
       final widget = AdShortformFullscreenPage(
         videoUrl: '',
         onViewComplete: legacyViewResponse,
-        onMore: () async {},
       );
       expect(widget.videoUrl, '');
     });
@@ -88,7 +82,6 @@ void main() {
         key: const ValueKey('ad-page'),
         videoUrl: 'https://test.com/video.mp4',
         onViewComplete: legacyViewResponse,
-        onMore: () async {},
       );
       expect(widget.key, const ValueKey('ad-page'));
     });
@@ -103,22 +96,8 @@ void main() {
           called = true;
           return legacyViewResponse();
         },
-        onMore: () async {},
       );
       await widget.onViewComplete();
-      expect(called, isTrue);
-    });
-
-    test('onMore is Future<void> Function()', () async {
-      var called = false;
-      final widget = AdShortformFullscreenPage(
-        videoUrl: '',
-        onViewComplete: legacyViewResponse,
-        onMore: () async {
-          called = true;
-        },
-      );
-      await widget.onMore();
       expect(called, isTrue);
     });
 
@@ -126,7 +105,6 @@ void main() {
       final widget = AdShortformFullscreenPage(
         videoUrl: '',
         onViewComplete: legacyViewResponse,
-        onMore: () async {},
         loadAd: () async => (
           videoUrl: 'https://ad.com/v.mp4',
           ctaUrl: 'https://ad.com/cta',
@@ -143,7 +121,6 @@ void main() {
       final widget = AdShortformFullscreenPage(
         videoUrl: '',
         onViewComplete: legacyViewResponse,
-        onMore: () async {},
         loadAd: () async =>
             (videoUrl: 'https://ad.com/v.mp4', ctaUrl: null, blocked: false),
       );

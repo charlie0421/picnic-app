@@ -330,6 +330,23 @@ void main() {
     });
   });
 
+  group('AdShortformLogic.shouldCloseAfterCta', () {
+    // 회귀 가드: CTA 는 잔여 5초부터 눌리는데(`shouldShowCtaButton`), 그 시점엔
+    // 아직 재생이 끝나지 않아 시청 적립이 일어나지 않았다. 여기서 라우트를 닫으면
+    // 컨트롤러가 dispose 되어 `_onProgress` → `_startReward()` 경로가 사라지고
+    // 기본 시청 보상까지 유실된다.
+    test('keeps the ad route open when the view reward has not settled', () {
+      expect(
+        AdShortformLogic.shouldCloseAfterCta(viewReported: false),
+        isFalse,
+      );
+    });
+
+    test('closes the ad route once the view reward has settled', () {
+      expect(AdShortformLogic.shouldCloseAfterCta(viewReported: true), isTrue);
+    });
+  });
+
   test('close remains enabled when reward callback did not complete', () {
     expect(
       AdShortformLogic.isCloseActionEnabled(
