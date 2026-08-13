@@ -173,10 +173,10 @@ class PanglePlatform extends AdPlatform {
         : (Environment.pangleAndroidRewardedVideoId ?? 'unknown');
 
     startPerformanceLog('광고 로드');
-    bool adLoadSuccess = await _loadPangleAd();
+    final adLoad = await _loadPangleAd();
     if (!context.mounted || isDisposed) return;
 
-    if (adLoadSuccess) {
+    if (adLoad.loaded) {
       try {
         startPerformanceLog('광고 표시');
         // SDK 가 실제로 전체 화면 광고를 띄운 순간(onAdShown)에만 ad_impression 을
@@ -202,12 +202,14 @@ class PanglePlatform extends AdPlatform {
         logAdShowFailure('Pangle', e, adUnitId, 'Pangle 광고 표시 실패', s);
         throw Exception('Pangle 광고 표시 실패');
       }
-    } else {
-      // 여기는 **예외가 없는** 경로다 — 프리플라이트가 loaded=true 를 주지 못한,
-      // 말 그대로 "지금 보여줄 광고가 없는" 상태. 그래서 no-fill 로 분류되는
-      // 라벨을 의도적으로 넘긴다("모든 광고 소진" 안내 + Sentry 보고 생략).
-      // 예외를 잡는 경로(_loadPangleAd 의 catch)는 실제 에러 텍스트를 넘겨야
-      // 하며, 그쪽에 이 라벨을 쓰면 진짜 버그까지 삼켜진다.
+    } else if (!adLoad.reported) {
+      // 예외 없이 loaded=false 로 돌아온 경우에만 여기 온다 — 말 그대로 "지금
+      // 보여줄 광고가 없는" 상태이므로 no-fill 로 분류되는 라벨을 의도적으로
+      // 넘긴다("모든 광고 소진" 안내 + Sentry 보고 생략).
+      //
+      // reported=true 인 경로(광고 ID 미설정, 로드 예외)는 _loadPangleAd 가 이미
+      // 실제 에러로 로깅·안내했다. 여기서 또 남기면 한 번의 실패에 다이얼로그가
+      // 두 번 뜬다. 그 라벨을 예외 경로에 쓰면 진짜 버그까지 no-fill 로 삼켜진다.
       logAdLoadFailure(
         'Pangle',
         '광고 로드 실패',
@@ -215,6 +217,8 @@ class PanglePlatform extends AdPlatform {
         '광고 로드 실패',
         StackTrace.current,
       );
+      stopAllAnimations();
+    } else {
       stopAllAnimations();
     }
     endPerformanceLog('광고 로드');
@@ -254,7 +258,12 @@ class PanglePlatform extends AdPlatform {
     _impressionSubscription = null;
   }
 
-  Future<bool> _loadPangleAd() async {
+  /// 광고 로드 시도 결과.
+  ///
+  /// [reported] 는 **이 함수가 이미 실패를 로깅하고 사용자에게 안내했다**는 뜻이다.
+  /// 호출부가 이걸 보지 않고 무조건 자기 실패 로그를 남기면 한 번의 실패에
+  /// 다이얼로그가 두 번 뜬다(예: 예외 경로에서 오류 다이얼로그 + "모든 광고 소진").
+  Future<({bool loaded, bool reported})> _loadPangleAd() async {
     if (Environment.pangleIosRewardedVideoId == null ||
         Environment.pangleAndroidRewardedVideoId == null) {
       logAdLoadFailure(
@@ -264,7 +273,7 @@ class PanglePlatform extends AdPlatform {
         '광고 ID가 설정되지 않음',
         null,
       );
-      return false;
+      return (loaded: false, reported: true);
     }
 
     try {
@@ -306,7 +315,9 @@ class PanglePlatform extends AdPlatform {
 
       final result = preflight.loaded;
 
-      return result == true;
+      // 예외 없이 여기까지 왔다면 '지금 보여줄 광고가 없다'는 정상 응답이다.
+      // 안내는 호출부가 no-fill 로 처리한다.
+      return (loaded: result == true, reported: false);
     } catch (e, s) {
       final failedAdUnitId = Platform.isIOS
           ? (Environment.pangleIosRewardedVideoId ?? 'unknown')
@@ -323,7 +334,7 @@ class PanglePlatform extends AdPlatform {
       // 소진"으로 표시되고 Sentry 보고도 막혔다. 진짜 no-fill/네트워크 예외는
       // 자기 텍스트('no fill', 'network error' 등)로 여전히 걸러진다.
       logAdLoadFailure('Pangle', e, failedAdUnitId, e.toString(), s);
-      return false;
+      return (loaded: false, reported: true);
     }
   }
 
