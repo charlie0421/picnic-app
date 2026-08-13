@@ -221,16 +221,41 @@ class AdmobPlatform extends AdPlatform {
     disposeAd: (ad) => ad.dispose(),
   );
 
-  /// 이번 attempt 에서 이미 프로필을 갱신했는지 — `onUserEarnedReward` 와
-  /// `onDismissed` 양쪽 모두 프로필을 갱신할 수 있는 경로라 attempt 당 1회로
-  /// 제한한다(`showAd` 시작 시 리셋).
-  bool _profileRefreshedForAttempt = false;
+  /// 현재 attempt 의 "프로필 1회 갱신" 클로저 — [beginProfileRefreshAttempt] 가
+  /// attempt 마다 새로 만들어 심는다.
+  ///
+  /// MINOR-1: 예전엔 인스턴스 필드 하나(`_profileRefreshedForAttempt`)를 모든
+  /// attempt 가 공유했다. B 의 `showAd()` 가 그 필드를 리셋한 뒤 A 의 늦은
+  /// reward 콜백이 같은 필드를 true 로 만들면, B 자신의 dismissed/reward 가
+  /// "이미 갱신함"으로 오판돼 스킵됐다 — dedup 은 attempt 를 구분하지 못했다.
+  /// 지금은 `onDismissed`(showAd() 안에서 직접 캡처)와 `onUserEarnedReward`
+  /// (`_attachCallbacksAndShow` 가 배선 시점에 [captureProfileRefreshOnce] 로
+  /// 로컬에 캡처) 양쪽 다 이 필드가 아니라 attempt 전용 클로저를 쓴다. 다음
+  /// attempt 가 이 필드를 덮어써도 이미 배선된 콜백에는 영향이 없다.
+  void Function() _currentProfileRefreshOnce = () {};
 
-  void _refreshUserProfileOnce() {
-    if (_profileRefreshedForAttempt) return;
-    _profileRefreshedForAttempt = true;
-    commonUtils.refreshUserProfile();
+  /// 새 attempt 를 시작하며 attempt 전용 dedup 클로저를 만들어 필드에 심고
+  /// 그대로 반환한다. `showAd()` 는 반환값을 `onDismissed` 클로저에 직접
+  /// 캡처해 쓴다 — 필드를 다시 읽지 않으므로 다음 attempt 의 리셋에 영향받지
+  /// 않는다.
+  @visibleForTesting
+  void Function() beginProfileRefreshAttempt() {
+    var refreshed = false;
+    void refreshOnce() {
+      if (refreshed) return;
+      refreshed = true;
+      commonUtils.refreshUserProfile();
+    }
+
+    _currentProfileRefreshOnce = refreshOnce;
+    return refreshOnce;
   }
+
+  /// `_attachCallbacksAndShow` 가 콜백 배선 시점에 현재 attempt 의 dedup
+  /// 클로저를 로컬로 캡처할 때 쓴다 — 늦게 오는 `onUserEarnedReward` 가 그
+  /// 사이 시작된 다음 attempt 의 dedup 상태를 잘못 건드리지 않도록.
+  @visibleForTesting
+  void Function() captureProfileRefreshOnce() => _currentProfileRefreshOnce;
 
   AdmobPlatform(super.ref, super.context, super.id,
       AnimationController super.animationController);
@@ -282,7 +307,7 @@ class AdmobPlatform extends AdPlatform {
       }
       startButtonAnimation();
       logger.i('[$id] 광고 로드 시작: $_adUnitId');
-      _profileRefreshedForAttempt = false;
+      final refreshUserProfileOnce = beginProfileRefreshAttempt();
 
       _flow.run(
         onLoadTimeout: () {
@@ -299,23 +324,7 @@ class AdmobPlatform extends AdPlatform {
           );
           stopAllAnimations();
         },
-        onLoadFailed: (error) {
-          if (error is LoadAdError) {
-            logger.e(
-              '[$id] AdMob 광고 로드 실패 상세:\n'
-              '  code: ${error.code}\n'
-              '  message: ${error.message}\n'
-              '  domain: ${error.domain}\n'
-              '  responseInfo: ${error.responseInfo}\n'
-              '  adUnitId: $_adUnitId',
-            );
-          }
-          // 분류 근거로 실제 에러 텍스트를 넘긴다(하드코딩 라벨 금지 —
-          // ad_platform.dart isNonReportableAdError doc 참조).
-          logAdLoadFailure(
-              'AdMob', error, _adUnitId, error.toString(), StackTrace.current);
-          stopAllAnimations();
-        },
+        onLoadFailed: handleLoadFailedForFlow,
         onShowStarted: () {
           logger.i('[$id] 광고가 전체 화면으로 표시됨');
           stopAllAnimations();
@@ -349,10 +358,43 @@ class AdmobPlatform extends AdPlatform {
         onDismissed: () {
           logger.i('[$id] 광고가 닫힘');
           stopAllAnimations();
-          _refreshUserProfileOnce(); // MINOR-1: earnedReward 와 attempt 당 1회로 dedup
+          // MINOR-1: attempt 전용 클로저를 직접 캡처해 쓴다 — 필드를 다시
+          // 읽지 않으므로 다음 attempt 의 beginProfileRefreshAttempt() 리셋에
+          // 영향받지 않는다.
+          refreshUserProfileOnce();
         },
       );
     });
+  }
+
+  /// `onLoadFailed` 배선 로직 — 필드/컨텍스트에 의존하지 않는 부분은 없지만
+  /// `_flow.run()` 호출문 안의 인라인 클로저로 남겨두면 유닛 테스트가 SDK
+  /// 배선 없이는 이 경로를 exercise 할 수 없다. 그래서 이름 있는 메서드로
+  /// 뽑아 `@visibleForTesting` 로 노출한다.
+  ///
+  /// MAJOR-3: `logAdLoadFailure` 의 message 인자는 반드시 **실제 에러
+  /// 텍스트**([error.toString()])여야 한다 — 하드코딩 라벨을 넘기면
+  /// isNonReportableAdError 의 '광고 로드 실패' 키워드에 걸려 모든 예외가
+  /// "모든 광고 소진"으로 뭉개지고 Sentry 보고도 막힌다(PICNIC-2377 에서
+  /// Pangle·AdMob 양쪽에서 고친 결함). 이 배선을 직접 exercise 하는 테스트가
+  /// 없으면 조용히 되돌아갈 수 있다.
+  @visibleForTesting
+  void handleLoadFailedForFlow(Object error) {
+    if (error is LoadAdError) {
+      logger.e(
+        '[$id] AdMob 광고 로드 실패 상세:\n'
+        '  code: ${error.code}\n'
+        '  message: ${error.message}\n'
+        '  domain: ${error.domain}\n'
+        '  responseInfo: ${error.responseInfo}\n'
+        '  adUnitId: $_adUnitId',
+      );
+    }
+    // 분류 근거로 실제 에러 텍스트를 넘긴다(하드코딩 라벨 금지 —
+    // ad_platform.dart isNonReportableAdError doc 참조).
+    logAdLoadFailure(
+        'AdMob', error, _adUnitId, error.toString(), StackTrace.current);
+    stopAllAnimations();
   }
 
   void _startLoad(
@@ -407,7 +449,11 @@ class AdmobPlatform extends AdPlatform {
     // 늦게 도착했을 때 그 사이 새 attempt 가 ga4AdContext 를 덮어써도 이번
     // attempt(=이번 구좌) 로 정확히 귀속된다(Pangle 의 _listenForImpressionOnce
     // 와 같은 패턴).
-    final ga4Snapshot = ga4AdContext;
+    final logGa4Impression = captureGa4ImpressionLogger();
+    // MINOR-1: 이 attempt 의 dedup 클로저를 배선 시점에 로컬로 캡처한다 —
+    // 다음 attempt 의 beginProfileRefreshAttempt() 가 필드를 덮어써도 이미
+    // 배선된 이 onUserEarnedReward 콜백에는 영향이 없다.
+    final refreshUserProfileOnce = captureProfileRefreshOnce();
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (_) => onShowed(),
       onAdDismissedFullScreenContent: (_) => onDismissed(),
@@ -422,7 +468,7 @@ class AdmobPlatform extends AdPlatform {
       },
       onAdImpression: (_) {
         logger.i('[$id] 광고 노출 기록됨');
-        _logGa4Impression(ga4Snapshot); // Task B-4
+        logGa4Impression(); // Task B-4
       },
     );
     ad.show(
@@ -430,12 +476,24 @@ class AdmobPlatform extends AdPlatform {
         // 보상 적립은 SSV(callback-admob)가 서버에서 독립 수행한다. 클라이언트는
         // 프로필 갱신만 하며, 이는 세대 가드 밖 — 늦게 와도 무해하고 유익하다.
         logger.i('[$id] 보상 콜백 수신: ${reward.amount} ${reward.type}, userId=$userId');
-        _refreshUserProfileOnce(); // MINOR-1: onDismissed 와 attempt 당 1회로 dedup
+        refreshUserProfileOnce(); // MINOR-1: onDismissed 와 attempt 당 1회로 dedup
       },
     );
   }
 
-  void _logGa4Impression(FreeChargeAdGa4Context? ga4) {
+  /// `_attachCallbacksAndShow` 가 콜백 배선 시점에 [ga4AdContext] 스냅샷을
+  /// 캡처해 반환한다 — 반환된 클로저를 호출하면 그 스냅샷으로 노출을
+  /// 로깅한다(MAJOR-2). `@visibleForTesting` 로 노출해 `RewardedAd` 없이도
+  /// "배선 시점 캡처가 이후 attempt 의 ga4AdContext 갱신에 영향받지 않는다"를
+  /// 직접 검증한다.
+  @visibleForTesting
+  void Function() captureGa4ImpressionLogger() {
+    final ga4Snapshot = ga4AdContext;
+    return () => logGa4Impression(ga4Snapshot);
+  }
+
+  @visibleForTesting
+  void logGa4Impression(FreeChargeAdGa4Context? ga4) {
     if (ga4 == null) return; // 구좌 컨텍스트 없이 임의값으로 보내지 않는다.
     unawaited(
       PicnicAnalytics.instance.logAdImpression(
