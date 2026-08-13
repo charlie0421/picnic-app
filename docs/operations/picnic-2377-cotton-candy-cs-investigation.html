@@ -126,8 +126,8 @@
 <tr>
   <td>4</td>
   <td>아시아픽 #1 광고가 모두 소진 상태</td>
-  <td><span class="tag t-ok">계측 복구</span></td>
-  <td>“모든 광고 소진” 문구가 Pangle <b>모든 로드 실패에 붙는 catch-all</b>이었고 Sentry 보고까지 막고 있었다. 예외 경로가 실제 에러 텍스트로 분류되도록 고쳐 <b>원인 판별이 가능해졌다</b>(§7). 실제 no-fill 여부는 이제 Sentry·Pangle 대시보드로 확인한다.</td>
+  <td><span class="tag t-bad">원인 확정</span></td>
+  <td><b>소진이 아니라 100% 파손.</b> 클레임 1,452건 · 지급 0건. 서버가 platform 을 대문자로 돌려주는데 네이티브 검증기는 소문자만 허용해 <code>mediaExtra</code> 가 거부된다. "소진" 문구는 그 실패를 덮은 catch-all 이었다. 실기기 재현 완료(§5)</td>
 </tr>
 </tbody>
 </table>
@@ -451,12 +451,66 @@ if (platform === 'internal') {
 </tbody>
 </table>
 
-<div class="box bad">
-<p><b>결론.</b> Pangle의 <b>모든</b> 로드 예외 — 진짜 no-fill뿐 아니라 SDK 초기화 실패, 네트워크 오류, 지역/eCPM 필터, 계정·플레이스먼트 설정 문제까지 — 가 사용자에게는 똑같이 <b>“모든 광고가 소진되었습니다”</b>로 보이고, <b>동시에 Sentry 보고가 차단</b>된다.</p>
-<p>따라서 “아시아픽 #1이 소진 상태”라는 CS 진술은 <b>액면 그대로 신뢰할 수 없다.</b> 그리고 원인을 가릴 텔레메트리도 현재 남지 않는다.</p>
+<div class="box warn">
+<p><b>1차 결론(마스킹).</b> Pangle 의 <b>모든</b> 로드 실패가 사용자에게 똑같이 “모든 광고가 소진되었습니다”로 보이고 <b>Sentry 보고까지 차단</b>된다. 따라서 “아시아픽 #1 이 소진 상태”라는 CS 진술은 액면 그대로 신뢰할 수 없다.</p>
+<p>이 마스킹 자체가 진짜 원인을 15일간 가렸다. 실기기로 걷어낸 결과는 아래와 같다.</p>
 </div>
 
-<p>프로덕션 Pangle 광고 ID는 <code>picnic_app/config/prod.json</code>의 <code>ads.pangle</code>에 4개 항목(<code>ios_app_id</code>, <code>android_app_id</code>, <code>ios_rewarded_video_id</code>, <code>android_rewarded_video_id</code>) 모두 설정되어 있으므로, 최소한 <b>ID 미설정 경로는 아니다.</b></p>
+<p>프로덕션 Pangle 광고 ID는 <code>picnic_app/config/prod.json</code> 의 <code>ads.pangle</code> 에 4개 항목이 모두 설정되어 있어 ID 미설정 경로가 아니다.</p>
+
+<h3>실기기 재현 — 소진이 아니라 <span class="tag t-bad">100% 파손</span></h3>
+
+<p>Android 실기기(SM G781N)에 설치된 <b>프로덕션 빌드 1.3.0+130007</b> 로 아시아픽 #1 시청을 눌러 그대로 재현했다. "모든 광고 소진" 다이얼로그가 떴고, logcat 에 실제 원인이 남아 있었다.</p>
+
+<pre><code>checkAdsLimit raw: {allowed: true, counts: {pangle: {hourly: 0, daily: 0}}}   ← 리밋 정상 통과
+Loading rewarded ad with placementId: 981881164
+⛔ Error loading rewarded ad: Signed v2 mediaExtra is required                ← 진짜 원인
+⛔ 광고 로드 실패                        ← pangle_platform.dart:206 (else, 예외 아님)
+💡 Pangle 광고 에러 Sentry 보고 제외: 광고 로드 실패</code></pre>
+
+<p>실패 지점은 예외를 잡는 catch 가 <b>아니라</b> else 분기였다. 즉 §7 의 "실제 에러 텍스트로 분류" 수정은 이 건에 적용되지 않는다 — 그 수정은 다른 실패 유형을 위한 것이다.</p>
+
+<h3>근본 원인 — platform 대소문자 불일치</h3>
+
+<p><code>mediaExtra</code> 는 <code>&lt;userId&gt;,&lt;platform&gt;,v2.&lt;token&gt;</code> 형식이고, 네이티브 검증기가 <b>소문자 정확 일치</b>를 요구한다.</p>
+
+<table>
+<thead><tr><th style="width:8rem">계층</th><th>platform 표기</th><th>근거</th></tr></thead>
+<tbody>
+<tr><td>앱 → 서버</td><td><code>'android'</code> / <code>'ios'</code> (소문자)</td><td><code>Platform.isIOS ? 'ios' : 'android'</code></td></tr>
+<tr><td>서버 저장·응답</td><td><span class="tag t-bad"><code>'ANDROID'</code> / <code>'IOS'</code></span></td><td><code>ad-reward-claim</code>: <code>String(body.platform).toUpperCase()</code> → RPC 저장 → 응답에 <code>claim.platform</code> 그대로</td></tr>
+<tr><td>네이티브 검증</td><td>소문자만 허용</td><td>Android <code>require(parts[1] == "android")</code> · iOS <code>parts[1] == "ios"</code></td></tr>
+</tbody>
+</table>
+
+<p>결과적으로 <code>&lt;uid&gt;,ANDROID,v2.&lt;token&gt;</code> 이 <code>InvalidMediaExtra</code> 로 거부되고, 앱은 그 실패를 no-fill 로 분류해 "모든 광고 소진" 을 띄운다. <b>두 플랫폼 모두 해당</b>한다.</p>
+
+<div class="box bad">
+<p><b>지급 실적이 확증한다.</b> Pangle 클레임 <b>1,452 건</b>, 코튼캔디 지급 <b>0 건</b>. 같은 기간 자체 숏폼은 3,209 건 지급됐다(대조군). DB 의 <code>platform</code> 값은 <b>최초 1건부터 전부 대문자</b>로, 소문자였던 시기가 없다. 아시아픽 #1 은 <b>단 한 번도 지급된 적이 없다.</b></p>
+</div>
+
+<h3>타임라인 — 결함은 7/29, 피해는 8/12</h3>
+
+<table>
+<thead><tr><th style="width:11rem">시점</th><th>사건</th></tr></thead>
+<tbody>
+<tr><td>2026-03-06</td><td><code>901e1b60b</code> Sentry 노이즈 필터링 강화 — <code>'광고 로드 실패'</code> catch-all 키워드 도입. <b>이후 Pangle 로드 실패는 어떤 원인이든 무신호</b></td></tr>
+<tr><td>2026-07-23</td><td>v2 서명 클레임 계약 도입 — <code>6d4087b73</code>(Dart <code>mediaExtra</code>), <code>c34550775</code>(네이티브 검증기, 소문자 요구)</td></tr>
+<tr><td><b>2026-07-29 11:45 UTC</b></td><td><b><code>ad-reward-claim</code> v6 배포 — 결함 발생.</b> 배포 직후 실측에서 "대문자만 받던 검증이 모든 클레임을 400 으로 거부"하는 것을 발견하고 입력을 <code>toUpperCase()</code> 로 통과시켰으나, 그 값이 저장·응답까지 흘러 네이티브 검증과 어긋났다. 최초 클레임은 3분 뒤(11:48:15)</td></tr>
+<tr><td>07-29 ~ 08-11</td><td>내부 테스터 1~2 명이 <b>24 회</b> 시도. "모든 광고 소진"은 그럴듯한 정상 상태라 아무도 신고하지 않았다</td></tr>
+<tr><td><b>2026-08-12</b></td><td><b>1.3.0 프로덕션 승인·출시 → 370 명이 1,298 회 시도, 전부 실패.</b> CS 유입</td></tr>
+<tr><td>2026-08-13</td><td>78 명 / 133 회. PICNIC-2377 등록</td></tr>
+</tbody>
+</table>
+
+<div class="box warn">
+<p><b>서버는 바뀌지 않았다.</b> <code>ad-reward-claim</code> 은 v6(2026-07-29 11:45:29 UTC)이 최종 배포이며, 2026-08-12 에 재배포된 3종(<code>callback-ad-shortform-view</code> v36 · <code>callback-ad-shortform-more</code> v28 · <code>check-ads-count</code> v82)에 <b>포함되지 않았다</b>. 어제 바뀐 것은 서버 동작이 아니라 <b>노출 규모</b>다.</p>
+<p><b>왜 15일간 안 보였나:</b> 결함(7/29) + 무신호(3/6 catch-all) + 모수 부재(테스터 1~2명)가 겹쳤고, 8/12 대량 노출로 한꺼번에 드러났다.</p>
+</div>
+
+<div class="box bad">
+<p><b>테스트가 이 이음매를 건너지 않았다.</b> 앱 쪽 픽스처는 전부 소문자였다 — <code>ad_reward_repository_test.dart</code> 의 <code>'platform': 'ios'</code>, <code>pangle_platform_test.dart</code> 의 <code>platform: 'android'</code>, <code>RunnerTests.swift</code> 의 <code>"user-a,ios,v2.signed-token"</code>. 대문자를 돌려주는 쪽은 다른 저장소(<code>picnic-supabase</code>)의 엣지 함수라, 양쪽이 각자 일관되게 통과하면서 계약이 깨진 것을 아무도 보지 못했다.</p>
+</div>
 
 <h3>참고 — 자체 캠페인의 재고 소모 시점 (글로벌 픽 #1 해당)</h3>
 <p>4번과 직접 관련은 없으나 같은 조사 중 확인된 사항이다. 자체 숏폼 캠페인의 <code>served_count</code>는 <b>시청 완료가 아니라 광고 발급 시점</b>에 증가한다.</p>
@@ -582,6 +636,17 @@ wallet.star_projection_check_enabled = false</code></pre>
 <p><b>사용자 눈에 보이는 변화.</b> 지금까지 "모든 광고가 소진되었습니다"로 보이던 경우 중 <b>실제 오류였던 건</b>은 이제 일반 오류 다이얼로그(<code>label_ads_load_fail</code>)로 바뀐다. 새 문구를 추가하지 않았고, 진짜 재고 없음은 그대로 "소진"으로 안내된다.</p>
 </div>
 
+<h3>적용 완료 — Pangle mediaExtra 대소문자 정규화 (Dart 전용, OTA 가능)</h3>
+
+<p><code>PangleClaimModel.mediaExtra</code> 가 서버 표기를 그대로 쓰지 않고 <b>소문자로 정규화</b>하도록 고쳤다. 형식을 약속하는 쪽이 형식을 보장해야 하며, 서버가 준 값을 믿고 엄격한 네이티브 포맷 검사에 넘긴 것이 애초 설계 결함이다.</p>
+
+<p>기존 테스트는 픽스처가 소문자라 이 경로를 밟지 않았다. 서버가 실제로 돌려주는 대문자를 재현하는 테스트를 추가했다.</p>
+
+<div class="box bad">
+<p><b>⚠️ 이 수정만으로는 지금 피해를 멈출 수 없다.</b> 앱 수정은 <b>갱신이 닿는 클라이언트만</b> 고친다. 어제 출시된 바이너리를 쓰는 370명+ 는 그대로 실패한다.</p>
+<p><b>최우선 조치는 서버 한 줄</b>이다 — <code>ad-reward-claim</code> 이 응답의 <code>platform</code> 을 소문자로 내리면 <b>스토어 릴리스·OTA 없이 모든 기존 클라이언트가 즉시 복구</b>된다. DB 컬럼 값은 그대로 둬도 된다(내부 표기). <code>picnic-supabase</code> 소관이라 이 작업에서는 하지 않았다.</p>
+</div>
+
 <h3>적용 완료 — GA4 문서 정정</h3>
 
 <p>조사 중 <code>ad_click</code> 계측 문서가 실제 구현과 어긋나 있는 것을 확인했다. <b>계측 코드에는 결함이 없었고</b>, 문서만 틀려 있었다.</p>
@@ -631,10 +696,17 @@ wallet.star_projection_check_enabled = false</code></pre>
   <td>별도 레포</td>
 </tr>
 <tr>
+  <td><span class="tag t-bad">최우선</span></td>
+  <td><code>ad-reward-claim</code> 응답의 <code>platform</code> 을 소문자로 — <b>기존 클라이언트 전부 즉시 복구</b><br>
+  <span class="path">엣지 함수 한 줄. 스토어 릴리스·OTA 불필요. 지금 370명+ 가 실패 중이다</span></td>
+  <td>Edge Function</td>
+  <td>picnic-supabase</td>
+</tr>
+<tr>
   <td><span class="tag t-warn">중간</span></td>
-  <td>수정 배포 후 Sentry 에서 아시아픽 #1 의 <b>실제 실패 원인</b> 확인 — 진짜 no-fill 이면 Pangle 대시보드의 fill rate·eCPM 플로어·플레이스먼트 상태 점검</td>
+  <td>복구 후 Pangle 실제 fill rate 확인 — 지금까지 지급 0건이라 <b>실제 충전율을 관측한 적이 없다</b></td>
   <td>운영 / 모니터링</td>
-  <td>OTA 후</td>
+  <td>복구 후</td>
 </tr>
 <tr>
   <td><span class="tag t-warn">중간</span></td>
