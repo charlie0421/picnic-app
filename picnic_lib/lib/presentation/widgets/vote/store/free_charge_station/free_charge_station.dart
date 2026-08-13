@@ -52,6 +52,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   late Animation<double> _buttonScaleAnimation;
   late final AnimationController _rotationController;
   late AdService _adService;
+  bool _hasAdService = false;
   bool _isInitializing = false;
 
   /// 버튼 연타로 click_mission / ad_request 가 중복 발송되는 것을 막는다.
@@ -71,11 +72,18 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // BLOCKER-3: didChangeDependencies 는 의존성이 바뀔 때마다 다시 불릴 수
+    // 있다 — 이전 AdService 를 dispose 하지 않고 버리면 그 안의 flow
+    // 워치독 타이머·pendingAd 가 살아남아 leak 된다.
+    if (_hasAdService) {
+      _adService.dispose();
+    }
     _adService = AdService(
       ref: ref,
       context: context,
       animationController: _animationController,
     );
+    _hasAdService = true;
 
     // 컨텍스트가 유효할 때 광고 플랫폼 초기화
     if (!_isInitializing) {

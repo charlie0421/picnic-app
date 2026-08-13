@@ -23,8 +23,13 @@ class AdService {
     required this.ref,
     required this.context,
     required this.animationController,
+    @visibleForTesting Map<String, AdPlatform>? platformsOverride,
   }) {
-    _initPlatforms();
+    if (platformsOverride != null) {
+      _platforms = platformsOverride;
+    } else {
+      _initPlatforms();
+    }
   }
 
   void _initPlatforms() {
@@ -124,7 +129,13 @@ class AdService {
 
   // 리소스 해제
   void dispose() {
-    // 클린업 로직
+    // BLOCKER-3: 각 플랫폼의 dispose() 를 먼저 호출해야 flow 의
+    // 워치독 타이머·pendingAd 가 정리된다. clear() 만으로는 각 AdPlatform
+    // 인스턴스가 그대로 살아남아, 위젯 teardown 후에도 타이머가 dispose 된
+    // AnimationController 를 건드리거나 네이티브 광고가 누수된다.
+    for (final platform in _platforms.values) {
+      platform.dispose();
+    }
     _platforms.clear();
   }
 }
