@@ -82,7 +82,7 @@
 <body>
 
 <h1>PICNIC-2377 · 코튼캔디 오픈 CS</h1>
-<p class="sub">원인 조사 리포트 — 코드·배포본 기반</p>
+<p class="sub">원인 조사 · 프로덕션 실측 · 조치 기록</p>
 
 <div class="meta">
   <span><b>티켓</b> PICNIC-2377 (진행 중, 라벨 CS)</span>
@@ -94,7 +94,8 @@
 </div>
 
 <div class="box warn">
-<p><b>이 리포트의 범위.</b> 코드 수정은 포함하지 않는다. 저장소 코드, 프로덕션에 배포된 Edge Function 번들, DB 마이그레이션 스키마를 근거로 원인만 규명했다. 프로덕션 DB 실측이 필요한 항목은 <a href="#pending">§6 확인 대기</a>에 분리했다.</p>
+<p><b>이 리포트의 범위.</b> 근거는 저장소 코드, 프로덕션에 배포된 Edge Function 번들, DB 마이그레이션 스키마, 그리고 <a href="#pending">§6 프로덕션 DB 실측</a>이다. 원인 규명에 더해 <a href="#actions">§7</a> 에 실제 적용한 조치와 남은 항목을 기록한다.</p>
+<p><b>적용 범위 주의.</b> 앱 수정은 이 브랜치에 커밋됐을 뿐 <b>아직 사용자에게 전달되지 않았다.</b> DB·어드민·Edge Function 쪽 조치는 손대지 않았다.</p>
 </div>
 
 <h2>1. 요약</h2>
@@ -107,8 +108,8 @@
 <tr>
   <td>1</td>
   <td>코튼캔디 시간당 10개 시청 리밋이 안 걸린 듯</td>
-  <td><span class="tag t-ok">해소 추정</span></td>
-  <td>2026-08-12 Edge Function 3종 재배포로 카운팅 경로가 정리됨. 리밋 값 자체는 <code>internal: hourly 10 / daily 120</code>으로 정상 존재.</td>
+  <td><span class="tag t-ok">해소 확인</span></td>
+  <td><b>신고는 참이었다</b> — 재배포 전 한 시간에 최대 26건까지 지급됐다. 2026-08-12 재배포 후 279 user-hour 중 <b>초과 0건, 최댓값 정확히 10</b> 으로 실측 확인(§4).</td>
 </tr>
 <tr>
   <td>2</td>
@@ -386,12 +387,22 @@ if (platform === 'internal') {
 </tbody>
 </table>
 
-<div class="box ok">
-<p><b>판단.</b> 티켓에서 이미 체크 완료된 항목이며, 위 재배포 시각이 티켓 생성(2026-08-13) 직전인 점과 일치한다. 리밋 로직 자체에 결함은 발견되지 않았다.</p>
-</div>
+<h3>실측 검증 <span class="tag t-ok">해소 확인</span></h3>
 
-<div class="box warn">
-<p><b>남은 검증 포인트.</b> 배포된 <code>callback-ad-shortform-view</code>는 정산을 전부 RPC <code>settle_shortform_view_reward</code>에 위임한다(v36 index.ts:71). 이 RPC는 러너로만 적용되는 Phase-1 지갑 마이그레이션에 속해 저장소에 없다. <b>이 RPC가 <code>transaction_internal(action='view')</code> 행을 계속 기록하는지</b>가 레거시 카운팅 경로의 전제이므로, cotton 모드가 아닌 상태라면 이 한 가지를 반드시 확인해야 한다. 기록이 끊기면 시간당 카운트가 영구히 0이 되어 리밋이 절대 걸리지 않는다.</p>
+<p>프로덕션은 <code>ads.internal_reward_mode = "cotton"</code> 이므로 <b>cotton 경로</b>를 탄다. 레거시 <code>transaction_internal</code> 집계는 사용되지 않는다. 실제 카운트 소스는 <code>cotton_candy_grants</code> 이며, RPC 정의도 스펙과 일치한다(시간당 10 / KST 일 120, 초과 시 <code>nextAvailableTime</code> 산출).</p>
+
+<p><code>cotton_candy_grants</code> 에서 <code>source_provider='internal_shortform'</code> 인 적립을 <b>user × 시간</b> 으로 묶어 최근 7일을 집계했다. 경계는 마지막 재배포 시각(<code>check-ads-count</code> v82, 2026-08-12 15:30:46 UTC).</p>
+
+<table>
+<thead><tr><th style="width:8rem">구간</th><th style="width:12rem">10건 초과 user-hour</th><th style="width:9rem">최대/시간</th><th>전체 user-hour</th></tr></thead>
+<tbody>
+<tr><td><b>재배포 전</b></td><td><span class="tag t-bad">21</span></td><td><b>26</b></td><td>119</td></tr>
+<tr><td><b>재배포 후</b></td><td><span class="tag t-ok">0</span></td><td><b>10</b> (= 정확히 상한)</td><td>279</td></tr>
+</tbody>
+</table>
+
+<div class="box ok">
+<p><b>결론.</b> CS 신고("시간당 10개 리밋이 안 걸린 듯")는 <b>참이었다</b> — 재배포 전에는 한 시간에 최대 26건까지 지급됐다. 2026-08-12 재배포 이후 279 user-hour 중 초과 0건, 최댓값이 정확히 상한 10에 붙어 <b>리밋이 정상 작동 중</b>임이 실측으로 확인된다. 티켓의 체크 완료 표시와 일치한다.</p>
 </div>
 
 <hr>
@@ -458,31 +469,67 @@ const { error: servedErr } = await supabaseAdmin
 
 <hr>
 
-<h2 id="pending">6. 확인 대기 — 프로덕션 DB</h2>
+<h2 id="pending">6. 프로덕션 DB 실측</h2>
 
-<p>아래는 코드만으로 확정할 수 없어 DB 실측이 필요한 항목이다. 접속 정보 확보 후 갱신 예정.</p>
+<p>PICNIC-PROD(<code>xtijtefcycoeqludlngc</code>)에 읽기 전용으로 조회한 결과다. 조회일 2026-08-13.</p>
+
+<h3>런타임 플래그 — 코튼 컷오버가 이미 완료된 상태</h3>
+
+<pre><code>ads.internal_reward_mode            = "cotton"
+ads.pangle_reward_mode              = "cotton"
+ads.pangle_claim_mode               = "shadow"
+ads.cotton_popup_enabled            = true
+wallet.cotton_read_enabled          = true
+wallet.cotton_spend_enabled         = true
+wallet.cotton_expiry_enabled        = true
+wallet.star_projection_check_enabled = false</code></pre>
+
+<p>광고 보상이 양쪽 구좌 모두 코튼캔디로 전환돼 있다. 따라서 시간당 리밋은 레거시 <code>transaction_internal</code> 이 아니라 <code>cotton_candy_grants</code> 기반 경로를 탄다(§4).</p>
+
+<h3>더보기 추가 적립은 <u>단 한 번도</u> 지급된 적이 없다</h3>
 
 <table>
-<thead><tr><th style="width:2rem">#</th><th>확인 대상</th><th>왜 필요한가</th></tr></thead>
+<thead><tr><th style="width:8rem"><code>ad_reward_events.type</code></th><th style="width:10rem">건수</th><th>기간</th></tr></thead>
 <tbody>
-<tr><td>1</td><td><code>wallet_runtime_flags</code> 의 <code>ads.internal_reward_mode</code> 현재 값</td>
-    <td>1번의 카운팅 경로(레거시 vs cotton)를 결정한다.</td></tr>
-<tr><td>2</td><td><code>settle_shortform_view_reward</code> 정의 — <code>transaction_internal(action='view')</code> 기록 여부</td>
-    <td>레거시 경로일 때 시간당 리밋이 실제로 걸리는지의 전제.</td></tr>
-<tr><td>3</td><td><code>ad_campaigns</code> 중 글로벌 픽 #1 대상 행의 <code>reward_more</code>, <code>cta_url</code></td>
-    <td>운영이 더보기 보상을 설정해 둔 상태인지 확인 (원인 A의 운영 측 전제).</td></tr>
-<tr><td>4</td><td><code>ad_reward_events</code> 중 <code>type = 'more'</code> 행 존재 여부·최종 시각</td>
-    <td>더보기 적립이 과거 어느 시점까지 동작했는지 확정.</td></tr>
-<tr><td>5</td><td><code>ad_campaigns</code> 의 <code>status</code>, <code>total_cap</code>, <code>served_count</code>, <code>visible_to</code></td>
-    <td>글로벌 픽 #1 캠페인이 <code>ad_campaigns_active</code>에 남아 있는지 확인.</td></tr>
+<tr><td><code>view</code></td><td>1,721,116</td><td>2025-10-15 ~ 2026-08-13</td></tr>
+<tr><td><code>more</code></td><td><span class="tag t-bad">0</span></td><td>—</td></tr>
 </tbody>
 </table>
 
-<p class="footnote">아시아픽 #1(Pangle)은 자체 DB에 재고 개념이 없으므로 DB 조회 대상이 아니다. Pangle 대시보드의 fill rate·플레이스먼트 상태 확인이 필요하다.</p>
+<div class="box bad">
+<p><b>§2 원인 A 의 결정적 확증.</b> 자체 숏폼 도입일(2025-10-15)부터 172만 건의 적립이 전부 <code>view</code> 다. <code>more</code> 는 <b>0건</b> — "예전엔 되다가 망가진" 것이 아니라 <b>처음부터 한 번도 동작한 적이 없다.</b> <code>onMore()</code> 호출 이력이 저장소에 0건인 코드 분석 결과와 정확히 일치한다.</p>
+</div>
+
+<h3>캠페인 상태 — <code>reward_more</code> 가 실제로 설정돼 있다</h3>
+
+<table>
+<thead><tr><th>캠페인</th><th style="width:5rem">status</th><th style="width:5rem">view</th><th style="width:5rem">more</th><th style="width:9rem">served / cap</th><th style="width:6rem">노출중</th></tr></thead>
+<tbody>
+<tr><td>아프아이4</td><td>ACTIVE</td><td>1</td><td><span class="tag t-bad">1</span></td><td>275,834 / 500,000</td><td>★</td></tr>
+<tr><td>이스트샤인</td><td>ACTIVE</td><td>1</td><td><span class="tag t-bad">1</span></td><td>355,343 / 500,000</td><td>★</td></tr>
+<tr><td>이프아이1</td><td>ACTIVE</td><td>1</td><td><span class="tag t-bad">1</span></td><td>275,348 / 500,000</td><td>★</td></tr>
+<tr><td>이프아이2</td><td>ACTIVE</td><td>1</td><td><span class="tag t-bad">1</span></td><td>275,085 / 500,000</td><td>★</td></tr>
+<tr><td>이프아이3</td><td>ACTIVE</td><td>1</td><td><span class="tag t-bad">1</span></td><td>267,664 / 500,000</td><td>★</td></tr>
+<tr><td>이프아이5</td><td>ACTIVE</td><td>1</td><td><span class="tag t-bad">1</span></td><td>275,988 / 500,000</td><td>★</td></tr>
+<tr><td>vocaloff</td><td>ACTIVE</td><td>1</td><td><span class="tag t-bad">2</span></td><td>39,961 / 100,000</td><td>기간만료</td></tr>
+<tr><td>2025 명예의전당 우승자(해린)</td><td>ACTIVE</td><td>0</td><td>0</td><td>53,840 / 100,000</td><td>기간만료</td></tr>
+<tr><td>테스트</td><td>PAUSED</td><td>1</td><td>0</td><td>4 / 100,000</td><td>—</td></tr>
+</tbody>
+</table>
+
+<div class="box bad">
+<p><b>§7 의 <code>reward_more</code> 회수가 반드시 필요한 이유.</b> 현재 노출 중인 6개 캠페인 전부 <code>reward_more = 1</code> 이고 vocaloff 는 <code>2</code> 다. 운영은 더보기 보상을 <b>지급되는 것으로 알고 값을 넣어 두었으나</b> 이를 소비하는 코드가 없었다. 값을 그대로 두면 같은 CS 가 그대로 재발한다.</p>
+</div>
+
+<div class="box ok">
+<p><b>글로벌 픽 #1 은 소진 상태가 아니다.</b> 노출 중인 6개 캠페인 모두 <code>served_count</code> 가 <code>total_cap</code> 의 53~71% 수준이고 <code>ad_campaigns_active</code> 에 정상적으로 남아 있다. §5 에서 지적한 "발급 시점 <code>served_count</code> 증가" 문제는 <b>아직 실제 소진으로 이어지지는 않았다</b> — 다만 캡 소모가 실제 시청보다 빠르다는 사실 자체는 유효하다.</p>
+</div>
+
+<p class="footnote">아시아픽 #1(Pangle)은 자체 DB 에 재고 개념이 없어 조회 대상이 아니다. Pangle 대시보드의 fill rate·플레이스먼트 상태 확인이 필요하며, §5 에서 지적한 대로 앱의 "모든 광고 소진" 문구가 모든 로드 실패를 삼키고 Sentry 보고까지 막고 있어 현재로서는 원인 판별이 불가능하다.</p>
 
 <hr>
 
-<h2>7. 대응 — 결정과 조치</h2>
+<h2 id="actions">7. 대응 — 결정과 조치</h2>
 
 <div class="box ok">
 <p><b>제품 결정 (2026-08-13).</b> 더보기 추가 보상은 <b>하지 않는 것으로 확정</b>됐다(선택지 3-A′). 더보기 버튼 자체는 유지하며, 광고주 랜딩 이동과 <code>ad_click</code> 계측만 담당한다.</p>
