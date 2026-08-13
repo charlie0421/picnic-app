@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
@@ -99,6 +101,38 @@ void main() {
     test('키워드는 소문자 비교된다', () {
       expect(classify('Other', 'error', 'NO FILL'), isTrue);
       expect(classify('Other', 'error', 'Not Ready'), isTrue);
+    });
+  });
+
+  group('isNonReportableAdError — AdMob', () {
+    // 시나리오 3: no-fill 계열 LoadAdError 코드는 비보고 분류
+    // (LoadAdError 는 SDK final 타입이라 인스턴스 생성이 어려우면 코드 경로 대신
+    //  메시지 키워드 경로로 검증한다 — 케이스 작성 시 실제 생성 가능 여부를 먼저
+    //  확인하고, 불가하면 아래 메시지 기반 케이스만 남긴다.)
+    test('no fill 메시지는 비보고', () {
+      expect(
+        AdPlatform.isNonReportableAdError('AdMob', StateError('x'), 'No fill.'),
+        isTrue,
+      );
+    });
+
+    // 시나리오 7: 실제 예외 텍스트를 넘기면 진짜 버그는 보고 대상으로 남는다
+    test('설정 오류 텍스트는 보고 대상', () {
+      expect(
+        AdPlatform.isNonReportableAdError(
+            'AdMob', StateError('x'), 'Invalid ad unit ID'),
+        isFalse,
+      );
+    });
+
+    // 로드 타임아웃 문구가 비보고(=소진 안내) 로 분류되는 계약을 고정한다.
+    // Task B-1 의 onLoadTimeout 이 이 계약에 의존한다.
+    test('광고 로드 시간 초과 는 비보고', () {
+      expect(
+        AdPlatform.isNonReportableAdError(
+            'AdMob', TimeoutException('t'), '광고 로드 시간 초과'),
+        isTrue,
+      );
     });
   });
 }
