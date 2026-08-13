@@ -243,6 +243,46 @@ export function createShortformMoreHandler(deps) {
 
 <p class="footnote">앱 측 호출 제거는 2025-10 (<code>f15740d44</code> / <code>d44e6a34f</code>)에 도입되었다. 즉 오래된 결정이며 최근 회귀가 아니다. 한편 <code>callback-ad-shortform-more</code>는 이 저장소에 <b>커밋된 적이 한 번도 없어</b>(git 이력 없음) 배포본만 존재한다. 보너스 시절 실제 적립 로직이 어떤 형태였는지는 소스가 남아 있지 않으므로, <code>ad_reward_events</code>의 <code>type = 'more'</code> 이력으로만 역추적할 수 있다(§6-4).</p>
 
+<h3>연혁 — 언제, 왜 이렇게 됐나</h3>
+
+<p>"나중에 제거했다"가 아니라 <b>처음부터 넣지 않은 것</b>이다. <code>onMore()</code> 가 호출된 이력은 저장소 전체에 한 건도 없다.</p>
+
+<table>
+<thead><tr><th style="width:7rem">시점</th><th style="width:8rem">커밋</th><th>무슨 일이 있었나</th></tr></thead>
+<tbody>
+<tr>
+  <td>2025-10-16</td><td><code>f15740d44</code></td>
+  <td>자체 숏폼 기능 전체가 이 단일 커밋으로 <b>신규 추가</b>됐다(<code>--diff-filter=A</code> 확인). 처음부터 <code>onMore</code> 는 배선되지 않았고, 코드가 이유를 말한다 — <code>// 기본 보상만 보장 (More 보상 제거), 이후 URL 오픈</code></td>
+</tr>
+<tr>
+  <td>2025-10-17</td><td><code>d44e6a34f</code></td>
+  <td>하루 뒤 <code>_startReward()</code> 신설로 <b>재생 완료 시 자동 적립</b>으로 전환. 더보기 핸들러의 수동 가드는 중복이 되어 제거됐다 — 당시 버튼이 <code>enabled = finished</code> 였으므로 타당했다</td>
+</tr>
+<tr>
+  <td>2026-07-25</td><td><code>4e79a32eb</code></td>
+  <td>CTA 활성 조건을 <code>finished</code> → <code>visible</code>(잔여 5초)로 완화. <b>"누를 수 있으면 이미 끝났다"는 전제가 깨졌는데 수동 가드는 복구되지 않았다</b> → 원인 B</td>
+</tr>
+</tbody>
+</table>
+
+<p>최초 구현의 의도는 명확했다. 당시엔 자동 적립이 없어(<code>// 재생 완료 시 자동 적립 호출 제거 (닫기/More 시점에서만 적립)</code>) 더보기를 누르면 외부 브라우저로 나가며 화면이 닫혔다. 그 구조에서 More 보상까지 챙기려다 <b>기본 시청 적립을 놓치는 위험</b>을 감수하느니, More 를 포기하고 기본 적립을 확실히 보장하겠다는 트레이드오프였다.</p>
+
+<pre><code>// f15740d44 (2025-10-16) - 최초 구현
+final bool enabled = finished;              // 영상 종료 후에만 활성
+onPressed: () async {
+  // 기본 보상만 보장 (More 보상 제거), 이후 URL 오픈
+  if (!_viewReported) {
+    _viewReported = true;
+    debugPrint('[internal] ensuring view reward before more');
+    await widget.onViewComplete();          // ← 시청 적립을 먼저 확정
+  }
+  await _openCta(cta);                      // ← 그 다음 외부 브라우저
+  if (mounted) Navigator.of(context).maybePop();
+  // widget.onMore()는 호출하지 않음 (More 보상 제거)
+}</code></pre>
+
+<p>서버의 409 는 별개 결정이다. <code>callback-ad-shortform-more</code> 는 이 저장소에 <b>커밋된 적이 없어</b> 시점·PR 을 특정할 수 없고, 코튼캔디 지갑 마이그레이션 계열(<code>_shared/wallet/*</code>)인 것만 확실하다. 판단 근거는 함수 주석이 전부이며, <code>docs/superpowers/</code> 의 지갑 플랜 문서에도 기록이 없다(SQL·정산은 <code>picnic-supabase</code> 소관).</p>
+
 <h3>원인 B — 더보기를 일찍 누르면 시청 적립까지 유실 <span class="tag t-bad">회귀</span></h3>
 
 <p>A와 독립적인, 최근 유입된 실제 결함이다. 사용자 체감은 “더보기를 눌렀더니 아무것도 안 들어왔다”로 A와 동일하게 나타난다.</p>
@@ -472,6 +512,36 @@ const { error: servedErr } = await supabaseAdmin
 </div>
 
 <p><b>검증:</b> <code>flutter analyze</code> 44 issues — 변경 전 베이스라인과 동일(신규 0, error 0). <code>flutter test</code> 280건 전부 통과(신규 회귀 가드 2건 포함).</p>
+
+<h3>적용 완료 — GA4 문서 정정</h3>
+
+<p>조사 중 <code>ad_click</code> 계측 문서가 실제 구현과 어긋나 있는 것을 확인했다. <b>계측 코드에는 결함이 없었고</b>, 문서만 틀려 있었다.</p>
+
+<table>
+<thead><tr><th style="width:9rem">문서</th><th>정정 내용</th></tr></thead>
+<tbody>
+<tr>
+  <td><code>trigger-mapping.md</code><br><span class="path">구현 기준 문서 → 실제 값으로 직접 정정</span></td>
+  <td>
+    · <code>ad_click</code> 호출 지점을 <code>_callMore()</code> → <code>_openCta()</code> 의 <code>launchUrl</code> 성공 분기로 정정<br>
+    · 자체 숏폼 <code>ad_unit_name</code>: <code>'shortform_reward'</code> → <b><code>null</code> → <code>undefined</code></b> (2곳)<br>
+    · <code>section_name</code>: <code>광고에서 별사탕 받기</code> → <b><code>광고에서 코튼캔디 받기</code></b> (5곳)<br>
+    · 광고 계열 <code>virtual_currency_name</code>: <code>별사탕</code> → <b><code>코튼캔디</code></b><br>
+    · 낡은 라인 참조(<code>lines 738~790</code>) 제거
+  </td>
+</tr>
+<tr>
+  <td><code>ga4-event-taxonomy.md</code><br><span class="path">대행사 스프레드시트 미러 → 예시값 보존, 차이만 기록</span></td>
+  <td>기존 <code>user_id</code> 관례를 따라 §8 에 <b>"스프레드시트와의 의도적 차이"</b> 절 3건 추가 — 자체 숏폼 <code>ad_unit_name</code> 을 비우는 이유, <code>ad_click</code> 이 '종료 후'로 한정되지 않는다는 점, 재화명·영역명 차이</td>
+</tr>
+</tbody>
+</table>
+
+<div class="box warn">
+<p><b>분석 시 주의.</b> <code>ad_click</code> 은 있는데 <code>earn_virtual_currency</code> 가 없는 세션이 존재한다. 더보기가 잔여 5초부터 눌리기 때문이며, <b>계측 누락이 아니다.</b> 3-B 수정 이후에는 "더보기로 이탈한 뒤 남은 재생을 마치지 않은" 경우로 의미가 좁아진다.</p>
+</div>
+
+<p class="path">미정정으로 남긴 것: <code>purchase</code>·<code>click_vote</code> 계열의 <code>virtual_currency_name</code> 이 <code>별사탕</code> 으로 적혀 있으나 실제 기준값은 <code>스타캔디</code>(<code>Ga4CurrencyNames.starCandy</code>) 다. 광고 계열이 아니고 해당 코드 경로를 이번에 검증하지 않아 그대로 뒀다.</p>
 
 <h3>남은 조치</h3>
 

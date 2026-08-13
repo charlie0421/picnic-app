@@ -72,15 +72,15 @@ Picnic 모바일 앱 프로젝트 내 10개 GA4 이벤트에 대하여 실제 �
 
 ---
 
-### 5. `ad_request` (무료 충전소 '광고에서 별사탕 받기' 시청 버튼 클릭)
+### 5. `ad_request` (무료 충전소 '광고에서 코튼캔디 받기' 시청 버튼 클릭)
 
 - **권장 호출 지점**: `picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/free_charge_station.dart:191,208`
   - `_buildAdItems(BuildContext context)` 내부 `onPressed` 콜백 (내부 숏폼 `:191`, Pangle `:208`)
   - **이유**: 무료 충전소 광고 목록에서 사용자가 광고 시청 버튼을 클릭하여 광고 로드/시청을 요청하는 지점.
 - **파라미터별 값 출처**:
-  - `section_name`: `'광고에서 별사탕 받기'` (또는 `AppLocalizations.of(context).label_ads_get_cotton_candy`).
+  - `section_name`: `'광고에서 코튼캔디 받기'` (`FreeChargeGa4.sectionAds`) (또는 `AppLocalizations.of(context).label_ads_get_cotton_candy`).
   - `ad_category`: `item.title` (예: `'글로벌 픽 #1'`, `'아시아 픽 #1'`).
-  - `virtual_currency_name`: `'별사탕'` (또는 `'솜사탕'`).
+  - `virtual_currency_name`: `'코튼캔디'` (`Ga4CurrencyNames.cottonCandy`) — 광고 리워드 재화.
   - `reward_amount`: `int.tryParse(item.bonusText) ?? 1`.
 - **성공/실패 분기**: 광고 요청 버튼 클릭 즉시 발송.
 - **중복 발송 위험**: `adLoadingStateProvider` 상태에 의해 광고 로딩 중 버튼이 비활성화되므로 중복 위험 낮음.
@@ -97,27 +97,27 @@ Picnic 모바일 앱 프로젝트 내 10개 GA4 이벤트에 대하여 실제 �
   - `ad_platform`: `'AdMob'`, `'Pangle'`, `'internal-shortform'` (플랫폼 식별자).
   - `ad_source`: AdMob의 경우 `ad.responseInfo?.loadedAdapterResponseInfo?.adSourceName` 또는 `ad.responseInfo?.mediationAdapterClassName`에서 취득 가능.
   - `ad_format`: `'rewarded'`
-  - `ad_unit_name`: AdMob: `_adUnitId` (`ad.adUnitId`), Pangle: slot ID, Shortform: `'shortform_reward'`.
-  - `section_name`: `'광고에서 별사탕 받기'`
+  - `ad_unit_name`: AdMob: `_adUnitId` (`ad.adUnitId`), Pangle: slot ID, 자체 숏폼: **`null`** (ad unit 개념이 없어 `undefined` 로 대체 — 추정값을 넣지 않는다).
+  - `section_name`: `'광고에서 코튼캔디 받기'` (`FreeChargeGa4.sectionAds`)
   - `ad_category`: `'글로벌 픽 #1'`, `'아시아 픽 #1'`
-  - `virtual_currency_name`: `'별사탕'`
+  - `virtual_currency_name`: `'코튼캔디'` (`Ga4CurrencyNames.cottonCandy`)
   - `reward_amount`: `1`
 - **성공/실패 분기**: 광고 SDK가 실제 전체 화면 렌더링에 성공하여 임프레션 이벤트를 발생시킨 경우만 잡힘.
 - **중복 발송 위험 (주의)**: Firebase와 AdMob SDK 연동 시, `ad_impression`은 GA4에 **자동 수집(Auto-collected)**되는 이벤트다. 커스텀 코드에서 `logEvent('ad_impression')`를 수동 발송하면 동일 노출 건이 2번 집계될 위험이 높으므로, AdMob 자동 연동 여부를 먼저 확인해야 함.
 
 ---
 
-### 7. `earn_virtual_currency` (광고 완료 시청으로 별사탕 지급)
+### 7. `earn_virtual_currency` (광고 완료 시청으로 코튼캔디 지급)
 
 - **권장 호출 지점**:
   - AdMob: `picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/admob_platform.dart:176` (`onUserEarnedReward: (ad, reward) { ... }`)
   - Shortform: `picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/shortform_internal_platform.dart` (서버 보상 지급 완료 응답 `response.rewardAdded > 0` 수신부)
   - Pangle: `pangle_platform.dart` (보상 획득 콜백)
 - **파라미터별 값 출처**:
-  - `virtual_currency_name`: `'별사탕'`
+  - `virtual_currency_name`: `'코튼캔디'` (`Ga4CurrencyNames.cottonCandy`). 레거시 응답 경로는 `'보너스 스타캔디'`.
   - `reward_amount`: `reward.amount.toInt()` 또는 서버 응답의 지급 수량 (`1`)
   - `earn_method`: `'광고 리워드'`
-  - `section_name`: `'광고에서 별사탕 받기'`
+  - `section_name`: `'광고에서 코튼캔디 받기'` (`FreeChargeGa4.sectionAds`)
   - `ad_category`: `'글로벌 픽 #1'`, `'아시아 픽 #1'`
 - **성공/실패 분기**: 광고를 끝까지 시청하여 리워드 검증(SSV / API)이 완료된 성공 경로만 선택됨. 중도 닫기 시 콜백 미호출.
 - **중복 발송 위험**: SDK 및 서버 보상 콜백은 1회 시청당 1회만 트리거되므로 중복 위험 낮음.
@@ -133,12 +133,12 @@ Picnic 모바일 앱 프로젝트 내 10개 GA4 이벤트에 대하여 실제 �
   - `ad_platform`: `'internal-shortform'`
   - `ad_source`: `'internal'`
   - `ad_format`: `'rewarded'`
-  - `ad_unit_name`: `'shortform_reward'`
-  - `section_name`: `'광고에서 별사탕 받기'`
+  - `ad_unit_name`: **`null`** → `'undefined'` (자체 숏폼에는 외부 SDK 의 ad unit 개념이 없다)
+  - `section_name`: `'광고에서 코튼캔디 받기'` (`FreeChargeGa4.sectionAds`)
   - `ad_category`: `'글로벌 픽 #1'`
   - `destination_type`: `ctaUrl` URI 분석 (예: `'youtube'`, `'web'`, `'store'`).
 - **UI 존재 여부 확인**:
-  - 내부 숏폼 광고(`internal-shortform`): `AdShortformFullscreenPage` (lines 738~790) 우하단에 CTA '더보기' 버튼이 **실제 UI로 존재함**.
+  - 내부 숏폼 광고(`internal-shortform`): `AdShortformFullscreenPage` 하단에 CTA '더보기' 버튼이 **실제 UI로 존재함**. 잔여 5초부터 노출·활성되므로 재생 종료 전 클릭도 집계된다.
   - AdMob / Pangle 외부 SDK 광고: SDK 전용 플레이어 내부에서 클릭 조작이 처리되므로 Flutter UI 차원의 별도 '더보기' 버튼은 존재하지 않음.
 
 ---
