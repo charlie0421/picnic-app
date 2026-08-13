@@ -1,5 +1,18 @@
 # AdMob 무료충전소 되살리기 계획
 
+> ## ⚠️ 이 계획서는 이대로 실행하면 안 된다 (2026-08-13 추가)
+>
+> 작성 이후에 **AdMob 이 꺼진 진짜 이유**가 확인됐다. 이 문서는 그 사실을 모르고 쓰였다.
+>
+> - **콜백 스톨이 아니라 어뷰징이다.** `picnic-supabase` `d1562a4`(2026-04-11) — 비활성화된 `callback-admob` 엔드포인트 직접 호출로 보너스 캔디 부정 획득, **686계정 탈퇴**, 엔드포인트 403 차단. 사건 보고서: `picnic-supabase` `docs/2026-04-11-vote-abuse-incident.md`
+> - **코튼캔디 정산 경로가 아예 없다.** AdMob 은 코튼 전환에서 제외됐다 — `cotton_candy_grants` 中 admob **0건**, `check-ads-count` 의 `COTTON_SOURCE_PROVIDERS` 에 admob 키 없음(→ `isCottonRewardMode('admob')` 항상 false), `wallet_runtime_flags` 에 `ads.admob_reward_mode` 없음. PICNIC-2377 의 Pangle 과 **정확히 같은 구조**다.
+>
+> 따라서 **§A 전제조건과 §E 롤아웃이 불완전하다.** 이대로 진행하면 §E 단계 3(스테이징 검증)이 반드시 실패한다. 서버 작업(`callback-admob` 403 해제 + 코튼 정산 경로 신설)을 반영해 §A·§E 를 재설계한 뒤 실행할 것.
+>
+> 현재 상태·확정 사실·남은 일은 **`docs/operations/handoff-admob-revival.html`** 에 정리돼 있다. 그 문서를 먼저 읽어라.
+>
+> 이 PR 이 담고 있는 워치독 작업(§B 에 해당)은 위 사실과 무관하게 유효하다 — AdMob 을 켜든 안 켜든 실재하던 결함의 수정이다.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans 로 태스크 단위 실행. 단계는 체크박스(`- [ ]`) 로 추적한다.
 
 - **작성일**: 2026-08-13
