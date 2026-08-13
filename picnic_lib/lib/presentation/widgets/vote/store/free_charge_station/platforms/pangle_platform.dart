@@ -203,6 +203,11 @@ class PanglePlatform extends AdPlatform {
         throw Exception('Pangle 광고 표시 실패');
       }
     } else {
+      // 여기는 **예외가 없는** 경로다 — 프리플라이트가 loaded=true 를 주지 못한,
+      // 말 그대로 "지금 보여줄 광고가 없는" 상태. 그래서 no-fill 로 분류되는
+      // 라벨을 의도적으로 넘긴다("모든 광고 소진" 안내 + Sentry 보고 생략).
+      // 예외를 잡는 경로(_loadPangleAd 의 catch)는 실제 에러 텍스트를 넘겨야
+      // 하며, 그쪽에 이 라벨을 쓰면 진짜 버그까지 삼켜진다.
       logAdLoadFailure(
         'Pangle',
         '광고 로드 실패',
@@ -210,7 +215,6 @@ class PanglePlatform extends AdPlatform {
         '광고 로드 실패',
         StackTrace.current,
       );
-      // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
       stopAllAnimations();
     }
     endPerformanceLog('광고 로드');
@@ -313,8 +317,12 @@ class PanglePlatform extends AdPlatform {
         '  errorType: ${e.runtimeType}\n'
         '  adUnitId: $failedAdUnitId',
       );
-      logAdLoadFailure('Pangle', e, failedAdUnitId, 'Pangle 광고 로드 실패', s);
-      // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
+      // 분류 근거로 **실제 예외 텍스트**를 넘긴다. 예전엔 'Pangle 광고 로드 실패'
+      // 라는 일반 라벨을 넘겼는데, 이 문자열이 no-fill 키워드('광고 로드 실패')에
+      // 걸려 SDK 초기화 실패·설정 오류·플레이스먼트 문제까지 전부 "모든 광고
+      // 소진"으로 표시되고 Sentry 보고도 막혔다. 진짜 no-fill/네트워크 예외는
+      // 자기 텍스트('no fill', 'network error' 등)로 여전히 걸러진다.
+      logAdLoadFailure('Pangle', e, failedAdUnitId, e.toString(), s);
       return false;
     }
   }

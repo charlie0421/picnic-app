@@ -126,8 +126,8 @@
 <tr>
   <td>4</td>
   <td>아시아픽 #1 광고가 모두 소진 상태</td>
-  <td><span class="tag t-warn">오진 가능</span></td>
-  <td>“모든 광고 소진” 문구는 Pangle <b>모든 로드 실패에 붙는 catch-all</b>이며 동시에 Sentry 보고를 차단한다. 실제 no-fill인지 판별 불가.</td>
+  <td><span class="tag t-ok">계측 복구</span></td>
+  <td>“모든 광고 소진” 문구가 Pangle <b>모든 로드 실패에 붙는 catch-all</b>이었고 Sentry 보고까지 막고 있었다. 예외 경로가 실제 에러 텍스트로 분류되도록 고쳐 <b>원인 판별이 가능해졌다</b>(§7). 실제 no-fill 여부는 이제 Sentry·Pangle 대시보드로 확인한다.</td>
 </tr>
 </tbody>
 </table>
@@ -560,6 +560,28 @@ wallet.star_projection_check_enabled = false</code></pre>
 
 <p><b>검증:</b> <code>flutter analyze</code> 44 issues — 변경 전 베이스라인과 동일(신규 0, error 0). <code>flutter test</code> 280건 전부 통과(신규 회귀 가드 2건 포함).</p>
 
+<h3>적용 완료 — 4번 Pangle "소진" 오진 (Dart 전용, OTA 가능)</h3>
+
+<p>근본 원인은 <b>분류기에 하드코딩한 일반 라벨을 먹인 것</b>이었다. <code>isNonReportableAdError()</code> 는 전적으로 <code>message</code> 문자열로 판정하는데, 예외를 잡는 경로가 <code>'Pangle 광고 로드 실패'</code> 라는 라벨을 넘겼고 그 안의 <code>'광고 로드 실패'</code> 가 no-fill 키워드였다. 결과적으로 SDK 초기화 실패·설정 오류·네트워크 예외까지 전부 "모든 광고 소진"으로 표시되고 Sentry 보고가 막혔다.</p>
+
+<table>
+<thead><tr><th style="width:16rem">위치</th><th>조치</th></tr></thead>
+<tbody>
+<tr><td><code>pangle_platform.dart</code> catch</td><td>분류 근거를 <code>e.toString()</code> 으로 교체 → 진짜 no-fill·네트워크는 자기 텍스트로 여전히 걸러지고, 나머지는 <b>Sentry 로 보고</b>된다</td></tr>
+<tr><td><code>admob_platform.dart</code> catch</td><td>감사 중 발견한 <b>동일 결함</b> — 같은 방식으로 수정</td></tr>
+<tr><td><code>pangle_platform.dart</code> else</td><td>예외 없는 진짜 no-fill 경로. <b>의도적으로 유지</b>하고 오해 방지 주석 추가</td></tr>
+<tr><td><code>ad_platform.dart</code></td><td><code>isNonReportableAdError</code> 를 <code>static</code> 으로 전환 — 인스턴스 상태를 쓰지 않으며, 테스트가 구현을 직접 호출할 수 있게 하기 위함</td></tr>
+</tbody>
+</table>
+
+<div class="box bad">
+<p><b>테스트가 아무것도 지키지 못하고 있었다.</b> <code>ad_platform_logic_test.dart</code> 는 실제 메서드를 호출하지 않고 <b>키워드 목록을 통째로 복제</b>해 검사하고 있었다. 그래서 구현에 <code>'sdk is not connected'</code>, <code>'server error with status code:-'</code>, <code>'작업을 완료할 수 없습니다'</code> 가 추가된 뒤에도 옛 목록으로 계속 통과했다. 복제본을 삭제하고 구현을 직접 호출하도록 재작성했다(27건, 회귀 가드 3건 포함).</p>
+</div>
+
+<div class="box warn">
+<p><b>사용자 눈에 보이는 변화.</b> 지금까지 "모든 광고가 소진되었습니다"로 보이던 경우 중 <b>실제 오류였던 건</b>은 이제 일반 오류 다이얼로그(<code>label_ads_load_fail</code>)로 바뀐다. 새 문구를 추가하지 않았고, 진짜 재고 없음은 그대로 "소진"으로 안내된다.</p>
+</div>
+
 <h3>적용 완료 — GA4 문서 정정</h3>
 
 <p>조사 중 <code>ad_click</code> 계측 문서가 실제 구현과 어긋나 있는 것을 확인했다. <b>계측 코드에는 결함이 없었고</b>, 문서만 틀려 있었다.</p>
@@ -596,11 +618,11 @@ wallet.star_projection_check_enabled = false</code></pre>
 <thead><tr><th style="width:3rem">우선</th><th>조치</th><th style="width:9rem">범위</th><th style="width:8rem">담당</th></tr></thead>
 <tbody>
 <tr>
-  <td><span class="tag t-bad">높음</span></td>
-  <td><code>ad_campaigns.reward_more</code> 값 회수(0)<br>
-  <span class="path">값이 남아 있으면 "설정했는데 왜 적립이 안 되냐"가 그대로 재발한다</span></td>
+  <td><span class="tag t-ok">완료</span></td>
+  <td><code>ad_campaigns.reward_more</code> 값 회수 — <b>7건 전부 0 으로 갱신 (2026-08-13)</b><br>
+  <span class="path">갱신 후 <code>reward_more &lt;&gt; 0</code> 0건 확인. <code>reward_view</code> 합계 8 무변동. 롤백 SQL 보관</span></td>
   <td>운영 / DB</td>
-  <td>운영</td>
+  <td>적용됨</td>
 </tr>
 <tr>
   <td><span class="tag t-bad">높음</span></td>
@@ -610,9 +632,9 @@ wallet.star_projection_check_enabled = false</code></pre>
 </tr>
 <tr>
   <td><span class="tag t-warn">중간</span></td>
-  <td>Pangle 로드 실패를 <b>진짜 no-fill</b> 과 <b>기타 오류</b> 로 분리 — 오류는 Sentry 보고 유지, 문구도 분리 (§5)</td>
-  <td>앱 단독, Dart 전용</td>
-  <td><span class="tag t-ok">OTA 가능</span></td>
+  <td>수정 배포 후 Sentry 에서 아시아픽 #1 의 <b>실제 실패 원인</b> 확인 — 진짜 no-fill 이면 Pangle 대시보드의 fill rate·eCPM 플로어·플레이스먼트 상태 점검</td>
+  <td>운영 / 모니터링</td>
+  <td>OTA 후</td>
 </tr>
 <tr>
   <td><span class="tag t-warn">중간</span></td>

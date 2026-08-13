@@ -93,7 +93,9 @@ class AdmobPlatform extends AdPlatform {
         ),
       );
     } catch (e, s) {
-      logAdLoadFailure('AdMob', e, _adUnitId, 'AdMob 광고 로드 실패', s);
+      // 분류 근거로 실제 예외 텍스트를 넘긴다 — 일반 라벨을 넘기면 '광고 로드
+      // 실패' 키워드에 걸려 모든 예외가 no-fill 로 삼켜진다(pangle 과 동일 함정).
+      logAdLoadFailure('AdMob', e, _adUnitId, e.toString(), s);
       stopAllAnimations();
       if (context.mounted && !isDisposed) {
         showSimpleDialog(

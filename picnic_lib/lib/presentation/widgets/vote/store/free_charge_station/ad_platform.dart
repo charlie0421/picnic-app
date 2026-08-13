@@ -340,9 +340,22 @@ abstract class AdPlatform {
     }
   }
 
-  // Sentry에 보내지 않아도 되는 광고 에러 감지
+  /// Sentry 에 보내지 않아도 되는 광고 에러 감지.
+  ///
+  /// 판정은 전적으로 [message] 문자열에 달려 있다(AdMob 의 [LoadAdError] 코드만
+  /// 예외). 따라서 호출부는 **실제 에러 텍스트**를 넘겨야 한다 — 하드코딩한
+  /// 일반 라벨('… 광고 로드 실패' 등)을 넘기면 SDK 초기화 실패·설정 오류 같은
+  /// 진짜 버그까지 no-fill 로 분류되어 사용자에겐 "모든 광고 소진"으로 보이고
+  /// Sentry 보고까지 막힌다.
+  ///
+  /// 인스턴스 상태를 쓰지 않으므로 static 이다 — 테스트가 로직을 복제하지 않고
+  /// 이 구현을 그대로 호출할 수 있어야 키워드 목록이 바뀌어도 검증이 따라간다.
   @visibleForTesting
-  bool isNonReportableAdError(String platform, dynamic error, String message) {
+  static bool isNonReportableAdError(
+    String platform,
+    dynamic error,
+    String message,
+  ) {
     final lowercaseMessage = message.toLowerCase();
 
     if (platform == 'AdMob' && error is LoadAdError) {
