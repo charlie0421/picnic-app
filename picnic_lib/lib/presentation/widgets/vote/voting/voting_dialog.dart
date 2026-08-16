@@ -105,6 +105,28 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
     _focusNode.addListener(_onFocusChange);
+
+    // walletSummaryProvider is keepAlive with no TTL and no refresh on app
+    // resume, and "use all" writes its total into the amount field verbatim.
+    // The server expires Cotton grants and Bonus buckets at vote time before
+    // computing the balance, so an hours-old snapshot asks for more than is
+    // spendable and comes back 409 WALLET_INSUFFICIENT_BALANCE even though the
+    // client pre-check passed. Re-read it when the dialog opens.
+    //
+    // Best-effort on purpose: a slow or failing refresh must not delay or block
+    // the dialog, which still works off the cached snapshot.
+    if (widget.portalType == VotePortal.vote) {
+      unawaited(
+        VotingDialogHelper.bestEffortWalletRefresh(
+          () => ref.read(walletSummaryProvider.notifier).refresh(),
+          onError: (error, stackTrace) => logger.w(
+            'voting dialog open wallet refresh failed',
+            error: error,
+            stackTrace: stackTrace,
+          ),
+        ),
+      );
+    }
   }
 
   void _onFocusChange() {
@@ -775,6 +797,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       genericMessage: l10n.dialog_title_vote_fail,
       endedMessage: l10n.message_vote_is_ended,
       upcomingMessage: l10n.message_vote_is_upcoming,
+      insufficientBalanceMessage: l10n.text_need_recharge,
     );
   }
 
