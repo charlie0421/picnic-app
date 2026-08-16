@@ -15,7 +15,10 @@ void main() {
     ({VoteTransactionRepository repository, List<Map<String, dynamic>> calls})
   >
   repositoryWith(
-    List<http.Response> responses, {
+    // Each element is either an [http.Response] to return or an [Object] to
+    // throw, so a transport failure that never produced a response can be
+    // scripted alongside ordinary replies.
+    List<Object> responses, {
     Future<void> Function(Duration)? delay,
     VoteRetryJitter? nextJitter,
   }) async {
@@ -26,7 +29,9 @@ void main() {
       'test-anon-key',
       httpClient: MockClient((request) async {
         calls.add(jsonDecode(request.body) as Map<String, dynamic>);
-        return responses[index++];
+        final next = responses[index++];
+        if (next is http.Response) return next;
+        throw next;
       }),
       authOptions: const AuthClientOptions(autoRefreshToken: false),
     );
@@ -159,5 +164,75 @@ void main() {
       Duration(milliseconds: 500),
       Duration(milliseconds: 1000),
     ]);
+  });
+
+  // A vote whose HTTP response is lost is NOT a failed vote: the Edge Function
+  // and its transaction keep running and can commit. RetryHttpClient turns its
+  // own 30s timeout into a synthetic 500 body, so the client cannot tell "never
+  // happened" from "committed, answer lost". Re-invoking with the same
+  // request_id is the only way to learn the truth — the server replays the
+  // stored settlement instead of voting twice.
+  group('unknown outcome reconciliation', () {
+    const timeoutBody = {
+      'error':
+          'Exception: TimeoutException after 0:00:30.000000: '
+          'Request timed out after 30 seconds',
+    };
+
+    test('re-invokes with the same request id after a lost response', () async {
+      final fixture = await File(fixturePath).readAsString();
+      final setup = await repositoryWith([
+        response(500, timeoutBody),
+        response(200, fixture),
+      ]);
+
+      final result = await setup.repository.performGeneralVote(request);
+
+      expect(setup.calls, hasLength(2));
+      expect(setup.calls.map((call) => call['request_id']).toSet(), {
+        request.requestId,
+      });
+      expect(result.operationId, '00000000-0000-4000-8000-000000000301');
+    });
+
+    test('reconciles a transport failure that never got a response', () async {
+      final fixture = await File(fixturePath).readAsString();
+      final setup = await repositoryWith([
+        http.ClientException('Connection closed before full header was received'),
+        response(200, fixture),
+      ]);
+
+      final result = await setup.repository.performGeneralVote(request);
+
+      expect(setup.calls, hasLength(2));
+      expect(result.replayed, isFalse);
+    });
+
+    test('gives up after two reconcile attempts', () async {
+      final delays = <Duration>[];
+      final setup = await repositoryWith(
+        List.generate(3, (_) => response(500, timeoutBody)),
+        delay: (duration) async => delays.add(duration),
+      );
+
+      await expectLater(
+        setup.repository.performGeneralVote(request),
+        throwsA(isA<FunctionException>()),
+      );
+      expect(setup.calls, hasLength(3));
+      expect(delays, const [Duration(seconds: 1), Duration(seconds: 3)]);
+    });
+
+    test('does not reconcile a decided client error', () async {
+      final setup = await repositoryWith([
+        response(403, {'error': 'VOTE_ENDED'}),
+      ]);
+
+      await expectLater(
+        setup.repository.performGeneralVote(request),
+        throwsA(isA<FunctionException>()),
+      );
+      expect(setup.calls, hasLength(1));
+    });
   });
 }
