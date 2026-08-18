@@ -115,17 +115,25 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     //
     // Best-effort on purpose: a slow or failing refresh must not delay or block
     // the dialog, which still works off the cached snapshot.
+    //
+    // Deferred a frame on purpose: when the wallet cache is empty, refresh()
+    // writes AsyncLoading before its first await, and doing that from initState
+    // is a provider write during build - Riverpod asserts and the refresh is
+    // lost entirely, which is exactly the cold-start case that needs it most.
     if (widget.portalType == VotePortal.vote) {
-      unawaited(
-        VotingDialogHelper.bestEffortWalletRefresh(
-          () => ref.read(walletSummaryProvider.notifier).refresh(),
-          onError: (error, stackTrace) => logger.w(
-            'voting dialog open wallet refresh failed',
-            error: error,
-            stackTrace: stackTrace,
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        unawaited(
+          VotingDialogHelper.bestEffortWalletRefresh(
+            () => ref.read(walletSummaryProvider.notifier).refresh(),
+            onError: (error, stackTrace) => logger.w(
+              'voting dialog open wallet refresh failed',
+              error: error,
+              stackTrace: stackTrace,
+            ),
           ),
-        ),
-      );
+        );
+      });
     }
   }
 
@@ -440,6 +448,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   Future<void> _handleVote(int myStarCandy, String userId) async {
     // 이미 투표 진행 중이면 무시 (중복 클릭 방지)
     if (_isVoting) return;
+    // 가드는 첫 await 앞에서 세운다. 아래 잔액 조회와 탈퇴 확인은 둘 다 await 이고
+    // 탈퇴 확인은 네트워크 왕복이다. 그 구간 동안 버튼이 살아 있으면 두 번째 탭이
+    // 이 가드를 그대로 통과하고, 두 실행이 각자 새 request_id 를 발급해 서버
+    // 멱등성이 걸리지 않는다 - 한 번의 투표가 아니라 두 번의 차감이 된다.
+    // 아래 조기 반환 경로들은 반드시 플래그를 되돌려야 한다.
+    setState(() => _isVoting = true);
 
     final voteAmount = _getVoteAmount();
     final amount = BigInt.from(voteAmount);
@@ -453,6 +467,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         : BigInt.from(myStarCandy) >= amount;
     if (!mounted) return;
     if (voteAmount == 0 || !hasBalance) {
+      setState(() => _isVoting = false);
       showSimpleDialog(
         title: AppLocalizations.of(context).dialog_title_vote_fail,
         content: voteAmount == 0
@@ -468,13 +483,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     FocusScope.of(context).unfocus();
 
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      if (mounted) setState(() => _isVoting = false);
       return;
     }
 
     if (!mounted) return;
-
-    // 투표 시작 - 버튼 비활성화
-    setState(() => _isVoting = true);
 
     _loadingKey.currentState?.show();
 
