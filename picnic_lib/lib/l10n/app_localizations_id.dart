@@ -1047,7 +1047,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'Dapatkan 1 bonus permen bintang untuk setiap 100 suara dan bagikan!';
+      'Dapatkan 1 bonus permen bintang untuk setiap 100 suara!';
 
   @override
   String get cancel => 'Cancel';

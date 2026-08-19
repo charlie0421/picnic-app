@@ -1010,7 +1010,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      '100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！';
+      '100票ごとにボーナスキャンディ1個をプレゼント！';
 
   @override
   String get cancel => 'Cancel';

@@ -1055,7 +1055,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      '¡Obtenga 1 caramelo estrella de bonificación por cada 100 votos y comparta!';
+      '¡Obtenga 1 caramelo estrella de bonificación por cada 100 votos!';
 
   @override
   String get cancel => 'Cancelar';

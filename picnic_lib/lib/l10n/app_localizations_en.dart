@@ -1042,7 +1042,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'Get 1 bonus star candy for every 100 votes and share!';
+      'Get 1 bonus star candy for every 100 votes!';
 
   @override
   String get cancel => 'Cancel';

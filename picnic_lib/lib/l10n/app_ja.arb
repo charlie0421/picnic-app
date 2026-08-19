@@ -1321,7 +1321,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！",
+  "voting_share_benefit_text": "100票ごとにボーナスキャンディ1個をプレゼント！",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },

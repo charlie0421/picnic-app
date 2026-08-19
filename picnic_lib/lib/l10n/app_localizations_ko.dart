@@ -1009,7 +1009,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vote_completed_message => '투표했습니다!';
 
   @override
-  String get voting_share_benefit_text => '100표마다 보너스 별사탕 1개 획득 및 공유!';
+  String get voting_share_benefit_text => '100표마다 보너스 별사탕 1개 획득!';
 
   @override
   String get cancel => '취소';

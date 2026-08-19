@@ -1321,7 +1321,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "Dapatkan 1 bonus permen bintang untuk setiap 100 suara dan bagikan!",
+  "voting_share_benefit_text": "Dapatkan 1 bonus permen bintang untuk setiap 100 suara!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },

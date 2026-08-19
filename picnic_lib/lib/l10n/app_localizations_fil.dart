@@ -1057,7 +1057,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'Kumuha ng 1 bonus star candy para sa bawat 100 boto at ibahagi!';
+      'Kumuha ng 1 bonus star candy para sa bawat 100 boto!';
 
   @override
   String get cancel => 'Kanselahin';
