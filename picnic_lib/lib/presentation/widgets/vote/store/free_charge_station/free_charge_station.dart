@@ -38,6 +38,24 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/c
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_content.dart';
 
+/// [_FreeChargeStationState.didChangeDependencies] 가 매번 새 [AdService] 로
+/// 교체할 때 쓰는 순수 헬퍼 — "이전 서비스가 있으면 반드시 먼저 dispose 한
+/// 뒤에만 새 서비스를 만든다"는 순서를 강제한다(BLOCKER-3).
+///
+/// `AdService`/`BuildContext` 에 의존하지 않는 제네릭 함수라 위젯 트리 없이도
+/// 직접 검증할 수 있다 — didChangeDependencies 는 InheritedWidget 의존성이
+/// 바뀔 때만 재호출되어 위젯 테스트로 그 타이밍을 안정적으로 재현하기
+/// 어렵기 때문에, 이 순서 보장 자체를 별도 seam 으로 뽑아 뒀다.
+@visibleForTesting
+T recreateAdService<T>({
+  required T? previous,
+  required void Function(T service) disposePrevious,
+  required T Function() builder,
+}) {
+  if (previous != null) disposePrevious(previous);
+  return builder();
+}
+
 // 광고 플랫폼 추상 클래스
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -52,6 +70,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   late Animation<double> _buttonScaleAnimation;
   late final AnimationController _rotationController;
   late AdService _adService;
+  bool _hasAdService = false;
   bool _isInitializing = false;
 
   /// 버튼 연타로 click_mission / ad_request 가 중복 발송되는 것을 막는다.
@@ -71,11 +90,20 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _adService = AdService(
-      ref: ref,
-      context: context,
-      animationController: _animationController,
+    // BLOCKER-3: didChangeDependencies 는 의존성이 바뀔 때마다 다시 불릴 수
+    // 있다 — 이전 AdService 를 dispose 하지 않고 버리면 그 안의 flow
+    // 워치독 타이머·pendingAd 가 살아남아 leak 된다. recreateAdService 가
+    // "dispose 후 생성" 순서를 강제한다.
+    _adService = recreateAdService<AdService>(
+      previous: _hasAdService ? _adService : null,
+      disposePrevious: (service) => service.dispose(),
+      builder: () => AdService(
+        ref: ref,
+        context: context,
+        animationController: _animationController,
+      ),
     );
+    _hasAdService = true;
 
     // 컨텍스트가 유효할 때 광고 플랫폼 초기화
     if (!_isInitializing) {
