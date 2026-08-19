@@ -1041,7 +1041,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'প্রতি 100 ভোটের জন্য 1 বোনাস স্টার ক্যান্ডি পান এবং ভাগ করুন!';
+      'প্রতি 100 ভোটের জন্য 1 বোনাস স্টার ক্যান্ডি পান!';
 
   @override
   String get cancel => 'Cancel';
