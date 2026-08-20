@@ -139,6 +139,43 @@ void main() {
     },
   );
 
+  test(
+    'poll closure that throws synchronously routes to onPollError and keeps the view response',
+    () async {
+      // dispose 된 ConsumerState 의 ref.read 는 동기로 던진다. 그 예외가
+      // report() 자체를 실패시키면 시청 응답까지 유실된다 (PICNIC-APP-5G9 계열).
+      final session = InternalShortformRewardSession();
+      await session.bindIssued(
+        owner: 'user-a',
+        issuedReference: const AdRewardReference(
+          type: AdRewardReferenceType.internalImpression,
+          id: impressionId,
+        ),
+        persist: (_, _) async {},
+      );
+      final reported = <Object>[];
+      final response = await InternalShortformViewRecoveryFlow(
+        view: InternalShortformViewFlow(
+          session: session,
+          currentOwner: () => 'user-a',
+          invokeCallback: () async => {
+            'ok': true,
+            'reward_added': 0,
+            'impression_id': impressionId,
+            'new_bonus': null,
+            'reward': rewardJson(),
+          },
+          parse: InternalShortformViewResponse.fromJson,
+        ),
+        poll: (_, _) => throw StateError('ref used after dispose'),
+        onPollError: (error, _) => reported.add(error),
+      ).report();
+      expect(response.reward, isNotNull);
+      await Future<void>.delayed(Duration.zero);
+      expect(reported.single, isStateError);
+    },
+  );
+
   test('legacy report never enters wallet recovery polling', () async {
     final session = InternalShortformRewardSession();
     await session.bindIssued(

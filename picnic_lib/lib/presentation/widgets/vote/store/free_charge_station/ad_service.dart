@@ -124,7 +124,16 @@ class AdService {
 
   // 리소스 해제
   void dispose() {
-    // 클린업 로직
+    // 각 플랫폼의 dispose 를 반드시 호출한다. 맵만 비우면 PanglePlatform 의
+    // pollingSignals 구독 같은 리소스가 페이지 unmount 후에도 살아남아
+    // dispose 된 ref 를 계속 읽는다 (PICNIC-APP-5G9).
+    for (final platform in _platforms.values) {
+      try {
+        platform.dispose();
+      } catch (e) {
+        logger.e('Error disposing ${platform.id} platform', error: e);
+      }
+    }
     _platforms.clear();
   }
 }
