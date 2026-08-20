@@ -85,7 +85,14 @@ abstract class AdPlatform {
 
   void dispose() {
     _isDisposed = true;
-    stopAllAnimations();
+    // stopAllAnimations() 는 isDisposed 가드에 막혀 여기서는 전부 no-op 이고,
+    // setLoading 경로는 unmount 후 ref/context 를 쓸 수 없다. teardown 에
+    // 필요한 정리는 ref/context 없이 직접 한다 — 로딩 오버레이는 전역이라
+    // 페이지가 죽어도 남는다.
+    if (animationController != null && animationController!.isAnimating) {
+      animationController!.stop();
+    }
+    OverlayLoadingProgress.stop();
     logger.i('[$id] 플랫폼 종료');
   }
 

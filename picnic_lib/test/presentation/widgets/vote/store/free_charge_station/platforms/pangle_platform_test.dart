@@ -321,6 +321,51 @@ void main() {
     await signals.close();
   });
 
+  group('PollingSubscriptionOwner 세대 소유권', () {
+    // showAd 가 checkAdsLimit 네트워크 대기 중 이중 탭으로 겹쳐 실행되면,
+    // 단일 필드 방식은 먼저 시작한 호출의 구독이 필드에 실리지 못한 채
+    // 유실됐다 — dispose 가 취소할 수 없는 고아 구독이 된다.
+    StreamSubscription<void> liveSubscription(StreamController<void> c) =>
+        c.stream.listen((_) {});
+
+    test('재진입 시 이전 세대의 adopt 는 거부되고 그 구독은 즉시 취소된다', () async {
+      final owner = PollingSubscriptionOwner();
+      final signals = StreamController<void>.broadcast();
+      final first = await owner.begin();
+      final second = await owner.begin();
+      final firstSub = liveSubscription(signals);
+      final secondSub = liveSubscription(signals);
+      expect(await owner.adopt(first, firstSub), isFalse);
+      expect(await owner.adopt(second, secondSub), isTrue);
+      // first 의 구독은 adopt 시점에 취소됐어야 한다.
+      expect(signals.hasListener, isTrue); // second 만 살아 있음
+      await owner.cancel();
+      expect(signals.hasListener, isFalse);
+      await signals.close();
+    });
+
+    test('begin 은 이미 실린 이전 구독을 취소한다', () async {
+      final owner = PollingSubscriptionOwner();
+      final signals = StreamController<void>.broadcast();
+      final first = await owner.begin();
+      await owner.adopt(first, liveSubscription(signals));
+      expect(signals.hasListener, isTrue);
+      await owner.begin();
+      expect(signals.hasListener, isFalse);
+      await signals.close();
+    });
+
+    test('cancel 은 진행 중인 adopt 까지 무효화한다 (dispose 경합)', () async {
+      final owner = PollingSubscriptionOwner();
+      final signals = StreamController<void>.broadcast();
+      final generation = await owner.begin();
+      await owner.cancel(); // load 대기 중 dispose
+      expect(await owner.adopt(generation, liveSubscription(signals)), isFalse);
+      expect(signals.hasListener, isFalse);
+      await signals.close();
+    });
+  });
+
   group('PangleClaimModel.mediaExtra 플랫폼 표기', () {
     // 프로덕션 결함 (2026-07-29 ~ 2026-08-13, PICNIC-2377):
     // ad-reward-claim 엣지 함수가 platform 을 toUpperCase() 해서 저장·응답하는데

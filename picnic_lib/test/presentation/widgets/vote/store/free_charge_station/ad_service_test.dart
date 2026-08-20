@@ -48,4 +48,40 @@ void main() {
     }
     controller.dispose();
   });
+
+  testWidgets('dispose 는 진행 중이던 로딩 오버레이를 내린다', (tester) async {
+    // AdPlatform.dispose 는 _isDisposed 를 먼저 세워 stopAllAnimations 경로가
+    // 전부 no-op 이었다. 로딩 오버레이는 전역이라 페이지가 죽어도 남는다.
+    late WidgetRef capturedRef;
+    late BuildContext capturedContext;
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Consumer(
+            builder: (context, ref, _) {
+              capturedRef = ref;
+              capturedContext = context;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
+    );
+    final controller = AnimationController(
+      vsync: const TestVSync(),
+      duration: const Duration(milliseconds: 1),
+    );
+    final service = AdService(
+      ref: capturedRef,
+      context: capturedContext,
+      animationController: controller,
+    );
+    service.getPlatform('pangle')!.startLoading();
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    service.dispose();
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    controller.dispose();
+  });
 }
