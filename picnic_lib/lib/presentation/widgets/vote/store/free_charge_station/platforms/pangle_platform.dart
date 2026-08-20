@@ -41,6 +41,7 @@ class PangleClaimPreflight {
     required this.load,
     this.loadTimeout = const Duration(seconds: 5),
     this.onPollError,
+    this.isAborted,
   });
   final PangleClaimCreator createClaim;
   final Future<void> Function(String, AdRewardReference) persist;
@@ -49,6 +50,11 @@ class PangleClaimPreflight {
   final Future<bool> Function(String, String) load;
   final Duration loadTimeout;
   final void Function(Object error, StackTrace stackTrace)? onPollError;
+
+  /// 호출부(플랫폼)가 dispose 됐는지 알려 주는 훅. 구독은 execute 내부에서
+  /// 만들어지고 반환 후에야 호출부에 전달되므로, load 를 기다리는 사이에
+  /// dispose 되면 호출부의 dispose 는 이 구독을 취소할 수 없다.
+  final bool Function()? isAborted;
 
   Future<PangleClaimPreflightResult> execute({
     required String ownerUserId,
@@ -63,8 +69,11 @@ class PangleClaimPreflight {
     );
     await persist(ownerUserId, claim.reference);
     final subscription = pollingSignals.listen((_) {
+      if (isAborted?.call() ?? false) return;
+      // Future.sync: dispose 된 ref.read 처럼 poll 이 동기로 던지는 경우도
+      // catchError 로 모은다 — 동기 throw 는 catchError 가 붙기 전에 전파된다.
       unawaited(
-        poll(ownerUserId, claim.reference).catchError((
+        Future.sync(() => poll(ownerUserId, claim.reference)).catchError((
           Object error,
           StackTrace stackTrace,
         ) {
@@ -77,6 +86,9 @@ class PangleClaimPreflight {
         placementId,
         claim.mediaExtra(ownerUserId),
       ).timeout(loadTimeout, onTimeout: () => false);
+      if (isAborted?.call() ?? false) {
+        await subscription.cancel();
+      }
       return PangleClaimPreflightResult(
         loaded: loaded,
         reference: claim.reference,
@@ -304,6 +316,7 @@ class PanglePlatform extends AdPlatform {
                 stackTrace: stackTrace,
               );
             },
+            isAborted: () => isDisposed,
           ).execute(
             ownerUserId: ownerUserId,
             platform: platform,

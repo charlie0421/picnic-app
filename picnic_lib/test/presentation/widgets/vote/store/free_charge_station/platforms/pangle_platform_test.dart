@@ -181,6 +181,146 @@ void main() {
     },
   );
 
+  test(
+    'poll closure that throws synchronously routes to onPollError instead of escaping the zone',
+    () async {
+      // 프로덕션 결함 (PICNIC-APP-5G9): dispose 된 ConsumerState 의 ref.read 는
+      // Future 를 만들기 전에 동기로 던진다. async 클로저와 달리 catchError 가
+      // 붙기 전에 예외가 전파되므로 zone 미처리 예외로 새어 나갔다.
+      final uncaught = <Object>[];
+      final reported = <Object>[];
+      final signals = StreamController<void>.broadcast();
+      final claim = PangleClaimModel(
+        reference: const AdRewardReference(
+          type: AdRewardReferenceType.pangleClaim,
+          id: 'claim-a',
+        ),
+        platform: 'android',
+        signedToken: 'token',
+        expiresAt: DateTime.utc(2030),
+      );
+      PangleClaimPreflightResult? result;
+      await runZonedGuarded(() async {
+        result =
+            await PangleClaimPreflight(
+              createClaim:
+                  ({
+                    required platform,
+                    required placementId,
+                    required clientRequestId,
+                  }) async => claim,
+              persist: (_, _) async {},
+              pollingSignals: signals.stream,
+              poll: (_, _) => throw StateError('ref used after dispose'),
+              load: (_, _) async => true,
+              onPollError: (error, _) => reported.add(error),
+            ).execute(
+              ownerUserId: 'user-a',
+              platform: 'android',
+              placementId: 'placement',
+              clientRequestId: 'request',
+            );
+        signals.add(null);
+        await Future<void>.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
+      }, (error, stackTrace) => uncaught.add(error));
+
+      expect(uncaught, isEmpty);
+      expect(reported.single, isStateError);
+      await result?.subscription.cancel();
+      await signals.close();
+    },
+  );
+
+  test('execute cancels its polling subscription when aborted during load', () async {
+    // 구독은 execute 내부에서 만들어지고 호출부에는 반환 후에야 전달된다.
+    // load 를 기다리는 동안 플랫폼이 dispose 되면 호출부의 dispose 는 이미
+    // 지나갔으므로, execute 자신이 중단 여부를 보고 구독을 정리해야 한다.
+    final signals = StreamController<void>.broadcast();
+    var polls = 0;
+    var aborted = false;
+    final claim = PangleClaimModel(
+      reference: const AdRewardReference(
+        type: AdRewardReferenceType.pangleClaim,
+        id: 'claim-a',
+      ),
+      platform: 'android',
+      signedToken: 'token',
+      expiresAt: DateTime.utc(2030),
+    );
+    final result =
+        await PangleClaimPreflight(
+          createClaim:
+              ({
+                required platform,
+                required placementId,
+                required clientRequestId,
+              }) async => claim,
+          persist: (_, _) async {},
+          pollingSignals: signals.stream,
+          poll: (_, _) async => polls++,
+          load: (_, _) async {
+            aborted = true;
+            return true;
+          },
+          isAborted: () => aborted,
+        ).execute(
+          ownerUserId: 'user-a',
+          platform: 'android',
+          placementId: 'placement',
+          clientRequestId: 'request',
+        );
+    expect(signals.hasListener, isFalse);
+    signals.add(null);
+    await Future<void>.delayed(Duration.zero);
+    expect(polls, 0);
+    await result.subscription.cancel();
+    await signals.close();
+  });
+
+  test('listener stops polling once aborted even if the subscription leaks', () async {
+    final signals = StreamController<void>.broadcast();
+    var polls = 0;
+    var aborted = false;
+    final claim = PangleClaimModel(
+      reference: const AdRewardReference(
+        type: AdRewardReferenceType.pangleClaim,
+        id: 'claim-a',
+      ),
+      platform: 'android',
+      signedToken: 'token',
+      expiresAt: DateTime.utc(2030),
+    );
+    final result =
+        await PangleClaimPreflight(
+          createClaim:
+              ({
+                required platform,
+                required placementId,
+                required clientRequestId,
+              }) async => claim,
+          persist: (_, _) async {},
+          pollingSignals: signals.stream,
+          poll: (_, _) async => polls++,
+          load: (_, _) async => true,
+          isAborted: () => aborted,
+        ).execute(
+          ownerUserId: 'user-a',
+          platform: 'android',
+          placementId: 'placement',
+          clientRequestId: 'request',
+        );
+    signals.add(null);
+    await Future<void>.delayed(Duration.zero);
+    expect(polls, 1);
+    aborted = true;
+    signals.add(null);
+    await Future<void>.delayed(Duration.zero);
+    expect(polls, 1);
+    await result.subscription.cancel();
+    await signals.close();
+  });
+
   group('PangleClaimModel.mediaExtra 플랫폼 표기', () {
     // 프로덕션 결함 (2026-07-29 ~ 2026-08-13, PICNIC-2377):
     // ad-reward-claim 엣지 함수가 platform 을 toUpperCase() 해서 저장·응답하는데
