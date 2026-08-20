@@ -1609,6 +1609,84 @@ def check_patch_release_version_is_full(workflows):
     return failures
 
 
+def check_patch_split_debug_info_gate(workflows):
+    """Production patches must mirror the release's --split-debug-info flag.
+
+    1.3.0+130008 부터 프로덕션 릴리스는 항상 --split-debug-info 로 빌드된다.
+    패치가 다른 빌드 인자로 컴파일되면 릴리스와 어긋난 패치가 나가므로,
+    게이트는 (a) MmPPBB 6자리가 아닌 빌드 번호를 실패시키고 (b) 130008
+    이상에서만 플래그를 전달해야 한다. 정적 검사 대신 게이트 블록을 실제
+    bash 로 실행해 행동을 검증한다 — "숫자면 통과" 같은 완화가 재발하면
+    13008 (자릿수 오타) 케이스가 잡아낸다.
+    """
+    import subprocess
+
+    failures = []
+    cases = [
+        # (RELEASE_VERSION, expect_exit_zero, expect_flag)
+        ("1.3.0+130007", True, False),
+        ("1.3.0+130008", True, True),
+        ("1.4.0+140001", True, True),
+        ("1.3.0+13008", False, None),  # 자릿수 오타 — 조용히 구릴리스 취급 금지
+        ("1.3.0+abc", False, None),
+        ("1.3.0+99999999", False, None),  # MmPPBB 범위 밖
+    ]
+    for name, workflow in workflows.items():
+        for step_name, script in script_blocks(workflow):
+            if (
+                "shorebird patch android" not in script
+                or 'EXTRA_BUILD_ARGS=""' not in script
+            ):
+                continue
+            lines = script.splitlines()
+            start = next(
+                i for i, l in enumerate(lines) if l.strip() == 'EXTRA_BUILD_ARGS=""'
+            )
+            block, closed = [], 0
+            for line in lines[start:]:
+                block.append(line)
+                if line.strip() == "fi":
+                    closed += 1
+                    if closed == 2:
+                        break
+            gate = "\n".join(block)
+            if closed != 2:
+                failures.append(
+                    f"{name} / {step_name}: split-debug-info 게이트 블록을 "
+                    "추출하지 못했다 (fi 2개 미만)"
+                )
+                continue
+            for version, expect_ok, expect_flag in cases:
+                proc = subprocess.run(
+                    [
+                        "bash",
+                        "-c",
+                        f'RELEASE_VERSION="{version}"\n'
+                        f'PATCH_BUILD_NUMBER=${{RELEASE_VERSION#*+}}\n'
+                        f"{gate}\n"
+                        'printf "OUT:%s" "$EXTRA_BUILD_ARGS"',
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                ok = proc.returncode == 0
+                if ok != expect_ok:
+                    failures.append(
+                        f"{name} / {step_name}: 버전 {version} 은 "
+                        f"{'통과' if expect_ok else '실패'}해야 하는데 "
+                        f"exit={proc.returncode}"
+                    )
+                    continue
+                if expect_ok:
+                    has_flag = "--split-debug-info=build/symbols" in proc.stdout
+                    if has_flag != expect_flag:
+                        failures.append(
+                            f"{name} / {step_name}: 버전 {version} 의 플래그 "
+                            f"기대={expect_flag}, 실제={has_flag}"
+                        )
+    return failures
+
+
 def run_checks(text=None):
     """Return the list of isolation violations for a codemagic.yaml text."""
     try:
@@ -1642,6 +1720,7 @@ def run_checks(text=None):
     failures += check_isolation_guard_runs_in_ci(workflows, tag_driven)
     failures += check_app_guard_tests_run(workflows, tag_driven)
     failures += check_patch_release_version_is_full(workflows)
+    failures += check_patch_split_debug_info_gate(workflows)
     return failures
 
 
