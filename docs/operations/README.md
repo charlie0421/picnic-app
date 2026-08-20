@@ -37,3 +37,4 @@
 | [handoff-pr73-claude.html](handoff-pr73-claude.html) | PR #73 핸드오프 |
 | [handoff-store-purchase-speed-and-cancel-fix.html](handoff-store-purchase-speed-and-cancel-fix.html) | 구매 속도 개선 + 취소/에러 로딩락 수정 핸드오프 (PR #137 계열) |
 | [handoff-rls-rollout.html](handoff-rls-rollout.html) | RLS 도입 (착수 전). RLS 미적용 105개 테이블 — 로그인 사용자의 타인 데이터 열람을 닫는 작업. 엣지 함수 7개가 `authenticated` 로 도는 함정 포함 |
+| [handoff-20260819-wallet-incidents.html](handoff-20260819-wallet-incidents.html) | 지갑 장애 4건(코튼 게이트·8/15 선행·Tapjoy 7일·투표 보너스 18일) 대응 기록. 소급 4,993건, 알람 신설, 반복하기 쉬운 함정 6가지 |
