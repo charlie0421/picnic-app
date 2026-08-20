@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_service.dart';
 
 void main() {
@@ -82,6 +84,48 @@ void main() {
     service.dispose();
     await tester.pump();
     expect(find.byType(CircularProgressIndicator), findsNothing);
+    // 전역 로딩 상태도 함께 해제돼야 다음 방문의 버튼이 잠기지 않는다.
+    expect(
+      capturedRef.read(adLoadingStateProvider)['pangle'],
+      isNot(isTrue),
+    );
+    controller.dispose();
+  });
+
+  testWidgets('dispose 는 자신이 켜지 않은 오버레이는 건드리지 않는다', (tester) async {
+    // OverlayLoadingProgress 는 전역 싱글턴이다. 플랫폼이 켠 적 없는
+    // 오버레이(다른 기능 소유)를 dispose 가 닫아 버리면 안 된다.
+    late WidgetRef capturedRef;
+    late BuildContext capturedContext;
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Consumer(
+            builder: (context, ref, _) {
+              capturedRef = ref;
+              capturedContext = context;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
+    );
+    final controller = AnimationController(
+      vsync: const TestVSync(),
+      duration: const Duration(milliseconds: 1),
+    );
+    final service = AdService(
+      ref: capturedRef,
+      context: capturedContext,
+      animationController: controller,
+    );
+    OverlayLoadingProgress.start(capturedContext); // 다른 기능의 오버레이
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    service.dispose();
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    OverlayLoadingProgress.stop();
     controller.dispose();
   });
 }
