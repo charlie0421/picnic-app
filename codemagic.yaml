@@ -864,6 +864,13 @@ workflows:
           echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
           SKIP_SHOREBIRD=false
 
+          # `--` 뒤 인자는 flutter build 로 전달된다. --split-debug-info 는
+          # Dart AOT DWARF(.symbols)를 분리 생성해 Sentry 가 ANR/AppExitInfo 의
+          # libapp.so 네이티브 프레임을 심볼리케이션할 수 있게 한다 (기존
+          # 업로드는 symtab 뿐이라 함수명이 비었다 — PICNIC-APP-45E/464).
+          # ⚠️ 이 릴리스를 패치할 때는 shorebird patch 에도 동일하게
+          # `-- --split-debug-info=build/symbols` 를 넘겨야 한다 (아래 패치
+          # 워크플로는 빌드 번호 게이트로 자동 처리).
           if [ "$DEPLOY_TARGET" = "production" ]; then
             shorebird release android \
               --dart-define=ENVIRONMENT=prod \
@@ -871,7 +878,8 @@ workflows:
               --dart-define=PAYMENT_ENVIRONMENT=prod \
               --no-confirm \
               --flutter-version=3.41.4 \
-              --verbose 2>&1 | tee /tmp/shorebird_release.log
+              --verbose \
+              -- --split-debug-info=build/symbols 2>&1 | tee /tmp/shorebird_release.log
           else
             shorebird release android \
               --dart-define=ENVIRONMENT=dev \
@@ -1078,6 +1086,19 @@ workflows:
             --project "$SENTRY_PROJECT" \
             --include-sources \
             build/app/ 2>&1 || echo "⚠️ Flutter 디버그 심볼 업로드 실패 (무시)"
+
+          # 4) Dart AOT DWARF (--split-debug-info 산출물) — libapp.so 는 symtab 만
+          # 갖고 있어 ANR/AppExitInfo 네이티브 프레임 심볼리케이션에 이 파일이
+          # 필요하다 (프로덕션 릴리스 분기에서만 생성됨)
+          if [ -d "build/symbols" ]; then
+            echo "📤 Dart AOT DWARF 업로드: build/symbols"
+            sentry-cli debug-files upload \
+              --org "$SENTRY_ORG" \
+              --project "$SENTRY_PROJECT" \
+              build/symbols 2>&1 || echo "⚠️ Dart DWARF 업로드 실패 (무시)"
+          else
+            echo "ℹ️ build/symbols 없음 — --split-debug-info 미적용 빌드"
+          fi
 
           # 릴리즈 완료
           sentry-cli releases finalize "$SENTRY_RELEASE" \
@@ -1363,6 +1384,15 @@ workflows:
           RELEASE_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //' | tr -d ' ')
           echo "📦 패치 대상 버전: $RELEASE_VERSION"
 
+          # 1.3.0+130008 부터 프로덕션 릴리스는 --split-debug-info 로 빌드된다.
+          # 패치는 릴리스와 동일한 flutter 빌드 인자를 써야 하므로 빌드 번호로
+          # 게이트한다 — 구릴리스(≤130007) 패치에 이 플래그를 넘기면 안 된다.
+          EXTRA_BUILD_ARGS=""
+          PATCH_BUILD_NUMBER=${RELEASE_VERSION#*+}
+          if [ "$PATCH_BUILD_NUMBER" -ge 130008 ] 2>/dev/null; then
+            EXTRA_BUILD_ARGS="-- --split-debug-info=build/symbols"
+          fi
+
           shorebird patch android \
             --release-version=$RELEASE_VERSION \
             --no-confirm \
@@ -1371,7 +1401,8 @@ workflows:
             --dart-define=ENVIRONMENT=prod \
             --dart-define=PANGLE_ENVIRONMENT=prod \
             --dart-define=PAYMENT_ENVIRONMENT=prod \
-            --verbose
+            --verbose \
+            $EXTRA_BUILD_ARGS
 
           PATCH_EXIT_CODE=$?
 
