@@ -1394,11 +1394,23 @@ workflows:
           # 게이트한다 — 구릴리스(≤130007) 패치에 이 플래그를 넘기면 안 된다.
           EXTRA_BUILD_ARGS=""
           PATCH_BUILD_NUMBER=${RELEASE_VERSION#*+}
-          # MmPPBB 6자리 형식을 강제한다. 오타 버전(13008, +1 등)이 "숫자"라는
-          # 이유로 통과하면 릴리스는 무조건 split 인데 패치는 임계값 미만으로
-          # 플래그가 빠져 불일치 패치가 나간다 — 조용히 넘기지 않고 실패시킨다.
+          PATCH_VERSION_NAME=${RELEASE_VERSION%%+*}
+          # MmPPBB 형식과 표시 버전(M.m.PP)의 상호 일치까지 강제한다. 6자리
+          # 숫자라도 표시 버전과 어긋나면(예: 1.4.0+120000) 릴리스는 무조건
+          # split 인데 패치는 임계값 미만으로 플래그가 빠져 불일치 패치가
+          # 나간다 — 조용히 넘기지 않고 실패시킨다.
           if ! [[ "$PATCH_BUILD_NUMBER" =~ ^[0-9]{6}$ ]]; then
             echo "❌ 빌드 번호가 MmPPBB 6자리 형식이 아닙니다: $RELEASE_VERSION"
+            exit 1
+          fi
+          if ! [[ "$PATCH_VERSION_NAME" =~ ^([0-9])\.([0-9])\.([0-9]{1,2})$ ]]; then
+            echo "❌ 표시 버전이 M.m.PP 형식이 아닙니다: $RELEASE_VERSION"
+            exit 1
+          fi
+          EXPECTED_PREFIX=$(printf '%s%s%02d' \
+            "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "$((10#${BASH_REMATCH[3]}))")
+          if [ "${PATCH_BUILD_NUMBER:0:4}" != "$EXPECTED_PREFIX" ]; then
+            echo "❌ 빌드 번호 ${PATCH_BUILD_NUMBER} 가 표시 버전 ${PATCH_VERSION_NAME} 의 MmPPBB(${EXPECTED_PREFIX}xx)와 일치하지 않습니다"
             exit 1
           fi
           if [ "$PATCH_BUILD_NUMBER" -ge 130008 ]; then

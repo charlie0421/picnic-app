@@ -1627,9 +1627,12 @@ def check_patch_split_debug_info_gate(workflows):
         ("1.3.0+130007", True, False),
         ("1.3.0+130008", True, True),
         ("1.4.0+140001", True, True),
+        ("1.3.12+131201", True, True),  # PP 두 자리
         ("1.3.0+13008", False, None),  # 자릿수 오타 — 조용히 구릴리스 취급 금지
         ("1.3.0+abc", False, None),
         ("1.3.0+99999999", False, None),  # MmPPBB 범위 밖
+        ("1.4.0+120000", False, None),  # 표시 버전과 빌드 번호 불일치
+        ("1.4.0+000001", False, None),  # 표시 버전과 빌드 번호 불일치
     ]
     for name, workflow in workflows.items():
         for step_name, script in script_blocks(workflow):
@@ -1642,18 +1645,21 @@ def check_patch_split_debug_info_gate(workflows):
             start = next(
                 i for i, l in enumerate(lines) if l.strip() == 'EXTRA_BUILD_ARGS=""'
             )
-            block, closed = [], 0
+            # EXTRA_BUILD_ARGS="" 부터, 임계값(-ge 130008) if 를 닫는 fi 까지가
+            # 게이트 블록이다 — 중간 검증 if 의 개수에 의존하지 않는다.
+            block, seen_threshold, complete = [], False, False
             for line in lines[start:]:
                 block.append(line)
-                if line.strip() == "fi":
-                    closed += 1
-                    if closed == 2:
-                        break
+                if "-ge 130008" in line:
+                    seen_threshold = True
+                if seen_threshold and line.strip() == "fi":
+                    complete = True
+                    break
             gate = "\n".join(block)
-            if closed != 2:
+            if not complete:
                 failures.append(
                     f"{name} / {step_name}: split-debug-info 게이트 블록을 "
-                    "추출하지 못했다 (fi 2개 미만)"
+                    "추출하지 못했다 (임계값 if 미발견)"
                 )
                 continue
             for version, expect_ok, expect_flag in cases:
