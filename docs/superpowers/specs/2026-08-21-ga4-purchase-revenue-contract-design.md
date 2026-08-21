@@ -64,6 +64,12 @@ picnic-app 내 사본은 참고도 수정도 하지 않는다.**
 - currency/value 의 단일 권위 출처를 서버로 만든다.
 - 계약 확장이 기존 앱 버전을 깨지 않게 하는 배포 순서와 그 순서를 강제하는
   구체적 메커니즘을 정의한다.
+- **전송 불변식**: Picnic 의 검증·지급 완료 스토어 구매는 모두
+  revenue-bearing 이다. GA4 sink 로 실제 전달되는 모든 `purchase` 는 검증된
+  ISO 4217 `currency` 키를 반드시 가진다. 통화를 아직 확보하지 못하면 구매
+  지급/스토어 완료는 그대로 끝내되 GA4 이벤트만 durable `awaiting_currency`
+  상태로 보류하고 재시도한다. `value` 만 없으면 B-3 에 따라 `value` 키만
+  생략하고 `currency` 가 있는 이벤트는 전송한다.
 
 ### 비목표 / 범위 제외
 
@@ -80,8 +86,9 @@ picnic-app 내 사본은 참고도 수정도 하지 않는다.**
   이번 설계 범위에서 얻을 수 없다(§6.2 근거) — 정밀 지역 가격 카탈로그로
   금액까지 근사하는 방안은 후속 과제로 분리한다(§15). 다만 **"통화" 만은
   범위 안이다** — §6.2 가 정의하는 검증된 `regionCode` + Play 상품 지역별
-  통화 조회(및 클라이언트 storefront 폴백)는 이번 설계에 포함되며, 전건
-  보장이 아닌 비권위 best-effort 라는 한계를 §15 에 명시한다.
+  통화 조회(및 클라이언트 storefront 폴백)는 이번 설계에 포함된다. 이 두
+  소스가 모두 실패한 건은 완료로 세지 않고 앱 outbox 에서 durable defer/retry
+  한다. 즉 "best-effort 조회"일 수는 있어도 "best-effort 전송"은 아니다.
 - **구독(subscription) 상품 지원** — Antigravity 리뷰가 지적한
   `purchases.subscriptionsv2` 경로는 이 설계와 무관하다. `verifyGoogle`
   (`purchase-provider-verifiers.ts:470`)은 `purchases.products.get` **일회성
@@ -241,15 +248,63 @@ export interface VerifiedPurchase {
 이 컬럼들이 `provider_paid_amount_minor`/`provider_currency` 와 이름부터
 분리돼야 한다는 제약을 명시한다.
 
-### 5.4 "서버 권위"의 정확한 의미
+### 5.4 grant 원자 analytics snapshot 과 immutable replay
+
+analytics 값을 worker 가 정산 뒤 별도 `select` 로 쓰거나 읽는 설계는 채택하지
+않는다. `grant_verified_purchase` 가 지급 snapshot 을 insert 하는 **같은 DB
+트랜잭션**에서 다음 컬럼도 함께 insert 한다.
+
+- `analytics_currency text null`
+- `analytics_price_milliunits bigint null` (Apple 전용 원본 단위, §6.1)
+- `analytics_currency_source text null`
+
+마이그레이션은 `wallet_private.iso_4217_currency_codes(code text primary key)` 를
+현재 ISO 4217 코드로 seed 하고, grant 내부에서 uppercase 3자 모양과 lookup 을
+둘 다 통과한 통화만 snapshot 에 넣는다. 통화가 invalid/null 이면 지급을
+실패시키지 않고 analytics currency와 price를 둘 다 null 로 정규화한다(B-2).
+통화만 있고 price가 없으면 currency 는 보존한다(B-3). Apple/Google 의 기존
+`provider_paid_amount_minor`/`provider_currency` 및 QUANTITY 불변식은 전혀
+바꾸지 않는다.
+
+`prepare_purchase_attestation` → `attest_verified_purchase` →
+`grant_verified_purchase` 세 RPC 시그니처에 analytics 세 필드를 서로 다른 이름의
+인자로 추가하고 attestation seal 에도 포함한다. `grant_verified_purchase` 의
+신규 snapshot INSERT 컬럼은 기존 지급/영수증/프로모션 INSERT 와 같은 commit 에
+들어가므로 "지급은 저장됐지만 analytics snapshot 은 없음"인 중간 상태가 없다.
+기존 snapshot replay 분기는 analytics 컬럼을 **UPDATE/backfill 하지 않는다**.
+`BEFORE UPDATE OF analytics_currency, analytics_price_milliunits,
+analytics_currency_source` immutable trigger 도 `IS DISTINCT FROM OLD` 변경을
+거부한다. 최초 grant 에 기록된 null 포함 snapshot 이 모든 replay 의 정본이다.
+
+응답 복원은 direct table read 가 아니라 신규 least-privilege RPC 하나만 쓴다.
+
+```sql
+public.get_purchase_analytics_for_inbox(p_inbox_id uuid)
+returns table(currency text, value text, currency_source text)
+language sql stable security definer set search_path=''
+```
+
+이 함수는 `purchase_reward_snapshots.inbox_id = p_inbox_id` 한 행만 읽고,
+`analytics_price_milliunits` 를 BigInt 정수부/소수부 규칙으로 decimal string 으로
+바꾸며 snapshot 의 세 필드 외에는 반환하지 않는다. `PUBLIC`, `anon`,
+`authenticated` 에서 전부 revoke 하고 `service_role` 에만 execute 를 grant하며,
+소유자는 기존 command RPC 와 같은 `wallet_command_owner` 다. worker 의 service
+role Supabase client는 이 RPC 를 호출할 수 있지만 snapshot 테이블을 임의 조건으로
+읽지 않는다. `wallet-operation-worker` 단일-inbox handler 는 `processInbox`
+결과가 최초 grant든 `get_purchase_result_for_inbox` replay든 상관없이 마지막에
+이 RPC 를 같은 `inbox_id` 로 호출하므로 두 응답은 동일한 immutable snapshot 을
+복원한다.
+
+### 5.5 "서버 권위"의 정확한 의미
 
 서버 권위는 "서버 값이 있으면 항상 이긴다"는 뜻이지 "클라이언트 관찰값을
 전혀 쓰지 않는다"는 뜻이 아니다. 서버가 `null` 을 준 경우에만(즉 서버가
 이 거래에 대해 값을 제공하지 못한 경우에만) 기존 클라이언트 카탈로그
-관찰값이 최후 수단으로 남는다 — §7 에서 정확한 우선순위를 정의한다. 계약
-자체(키 모양·타입·null 규칙)는 Apple/Google 양쪽에 동일하게 적용된다.
-다른 것은 각 provider 가 이 계약을 얼마나 자주 채울 수 있는가이며, 그건
-§6 의 문제다.
+관찰값이 최후 수단으로 남는다 — §7 에서 정확한 우선순위를 정의한다. 둘 다
+없으면 매출 이벤트를 불완전한 채 보내지 않고 §7.2 의 outbox 상태 머신에
+보류한다. 계약 자체(키 모양·타입·null 규칙)는 Apple/Google 양쪽에 동일하게
+적용된다. 다른 것은 각 provider 가 이 계약을 얼마나 빨리 채울 수 있는가이며,
+그 차이가 전송 품질 차이로 번져서는 안 된다.
 
 ## 6. Google/Apple 검증값 출처와 nullable/실패 정책
 
@@ -391,18 +446,54 @@ Apple 값은 **provider 가 증언한 실제 결제액**이고, Google regionCod
   **A 와 B 가 둘 다 있는데 서로 다른 통화를 가리키면, A 를 채택하고 불일치를
   구조화 로그로 남긴다**(`regionCode`, A 값, B 값, `productId` — 알람이 아니라
   관측용 로그. 카탈로그 drift 나 클라이언트 구버전을 나중에 발견하기 위한
-  용도다). 어느 쪽도 없으면 `analyticsCurrency=null` — 오늘과 동일하게
-  currency/value 를 함께 생략한다.
+  용도다). 어느 쪽도 없으면 immutable snapshot 의
+  `analyticsCurrency=null` 이다. 서버 응답에는 currency/value 두 키가 모두
+  없고, 앱은 이를 완료로 보지 않고 §7.2 `awaiting_currency` 로 보류한다.
 
-  **§6.2-부칙 — 이 폴백은 "모든 Google 구매의 currency 보장"이 아니다.**
-  카탈로그가 그 지역을 안 다루거나, 구버전 클라이언트가 `client_observed_currency`
-  를 아직 안 보내거나, 둘 다 실패하면 여전히 `null` 이다. 이 문서는 그
-  간극을 메웠다고 주장하지 않는다 — **Google 구매 전건에 대한 currency
-  보장은 이번 설계로 해결되지 않은 채로 남고, "부분/최선 노력 커버리지를
-  받아들일지"는 대행사 확인이 필요한 별도 의사결정 게이트로 남긴다**(§15
-  한계 표, §10 이 이미 세운 "대행사 확인 대기 항목"과 같은 성격 — 코드를
-  먼저 배포하고 나중에 답을 받는 게 아니라, 이 간극 자체를 명시적으로
-  들고 대행사에 확인을 구한다).
+  **`client_observed_currency` 전체 전달 경로(누락 없이 고정)**:
+
+  1. `PurchaseService._verifyReceipt` 가 `PurchaseDetails.productID` 와 이미 로드된
+     `storeProductsProvider` 를 결합해 `ProductDetails.currencyCode` 를 읽고,
+     ISO 4217 allow-list 를 통과한 경우에만 Dart 의
+     `clientObservedCurrency` 로 만든다. 새 timestamp 매칭 저장소는 만들지
+     않는다. 이 시점에는 receipt/proof 와 product ID 가 함께 있으므로 값이
+     해당 queue 항목에 직접 결합된다.
+  2. `ReceiptVerificationService.verifyReceipt` → `_verifyiOSReceipt`/
+     `_verifyAndroidReceipt` → `ReceiptQueueService.enqueue` 에 같은 camelCase
+     인자를 넘긴다. queue JSON에는 wire 이름 그대로
+     `client_observed_currency` 로 저장한다. 기존 queue 항목에는 필드가 없어도
+     정상이며, 결정적 iOS queue key 를 재사용할 때 기존 값이 null이고 새 값이
+     있으면 mutex 안에서 한 번만 보강한다. 서로 다른 non-null 값이면 최초 값을
+     보존하고 conflict 로그를 남긴다.
+  3. foreground 의 `ReceiptFormatHelper.buildIOSRequestBody`/
+     `buildAndroidRequestBody` 와 recovery 의
+     `ReceiptQueueService.buildQueuedRequestBody` 가 모두 snake_case
+     `client_observed_currency` 를 emit 한다. `parser_capabilities` 도 세 builder
+     모두 `['purchase_revenue_v1']` 로 동일하게 emit 한다. 따라서 queue replay가
+     신규 필드를 잃지 않는다.
+  4. `verify_receipt/index.ts` 는 HTTP body 의 snake_case 값을 strict
+     `string | null` 로 읽어 uppercase/ISO 검증 후 내부 `IntakeEnvelope` 의
+     camelCase `clientObservedCurrency` 로 명시 매핑한다. 이 envelope 를
+     `wallet-provider-event` 에 전달한다.
+  5. `wallet-provider-event.validateEnvelope` 는
+     `body.clientObservedCurrency` 를 다시 검증해 반환 envelope 에 보존하고,
+     durable encrypted payload 에 함께 저장한다. `wallet-operation-worker` 의
+     `byteaJson` → `verifyPurchase` → `verifyGoogle` 은
+     `envelope.clientObservedCurrency` 를 읽는다.
+  6. `intakeIdentityHash` 는 오늘의 정확한 다섯 필드
+     `(provider, environment, providerTransactionId, userId, productId)`만
+     canonical hash 에 넣는다. `clientObservedCurrency`,
+     `parser_capabilities`, requestContext 는 포함하지 않는다. 앱 업데이트나
+     queue replay에서 보조 정보가 달라져도 동일 구매가 payload conflict 로
+     바뀌지 않는다.
+
+  **§6.2-부칙 — 조회 실패는 전송 완료가 아니다.** 카탈로그가 그 지역을
+  안 다루거나, 구버전 클라이언트가 `client_observed_currency` 를 아직 안
+  보내거나, 둘 다 실패하면 snapshot 의 currency 는 `null` 일 수 있다.
+  이때 지급은 완료하지만 GA4 `purchase` 는 §7.2 의 `awaiting_currency` 로
+  영속 보류한다. 앱이 이후 카탈로그를 다시 확보하면 같은 transaction/op
+  alias 의 pending 항목을 원자 보강하고 전송한다. 따라서 소스 획득률은
+  best-effort 여도 **실제 전송 계약은 전건 ISO 4217 currency 필수**다.
 - **후속 과제(이번 범위 밖, §15)**: 위 폴백으로도 못 메우는 지역(카탈로그
   미커버)까지 억지로 채우려는 정밀 지역 가격 근사(예: 통화만이 아니라 실제
   근사 가격까지 추정)는 별도 설계로 분리한다 — 데이터 정확성 리스크
@@ -415,9 +506,9 @@ Apple 값은 **provider 가 증언한 실제 결제액**이고, Google regionCod
 | 상황 | 정책 |
 |---|---|
 | Apple JWS 에 `price`/`currency` 없음 또는 타입 불일치 | `null` 로 폴백, 검증/지급 계속 진행 |
-| Google 응답에 가격 필드 없음(항상 그렇다) | `null` 유지, 검증/지급 계속 진행 — 오늘과 동일 |
+| Google 응답에 가격 필드 없음(항상 그렇다) | `value=null` 유지, 검증/지급 계속 진행. currency 는 A/B 소스로 확보하고 둘 다 실패하면 GA4 만 durable 보류 |
 | currency/value 추출 코드 자체가 예외를 던짐(방어 코드 버그) | 해당 필드만 `null` 로 잡아먹고 로그, 정산 트랜잭션을 실패시키지 않음 |
-| `currency` 는 없는데 `value`(또는 milliunits 가격)만 있음 | **둘 다 `null` 로 낮춰서 생략** — `value` 만 보내면 GA4 가 `currency` 를 ISO 4217 위반으로 판정해 해당 purchase 의 매출 전체를 무시한다(`ga4-event-taxonomy.md` §4-8, `agency-reply.html` B-2) |
+| `currency` 는 없는데 `value`(또는 milliunits 가격)만 있음 | 서버 응답 계층에서는 **두 키 모두 부재**로 정규화하고, 앱 outbox 계층에서는 candidate value 를 GA4 payload 밖 enrichment metadata 에만 보존한 채 이벤트 전체를 `awaiting_currency` 로 보류한다. sink 호출은 0회다(B-2) |
 | `currency` 는 있는데 `value` 만 없음(예: Google 폴백으로 통화만 구했고 금액은 없음) | **`currency` 는 그대로 보내고 `value` 만 생략** — `value` 는 Number 파라미터라 결측 시 그 파라미터만 생략하는 것이 규칙이고(`ga4-event-taxonomy.md` §4-8 행6, `agency-reply.html` B-3), `currency` 를 억지로 같이 지울 근거가 없다 |
 
 이 표의 마지막 두 행은 **비대칭 규칙**이다 — 대칭("둘 중 하나라도 없으면
@@ -457,19 +548,74 @@ Google 폴백(§6.2)이 통화만 구하고 금액은 못 구한 정상 케이�
    함께** 쓴다(오늘의 동작, 변경 없음). 이 경로는 서버 계약이 아직 이
    필드를 안 보내는 구버전 `contract_version` 이나, Google 폴백조차
    실패한 경우를 모두 자연스럽게 커버한다 — 별도 분기가 필요 없다.
-3. **둘 다 없음** — 기존과 동일하게 `currency`/`value` 를 함께 생략하고,
-   거래·지급 사실은 그대로 durable 하게 outbox 에 남긴다.
+3. **둘 다 없음** — 거래·지급 사실과 candidate `value` 는 durable outbox 에
+   남기되 상태를 `awaiting_currency` 로 둔다. 이 상태는 sink 대상이 아니며
+   ISO 4217 통화를 확보할 때까지 §7.2 재시도를 탄다.
 
-이 우선순위가 §4 의 문제를 정확히 푸는 지점은 2번과 3번 사이다: 오늘은
-카탈로그가 없으면 바로 3번(둘 다 생략)으로 떨어지지만, 서버가 값을 채워
-보내는 순간부터는 카탈로그 부재와 무관하게 1번에서 끝난다 — **복구 구매의
-매출 유실이 카탈로그 가용성에 더 이상 의존하지 않는다.**
+이 우선순위가 §4 의 문제를 푸는 지점은 2번과 3번 사이다. 오늘은 카탈로그가
+없으면 currency 없는 purchase 를 보내지만, 변경 뒤에는 서버가 값을 채우면
+1번에서 끝나고 그렇지 못하면 3번에서 전송을 보류한다. **카탈로그 부재가
+불완전한 매출 이벤트 전송으로 이어지지 않는다.**
 
-변경 지점은 `purchase_service.dart` 의 `_sendPurchaseAnalytics` 딱 한 곳이다
-(현재 1014~1015행의 `currency: productDetails?.currencyCode` /
-`value: productDetails?.rawPrice` 를 위 우선순위로 교체). `AnalyticsService.logPurchasePayload`
-자체는 이미 nullable `currency`/`value` 를 받는 인터페이스이므로 시그니처
-변경이 없다.
+### 7.2 앱 outbox 의 durable defer/retry 상태 머신
+
+기존 `AnalyticsOutbox` 는 `analytics_ga4_outbox_v1` 한 JSON envelope 안의
+`pending`/`delivered` 를 storage-key 전역 mutex 로 read-modify-write 하고,
+purchase 를 365일 보존하며 sink 실패를 30초 뒤 다시 시도한다. 이 구조를
+버리지 않고 storage version 을 2로 올려 pending purchase 에 다음 메타데이터를
+추가한다.
+
+| 필드 | 값/역할 |
+|---|---|
+| `delivery_state` | `ready` 또는 `awaiting_currency`. v1 에서 읽은 항목은 currency 가 유효하면 `ready`, 아니면 `awaiting_currency` 로 마이그레이션 |
+| `store_product_id` | 카탈로그 재조회 키. GA4 `item_id` 정규화 전 실제 store product ID |
+| `candidate_value` | currency 없이 먼저 얻은 금액. `payload.value` 에 넣지 않고 metadata 에만 둠 |
+| `currency_attempts` / `currency_next_at` | 재시도 횟수와 다음 시각. 30초부터 지수 백오프, 5분 상한 |
+| `last_currency_error` | `catalog_unavailable`, `product_missing`, `invalid_iso4217`, `resolver_timeout` 중 하나. 원문 예외/영수증은 저장하지 않음 |
+
+`AnalyticsOutbox.enqueueOrMergePurchase` 를 새 진입점으로 만든다. 기존 tx/op
+alias 중 하나라도 겹치면 새 항목을 만들지 않고 같은 mutex 안에서 기존 pending
+항목의 빈 currency/value 만 보강한다. 이미 delivered 면 no-op 이다. currency 는
+서버 snapshot → 현재 요청의 `clientObservedCurrency` → 카탈로그 resolver 순서로
+고르고, vendored ISO 4217 allow-list 를 통과한 값만 `payload.currency` 에 넣는다.
+currency 가 없으면 value 를 `candidate_value` 로 옮기고 `payload` 에서 currency/
+value 두 키를 모두 제거한다. currency 만 있으면 즉시 `ready` 이며 value 키는
+없다(B-3).
+
+`flush()` 는 기존 ready 항목을 그대로 보낸다. `awaiting_currency` 는 주입된
+`PurchaseCurrencyResolver.resolve(storeProductId)` 를 timeout 안에서 한 번 호출해
+성공하면 pending 항목을 원자 보강한 뒤 같은 drain 에서 보낸다. 실패하면 횟수와
+`next_at` 을 저장하고 기존 retry timer, 앱 시작/재개 flush 에서 다시 시도한다.
+`_dispatch` 직전에도 currency allow-list 를 다시 검사하여 없거나 invalid 면
+sink 를 호출하지 않고 `awaiting_currency` 로 되돌린다(최종 방어선).
+
+종료 정책은 기존 `purchasePendingMaxAge` 365일을 유지하되 조용히 버리지 않는다.
+만료 항목은 payload/영수증 없이 id, aliases, attempts, reason, expired_at 만 담은
+bounded `dead_letter` 요약으로 옮기고 error 로그와 카운터
+`ga4_purchase_currency_dead_letter_total` 을 남긴다. **만료 뒤에도 currency 없는
+purchase 를 보내는 폴백은 없다.** pending 상한 거부, resolver 실패/회복,
+awaiting 건수·최고 age, dead-letter 전환을 구조화 로그/카운터로 관측한다.
+
+### 7.3 영수증 큐에서 analytics outbox 로의 durable hand-off
+
+현재 `ReceiptQueueService` 는 200 wallet.v1 응답이면 즉시 항목을 제거하므로,
+그 뒤 outbox 저장이 실패하고 스토어가 consume 되면 복구 재료가 사라진다.
+이를 다음처럼 고친다.
+
+1. `verifyReceipt` 가 queue 의 `client_trace_id` 를 wire 모델이 아닌 로컬 metadata
+   로 settlement 에 붙이고, iOS/Android 성공 경로의 선제 `removeByClientTraceId`
+   를 제거한다.
+2. `PurchaseService._sendPurchaseAnalytics` 가 `enqueueOrMergePurchase` 의 durable
+   저장 성공(`ready` 또는 `awaiting_currency`)을 확인한 뒤에만 queue 항목을
+   제거한다. 저장 실패면 지급/스토어 완료는 막지 않되 queue 를 남긴다.
+3. 부팅 queue flush 는 200 응답을 `PurchaseSettlementResultModel` 로 파싱해
+   주입 callback `onSettlementRecovered` 로 outbox 에 먼저 upsert 한다. callback
+   부재/파싱/저장 실패면 queue 를 제거하지 않고 기존 2초 지수 백오프(5분 상한)를
+   적용한다. outbox 저장이 확인된 경우에만 queue 를 제거한다.
+
+이 hand-off 로 receipt queue 는 "서버 정산 응답 확보"까지, analytics outbox 는
+"ISO currency 확보와 GA4 sink 성공"까지 각각 소유한다. 지급은 어느 쪽 실패에도
+롤백하지 않는다.
 
 ## 8. 앱 forward-compatible 파서
 
@@ -630,7 +776,8 @@ string[]` 를 추가한다(예: `["purchase_revenue_v1"]`). §8 의 새 파서�
 보낸다 — build number 가 아니라 **파서 코드 자체가 스스로 아는 사실**이므로
 OTA 로 조용히 패치된 기기도 정확히 반영된다.
 
-**2) 서버: 이 요청 전용 파라미터로만 전달한다 — durable 저장하지 않는다.**
+**2) 서버: 이 요청 전용 파라미터로만 전달한다 — 서버 inbox에는 durable
+저장하지 않는다.**
 `verify_receipt/index.ts` 핸들러가 이 요청의 `parser_capabilities` 를 읽어,
 **단일 인박스 처리 호출(`{ inbox_id }`)에만** 얹어 보낸다:
 `invoke(serviceKey, "wallet-operation-worker", { inbox_id: received.inbox_id,
@@ -643,22 +790,28 @@ parser_capabilities: parserCapabilities })`. 이 값은 `envelope`/`requestConte
 '* * * * *', ...)`)는 이 필드를 **애초에 가질 수 없다** — 뒤에서 보듯
 이건 문제가 되지 않는다.
 
-**3) 서버: 응답 직전, 딱 한 곳에서 include/strip 한다.** `wallet-operation-worker`
-는 `grant_verified_purchase`/`get_purchase_result_for_inbox` 가 돌려준 7키
-결과에, `parser_capabilities` 가 `"purchase_revenue_v1"` 을 포함할 때만
-`purchase_reward_snapshots`(`inbox_id` 로 조회)의 `analytics_currency`/
-`analytics_price_milliunits`(§5.3)를 추가로 한 번 조회해 `currency`/
-`value`(§6.1 의 milliunits→decimal 변환 적용)를 병합한다. **`wallet_purchase_result`
-SQL 타입/`build_purchase_result` 자체는 건드리지 않는다** — 여전히 정확히
-7키를 반환한다. capability 인지는 edge function(TypeScript) 레이어 하나에만
-있고, SQL 레이어는 "누가 요청했는지"를 몰라도 된다. `verify_receipt` 의
-마지막 `return response(worker);` 직전이 실제 strip 지점이다:
+**3) 서버: 원자 snapshot 을 inbox 전용 RPC로 복원하고 응답 직전 include/strip
+한다.** `wallet-operation-worker` 는 `grant_verified_purchase`/
+`get_purchase_result_for_inbox` 가 돌려준 7키 결과 뒤에
+`get_purchase_analytics_for_inbox(inbox_id)`를 호출한다. direct table select 는
+금지한다. 최초 처리와 replay 모두 §5.4 의 같은 immutable snapshot 을 읽는다.
+`wallet_purchase_result` SQL 타입/`build_purchase_result` 자체는 건드리지 않아
+여전히 정확히 7키다. snapshot 에 ISO currency 가 있으면 `currency` 를 넣고,
+value decimal 이 있으면 그때만 `value` 를 넣는다. currency 없이 value 만
+있다는 방어적 결과는 둘 다 key absence 로 낮춘다. capability 인지는 edge
+function(TypeScript) 레이어 하나에만 있고, SQL 레이어는 누가 요청했는지
+모른다. `verify_receipt` 의 마지막 `return response(worker);` 직전이 실제
+strip 지점이다:
 
 ```ts
-function shapeForCapabilities(worker: Record<string, unknown>, capabilities: unknown): Record<string, unknown> {
+function shapeForCapabilities(worker: Record<string, unknown>, capabilities: unknown, flagEnabled: boolean): Record<string, unknown> {
   const allowed = Array.isArray(capabilities) && capabilities.every(c => typeof c === "string")
-    && capabilities.includes("purchase_revenue_v1");
-  if (allowed) return worker; // currency/value 는 wallet-operation-worker 가 이미 채워 넣었다
+    && capabilities.includes("purchase_revenue_v1") && flagEnabled;
+  if (allowed && isIso4217(worker.currency)) {
+    return worker.value == null
+      ? omitKey(worker, "value")             // B-3: currency-only
+      : worker;                              // currency + value
+  }
   const { currency, value, ...rest } = worker; // 명시적 capability 없으면 무조건 7키
   return rest;
 }
@@ -699,15 +852,24 @@ function shapeForCapabilities(worker: Record<string, unknown>, capabilities: unk
 요청이 뭐라고 말하는가"만 본다** — §9.3 이 지적한 "최초 requestContext
 replay" 문제가 구조적으로 재발할 수 없다.
 
-**5) 롤백 — 기존 wallet runtime flag 를 재사용한다.** 이 코드베이스에는
+**5) 롤백 — service_role 이 실제 호출 가능한 exact-key RPC를 쓴다.** 이 코드베이스에는
 이미 즉시 킬스위치 패턴이 있다: `public.set_wallet_runtime_flag`(service_role
 전용, `20260721095500_wallet_core_release_gates.sql:128`)로 쓰고
 `wallet_private.cotton_runtime_flag_enabled('flag.key')` 로 읽는 플래그가
 `wallet.star_projection_check_enabled`/`wallet.cotton_expiry_enabled` 등에
 이미 쓰이고 있다(`20260730170000_wallet_star_projection_gate_and_alert_dispatch.sql`).
-같은 패턴으로 `wallet.purchase_revenue_fields_enabled` 플래그를 하나
-추가한다 — `wallet-operation-worker` 의 include 판단은
-`parser_capabilities 포함 && 플래그 활성` 일 때만 참이 된다. 클라이언트가
+같은 테이블에 `wallet.purchase_revenue_fields_enabled` 플래그를 하나 추가한다.
+다만 Edge Function 의 Supabase client가 PostgREST 를 통해
+`wallet_private.cotton_runtime_flag_enabled` 를 직접 부를 수 있다고 가정하지
+않는다. 신규 `public.purchase_revenue_fields_enabled()`를 `stable security
+definer set search_path=''`, owner `wallet_command_owner` 로 만들고 정확히 그
+키만 읽게 한다. 값이 없거나 `jsonb_typeof(value_json) <> 'boolean'` 이면 false다.
+`PUBLIC`/`anon`/`authenticated` 실행 권한은 revoke 하고 `service_role` 에만
+execute 를 grant한다. 현재 migration 이 service_role 에
+`wallet_runtime_flags` SELECT 와 `set_wallet_runtime_flag(...)` EXECUTE 를 이미
+부여한 사실과 양립하지만, worker read 는 넓은 direct SELECT 에 의존하지 않는다.
+`wallet-operation-worker` 의 include 판단은 이 exact-key RPC 결과와
+`parser_capabilities` 가 둘 다 참일 때만 참이다. 클라이언트가
 capability 를 올바르게 보내더라도, 배포 후 currency/value 계산에 문제가
 발견되면 **재배포 없이 플래그 하나로 즉시 전면 차단**할 수 있다 — 이
 설계가 실제로 갖는 유일한 "배포 실행" 성격의 레버이므로 §3 비목표의
@@ -754,22 +916,22 @@ capability 를 올바르게 보내더라도, 배포 후 currency/value 계산에
 |---|---|---|
 | 서버 · Apple 검증 | JWS 에 `price`/`currency` 없음/타입 불일치 | 필드만 `null`, 검증·정산 계속(§6.1) |
 | 서버 · Google 검증 | 애초에 provider 가 값을 안 줌 | 오늘과 동일하게 `null` 유지, 회귀 아님(§6.2) |
-| 서버 · Google 폴백 조회 | 지역별 가격 카탈로그에 그 `regionCode` 없음/API 오류 | `analyticsCurrency` 를 클라이언트 storefront 폴백으로 낮추거나 `null`, 정산은 계속 진행(§6.2) — 조회 실패가 정산을 막지 않는다 |
+| 서버 · Google 폴백 조회 | 지역별 가격 카탈로그에 그 `regionCode` 없음/API 오류 | `analyticsCurrency` 를 클라이언트 storefront 폴백으로 낮추거나 snapshot 에 `null`, 정산은 계속. 앱은 null 응답을 완료로 보지 않고 GA4 만 `awaiting_currency` 로 보류 |
 | 서버 · 응답 조립 | `parser_capabilities` 누락/배열 아님/알려진 값 미포함(오형식 포함) | fail-closed — `currency`/`value` 생략, 기존 7키 계약으로 응답(§9.4) |
 | 서버 · 응답 조립 | `wallet.purchase_revenue_fields_enabled` 런타임 플래그 꺼짐 | capability 와 무관하게 `currency`/`value` 생략(§9.4-5, 즉시 롤백 레버) |
-| 서버 · 응답 조립 | `currency` 없는데 `value`(또는 milliunits 가격)만 있음 | 둘 다 `null` 로 낮춰서 응답(§6.3, B-2) — ISO 4217 위반으로 GA4 가 매출 전체를 버리는 사고를 원천 차단 |
-| 서버 · 응답 조립 | `currency` 는 있는데 `value` 만 없음(Google 폴백이 통화만 구한 정상 케이스) | `currency` 만 응답에 포함, `value` 는 생략(§6.3, B-3) — 이전 초안처럼 `currency` 까지 같이 지우지 않는다 |
+| 서버 · 응답 조립 | `currency` 없는데 `value`(또는 milliunits 가격)만 있음 | 응답 JSON 에 `currency`/`value` **두 키 모두 부재**(B-2). 앱은 outbox 이벤트 전체를 보류하며 sink 호출 0회 |
+| 서버 · 응답 조립 | `currency` 는 있는데 `value` 만 없음(Google 폴백이 통화만 구한 정상 케이스) | 응답 JSON 에 `currency` 키 보존, `value` 키 부재(B-3). 앱 outbox 는 ready 로 전송 |
 | 클라이언트 · 파서 | 새 헬퍼 배포 전, 서버가 실수로 새 키를 먼저 보냄 | 여전히 `FormatException`(`requireExactContractKeys` 미변경) — §9 순서를 어기면 기존과 동일하게 시끄럽게 실패한다. 이건 의도된 동작이다: 조용히 매출을 잃는 것보다 낫다 |
 | 클라이언트 · 파서 | 새 헬퍼 배포 후, 계약에 없는 제3의 키가 섞여 옴 | 여전히 `FormatException` — drift 감지 유지(§8.2) |
-| 클라이언트 · analytics 우선순위 | 서버 값도 카탈로그 값도 없음 | `currency`/`value` 함께 생략, 거래·지급 payload 는 그대로 outbox 에 durable 저장(§7-3, 기존 동작) |
+| 클라이언트 · analytics 우선순위 | 서버 값도 카탈로그 값도 없음 | payload 에 currency/value 키를 넣지 않고 outbox `awaiting_currency` 로 durable 저장. resolver/backoff 재시도, sink 호출 금지(§7.2) |
+| 클라이언트 · outbox 종료 | 365일 동안 ISO currency 미확보 | 전송하지 않고 bounded dead-letter 요약으로 전환, error metric/최고 age 관측. currency 없는 전송으로 강등하지 않음 |
 | 클라이언트 · analytics 전송 | `logPurchasePayload` 호출 자체가 실패/타임아웃 | 이 설계로 바뀌지 않는다 — 기존 outbox/dedup/재시도 정책(taxonomy 문서 §6) 그대로 적용 |
 
-공통 원칙 하나로 위 표 전체를 요약할 수 있다: **currency/value 획득·전달
-경로의 실패는 항상 "그 필드를 생략한다"로 흡수되고, 절대 "지급을
-거부한다" 또는 "정산을 실패시킨다"로 번지지 않는다.** 이는 새로 만드는
-원칙이 아니라 §4 문제 자체가 이미 증명하고 있는 이 코드베이스의 기존
-설계 철학 — "숫자를 지어내지 않고 거래 사실부터 durable 하게 남긴다" —
-을 currency/value 소스가 서버로 바뀐 뒤에도 유지하는 것이다.
+공통 원칙: currency/value 획득 실패는 지급을 거부하거나 정산을 실패시키지
+않는다. 하지만 revenue-bearing `purchase` 의 currency 실패를 "필드만 생략한
+전송 성공"으로 흡수해서도 안 된다. 거래 사실은 durable 하게 남기되 GA4
+전송은 보류한다. `value` 만 결측인 경우만 B-3 에 따라 해당 키를 생략하고
+currency-bearing 이벤트를 전송한다.
 
 ## 12. 두 레포 파일 목록
 
@@ -778,14 +940,20 @@ capability 를 올바르게 보내더라도, 배포 후 currency/value 계산에
 | 파일 | 변경 내용 |
 |---|---|
 | `lib/data/models/wallet/wallet_amount.dart` | `requireContractKeys(required:, optional:)` 헬퍼 추가. `requireExactContractKeys` 는 수정하지 않음 |
-| `lib/data/models/purchase/purchase_settlement_result.dart` | `purchaseSettlementOptionalKeys` 추가, `parseCanonicalPurchaseSettlement` 가 새 헬퍼 사용, 모델에 `currency`/`value` nullable 필드 추가, 소수 문자열 컨버터 추가 |
-| `lib/core/services/purchase_service.dart` | `_sendPurchaseAnalytics` 의 currency/value 결정 로직을 §7 우선순위로 교체 |
-| `lib/presentation/widgets/vote/store/purchase/analytics_service.dart` | 시그니처 변경 없음. 상단 문서 주석 중 "카탈로그가 없으면 생략" 서술을 §7 의 비대칭 우선순위에 맞게 갱신 |
-| `lib/core/services/receipt_format_helper.dart` | `buildIOSRequestBody`/`buildAndroidRequestBody`(185행, 204행)에 `parser_capabilities: ['purchase_revenue_v1']` 를 양쪽 다 추가. `buildAndroidRequestBody` 에는 `client_observed_currency`(§6.2 출처 B)를 `ProductDetails.oneTimePurchaseOfferDetails.priceCurrencyCode` 에서 채워 추가 |
-| `lib/core/services/receipt_verification_service.dart` (및 `presentation/widgets/vote/store/purchase/` 사본) | **확인 필요, 이 문서에서 확정하지 않음**: 이 두 함수가 만드는 요청 본문에는 오늘 `app_build`/`app_version`/`cohort_version` 가 없는데도 서버(`wallet-provider-event/index.ts:39`)는 이 값이 정수가 아니면 요청을 거부한다 — 즉 이 세 필드는 `_requestBodyFor` 반환 이후, HTTP 전송 전 어딘가(다른 인터셉터/공통 레이어)에서 병합되고 있다. `parser_capabilities`/`client_observed_currency` 는 **그 병합 지점과 같은 곳**에 추가해야 한다 — `receipt_format_helper.dart` 단독 수정만으로는 실제 전송 경로를 놓칠 수 있으므로, 구현 착수 시 그 병합 지점을 먼저 찾아 확인한다 |
+| `lib/data/models/purchase/purchase_settlement_result.dart` | optional `currency`/`value`와 decimal-string converter 추가. 로컬-only `receiptQueueClientTraceId`를 `includeFromJson:false/includeToJson:false`로 추가해 outbox 저장 뒤 queue 제거를 가능하게 함 |
+| `lib/core/analytics/analytics_outbox.dart` | storage v2 마이그레이션, `ready`/`awaiting_currency`, candidate value·retry metadata·dead-letter, `enqueueOrMergePurchase`, resolver 호출, sink 직전 ISO gate 구현. 기존 tx/op alias dedup·mutex·purchase 365일 정책 유지 |
+| `lib/core/analytics/iso_4217_currency.dart` (신규) | vendored ISO 4217 allow-list와 uppercase 정규화/검증. server snapshot·store currency 모두 이 gate 통과 후에만 GA4 payload에 진입 |
+| `lib/core/services/purchase_service.dart` | `_verifyReceipt` 에서 cached ProductDetails currency를 생성해 검증 서비스로 전달. `_sendPurchaseAnalytics` 는 서버 → client-observed → 카탈로그 우선순위로 `enqueueOrMergePurchase` 하고 durable 성공 뒤 `receiptQueueClientTraceId` 제거 |
+| `lib/presentation/widgets/vote/store/purchase/analytics_service.dart` | `logPurchasePayload`가 outbox durable 결과(`ready`/`deferred`/`failed`)를 반환하도록 변경하고, currency 없는 purchase 를 direct legacy sink 로도 보내지 않음 |
+| `lib/core/services/receipt_format_helper.dart` | iOS/Android foreground builder 모두 `parser_capabilities`와 snake_case `client_observed_currency` emit |
+| `lib/core/services/receipt_verification_service.dart` | `clientObservedCurrency`를 enqueue/request 전 경로로 전달, 성공 시 queue 선제 제거 금지, settlement에 local queue key 부착 |
+| `lib/core/services/receipt_queue_service.dart` | queue JSON에 `client_observed_currency` 저장·재사용 시 null→값 보강, queued body에 신규 두 필드 복원, 200 응답을 `onSettlementRecovered` callback으로 outbox에 durable hand-off한 뒤에만 제거 |
+| `lib/presentation/widgets/vote/store/purchase/receipt_verification_service.dart` | 프로덕션 호출 사본이 유지되는 동안 core와 동일한 capability/currency 파라미터 매핑을 적용하거나 호출을 core 서비스로 단일화. 둘 중 하나를 TDD 첫 task에서 결정해 중복 drift를 막음 |
 | `test/data/models/purchase/purchase_settlement_result_test.dart` | §13 신규 케이스 |
 | `test/core/services/purchase_service_logic_test.dart` | §13 신규 케이스 |
 | `test/presentation/widgets/vote/store/purchase/purchase_revenue_analytics_test.dart` | §13 신규 케이스(기존 431행 "카탈로그가 비어도..." 테스트와 대칭되는 케이스 추가, §7 비대칭 우선순위 케이스 추가) |
+| `test/core/analytics/analytics_outbox_test.dart` | v1→v2, awaiting retry/backoff, value-only sink 금지, currency-only 전송, alias merge, dead-letter 관측 케이스 |
+| `test/core/services/receipt_queue_service_test.dart` | queue 신규 필드 round-trip, recovery callback durable hand-off 이전 제거 금지 케이스 |
 
 이 설계로 변경하지 않는 파일(확인됨, 참고용):
 `lib/presentation/widgets/vote/store/purchase/purchase_settlement_step.dart`
@@ -805,9 +973,10 @@ capability 를 올바르게 보내더라도, 배포 후 currency/value 계산에
 | 파일 | 변경 내용 |
 |---|---|
 | `supabase/functions/_shared/wallet/purchase-provider-verifiers.ts` | `VerifiedPurchase`(24행)에 `analyticsPriceMilliunits`/`analyticsCurrency`/`analyticsCurrencySource` 추가(§5.3). `verifyApple`: `payload.price`/`payload.currency` 읽어 이 신규 필드만 채움 — **360~361행의 `providerPaidAmountMinor: null, providerCurrency: null` 은 그대로 둔다**(대체가 아니라 추가). `verifyGoogle`: `providerPaidAmountMinor`/`providerCurrency` 는 494~495행 그대로 유지(변경 없음, §6.2). `analyticsCurrency` 만 새 헬퍼(§6.2 출처 A: regionCode + Play 상품 지역별 가격 카탈로그 조회, 출처 B: `envelope` 에 실려온 `client_observed_currency`)로 채운다 — 이 조회 실패는 예외를 던지지 않고 `null` 로 흡수(§6.3) |
-| `supabase/functions/_shared/wallet/purchase-provider-verifiers.ts` (동일 파일, `IntakeEnvelope`) | `IntakeEnvelope`(4행)에 `clientObservedCurrency?: string`(§6.2 출처 B) 추가. **`intakeIdentityHash` 입력 5개 필드에는 넣지 않는다**(§9.3 이 기록한 함정 반복 금지) |
-| `supabase/functions/wallet-operation-worker/index.ts` | `processInbox` 의 RPC 인자(343~399행)는 변경 없음(`providerPaidAmountMinor`/`providerCurrency` 는 오늘처럼 QUANTITY 구매에 `null`). `handler`(729행)의 단일 인박스 분기(767~771행)가 요청 본문의 `parser_capabilities` 를 읽어 처리 결과에 병합하는 단계 추가: capability 포함 **and** `wallet.purchase_revenue_fields_enabled` 런타임 플래그 활성일 때만 `purchase_reward_snapshots`(inbox_id 로 조회)의 `analytics_currency`/`analytics_price_milliunits` 를 추가 조회해 §6.1 의 milliunits→decimal 변환 후 `currency`/`value` 로 병합(§9.4-3). 크론 배치 분기(`{"limit":50}`, `inbox_id` 없음)는 `parser_capabilities` 자체가 없으므로 항상 병합 생략 — 그 결과가 클라이언트에 노출되지 않으므로 무해(§9.4-4) |
-| `supabase/functions/verify_receipt/index.ts` | **로직 변경 있음** — 이전 초안의 "pass-through, 변경 없음"은 틀렸다. (1) 요청 본문에서 `parser_capabilities` 를 읽어 검증(배열·문자열 원소인지만, 값 자체는 그대로 통과 — 알려지지 않은 값은 뒤에서 무시됨)하고 `wallet-operation-worker` 단일 인박스 호출에 `{ inbox_id, parser_capabilities }` 로 실어 보낸다(83행 대체, §9.4-2). (2) `return response(worker);` 직전에 `shapeForCapabilities(worker, parserCapabilities)` 로 fail-closed strip 적용(§9.4-3). 87~96행의 "정확히 7키" 주석은 "capability 없으면 정확히 7키, 있으면 최대 9키"로 갱신 |
+| `supabase/functions/_shared/wallet/purchase-provider-verifiers.ts` (동일 파일, `IntakeEnvelope`) | `clientObservedCurrency?: string` 추가. Google verifier가 region catalog 다음 순위로 읽음 |
+| `supabase/functions/wallet-provider-event/index.ts` | `validateEnvelope`가 camelCase 내부 필드를 검증·durable payload에 보존. `intakeIdentityHash`의 기존 다섯 필드는 byte-for-byte 유지하고 신규 필드 제외 |
+| `supabase/functions/wallet-operation-worker/index.ts` | prepare/attest/grant RPC에 분리된 analytics 인자 전달. 단일 inbox 응답은 direct select 없이 `get_purchase_analytics_for_inbox`와 exact-key flag RPC를 호출해 snapshot 복원. 크론 batch 응답은 기존대로 7키 |
+| `supabase/functions/verify_receipt/index.ts` | snake_case `client_observed_currency`→camelCase envelope 매핑, 현재 요청 `parser_capabilities`만 worker에 전달, 응답 직전 B-2/B-3 key-absence shape 적용 |
 | `supabase/functions/tests/wallet/apple-verifier.test.ts` | §13 신규 케이스 — **특히 "JWS 에 price/currency 있어도 `providerPaidAmountMinor`/`providerCurrency` 는 여전히 null" 회귀 테스트**(§5.3 불변식 보호) |
 | `supabase/functions/tests/wallet/apple-jws-fixture.ts` | `price`/`currency` 를 포함한 서명된 JWS 픽스처 추가(및 없는 버전과의 비교용 픽스처) |
 | `supabase/functions/tests/wallet/google-verifier.test.ts` | §13 신규 케이스(§6.2 출처 A/B 우선순위, 불일치 로깅, 조회 실패 시 정산 계속) — 기존 파일이 없다면 신설 |
@@ -819,12 +988,16 @@ DB 스키마 변경 대상(정확한 마이그레이션 작성은 §3 비목표�
 영향받는 대상만 명시):
 
 - `public.purchase_reward_snapshots` 에 `analytics_currency text`,
-  `analytics_price_milliunits bigint` 신규 컬럼(§5.3) — **`provider_currency`/
+  `analytics_price_milliunits bigint`, `analytics_currency_source text` 신규 컬럼(§5.4) — **`provider_currency`/
   `provider_paid_amount_minor` 와는 별개 컬럼**, 기존 QUANTITY 불변식
   (`grant_verified_purchase`, §5.3)은 전혀 건드리지 않는다.
+- 신규 migration `20260821190000_purchase_analytics_snapshot.sql`에서 ISO lookup,
+  세 컬럼, immutable trigger, prepare/attest/grant 확장, inbox-only read RPC,
+  exact-key flag read RPC와 모든 owner/revoke/grant를 한 번에 선언한다.
 - `wallet.purchase_revenue_fields_enabled` 런타임 플래그 시드(§9.4-5) —
   `20260721095500_wallet_core_release_gates.sql`/`20260730170000_..._gate_and_alert_dispatch.sql`
   이 이미 쓰는 것과 같은 패턴(`set_wallet_runtime_flag`/`cotton_runtime_flag_enabled`).
+  read 는 `public.purchase_revenue_fields_enabled()` exact-key RPC로만 수행한다.
   **`public.wallet_purchase_result` 타입 자체(7키)는 바꾸지 않는다** —
   §9.4-3 이 그 이유를 설명한다(capability 인지는 edge function 레이어에만
   있어야 SQL 레이어가 단순하게 유지된다).
@@ -850,16 +1023,17 @@ RED 를 먼저 쓰고, 그 RED 가 위 설계대로 구현했을 때만 GREEN �
    - 7키 + `currency`/`value` 모두 있는 JSON → 파싱 성공, 필드에 그대로 반영.
    - 7키만 있고 `currency`/`value` 없는 JSON(오늘 프로덕션이 실제로 보내는
      모양) → 파싱 성공, 두 필드는 `null`(하위 호환 회귀 테스트).
-   - `currency` 만 있고 `value` 없는 비대칭 JSON → 파싱 자체는 성공(파서는
-     독립적으로 허용 — GA4 발송 시 함께 생략하는 판단은 analytics 계층
-     책임, §6.3).
+   - `currency` 만 있고 `value` 없는 비대칭 JSON → 파싱 성공, currency 보존,
+     value null(B-3). analytics/outbox 계층에서는 currency key present,
+     value key absence 로 전송한다.
+   - `value` 만 있고 `currency` 없는 JSON → 파싱은 forward-compatible 하게
+     성공할 수 있으나 값은 candidate 로만 취급한다. 서버 shape 통합 테스트는
+     애초에 두 키 모두 absent 여야 하고, 앱 outbox 테스트는 sink 0회와
+     `awaiting_currency` 를 검증한다(B-2).
    - 계약에 없는 제3의 키(`foo`)가 섞인 JSON → 여전히 `FormatException`
      (drift 감지 유지 회귀).
    - 기존 7키 중 하나라도 빠짐 → 여전히 `FormatException`(기존 동작 불변
      회귀).
-   - `currency` 만 있고 `value` 없는 JSON → 파싱 성공, `currency` 필드에
-     값 반영·`value` 는 `null`(§6.3/§7 비대칭 규칙이 파서가 아니라 analytics
-     계층 책임임을 재확인하는 케이스).
 2. **`purchase_revenue_analytics_test.dart`**
    - **핵심 성공 기준**: 서버 응답에 `currency`/`value` 있음 + 카탈로그
      없음(`catalogue: () => []`, 기존 431행 테스트와 동일 셋업) → outbox 에
@@ -869,15 +1043,35 @@ RED 를 먼저 쓰고, 그 RED 가 위 설계대로 구현했을 때만 GREEN �
      카탈로그 값은 버려짐(§7 우선순위 1번 확정).
    - 서버가 `null`, 카탈로그는 로드됨 → 카탈로그 값 사용(§7 우선순위
      2번, 기존 동작 유지 회귀).
-   - 서버도 `null`, 카탈로그도 없음 → 기존 431행 테스트 그대로 유지(회귀
-     없음 확인).
+   - 서버도 `null`, 카탈로그도 없음 → durable outbox 에
+     `awaiting_currency`, outgoing payload에는 currency/value key absence,
+     Firebase sink 호출 0회. 과거 "currency 없는 purchase 전송" 기대는 삭제한다.
    - **서버 `currency` 있음 + `value` 없음(Google 폴백 케이스) + 카탈로그도
      로드됨** → outbox payload 는 `currency` 만 서버 값, `value` 는 `null`
      로 남는다 — 카탈로그의 `rawPrice` 를 끌어와 채우지 **않는다**(§7-1 이
      금지하는 통화-금액 짜깁기 회귀 테스트, 이전 초안에서 빠져 있던 케이스).
+   - value-only 입력 → outbox candidate metadata에는 value 보존 가능하지만
+     outgoing payload 두 키 absence, state awaiting, sink 0회. resolver가 ISO
+     currency를 반환하면 동일 alias 항목이 ready로 바뀌고 currency+candidate
+     value로 딱 한 번 전송.
+   - currency-only 입력 → 즉시 ready, outgoing currency key present/value key
+     absence, sink 1회(B-3).
 3. **`purchase_service_logic_test.dart`** — `_sendPurchaseAnalytics` 가
    `PurchaseSettlementResultModel.currency`/`value` 를 실제로 읽어 우선순위
-   로직에 넘기는지 단위 수준에서 확인.
+   로직과 durable queue hand-off 결과에 반영하는지 단위 수준에서 확인.
+4. **`analytics_outbox_test.dart`**
+   - storage v1 의 currency-bearing purchase는 v2 ready로, currency 없는
+     purchase는 awaiting으로 무손실 마이그레이션.
+   - resolver 실패가 attempts/next_at을 영속화하고 30초→최대 5분 backoff,
+     재시작 뒤 재개되는지.
+   - tx/op alias가 겹치는 recovery upsert가 새 항목을 만들지 않고 기존
+     awaiting 항목만 원자 보강하는지.
+   - 365일 만료가 GA4 전송이 아니라 dead_letter/metric으로 끝나는지.
+5. **`receipt_queue_service_test.dart`**
+   - foreground enqueue와 queued body round-trip에서
+     `client_observed_currency`/`parser_capabilities`가 보존되는지.
+   - 200 settlement 뒤 outbox callback 저장 성공 전에는 queue를 제거하지
+     않고, ready/deferred durable 저장 확인 뒤에만 제거하는지.
 
 ### picnic-supabase
 
@@ -906,8 +1100,8 @@ RED 를 먼저 쓰고, 그 RED 가 위 설계대로 구현했을 때만 GREEN �
      정산은 계속 진행(거부되지 않음).
    - 카탈로그 값과 `clientObservedCurrency` 가 서로 다름 → 카탈로그 값 채택,
      불일치가 구조화 로그로 기록됨(§6.2).
-   - 둘 다 없음 → `analyticsCurrency: null`, 정산은 계속 진행 — §6.2 의
-     "이번 폴백도 전건 보장은 아니다"를 회귀로 고정.
+   - 둘 다 없음 → `analyticsCurrency: null`, 정산은 계속 진행하되 앱
+     outbox가 이를 전송 완료로 보지 않고 awaiting으로 보류하는 통합 기대를 고정.
 3. **`operation-worker.test.ts`**
    - `parser_capabilities: ["purchase_revenue_v1"]` 포함 + 런타임 플래그
      활성 + 스냅샷에 analytics 값 있음 → 응답에 `currency`/`value` 포함.
@@ -925,6 +1119,11 @@ RED 를 먼저 쓰고, 그 RED 가 위 설계대로 구현했을 때만 GREEN �
    - Google 응답(가격 필드 없음, 오늘과 동일) → `providerCurrency`/
      `providerPaidAmountMinor` 는 `null` 유지, 정산은 정상 진행(거부되지
      않음) — §6.2 의 QUANTITY 불변식 유지를 회귀로 고정.
+   - 최초 grant와 replay가 모두 `get_purchase_analytics_for_inbox`를 통해 같은
+     immutable currency/value를 복원하고 direct snapshot select가 없는지.
+   - exact-key `purchase_revenue_fields_enabled()`가 true/false/missing/비boolean
+     각각 true/false/false/false이며 service_role 실행 성공,
+     anon/authenticated 실행 거부인지.
 4. **`verify-receipt-intake.test.ts`**
    - `parser_capabilities` 가 `wallet-operation-worker` 단일 인박스 호출에
      그대로 전달되는지(포워딩 테스트, §9.4-2).
@@ -932,14 +1131,26 @@ RED 를 먼저 쓰고, 그 RED 가 위 설계대로 구현했을 때만 GREEN �
      capability 없는 응답에는 `currency`/`value` 키 자체가 JSON 에 존재하지
      않는지(단순 `null` 이 아니라 키 부재 — `requireExactContractKeys` 를
      아직 쓰는 구버전 파서가 여분 키 때문에 죽지 않게 하는 §8.1 전제 재확인).
+   - value-only worker 결과는 capability/flag가 있어도 currency/value 둘 다
+     key absence(B-2), currency-only 결과는 currency key present/value key
+     absence(B-3).
+   - HTTP snake_case `client_observed_currency`가 envelope camelCase
+     `clientObservedCurrency`로 변환되고 provider-event durable payload와
+     Google verifier까지 도달하지만 identity hash fixture는 이전 값과 정확히
+     같은지.
 5. **`purchase-settlement.test.ts`**
    - `purchase_reward_snapshots` 의 `provider_currency`/`provider_paid_amount_minor`
      는 Apple/Google(QUANTITY) 구매에 대해 **항상 `null`** — `attest_verified_purchase`/
      `grant_verified_purchase` 호출 인자와 무관하게 이 불변식이 유지되는지
      (이전 초안이 뒤집었던 것을 다시 뒤집지 않도록 고정하는 회귀).
-   - `analytics_currency`/`analytics_price_milliunits` 는 위와 완전히
-     독립적으로 채워지는지(같은 트랜잭션에서 한쪽은 `null`, 다른 쪽은
-     값이 있는 조합이 정상임을 확인).
+   - `analytics_*` 는 provider 정산 필드와 완전히 독립적으로 채워지는지.
+     analytics 내부에서는 currency-only가 정상이고 value-only 입력은 둘 다
+     null로 원자 정규화되는지(B-2/B-3).
+   - grant INSERT와 지급이 한 트랜잭션에서 commit/rollback되고 analytics
+     별도 후쓰기 UPDATE가 없는지. replay에 다른 analytics 인자를 보내도 최초
+     snapshot이 바뀌지 않으며 immutable trigger가 직접 변경을 거부하는지.
+   - inbox read RPC가 해당 inbox의 analytics 세 필드만 반환하고 다른 inbox/
+     전체 snapshot 데이터는 노출하지 않는지. service_role만 execute 가능한지.
 
 ## 14. 대안 비교와 권고
 
@@ -993,10 +1204,11 @@ Apple Sales and Trends / Google Play 재무 리포트 같은 공식 정산 리�
   `purchase` 이벤트의 기존 파라미터를 더 자주 채우는 것뿐이다.
 - Apple 쪽은 **추가 네트워크 호출 없이** 이미 검증된 데이터에서 필드
   두 개를 더 읽는 것뿐이라 구현 리스크가 낮다.
-- Google 쪽은 이번 phase 에서 값을 얻지 못한다는 한계를 그대로 인정한다
-  — 없는 것을 있는 척 설계하지 않는다. `assertWebProductPrice` 를 그대로
-  재사용하고 싶은 유혹이 있지만 §6.2 에서 설명했듯 그 함수는 무결성
-  게이트이지 계측 보강 도구가 아니어서 그대로 가져오면 안 된다.
+- Google 쪽은 provider 증언 `value` 를 얻지 못한다는 한계를 그대로 인정한다.
+  대신 currency 는 region catalog/client storefront/앱 resolver 순서로 구하고,
+  그 순간까지 이벤트를 durable 보류한다. 없는 값을 지어내지도, currency 없는
+  매출 purchase 를 완료 처리하지도 않는다. `assertWebProductPrice` 는 무결성
+  게이트이므로 재사용하지 않는다.
 - 명시적 parser capability 게이팅(§9.4)이 "선배포 → 후배포"라는 요구사항을
   "사용자 업데이트를 기다리는 느슨한 순서 지침"에서 "요청 단위로 안전한
   전환"으로 바꾼다 — `app_build` 로 추론하는 대신 클라이언트가 매 요청마다
@@ -1010,8 +1222,8 @@ Apple Sales and Trends / Google Play 재무 리포트 같은 공식 정산 리�
 
 | # | 한계 | 내용 | 처리 |
 |---:|---|---|---|
-| 1 | **Google 구매 전건의 `currency` 보장은 이 설계로 해결되지 않는다** | §6.2 폴백(출처 A/B)은 best-effort 다 — 지역별 카탈로그가 그 지역을 안 다루거나, 구버전 클라이언트가 storefront 값을 아직 안 보내거나, 조회가 실패하면 여전히 `null` 이다. `value`(금액)는 이 phase 에서 Google 에 대해 **항상** `null` 이다(출처 자체가 없음, §6.2) | **완료로 간주하지 않는다.** "부분/최선노력 커버리지를 받아들일지"는 대행사 확인이 필요한 별도 의사결정 게이트로 남긴다(§6.2-부칙) — B-10(아래 6번 행)과 같은 성격의, 코드 배포로 저절로 닫히지 않는 항목이다 |
-| 2 | Apple 값도 항상 보장되지는 않는다 | `price`/`currency` 는 공식적으로 optional 필드라 일부 트랜잭션에서 여전히 부재할 수 있다 | §6.3 실패 정책대로 `null` 처리, §4 문제가 "가끔"으로 줄어드는 것이지 "완전히 사라지는 것"은 아니다 |
+| 1 | Google currency 확보 지연/영구 실패 | §6.2 서버 A/B와 앱 resolver가 모두 실패하면 snapshot/outbox currency가 null일 수 있다. `value`는 Google에서 계속 null일 수 있다 | GA4 전송을 완료로 세지 않고 outbox `awaiting_currency`로 최대 365일 재시도한다. 이후에는 currency 없는 전송 대신 dead-letter/metric으로 종료한다. 따라서 전송된 매출 purchase의 currency 불변식은 유지되지만 일부 이벤트가 장기 지연/미전송될 수 있다 |
+| 2 | Apple JWS 값도 항상 존재하지 않는다 | `price`/`currency` 는 optional이라 일부 트랜잭션에서 부재할 수 있다 | 클라이언트 storefront resolver로 보강하고 그 전까지 outbox 보류. currency 없는 GA4 전송은 하지 않는다 |
 | 3 | Google 지역 카탈로그 통화(§6.2 출처 A)도 완전한 진실은 아니다 | 통화는 지역별로 고정이라 가격보다 신뢰도가 높지만, Picnic 상품 콘솔이 어느 Play Developer API 모델(`inappproducts` 구/`monetization.onetimeproducts` 신)을 쓰는지는 이 문서가 코드로 확인하지 못했다(§12) | 구현 착수 전 Play Console 설정 확인 필요 — 이 문서가 선결하지 않은 유일한 외부 API 전제 |
 | 4 | `wallet.purchase_revenue_fields_enabled` 플래그의 실제 on/off 시점은 운영 판단이다 | 메커니즘(§9.4-5)은 이 문서가 규정하지만, 언제 켤지는 §3 비목표의 "배포 실행 제외"에 따라 별도 운영 결정이다 | 플래그 존재는 설계 확정, 시점은 배포 작업에서 정한다 |
 | 5 | Google/PayPal/PortOne 의 `value` 단위 변환은 서로 다르다 | Apple 은 밀리유닛(÷1000, §6.1), PayPal/PortOne 은 `exactMinorUnits` 의 통화 exponent 기반 마이너유닛(÷10^exponent, 기본 2) — 이 설계는 Apple 변환만 명시했고 PayPal/PortOne 을 실제로 wire 에 노출하는 건 범위 밖으로 남겼다(§5.3) | PayPal/PortOne 을 노출하는 후속 설계는 이 두 변환 방식이 섞이지 않게 명시적으로 분기해야 한다 |
@@ -1069,7 +1281,11 @@ inbox_id }` 뿐) — 그래서 응답 조립은 구조적으로 "최초 커밋 �
 같이 버린다"는 비대칭 규칙이었음을 발견해 정정했다(§6.3/§7) — 동시에 그
 문서 자체가 아직 대행사에 발송되지 않은 내부 초안이라는 사실도
 `handoff-20260821-ga4-taxonomy.html` 로 확인해 근거의 무게를 낮춰 적었다.
-(11) Google `currency` 폴백(§6.2)은 실제로 구현 가능한 최소 설계까지
-구체화했지만, **"Google 구매 전건의 currency 보장"이라는 문제 자체는
-풀지 못했다** — best-effort 폴백과 100% 보장을 혼동하지 않도록 §15 1번
-행에 명시적으로 미해결로 남겼고, 완료로 포장하지 않았다.
+(11) Google `currency` 소스 자체는 여전히 실패할 수 있지만 이를 전송 완료로
+포장하지 않는다. §7.2 의 durable `awaiting_currency`/재시도/365일 dead-letter와
+sink 직전 ISO gate를 추가해, **실제 전송되는 모든 revenue-bearing purchase는
+ISO 4217 currency를 가진다**는 불변식과 "일부 이벤트는 장기 지연/미전송될 수
+있다"는 운영 한계를 동시에 명시했다. (12) analytics snapshot은 grant와 같은
+트랜잭션에서 저장되고 inbox-only RPC로 최초/replay 응답을 복원하며 immutable
+trigger로 보존한다. (13) B-2/B-3를 계층별 key absence/보류/전송 결과로 나눠
+value-only와 currency-only 테스트가 서로 모순되지 않게 정리했다.
