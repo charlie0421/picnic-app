@@ -146,7 +146,12 @@
 
 <div class="box warn">
   <div class="t">이 대기열에 없는 것</div>
-  <p>GA4 택소노미 구현(9/10 이벤트)은 <strong>아직 커밋조차 안 됐다.</strong> 130008 에 태우려면 먼저 커밋·리뷰·머지가 필요하다. 제품 결정 1건(미결)도 걸려 있다.</p>
+  <p><s>GA4 택소노미 구현(9/10 이벤트)은 아직 커밋조차 안 됐다. 130008 에 태우려면 먼저 커밋·리뷰·머지가 필요하다.</s><br>
+  <strong>[2026-08-21 정정]</strong> 위 서술은 사실이 아니었다. GA4 택소노미는 8/10 에 PR #153 으로 머지됐고(<code>d99118ab3</code>),
+  태그 조상 검증 결과 <code>picnic-v1.3.0+130007</code> 에 포함돼 <strong>이미 프로덕션에 배포된 상태</strong>다
+  (<code>git merge-base --is-ancestor d99118ab3 picnic-v1.3.0+130007</code> → exit 0).
+  대기열에 없는 이유는 '미커밋'이 아니라 '이미 배포됨'이다. 제품 결정 1건(복구 구매 매출 복원)은 여전히 미결이며,
+  상세는 <a href="handoff-20260821-ga4-taxonomy.html">handoff-20260821-ga4-taxonomy.html</a> 에 있다.</p>
 </div>
 
 <div class="box ok">
