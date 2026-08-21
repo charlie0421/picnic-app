@@ -254,7 +254,8 @@
     <tr><td class="mono">supabase #97</td><td>투표 100표당 보너스 복원 + 소급</td><td>머지</td></tr>
     <tr><td class="mono">app #161</td><td>RLS 도입 핸드오프</td><td>머지</td></tr>
     <tr><td class="mono">app #162</td><td>없는 공유 보상 문구 제거 (13개 로케일)</td><td>머지</td></tr>
-    <tr><td class="mono">app #163</td><td>anon 쓰기 회수를 RLS 0단계로 편입</td><td><strong>대기</strong></td></tr>
+    <tr><td class="mono">app #163</td><td>anon 쓰기 회수를 RLS 0단계로 편입</td><td>머지</td></tr>
+    <tr><td class="mono">app #164</td><td>이 문서 + 긴급패치 배포 대기열 핸드오프</td><td>머지</td></tr>
   </tbody>
 </table>
 </div>
@@ -264,11 +265,11 @@
 <h2><span class="num">08</span>남은 것</h2>
 
 <ol class="steps">
-  <li><span class="n">1</span><span class="d"><strong>app #163 머지</strong><p>문서 변경만. RLS 핸드오프에 anon 쓰기 회수를 0단계로 편입한 내용이다.</p></span></li>
-  <li><span class="n">2</span><span class="d"><strong>anon 쓰기 32개 회수 — RLS 과제 0단계</strong><p>공개 앱 키로 <code>vote</code>·<code>vote_item</code>·<code>artist</code>·<code>config</code>·<code>version</code> 등의 행을 지울 수 있는 상태다. RLS 과제 착수가 늦어질 것 같으면 <code>vote</code>·<code>vote_item</code>·<code>artist</code>·<code>artist_group</code>·<code>vote_reward</code> 다섯만 먼저 닫아도 된다 — 앱에 쓰는 코드가 없고 어드민은 <code>authenticated</code> 권한을 이미 갖는다. <code>grant</code> 한 줄로 되돌아간다.</p></span></li>
+  <li><span class="n">1</span><span class="d"><strong>0단계 기록의 PR — <span style="color:var(--ok)">회수는 완료, 기록만 미제출</span></strong><p><code>anon</code> 쓰기 32개는 <strong>2026-08-21 에 전부 회수됐다</strong>(이력 <code>20260821990001</code>). 적용 후 그 32개에서 permission denied 0건, <code>authenticated</code>·<code>service_role</code> INSERT 32/32 유지. 다만 적용 SQL 이 <code>picnic-supabase</code> 브랜치 <code>charlie0421/rls-prep</code> 에만 있고 <strong>PR 이 없다</strong> — 프로덕션에 적용된 변경이 <code>main</code> 에 없는 상태다.</p></span></li>
+  <li><span class="n">2</span><span class="d"><strong>구버전 앱 관찰 — 24~48시간 중 절반</strong><p>정적 감사는 현재 코드만 덮으므로, 구버전 앱의 미인증 쓰기는 회수 후 로그로만 드러난다. 8/21 13:19 KST 기준 <strong>회수 대상 32개에서 거부 0건</strong>. 같은 기간 잡힌 <code>user_profiles</code> 거부(8/20 84건 → 8/21 18건)와 <code>get_active_promotion_campaigns</code> 함수 거부는 <strong>둘 다 회수 이전부터 있던 선재 건</strong>이라 무관하다. 남은 창을 마저 볼 것.</p></span></li>
   <li><span class="n">3</span><span class="d"><strong>RLS 도입</strong><p>별도 과제. <code>handoff-rls-rollout.html</code> 참조. 지금은 <code>authenticated</code> 가 RLS 없이 전 행을 읽으므로, 계정 하나만 만들면 타인의 광고 이력·이메일·생년월일을 조회할 수 있다.</p></span></li>
   <li><span class="n">4</span><span class="d"><strong>Slack 전용 채널 확인</strong><p><code>WALLET_ALERT_WEBHOOK_URL</code> 을 등록해 영수증 채널에서 분리했고 자가진단으로 실도달을 확인했다. 실제 장애 알람이 그 채널에 잘 뜨는지는 첫 발화 때 확인이 필요하다.</p></span></li>
-  <li><span class="n">5</span><span class="d"><strong>경미 — 정리 대상</strong><p>비로그인 앱의 <code>get_active_promotion_campaigns</code>·<code>get_wallet_summary</code> 401(앱에서 스킵 처리 권장). <code>idx_bonus_history_balance</code>(30MB)가 신설 인덱스에 포섭돼 드롭 후보. <code>credit_vote_share_bonus</code> 등 미연결 래퍼 4종 — <strong>삭제하지 않기로 결정</strong>했다(manifest 양방향 assert + 동결 스키마 수정이 필요해 이득 대비 비용이 크다).</p></span></li>
+  <li><span class="n">5</span><span class="d"><strong>경미 — 정리 대상</strong><p>비로그인 앱의 <code>get_active_promotion_campaigns</code>·<code>get_wallet_summary</code> 401 — <code>anon</code> 에 EXECUTE 가 없어서다. 만성이고 양이 적지 않다(8/18 12시간당 676건, 8/21 시간당 약 10건). 앱에서 스킵 처리를 권장한다. <code>idx_bonus_history_balance</code>(30MB)가 신설 인덱스에 포섭돼 드롭 후보. <code>credit_vote_share_bonus</code> 등 미연결 래퍼 4종 — <strong>삭제하지 않기로 결정</strong>했다(manifest 양방향 assert + 동결 스키마 수정이 필요해 이득 대비 비용이 크다).</p></span></li>
 </ol>
 
 <h2><span class="num">09</span>내가 틀렸던 것</h2>
