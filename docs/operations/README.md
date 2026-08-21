@@ -36,3 +36,4 @@
 |---|---|
 | [handoff-pr73-claude.html](handoff-pr73-claude.html) | PR #73 핸드오프 |
 | [handoff-store-purchase-speed-and-cancel-fix.html](handoff-store-purchase-speed-and-cancel-fix.html) | 구매 속도 개선 + 취소/에러 로딩락 수정 핸드오프 (PR #137 계열) |
+| [handoff-20260821-ga4-taxonomy.html](handoff-20260821-ga4-taxonomy.html) | **GA4 이벤트 택소노미** (PR #153). 코드는 `1.3.0+130007` 로 이미 프로덕션 반영됨 — 남은 것은 GA4 콘솔 맞춤 측정기준 등록(소급 불가·최우선), 실측 검증, 대행사 회신, 복구 구매 매출 복원 결정 |
