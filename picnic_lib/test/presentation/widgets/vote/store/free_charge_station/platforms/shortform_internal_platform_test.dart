@@ -185,13 +185,6 @@ void main() {
       expect((viewToken).isEmpty, isFalse);
     });
 
-    test('more token empty check', () {
-      String? moreToken;
-      expect((moreToken ?? '').isEmpty, isTrue);
-
-      moreToken = 'valid-token';
-      expect((moreToken).isEmpty, isFalse);
-    });
   });
 
   group('Video progress tracking', () {

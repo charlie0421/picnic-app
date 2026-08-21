@@ -1,0 +1,287 @@
+<title>RLS 도입 핸드오프</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#f5f7f9; --card:#ffffff; --fg:#151a21; --muted:#5b6572;
+    --line:#dde3ea; --line-strong:#c3ccd6;
+    --accent:#25567f; --accent-soft:#e8eff6;
+    --crit:#9d3630; --crit-soft:#f8ecea;
+    --warn:#8a6218; --warn-soft:#f9f2e4;
+    --ok:#2c6448; --ok-soft:#e9f2ec;
+    --code:#eef1f5;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#101419; --card:#181d24; --fg:#e6eaef; --muted:#98a2b0;
+      --line:#2a323c; --line-strong:#3b4552;
+      --accent:#7aa9d4; --accent-soft:#1a2732;
+      --crit:#e08981; --crit-soft:#2b1c1a;
+      --warn:#d6ab5f; --warn-soft:#271f11;
+      --ok:#7cc09b; --ok-soft:#15251d;
+      --code:#1f252d;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101419; --card:#181d24; --fg:#e6eaef; --muted:#98a2b0;
+    --line:#2a323c; --line-strong:#3b4552;
+    --accent:#7aa9d4; --accent-soft:#1a2732;
+    --crit:#e08981; --crit-soft:#2b1c1a;
+    --warn:#d6ab5f; --warn-soft:#271f11;
+    --ok:#7cc09b; --ok-soft:#15251d;
+    --code:#1f252d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--fg);
+    font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Pretendard","Segoe UI",sans-serif;
+    font-size:15.5px; line-height:1.62; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px; margin:0 auto; padding:56px 22px 104px}
+  code,.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+  header{border-bottom:2px solid var(--line-strong); padding-bottom:26px; margin-bottom:34px}
+  .kicker{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent); font-weight:600; margin:0 0 14px}
+  h1{font-family:"IBM Plex Serif",Georgia,serif; font-size:35px; line-height:1.16;
+    letter-spacing:-.015em; font-weight:700; margin:0 0 12px; text-wrap:balance}
+  .sub{color:var(--muted); font-size:14.5px; margin:0; max-width:66ch}
+
+  .meta{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:8px;
+    overflow:hidden; margin:26px 0 0}
+  .meta div{background:var(--card); padding:13px 16px}
+  .meta .k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:5px}
+  .meta .v{font-size:14px; font-weight:500}
+  .meta .v.mono{font-family:"IBM Plex Mono",monospace; font-size:13px}
+
+  h2{font-family:"IBM Plex Serif",Georgia,serif; font-size:22px; font-weight:650;
+    margin:52px 0 6px; letter-spacing:-.01em; text-wrap:balance;
+    padding-top:14px; border-top:1px solid var(--line)}
+  h2 .num{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--accent);
+    font-weight:600; margin-right:10px; vertical-align:2px}
+  h2 + .lede{color:var(--muted); font-size:14.5px; margin:0 0 20px; max-width:66ch}
+  h3{font-size:15.5px; font-weight:600; margin:28px 0 8px}
+  p{margin:0 0 14px; max-width:68ch}
+
+  .box{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--line-strong);
+    border-radius:0 8px 8px 0; padding:17px 20px; margin:18px 0}
+  .box.crit{border-left-color:var(--crit)}
+  .box.warn{border-left-color:var(--warn)}
+  .box.ok{border-left-color:var(--ok)}
+  .box.acc{border-left-color:var(--accent); background:var(--accent-soft)}
+  .box > :last-child{margin-bottom:0}
+  .box .t{font-weight:600; margin-bottom:7px; font-size:14.5px}
+
+  .scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:18px 0;
+    border:1px solid var(--line); border-radius:8px; background:var(--card)}
+  table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:480px}
+  th,td{text-align:left; padding:8px 13px; border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:none}
+  th{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--muted); font-weight:600;
+    background:var(--accent-soft); border-bottom:1px solid var(--line-strong)}
+  td.mono{font-family:"IBM Plex Mono",monospace; font-size:12.5px}
+  td.num,th.num{text-align:right; font-variant-numeric:tabular-nums;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px}
+
+  pre{background:var(--code); border:1px solid var(--line); border-radius:8px;
+    padding:14px 16px; overflow-x:auto; margin:16px 0}
+  pre code{font-size:12.8px; line-height:1.6; background:none; padding:0}
+  p code, li code, td code{background:var(--code); padding:1.5px 5px; border-radius:3px; font-size:13px}
+
+  ol,ul{margin:0 0 16px; padding-left:21px; max-width:68ch}
+  li{margin-bottom:8px}
+  .steps{list-style:none; padding:0; counter-reset:s}
+  .steps > li{display:flex; gap:14px; padding:13px 0; border-bottom:1px solid var(--line); margin:0}
+  .steps > li:last-child{border-bottom:none}
+  .steps .n{flex:0 0 26px; font-family:"IBM Plex Mono",monospace; font-size:12px;
+    color:var(--accent); font-weight:600; padding-top:3px}
+  .steps .d{flex:1}
+  .steps .d strong{display:block; margin-bottom:3px}
+  .steps .d p{margin:0; font-size:14px; color:var(--muted)}
+
+  footer{margin-top:60px; padding-top:22px; border-top:1px solid var(--line);
+    color:var(--muted); font-size:12.8px}
+  footer p{max-width:none}
+  @media (max-width:600px){
+    h1{font-size:28px} .wrap{padding:38px 17px 76px}
+    .steps > li{flex-direction:column; gap:3px} .steps .n{flex:none}
+  }
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">핸드오프 · picnic-supabase · 보안</p>
+  <h1>RLS 도입</h1>
+  <p class="sub">공개 anon 키 노출면 조사에서 파생된 별도 과제. 앞선 조치들은 비로그인 접근만 막았고, 로그인한 사용자가 타인의 데이터를 읽는 문제는 RLS 없이는 닫히지 않는다. 사이드 이펙트가 커서 장애 대응과 분리했다.</p>
+  <div class="meta">
+    <div><div class="k">상태</div><div class="v">착수 전</div></div>
+    <div><div class="k">대상 DB</div><div class="v mono">xtijtefcycoeqludlngc</div></div>
+    <div><div class="k">대상 테이블</div><div class="v">105개 · anon 쓰기 32개</div></div>
+    <div><div class="k">선행 조사</div><div class="v">2026-08-19 완료</div></div>
+  </div>
+</header>
+
+<h2><span class="num">01</span>지금 상태</h2>
+<p class="lede">무엇이 이미 됐고 무엇이 남았는지.</p>
+
+<p><code>public</code> 스키마 테이블 193개 중 <strong>88개는 RLS 가 켜져 있고 105개는 꺼져 있다.</strong> 꺼진 105개 중 90개는 공개 <code>anon</code> 키로 읽히고, 32개는 쓰기까지 가능하다.</p>
+
+<p>2026-08-19 에 가장 민감한 6개 테이블(<code>receipts</code>, <code>star_candy_history</code>, <code>star_candy_bonus_history</code>, <code>vote_pick</code>, <code>transaction_internal</code>, <code>view_transaction_all</code>)과 함수 2개(<code>get_user_activity_unified</code>, <code>_count</code>)의 <code>anon</code> 권한을 회수했다. <strong>이건 비로그인만 막은 것이고 RLS 와는 다른 층위다.</strong></p>
+
+<div class="box crit">
+  <div class="t">이 과제가 닫으려는 것</div>
+  <p>지금은 <code>authenticated</code> 롤이 RLS 없이 전 행을 읽는다. 계정 하나만 만들면 <code>transaction_admob</code> 1,229만 행에서 타인의 광고 이력을, <code>user_profiles</code> 10.7만 행에서 타인의 이메일과 생년월일을 조회할 수 있다. 계정 생성이 자유로운 서비스이므로 <strong>공격자도 authenticated 가 될 수 있다</strong>는 전제로 봐야 한다.</p>
+</div>
+
+<h2><span class="num">02</span>지켜야 하는 불변식</h2>
+
+<ul>
+  <li><strong>SECURITY DEFINER 함수는 RLS 를 우회한다.</strong> 이 DB 에 297개가 있고, 지갑·정산 로직이 전부 그 위에 서 있다. RLS 를 켜도 이들은 그대로 동작한다 — 오히려 이게 안전한 이전 경로다.</li>
+  <li><strong>서비스 롤도 RLS 를 우회한다.</strong> 순수 <code>service_role</code> 로 도는 엣지 함수 35개는 영향이 없다.</li>
+  <li><strong>이미 켜진 88개를 건드리지 않는다.</strong> 특히 지갑 신세대 테이블은 "RLS ON + 정책 없음 + authenticated 권한 없음" 으로 완전 차단돼 있고, 접근은 전부 SECURITY DEFINER 함수를 거친다. 이게 이 코드베이스의 정답 패턴이다.</li>
+  <li><strong>어드민 콘솔은 <code>authenticated</code> 로 동작한다.</strong> <code>service_role</code> 이 아니다. 정책에 관리자 분기가 없으면 어드민 화면이 통째로 빈다.</li>
+</ul>
+
+<h2><span class="num">03</span>반드시 알고 있어야 할 함정</h2>
+<p class="lede">이 코드베이스에서 실제로 밟은 것들. 순서대로 위험하다.</p>
+
+<div class="box crit">
+  <div class="t">① 엣지 함수 7개는 <code>authenticated</code> 로 돈다 — RLS 가 적용된다</div>
+  <p>service key 로 클라이언트를 만들어도 <code>Authorization</code> 헤더를 호출자 JWT 로 덮어쓰면 PostgREST 는 그 JWT 로 롤을 정한다. 즉 <strong>service key 는 apikey 일 뿐이고 실행 롤은 <code>authenticated</code></strong> 다.</p>
+  <pre><code>createClient(URL, SERVICE_ROLE_KEY, {
+  global: { headers: { Authorization: req.headers.get('Authorization') } }
+});   // ← 이건 service_role 이 아니다</code></pre>
+  <p>해당 함수: <code>ad-reward-claim</code> · <code>ad-reward-status</code> · <code>artist-request-add</code> · <code>callback-ad-shortform-more</code> · <code>exchange-star-candy-to-jma</code> · <code>expiring-bonus</code> · <code>track-country</code></p>
+  <p><strong>2026-08-19 에 <code>track-country</code> 가 정확히 이것 때문에 6일간 조용히 깨져 있었다.</strong> 1b 컷오버가 <code>authenticated</code> 의 <code>user_profiles</code> UPDATE 를 회수했는데, 이 함수가 그 롤로 쓰고 있었다. RLS 를 켜면 나머지 6개에서 같은 일이 난다.</p>
+</div>
+
+<div class="box crit">
+  <div class="t">② supabase-js 는 권한 오류를 예외로 던지지 않는다</div>
+  <p><code>{ error }</code> 로 반환한다. <code>try/catch</code> 만 있고 <code>error</code> 를 확인하지 않는 호출부는 <strong>실패해도 성공처럼 로그를 남기며 지나간다.</strong> <code>track-country</code> 는 콘솔에 <code>country updated KR</code> 을 찍으면서 행은 바뀌지 않은 상태로 6일을 보냈다.</p>
+  <p>RLS 를 켜기 전에 대상 테이블을 쓰는 모든 호출부의 <code>error</code> 확인 여부를 먼저 점검할 것. 이게 없으면 롤아웃 실패를 감지할 수단이 없다.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">③ 뷰는 기본이 definer 의미론이다</div>
+  <p><code>view_transaction_all</code> 은 <code>security_invoker</code> 가 설정돼 있지 않다. 이런 뷰는 <strong>기반 테이블에 RLS 를 켜도 뷰 소유자 권한으로 읽으므로 RLS 를 통과한다.</strong> 뷰를 통한 우회 경로를 함께 닫지 않으면 테이블만 잠그는 셈이 된다.</p>
+  <p>대상 뷰를 전수 조사하고 <code>alter view ... set (security_invoker = on)</code> 을 함께 검토할 것. 단 이걸 켜면 뷰를 읽던 화면이 정책의 영향을 받게 되므로 같은 롤아웃 단위로 묶어야 한다.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">④ 정책 없이 RLS 만 켜면 전면 차단이다</div>
+  <p>PostgreSQL 은 정책이 하나도 없는 RLS 테이블을 "아무도 못 읽음"으로 해석한다. 지갑 테이블 19개가 의도적으로 이 상태다 — 하지만 앱이 읽는 테이블에 같은 짓을 하면 화면이 빈다.</p>
+  <p>앱이 직접 조회하는 테이블은 최소 30종이며 <code>user_blocks</code>(13곳) · <code>artist</code>(11) · <code>posts</code>(10) · <code>comments</code>(7) · <code>user_profiles</code>(5) 순으로 참조가 많다. 정책을 먼저 만들고 RLS 를 켜는 순서를 지킬 것.</p>
+</div>
+
+<h2><span class="num">03.5</span>이미 끝난 클라이언트 감사</h2>
+<p class="lede">0단계(anon 쓰기)용으로 2026-08-19 에 확인한 것. 다시 하지 말 것.</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>클라이언트</th><th>대상 테이블 쓰기</th><th>인증 상태</th></tr></thead>
+  <tbody>
+    <tr><td>picnic_lib · picnic_app</td><td>8개 테이블</td><td>전부 로그인 후 경로</td></tr>
+    <tr><td>picnic-admin</td><td><code>vote</code> · <code>vote_item</code> · <code>vote_reward</code> · <code>reward</code> 등 11곳</td><td>로그인 필수, <code>authenticated</code> 권한 보유</td></tr>
+    <tr><td>picnic-web</td><td>없음</td><td>—</td></tr>
+    <tr><td>엣지 함수</td><td>anon 키로 쓰는 것 없음</td><td>—</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>앱 쪽 8개는 <code>devices</code> · <code>posts</code> · <code>comments</code> · <code>article_comment</code> · <code>comment_likes</code> · <code>comment_reports</code> · <code>celeb_bookmark_user</code> · <code>post_attachments</code> 다. <code>devices</code> 는 <code>registerDevice(userId)</code> 가 로그인 후이고, <code>updateLastSeen()</code> 은 호출 3곳 모두 세션 확인 뒤다. 나머지는 <code>currentUser</code> 검사를 거친다.</p>
+
+<p><code>article_comment</code> 만 코드에 명시적 인증 검사가 없다 — <code>user_id</code> 를 payload 에 넣지 않고 DB 기본값에 맡긴다. 다만 <strong>테이블이 0행</strong>이고 원본 <code>article</code> 도 3행뿐이라 실사용이 없다(커뮤니티는 미운영).</p>
+
+<div class="box warn">
+  <div class="t">이 감사가 덮지 못하는 것</div>
+  <p><strong>이미 배포돼 사용자 폰에 있는 구버전 앱.</strong> 현재 코드에 로그인 전 쓰기가 없다는 것이 과거 빌드도 그랬다는 보장은 아니다. 그래서 0단계도 적용 후 <code>permission denied for table &lt;이름&gt;</code> 로그를 24~48시간 추적해야 한다 — 앱이 침묵해도(함정 ②) 서버 로그에는 반드시 남는다. 뜨면 그 테이블만 <code>grant</code> 한 줄로 즉시 복구한다.</p>
+</div>
+
+<h2><span class="num">04</span>이미 있는 정책이 템플릿이다</h2>
+<p class="lede">새로 설계하지 말고 88개 테이블의 156개 정책에서 가져올 것.</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>패턴</th><th class="num">사용</th><th>용도</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">true</td><td class="num">39</td><td>공개 읽기 (공지·FAQ·아티스트 등)</td></tr>
+    <tr><td class="mono">auth.uid() = user_id</td><td class="num">34</td><td>본인 데이터 — 표기 3종이 섞여 있으니 하나로 통일할 것</td></tr>
+    <tr><td class="mono">false</td><td class="num">6</td><td>명시적 전면 차단</td></tr>
+    <tr><td class="mono">is_admin_or_super()</td><td class="num">4</td><td>관리자 분기 (헬퍼 함수 존재)</td></tr>
+    <tr><td class="mono">admin_whitelist 조회</td><td class="num">4</td><td>이메일 화이트리스트 기반 관리자</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><code>is_admin_or_super()</code> 헬퍼가 이미 있으므로 어드민 분기를 새로 짤 필요가 없다. <code>auth.uid() = user_id</code> 표기가 <code>(auth.uid() = user_id)</code>, <code>((SELECT auth.uid()) = user_id)</code>, <code>(user_id = auth.uid())</code> 세 가지로 섞여 있는데, <strong><code>(SELECT auth.uid())</code> 형태가 성능상 유리하다</strong> — 행마다 재평가되지 않고 한 번만 평가된다. 신규 정책은 이걸로 통일할 것.</p>
+
+<h2><span class="num">05</span>권장 진행 순서</h2>
+<p class="lede">한 번에 105개를 켜지 않는다. 되돌리기 쉬운 순서로 쪼갠다.</p>
+
+<div class="box acc">
+  <div class="t">anon 쓰기 회수는 이 과제의 0단계다</div>
+  <p>별도 작업으로 뺄지 검토했지만 <strong>같은 부류의 작업</strong>이다 — 감사 대상(앱·웹·어드민·구버전), 조용한 실패 위험, 단계적 적용, 로그 감시, 롤백 규율이 전부 겹친다. "이 테이블에 anon 이 쓰는가"는 "이 테이블에 어떤 정책이 필요한가"의 부분집합이라, 따로 하면 같은 테이블을 두 번 감사하게 된다.</p>
+  <p>다만 설계 비용은 다르다. RLS 는 테이블마다 "누가 무엇을 볼 수 있나"를 정해야 하는 제품 결정이고, <strong>anon 쓰기 회수는 판단이 없다</strong> — 비로그인 쓰기를 허용할 이유가 있는 테이블은 없다. 그래서 정책 설계보다 먼저, 위험 순서대로 닫는다.</p>
+</div>
+
+<ol class="steps">
+  <li><span class="n">0</span><span class="d"><strong>anon 쓰기 회수 — 위험 순</strong><p>32개 테이블에 anon INSERT·UPDATE·DELETE 가 열려 있다. 읽기는 건드리지 않는다. 그중 <strong>운영 데이터가 있는 12개</strong>가 실제 위험이다: <code>application_logs</code>(125,197) · <code>vote_item</code>(77,895) · <code>devices</code>(29,103) · <code>artist</code>(3,141) · <code>posts</code>(575) · <code>artist_group</code>(291) · <code>vote</code>(235) · <code>cs_4_11_ad_fast_analysis</code>(183) · <code>vote_reward</code>(182) · <code>media</code>(139) · <code>comments</code>(66) · <code>comment_likes</code>(53). 나머지 20개는 미운영·설정성이라 사실상 비어 있다.<br><br><code>vote</code>·<code>vote_item</code>·<code>artist</code>·<code>artist_group</code>·<code>vote_reward</code> 를 먼저 닫는 것이 위험 대비 효과가 가장 크다 — 앱에 쓰는 코드가 없고, 어드민만 쓰는데 <code>authenticated</code> 권한을 이미 갖고 있어 영향이 없다. <code>devices</code> 는 앱이 실제로 쓰므로(30일 2,087건) 4단계 감사와 함께 처리한다.</p></span></li>
+  <li><span class="n">1</span><span class="d"><strong>분류</strong><p>105개를 넷으로 나눈다 — ⓐ 공개 콘텐츠(정책 <code>true</code>), ⓑ 본인 데이터(<code>auth.uid() = user_id</code>), ⓒ 서버 전용(정책 없음 + 권한 회수), ⓓ 관리자 전용. <code>user_id</code> 컬럼 유무가 1차 힌트지만 그것만으로 판단하지 말 것.</p></span></li>
+  <li><span class="n">2</span><span class="d"><strong>ⓒ 서버 전용부터</strong><p>앱이 안 읽는 테이블이 가장 안전하다. <code>transaction_*</code> 4종, <code>debug_logs</code>, <code>application_logs</code>, <code>function_request_log</code>, 로그·큐 계열. 지갑 신세대 패턴(RLS ON + 정책 없음 + 권한 회수)을 그대로 적용한다.</p></span></li>
+  <li><span class="n">3</span><span class="d"><strong>ⓓ 관리자 전용</strong><p><code>admin_*</code>, <code>role*</code>, <code>permissions</code>, <code>blocked_ips</code>, <code>device_bans</code>. <code>is_admin_or_super()</code> 정책 하나로 끝난다. 어드민 콘솔이 <code>authenticated</code> 로 도는 것만 확인할 것.</p></span></li>
+  <li><span class="n">4</span><span class="d"><strong>ⓑ 본인 데이터</strong><p>여기서 함정 ①이 터진다. 엣지 함수 7개가 이 테이블들을 건드리는지 먼저 확인하고, 건드리면 그 함수를 순수 service_role 로 고친 뒤에 켤 것.</p></span></li>
+  <li><span class="n">5</span><span class="d"><strong>ⓐ 공개 콘텐츠</strong><p>정책 <code>true</code> 라 읽기는 기능 영향이 없어 마지막에 몰아서 해도 된다. 쓰기는 0단계에서 이미 닫혀 있어야 한다.</p></span></li>
+  <li><span class="n">6</span><span class="d"><strong><code>user_profiles</code> 는 마지막에 단독으로</strong><p>참조가 가장 많고 컬럼별 민감도가 다르다. 공개 프로필(<code>nickname</code>, <code>avatar_url</code>)과 비공개(<code>email</code>, <code>birth_date</code>, <code>last_ip</code>, 잔액)를 나눠야 하므로 정책만으로 부족하고 컬럼 권한이나 뷰 분리가 함께 필요하다.</p></span></li>
+</ol>
+
+<h2><span class="num">06</span>검증 방법</h2>
+
+<p>단계마다 <strong>롤별로 실제 쿼리를 돌려</strong> 확인한다. 권한 구조만 보면 함정 ①·③ 을 놓친다.</p>
+
+<pre><code>-- 진행률
+select
+  count(*) filter (where not relrowsecurity) as rls_off,
+  count(*) filter (where not relrowsecurity
+    and has_table_privilege('anon', oid, 'SELECT')) as anon_readable,
+  count(*) filter (where not relrowsecurity
+    and has_table_privilege('anon', oid, 'DELETE')) as anon_deletable
+from pg_class
+where relnamespace = 'public'::regnamespace and relkind = 'r';
+-- 착수 시점: 105 / 90 / 32
+
+-- 정책 없이 RLS 만 켜진 테이블 (의도한 것인지 확인)
+select c.relname
+from pg_class c
+where c.relnamespace = 'public'::regnamespace and c.relkind = 'r'
+  and c.relrowsecurity
+  and not exists (select 1 from pg_policies p
+                  where p.schemaname = 'public' and p.tablename = c.relname);
+
+-- 실제 가시성 확인 (구조 검사로는 안 잡히는 것)
+set role authenticated;
+select count(*) from &lt;table&gt;;   -- 타인 행이 보이면 정책이 안 먹은 것
+reset role;</code></pre>
+
+<div class="box acc">
+  <div class="t">롤백</div>
+  <p><code>alter table ... disable row level security</code> 로 즉시 되돌아간다. 정책은 남겨둬도 무해하다. 단계별로 나눈 이유가 이것 — 문제가 나면 그 단계만 끄면 된다.</p>
+</div>
+
+<h2><span class="num">07</span>남은 결정</h2>
+
+<ul>
+  <li><strong><code>user_profiles</code> 공개 범위.</strong> 다른 사용자의 <code>nickname</code>·<code>avatar_url</code> 을 어디까지 보여줄지는 제품 결정이다. 커뮤니티·투표 화면이 타인 프로필을 표시하므로 전면 차단은 불가능하다.</li>
+  <li><strong>뷰 <code>security_invoker</code> 전환 범위.</strong> 켜면 뷰를 읽던 어드민 화면이 정책 영향을 받는다. 어드민을 <code>service_role</code> 경유로 바꿀지, 정책에 관리자 분기를 넣을지 먼저 정해야 한다.</li>
+  <li><del><strong>anon 쓰기 32개 회수 시점.</strong></del> <strong>결정됨</strong> — 이 과제의 0단계로 포함한다. 별도 작업으로 빼면 같은 클라이언트를 두 번 감사하고 로그 감시를 두 번 세팅하게 된다. 05 참조.</li>
+</ul>
+
+<div class="box acc">
+  <div class="t">착수 전 한 가지</div>
+  <p>이 과제가 몇 주 걸린다면, 그동안 <code>vote</code> · <code>vote_item</code> · <code>artist</code> 가 공개 앱 키로 삭제 가능한 상태로 남는다. 0단계의 앞 5개(<code>vote</code> · <code>vote_item</code> · <code>artist</code> · <code>artist_group</code> · <code>vote_reward</code>)는 앱에 쓰는 코드가 없고 어드민이 <code>authenticated</code> 로 도니, 착수가 늦어질 것 같으면 그 다섯만 먼저 닫아도 된다. 검증 부담이 작고 <code>grant</code> 한 줄로 되돌아간다.</p>
+</div>
+
+<footer>
+  <p>선행 조사 · <a href="https://claude.ai/code/artifact/f8079168-35df-441c-8d00-bccf0d9dfbe0">Anon 키 노출면 감사</a> (2026-08-19). 권한 구조 읽기로만 판정했으며 실제 anon 요청은 보내지 않았다.</p>
+  <p>발견 경위 · 2026-08-18 코튼 게이트 장애 대응 중 <code>get_user_activity_unified</code> 의 PUBLIC EXECUTE 를 확인하다 노출면 전체를 조사하게 됐다. 장애와 인과관계는 없다. 관련 기록은 <code>picnic-supabase</code> PR #94 의 <code>prod-cutover/20260818-cotton-gate-incident/</code>.</p>
+</footer>
+</div>

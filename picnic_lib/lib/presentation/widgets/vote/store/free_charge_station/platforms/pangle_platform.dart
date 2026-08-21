@@ -41,6 +41,7 @@ class PangleClaimPreflight {
     required this.load,
     this.loadTimeout = const Duration(seconds: 5),
     this.onPollError,
+    this.isAborted,
   });
   final PangleClaimCreator createClaim;
   final Future<void> Function(String, AdRewardReference) persist;
@@ -49,6 +50,11 @@ class PangleClaimPreflight {
   final Future<bool> Function(String, String) load;
   final Duration loadTimeout;
   final void Function(Object error, StackTrace stackTrace)? onPollError;
+
+  /// 호출부(플랫폼)가 dispose 됐는지 알려 주는 훅. 구독은 execute 내부에서
+  /// 만들어지고 반환 후에야 호출부에 전달되므로, load 를 기다리는 사이에
+  /// dispose 되면 호출부의 dispose 는 이 구독을 취소할 수 없다.
+  final bool Function()? isAborted;
 
   Future<PangleClaimPreflightResult> execute({
     required String ownerUserId,
@@ -63,8 +69,11 @@ class PangleClaimPreflight {
     );
     await persist(ownerUserId, claim.reference);
     final subscription = pollingSignals.listen((_) {
+      if (isAborted?.call() ?? false) return;
+      // Future.sync: dispose 된 ref.read 처럼 poll 이 동기로 던지는 경우도
+      // catchError 로 모은다 — 동기 throw 는 catchError 가 붙기 전에 전파된다.
       unawaited(
-        poll(ownerUserId, claim.reference).catchError((
+        Future.sync(() => poll(ownerUserId, claim.reference)).catchError((
           Object error,
           StackTrace stackTrace,
         ) {
@@ -77,6 +86,9 @@ class PangleClaimPreflight {
         placementId,
         claim.mediaExtra(ownerUserId),
       ).timeout(loadTimeout, onTimeout: () => false);
+      if (isAborted?.call() ?? false) {
+        await subscription.cancel();
+      }
       return PangleClaimPreflightResult(
         loaded: loaded,
         reference: claim.reference,
@@ -89,10 +101,49 @@ class PangleClaimPreflight {
   }
 }
 
+/// 폴링 구독의 소유권을 재진입·dispose 와 경합해도 정확히 하나로 유지한다.
+///
+/// showAd 가 checkAdsLimit 네트워크 대기 중 이중 탭 등으로 겹쳐 실행되면,
+/// 단일 필드 방식은 먼저 시작한 호출의 구독이 필드에 실리지 못한 채 유실된다
+/// — dispose 가 취소할 수 없는 고아 구독. begin() 이 발급한 세대 토큰이
+/// 여전히 최신일 때만 adopt() 가 필드에 싣고, 아니면 그 자리에서 취소한다.
+/// cancel() 은 세대를 올려 진행 중인 adopt 까지 무효화한다 (dispose 경로).
+class PollingSubscriptionOwner {
+  StreamSubscription<void>? _subscription;
+  int _generation = 0;
+
+  Future<int> begin() async {
+    final generation = ++_generation;
+    final previous = _subscription;
+    _subscription = null;
+    await previous?.cancel();
+    return generation;
+  }
+
+  Future<bool> adopt(
+    int generation,
+    StreamSubscription<void> subscription,
+  ) async {
+    if (generation != _generation) {
+      await subscription.cancel();
+      return false;
+    }
+    _subscription = subscription;
+    return true;
+  }
+
+  Future<void> cancel() async {
+    _generation++;
+    final previous = _subscription;
+    _subscription = null;
+    await previous?.cancel();
+  }
+}
+
 /// Pangle 광고 플랫폼 구현
 class PanglePlatform extends AdPlatform {
   bool _isInitialized = false;
-  StreamSubscription<void>? _pollingSubscription;
+  final PollingSubscriptionOwner _pollingOwner = PollingSubscriptionOwner();
   AdRewardReference? _activeReference;
 
   /// `ad_impression` 용 1회성 구독. SDK 의 노출 콜백(`onAdShown`)은 브로드캐스트
@@ -173,10 +224,10 @@ class PanglePlatform extends AdPlatform {
         : (Environment.pangleAndroidRewardedVideoId ?? 'unknown');
 
     startPerformanceLog('광고 로드');
-    bool adLoadSuccess = await _loadPangleAd();
+    final adLoad = await _loadPangleAd();
     if (!context.mounted || isDisposed) return;
 
-    if (adLoadSuccess) {
+    if (adLoad.loaded) {
       try {
         startPerformanceLog('광고 표시');
         // SDK 가 실제로 전체 화면 광고를 띄운 순간(onAdShown)에만 ad_impression 을
@@ -202,7 +253,14 @@ class PanglePlatform extends AdPlatform {
         logAdShowFailure('Pangle', e, adUnitId, 'Pangle 광고 표시 실패', s);
         throw Exception('Pangle 광고 표시 실패');
       }
-    } else {
+    } else if (!adLoad.reported) {
+      // 예외 없이 loaded=false 로 돌아온 경우에만 여기 온다 — 말 그대로 "지금
+      // 보여줄 광고가 없는" 상태이므로 no-fill 로 분류되는 라벨을 의도적으로
+      // 넘긴다("모든 광고 소진" 안내 + Sentry 보고 생략).
+      //
+      // reported=true 인 경로(광고 ID 미설정, 로드 예외)는 _loadPangleAd 가 이미
+      // 실제 에러로 로깅·안내했다. 여기서 또 남기면 한 번의 실패에 다이얼로그가
+      // 두 번 뜬다. 그 라벨을 예외 경로에 쓰면 진짜 버그까지 no-fill 로 삼켜진다.
       logAdLoadFailure(
         'Pangle',
         '광고 로드 실패',
@@ -210,7 +268,8 @@ class PanglePlatform extends AdPlatform {
         '광고 로드 실패',
         StackTrace.current,
       );
-      // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
+      stopAllAnimations();
+    } else {
       stopAllAnimations();
     }
     endPerformanceLog('광고 로드');
@@ -250,7 +309,12 @@ class PanglePlatform extends AdPlatform {
     _impressionSubscription = null;
   }
 
-  Future<bool> _loadPangleAd() async {
+  /// 광고 로드 시도 결과.
+  ///
+  /// [reported] 는 **이 함수가 이미 실패를 로깅하고 사용자에게 안내했다**는 뜻이다.
+  /// 호출부가 이걸 보지 않고 무조건 자기 실패 로그를 남기면 한 번의 실패에
+  /// 다이얼로그가 두 번 뜬다(예: 예외 경로에서 오류 다이얼로그 + "모든 광고 소진").
+  Future<({bool loaded, bool reported})> _loadPangleAd() async {
     if (Environment.pangleIosRewardedVideoId == null ||
         Environment.pangleAndroidRewardedVideoId == null) {
       logAdLoadFailure(
@@ -260,7 +324,7 @@ class PanglePlatform extends AdPlatform {
         '광고 ID가 설정되지 않음',
         null,
       );
-      return false;
+      return (loaded: false, reported: true);
     }
 
     try {
@@ -274,7 +338,7 @@ class PanglePlatform extends AdPlatform {
           supabase.auth.currentUser?.id ??
           (throw StateError('Authenticated user required for Pangle claim'));
       final platform = Platform.isIOS ? 'ios' : 'android';
-      await _pollingSubscription?.cancel();
+      final pollingGeneration = await _pollingOwner.begin();
       final preflight =
           await PangleClaimPreflight(
             createClaim: adRewardRepository.createPangleClaim,
@@ -291,18 +355,27 @@ class PanglePlatform extends AdPlatform {
                 stackTrace: stackTrace,
               );
             },
+            isAborted: () => isDisposed,
           ).execute(
             ownerUserId: ownerUserId,
             platform: platform,
             placementId: adUnitId,
             clientRequestId: const Uuid().v4(),
           );
+      if (!await _pollingOwner.adopt(
+        pollingGeneration,
+        preflight.subscription,
+      )) {
+        // 재진입 또는 dispose 로 소유권이 넘어갔다 — 이 시청 건은 조용히 종료.
+        return (loaded: false, reported: true);
+      }
       _activeReference = preflight.reference;
-      _pollingSubscription = preflight.subscription;
 
       final result = preflight.loaded;
 
-      return result == true;
+      // 예외 없이 여기까지 왔다면 '지금 보여줄 광고가 없다'는 정상 응답이다.
+      // 안내는 호출부가 no-fill 로 처리한다.
+      return (loaded: result == true, reported: false);
     } catch (e, s) {
       final failedAdUnitId = Platform.isIOS
           ? (Environment.pangleIosRewardedVideoId ?? 'unknown')
@@ -313,9 +386,13 @@ class PanglePlatform extends AdPlatform {
         '  errorType: ${e.runtimeType}\n'
         '  adUnitId: $failedAdUnitId',
       );
-      logAdLoadFailure('Pangle', e, failedAdUnitId, 'Pangle 광고 로드 실패', s);
-      // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
-      return false;
+      // 분류 근거로 **실제 예외 텍스트**를 넘긴다. 예전엔 'Pangle 광고 로드 실패'
+      // 라는 일반 라벨을 넘겼는데, 이 문자열이 no-fill 키워드('광고 로드 실패')에
+      // 걸려 SDK 초기화 실패·설정 오류·플레이스먼트 문제까지 전부 "모든 광고
+      // 소진"으로 표시되고 Sentry 보고도 막혔다. 진짜 no-fill/네트워크 예외는
+      // 자기 텍스트('no fill', 'network error' 등)로 여전히 걸러진다.
+      logAdLoadFailure('Pangle', e, failedAdUnitId, e.toString(), s);
+      return (loaded: false, reported: true);
     }
   }
 
@@ -334,8 +411,7 @@ class PanglePlatform extends AdPlatform {
   @override
   void dispose() {
     _cancelImpressionListener();
-    unawaited(_pollingSubscription?.cancel());
-    _pollingSubscription = null;
+    unawaited(_pollingOwner.cancel());
     if (_activeReference != null) {
       _activeReference = null;
     }

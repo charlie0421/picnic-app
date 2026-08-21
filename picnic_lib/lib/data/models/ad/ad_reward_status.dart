@@ -83,7 +83,23 @@ abstract class PangleClaimModel with _$PangleClaimModel {
     @JsonKey(name: 'signed_token') required String signedToken,
     @JsonKey(name: 'expires_at') required DateTime expiresAt,
   }) = _PangleClaimModel;
-  String mediaExtra(String userId) => '$userId,$platform,v2.$signedToken';
+  /// Pangle 네이티브 로더가 요구하는 `<userId>,<platform>,v2.<token>` 형식.
+  ///
+  /// [platform] 은 **반드시 소문자**여야 한다. 네이티브 검증기가 정확 일치를
+  /// 요구하기 때문이다 — Android `require(parts[1] == "android")`,
+  /// iOS `parts[1] == "ios"`. 어긋나면 로드가 `InvalidMediaExtra`
+  /// ("Signed v2 mediaExtra is required") 로 거부되고, 앱은 그 실패를
+  /// no-fill 로 분류해 사용자에게 "모든 광고 소진" 으로 안내한다.
+  ///
+  /// 서버(`ad-reward-claim`)는 요청의 platform 을 `toUpperCase()` 해서 저장하고
+  /// 그 값을 응답에도 그대로 실어 준다(`ANDROID`/`IOS`). 그래서 서버가 준 값을
+  /// 믿고 쓰면 형식이 깨진다 — 2026-07-29 부터 2026-08-13 까지 Pangle 클레임
+  /// 1,452 건이 만들어졌으나 지급은 0 건이었다(PICNIC-2377).
+  ///
+  /// 형식을 약속하는 쪽이 형식을 보장한다. 서버 표기에 의존하지 않고 여기서
+  /// 정규화한다.
+  String mediaExtra(String userId) =>
+      '$userId,${platform.toLowerCase()},v2.$signedToken';
   factory PangleClaimModel.fromJson(Map<String, dynamic> json) =>
       _decodeContract(
         () => _$PangleClaimModelFromJson(

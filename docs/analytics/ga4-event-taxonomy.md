@@ -130,6 +130,37 @@ await PicnicAnalytics.instance.setUserProperties(
 | `ad_category` | 광고 카테고리/큐레이션 | String | Event | `글로벌 픽 #1` |
 | `destination_type` | 클릭 후 이동한 목적지 유형 | String | Event | `youtube` |
 
+#### 자체 숏폼의 `ad_unit_name` 을 비워 보내는 이유 (스프레드시트와의 의도적 차이)
+
+스프레드시트는 `ad_unit_name` 예시를 `reward_global_pick_1` 로 적고 있으나, 자체
+숏폼 광고(`internal-shortform`)에는 **외부 SDK 의 ad unit 이라는 개념 자체가 없다.**
+AdMob 의 `adUnitId`, Pangle 의 slot ID 에 대응하는 식별자가 존재하지 않으므로,
+추정값을 만들어 넣는 대신 `null` 로 두고 공통 파라미터 레이어가 `undefined` 로
+대체하게 한다(`§2 대체 규칙`, `ga4_parameters.dart`).
+
+없는 값을 그럴듯한 문자열로 채우면 GA4 에서 "실제 unit 이 있는 구좌"와 구분되지
+않아, 나중에 진짜 unit 을 붙였을 때 과거 데이터와 섞인다. Pangle(`아시아 픽 #1`)
+은 slot ID 를 그대로 보내므로 이 차이는 자체 숏폼 구좌에만 해당한다.
+
+#### `ad_click` 은 '종료 후'로 한정되지 않는다 (동작과의 차이)
+
+이벤트 이름과 위 제목은 "광고 **종료 후**"로 적혀 있으나, 실제 '더보기' 버튼은
+**잔여 5초부터** 노출·활성된다(`AdShortformLogic.shouldShowCtaButton`). 따라서
+재생이 끝나기 전에 눌린 클릭도 `ad_click` 으로 집계된다. 이는 사용자를 광고
+화면에 가두지 않기 위한 의도된 UX 이며(`4e79a32eb`), 계측 버그가 아니다.
+
+`ad_click` 이 있는데 `earn_virtual_currency` 가 없는 세션은 "종료 전에 더보기로
+이탈했고 남은 재생을 마치지 않은" 경우다. 적립 이벤트 누락으로 오독하지 않는다.
+
+#### 재화 이름과 영역명 (`section_name` / `virtual_currency_name`)
+
+스프레드시트는 광고 리워드의 재화를 `별사탕`, 영역명을 `광고에서 별사탕 받기` 로
+적고 있으나, 실제 제품이 광고 시청으로 지급하는 재화는 **코튼캔디**다. 스펙
+예시값을 그대로 보내면 서로 다른 두 재화가 GA4 에서 한 디멘션 값으로 합쳐지므로
+제품 실제값(`광고에서 코튼캔디 받기`, `코튼캔디`)을 보낸다. §4~§8 의 광고 리워드
+계열 이벤트에 공통 적용되며, 대행사 회신 항목이다(`agency-reply.html`).
+기준값은 `FreeChargeGa4` / `Ga4CurrencyNames` 한 곳에만 둔다.
+
 ### 9. `purchase` — 사용자가 결제를 완료하여 별사탕을 구매했을 때 (통신 시점)
 
 Event 수준:

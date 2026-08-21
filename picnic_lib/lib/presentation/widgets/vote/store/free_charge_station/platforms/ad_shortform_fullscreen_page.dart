@@ -19,6 +19,7 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 
@@ -28,9 +29,9 @@ class AdShortformLogic {
   static bool shouldUseLegacyBonusUx(InternalShortformViewResponse response) =>
       response.reward == null && response.rewardAdded > 0;
 
-  static bool shouldSuppressLocalWalletUx(
+  static bool shouldPresentWalletRewardImmediately(
     InternalShortformViewResponse response,
-  ) => response.reward != null;
+  ) => response.reward?.state == AdRewardState.granted;
 
   static WalletSummaryModel? walletSummaryToApply(
     InternalShortformViewResponse response,
@@ -146,6 +147,26 @@ class AdShortformLogic {
     return visible && !rewarding;
   }
 
+  /// Whether the ad route may close itself right after the CTA was opened.
+  ///
+  /// The CTA is only a landing-page hop; it must never cost the user the candy
+  /// they already watched for. Popping the route disposes the video controller,
+  /// which removes the `_onProgress` listener and with it the ONLY path to
+  /// `_startReward()` - so closing before the view reward has settled forfeits
+  /// the base watch reward entirely.
+  ///
+  /// The button becomes visible with 5s of playback left
+  /// ([shouldShowCtaButton]) and stays actionable by design
+  /// ([isCtaActionEnabled]), so "CTA tapped" and "reward settled" genuinely do
+  /// not imply each other. When the reward has not settled we leave the route
+  /// mounted: the user returns from the browser, playback finishes, and the
+  /// reward lands normally. The close (X) button stays available throughout, so
+  /// nobody is trapped.
+  ///
+  /// (Was: the route popped unconditionally, so tapping '더보기' during those
+  /// last 5 seconds dropped the view reward on the floor.)
+  static bool shouldCloseAfterCta({required bool viewReported}) => viewReported;
+
   static bool isCloseActionEnabled({
     required bool finished,
     required bool viewReported,
@@ -227,7 +248,6 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   final String videoUrl;
   final String? ctaUrl;
   final Future<InternalShortformViewResponse> Function() onViewComplete;
-  final Future<void> Function() onMore;
 
   /// Loads the ad at route-entry time.
   ///
@@ -242,14 +262,19 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   /// 광고 이벤트를 보내지 않는다(임의값으로 채우지 않는다).
   final FreeChargeAdGa4Context? ga4;
 
+  /// Called after a wallet-aware reward receipt has rendered its first frame.
+  /// The platform acknowledges the durable pending record at this point.
+  final Future<void> Function(AdRewardStatusModel status)?
+  onWalletRewardPresented;
+
   const AdShortformFullscreenPage({
     super.key,
     required this.videoUrl,
     required this.onViewComplete,
-    required this.onMore,
     this.ctaUrl,
     this.loadAd,
     this.ga4,
+    this.onWalletRewardPresented,
   });
 
   @override
@@ -258,7 +283,8 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
 }
 
 class _AdShortformFullscreenPageState
-    extends ConsumerState<AdShortformFullscreenPage> {
+    extends ConsumerState<AdShortformFullscreenPage>
+    with WidgetsBindingObserver {
   VideoPlayerController? _controller;
   bool _viewReported = false;
   bool _loading = true;
@@ -298,6 +324,7 @@ class _AdShortformFullscreenPageState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _rewardContainer = ProviderScope.containerOf(context, listen: false);
     _enterImmersive();
     _startWatchdog();
@@ -528,6 +555,11 @@ class _AdShortformFullscreenPageState
     if (AdShortformLogic.shouldRefreshLegacyProfile(response) && mounted) {
       await ref.read(userInfoProvider.notifier).getUserProfiles();
     }
+    if (AdShortformLogic.shouldPresentWalletRewardImmediately(response) &&
+        mounted) {
+      await _showWalletRewardReceipt(response.reward!);
+      return;
+    }
     if (AdShortformLogic.shouldUseLegacyBonusUx(response)) {
       // earn_virtual_currency (스펙 §2-7) — legacy 응답 경로.
       //
@@ -550,6 +582,20 @@ class _AdShortformFullscreenPageState
         await showCandyRewardReceiptDialog(dialogContext, receipt);
       }
     }
+  }
+
+  Future<void> _showWalletRewardReceipt(AdRewardStatusModel status) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AdRewardDialogBody(
+        status: status,
+        onFirstFrame: () async {
+          final acknowledge = widget.onWalletRewardPresented;
+          if (acknowledge != null) await acknowledge(status);
+        },
+      ),
+    );
   }
 
   Widget _buildPulseOverlay(bool visible) {
@@ -695,8 +741,35 @@ class _AdShortformFullscreenPageState
     );
   }
 
+  /// '더보기'로 광고주 랜딩에 다녀온 뒤 재생을 이어 붙인다.
+  ///
+  /// CTA 를 누르면 외부 브라우저가 앱을 백그라운드로 밀고, OS 가 재생을 멈춘다.
+  /// [AdShortformLogic.shouldCloseAfterCta] 덕에 라우트는 살아 있지만, 돌아왔을
+  /// 때 영상이 멈춘 채로 있으면 `_onProgress` 가 다시 돌지 않아
+  /// [AdShortformLogic.shouldReportView] 조건에 영원히 도달하지 못한다 — 결국
+  /// 시청 보상이 유실되고 화면도 자동으로 닫히지 않는다.
+  ///
+  /// 반대로 백그라운드에서도 재생이 계속되는 플랫폼에서는 광고 소리가 랜딩
+  /// 페이지 위로 흐른다. 양쪽 모두를 막으려면 나갈 때 멈추고 돌아올 때 이어야
+  /// 한다. 이미 적립이 끝났거나(`_viewReported`) 보상 콜백이 UI 를 쥐고 있는
+  /// 동안(`_rewarding`)은 건드리지 않는다.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    final controller = _controller;
+    if (controller == null || !controller.value.isInitialized) return;
+    if (_viewReported || _rewarding) return;
+    if (state == AppLifecycleState.resumed) {
+      unawaited(controller.play().catchError((_) {}));
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      unawaited(controller.pause().catchError((_) {}));
+    }
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _cancelWatchdog();
     try {
       _controller?.removeListener(_onProgress);
@@ -882,14 +955,21 @@ class _AdShortformFullscreenPageState
                             onPressed: enabled
                                 ? () async {
                                     debugPrint('[internal] more pressed');
-                                    // 적립은 재생 종료 시 자동 처리됨
+                                    // '더보기'는 광고주 랜딩으로 보내고 `ad_click`
+                                    // 을 남기는 것이 전부다. 추가 적립은 하지
+                                    // 않기로 확정됐다(PICNIC-2377) - 적립은 재생
+                                    // 종료 시 시청 보상 한 건으로만 처리된다.
                                     await _openCta(cta!);
-                                    if (mounted) {
+                                    // 적립이 확정되기 전에 닫으면 컨트롤러가
+                                    // dispose 되어 시청 보상까지 날아간다.
+                                    if (AdShortformLogic.shouldCloseAfterCta(
+                                          viewReported: _viewReported,
+                                        ) &&
+                                        mounted) {
                                       Navigator.of(
                                         navigatorKey.currentContext!,
                                       ).maybePop();
                                     }
-                                    // widget.onMore()는 호출하지 않음 (More 보상 제거)
                                   }
                                 : null,
                             style: ElevatedButton.styleFrom(

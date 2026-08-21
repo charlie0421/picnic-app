@@ -1003,7 +1003,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vote_completed_message => 'I voted!';
 
   @override
-  String get voting_share_benefit_text => '每 100 次投票和分享可获得 1 颗奖励星星糖果！';
+  String get voting_share_benefit_text => '每 100 次投票可获得 1 颗奖励星星糖果！';
 
   @override
   String get cancel => 'Cancel';

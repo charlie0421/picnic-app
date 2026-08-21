@@ -65,6 +65,17 @@
 </table>
 </div>
 
+<div class="stop">
+<strong>기존 문서의 사실 오류 정정 —</strong>
+<code>docs/operations/handoff-20260820-emergency-patch.html</code> 의 "이 대기열에 없는 것" 절은
+<em>"GA4 택소노미 구현(9/10 이벤트)은 아직 커밋조차 안 됐다"</em> 고 적고 있으나 <span class="k">사실이 아니다.</span>
+GA4 는 8/10 에 PR #153 으로 머지됐고(<code>d99118ab3</code>), 태그 조상 검증 결과
+<code>picnic-v1.3.0+130007</code> 에 포함돼 있다.
+<pre>git merge-base --is-ancestor d99118ab3 picnic-v1.3.0+130007   # exit 0 = 포함</pre>
+그 문서는 8/20 작성 시점의 오래된 메모를 근거로 삼은 것으로 보인다.
+<strong>GA4 는 배포 대기열에 없는 것이 맞지만, 이유는 "미커밋"이 아니라 "이미 배포됨"이다.</strong>
+</div>
+
 <p>머지 이후 <a href="https://github.com/charlie0421/picnic-app/pull/157">#157</a>(<code>2048fa016</code>)이
 택소노미 문서 §2를 보강했다 — 자체 숏폼의 <code>ad_unit_name</code> 공란 사유,
 <code>ad_click</code> 이 "종료 후"로 한정되지 않는 실제 동작(잔여 5초부터 CTA 노출),
@@ -176,11 +187,14 @@ purchase 를 확정한다. <strong>건수는 남지만 매출액이 0으로 빠�
 </div>
 
 <div class="warn">
-<strong>에셋을 추가한 커밋은 OTA 로 나갈 수 없다.</strong>
+<strong>에셋을 추가한 커밋은 OTA 로 나갈 수 없다 — 단, 지금 130007 에는 해당 없음.</strong>
 에셋은 바이너리에 번들되므로 패치로 전달되지 않는다.
 <code>--allow-asset-diffs</code> 는 <strong>경고를 넘길 뿐 에셋을 전달하지 않는다.</strong>
-설치된 앱에 없는 파일을 참조하는 코드가 나가면 런타임에야 드러난다.
-(실제로 8/10에 #156의 <code>splash_key.png</code> 때문에 OTA 기준 커밋을 <code>d99118ab3</code> 로 제한한 적이 있다.)
+<p style="margin:.6em 0 0">8/10 에 #156 의 <code>splash_key.png</code> 때문에 OTA 기준 커밋을 제한한 적이 있으나,
+<span class="k">그 판단은 구 릴리스 <code>130001</code> 기준이었다.</span> 현재 활성 릴리스
+<code>1.3.0+130007</code> 태그에는 해당 에셋이 이미 포함돼 있어(<code>git cat-file -e
+picnic-v1.3.0+130007:picnic_app/assets/splash_key.png</code> 확인) 130007 대상 패치에는 걸리지 않는다.
+<strong>원칙은 유효하니 새 에셋이 추가되면 그때 다시 판단하라.</strong></p>
 </div>
 
 <h2>5. 스펙과 의도적으로 다른 지점</h2>

@@ -1030,7 +1030,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'รับ 1 ลูกอมโบนัสสตาร์สำหรับทุก ๆ 100 คะแนนและแบ่งปัน!';
+      'รับ 1 ลูกอมโบนัสสตาร์สำหรับทุก ๆ 100 คะแนน!';
 
   @override
   String get cancel => 'ยกเลิก';

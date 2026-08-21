@@ -27,6 +27,11 @@ abstract class AdPlatform {
   final AnimationController? animationController;
   late final CommonUtils _commonUtils;
   bool _isDisposed = false;
+
+  /// 이 플랫폼이 켠 로딩(전역 오버레이 + adLoadingStateProvider)이 아직
+  /// 꺼지지 않았는지. OverlayLoadingProgress 는 전역 싱글턴이라, dispose 가
+  /// 자신이 켠 것만 정리해야 다른 기능의 오버레이를 닫지 않는다.
+  bool _startedLoading = false;
   final Stopwatch _performanceStopwatch = Stopwatch();
 
   /// 이번 시청 건의 GA4 컨텍스트. 구좌(버튼) 클릭 시점에 주입된다.
@@ -84,8 +89,22 @@ abstract class AdPlatform {
   Future<void> handleError(dynamic error, StackTrace? stackTrace);
 
   void dispose() {
+    final ownedLoading = _startedLoading;
+    _startedLoading = false;
     _isDisposed = true;
-    stopAllAnimations();
+    // stopAllAnimations() 는 isDisposed 가드에 막혀 여기서는 전부 no-op 이라
+    // teardown 에 필요한 정리를 직접 한다. 단, 이 플랫폼이 켠 로딩만 끈다.
+    if (animationController != null && animationController!.isAnimating) {
+      animationController!.stop();
+    }
+    if (ownedLoading) {
+      // 오버레이는 전역이라 페이지가 죽어도 남는다 — 먼저 내린다.
+      OverlayLoadingProgress.stop();
+      // 로딩 상태는 전역 provider 라 남으면 다음 방문의 버튼이 잠긴다.
+      // State.dispose 안에서의 ref.read 는 허용되고, 그 밖의 늦은 호출이
+      // 던지면 AdService 가 플랫폼별로 격리한다.
+      ref.read(adLoadingStateProvider.notifier).setLoading(id, false);
+    }
     logger.i('[$id] 플랫폼 종료');
   }
 
@@ -101,6 +120,7 @@ abstract class AdPlatform {
   void startLoading() {
     if (!context.mounted || isDisposed) return;
     setLoading(true);
+    _startedLoading = true;
     OverlayLoadingProgress.start(context);
   }
 
@@ -108,6 +128,7 @@ abstract class AdPlatform {
   void stopLoading() {
     if (!context.mounted || isDisposed) return;
     setLoading(false);
+    _startedLoading = false;
     OverlayLoadingProgress.stop();
   }
 
@@ -340,9 +361,22 @@ abstract class AdPlatform {
     }
   }
 
-  // Sentry에 보내지 않아도 되는 광고 에러 감지
+  /// Sentry 에 보내지 않아도 되는 광고 에러 감지.
+  ///
+  /// 판정은 전적으로 [message] 문자열에 달려 있다(AdMob 의 [LoadAdError] 코드만
+  /// 예외). 따라서 호출부는 **실제 에러 텍스트**를 넘겨야 한다 — 하드코딩한
+  /// 일반 라벨('… 광고 로드 실패' 등)을 넘기면 SDK 초기화 실패·설정 오류 같은
+  /// 진짜 버그까지 no-fill 로 분류되어 사용자에겐 "모든 광고 소진"으로 보이고
+  /// Sentry 보고까지 막힌다.
+  ///
+  /// 인스턴스 상태를 쓰지 않으므로 static 이다 — 테스트가 로직을 복제하지 않고
+  /// 이 구현을 그대로 호출할 수 있어야 키워드 목록이 바뀌어도 검증이 따라간다.
   @visibleForTesting
-  bool isNonReportableAdError(String platform, dynamic error, String message) {
+  static bool isNonReportableAdError(
+    String platform,
+    dynamic error,
+    String message,
+  ) {
     final lowercaseMessage = message.toLowerCase();
 
     if (platform == 'AdMob' && error is LoadAdError) {

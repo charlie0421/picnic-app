@@ -10,14 +10,12 @@ class InternalShortformIssueResult {
     required this.videoUrl,
     required this.ctaUrl,
     required this.viewToken,
-    required this.moreToken,
   });
   final String ownerUserId;
   final AdRewardReference reference;
   final String videoUrl;
   final String? ctaUrl;
   final String viewToken;
-  final String? moreToken;
 }
 
 class InternalShortformIssueFlow {
@@ -71,7 +69,6 @@ class InternalShortformIssueFlow {
         videoUrl: videoUrl,
         ctaUrl: ad['cta_url'] as String?,
         viewToken: viewToken,
-        moreToken: tokens['more_token'] as String?,
       );
     } on FormatException {
       rethrow;
@@ -132,11 +129,22 @@ class InternalShortformViewRecoveryFlow {
 
   Future<InternalShortformViewResponse> report() async {
     final response = await view.report();
-    if (response.reward == null) return response;
+    // A synchronously granted reward is presented by the fullscreen page while
+    // the ad is still open. Starting recovery here races that local receipt and
+    // delays it until the route has been dismissed.
+    if (response.reward == null ||
+        response.reward!.state == AdRewardState.granted) {
+      return response;
+    }
     final owner = view.session.ownerUserId!;
     final reference = view.session.reference!;
+    // Future.sync: dispose 된 ref.read 처럼 poll 이 동기로 던져도 시청 응답을
+    // 잃지 않고 onPollError 로 모은다.
     unawaited(
-      poll(owner, reference).catchError((Object error, StackTrace stackTrace) {
+      Future.sync(() => poll(owner, reference)).catchError((
+        Object error,
+        StackTrace stackTrace,
+      ) {
         onPollError?.call(error, stackTrace);
       }),
     );

@@ -343,6 +343,41 @@ class AdRewardRecovery extends _$AdRewardRecovery {
       throw StateError('Ad reward is no longer the active dialog');
     }
 
+    await _acknowledgeTerminal(
+      ownerUserId: ownerUserId,
+      status: status,
+      generation: generation,
+    );
+  }
+
+  /// A terminal reward was rendered by the fullscreen ad route itself, before
+  /// it can enter the app-level dialog queue. Persist the same acknowledgement
+  /// tombstone used by [acknowledgeAfterRender] so it cannot reappear later.
+  Future<void> acknowledgePresented({
+    required String ownerUserId,
+    required AdRewardStatusModel status,
+  }) async {
+    if (status.state == AdRewardState.pending) {
+      throw StateError('Pending rewards cannot be acknowledged');
+    }
+    if (ref.read(adRewardOwnerReaderProvider)() != ownerUserId) {
+      throw StateError('Ad reward owner is no longer active');
+    }
+    final generation = _activateUser(ownerUserId);
+    await _acknowledgeTerminal(
+      ownerUserId: ownerUserId,
+      status: status,
+      generation: generation,
+    );
+  }
+
+  Future<void> _acknowledgeTerminal({
+    required String ownerUserId,
+    required AdRewardStatusModel status,
+    required int generation,
+  }) async {
+    final key = _key(ownerUserId, status.reference);
+
     // Persisting the tombstone and calling `acknowledge` is one critical
     // section per reference: `acknowledge` is a payout input, not progress UI,
     // so two runs racing here would spend the same reward twice.

@@ -68,7 +68,6 @@ void main() {
         final page = AdShortformFullscreenPage(
           videoUrl: '',
           onViewComplete: legacyViewResponse,
-          onMore: () async {},
           loadAd: () => completer.future, // never completes -> controller null
         );
 
@@ -93,7 +92,6 @@ void main() {
         final page = AdShortformFullscreenPage(
           videoUrl: '',
           onViewComplete: legacyViewResponse,
-          onMore: () async {},
           loadAd: () => completer.future,
         );
 
@@ -120,7 +118,6 @@ void main() {
         final page = AdShortformFullscreenPage(
           videoUrl: '',
           onViewComplete: legacyViewResponse,
-          onMore: () async {},
           loadAd: () async => (videoUrl: '', ctaUrl: null, blocked: false),
         );
 
@@ -139,7 +136,6 @@ void main() {
         final page = AdShortformFullscreenPage(
           videoUrl: '',
           onViewComplete: legacyViewResponse,
-          onMore: () async {},
           loadAd: () async => (videoUrl: '', ctaUrl: null, blocked: true),
         );
 
