@@ -40,10 +40,18 @@ abstract class ActivePromotionCampaignV2Model
     @JsonKey(name: 'campaign_version_id') required String campaignVersionId,
     required String code,
     @JsonKey(name: 'display_name') required Map<String, dynamic> displayName,
-    @JsonKey(name: 'multiplier_tenths') required int multiplierTenths,
-    @JsonKey(name: 'event_starts_at') required DateTime eventStartsAt,
-    @JsonKey(name: 'event_ends_at') required DateTime eventEndsAt,
-    @JsonKey(name: 'repeat_iso_dows') required List<int> repeatIsoDows,
+    @JsonKey(name: 'multiplier_tenths')
+    @_StrictIntConverter()
+    required int multiplierTenths,
+    @JsonKey(name: 'event_starts_at')
+    @_StrictTimestampConverter()
+    required DateTime eventStartsAt,
+    @JsonKey(name: 'event_ends_at')
+    @_StrictTimestampConverter()
+    required DateTime eventEndsAt,
+    @JsonKey(name: 'repeat_iso_dows')
+    @_StrictIntListConverter()
+    required List<int> repeatIsoDows,
     @JsonKey(name: 'home_creative') PromotionCreativeModel? homeCreative,
   }) = _ActivePromotionCampaignV2Model;
 
@@ -60,16 +68,59 @@ abstract class ActivePromotionCampaignV2Model
       homeCreative?.localizedImage(locale) != null;
 
   factory ActivePromotionCampaignV2Model.fromJson(Map<String, dynamic> json) =>
-      _$ActivePromotionCampaignV2ModelFromJson(_normalizeCampaignV2Json(json));
+      _requireValidCampaignV2Shape(
+        _$ActivePromotionCampaignV2ModelFromJson(
+          _normalizeCampaignV2Json(json),
+        ),
+      );
 }
 
 Map<String, dynamic> _normalizeCampaignV2Json(Map<String, dynamic> json) {
   final exact = requireExactContractKeys(json, _campaignV2Keys);
-  if (exact['home_creative'] is Map &&
-      (exact['home_creative'] as Map).isEmpty) {
+  final creative = exact['home_creative'];
+  if (creative is Map && creative.isEmpty) {
     exact['home_creative'] = null;
+  } else if (creative is Map) {
+    _requireStrictInt(creative['banner_id'], 'home_creative.banner_id');
+    final duration = creative['duration'];
+    if (duration != null) {
+      _requireStrictInt(duration, 'home_creative.duration');
+    }
   }
   return exact;
+}
+
+ActivePromotionCampaignV2Model _requireValidCampaignV2Shape(
+  ActivePromotionCampaignV2Model model,
+) {
+  if (model.multiplierTenths < 11 || model.multiplierTenths > 30) {
+    throw FormatException(
+      'multiplier_tenths must be within 11..30, got ${model.multiplierTenths}',
+    );
+  }
+  final dows = model.repeatIsoDows;
+  if (dows.isEmpty) {
+    throw const FormatException('repeat_iso_dows must not be empty');
+  }
+  for (var i = 0; i < dows.length; i++) {
+    if (dows[i] < 1 || dows[i] > 7) {
+      throw FormatException(
+        'repeat_iso_dows must be within 1..7, got $dows',
+      );
+    }
+    if (i > 0 && dows[i] <= dows[i - 1]) {
+      throw FormatException(
+        'repeat_iso_dows must be unique and sorted ascending, got $dows',
+      );
+    }
+  }
+  if (!model.eventStartsAt.isBefore(model.eventEndsAt)) {
+    throw FormatException(
+      'event_starts_at must be before event_ends_at, got '
+      '${model.eventStartsAt} >= ${model.eventEndsAt}',
+    );
+  }
+  return model;
 }
 
 @freezed
@@ -82,8 +133,11 @@ abstract class ActivePromotionCampaignsV2Model
     @WalletAmountConverter()
     required BigInt totalCount,
     @JsonKey(name: 'next_cursor') String? nextCursor,
-    @JsonKey(name: 'snapshot_at') required DateTime snapshotAt,
+    @JsonKey(name: 'snapshot_at')
+    @_StrictTimestampConverter()
+    required DateTime snapshotAt,
     @JsonKey(name: 'campaign_owned_home_banner_ids')
+    @_StrictIntListConverter()
     required List<int> campaignOwnedHomeBannerIds,
   }) = _ActivePromotionCampaignsV2Model;
 
@@ -92,7 +146,101 @@ abstract class ActivePromotionCampaignsV2Model
 
   factory ActivePromotionCampaignsV2Model.fromJson(
     Map<String, dynamic> json,
-  ) => _$ActivePromotionCampaignsV2ModelFromJson(
-    requireExactContractKeys(json, _campaignV2EnvelopeKeys),
+  ) => _requireValidCampaignsV2Shape(
+    _$ActivePromotionCampaignsV2ModelFromJson(
+      requireExactContractKeys(json, _campaignV2EnvelopeKeys),
+    ),
   );
+}
+
+ActivePromotionCampaignsV2Model _requireValidCampaignsV2Shape(
+  ActivePromotionCampaignsV2Model model,
+) {
+  if (model.totalCount.isNegative) {
+    throw FormatException(
+      'total_count must be non-negative, got ${model.totalCount}',
+    );
+  }
+  return model;
+}
+
+int _requireStrictInt(Object? value, String field) {
+  if (value is! int) {
+    throw FormatException(
+      '$field must be an integer without a fractional part, got $value',
+    );
+  }
+  return value;
+}
+
+class _StrictIntConverter implements JsonConverter<int, Object?> {
+  const _StrictIntConverter();
+
+  @override
+  int fromJson(Object? json) => _requireStrictInt(json, 'value');
+
+  @override
+  Object toJson(int object) => object;
+}
+
+class _StrictIntListConverter implements JsonConverter<List<int>, Object?> {
+  const _StrictIntListConverter();
+
+  @override
+  List<int> fromJson(Object? json) {
+    if (json is! List) {
+      throw FormatException('Expected a JSON array, got $json');
+    }
+    return [for (final e in json) _requireStrictInt(e, 'list item')];
+  }
+
+  @override
+  Object toJson(List<int> object) => object;
+}
+
+final _rfc3339Pattern = RegExp(
+  r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?(Z|[+-]\d{2}:\d{2})$',
+);
+
+DateTime _requireStrictTimestamp(Object? value, String field) {
+  if (value is! String) {
+    throw FormatException(
+      '$field must be an RFC3339 timestamp string, got $value',
+    );
+  }
+  final match = _rfc3339Pattern.firstMatch(value);
+  if (match == null) {
+    throw FormatException(
+      '$field must be an RFC3339 timestamp with an explicit UTC offset, '
+      'got $value',
+    );
+  }
+  final year = int.parse(match.group(1)!);
+  final month = int.parse(match.group(2)!);
+  final day = int.parse(match.group(3)!);
+  final hour = int.parse(match.group(4)!);
+  final minute = int.parse(match.group(5)!);
+  final second = int.parse(match.group(6)!);
+  final normalized = DateTime.utc(year, month, day, hour, minute, second);
+  if (normalized.year != year ||
+      normalized.month != month ||
+      normalized.day != day ||
+      normalized.hour != hour ||
+      normalized.minute != minute ||
+      normalized.second != second) {
+    throw FormatException(
+      '$field is not a valid calendar timestamp, got $value',
+    );
+  }
+  return DateTime.parse(value);
+}
+
+class _StrictTimestampConverter implements JsonConverter<DateTime, Object?> {
+  const _StrictTimestampConverter();
+
+  @override
+  DateTime fromJson(Object? json) => _requireStrictTimestamp(json, 'value');
+
+  @override
+  Object toJson(DateTime object) => object.toIso8601String();
 }

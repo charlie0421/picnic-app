@@ -25,19 +25,19 @@ _ActivePromotionCampaignV2Model _$ActivePromotionCampaignV2ModelFromJson(
       ),
       multiplierTenths: $checkedConvert(
         'multiplier_tenths',
-        (v) => (v as num).toInt(),
+        (v) => const _StrictIntConverter().fromJson(v),
       ),
       eventStartsAt: $checkedConvert(
         'event_starts_at',
-        (v) => DateTime.parse(v as String),
+        (v) => const _StrictTimestampConverter().fromJson(v),
       ),
       eventEndsAt: $checkedConvert(
         'event_ends_at',
-        (v) => DateTime.parse(v as String),
+        (v) => const _StrictTimestampConverter().fromJson(v),
       ),
       repeatIsoDows: $checkedConvert(
         'repeat_iso_dows',
-        (v) => (v as List<dynamic>).map((e) => (e as num).toInt()).toList(),
+        (v) => const _StrictIntListConverter().fromJson(v),
       ),
       homeCreative: $checkedConvert(
         'home_creative',
@@ -67,10 +67,18 @@ Map<String, dynamic> _$ActivePromotionCampaignV2ModelToJson(
   'campaign_version_id': instance.campaignVersionId,
   'code': instance.code,
   'display_name': instance.displayName,
-  'multiplier_tenths': instance.multiplierTenths,
-  'event_starts_at': instance.eventStartsAt.toIso8601String(),
-  'event_ends_at': instance.eventEndsAt.toIso8601String(),
-  'repeat_iso_dows': instance.repeatIsoDows,
+  'multiplier_tenths': const _StrictIntConverter().toJson(
+    instance.multiplierTenths,
+  ),
+  'event_starts_at': const _StrictTimestampConverter().toJson(
+    instance.eventStartsAt,
+  ),
+  'event_ends_at': const _StrictTimestampConverter().toJson(
+    instance.eventEndsAt,
+  ),
+  'repeat_iso_dows': const _StrictIntListConverter().toJson(
+    instance.repeatIsoDows,
+  ),
   'home_creative': instance.homeCreative?.toJson(),
 };
 
@@ -98,11 +106,11 @@ _ActivePromotionCampaignsV2Model _$ActivePromotionCampaignsV2ModelFromJson(
       nextCursor: $checkedConvert('next_cursor', (v) => v as String?),
       snapshotAt: $checkedConvert(
         'snapshot_at',
-        (v) => DateTime.parse(v as String),
+        (v) => const _StrictTimestampConverter().fromJson(v),
       ),
       campaignOwnedHomeBannerIds: $checkedConvert(
         'campaign_owned_home_banner_ids',
-        (v) => (v as List<dynamic>).map((e) => (e as num).toInt()).toList(),
+        (v) => const _StrictIntListConverter().fromJson(v),
       ),
     );
     return val;
@@ -121,6 +129,8 @@ Map<String, dynamic> _$ActivePromotionCampaignsV2ModelToJson(
   'items': instance.items.map((e) => e.toJson()).toList(),
   'total_count': const WalletAmountConverter().toJson(instance.totalCount),
   'next_cursor': instance.nextCursor,
-  'snapshot_at': instance.snapshotAt.toIso8601String(),
-  'campaign_owned_home_banner_ids': instance.campaignOwnedHomeBannerIds,
+  'snapshot_at': const _StrictTimestampConverter().toJson(instance.snapshotAt),
+  'campaign_owned_home_banner_ids': const _StrictIntListConverter().toJson(
+    instance.campaignOwnedHomeBannerIds,
+  ),
 };

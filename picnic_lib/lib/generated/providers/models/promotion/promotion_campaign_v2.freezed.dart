@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ActivePromotionCampaignV2Model {
 
-@JsonKey(name: 'campaign_id') String get campaignId;@JsonKey(name: 'campaign_version_id') String get campaignVersionId; String get code;@JsonKey(name: 'display_name') Map<String, dynamic> get displayName;@JsonKey(name: 'multiplier_tenths') int get multiplierTenths;@JsonKey(name: 'event_starts_at') DateTime get eventStartsAt;@JsonKey(name: 'event_ends_at') DateTime get eventEndsAt;@JsonKey(name: 'repeat_iso_dows') List<int> get repeatIsoDows;@JsonKey(name: 'home_creative') PromotionCreativeModel? get homeCreative;
+@JsonKey(name: 'campaign_id') String get campaignId;@JsonKey(name: 'campaign_version_id') String get campaignVersionId; String get code;@JsonKey(name: 'display_name') Map<String, dynamic> get displayName;@JsonKey(name: 'multiplier_tenths')@_StrictIntConverter() int get multiplierTenths;@JsonKey(name: 'event_starts_at')@_StrictTimestampConverter() DateTime get eventStartsAt;@JsonKey(name: 'event_ends_at')@_StrictTimestampConverter() DateTime get eventEndsAt;@JsonKey(name: 'repeat_iso_dows')@_StrictIntListConverter() List<int> get repeatIsoDows;@JsonKey(name: 'home_creative') PromotionCreativeModel? get homeCreative;
 /// Create a copy of ActivePromotionCampaignV2Model
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $ActivePromotionCampaignV2ModelCopyWith<$Res>  {
   factory $ActivePromotionCampaignV2ModelCopyWith(ActivePromotionCampaignV2Model value, $Res Function(ActivePromotionCampaignV2Model) _then) = _$ActivePromotionCampaignV2ModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'campaign_id') String campaignId,@JsonKey(name: 'campaign_version_id') String campaignVersionId, String code,@JsonKey(name: 'display_name') Map<String, dynamic> displayName,@JsonKey(name: 'multiplier_tenths') int multiplierTenths,@JsonKey(name: 'event_starts_at') DateTime eventStartsAt,@JsonKey(name: 'event_ends_at') DateTime eventEndsAt,@JsonKey(name: 'repeat_iso_dows') List<int> repeatIsoDows,@JsonKey(name: 'home_creative') PromotionCreativeModel? homeCreative
+@JsonKey(name: 'campaign_id') String campaignId,@JsonKey(name: 'campaign_version_id') String campaignVersionId, String code,@JsonKey(name: 'display_name') Map<String, dynamic> displayName,@JsonKey(name: 'multiplier_tenths')@_StrictIntConverter() int multiplierTenths,@JsonKey(name: 'event_starts_at')@_StrictTimestampConverter() DateTime eventStartsAt,@JsonKey(name: 'event_ends_at')@_StrictTimestampConverter() DateTime eventEndsAt,@JsonKey(name: 'repeat_iso_dows')@_StrictIntListConverter() List<int> repeatIsoDows,@JsonKey(name: 'home_creative') PromotionCreativeModel? homeCreative
 });
 
 
@@ -173,7 +173,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'campaign_id')  String campaignId, @JsonKey(name: 'campaign_version_id')  String campaignVersionId,  String code, @JsonKey(name: 'display_name')  Map<String, dynamic> displayName, @JsonKey(name: 'multiplier_tenths')  int multiplierTenths, @JsonKey(name: 'event_starts_at')  DateTime eventStartsAt, @JsonKey(name: 'event_ends_at')  DateTime eventEndsAt, @JsonKey(name: 'repeat_iso_dows')  List<int> repeatIsoDows, @JsonKey(name: 'home_creative')  PromotionCreativeModel? homeCreative)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'campaign_id')  String campaignId, @JsonKey(name: 'campaign_version_id')  String campaignVersionId,  String code, @JsonKey(name: 'display_name')  Map<String, dynamic> displayName, @JsonKey(name: 'multiplier_tenths')@_StrictIntConverter()  int multiplierTenths, @JsonKey(name: 'event_starts_at')@_StrictTimestampConverter()  DateTime eventStartsAt, @JsonKey(name: 'event_ends_at')@_StrictTimestampConverter()  DateTime eventEndsAt, @JsonKey(name: 'repeat_iso_dows')@_StrictIntListConverter()  List<int> repeatIsoDows, @JsonKey(name: 'home_creative')  PromotionCreativeModel? homeCreative)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ActivePromotionCampaignV2Model() when $default != null:
 return $default(_that.campaignId,_that.campaignVersionId,_that.code,_that.displayName,_that.multiplierTenths,_that.eventStartsAt,_that.eventEndsAt,_that.repeatIsoDows,_that.homeCreative);case _:
@@ -194,7 +194,7 @@ return $default(_that.campaignId,_that.campaignVersionId,_that.code,_that.displa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'campaign_id')  String campaignId, @JsonKey(name: 'campaign_version_id')  String campaignVersionId,  String code, @JsonKey(name: 'display_name')  Map<String, dynamic> displayName, @JsonKey(name: 'multiplier_tenths')  int multiplierTenths, @JsonKey(name: 'event_starts_at')  DateTime eventStartsAt, @JsonKey(name: 'event_ends_at')  DateTime eventEndsAt, @JsonKey(name: 'repeat_iso_dows')  List<int> repeatIsoDows, @JsonKey(name: 'home_creative')  PromotionCreativeModel? homeCreative)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'campaign_id')  String campaignId, @JsonKey(name: 'campaign_version_id')  String campaignVersionId,  String code, @JsonKey(name: 'display_name')  Map<String, dynamic> displayName, @JsonKey(name: 'multiplier_tenths')@_StrictIntConverter()  int multiplierTenths, @JsonKey(name: 'event_starts_at')@_StrictTimestampConverter()  DateTime eventStartsAt, @JsonKey(name: 'event_ends_at')@_StrictTimestampConverter()  DateTime eventEndsAt, @JsonKey(name: 'repeat_iso_dows')@_StrictIntListConverter()  List<int> repeatIsoDows, @JsonKey(name: 'home_creative')  PromotionCreativeModel? homeCreative)  $default,) {final _that = this;
 switch (_that) {
 case _ActivePromotionCampaignV2Model():
 return $default(_that.campaignId,_that.campaignVersionId,_that.code,_that.displayName,_that.multiplierTenths,_that.eventStartsAt,_that.eventEndsAt,_that.repeatIsoDows,_that.homeCreative);case _:
@@ -214,7 +214,7 @@ return $default(_that.campaignId,_that.campaignVersionId,_that.code,_that.displa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'campaign_id')  String campaignId, @JsonKey(name: 'campaign_version_id')  String campaignVersionId,  String code, @JsonKey(name: 'display_name')  Map<String, dynamic> displayName, @JsonKey(name: 'multiplier_tenths')  int multiplierTenths, @JsonKey(name: 'event_starts_at')  DateTime eventStartsAt, @JsonKey(name: 'event_ends_at')  DateTime eventEndsAt, @JsonKey(name: 'repeat_iso_dows')  List<int> repeatIsoDows, @JsonKey(name: 'home_creative')  PromotionCreativeModel? homeCreative)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'campaign_id')  String campaignId, @JsonKey(name: 'campaign_version_id')  String campaignVersionId,  String code, @JsonKey(name: 'display_name')  Map<String, dynamic> displayName, @JsonKey(name: 'multiplier_tenths')@_StrictIntConverter()  int multiplierTenths, @JsonKey(name: 'event_starts_at')@_StrictTimestampConverter()  DateTime eventStartsAt, @JsonKey(name: 'event_ends_at')@_StrictTimestampConverter()  DateTime eventEndsAt, @JsonKey(name: 'repeat_iso_dows')@_StrictIntListConverter()  List<int> repeatIsoDows, @JsonKey(name: 'home_creative')  PromotionCreativeModel? homeCreative)?  $default,) {final _that = this;
 switch (_that) {
 case _ActivePromotionCampaignV2Model() when $default != null:
 return $default(_that.campaignId,_that.campaignVersionId,_that.code,_that.displayName,_that.multiplierTenths,_that.eventStartsAt,_that.eventEndsAt,_that.repeatIsoDows,_that.homeCreative);case _:
@@ -229,7 +229,7 @@ return $default(_that.campaignId,_that.campaignVersionId,_that.code,_that.displa
 @JsonSerializable()
 
 class _ActivePromotionCampaignV2Model extends ActivePromotionCampaignV2Model {
-  const _ActivePromotionCampaignV2Model({@JsonKey(name: 'campaign_id') required this.campaignId, @JsonKey(name: 'campaign_version_id') required this.campaignVersionId, required this.code, @JsonKey(name: 'display_name') required final  Map<String, dynamic> displayName, @JsonKey(name: 'multiplier_tenths') required this.multiplierTenths, @JsonKey(name: 'event_starts_at') required this.eventStartsAt, @JsonKey(name: 'event_ends_at') required this.eventEndsAt, @JsonKey(name: 'repeat_iso_dows') required final  List<int> repeatIsoDows, @JsonKey(name: 'home_creative') this.homeCreative}): _displayName = displayName,_repeatIsoDows = repeatIsoDows,super._();
+  const _ActivePromotionCampaignV2Model({@JsonKey(name: 'campaign_id') required this.campaignId, @JsonKey(name: 'campaign_version_id') required this.campaignVersionId, required this.code, @JsonKey(name: 'display_name') required final  Map<String, dynamic> displayName, @JsonKey(name: 'multiplier_tenths')@_StrictIntConverter() required this.multiplierTenths, @JsonKey(name: 'event_starts_at')@_StrictTimestampConverter() required this.eventStartsAt, @JsonKey(name: 'event_ends_at')@_StrictTimestampConverter() required this.eventEndsAt, @JsonKey(name: 'repeat_iso_dows')@_StrictIntListConverter() required final  List<int> repeatIsoDows, @JsonKey(name: 'home_creative') this.homeCreative}): _displayName = displayName,_repeatIsoDows = repeatIsoDows,super._();
   factory _ActivePromotionCampaignV2Model.fromJson(Map<String, dynamic> json) => _$ActivePromotionCampaignV2ModelFromJson(json);
 
 @override@JsonKey(name: 'campaign_id') final  String campaignId;
@@ -242,11 +242,11 @@ class _ActivePromotionCampaignV2Model extends ActivePromotionCampaignV2Model {
   return EqualUnmodifiableMapView(_displayName);
 }
 
-@override@JsonKey(name: 'multiplier_tenths') final  int multiplierTenths;
-@override@JsonKey(name: 'event_starts_at') final  DateTime eventStartsAt;
-@override@JsonKey(name: 'event_ends_at') final  DateTime eventEndsAt;
+@override@JsonKey(name: 'multiplier_tenths')@_StrictIntConverter() final  int multiplierTenths;
+@override@JsonKey(name: 'event_starts_at')@_StrictTimestampConverter() final  DateTime eventStartsAt;
+@override@JsonKey(name: 'event_ends_at')@_StrictTimestampConverter() final  DateTime eventEndsAt;
  final  List<int> _repeatIsoDows;
-@override@JsonKey(name: 'repeat_iso_dows') List<int> get repeatIsoDows {
+@override@JsonKey(name: 'repeat_iso_dows')@_StrictIntListConverter() List<int> get repeatIsoDows {
   if (_repeatIsoDows is EqualUnmodifiableListView) return _repeatIsoDows;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_repeatIsoDows);
@@ -287,7 +287,7 @@ abstract mixin class _$ActivePromotionCampaignV2ModelCopyWith<$Res> implements $
   factory _$ActivePromotionCampaignV2ModelCopyWith(_ActivePromotionCampaignV2Model value, $Res Function(_ActivePromotionCampaignV2Model) _then) = __$ActivePromotionCampaignV2ModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'campaign_id') String campaignId,@JsonKey(name: 'campaign_version_id') String campaignVersionId, String code,@JsonKey(name: 'display_name') Map<String, dynamic> displayName,@JsonKey(name: 'multiplier_tenths') int multiplierTenths,@JsonKey(name: 'event_starts_at') DateTime eventStartsAt,@JsonKey(name: 'event_ends_at') DateTime eventEndsAt,@JsonKey(name: 'repeat_iso_dows') List<int> repeatIsoDows,@JsonKey(name: 'home_creative') PromotionCreativeModel? homeCreative
+@JsonKey(name: 'campaign_id') String campaignId,@JsonKey(name: 'campaign_version_id') String campaignVersionId, String code,@JsonKey(name: 'display_name') Map<String, dynamic> displayName,@JsonKey(name: 'multiplier_tenths')@_StrictIntConverter() int multiplierTenths,@JsonKey(name: 'event_starts_at')@_StrictTimestampConverter() DateTime eventStartsAt,@JsonKey(name: 'event_ends_at')@_StrictTimestampConverter() DateTime eventEndsAt,@JsonKey(name: 'repeat_iso_dows')@_StrictIntListConverter() List<int> repeatIsoDows,@JsonKey(name: 'home_creative') PromotionCreativeModel? homeCreative
 });
 
 
@@ -338,7 +338,7 @@ $PromotionCreativeModelCopyWith<$Res>? get homeCreative {
 /// @nodoc
 mixin _$ActivePromotionCampaignsV2Model {
 
- List<ActivePromotionCampaignV2Model> get items;@JsonKey(name: 'total_count')@WalletAmountConverter() BigInt get totalCount;@JsonKey(name: 'next_cursor') String? get nextCursor;@JsonKey(name: 'snapshot_at') DateTime get snapshotAt;@JsonKey(name: 'campaign_owned_home_banner_ids') List<int> get campaignOwnedHomeBannerIds;
+ List<ActivePromotionCampaignV2Model> get items;@JsonKey(name: 'total_count')@WalletAmountConverter() BigInt get totalCount;@JsonKey(name: 'next_cursor') String? get nextCursor;@JsonKey(name: 'snapshot_at')@_StrictTimestampConverter() DateTime get snapshotAt;@JsonKey(name: 'campaign_owned_home_banner_ids')@_StrictIntListConverter() List<int> get campaignOwnedHomeBannerIds;
 /// Create a copy of ActivePromotionCampaignsV2Model
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -371,7 +371,7 @@ abstract mixin class $ActivePromotionCampaignsV2ModelCopyWith<$Res>  {
   factory $ActivePromotionCampaignsV2ModelCopyWith(ActivePromotionCampaignsV2Model value, $Res Function(ActivePromotionCampaignsV2Model) _then) = _$ActivePromotionCampaignsV2ModelCopyWithImpl;
 @useResult
 $Res call({
- List<ActivePromotionCampaignV2Model> items,@JsonKey(name: 'total_count')@WalletAmountConverter() BigInt totalCount,@JsonKey(name: 'next_cursor') String? nextCursor,@JsonKey(name: 'snapshot_at') DateTime snapshotAt,@JsonKey(name: 'campaign_owned_home_banner_ids') List<int> campaignOwnedHomeBannerIds
+ List<ActivePromotionCampaignV2Model> items,@JsonKey(name: 'total_count')@WalletAmountConverter() BigInt totalCount,@JsonKey(name: 'next_cursor') String? nextCursor,@JsonKey(name: 'snapshot_at')@_StrictTimestampConverter() DateTime snapshotAt,@JsonKey(name: 'campaign_owned_home_banner_ids')@_StrictIntListConverter() List<int> campaignOwnedHomeBannerIds
 });
 
 
@@ -480,7 +480,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<ActivePromotionCampaignV2Model> items, @JsonKey(name: 'total_count')@WalletAmountConverter()  BigInt totalCount, @JsonKey(name: 'next_cursor')  String? nextCursor, @JsonKey(name: 'snapshot_at')  DateTime snapshotAt, @JsonKey(name: 'campaign_owned_home_banner_ids')  List<int> campaignOwnedHomeBannerIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<ActivePromotionCampaignV2Model> items, @JsonKey(name: 'total_count')@WalletAmountConverter()  BigInt totalCount, @JsonKey(name: 'next_cursor')  String? nextCursor, @JsonKey(name: 'snapshot_at')@_StrictTimestampConverter()  DateTime snapshotAt, @JsonKey(name: 'campaign_owned_home_banner_ids')@_StrictIntListConverter()  List<int> campaignOwnedHomeBannerIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ActivePromotionCampaignsV2Model() when $default != null:
 return $default(_that.items,_that.totalCount,_that.nextCursor,_that.snapshotAt,_that.campaignOwnedHomeBannerIds);case _:
@@ -501,7 +501,7 @@ return $default(_that.items,_that.totalCount,_that.nextCursor,_that.snapshotAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<ActivePromotionCampaignV2Model> items, @JsonKey(name: 'total_count')@WalletAmountConverter()  BigInt totalCount, @JsonKey(name: 'next_cursor')  String? nextCursor, @JsonKey(name: 'snapshot_at')  DateTime snapshotAt, @JsonKey(name: 'campaign_owned_home_banner_ids')  List<int> campaignOwnedHomeBannerIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<ActivePromotionCampaignV2Model> items, @JsonKey(name: 'total_count')@WalletAmountConverter()  BigInt totalCount, @JsonKey(name: 'next_cursor')  String? nextCursor, @JsonKey(name: 'snapshot_at')@_StrictTimestampConverter()  DateTime snapshotAt, @JsonKey(name: 'campaign_owned_home_banner_ids')@_StrictIntListConverter()  List<int> campaignOwnedHomeBannerIds)  $default,) {final _that = this;
 switch (_that) {
 case _ActivePromotionCampaignsV2Model():
 return $default(_that.items,_that.totalCount,_that.nextCursor,_that.snapshotAt,_that.campaignOwnedHomeBannerIds);case _:
@@ -521,7 +521,7 @@ return $default(_that.items,_that.totalCount,_that.nextCursor,_that.snapshotAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<ActivePromotionCampaignV2Model> items, @JsonKey(name: 'total_count')@WalletAmountConverter()  BigInt totalCount, @JsonKey(name: 'next_cursor')  String? nextCursor, @JsonKey(name: 'snapshot_at')  DateTime snapshotAt, @JsonKey(name: 'campaign_owned_home_banner_ids')  List<int> campaignOwnedHomeBannerIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<ActivePromotionCampaignV2Model> items, @JsonKey(name: 'total_count')@WalletAmountConverter()  BigInt totalCount, @JsonKey(name: 'next_cursor')  String? nextCursor, @JsonKey(name: 'snapshot_at')@_StrictTimestampConverter()  DateTime snapshotAt, @JsonKey(name: 'campaign_owned_home_banner_ids')@_StrictIntListConverter()  List<int> campaignOwnedHomeBannerIds)?  $default,) {final _that = this;
 switch (_that) {
 case _ActivePromotionCampaignsV2Model() when $default != null:
 return $default(_that.items,_that.totalCount,_that.nextCursor,_that.snapshotAt,_that.campaignOwnedHomeBannerIds);case _:
@@ -536,7 +536,7 @@ return $default(_that.items,_that.totalCount,_that.nextCursor,_that.snapshotAt,_
 @JsonSerializable()
 
 class _ActivePromotionCampaignsV2Model extends ActivePromotionCampaignsV2Model {
-  const _ActivePromotionCampaignsV2Model({required final  List<ActivePromotionCampaignV2Model> items, @JsonKey(name: 'total_count')@WalletAmountConverter() required this.totalCount, @JsonKey(name: 'next_cursor') this.nextCursor, @JsonKey(name: 'snapshot_at') required this.snapshotAt, @JsonKey(name: 'campaign_owned_home_banner_ids') required final  List<int> campaignOwnedHomeBannerIds}): _items = items,_campaignOwnedHomeBannerIds = campaignOwnedHomeBannerIds,super._();
+  const _ActivePromotionCampaignsV2Model({required final  List<ActivePromotionCampaignV2Model> items, @JsonKey(name: 'total_count')@WalletAmountConverter() required this.totalCount, @JsonKey(name: 'next_cursor') this.nextCursor, @JsonKey(name: 'snapshot_at')@_StrictTimestampConverter() required this.snapshotAt, @JsonKey(name: 'campaign_owned_home_banner_ids')@_StrictIntListConverter() required final  List<int> campaignOwnedHomeBannerIds}): _items = items,_campaignOwnedHomeBannerIds = campaignOwnedHomeBannerIds,super._();
   factory _ActivePromotionCampaignsV2Model.fromJson(Map<String, dynamic> json) => _$ActivePromotionCampaignsV2ModelFromJson(json);
 
  final  List<ActivePromotionCampaignV2Model> _items;
@@ -548,9 +548,9 @@ class _ActivePromotionCampaignsV2Model extends ActivePromotionCampaignsV2Model {
 
 @override@JsonKey(name: 'total_count')@WalletAmountConverter() final  BigInt totalCount;
 @override@JsonKey(name: 'next_cursor') final  String? nextCursor;
-@override@JsonKey(name: 'snapshot_at') final  DateTime snapshotAt;
+@override@JsonKey(name: 'snapshot_at')@_StrictTimestampConverter() final  DateTime snapshotAt;
  final  List<int> _campaignOwnedHomeBannerIds;
-@override@JsonKey(name: 'campaign_owned_home_banner_ids') List<int> get campaignOwnedHomeBannerIds {
+@override@JsonKey(name: 'campaign_owned_home_banner_ids')@_StrictIntListConverter() List<int> get campaignOwnedHomeBannerIds {
   if (_campaignOwnedHomeBannerIds is EqualUnmodifiableListView) return _campaignOwnedHomeBannerIds;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_campaignOwnedHomeBannerIds);
@@ -590,7 +590,7 @@ abstract mixin class _$ActivePromotionCampaignsV2ModelCopyWith<$Res> implements 
   factory _$ActivePromotionCampaignsV2ModelCopyWith(_ActivePromotionCampaignsV2Model value, $Res Function(_ActivePromotionCampaignsV2Model) _then) = __$ActivePromotionCampaignsV2ModelCopyWithImpl;
 @override @useResult
 $Res call({
- List<ActivePromotionCampaignV2Model> items,@JsonKey(name: 'total_count')@WalletAmountConverter() BigInt totalCount,@JsonKey(name: 'next_cursor') String? nextCursor,@JsonKey(name: 'snapshot_at') DateTime snapshotAt,@JsonKey(name: 'campaign_owned_home_banner_ids') List<int> campaignOwnedHomeBannerIds
+ List<ActivePromotionCampaignV2Model> items,@JsonKey(name: 'total_count')@WalletAmountConverter() BigInt totalCount,@JsonKey(name: 'next_cursor') String? nextCursor,@JsonKey(name: 'snapshot_at')@_StrictTimestampConverter() DateTime snapshotAt,@JsonKey(name: 'campaign_owned_home_banner_ids')@_StrictIntListConverter() List<int> campaignOwnedHomeBannerIds
 });
 
 
