@@ -73,6 +73,24 @@ class _StubResolver implements PurchaseCurrencyResolver {
   }
 }
 
+
+/// resolver 가 답하기 전에 다른 일이 끼어들 수 있게 만드는 게이트.
+class _GatedResolver implements PurchaseCurrencyResolver {
+  _GatedResolver(this.currency);
+
+  final String currency;
+  final Completer<void> started = Completer<void>();
+  final Completer<String?> _answer = Completer<String?>();
+
+  void release() => _answer.complete(currency);
+
+  @override
+  Future<String?> resolve(String storeProductId) {
+    if (!started.isCompleted) started.complete();
+    return _answer.future;
+  }
+}
+
 const _items = <Ga4PurchaseItem>[
   Ga4PurchaseItem(
     itemId: 'star100',
@@ -363,6 +381,84 @@ void main() {
       );
       await outbox.flush();
       expect(sink.purchases, hasLength(1));
+    });
+  });
+
+  group('교차 리뷰 회귀', () {
+    test('보류 중 서버가 통화만 주면 예전 candidate 금액을 붙이지 않는다', () async {
+      // 서버가 통화만 준 정상 케이스(Google 폴백)에서 보류 중 모아 둔
+      // 카탈로그 금액을 그 통화 옆에 붙이면, 서로 다른 출처의 통화와 금액이
+      // 한 쌍이 되어 조작된 매출이 만들어진다.
+      final sink = _RecordingSink();
+      final outbox = AnalyticsOutbox(storage: _MemoryStorage(), sink: sink);
+
+      await enqueue(outbox, catalogValue: 2500);
+      expect(await outbox.awaitingCurrencyCount(), 1);
+
+      await enqueue(outbox, serverCurrency: 'USD');
+      await outbox.flush();
+
+      expect(sink.purchases.single.currency, 'USD');
+      expect(sink.purchases.single.value, isNull);
+    });
+
+    test('resolver 가 늦게 끝나도 서버가 확정한 통화를 덮어쓰지 않는다', () async {
+      // resolver 를 await 하는 동안 같은 거래의 재전달이 서버 통화로 승격한다.
+      final sink = _RecordingSink();
+      final resolver = _GatedResolver('KRW');
+      final outbox = AnalyticsOutbox(
+        storage: _MemoryStorage(),
+        sink: sink,
+        currencyResolver: resolver,
+      );
+
+      await enqueue(outbox, serverValue: 1.99);
+      final draining = outbox.flush();
+      await resolver.started.future;
+
+      // resolver 가 아직 답하지 않은 사이 서버 응답이 도착한다.
+      await enqueue(outbox, serverCurrency: 'USD', serverValue: 1.99);
+      resolver.release();
+      await draining;
+      await outbox.flush();
+
+      expect(sink.purchases, hasLength(1));
+      expect(sink.purchases.single.currency, 'USD');
+      expect(sink.purchases.single.value, 1.99);
+    });
+
+    test('저장된 통화의 철자가 아니라 정규화한 값을 보낸다', () async {
+      final storage = _MemoryStorage();
+      await storage.saveData(
+        AnalyticsOutbox.storageKey,
+        jsonEncode(<String, Object?>{
+          'version': 2,
+          'pending': <Object?>[
+            <String, Object?>{
+              'kind': 'purchase',
+              'id': 'tx-lower',
+              'aliases': <String>['tx-lower'],
+              'payload': <String, Object?>{
+                'transaction_id': 'tx-lower',
+                'items': <Object?>[],
+                'currency': ' krw ',
+                'value': 2500,
+              },
+              'user_id': null,
+              'created_at': DateTime.utc(2026, 8, 24).toIso8601String(),
+              'delivery_confirmed': false,
+              'delivery_state': 'ready',
+            },
+          ],
+          'delivered': <Object?>[],
+          'dead_letters': <Object?>[],
+        }),
+      );
+
+      final sink = _RecordingSink();
+      await AnalyticsOutbox(storage: storage, sink: sink).flush();
+
+      expect(sink.purchases.single.currency, 'KRW');
     });
   });
 

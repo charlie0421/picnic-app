@@ -213,12 +213,15 @@ class ReceiptVerificationService {
           alreadyPresented: true,
         );
         if (settled != null) {
-          // 정산이 끝난 영수증의 durable 기록은 더 이상 필요 없다.
-          final queueKey = ReceiptQueueService.iosClientTraceId(receipt);
-          if (queueKey != null) {
-            await ReceiptQueueService().removeByClientTraceId(queueKey);
-          }
-          return settled;
+          // 큐 항목은 여기서 지우지 않는다. 이 영수증의 정산은 끝났지만 그
+          // 매출 이벤트는 아직 outbox 로 넘어가지 않았고, 지금 지우면 저장이
+          // 실패하는 동안 프로세스가 죽었을 때 복구 재료가 사라진다. 실제
+          // 제거는 durable 저장을 확인한 호출부가 한다.
+          return settled.copyWith(
+            receiptQueueClientTraceId: ReceiptQueueService.iosClientTraceId(
+              receipt,
+            ),
+          );
         }
         // 서버 판정을 얻지 못했다. 이 캐시는 200 정산 직후에만 기록되므로
         // (아래 _idemCacheAdd) 지급은 확정된 것으로 다룬다 — grantConfirmed 를

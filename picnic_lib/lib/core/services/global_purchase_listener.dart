@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
+import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
+import 'package:picnic_lib/core/analytics/store_catalogue_currency_resolver.dart';
 import 'package:picnic_lib/core/services/receipt_queue_service.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -200,6 +202,12 @@ class GlobalPurchaseListener {
     // `PurchaseService` 를 알지 못하므로(역방향 의존 방지) 상위가 연결한다.
     ReceiptQueueService().onSettlementRecovered =
         purchaseService.adoptRecoveredSettlement;
+    // 보류된 매출 이벤트가 통화를 되찾을 유일한 경로. 이게 없으면
+    // awaiting_currency 는 같은 거래가 다시 전달되지 않는 한 만료될 때까지
+    // 그대로 남는다.
+    AnalyticsOutbox.configureCurrencyResolver(
+      StoreCatalogueCurrencyResolver(container),
+    );
   }
 
   /// The app-level Riverpod container.
@@ -561,6 +569,7 @@ class GlobalPurchaseListener {
     // 항상 참을 보장하지는 않으므로(구현에 따라 다름) `==`를 쓴다 - Dart는
     // 메서드 tear-off의 동등성(`==`)은 "같은 리시버 + 같은 메서드"면 항상
     // 참이라고 보장한다.
+    AnalyticsOutbox.configureCurrencyResolver(null);
     if (ReceiptQueueService().onSettlementRecovered ==
         purchaseService.adoptRecoveredSettlement) {
       ReceiptQueueService().onSettlementRecovered = null;

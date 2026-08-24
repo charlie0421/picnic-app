@@ -443,6 +443,7 @@ class AnalyticsOutbox {
   static AnalyticsOutbox _instance = AnalyticsOutbox();
   static String? Function()? _globalActiveUserIdReader;
   static String? Function()? _globalActiveLanguageReader;
+  static PurchaseCurrencyResolver? _globalCurrencyResolver;
 
   static AnalyticsOutbox get instance => _instance;
 
@@ -458,6 +459,16 @@ class AnalyticsOutbox {
     _globalActiveLanguageReader = languageReader;
   }
 
+  /// 보류 중인 매출 이벤트가 통화를 되찾을 유일한 경로를 등록한다.
+  ///
+  /// 이 등록이 없으면 `awaiting_currency` 항목은 같은 거래가 다시 전달되지
+  /// 않는 한 영원히 보류로 남았다가 만료된다 — 상태 머신은 있는데 그걸
+  /// 진행시킬 것이 아무것도 없는 상태다. 싱글턴은 스토어 카탈로그를 알지
+  /// 못하므로 상위 오케스트레이션이 연결한다.
+  static void configureCurrencyResolver(PurchaseCurrencyResolver? resolver) {
+    _globalCurrencyResolver = resolver;
+  }
+
   @visibleForTesting
   static void overrideInstance(AnalyticsOutbox outbox) {
     _instance._retryTimer?.cancel();
@@ -470,6 +481,7 @@ class AnalyticsOutbox {
     _instance = AnalyticsOutbox();
     _globalActiveUserIdReader = null;
     _globalActiveLanguageReader = null;
+    _globalCurrencyResolver = null;
   }
 
   final LocalStorage? _storage;
@@ -684,7 +696,10 @@ class AnalyticsOutbox {
 
     final payload = Map<String, Object>.from(existing.payload)
       ..['currency'] = incomingCurrency;
-    final value = incoming.payload['value'] as num? ?? existing.candidateValue;
+    // 들어온 쌍만 쓴다. 보류 중 모아 둔 candidate 금액을 이 통화 옆에 붙이면
+    // 서로 다른 출처의 통화와 금액이 한 쌍이 된다 — 서버가 통화만 준
+    // 정상 케이스(Google 폴백)에서 예전 카탈로그 금액이 서버 매출로 둔갑한다.
+    final value = incoming.payload['value'] as num?;
     if (value != null) payload['value'] = value;
     return existing.copyWith(
       aliases: aliases,
@@ -757,7 +772,7 @@ class AnalyticsOutbox {
       return null;
     }
 
-    final resolver = _currencyResolver;
+    final resolver = _currencyResolver ?? _globalCurrencyResolver;
     final productId = entry.storeProductId ?? _productIdFromItems(entry);
     String? resolved;
     var failure = PurchaseCurrencyError.catalogUnavailable;
@@ -850,6 +865,12 @@ class AnalyticsOutbox {
       );
       if (index < 0) return null;
       final entry = state.pending[index];
+      if (!entry.isAwaitingCurrency) {
+        // resolver 를 await 하는 동안 같은 거래의 재전달이 서버 통화로 이미
+        // 승격시켰다. 그 값이 정본이다 — 늦게 끝난 카탈로그 조회 결과로
+        // 덮어쓰면 서버가 확정한 통화와 금액 쌍이 어긋난다.
+        return entry;
+      }
       final payload = Map<String, Object>.from(entry.payload)
         ..['currency'] = currency;
       final value = entry.candidateValue;
@@ -1093,7 +1114,9 @@ class AnalyticsOutbox {
       return _sink
           .logPurchase(
             transactionId: entry.payload['transaction_id'] as String?,
-            currency: entry.payload['currency'] as String?,
+            // 저장된 철자가 아니라 관문을 통과한 값을 보낸다. v1 에서 올라온
+            // 항목이나 손으로 만든 저장소 값은 ' krw ' 같은 모양일 수 있다.
+            currency: normalizeIso4217(entry.payload['currency']),
             value: entry.payload['value'] as num?,
             items: <Ga4PurchaseItem>[
               for (final raw in rawItems)

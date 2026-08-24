@@ -118,4 +118,8 @@ class PurchaseAnalyticsDedup {
     }
     return _markers.reserve(keys);
   }
+
+  /// 이 거래가 이미 GA4 로 나갔음이 확인되는가. 진행 중은 제외한다.
+  Future<bool> isKnownSent(String? transactionId, {String? fallbackKey}) =>
+      _markers.isKnownSent(candidateKeys(transactionId, fallbackKey));
 }

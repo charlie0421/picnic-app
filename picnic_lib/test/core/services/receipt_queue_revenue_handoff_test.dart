@@ -275,7 +275,9 @@ void main() {
       expect(await queue(), isEmpty);
     });
 
-    test('콜백이 없으면 큐를 붙잡지 않는다', () async {
+    test('넘길 곳이 아직 연결되지 않았으면 항목을 남긴다', () async {
+      // 여기서 제거하면 그 거래의 매출은 되살릴 재료 없이 사라진다.
+      // 콜백이 연결된 다음 부팅 플러시에 맡긴다.
       setupMockSupabase({
         'functions:verify-receipt-v2': settlementBody(currency: 'KRW'),
       });
@@ -289,7 +291,85 @@ void main() {
 
       await service.flushPending();
 
+      expect(await queue(), hasLength(1));
+    });
+
+    test('파싱할 수 없는 정산 본문은 붙잡지 않고 제거하되 소리 내어 남긴다', () async {
+      // 같은 요청을 다시 보내도 같은 본문이 돌아온다 — 붙잡아 두면 TTL 만큼
+      // 같은 손실을 미루며 네트워크만 쓴다.
+      final broken = settlementBody(currency: 'KRW')
+        ..['base_star_amount'] = 100; // 계약은 10진 문자열을 요구한다
+      setupMockSupabase({'functions:verify-receipt-v2': broken});
+      await service.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: 'r',
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+      );
+
+      var called = 0;
+      service.onSettlementRecovered =
+          (
+            settlement, {
+            required String storeProductId,
+            required String? clientObservedCurrency,
+          }) async {
+            called++;
+            return true;
+          };
+
+      await service.flushPending();
+
+      expect(called, 0);
       expect(await queue(), isEmpty);
+    });
+
+    test('인계 대기 항목은 TTL 이 지나도 잘리지 않는다', () async {
+      // 이 거래의 스토어 트랜잭션은 이미 finish 됐다 — 스윕이 다시 찾아낼
+      // 것이 없으므로 "잘라도 스윕이 회수한다"는 전제가 성립하지 않는다.
+      setupMockSupabase({
+        'functions:verify-receipt-v2': settlementBody(currency: 'KRW'),
+      });
+      await service.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: 'r',
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+      );
+      service.onSettlementRecovered =
+          (
+            settlement, {
+            required String storeProductId,
+            required String? clientObservedCurrency,
+          }) async => false;
+
+      await service.flushPending();
+      expect(await queue(), hasLength(1));
+
+      // 항목을 TTL 밖으로 밀어 놓고 다시 프룬이 도는 경로를 태운다.
+      final items = await queue();
+      items[0]['createdAt'] = DateTime.now()
+          .subtract(const Duration(days: 400))
+          .toIso8601String();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('receipt_queue_v1', json.encode(items));
+
+      await service.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: 'other',
+        productId: 'star200',
+        userId: 'u',
+        environment: 'sandbox',
+      );
+
+      final remaining = await queue();
+      expect(
+        remaining.where((e) => e['productId'] == 'star100'),
+        hasLength(1),
+        reason: '정산 완료·인계 대기 항목은 나이로 자르지 않는다',
+      );
     });
   });
 }

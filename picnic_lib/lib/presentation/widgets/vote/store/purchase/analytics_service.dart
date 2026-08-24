@@ -139,11 +139,25 @@ class AnalyticsService {
 
     final outbox = _outbox;
     if (outbox != null) {
+      // 레거시 예약은 이전 release 의 marker 이관에만 쓴다. `null` 은 "이미
+      // 보냄" 과 "다른 시도가 진행 중" 을 구분하지 않는데, 두 경우의 후속
+      // 처리는 정반대다.
+      //
+      // 이미 보낸 것이면 outbox 에 다시 넣으면 안 된다 — 이전 release 가
+      // 남긴 마커가 유일한 증거이고, 무시하면 그 결제가 두 번 나간다.
+      // 진행 중일 뿐이면 저장은 해야 한다 — 건너뛰고 성공으로 답하면
+      // 진행 중이던 시도가 실패했을 때 아무도 그 거래를 남기지 않는다.
       final legacyReservation = await _dedup.reserve(
         transactionId,
         fallbackKey: idempotencyFallbackKey,
       );
-      if (legacyReservation == null) return PurchaseOutboxResult.ready;
+      if (legacyReservation == null &&
+          await _dedup.isKnownSent(
+            transactionId,
+            fallbackKey: idempotencyFallbackKey,
+          )) {
+        return PurchaseOutboxResult.ready;
+      }
       try {
         final stored = await outbox.enqueueOrMergePurchase(
           id: resolvedTransactionId,
@@ -179,7 +193,7 @@ class AnalyticsService {
       } finally {
         // durable gate를 outbox가 이어받았거나 enqueue가 실패했다. 어느 쪽이든
         // legacy 메모리 예약을 남겨 같은 키 후속 호출을 영구 대기시키지 않는다.
-        legacyReservation.release();
+        legacyReservation?.release();
       }
     }
 

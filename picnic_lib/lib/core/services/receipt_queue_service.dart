@@ -169,6 +169,10 @@ class ReceiptQueueService {
   ) async {
     final now = DateTime.now();
     final fresh = items.where((item) {
+      // 정산이 끝나고 매출 이벤트 인계만 남은 항목은 나이로 자르지 않는다.
+      // 이 거래의 스토어 트랜잭션은 이미 finish 됐으므로 아래 주석의
+      // "스윕이 다시 찾아낸다" 전제가 성립하지 않는다.
+      if (_isAnalyticsPending(item)) return true;
       final createdAt = _parseCreatedAt(item);
       if (createdAt == null) return true; // createdAt 없는/파싱 불가 옛 항목은 보존
       return now.difference(createdAt) <= PurchaseConstants.receiptQueueMaxAge;
@@ -181,7 +185,12 @@ class ReceiptQueueService {
       // 의존하면 동시 쓰기나 복구된 데이터에서 실제로는 최근인 항목이
       // 잘릴 수 있다. createdAt 을 못 읽는 항목은 안전 쪽으로(가장 오래된
       // 것으로) 취급해 먼저 잘린다.
+      // 인계 대기 항목은 마지막에 자른다. 상한을 지키느라 잘라야 한다면
+      // 그때는 매출 유실이 확정되므로 조용히 넘기지 않고 error 로 남긴다.
       final byAge = [...fresh]..sort((a, b) {
+        final pendingA = _isAnalyticsPending(a);
+        final pendingB = _isAnalyticsPending(b);
+        if (pendingA != pendingB) return pendingA ? 1 : -1;
         final da = _parseCreatedAt(a);
         final db = _parseCreatedAt(b);
         if (da == null && db == null) return 0;
@@ -190,6 +199,13 @@ class ReceiptQueueService {
         return da.compareTo(db);
       });
       final toDrop = byAge.take(overflow).toSet();
+      final droppedPending = toDrop.where(_isAnalyticsPending).length;
+      if (droppedPending > 0) {
+        logger.e(
+          '🧹 영수증 큐 상한 초과로 정산 완료·매출 인계 대기 항목 '
+          '$droppedPending건 제거 — 이 거래들의 매출은 복구되지 않는다',
+        );
+      }
       trimmed = fresh.where((item) => !toDrop.contains(item)).toList();
     }
 
@@ -406,8 +422,10 @@ class ReceiptQueueService {
     Map<String, dynamic> item,
     Object? data,
   ) async {
-    final handOff = onSettlementRecovered;
-    if (handOff == null) return true;
+    // 먼저 "넘길 것이 있는가", 그다음 "넘길 곳이 있는가" 순서다.
+    //
+    // 레거시 `{success: true}` 응답에는 넘길 정산 자체가 없다. 붙잡아 둬도
+    // 할 수 있는 일이 없으므로 예전처럼 제거한다.
     if (data is! Map || data['contract_version'] != 'wallet.v1') return true;
 
     PurchaseSettlementResultModel settlement;
@@ -416,10 +434,21 @@ class ReceiptQueueService {
         Map<String, dynamic>.from(data),
       );
     } catch (e, s) {
-      // 계약 위반은 큐를 붙잡을 이유가 아니다. 서버는 이미 정산했고, 여기서
-      // 무한 재전송해도 같은 본문이 돌아온다.
-      logger.e('🧾 큐 복구 정산 파싱 실패 — 매출 이벤트 없이 진행', error: e, stackTrace: s);
+      // 같은 요청을 다시 보내도 같은 본문이 돌아온다 — 붙잡아 두면 TTL 만큼
+      // 같은 손실을 미루며 네트워크만 쓴다. 매출 이벤트는 만들 수 없지만
+      // 정산 자체는 서버에서 끝났으므로 제거하되 error 로 남긴다.
+      logger.e('🧾 큐 복구 정산 파싱 실패 — 매출 이벤트 없이 제거', error: e, stackTrace: s);
       return true;
+    }
+
+    final handOff = onSettlementRecovered;
+    if (handOff == null) {
+      // 넘길 곳이 아직 연결되지 않았다(부팅 순서상 일시적일 수 있다). 여기서
+      // 제거하면 그 거래의 매출은 되살릴 재료 없이 사라지므로, 콜백이 연결된
+      // 다음 플러시에 맡긴다. 영구히 미연결이면 TTL 이 상한을 준다 — 그래서
+      // 이 경우는 인계 대기 표시를 세우지 않는다.
+      logger.w('🧾 큐 복구 인계 대상 미연결 — 항목을 남긴다');
+      return false;
     }
 
     try {
@@ -474,7 +503,15 @@ class ReceiptQueueService {
         if (!await _handOffSettlement(item, data)) {
           // 정산은 확정됐지만 매출 이벤트를 durable 하게 넘기지 못했다. 큐를
           // 비우면 이 거래를 되살릴 재료가 사라지므로 남기고 백오프한다.
-          await _scheduleRetry(clientTraceId, 'analytics durable 저장 미확인');
+          //
+          // 인계 대기 표시는 소비자가 실제로 실패를 답했을 때만 세운다.
+          // 소비자가 아예 없는 상태까지 TTL 밖으로 고정하면, 콜백이 영영
+          // 연결되지 않는 빌드에서 큐가 영구히 잠긴다.
+          await _scheduleRetry(
+            clientTraceId,
+            'analytics durable 저장 미확인',
+            analyticsPending: onSettlementRecovered != null,
+          );
           return;
         }
         await _dropItem(clientTraceId, '✅ 큐 전송 성공');
@@ -531,19 +568,31 @@ class ReceiptQueueService {
   ///
   /// 스냅샷 전체를 되쓰지 않는 것이 핵심이다 — 되쓰면 invoke 대기 중에
   /// 적재된 신규 구매(=과금된 영수증의 유일한 durable 기록)가 사라진다.
-  Future<void> _scheduleRetry(String clientTraceId, String reason) =>
-      _withMutationLock(() async {
-        final items = await _loadQueue();
-        final index = items.indexWhere(
-          (e) => e['client_trace_id'] == clientTraceId,
-        );
-        if (index < 0) return;
-        final attempt = ((items[index]['attempt'] as num?)?.toInt() ?? 0) + 1;
-        items[index]['attempt'] = attempt;
-        items[index]['nextAt'] = _computeNextAt(attempt);
-        await _saveQueue(items);
-        logger.w('⏳ 큐 전송 실패($reason), 재시도 예약: $clientTraceId');
-      });
+  Future<void> _scheduleRetry(
+    String clientTraceId,
+    String reason, {
+    bool analyticsPending = false,
+  }) => _withMutationLock(() async {
+    final items = await _loadQueue();
+    final index = items.indexWhere((e) => e['client_trace_id'] == clientTraceId);
+    if (index < 0) return;
+    final attempt = ((items[index]['attempt'] as num?)?.toInt() ?? 0) + 1;
+    items[index]['attempt'] = attempt;
+    items[index]['nextAt'] = _computeNextAt(attempt);
+    if (analyticsPending) items[index][_analyticsPendingKey] = true;
+    await _saveQueue(items);
+    logger.w('⏳ 큐 전송 실패($reason), 재시도 예약: $clientTraceId');
+  });
+
+  /// 서버 정산은 끝났지만 매출 이벤트를 아직 넘기지 못한 항목의 표시.
+  ///
+  /// [_pruneStale] 의 "잘라도 스윕이 되찾는다" 전제가 이 항목들에는 성립하지
+  /// 않는다. 이 거래의 스토어 트랜잭션은 이미 finish 됐으므로 스윕이 다시
+  /// 찾아낼 것이 없다.
+  static const String _analyticsPendingKey = 'analytics_pending';
+
+  static bool _isAnalyticsPending(Map<String, dynamic> item) =>
+      item[_analyticsPendingKey] == true;
 
   Future<void> _dropItem(String clientTraceId, String reason) =>
       _withMutationLock(() async {

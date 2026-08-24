@@ -186,6 +186,20 @@ class AnalyticsSendMarkerStore {
     });
   }
 
+  /// 이 키들이 **이미 전송 확인된** 것인지. 진행 중(in-flight)은 포함하지 않는다.
+  ///
+  /// [reserve] 의 `null` 은 "이미 보냄"과 "다른 시도가 진행 중"을 구분하지
+  /// 않는다. 두 경우의 후속 처리는 정반대다 — 전자는 더 할 일이 없고, 후자는
+  /// 그 시도가 실패했을 때 복구 재료를 남겨 둬야 한다. 그 구분이 필요한
+  /// 호출부만 이 질문을 따로 한다.
+  Future<bool> isKnownSent(List<String> keys) async {
+    if (keys.isEmpty) return false;
+    if (keys.any(_sent.contains)) return true;
+    final groups = await _readGroups();
+    // 읽기 실패(null)는 "이미 보냈음을 증명할 수 없다"이므로 false 다.
+    return groups != null && _containsAny(groups, keys);
+  }
+
   Future<AnalyticsSendReservation?> _reserveAfterStorageCheck(
     List<String> keys,
   ) async {
