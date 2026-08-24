@@ -1,0 +1,295 @@
+import 'dart:convert';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/core/services/receipt_queue_service.dart';
+import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../helpers/mock_supabase.dart';
+
+/// 서버가 200 으로 돌려주는 wallet.v1 정산 본문.
+Map<String, dynamic> settlementBody({String? currency, String? value}) =>
+    <String, dynamic>{
+      'contract_version': 'wallet.v1',
+      'operation_id': 'operation-1',
+      'replayed': false,
+      'base_star_amount': '100',
+      'base_bonus_amount': '10',
+      // canonical 파서는 promotion 객체를 요구한다 — foreground 경로와 같은
+      // 파서를 쓰므로 여기서도 같은 모양이어야 한다.
+      'promotion': <String, dynamic>{
+        'resolution_id': '00000000-0000-4000-8000-000000000611',
+        'state': 'ELIGIBLE',
+        'campaign_version_id': null,
+        'promo_bonus_amount': '0',
+        'domain_code': null,
+      },
+      'wallet': <String, dynamic>{
+        'contract_version': 'wallet.v1',
+        'star': '100',
+        'bonus': '0',
+        'cotton': '0',
+        'cotton_expiring_amount': '0',
+        'cotton_next_expires_at': null,
+        'snapshot_at': '2026-08-24T00:00:00.000Z',
+      },
+      if (currency != null) 'currency': currency,
+      if (value != null) 'value': value,
+    };
+
+
+/// StoreKit2 JWS 모양의 영수증. 서명은 검증하지 않고 transactionId 만 읽히면
+/// 되므로 페이로드만 진짜다 — 이 테스트가 보는 것은 큐 키의 결정성이다.
+final String _jws = <String>[
+  base64Url.encode(utf8.encode('{"alg":"ES256"}')).replaceAll('=', ''),
+  base64Url
+      .encode(utf8.encode('{"transactionId":"2000001213180810"}'))
+      .replaceAll('=', ''),
+  'signature',
+].join('.');
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late ReceiptQueueService service;
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    service = ReceiptQueueService();
+    service.flushInvokeTimeout = PurchaseConstants.verificationTimeout;
+  });
+
+  tearDown(() {
+    // 싱글턴이라 훅을 남기면 다음 테스트로 샌다.
+    service.onSettlementRecovered = null;
+    tearDownMockSupabase();
+  });
+
+  Future<List<Map<String, dynamic>>> queue() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('receipt_queue_v1');
+    if (raw == null || raw.isEmpty) return <Map<String, dynamic>>[];
+    return (json.decode(raw) as List).cast<Map<String, dynamic>>();
+  }
+
+  group('관측 통화의 큐 왕복', () {
+    setUp(() {
+      setupMockSupabase({
+        'functions:verify-receipt-v2': {'success': true},
+      });
+    });
+
+    test('관측 통화는 정규화돼 저장되고 재전송 본문에 복원된다', () async {
+      await service.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: 'r',
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+        clientObservedCurrency: 'krw',
+      );
+
+      final items = await queue();
+      expect(items.single['client_observed_currency'], 'KRW');
+
+      final body = ReceiptQueueService.buildQueuedRequestBody(items.single);
+      expect(body['client_observed_currency'], 'KRW');
+      // 재전송 본문이 foreground 본문과 달라지면 서버는 구버전 클라이언트로
+      // 읽고 7키로 낮춰 답한다 — 큐 경로만 조용히 매출을 잃는다.
+      expect(body['parser_capabilities'], <String>['purchase_revenue_v1']);
+    });
+
+    test('ISO 4217 이 아닌 값은 저장하지 않는다', () async {
+      await service.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: 'r',
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+        clientObservedCurrency: 'ja',
+      );
+
+      final items = await queue();
+      expect(items.single.containsKey('client_observed_currency'), isFalse);
+    });
+
+    test('통화가 없던 기존 항목은 재전달 때 채워진다', () async {
+      // iOS 키는 StoreKit transactionId 기반이라 같은 거래의 재전달이 같은
+      // 항목으로 돌아온다. 최초 요청 때는 카탈로그가 아직 없었고, 재전달
+      // 시점에는 로드돼 있는 상황이다.
+      final first = await service.enqueue(
+        platform: ReceiptQueueService.platformIOS,
+        receipt: _jws,
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+      );
+      expect(
+        (await queue()).single.containsKey('client_observed_currency'),
+        isFalse,
+      );
+
+      final second = await service.enqueue(
+        platform: ReceiptQueueService.platformIOS,
+        receipt: _jws,
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+        clientObservedCurrency: 'KRW',
+      );
+
+      expect(second, first, reason: 'iOS 키는 재전달마다 같아야 한다');
+      final items = await queue();
+      expect(items, hasLength(1));
+      expect(items.single['client_observed_currency'], 'KRW');
+    });
+
+    test('이미 통화가 있는 항목은 다른 값으로 덮어쓰지 않는다', () async {
+      // 같은 거래의 통화가 재전달마다 바뀌면 어느 쪽이 맞는지 판단할 근거가
+      // 없다. 최초 값을 정본으로 둔다.
+      await service.enqueue(
+        platform: ReceiptQueueService.platformIOS,
+        receipt: _jws,
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+        clientObservedCurrency: 'KRW',
+      );
+      await service.enqueue(
+        platform: ReceiptQueueService.platformIOS,
+        receipt: _jws,
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+        clientObservedCurrency: 'USD',
+      );
+
+      expect((await queue()).single['client_observed_currency'], 'KRW');
+    });
+  });
+
+  group('큐 복구의 durable 인계', () {
+    test('analytics 가 이어받지 못하면 큐 항목을 지우지 않는다', () async {
+      setupMockSupabase({
+        'functions:verify-receipt-v2': settlementBody(
+          currency: 'KRW',
+          value: '2500',
+        ),
+      });
+      await service.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: 'r',
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+      );
+
+      var called = 0;
+      service.onSettlementRecovered =
+          (
+            settlement, {
+            required String storeProductId,
+            required String? clientObservedCurrency,
+          }) async {
+            called++;
+            return false;
+          };
+
+      await service.flushPending();
+
+      expect(called, 1);
+      expect(
+        await queue(),
+        hasLength(1),
+        reason: '이 항목은 그 거래의 매출을 되살릴 마지막 재료다',
+      );
+    });
+
+    test('이어받으면 서버 값과 저장된 관측 통화가 함께 전달되고 큐가 비워진다', () async {
+      setupMockSupabase({
+        'functions:verify-receipt-v2': settlementBody(
+          currency: 'KRW',
+          value: '2500',
+        ),
+      });
+      await service.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: 'r',
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+        clientObservedCurrency: 'JPY',
+      );
+
+      PurchaseSettlementResultModel? received;
+      String? receivedProductId;
+      String? receivedObserved;
+      service.onSettlementRecovered =
+          (
+            settlement, {
+            required String storeProductId,
+            required String? clientObservedCurrency,
+          }) async {
+            received = settlement;
+            receivedProductId = storeProductId;
+            receivedObserved = clientObservedCurrency;
+            return true;
+          };
+
+      await service.flushPending();
+
+      expect(received!.currency, 'KRW');
+      expect(received!.value, 2500);
+      expect(receivedProductId, 'star100');
+      expect(receivedObserved, 'JPY');
+      expect(await queue(), isEmpty);
+    });
+
+    test('레거시 success 응답은 넘길 정산이 없으므로 예전처럼 제거된다', () async {
+      setupMockSupabase({
+        'functions:verify-receipt-v2': {'success': true},
+      });
+      await service.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: 'r',
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+      );
+
+      var called = 0;
+      service.onSettlementRecovered =
+          (
+            settlement, {
+            required String storeProductId,
+            required String? clientObservedCurrency,
+          }) async {
+            called++;
+            return true;
+          };
+
+      await service.flushPending();
+
+      expect(called, 0);
+      expect(await queue(), isEmpty);
+    });
+
+    test('콜백이 없으면 큐를 붙잡지 않는다', () async {
+      setupMockSupabase({
+        'functions:verify-receipt-v2': settlementBody(currency: 'KRW'),
+      });
+      await service.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: 'r',
+        productId: 'star100',
+        userId: 'u',
+        environment: 'sandbox',
+      );
+
+      await service.flushPending();
+
+      expect(await queue(), isEmpty);
+    });
+  });
+}
