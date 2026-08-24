@@ -29,6 +29,19 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// - **스토어 트랜잭션은 절대 건드리지 않는다**: 이 큐는 검증 *재전송*만
 ///   한다. finish/consume/acknowledge 판단은 상위 구매 경로의 몫이다 —
 ///   미확인 트랜잭션을 파괴하면 과금된 구매가 소멸한다.
+/// 큐 복구가 받은 정산을 analytics 로 넘긴 결과.
+enum _HandOffOutcome {
+  /// 넘겼거나, 넘길 것이 애초에 없었다. 항목을 제거해도 된다.
+  handedOff,
+
+  /// 소비자를 부르지도 못했다(본문 파싱 실패, 콜백 미연결). 항목은 남기되
+  /// TTL 이 상한을 준다.
+  deferredWithoutConsumer,
+
+  /// 소비자가 실패를 답했다. 곧 성공할 수 있으므로 TTL 밖으로 보호한다.
+  deferredByConsumer,
+}
+
 class ReceiptQueueService {
   ReceiptQueueService._internal();
   static final ReceiptQueueService _instance = ReceiptQueueService._internal();
@@ -164,6 +177,44 @@ class ReceiptQueueService {
   /// .sweepOnResume`), "다음 콜드 스타트, 또는 스토어 화면을 벗어난 뒤의
   /// 재개 시점까지" 재시도가 늦어질 수 있다는 뜻이다 - 정산 기록 자체가
   /// 사라지지는 않지만, 5분 안에 반드시 재시도된다는 보장은 아니다.
+  /// 상한을 넘긴 만큼 잘라낸다. 자르는 순서는 "인계 대기가 아닌 것부터,
+  /// 그중 오래된 것부터" 다.
+  ///
+  /// 실제 createdAt 기준으로 자른다 — 리스트 순서에만 의존하면 동시 쓰기나
+  /// 복구된 데이터에서 실제로는 최근인 항목이 잘릴 수 있다. createdAt 을 못
+  /// 읽는 항목은 안전 쪽으로(가장 오래된 것으로) 취급해 먼저 잘린다.
+  ///
+  /// 적재 경로와 프룬 경로가 각자 자르면 한쪽만 이 순서를 지킨다 — 실제로
+  /// 그랬고, 상한 직전에 새 항목이 들어오는 순간 가장 오래된 인계 대기
+  /// 항목이 정렬도 로그도 없이 사라졌다. 두 경로가 같은 함수를 쓰게 한다.
+  List<Map<String, dynamic>> _enforceCapacity(
+    List<Map<String, dynamic>> items,
+  ) {
+    final overflow = items.length - PurchaseConstants.receiptQueueMaxEntries;
+    if (overflow <= 0) return items;
+    final byAge = [...items]..sort((a, b) {
+      final pendingA = _isAnalyticsPending(a);
+      final pendingB = _isAnalyticsPending(b);
+      if (pendingA != pendingB) return pendingA ? 1 : -1;
+      final da = _parseCreatedAt(a);
+      final db = _parseCreatedAt(b);
+      if (da == null && db == null) return 0;
+      if (da == null) return -1;
+      if (db == null) return 1;
+      return da.compareTo(db);
+    });
+    final toDrop = byAge.take(overflow).toSet();
+    final droppedPending = toDrop.where(_isAnalyticsPending).length;
+    if (droppedPending > 0) {
+      // 여기까지 왔다면 그 거래들의 매출 유실이 확정된다. 조용히 넘기지 않는다.
+      logger.e(
+        '🧹 영수증 큐 상한 초과로 정산 완료·매출 인계 대기 항목 '
+        '$droppedPending건 제거 — 이 거래들의 매출은 복구되지 않는다',
+      );
+    }
+    return items.where((item) => !toDrop.contains(item)).toList();
+  }
+
   Future<List<Map<String, dynamic>>> _pruneStale(
     List<Map<String, dynamic>> items,
   ) async {
@@ -178,36 +229,7 @@ class ReceiptQueueService {
       return now.difference(createdAt) <= PurchaseConstants.receiptQueueMaxAge;
     }).toList();
 
-    final overflow = fresh.length - PurchaseConstants.receiptQueueMaxEntries;
-    List<Map<String, dynamic>> trimmed = fresh;
-    if (overflow > 0) {
-      // 실제 createdAt 기준으로 가장 오래된 것부터 자른다 - 리스트 순서에만
-      // 의존하면 동시 쓰기나 복구된 데이터에서 실제로는 최근인 항목이
-      // 잘릴 수 있다. createdAt 을 못 읽는 항목은 안전 쪽으로(가장 오래된
-      // 것으로) 취급해 먼저 잘린다.
-      // 인계 대기 항목은 마지막에 자른다. 상한을 지키느라 잘라야 한다면
-      // 그때는 매출 유실이 확정되므로 조용히 넘기지 않고 error 로 남긴다.
-      final byAge = [...fresh]..sort((a, b) {
-        final pendingA = _isAnalyticsPending(a);
-        final pendingB = _isAnalyticsPending(b);
-        if (pendingA != pendingB) return pendingA ? 1 : -1;
-        final da = _parseCreatedAt(a);
-        final db = _parseCreatedAt(b);
-        if (da == null && db == null) return 0;
-        if (da == null) return -1;
-        if (db == null) return 1;
-        return da.compareTo(db);
-      });
-      final toDrop = byAge.take(overflow).toSet();
-      final droppedPending = toDrop.where(_isAnalyticsPending).length;
-      if (droppedPending > 0) {
-        logger.e(
-          '🧹 영수증 큐 상한 초과로 정산 완료·매출 인계 대기 항목 '
-          '$droppedPending건 제거 — 이 거래들의 매출은 복구되지 않는다',
-        );
-      }
-      trimmed = fresh.where((item) => !toDrop.contains(item)).toList();
-    }
+    final trimmed = _enforceCapacity(fresh);
 
     if (trimmed.length != items.length) {
       logger.w(
@@ -291,10 +313,10 @@ class ReceiptQueueService {
     // 결과가 다시 상한을 넘을 수 없다(프룬 직후 길이 <= 상한이었고 +1).
     // 그래도 상한이 0으로 설정되는 극단적 상황을 방어하려면 한 번 더
     // 잘라내는 편이 안전하다.
-    final overflow = items.length - PurchaseConstants.receiptQueueMaxEntries;
-    final toSave = overflow > 0 ? items.sublist(overflow) : items;
+    final toSave = _enforceCapacity(items);
+    final evicted = items.length - toSave.length;
     await _saveQueue(toSave);
-    if (overflow > 0) onItemsEvicted?.call();
+    if (evicted > 0) onItemsEvicted?.call();
     logger.i('📥 큐 적재: $clientTraceId ($normalizedPlatform/$productId)');
     return clientTraceId;
   });
@@ -418,7 +440,7 @@ class ReceiptQueueService {
   ///
   /// 넘길 곳이 없거나(콜백 미설정) 응답이 레거시 `{success: true}` 라 넘길
   /// 정산이 없으면 `true` 다 — 그 경우 큐를 남겨 둬도 할 수 있는 일이 없다.
-  Future<bool> _handOffSettlement(
+  Future<_HandOffOutcome> _handOffSettlement(
     Map<String, dynamic> item,
     Object? data,
   ) async {
@@ -426,7 +448,9 @@ class ReceiptQueueService {
     //
     // 레거시 `{success: true}` 응답에는 넘길 정산 자체가 없다. 붙잡아 둬도
     // 할 수 있는 일이 없으므로 예전처럼 제거한다.
-    if (data is! Map || data['contract_version'] != 'wallet.v1') return true;
+    if (data is! Map || data['contract_version'] != 'wallet.v1') {
+      return _HandOffOutcome.handedOff;
+    }
 
     PurchaseSettlementResultModel settlement;
     try {
@@ -434,32 +458,37 @@ class ReceiptQueueService {
         Map<String, dynamic>.from(data),
       );
     } catch (e, s) {
-      // 같은 요청을 다시 보내도 같은 본문이 돌아온다 — 붙잡아 두면 TTL 만큼
-      // 같은 손실을 미루며 네트워크만 쓴다. 매출 이벤트는 만들 수 없지만
-      // 정산 자체는 서버에서 끝났으므로 제거하되 error 로 남긴다.
-      logger.e('🧾 큐 복구 정산 파싱 실패 — 매출 이벤트 없이 제거', error: e, stackTrace: s);
-      return true;
+      // 본문이 파싱되지 않는 것은 이 요청의 성질이 아니라 그 순간 서버가
+      // 무엇을 배포하고 있었는지의 함수다. 일시적 배포 오류가 롤백되면 같은
+      // 영수증이 정상 본문을 받는데, 여기서 지우면 그때 재시도할 재료가 이미
+      // 없다. 격리해 두고 TTL 이 상한을 준다.
+      logger.e('🧾 큐 복구 정산 파싱 실패 — 항목을 격리한다', error: e, stackTrace: s);
+      return _HandOffOutcome.deferredWithoutConsumer;
     }
 
     final handOff = onSettlementRecovered;
     if (handOff == null) {
       // 넘길 곳이 아직 연결되지 않았다(부팅 순서상 일시적일 수 있다). 여기서
       // 제거하면 그 거래의 매출은 되살릴 재료 없이 사라지므로, 콜백이 연결된
-      // 다음 플러시에 맡긴다. 영구히 미연결이면 TTL 이 상한을 준다 — 그래서
-      // 이 경우는 인계 대기 표시를 세우지 않는다.
+      // 다음 플러시에 맡긴다.
       logger.w('🧾 큐 복구 인계 대상 미연결 — 항목을 남긴다');
-      return false;
+      return _HandOffOutcome.deferredWithoutConsumer;
     }
 
+    // 여기서부터는 소비자를 실제로 불렀다. 결과 분류는 await 뒤에 전역 콜백을
+    // 다시 읽어 정하지 않는다 — 그 사이 해제·재등록되면 오분류된다.
     try {
-      return await handOff(
+      final accepted = await handOff(
         settlement,
         storeProductId: item['productId']?.toString() ?? '',
         clientObservedCurrency: item['client_observed_currency']?.toString(),
       );
+      return accepted
+          ? _HandOffOutcome.handedOff
+          : _HandOffOutcome.deferredByConsumer;
     } catch (e, s) {
       logger.e('🧾 큐 복구 analytics 인계 실패', error: e, stackTrace: s);
-      return false;
+      return _HandOffOutcome.deferredByConsumer;
     }
   }
 
@@ -500,17 +529,18 @@ class ReceiptQueueService {
           (data['success'] == true ||
               data['contract_version'] == 'wallet.v1');
       if (ok) {
-        if (!await _handOffSettlement(item, data)) {
+        final outcome = await _handOffSettlement(item, data);
+        if (outcome != _HandOffOutcome.handedOff) {
           // 정산은 확정됐지만 매출 이벤트를 durable 하게 넘기지 못했다. 큐를
           // 비우면 이 거래를 되살릴 재료가 사라지므로 남기고 백오프한다.
           //
           // 인계 대기 표시는 소비자가 실제로 실패를 답했을 때만 세운다.
-          // 소비자가 아예 없는 상태까지 TTL 밖으로 고정하면, 콜백이 영영
-          // 연결되지 않는 빌드에서 큐가 영구히 잠긴다.
+          // 소비자가 아예 없거나 본문을 파싱하지 못한 경우까지 TTL 밖으로
+          // 고정하면, 그런 상태가 계속되는 빌드에서 큐가 영구히 잠긴다.
           await _scheduleRetry(
             clientTraceId,
             'analytics durable 저장 미확인',
-            analyticsPending: onSettlementRecovered != null,
+            analyticsPending: outcome == _HandOffOutcome.deferredByConsumer,
           );
           return;
         }

@@ -38,14 +38,34 @@ void main() {
 
   http.Response legacySuccess() => jsonResponse({'success': true}, 200);
 
+  /// 실제 계약을 만족하는 정산 응답.
+  ///
+  /// 큐는 이제 200 wallet.v1 응답을 파싱해 analytics 로 넘긴 뒤에만 항목을
+  /// 제거하므로, 파싱되지 않는 축약 스텁으로는 "정상 성공" 경로를 표현할 수
+  /// 없다. (파싱 실패 자체의 동작은 receipt_queue_revenue_handoff_test 가
+  /// 따로 고정한다.)
   http.Response walletSettlement() => jsonResponse({
     'contract_version': 'wallet.v1',
     'operation_id': '00000000-0000-4000-8000-000000000001',
     'replayed': false,
     'base_star_amount': '100',
     'base_bonus_amount': '0',
-    'promotion': null,
-    'wallet': <String, dynamic>{},
+    'promotion': <String, dynamic>{
+      'resolution_id': '00000000-0000-4000-8000-000000000611',
+      'state': 'ELIGIBLE',
+      'campaign_version_id': null,
+      'promo_bonus_amount': '0',
+      'domain_code': null,
+    },
+    'wallet': <String, dynamic>{
+      'contract_version': 'wallet.v1',
+      'star': '100',
+      'bonus': '0',
+      'cotton': '0',
+      'cotton_expiring_amount': '0',
+      'cotton_next_expires_at': null,
+      'snapshot_at': '2026-08-24T00:00:00.000Z',
+    },
   }, 200);
 
   /// StoreKit2 JWS 모양의 가짜 영수증(서명 검증은 서버 몫이므로 형식만 맞춘다).
@@ -126,9 +146,18 @@ void main() {
     service = ReceiptQueueService();
     // 싱글턴이라 테스트 간 상태가 새지 않게 프로덕션 기본값으로 되돌린다.
     service.flushInvokeTimeout = PurchaseConstants.verificationTimeout;
+    // 이 파일은 큐의 durability 기계 자체를 본다. 매출 인계는 항상 성공한
+    // 것으로 두어야 "정상 성공 뒤 큐가 비는가" 를 그대로 관찰할 수 있다.
+    service.onSettlementRecovered =
+        (
+          settlement, {
+          required String storeProductId,
+          required String? clientObservedCurrency,
+        }) async => true;
   });
 
   tearDown(() {
+    service.onSettlementRecovered = null;
     testSupabaseClient = null;
   });
 

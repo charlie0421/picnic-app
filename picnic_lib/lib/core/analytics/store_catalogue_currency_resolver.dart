@@ -20,9 +20,17 @@ class StoreCatalogueCurrencyResolver implements PurchaseCurrencyResolver {
   Future<String?> resolve(String storeProductId) async {
     // 이미 로드돼 있으면 그것으로 끝낸다. 대부분의 재시도가 여기서 끝나야
     // 하고, 캐시 히트에 네트워크 대기를 섞을 이유가 없다.
-    final cached = _container.read(storeProductsProvider).value;
-    final fromCache = _currencyIn(cached, storeProductId);
+    final state = _container.read(storeProductsProvider);
+    final fromCache = _currencyIn(state.value, storeProductId);
     if (fromCache != null) return fromCache;
+
+    // provider 가 terminal error 로 굳었으면 `.future` 는 같은 오류를 영원히
+    // 다시 준다. 그 상태로 두면 스토어가 회복해도 보류 항목은 스스로 회복하지
+    // 못하고 만료된다 — 이 resolver 가 존재하는 이유가 사라진다.
+    if (state.hasError && !state.isLoading) {
+      logger.w('스토어 카탈로그가 오류 상태 — 무효화 후 재조회: $storeProductId');
+      _container.invalidate(storeProductsProvider);
+    }
 
     // 캐시가 비어 있으면 실제로 불러온다. 이 호출은 결제 경로가 아니라
     // outbox drain 에서 오고, 호출부가 timeout 으로 상한을 준다.

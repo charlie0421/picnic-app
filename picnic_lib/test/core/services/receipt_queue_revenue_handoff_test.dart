@@ -294,9 +294,10 @@ void main() {
       expect(await queue(), hasLength(1));
     });
 
-    test('파싱할 수 없는 정산 본문은 붙잡지 않고 제거하되 소리 내어 남긴다', () async {
-      // 같은 요청을 다시 보내도 같은 본문이 돌아온다 — 붙잡아 두면 TTL 만큼
-      // 같은 손실을 미루며 네트워크만 쓴다.
+    test('파싱할 수 없는 정산 본문은 격리하되 TTL 밖으로 고정하지는 않는다', () async {
+      // 본문이 파싱되지 않는 것은 이 요청의 성질이 아니라 그 순간 서버가
+      // 무엇을 배포하고 있었는지의 함수다. 일시적 배포 오류가 롤백되면 같은
+      // 영수증이 정상 본문을 받는다 — 지우면 그때 재시도할 재료가 없다.
       final broken = settlementBody(currency: 'KRW')
         ..['base_star_amount'] = 100; // 계약은 10진 문자열을 요구한다
       setupMockSupabase({'functions:verify-receipt-v2': broken});
@@ -322,7 +323,71 @@ void main() {
       await service.flushPending();
 
       expect(called, 0);
-      expect(await queue(), isEmpty);
+      final kept = await queue();
+      expect(kept, hasLength(1));
+      expect(
+        kept.single['analytics_pending'],
+        isNot(true),
+        reason: '소비자가 실패를 답한 것이 아니므로 TTL 밖으로 고정하지 않는다',
+      );
+    });
+
+    test('상한 직전 새 적재는 인계 대기 항목을 먼저 밀어내지 않는다', () async {
+      // 프룬 경로만 pending 을 보호하고 적재 경로가 앞에서 잘라 버리면,
+      // 상한 직전에 새 결제가 들어오는 순간 가장 오래된 인계 대기 항목이
+      // 정렬도 로그도 없이 사라진다.
+      setupMockSupabase({
+        'functions:verify-receipt-v2': settlementBody(currency: 'KRW'),
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final seeded = <Map<String, dynamic>>[
+        <String, dynamic>{
+          'client_trace_id': 'android-pending',
+          'receipt': 'r',
+          'productId': 'star100',
+          'user_id': 'u',
+          'platform': 'android',
+          'environment': 'sandbox',
+          'format': 'google_play',
+          'attempt': 1,
+          'createdAt': DateTime.now()
+              .subtract(const Duration(days: 3))
+              .toIso8601String(),
+          'nextAt': 0,
+          'analytics_pending': true,
+        },
+        for (var i = 0; i < PurchaseConstants.receiptQueueMaxEntries - 1; i++)
+          <String, dynamic>{
+            'client_trace_id': 'android-filler-\$i',
+            'receipt': 'r',
+            'productId': 'star100',
+            'user_id': 'u',
+            'platform': 'android',
+            'environment': 'sandbox',
+            'format': 'google_play',
+            'attempt': 0,
+            'createdAt': DateTime.now()
+                .subtract(const Duration(days: 2))
+                .toIso8601String(),
+            'nextAt': 0,
+          },
+      ];
+      await prefs.setString('receipt_queue_v1', json.encode(seeded));
+
+      await service.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: 'new',
+        productId: 'star200',
+        userId: 'u',
+        environment: 'sandbox',
+      );
+
+      final remaining = await queue();
+      expect(
+        remaining.where((e) => e['client_trace_id'] == 'android-pending'),
+        hasLength(1),
+        reason: '인계 대기 항목은 마지막에 잘린다',
+      );
     });
 
     test('인계 대기 항목은 TTL 이 지나도 잘리지 않는다', () async {

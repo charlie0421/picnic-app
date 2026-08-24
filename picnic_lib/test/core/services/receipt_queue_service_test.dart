@@ -641,10 +641,33 @@ void main() {
             'replayed': true,
             'base_star_amount': '100',
             'base_bonus_amount': '0',
-            'promotion': null,
-            'wallet': {},
+            // 큐는 이제 이 본문을 파싱해 analytics 로 넘긴 뒤에만 항목을
+            // 제거한다 — 계약을 만족하는 본문이어야 성공 경로가 된다.
+            'promotion': {
+              'resolution_id': '00000000-0000-4000-8000-000000000611',
+              'state': 'ELIGIBLE',
+              'campaign_version_id': null,
+              'promo_bonus_amount': '0',
+              'domain_code': null,
+            },
+            'wallet': {
+              'contract_version': 'wallet.v1',
+              'star': '100',
+              'bonus': '0',
+              'cotton': '0',
+              'cotton_expiring_amount': '0',
+              'cotton_next_expires_at': null,
+              'snapshot_at': '2026-08-24T00:00:00.000Z',
+            },
           },
         });
+        service.onSettlementRecovered =
+            (
+              settlement, {
+              required String storeProductId,
+              required String? clientObservedCurrency,
+            }) async => true;
+        addTearDown(() => service.onSettlementRecovered = null);
 
         await service.enqueue(
           platform: ReceiptQueueService.platformAndroid,
