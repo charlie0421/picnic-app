@@ -32,7 +32,8 @@
 <p class="meta">
 작성 2026-08-21 · 최종 갱신 2026-08-24 · 작업 브랜치 <code>docs/handoff-20260821-ga4-taxonomy</code> · 프로덕션 <code>1.3.0+130007</code><br>
 원 작업 PR <a href="https://github.com/charlie0421/picnic-app/pull/153">#153</a> (머지 커밋 <code>d99118ab3</code>, 2026-08-10) ·
-purchase revenue 앱 사이드 PR <a href="https://github.com/charlie0421/picnic-app/pull/172">#172</a> (열림, 미머지)
+purchase revenue PR — 앱 <a href="https://github.com/charlie0421/picnic-app/pull/172">picnic-app#172</a> ·
+서버 <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a> (둘 다 열림, 미머지)
 </p>
 
 <div class="ok">
@@ -64,7 +65,8 @@ purchase revenue 앱 사이드 PR <a href="https://github.com/charlie0421/picnic
 <tr><td>대행사 회신</td><td class="done">수신 완료</td><td>A-1~B-10 답변 수신 · 2026-08-21</td></tr>
 <tr><td>purchase revenue 계약 설계</td><td class="done">교차 승인</td><td><code>5bb861418</code> · Codex 구현 설계 / Sonnet 최종 APPROVE</td></tr>
 <tr><td>purchase revenue — 앱 사이드</td><td class="done">구현·교차리뷰 완료</td><td>PR <a href="https://github.com/charlie0421/picnic-app/pull/172">#172</a> · 브랜치 <code>feat/ga4-purchase-revenue</code> · 커밋 7개 · <code>flutter test</code> 12,956 통과</td></tr>
-<tr><td>purchase revenue — 서버 사이드</td><td class="todo">미착수</td><td>picnic-supabase 레포. verifier·snapshot migration·RPC·응답 shaping 모두 변경 없음</td></tr>
+<tr><td>purchase revenue — 서버 사이드</td><td class="done">구현·교차리뷰 완료</td><td>PR <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a> · 커밋 6개 · wallet SQL 39파일 · deno edge 179 통과 · 런타임 플래그 꺼진 채 dark</td></tr>
+<tr><td>attestation seal 확장</td><td class="todo">미착수(의도)</td><td>설계 §5.4 편차. MAC 재작성이 필요해 별도 설계·리뷰로 분리 — PR #109 본문 참조</td></tr>
 <tr><td>Google 출처 A 전제</td><td class="unk">미확인</td><td>Play Console 상품 카탈로그 모델(구 <code>inappproducts</code> / 신 <code>monetization.onetimeproducts</code>)과 서비스 계정 스코프</td></tr>
 </table>
 </div>
@@ -128,7 +130,16 @@ sink 가 성공을 반환한 항목만 제거해, 스토어 거래·위젯·프�
 </ul>
 <p class="meta"><code>transaction_id</code>·<code>currency</code>·<code>value</code> 는 전자상거래 표준이라 등록 불요.</p>
 
-<h3>② 실측 검증 <span class="todo">— 미수행</span></h3>
+<h3>② 실측 검증 <span class="todo">— 미수행 · 지금 가장 오래 방치된 항목</span></h3>
+
+<div class="stop">
+<strong>이것만 프로덕션에 이미 나가 있는 코드에 대한 검증이다.</strong>
+④·⑤(purchase revenue)는 아직 배포되지 않은 코드를 다루지만, ②가 확인하려는
+값들은 <code>1.3.0+130007</code>로 8/13에 배포돼 <strong>지금 이 순간에도 GA4로
+들어가고 있다.</strong> 특히 <code>purchase</code> 중복은 확인 전까지 매출이 2배로
+잡히고 있는지 아닌지를 아무도 모르는 상태다. 후속 세션은 ④·⑤보다 이것을 먼저
+집는 편이 낫다.
+</div>
 <p>코드는 12,956개 테스트를 통과했지만 <strong>실제 기기에서 GA4로 나가는 값은 아직 아무도 눈으로 보지 않았다.</strong></p>
 <p><strong>DebugView 가 정공법이다</strong> — 맞춤 측정기준 등록 없이도 이벤트 이름·파라미터·값·사용자 속성이 즉시 보인다.</p>
 <pre># Android — 스토어 빌드에서도 재빌드 없이 켜짐
@@ -227,11 +238,9 @@ shaping 은 모두 picnic-supabase 레포의 후속 작업이다. 서버가 아�
     카탈로그인지 신 <code>monetization.onetimeproducts</code> 인지, 그리고 <code>verifyGoogle</code> 이
     쓰는 서비스 계정 스코프로 그 조회가 가능한지 확인한다. 이 문서가 코드로 검증하지 못한 유일한
     외부 전제다. <span class="meta">확인 전에도 Apple 경로와 출처 B(클라이언트 storefront)는 착수 가능하다.</span></li>
-<li><strong>Supabase 별도 워크트리:</strong> analytics snapshot migration/RPC,
-    Apple·Google verifier, runtime flag, capability 기반 응답 shaping을 RED→GREEN으로 구현한다.</li>
-<li><strong>서버 회귀 검증:</strong> QUANTITY 정산 필드는 계속 null인지, 최초·replay가 같은 snapshot을
-    반환하는지, capability 없는 앱이 7키만 받는지 검증한다.</li>
-<li><strong>서버 교차 리뷰:</strong> 결제·개인정보·migration 변경이므로 반대 공급자 Frontier 리뷰를 수행한다.</li>
+<li><del>Supabase 워크트리 구현</del> <span class="done">— 완료 (PR picnic-supabase#109)</span></li>
+<li><del>서버 회귀 검증</del> <span class="done">— 완료 (wallet SQL 39파일 · deno edge 179)</span></li>
+<li><del>서버 교차 리뷰</del> <span class="done">— 완료 (Codex Sol, HIGH 2·MEDIUM 3 중 4건 반영)</span></li>
 <li><strong>운영 게이트:</strong> migration apply·배포·merge는 별도 승인 전 수행하지 않는다.
     B-10은 실기기 DebugView에서 중복 여부를 확인한 뒤에만 이벤트명을 결정한다.</li>
 </ol>
@@ -298,7 +307,8 @@ picnic-v1.3.0+130007:picnic_app/assets/splash_key.png</code> 확인) 130007 대�
 <tr><td><code>docs/analytics/agency-reply.html</code></td><td>대행사 회신 — 불일치 13건, 전송값 대조표(C절), <strong>GA4 등록 목록(D절)</strong></td></tr>
 <tr><td><code>docs/analytics/implementation-report.html</code></td><td>구현 경과와 리뷰에서 발견한 결함 기록</td></tr>
 <tr><td><code>docs/superpowers/specs/2026-08-21-ga4-purchase-revenue-contract-design.md</code></td><td><strong>purchase revenue 후속 구현의 승인 설계.</strong> durable currency 보류·재시도, snapshot/RPC, capability 배포 순서, TDD 범위</td></tr>
-<tr><td>PR <a href="https://github.com/charlie0421/picnic-app/pull/172">#172</a></td><td>purchase revenue <strong>앱 사이드</strong> 구현. 브랜치 <code>feat/ga4-purchase-revenue</code>, 커밋 7개(구현 4 · 교차리뷰 수정 2 · 테스트 1)</td></tr>
+<tr><td>PR <a href="https://github.com/charlie0421/picnic-app/pull/172">picnic-app#172</a></td><td>purchase revenue <strong>앱 사이드</strong>. 브랜치 <code>feat/ga4-purchase-revenue</code>, 커밋 7개</td></tr>
+<tr><td>PR <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a></td><td>purchase revenue <strong>서버 사이드</strong>. 브랜치 <code>feat/ga4-purchase-revenue-server</code>, 커밋 6개. 알려진 편차(attestation seal · Google 출처 A · PayPal 노출)는 PR 본문에</td></tr>
 <tr><td><code>docs/operations/attendance-reward-decision.html</code></td><td><code>click_attendance</code> 미구현 근거 (출석 보상 폐지)</td></tr>
 </table>
 </div>
