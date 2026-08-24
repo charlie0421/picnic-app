@@ -7,13 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CandyBoostBanner extends ConsumerWidget {
-  const CandyBoostBanner({super.key, required this.campaign});
-  final ActivePromotionCampaignModel campaign;
+  const CandyBoostBanner({super.key, required this.creative});
+  final PromotionCreativeModel creative;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = Localizations.localeOf(context).languageCode;
-    final creative = campaign.homeCreative!;
     final image = creative.localizedImage(locale)!;
     final title = creative.localizedTitle(locale)!;
     return GestureDetector(

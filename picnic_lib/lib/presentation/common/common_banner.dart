@@ -6,14 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/data/models/common/banner.dart';
-import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/custom_pagination.dart';
 import 'package:picnic_lib/presentation/common/candy_boost_banner.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
-import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -40,9 +39,13 @@ class CommonBanner extends ConsumerStatefulWidget {
 /// 캠페인 RPC 대기 상한. 이 시간 안에 응답이 없으면 HOME 배너는 캠페인 없이
 /// 일반 슬라이드로 degrade 렌더한다.
 ///
-/// 상한은 반드시 이 위젯 안에서만 적용한다 — RPC provider/리포지토리 레벨에
-/// 걸면 스토어 구매 플로우(purchase_star_candy_state)가 같은 provider 를 읽어
-/// 보너스 안내·기록이 오염된다 (PR #143 회귀의 원인).
+/// 상한은 반드시 이 위젯 안에서만 적용한다 — HOME 은
+/// `homePromotionCampaignProvider(locale)`, 결제 배지는
+/// `paymentBadgePromotionProvider` 로 서로 다른 provider 를 읽지만, 둘 다 같은
+/// V1/V2 소스 active provider(`activePromotionCampaignV2Provider`,
+/// `activePromotionCampaignProvider`)를 내부적으로 공유한다. 상한을 그
+/// provider/리포지토리 레벨에 걸면 결제 플로우(purchase_star_candy_state)의
+/// 보너스 안내·기록까지 오염된다 (PR #143 회귀의 원인).
 const Duration commonBannerCampaignWaitCap = Duration(seconds: 5);
 
 Duration commonBannerSlideDuration(int milliseconds) =>
@@ -115,23 +118,21 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
 
   List<CommonBannerSlide> _homeSlides(
     List<BannerModel> ordinary,
-    ActivePromotionCampaignsModel campaigns,
-    String locale,
+    HomePromotionResolution resolved,
   ) {
-    final owned = campaigns.campaignOwnedHomeBannerIds.toSet();
     final emitted = <int>{};
     return [
-      for (final campaign in campaigns.visibleHomeItems(locale))
-        if (emitted.add(campaign.homeCreative!.bannerId))
+      for (final slide in resolved.slides)
+        if (emitted.add(slide.bannerId))
           CommonBannerSlide(
-            id: 'campaign:${campaign.homeCreative!.bannerId}',
-            duration: commonBannerSlideDuration(
-              campaign.homeCreative!.duration,
-            ),
-            child: CandyBoostBanner(campaign: campaign),
+            id: 'campaign:${slide.bannerId}',
+            duration: commonBannerSlideDuration(slide.durationMs),
+            child: CandyBoostBanner(creative: slide.creative),
           ),
       ..._ordinarySlides(
-        ordinary.where((banner) => !owned.contains(banner.id)).toList(),
+        ordinary
+            .where((banner) => !resolved.ownedBannerIds.contains(banner.id))
+            .toList(),
       ),
     ];
   }
@@ -308,17 +309,15 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         // 통지하지 않고 .future 도 미완료 future 를 재사용하므로, state 내
         // 세대별 상한은 위젯 레벨에서 구현할 수 없기도 하다.)
         return ref
-            .watch(activePromotionCampaignProvider(PromotionSurface.home))
+            .watch(
+              homePromotionCampaignProvider(
+                Localizations.localeOf(context).languageCode,
+              ),
+            )
             .when(
-              data: (campaigns) {
+              data: (resolved) {
                 _clearCampaignWaitCap(resetExpired: true);
-                return _renderSlides(
-                  _homeSlides(
-                    data,
-                    campaigns,
-                    Localizations.localeOf(context).languageCode,
-                  ),
-                );
+                return _renderSlides(_homeSlides(data, resolved));
               },
               loading: () {
                 // 상한 초과 시 캠페인 없이 degrade 렌더. provider 는 건드리지
