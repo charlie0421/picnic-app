@@ -236,6 +236,26 @@ void main() {
     );
   });
 
+  test('event_starts_at must reject a UTC offset hour above 23', () {
+    final item = Map<String, dynamic>.from(
+      (homeJson['items'] as List).single as Map,
+    )..['event_starts_at'] = '2026-09-07T00:10:00+24:00';
+    expect(
+      () => ActivePromotionCampaignV2Model.fromJson(item),
+      throwsA(isA<CheckedFromJsonException>()),
+    );
+  });
+
+  test('event_starts_at must reject a UTC offset minute above 59', () {
+    final item = Map<String, dynamic>.from(
+      (homeJson['items'] as List).single as Map,
+    )..['event_starts_at'] = '2026-09-07T00:00:00+09:60';
+    expect(
+      () => ActivePromotionCampaignV2Model.fromJson(item),
+      throwsA(isA<CheckedFromJsonException>()),
+    );
+  });
+
   test('event_ends_at must decode as an ISO-8601 date', () {
     final item = Map<String, dynamic>.from(
       (homeJson['items'] as List).single as Map,
@@ -269,6 +289,26 @@ void main() {
     );
   });
 
+  test('event_ends_at must reject a UTC offset hour above 23', () {
+    final item = Map<String, dynamic>.from(
+      (homeJson['items'] as List).single as Map,
+    )..['event_ends_at'] = '2026-09-14T00:10:00+24:00';
+    expect(
+      () => ActivePromotionCampaignV2Model.fromJson(item),
+      throwsA(isA<CheckedFromJsonException>()),
+    );
+  });
+
+  test('event_ends_at must reject a UTC offset minute above 59', () {
+    final item = Map<String, dynamic>.from(
+      (homeJson['items'] as List).single as Map,
+    )..['event_ends_at'] = '2026-09-14T00:00:00+09:60';
+    expect(
+      () => ActivePromotionCampaignV2Model.fromJson(item),
+      throwsA(isA<CheckedFromJsonException>()),
+    );
+  });
+
   test(
     'snapshot_at must reject a timestamp without an explicit UTC offset',
     () {
@@ -282,6 +322,22 @@ void main() {
 
   test('snapshot_at must reject a calendar date that does not exist', () {
     final envelope = {...homeJson, 'snapshot_at': '2026-02-31T00:10:00Z'};
+    expect(
+      () => ActivePromotionCampaignsV2Model.fromJson(envelope),
+      throwsA(isA<CheckedFromJsonException>()),
+    );
+  });
+
+  test('snapshot_at must reject a UTC offset hour above 23', () {
+    final envelope = {...homeJson, 'snapshot_at': '2026-09-07T00:10:00+24:00'};
+    expect(
+      () => ActivePromotionCampaignsV2Model.fromJson(envelope),
+      throwsA(isA<CheckedFromJsonException>()),
+    );
+  });
+
+  test('snapshot_at must reject a UTC offset minute above 59', () {
+    final envelope = {...homeJson, 'snapshot_at': '2026-09-07T00:10:00+09:60'};
     expect(
       () => ActivePromotionCampaignsV2Model.fromJson(envelope),
       throwsA(isA<CheckedFromJsonException>()),

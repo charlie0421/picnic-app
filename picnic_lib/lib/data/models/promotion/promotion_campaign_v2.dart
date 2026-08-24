@@ -199,7 +199,8 @@ class _StrictIntListConverter implements JsonConverter<List<int>, Object?> {
 }
 
 final _rfc3339Pattern = RegExp(
-  r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?(Z|[+-]\d{2}:\d{2})$',
+  r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?'
+  r'(?:Z|([+-])(\d{2}):(\d{2}))$',
 );
 
 DateTime _requireStrictTimestamp(Object? value, String field) {
@@ -231,6 +232,19 @@ DateTime _requireStrictTimestamp(Object? value, String field) {
     throw FormatException(
       '$field is not a valid calendar timestamp, got $value',
     );
+  }
+  // The regex only constrains the offset to two digits each; DateTime.parse
+  // converts an out-of-range offset (e.g. +24:00, +09:60) straight into
+  // minutes without validating it, silently shifting the decoded instant.
+  final offsetSign = match.group(7);
+  if (offsetSign != null) {
+    final offsetHour = int.parse(match.group(8)!);
+    final offsetMinute = int.parse(match.group(9)!);
+    if (offsetHour > 23 || offsetMinute > 59) {
+      throw FormatException(
+        '$field has an out-of-range UTC offset, got $value',
+      );
+    }
   }
   return DateTime.parse(value);
 }
