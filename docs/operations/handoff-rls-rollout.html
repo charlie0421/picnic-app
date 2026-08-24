@@ -114,17 +114,24 @@
   <h1>RLS 도입</h1>
   <p class="sub">공개 anon 키 노출면 조사에서 파생된 별도 과제. 앞선 조치들은 비로그인 접근만 막았고, 로그인한 사용자가 타인의 데이터를 읽는 문제는 RLS 없이는 닫히지 않는다. 사이드 이펙트가 커서 장애 대응과 분리했다.</p>
   <div class="meta">
-    <div><div class="k">상태</div><div class="v">착수 전</div></div>
+    <div><div class="k">상태</div><div class="v">0단계 완료 · 1~6단계 착수 전</div></div>
     <div><div class="k">대상 DB</div><div class="v mono">xtijtefcycoeqludlngc</div></div>
-    <div><div class="k">대상 테이블</div><div class="v">105개 · anon 쓰기 32개</div></div>
-    <div><div class="k">선행 조사</div><div class="v">2026-08-19 완료</div></div>
+    <div><div class="k">남은 대상</div><div class="v">105개 (읽기)</div></div>
+    <div><div class="k">0단계 적용</div><div class="v">2026-08-21 완료</div></div>
   </div>
 </header>
 
 <h2><span class="num">01</span>지금 상태</h2>
 <p class="lede">무엇이 이미 됐고 무엇이 남았는지.</p>
 
-<p><code>public</code> 스키마 테이블 193개 중 <strong>88개는 RLS 가 켜져 있고 105개는 꺼져 있다.</strong> 꺼진 105개 중 90개는 공개 <code>anon</code> 키로 읽히고, 32개는 쓰기까지 가능하다.</p>
+<p><code>public</code> 스키마 테이블 193개 중 <strong>88개는 RLS 가 켜져 있고 105개는 꺼져 있다.</strong> 꺼진 105개 중 90개가 공개 <code>anon</code> 키로 읽힌다. 쓰기 가능했던 32개는 <strong>0단계에서 전부 회수했다(2026-08-21).</strong> 이 과제에 남은 것은 <strong>읽기</strong>다.</p>
+
+<div class="box ok">
+  <div class="t">0단계는 끝났다 — 다시 하지 말 것</div>
+  <p>2026-08-21 프로덕션에 <code>anon</code> 의 INSERT·UPDATE·DELETE 를 32개 테이블 전부에서 회수했다. 이력 <code>20260821990001</code>. 초안이 제안했던 "위험한 5개 먼저" 축소안은 <strong>쓰지 않았다</strong> — 적용 스크립트의 preflight 가 32×3=96 정확 일치를 요구해서, 쪼개면 검증되지 않은 SQL 을 새로 써야 했기 때문이다.</p>
+  <p>실측 결과: <code>anon</code> 쓰기 grant 96 → <strong>0</strong>, 컬럼·PUBLIC·롤 멤버십을 포함한 effective write path <strong>없음</strong>, <code>anon</code> 읽기 32 유지(이 단계는 읽기를 건드리지 않는다), <code>authenticated</code>·<code>service_role</code> INSERT 32/32 유지.</p>
+  <p>기록: <code>picnic-supabase</code> 브랜치 <code>charlie0421/rls-prep</code> 의 <code>supabase/prod-cutover/rls-0b-anon-write-revoke/</code>. <strong>아직 PR 이 없다</strong> — 프로덕션에 적용된 변경이 저장소 <code>main</code> 에 없는 상태이므로 이 과제 착수자가 먼저 올릴 것. 롤백은 <code>rollback/01_restore_anon_writes.sql</code>, 테이블 하나만 되돌릴 때는 해당 줄만 실행한다.</p>
+</div>
 
 <p>2026-08-19 에 가장 민감한 6개 테이블(<code>receipts</code>, <code>star_candy_history</code>, <code>star_candy_bonus_history</code>, <code>vote_pick</code>, <code>transaction_internal</code>, <code>view_transaction_all</code>)과 함수 2개(<code>get_user_activity_unified</code>, <code>_count</code>)의 <code>anon</code> 권한을 회수했다. <strong>이건 비로그인만 막은 것이고 RLS 와는 다른 층위다.</strong></p>
 
@@ -174,7 +181,7 @@
 </div>
 
 <h2><span class="num">03.5</span>이미 끝난 클라이언트 감사</h2>
-<p class="lede">0단계(anon 쓰기)용으로 2026-08-19 에 확인한 것. 다시 하지 말 것.</p>
+<p class="lede">0단계(anon 쓰기)용으로 2026-08-19 에 확인한 것. 0단계는 이 감사를 근거로 적용됐고, 아래 표는 1~6단계에서도 그대로 유효하다.</p>
 
 <div class="scroll">
 <table>
@@ -192,9 +199,11 @@
 
 <p><code>article_comment</code> 만 코드에 명시적 인증 검사가 없다 — <code>user_id</code> 를 payload 에 넣지 않고 DB 기본값에 맡긴다. 다만 <strong>테이블이 0행</strong>이고 원본 <code>article</code> 도 3행뿐이라 실사용이 없다(커뮤니티는 미운영).</p>
 
-<div class="box warn">
-  <div class="t">이 감사가 덮지 못하는 것</div>
-  <p><strong>이미 배포돼 사용자 폰에 있는 구버전 앱.</strong> 현재 코드에 로그인 전 쓰기가 없다는 것이 과거 빌드도 그랬다는 보장은 아니다. 그래서 0단계도 적용 후 <code>permission denied for table &lt;이름&gt;</code> 로그를 24~48시간 추적해야 한다 — 앱이 침묵해도(함정 ②) 서버 로그에는 반드시 남는다. 뜨면 그 테이블만 <code>grant</code> 한 줄로 즉시 복구한다.</p>
+<div class="box ok">
+  <div class="t">이 감사가 덮지 못하는 것 — 0단계에서는 실제로 문제가 없었다</div>
+  <p>정적 감사는 <strong>현재 코드</strong>만 덮는다. 이미 배포돼 사용자 폰에 있는 구버전 앱이 로그인 전에 쓰고 있었다면 회수 직후 드러난다. 그래서 적용 후 <code>permission denied for table &lt;이름&gt;</code> 을 추적했다.</p>
+  <p><strong>결과: 회수한 32개 테이블에서 거부 0건</strong>(2026-08-21 13:19 KST 확인). 같은 기간에 잡힌 테이블 거부는 <code>user_profiles</code> 뿐이고, 이건 회수 대상이 아니며 8/20 84건 → 8/21 18건으로 <strong>회수 이전부터 있던 별건</strong>이다. 함수 거부 <code>get_active_promotion_campaigns</code>(<code>anon</code> EXECUTE 없음) 도 8/18 에 이미 12시간당 676건씩 나던 선재 건이다.</p>
+  <p>다만 <strong>관찰이 끝난 것은 아니다</strong> — 24~48시간 기준으로는 절반쯤 왔다. 1~6단계에서도 같은 추적이 필요하고, 뜨면 그 테이블만 <code>grant</code> 한 줄로 즉시 복구한다.</p>
 </div>
 
 <h2><span class="num">04</span>이미 있는 정책이 템플릿이다</h2>
@@ -219,18 +228,18 @@
 <p class="lede">한 번에 105개를 켜지 않는다. 되돌리기 쉬운 순서로 쪼갠다.</p>
 
 <div class="box acc">
-  <div class="t">anon 쓰기 회수는 이 과제의 0단계다</div>
+  <div class="t">anon 쓰기 회수는 이 과제의 0단계였다 — 적용 완료</div>
   <p>별도 작업으로 뺄지 검토했지만 <strong>같은 부류의 작업</strong>이다 — 감사 대상(앱·웹·어드민·구버전), 조용한 실패 위험, 단계적 적용, 로그 감시, 롤백 규율이 전부 겹친다. "이 테이블에 anon 이 쓰는가"는 "이 테이블에 어떤 정책이 필요한가"의 부분집합이라, 따로 하면 같은 테이블을 두 번 감사하게 된다.</p>
-  <p>다만 설계 비용은 다르다. RLS 는 테이블마다 "누가 무엇을 볼 수 있나"를 정해야 하는 제품 결정이고, <strong>anon 쓰기 회수는 판단이 없다</strong> — 비로그인 쓰기를 허용할 이유가 있는 테이블은 없다. 그래서 정책 설계보다 먼저, 위험 순서대로 닫는다.</p>
+  <p>다만 설계 비용은 다르다. RLS 는 테이블마다 "누가 무엇을 볼 수 있나"를 정해야 하는 제품 결정이고, <strong>anon 쓰기 회수는 판단이 없다</strong> — 비로그인 쓰기를 허용할 이유가 있는 테이블은 없다. 그래서 정책 설계보다 먼저 닫았다. <strong>2026-08-21 에 32개 전부 적용됐으므로 아래 0단계는 이력이고, 착수 지점은 1단계다.</strong></p>
 </div>
 
 <ol class="steps">
-  <li><span class="n">0</span><span class="d"><strong>anon 쓰기 회수 — 위험 순</strong><p>32개 테이블에 anon INSERT·UPDATE·DELETE 가 열려 있다. 읽기는 건드리지 않는다. 그중 <strong>운영 데이터가 있는 12개</strong>가 실제 위험이다: <code>application_logs</code>(125,197) · <code>vote_item</code>(77,895) · <code>devices</code>(29,103) · <code>artist</code>(3,141) · <code>posts</code>(575) · <code>artist_group</code>(291) · <code>vote</code>(235) · <code>cs_4_11_ad_fast_analysis</code>(183) · <code>vote_reward</code>(182) · <code>media</code>(139) · <code>comments</code>(66) · <code>comment_likes</code>(53). 나머지 20개는 미운영·설정성이라 사실상 비어 있다.<br><br><code>vote</code>·<code>vote_item</code>·<code>artist</code>·<code>artist_group</code>·<code>vote_reward</code> 를 먼저 닫는 것이 위험 대비 효과가 가장 크다 — 앱에 쓰는 코드가 없고, 어드민만 쓰는데 <code>authenticated</code> 권한을 이미 갖고 있어 영향이 없다. <code>devices</code> 는 앱이 실제로 쓰므로(30일 2,087건) 4단계 감사와 함께 처리한다.</p></span></li>
+  <li><span class="n">0</span><span class="d"><strong>anon 쓰기 회수 — <span style="color:var(--ok)">완료 (2026-08-21)</span></strong><p>32개 테이블의 <code>anon</code> INSERT·UPDATE·DELETE 를 한 트랜잭션에서 전부 회수했다. 읽기는 건드리지 않았다. 운영 데이터가 있던 12개는 <code>application_logs</code>(125,197) · <code>vote_item</code>(77,895) · <code>devices</code>(29,103) · <code>artist</code>(3,141) · <code>posts</code>(575) · <code>artist_group</code>(291) · <code>vote</code>(235) · <code>cs_4_11_ad_fast_analysis</code>(183) · <code>vote_reward</code>(182) · <code>media</code>(139) · <code>comments</code>(66) · <code>comment_likes</code>(53), 나머지 20개는 미운영·설정성이었다.<br><br>적용 후 거부 0건이고 <code>authenticated</code> 경로는 32/32 살아 있다. <strong>여기서 할 일은 남아 있지 않다</strong> — 저장소 PR 만 아직 없다(01 참조).</p></span></li>
   <li><span class="n">1</span><span class="d"><strong>분류</strong><p>105개를 넷으로 나눈다 — ⓐ 공개 콘텐츠(정책 <code>true</code>), ⓑ 본인 데이터(<code>auth.uid() = user_id</code>), ⓒ 서버 전용(정책 없음 + 권한 회수), ⓓ 관리자 전용. <code>user_id</code> 컬럼 유무가 1차 힌트지만 그것만으로 판단하지 말 것.</p></span></li>
   <li><span class="n">2</span><span class="d"><strong>ⓒ 서버 전용부터</strong><p>앱이 안 읽는 테이블이 가장 안전하다. <code>transaction_*</code> 4종, <code>debug_logs</code>, <code>application_logs</code>, <code>function_request_log</code>, 로그·큐 계열. 지갑 신세대 패턴(RLS ON + 정책 없음 + 권한 회수)을 그대로 적용한다.</p></span></li>
   <li><span class="n">3</span><span class="d"><strong>ⓓ 관리자 전용</strong><p><code>admin_*</code>, <code>role*</code>, <code>permissions</code>, <code>blocked_ips</code>, <code>device_bans</code>. <code>is_admin_or_super()</code> 정책 하나로 끝난다. 어드민 콘솔이 <code>authenticated</code> 로 도는 것만 확인할 것.</p></span></li>
   <li><span class="n">4</span><span class="d"><strong>ⓑ 본인 데이터</strong><p>여기서 함정 ①이 터진다. 엣지 함수 7개가 이 테이블들을 건드리는지 먼저 확인하고, 건드리면 그 함수를 순수 service_role 로 고친 뒤에 켤 것.</p></span></li>
-  <li><span class="n">5</span><span class="d"><strong>ⓐ 공개 콘텐츠</strong><p>정책 <code>true</code> 라 읽기는 기능 영향이 없어 마지막에 몰아서 해도 된다. 쓰기는 0단계에서 이미 닫혀 있어야 한다.</p></span></li>
+  <li><span class="n">5</span><span class="d"><strong>ⓐ 공개 콘텐츠</strong><p>정책 <code>true</code> 라 읽기는 기능 영향이 없어 마지막에 몰아서 해도 된다. 쓰기는 0단계에서 이미 닫혔다.</p></span></li>
   <li><span class="n">6</span><span class="d"><strong><code>user_profiles</code> 는 마지막에 단독으로</strong><p>참조가 가장 많고 컬럼별 민감도가 다르다. 공개 프로필(<code>nickname</code>, <code>avatar_url</code>)과 비공개(<code>email</code>, <code>birth_date</code>, <code>last_ip</code>, 잔액)를 나눠야 하므로 정책만으로 부족하고 컬럼 권한이나 뷰 분리가 함께 필요하다.</p></span></li>
 </ol>
 
@@ -247,7 +256,9 @@ select
     and has_table_privilege('anon', oid, 'DELETE')) as anon_deletable
 from pg_class
 where relnamespace = 'public'::regnamespace and relkind = 'r';
--- 착수 시점: 105 / 90 / 32
+-- 2026-08-19 조사 시점: 105 / 90 / 32
+-- 2026-08-21 0단계 적용 후: 105 / 90 / 0   &lt;- 지금 여기
+-- 목표:                    0 / 0 / 0
 
 -- 정책 없이 RLS 만 켜진 테이블 (의도한 것인지 확인)
 select c.relname
@@ -272,12 +283,14 @@ reset role;</code></pre>
 <ul>
   <li><strong><code>user_profiles</code> 공개 범위.</strong> 다른 사용자의 <code>nickname</code>·<code>avatar_url</code> 을 어디까지 보여줄지는 제품 결정이다. 커뮤니티·투표 화면이 타인 프로필을 표시하므로 전면 차단은 불가능하다.</li>
   <li><strong>뷰 <code>security_invoker</code> 전환 범위.</strong> 켜면 뷰를 읽던 어드민 화면이 정책 영향을 받는다. 어드민을 <code>service_role</code> 경유로 바꿀지, 정책에 관리자 분기를 넣을지 먼저 정해야 한다.</li>
-  <li><del><strong>anon 쓰기 32개 회수 시점.</strong></del> <strong>결정됨</strong> — 이 과제의 0단계로 포함한다. 별도 작업으로 빼면 같은 클라이언트를 두 번 감사하고 로그 감시를 두 번 세팅하게 된다. 05 참조.</li>
+  <li><del><strong>anon 쓰기 32개 회수 시점.</strong></del> <strong>종결</strong> — 0단계로 2026-08-21 적용 완료. 01 참조.</li>
+  <li><strong>0단계 기록의 PR.</strong> 프로덕션에는 적용됐는데 <code>picnic-supabase</code> <code>main</code> 에는 없다. 브랜치 <code>charlie0421/rls-prep</code> 에 1~6단계 초안이 함께 얹혀 있어, 0단계만 떼서 먼저 올릴지 통째로 올릴지 정해야 한다.</li>
 </ul>
 
 <div class="box acc">
   <div class="t">착수 전 한 가지</div>
-  <p>이 과제가 몇 주 걸린다면, 그동안 <code>vote</code> · <code>vote_item</code> · <code>artist</code> 가 공개 앱 키로 삭제 가능한 상태로 남는다. 0단계의 앞 5개(<code>vote</code> · <code>vote_item</code> · <code>artist</code> · <code>artist_group</code> · <code>vote_reward</code>)는 앱에 쓰는 코드가 없고 어드민이 <code>authenticated</code> 로 도니, 착수가 늦어질 것 같으면 그 다섯만 먼저 닫아도 된다. 검증 부담이 작고 <code>grant</code> 한 줄로 되돌아간다.</p>
+  <p>0단계가 끝나 <strong>공개 앱 키로 데이터를 지울 수 있는 상태는 해소됐다.</strong> 이 과제가 몇 주 걸려도 그 위험은 다시 열리지 않는다.</p>
+  <p>남은 위험은 성격이 다르다 — <strong>계정 하나만 만들면 타인의 데이터를 읽을 수 있다.</strong> 이건 급하게 한 줄로 닫을 수 없고 테이블마다 "누가 무엇을 볼 수 있나"를 정해야 한다. 그래서 부분 착수보다 1단계(분류)를 제대로 하는 것이 먼저다.</p>
 </div>
 
 <footer>
