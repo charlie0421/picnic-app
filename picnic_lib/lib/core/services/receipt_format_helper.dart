@@ -180,6 +180,17 @@ class ReceiptFormatHelper {
     return installerStore != 'com.android.vending' ? 'sandbox' : 'production';
   }
 
+  /// 이 빌드가 파싱할 수 있는 정산 계약 확장.
+  ///
+  /// 서버는 이 목록을 보고 응답에 `currency`/`value` 를 넣을지 정한다. build
+  /// number 로 추론하지 않는 이유는 Shorebird OTA 가 build number 를 바꾸지
+  /// 않기 때문이다 — OTA 로 새 파서를 받은 기기와 아직 안 받은 기기가 서버에는
+  /// 같은 build 로 보인다. 파서 코드 자체가 아는 사실을 매 요청 선언한다.
+  ///
+  /// 이 값은 인박스에 영속 저장되지 않는 순수 요청 파라미터이며, 서버의 멱등
+  /// identity hash 에도 들어가지 않는다.
+  static const List<String> parserCapabilities = <String>['purchase_revenue_v1'];
+
   /// Build the iOS verification request body.
   @visibleForTesting
   static Map<String, dynamic> buildIOSRequestBody({
@@ -188,6 +199,7 @@ class ReceiptFormatHelper {
     required String userId,
     required String environment,
     required String receiptFormat,
+    String? clientObservedCurrency,
   }) {
     return {
       'receipt': receipt,
@@ -196,6 +208,8 @@ class ReceiptFormatHelper {
       'user_id': userId,
       'environment': environment,
       'format': getIOSReceiptFormatParam(receiptFormat),
+      'parser_capabilities': parserCapabilities,
+      'client_observed_currency': ?clientObservedCurrency,
     };
   }
 
@@ -207,6 +221,7 @@ class ReceiptFormatHelper {
     required String userId,
     required String environment,
     required String clientTraceId,
+    String? clientObservedCurrency,
   }) {
     return {
       'receipt': receipt,
@@ -216,6 +231,8 @@ class ReceiptFormatHelper {
       'environment': environment,
       'format': 'google_play',
       'client_trace_id': clientTraceId,
+      'parser_capabilities': parserCapabilities,
+      'client_observed_currency': ?clientObservedCurrency,
     };
   }
 

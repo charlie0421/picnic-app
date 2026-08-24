@@ -4,7 +4,9 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import 'package:picnic_lib/core/analytics/iso_4217_currency.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:picnic_lib/core/services/auth/edge_auth_retry.dart';
 import 'package:picnic_lib/core/services/receipt_format_helper.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -91,6 +93,19 @@ class ReceiptQueueService {
   /// 스윕이 되찾지만, 콜백을 설정해 두면 그 회수를 다음 기회까지 미루지
   /// 않고 즉시 시도할 수 있다.
   void Function()? onItemsEvicted;
+
+  /// 큐 복구가 200 정산 응답을 받았을 때, 그 매출 이벤트를 durable 하게
+  /// 넘겨받는 곳.
+  ///
+  /// `true` 를 돌려줄 때만 큐 항목을 제거한다. 정산 응답을 받자마자 큐를
+  /// 비우면, 그 뒤 analytics 저장이 실패하고 스토어가 consume 된 순간 그
+  /// 거래의 매출을 되살릴 재료가 클라이언트 어디에도 남지 않는다.
+  Future<bool> Function(
+    PurchaseSettlementResultModel settlement, {
+    required String storeProductId,
+    required String? clientObservedCurrency,
+  })?
+  onSettlementRecovered;
 
   Future<SharedPreferences> get _prefs async => SharedPreferences.getInstance();
 
@@ -200,6 +215,7 @@ class ReceiptQueueService {
     required String productId,
     required String userId,
     required String environment,
+    String? clientObservedCurrency,
   }) => _withMutationLock(() async {
     final normalizedPlatform = platform.toLowerCase();
     final clientTraceId = normalizedPlatform == platformIOS
@@ -216,6 +232,24 @@ class ReceiptQueueService {
       (e) => e['client_trace_id'] == clientTraceId,
     );
     if (existing >= 0) {
+      // 결정적 iOS 키는 재전달마다 같은 항목으로 돌아온다. 그 사이 카탈로그가
+      // 로드돼 통화를 알게 됐다면 비어 있던 자리만 채운다. 이미 다른 값이
+      // 있으면 최초 값을 정본으로 두고 덮어쓰지 않는다 — 같은 거래의 통화가
+      // 재전달마다 바뀌면 어느 쪽이 맞는지 판단할 근거가 없다.
+      final observed = normalizeIso4217(clientObservedCurrency);
+      final stored = items[existing]['client_observed_currency'];
+      if (observed != null && stored == null) {
+        items[existing] = <String, dynamic>{
+          ...items[existing],
+          'client_observed_currency': observed,
+        };
+        await _saveQueue(items);
+      } else if (observed != null && stored != observed) {
+        logger.w(
+          '📥 큐 항목의 관측 통화가 재전달마다 다르다 — 최초 값 유지: '
+          '$clientTraceId ($stored vs $observed)',
+        );
+      }
       logger.i('📥 큐 항목 재사용: $clientTraceId ($normalizedPlatform/$productId)');
       return clientTraceId;
     }
@@ -231,6 +265,8 @@ class ReceiptQueueService {
         platform: normalizedPlatform,
         receipt: receipt,
       ),
+      if (normalizeIso4217(clientObservedCurrency) != null)
+        'client_observed_currency': normalizeIso4217(clientObservedCurrency),
       'attempt': 0,
       'createdAt': DateTime.now().toIso8601String(),
       'nextAt': 0,
@@ -318,6 +354,12 @@ class ReceiptQueueService {
               receipt: item['receipt']?.toString() ?? '',
             ),
       'client_trace_id': item['client_trace_id'],
+      // 재전송 본문이 foreground 본문과 달라지면 서버는 capability 없는
+      // 구버전 클라이언트로 읽고 7키로 낮춰 답한다 — 큐 복구 경로만 조용히
+      // 매출을 잃는다.
+      'parser_capabilities': ReceiptFormatHelper.parserCapabilities,
+      if (item['client_observed_currency'] != null)
+        'client_observed_currency': item['client_observed_currency'],
     };
   }
 
@@ -353,6 +395,42 @@ class ReceiptQueueService {
       logger.i('🧾 영수증 큐 플러시 완료. 남은 건: ${remaining.length}');
     } finally {
       _inFlightFlush = null;
+    }
+  }
+
+  /// 큐 복구가 받은 200 정산을 analytics outbox 로 넘긴다.
+  ///
+  /// 넘길 곳이 없거나(콜백 미설정) 응답이 레거시 `{success: true}` 라 넘길
+  /// 정산이 없으면 `true` 다 — 그 경우 큐를 남겨 둬도 할 수 있는 일이 없다.
+  Future<bool> _handOffSettlement(
+    Map<String, dynamic> item,
+    Object? data,
+  ) async {
+    final handOff = onSettlementRecovered;
+    if (handOff == null) return true;
+    if (data is! Map || data['contract_version'] != 'wallet.v1') return true;
+
+    PurchaseSettlementResultModel settlement;
+    try {
+      settlement = PurchaseSettlementResultModel.fromJson(
+        Map<String, dynamic>.from(data),
+      );
+    } catch (e, s) {
+      // 계약 위반은 큐를 붙잡을 이유가 아니다. 서버는 이미 정산했고, 여기서
+      // 무한 재전송해도 같은 본문이 돌아온다.
+      logger.e('🧾 큐 복구 정산 파싱 실패 — 매출 이벤트 없이 진행', error: e, stackTrace: s);
+      return true;
+    }
+
+    try {
+      return await handOff(
+        settlement,
+        storeProductId: item['productId']?.toString() ?? '',
+        clientObservedCurrency: item['client_observed_currency']?.toString(),
+      );
+    } catch (e, s) {
+      logger.e('🧾 큐 복구 analytics 인계 실패', error: e, stackTrace: s);
+      return false;
     }
   }
 
@@ -393,6 +471,12 @@ class ReceiptQueueService {
           (data['success'] == true ||
               data['contract_version'] == 'wallet.v1');
       if (ok) {
+        if (!await _handOffSettlement(item, data)) {
+          // 정산은 확정됐지만 매출 이벤트를 durable 하게 넘기지 못했다. 큐를
+          // 비우면 이 거래를 되살릴 재료가 사라지므로 남기고 백오프한다.
+          await _scheduleRetry(clientTraceId, 'analytics durable 저장 미확인');
+          return;
+        }
         await _dropItem(clientTraceId, '✅ 큐 전송 성공');
         return;
       }

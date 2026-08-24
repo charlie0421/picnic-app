@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/analytics/analytics.dart';
+import 'package:picnic_lib/core/analytics/iso_4217_currency.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_analytics_dedup.dart';
 
@@ -73,8 +74,8 @@ class AnalyticsService {
   }) {
     return logPurchasePayload(
       storeProductId: product.id,
-      currency: _extractCurrency(product),
-      value: _extractPrice(product),
+      catalogCurrency: _extractCurrency(product),
+      catalogValue: _extractPrice(product),
       transactionId: transactionId,
       idempotencyFallbackKey: idempotencyFallbackKey,
       baseAmount: baseAmount,
@@ -84,12 +85,21 @@ class AnalyticsService {
   }
 
   /// 카탈로그 조회가 실패/지연돼도 정산 사실 자체는 durable하게 남기는 경로.
-  /// currency/value를 얻지 못하면 숫자를 지어내지 않고 생략하되, 거래 ID와
-  /// 서버 확정 적립량은 그대로 보존한다.
-  Future<void> logPurchasePayload({
+  ///
+  /// 통화 출처가 셋이고 우선순위가 있다([AnalyticsOutbox.enqueueOrMergePurchase]
+  /// 가 §7 우선순위를 강제한다). 여기서 미리 하나로 합치지 않고 셋을 그대로
+  /// 넘기는 이유는, 어느 출처를 썼는지에 따라 금액을 함께 쓸 수 있는지가
+  /// 달라지기 때문이다 — 통화만 먼저 합치면 그 판단 근거가 사라진다.
+  ///
+  /// 반환값은 durable 저장 결과다. 호출부는 `ready`/`deferred` 를 확인한 뒤에만
+  /// 영수증 큐 항목처럼 복구 재료를 버릴 수 있다.
+  Future<PurchaseOutboxResult> logPurchasePayload({
     required String storeProductId,
-    required String? currency,
-    required num? value,
+    String? catalogCurrency,
+    num? catalogValue,
+    String? serverCurrency,
+    num? serverValue,
+    String? clientObservedCurrency,
     String? transactionId,
     String? idempotencyFallbackKey,
     num? baseAmount,
@@ -118,7 +128,7 @@ class AnalyticsService {
         "'undefined' 로 보내면 서로 다른 결제가 같은 거래로 집계된다: "
         '$storeProductId',
       );
-      return;
+      return PurchaseOutboxResult.failed;
     }
 
     final canonicalId = canonicalStoreProductId(storeProductId);
@@ -133,37 +143,39 @@ class AnalyticsService {
         transactionId,
         fallbackKey: idempotencyFallbackKey,
       );
-      if (legacyReservation == null) return;
+      if (legacyReservation == null) return PurchaseOutboxResult.ready;
       try {
-        final persisted = await outbox.enqueue(
-          AnalyticsOutboxEntry.purchase(
-            id: resolvedTransactionId,
-            aliases: aliases,
-            transactionId: resolvedTransactionId,
-            currency: currency,
-            value: value,
-            items: <Ga4PurchaseItem>[
-              Ga4PurchaseItem(
-                itemId: canonicalId.toLowerCase(),
-                itemName: canonicalId,
-                virtualCurrencyName: Ga4CurrencyNames.starCandy,
-                baseAmount: baseAmount,
-                bonusAmount: bonusAmount,
-              ),
-            ],
-          ),
+        final stored = await outbox.enqueueOrMergePurchase(
+          id: resolvedTransactionId,
+          aliases: aliases,
+          transactionId: resolvedTransactionId,
+          items: <Ga4PurchaseItem>[
+            Ga4PurchaseItem(
+              itemId: canonicalId.toLowerCase(),
+              itemName: canonicalId,
+              virtualCurrencyName: Ga4CurrencyNames.starCandy,
+              baseAmount: baseAmount,
+              bonusAmount: bonusAmount,
+            ),
+          ],
+          serverCurrency: serverCurrency,
+          serverValue: serverValue,
+          catalogCurrency: catalogCurrency,
+          catalogValue: catalogValue,
+          clientObservedCurrency: clientObservedCurrency,
+          storeProductId: storeProductId,
         );
-        if (!persisted) {
+        if (stored == PurchaseOutboxResult.failed) {
           logger.e(
             'GA4 purchase outbox 저장 실패 — 스토어 거래는 정산되었지만 '
             '내구 재전송 항목을 남기지 못함: $resolvedTransactionId',
           );
-          return;
+          return stored;
         }
-        // Outbox enqueue까지만 purchase 경로가 기다린다. Firebase 전송/재시도는
+        // Outbox 저장까지만 purchase 경로가 기다린다. Firebase 전송/재시도는
         // 스토어 finish/consume 및 사용자 UX와 독립적으로 진행된다.
         unawaited(outbox.flush());
-        return;
+        return stored;
       } finally {
         // durable gate를 outbox가 이어받았거나 enqueue가 실패했다. 어느 쪽이든
         // legacy 메모리 예약을 남겨 같은 키 후속 호출을 영구 대기시키지 않는다.
@@ -173,11 +185,30 @@ class AnalyticsService {
 
     // Explicit legacy dependency is test-only. Production is the outbox branch
     // above, where payload persistence precedes store transaction finalization.
+    //
+    // 이 경로에는 보류할 durable 저장소가 없다. 그래도 통화 없는 매출 이벤트를
+    // 내보내지는 않는다 — GA4 는 그런 purchase 의 매출을 통째로 무시하므로
+    // "보냈지만 매출은 0" 이 되고, 나중에 통화를 확보해도 되돌릴 수 없다.
+    final legacyCurrency =
+        normalizeIso4217(serverCurrency) ??
+        normalizeIso4217(catalogCurrency) ??
+        normalizeIso4217(clientObservedCurrency);
+    final legacyValue = normalizeIso4217(serverCurrency) != null
+        ? serverValue
+        : (normalizeIso4217(catalogCurrency) != null ? catalogValue : null);
+    if (legacyCurrency == null) {
+      logger.e(
+        'GA4 purchase 발송 보류 — ISO 4217 통화를 확보하지 못했다: '
+        '$resolvedTransactionId',
+      );
+      return PurchaseOutboxResult.failed;
+    }
+
     final reservation = await _dedup.reserve(
       transactionId,
       fallbackKey: idempotencyFallbackKey,
     );
-    if (reservation == null) return;
+    if (reservation == null) return PurchaseOutboxResult.ready;
 
     logger.i('Purchase success: $storeProductId');
 
@@ -186,8 +217,8 @@ class AnalyticsService {
       delivered = await PicnicAnalytics.instance
           .logPurchase(
             transactionId: resolvedTransactionId,
-            currency: currency,
-            value: value,
+            currency: legacyCurrency,
+            value: legacyValue,
             items: <Ga4PurchaseItem>[
               Ga4PurchaseItem(
                 itemId: canonicalId.toLowerCase(),
@@ -221,7 +252,7 @@ class AnalyticsService {
 
     if (!delivered) {
       reservation.release();
-      return;
+      return PurchaseOutboxResult.failed;
     }
 
     if (!await reservation.commit()) {
@@ -235,6 +266,7 @@ class AnalyticsService {
         '같은 거래가 한 번 더 나갈 수 있다: $resolvedTransactionId',
       );
     }
+    return PurchaseOutboxResult.ready;
   }
 
   /// 전송 자체에 허용하는 시간. 호출부가 더 짧게 잡을 수 있다.

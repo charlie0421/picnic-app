@@ -121,8 +121,9 @@ class ReceiptVerificationService {
     String receipt,
     String productId,
     String userId,
-    String environment,
-  ) async {
+    String environment, {
+    String? clientObservedCurrency,
+  }) async {
     if (Environment.isInitialized &&
         Environment.currentEnvironment != 'test' &&
         !isPaymentEnvironmentAllowed(
@@ -152,6 +153,7 @@ class ReceiptVerificationService {
             environment,
             receiptFormat,
             sentRequests,
+            clientObservedCurrency,
           )
         : await _settleOrPromoteDuplicate(
             run: () => _verifyAndroidReceipt(
@@ -160,6 +162,7 @@ class ReceiptVerificationService {
               userId,
               environment,
               sentRequests,
+              clientObservedCurrency,
             ),
             receipt: receipt,
             productId: productId,
@@ -194,6 +197,7 @@ class ReceiptVerificationService {
     String environment,
     String receiptFormat,
     SentVerificationRequests sentRequests,
+    String? clientObservedCurrency,
   ) async {
     try {
       final idemKey = _makeIdemKeyFromJWS(receipt);
@@ -233,6 +237,7 @@ class ReceiptVerificationService {
           environment,
           receiptFormat,
           sentRequests,
+          clientObservedCurrency,
         ),
         receipt: receipt,
         productId: productId,
@@ -270,6 +275,7 @@ class ReceiptVerificationService {
         environment,
         receiptFormat,
         sentRequests,
+        clientObservedCurrency,
       );
     }
   }
@@ -369,6 +375,7 @@ class ReceiptVerificationService {
     required String environment,
     required String receiptFormat,
     required String clientTraceId,
+    String? clientObservedCurrency,
   }) => isIOSPlatform
       ? ReceiptFormatHelper.buildIOSRequestBody(
           receipt: receipt,
@@ -376,6 +383,7 @@ class ReceiptVerificationService {
           userId: userId,
           environment: environment,
           receiptFormat: receiptFormat,
+          clientObservedCurrency: clientObservedCurrency,
         )
       : ReceiptFormatHelper.buildAndroidRequestBody(
           receipt: receipt,
@@ -383,7 +391,12 @@ class ReceiptVerificationService {
           userId: userId,
           environment: environment,
           clientTraceId: clientTraceId,
+          clientObservedCurrency: clientObservedCurrency,
         );
+
+  /// analytics outbox 가 이 정산을 durable 하게 넘겨받은 뒤 큐 항목을 비운다.
+  Future<void> releaseQueuedReceipt(String clientTraceId) =>
+      ReceiptQueueService().removeByClientTraceId(clientTraceId);
 
   @visibleForTesting
   static bool isPaymentEnvironmentAllowed({
@@ -417,6 +430,7 @@ class ReceiptVerificationService {
     String environment,
     String receiptFormat,
     SentVerificationRequests sentRequests,
+    String? clientObservedCurrency,
   ) async {
     logger.i('iOS receipt verification - Format: $receiptFormat');
 
@@ -434,6 +448,7 @@ class ReceiptVerificationService {
       productId: productId,
       userId: userId,
       environment: environment,
+      clientObservedCurrency: clientObservedCurrency,
     );
 
     final requestBody = _requestBodyFor(
@@ -443,6 +458,7 @@ class ReceiptVerificationService {
       environment: environment,
       receiptFormat: receiptFormat,
       clientTraceId: clientTraceId,
+      clientObservedCurrency: clientObservedCurrency,
     );
 
     final result = await callVerificationFunction(
@@ -450,11 +466,11 @@ class ReceiptVerificationService {
       'iOS',
       sentRequests,
     );
-    // 정산이 끝난 항목만 제거한다. 실패는 분류하지 않고 큐에 남겨,
-    // flushPending 이 스스로의 정책(422 만 제거, 그 외 백오프 유지)으로
-    // 판단하게 한다.
-    await ReceiptQueueService().removeByClientTraceId(clientTraceId);
-    return result;
+    // 정산이 끝났다고 곧바로 큐를 비우지 않는다. 이 항목은 이 거래의 매출을
+    // 되살릴 마지막 재료이고, analytics outbox 가 그 소유권을 넘겨받았다고
+    // 확인되기 전에 버리면 그 사이의 실패가 곧 영구 유실이다. 실제 제거는
+    // 호출부가 durable 저장을 확인한 뒤 releaseQueuedReceipt 로 한다.
+    return result.copyWith(receiptQueueClientTraceId: clientTraceId);
   }
 
   /// Android 영수증 검증
@@ -464,6 +480,7 @@ class ReceiptVerificationService {
     String userId,
     String environment,
     SentVerificationRequests sentRequests,
+    String? clientObservedCurrency,
   ) async {
     logger.i('🤖 Android 영수증 검증 시작');
     logger.i('  - Product ID: $productId');
@@ -478,6 +495,7 @@ class ReceiptVerificationService {
       productId: productId,
       userId: userId,
       environment: environment,
+      clientObservedCurrency: clientObservedCurrency,
     );
 
     final requestBody = _requestBodyFor(
@@ -490,6 +508,7 @@ class ReceiptVerificationService {
         receipt: receipt,
       ),
       clientTraceId: clientTraceId,
+      clientObservedCurrency: clientObservedCurrency,
     );
 
     logger.i('🚀 Android 서버 검증 호출 시작 (clientTrace: $clientTraceId)');
@@ -499,10 +518,11 @@ class ReceiptVerificationService {
         'Android',
         sentRequests,
       );
-      // 성공 시 큐에서 제거
-      await ReceiptQueueService().removeByClientTraceId(clientTraceId);
+      // 큐 제거는 analytics outbox 가 이 매출 이벤트를 durable 하게 넘겨받은
+      // 뒤에 호출부가 한다(releaseQueuedReceipt). 여기서 먼저 비우면 저장
+      // 실패와 스토어 consume 사이에 복구 재료가 사라진다.
       logger.i('✅ Android 영수증 검증 완료');
-      return result;
+      return result.copyWith(receiptQueueClientTraceId: clientTraceId);
     } catch (e) {
       if (isPermanentSettlementRejection(e)) {
         // 영구 거부(422) 영수증을 큐에 남기면 앱 시작마다 재전송만 된다.

@@ -196,6 +196,10 @@ class GlobalPurchaseListener {
     // 스토어 화면이 떠 있는 동안 일어나면 그 화면의 자체 복원 정리와
     // 경합해서는 안 되는데, `hasSurface` 를 아는 건 이 클래스뿐이다.
     ReceiptQueueService().onItemsEvicted = _onQueueItemsEvicted;
+    // 큐 복구가 받은 정산의 매출 이벤트도 여기서 이어받는다. 큐는
+    // `PurchaseService` 를 알지 못하므로(역방향 의존 방지) 상위가 연결한다.
+    ReceiptQueueService().onSettlementRecovered =
+        purchaseService.adoptRecoveredSettlement;
   }
 
   /// The app-level Riverpod container.
@@ -557,6 +561,10 @@ class GlobalPurchaseListener {
     // 항상 참을 보장하지는 않으므로(구현에 따라 다름) `==`를 쓴다 - Dart는
     // 메서드 tear-off의 동등성(`==`)은 "같은 리시버 + 같은 메서드"면 항상
     // 참이라고 보장한다.
+    if (ReceiptQueueService().onSettlementRecovered ==
+        purchaseService.adoptRecoveredSettlement) {
+      ReceiptQueueService().onSettlementRecovered = null;
+    }
     if (ReceiptQueueService().onItemsEvicted == _onQueueItemsEvicted) {
       ReceiptQueueService().onItemsEvicted = null;
     }

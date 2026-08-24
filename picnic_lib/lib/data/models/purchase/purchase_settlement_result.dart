@@ -148,6 +148,14 @@ abstract class PurchaseSettlementResultModel
     @JsonKey(includeFromJson: false, includeToJson: false)
     @Default(false)
     bool replayCausedByRetry,
+
+    /// 이 정산을 만들어 낸 영수증 큐 항목의 키. 계약의 일부가 아니다.
+    ///
+    /// 큐 항목은 "서버 정산 응답 확보"까지를 소유하고, analytics outbox 는 그
+    /// 뒤부터를 소유한다. 소유권이 실제로 넘어간 뒤에만 큐를 비울 수 있어야
+    /// 하는데, 그러려면 정산 결과가 자기를 낳은 큐 항목을 가리켜야 한다.
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    String? receiptQueueClientTraceId,
   }) = _PurchaseSettlementResultModel;
 
   factory PurchaseSettlementResultModel.fromJson(Map<String, dynamic> json) =>

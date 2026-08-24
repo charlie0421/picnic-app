@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:mockito/mockito.dart';
 import 'package:picnic_lib/core/analytics/analytics.dart';
+import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
@@ -59,7 +60,9 @@ class _SettlingVerification extends ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
-  ) async {
+  {
+    String? clientObservedCurrency,
+  }) async {
     verifications++;
     return result;
   }
@@ -145,6 +148,8 @@ void main() {
     bool replayed = false,
     bool replayCausedByRetry = false,
     String operationId = 'operation-1',
+    String? currency,
+    num? value,
   }) => PurchaseSettlementResultModel(
     contractVersion: 'wallet.v1',
     operationId: operationId,
@@ -154,6 +159,8 @@ void main() {
     baseBonusAmount: BigInt.from(10),
     promotion: null,
     wallet: wallet,
+    currency: currency,
+    value: value,
   );
 
   final soldProduct = ProductDetails(
@@ -188,6 +195,7 @@ void main() {
     LocalStorage? analyticsStorage,
     FutureOr<List<ProductDetails>> Function()? catalogue,
     UnfinishedPurchaseSource? sweepSource,
+    AnalyticsOutbox? outbox,
   }) {
     container = ProviderContainer(
       overrides: [
@@ -205,11 +213,13 @@ void main() {
       container: container,
       inAppPurchaseService: plugin,
       receiptVerificationService: verification,
-      analyticsService: AnalyticsService(
-        dedup: PurchaseAnalyticsDedup(
-          storage: analyticsStorage ?? _FakeLocalStorage(),
-        ),
-      ),
+      analyticsService: outbox != null
+          ? AnalyticsService(outbox: outbox)
+          : AnalyticsService(
+              dedup: PurchaseAnalyticsDedup(
+                storage: analyticsStorage ?? _FakeLocalStorage(),
+              ),
+            ),
       duplicatePreventionService: DuplicatePreventionService.forContainer(
         container,
       ),
@@ -428,9 +438,11 @@ void main() {
       expect(errors, isEmpty);
     });
 
-    test('카탈로그가 비어도 정산 purchase payload를 남긴다', () async {
-      // 카탈로그 실패는 currency/value를 못 줄 뿐, 이미 확정된 거래와
-      // 적립 수량을 없애는 근거가 아니다.
+    test('통화를 어디서도 못 구하면 매출 이벤트를 보내지 않는다', () async {
+      // 카탈로그도 서버도 통화를 주지 못했다. 예전에는 currency/value 만 빼고
+      // 보냈는데, GA4 는 통화 없는 purchase 의 매출을 통째로 무시하므로 그건
+      // "보냈지만 매출은 0" 이고 나중에 통화를 구해도 되돌릴 수 없다.
+      // 지급·정산·스토어 finish 는 그대로 끝난다 — 계측이 결제를 막지 않는다.
       service = buildService(
         result: settlement(),
         catalogue: () => <ProductDetails>[],
@@ -438,11 +450,92 @@ void main() {
 
       await deliver(_transaction(status: PurchaseStatus.purchased));
 
-      expect(sink.purchases, hasLength(1));
-      expect(sink.purchases.single.currency, isNull);
-      expect(sink.purchases.single.value, isNull);
+      expect(sink.purchases, isEmpty);
       expect(settlements, hasLength(1));
       expect(errors, isEmpty);
+      expect(plugin.settledFinalizations, 1);
+    });
+  });
+
+  group('서버가 확정한 통화가 카탈로그보다 앞선다', () {
+    late AnalyticsOutbox outbox;
+
+    setUp(() {
+      AnalyticsOutbox.resetProcessStateForTest();
+      outbox = AnalyticsOutbox(storage: _FakeLocalStorage(), sink: sink);
+    });
+
+    tearDown(AnalyticsOutbox.resetProcessStateForTest);
+
+    test('카탈로그가 비어도 서버 값이 있으면 매출이 남는다', () async {
+      // 이 설계가 푸는 문제 그 자체(§4): 정산 시점에 카탈로그가 메모리에
+      // 없는 복구 구매도 이제 매출액을 잃지 않는다.
+      service = buildService(
+        result: settlement(currency: 'KRW', value: 2500),
+        catalogue: () => <ProductDetails>[],
+        outbox: outbox,
+      );
+
+      await deliver(_transaction(status: PurchaseStatus.purchased));
+      await outbox.flush();
+
+      expect(sink.purchases, hasLength(1));
+      expect(sink.purchases.single.currency, 'KRW');
+      expect(sink.purchases.single.value, 2500);
+    });
+
+    test('서버 값과 카탈로그 값이 다르면 서버 값을 쓴다', () async {
+      // 카탈로그는 USD 1.99 를 들고 있지만 서버가 실제로 결제된 통화를 안다.
+      service = buildService(
+        result: settlement(currency: 'KRW', value: 2500),
+        outbox: outbox,
+      );
+
+      await deliver(_transaction(status: PurchaseStatus.purchased));
+      await outbox.flush();
+
+      expect(sink.purchases.single.currency, 'KRW');
+      expect(sink.purchases.single.value, 2500);
+    });
+
+    test('서버 통화만 있으면 카탈로그 가격을 끌어와 짜깁기하지 않는다', () async {
+      // Google 폴백은 통화만 확보한다. 여기서 카탈로그의 1.99(USD 기준)를
+      // KRW 옆에 붙이면 금액-통화 쌍 자체가 틀린 값이 된다.
+      service = buildService(
+        result: settlement(currency: 'KRW'),
+        outbox: outbox,
+      );
+
+      await deliver(_transaction(status: PurchaseStatus.purchased));
+      await outbox.flush();
+
+      expect(sink.purchases.single.currency, 'KRW');
+      expect(sink.purchases.single.value, isNull);
+    });
+
+    test('서버가 통화를 안 주면 카탈로그 쌍을 쓴다(기존 동작)', () async {
+      service = buildService(result: settlement(), outbox: outbox);
+
+      await deliver(_transaction(status: PurchaseStatus.purchased));
+      await outbox.flush();
+
+      expect(sink.purchases.single.currency, 'USD');
+      expect(sink.purchases.single.value, 1.99);
+    });
+
+    test('둘 다 없으면 보류하고 sink 를 부르지 않는다', () async {
+      service = buildService(
+        result: settlement(),
+        catalogue: () => <ProductDetails>[],
+        outbox: outbox,
+      );
+
+      await deliver(_transaction(status: PurchaseStatus.purchased));
+      await outbox.flush();
+
+      expect(sink.purchases, isEmpty);
+      expect(await outbox.awaitingCurrencyCount(), 1);
+      expect(settlements, hasLength(1));
       expect(plugin.settledFinalizations, 1);
     });
   });
