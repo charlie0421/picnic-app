@@ -55,13 +55,8 @@ abstract class ActivePromotionCampaignV2Model
     @JsonKey(name: 'home_creative') PromotionCreativeModel? homeCreative,
   }) = _ActivePromotionCampaignV2Model;
 
-  String localizedDisplayName(String locale) {
-    for (final key in [locale, 'ko']) {
-      final value = displayName[key];
-      if (value is String && value.trim().isNotEmpty) return value.trim();
-    }
-    return code;
-  }
+  String localizedDisplayName(String locale) =>
+      localizedPromotionDisplayName(displayName, locale, fallbackCode: code);
 
   bool hasReadableHomeCreative(String locale) =>
       homeCreative?.localizedTitle(locale) != null &&

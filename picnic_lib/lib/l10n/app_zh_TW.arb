@@ -2403,6 +2403,15 @@
   "candy_boost_day": "糖果加倍日",
   "candy_boost_exact_double": "基礎發放 + 額外獎勵100%",
   "candy_boost_extra_bonus": "基礎發放 + 額外獎勵",
+  "candy_boost_multiplier": "{multiplier}倍獎勵",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "正在確認促銷活動",
   "candy_boost_purchase_pending": "同一商品的購買正在處理中。",
   "candy_boost_late_purchase_explanation": "認證耗時比預期長，但購買已正常完成。",

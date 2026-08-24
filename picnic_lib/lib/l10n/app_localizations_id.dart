@@ -1922,6 +1922,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get candy_boost_extra_bonus => 'Hadiah dasar + bonus ekstra';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'Bonus $multiplier×';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'Sedang memeriksa promosi';
 
   @override

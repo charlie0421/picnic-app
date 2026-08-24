@@ -2403,6 +2403,15 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "Recompensa base + bono extra del 100%",
   "candy_boost_extra_bonus": "Recompensa base + bono extra",
+  "candy_boost_multiplier": "Bono de {multiplier}×",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "Verificando la promoción",
   "candy_boost_purchase_pending": "Ya hay una compra de este producto en proceso.",
   "candy_boost_late_purchase_explanation": "La autenticación tardó más de lo esperado, pero la compra se completó correctamente.",

@@ -1837,6 +1837,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get candy_boost_extra_bonus => '기본 지급 + 추가 보너스';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier배';
+  }
+
+  @override
   String get candy_boost_promotion_checking => '프로모션 확인 중';
 
   @override

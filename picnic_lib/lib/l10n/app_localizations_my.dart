@@ -1928,6 +1928,11 @@ class AppLocalizationsMy extends AppLocalizations {
   String get candy_boost_extra_bonus => 'အခြေခံဆု + ထပ်ဆောင်းဘောနပ်';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'ဘောနပ် $multiplier×';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'ပရိုမိုးရှင်းကို စစ်ဆေးနေပါသည်';
 
   @override

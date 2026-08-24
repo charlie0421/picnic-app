@@ -2072,7 +2072,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'voting_share_benefit_text'.
   ///
   /// In en, this message translates to:
-  /// **'Get 1 bonus star candy for every 100 votes and share!'**
+  /// **'Get 1 bonus star candy for every 100 votes!'**
   String get voting_share_benefit_text;
 
   /// Auto-generated metadata for key 'cancel'.
@@ -3580,6 +3580,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Base reward + extra bonus'**
   String get candy_boost_extra_bonus;
+
+  /// No description provided for @candy_boost_multiplier.
+  ///
+  /// In en, this message translates to:
+  /// **'{multiplier}× bonus'**
+  String candy_boost_multiplier(String multiplier);
 
   /// No description provided for @candy_boost_promotion_checking.
   ///

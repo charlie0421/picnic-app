@@ -2399,6 +2399,15 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "মূল পুরস্কার + অতিরিক্ত বোনাস 100%",
   "candy_boost_extra_bonus": "মূল পুরস্কার + অতিরিক্ত বোনাস",
+  "candy_boost_multiplier": "{multiplier}× বোনাস",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "প্রোমোশন যাচাই চলছে",
   "candy_boost_purchase_pending": "এই পণ্যের একটি ক্রয় ইতিমধ্যে প্রক্রিয়াধীন রয়েছে।",
   "candy_boost_late_purchase_explanation": "প্রত্যাশার চেয়ে যাচাইকরণে বেশি সময় লেগেছে, তবে ক্রয়টি সফলভাবে সম্পন্ন হয়েছে।",

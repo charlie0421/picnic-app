@@ -1936,6 +1936,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get candy_boost_extra_bonus => 'Recompensa base + bono extra';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'Bono de $multiplier×';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'Verificando la promoción';
 
   @override
