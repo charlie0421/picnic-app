@@ -78,6 +78,11 @@ _PurchaseSettlementResultModel _$PurchaseSettlementResultModelFromJson(
         'wallet',
         (v) => WalletSummaryModel.fromJson(v as Map<String, dynamic>),
       ),
+      currency: $checkedConvert('currency', (v) => v as String?),
+      value: $checkedConvert(
+        'value',
+        (v) => const PurchaseRevenueValueConverter().fromJson(v),
+      ),
     );
     return val;
   },
@@ -103,4 +108,6 @@ Map<String, dynamic> _$PurchaseSettlementResultModelToJson(
   ),
   'promotion': instance.promotion?.toJson(),
   'wallet': instance.wallet.toJson(),
+  'currency': instance.currency,
+  'value': const PurchaseRevenueValueConverter().toJson(instance.value),
 };

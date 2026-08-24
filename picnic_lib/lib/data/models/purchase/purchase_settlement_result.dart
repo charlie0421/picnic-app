@@ -47,6 +47,38 @@ const purchaseSettlementKeys = {
   'promotion',
   'wallet',
 };
+/// Optional revenue keys the server may add to a `wallet.v1` settlement.
+///
+/// Both are optional and independent: `currency` may arrive without `value`
+/// (the Google fallback resolves a currency but never a provider-attested
+/// amount), and neither key is present on responses shaped for clients that
+/// did not declare `purchase_revenue_v1`.
+const purchaseSettlementOptionalKeys = {'currency', 'value'};
+
+/// Wire encoding for `value`: a decimal string, never a JSON number.
+///
+/// Amounts cross this boundary as strings for the same reason every other
+/// amount in this contract does — a JSON float loses precision in transit.
+/// [WalletAmountConverter] is not reusable here: it is BigInt-only and this is
+/// a fractional currency amount.
+class PurchaseRevenueValueConverter implements JsonConverter<num?, Object?> {
+  const PurchaseRevenueValueConverter();
+
+  @override
+  num? fromJson(Object? value) {
+    if (value == null) return null;
+    if (value is! String || !RegExp(r'^\d+(\.\d+)?$').hasMatch(value)) {
+      throw const FormatException(
+        'Purchase revenue value must be a decimal string',
+      );
+    }
+    return num.parse(value);
+  }
+
+  @override
+  Object? toJson(num? value) => value?.toString();
+}
+
 const purchasePromotionKeys = {
   'resolution_id',
   'state',
@@ -89,6 +121,20 @@ abstract class PurchaseSettlementResultModel
     required BigInt baseBonusAmount,
     required PurchasePromotionResultModel? promotion,
     required WalletSummaryModel wallet,
+
+    /// ISO 4217 code for this transaction, when the server could establish one.
+    ///
+    /// Server-authoritative: when present it wins over anything the client's
+    /// store catalogue says. Absent means the server had no verified currency
+    /// for this transaction, not that the transaction had none.
+    @JsonKey(name: 'currency') String? currency,
+
+    /// Amount actually paid, in major units, when the provider attested one.
+    ///
+    /// Independent of [currency]: a settlement may carry a currency with no
+    /// value. Only meaningful paired with [currency] — an amount without a
+    /// currency is a candidate, never a revenue figure.
+    @JsonKey(name: 'value') @PurchaseRevenueValueConverter() num? value,
 
     /// How *this* client came to see a `replayed` settlement. Never part of the
     /// wire contract: the server cannot know whose retry it is answering.
@@ -140,7 +186,11 @@ void validatePurchasePromotion(PurchasePromotionResultModel promotion) {
 PurchaseSettlementResultModel parseCanonicalPurchaseSettlement(
   Map<String, dynamic> json,
 ) {
-  final exact = requireExactContractKeys(json, purchaseSettlementKeys);
+  final exact = requireContractKeys(
+    json,
+    required: purchaseSettlementKeys,
+    optional: purchaseSettlementOptionalKeys,
+  );
   if (exact['contract_version'] != 'wallet.v1') {
     throw const FormatException('Unsupported purchase contract_version');
   }

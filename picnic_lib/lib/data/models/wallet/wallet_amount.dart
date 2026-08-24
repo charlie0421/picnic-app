@@ -55,6 +55,31 @@ Map<String, dynamic> requireExactContractKeys(
   return json;
 }
 
+/// Like [requireExactContractKeys], but with a named set of optional keys.
+///
+/// Drift detection is unchanged for everything that is not named: a missing
+/// required key or any key outside `required ∪ optional` still throws. The one
+/// thing that is allowed is a key the caller declared optional up front.
+///
+/// The returned map always contains every allowed key, so callers (and the
+/// generated `fromJson` code) can treat "absent" and "explicitly null" as the
+/// same thing.
+Map<String, dynamic> requireContractKeys(
+  Map<String, dynamic> json, {
+  required Set<String> required,
+  required Set<String> optional,
+}) {
+  final actual = json.keys.toSet();
+  final allowed = {...required, ...optional};
+  if (!actual.containsAll(required) || !allowed.containsAll(actual)) {
+    throw FormatException(
+      'Contract keys differ: required $required, optional $optional, '
+      'got $actual',
+    );
+  }
+  return {for (final key in allowed) key: json[key]};
+}
+
 String formatWalletAmount(BigInt amount) {
   final negative = amount.isNegative;
   final digits = amount.abs().toString();
