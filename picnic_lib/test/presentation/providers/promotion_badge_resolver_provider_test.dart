@@ -1,8 +1,12 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign_v2.dart';
+import 'package:picnic_lib/data/repositories/promotion_campaign_v2_repository.dart';
 import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_v2_provider.dart';
@@ -77,6 +81,39 @@ ActivePromotionCampaignsV2Model _v2Badge({
   'campaign_owned_home_banner_ids': <int>[],
 });
 
+Map<String, dynamic> _v1Item({
+  String code = 'CANDY_BOOST_DAY',
+  bool showInStore = true,
+  int extraBonusBps = 10000,
+}) => {
+  'campaign_id': 'campaign-$code',
+  'campaign_version_id': 'version-$code',
+  'code': code,
+  'display_name': {'en': 'Campaign $code', 'ko': '캠페인 $code'},
+  'extra_bonus_bps': extraBonusBps,
+  'window_starts_at': '2026-07-21T00:00:00Z',
+  'window_ends_at': '2026-07-22T00:00:00Z',
+  'show_in_store': showInStore,
+  'show_home_banner': true,
+  'home_creative': {
+    'banner_id': 101,
+    'title': {'en': 'V1 creative', 'ko': 'V1 크리에이티브'},
+    'image': {'en': 'https://example.com/v1.jpg'},
+    'thumbnail': null,
+    'link': null,
+    'duration': 3500,
+  },
+};
+
+ActivePromotionCampaignsModel _v1Store(List<Map<String, dynamic>> items) =>
+    ActivePromotionCampaignsModel.fromJson({
+      'items': items,
+      'total_count': '${items.length}',
+      'next_cursor': null,
+      'snapshot_at': '2026-07-21T00:00:00Z',
+      'campaign_owned_home_banner_ids': <int>[],
+    });
+
 ActivePromotionCampaignsModel _v1Home({bool active = true}) =>
     ActivePromotionCampaignsModel.fromJson({
       'items': active
@@ -108,53 +145,48 @@ ActivePromotionCampaignsModel _v1Home({bool active = true}) =>
       'campaign_owned_home_banner_ids': active ? [101] : <int>[],
     });
 
+/// An error-capable fake for the repository behind the real generated
+/// `activePromotionCampaignV2Provider` family — the stable dependency seam
+/// for error-path composition tests. Overriding the keepAlive repository
+/// provider (the same pattern as `promotion_campaign_v2_provider_test.dart`)
+/// keeps the production chain intact: the resolver still consumes the active
+/// provider family, whose real build runs and surfaces this throw.
+class _ThrowingV2Repository extends PromotionCampaignV2Repository {
+  _ThrowingV2Repository(this.error)
+    : super(SupabaseClient('http://localhost', 'key'));
+  final Object error;
+  final List<PromotionSurfaceV2> requests = [];
+
+  @override
+  Future<ActivePromotionCampaignsV2Model> getActive(
+    PromotionSurfaceV2 surface,
+  ) async {
+    requests.add(surface);
+    throw error;
+  }
+}
+
 // riverpod 3's public barrel does not export `Override` by name, so this
 // helper takes a dynamic list rather than naming a type it cannot spell.
+//
+// Retry is disabled: riverpod 3's `ProviderContainer.defaultRetry` retries
+// any thrown `Exception` (not `Error`) up to 10 times with real exponential
+// backoff timers. Under test that leaves an erroring autoDispose provider
+// parked in a retrying loading state holding a pending `Timer`, and
+// disposing it then completes its internal future with an orphaned
+// "disposed during loading state, yet no value could be emitted"
+// `StateError` that fails the test after its own expectations passed.
+// Disabling retry makes every thrown error reach its terminal `AsyncError`
+// state immediately and deterministically.
 ProviderContainer _container(List<dynamic> overrides) {
-  final container = ProviderContainer(overrides: overrides.cast());
+  final container = ProviderContainer(
+    overrides: overrides.cast(),
+    retry: (retryCount, error) => null,
+  );
   addTearDown(container.dispose);
   return container;
 }
 
-// riverpod 3.0.3 has a confirmed, deterministic bug reproduced with a
-// minimal standalone FutureProvider.autoDispose entirely unrelated to this
-// file or the resolver's own logic: once an autoDispose provider's build
-// throws an Exception (not an Error — a thrown TypeError propagates
-// correctly) and loses its transient watcher, disposing it raises a second,
-// orphaned "was disposed during loading state, yet no value could be
-// emitted" error that fails the test even when the resolver already caught
-// and handled the original exception correctly and returned valid V1 data.
-// Neither an explicit listener on the resolver (hangs indefinitely) nor one
-// on the V2 source provider itself (also hangs) nor leaving the container
-// undisposed (the orphaned error still surfaces) avoids it.
-//
-// The behavior this would exercise is still covered without hitting the
-// bug: `_readEligibleV2` catches exactly PostgrestException/
-// SocketException/TimeoutException and returns null, which the resolver
-// then treats identically to a successful empty V2 envelope — and that
-// exact fallback-to-V1 code path (reading V1, mapping its slides/ownership)
-// is exercised by the "V2 succeeding with zero items falls back to V1"
-// tests above. The "fails closed and never reads V1" tests below
-// separately, robustly prove FormatException/TypeError/
-// CheckedFromJsonException are excluded from that same catch — so by
-// construction, PostgrestException (not excluded) reaches the identical,
-// already-tested V1 fallback branch.
-const _eligibleFallbackReadSkipReason =
-    'riverpod 3.0.3 raises a spurious, orphaned "disposed during loading '
-    'state" error when disposing an autoDispose provider whose override '
-    'threw an Exception, independent of this resolver\'s own (correct) '
-    'handling — see the comment on _eligibleFallbackReadSkipReason.';
-
-// riverpod 3.0.3 has a confirmed, deterministic quirk (reproduced with a
-// minimal standalone FutureProvider.autoDispose, unrelated to this file's
-// own code): reading `.future` on an autoDispose provider whose override
-// throws an Exception (not an Error — TypeError propagates correctly)
-// always surfaces "Bad state: ... was disposed during loading state, yet no
-// value could be emitted" instead of the real thrown exception. Attaching a
-// container.listen() to try to dodge that does not help — it was observed
-// to hang the test indefinitely instead. So "fail closed" here is verified
-// by the one thing that is directly and reliably observable regardless of
-// which error object surfaces: whether the V1 fallback path ran at all.
 Future<Object?> _errorFrom(Future<void> future) async {
   try {
     await future;
@@ -165,6 +197,117 @@ Future<Object?> _errorFrom(Future<void> future) async {
 }
 
 void main() {
+  group('isEligibleV2FallbackError', () {
+    final cases = <({String label, Object error, bool eligible})>[
+      // Positive: the one documented PostgREST "function is missing" code —
+      // PGRST202, "Could not find the function in the schema cache" — plus
+      // the two accepted raw network transport failures.
+      (
+        label: 'PGRST202 missing/unsupported RPC',
+        error: PostgrestException(
+          message:
+              'Could not find the function '
+              'public.get_active_promotion_campaigns_v2(p_surface) '
+              'in the schema cache',
+          code: 'PGRST202',
+        ),
+        eligible: true,
+      ),
+      (
+        label: 'SocketException network transport failure',
+        error: const SocketException('connection refused'),
+        eligible: true,
+      ),
+      (
+        label: 'TimeoutException network transport failure',
+        error: TimeoutException('rpc timed out'),
+        eligible: true,
+      ),
+      // Negative: every other PostgREST outcome is an answer from a live
+      // backend (auth, permission, domain, validation, rate-limit, server
+      // error, unknown) and must fail closed instead of reviving V1.
+      (
+        label: '42501 permission denied',
+        error: PostgrestException(
+          message: 'permission denied for function',
+          code: '42501',
+        ),
+        eligible: false,
+      ),
+      (
+        label: 'P0001 backend-raised domain error',
+        error: PostgrestException(
+          message: 'WALLET_UNAUTHENTICATED',
+          code: 'P0001',
+        ),
+        eligible: false,
+      ),
+      (
+        label: '42883 undefined_function (wire shape unverified, fail closed)',
+        error: PostgrestException(
+          message: 'function does not exist',
+          code: '42883',
+        ),
+        eligible: false,
+      ),
+      (
+        label: '404 status-code fallback (non-JSON error body)',
+        error: PostgrestException(message: 'Not Found', code: '404'),
+        eligible: false,
+      ),
+      (
+        label: '429 rate limit',
+        error: PostgrestException(message: 'Too Many Requests', code: '429'),
+        eligible: false,
+      ),
+      (
+        label: '500 server error',
+        error: PostgrestException(
+          message: 'Internal Server Error',
+          code: '500',
+        ),
+        eligible: false,
+      ),
+      (
+        label: 'PostgrestException without a code',
+        error: PostgrestException(message: 'undefined function'),
+        eligible: false,
+      ),
+      (
+        label: 'FormatException decoder failure',
+        error: const FormatException('contract key drift'),
+        eligible: false,
+      ),
+      (
+        label: 'CheckedFromJsonException decoder failure',
+        error: CheckedFromJsonException(
+          const {},
+          'event_starts_at',
+          '_ActivePromotionCampaignV2Model',
+          'bad shape',
+        ),
+        eligible: false,
+      ),
+      (label: 'TypeError programming error', error: TypeError(), eligible: false),
+      (
+        label: 'generic programming exception',
+        error: Exception('boom'),
+        eligible: false,
+      ),
+      (
+        label: 'StateError programming error',
+        error: StateError('bug'),
+        eligible: false,
+      ),
+    ];
+
+    for (final c in cases) {
+      test('${c.eligible ? 'eligible' : 'not eligible'}: ${c.label}', () {
+        expect(isEligibleV2FallbackError(c.error), c.eligible);
+      });
+    }
+  });
+
   group('homePromotionCampaign', () {
     test('V2 active item with readable creative is authoritative', () async {
       final container = _container([
@@ -240,25 +383,40 @@ void main() {
     );
 
     test(
-      'V2 throwing an eligible transport error falls back to V1 with V1-only ownership',
+      'V2 missing-RPC error (PGRST202) falls back to V1 with V1-only ownership',
       () async {
+        final repository = _ThrowingV2Repository(
+          PostgrestException(
+            message:
+                'Could not find the function '
+                'public.get_active_promotion_campaigns_v2(p_surface) '
+                'in the schema cache',
+            code: 'PGRST202',
+          ),
+        );
         final container = _container([
-          activePromotionCampaignV2Provider(PromotionSurfaceV2.home)
-              .overrideWith(
-                (ref) async =>
-                    throw PostgrestException(message: 'undefined function'),
-              ),
+          promotionCampaignV2RepositoryProvider.overrideWithValue(repository),
           activePromotionCampaignProvider(
             PromotionSurface.home,
           ).overrideWith((ref) async => _v1Home()),
         ]);
+        final states = <AsyncValue<HomePromotionResolution>>[];
+        final subscription = container.listen(
+          homePromotionCampaignProvider('en'),
+          (_, next) => states.add(next),
+        );
+        addTearDown(subscription.close);
         final result = await container.read(
           homePromotionCampaignProvider('en').future,
         );
         expect(result.slides, hasLength(1));
         expect(result.ownedBannerIds, {101});
+        // The real generated V2 provider build ran against the throwing
+        // repository — the fallback came from classifying its error, not
+        // from bypassing the source chain.
+        expect(repository.requests, [PromotionSurfaceV2.home]);
+        expect(states.last.hasValue, isTrue);
       },
-      skip: _eligibleFallbackReadSkipReason,
     );
 
     test(
@@ -281,7 +439,7 @@ void main() {
         final error = await _errorFrom(
           container.read(homePromotionCampaignProvider('en').future),
         );
-        expect(error, isNotNull);
+        expect(error, isA<FormatException>());
         expect(v1Read, isFalse);
       },
     );
@@ -302,7 +460,7 @@ void main() {
       final error = await _errorFrom(
         container.read(homePromotionCampaignProvider('en').future),
       );
-      expect(error, isNotNull);
+      expect(error, isA<TypeError>());
       expect(v1Read, isFalse);
     });
 
@@ -330,7 +488,7 @@ void main() {
         final error = await _errorFrom(
           container.read(homePromotionCampaignProvider('en').future),
         );
-        expect(error, isNotNull);
+        expect(error, isA<CheckedFromJsonException>());
         expect(v1Read, isFalse);
       },
     );
@@ -425,25 +583,141 @@ void main() {
     });
 
     test(
-      'V2 throwing an eligible transport error falls back to V1',
+      'V2 missing-RPC error (PGRST202) falls back to V1',
       () async {
+        final repository = _ThrowingV2Repository(
+          PostgrestException(
+            message:
+                'Could not find the function '
+                'public.get_active_promotion_campaigns_v2(p_surface) '
+                'in the schema cache',
+            code: 'PGRST202',
+          ),
+        );
         final container = _container([
-          activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
-              .overrideWith(
-                (ref) async =>
-                    throw PostgrestException(message: 'undefined function'),
-              ),
+          promotionCampaignV2RepositoryProvider.overrideWithValue(repository),
           activePromotionCampaignProvider(
             PromotionSurface.store,
           ).overrideWith((ref) async => _v1Home()),
         ]);
+        final states = <AsyncValue<ResolvedPaymentBadgePromotion?>>[];
+        final subscription = container.listen(
+          paymentBadgePromotionProvider,
+          (_, next) => states.add(next),
+        );
+        addTearDown(subscription.close);
         final resolved = await container.read(
           paymentBadgePromotionProvider.future,
         );
         expect(resolved, isNotNull);
-        expect(resolved!.extraBonusBps, 10000);
+        expect(resolved!.code, 'CANDY_BOOST_DAY');
+        expect(resolved.extraBonusBps, 10000);
+        expect(repository.requests, [PromotionSurfaceV2.paymentBadge]);
+        expect(states.last.hasValue, isTrue);
       },
-      skip: _eligibleFallbackReadSkipReason,
+    );
+
+    test(
+      'V2 permission-denied PostgREST error (42501) propagates and never '
+      'reads V1',
+      () async {
+        var v1Read = false;
+        final repository = _ThrowingV2Repository(
+          PostgrestException(
+            message: 'permission denied for function',
+            code: '42501',
+          ),
+        );
+        final container = _container([
+          promotionCampaignV2RepositoryProvider.overrideWithValue(repository),
+          activePromotionCampaignProvider(PromotionSurface.store).overrideWith((
+            ref,
+          ) async {
+            v1Read = true;
+            throw StateError('V1 must not be read on a permission failure');
+          }),
+        ]);
+        final error = await _errorFrom(
+          container.read(paymentBadgePromotionProvider.future),
+        );
+        expect(error, isA<PostgrestException>());
+        expect((error as PostgrestException?)?.code, '42501');
+        expect(v1Read, isFalse);
+      },
+    );
+
+    test(
+      'V2 backend-raised domain error (P0001) propagates and never reads V1',
+      () async {
+        var v1Read = false;
+        final repository = _ThrowingV2Repository(
+          PostgrestException(message: 'WALLET_UNAUTHENTICATED', code: 'P0001'),
+        );
+        final container = _container([
+          promotionCampaignV2RepositoryProvider.overrideWithValue(repository),
+          activePromotionCampaignProvider(PromotionSurface.store).overrideWith((
+            ref,
+          ) async {
+            v1Read = true;
+            throw StateError('V1 must not be read on a domain error');
+          }),
+        ]);
+        final error = await _errorFrom(
+          container.read(paymentBadgePromotionProvider.future),
+        );
+        expect(error, isA<PostgrestException>());
+        expect((error as PostgrestException?)?.code, 'P0001');
+        expect(v1Read, isFalse);
+      },
+    );
+
+    test(
+      'V2 code-less PostgREST error propagates and never reads V1',
+      () async {
+        var v1Read = false;
+        final repository = _ThrowingV2Repository(
+          PostgrestException(message: 'undefined function'),
+        );
+        final container = _container([
+          promotionCampaignV2RepositoryProvider.overrideWithValue(repository),
+          activePromotionCampaignProvider(PromotionSurface.store).overrideWith((
+            ref,
+          ) async {
+            v1Read = true;
+            throw StateError('V1 must not be read on an unclassified error');
+          }),
+        ]);
+        final error = await _errorFrom(
+          container.read(paymentBadgePromotionProvider.future),
+        );
+        expect(error, isA<PostgrestException>());
+        expect(v1Read, isFalse);
+      },
+    );
+
+    test(
+      'V2 server error (500) propagates on HOME and never reads V1',
+      () async {
+        var v1Read = false;
+        final repository = _ThrowingV2Repository(
+          PostgrestException(message: 'Internal Server Error', code: '500'),
+        );
+        final container = _container([
+          promotionCampaignV2RepositoryProvider.overrideWithValue(repository),
+          activePromotionCampaignProvider(PromotionSurface.home).overrideWith((
+            ref,
+          ) async {
+            v1Read = true;
+            throw StateError('V1 must not be read on a server error');
+          }),
+        ]);
+        final error = await _errorFrom(
+          container.read(homePromotionCampaignProvider('en').future),
+        );
+        expect(error, isA<PostgrestException>());
+        expect((error as PostgrestException?)?.code, '500');
+        expect(v1Read, isFalse);
+      },
     );
 
     test('V2 throwing FormatException fails closed and never reads V1', () async {
@@ -464,9 +738,57 @@ void main() {
       final error = await _errorFrom(
         container.read(paymentBadgePromotionProvider.future),
       );
-      expect(error, isNotNull);
+      expect(error, isA<FormatException>());
       expect(v1Read, isFalse);
     });
+
+    test(
+      'V1 fallback selects the exact CANDY_BOOST_DAY code even when another '
+      'STORE campaign is ordered first',
+      () async {
+        final container = _container([
+          activePromotionCampaignV2Provider(
+            PromotionSurfaceV2.paymentBadge,
+          ).overrideWith((ref) async => _v2Badge()),
+          activePromotionCampaignProvider(PromotionSurface.store).overrideWith(
+            (ref) async => _v1Store([
+              // The V1 read RPC may aggregate every active STORE item ordered
+              // by code; settlement only honors CANDY_BOOST_DAY, so the
+              // resolver must never advertise the first arbitrary item.
+              _v1Item(code: 'AAA_OTHER_CAMPAIGN', extraBonusBps: 2500),
+              _v1Item(code: 'CANDY_BOOST_DAY', extraBonusBps: 10000),
+            ]),
+          ),
+        ]);
+        final resolved = await container.read(
+          paymentBadgePromotionProvider.future,
+        );
+        expect(resolved, isNotNull);
+        expect(resolved!.code, 'CANDY_BOOST_DAY');
+        expect(resolved.extraBonusBps, 10000);
+      },
+    );
+
+    test(
+      'V1 fallback with only non-target STORE campaigns resolves to no badge',
+      () async {
+        final container = _container([
+          activePromotionCampaignV2Provider(
+            PromotionSurfaceV2.paymentBadge,
+          ).overrideWith((ref) async => _v2Badge()),
+          activePromotionCampaignProvider(PromotionSurface.store).overrideWith(
+            (ref) async => _v1Store([
+              _v1Item(code: 'AAA_OTHER_CAMPAIGN', extraBonusBps: 2500),
+              _v1Item(code: 'CANDY_BOOST_DAY', showInStore: false),
+            ]),
+          ),
+        ]);
+        final resolved = await container.read(
+          paymentBadgePromotionProvider.future,
+        );
+        expect(resolved, isNull);
+      },
+    );
 
     test('V1 fallback surfaces exact-double copy via extraBonusBps', () async {
       final container = _container([

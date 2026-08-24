@@ -49,7 +49,7 @@ final class PaymentBadgePromotionProvider
 }
 
 String _$paymentBadgePromotionHash() =>
-    r'482d4ed9f354f0527da5acd8dadf339cd4c40e76';
+    r'd69ce6d37b4c6756f18bb487045b52c728a07b6b';
 
 @ProviderFor(homePromotionCampaign)
 const homePromotionCampaignProvider = HomePromotionCampaignFamily._();

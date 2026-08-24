@@ -232,26 +232,6 @@ ActivePromotionCampaignsV2Model v2HomeCampaigns({
 ActivePromotionCampaignsV2Model emptyV2Campaigns({List<int> ownedIds = const []}) =>
     v2HomeCampaigns(ownedIds: ownedIds);
 
-// The "HOME falls back to V1 when V2 throws" test below is skipped: riverpod
-// 3.0.3 has a confirmed bug (reproduced with a minimal standalone provider
-// unrelated to this file, and independently on
-// promotion_badge_resolver_provider_test.dart's own plain-`test()` cases):
-// once an autoDispose provider's override throws an Exception (not an
-// Error) and loses its transient watcher, its internal disposal scheduling
-// gets stuck rather than delivering the real error — here that leaves the
-// whole resolver chain parked in AsyncLoading indefinitely (confirmed by
-// reading the resolver's own state after 4.5s of pumped time), which
-// `tester.pump(duration)` cannot force past since riverpod's own scheduler
-// timer does not appear to be driven by the fake test clock.
-//
-// The fallback behavior this would exercise is still covered without
-// hitting the bug: `promotion_badge_resolver_provider_test.dart` proves
-// `_readEligibleV2` classifies exactly PostgrestException/SocketException/
-// TimeoutException as fallback-eligible (via the "fails closed" tests'
-// exhaustive exclusion list) and this file's "HOME falls back to V1 when V2
-// succeeds but has no active item" test exercises the identical
-// fallback-to-V1 rendering path this test would have.
-
 class _Scheduled implements CommonBannerScheduledTask {
   _Scheduled(this.callback);
   final VoidCallback callback;
@@ -891,18 +871,28 @@ void main() {
     });
 
     testWidgets(
-      'HOME falls back to V1 when V2 throws',
+      'HOME falls back to V1 when the V2 RPC is missing (PGRST202)',
       (tester) async {
         await pumpAndDrain(
           tester,
           buildTestApp(
             const CommonBanner('vote_home', 16 / 9),
+            // The thrown PostgrestException is an Exception, so riverpod's
+            // default retry would park the erroring V2 source in a retrying
+            // loading state behind real backoff timers — disable retry so
+            // the terminal error (and the resolver's V1 fallback built on
+            // it) is observable within pumped test time.
+            retry: (_, _) => null,
             extraOverrides: [
               asyncBannerListProvider.overrideWith(MockOwnedBannerList.new),
               activePromotionCampaignV2Provider(PromotionSurfaceV2.home)
                   .overrideWith(
                     (ref) async => throw PostgrestException(
-                      message: 'undefined function',
+                      message:
+                          'Could not find the function '
+                          'public.get_active_promotion_campaigns_v2'
+                          '(p_surface) in the schema cache',
+                      code: 'PGRST202',
                     ),
                   ),
               activePromotionCampaignProvider(
@@ -914,8 +904,47 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
         expect(find.byType(CandyBoostBanner), findsOneWidget);
       },
-      // See the comment on _v2ThrowsFallbackSkipReason above.
-      skip: true,
+    );
+
+    testWidgets(
+      'HOME renders only ordinary banners when V2 fails with a '
+      'non-eligible PostgREST error (fail closed, no V1 campaign revival)',
+      (tester) async {
+        var v1Read = false;
+        await pumpAndDrain(
+          tester,
+          buildTestApp(
+            const CommonBanner('vote_home', 16 / 9),
+            locale: const Locale('en'),
+            retry: (_, _) => null,
+            extraOverrides: [
+              asyncBannerListProvider.overrideWith(MockMixedBannerList.new),
+              activePromotionCampaignV2Provider(PromotionSurfaceV2.home)
+                  .overrideWith(
+                    (ref) async => throw PostgrestException(
+                      message: 'permission denied for function',
+                      code: '42501',
+                    ),
+                  ),
+              activePromotionCampaignProvider(PromotionSurface.home)
+                  .overrideWith((ref) async {
+                    v1Read = true;
+                    return homeCampaign();
+                  }),
+            ],
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 500));
+        // The resolver rethrows, CommonBanner's error branch renders the
+        // ordinary list without campaign slides or ownership filtering, and
+        // V1 was never consulted. The swiper's current slide is the first
+        // ordinary banner — its unfiltered visibility (compare the success
+        // path, where owned id 101 is suppressed) proves the error branch
+        // ran rather than the list merely still loading.
+        expect(find.byType(CandyBoostBanner), findsNothing);
+        expect(v1Read, isFalse);
+        expect(find.text('owned ordinary'), findsOneWidget);
+      },
     );
 
     testWidgets(
