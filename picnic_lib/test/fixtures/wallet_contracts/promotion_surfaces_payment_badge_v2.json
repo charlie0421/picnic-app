@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "campaign_id": "55555555-5555-4555-8555-555555555555",
+      "campaign_version_id": "66666666-6666-4666-8666-666666666666",
+      "code": "CANDY_BOOST_V2_BADGE",
+      "display_name": { "ko": "결제 배지 부스트", "en": "Payment Badge Boost" },
+      "multiplier_tenths": 20,
+      "event_starts_at": "2026-09-07T00:00:00+09:00",
+      "event_ends_at": "2026-09-14T00:00:00+09:00",
+      "repeat_iso_dows": [2, 4, 6],
+      "home_creative": null
+    }
+  ],
+  "total_count": "1",
+  "next_cursor": null,
+  "snapshot_at": "2026-09-07T00:10:00Z",
+  "campaign_owned_home_banner_ids": []
+}
