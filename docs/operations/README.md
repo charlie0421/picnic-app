@@ -39,4 +39,5 @@
 | [handoff-rls-rollout.html](handoff-rls-rollout.html) | RLS 도입 (0단계 완료 · 1~6단계 착수 전). anon 쓰기 32개는 2026-08-21 회수 완료, 남은 것은 **읽기** — 로그인 사용자의 타인 데이터 열람. 엣지 함수 7개가 `authenticated` 로 도는 함정 포함 |
 | [handoff-20260819-wallet-incidents.html](handoff-20260819-wallet-incidents.html) | 지갑 장애 4건(코튼 게이트·8/15 선행·Tapjoy 7일·투표 보너스 18일) 대응 기록. 소급 4,865건, 알람 신설, 반복하기 쉬운 함정 6가지 |
 | [handoff-20260820-emergency-patch.html](handoff-20260820-emergency-patch.html) | 긴급패치 배포 대기열. 130007 이후 미배포 8건(투표 이중 차감 방어 #159·#160, Sentry 5G9 수정 #165 포함)과 OTA 선행 vs 130008 신규 빌드 경로 판단 |
+| [handoff-20260825-ad-abuse-detection.html](handoff-20260825-ad-abuse-detection.html) | 광고 어뷰징 탐지 cron(detect-ad-anomaly) 만성 500 + 설계 공백 4종(ACL 증발·소비자 불일치·0명 임계값·알림 부재). anti-abuse 도메인 이관 |
 | [handoff-20260821-ga4-taxonomy.html](handoff-20260821-ga4-taxonomy.html) | **GA4 이벤트 택소노미** (PR #153). 코드는 `1.3.0+130007` 로 이미 프로덕션 반영됨 — 남은 것은 GA4 콘솔 맞춤 측정기준 등록(소급 불가·최우선), 실측 검증, 대행사 회신, 복구 구매 매출 복원 결정 |
