@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GA4 택소노미 — 실측 결과 보고 및 이벤트명 변경 요청</title>
+<style>
+  body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;max-width:900px;margin:40px auto;padding:0 24px;line-height:1.75;color:#1a1a2e}
+  h1{border-bottom:3px solid #7c6ff0;padding-bottom:10px;font-size:1.6em}
+  h2{margin-top:2.4em;border-left:4px solid #7c6ff0;padding-left:10px}
+  h3{margin-top:1.6em;color:#3a3a5e}
+  .tw{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+  th,td{border:1px solid #d8d8e8;padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f2f0ff}
+  code{background:#f4f4f8;padding:1px 5px;border-radius:4px;font-size:.92em}
+  pre{background:#f4f4f8;padding:12px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.5}
+  .ok{background:#e8f7ee;border-left:5px solid #0a8f4a;padding:12px 16px;border-radius:4px;margin:14px 0}
+  .warn{background:#fff4e5;border-left:5px solid #ff9800;padding:12px 16px;border-radius:4px;margin:14px 0}
+  .stop{background:#fdecea;border-left:5px solid #c0392b;padding:12px 16px;border-radius:4px;margin:14px 0}
+  .ask{background:#eef2ff;border-left:5px solid #4c5fd7;padding:14px 18px;border-radius:4px;margin:16px 0}
+  .meta{color:#666;font-size:13px}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  li{margin:6px 0}
+</style>
+</head>
+<body>
+
+<h1>GA4 택소노미 — 실측 결과 보고 및 이벤트명 변경 요청</h1>
+<p class="meta">
+2026-08-25 · Picnic 개발팀<br>
+회신하신 <strong>B-10</strong>(“중복 적재 확인 뒤 이벤트명 결정”) 조건을 충족하기 위한 실측 결과입니다.
+</p>
+
+<div class="ask">
+<strong>먼저 결론부터</strong>
+<ol style="margin:.4em 0 0">
+<li><code>ad_click</code> 은 <strong>Google 이 앱에 허용하지 않는 예약 이벤트명</strong>입니다.
+    구현은 정상 동작하나 SDK 가 전송을 거부해 <strong>28일간 0건</strong>입니다.
+    <strong>이벤트명 변경 승인을 요청드립니다.</strong></li>
+<li>B-10 에서 우려하신 자동 수집 중복이 <strong>실재</strong>합니다. 다만 영향이 큰 쪽은
+    <code>ad_impression</code> 이 아니라 <strong><code>purchase</code> 매출</strong>이었고,
+    저희 쪽 GA4 설정으로 이미 차단했습니다.</li>
+</ol>
+</div>
+
+<h2>1. 측정 조건</h2>
+
+<div class="tw">
+<table>
+<tr><th>항목</th><th>내용</th></tr>
+<tr><td>기간</td><td>2026-07-28 ~ 08-24 (28일)</td></tr>
+<tr><td>대상</td><td>프로덕션 GA4 속성 · 앱 <code>1.3.0</code>(build 130007, 8/13 공개·강제 업데이트)</td></tr>
+<tr><td>방법</td><td>GA4 탐색 분석(전체 데이터 100%) + 실기기 로그 확인</td></tr>
+<tr><td>실기기</td><td>Samsung SM-G781N · 프로덕션과 동일 빌드</td></tr>
+</table>
+</div>
+
+<h2>2. <code>ad_click</code> — 이벤트명 변경 요청 (B-5 관련)</h2>
+
+<p>B-5 에서 “자체 숏폼 전체화면 CTA 클릭 시점”으로 트리거를 확정해 주셨고, 그대로 구현했습니다.
+<strong>트리거 정의에는 이견이 없습니다.</strong> 문제는 이벤트명입니다.</p>
+
+<div class="stop">
+<strong>28일간 <code>ad_click</code> 0건.</strong> 같은 화면에서 발생하는
+<code>ad_impression</code> 은 같은 기간 <strong>102,405건</strong> 정상 수집됩니다.
+</div>
+
+<h3>원인 — 구현 결함이 아닙니다</h3>
+
+<p>실기기에서 CTA 버튼을 눌러 광고주 랜딩으로 이동하는 전 과정을 로그로 확인했습니다.
+버튼 클릭 · 외부 브라우저 이동 · 파라미터 구성까지 모두 정상이고,
+<strong>마지막 전송 단계에서 Firebase SDK 가 이름을 거부</strong>합니다.</p>
+
+<pre>[internal] more pressed                     ← CTA 버튼 클릭됨
+Invalid argument (name): Event name is reserved and cannot be used: "ad_click"
+  at _logEventNameValidation (firebase_analytics.dart:1346)
+⛔ GA4 이벤트 전송 실패: ad_click
+   {ad_platform: internal-shortform, ad_source: internal, ad_format: rewarded,
+    ad_unit_name: undefined, section_name: 광고에서 코튼캔디 받기,
+    ad_category: 글로벌 픽 #1, destination_type: youtube}</pre>
+
+<p>보시다시피 <strong>파라미터는 스펙대로 완전히 채워진 상태</strong>입니다. 이름만 거부됩니다.</p>
+
+<p>Google 공식 문서의 <strong>앱 예약 이벤트명</strong> 목록에 <code>ad_click</code> 이 포함되어 있습니다
+(<code>ad_activeview</code>, <code>ad_click</code>, <code>ad_exposure</code>, <code>ad_query</code>,
+<code>ad_reward</code>, <code>first_open</code>, <code>session_start</code> 등).
+반면 <code>ad_impression</code> 은 예약어가 아니어서 정상 수집됩니다 —
+<strong>같은 코드 경로에서 하나만 0건인 이유가 이것입니다.</strong></p>
+
+<h3>우회 방법이 없습니다</h3>
+
+<p>“앱에서 다른 이름으로 보내고 GA4 에서 <code>ad_click</code> 으로 되돌리는” 방식을 검토했으나,
+GA4 <em>이벤트 수정</em> 공식 문서가 <strong>“새 이름이 예약어가 아닌지 확인하라”</strong> 고
+명시하고 있어 불가합니다. 이름 변경 외에 방법이 없습니다.</p>
+
+<h3>후보안</h3>
+
+<div class="tw">
+<table>
+<tr><th>후보</th><th>성격</th><th>비고</th></tr>
+<tr><td><code>ad_cta_click</code></td><td>커스텀</td><td><strong>개발팀 권고.</strong> 실제 동작(광고 CTA 클릭)에 가장 가깝고 확장 여지가 있음</td></tr>
+<tr><td><code>shortform_ad_click</code></td><td>커스텀</td><td>자체 숏폼 한정임이 이름에 드러남. 향후 다른 광고 지면에 재사용하기 어려움</td></tr>
+<tr><td><code>select_promotion</code></td><td>GA4 표준 추천</td><td>표준 리포트에 자동으로 얹히나, 의미가 “프로모션 선택”이라 광고 CTA 와 정확히 일치하지 않음</td></tr>
+</table>
+</div>
+
+<p>어느 안이든 <strong>파라미터 구성과 트리거 시점은 현행 그대로 유지</strong>됩니다.
+변경 대상은 이벤트명 하나뿐입니다.</p>
+
+<div class="warn">
+<strong>참고:</strong> 이름이 확정되어야 앱 배포가 가능하고, 배포 전까지는 이 이벤트가 계속 0건입니다.
+소급 수집은 불가능하므로 확정 시점 이후 데이터만 쌓입니다.
+</div>
+
+<h2>3. B-10 실측 결과 — 자동 수집 중복</h2>
+
+<h3>3-1. <code>ad_impression</code> — 소량 중복 정황</h3>
+
+<div class="tw">
+<table>
+<tr><th><code>ad_platform</code></th><th class="num">이벤트 수</th><th>해석</th></tr>
+<tr><td><code>internal-shortform</code></td><td class="num">102,405</td><td>자체 숏폼 (당사 전송)</td></tr>
+<tr><td><code>Pangle</code></td><td class="num">42,637</td><td>Pangle (당사 전송)</td></tr>
+<tr><td>(값 없음)</td><td class="num">1,655</td><td><strong>자동 수집 추정</strong> — 전체의 1.1%</td></tr>
+</table>
+</div>
+
+<p>당사 전송 이벤트는 <code>ad_platform</code> 을 항상 채우므로, 값이 없는 1,655건은
+SDK 자동 수집분으로 보입니다. <strong>다만 맞춤 측정기준 등록 이전 데이터일 가능성도 남아 있어
+단정하지는 않습니다.</strong> 비중이 작고 매출에 영향이 없어, 현행 유지를 제안드립니다.</p>
+
+<h3>3-2. <code>purchase</code> — 매출 이중 계상 (문항 밖이나 리포트에 직접 영향)</h3>
+
+<div class="stop">
+<strong>GA4 총 구매 수익이 두 이벤트의 합으로 잡히고 있었습니다.</strong>
+<div class="tw">
+<table style="margin-top:.6em">
+<tr><th>이벤트</th><th class="num">건수</th><th class="num">구매 수익</th><th>출처</th></tr>
+<tr><td><code>purchase</code></td><td class="num">545</td><td class="num">$6,927.54</td><td>당사 전송</td></tr>
+<tr><td><code>in_app_purchase</code></td><td class="num">214</td><td class="num">$1,230.90</td><td><strong>SDK 자동 수집</strong></td></tr>
+<tr><td><code>app_store_refund</code></td><td class="num">4</td><td class="num">-$9.45</td><td>SDK 자동 수집</td></tr>
+<tr><th>GA4 총 구매 수익</th><th class="num">—</th><th class="num">$8,149.00</th><th>위 셋의 정확한 합</th></tr>
+</table>
+</div>
+<p style="margin:.6em 0 0"><strong>약 15% 과대 계상</strong>이며, 플랫폼별로 겹침이 비대칭입니다 —
+Android 는 199건 중 161건(81%), iOS 는 346건 중 53건(15%).</p>
+</div>
+
+<div class="ok">
+<strong>당사 전송 <code>purchase</code> 자체에는 중복이 없습니다.</strong>
+거래 ID 별 이벤트 수를 확인한 결과 <strong>545건 전부 정확히 1건씩</strong>입니다.
+중복은 당사 이벤트끼리가 아니라 <strong>SDK 자동 수집분과의 사이</strong>에서 발생했습니다.
+</div>
+
+<p><strong>조치 완료:</strong> GA4 <em>이벤트 수정</em> 기능으로 자동 수집 <code>in_app_purchase</code> 를
+매출 이벤트가 아닌 이름으로 변경해, 총 매출에 합산되지 않도록 했습니다. 앱 배포 없이 적용됩니다.</p>
+
+<div class="warn">
+<strong>과거 데이터는 보정되지 않습니다.</strong> GA4 설정 변경은 소급 적용되지 않으므로
+<strong>2026-08-13 ~ 08-25 구간의 매출 리포트에는 과대 계상이 그대로 남아 있습니다.</strong>
+해당 구간을 정확히 보시려면 <code>purchase</code> 이벤트만 필터링한 리포트가 필요합니다.
+필요하시면 저희가 탐색 분석을 만들어 공유드리겠습니다.
+</div>
+
+<h2>4. 회신을 요청드리는 사항</h2>
+
+<div class="ask">
+<ol style="margin:0">
+<li><strong>이벤트명 결정</strong> — <code>ad_cta_click</code> / <code>shortform_ad_click</code> /
+    <code>select_promotion</code> 중 택일, 또는 다른 안 제시. <em>(가장 시급)</em></li>
+<li><strong><code>ad_impression</code> 처리 방향</strong> — 자동 수집 추정분 1.1% 를
+    현행 유지할지, <code>purchase</code> 와 동일하게 분리할지</li>
+<li><strong>과거 매출 리포트</strong> — 8/13~8/25 구간을 보정한 별도 리포트가 필요하신지</li>
+</ol>
+</div>
+
+<h2>5. 이전 회신에서 확인이 누락된 항목</h2>
+
+<p>2026-08-21 회신에 아래 3건에 대한 명시적 답변이 포함되어 있지 않았습니다.
+현재 <strong>당사 제안대로 구현</strong>되어 있으며, 이견이 없으시면 확정으로 처리하겠습니다.</p>
+
+<div class="tw">
+<table>
+<tr><th></th><th>항목</th><th>당사 구현</th></tr>
+<tr><td><strong>B-6</strong></td><td>언어 코드</td><td>앱 내부는 ISO 639-1(<code>ja</code>) 유지, GA4 전송 시에만 <code>jp</code> 로 변환</td></tr>
+<tr><td><strong>B-7</strong></td><td>지원 언어 범위</td><td>문서 정의(<code>ko</code>/<code>en</code>/<code>jp</code>)보다 많은 언어를 실제 지원하며, 전부 전송</td></tr>
+<tr><td><strong>B-8</strong></td><td>사용자 속성 이름</td><td><code>language</code> 로 통일 (GA4 콘솔 등록 완료)</td></tr>
+</table>
+</div>
+
+<h2>6. 부록 — 현재 수집 상태</h2>
+
+<p>스프레드시트 정의 10개 이벤트의 실제 수집 현황입니다(28일).</p>
+
+<div class="tw">
+<table>
+<tr><th>이벤트</th><th class="num">건수</th><th>상태</th></tr>
+<tr><td><code>ad_request</code></td><td class="num">198,570</td><td>정상</td></tr>
+<tr><td><code>earn_virtual_currency</code></td><td class="num">158,639</td><td>정상</td></tr>
+<tr><td><code>ad_impression</code></td><td class="num">146,697</td><td>정상 (자동 수집 1,655 포함 추정)</td></tr>
+<tr><td><code>vote</code></td><td class="num">6,482</td><td>정상</td></tr>
+<tr><td><code>login</code></td><td class="num">5,629</td><td>정상</td></tr>
+<tr><td><code>click_mission</code></td><td class="num">4,747</td><td>정상</td></tr>
+<tr><td><code>sign_up</code></td><td class="num">1,103</td><td>정상 (B-9 휴리스틱 적용)</td></tr>
+<tr><td><code>purchase</code></td><td class="num">545</td><td>정상 · 중복 없음</td></tr>
+<tr><td><code>ad_click</code></td><td class="num">0</td><td><strong>예약어로 전송 차단 — 본 문서 2절</strong></td></tr>
+<tr><td><code>click_attendance</code></td><td class="num">—</td><td>A-1 로 삭제 확정</td></tr>
+</table>
+</div>
+
+</body>
+</html>
