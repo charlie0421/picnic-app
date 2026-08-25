@@ -24,16 +24,16 @@ void main() {
   test('decodes the V2 HOME envelope and item exactly', () {
     final model = ActivePromotionCampaignsV2Model.fromJson(homeJson);
     expect(model.items.single.multiplierTenths, 15);
-    expect(model.items.single.repeatIsoDows, [1, 3, 5]);
-    expect(model.items.single.homeCreative!.bannerId, 501);
-    expect(model.campaignOwnedHomeBannerIds, [501]);
+    expect(model.items.single.repeatIsoDows, [1, 2, 3, 4, 5]);
+    expect(model.items.single.homeCreative!.bannerId, 101);
+    expect(model.campaignOwnedHomeBannerIds, [101]);
   });
 
   test(
     'decodes a PAYMENT_BADGE item with null home_creative and empty ownership',
     () {
       final model = ActivePromotionCampaignsV2Model.fromJson(badgeJson);
-      expect(model.items.single.code, 'CANDY_BOOST_V2_BADGE');
+      expect(model.items.single.code, 'CANDY_BOOST_PAYMENT_V2');
       expect(model.items.single.multiplierTenths, 20);
       expect(model.items.single.homeCreative, isNull);
       expect(model.campaignOwnedHomeBannerIds, isEmpty);
@@ -42,20 +42,20 @@ void main() {
   );
 
   test(
-    'decodes an empty dark-launch envelope with items empty and ownership retained',
+    'decodes an empty dark-launch envelope with items and ownership both empty',
     () {
       final model = ActivePromotionCampaignsV2Model.fromJson(emptyJson);
       expect(model.items, isEmpty);
       expect(model.totalCount, BigInt.zero);
-      expect(model.campaignOwnedHomeBannerIds, [501]);
+      expect(model.campaignOwnedHomeBannerIds, isEmpty);
     },
   );
 
   test('localized fallback and readable creative match V1 semantics', () {
     final model = ActivePromotionCampaignsV2Model.fromJson(homeJson);
     final campaign = model.items.single;
-    expect(campaign.localizedDisplayName('en'), 'Chuseok Candy Boost');
-    expect(campaign.localizedDisplayName('vi'), '추석 캔디 부스트');
+    expect(campaign.localizedDisplayName('en'), 'Candy Boost Day');
+    expect(campaign.localizedDisplayName('vi'), '캔디 부스트 데이');
     expect(model.visibleHomeItems('ko'), hasLength(1));
   });
 
@@ -398,7 +398,7 @@ void main() {
     final item = Map<String, dynamic>.from(
       (homeJson['items'] as List).single as Map,
     )..['event_starts_at'] = '2026-09-21T00:00:00+09:00';
-    // event_ends_at in the fixture is 2026-09-14T00:00:00+09:00, now earlier
+    // event_ends_at in the fixture is 2026-07-21T15:00:00.000Z, now earlier
     // than the mutated event_starts_at above.
     expect(
       () => ActivePromotionCampaignV2Model.fromJson(item),
@@ -470,7 +470,7 @@ void main() {
       );
       expect(requestedMethod, 'POST');
       expect(requestedBody, {'p_surface': 'HOME'});
-      expect(result.items.single.code, 'CANDY_BOOST_V2');
+      expect(result.items.single.code, 'CANDY_BOOST_DAY_V2');
     },
   );
 
@@ -508,7 +508,7 @@ void main() {
       );
       expect(requestedMethod, 'POST');
       expect(requestedBody, {'p_surface': 'PAYMENT_BADGE'});
-      expect(result.items.single.code, 'CANDY_BOOST_V2_BADGE');
+      expect(result.items.single.code, 'CANDY_BOOST_PAYMENT_V2');
       expect(result.items.single.homeCreative, isNull);
     },
   );

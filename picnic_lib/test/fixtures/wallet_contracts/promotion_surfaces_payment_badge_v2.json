@@ -1,19 +1,30 @@
 {
   "items": [
     {
-      "campaign_id": "55555555-5555-4555-8555-555555555555",
-      "campaign_version_id": "66666666-6666-4666-8666-666666666666",
-      "code": "CANDY_BOOST_V2_BADGE",
-      "display_name": { "ko": "결제 배지 부스트", "en": "Payment Badge Boost" },
+      "campaign_id": "00000000-0000-4000-8000-000000000921",
+      "campaign_version_id": "00000000-0000-4000-8000-000000000922",
+      "code": "CANDY_BOOST_PAYMENT_V2",
+      "display_name": {
+        "ko": "결제 화면 부스트",
+        "en": "Payment Badge Boost"
+      },
       "multiplier_tenths": 20,
-      "event_starts_at": "2026-09-07T00:00:00+09:00",
-      "event_ends_at": "2026-09-14T00:00:00+09:00",
-      "repeat_iso_dows": [2, 4, 6],
+      "event_starts_at": "2026-07-19T15:00:00.000Z",
+      "event_ends_at": "2026-07-21T15:00:00.000Z",
+      "repeat_iso_dows": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
       "home_creative": null
     }
   ],
   "total_count": "1",
   "next_cursor": null,
-  "snapshot_at": "2026-09-07T00:10:00Z",
+  "snapshot_at": "2026-07-21T00:00:00.000Z",
   "campaign_owned_home_banner_ids": []
 }

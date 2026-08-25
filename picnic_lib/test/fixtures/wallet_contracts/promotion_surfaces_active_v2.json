@@ -1,26 +1,43 @@
 {
   "items": [
     {
-      "campaign_id": "33333333-3333-4333-8333-333333333333",
-      "campaign_version_id": "44444444-4444-4444-8444-444444444444",
-      "code": "CANDY_BOOST_V2",
-      "display_name": { "ko": "추석 캔디 부스트", "en": "Chuseok Candy Boost" },
+      "campaign_id": "00000000-0000-4000-8000-000000000911",
+      "campaign_version_id": "00000000-0000-4000-8000-000000000912",
+      "code": "CANDY_BOOST_DAY_V2",
+      "display_name": {
+        "ko": "캔디 부스트 데이",
+        "en": "Candy Boost Day"
+      },
       "multiplier_tenths": 15,
-      "event_starts_at": "2026-09-07T00:00:00+09:00",
-      "event_ends_at": "2026-09-14T00:00:00+09:00",
-      "repeat_iso_dows": [1, 3, 5],
+      "event_starts_at": "2026-07-19T15:00:00.000Z",
+      "event_ends_at": "2026-07-21T15:00:00.000Z",
+      "repeat_iso_dows": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "home_creative": {
-        "banner_id": 501,
-        "title": { "ko": "부스트 배너" },
-        "image": { "ko": "https://cdn.picnic.fan/boost.png" },
-        "thumbnail": null,
-        "link": null,
-        "duration": 4000
+        "banner_id": 101,
+        "title": {
+          "ko": "캔디 부스트 데이",
+          "en": "Candy Boost Day"
+        },
+        "image": {
+          "ko": "https://cdn.example.test/candy-boost-ko.png",
+          "en": "https://cdn.example.test/candy-boost-en.png"
+        },
+        "thumbnail": "https://cdn.example.test/candy-boost-thumb.png",
+        "link": "picnic://store",
+        "duration": 4500
       }
     }
   ],
   "total_count": "1",
   "next_cursor": null,
-  "snapshot_at": "2026-09-07T00:10:00Z",
-  "campaign_owned_home_banner_ids": [501]
+  "snapshot_at": "2026-07-21T00:00:00.000Z",
+  "campaign_owned_home_banner_ids": [
+    101
+  ]
 }

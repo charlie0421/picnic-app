@@ -174,6 +174,92 @@ const promotionSurfacesActiveV1Json = r'''{
 }''';
 const promotionSurfacesActiveV1Sha256 =
     '54a4f19ba64e7f683de8b2fcd8ab4c0b25b18ae62ad0a947c2da7c15f1f8a028';
+const promotionSurfacesEmptyV2Json = r'''{
+  "items": [],
+  "total_count": "0",
+  "next_cursor": null,
+  "snapshot_at": "2026-07-21T00:00:00.000Z",
+  "campaign_owned_home_banner_ids": []
+}''';
+const promotionSurfacesEmptyV2Sha256 =
+    'ef3c8b2d29ee77e31ca3b28bfa7ab4070592e3f22c6ead6cb99bff74e68dde8c';
+const promotionSurfacesActiveV2Json = r'''{
+  "items": [
+    {
+      "campaign_id": "00000000-0000-4000-8000-000000000911",
+      "campaign_version_id": "00000000-0000-4000-8000-000000000912",
+      "code": "CANDY_BOOST_DAY_V2",
+      "display_name": {
+        "ko": "캔디 부스트 데이",
+        "en": "Candy Boost Day"
+      },
+      "multiplier_tenths": 15,
+      "event_starts_at": "2026-07-19T15:00:00.000Z",
+      "event_ends_at": "2026-07-21T15:00:00.000Z",
+      "repeat_iso_dows": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "home_creative": {
+        "banner_id": 101,
+        "title": {
+          "ko": "캔디 부스트 데이",
+          "en": "Candy Boost Day"
+        },
+        "image": {
+          "ko": "https://cdn.example.test/candy-boost-ko.png",
+          "en": "https://cdn.example.test/candy-boost-en.png"
+        },
+        "thumbnail": "https://cdn.example.test/candy-boost-thumb.png",
+        "link": "picnic://store",
+        "duration": 4500
+      }
+    }
+  ],
+  "total_count": "1",
+  "next_cursor": null,
+  "snapshot_at": "2026-07-21T00:00:00.000Z",
+  "campaign_owned_home_banner_ids": [
+    101
+  ]
+}''';
+const promotionSurfacesActiveV2Sha256 =
+    '26c0f18ebfaef3d8219af09857845955ca247d79fac0de28e644bde65871adf0';
+const promotionSurfacesPaymentBadgeV2Json = r'''{
+  "items": [
+    {
+      "campaign_id": "00000000-0000-4000-8000-000000000921",
+      "campaign_version_id": "00000000-0000-4000-8000-000000000922",
+      "code": "CANDY_BOOST_PAYMENT_V2",
+      "display_name": {
+        "ko": "결제 화면 부스트",
+        "en": "Payment Badge Boost"
+      },
+      "multiplier_tenths": 20,
+      "event_starts_at": "2026-07-19T15:00:00.000Z",
+      "event_ends_at": "2026-07-21T15:00:00.000Z",
+      "repeat_iso_dows": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "home_creative": null
+    }
+  ],
+  "total_count": "1",
+  "next_cursor": null,
+  "snapshot_at": "2026-07-21T00:00:00.000Z",
+  "campaign_owned_home_banner_ids": []
+}''';
+const promotionSurfacesPaymentBadgeV2Sha256 =
+    'fbb2dbccbd4cfe960f88278ca2780260391c5b1abdbd4edc5dfefb4a8c4404dc';
 const purchaseResultsV1Json = r'''{
   "cases": [
     {
@@ -320,6 +406,10 @@ const walletContractFixtureJson = <String, String>{
   'ad_reward_granted_v1.json': adRewardGrantedV1Json,
   'promotion_surfaces_empty_v1.json': promotionSurfacesEmptyV1Json,
   'promotion_surfaces_active_v1.json': promotionSurfacesActiveV1Json,
+  'promotion_surfaces_empty_v2.json': promotionSurfacesEmptyV2Json,
+  'promotion_surfaces_active_v2.json': promotionSurfacesActiveV2Json,
+  'promotion_surfaces_payment_badge_v2.json':
+      promotionSurfacesPaymentBadgeV2Json,
   'purchase_results_v1.json': purchaseResultsV1Json,
   'admin_cs_summary_v1.json': adminCsSummaryV1Json,
   'admin_money_timeline_v1.json': adminMoneyTimelineV1Json,
@@ -334,10 +424,14 @@ const walletContractFixtureSha256 = <String, String>{
   'ad_reward_granted_v1.json': adRewardGrantedV1Sha256,
   'promotion_surfaces_empty_v1.json': promotionSurfacesEmptyV1Sha256,
   'promotion_surfaces_active_v1.json': promotionSurfacesActiveV1Sha256,
+  'promotion_surfaces_empty_v2.json': promotionSurfacesEmptyV2Sha256,
+  'promotion_surfaces_active_v2.json': promotionSurfacesActiveV2Sha256,
+  'promotion_surfaces_payment_badge_v2.json':
+      promotionSurfacesPaymentBadgeV2Sha256,
   'purchase_results_v1.json': purchaseResultsV1Sha256,
   'admin_cs_summary_v1.json': adminCsSummaryV1Sha256,
   'admin_money_timeline_v1.json': adminMoneyTimelineV1Sha256,
   'stable_error_v1.json': stableErrorV1Sha256,
 };
 const walletContractFixtureSetSha256 =
-    '8b49277dcada58198ae3e7f647ba0acf9bf81f7896cf8d4a1c23335bca2dbdd0';
+    'f165de0a6277d7033d547ae71b8b7f58099e97a747fed4c68f0ef97181967831';
