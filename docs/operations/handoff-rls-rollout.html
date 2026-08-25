@@ -114,7 +114,7 @@
   <h1>RLS 도입</h1>
   <p class="sub">공개 anon 키 노출면 조사에서 파생된 별도 과제. 앞선 조치들은 비로그인 접근만 막았고, 로그인한 사용자가 타인의 데이터를 읽는 문제는 RLS 없이는 닫히지 않는다. 사이드 이펙트가 커서 장애 대응과 분리했다.</p>
   <div class="meta">
-    <div><div class="k">상태</div><div class="v">0단계 완료 · 1~6단계 착수 전</div></div>
+    <div><div class="k">상태</div><div class="v">0단계 종결(관찰까지) · 1단계 착수 전</div></div>
     <div><div class="k">대상 DB</div><div class="v mono">xtijtefcycoeqludlngc</div></div>
     <div><div class="k">남은 대상</div><div class="v">105개 (읽기)</div></div>
     <div><div class="k">0단계 적용</div><div class="v">2026-08-21 완료</div></div>
@@ -130,7 +130,11 @@
   <div class="t">0단계는 끝났다 — 다시 하지 말 것</div>
   <p>2026-08-21 프로덕션에 <code>anon</code> 의 INSERT·UPDATE·DELETE 를 32개 테이블 전부에서 회수했다. 이력 <code>20260821990001</code>. 초안이 제안했던 "위험한 5개 먼저" 축소안은 <strong>쓰지 않았다</strong> — 적용 스크립트의 preflight 가 32×3=96 정확 일치를 요구해서, 쪼개면 검증되지 않은 SQL 을 새로 써야 했기 때문이다.</p>
   <p>실측 결과: <code>anon</code> 쓰기 grant 96 → <strong>0</strong>, 컬럼·PUBLIC·롤 멤버십을 포함한 effective write path <strong>없음</strong>, <code>anon</code> 읽기 32 유지(이 단계는 읽기를 건드리지 않는다), <code>authenticated</code>·<code>service_role</code> INSERT 32/32 유지.</p>
-  <p>기록: <code>picnic-supabase</code> 브랜치 <code>charlie0421/rls-prep</code> 의 <code>supabase/prod-cutover/rls-0b-anon-write-revoke/</code>. <strong>아직 PR 이 없다</strong> — 프로덕션에 적용된 변경이 저장소 <code>main</code> 에 없는 상태이므로 이 과제 착수자가 먼저 올릴 것. 롤백은 <code>rollback/01_restore_anon_writes.sql</code>, 테이블 하나만 되돌릴 때는 해당 줄만 실행한다.</p>
+  <p>기록: <code>picnic-supabase</code> <strong><code>main</code> 에 있다</strong> — <code>supabase/prod-cutover/rls-0b-anon-write-revoke/</code>(적용 SQL <code>3dc8cea</code>, 관찰 결과 PR #110). 저장소와 프로덕션이 일치한다. 롤백은 <code>rollback/01_restore_anon_writes.sql</code>, 테이블 하나만 되돌릴 때는 해당 줄만 실행한다.</p>
+  <div class="box crit" style="margin-top:14px">
+    <div class="t">⚠️ <code>charlie0421/rls-prep</code> 브랜치를 머지하지 말 것</div>
+    <p>이름 때문에 "0단계 브랜치"로 오해하기 쉬운데, 그 브랜치에는 <strong>0-A 와 1~9단계 초안이 전부 얹혀 있고 그중 프로덕션에 적용된 것은 하나도 없다.</strong> 엣지 함수 변경(JWT 롤 신뢰 제거, 6개 함수 <code>service_role</code> 전환)도 섞여 있어 머지하면 배포로 이어질 수 있다. 0단계는 이미 <code>main</code> 에 있으므로 이 브랜치는 <strong>1단계 이후의 작업 재료</strong>로만 쓴다.</p>
+  </div>
 </div>
 
 <p>2026-08-19 에 가장 민감한 6개 테이블(<code>receipts</code>, <code>star_candy_history</code>, <code>star_candy_bonus_history</code>, <code>vote_pick</code>, <code>transaction_internal</code>, <code>view_transaction_all</code>)과 함수 2개(<code>get_user_activity_unified</code>, <code>_count</code>)의 <code>anon</code> 권한을 회수했다. <strong>이건 비로그인만 막은 것이고 RLS 와는 다른 층위다.</strong></p>
@@ -180,8 +184,26 @@
   <p>앱이 직접 조회하는 테이블은 최소 30종이며 <code>user_blocks</code>(13곳) · <code>artist</code>(11) · <code>posts</code>(10) · <code>comments</code>(7) · <code>user_profiles</code>(5) 순으로 참조가 많다. 정책을 먼저 만들고 RLS 를 켜는 순서를 지킬 것.</p>
 </div>
 
+<div class="box crit">
+  <div class="t">⑤ Flutter 앱은 권한 오류를 Sentry 로 보내지 않는다 — 깨져도 안 보인다</div>
+  <p>Dart 클라이언트는 JS 와 달리 <code>PostgrestException</code> 을 <strong>던지긴 한다.</strong> 그런데 호출부가 잡아서 <code>logger.e</code> 만 찍고 삼킨다 — <code>picnic_lib/lib/core/utils/logger.dart</code> 에는 Sentry 연결이 없다. <code>device_manager.dart</code> 가 정확히 그 패턴이다.</p>
+  <p>즉 <strong>롤아웃이 앱을 깨뜨려도 Sentry 에는 아무것도 안 뜬다.</strong> 감지는 서버 로그로만 해야 한다 — <code>edge_logs</code> 의 401/403, <code>postgres_logs</code> 의 <code>42501</code>. 함정 ② 와 합치면 <strong>클라이언트 쪽에는 실패를 알 수단이 없다</strong>고 보는 편이 안전하다.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">⑥ 로그 API 는 24시간 창으로 조용히 잘린다 — 관찰을 오판하게 만든다</div>
+  <p><code>analytics/endpoints/logs.all</code> 은 <code>iso_timestamp_start</code> 부터 <strong>약 24시간만</strong> 반환하면서 오류를 내지 않는다. 4일 구간을 한 번에 질의하면 첫날 데이터만 돌아오는데, 그게 정상 응답처럼 보인다.</p>
+  <p>0단계 관찰에서 실제로 걸렸다 — 처음엔 "거부 0건"으로 보였다가 <strong>날짜별로 쪼개고서야</strong> <code>application_logs</code> 401 이 드러났다. 적용 전후 비교는 반드시 날짜를 나눠 질의할 것.</p>
+  <pre><code>for d in 20 21 22 23 24; do
+  curl -s -G ".../analytics/endpoints/logs.all" \
+    --data-urlencode "sql=$SQL" \
+    --data-urlencode "iso_timestamp_start=2026-08-${d}T00:00:00.000Z" \
+    --data-urlencode "iso_timestamp_end=2026-08-${d}T23:59:59.000Z" ...
+done</code></pre>
+</div>
+
 <h2><span class="num">03.5</span>이미 끝난 클라이언트 감사</h2>
-<p class="lede">0단계(anon 쓰기)용으로 2026-08-19 에 확인한 것. 0단계는 이 감사를 근거로 적용됐고, 아래 표는 1~6단계에서도 그대로 유효하다.</p>
+<p class="lede">0단계(anon 쓰기)용으로 2026-08-19 에 확인한 것. 재사용해도 되지만 <strong>완전하지 않다</strong> — 0단계 관찰에서 이 표에 없는 테이블(<code>application_logs</code>)의 쓰기 시도가 실제로 잡혔다. 아래 상자 참조.</p>
 
 <div class="scroll">
 <table>
@@ -200,10 +222,10 @@
 <p><code>article_comment</code> 만 코드에 명시적 인증 검사가 없다 — <code>user_id</code> 를 payload 에 넣지 않고 DB 기본값에 맡긴다. 다만 <strong>테이블이 0행</strong>이고 원본 <code>article</code> 도 3행뿐이라 실사용이 없다(커뮤니티는 미운영).</p>
 
 <div class="box ok">
-  <div class="t">이 감사가 덮지 못하는 것 — 0단계에서는 실제로 문제가 없었다</div>
+  <div class="t">이 감사가 덮지 못하는 것 — 0단계에서 실제로 빈틈이 드러났다</div>
   <p>정적 감사는 <strong>현재 코드</strong>만 덮는다. 이미 배포돼 사용자 폰에 있는 구버전 앱이 로그인 전에 쓰고 있었다면 회수 직후 드러난다. 그래서 적용 후 <code>permission denied for table &lt;이름&gt;</code> 을 추적했다.</p>
-  <p><strong>결과: 회수한 32개 테이블에서 거부 0건</strong>(2026-08-21 13:19 KST 확인). 같은 기간에 잡힌 테이블 거부는 <code>user_profiles</code> 뿐이고, 이건 회수 대상이 아니며 8/20 84건 → 8/21 18건으로 <strong>회수 이전부터 있던 별건</strong>이다. 함수 거부 <code>get_active_promotion_campaigns</code>(<code>anon</code> EXECUTE 없음) 도 8/18 에 이미 12시간당 676건씩 나던 선재 건이다.</p>
-  <p>다만 <strong>관찰이 끝난 것은 아니다</strong> — 24~48시간 기준으로는 절반쯤 왔다. 1~6단계에서도 같은 추적이 필요하고, 뜨면 그 테이블만 <code>grant</code> 한 줄로 즉시 복구한다.</p>
+  <p><strong>관찰 종결(2026-08-25, 적용 후 4일) — 기능 회귀 없음, 롤백하지 않았다.</strong> <code>devices</code> 는 성공 쓰기가 하루 1,302~3,937건으로 정상이고 거부는 0~2건뿐이다(적용 후 846기기 갱신·350기기 신규). <code>user_profiles</code> 403(적용 전 81/일)·<code>attendance_check</code>(폐지된 기능)·RPC 401 은 전부 회수 대상이 아닌 선재 건이다.</p>
+  <p><strong>단 감사가 놓친 것이 하나 드러났다.</strong> <code>application_logs</code> 에 401 이 하루 15~156건 생겼는데, 이 테이블은 <strong>위 8개 목록에 없었다.</strong> 실제로는 미인증 쓰기 시도가 들어오고 있었던 것이다. 기능 손실은 아니다 — 적용 전에도 이 테이블 POST 는 <strong>100% 400 으로 실패</strong>했고(8/20 POST 200 = 0건) 테이블도 2025-09-29 이후 새 행이 0건이다. 앱·엣지 함수·어드민·웹 어디에도 쓰기 코드가 없어 구버전 앱 잔재로 본다. <strong>1단계 이후에는 정적 감사 결과를 그대로 믿지 말고 로그로 교차 확인할 것.</strong></p>
 </div>
 
 <h2><span class="num">04</span>이미 있는 정책이 템플릿이다</h2>
@@ -284,7 +306,8 @@ reset role;</code></pre>
   <li><strong><code>user_profiles</code> 공개 범위.</strong> 다른 사용자의 <code>nickname</code>·<code>avatar_url</code> 을 어디까지 보여줄지는 제품 결정이다. 커뮤니티·투표 화면이 타인 프로필을 표시하므로 전면 차단은 불가능하다.</li>
   <li><strong>뷰 <code>security_invoker</code> 전환 범위.</strong> 켜면 뷰를 읽던 어드민 화면이 정책 영향을 받는다. 어드민을 <code>service_role</code> 경유로 바꿀지, 정책에 관리자 분기를 넣을지 먼저 정해야 한다.</li>
   <li><del><strong>anon 쓰기 32개 회수 시점.</strong></del> <strong>종결</strong> — 0단계로 2026-08-21 적용 완료. 01 참조.</li>
-  <li><strong>0단계 기록의 PR.</strong> 프로덕션에는 적용됐는데 <code>picnic-supabase</code> <code>main</code> 에는 없다. 브랜치 <code>charlie0421/rls-prep</code> 에 1~6단계 초안이 함께 얹혀 있어, 0단계만 떼서 먼저 올릴지 통째로 올릴지 정해야 한다.</li>
+  <li><del><strong>0단계 기록의 PR.</strong></del> <strong>종결</strong> — 적용 SQL(<code>3dc8cea</code>)과 관찰 결과(PR #110) 모두 <code>picnic-supabase</code> <code>main</code> 에 있다. 저장소와 프로덕션이 일치한다.</li>
+  <li><strong>1단계 초안을 이어받을지, 다시 짤지.</strong> <code>charlie0421/rls-prep</code> 에 1~9단계 초안과 적대적 리뷰 반영분이 있다. 재료로 쓸 만하지만 <strong>브랜치째 머지하면 안 된다</strong>(01 경고 참조). 필요한 단계만 <code>main</code> 기준 새 브랜치로 떼어 올리는 방식이 0단계에서 검증됐다.</li>
 </ul>
 
 <div class="box acc">
