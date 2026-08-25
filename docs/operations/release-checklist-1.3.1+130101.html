@@ -144,7 +144,18 @@
 
 <h2><span class="num">03</span>태그 전 결정 3건</h2>
 <ol>
-  <li><strong>열린 PR 포함 여부</strong> — #158(AdMob 워치독) · #172(GA4 매출 앱 사이드) · #174(캔디부스트 V2). 태그 전에 머지되면 자동으로 실린다. <strong>각 소유 세션과 조율해 넣을지 말지 확정</strong>하고, 안 넣으면 태그 시점을 그들 머지보다 먼저 잡는다.</li>
+  <li><strong>진행 중 작업 포함 여부</strong> — 태그 전에 머지되면 자동으로 실린다. <strong>각 소유 세션과 조율해 넣을지 말지 확정</strong>하고, 안 넣으면 태그 시점을 그들 머지보다 먼저 잡는다.
+    <div class="scroll" style="margin-top:10px">
+    <table>
+      <thead><tr><th>작업</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td><strong>PICNIC-2377 진행분</strong> (Pangle 로드 오류 노출·중복 보고·casing)</td><td>브랜치 <code>charlie0421/picnic-2377-cs</code> 에 9커밋 + <strong>미커밋 10파일</strong> · PR 없음 — 1.3.1 에 실리는 2377 은 8/13 머지분 #157 뿐</td></tr>
+        <tr><td><strong>GA4 대행사 회신 후속</strong> — <code>ad_click→ad_cta_click</code> 이름 변경(#176) · 매출 계약 앱 사이드(#172)</td><td>둘 다 열린 PR · <strong>미머지</strong> — 130007 의 택소노미에는 회신 반영분이 없다. 서버 사이드는 supabase #109·#111 별도</td></tr>
+        <tr><td>#158 AdMob 워치독 · #174 캔디부스트 V2</td><td>열린 PR · 미머지</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </li>
   <li><strong>인증 강제로그아웃 항구 수정</strong> — 8/24 사고의 완화(reuse_interval 3600)만 적용된 상태이고 <strong>항구 수정(앱 이중 refresh 제거)은 main 에 없다.</strong> 이번에 태우려면 먼저 구현·머지가 필요하다. 안 태우면 다음 OTA 대상.</li>
     <li><strong>공개 + 강제 업데이트 여부</strong> — 130007 은 공개+당일 강업 패턴이었다. 강업하지 않으면 130007 잔존 사용자를 위해 <strong>같은 수정을 130007 릴리스에 별도 OTA 패치</strong>해야 한다(릴리스별 패치 필요). 강업하면 불필요.</li>
 </ol>
