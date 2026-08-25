@@ -67,7 +67,7 @@ purchase revenue PR — 앱 <a href="https://github.com/charlie0421/picnic-app/p
 <tr><td>purchase revenue — 앱 사이드</td><td class="done">구현·교차리뷰 완료</td><td>PR <a href="https://github.com/charlie0421/picnic-app/pull/172">#172</a> · 브랜치 <code>feat/ga4-purchase-revenue</code> · 커밋 7개 · <code>flutter test</code> 12,956 통과</td></tr>
 <tr><td>purchase revenue — 서버 사이드</td><td class="done">구현·교차리뷰 완료</td><td>PR <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a> · 커밋 6개 · wallet SQL 39파일 · deno edge 179 통과 · 런타임 플래그 꺼진 채 dark</td></tr>
 <tr><td>attestation seal 확장</td><td class="todo">미착수(의도)</td><td>설계 §5.4 편차. MAC 재작성이 필요해 별도 설계·리뷰로 분리 — PR #109 본문 참조</td></tr>
-<tr><td>Google 출처 A 전제</td><td class="done">해소</td><td><strong>신 모델 확정</strong> — Play Console <code>/one-time-products</code>, 일회성 제품 10개(<code>star2000</code>~<code>star10000</code>). 스코프는 코드가 이미 요청하는 <code>androidpublisher</code> 하나로 충분</td></tr>
+<tr><td>Google 출처 A</td><td class="done">종결 — 구현 안 함</td><td>미확인 전제는 해소됐으나(신 <code>onetimeproducts</code> 모델·스코프 충분) <strong>불필요</strong>로 결론. 강업 + 출처 B 로 대체됨</td></tr>
 </table>
 </div>
 
@@ -234,7 +234,7 @@ shaping 은 모두 picnic-supabase 레포의 후속 작업이다. 서버가 아�
 <li><del>앱 워크트리 구현</del> <span class="done">— 완료 (PR #172)</span></li>
 <li><del>앱 회귀 검증</del> <span class="done">— 완료 (12,956 통과)</span></li>
 <li><del>앱 교차 리뷰</del> <span class="done">— 완료 (Codex Sol 3라운드, 최종 "남은 결함 없음")</span></li>
-<li><del>Play Console 확인</del> <span class="done">— 2026-08-24 해소</span>
+<li><del>Play Console 확인</del> <span class="done">— 2026-08-24 해소, 그리고 출처 A 자체를 종결</span>
     <div class="ok" style="margin-top:.5em">
     <strong>신 카탈로그 모델이다.</strong> Play Console 좌측 메뉴가
     <em>제품 → 앱 가격 / 일회성 제품 / 정기 결제</em> 이고 구 모델의 "인앱 상품" 항목이 없다.
@@ -247,9 +247,28 @@ shaping 은 모두 picnic-supabase 레포의 후속 작업이다. 서버가 아�
     <code>purchase-provider-verifiers.ts</code> 의 <code>googleAccessToken</code> 이 이미
     <code>https://www.googleapis.com/auth/androidpublisher</code> 를 요청하는데, 이 단일 스코프가
     Android Publisher API 전체를 덮어 <code>monetization.onetimeproducts.*</code> 도 포함한다.</p>
-    <p style="margin:.6em 0 0">따라서 출처 A 는 <code>monetization.onetimeproducts.get</code> 의
-    <code>regionalPricingAndAvailabilityConfigs</code> 에서 <code>regionCode</code> 에 대응하는
-    <code>currencyCode</code> 만 뽑아 쓰면 되고, 자격증명 변경은 불필요하다.</p>
+    </div>
+
+    <div class="ok" style="margin-top:.5em">
+    <strong>그럼에도 출처 A 는 구현하지 않기로 했다(2026-08-25).</strong> 전제가 풀렸으니
+    "확인만 되면 해야 할 일"로 남을 뻔했으나, 확인하고 나니 필요가 없다는 결론이다.
+    <ul style="margin:.5em 0 0">
+    <li><strong>서버 검증 응답에 통화가 없는 것은 라이브러리 버전 문제가 아니다.</strong>
+        구 <code>purchases.products.get</code> 과 신
+        <code>purchases.productsv2</code>(<code>getproductpurchasev2</code>) <strong>양쪽 다</strong>
+        가격·통화·결제액 필드가 없다. Play Billing Library 를 8.x 로 올려도 서버가 통화를
+        알게 되지 않는다.</li>
+    <li><strong>출처 A 는 실결제 통화가 아니라 지역 매핑 근사다.</strong>
+        <code>regionCode</code> → 카탈로그는 "이 지역은 이 통화"일 뿐이고, 출처 B 는 사용자가
+        결제 직전 화면에서 실제로 본 통화다 — A 가 B 보다 정확하지 않다.</li>
+    <li><strong>A 의 유일한 우위는 "앱이 안 보내줘도 서버가 안다"인데 강제 업데이트로
+        사라진다.</strong> 남는 콜드스타트 복구 구매(카탈로그 미적재)는 앱의
+        <code>StoreCatalogueCurrencyResolver</code> 가 카탈로그를 직접 로드해 해결한다 —
+        유실이 아니라 지연이다.</li>
+    </ul>
+    <p style="margin:.6em 0 0">전제: 출처 B 를 담은 앱(<a href="https://github.com/charlie0421/picnic-app/pull/172">picnic-app#172</a>)이
+    <strong>강제 업데이트로 배포</strong>돼야 이 결론이 성립한다. 그 강업이 없으면 구버전
+    Android 사용자의 Google 결제는 통화 확보가 앱 resolver 에만 의존한다.</p>
     </div></li>
 <li><del>Supabase 워크트리 구현</del> <span class="done">— 완료 (PR picnic-supabase#109)</span></li>
 <li><del>서버 회귀 검증</del> <span class="done">— 완료 (wallet SQL 39파일 · deno edge 179)</span></li>
