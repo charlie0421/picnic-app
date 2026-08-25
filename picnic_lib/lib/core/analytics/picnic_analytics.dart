@@ -305,13 +305,13 @@ class PicnicAnalytics {
   }
 
   // ---------------------------------------------------------------------------
-  // 8. ad_click (스펙 §2-8)
+  // 8. ad_cta_click (스펙 §2-8)
   // ---------------------------------------------------------------------------
 
   /// 광고 종료 후 '더보기' 버튼을 눌러 이동했을 때.
   ///
   /// [destinationType] 예시값: `youtube`.
-  Future<bool> logAdClick({
+  Future<bool> logAdCtaClick({
     required String? adPlatform,
     required String? adSource,
     required String? adFormat,
@@ -321,7 +321,7 @@ class PicnicAnalytics {
     required String? destinationType,
   }) {
     return _log(
-      Ga4Event.adClick,
+      Ga4Event.adCtaClick,
       strings: <String, String?>{
         Ga4Param.adPlatform: adPlatform,
         Ga4Param.adSource: adSource,

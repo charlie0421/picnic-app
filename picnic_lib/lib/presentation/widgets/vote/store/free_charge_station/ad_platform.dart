@@ -37,7 +37,7 @@ abstract class AdPlatform {
   /// 이번 시청 건의 GA4 컨텍스트. 구좌(버튼) 클릭 시점에 주입된다.
   ///
   /// `ad_request` 를 보낸 구좌의 카테고리·재화·수량을 `ad_impression` /
-  /// `ad_click` / `earn_virtual_currency` 까지 그대로 옮기기 위한 값이며,
+  /// `ad_cta_click` / `earn_virtual_currency` 까지 그대로 옮기기 위한 값이며,
   /// analytics 전용이라 광고 동작에는 전혀 관여하지 않는다.
   FreeChargeAdGa4Context? ga4AdContext;
 

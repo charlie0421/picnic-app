@@ -24,7 +24,20 @@ class Ga4Event {
   static const String adImpression = 'ad_impression';
 
   static const String earnVirtualCurrency = 'earn_virtual_currency';
-  static const String adClick = 'ad_click';
+
+  /// 스프레드시트 원안은 `ad_click` 이었으나 **쓸 수 없는 이름**이다.
+  /// `ad_click` 은 Firebase 앱 예약 이벤트명이라 SDK 가 전송을 거부하고
+  /// (`Invalid argument (name): Event name is reserved`), 그 예외는
+  /// `PicnicAnalytics._guard` 가 삼켜서 **GA4 에서는 0건으로만 보인다.**
+  /// 2026-07-28~08-24 프로덕션 28일간 0건이었던 것이 그 결과다.
+  ///
+  /// GA4 `이벤트 수정`으로 되돌리는 우회도 불가능하다(새 이름 역시 예약어일 수
+  /// 없다는 제약). 2026-08-25 대행사 합의로 `ad_cta_click` 으로 확정했고,
+  /// 트리거 시점과 파라미터 구성은 원안 그대로다.
+  ///
+  /// 새 이벤트를 추가할 때는 반드시 예약어 목록을 먼저 확인한다.
+  /// `Ga4Event.all` 이 예약어를 포함하지 않는지 검증하는 테스트가 있다.
+  static const String adCtaClick = 'ad_cta_click';
   static const String purchase = 'purchase';
   static const String vote = 'vote';
 
@@ -37,7 +50,7 @@ class Ga4Event {
     adRequest,
     adImpression,
     earnVirtualCurrency,
-    adClick,
+    adCtaClick,
     purchase,
     vote,
   ];
