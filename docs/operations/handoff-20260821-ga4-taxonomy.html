@@ -165,14 +165,40 @@ app_store_refund    4건      -$9.45
 GA4 총 구매 수익          $8,149.00   (= 위 셋의 합)</pre>
 <p style="margin:.6em 0 0">GA4 가 두 이벤트의 매출을 그대로 더한다. <strong>총 매출의 약 15% 과대계상</strong>이며,
 플랫폼별로 겹침이 비대칭이다 — Android 는 199건 중 161건(81%), iOS 는 346건 중 53건(15%).</p>
-<p style="margin:.6em 0 0"><strong>조치 완료(2026-08-25):</strong> GA4 <code>이벤트 수정</code>으로
-Android(<code>8412238221</code>)·iOS(<code>8412125694</code>) 두 스트림에
-<code>event_name = in_app_purchase</code> → <code>in_app_purchase_auto</code> 규칙을 걸었다.
-<strong>앱 배포 없이</strong> 적용되며, 되돌리기는 규칙 삭제 한 번이다.
-GA4 관리자에는 자동 수집을 끄는 토글이 없어 이 경로가 유일했다.
-<span class="k">소급 적용되지 않으므로 8/13~8/25 구간의 과대계상은 그대로 남는다.</span>
-반영에 1시간 이상 걸리므로 <strong>효과 확인이 아직 안 됐다</strong> —
-오늘 날짜 기준으로 <code>in_app_purchase_auto</code> 행이 생겼는지 확인해야 확정이다.</p>
+<p style="margin:.6em 0 0"><strong>1차 시도 실패(2026-08-25~26).</strong> GA4
+<code>이벤트 수정</code>으로 두 스트림에
+<code>event_name = in_app_purchase</code> → <code>in_app_purchase_auto</code> 규칙을 걸었으나
+<strong>단 한 건도 개명되지 않았다.</strong> 규칙 적용 5~6시간 뒤에도 원래 이름으로 들어왔고,
+플랫폼별로 쪼개도 Android·iOS 양쪽 다 안 먹었다(<code>in_app_purchase_auto</code> 0건).
+<strong>GA4 이벤트 수정은 자동 수집 이벤트에 적용되지 않는다.</strong> 규칙 2개는 8/26 삭제했다 —
+다시 시도하지 말 것.</p>
+
+<p style="margin:.6em 0 0"><strong>재실측(8/19~25, 7일).</strong> 과대계상이 15%가 아니라
+<strong>25.7%</strong>였고, 금액 기준 Android 가 84%다.</p>
+<pre>                   건수    총수익
+purchase   Android   49   $288.71
+purchase   iOS       55   $986.64
+in_app_purchase Android 45  $273.26   ← 자동
+in_app_purchase iOS      5  $ 53.98   ← 자동
+──────────────────────────────────────
+GA4 총수익            $1,602.60  (= 정확한 합)</pre>
+
+<p style="margin:.6em 0 0"><strong>2차 조치(2026-08-26):</strong> Firebase 콘솔 →
+프로젝트 설정 → 통합 → Google Play →
+<strong><code>Google 애널리틱스: 수익 및 잠재고객 데이터 공유</code> 토글 OFF.</strong>
+제품별 개별 토글이라 <code>앱 배포</code>·<code>Crashlytics</code> 는 켜진 채 유지된다
+(GA4 admin 의 Google Play 링크는 삭제만 가능해 세분화 불가 — 반드시 Firebase 쪽을 쓸 것).
+앱 배포 불필요, 되돌리기는 토글 재활성화.</p>
+
+<p style="margin:.6em 0 0"><strong>iOS 는 끌 방법이 없다.</strong> 애플이 구글에 결제 정보를
+주지 않으므로, 앱 안의 Firebase SDK 가 StoreKit 을 직접 관찰해 이벤트를 만든다. 공식
+비활성화 옵션이 없고 StoreKit 2 마이그레이션이 유일한 우회인데, 결제 경로 개편이라
+리포트 정합성만으로 할 작업이 아니다. 기대 효과는 <strong>25.7% → 약 4.2%</strong>.</p>
+
+<p style="margin:.6em 0 0"><span class="k">효과 미검증 — 2026-08-27 이후 Android
+<code>in_app_purchase</code> 가 멈췄는지 확인해야 확정이다. 소급 적용은 안 되므로
+8/13~8/26 구간과 iOS 잔여분은 <code>purchase</code> 만 필터링한 탐색 분석
+(<code>purchase 이중계상 시간대별 검증</code>)으로 읽는다.</span></p>
 </div>
 
 <div class="stop">
