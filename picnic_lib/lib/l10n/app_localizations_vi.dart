@@ -1917,6 +1917,11 @@ class AppLocalizationsVi extends AppLocalizations {
   String get candy_boost_extra_bonus => 'Thưởng cơ bản + thưởng thêm';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'Thưởng $multiplier×';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'Đang kiểm tra khuyến mãi';
 
   @override

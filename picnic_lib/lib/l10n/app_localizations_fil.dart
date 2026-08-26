@@ -1949,6 +1949,11 @@ class AppLocalizationsFil extends AppLocalizations {
   String get candy_boost_extra_bonus => 'Batayang gantimpala + dagdag na bonus';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier× na bonus';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'Sinusuri ang promosyon';
 
   @override

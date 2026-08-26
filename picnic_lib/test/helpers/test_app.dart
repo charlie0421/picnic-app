@@ -41,8 +41,17 @@ Widget buildTestApp(
   Locale locale = const Locale('ko'),
   Size designSize = kLegacyTestDesignSize,
   bool splitScreenMode = false,
+  // riverpod 3 의 `Retry` typedef 는 barrel 에서 export 되지 않아 구조적 함수
+  // 타입으로 받는다. 기본값 null 은 riverpod 기본 retry(Exception 을 실제
+  // Timer 로 최대 10회 재시도) 그대로다. provider 가 Exception 을 던지는
+  // 에러 경로 테스트는 `retry: (_, _) => null` 을 넘겨 재시도를 꺼야
+  // 터미널 AsyncError 가 결정적으로 즉시 관찰된다 — 켜두면 재시도 대기
+  // 타이머 탓에 pump 로도 에러 상태에 도달하지 못하거나, dispose 시
+  // "disposed during loading state" 고아 에러가 테스트를 실패시킨다.
+  Duration? Function(int, Object)? retry,
 }) {
   return ProviderScope(
+    retry: retry,
     overrides: [
       ...defaultProviderOverrides(
         navigation: navigation,

@@ -18,22 +18,21 @@ final activeCampaignFixture = ActivePromotionCampaignsModel.fromJson(
   loadGoldenFixture(
     'test/fixtures/wallet_contracts/promotion_surfaces_active_v1.json',
   ),
-).visibleHomeItems('ko').single;
+).visibleHomeItems('ko').single.homeCreative!;
 
-Widget buildCampaignGoldenApp(ActivePromotionCampaignModel campaign) =>
-    MaterialApp(
-      theme: ThemeData(fontFamily: 'packages/picnic_lib/Pretendard'),
-      locale: const Locale('ko'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: SizedBox(
-        height: 200,
-        child: ColoredBox(
-          color: const Color(0xFFFF7FA8),
-          child: CandyBoostBanner(campaign: campaign),
-        ),
-      ),
-    );
+Widget buildCampaignGoldenApp(PromotionCreativeModel creative) => MaterialApp(
+  theme: ThemeData(fontFamily: 'packages/picnic_lib/Pretendard'),
+  locale: const Locale('ko'),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: SizedBox(
+    height: 200,
+    child: ColoredBox(
+      color: const Color(0xFFFF7FA8),
+      child: CandyBoostBanner(creative: creative),
+    ),
+  ),
+);
 
 void main() {
   late Duration originalVisibilityInterval;

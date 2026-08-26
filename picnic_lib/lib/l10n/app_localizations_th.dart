@@ -1887,6 +1887,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get candy_boost_extra_bonus => 'รางวัลพื้นฐาน + โบนัสเพิ่ม';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'โบนัส $multiplier×';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'กำลังตรวจสอบโปรโมชั่น';
 
   @override

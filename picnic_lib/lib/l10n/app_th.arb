@@ -2403,6 +2403,15 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "รางวัลพื้นฐาน + โบนัสเพิ่ม 100%",
   "candy_boost_extra_bonus": "รางวัลพื้นฐาน + โบนัสเพิ่ม",
+  "candy_boost_multiplier": "โบนัส {multiplier}×",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "กำลังตรวจสอบโปรโมชั่น",
   "candy_boost_purchase_pending": "มีการซื้อสินค้านี้ที่กำลังประมวลผลอยู่แล้ว",
   "candy_boost_late_purchase_explanation": "การยืนยันตัวตนใช้เวลานานกว่าที่คาดไว้ แต่การซื้อเสร็จสมบูรณ์แล้ว",

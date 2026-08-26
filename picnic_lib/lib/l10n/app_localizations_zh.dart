@@ -1811,6 +1811,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get candy_boost_extra_bonus => '基础发放 + 额外奖励';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier倍奖励';
+  }
+
+  @override
   String get candy_boost_promotion_checking => '正在确认促销活动';
 
   @override
@@ -2918,7 +2923,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get vote_completed_message => '我已投票！';
 
   @override
-  String get voting_share_benefit_text => '每 100 次投票和分享可获得 1 颗奖励星星糖果！';
+  String get voting_share_benefit_text => '每 100 次投票可获得 1 颗奖励星星糖果！';
 
   @override
   String get cancel => 'Cancel';
@@ -3724,6 +3729,11 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get candy_boost_extra_bonus => '基础发放 + 额外奖励';
+
+  @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier倍奖励';
+  }
 
   @override
   String get candy_boost_promotion_checking => '正在确认促销活动';
@@ -4833,7 +4843,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get vote_completed_message => '我已投票！';
 
   @override
-  String get voting_share_benefit_text => '每 100 次投票和分享可獲得 1 顆獎勵星星糖果！';
+  String get voting_share_benefit_text => '每 100 次投票可獲得 1 顆獎勵星星糖果！';
 
   @override
   String get cancel => 'Cancel';
@@ -5640,6 +5650,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get candy_boost_extra_bonus => '基礎發放 + 額外獎勵';
+
+  @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier倍獎勵';
+  }
 
   @override
   String get candy_boost_promotion_checking => '正在確認促銷活動';

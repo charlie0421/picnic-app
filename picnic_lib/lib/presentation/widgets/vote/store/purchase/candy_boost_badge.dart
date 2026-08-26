@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/l10n/app_localizations.dart';
 
 class CandyBoostBadge extends StatelessWidget {
-  const CandyBoostBadge({super.key, required this.campaign});
-  final ActivePromotionCampaignModel campaign;
+  const CandyBoostBadge({
+    super.key,
+    required this.displayName,
+    required this.bonusLabel,
+  });
+  final String displayName;
+  final String bonusLabel;
 
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context).languageCode;
-    final name = campaign.localizedDisplayName(locale);
     return Semantics(
-      label: name,
+      label: displayName,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
@@ -23,13 +24,11 @@ class CandyBoostBadge extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              name,
+              displayName,
               style: getTextStyle(AppTypo.caption10SB, AppColors.primary500),
             ),
             Text(
-              campaign.extraBonusBps == 10000
-                  ? AppLocalizations.of(context).candy_boost_exact_double
-                  : AppLocalizations.of(context).candy_boost_extra_bonus,
+              bonusLabel,
               style: getTextStyle(AppTypo.caption10R, AppColors.primary500),
             ),
           ],
@@ -37,4 +36,12 @@ class CandyBoostBadge extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Integer-tenths multiplier (e.g. 15 -> "1.5") shown verbatim in the UI —
+/// never the raw bps value it is derived from.
+String formatCandyBoostMultiplierTenths(int tenths) {
+  final whole = tenths ~/ 10;
+  final frac = tenths % 10;
+  return frac == 0 ? '$whole' : '$whole.$frac';
 }
