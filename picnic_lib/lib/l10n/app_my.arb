@@ -2402,6 +2402,15 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "အခြေခံဆု + ထပ်ဆောင်းဘောနပ် 100%",
   "candy_boost_extra_bonus": "အခြေခံဆု + ထပ်ဆောင်းဘောနပ်",
+  "candy_boost_multiplier": "ဘောနပ် {multiplier}×",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "ပရိုမိုးရှင်းကို စစ်ဆေးနေပါသည်",
   "candy_boost_purchase_pending": "ဤကုန်ပစ္စည်းအတွက် ဝယ်ယူမှုတစ်ခုကို လုပ်ဆောင်နေပြီးဖြစ်ပါသည်။",
   "candy_boost_late_purchase_explanation": "အတည်ပြုချက် မျှော်လင့်ထားသည်ထက် ကြာခဲ့သော်လည်း ဝယ်ယူမှု အောင်မြင်စွာ ပြီးဆုံးပါပြီ။",

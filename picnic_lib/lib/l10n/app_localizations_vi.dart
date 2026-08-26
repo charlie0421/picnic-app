@@ -1044,7 +1044,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'Nhận 1 Candy Star Bonus cho mỗi 100 phiếu bầu và chia sẻ!';
+      'Nhận 1 Candy Star Bonus cho mỗi 100 phiếu bầu!';
 
   @override
   String get cancel => 'Hủy bỏ';
@@ -1915,6 +1915,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get candy_boost_extra_bonus => 'Thưởng cơ bản + thưởng thêm';
+
+  @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'Thưởng $multiplier×';
+  }
 
   @override
   String get candy_boost_promotion_checking => 'Đang kiểm tra khuyến mãi';

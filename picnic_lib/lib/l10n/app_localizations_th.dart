@@ -1030,7 +1030,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'รับ 1 ลูกอมโบนัสสตาร์สำหรับทุก ๆ 100 คะแนนและแบ่งปัน!';
+      'รับ 1 ลูกอมโบนัสสตาร์สำหรับทุก ๆ 100 คะแนน!';
 
   @override
   String get cancel => 'ยกเลิก';
@@ -1885,6 +1885,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get candy_boost_extra_bonus => 'รางวัลพื้นฐาน + โบนัสเพิ่ม';
+
+  @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'โบนัส $multiplier×';
+  }
 
   @override
   String get candy_boost_promotion_checking => 'กำลังตรวจสอบโปรโมชั่น';

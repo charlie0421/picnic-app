@@ -105,6 +105,36 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
     _focusNode.addListener(_onFocusChange);
+
+    // walletSummaryProvider is keepAlive with no TTL and no refresh on app
+    // resume, and "use all" writes its total into the amount field verbatim.
+    // The server expires Cotton grants and Bonus buckets at vote time before
+    // computing the balance, so an hours-old snapshot asks for more than is
+    // spendable and comes back 409 WALLET_INSUFFICIENT_BALANCE even though the
+    // client pre-check passed. Re-read it when the dialog opens.
+    //
+    // Best-effort on purpose: a slow or failing refresh must not delay or block
+    // the dialog, which still works off the cached snapshot.
+    //
+    // Deferred a frame on purpose: when the wallet cache is empty, refresh()
+    // writes AsyncLoading before its first await, and doing that from initState
+    // is a provider write during build - Riverpod asserts and the refresh is
+    // lost entirely, which is exactly the cold-start case that needs it most.
+    if (widget.portalType == VotePortal.vote) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        unawaited(
+          VotingDialogHelper.bestEffortWalletRefresh(
+            () => ref.read(walletSummaryProvider.notifier).refresh(),
+            onError: (error, stackTrace) => logger.w(
+              'voting dialog open wallet refresh failed',
+              error: error,
+              stackTrace: stackTrace,
+            ),
+          ),
+        );
+      });
+    }
   }
 
   void _onFocusChange() {
@@ -165,59 +195,68 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       userInfoProvider.select((value) => value.value?.id ?? ''),
     );
 
-    return LoadingOverlayWithIcon(
-      key: _loadingKey,
-      iconAssetPath: 'assets/app_icon_128.png',
-      enableScale: true,
-      enableFade: true,
-      enableRotation: false,
-      minScale: 0.98,
-      maxScale: 1.02,
-      showProgressIndicator: false,
-      child: AlertDialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24),
-        contentPadding: EdgeInsets.zero,
-        content: LargePopupWidget(
-          showCloseButton: false,
-          content: Container(
-            padding: EdgeInsets.only(
-              top: 32,
-              bottom: 24,
-              left: 24.w,
-              right: 24.w,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 8),
-                VotingArtistImage(voteItemModel: widget.voteItemModel),
-                const SizedBox(height: 16),
-                VotingMemberInfo(voteItemModel: widget.voteItemModel),
-                VotingStarCandyInfo(
-                  myStarCandy: displayedBalance,
-                  onRecharge: _navigateToStore,
-                ),
-                const SizedBox(height: 8),
-                VotingCheckAllOption(
-                  checkAll: _checkAll,
-                  onToggle: _toggleCheckAll,
-                ),
-                const SizedBox(height: 8),
-                _buildVoteAmountInput(context),
-                const SizedBox(height: 8),
-                VotingErrorMessage(canVote: _canVote, hasValue: _hasValue),
-                _buildBubble(),
-                const SizedBox(height: 9),
-                VotingSubmitButton(
-                  canVote: _canVote,
-                  isVoting: _isVoting,
-                  onPressed: () => _handleVote(myStarCandy, userId),
-                ),
-                const SizedBox(height: 16),
-                VotingLogoImage(voteModel: widget.voteModel),
-              ],
+    // Closing the dialog does not cancel the vote: the request keeps running
+    // against the captured ProviderContainer. Reopening and voting again mints
+    // a new request_id, which the server settles as a separate vote — so a
+    // mid-flight dismissal is a double-charge window, not a cancel. The loading
+    // overlay already swallows barrier taps (it is a full-screen opaque entry
+    // above this route); system back is the path that still gets through.
+    return PopScope(
+      canPop: !_isVoting,
+      child: LoadingOverlayWithIcon(
+        key: _loadingKey,
+        iconAssetPath: 'assets/app_icon_128.png',
+        enableScale: true,
+        enableFade: true,
+        enableRotation: false,
+        minScale: 0.98,
+        maxScale: 1.02,
+        showProgressIndicator: false,
+        child: AlertDialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24),
+          contentPadding: EdgeInsets.zero,
+          content: LargePopupWidget(
+            showCloseButton: false,
+            content: Container(
+              padding: EdgeInsets.only(
+                top: 32,
+                bottom: 24,
+                left: 24.w,
+                right: 24.w,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 8),
+                  VotingArtistImage(voteItemModel: widget.voteItemModel),
+                  const SizedBox(height: 16),
+                  VotingMemberInfo(voteItemModel: widget.voteItemModel),
+                  VotingStarCandyInfo(
+                    myStarCandy: displayedBalance,
+                    onRecharge: _navigateToStore,
+                  ),
+                  const SizedBox(height: 8),
+                  VotingCheckAllOption(
+                    checkAll: _checkAll,
+                    onToggle: _toggleCheckAll,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildVoteAmountInput(context),
+                  const SizedBox(height: 8),
+                  VotingErrorMessage(canVote: _canVote, hasValue: _hasValue),
+                  _buildBubble(),
+                  const SizedBox(height: 9),
+                  VotingSubmitButton(
+                    canVote: _canVote,
+                    isVoting: _isVoting,
+                    onPressed: () => _handleVote(myStarCandy, userId),
+                  ),
+                  const SizedBox(height: 16),
+                  VotingLogoImage(voteModel: widget.voteModel),
+                ],
+              ),
             ),
           ),
         ),
@@ -409,6 +448,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   Future<void> _handleVote(int myStarCandy, String userId) async {
     // 이미 투표 진행 중이면 무시 (중복 클릭 방지)
     if (_isVoting) return;
+    // 가드는 첫 await 앞에서 세운다. 아래 잔액 조회와 탈퇴 확인은 둘 다 await 이고
+    // 탈퇴 확인은 네트워크 왕복이다. 그 구간 동안 버튼이 살아 있으면 두 번째 탭이
+    // 이 가드를 그대로 통과하고, 두 실행이 각자 새 request_id 를 발급해 서버
+    // 멱등성이 걸리지 않는다 - 한 번의 투표가 아니라 두 번의 차감이 된다.
+    // 아래 조기 반환 경로들은 반드시 플래그를 되돌려야 한다.
+    setState(() => _isVoting = true);
 
     final voteAmount = _getVoteAmount();
     final amount = BigInt.from(voteAmount);
@@ -422,6 +467,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         : BigInt.from(myStarCandy) >= amount;
     if (!mounted) return;
     if (voteAmount == 0 || !hasBalance) {
+      setState(() => _isVoting = false);
       showSimpleDialog(
         title: AppLocalizations.of(context).dialog_title_vote_fail,
         content: voteAmount == 0
@@ -437,13 +483,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     FocusScope.of(context).unfocus();
 
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
+      if (mounted) setState(() => _isVoting = false);
       return;
     }
 
     if (!mounted) return;
-
-    // 투표 시작 - 버튼 비활성화
-    setState(() => _isVoting = true);
 
     _loadingKey.currentState?.show();
 
@@ -586,9 +630,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             voteModel: widget.voteModel,
             voteItemModel: widget.voteItemModel,
             usage: {
-              WalletCurrency.starCandy: BigInt.from(
-                usage['star_candy_usage']!,
-              ),
+              WalletCurrency.starCandy: BigInt.from(usage['star_candy_usage']!),
               WalletCurrency.bonusStarCandy: BigInt.from(
                 usage['star_candy_bonus_usage']!,
               ),
@@ -709,25 +751,29 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       if (reason.length > 80) reason = reason.substring(0, 80);
       final phase = afterInvoke ? 'post_invoke' : 'invoke';
 
-      unawaited(Sentry.captureMessage(
-        'vote_failed',
-        level: SentryLevel.warning,
-        withScope: (scope) {
-          scope.fingerprint = ['vote_failed']; // 단일 이슈 고정(분포 측정용)
-          scope.setTag('vote_fail_status', status);
-          scope.setTag('vote_fail_reason', reason);
-          scope.setTag('vote_fail_phase', phase);
-          scope.setTag('vote_portal',
-              widget.portalType == VotePortal.vote ? 'vote' : 'pic');
-          scope.setContexts('vote_fail', {
-            'status': status,
-            'reason': reason,
-            'phase': phase,
-            'vote_id': widget.voteModel.id,
-            'vote_item_id': widget.voteItemModel.id,
-          });
-        },
-      ));
+      unawaited(
+        Sentry.captureMessage(
+          'vote_failed',
+          level: SentryLevel.warning,
+          withScope: (scope) {
+            scope.fingerprint = ['vote_failed']; // 단일 이슈 고정(분포 측정용)
+            scope.setTag('vote_fail_status', status);
+            scope.setTag('vote_fail_reason', reason);
+            scope.setTag('vote_fail_phase', phase);
+            scope.setTag(
+              'vote_portal',
+              widget.portalType == VotePortal.vote ? 'vote' : 'pic',
+            );
+            scope.setContexts('vote_fail', {
+              'status': status,
+              'reason': reason,
+              'phase': phase,
+              'vote_id': widget.voteModel.id,
+              'vote_item_id': widget.voteItemModel.id,
+            });
+          },
+        ),
+      );
     } catch (_) {
       // 의도적으로 무시: 계측 실패가 투표 복구 흐름에 영향 주지 않도록.
     }
@@ -764,6 +810,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       genericMessage: l10n.dialog_title_vote_fail,
       endedMessage: l10n.message_vote_is_ended,
       upcomingMessage: l10n.message_vote_is_upcoming,
+      insufficientBalanceMessage: l10n.text_need_recharge,
     );
   }
 

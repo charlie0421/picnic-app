@@ -864,6 +864,13 @@ workflows:
           echo "🚀 Shorebird로 Android 빌드 + 릴리즈..."
           SKIP_SHOREBIRD=false
 
+          # `--` 뒤 인자는 flutter build 로 전달된다. --split-debug-info 는
+          # Dart AOT DWARF(.symbols)를 분리 생성해 Sentry 가 ANR/AppExitInfo 의
+          # libapp.so 네이티브 프레임을 심볼리케이션할 수 있게 한다 (기존
+          # 업로드는 symtab 뿐이라 함수명이 비었다 — PICNIC-APP-45E/464).
+          # ⚠️ 이 릴리스를 패치할 때는 shorebird patch 에도 동일하게
+          # `-- --split-debug-info=build/symbols` 를 넘겨야 한다 (아래 패치
+          # 워크플로는 빌드 번호 게이트로 자동 처리).
           if [ "$DEPLOY_TARGET" = "production" ]; then
             shorebird release android \
               --dart-define=ENVIRONMENT=prod \
@@ -871,7 +878,8 @@ workflows:
               --dart-define=PAYMENT_ENVIRONMENT=prod \
               --no-confirm \
               --flutter-version=3.41.4 \
-              --verbose 2>&1 | tee /tmp/shorebird_release.log
+              --verbose \
+              -- --split-debug-info=build/symbols 2>&1 | tee /tmp/shorebird_release.log
           else
             shorebird release android \
               --dart-define=ENVIRONMENT=dev \
@@ -923,8 +931,11 @@ workflows:
             echo "⚠️ WARNING: flutter build appbundle로 생성된 AAB는 Shorebird 패치를 받을 수 없습니다!"
             echo "📦 Flutter AAB 빌드 (fallback)..."
             if [ "$DEPLOY_TARGET" = "production" ]; then
+              # 폴백 빌드도 Shorebird 릴리스와 동일하게 DWARF 를 분리 생성해
+              # "130008+ 프로덕션 = split-debug-info 빌드" 불변식을 유지한다
               flutter build appbundle \
                 --release \
+                --split-debug-info=build/symbols \
                 --dart-define=ENVIRONMENT=prod \
                 --dart-define=PANGLE_ENVIRONMENT=prod \
                 --dart-define=PAYMENT_ENVIRONMENT=prod
@@ -1079,6 +1090,19 @@ workflows:
             --include-sources \
             build/app/ 2>&1 || echo "⚠️ Flutter 디버그 심볼 업로드 실패 (무시)"
 
+          # 4) Dart AOT DWARF (--split-debug-info 산출물) — libapp.so 는 symtab 만
+          # 갖고 있어 ANR/AppExitInfo 네이티브 프레임 심볼리케이션에 이 파일이
+          # 필요하다 (프로덕션 릴리스 분기에서만 생성됨)
+          if [ -d "build/symbols" ]; then
+            echo "📤 Dart AOT DWARF 업로드: build/symbols"
+            sentry-cli debug-files upload \
+              --org "$SENTRY_ORG" \
+              --project "$SENTRY_PROJECT" \
+              build/symbols 2>&1 || echo "⚠️ Dart DWARF 업로드 실패 (무시)"
+          else
+            echo "ℹ️ build/symbols 없음 — --split-debug-info 미적용 빌드"
+          fi
+
           # 릴리즈 완료
           sentry-cli releases finalize "$SENTRY_RELEASE" \
             --org "$SENTRY_ORG" \
@@ -1092,6 +1116,8 @@ workflows:
       - picnic_app/build/**/outputs/**/*.apk
       - picnic_app/flutter_drive.log
       - picnic_app/build/app/outputs/**/mapping.txt
+      # Sentry 업로드 실패 시 수동 재업로드용 Dart AOT DWARF 보존
+      - picnic_app/build/symbols/*.symbols
 
     publishing:
       # 조건부 Google Play 배포 (환경변수로 제어)
@@ -1363,6 +1389,34 @@ workflows:
           RELEASE_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //' | tr -d ' ')
           echo "📦 패치 대상 버전: $RELEASE_VERSION"
 
+          # 1.3.0+130008 부터 프로덕션 릴리스는 --split-debug-info 로 빌드된다.
+          # 패치는 릴리스와 동일한 flutter 빌드 인자를 써야 하므로 빌드 번호로
+          # 게이트한다 — 구릴리스(≤130007) 패치에 이 플래그를 넘기면 안 된다.
+          EXTRA_BUILD_ARGS=""
+          PATCH_BUILD_NUMBER=${RELEASE_VERSION#*+}
+          PATCH_VERSION_NAME=${RELEASE_VERSION%%+*}
+          # MmPPBB 형식과 표시 버전(M.m.PP)의 상호 일치까지 강제한다. 6자리
+          # 숫자라도 표시 버전과 어긋나면(예: 1.4.0+120000) 릴리스는 무조건
+          # split 인데 패치는 임계값 미만으로 플래그가 빠져 불일치 패치가
+          # 나간다 — 조용히 넘기지 않고 실패시킨다.
+          if ! [[ "$PATCH_BUILD_NUMBER" =~ ^[0-9]{6}$ ]]; then
+            echo "❌ 빌드 번호가 MmPPBB 6자리 형식이 아닙니다: $RELEASE_VERSION"
+            exit 1
+          fi
+          if ! [[ "$PATCH_VERSION_NAME" =~ ^([0-9])\.([0-9])\.([0-9]{1,2})$ ]]; then
+            echo "❌ 표시 버전이 M.m.PP 형식이 아닙니다: $RELEASE_VERSION"
+            exit 1
+          fi
+          EXPECTED_PREFIX=$(printf '%s%s%02d' \
+            "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "$((10#${BASH_REMATCH[3]}))")
+          if [ "${PATCH_BUILD_NUMBER:0:4}" != "$EXPECTED_PREFIX" ]; then
+            echo "❌ 빌드 번호 ${PATCH_BUILD_NUMBER} 가 표시 버전 ${PATCH_VERSION_NAME} 의 MmPPBB(${EXPECTED_PREFIX}xx)와 일치하지 않습니다"
+            exit 1
+          fi
+          if [ "$PATCH_BUILD_NUMBER" -ge 130008 ]; then
+            EXTRA_BUILD_ARGS="-- --split-debug-info=build/symbols"
+          fi
+
           shorebird patch android \
             --release-version=$RELEASE_VERSION \
             --no-confirm \
@@ -1371,7 +1425,8 @@ workflows:
             --dart-define=ENVIRONMENT=prod \
             --dart-define=PANGLE_ENVIRONMENT=prod \
             --dart-define=PAYMENT_ENVIRONMENT=prod \
-            --verbose
+            --verbose \
+            $EXTRA_BUILD_ARGS
 
           PATCH_EXIT_CODE=$?
 
@@ -1431,10 +1486,25 @@ workflows:
             --include-sources \
             build/app/ 2>&1 || echo "⚠️ Flutter 심볼 업로드 실패 (무시)"
 
+          # 3) Dart AOT DWARF (--split-debug-info 산출물) — 130008+ 패치는
+          # 릴리스와 동일하게 build/symbols 에 DWARF 를 만들므로 이것도
+          # 올려야 패치 이후 스택이 심볼리케이션된다
+          if [ -d "build/symbols" ]; then
+            echo "📤 Dart AOT DWARF 업로드: build/symbols"
+            sentry-cli debug-files upload \
+              --org "$SENTRY_ORG" \
+              --project "$SENTRY_PROJECT" \
+              build/symbols 2>&1 || echo "⚠️ Dart DWARF 업로드 실패 — artifacts 의 symbols 로 수동 업로드 필요"
+          else
+            echo "ℹ️ build/symbols 없음 — --split-debug-info 미적용 패치(<130008)"
+          fi
+
           echo "✅ Sentry Android patch 심볼 업로드 단계 완료"
 
     artifacts:
       - picnic_app/flutter_drive.log
+      # Sentry 업로드 실패 시 수동 재업로드용 DWARF 보존
+      - picnic_app/build/symbols/*.symbols
 
     publishing:
       slack:

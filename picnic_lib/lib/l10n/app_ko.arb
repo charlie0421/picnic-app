@@ -1600,7 +1600,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "100표마다 보너스 별사탕 1개 획득 및 공유!",
+  "voting_share_benefit_text": "100표마다 보너스 별사탕 1개 획득!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -2545,6 +2545,15 @@
   "candy_boost_day": "캔디 부스트 데이",
   "candy_boost_exact_double": "기본 지급 + 추가 보너스 100%",
   "candy_boost_extra_bonus": "기본 지급 + 추가 보너스",
+  "candy_boost_multiplier": "{multiplier}배",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "프로모션 확인 중",
   "candy_boost_purchase_pending": "동일 상품의 구매가 처리 중입니다.",
   "candy_boost_late_purchase_explanation": "인증에 예상보다 오래 걸렸지만 구매가 정상적으로 완료되었습니다.",

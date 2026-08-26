@@ -53,12 +53,20 @@ class _ControllableWalletSummary extends WalletSummary {
 
   final WalletSummaryModel summary;
   final Future<void> Function() onRefresh;
+  int _calls = 0;
 
   @override
   Future<WalletSummaryModel> build() async => summary;
 
+  /// The dialog also refreshes once when it opens, to keep "use all" off a
+  /// stale snapshot. That call is not what these tests are about, so only the
+  /// second refresh - the post-failure one - runs the scripted behaviour.
   @override
-  Future<void> refresh() => onRefresh();
+  Future<void> refresh() {
+    _calls += 1;
+    if (_calls == 1) return Future<void>.value();
+    return onRefresh();
+  }
 }
 
 /// Vote repository that fails, but only once the test opens [gate]. Holding the

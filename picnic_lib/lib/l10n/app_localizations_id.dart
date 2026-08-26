@@ -1047,7 +1047,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'Dapatkan 1 bonus permen bintang untuk setiap 100 suara dan bagikan!';
+      'Dapatkan 1 bonus permen bintang untuk setiap 100 suara!';
 
   @override
   String get cancel => 'Cancel';
@@ -1920,6 +1920,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get candy_boost_extra_bonus => 'Hadiah dasar + bonus ekstra';
+
+  @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'Bonus $multiplier×';
+  }
 
   @override
   String get candy_boost_promotion_checking => 'Sedang memeriksa promosi';

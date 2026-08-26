@@ -1057,7 +1057,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'Kumuha ng 1 bonus star candy para sa bawat 100 boto at ibahagi!';
+      'Kumuha ng 1 bonus star candy para sa bawat 100 boto!';
 
   @override
   String get cancel => 'Kanselahin';
@@ -1947,6 +1947,11 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get candy_boost_extra_bonus => 'Batayang gantimpala + dagdag na bonus';
+
+  @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier× na bonus';
+  }
 
   @override
   String get candy_boost_promotion_checking => 'Sinusuri ang promosyon';

@@ -1321,7 +1321,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "Dapatkan 1 bonus permen bintang untuk setiap 100 suara dan bagikan!",
+  "voting_share_benefit_text": "Dapatkan 1 bonus permen bintang untuk setiap 100 suara!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -2459,6 +2459,15 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "Hadiah dasar + bonus ekstra 100%",
   "candy_boost_extra_bonus": "Hadiah dasar + bonus ekstra",
+  "candy_boost_multiplier": "Bonus {multiplier}×",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "Sedang memeriksa promosi",
   "candy_boost_purchase_pending": "Pembelian untuk produk ini sedang diproses.",
   "candy_boost_late_purchase_explanation": "Autentikasi memakan waktu lebih lama dari perkiraan, tetapi pembelian berhasil diselesaikan.",

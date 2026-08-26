@@ -138,8 +138,13 @@ class InternalShortformViewRecoveryFlow {
     }
     final owner = view.session.ownerUserId!;
     final reference = view.session.reference!;
+    // Future.sync: dispose 된 ref.read 처럼 poll 이 동기로 던져도 시청 응답을
+    // 잃지 않고 onPollError 로 모은다.
     unawaited(
-      poll(owner, reference).catchError((Object error, StackTrace stackTrace) {
+      Future.sync(() => poll(owner, reference)).catchError((
+        Object error,
+        StackTrace stackTrace,
+      ) {
         onPollError?.call(error, stackTrace);
       }),
     );

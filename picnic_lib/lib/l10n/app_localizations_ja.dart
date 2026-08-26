@@ -1009,8 +1009,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vote_completed_message => '投票しました！';
 
   @override
-  String get voting_share_benefit_text =>
-      '100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！';
+  String get voting_share_benefit_text => '100票ごとにボーナスキャンディ1個をプレゼント！';
 
   @override
   String get cancel => 'Cancel';
@@ -1837,6 +1836,11 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get candy_boost_extra_bonus => '基本付与 + 追加ボーナス';
+
+  @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier倍';
+  }
 
   @override
   String get candy_boost_promotion_checking => 'プロモーションを確認中';

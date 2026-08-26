@@ -1321,7 +1321,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！",
+  "voting_share_benefit_text": "100票ごとにボーナスキャンディ1個をプレゼント！",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -2459,6 +2459,15 @@
   "candy_boost_day": "キャンディブーストデー",
   "candy_boost_exact_double": "基本付与 + 追加ボーナス100%",
   "candy_boost_extra_bonus": "基本付与 + 追加ボーナス",
+  "candy_boost_multiplier": "{multiplier}倍",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "プロモーションを確認中",
   "candy_boost_purchase_pending": "同じ商品の購入処理が進行中です。",
   "candy_boost_late_purchase_explanation": "認証に時間がかかりましたが、購入は正常に完了しました。",

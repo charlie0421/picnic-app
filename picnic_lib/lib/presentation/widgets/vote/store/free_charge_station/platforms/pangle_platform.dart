@@ -41,6 +41,7 @@ class PangleClaimPreflight {
     required this.load,
     this.loadTimeout = const Duration(seconds: 5),
     this.onPollError,
+    this.isAborted,
   });
   final PangleClaimCreator createClaim;
   final Future<void> Function(String, AdRewardReference) persist;
@@ -49,6 +50,11 @@ class PangleClaimPreflight {
   final Future<bool> Function(String, String) load;
   final Duration loadTimeout;
   final void Function(Object error, StackTrace stackTrace)? onPollError;
+
+  /// 호출부(플랫폼)가 dispose 됐는지 알려 주는 훅. 구독은 execute 내부에서
+  /// 만들어지고 반환 후에야 호출부에 전달되므로, load 를 기다리는 사이에
+  /// dispose 되면 호출부의 dispose 는 이 구독을 취소할 수 없다.
+  final bool Function()? isAborted;
 
   Future<PangleClaimPreflightResult> execute({
     required String ownerUserId,
@@ -63,8 +69,11 @@ class PangleClaimPreflight {
     );
     await persist(ownerUserId, claim.reference);
     final subscription = pollingSignals.listen((_) {
+      if (isAborted?.call() ?? false) return;
+      // Future.sync: dispose 된 ref.read 처럼 poll 이 동기로 던지는 경우도
+      // catchError 로 모은다 — 동기 throw 는 catchError 가 붙기 전에 전파된다.
       unawaited(
-        poll(ownerUserId, claim.reference).catchError((
+        Future.sync(() => poll(ownerUserId, claim.reference)).catchError((
           Object error,
           StackTrace stackTrace,
         ) {
@@ -77,6 +86,9 @@ class PangleClaimPreflight {
         placementId,
         claim.mediaExtra(ownerUserId),
       ).timeout(loadTimeout, onTimeout: () => false);
+      if (isAborted?.call() ?? false) {
+        await subscription.cancel();
+      }
       return PangleClaimPreflightResult(
         loaded: loaded,
         reference: claim.reference,
@@ -89,10 +101,49 @@ class PangleClaimPreflight {
   }
 }
 
+/// 폴링 구독의 소유권을 재진입·dispose 와 경합해도 정확히 하나로 유지한다.
+///
+/// showAd 가 checkAdsLimit 네트워크 대기 중 이중 탭 등으로 겹쳐 실행되면,
+/// 단일 필드 방식은 먼저 시작한 호출의 구독이 필드에 실리지 못한 채 유실된다
+/// — dispose 가 취소할 수 없는 고아 구독. begin() 이 발급한 세대 토큰이
+/// 여전히 최신일 때만 adopt() 가 필드에 싣고, 아니면 그 자리에서 취소한다.
+/// cancel() 은 세대를 올려 진행 중인 adopt 까지 무효화한다 (dispose 경로).
+class PollingSubscriptionOwner {
+  StreamSubscription<void>? _subscription;
+  int _generation = 0;
+
+  Future<int> begin() async {
+    final generation = ++_generation;
+    final previous = _subscription;
+    _subscription = null;
+    await previous?.cancel();
+    return generation;
+  }
+
+  Future<bool> adopt(
+    int generation,
+    StreamSubscription<void> subscription,
+  ) async {
+    if (generation != _generation) {
+      await subscription.cancel();
+      return false;
+    }
+    _subscription = subscription;
+    return true;
+  }
+
+  Future<void> cancel() async {
+    _generation++;
+    final previous = _subscription;
+    _subscription = null;
+    await previous?.cancel();
+  }
+}
+
 /// Pangle 광고 플랫폼 구현
 class PanglePlatform extends AdPlatform {
   bool _isInitialized = false;
-  StreamSubscription<void>? _pollingSubscription;
+  final PollingSubscriptionOwner _pollingOwner = PollingSubscriptionOwner();
   AdRewardReference? _activeReference;
 
   /// `ad_impression` 용 1회성 구독. SDK 의 노출 콜백(`onAdShown`)은 브로드캐스트
@@ -287,7 +338,7 @@ class PanglePlatform extends AdPlatform {
           supabase.auth.currentUser?.id ??
           (throw StateError('Authenticated user required for Pangle claim'));
       final platform = Platform.isIOS ? 'ios' : 'android';
-      await _pollingSubscription?.cancel();
+      final pollingGeneration = await _pollingOwner.begin();
       final preflight =
           await PangleClaimPreflight(
             createClaim: adRewardRepository.createPangleClaim,
@@ -304,14 +355,21 @@ class PanglePlatform extends AdPlatform {
                 stackTrace: stackTrace,
               );
             },
+            isAborted: () => isDisposed,
           ).execute(
             ownerUserId: ownerUserId,
             platform: platform,
             placementId: adUnitId,
             clientRequestId: const Uuid().v4(),
           );
+      if (!await _pollingOwner.adopt(
+        pollingGeneration,
+        preflight.subscription,
+      )) {
+        // 재진입 또는 dispose 로 소유권이 넘어갔다 — 이 시청 건은 조용히 종료.
+        return (loaded: false, reported: true);
+      }
       _activeReference = preflight.reference;
-      _pollingSubscription = preflight.subscription;
 
       final result = preflight.loaded;
 
@@ -353,8 +411,7 @@ class PanglePlatform extends AdPlatform {
   @override
   void dispose() {
     _cancelImpressionListener();
-    unawaited(_pollingSubscription?.cancel());
-    _pollingSubscription = null;
+    unawaited(_pollingOwner.cancel());
     if (_activeReference != null) {
       _activeReference = null;
     }

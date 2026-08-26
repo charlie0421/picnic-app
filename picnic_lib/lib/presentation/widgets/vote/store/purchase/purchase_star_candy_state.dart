@@ -17,6 +17,7 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
@@ -1559,12 +1560,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         !_isInitializing &&
         !_purchaseAttempts.contains(productId);
     final isCurrentProductLoading = _purchaseAttempts.contains(productId);
-    final campaign = ref
-        .watch(activePromotionCampaignProvider(PromotionSurface.store))
-        .value
-        ?.items
-        .where((item) => item.showInStore)
-        .firstOrNull;
+    final resolved = ref.watch(paymentBadgePromotionProvider).value;
+    final locale = Localizations.localeOf(context).languageCode;
 
     return StoreListTile(
       icon: Image.asset(
@@ -1588,7 +1585,24 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 ?.toInt() ??
             0,
       ),
-      badge: campaign == null ? null : CandyBoostBadge(campaign: campaign),
+      badge: resolved == null
+          ? null
+          : CandyBoostBadge(
+              displayName: localizedPromotionDisplayName(
+                resolved.displayName,
+                locale,
+                fallbackCode: resolved.code,
+              ),
+              bonusLabel: resolved.multiplierTenths != null
+                  ? AppLocalizations.of(context).candy_boost_multiplier(
+                      formatCandyBoostMultiplierTenths(
+                        resolved.multiplierTenths!,
+                      ),
+                    )
+                  : (resolved.extraBonusBps == 10000
+                        ? AppLocalizations.of(context).candy_boost_exact_double
+                        : AppLocalizations.of(context).candy_boost_extra_bonus),
+            ),
       isLoading: isCurrentProductLoading,
       buttonText: '${serverProduct['price']} \$',
       buttonOnPressed: isButtonEnabled

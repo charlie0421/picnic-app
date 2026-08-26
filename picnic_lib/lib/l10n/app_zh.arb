@@ -1480,7 +1480,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "每 100 次投票和分享可获得 1 颗奖励星星糖果！",
+  "voting_share_benefit_text": "每 100 次投票可获得 1 颗奖励星星糖果！",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -2399,6 +2399,15 @@
   "candy_boost_day": "糖果加倍日",
   "candy_boost_exact_double": "基础发放 + 额外奖励100%",
   "candy_boost_extra_bonus": "基础发放 + 额外奖励",
+  "candy_boost_multiplier": "{multiplier}倍奖励",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "正在确认促销活动",
   "candy_boost_purchase_pending": "同一商品的购买正在处理中。",
   "candy_boost_late_purchase_explanation": "认证耗时比预期长，但购买已正常完成。",

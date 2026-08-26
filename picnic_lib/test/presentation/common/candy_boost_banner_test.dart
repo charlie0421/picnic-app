@@ -23,7 +23,7 @@ void main() {
     );
     await tester.pumpWidget(
       buildTestApp(
-        CandyBoostBanner(campaign: envelope.items.single),
+        CandyBoostBanner(creative: envelope.items.single.homeCreative!),
         locale: const Locale('en', 'US'),
       ),
     );

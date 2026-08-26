@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GA4 이벤트 택소노미 — 핸드오프</title>
+<style>
+  body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;max-width:1040px;margin:40px auto;padding:0 24px;line-height:1.75;color:#1a1a2e}
+  h1{border-bottom:3px solid #7c6ff0;padding-bottom:10px}
+  h2{margin-top:2.4em;border-left:4px solid #7c6ff0;padding-left:10px}
+  h3{margin-top:1.7em;color:#3a3a5e}
+  .tw{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+  th,td{border:1px solid #d8d8e8;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#f2f0ff}
+  code{background:#f4f4f8;padding:1px 5px;border-radius:4px;font-size:.92em}
+  pre{background:#f4f4f8;padding:12px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55}
+  .ok{background:#e8f7ee;border-left:5px solid #0a8f4a;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .warn{background:#fff4e5;border-left:5px solid #ff9800;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .stop{background:#fdecea;border-left:5px solid #c0392b;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .meta{color:#666;font-size:13px}
+  li{margin:5px 0}
+  .k{font-weight:700;color:#c0392b}
+  .done{color:#0a8f4a;font-weight:700}
+  .todo{color:#c0392b;font-weight:700}
+  .unk{color:#b7791f;font-weight:700}
+</style>
+</head>
+<body>
+
+<h1>GA4 이벤트 택소노미 — 핸드오프</h1>
+<p class="meta">
+작성 2026-08-21 · 기준 <code>origin/main d2fc1cda2</code> · 프로덕션 <code>1.3.0+130007</code><br>
+원 작업 PR <a href="https://github.com/charlie0421/picnic-app/pull/153">#153</a> (머지 커밋 <code>d99118ab3</code>, 2026-08-10)
+</p>
+
+<div class="ok">
+<strong>코드는 이미 프로덕션에 나가 있다.</strong> GA4 택소노미는 <code>1.3.0+130007</code> 바이너리에
+포함돼 8/13 공개·강업으로 배포됐고, 그 릴리스에 패치는 0건이다.
+즉 <strong>지금 이 순간에도 프로덕션 GA4 속성으로 이벤트가 들어가고 있다.</strong>
+</div>
+
+<div class="stop">
+<strong>가장 시급한 것 — GA4 콘솔 맞춤 측정기준 등록.</strong>
+등록은 <span class="k">소급 적용되지 않는다.</span> 등록 전에 들어온 이벤트의 파라미터는
+표준 리포트·탐색에서 <strong>영구히 조회할 수 없다.</strong> 배포가 이미 8/13이므로
+등록이 늦어질수록 되살릴 수 없는 데이터가 쌓인다. 목록은
+<code>docs/analytics/agency-reply.html</code> D절에 있다.
+</div>
+
+<h2>1. 지금 상태 (실측)</h2>
+
+<div class="tw">
+<table>
+<tr><th>항목</th><th>값</th><th>확인 방법</th></tr>
+<tr><td>main 머지</td><td class="done">완료</td><td><code>d99118ab3</code> · PR #153</td></tr>
+<tr><td>프로덕션 반영</td><td class="done">완료</td><td><code>0151b77b5</code>(130007 범프)가 머지 이후 커밋 — <code>git merge-base --is-ancestor</code> 확인</td></tr>
+<tr><td>라이브 릴리스</td><td><code>1.3.0+130007</code></td><td><code>shorebird releases list</code> · ios/android active</td></tr>
+<tr><td>해당 릴리스 패치</td><td>0건</td><td><code>shorebird patches list --release-version="1.3.0+130007"</code> → No patches found</td></tr>
+<tr><td>코드 규모</td><td>22개 파일</td><td><code>picnic_lib/lib/core/analytics/</code></td></tr>
+<tr><td>130007 이후 analytics 변경</td><td>없음</td><td>main 24커밋 중 <code>core/analytics/</code> 변경 0</td></tr>
+<tr><td>GA4 콘솔 등록</td><td class="unk">미확인</td><td>콘솔에서 직접 확인 필요</td></tr>
+<tr><td>DebugView 실측 검증</td><td class="unk">미확인</td><td>수행 기록 없음</td></tr>
+<tr><td>대행사 회신 발송</td><td class="unk">미확인</td><td>발송 기록 없음</td></tr>
+</table>
+</div>
+
+<div class="stop">
+<strong>기존 문서의 사실 오류 정정 —</strong>
+<code>docs/operations/handoff-20260820-emergency-patch.html</code> 의 "이 대기열에 없는 것" 절은
+<em>"GA4 택소노미 구현(9/10 이벤트)은 아직 커밋조차 안 됐다"</em> 고 적고 있으나 <span class="k">사실이 아니다.</span>
+GA4 는 8/10 에 PR #153 으로 머지됐고(<code>d99118ab3</code>), 태그 조상 검증 결과
+<code>picnic-v1.3.0+130007</code> 에 포함돼 있다.
+<pre>git merge-base --is-ancestor d99118ab3 picnic-v1.3.0+130007   # exit 0 = 포함</pre>
+그 문서는 8/20 작성 시점의 오래된 메모를 근거로 삼은 것으로 보인다.
+<strong>GA4 는 배포 대기열에 없는 것이 맞지만, 이유는 "미커밋"이 아니라 "이미 배포됨"이다.</strong>
+</div>
+
+<p>머지 이후 <a href="https://github.com/charlie0421/picnic-app/pull/157">#157</a>(<code>2048fa016</code>)이
+택소노미 문서 §2를 보강했다 — 자체 숏폼의 <code>ad_unit_name</code> 공란 사유,
+<code>ad_click</code> 이 "종료 후"로 한정되지 않는 실제 동작(잔여 5초부터 CTA 노출),
+재화명/영역명 차이. <strong>코드 변경은 없고 문서만 추가</strong>됐다.</p>
+
+<h2>2. 무엇이 구현돼 있나</h2>
+
+<p>스프레드시트 정의 10개 중 <strong>9개</strong> + 사용자 속성 3종.</p>
+
+<div class="tw">
+<table>
+<tr><th>이벤트</th><th>발송 시점</th></tr>
+<tr><td><code>login</code> / <code>sign_up</code></td><td>auth 리스너 <code>signedIn</code>. sign_up 은 <code>created_at ≈ last_sign_in_at</code> 30초 창</td></tr>
+<tr><td><code>click_mission</code> / <code>ad_request</code></td><td>무료 충전소 미션·광고 버튼</td></tr>
+<tr><td><code>ad_impression</code></td><td>광고 SDK 노출 콜백</td></tr>
+<tr><td><code>earn_virtual_currency</code></td><td><strong>서버 적립 확정 후</strong> (콜백만으로 보내지 않음)</td></tr>
+<tr><td><code>ad_click</code></td><td>자체 숏폼 CTA (잔여 5초부터 활성)</td></tr>
+<tr><td><code>purchase</code></td><td><strong>영수증 서버 검증 성공 후</strong></td></tr>
+<tr><td><code>vote</code></td><td>서버 제출 2xx 직후</td></tr>
+<tr><td><code>click_attendance</code></td><td class="k">미구현 — 출석 보상 폐지로 진입 UI 없음</td></tr>
+</table>
+</div>
+
+<p><strong>durable analytics outbox</strong>가 함께 들어갔다. payload 를 sink 호출 전에 영속 저장하고
+sink 가 성공을 반환한 항목만 제거해, 스토어 거래·위젯·프로세스 수명과 독립적으로 재시도한다.
+설계는 문서 §6.</p>
+
+<h2>3. 남은 작업</h2>
+
+<h3>① GA4 콘솔 맞춤 측정기준 등록 <span class="todo">— 최우선</span></h3>
+<p>목록: <code>docs/analytics/agency-reply.html</code> D절. 요약하면</p>
+<ul>
+<li><strong>사용자 범위(텍스트)</strong> — <code>is_login</code>, <code>language</code>
+    <span class="meta">(<code>user_id</code> 는 GA4 기본 기능이라 등록 불요)</span></li>
+<li><strong>이벤트 범위(텍스트)</strong> — <code>method</code>, <code>selected_language</code>,
+    <code>virtual_currency_name</code>, <code>mission_category</code>, <code>section_name</code>,
+    <code>ad_category</code>, <code>ad_platform</code>, <code>ad_source</code>, <code>ad_format</code>,
+    <code>ad_unit_name</code>, <code>earn_method</code>, <code>destination_type</code>,
+    <code>vote_id</code>, <code>vote_name</code>, <code>vote_reward</code>,
+    <code>vote_start_date</code>, <code>vote_end_date</code>, <code>vote_artist_name</code>,
+    <code>vote_artist_group</code></li>
+<li><strong>이벤트 범위(숫자)</strong> — <code>reward_amount</code>, <code>star_candy_usage</code>,
+    <code>star_candy_bonus_usage</code>, <code>cotton_candy_usage</code></li>
+<li><strong>상품 범위</strong> — <code>virtual_currency_name</code>, <code>base_amount</code>, <code>bonus_amount</code>
+    <span class="meta">(<code>items</code> 배열의 커스텀 파라미터)</span></li>
+</ul>
+<p class="meta"><code>transaction_id</code>·<code>currency</code>·<code>value</code> 는 전자상거래 표준이라 등록 불요.</p>
+
+<h3>② 실측 검증 <span class="todo">— 미수행</span></h3>
+<p>코드는 12,863개 테스트를 통과했지만 <strong>실제 기기에서 GA4로 나가는 값은 아직 아무도 눈으로 보지 않았다.</strong></p>
+<p><strong>DebugView 가 정공법이다</strong> — 맞춤 측정기준 등록 없이도 이벤트 이름·파라미터·값·사용자 속성이 즉시 보인다.</p>
+<pre># Android — 스토어 빌드에서도 재빌드 없이 켜짐
+adb shell setprop debug.firebase.analytics.app &lt;패키지명&gt;
+
+# iOS — 실행 인자 -FIRDebugEnabled 필요 (Xcode 실행 필수, TestFlight 빌드 불가)</pre>
+
+<div class="tw">
+<table>
+<tr><th>확인 항목</th><th>기대값</th><th>틀리면</th></tr>
+<tr><td>재화 이름</td><td><code>스타캔디</code> / <code>보너스 스타캔디</code> / <code>코튼캔디</code></td><td><code>별사탕</code> 이면 <code>Ga4CurrencyNames</code> 우회 경로 존재</td></tr>
+<tr><td>일본어 기기 언어</td><td><code>jp</code></td><td><code>ja</code> 면 <code>Ga4Language</code> 정규화 누락</td></tr>
+<tr><td><span class="k">purchase 중복</span></td><td>결제 1건 → 이벤트 <strong>1건</strong></td><td>2건이면 매출 2배 왜곡 — 최우선 확인</td></tr>
+<tr><td>login 중복</td><td>앱 재시작 시 재발송 없음</td><td>세션 복원 서명 방어 실패</td></tr>
+<tr><td>sign_up</td><td>신규 가입만 1회, 재로그인 0회</td><td>30초 창 판정 오탐</td></tr>
+<tr><td>광고 플랫폼</td><td><code>internal-shortform</code> / <code>Pangle</code></td><td><code>AdMob</code> 이면 잘못된 구좌</td></tr>
+<tr><td>값 없는 숫자 파라미터</td><td>파라미터 자체가 없음</td><td><code>undefined</code> 문자열이면 타입 오염</td></tr>
+</table>
+</div>
+
+<h3>③ 대행사 회신 발송 <span class="todo">— 미발송</span></h3>
+<p>문서 준비 완료: <code>docs/analytics/agency-reply.html</code>
+(웹: <a href="https://claude.ai/code/artifact/d9df282f-9b10-420a-83ab-b104188f92c2">artifact 링크</a>).
+스펙↔제품 불일치 13건이 정리돼 있고, 그중 <strong>회신이 필요한 3건</strong>:</p>
+<ol>
+<li><code>click_attendance</code> 제외 — 기능 폐지로 발생 불가</li>
+<li><strong>재화 명칭</strong> — 대행사가 <code>별사탕</code> 기준으로 리포트를 설계했을 수 있어 협의 필요</li>
+<li><code>vote</code> 가산 파라미터 3종 승인 — 스펙에 없는 항목</li>
+</ol>
+
+<h3>④ 제품 결정 — 복구 구매의 매출 복원 <span class="todo">— 미해결</span></h3>
+<p>정산 시점에 스토어 카탈로그가 메모리에 없으면 <code>currency</code>/<code>value</code> 없이
+purchase 를 확정한다. <strong>건수는 남지만 매출액이 0으로 빠진다.</strong>
+문서 §7 #1.</p>
+
+<div class="warn">
+<strong>로컬 가격 기록 방식은 이미 시도했다가 되돌렸다</strong> (<code>b5b138bd1</code>).
+적대적 리뷰 3회에서 매번 새 blocker 가 나왔다 — 거래 결합 불가, 시각 매칭의 한계,
+소비 시점 딜레마, <code>Future.timeout</code> 이 하위 I/O 를 취소하지 않는 문제.
+<strong>같은 길을 다시 파기 전에 문서 §8 을 먼저 읽어라.</strong>
+권장 방향은 정산 응답에 통화·금액을 포함하는 것이며,
+<code>requireExactContractKeys</code> 때문에 <span class="k">클라이언트 선배포 → 서버 배포</span> 2단계 릴리스가 필요하다.
+</div>
+
+<h2>4. 함정</h2>
+
+<div class="stop">
+<strong>테스트에서 저장소를 쓰는 새 소비자를 추가할 때.</strong>
+<code>globalStorage</code>(<code>NonWebLocalStorage</code>)의 정적 <code>SharedPreferences</code> future 는
+자신이 생성된 <code>testWidgets</code> 존에 묶인다. 그 존이 끝난 뒤 다른 테스트에서 await 하면
+<strong>영원히 완료되지 않고</strong>, <code>ioTimeout</code> 도 pump 없이는 진행되지 않아 소용없다.
+<code>PurchaseService</code> 를 세우는 위젯 테스트는 반드시 메모리 저장소를 주입하라.
+<code>AnalyticsOutbox</code>, <code>PurchaseAnalyticsDedup</code>, <code>AnalyticsSendMarkerStore</code> 모두 해당한다.
+</div>
+
+<div class="warn">
+<strong>Shorebird 릴리스는 버전 번호로만 구분된다.</strong>
+<code>shorebird.yaml</code> 의 <code>app_id</code> 가 단일이라 스테이징/프로덕션이 같은 앱을 공유한다.
+<code>1.3.0+130007</code> 에 패치를 쏘면 곧 <strong>프로덕션 전체 사용자 배포</strong>다.
+</div>
+
+<div class="warn">
+<strong>에셋을 추가한 커밋은 OTA 로 나갈 수 없다 — 단, 지금 130007 에는 해당 없음.</strong>
+에셋은 바이너리에 번들되므로 패치로 전달되지 않는다.
+<code>--allow-asset-diffs</code> 는 <strong>경고를 넘길 뿐 에셋을 전달하지 않는다.</strong>
+<p style="margin:.6em 0 0">8/10 에 #156 의 <code>splash_key.png</code> 때문에 OTA 기준 커밋을 제한한 적이 있으나,
+<span class="k">그 판단은 구 릴리스 <code>130001</code> 기준이었다.</span> 현재 활성 릴리스
+<code>1.3.0+130007</code> 태그에는 해당 에셋이 이미 포함돼 있어(<code>git cat-file -e
+picnic-v1.3.0+130007:picnic_app/assets/splash_key.png</code> 확인) 130007 대상 패치에는 걸리지 않는다.
+<strong>원칙은 유효하니 새 에셋이 추가되면 그때 다시 판단하라.</strong></p>
+</div>
+
+<h2>5. 스펙과 의도적으로 다른 지점</h2>
+
+<p>전부 근거와 함께 문서 §4에 있다. <strong>"스펙대로 안 했다"로 오해하지 말 것.</strong></p>
+
+<div class="tw">
+<table>
+<tr><th>항목</th><th>스펙</th><th>실제</th><th>이유</th></tr>
+<tr><td>재화 이름</td><td><code>별사탕</code></td><td><code>스타캔디</code>/<code>코튼캔디</code></td><td>구매(스타캔디)와 광고(코튼캔디)는 <strong>별개로 공존하는 재화</strong>. 합치면 재화별 집계 불가</td></tr>
+<tr><td><code>ad_platform</code></td><td><code>AdMob</code></td><td><code>internal-shortform</code>/<code>Pangle</code></td><td>AdMob 은 UI 구좌에서 빠졌고 SSV 라 클라이언트가 적립 성공을 관측 불가</td></tr>
+<tr><td><code>currency</code> 결측</td><td><code>undefined</code></td><td>파라미터 생략</td><td>ISO 4217 위반이면 GA4 가 <strong>그 purchase 의 매출을 통째로 무시</strong></td></tr>
+<tr><td>Number 결측</td><td><code>undefined</code></td><td>파라미터 생략</td><td>GA4 가 키를 측정기준/측정항목 중 하나로만 등록 → 타입 섞으면 반대 타입 누락</td></tr>
+<tr><td><code>user_id</code></td><td>해시값</td><td>원본 UUID</td><td>UUID 는 PII 아님. 해시하면 BigQuery↔DB 조인과 기존 히스토리 단절</td></tr>
+<tr><td>언어 코드</td><td><code>jp</code></td><td><code>ja</code> → <code>jp</code> 정규화</td><td>앱 내부는 ISO 639-1 유지, analytics 경계에서만 변환</td></tr>
+</table>
+</div>
+
+<h2>6. 참고 문서</h2>
+
+<div class="tw">
+<table>
+<tr><th>경로</th><th>내용</th></tr>
+<tr><td><code>docs/analytics/ga4-event-taxonomy.md</code></td><td><strong>기준 문서.</strong> 코드보다 먼저 읽을 것. 이벤트 정의(§2), 대행사 확인 항목(§4), outbox 설계(§6), 알려진 한계(§7), 미해결 과제(§8)</td></tr>
+<tr><td><code>docs/analytics/trigger-mapping.md</code></td><td>이벤트별 실측 트리거 지점과 파라미터 데이터 출처</td></tr>
+<tr><td><code>docs/analytics/api-contract.html</code></td><td><code>PicnicAnalytics</code> 공개 API 계약</td></tr>
+<tr><td><code>docs/analytics/agency-reply.html</code></td><td>대행사 회신 — 불일치 13건, 전송값 대조표(C절), <strong>GA4 등록 목록(D절)</strong></td></tr>
+<tr><td><code>docs/analytics/implementation-report.html</code></td><td>구현 경과와 리뷰에서 발견한 결함 기록</td></tr>
+<tr><td><code>docs/operations/attendance-reward-decision.html</code></td><td><code>click_attendance</code> 미구현 근거 (출석 보상 폐지)</td></tr>
+</table>
+</div>
+
+<h2>7. 이 작업에서 리뷰가 잡은 것</h2>
+
+<p class="meta">같은 실수를 반복하지 않기 위한 기록. 상세는 <code>implementation-report.html</code>.</p>
+
+<p>반대 공급자 교차 리뷰 4회 + 되돌린 후속 작업 3회에서
+<strong>배포됐다면 매출 데이터를 왜곡했을 결함</strong>들이 나왔다.</p>
+
+<ul>
+<li><code>replayed</code> 플래그를 발송 증거로 오용 → 매출 <strong>영구 누락</strong></li>
+<li><code>purchaseID</code> 없는 결제가 전부 같은 <code>transaction_id</code> 로 뭉쳐 두 번째 매출부터 소실</li>
+<li>dedup 동시성 경쟁으로 중복 발송</li>
+<li>마커를 전송 <strong>전에</strong> 저장 + Sink 가 실패를 은폐 → 영구 누락 <span class="meta">(1차 수정이 만든 결함)</span></li>
+<li>스토어 거래 finish 후 재시도 경로 소멸 <span class="meta">(2차 수정이 만든 결함)</span></li>
+<li>기존 <code>AnalyticsService</code> 가 이미 <code>purchase</code> 를 직접 <code>logEvent</code> 하고 있어, 통합하지 않았다면 <strong>매출이 2배</strong>로 잡혔을 상황</li>
+</ul>
+
+<p><strong>매 리뷰 라운드가 직전 수정이 새로 만든 결함을 잡았다.</strong>
+결제·매출 경로를 건드릴 때는 한 번의 리뷰로 끝내지 말 것.</p>
+
+</body>
+</html>

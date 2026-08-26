@@ -20,8 +20,11 @@ import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_v2_provider.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign_v2.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
@@ -145,7 +148,19 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
       backgroundColor: Colors.white,
       onRefresh: () async {
         ref.invalidate(asyncBannerListProvider(location: 'vote_home'));
+        // Invalidate both HOME source providers the resolver may read
+        // from, not just the resolver itself — otherwise the resolver
+        // would recompute against stale cached V1/V2 data instead of
+        // triggering a fresh RPC call.
+        ref.invalidate(
+          activePromotionCampaignV2Provider(PromotionSurfaceV2.home),
+        );
         ref.invalidate(activePromotionCampaignProvider(PromotionSurface.home));
+        ref.invalidate(
+          homePromotionCampaignProvider(
+            Localizations.localeOf(context).languageCode,
+          ),
+        );
         ref.invalidate(asyncRewardListProvider);
 
         setState(() {

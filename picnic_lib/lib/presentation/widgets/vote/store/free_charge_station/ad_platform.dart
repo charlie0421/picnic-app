@@ -27,6 +27,11 @@ abstract class AdPlatform {
   final AnimationController? animationController;
   late final CommonUtils _commonUtils;
   bool _isDisposed = false;
+
+  /// 이 플랫폼이 켠 로딩(전역 오버레이 + adLoadingStateProvider)이 아직
+  /// 꺼지지 않았는지. OverlayLoadingProgress 는 전역 싱글턴이라, dispose 가
+  /// 자신이 켠 것만 정리해야 다른 기능의 오버레이를 닫지 않는다.
+  bool _startedLoading = false;
   final Stopwatch _performanceStopwatch = Stopwatch();
 
   /// 이번 시청 건의 GA4 컨텍스트. 구좌(버튼) 클릭 시점에 주입된다.
@@ -84,8 +89,22 @@ abstract class AdPlatform {
   Future<void> handleError(dynamic error, StackTrace? stackTrace);
 
   void dispose() {
+    final ownedLoading = _startedLoading;
+    _startedLoading = false;
     _isDisposed = true;
-    stopAllAnimations();
+    // stopAllAnimations() 는 isDisposed 가드에 막혀 여기서는 전부 no-op 이라
+    // teardown 에 필요한 정리를 직접 한다. 단, 이 플랫폼이 켠 로딩만 끈다.
+    if (animationController != null && animationController!.isAnimating) {
+      animationController!.stop();
+    }
+    if (ownedLoading) {
+      // 오버레이는 전역이라 페이지가 죽어도 남는다 — 먼저 내린다.
+      OverlayLoadingProgress.stop();
+      // 로딩 상태는 전역 provider 라 남으면 다음 방문의 버튼이 잠긴다.
+      // State.dispose 안에서의 ref.read 는 허용되고, 그 밖의 늦은 호출이
+      // 던지면 AdService 가 플랫폼별로 격리한다.
+      ref.read(adLoadingStateProvider.notifier).setLoading(id, false);
+    }
     logger.i('[$id] 플랫폼 종료');
   }
 
@@ -101,6 +120,7 @@ abstract class AdPlatform {
   void startLoading() {
     if (!context.mounted || isDisposed) return;
     setLoading(true);
+    _startedLoading = true;
     OverlayLoadingProgress.start(context);
   }
 
@@ -108,6 +128,7 @@ abstract class AdPlatform {
   void stopLoading() {
     if (!context.mounted || isDisposed) return;
     setLoading(false);
+    _startedLoading = false;
     OverlayLoadingProgress.stop();
   }
 

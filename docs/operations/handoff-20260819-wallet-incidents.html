@@ -1,0 +1,291 @@
+<title>지갑 장애 4건 대응 기록</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#f5f7f9; --card:#ffffff; --fg:#151a21; --muted:#5b6572;
+    --line:#dde3ea; --line-strong:#c3ccd6;
+    --accent:#25567f; --accent-soft:#e8eff6;
+    --crit:#9d3630; --crit-soft:#f8ecea;
+    --warn:#8a6218; --warn-soft:#f9f2e4;
+    --ok:#2c6448; --ok-soft:#e9f2ec;
+    --code:#eef1f5;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#101419; --card:#181d24; --fg:#e6eaef; --muted:#98a2b0;
+      --line:#2a323c; --line-strong:#3b4552;
+      --accent:#7aa9d4; --accent-soft:#1a2732;
+      --crit:#e08981; --crit-soft:#2b1c1a;
+      --warn:#d6ab5f; --warn-soft:#271f11;
+      --ok:#7cc09b; --ok-soft:#15251d;
+      --code:#1f252d;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101419; --card:#181d24; --fg:#e6eaef; --muted:#98a2b0;
+    --line:#2a323c; --line-strong:#3b4552;
+    --accent:#7aa9d4; --accent-soft:#1a2732;
+    --crit:#e08981; --crit-soft:#2b1c1a;
+    --warn:#d6ab5f; --warn-soft:#271f11;
+    --ok:#7cc09b; --ok-soft:#15251d;
+    --code:#1f252d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--fg);
+    font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Pretendard","Segoe UI",sans-serif;
+    font-size:15.5px; line-height:1.62; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px; margin:0 auto; padding:56px 22px 104px}
+  code,.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+  header{border-bottom:2px solid var(--line-strong); padding-bottom:26px; margin-bottom:34px}
+  .kicker{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent); font-weight:600; margin:0 0 14px}
+  h1{font-family:"IBM Plex Serif",Georgia,serif; font-size:35px; line-height:1.16;
+    letter-spacing:-.015em; font-weight:700; margin:0 0 12px; text-wrap:balance}
+  .sub{color:var(--muted); font-size:14.5px; margin:0; max-width:66ch}
+
+  .meta{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:8px;
+    overflow:hidden; margin:26px 0 0}
+  .meta div{background:var(--card); padding:13px 16px}
+  .meta .k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:5px}
+  .meta .v{font-size:14px; font-weight:500}
+  .meta .v.mono{font-family:"IBM Plex Mono",monospace; font-size:13px}
+
+  h2{font-family:"IBM Plex Serif",Georgia,serif; font-size:22px; font-weight:650;
+    margin:52px 0 6px; letter-spacing:-.01em; text-wrap:balance;
+    padding-top:14px; border-top:1px solid var(--line)}
+  h2 .num{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--accent);
+    font-weight:600; margin-right:10px; vertical-align:2px}
+  h2 + .lede{color:var(--muted); font-size:14.5px; margin:0 0 20px; max-width:66ch}
+  h3{font-size:15.5px; font-weight:600; margin:28px 0 8px}
+  p{margin:0 0 14px; max-width:68ch}
+
+  .box{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--line-strong);
+    border-radius:0 8px 8px 0; padding:17px 20px; margin:18px 0}
+  .box.crit{border-left-color:var(--crit)}
+  .box.warn{border-left-color:var(--warn)}
+  .box.ok{border-left-color:var(--ok)}
+  .box.acc{border-left-color:var(--accent); background:var(--accent-soft)}
+  .box > :last-child{margin-bottom:0}
+  .box .t{font-weight:600; margin-bottom:7px; font-size:14.5px}
+
+  .scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:18px 0;
+    border:1px solid var(--line); border-radius:8px; background:var(--card)}
+  table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:480px}
+  th,td{text-align:left; padding:8px 13px; border-bottom:1px solid var(--line); vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  th{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--muted); font-weight:600;
+    background:var(--accent-soft); border-bottom:1px solid var(--line-strong)}
+  td.mono{font-family:"IBM Plex Mono",monospace; font-size:12.5px}
+  td.num,th.num{text-align:right; font-variant-numeric:tabular-nums;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px}
+
+  pre{background:var(--code); border:1px solid var(--line); border-radius:8px;
+    padding:14px 16px; overflow-x:auto; margin:16px 0}
+  pre code{font-size:12.8px; line-height:1.6; background:none; padding:0}
+  p code, li code, td code{background:var(--code); padding:1.5px 5px; border-radius:3px; font-size:13px}
+
+  ol,ul{margin:0 0 16px; padding-left:21px; max-width:68ch}
+  li{margin-bottom:8px}
+  .steps{list-style:none; padding:0}
+  .steps > li{display:flex; gap:14px; padding:13px 0; border-bottom:1px solid var(--line); margin:0}
+  .steps > li:last-child{border-bottom:none}
+  .steps .n{flex:0 0 26px; font-family:"IBM Plex Mono",monospace; font-size:12px;
+    color:var(--accent); font-weight:600; padding-top:3px}
+  .steps .d{flex:1}
+  .steps .d strong{display:block; margin-bottom:3px}
+  .steps .d p{margin:0; font-size:14px; color:var(--muted)}
+
+  footer{margin-top:60px; padding-top:22px; border-top:1px solid var(--line);
+    color:var(--muted); font-size:12.8px}
+  footer p{max-width:none}
+  @media (max-width:600px){
+    h1{font-size:28px} .wrap{padding:38px 17px 76px}
+    .steps > li{flex-direction:column; gap:3px} .steps .n{flex:none}
+  }
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">핸드오프 · 2026-08-18~20 · 지갑·적립</p>
+  <h1>지갑 장애 4건 대응 기록</h1>
+  <p class="sub">무료충전소 적립 중단 제보에서 시작해, 조사 과정에서 드러난 세 건을 더 닫았다. 넷 다 재화 지급이 조용히 멈춘 건이고, 셋은 아무도 모르고 있었다.</p>
+  <div class="meta">
+    <div><div class="k">대상 DB</div><div class="v mono">xtijtefcycoeqludlngc</div></div>
+    <div><div class="k">장애</div><div class="v">4건 · 전부 복구</div></div>
+    <div><div class="k">소급 지급</div><div class="v">4,865건</div></div>
+    <div><div class="k">머지된 PR</div><div class="v">6건 (1건 대기)</div></div>
+  </div>
+</header>
+
+<h2><span class="num">01</span>무엇이 있었나</h2>
+<p class="lede">제보로 안 것은 두 건, 조사하다 나온 것이 두 건이다.</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>장애</th><th>기간</th><th>발견 경로</th><th>미지급</th></tr></thead>
+  <tbody>
+    <tr><td><strong>코튼 게이트</strong><br><span style="color:var(--muted)">광고 적립 전면 중단</span></td><td>8/18 17:08~20:32<br>3시간 24분</td><td>CS 제보</td><td class="num">648</td></tr>
+    <tr><td><strong>같은 결함 선행 발화</strong><br><span style="color:var(--muted)">동일 원인, 미인지</span></td><td>8/15 00:21~03:59<br>3시간 39분</td><td>알람 백테스트 중</td><td class="num">1,823</td></tr>
+    <tr><td><strong>Tapjoy 지급 중단</strong><br><span style="color:var(--muted)">오퍼월 보상</span></td><td>8/12~8/19<br><strong>7일</strong></td><td>로그 오진 정정 중</td><td class="num">272</td></tr>
+    <tr><td><strong>투표 보너스 중단</strong><br><span style="color:var(--muted)">100표당 1개</span></td><td>8/1~8/19<br><strong>18일</strong></td><td>CS 제보</td><td class="num">2,122</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box crit">
+  <div class="t">공통점 — 넷 다 조용히 실패했다</div>
+  <p>검증까지 통과한 정상 보상이 <strong>지급 단계에서만</strong> 죽었다. 앱 화면에도 DB에도 흔적이 남지 않아 사용자는 "안 들어왔다"만 알 수 있었고, 서버는 CS가 들어올 때까지 아무 말도 하지 않았다. 셋은 코드 변경이 원인이었고 하나는 데이터 상태였다.</p>
+</div>
+
+<h2><span class="num">02</span>각각의 원인</h2>
+
+<h3>① 코튼 게이트 (8/18, 8/15)</h3>
+<p><code>wallet-reconciliation</code> 워커가 <code>user_profiles</code> 107,287행을 분당 1,000행씩 훑는다. 스윕 중 다른 트랜잭션이 점유한 행은 건너뛰는데(<code>skipped_locked</code>), 그런 "오염된" 스윕이 끝나면 <code>run_wallet_reconciliation_checkpoint</code> 가 연속 클린 카운터만 리셋하면 될 것을 <strong>과거에 증명된 성공 시각까지 NULL 로 지웠다.</strong></p>
+<p><code>assert_cotton_runtime_ready()</code> 는 그 NULL 을 즉시 실패로 보고, 이 게이트는 <code>grant_ad_cotton()</code> 안에 있다 — 글로벌픽(자체 숏폼)과 아시아픽(Pangle)의 정산이 만나는 지점이다. <strong>락 스킵 한 번이 두 채널을 함께 내렸다.</strong></p>
+<p>자력 회복도 불가능했다. 재획득에 연속 클린 2회 ≈214분이 필요한데 유예는 120분이었다.</p>
+
+<h3>② Tapjoy (8/12)</h3>
+<p>1b 컷오버가 <code>upsert_ad_bonus</code> 를 신형 브리지로 교체하며 <code>service_role</code> EXECUTE 를 회수했다(manifest 상 <code>DISABLED</code> 분류에 따른 의도된 조치). 그런데 <strong>2026-03-01 배포본 그대로 돌던 <code>callback-tapjoy</code> 가 이 RPC 의 활성 호출자</strong>였다. 같은 날 깨진 Pangle 은 8/13에 수리(#85)됐는데 Tapjoy 는 누락됐다.</p>
+<p>12시간당 32,000건이 500 응답이었고, 그 로그를 처음엔 만성 노이즈로 분류했다 — <strong>오진이었다.</strong></p>
+
+<h3>③ 투표 보너스 (8/1)</h3>
+<p>커밋 <code>1008ac2 feat(voting): spend cotton before bonus and star</code>(7/22)가 차감 로직을 <code>perform_vote_transaction_v3</code> 로 옮기면서, 엣지 함수에 있던 <code>Math.floor(totalVoteAmount / 100)</code> 지급 블록을 함께 삭제했다. 옮겨간 쪽에는 지급이 없었다.</p>
+<p>경계가 정확히 맞는다 — 마지막 지급 <strong>8/1 13:29:43</strong>, <code>voting-v2</code> v144 배포 <strong>13:53:16</strong>.</p>
+
+<h2><span class="num">03</span>지급한 재화</h2>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>재화</th><th>사유</th><th class="num">건수</th><th class="num">유저</th></tr></thead>
+  <tbody>
+    <tr><td rowspan="2">코튼캔디</td><td>8/18 소급</td><td class="num">648</td><td class="num">74</td></tr>
+    <tr><td>8/15 소급</td><td class="num">1,823</td><td class="num">238</td></tr>
+    <tr><td>보너스 별사탕</td><td>투표 100표당 소급</td><td class="num">2,122</td><td class="num">1,116</td></tr>
+    <tr><td>스타캔디 보너스</td><td>Tapjoy 재시도 자동 소급</td><td class="num">272</td><td class="num">30</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>Tapjoy 는 수동 백필이 필요 없었다. 7일간 500 응답에 재시도를 걸어둔 덕에 재배포 즉시 멱등 키로 자동 소급됐다.</p>
+
+<h2><span class="num">04</span>구조적으로 바뀐 것</h2>
+<p class="lede">복구만 한 게 아니라 같은 유형이 재발하지 않게 고쳤다.</p>
+
+<ul>
+  <li><strong>게이트에서 신선도 검사를 제거했다.</strong> 임계값을 늘리는 대신 검사 자체를 뺐다 — CRITICAL 조건 4개 중 <code>NEGATIVE_COTTON</code>·<code>NEGATIVE_STAR</code> 는 CHECK 제약으로 <strong>발생 자체가 불가능</strong>하다. 3주간 CRITICAL 0건은 우연이 아니라 구조였고, 신선도 검사는 탐지 능력을 추가하지 않으면서 장애만 유발했다.</li>
+  <li><strong>하드코딩된 버전 핀을 제거했다.</strong> <code>deployed_version &lt;&gt; '20260721095500'</code> 이 두 곳에 있었다. 지금 DB 전체에 이 문자열을 가진 함수는 0개다.</li>
+  <li><strong>감지 알람 3종을 붙였다.</strong> <code>cron 76</code>, 매분. 게이트 프로브가 <code>assert_cotton_runtime_ready()</code> 를 직접 호출해 실패 사유 문자열까지 잡는다. 8/18 장애에 소급 적용하면 <strong>T+2분</strong>에 울린다. 7일 백테스트 오탐 0건.</li>
+  <li><strong>하트비트 알람이 스스로 닫히게 했다.</strong> resolve 분기가 없어 <code>wallet:heartbeat:wallet-reconciliation</code> 이 7/29부터 942회를 삼키며 사실상 꺼져 있었다.</li>
+  <li><strong>점등 블로커를 해소했다.</strong> <code>assert_cotton_issuance_ready</code> 가 타임아웃으로 실패해 코튼·프로모션 플래그를 켤 수 없었다. 원인은 <code>active_bonus_amount</code> 의 <code>SET search_path</code> 가 인라인을 막아 행마다 함수를 호출한 것. 셋 기반 재작성 + 부분 인덱스로 <strong>1.32초</strong>가 됐다.</li>
+</ul>
+
+<h2><span class="num">05</span>반드시 알아야 할 함정</h2>
+<p class="lede">이번에 실제로 밟은 것들. 다음 사람이 같은 데 빠지지 않도록.</p>
+
+<div class="box crit">
+  <div class="t">① supabase-js 는 권한 오류를 예외로 던지지 않는다</div>
+  <p><code>{ error }</code> 로 반환한다. <code>error</code> 를 확인하지 않는 호출부는 <strong>실패해도 성공처럼 로그를 남기며 지나간다.</strong> <code>track-country</code> 는 콘솔에 <code>country updated KR</code> 을 찍으면서 행은 안 바뀐 채 6일을 보냈고, 신규 가입자 797명의 국가정보가 그렇게 사라졌다.</p>
+</div>
+
+<div class="box crit">
+  <div class="t">② service key 로 만든 클라이언트가 service_role 이 아닐 수 있다</div>
+  <pre><code>createClient(URL, SERVICE_ROLE_KEY, {
+  global: { headers: { Authorization: req.headers.get('Authorization') } }
+});   // ← 롤은 JWT 가 정한다. 즉 authenticated</code></pre>
+  <p>service key 는 apikey 일 뿐이다. 이 패턴을 쓰는 엣지 함수가 7개 있다 — <code>ad-reward-claim</code> · <code>ad-reward-status</code> · <code>artist-request-add</code> · <code>callback-ad-shortform-more</code> · <code>exchange-star-candy-to-jma</code> · <code>expiring-bonus</code> · <code>track-country</code>.</p>
+</div>
+
+<div class="box crit">
+  <div class="t">③ deferred constraint 는 rollback 리허설로 잡히지 않는다</div>
+  <p>백필 첫 시도가 커밋 시점에 <code>WALLET_BONUS_PROJECTION_MISMATCH</code> 로 거부됐다. <code>begin ... rollback</code> 리허설은 통과했는데도 그랬다 — 투영 검사가 DEFERRED constraint 트리거라 <strong>커밋할 때만 실행</strong>되기 때문이다. 리허설에 <code>set constraints all immediate</code> 를 넣어야 실제 커밋과 같은 검증이 된다.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">④ skip_sync_bonus 는 계약이다</div>
+  <p><code>app.skip_sync_bonus='1'</code> 을 켜면 <code>sync_or_enqueue_bonus</code> 가 유저별 <code>app.bonus_skip_dirty_*</code> 를 세우고 프로필 갱신을 건너뛴다. <strong>호출자가 프로필을 직접 맞추고 dirty 플래그를 리셋해야</strong> 한다. 끄면 트리거가 프로필을 옮기므로 수동 갱신은 이중 반영이다. skip 은 한 유저에 수천 행 쓰는 대량 경로용이다(12,800버킷 92초→0.4초).</p>
+</div>
+
+<div class="box warn">
+  <div class="t">⑤ 소급 지급 시 <code>ad_reward_events.created_at</code> 을 <code>now()</code> 로 넣지 말 것</div>
+  <p><code>check_ad_view_fraud</code> 의 burst 판정이 <code>MAX(created_at)</code> 기준 10초다. 실행 직후 10초 내에 실제 광고를 정산하는 대상 유저가 그 광고를 <strong>영구 DENIED</strong> 로 잃는다. 원본 <code>issued_at</code> 으로 백데이트해야 한다.</p>
+  <p>또 <code>ad_campaigns</code> 는 RLS 로 <code>wallet_command_owner</code> 에게 <strong>0행</strong>으로 보인다. 금액 검증은 <code>SET ROLE</code> 이전에 <code>postgres</code> 로 해야 한다.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">⑥ 지급 기록의 <code>type</code> 이름을 믿지 말 것</div>
+  <p>투표 100표당 보너스는 <code>type='GIFT'</code> 로 기록된다. 이름만 보면 선물/증정이라 투표 보상과 연결되지 않는다. 실제 식별자는 <strong><code>vote_pick_id</code> 가 채워진 <code>GIFT</code> 원본 행</strong>(<code>parent_id is null</code>)이다. <code>type='VOTE_SHARE_BONUS'</code> 만 보고 "1년 8개월 중단"으로 오판했는데, 그건 2024년 45건이 전부인 별개의 미연결 기능이다.</p>
+</div>
+
+<h2><span class="num">06</span>현재 상태</h2>
+<p class="lede">2026-08-20 13:55 KST 실측.</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>지표</th><th>값</th><th>판정</th></tr></thead>
+  <tbody>
+    <tr><td>코튼 적립</td><td class="num">388건/시간</td><td>정상</td></tr>
+    <tr><td>투표 보너스</td><td>복구 후 실지급 40건</td><td>정상</td></tr>
+    <tr><td>Tapjoy</td><td>8/19 259건 · 8/20 13건</td><td>정상 (신규 유입 확인)</td></tr>
+    <tr><td>CRITICAL 위반</td><td class="num">0</td><td>정상</td></tr>
+    <tr><td>OPEN 알람</td><td class="num">0</td><td>정상</td></tr>
+    <tr><td>evaluator cron</td><td>가동 중</td><td>정상</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box ok">
+  <div class="t">Tapjoy 는 해소됐다</div>
+  <p>복구 직후 3시간 신규 콜백이 0건이라 미해결로 남겼었는데, 8/20 에 13건/4명이 들어왔다. 평시가 일 46~112건인 채널이라 정상 범위다. 백로그 소진 후 자연스러운 유입이다.</p>
+</div>
+
+<h2><span class="num">07</span>PR</h2>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>PR</th><th>내용</th><th>상태</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">supabase #94</td><td>장애 대응 기록 14파일 (prod-cutover)</td><td>머지</td></tr>
+    <tr><td class="mono">supabase #95</td><td>죽은 <code>transaction_internal</code> 감사 insert 제거</td><td>머지</td></tr>
+    <tr><td class="mono">supabase #96</td><td><code>track-country</code> service_role 쓰기 수정</td><td>머지</td></tr>
+    <tr><td class="mono">supabase #97</td><td>투표 100표당 보너스 복원 + 소급</td><td>머지</td></tr>
+    <tr><td class="mono">app #161</td><td>RLS 도입 핸드오프</td><td>머지</td></tr>
+    <tr><td class="mono">app #162</td><td>없는 공유 보상 문구 제거 (13개 로케일)</td><td>머지</td></tr>
+    <tr><td class="mono">app #163</td><td>anon 쓰기 회수를 RLS 0단계로 편입</td><td>머지</td></tr>
+    <tr><td class="mono">app #164</td><td>이 문서 + 긴급패치 배포 대기열 핸드오프</td><td>머지</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>프로덕션 적용 SQL 은 전부 <code>picnic-supabase/supabase/prod-cutover/</code> 아래에 기록했다 — <code>20260818-cotton-gate-incident/</code>(13파일)와 <code>20260819-vote-gift-bonus/</code>(3파일). 이 프로젝트는 <code>supabase db push</code> 를 쓸 수 없어 Management API 로 직접 적용하므로, 기록하지 않으면 마이그레이션 이력에 아무것도 남지 않는다.</p>
+
+<h2><span class="num">08</span>남은 것</h2>
+
+<ol class="steps">
+  <li><span class="n">1</span><span class="d"><strong>0단계 기록의 PR — <span style="color:var(--ok)">회수는 완료, 기록만 미제출</span></strong><p><code>anon</code> 쓰기 32개는 <strong>2026-08-21 에 전부 회수됐다</strong>(이력 <code>20260821990001</code>). 적용 후 그 32개에서 permission denied 0건, <code>authenticated</code>·<code>service_role</code> INSERT 32/32 유지. 다만 적용 SQL 이 <code>picnic-supabase</code> 브랜치 <code>charlie0421/rls-prep</code> 에만 있고 <strong>PR 이 없다</strong> — 프로덕션에 적용된 변경이 <code>main</code> 에 없는 상태다.</p></span></li>
+  <li><span class="n">2</span><span class="d"><strong>구버전 앱 관찰 — 24~48시간 중 절반</strong><p>정적 감사는 현재 코드만 덮으므로, 구버전 앱의 미인증 쓰기는 회수 후 로그로만 드러난다. 8/21 13:19 KST 기준 <strong>회수 대상 32개에서 거부 0건</strong>. 같은 기간 잡힌 <code>user_profiles</code> 거부(8/20 84건 → 8/21 18건)와 <code>get_active_promotion_campaigns</code> 함수 거부는 <strong>둘 다 회수 이전부터 있던 선재 건</strong>이라 무관하다. 남은 창을 마저 볼 것.</p></span></li>
+  <li><span class="n">3</span><span class="d"><strong>RLS 도입</strong><p>별도 과제. <code>handoff-rls-rollout.html</code> 참조. 지금은 <code>authenticated</code> 가 RLS 없이 전 행을 읽으므로, 계정 하나만 만들면 타인의 광고 이력·이메일·생년월일을 조회할 수 있다.</p></span></li>
+  <li><span class="n">4</span><span class="d"><strong>Slack 전용 채널 확인</strong><p><code>WALLET_ALERT_WEBHOOK_URL</code> 을 등록해 영수증 채널에서 분리했고 자가진단으로 실도달을 확인했다. 실제 장애 알람이 그 채널에 잘 뜨는지는 첫 발화 때 확인이 필요하다.</p></span></li>
+  <li><span class="n">5</span><span class="d"><strong>경미 — 정리 대상</strong><p>비로그인 앱의 <code>get_active_promotion_campaigns</code>·<code>get_wallet_summary</code> 401 — <code>anon</code> 에 EXECUTE 가 없어서다. 만성이고 양이 적지 않다(8/18 12시간당 676건, 8/21 시간당 약 10건). 앱에서 스킵 처리를 권장한다. <code>idx_bonus_history_balance</code>(30MB)가 신설 인덱스에 포섭돼 드롭 후보. <code>credit_vote_share_bonus</code> 등 미연결 래퍼 4종 — <strong>삭제하지 않기로 결정</strong>했다(manifest 양방향 assert + 동결 스키마 수정이 필요해 이득 대비 비용이 크다).</p></span></li>
+</ol>
+
+<h2><span class="num">09</span>내가 틀렸던 것</h2>
+<p class="lede">기록에 남겨야 다음 사람이 같은 길로 안 간다.</p>
+
+<ul>
+  <li><strong><code>upsert_ad_bonus</code> permission denied 를 만성 노이즈로 분류했다.</strong> 실제로는 Tapjoy 7일 지급 중단이었다. 가짜 에러가 시간당 수천 건 쌓여 있으면 진짜를 못 본다 — 그래서 #95 로 노이즈 하나를 정리했다.</li>
+  <li><strong>투표 보너스를 "1년 8개월 중단"으로 판단했다.</strong> <code>type='VOTE_SHARE_BONUS'</code> 만 봤기 때문이고, 실제 기록은 <code>type='GIFT'</code> + <code>vote_pick_id</code> 였다. 사용자 지적으로 바로잡았다.</li>
+  <li><strong><code>track-country</code> 를 고쳤다고 잘못 보고했다.</strong> 검증 쿼리가 <code>updated_at</code> 갱신 + <code>country_code is not null</code> 이라 <strong>원래 값이 있던 기존 유저</strong>를 셌다. 신규 가입자 기준으로 보면 4명 전원 NULL 이었다. 검증은 "쓰기가 성공한 행"을 세야 한다.</li>
+  <li><strong>버전 핀 위험을 과장했다.</strong> "다음 워커 재배포 때 터진다"고 썼는데, <code>deployed_version</code> 을 쓰는 함수가 없어 재배포로는 안 바뀐다. 위험은 미래 마이그레이션이 재시드할 때다.</li>
+</ul>
+
+<p>앞의 셋은 독립 리뷰어(Fable 5) 2인의 적대적 리뷰와 사용자 지적으로 잡혔다. 재화를 다루는 변경에는 <strong>구현자의 자기검증만으로 부족하다</strong>는 근거다.</p>
+
+<footer>
+  <p>관련 문서 · <code>handoff-rls-rollout.html</code>(RLS 도입) · <code>picnic-supabase/supabase/prod-cutover/20260818-cotton-gate-incident/README.md</code>(코튼 게이트 상세) · <code>.../20260819-vote-gift-bonus/README.md</code>(투표 보너스 상세)</p>
+  <p>조사 방식 · Supabase Management API 로 <code>function_edge_logs</code>·<code>postgres_logs</code>·프로덕션 DB 를 조회하고, 병렬 에이전트로 코드 경로·가설·적대적 검증을 나눠 수행했다. 모든 수치는 프로덕션 실측이다.</p>
+</footer>
+</div>

@@ -1333,7 +1333,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "Get 1 bonus star candy for every 100 votes and share!",
+  "voting_share_benefit_text": "Get 1 bonus star candy for every 100 votes!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -2402,6 +2402,14 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "Base reward + 100% extra bonus",
   "candy_boost_extra_bonus": "Base reward + extra bonus",
+  "candy_boost_multiplier": "{multiplier}× bonus",
+  "@candy_boost_multiplier": {
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "Promotion review in progress",
   "candy_boost_purchase_pending": "A purchase for this product is already being processed.",
   "candy_boost_late_purchase_explanation": "Authentication took longer than expected, but the purchase completed successfully.",

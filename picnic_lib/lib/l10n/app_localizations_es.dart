@@ -1055,7 +1055,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      '¡Obtenga 1 caramelo estrella de bonificación por cada 100 votos y comparta!';
+      '¡Obtenga 1 caramelo estrella de bonificación por cada 100 votos!';
 
   @override
   String get cancel => 'Cancelar';
@@ -1934,6 +1934,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get candy_boost_extra_bonus => 'Recompensa base + bono extra';
+
+  @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'Bono de $multiplier×';
+  }
 
   @override
   String get candy_boost_promotion_checking => 'Verificando la promoción';

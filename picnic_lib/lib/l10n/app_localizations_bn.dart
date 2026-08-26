@@ -1041,7 +1041,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'প্রতি 100 ভোটের জন্য 1 বোনাস স্টার ক্যান্ডি পান এবং ভাগ করুন!';
+      'প্রতি 100 ভোটের জন্য 1 বোনাস স্টার ক্যান্ডি পান!';
 
   @override
   String get cancel => 'Cancel';
@@ -1910,6 +1910,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get candy_boost_extra_bonus => 'মূল পুরস্কার + অতিরিক্ত বোনাস';
+
+  @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier× বোনাস';
+  }
 
   @override
   String get candy_boost_promotion_checking => 'প্রোমোশন যাচাই চলছে';
@@ -3062,7 +3067,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get voting_share_benefit_text =>
-      'প্রতি 100 ভোটের জন্য 1 বোনাস স্টার ক্যান্ডি পান এবং ভাগ করুন!';
+      'প্রতি 100 ভোটের জন্য 1 বোনাস স্টার ক্যান্ডি পান!';
 
   @override
   String get cancel => 'বাতিল';
@@ -3932,6 +3937,11 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get candy_boost_extra_bonus => 'মূল পুরস্কার + অতিরিক্ত বোনাস';
+
+  @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier× বোনাস';
+  }
 
   @override
   String get candy_boost_promotion_checking => 'প্রোমোশন যাচাই চলছে';
