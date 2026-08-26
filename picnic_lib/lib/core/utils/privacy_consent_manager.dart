@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:picnic_lib/core/utils/admob_test_device_policy.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 
@@ -138,6 +139,9 @@ class PrivacyConsentManager {
       return;
     }
 
+    // 디버그 빌드 전용 테스트 디바이스 등록 (릴리스/미설정 시 no-op)
+    await AdMobTestDevicePolicy.apply();
+
     // 모든 권한이 허용된 경우에만 개인화 광고 초기화
     await MobileAds.instance.initialize();
   }
@@ -147,8 +151,9 @@ class PrivacyConsentManager {
       tagForChildDirectedTreatment: TagForUnderAgeOfConsent.unspecified,
       tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
       maxAdContentRating: MaxAdContentRating.g,
-      // 추적 거부 시 테스트 디바이스 ID도 제거
-      testDeviceIds: [],
+      // 추적 거부 시 테스트 디바이스 ID도 제거 (릴리스/미설정 시 기존대로 []).
+      // 디버그 빌드에서 ADMOB_TEST_DEVICE_IDS 가 설정된 경우에만 해당 ID 등록.
+      testDeviceIds: AdMobTestDevicePolicy.testDeviceIds ?? [],
     );
 
     await MobileAds.instance.updateRequestConfiguration(config);

@@ -21,6 +21,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/services/consent_service.dart';
+import 'package:picnic_lib/core/utils/admob_test_device_policy.dart';
 
 /// main.dart 파일에서 공통으로 사용되는 초기화 로직을 담은 유틸리티 클래스
 ///
@@ -231,6 +232,10 @@ class MainInitializer {
       // UMP 동의 확인 (MobileAds 초기화 전에)
       await ConsentService().initialize();
       logger.i('UMP 동의 확인 완료');
+
+      // 디버그 빌드 전용: --dart-define=ADMOB_TEST_DEVICE_IDS 테스트 디바이스 등록.
+      // 릴리스 빌드 또는 미설정 시 no-op (기존 동작 유지).
+      await AdMobTestDevicePolicy.apply();
 
       // AdMob SDK 초기화
       final initStatus = await MobileAds.instance.initialize();

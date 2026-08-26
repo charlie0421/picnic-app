@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/foundation.dart' show kDebugMode, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -164,40 +164,102 @@ abstract class AdPlatform {
     return true;
   }
 
+  /// G3: kDebugMode + admob 한정으로 서버 `disabled` 게이트를 우회할지 여부.
+  ///
+  /// AdMob 은 운영 롤아웃 전이라 서버가 `disabled: true` 를 내려줄 수 있다.
+  /// QA 가 로컬 디버그 빌드에서 실제 시청 플로우(요청→응답→rate limit)를
+  /// 끝까지 확인할 수 있도록 이 게이트만 우회한다 — `allowed`/rate limit/에러
+  /// 경로는 그대로 둔다. 순수 함수라 kDebugMode 를 직접 읽지 않고 인자로
+  /// 받는다: 이래야 release 분기(`isDebugMode: false`)도 테스트로 고정할 수 있다.
+  @visibleForTesting
+  static bool shouldBypassDisabledForDebugAdmob({
+    required bool isDebugMode,
+    required String platform,
+  }) {
+    return isDebugMode && platform == 'admob';
+  }
+
+  /// G3: `check-ads-count` 요청/응답 판정 seam — BuildContext 에 의존하지 않는다.
+  ///
+  /// os 스코프 1차 응답이 `disabled: true` 이고 [shouldBypassDisabledForDebugAdmob]
+  /// 조건(kDebugMode+admob)을 만족할 때만 os 파라미터 없이 정확히 한 번
+  /// 재요청하고, 그 2차 응답을 최종 데이터로 그대로 반환한다. 2차 응답이 다시
+  /// disabled 여도 재귀 재시도는 하지 않는다 — "정확히 한 번"이 요구사항이고,
+  /// 무한 루프를 방지한다. [checkAdsLimit] 은 이 결과를 기존 disabled/allowed
+  /// 판정 로직에 그대로 흘려보낸다: 단순히 disabled 게이트만 건너뛰면 1차
+  /// 응답의 allowed:false 가 그대로 남아 여전히 막히므로(PICNIC-2377 리뷰
+  /// 지적), 판정 대상 데이터 자체를 2차 응답으로 교체해야 한다.
+  @visibleForTesting
+  static Future<Map> resolveAdsCountData({
+    required String platform,
+    required String os,
+    required bool isDebugMode,
+  }) async {
+    final data = await _requestAdsCount(platform: platform, os: os);
+
+    if (data['disabled'] == true &&
+        shouldBypassDisabledForDebugAdmob(
+          isDebugMode: isDebugMode,
+          platform: platform,
+        )) {
+      logger.w(
+        '⚠️ [DEBUG ONLY] [$platform] disabled=true 이지만 kDebugMode+admob 이라 '
+        'os 파라미터 없이 재요청합니다. release 빌드에서는 절대 발생하면 안 됩니다.',
+      );
+      return _requestAdsCount(platform: platform, os: null);
+    }
+
+    return data;
+  }
+
+  static Future<Map> _requestAdsCount({
+    required String platform,
+    required String? os,
+  }) async {
+    final query = os == null
+        ? 'check-ads-count?platform=$platform'
+        : 'check-ads-count?platform=$platform&os=$os';
+    logger.i('[checkAdsLimit] request start: $query');
+    final resp = await supabase.functions.invoke(query);
+
+    final status = (resp as dynamic).status;
+    logger.i('[checkAdsLimit] response status: $status, raw: ${resp.data}');
+
+    // 상태코드 4xx/5xx 로깅. invoke() 는 실제로는 2xx 외 응답에 대해
+    // FunctionException 을 던지므로(catch 로 전파) 이 분기는 방어적 로깅이다.
+    if (status is int && status >= 400) {
+      logger.w('[checkAdsLimit] http error status: $status');
+    }
+
+    return (resp.data as Map?) ?? const {};
+  }
+
   // 공통 로직: 광고 시청 제한 확인
   Future<bool> checkAdsLimit(String platform) async {
     if (!context.mounted || isDisposed) return false;
 
     try {
       final os = Platform.isIOS ? 'ios' : 'android';
-      logInfo('checkAdsLimit request start: platform=$platform, os=$os');
-      final resp = await supabase.functions.invoke(
-        'check-ads-count?platform=$platform&os=$os',
+      final data = await resolveAdsCountData(
+        platform: platform,
+        os: os,
+        isDebugMode: kDebugMode,
       );
       if (!context.mounted || isDisposed) return false;
-
-      final status = (resp as dynamic).status;
-      logInfo('checkAdsLimit response status: $status');
-      logInfo('checkAdsLimit raw: ${resp.data}');
-
-      // 상태코드 4xx/5xx 로깅
-      if (status is int && status >= 400) {
-        logWarning('checkAdsLimit http error status: $status');
-      }
-
-      final data = (resp.data as Map?) ?? const {};
-      final allowed = data['allowed'] == true;
 
       // 서버 설정에 의해 비활성화된 경우
       if (data['disabled'] == true) {
         if (context.mounted && !isDisposed) {
           showSimpleDialog(
-            content: AppLocalizations.of(context).label_ads_temporarily_unavailable,
+            content: AppLocalizations.of(
+              context,
+            ).label_ads_temporarily_unavailable,
           );
         }
         return false;
       }
 
+      final allowed = data['allowed'] == true;
       if (allowed != true) {
         // limits 안전 파싱
         final limitsMap = (data['limits'] as Map?) ?? const {};
@@ -413,8 +475,9 @@ abstract class AdPlatform {
       '작업을 완료할 수 없습니다',
     ];
 
-    return nonReportableKeywords
-        .any((keyword) => lowercaseMessage.contains(keyword));
+    return nonReportableKeywords.any(
+      (keyword) => lowercaseMessage.contains(keyword),
+    );
   }
 
   // No Fill 에러 시 표시할 간단한 다이얼로그

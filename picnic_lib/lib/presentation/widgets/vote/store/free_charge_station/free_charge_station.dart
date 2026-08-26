@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -37,6 +38,17 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/a
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/charge_station_item.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_content.dart';
+
+/// G3: AdMob 구좌를 노출할지 여부.
+///
+/// AdMob 플랫폼 설정이 실제로 갖춰졌을 때 노출한다.
+@visibleForTesting
+bool shouldShowDebugAdmobItem({
+  required bool isDebugMode,
+  required bool isAdmobAvailable,
+}) {
+  return isAdmobAvailable;
+}
 
 // 광고 플랫폼 추상 클래스
 class FreeChargeStation extends ConsumerStatefulWidget {
@@ -263,7 +275,39 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       globalIndex++;
     }
 
-    // AdMob 글로벌 구좌 제거됨
+    // [G3] AdMob 글로벌 구좌 — 프로덕션 노출.
+    // 광고 ID/설정은 기존 Environment.admob* 값을 그대로 쓰고, 시청은 기존
+    // AdmobPlatform.showAd()(SSV 포함) 경로를 그대로 탄다.
+    if (shouldShowDebugAdmobItem(
+      isDebugMode: kDebugMode,
+      isAdmobAvailable: _adService.isPlatformAvailable('admob'),
+    )) {
+      final ga4 = FreeChargeAdGa4Context(
+        adPlatform: 'AdMob',
+        adSource: 'AdMob',
+        adUnitName: Platform.isIOS
+            ? Environment.admobIosRewardedVideoId
+            : Environment.admobAndroidRewardedVideoId,
+        adCategory: FreeChargeGa4.pick(
+          FreeChargeGa4.categoryGlobalPick,
+          globalIndex + 1,
+        ),
+        virtualCurrencyName: FreeChargeGa4.adRewardCurrencyName,
+        rewardAmount: adRewardAmount,
+      );
+      items.add(
+        ChargeStationItem(
+          id: 'admob',
+          title:
+              '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
+          isMission: false,
+          platformType: AdPlatformType.admob,
+          onPressed: () => _onAdPressed('admob', ga4),
+          bonusText: adBonusText,
+        ),
+      );
+      globalIndex++;
+    }
 
     if (_adService.isPlatformAvailable('pangle')) {
       final ga4 = FreeChargeAdGa4Context(
