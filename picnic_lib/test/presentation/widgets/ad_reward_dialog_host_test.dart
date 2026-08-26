@@ -480,7 +480,7 @@ void main() {
             'reward_added': 0,
             'impression_id': impressionId,
             'new_bonus': null,
-            'reward': repository.statuses[issuedReference]!.toJson(),
+            'reward': pending().copyWith(reference: issuedReference).toJson(),
           },
           parse: InternalShortformViewResponse.fromJson,
         ),
