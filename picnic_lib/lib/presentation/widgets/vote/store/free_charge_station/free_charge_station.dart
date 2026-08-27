@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -33,6 +32,8 @@ import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:universal_io/io.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_overlay.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_order.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_types.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/charge_station_item.dart';
@@ -101,14 +102,14 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   // 광고 플랫폼 초기화 메서드
   Future<void> _initializeAdPlatforms() async {
     try {
-      OverlayLoadingProgress.start(context);
+      await AdLoadingOverlay.start(context);
       // 모든 광고 플랫폼 초기화
       await _adService.initializeAllPlatforms();
     } catch (e, s) {
       logger.e('Error initializing ad platforms', error: e, stackTrace: s);
     } finally {
       if (mounted) {
-        OverlayLoadingProgress.stop();
+        AdLoadingOverlay.stop();
       }
     }
   }
@@ -246,95 +247,98 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     const adBonusText = '1';
     final adRewardAmount = int.tryParse(adBonusText) ?? 1;
 
-    // 글로벌 픽 #1: 내부 숏폼 광고
-    if (_adService.isPlatformAvailable('internal-shortform')) {
-      final ga4 = FreeChargeAdGa4Context(
-        adPlatform: FreeChargeGa4.platformInternalShortform,
-        adSource: FreeChargeGa4.sourceInternalShortform,
-        // 자체 숏폼에는 광고 SDK 의 ad unit 개념이 없다. 추정값을 만들지 않고
-        // 비워 두면 T2 레이어가 'undefined' 로 대체한다.
-        adUnitName: null,
-        adCategory: FreeChargeGa4.pick(
-          FreeChargeGa4.categoryGlobalPick,
-          globalIndex + 1,
-        ),
-        virtualCurrencyName: FreeChargeGa4.adRewardCurrencyName,
-        rewardAmount: adRewardAmount,
-      );
-      items.add(
-        ChargeStationItem(
-          id: 'internal-shortform',
-          title:
-              '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
-          isMission: false,
-          platformType: AdPlatformType.custom,
-          onPressed: () => _onAdPressed('internal-shortform', ga4),
-          bonusText: adBonusText,
-        ),
-      );
-      globalIndex++;
-    }
+    final available = <String, bool>{
+      'admob': shouldShowDebugAdmobItem(
+        isDebugMode: kDebugMode,
+        isAdmobAvailable: _adService.isPlatformAvailable('admob'),
+      ),
+      'internal-shortform': _adService.isPlatformAvailable(
+        'internal-shortform',
+      ),
+      'pangle': _adService.isPlatformAvailable('pangle'),
+    };
 
-    // [G3] AdMob 글로벌 구좌 — 프로덕션 노출.
-    // 광고 ID/설정은 기존 Environment.admob* 값을 그대로 쓰고, 시청은 기존
-    // AdmobPlatform.showAd()(SSV 포함) 경로를 그대로 탄다.
-    if (shouldShowDebugAdmobItem(
-      isDebugMode: kDebugMode,
-      isAdmobAvailable: _adService.isPlatformAvailable('admob'),
-    )) {
-      final ga4 = FreeChargeAdGa4Context(
-        adPlatform: 'AdMob',
-        adSource: 'AdMob',
-        adUnitName: Platform.isIOS
-            ? Environment.admobIosRewardedVideoId
-            : Environment.admobAndroidRewardedVideoId,
-        adCategory: FreeChargeGa4.pick(
-          FreeChargeGa4.categoryGlobalPick,
-          globalIndex + 1,
-        ),
-        virtualCurrencyName: FreeChargeGa4.adRewardCurrencyName,
-        rewardAmount: adRewardAmount,
-      );
-      items.add(
-        ChargeStationItem(
-          id: 'admob',
-          title:
-              '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
-          isMission: false,
-          platformType: AdPlatformType.admob,
-          onPressed: () => _onAdPressed('admob', ga4),
-          bonusText: adBonusText,
-        ),
-      );
-      globalIndex++;
-    }
-
-    if (_adService.isPlatformAvailable('pangle')) {
-      final ga4 = FreeChargeAdGa4Context(
-        adPlatform: FreeChargeGa4.platformPangle,
-        adSource: FreeChargeGa4.sourcePangle,
-        adUnitName: Platform.isIOS
-            ? Environment.pangleIosRewardedVideoId
-            : Environment.pangleAndroidRewardedVideoId,
-        adCategory: FreeChargeGa4.pick(
-          FreeChargeGa4.categoryAsiaPick,
-          asiaIndex + 1,
-        ),
-        virtualCurrencyName: FreeChargeGa4.adRewardCurrencyName,
-        rewardAmount: adRewardAmount,
-      );
-      items.add(
-        ChargeStationItem(
-          id: 'pangle',
-          title:
-              '${AppLocalizations.of(context).label_asia_recommendation} #${asiaIndex + 1}',
-          isMission: false,
-          platformType: AdPlatformType.pangle,
-          onPressed: () => _onAdPressed('pangle', ga4),
-          bonusText: adBonusText,
-        ),
-      );
-      asiaIndex++;
+    for (final platformId in resolveAdOrder(available: available)) {
+      switch (platformId) {
+        case 'admob':
+          final ga4 = FreeChargeAdGa4Context(
+            adPlatform: 'AdMob',
+            adSource: 'AdMob',
+            adUnitName: Platform.isIOS
+                ? Environment.admobIosRewardedVideoId
+                : Environment.admobAndroidRewardedVideoId,
+            adCategory: FreeChargeGa4.pick(
+              FreeChargeGa4.categoryGlobalPick,
+              globalIndex + 1,
+            ),
+            virtualCurrencyName: FreeChargeGa4.adRewardCurrencyName,
+            rewardAmount: adRewardAmount,
+          );
+          items.add(
+            ChargeStationItem(
+              id: 'admob',
+              title:
+                  '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
+              isMission: false,
+              platformType: AdPlatformType.admob,
+              onPressed: () => _onAdPressed('admob', ga4),
+              bonusText: adBonusText,
+            ),
+          );
+          globalIndex++;
+        case 'internal-shortform':
+          final ga4 = FreeChargeAdGa4Context(
+            adPlatform: FreeChargeGa4.platformInternalShortform,
+            adSource: FreeChargeGa4.sourceInternalShortform,
+            // 자체 숏폼에는 광고 SDK 의 ad unit 개념이 없다. 추정값을 만들지 않고
+            // 비워 두면 T2 레이어가 'undefined' 로 대체한다.
+            adUnitName: null,
+            adCategory: FreeChargeGa4.pick(
+              FreeChargeGa4.categoryGlobalPick,
+              globalIndex + 1,
+            ),
+            virtualCurrencyName: FreeChargeGa4.adRewardCurrencyName,
+            rewardAmount: adRewardAmount,
+          );
+          items.add(
+            ChargeStationItem(
+              id: 'internal-shortform',
+              title:
+                  '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
+              isMission: false,
+              platformType: AdPlatformType.custom,
+              onPressed: () => _onAdPressed('internal-shortform', ga4),
+              bonusText: adBonusText,
+            ),
+          );
+          globalIndex++;
+        case 'pangle':
+          final ga4 = FreeChargeAdGa4Context(
+            adPlatform: FreeChargeGa4.platformPangle,
+            adSource: FreeChargeGa4.sourcePangle,
+            adUnitName: Platform.isIOS
+                ? Environment.pangleIosRewardedVideoId
+                : Environment.pangleAndroidRewardedVideoId,
+            adCategory: FreeChargeGa4.pick(
+              FreeChargeGa4.categoryAsiaPick,
+              asiaIndex + 1,
+            ),
+            virtualCurrencyName: FreeChargeGa4.adRewardCurrencyName,
+            rewardAmount: adRewardAmount,
+          );
+          items.add(
+            ChargeStationItem(
+              id: 'pangle',
+              title:
+                  '${AppLocalizations.of(context).label_asia_recommendation} #${asiaIndex + 1}',
+              isMission: false,
+              platformType: AdPlatformType.pangle,
+              onPressed: () => _onAdPressed('pangle', ga4),
+              bonusText: adBonusText,
+            ),
+          );
+          asiaIndex++;
+      }
     }
 
     return items;

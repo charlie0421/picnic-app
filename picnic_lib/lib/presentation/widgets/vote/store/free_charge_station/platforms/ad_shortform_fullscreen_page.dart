@@ -9,7 +9,6 @@ import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay.dart';
-import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
@@ -18,6 +17,7 @@ import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_overlay.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -604,7 +604,7 @@ class _AdShortformFullscreenPageState
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 150),
         opacity: visible ? 1.0 : 0.0,
-        child: const Center(child: MediumPulseLoadingIndicator()),
+        child: Center(child: AdLoadingOverlay.indicator),
       ),
     );
   }

@@ -244,13 +244,9 @@ repositories {
     mavenCentral()
 }
 
-// Pangle SDK 설정:
-// - gma_mediation_pangle이 번들하는 pag-sdk-ad는 API가 노출되지 않아 PangleNativeHandler와 호환 불가
-// - 대신 전체 API를 제공하는 ads-sdk를 직접 사용
-// - 이렇게 하면 미디에이션(google_mobile_ads)과 직접 SDK 호출(PangleNativeHandler) 모두 작동
-configurations.all {
-    exclude group: 'com.pangle.global', module: 'pag-sdk-ad'
-}
+// Pangle SDK는 gma_mediation_pangle이 사용하는 동일 버전(pag-sdk-ad)을
+// 그대로 사용한다. 이전에는 구버전 ads-sdk를 별도로 추가하면서 pag-sdk-ad를
+// 전역 제외해 GMA 어댑터가 요구하는 PAGBiddingRequest가 런타임에서 누락됐다.
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
@@ -261,8 +257,9 @@ dependencies {
     implementation 'com.tapjoy:tapjoy-android-sdk:14.4.0'
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation files('libs/pincrux_offerwall.aar')
-    // Pangle SDK - PangleNativeHandler에서 직접 사용
-    implementation 'com.pangle.global:ads-sdk:6.5.0.6'
+    // GMA Pangle 어댑터와 동일 버전의 SDK를 네이티브 핸들러도 사용한다.
+    // pag-sdk가 PAGBiddingRequest를 포함한 pag-sdk-ad를 전이 의존성으로 제공한다.
+    implementation 'com.pangle.global:pag-sdk:7.8.0.8'
     // Core library desugaring for flutter_local_notifications
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     // Firebase 제거: 관련 의존성 제거

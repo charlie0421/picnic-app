@@ -1,6 +1,7 @@
 import 'package:picnic_lib/core/analytics/ga4_currency_names.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_order.dart';
 
 /// 무료 충전소 / 리워드 광고 GA4 이벤트의 **고정 디멘션 값**과 조립 헬퍼.
 ///
@@ -71,13 +72,29 @@ class FreeChargeGa4 {
   /// 서버가 확정한 적립 건(`AdRewardReference`)의 광고 카테고리.
   ///
   /// 적립 응답에는 어느 구좌에서 시청했는지가 담기지 않으므로 reference 타입으로
-  /// 역매핑한다. 현재 구좌 구성(`free_charge_station.dart _buildAdItems`)에서
-  /// 내부 숏폼 = 글로벌 픽 #1, Pangle = 아시아 픽 #1 로 1:1 대응한다.
-  static String adCategoryForReference(AdRewardReferenceType type) =>
-      switch (type) {
-        AdRewardReferenceType.internalImpression => pick(categoryGlobalPick, 1),
-        AdRewardReferenceType.pangleClaim => pick(categoryAsiaPick, 1),
-      };
+  /// 역매핑한다. 현재 기본 구좌 구성(`ad_order.dart`)에서 AdMob = 글로벌 픽 #1,
+  /// 내부 숏폼 = 글로벌 픽 #2, Pangle = 아시아 픽 #1 로 1:1 대응한다.
+  static String adCategoryForReference(AdRewardReferenceType type) {
+    if (type == AdRewardReferenceType.pangleClaim) {
+      return pick(categoryAsiaPick, 1);
+    }
+
+    final platformId = switch (type) {
+      AdRewardReferenceType.admobClaim => 'admob',
+      AdRewardReferenceType.internalImpression => 'internal-shortform',
+      AdRewardReferenceType.pangleClaim => 'pangle',
+    };
+    final globalOrder = defaultAdOrder
+        .where((id) => id != 'pangle')
+        .toList(growable: false);
+    final globalIndex = globalOrder.indexOf(platformId);
+    if (globalIndex < 0) {
+      // A reference can only be created for a configured platform. Keep a safe
+      // label if an old server reference outlives a local order configuration.
+      return pick(categoryGlobalPick, 1);
+    }
+    return pick(categoryGlobalPick, globalIndex + 1);
+  }
 
   /// CTA URL → `destination_type`.
   ///
@@ -87,7 +104,9 @@ class FreeChargeGa4 {
     if (url == null || url.trim().isEmpty) return null;
     final host = Uri.tryParse(url.trim())?.host.toLowerCase();
     if (host == null || host.isEmpty) return null;
-    if (host.contains('youtube.') || host.contains('youtu.be')) return 'youtube';
+    if (host.contains('youtube.') || host.contains('youtu.be')) {
+      return 'youtube';
+    }
     if (host.contains('instagram.')) return 'instagram';
     if (host.contains('tiktok.')) return 'tiktok';
     if (host.contains('twitter.') || host.contains('x.com')) return 'twitter';

@@ -57,6 +57,39 @@ Map<String, dynamic> _$PangleClaimModelToJson(_PangleClaimModel instance) =>
       'expires_at': instance.expiresAt.toIso8601String(),
     };
 
+_AdmobClaimModel _$AdmobClaimModelFromJson(Map<String, dynamic> json) =>
+    $checkedCreate(
+      '_AdmobClaimModel',
+      json,
+      ($checkedConvert) {
+        final val = _AdmobClaimModel(
+          reference: $checkedConvert(
+            'reference',
+            (v) => AdRewardReference.fromJson(v as Map<String, dynamic>),
+          ),
+          platform: $checkedConvert('platform', (v) => v as String),
+          signedToken: $checkedConvert('signed_token', (v) => v as String),
+          expiresAt: $checkedConvert(
+            'expires_at',
+            (v) => DateTime.parse(v as String),
+          ),
+        );
+        return val;
+      },
+      fieldKeyMap: const {
+        'signedToken': 'signed_token',
+        'expiresAt': 'expires_at',
+      },
+    );
+
+Map<String, dynamic> _$AdmobClaimModelToJson(_AdmobClaimModel instance) =>
+    <String, dynamic>{
+      'reference': instance.reference.toJson(),
+      'platform': instance.platform,
+      'signed_token': instance.signedToken,
+      'expires_at': instance.expiresAt.toIso8601String(),
+    };
+
 _AdRewardGrantModel _$AdRewardGrantModelFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
       '_AdRewardGrantModel',
@@ -175,3 +208,40 @@ Map<String, dynamic> _$AdRewardPageModelToJson(_AdRewardPageModel instance) =>
       'next_cursor': instance.nextCursor,
       'snapshot_at': instance.snapshotAt.toIso8601String(),
     };
+
+_InternalShortformViewResponse _$InternalShortformViewResponseFromJson(
+  Map<String, dynamic> json,
+) => $checkedCreate(
+  '_InternalShortformViewResponse',
+  json,
+  ($checkedConvert) {
+    final val = _InternalShortformViewResponse(
+      ok: $checkedConvert('ok', (v) => v as bool),
+      rewardAdded: $checkedConvert('reward_added', (v) => (v as num).toInt()),
+      impressionId: $checkedConvert('impression_id', (v) => v as String),
+      newBonus: $checkedConvert('new_bonus', (v) => (v as num?)?.toInt()),
+      reward: $checkedConvert(
+        'reward',
+        (v) => v == null
+            ? null
+            : AdRewardStatusModel.fromJson(v as Map<String, dynamic>),
+      ),
+    );
+    return val;
+  },
+  fieldKeyMap: const {
+    'rewardAdded': 'reward_added',
+    'impressionId': 'impression_id',
+    'newBonus': 'new_bonus',
+  },
+);
+
+Map<String, dynamic> _$InternalShortformViewResponseToJson(
+  _InternalShortformViewResponse instance,
+) => <String, dynamic>{
+  'ok': instance.ok,
+  'reward_added': instance.rewardAdded,
+  'impression_id': instance.impressionId,
+  'new_bonus': instance.newBonus,
+  'reward': instance.reward?.toJson(),
+};

@@ -24,27 +24,31 @@ void main() {
         requests.add(request);
         final path = request.url.path;
         Object? body;
-        if (path.endsWith('/ad-reward-claim'))
+        if (path.endsWith('/ad-reward-claim')) {
+          final claimRequest = jsonDecode(request.body) as Map<String, dynamic>;
           body = {
             'reference': {
-              'type': 'PANGLE_CLAIM',
+              'type': claimRequest['channel'] == 'ADMOB'
+                  ? 'ADMOB_CLAIM'
+                  : 'PANGLE_CLAIM',
               'id': '00000000-0000-4000-8000-000000000401',
             },
             'platform': 'ios',
             'signed_token': 'signed',
             'expires_at': '2026-07-21T01:00:00.000Z',
           };
-        else if (path.endsWith('/rpc/list_unacknowledged_ad_rewards'))
+        } else if (path.endsWith('/rpc/list_unacknowledged_ad_rewards')) {
           body = {
             'items': [fixture('ad_reward_pending_v1.json')],
             'total_count': '1',
             'next_cursor': null,
             'snapshot_at': '2026-07-21T00:00:00.000Z',
           };
-        else if (path.endsWith('/rpc/acknowledge_ad_reward'))
+        } else if (path.endsWith('/rpc/acknowledge_ad_reward')) {
           body = null;
-        else
+        } else {
           body = fixture('ad_reward_pending_v1.json');
+        }
         return http.Response(
           jsonEncode(body),
           200,
@@ -66,6 +70,22 @@ void main() {
       'platform': 'ios',
       'placement_id': 'feed',
       'client_request_id': 'request-1',
+    });
+  });
+  test('AdMob claim sends its channel and parses ADMOB_CLAIM', () async {
+    final claim = await AdRewardRepository(client).createAdmobClaim(
+      platform: 'android',
+      placementId: 'ca-app-pub-1/2',
+      clientRequestId: 'request-admob-1',
+    );
+
+    expect(claim.reference.type, AdRewardReferenceType.admobClaim);
+    expect(claim.signedToken, 'signed');
+    expect(jsonDecode(requests.single.body), {
+      'channel': 'ADMOB',
+      'platform': 'android',
+      'placement_id': 'ca-app-pub-1/2',
+      'client_request_id': 'request-admob-1',
     });
   });
   test('status list and ack use exact p_ RPC parameters', () async {

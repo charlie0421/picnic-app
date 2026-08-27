@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart' show kDebugMode, visibleForTesting;
@@ -5,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/utils/common_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -14,6 +14,7 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -99,7 +100,7 @@ abstract class AdPlatform {
     }
     if (ownedLoading) {
       // 오버레이는 전역이라 페이지가 죽어도 남는다 — 먼저 내린다.
-      OverlayLoadingProgress.stop();
+      AdLoadingOverlay.stop();
       // 로딩 상태는 전역 provider 라 남으면 다음 방문의 버튼이 잠긴다.
       // State.dispose 안에서의 ref.read 는 허용되고, 그 밖의 늦은 호출이
       // 던지면 AdService 가 플랫폼별로 격리한다.
@@ -121,7 +122,7 @@ abstract class AdPlatform {
     if (!context.mounted || isDisposed) return;
     setLoading(true);
     _startedLoading = true;
-    OverlayLoadingProgress.start(context);
+    unawaited(AdLoadingOverlay.start(context));
   }
 
   // 공통 로직: 로딩 UI 종료
@@ -129,7 +130,7 @@ abstract class AdPlatform {
     if (!context.mounted || isDisposed) return;
     setLoading(false);
     _startedLoading = false;
-    OverlayLoadingProgress.stop();
+    AdLoadingOverlay.stop();
   }
 
   // 공통 로직: 버튼 애니메이션 시작
