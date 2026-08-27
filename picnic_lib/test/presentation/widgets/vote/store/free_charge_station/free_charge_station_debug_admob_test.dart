@@ -154,11 +154,13 @@ void main() {
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester);
 
-      // 광고 목록의 글로벌 픽 순서: internal-shortform(#1) → admob(#2).
+      // 광고 목록의 글로벌 픽 순서: admob(#1) → internal-shortform(#2).
+      final admobItem = find.byKey(const ValueKey('free-charge-admob'));
+      expect(admobItem, findsOneWidget, reason: 'AdMob 구좌가 정확히 1개 렌더링되어야 한다');
       expect(
-        find.text('글로벌 픽 #2'),
+        find.descendant(of: admobItem, matching: find.text('글로벌 픽 #1')),
         findsOneWidget,
-        reason: 'AdMob 구좌(두 번째 글로벌 픽)가 정확히 1개 렌더링되어야 한다',
+        reason: 'AdMob 구좌가 첫 번째 글로벌 픽이어야 한다',
       );
       expect(
         find.text('글로벌 픽 #3'),
@@ -182,8 +184,7 @@ void main() {
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester);
 
-      // tapjoy(미션 섹션) 도 별도 globalIndex 로 "글로벌 픽 #1" 을 쓰므로
-      // "#1" 개수는 admob 유무와 무관하다 — admob 전용 신호인 "#2" 부재만 검증한다.
+      // AdMob이 없으면 Internal 숏폼만 글로벌 픽 #1을 차지한다.
       expect(find.text('글로벌 픽 #2'), findsNothing);
     });
 
@@ -209,8 +210,8 @@ void main() {
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester);
 
-      final admobRow = find.ancestor(
-        of: find.text('글로벌 픽 #2'),
+      final admobRow = find.descendant(
+        of: find.byKey(const ValueKey('free-charge-admob')),
         matching: find.byType(StoreListTile),
       );
       expect(admobRow, findsOneWidget);

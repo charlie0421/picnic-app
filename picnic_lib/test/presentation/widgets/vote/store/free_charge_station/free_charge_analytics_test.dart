@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/analytics/ga4_currency_names.dart';
+import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 
@@ -44,6 +45,28 @@ void main() {
           reason: '$literal 을 직접 쓰지 말고 Ga4CurrencyNames 에 위임하라',
         );
       }
+    });
+  });
+
+  group('광고 보상 카테고리 순번', () {
+    test('AdMob이 글로벌 픽 #1이고 Internal이 #2다', () {
+      expect(
+        FreeChargeGa4.adCategoryForReference(AdRewardReferenceType.admobClaim),
+        '글로벌 픽 #1',
+      );
+      expect(
+        FreeChargeGa4.adCategoryForReference(
+          AdRewardReferenceType.internalImpression,
+        ),
+        '글로벌 픽 #2',
+      );
+    });
+
+    test('Pangle은 아시아 픽 #1을 유지한다', () {
+      expect(
+        FreeChargeGa4.adCategoryForReference(AdRewardReferenceType.pangleClaim),
+        '아시아 픽 #1',
+      );
     });
   });
 }

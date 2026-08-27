@@ -125,6 +125,7 @@ class FreeChargeContent extends ConsumerWidget {
     bool isLoading = loadingState[item.id] ?? false;
 
     return Container(
+      key: ValueKey('free-charge-${item.id}'),
       decoration: BoxDecoration(
         color: AppColors.grey100,
         borderRadius: BorderRadius.circular(8),
