@@ -40,6 +40,27 @@ class AdRewardRepository implements AdRewardApi {
     );
   }
 
+  /// AdMob SSV용 클레임은 서버가 인증된 세션의 사용자를 기준으로 발급한다.
+  /// 클라이언트가 전달하는 값은 광고 플랫폼, 광고 단위, 요청 중복 방지 UUID뿐이다.
+  Future<AdmobClaimModel> createAdmobClaim({
+    required String platform,
+    required String placementId,
+    required String clientRequestId,
+  }) async {
+    final response = await client.functions.invoke(
+      'ad-reward-claim',
+      body: {
+        'channel': 'ADMOB',
+        'platform': platform,
+        'placement_id': placementId,
+        'client_request_id': clientRequestId,
+      },
+    );
+    return AdmobClaimModel.fromJson(
+      Map<String, dynamic>.from(response.data as Map),
+    );
+  }
+
   @override
   Future<AdRewardStatusModel> getStatus(AdRewardReference reference) async {
     final value = await client.rpc(

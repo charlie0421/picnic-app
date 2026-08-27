@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/data/repositories/ad_reward_repository.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -9,6 +11,43 @@ import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:universal_io/io.dart';
+import 'package:uuid/uuid.dart';
+
+typedef AdmobClaimCreator =
+    Future<AdmobClaimModel> Function({
+      required String platform,
+      required String placementId,
+      required String clientRequestId,
+    });
+
+/// SDK가 광고를 표시하기 전에 AdMob SSV용 opaque 토큰을 발급받는다.
+///
+/// 발급 실패를 호출자에게 전파하므로, 호출자는 [RewardedAd.show]에 도달하지 않는다.
+class AdmobClaimPreflight {
+  const AdmobClaimPreflight({required this.createClaim});
+
+  final AdmobClaimCreator createClaim;
+
+  Future<String> execute({
+    required String ownerUserId,
+    required String platform,
+    required String placementId,
+    required String clientRequestId,
+  }) async {
+    if (ownerUserId.isEmpty) {
+      throw StateError('Authenticated user required for AdMob claim');
+    }
+    final claim = await createClaim(
+      platform: platform,
+      placementId: placementId,
+      clientRequestId: clientRequestId,
+    );
+    if (claim.signedToken.isEmpty) {
+      throw const FormatException('AdMob claim is missing a signed token');
+    }
+    return claim.signedToken;
+  }
+}
 
 /// AdMob 광고 플랫폼 구현
 /// 참고: AdMob SDK 초기화는 MainInitializer._initializeAdMob()에서 앱 시작 시 수행됨
@@ -16,8 +55,12 @@ class AdmobPlatform extends AdPlatform {
   String _adUnitId = '';
   RewardedAd? _currentAd;
 
-  AdmobPlatform(super.ref, super.context, super.id,
-      AnimationController super.animationController);
+  AdmobPlatform(
+    super.ref,
+    super.context,
+    super.id,
+    AnimationController super.animationController,
+  );
 
   @override
   Future<void> initialize() async {
@@ -67,14 +110,14 @@ class AdmobPlatform extends AdPlatform {
         adUnitId: _adUnitId,
         request: const AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
-          onAdLoaded: (RewardedAd ad) {
+          onAdLoaded: (RewardedAd ad) async {
             if (isDisposed) {
               ad.dispose();
               return;
             }
             logger.i('[$id] 광고 로드 완료');
             _setupAdCallbacks(ad);
-            _showRewardedAd(ad);
+            await _showRewardedAd(ad);
           },
           onAdFailedToLoad: (LoadAdError error) {
             logger.e(
@@ -85,8 +128,13 @@ class AdmobPlatform extends AdPlatform {
               '  responseInfo: ${error.responseInfo}\n'
               '  adUnitId: $_adUnitId',
             );
-            logAdLoadFailure('AdMob', error, _adUnitId, error.toString(),
-                StackTrace.current);
+            logAdLoadFailure(
+              'AdMob',
+              error,
+              _adUnitId,
+              error.toString(),
+              StackTrace.current,
+            );
             stopAllAnimations();
             // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
           },
@@ -132,8 +180,9 @@ class AdmobPlatform extends AdPlatform {
         _disposeCurrentAd();
         if (context.mounted && !isDisposed) {
           showSimpleDialog(
-              content: AppLocalizations.of(context).label_ads_show_fail,
-              type: DialogType.error);
+            content: AppLocalizations.of(context).label_ads_show_fail,
+            type: DialogType.error,
+          );
         }
       },
       onAdImpression: (RewardedAd ad) {
@@ -148,7 +197,7 @@ class AdmobPlatform extends AdPlatform {
     logger.d('[$id] 현재 광고 정리됨');
   }
 
-  void _showRewardedAd(RewardedAd ad) {
+  Future<void> _showRewardedAd(RewardedAd ad) async {
     if (!context.mounted || isDisposed) {
       _disposeCurrentAd();
       return;
@@ -165,21 +214,53 @@ class AdmobPlatform extends AdPlatform {
       return;
     }
 
-    logger.i('[$id] SSV 설정: userId=$userId, platform=$platform, adUnit=$_adUnitId');
+    try {
+      final signedToken =
+          await AdmobClaimPreflight(
+            createClaim: AdRewardRepository(supabase).createAdmobClaim,
+          ).execute(
+            ownerUserId: userId,
+            platform: platform,
+            placementId: _adUnitId,
+            clientRequestId: const Uuid().v4(),
+          );
 
-    ad.setServerSideOptions(
-      ServerSideVerificationOptions(
-        userId: userId,
-        customData: 'platform=$platform',
-      ),
-    );
+      if (!context.mounted || isDisposed) {
+        _disposeCurrentAd();
+        stopAllAnimations();
+        return;
+      }
 
-    ad.show(
-      onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-        logger.i('[$id] 보상 콜백 수신: ${reward.amount} ${reward.type}, userId=$userId');
-        commonUtils.refreshUserProfile();
-      },
-    );
+      logger.i(
+        '[$id] AdMob SSV claim 설정: platform=$platform, adUnit=$_adUnitId',
+      );
+      await ad.setServerSideOptions(
+        ServerSideVerificationOptions(userId: userId, customData: signedToken),
+      );
+
+      ad.show(
+        onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
+          logger.i(
+            '[$id] 보상 콜백 수신: ${reward.amount} ${reward.type}, userId=$userId',
+          );
+          commonUtils.refreshUserProfile();
+        },
+      );
+    } catch (e, s) {
+      logger.e(
+        '[$id] AdMob SSV claim 발급 실패 - 광고를 표시하지 않음',
+        error: e,
+        stackTrace: s,
+      );
+      _disposeCurrentAd();
+      stopAllAnimations();
+      if (context.mounted && !isDisposed) {
+        showSimpleDialog(
+          content: AppLocalizations.of(context).label_ads_load_fail,
+          type: DialogType.error,
+        );
+      }
+    }
   }
 
   @override
@@ -189,8 +270,9 @@ class AdmobPlatform extends AdPlatform {
     stopAllAnimations();
     if (context.mounted && !isDisposed) {
       showSimpleDialog(
-          content: AppLocalizations.of(context).label_ads_load_fail,
-          type: DialogType.error);
+        content: AppLocalizations.of(context).label_ads_load_fail,
+        type: DialogType.error,
+      );
     }
   }
 

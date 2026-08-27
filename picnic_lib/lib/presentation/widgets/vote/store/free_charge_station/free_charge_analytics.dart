@@ -72,10 +72,12 @@ class FreeChargeGa4 {
   ///
   /// 적립 응답에는 어느 구좌에서 시청했는지가 담기지 않으므로 reference 타입으로
   /// 역매핑한다. 현재 구좌 구성(`free_charge_station.dart _buildAdItems`)에서
-  /// 내부 숏폼 = 글로벌 픽 #1, Pangle = 아시아 픽 #1 로 1:1 대응한다.
+  /// 내부 숏폼 = 글로벌 픽 #1, AdMob = 글로벌 픽 #2, Pangle = 아시아 픽 #1 로
+  /// 1:1 대응한다.
   static String adCategoryForReference(AdRewardReferenceType type) =>
       switch (type) {
         AdRewardReferenceType.internalImpression => pick(categoryGlobalPick, 1),
+        AdRewardReferenceType.admobClaim => pick(categoryGlobalPick, 2),
         AdRewardReferenceType.pangleClaim => pick(categoryAsiaPick, 1),
       };
 
