@@ -195,9 +195,21 @@ GA4 총수익            $1,602.60  (= 정확한 합)</pre>
 비활성화 옵션이 없고 StoreKit 2 마이그레이션이 유일한 우회인데, 결제 경로 개편이라
 리포트 정합성만으로 할 작업이 아니다. 기대 효과는 <strong>25.7% → 약 4.2%</strong>.</p>
 
-<p style="margin:.6em 0 0"><span class="k">효과 미검증 — 2026-08-27 이후 Android
-<code>in_app_purchase</code> 가 멈췄는지 확인해야 확정이다. 소급 적용은 안 되므로
-8/13~8/26 구간과 iOS 잔여분은 <code>purchase</code> 만 필터링한 탐색 분석
+<p style="margin:.6em 0 0"><strong>1차 검증(2026-08-27) — 작동 정황 강함.</strong>
+8/26 시간대별로 보면 토글 이후 Android <code>purchase</code> 7건에 자동 이벤트가
+<strong>하나도 붙지 않았다.</strong> 직전 패턴이 Android 49건 중 45건(92%) 짝이었으므로
+6~7건이 붙었어야 한다.</p>
+<pre>04시  purchase Android 1  +  in_app_purchase Android 1   ← 토글 전, 짝 있음
+12시  purchase iOS 1                                     ← 토글 후
+15시  purchase Android 5                                 ← 토글 후, 짝 0
+16시  purchase Android 1 / iOS 1                         ← 토글 후, 짝 0
+18시  purchase Android 1                                 ← 토글 후, 짝 0</pre>
+<p style="margin:.6em 0 0"><span class="k">아직 확정은 아니다 — ① 8/27 데이터가 GA4 에
+0건이라 당일 검증이 불가하고(처리 지연, 8/25 때와 같은 현상) ② 토글 이후 표본이 7건으로
+작으며 ③ 토글을 끈 정확한 시각을 남기지 않아 04시 건이 토글 전이라는 것은 정황 추정이다.
+<strong>8/28 에 8/27 전체 데이터로 재확인할 것.</strong></span></p>
+<p style="margin:.6em 0 0"><span class="k">소급 적용은 안 되므로 8/13~8/26 구간과 iOS
+잔여분은 <code>purchase</code> 만 필터링한 탐색 분석
 (<code>purchase 이중계상 시간대별 검증</code>)으로 읽는다.</span></p>
 </div>
 
