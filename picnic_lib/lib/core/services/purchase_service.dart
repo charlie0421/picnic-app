@@ -8,6 +8,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
+import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
@@ -848,16 +849,47 @@ class PurchaseService {
     logger.i('🔍 영수증 검증 시작 (서버 검증 단계)');
     logger.i('Environment: $environment');
 
+    // 요청과 같은 자리에서 카탈로그 통화를 한 번 읽어 함께 보낸다. 별도 저장소나
+    // 시각 매칭이 아니라 이 거래의 요청 본문에 실리는 필드 하나라, "어느 시도의
+    // 값인지" 를 나중에 지목할 필요 자체가 없다. Google 은 provider 응답에
+    // 통화 필드가 없어 서버가 이 값을 마지막 폴백으로 쓴다.
+    final observedCurrency = _observedStoreCurrency(purchaseDetails.productID);
+
     // ReceiptVerificationService가 타임아웃 + 재시도 로직을 모두 처리
     final result = await receiptVerificationService.verifyReceipt(
       receiptData,
       purchaseDetails.productID,
       currentUser.id,
       environment,
+      clientObservedCurrency: observedCurrency,
     );
 
     logger.i('✅ 영수증 검증 완료');
     return result;
+  }
+
+  /// 이미 메모리에 로드된 스토어 카탈로그에서 이 상품의 통화를 읽는다.
+  ///
+  /// 카탈로그 future 를 기다리지 않는다. 결제 경로에서 조회가 지연되면 그만큼
+  /// 검증이 밀리고, 통화 하나 때문에 정산을 늦출 이유는 없다 — 없으면 없는
+  /// 대로 보내고 서버가 자기 소스로 채운다.
+  String? _observedStoreCurrency(String productId) =>
+      _cachedProduct(productId)?.currencyCode;
+
+  num? _observedStorePrice(String productId) =>
+      _cachedProduct(productId)?.rawPrice;
+
+  ProductDetails? _cachedProduct(String productId) {
+    try {
+      final cached = container.read(storeProductsProvider).value;
+      if (cached == null) return null;
+      for (final product in cached) {
+        if (product.id == productId) return product;
+      }
+    } catch (e, s) {
+      logger.w('카탈로그 상세 조회 실패 — 서버 소스에 맡긴다', error: e, stackTrace: s);
+    }
+    return null;
   }
 
   /// Runs the caller's settlement presentation and swallows whatever it throws.
@@ -998,8 +1030,8 @@ class PurchaseService {
     }
     if (productDetails == null) {
       logger.w(
-        'purchase analytics 카탈로그 상세 없음 — currency/value는 '
-        '생략하고 정산 payload를 outbox에 보존: ${purchaseDetails.productID}',
+        'purchase analytics 카탈로그 상세 없음 — 서버가 통화를 주지 않았다면 '
+        'outbox 에 보류로 남는다: ${purchaseDetails.productID}',
       );
     }
 
@@ -1009,17 +1041,84 @@ class PurchaseService {
         : BigInt.zero;
 
     logger.i('애널리틱스 로깅...');
-    await analyticsService.logPurchasePayload(
+    final stored = await analyticsService.logPurchasePayload(
       storeProductId: purchaseDetails.productID,
-      currency: productDetails?.currencyCode,
-      value: productDetails?.rawPrice,
+      // 서버가 확정한 통화·금액이 있으면 그것이 정본이다. 카탈로그 값은 서버가
+      // 통화를 주지 못했을 때만 쓰이며, 그때도 통화와 금액을 쌍으로만 쓴다.
+      serverCurrency: result.currency,
+      serverValue: result.value,
+      catalogCurrency: productDetails?.currencyCode,
+      catalogValue: productDetails?.rawPrice,
       transactionId: purchaseDetails.purchaseID,
       idempotencyFallbackKey: result.operationId,
       baseAmount: result.baseStarAmount.toInt(),
       bonusAmount: (result.baseBonusAmount + promoBonus).toInt(),
       sendTimeout: _analyticsBudget,
     );
-    logger.i('애널리틱스 로깅 완료');
+    logger.i('애널리틱스 로깅 완료: ${stored.name}');
+
+    // 매출 이벤트가 durable 하게 남은 뒤에만 영수증 큐의 복구 재료를 버린다.
+    // 저장에 실패했는데 큐까지 지우면 그 거래는 되살릴 방법이 없다.
+    if (stored != PurchaseOutboxResult.failed) {
+      await _releaseReceiptQueueEntry(result);
+    }
+  }
+
+  /// 부팅 큐 복구가 받은 정산의 매출 이벤트를 durable 하게 넘겨받는다.
+  ///
+  /// 이 경로에는 스토어 카탈로그가 로드돼 있다는 보장이 없다. 그래서 큐가
+  /// 요청 시점에 함께 저장해 둔 관측 통화가 서버 값 다음의 소스가 된다.
+  ///
+  /// `true` 를 돌려줄 때만 큐가 항목을 비운다. 저장 실패를 성공으로 답하면
+  /// 그 거래의 매출을 되살릴 재료가 사라진다.
+  Future<bool> adoptRecoveredSettlement(
+    PurchaseSettlementResultModel settlement, {
+    required String storeProductId,
+    required String? clientObservedCurrency,
+  }) async {
+    final promotion = settlement.promotion;
+    final promoBonus = promotion?.state == PurchasePromotionState.granted
+        ? promotion!.promoBonusAmount
+        : BigInt.zero;
+    try {
+      final stored = await analyticsService.logPurchasePayload(
+        storeProductId: storeProductId,
+        serverCurrency: settlement.currency,
+        serverValue: settlement.value,
+        catalogCurrency: _observedStoreCurrency(storeProductId),
+        catalogValue: _observedStorePrice(storeProductId),
+        clientObservedCurrency: clientObservedCurrency,
+        idempotencyFallbackKey: settlement.operationId,
+        baseAmount: settlement.baseStarAmount.toInt(),
+        bonusAmount: (settlement.baseBonusAmount + promoBonus).toInt(),
+        sendTimeout: _analyticsBudget,
+      );
+      return stored != PurchaseOutboxResult.failed;
+    } catch (e, s) {
+      logger.e('큐 복구 매출 이벤트 저장 실패', error: e, stackTrace: s);
+      return false;
+    }
+  }
+
+  /// 영수증 큐가 갖고 있던 이 정산의 복구 항목을 제거한다.
+  ///
+  /// 큐 항목은 "서버 정산 응답 확보"까지를 소유하고, analytics outbox 는 그
+  /// 뒤부터 "통화 확보와 GA4 전송 성공"까지를 소유한다. 소유권이 넘어간
+  /// 것을 확인하기 전에 큐를 비우면 그 사이의 실패가 곧 영구 유실이다.
+  Future<void> _releaseReceiptQueueEntry(
+    PurchaseSettlementResultModel result,
+  ) async {
+    final traceId = result.receiptQueueClientTraceId;
+    if (traceId == null || traceId.isEmpty) return;
+    try {
+      await receiptVerificationService.releaseQueuedReceipt(traceId);
+    } catch (e, s) {
+      logger.e(
+        '영수증 큐 항목 제거 실패 — 다음 부팅 flush 가 다시 정리한다: $traceId',
+        error: e,
+        stackTrace: s,
+      );
+    }
   }
 
   /// 구매 완료 처리

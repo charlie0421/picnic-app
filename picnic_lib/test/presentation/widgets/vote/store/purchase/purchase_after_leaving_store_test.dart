@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:mockito/mockito.dart';
+import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
 import 'package:picnic_lib/core/services/global_purchase_listener.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
@@ -113,7 +114,9 @@ class _SettlingVerification extends ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
-  ) async {
+  {
+    String? clientObservedCurrency,
+  }) async {
     verifications++;
     return result;
   }
@@ -128,10 +131,13 @@ class _RecordingAnalytics extends AnalyticsService {
   final List<String> logged = [];
 
   @override
-  Future<void> logPurchasePayload({
+  Future<PurchaseOutboxResult> logPurchasePayload({
     required String storeProductId,
-    required String? currency,
-    required num? value,
+    String? catalogCurrency,
+    num? catalogValue,
+    String? serverCurrency,
+    num? serverValue,
+    String? clientObservedCurrency,
     String? transactionId,
     String? idempotencyFallbackKey,
     num? baseAmount,
@@ -139,6 +145,7 @@ class _RecordingAnalytics extends AnalyticsService {
     Duration sendTimeout = AnalyticsService.defaultSendTimeout,
   }) async {
     logged.add(storeProductId);
+    return PurchaseOutboxResult.ready;
   }
 }
 
@@ -915,7 +922,9 @@ class _DuplicateVerification extends ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
-  ) async => throw ReusedPurchaseException(
+  {
+    String? clientObservedCurrency,
+  }) async => throw ReusedPurchaseException(
     message: 'duplicate',
     grantConfirmed: grantConfirmed,
   );
@@ -936,7 +945,9 @@ class _FailingVerification extends ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
-  ) async => throw failure;
+  {
+    String? clientObservedCurrency,
+  }) async => throw failure;
 }
 
 /// The store, mounted the way the app mounts it: inside a `ProviderScope` that

@@ -580,7 +580,34 @@ void main() {
       expect(body.containsKey('user_id'), isTrue);
       expect(body.containsKey('environment'), isTrue);
       expect(body.containsKey('format'), isTrue);
-      expect(body.length, 6);
+      expect(body.containsKey('parser_capabilities'), isTrue);
+      expect(body.length, 7);
+    });
+
+    test('declares the revenue parser capability, and omits an absent currency', () {
+      // 서버는 이 선언을 보고 응답에 currency/value 를 넣을지 정한다.
+      // build number 로는 알 수 없다 — OTA 는 build number 를 바꾸지 않는다.
+      final body = ReceiptFormatHelper.buildIOSRequestBody(
+        receipt: 'r',
+        productId: 'p',
+        userId: 'u',
+        environment: 'e',
+        receiptFormat: 'f',
+      );
+      expect(body['parser_capabilities'], <String>['purchase_revenue_v1']);
+      expect(body.containsKey('client_observed_currency'), isFalse);
+    });
+
+    test('carries the observed storefront currency when there is one', () {
+      final body = ReceiptFormatHelper.buildIOSRequestBody(
+        receipt: 'r',
+        productId: 'p',
+        userId: 'u',
+        environment: 'e',
+        receiptFormat: 'f',
+        clientObservedCurrency: 'JPY',
+      );
+      expect(body['client_observed_currency'], 'JPY');
     });
   });
 
@@ -631,7 +658,23 @@ void main() {
       expect(body.containsKey('environment'), isTrue);
       expect(body.containsKey('format'), isTrue);
       expect(body.containsKey('client_trace_id'), isTrue);
-      expect(body.length, 7);
+      expect(body.containsKey('parser_capabilities'), isTrue);
+      expect(body.length, 8);
+    });
+
+    test('declares the revenue parser capability and the observed currency', () {
+      final body = ReceiptFormatHelper.buildAndroidRequestBody(
+        receipt: 'r',
+        productId: 'p',
+        userId: 'u',
+        environment: 'e',
+        clientTraceId: 'c',
+        clientObservedCurrency: 'KRW',
+      );
+      expect(body['parser_capabilities'], <String>['purchase_revenue_v1']);
+      // Google 은 provider 응답에 통화 필드가 없다. 이 값이 서버의 마지막
+      // 폴백이라 Android 경로에서 특히 중요하다.
+      expect(body['client_observed_currency'], 'KRW');
     });
 
     test('preserves sandbox environment', () {

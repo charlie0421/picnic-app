@@ -1227,7 +1227,9 @@ class _ThrowingVerification extends ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
-  ) async {
+  {
+    String? clientObservedCurrency,
+  }) async {
     throw failure;
   }
 }
@@ -1243,7 +1245,9 @@ class _SettledVerification extends ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
-  ) async =>
+  {
+    String? clientObservedCurrency,
+  }) async =>
       PurchaseSettlementResultModel(
         contractVersion: 'wallet.v1',
         operationId: 'operation',
