@@ -9,6 +9,7 @@ import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 
 class AdRewardDialogHost extends ConsumerStatefulWidget {
@@ -143,6 +144,13 @@ class _AdRewardDialogHostState extends ConsumerState<AdRewardDialogHost> {
         }
       }
       return;
+    }
+
+    // 적립 영수증과 별사탕 파우치가 같은 서버 확정 스냅샷을 보여 주도록,
+    // 팝업을 띄우기 전에 공통 지갑 상태에 즉시 반영한다. 별도 재조회보다
+    // 정확하고, AdMob/Pangle/내부 숏폼의 복구 팝업 경로를 한 번에 다룬다.
+    if (ref.exists(walletSummaryProvider)) {
+      ref.read(walletSummaryProvider.notifier).setSummary(queued.status.wallet);
     }
 
     // 지급 확정(granted) 이 이 시점에 확인됐다. 다이얼로그 표시/ACK 성패와
