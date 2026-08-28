@@ -258,6 +258,9 @@ TAG_SOFT_DEFAULT = re.compile(r"\$\{CM_TAG\s*:?[-=+]")
 TAG_ASSIGNMENT = re.compile(
     r"(?<![\w./-])(?:export\s+|declare\s+|typeset\s+|readonly\s+)?CM_TAG="
 )
+SAFE_TAG_RESOLVER_ASSIGNMENT = re.compile(
+    r'^CM_TAG="\$\(bash scripts/resolve_release_tag\.sh\)"$'
+)
 
 # The one sanctioned way the derived target crosses a step boundary. This file
 # already uses the idiom for SIGNING_PROFILE_NAME; anything else -- a literal
@@ -904,7 +907,9 @@ def check_deploy_target_derived_from_tag(
                         f"deploy target from it; only "
                         f'`${{{TAG_VARIABLE}:?...}}` is allowed: {line.text!r}'
                     )
-                if TAG_ASSIGNMENT.search(line.text):
+                if TAG_ASSIGNMENT.search(line.text) and not SAFE_TAG_RESOLVER_ASSIGNMENT.match(
+                    line.text
+                ):
                     failures.append(
                         f"{where}: the workflow assigns {TAG_VARIABLE} itself, so the "
                         f"deploy target stops following the tag that started the "
@@ -961,6 +966,20 @@ def check_deploy_target_derived_from_tag(
             continue
         labels, bodies, case_head, esac = parsed
         lines = list(scan(derive_script))
+
+        resolver_assignments = [
+            line
+            for line in lines
+            if SAFE_TAG_RESOLVER_ASSIGNMENT.match(line.text) and line.depth == 0
+        ]
+        if expected_targets is None and (
+            len(resolver_assignments) != 1
+            or resolver_assignments[0].lineno > case_head.lineno
+        ):
+            failures.append(
+                f"{where}: must resolve the webhook or rebuild tag exactly once "
+                "before mapping it with `bash scripts/resolve_release_tag.sh`"
+            )
 
         tag_asserts = [
             line
@@ -1955,6 +1974,15 @@ def mutate_drop_tag_requirement(text):
     ) + "\n"
 
 
+def mutate_drop_tag_resolver(text):
+    """Remove rebuild tag recovery while leaving the webhook-only path intact."""
+    return "\n".join(
+        line
+        for line in text.splitlines()
+        if line.strip() != 'CM_TAG="$(bash scripts/resolve_release_tag.sh)"'
+    ) + "\n"
+
+
 def mutate_default_tag_variable(text):
     """Give the tag variable a default, so a tagless build still ships."""
     return text.replace('case "$CM_TAG" in', 'case "${CM_TAG:-picnic-v0.0.0}" in')
@@ -2395,6 +2423,7 @@ SELF_TESTS = (
     ),
     ("derived target never handed to the later steps", mutate_drop_cm_env_export, True),
     ("tag variable no longer required", mutate_drop_tag_requirement, True),
+    ("rebuild tag resolver removed", mutate_drop_tag_resolver, True),
     ("tag variable given a default", mutate_default_tag_variable, True),
     (
         "consumer steps read DEPLOY_TARGET with no assert of their own",

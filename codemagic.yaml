@@ -43,11 +43,12 @@ workflows:
           # The two patterns cannot both match the same tag: `picnic-staging-v1.2.3`
           # does not match `picnic-v*`.
           #
-          # CM_TAG is Codemagic's built-in variable, documented as "The tag being
-          # built if started from a tag webhook, unset otherwise", so requiring it
-          # stops a non-tag build from guessing a target.
+          # CM_TAG is set for tag webhooks but unset by Codemagic Rebuild. In that
+          # case, recover the single release tag attached to the exact CM_COMMIT;
+          # zero or multiple matching tags fail closed.
           # https://docs.codemagic.io/yaml-basic-configuration/environment-variables/
-          : "${CM_TAG:?is unset; this workflow only runs from a release tag}"
+          CM_TAG="$(bash scripts/resolve_release_tag.sh)"
+          : "${CM_TAG:?release tag resolver returned an empty value}"
           case "$CM_TAG" in
             picnic-staging-v*)
               DEPLOY_TARGET=staging
@@ -676,11 +677,12 @@ workflows:
           # The two patterns cannot both match the same tag: `picnic-staging-v1.2.3`
           # does not match `picnic-v*`.
           #
-          # CM_TAG is Codemagic's built-in variable, documented as "The tag being
-          # built if started from a tag webhook, unset otherwise", so requiring it
-          # stops a non-tag build from guessing a target.
+          # CM_TAG is set for tag webhooks but unset by Codemagic Rebuild. In that
+          # case, recover the single release tag attached to the exact CM_COMMIT;
+          # zero or multiple matching tags fail closed.
           # https://docs.codemagic.io/yaml-basic-configuration/environment-variables/
-          : "${CM_TAG:?is unset; this workflow only runs from a release tag}"
+          CM_TAG="$(bash scripts/resolve_release_tag.sh)"
+          : "${CM_TAG:?release tag resolver returned an empty value}"
           case "$CM_TAG" in
             picnic-staging-v*)
               DEPLOY_TARGET=staging
