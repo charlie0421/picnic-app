@@ -118,7 +118,7 @@ await PicnicAnalytics.instance.setUserProperties(
 
 > GA4 표준 `earn_virtual_currency` 는 `virtual_currency_name` + `value` 를 쓰지만, 본 택소노미는 수량을 `reward_amount` 로 정의한다.
 
-### 8. `ad_click` — 광고 종료 후 '더보기' 버튼을 눌러 이동했을 때
+### 8. `ad_cta_click` — 광고 종료 후 '더보기' 버튼을 눌러 이동했을 때
 
 | 파라미터 | 의미 | 타입 | 수준 | 예시값 |
 |---|---|---|---|---|
@@ -129,6 +129,23 @@ await PicnicAnalytics.instance.setUserProperties(
 | `section_name` | 광고가 위치한 영역명 | String | Event | `광고에서 별사탕 받기` |
 | `ad_category` | 광고 카테고리/큐레이션 | String | Event | `글로벌 픽 #1` |
 | `destination_type` | 클릭 후 이동한 목적지 유형 | String | Event | `youtube` |
+
+#### 이름이 `ad_click` 이 아닌 이유 (스프레드시트와의 의도적 차이)
+
+스프레드시트 원안은 `ad_click` 이었으나 **앱에서 쓸 수 없는 이름**이다. `ad_click`
+은 Firebase 앱 예약 이벤트명이라 SDK 가 전송을 거부하고
+(`Invalid argument (name): Event name is reserved`), 그 예외는 `PicnicAnalytics._guard`
+가 잡아 로그만 남기므로 **GA4 에서는 조용히 0건으로만 보인다.** 실제로 프로덕션
+2026-07-28~08-24 28일간 0건이었다. 같은 화면·같은 코드 경로의 `ad_impression` 은
+예약어가 아니라 같은 기간 102,405건이 정상 수집됐다.
+
+GA4 `이벤트 수정`으로 다른 이름을 받아 `ad_click` 으로 되돌리는 우회도 불가능하다
+— 새 이름 역시 예약어일 수 없다는 제약이 있다. 2026-08-25 대행사 합의로
+`ad_cta_click` 으로 확정했다. **트리거 시점과 파라미터 구성은 원안 그대로이며,
+바뀐 것은 이벤트 이름 하나뿐이다.**
+
+새 이벤트를 추가할 때는 예약어 목록을 먼저 확인한다. `Ga4Event.all` 이 예약어를
+포함하지 않는지 검증하는 테스트가 `ga4_taxonomy_test.dart` 에 있다.
 
 #### 자체 숏폼의 `ad_unit_name` 을 비워 보내는 이유 (스프레드시트와의 의도적 차이)
 
@@ -142,14 +159,14 @@ AdMob 의 `adUnitId`, Pangle 의 slot ID 에 대응하는 식별자가 존재하
 않아, 나중에 진짜 unit 을 붙였을 때 과거 데이터와 섞인다. Pangle(`아시아 픽 #1`)
 은 slot ID 를 그대로 보내므로 이 차이는 자체 숏폼 구좌에만 해당한다.
 
-#### `ad_click` 은 '종료 후'로 한정되지 않는다 (동작과의 차이)
+#### `ad_cta_click` 은 '종료 후'로 한정되지 않는다 (동작과의 차이)
 
 이벤트 이름과 위 제목은 "광고 **종료 후**"로 적혀 있으나, 실제 '더보기' 버튼은
 **잔여 5초부터** 노출·활성된다(`AdShortformLogic.shouldShowCtaButton`). 따라서
-재생이 끝나기 전에 눌린 클릭도 `ad_click` 으로 집계된다. 이는 사용자를 광고
+재생이 끝나기 전에 눌린 클릭도 `ad_cta_click` 으로 집계된다. 이는 사용자를 광고
 화면에 가두지 않기 위한 의도된 UX 이며(`4e79a32eb`), 계측 버그가 아니다.
 
-`ad_click` 이 있는데 `earn_virtual_currency` 가 없는 세션은 "종료 전에 더보기로
+`ad_cta_click` 이 있는데 `earn_virtual_currency` 가 없는 세션은 "종료 전에 더보기로
 이탈했고 남은 재생을 마치지 않은" 경우다. 적립 이벤트 누락으로 오독하지 않는다.
 
 #### 재화 이름과 영역명 (`section_name` / `virtual_currency_name`)

@@ -170,7 +170,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
   /// 광고 시청 버튼 클릭 → `ad_request` (스펙 §2-5).
   ///
-  /// 같은 시청 건의 `ad_impression` / `ad_click` / `earn_virtual_currency` 가
+  /// 같은 시청 건의 `ad_impression` / `ad_cta_click` / `earn_virtual_currency` 가
   /// 동일한 구좌 정보를 쓰도록 [FreeChargeAdGa4Context] 를 플랫폼에 주입한다.
   void _onAdPressed(String platformId, FreeChargeAdGa4Context ga4) {
     if (_ga4ClickDebounce.shouldLog('ad_request:$platformId')) {

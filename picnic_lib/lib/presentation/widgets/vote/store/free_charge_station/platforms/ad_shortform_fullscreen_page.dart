@@ -309,11 +309,11 @@ class _AdShortformFullscreenPageState
   bool _errorDialogShown = false;
 
   /// GA4 단발 발송 가드. 위젯 리빌드/리스너 재호출로 같은 시청 건의
-  /// ad_impression·earn_virtual_currency·ad_click 이 2번 나가지 않게 한다.
+  /// ad_impression·earn_virtual_currency·ad_cta_click 이 2번 나가지 않게 한다.
   bool _impressionLogged = false;
   bool _earnLogged = false;
   bool _earnLogging = false;
-  bool _adClickLogged = false;
+  bool _adCtaClickLogged = false;
 
   /// App-level Riverpod container, captured while this route is mounted, so a
   /// reward that settles after the user already closed the ad can still update
@@ -709,7 +709,7 @@ class _AdShortformFullscreenPageState
   }
 
   Future<void> _openCta(String url) async {
-    // ad_click (스펙 §2-8): '더보기'로 실제 이동한 시점. launchUrl 이 두 경로 모두
+    // ad_cta_click (스펙 §2-8): '더보기'로 실제 이동한 시점. launchUrl 이 두 경로 모두
     // 실패하면(예외) 이동하지 않으므로 발송하지 않는다.
     final uri = Uri.tryParse(url);
     if (uri == null) return;
@@ -720,16 +720,16 @@ class _AdShortformFullscreenPageState
       launched = await launchUrl(uri);
     }
     // 이동에 실패했으면(false 반환) 클릭 이벤트를 보내지 않는다.
-    if (launched) _logAdClick(url);
+    if (launched) _logAdCtaClick(url);
   }
 
-  /// `ad_click` — 시청 건당 1회.
-  void _logAdClick(String url) {
+  /// `ad_cta_click` — 시청 건당 1회.
+  void _logAdCtaClick(String url) {
     final ga4 = widget.ga4;
-    if (ga4 == null || _adClickLogged) return;
-    _adClickLogged = true;
+    if (ga4 == null || _adCtaClickLogged) return;
+    _adCtaClickLogged = true;
     unawaited(
-      PicnicAnalytics.instance.logAdClick(
+      PicnicAnalytics.instance.logAdCtaClick(
         adPlatform: ga4.adPlatform,
         adSource: ga4.adSource,
         adFormat: ga4.adFormat,
@@ -955,7 +955,7 @@ class _AdShortformFullscreenPageState
                             onPressed: enabled
                                 ? () async {
                                     debugPrint('[internal] more pressed');
-                                    // '더보기'는 광고주 랜딩으로 보내고 `ad_click`
+                                    // '더보기'는 광고주 랜딩으로 보내고 `ad_cta_click`
                                     // 을 남기는 것이 전부다. 추가 적립은 하지
                                     // 않기로 확정됐다(PICNIC-2377) - 적립은 재생
                                     // 종료 시 시청 보상 한 건으로만 처리된다.

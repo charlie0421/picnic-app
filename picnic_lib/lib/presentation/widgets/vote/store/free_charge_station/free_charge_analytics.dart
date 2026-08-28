@@ -119,7 +119,7 @@ class FreeChargeGa4 {
 
 /// 한 번의 광고 시청 플로우 전체에서 함께 따라다니는 GA4 컨텍스트.
 ///
-/// `ad_request` 를 보낸 구좌(버튼)의 정보를 `ad_impression` / `ad_click` /
+/// `ad_request` 를 보낸 구좌(버튼)의 정보를 `ad_impression` / `ad_cta_click` /
 /// `earn_virtual_currency` 까지 그대로 옮겨, 같은 시청 건이 이벤트마다 다른
 /// 카테고리로 기록되는 것을 막는다.
 class FreeChargeAdGa4Context {
