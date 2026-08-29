@@ -207,6 +207,11 @@ GA4 총수익            $1,602.60  (= 정확한 합)</pre>
 8/27 하루 매출은 전액 <code>purchase</code> 로만 잡혔다(허수 0).
 <span class="k">iOS 도 8/26~27 에 0건이지만 이건 조치 효과가 아니다 — iOS 자동 이벤트는
 원래 드물어(7일에 5건) 이틀 0건은 정상 범위이고, iOS 는 계속 발생한다.</span></p>
+<p style="margin:.6em 0 0"><strong>8/29 재확인 — 예측대로다.</strong> 8/28 하루에
+<code>in_app_purchase</code> 2건이 나타났는데 <strong>둘 다 iOS</strong>($3.45)이고
+Android 는 여전히 0 이다(같은 날 Android <code>purchase</code> 7건, 짝 0).
+토글 효과가 유지되고 iOS 잔여분만 남는다는 구조가 데이터로 확인됐다 —
+전체 매출 $178.06 대비 <strong>1.9%</strong>로 예측한 약 4% 범위 안이다.</p>
 
 <p style="margin:.6em 0 0"><span class="k">소급 적용은 안 되므로 8/13~8/26 구간과 iOS
 잔여분은 <code>purchase</code> 만 필터링한 탐색 분석
@@ -240,8 +245,37 @@ I/flutter: ⛔ GA4 이벤트 전송 실패: ad_click {ad_platform: internal-shor
 스펙 문서 4종을 맞췄다. <strong>트리거 시점과 파라미터는 원안 그대로다.</strong>
 재발 방지로 <code>ga4_taxonomy_test.dart</code> 가 <code>Ga4Event.all</code> 의 예약어·예약
 접두사를 검증한다.</p>
-<p style="margin:.6em 0 0"><span class="k">미머지·미배포. 배포 전까지 계속 0건이며 소급
-수집은 되지 않는다.</span> 문의 원문: <code>docs/analytics/agency-inquiry-20260825.html</code></p>
+<p style="margin:.6em 0 0"><strong>✅ 배포·검증 완료 (2026-08-29).</strong>
+<code>picnic-v1.3.1+130104</code>(8/28 15:37 KST) 로 나갔고, 배포 당일 8/28 에
+<code>ad_cta_click</code> <strong>2건</strong>이 수집됐다. 28일 0건이던 이벤트가 살아났다 —
+예약어 문제 종결.</p>
+<pre>section_name      광고에서 코튼캔디 받기      ad_category   글로벌 픽 #2
+ad_source         internal                   ad_format     rewarded
+ad_platform       internal-shortform         destination_type  youtube
+ad_unit_name      undefined (설계대로)</pre>
+<p style="margin:.6em 0 0">7개 파라미터가 전부 스펙대로 실렸다. 배포 후 경과가 8시간여이고
+채택률이 낮아 절대 수는 작지만(같은 날 <code>ad_impression</code> 25,025), <strong>0 이 아니라는
+사실이 판정의 전부</strong>다. 문의 원문:
+<code>docs/analytics/agency-inquiry-20260825.html</code></p>
+
+<div class="stop" style="margin-top:1em">
+<strong>⚠️ 같은 날 <code>ad_click</code> 39건이 나타났다 — 우리 이벤트가 아니다.</strong>
+<p style="margin:.6em 0 0">AdMob 자동 수집이다. <code>firebase_event_origin</code> 이
+<strong><code>am</code>(100%)</strong> 이고(우리 앱이면 <code>app</code>),
+<code>ad_source</code>=<code>AdMob Network</code>,
+<code>ad_platform</code>=<code>AdMob</code>,
+<code>ad_unit_name</code>=<code>ca-app-pub-1539304887…</code> 다.
+<strong>Google 이 <code>ad_click</code> 을 예약어로 잡아둔 이유가 바로 이것</strong> —
+자기 자동 수집용 이름이다. 앱이 그 이름을 못 쓰는 것과 정확히 같은 사실의 양면이다.</p>
+<p style="margin:.6em 0 0"><code>a7327ae7a feat(ads): enable AdMob in release builds</code> 로
+AdMob 이 릴리스에서 다시 켜지면서 나타났다. 8/25 실측 때는 0건이었다.</p>
+<p style="margin:.6em 0 0"><strong>분석 시 주의.</strong> GA4 에 <code>ad_click</code> 이
+존재한다고 해서 우리 계측이 동작하는 것이 아니다. 우리 것은 <code>ad_cta_click</code> 이고
+<code>ad_platform</code> 이 <code>internal-shortform</code>/<code>Pangle</code> 이다.
+둘을 합산하면 자체 숏폼 CTA 와 AdMob 클릭이 뒤섞인다.</p>
+<p style="margin:.6em 0 0"><span class="k">대행사 회신 B-4("광고 플랫폼 값은 AdMob 이 아니다")의
+전제가 바뀌었다 — 이제 AdMob 이 실제로 돌고 있다. 재고지가 필요하다.</span></p>
+</div>
 </div>
 
 <div class="warn">
