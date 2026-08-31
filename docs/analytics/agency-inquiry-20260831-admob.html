@@ -64,27 +64,29 @@
 <main>
   <p class="eyebrow">Picnic → 대행사 · 2026-08-31</p>
   <h1>AdMob 지면을 계측 범위에 넣을까요?</h1>
-  <p class="lede">AdMob 광고가 다시 켜지면서 <b>스펙에 없는 광고 이벤트가 주당 2만 건 이상</b>
+  <p class="lede">AdMob 광고가 다시 켜지면서 <b>스펙에 없는 광고 이벤트가 대량으로</b>
     쌓이고 있습니다. 분석 대상으로 삼을지 결정이 필요합니다.</p>
   <p class="meta">B-4 회신("광고 플랫폼 값은 AdMob이 아니다")의 전제가 바뀐 건이기도 합니다.</p>
 
   <h2>지금 들어오는 것</h2>
   <div class="tw">
     <table>
-      <thead><tr><th>이벤트</th><th class="num">주간</th><th class="num">사용자</th><th>출처</th></tr></thead>
+      <thead><tr><th>이벤트</th><th class="num">건수</th><th>출처</th><th>구분 근거</th></tr></thead>
       <tbody>
-        <tr><td><code>ad_reward</code></td><td class="num">22,197</td><td class="num">1,025</td><td><b>AdMob 자동</b></td></tr>
-        <tr><td><code>ad_click</code></td><td class="num">3,431</td><td class="num">473</td><td><b>AdMob 자동</b></td></tr>
-        <tr><td><code>ad_cta_click</code></td><td class="num">473</td><td class="num">93</td><td>당사 (자체 숏폼)</td></tr>
+        <tr><td><code>ad_reward</code></td><td class="num">22,227</td><td>AdMob 자동</td><td><code>ad_unit_code</code></td></tr>
+        <tr><td><code>ad_click</code></td><td class="num">3,384</td><td>AdMob 자동</td><td><code>ad_platform=AdMob</code></td></tr>
+        <tr><td><code>ad_impression</code></td><td class="num">34,164</td><td>AdMob 자동</td><td><code>ad_platform=AdMob</code></td></tr>
+        <tr><td><code>ad_impression</code></td><td class="num">303,964</td><td>당사</td><td><code>internal-shortform</code> 217,384<br><code>Pangle</code> 86,580</td></tr>
+        <tr><td><code>ad_cta_click</code></td><td class="num">473</td><td>당사</td><td><code>internal-shortform</code><br><span style="font-size:12px;color:var(--ink-faint)">8/28 배포 이후 누적</span></td></tr>
       </tbody>
     </table>
   </div>
-  <p class="meta">2026-08-24 ~ 08-30 · 프로덕션 GA4</p>
+  <p class="meta">2026-08-03 ~ 08-30 (28일) · 프로덕션 GA4</p>
 
-  <p><b>둘 다 저희가 보내는 것이 아닙니다.</b> Firebase가 AdMob 연동으로 자동 생성합니다 —
-    <code>firebase_event_origin</code>이 <code>am</code>(AdMob), <code>ad_platform</code>이
-    <code>AdMob</code>, <code>ad_unit_name</code>이 AdMob 광고 단위 ID입니다.
-    저희 이벤트는 <code>ad_platform</code>이 <code>internal-shortform</code> / <code>Pangle</code>입니다.</p>
+  <p><b>AdMob 것은 저희가 보내는 게 아닙니다.</b> Firebase가 AdMob 연동으로 자동 생성합니다 —
+    <code>firebase_event_origin</code>이 <code>am</code>(AdMob)이고 광고 단위가
+    <code>ca-app-pub-…</code> 형식입니다. 저희 이벤트는 <code>ad_platform</code>이
+    <code>internal-shortform</code> / <code>Pangle</code>입니다.</p>
 
   <div class="warn box">
     <p class="t">스펙에 정의가 없습니다</p>
@@ -92,7 +94,11 @@
       <code>ad_click</code>은 <b>자체 숏폼 CTA</b>를 뜻하는 것으로 정의돼 있었습니다.
       지금 그 이름으로 들어오는 건 AdMob 클릭입니다. <b>이름이 같지만 다른 것</b>입니다.</p>
     <p><code>ad_impression</code>도 마찬가지로 저희 이벤트와 AdMob 자동 수집이
-      <b>한 이름 아래 섞여</b> 들어옵니다.</p>
+      <b>한 이름 아래 섞여</b> 들어옵니다 — 28일 기준 자체 숏폼 217,384 / Pangle 86,580 /
+      AdMob 34,164입니다. 합산하면 지면 구분이 사라집니다.</p>
+    <p><b><code>ad_reward</code>는 <code>ad_platform</code>이 비어 있습니다.</b>
+      대신 <code>ad_unit_code</code>에 AdMob 광고 단위 ID가 들어옵니다.
+      지면 분리 규칙을 세울 때 이 이벤트만 예외로 다뤄야 합니다.</p>
   </div>
 
   <hr>
@@ -106,7 +112,8 @@
         <tr>
           <td><b>A. 포함</b><span class="pick">권고</span></td>
           <td>AdMob 지면도 분석 대상. 자동 수집 이벤트를 그대로 활용하고,
-            <b>모든 광고 리포트를 <code>ad_platform</code>으로 분리</b>해서 봅니다.
+            <b>모든 광고 리포트를 <code>ad_platform</code>으로 분리</b>해서 봅니다
+            (<code>ad_reward</code>만 <code>ad_unit_code</code> 기준).
             저희가 추가로 보낼 것은 없습니다.</td>
         </tr>
         <tr>
@@ -123,7 +130,8 @@
 
   <p>다만 <b>A로 가면 규칙이 하나 필요합니다</b> — 광고 이벤트는 항상
     <code>ad_platform</code>으로 나눠 봐야 합니다. 합산하면 자체 숏폼 CTA와 AdMob 클릭이,
-    자체 노출과 AdMob 노출이 뒤섞입니다.</p>
+    자체 노출과 AdMob 노출이 뒤섞입니다. <code>ad_reward</code>는 이 파라미터가 없어
+    <code>ad_unit_code</code>로 판단해야 하는 예외입니다.</p>
 
   <div class="ask box">
     <p class="t">회신 요청</p>
@@ -134,7 +142,7 @@
   </div>
 
   <p class="meta">참고 — 앞서 승인해 주신 <code>ad_cta_click</code> 개명은 2026-08-28
-    배포됐고 정상 수집을 확인했습니다(주간 473건, 파라미터 7개 스펙대로).</p>
+    배포됐고 정상 수집을 확인했습니다(파라미터 7개 모두 스펙대로).</p>
 </main>
 </body>
 </html>
