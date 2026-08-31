@@ -364,8 +364,37 @@ Item 수준 (`items` 배열):
 | 4 | `ad_impression` 중복 집계 | AdMob↔Firebase 연동 시 GA4가 동일 이름 이벤트를 자동 수집함. 스펙대로 커스텀 발송하면 중복 가능 | 스펙대로 발송하되 GA4 콘솔에서 중복 확인 요청 |
 | 5 | `earn_virtual_currency` 비표준 | GA4 표준은 `virtual_currency_name` + `value` 이나 본 택소노미는 수량을 `reward_amount` 로 정의 | 스펙대로 구현 |
 | 6 | Number 파라미터의 `undefined` 대체 | 스펙은 "정보가 없으면 값을 `undefined` 로 대체"하나, Number 파라미터(`reward_amount`, `value`, `base_amount`, `bonus_amount`)에 문자열을 섞으면 GA4가 해당 키를 커스텀 측정기준/측정항목 중 하나로만 등록해 **반대 타입 값이 리포트에서 통째로 누락**됨 | String 파라미터만 `undefined` 대체. Number 는 값이 없으면 파라미터 생략 + 경고 로그 |
-| 7 | `sign_up` 판별 근거 | Supabase 는 신규 가입 여부를 응답에 직접 주지 않음. `created_at` 과 `last_sign_in_at` 의 차이가 30초 이내면 신규 가입으로 판정하고, 사용자별 1회 발송 마커를 로컬에 영속 저장 | 판별 기준 확인 요청 |
+| 7 | `sign_up` 판별 근거 | Supabase 는 신규 가입 여부를 응답에 직접 주지 않음. `created_at` 과 `last_sign_in_at` 의 차이가 30초 이내면 신규 가입으로 판정하고, 사용자별 1회 발송 마커를 로컬에 영속 저장 | **2026-08-31 실측 검증 — 아래 §4-A 참조** |
 | 8 | `currency` 의 `undefined` 대체 불가 (ISO 4217) | 스펙의 "String 값이 없으면 `undefined` 로 대체" 규칙을 `currency` 에 적용하면 GA4 가 ISO 4217 위반 통화로 판정해 해당 **`purchase` 의 매출(`value`)을 통째로 무시**함 | `currency` 는 값이 없으면 파라미터를 생략(null 전달 → Firebase 가 `filterOutNulls` 로 제거)하고, 짝이 되는 `value` 도 함께 생략 |
+
+### §4-A. `sign_up` 휴리스틱 실측 (2026-08-31, 28일)
+
+대행사 문항 **B-9**(30초 휴리스틱 오탐 여부)의 실측 결과다.
+
+| 이벤트 | 이벤트 수 | 총 사용자 | 1인당 |
+|---|---:|---:|---:|
+| `first_open` | 2,779 | 2,665 | 1.04 |
+| **`sign_up`** | **2,048** | **2,026** | **1.01** |
+| `first_visit` | 1,293 | 1,288 | 1.00 |
+| `login` | 9,980 | 2,819 | 3.54 |
+
+**마커가 작동한다.** `sign_up` 이 1인당 **1.01건**이다. 초과 22건은 기기 교체·재설치로
+로컬 마커가 초기화된 경우로 설명된다. 같은 인증 흐름의 `login` 이 1인당 3.54건인 것과
+대비하면, [AuthAnalyticsResolver.signUpAlreadyLogged] 마커가 실제로 중복을 막고 있다는
+증거다.
+
+**30초 창이 헐겁지 않다.** `sign_up`(2,026명)이 `first_open`(2,665명)의 76% 다.
+창이 넓어 기존 사용자를 신규로 오분류했다면 `sign_up` 이 `first_open` 을 넘었을 텐데
+그렇지 않다. 로그인이 필수인 앱에서 신규 설치자의 76% 가입은 과하지 않다.
+
+**한계 — DB 대조는 하지 못했다.** "오탐 0"을 확정하려면 Supabase `auth.users` 의 실제
+신규 가입 수와 맞춰야 하는데, 프로덕션 조회 경로(`SUPABASE_DB_URL`)가 준비돼 있지 않다.
+확정하려면 아래를 프로덕션에서 실행해 **2,026 ± 5%** 인지 본다.
+
+```sql
+select count(*) from auth.users
+where created_at >= '2026-08-03' and created_at < '2026-08-31';
+```
 
 ## 5. 트리거 지점 매핑
 
