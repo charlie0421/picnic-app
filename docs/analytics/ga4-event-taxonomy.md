@@ -97,26 +97,40 @@ await PicnicAnalytics.instance.setUserProperties(
 켜지면서, **저희가 보내지 않는 광고 이벤트가 Firebase↔AdMob 연동으로 자동 생성**된다.
 2026-08-31 **AdMob 지면도 계측 범위에 포함**하기로 정했다.
 
-실측 (2026-08-03~30, 28일, `이벤트 이름` × `ad_platform`):
+실측 (2026-08-03~30, 28일, `이벤트 이름` × `ad_platform`, 27개 이벤트 전수):
 
-| 이벤트 | (not set) | internal-shortform | Pangle | AdMob |
-|---|---:|---:|---:|---:|
-| `ad_impression` | 3,358 | **217,384** | **86,580** | **34,164** |
-| `ad_click` | 109 | 0 | 0 | **3,384** |
-| `ad_reward` | **22,227** | 0 | 0 | 49 |
+| 이벤트 | (not set) | internal-shortform | Pangle | AdMob | 출처 |
+|---|---:|---:|---:|---:|---|
+| `ad_request` | **428,586** | 0 | 0 | 0 | 당사 |
+| `ad_impression` | 3,358 | **217,384** | **86,580** | **34,164** | 당사 + AdMob |
+| `earn_virtual_currency` | **320,231** | 0 | 0 | 0 | 당사 |
+| `ad_reward` | **22,227** | 0 | 0 | 0 | AdMob |
+| `ad_click` | 109 | 0 | 0 | **3,384** | AdMob |
+| `ad_cta_click` | 0 | **497** | 0 | 0 | 당사 |
 
-**당사 이벤트와 구분하는 법:** 자동 수집분은 `firebase_event_origin` 이 `am`(AdMob)이고
-광고 단위가 `ca-app-pub-…` 형식이다. 당사 이벤트는 `ad_platform` 이
-`internal-shortform` 또는 `Pangle` 이다.
+**AdMob 자동 수집은 이 3개뿐이다** — `ad_click` · `ad_reward` · `ad_impression` 일부.
+`ad_activeview` `ad_exposure` `ad_query` `adunit_exposure` 같은 다른 AdMob 예약 이벤트는
+27개 목록에 **없다**(2026-08-31 전수 확인).
 
-### ⚠️ `ad_reward` 는 `ad_platform` 이 비어 있다
+**구분하는 법:** 자동 수집분은 `firebase_event_origin` 이 `am`(AdMob)이고 광고 단위가
+`ca-app-pub-…` 형식이다.
 
-**22,227건이 `(not set)` 이지만 AdMob 자동 수집이 맞다.** 이 이벤트는 `ad_platform` 대신
-**`ad_unit_code`** 에 AdMob 광고 단위 ID(`ca-app-pub-1539304887624918…`)를 싣는다.
-2026-08-31 이벤트 상세로 확인했다.
+### ⚠️ `ad_platform` 분리 규칙은 3개 이벤트에만 통한다
 
-`ad_platform` 으로 지면을 나누는 규칙의 **유일한 예외**다. 이 이벤트만
-`ad_unit_code` 로 판단한다. `(not set)` 을 "출처 불명"으로 읽으면 안 된다.
+`ad_platform` 을 싣는 것은 **`ad_impression` · `ad_cta_click` · `ad_click`** 뿐이다.
+나머지는 이 파라미터로 나눌 수 없다.
+
+- **`ad_request`(428,586) · `earn_virtual_currency`(320,231) 는 `ad_platform` 이 없다.**
+  결함이 아니라 **스펙대로다**(§2-5 · §2-7 파라미터 표에 이 항목이 없다).
+  구좌 구분이 필요하면 `section_name` / `ad_category` 를 쓴다.
+- **`ad_reward`(22,227) 도 `ad_platform` 이 비어 있다.** 그래도 AdMob 자동 수집이 맞다 —
+  대신 **`ad_unit_code`** 에 AdMob 광고 단위 ID(`ca-app-pub-1539304887624918…`)를 싣는다.
+  2026-08-31 이벤트 상세로 확인했다.
+
+`(not set)` 을 "출처 불명"으로 읽으면 안 된다. 위 세 이벤트에서 `(not set)` 은 정상이다.
+
+빈 문자열 `ad_platform` 값이 1,523건(0.05%) 있다. 여러 이벤트에 소수로 흩어져 있어
+분석에 영향이 없다.
 
 ### ⚠️ 광고 분석은 반드시 `ad_platform` 으로 분리한다
 
