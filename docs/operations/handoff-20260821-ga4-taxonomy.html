@@ -251,6 +251,22 @@ Info.plist 의 <code>FirebaseAppStoreReceiptURLCheckEnabled=false</code> 가 자
 <p style="margin:.6em 0 0"><strong>판단: iOS 는 막을 수단이 사실상 없다.</strong>
 <code>purchase</code> 만 필터링한 리포트를 매출 기준으로 고정하는 것이 유일한 실효 대책이다.</p>
 
+<div class="ok" style="margin-top:1em">
+<strong>✅ 매출 기준 리포트를 만들었다 (2026-08-31).</strong>
+GA4 → 탐색 → <strong><code>✅ 실제 매출 (purchase 전용) — 매출은 이 리포트로 보세요</code></strong>
+<p style="margin:.6em 0 0"><strong>GA4 표준 보고서의 "총수익"을 매출로 쓰지 말 것.</strong>
+자동 수집분이 섞여 있다. 28일 기준 $8,706.02 → 실제 <strong>$7,550.25</strong>
+(차이 $1,155.77 이 자동 수집분).</p>
+<pre>구성  행 날짜 / 열 플랫폼 / 값 총수익·이벤트 수
+필터  이벤트 이름 <strong>다음과 정확하게 일치</strong> purchase</pre>
+<p style="margin:.6em 0 0"><span class="k">필터 조건이 <strong>"포함"이 아니라 "정확하게 일치"</strong>
+여야 한다. "포함"으로 두면 <code>in_app_purchase</code> 가 같이 걸려 고치려던 문제가 그대로 남는다.</span>
+진단용으로 만든 <code>purchase 이중계상 시간대별 검증</code> 은 의도적으로 "포함"을 쓰므로
+매출 기준으로 쓰면 안 된다.</p>
+<p style="margin:.6em 0 0">이 리포트는 <strong>과거 구간에도 그대로 유효하다</strong> —
+소급 보정이 안 되는 8/13~8/26 도 이걸로 읽으면 정확하다.</p>
+</div>
+
 <p style="margin:.6em 0 0"><span class="k">소급 적용은 안 되므로 8/13~8/26 구간과 iOS
 잔여분은 <code>purchase</code> 만 필터링한 탐색 분석
 (<code>purchase 이중계상 시간대별 검증</code>)으로 읽는다.</span></p>
