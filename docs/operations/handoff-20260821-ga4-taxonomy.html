@@ -242,12 +242,23 @@ iOS 자동 수집이 21%(purchase 28건 대비 6건) 발생한다. 다만 비율
 <p style="margin:.6em 0 0"><code>in_app_purchase_cache_manager.dart:308</code> 의 주석
 "in_app_purchase 3.2.0+는 자동으로 StoreKit2를 활용"은 <code>enableStoreKit2()</code> 호출이
 없다는 점에서 근거가 약하지만, 서버 계약이 JWS 전용이므로 <strong>결과적으로는 맞다</strong>.</p>
-<p style="margin:.6em 0 0"><strong>남은 레버는 하나뿐이고 보장이 없다.</strong>
-Info.plist 의 <code>FirebaseAppStoreReceiptURLCheckEnabled=false</code> 가 자동 IAP 수집을
-끄는지 <span class="k">공식 문서에 없다</span>. firebase-ios-sdk #2435 에 2019년부터
-"iOS 자동 in_app_purchase 를 끄게 해달라"는 요청이 있다는 사실만 확인했다.
-현재 plist 에 이 키가 없어 기본값(활성)이다. 시도해 볼 수는 있으나 앱 배포가 필요하고
-부작용 범위가 불명이다.</p>
+<p style="margin:.6em 0 0"><strong>❌ <code>FirebaseAppStoreReceiptURLCheckEnabled=false</code> 도
+답이 아니다 (2026-08-31 조사 완료).</strong> 후보로 올렸다가 철회했다 —
+<strong>IAP 수집과 무관한 키다.</strong></p>
+<ul style="margin:.4em 0 0">
+<li>실제 용도는 <code>GULAppEnvironmentUtil</code> 의 <strong>앱 배포 경로 판별</strong>이다.
+  영수증 URL 에 <code>sandboxReceipt</code> 가 있는지 봐서
+  (<code>isAppStoreReceiptSandbox</code>) <strong>TestFlight 인지 App Store 인지</strong> 구분한다.</li>
+<li>끄면 <strong>TestFlight/프로덕션 구분이 깨진다.</strong> 스테이징 빌드를 계속 돌리는
+  상황에서 데이터가 섞일 실질 위험이다.</li>
+<li>APNs 환경 판별(<code>FIRAuthAPNSTokenManager</code>)에도 쓰이지만 <span class="k">우리는
+  <code>firebase_auth</code> 를 안 쓰고 푸시는 <code>firebase_messaging</code> 단독이라 해당 없다.</span></li>
+<li><strong>자동 IAP 수집을 끈다는 근거는 어디에도 없다.</strong> firebase-ios-sdk #2435 에
+  2019년부터 "iOS 자동 in_app_purchase 를 끄게 해달라"는 요청이 열려 있다는 것이
+  오히려 방법이 없다는 정황이다.</li>
+</ul>
+<p style="margin:.6em 0 0"><strong>다시 후보로 올리지 말 것.</strong> 매출 이중계상을 고치려다
+스테이징/프로덕션 구분을 잃는 거래가 된다.</p>
 <p style="margin:.6em 0 0"><strong>판단: iOS 는 막을 수단이 사실상 없다.</strong>
 <code>purchase</code> 만 필터링한 리포트를 매출 기준으로 고정하는 것이 유일한 실효 대책이다.</p>
 
