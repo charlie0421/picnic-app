@@ -91,6 +91,64 @@ await PicnicAnalytics.instance.setUserProperties(
 | `virtual_currency_name` | 시청 완료 시 지급 예정 재화 이름 | String | Event | `별사탕` |
 | `reward_amount` | 시청 완료 시 지급 예정 재화 수량 | Number | Event | `1` |
 
+## §2-A. AdMob 지면 — 자동 수집 이벤트 (2026-08-31 확정)
+
+`a7327ae7a feat(ads): enable AdMob in release builds` 로 AdMob 이 릴리스에서 다시
+켜지면서, **저희가 보내지 않는 광고 이벤트가 Firebase↔AdMob 연동으로 자동 생성**된다.
+2026-08-31 **AdMob 지면도 계측 범위에 포함**하기로 정했다.
+
+실측 (2026-08-03~30, 28일, `이벤트 이름` × `ad_platform`, 27개 이벤트 전수):
+
+| 이벤트 | (not set) | internal-shortform | Pangle | AdMob | 출처 |
+|---|---:|---:|---:|---:|---|
+| `ad_request` | **428,586** | 0 | 0 | 0 | 당사 |
+| `ad_impression` | 3,358 | **217,384** | **86,580** | **34,164** | 당사 + AdMob |
+| `earn_virtual_currency` | **320,231** | 0 | 0 | 0 | 당사 |
+| `ad_reward` | **22,227** | 0 | 0 | 0 | AdMob |
+| `ad_click` | 109 | 0 | 0 | **3,384** | AdMob |
+| `ad_cta_click` | 0 | **497** | 0 | 0 | 당사 |
+
+**AdMob 자동 수집은 이 3개뿐이다** — `ad_click` · `ad_reward` · `ad_impression` 일부.
+`ad_activeview` `ad_exposure` `ad_query` `adunit_exposure` 같은 다른 AdMob 예약 이벤트는
+27개 목록에 **없다**(2026-08-31 전수 확인).
+
+**구분하는 법:** 자동 수집분은 `firebase_event_origin` 이 `am`(AdMob)이고 광고 단위가
+`ca-app-pub-…` 형식이다.
+
+### ⚠️ `ad_platform` 분리 규칙은 3개 이벤트에만 통한다
+
+`ad_platform` 을 싣는 것은 **`ad_impression` · `ad_cta_click` · `ad_click`** 뿐이다.
+나머지는 이 파라미터로 나눌 수 없다.
+
+- **`ad_request`(428,586) · `earn_virtual_currency`(320,231) 는 `ad_platform` 이 없다.**
+  결함이 아니라 **스펙대로다**(§2-5 · §2-7 파라미터 표에 이 항목이 없다).
+  구좌 구분이 필요하면 `section_name` / `ad_category` 를 쓴다.
+- **`ad_reward`(22,227) 도 `ad_platform` 이 비어 있다.** 그래도 AdMob 자동 수집이 맞다 —
+  대신 **`ad_unit_code`** 에 AdMob 광고 단위 ID(`ca-app-pub-1539304887624918…`)를 싣는다.
+  2026-08-31 이벤트 상세로 확인했다.
+
+`(not set)` 을 "출처 불명"으로 읽으면 안 된다. 위 세 이벤트에서 `(not set)` 은 정상이다.
+
+빈 문자열 `ad_platform` 값이 1,523건(0.05%) 있다. 여러 이벤트에 소수로 흩어져 있어
+분석에 영향이 없다.
+
+### ⚠️ 광고 분석은 반드시 `ad_platform` 으로 분리한다
+
+포함을 택한 대가다. 합산하면 **서로 다른 지면이 한 숫자로 뭉개진다.**
+
+- `ad_click`(AdMob 자동)과 `ad_cta_click`(당사 자체 숏폼 CTA)은 **다른 이벤트다.**
+  이름이 비슷하다고 합치면 안 된다. `ad_click` 은 앱이 쓸 수 없는 예약어라
+  당사가 보낸 것일 수 없다(§2-8 참조).
+- `ad_impression` 은 **한 이름 아래 두 출처**가 섞여 들어온다. 지면별 노출을 보려면
+  반드시 `ad_platform` 으로 나눈다.
+
+### `ad_reward` 는 당사가 정의하지 않았다
+
+스프레드시트 10개 이벤트에 없다. AdMob 이 보상형 광고 보상 지급 시 자동 생성하며
+2026-08-27 부터 급증했다. 당사의 `earn_virtual_currency`(실제 재화 지급)와 **다른
+이벤트이며 수가 일치하지 않는다** — `ad_reward` 는 AdMob 지면만,
+`earn_virtual_currency` 는 전 지면을 덮는다(28일 320,387건).
+
 ### 6. `ad_impression` — 광고 SDK가 실제 광고를 노출했을 때
 
 | 파라미터 | 의미 | 타입 | 수준 | 예시값 |
