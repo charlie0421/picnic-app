@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GA4 purchase 매출 서버 사이드 — 핸드오프</title>
+<style>
+  body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;max-width:1040px;margin:40px auto;padding:0 24px;line-height:1.75;color:#1a1a2e}
+  h1{border-bottom:3px solid #7c6ff0;padding-bottom:10px}
+  h2{margin-top:2.4em;border-left:4px solid #7c6ff0;padding-left:10px}
+  h3{margin-top:1.7em;color:#3a3a5e}
+  .tw{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+  th,td{border:1px solid #d8d8e8;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#f2f0ff}
+  td.n{text-align:right;font-variant-numeric:tabular-nums}
+  code{background:#f4f4f8;padding:1px 5px;border-radius:4px;font-size:.92em}
+  pre{background:#f4f4f8;padding:12px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55}
+  .ok{background:#e8f7ee;border-left:5px solid #0a8f4a;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .warn{background:#fff4e5;border-left:5px solid #ff9800;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .stop{background:#fdecea;border-left:5px solid #c0392b;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .meta{color:#666;font-size:13px}
+  li{margin:5px 0}
+  .k{font-weight:700;color:#c0392b}
+  .done{color:#0a8f4a;font-weight:700}
+  .todo{color:#c0392b;font-weight:700}
+  .unk{color:#b7791f;font-weight:700}
+</style>
+</head>
+<body>
+
+<h1>GA4 purchase 매출 서버 사이드 — 핸드오프</h1>
+<p class="meta">2026-09-02 · picnic-supabase #109 프로덕션 배포 및 후속 회귀 수정 ·
+선행 문서 <code>docs/operations/handoff-20260821-ga4-taxonomy.html</code></p>
+
+<div class="ok">
+<b>한 줄 요약</b> — #109(GA4 매출 계약 서버 사이드)가 프로덕션에 <b>전부 적용됐고 플래그도 켜졌다.</b>
+적용 과정에서 결함 2건을 잡아 각각 PR #116·#117 로 고쳤다.
+<b>남은 것은 GA4 에서 Android 매출 복귀를 눈으로 확인하는 것 하나뿐이다.</b>
+</div>
+
+<h2>1. 현재 프로덕션 상태</h2>
+
+<div class="tw">
+<table>
+<thead><tr><th>대상</th><th>상태</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>마이그레이션 <code>20260824051000</code> <code>20260824060000</code></td>
+    <td class="done">적용 · 이력 기록</td>
+    <td>ISO 157건 / 제약 4 / 불변 트리거 / 빌린 CREATE 양쪽 반납</td></tr>
+<tr><td><code>grant_verified_purchase</code></td>
+    <td class="done">16-arg · 19-arg 공존</td>
+    <td>두 시그니처를 실제 호출해 확인(롤백, 정산 0건)</td></tr>
+<tr><td><code>wallet-provider-event</code></td><td class="done">v28</td><td>2026-09-01 06:36Z</td></tr>
+<tr><td><code>wallet-operation-worker</code></td><td class="done">v28</td><td>2026-09-01 06:36Z</td></tr>
+<tr><td><code>verify-receipt-v2</code></td><td class="done">v28</td><td>2026-09-02 02:41Z (#117 포함)</td></tr>
+<tr><td><code>verify_receipt</code></td><td class="unk">v186 — 손대지 않음</td><td>구버전 앱용 동결 레거시. <b>배포 금지</b></td></tr>
+<tr><td><code>wallet.purchase_revenue_fields_enabled</code></td>
+    <td class="done">ON (version 2)</td><td>2026-09-01 07:55Z</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>플래그가 여는 것</h3>
+<p><b>영수증 검증 응답에 <code>currency</code>·<code>value</code> 두 키를 실을지</b>만 정한다. 그게 전부다.</p>
+<ul>
+<li>판정 지점은 <code>wallet-operation-worker</code> 의 <code>withPurchaseAnalytics</code> <b>한 곳</b>이고,
+    <b>모든 실패 경로가 원본 결과를 그대로 돌려준다</b>(플래그 조회 실패·RPC 오류·통화 형식 불일치·예외).</li>
+<li><b>스냅샷 기록은 플래그와 무관하다.</b> <code>p_analytics_*</code> 는 항상 기록된다.</li>
+<li>구버전 앱은 플래그가 아니라 <b>capability 게이트</b>가 막는다 —
+    <code>parser_capabilities: ['purchase_revenue_v1']</code> 미선언 요청에는
+    <code>shapeForCapabilities</code> 가 두 키를 <b>키 자체로 삭제</b>한다(<code>null</code> 이 아니라 부재).</li>
+</ul>
+<p>되돌리기는 SQL 한 줄이고 재배포가 필요 없다.</p>
+<pre>update public.wallet_runtime_flags
+   set value_json = 'false'::jsonb, version = version + 1
+ where flag_key = 'wallet.purchase_revenue_fields_enabled';</pre>
+
+<h2>2. 잡은 결함 2건</h2>
+
+<h3>결함 A — 마이그레이션이 프로덕션에 적용 불가 (PR #116, 머지)</h3>
+<p><code>alter ... owner to wallet_command_owner</code> 는 <b>새 소유자</b>가 그 스키마에 CREATE 를
+가져야 통과한다. 두 마이그레이션은 <code>public</code> 에만 CREATE 를 빌렸는데, 프로덕션은
+<code>wallet_private</code> 에도 직접 쓰기 잠금을 걸어 <b>소유자 자신에게서 CREATE 를 회수</b>해 둔 상태였다.</p>
+
+<div class="stop">
+<b class="k">스테이징 통과 ≠ 프로덕션 통과.</b> <code>wallet_command_owner</code> 의
+<code>wallet_private</code> CREATE 는 <b>스테이징 true / 프로덕션 false</b> 다.
+그래서 이 계열 결함은 <b>스테이징에서 성공하고 프로덕션에서만 실패한다.</b>
+실제로 스테이징 리허설은 두 파일을 오류 없이 통과시켰고, 같은 파일이 프로덕션에서 첫 소유권 이전에 죽었다.
+</div>
+
+<p><b>How to apply:</b> <code>wallet_private</code> 에 객체를 만드는 마이그레이션은 반드시
+<code>grant create on schema wallet_private to &lt;owner&gt;</code> … <code>revoke</code> 쌍을 넣는다
+(<code>20260721104000</code> 의 <code>wallet_state_owner</code> 선례와 동일).
+그리고 <b>프로덕션에서 <code>begin; …; rollback;</code> 으로 먼저 시연</b>한다.</p>
+
+<h3>결함 B — 플래그를 켠 것이 Android 매출을 0 으로 만들었다 (PR #117, 머지·배포)</h3>
+
+<p>앱의 우선순위 규칙(<code>analytics_outbox.dart</code> <code>enqueueOrMergePurchase</code>):</p>
+<pre>currency = server ?? catalog ?? observed;
+value    = server != null ? serverValue : (catalog != null ? catalogValue : null);</pre>
+
+<p><b>서버가 통화를 주는 순간 금액도 서버 것만 쓴다.</b> Google 은 provider 응답에 가격 필드가 없어
+<code>serverValue</code> 가 항상 null 이므로, 통화만 보내면 앱이 <b>이미 들고 있던 카탈로그 금액까지 버린다.</b></p>
+
+<p>프로덕션 실측 (플래그 ON 이후):</p>
+<div class="tw">
+<table>
+<thead><tr><th>공급자</th><th class="n">정산</th><th class="n">통화+금액</th><th class="n">통화만</th><th class="n">없음</th></tr></thead>
+<tbody>
+<tr><td>APPLE</td><td class="n">26</td><td class="n"><b>26</b></td><td class="n">0</td><td class="n">0</td></tr>
+<tr><td>GOOGLE</td><td class="n">17</td><td class="n"><b>0</b></td><td class="n"><b>16</b></td><td class="n">1</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>앱을 탓할 수 없다. <b>응답이 출처를 알려주지 않아서</b> <code>APPLE_JWS</code>(서버가 실제로 아는 값)와
+<code>GOOGLE_CLIENT_STOREFRONT</code>(앱이 방금 보낸 값의 메아리)를 구분할 방법이 없다.</p>
+
+<p><b>수정:</b> <code>shapeForCapabilities</code> 가 금액 없으면 통화도 뺀다(7키로 복귀).
+Google 응답에는 두 키가 모두 없어지고 앱은 카탈로그 짝을 쓴다 — 플래그를 켜기 전과 같은 동작이다.
+그 둘은 같은 <code>ProductDetails</code> 한 번 읽기에서 나오므로 어긋날 수 없다.
+Apple 은 JWS 에서 둘 다 나오므로 영향이 없다. <b>기존 B-3 규칙("통화만 있는 것은 정상")을 대체한다.</b></p>
+
+<h2>3. 남은 작업 — 딱 하나</h2>
+
+<div class="warn">
+<b class="todo">GA4 에서 Android <code>purchase</code> 매출 복귀 확인</b> (2026-09-03 예정)<br>
+서버 쪽 검증은 끝났다(배포본 코드 확인 · 단위 테스트 187 passed · 정산 회귀 0).
+그러나 <b>응답은 앱으로 가고 앱이 GA4 로 보내므로, 끝단은 서버 DB 로 확인할 수 없다.</b>
+</div>
+
+<p><b>확인 방법</b> — GA4 → 탐색 → <code>✅ 실제 매출 (purchase 전용)</code> 리포트에서 날짜×플랫폼으로 본다.</p>
+
+<p><b>검증할 구체적 예측</b> — 수정 배포(2026-09-02 02:41Z) 직후 들어온 Google 3건은 한국 사용자(KRW)다.</p>
+<div class="tw">
+<table>
+<thead><tr><th>시각(UTC)</th><th>상품</th><th>기대 <code>value</code></th></tr></thead>
+<tbody>
+<tr><td>02:43:56</td><td><code>STAR100</code></td><td>≈ ₩1,400</td></tr>
+<tr><td>02:45:38</td><td><code>STAR200</code></td><td>카탈로그 KRW 가</td></tr>
+<tr><td>02:47:40</td><td><code>STAR600</code></td><td>카탈로그 KRW 가</td></tr>
+</tbody>
+</table>
+</div>
+<p>9/1 하루는 Android <code>value</code> 가 비어 있어야 정상이고(결함 B 구간),
+9/2 02:41Z 이후부터 다시 채워져야 한다. <b>이 경계가 보이면 수정이 끝단까지 먹은 것이다.</b></p>
+
+<div class="stop">
+<b class="k">주의 — 스냅샷으로 판정하지 말 것.</b> Google 스냅샷은 수정 후에도 계속
+<code>analytics_currency=KRW, analytics_price_milliunits=null</code> 이다. 정상이다.
+DB 는 검증기가 알아낸 것을 기록하고, 구글은 가격을 주지 않는다. 수정한 곳은 <b>응답 경계</b>다.
+</div>
+
+<h2>4. 다음 사람이 반드시 알아야 할 것</h2>
+
+<h3>배포 대상은 <code>verify_receipt</code> 가 아니라 <code>verify-receipt-v2</code></h3>
+<p>앱 상수가 <code>receiptVerificationFunction = 'verify-receipt-v2'</code> 이고,
+<code>verify_receipt</code> 슬롯(v186, 2025-12-30)은 <b>구버전 앱 전용 레거시 v162 로 동결</b>돼 있다.
+레포의 <code>verify_receipt/index.ts</code> 는 wallet.v1 구현이라 그 슬롯에 배포하면 동결이 풀린다.
+<code>verify-receipt-v2</code> 가 그 파일을 import 해서 번들한다. <b>그 슬롯은 건드리지 말 것.</b></p>
+
+<h3 class="k">함수 배포 전에는 딸려 갈 변경을 반드시 확인한다</h3>
+<pre>git log &lt;현재_배포본_sha&gt;..origin/main -- supabase/functions</pre>
+<p>이번에 실제로 걸렸다. <code>main</code> 에 <b>#115</b> 가 들어와 있었는데, 그
+<code>_shared/wallet/purchase-provider-verifiers.ts</code> 변경(Google pending 을 retryable 로 전환)의 짝인
+마이그레이션 <code>..._google_pending_purchase_retry_policy.sql</code>(518줄)이
+<b>프로덕션에 미적용</b>이었다. 재시도 정책 없이 검증기만 나가면 안 되므로,
+<code>2d14e79</code>(당시 프로덕션 배포본) + #117 만으로 번들해 배포했다.
+배포본을 다시 읽어 구버전 <code>GOOGLE_NOT_PURCHASED</code> 가 남아 있는 것으로 미혼입을 확인했다.</p>
+<p class="meta">#115 롤아웃은 별도 워크트리 <code>hotfix/google-pending-purchase-rollout</code> 가 소유한다.</p>
+
+<h3>프로덕션 쓰기 경로</h3>
+<ul>
+<li><code>supabase db query --file &lt;path&gt; --linked</code> 를 쓴다. SQL 을 손으로 옮겨 적지 않아도 되고
+    (통화 코드 157개에서 오타가 난다) 파일 전체가 <b>한 트랜잭션</b>이라 실패 시 전부 롤백된다.</li>
+<li><code>db query</code> 에는 <b><code>--project-ref</code> 플래그가 없다</b>. <code>--linked</code> 만 있다.
+    (이걸 몰라 감시 스크립트가 조용히 빈 값을 0 으로 읽고 "정산 없음"을 오보한 적이 있다.
+    스크립트에서 <b>stderr 를 버리지 말 것.</b>)</li>
+<li>MCP <code>execute_sql</code> 과 CLI <code>db query</code> <b>둘 다 <code>current_user=postgres</code></b> 다. 권한 차이가 있다고 오해하지 말 것.</li>
+<li><code>supabase db push</code> 는 못 쓴다. 스테이징은 로컬에 없는 버전이 있어 거부되고,
+    프로덕션은 버전을 재번호해 적용한다(레포 <code>20260824031038</code> → 프로덕션 <code>20260824042222</code>).</li>
+<li><code>wallet-production-rollout.yml</code> 도 경로가 아니다 — 매니페스트가 <code>status: blocked</code> 다.</li>
+</ul>
+
+<h3>Android 매출은 iOS 와 상한이 다르다</h3>
+<div class="tw">
+<table>
+<thead><tr><th></th><th>통화 출처</th><th>구버전 앱</th></tr></thead>
+<tbody>
+<tr><td>iOS</td><td><b>서버가 Apple JWS 를 직접 읽음</b> (<code>APPLE_JWS</code>)</td>
+    <td>✅ 스냅샷엔 남는다(응답만 capability 게이트)</td></tr>
+<tr><td>Android</td><td><b>앱의 <code>client_observed_currency</code> 뿐</b></td>
+    <td>❌ 영구 결측</td></tr>
+</tbody>
+</table>
+</div>
+<p>Google Play 검증 응답에는 가격·통화 필드가 <b>없다</b>(구 <code>purchases.products.get</code>,
+신 <code>productsv2</code> 양쪽 다). Billing 8.x 로 올려도 서버는 통화를 모른다.
+<b>출처 A(regionCode → 카탈로그)는 2026-08-25 에 불필요로 종결했다 — 다시 꺼내지 말 것.</b></p>
+
+<p><code>client_observed_currency</code> 는 <b>130104 부터</b> 나간다. 2026-09-01 실측 보급률
+(<code>public.devices</code>, 최근 2일 활성): <b>android 828/1188 = 69.7%, ios 566/812 = 69.7%.</b>
+실제 Google 통화 확보율은 <b>88.9%</b> 로 보급률보다 높았다(구매자가 최신 버전에 쏠린 것으로 보인다).</p>
+
+<div class="warn">
+<code>analytics_*</code> 컬럼은 <b>불변 트리거로 잠겨 있어 소급 backfill 이 불가능하다.</b>
+구버전 앱에서 들어온 Android 구매는 영구히 매출 없는 건이다.
+확실한 레버는 <b>강제 업데이트뿐</b>이다.
+</div>
+
+<h3>스냅샷의 <code>app_build=0</code> 은 정상</h3>
+<p>앱이 요청 본문에 <code>app_build</code>·<code>app_version</code> 을 아예 넣지 않는다
+(<code>receipt_format_helper.dart</code>). 서버가 <code>0</code>/<code>"0.0.0"</code> 으로 기본값을 채운다.
+<b>구버전 신호로 오독하지 말 것</b> — 스냅샷만으로는 앱 버전을 알 수 없다.</p>
+
+<h2>5. 이번 작업 범위 밖 — 별도로 볼 신호</h2>
+<p><code>GOOGLE_NOT_PURCHASED</code> DEAD 가 <b>2026-08-30 부터</b> 나타났다(그 전 5일은 0건).</p>
+<div class="tw">
+<table>
+<thead><tr><th>날짜</th><th class="n">인테이크</th><th class="n">DEAD</th><th class="n">NOT_PURCHASED</th></tr></thead>
+<tbody>
+<tr><td>09-01</td><td class="n">20</td><td class="n">3</td><td class="n">2</td></tr>
+<tr><td>08-31</td><td class="n">63</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><td>08-30</td><td class="n">84</td><td class="n">6</td><td class="n">6</td></tr>
+<tr><td>08-29 이전</td><td class="n">—</td><td class="n">0</td><td class="n">0</td></tr>
+</tbody>
+</table>
+</div>
+<p>우리 배포와 무관하다(8/30 은 구버전 코드 상태였고, 이 오류는 <code>verifyGoogle</code> 에서
+analytics·정산 코드에 닿기 전에 종결된다). <b>#115 가 바로 이걸 다룬다</b> — pending 구매를
+retryable 로 바꿔 인박스가 DEAD(불변)로 굳는 것을 막는다.</p>
+
+<h2>6. 참고 커밋·PR</h2>
+<div class="tw">
+<table>
+<thead><tr><th>레포</th><th>PR</th><th>내용</th></tr></thead>
+<tbody>
+<tr><td>picnic-supabase</td><td>#109</td><td>GA4 매출 계약 서버 사이드 (선행, 8/28 머지)</td></tr>
+<tr><td>picnic-supabase</td><td><b>#116</b></td><td>wallet_private CREATE 대여 — 프로덕션 적용 가능하게</td></tr>
+<tr><td>picnic-supabase</td><td><b>#117</b></td><td>통화·금액을 짝으로만 전송 (Android 매출 회귀 수정)</td></tr>
+<tr><td>picnic-app</td><td>#189</td><td>B-9 <code>sign_up</code> DB 대조 — 오탐이 아니라 누락(커버리지 88.3%)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="meta">관련 문서 — <code>docs/analytics/ga4-event-taxonomy.md</code> (스펙),
+<code>docs/operations/handoff-20260821-ga4-taxonomy.html</code> (택소노미 전체 진행 상황)</p>
+
+</body>
+</html>
