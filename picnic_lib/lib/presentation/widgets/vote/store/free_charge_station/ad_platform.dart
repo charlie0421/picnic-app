@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart' show kDebugMode, visibleForTesting;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
@@ -426,11 +427,11 @@ abstract class AdPlatform {
 
   /// Sentry 에 보내지 않아도 되는 광고 에러 감지.
   ///
-  /// 판정은 전적으로 [message] 문자열에 달려 있다(AdMob 의 [LoadAdError] 코드만
-  /// 예외). 따라서 호출부는 **실제 에러 텍스트**를 넘겨야 한다 — 하드코딩한
-  /// 일반 라벨('… 광고 로드 실패' 등)을 넘기면 SDK 초기화 실패·설정 오류 같은
-  /// 진짜 버그까지 no-fill 로 분류되어 사용자에겐 "모든 광고 소진"으로 보이고
-  /// Sentry 보고까지 막힌다.
+  /// 판정은 전적으로 [message] 문자열에 달려 있다(AdMob 의 [LoadAdError] 코드,
+  /// Pangle 의 `LoadFailed` 코드+문구 조합만 예외). 따라서 호출부는 **실제 에러
+  /// 텍스트**를 넘겨야 한다 — 하드코딩한 일반 라벨('… 광고 로드 실패' 등)을
+  /// 넘기면 SDK 초기화 실패·설정 오류 같은 진짜 버그까지 no-fill 로 분류되어
+  /// 사용자에겐 "모든 광고 소진"으로 보이고 Sentry 보고까지 막힌다.
   ///
   /// 인스턴스 상태를 쓰지 않으므로 static 이다 — 테스트가 로직을 복제하지 않고
   /// 이 구현을 그대로 호출할 수 있어야 키워드 목록이 바뀌어도 검증이 따라간다.
@@ -449,6 +450,20 @@ abstract class AdPlatform {
       if (error.code == 1 || error.code == 2 || error.code == 3) {
         return true;
       }
+    }
+
+    // Pangle 안드로이드 네이티브(PangleNativeHandler.loadRewardedAd)는
+    // PAGRewardedAdLoadListener.onError 의 실제 원인 코드를 버리고 항상
+    // `LoadFailed` 로 감싼다 — 진짜 사유는 msg(=[message])에만 있다. 그래서
+    // 코드만으로는 no-fill 을 가려낼 수 없고, no-fill 임을 나타내는 SDK 문구와
+    // 함께 확인해야 한다(PICNIC-APP-5GQ). 다른 사유(설정 오류 등)는 같은
+    // 코드라도 이 문구가 없으므로 계속 보고된다.
+    if (platform == 'Pangle' &&
+        error is PlatformException &&
+        error.code == 'LoadFailed' &&
+        (lowercaseMessage.contains('was not filled') ||
+            lowercaseMessage.contains('lack of suitable ads'))) {
+      return true;
     }
 
     final nonReportableKeywords = [
