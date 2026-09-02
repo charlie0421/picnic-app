@@ -33,10 +33,78 @@
 <p class="meta">2026-09-02 · picnic-supabase #109 프로덕션 배포 및 후속 회귀 수정 ·
 선행 문서 <code>docs/operations/handoff-20260821-ga4-taxonomy.html</code></p>
 
+<div class="stop">
+<b class="k">2026-09-02 정정 — GA4 확인 결과, 서버 사이드 매출 계약은 프로덕션에서 한 번도 동작한 적이 없다.</b><br>
+플래그·capability 게이트·#117 모두 앱에 관측 불가한 no-op 이었다. 원인은 워커의 타입 게이트가
+영원히 false 인 것(§0). 수정은 picnic-supabase <b>#118</b>(1줄 + 핸들러 테스트), <b>미배포</b>.
+아래 §2 결함 B 와 §3 은 정정 전 서술이며, 실측 근거가 스냅샷이었음을 §0 에 적었다.
+</div>
+
 <div class="ok">
-<b>한 줄 요약</b> — #109(GA4 매출 계약 서버 사이드)가 프로덕션에 <b>전부 적용됐고 플래그도 켜졌다.</b>
+<b>한 줄 요약(정정 전)</b> — #109(GA4 매출 계약 서버 사이드)가 프로덕션에 <b>전부 적용됐고 플래그도 켜졌다.</b>
 적용 과정에서 결함 2건을 잡아 각각 PR #116·#117 로 고쳤다.
-<b>남은 것은 GA4 에서 Android 매출 복귀를 눈으로 확인하는 것 하나뿐이다.</b>
+<s>남은 것은 GA4 에서 Android 매출 복귀를 눈으로 확인하는 것 하나뿐이다.</s>
+</div>
+
+<h2>0. 정정 — GA4 실측과 진짜 원인 (2026-09-02)</h2>
+
+<h3>GA4 가 보여준 것</h3>
+<p>GA4 <code>✅ 실제 매출 (purchase 전용)</code> 을 <b>날짜+시간(속성 시간대 GMT+9) × 앱 버전 × 통화</b>로
+쪼개 DB 의 Google 정산과 1:1 대조했다. 플래그 ON(9/1 07:55Z = 16:55 KST) 이후 #117 배포(9/2 02:41Z = 11:41 KST) 전까지
+Google "통화만" 정산 16건 <b>전부 GA4 에 카탈로그 금액이 찍혀 있다.</b> 9/1 하루 Android <code>value</code> 가
+비어 있어야 한다는 §3 의 예측은 <b>틀렸다</b> — 결함 B 는 GA4 에서 발생한 적이 없다.</p>
+<div class="tw">
+<table>
+<thead><tr><th>KST</th><th>상품 · 통화(DB)</th><th>GA4 Android 총수익 (앱 1.3.1)</th></tr></thead>
+<tbody>
+<tr><td>9/1 19:51</td><td>STAR100 KRW</td><td>$1.09 (= ₩1,500)</td></tr>
+<tr><td>9/1 20:52</td><td>STAR1000 IDR</td><td>$8.98</td></tr>
+<tr><td>9/1 22:52 · 22:53</td><td>STAR100 + STAR200 KRW</td><td>$3.27 (= ₩1,500 + ₩3,000)</td></tr>
+<tr><td>9/1 23:02</td><td>STAR200 USD</td><td>$1.99</td></tr>
+<tr><td>9/2 09:37 · 09:39</td><td>STAR200 + STAR600 KRW</td><td>$8.77 (= ₩3,000 + ₩9,100)</td></tr>
+<tr><td>9/2 09:43 · 09:44</td><td>STAR1000 + STAR600 USD</td><td>$15.98 (= $9.99 + $5.99)</td></tr>
+<tr><td>9/2 10:02</td><td>STAR200 (통화 null)</td><td>$2.19 — 앱 1.3.0, 구버전 경로도 정상</td></tr>
+</tbody>
+</table>
+</div>
+<p>앱은 서버 통화를 받으면 <code>value</code> 를 비운다(130104 코드 확인, §2 의 우선순위 규칙 그대로). 그런데 값이 있다
+→ <b>앱이 서버 통화를 받은 적이 없다.</b></p>
+
+<h3>진짜 원인 — 워커의 타입 게이트가 영원히 false</h3>
+<pre>// wallet-operation-worker/index.ts (배포본 v28 번들에도 그대로)
+const shaped = actualType === "MOBILE_PURCHASE" || actualType === "WEB_PURCHASE"
+  ? await withPurchaseAnalytics(client, inboxId, processed)
+  : processed;
+
+-- get_wallet_operation_event_type (20260721104000, 프로덕션 pg_get_functiondef 동일)
+select case when operation_type in('MOBILE_PURCHASE','WEB_PURCHASE') then 'PURCHASE' ...</pre>
+<p>RPC 가 두 타입을 <b><code>'PURCHASE'</code> 하나로 접어서</b> 돌려주므로 게이트가 절대 맞지 않는다.
+플래그 ON 이후 정산 63건(Apple 38 · Google 25)을 프로덕션에서 조회하니 전부 <code>actual_type='PURCHASE'</code>.
+즉 <code>withPurchaseAnalytics</code> 는 <b>프로덕션에서 한 번도 호출되지 않았고</b>, 응답은 항상 7키였다.</p>
+<ul>
+<li>§2 결함 B 의 "Google 17건 중 16건 통화만" 은 <b>스냅샷 컬럼</b>(<code>analytics_currency</code>)을 센 것이지 응답을 본 게 아니다.
+    §3 의 경고("스냅샷으로 판정하지 말 것")를 §2 가 스스로 어겼다.</li>
+<li>#117 자체는 옳다(잠재 결함을 막았고, 게이트를 고쳐 켜도 Google 이 안전한 이유다). 실측 서술만 틀렸다.</li>
+<li>Apple JWS 금액도 스냅샷에만 있고 앱에는 간 적이 없다. iOS 매출도 내내 카탈로그 값이다.</li>
+<li>단위 테스트 187개가 못 잡은 이유: 게이트는 <code>handler</code> 안에 있고, 테스트는 <code>withPurchaseAnalytics</code> 를 직접 불렀다.</li>
+</ul>
+
+<h3>수정 — picnic-supabase #118 (미배포)</h3>
+<p>게이트를 <code>actualType === "PURCHASE"</code> 로(1줄). 가짜 PostgREST 가 프로덕션처럼 <code>"PURCHASE"</code> 를 답하게 하고
+실제 <code>handler</code> 를 통과시키는 테스트를 추가했다(RED 확인 후 GREEN, 188 passed).</p>
+<div class="tw">
+<table>
+<thead><tr><th>배포 후</th><th>응답</th><th>앱</th></tr></thead>
+<tbody>
+<tr><td>Google</td><td>value 없음 → #117 이 두 키 모두 제거</td><td>카탈로그 짝 — <b>현행과 동일</b></td></tr>
+<tr><td>Apple</td><td>JWS 통화·금액 짝</td><td>서버 값 사용 — <b>이때부터 처음으로 바뀐다</b></td></tr>
+</tbody>
+</table>
+</div>
+<div class="warn">
+<b>배포 전 확인할 것</b> — Apple 은 서버 값이 앱 카탈로그 값과 다를 수 있다(스토어프론트·티어 차이). 배포 직후 iOS
+<code>purchase</code> 매출이 어떻게 움직이는지 GA4 에서 봐야 한다. 배포는 #117 과 같은 이유로 <code>origin/main</code> 이 아니라
+프로덕션 베이스라인(<code>7553176</code>) + #118 로 번들한다(#115 짝 마이그레이션 미적용).
 </div>
 
 <h2>1. 현재 프로덕션 상태</h2>
@@ -95,7 +163,9 @@
 (<code>20260721104000</code> 의 <code>wallet_state_owner</code> 선례와 동일).
 그리고 <b>프로덕션에서 <code>begin; …; rollback;</code> 으로 먼저 시연</b>한다.</p>
 
-<h3>결함 B — 플래그를 켠 것이 Android 매출을 0 으로 만들었다 (PR #117, 머지·배포)</h3>
+<h3>결함 B — 플래그를 켠 것이 Android 매출을 0 으로 만들었다 (PR #117, 머지·배포) — <span class="k">정정: 실제로는 발생하지 않았다(§0)</span></h3>
+<div class="warn">아래 "프로덕션 실측" 표는 <b>스냅샷 컬럼</b>을 센 것이다. 응답에는 통화가 실린 적이 없어(§0) 앱은 카탈로그 짝을 계속 썼다.
+#117 의 코드 변경은 그대로 유효하다.</div>
 
 <p>앱의 우선순위 규칙(<code>analytics_outbox.dart</code> <code>enqueueOrMergePurchase</code>):</p>
 <pre>currency = server ?? catalog ?? observed;
@@ -123,10 +193,15 @@ Google 응답에는 두 키가 모두 없어지고 앱은 카탈로그 짝을 �
 그 둘은 같은 <code>ProductDetails</code> 한 번 읽기에서 나오므로 어긋날 수 없다.
 Apple 은 JWS 에서 둘 다 나오므로 영향이 없다. <b>기존 B-3 규칙("통화만 있는 것은 정상")을 대체한다.</b></p>
 
-<h2>3. 남은 작업 — 딱 하나</h2>
+<h2>3. 남은 작업 — <s>딱 하나</s> (정정: §0 참조)</h2>
+
+<div class="ok">
+<b class="done">GA4 확인 완료(2026-09-02)</b> — Android 매출은 끊긴 적이 없다. 이유는 §0. 아래 예측표는 기록으로 남긴다.
+<b class="todo">실제 남은 작업:</b> #118 머지·배포 결정, 배포 후 iOS 매출 변화 관찰.
+</div>
 
 <div class="warn">
-<b class="todo">GA4 에서 Android <code>purchase</code> 매출 복귀 확인</b> (2026-09-03 예정)<br>
+<b class="todo">(정정 전) GA4 에서 Android <code>purchase</code> 매출 복귀 확인</b> (2026-09-03 예정)<br>
 서버 쪽 검증은 끝났다(배포본 코드 확인 · 단위 테스트 187 passed · 정산 회귀 0).
 그러나 <b>응답은 앱으로 가고 앱이 GA4 로 보내므로, 끝단은 서버 DB 로 확인할 수 없다.</b>
 </div>
@@ -239,7 +314,8 @@ retryable 로 바꿔 인박스가 DEAD(불변)로 굳는 것을 막는다.</p>
 <tbody>
 <tr><td>picnic-supabase</td><td>#109</td><td>GA4 매출 계약 서버 사이드 (선행, 8/28 머지)</td></tr>
 <tr><td>picnic-supabase</td><td><b>#116</b></td><td>wallet_private CREATE 대여 — 프로덕션 적용 가능하게</td></tr>
-<tr><td>picnic-supabase</td><td><b>#117</b></td><td>통화·금액을 짝으로만 전송 (Android 매출 회귀 수정)</td></tr>
+<tr><td>picnic-supabase</td><td><b>#117</b></td><td>통화·금액을 짝으로만 전송 (잠재 결함 차단 — 실측 서술은 §0 에서 정정)</td></tr>
+<tr><td>picnic-supabase</td><td><b>#118</b></td><td>워커 타입 게이트 수정 (<code>PURCHASE</code>) — 서버 매출 계약을 실제로 켜는 변경, <b>미배포</b></td></tr>
 <tr><td>picnic-app</td><td>#189</td><td>B-9 <code>sign_up</code> DB 대조 — 오탐이 아니라 누락(커버리지 88.3%)</td></tr>
 </tbody>
 </table>
