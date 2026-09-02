@@ -1503,6 +1503,10 @@ class AppLocalizationsFil extends AppLocalizations {
       'Ang unsubscribe ay matagumpay na naproseso.';
 
   @override
+  String get withdrawal_failed =>
+      'Nabigo ang pag-alis ng account. Pakisubukang muli maya-maya.';
+
+  @override
   String get vote_item_request_already_applied_artist =>
       'Nag -apply ka na para sa artist na ito.';
 

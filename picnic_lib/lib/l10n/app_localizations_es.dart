@@ -1493,6 +1493,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get withdrawal_success => 'El Unfrenscribe se procesó con éxito.';
 
   @override
+  String get withdrawal_failed =>
+      'No se pudo procesar la baja. Vuelve a intentarlo en unos momentos.';
+
+  @override
   String get vote_item_request_already_applied_artist =>
       'Ya has solicitado este artista.';
 

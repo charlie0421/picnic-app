@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -27,7 +28,15 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+/// 테스트에서 delete-user Edge Function 호출을 가로채기 위한 주입 지점.
+///
+/// 프로덕션에서는 항상 null 이고, 그때는 기존과 똑같이 top-level [http.post] 를
+/// 쓴다. 테스트는 tearDown 에서 반드시 null 로 되돌린다.
+@visibleForTesting
+http.Client? testWithdrawalHttpClient;
 
 class MyProfilePage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_myprofile';
@@ -216,6 +225,10 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     String formattedDate =
         DateFormat.yMMMMd(locale).add_jm().format(futureDate);
 
+    // 요청이 진행 중인지. StatefulBuilder 의 builder 는 setState 마다 다시
+    // 불리므로 상태는 반드시 그 바깥에 둔다.
+    bool isWithdrawing = false;
+
     showModalBottomSheet(
         context: context,
         shape: RoundedRectangleBorder(
@@ -224,8 +237,44 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             topRight: const Radius.circular(48),
           ),
         ),
-        builder: (context) => StatefulBuilder(
-              builder: (context, setState) => Container(
+        builder: (context) =>
+            StatefulBuilder(builder: (context, setModalState) {
+              /// 확인 버튼 핸들러.
+              ///
+              /// 예전에는 `onPressed: () => _deleteAccount()` 라서 서버가 500 을
+              /// 돌려주면 예외가 버튼 콜백 안에서 사라지고 화면에 아무 변화가
+              /// 없었다. 사용자는 "버튼이 안 눌린다" 고 인지했고(PICNIC-2520),
+              /// 응답을 기다리는 동안 계속 다시 탭할 수도 있었다.
+              Future<void> handleWithdraw() async {
+                if (isWithdrawing) return;
+                setModalState(() => isWithdrawing = true);
+                try {
+                  await _deleteAccount();
+                } catch (e, s) {
+                  // 사용자 피드백이 먼저다. _deleteAccount 가 남긴 로그와 별개로
+                  // Sentry 에는 계속 올라가야 하므로(PICNIC-APP-5GA) 여기서
+                  // 명시적으로 보고한다 — rethrow 로 unhandled async error 를
+                  // 만들어 zone 핸들러에 맡기면 이 catch 가 UI 를 복구할 기회를
+                  // 잃는다.
+                  final dialogContext = navigatorKey.currentContext;
+                  if (dialogContext != null && dialogContext.mounted) {
+                    showSimpleDialog(
+                      content: AppLocalizations.of(dialogContext)
+                          .withdrawal_failed,
+                      type: DialogType.error,
+                    );
+                  }
+                  unawaited(Sentry.captureException(e, stackTrace: s));
+                } finally {
+                  // 성공하면 _deleteAccount 가 이미 모달을 닫았다. 그때는
+                  // StatefulBuilder 가 사라졌으므로 setState 를 건너뛴다.
+                  if (context.mounted) {
+                    setModalState(() => isWithdrawing = false);
+                  }
+                }
+              }
+
+              return Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Text(
@@ -258,7 +307,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                     children: [
                       Expanded(
                         child: MaterialButton(
-                            onPressed: () => _deleteAccount(),
+                            onPressed: isWithdrawing ? null : handleWithdraw,
                             child: Container(
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.symmetric(
@@ -267,18 +316,36 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   minWidth: 100.w,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.grey300,
+                                  // 활성 상태를 grey300 으로 칠해 두면 비활성
+                                  // 버튼처럼 보인다 — CS 로 실제 접수된 오인이다.
+                                  // 잠긴 동안에만 grey300 으로 낮춘다.
+                                  color: isWithdrawing
+                                      ? AppColors.grey300
+                                      : AppColors.primary500,
                                   borderRadius: BorderRadius.circular(30.w),
                                 ),
-                                child: Text(
-                                    AppLocalizations.of(context)
-                                        .dialog_withdraw_button_ok,
-                                    style: getTextStyle(
-                                        AppTypo.title18SB, AppColors.grey00)))),
+                                child: isWithdrawing
+                                    ? SizedBox(
+                                        width: 24.w,
+                                        height: 24.w,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.w,
+                                          color: AppColors.grey00,
+                                        ),
+                                      )
+                                    : Text(
+                                        AppLocalizations.of(context)
+                                            .dialog_withdraw_button_ok,
+                                        style: getTextStyle(AppTypo.title18SB,
+                                            AppColors.grey00)))),
                       ),
                       Expanded(
                         child: MaterialButton(
-                            onPressed: () => Navigator.of(context).pop(),
+                            // 요청 중에 모달을 닫으면 응답이 돌아왔을 때
+                            // _deleteAccount 의 pop 이 엉뚱한 라우트를 닫는다.
+                            onPressed: isWithdrawing
+                                ? null
+                                : () => Navigator.of(context).pop(),
                             child: Container(
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.symmetric(
@@ -290,20 +357,25 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   color: AppColors.grey00,
                                   borderRadius: BorderRadius.circular(30.w),
                                   border: Border.all(
-                                      color: AppColors.primary500,
+                                      color: isWithdrawing
+                                          ? AppColors.grey300
+                                          : AppColors.primary500,
                                       width: 1.5.w),
                                 ),
                                 child: Text(
                                     AppLocalizations.of(context)
                                         .dialog_button_cancel,
-                                    style: getTextStyle(AppTypo.title18SB,
-                                        AppColors.primary500)))),
+                                    style: getTextStyle(
+                                        AppTypo.title18SB,
+                                        isWithdrawing
+                                            ? AppColors.grey300
+                                            : AppColors.primary500)))),
                       ),
                     ],
                   )
                 ]),
-              ),
-            ));
+              );
+            }));
   }
 
   Future<void> _deleteAccount() async {
@@ -319,8 +391,11 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         return;
       }
 
-      // Edge Function 호출
-      final response = await http.post(
+      // Edge Function 호출.
+      // [testWithdrawalHttpClient] 이 주입돼 있으면 그쪽으로 보낸다 — 프로덕션
+      // 에서는 항상 null 이라 기존과 동일하게 top-level http.post 를 탄다.
+      final post = testWithdrawalHttpClient?.post ?? http.post;
+      final response = await post(
         Uri.parse('${Environment.supabaseUrl}/functions/v1/delete-user'),
         headers: <String, String>{
           'Content-Type': 'application/json',
@@ -358,7 +433,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         throw Exception('Failed to delete user: ${response.body}');
       }
     } catch (e, s) {
-      logger.e(s, stackTrace: s);
+      logger.e('Failed to delete account', error: e, stackTrace: s);
       rethrow;
     }
   }

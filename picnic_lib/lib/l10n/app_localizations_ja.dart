@@ -1416,6 +1416,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get withdrawal_success => '退会が正常に処理されました。';
 
   @override
+  String get withdrawal_failed => '退会処理に失敗しました。しばらくしてからもう一度お試しください。';
+
+  @override
   String get vote_item_request_already_applied_artist =>
       'このアーティストへの応募は既に完了しています。';
 

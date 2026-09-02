@@ -1481,6 +1481,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get withdrawal_success => 'Berhenti berlangganan berhasil diproses.';
 
   @override
+  String get withdrawal_failed =>
+      'Penghapusan akun gagal. Silakan coba lagi beberapa saat lagi.';
+
+  @override
   String get vote_item_request_already_applied_artist =>
       'Anda telah mengajukan permohonan untuk artis ini.';
 

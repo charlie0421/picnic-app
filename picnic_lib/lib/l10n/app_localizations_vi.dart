@@ -1479,6 +1479,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get withdrawal_success => 'Việc hủy đăng ký đã được xử lý thành công.';
 
   @override
+  String get withdrawal_failed =>
+      'Hủy tài khoản không thành công. Vui lòng thử lại sau giây lát.';
+
+  @override
   String get vote_item_request_already_applied_artist =>
       'Bạn đã áp dụng cho nghệ sĩ này.';
 

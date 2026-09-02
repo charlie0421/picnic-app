@@ -1876,6 +1876,10 @@
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
   },
+  "withdrawal_failed": "账号注销失败，请稍后重试。",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
+  },
   "vote_item_request_already_applied_artist": "您已为该艺术家提交过申请。",
   "@vote_item_request_already_applied_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."

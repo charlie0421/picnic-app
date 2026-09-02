@@ -1876,6 +1876,10 @@
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
   },
+  "withdrawal_failed": "No se pudo procesar la baja. Vuelve a intentarlo en unos momentos.",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
+  },
   "vote_item_request_already_applied_artist": "Ya has solicitado este artista.",
   "@vote_item_request_already_applied_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."

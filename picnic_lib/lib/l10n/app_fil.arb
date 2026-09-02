@@ -1876,6 +1876,10 @@
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
   },
+  "withdrawal_failed": "Nabigo ang pag-alis ng account. Pakisubukang muli maya-maya.",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
+  },
   "vote_item_request_already_applied_artist": "Nag -apply ka na para sa artist na ito.",
   "@vote_item_request_already_applied_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
