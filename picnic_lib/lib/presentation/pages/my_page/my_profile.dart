@@ -231,14 +231,24 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
 
     showModalBottomSheet(
         context: context,
+        // 진행 중 이탈 차단 1 — scrim 탭과 드래그.
+        //
+        // 버튼만 잠가서는 부족했다. 요청이 떠 있는 동안 scrim 을 누르거나
+        // 시트를 아래로 밀어 닫아 버리면, 뒤늦게 200 이 도착했을 때 성공
+        // 경로의 pop 이 이미 사라진 시트 대신 그 아래(프로필 또는 그때의
+        // 최상단) 라우트를 닫는다. 두 인자는 showModalBottomSheet 호출
+        // 시점에 고정돼 조건부로 줄 수 없으므로 항상 잠근다 — 파괴적
+        // 확인 시트라 명시적인 취소 버튼으로만 닫는 편이 맞다.
+        isDismissible: false,
+        enableDrag: false,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(48),
             topRight: const Radius.circular(48),
           ),
         ),
-        builder: (context) =>
-            StatefulBuilder(builder: (context, setModalState) {
+        builder: (sheetContext) =>
+            StatefulBuilder(builder: (sheetContext, setModalState) {
               /// 확인 버튼 핸들러.
               ///
               /// 예전에는 `onPressed: () => _deleteAccount()` 라서 서버가 500 을
@@ -249,7 +259,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 if (isWithdrawing) return;
                 setModalState(() => isWithdrawing = true);
                 try {
-                  await _deleteAccount();
+                  await _deleteAccount(sheetContext);
                 } catch (e, s) {
                   // 사용자 피드백이 먼저다. _deleteAccount 가 남긴 로그와 별개로
                   // Sentry 에는 계속 올라가야 하므로(PICNIC-APP-5GA) 여기서
@@ -268,117 +278,136 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 } finally {
                   // 성공하면 _deleteAccount 가 이미 모달을 닫았다. 그때는
                   // StatefulBuilder 가 사라졌으므로 setState 를 건너뛴다.
-                  if (context.mounted) {
+                  if (sheetContext.mounted) {
                     setModalState(() => isWithdrawing = false);
                   }
                 }
               }
 
-              return Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Text(
-                    AppLocalizations.of(context).dialog_withdraw_title,
-                    style: getTextStyle(AppTypo.title18SB, AppColors.grey900),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    AppLocalizations.of(context).dialog_will_delete_star_candy,
-                    style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-                  ),
-                  const StarCandyInfoText(),
-                  const SizedBox(height: 24),
-                  Text(AppLocalizations.of(context).dialog_withdraw_message,
-                      style:
-                          getTextStyle(AppTypo.caption12R, AppColors.grey700),
-                      textAlign: TextAlign.center),
-                  const SizedBox(height: 24),
-                  Text(AppLocalizations.of(context).dialog_message_can_resignup,
-                      style:
-                          getTextStyle(AppTypo.caption12R, AppColors.grey700),
-                      textAlign: TextAlign.center),
-                  Text(formattedDate,
-                      style:
-                          getTextStyle(AppTypo.caption12B, AppColors.grey700),
-                      textAlign: TextAlign.center),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: MaterialButton(
-                            onPressed: isWithdrawing ? null : handleWithdraw,
-                            child: Container(
-                                alignment: Alignment.center,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 20.w, vertical: 8),
-                                constraints: BoxConstraints(
-                                  minWidth: 100.w,
-                                ),
-                                decoration: BoxDecoration(
-                                  // 활성 상태를 grey300 으로 칠해 두면 비활성
-                                  // 버튼처럼 보인다 — CS 로 실제 접수된 오인이다.
-                                  // 잠긴 동안에만 grey300 으로 낮춘다.
-                                  color: isWithdrawing
-                                      ? AppColors.grey300
-                                      : AppColors.primary500,
-                                  borderRadius: BorderRadius.circular(30.w),
-                                ),
-                                child: isWithdrawing
-                                    ? SizedBox(
-                                        width: 24.w,
-                                        height: 24.w,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.w,
-                                          color: AppColors.grey00,
-                                        ),
-                                      )
-                                    : Text(
-                                        AppLocalizations.of(context)
-                                            .dialog_withdraw_button_ok,
-                                        style: getTextStyle(AppTypo.title18SB,
-                                            AppColors.grey00)))),
-                      ),
-                      Expanded(
-                        child: MaterialButton(
-                            // 요청 중에 모달을 닫으면 응답이 돌아왔을 때
-                            // _deleteAccount 의 pop 이 엉뚱한 라우트를 닫는다.
-                            onPressed: isWithdrawing
-                                ? null
-                                : () => Navigator.of(context).pop(),
-                            child: Container(
-                                alignment: Alignment.center,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 20.w, vertical: 8),
-                                constraints: BoxConstraints(
-                                  minWidth: 100.w,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.grey00,
-                                  borderRadius: BorderRadius.circular(30.w),
-                                  border: Border.all(
-                                      color: isWithdrawing
-                                          ? AppColors.grey300
-                                          : AppColors.primary500,
-                                      width: 1.5.w),
-                                ),
-                                child: Text(
-                                    AppLocalizations.of(context)
-                                        .dialog_button_cancel,
-                                    style: getTextStyle(
-                                        AppTypo.title18SB,
-                                        isWithdrawing
+              return PopScope(
+                // 진행 중 이탈 차단 2 — 시스템 뒤로가기.
+                //
+                // isDismissible/enableDrag 과 달리 canPop 은 매 빌드마다 다시
+                // 평가되므로, 요청 중에만 막고 평상시에는 뒤로가기로 닫히는
+                // 기존 동작을 그대로 남길 수 있다.
+                canPop: !isWithdrawing,
+                child: Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Text(
+                      AppLocalizations.of(sheetContext).dialog_withdraw_title,
+                      style: getTextStyle(AppTypo.title18SB, AppColors.grey900),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      AppLocalizations.of(sheetContext)
+                          .dialog_will_delete_star_candy,
+                      style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                    ),
+                    const StarCandyInfoText(),
+                    const SizedBox(height: 24),
+                    Text(
+                        AppLocalizations.of(sheetContext)
+                            .dialog_withdraw_message,
+                        style:
+                            getTextStyle(AppTypo.caption12R, AppColors.grey700),
+                        textAlign: TextAlign.center),
+                    const SizedBox(height: 24),
+                    Text(
+                        AppLocalizations.of(sheetContext)
+                            .dialog_message_can_resignup,
+                        style:
+                            getTextStyle(AppTypo.caption12R, AppColors.grey700),
+                        textAlign: TextAlign.center),
+                    Text(formattedDate,
+                        style:
+                            getTextStyle(AppTypo.caption12B, AppColors.grey700),
+                        textAlign: TextAlign.center),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: MaterialButton(
+                              onPressed: isWithdrawing ? null : handleWithdraw,
+                              child: Container(
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20.w, vertical: 8),
+                                  constraints: BoxConstraints(
+                                    minWidth: 100.w,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    // 활성 상태를 grey300 으로 칠해 두면 비활성
+                                    // 버튼처럼 보인다 — CS 로 실제 접수된 오인이다.
+                                    // 잠긴 동안에만 grey300 으로 낮춘다.
+                                    color: isWithdrawing
+                                        ? AppColors.grey300
+                                        : AppColors.primary500,
+                                    borderRadius: BorderRadius.circular(30.w),
+                                  ),
+                                  child: isWithdrawing
+                                      ? SizedBox(
+                                          width: 24.w,
+                                          height: 24.w,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.w,
+                                            color: AppColors.grey00,
+                                          ),
+                                        )
+                                      : Text(
+                                          AppLocalizations.of(sheetContext)
+                                              .dialog_withdraw_button_ok,
+                                          style: getTextStyle(AppTypo.title18SB,
+                                              AppColors.grey00)))),
+                        ),
+                        Expanded(
+                          child: MaterialButton(
+                              // 요청 중에 모달을 닫으면 응답이 돌아왔을 때
+                              // _deleteAccount 의 pop 이 엉뚱한 라우트를 닫는다.
+                              // 닫을 때는 페이지가 아니라 **시트 자신의**
+                              // 라우트를 대상으로 한다.
+                              onPressed: isWithdrawing
+                                  ? null
+                                  : () => Navigator.of(sheetContext).pop(),
+                              child: Container(
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20.w, vertical: 8),
+                                  constraints: BoxConstraints(
+                                    minWidth: 100.w,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.grey00,
+                                    borderRadius: BorderRadius.circular(30.w),
+                                    border: Border.all(
+                                        color: isWithdrawing
                                             ? AppColors.grey300
-                                            : AppColors.primary500)))),
-                      ),
-                    ],
-                  )
-                ]),
+                                            : AppColors.primary500,
+                                        width: 1.5.w),
+                                  ),
+                                  child: Text(
+                                      AppLocalizations.of(sheetContext)
+                                          .dialog_button_cancel,
+                                      style: getTextStyle(
+                                          AppTypo.title18SB,
+                                          isWithdrawing
+                                              ? AppColors.grey300
+                                              : AppColors.primary500)))),
+                        ),
+                      ],
+                    )
+                  ]),
+                ),
               );
             }));
   }
 
-  Future<void> _deleteAccount() async {
+  /// [sheetContext] 는 탈퇴 확인 바텀시트 **자신의** BuildContext 다.
+  /// 성공했을 때 닫아야 하는 라우트가 바로 그 시트이므로, 페이지 context 로
+  /// pop 하면 안 된다(아래 pop 지점 주석 참고).
+  Future<void> _deleteAccount(BuildContext sheetContext) async {
     // ProviderContainer 캡쳐 — delete-user Edge Function 호출 중 setting page
     // 가 unmount 되면 (사용자가 뒤로가기 등) ref 접근이 StateError 를 던진다
     // (PICNIC-APP-W1). container 는 ProviderScope root 와 함께 살아있어 안전.
@@ -418,9 +447,18 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         container.read(userInfoProvider.notifier).logout();
         container.read(navigationInfoProvider.notifier).setResetStackMyPage();
 
-        if (!mounted) return;
-        if (context.mounted) {
-          Navigator.of(context).pop();
+        // 진행 중 이탈 차단 3 — pop 대상 고정.
+        //
+        // 예전에는 페이지 context 로 pop 해서 "그 Navigator 의 최상단" 을
+        // 닫았다. 응답이 늦게 오는 동안 시트가 이미 사라졌다면 그 최상단은
+        // 프로필(또는 그 위에 올라온 라우트)이라 엉뚱한 화면이 닫힌다.
+        // 시트 잠금이 1차 방어지만 프로그램적으로 라우트가 밀리는 경우까지
+        // 막히지는 않으므로, 여기서 (1) 시트 element 가 살아 있고 (2) 시트
+        // 라우트가 아직 최상단일 때만 시트 자신을 닫는다. 닫을 대상이 시트
+        // 라우트이므로 페이지의 `mounted` 는 판단 근거가 아니다.
+        if (sheetContext.mounted &&
+            ModalRoute.of(sheetContext)?.isCurrent == true) {
+          Navigator.of(sheetContext).pop();
         }
 
         if (!mounted) return;
