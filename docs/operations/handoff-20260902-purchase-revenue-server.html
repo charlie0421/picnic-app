@@ -36,7 +36,9 @@
 <div class="stop">
 <b class="k">2026-09-02 정정 — GA4 확인 결과, 서버 사이드 매출 계약은 프로덕션에서 한 번도 동작한 적이 없다.</b><br>
 플래그·capability 게이트·#117 모두 앱에 관측 불가한 no-op 이었다. 원인은 워커의 타입 게이트가
-영원히 false 인 것(§0). 수정은 picnic-supabase <b>#118</b>(1줄 + 핸들러 테스트), <b>미배포</b>.
+영원히 false 인 것(§0). 수정은 picnic-supabase <b>#118</b>(1줄 + 핸들러 테스트), Codex 교차 리뷰 APPROVE,
+<b>2026-09-02 05:06:50Z <code>wallet-operation-worker</code> v29 로 배포 완료</b>(베이스라인 <code>2d14e79</code> + 수정, <code>verify_jwt=false</code> 유지, 배포본에서 새 게이트·#115 부재 확인).
+<b>남은 것: 배포 후 첫 Apple 정산의 응답에 통화·금액이 실리는지, 그리고 GA4 iOS 매출이 서버 값으로 바뀌는지 관찰.</b>
 아래 §2 결함 B 와 §3 은 정정 전 서술이며, 실측 근거가 스냅샷이었음을 §0 에 적었다.
 </div>
 
@@ -89,7 +91,7 @@ select case when operation_type in('MOBILE_PURCHASE','WEB_PURCHASE') then 'PURCH
 <li>단위 테스트 187개가 못 잡은 이유: 게이트는 <code>handler</code> 안에 있고, 테스트는 <code>withPurchaseAnalytics</code> 를 직접 불렀다.</li>
 </ul>
 
-<h3>수정 — picnic-supabase #118 (미배포)</h3>
+<h3>수정 — picnic-supabase #118 (2026-09-02 05:06Z 배포, 워커 v29)</h3>
 <p>게이트를 <code>actualType === "PURCHASE"</code> 로(1줄). 가짜 PostgREST 가 프로덕션처럼 <code>"PURCHASE"</code> 를 답하게 하고
 실제 <code>handler</code> 를 통과시키는 테스트를 추가했다(RED 확인 후 GREEN, 188 passed).</p>
 <div class="tw">
@@ -120,7 +122,7 @@ select case when operation_type in('MOBILE_PURCHASE','WEB_PURCHASE') then 'PURCH
     <td class="done">16-arg · 19-arg 공존</td>
     <td>두 시그니처를 실제 호출해 확인(롤백, 정산 0건)</td></tr>
 <tr><td><code>wallet-provider-event</code></td><td class="done">v28</td><td>2026-09-01 06:36Z</td></tr>
-<tr><td><code>wallet-operation-worker</code></td><td class="done">v28</td><td>2026-09-01 06:36Z</td></tr>
+<tr><td><code>wallet-operation-worker</code></td><td class="done">v29</td><td>2026-09-02 05:06Z (#118 타입 게이트 수정, §0)</td></tr>
 <tr><td><code>verify-receipt-v2</code></td><td class="done">v28</td><td>2026-09-02 02:41Z (#117 포함)</td></tr>
 <tr><td><code>verify_receipt</code></td><td class="unk">v186 — 손대지 않음</td><td>구버전 앱용 동결 레거시. <b>배포 금지</b></td></tr>
 <tr><td><code>wallet.purchase_revenue_fields_enabled</code></td>
@@ -315,7 +317,7 @@ retryable 로 바꿔 인박스가 DEAD(불변)로 굳는 것을 막는다.</p>
 <tr><td>picnic-supabase</td><td>#109</td><td>GA4 매출 계약 서버 사이드 (선행, 8/28 머지)</td></tr>
 <tr><td>picnic-supabase</td><td><b>#116</b></td><td>wallet_private CREATE 대여 — 프로덕션 적용 가능하게</td></tr>
 <tr><td>picnic-supabase</td><td><b>#117</b></td><td>통화·금액을 짝으로만 전송 (잠재 결함 차단 — 실측 서술은 §0 에서 정정)</td></tr>
-<tr><td>picnic-supabase</td><td><b>#118</b></td><td>워커 타입 게이트 수정 (<code>PURCHASE</code>) — 서버 매출 계약을 실제로 켜는 변경, <b>미배포</b></td></tr>
+<tr><td>picnic-supabase</td><td><b>#118</b></td><td>워커 타입 게이트 수정 (<code>PURCHASE</code>) — 서버 매출 계약을 실제로 켜는 변경. <b>워커 v29 배포됨(9/2 05:06Z)</b>, PR 은 미머지</td></tr>
 <tr><td>picnic-app</td><td>#189</td><td>B-9 <code>sign_up</code> DB 대조 — 오탐이 아니라 누락(커버리지 88.3%)</td></tr>
 </tbody>
 </table>
