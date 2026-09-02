@@ -30,7 +30,7 @@
 </div>
 <table>
 <tr><th>항목</th><th>결과</th></tr>
-<tr><td>서버 수정</td><td><a href="https://github.com/charlie0421/picnic-supabase/pull/121">picnic-supabase PR #121</a> — 감사 마스킹을 1분 주기 큐로 분리. 교차 리뷰 5라운드 끝에 approve. <strong>프로덕션 미적용</strong>(적용 패키지 준비됨)</td></tr>
+<tr><td>서버 수정</td><td><a href="https://github.com/charlie0421/picnic-supabase/pull/121">picnic-supabase PR #121</a> — 감사 마스킹을 1분 주기 큐로 분리. 교차 리뷰 5라운드 끝에 approve. <strong>2026-09-02 20:45 KST 프로덕션 적용 완료, 탈퇴 복구 확인</strong></td></tr>
 <tr><td>앱 수정</td><td><a href="https://github.com/charlie0421/picnic-app/pull/190">picnic-app PR #190</a> — 실패 안내·중복 탭 방지·시트 이탈 방어. 교차 리뷰 approve. Shorebird OTA 대상</td></tr>
 <tr><td>영향</td><td>8/12~9/2 탈퇴 성공 0건. 로그로 확인된 실패 사용자 5명(8/28·8/29·8/31×2·9/1), Sentry 7명·179회</td></tr>
 </table>
@@ -93,16 +93,28 @@
 <li>회귀 테스트 6건. 2차 리뷰 approve</li>
 </ul>
 
-<h2>6. 남은 작업</h2>
+<h2>6. 프로덕션 적용 기록 (2026-09-02)</h2>
+<div class="ok">
 <ol>
-<li><strong>서버 PR #121 머지 → 프로덕션 적용</strong>: <code>supabase link</code> → <code>begin…rollback</code> 리허설 → <code>supabase db query --file apply/01 … --linked</code> → <code>verify/post.sql</code> → 테스트 계정으로 실제 탈퇴 1회(delete-user 200, ANONYMIZE_ACCOUNT 1건, 1분 뒤 큐 processed_at 채워짐).</li>
+<li>PR #121 squash 머지 (main 8a0190c)</li>
+<li><code>supabase link</code> → <code>begin; apply/01; rollback;</code> 리허설 rc=0, 롤백 후 상태 미변경 확인(큐 없음·cron 0·CREATE 미대여)</li>
+<li>20:45:35 KST <code>supabase db query --file apply/01 --linked</code> rc=0 → 큐 테이블·함수 4개·cron 잡 #78 활성, CREATE 대여 반납</li>
+<li><code>verify/post.sql</code> rc=0(DO ASSERT 통과), 이력 <code>20260902093000</code> 기록, 트리거 정의에서 감사 스캔 제거·큐 삽입 확인</li>
+<li>실경로 테스트: GoTrue 관리자 DELETE 로 테스트 계정 2건 탈퇴 — <strong>200, 0.61초 / 0.05초</strong>. 톰스톤·프로필 스크럽·ANONYMIZE_ACCOUNT·큐 인입 확인</li>
+<li>워커 첫 배치(2건): 11:48:00 UTC 시작, 약 6분 45초 소요 후 processed_at 기록·연락처 null. 이후 빈 큐 실행 10ms. 대기 중이던 cron 실행은 advisory lock 해제 후 즉시 종료</li>
+</ol>
+</div>
+<p class="warn">운영 메모: 첫 배치가 statement_timeout 600초의 약 68% 를 썼다. 며칠간 <code>cron.job_run_details</code> 의 소요 시간과 큐의 attempts/next_attempt_at 을 관찰하고, 여유가 줄면 timeout 상향 또는 배치 크기 조정을 검토한다. 테스트 계정 2건(<code>picnic2520-e2e-*@example.com</code>)은 톰스톤 행으로 남아 있다.</p>
+
+<h2>7. 남은 작업</h2>
+<ol>
 <li><strong>앱 PR #190 머지 → Shorebird OTA</strong>(Dart 전용).</li>
 <li>실패 사용자 재시도 안내(QnA #383 포함).</li>
 <li>선택: 8/12 백필 1,629명 소급 마스킹(약 326 배치 × 3.5GB 스캔, 한산한 시간대에 <code>p_limit</code> 상향 후 실행). README 참고.</li>
 <li>선행 결함 정리(별도 이슈): <code>wallet_release_gates</code> frozen contract 드리프트, wallet SQL fixture 3건의 wallet_private CREATE 의존.</li>
 </ol>
 
-<h2>7. 참고</h2>
+<h2>8. 참고</h2>
 <ul>
 <li>Orca Run <code>run_f206b7727863</code> — Task 15개(구현 2·조사 1·리뷰 7·수정 5) 전부 completed</li>
 <li>모드 claude-heavy 풀부스트: 구현 Opus max, 리뷰 Codex Sol ultra, 보조 Antigravity Gemini 3.1 Pro</li>
