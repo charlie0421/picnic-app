@@ -1408,6 +1408,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get withdrawal_success => '退订已成功处理。';
 
   @override
+  String get withdrawal_failed => '账号注销失败，请稍后重试。';
+
+  @override
   String get vote_item_request_already_applied_artist => '您已为该艺术家提交过申请。';
 
   @override
@@ -3328,6 +3331,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get withdrawal_success => '退订已成功处理。';
 
   @override
+  String get withdrawal_failed => '账号注销失败，请稍后重试。';
+
+  @override
   String get vote_item_request_already_applied_artist => '您已为该艺术家提交过申请。';
 
   @override
@@ -5246,6 +5252,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get withdrawal_success => '退訂已成功處理。';
+
+  @override
+  String get withdrawal_failed => '帳號註銷失敗，請稍後再試。';
 
   @override
   String get vote_item_request_already_applied_artist => '您已為該藝術家提交過申請。';

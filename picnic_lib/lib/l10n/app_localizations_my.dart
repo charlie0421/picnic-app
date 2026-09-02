@@ -1489,6 +1489,10 @@ class AppLocalizationsMy extends AppLocalizations {
       'အဆိုပါ unsubscribe အောင်မြင်စွာလုပ်ငန်းများ၌ခဲ့သည်။';
 
   @override
+  String get withdrawal_failed =>
+      'အကောင့်ဖျက်ခြင်း မအောင်မြင်ပါ။ ခဏအကြာတွင် ထပ်မံကြိုးစားပါ။';
+
+  @override
   String get vote_item_request_already_applied_artist =>
       'သင်ဤအနုပညာရှင်အတွက်လျှောက်ထားပြီးပြီ';
 

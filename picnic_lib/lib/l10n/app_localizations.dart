@@ -2825,6 +2825,12 @@ abstract class AppLocalizations {
   /// **'The unsubscribe was processed successfully.'**
   String get withdrawal_success;
 
+  /// Shown when the account withdrawal request fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion failed. Please try again in a moment.'**
+  String get withdrawal_failed;
+
   /// Auto-generated metadata for key 'vote_item_request_already_applied_artist'.
   ///
   /// In en, this message translates to:

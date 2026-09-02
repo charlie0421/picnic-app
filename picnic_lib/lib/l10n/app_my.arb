@@ -1884,6 +1884,10 @@
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
   },
+  "withdrawal_failed": "အကောင့်ဖျက်ခြင်း မအောင်မြင်ပါ။ ခဏအကြာတွင် ထပ်မံကြိုးစားပါ။",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
+  },
   "vote_item_request_already_applied_artist": "သင်ဤအနုပညာရှင်အတွက်လျှောက်ထားပြီးပြီ",
   "@vote_item_request_already_applied_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."

@@ -1478,6 +1478,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The unsubscribe was processed successfully.';
 
   @override
+  String get withdrawal_failed =>
+      'Account deletion failed. Please try again in a moment.';
+
+  @override
   String get vote_item_request_already_applied_artist =>
       'You have already applied for this artist.';
 

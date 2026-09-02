@@ -1473,6 +1473,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'সাবস্ক্রাইবটি সফলভাবে প্রক্রিয়া করা হয়েছিল।';
 
   @override
+  String get withdrawal_failed =>
+      'অ্যাকাউন্ট মুছে ফেলা ব্যর্থ হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+
+  @override
   String get vote_item_request_already_applied_artist =>
       'আপনি ইতিমধ্যে এই শিল্পীর জন্য আবেদন করেছেন।';
 
@@ -3498,6 +3502,10 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get withdrawal_success =>
       'সাবস্ক্রাইবটি সফলভাবে প্রক্রিয়া করা হয়েছিল।';
+
+  @override
+  String get withdrawal_failed =>
+      'অ্যাকাউন্ট মুছে ফেলা ব্যর্থ হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
 
   @override
   String get vote_item_request_already_applied_artist =>

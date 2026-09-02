@@ -1455,6 +1455,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get withdrawal_success => 'การยกเลิกการสมัครถูกประมวลผลสำเร็จ';
 
   @override
+  String get withdrawal_failed =>
+      'การยกเลิกบัญชีล้มเหลว กรุณาลองใหม่อีกครั้งในภายหลัง';
+
+  @override
   String get vote_item_request_already_applied_artist =>
       'คุณได้สมัครศิลปินคนนี้แล้ว';
 

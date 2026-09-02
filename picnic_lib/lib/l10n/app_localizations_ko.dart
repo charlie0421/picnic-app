@@ -1417,6 +1417,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawal_success => '회원탈퇴가 성공적으로 처리되었습니다.';
 
   @override
+  String get withdrawal_failed => '탈퇴 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+
+  @override
   String get vote_item_request_already_applied_artist =>
       '이미 해당 아티스트에 대해 신청하셨습니다.';
 
