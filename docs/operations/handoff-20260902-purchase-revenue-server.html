@@ -38,7 +38,8 @@
 플래그·capability 게이트·#117 모두 앱에 관측 불가한 no-op 이었다. 원인은 워커의 타입 게이트가
 영원히 false 인 것(§0). 수정은 picnic-supabase <b>#118</b>(1줄 + 핸들러 테스트), Codex 교차 리뷰 APPROVE,
 <b>2026-09-02 05:06:50Z <code>wallet-operation-worker</code> v29 로 배포 완료</b>(베이스라인 <code>2d14e79</code> + 수정, <code>verify_jwt=false</code> 유지, 배포본에서 새 게이트·#115 부재 확인).
-<b>남은 것: 배포 후 첫 Apple 정산의 응답에 통화·금액이 실리는지, 그리고 GA4 iOS 매출이 서버 값으로 바뀌는지 관찰.</b>
+<b class="done">✅ 2026-09-03 끝단 검증 완료</b> — 배포 후 첫 Apple 정산(9/2 14:23 KST, STAR200 <b>TWD 60</b>)이 GA4 iOS
+<code>purchase</code> 에 <b>$1.89 · 1건</b>으로 찍혔다. 서버 사이드 매출 계약 <b>전 구간 종결</b>(§0 끝의 대조표).
 아래 §2 결함 B 와 §3 은 정정 전 서술이며, 실측 근거가 스냅샷이었음을 §0 에 적었다.
 </div>
 
@@ -103,8 +104,28 @@ select case when operation_type in('MOBILE_PURCHASE','WEB_PURCHASE') then 'PURCH
 </tbody>
 </table>
 </div>
+<h3>끝단 검증 — 2026-09-03 09:57 KST, GA4 × DB 1:1 대조</h3>
+<p>워커 v29 배포(9/2 14:06 KST) 이후 정산을 <code>get_purchase_analytics_for_inbox</code> 와 조인해 뽑고, GA4 를
+날짜+시간(GMT+9)×통화로 쪼개 대조했다. 배포 후 첫 Apple 건부터 서버 값이 GA4 에 도달한다.</p>
+<div class="tw">
+<table>
+<thead><tr><th>KST</th><th>공급자 · 상품</th><th>워커 RPC(서버 값)</th><th>GA4 행</th><th>총수익 · 이벤트</th><th>판정</th></tr></thead>
+<tbody>
+<tr><td><b>14:23</b></td><td><b>APPLE STAR200</b></td><td><b>TWD 60</b> (APPLE_JWS)</td><td>iOS 2026090214 TWD</td><td><b>$1.89 · 1</b></td><td class="done">✅ 서버 값 도달 (TWD 60 ≈ $1.89)</td></tr>
+<tr><td>14:49 · 14:50</td><td>APPLE STAR100 + STAR200</td><td>THB 29 + THB 79</td><td>iOS 2026090214 THB</td><td>$3.26 · 2</td><td class="done">✅ (108 THB)</td></tr>
+<tr><td>14:50</td><td>APPLE STAR100</td><td>VND 29,000</td><td>iOS 2026090214 VND</td><td>$1.11 · 1</td><td class="done">✅</td></tr>
+<tr><td>14:56 · 15:00</td><td>APPLE STAR600 ×2</td><td>IDR 99,000 ×2</td><td>iOS 2026090214 IDR</td><td>$11.17 · 2</td><td class="done">✅ (15:00 정산 건은 기기 시각이 14시대)</td></tr>
+<tr><td>15:37</td><td>APPLE STAR200</td><td>TWD 60</td><td>iOS 2026090215 TWD</td><td>$1.89 · 1</td><td class="done">✅</td></tr>
+<tr><td>14:13 · 14:24</td><td>GOOGLE STAR200 + STAR100</td><td>IDR / value null → 두 키 제거</td><td>Android 2026090214 IDR</td><td>$2.76 · 2</td><td class="done">✅ 카탈로그 짝(29,000+19,000 IDR), 현행 유지</td></tr>
+<tr><td>9/3 03:21 · 04:04 · 06:02</td><td>GOOGLE STAR600 / 200 / 100</td><td>UAH / EUR / PHP, value null</td><td>Android 03 UAH · 04 EUR · 06 PHP</td><td>$6.74 · $2.65 · $0.95</td><td class="done">✅ 카탈로그 짝</td></tr>
+</tbody>
+</table>
+</div>
+<p>Apple 은 JWS 금액이 StoreKit 표시가와 같아 <b>금액 자체는 카탈로그 값과 동일</b>하다 — 바뀐 것은 출처(서버 정본)이지 숫자가
+아니다. 정산 회귀 0(전부 SUCCEEDED, DEAD 3건은 별건 — §5 <code>GOOGLE_NOT_PURCHASED</code> 계열).</p>
+
 <div class="warn">
-<b>배포 전 확인할 것</b> — Apple 은 서버 값이 앱 카탈로그 값과 다를 수 있다(스토어프론트·티어 차이). 배포 직후 iOS
+<b>배포 전 확인할 것(기록용, 위에서 검증 완료)</b> — Apple 은 서버 값이 앱 카탈로그 값과 다를 수 있다(스토어프론트·티어 차이). 배포 직후 iOS
 <code>purchase</code> 매출이 어떻게 움직이는지 GA4 에서 봐야 한다. 배포는 #117 과 같은 이유로 <code>origin/main</code> 이 아니라
 프로덕션 베이스라인(<code>7553176</code>) + #118 로 번들한다(#115 짝 마이그레이션 미적용).
 </div>
