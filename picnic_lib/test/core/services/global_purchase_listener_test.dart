@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -31,49 +33,322 @@ void main() {
   /// [PurchaseSurfaceRegistration]과 그 [GlobalPurchaseListener]를 함께
   /// 만든다. `source`는 스캔 결과를, `plugin`은 finalize/complete 호출을
   /// 관찰한다.
-  ({GlobalPurchaseListener listener, _FakePlugin plugin}) build(
+  ({
+    GlobalPurchaseListener listener,
+    _FakePlugin plugin,
+    _FakeVerification verification,
+  })
+  build(
     _FakeUnfinishedSource source, {
     DateTime Function()? clock,
     Duration resumeSweepInterval = const Duration(minutes: 5),
+    Future<bool?> Function()? pendingIntakeEnabled,
+    Duration pendingIntakeLookupTimeout = const Duration(seconds: 2),
   }) {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
     final plugin = _FakePlugin();
+    final verification = _FakeVerification();
     final listener = GlobalPurchaseListener(
       container: container,
       purchaseServiceFactory: (c, onPurchaseUpdate) => PurchaseService(
         container: c,
         inAppPurchaseService: plugin,
-        receiptVerificationService: _FakeVerification(),
+        receiptVerificationService: verification,
         analyticsService: AnalyticsService(),
-        duplicatePreventionService: DuplicatePreventionService.forContainer(
-          c,
-        ),
+        duplicatePreventionService: DuplicatePreventionService.forContainer(c),
         onPurchaseUpdate: onPurchaseUpdate,
         unfinishedPurchaseSource: source,
         sweepOnStart: false,
         clock: clock ?? DateTime.now,
         resumeSweepInterval: resumeSweepInterval,
+        pendingIntakeEnabled: pendingIntakeEnabled,
+        pendingIntakeLookupTimeout: pendingIntakeLookupTimeout,
       ),
     );
     addTearDown(listener.dispose);
-    return (listener: listener, plugin: plugin);
+    return (listener: listener, plugin: plugin, verification: verification);
   }
 
-  group('GlobalPurchaseListener surface detach', () {
+  Future<List<Map<String, dynamic>>> queuedReceipts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('receipt_queue_v1');
+    if (raw == null || raw.isEmpty) return [];
+    return (json.decode(raw) as List).cast<Map<String, dynamic>>();
+  }
+
+  int pendingIntakeRequests() => capturedMockRequests
+      .where((uri) => uri.path.endsWith('/functions/v1/verify-receipt-v2'))
+      .length;
+
+  Future<void> configurePendingGate({
+    required String value,
+    int configStatus = 200,
+  }) async {
+    tearDownMockSupabase();
+    await setupMockSupabaseWithAuth(
+      {
+        'config': [
+          {'value': value},
+        ],
+        'functions:verify-receipt-v2': {
+          'error': 'GOOGLE_PURCHASE_PENDING',
+          'retryable': true,
+        },
+      },
+      userId: 'test-user-id',
+      tableStatusCodes: {'config': configStatus},
+      functionStatusCodes: {'functions:verify-receipt-v2': 503},
+    );
+  }
+
+  group('GlobalPurchaseListener Android pending intake', () {
+    setUp(() {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    });
+
+    tearDown(() {
+      debugDefaultTargetPlatformOverride = null;
+    });
+
     test(
-        'detaching the last surface triggers a resume sweep instead of '
+      'gate ON durably queues a headless pending token without finalizing',
+      () async {
+        await configurePendingGate(value: 'true');
+        final built = build(
+          _FakeUnfinishedSource(const UnfinishedPurchaseScan()),
+        );
+
+        built.listener.handlePurchaseUpdates([_pendingPurchase()]);
+        await built.listener.pendingHeadlessWork;
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+
+        final queue = await queuedReceipts();
+        expect(queue, hasLength(1));
+        expect(queue.single['receipt'], 'pending-token');
+        expect(pendingIntakeRequests(), 1);
+        expect(built.verification.verifications, 0);
+        expect(built.plugin.completed, 0);
+        expect(built.plugin.finalized, 0);
+      },
+    );
+
+    test('gate OFF never queues or sends a headless pending token', () async {
+      await configurePendingGate(value: 'false');
+      final built = build(
+        _FakeUnfinishedSource(const UnfinishedPurchaseScan()),
+      );
+
+      built.listener.handlePurchaseUpdates([_pendingPurchase()]);
+      await built.listener.pendingHeadlessWork;
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      expect(await queuedReceipts(), isEmpty);
+      expect(pendingIntakeRequests(), 0);
+      expect(built.verification.verifications, 0);
+      expect(built.plugin.completed, 0);
+      expect(built.plugin.finalized, 0);
+    });
+
+    test('gate lookup failure is fail-closed', () async {
+      await configurePendingGate(value: 'true', configStatus: 500);
+      final built = build(
+        _FakeUnfinishedSource(const UnfinishedPurchaseScan()),
+      );
+
+      built.listener.handlePurchaseUpdates([_pendingPurchase()]);
+      await built.listener.pendingHeadlessWork;
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      expect(await queuedReceipts(), isEmpty);
+      expect(pendingIntakeRequests(), 0);
+      expect(built.verification.verifications, 0);
+      expect(built.plugin.completed, 0);
+      expect(built.plugin.finalized, 0);
+    });
+
+    test(
+      'a stalled gate fails closed without blocking a later purchased event',
+      () async {
+        final stalledGate = Completer<bool?>();
+        final built = build(
+          _FakeUnfinishedSource(const UnfinishedPurchaseScan()),
+          pendingIntakeEnabled: () => stalledGate.future,
+          pendingIntakeLookupTimeout: const Duration(milliseconds: 10),
+        );
+
+        built.listener.handlePurchaseUpdates([_pendingPurchase()]);
+        built.listener.handlePurchaseUpdates([_unfinishedPurchase()]);
+        await built.listener.pendingHeadlessWork.timeout(
+          const Duration(seconds: 1),
+        );
+
+        expect(await queuedReceipts(), isEmpty);
+        expect(pendingIntakeRequests(), 0);
+        expect(built.verification.verifications, 1);
+        expect(built.plugin.finalized, 1);
+        expect(built.plugin.completed, 0);
+      },
+    );
+
+    test(
+      'duplicate headless events reuse one token-based queue item',
+      () async {
+        await configurePendingGate(value: 'true');
+        final built = build(
+          _FakeUnfinishedSource(const UnfinishedPurchaseScan()),
+        );
+        final pending = _pendingPurchase();
+
+        built.listener.handlePurchaseUpdates([pending]);
+        built.listener.handlePurchaseUpdates([pending]);
+        await built.listener.pendingHeadlessWork;
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+
+        final queue = await queuedReceipts();
+        expect(queue, hasLength(1));
+        expect(
+          queue.single['client_trace_id'],
+          matches(RegExp(r'^android-[0-9a-f]{32}$')),
+        );
+        expect(built.verification.verifications, 0);
+        expect(built.plugin.completed, 0);
+        expect(built.plugin.finalized, 0);
+      },
+    );
+
+    test(
+      'a resume sweep reuses the pending item created by a headless event',
+      () async {
+        await configurePendingGate(value: 'true');
+        final source = _FakeUnfinishedSource(
+          UnfinishedPurchaseScan(
+            pendingPurchases: [_pendingPurchase()],
+            liveInFlight: 1,
+          ),
+        );
+        final built = build(source);
+
+        built.listener.handlePurchaseUpdates([_pendingPurchase()]);
+        await built.listener.pendingHeadlessWork;
+        await built.listener.sweepOnResume();
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+
+        expect(source.scans, 1);
+        expect(await queuedReceipts(), hasLength(1));
+        expect(built.verification.verifications, 0);
+        expect(built.plugin.completed, 0);
+        expect(built.plugin.finalized, 0);
+      },
+    );
+
+    test(
+      'gate OFF sweep treats pending as live but never verifies it',
+      () async {
+        await configurePendingGate(value: 'false');
+        final source = _FakeUnfinishedSource(
+          UnfinishedPurchaseScan(
+            pendingPurchases: [_pendingPurchase()],
+            liveInFlight: 1,
+          ),
+        );
+        final built = build(source);
+
+        final report = await built.listener.sweepOnColdStart();
+
+        expect(report.outcome, PurchaseSweepOutcome.completed);
+        expect(report.found, 0);
+        expect(report.preserved, 0);
+        expect(report.liveInFlight, 1);
+        expect(report.verifiedEmpty, isFalse);
+        expect(await queuedReceipts(), isEmpty);
+        expect(pendingIntakeRequests(), 0);
+        expect(built.verification.verifications, 0);
+        expect(built.plugin.completed, 0);
+        expect(built.plugin.finalized, 0);
+      },
+    );
+
+    test('pending-only cold start retries after login restoration', () async {
+      tearDownMockSupabase();
+      setupMockSupabase({
+        'config': [
+          {'value': 'true'},
+        ],
+      });
+      final source = _FakeUnfinishedSource(
+        UnfinishedPurchaseScan(
+          pendingPurchases: [_pendingPurchase()],
+          liveInFlight: 1,
+        ),
+      );
+      final built = build(source);
+
+      final beforeLogin = await built.listener.sweepOnColdStart();
+      expect(beforeLogin.outcome, PurchaseSweepOutcome.notSignedIn);
+      expect(await queuedReceipts(), isEmpty);
+      expect(pendingIntakeRequests(), 0);
+
+      await configurePendingGate(value: 'true');
+      final afterLogin = await built.listener.sweepOnColdStart();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      expect(afterLogin.outcome, PurchaseSweepOutcome.completed);
+      expect(afterLogin.liveInFlight, 1);
+      expect(await queuedReceipts(), hasLength(1));
+      expect(pendingIntakeRequests(), 1);
+      expect(built.verification.verifications, 0);
+      expect(built.plugin.completed, 0);
+      expect(built.plugin.finalized, 0);
+    });
+
+    test(
+      'a later purchased event still settles after pending intake',
+      () async {
+        await configurePendingGate(value: 'true');
+        final built = build(
+          _FakeUnfinishedSource(const UnfinishedPurchaseScan()),
+        );
+
+        built.listener.handlePurchaseUpdates([_pendingPurchase()]);
+        await built.listener.pendingHeadlessWork;
+        built.listener.handlePurchaseUpdates([_unfinishedPurchase()]);
+        await built.listener.pendingHeadlessWork;
+
+        expect(built.verification.verifications, 1);
+        expect(built.plugin.finalized, 1);
+        expect(built.plugin.completed, 0);
+      },
+    );
+
+    test('iOS pending behavior remains unchanged', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      await configurePendingGate(value: 'true');
+      final built = build(
+        _FakeUnfinishedSource(const UnfinishedPurchaseScan()),
+      );
+
+      built.listener.handlePurchaseUpdates([_pendingPurchase()]);
+      await built.listener.pendingHeadlessWork;
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      expect(await queuedReceipts(), isEmpty);
+      expect(pendingIntakeRequests(), 0);
+      expect(built.verification.verifications, 0);
+      expect(built.plugin.completed, 0);
+      expect(built.plugin.finalized, 0);
+    });
+  });
+
+  group('GlobalPurchaseListener surface detach', () {
+    test('detaching the last surface triggers a resume sweep instead of '
         'waiting for the next real app resume', () async {
       final source = _FakeUnfinishedSource(const UnfinishedPurchaseScan());
       final built = build(source);
 
       final registration = built.listener.attachSurface((_) {});
-      expect(
-        source.scans,
-        0,
-        reason: '스토어 화면이 떠 있는 동안은 재개 스윕이 생략된다(기존 동작)',
-      );
+      expect(source.scans, 0, reason: '스토어 화면이 떠 있는 동안은 재개 스윕이 생략된다(기존 동작)');
 
       registration.detach();
       // fire-and-forget 스윕이 돌 시간을 준다.
@@ -90,8 +365,7 @@ void main() {
       );
     });
 
-    test(
-        'detaching an already-detached registration is a safe no-op (does '
+    test('detaching an already-detached registration is a safe no-op (does '
         'not crash, does not sweep twice)', () async {
       final source = _FakeUnfinishedSource(const UnfinishedPurchaseScan());
       final built = build(source);
@@ -105,18 +379,18 @@ void main() {
       expect(
         source.scans,
         1,
-        reason: '이미 해제된 등록을 다시 detach 해도 스윕이 중복으로 도는 '
+        reason:
+            '이미 해제된 등록을 다시 detach 해도 스윕이 중복으로 도는 '
             '일은 없어야 한다',
       );
     });
   });
 
   group('GlobalPurchaseListener queue eviction', () {
-    test(
-        'eviction while no surface is mounted triggers an immediate manual '
+    test('eviction while no surface is mounted triggers an immediate manual '
         'sweep', () async {
       final source = _FakeUnfinishedSource(const UnfinishedPurchaseScan());
-      final built = build(source);
+      build(source);
       addTearDown(() => ReceiptQueueService().onItemsEvicted = null);
 
       expect(ReceiptQueueService().onItemsEvicted, isNotNull);
@@ -126,13 +400,13 @@ void main() {
       expect(
         source.scans,
         greaterThan(0),
-        reason: '화면이 없으면 잘린 항목의 스토어 리컨사일을 다음 콜드스타트/'
+        reason:
+            '화면이 없으면 잘린 항목의 스토어 리컨사일을 다음 콜드스타트/'
             '재개까지 미룰 이유가 없다',
       );
     });
 
-    test(
-        'eviction while a surface IS mounted does NOT sweep immediately - it '
+    test('eviction while a surface IS mounted does NOT sweep immediately - it '
         'waits for the screen to close', () async {
       final source = _FakeUnfinishedSource(const UnfinishedPurchaseScan());
       final built = build(source);
@@ -158,13 +432,13 @@ void main() {
       expect(
         source.scans,
         greaterThan(0),
-        reason: '화면을 벗어나면 미뤄뒀던 리컨사일 기회가 detach 트리거로 '
+        reason:
+            '화면을 벗어나면 미뤄뒀던 리컨사일 기회가 detach 트리거로 '
             '살아나야 한다(위 detach 그룹과 동일한 경로)',
       );
     });
 
-    test(
-        'a pending eviction reconcile survives detach even when the resume '
+    test('a pending eviction reconcile survives detach even when the resume '
         'throttle would otherwise block it', () async {
       final source = _FakeUnfinishedSource(const UnfinishedPurchaseScan());
       final now = DateTime.utc(2026, 8, 4, 12);
@@ -205,8 +479,7 @@ void main() {
       );
     });
 
-    test(
-        'an eviction that races a concurrent sweep stays pending and is '
+    test('an eviction that races a concurrent sweep stays pending and is '
         'picked up by the next sweepOnResume() call, not just the next '
         'detach', () async {
       final scanGate = Completer<UnfinishedPurchaseScan>();
@@ -231,7 +504,8 @@ void main() {
       expect(
         source.scans,
         1,
-        reason: '점유용 스윕만 스토어를 조회했다 - concurrent 로 막힌 '
+        reason:
+            '점유용 스윕만 스토어를 조회했다 - concurrent 로 막힌 '
             'eviction 시도는 스캔까지 가지 않는다',
       );
 
@@ -262,6 +536,7 @@ void main() {
       final built = build(source);
 
       expect(ReceiptQueueService().onItemsEvicted, isNotNull);
+      expect(ReceiptQueueService().canFlushPendingIntake, isNotNull);
 
       built.listener.dispose();
 
@@ -273,41 +548,46 @@ void main() {
             '그대로 남으면, 다음 eviction 이 이미 정리된 purchaseService 를 '
             '가리키는 죽은 콜백을 부른다',
       );
+      expect(ReceiptQueueService().canFlushPendingIntake, isNull);
     });
 
     test(
-        "dispose does NOT clear a newer listener's callback (only its own)",
-        () async {
-      final sourceA = _FakeUnfinishedSource(const UnfinishedPurchaseScan());
-      final builtA = build(sourceA);
+      "dispose does NOT clear a newer listener's callback (only its own)",
+      () async {
+        final sourceA = _FakeUnfinishedSource(const UnfinishedPurchaseScan());
+        final builtA = build(sourceA);
 
-      final sourceB = _FakeUnfinishedSource(const UnfinishedPurchaseScan());
-      final builtB = build(sourceB);
-      // build() 의 listener 는 각각 addTearDown 으로 자동 dispose 되므로,
-      // 순서를 명시적으로 재현하기 위해 A 를 먼저 수동으로 dispose 한다.
+        final sourceB = _FakeUnfinishedSource(const UnfinishedPurchaseScan());
+        final builtB = build(sourceB);
+        // build() 의 listener 는 각각 addTearDown 으로 자동 dispose 되므로,
+        // 순서를 명시적으로 재현하기 위해 A 를 먼저 수동으로 dispose 한다.
 
-      final callbackAfterB = ReceiptQueueService().onItemsEvicted;
-      expect(callbackAfterB, isNotNull);
+        final callbackAfterB = ReceiptQueueService().onItemsEvicted;
+        final gateAfterB = ReceiptQueueService().canFlushPendingIntake;
+        expect(callbackAfterB, isNotNull);
+        expect(gateAfterB, isNotNull);
 
-      builtA.listener.dispose();
+        builtA.listener.dispose();
 
-      expect(
-        ReceiptQueueService().onItemsEvicted,
-        same(callbackAfterB),
-        reason:
-            '더 이상 살아있지 않은 listener A 를 dispose 해도, 그 뒤에 새로 '
-            '만들어진 listener B 가 등록한 콜백을 지워서는 안 된다 - 자기 '
-            '것이 아니면 손대지 않는다',
-      );
+        expect(
+          ReceiptQueueService().onItemsEvicted,
+          same(callbackAfterB),
+          reason:
+              '더 이상 살아있지 않은 listener A 를 dispose 해도, 그 뒤에 새로 '
+              '만들어진 listener B 가 등록한 콜백을 지워서는 안 된다 - 자기 '
+              '것이 아니면 손대지 않는다',
+        );
+        expect(ReceiptQueueService().canFlushPendingIntake, same(gateAfterB));
 
-      builtB.listener.dispose();
-    });
+        builtB.listener.dispose();
+        expect(ReceiptQueueService().canFlushPendingIntake, isNull);
+      },
+    );
   });
 
   group('GlobalPurchaseListener sweep aborts if a new surface attaches '
       'mid-flight', () {
-    test(
-        'a detach-triggered sweep backs off before verifying/finishing '
+    test('a detach-triggered sweep backs off before verifying/finishing '
         'anything if a new surface attaches while the store scan is still '
         'in flight', () async {
       final scanGate = Completer<UnfinishedPurchaseScan>();
@@ -354,13 +634,31 @@ PurchaseDetails _unfinishedPurchase() {
   return details;
 }
 
+PurchaseDetails _pendingPurchase() {
+  final details = PurchaseDetails(
+    purchaseID: '',
+    productID: 'STAR100',
+    verificationData: PurchaseVerificationData(
+      localVerificationData: 'local',
+      serverVerificationData: 'pending-token',
+      source: 'test',
+    ),
+    transactionDate: '1785228000000',
+    status: PurchaseStatus.pending,
+  );
+  details.pendingCompletePurchase = true;
+  return details;
+}
+
 class _FakeUnfinishedSource implements UnfinishedPurchaseSource {
-  _FakeUnfinishedSource(UnfinishedPurchaseScan scan) : _scanFuture = null, _scan = scan;
+  _FakeUnfinishedSource(UnfinishedPurchaseScan scan)
+    : _scanFuture = null,
+      _scan = scan;
 
   /// scan() 이 끝나는 시점을 테스트가 직접 통제할 수 있게 하는 생성자.
   _FakeUnfinishedSource.controlled(Future<UnfinishedPurchaseScan> scanFuture)
-      : _scanFuture = scanFuture,
-        _scan = null;
+    : _scanFuture = scanFuture,
+      _scan = null;
 
   final UnfinishedPurchaseScan? _scan;
   final Future<UnfinishedPurchaseScan>? _scanFuture;
@@ -400,6 +698,8 @@ class _FakePlugin extends Mock implements InAppPurchaseService {
 }
 
 class _FakeVerification extends ReceiptVerificationService {
+  int verifications = 0;
+
   @override
   Future<String> getEnvironment() async => 'sandbox';
 
@@ -408,25 +708,28 @@ class _FakeVerification extends ReceiptVerificationService {
     String receipt,
     String productId,
     String userId,
-    String environment,
-  {
+    String environment, {
     String? clientObservedCurrency,
-  }) async =>
-      PurchaseSettlementResultModel(
+  }) async => _verifiedResult();
+
+  PurchaseSettlementResultModel _verifiedResult() {
+    verifications++;
+    return PurchaseSettlementResultModel(
+      contractVersion: 'wallet.v1',
+      operationId: 'operation',
+      replayed: true,
+      baseStarAmount: BigInt.from(200),
+      baseBonusAmount: BigInt.zero,
+      promotion: null,
+      wallet: WalletSummaryModel(
         contractVersion: 'wallet.v1',
-        operationId: 'operation',
-        replayed: true,
-        baseStarAmount: BigInt.from(200),
-        baseBonusAmount: BigInt.zero,
-        promotion: null,
-        wallet: WalletSummaryModel(
-          contractVersion: 'wallet.v1',
-          star: BigInt.from(1600),
-          bonus: BigInt.from(81),
-          cotton: BigInt.zero,
-          cottonExpiringAmount: BigInt.zero,
-          cottonNextExpiresAt: null,
-          snapshotAt: DateTime.utc(2026, 7),
-        ),
-      );
+        star: BigInt.from(1600),
+        bonus: BigInt.from(81),
+        cotton: BigInt.zero,
+        cottonExpiringAmount: BigInt.zero,
+        cottonNextExpiresAt: null,
+        snapshotAt: DateTime.utc(2026, 7),
+      ),
+    );
+  }
 }

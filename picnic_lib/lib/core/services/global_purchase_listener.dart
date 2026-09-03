@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
@@ -248,12 +247,13 @@ class GlobalPurchaseListener {
 
   /// 무화면 정산 대기열 깊이. 이벤트를 버리진 않지만, 정산이 밀리기
   /// 시작하면(임계값 도달) 관측할 수 있게 경고 로그를 남긴다.
-  final HeadlessQueueDepthTracker _headlessQueueDepth = HeadlessQueueDepthTracker(
-    onWarn: (depth) => logger.w(
-      '[GlobalPurchaseListener] 무화면 정산 대기열이 $depth건까지 쌓임 - '
-      '정산이 이벤트 도착 속도를 못 따라가는 중',
-    ),
-  );
+  final HeadlessQueueDepthTracker _headlessQueueDepth =
+      HeadlessQueueDepthTracker(
+        onWarn: (depth) => logger.w(
+          '[GlobalPurchaseListener] 무화면 정산 대기열이 $depth건까지 쌓임 - '
+          '정산이 이벤트 도착 속도를 못 따라가는 중',
+        ),
+      );
 
   /// Whether a store screen currently owns presentation.
   bool get hasSurface => _surface != null;
@@ -376,8 +376,7 @@ class GlobalPurchaseListener {
     final generationAtStart = _surfaceGeneration;
     return purchaseService.sweepUnfinishedPurchases(
       trigger: trigger,
-      shouldAbort: () =>
-          hasSurface || _surfaceGeneration != generationAtStart,
+      shouldAbort: () => hasSurface || _surfaceGeneration != generationAtStart,
     );
   }
 
@@ -399,7 +398,11 @@ class GlobalPurchaseListener {
     _headlessWork = _headlessWork.then(
       (_) => _settleQueuedWithoutSurface(purchases),
       onError: (Object e, StackTrace s) {
-        logger.e('[GlobalPurchaseListener] 이전 무화면 정산 실패', error: e, stackTrace: s);
+        logger.e(
+          '[GlobalPurchaseListener] 이전 무화면 정산 실패',
+          error: e,
+          stackTrace: s,
+        );
         return _settleQueuedWithoutSurface(purchases);
       },
     );
@@ -446,9 +449,24 @@ class GlobalPurchaseListener {
           inAppPurchaseService: purchaseService.inAppPurchaseService,
         );
       case PurchaseStatus.pending:
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+          await purchaseService.recordPendingPurchase(
+            details,
+            source: PendingIntakeSource.headless,
+          );
+          logger.i(
+            '[GlobalPurchaseListener] Android pending 무화면 접수 시도: '
+            '${details.productID}',
+          );
+        } else {
+          // iOS pending/deferred 는 기존대로 무화면에서 손대지 않는다.
+          logger.i(
+            '[GlobalPurchaseListener] 무화면에서 무시: '
+            '${details.productID} (${details.status})',
+          );
+        }
       case PurchaseStatus.restored:
-        // pending 은 아직 돈이 아니고, restored 는 소비형에서 나오지 않는다.
-        // 어느 쪽도 무화면에서 손댈 이유가 없다 (스토어 화면과 동일).
+        // restored 는 소비형에서 나오지 않으므로 무화면에서 손대지 않는다.
         logger.i(
           '[GlobalPurchaseListener] 무화면에서 무시: '
           '${details.productID} (${details.status})',

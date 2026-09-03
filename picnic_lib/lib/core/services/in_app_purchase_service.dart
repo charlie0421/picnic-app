@@ -126,7 +126,8 @@ class InAppPurchaseService {
     debugMode = enabled;
     debugTimeoutMode = enabled ? 'debug' : 'normal';
     logger.i(
-        '🧪 디버그 모드 ${enabled ? "활성화" : "비활성화"}: 타임아웃 시간 ${getTimeoutDescription()}');
+      '🧪 디버그 모드 ${enabled ? "활성화" : "비활성화"}: 타임아웃 시간 ${getTimeoutDescription()}',
+    );
   }
 
   /// 🧪 타임아웃 모드 설정 (더 세밀한 제어)
@@ -145,7 +146,9 @@ class InAppPurchaseService {
     final delayText = _slowPurchaseDelay.inMilliseconds < 1000
         ? '${_slowPurchaseDelay.inMilliseconds}ms'
         : '${_slowPurchaseDelay.inSeconds}초';
-    logger.i('🧪 구매 지연 시뮬레이션 ${enabled ? "활성화" : "비활성화"}: ${enabled ? delayText : "즉시 실행"}');
+    logger.i(
+      '🧪 구매 지연 시뮬레이션 ${enabled ? "활성화" : "비활성화"}: ${enabled ? delayText : "즉시 실행"}',
+    );
   }
 
   /// 🎯 무조건 타임아웃 시뮬레이션 설정 (실제 구매 요청 안함)
@@ -250,7 +253,7 @@ class InAppPurchaseService {
     }
 
     // 모든 플랫폼에서 플러그인을 통한 정리를 한 번 더 수행합니다.
-    await this.processPendingTransactions();
+    await processPendingTransactions();
     logger.i('✨ 앱 시작: 처리되지 않은 구매 정리 완료');
   }
 
@@ -287,7 +290,9 @@ class InAppPurchaseService {
           await SKPaymentQueueWrapper().finishTransaction(transaction);
           logger.i('iOS: 실패 트랜잭션 정리: ${transaction.transactionIdentifier}');
         } catch (e) {
-          logger.e('iOS: 실패 트랜잭션 정리 실패: ${transaction.transactionIdentifier}, error: $e');
+          logger.e(
+            'iOS: 실패 트랜잭션 정리 실패: ${transaction.transactionIdentifier}, error: $e',
+          );
         }
       }
     } catch (e) {
@@ -306,7 +311,8 @@ class InAppPurchaseService {
     _subscription = InAppPurchase.instance.purchaseStream.listen(
       (List<PurchaseDetails> purchaseDetailsList) {
         logger.d(
-            'Purchase stream event: ${purchaseDetailsList.length} purchases');
+          'Purchase stream event: ${purchaseDetailsList.length} purchases',
+        );
 
         // 🚨 구매 완료 시 현재 구매 ID 정리
         for (final purchase in purchaseDetailsList) {
@@ -326,8 +332,9 @@ class InAppPurchaseService {
         logger.e('Purchase stream error: $error');
         // 🚨 에러 시에도 현재 구매 ID 정리
         if (_currentPurchasingProductId != null) {
-          logger
-              .w('🧹 구매 스트림 오류로 인한 현재 구매 ID 정리: $_currentPurchasingProductId');
+          logger.w(
+            '🧹 구매 스트림 오류로 인한 현재 구매 ID 정리: $_currentPurchasingProductId',
+          );
           _currentPurchasingProductId = null;
         }
         _onPurchaseUpdate([]);
@@ -347,7 +354,8 @@ class InAppPurchaseService {
 
     _purchaseTimeoutTimer = Timer(timeout, () {
       logger.w(
-          '⏰ Purchase timeout - no updates for ${timeout.inSeconds}s ${debugMode ? "(디버그 모드)" : ""}');
+        '⏰ Purchase timeout - no updates for ${timeout.inSeconds}s ${debugMode ? "(디버그 모드)" : ""}',
+      );
 
       // 🛡️ 타임아웃 발생을 로깅하고 상태 마킹 (안전망은 UI에서 처리)
       logger.w('🚨 InAppPurchaseService 타임아웃 발생 - UI 안전망에서 처리 예정');
@@ -392,8 +400,9 @@ class InAppPurchaseService {
 
     try {
       // 🛡️ StoreKit 레벨 중복 방지: 현재 pending 구매 확인
-      final currentPendingPurchases =
-          await _getPendingPurchasesForProduct(productDetails.id);
+      final currentPendingPurchases = await _getPendingPurchasesForProduct(
+        productDetails.id,
+      );
       if (currentPendingPurchases.isNotEmpty) {
         logger.w('🚫 StoreKit에서 이미 진행 중인 구매 감지: ${productDetails.id}');
         logger.w('   → 진행 중인 구매: ${currentPendingPurchases.length}개');
@@ -486,7 +495,7 @@ class InAppPurchaseService {
         _resetPurchaseTimeout();
 
         // 🧹 구매 성공 후 백그라운드에서 조용히 정리 (사용자 대기 없음)
-        this.scheduleBackgroundCleanup();
+        scheduleBackgroundCleanup();
       } else {
         logger.w('❌ 구매 요청 실패');
         _currentPurchasingProductId = null; // 🚨 정리
@@ -559,7 +568,7 @@ class InAppPurchaseService {
       'payment cancelled',
       'cancelled transaction',
       'user cancellation',
-      'cancelled by user'
+      'cancelled by user',
     ];
 
     // 키워드 검사
@@ -575,13 +584,17 @@ class InAppPurchaseService {
 
   /// 특정 제품의 pending 구매들 조회
   Future<List<PurchaseDetails>> _getPendingPurchasesForProduct(
-      String productId) async {
+    String productId,
+  ) async {
     try {
-      final purchaseDetailsList =
-          await this.getPurchaseUpdates(Duration(milliseconds: 300));
+      final purchaseDetailsList = await getPurchaseUpdates(
+        Duration(milliseconds: 300),
+      );
       return purchaseDetailsList
-          .where((p) =>
-              p.productID == productId && p.status == PurchaseStatus.pending)
+          .where(
+            (p) =>
+                p.productID == productId && p.status == PurchaseStatus.pending,
+          )
           .toList();
     } catch (e) {
       logger.w('pending 구매 조회 실패: $e');
@@ -592,16 +605,18 @@ class InAppPurchaseService {
   Future<List<ProductDetails>> getProducts(Set<String> productIds) async {
     logger.i('Fetching ${productIds.length} products');
 
-    final response =
-        await InAppPurchase.instance.queryProductDetails(productIds);
+    final response = await InAppPurchase.instance.queryProductDetails(
+      productIds,
+    );
 
     if (response.error != null) {
       logger.e('Product query error: ${response.error}');
       throw Exception('Failed to fetch products: ${response.error}');
     }
 
-    logger
-        .i('Products fetched successfully: ${response.productDetails.length}');
+    logger.i(
+      'Products fetched successfully: ${response.productDetails.length}',
+    );
     return response.productDetails;
   }
 
@@ -612,7 +627,7 @@ class InAppPurchaseService {
       logger.i('✅ 복원 요청 성공 - 백그라운드 정리 예약');
 
       // 🧹 복원 성공 후 백그라운드에서 조용히 정리 (사용자 대기 없음)
-      this.scheduleBackgroundCleanup();
+      scheduleBackgroundCleanup();
     } catch (e) {
       logger.e('❌ 복원 실패: $e');
       rethrow;
@@ -620,6 +635,15 @@ class InAppPurchaseService {
   }
 
   Future<void> completePurchase(PurchaseDetails purchaseDetails) async {
+    if (!kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        purchaseDetails.status == PurchaseStatus.pending) {
+      logger.w(
+        '⏸️ Android pending 구매는 acknowledge 하지 않음: '
+        '${purchaseDetails.productID}',
+      );
+      return;
+    }
     logger.i('Completing purchase: ${purchaseDetails.productID}');
     try {
       await InAppPurchase.instance.completePurchase(purchaseDetails);
@@ -655,6 +679,15 @@ class InAppPurchaseService {
   /// fallback은 환불 차단용으로 실행하되 반환은 false로 해 reconcile이
   /// consume을 재시도하게 한다.
   Future<bool> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
+    if (!kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        purchaseDetails.status == PurchaseStatus.pending) {
+      logger.w(
+        '⏸️ Android pending 구매는 consume/acknowledge 하지 않음: '
+        '${purchaseDetails.productID}',
+      );
+      return false;
+    }
     if (!Platform.isAndroid) {
       try {
         await completePurchase(purchaseDetails);
@@ -694,22 +727,23 @@ class InAppPurchaseService {
   }
 
   Future<void> clearTransactions({bool includePendingPurchases = false}) async {
-    logger
-        .i('Clearing transactions (includePending: $includePendingPurchases)');
+    logger.i(
+      'Clearing transactions (includePending: $includePendingPurchases)',
+    );
 
     try {
       if (includePendingPurchases) {
         // 🧹 실제 pending 구매 처리 후 캐시 정리 (구매 시에만)
-        await this.comprehensiveClear();
+        await comprehensiveClear();
       } else {
         // ⚡ 빠른 캐시 클리어만 (초기화 시)
-        await this.fastCacheClear();
+        await fastCacheClear();
       }
 
       // 🧹 iOS 캐시 클리어 (기존 로직 유지)
       if (Platform.isIOS) {
         try {
-          await this.iosCacheClear();
+          await iosCacheClear();
           logger.i('iOS cache cleared successfully');
         } catch (e) {
           logger.w('iOS cache cleanup failed: $e');
@@ -736,16 +770,14 @@ class InAppPurchaseService {
     final inFlight = _currentPurchasingProductId;
     if (inFlight != null &&
         inFlight.trim().toUpperCase() != productId.trim().toUpperCase()) {
-      logger.i(
-        '🧹 ⏭️ 진행 중인 다른 구매($inFlight)의 타이머는 보존: $productId',
-      );
+      logger.i('🧹 ⏭️ 진행 중인 다른 구매($inFlight)의 타이머는 보존: $productId');
       return;
     }
 
     logger.i('🧹 ✅ InAppPurchaseService 타이머 정리 시작: $productId (정상 구매 성공 시)');
 
     // 🧹 통합 타이머 정리 메서드 호출
-    this.cleanupPurchaseTimersOnSuccess();
+    cleanupPurchaseTimersOnSuccess();
 
     logger.i('🧹 ✅ InAppPurchaseService 타이머 정리 완료: $productId (정상 구매 성공 시)');
   }

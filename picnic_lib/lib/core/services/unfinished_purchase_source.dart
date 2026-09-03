@@ -15,6 +15,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 class UnfinishedPurchaseScan {
   const UnfinishedPurchaseScan({
     this.purchases = const [],
+    this.pendingPurchases = const [],
     this.error,
     this.liveInFlight = 0,
   });
@@ -22,6 +23,12 @@ class UnfinishedPurchaseScan {
   /// Transactions the store still holds open, in the shape the verification
   /// path already accepts.
   final List<PurchaseDetails> purchases;
+
+  /// Android purchases that Play still reports as PENDING. They are alive but
+  /// not settleable: callers may durably intake the token behind a remote
+  /// capability gate, but must never verify through the purchased path or
+  /// acknowledge/consume them.
+  final List<PurchaseDetails> pendingPurchases;
 
   /// Non-null when the enumeration itself failed.
   final Object? error;
@@ -64,17 +71,16 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
   @override
   String get label => 'Android/queryPastPurchases';
 
-  /// `liveInFlight` stays 0 here, and that is a **limit of Play's API, not a
-  /// statement that nothing is live**.
+  /// `queryPurchases` answers with owned purchases, so a slow payment already
+  /// accepted by Play arrives as a `pending` [PurchaseDetails]. It is exposed
+  /// separately through [UnfinishedPurchaseScan.pendingPurchases] and counted
+  /// in `liveInFlight`; it must not enter the settleable `purchases` list.
   ///
-  /// `queryPurchases` answers with owned purchases, so a slow payment still
-  /// settling arrives as a `pending` [PurchaseDetails] inside
-  /// [UnfinishedPurchaseScan.purchases] (found > 0, which already blocks every
-  /// "the queue was empty" caller). But a billing flow the user is *inside* is
-  /// invisible to every query Play offers: the flow runs in Play's own
-  /// activity, and nothing is owned until it completes. So while the user
-  /// stares at the payment sheet this scan reports an empty queue with
-  /// `liveInFlight == 0` - indistinguishable from "nothing is happening".
+  /// A billing flow the user is merely *inside* is still invisible to every
+  /// query Play offers: the flow runs in Play's own activity, and nothing is
+  /// owned until it completes. So while the user stares at the payment sheet
+  /// this scan can report an empty queue with `liveInFlight == 0` -
+  /// indistinguishable from "nothing is happening".
   ///
   /// An earlier revision of this comment claimed the in-flight case could not
   /// be concurrent with a scan, because Play refuses a second billing flow.
@@ -92,9 +98,17 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
     final addition = InAppPurchase.instance
         .getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
     final resp = await addition.queryPastPurchases();
+    final all = List<PurchaseDetails>.from(resp.pastPurchases);
+    final pending = all
+        .where((purchase) => purchase.status == PurchaseStatus.pending)
+        .toList(growable: false);
     return UnfinishedPurchaseScan(
-      purchases: List<PurchaseDetails>.from(resp.pastPurchases),
+      purchases: all
+          .where((purchase) => purchase.status == PurchaseStatus.purchased)
+          .toList(growable: false),
+      pendingPurchases: pending,
       error: resp.error,
+      liveInFlight: pending.length,
     );
   }
 }
@@ -193,8 +207,9 @@ class IosPaymentQueueSource implements UnfinishedPurchaseSource {
     return UnfinishedPurchaseScan(
       purchases: settleable
           .map(
-            (t) => AppStorePurchaseDetails.fromSKTransaction(t, receipt)
-                as PurchaseDetails,
+            (t) =>
+                AppStorePurchaseDetails.fromSKTransaction(t, receipt)
+                    as PurchaseDetails,
           )
           .toList(),
       liveInFlight: liveInFlight,
