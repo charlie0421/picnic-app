@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:picnic_lib/core/analytics/iso_4217_currency.dart';
@@ -120,6 +121,14 @@ class ReceiptQueueService {
   })?
   onSettlementRecovered;
 
+  /// Remote capability gate for queue rows created from Android PENDING.
+  ///
+  /// Null and exceptions are fail-closed. Normal purchased/iOS rows never use
+  /// this callback. Keeping the check at flush time is essential for rollback:
+  /// a pending row persisted while the gate was ON must not be sent by a later
+  /// cold-start flush after the gate has been switched OFF.
+  Future<bool> Function()? canFlushPendingIntake;
+
   Future<SharedPreferences> get _prefs async => SharedPreferences.getInstance();
 
   Future<List<Map<String, dynamic>>> _loadQueue() async {
@@ -156,8 +165,16 @@ class ReceiptQueueService {
   /// 프로덕션 API 다: 이미 정산된 트랜잭션의 재전달을 처리하는
   /// `ReceiptVerificationService` 도 이 키로 해당 항목을 큐에서 지운다.
   static String? iosClientTraceId(String receipt) {
-    final transactionId = ReceiptFormatHelper.appleTransactionIdFromJWS(receipt);
+    final transactionId = ReceiptFormatHelper.appleTransactionIdFromJWS(
+      receipt,
+    );
     return transactionId == null ? null : 'ios-$transactionId';
+  }
+
+  /// Android queue key derived only from Google Play's stable purchase token.
+  static String androidClientTraceId(String purchaseToken) {
+    final digest = sha256.convert(utf8.encode(purchaseToken)).toString();
+    return 'android-${digest.substring(0, 32)}';
   }
 
   DateTime? _parseCreatedAt(Map<String, dynamic> item) {
@@ -192,17 +209,18 @@ class ReceiptQueueService {
   ) {
     final overflow = items.length - PurchaseConstants.receiptQueueMaxEntries;
     if (overflow <= 0) return items;
-    final byAge = [...items]..sort((a, b) {
-      final pendingA = _isAnalyticsPending(a);
-      final pendingB = _isAnalyticsPending(b);
-      if (pendingA != pendingB) return pendingA ? 1 : -1;
-      final da = _parseCreatedAt(a);
-      final db = _parseCreatedAt(b);
-      if (da == null && db == null) return 0;
-      if (da == null) return -1;
-      if (db == null) return 1;
-      return da.compareTo(db);
-    });
+    final byAge = [...items]
+      ..sort((a, b) {
+        final pendingA = _isAnalyticsPending(a);
+        final pendingB = _isAnalyticsPending(b);
+        if (pendingA != pendingB) return pendingA ? 1 : -1;
+        final da = _parseCreatedAt(a);
+        final db = _parseCreatedAt(b);
+        if (da == null && db == null) return 0;
+        if (da == null) return -1;
+        if (db == null) return 1;
+        return da.compareTo(db);
+      });
     final toDrop = byAge.take(overflow).toSet();
     final droppedPending = toDrop.where(_isAnalyticsPending).length;
     if (droppedPending > 0) {
@@ -254,32 +272,54 @@ class ReceiptQueueService {
     required String userId,
     required String environment,
     String? clientObservedCurrency,
+    bool pendingIntake = false,
   }) => _withMutationLock(() async {
     final normalizedPlatform = platform.toLowerCase();
     final clientTraceId = normalizedPlatform == platformIOS
         ? (iosClientTraceId(receipt) ??
               _generateClientTraceId(normalizedPlatform))
-        : _generateClientTraceId(normalizedPlatform);
+        : androidClientTraceId(receipt);
 
     final items = await _pruneStale(await _loadQueue());
 
-    // 같은 키가 이미 있으면 새로 쌓지 않고 기존 항목을 재사용한다. iOS 키는
-    // 결정적이라 재전달/폴백 재검증이 이 경로를 타고, Android 키는 난수라
-    // 절대 타지 않는다(기존 동작 그대로).
+    // 같은 키가 이미 있으면 새로 쌓지 않고 기존 항목을 재사용한다. iOS는
+    // transaction id, Android는 purchase token 해시를 사용하므로 이벤트,
+    // 스윕, 재실행에서 같은 거래가 결정적으로 같은 항목에 합류한다.
     final existing = items.indexWhere(
       (e) => e['client_trace_id'] == clientTraceId,
     );
     if (existing >= 0) {
-      // 결정적 iOS 키는 재전달마다 같은 항목으로 돌아온다. 그 사이 카탈로그가
+      // 결정적 키는 재전달마다 같은 항목으로 돌아온다. 그 사이 카탈로그가
       // 로드돼 통화를 알게 됐다면 비어 있던 자리만 채운다. 이미 다른 값이
       // 있으면 최초 값을 정본으로 두고 덮어쓰지 않는다 — 같은 거래의 통화가
       // 재전달마다 바뀌면 어느 쪽이 맞는지 판단할 근거가 없다.
       final observed = normalizeIso4217(clientObservedCurrency);
       final stored = items[existing]['client_observed_currency'];
-      if (observed != null && stored == null) {
+      final promoteFromPending =
+          items[existing]['pending_intake'] == true && !pendingIntake;
+      final refreshAndroidSettlement =
+          normalizedPlatform == platformAndroid && !pendingIntake;
+      if ((observed != null && stored == null) || refreshAndroidSettlement) {
         items[existing] = <String, dynamic>{
           ...items[existing],
-          'client_observed_currency': observed,
+          if (observed != null && stored == null)
+            'client_observed_currency': observed,
+          if (refreshAndroidSettlement) ...{
+            // The purchased observation owns subsequent settlement retries.
+            // A user may sign out while Play keeps the pending token, so the
+            // earlier observer (or an intervening wrong-user observation)
+            // must not pin the durable row to a stale account or environment.
+            'pending_intake': false,
+            'receipt': receipt,
+            'productId': productId,
+            'user_id': userId,
+            'platform': normalizedPlatform,
+            'environment': environment,
+            'format': ReceiptFormatHelper.verificationFormatFor(
+              platform: normalizedPlatform,
+              receipt: receipt,
+            ),
+          },
         };
         await _saveQueue(items);
       } else if (observed != null && stored != observed) {
@@ -287,6 +327,9 @@ class ReceiptQueueService {
           '📥 큐 항목의 관측 통화가 재전달마다 다르다 — 최초 값 유지: '
           '$clientTraceId ($stored vs $observed)',
         );
+      }
+      if (promoteFromPending) {
+        logger.i('📥 Android pending 큐 항목을 purchased 정산으로 승격: $clientTraceId');
       }
       logger.i('📥 큐 항목 재사용: $clientTraceId ($normalizedPlatform/$productId)');
       return clientTraceId;
@@ -305,6 +348,7 @@ class ReceiptQueueService {
       ),
       if (normalizeIso4217(clientObservedCurrency) != null)
         'client_observed_currency': normalizeIso4217(clientObservedCurrency),
+      if (pendingIntake) 'pending_intake': true,
       'attempt': 0,
       'createdAt': DateTime.now().toIso8601String(),
       'nextAt': 0,
@@ -426,6 +470,14 @@ class ReceiptQueueService {
       for (final snapshotItem in snapshot) {
         final clientTraceId = snapshotItem['client_trace_id']?.toString();
         if (clientTraceId == null || clientTraceId.isEmpty) continue;
+        if (snapshotItem['pending_intake'] == true &&
+            !await _pendingIntakeFlushEnabled()) {
+          logger.i(
+            '⏸️ Android pending 큐 전송 보류(게이트 OFF/fail-closed): '
+            '$clientTraceId',
+          );
+          continue;
+        }
         await _flushItem(clientTraceId);
       }
 
@@ -433,6 +485,17 @@ class ReceiptQueueService {
       logger.i('🧾 영수증 큐 플러시 완료. 남은 건: ${remaining.length}');
     } finally {
       _inFlightFlush = null;
+    }
+  }
+
+  Future<bool> _pendingIntakeFlushEnabled() async {
+    final loader = canFlushPendingIntake;
+    if (loader == null) return false;
+    try {
+      return await loader();
+    } catch (e, s) {
+      logger.w('Android pending 큐 게이트 조회 실패 - 전송 보류: $e', stackTrace: s);
+      return false;
     }
   }
 
@@ -526,8 +589,7 @@ class ReceiptQueueService {
       final ok =
           response.status == 200 &&
           data is Map &&
-          (data['success'] == true ||
-              data['contract_version'] == 'wallet.v1');
+          (data['success'] == true || data['contract_version'] == 'wallet.v1');
       if (ok) {
         final outcome = await _handOffSettlement(item, data);
         if (outcome != _HandOffOutcome.handedOff) {
@@ -604,7 +666,9 @@ class ReceiptQueueService {
     bool analyticsPending = false,
   }) => _withMutationLock(() async {
     final items = await _loadQueue();
-    final index = items.indexWhere((e) => e['client_trace_id'] == clientTraceId);
+    final index = items.indexWhere(
+      (e) => e['client_trace_id'] == clientTraceId,
+    );
     if (index < 0) return;
     final attempt = ((items[index]['attempt'] as num?)?.toInt() ?? 0) + 1;
     items[index]['attempt'] = attempt;

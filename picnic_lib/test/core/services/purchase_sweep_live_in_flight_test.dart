@@ -1,4 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/billing_client_wrappers.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/services/unfinished_purchase_source.dart';
@@ -12,6 +17,8 @@ import 'package:picnic_lib/core/services/unfinished_purchase_source.dart';
 /// 살아 있다**는 뜻이라, 이걸 빈 큐로 보고하면 "큐가 비었으니 남은 상태는
 /// 지워도 된다"는 판단이 진행 중인 정상 결제를 지운다.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   SKPaymentTransactionWrapper txn(
     String productId,
     SKPaymentTransactionStateWrapper state,
@@ -73,16 +80,18 @@ void main() {
       expect(scan.error, isNull);
     });
 
-    test('a settleable transaction still reports a concurrent live one',
-        () async {
-      final scan = await sourceWith([
-        txn('STAR100', SKPaymentTransactionStateWrapper.purchased),
-        txn('STAR200', SKPaymentTransactionStateWrapper.purchasing),
-      ]).scan();
+    test(
+      'a settleable transaction still reports a concurrent live one',
+      () async {
+        final scan = await sourceWith([
+          txn('STAR100', SKPaymentTransactionStateWrapper.purchased),
+          txn('STAR200', SKPaymentTransactionStateWrapper.purchasing),
+        ]).scan();
 
-      expect(scan.purchases.length, 1);
-      expect(scan.liveInFlight, 1);
-    });
+        expect(scan.purchases.length, 1);
+        expect(scan.liveInFlight, 1);
+      },
+    );
 
     test('the unreadable-receipt guard still reports what it saw', () async {
       final scan = await sourceWith([
@@ -91,6 +100,39 @@ void main() {
       ], receipt: '').scan();
 
       expect(scan.error, isNotNull);
+      expect(scan.liveInFlight, 1);
+    });
+  });
+
+  group('AndroidPastPurchaseSource pending separation', () {
+    test('pending is live but never settleable', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      InAppPurchase.instance;
+      addTearDown(() {
+        debugDefaultTargetPlatformOverride = null;
+      });
+      final originalAddition = InAppPurchasePlatformAddition.instance;
+      addTearDown(() {
+        InAppPurchasePlatformAddition.instance = originalAddition;
+      });
+
+      final pending = _googlePurchase(
+        token: 'pending-token',
+        state: PurchaseStateWrapper.pending,
+      );
+      final purchased = _googlePurchase(
+        token: 'purchased-token',
+        state: PurchaseStateWrapper.purchased,
+      );
+      final addition = _FakeAndroidAddition(
+        QueryPurchaseDetailsResponse(pastPurchases: [pending, purchased]),
+      );
+      InAppPurchasePlatformAddition.instance = addition;
+
+      final scan = await const AndroidPastPurchaseSource().scan();
+
+      expect(scan.purchases, [same(purchased)]);
+      expect(scan.pendingPurchases, [same(pending)]);
       expect(scan.liveInFlight, 1);
     });
   });
@@ -108,16 +150,45 @@ void main() {
       expect(report().verifiedEmpty, isTrue);
     });
 
-    test(
-      'a completed sweep with nothing to settle but a live payment does not '
-      'verify empty - this is the counterexample',
-      () {
-        expect(report(liveInFlight: 1).verifiedEmpty, isFalse);
-      },
-    );
+    test('a completed sweep with nothing to settle but a live payment does not '
+        'verify empty - this is the counterexample', () {
+      expect(report(liveInFlight: 1).verifiedEmpty, isFalse);
+    });
 
     test('found > 0 still blocks, as before', () {
       expect(report(found: 1).verifiedEmpty, isFalse);
     });
   });
 }
+
+class _FakeAndroidAddition implements InAppPurchaseAndroidPlatformAddition {
+  _FakeAndroidAddition(this.response);
+
+  final QueryPurchaseDetailsResponse response;
+
+  @override
+  Future<QueryPurchaseDetailsResponse> queryPastPurchases({
+    String? applicationUserName,
+  }) async => response;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+GooglePlayPurchaseDetails _googlePurchase({
+  required String token,
+  required PurchaseStateWrapper state,
+}) => GooglePlayPurchaseDetails.fromPurchase(
+  PurchaseWrapper(
+    orderId: 'order-$token',
+    packageName: 'com.example.picnic',
+    purchaseTime: 1785228000000,
+    purchaseToken: token,
+    signature: 'signature',
+    products: const ['STAR100'],
+    isAutoRenewing: false,
+    originalJson: '{}',
+    isAcknowledged: false,
+    purchaseState: state,
+  ),
+).single;

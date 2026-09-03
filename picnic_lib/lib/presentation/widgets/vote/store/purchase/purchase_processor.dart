@@ -5,6 +5,7 @@ import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_safety_manager.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/restore_purchase_handler.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 
 /// 구매 처리 순수 로직 프로세서
@@ -13,6 +14,34 @@ import 'package:picnic_lib/core/services/purchase_service.dart';
 /// setState, mounted, ref 등 위젯 상태에 의존하는 코드는 포함하지 않습니다.
 class PurchaseProcessor {
   PurchaseProcessor._();
+
+  /// Releases the UI attempt owned by an Android PENDING event.
+  ///
+  /// There is deliberately no `await` between reading and removing the
+  /// attempt. A PURCHASED update may arrive immediately after PENDING; once
+  /// this returns it sees no bindable attempt and takes the orphan settlement
+  /// path instead of being discarded by the pending UI lifecycle.
+  static ({bool attemptReleased, bool shouldAnnounce})
+  releaseAndroidPendingSurfaceAttempt({
+    required String productId,
+    required PurchaseCampaignAttemptRegistry attempts,
+    required PurchaseSafetyManager safetyManager,
+  }) {
+    final attempt = attempts[productId];
+    if (attempt == null) {
+      return (attemptReleased: false, shouldAnnounce: false);
+    }
+
+    final alreadyAnnounced = safetyManager.markSettlementPending(productId);
+    final attemptReleased = attempts.removeIfMatches(
+      productId,
+      attempt.attemptId,
+    );
+    return (
+      attemptReleased: attemptReleased,
+      shouldAnnounce: attemptReleased && !alreadyAnnounced,
+    );
+  }
 
   /// 초기화 중 pending 구매 강제 완료
   ///
@@ -29,13 +58,9 @@ class PurchaseProcessor {
       final startTime = DateTime.now();
       await inAppPurchaseService.completePurchase(purchaseDetails);
       final duration = DateTime.now().difference(startTime).inMilliseconds;
-      logger.i(
-        '[PurchaseProcessor] Pending purchase completed: ${duration}ms',
-      );
+      logger.i('[PurchaseProcessor] Pending purchase completed: ${duration}ms');
     } catch (e) {
-      logger.e(
-        '[PurchaseProcessor] Failed to complete pending purchase: $e',
-      );
+      logger.e('[PurchaseProcessor] Failed to complete pending purchase: $e');
     }
   }
 
@@ -47,6 +72,15 @@ class PurchaseProcessor {
     required PurchaseDetails purchaseDetails,
     required InAppPurchaseService inAppPurchaseService,
   }) async {
+    if (!kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        purchaseDetails.status == PurchaseStatus.pending) {
+      logger.w(
+        '[PurchaseProcessor] Android pending transaction preserved; '
+        'failure cleanup must not acknowledge it.',
+      );
+      return;
+    }
     if (purchaseDetails.pendingCompletePurchase) {
       logger.i(
         '[PurchaseProcessor] Completing failed/canceled transaction to prevent re-delivery.',
@@ -187,8 +221,7 @@ class PurchaseProcessor {
   /// 안내다. 정산 단계의 소켓/타임아웃 실패는 타입 분류에서
   /// [PurchaseErrorType.processing] 으로 들어온다.
   static bool isSettlementPending(PurchaseErrorType type) =>
-      type == PurchaseErrorType.processing ||
-      type == PurchaseErrorType.timeout;
+      type == PurchaseErrorType.processing || type == PurchaseErrorType.timeout;
 
   static bool _isDuplicateErrorString(String error) {
     return error.contains('StoreKit 캐시 문제') ||

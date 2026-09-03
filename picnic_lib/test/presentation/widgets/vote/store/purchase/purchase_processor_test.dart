@@ -1,8 +1,108 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:mockito/mockito.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
+import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_safety_manager.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_processor.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  group('PurchaseProcessor.completeFailedTransaction pending guard', () {
+    late _RecordingPurchaseService service;
+
+    setUp(() {
+      service = _RecordingPurchaseService();
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    });
+
+    tearDown(() {
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    test(
+      'Android pending is never completed through the failure path',
+      () async {
+        final purchase = _pendingPurchase();
+
+        await PurchaseProcessor.completeFailedTransaction(
+          purchaseDetails: purchase,
+          inAppPurchaseService: service,
+        );
+
+        expect(service.completed, isEmpty);
+      },
+    );
+
+    test('iOS behavior remains unchanged', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      final purchase = _pendingPurchase();
+
+      await PurchaseProcessor.completeFailedTransaction(
+        purchaseDetails: purchase,
+        inAppPurchaseService: service,
+      );
+
+      expect(service.completed, [same(purchase)]);
+    });
+  });
+
+  group('PurchaseProcessor.releaseAndroidPendingSurfaceAttempt', () {
+    late PurchaseSafetyManager safetyManager;
+    late PurchaseCampaignAttemptRegistry attempts;
+
+    setUp(() {
+      safetyManager = PurchaseSafetyManager(
+        loadingKey: GlobalKey<LoadingOverlayWithIconState>(),
+        resetPurchaseState: () {},
+      );
+      attempts = PurchaseCampaignAttemptRegistry();
+      addTearDown(safetyManager.disposeSafetyTimer);
+    });
+
+    test(
+      'releases the attempt, announces once, and leaves purchased orphan',
+      () {
+        const attempt = PurchaseCampaignAttempt(
+          attemptId: 'attempt-1',
+          productId: 'STAR100',
+          displayedCampaign: null,
+        );
+        expect(attempts.begin(attempt), isTrue);
+        attempts.applyLaunchResult('STAR100', 'attempt-1', const {
+          'success': true,
+          'wasCancelled': false,
+        });
+
+        final first = PurchaseProcessor.releaseAndroidPendingSurfaceAttempt(
+          productId: 'star100',
+          attempts: attempts,
+          safetyManager: safetyManager,
+        );
+
+        expect(first.attemptReleased, isTrue);
+        expect(first.shouldAnnounce, isTrue);
+        expect(attempts.contains('STAR100'), isFalse);
+        expect(safetyManager.isSettlementPending('STAR100'), isTrue);
+
+        final duplicate = PurchaseProcessor.releaseAndroidPendingSurfaceAttempt(
+          productId: 'STAR100',
+          attempts: attempts,
+          safetyManager: safetyManager,
+        );
+        expect(duplicate.attemptReleased, isFalse);
+        expect(duplicate.shouldAnnounce, isFalse);
+
+        expect(attempts.bind(_purchasedPurchase()), isNull);
+      },
+    );
+  });
+
   /// The guarantee `PurchaseSettlementStep` settles against.
   ///
   /// `cleanupAllTimersOnSuccess` tears down three independent timer owners -
@@ -126,7 +226,8 @@ void main() {
       expect(
         PurchaseProcessor.isTerminalMappedError(PurchaseErrorType.processing),
         isFalse,
-        reason: '종결로 다루면 어템프트와 안전망이 함께 철거되고, 사용자는 '
+        reason:
+            '종결로 다루면 어템프트와 안전망이 함께 철거되고, 사용자는 '
             '적립 직전의 결제를 실패로 안내받는다',
       );
     });
@@ -160,10 +261,16 @@ void main() {
         PurchaseErrorType.serverError,
         PurchaseErrorType.purchaseCancelled,
       ]) {
-        expect(PurchaseProcessor.isSettlementPending(type), isFalse,
-            reason: '$type');
-        expect(PurchaseProcessor.isTerminalMappedError(type), isTrue,
-            reason: '$type - 종결 실패의 기존 동작은 그대로여야 한다');
+        expect(
+          PurchaseProcessor.isSettlementPending(type),
+          isFalse,
+          reason: '$type',
+        );
+        expect(
+          PurchaseProcessor.isTerminalMappedError(type),
+          isTrue,
+          reason: '$type - 종결 실패의 기존 동작은 그대로여야 한다',
+        );
       }
     });
 
@@ -217,13 +324,15 @@ void main() {
       });
     });
 
-    test('returns receiptVerificationFailed for RECEIPT_VERIFICATION_FAILED',
-        () {
-      expect(
-        PurchaseProcessor.mapErrorToType('RECEIPT_VERIFICATION_FAILED'),
-        PurchaseErrorType.receiptVerificationFailed,
-      );
-    });
+    test(
+      'returns receiptVerificationFailed for RECEIPT_VERIFICATION_FAILED',
+      () {
+        expect(
+          PurchaseProcessor.mapErrorToType('RECEIPT_VERIFICATION_FAILED'),
+          PurchaseErrorType.receiptVerificationFailed,
+        );
+      },
+    );
 
     test('returns userNotAuthenticated for USER_NOT_AUTHENTICATED', () {
       expect(
@@ -341,4 +450,45 @@ void main() {
       }
     });
   });
+}
+
+PurchaseDetails _pendingPurchase() {
+  final purchase = PurchaseDetails(
+    purchaseID: '',
+    productID: 'STAR100',
+    verificationData: PurchaseVerificationData(
+      localVerificationData: 'local',
+      serverVerificationData: 'pending-token',
+      source: 'test',
+    ),
+    transactionDate: '1785228000000',
+    status: PurchaseStatus.pending,
+  );
+  purchase.pendingCompletePurchase = true;
+  return purchase;
+}
+
+PurchaseDetails _purchasedPurchase() {
+  final purchase = PurchaseDetails(
+    purchaseID: 'order-id',
+    productID: 'STAR100',
+    verificationData: PurchaseVerificationData(
+      localVerificationData: 'local',
+      serverVerificationData: 'pending-token',
+      source: 'test',
+    ),
+    transactionDate: '1785228000000',
+    status: PurchaseStatus.purchased,
+  );
+  purchase.pendingCompletePurchase = true;
+  return purchase;
+}
+
+class _RecordingPurchaseService extends Mock implements InAppPurchaseService {
+  final List<PurchaseDetails> completed = [];
+
+  @override
+  Future<void> completePurchase(PurchaseDetails purchaseDetails) async {
+    completed.add(purchaseDetails);
+  }
 }
