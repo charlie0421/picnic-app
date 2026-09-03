@@ -30,11 +30,28 @@
 
 <h1>GA4 이벤트 택소노미 — 핸드오프</h1>
 <p class="meta">
-작성 2026-08-21 · 최종 갱신 2026-08-24 · 작업 브랜치 <code>docs/handoff-20260821-ga4-taxonomy</code> · 프로덕션 <code>1.3.0+130007</code><br>
+작성 2026-08-21 · 최종 갱신 2026-09-03 · 작업 브랜치 <code>docs/handoff-20260821-ga4-taxonomy</code> · 프로덕션 <code>1.3.0+130007</code>(작성 시점)<br>
 원 작업 PR <a href="https://github.com/charlie0421/picnic-app/pull/153">#153</a> (머지 커밋 <code>d99118ab3</code>, 2026-08-10) ·
 purchase revenue PR — 앱 <a href="https://github.com/charlie0421/picnic-app/pull/172">picnic-app#172</a> ·
-서버 <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a> (둘 다 열림, 미머지)
+서버 <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a> (작성 시점 둘 다 열림 — <b>현재는 둘 다 머지·배포됨</b>)
 </p>
+
+<div class="ok">
+<b>2026-09-03 — 이 문서의 미결 항목은 전부 종결됐다.</b> 이 문서는 <b>2026-08-21~24 시점의 기록</b>이고,
+이후 진행은 아래 문서가 이어받는다. 여기의 "미착수 / 미검증" 표기를 현재 상태로 읽지 말 것.
+<ul style="margin:.5em 0 0">
+<li><b>④ 복구 구매의 매출 복원</b> — 앱(#172)·서버(#109) 모두 머지·배포. 결함 2건(#116·#117)과
+    워커 타입 게이트(#118, <code>wallet-operation-worker</code> v29)까지 잡고 <b>2026-09-03 GA4 끝단 검증 완료</b>.
+    <b>iOS 해소 / Android 는 플랫폼 한계</b>(강업 예정). → <code>docs/operations/handoff-20260902-purchase-revenue-server.html</code></li>
+<li><b>미검증 3항목</b>(재화명 오염 · 언어 <code>ja</code>/<code>jp</code> · <code>login</code>/<code>sign_up</code> 중복·오탐) —
+    2026-08-31 및 09-01 실측으로 전건 종결. 재화명 오염 없음, <code>ja</code> 미출현, <code>sign_up</code> 은
+    오탐이 아니라 <b>누락</b>(커버리지 88.3%, 설계 한계). → <code>docs/analytics/ga4-event-taxonomy.md</code> §4-A</li>
+<li><b>B-4 재고지</b> — 2026-09-03 <b>불필요로 종결</b>(제품 판단). AdMob 지면은 계측 범위에 포함하고
+    분석에서 <code>ad_platform</code> 으로 분리한다. → 같은 문서 §2-A</li>
+<li><b>B-10 이벤트명</b> — <code>ad_click</code> 이 AdMob 자동수집 <b>예약어</b>임이 밝혀져
+    <code>ad_cta_click</code> 으로 개명, 배포·수집 확인 완료(8/29).</li>
+</ul>
+</div>
 
 <div class="ok">
 <strong>코드는 이미 프로덕션에 나가 있다.</strong> GA4 택소노미는 <code>1.3.0+130007</code> 바이너리에
@@ -339,7 +356,9 @@ AdMob 이 릴리스에서 다시 켜지면서 나타났다. 8/25 실측 때는 0
 <code>ad_platform</code> 이 <code>internal-shortform</code>/<code>Pangle</code> 이다.
 둘을 합산하면 자체 숏폼 CTA 와 AdMob 클릭이 뒤섞인다.</p>
 <p style="margin:.6em 0 0"><span class="k">대행사 회신 B-4("광고 플랫폼 값은 AdMob 이 아니다")의
-전제가 바뀌었다 — 이제 AdMob 이 실제로 돌고 있다. 재고지가 필요하다.</span></p>
+전제가 바뀌었다 — 이제 AdMob 이 실제로 돌고 있다.</span>
+<b>→ 2026-09-03 재고지는 불필요로 종결(제품 판단).</b> AdMob 지면을 계측 범위에 포함하고,
+분석에서 <code>ad_platform</code> 으로 분리해 대응한다(택소노미 문서 §2-A).</p>
 </div>
 </div>
 
@@ -347,8 +366,9 @@ AdMob 이 릴리스에서 다시 켜지면서 나타났다. 8/25 실측 때는 0
 <strong>부수 관측:</strong> <code>ad_unit_name</code> 이 문자열 <code>undefined</code> 로 나간다(설계상
 값 없는 String 파라미터의 의도된 치환). 값 없는 Number 는 키를 생략하는 B-3 와 짝이 맞는지
 대행사와 재확인할 여지가 있다.
-<p style="margin:.6em 0 0">아직 검증 안 된 항목: 재화명(<code>별사탕</code> 오염 여부),
-언어(<code>ja</code>/<code>jp</code>), <code>login</code>/<code>sign_up</code> 중복·오탐.</p>
+<p style="margin:.6em 0 0"><s>아직 검증 안 된 항목: 재화명(<code>별사탕</code> 오염 여부),
+언어(<code>ja</code>/<code>jp</code>), <code>login</code>/<code>sign_up</code> 중복·오탐.</s>
+<b>→ 2026-08-31 · 09-01 실측으로 전건 종결</b>(택소노미 문서 §2-A · §1 · §4-A).</p>
 </div>
 
 <div class="tw">
@@ -377,7 +397,8 @@ AdMob 이 릴리스에서 다시 켜지면서 나타났다. 8/25 실측 때는 0
 <li>B-10 이벤트명 변경은 중복 적재 확인 뒤 결정한다. DebugView 실측 전에는 변경하지 않는다.</li>
 </ul>
 
-<h3>④ 복구 구매의 매출 복원 <span class="unk">— 앱 사이드 완료 / 서버 미착수</span></h3>
+<h3>④ 복구 구매의 매출 복원 <span class="done">— 2026-09-03 종결(iOS 해소 / Android 는 강업 대기)</span>
+<span class="meta">아래는 2026-08-21 시점 기록</span></h3>
 <p>현재 코드는 정산 시점에 스토어 카탈로그가 메모리에 없으면
 <code>currency</code>/<code>value</code> 없이 purchase를 확정할 수 있다.
 대행사 B-2를 충족하기 위해 다음 계약을 선택했고 교차 검증에서 최종 승인받았다.</p>

@@ -361,7 +361,7 @@ Item 수준 (`items` 배열):
 | 1 | `click_attendance` 구현 불가 | 출석 보상은 제품에서 **폐지**됐고 1.3.0 코드에 반영 완료. 진입 UI가 전부 제거되어 이벤트가 발생할 수 없음. 근거: `docs/operations/attendance-reward-decision.html` | 이벤트 제외 요청 |
 | 2 | `user_id` 해싱 불필요 | 스펙은 "로그인 ID의 해시값"을 요구하나, 본 앱의 로그인 식별자는 Supabase auth **UUID** 로 PII가 아님. 해싱 시 BigQuery↔DB 조인이 끊기고 기존 GA4 `user_id` 히스토리가 단절됨 | raw UUID 유지 통지 |
 | 3 | user property 이름 불일치 | "파라미터 리스트" 시트는 `language`, "공통 파라미터" 시트는 `selected_language` 로 같은 값을 다르게 표기 | user property 는 `language` 로 통일 |
-| 4 | `ad_impression` 중복 집계 | AdMob↔Firebase 연동 시 GA4가 동일 이름 이벤트를 자동 수집함. 스펙대로 커스텀 발송하면 중복 가능 | 스펙대로 발송하되 GA4 콘솔에서 중복 확인 요청 |
+| 4 | `ad_impression` 중복 집계 | AdMob↔Firebase 연동 시 GA4가 동일 이름 이벤트를 자동 수집함. 스펙대로 커스텀 발송하면 중복 가능 | **2026-08-31 실측으로 확정 — §2-A 참조.** 한 이름 아래 당사분(internal-shortform·Pangle)과 AdMob 자동수집분이 섞여 들어온다. 스펙대로 발송을 유지하고, **분석 시 `ad_platform` 으로 반드시 분리**한다 |
 | 5 | `earn_virtual_currency` 비표준 | GA4 표준은 `virtual_currency_name` + `value` 이나 본 택소노미는 수량을 `reward_amount` 로 정의 | 스펙대로 구현 |
 | 6 | Number 파라미터의 `undefined` 대체 | 스펙은 "정보가 없으면 값을 `undefined` 로 대체"하나, Number 파라미터(`reward_amount`, `value`, `base_amount`, `bonus_amount`)에 문자열을 섞으면 GA4가 해당 키를 커스텀 측정기준/측정항목 중 하나로만 등록해 **반대 타입 값이 리포트에서 통째로 누락**됨 | String 파라미터만 `undefined` 대체. Number 는 값이 없으면 파라미터 생략 + 경고 로그 |
 | 7 | `sign_up` 판별 근거 | Supabase 는 신규 가입 여부를 응답에 직접 주지 않음. `created_at` 과 `last_sign_in_at` 의 차이가 30초 이내면 신규 가입으로 판정하고, 사용자별 1회 발송 마커를 로컬에 영속 저장 | **2026-08-31 실측 검증 — 아래 §4-A 참조** |
@@ -480,14 +480,35 @@ envelope는 `version`, `pending`, `delivered`를 가지며 pending 항목은 이
 
 | # | 한계 | 내용 | 영향/처리 |
 |---:|---|---|---|
-| 1 | 카탈로그 미적재 복구 구매의 매출 누락 | 정산 확정 시점에 스토어 상품 카탈로그가 메모리에 없으면 (`purchase_service.dart` 의 `_sendPurchaseAnalytics`) `currency`/`value` 없이 purchase 를 확정한다. 숫자를 지어내지 않고 거래 사실부터 durable 하게 남기는 선택이다 | **purchase 건수는 남지만 그 건의 매출액은 복원되지 않는다.** 출시 전 수용 여부를 제품 결정으로 명시해야 함 |
+| 1 | 카탈로그 미적재 복구 구매의 매출 누락 — **Android 한정** | 정산 확정 시점에 스토어 상품 카탈로그가 메모리에 없으면 (`purchase_service.dart` 의 `_sendPurchaseAnalytics`) `currency`/`value` 없이 purchase 를 확정한다. 숫자를 지어내지 않고 거래 사실부터 durable 하게 남기는 선택이다 | **iOS 는 해소됐다** — 서버가 Apple JWS 에서 통화·금액을 읽어 정산 응답으로 돌려주므로 카탈로그가 없어도 매출이 복원된다(§8). **Android 는 남는다** — Google Play 검증 응답에 가격 필드가 없어 서버도 금액을 모른다. 플랫폼 한계이며 유일한 레버는 강제 업데이트다(2026-09-03 제품 결정: **다음 버전에서 강업 예정**) |
 | 2 | non-purchase 이벤트의 좁은 중복 창 | `earn_virtual_currency`/`login`/`sign_up` 은 sink 성공과 `delivery_confirmed` checkpoint 저장 사이에 프로세스가 종료되면 재시작 후 한 번 더 나갈 수 있다 (§6 정책 표 참조) | GA4 서버 중복 제거가 없는 이벤트에서 미확인 삭제(영구 누락) 대신 좁은 중복 가능성을 택함 |
 | 3 | outbox 용량/만료 | pending 은 200건 상한(초과 시 신규 거부)·30일 만료(purchase 는 365일), delivered 마커는 500건·180일 보존. 초과·만료 제거는 모두 로그로 드러난다 | 장기 미전송 항목과 오래된 dedup 마커는 결국 소멸함. delivered 마커가 밀려나면 재발송 방지가 사용자별 발송 마커에만 의존 |
 | 4 | captured auth context 의 좁은 귀속 경쟁 | auth 이벤트 발송 중 captured user 를 잠시 전역 GA4 user context 에 적용했다가 현재 사용자로 복원한다. 이 구간에 outbox 밖에서 동시 발화한 비-auth 이벤트(`ad_request`, `vote` 등 직접 sink 호출 이벤트)는 captured user 로 귀속될 수 있다 | delivery mutex 는 outbox 이벤트끼리만 직렬화함. 좁은 창이며 이벤트 유실은 없고 `user_id` 귀속만 흔들림 |
 | 5 | SharedPreferences 최초 실패의 고착 | 로컬 저장소의 최초 초기화 `Future` 가 실패하면 그 실패 상태가 캐시되어 앱 재시작 전까지 모든 마커/outbox I/O 가 실패한다 | I/O timeout·enqueue 실패 로그로 관측 가능. 재시작 시 복구되며, durable payload 는 남는 시점 이후부터 보존됨 |
-| 6 | `ad_impression` 자동수집 중복 | Firebase↔AdMob 연동 시 GA4 가 동일 이름 이벤트를 자동 수집해 커스텀 `ad_impression` 과 중복될 수 있다 (§4 #4 와 동일 사안) | 스펙대로 커스텀 발송 유지. GA4 콘솔에서 자동수집 여부 확인을 대행사에 요청한 상태 |
+| 6 | `ad_impression` 자동수집 중복 | Firebase↔AdMob 연동 시 GA4 가 동일 이름 이벤트를 자동 수집해 커스텀 `ad_impression` 과 중복된다 (§4 #4 와 동일 사안) | **2026-08-31 실측 확정(§2-A)** — 28일 기준 당사 217,384(internal-shortform)+86,580(Pangle), AdMob 자동 34,164. 스펙대로 커스텀 발송을 유지하고 **분석에서 `ad_platform` 으로 분리**한다. 합산하면 서로 다른 지면이 한 숫자로 뭉개진다 |
 
-## 8. 미해결 과제 — 복구 구매의 매출 복원
+## 8. 복구 구매의 매출 복원 — iOS 해소 / Android 는 플랫폼 한계
+
+> **2026-09-03 종결.** 아래 "권장 방향"이 그대로 구현·배포·검증됐다.
+> picnic-supabase #109(계약) → #116·#117(적용 중 발견한 결함) → **#118**(워커 타입
+> 게이트 수정, `wallet-operation-worker` v29, 2026-09-02 배포). 끝단 검증은
+> 2026-09-03 GA4×DB 대조로 완료했다 — 배포 후 첫 Apple 정산(STAR200, JWS `TWD 60`)이
+> GA4 iOS `purchase` 에 `$1.89`·1건으로 도달했다.
+> 전 과정과 대조표는 `docs/operations/handoff-20260902-purchase-revenue-server.html`.
+>
+> **iOS 는 해소됐다.** 서버가 Apple JWS 에서 통화·금액을 직접 읽으므로 앱 카탈로그가
+> 비어 있어도 매출이 복원된다.
+>
+> **Android 는 남는다.** Google Play 검증 응답에는 가격·통화 필드가 없다(구
+> `purchases.products.get`, 신 `productsv2` 양쪽 다). 서버도 금액을 모르므로 통화는
+> 앱이 보낸 `client_observed_currency` 가 유일한 출처이고, 금액은 앱 카탈로그뿐이다.
+> 통화·금액은 **짝으로만** 전달한다(#117) — 통화만 보내면 앱이 자기 카탈로그 금액까지
+> 버려 그 거래의 매출이 0 이 된다. `client_observed_currency` 는 1.3.1+130104 부터
+> 나가고, 그 이전 버전에서 들어온 Android 구매는 `analytics_*` 불변 트리거 때문에
+> 소급 backfill 도 불가능하다. **유일한 레버는 강제 업데이트이며, 2026-09-03 제품
+> 결정으로 다음 버전에서 강업할 예정이다.**
+>
+> 아래 본문은 왜 이 설계를 택했는지의 기록이다. 되돌린 로컬 방식을 다시 파지 말 것.
 
 §7 #1 의 한계를 해소하려면 정산 시점에 **그 거래의 실제 결제 통화·금액**을
 알아야 한다. 두 가지 방식을 검토했고, 로컬 방식은 시도 후 되돌렸다.
