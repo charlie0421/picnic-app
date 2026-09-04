@@ -87,6 +87,7 @@ class ShortformInternalPlatform extends AdPlatform {
   }
 
   String? _viewToken;
+  String? _moreToken;
   String? _videoUrl;
   String? _ctaUrl;
   VideoPlayerController? _controller;
@@ -121,6 +122,7 @@ class ShortformInternalPlatform extends AdPlatform {
             // 카테고리·재화로 기록되게 한다.
             ga4: ga4AdContext,
             onViewComplete: _callView,
+            onCtaClick: _reportMoreClick,
             onWalletRewardPresented: _acknowledgeWalletRewardPresented,
             loadAd: () async {
               // 라우트 진입 시점에 최신 광고/토큰 발급 (만료 최소화)
@@ -184,6 +186,7 @@ class ShortformInternalPlatform extends AdPlatform {
       _ctaUrl = result.ctaUrl;
       logInfo('issued (route) video_url: ${_videoUrl ?? ''}');
       _viewToken = result.viewToken;
+      _moreToken = result.moreToken;
       return (videoUrl: _videoUrl ?? '', ctaUrl: _ctaUrl, blocked: false);
     } catch (e) {
       final aa = mapToAntiAbuseException(e);
@@ -248,6 +251,24 @@ class ShortformInternalPlatform extends AdPlatform {
           error: error,
           stackTrace: stackTrace,
         );
+      },
+    ).report();
+  }
+
+  /// '더보기' 이동 시점에 클릭을 서버에 남긴다 — 어드민 캠페인 리포트의
+  /// `more_clicks`(= `ad_impressions.more_completed_at`) 가 이 호출로만 채워진다.
+  /// 보상과 무관한 통계라 실패해도 로그만 남기고 광고 흐름은 그대로 둔다.
+  Future<void> _reportMoreClick() async {
+    await InternalShortformMoreClickFlow(
+      moreToken: _moreToken,
+      issuedOwner: _rewardSession.ownerUserId,
+      currentOwner: () => supabase.auth.currentUser?.id,
+      invokeCallback: (token) async => (await supabase.functions.invoke(
+        'callback-ad-shortform-more',
+        body: {'token': token},
+      )).data,
+      onError: (error, stackTrace) {
+        logWarning('Internal shortform more-click report failed: $error');
       },
     ).report();
   }
