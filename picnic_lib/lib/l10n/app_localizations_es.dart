@@ -386,6 +386,16 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'Has alcanzado el límite por hora ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'Has alcanzado el límite diario ($used/$limit)';
+  }
+
+  @override
   String get label_ads_load_fail =>
       'No se pudo cargar anuncio. Por favor intente de nuevo.';
 

@@ -382,6 +382,16 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'প্রতি ঘণ্টার সীমা পূর্ণ হয়েছে ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'দৈনিক সীমা পূর্ণ হয়েছে ($used/$limit)';
+  }
+
+  @override
   String get label_ads_load_fail =>
       'বিজ্ঞাপন লোড করতে ব্যর্থ। আবার চেষ্টা করুন।';
 
@@ -2413,6 +2423,16 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly প্রতি ঘন্টা, $daily প্রতিদিন';
+  }
+
+  @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'প্রতি ঘণ্টার সীমা পূর্ণ হয়েছে ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'দৈনিক সীমা পূর্ণ হয়েছে ($used/$limit)';
   }
 
   @override

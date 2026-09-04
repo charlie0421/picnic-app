@@ -266,13 +266,21 @@ abstract class AdPlatform {
         final limitsMap = (data['limits'] as Map?) ?? const {};
         final platformLimits = (limitsMap[platform] as Map?) ?? const {};
         final hourly = (platformLimits['hourly'] as num?)?.toInt() ?? 10;
-        final daily = (platformLimits['daily'] as num?)?.toInt() ?? 50;
+        final daily = (platformLimits['daily'] as num?)?.toInt() ?? 120;
+        // counts 안전 파싱 — 어느 한도에 걸렸는지 말해주려면 소진량이 필요하다.
+        // 서버가 counts 를 안 주면(구버전 응답 등) 종류 표시 없이 예전처럼 뜬다.
+        final countsMap = (data['counts'] as Map?) ?? const {};
+        final platformCounts = (countsMap[platform] as Map?) ?? const {};
+        final hourlyUsed = (platformCounts['hourly'] as num?)?.toInt();
+        final dailyUsed = (platformCounts['daily'] as num?)?.toInt();
         final nextAvailableTime = data['nextAvailableTime'] as String?;
 
-        _handleExceededAdsLimit(nextAvailableTime, {
-          'hourly': hourly,
-          'daily': daily,
-        });
+        _handleExceededAdsLimit(
+          nextAvailableTime,
+          {'hourly': hourly, 'daily': daily},
+          hourlyUsed: hourlyUsed,
+          dailyUsed: dailyUsed,
+        );
         return false;
       }
       return true;
@@ -288,11 +296,38 @@ abstract class AdPlatform {
     }
   }
 
+  /// G4: 어느 한도에 걸렸는지 판정하는 seam — BuildContext 에 의존하지 않는다.
+  ///
+  /// PICNIC-2537: 예전 다이얼로그는 "시간당 10회, 일일 120회" 라는 정책 문구와
+  /// 해제 시각만 보여줬다. 일간 한도에 걸린 사용자는 6~7시간 뒤 해제 시각을 보고
+  /// "시간당 10회가 고장 났다"고 읽었고 CS 로 들어왔다. 어느 한도에 · 몇 회로
+  /// 걸렸는지를 함께 보여줘야 그 오해가 안 생긴다.
+  ///
+  /// 소진량(counts)이 없으면 둘 다 false 를 돌려주고, 호출부는 종류 표시 없이
+  /// 예전 화면을 그대로 띄운다 — 없는 정보를 추측해서 쓰지 않는다.
+  /// 두 한도가 동시에 걸릴 수 있으므로 하나를 고르지 않고 둘 다 보고한다.
+  @visibleForTesting
+  static ({bool hourly, bool daily}) resolveExceededAdsLimit({
+    required int? hourlyUsed,
+    required int? dailyUsed,
+    required int hourlyLimit,
+    required int dailyLimit,
+  }) {
+    // 한도 값 자체가 없으면(limits 누락) 판정하지 않는다 — 0 을 한도로 쓰면
+    // 소진량 0 도 "초과"가 된다.
+    return (
+      hourly: hourlyLimit > 0 && hourlyUsed != null && hourlyUsed >= hourlyLimit,
+      daily: dailyLimit > 0 && dailyUsed != null && dailyUsed >= dailyLimit,
+    );
+  }
+
   // 공통 로직: 광고 제한 초과 처리
   void _handleExceededAdsLimit(
     String? nextAvailableTimeStr,
-    Map<String, int>? limits,
-  ) {
+    Map<String, int>? limits, {
+    int? hourlyUsed,
+    int? dailyUsed,
+  }) {
     if (!context.mounted || isDisposed) return;
 
     DateTime? nextAvailableTime;
@@ -305,6 +340,14 @@ abstract class AdPlatform {
     }
 
     final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    final hourlyLimit = (limits?['hourly'] as num?)?.toInt() ?? 0;
+    final dailyLimit = (limits?['daily'] as num?)?.toInt() ?? 0;
+    final exceeded = resolveExceededAdsLimit(
+      hourlyUsed: hourlyUsed,
+      dailyUsed: dailyUsed,
+      hourlyLimit: hourlyLimit,
+      dailyLimit: dailyLimit,
+    );
 
     showSimpleDialog(
       contentWidget: Column(
@@ -316,12 +359,29 @@ abstract class AdPlatform {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
+          if (exceeded.hourly)
+            Text(
+              AppLocalizations.of(context).label_ads_limit_reached_hourly(
+                hourlyUsed ?? 0,
+                hourlyLimit,
+              ),
+              style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+              textAlign: TextAlign.center,
+            ),
+          if (exceeded.daily)
+            Text(
+              AppLocalizations.of(context).label_ads_limit_reached_daily(
+                dailyUsed ?? 0,
+                dailyLimit,
+              ),
+              style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+              textAlign: TextAlign.center,
+            ),
           if (limits != null)
             UnderlinedText(
-              text: AppLocalizations.of(context).label_ads_limits(
-                (limits['hourly'] as num?)?.toInt() ?? 0,
-                (limits['daily'] as num?)?.toInt() ?? 0,
-              ),
+              text: AppLocalizations.of(
+                context,
+              ).label_ads_limits(hourlyLimit, dailyLimit),
               textStyle: getTextStyle(AppTypo.body14M, AppColors.grey600),
             ),
           if (nextAvailableTime != null) ...[
