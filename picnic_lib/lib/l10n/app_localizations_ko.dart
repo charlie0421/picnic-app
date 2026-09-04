@@ -371,6 +371,16 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return '시간당 한도에 도달했습니다 ($used/$limit회)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return '일일 한도에 도달했습니다 ($used/$limit회)';
+  }
+
+  @override
   String get label_ads_load_fail => '광고 로드에 실패했습니다. 다시 시도해주세요.';
 
   @override

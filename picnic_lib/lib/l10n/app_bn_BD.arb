@@ -480,6 +480,30 @@
       }
     }
   },
+  "label_ads_limit_reached_hourly": "প্রতি ঘণ্টার সীমা পূর্ণ হয়েছে ({used}/{limit})",
+  "@label_ads_limit_reached_hourly": {
+    "description": "Shown in the ad-limit dialog when the hourly cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "label_ads_limit_reached_daily": "দৈনিক সীমা পূর্ণ হয়েছে ({used}/{limit})",
+  "@label_ads_limit_reached_daily": {
+    "description": "Shown in the ad-limit dialog when the daily cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
   "label_ads_load_fail": "বিজ্ঞাপন লোড করতে ব্যর্থ। আবার চেষ্টা করুন।",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."

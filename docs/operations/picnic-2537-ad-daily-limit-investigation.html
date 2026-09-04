@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2537 광고 시청 가능 시간 표기 조사</title>
+<style>
+  :root {
+    --bg: #fbfbfa; --fg: #1c1b1a; --muted: #6b6864; --line: #e2dfda;
+    --accent: #b4472e; --ok: #2f6f4f; --warn: #8a6a12; --code-bg: #f3f1ee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17161a; --fg: #e8e6e3; --muted: #a09c96; --line: #33302e;
+      --accent: #e08a70; --ok: #7fbf9a; --warn: #d6b25e; --code-bg: #211f22;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo",
+          "Noto Sans KR", Segoe UI, sans-serif;
+  }
+  main { max-width: 60rem; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+  h1 { font-size: 1.9rem; line-height: 1.3; margin: 0 0 .4rem; letter-spacing: -.02em; }
+  h2 {
+    font-size: 1.25rem; margin: 3rem 0 .9rem; padding-top: 1.4rem;
+    border-top: 1px solid var(--line); letter-spacing: -.01em;
+  }
+  h3 { font-size: 1.02rem; margin: 1.8rem 0 .5rem; }
+  .sub { color: var(--muted); margin: 0 0 2rem; font-size: .93rem; }
+  .lede {
+    border-left: 3px solid var(--accent); padding: .1rem 0 .1rem 1rem;
+    margin: 1.5rem 0 2rem; font-size: 1.02rem;
+  }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+  .scroll { overflow-x: auto; }
+  th, td { border-bottom: 1px solid var(--line); padding: .5rem .65rem; text-align: left; vertical-align: top; }
+  th { font-weight: 600; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+  code, pre { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: .85em; }
+  code { background: var(--code-bg); padding: .1rem .35rem; border-radius: 3px; }
+  pre {
+    background: var(--code-bg); padding: .9rem 1rem; border-radius: 6px;
+    overflow-x: auto; line-height: 1.55; border: 1px solid var(--line);
+  }
+  pre code { background: none; padding: 0; }
+  .tag {
+    display: inline-block; font-size: .72rem; font-weight: 600; letter-spacing: .05em;
+    text-transform: uppercase; padding: .12rem .45rem; border-radius: 3px;
+    border: 1px solid currentColor;
+  }
+  .t-cause { color: var(--accent); }
+  .t-ok { color: var(--ok); }
+  .t-warn { color: var(--warn); }
+  ul, ol { padding-left: 1.3rem; }
+  li { margin: .3rem 0; }
+  .muted { color: var(--muted); }
+  footer { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>PICNIC-2537 — 광고 1시간 10회 소진 후 시청 가능 시간 표기</h1>
+<p class="sub">조사일 2026-09-04 · QnA 391 · 신고자 <code>711bd953…6565</code> (일본) · 대상 프로젝트 <code>xtijtefcycoeqludlngc</code></p>
+
+<p class="lede">
+표기 계산은 정확했다. 원인은 <strong>같은 무료충전소 화면의 세 구좌가 서로 다른 “1일”을 쓰고 있었던 것</strong>이다.
+글로벌픽 #1(AdMob)만 rolling 24시간이었고 나머지 두 구좌는 KST 달력일이었다. 사용자는 시간당 10회에 걸렸다고
+생각했지만 실제로는 rolling 24시간 120회에 걸렸고, 그 해제 시각이 “가장 오래된 24시간 내 적립 + 24h”라
+6~7시간 뒤로 안내됐다.
+</p>
+
+<h2>1. 신고 내용</h2>
+
+<p>QnA 391 의 사용자 진술 두 건이다.</p>
+
+<blockquote class="muted">
+<p>「スクリーンショットを添付している通り、深夜1:00からグローバルおすすめ#1 を10回視聴したあと、次の視聴の時間を確認したところ(1:24)、
+次回の視聴が07:17(6時間後)になっています。広告の視聴のリセットも0:00(KST)の認識で違いないでしょうか？」 <span class="muted">— 09-02 16:39 KST</span></p>
+<p>「今日も同じ状況で同じ不具合が出ています。0時すぐと1時すぐに10回ずつ視聴したのち、次は2時台になるはずが7時になっています」
+<span class="muted">— 09-03 01:08 KST</span></p>
+</blockquote>
+
+<h2>2. 재현 <span class="tag t-ok">실측</span></h2>
+
+<p>
+신고 시각의 <code>cotton_candy_grants</code> 를 그대로 집계해 화면에 뜬 값을 재계산했다.
+글로벌픽 #1 은 <code>defaultAdOrder = ['admob', 'internal-shortform', 'pangle']</code> 의 첫 항목,
+즉 <strong>AdMob</strong> 이다(<code>free_charge_station.dart:47-52</code> 의 <code>shouldShowDebugAdmobItem</code> 이
+릴리스에서도 <code>isAdmobAvailable</code> 을 그대로 반환한다).
+</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>신고 시점 (JST)</th><th>hourly</th><th>daily (rolling 24h)</th><th>oldest_daily</th><th>계산된 표기</th><th>사용자 신고</th></tr></thead>
+<tbody>
+<tr><td>2026-09-02 01:24</td><td>10</td><td><strong>120</strong></td><td>09-01 07:17:53</td><td>07:17:53</td><td>“07:17” ✅</td></tr>
+<tr><td>2026-09-03 01:08</td><td>10</td><td><strong>120</strong></td><td>09-02 07:44:24</td><td>07:44:24</td><td>“7시” ✅</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>
+두 건 모두 <strong>시간 한도(10)와 일간 한도(120)에 동시에</strong> 걸려 있었고,
+<code>nextAvailableTime</code> 은 두 해제 시각의 max 라 일간 해제 시각이 이겼다.
+일간 해제 시각은 <code>oldest_daily + 24h</code> 였으므로 전날의 시청 시각을 그대로 따라다닌다.
+</p>
+
+<h2>3. 근본 원인 <span class="tag t-cause">원인</span></h2>
+
+<p>일간 한도의 창(window)이 구좌마다 달랐다.</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>구좌</th><th>플랫폼</th><th>게이트</th><th>일간 120회 기준</th><th>해제 시각</th></tr></thead>
+<tbody>
+<tr>
+  <td>글로벌픽 #1</td><td><code>admob</code></td>
+  <td><code>get_admob_cotton_reward_counts</code><br><code>settle_admob_ad_reward</code> §10</td>
+  <td><strong>rolling 24시간</strong></td><td>가장 오래된 24h 내 적립 + 24h</td>
+</tr>
+<tr>
+  <td>글로벌픽 #2</td><td><code>internal_shortform</code></td>
+  <td rowspan="2"><code>wallet_private.assert_cotton_ad_reward_limit</code><br><code>get_cotton_ad_limit_status</code></td>
+  <td rowspan="2">KST 달력일</td><td rowspan="2">다음 KST 자정</td>
+</tr>
+<tr><td>아시아픽 #1</td><td><code>pangle</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>
+사용자가 물은 <em>“리셋은 0:00 KST 맞나요?”</em> 는 세 구좌 중 둘에서만 맞았다.
+실제 손해도 있었다 — 이 사용자의 09-02 KST 일 AdMob 적립은 <strong>110회</strong>에서 멈췄다(다른 두 구좌는 120회).
+rolling 창이 어제 시청분을 오늘로 끌고 오면서 10회를 깎은 것이다.
+</p>
+
+<h3>표시 자체의 문제</h3>
+<p>
+초과 다이얼로그는 <code>label_ads_exceeded</code>(“이 버튼의 광고 시청 횟수를 초과했습니다”) 아래에
+<code>label_ads_limits</code>(“1時間あたり10回、1日120回”)와 해제 시각만 보여줬다.
+<strong>어느 한도에 걸렸는지도, 현재 몇 회를 썼는지도 표시하지 않는다.</strong>
+일간 한도로 막힌 사용자가 “시간당 10회”와 6시간 뒤 시각을 나란히 보면 시간 한도가 고장 났다고 읽는 게 자연스럽다.
+</p>
+
+<h2>4. 함께 발견된 결함 <span class="tag t-warn">별건</span></h2>
+
+<h3>4.1 internal / pangle 사전 게이트가 죽은 테이블을 읽고 있었다</h3>
+<p>배포된 <code>check-ads-count</code> v102(2026-08-28)는 <code>internal</code>·<code>pangle</code> 카운트를
+<code>transaction_internal</code> / <code>transaction_pangle</code> 에서 읽는다. 그런데 두 테이블은 신규 행이 없다.</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>테이블</th><th>행 수</th><th>마지막 <code>created_at</code></th></tr></thead>
+<tbody>
+<tr><td><code>transaction_admob</code></td><td>12,295,175</td><td>2026-04-11 09:06 UTC</td></tr>
+<tr><td><code>transaction_pangle</code></td><td>2,037,675</td><td>2026-08-12 13:25 UTC</td></tr>
+<tr><td><code>transaction_internal</code></td><td>3,103,126</td><td>2026-08-12 14:09 UTC</td></tr>
+<tr><td><code>transaction_unity</code></td><td>905,445</td><td>2025-09-17 12:48 UTC</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>
+따라서 두 구좌의 사전 게이트는 언제나 <code>allowed:true</code>, <code>0/0</code> 을 돌려줬다.
+실제 차단은 지급 시점 <code>assert_cotton_ad_reward_limit</code> 에서 일어나므로,
+사용자는 <strong>광고를 끝까지 본 뒤에야</strong> 거부되고 “다음 시청 가능 시간”을 미리 볼 방법이 없었다.
+PICNIC-2377 조사 문서에 남아 있는 실기기 logcat 이 그 증거다.
+</p>
+<pre><code>checkAdsLimit raw: {allowed: true, counts: {pangle: {hourly: 0, daily: 0}}}</code></pre>
+<p>
+이 경로를 대체하려고 만든 <code>public.get_cotton_ad_limit_status</code> RPC 는 프로덕션에 존재하지만
+<strong>호출하는 곳이 하나도 없다</strong>(앱·edge function·다른 DB 함수 전수 확인).
+</p>
+
+<h3>4.2 프로덕션 전용 함수 — 레포에 SQL 원본이 없다</h3>
+<p>
+<code>wallet_private.assert_cotton_ad_reward_limit</code> 과 <code>public.get_cotton_ad_limit_status</code> 는
+<code>picnic-supabase</code>·<code>picnic-app</code> 어디에도 정의가 없다. 프로덕션에 직접 적용된 뒤 회수되지 않았다.
+같은 경로의 <code>public.grant_ad_cotton</code> 도 프로덕션이 레포보다 앞서 있다(2026-08-18 코튼 게이트 사고 수정분).
+</p>
+
+<h3>4.3 wallet RPC manifest 게이트가 이미 red 였다</h3>
+<p>
+PR #119(<code>20260902053935</code>)가 <code>get_artist_paid_votes</code> 를 2-인자 → 4-인자로 교체하면서
+<code>wallet_service_rpc_catalog/manifest</code> 를 갱신하지 않았다. 그 결과
+<code>wallet_private.assert_wallet_service_rpc_manifest()</code> 가 <strong>로컬과 프로덕션 양쪽에서 동시에 깨져</strong> 있었고,
+이 assert 를 호출하는 어떤 마이그레이션도 통과할 수 없는 상태였다. 이번 작업이 처음 노출시켰을 뿐 원인은 아니다.
+</p>
+
+<h2>5. 수정</h2>
+
+<h3>5.1 DB — 세 구좌를 KST 달력일 하나로</h3>
+<p><code>picnic-supabase</code> · <code>fix/picnic-2537-ad-daily-limit-kst</code></p>
+<ul>
+  <li><code>20260904110000_manifest_get_artist_paid_votes_signature.sql</code> — 4.3 해소(선행).</li>
+  <li><code>20260904120000_ad_daily_limit_kst_day_unify.sql</code>
+    <ul>
+      <li><code>get_cotton_ad_limit_status</code> 에 <code>admob</code> 추가 — 세 구좌가 이 함수 하나만 본다.</li>
+      <li><code>settle_admob_ad_reward</code> §10 일간 창을 rolling 24h → KST 달력일로.</li>
+      <li><code>assert_cotton_ad_reward_limit</code> · <code>get_cotton_ad_limit_status</code> 레포 회수(정의 무변경).</li>
+      <li><code>get_admob_cotton_reward_counts</code> 는 <strong>드롭하지 않고</strong> deprecation 주석만 — v102 번들이 아직 호출한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>5.2 check-ads-count</h3>
+<p><code>admob</code>·<code>internal</code>·<code>pangle</code> 을 모두 <code>get_cotton_ad_limit_status</code> 로 라우팅한다.
+한도 판정과 해제 시각 계산이 DB 한 곳에만 있어야 다시 갈라지지 않는다. 레거시 <code>transaction_*</code> 경로는 <code>unity</code> 만 남는다.</p>
+
+<h3>5.3 앱 다이얼로그</h3>
+<p><code>picnic-app</code> · <code>charlie0421/picnic-2537-cs-1-10</code></p>
+<ul>
+  <li><code>checkAdsLimit</code> 이 응답의 <code>counts</code> 를 함께 읽는다.</li>
+  <li>새 순수 함수 <code>AdPlatform.resolveExceededAdsLimit</code> 이 어느 한도에 걸렸는지 판정한다
+      (둘 다 걸리면 둘 다 보고, 소진량이 없으면 추측하지 않음).</li>
+  <li>l10n 14개 로케일에 <code>label_ads_limit_reached_hourly</code> / <code>_daily</code> 추가 — 예: 「1日の上限に達しました（120/120回）」.</li>
+  <li>서버가 <code>limits</code> 를 안 줄 때의 일간 폴백을 <code>50</code> → <code>120</code> 로 정정(실제 정책값).</li>
+</ul>
+
+<h2>6. 검증</h2>
+<div class="scroll">
+<table>
+<thead><tr><th>대상</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td><code>supabase/tests/cotton_ad_limit_kst_day.test.sql</code> (신규, 8 블록)</td><td class="t-ok">green</td></tr>
+<tr><td>같은 테스트를 rolling 24h 구현으로 되돌려 red 확인</td><td class="t-ok"><code>DENIED</code> 로 실패 재현</td></tr>
+<tr><td>wallet edge 스위트 <code>deno test .../tests/wallet</code></td><td class="t-ok">191 passed</td></tr>
+<tr><td>SQL: admob_ad_claims · admob_release_gate_anchor · cotton_schema · cotton_commands · ad_reward_claims · wallet_release_gates</td><td class="t-ok">green</td></tr>
+<tr><td><code>flutter test .../ad_platform_test.dart</code></td><td class="t-ok">37 passed</td></tr>
+<tr><td><code>flutter analyze</code> (free_charge_station, l10n)</td><td class="t-ok">No issues found</td></tr>
+<tr><td><code>ad_service_test.dart</code> 2건 실패</td><td class="t-warn">HEAD(d2617fccb)에서도 동일 — 기존 red, 이번 변경과 무관</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>회귀 재현 픽스처는 신고 상황 그대로다 — rolling 24h 로는 정확히 120건이라 막히지만 KST 달력일로는 15건뿐이라 열려 있어야 한다.</p>
+
+<h2>7. 배포 순서 <span class="tag t-warn">미실행</span></h2>
+<ol>
+  <li><code>20260904110000</code> → <code>20260904120000</code> 순서로 프로덕션 적용(<code>supabase db query --file</code>, <code>db push</code> 불가).</li>
+  <li>곧바로 <code>check-ads-count</code> 배포. 그 사이에는 사전 게이트만 rolling 24h(더 엄격) 상태로 남는다 — 짧고 보수적인 방향이다.</li>
+  <li>배포 확인 후 별도 마이그레이션으로 <code>get_admob_cotton_reward_counts</code> 드롭.</li>
+  <li>앱 다이얼로그는 OTA 또는 신규 빌드로 나간다. <strong>서버 수정만으로도 신고된 증상(6~7시간 뒤 안내)은 해소된다</strong> — 앱 변경은 재발 방지용 안내 개선이다.</li>
+</ol>
+
+<h2>8. 남은 것</h2>
+<ul>
+  <li><code>get_admob_cotton_reward_counts</code> 드롭(배포 확인 후).</li>
+  <li><code>public.grant_ad_cotton</code> 프로덕션 드리프트 회수 — 이번 변경과 무관해 손대지 않았다.</li>
+  <li><code>ad_service_test.dart</code> 오버레이 테스트 2건 기존 red.</li>
+  <li>배포된 함수와 레포 소스의 상시 드리프트 감지 — <code>chore/deployed-drift-gate</code> 브랜치가 같은 문제를 다룬다.</li>
+</ul>
+
+<footer>
+PICNIC-2537 · 2026-09-04 · 근거는 모두 프로덕션 <code>xtijtefcycoeqludlngc</code> 실측이며, 이 문서의 표에 있는 수치는 재실행으로 확인 가능하다.
+</footer>
+
+</main>
+</body>
+</html>

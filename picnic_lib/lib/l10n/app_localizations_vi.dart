@@ -381,6 +381,16 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'Đã đạt giới hạn mỗi giờ ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'Đã đạt giới hạn mỗi ngày ($used/$limit)';
+  }
+
+  @override
   String get label_ads_load_fail => 'Không tải được quảng cáo. Hãy thử lại.';
 
   @override

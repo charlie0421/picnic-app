@@ -370,6 +370,16 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return '1時間あたりの上限に達しました（$used/$limit回）';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return '1日の上限に達しました（$used/$limit回）';
+  }
+
+  @override
   String get label_ads_load_fail => '広告の読み込みに失敗しました。もう一度お試しください。';
 
   @override

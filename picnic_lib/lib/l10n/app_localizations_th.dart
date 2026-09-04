@@ -377,6 +377,16 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'ถึงขีดจำกัดต่อชั่วโมงแล้ว ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'ถึงขีดจำกัดต่อวันแล้ว ($used/$limit)';
+  }
+
+  @override
   String get label_ads_load_fail => 'ไม่สามารถโหลดโฆษณาได้ โปรดลองอีกครั้ง';
 
   @override

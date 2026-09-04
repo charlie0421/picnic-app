@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2537 CS 회신 초안</title>
+<style>
+  :root { --bg:#fbfbfa; --fg:#1c1b1a; --muted:#6b6864; --line:#e2dfda; --accent:#b4472e; --card:#f3f1ee; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#17161a; --fg:#e8e6e3; --muted:#a09c96; --line:#33302e; --accent:#e08a70; --card:#211f22; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.75 -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo",
+         "Hiragino Sans", "Noto Sans JP", "Noto Sans KR", Segoe UI, sans-serif;
+  }
+  main { max-width:52rem; margin:0 auto; padding:3rem 1.5rem 6rem; }
+  h1 { font-size:1.7rem; margin:0 0 .3rem; letter-spacing:-.02em; }
+  h2 { font-size:1.15rem; margin:2.6rem 0 .8rem; padding-top:1.3rem; border-top:1px solid var(--line); }
+  .sub { color:var(--muted); margin:0 0 2rem; font-size:.92rem; }
+  .note { border-left:3px solid var(--accent); padding:.1rem 0 .1rem 1rem; margin:1.5rem 0; }
+  .reply {
+    background:var(--card); border:1px solid var(--line); border-radius:8px;
+    padding:1.2rem 1.4rem; margin:1rem 0; white-space:pre-wrap; line-height:1.85;
+  }
+  code { font-family:"SF Mono", ui-monospace, Menlo, monospace; font-size:.85em;
+         background:var(--card); padding:.1rem .35rem; border-radius:3px; }
+  ul { padding-left:1.3rem; } li { margin:.35rem 0; }
+  .muted { color:var(--muted); }
+  footer { margin-top:3.5rem; padding-top:1.2rem; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>PICNIC-2537 — CS 회신 초안</h1>
+<p class="sub">QnA 391 · 신고자 <code>711bd953…6565</code> · 2026-09-04 작성</p>
+
+<div class="note">
+<strong>보내는 시점 주의.</strong> 아래 문안은 <em>“통일하겠습니다”</em>(예정)로 쓰여 있어 배포 전에도 보낼 수 있다.
+서버 적용이 끝난 뒤 보낼 때는 “統一いたします / will unify” 를 “統一いたしました / have unified” 로 바꾼다.
+앱 화면 개선(어느 한도에 걸렸는지 표시)은 앱 업데이트가 나가야 반영되므로 <strong>“수정됨”이 아니라 “다음 업데이트 반영 예정”</strong> 으로 안내한다.
+</div>
+
+<h2>일본어 (본문)</h2>
+
+<div class="reply">ご報告いただきありがとうございます。技術チームで確認したところ、原因が判明いたしましたのでご案内いたします。
+
+「グローバルおすすめ #1」の1日120回の上限は、これまで「直近24時間」を基準に数えておりました。そのため、0時台・1時台にご視聴いただいた分だけでなく、前日の同じ時間帯にご視聴いただいた分もまだ24時間以内として残っており、すでに1日の上限に達している状態でした。表示されていた07:17という時刻は、この「1日の上限」が解除される時刻であり、1時間あたり10回の上限とは別のものです。
+
+一方で、他の枠（グローバルおすすめ #2、アジアおすすめ #1）は0時（KST）リセットで数えておりました。つまり、お客様のご認識である「0:00（KST）リセット」が正しく、「グローバルおすすめ #1」だけが異なる基準になっていたことが、今回の問題の原因です。基準がわかりにくい表示になっており、大変申し訳ございませんでした。
+
+対応として、3つの枠すべてを0時（KST）リセットに統一いたします。適用後は、0時台と1時台に10回ずつご視聴いただいた場合、次回は2時台からご視聴いただけるようになります。
+
+あわせて、上限に達した際の画面に「どちらの上限に達したのか」と「現在の視聴回数」を表示するよう改善いたします。こちらはアプリの更新後に反映されます。
+
+詳細なご報告をいただいたおかげで原因を特定することができました。ご不便をおかけしましたことを重ねてお詫び申し上げます。今後ともよろしくお願いいたします。</div>
+
+<h2>영어 (병기)</h2>
+
+<div class="reply">Thank you for the detailed report. Our engineering team has identified the cause.
+
+The daily cap of 120 views on "Global Pick #1" was counted over a rolling 24-hour window. Because of that, the views you made around the same time on the previous day were still inside the window, so you had already reached the daily cap. The 07:17 shown on your screen was the release time of that daily cap — not the hourly cap of 10.
+
+The other two slots ("Global Pick #2" and "Asia Pick #1") counted the daily cap by KST calendar day, resetting at 00:00 KST. In other words, your understanding of a 00:00 KST reset was correct, and only "Global Pick #1" used a different basis. We are sorry that this was not made clear on screen.
+
+We will unify all three slots to reset at 00:00 KST. After the change, watching 10 ads just after midnight and 10 more in the 1 AM hour will let you watch again from the 2 AM hour.
+
+We will also improve the limit dialog so that it shows which cap was reached and how many views have been used. That part will appear after the next app update.
+
+Your report is what let us pinpoint the cause. We sincerely apologize for the inconvenience and appreciate your patience.</div>
+
+<h2>회신에 쓰지 말 것</h2>
+<ul>
+  <li><strong>“광고주 사정으로 광고가 불안정”</strong> — 09-02 1차 회신에서 안내했으나 이번 건에는 해당하지 않는다. 한도 계산 문제였다.</li>
+  <li><strong>“1일 상한 120회를 넘었는지 확인해 달라”</strong> — 09-02 2차 회신 내용. 사용자는 실제로 넘겼지만
+      그 기준이 rolling 24시간이라 사용자가 스스로 확인할 방법이 없었다. 다시 묻지 않는다.</li>
+  <li>“1시간 후로 표시되고 있습니다” — 실제로는 일간 해제 시각이 표시되고 있었다.</li>
+</ul>
+
+<h2>미결 — 운영 판단 필요</h2>
+<ul>
+  <li><strong>보상 여부.</strong> rolling 창 때문에 이 사용자의 AdMob 적립이 09-02 KST 일 110회에서 멈췄다(다른 구좌 120회).
+      같은 패턴의 헤비 유저 전체를 소급 보정할지, 개별 응대로 끝낼지는 운영 결정 사항이다.
+      영향 범위는 <code>cotton_candy_grants</code> 로 산출 가능하다.</li>
+  <li><strong>회신 시점.</strong> 서버 배포 후에 보내면 “적용되었습니다”로 확정 안내할 수 있다.</li>
+</ul>
+
+<footer>
+근거·재현·수정 내역은 <code>docs/operations/picnic-2537-ad-daily-limit-investigation.html</code> 참고.
+</footer>
+
+</main>
+</body>
+</html>

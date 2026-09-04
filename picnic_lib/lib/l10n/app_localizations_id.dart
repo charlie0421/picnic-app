@@ -379,6 +379,16 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'Batas per jam tercapai ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'Batas harian tercapai ($used/$limit)';
+  }
+
+  @override
   String get label_ads_load_fail => 'Gagal memuat iklan. Silakan coba lagi.';
 
   @override

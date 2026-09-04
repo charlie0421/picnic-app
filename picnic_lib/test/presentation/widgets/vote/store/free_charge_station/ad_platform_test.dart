@@ -301,6 +301,90 @@ void main() {
     });
   });
 
+  group('resolveExceededAdsLimit', () {
+    // PICNIC-2537: 한도 초과 다이얼로그가 "어느 한도"에 걸렸는지 말해야 한다.
+    // 예전 화면은 정책 문구("시간당 10회, 일일 120회")와 해제 시각만 보여줘서,
+    // 일간 한도로 막힌 사용자가 6~7시간 뒤 시각을 보고 시간 한도가 고장 난
+    // 것으로 읽었다. 구현을 직접 호출한다 — 판정식을 테스트에 복제하지 않는다.
+
+    test('일간 한도만 걸리면 일간만 보고한다', () {
+      final result = AdPlatform.resolveExceededAdsLimit(
+        hourlyUsed: 3,
+        dailyUsed: 120,
+        hourlyLimit: 10,
+        dailyLimit: 120,
+      );
+      expect(result.hourly, isFalse);
+      expect(result.daily, isTrue);
+    });
+
+    test('시간 한도만 걸리면 시간만 보고한다', () {
+      final result = AdPlatform.resolveExceededAdsLimit(
+        hourlyUsed: 10,
+        dailyUsed: 15,
+        hourlyLimit: 10,
+        dailyLimit: 120,
+      );
+      expect(result.hourly, isTrue);
+      expect(result.daily, isFalse);
+    });
+
+    test('둘 다 걸리면 둘 다 보고한다 — 하나만 고르지 않는다', () {
+      final result = AdPlatform.resolveExceededAdsLimit(
+        hourlyUsed: 10,
+        dailyUsed: 120,
+        hourlyLimit: 10,
+        dailyLimit: 120,
+      );
+      expect(result.hourly, isTrue);
+      expect(result.daily, isTrue);
+    });
+
+    test('한도에 정확히 도달한 순간부터 초과다 (>=)', () {
+      final atLimit = AdPlatform.resolveExceededAdsLimit(
+        hourlyUsed: 10,
+        dailyUsed: 119,
+        hourlyLimit: 10,
+        dailyLimit: 120,
+      );
+      expect(atLimit.hourly, isTrue);
+      expect(atLimit.daily, isFalse);
+
+      final below = AdPlatform.resolveExceededAdsLimit(
+        hourlyUsed: 9,
+        dailyUsed: 119,
+        hourlyLimit: 10,
+        dailyLimit: 120,
+      );
+      expect(below.hourly, isFalse);
+      expect(below.daily, isFalse);
+    });
+
+    test('소진량이 없으면(구버전 응답) 종류를 추측하지 않는다', () {
+      final result = AdPlatform.resolveExceededAdsLimit(
+        hourlyUsed: null,
+        dailyUsed: null,
+        hourlyLimit: 10,
+        dailyLimit: 120,
+      );
+      expect(result.hourly, isFalse);
+      expect(result.daily, isFalse);
+    });
+
+    test('한도 값이 없으면 소진량 0 을 초과로 읽지 않는다', () {
+      // limits 누락 시 호출부가 0 을 넘긴다. 0 을 한도로 쓰면 0 >= 0 이 참이라
+      // 아무것도 안 본 사용자에게 "한도 도달" 이 뜬다.
+      final result = AdPlatform.resolveExceededAdsLimit(
+        hourlyUsed: 0,
+        dailyUsed: 0,
+        hourlyLimit: 0,
+        dailyLimit: 0,
+      );
+      expect(result.hourly, isFalse);
+      expect(result.daily, isFalse);
+    });
+  });
+
   group('Log tag formatting', () {
     test('formats log message with tag', () {
       const id = 'admob';
