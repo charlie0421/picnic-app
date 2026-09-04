@@ -821,6 +821,18 @@ abstract class AppLocalizations {
   /// **'{hourly} per hour, {daily} per day'**
   String label_ads_limits(int hourly, int daily);
 
+  /// Shown in the ad-limit dialog when the hourly cap is the one that was hit.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly limit reached ({used}/{limit})'**
+  String label_ads_limit_reached_hourly(int used, int limit);
+
+  /// Shown in the ad-limit dialog when the daily cap is the one that was hit.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit reached ({used}/{limit})'**
+  String label_ads_limit_reached_daily(int used, int limit);
+
   /// Auto-generated metadata for key 'label_ads_load_fail'.
   ///
   /// In en, this message translates to:

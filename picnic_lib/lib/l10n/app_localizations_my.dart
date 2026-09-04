@@ -384,6 +384,16 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'တစ်နာရီအကန့်အသတ် ပြည့်သွားပါပြီ ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'တစ်နေ့အကန့်အသတ် ပြည့်သွားပါပြီ ($used/$limit)';
+  }
+
+  @override
   String get label_ads_load_fail =>
       'ကြော်ငြာတင်ရန်မအောင်မြင်ပါ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ';
 

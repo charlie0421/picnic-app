@@ -368,6 +368,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return '已达到每小时上限（$used/$limit次）';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return '已达到每天上限（$used/$limit次）';
+  }
+
+  @override
   String get label_ads_load_fail => '广告加载失败。请重试。';
 
   @override
@@ -2295,6 +2305,16 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return '已达到每小时上限（$used/$limit次）';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return '已达到每天上限（$used/$limit次）';
+  }
+
+  @override
   String get label_ads_load_fail => '广告加载失败。请重试。';
 
   @override
@@ -4219,6 +4239,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly 每小時， $daily 每天';
+  }
+
+  @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return '已達到每小時上限（$used/$limit次）';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return '已達到每天上限（$used/$limit次）';
   }
 
   @override
