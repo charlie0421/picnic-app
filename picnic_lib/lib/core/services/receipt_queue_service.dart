@@ -299,7 +299,9 @@ class ReceiptQueueService {
           items[existing]['pending_intake'] == true && !pendingIntake;
       final refreshAndroidSettlement =
           normalizedPlatform == platformAndroid && !pendingIntake;
-      if ((observed != null && stored == null) || refreshAndroidSettlement) {
+      if ((observed != null && stored == null) ||
+          refreshAndroidSettlement ||
+          promoteFromPending) {
         items[existing] = <String, dynamic>{
           ...items[existing],
           if (observed != null && stored == null)
@@ -310,13 +312,6 @@ class ReceiptQueueService {
             // earlier observer (or an intervening wrong-user observation)
             // must not pin the durable row to a stale account or environment.
             'pending_intake': false,
-            // A promoted row is a NEW request: the pending intakes that failed
-            // before the user paid must not carry their backoff (up to the
-            // five-minute cap) into the settlement that is now due. Without
-            // this reset the star candy lands minutes later than it could.
-            'attempt': 0,
-            'nextAt': 0,
-            'intake_rejected': false,
             'receipt': receipt,
             'productId': productId,
             'user_id': userId,
@@ -326,6 +321,22 @@ class ReceiptQueueService {
               platform: normalizedPlatform,
               receipt: receipt,
             ),
+          },
+          // ONLY on a real pending -> purchased promotion. The row becomes a
+          // new request, so the intakes that failed before the user paid must
+          // not carry their backoff (capped at five minutes) into the
+          // settlement that is now due.
+          //
+          // Gated on promoteFromPending, NOT refreshAndroidSettlement: the
+          // latter is true for EVERY Android purchased enqueue, and an owned
+          // token is re-enqueued by every cold-start and 5-minute resume
+          // sweep. Resetting there would wipe the backoff of a persistently
+          // failing settlement on every sweep, so 2->4->...->300s could never
+          // accumulate and the queue would hammer the endpoint.
+          if (promoteFromPending) ...{
+            'attempt': 0,
+            'nextAt': 0,
+            'intake_rejected': false,
           },
         };
         await _saveQueue(items);

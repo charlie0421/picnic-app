@@ -242,6 +242,56 @@ void main() {
       );
 
       test(
+        'a plain purchased re-enqueue must NOT reset the settlement backoff',
+        () async {
+          // Regression: the promotion reset was first written inside the
+          // refreshAndroidSettlement branch, which is true for EVERY Android
+          // purchased enqueue. An owned token is re-enqueued by every
+          // cold-start and 5-minute resume sweep, so the reset wiped the
+          // backoff of a persistently failing settlement on every sweep and
+          // 2 -> 4 -> ... -> 300s could never accumulate.
+          tearDownMockSupabase();
+          setupMockSupabase(
+            {
+              'functions:verify-receipt-v2': {'error': 'UPSTREAM'},
+            },
+            functionStatusCodes: {'functions:verify-receipt-v2': 503},
+          );
+          await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'owned-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+          );
+
+          await service.flushPending();
+          final afterFailure = await queuedItems();
+          expect(afterFailure, hasLength(1));
+          expect(afterFailure.single['attempt'], 1);
+          expect(afterFailure.single['nextAt'], isNot(0));
+
+          // The next sweep re-enqueues the same still-owned token.
+          await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'owned-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+          );
+
+          final afterReEnqueue = await queuedItems();
+          expect(afterReEnqueue, hasLength(1));
+          expect(
+            afterReEnqueue.single['attempt'],
+            1,
+            reason: 'backoff must survive a plain purchased re-enqueue',
+          );
+          expect(afterReEnqueue.single['nextAt'], isNot(0));
+        },
+      );
+
+      test(
         'a 422 on a pending intake keeps the row so the sweep cannot re-create it',
         () async {
           // The Android key is derived from the purchase token, so the row's

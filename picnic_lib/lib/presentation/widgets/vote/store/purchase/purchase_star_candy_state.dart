@@ -223,6 +223,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
             'store queue not verified empty '
             '(found=${report?.found}, settled=${report?.settled}, '
             'preserved=${report?.preserved}, '
+            'unsettleableHeld=${report?.unsettleableHeld}, '
             'liveInFlight=${report?.liveInFlight}), keeping the warning',
           );
           showSimpleDialog(content: l10n.purchase_payment_accepted_message);

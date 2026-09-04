@@ -131,7 +131,22 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
               purchase.status != PurchaseStatus.purchased &&
               purchase.status != PurchaseStatus.pending,
         )
-        .length;
+        .toList(growable: false);
+    if (unclassified.isNotEmpty) {
+      // Nothing in this app can retire such a row: it is not settleable, so
+      // the sweep never verifies it, and unlike a PENDING token Play has no
+      // three-day window that resolves it. It therefore keeps
+      // PurchaseSweepReport.verifiedEmpty false for as long as Play keeps
+      // reporting it, which holds the 90s "nothing happened" suppression off
+      // indefinitely. That direction is deliberate - a queue holding an owned
+      // purchase is not an empty queue - but it must be observable rather
+      // than silent, because no code path here will ever clear it.
+      logger.w(
+        '🛑 Play 가 상태를 분류하지 않는 보유 구매 ${unclassified.length}건 - '
+        '정산 대상도 대기도 아니라 스스로 해소되지 않는다: '
+        '${unclassified.map((purchase) => purchase.productID).join(', ')}',
+      );
+    }
     return UnfinishedPurchaseScan(
       purchases: all
           .where((purchase) => purchase.status == PurchaseStatus.purchased)
@@ -141,7 +156,7 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
       // Play cannot report a billing flow the user is *inside*; nothing here
       // is live at this instant.
       liveInFlight: 0,
-      unsettleableHeld: pending.length + unclassified,
+      unsettleableHeld: pending.length + unclassified.length,
     );
   }
 }
