@@ -1638,6 +1638,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "Aún no hemos confirmado tu pago. Es posible que no hayas completado el pago en la pantalla de pago de la tienda.\nSi ya pagaste, tus Star Candy se acreditarán automáticamente cuando termine el procesamiento; por favor, no vuelvas a pagar.",
+  "purchase_payment_pending_message": "Tu pago aún no se ha completado. Si elegiste un método de pago lento, como efectivo o transferencia bancaria, termina de pagar en la tienda o el banco.\nTus Star Candy se acreditarán automáticamente cuando se confirme el pago. Por favor, no vuelvas a pagar.",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },
@@ -1875,6 +1876,10 @@
   "withdrawal_success": "El Unfrenscribe se procesó con éxito.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "withdrawal_failed": "No se pudo procesar la baja. Vuelve a intentarlo en unos momentos.",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
   },
   "vote_item_request_already_applied_artist": "Ya has solicitado este artista.",
   "@vote_item_request_already_applied_artist": {

@@ -1273,6 +1273,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'ยังไม่สามารถยืนยันการชำระเงินของคุณได้ คุณอาจยังทำการชำระเงินไม่เสร็จสิ้นในหน้าชำระเงินของสโตร์\nหากคุณชำระเงินแล้ว ลูกอมดาวจะเข้าบัญชีโดยอัตโนมัติเมื่อประมวลผลเสร็จสิ้น กรุณาอย่าชำระเงินซ้ำ';
 
   @override
+  String get purchase_payment_pending_message =>
+      'การชำระเงินของคุณยังไม่เสร็จสมบูรณ์ หากคุณเลือกวิธีชำระเงินที่ใช้เวลา เช่น เงินสดหรือโอนผ่านธนาคาร กรุณาชำระเงินให้เสร็จสิ้นที่ร้านค้าหรือธนาคาร\nลูกอมดาวจะเข้าบัญชีโดยอัตโนมัติเมื่อการชำระเงินสำเร็จ กรุณาอย่าชำระเงินซ้ำ';
+
+  @override
   String get label_tabbar_vote_upcoming => 'ที่กำลังจะมาถึง';
 
   @override
@@ -1453,6 +1457,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get withdrawal_success => 'การยกเลิกการสมัครถูกประมวลผลสำเร็จ';
+
+  @override
+  String get withdrawal_failed =>
+      'การยกเลิกบัญชีล้มเหลว กรุณาลองใหม่อีกครั้งในภายหลัง';
 
   @override
   String get vote_item_request_already_applied_artist =>

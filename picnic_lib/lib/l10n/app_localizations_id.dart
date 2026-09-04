@@ -1296,6 +1296,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Pembayaran Anda belum terkonfirmasi. Pembayaran mungkin belum selesai di layar pembayaran toko.\nJika Anda sudah membayar, Star Candy akan masuk secara otomatis setelah proses selesai. Mohon jangan membayar lagi.';
 
   @override
+  String get purchase_payment_pending_message =>
+      'Pembayaran Anda belum selesai. Jika Anda memilih metode pembayaran yang lambat seperti tunai atau transfer bank, mohon selesaikan pembayaran di toko atau bank.\nStar Candy akan masuk secara otomatis setelah pembayaran berhasil. Mohon jangan membayar lagi.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Mendatang';
 
   @override
@@ -1479,6 +1483,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get withdrawal_success => 'Berhenti berlangganan berhasil diproses.';
+
+  @override
+  String get withdrawal_failed =>
+      'Penghapusan akun gagal. Silakan coba lagi beberapa saat lagi.';
 
   @override
   String get vote_item_request_already_applied_artist =>

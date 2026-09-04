@@ -30,11 +30,28 @@
 
 <h1>GA4 이벤트 택소노미 — 핸드오프</h1>
 <p class="meta">
-작성 2026-08-21 · 최종 갱신 2026-08-24 · 작업 브랜치 <code>docs/handoff-20260821-ga4-taxonomy</code> · 프로덕션 <code>1.3.0+130007</code><br>
+작성 2026-08-21 · 최종 갱신 2026-09-03 · 작업 브랜치 <code>docs/handoff-20260821-ga4-taxonomy</code> · 프로덕션 <code>1.3.0+130007</code>(작성 시점)<br>
 원 작업 PR <a href="https://github.com/charlie0421/picnic-app/pull/153">#153</a> (머지 커밋 <code>d99118ab3</code>, 2026-08-10) ·
 purchase revenue PR — 앱 <a href="https://github.com/charlie0421/picnic-app/pull/172">picnic-app#172</a> ·
-서버 <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a> (둘 다 열림, 미머지)
+서버 <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a> (작성 시점 둘 다 열림 — <b>현재는 둘 다 머지·배포됨</b>)
 </p>
+
+<div class="ok">
+<b>2026-09-03 — 이 문서의 미결 항목은 전부 종결됐다.</b> 이 문서는 <b>2026-08-21~24 시점의 기록</b>이고,
+이후 진행은 아래 문서가 이어받는다. 여기의 "미착수 / 미검증" 표기를 현재 상태로 읽지 말 것.
+<ul style="margin:.5em 0 0">
+<li><b>④ 복구 구매의 매출 복원</b> — 앱(#172)·서버(#109) 모두 머지·배포. 결함 2건(#116·#117)과
+    워커 타입 게이트(#118, <code>wallet-operation-worker</code> v29)까지 잡고 <b>2026-09-03 GA4 끝단 검증 완료</b>.
+    <b>iOS 해소 / Android 는 플랫폼 한계</b>(강업 예정). → <code>docs/operations/handoff-20260902-purchase-revenue-server.html</code></li>
+<li><b>미검증 3항목</b>(재화명 오염 · 언어 <code>ja</code>/<code>jp</code> · <code>login</code>/<code>sign_up</code> 중복·오탐) —
+    2026-08-31 및 09-01 실측으로 전건 종결. 재화명 오염 없음, <code>ja</code> 미출현, <code>sign_up</code> 은
+    오탐이 아니라 <b>누락</b>(커버리지 88.3%, 설계 한계). → <code>docs/analytics/ga4-event-taxonomy.md</code> §4-A</li>
+<li><b>B-4 재고지</b> — 2026-09-03 <b>불필요로 종결</b>(제품 판단). AdMob 지면은 계측 범위에 포함하고
+    분석에서 <code>ad_platform</code> 으로 분리한다. → 같은 문서 §2-A</li>
+<li><b>B-10 이벤트명</b> — <code>ad_click</code> 이 AdMob 자동수집 <b>예약어</b>임이 밝혀져
+    <code>ad_cta_click</code> 으로 개명, 배포·수집 확인 완료(8/29).</li>
+</ul>
+</div>
 
 <div class="ok">
 <strong>코드는 이미 프로덕션에 나가 있다.</strong> GA4 택소노미는 <code>1.3.0+130007</code> 바이너리에
@@ -193,7 +210,8 @@ GA4 총수익            $1,602.60  (= 정확한 합)</pre>
 <p style="margin:.6em 0 0"><strong>iOS 는 끌 방법이 없다.</strong> 애플이 구글에 결제 정보를
 주지 않으므로, 앱 안의 Firebase SDK 가 StoreKit 을 직접 관찰해 이벤트를 만든다. 공식
 비활성화 옵션이 없고 StoreKit 2 마이그레이션이 유일한 우회인데, 결제 경로 개편이라
-리포트 정합성만으로 할 작업이 아니다. 기대 효과는 <strong>25.7% → 약 4.2%</strong>.</p>
+리포트 정합성만으로 할 작업이 아니다. 기대 효과는 <strong>25.7% → 약 4.2%</strong>였다
+(<span class="k">이 4.2% 추정은 2026-08-31 실측에서 <strong>10.7%</strong> 로 정정됐다 — 아래 참조</span>).</p>
 
 <p style="margin:.6em 0 0"><strong>✅ 검증 완료(2026-08-28, 8/27 전체 데이터).</strong>
 토글 이후 Android <code>purchase</code> 10건에 자동 이벤트가 <strong>하나도 붙지 않았다.</strong>
@@ -207,6 +225,75 @@ GA4 총수익            $1,602.60  (= 정확한 합)</pre>
 8/27 하루 매출은 전액 <code>purchase</code> 로만 잡혔다(허수 0).
 <span class="k">iOS 도 8/26~27 에 0건이지만 이건 조치 효과가 아니다 — iOS 자동 이벤트는
 원래 드물어(7일에 5건) 이틀 0건은 정상 범위이고, iOS 는 계속 발생한다.</span></p>
+<p style="margin:.6em 0 0"><strong>8/29 재확인 — 예측대로다.</strong> 8/28 하루에
+<code>in_app_purchase</code> 2건이 나타났는데 <strong>둘 다 iOS</strong>($3.45)이고
+Android 는 여전히 0 이다(같은 날 Android <code>purchase</code> 7건, 짝 0).
+토글 효과가 유지되고 iOS 잔여분만 남는다는 구조가 데이터로 확인됐다 —
+전체 매출 $178.06 대비 <strong>1.9%</strong>로 예측한 약 4% 범위 안이다.</p>
+
+<p style="margin:.6em 0 0"><strong>⚠️ 8/31 재실측 — iOS 잔여분이 예측의 2.5배다.</strong>
+토글 이후 4일(8/27~30) 집계에서 <strong>10.7%</strong> 가 나왔다. "약 4%" 는 낡은 수치다.</p>
+<pre>                        건수   총수익      앱 버전별(iOS 자동)
+in_app_purchase  iOS     15   $143.04     1.3.0  6건 $82.43
+purchase         Android 57   $476.56     1.3.1  9건 $60.61
+purchase         iOS     57   $854.47
+──────────────────────────────────────
+과대계상 = $143.04 / $1,331.03 = 10.7%   Android 자동 = 0 (토글 유지)</pre>
+<p style="margin:.6em 0 0"><strong>우리 배포(130104) 회귀가 아니다.</strong> 구버전 1.3.0 에서도
+iOS 자동 수집이 21%(purchase 28건 대비 6건) 발생한다. 다만 비율 자체는 8/19~25 의 9% 에서
+21~31%(건수)로 올랐고, <span class="k">원인은 확정하지 못했다</span> — 1.3.1 확산 또는 iOS
+결제 구성 변화로 보이나 증거가 부족하다.</p>
+<p style="margin:.6em 0 0"><strong>❌ "StoreKit 2 로 옮기면 해결된다"는 성립하지 않는다 —
+이미 StoreKit 2 다.</strong></p>
+<ul style="margin:.4em 0 0">
+<li>서버가 <strong>StoreKit 2 JWS 만 받는다</strong>. <code>purchase-provider-verifiers.ts</code> 는
+  <code>APPLE_JWS_REQUIRED</code> 로 거부하고 x5c 체인·루트 핀·ES256 서명을 검증한다.
+  StoreKit 1 의 <code>/verifyReceipt</code> 호출이나 <code>latest_receipt_info</code> 파싱이
+  <strong>코드에 아예 없다</strong>.</li>
+<li>그런데 iOS 결제는 정상 동작한다(8/27~30 <code>purchase</code> 57건).
+  → 앱은 이미 StoreKit 2 트랜잭션을 보내고 있다.</li>
+<li><strong>그런데도 Firebase 가 iOS 자동 수집을 계속한다.</strong> Firebase 의 자동 IAP 측정은
+  앱의 StoreKit 버전 선택과 독립적으로 동작하는 것으로 보인다(플러그인의 하위 호환
+  SKPaymentQueue 옵저버 가능성 — <span class="k">확정하지 못했다</span>).</li>
+</ul>
+<p style="margin:.6em 0 0"><code>in_app_purchase_cache_manager.dart:308</code> 의 주석
+"in_app_purchase 3.2.0+는 자동으로 StoreKit2를 활용"은 <code>enableStoreKit2()</code> 호출이
+없다는 점에서 근거가 약하지만, 서버 계약이 JWS 전용이므로 <strong>결과적으로는 맞다</strong>.</p>
+<p style="margin:.6em 0 0"><strong>❌ <code>FirebaseAppStoreReceiptURLCheckEnabled=false</code> 도
+답이 아니다 (2026-08-31 조사 완료).</strong> 후보로 올렸다가 철회했다 —
+<strong>IAP 수집과 무관한 키다.</strong></p>
+<ul style="margin:.4em 0 0">
+<li>실제 용도는 <code>GULAppEnvironmentUtil</code> 의 <strong>앱 배포 경로 판별</strong>이다.
+  영수증 URL 에 <code>sandboxReceipt</code> 가 있는지 봐서
+  (<code>isAppStoreReceiptSandbox</code>) <strong>TestFlight 인지 App Store 인지</strong> 구분한다.</li>
+<li>끄면 <strong>TestFlight/프로덕션 구분이 깨진다.</strong> 스테이징 빌드를 계속 돌리는
+  상황에서 데이터가 섞일 실질 위험이다.</li>
+<li>APNs 환경 판별(<code>FIRAuthAPNSTokenManager</code>)에도 쓰이지만 <span class="k">우리는
+  <code>firebase_auth</code> 를 안 쓰고 푸시는 <code>firebase_messaging</code> 단독이라 해당 없다.</span></li>
+<li><strong>자동 IAP 수집을 끈다는 근거는 어디에도 없다.</strong> firebase-ios-sdk #2435 에
+  2019년부터 "iOS 자동 in_app_purchase 를 끄게 해달라"는 요청이 열려 있다는 것이
+  오히려 방법이 없다는 정황이다.</li>
+</ul>
+<p style="margin:.6em 0 0"><strong>다시 후보로 올리지 말 것.</strong> 매출 이중계상을 고치려다
+스테이징/프로덕션 구분을 잃는 거래가 된다.</p>
+<p style="margin:.6em 0 0"><strong>판단: iOS 는 막을 수단이 사실상 없다.</strong>
+<code>purchase</code> 만 필터링한 리포트를 매출 기준으로 고정하는 것이 유일한 실효 대책이다.</p>
+
+<div class="ok" style="margin-top:1em">
+<strong>✅ 매출 기준 리포트를 만들었다 (2026-08-31).</strong>
+GA4 → 탐색 → <strong><code>✅ 실제 매출 (purchase 전용) — 매출은 이 리포트로 보세요</code></strong>
+<p style="margin:.6em 0 0"><strong>GA4 표준 보고서의 "총수익"을 매출로 쓰지 말 것.</strong>
+자동 수집분이 섞여 있다. 28일 기준 $8,706.02 → 실제 <strong>$7,550.25</strong>
+(차이 $1,155.77 이 자동 수집분).</p>
+<pre>구성  행 날짜 / 열 플랫폼 / 값 총수익·이벤트 수
+필터  이벤트 이름 <strong>다음과 정확하게 일치</strong> purchase</pre>
+<p style="margin:.6em 0 0"><span class="k">필터 조건이 <strong>"포함"이 아니라 "정확하게 일치"</strong>
+여야 한다. "포함"으로 두면 <code>in_app_purchase</code> 가 같이 걸려 고치려던 문제가 그대로 남는다.</span>
+진단용으로 만든 <code>purchase 이중계상 시간대별 검증</code> 은 의도적으로 "포함"을 쓰므로
+매출 기준으로 쓰면 안 된다.</p>
+<p style="margin:.6em 0 0">이 리포트는 <strong>과거 구간에도 그대로 유효하다</strong> —
+소급 보정이 안 되는 8/13~8/26 도 이걸로 읽으면 정확하다.</p>
+</div>
 
 <p style="margin:.6em 0 0"><span class="k">소급 적용은 안 되므로 8/13~8/26 구간과 iOS
 잔여분은 <code>purchase</code> 만 필터링한 탐색 분석
@@ -240,16 +327,48 @@ I/flutter: ⛔ GA4 이벤트 전송 실패: ad_click {ad_platform: internal-shor
 스펙 문서 4종을 맞췄다. <strong>트리거 시점과 파라미터는 원안 그대로다.</strong>
 재발 방지로 <code>ga4_taxonomy_test.dart</code> 가 <code>Ga4Event.all</code> 의 예약어·예약
 접두사를 검증한다.</p>
-<p style="margin:.6em 0 0"><span class="k">미머지·미배포. 배포 전까지 계속 0건이며 소급
-수집은 되지 않는다.</span> 문의 원문: <code>docs/analytics/agency-inquiry-20260825.html</code></p>
+<p style="margin:.6em 0 0"><strong>✅ 배포·검증 완료 (2026-08-29).</strong>
+<code>picnic-v1.3.1+130104</code>(8/28 15:37 KST) 로 나갔고, 배포 당일 8/28 에
+<code>ad_cta_click</code> <strong>2건</strong>이 수집됐다. 28일 0건이던 이벤트가 살아났다 —
+예약어 문제 종결.</p>
+<pre>section_name      광고에서 코튼캔디 받기      ad_category   글로벌 픽 #2
+ad_source         internal                   ad_format     rewarded
+ad_platform       internal-shortform         destination_type  youtube
+ad_unit_name      undefined (설계대로)</pre>
+<p style="margin:.6em 0 0">7개 파라미터가 전부 스펙대로 실렸다. 배포 후 경과가 8시간여이고
+채택률이 낮아 절대 수는 작지만(같은 날 <code>ad_impression</code> 25,025), <strong>0 이 아니라는
+사실이 판정의 전부</strong>다. 문의 원문:
+<code>docs/analytics/agency-inquiry-20260825.html</code></p>
+
+<div class="stop" style="margin-top:1em">
+<strong>⚠️ 같은 날 <code>ad_click</code> 39건이 나타났다 — 우리 이벤트가 아니다.</strong>
+<p style="margin:.6em 0 0">AdMob 자동 수집이다. <code>firebase_event_origin</code> 이
+<strong><code>am</code>(100%)</strong> 이고(우리 앱이면 <code>app</code>),
+<code>ad_source</code>=<code>AdMob Network</code>,
+<code>ad_platform</code>=<code>AdMob</code>,
+<code>ad_unit_name</code>=<code>ca-app-pub-1539304887…</code> 다.
+<strong>Google 이 <code>ad_click</code> 을 예약어로 잡아둔 이유가 바로 이것</strong> —
+자기 자동 수집용 이름이다. 앱이 그 이름을 못 쓰는 것과 정확히 같은 사실의 양면이다.</p>
+<p style="margin:.6em 0 0"><code>a7327ae7a feat(ads): enable AdMob in release builds</code> 로
+AdMob 이 릴리스에서 다시 켜지면서 나타났다. 8/25 실측 때는 0건이었다.</p>
+<p style="margin:.6em 0 0"><strong>분석 시 주의.</strong> GA4 에 <code>ad_click</code> 이
+존재한다고 해서 우리 계측이 동작하는 것이 아니다. 우리 것은 <code>ad_cta_click</code> 이고
+<code>ad_platform</code> 이 <code>internal-shortform</code>/<code>Pangle</code> 이다.
+둘을 합산하면 자체 숏폼 CTA 와 AdMob 클릭이 뒤섞인다.</p>
+<p style="margin:.6em 0 0"><span class="k">대행사 회신 B-4("광고 플랫폼 값은 AdMob 이 아니다")의
+전제가 바뀌었다 — 이제 AdMob 이 실제로 돌고 있다.</span>
+<b>→ 2026-09-03 재고지는 불필요로 종결(제품 판단).</b> AdMob 지면을 계측 범위에 포함하고,
+분석에서 <code>ad_platform</code> 으로 분리해 대응한다(택소노미 문서 §2-A).</p>
+</div>
 </div>
 
 <div class="warn">
 <strong>부수 관측:</strong> <code>ad_unit_name</code> 이 문자열 <code>undefined</code> 로 나간다(설계상
 값 없는 String 파라미터의 의도된 치환). 값 없는 Number 는 키를 생략하는 B-3 와 짝이 맞는지
 대행사와 재확인할 여지가 있다.
-<p style="margin:.6em 0 0">아직 검증 안 된 항목: 재화명(<code>별사탕</code> 오염 여부),
-언어(<code>ja</code>/<code>jp</code>), <code>login</code>/<code>sign_up</code> 중복·오탐.</p>
+<p style="margin:.6em 0 0"><s>아직 검증 안 된 항목: 재화명(<code>별사탕</code> 오염 여부),
+언어(<code>ja</code>/<code>jp</code>), <code>login</code>/<code>sign_up</code> 중복·오탐.</s>
+<b>→ 2026-08-31 · 09-01 실측으로 전건 종결</b>(택소노미 문서 §2-A · §1 · §4-A).</p>
 </div>
 
 <div class="tw">
@@ -278,7 +397,8 @@ I/flutter: ⛔ GA4 이벤트 전송 실패: ad_click {ad_platform: internal-shor
 <li>B-10 이벤트명 변경은 중복 적재 확인 뒤 결정한다. DebugView 실측 전에는 변경하지 않는다.</li>
 </ul>
 
-<h3>④ 복구 구매의 매출 복원 <span class="unk">— 앱 사이드 완료 / 서버 미착수</span></h3>
+<h3>④ 복구 구매의 매출 복원 <span class="done">— 2026-09-03 종결(iOS 해소 / Android 는 강업 대기)</span>
+<span class="meta">아래는 2026-08-21 시점 기록</span></h3>
 <p>현재 코드는 정산 시점에 스토어 카탈로그가 메모리에 없으면
 <code>currency</code>/<code>value</code> 없이 purchase를 확정할 수 있다.
 대행사 B-2를 충족하기 위해 다음 계약을 선택했고 교차 검증에서 최종 승인받았다.</p>
@@ -443,6 +563,7 @@ picnic-v1.3.0+130007:picnic_app/assets/splash_key.png</code> 확인) 130007 대�
 <tr><td><code>docs/analytics/api-contract.html</code></td><td><code>PicnicAnalytics</code> 공개 API 계약</td></tr>
 <tr><td><code>docs/analytics/agency-reply.html</code></td><td>대행사 회신 — 불일치 13건, 전송값 대조표(C절), <strong>GA4 등록 목록(D절)</strong></td></tr>
 <tr><td><code>docs/analytics/agency-inquiry-20260825.html</code></td><td><strong><code>ad_click</code> 이벤트명 변경 요청.</strong> 예약어 근거(로그캣·공식 목록), 우회 불가 사유, 후보 3안. <strong>발송 완료 — 대행사가 <code>ad_cta_click</code> 승인(2026-08-25)</strong></td></tr>
+<tr><td><code>docs/analytics/agency-notice-20260831-admob.html</code></td><td><strong>AdMob 지면 계측 안내(초안).</strong> AdMob 자동 수집 3종 유입과 지면 분리 규칙, 스펙 불일치 3건. <strong>결정 요청이 아니라 통보다</strong> — 포함은 우리가 정했고 대행사가 결정할 사안이 없다. <strong>2026-08-31 발송 불필요로 종결</strong>(대행사가 리포트를 직접 만들지 않음). 지면 구분 규칙은 <code>ga4-event-taxonomy.md</code> §2-A 가 기준이다.</td></tr>
 <tr><td><code>docs/analytics/implementation-report.html</code></td><td>구현 경과와 리뷰에서 발견한 결함 기록</td></tr>
 <tr><td><code>docs/superpowers/specs/2026-08-21-ga4-purchase-revenue-contract-design.md</code></td><td><strong>purchase revenue 후속 구현의 승인 설계.</strong> durable currency 보류·재시도, snapshot/RPC, capability 배포 순서, TDD 범위</td></tr>
 <tr><td>PR <a href="https://github.com/charlie0421/picnic-app/pull/172">picnic-app#172</a></td><td>purchase revenue <strong>앱 사이드</strong>. 브랜치 <code>feat/ga4-purchase-revenue</code>, 커밋 7개</td></tr>

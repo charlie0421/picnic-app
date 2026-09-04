@@ -15,13 +15,21 @@ import 'package:picnic_lib/core/utils/logger.dart';
 class UnfinishedPurchaseScan {
   const UnfinishedPurchaseScan({
     this.purchases = const [],
+    this.pendingPurchases = const [],
     this.error,
     this.liveInFlight = 0,
+    this.unsettleableHeld = 0,
   });
 
   /// Transactions the store still holds open, in the shape the verification
   /// path already accepts.
   final List<PurchaseDetails> purchases;
+
+  /// Android purchases that Play still reports as PENDING. They are alive but
+  /// not settleable: callers may durably intake the token behind a remote
+  /// capability gate, but must never verify through the purchased path or
+  /// acknowledge/consume them.
+  final List<PurchaseDetails> pendingPurchases;
 
   /// Non-null when the enumeration itself failed.
   final Object? error;
@@ -38,6 +46,19 @@ class UnfinishedPurchaseScan {
   /// queue looks like while the user is still staring at the payment sheet
   /// (Sol 교차 리뷰 MAJOR, 2026-08-07).
   final int liveInFlight;
+
+  /// Transactions the store **holds but we can neither settle nor dismiss**,
+  /// and which are not a payment the user is inside right now: Android
+  /// PENDING (a deferred instrument the user has not paid yet, alive for up
+  /// to three days) and any owned purchase whose state the store will not
+  /// classify (`PurchaseStatus.error`, e.g. Play's UNSPECIFIED_STATE).
+  ///
+  /// Kept apart from [liveInFlight] deliberately. `liveInFlight` means "a
+  /// payment is live at this instant"; a three-day cash payment is a
+  /// different fact and folding it in makes that field lie. Both must be
+  /// zero before a caller may treat the queue as having been empty, because
+  /// in both cases the store is still holding something.
+  final int unsettleableHeld;
 
   bool get isEmpty => purchases.isEmpty;
 }
@@ -64,17 +85,18 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
   @override
   String get label => 'Android/queryPastPurchases';
 
-  /// `liveInFlight` stays 0 here, and that is a **limit of Play's API, not a
-  /// statement that nothing is live**.
+  /// `queryPurchases` answers with owned purchases, so a slow payment already
+  /// accepted by Play arrives as a `pending` [PurchaseDetails]. It is exposed
+  /// separately through [UnfinishedPurchaseScan.pendingPurchases] and counted
+  /// in `unsettleableHeld` - NOT `liveInFlight`, which means a payment the
+  /// user is inside right now; it must not enter the settleable `purchases`
+  /// list.
   ///
-  /// `queryPurchases` answers with owned purchases, so a slow payment still
-  /// settling arrives as a `pending` [PurchaseDetails] inside
-  /// [UnfinishedPurchaseScan.purchases] (found > 0, which already blocks every
-  /// "the queue was empty" caller). But a billing flow the user is *inside* is
-  /// invisible to every query Play offers: the flow runs in Play's own
-  /// activity, and nothing is owned until it completes. So while the user
-  /// stares at the payment sheet this scan reports an empty queue with
-  /// `liveInFlight == 0` - indistinguishable from "nothing is happening".
+  /// A billing flow the user is merely *inside* is still invisible to every
+  /// query Play offers: the flow runs in Play's own activity, and nothing is
+  /// owned until it completes. So while the user stares at the payment sheet
+  /// this scan can report an empty queue with `liveInFlight == 0` -
+  /// indistinguishable from "nothing is happening".
   ///
   /// An earlier revision of this comment claimed the in-flight case could not
   /// be concurrent with a scan, because Play refuses a second billing flow.
@@ -92,9 +114,49 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
     final addition = InAppPurchase.instance
         .getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
     final resp = await addition.queryPastPurchases();
+    final all = List<PurchaseDetails>.from(resp.pastPurchases);
+    final pending = all
+        .where((purchase) => purchase.status == PurchaseStatus.pending)
+        .toList(growable: false);
+    // Anything Play returns that is neither settleable nor PENDING is a state
+    // this code cannot classify (GooglePlayPurchaseDetails maps Play's
+    // UNSPECIFIED_STATE to PurchaseStatus.error). It must not vanish from the
+    // scan: before the pending split it landed in `purchases`, so `found > 0`
+    // kept every "the queue was empty" caller honest. Dropping it silently
+    // would let the 90s safety net report a verified-empty queue while Play
+    // holds an owned, unresolved purchase.
+    final unclassified = all
+        .where(
+          (purchase) =>
+              purchase.status != PurchaseStatus.purchased &&
+              purchase.status != PurchaseStatus.pending,
+        )
+        .toList(growable: false);
+    if (unclassified.isNotEmpty) {
+      // Nothing in this app can retire such a row: it is not settleable, so
+      // the sweep never verifies it, and unlike a PENDING token Play has no
+      // three-day window that resolves it. It therefore keeps
+      // PurchaseSweepReport.verifiedEmpty false for as long as Play keeps
+      // reporting it, which holds the 90s "nothing happened" suppression off
+      // indefinitely. That direction is deliberate - a queue holding an owned
+      // purchase is not an empty queue - but it must be observable rather
+      // than silent, because no code path here will ever clear it.
+      logger.w(
+        '🛑 Play 가 상태를 분류하지 않는 보유 구매 ${unclassified.length}건 - '
+        '정산 대상도 대기도 아니라 스스로 해소되지 않는다: '
+        '${unclassified.map((purchase) => purchase.productID).join(', ')}',
+      );
+    }
     return UnfinishedPurchaseScan(
-      purchases: List<PurchaseDetails>.from(resp.pastPurchases),
+      purchases: all
+          .where((purchase) => purchase.status == PurchaseStatus.purchased)
+          .toList(growable: false),
+      pendingPurchases: pending,
       error: resp.error,
+      // Play cannot report a billing flow the user is *inside*; nothing here
+      // is live at this instant.
+      liveInFlight: 0,
+      unsettleableHeld: pending.length + unclassified.length,
     );
   }
 }
@@ -193,8 +255,9 @@ class IosPaymentQueueSource implements UnfinishedPurchaseSource {
     return UnfinishedPurchaseScan(
       purchases: settleable
           .map(
-            (t) => AppStorePurchaseDetails.fromSKTransaction(t, receipt)
-                as PurchaseDetails,
+            (t) =>
+                AppStorePurchaseDetails.fromSKTransaction(t, receipt)
+                    as PurchaseDetails,
           )
           .toList(),
       liveInFlight: liveInFlight,

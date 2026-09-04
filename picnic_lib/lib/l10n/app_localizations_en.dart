@@ -1291,6 +1291,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your payment has not been confirmed yet. You may not have completed the payment on the store\'s payment screen.\nIf you have already paid, your Star Candy will be credited automatically once processing finishes — please do not pay again.';
 
   @override
+  String get purchase_payment_pending_message =>
+      'Your payment is still being completed. If you chose a slow payment method such as cash or a bank transfer, please finish paying at the store or bank.\nYour Star Candy will be credited automatically once the payment goes through — please do not pay again.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
@@ -1476,6 +1480,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get withdrawal_success =>
       'The unsubscribe was processed successfully.';
+
+  @override
+  String get withdrawal_failed =>
+      'Account deletion failed. Please try again in a moment.';
 
   @override
   String get vote_item_request_already_applied_artist =>

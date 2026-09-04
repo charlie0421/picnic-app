@@ -1311,6 +1311,10 @@ class AppLocalizationsFil extends AppLocalizations {
       'Hindi pa nakukumpirma ang iyong bayad. Maaaring hindi mo pa natapos ang pagbabayad sa payment screen ng store.\nKung nakabayad ka na, awtomatikong maikakredito ang iyong Star Candy kapag natapos ang pagproseso. Huwag nang magbayad muli.';
 
   @override
+  String get purchase_payment_pending_message =>
+      'Hindi pa tapos ang iyong bayad. Kung pumili ka ng mabagal na paraan ng pagbabayad tulad ng cash o bank transfer, pakitapos ang pagbabayad sa tindahan o bangko.\nAwtomatikong maikakredito ang iyong Star Candy kapag natuloy ang bayad. Huwag nang magbayad muli.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Paparating';
 
   @override
@@ -1501,6 +1505,10 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get withdrawal_success =>
       'Ang unsubscribe ay matagumpay na naproseso.';
+
+  @override
+  String get withdrawal_failed =>
+      'Nabigo ang pag-alis ng account. Pakisubukang muli maya-maya.';
 
   @override
   String get vote_item_request_already_applied_artist =>

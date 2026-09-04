@@ -1246,6 +1246,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '아직 결제가 확인되지 않았습니다. 스토어 결제 화면에서 결제가 완료되지 않았을 수 있습니다.\n이미 결제하셨다면 처리가 끝나는 대로 스타캔디가 자동으로 적립되니, 다시 결제하지 마세요.';
 
   @override
+  String get purchase_payment_pending_message =>
+      '결제가 아직 완료되지 않았습니다. 편의점 현금 결제나 계좌 이체처럼 시간이 걸리는 결제 수단을 선택하셨다면, 해당 장소에서 결제를 마쳐 주세요.\n결제가 완료되면 스타캔디가 자동으로 적립되니, 다시 결제하지 마세요.';
+
+  @override
   String get label_tabbar_vote_upcoming => '예정됨';
 
   @override
@@ -1415,6 +1419,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get withdrawal_success => '회원탈퇴가 성공적으로 처리되었습니다.';
+
+  @override
+  String get withdrawal_failed => '탈퇴 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.';
 
   @override
   String get vote_item_request_already_applied_artist =>

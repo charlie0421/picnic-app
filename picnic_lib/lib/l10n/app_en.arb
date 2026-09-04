@@ -1646,6 +1646,10 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "Your payment has not been confirmed yet. You may not have completed the payment on the store's payment screen.\nIf you have already paid, your Star Candy will be credited automatically once processing finishes — please do not pay again.",
+  "purchase_payment_pending_message": "Your payment is still being completed. If you chose a slow payment method such as cash or a bank transfer, please finish paying at the store or bank.\nYour Star Candy will be credited automatically once the payment goes through — please do not pay again.",
+  "@purchase_payment_pending_message": {
+    "description": "Shown when Google Play reports an Android purchase as PENDING (purchaseState=2): the user completed the store flow but chose a deferred payment method (cash at a convenience store, bank transfer) and has not paid yet. Must tell them to finish paying at the store/bank, must NOT claim the payment was received, and must still forbid paying again."
+  },
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },
@@ -1883,6 +1887,10 @@
   "withdrawal_success": "The unsubscribe was processed successfully.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "withdrawal_failed": "Account deletion failed. Please try again in a moment.",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
   },
   "vote_item_request_already_applied_artist": "You have already applied for this artist.",
   "@vote_item_request_already_applied_artist": {

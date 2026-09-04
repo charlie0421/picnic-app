@@ -23,6 +23,79 @@ import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 
+/// '더보기'를 눌렀을 때 광고주 랜딩으로 보내고, 그 클릭을 서버에 기록한다.
+///
+/// [reportClick] 은 **launch 이전에** 시작한다. 외부 브라우저가 뜨는 순간 앱이
+/// 백그라운드로 밀리고 iOS 는 진행 중이던 요청을 정지시킬 수 있어, launch 뒤에
+/// 시작하면 클릭이 통계에서 통째로 누락된다. 대신 launch 가 실패하는 드문 경우
+/// 클릭이 소폭 과다 집계될 수 있다 — 통계 누락보다 낫다고 보고 택한 쪽이다.
+/// GA4 `ad_cta_click` 은 로컬 버퍼에 쌓였다가 나중에 전송되므로 기존대로 이동
+/// 성공 이후에 남긴다.
+///
+/// "시작"이 "요청이 소켓에 실렸다"를 뜻하지는 않는다. `functions_client` 의
+/// `invoke` 는 `request.send()` 전에 body 를 isolate 에서 인코딩하며
+/// (`functions_client/lib/src/functions_client.dart` 의 `_isolate.encode`),
+/// 그 await 지점에서 제어가 돌아오기 때문에 launch 가 먼저 실행될 수 있다.
+/// body 가 수십 바이트고 launch 자체가 플랫폼 채널 왕복이라 실제로는 대개 먼저
+/// 나가지만, 보장은 아니다 — 그래서 실패한 기록은 재시도할 수 있어야 한다
+/// ([AdCtaClickReporter]).
+///
+/// 기록 실패는 삼킨다. 통계용 쓰기가 광고주 랜딩 이동을 막아선 안 된다.
+///
+/// 반환값은 실제로 이동했는지 여부. [launch] 가 external/in-app 두 경로 모두
+/// 예외를 던지면 그대로 전파된다(호출자가 이동 실패로 처리).
+@visibleForTesting
+Future<bool> openAdCta(
+  String url, {
+  required Future<bool> Function(Uri uri, {required bool external}) launch,
+  Future<void> Function()? reportClick,
+}) async {
+  final uri = Uri.tryParse(url);
+  if (uri == null) return false;
+  if (reportClick != null) {
+    unawaited(Future.sync(reportClick).catchError((_) {}));
+  }
+  try {
+    return await launch(uri, external: true);
+  } catch (_) {
+    return await launch(uri, external: false);
+  }
+}
+
+/// '더보기' 서버 기록의 단발 가드 — **성공 1회** 기준.
+///
+/// "시청 건당 1회"를 시도 기준으로 세면, 첫 탭이 타임아웃·5xx·백그라운드 정지로
+/// 실패했을 때 그 시청 건의 클릭이 영구히 사라진다. 사용자가 랜딩에서 돌아와 다시
+/// 눌러도 요청이 나가지 않기 때문이다. 서버 기록은 멱등하므로(같은 임프레션의
+/// 두 번째 호출은 `recorded:false`) 재시도에 비용이 없다.
+///
+/// 진행 중 래치는 따로 둔다 — 연타로 같은 요청이 두 번 나가는 것만 막고,
+/// 끝난 뒤의 재시도는 막지 않는다.
+@visibleForTesting
+class AdCtaClickReporter {
+  AdCtaClickReporter(this._report);
+
+  /// 서버 기록을 시도하고 성공 여부를 돌려준다.
+  final Future<bool> Function() _report;
+
+  bool _reported = false;
+  bool _inFlight = false;
+
+  /// 이 시청 건의 클릭이 서버에 남았는가.
+  bool get reported => _reported;
+
+  Future<void> call() async {
+    if (_reported || _inFlight) return;
+    _inFlight = true;
+    try {
+      _reported = await _report();
+    } finally {
+      // 예외가 나가도 래치는 반드시 풀어, 다음 탭이 재시도할 수 있게 한다.
+      _inFlight = false;
+    }
+  }
+}
+
 /// Pure logic helpers for AdShortformFullscreenPage, testable without widget tree.
 @visibleForTesting
 class AdShortformLogic {
@@ -267,6 +340,11 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   final Future<void> Function(AdRewardStatusModel status)?
   onWalletRewardPresented;
 
+  /// '더보기'로 이동할 때 그 클릭을 서버에 기록한다 (시청 1회당 **성공** 1번).
+  /// 어드민 캠페인 리포트의 `more_clicks` 가 여기서 채워진다.
+  /// 기록에 성공했으면 true — 실패는 [AdCtaClickReporter] 가 재시도로 남겨둔다.
+  final Future<bool> Function()? onCtaClick;
+
   const AdShortformFullscreenPage({
     super.key,
     required this.videoUrl,
@@ -275,6 +353,7 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
     this.loadAd,
     this.ga4,
     this.onWalletRewardPresented,
+    this.onCtaClick,
   });
 
   @override
@@ -314,6 +393,11 @@ class _AdShortformFullscreenPageState
   bool _earnLogged = false;
   bool _earnLogging = false;
   bool _adCtaClickLogged = false;
+
+  /// 서버 클릭 기록(`callback-ad-shortform-more`) 단발 가드 — 성공 1회 기준.
+  late final AdCtaClickReporter _ctaClickReporter = AdCtaClickReporter(
+    () async => await widget.onCtaClick?.call() ?? false,
+  );
 
   /// App-level Riverpod container, captured while this route is mounted, so a
   /// reward that settles after the user already closed the ad can still update
@@ -709,16 +793,15 @@ class _AdShortformFullscreenPageState
   }
 
   Future<void> _openCta(String url) async {
+    final launched = await openAdCta(
+      url,
+      launch: (uri, {required external}) => external
+          ? launchUrl(uri, mode: LaunchMode.externalApplication)
+          : launchUrl(uri),
+      reportClick: _ctaClickReporter.call,
+    );
     // ad_cta_click (스펙 §2-8): '더보기'로 실제 이동한 시점. launchUrl 이 두 경로 모두
     // 실패하면(예외) 이동하지 않으므로 발송하지 않는다.
-    final uri = Uri.tryParse(url);
-    if (uri == null) return;
-    bool launched;
-    try {
-      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      launched = await launchUrl(uri);
-    }
     // 이동에 실패했으면(false 반환) 클릭 이벤트를 보내지 않는다.
     if (launched) _logAdCtaClick(url);
   }

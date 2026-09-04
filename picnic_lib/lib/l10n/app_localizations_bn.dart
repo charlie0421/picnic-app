@@ -1290,6 +1290,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার পেমেন্ট এখনও নিশ্চিত হয়নি। স্টোরের পেমেন্ট স্ক্রিনে পেমেন্ট এখনও সম্পন্ন না-ও হয়ে থাকতে পারে।\nইতিমধ্যে পেমেন্ট করে থাকলে, প্রক্রিয়া শেষ হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে। অনুগ্রহ করে আবার পেমেন্ট করবেন না।';
 
   @override
+  String get purchase_payment_pending_message =>
+      'আপনার পেমেন্ট এখনো সম্পন্ন হয়নি। আপনি যদি নগদ বা ব্যাংক ট্রান্সফারের মতো ধীর পেমেন্ট পদ্ধতি বেছে নিয়ে থাকেন, অনুগ্রহ করে দোকানে বা ব্যাংকে গিয়ে পেমেন্ট সম্পন্ন করুন।\nপেমেন্ট সফল হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে। অনুগ্রহ করে আবার পেমেন্ট করবেন না।';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
@@ -1471,6 +1475,10 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get withdrawal_success =>
       'সাবস্ক্রাইবটি সফলভাবে প্রক্রিয়া করা হয়েছিল।';
+
+  @override
+  String get withdrawal_failed =>
+      'অ্যাকাউন্ট মুছে ফেলা ব্যর্থ হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
 
   @override
   String get vote_item_request_already_applied_artist =>
@@ -3317,6 +3325,10 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
       'আপনার পেমেন্ট এখনও নিশ্চিত হয়নি। স্টোরের পেমেন্ট স্ক্রিনে পেমেন্ট এখনও সম্পন্ন না-ও হয়ে থাকতে পারে।\nইতিমধ্যে পেমেন্ট করে থাকলে, প্রক্রিয়া শেষ হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে। অনুগ্রহ করে আবার পেমেন্ট করবেন না।';
 
   @override
+  String get purchase_payment_pending_message =>
+      'আপনার পেমেন্ট এখনো সম্পন্ন হয়নি। আপনি যদি নগদ বা ব্যাংক ট্রান্সফারের মতো ধীর পেমেন্ট পদ্ধতি বেছে নিয়ে থাকেন, অনুগ্রহ করে দোকানে বা ব্যাংকে গিয়ে পেমেন্ট সম্পন্ন করুন।\nপেমেন্ট সফল হলে স্টার ক্যান্ডি স্বয়ংক্রিয়ভাবে যোগ হবে। অনুগ্রহ করে আবার পেমেন্ট করবেন না।';
+
+  @override
   String get label_tabbar_vote_upcoming => 'আসন্ন';
 
   @override
@@ -3498,6 +3510,10 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get withdrawal_success =>
       'সাবস্ক্রাইবটি সফলভাবে প্রক্রিয়া করা হয়েছিল।';
+
+  @override
+  String get withdrawal_failed =>
+      'অ্যাকাউন্ট মুছে ফেলা ব্যর্থ হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
 
   @override
   String get vote_item_request_already_applied_artist =>

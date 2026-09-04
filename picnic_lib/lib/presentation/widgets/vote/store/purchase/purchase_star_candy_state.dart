@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -221,6 +223,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
             'store queue not verified empty '
             '(found=${report?.found}, settled=${report?.settled}, '
             'preserved=${report?.preserved}, '
+            'unsettleableHeld=${report?.unsettleableHeld}, '
             'liveInFlight=${report?.liveInFlight}), keeping the warning',
           );
           showSimpleDialog(content: l10n.purchase_payment_accepted_message);
@@ -345,6 +348,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       for (final purchaseDetails in purchaseDetailsList) {
         final purchaseID = purchaseDetails.purchaseID;
         if (purchaseID != null &&
+            purchaseID.isNotEmpty &&
             _currentlyProcessingIDs.contains(purchaseID)) {
           logger.w(
             '[PurchaseStarCandyState] Skipping already processing purchase: $purchaseID',
@@ -352,14 +356,14 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           continue;
         }
 
-        if (purchaseID != null) {
+        if (purchaseID != null && purchaseID.isNotEmpty) {
           _currentlyProcessingIDs.add(purchaseID);
         }
 
         try {
           await _processPurchaseDetail(purchaseDetails);
         } finally {
-          if (purchaseID != null) {
+          if (purchaseID != null && purchaseID.isNotEmpty) {
             _currentlyProcessingIDs.remove(purchaseID);
           }
         }
@@ -411,6 +415,13 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           purchaseDetails.productID,
         )) {
       _launchLifecycle.recordPurchaseEvidence(purchaseDetails.productID);
+    }
+
+    if (!kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        purchaseDetails.status == PurchaseStatus.pending) {
+      await _handleAndroidPendingPurchase(purchaseDetails);
+      return;
     }
 
     // Android에서 pending 구매를 완료(consume)하는 것은 계약 위반이고,
@@ -688,6 +699,45 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     await PurchaseProcessor.forceCompletePendingPurchase(
       purchaseDetails: purchaseDetails,
       inAppPurchaseService: _purchaseService.inAppPurchaseService,
+    );
+  }
+
+  Future<void> _handleAndroidPendingPurchase(
+    PurchaseDetails purchaseDetails,
+  ) async {
+    // Release the attempt before the remote gate lookup. A purchased event can
+    // follow immediately while that network read is in flight; with no attempt
+    // left it deterministically takes the orphan settlement path instead of
+    // racing this pending handler for the same execution context.
+    if (mounted) {
+      final release = PurchaseProcessor.releaseAndroidPendingSurfaceAttempt(
+        productId: purchaseDetails.productID,
+        attempts: _purchaseAttempts,
+        safetyManager: _safetyManager,
+      );
+      if (release.attemptReleased) {
+        _launchLifecycle.clear(purchaseDetails.productID);
+        setState(() {});
+        _loadingKey.currentState?.hide();
+        if (release.shouldAnnounce) {
+          // PENDING is Play's positive statement that the store flow COMPLETED
+          // and the user picked a deferred instrument (cash, bank transfer).
+          // purchase_payment_unconfirmed_message is scoped to the 90s safety
+          // timeout and suggests the store flow may not have finished, and
+          // purchase_payment_accepted_message would claim money we have not
+          // received. Neither fits; this string tells them to finish paying.
+          showSimpleDialog(
+            content: AppLocalizations.of(
+              context,
+            ).purchase_payment_pending_message,
+          );
+        }
+      }
+    }
+
+    await _purchaseService.recordPendingPurchase(
+      purchaseDetails,
+      source: PendingIntakeSource.storeSurface,
     );
   }
 

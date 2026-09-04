@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
@@ -382,7 +384,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     _productCooldownUntil.remove(_key(productId));
     _settlementPendingProducts.remove(_key(productId));
     _timeoutAnnouncedProducts.remove(_key(productId));
-    if (_currentProductId != null && _key(_currentProductId!) == _key(productId)) {
+    if (_currentProductId != null &&
+        _key(_currentProductId!) == _key(productId)) {
       _currentProductId = null;
     }
     logger.i('🧹 [상품별] 쿨타임 초기화: $productId');
@@ -476,7 +479,9 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
     try {
       // 1️⃣ 완료된 구매의 completePurchase 재확인
-      if (completedPurchase?.pendingCompletePurchase == true) {
+      if (completedPurchase?.pendingCompletePurchase == true &&
+          !(defaultTargetPlatform == TargetPlatform.android &&
+              completedPurchase!.status == PurchaseStatus.pending)) {
         logger.i('🧹 1️⃣ 완료된 구매 트랜잭션 최종 처리');
         await InAppPurchase.instance.completePurchase(completedPurchase!);
       }
@@ -579,7 +584,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
       for (var purchase in recentPurchases) {
         if (purchase.productID == productId &&
-            purchase.pendingCompletePurchase) {
+            purchase.pendingCompletePurchase &&
+            purchase.status != PurchaseStatus.pending) {
           logger.i('🧹 🤖 Android 잔여 트랜잭션 완료: ${purchase.productID}');
           await InAppPurchase.instance.completePurchase(purchase);
         }

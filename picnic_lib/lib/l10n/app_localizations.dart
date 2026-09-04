@@ -2519,6 +2519,12 @@ abstract class AppLocalizations {
   /// **'Your payment has not been confirmed yet. You may not have completed the payment on the store\'s payment screen.\nIf you have already paid, your Star Candy will be credited automatically once processing finishes — please do not pay again.'**
   String get purchase_payment_unconfirmed_message;
 
+  /// Shown when Google Play reports an Android purchase as PENDING (purchaseState=2): the user completed the store flow but chose a deferred payment method (cash at a convenience store, bank transfer) and has not paid yet. Must tell them to finish paying at the store/bank, must NOT claim the payment was received, and must still forbid paying again.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment is still being completed. If you chose a slow payment method such as cash or a bank transfer, please finish paying at the store or bank.\nYour Star Candy will be credited automatically once the payment goes through — please do not pay again.'**
+  String get purchase_payment_pending_message;
+
   /// Auto-generated metadata for key 'label_tabbar_vote_upcoming'.
   ///
   /// In en, this message translates to:
@@ -2824,6 +2830,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The unsubscribe was processed successfully.'**
   String get withdrawal_success;
+
+  /// Shown when the account withdrawal request fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion failed. Please try again in a moment.'**
+  String get withdrawal_failed;
 
   /// Auto-generated metadata for key 'vote_item_request_already_applied_artist'.
   ///
