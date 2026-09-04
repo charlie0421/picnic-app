@@ -307,18 +307,37 @@ PR #119(<code>20260902053935</code>)가 <code>get_artist_paid_votes</code> 를 2
 회수에 필요한 두 md5 를 남겨 뒀다.
 </p>
 
-<h2>7. 배포 순서 <span class="tag t-warn">미실행</span></h2>
-<ol>
-  <li><code>20260904110000</code> → <code>20260904120000</code> 순서로 프로덕션 적용(<code>supabase db query --file</code>, <code>db push</code> 불가).</li>
-  <li>곧바로 <code>check-ads-count</code> 배포. 그 사이에는 사전 게이트만 rolling 24h(더 엄격) 상태로 남는다 — 짧고 보수적인 방향이다.</li>
-  <li>배포 확인 후 별도 마이그레이션으로 <code>get_admob_cotton_reward_counts</code> 드롭.</li>
-  <li>앱 다이얼로그는 OTA 또는 신규 빌드로 나간다. <strong>서버 수정만으로도 신고된 증상(6~7시간 뒤 안내)은 해소된다</strong> — 앱 변경은 재발 방지용 안내 개선이다.</li>
-</ol>
+<h2>7. 배포 <span class="tag t-ok">2026-09-04 완료</span></h2>
+<p>
+버전 충돌을 먼저 처리했다 — <code>20260904120000</code> 은 같은 날 다른 작업이 이미 점유하고 있어
+<code>20260904130000</code> / <code>20260904130100</code> 으로 리넘버링했다.
+두 파일을 <code>begin … rollback</code> 으로 dry-run 한 뒤, 이력 INSERT 까지 <strong>한 트랜잭션</strong>으로 전송했다.
+</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>단계</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>마이그레이션 <code>20260904130000</code> · <code>20260904130100</code></td><td class="t-ok">적용 · 이력 2행 기록</td></tr>
+<tr><td><code>assert_cotton_ad_reward_limit</code> 소유자/ACL</td><td class="t-ok">무변경 (<code>wallet_command_owner</code>, {wallet_command_owner, wallet_test})</td></tr>
+<tr><td>wallet RPC manifest 게이트</td><td class="t-ok"><code>unclassified = 0</code> — 기존 red 해소</td></tr>
+<tr><td><code>check-ads-count</code></td><td class="t-ok">v103 배포 (06:04:16 UTC) · 스모크 401 = 번들 정상</td></tr>
+<tr><td>배포 후 8분 HTTP 상태</td><td class="t-ok">200 × 562, 5xx <strong>0건</strong></td></tr>
+<tr><td>지급 흐름</td><td class="t-ok">admob +18.7% · pangle +20.4% · internal −14.3%(분당 추이에 계단 변화 없음, 배포 전 변동폭 내)</td></tr>
+<tr><td>신고자 계정 실검증</td><td class="t-ok"><code>admob daily=40, allowed=false</code> → 시간 한도 해제 시각만 안내</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>
+<code>get_admob_cotton_reward_counts</code> 는 아직 살아 있다. v103 배포가 확인됐으므로 별도 마이그레이션으로 드롭할 수 있다.
+앱 다이얼로그 개선은 OTA 대상이며(Dart + ARB 뿐, 네이티브 0건) <strong>서버만으로 신고 증상은 해소되므로 급하지 않다</strong>.
+</p>
 
 <h2>8. 남은 것</h2>
 <ul>
-  <li><code>get_admob_cotton_reward_counts</code> 드롭(배포 확인 후).</li>
-  <li><strong><code>public.grant_ad_cotton</code> + <code>assert_cotton_runtime_ready</code> 회수</strong> — 리뷰가 blocker 로 지적한 항목.
+  <li><code>get_admob_cotton_reward_counts</code> 드롭 — v103 배포가 확인됐으므로 이제 가능하다.</li>
+  <li><strong><code>public.grant_ad_cotton</code> + <code>assert_cotton_runtime_ready</code> 회수 — PICNIC-2549</strong>.
       <code>apply_admob_provider_gate_patch()</code> 의 md5 지문 패처와 재조정이 필요하다. 프로덕션 정의 md5 는 마이그레이션 헤더에 있다.</li>
   <li><code>ad_service_test.dart</code> 오버레이 테스트 2건 기존 red.</li>
   <li>배포된 함수와 레포 소스의 상시 드리프트 감지 — <code>chore/deployed-drift-gate</code> 브랜치가 같은 문제를 다룬다.</li>
