@@ -69,6 +69,7 @@ workflows:
         script: |
           set -e
           python3 -c "import yaml" 2>/dev/null || pip3 install --quiet pyyaml
+          python3 -m unittest -v test_release_test_mode.py test_release_tag_resolver.py
           python3 test_codemagic_environment_isolation.py
           python3 test_codemagic_environment_isolation.py --self-test
       - name: Verify protected production target when requested
@@ -711,6 +712,7 @@ workflows:
         script: |
           set -e
           python3 -c "import yaml" 2>/dev/null || pip3 install --quiet pyyaml
+          python3 -m unittest -v test_release_test_mode.py test_release_tag_resolver.py
           python3 test_codemagic_environment_isolation.py
           python3 test_codemagic_environment_isolation.py --self-test
       - name: Verify deployment target

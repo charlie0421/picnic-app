@@ -1617,6 +1617,10 @@ def check_release_test_skip_policy(workflows, dual_target):
         '\"$RELEASE_TAG\")"'
     )
     skip_condition = 'if [ "$RELEASE_TEST_MODE" = "skip" ]; then'
+    policy_test_command = (
+        "python3 -m unittest -v test_release_test_mode.py "
+        "test_release_tag_resolver.py"
+    )
 
     for name in dual_target:
         steps = list(script_blocks(workflows[name]))
@@ -1635,6 +1639,23 @@ def check_release_test_skip_policy(workflows, dual_target):
             failures.append(
                 f"{name} / {exports[0][1]!r}: the RELEASE_TAG export is nested "
                 "inside a block, so later steps may receive no release tag"
+            )
+
+        policy_test_runs = [
+            (step_index, step_name, line)
+            for step_index, (step_name, script) in enumerate(steps)
+            for line in scan(script)
+            if line.text == policy_test_command
+        ]
+        if len(policy_test_runs) != 1:
+            failures.append(
+                f"{name}: must run the release tag and Rebuild policy tests "
+                f"exactly once in Codemagic; found {len(policy_test_runs)} runs"
+            )
+        elif policy_test_runs[0][2].depth != 0:
+            failures.append(
+                f"{name} / {policy_test_runs[0][1]!r}: release policy tests are "
+                "nested inside a block, so they may not run"
             )
 
         coverage_steps = [
@@ -1682,6 +1703,11 @@ def check_release_test_skip_policy(workflows, dual_target):
             condition = required["skip-only condition"][0]
             successful_exit = required["successful early exit"][0]
             coverage = required["coverage command"][0]
+            errexit = [
+                line
+                for line in lines
+                if line.depth == 0 and SET_ERREXIT.match(line.text)
+            ]
             closing_fis = [
                 line
                 for line in lines
@@ -1691,6 +1717,19 @@ def check_release_test_skip_policy(workflows, dual_target):
             ]
             close = closing_fis[0] if closing_fis else None
 
+            if not errexit or min(line.lineno for line in errexit) > tag_assert.lineno:
+                failures.append(
+                    f"{where}: must enable `set -e` at top level before the tag "
+                    "policy so policy and coverage failures stop the build"
+                )
+            elif any(
+                line.lineno < coverage.lineno and UNSET_ERREXIT.match(line.text)
+                for line in lines
+            ):
+                failures.append(
+                    f"{where}: disables `set -e` before coverage, so a failed test "
+                    "can be hidden by a later successful command"
+                )
             if any(line.depth != 0 for line in (tag_assert, mode, condition, coverage)):
                 failures.append(
                     f"{where}: the release-tag assertion, policy call, skip "
@@ -1743,6 +1782,12 @@ def check_release_test_skip_policy(workflows, dual_target):
             failures.append(
                 f"{name}: RELEASE_TAG is exported in step {exports[0][0] + 1}, "
                 f"not before the coverage step {coverage_index + 1}"
+            )
+        if len(policy_test_runs) == 1 and policy_test_runs[0][0] >= coverage_index:
+            failures.append(
+                f"{name}: release policy tests run in step "
+                f"{policy_test_runs[0][0] + 1}, not before the coverage step "
+                f"{coverage_index + 1}"
             )
     return failures
 
@@ -2148,6 +2193,34 @@ def mutate_drop_release_test_mode_gate(text):
         for line in text.splitlines()
         if "scripts/release_test_mode.sh" not in line
     ) + "\n"
+
+
+def mutate_drop_release_policy_tests(text):
+    """Let the tested tag and Rebuild policies rot outside Codemagic."""
+    return "\n".join(
+        line
+        for line in text.splitlines()
+        if not (
+            "test_release_test_mode.py" in line
+            and "test_release_tag_resolver.py" in line
+        )
+    ) + "\n"
+
+
+def mutate_drop_release_coverage_errexit(text):
+    """Let policy or coverage failures be hidden by later successful commands."""
+    step_prefix = """\
+      - name: Run unit tests with coverage
+        script: |
+          set -e
+"""
+    return text.replace(
+        step_prefix,
+        """\
+      - name: Run unit tests with coverage
+        script: |
+""",
+    )
 
 
 def mutate_move_release_test_exit_outside_gate(text):
@@ -2608,6 +2681,12 @@ SELF_TESTS = (
     ("rebuild tag resolver removed", mutate_drop_tag_resolver, True),
     ("resolved release tag not propagated", mutate_drop_release_tag_export, True),
     ("release test-mode gate removed", mutate_drop_release_test_mode_gate, True),
+    ("release policy tests not run in Codemagic", mutate_drop_release_policy_tests, True),
+    (
+        "coverage step no longer fails fast",
+        mutate_drop_release_coverage_errexit,
+        True,
+    ),
     (
         "release test-mode exit moved outside its skip-only gate",
         mutate_move_release_test_exit_outside_gate,
