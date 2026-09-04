@@ -38,10 +38,9 @@
 <p class="sub">QnA 391 · 신고자 <code>711bd953…6565</code> · 2026-09-04 작성</p>
 
 <div class="note">
-<strong>서버 적용은 2026-09-04 에 끝났다.</strong> 그러므로 “統一いたします / will unify” 를
-<strong>“統一いたしました / have unified”</strong> 로 바꿔 확정형으로 보낸다. 아래 본문은 예정형으로 남겨 두었으니
-보내기 전에 그 한 문장만 고치면 된다.
-앱 화면 개선(어느 한도에 걸렸는지 표시)은 앱 업데이트가 나가야 반영되므로 <strong>“수정됨”이 아니라 “다음 업데이트 반영 예정”</strong> 으로 안내한다.
+<strong>서버 적용은 2026-09-04 에 끝났고, 아래 본문은 확정형으로 고쳐 두었다 — 그대로 보내면 된다.</strong>
+앱 화면 개선(어느 한도에 걸렸는지 표시)만 앱 업데이트가 나가야 반영되므로 그 문단은
+<strong>“수정됨”이 아니라 “다음 업데이트 반영 예정”</strong> 으로 남겨 두었다.
 </div>
 
 <h2>일본어 (본문)</h2>
@@ -52,7 +51,7 @@
 
 一方で、他の枠（グローバルおすすめ #2、アジアおすすめ #1）は0時（KST）リセットで数えておりました。つまり、お客様のご認識である「0:00（KST）リセット」が正しく、「グローバルおすすめ #1」だけが異なる基準になっていたことが、今回の問題の原因です。基準がわかりにくい表示になっており、大変申し訳ございませんでした。
 
-対応として、3つの枠すべてを0時（KST）リセットに統一いたします。適用後は、0時台と1時台に10回ずつご視聴いただいた場合、次回は2時台からご視聴いただけるようになります。
+対応として、3つの枠すべてを0時（KST）リセットに統一いたしました。すでに適用済みですので、0時台と1時台に10回ずつご視聴いただいた場合、次回は2時台からご視聴いただけます。
 
 あわせて、上限に達した際の画面に「どちらの上限に達したのか」と「現在の視聴回数」を表示するよう改善いたします。こちらはアプリの更新後に反映されます。
 
@@ -66,7 +65,7 @@ The daily cap of 120 views on "Global Pick #1" was counted over a rolling 24-hou
 
 The other two slots ("Global Pick #2" and "Asia Pick #1") counted the daily cap by KST calendar day, resetting at 00:00 KST. In other words, your understanding of a 00:00 KST reset was correct, and only "Global Pick #1" used a different basis. We are sorry that this was not made clear on screen.
 
-We will unify all three slots to reset at 00:00 KST. After the change, watching 10 ads just after midnight and 10 more in the 1 AM hour will let you watch again from the 2 AM hour.
+We have unified all three slots to reset at 00:00 KST, and the change is already live. Watching 10 ads just after midnight and 10 more in the 1 AM hour will now let you watch again from the 2 AM hour.
 
 We will also improve the limit dialog so that it shows which cap was reached and how many views have been used. That part will appear after the next app update.
 
@@ -80,13 +79,12 @@ Your report is what let us pinpoint the cause. We sincerely apologize for the in
   <li>“1시간 후로 표시되고 있습니다” — 실제로는 일간 해제 시각이 표시되고 있었다.</li>
 </ul>
 
-<h2>미결 — 운영 판단 필요</h2>
-<ul>
-  <li><strong>보상 여부.</strong> rolling 창 때문에 이 사용자의 AdMob 적립이 09-02 KST 일 110회에서 멈췄다(다른 구좌 120회).
-      같은 패턴의 헤비 유저 전체를 소급 보정할지, 개별 응대로 끝낼지는 운영 결정 사항이다.
-      영향 범위는 <code>cotton_candy_grants</code> 로 산출 가능하다.</li>
-  <li><strong>회신 시점.</strong> 서버 배포가 끝났으므로 지금 확정형으로 보낼 수 있다.</li>
-</ul>
+<h2>보상</h2>
+<p>
+소급 보정은 하지 않는다(2026-09-04 결정). 참고로 rolling 창 때문에 발생한 손실은
+10일 누적 상한 약 450 코튼캔디, 하루 최대 13명 규모였다. 이 사용자의 09-02 KST 일
+AdMob 적립은 110회에서 멈췄다(다른 구좌 120회).
+</p>
 
 <footer>
 근거·재현·수정 내역은 <code>docs/operations/picnic-2537-ad-daily-limit-investigation.html</code> 참고.
