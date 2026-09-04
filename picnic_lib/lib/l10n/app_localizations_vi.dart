@@ -1291,6 +1291,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Chưa xác nhận được thanh toán của bạn. Có thể bạn chưa hoàn tất thanh toán trên màn hình thanh toán của cửa hàng.\nNếu bạn đã thanh toán, Star Candy sẽ tự động được cộng sau khi xử lý hoàn tất. Vui lòng không thanh toán lại.';
 
   @override
+  String get purchase_payment_pending_message =>
+      'Thanh toán của bạn vẫn chưa hoàn tất. Nếu bạn đã chọn phương thức thanh toán chậm như tiền mặt hoặc chuyển khoản ngân hàng, vui lòng hoàn tất thanh toán tại cửa hàng hoặc ngân hàng.\nStar Candy sẽ tự động được cộng sau khi thanh toán thành công. Vui lòng không thanh toán lại.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Sắp tới';
 
   @override

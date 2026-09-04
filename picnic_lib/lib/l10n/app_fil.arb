@@ -1638,6 +1638,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "Hindi pa nakukumpirma ang iyong bayad. Maaaring hindi mo pa natapos ang pagbabayad sa payment screen ng store.\nKung nakabayad ka na, awtomatikong maikakredito ang iyong Star Candy kapag natapos ang pagproseso. Huwag nang magbayad muli.",
+  "purchase_payment_pending_message": "Hindi pa tapos ang iyong bayad. Kung pumili ka ng mabagal na paraan ng pagbabayad tulad ng cash o bank transfer, pakitapos ang pagbabayad sa tindahan o bangko.\nAwtomatikong maikakredito ang iyong Star Candy kapag natuloy ang bayad. Huwag nang magbayad muli.",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },

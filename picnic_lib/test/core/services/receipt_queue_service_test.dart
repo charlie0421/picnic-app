@@ -241,6 +241,108 @@ void main() {
         },
       );
 
+      test(
+        'a plain purchased re-enqueue must NOT reset the settlement backoff',
+        () async {
+          // Regression: the promotion reset was first written inside the
+          // refreshAndroidSettlement branch, which is true for EVERY Android
+          // purchased enqueue. An owned token is re-enqueued by every
+          // cold-start and 5-minute resume sweep, so the reset wiped the
+          // backoff of a persistently failing settlement on every sweep and
+          // 2 -> 4 -> ... -> 300s could never accumulate.
+          tearDownMockSupabase();
+          setupMockSupabase(
+            {
+              'functions:verify-receipt-v2': {'error': 'UPSTREAM'},
+            },
+            functionStatusCodes: {'functions:verify-receipt-v2': 503},
+          );
+          await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'owned-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+          );
+
+          await service.flushPending();
+          final afterFailure = await queuedItems();
+          expect(afterFailure, hasLength(1));
+          expect(afterFailure.single['attempt'], 1);
+          expect(afterFailure.single['nextAt'], isNot(0));
+
+          // The next sweep re-enqueues the same still-owned token.
+          await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'owned-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+          );
+
+          final afterReEnqueue = await queuedItems();
+          expect(afterReEnqueue, hasLength(1));
+          expect(
+            afterReEnqueue.single['attempt'],
+            1,
+            reason: 'backoff must survive a plain purchased re-enqueue',
+          );
+          expect(afterReEnqueue.single['nextAt'], isNot(0));
+        },
+      );
+
+      test(
+        'a 422 on a pending intake keeps the row so the sweep cannot re-create it',
+        () async {
+          // The Android key is derived from the purchase token, so the row's
+          // existence is what stops the next cold-start/resume sweep from
+          // enqueuing the same token again. Dropping it on 422 would let the
+          // sweep re-intake every five minutes for Play's three-day pending
+          // window.
+          tearDownMockSupabase();
+          setupMockSupabase(
+            {
+              'functions:verify-receipt-v2': {'error': 'PURCHASE_REJECTED'},
+            },
+            functionStatusCodes: {'functions:verify-receipt-v2': 422},
+          );
+          final trace = await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'rejected-pending-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+            pendingIntake: true,
+          );
+          service.canFlushPendingIntake = () async => true;
+
+          await service.flushPending();
+
+          final afterReject = await queuedItems();
+          expect(afterReject, hasLength(1), reason: 'row must survive the 422');
+          expect(afterReject.single['intake_rejected'], isTrue);
+          expect(verificationRequests(), 1);
+
+          // A second flush must not spend another request on it.
+          await service.flushPending();
+          expect(verificationRequests(), 1);
+          expect(await queuedItems(), hasLength(1));
+
+          // Re-intake from a later sweep joins the surviving row instead of
+          // creating a new one.
+          final again = await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'rejected-pending-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+            pendingIntake: true,
+          );
+          expect(again, trace);
+          expect(await queuedItems(), hasLength(1));
+        },
+      );
+
       test('gate lookup exceptions are fail-closed at flush time', () async {
         await service.enqueue(
           platform: ReceiptQueueService.platformAndroid,
@@ -293,6 +395,12 @@ void main() {
           expect(promoted.single['pending_intake'], isFalse);
           expect(promoted.single['user_id'], 'settlement-owner');
           expect(promoted.single['environment'], 'production');
+          // A promoted row is a NEW request. Backoff accumulated while the
+          // user had not paid yet must not delay the settlement that is now
+          // due (the cap is five minutes).
+          expect(promoted.single['attempt'], 0);
+          expect(promoted.single['nextAt'], 0);
+          expect(promoted.single['intake_rejected'], isFalse);
 
           await service.flushPending();
 

@@ -223,6 +223,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
             'store queue not verified empty '
             '(found=${report?.found}, settled=${report?.settled}, '
             'preserved=${report?.preserved}, '
+            'unsettleableHeld=${report?.unsettleableHeld}, '
             'liveInFlight=${report?.liveInFlight}), keeping the warning',
           );
           showSimpleDialog(content: l10n.purchase_payment_accepted_message);
@@ -719,10 +720,16 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         setState(() {});
         _loadingKey.currentState?.hide();
         if (release.shouldAnnounce) {
+          // PENDING is Play's positive statement that the store flow COMPLETED
+          // and the user picked a deferred instrument (cash, bank transfer).
+          // purchase_payment_unconfirmed_message is scoped to the 90s safety
+          // timeout and suggests the store flow may not have finished, and
+          // purchase_payment_accepted_message would claim money we have not
+          // received. Neither fits; this string tells them to finish paying.
           showSimpleDialog(
             content: AppLocalizations.of(
               context,
-            ).purchase_payment_unconfirmed_message,
+            ).purchase_payment_pending_message,
           );
         }
       }

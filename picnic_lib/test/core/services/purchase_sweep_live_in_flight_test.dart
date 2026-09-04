@@ -105,7 +105,7 @@ void main() {
   });
 
   group('AndroidPastPurchaseSource pending separation', () {
-    test('pending is live but never settleable', () async {
+    test('pending is held but never settleable, and never "live"', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.linux;
       InAppPurchase.instance;
       addTearDown(() {
@@ -133,18 +133,61 @@ void main() {
 
       expect(scan.purchases, [same(purchased)]);
       expect(scan.pendingPurchases, [same(pending)]);
-      expect(scan.liveInFlight, 1);
+      // Play cannot report a billing flow the user is *inside*, so nothing is
+      // live at this instant. A PENDING token is alive for up to three days;
+      // counting it as liveInFlight made that field mean two different things.
+      expect(scan.liveInFlight, 0);
+      expect(scan.unsettleableHeld, 1);
     });
+
+    test(
+      'a state Play will not classify is held, not silently dropped',
+      () async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+        InAppPurchase.instance;
+        addTearDown(() {
+          debugDefaultTargetPlatformOverride = null;
+        });
+        final originalAddition = InAppPurchasePlatformAddition.instance;
+        addTearDown(() {
+          InAppPurchasePlatformAddition.instance = originalAddition;
+        });
+
+        // GooglePlayPurchaseDetails maps UNSPECIFIED_STATE to
+        // PurchaseStatus.error. Before the pending split it landed in
+        // `purchases`, so `found > 0` kept every "the queue was empty" caller
+        // honest; it must not become invisible now.
+        final unspecified = _googlePurchase(
+          token: 'unspecified-token',
+          state: PurchaseStateWrapper.unspecified_state,
+        );
+        final addition = _FakeAndroidAddition(
+          QueryPurchaseDetailsResponse(pastPurchases: [unspecified]),
+        );
+        InAppPurchasePlatformAddition.instance = addition;
+
+        final scan = await const AndroidPastPurchaseSource().scan();
+
+        expect(scan.purchases, isEmpty);
+        expect(scan.pendingPurchases, isEmpty);
+        expect(scan.liveInFlight, 0);
+        expect(scan.unsettleableHeld, 1);
+      },
+    );
   });
 
   group('PurchaseSweepReport.verifiedEmpty', () {
-    PurchaseSweepReport report({int found = 0, int liveInFlight = 0}) =>
-        PurchaseSweepReport(
-          trigger: PurchaseSweepTrigger.manual,
-          outcome: PurchaseSweepOutcome.completed,
-          found: found,
-          liveInFlight: liveInFlight,
-        );
+    PurchaseSweepReport report({
+      int found = 0,
+      int liveInFlight = 0,
+      int unsettleableHeld = 0,
+    }) => PurchaseSweepReport(
+      trigger: PurchaseSweepTrigger.manual,
+      outcome: PurchaseSweepOutcome.completed,
+      unsettleableHeld: unsettleableHeld,
+      found: found,
+      liveInFlight: liveInFlight,
+    );
 
     test('a completed sweep over an empty queue verifies empty', () {
       expect(report().verifiedEmpty, isTrue);
@@ -157,6 +200,13 @@ void main() {
 
     test('found > 0 still blocks, as before', () {
       expect(report(found: 1).verifiedEmpty, isFalse);
+    });
+
+    test('a held-but-unsettleable transaction is not an empty queue', () {
+      // Android PENDING and unclassifiable owned purchases: nothing to settle,
+      // but the store is still holding something, so a caller must not read
+      // this as "the queue was checked and was empty".
+      expect(report(unsettleableHeld: 1).verifiedEmpty, isFalse);
     });
   });
 }
