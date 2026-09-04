@@ -18,6 +18,7 @@ import 'package:picnic_lib/data/storage/pending_ad_reward_store.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_provider.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_session.dart';
@@ -294,9 +295,15 @@ void main() {
         pendingAdRewardStoreProvider.overrideWithValue(store),
         adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
         adRewardDelayProvider.overrideWithValue((_) async {}),
+        walletSummaryProvider.overrideWithBuild(
+          (ref, notifier) => Completer<WalletSummaryModel>().future,
+        ),
       ],
     );
     addTearDown(container.dispose);
+    // 실제 파우치가 화면에서 구독 중인 상태를 재현한다. Host 는 보이지 않는
+    // 지갑 provider를 팝업만으로 새로 만들지 않지만, 활성 파우치는 즉시 갱신한다.
+    container.read(walletSummaryProvider);
     await store.add('user-a', reference);
     final recovery = container
         .read(adRewardRecoveryProvider.notifier)
@@ -311,6 +318,13 @@ void main() {
     expect(find.text('Candy added!'), findsOneWidget);
     expect(find.text('Cotton Candy'), findsOneWidget);
     expect(find.text('+1'), findsOneWidget);
+    expect(
+      container.read(walletSummaryProvider).value,
+      equals(granted().wallet),
+      reason:
+          'the pouch must use the same settled wallet snapshot as the reward '
+          'receipt when the popup appears',
+    );
     expect(repository.acknowledged, [reference]);
     await tester.pump();
     expect(repository.acknowledged, [reference]);
