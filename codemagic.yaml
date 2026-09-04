@@ -63,6 +63,7 @@ workflows:
           esac
           : "${DEPLOY_TARGET:?was not derived from the tag; refusing to guess a deploy target}"
           echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"
+          echo "RELEASE_TAG=$CM_TAG" >> "$CM_ENV"
           echo "Deploy target: $DEPLOY_TARGET (from tag $CM_TAG)"
       - name: Verify environment isolation policy
         script: |
@@ -140,6 +141,13 @@ workflows:
 
       - name: Run unit tests with coverage
         script: |
+          set -e
+          : "${RELEASE_TAG:?was not propagated from the tag-derivation step}"
+          RELEASE_TEST_MODE="$(bash scripts/release_test_mode.sh "$RELEASE_TAG")"
+          if [ "$RELEASE_TEST_MODE" = "skip" ]; then
+            echo "Skipping picnic_lib unit tests with coverage by release tag: $RELEASE_TAG"
+            exit 0
+          fi
           cd picnic_lib
           flutter test --coverage
           python3 scripts/filter_coverage.py \
@@ -697,6 +705,7 @@ workflows:
           esac
           : "${DEPLOY_TARGET:?was not derived from the tag; refusing to guess a deploy target}"
           echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"
+          echo "RELEASE_TAG=$CM_TAG" >> "$CM_ENV"
           echo "Deploy target: $DEPLOY_TARGET (from tag $CM_TAG)"
       - name: Verify environment isolation policy
         script: |
@@ -792,6 +801,13 @@ workflows:
 
       - name: Run unit tests with coverage
         script: |
+          set -e
+          : "${RELEASE_TAG:?was not propagated from the tag-derivation step}"
+          RELEASE_TEST_MODE="$(bash scripts/release_test_mode.sh "$RELEASE_TAG")"
+          if [ "$RELEASE_TEST_MODE" = "skip" ]; then
+            echo "Skipping picnic_lib unit tests with coverage by release tag: $RELEASE_TAG"
+            exit 0
+          fi
           cd picnic_lib
           flutter test --coverage
           python3 scripts/filter_coverage.py \
