@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
@@ -91,6 +92,43 @@ void main() {
 
     test('같은 예외라도 실제 텍스트로 넘기면 보고 대상이 된다', () {
       final error = Exception('Pangle SDK init failed: missing app id');
+      expect(classify('Pangle', error, error.toString()), isFalse);
+    });
+  });
+
+  group('Pangle PlatformException(LoadFailed) — 안드로이드 네이티브가 모든 로드 실패를 '
+      '같은 코드로 감싼다 (PICNIC-APP-5GQ)', () {
+    test('실제 no-fill 문구는 비보고', () {
+      final error = PlatformException(
+        code: 'LoadFailed',
+        message: 'request was not filled because of the lack of suitable '
+            'ads. Sporadic occurrences of this error are normal. …',
+      );
+      expect(classify('Pangle', error, error.toString()), isTrue);
+    });
+
+    test('같은 LoadFailed 코드라도 no-fill 문구가 아니면 보고 대상', () {
+      final error = PlatformException(
+        code: 'LoadFailed',
+        message: 'Invalid app id configuration',
+      );
+      expect(classify('Pangle', error, error.toString()), isFalse);
+    });
+
+    test('Pangle 이 아니면 이 규칙은 적용되지 않는다', () {
+      final error = PlatformException(
+        code: 'LoadFailed',
+        message: 'request was not filled because of the lack of suitable '
+            'ads.',
+      );
+      expect(classify('AdMob', error, error.toString()), isFalse);
+    });
+
+    test('InvalidMediaExtra 설정 오류는 계속 보고된다 (PICNIC-2377 회귀 방지)', () {
+      final error = PlatformException(
+        code: 'InvalidMediaExtra',
+        message: 'Signed v2 mediaExtra is required',
+      );
       expect(classify('Pangle', error, error.toString()), isFalse);
     });
   });
