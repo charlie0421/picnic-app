@@ -237,11 +237,75 @@ PR #119(<code>20260902053935</code>)가 <code>get_artist_paid_votes</code> 를 2
 <tr><td><code>flutter test .../ad_platform_test.dart</code></td><td class="t-ok">37 passed</td></tr>
 <tr><td><code>flutter analyze</code> (free_charge_station, l10n)</td><td class="t-ok">No issues found</td></tr>
 <tr><td><code>ad_service_test.dart</code> 2건 실패</td><td class="t-warn">HEAD(d2617fccb)에서도 동일 — 기존 red, 이번 변경과 무관</td></tr>
+<tr><td><code>cotton_expiry_reconciliation.test.sql</code></td><td class="t-warn">이 워크스페이스에서 red. 두 신규 함수를 drop 해도 동일 — 커밋형 테스트라 러너의 고정 순서에 의존하고 공유 로컬 스택이 세션 도중 리셋됨</td></tr>
 </tbody>
 </table>
 </div>
 
 <p>회귀 재현 픽스처는 신고 상황 그대로다 — rolling 24h 로는 정확히 120건이라 막히지만 KST 달력일로는 15건뿐이라 열려 있어야 한다.</p>
+
+<h2>6b. 교차 리뷰 대응 <span class="tag t-ok">Codex/Sol</span></h2>
+
+<p>
+구현이 Claude 였으므로 반대 공급자(Codex, Sol/xhigh)가 읽기 전용으로 적대적 리뷰했다.
+지적 5건 중 4건을 수정했고 각각 옛 구현에서 red 가 나는 테스트를 붙였다. 1건은 근거를 들어 범위 밖으로 남겼다.
+</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>심각도</th><th>지적</th><th>판정</th><th>대응</th></tr></thead>
+<tbody>
+<tr>
+  <td>major</td>
+  <td>KST 일 상한을 <code>timestamptz + interval '1 day'</code> 로 구해 세션 TimeZone 의 DST 에 따라 23/25시간이 된다</td>
+  <td class="t-cause">성립</td>
+  <td>세 함수 모두 timestamp 단계에서 더한 뒤 KST 로 되돌린다. 재현: NY 세션 <code>2026-03-07 15:00+00 + 1day → 14:00Z</code></td>
+</tr>
+<tr>
+  <td>minor</td>
+  <td>시간 창 비교자가 사전 게이트는 <code>&gt;=</code>, AdMob 정산은 <code>&gt;</code> 라 정확히 cutoff 에서 답이 갈린다</td>
+  <td class="t-cause">성립</td>
+  <td><code>&gt;=</code> 로 통일. 사전 게이트가 "차단" 이라 말한 상태에서 정산이 지급하지 않는다</td>
+</tr>
+<tr>
+  <td>major</td>
+  <td>edge 가 성공했지만 비어 있거나 형태가 잘못된 RPC 응답을 "0회 사용" 으로 fail-open 한다</td>
+  <td class="t-cause">성립</td>
+  <td>행 없음·비수치·음수·verdict 없음·파싱 불가 시각을 전부 거부(fail-closed). DB 의 <code>allowed:false</code> 도 판정에 반영</td>
+</tr>
+<tr>
+  <td>blocker</td>
+  <td>회수한 assert 의 소유권/EXECUTE 가 지급 경로 소유자와 호환되지 않는다</td>
+  <td class="t-warn">부분 성립</td>
+  <td><strong>프로덕션 영향 없음</strong>(실측: 이미 owner <code>wallet_command_owner</code>, revoke 대상이 ACL 에 없음). clean DB 발산은 실재 → owner/ACL 명시 선언</td>
+</tr>
+<tr>
+  <td>blocker</td>
+  <td>레포의 <code>grant_ad_cotton</code> 이 한도 assert 를 부르지 않아, 레포로 만든 DB 는 internal/pangle 일간 한도가 없다</td>
+  <td class="t-warn">성립 · 범위 밖</td>
+  <td>아래 참조</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h3>마지막 blocker 를 이 티켓에서 닫지 않은 이유</h3>
+<p>
+프로덕션 정의를 verbatim 회수해 md5 일치까지 확인하고 적용했다
+(<code>grant_ad_cotton</code> <code>20e5da9e…</code>, 그리고 이 함수가 부르는데 프로덕션에만 있는
+<code>wallet_private.assert_cotton_runtime_ready</code> <code>b5e7c7d1…</code>).
+그 상태에서 <code>admob_release_gate_anchor.test.sql</code> 이
+<code>ADMOB_PROVIDER_GATE_DEFINITION_UNRECOGNIZED</code> 로 붉어졌다.
+<code>20260814120500</code> 이 만든 <code>wallet_private.apply_admob_provider_gate_patch()</code> 가
+<code>grant_ad_cotton</code> 을 <strong>md5 지문으로 확인하고 마이그레이션 시점에 텍스트로 패치</strong>하는
+구조라, 본문을 통째로 바꾸면 그 지문이 깨진다.
+</p>
+<p>
+즉 이 회수는 그 패처와의 재조정을 포함하는 별도 작업이다. 일간 창을 KST 로 통일하는 범위 안에서
+기존 안전장치를 깨면서 할 일이 아니라고 판단해 되돌렸고, 마이그레이션 헤더에 <strong>알려진 공백</strong>으로
+명시했다 — 프로덕션은 영향 없음, 레포로 만든 DB 에는 internal/pangle 일간 한도 없음,
+회수에 필요한 두 md5 를 남겨 뒀다.
+</p>
 
 <h2>7. 배포 순서 <span class="tag t-warn">미실행</span></h2>
 <ol>
@@ -254,7 +318,8 @@ PR #119(<code>20260902053935</code>)가 <code>get_artist_paid_votes</code> 를 2
 <h2>8. 남은 것</h2>
 <ul>
   <li><code>get_admob_cotton_reward_counts</code> 드롭(배포 확인 후).</li>
-  <li><code>public.grant_ad_cotton</code> 프로덕션 드리프트 회수 — 이번 변경과 무관해 손대지 않았다.</li>
+  <li><strong><code>public.grant_ad_cotton</code> + <code>assert_cotton_runtime_ready</code> 회수</strong> — 리뷰가 blocker 로 지적한 항목.
+      <code>apply_admob_provider_gate_patch()</code> 의 md5 지문 패처와 재조정이 필요하다. 프로덕션 정의 md5 는 마이그레이션 헤더에 있다.</li>
   <li><code>ad_service_test.dart</code> 오버레이 테스트 2건 기존 red.</li>
   <li>배포된 함수와 레포 소스의 상시 드리프트 감지 — <code>chore/deployed-drift-gate</code> 브랜치가 같은 문제를 다룬다.</li>
 </ul>
