@@ -180,6 +180,12 @@ PICNIC-2377 조사 문서에 남아 있는 실기기 logcat 이 그 증거다.
 <code>picnic-supabase</code>·<code>picnic-app</code> 어디에도 정의가 없다. 프로덕션에 직접 적용된 뒤 회수되지 않았다.
 같은 경로의 <code>public.grant_ad_cotton</code> 도 프로덕션이 레포보다 앞서 있다(2026-08-18 코튼 게이트 사고 수정분).
 </p>
+<p>
+<code>public.settle_admob_ad_reward</code> 도 프로덕션 본문이 레포(<code>20260814130000</code>)와 다르다 —
+133줄 중 빈 줄을 뺀 전 줄의 해시가 어긋난다. 다만 <strong>각 줄을 trim 하면 133줄 전부 일치</strong>하므로
+차이는 들여쓰기뿐이고 로직 드리프트는 없다. 레포가 배포본의 기준이 아니라는 사실만 다시 확인된 셈이라,
+이번 마이그레이션은 그 공백 정렬을 레포 기준으로 되돌리면서 일간 창을 바꾼다.
+</p>
 
 <h3>4.3 wallet RPC manifest 게이트가 이미 red 였다</h3>
 <p>
