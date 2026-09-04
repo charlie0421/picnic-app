@@ -310,6 +310,13 @@ class ReceiptQueueService {
             // earlier observer (or an intervening wrong-user observation)
             // must not pin the durable row to a stale account or environment.
             'pending_intake': false,
+            // A promoted row is a NEW request: the pending intakes that failed
+            // before the user paid must not carry their backoff (up to the
+            // five-minute cap) into the settlement that is now due. Without
+            // this reset the star candy lands minutes later than it could.
+            'attempt': 0,
+            'nextAt': 0,
+            'intake_rejected': false,
             'receipt': receipt,
             'productId': productId,
             'user_id': userId,
@@ -471,6 +478,13 @@ class ReceiptQueueService {
         final clientTraceId = snapshotItem['client_trace_id']?.toString();
         if (clientTraceId == null || clientTraceId.isEmpty) continue;
         if (snapshotItem['pending_intake'] == true &&
+            snapshotItem['intake_rejected'] == true) {
+          // 서버가 이미 비재시도로 판정한 접수다. 행은 재생성을 막기 위해
+          // 남겨두되 전송은 하지 않는다. 결제가 완료돼 purchased 관측이
+          // 오면 승격 경로가 이 표시를 지우고 다시 전송 대상이 된다.
+          continue;
+        }
+        if (snapshotItem['pending_intake'] == true &&
             !await _pendingIntakeFlushEnabled()) {
           logger.i(
             '⏸️ Android pending 큐 전송 보류(게이트 OFF/fail-closed): '
@@ -487,6 +501,26 @@ class ReceiptQueueService {
       _inFlightFlush = null;
     }
   }
+
+  /// pending 접수가 서버에서 비재시도로 거부됐음을 durable 하게 남긴다.
+  /// 행 자체는 유지된다 - 결정적 키 덕분에 남아 있는 행이 재접수를 막는다.
+  Future<void> _markPendingIntakeRejected(String clientTraceId) =>
+      _withMutationLock(() async {
+        final items = await _loadQueue();
+        final index = items.indexWhere(
+          (e) => e['client_trace_id'] == clientTraceId,
+        );
+        if (index < 0) return;
+        items[index] = <String, dynamic>{
+          ...items[index],
+          'intake_rejected': true,
+        };
+        await _saveQueue(items);
+        logger.w(
+          '🚫 Android pending 접수 서버 거부(422) - 행 보존, 재접수 차단: '
+          '$clientTraceId',
+        );
+      });
 
   Future<bool> _pendingIntakeFlushEnabled() async {
     final loader = canFlushPendingIntake;
@@ -621,6 +655,15 @@ class ReceiptQueueService {
       // 워커 5xx → 503, 그 외 워커 실패 → 422 로 나눈다. 503 은 아래 백오프
       // 경로로 유지된다.)
       if (e.status == 422) {
+        // pending 접수 행은 지우지 않고 거부 표시만 남긴다. 키가 구매
+        // 토큰에서 결정적으로 파생되므로, 행이 남아 있으면 다음 스윕의
+        // enqueue 가 기존 항목을 재사용해 재생성하지 않는다. 지워버리면
+        // 콜드스타트와 5분 간격 resume 스윕이 같은 토큰을 다시 만들어
+        // Play 의 3일 대기 창 내내 422 를 반복해서 받는다.
+        if (item['pending_intake'] == true) {
+          await _markPendingIntakeRejected(clientTraceId);
+          return;
+        }
         await _dropItem(clientTraceId, '🚫 서버 영구 거부(422)');
         return;
       }

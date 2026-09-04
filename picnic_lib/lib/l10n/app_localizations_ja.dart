@@ -1247,6 +1247,10 @@ class AppLocalizationsJa extends AppLocalizations {
       'まだ決済が確認できていません。ストアの決済画面で決済が完了していない可能性があります。\nすでにお支払いを完了された場合は、処理が完了するとスターキャンディが自動的に付与されますので、もう一度お支払いしないでください。';
 
   @override
+  String get purchase_payment_pending_message =>
+      'お支払いはまだ完了していません。コンビニ現金払いや銀行振込など、時間のかかる支払い方法を選択された場合は、その場所でお支払いを完了してください。\nお支払いが完了するとスターキャンディが自動的に付与されますので、もう一度お支払いしないでください。';
+
+  @override
   String get label_tabbar_vote_upcoming => '予定';
 
   @override

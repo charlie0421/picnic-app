@@ -117,6 +117,7 @@ class PurchaseSweepReport {
     this.preserved = 0,
     this.scanError,
     this.liveInFlight = 0,
+    this.unsettleableHeld = 0,
   });
 
   final PurchaseSweepTrigger trigger;
@@ -141,6 +142,11 @@ class PurchaseSweepReport {
   /// [UnfinishedPurchaseScan.liveInFlight].
   final int liveInFlight;
 
+  /// Transactions the store holds that are neither settleable nor a payment
+  /// in progress right now - Android PENDING and unclassifiable owned
+  /// purchases. See [UnfinishedPurchaseScan.unsettleableHeld].
+  final int unsettleableHeld;
+
   bool get ran => outcome == PurchaseSweepOutcome.completed;
 
   /// 이 스윕이 **"큐를 확인했고 애초에 아무것도 없었다"** 를 증명하는가.
@@ -156,18 +162,25 @@ class PurchaseSweepReport {
   /// Ask to Buy 승인을 기다리는 동안(deferred) 정산할 것은 없지만 결제는
   /// 살아 있다. 이 둘을 뭉개면 "큐가 비었다"가 진행 중인 정상 결제를 지워도
   /// 된다는 증거로 오독된다 (Sol 교차 리뷰 MAJOR, 2026-08-07).
+  /// [unsettleableHeld] 도 0 이어야 한다. Android PENDING(편의점 현금·계좌
+  /// 이체처럼 며칠 살아 있는 결제)과 스토어가 상태를 분류해 주지 않는 보유
+  /// 구매는 정산 대상이 아니지만 큐가 빈 것도 아니다. 이 값은 예전에
+  /// `liveInFlight` 에 섞여 있었는데, 그 필드의 뜻은 "지금 이 순간 결제가
+  /// 진행 중"이라 며칠짜리 대기 결제를 담으면 의미가 거짓이 된다.
   bool get verifiedEmpty =>
       outcome == PurchaseSweepOutcome.completed &&
       scanError == null &&
       found == 0 &&
       preserved == 0 &&
-      liveInFlight == 0;
+      liveInFlight == 0 &&
+      unsettleableHeld == 0;
 
   @override
   String toString() =>
       'PurchaseSweepReport(${trigger.name}, ${outcome.name}, '
       'source: $source, found: $found, settled: $settled, '
       'preserved: $preserved, liveInFlight: $liveInFlight, '
+      'unsettleableHeld: $unsettleableHeld, '
       'scanError: $scanError)';
 }
 
@@ -1458,6 +1471,7 @@ class PurchaseService {
         source: source.label,
         scanError: scan.error,
         liveInFlight: scan.liveInFlight,
+        unsettleableHeld: scan.unsettleableHeld,
       );
     }
     if (scan.isEmpty && scan.pendingPurchases.isEmpty) {
@@ -1467,6 +1481,7 @@ class PurchaseService {
         outcome: PurchaseSweepOutcome.completed,
         source: source.label,
         liveInFlight: scan.liveInFlight,
+        unsettleableHeld: scan.unsettleableHeld,
       );
     }
 
@@ -1483,6 +1498,7 @@ class PurchaseService {
         preserved: scan.purchases.length,
         scanError: scan.error,
         liveInFlight: scan.liveInFlight,
+        unsettleableHeld: scan.unsettleableHeld,
       );
     }
 
@@ -1501,6 +1517,7 @@ class PurchaseService {
         preserved: scan.purchases.length,
         scanError: scan.error,
         liveInFlight: scan.liveInFlight,
+        unsettleableHeld: scan.unsettleableHeld,
       );
     }
 
@@ -1514,6 +1531,7 @@ class PurchaseService {
           found: scan.purchases.length,
           preserved: scan.purchases.length,
           liveInFlight: scan.liveInFlight,
+          unsettleableHeld: scan.unsettleableHeld,
         );
       }
       await recordPendingPurchase(pending, source: PendingIntakeSource.sweep);
@@ -1529,6 +1547,7 @@ class PurchaseService {
         outcome: PurchaseSweepOutcome.completed,
         source: source.label,
         liveInFlight: scan.liveInFlight,
+        unsettleableHeld: scan.unsettleableHeld,
       );
     }
 
@@ -1629,6 +1648,7 @@ class PurchaseService {
       preserved: preserved,
       scanError: scan.error,
       liveInFlight: scan.liveInFlight,
+      unsettleableHeld: scan.unsettleableHeld,
     );
   }
 

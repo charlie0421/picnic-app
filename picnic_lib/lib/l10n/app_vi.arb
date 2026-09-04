@@ -1638,6 +1638,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "Chưa xác nhận được thanh toán của bạn. Có thể bạn chưa hoàn tất thanh toán trên màn hình thanh toán của cửa hàng.\nNếu bạn đã thanh toán, Star Candy sẽ tự động được cộng sau khi xử lý hoàn tất. Vui lòng không thanh toán lại.",
+  "purchase_payment_pending_message": "Thanh toán của bạn vẫn chưa hoàn tất. Nếu bạn đã chọn phương thức thanh toán chậm như tiền mặt hoặc chuyển khoản ngân hàng, vui lòng hoàn tất thanh toán tại cửa hàng hoặc ngân hàng.\nStar Candy sẽ tự động được cộng sau khi thanh toán thành công. Vui lòng không thanh toán lại.",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },

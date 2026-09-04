@@ -1780,6 +1780,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "尚未确认您的付款。您可能尚未在商店的付款页面完成付款。\n如果您已完成付款，处理完成后星星糖将自动到账，请勿重复付款。",
+  "purchase_payment_pending_message": "您的付款尚未完成。如果您选择了现金或银行转账等需要时间的付款方式，请到相应地点完成付款。\n付款成功后星星糖将自动到账，请勿重复付款。",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },

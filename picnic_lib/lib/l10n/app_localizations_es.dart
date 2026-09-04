@@ -1305,6 +1305,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Aún no hemos confirmado tu pago. Es posible que no hayas completado el pago en la pantalla de pago de la tienda.\nSi ya pagaste, tus Star Candy se acreditarán automáticamente cuando termine el procesamiento; por favor, no vuelvas a pagar.';
 
   @override
+  String get purchase_payment_pending_message =>
+      'Tu pago aún no se ha completado. Si elegiste un método de pago lento, como efectivo o transferencia bancaria, termina de pagar en la tienda o el banco.\nTus Star Candy se acreditarán automáticamente cuando se confirme el pago. Por favor, no vuelvas a pagar.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Próximo';
 
   @override

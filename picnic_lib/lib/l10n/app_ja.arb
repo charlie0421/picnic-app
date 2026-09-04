@@ -1694,6 +1694,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "まだ決済が確認できていません。ストアの決済画面で決済が完了していない可能性があります。\nすでにお支払いを完了された場合は、処理が完了するとスターキャンディが自動的に付与されますので、もう一度お支払いしないでください。",
+  "purchase_payment_pending_message": "お支払いはまだ完了していません。コンビニ現金払いや銀行振込など、時間のかかる支払い方法を選択された場合は、その場所でお支払いを完了してください。\nお支払いが完了するとスターキャンディが自動的に付与されますので、もう一度お支払いしないでください。",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },

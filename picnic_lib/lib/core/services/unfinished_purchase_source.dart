@@ -18,6 +18,7 @@ class UnfinishedPurchaseScan {
     this.pendingPurchases = const [],
     this.error,
     this.liveInFlight = 0,
+    this.unsettleableHeld = 0,
   });
 
   /// Transactions the store still holds open, in the shape the verification
@@ -45,6 +46,19 @@ class UnfinishedPurchaseScan {
   /// queue looks like while the user is still staring at the payment sheet
   /// (Sol 교차 리뷰 MAJOR, 2026-08-07).
   final int liveInFlight;
+
+  /// Transactions the store **holds but we can neither settle nor dismiss**,
+  /// and which are not a payment the user is inside right now: Android
+  /// PENDING (a deferred instrument the user has not paid yet, alive for up
+  /// to three days) and any owned purchase whose state the store will not
+  /// classify (`PurchaseStatus.error`, e.g. Play's UNSPECIFIED_STATE).
+  ///
+  /// Kept apart from [liveInFlight] deliberately. `liveInFlight` means "a
+  /// payment is live at this instant"; a three-day cash payment is a
+  /// different fact and folding it in makes that field lie. Both must be
+  /// zero before a caller may treat the queue as having been empty, because
+  /// in both cases the store is still holding something.
+  final int unsettleableHeld;
 
   bool get isEmpty => purchases.isEmpty;
 }
@@ -74,7 +88,9 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
   /// `queryPurchases` answers with owned purchases, so a slow payment already
   /// accepted by Play arrives as a `pending` [PurchaseDetails]. It is exposed
   /// separately through [UnfinishedPurchaseScan.pendingPurchases] and counted
-  /// in `liveInFlight`; it must not enter the settleable `purchases` list.
+  /// in `unsettleableHeld` - NOT `liveInFlight`, which means a payment the
+  /// user is inside right now; it must not enter the settleable `purchases`
+  /// list.
   ///
   /// A billing flow the user is merely *inside* is still invisible to every
   /// query Play offers: the flow runs in Play's own activity, and nothing is
@@ -102,13 +118,30 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
     final pending = all
         .where((purchase) => purchase.status == PurchaseStatus.pending)
         .toList(growable: false);
+    // Anything Play returns that is neither settleable nor PENDING is a state
+    // this code cannot classify (GooglePlayPurchaseDetails maps Play's
+    // UNSPECIFIED_STATE to PurchaseStatus.error). It must not vanish from the
+    // scan: before the pending split it landed in `purchases`, so `found > 0`
+    // kept every "the queue was empty" caller honest. Dropping it silently
+    // would let the 90s safety net report a verified-empty queue while Play
+    // holds an owned, unresolved purchase.
+    final unclassified = all
+        .where(
+          (purchase) =>
+              purchase.status != PurchaseStatus.purchased &&
+              purchase.status != PurchaseStatus.pending,
+        )
+        .length;
     return UnfinishedPurchaseScan(
       purchases: all
           .where((purchase) => purchase.status == PurchaseStatus.purchased)
           .toList(growable: false),
       pendingPurchases: pending,
       error: resp.error,
-      liveInFlight: pending.length,
+      // Play cannot report a billing flow the user is *inside*; nothing here
+      // is live at this instant.
+      liveInFlight: 0,
+      unsettleableHeld: pending.length + unclassified,
     );
   }
 }
