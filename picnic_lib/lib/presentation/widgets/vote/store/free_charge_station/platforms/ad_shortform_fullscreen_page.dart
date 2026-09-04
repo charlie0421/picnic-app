@@ -23,6 +23,37 @@ import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 
+/// '더보기'를 눌렀을 때 광고주 랜딩으로 보내고, 그 클릭을 서버에 기록한다.
+///
+/// [reportClick] 은 **launch 이전에** 발사한다. 외부 브라우저가 뜨는 순간 앱이
+/// 백그라운드로 밀리고 iOS 는 진행 중이던 요청을 정지시킬 수 있어, launch 뒤에
+/// 보내면 클릭이 통계에서 통째로 누락된다. 대신 launch 가 실패하는 드문 경우
+/// 클릭이 소폭 과다 집계될 수 있다 — 통계 누락보다 낫다고 보고 택한 쪽이다.
+/// GA4 `ad_cta_click` 은 로컬 버퍼에 쌓였다가 나중에 전송되므로 기존대로 이동
+/// 성공 이후에 남긴다.
+///
+/// 기록 실패는 삼킨다. 통계용 쓰기가 광고주 랜딩 이동을 막아선 안 된다.
+///
+/// 반환값은 실제로 이동했는지 여부. [launch] 가 external/in-app 두 경로 모두
+/// 예외를 던지면 그대로 전파된다(호출자가 이동 실패로 처리).
+@visibleForTesting
+Future<bool> openAdCta(
+  String url, {
+  required Future<bool> Function(Uri uri, {required bool external}) launch,
+  Future<void> Function()? reportClick,
+}) async {
+  final uri = Uri.tryParse(url);
+  if (uri == null) return false;
+  if (reportClick != null) {
+    unawaited(Future.sync(reportClick).catchError((_) {}));
+  }
+  try {
+    return await launch(uri, external: true);
+  } catch (_) {
+    return await launch(uri, external: false);
+  }
+}
+
 /// Pure logic helpers for AdShortformFullscreenPage, testable without widget tree.
 @visibleForTesting
 class AdShortformLogic {
@@ -267,6 +298,10 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   final Future<void> Function(AdRewardStatusModel status)?
   onWalletRewardPresented;
 
+  /// '더보기'로 이동할 때 그 클릭을 서버에 기록한다 (시청 1회당 1번).
+  /// 어드민 캠페인 리포트의 `more_clicks` 가 여기서 채워진다.
+  final Future<void> Function()? onCtaClick;
+
   const AdShortformFullscreenPage({
     super.key,
     required this.videoUrl,
@@ -275,6 +310,7 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
     this.loadAd,
     this.ga4,
     this.onWalletRewardPresented,
+    this.onCtaClick,
   });
 
   @override
@@ -314,6 +350,9 @@ class _AdShortformFullscreenPageState
   bool _earnLogged = false;
   bool _earnLogging = false;
   bool _adCtaClickLogged = false;
+
+  /// 서버 클릭 기록(`callback-ad-shortform-more`) 단발 가드.
+  bool _ctaClickReported = false;
 
   /// App-level Riverpod container, captured while this route is mounted, so a
   /// reward that settles after the user already closed the ad can still update
@@ -709,18 +748,26 @@ class _AdShortformFullscreenPageState
   }
 
   Future<void> _openCta(String url) async {
+    final launched = await openAdCta(
+      url,
+      launch: (uri, {required external}) => external
+          ? launchUrl(uri, mode: LaunchMode.externalApplication)
+          : launchUrl(uri),
+      reportClick: _reportCtaClickOnce,
+    );
     // ad_cta_click (스펙 §2-8): '더보기'로 실제 이동한 시점. launchUrl 이 두 경로 모두
     // 실패하면(예외) 이동하지 않으므로 발송하지 않는다.
-    final uri = Uri.tryParse(url);
-    if (uri == null) return;
-    bool launched;
-    try {
-      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      launched = await launchUrl(uri);
-    }
     // 이동에 실패했으면(false 반환) 클릭 이벤트를 보내지 않는다.
     if (launched) _logAdCtaClick(url);
+  }
+
+  /// 서버 클릭 기록 — 시청 건당 1회 (`ad_cta_click` 과 같은 규칙).
+  /// 서버가 멱등이라 중복이 위험하진 않지만, 굳이 두 번 보내지 않는다.
+  Future<void> _reportCtaClickOnce() async {
+    final report = widget.onCtaClick;
+    if (report == null || _ctaClickReported) return;
+    _ctaClickReported = true;
+    await report();
   }
 
   /// `ad_cta_click` — 시청 건당 1회.
