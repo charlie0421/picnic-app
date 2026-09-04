@@ -258,8 +258,10 @@ class ShortformInternalPlatform extends AdPlatform {
   /// '더보기' 이동 시점에 클릭을 서버에 남긴다 — 어드민 캠페인 리포트의
   /// `more_clicks`(= `ad_impressions.more_completed_at`) 가 이 호출로만 채워진다.
   /// 보상과 무관한 통계라 실패해도 로그만 남기고 광고 흐름은 그대로 둔다.
-  Future<void> _reportMoreClick() async {
-    await InternalShortformMoreClickFlow(
+  ///
+  /// 성공 여부를 돌려줘야 [AdCtaClickReporter] 가 실패한 기록을 재시도할 수 있다.
+  Future<bool> _reportMoreClick() async {
+    return InternalShortformMoreClickFlow(
       moreToken: _moreToken,
       issuedOwner: _rewardSession.ownerUserId,
       currentOwner: () => supabase.auth.currentUser?.id,
