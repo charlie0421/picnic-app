@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GA4 택소노미 — 최종 핸드오프 (2026-09-06)</title>
+<style>
+  body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;max-width:1060px;margin:40px auto;padding:0 24px;line-height:1.75;color:#1a1a2e}
+  h1{border-bottom:3px solid #7c6ff0;padding-bottom:10px}
+  h2{margin-top:2.4em;border-left:4px solid #7c6ff0;padding-left:10px}
+  h3{margin-top:1.7em;color:#3a3a5e}
+  .tw{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+  th,td{border:1px solid #d8d8e8;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#f2f0ff}
+  td.n{text-align:right;font-variant-numeric:tabular-nums}
+  code{background:#f4f4f8;padding:1px 5px;border-radius:4px;font-size:.92em}
+  pre{background:#f4f4f8;padding:12px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55}
+  .ok{background:#e8f7ee;border-left:5px solid #0a8f4a;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .warn{background:#fff4e5;border-left:5px solid #ff9800;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .stop{background:#fdecea;border-left:5px solid #c0392b;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .meta{color:#666;font-size:13px}
+  li{margin:5px 0}
+  .k{font-weight:700;color:#c0392b}
+  .done{color:#0a8f4a;font-weight:700}
+  .todo{color:#c0392b;font-weight:700}
+  .unk{color:#b7791f;font-weight:700}
+</style>
+</head>
+<body>
+
+<h1>GA4 택소노미 — 최종 핸드오프</h1>
+<p class="meta">2026-09-06 · GA4 이벤트 택소노미 전 작업의 종료 시점 상태 ·
+이 문서가 <b>진입점</b>이다. 선행 문서는 §7 문서 지도 참조.</p>
+
+<div class="ok">
+<b>한 줄 요약</b> — GA4 택소노미는 <b>구현·배포·실측 검증까지 전부 끝났다.</b>
+대행사 13문항 종결(8/31), 매출 서버 계약 종결(9/3).
+<b>열려 있는 코드 작업은 없다.</b> 남은 것은 제품 결정 1건(Android 강제 업데이트)과
+의도적으로 분리한 설계 과제 1건(attestation seal)뿐이다.
+</div>
+
+<h2>1. 지금 프로덕션 상태 (2026-09-06 확인)</h2>
+
+<h3>서버</h3>
+<div class="tw">
+<table>
+<thead><tr><th>대상</th><th>상태</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td><code>wallet-operation-worker</code></td><td class="done">v30 · 2026-09-03 05:25Z</td>
+    <td>#115(Google pending) 롤아웃이 재배포한 것. <b>#118 게이트 수정은 그대로 살아 있다</b>(배포본에서 <code>actualType === "PURCHASE"</code> 1건 / 옛 게이트 0건 확인). 이제 <code>GOOGLE_PURCHASE_PENDING</code> 도 포함</td></tr>
+<tr><td><code>wallet-provider-event</code></td><td class="done">v29 · 2026-09-03 05:25Z</td><td>같은 롤아웃</td></tr>
+<tr><td><code>verify-receipt-v2</code></td><td class="done">v28 · 2026-09-02 02:41Z</td><td>#117 포함. 앱이 실제로 호출하는 슬롯</td></tr>
+<tr><td><code>verify_receipt</code></td><td class="unk">v186 · 2025-12-30 — 손대지 않음</td><td>구버전 앱용 <b>동결 레거시</b>. <span class="k">배포 금지</span></td></tr>
+<tr><td><code>wallet.purchase_revenue_fields_enabled</code></td><td class="done">ON</td><td>2026-09-01 07:55Z 점등, 이후 유지</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>앱</h3>
+<p><code>main</code> 은 <b>1.3.2+130202</b>, 배포 태그는 <code>picnic-v1.3.2+130201</code>(9/3).
+계측에 중요한 경계는 <b>1.3.1+130104</b>(8/28) — 이때부터
+<code>parser_capabilities: ['purchase_revenue_v1']</code> 와 <code>client_observed_currency</code> 가 나간다.</p>
+
+<h3>실측 — 배포 이후 정산 (9/3 00:00Z ~ 9/6)</h3>
+<div class="tw">
+<table>
+<thead><tr><th>공급자</th><th class="n">정산</th><th class="n">통화 확보</th><th class="n">금액 확보</th><th>판정</th></tr></thead>
+<tbody>
+<tr><td>APPLE</td><td class="n">150</td><td class="n">150 (100%)</td><td class="n">150 (100%)</td><td class="done">서버가 JWS 에서 둘 다 읽는다</td></tr>
+<tr><td>GOOGLE</td><td class="n">90</td><td class="n">84 (93.3%)</td><td class="n"><b>0</b></td><td class="done">금액 0 은 <b>정상</b> — Google 은 가격을 주지 않는다</td></tr>
+</tbody>
+</table>
+</div>
+<p>기기 보급률(<code>public.devices</code>, 최근 2일 <code>last_seen</code>, build ≥ 130104):
+<b>android 844/1134 = 74.4%, ios 560/715 = 78.3%.</b>
+Google 통화 확보율 93.3% 가 보급률보다 높은 것은 구매자가 최신 버전에 쏠려서다(9/1 88.9% → 상승 중).</p>
+
+<h2>2. 이번 사이클에 실제로 일어난 일</h2>
+
+<p>GA4 매출을 서버 정본으로 만드는 계약이 <b>2026-09-02 까지 프로덕션에서 한 번도 동작하지 않았다.</b>
+플래그를 켰는데도 아무 일이 없었고, 그 사실을 3주 동안 아무도 몰랐다. 경위는 이렇다.</p>
+
+<div class="tw">
+<table>
+<thead><tr><th>PR</th><th>내용</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>picnic-app #172</td><td>앱 사이드 계약(파서·outbox·capability 선언)</td><td>1.3.1+130104 탑승</td></tr>
+<tr><td>picnic-supabase #109</td><td>서버 사이드 계약</td><td>8/28 머지, 9/1 프로덕션 적용·점등</td></tr>
+<tr><td>#116</td><td><code>wallet_private</code> CREATE 대여 — 프로덕션 적용 가능하게</td><td>스테이징 통과 ≠ 프로덕션 통과의 사례</td></tr>
+<tr><td>#117</td><td>통화·금액을 <b>짝으로만</b> 전송</td><td>잠재 결함 차단(§4 참조)</td></tr>
+<tr><td><b>#118</b></td><td><b>워커 타입 게이트 수정</b> — 계약을 실제로 켠 1줄</td><td>워커 v29 배포(9/2), 9/3 끝단 검증</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>근본 원인 — 게이트가 RPC 반환값과 이름이 달랐다</h3>
+<pre>// wallet-operation-worker/index.ts (수정 전)
+const shaped = actualType === "MOBILE_PURCHASE" || actualType === "WEB_PURCHASE"
+  ? await withPurchaseAnalytics(client, inboxId, processed)
+  : processed;
+
+-- get_wallet_operation_event_type (20260721104000)
+select case when operation_type in('MOBILE_PURCHASE','WEB_PURCHASE') then 'PURCHASE' ...</pre>
+<p>RPC 가 두 값을 <b><code>'PURCHASE'</code> 하나로 접어서</b> 돌려주므로 게이트가 절대 맞지 않는다.
+플래그 ON 이후 정산 63건 전부 <code>actual_type='PURCHASE'</code> 였고,
+<code>withPurchaseAnalytics</code> 는 한 번도 호출되지 않았다. 응답은 늘 7키였고 앱은 늘 카탈로그 값을 썼다.</p>
+
+<div class="stop">
+<b class="k">가장 중요한 교훈 — "실측"이라 부르려면 응답 경계를 봐야 한다.</b><br>
+#117 은 "Google 정산 17건 중 16건이 통화만"이라는 <b>스냅샷 컬럼</b>을 근거로 "Android 매출이 0 이 됐다"고
+결론지었다. 스냅샷은 <b>서버가 아는 것</b>이지 <b>앱이 받은 것</b>이 아니다. 실제 GA4 에는 그 16건 모두
+카탈로그 금액이 정상적으로 찍혀 있었다. 같은 문서가 "스냅샷으로 판정하지 말 것"이라고 경고해 놓고
+바로 그 함정에 빠졌다.<br>
+<b>매출 계측을 판정할 때는 GA4(끝단)와 DB(서버)를 시각·통화 단위로 대조하라.</b> 한쪽만 보면 틀린다.
+</div>
+
+<h3>끝단 검증 (2026-09-03)</h3>
+<p>워커 v29 배포 직후 첫 Apple 정산이 GA4 까지 도달하는 것을 확인했다.</p>
+<div class="tw">
+<table>
+<thead><tr><th>KST</th><th>정산</th><th>서버 값</th><th>GA4 행</th><th class="n">총수익 · 이벤트</th></tr></thead>
+<tbody>
+<tr><td><b>9/2 14:23</b></td><td><b>APPLE STAR200</b></td><td><b>TWD 60</b> (APPLE_JWS)</td><td>iOS 2026090214 TWD</td><td class="n"><b>$1.89 · 1</b></td></tr>
+<tr><td>14:49 · 14:50</td><td>APPLE STAR100+200</td><td>THB 29 + 79</td><td>iOS 14 THB</td><td class="n">$3.26 · 2</td></tr>
+<tr><td>14:56 · 15:00</td><td>APPLE STAR600 ×2</td><td>IDR 99,000 ×2</td><td>iOS 14 IDR</td><td class="n">$11.17 · 2</td></tr>
+<tr><td>14:13 · 14:24</td><td>GOOGLE STAR200+100</td><td>value 없음 → 두 키 제거</td><td>Android 14 IDR</td><td class="n">$2.76 · 2 (카탈로그 짝)</td></tr>
+</tbody>
+</table>
+</div>
+<p><b>Apple 서버 값은 StoreKit 표시가와 같다</b> — 숫자는 카탈로그와 동일하고 바뀐 것은 출처(서버 정본)다.
+그래서 매출 총액에 눈에 띄는 변화가 없는 것이 정상이다.</p>
+
+<h2>3. 남은 작업 — 2건, 둘 다 코드 아님</h2>
+
+<div class="warn">
+<b class="todo">① Android 강제 업데이트</b> (제품 결정 완료 · 실행 대기)<br>
+<code>client_observed_currency</code> 는 <b>130104 부터</b> 나간다. 그 이전 버전에서 들어온 Android 구매는
+통화조차 없어 <b>영구히 매출 없는 건</b>이다 — <code>analytics_*</code> 컬럼이 불변 트리거로 잠겨 있어
+소급 backfill 이 불가능하다. 2026-09-03 제품 결정: <b>다음 버전에서 강업</b>.
+현재 Android 미달 기기 <b>290대(25.6%)</b>. 강업이 나가면 Google 통화 확보율이 100% 에 수렴한다.
+</div>
+
+<div class="warn">
+<b class="todo">② attestation seal 확장</b> (의도적 분리 · 미착수)<br>
+설계 §5.4 편차. MAC 재작성이 필요해 picnic-supabase #109 본문에서 별도 설계·리뷰로 분리했다.
+택소노미 범위 밖이며, 착수하려면 #109 본문을 먼저 읽어라.
+</div>
+
+<h3>종결된 것 — 다시 꺼내지 말 것</h3>
+<ul>
+<li><b>대행사 13문항</b> — 8/31 실측 전건 종결(재화명 오염 없음, <code>ja</code> 미출현, 지원 언어 실질 8개).</li>
+<li><b>B-4 재고지</b> — 2026-09-03 <b>불필요로 종결</b>(제품 판단). AdMob 지면은 계측에 포함하고
+    분석에서 <code>ad_platform</code> 으로 분리한다.</li>
+<li><b>B-9 <code>sign_up</code></b> — 오탐이 아니라 <b>누락</b>이다(커버리지 88.3%).
+    <span class="k"><code>signUpWindow</code> 를 늘리지 말 것</span> — 격차가 14.8일까지 벌어져 어떤 창도 부족하고,
+    넓히면 진짜 오탐이 생긴다. 설계 한계다. <b><code>sign_up</code> 수를 실제 가입 수로 읽지 말 것</b>(정확한 수는 <code>auth.users</code>).</li>
+<li><b>Google 출처 A</b>(regionCode → 카탈로그) — 8/25 불필요로 종결. Google Play 검증 응답에는
+    구·신 API 양쪽 다 가격 필드가 <b>없다</b>. Billing 8.x 로 올려도 서버는 통화를 모른다.</li>
+<li><b><code>ad_click</code></b> — AdMob 자동수집 <b>예약어</b>다. 우리 것은 <code>ad_cta_click</code>(8/29 배포·수집 확인).</li>
+<li><b>매출 과대계상</b> — 8/26 Firebase Play 토글로 Android 분 차단, 8/28 검증 완료. iOS 잔여분은 리포트 필터로 대응.</li>
+<li><b>복구 구매 매출의 로컬 기록 방식</b> — 적대적 리뷰 3회에서 blocker 가 계속 나와 되돌렸다(<code>b5b138bd1</code>).
+    <span class="k">같은 길을 다시 파지 말 것.</span> 채택된 것은 서버 정산 응답 방식이고 이미 배포됐다.</li>
+</ul>
+
+<h2>4. 다음 사람이 반드시 알아야 할 함정</h2>
+
+<h3>배포 대상은 <code>verify_receipt</code> 가 아니라 <code>verify-receipt-v2</code></h3>
+<p>앱 상수가 <code>receiptVerificationFunction = 'verify-receipt-v2'</code> 이고,
+<code>verify_receipt</code> 슬롯(v186)은 구버전 앱 전용 레거시로 <b>동결</b>돼 있다.
+레포의 <code>verify_receipt/index.ts</code> 는 wallet.v1 구현이라 그 슬롯에 배포하면 동결이 풀린다.
+<code>verify-receipt-v2</code> 가 그 파일을 import 해서 번들한다. <span class="k">그 슬롯은 건드리지 말 것.</span></p>
+
+<h3>함수 배포 전에는 딸려 갈 변경을 반드시 확인한다</h3>
+<pre>git log &lt;현재_배포본_sha&gt;..origin/main -- supabase/functions</pre>
+<p>실제로 걸렸다. #117 배포 시 <code>main</code> 에 #115 가 들어와 있었는데 짝 마이그레이션이 프로덕션
+미적용이라, 프로덕션 베이스라인 + 해당 변경만으로 번들해 배포했다. <b>지금은 #115 도 롤아웃됐다</b>(워커 v30).</p>
+
+<h3>통화와 금액은 짝으로만 보낸다 (#117)</h3>
+<p>앱의 우선순위 규칙(<code>analytics_outbox.dart</code> <code>enqueueOrMergePurchase</code>):</p>
+<pre>currency = server ?? catalog ?? observed;
+value    = server != null ? serverValue : (catalog != null ? catalogValue : null);</pre>
+<p><b>서버가 통화를 주는 순간 금액도 서버 것만 쓴다.</b> Google 은 <code>serverValue</code> 가 항상 null 이므로
+통화만 보내면 앱이 이미 들고 있던 카탈로그 금액까지 버린다. 그래서 서버는 금액이 없으면 통화도 뺀다.
+근본 원인은 <b>응답이 출처를 알려주지 않는 것</b> — 앱이 <code>APPLE_JWS</code>(서버가 실제로 아는 값)와
+<code>GOOGLE_CLIENT_STOREFRONT</code>(앱이 방금 보낸 값의 메아리)를 구분할 수 없다.</p>
+
+<h3>스냅샷의 <code>app_build=0</code> 은 정상</h3>
+<p>앱이 요청 본문에 <code>app_build</code>·<code>app_version</code> 을 아예 넣지 않는다
+(<code>receipt_format_helper.dart</code>). 서버가 <code>0</code>/<code>"0.0.0"</code> 으로 채운다.
+<b>구버전 신호로 오독하지 말 것</b> — 스냅샷만으로는 앱 버전을 알 수 없다.</p>
+
+<h3>프로덕션 쓰기·조회 경로</h3>
+<ul>
+<li>DB 조회·적용은 <b>Supabase MCP</b>(<code>plugin:supabase:supabase</code>) 또는
+    <code>supabase db query --file &lt;path&gt; --linked</code>. PROD = <code>xtijtefcycoeqludlngc</code>.</li>
+<li><code>db query</code> 에는 <b><code>--project-ref</code> 플래그가 없다</b>. <code>--linked</code> 만 있다.
+    감시 스크립트에서 <b>stderr 를 버리지 말 것</b> — 빈 값을 0 으로 읽고 오보한 적이 있다.</li>
+<li><code>supabase db push</code> 는 못 쓴다. <code>wallet-production-rollout.yml</code> 도 경로가 아니다(매니페스트 <code>status: blocked</code>).</li>
+<li>MCP <code>execute_sql</code> 과 CLI <code>db query</code> <b>둘 다 <code>current_user=postgres</code></b> 다.</li>
+</ul>
+
+<h3><code>(not set)</code> 오독 주의</h3>
+<p>사용자 범위 속성은 값이 바뀌면 여러 행에 걸쳐 중복 집계된다. <code>language</code> 의 <code>(not set)</code> 은
+<b>사용자 수로 88% 지만 이벤트 수로는 19.8%</b> 다. 초기화 전 구간을 모두가 한 번씩 지나서 생기는 정상
+현상이다. <b>사용자 수로 판단하지 말 것.</b></p>
+
+<h2>5. 되돌리기</h2>
+<p>매출 키를 즉시 끄려면 SQL 한 줄. 재배포 불필요하고, 앱은 카탈로그 짝으로 자동 복귀한다.</p>
+<pre>update public.wallet_runtime_flags
+   set value_json = 'false'::jsonb, version = version + 1
+ where flag_key = 'wallet.purchase_revenue_fields_enabled';</pre>
+
+<h2>6. 상태 확인 쿼리 (복붙용)</h2>
+
+<h3>공급자별 통화·금액 확보율</h3>
+<pre>select s.provider,
+       count(*) as settlements,
+       count(*) filter (where s.analytics_currency is not null) as with_currency,
+       count(*) filter (where s.analytics_price_milliunits is not null) as with_value
+from public.wallet_provider_event_inbox i
+join public.purchase_reward_snapshots s on s.id = i.result_id
+where i.created_at &gt;= now() - interval '3 days' and i.status = 'SUCCEEDED'
+group by 1 order by 1;</pre>
+<p>기대: APPLE 은 통화·금액 100%, GOOGLE 은 통화만(금액 0 이 정상).</p>
+
+<h3>앱이 실제로 받는 값(응답 경계)</h3>
+<pre>select a.currency, a.value, a.currency_source
+from public.wallet_provider_event_inbox i
+join lateral public.get_purchase_analytics_for_inbox(i.id) a on true
+where i.id = '&lt;inbox_id&gt;';</pre>
+<p><b>단, 이것도 서버가 아는 값이다.</b> 앱이 받았는지는 GA4 에서 확인한다(아래).</p>
+
+<h3>배포본에 게이트 수정이 살아 있는지</h3>
+<pre># MCP get_edge_function 으로 소스를 받아
+grep -c 'actualType === "PURCHASE"'      # 1 이어야 한다
+grep -c 'actualType === "MOBILE_PURCHASE"'  # 0 이어야 한다</pre>
+<p>다른 세션이 워커를 재배포해도 #118 은 <code>main</code> 에 있으므로 자연히 포함된다. 재배포 후에는 이 두 줄로 확인하라.</p>
+
+<h3>GA4 끝단</h3>
+<p>탐색 → <code>✅ 실제 매출 (purchase 전용)</code>(속성 <code>picnic-423500</code> / <code>441670286</code>, 시간대 <b>GMT+9</b>).
+행에 <code>날짜 + 시간(YYYYMMDDHH)</code>·<code>통화</code>를 추가하고 열은 <code>플랫폼</code>.
+DB 정산 시각(KST)과 시간 단위로 대조한다. <b>확인 후에는 기간을 지난 28일, 행을 날짜로 되돌려 놓을 것.</b></p>
+
+<h2>7. 문서 지도</h2>
+<div class="tw">
+<table>
+<thead><tr><th>문서</th><th>무엇이 있나</th></tr></thead>
+<tbody>
+<tr><td><code>docs/analytics/ga4-event-taxonomy.md</code></td>
+    <td><b>기준 스펙.</b> 이벤트 정의, 사용자 속성, 공통 파라미터, 대행사 확인 13항목(§4)과 실측(§4-A),
+        AdMob 자동수집(§2-A), outbox 설계(§6), 알려진 한계 6건(§7), 복구 구매 매출(§8).
+        <b>코드보다 이 문서를 먼저 읽어라.</b></td></tr>
+<tr><td><code>docs/operations/handoff-20260902-purchase-revenue-server.html</code></td>
+    <td>매출 서버 계약의 상세 기록. §0 에 GA4×DB 대조표와 근본 원인, 결함 A·B 의 정정 경위.</td></tr>
+<tr><td><code>docs/operations/handoff-20260821-ga4-taxonomy.html</code></td>
+    <td>8/21~24 시점 기록(구현·교차리뷰·대행사 회신). 맨 위 종결 요약 블록만 현재 유효하고
+        본문의 "미착수/미검증" 표기는 <b>당시 상태</b>다.</td></tr>
+<tr><td>이 문서</td><td>진입점. 현재 상태·남은 작업·함정·검증 쿼리.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>8. 참고 PR</h2>
+<div class="tw">
+<table>
+<thead><tr><th>레포</th><th>PR</th><th>내용</th></tr></thead>
+<tbody>
+<tr><td>picnic-app</td><td>#153</td><td>택소노미 최초 구현 (8/10 머지, 1.3.0+130007 탑승)</td></tr>
+<tr><td>picnic-app</td><td>#172 · #176 · #182</td><td>매출 계약 앱 사이드 · <code>ad_cta_click</code> 개명 · 실측 기록</td></tr>
+<tr><td>picnic-app</td><td>#189 · #192 · #193</td><td>B-9 DB 대조 · 끝단 검증 종결 · 미결 항목 종결</td></tr>
+<tr><td>picnic-supabase</td><td>#109 · #116 · #117</td><td>매출 계약 서버 사이드 · CREATE 대여 · 통화·금액 짝 전송</td></tr>
+<tr><td>picnic-supabase</td><td><b>#118</b></td><td><b>워커 타입 게이트 수정 — 계약을 실제로 켠 변경</b></td></tr>
+</tbody>
+</table>
+</div>
+
+</body>
+</html>
