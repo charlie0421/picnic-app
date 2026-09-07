@@ -17,6 +17,41 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/p
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_session.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow.dart';
 
+/// 한 번에 하나의 광고 세션만 열리게 하는 재진입 래치.
+///
+/// [run] 은 **동기적으로** 잠근다. `showAd()` 는 `await` 없이 발사되고 그 안의
+/// 첫 `await`(`safelyExecute` 의 `checkLogin`)까지만 동기이므로, 그 사이에 들어온
+/// 두 번째 탭을 막으려면 잠금이 첫 await 앞에 있어야 한다.
+///
+/// 래치는 광고 세션이 끝날 때까지(라우트가 pop 될 때까지) 유지된다 —
+/// 발급 토큰을 인스턴스 필드로 들고 있는 동안 두 번째 발급이 그것을 덮어쓰지
+/// 못하게 하는 것이 목적이기 때문이다.
+///
+/// 지금은 쇼트폼만 쓰지만 다른 플랫폼도 같은 형태의 이중 진입을 갖고 있다면
+/// [AdPlatform] 으로 올릴 수 있다.
+@visibleForTesting
+class AdSessionGuard {
+  bool _open = false;
+
+  /// 광고 세션이 진행 중인가.
+  bool get isOpen => _open;
+
+  /// [body] 를 실행했으면 true, 이미 세션이 열려 있어 무시했으면 false.
+  ///
+  /// [body] 가 던지면 래치를 풀고 그대로 전파한다 — 물린 채로 남으면 사용자가
+  /// 광고를 영영 열지 못한다.
+  Future<bool> run(Future<void> Function() body) async {
+    if (_open) return false;
+    _open = true;
+    try {
+      await body();
+    } finally {
+      _open = false;
+    }
+    return true;
+  }
+}
+
 class ShortformInternalPlatform extends AdPlatform {
   ShortformInternalPlatform(
     super.ref,
@@ -86,6 +121,10 @@ class ShortformInternalPlatform extends AdPlatform {
     return url;
   }
 
+  /// 광고 세션 재진입 래치. 아래 토큰 필드가 세션 간에 공유되므로,
+  /// 한 번에 한 세션만 열려야 토큰이 섞이지 않는다.
+  final _session = AdSessionGuard();
+
   String? _viewToken;
   String? _moreToken;
   String? _videoUrl;
@@ -101,12 +140,20 @@ class ShortformInternalPlatform extends AdPlatform {
 
   @override
   Future<void> showAd() async {
-    await safelyExecute(() async {
-      startButtonAnimation();
-      // 사전 발급은 생략하고 라우트 진입 시점에 최신 토큰 발급
-      stopAllAnimations();
-      await _play();
-    }); // checkAdsLimit 수행 (기본값)
+    // 연타로 라우트가 둘 열리면 두 세션이 아래 `_viewToken`/`_moreToken` 을
+    // 공유해, 나중에 끝난 발급이 앞선 라우트의 토큰을 덮어쓴다. 그러면 시청·
+    // 클릭이 화면에 보이는 광고가 아닌 다른 impression 에 귀속된다 (PICNIC-2551).
+    final started = await _session.run(() async {
+      await safelyExecute(() async {
+        startButtonAnimation();
+        // 사전 발급은 생략하고 라우트 진입 시점에 최신 토큰 발급
+        stopAllAnimations();
+        await _play();
+      }); // checkAdsLimit 수행 (기본값)
+    });
+    if (!started) {
+      logInfo('showAd ignored: a shortform ad session is already open');
+    }
   }
 
   Future<void> _play() async {
