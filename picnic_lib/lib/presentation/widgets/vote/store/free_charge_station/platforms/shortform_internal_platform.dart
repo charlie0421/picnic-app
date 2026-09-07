@@ -143,17 +143,26 @@ class ShortformInternalPlatform extends AdPlatform {
     // 연타로 라우트가 둘 열리면 두 세션이 아래 `_viewToken`/`_moreToken` 을
     // 공유해, 나중에 끝난 발급이 앞선 라우트의 토큰을 덮어쓴다. 그러면 시청·
     // 클릭이 화면에 보이는 광고가 아닌 다른 impression 에 귀속된다 (PICNIC-2551).
-    final started = await _session.run(() async {
-      await safelyExecute(() async {
-        startButtonAnimation();
-        // 사전 발급은 생략하고 라우트 진입 시점에 최신 토큰 발급
-        stopAllAnimations();
-        await _play();
-      }); // checkAdsLimit 수행 (기본값)
-    });
+    final started = await _session.run(runAdSession);
     if (!started) {
       logInfo('showAd ignored: a shortform ad session is already open');
     }
+  }
+
+  /// 광고 세션 본체 — [showAd] 의 래치 안에서만 실행된다.
+  ///
+  /// 별도 메서드인 이유는 테스트 seam 이다. 이게 없으면 재진입 방지를
+  /// 검증하려고 네트워크(`checkAdsLimit`)·Navigator·비디오 플레이어를 전부
+  /// 세워야 하고, 결국 [AdSessionGuard] 만 단위 테스트하게 된다 — 그러면
+  /// `showAd()` 가 가드를 **거치지 않도록** 바뀌어도 테스트가 통과한다.
+  @visibleForTesting
+  Future<void> runAdSession() async {
+    await safelyExecute(() async {
+      startButtonAnimation();
+      // 사전 발급은 생략하고 라우트 진입 시점에 최신 토큰 발급
+      stopAllAnimations();
+      await _play();
+    }); // checkAdsLimit 수행 (기본값)
   }
 
   Future<void> _play() async {
