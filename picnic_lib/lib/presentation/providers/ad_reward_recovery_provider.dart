@@ -232,18 +232,40 @@ class AdRewardRecovery extends _$AdRewardRecovery {
       cursor = page.nextCursor;
     } while (cursor != null);
 
+    final serverStatuses = <String, AdRewardStatusModel>{};
+    for (final status in serverItems) {
+      final key = _key(ownerUserId, status.reference);
+      if (ackPendingKeys.contains(key)) continue;
+      final existing = serverStatuses[key];
+      if (existing == null || existing.state == AdRewardState.pending) {
+        serverStatuses[key] = status;
+      }
+    }
     final unique = <String, AdRewardReference>{
       for (final value in localRecords)
         if (value.state == PendingAdRewardLocalState.pendingDisplay)
           _key(ownerUserId, value.reference): value.reference,
-      for (final value in serverItems)
-        if (!ackPendingKeys.contains(_key(ownerUserId, value.reference)))
-          _key(ownerUserId, value.reference): value.reference,
+      for (final status in serverStatuses.values)
+        _key(ownerUserId, status.reference): status.reference,
     };
     if (!_isCurrent(ownerUserId, generation)) return false;
     final references = unique.values.toList(growable: false);
     state = state.copyWith(references: references);
-    return _pollRecoveredReferences(ownerUserId, references, generation);
+    final unresolved = <AdRewardReference>[];
+    for (final reference in references) {
+      if (!_isCurrent(ownerUserId, generation)) return false;
+      final serverStatus = serverStatuses[_key(ownerUserId, reference)];
+      if (serverStatus == null ||
+          !_validateAndQueueTerminalStatus(
+            ownerUserId,
+            reference,
+            serverStatus,
+            generation,
+          )) {
+        unresolved.add(reference);
+      }
+    }
+    return _pollRecoveredReferences(ownerUserId, unresolved, generation);
   }
 
   Future<void> poll({
@@ -563,8 +585,9 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     final key = _key(ownerUserId, status.reference);
 
     // Persisting the tombstone and calling `acknowledge` is one critical
-    // section per reference: `acknowledge` is a payout input, not progress UI,
-    // so two runs racing here would spend the same reward twice.
+    // section per reference. The RPC records display completion; it does not
+    // pay the reward. Serializing it still prevents duplicate ACK traffic and
+    // keeps the durable tombstone aligned with the in-memory queue.
     final ackToken = '$generation:$key';
     if (!_acknowledging.add(ackToken)) return;
     try {

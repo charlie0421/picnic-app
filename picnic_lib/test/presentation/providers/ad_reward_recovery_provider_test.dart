@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/data/repositories/ad_reward_repository.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart';
@@ -25,9 +26,12 @@ class _MemoryStorage implements LocalStorage {
 
 class _FakeRepository implements AdRewardApi {
   final server = <AdRewardStatusModel>[];
+  final pages = <String?, AdRewardPageModel>{};
+  final pageErrors = <String?, Object>{};
   final statuses = <AdRewardReference, List<AdRewardStatusModel>>{};
   final acknowledged = <AdRewardReference>[];
   final reads = <AdRewardReference>[];
+  final listCursors = <String?>[];
   final ackGates = <AdRewardReference, Completer<void>>{};
   final statusGates = <AdRewardReference, Completer<void>>{};
   final statusErrors = <AdRewardReference, Object>{};
@@ -63,9 +67,12 @@ class _FakeRepository implements AdRewardApi {
     int limit = 20,
   }) async {
     listCallCount++;
+    listCursors.add(cursor);
     if (listGates.isNotEmpty) await listGates.removeAt(0).future;
-    final error = listError;
+    final error = pageErrors[cursor] ?? listError;
     if (error != null) throw error;
+    final page = pages[cursor];
+    if (page != null) return page;
     return AdRewardPageModel(
       items: server,
       totalCount: BigInt.from(server.length),
@@ -144,6 +151,16 @@ AdRewardStatusModel _status(AdRewardReference reference, AdRewardState state) =>
       wallet: _wallet(),
       snapshotAt: DateTime.utc(2026),
     );
+
+AdRewardPageModel _page(
+  List<AdRewardStatusModel> items, {
+  String? nextCursor,
+}) => AdRewardPageModel(
+  items: items,
+  totalCount: BigInt.from(items.length),
+  nextCursor: nextCursor,
+  snapshotAt: DateTime.utc(2026),
+);
 
 Future<void> _flushEventQueue() async {
   for (var i = 0; i < 10; i++) {
@@ -545,41 +562,367 @@ void main() {
     },
   );
 
-  test('unions local and server references and sweeps both', () async {
-    final local = _reference(1);
-    final server = _reference(2);
-    await store.add('user-a', local);
-    repository.server.add(_status(server, AdRewardState.granted));
-    repository.statuses[local] = [_status(local, AdRewardState.pending)];
-    repository.statuses[server] = [_status(server, AdRewardState.granted)];
+  test(
+    'terminal server item is queued with its snapshot without a status read',
+    () async {
+      final reference = _reference(90);
+      final listedStatus = AdRewardStatusModel(
+        reference: reference,
+        state: AdRewardState.granted,
+        grant: AdRewardGrantModel(
+          id: 'grant-90',
+          currency: WalletCurrency.starCandy,
+          amount: BigInt.from(41),
+          grantedAt: DateTime.utc(2026, 1, 2),
+          expiresAt: DateTime.utc(2026, 2, 2),
+        ),
+        wallet: _wallet().copyWith(
+          star: BigInt.from(141),
+          snapshotAt: DateTime.utc(2026, 1, 2),
+        ),
+        snapshotAt: DateTime.utc(2026, 1, 2),
+      );
+      repository.server.add(listedStatus);
+      repository.statuses[reference] = [
+        _status(reference, AdRewardState.denied),
+      ];
+
+      await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+
+      final queued = container
+          .read(adRewardRecoveryProvider)
+          .dialogQueue
+          .single
+          .status;
+      expect(queued.state, AdRewardState.granted);
+      expect(queued.grant?.id, 'grant-90');
+      expect(queued.grant?.amount, BigInt.from(41));
+      expect(queued.wallet.star, BigInt.from(141));
+      expect(queued.snapshotAt, DateTime.utc(2026, 1, 2));
+      expect(repository.reads, isEmpty);
+    },
+  );
+
+  test('all server terminal kinds bypass status polling', () async {
+    final terminalStates = [
+      AdRewardState.granted,
+      AdRewardState.denied,
+      AdRewardState.expired,
+      AdRewardState.abandoned,
+    ];
+    for (var index = 0; index < terminalStates.length; index++) {
+      repository.server.add(
+        _status(_reference(100 + index), terminalStates[index]),
+      );
+    }
 
     await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
 
-    expect(container.read(adRewardRecoveryProvider).references.toSet(), {
-      local,
-      server,
-    });
-    // 터미널 상태는 첫 조회에서 끝나고, 아직 PENDING 인 레퍼런스만 사다리를
-    // 끝까지 태운다. 사다리는 배너 없이 조용히 돈다.
-    expect(delays, adRewardRecoveryPollDelays);
-    expect(
-      repository.reads,
-      unorderedEquals(<AdRewardReference>[
-        for (var i = 0; i <= adRewardRecoveryPollDelays.length; i++) local,
-        server,
-      ]),
-    );
-    expect(repository.acknowledged, isEmpty);
     expect(
       container
           .read(adRewardRecoveryProvider)
           .dialogQueue
-          .single
-          .status
-          .reference,
-      server,
+          .map((value) => value.status.state),
+      terminalStates,
     );
+    expect(repository.reads, isEmpty);
+    expect(delays, isEmpty);
   });
+
+  test(
+    'terminal items from every page are queued without status reads',
+    () async {
+      final first = _reference(110);
+      final second = _reference(111);
+      final repeated = _status(first, AdRewardState.denied);
+      repository.pages[null] = _page([repeated], nextCursor: 'page-2');
+      repository.pages['page-2'] = _page([
+        repeated,
+        _status(second, AdRewardState.expired),
+      ]);
+
+      await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+
+      expect(repository.listCursors, [null, 'page-2']);
+      expect(
+        container
+            .read(adRewardRecoveryProvider)
+            .dialogQueue
+            .map((value) => value.status.reference),
+        [first, second],
+      );
+      expect(container.read(adRewardRecoveryProvider).references, [
+        first,
+        second,
+      ]);
+      expect(repository.reads, isEmpty);
+    },
+  );
+
+  test(
+    'duplicate server entries retain terminal snapshots in both pending orders without status reads',
+    () async {
+      final pendingThenGranted = _reference(112);
+      final grantedThenPending = _reference(113);
+      final pendingFirstTerminal = AdRewardStatusModel(
+        reference: pendingThenGranted,
+        state: AdRewardState.granted,
+        grant: AdRewardGrantModel(
+          id: 'grant-112',
+          currency: WalletCurrency.starCandy,
+          amount: BigInt.from(61),
+          grantedAt: DateTime.utc(2026, 1, 3),
+          expiresAt: DateTime.utc(2026, 2, 3),
+        ),
+        wallet: _wallet().copyWith(
+          star: BigInt.from(161),
+          snapshotAt: DateTime.utc(2026, 1, 3),
+        ),
+        snapshotAt: DateTime.utc(2026, 1, 3),
+      );
+      final grantedFirstTerminal = AdRewardStatusModel(
+        reference: grantedThenPending,
+        state: AdRewardState.granted,
+        grant: AdRewardGrantModel(
+          id: 'grant-113',
+          currency: WalletCurrency.starCandy,
+          amount: BigInt.from(62),
+          grantedAt: DateTime.utc(2026, 1, 4),
+          expiresAt: DateTime.utc(2026, 2, 4),
+        ),
+        wallet: _wallet().copyWith(
+          star: BigInt.from(162),
+          snapshotAt: DateTime.utc(2026, 1, 4),
+        ),
+        snapshotAt: DateTime.utc(2026, 1, 4),
+      );
+      repository.server.addAll([
+        _status(pendingThenGranted, AdRewardState.pending),
+        pendingFirstTerminal,
+        grantedFirstTerminal,
+        _status(grantedThenPending, AdRewardState.pending),
+      ]);
+      repository.statuses[pendingThenGranted] = [
+        _status(pendingThenGranted, AdRewardState.denied),
+      ];
+      repository.statuses[grantedThenPending] = [
+        _status(grantedThenPending, AdRewardState.denied),
+      ];
+
+      await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+
+      final queued = {
+        for (final value
+            in container.read(adRewardRecoveryProvider).dialogQueue)
+          value.status.reference: value.status,
+      };
+      expect(queued, hasLength(2));
+      expect(queued[pendingThenGranted]?.state, AdRewardState.granted);
+      expect(queued[pendingThenGranted]?.grant?.id, 'grant-112');
+      expect(queued[pendingThenGranted]?.grant?.amount, BigInt.from(61));
+      expect(queued[pendingThenGranted]?.wallet.star, BigInt.from(161));
+      expect(
+        queued[pendingThenGranted]?.wallet.snapshotAt,
+        DateTime.utc(2026, 1, 3),
+      );
+      expect(queued[pendingThenGranted]?.snapshotAt, DateTime.utc(2026, 1, 3));
+      expect(queued[grantedThenPending]?.state, AdRewardState.granted);
+      expect(queued[grantedThenPending]?.grant?.id, 'grant-113');
+      expect(queued[grantedThenPending]?.grant?.amount, BigInt.from(62));
+      expect(queued[grantedThenPending]?.wallet.star, BigInt.from(162));
+      expect(
+        queued[grantedThenPending]?.wallet.snapshotAt,
+        DateTime.utc(2026, 1, 4),
+      );
+      expect(queued[grantedThenPending]?.snapshotAt, DateTime.utc(2026, 1, 4));
+      expect(repository.reads, isEmpty);
+      expect(delays, isEmpty);
+    },
+  );
+
+  test(
+    'a later page failure queues nothing and can retry immediately',
+    () async {
+      final first = _reference(120);
+      final second = _reference(121);
+      final pageFailure = StateError('page 2 failed');
+      repository.pages[null] = _page([
+        _status(first, AdRewardState.denied),
+      ], nextCursor: 'page-2');
+      repository.pageErrors['page-2'] = pageFailure;
+      final notifier = container.read(adRewardRecoveryProvider.notifier);
+
+      await expectLater(notifier.recover('user-a'), throwsA(same(pageFailure)));
+
+      expect(repository.listCursors, [null, 'page-2']);
+      expect(container.read(adRewardRecoveryProvider).references, isEmpty);
+      expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+      expect(repository.reads, isEmpty);
+
+      repository.pageErrors.remove('page-2');
+      repository.pages['page-2'] = _page([
+        _status(second, AdRewardState.abandoned),
+      ]);
+      await notifier.recover('user-a');
+
+      expect(repository.listCursors, [null, 'page-2', null, 'page-2']);
+      expect(
+        container
+            .read(adRewardRecoveryProvider)
+            .dialogQueue
+            .map((value) => value.status.reference),
+        [first, second],
+      );
+    },
+  );
+
+  test(
+    'stale later page cannot queue statuses after an account switch',
+    () async {
+      var currentOwner = 'user-a';
+      final scopedRepository = _FakeRepository();
+      final firstPageGate = Completer<void>()..complete();
+      final secondPageGate = Completer<void>();
+      scopedRepository.listGates.addAll([firstPageGate, secondPageGate]);
+      final staleFirst = _reference(130);
+      final staleSecond = _reference(131);
+      final current = _reference(132);
+      scopedRepository.pages[null] = _page([
+        _status(staleFirst, AdRewardState.denied),
+      ], nextCursor: 'stale-page-2');
+      scopedRepository.pages['stale-page-2'] = _page([
+        _status(staleSecond, AdRewardState.expired),
+      ]);
+      final scoped = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(scopedRepository),
+          pendingAdRewardStoreProvider.overrideWithValue(
+            PendingAdRewardStore(_MemoryStorage()),
+          ),
+          adRewardOwnerReaderProvider.overrideWithValue(() => currentOwner),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+        ],
+      );
+      addTearDown(scoped.dispose);
+      final notifier = scoped.read(adRewardRecoveryProvider.notifier);
+
+      final stale = notifier.recover('user-a');
+      await _flushEventQueue();
+      expect(scopedRepository.listCursors, [null, 'stale-page-2']);
+
+      currentOwner = 'user-b';
+      scopedRepository.pages[null] = _page([
+        _status(current, AdRewardState.granted),
+      ]);
+      await notifier.recover('user-b');
+      secondPageGate.complete();
+      await stale;
+
+      final state = scoped.read(adRewardRecoveryProvider);
+      expect(state.activeUserId, 'user-b');
+      expect(state.references, [current]);
+      expect(state.dialogQueue.single.status.reference, current);
+      expect(scopedRepository.reads, isEmpty);
+    },
+  );
+
+  test(
+    'deduplicates a local terminal server item and polls only local unresolved',
+    () async {
+      final unresolved = _reference(1);
+      final duplicate = _reference(2);
+      await store.add('user-a', unresolved);
+      await store.add('user-a', duplicate);
+      final listed = _status(duplicate, AdRewardState.granted);
+      repository.server.add(listed);
+      repository.statuses[unresolved] = [
+        _status(unresolved, AdRewardState.pending),
+      ];
+      repository.statuses[duplicate] = [
+        _status(duplicate, AdRewardState.denied),
+      ];
+
+      await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+
+      expect(container.read(adRewardRecoveryProvider).references.toSet(), {
+        unresolved,
+        duplicate,
+      });
+      expect(delays, adRewardRecoveryPollDelays);
+      expect(
+        repository.reads,
+        List.filled(adRewardRecoveryPollDelays.length + 1, unresolved),
+      );
+      expect(repository.acknowledged, isEmpty);
+      expect(
+        container.read(adRewardRecoveryProvider).dialogQueue.single.status,
+        listed,
+      );
+    },
+  );
+
+  test(
+    'an unexpected pending server item keeps the bounded polling ladder',
+    () async {
+      final pending = _reference(140);
+      repository.server.add(_status(pending, AdRewardState.pending));
+      repository.statuses[pending] = [_status(pending, AdRewardState.pending)];
+
+      await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+
+      expect(
+        repository.reads,
+        List.filled(adRewardRecoveryPollDelays.length + 1, pending),
+      );
+      expect(delays, adRewardRecoveryPollDelays);
+      expect(container.read(adRewardRecoveryProvider).references, [pending]);
+      expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+      expect(repository.acknowledged, isEmpty);
+    },
+  );
+
+  test(
+    'an unresolved local reference is polled when absent from the list',
+    () async {
+      final local = _reference(141);
+      await store.add('user-a', local);
+      repository.statuses[local] = [_status(local, AdRewardState.granted)];
+
+      await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+
+      expect(repository.reads, [local]);
+      expect(
+        container
+            .read(adRewardRecoveryProvider)
+            .dialogQueue
+            .single
+            .status
+            .reference,
+        local,
+      );
+      expect(repository.acknowledged, isEmpty);
+    },
+  );
+
+  test(
+    'an unresolved status response with another reference is rejected',
+    () async {
+      final requested = _reference(142);
+      final returned = _reference(143);
+      await store.add('user-a', requested);
+      repository.statuses[requested] = [
+        _status(returned, AdRewardState.denied),
+      ];
+
+      await expectLater(
+        container.read(adRewardRecoveryProvider.notifier).recover('user-a'),
+        throwsA(isA<FormatException>()),
+      );
+
+      expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+      expect((await store.readAll('user-a')).single.reference, requested);
+    },
+  );
 
   test('startup sweep never raises the checking banner', () async {
     final pending = _reference(1);
@@ -815,12 +1158,13 @@ void main() {
     // 각자의 사다리를 끝까지 태운다. 먼저 GRANTED 를 잡은 쪽이 큐에 넣고
     // acknowledgeAfterRender 가 큐 자리를 비우는 순간, 뒤늦게 깬 형제 폴러가
     // 같은 GRANTED 를 다시 읽어 재큐잉하면 다이얼로그가 두 번 뜨고 ACK 가 두
-    // 번 나간다. ACK 는 보상 정합성이라 그 창을 열어 두면 안 된다.
+    // 번 나간다. ACK 자체는 지급이 아니지만 같은 표시 완료를 두 번 기록하게
+    // 두면 안 된다.
     final watched = _reference(1);
     await store.add('user-a', watched);
+    repository.server.add(_status(watched, AdRewardState.granted));
     repository.statuses[watched] = [
       _status(watched, AdRewardState.pending),
-      _status(watched, AdRewardState.granted),
       _status(watched, AdRewardState.granted),
     ];
     final parked = Completer<void>();
@@ -836,7 +1180,7 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
 
-    // 백그라운드 스윕이 같은 레퍼런스의 GRANTED 를 먼저 잡아 큐에 넣는다.
+    // 백그라운드 스윕이 목록의 GRANTED 를 재조회 없이 먼저 큐에 넣는다.
     await notifier.recover('user-a');
     final queued = container.read(adRewardRecoveryProvider).dialogQueue.single;
     await notifier.acknowledgeAfterRender(queued);
@@ -851,6 +1195,7 @@ void main() {
     for (final stale in leftover) {
       await notifier.acknowledgeAfterRender(stale);
     }
+    expect(repository.reads, [watched, watched]);
     expect(repository.acknowledged, [watched], reason: '중복 ACK');
     expect(leftover, isEmpty, reason: '중복 다이얼로그');
     expect(await store.readAll('user-a'), isEmpty);
@@ -876,6 +1221,7 @@ void main() {
       terminal,
     ]);
     expect(state.references, isNot(contains(tombstone)));
+    expect(repository.reads, isEmpty);
     gate.complete();
     await recovery;
   });
