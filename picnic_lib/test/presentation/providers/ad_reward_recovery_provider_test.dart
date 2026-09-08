@@ -30,16 +30,31 @@ class _FakeRepository implements AdRewardApi {
   final reads = <AdRewardReference>[];
   final ackGates = <AdRewardReference, Completer<void>>{};
   final statusGates = <AdRewardReference, Completer<void>>{};
+  final statusErrors = <AdRewardReference, Object>{};
   final listGates = <Completer<void>>[];
+  var listCallCount = 0;
+  var activeStatusReads = 0;
+  var maxActiveStatusReads = 0;
   bool failAck = false;
+  Object? listError;
 
   @override
   Future<AdRewardStatusModel> getStatus(AdRewardReference reference) async {
     reads.add(reference);
-    final gate = statusGates[reference];
-    if (gate != null) await gate.future;
-    final values = statuses[reference]!;
-    return values.length == 1 ? values.single : values.removeAt(0);
+    activeStatusReads++;
+    if (activeStatusReads > maxActiveStatusReads) {
+      maxActiveStatusReads = activeStatusReads;
+    }
+    try {
+      final gate = statusGates[reference];
+      if (gate != null) await gate.future;
+      final error = statusErrors[reference];
+      if (error != null) throw error;
+      final values = statuses[reference]!;
+      return values.length == 1 ? values.single : values.removeAt(0);
+    } finally {
+      activeStatusReads--;
+    }
   }
 
   @override
@@ -47,7 +62,10 @@ class _FakeRepository implements AdRewardApi {
     String? cursor,
     int limit = 20,
   }) async {
+    listCallCount++;
     if (listGates.isNotEmpty) await listGates.removeAt(0).future;
+    final error = listError;
+    if (error != null) throw error;
     return AdRewardPageModel(
       items: server,
       totalCount: BigInt.from(server.length),
@@ -80,9 +98,11 @@ class _FakeRepository implements AdRewardApi {
 class _GatedStore extends PendingAdRewardStore {
   _GatedStore(super.storage);
   final readGates = <String, Completer<void>>{};
+  final readCounts = <String, int>{};
 
   @override
   Future<List<StoredAdRewardReference>> readAll(String userId) async {
+    readCounts.update(userId, (value) => value + 1, ifAbsent: () => 1);
     final gate = readGates[userId];
     if (gate != null) await gate.future;
     return super.readAll(userId);
@@ -125,6 +145,12 @@ AdRewardStatusModel _status(AdRewardReference reference, AdRewardState state) =>
       snapshotAt: DateTime.utc(2026),
     );
 
+Future<void> _flushEventQueue() async {
+  for (var i = 0; i < 10; i++) {
+    await Future<void>.delayed(Duration.zero);
+  }
+}
+
 void main() {
   late String? owner;
   late _FakeRepository repository;
@@ -132,12 +158,14 @@ void main() {
   late ProviderContainer container;
   late List<Duration> delays;
   late AdRewardDelay delay;
+  late DateTime now;
 
   setUp(() {
     owner = 'user-a';
     repository = _FakeRepository();
     store = PendingAdRewardStore(_MemoryStorage());
     delays = [];
+    now = DateTime.utc(2026, 1, 1);
     delay = (duration) async {
       delays.add(duration);
     };
@@ -147,10 +175,375 @@ void main() {
         pendingAdRewardStoreProvider.overrideWithValue(store),
         adRewardOwnerReaderProvider.overrideWithValue(() => owner),
         adRewardDelayProvider.overrideWithValue((duration) => delay(duration)),
+        adRewardRecoveryClockProvider.overrideWithValue(() => now),
       ],
     );
     addTearDown(container.dispose);
   });
+
+  test('same owner and generation recovery calls share one future', () async {
+    final gatedStore = _GatedStore(_MemoryStorage());
+    final readGate = Completer<void>();
+    gatedStore.readGates['user-a'] = readGate;
+    final scoped = ProviderContainer(
+      overrides: [
+        adRewardRepositoryProvider.overrideWithValue(repository),
+        pendingAdRewardStoreProvider.overrideWithValue(gatedStore),
+        adRewardOwnerReaderProvider.overrideWithValue(() => owner),
+        adRewardDelayProvider.overrideWithValue((_) async {}),
+      ],
+    );
+    addTearDown(scoped.dispose);
+    final notifier = scoped.read(adRewardRecoveryProvider.notifier);
+
+    final first = notifier.recover('user-a');
+    final second = notifier.recover('user-a');
+    readGate.complete();
+    await Future.wait([first, second]);
+
+    expect(identical(first, second), isTrue);
+    expect(gatedStore.readCounts['user-a'], 1);
+    expect(repository.listCallCount, 1);
+  });
+
+  test('successful recovery cools down until exactly sixty seconds', () async {
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+
+    await notifier.recover('user-a');
+    now = now.add(const Duration(seconds: 59));
+    await notifier.recover('user-a');
+    expect(repository.listCallCount, 1);
+
+    now = now.add(const Duration(seconds: 1));
+    await notifier.recover('user-a');
+    expect(repository.listCallCount, 2);
+  });
+
+  test('backward clock bypasses successful recovery cooldown', () async {
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+
+    await notifier.recover('user-a');
+    now = now.subtract(const Duration(seconds: 1));
+    await notifier.recover('user-a');
+
+    expect(repository.listCallCount, 2);
+  });
+
+  test('failed recovery can retry immediately', () async {
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+    repository.listError = StateError('list failed');
+
+    await expectLater(notifier.recover('user-a'), throwsStateError);
+    repository.listError = null;
+    await notifier.recover('user-a');
+
+    expect(repository.listCallCount, 2);
+  });
+
+  test('wrong-owner call cannot cache a signed-out recovery', () async {
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+    owner = null;
+
+    await notifier.recover('user-a');
+    expect(repository.listCallCount, 0);
+
+    owner = 'user-a';
+    await notifier.recover('user-a');
+    expect(repository.listCallCount, 1);
+  });
+
+  test(
+    'transient owner inactivation does not start success cooldown',
+    () async {
+      final gatedStore = _GatedStore(_MemoryStorage());
+      final readGate = Completer<void>();
+      gatedStore.readGates['user-a'] = readGate;
+      var ownerReads = 0;
+      final scoped = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(repository),
+          pendingAdRewardStoreProvider.overrideWithValue(gatedStore),
+          adRewardOwnerReaderProvider.overrideWithValue(() {
+            ownerReads++;
+            return ownerReads == 2 ? null : 'user-a';
+          }),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+          adRewardRecoveryClockProvider.overrideWithValue(() => now),
+        ],
+      );
+      addTearDown(scoped.dispose);
+      final notifier = scoped.read(adRewardRecoveryProvider.notifier);
+
+      final interrupted = notifier.recover('user-a');
+      readGate.complete();
+      await interrupted;
+      await notifier.recover('user-a');
+
+      expect(repository.listCallCount, 1);
+    },
+  );
+
+  test('background sweep starts at most four status reads at a time', () async {
+    final references = [
+      _reference(1),
+      _reference(2),
+      _reference(3),
+      _reference(4),
+      _reference(5),
+    ];
+    for (final reference in references) {
+      await store.add('user-a', reference);
+      repository.statuses[reference] = [
+        _status(reference, AdRewardState.granted),
+      ];
+      repository.statusGates[reference] = Completer<void>();
+    }
+
+    final recovery = container
+        .read(adRewardRecoveryProvider.notifier)
+        .recover('user-a');
+    await _flushEventQueue();
+    final readsBeforeSlot = List<AdRewardReference>.of(repository.reads);
+    final activeBeforeSlot = repository.activeStatusReads;
+
+    repository.statusGates[references.first]!.complete();
+    await _flushEventQueue();
+    final readsAfterSlot = List<AdRewardReference>.of(repository.reads);
+    for (final reference in references.skip(1)) {
+      repository.statusGates[reference]!.complete();
+    }
+    await recovery;
+
+    expect(readsBeforeSlot, references.take(4));
+    expect(activeBeforeSlot, 4);
+    expect(readsAfterSlot.take(5), references);
+    expect(repository.maxActiveStatusReads, 4);
+  });
+
+  test('every reference gets a first read before any second read', () async {
+    final references = [
+      _reference(1),
+      _reference(2),
+      _reference(3),
+      _reference(4),
+      _reference(5),
+    ];
+    for (final reference in references) {
+      await store.add('user-a', reference);
+      repository.statuses[reference] = [
+        _status(reference, AdRewardState.pending),
+      ];
+    }
+
+    await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+
+    expect(
+      repository.reads.take(references.length).toSet(),
+      references.toSet(),
+    );
+    expect(
+      repository.reads,
+      hasLength(references.length * (adRewardRecoveryPollDelays.length + 1)),
+    );
+    expect(delays, adRewardRecoveryPollDelays);
+  });
+
+  test(
+    'one status error drains its round and preserves other ladders',
+    () async {
+      final failed = _reference(1);
+      final recovered = _reference(2);
+      final terminal = _reference(3);
+      final terminalGate = Completer<void>();
+      final statusFailure = StateError('status failed');
+      for (final reference in [failed, recovered, terminal]) {
+        await store.add('user-a', reference);
+      }
+      repository.statusErrors[failed] = statusFailure;
+      repository.statuses[recovered] = [
+        _status(recovered, AdRewardState.pending),
+        _status(recovered, AdRewardState.granted),
+      ];
+      repository.statuses[terminal] = [_status(terminal, AdRewardState.denied)];
+      repository.statusGates[terminal] = terminalGate;
+
+      final notifier = container.read(adRewardRecoveryProvider.notifier);
+      final recovery = notifier.recover('user-a');
+      await _flushEventQueue();
+      var settled = false;
+      unawaited(recovery.whenComplete(() => settled = true).catchError((_) {}));
+      await _flushEventQueue();
+      expect(settled, isFalse);
+      expect(repository.reads.toSet(), {failed, recovered, terminal});
+
+      terminalGate.complete();
+      Object? thrown;
+      StackTrace? thrownStackTrace;
+      try {
+        await recovery;
+      } catch (error, stackTrace) {
+        thrown = error;
+        thrownStackTrace = stackTrace;
+      }
+
+      expect(thrown, same(statusFailure));
+      expect(
+        thrownStackTrace.toString(),
+        contains('_FakeRepository.getStatus'),
+      );
+      expect(
+        repository.reads.where((value) => value == recovered),
+        hasLength(2),
+      );
+      expect(delays, [adRewardRecoveryPollDelays.first]);
+      expect(
+        container
+            .read(adRewardRecoveryProvider)
+            .dialogQueue
+            .map((value) => value.status.reference)
+            .toSet(),
+        {recovered, terminal},
+      );
+      expect(
+        (await store.readAll('user-a')).map((value) => value.reference),
+        contains(failed),
+      );
+
+      repository.statusErrors.remove(failed);
+      repository.statuses[failed] = [_status(failed, AdRewardState.granted)];
+      await notifier.recover('user-a');
+      expect(repository.reads.where((value) => value == failed), hasLength(2));
+    },
+  );
+
+  test('logout launches no queued fifth status read', () async {
+    final references = [
+      _reference(1),
+      _reference(2),
+      _reference(3),
+      _reference(4),
+      _reference(5),
+    ];
+    for (final reference in references) {
+      await store.add('user-a', reference);
+      repository.statuses[reference] = [
+        _status(reference, AdRewardState.granted),
+      ];
+      repository.statusGates[reference] = Completer<void>();
+    }
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+
+    final recovery = notifier.recover('user-a');
+    await _flushEventQueue();
+    notifier.resetForLogout();
+    owner = null;
+    for (final reference in references) {
+      repository.statusGates[reference]!.complete();
+    }
+    await recovery;
+
+    expect(repository.reads, references.take(4));
+    expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+  });
+
+  test(
+    'foreground poll and acknowledgement bypass recovery cooldown',
+    () async {
+      final reference = _reference(1);
+      final notifier = container.read(adRewardRecoveryProvider.notifier);
+      await notifier.recover('user-a');
+      repository.statuses[reference] = [
+        _status(reference, AdRewardState.granted),
+      ];
+
+      await notifier.poll(ownerUserId: 'user-a', reference: reference);
+      final queued = container
+          .read(adRewardRecoveryProvider)
+          .dialogQueue
+          .single;
+      await notifier.acknowledgeAfterRender(queued);
+
+      expect(repository.reads, [reference]);
+      expect(repository.acknowledged, [reference]);
+    },
+  );
+
+  test(
+    'foreground ACK failure suppresses an active recovery cooldown',
+    () async {
+      final listGate = Completer<void>();
+      repository.listGates.add(listGate);
+      final notifier = container.read(adRewardRecoveryProvider.notifier);
+      final recovery = notifier.recover('user-a');
+      await _flushEventQueue();
+      final reference = _reference(1);
+      repository.statuses[reference] = [
+        _status(reference, AdRewardState.granted),
+      ];
+
+      await notifier.poll(ownerUserId: 'user-a', reference: reference);
+      notifier.discardDialog(
+        container.read(adRewardRecoveryProvider).dialogQueue.single,
+      );
+      listGate.complete();
+      await recovery;
+      await notifier.recover('user-a');
+
+      expect(repository.listCallCount, 2);
+    },
+  );
+
+  test(
+    'logout and same-owner recovery fence stale cooldown completion',
+    () async {
+      final staleGate = Completer<void>();
+      repository.listGates.add(staleGate);
+      final notifier = container.read(adRewardRecoveryProvider.notifier);
+      final stale = notifier.recover('user-a');
+      await _flushEventQueue();
+
+      notifier.resetForLogout();
+      await notifier.recover('user-a');
+      staleGate.complete();
+      await stale;
+      expect(repository.listCallCount, 2);
+
+      now = now.add(const Duration(seconds: 59));
+      await notifier.recover('user-a');
+      expect(repository.listCallCount, 2);
+      now = now.add(const Duration(seconds: 1));
+      await notifier.recover('user-a');
+      expect(repository.listCallCount, 3);
+    },
+  );
+
+  test(
+    'A to B to A stale completion cannot clear the newer A future',
+    () async {
+      final oldAGate = Completer<void>();
+      repository.listGates.add(oldAGate);
+      final notifier = container.read(adRewardRecoveryProvider.notifier);
+      final oldA = notifier.recover('user-a');
+      await _flushEventQueue();
+
+      owner = 'user-b';
+      await notifier.recover('user-b');
+      owner = 'user-a';
+      final newAGate = Completer<void>();
+      repository.listGates.add(newAGate);
+      final newA = notifier.recover('user-a');
+      await _flushEventQueue();
+
+      oldAGate.complete();
+      await oldA;
+      final coalescedA = notifier.recover('user-a');
+      expect(identical(newA, coalescedA), isTrue);
+      expect(repository.listCallCount, 3);
+
+      newAGate.complete();
+      await Future.wait([newA, coalescedA]);
+    },
+  );
 
   test('unions local and server references and sweeps both', () async {
     final local = _reference(1);
@@ -213,7 +606,7 @@ void main() {
   });
 
   test(
-    'a stuck reference replays the ladder silently on every launch',
+    'a stuck reference survives and retries after the success cooldown',
     () async {
       final stuck = _reference(1);
       await store.add('user-a', stuck);
@@ -221,6 +614,7 @@ void main() {
       final notifier = container.read(adRewardRecoveryProvider.notifier);
 
       await notifier.recover('user-a');
+      now = now.add(adRewardRecoverySuccessCooldown);
       await notifier.recover('user-a');
 
       // 로컬 레코드는 그대로 남아 다음 실행에서도 다시 조회된다(보상 유실 없음).
@@ -407,6 +801,7 @@ void main() {
       expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
 
       repository.failAck = false;
+      now = now.add(adRewardRecoverySuccessCooldown);
       await notifier.recover('user-a');
       await Future<void>.delayed(Duration.zero);
       await Future<void>.delayed(Duration.zero);
