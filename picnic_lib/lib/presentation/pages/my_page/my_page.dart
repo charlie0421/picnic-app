@@ -23,6 +23,7 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_list_page.d
 import 'package:picnic_lib/presentation/pages/my_page/setting_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_artist_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_history_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/faq_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/notice_page.dart';
@@ -156,6 +157,16 @@ class _MyPageState extends ConsumerState<MyPage>
                     onTap: () => ref
                         .read(navigationInfoProvider.notifier)
                         .setCurrentMyPage(QnaThreadListPage(userId: data.id!)),
+                  ),
+
+                if (data?.id != null)
+                  PicnicListItem(
+                    key: const Key('my-page-currency-history'),
+                    leading: AppLocalizations.of(context).wallet_history_title,
+                    assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    onTap: () => ref
+                        .read(navigationInfoProvider.notifier)
+                        .setCurrentMyPage(const CurrencyHistoryPage()),
                   ),
 
                 // Voting History

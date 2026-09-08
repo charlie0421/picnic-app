@@ -20,7 +20,6 @@ import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
-import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
@@ -601,7 +600,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           if (mounted) {
             await _dialogHandler.showSuccessDialog(
               result: result,
-              displayedCampaign: liveAttempt?.displayedCampaign,
+              displayedPromotion: liveAttempt?.displayedPromotion,
             );
           }
         },
@@ -1072,13 +1071,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
-    // 🔒 구매 확인 다이얼로그 표시
-    final campaigns = ref.read(
-      activePromotionCampaignProvider(PromotionSurface.store),
+    // 🔒 구매 확인 다이얼로그 표시. Capture the same V2-first, exact-code
+    // resolution that renders the product badge. The settled-only selector
+    // fails closed on loading/error instead of advertising retained stale data.
+    final displayedPromotion = paymentBadgePromotionForDisplay(
+      ref.read(paymentBadgePromotionProvider),
     );
-    final displayedCampaign = campaigns.value?.items
-        .where((campaign) => campaign.showInStore)
-        .firstOrNull;
     if (_purchaseAttempts.contains(productId)) {
       await _dialogHandler.showPurchaseAlreadyPendingDialog();
       return;
@@ -1086,14 +1084,14 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     final confirmed = await _dialogHandler.showPurchaseConfirmDialog(
       serverProduct: serverProduct,
       storeProducts: storeProducts,
-      displayedCampaign: displayedCampaign,
+      displayedPromotion: displayedPromotion,
     );
 
     if (confirmed == true && context.mounted) {
       final attempt = PurchaseCampaignAttempt(
         attemptId: const Uuid().v4(),
         productId: productId,
-        displayedCampaign: displayedCampaign,
+        displayedPromotion: displayedPromotion,
       );
       if (!_purchaseAttempts.begin(attempt)) {
         await _dialogHandler.showPurchaseAlreadyPendingDialog();
@@ -1610,7 +1608,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         !_isInitializing &&
         !_purchaseAttempts.contains(productId);
     final isCurrentProductLoading = _purchaseAttempts.contains(productId);
-    final resolved = ref.watch(paymentBadgePromotionProvider).value;
+    final resolved = paymentBadgePromotionForDisplay(
+      ref.watch(paymentBadgePromotionProvider),
+    );
     final locale = Localizations.localeOf(context).languageCode;
 
     return StoreListTile(

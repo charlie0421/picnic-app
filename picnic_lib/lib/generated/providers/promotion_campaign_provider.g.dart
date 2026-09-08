@@ -117,7 +117,7 @@ final class ActivePromotionCampaignProvider
 }
 
 String _$activePromotionCampaignHash() =>
-    r'24fb8c3e86b0c29c89f47d4e5a65731a6e234d97';
+    r'37fc9410e99d93117889a2888126116b13c5a305';
 
 final class ActivePromotionCampaignFamily extends $Family
     with

@@ -31,7 +31,7 @@ void main() {
       PurchaseCampaignAttempt(
         attemptId: attemptId,
         productId: productId,
-        displayedCampaign: null,
+        displayedPromotion: null,
       );
 
   /// 런치 호출이 성공으로 반환된 상태 - 프로덕션에서 `initiatePurchase` 가

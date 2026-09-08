@@ -59,7 +59,7 @@ void main() {
       PurchaseCampaignAttempt(
         attemptId: id,
         productId: product,
-        displayedCampaign: null,
+        displayedPromotion: null,
       ),
     );
     manager.recordPurchaseAttempt(productId: product);
@@ -306,7 +306,7 @@ void main() {
           PurchaseCampaignAttempt(
             attemptId: 'attempt-other',
             productId: otherProductId,
-            displayedCampaign: null,
+            displayedPromotion: null,
           ),
         ),
         isTrue,

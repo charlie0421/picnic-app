@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/data/models/wallet/currency_history.dart';
@@ -36,7 +35,7 @@ class CurrencyHistoryListItem extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${_currencyLabel(context)} · ${item.eventType}',
+                  _currencyLabel(context),
                   style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                 ),
               ),
@@ -53,42 +52,16 @@ class CurrencyHistoryListItem extends StatelessWidget {
           ),
           SizedBox(height: 6.h),
           Text(
-            item.origin,
-            style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-          ),
-          SizedBox(height: 4.h),
-          Text(
             formatLocalDateTime(item.createdAt, format: 'yyyy.MM.dd HH:mm:ss'),
             style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
           ),
           if (item.expiresAt != null) ...[
             SizedBox(height: 2.h),
             Text(
-              'Expires: ${formatLocalDateTime(item.expiresAt, format: 'yyyy.MM.dd HH:mm:ss')}',
+              '${AppLocalizations.of(context).bonus_candy_expiration_policy_expiration_date}: ${formatLocalDateTime(item.expiresAt, format: 'yyyy.MM.dd HH:mm:ss')}',
               style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
             ),
           ],
-          SizedBox(height: 8.h),
-          InkWell(
-            onTap: () =>
-                Clipboard.setData(ClipboardData(text: item.operationId)),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SelectionArea(
-                    child: Text(
-                      'Support: ${item.operationId}',
-                      style: getTextStyle(
-                        AppTypo.caption12R,
-                        AppColors.grey600,
-                      ),
-                    ),
-                  ),
-                ),
-                Icon(Icons.copy, size: 16.w, color: AppColors.grey500),
-              ],
-            ),
-          ),
         ],
       ),
     );

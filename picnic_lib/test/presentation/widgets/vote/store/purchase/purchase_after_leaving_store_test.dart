@@ -285,7 +285,7 @@ void main() {
     const attempt = PurchaseCampaignAttempt(
       attemptId: 'attempt-1',
       productId: _productId,
-      displayedCampaign: null,
+      displayedPromotion: null,
     );
     attempts.begin(attempt);
     manager.recordPurchaseAttempt(productId: _productId);
@@ -306,7 +306,7 @@ void main() {
     const attempt = PurchaseCampaignAttempt(
       attemptId: 'attempt-1',
       productId: _productId,
-      displayedCampaign: null,
+      displayedPromotion: null,
     );
 
     final running = service.handleOptimizedPurchase(
@@ -680,7 +680,7 @@ void main() {
       const attempt = PurchaseCampaignAttempt(
         attemptId: 'attempt-1',
         productId: _productId,
-        displayedCampaign: null,
+        displayedPromotion: null,
       );
       surfaceAttempts.begin(attempt);
       surfaceManager.recordPurchaseAttempt(productId: _productId);

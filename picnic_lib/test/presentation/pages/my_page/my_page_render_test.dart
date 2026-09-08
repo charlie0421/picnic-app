@@ -4,6 +4,13 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
+import 'package:picnic_lib/data/models/wallet/currency_history.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/data/repositories/wallet_repository.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
@@ -17,6 +24,37 @@ import '../../../helpers/test_environment.dart';
 class MockBookmarkedArtists extends AsyncBookmarkedArtists {
   @override
   Future<List<ArtistModel>> build() async => [];
+}
+
+class _UnusedHistoryClient extends Fake implements SupabaseClient {}
+
+class _MenuHistoryRepository extends WalletRepository {
+  _MenuHistoryRepository() : super(_UnusedHistoryClient());
+  final historyCalls = <WalletCurrency>[];
+  @override
+  Future<WalletSummaryModel> getSummary() async => WalletSummaryModel(
+    contractVersion: 'wallet.v1',
+    star: BigInt.zero,
+    bonus: BigInt.zero,
+    cotton: BigInt.zero,
+    cottonExpiringAmount: BigInt.zero,
+    cottonNextExpiresAt: null,
+    snapshotAt: DateTime.utc(2026, 9, 8),
+  );
+  @override
+  Future<CurrencyHistoryPageModel> getHistory({
+    required WalletCurrency currency,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    historyCalls.add(currency);
+    return CurrencyHistoryPageModel(
+      items: [],
+      totalCount: BigInt.zero,
+      nextCursor: null,
+      snapshotAt: DateTime.utc(2026, 9, 8),
+    );
+  }
 }
 
 void main() {
@@ -50,42 +88,41 @@ void main() {
       expect(find.byType(MyPage), findsOneWidget);
     });
 
-    testWidgets(
-      'shows the shared candy pouch without history for a regular user',
-      (WidgetTester tester) async {
-        await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
-        await tester.pumpWidget(
-          buildTestAppPage(
-            const MyPage(),
-            userProfile: MockData.userProfile(isAdmin: false),
-            extraOverrides: [
-              asyncBookmarkedArtistsProvider.overrideWith(
-                MockBookmarkedArtists.new,
-              ),
-            ],
-          ),
-        );
-        await pumpAndIgnoreErrors(tester);
-        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+    testWidgets('shows candy history and the shared pouch for a regular user', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const MyPage(),
+          userProfile: MockData.userProfile(isAdmin: false),
+          extraOverrides: [
+            asyncBookmarkedArtistsProvider.overrideWith(
+              MockBookmarkedArtists.new,
+            ),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
 
-        expect(find.byType(StorePointInfo), findsOneWidget);
-        await tester.scrollUntilVisible(
-          find.text('알림함'),
-          300,
-          scrollable: find.byType(Scrollable).first,
-        );
-        expect(find.text('알림함'), findsOneWidget);
-        await tester.scrollUntilVisible(
-          find.text('설정'),
-          300,
-          scrollable: find.byType(Scrollable).first,
-        );
-        expect(find.text('캔디 내역'), findsNothing);
-        expect(find.text('관리자'), findsNothing);
-      },
-    );
+      expect(find.byType(StorePointInfo), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('알림함'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('알림함'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('설정'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.byKey(const Key('my-page-currency-history')), findsOneWidget);
+      expect(find.text('관리자'), findsNothing);
+    });
 
-    testWidgets('shows only the administrator entry for an admin user', (
+    testWidgets('keeps administrator tools separate from public history', (
       WidgetTester tester,
     ) async {
       await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
@@ -111,7 +148,7 @@ void main() {
         scrollable: find.byType(Scrollable).first,
       );
       expect(find.text('관리자'), findsOneWidget);
-      expect(find.text('캔디 내역'), findsNothing);
+      expect(find.byKey(const Key('my-page-currency-history')), findsOneWidget);
       expect(find.text('충전 내역'), findsNothing);
       expect(find.text('Ad Inspector'), findsNothing);
       expect(find.text('Reset & Reload GDPR'), findsNothing);
@@ -120,6 +157,44 @@ void main() {
       await pumpAndIgnoreErrors(tester);
       expect(find.byType(AdminMenuPage), findsOneWidget);
     });
+
+    testWidgets(
+      'regular user opens history from the menu without prefetching',
+      (tester) async {
+        await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
+        final repository = _MenuHistoryRepository();
+        await tester.pumpWidget(
+          buildTestAppPage(
+            const MyPageScreen(),
+            navigation: Navigation.initial(),
+            userProfile: MockData.userProfile(isAdmin: false),
+            extraOverrides: [
+              asyncBookmarkedArtistsProvider.overrideWith(
+                MockBookmarkedArtists.new,
+              ),
+              walletRepositoryProvider.overrideWithValue(repository),
+              walletHistorySessionProvider.overrideWithValue(
+                WalletHistorySession('test-user-id'),
+              ),
+            ],
+          ),
+        );
+        await pumpAndIgnoreErrors(tester);
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+        final entry = find.byKey(const Key('my-page-currency-history'));
+        await tester.scrollUntilVisible(
+          entry,
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(repository.historyCalls, isEmpty);
+        await tester.tap(entry);
+        await pumpAndIgnoreErrors(tester);
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+        expect(find.byType(CurrencyHistoryPage), findsOneWidget);
+        expect(repository.historyCalls, [WalletCurrency.cottonCandy]);
+      },
+    );
 
     testWidgets('renders logged-out state', (WidgetTester tester) async {
       await tester.pumpWidget(

@@ -79,6 +79,43 @@ void main() {
       );
     });
 
+    test(
+      'vote HOME excludes campaign-owned rows without changing other locations',
+      () async {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+
+        await container
+            .read(asyncBannerListProvider(location: 'vote_home').future);
+        await container
+            .read(asyncBannerListProvider(location: 'pic_home').future);
+
+        final voteHome = capturedMockRequests.singleWhere(
+          (uri) =>
+              uri.path.contains('/rest/v1/banner') &&
+              uri.queryParameters['location'] == 'eq.vote_home',
+        );
+        final picHome = capturedMockRequests.singleWhere(
+          (uri) =>
+              uri.path.contains('/rest/v1/banner') &&
+              uri.queryParameters['location'] == 'eq.pic_home',
+        );
+
+        expect(
+          voteHome.queryParametersAll['promotion_campaign_owned'],
+          ['eq.false'],
+          reason:
+              'campaign RPC timeout/error falls back to this ordinary HOME '
+              'query, so campaign creative rows must already be absent',
+        );
+        expect(
+          picHome.queryParametersAll['promotion_campaign_owned'],
+          isNull,
+          reason: 'the campaign ownership marker is a vote HOME contract only',
+        );
+      },
+    );
+
     test('active-window filters treat each NULL bound as unlimited', () {
       final now = DateTime.utc(2026, 8, 7, 12);
       // 정확한 술어 문자열을 고정한다. 이 두 or 조건이 AND 로 결합되면

@@ -8,6 +8,7 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
@@ -162,7 +163,7 @@ class PurchaseDialogHandler implements PurchaseReceiptDialogs {
   Future<bool?> showPurchaseConfirmDialog({
     required Map<String, dynamic> serverProduct,
     required List<ProductDetails> storeProducts,
-    required ActivePromotionCampaignModel? displayedCampaign,
+    required ResolvedPaymentBadgePromotion? displayedPromotion,
   }) async {
     return await showDialog<bool>(
       context: _context,
@@ -194,11 +195,13 @@ class PurchaseDialogHandler implements PurchaseReceiptDialogs {
                 AppLocalizations.of(context).purchase_confirm_message,
                 style: getTextStyle(AppTypo.body14R, AppColors.grey700),
               ),
-              if (displayedCampaign != null) ...[
+              if (displayedPromotion != null) ...[
                 SizedBox(height: 8),
                 Text(
-                  displayedCampaign.localizedDisplayName(
+                  localizedPromotionDisplayName(
+                    displayedPromotion.displayName,
                     Localizations.localeOf(context).languageCode,
+                    fallbackCode: displayedPromotion.code,
                   ),
                   style: getTextStyle(AppTypo.body14B, AppColors.primary500),
                 ),
@@ -419,7 +422,7 @@ class PurchaseDialogHandler implements PurchaseReceiptDialogs {
   @override
   Future<void> showSuccessDialog({
     required PurchaseSettlementResultModel result,
-    required ActivePromotionCampaignModel? displayedCampaign,
+    required ResolvedPaymentBadgePromotion? displayedPromotion,
   }) async {
     logger.i('[PurchaseDialogHandler] Showing success dialog');
     final context = _receiptContext();
@@ -428,8 +431,9 @@ class PurchaseDialogHandler implements PurchaseReceiptDialogs {
       return;
     }
     final checking =
-        result.promotion?.state == PurchasePromotionState.pendingTime ||
-        result.promotion?.state == PurchasePromotionState.eligible;
+        displayedPromotion != null &&
+        (result.promotion?.state == PurchasePromotionState.pendingTime ||
+            result.promotion?.state == PurchasePromotionState.eligible);
     await presentPurchaseSettlement(
       context,
       result,
@@ -444,7 +448,7 @@ class PurchaseDialogHandler implements PurchaseReceiptDialogs {
   @override
   Future<void> showLatePurchaseSuccessDialog({
     required PurchaseSettlementResultModel result,
-    required ActivePromotionCampaignModel? displayedCampaign,
+    required ResolvedPaymentBadgePromotion? displayedPromotion,
   }) async {
     logger.i('[PurchaseDialogHandler] Showing late purchase success dialog');
 

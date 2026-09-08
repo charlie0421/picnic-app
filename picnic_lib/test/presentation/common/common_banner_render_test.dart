@@ -131,6 +131,23 @@ class MutableBannerList extends AsyncBannerList {
   Future<List<BannerModel>> build({required String location}) async => items;
 }
 
+class ScriptedBannerList extends AsyncBannerList {
+  static final List<Future<List<BannerModel>>> responses = [];
+
+  @override
+  Future<List<BannerModel>> build({required String location}) =>
+      responses.removeAt(0);
+}
+
+BannerModel ordinaryBanner(int id, String title) => BannerModel.fromJson({
+  'id': id,
+  'title': {'en': title, 'ko': title},
+  'thumbnail': 'https://example.com/$id-thumb.jpg',
+  'image': {'en': 'https://example.com/$id.jpg'},
+  'duration': 3000,
+  'link': null,
+});
+
 ActivePromotionCampaignsModel homeCampaign() =>
     ActivePromotionCampaignsModel.fromJson({
       'items': [
@@ -266,6 +283,7 @@ void main() {
     initTestColors();
     VisibilityDetectorController.instance.updateInterval = Duration.zero;
     setupMockSupabase({'banner': <dynamic>[]});
+    ScriptedBannerList.responses.clear();
     restore = suppressImageErrors();
   });
 
@@ -435,6 +453,109 @@ void main() {
       await tester.pump();
       expect(find.text('단일 배너'), findsNothing);
     });
+
+    testWidgets(
+      'HOME hides cached ordinary data while a session-bound banner refresh is pending',
+      (tester) async {
+        final normalResponse = Completer<List<BannerModel>>();
+        ScriptedBannerList.responses.addAll([
+          Future.value([ordinaryBanner(900, 'admin-only ordinary')]),
+          normalResponse.future,
+        ]);
+        await pumpAndDrain(
+          tester,
+          buildTestApp(
+            const CommonBanner('vote_home', 16 / 9),
+            locale: const Locale('en'),
+            extraOverrides: [
+              asyncBannerListProvider.overrideWith(ScriptedBannerList.new),
+              homePromotionCampaignProvider(
+                'en',
+              ).overrideWith((ref) async => emptyHomeResolution()),
+            ],
+          ),
+        );
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(CommonBanner)),
+        );
+        await tester.runAsync(
+          () => container.read(
+            asyncBannerListProvider(location: 'vote_home').future,
+          ),
+        );
+        await tester.pump();
+        expect(find.text('admin-only ordinary'), findsOneWidget);
+
+        container.invalidate(asyncBannerListProvider(location: 'vote_home'));
+        await tester.pump();
+
+        expect(
+          find.text('admin-only ordinary'),
+          findsNothing,
+          reason: 'retained ordinary AsyncData belongs to the previous session',
+        );
+
+        normalResponse.complete([ordinaryBanner(901, 'normal ordinary')]);
+        await tester.pump();
+        await tester.pump();
+        drainExpectedImageErrors(tester);
+        expect(find.text('normal ordinary'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'HOME never renders cached campaign data during refresh loading or error',
+      (tester) async {
+        final nextCampaign = Completer<HomePromotionResolution>();
+        var reads = 0;
+        await pumpAndDrain(
+          tester,
+          buildTestApp(
+            const CommonBanner('vote_home', 16 / 9),
+            locale: const Locale('en'),
+            retry: (_, _) => null,
+            extraOverrides: [
+              asyncBannerListProvider.overrideWith(
+                MockAsyncBannerListSingle.new,
+              ),
+              homePromotionCampaignProvider('en').overrideWith((ref) {
+                if (reads++ == 0) {
+                  return Future.value(resolvedHomeCampaign());
+                }
+                return nextCampaign.future;
+              }),
+            ],
+          ),
+        );
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(CommonBanner)),
+        );
+        await tester.runAsync(
+          () => container.read(homePromotionCampaignProvider('en').future),
+        );
+        await tester.pump();
+        expect(find.byType(CandyBoostBanner), findsOneWidget);
+
+        container.invalidate(homePromotionCampaignProvider('en'));
+        await tester.pump();
+        expect(
+          find.byType(CandyBoostBanner),
+          findsNothing,
+          reason: 'a refreshing campaign value may belong to the old account',
+        );
+
+        nextCampaign.completeError(StateError('normal user is not eligible'));
+        await tester.pump();
+        await tester.pump();
+        drainExpectedImageErrors(tester);
+        expect(find.byType(CandyBoostBanner), findsNothing);
+        expect(
+          find.text('단일 배너'),
+          findsOneWidget,
+          reason: 'fresh ordinary data remains the narrow HOME error fallback',
+        );
+      },
+    );
 
     testWidgets('banner image carries its rendered size for CDN resize', (
       tester,

@@ -1,15 +1,25 @@
 import 'dart:async';
 
+import 'package:picnic_lib/core/analytics/ad_reward_earn_recorder.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
-import 'package:picnic_lib/data/storage/pending_ad_reward_store.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../generated/providers/ad_reward_recovery_provider.g.dart';
 
 /// Foreground ladder used right after the user finishes watching an ad, while
 /// the server-side grant callback lands. Six reads spread over 30 seconds.
+///
+/// This is the **only** ladder left. Startup, resume and same-user auth events
+/// used to replay it over every unacknowledged reward the server knew about,
+/// which is what made a cold start cost one `list_unacknowledged_ad_rewards`
+/// page walk plus six `get_ad_reward_status` reads per stale reference. The
+/// current ad the user just watched is the one result worth waiting for; the
+/// balance that past rewards moved is picked up by the resume balance read
+/// (`WalletResumeRefresher`) instead.
 const adRewardPollDelays = [
   Duration(seconds: 1),
   Duration(seconds: 2),
@@ -18,24 +28,21 @@ const adRewardPollDelays = [
   Duration(seconds: 15),
 ];
 
-/// Startup/resume reconciliation replays the same bounded ladder, silently.
-///
-/// The sweep must keep rechecking: a reference recovered as PENDING can be
-/// granted by the server seconds later, and if nobody re-reads it while the app
-/// stays in the foreground the user is never told about a reward that has
-/// already been paid out, and the acknowledgement that clears it is deferred to
-/// the next launch. So the window stays as wide as [adRewardPollDelays].
-///
-/// What the sweep does *not* do is raise `checkingReferences`. That set drives
-/// the "보상을 확인하고 있어요" banner, and because a reference the server never
-/// resolves is never removed from `pending_ad_rewards_v1` (only a successful
-/// acknowledgement deletes it), letting the sweep own the banner re-armed the
-/// full 30 seconds of it on every cold start and every foreground. The wait is
-/// the right behaviour; showing it for a wait the user did not trigger is not.
-const adRewardRecoveryPollDelays = adRewardPollDelays;
-
 typedef AdRewardDelay = Future<void> Function(Duration duration);
 typedef AdRewardOwnerReader = String? Function();
+
+/// Persists one confirmed grant to the durable analytics outbox.
+///
+/// A seam rather than a direct call so the recovery notifier can be tested
+/// without a storage backend, and so the mapping from a reward status to a GA4
+/// payload stays in `core/analytics` next to the outbox it feeds.
+typedef AdRewardEarnRecorder =
+    Future<bool> Function(AdRewardStatusModel status);
+
+final adRewardEarnRecorderProvider = Provider<AdRewardEarnRecorder>(
+  (ref) =>
+      (status) => recordAdRewardEarn(status: status),
+);
 
 @Riverpod(keepAlive: true)
 AdRewardDelay adRewardDelay(Ref ref) => Future<void>.delayed;
@@ -86,18 +93,26 @@ class AdRewardRecovery extends _$AdRewardRecovery {
   final _polling = <String>{};
   final _acknowledging = <String>{};
 
+  /// References whose confirmed grant already reached the analytics outbox in
+  /// this process. The durable outbox dedupes on its own key, so this is only
+  /// here to keep a repeated callback for one ad from queueing redundant
+  /// storage work. A failed write drops back out so a later confirmation of the
+  /// same reward can try again.
+  final _earnRecorded = <String>{};
+
   /// Claims a reference for the dialog pipeline, from the moment a terminal
   /// status is queued until the reference leaves that pipeline for good.
   ///
   /// The claim deliberately outlives the `dialogQueue` entry. Background and
-  /// foreground ladders run side by side on one reference (see [_pollForOwner]),
-  /// so a sibling poller can still be walking its 30 seconds of delays while the
-  /// first poller's terminal status is already on screen. Releasing the claim
-  /// when the dialog is acknowledged would let that late sibling re-read the
-  /// same GRANTED status and queue it a second time - a second dialog and a
-  /// second `acknowledge` for one reward. Only [discardDialog] releases it,
-  /// because that is the one path where nothing was acknowledged and the
-  /// reference genuinely has to be recoverable again.
+  /// foreground ladders run side by side on one reference (see
+  /// [_pollRecoveredReferences] and [_pollForegroundForOwner]), so a sibling
+  /// poller can still be walking its 30 seconds of delays while the first
+  /// poller's terminal status is already on screen. Releasing the claim when
+  /// the dialog is acknowledged would let that late sibling re-read the same
+  /// GRANTED status and queue it a second time - a second dialog and a second
+  /// `acknowledge` for one reward. Only [discardDialog] releases it, because
+  /// that is the one path where nothing was acknowledged and the reference
+  /// genuinely has to be recoverable again.
   final _queued = <String>{};
   var _generation = 0;
 
@@ -117,6 +132,7 @@ class AdRewardRecovery extends _$AdRewardRecovery {
       _generation++;
       _polling.clear();
       _acknowledging.clear();
+      _earnRecorded.clear();
       _queued.clear();
       state = AdRewardRecoveryState(activeUserId: ownerUserId);
     }
@@ -127,53 +143,9 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     _generation++;
     _polling.clear();
     _acknowledging.clear();
+    _earnRecorded.clear();
     _queued.clear();
     state = const AdRewardRecoveryState();
-  }
-
-  Future<void> recover(String ownerUserId) async {
-    if (ref.read(adRewardOwnerReaderProvider)() != ownerUserId) return;
-    final generation = _activateUser(ownerUserId);
-    final store = ref.read(pendingAdRewardStoreProvider);
-    final repository = ref.read(adRewardRepositoryProvider);
-    final localRecords = await store.readAll(ownerUserId);
-    if (!_isCurrent(ownerUserId, generation)) return;
-
-    final ackPending = localRecords
-        .where((value) => value.state == PendingAdRewardLocalState.ackPending)
-        .toList(growable: false);
-    final ackPendingKeys = {
-      for (final value in ackPending) _key(ownerUserId, value.reference),
-    };
-    for (final value in ackPending) {
-      unawaited(
-        _resumeAcknowledgement(ownerUserId, value.reference, generation),
-      );
-    }
-
-    final serverItems = <AdRewardStatusModel>[];
-    String? cursor;
-    do {
-      final page = await repository.listUnacknowledged(cursor: cursor);
-      if (!_isCurrent(ownerUserId, generation)) return;
-      serverItems.addAll(page.items);
-      cursor = page.nextCursor;
-    } while (cursor != null);
-
-    final unique = <String, AdRewardReference>{
-      for (final value in localRecords)
-        if (value.state == PendingAdRewardLocalState.pendingDisplay)
-          _key(ownerUserId, value.reference): value.reference,
-      for (final value in serverItems)
-        if (!ackPendingKeys.contains(_key(ownerUserId, value.reference)))
-          _key(ownerUserId, value.reference): value.reference,
-    };
-    if (!_isCurrent(ownerUserId, generation)) return;
-    state = state.copyWith(references: unique.values.toList(growable: false));
-    await Future.wait<void>([
-      for (final reference in unique.values)
-        _pollForOwner(ownerUserId, reference, generation, interactive: false),
-    ]);
   }
 
   Future<void> poll({
@@ -186,28 +158,41 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     if (!state.references.any((value) => _key(ownerUserId, value) == key)) {
       state = state.copyWith(references: [...state.references, reference]);
     }
-    await _pollForOwner(ownerUserId, reference, generation, interactive: true);
+    await _pollForegroundForOwner(ownerUserId, reference, generation);
   }
 
-  Future<void> _resumeAcknowledgement(
-    String ownerUserId,
-    AdRewardReference reference,
-    int generation,
-  ) async {
-    if (!_isCurrent(ownerUserId, generation)) return;
-    final token = '$generation:${_key(ownerUserId, reference)}';
-    if (!_acknowledging.add(token)) return;
-    try {
-      await ref.read(adRewardRepositoryProvider).acknowledge(reference);
-      if (!_isCurrent(ownerUserId, generation)) return;
-      await ref
-          .read(pendingAdRewardStoreProvider)
-          .remove(ownerUserId, reference);
-    } catch (_) {
-      // Keep the ACK_PENDING tombstone. A later startup/resume retries it.
-    } finally {
-      _acknowledging.remove(token);
+  /// Persists a confirmed grant to the durable analytics outbox, once.
+  ///
+  /// Deliberately not the dialog's job. `AdRewardDialogHost` used to send this
+  /// right before it opened the receipt, so a grant the app had already
+  /// confirmed went unrecorded whenever the host was not mounted or the user
+  /// left the ad screen first - and the fullscreen shortform route, which
+  /// presents its own receipt and never enters the dialog queue, recorded
+  /// nothing at all. The grant is what the event describes, so the write
+  /// belongs at the moment the grant is confirmed.
+  ///
+  /// Fire-and-forget on purpose: the outbox owns delivery and retry, and a
+  /// storage hiccup must not stall the poll the user is waiting on.
+  void _recordConfirmedEarn(String ownerUserId, AdRewardStatusModel status) {
+    final grant = status.grant;
+    if (status.state != AdRewardState.granted ||
+        grant == null ||
+        grant.amount <= BigInt.zero) {
+      return;
     }
+    final key = _key(ownerUserId, status.reference);
+    if (!_earnRecorded.add(key)) return;
+    unawaited(
+      Future.sync(() => ref.read(adRewardEarnRecorderProvider)(status)).then(
+        (stored) {
+          if (!stored) _earnRecorded.remove(key);
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          _earnRecorded.remove(key);
+          logger.e('적립 통계 저장 실패: $key', error: error, stackTrace: stackTrace);
+        },
+      ),
+    );
   }
 
   /// Drops [reference] from the "checking your reward" set.
@@ -233,67 +218,84 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     );
   }
 
-  Future<void> _pollForOwner(
+  bool _validateAndQueueTerminalStatus(
     String ownerUserId,
     AdRewardReference reference,
-    int generation, {
-    required bool interactive,
-  }) async {
-    if (!_isCurrent(ownerUserId, generation)) return;
+    AdRewardStatusModel status,
+    int generation,
+  ) {
+    if (status.reference != reference) {
+      throw const FormatException('Ad reward status reference mismatch');
+    }
+    if (status.state == AdRewardState.pending) return false;
+
+    _recordConfirmedEarn(ownerUserId, status);
+
     final key = _key(ownerUserId, reference);
-    // The mode is part of the token so a background sweep already in flight
-    // cannot swallow the foreground poll the user is actually waiting on.
-    // Duplicate `get_ad_reward_status` reads are harmless; `_queued` admits the
-    // reference to the dialog queue exactly once and holds that claim across
-    // the acknowledgement, so the slower ladder cannot re-queue behind it.
-    final pollToken = '$generation:${interactive ? 'fg' : 'bg'}:$key';
-    if (!_polling.add(pollToken)) return;
-    final delays = interactive
-        ? adRewardPollDelays
-        : adRewardRecoveryPollDelays;
-    if (interactive) {
+    if (_queued.add(key)) {
       state = state.copyWith(
-        checkingReferences: {...state.checkingReferences, reference},
+        dialogQueue: [
+          ...state.dialogQueue,
+          OwnedAdRewardStatus(
+            ownerUserId: ownerUserId,
+            status: status,
+            generation: generation,
+          ),
+        ],
       );
     }
+    return true;
+  }
+
+  Future<void> _pollForegroundForOwner(
+    String ownerUserId,
+    AdRewardReference reference,
+    int generation,
+  ) async {
+    if (!_isCurrent(ownerUserId, generation)) return;
+    final key = _key(ownerUserId, reference);
+    // One ladder per reference per generation. Duplicate `get_ad_reward_status`
+    // reads are harmless; `_queued` admits the reference to the dialog queue
+    // exactly once and holds that claim across the acknowledgement, so a second
+    // callback for the same ad cannot produce a second receipt.
+    final pollToken = '$generation:fg:$key';
+    if (!_polling.add(pollToken)) return;
+    state = state.copyWith(
+      checkingReferences: {...state.checkingReferences, reference},
+    );
     try {
       final repository = ref.read(adRewardRepositoryProvider);
-      for (var attempt = 0; attempt <= delays.length; attempt++) {
+      for (var attempt = 0; attempt <= adRewardPollDelays.length; attempt++) {
         final status = await repository.getStatus(reference);
         if (!_isCurrent(ownerUserId, generation)) return;
-        if (status.reference != reference) {
-          throw const FormatException('Ad reward status reference mismatch');
-        }
-        if (status.state != AdRewardState.pending) {
-          if (_queued.add(key)) {
-            state = state.copyWith(
-              dialogQueue: [
-                ...state.dialogQueue,
-                OwnedAdRewardStatus(
-                  ownerUserId: ownerUserId,
-                  status: status,
-                  generation: generation,
-                ),
-              ],
-            );
-          }
+        if (_validateAndQueueTerminalStatus(
+          ownerUserId,
+          reference,
+          status,
+          generation,
+        )) {
           return;
         }
-        if (attempt < delays.length) {
-          await ref.read(adRewardDelayProvider)(delays[attempt]);
+        if (attempt < adRewardPollDelays.length) {
+          await ref.read(adRewardDelayProvider)(adRewardPollDelays[attempt]);
           if (!_isCurrent(ownerUserId, generation)) return;
         }
       }
     } finally {
       _polling.remove(pollToken);
-      if (interactive) _stopChecking(ownerUserId, reference, generation);
+      _stopChecking(ownerUserId, reference, generation);
     }
   }
 
   /// Drops [queued] from the in-memory dialog queue after its first-frame
   /// acknowledgement failed, so a failed ACK can never re-present the same
-  /// dialog. The durable record is left untouched: a genuinely un-acknowledged
-  /// reward is re-polled and re-queued by the next recovery attempt.
+  /// dialog. The durable record is left untouched - nothing was acknowledged,
+  /// and the server reward and ledger entry are not this notifier's to discard.
+  ///
+  /// The reward itself is unaffected: the server already paid it, the balance
+  /// is applied from the same confirmed snapshot, and the analytics outbox
+  /// entry was written when the grant was confirmed. What is lost is only the
+  /// receipt dialog for this one reference in this session.
   ///
   /// This is the only place the [_queued] claim is released, and it is only
   /// reachable before [acknowledgeAfterRender] persisted its tombstone - so
@@ -350,9 +352,35 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     );
   }
 
+  /// The app observed a confirmed grant outside the polling path.
+  ///
+  /// The internal shortform view callback can come back already GRANTED, and on
+  /// that path nothing else is guaranteed to run: the fullscreen route renders
+  /// its receipt only while mounted, and [acknowledgePresented] runs from that
+  /// receipt's first frame. Recording here makes the analytics entry depend on
+  /// the grant rather than on the popup surviving.
+  ///
+  /// Silently ignored when the reward is not a positive grant or the owner is
+  /// no longer signed in - statistics never interrupt an ad flow. Duplicates
+  /// with the later [acknowledgePresented] are collapsed by the same reference
+  /// key that the durable outbox uses.
+  void recordConfirmedGrant({
+    required String ownerUserId,
+    required AdRewardStatusModel status,
+  }) {
+    if (ref.read(adRewardOwnerReaderProvider)() != ownerUserId) return;
+    _activateUser(ownerUserId);
+    _recordConfirmedEarn(ownerUserId, status);
+  }
+
   /// A terminal reward was rendered by the fullscreen ad route itself, before
   /// it can enter the app-level dialog queue. Persist the same acknowledgement
   /// tombstone used by [acknowledgeAfterRender] so it cannot reappear later.
+  ///
+  /// This is also a point where the app confirms a grant, so the analytics
+  /// outbox entry is written here too. It carries the same reference key as the
+  /// polled path and as the legacy shortform response path, so a reward that
+  /// reaches two of them is still counted once.
   Future<void> acknowledgePresented({
     required String ownerUserId,
     required AdRewardStatusModel status,
@@ -364,6 +392,7 @@ class AdRewardRecovery extends _$AdRewardRecovery {
       throw StateError('Ad reward owner is no longer active');
     }
     final generation = _activateUser(ownerUserId);
+    _recordConfirmedEarn(ownerUserId, status);
     await _acknowledgeTerminal(
       ownerUserId: ownerUserId,
       status: status,
@@ -379,8 +408,9 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     final key = _key(ownerUserId, status.reference);
 
     // Persisting the tombstone and calling `acknowledge` is one critical
-    // section per reference: `acknowledge` is a payout input, not progress UI,
-    // so two runs racing here would spend the same reward twice.
+    // section per reference. The RPC records display completion; it does not
+    // pay the reward. Serializing it still prevents duplicate ACK traffic and
+    // keeps the durable tombstone aligned with the in-memory queue.
     final ackToken = '$generation:$key';
     if (!_acknowledging.add(ackToken)) return;
     try {

@@ -1,6 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+// This file constructs Riverpod's retained-previous composite states to prove
+// promotion display fails closed during real refresh/error transitions.
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -867,5 +871,51 @@ void main() {
         );
       },
     );
+  });
+
+  group('payment badge display state', () {
+    const selected = (
+      displayName: {'ko': 'V2 캔디 부스트'},
+      code: 'CANDY_BOOST_DAY',
+      multiplierTenths: 15,
+      extraBonusBps: null,
+    );
+
+    test('exposes only a settled data value', () {
+      expect(
+        paymentBadgePromotionForDisplay(const AsyncData(selected)),
+        selected,
+      );
+      expect(
+        paymentBadgePromotionForDisplay(
+          const AsyncData<ResolvedPaymentBadgePromotion?>(null),
+        ),
+        isNull,
+      );
+    });
+
+    test('fails closed for loading and error even when they retain old data', () {
+      const previous = AsyncData<ResolvedPaymentBadgePromotion?>(selected);
+      final refreshing = const AsyncLoading<ResolvedPaymentBadgePromotion?>()
+          .copyWithPrevious(previous);
+      final failedRefresh = AsyncError<ResolvedPaymentBadgePromotion?>(
+        StateError('resolver failed'),
+        StackTrace.empty,
+      ).copyWithPrevious(previous);
+
+      // Prove these fixtures really contain stale Riverpod data; a raw
+      // `.value` consumer would advertise it during both transitional states.
+      expect(refreshing.value, selected);
+      expect(failedRefresh.value, selected);
+
+      for (final state in <AsyncValue<ResolvedPaymentBadgePromotion?>>[
+        const AsyncLoading(),
+        AsyncError(StateError('resolver failed'), StackTrace.empty),
+        refreshing,
+        failedRefresh,
+      ]) {
+        expect(paymentBadgePromotionForDisplay(state), isNull);
+      }
+    });
   });
 }

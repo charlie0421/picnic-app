@@ -107,14 +107,17 @@ abstract class ActivePromotionCampaignModel
       homeCreative?.localizedTitle(locale) != null &&
       homeCreative?.localizedImage(locale) != null;
 
-  factory ActivePromotionCampaignModel.fromJson(Map<String, dynamic> json) {
-    final exact = requireExactContractKeys(json, _campaignKeys);
-    if (exact['home_creative'] is Map &&
-        (exact['home_creative'] as Map).isEmpty) {
-      exact['home_creative'] = null;
-    }
-    return _$ActivePromotionCampaignModelFromJson(exact);
+  factory ActivePromotionCampaignModel.fromJson(Map<String, dynamic> json) =>
+      _$ActivePromotionCampaignModelFromJson(_normalizeCampaignJson(json));
+}
+
+Map<String, dynamic> _normalizeCampaignJson(Map<String, dynamic> json) {
+  final exact = requireExactContractKeys(json, _campaignKeys);
+  if (exact['home_creative'] is Map &&
+      (exact['home_creative'] as Map).isEmpty) {
+    exact['home_creative'] = null;
   }
+  return exact;
 }
 
 @freezed

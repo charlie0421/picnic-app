@@ -291,6 +291,8 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
       asyncBannerListProvider(location: widget.location),
     );
     return asyncBannerListState.when(
+      skipLoadingOnRefresh: false,
+      skipError: false,
       data: (List<BannerModel> data) {
         if (widget.location != 'vote_home') {
           return _renderSlides(_ordinarySlides(data));
@@ -315,6 +317,8 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
               ),
             )
             .when(
+              skipLoadingOnRefresh: false,
+              skipError: false,
               data: (resolved) {
                 _clearCampaignWaitCap(resetExpired: true);
                 return _renderSlides(_homeSlides(data, resolved));
@@ -322,16 +326,16 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
               loading: () {
                 // 상한 초과 시 캠페인 없이 degrade 렌더. provider 는 건드리지
                 // 않으므로 스토어가 읽는 캠페인 상태는 오염되지 않고, 늦게라도
-                // 응답이 오면 data 분기가 캠페인 슬라이드로 복구한다.
+                // 응답이 오면 data 분기가 캠페인 슬라이드로 복구한다. ordinary
+                // HOME query는 campaign-owned 행을 이미 제외한 상태다.
                 if (_campaignWaitExpired) {
                   return _renderSlides(_ordinarySlides(data));
                 }
                 _armCampaignWaitCap();
                 return _buildBannerShimmer();
               },
-              // 캠페인 조회 실패 시 일반 베너로 degrade
-              // 캠페인 데이터가 없어 owned 필터링은 못 하므로 대체 대상 베너가
-              // 원본으로 노출될 수 있으나, 전체 미노출보다는 낫다
+              // 캠페인 조회 실패 시 campaign-owned 행이 query에서 제외된 일반
+              // 배너로만 degrade한다.
               error: (_, _) {
                 _clearCampaignWaitCap(resetExpired: false);
                 return _renderSlides(_ordinarySlides(data));

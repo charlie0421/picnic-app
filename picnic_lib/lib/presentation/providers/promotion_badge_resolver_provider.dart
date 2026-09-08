@@ -17,6 +17,16 @@ typedef ResolvedPaymentBadgePromotion = ({
   int? extraBonusBps,
 });
 
+/// Returns only a settled resolver value for display.
+///
+/// Riverpod retains the previous value during refresh/loading and failed
+/// refreshes. Promotion UI must fail closed in those states: advertising the
+/// retained value could promise a campaign that the current resolution no
+/// longer authorizes.
+ResolvedPaymentBadgePromotion? paymentBadgePromotionForDisplay(
+  AsyncValue<ResolvedPaymentBadgePromotion?> resolution,
+) => resolution.unwrapPrevious().value;
+
 typedef HomePromotionSlideData = ({
   int bannerId,
   int durationMs,

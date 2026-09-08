@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/analytics/ad_reward_earn_recorder.dart';
 import 'package:picnic_lib/core/analytics/earn_analytics_store.dart';
 import 'package:picnic_lib/core/analytics/ga4_sink.dart';
 import 'package:picnic_lib/core/analytics/ga4_taxonomy.dart';
@@ -39,22 +40,31 @@ class _MemoryStorage implements LocalStorage {
 class _Repository implements AdRewardApi {
   final statusCompleter = Completer<AdRewardStatusModel>();
   final acknowledged = <AdRewardReference>[];
+  int statusReads = 0;
+  int listCalls = 0;
   @override
   Future<void> acknowledge(AdRewardReference reference) async =>
       acknowledged.add(reference);
   @override
-  Future<AdRewardStatusModel> getStatus(AdRewardReference reference) =>
-      statusCompleter.future;
+  Future<AdRewardStatusModel> getStatus(AdRewardReference reference) {
+    statusReads++;
+    return statusCompleter.future;
+  }
+
   @override
   Future<AdRewardPageModel> listUnacknowledged({
     String? cursor,
     int limit = 20,
-  }) async => AdRewardPageModel(
-    items: const [],
-    totalCount: BigInt.zero,
-    nextCursor: null,
-    snapshotAt: DateTime.utc(2026),
-  );
+  }) async {
+    listCalls++;
+    return AdRewardPageModel(
+      items: const [],
+      totalCount: BigInt.zero,
+      nextCursor: null,
+      snapshotAt: DateTime.utc(2026),
+    );
+  }
+
   @override
   Future<PangleClaimModel> createPangleClaim({
     required String platform,
@@ -136,13 +146,7 @@ Widget app(ProviderContainer container) => UncontrolledProviderScope(
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: AppLocalizations.supportedLocales,
-    // earn 마커/outbox 저장소를 주입하지 않으면 host 가 전역 저장소에 I/O 를
-    // 시작하고, 테스트 환경에서는 그 load 가 끝나지 않아 timeout Timer 가
-    // pending 으로 남는다(earnApp 과 같은 격리 규칙).
-    home: AdRewardDialogHost(
-      earnAnalyticsStore: EarnAnalyticsStore(storage: _MemoryStorage()),
-      child: const Scaffold(body: Text('home')),
-    ),
+    home: AdRewardDialogHost(child: const Scaffold(body: Text('home'))),
   ),
 );
 
@@ -163,7 +167,6 @@ Widget scheduledApp(
     home: AdRewardDialogHost(
       schedulePostFrame: schedule,
       onAcknowledgeError: onAcknowledgeError,
-      earnAnalyticsStore: EarnAnalyticsStore(storage: _MemoryStorage()),
       child: const Scaffold(body: Text('home')),
     ),
   ),
@@ -179,6 +182,7 @@ void main() {
         pendingAdRewardStoreProvider.overrideWithValue(store),
         adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
         adRewardDelayProvider.overrideWithValue((_) async {}),
+        adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
       ],
     );
     addTearDown(container.dispose);
@@ -194,12 +198,13 @@ void main() {
     expect(repository.acknowledged, isEmpty);
   });
 
-  testWidgets('launch recovery never raises the checking indicator', (
+  testWidgets('app launch reads no ad reward and raises no indicator', (
     tester,
   ) async {
     // 앱 실행 시 "보상을 확인하고 있어요" 가 오래 남던 자리. 서버가 끝내
-    // 해소하지 않는 레퍼런스는 로컬 레코드로 계속 남기 때문에, 스윕이
-    // 배너를 띄우면 실행/포그라운드마다 같은 안내가 다시 붙는다.
+    // 해소하지 않는 레퍼런스는 로컬 레코드로 계속 남기 때문에, 시작 스윕이
+    // 사다리를 다시 태우면 실행/포그라운드마다 같은 안내가 다시 붙었다.
+    // 지금은 시작이 광고 서버를 아예 건드리지 않는다.
     final repository = _Repository();
     final store = PendingAdRewardStore(_MemoryStorage());
     final container = ProviderContainer(
@@ -208,49 +213,55 @@ void main() {
         pendingAdRewardStoreProvider.overrideWithValue(store),
         adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
         adRewardDelayProvider.overrideWithValue((_) async {}),
+        adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
       ],
     );
     addTearDown(container.dispose);
     await store.add('user-a', reference);
-    unawaited(
-      container.read(adRewardRecoveryProvider.notifier).recover('user-a'),
-    );
+
     await tester.pumpWidget(app(container));
     await tester.pump();
+
     expect(find.text('Checking your reward'), findsNothing);
+    expect(repository.statusReads, 0);
+    expect(repository.listCalls, 0);
     expect(repository.acknowledged, isEmpty);
   });
 
-  testWidgets('sweep still presents a reward granted after its first read', (
-    tester,
-  ) async {
-    // 배너를 없앤다고 재조회까지 없애면, 재개 직후 확정된 보상이 같은 세션에서
-    // 조용히 사라진다. 배너 없이도 사다리는 돌아야 한다.
-    final repository = _FlippingRepository();
-    final store = PendingAdRewardStore(_MemoryStorage());
-    final container = ProviderContainer(
-      overrides: [
-        adRewardRepositoryProvider.overrideWithValue(repository),
-        pendingAdRewardStoreProvider.overrideWithValue(store),
-        adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
-        adRewardDelayProvider.overrideWithValue((_) async {}),
-      ],
-    );
-    addTearDown(container.dispose);
-    await store.add('user-a', reference);
+  testWidgets(
+    'a reward granted after its first read still reaches the receipt',
+    (tester) async {
+      // 배너를 없앤다고 재조회까지 없애면, 방금 본 광고가 확정된 순간을 같은
+      // 세션에서 놓친다. 배너 없이도 현재 광고의 사다리는 돌아야 한다.
+      final repository = _FlippingRepository();
+      final store = PendingAdRewardStore(_MemoryStorage());
+      final container = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(repository),
+          pendingAdRewardStoreProvider.overrideWithValue(store),
+          adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+          adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
+        ],
+      );
+      addTearDown(container.dispose);
+      await store.add('user-a', reference);
 
-    await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
-    await tester.pumpWidget(app(container));
-    await tester.pump();
-    await tester.pump();
+      await container
+          .read(adRewardRecoveryProvider.notifier)
+          .poll(ownerUserId: 'user-a', reference: reference);
+      await tester.pumpWidget(app(container));
+      await tester.pump();
+      await tester.pump();
 
-    expect(repository.reads, 2);
-    expect(find.text('Checking your reward'), findsNothing);
-    expect(find.text('Candy added!'), findsOneWidget);
-    expect(repository.acknowledged, [reference]);
-    await tester.pump();
-    expect(await store.readAll('user-a'), isEmpty);
-  });
+      expect(repository.reads, 2);
+      expect(find.text('Checking your reward'), findsNothing);
+      expect(find.text('Candy added!'), findsOneWidget);
+      expect(repository.acknowledged, [reference]);
+      await tester.pump();
+      expect(await store.readAll('user-a'), isEmpty);
+    },
+  );
 
   testWidgets('terminal dialog acknowledges once after its first frame', (
     tester,
@@ -263,13 +274,14 @@ void main() {
         pendingAdRewardStoreProvider.overrideWithValue(store),
         adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
         adRewardDelayProvider.overrideWithValue((_) async {}),
+        adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
       ],
     );
     addTearDown(container.dispose);
     await store.add('user-a', reference);
     final recovery = container
         .read(adRewardRecoveryProvider.notifier)
-        .recover('user-a');
+        .poll(ownerUserId: 'user-a', reference: reference);
     repository.statusCompleter.complete(granted());
     await recovery;
     await tester.pumpWidget(app(container));
@@ -295,6 +307,7 @@ void main() {
         pendingAdRewardStoreProvider.overrideWithValue(store),
         adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
         adRewardDelayProvider.overrideWithValue((_) async {}),
+        adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
         walletSummaryProvider.overrideWithBuild(
           (ref, notifier) => Completer<WalletSummaryModel>().future,
         ),
@@ -307,7 +320,7 @@ void main() {
     await store.add('user-a', reference);
     final recovery = container
         .read(adRewardRecoveryProvider.notifier)
-        .recover('user-a');
+        .poll(ownerUserId: 'user-a', reference: reference);
     repository.statusCompleter.complete(granted());
     await recovery;
     await tester.pumpWidget(app(container));
@@ -330,6 +343,66 @@ void main() {
     expect(repository.acknowledged, [reference]);
   });
 
+  testWidgets(
+    'server-listed reward renders its receipt without replacing a newer wallet',
+    (tester) async {
+      final repository = _Repository();
+      final store = PendingAdRewardStore(_MemoryStorage());
+      final listedWallet = granted().wallet.copyWith(
+        cotton: BigInt.from(9),
+        cottonExpiringAmount: BigInt.from(9),
+        snapshotAt: DateTime.utc(2026, 1, 1),
+      );
+      final listed = granted().copyWith(
+        grant: AdRewardGrantModel(
+          id: 'listed-grant',
+          currency: WalletCurrency.cottonCandy,
+          amount: BigInt.from(9),
+          grantedAt: DateTime.utc(2026, 1, 1),
+          expiresAt: DateTime.utc(2026, 2, 1),
+        ),
+        wallet: listedWallet,
+        snapshotAt: DateTime.utc(2026, 1, 1),
+      );
+      final newerWallet = granted().wallet.copyWith(
+        cotton: BigInt.from(50),
+        cottonExpiringAmount: BigInt.from(50),
+        snapshotAt: DateTime.utc(2026, 1, 2),
+      );
+      repository.statusCompleter.complete(listed);
+      final container = ProviderContainer(
+        overrides: [
+          adRewardRepositoryProvider.overrideWithValue(repository),
+          pendingAdRewardStoreProvider.overrideWithValue(store),
+          adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+          adRewardDelayProvider.overrideWithValue((_) async {}),
+          adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
+          walletSummaryProvider.overrideWithBuild(
+            (ref, notifier) async => newerWallet,
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(walletSummaryProvider.future);
+
+      await container
+          .read(adRewardRecoveryProvider.notifier)
+          .poll(ownerUserId: 'user-a', reference: reference);
+      expect(repository.statusReads, 1);
+      expect(repository.listCalls, 0);
+
+      await tester.pumpWidget(app(container));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Candy added!'), findsOneWidget);
+      expect(find.text('Cotton Candy'), findsOneWidget);
+      expect(find.text('+9'), findsOneWidget);
+      expect(container.read(walletSummaryProvider).value, same(newerWallet));
+      expect(repository.acknowledged, [reference]);
+    },
+  );
+
   testWidgets('stale A schedule never resets B and only B renders or ACKs', (
     tester,
   ) async {
@@ -343,6 +416,7 @@ void main() {
         pendingAdRewardStoreProvider.overrideWithValue(store),
         adRewardOwnerReaderProvider.overrideWithValue(() => owner),
         adRewardDelayProvider.overrideWithValue((_) async {}),
+        adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
       ],
     );
     addTearDown(container.dispose);
@@ -354,13 +428,17 @@ void main() {
     repository.statuses[a] = granted();
     repository.statuses[b] = granted().copyWith(reference: b);
     await store.add('user-a', a);
-    await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+    await container
+        .read(adRewardRecoveryProvider.notifier)
+        .poll(ownerUserId: 'user-a', reference: reference);
     await tester.pumpWidget(scheduledApp(container, scheduled.add));
     expect(scheduled, hasLength(1));
 
     owner = 'user-b';
     await store.add('user-b', b);
-    await container.read(adRewardRecoveryProvider.notifier).recover('user-b');
+    await container
+        .read(adRewardRecoveryProvider.notifier)
+        .poll(ownerUserId: 'user-b', reference: b);
     await tester.pump();
     expect(scheduled, hasLength(2));
     scheduled.first();
@@ -419,17 +497,18 @@ void main() {
         pendingAdRewardStoreProvider.overrideWithValue(store),
         adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
         adRewardDelayProvider.overrideWithValue((_) async {}),
+        adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
       ],
     );
     addTearDown(container.dispose);
     await store.add('user-a', reference);
     final notifier = container.read(adRewardRecoveryProvider.notifier);
-    await notifier.recover('user-a');
+    await notifier.poll(ownerUserId: 'user-a', reference: reference);
     await tester.pumpWidget(scheduledApp(container, scheduled.add));
     expect(scheduled, hasLength(1));
 
     notifier.resetForLogout();
-    await notifier.recover('user-a');
+    await notifier.poll(ownerUserId: 'user-a', reference: reference);
     await tester.pump();
     expect(scheduled, hasLength(2));
     scheduled.first();
@@ -462,6 +541,7 @@ void main() {
           pendingAdRewardStoreProvider.overrideWithValue(store),
           adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
           adRewardDelayProvider.overrideWithValue((_) async {}),
+          adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
         ],
       );
       addTearDown(container.dispose);
@@ -536,11 +616,14 @@ void main() {
           pendingAdRewardStoreProvider.overrideWithValue(store),
           adRewardOwnerReaderProvider.overrideWithValue(() => owner),
           adRewardDelayProvider.overrideWithValue((_) async {}),
+          adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
         ],
       );
       addTearDown(container.dispose);
       await store.add('user-a', reference);
-      await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
+      await container
+          .read(adRewardRecoveryProvider.notifier)
+          .poll(ownerUserId: 'user-a', reference: reference);
       await tester.pumpWidget(
         scheduledApp(
           container,
@@ -588,12 +671,13 @@ void main() {
           pendingAdRewardStoreProvider.overrideWithValue(store),
           adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
           adRewardDelayProvider.overrideWithValue((_) async {}),
+          adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
         ],
       );
       addTearDown(container.dispose);
       await store.add('user-a', reference);
       final notifier = container.read(adRewardRecoveryProvider.notifier);
-      await notifier.recover('user-a');
+      await notifier.poll(ownerUserId: 'user-a', reference: reference);
       await tester.pumpWidget(
         scheduledApp(
           container,
@@ -621,7 +705,7 @@ void main() {
       expect(find.byType(CandyRewardReceiptDialog), findsNothing);
       expect(scheduled, hasLength(1));
 
-      await notifier.recover('user-a');
+      await notifier.poll(ownerUserId: 'user-a', reference: reference);
       await tester.pump();
       expect(scheduled, hasLength(2));
       scheduled.last();
@@ -634,46 +718,39 @@ void main() {
     },
   );
 
-  testWidgets(
-    '비지급 종결 상태는 다이얼로그 없이 확인만 하고 큐에서 빠진다',
-    (tester) async {
-      // 지갑 엔진 도입 전 광고 시청분이 ABANDONED 로 채워지면서, 실행 직후
-      // "보상이 지급되지 않았어요 / ABANDONED" 모달이 여러 장 쌓였다.
-      final repository = _QueueRepository()
-        ..statuses[reference] = denied().copyWith(
-          state: AdRewardState.abandoned,
-        );
-      final store = PendingAdRewardStore(_MemoryStorage());
-      final scheduled = <VoidCallback>[];
-      final container = ProviderContainer(
-        overrides: [
-          adRewardRepositoryProvider.overrideWithValue(repository),
-          pendingAdRewardStoreProvider.overrideWithValue(store),
-          adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
-          adRewardDelayProvider.overrideWithValue((_) async {}),
-        ],
-      );
-      addTearDown(container.dispose);
-      await store.add('user-a', reference);
-      final notifier = container.read(adRewardRecoveryProvider.notifier);
-      await notifier.recover('user-a');
+  testWidgets('비지급 종결 상태는 다이얼로그 없이 확인만 하고 큐에서 빠진다', (tester) async {
+    // 지갑 엔진 도입 전 광고 시청분이 ABANDONED 로 채워지면서, 실행 직후
+    // "보상이 지급되지 않았어요 / ABANDONED" 모달이 여러 장 쌓였다.
+    final repository = _QueueRepository()
+      ..statuses[reference] = denied().copyWith(state: AdRewardState.abandoned);
+    final store = PendingAdRewardStore(_MemoryStorage());
+    final scheduled = <VoidCallback>[];
+    final container = ProviderContainer(
+      overrides: [
+        adRewardRepositoryProvider.overrideWithValue(repository),
+        pendingAdRewardStoreProvider.overrideWithValue(store),
+        adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
+        adRewardDelayProvider.overrideWithValue((_) async {}),
+        adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
+      ],
+    );
+    addTearDown(container.dispose);
+    await store.add('user-a', reference);
+    final notifier = container.read(adRewardRecoveryProvider.notifier);
+    await notifier.poll(ownerUserId: 'user-a', reference: reference);
 
-      await tester.pumpWidget(scheduledApp(container, scheduled.add));
-      expect(scheduled, hasLength(1));
-      scheduled.single();
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(scheduledApp(container, scheduled.add));
+    expect(scheduled, hasLength(1));
+    scheduled.single();
+    await tester.pumpAndSettle();
 
-      // 사용자에게는 아무것도 뜨지 않는다.
-      expect(find.byType(CandyRewardReceiptDialog), findsNothing);
-      expect(find.text('The reward was not granted'), findsNothing);
-      // 그러나 서버 확인은 남아서 다음 실행에 다시 폴링되지 않는다.
-      expect(repository.acknowledged, contains(reference));
-      expect(
-        container.read(adRewardRecoveryProvider).dialogQueue,
-        isEmpty,
-      );
-    },
-  );
+    // 사용자에게는 아무것도 뜨지 않는다.
+    expect(find.byType(CandyRewardReceiptDialog), findsNothing);
+    expect(find.text('The reward was not granted'), findsNothing);
+    // 그러나 서버 확인은 남아서 다음 실행에 다시 폴링되지 않는다.
+    expect(repository.acknowledged, contains(reference));
+    expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+  });
 
   group('earn_virtual_currency 중복 방어', () {
     late RecordingGa4Sink sink;
@@ -712,19 +789,32 @@ void main() {
           pendingAdRewardStoreProvider.overrideWithValue(store),
           adRewardOwnerReaderProvider.overrideWithValue(() => 'user-a'),
           adRewardDelayProvider.overrideWithValue((_) async {}),
+          // 실제 durable 계약을 그대로 태우고 저장소만 테스트 것으로 격리한다.
+          adRewardEarnRecorderProvider.overrideWithValue(
+            (status) => recordAdRewardEarn(
+              status: status,
+              store: EarnAnalyticsStore(storage: earnStorage),
+            ),
+          ),
         ],
       );
       addTearDown(container.dispose);
       await store.add('user-a', reference);
-      await container.read(adRewardRecoveryProvider.notifier).recover('user-a');
-
-      await tester.pumpWidget(earnApp(container, earnStorage));
-      await tester.pumpAndSettle();
-      // 발송은 다이얼로그를 막지 않도록 unawaited 라, 예약 조회 → 전송 →
-      // 마커 커밋으로 이어지는 microtask 체인이 끝날 틈을 준다.
+      // 통계 저장은 적립을 확인한 시점에 일어난다 - 호스트가 뜨기도 전이다.
+      await container
+          .read(adRewardRecoveryProvider.notifier)
+          .poll(ownerUserId: 'user-a', reference: reference);
+      // 저장은 확인을 막지 않도록 unawaited 라, 예약 조회 → 전송 → 마커
+      // 커밋으로 이어지는 microtask 체인이 끝날 틈을 준다.
+      //
+      // `Future.delayed` 를 직접 await 하면 안 된다: testWidgets 는 가상 시계를
+      // 쓰므로 pump 없이는 그 타이머가 영원히 발화하지 않아 테스트가 멈춘다.
       for (var i = 0; i < 6; i++) {
         await tester.pump(Duration.zero);
       }
+
+      await tester.pumpWidget(earnApp(container, earnStorage));
+      await tester.pumpAndSettle();
     }
 
     testWidgets('한 번의 실행에서는 1회 발송된다', (tester) async {
@@ -733,19 +823,16 @@ void main() {
       expect(earnCount(), 1);
     });
 
-    testWidgets(
-      'ACK 실패 후 재큐잉되는 다음 실행에서 다시 발송되지 않는다',
-      (tester) async {
-        // 위젯 메모리의 Set 은 프로세스마다 새로 생기므로, 영속 마커가 없으면
-        // 같은 적립이 실행마다 한 번씩 더 집계된다.
-        await runSession(tester);
-        expect(earnCount(), 1);
+    testWidgets('ACK 실패 후 재큐잉되는 다음 실행에서 다시 발송되지 않는다', (tester) async {
+      // 위젯 메모리의 Set 은 프로세스마다 새로 생기므로, 영속 마커가 없으면
+      // 같은 적립이 실행마다 한 번씩 더 집계된다.
+      await runSession(tester);
+      expect(earnCount(), 1);
 
-        await runSession(tester);
+      await runSession(tester);
 
-        expect(earnCount(), 1);
-      },
-    );
+      expect(earnCount(), 1);
+    });
 
     testWidgets('전송이 실패하면 마커가 남지 않고 다음 실행에서 다시 발송된다', (tester) async {
       // blocker 였던 경로: sink 가 Firebase 미초기화로 조용히 no-op 했는데
@@ -786,10 +873,7 @@ Widget earnApp(ProviderContainer container, LocalStorage earnStorage) =>
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
-        home: AdRewardDialogHost(
-          earnAnalyticsStore: EarnAnalyticsStore(storage: earnStorage),
-          child: const Scaffold(body: Text('home')),
-        ),
+        home: AdRewardDialogHost(child: const Scaffold(body: Text('home'))),
       ),
     );
 

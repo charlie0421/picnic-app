@@ -46,7 +46,7 @@ void main() {
       PurchaseCampaignAttempt(
         attemptId: attemptId,
         productId: productId,
-        displayedCampaign: null,
+        displayedPromotion: null,
       );
 
   void resolveLaunch(

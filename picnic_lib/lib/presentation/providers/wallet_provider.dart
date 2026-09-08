@@ -68,6 +68,38 @@ final walletAuthGatewayProvider = Provider<WalletAuthGateway>(
   (ref) => const SupabaseWalletAuthGateway(),
 );
 
+/// 서버 읽기 캐시가 바뀌어야 하는 실제 인증 신원.
+///
+/// Supabase auth stream은 마지막 이벤트를 새 구독자에게 replay하고 토큰 갱신도
+/// 같은 사용자로 여러 번 발행한다. 이벤트 종류를 cache boundary로 쓰면 replay
+/// 무효화 루프가 생기므로, 사용자 ID가 실제로 달라질 때만 상태를 바꾼다.
+final authSessionIdentityProvider =
+    NotifierProvider<AuthSessionIdentity, String?>(AuthSessionIdentity.new);
+
+void _handleAuthStateStreamError(Object _, StackTrace _) {
+  // Auth exceptions may carry session/token material. The stream remains open
+  // after transient errors, so retain the last identity and log no payload.
+  logger.w('인증 상태 스트림 오류 — 현재 인증 상태를 유지한다');
+}
+
+final class AuthSessionIdentity extends Notifier<String?> {
+  @override
+  String? build() {
+    final gateway = ref.watch(walletAuthGatewayProvider);
+    if (!gateway.isEnabled) return null;
+
+    var identity = gateway.currentSession?.user.id;
+    final authEvents = gateway.authStateChanges.listen((change) {
+      final next = change.session?.user.id;
+      if (next == identity) return;
+      identity = next;
+      state = next;
+    }, onError: _handleAuthStateStreamError);
+    ref.onDispose(authEvents.cancel);
+    return identity;
+  }
+}
+
 /// 파우치 최초 로드 실패에 대한 자동 재시도 정책.
 ///
 /// riverpod 3 은 build 실패를 기본값으로 **10회, 200ms→6.4s 백오프**로 자동
@@ -119,7 +151,7 @@ class WalletSummary extends _$WalletSummary {
       }
       if (change.session?.user.id == builtForUserId) return;
       ref.invalidateSelf();
-    });
+    }, onError: _handleAuthStateStreamError);
     ref.onDispose(authEvents.cancel);
 
     return _read(repository);
@@ -210,28 +242,82 @@ class WalletSummary extends _$WalletSummary {
   }
 }
 
-@riverpod
+/// Identity changes on every observed owner transition, including A → B → A.
+/// A same-owner token refresh keeps the existing history session.
+class WalletHistorySession {
+  WalletHistorySession(this.userId);
+  final String? userId;
+}
+
+final walletHistorySessionProvider = Provider.autoDispose<WalletHistorySession>(
+  (ref) {
+    final gateway = ref.watch(walletAuthGatewayProvider);
+    if (!gateway.isEnabled) return WalletHistorySession(null);
+    var observedOwner = gateway.currentSession?.user.id;
+    final session = WalletHistorySession(observedOwner);
+    final subscription = gateway.authStateChanges.listen(
+      (change) {
+        final nextOwner = change.session?.user.id;
+        if (nextOwner == observedOwner) return;
+        observedOwner = nextOwner;
+        ref.invalidateSelf();
+      },
+      onError: _handleAuthStateStreamError,
+    );
+    ref.onDispose(subscription.cancel);
+    return session;
+  },
+);
+
+/// History is requested explicitly. Keep failures visible for manual retry
+/// instead of multiplying requests through Riverpod's default retry policy.
+Duration? currencyHistoryRetry(int retryCount, Object error) => null;
+
+const kCurrencyHistoryReadTimeout = Duration(seconds: 6);
+
+@Riverpod(retry: currencyHistoryRetry)
 class CurrencyHistory extends _$CurrencyHistory {
+  int _generation = 0;
+  WalletHistorySession? _session;
+
   @override
   Future<CurrencyHistoryPageModel> build(WalletCurrency currency) {
-    return ref.watch(walletRepositoryProvider).getHistory(currency: currency);
+    final session = ref.watch(walletHistorySessionProvider);
+    _session = session;
+    _generation++;
+    _loadingNext = false;
+    if (session.userId == null) {
+      throw StateError('Wallet history requires an authenticated user');
+    }
+    return ref
+        .watch(walletRepositoryProvider)
+        .getHistory(currency: currency)
+        .timeout(kCurrencyHistoryReadTimeout);
   }
 
   bool _loadingNext = false;
 
-  Future<void> loadNext() async {
+  Future<bool> loadNext() async {
     // 스크롤 끝 알림이 연달아 들어와도 페이지 요청은 한 번만 (PICNIC-APP-4R8)
-    if (_loadingNext) return;
+    if (_loadingNext) return true;
+    final session = ref.read(walletHistorySessionProvider);
+    if (session.userId == null || !identical(session, _session)) return true;
+    final generation = _generation;
     final current = state.value;
-    if (current == null || current.nextCursor == null) return;
+    if (current == null || current.nextCursor == null) return true;
 
     _loadingNext = true;
     try {
       final next = await ref
           .read(walletRepositoryProvider)
-          .getHistory(currency: currency, cursor: current.nextCursor);
+          .getHistory(currency: currency, cursor: current.nextCursor)
+          .timeout(kCurrencyHistoryReadTimeout);
       // async gap 중 provider 가 dispose 되었으면 state 접근 금지
-      if (!ref.mounted) return;
+      if (!ref.mounted ||
+          generation != _generation ||
+          !identical(session, ref.read(walletHistorySessionProvider))) {
+        return true;
+      }
       // 응답이 도착한 시점의 state 기준으로 병합 (await 이전 스냅샷 사용 금지)
       final latest = state.value ?? current;
       final seen = latest.items.map((item) => item.id).toSet();
@@ -245,6 +331,7 @@ class CurrencyHistory extends _$CurrencyHistory {
           totalCount: next.totalCount,
         ),
       );
+      return true;
     } catch (e, s) {
       // 이미 불러온 페이지는 유지하고 실패만 보고한다.
       logger.e(
@@ -252,8 +339,9 @@ class CurrencyHistory extends _$CurrencyHistory {
         error: e,
         stackTrace: s,
       );
+      return false;
     } finally {
-      _loadingNext = false;
+      if (generation == _generation) _loadingNext = false;
     }
   }
 }

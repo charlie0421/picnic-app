@@ -178,6 +178,53 @@ class _SilentAuthGateway implements WalletAuthGateway {
       StreamController<AuthState>().stream;
 }
 
+class _MutableAuthGateway implements WalletAuthGateway {
+  _MutableAuthGateway(String userId) : _session = _FakeSession(userId);
+
+  final _changes = StreamController<AuthState>.broadcast(sync: true);
+  Session _session;
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  Session get currentSession => _session;
+
+  @override
+  Stream<AuthState> get authStateChanges => _changes.stream;
+
+  bool get hasListener => _changes.hasListener;
+
+  void emitError(Object error) => _changes.addError(error, StackTrace.current);
+
+  void signIn(String userId) {
+    _session = _FakeSession(userId);
+    _changes.add(AuthState(AuthChangeEvent.signedIn, _session));
+  }
+
+  Future<void> close() => _changes.close();
+}
+
+class _MutableHistoryAuth implements WalletAuthGateway {
+  _MutableHistoryAuth(String? owner)
+    : session = owner == null ? null : _FakeSession(owner);
+  Session? session;
+  final changes = StreamController<AuthState>.broadcast(sync: true);
+  @override
+  bool get isEnabled => true;
+  @override
+  Session? get currentSession => session;
+  @override
+  Stream<AuthState> get authStateChanges => changes.stream;
+  void change(
+    String? owner, {
+    AuthChangeEvent event = AuthChangeEvent.signedIn,
+  }) {
+    session = owner == null ? null : _FakeSession(owner);
+    changes.add(AuthState(event, session));
+  }
+}
+
 class _FailingHistoryRepository extends WalletRepository {
   _FailingHistoryRepository({required this.firstPage, required this.error})
     : super(_UnusedSupabaseClient());
@@ -272,7 +319,12 @@ void main() {
         },
       );
       final container = ProviderContainer(
-        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(
+            _ReplayingAuthGateway(session: _FakeSession('owner-a')),
+          ),
+        ],
       );
       addTearDown(container.dispose);
 
@@ -308,7 +360,12 @@ void main() {
         },
       );
       final container = ProviderContainer(
-        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(
+            _ReplayingAuthGateway(session: _FakeSession('owner-a')),
+          ),
+        ],
       );
       addTearDown(container.dispose);
 
@@ -378,7 +435,7 @@ void main() {
   // while that request is still outstanding. This is the case the merge in
   // `loadNext` reads `state.value` for instead of its pre-await snapshot.
   test(
-    'a page landing after a rebuild extends the rebuilt list, not the snapshot',
+    'a page from before refresh cannot overwrite the new history snapshot',
     () async {
       final repository = _ControlledWalletRepository(
         pages: {
@@ -392,7 +449,12 @@ void main() {
         ),
       );
       final container = ProviderContainer(
-        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(
+            _ReplayingAuthGateway(session: _FakeSession('owner-a')),
+          ),
+        ],
       );
       addTearDown(container.dispose);
 
@@ -420,12 +482,11 @@ void main() {
       final page = container.read(provider).value!;
       expect(
         [for (final item in page.items) item.id],
-        ['1', '9', '2'],
+        ['1', '9'],
         reason:
-            'the late page must extend the list it actually landed in; merging '
-            'into the pre-await snapshot would drop the refreshed item',
+            'a cursor belongs to its original snapshot and must be discarded after refresh',
       );
-      expect(page.nextCursor, isNull);
+      expect(page.nextCursor, 'cursor-2');
     },
   );
 
@@ -438,7 +499,12 @@ void main() {
         error: failure,
       );
       final container = ProviderContainer(
-        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(
+            _ReplayingAuthGateway(session: _FakeSession('owner-a')),
+          ),
+        ],
       );
       addTearDown(container.dispose);
 
@@ -471,6 +537,213 @@ void main() {
       );
     },
   );
+
+  test('history does not call the server without a signed-in owner', () async {
+    final repository = _FakeWalletRepository(
+      summaries: [],
+      pages: {null: _page([], null)},
+    );
+    final auth = _MutableHistoryAuth(null);
+    final container = ProviderContainer(
+      overrides: [
+        walletRepositoryProvider.overrideWithValue(repository),
+        walletAuthGatewayProvider.overrideWithValue(auth),
+      ],
+    );
+    addTearDown(container.dispose);
+    addTearDown(auth.changes.close);
+    await expectLater(
+      container.read(
+        currencyHistoryProvider(WalletCurrency.cottonCandy).future,
+      ),
+      throwsStateError,
+    );
+    expect(repository.cursors, isEmpty);
+  });
+
+  test(
+    'history account switch discards the previous owner cursor response',
+    () async {
+      final repository = _ControlledWalletRepository(
+        pages: {
+          null: _page([_item('owner-a')], 'a-next'),
+          'a-next': _page([_item('a-private')], null),
+        },
+        firstPageOnRebuild: _page([_item('owner-b')], null),
+      );
+      final auth = _MutableHistoryAuth('owner-a');
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(auth),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(auth.changes.close);
+      final provider = currencyHistoryProvider(WalletCurrency.cottonCandy);
+      container.listen(provider, (_, _) {});
+      await container.read(provider.future);
+      final pending = container.read(provider.notifier).loadNext();
+      auth.change('owner-b');
+      await _flush();
+      final next = await container.read(provider.future);
+      expect(next.items.map((item) => item.id), ['owner-b']);
+      repository.completeLatest('a-next');
+      await pending;
+      expect(container.read(provider).value!.items.map((item) => item.id), [
+        'owner-b',
+      ]);
+      auth.change('owner-b', event: AuthChangeEvent.tokenRefreshed);
+      await _flush();
+      expect(repository.firstPageCalls, 2);
+    },
+  );
+
+  test(
+    'history A to B to A does not reuse a cursor from the first session',
+    () async {
+      final repository = _ControlledWalletRepository(
+        pages: {
+          null: _page([_item('a-before')], 'a-next'),
+          'a-next': _page([_item('obsolete')], null),
+        },
+        firstPageOnRebuild: _page([_item('a-after')], null),
+      );
+      final auth = _MutableHistoryAuth('owner-a');
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(auth),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(auth.changes.close);
+      final provider = currencyHistoryProvider(WalletCurrency.cottonCandy);
+      container.listen(provider, (_, _) {});
+      await container.read(provider.future);
+      final pending = container.read(provider.notifier).loadNext();
+      auth.change('owner-b');
+      auth.change('owner-a');
+      await _flush();
+      await container.read(provider.future);
+      repository.completeLatest('a-next');
+      await pending;
+      expect(container.read(provider).value!.items.map((item) => item.id), [
+        'a-after',
+      ]);
+      auth.change(null, event: AuthChangeEvent.signedOut);
+      await _flush();
+      await expectLater(container.read(provider.future), throwsStateError);
+      expect(repository.firstPageCalls, 2);
+    },
+  );
+
+  test(
+    'shared auth errors preserve wallet consumers without logging credentials',
+    () async {
+      final auth = _MutableHistoryAuth('owner-a');
+      addTearDown(auth.changes.close);
+      final repository = _FakeWalletRepository(
+        summaries: [_summary(30), _summary(31)],
+        pages: {
+          null: _page([_item('settled')], null),
+        },
+      );
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(auth),
+        ],
+      );
+      addTearDown(container.dispose);
+      final logged = <LogEvent>[];
+      void logListener(LogEvent event) => logged.add(event);
+      Logger.addLogListener(logListener);
+      addTearDown(() => Logger.removeLogListener(logListener));
+      final history = currencyHistoryProvider(WalletCurrency.cottonCandy);
+      container.listen(authSessionIdentityProvider, (_, _) {});
+      container.listen(walletSummaryProvider, (_, _) {});
+      container.listen(history, (_, _) {});
+      await container.read(walletSummaryProvider.future);
+      await container.read(history.future);
+      final historySession = container.read(walletHistorySessionProvider);
+      logged.clear();
+
+      auth.changes.addError(
+        StateError('fake-secret-refresh-token'),
+        StackTrace.fromString('fake-secret-auth-stack'),
+      );
+      await _flush();
+      expect(container.read(authSessionIdentityProvider), 'owner-a');
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.from(30),
+      );
+      expect(container.read(history).value!.items.single.id, 'settled');
+      expect(logged, isNotEmpty, reason: 'the auth failure remains observable');
+      expect(logged.map((event) => event.error), everyElement(isNull));
+      expect(logged.map((event) => event.stackTrace), everyElement(isNull));
+      expect(
+        logged.map((event) => event.message.toString()).join(),
+        isNot(contains('fake-secret')),
+      );
+
+      auth.change('owner-a', event: AuthChangeEvent.initialSession);
+      auth.change('owner-a', event: AuthChangeEvent.tokenRefreshed);
+      await _flush();
+      expect(repository.summaryCalls, 1);
+      expect(repository.cursors, [null]);
+      expect(
+        container.read(walletHistorySessionProvider),
+        same(historySession),
+      );
+
+      auth.change('owner-b');
+      await _flush();
+      expect(container.read(authSessionIdentityProvider), 'owner-b');
+      expect(
+        (await container.read(walletSummaryProvider.future)).cotton,
+        BigInt.from(31),
+      );
+      await container.read(history.future);
+      expect(repository.summaryCalls, 2);
+      expect(repository.cursors, [null, null]);
+      expect(
+        container.read(walletHistorySessionProvider),
+        isNot(same(historySession)),
+      );
+      container.dispose();
+      expect(auth.changes.hasListener, isFalse);
+    },
+  );
+
+  test('history auth replay settles without reopening the read loop', () async {
+    final auth = _ReplayingAuthGateway(
+      session: _FakeSession('owner-a'),
+      replayed: AuthState(AuthChangeEvent.signedIn, _FakeSession('owner-a')),
+      replayLimit: 5,
+    );
+    final repository = _FakeWalletRepository(
+      summaries: [],
+      pages: {
+        null: _page([_item('settled')], null),
+      },
+    );
+    final container = ProviderContainer(
+      overrides: [
+        walletRepositoryProvider.overrideWithValue(repository),
+        walletAuthGatewayProvider.overrideWithValue(auth),
+      ],
+    );
+    addTearDown(container.dispose);
+    final history = currencyHistoryProvider(WalletCurrency.cottonCandy);
+    container.listen(history, (_, _) {});
+    await container.read(history.future);
+    await _flush();
+    expect(container.read(history).value!.items.single.id, 'settled');
+    expect(repository.cursors, [null]);
+    expect(auth.subscriptions, 1);
+  });
 
   // The pouch showed an infinite loading state on Android (1.3.0+130000 patch
   // 9) that a force-stop cleared. Every await in the summary path is bounded
@@ -698,6 +971,52 @@ void main() {
         );
       });
     });
+
+    test(
+      'an auth stream error keeps the wallet and a later login still re-reads',
+      () async {
+        final uncaught = <Object>[];
+        await runZonedGuarded(() async {
+          final repository = _ScriptedWalletRepository([
+            () async => _summary(30),
+            () async => _summary(31),
+          ]);
+          final gateway = _MutableAuthGateway('user-1');
+          final container = scriptedContainer(repository, gateway: gateway);
+
+          expect(
+            (await container.read(walletSummaryProvider.future)).cotton,
+            BigInt.from(30),
+          );
+          expect(gateway.hasListener, isTrue);
+
+          gateway.emitError(StateError('secret-refresh-token'));
+          await _flush();
+          expect(
+            container.read(walletSummaryProvider).value!.cotton,
+            BigInt.from(30),
+            reason: 'a transient auth error must preserve the settled wallet',
+          );
+
+          gateway.signIn('user-2');
+          expect(
+            (await container.read(walletSummaryProvider.future)).cotton,
+            BigInt.from(31),
+          );
+          expect(repository.summaryCalls, 2);
+
+          container.dispose();
+          expect(gateway.hasListener, isFalse);
+          await gateway.close();
+        }, (error, _) => uncaught.add(error));
+
+        expect(
+          uncaught,
+          isEmpty,
+          reason: 'wallet auth stream errors must not escape to the Zone',
+        );
+      },
+    );
   });
 
   // Every settled operation answers with the wallet as of its own response, and
