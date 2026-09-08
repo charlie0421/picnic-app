@@ -114,6 +114,7 @@ void main() {
     num? catalogValue,
     String? clientObservedCurrency,
     String? storeProductId = 'star100',
+    DateTime? createdAt,
   }) => outbox.enqueueOrMergePurchase(
     id: id,
     aliases: <String>[id, 'op:$id'],
@@ -125,6 +126,7 @@ void main() {
     catalogValue: catalogValue,
     clientObservedCurrency: clientObservedCurrency,
     storeProductId: storeProductId,
+    createdAt: createdAt,
   );
 
   group('§7 priority when the event is first stored', () {
@@ -495,8 +497,8 @@ void main() {
               'bonus_amount': 0,
             },
           ],
-          if (currency != null) 'currency': currency,
-          if (value != null) 'value': value,
+          'currency': ?currency,
+          'value': ?value,
         };
 
     test('a v1 purchase that already has a currency stays sendable', () async {
@@ -573,7 +575,8 @@ void main() {
         purchasePendingMaxAge: const Duration(days: 365),
       );
 
-      await enqueue(outbox, serverValue: 1.99);
+      // The entry and expiry clock must use the same fixed timeline.
+      await enqueue(outbox, serverValue: 1.99, createdAt: now);
       now = now.add(const Duration(days: 366));
       await outbox.flush();
 

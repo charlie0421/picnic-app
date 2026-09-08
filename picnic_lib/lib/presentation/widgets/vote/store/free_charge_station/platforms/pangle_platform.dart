@@ -334,6 +334,12 @@ class PanglePlatform extends AdPlatform {
 
       final adRewardRepository = ref.read(adRewardRepositoryProvider);
       final pendingStore = ref.read(pendingAdRewardStoreProvider);
+      // 폴링은 SDK 시그널을 타고 광고가 끝난 뒤에 돌아온다. 그 사이 이 플랫폼을
+      // 만든 화면이 사라지면 `AdPlatform.ref`(WidgetRef) 의 read 는 던지고,
+      // 아래 `Future.sync(...).catchError` 가 그 예외를 로그로만 흘려 보낸다 —
+      // 즉 확정된 보상 확인이 조용히 사라진다. keepAlive notifier 를 위의 두
+      // read 와 같은(아직 살아 있는) 지점에서 함께 잡아 둔다.
+      final adRewardRecovery = ref.read(adRewardRecoveryProvider.notifier);
       final ownerUserId =
           supabase.auth.currentUser?.id ??
           (throw StateError('Authenticated user required for Pangle claim'));
@@ -344,9 +350,8 @@ class PanglePlatform extends AdPlatform {
             createClaim: adRewardRepository.createPangleClaim,
             persist: pendingStore.add,
             pollingSignals: PangleAds.pollingSignals,
-            poll: (owner, reference) => ref
-                .read(adRewardRecoveryProvider.notifier)
-                .poll(ownerUserId: owner, reference: reference),
+            poll: (owner, reference) =>
+                adRewardRecovery.poll(ownerUserId: owner, reference: reference),
             load: PangleAds.loadRewardedAd,
             onPollError: (error, stackTrace) {
               logError(

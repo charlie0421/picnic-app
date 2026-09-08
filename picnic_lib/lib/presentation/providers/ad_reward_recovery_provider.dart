@@ -1,7 +1,8 @@
 import 'dart:async';
 
+import 'package:picnic_lib/core/analytics/ad_reward_earn_recorder.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
-import 'package:picnic_lib/data/storage/pending_ad_reward_store.dart';
 import 'package:picnic_lib/presentation/providers/ad_reward_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod/riverpod.dart';
@@ -11,6 +12,14 @@ part '../../generated/providers/ad_reward_recovery_provider.g.dart';
 
 /// Foreground ladder used right after the user finishes watching an ad, while
 /// the server-side grant callback lands. Six reads spread over 30 seconds.
+///
+/// This is the **only** ladder left. Startup, resume and same-user auth events
+/// used to replay it over every unacknowledged reward the server knew about,
+/// which is what made a cold start cost one `list_unacknowledged_ad_rewards`
+/// page walk plus six `get_ad_reward_status` reads per stale reference. The
+/// current ad the user just watched is the one result worth waiting for; the
+/// balance that past rewards moved is picked up by the resume balance read
+/// (`WalletResumeRefresher`) instead.
 const adRewardPollDelays = [
   Duration(seconds: 1),
   Duration(seconds: 2),
@@ -19,30 +28,20 @@ const adRewardPollDelays = [
   Duration(seconds: 15),
 ];
 
-/// Startup/resume reconciliation replays the same bounded ladder, silently.
-///
-/// The sweep must keep rechecking: a reference recovered as PENDING can be
-/// granted by the server seconds later, and if nobody re-reads it while the app
-/// stays in the foreground the user is never told about a reward that has
-/// already been paid out, and the acknowledgement that clears it is deferred to
-/// the next launch. So the window stays as wide as [adRewardPollDelays].
-///
-/// What the sweep does *not* do is raise `checkingReferences`. That set drives
-/// the "보상을 확인하고 있어요" banner, and because a reference the server never
-/// resolves is never removed from `pending_ad_rewards_v1` (only a successful
-/// acknowledgement deletes it), letting the sweep own the banner re-armed the
-/// full 30 seconds of it on every cold start and every foreground. The wait is
-/// the right behaviour; showing it for a wait the user did not trigger is not.
-const adRewardRecoveryPollDelays = adRewardPollDelays;
-const adRewardRecoverySuccessCooldown = Duration(seconds: 60);
-const _adRewardRecoveryMaxConcurrentReads = 4;
-
 typedef AdRewardDelay = Future<void> Function(Duration duration);
 typedef AdRewardOwnerReader = String? Function();
-typedef AdRewardRecoveryClock = DateTime Function();
 
-final adRewardRecoveryClockProvider = Provider<AdRewardRecoveryClock>(
-  (ref) => DateTime.now,
+/// Persists one confirmed grant to the durable analytics outbox.
+///
+/// A seam rather than a direct call so the recovery notifier can be tested
+/// without a storage backend, and so the mapping from a reward status to a GA4
+/// payload stays in `core/analytics` next to the outbox it feeds.
+typedef AdRewardEarnRecorder =
+    Future<bool> Function(AdRewardStatusModel status);
+
+final adRewardEarnRecorderProvider = Provider<AdRewardEarnRecorder>(
+  (ref) =>
+      (status) => recordAdRewardEarn(status: status),
 );
 
 @Riverpod(keepAlive: true)
@@ -93,9 +92,13 @@ class AdRewardRecoveryState {
 class AdRewardRecovery extends _$AdRewardRecovery {
   final _polling = <String>{};
   final _acknowledging = <String>{};
-  final _recovering = <String, Future<void>>{};
-  final _lastSuccessfulRecovery = <String, DateTime>{};
-  final _suppressedRecoveryCooldowns = <String>{};
+
+  /// References whose confirmed grant already reached the analytics outbox in
+  /// this process. The durable outbox dedupes on its own key, so this is only
+  /// here to keep a repeated callback for one ad from queueing redundant
+  /// storage work. A failed write drops back out so a later confirmation of the
+  /// same reward can try again.
+  final _earnRecorded = <String>{};
 
   /// Claims a reference for the dialog pipeline, from the moment a terminal
   /// status is queued until the reference leaves that pipeline for good.
@@ -119,9 +122,6 @@ class AdRewardRecovery extends _$AdRewardRecovery {
   String _key(String ownerUserId, AdRewardReference value) =>
       '$ownerUserId:${value.type.wireValue}:${value.id}';
 
-  String _recoveryToken(String ownerUserId, int generation) =>
-      '$generation:$ownerUserId';
-
   bool _isCurrent(String ownerUserId, int generation) =>
       generation == _generation &&
       state.activeUserId == ownerUserId &&
@@ -132,9 +132,7 @@ class AdRewardRecovery extends _$AdRewardRecovery {
       _generation++;
       _polling.clear();
       _acknowledging.clear();
-      _recovering.clear();
-      _lastSuccessfulRecovery.clear();
-      _suppressedRecoveryCooldowns.clear();
+      _earnRecorded.clear();
       _queued.clear();
       state = AdRewardRecoveryState(activeUserId: ownerUserId);
     }
@@ -145,127 +143,9 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     _generation++;
     _polling.clear();
     _acknowledging.clear();
-    _recovering.clear();
-    _lastSuccessfulRecovery.clear();
-    _suppressedRecoveryCooldowns.clear();
+    _earnRecorded.clear();
     _queued.clear();
     state = const AdRewardRecoveryState();
-  }
-
-  Future<void> recover(String ownerUserId) {
-    if (ref.read(adRewardOwnerReaderProvider)() != ownerUserId) {
-      return Future<void>.value();
-    }
-    final generation = _activateUser(ownerUserId);
-    final recoveryToken = _recoveryToken(ownerUserId, generation);
-    final existing = _recovering[recoveryToken];
-    if (existing != null) return existing;
-    final lastSuccess = _lastSuccessfulRecovery[recoveryToken];
-    if (lastSuccess != null) {
-      final elapsed = ref
-          .read(adRewardRecoveryClockProvider)()
-          .difference(lastSuccess);
-      if (!elapsed.isNegative && elapsed < adRewardRecoverySuccessCooldown) {
-        return Future<void>.value();
-      }
-    }
-
-    final completer = Completer<void>();
-    final recovery = completer.future;
-    // Publish the flight before invoking the async body so callers that arrive
-    // at its first suspension point receive this exact Future.
-    _recovering[recoveryToken] = recovery;
-    unawaited(
-      _recoverForOwner(ownerUserId, generation).then(
-        (completed) {
-          if (identical(_recovering[recoveryToken], recovery)) {
-            final cooldownSuppressed = _suppressedRecoveryCooldowns.remove(
-              recoveryToken,
-            );
-            if (completed &&
-                _isCurrent(ownerUserId, generation) &&
-                !cooldownSuppressed) {
-              _lastSuccessfulRecovery[recoveryToken] = ref.read(
-                adRewardRecoveryClockProvider,
-              )();
-            }
-            _recovering.remove(recoveryToken);
-          }
-          completer.complete();
-        },
-        onError: (Object error, StackTrace stackTrace) {
-          if (identical(_recovering[recoveryToken], recovery)) {
-            _recovering.remove(recoveryToken);
-            _suppressedRecoveryCooldowns.remove(recoveryToken);
-          }
-          completer.completeError(error, stackTrace);
-        },
-      ),
-    );
-    return recovery;
-  }
-
-  Future<bool> _recoverForOwner(String ownerUserId, int generation) async {
-    final store = ref.read(pendingAdRewardStoreProvider);
-    final repository = ref.read(adRewardRepositoryProvider);
-    final localRecords = await store.readAll(ownerUserId);
-    if (!_isCurrent(ownerUserId, generation)) return false;
-
-    final ackPending = localRecords
-        .where((value) => value.state == PendingAdRewardLocalState.ackPending)
-        .toList(growable: false);
-    final ackPendingKeys = {
-      for (final value in ackPending) _key(ownerUserId, value.reference),
-    };
-    for (final value in ackPending) {
-      unawaited(
-        _resumeAcknowledgement(ownerUserId, value.reference, generation),
-      );
-    }
-
-    final serverItems = <AdRewardStatusModel>[];
-    String? cursor;
-    do {
-      final page = await repository.listUnacknowledged(cursor: cursor);
-      if (!_isCurrent(ownerUserId, generation)) return false;
-      serverItems.addAll(page.items);
-      cursor = page.nextCursor;
-    } while (cursor != null);
-
-    final serverStatuses = <String, AdRewardStatusModel>{};
-    for (final status in serverItems) {
-      final key = _key(ownerUserId, status.reference);
-      if (ackPendingKeys.contains(key)) continue;
-      final existing = serverStatuses[key];
-      if (existing == null || existing.state == AdRewardState.pending) {
-        serverStatuses[key] = status;
-      }
-    }
-    final unique = <String, AdRewardReference>{
-      for (final value in localRecords)
-        if (value.state == PendingAdRewardLocalState.pendingDisplay)
-          _key(ownerUserId, value.reference): value.reference,
-      for (final status in serverStatuses.values)
-        _key(ownerUserId, status.reference): status.reference,
-    };
-    if (!_isCurrent(ownerUserId, generation)) return false;
-    final references = unique.values.toList(growable: false);
-    state = state.copyWith(references: references);
-    final unresolved = <AdRewardReference>[];
-    for (final reference in references) {
-      if (!_isCurrent(ownerUserId, generation)) return false;
-      final serverStatus = serverStatuses[_key(ownerUserId, reference)];
-      if (serverStatus == null ||
-          !_validateAndQueueTerminalStatus(
-            ownerUserId,
-            reference,
-            serverStatus,
-            generation,
-          )) {
-        unresolved.add(reference);
-      }
-    }
-    return _pollRecoveredReferences(ownerUserId, unresolved, generation);
   }
 
   Future<void> poll({
@@ -281,25 +161,38 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     await _pollForegroundForOwner(ownerUserId, reference, generation);
   }
 
-  Future<void> _resumeAcknowledgement(
-    String ownerUserId,
-    AdRewardReference reference,
-    int generation,
-  ) async {
-    if (!_isCurrent(ownerUserId, generation)) return;
-    final token = '$generation:${_key(ownerUserId, reference)}';
-    if (!_acknowledging.add(token)) return;
-    try {
-      await ref.read(adRewardRepositoryProvider).acknowledge(reference);
-      if (!_isCurrent(ownerUserId, generation)) return;
-      await ref
-          .read(pendingAdRewardStoreProvider)
-          .remove(ownerUserId, reference);
-    } catch (_) {
-      // Keep the ACK_PENDING tombstone. A later startup/resume retries it.
-    } finally {
-      _acknowledging.remove(token);
+  /// Persists a confirmed grant to the durable analytics outbox, once.
+  ///
+  /// Deliberately not the dialog's job. `AdRewardDialogHost` used to send this
+  /// right before it opened the receipt, so a grant the app had already
+  /// confirmed went unrecorded whenever the host was not mounted or the user
+  /// left the ad screen first - and the fullscreen shortform route, which
+  /// presents its own receipt and never enters the dialog queue, recorded
+  /// nothing at all. The grant is what the event describes, so the write
+  /// belongs at the moment the grant is confirmed.
+  ///
+  /// Fire-and-forget on purpose: the outbox owns delivery and retry, and a
+  /// storage hiccup must not stall the poll the user is waiting on.
+  void _recordConfirmedEarn(String ownerUserId, AdRewardStatusModel status) {
+    final grant = status.grant;
+    if (status.state != AdRewardState.granted ||
+        grant == null ||
+        grant.amount <= BigInt.zero) {
+      return;
     }
+    final key = _key(ownerUserId, status.reference);
+    if (!_earnRecorded.add(key)) return;
+    unawaited(
+      Future.sync(() => ref.read(adRewardEarnRecorderProvider)(status)).then(
+        (stored) {
+          if (!stored) _earnRecorded.remove(key);
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          _earnRecorded.remove(key);
+          logger.e('적립 통계 저장 실패: $key', error: error, stackTrace: stackTrace);
+        },
+      ),
+    );
   }
 
   /// Drops [reference] from the "checking your reward" set.
@@ -336,6 +229,8 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     }
     if (status.state == AdRewardState.pending) return false;
 
+    _recordConfirmedEarn(ownerUserId, status);
+
     final key = _key(ownerUserId, reference);
     if (_queued.add(key)) {
       state = state.copyWith(
@@ -352,101 +247,6 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     return true;
   }
 
-  /// Polls one read per pending reference in each breadth-first round.
-  ///
-  /// A failed reference remains in durable storage for the next recovery. The
-  /// other references finish their current round and any remaining ladder
-  /// before the first error is rethrown to release the single-flight entry.
-  Future<bool> _pollRecoveredReferences(
-    String ownerUserId,
-    List<AdRewardReference> references,
-    int generation,
-  ) async {
-    if (!_isCurrent(ownerUserId, generation)) return false;
-
-    final pollTokens = <String>[];
-    var pending = <AdRewardReference>[];
-    for (final reference in references) {
-      final token = '$generation:bg:${_key(ownerUserId, reference)}';
-      if (_polling.add(token)) {
-        pollTokens.add(token);
-        pending.add(reference);
-      }
-    }
-
-    Object? firstError;
-    StackTrace? firstStackTrace;
-    var interrupted = false;
-    try {
-      final repository = ref.read(adRewardRepositoryProvider);
-      for (
-        var attempt = 0;
-        attempt <= adRewardRecoveryPollDelays.length && pending.isNotEmpty;
-        attempt++
-      ) {
-        if (!_isCurrent(ownerUserId, generation)) return false;
-        var nextIndex = 0;
-        final nextRound = <AdRewardReference>[];
-
-        Future<void> readRound() async {
-          while (true) {
-            if (interrupted || !_isCurrent(ownerUserId, generation)) {
-              interrupted = true;
-              return;
-            }
-            if (nextIndex >= pending.length) return;
-            final reference = pending[nextIndex++];
-            try {
-              final status = await repository.getStatus(reference);
-              if (interrupted || !_isCurrent(ownerUserId, generation)) {
-                interrupted = true;
-                return;
-              }
-              final terminal = _validateAndQueueTerminalStatus(
-                ownerUserId,
-                reference,
-                status,
-                generation,
-              );
-              if (!terminal) nextRound.add(reference);
-            } catch (error, stackTrace) {
-              if (interrupted || !_isCurrent(ownerUserId, generation)) {
-                interrupted = true;
-                return;
-              }
-              firstError ??= error;
-              firstStackTrace ??= stackTrace;
-            }
-          }
-        }
-
-        final workerCount = pending.length < _adRewardRecoveryMaxConcurrentReads
-            ? pending.length
-            : _adRewardRecoveryMaxConcurrentReads;
-        await Future.wait<void>([
-          for (var worker = 0; worker < workerCount; worker++) readRound(),
-        ]);
-        if (interrupted || !_isCurrent(ownerUserId, generation)) return false;
-        pending = nextRound;
-        if (attempt < adRewardRecoveryPollDelays.length && pending.isNotEmpty) {
-          await ref.read(adRewardDelayProvider)(
-            adRewardRecoveryPollDelays[attempt],
-          );
-          if (!_isCurrent(ownerUserId, generation)) return false;
-        }
-      }
-
-      if (firstError != null) {
-        Error.throwWithStackTrace(firstError!, firstStackTrace!);
-      }
-      return true;
-    } finally {
-      for (final token in pollTokens) {
-        _polling.remove(token);
-      }
-    }
-  }
-
   Future<void> _pollForegroundForOwner(
     String ownerUserId,
     AdRewardReference reference,
@@ -454,11 +254,10 @@ class AdRewardRecovery extends _$AdRewardRecovery {
   ) async {
     if (!_isCurrent(ownerUserId, generation)) return;
     final key = _key(ownerUserId, reference);
-    // The mode is part of the token so a background sweep already in flight
-    // cannot swallow the foreground poll the user is actually waiting on.
-    // Duplicate `get_ad_reward_status` reads are harmless; `_queued` admits the
-    // reference to the dialog queue exactly once and holds that claim across
-    // the acknowledgement, so the slower ladder cannot re-queue behind it.
+    // One ladder per reference per generation. Duplicate `get_ad_reward_status`
+    // reads are harmless; `_queued` admits the reference to the dialog queue
+    // exactly once and holds that claim across the acknowledgement, so a second
+    // callback for the same ad cannot produce a second receipt.
     final pollToken = '$generation:fg:$key';
     if (!_polling.add(pollToken)) return;
     state = state.copyWith(
@@ -490,8 +289,13 @@ class AdRewardRecovery extends _$AdRewardRecovery {
 
   /// Drops [queued] from the in-memory dialog queue after its first-frame
   /// acknowledgement failed, so a failed ACK can never re-present the same
-  /// dialog. The durable record is left untouched: a genuinely un-acknowledged
-  /// reward is re-polled and re-queued by the next recovery attempt.
+  /// dialog. The durable record is left untouched - nothing was acknowledged,
+  /// and the server reward and ledger entry are not this notifier's to discard.
+  ///
+  /// The reward itself is unaffected: the server already paid it, the balance
+  /// is applied from the same confirmed snapshot, and the analytics outbox
+  /// entry was written when the grant was confirmed. What is lost is only the
+  /// receipt dialog for this one reference in this session.
   ///
   /// This is the only place the [_queued] claim is released, and it is only
   /// reachable before [acknowledgeAfterRender] persisted its tombstone - so
@@ -511,14 +315,6 @@ class AdRewardRecovery extends _$AdRewardRecovery {
       return;
     }
     _queued.remove(key);
-    // A failed first-frame tombstone write leaves the reward pending and must
-    // be recoverable immediately; the background success cooldown does not
-    // apply to this foreground acknowledgement failure.
-    final recoveryToken = _recoveryToken(ownerUserId, generation);
-    _lastSuccessfulRecovery.remove(recoveryToken);
-    if (_recovering.containsKey(recoveryToken)) {
-      _suppressedRecoveryCooldowns.add(recoveryToken);
-    }
     state = state.copyWith(
       dialogQueue: state.dialogQueue
           .where(
@@ -556,9 +352,35 @@ class AdRewardRecovery extends _$AdRewardRecovery {
     );
   }
 
+  /// The app observed a confirmed grant outside the polling path.
+  ///
+  /// The internal shortform view callback can come back already GRANTED, and on
+  /// that path nothing else is guaranteed to run: the fullscreen route renders
+  /// its receipt only while mounted, and [acknowledgePresented] runs from that
+  /// receipt's first frame. Recording here makes the analytics entry depend on
+  /// the grant rather than on the popup surviving.
+  ///
+  /// Silently ignored when the reward is not a positive grant or the owner is
+  /// no longer signed in - statistics never interrupt an ad flow. Duplicates
+  /// with the later [acknowledgePresented] are collapsed by the same reference
+  /// key that the durable outbox uses.
+  void recordConfirmedGrant({
+    required String ownerUserId,
+    required AdRewardStatusModel status,
+  }) {
+    if (ref.read(adRewardOwnerReaderProvider)() != ownerUserId) return;
+    _activateUser(ownerUserId);
+    _recordConfirmedEarn(ownerUserId, status);
+  }
+
   /// A terminal reward was rendered by the fullscreen ad route itself, before
   /// it can enter the app-level dialog queue. Persist the same acknowledgement
   /// tombstone used by [acknowledgeAfterRender] so it cannot reappear later.
+  ///
+  /// This is also a point where the app confirms a grant, so the analytics
+  /// outbox entry is written here too. It carries the same reference key as the
+  /// polled path and as the legacy shortform response path, so a reward that
+  /// reaches two of them is still counted once.
   Future<void> acknowledgePresented({
     required String ownerUserId,
     required AdRewardStatusModel status,
@@ -570,6 +392,7 @@ class AdRewardRecovery extends _$AdRewardRecovery {
       throw StateError('Ad reward owner is no longer active');
     }
     final generation = _activateUser(ownerUserId);
+    _recordConfirmedEarn(ownerUserId, status);
     await _acknowledgeTerminal(
       ownerUserId: ownerUserId,
       status: status,
