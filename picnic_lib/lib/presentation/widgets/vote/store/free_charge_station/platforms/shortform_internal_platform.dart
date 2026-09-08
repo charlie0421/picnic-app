@@ -288,8 +288,8 @@ class ShortformInternalPlatform extends AdPlatform {
     if ((_viewToken ?? '').isEmpty) {
       throw StateError('No issued view token');
     }
-    return InternalShortformViewRecoveryFlow(
-      view: InternalShortformViewFlow(
+    return buildViewRecoveryFlow(
+      InternalShortformViewFlow(
         session: _rewardSession,
         currentOwner: () => supabase.auth.currentUser?.id,
         invokeCallback: () async => (await supabase.functions.invoke(
@@ -298,9 +298,35 @@ class ShortformInternalPlatform extends AdPlatform {
         )).data,
         parse: ref.read(adRewardRepositoryProvider).parseInternalViewResponse,
       ),
-      poll: (ownerUserId, reference) => ref
-          .read(adRewardRecoveryProvider.notifier)
-          .poll(ownerUserId: ownerUserId, reference: reference),
+    ).report();
+  }
+
+  /// 시청 콜백의 결과를 보상 파이프라인에 연결한다.
+  ///
+  /// `callback-ad-shortform-view` 는 네트워크 왕복이고, 그 동안 사용자가 광고를
+  /// 닫으면 이 플랫폼을 만든 Consumer 가 사라진다. [AdPlatform.ref] 는
+  /// `WidgetRef` 라 그 뒤의 `read` 는 던지며, 통계 경로는 그 예외를 삼킨다 —
+  /// 서버가 이미 확정한 GRANTED 가 조용히 사라지는 자리였다.
+  ///
+  /// 그래서 keepAlive 인 [adRewardRecoveryProvider] 의 notifier 를 **왕복을
+  /// 시작하기 전에** 한 번 잡아 둔다. 잡아 둔 뒤로는 콜백이 언제 돌아오든
+  /// `WidgetRef` 를 다시 읽지 않는다.
+  @visibleForTesting
+  InternalShortformViewRecoveryFlow buildViewRecoveryFlow(
+    InternalShortformViewFlow view,
+  ) {
+    // 왕복을 시작하기 전에, Consumer 가 아직 살아 있는 지금 잡는다.
+    final recovery = ref.read(adRewardRecoveryProvider.notifier);
+    return InternalShortformViewRecoveryFlow(
+      view: view,
+      poll: (ownerUserId, reference) =>
+          recovery.poll(ownerUserId: ownerUserId, reference: reference),
+      // 서버가 이미 지급을 확정해 돌려준 시청 건. 영수증이 뜨기 전에, 그리고
+      // 사용자가 광고를 바로 닫아 route 가 사라져도 통계에 남긴다.
+      onGrantConfirmed: (ownerUserId, status) => recovery.recordConfirmedGrant(
+        ownerUserId: ownerUserId,
+        status: status,
+      ),
       onPollError: (error, stackTrace) {
         logError(
           'Internal reward polling failed',
@@ -308,7 +334,7 @@ class ShortformInternalPlatform extends AdPlatform {
           stackTrace: stackTrace,
         );
       },
-    ).report();
+    );
   }
 
   /// '더보기' 이동 시점에 클릭을 서버에 남긴다 — 어드민 캠페인 리포트의

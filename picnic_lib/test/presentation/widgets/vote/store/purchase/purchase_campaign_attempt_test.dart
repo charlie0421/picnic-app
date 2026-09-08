@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
-import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
 
 import 'recording_receipt_dialogs.dart';
@@ -15,7 +15,7 @@ void main() {
       PurchaseCampaignAttempt(
         attemptId: id,
         productId: product,
-        displayedCampaign: null,
+        displayedPromotion: null,
       );
 
   test('same product is locked while different product proceeds', () {
@@ -192,22 +192,16 @@ void main() {
   test(
     'verified result reaches dialog with identity and launch campaign',
     () async {
-      final campaign = ActivePromotionCampaignModel.fromJson({
-        'campaign_id': 'campaign',
-        'campaign_version_id': 'version-at-launch',
-        'code': 'BOOST',
-        'display_name': {'ko': '캔디 부스트'},
-        'extra_bonus_bps': 10000,
-        'window_starts_at': '2026-07-01T00:00:00Z',
-        'window_ends_at': '2026-08-01T00:00:00Z',
-        'show_in_store': true,
-        'show_home_banner': false,
-        'home_creative': null,
-      });
+      const ResolvedPaymentBadgePromotion promotion = (
+        displayName: {'ko': 'V2 캔디 부스트'},
+        code: 'CANDY_BOOST_DAY',
+        multiplierTenths: 15,
+        extraBonusBps: null,
+      );
       final launchAttempt = PurchaseCampaignAttempt(
         attemptId: 'attempt',
         productId: 'STAR100',
-        displayedCampaign: campaign,
+        displayedPromotion: promotion,
       );
       final verified = PurchaseSettlementResultModel(
         contractVersion: 'wallet.v1',
@@ -239,8 +233,8 @@ void main() {
 
       expect(dialogs.plainReceipts, 1);
       expect(identical(dialogs.results.single, verified), isTrue);
-      expect(identical(dialogs.campaigns.single, campaign), isTrue);
-      expect(dialogs.campaigns.single!.campaignVersionId, 'version-at-launch');
+      expect(dialogs.promotions.single, equals(promotion));
+      expect(dialogs.promotions.single!.displayName['ko'], 'V2 캔디 부스트');
     },
   );
 

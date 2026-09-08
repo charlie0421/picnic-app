@@ -17,7 +17,7 @@ void main() {
       PurchaseCampaignAttempt(
         attemptId: id,
         productId: product,
-        displayedCampaign: null,
+        displayedPromotion: null,
       );
 
   PurchaseDetails event(

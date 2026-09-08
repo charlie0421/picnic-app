@@ -8,6 +8,7 @@ import 'package:picnic_app/presentation/splash/responsive_splash.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/services/app_badge_service.dart';
+import 'package:picnic_lib/core/services/ad_reward_lifecycle.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
@@ -24,7 +25,6 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
-import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_purchase_provider.dart';
 import 'package:picnic_lib/core/services/global_purchase_listener.dart';
 
@@ -32,7 +32,6 @@ import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
 import 'package:picnic_lib/presentation/widgets/patch_restart_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
@@ -57,10 +56,8 @@ class App extends ConsumerStatefulWidget {
 
 class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   Widget? initScreen;
-  StreamSubscription? _authSubscription;
   StreamSubscription? _appLinksSubscription;
-  String? _activeRewardUserId;
-  bool _rewardRecoveryReady = false;
+  AdRewardLifecycle? _rewardLifecycle;
 
   /// The process-lifetime owner of purchase delivery.
   ///
@@ -154,8 +151,11 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     // SDK 초기화 완료 대기 (MainInitializer에서 runApp 후 병렬 실행 중)
     logger.i('SDK 초기화 대기 중...');
     await MainInitializer.sdkReady;
+    if (!mounted) return;
     logger.i('SDK 초기화 완료');
-    _initializeRewardRecovery();
+    final rewardLifecycle = ref.read(adRewardLifecycleProvider);
+    rewardLifecycle.start();
+    _rewardLifecycle = rewardLifecycle;
     // 미완료 결제 리컨사일은 세션이 복원된 뒤에 돌아야 한다 (Supabase 는
     // runApp 이후 Phase 2 에서 초기화된다). 구독 자체는 initState 에서 이미
     // 세워져 있으므로, 그 사이에 도착하는 재전달 이벤트는 유실되지 않는다.
@@ -284,23 +284,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     await AppInitializer.retryConnection(ref);
   }
 
-  void _syncRewardOwner(String? nextUserId) {
-    final recovery = ref.read(adRewardRecoveryProvider.notifier);
-    if (_activeRewardUserId != nextUserId) {
-      recovery.resetForLogout();
-      _activeRewardUserId = nextUserId;
-    }
-    if (nextUserId != null) {
-      unawaited(
-        recovery
-            .recover(nextUserId)
-            .catchError((Object error, StackTrace stack) {
-          logger.e('광고 보상 복구 실패', error: error, stackTrace: stack);
-        }),
-      );
-    }
-  }
-
   void _initializeGlobalPurchaseListener() {
     if (_purchaseListener != null) return;
     try {
@@ -325,15 +308,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     );
   }
 
-  void _initializeRewardRecovery() {
-    if (_rewardRecoveryReady) return;
-    _rewardRecoveryReady = true;
-    _syncRewardOwner(supabase.auth.currentUser?.id);
-    _authSubscription = supabase.auth.onAuthStateChange.listen((authState) {
-      _syncRewardOwner(authState.session?.user.id);
-    });
-  }
-
   ThemeData _getCurrentTheme(WidgetRef ref) {
     final currentPortal = ref.watch(navigationInfoProvider);
     switch (currentPortal.portalType) {
@@ -354,12 +328,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _rewardLifecycle?.dispose();
 
     // 앱 리스너 정리
-    AppLifecycleInitializer.disposeAppListeners(
-      _authSubscription,
-      _appLinksSubscription,
-    );
+    AppLifecycleInitializer.disposeAppListeners(null, _appLinksSubscription);
 
     super.dispose();
   }
@@ -374,9 +346,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         logger.i('앱이 포그라운드로 복귀');
         // Sync app badge with unread notifications count
         AppBadgeService.syncBadgeWithUnreadCount();
-        if (_rewardRecoveryReady) {
-          _syncRewardOwner(supabase.auth.currentUser?.id);
-        }
         // 미완료 결제 리컨사일. 콜드 스타트에서는 스토어가 스스로 재전달하지만
         // resume 에는 그런 것이 없다 - Ask to Buy 승인이나 포그라운드에서
         // 실패한 정산이 다음 실행까지 갇혀 있던 자리다. 리스너가 자체
@@ -388,7 +357,11 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
             purchases.sweepOnResume().then(
               (report) => logger.i('resume 미완료 결제 스윕: $report'),
               onError: (Object error, StackTrace stack) {
-                logger.e('resume 미완료 결제 스윕 실패', error: error, stackTrace: stack);
+                logger.e(
+                  'resume 미완료 결제 스윕 실패',
+                  error: error,
+                  stackTrace: stack,
+                );
               },
             ),
           );

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
@@ -12,6 +16,9 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_t
 import '../../../../../helpers/mock_supabase.dart';
 import '../../../../../helpers/test_app.dart';
 import '../../../../../helpers/test_environment.dart';
+
+final _paymentBadgeSourceProvider =
+    StateProvider<ResolvedPaymentBadgePromotion?>((ref) => null);
 
 /// Helper to build PurchaseStarCandy with mock providers.
 /// Since PurchaseStarCandyState creates internal timers via PurchaseService,
@@ -384,6 +391,175 @@ void main() {
       },
     );
   });
+
+  testWidgets(
+    'purchase confirmation uses the same V2-first promotion shown on the product',
+    (tester) async {
+      const selectedV2 = (
+        displayName: {'ko': '선택된 V2 캔디 부스트', 'en': 'Selected V2 Candy Boost'},
+        code: 'CANDY_BOOST_DAY',
+        multiplierTenths: 15,
+        extraBonusBps: null,
+      );
+      const refreshedPromotion = (
+        displayName: {
+          'ko': '새 V2 캔디 부스트',
+          'en': 'Refreshed V2 Candy Boost',
+        },
+        code: 'CANDY_BOOST_DAY',
+        multiplierTenths: 20,
+        extraBonusBps: null,
+      );
+      final staleV1 = ActivePromotionCampaignsModel(
+        items: [
+          ActivePromotionCampaignModel(
+            campaignId: 'unrelated-campaign',
+            campaignVersionId: 'unrelated-version',
+            code: 'AAA_OTHER_CAMPAIGN',
+            displayName: const {
+              'ko': '관련 없는 첫 STORE 캠페인',
+              'en': 'Unrelated first STORE campaign',
+            },
+            extraBonusBps: 2500,
+            windowStartsAt: DateTime.utc(2026),
+            windowEndsAt: DateTime.utc(2027),
+            showInStore: true,
+            showHomeBanner: false,
+          ),
+          ActivePromotionCampaignModel(
+            campaignId: 'stale-candy-boost',
+            campaignVersionId: 'stale-version',
+            code: 'CANDY_BOOST_DAY',
+            displayName: const {
+              'ko': '오래된 V1 캔디 부스트',
+              'en': 'Stale V1 Candy Boost',
+            },
+            extraBonusBps: 10000,
+            windowStartsAt: DateTime.utc(2026),
+            windowEndsAt: DateTime.utc(2027),
+            showInStore: true,
+            showHomeBanner: false,
+          ),
+        ],
+        totalCount: BigInt.two,
+        nextCursor: null,
+        snapshotAt: DateTime.utc(2026),
+        campaignOwnedHomeBannerIds: const [],
+      );
+      final storeProduct = ProductDetails(
+        // Widget tests run on the host (non-Android), where the shared product
+        // ID policy applies the configured test iOS prefix.
+        id: 'testSTAR100',
+        title: 'Star Candy 100',
+        description: '100 Star Candies',
+        price: '1.99',
+        rawPrice: 1.99,
+        currencyCode: 'USD',
+      );
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PurchaseStarCandy(),
+          locale: const Locale('en'),
+          extraOverrides: [
+            serverProductsProvider.overrideWithBuild(
+              (ref, notifier) => [
+                {
+                  'id': 'STAR100',
+                  'price': 1.99,
+                  'star_candy': 100,
+                  'star_candy_bonus': 0,
+                  'description': {'ko': '스타 캔디 100개', 'en': '100 Star Candies'},
+                },
+              ],
+            ),
+            storeProductsProvider.overrideWithBuild(
+              (ref, notifier) => [storeProduct],
+            ),
+            _paymentBadgeSourceProvider.overrideWith((ref) => selectedV2),
+            paymentBadgePromotionProvider.overrideWith(
+              (ref) async => ref.watch(_paymentBadgeSourceProvider),
+            ),
+            activePromotionCampaignProvider(
+              PromotionSurface.store,
+            ).overrideWith((ref) async => staleV1),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 3));
+
+      expect(find.text('Selected V2 Candy Boost'), findsOneWidget);
+      final buyButton = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, '1.99 \$'),
+      );
+      expect(buyButton.onPressed, isNotNull);
+
+      // Invoke the product button's real callback directly. A transient
+      // loading overlay can absorb pointer hit-testing in this harness, but
+      // the callback is the production _handleBuyButtonPressed wiring this
+      // regression protects.
+      buyButton.onPressed!();
+      await tester.pumpAndSettle();
+
+      // The pre-fix path reads V1 here and chooses its first showInStore row,
+      // even though the product badge has already advertised selectedV2.
+      final dialog = find.byType(AlertDialog);
+      expect(dialog, findsOneWidget);
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.text('Selected V2 Candy Boost'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.text('Unrelated first STORE campaign'),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.text('Stale V1 Candy Boost'),
+        ),
+        findsNothing,
+      );
+
+      // Refresh the real provider while showDialog is still awaiting input.
+      // The product badge rebuilds from the new resolution, but the open
+      // confirmation must retain the exact snapshot captured on button press.
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(PurchaseStarCandy)),
+      );
+      container.read(_paymentBadgeSourceProvider.notifier).state =
+          refreshedPromotion;
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Refreshed V2 Candy Boost'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.text('Selected V2 Candy Boost'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.text('Refreshed V2 Candy Boost'),
+        ),
+        findsNothing,
+      );
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+    },
+  );
 
   group('PurchaseStarCandy - _isPurchaseCanceled logic (unit)', () {
     // The _isPurchaseCanceled method is private, but we can test the cancel detection

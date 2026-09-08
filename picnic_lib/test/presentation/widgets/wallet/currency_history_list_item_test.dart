@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/data/models/wallet/currency_history.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/presentation/widgets/wallet/currency_history_list_item.dart';
@@ -22,7 +23,9 @@ CurrencyHistoryItemModel _item({required BigInt delta}) =>
 void main() {
   setUpAll(initTestColors);
 
-  testWidgets('renders signed delta and support reference', (tester) async {
+  testWidgets('shows public transaction details without internal metadata', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       buildTestApp(
         CurrencyHistoryListItem(item: _item(delta: BigInt.from(30))),
@@ -30,9 +33,19 @@ void main() {
     );
 
     expect(find.text('+30'), findsOneWidget);
-    expect(find.textContaining('operation-123'), findsOneWidget);
-    expect(find.textContaining('VOTE'), findsOneWidget);
-    expect(find.text('general_vote'), findsOneWidget);
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(CurrencyHistoryListItem)),
+    );
+    expect(find.text(l10n.wallet_cotton_candy), findsOneWidget);
+    expect(find.textContaining('2026.07.23'), findsOneWidget);
+    expect(
+      find.textContaining(l10n.bonus_candy_expiration_policy_expiration_date),
+      findsOneWidget,
+    );
+    expect(find.textContaining('operation-123'), findsNothing);
+    expect(find.textContaining('VOTE'), findsNothing);
+    expect(find.text('general_vote'), findsNothing);
+    expect(find.textContaining('Support:'), findsNothing);
   });
 
   testWidgets('keeps the minus sign for debits', (tester) async {

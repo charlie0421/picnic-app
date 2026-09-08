@@ -119,7 +119,7 @@ final class ActivePromotionCampaignV2Provider
 }
 
 String _$activePromotionCampaignV2Hash() =>
-    r'6e5b834dd7762976a6f4299b1a0d6a27277ed1ba';
+    r'3a69dedc4f2c54e967f97c5c8d7797db08b27383';
 
 final class ActivePromotionCampaignV2Family extends $Family
     with

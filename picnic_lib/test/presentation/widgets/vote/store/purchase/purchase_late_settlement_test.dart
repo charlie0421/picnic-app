@@ -49,7 +49,7 @@ void main() {
       PurchaseCampaignAttempt(
         attemptId: id,
         productId: product,
-        displayedCampaign: null,
+        displayedPromotion: null,
       );
 
   /// Runs the production launch sequence up to the point where the store event

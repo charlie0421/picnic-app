@@ -424,7 +424,7 @@ void main() {
         const PurchaseCampaignAttempt(
           attemptId: 'a2',
           productId: 'STAR200',
-          displayedCampaign: null,
+          displayedPromotion: null,
         ),
       );
       observeEvidence('star200');
@@ -440,7 +440,7 @@ void main() {
         const PurchaseCampaignAttempt(
           attemptId: 'a3',
           productId: 'STAR300',
-          displayedCampaign: null,
+          displayedPromotion: null,
         ),
       );
       observeEvidence('PICNICSTAR300', iosAppPrefix: 'PICNIC');
@@ -455,7 +455,7 @@ void main() {
         const PurchaseCampaignAttempt(
           attemptId: 'a4',
           productId: 'STAR400',
-          displayedCampaign: null,
+          displayedPromotion: null,
         ),
       );
       observeEvidence('staging.star400', androidNamespace: 'staging.');
