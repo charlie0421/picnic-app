@@ -1921,6 +1921,37 @@ class AppLocalizationsTh extends AppLocalizations {
       'การยืนยันตัวตนใช้เวลานานกว่าที่คาดไว้ แต่การซื้อเสร็จสมบูรณ์แล้ว';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'โบนัสอีเวนต์ +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'รางวัลพื้นฐาน';
+
+  @override
+  String get purchase_reward_product_bonus => 'โบนัสพื้นฐาน';
+
+  @override
+  String get purchase_reward_event_bonus => 'โบนัสอีเวนต์';
+
+  @override
+  String get purchase_reward_expected_total => 'ยอดรวมโดยประมาณ';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'เป็นจำนวนโดยประมาณ จำนวนสุดท้ายจะยืนยันโดยเซิร์ฟเวอร์เมื่อชำระเงินเสร็จสมบูรณ์';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'ได้รับรวม $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'กำลังตรวจสอบรางวัลของคุณ';
 
   @override

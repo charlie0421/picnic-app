@@ -41,6 +41,10 @@ Widget buildTestApp(
   Locale locale = const Locale('ko'),
   Size designSize = kLegacyTestDesignSize,
   bool splitScreenMode = false,
+  // Installs a MediaQuery **above the Navigator**, so routes pushed by
+  // `showDialog` inherit the scale too. Wrapping the child instead only
+  // scales the home route, never a dialog.
+  TextScaler? textScaler,
   // riverpod 3 의 `Retry` typedef 는 barrel 에서 export 되지 않아 구조적 함수
   // 타입으로 받는다. 기본값 null 은 riverpod 기본 retry(Exception 을 실제
   // Timer 로 최대 10회 재시도) 그대로다. provider 가 Exception 을 던지는
@@ -70,6 +74,12 @@ Widget buildTestApp(
       child: MaterialApp(
         navigatorKey: navigatorKey,
         locale: locale,
+        builder: textScaler == null
+            ? null
+            : (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+                child: child!,
+              ),
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,

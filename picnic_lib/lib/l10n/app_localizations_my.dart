@@ -1962,6 +1962,37 @@ class AppLocalizationsMy extends AppLocalizations {
       'အတည်ပြုချက် မျှော်လင့်ထားသည်ထက် ကြာခဲ့သော်လည်း ဝယ်ယူမှု အောင်မြင်စွာ ပြီးဆုံးပါပြီ။';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'အစီအစဉ် ဘောနပ်စ် +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'အခြေခံဆုလာဘ်';
+
+  @override
+  String get purchase_reward_product_bonus => 'အခြေခံ ဘောနပ်စ်';
+
+  @override
+  String get purchase_reward_event_bonus => 'အီဗင့် ဘောနပ်စ်';
+
+  @override
+  String get purchase_reward_expected_total => 'ခန့်မှန်း စုစုပေါင်း';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'ခန့်မှန်းအရေအတွက်ဖြစ်ပါသည်။ နောက်ဆုံးအရေအတွက်ကို ငွေပေးချေမှုပြီးဆုံးချိန်တွင် ဆာဗာက အတည်ပြုပါမည်။';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'စုစုပေါင်း $amount ရရှိ';
+  }
+
+  @override
   String get ad_reward_pending => 'သင့်ဆုကို စစ်ဆေးနေပါသည်';
 
   @override

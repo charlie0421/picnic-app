@@ -1869,6 +1869,37 @@ class AppLocalizationsKo extends AppLocalizations {
       '인증에 예상보다 오래 걸렸지만 구매가 정상적으로 완료되었습니다.';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '이벤트 보너스 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '기본 지급';
+
+  @override
+  String get purchase_reward_product_bonus => '기본 보너스';
+
+  @override
+  String get purchase_reward_event_bonus => '이벤트 보너스';
+
+  @override
+  String get purchase_reward_expected_total => '예상 합계';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      '예상 수량이에요. 최종 지급 수량은 결제가 완료되는 시점에 서버 기준으로 확정돼요.';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '총 적립 $amount';
+  }
+
+  @override
   String get ad_reward_pending => '보상을 확인하고 있어요';
 
   @override

@@ -1870,6 +1870,37 @@ class AppLocalizationsJa extends AppLocalizations {
       '認証に時間がかかりましたが、購入は正常に完了しました。';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'イベントボーナス +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基本付与';
+
+  @override
+  String get purchase_reward_product_bonus => '基本ボーナス';
+
+  @override
+  String get purchase_reward_event_bonus => 'イベントボーナス';
+
+  @override
+  String get purchase_reward_expected_total => '予想合計';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      '予想数量です。最終的な付与数量は決済完了時にサーバー基準で確定します。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '合計$amount獲得';
+  }
+
+  @override
   String get ad_reward_pending => '報酬を確認しています';
 
   @override

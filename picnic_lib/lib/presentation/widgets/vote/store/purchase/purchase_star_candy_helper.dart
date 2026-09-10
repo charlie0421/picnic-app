@@ -1,12 +1,12 @@
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/core/services/purchase_service_helper.dart';
 
 /// Pure logic helpers extracted from PurchaseStarCandyState.
 ///
 /// These are stateless utility methods that have no dependency on
 /// Flutter widgets, Riverpod, or any async service. They can be
 /// unit-tested without a widget test harness.
-@visibleForTesting
 class PurchaseStarCandyHelper {
   // ---------------------------------------------------------------------------
   // Error-code → i18n-key mapping
@@ -110,6 +110,47 @@ class PurchaseStarCandyHelper {
   /// button (e.g. `"4.99 \$"`).
   static String formatButtonPrice(Map<String, dynamic> serverProduct) {
     return '${serverProduct['price']} \$';
+  }
+
+  /// Resolves the price users actually see in the platform store.
+  ///
+  /// The explicit ID-policy inputs keep the product list and confirmation on
+  /// the exact same matching path as purchase initiation. When the store
+  /// catalogue has no matching entry, the server's existing USD display is
+  /// retained so an unavailable product still has a stable label.
+  static String productPriceLabel({
+    required Map<String, dynamic> serverProduct,
+    required List<ProductDetails> storeProducts,
+    required bool isAndroid,
+    required String inappAppNamePrefix,
+    required String environment,
+    required String paymentProductNamespace,
+  }) {
+    final fallback = formatButtonPrice(serverProduct);
+    final serverProductId = serverProduct['id'];
+    if (serverProductId is! String) return fallback;
+
+    const purchaseHelper = PurchaseServiceHelper();
+    final hasStoreProduct = purchaseHelper.storeHasProduct(
+      storeProducts: storeProducts,
+      serverProductId: serverProductId,
+      isAndroid: isAndroid,
+      inappAppNamePrefix: inappAppNamePrefix,
+      environment: environment,
+      paymentProductNamespace: paymentProductNamespace,
+    );
+    if (!hasStoreProduct) return fallback;
+
+    return purchaseHelper
+        .findProductDetails(
+          storeProducts: storeProducts,
+          serverProductId: serverProductId,
+          isAndroid: isAndroid,
+          inappAppNamePrefix: inappAppNamePrefix,
+          environment: environment,
+          paymentProductNamespace: paymentProductNamespace,
+        )
+        .price;
   }
 
   // ---------------------------------------------------------------------------

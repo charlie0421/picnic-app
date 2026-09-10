@@ -1983,6 +1983,37 @@ class AppLocalizationsFil extends AppLocalizations {
       'Mas natagalan ang authentication kaysa inaasahan, pero matagumpay na nakumpleto ang pagbili.';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'Event bonus +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'Batayang reward';
+
+  @override
+  String get purchase_reward_product_bonus => 'Batayang bonus';
+
+  @override
+  String get purchase_reward_event_bonus => 'Bonus ng event';
+
+  @override
+  String get purchase_reward_expected_total => 'Tinatayang kabuuan';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'Tinatayang halaga ito. Kinukumpirma ng server ang panghuling dami kapag nakumpleto na ang bayad.';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'Kabuuang natanggap $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'Sinusuri ang iyong gantimpala';
 
   @override

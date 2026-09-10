@@ -1970,6 +1970,37 @@ class AppLocalizationsEs extends AppLocalizations {
       'La autenticación tardó más de lo esperado, pero la compra se completó correctamente.';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'Bono del evento +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'Recompensa base';
+
+  @override
+  String get purchase_reward_product_bonus => 'Bonificación base';
+
+  @override
+  String get purchase_reward_event_bonus => 'Bono del evento';
+
+  @override
+  String get purchase_reward_expected_total => 'Total estimado';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'Es una estimación. El servidor confirma la cantidad final cuando se completa el pago.';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'Total recibido $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'Verificando tu recompensa';
 
   @override

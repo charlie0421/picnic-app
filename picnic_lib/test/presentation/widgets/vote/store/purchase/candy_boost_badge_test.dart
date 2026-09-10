@@ -1,41 +1,232 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_palette.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview_view.dart';
 import '../../../../../helpers/test_app.dart';
 import '../../../../../helpers/test_environment.dart';
 
 void main() {
-  testWidgets(
-    'renders the exact-double copy when bonusLabel is the exact-double string',
-    (tester) async {
-      initTestColors();
+  setUp(initTestColors);
+
+  group('CandyBoostBadge', () {
+    testWidgets('describes a doubled campaign as 100 percent event bonus', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestApp(const CandyBoostBadge(totalMultiplierTenths: 20)),
+      );
+
+      expect(find.text('이벤트 보너스 +100%'), findsOneWidget);
+      final decorated = tester.widget<Container>(
+        find.descendant(
+          of: find.byType(CandyBoostBadge),
+          matching: find.byType(Container),
+        ),
+      );
+      final gradient = (decorated.decoration! as BoxDecoration).gradient!;
+      expect(gradient.colors, [kCandyBoostPurple, kCandyBoostPink]);
+    });
+
+    testWidgets('describes the event bonus percentage in English', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         buildTestApp(
-          const CandyBoostBadge(
-            displayName: '캔디 부스트 데이',
-            bonusLabel: '기본 지급 + 추가 보너스 100%',
+          const CandyBoostBadge(totalMultiplierTenths: 20),
+          locale: const Locale('en'),
+        ),
+      );
+
+      expect(find.text('+100% EVENT BONUS'), findsOneWidget);
+    });
+
+    testWidgets('keeps a fractional multiplier exact', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(const CandyBoostBadge(totalMultiplierTenths: 15)),
+      );
+
+      expect(find.text('이벤트 보너스 +50%'), findsOneWidget);
+    });
+
+    testWidgets('stays inside a narrow slot at 2x text scale', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+            child: const SizedBox(
+              width: 72,
+              child: CandyBoostBadge(totalMultiplierTenths: 30),
+            ),
           ),
         ),
       );
-      expect(find.text('캔디 부스트 데이'), findsOneWidget);
-      expect(find.text('기본 지급 + 추가 보너스 100%'), findsOneWidget);
-    },
-  );
 
-  testWidgets('renders a V2 multiplier label verbatim', (tester) async {
-    initTestColors();
-    await tester.pumpWidget(
-      buildTestApp(
-        const CandyBoostBadge(displayName: '추석 캔디 부스트', bonusLabel: '1.5배'),
-      ),
+      expect(tester.takeException(), isNull);
+      expect(
+        tester.getSize(find.byType(CandyBoostBadge)).width,
+        lessThanOrEqualTo(72),
+      );
+    });
+
+    test(
+      'formatCandyBoostBonusPercent converts total tenths to bonus percent',
+      () {
+        expect(formatCandyBoostBonusPercent(20), '100');
+        expect(formatCandyBoostBonusPercent(15), '50');
+        expect(formatCandyBoostBonusPercent(21), '110');
+        expect(formatCandyBoostBonusPercent(11), '10');
+      },
     );
-    expect(find.text('추석 캔디 부스트'), findsOneWidget);
-    expect(find.text('1.5배'), findsOneWidget);
   });
 
-  test('formatCandyBoostMultiplierTenths drops a trailing .0 and never rounds', () {
-    expect(formatCandyBoostMultiplierTenths(20), '2');
-    expect(formatCandyBoostMultiplierTenths(15), '1.5');
-    expect(formatCandyBoostMultiplierTenths(21), '2.1');
-    expect(formatCandyBoostMultiplierTenths(11), '1.1');
+  group('PurchaseRewardPreviewView', () {
+    Widget view(PurchaseRewardPreview preview, {double width = 220}) =>
+        SizedBox(
+          width: width,
+          child: PurchaseRewardPreviewView(preview: preview),
+        );
+
+    testWidgets('keeps star candy and bonus star candy separate', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          view(
+            PurchaseRewardPreview(
+              base: BigInt.from(200),
+              productBonus: BigInt.from(25),
+              multiplierTenths: 20,
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.byKey(const Key('purchase-star-candy-panel')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('purchase-bonus-benefit-panel')),
+        findsOneWidget,
+      );
+      expect(find.text('스타캔디'), findsOneWidget);
+      expect(find.text('보너스 스타캔디'), findsOneWidget);
+      expect(find.text('200'), findsOneWidget);
+      expect(find.textContaining('기본 보너스 +25'), findsOneWidget);
+      expect(find.textContaining('이벤트 보너스 +225'), findsOneWidget);
+      expect(find.text('+250'), findsOneWidget);
+      expect(find.text('450'), findsNothing);
+      expect(find.byKey(const Key('purchase-bonus-total')), findsOneWidget);
+      expect(
+        find.byKey(const Key('purchase-provenance-chip-product')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('purchase-provenance-chip-event')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('purchase-expected-total')), findsNothing);
+    });
+
+    testWidgets(
+      'emphasizes the bonus wallet amount without merging currencies',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestApp(
+            view(
+              PurchaseRewardPreview(
+                base: BigInt.from(200),
+                productBonus: BigInt.from(25),
+                multiplierTenths: 20,
+              ),
+            ),
+          ),
+        );
+
+        final total = tester.widget<Text>(find.text('+250'));
+        final catalog = tester.widget<Text>(find.text('200'));
+        expect(
+          total.style!.fontSize!,
+          greaterThan(catalog.style!.fontSize!),
+          reason: 'the separate bonus-wallet amount must remain prominent',
+        );
+      },
+    );
+
+    testWidgets('keeps the largest catalog bonus amount fully visible', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          view(
+            PurchaseRewardPreview(
+              base: BigInt.from(10000),
+              productBonus: BigInt.from(2100),
+              multiplierTenths: 20,
+            ),
+            width: 340,
+          ),
+        ),
+      );
+
+      final amount = find.text('+14,200');
+      expect(amount, findsOneWidget);
+      final paragraph = tester.renderObject<RenderParagraph>(amount);
+      final boxes = paragraph.getBoxesForSelection(
+        const TextSelection(baseOffset: 0, extentOffset: 7),
+      );
+      expect(paragraph.didExceedMaxLines, isFalse);
+      expect(boxes.last.right, lessThanOrEqualTo(paragraph.size.width + 1));
+    });
+
+    testWidgets('falls back to the plain catalog line with no campaign', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          view(
+            PurchaseRewardPreview(
+              base: BigInt.from(200),
+              productBonus: BigInt.from(25),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('200'), findsOneWidget);
+      expect(find.text('+25'), findsOneWidget);
+      expect(find.byKey(const Key('purchase-expected-total')), findsNothing);
+      expect(find.byKey(const Key('purchase-event-bonus')), findsNothing);
+    });
+
+    testWidgets('wraps instead of overflowing at 320dp and 2x text scale', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        buildTestApp(
+          MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+            child: view(
+              PurchaseRewardPreview(
+                base: BigInt.from(200),
+                productBonus: BigInt.from(25),
+                multiplierTenths: 20,
+              ),
+              width: 160,
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+    });
   });
 }

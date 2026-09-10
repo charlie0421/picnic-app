@@ -1842,6 +1842,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get candy_boost_late_purchase_explanation => '认证耗时比预期长，但购买已正常完成。';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '活动奖励 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基础发放';
+
+  @override
+  String get purchase_reward_product_bonus => '基础奖励';
+
+  @override
+  String get purchase_reward_event_bonus => '活动奖励';
+
+  @override
+  String get purchase_reward_expected_total => '预计合计';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note => '此为预计数量。最终发放数量以支付完成时的服务器结果为准。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '共获得$amount';
+  }
+
+  @override
   String get ad_reward_pending => '正在确认奖励';
 
   @override
@@ -3777,6 +3807,36 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get candy_boost_late_purchase_explanation => '认证耗时比预期长，但购买已正常完成。';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '活动奖励 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基础发放';
+
+  @override
+  String get purchase_reward_product_bonus => '基础奖励';
+
+  @override
+  String get purchase_reward_event_bonus => '活动奖励';
+
+  @override
+  String get purchase_reward_expected_total => '预计合计';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note => '此为预计数量。最终发放数量以支付完成时的服务器结果为准。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '共获得$amount';
+  }
 
   @override
   String get ad_reward_pending => '正在确认奖励';
@@ -5715,6 +5775,36 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get candy_boost_late_purchase_explanation => '認證耗時比預期長，但購買已正常完成。';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '活動獎勵 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基本發放';
+
+  @override
+  String get purchase_reward_product_bonus => '基本獎勵';
+
+  @override
+  String get purchase_reward_event_bonus => '活動獎勵';
+
+  @override
+  String get purchase_reward_expected_total => '預估合計';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note => '此為預估數量。最終發放數量以付款完成時的伺服器結果為準。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '共獲得$amount';
+  }
 
   @override
   String get ad_reward_pending => '正在確認獎勵';
