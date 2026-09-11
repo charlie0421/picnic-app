@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign_v2.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
@@ -16,6 +17,8 @@ typedef ResolvedPaymentBadgePromotion = ({
   int? multiplierTenths,
   int? extraBonusBps,
 });
+
+typedef PaymentBadgePromotionPeriod = ({DateTime startsAt, DateTime endsAt});
 
 /// Returns only a settled resolver value for display.
 ///
@@ -137,6 +140,33 @@ Future<ResolvedPaymentBadgePromotion?> paymentBadgePromotion(Ref ref) async {
     extraBonusBps: item.extraBonusBps,
   );
 }
+
+final paymentBadgePromotionPeriodProvider =
+    FutureProvider.autoDispose<PaymentBadgePromotionPeriod?>((ref) async {
+      final v2 = await _readEligibleV2(
+        () => ref.watch(
+          activePromotionCampaignV2Provider(
+            PromotionSurfaceV2.paymentBadge,
+          ).future,
+        ),
+      );
+      if (v2 != null && v2.items.isNotEmpty) {
+        final item = v2.items
+            .where((item) => item.code == _candyBoostDayCode)
+            .firstOrNull;
+        if (item == null) return null;
+        return (startsAt: item.eventStartsAt, endsAt: item.eventEndsAt);
+      }
+
+      final v1 = await ref.watch(
+        activePromotionCampaignProvider(PromotionSurface.store).future,
+      );
+      final item = v1.items
+          .where((item) => item.code == _candyBoostDayCode && item.showInStore)
+          .firstOrNull;
+      if (item == null) return null;
+      return (startsAt: item.windowStartsAt, endsAt: item.windowEndsAt);
+    });
 
 @riverpod
 Future<HomePromotionResolution> homePromotionCampaign(

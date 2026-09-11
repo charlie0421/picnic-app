@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart'
     show formatCandyRewardAmount;
-import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_palette.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy_helper.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -42,14 +41,9 @@ Image buildStarCandyProductImage({
 /// confirmation quotes, and both must be able to say what a very large catalog
 /// row would pay without silently truncating.
 class PurchaseRewardPreviewView extends StatelessWidget {
-  const PurchaseRewardPreviewView({
-    super.key,
-    required this.preview,
-    this.iconSize = 18,
-  });
+  const PurchaseRewardPreviewView({super.key, required this.preview});
 
   final PurchaseRewardPreview preview;
-  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -77,95 +71,86 @@ class PurchaseRewardPreviewView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 10,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              _InlineCurrency(
-                key: const Key('purchase-star-candy-panel'),
-                label: l10n.wallet_star_candy,
-                amount: amount(preview.base),
-                assetPath: kStarCandyAsset,
-                iconSize: iconSize,
-              ),
-              if (bonusTotal > BigInt.zero)
-                _InlineCurrency(
-                  key: const Key('purchase-bonus-total'),
-                  label: l10n.wallet_bonus_star_candy,
-                  amount: plus(bonusTotal),
-                  assetPath: kBonusStarCandyAsset,
-                  iconSize: iconSize,
-                  emphasized: preview.hasEventBonus,
-                ),
-            ],
-          ),
-          if (preview.hasProductBonus || preview.hasEventBonus) ...[
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 10,
-              runSpacing: 3,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (preview.hasProductBonus)
-                  Text(
-                    '${l10n.purchase_reward_product_bonus} ${plus(preview.productBonus)}',
-                    key: const Key('purchase-provenance-chip-product'),
-                    style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
-                  ),
-                if (preview.hasEventBonus)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      kStarCandyAsset,
+                      package: 'picnic_lib',
+                      width: 16,
+                      height: 16,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      amount(preview.base),
+                      key: const Key('purchase-star-candy-panel'),
+                      style: getTextStyle(AppTypo.body14B, AppColors.point900),
+                    ),
+                  ],
+                ),
+                if (bonusTotal > BigInt.zero) ...[
+                  const SizedBox(width: 8),
                   KeyedSubtree(
-                    key: const Key('purchase-event-bonus'),
-                    child: Text(
-                      '${l10n.purchase_reward_event_bonus} ${plus(preview.eventBonus)}',
-                      key: const Key('purchase-provenance-chip-event'),
-                      style: getTextStyle(AppTypo.caption10SB, kCandyBoostPink),
+                    key: const Key('purchase-bonus-components'),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (preview.hasProductBonus) ...[
+                          Image.asset(
+                            kBonusStarCandyAsset,
+                            package: 'picnic_lib',
+                            width: 16,
+                            height: 16,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            amount(preview.productBonus),
+                            key: const Key('purchase-provenance-chip-product'),
+                            style: getTextStyle(
+                              AppTypo.body14B,
+                              AppColors.point900,
+                            ),
+                          ),
+                        ],
+                        if (preview.hasProductBonus && preview.hasEventBonus)
+                          Text(
+                            ' + ',
+                            style: getTextStyle(
+                              AppTypo.body14B,
+                              AppColors.grey500,
+                            ),
+                          ),
+                        if (preview.hasEventBonus) ...[
+                          Image.asset(
+                            kBonusStarCandyAsset,
+                            package: 'picnic_lib',
+                            width: 16,
+                            height: 16,
+                          ),
+                          const SizedBox(width: 2),
+                          KeyedSubtree(
+                            key: const Key('purchase-event-bonus'),
+                            child: Text(
+                              '${l10n.purchase_reward_event_short} ${amount(preview.eventBonus)}',
+                              key: const Key('purchase-provenance-chip-event'),
+                              style: getTextStyle(
+                                AppTypo.body14B,
+                                AppColors.point900,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
+                ],
               ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _InlineCurrency extends StatelessWidget {
-  const _InlineCurrency({
-    super.key,
-    required this.label,
-    required this.amount,
-    required this.assetPath,
-    required this.iconSize,
-    this.emphasized = false,
-  });
-
-  final String label;
-  final String amount;
-  final String assetPath;
-  final double iconSize;
-  final bool emphasized;
-
-  @override
-  Widget build(BuildContext context) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: AlignmentDirectional.centerStart,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            assetPath,
-            package: 'picnic_lib',
-            width: iconSize,
-            height: iconSize,
-          ),
-          const SizedBox(width: 3),
-          Text(
-            '$label $amount',
-            style: getTextStyle(
-              AppTypo.caption12B,
-              emphasized ? kCandyBoostPink : AppColors.point900,
             ),
           ),
         ],

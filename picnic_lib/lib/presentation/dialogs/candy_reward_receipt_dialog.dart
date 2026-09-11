@@ -55,7 +55,12 @@ class CandyRewardReceiptDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 ...receipt.items.map(
-                  (item) => CandyRewardReceiptRow(item: item),
+                  (item) => CandyRewardReceiptRow(
+                    item: item,
+                    isPurchaseReceipt: receipt.referenceKey.startsWith(
+                      'PURCHASE:',
+                    ),
+                  ),
                 ),
                 if (supportingMessage != null) ...[
                   const SizedBox(height: 12),
@@ -84,9 +89,14 @@ class CandyRewardReceiptDialog extends StatelessWidget {
 }
 
 class CandyRewardReceiptRow extends StatelessWidget {
-  const CandyRewardReceiptRow({super.key, required this.item});
+  const CandyRewardReceiptRow({
+    super.key,
+    required this.item,
+    required this.isPurchaseReceipt,
+  });
 
   final CandyRewardReceiptItem item;
+  final bool isPurchaseReceipt;
 
   @override
   Widget build(BuildContext context) {
@@ -161,17 +171,76 @@ class CandyRewardReceiptRow extends StatelessWidget {
                     currency,
                     style: getTextStyle(AppTypo.body14B, AppColors.grey800),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    l10n.candy_reward_receipt_amount(granted),
-                    style: getTextStyle(AppTypo.title18B, accent),
-                  ),
+                  if (isBonus && item.parts.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '${l10n.purchase_reward_total_short} $granted',
+                      style: getTextStyle(AppTypo.body16B, kCandyBoostPurple),
+                    ),
+                  ] else ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.candy_reward_receipt_amount(granted),
+                      style: getTextStyle(AppTypo.title18B, accent),
+                    ),
+                  ],
+                  if (item.parts.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Row(
+                        children: [
+                          for (
+                            var index = 0;
+                            index < item.parts.length;
+                            index++
+                          ) ...[
+                            if (index > 0)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                ),
+                                child: Text(
+                                  '+',
+                                  style: getTextStyle(
+                                    AppTypo.body14B,
+                                    AppColors.grey500,
+                                  ),
+                                ),
+                              ),
+                            _ReceiptProvenanceChip(
+                              key: Key(
+                                item.parts[index].kind ==
+                                        CandyRewardPartKind.productBonus
+                                    ? 'reward-provenance-chip-product'
+                                    : 'reward-provenance-chip-event',
+                              ),
+                              label: _partShortLabel(
+                                l10n,
+                                item.parts[index].kind,
+                              ),
+                              amount: _formatAmount(
+                                context,
+                                item.parts[index].amount,
+                              ),
+                              emphasized:
+                                  item.parts[index].kind ==
+                                  CandyRewardPartKind.eventBonus,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 6),
                   Text(
                     balance == null
                         ? l10n.candy_reward_receipt_balance_unavailable
+                        : isPurchaseReceipt
+                        ? l10n.candy_reward_receipt_purchase_balance(balance)
                         : l10n.candy_reward_receipt_balance(balance),
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                   ),
                   if (expiry != null) ...[
                     const SizedBox(height: 6),
@@ -181,24 +250,6 @@ class CandyRewardReceiptRow extends StatelessWidget {
                         AppTypo.caption10R,
                         AppColors.grey600,
                       ),
-                    ),
-                  ],
-                  // Where the granted amount came from. The wallet balance is
-                  // deliberately not repeated per line: these split one
-                  // currency, they are not currencies of their own.
-                  for (final part in item.parts) ...[
-                    const SizedBox(height: 7),
-                    _ReceiptProvenanceChip(
-                      key: Key(
-                        part.kind == CandyRewardPartKind.productBonus
-                            ? 'reward-provenance-chip-product'
-                            : 'reward-provenance-chip-event',
-                      ),
-                      label: _partLabel(l10n, part.kind),
-                      amount: l10n.purchase_reward_plus_amount(
-                        _formatAmount(context, part.amount),
-                      ),
-                      emphasized: part.kind == CandyRewardPartKind.eventBonus,
                     ),
                   ],
                 ],
@@ -226,20 +277,23 @@ class _ReceiptProvenanceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = emphasized ? kCandyBoostPink : kCandyBoostPurple;
-    return Row(
-      children: [
-        Expanded(
-          child: Text(label, style: getTextStyle(AppTypo.caption12B, color)),
-        ),
-        const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            amount,
-            textAlign: TextAlign.end,
-            style: getTextStyle(AppTypo.caption12B, color),
-          ),
-        ),
-      ],
+    final backgroundColor = emphasized
+        ? kCandyBoostPink.withValues(alpha: .08)
+        : AppColors.grey100;
+    final borderColor = emphasized
+        ? kCandyBoostPink.withValues(alpha: .16)
+        : AppColors.grey300;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor),
+      ),
+      child: Text(
+        '$label $amount',
+        style: getTextStyle(AppTypo.caption12B, color),
+      ),
     );
   }
 }
@@ -255,6 +309,12 @@ String _partLabel(AppLocalizations l10n, CandyRewardPartKind kind) =>
     switch (kind) {
       CandyRewardPartKind.productBonus => l10n.purchase_reward_product_bonus,
       CandyRewardPartKind.eventBonus => l10n.purchase_reward_event_bonus,
+    };
+
+String _partShortLabel(AppLocalizations l10n, CandyRewardPartKind kind) =>
+    switch (kind) {
+      CandyRewardPartKind.productBonus => l10n.purchase_reward_base_short,
+      CandyRewardPartKind.eventBonus => l10n.purchase_reward_event_short,
     };
 
 String _currencyAsset(WalletCurrency currency) => switch (currency) {

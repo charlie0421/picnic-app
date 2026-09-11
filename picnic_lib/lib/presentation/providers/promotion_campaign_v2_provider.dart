@@ -17,9 +17,7 @@ Future<ActivePromotionCampaignsV2Model> activePromotionCampaignV2(
 ) {
   final identity = ref.watch(authSessionIdentityProvider);
   final authGateway = ref.watch(walletAuthGatewayProvider);
-  if (authGateway.isEnabled &&
-      identity == null &&
-      surface != PromotionSurfaceV2.paymentBadge) {
+  if (authGateway.isEnabled && identity == null) {
     return Future.value(
       ActivePromotionCampaignsV2Model(
         items: const [],

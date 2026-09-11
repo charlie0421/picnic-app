@@ -165,7 +165,7 @@ final class _SessionAwareV1Repository extends PromotionCampaignRepository {
   @override
   Future<ActivePromotionCampaignsModel> getActive(PromotionSurface surface) {
     requests.add(surface);
-    if (userId() == null && surface != PromotionSurface.store) {
+    if (userId() == null) {
       return Future.error(
         const PostgrestException(
           message: 'WALLET_UNAUTHENTICATED',
@@ -189,7 +189,7 @@ final class _SessionAwareV2Repository extends PromotionCampaignV2Repository {
     PromotionSurfaceV2 surface,
   ) {
     requests.add(surface);
-    if (userId() == null && surface != PromotionSurfaceV2.paymentBadge) {
+    if (userId() == null) {
       return Future.error(
         const PostgrestException(
           message: 'WALLET_UNAUTHENTICATED',
@@ -223,7 +223,7 @@ Future<void> _flush() => pumpEventQueue(times: 20);
 
 void main() {
   test(
-    'logout keeps public store and payment-badge promotion reads available',
+    'logout short-circuits every V1 and V2 surface before unauthenticated RPC retries',
     () async {
       final gateway = _MutableAuthGateway('admin');
       addTearDown(gateway.close);
@@ -260,23 +260,26 @@ void main() {
       gateway.emit(AuthChangeEvent.signedOut, null);
       await Future<void>.delayed(const Duration(milliseconds: 750));
 
-      expect(v1Repository.requests, [
-        PromotionSurface.home,
-        PromotionSurface.store,
-        PromotionSurface.store,
-      ]);
-      expect(v2Repository.requests, [
-        PromotionSurfaceV2.home,
-        PromotionSurfaceV2.paymentBadge,
-        PromotionSurfaceV2.paymentBadge,
-      ]);
-      expect(container.read(v1Home).hasError, isFalse);
-      expect(container.read(v2Home).hasError, isFalse);
-      expect(container.read(v1Store).value?.nextCursor, 'authenticated-store');
       expect(
-        container.read(v2Badge).value?.nextCursor,
-        'authenticated-paymentBadge',
+        v1Repository.requests,
+        hasLength(2),
+        reason: 'a known signed-out session must not call or retry the V1 RPC',
       );
+      expect(
+        v2Repository.requests,
+        hasLength(2),
+        reason: 'a known signed-out session must not call or retry the V2 RPC',
+      );
+      for (final state in [container.read(v1Home), container.read(v1Store)]) {
+        expect(state.hasError, isFalse);
+        expect(state.value?.items, isEmpty);
+        expect(state.value?.campaignOwnedHomeBannerIds, isEmpty);
+      }
+      for (final state in [container.read(v2Home), container.read(v2Badge)]) {
+        expect(state.hasError, isFalse);
+        expect(state.value?.items, isEmpty);
+        expect(state.value?.campaignOwnedHomeBannerIds, isEmpty);
+      }
     },
   );
 
@@ -366,39 +369,40 @@ void main() {
     addTearDown(storeSubscription.close);
     await _flush();
 
-    expect(repository.requests, hasLength(1));
-    expect(repository.requests.single.surface, PromotionSurface.store);
-    expect(repository.requests.single.userId, isNull);
+    expect(
+      repository.requests,
+      isEmpty,
+      reason: 'known signed-out state is terminal without an anonymous RPC',
+    );
     expect(container.read(home).value?.items, isEmpty);
-    expect(container.read(store).isLoading, isTrue);
+    expect(container.read(store).value?.items, isEmpty);
 
     gateway.emit(AuthChangeEvent.signedIn, 'admin');
     await _flush();
 
     expect(
       repository.requests,
-      hasLength(3),
+      hasLength(2),
       reason: 'sign-in must start new session-scoped V1 surface reads',
     );
     expect(
-      repository.requests.skip(1).map((request) => request.surface),
+      repository.requests.map((request) => request.surface),
       unorderedEquals([PromotionSurface.home, PromotionSurface.store]),
     );
-    expect(
-      repository.requests.skip(1).map((request) => request.userId).toSet(),
-      {'admin'},
-    );
-    final adminRequests = List<_V1Request>.from(repository.requests.skip(1));
+    expect(repository.requests.map((request) => request.userId).toSet(), {
+      'admin',
+    });
+    final adminRequests = List<_V1Request>.from(repository.requests);
 
     gateway.emit(AuthChangeEvent.signedIn, 'normal');
     await _flush();
-    expect(repository.requests, hasLength(5));
+    expect(repository.requests, hasLength(4));
     expect(
-      repository.requests.skip(3).map((request) => request.surface),
+      repository.requests.skip(2).map((request) => request.surface),
       unorderedEquals([PromotionSurface.home, PromotionSurface.store]),
     );
     expect(
-      repository.requests.skip(3).map((request) => request.userId).toSet(),
+      repository.requests.skip(2).map((request) => request.userId).toSet(),
       {'normal'},
     );
 
@@ -417,7 +421,7 @@ void main() {
       reason: 'late prior-account STORE must not cross the identity boundary',
     );
 
-    for (final request in repository.requests.skip(3)) {
+    for (final request in repository.requests.skip(2)) {
       request.completer.complete(_v1Envelope('normal-${request.surface.name}'));
     }
     await _flush();

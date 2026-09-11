@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_palette.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 /// The compact event-bonus rate pill shown on a store product
@@ -19,20 +18,18 @@ class CandyBoostBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = AppLocalizations.of(context).candy_boost_total_multiplier(
-      formatCandyBoostBonusPercent(totalMultiplierTenths),
-    );
+    final percent = formatCandyBoostBonusPercent(totalMultiplierTenths);
+    final label = AppLocalizations.of(
+      context,
+    ).candy_boost_total_multiplier(percent);
     return Semantics(
       label: label,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [kCandyBoostPurple, kCandyBoostPink],
-          ),
+          color: AppColors.point500.withValues(alpha: .1),
           borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppColors.point500.withValues(alpha: .24)),
         ),
         // The pill lives in a row next to a product title that may be long and
         // in a slot that shrinks with the text scale. Scaling down keeps it one
@@ -40,9 +37,9 @@ class CandyBoostBadge extends StatelessWidget {
         child: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            label,
+            '+$percent%',
             maxLines: 1,
-            style: getTextStyle(AppTypo.caption10SB, Colors.white),
+            style: getTextStyle(AppTypo.caption10SB, AppColors.point900),
           ),
         ),
       ),

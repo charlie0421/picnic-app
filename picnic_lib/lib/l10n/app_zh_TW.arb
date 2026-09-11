@@ -2446,9 +2446,14 @@
   "candy_boost_late_purchase_explanation": "認證耗時比預期長，但購買已正常完成。",
   "candy_boost_total_multiplier": "活動獎勵 +{multiplier}%",
   "purchase_reward_base": "基本發放",
+  "purchase_reward_base_short": "基本",
+  "purchase_reward_event_short": "活動",
   "purchase_reward_product_bonus": "基本獎勵",
   "purchase_reward_event_bonus": "活動獎勵",
   "purchase_reward_expected_total": "預估合計",
+  "purchase_reward_total_short": "合計",
+  "purchase_current_balance": "目前餘額 {amount}",
+  "purchase_expected_balance": "購買後預計 {amount}",
   "purchase_reward_plus_amount": "+{amount}",
   "purchase_reward_estimate_note": "此為預估數量。最終發放數量以付款完成時的伺服器結果為準。",
   "candy_reward_receipt_total": "共獲得{amount}",
@@ -2466,6 +2471,7 @@
     }
   },
   "candy_reward_receipt_balance": "目前持有 {amount}",
+  "candy_reward_receipt_purchase_balance": "購買後持有 {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {

@@ -3641,6 +3641,18 @@ abstract class AppLocalizations {
   /// **'Base reward'**
   String get purchase_reward_base;
 
+  /// No description provided for @purchase_reward_base_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get purchase_reward_base_short;
+
+  /// No description provided for @purchase_reward_event_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Event'**
+  String get purchase_reward_event_short;
+
   /// No description provided for @purchase_reward_product_bonus.
   ///
   /// In en, this message translates to:
@@ -3658,6 +3670,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Est. total'**
   String get purchase_reward_expected_total;
+
+  /// No description provided for @purchase_reward_total_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get purchase_reward_total_short;
+
+  /// No description provided for @purchase_current_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance {amount}'**
+  String purchase_current_balance(Object amount);
+
+  /// No description provided for @purchase_expected_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected after purchase {amount}'**
+  String purchase_expected_balance(Object amount);
 
   /// A reward amount added on top of the base reward.
   ///
@@ -3718,6 +3748,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current balance {amount}'**
   String candy_reward_receipt_balance(String amount);
+
+  /// No description provided for @candy_reward_receipt_purchase_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'New balance {amount}'**
+  String candy_reward_receipt_purchase_balance(Object amount);
 
   /// No description provided for @candy_reward_receipt_balance_unavailable.
   ///

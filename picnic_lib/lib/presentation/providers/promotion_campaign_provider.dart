@@ -17,9 +17,7 @@ Future<ActivePromotionCampaignsModel> activePromotionCampaign(
 ) {
   final identity = ref.watch(authSessionIdentityProvider);
   final authGateway = ref.watch(walletAuthGatewayProvider);
-  if (authGateway.isEnabled &&
-      identity == null &&
-      surface != PromotionSurface.store) {
+  if (authGateway.isEnabled && identity == null) {
     return Future.value(
       ActivePromotionCampaignsModel(
         items: const [],

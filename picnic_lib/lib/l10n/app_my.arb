@@ -2445,9 +2445,14 @@
   "candy_boost_late_purchase_explanation": "အတည်ပြုချက် မျှော်လင့်ထားသည်ထက် ကြာခဲ့သော်လည်း ဝယ်ယူမှု အောင်မြင်စွာ ပြီးဆုံးပါပြီ။",
   "candy_boost_total_multiplier": "အစီအစဉ် ဘောနပ်စ် +{multiplier}%",
   "purchase_reward_base": "အခြေခံဆုလာဘ်",
+  "purchase_reward_base_short": "အခြေခံ",
+  "purchase_reward_event_short": "အီဗင့်",
   "purchase_reward_product_bonus": "အခြေခံ ဘောနပ်စ်",
   "purchase_reward_event_bonus": "အီဗင့် ဘောနပ်စ်",
   "purchase_reward_expected_total": "ခန့်မှန်း စုစုပေါင်း",
+  "purchase_reward_total_short": "စုစုပေါင်း",
+  "purchase_current_balance": "လက်ရှိလက်ကျန် {amount}",
+  "purchase_expected_balance": "ဝယ်ယူပြီး ခန့်မှန်း {amount}",
   "purchase_reward_plus_amount": "+{amount}",
   "purchase_reward_estimate_note": "ခန့်မှန်းအရေအတွက်ဖြစ်ပါသည်။ နောက်ဆုံးအရေအတွက်ကို ငွေပေးချေမှုပြီးဆုံးချိန်တွင် ဆာဗာက အတည်ပြုပါမည်။",
   "candy_reward_receipt_total": "စုစုပေါင်း {amount} ရရှိ",
@@ -2465,6 +2470,7 @@
     }
   },
   "candy_reward_receipt_balance": "လက်ရှိလက်ကျန် {amount}",
+  "candy_reward_receipt_purchase_balance": "လက်ကျန်အသစ် {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {

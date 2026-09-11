@@ -2455,9 +2455,14 @@
     }
   },
   "purchase_reward_base": "Base reward",
+  "purchase_reward_base_short": "Base",
+  "purchase_reward_event_short": "Event",
   "purchase_reward_product_bonus": "Base bonus",
   "purchase_reward_event_bonus": "Event bonus",
   "purchase_reward_expected_total": "Est. total",
+  "purchase_reward_total_short": "Total",
+  "purchase_current_balance": "Current balance {amount}",
+  "purchase_expected_balance": "Expected after purchase {amount}",
   "purchase_reward_plus_amount": "+{amount}",
   "@purchase_reward_plus_amount": {
     "description": "A reward amount added on top of the base reward.",
@@ -2491,6 +2496,7 @@
     }
   },
   "candy_reward_receipt_balance": "Current balance {amount}",
+  "candy_reward_receipt_purchase_balance": "New balance {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {

@@ -77,6 +77,7 @@ class StoreListTile extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(width: 8),
         SizedBox(
           height: 32,
           child: ElevatedButton(

@@ -1929,6 +1929,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get purchase_reward_base => 'รางวัลพื้นฐาน';
 
   @override
+  String get purchase_reward_base_short => 'พื้นฐาน';
+
+  @override
+  String get purchase_reward_event_short => 'อีเวนต์';
+
+  @override
   String get purchase_reward_product_bonus => 'โบนัสพื้นฐาน';
 
   @override
@@ -1936,6 +1942,19 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get purchase_reward_expected_total => 'ยอดรวมโดยประมาณ';
+
+  @override
+  String get purchase_reward_total_short => 'รวม';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'ยอดคงเหลือปัจจุบัน $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'คาดว่าหลังซื้อ $amount';
+  }
 
   @override
   String purchase_reward_plus_amount(String amount) {
@@ -1974,6 +1993,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'ยอดคงเหลือปัจจุบัน $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'ยอคงเหลือใหม่ $amount';
   }
 
   @override

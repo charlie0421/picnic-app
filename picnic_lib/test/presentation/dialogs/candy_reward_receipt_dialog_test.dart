@@ -5,6 +5,7 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_palette.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 import '../../helpers/test_environment.dart';
 
@@ -144,7 +145,7 @@ void main() {
     expect(find.byKey(const Key('reward-total')), findsNothing);
     expect(find.text('총 적립 450'), findsNothing);
     expect(find.text('+200'), findsOneWidget);
-    expect(find.text('+250'), findsOneWidget);
+    expect(find.text('합계 250'), findsOneWidget);
     expect(find.byKey(const Key('reward-celebration-hero')), findsOneWidget);
     final hero = tester.widget<Container>(
       find.byKey(const Key('reward-celebration-hero')),
@@ -171,11 +172,11 @@ void main() {
     );
 
     expect(
-      tester.widget<Text>(find.text('+225')).style?.color,
+      tester.widget<Text>(find.text('이벤트 225')).style?.color,
       kCandyBoostPink,
     );
     expect(
-      tester.widget<Text>(find.text('+25')).style?.color,
+      tester.widget<Text>(find.text('기본 25')).style?.color,
       isNot(kCandyBoostPink),
     );
   });
@@ -214,7 +215,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(
-      find.text('+123,456,789,012,345,678,901,234,567,890'),
+      find.text('이벤트 123,456,789,012,345,678,901,234,567,890'),
       findsOneWidget,
     );
   });
@@ -229,12 +230,10 @@ void main() {
       ),
     );
 
-    // The granted total for the merged bonus wallet, then where it came from.
-    expect(find.text('+250'), findsOneWidget);
-    expect(find.text('기본 보너스'), findsOneWidget);
-    expect(find.text('+25'), findsOneWidget);
-    expect(find.text('이벤트 보너스'), findsOneWidget);
-    expect(find.text('+225'), findsOneWidget);
+    // The merged bonus total and its two additive sources stay visually linked.
+    expect(find.text('합계 250'), findsOneWidget);
+    expect(find.text('기본 25'), findsOneWidget);
+    expect(find.text('이벤트 225'), findsOneWidget);
     expect(
       find.byKey(const Key('reward-provenance-chip-product')),
       findsOneWidget,
@@ -243,9 +242,37 @@ void main() {
       find.byKey(const Key('reward-provenance-chip-event')),
       findsOneWidget,
     );
+    final baseCapsule = tester.widget<Container>(
+      find.descendant(
+        of: find.byKey(const Key('reward-provenance-chip-product')),
+        matching: find.byType(Container),
+      ),
+    );
+    final eventCapsule = tester.widget<Container>(
+      find.descendant(
+        of: find.byKey(const Key('reward-provenance-chip-event')),
+        matching: find.byType(Container),
+      ),
+    );
+    final baseDecoration = baseCapsule.decoration! as BoxDecoration;
+    final eventDecoration = eventCapsule.decoration! as BoxDecoration;
+    expect(baseCapsule.padding, eventCapsule.padding);
+    expect(baseDecoration.borderRadius, eventDecoration.borderRadius);
+    expect(
+      (baseDecoration.border! as Border).top.width,
+      (eventDecoration.border! as Border).top.width,
+    );
+    expect(
+      tester.getTopLeft(find.text('합계 250')).dy,
+      greaterThan(tester.getTopLeft(find.text('보너스 스타캔디')).dy),
+    );
     // One balance line per currency - never one per split subrow.
-    expect(find.text('현재 보유 999'), findsOneWidget);
-    expect(find.textContaining('현재 보유'), findsNWidgets(2));
+    expect(find.text('구매 후 보유 999'), findsOneWidget);
+    final balanceText = tester.widget<Text>(find.text('구매 후 보유 999'));
+    expect(balanceText.style?.fontWeight, FontWeight.w700);
+    expect(balanceText.style?.fontSize, 14);
+    expect(balanceText.style?.color, AppColors.grey900);
+    expect(find.textContaining('구매 후 보유'), findsNWidgets(2));
   });
 
   testWidgets('does not sum currencies with different values', (tester) async {
@@ -258,7 +285,7 @@ void main() {
 
     expect(find.text('총 적립 450'), findsNothing);
     expect(find.text('+200'), findsOneWidget);
-    expect(find.text('+250'), findsOneWidget);
+    expect(find.text('합계 250'), findsOneWidget);
   });
 
   testWidgets('an ad receipt keeps its single row and shows no total', (

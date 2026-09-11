@@ -1850,6 +1850,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get purchase_reward_base => '基础发放';
 
   @override
+  String get purchase_reward_base_short => '基础';
+
+  @override
+  String get purchase_reward_event_short => '活动';
+
+  @override
   String get purchase_reward_product_bonus => '基础奖励';
 
   @override
@@ -1857,6 +1863,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get purchase_reward_expected_total => '预计合计';
+
+  @override
+  String get purchase_reward_total_short => '合计';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '当前余额 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '购买后预计 $amount';
+  }
 
   @override
   String purchase_reward_plus_amount(String amount) {
@@ -1894,6 +1913,11 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '当前持有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '购买后持有 $amount';
   }
 
   @override
@@ -3817,6 +3841,12 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get purchase_reward_base => '基础发放';
 
   @override
+  String get purchase_reward_base_short => '基础';
+
+  @override
+  String get purchase_reward_event_short => '活动';
+
+  @override
   String get purchase_reward_product_bonus => '基础奖励';
 
   @override
@@ -3824,6 +3854,19 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get purchase_reward_expected_total => '预计合计';
+
+  @override
+  String get purchase_reward_total_short => '合计';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '当前余额 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '购买后预计 $amount';
+  }
 
   @override
   String purchase_reward_plus_amount(String amount) {
@@ -3861,6 +3904,11 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '当前持有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '购买后持有 $amount';
   }
 
   @override
@@ -5785,6 +5833,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get purchase_reward_base => '基本發放';
 
   @override
+  String get purchase_reward_base_short => '基本';
+
+  @override
+  String get purchase_reward_event_short => '活動';
+
+  @override
   String get purchase_reward_product_bonus => '基本獎勵';
 
   @override
@@ -5792,6 +5846,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get purchase_reward_expected_total => '預估合計';
+
+  @override
+  String get purchase_reward_total_short => '合計';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '目前餘額 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '購買後預計 $amount';
+  }
 
   @override
   String purchase_reward_plus_amount(String amount) {
@@ -5829,6 +5896,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '目前持有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '購買後持有 $amount';
   }
 
   @override
