@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>캔디 내역 리뷰 보완</title><style>body{max-width:1000px;margin:40px auto;padding:0 24px;font:16px/1.6 system-ui;color:#172132}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccd4df;padding:10px;text-align:left;vertical-align:top}th,pre{background:#f1f4f8}code{font-size:.9em}pre{padding:16px;white-space:pre-wrap}</style></head><body>
+<h1>캔디 내역 독립 리뷰 보완 — 2026-09-08</h1>
+<p>검토 대상은 현재 ad-reward-history-review.diff의 9개 파일이다. 첫 리뷰는 이전 6개 파일·78개 테스트 시점의 사본을 검토했다. 아래 결과는 새 diff와 현재 소스로 다시 확인한다. 광고 작업자의 진행 중 파일은 범위에서 제외한다.</p>
+<table><thead><tr><th>지적</th><th>처리 및 근거</th></tr></thead><tbody>
+<tr><td>F1 내부 구현값 노출</td><td>행 위젯에서 raw eventType, origin, operationId 및 복사 UI를 제거했다. 통화·부호 있는 수량·발생 시각·현지화한 소멸 시점만 표시한다. 행 테스트에서 내부값 부재를 검증한다.</td></tr>
+<tr><td>F2 읽기 상한·재시도</td><td>첫 페이지와 다음 페이지의 논리적 읽기 상한은 6초다. CurrencyHistory에 명시적 자동 재시도 없음 정책을 적용하고 생성 파일에도 반영했다. 실패를 표시하고 사용자가 재시도한다. 이는 HTTP 요청 취소를 보장한다는 뜻은 아니다. 수동 새로고침 중에는 새 스냅샷을 기다리는 로딩 표시를 유지한다.</td></tr>
+<tr><td>F3 실제 오류 경로</td><td>위젯 테스트의 ProviderScope retry override를 제거하고 PostgrestException을 사용한다. 완결되지 않는 첫/다음 페이지 응답을 재현하고, 7초 내 재시도 UI와 이후 30초 동안 추가 자동 RPC 없음, 수동 재시도 성공을 검증한다. 수정 전 첫/다음 페이지 타임아웃 및 RPC 오류 재시도 테스트의 실패를 확인했다.</td></tr>
+<tr><td>F4 페이지 계정 불일치</td><td>실제 auth stream 변경을 쓰는 위젯 테스트에서 프로필 A·세션 B 불일치 중 행과 탭을 숨기는 것을 검증한다. 기존 구독 provider는 Flutter가 unmount하기 전에 새 인증 계정의 조회를 한 번 시작할 수 있지만 어느 계정의 행도 불일치 화면에 표시되지 않고 요청이 반복되지 않는다. provider의 계정 A→B 및 A→B→A 지연 응답 폐기 테스트는 유지한다.</td></tr>
+<tr><td>F6 탭 인디케이터</td><td>로그아웃 후 같은 계정으로 복구할 때 선택 2/표시 0 불일치를 실제 재현했다. DefaultTabController.initialIndex를 선택 통화에서 계산하며 회귀 테스트가 통과한다.</td></tr>
+<tr><td>F7 빈 목록·다음 cursor</td><td>서버 계약에서 발생하지 않는다. 아래 함수는 p_limit을 1 이상으로 검증하고, 배열 길이가 p_limit보다 클 때만 항목을 p_limit개로 잘라 다음 cursor를 만든다. 빈 배열이면 v_next는 null이다. 서버 변경은 하지 않는다.</td></tr>
+<tr><td>F5·F8·F9·F10·F11</td><td>차단할 동작 결함이 제시되지 않은 유지보수 관찰로 남긴다. 관리자 메뉴의 기존 진입점은 같은 본인 내역을 연다. loadNext의 true는 사용자에게 재시도 오류를 표시할 필요가 없다는 결과이고, 위젯/provider의 세대 가드는 서로 다른 비동기 작업을 보호한다. 실제 ABA 및 지연 응답 회귀 테스트를 유지하며 구현 자체를 복제하는 단일 값 동등성 테스트는 추가하지 않는다.</td></tr>
+</tbody></table>
+<h2>서버 cursor 계약</h2><p>2026-09-08 19:36 KST 운영 함수 확인과 로컬 마이그레이션 /Users/charlie.hyun/orca/workspaces/picnic-supabase/서버용량확인/supabase/migrations/20260721095000_wallet_core_app_reads.sql:98의 get_currency_history 정의.</p>
+<pre>if p_currency is null or p_limit is null or p_limit&lt;1 or p_limit&gt;100 then ... end if;
+...
+if cardinality(v_items)&gt;p_limit then
+  v_items:=v_items[1:p_limit];
+  v_last:=v_items[p_limit];
+  v_next:=wallet_private.app_cursor_encode(...);
+end if;
+return row(v_items,v_total::text,v_next,v_snapshot)::public.wallet_currency_history_page;</pre>
+<h2>현재 검증</h2><p>flutter test --no-pub: wallet_provider_test, currency_history_page_test, my_page_render_test, my_page_test, currency_history_list_item_test — 86개 통과(exit 0). 수정 9개 파일 flutter analyze --no-pub — No issues found(exit 0, 4.5초). 소스와 테스트 포맷 완료. 로그는 /tmp/picnic-history-after-review-tests.log 및 /tmp/picnic-history-analyze.log.</p>
+</body></html>

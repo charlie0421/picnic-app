@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>광고 결과 조회 앱 개편 — 작업 1 핵심 구현 보고서</title>
+<style>
+  body{max-width:1080px;margin:40px auto;padding:0 24px;font:16px/1.65 system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;color:#172132}
+  h1,h2,h3{line-height:1.3}
+  h1{border-bottom:3px solid #376ac3;padding-bottom:10px}
+  h2{margin-top:2.4em;border-bottom:1px solid #ccd4df;padding-bottom:6px}
+  table{border-collapse:collapse;width:100%;margin:14px 0}
+  th,td{border:1px solid #ccd4df;padding:9px 10px;text-align:left;vertical-align:top}
+  th{background:#f1f4f8}
+  code{background:#f1f4f8;padding:1px 5px;border-radius:3px;font-size:.92em}
+  pre{background:#f1f4f8;padding:14px;white-space:pre-wrap;border-radius:5px;font-size:.9em}
+  .ok{color:#1a7f42;font-weight:600}
+  .warn{color:#a8621b;font-weight:600}
+  .note{border-left:4px solid #376ac3;background:#f7f9fc;padding:12px 16px;margin:16px 0}
+  .bad{border-left:4px solid #b3352c;background:#fdf6f5;padding:12px 16px;margin:16px 0}
+  small{color:#5b6677}
+</style>
+</head>
+<body>
+
+<h1>광고 결과 조회 앱 개편 — 작업 1 핵심 구현 보고서</h1>
+<p>
+  2026-09-08 · 워크트리 <code>/Users/charlie.hyun/orca/workspaces/picnic-app/hotfix-ad-reward-recovery-load</code> ·
+  기준 HEAD <code>55964b9f59dc01ad2b006a55f95a157ea87275f7</code> · 브랜치 <code>hotfix/ad-reward-recovery-load</code>
+</p>
+<p>
+  계획서 <code>ad-reward-app-redesign-plan.html</code> 의 <strong>작업 1</strong>만 구현했다.
+  커밋·푸시·앱 버전·빌드·배포·OTA·서버 쓰기·codegen(build_runner)은 수행하지 않았다.
+</p>
+
+<div class="note">
+<strong>소유권 변경(작업 중 조정자 지시):</strong>
+<code>picnic_app/lib/app.dart</code>, <code>picnic_lib/lib/core/services/ad_reward_lifecycle.dart</code> 및
+lifecycle 테스트는 <strong>루트</strong>가 맡았다. 이 보고서의 범위는 provider · 숏폼 플랫폼 · analytics ·
+local store · <code>WalletResumeRefresher</code> 이며, 루트가 소비할 계약은 아래 “루트 배선 계약”에 정리했다.
+</div>
+
+<h2>1. 무엇이 바뀌었나</h2>
+
+<h3>1-1. 목록 자동 복구 제거</h3>
+<p>
+  <code>AdRewardRecovery.recover()</code> 와 그 뒤의 <code>_recoverForOwner</code> ·
+  <code>_pollRecoveredReferences</code> · <code>_resumeAcknowledgement</code> 를 전부 삭제했다.
+  시작·복귀·같은 사용자 인증 이벤트에서 발생하던
+  <code>list_unacknowledged_ad_rewards</code> 페이지 순회와,
+  로컬 <code>pendingDisplay</code> 레코드 전체에 대한 6단 <code>get_ad_reward_status</code> 사다리가 함께 사라졌다.
+</p>
+<p>함께 없어진 것: <code>adRewardRecoveryPollDelays</code>, <code>adRewardRecoverySuccessCooldown</code>,
+  <code>_adRewardRecoveryMaxConcurrentReads</code>, <code>adRewardRecoveryClockProvider</code>,
+  단일 비행/쿨다운 상태(<code>_recovering</code>, <code>_lastSuccessfulRecovery</code>,
+  <code>_suppressedRecoveryCooldowns</code>).</p>
+
+<h3>1-2. 현재 광고의 개별 확인은 유지</h3>
+<p>
+  <code>poll()</code> 과 포그라운드 사다리(1·2·4·8·15초, 총 6회 읽기)는 그대로다. 배너
+  (<code>checkingReferences</code>), 소유자·세대 가드, <code>_queued</code> 클레임, ACK 경로도 그대로다.
+  사다리가 하나로 줄면서 <strong>진행 중인 확인에 겹쳐 든 중복 콜백은 두 번째 조회를 만들지 않는다</strong>
+  (이전에는 <code>bg:</code>/<code>fg:</code> 토큰이 갈려 두 사다리가 동시에 돌았다).
+</p>
+
+<h3>1-3. 확정된 적립의 통계 저장을 팝업 수명과 분리</h3>
+<p>새 파일 <code>picnic_lib/lib/core/analytics/ad_reward_earn_recorder.dart</code> 가
+  <code>AdRewardStatusModel</code> → GA4 payload 매핑과 durable outbox 저장을 소유한다.
+  <code>AdRewardDialogHost</code> 의 <code>_logEarnVirtualCurrency</code> 와
+  <code>earnAnalyticsStore</code> 생성자 인자는 제거했다.</p>
+<p>기록 시점은 <strong>앱이 grant 를 확인한 순간</strong>이며 세 경로 모두를 덮는다.</p>
+<table>
+  <thead><tr><th>경로</th><th>기록 지점</th><th>이전 동작</th></tr></thead>
+  <tbody>
+    <tr><td>폴링으로 GRANTED 도달</td><td><code>_validateAndQueueTerminalStatus</code></td><td>호스트가 다이얼로그를 열기 직전에만 발송</td></tr>
+    <tr><td>전체화면 라우트가 직접 표시</td><td><code>acknowledgePresented</code></td><td>기록 없음</td></tr>
+    <tr><td><strong>view 콜백이 동기 GRANTED 반환</strong></td><td><code>InternalShortformViewRecoveryFlow.report</code> → <code>recordConfirmedGrant</code></td><td><span class="warn">기록 없음</span> — route 가 먼저 dispose 되면 영구 누락</td></tr>
+  </tbody>
+</table>
+<p>
+  세 경로가 모두 <code>adRewardEarnKey()</code>(<code>INTERNAL_IMPRESSION:&lt;id&gt;</code>)를 쓰며, 이는 legacy
+  <code>enqueueLegacyShortformEarnAnalytics</code> 가 쓰던 키와 같은 문자열이다. 중복은 durable outbox 가 그 키로
+  합치고, 프로세스 내에서는 <code>_earnRecorded</code> 가 한 번 더 막는다. 저장 실패(<code>false</code>·예외)는
+  키를 되돌려 이후 확인이 재시도할 수 있게 한다.
+</p>
+<p>GRANTED 이면서 grant 금액이 양수일 때만 기록하므로 PENDING/DENIED/EXPIRED/ABANDONED 와
+  SDK 콜백 단독으로는 절대 적립으로 집계되지 않는다.</p>
+
+<h3>1-4. 계정별 안전한 복귀 시 잔액 갱신</h3>
+<p>새 파일 <code>picnic_lib/lib/core/services/wallet_resume_refresher.dart</code>.
+  <code>wallet_provider.dart</code> 는 <strong>수정하지 않았고</strong> 공개 인터페이스
+  (<code>walletAuthGatewayProvider</code> · <code>walletRepositoryProvider</code> ·
+  <code>walletSummaryProvider.setSummary</code> · <code>kWalletSummaryReadTimeout</code>)만 소비한다.</p>
+<table>
+  <thead><tr><th>결과</th><th>조건</th></tr></thead>
+  <tbody>
+    <tr><td><code>refreshed</code></td><td>읽기 성공 + 계정/세대 검증 통과 → <code>setSummary</code> 적용</td></tr>
+    <tr><td><code>notSignedIn</code></td><td>비로그인. 서버 호출 0회, 추적 상태 초기화</td></tr>
+    <tr><td><code>notLoaded</code></td><td>파우치가 아직 로드되지 않음. 복귀가 첫 로드를 만들지 않는다</td></tr>
+    <tr><td><code>cooledDown</code></td><td>직전 성공 후 60초 미만(<code>kWalletResumeRefreshCooldown</code>). 시계 역행은 쿨다운으로 보지 않음</td></tr>
+    <tr><td><code>superseded</code></td><td>응답 도착 시 로그아웃·계정 전환·<code>reset()</code> 이 지나감 → 값 폐기</td></tr>
+    <tr><td><code>failed</code></td><td>실패/타임아웃. 화면 잔액 유지, 쿨다운 기록 없음(즉시 재시도 가능)</td></tr>
+  </tbody>
+</table>
+<p>읽기는 <code>kWalletResumeRefreshReadTimeout == kWalletSummaryReadTimeout == 6초</code>로 끊는다.
+  겹친 복귀는 같은 Future 로 합쳐 서버 왕복이 1회다.</p>
+
+<h3>1-5. 로컬 기록 무한 증가 차단</h3>
+<p>
+  복구 스윕이 <code>pending_ad_rewards_v1</code> 을 훑으며 정리해 주던 경로가 사라졌으므로,
+  ACK 이 끝내 실패한 기록을 치울 주체가 없어진다. <code>PendingAdRewardStore</code> 에
+  사용자당 상한 <code>kPendingAdRewardMaxRecords = 100</code> 을 넣고 넘치면 가장 오래된 것부터 버린다.
+  <code>markAckPending</code> 은 해당 항목을 목록 맨 뒤로 옮겨, 지금 확인 중인 건은 잘려 나가지 않는다.
+</p>
+<p>버리는 것은 앱 로컬 표시 상태뿐이다. 서버 보상·원장·이미 저장된 적립 통계는 건드리지 않는다.</p>
+
+<h2>2. 변경 파일</h2>
+<table>
+  <thead><tr><th>파일</th><th>구분</th></tr></thead>
+  <tbody>
+    <tr><td><code>picnic_lib/lib/core/analytics/ad_reward_earn_recorder.dart</code></td><td>신규</td></tr>
+    <tr><td><code>picnic_lib/lib/core/services/wallet_resume_refresher.dart</code></td><td>신규</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/providers/ad_reward_recovery_provider.dart</code></td><td>수정</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/ad_reward_dialog_host.dart</code></td><td>수정</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow.dart</code></td><td>수정</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/shortform_internal_platform.dart</code></td><td>수정</td></tr>
+    <tr><td><code>picnic_lib/lib/data/storage/pending_ad_reward_store.dart</code></td><td>수정</td></tr>
+    <tr><td><code>picnic_lib/test/core/analytics/ad_reward_earn_recorder_test.dart</code></td><td>신규</td></tr>
+    <tr><td><code>picnic_lib/test/core/services/wallet_resume_refresher_test.dart</code></td><td>신규</td></tr>
+    <tr><td><code>picnic_lib/test/presentation/providers/ad_reward_recovery_provider_test.dart</code></td><td>재작성</td></tr>
+    <tr><td><code>picnic_lib/test/presentation/widgets/ad_reward_dialog_host_test.dart</code></td><td>수정</td></tr>
+    <tr><td><code>picnic_lib/test/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow_test.dart</code></td><td>수정</td></tr>
+    <tr><td><code>picnic_lib/test/data/storage/pending_ad_reward_store_test.dart</code></td><td>수정</td></tr>
+  </tbody>
+</table>
+<p><small>생성 파일(<code>lib/generated/**</code>)은 건드리지 않았다. 새 provider 2개는 codegen 이 필요 없도록
+  일반 <code>Provider</code> 로 선언했다(파일 내 <code>walletAuthGatewayProvider</code> 선례와 동일).</small></p>
+
+<h2>3. TDD RED → GREEN 증거</h2>
+
+<h3>3-1. 새 유닛 2개</h3>
+<pre>RED  $ flutter test --no-pub test/core/analytics/ad_reward_earn_recorder_test.dart \
+                          test/core/services/wallet_resume_refresher_test.dart
+     test/core/services/wallet_resume_refresher_test.dart:178:21:
+       Error: Undefined name 'WalletResumeRefreshOutcome'.
+     ... (recordAdRewardEarn / WalletResumeRefresher 미정의)
+     00:00 +0 -2: Some tests failed.
+
+GREEN 00:00 +21: All tests passed!</pre>
+
+<h3>3-2. 복구 provider 계약</h3>
+<pre>RED  $ flutter test --no-pub test/presentation/providers/ad_reward_recovery_provider_test.dart
+     test/.../ad_reward_recovery_provider_test.dart:217:9:
+       Error: Undefined name 'adRewardEarnRecorderProvider'.
+     00:00 +0 -1: Some tests failed.
+
+     (구현 후 1차) 00:00 +22 -2  — 실패 2건은 새 설계에서 성립하지 않게 된
+     테스트 기대치였다:
+       · 'a leftover ACK_PENDING tombstone is not replayed'
+         → poll 은 ACK 하지 않는다. 큐 → acknowledgeAfterRender 로 시나리오 정정
+       · 'a late sibling poller cannot re-queue a reward mid-ack'
+         → 한 레퍼런스에 동시 사다리 2개가 구조적으로 불가능해졌다.
+           '중복 콜백은 두 번째 조회도, 두 번째 영수증도 만들지 않는다'로 정정
+
+GREEN 00:00 +24: All tests passed!</pre>
+
+<h3>3-3. 숏폼 동기 GRANTED (팝업 독립)</h3>
+<pre>RED  $ flutter test --no-pub test/.../internal_shortform_reward_flow_test.dart
+     test/.../internal_shortform_reward_flow_test.dart:409:9:
+       Error: No named parameter with the name 'onGrantConfirmed'.  (외 4건)
+     00:00 +0 -1: Some tests failed.
+
+GREEN 00:00 +16: All tests passed!</pre>
+<p>추가된 회귀: 영수증을 전혀 렌더하지 않는 경로에서의 기록, PENDING·legacy 응답 미기록,
+  소유자 변경 시 미기록, 기록기 예외가 시청 응답을 잃지 않음.</p>
+
+<h3>3-4. 로컬 기록 상한</h3>
+<pre>RED  $ flutter test --no-pub test/data/storage/pending_ad_reward_store_test.dart
+     test/data/storage/pending_ad_reward_store_test.dart:90:59:
+       Error: No named parameter with the name 'maxRecords'.
+     test/data/storage/pending_ad_reward_store_test.dart:143:27:
+       Error: Undefined name 'kPendingAdRewardMaxRecords'.
+     00:00 +0 -1: Some tests failed.
+
+RED  ('acknowledging an old record refreshes its place in the list')
+     Expected: [ref(3), ref(1), ref(4)]  Actual: [ref(2), ref(3), ref(1)]
+     00:00 +0 -1: Some tests failed.
+
+GREEN 00:00 +10: All tests passed!</pre>
+
+<h3>3-5. 다이얼로그 호스트</h3>
+<pre>GREEN 00:00 +17: All tests passed!</pre>
+<p>
+  호스트에서 통계 책임을 걷어내자, 저장소를 주입하지 않는 테스트들이 전역 outbox I/O 로 흘러
+  pending timer 가 남았다. 각 <code>ProviderContainer</code> 에
+  <code>adRewardEarnRecorderProvider</code> 오버라이드를 넣어 격리를 복원했고,
+  earn 회귀 그룹만 실제 <code>recordAdRewardEarn</code> + 테스트 저장소로 durable 계약을 그대로 태운다.
+</p>
+
+<h2>4. 검증 명령과 결과</h2>
+<p>모두 <code>picnic_lib/</code> 에서 실행. Flutter 3.41.4 · Dart 3.11.1.</p>
+<table>
+  <thead><tr><th>명령</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>flutter test --no-pub test/core/analytics/ad_reward_earn_recorder_test.dart test/core/services/wallet_resume_refresher_test.dart test/data/storage/pending_ad_reward_store_test.dart</code></td>
+      <td class="ok">+31 All tests passed</td>
+    </tr>
+    <tr>
+      <td><code>flutter test --no-pub test/presentation/providers/ad_reward_recovery_provider_test.dart test/presentation/widgets/ad_reward_dialog_host_test.dart test/.../internal_shortform_reward_flow_test.dart</code></td>
+      <td class="ok">+57 All tests passed</td>
+    </tr>
+    <tr>
+      <td><code>flutter test --no-pub test/core/analytics/ad_reward_earn_recorder_test.dart test/core/services/wallet_resume_refresher_test.dart test/data/storage test/presentation/providers/ad_reward_recovery_provider_test.dart test/presentation/widgets/ad_reward_dialog_host_test.dart test/presentation/widgets/vote/store/free_charge_station/platforms</code></td>
+      <td class="ok">+278 All tests passed</td>
+    </tr>
+    <tr>
+      <td><code>flutter analyze --no-pub</code> (소유 변경 파일 13개)</td>
+      <td class="ok">No issues found</td>
+    </tr>
+    <tr><td><code>dart format</code> (같은 13개 파일만)</td><td class="ok">9 changed, 적용됨</td></tr>
+    <tr><td><code>git diff --check</code></td><td class="ok">clean</td></tr>
+  </tbody>
+</table>
+
+<div class="bad">
+<strong>사전 존재 실패 1건 (내 변경과 무관, 미수정):</strong><br>
+<code>test/core/analytics/analytics_outbox_currency_test.dart</code> →
+“dead letter expiry ends in a bounded summary, never in a currency-less send”
+(581행 <code>expect(await outbox.pendingCount(), 0)</code> — Expected 0, Actual 1).<br>
+<strong>원인:</strong> <code>lib/core/analytics/analytics_outbox.dart</code> 141·188행이 항목의
+<code>createdAt</code> 을 주입 시계가 아니라 실제 <code>DateTime.now()</code> 로 찍는다. 테스트는 가상 시계를
+2026-08-24 → 2027-08-25 로 366일 진행시키고 <code>purchasePendingMaxAge</code> 365일 만료를 기대하는데,
+실제 <code>createdAt</code> 이 오늘(2026-09-08)이라 경과가 351일이라 만료되지 않는다.
+<strong>2026-08-25 부터 날짜 때문에 깨지기 시작한 잠재 버그</strong>이며, 이 파일과
+<code>analytics_outbox.dart</code> 는 이번 diff에 포함되지 않고 그 import 그래프에 내 변경 파일이 하나도 없다.
+수정 방향은 <code>enqueue</code> 에 <code>createdAt</code> 을 명시하거나 <code>_clock()</code> 을 쓰는 것.
+소유 범위 밖이라 손대지 않았다.
+</div>
+
+<h2>5. 루트 배선 계약 (app.dart / ad_reward_lifecycle.dart)</h2>
+<p>루트가 이미 <code>AdRewardLifecycle</code> 로 소비 중인 것을 확인했다. 계약 요약:</p>
+<pre>walletResumeRefresherProvider → WalletResumeRefresher
+  · refreshOnResume()  // resumed 에서 호출. 60초 쿨다운·6초 timeout·계정/세대 검증·
+                       // 겹친 요청 합치기 내장. 비로그인/미로드면 서버 호출 0회.
+  · reset()            // owner 전환·로그아웃
+
+adRewardRecoveryProvider.notifier
+  · resetForLogout()   // owner 전환 시. recover() 는 더 이상 존재하지 않는다.
+                       // 같은 사용자 token refresh 는 아무 호출도 만들지 않아야 한다.</pre>
+<div class="note">
+<strong>루트 파일에 대한 관찰 1건(수정하지 않음):</strong>
+<code>ad_reward_lifecycle.dart</code> 62행이 <code>_wallet.refreshOnResume().catchError(...)</code> 형태다.
+<code>refreshOnResume()</code> 은 내부에서 오류를 잡아 <code>failed</code> 를 돌려주므로 정상 경로에서는 문제없지만,
+주입된 <code>isWalletLoaded</code>(=<code>ref.exists</code>/<code>ref.read</code>)가 dispose 된 컨테이너에서
+<strong>동기로</strong> 던지면 그 예외는 Future 가 아니라 호출부로 새어 <code>catchError</code> 가 잡지 못한다.
+<code>Future.sync(() =&gt; _wallet.refreshOnResume())</code> 로 감싸면 닫힌다.
+(레포가 <code>poll</code> 호출부에서 같은 이유로 이미 쓰는 방어 패턴이다.)
+</div>
+
+<h2>6. 한계와 후속</h2>
+<ul>
+  <li>
+    <strong>지난 세션의 미확인 보상은 더 이상 재표시되지 않는다.</strong> 승인된 설계 그대로다.
+    서버 보상·원장은 그대로 남고 사용자는 이미 재화를 받은 상태이며, 통계는 확정 시점에 별도로 저장된다.
+    잃는 것은 그 건의 영수증 팝업과 서버측 <code>acknowledged</code> 표시뿐이다.
+  </li>
+  <li>
+    <strong><code>listUnacknowledged</code> RPC 는 코드에 남겨 두었다.</strong>
+    <code>AdRewardApi</code> 인터페이스와 <code>AdRewardRepository</code> 구현 모두 유지했고 앱에서 호출하는 곳은 0곳이다.
+    저장소 인터페이스 정리는 작업 1의 범위가 아니라고 판단해 넘겼다.
+  </li>
+  <li>
+    <strong>로컬 기록 상한은 100건이다.</strong> 기존
+    <code>'serializes 100 concurrent adds across owners without loss'</code> 테스트(소유자당 50건)를
+    깨지 않으면서 무한 증가를 막는 값으로 골랐다. 사용자당 약 11KB 상한.
+  </li>
+  <li>
+    <strong>앱 lifecycle 실제 호출 경로 검증은 루트 소유로 이관됐다.</strong>
+    라이브러리 쪽 보증은 내 테스트가 덮는다: 광고 1건 시청에서 <code>listCallCount == 0</code>,
+    지난 세션 로컬 레코드가 있어도 <code>reads == [방금 본 광고]</code>,
+    앱 실행 시 <code>statusReads == 0 &amp;&amp; listCalls == 0</code>.
+  </li>
+  <li>
+    <strong>운영 호출량 감소는 배포 전이라 주장하지 않는다.</strong> 계획의 완료 기준대로,
+    실제 감소는 앱 배포 후 측정으로 확인해야 한다.
+  </li>
+  <li>
+    <code>build_runner</code> 는 실행하지 않았다(조정자 지시). 생성 파일 변경 0건.
+  </li>
+</ul>
+
+<p><small>보고서 경로: <code>/Users/charlie.hyun/orca/workspaces/picnic-app/hotfix-ad-reward-recovery-load/ad-reward-app-redesign-core-report.html</code></small></p>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>광고 보상 자동 조회 제거 — 앱 변경 결과 (2026-09-08)</title>
+<style>body{font:16px/1.7 system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;color:#172132;background:#fff;max-width:1050px;margin:40px auto;padding:0 24px}h1{line-height:1.35;border-bottom:3px solid #176c5c;padding-bottom:20px}h2{margin-top:36px;font-size:1.3rem}a{color:#185f9c}code,pre{background:#f3f5f7;border-radius:5px}code{padding:2px 5px;overflow-wrap:anywhere}pre{padding:16px;white-space:pre-wrap;font-size:13px}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid #d3dce3;padding:11px;text-align:left;vertical-align:top}th{background:#edf5f3}.status{background:#edf5f3;border-left:4px solid #176c5c;padding:15px}.note{background:#fff6df;border-left:4px solid #ac7916;padding:15px}small{color:#536675}footer{margin-top:40px;border-top:1px solid #d3dce3;padding-top:18px}@media(max-width:680px){body{padding:0 14px}table{font-size:13px}th,td{padding:7px}}</style></head>
+<body>
+<h1>광고 보상 자동 조회 제거<br><small>앱 변경 결과 · 2026-09-08 KST</small></h1>
+<p class="status"><strong>구현·관련 검증·독립 리뷰·커밋·PR 반영·Jira 갱신 완료.</strong><br>앱은 미병합·미배포다. 이번 결과는 운영에서의 앱 효과 측정을 의미하지 않는다.</p>
+<p>커밋 <code>0af28643db75f19b1ce09658810b0ad8c1830b88</code><br>브랜치 <code>hotfix/ad-reward-recovery-load</code> · <a href="https://github.com/charlie0421/picnic-app/pull/203">앱 PR #203</a> · <a href="https://picnic-team.atlassian.net/browse/PICNIC-2634">앱 작업 PICNIC-2634</a></p>
+<table><thead><tr><th>사용 상황</th><th>변경한 앱 동작</th></tr></thead><tbody>
+<tr><td>앱 시작·인증 이벤트</td><td>과거 미확인 보상 목록·로컬 기록 상태 자동 순회 0회. 소유자 변경은 진행 상태를 초기화한다.</td></tr>
+<tr><td>앱 복귀</td><td>과거 보상 순회 0회. 이미 읽은 잔액만 갱신하며 진행 중 요청을 합치고 성공 후 60초 동안 제한한다.</td></tr>
+<tr><td>현재 광고 시청</td><td>서버 결과 확인을 유지한다. 미확정이면 최대 6회 확인하며 확정 지급의 분석 기록은 팝업 수명과 독립한다.</td></tr>
+<tr><td>지난 적립 확인</td><td>사용자가 마이페이지 이용 내역을 열 때 선택한 재화만 조회한다.</td></tr>
+<tr><td>실제 지급</td><td>서버가 처리한다. 앱 안내·ACK·과거 목록 조회는 지급의 전제 조건이 아니다.</td></tr>
+</tbody></table>
+<h2>현재 상태 / 확정한 설계</h2>
+<p>사용자 승인에 따라 자동 복구를 제한하는 이전 접근을 대체했다. 앱 시작·복귀·인증 이벤트에서 미확인 보상 목록 및 과거 로컬 보상 상태 순회를 제거했다. 구현·검증·교차 리뷰·PR 반영 완료. PR #203은 초안이며 미병합·미배포다. 담당자 윤지현 / 검토 중을 유지한다.</p>
+<p><a href="https://github.com/charlie0421/picnic-app/pull/203">앱 PR #203 — 자동 조회 제거 및 필요할 때 내역 조회</a></p>
+<p>최종 커밋: 0af28643db75f19b1ce09658810b0ad8c1830b88</p>
+<h2>완료한 앱 변경</h2>
+<p>새 앱의 시작·복귀·인증 경로에서는 list_unacknowledged_ad_rewards와 과거 기록의 getStatus 호출이 0회다. 현재 시청한 광고의 최대 6회 확인 및 1/2/4/8/15초 지연, 결과 안내·ACK는 유지한다. ACK는 안내 완료 기록이며 실제 지급은 서버가 수행한다.</p>
+<p>복귀 시 이미 읽은 지갑 잔액만 갱신한다. 겹친 요청은 합치고 성공 후 60초 제한, 6초 읽기 상한을 적용한다. 계정 전환·로그아웃·A→B→A의 늦은 응답을 버리며 더 최신 잔액을 보존한다.</p>
+<p>일반 사용자도 마이페이지에서 이용 내역을 열 수 있다. 선택한 재화만 조회하고 명시적 다음 페이지·새로고침·재시도를 제공한다. 첫 페이지/다음 페이지 읽기 상한 6초, 자동 재시도 없음. 인증 사용자와 화면 사용자가 다르면 내역을 숨기고 내부 원장 메타데이터는 표시하지 않는다.</p>
+<p>앱이 서버의 양수 GRANTED를 관측하면 팝업 표시와 독립적으로 durable analytics outbox에 기록한다. 광고 화면이 먼저 닫힌 뒤 응답이 와도 notifier를 미리 확보해 기록·현재 광고 확인이 지속된다. 중복 이벤트는 동일 reference로 합친다.</p>
+<p>기기 내 UI 복구 메타데이터는 사용자별 다음 저장 시 최근 100건으로 제한한다. 서버 지급 내역·원장·잔액 데이터는 변경하지 않는다. 과거 팝업 재표시 및 과거 ACK 자동 재시도는 제거한다.</p>
+<h2>검증</h2>
+<p>최종 한 번의 관련 테스트 실행: 384개 통과. 변경 Dart 29파일 정적 분석 무이슈, 포맷/공백 검사 통과. Claude Opus의 lifecycle/history 독립 리뷰 및 Codex의 core 독립 리뷰 후 차단 지적 0건. 광고 화면 dispose 후 응답 누락은 수정 전 실패를 재현하고 회귀 테스트 5건으로 수정 확인했다.</p>
+<p>기존 날짜 의존 analytics 만료 테스트는 기존 createdAt 주입 API를 사용하는 픽스처만 수정했다. 구매 통계의 운영 코드는 변경하지 않았다.</p>
+<p>검증 제한: 전체 build_runner는 미변경 promotion_campaign.dart의 ActivePromotionCampaignModel 직렬화 오류로 실패한다. 이번 provider 2개 출력은 생성했고 무관한 생성 파일 차이는 복구했다. 별도 실행한 기존 ad_service_test.dart 로딩 오버레이 2건도 ScreenUtil 초기화/낡은 위젯 기대값으로 실패한다. 해당 테스트와 운영 경로는 이번 수정 대상이 아니다. 전체 릴리스 빌드·기기 QA는 미수행이다.</p>
+<h2>다음 작업 / 완료 조건</h2>
+<p>릴리스 전 기존 코드 생성/테스트 문제를 정리하거나 현행 CI에서 영향 범위를 확인하고, 현재 광고·화면 닫기·계정 전환·잔액·내역을 기기에서 검증한다.</p>
+<p>앱 병합·배포는 별도 승인과 현행 Flutter 릴리스 정책에 따라 진행한다. 버전/빌드 번호는 실행 시점에 다시 결정한다. 이번 작업에서 버전 변경, 빌드, OTA, 앱 배포, 서버 추가 배포는 수행하지 않았다.</p>
+<p>배포 후 앱 버전 도입률과 함께 list/status/wallet/history 호출률, RPC 지연·오류, 광고 결과 확인 실패, 서버 원장 지급을 비교한다. 새 앱의 자동 목록 조회가 제거됐어도 구버전의 호출은 남으므로 PICNIC-2637은 계속 관리한다. 앱 배포 전 CPU 개선 수치를 이번 앱 변경 효과로 주장하지 않는다.</p>
+<p>앱이 종료된 뒤 서버에서만 완료된 지급은 앱 통계의 보장 범위 밖이며 서버 원장이 기준이다. logical timeout은 전송 자체 취소가 아니다. 양 플랫폼 배포 결과와 운영 검증 근거를 기록한 뒤 완료 처리한다.</p>
+<p><a href="https://github.com/charlie0421/picnic-supabase/pull/137">이미 운영 적용한 DB 설정 이력 PR #137 — 별도 검토/병합 필요</a></p>
+<h2>독립 검토와 재현 증거</h2>
+<p>Claude Opus가 core 구현을, Codex가 lifecycle/history 구현 및 통합을 맡고 서로의 구현을 검토했다. 초기 history 검토 지적을 수정한 뒤 재검토 PASS를 받았다. core 검토에서 광고 화면 dispose 뒤의 지연 WidgetRef 접근을 재현했고, 실제 Consumer를 닫은 뒤 응답시키는 테스트에서 수정 전 실패·수정 후 통과를 확인했다.</p>
+<ul>
+<li><a href="ad-reward-history-rereview-report.html">이용 내역 재검토: 차단 지적 0건</a></li>
+<li><a href="ad-reward-lifecycle-review-report.html">앱 이벤트 연결 검토: 차단 지적 0건</a></li>
+<li><a href="ad-reward-core-followup-report.html">광고 화면 종료 경계의 재현·수정 결과</a></li>
+</ul>
+<p>최종 통합 검증은 root가 생성 파일 정리 이후 별도로 실행했다. 관련 테스트 합산을 추정하지 않고 한 번의 최종 실행 결과인 <strong>384개 통과</strong>를 기준으로 기록한다. 변경 파일 29개 중 라이브러리 28개와 앱 1개 정적 분석이 통과했다.</p>
+<pre>테스트 로그: /tmp/picnic-app-redesign-final-tests.log
+결과: 00:09 +384: All tests passed!
+라이브러리 분석: /tmp/picnic-app-redesign-final-analyze.log
+앱 분석: /tmp/picnic-app-final-analyze.log
+코드 생성 제한: /tmp/picnic-final-codegen.log</pre>
+<h2>서버 조치와 앱 변경의 효과 구분</h2>
+<p>이미 운영 적용한 조치는 cotton_candy_grants 통계 갱신과 자동 분석 임계값 조정이다. 09/08 18:08 KST까지 확보한 서버 단독 측정에서 get_ad_reward_status 평균은 약 37.709ms → 1.142ms로 감소했다. 같은 2XL의 서로 다른 비교 구간 CPU 평균은 약 33.8% → 14.0%였다. 트래픽과 배치 차이가 있으므로 CPU 감소 전체를 해당 조치의 순수 효과로 단정하지 않는다.</p>
+<p>이번 앱 변경은 서버에 요청하는 횟수를 줄인다. 아직 배포하지 않았으므로 위 서버 측정에 이번 앱 변경의 효과는 포함되지 않는다. 배포 후에는 새 버전 도입률과 목록·상태·잔액·내역 호출률을 함께 비교해야 한다. 2XL에서 XL로 복귀할지는 자정·피크 검증 후 판단한다.</p>
+<p class="note">보상 데이터와 앱 통계의 범위는 다르다. 앱 종료 뒤 서버에서만 확정된 지급은 서버 원장에 존재하더라도 앱 관측 기반 GA4 이벤트에는 없을 수 있다. 실제 지급의 기준은 서버 원장이다. 구버전 목록 RPC는 계속 호환되어야 한다.</p>
+<h2>Jira 관리 결과</h2>
+<table><thead><tr><th>작업</th><th>현재 관리 상태</th></tr></thead><tbody>
+<tr><td><a href="https://picnic-team.atlassian.net/browse/PICNIC-2633">PICNIC-2633</a></td><td>상위 장애 진행 중. 이전 앱 설계를 최종 설계로 정정하고 완료/남은 작업을 구분. 댓글 17997.</td></tr>
+<tr><td><a href="https://picnic-team.atlassian.net/browse/PICNIC-2634">PICNIC-2634</a></td><td>윤지현 / 검토 중 유지. 제목·본문에 자동 조회 제거, 384개 검증, 코드 생성/기존 테스트 제한, 배포 조건 반영. 댓글 17995.</td></tr>
+<tr><td><a href="https://picnic-team.atlassian.net/browse/PICNIC-2637">PICNIC-2637</a></td><td>Charlie Hyun / 해야 할 일 유지. 구버전 목록의 반복 잔액 집계 개선을 계속 관리. PENDING과 미확인 확정 상태의 용어 정정. 댓글 17996.</td></tr>
+</tbody></table>
+<p>자정·피크 용량 판단(2635), 정산 체크포인트(2636), 보너스 드리프트 집계(2638), 광고 이벤트 조회(2639)는 별도 후속 작업으로 남아 있다.</p>
+<footer><p>이 문서는 최종 결과를 정리한 문서다. 이전 core 보고서의 analytics 만료 테스트 실패는 픽스처 수정으로 해소됐으며, 이전 자동 복구 제한/목록 재사용 설계는 이번 자동 순회 제거 설계로 대체됐다.</p><p><small>파일: /Users/charlie.hyun/orca/workspaces/picnic-app/hotfix-ad-reward-recovery-load/ad-reward-app-redesign-result-2026-09-08.html</small></p></footer>
+</body></html>

@@ -1,0 +1,463 @@
+diff --git a/picnic_app/lib/app.dart b/picnic_app/lib/app.dart
+index 9c23a2d90..f37856a21 100644
+--- a/picnic_app/lib/app.dart
++++ b/picnic_app/lib/app.dart
+@@ -8,6 +8,7 @@ import 'package:picnic_app/presentation/splash/responsive_splash.dart';
+ import 'package:picnic_lib/core/utils/app_builder.dart';
+ import 'package:picnic_lib/core/utils/app_initializer.dart';
+ import 'package:picnic_lib/core/services/app_badge_service.dart';
++import 'package:picnic_lib/core/services/ad_reward_lifecycle.dart';
+ import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
+ import 'package:picnic_lib/core/utils/logger.dart';
+ import 'package:picnic_lib/core/utils/main_initializer.dart';
+@@ -24,7 +25,6 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+ import 'package:picnic_lib/presentation/providers/global_media_query.dart';
+ import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
+-import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
+ import 'package:picnic_lib/presentation/providers/global_purchase_provider.dart';
+ import 'package:picnic_lib/core/services/global_purchase_listener.dart';
+ 
+@@ -32,7 +32,6 @@ import 'package:picnic_lib/presentation/screens/ban_screen.dart';
+ import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
+ import 'package:picnic_lib/presentation/widgets/patch_restart_dialog.dart';
+ import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
+-import 'package:picnic_lib/supabase_options.dart';
+ import 'package:picnic_lib/ui/community_theme.dart';
+ import 'package:picnic_lib/ui/mypage_theme.dart';
+ import 'package:picnic_lib/ui/novel_theme.dart';
+@@ -57,10 +56,8 @@ class App extends ConsumerStatefulWidget {
+ 
+ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
+   Widget? initScreen;
+-  StreamSubscription? _authSubscription;
+   StreamSubscription? _appLinksSubscription;
+-  String? _activeRewardUserId;
+-  bool _rewardRecoveryReady = false;
++  AdRewardLifecycle? _rewardLifecycle;
+ 
+   /// The process-lifetime owner of purchase delivery.
+   ///
+@@ -154,8 +151,11 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
+     // SDK 초기화 완료 대기 (MainInitializer에서 runApp 후 병렬 실행 중)
+     logger.i('SDK 초기화 대기 중...');
+     await MainInitializer.sdkReady;
++    if (!mounted) return;
+     logger.i('SDK 초기화 완료');
+-    _initializeRewardRecovery();
++    final rewardLifecycle = ref.read(adRewardLifecycleProvider);
++    rewardLifecycle.start();
++    _rewardLifecycle = rewardLifecycle;
+     // 미완료 결제 리컨사일은 세션이 복원된 뒤에 돌아야 한다 (Supabase 는
+     // runApp 이후 Phase 2 에서 초기화된다). 구독 자체는 initState 에서 이미
+     // 세워져 있으므로, 그 사이에 도착하는 재전달 이벤트는 유실되지 않는다.
+@@ -284,23 +284,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
+     await AppInitializer.retryConnection(ref);
+   }
+ 
+-  void _syncRewardOwner(String? nextUserId) {
+-    final recovery = ref.read(adRewardRecoveryProvider.notifier);
+-    if (_activeRewardUserId != nextUserId) {
+-      recovery.resetForLogout();
+-      _activeRewardUserId = nextUserId;
+-    }
+-    if (nextUserId != null) {
+-      unawaited(
+-        recovery
+-            .recover(nextUserId)
+-            .catchError((Object error, StackTrace stack) {
+-          logger.e('광고 보상 복구 실패', error: error, stackTrace: stack);
+-        }),
+-      );
+-    }
+-  }
+-
+   void _initializeGlobalPurchaseListener() {
+     if (_purchaseListener != null) return;
+     try {
+@@ -325,15 +308,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
+     );
+   }
+ 
+-  void _initializeRewardRecovery() {
+-    if (_rewardRecoveryReady) return;
+-    _rewardRecoveryReady = true;
+-    _syncRewardOwner(supabase.auth.currentUser?.id);
+-    _authSubscription = supabase.auth.onAuthStateChange.listen((authState) {
+-      _syncRewardOwner(authState.session?.user.id);
+-    });
+-  }
+-
+   ThemeData _getCurrentTheme(WidgetRef ref) {
+     final currentPortal = ref.watch(navigationInfoProvider);
+     switch (currentPortal.portalType) {
+@@ -354,12 +328,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
+   @override
+   void dispose() {
+     WidgetsBinding.instance.removeObserver(this);
++    _rewardLifecycle?.dispose();
+ 
+     // 앱 리스너 정리
+-    AppLifecycleInitializer.disposeAppListeners(
+-      _authSubscription,
+-      _appLinksSubscription,
+-    );
++    AppLifecycleInitializer.disposeAppListeners(null, _appLinksSubscription);
+ 
+     super.dispose();
+   }
+@@ -374,9 +346,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
+         logger.i('앱이 포그라운드로 복귀');
+         // Sync app badge with unread notifications count
+         AppBadgeService.syncBadgeWithUnreadCount();
+-        if (_rewardRecoveryReady) {
+-          _syncRewardOwner(supabase.auth.currentUser?.id);
+-        }
+         // 미완료 결제 리컨사일. 콜드 스타트에서는 스토어가 스스로 재전달하지만
+         // resume 에는 그런 것이 없다 - Ask to Buy 승인이나 포그라운드에서
+         // 실패한 정산이 다음 실행까지 갇혀 있던 자리다. 리스너가 자체
+@@ -388,7 +357,11 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
+             purchases.sweepOnResume().then(
+               (report) => logger.i('resume 미완료 결제 스윕: $report'),
+               onError: (Object error, StackTrace stack) {
+-                logger.e('resume 미완료 결제 스윕 실패', error: error, stackTrace: stack);
++                logger.e(
++                  'resume 미완료 결제 스윕 실패',
++                  error: error,
++                  stackTrace: stack,
++                );
+               },
+             ),
+           );
+diff --git a/picnic_lib/lib/core/services/ad_reward_lifecycle.dart b/picnic_lib/lib/core/services/ad_reward_lifecycle.dart
+new file mode 100644
+index 000000000..34ab2d7c3
+--- /dev/null
++++ b/picnic_lib/lib/core/services/ad_reward_lifecycle.dart
+@@ -0,0 +1,88 @@
++import 'dart:async';
++
++import 'package:flutter/widgets.dart';
++import 'package:picnic_lib/core/services/wallet_resume_refresher.dart';
++import 'package:picnic_lib/core/utils/logger.dart';
++import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
++import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
++import 'package:riverpod/riverpod.dart';
++import 'package:supabase_flutter/supabase_flutter.dart';
++
++/// Owns auth and resume events after the app's SDK initialization completes.
++/// Auth changes invalidate in-memory work; only resume may read a loaded wallet.
++/// Historical ad rewards are never queried by this lifecycle binding.
++class AdRewardLifecycle with WidgetsBindingObserver {
++  AdRewardLifecycle({
++    required WalletAuthGateway auth,
++    required WalletResumeRefresher wallet,
++    required VoidCallback resetRewards,
++    WidgetsBinding? binding,
++  }) : _auth = auth,
++       _wallet = wallet,
++       _resetRewards = resetRewards,
++       _binding = binding ?? WidgetsBinding.instance;
++
++  final WalletAuthGateway _auth;
++  final WalletResumeRefresher _wallet;
++  final VoidCallback _resetRewards;
++  final WidgetsBinding _binding;
++  StreamSubscription<AuthState>? _subscription;
++  String? _owner;
++  bool _started = false;
++
++  void start() {
++    if (_started) return;
++    _started = true;
++    if (_auth.isEnabled) {
++      _syncOwner(_auth.currentSession?.user.id);
++      _subscription = _auth.authStateChanges.listen(
++        (event) => _syncOwner(event.session?.user.id),
++        onError: (Object error, StackTrace stack) {
++          logger.w('광고 세션 변경 수신 실패', error: error, stackTrace: stack);
++        },
++      );
++    }
++    _binding.addObserver(this);
++  }
++
++  void _syncOwner(String? owner) {
++    if (!_started || owner == _owner) return;
++    _owner = owner;
++    _wallet.reset();
++    _resetRewards();
++  }
++
++  @override
++  void didChangeAppLifecycleState(AppLifecycleState state) {
++    if (!_started || !_auth.isEnabled || state != AppLifecycleState.resumed) {
++      return;
++    }
++    _syncOwner(_auth.currentSession?.user.id);
++    unawaited(
++      _wallet.refreshOnResume().catchError((Object error, StackTrace stack) {
++        logger.w('복귀 잔액 갱신 실패', error: error, stackTrace: stack);
++        return WalletResumeRefreshOutcome.failed;
++      }),
++    );
++  }
++
++  void dispose() {
++    if (!_started) return;
++    _started = false;
++    _binding.removeObserver(this);
++    unawaited(_subscription?.cancel());
++    _subscription = null;
++    _owner = null;
++    _wallet.reset();
++  }
++}
++
++final adRewardLifecycleProvider = Provider<AdRewardLifecycle>((ref) {
++  final lifecycle = AdRewardLifecycle(
++    auth: ref.watch(walletAuthGatewayProvider),
++    wallet: ref.watch(walletResumeRefresherProvider),
++    resetRewards: ref.read(adRewardRecoveryProvider.notifier).resetForLogout,
++  );
++  ref.onDispose(lifecycle.dispose);
++  return lifecycle;
++});
+diff --git a/picnic_lib/test/core/services/ad_reward_lifecycle_test.dart b/picnic_lib/test/core/services/ad_reward_lifecycle_test.dart
+new file mode 100644
+index 000000000..70924c8e3
+--- /dev/null
++++ b/picnic_lib/test/core/services/ad_reward_lifecycle_test.dart
+@@ -0,0 +1,232 @@
++import 'dart:async';
++
++import 'package:flutter/widgets.dart';
++import 'package:flutter_test/flutter_test.dart';
++import 'package:picnic_lib/core/services/ad_reward_lifecycle.dart';
++import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
++import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
++import 'package:picnic_lib/data/repositories/ad_reward_repository.dart';
++import 'package:picnic_lib/data/repositories/wallet_repository.dart';
++import 'package:picnic_lib/data/storage/pending_ad_reward_store.dart';
++import 'package:picnic_lib/presentation/providers/ad_reward_provider.dart';
++import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
++import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
++import 'package:riverpod/riverpod.dart';
++import 'package:supabase_flutter/supabase_flutter.dart';
++
++class _User extends Fake implements User {
++  _User(this.id);
++  @override
++  final String id;
++}
++
++class _Session extends Fake implements Session {
++  _Session(String id) : user = _User(id);
++  @override
++  final User user;
++}
++
++class _Auth extends Fake implements WalletAuthGateway {
++  Session? session = _Session('owner-a');
++  final events = StreamController<AuthState>.broadcast(sync: true);
++  @override
++  bool get isEnabled => true;
++  @override
++  Session? get currentSession => session;
++  @override
++  Stream<AuthState> get authStateChanges => events.stream;
++  void emit(String? owner, [AuthChangeEvent event = AuthChangeEvent.signedIn]) {
++    session = owner == null ? null : _Session(owner);
++    events.add(AuthState(event, session));
++  }
++}
++
++class _AdApi extends Fake implements AdRewardApi {
++  int listCalls = 0;
++  int statusCalls = 0;
++  @override
++  Future<AdRewardPageModel> listUnacknowledged({
++    String? cursor,
++    int limit = 20,
++  }) async {
++    listCalls++;
++    throw StateError('Lifecycle must never list ad rewards');
++  }
++
++  @override
++  Future<AdRewardStatusModel> getStatus(AdRewardReference reference) async {
++    statusCalls++;
++    throw StateError('Lifecycle must never poll past rewards');
++  }
++}
++
++class _Client extends Fake implements SupabaseClient {}
++
++class _OldRewards extends Fake implements PendingAdRewardStore {
++  int reads = 0;
++  @override
++  Future<List<StoredAdRewardReference>> readAll(String userId) async {
++    reads++;
++    return [
++      const StoredAdRewardReference(
++        reference: AdRewardReference(
++          type: AdRewardReferenceType.internalImpression,
++          id: '00000000-0000-4000-8000-000000000001',
++        ),
++        state: PendingAdRewardLocalState.pendingDisplay,
++      ),
++    ];
++  }
++}
++
++WalletSummaryModel _summary(int cotton) => WalletSummaryModel(
++  contractVersion: 'wallet.v1',
++  star: BigInt.zero,
++  bonus: BigInt.zero,
++  cotton: BigInt.from(cotton),
++  cottonExpiringAmount: BigInt.zero,
++  cottonNextExpiresAt: null,
++  snapshotAt: DateTime.utc(2026, 9, 8, 0, 0, cotton),
++);
++
++class _Wallet extends WalletRepository {
++  _Wallet() : super(_Client());
++  int calls = 0;
++  Future<WalletSummaryModel> Function()? next;
++  @override
++  Future<WalletSummaryModel> getSummary() {
++    calls++;
++    return next?.call() ?? Future.value(_summary(calls));
++  }
++}
++
++void main() {
++  late _Auth auth;
++  late _AdApi ads;
++  late _Wallet wallet;
++  late _OldRewards oldRewards;
++  late ProviderContainer container;
++
++  setUp(() {
++    auth = _Auth();
++    ads = _AdApi();
++    wallet = _Wallet();
++    oldRewards = _OldRewards();
++    container = ProviderContainer(
++      overrides: [
++        walletAuthGatewayProvider.overrideWithValue(auth),
++        walletRepositoryProvider.overrideWithValue(wallet),
++        adRewardRepositoryProvider.overrideWithValue(ads),
++        pendingAdRewardStoreProvider.overrideWithValue(oldRewards),
++        adRewardOwnerReaderProvider.overrideWithValue(
++          () => auth.session?.user.id,
++        ),
++        // Stable loaded state when a test explicitly opens the wallet. The
++        // resume service still reads the real repository override above.
++        walletSummaryProvider.overrideWithBuild(
++          (ref, notifier) async => _summary(1),
++        ),
++      ],
++    );
++  });
++
++  tearDown(() async {
++    container.dispose();
++    await auth.events.close();
++  });
++
++  void resume(WidgetTester tester) {
++    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
++    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
++  }
++
++  testWidgets(
++    'startup, auth replay and unloaded resume issue no reward or wallet reads',
++    (tester) async {
++      final lifecycle = container.read(adRewardLifecycleProvider);
++      lifecycle.start();
++      lifecycle.start();
++      auth.emit('owner-a');
++      auth.emit('owner-a', AuthChangeEvent.tokenRefreshed);
++      resume(tester);
++      await tester.pump();
++      expect(ads.listCalls, 0);
++      expect(ads.statusCalls, 0);
++      expect(oldRewards.reads, 0);
++      expect(wallet.calls, 0);
++      expect(container.exists(walletSummaryProvider), isFalse);
++    },
++  );
++
++  testWidgets(
++    'real binding resume refreshes a loaded wallet once and coalesces repeats',
++    (tester) async {
++      final lifecycle = container.read(adRewardLifecycleProvider)..start();
++      await container.read(walletSummaryProvider.future);
++      final pending = Completer<WalletSummaryModel>();
++      wallet.next = () => pending.future;
++      resume(tester);
++      resume(tester);
++      expect(wallet.calls, 1);
++      pending.complete(_summary(20));
++      await tester.pump();
++      expect(
++        container.read(walletSummaryProvider).value!.cotton,
++        BigInt.from(20),
++      );
++      auth.emit('owner-a', AuthChangeEvent.tokenRefreshed);
++      resume(tester);
++      await tester.pump();
++      expect(wallet.calls, 1);
++      expect(ads.listCalls, 0);
++      expect(ads.statusCalls, 0);
++      lifecycle.dispose();
++    },
++  );
++
++  testWidgets(
++    'A to logout to A discards a pending resume response and releases cooldown',
++    (tester) async {
++      container.read(adRewardLifecycleProvider).start();
++      await container.read(walletSummaryProvider.future);
++      final pending = Completer<WalletSummaryModel>();
++      wallet.next = () => pending.future;
++      resume(tester);
++      auth.emit(null, AuthChangeEvent.signedOut);
++      auth.emit('owner-a');
++      pending.complete(_summary(99));
++      await tester.pump();
++      expect(container.read(walletSummaryProvider).value!.cotton, BigInt.one);
++      wallet.next = () async => _summary(30);
++      resume(tester);
++      await tester.pump();
++      expect(wallet.calls, 2);
++      expect(
++        container.read(walletSummaryProvider).value!.cotton,
++        BigInt.from(30),
++      );
++      expect(ads.listCalls, 0);
++      expect(ads.statusCalls, 0);
++    },
++  );
++
++  testWidgets(
++    'disposal cancels auth and resume work and invalidates in-flight reads',
++    (tester) async {
++      final lifecycle = container.read(adRewardLifecycleProvider)..start();
++      await container.read(walletSummaryProvider.future);
++      final pending = Completer<WalletSummaryModel>();
++      wallet.next = () => pending.future;
++      resume(tester);
++      lifecycle.dispose();
++      auth.emit('owner-b');
++      resume(tester);
++      pending.complete(_summary(99));
++      await tester.pump();
++      expect(wallet.calls, 1);
++      expect(container.read(walletSummaryProvider).value!.cotton, BigInt.one);
++      expect(ads.listCalls, 0);
++      expect(ads.statusCalls, 0);
++    },
++  );
++}
