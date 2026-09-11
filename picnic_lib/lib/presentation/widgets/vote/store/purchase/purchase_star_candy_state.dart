@@ -21,7 +21,6 @@ import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
-import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/reward_breakdown.dart';
@@ -29,6 +28,10 @@ import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_in
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_palette.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview_view.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy_helper.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:uuid/uuid.dart';
@@ -1571,18 +1574,95 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     );
   }
 
+  /// The reward this catalog row is expected to pay, promotion included.
+  ///
+  /// The product card and the purchase confirmation must never quote different
+  /// numbers, so both read this one pure computation.
+  PurchaseRewardPreview _rewardPreviewFor(Map<String, dynamic> serverProduct) {
+    // The settled-only selector fails closed on loading/error instead of
+    // advertising retained stale data.
+    final resolved = paymentBadgePromotionForDisplay(
+      ref.watch(paymentBadgePromotionProvider),
+    );
+    return purchaseRewardPreviewForProduct(
+      serverProduct,
+      multiplierTenths: resolved?.multiplierTenths,
+      extraBonusBps: resolved?.extraBonusBps,
+    );
+  }
+
   Widget _buildProductList(
     List<Map<String, dynamic>> serverProducts,
     List<ProductDetails> storeProducts,
   ) {
-    return ListView.separated(
+    final hasEligibleProduct = serverProducts.any(
+      (product) => _rewardPreviewFor(product).hasEventBonus,
+    );
+    final list = ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) =>
           _buildProductItem(serverProducts[index], storeProducts),
-      separatorBuilder: (BuildContext context, int index) =>
-          const Divider(color: AppColors.grey200, height: 24),
+      separatorBuilder: (BuildContext context, int index) => hasEligibleProduct
+          ? const SizedBox(height: 14)
+          : const Divider(color: AppColors.grey200, height: 24),
       itemCount: serverProducts.length,
+    );
+
+    // The event is named exactly once, and only when some product actually
+    // earns a bonus from it. Repeating the campaign's own display name on
+    // every row is what put internal copy (a test campaign name, or the
+    // machine code it falls back to) in front of buyers.
+    if (!hasEligibleProduct) return list;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [_buildEventHeader(), const SizedBox(height: 12), list],
+    );
+  }
+
+  Widget _buildEventHeader() {
+    return Container(
+      key: const Key('candy-boost-event-header'),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [kCandyBoostPurple, kCandyBoostPink]),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: kCandyBoostPurple.withValues(alpha: .2),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: .18),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.auto_awesome_rounded,
+              color: Colors.white,
+              size: 19,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              // A stable localized event name - never the campaign record's
+              // own display name, which is internal copy.
+              AppLocalizations.of(context).candy_boost_day,
+              style: getTextStyle(AppTypo.body14B, Colors.white),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1608,15 +1688,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         !_isInitializing &&
         !_purchaseAttempts.contains(productId);
     final isCurrentProductLoading = _purchaseAttempts.contains(productId);
-    final resolved = paymentBadgePromotionForDisplay(
-      ref.watch(paymentBadgePromotionProvider),
-    );
-    final locale = Localizations.localeOf(context).languageCode;
+    final preview = _rewardPreviewFor(serverProduct);
+    final totalMultiplierTenths = preview.totalMultiplierTenths;
 
     return StoreListTile(
-      icon: Image.asset(
-        package: 'picnic_lib',
-        'assets/icons/store/currency_star_candy.png',
+      icon: buildStarCandyProductImage(
+        productId: productId,
         width: 48.w,
         height: 48,
       ),
@@ -1624,37 +1701,44 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         serverProduct['id'],
         style: getTextStyle(AppTypo.body16B, AppColors.grey900),
       ),
-      subtitle: RewardBreakdown(
-        baseAmount: (serverProduct['star_candy'] as num?)?.toInt() ?? 0,
-        // Supabase products uses `star_candy_bonus`; keep the API spelling as
-        // a fallback for older/web catalog payloads.
-        bonusAmount:
-            ((serverProduct['star_candy_bonus'] ??
-                        serverProduct['bonus_star_candy'])
-                    as num?)
-                ?.toInt() ??
-            0,
-      ),
-      badge: resolved == null
-          ? null
-          : CandyBoostBadge(
-              displayName: localizedPromotionDisplayName(
-                resolved.displayName,
-                locale,
-                fallbackCode: resolved.code,
-              ),
-              bonusLabel: resolved.multiplierTenths != null
-                  ? AppLocalizations.of(context).candy_boost_multiplier(
-                      formatCandyBoostMultiplierTenths(
-                        resolved.multiplierTenths!,
-                      ),
-                    )
-                  : (resolved.extraBonusBps == 10000
-                        ? AppLocalizations.of(context).candy_boost_exact_double
-                        : AppLocalizations.of(context).candy_boost_extra_bonus),
+      // An eligible product shows what the event adds and what it ends up
+      // paying; everything else keeps the plain catalog line it always had.
+      subtitle: preview.hasEventBonus
+          ? PurchaseRewardPreviewView(preview: preview)
+          : RewardBreakdown(
+              baseAmount: (serverProduct['star_candy'] as num?)?.toInt() ?? 0,
+              // Supabase products uses `star_candy_bonus`; keep the API
+              // spelling as a fallback for older/web catalog payloads.
+              bonusAmount:
+                  ((serverProduct['star_candy_bonus'] ??
+                              serverProduct['bonus_star_candy'])
+                          as num?)
+                      ?.toInt() ??
+                  0,
             ),
+      // The campaign is named once above the list. A row only carries the
+      // multiplier, and only when the row actually earns one.
+      badge: !preview.hasEventBonus
+          ? null
+          : totalMultiplierTenths == null
+          ? Text(
+              AppLocalizations.of(context).candy_boost_day,
+              style: getTextStyle(AppTypo.caption12B, Colors.white),
+            )
+          : CandyBoostBadge(totalMultiplierTenths: totalMultiplierTenths),
+      isPromoted: preview.hasEventBonus,
+      // Only the promoted layout is allowed to grow: the plain rows keep the
+      // fixed height every other store list has.
+      flexibleHeight: preview.hasEventBonus,
       isLoading: isCurrentProductLoading,
-      buttonText: '${serverProduct['price']} \$',
+      buttonText: PurchaseStarCandyHelper.productPriceLabel(
+        serverProduct: serverProduct,
+        storeProducts: storeProducts,
+        isAndroid: Platform.isAndroid,
+        inappAppNamePrefix: Environment.inappAppNamePrefix,
+        environment: Environment.currentEnvironment,
+        paymentProductNamespace: Environment.storeQueryNamespace,
+      ),
       buttonOnPressed: isButtonEnabled
           ? () => _handleBuyButtonPressed(context, serverProduct, storeProducts)
           : null,

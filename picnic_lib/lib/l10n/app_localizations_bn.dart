@@ -1946,6 +1946,37 @@ class AppLocalizationsBn extends AppLocalizations {
       'প্রত্যাশার চেয়ে যাচাইকরণে বেশি সময় লেগেছে, তবে ক্রয়টি সফলভাবে সম্পন্ন হয়েছে।';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'ইভেন্ট বোনাস +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'মূল পুরস্কার';
+
+  @override
+  String get purchase_reward_product_bonus => 'মূল বোনাস';
+
+  @override
+  String get purchase_reward_event_bonus => 'ইভেন্ট বোনাস';
+
+  @override
+  String get purchase_reward_expected_total => 'আনুমানিক মোট';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'এটি একটি আনুমানিক পরিমাণ। পেমেন্ট সম্পন্ন হলে সার্ভার চূড়ান্ত পরিমাণ নিশ্চিত করবে।';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'মোট প্রাপ্ত $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'আপনার পুরস্কার যাচাই করা হচ্ছে';
 
   @override
@@ -3989,6 +4020,37 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get candy_boost_late_purchase_explanation =>
       'প্রত্যাশার চেয়ে যাচাইকরণে বেশি সময় লেগেছে, তবে ক্রয়টি সফলভাবে সম্পন্ন হয়েছে।';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'ইভেন্ট বোনাস +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'মূল পুরস্কার';
+
+  @override
+  String get purchase_reward_product_bonus => 'মূল বোনাস';
+
+  @override
+  String get purchase_reward_event_bonus => 'ইভেন্ট বোনাস';
+
+  @override
+  String get purchase_reward_expected_total => 'আনুমানিক মোট';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'এটি একটি আনুমানিক পরিমাণ। পেমেন্ট সম্পন্ন হলে সার্ভার চূড়ান্ত পরিমাণ নিশ্চিত করবে।';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'মোট প্রাপ্ত $amount';
+  }
 
   @override
   String get ad_reward_pending => 'আপনার পুরস্কার যাচাই করা হচ্ছে';

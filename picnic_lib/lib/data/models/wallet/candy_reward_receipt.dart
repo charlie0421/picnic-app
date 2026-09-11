@@ -5,12 +5,27 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 
 @immutable
+class CandyRewardReceiptPart {
+  const CandyRewardReceiptPart({required this.kind, required this.amount});
+
+  final CandyRewardPartKind kind;
+  final BigInt amount;
+}
+
+/// Where one slice of a granted amount came from.
+///
+/// Only ever a *sub*-division of an item the wallet already merges: bonus star
+/// candy is one currency and one balance whether or not an event added to it.
+enum CandyRewardPartKind { productBonus, eventBonus }
+
+@immutable
 class CandyRewardReceiptItem {
   factory CandyRewardReceiptItem({
     required WalletCurrency currency,
     required BigInt grantedAmount,
     required BigInt? balanceAfter,
     DateTime? expiresAt,
+    List<CandyRewardReceiptPart> parts = const [],
   }) {
     if (grantedAmount <= BigInt.zero) {
       throw ArgumentError.value(
@@ -19,11 +34,23 @@ class CandyRewardReceiptItem {
         'must be greater than zero',
       );
     }
+    if (parts.isNotEmpty) {
+      if (parts.any((part) => part.amount <= BigInt.zero)) {
+        throw ArgumentError.value(parts, 'parts', 'must all be positive');
+      }
+      final sum = parts.fold(BigInt.zero, (sum, part) => sum + part.amount);
+      if (sum != grantedAmount) {
+        // A split that does not add up would show the user a total that
+        // disagrees with its own breakdown.
+        throw ArgumentError.value(parts, 'parts', 'must sum to grantedAmount');
+      }
+    }
     return CandyRewardReceiptItem._(
       currency: currency,
       grantedAmount: grantedAmount,
       balanceAfter: balanceAfter,
       expiresAt: expiresAt,
+      parts: List.unmodifiable(parts),
     );
   }
 
@@ -32,12 +59,17 @@ class CandyRewardReceiptItem {
     required this.grantedAmount,
     required this.balanceAfter,
     this.expiresAt,
+    this.parts = const [],
   });
 
   final WalletCurrency currency;
   final BigInt grantedAmount;
   final BigInt? balanceAfter;
   final DateTime? expiresAt;
+
+  /// What [grantedAmount] is made of, when it is worth saying. Empty for every
+  /// amount that has only one source - an ad reward, a plain catalog bonus.
+  final List<CandyRewardReceiptPart> parts;
 }
 
 @immutable
@@ -59,6 +91,10 @@ class CandyRewardReceipt {
 
   final String referenceKey;
   final List<CandyRewardReceiptItem> items;
+
+  /// Everything this settlement added, across currencies.
+  BigInt get totalGranted =>
+      items.fold(BigInt.zero, (sum, item) => sum + item.grantedAmount);
 }
 
 BigInt _balanceFor(WalletSummaryModel wallet, WalletCurrency currency) =>
@@ -131,9 +167,36 @@ CandyRewardReceipt? receiptFromPurchase(PurchaseSettlementResultModel result) {
   final promoBonus = promo?.state == PurchasePromotionState.granted
       ? promo!.promoBonusAmount
       : BigInt.zero;
-  final candidates = [
-    (WalletCurrency.starCandy, result.baseStarAmount),
-    (WalletCurrency.bonusStarCandy, result.baseBonusAmount + promoBonus),
+  // Malformed grants must not throw during post-settlement presentation or
+  // become different amounts through clamping. The caller still applies the
+  // authoritative wallet and finishes the attempt when no receipt is shown.
+  if (result.baseStarAmount < BigInt.zero ||
+      result.baseBonusAmount < BigInt.zero ||
+      promoBonus < BigInt.zero) {
+    return null;
+  }
+  // The event's share is the server's granted amount - never a client
+  // estimate, and never present unless the server actually granted it.
+  final eventSplit = promoBonus > BigInt.zero
+      ? <CandyRewardReceiptPart>[
+          if (result.baseBonusAmount > BigInt.zero)
+            CandyRewardReceiptPart(
+              kind: CandyRewardPartKind.productBonus,
+              amount: result.baseBonusAmount,
+            ),
+          CandyRewardReceiptPart(
+            kind: CandyRewardPartKind.eventBonus,
+            amount: promoBonus,
+          ),
+        ]
+      : const <CandyRewardReceiptPart>[];
+  final candidates = <(WalletCurrency, BigInt, List<CandyRewardReceiptPart>)>[
+    (WalletCurrency.starCandy, result.baseStarAmount, const []),
+    (
+      WalletCurrency.bonusStarCandy,
+      result.baseBonusAmount + promoBonus,
+      eventSplit,
+    ),
   ];
   final items = candidates
       .where((entry) => entry.$2 > BigInt.zero)
@@ -142,6 +205,7 @@ CandyRewardReceipt? receiptFromPurchase(PurchaseSettlementResultModel result) {
           currency: entry.$1,
           grantedAmount: entry.$2,
           balanceAfter: _balanceFor(result.wallet, entry.$1),
+          parts: entry.$3,
         ),
       )
       .toList(growable: false);

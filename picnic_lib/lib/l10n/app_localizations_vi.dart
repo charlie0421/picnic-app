@@ -1951,6 +1951,37 @@ class AppLocalizationsVi extends AppLocalizations {
       'Xác thực mất nhiều thời gian hơn dự kiến, nhưng giao dịch mua đã hoàn tất thành công.';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'Thưởng sự kiện +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'Phần thưởng cơ bản';
+
+  @override
+  String get purchase_reward_product_bonus => 'Thưởng cơ bản';
+
+  @override
+  String get purchase_reward_event_bonus => 'Thưởng sự kiện';
+
+  @override
+  String get purchase_reward_expected_total => 'Tổng dự kiến';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'Đây là số lượng dự kiến. Số lượng cuối cùng được máy chủ xác nhận khi thanh toán hoàn tất.';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'Tổng cộng nhận $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'Đang kiểm tra phần thưởng của bạn';
 
   @override

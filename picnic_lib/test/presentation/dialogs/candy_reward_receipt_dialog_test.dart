@@ -4,6 +4,9 @@ import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_palette.dart';
+
+import '../../helpers/test_environment.dart';
 
 Widget localizedApp({
   required Locale locale,
@@ -71,7 +74,203 @@ final crowdedReceipt = CandyRewardReceipt(
   ),
 );
 
+/// STAR200 settled under a 2x campaign: 200 star candy, 25 catalog bonus and
+/// 225 granted by the event, all credited to the one bonus wallet.
+final promotedPurchaseReceipt = CandyRewardReceipt(
+  referenceKey: 'PURCHASE:promoted',
+  items: [
+    CandyRewardReceiptItem(
+      currency: WalletCurrency.starCandy,
+      grantedAmount: BigInt.from(200),
+      balanceAfter: BigInt.from(5000),
+    ),
+    CandyRewardReceiptItem(
+      currency: WalletCurrency.bonusStarCandy,
+      grantedAmount: BigInt.from(250),
+      balanceAfter: BigInt.from(999),
+      parts: [
+        CandyRewardReceiptPart(
+          kind: CandyRewardPartKind.productBonus,
+          amount: BigInt.from(25),
+        ),
+        CandyRewardReceiptPart(
+          kind: CandyRewardPartKind.eventBonus,
+          amount: BigInt.from(225),
+        ),
+      ],
+    ),
+  ],
+);
+
+/// The same split, with an event amount far past 64-bit range - the receipt
+/// has to print every digit of it without losing precision or overflowing.
+final hugeSplitReceipt = CandyRewardReceipt(
+  referenceKey: 'PURCHASE:huge',
+  items: [
+    CandyRewardReceiptItem(
+      currency: WalletCurrency.bonusStarCandy,
+      grantedAmount:
+          BigInt.parse('123456789012345678901234567890') + BigInt.from(25),
+      balanceAfter: BigInt.parse('123456789012345678901234567890'),
+      parts: [
+        CandyRewardReceiptPart(
+          kind: CandyRewardPartKind.productBonus,
+          amount: BigInt.from(25),
+        ),
+        CandyRewardReceiptPart(
+          kind: CandyRewardPartKind.eventBonus,
+          amount: BigInt.parse('123456789012345678901234567890'),
+        ),
+      ],
+    ),
+  ],
+);
+
 void main() {
+  // Other app colors still need the test environment; the promotion palette
+  // itself is deliberately stable across production theme configuration.
+  setUp(initTestColors);
+
+  testWidgets('never leads a promoted receipt with a cross-currency total', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('ko'),
+        child: CandyRewardReceiptDialog(receipt: promotedPurchaseReceipt),
+      ),
+    );
+
+    expect(find.byKey(const Key('reward-total')), findsNothing);
+    expect(find.text('총 적립 450'), findsNothing);
+    expect(find.text('+200'), findsOneWidget);
+    expect(find.text('+250'), findsOneWidget);
+    expect(find.byKey(const Key('reward-celebration-hero')), findsOneWidget);
+    expect(find.byKey(const Key('reward-card-STAR_CANDY')), findsOneWidget);
+    expect(
+      find.byKey(const Key('reward-card-BONUS_STAR_CANDY')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('reward-confirm-cta')), findsOneWidget);
+  });
+
+  testWidgets('accents the event line and leaves the catalog line neutral', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('ko'),
+        child: CandyRewardReceiptDialog(receipt: promotedPurchaseReceipt),
+      ),
+    );
+
+    expect(
+      tester.widget<Text>(find.text('+225')).style?.color,
+      kCandyBoostPink,
+    );
+    expect(
+      tester.widget<Text>(find.text('+25')).style?.color,
+      isNot(kCandyBoostPink),
+    );
+  });
+
+  testWidgets('a purchase with no event also keeps currencies separate', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('ko'),
+        child: CandyRewardReceiptDialog(receipt: purchaseReceipt),
+      ),
+    );
+
+    expect(find.byKey(const Key('reward-total')), findsNothing);
+    expect(find.text('총 적립 1,250'), findsNothing);
+    expect(find.text('+1,000'), findsOneWidget);
+    expect(find.text('+250'), findsOneWidget);
+  });
+
+  testWidgets('prints a very large event split at 2x without overflowing', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('ko'),
+        textScaler: const TextScaler.linear(2),
+        child: CandyRewardReceiptDialog(receipt: hugeSplitReceipt),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(
+      find.text('+123,456,789,012,345,678,901,234,567,890'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('splits the bonus row without repeating its wallet balance', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('ko'),
+        child: CandyRewardReceiptDialog(receipt: promotedPurchaseReceipt),
+      ),
+    );
+
+    // The granted total for the merged bonus wallet, then where it came from.
+    expect(find.text('+250'), findsOneWidget);
+    expect(find.text('기본 보너스'), findsOneWidget);
+    expect(find.text('+25'), findsOneWidget);
+    expect(find.text('이벤트 보너스'), findsOneWidget);
+    expect(find.text('+225'), findsOneWidget);
+    expect(
+      find.byKey(const Key('reward-provenance-chip-product')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('reward-provenance-chip-event')),
+      findsOneWidget,
+    );
+    // One balance line per currency - never one per split subrow.
+    expect(find.text('현재 보유 999'), findsOneWidget);
+    expect(find.textContaining('현재 보유'), findsNWidgets(2));
+  });
+
+  testWidgets('does not sum currencies with different values', (tester) async {
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('ko'),
+        child: CandyRewardReceiptDialog(receipt: promotedPurchaseReceipt),
+      ),
+    );
+
+    expect(find.text('총 적립 450'), findsNothing);
+    expect(find.text('+200'), findsOneWidget);
+    expect(find.text('+250'), findsOneWidget);
+  });
+
+  testWidgets('an ad receipt keeps its single row and shows no total', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      localizedApp(
+        locale: const Locale('ko'),
+        child: CandyRewardReceiptDialog(receipt: cottonReceipt),
+      ),
+    );
+
+    expect(find.text('+20'), findsOneWidget);
+    expect(find.byKey(const Key('reward-total')), findsNothing);
+    expect(find.text('기본 보너스'), findsNothing);
+    expect(find.text('이벤트 보너스'), findsNothing);
+  });
+
   test('formats arbitrary-precision amounts with Bengali grouping pattern', () {
     expect(
       formatCandyRewardAmount(

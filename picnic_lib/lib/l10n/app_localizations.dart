@@ -3629,6 +3629,54 @@ abstract class AppLocalizations {
   /// **'Authentication took longer than expected, but the purchase completed successfully.'**
   String get candy_boost_late_purchase_explanation;
 
+  /// Compact pill showing the extra bonus-star-candy percentage during a candy boost event.
+  ///
+  /// In en, this message translates to:
+  /// **'+{multiplier}% EVENT BONUS'**
+  String candy_boost_total_multiplier(String multiplier);
+
+  /// No description provided for @purchase_reward_base.
+  ///
+  /// In en, this message translates to:
+  /// **'Base reward'**
+  String get purchase_reward_base;
+
+  /// No description provided for @purchase_reward_product_bonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Base bonus'**
+  String get purchase_reward_product_bonus;
+
+  /// No description provided for @purchase_reward_event_bonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Event bonus'**
+  String get purchase_reward_event_bonus;
+
+  /// No description provided for @purchase_reward_expected_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Est. total'**
+  String get purchase_reward_expected_total;
+
+  /// A reward amount added on top of the base reward.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount}'**
+  String purchase_reward_plus_amount(String amount);
+
+  /// No description provided for @purchase_reward_estimate_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate. The final amount is confirmed by the server when your payment completes.'**
+  String get purchase_reward_estimate_note;
+
+  /// Sum of every currency added by a single settlement.
+  ///
+  /// In en, this message translates to:
+  /// **'Total added {amount}'**
+  String candy_reward_receipt_total(String amount);
+
   /// No description provided for @ad_reward_pending.
   ///
   /// In en, this message translates to:

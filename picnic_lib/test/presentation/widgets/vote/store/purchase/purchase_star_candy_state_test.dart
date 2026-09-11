@@ -77,7 +77,7 @@ void main() {
       expect(nextRect.top - pouchRect.bottom, 16);
     });
 
-    testWidgets('renders the standard star candy currency icon for purchases', (
+    testWidgets('renders the product-specific star candy artwork', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -108,10 +108,7 @@ void main() {
       );
       final imageProvider = productTile.icon.image as AssetImage;
 
-      expect(
-        imageProvider.assetName,
-        'assets/icons/store/currency_star_candy.png',
-      );
+      expect(imageProvider.assetName, 'assets/icons/store/star_100.png');
     });
 
     testWidgets('renders with title and button', (WidgetTester tester) async {
@@ -247,7 +244,7 @@ void main() {
     });
   });
 
-  group('product list candy boost badge localization', () {
+  group('product list promotion presentation', () {
     List<dynamic> productListOverrides({
       required ResolvedPaymentBadgePromotion resolved,
     }) => [
@@ -256,6 +253,8 @@ void main() {
           {
             'id': 'STAR100',
             'price': 1.99,
+            'star_candy': 100,
+            'star_candy_bonus': 0,
             'description': {'ko': '스타 캔디 100개', 'en': '100 Star Candies'},
           },
         ],
@@ -303,7 +302,7 @@ void main() {
     }
 
     testWidgets(
-      'renders the generated Korean multiplier copy for a V2 1.5x record',
+      'renders the Korean total-multiplier pill for a V2 1.5x record',
       (WidgetTester tester) async {
         await pumpProductList(
           tester,
@@ -311,10 +310,16 @@ void main() {
           resolved: v2Multiplier,
         );
 
+        expect(tester.takeException(), isNull);
         expect(find.byType(CandyBoostBadge), findsOneWidget);
-        expect(find.text('추석 캔디 부스트'), findsOneWidget);
-        // AppLocalizations.candy_boost_multiplier('1.5') under ko.
-        expect(find.text('1.5배'), findsOneWidget);
+        // The campaign record's own display name is internal copy - it must
+        // not be repeated on a consumer product row.
+        expect(find.text('추석 캔디 부스트'), findsNothing);
+        // floor(100 * 15 / 10) = 150, so this row pays 1.5x in total.
+        expect(find.text('이벤트 보너스 +50%'), findsOneWidget);
+        expect(find.text('+50'), findsOneWidget);
+        expect(find.text('+50'), findsOneWidget);
+        expect(find.text('150'), findsNothing);
         // Selection data must never leak to the UI as raw basis points.
         expect(find.textContaining('bps'), findsNothing);
         expect(find.textContaining('5000'), findsNothing);
@@ -322,7 +327,7 @@ void main() {
     );
 
     testWidgets(
-      'renders the generated English multiplier copy for a V2 1.5x record',
+      'renders the English total-multiplier pill for a V2 1.5x record',
       (WidgetTester tester) async {
         await pumpProductList(
           tester,
@@ -330,17 +335,19 @@ void main() {
           resolved: v2Multiplier,
         );
 
+        expect(tester.takeException(), isNull);
         expect(find.byType(CandyBoostBadge), findsOneWidget);
-        expect(find.text('Chuseok Candy Boost'), findsOneWidget);
-        // AppLocalizations.candy_boost_multiplier('1.5') under en.
-        expect(find.text('1.5× bonus'), findsOneWidget);
+        expect(find.text('Chuseok Candy Boost'), findsNothing);
+        expect(find.text('+50% EVENT BONUS'), findsOneWidget);
+        expect(find.text('+50'), findsOneWidget);
+        expect(find.text('150'), findsNothing);
         expect(find.textContaining('bps'), findsNothing);
         expect(find.textContaining('5000'), findsNothing);
       },
     );
 
     testWidgets(
-      'renders the Korean percent copy for a V1 exact-double record',
+      'renders a doubled total for a V1 exact-double record in Korean',
       (WidgetTester tester) async {
         await pumpProductList(
           tester,
@@ -348,9 +355,15 @@ void main() {
           resolved: v1ExactDouble,
         );
 
+        expect(tester.takeException(), isNull);
         expect(find.byType(CandyBoostBadge), findsOneWidget);
+        // The one place the event is named: the stable localized header
+        // above the list, not the campaign record's display name per row.
         expect(find.text('캔디 부스트 데이'), findsOneWidget);
-        expect(find.text('기본 지급 + 추가 보너스 100%'), findsOneWidget);
+        expect(find.text('기본 지급 + 추가 보너스 100%'), findsNothing);
+        expect(find.text('이벤트 보너스 +100%'), findsOneWidget);
+        expect(find.text('+100'), findsOneWidget);
+        expect(find.text('200'), findsNothing);
         // 10000 bps drives the copy selection but must never render.
         expect(find.textContaining('10000'), findsNothing);
         expect(find.textContaining('bps'), findsNothing);
@@ -358,7 +371,7 @@ void main() {
     );
 
     testWidgets(
-      'renders the English percent copy for a V1 exact-double record',
+      'renders a doubled total for a V1 exact-double record in English',
       (WidgetTester tester) async {
         await pumpProductList(
           tester,
@@ -366,26 +379,15 @@ void main() {
           resolved: v1ExactDouble,
         );
 
-        // Pre-existing latent defect, not a Task 7 regression: the English
-        // exact-double caption wraps inside the fixed-height StoreListTile
-        // and overflows its column by ~7px (debug-only report; release
-        // clips). The pre-Task-7 badge rendered the identical strings,
-        // styles, and padding in the same tile. Harvest only that known
-        // report so this test still fails on any other exception — and
-        // keeps passing once the geometry is fixed.
-        final exception = tester.takeException();
-        expect(
-          exception,
-          anyOf(isNull, isA<FlutterError>()),
-          reason: 'unexpected non-layout exception: $exception',
-        );
-        if (exception is FlutterError) {
-          expect(exception.message, contains('overflowed'));
-        }
-
+        // The long English caption that used to wrap inside the fixed-height
+        // tile and overflow its column by ~7px is gone: the row now carries a
+        // compact pill and grows with its content. No overflow is tolerated.
+        expect(tester.takeException(), isNull);
         expect(find.byType(CandyBoostBadge), findsOneWidget);
         expect(find.text('Candy Boost Day'), findsOneWidget);
-        expect(find.text('Base reward + 100% extra bonus'), findsOneWidget);
+        expect(find.text('Base reward + 100% extra bonus'), findsNothing);
+        expect(find.text('+100% EVENT BONUS'), findsOneWidget);
+        expect(find.text('200'), findsNothing);
         expect(find.textContaining('10000'), findsNothing);
         expect(find.textContaining('bps'), findsNothing);
       },
@@ -402,10 +404,7 @@ void main() {
         extraBonusBps: null,
       );
       const refreshedPromotion = (
-        displayName: {
-          'ko': '새 V2 캔디 부스트',
-          'en': 'Refreshed V2 Candy Boost',
-        },
+        displayName: {'ko': '새 V2 캔디 부스트', 'en': 'Refreshed V2 Candy Boost'},
         code: 'CANDY_BOOST_DAY',
         multiplierTenths: 20,
         extraBonusBps: null,
@@ -490,9 +489,15 @@ void main() {
       await tester.pump(const Duration(seconds: 2));
       await tester.pump(const Duration(seconds: 3));
 
-      expect(find.text('Selected V2 Candy Boost'), findsOneWidget);
+      // The row keeps the 100 star candy and +50 bonus star candy separate.
+      expect(find.byKey(const Key('purchase-bonus-total')), findsOneWidget);
+      expect(find.text('+50'), findsOneWidget);
+      expect(find.text('150'), findsNothing);
       final buyButton = tester.widget<ElevatedButton>(
-        find.widgetWithText(ElevatedButton, '1.99 \$'),
+        find.descendant(
+          of: find.byKey(const Key('purchase-price-cta')),
+          matching: find.byType(ElevatedButton),
+        ),
       );
       expect(buyButton.onPressed, isNotNull);
 
@@ -507,12 +512,25 @@ void main() {
       // even though the product badge has already advertised selectedV2.
       final dialog = find.byType(AlertDialog);
       expect(dialog, findsOneWidget);
+      // The confirmation quotes the snapshot captured on button press.
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('purchase-confirm-bonus-total')),
+          matching: find.text('+50'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: dialog, matching: find.text('150')),
+        findsNothing,
+      );
+      // Internal campaign copy never reaches the buyer.
       expect(
         find.descendant(
           of: dialog,
           matching: find.text('Selected V2 Candy Boost'),
         ),
-        findsOneWidget,
+        findsNothing,
       );
       expect(
         find.descendant(
@@ -540,19 +558,23 @@ void main() {
       await tester.pump();
       await tester.pump();
 
-      expect(find.text('Refreshed V2 Candy Boost'), findsOneWidget);
+      // The product row follows the new resolution without merging currencies.
+      expect(find.text('+100'), findsOneWidget);
+      expect(find.text('200'), findsNothing);
+      // The open confirmation keeps the amounts it was opened with.
       expect(
         find.descendant(
-          of: dialog,
-          matching: find.text('Selected V2 Candy Boost'),
+          of: find.byKey(const Key('purchase-confirm-bonus-total')),
+          matching: find.text('+50'),
         ),
         findsOneWidget,
       );
       expect(
-        find.descendant(
-          of: dialog,
-          matching: find.text('Refreshed V2 Candy Boost'),
-        ),
+        find.descendant(of: dialog, matching: find.text('150')),
+        findsNothing,
+      );
+      expect(
+        find.descendant(of: dialog, matching: find.text('200')),
         findsNothing,
       );
 

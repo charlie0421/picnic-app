@@ -80,7 +80,9 @@ void main() {
   );
 
   group('purchase confirmation promotion snapshot', () {
-    testWidgets('shows the selected V2 badge name', (tester) async {
+    testWidgets('quotes the amounts of the captured V2 snapshot', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         buildTestApp(const SizedBox.shrink(), locale: const Locale('en')),
       );
@@ -101,6 +103,8 @@ void main() {
         serverProduct: const {
           'id': 'STAR100',
           'price': 1.99,
+          'star_candy': 100,
+          'star_candy_bonus': 0,
           'description': {'ko': '스타 캔디 100개', 'en': '100 Star Candies'},
         },
         storeProducts: const [],
@@ -108,7 +112,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Selected V2 Candy Boost'), findsOneWidget);
+      // floor(100 * 15 / 10) = 150, but unlike currencies are not displayed
+      // as one total: 100 star candy and 50 bonus star candy stay separate.
+      expect(find.text('100'), findsOneWidget);
+      expect(find.text('+50'), findsNWidgets(2));
+      expect(find.text('150'), findsNothing);
+      expect(find.text('+50% EVENT BONUS'), findsOneWidget);
+      expect(find.text('Selected V2 Candy Boost'), findsNothing);
 
       await tester.tap(
         find.text(AppLocalizations.of(navigatorKey.currentContext!).cancel),

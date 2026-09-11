@@ -1956,6 +1956,37 @@ class AppLocalizationsId extends AppLocalizations {
       'Autentikasi memakan waktu lebih lama dari perkiraan, tetapi pembelian berhasil diselesaikan.';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'Bonus event +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'Hadiah dasar';
+
+  @override
+  String get purchase_reward_product_bonus => 'Bonus dasar';
+
+  @override
+  String get purchase_reward_event_bonus => 'Bonus event';
+
+  @override
+  String get purchase_reward_expected_total => 'Perkiraan total';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'Ini perkiraan. Jumlah akhir dipastikan oleh server saat pembayaran selesai.';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'Total diterima $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'Sedang memeriksa hadiah Anda';
 
   @override

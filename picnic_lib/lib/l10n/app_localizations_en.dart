@@ -1948,6 +1948,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'Authentication took longer than expected, but the purchase completed successfully.';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '+$multiplier% EVENT BONUS';
+  }
+
+  @override
+  String get purchase_reward_base => 'Base reward';
+
+  @override
+  String get purchase_reward_product_bonus => 'Base bonus';
+
+  @override
+  String get purchase_reward_event_bonus => 'Event bonus';
+
+  @override
+  String get purchase_reward_expected_total => 'Est. total';
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'Estimate. The final amount is confirmed by the server when your payment completes.';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'Total added $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'Checking your reward';
 
   @override
