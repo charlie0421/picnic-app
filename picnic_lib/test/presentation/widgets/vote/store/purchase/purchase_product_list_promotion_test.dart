@@ -92,6 +92,7 @@ void main() {
   Future<void> pumpStore(
     WidgetTester tester, {
     required FutureOr<ResolvedPaymentBadgePromotion?> Function() promotion,
+    PaymentBadgePromotionPeriod? promotionPeriod,
     Locale locale = const Locale('ko'),
     List<Map<String, dynamic>> serverProducts = const [star100, star200],
     List<ProductDetails> storeProducts = const <ProductDetails>[],
@@ -112,6 +113,9 @@ void main() {
             (ref, notifier) => storeProducts,
           ),
           paymentBadgePromotionProvider.overrideWith((ref) => promotion()),
+          paymentBadgePromotionPeriodProvider.overrideWith(
+            (ref) async => promotionPeriod,
+          ),
         ],
       ),
     );
@@ -191,15 +195,20 @@ void main() {
       find.byKey(const Key('purchase-reward-extension')),
       findsNWidgets(2),
     );
-    expect(find.textContaining('스타캔디 100'), findsOneWidget);
-    expect(find.textContaining('스타캔디 200'), findsOneWidget);
-    expect(find.textContaining('보너스 스타캔디'), findsNWidgets(2));
+    expect(
+      find.byKey(const Key('purchase-star-candy-panel')),
+      findsNWidgets(2),
+    );
+    expect(
+      find.byKey(const Key('purchase-bonus-components')),
+      findsNWidgets(2),
+    );
 
     final star100Tile = find.byType(StoreListTile).at(0);
     expect(
       find.descendant(
         of: star100Tile,
-        matching: find.byKey(const Key('purchase-bonus-total')),
+        matching: find.byKey(const Key('purchase-bonus-components')),
       ),
       findsOneWidget,
     );
@@ -208,24 +217,21 @@ void main() {
       findsNothing,
     );
     expect(
-      find.descendant(
-        of: star100Tile,
-        matching: find.textContaining('스타캔디 100'),
-      ),
+      find.descendant(of: star100Tile, matching: find.text('100')),
       findsOneWidget,
     );
 
     // 200 + 25 = 225 catalog candy, doubled to 450.
     final star200Tile = find.byType(StoreListTile).at(1);
     expect(
-      find.descendant(
-        of: star200Tile,
-        matching: find.textContaining('이벤트 보너스 +225'),
-      ),
+      find.descendant(of: star200Tile, matching: find.text('이벤트 225')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: star200Tile, matching: find.textContaining('+250')),
+      find.descendant(
+        of: star200Tile,
+        matching: find.byKey(const Key('purchase-provenance-chip-product')),
+      ),
       findsOneWidget,
     );
     expect(
@@ -245,27 +251,35 @@ void main() {
     );
     expect(find.byKey(const Key('candy-boost-inline-badge')), findsNWidgets(2));
     expect(find.byType(CandyBoostBadge), findsNothing);
-    expect(find.text('캔디 부스트 데이'), findsNWidgets(3));
-    expect(find.byKey(const Key('purchase-bonus-total')), findsNWidgets(2));
+    expect(find.text('캔디 부스트 데이'), findsNWidgets(2));
+    expect(
+      find.byKey(const Key('purchase-bonus-components')),
+      findsNWidgets(2),
+    );
   });
 
   testWidgets('names the event once above the list, never per row', (
     tester,
   ) async {
-    await pumpStore(tester, promotion: () => doubleCampaign);
-
-    expect(find.byKey(const Key('candy-boost-event-header')), findsOneWidget);
-    final eventHeader = tester.widget<Container>(
-      find.byKey(const Key('candy-boost-event-header')),
+    await pumpStore(
+      tester,
+      promotion: () => doubleCampaign,
+      promotionPeriod: (
+        startsAt: DateTime.utc(2026, 9, 7, 15),
+        endsAt: DateTime.utc(2026, 9, 8, 14, 59, 59),
+      ),
     );
-    final headerDecoration = eventHeader.decoration! as BoxDecoration;
-    expect(headerDecoration.gradient, isNull);
-    expect(headerDecoration.boxShadow, isNull);
+
+    expect(find.byKey(const Key('candy-boost-period-banner')), findsOneWidget);
+    expect(
+      find.byKey(const Key('candy-boost-banner-bonus-icon')),
+      findsOneWidget,
+    );
     expect(find.text('캔디 부스트 데이'), findsOneWidget);
     expect(find.text('내부 테스트 캔디 부스트 캠페인 이름'), findsNothing);
     expect(find.text('CANDY_BOOST_DAY'), findsNothing);
     // Every eligible row still carries its multiplier.
-    expect(find.text('이벤트 보너스 +100%'), findsNWidgets(2));
+    expect(find.text('+100%'), findsNWidgets(3));
   });
 
   testWidgets('keeps the plain catalog rows when no campaign resolves', (
@@ -275,7 +289,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.byType(CandyBoostBadge), findsNothing);
-    expect(find.byKey(const Key('candy-boost-event-header')), findsNothing);
+    expect(find.byKey(const Key('candy-boost-period-banner')), findsNothing);
     expect(find.byKey(const Key('purchase-expected-total')), findsNothing);
     expect(find.byKey(const Key('purchase-event-bonus')), findsNothing);
     // The catalog amounts are still there, unchanged.
@@ -295,7 +309,7 @@ void main() {
     );
 
     expect(find.byType(CandyBoostBadge), findsNothing);
-    expect(find.byKey(const Key('candy-boost-event-header')), findsNothing);
+    expect(find.byKey(const Key('candy-boost-period-banner')), findsNothing);
     expect(find.byKey(const Key('purchase-expected-total')), findsNothing);
   });
 
@@ -339,10 +353,10 @@ void main() {
     await tester.pump();
 
     expect(tester.takeException(), isNull);
-    expect(find.byKey(const Key('purchase-bonus-total')), findsOneWidget);
+    expect(find.byKey(const Key('purchase-bonus-components')), findsOneWidget);
     expect(find.text('450'), findsNothing);
-    expect(find.text('이벤트 보너스 +100%'), findsOneWidget);
-    expect(find.byKey(const Key('purchase-price-cta')), findsNothing);
+    expect(find.text('+100%'), findsOneWidget);
+    expect(find.byKey(const Key('purchase-price-cta')), findsOneWidget);
     expect(find.byType(ElevatedButton), findsOneWidget);
   });
 }

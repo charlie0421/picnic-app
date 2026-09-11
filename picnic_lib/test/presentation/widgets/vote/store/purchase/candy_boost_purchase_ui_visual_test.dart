@@ -168,6 +168,12 @@ Widget _app(Widget child, {Locale locale = const Locale('ko')}) =>
           (ref, notifier) => _storeProducts,
         ),
         paymentBadgePromotionProvider.overrideWith((ref) async => _promotion),
+        paymentBadgePromotionPeriodProvider.overrideWith(
+          (ref) async => (
+            startsAt: DateTime.utc(2026, 9, 7, 15),
+            endsAt: DateTime.utc(2026, 9, 8, 14, 59, 59),
+          ),
+        ),
       ],
       child: ScreenUtilInit(
         designSize: kAppDesignSize,
@@ -243,10 +249,10 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
     await tester.pump(const Duration(seconds: 3));
-    expect(find.textContaining('보너스 스타캔디 +250'), findsOneWidget);
+    expect(find.text('25'), findsOneWidget);
     expect(find.text('450'), findsNothing);
-    expect(find.text('이벤트 보너스 +100'), findsOneWidget);
-    expect(find.textContaining('이벤트 보너스 +225'), findsOneWidget);
+    expect(find.text('이벤트 100'), findsOneWidget);
+    expect(find.text('이벤트 225'), findsOneWidget);
     for (final product in _products) {
       final id = product['id'] as String;
       final title = find.text(id);
@@ -266,20 +272,20 @@ void main() {
         reason: id,
       );
     }
-    expect(find.textContaining('보너스 스타캔디 +14,200'), findsOneWidget);
+    expect(find.text('2,100'), findsOneWidget);
     expect(find.text('24,200'), findsNothing);
-    expect(find.textContaining('이벤트 보너스 +12,100'), findsOneWidget);
+    expect(find.text('이벤트 12,100'), findsOneWidget);
     expect(
       tester.getBottomRight(find.text('STAR10000')).dy,
       lessThan(captureHeight),
     );
     expect(
-      tester.getBottomRight(find.textContaining('이벤트 보너스 +12,100')).dy,
+      tester.getBottomRight(find.text('이벤트 12,100')).dy,
       lessThan(captureHeight),
     );
     expect(find.textContaining('내부테스트'), findsNothing);
     final purchaseCtas = find.byKey(const Key('purchase-price-cta'));
-    expect(purchaseCtas, findsNothing);
+    expect(purchaseCtas, findsNWidgets(_products.length));
     final purchaseButtons = find.byType(ElevatedButton);
     expect(purchaseButtons, findsNWidgets(_products.length));
     expect(purchaseButtons.hitTestable(), findsNWidgets(_products.length));
@@ -311,10 +317,10 @@ void main() {
     );
     await tester.tap(find.byKey(_openDialog));
     await tester.pumpAndSettle();
-    expect(find.text('+250'), findsOneWidget);
+    expect(find.text('합계 250'), findsOneWidget);
     expect(find.text('450'), findsNothing);
-    expect(find.text('기본 보너스'), findsOneWidget);
-    expect(find.text('이벤트 보너스'), findsOneWidget);
+    expect(find.text('기본 25'), findsOneWidget);
+    expect(find.text('이벤트 225'), findsOneWidget);
     await _capture(tester, 'confirmation_ko');
   });
 
@@ -336,9 +342,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('총 적립 450'), findsNothing);
     expect(find.text('+200'), findsOneWidget);
-    expect(find.text('+250'), findsOneWidget);
-    expect(find.text('+25'), findsOneWidget);
-    expect(find.text('+225'), findsOneWidget);
+    expect(find.text('합계 250'), findsOneWidget);
+    expect(find.text('기본 25'), findsOneWidget);
+    expect(find.text('이벤트 225'), findsOneWidget);
     await _capture(tester, 'receipt_ko');
   });
 }
