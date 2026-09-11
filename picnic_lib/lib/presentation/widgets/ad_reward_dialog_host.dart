@@ -97,9 +97,15 @@ class _AdRewardDialogHostState extends ConsumerState<AdRewardDialogHost> {
     // 적립 영수증과 별사탕 파우치가 같은 서버 확정 스냅샷을 보여 주도록,
     // 팝업을 띄우기 전에 공통 지갑 상태에 즉시 반영한다. 별도 재조회보다
     // 정확하고, AdMob/Pangle/내부 숏폼의 복구 팝업 경로를 한 번에 다룬다.
+    //
+    // 이 쓰기의 소유권은 위 이른 반환이 이미 정했다(PICNIC-2664). 구매·숏폼은
+    // 응답에 소유자가 없어서 시작 시점의 토큰을 따로 들고 다녀야 하지만, 여기
+    // 보상은 `queued.ownerUserId` 로 **자기 주인을 스스로 들고 온다**. 그래서
+    // 그 값을 지금 로그인한 계정과 맞춰 보는 위 검사가 토큰보다 강하다.
+    //
+    // 그 검사와 이 줄 사이에 await 가 없다는 것이 이 가드의 전제다. 사이에
+    // await 를 넣으면 그때 계정이 갈릴 수 있고, 이 쓰기는 다시 무방비가 된다.
     if (ref.exists(walletSummaryProvider)) {
-      // TODO(PICNIC-2664): 보상을 시청한 시점의 소유자를 잡아 와야 한다. 여기서
-      // 잡으면 검사가 항상 통과하므로 지금은 기존 동작 그대로다.
       final notifier = ref.read(walletSummaryProvider.notifier);
       notifier.setSummary(queued.status.wallet, owner: notifier.captureOwner());
     }

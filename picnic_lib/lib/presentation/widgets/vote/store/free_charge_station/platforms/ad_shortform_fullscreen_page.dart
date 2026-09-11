@@ -22,6 +22,7 @@ import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart
 import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/wallet_summary_applier.dart';
 
 /// '더보기'를 눌렀을 때 광고주 랜딩으로 보내고, 그 클릭을 서버에 기록한다.
 ///
@@ -116,29 +117,35 @@ class AdShortformLogic {
 
   /// Applies the credited reward to the wallet summary (별사탕 파우치).
   ///
-  /// Runs through the app-level [ProviderContainer], captured while the page
-  /// was mounted - the same move as the purchase flow's
-  /// `ContainerWalletSummaryApplier` - because the candy was credited
-  /// server-side the moment the view callback settled: even if the user
-  /// already left the ad route, the pouch must reflect the new balance.
+  /// Takes the purchase flow's [WalletSummaryApplier]/[WalletSummaryRefresher]
+  /// rather than a container, for the two reasons that seam exists. The candy
+  /// was credited server-side the moment the view callback settled, so the
+  /// pouch must be written **whether or not this route is still mounted** -
+  /// `ConsumerState.ref` throws once unmounted, so the write goes through
+  /// something captured earlier.
+  ///
+  /// That capture is also where the **account** is decided (PICNIC-2664). The
+  /// user can sign out or switch while the callback is in flight, and a reward
+  /// owner A watched must not land in owner B's pouch. Taking the applier -
+  /// captured in `initState`, when the ad started - rather than a container to
+  /// read at apply time is what makes that check mean anything.
   ///
   /// A wallet-aware response carries the settled balance and is written as-is;
   /// a legacy response carries no wallet snapshot, so the summary is re-read
   /// from the server. (Was: legacy path refreshed the user profile only,
   /// which left `walletSummaryProvider` - and the pouch it drives - stale.)
   static Future<void> applyRewardOutcome({
-    required ProviderContainer container,
+    required WalletSummaryApplier applyWallet,
+    required WalletSummaryRefresher refreshWallet,
     required InternalShortformViewResponse response,
   }) async {
     final wallet = walletSummaryToApply(response);
     if (wallet != null) {
-      // TODO(PICNIC-2664): 광고 시작 시점의 소유자를 잡아 전달해야 한다.
-      final notifier = container.read(walletSummaryProvider.notifier);
-      notifier.setSummary(wallet, owner: notifier.captureOwner());
+      applyWallet(wallet);
       return;
     }
     if (shouldRefreshLegacyProfile(response)) {
-      await container.read(walletSummaryProvider.notifier).refresh();
+      await refreshWallet.refresh();
     }
   }
 
@@ -401,17 +408,21 @@ class _AdShortformFullscreenPageState
     () async => await widget.onCtaClick?.call() ?? false,
   );
 
-  /// App-level Riverpod container, captured while this route is mounted, so a
-  /// reward that settles after the user already closed the ad can still update
-  /// the wallet summary (cf. `ContainerWalletSummaryApplier` in the purchase
-  /// settlement path - `ConsumerState.ref` throws once unmounted).
-  late final ProviderContainer _rewardContainer;
+  /// Wallet writes for a reward that settles after the user closed the ad.
+  ///
+  /// Captured while this route is mounted, which is both why they work at all
+  /// (`ConsumerState.ref` throws once unmounted) and how they know whose
+  /// reward this is - the capture happens when the ad starts, so an account
+  /// switch during the view callback is visible to [WalletSummary.setSummary].
+  late final WalletSummaryApplier _applyWallet;
+  late final WalletSummaryRefresher _refreshWallet;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _rewardContainer = ProviderScope.containerOf(context, listen: false);
+    _applyWallet = ContainerWalletSummaryApplier.of(context);
+    _refreshWallet = ContainerWalletSummaryRefresher.of(context);
     _enterImmersive();
     _startWatchdog();
     _initializeFlow();
@@ -635,7 +646,8 @@ class _AdShortformFullscreenPageState
     // 지갑을 쓰는 것과 같은 이유. (기존엔 mounted 뒤에서 프로필만 갱신해
     // 광고를 닫고 상점으로 돌아오면 파우치가 이전 잔액으로 남았다.)
     await AdShortformLogic.applyRewardOutcome(
-      container: _rewardContainer,
+      applyWallet: _applyWallet,
+      refreshWallet: _refreshWallet,
       response: response,
     );
     if (AdShortformLogic.shouldRefreshLegacyProfile(response) && mounted) {
