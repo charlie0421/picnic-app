@@ -2446,9 +2446,14 @@
   "candy_boost_late_purchase_explanation": "认证耗时比预期长，但购买已正常完成。",
   "candy_boost_total_multiplier": "活动奖励 +{multiplier}%",
   "purchase_reward_base": "基础发放",
+  "purchase_reward_base_short": "基础",
+  "purchase_reward_event_short": "活动",
   "purchase_reward_product_bonus": "基础奖励",
   "purchase_reward_event_bonus": "活动奖励",
   "purchase_reward_expected_total": "预计合计",
+  "purchase_reward_total_short": "合计",
+  "purchase_current_balance": "当前余额 {amount}",
+  "purchase_expected_balance": "购买后预计 {amount}",
   "purchase_reward_plus_amount": "+{amount}",
   "purchase_reward_estimate_note": "此为预计数量。最终发放数量以支付完成时的服务器结果为准。",
   "candy_reward_receipt_total": "共获得{amount}",
@@ -2466,6 +2471,7 @@
     }
   },
   "candy_reward_receipt_balance": "当前持有 {amount}",
+  "candy_reward_receipt_purchase_balance": "购买后持有 {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {

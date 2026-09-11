@@ -28,7 +28,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_in
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_palette.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_period_banner.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview_view.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy_helper.dart';
@@ -1088,6 +1088,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       serverProduct: serverProduct,
       storeProducts: storeProducts,
       displayedPromotion: displayedPromotion,
+      currentWallet: ref.read(walletSummaryProvider).unwrapPrevious().value,
     );
 
     if (confirmed == true && context.mounted) {
@@ -1438,6 +1439,13 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     // 로그인 상태를 실시간으로 감시
     final userInfo = ref.watch(userInfoProvider);
     final isLoggedIn = userInfo.value != null;
+    final displayedPromotion = paymentBadgePromotionForDisplay(
+      ref.watch(paymentBadgePromotionProvider),
+    );
+    final promotionPeriod = ref
+        .watch(paymentBadgePromotionPeriodProvider)
+        .unwrapPrevious()
+        .value;
 
     return LoadingOverlayWithIcon(
       key: _loadingKey,
@@ -1475,8 +1483,24 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                       }
                     : null,
               ),
-              const SizedBox(height: 16),
-              const Divider(color: AppColors.grey200, height: 32),
+              if (displayedPromotion != null && promotionPeriod != null) ...[
+                const SizedBox(height: 10),
+                CandyBoostPeriodBanner(
+                  startsAt: promotionPeriod.startsAt,
+                  endsAt: promotionPeriod.endsAt,
+                  bonusPercent: displayedPromotion.multiplierTenths != null
+                      ? (displayedPromotion.multiplierTenths! - 10) * 10
+                      : (displayedPromotion.extraBonusBps ?? 0) ~/ 100,
+                ),
+                const SizedBox(height: 2),
+              ] else
+                const SizedBox(height: 16),
+              Divider(
+                color: AppColors.grey200,
+                height: displayedPromotion != null && promotionPeriod != null
+                    ? 14
+                    : 32,
+              ),
               _buildProductsList(),
               const Divider(color: AppColors.grey200, height: 32),
               _buildFooterSection(),
@@ -1595,74 +1619,14 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     List<Map<String, dynamic>> serverProducts,
     List<ProductDetails> storeProducts,
   ) {
-    final hasEligibleProduct = serverProducts.any(
-      (product) => _rewardPreviewFor(product).hasEventBonus,
-    );
-    final list = ListView.separated(
+    return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) =>
           _buildProductItem(serverProducts[index], storeProducts),
-      separatorBuilder: (BuildContext context, int index) => hasEligibleProduct
-          ? const SizedBox(height: 14)
-          : const Divider(color: AppColors.grey200, height: 24),
+      separatorBuilder: (BuildContext context, int index) =>
+          const Divider(color: AppColors.grey200, height: 24),
       itemCount: serverProducts.length,
-    );
-
-    // The event is named exactly once, and only when some product actually
-    // earns a bonus from it. Repeating the campaign's own display name on
-    // every row is what put internal copy (a test campaign name, or the
-    // machine code it falls back to) in front of buyers.
-    if (!hasEligibleProduct) return list;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [_buildEventHeader(), const SizedBox(height: 12), list],
-    );
-  }
-
-  Widget _buildEventHeader() {
-    return Container(
-      key: const Key('candy-boost-event-header'),
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [kCandyBoostPurple, kCandyBoostPink]),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: kCandyBoostPurple.withValues(alpha: .2),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .18),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.auto_awesome_rounded,
-              color: Colors.white,
-              size: 19,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              // A stable localized event name - never the campaign record's
-              // own display name, which is internal copy.
-              AppLocalizations.of(context).candy_boost_day,
-              style: getTextStyle(AppTypo.body14B, Colors.white),
-            ),
-          ),
-        ],
-      ),
     );
   }
 

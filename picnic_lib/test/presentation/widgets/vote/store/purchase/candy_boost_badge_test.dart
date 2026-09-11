@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_palette.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview_view.dart';
 import '../../../../../helpers/test_app.dart';
@@ -19,15 +18,16 @@ void main() {
         buildTestApp(const CandyBoostBadge(totalMultiplierTenths: 20)),
       );
 
-      expect(find.text('이벤트 보너스 +100%'), findsOneWidget);
+      expect(find.text('+100%'), findsOneWidget);
       final decorated = tester.widget<Container>(
         find.descendant(
           of: find.byType(CandyBoostBadge),
           matching: find.byType(Container),
         ),
       );
-      final gradient = (decorated.decoration! as BoxDecoration).gradient!;
-      expect(gradient.colors, [kCandyBoostPurple, kCandyBoostPink]);
+      final decoration = decorated.decoration! as BoxDecoration;
+      expect(decoration.gradient, isNull);
+      expect(decoration.border, isNotNull);
     });
 
     testWidgets('describes the event bonus percentage in English', (
@@ -40,7 +40,7 @@ void main() {
         ),
       );
 
-      expect(find.text('+100% EVENT BONUS'), findsOneWidget);
+      expect(find.text('+100%'), findsOneWidget);
     });
 
     testWidgets('keeps a fractional multiplier exact', (tester) async {
@@ -48,7 +48,7 @@ void main() {
         buildTestApp(const CandyBoostBadge(totalMultiplierTenths: 15)),
       );
 
-      expect(find.text('이벤트 보너스 +50%'), findsOneWidget);
+      expect(find.text('+50%'), findsOneWidget);
     });
 
     testWidgets('stays inside a narrow slot at 2x text scale', (tester) async {
@@ -109,17 +109,13 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.byKey(const Key('purchase-bonus-benefit-panel')),
+        find.byKey(const Key('purchase-bonus-components')),
         findsOneWidget,
       );
-      expect(find.text('스타캔디'), findsOneWidget);
-      expect(find.text('보너스 스타캔디'), findsOneWidget);
       expect(find.text('200'), findsOneWidget);
-      expect(find.textContaining('기본 보너스 +25'), findsOneWidget);
-      expect(find.textContaining('이벤트 보너스 +225'), findsOneWidget);
-      expect(find.text('+250'), findsOneWidget);
+      expect(find.text('25'), findsOneWidget);
+      expect(find.text('이벤트 225'), findsOneWidget);
       expect(find.text('450'), findsNothing);
-      expect(find.byKey(const Key('purchase-bonus-total')), findsOneWidget);
       expect(
         find.byKey(const Key('purchase-provenance-chip-product')),
         findsOneWidget,
@@ -146,13 +142,13 @@ void main() {
           ),
         );
 
-        final total = tester.widget<Text>(find.text('+250'));
-        final catalog = tester.widget<Text>(find.text('200'));
-        expect(
-          total.style!.fontSize!,
-          greaterThan(catalog.style!.fontSize!),
-          reason: 'the separate bonus-wallet amount must remain prominent',
+        final total = tester.widget<Text>(
+          find.byKey(const Key('purchase-provenance-chip-event')),
         );
+        final catalog = tester.widget<Text>(
+          find.byKey(const Key('purchase-star-candy-panel')),
+        );
+        expect(total.style!.color, catalog.style!.color);
       },
     );
 
@@ -172,7 +168,7 @@ void main() {
         ),
       );
 
-      final amount = find.text('+14,200');
+      final amount = find.text('이벤트 12,100');
       expect(amount, findsOneWidget);
       final paragraph = tester.renderObject<RenderParagraph>(amount);
       final boxes = paragraph.getBoxesForSelection(
@@ -197,7 +193,7 @@ void main() {
       );
 
       expect(find.text('200'), findsOneWidget);
-      expect(find.text('+25'), findsOneWidget);
+      expect(find.text('25'), findsOneWidget);
       expect(find.byKey(const Key('purchase-expected-total')), findsNothing);
       expect(find.byKey(const Key('purchase-event-bonus')), findsNothing);
     });

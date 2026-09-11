@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart'
@@ -29,10 +29,12 @@ class PurchaseConfirmDialog extends StatelessWidget {
     required this.serverProduct,
     required this.storeProducts,
     required this.displayedPromotion,
+    this.currentWallet,
   });
 
   final Map<String, dynamic> serverProduct;
   final List<ProductDetails> storeProducts;
+  final WalletSummaryModel? currentWallet;
 
   /// Captured immediately before this dialog opens. Never re-read here: a
   /// refresh mid-dialog must not change what the user is agreeing to.
@@ -54,12 +56,11 @@ class PurchaseConfirmDialog extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       titlePadding: EdgeInsets.zero,
       title: _buildHero(
         context,
         l10n,
-        productId,
         hasEventBonus: preview.hasEventBonus,
         totalMultiplierTenths: totalMultiplierTenths,
       ),
@@ -76,22 +77,13 @@ class PurchaseConfirmDialog extends StatelessWidget {
           _productHeader(context, productId),
           const SizedBox(height: 12),
           ..._breakdownRows(context, l10n, preview),
-          const SizedBox(height: 10),
-          Text(
-            key: const Key('purchase-confirm-estimate-note'),
-            l10n.purchase_reward_estimate_note,
-            style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
-          ),
           const SizedBox(height: 12),
           Container(
             key: const Key('purchase-confirm-price'),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
             decoration: BoxDecoration(
-              color: kCandyBoostPurple.withValues(alpha: .08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: kCandyBoostPurple.withValues(alpha: .18),
-              ),
+              color: AppColors.grey100,
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
@@ -126,16 +118,7 @@ class PurchaseConfirmDialog extends StatelessWidget {
         ElevatedButton(
           key: const Key('purchase-confirm-cta'),
           onPressed: () => Navigator.of(context).pop(true),
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(132, 50),
-            backgroundColor: kCandyBoostPurple,
-            foregroundColor: Colors.white,
-            elevation: 4,
-            shadowColor: kCandyBoostPurple.withValues(alpha: .35),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-          ),
+          style: ElevatedButton.styleFrom(minimumSize: const Size(120, 48)),
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
@@ -151,87 +134,37 @@ class PurchaseConfirmDialog extends StatelessWidget {
 
   Widget _buildHero(
     BuildContext context,
-    AppLocalizations l10n,
-    String productId, {
+    AppLocalizations l10n, {
     required bool hasEventBonus,
     required int? totalMultiplierTenths,
   }) {
     return Container(
       key: const Key('purchase-confirm-hero'),
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [kCandyBoostPurple, kCandyBoostPink],
-        ),
-      ),
-      child: Stack(
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 8),
+      decoration: const BoxDecoration(color: Colors.white),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PositionedDirectional(
-            end: -8,
-            top: -12,
-            child: Icon(
-              Icons.auto_awesome_rounded,
-              size: 58,
-              color: Colors.white.withValues(alpha: .16),
+          Text(
+            l10n.purchase_confirm_title,
+            style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+          ),
+          if (hasEventBonus) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 7,
+              runSpacing: 5,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  l10n.candy_boost_day,
+                  style: getTextStyle(AppTypo.caption12B, kCandyBoostPink),
+                ),
+                if (totalMultiplierTenths != null)
+                  CandyBoostBadge(totalMultiplierTenths: totalMultiplierTenths),
+              ],
             ),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 54,
-                height: 54,
-                padding: const EdgeInsets.all(7),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(17),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: .12),
-                      blurRadius: 14,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: _productImage(productId, size: 40.w),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.purchase_confirm_title,
-                      style: getTextStyle(AppTypo.title18B, Colors.white),
-                    ),
-                    if (hasEventBonus) ...[
-                      const SizedBox(height: 7),
-                      Wrap(
-                        spacing: 7,
-                        runSpacing: 5,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text(
-                            l10n.candy_boost_day,
-                            style: getTextStyle(
-                              AppTypo.caption12B,
-                              Colors.white,
-                            ),
-                          ),
-                          if (totalMultiplierTenths != null)
-                            CandyBoostBadge(
-                              totalMultiplierTenths: totalMultiplierTenths,
-                            ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
+          ],
         ],
       ),
     );
@@ -301,36 +234,57 @@ class PurchaseConfirmDialog extends StatelessWidget {
             key: const Key('purchase-confirm-star-candy-panel'),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: kCandyBoostPurple.withValues(alpha: .07),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: kCandyBoostPurple.withValues(alpha: .2),
-              ),
+              color: Colors.white,
+              border: Border(bottom: BorderSide(color: AppColors.grey200)),
             ),
-            child: Row(
-              key: const Key('purchase-confirm-base'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Image.asset(
-                  kStarCandyAsset,
-                  package: 'picnic_lib',
-                  width: 32,
-                  height: 32,
+                Row(
+                  key: const Key('purchase-confirm-base'),
+                  children: [
+                    Image.asset(
+                      kStarCandyAsset,
+                      package: 'picnic_lib',
+                      width: 32,
+                      height: 32,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        l10n.wallet_star_candy,
+                        style: getTextStyle(AppTypo.body14B, AppColors.grey800),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            formatCandyRewardAmount(preview.base, locale),
+                            textAlign: TextAlign.end,
+                            style: getTextStyle(
+                              AppTypo.title18B,
+                              kCandyBoostPurple,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    l10n.wallet_star_candy,
-                    style: getTextStyle(AppTypo.body14B, AppColors.grey800),
+                if (currentWallet != null) ...[
+                  const SizedBox(height: 8),
+                  _balanceProjection(
+                    key: const Key('purchase-confirm-star-balance'),
+                    l10n: l10n,
+                    locale: locale,
+                    current: currentWallet!.star,
+                    expected: currentWallet!.star + preview.base,
                   ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    formatCandyRewardAmount(preview.base, locale),
-                    textAlign: TextAlign.end,
-                    style: getTextStyle(AppTypo.title18B, kCandyBoostPurple),
-                  ),
-                ),
+                ],
               ],
             ),
           ),
@@ -352,79 +306,131 @@ class PurchaseConfirmDialog extends StatelessWidget {
               key: const Key('purchase-confirm-bonus-benefit-panel'),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    kCandyBoostPurple.withValues(alpha: .12),
-                    kCandyBoostPink.withValues(alpha: .14),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: kCandyBoostPink.withValues(alpha: .36),
-                  width: 1.2,
-                ),
+                color: Colors.white,
+                border: Border(bottom: BorderSide(color: AppColors.grey200)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Column(
-                    key: const Key('purchase-confirm-bonus-total'),
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Image.asset(
-                            kBonusStarCandyAsset,
-                            package: 'picnic_lib',
-                            width: 34,
-                            height: 34,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              l10n.wallet_bonus_star_candy,
-                              style: getTextStyle(
-                                AppTypo.body14B,
-                                AppColors.grey800,
+                      Image.asset(
+                        kBonusStarCandyAsset,
+                        package: 'picnic_lib',
+                        width: 34,
+                        height: 34,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                l10n.wallet_bonus_star_candy,
+                                style: getTextStyle(
+                                  AppTypo.body14B,
+                                  AppColors.grey800,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            Tooltip(
+                              message: l10n.purchase_reward_estimate_note,
+                              child: Icon(
+                                Icons.info_outline_rounded,
+                                key: const Key(
+                                  'purchase-confirm-estimate-info',
+                                ),
+                                size: 15,
+                                color: AppColors.grey500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 2),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          plus(preview.productBonus + preview.eventBonus),
-                          textAlign: TextAlign.end,
-                          style: getTextStyle(
-                            AppTypo.title18B,
-                            kCandyBoostPurple,
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              preview.hasEventBonus
+                                  ? '${l10n.purchase_reward_total_short} ${formatCandyRewardAmount(preview.productBonus + preview.eventBonus, locale)}'
+                                  : formatCandyRewardAmount(
+                                      preview.productBonus,
+                                      locale,
+                                    ),
+                              key: preview.hasEventBonus
+                                  ? const Key('purchase-confirm-bonus-total')
+                                  : null,
+                              textAlign: TextAlign.end,
+                              style: getTextStyle(
+                                AppTypo.body16B,
+                                kCandyBoostPurple,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  if (preview.hasProductBonus || preview.hasEventBonus) ...[
-                    const SizedBox(height: 10),
-                    if (preview.hasProductBonus)
-                      _provenanceChip(
-                        rowKey: const Key('purchase-confirm-product-bonus'),
-                        label: l10n.purchase_reward_product_bonus,
-                        amount: plus(preview.productBonus),
-                        emphasized: false,
+                  if (preview.hasEventBonus) ...[
+                    const SizedBox(height: 6),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Row(
+                        children: [
+                          if (preview.hasProductBonus)
+                            _bonusSourceCapsule(
+                              key: const Key('purchase-confirm-product-bonus'),
+                              label: l10n.purchase_reward_base_short,
+                              amount: formatCandyRewardAmount(
+                                preview.productBonus,
+                                locale,
+                              ),
+                              emphasized: false,
+                            ),
+                          if (preview.hasProductBonus && preview.hasEventBonus)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                              ),
+                              child: Text(
+                                '+',
+                                style: getTextStyle(
+                                  AppTypo.body14B,
+                                  AppColors.grey500,
+                                ),
+                              ),
+                            ),
+                          if (preview.hasEventBonus)
+                            _bonusSourceCapsule(
+                              key: const Key('purchase-confirm-event-bonus'),
+                              label: l10n.purchase_reward_event_short,
+                              amount: formatCandyRewardAmount(
+                                preview.eventBonus,
+                                locale,
+                              ),
+                              emphasized: true,
+                            ),
+                        ],
                       ),
-                    if (preview.hasProductBonus && preview.hasEventBonus)
-                      const SizedBox(height: 6),
-                    if (preview.hasEventBonus)
-                      _provenanceChip(
-                        rowKey: const Key('purchase-confirm-event-bonus'),
-                        label: l10n.purchase_reward_event_bonus,
-                        amount: plus(preview.eventBonus),
-                        emphasized: true,
-                      ),
+                    ),
+                  ],
+                  if (currentWallet != null) ...[
+                    const SizedBox(height: 8),
+                    _balanceProjection(
+                      key: const Key('purchase-confirm-bonus-balance'),
+                      l10n: l10n,
+                      locale: locale,
+                      current: currentWallet!.bonus,
+                      expected:
+                          currentWallet!.bonus +
+                          preview.productBonus +
+                          preview.eventBonus,
+                    ),
                   ],
                 ],
               ),
@@ -434,40 +440,76 @@ class PurchaseConfirmDialog extends StatelessWidget {
     ];
   }
 
-  Widget _provenanceChip({
-    required Key rowKey,
+  Widget _bonusSourceCapsule({
+    required Key key,
     required String label,
     required String amount,
     required bool emphasized,
   }) {
-    final color = emphasized ? kCandyBoostPink : kCandyBoostPurple;
+    final color = emphasized ? kCandyBoostPink : AppColors.grey700;
+    final backgroundColor = emphasized
+        ? kCandyBoostPink.withValues(alpha: .08)
+        : AppColors.grey100;
+    final borderColor = emphasized
+        ? kCandyBoostPink.withValues(alpha: .16)
+        : AppColors.grey300;
     return Container(
-      key: rowKey,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      key: key,
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
-        color: emphasized
-            ? kCandyBoostPink.withValues(alpha: .11)
-            : Colors.white.withValues(alpha: .72),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: .26)),
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(label, style: getTextStyle(AppTypo.caption12B, color)),
-          ),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              amount,
-              textAlign: TextAlign.end,
-              style: getTextStyle(AppTypo.body14B, color),
-            ),
-          ),
-        ],
+      child: Text(
+        '$label $amount',
+        style: getTextStyle(AppTypo.caption12B, color),
       ),
     );
   }
+
+  Widget _balanceProjection({
+    required Key key,
+    required AppLocalizations l10n,
+    required Locale locale,
+    required BigInt current,
+    required BigInt expected,
+  }) => Container(
+    key: key,
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+    decoration: BoxDecoration(
+      color: AppColors.grey100,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
+      child: Row(
+        children: [
+          Text(
+            l10n.purchase_current_balance(
+              formatCandyRewardAmount(current, locale),
+            ),
+            style: getTextStyle(AppTypo.caption12M, AppColors.grey700),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Icon(
+              Icons.arrow_forward_rounded,
+              size: 15,
+              color: AppColors.grey500,
+            ),
+          ),
+          Text(
+            l10n.purchase_expected_balance(
+              formatCandyRewardAmount(expected, locale),
+            ),
+            style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget _productImage(String productId, {required double size}) =>
       buildStarCandyProductImage(

@@ -2446,9 +2446,14 @@
   "candy_boost_late_purchase_explanation": "การยืนยันตัวตนใช้เวลานานกว่าที่คาดไว้ แต่การซื้อเสร็จสมบูรณ์แล้ว",
   "candy_boost_total_multiplier": "โบนัสอีเวนต์ +{multiplier}%",
   "purchase_reward_base": "รางวัลพื้นฐาน",
+  "purchase_reward_base_short": "พื้นฐาน",
+  "purchase_reward_event_short": "อีเวนต์",
   "purchase_reward_product_bonus": "โบนัสพื้นฐาน",
   "purchase_reward_event_bonus": "โบนัสอีเวนต์",
   "purchase_reward_expected_total": "ยอดรวมโดยประมาณ",
+  "purchase_reward_total_short": "รวม",
+  "purchase_current_balance": "ยอดคงเหลือปัจจุบัน {amount}",
+  "purchase_expected_balance": "คาดว่าหลังซื้อ {amount}",
   "purchase_reward_plus_amount": "+{amount}",
   "purchase_reward_estimate_note": "เป็นจำนวนโดยประมาณ จำนวนสุดท้ายจะยืนยันโดยเซิร์ฟเวอร์เมื่อชำระเงินเสร็จสมบูรณ์",
   "candy_reward_receipt_total": "ได้รับรวม {amount}",
@@ -2466,6 +2471,7 @@
     }
   },
   "candy_reward_receipt_balance": "ยอดคงเหลือปัจจุบัน {amount}",
+  "candy_reward_receipt_purchase_balance": "ยอคงเหลือใหม่ {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {

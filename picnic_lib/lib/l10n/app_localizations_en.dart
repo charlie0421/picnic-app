@@ -1956,6 +1956,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchase_reward_base => 'Base reward';
 
   @override
+  String get purchase_reward_base_short => 'Base';
+
+  @override
+  String get purchase_reward_event_short => 'Event';
+
+  @override
   String get purchase_reward_product_bonus => 'Base bonus';
 
   @override
@@ -1963,6 +1969,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchase_reward_expected_total => 'Est. total';
+
+  @override
+  String get purchase_reward_total_short => 'Total';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'Current balance $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'Expected after purchase $amount';
+  }
 
   @override
   String purchase_reward_plus_amount(String amount) {
@@ -2001,6 +2020,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'Current balance $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'New balance $amount';
   }
 
   @override

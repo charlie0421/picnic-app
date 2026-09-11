@@ -2502,9 +2502,14 @@
   "candy_boost_late_purchase_explanation": "Autentikasi memakan waktu lebih lama dari perkiraan, tetapi pembelian berhasil diselesaikan.",
   "candy_boost_total_multiplier": "Bonus event +{multiplier}%",
   "purchase_reward_base": "Hadiah dasar",
+  "purchase_reward_base_short": "Dasar",
+  "purchase_reward_event_short": "Event",
   "purchase_reward_product_bonus": "Bonus dasar",
   "purchase_reward_event_bonus": "Bonus event",
   "purchase_reward_expected_total": "Perkiraan total",
+  "purchase_reward_total_short": "Total",
+  "purchase_current_balance": "Saldo saat ini {amount}",
+  "purchase_expected_balance": "Perkiraan setelah pembelian {amount}",
   "purchase_reward_plus_amount": "+{amount}",
   "purchase_reward_estimate_note": "Ini perkiraan. Jumlah akhir dipastikan oleh server saat pembayaran selesai.",
   "candy_reward_receipt_total": "Total diterima {amount}",
@@ -2522,6 +2527,7 @@
     }
   },
   "candy_reward_receipt_balance": "Saldo saat ini {amount}",
+  "candy_reward_receipt_purchase_balance": "Saldo baru {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {

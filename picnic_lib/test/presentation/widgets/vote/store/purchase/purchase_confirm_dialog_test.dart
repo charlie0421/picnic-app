@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_confirm_dialog.dart';
 
@@ -49,6 +49,16 @@ final storeStar200 = ProductDetails(
   currencyCode: 'USD',
 );
 
+final walletBeforePurchase = WalletSummaryModel(
+  contractVersion: 'wallet.v1',
+  star: BigInt.from(1000),
+  bonus: BigInt.from(500),
+  cotton: BigInt.zero,
+  cottonExpiringAmount: BigInt.zero,
+  cottonNextExpiresAt: null,
+  snapshotAt: DateTime.utc(2026),
+);
+
 void main() {
   bool? confirmed;
 
@@ -64,6 +74,7 @@ void main() {
     List<ProductDetails> storeProducts = const <ProductDetails>[],
     Locale locale = const Locale('ko'),
     TextScaler? textScaler,
+    WalletSummaryModel? currentWallet,
   }) async {
     await tester.pumpWidget(
       buildTestApp(
@@ -76,6 +87,7 @@ void main() {
                   serverProduct: product,
                   storeProducts: storeProducts,
                   displayedPromotion: promotion,
+                  currentWallet: currentWallet,
                 ),
               );
             },
@@ -98,13 +110,49 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('스타캔디'), findsOneWidget);
     expect(find.text('100'), findsOneWidget);
-    expect(find.text('이벤트 보너스'), findsOneWidget);
     expect(find.text('보너스 스타캔디'), findsOneWidget);
-    expect(find.text('+100'), findsNWidgets(2));
+    expect(find.text('합계 100'), findsOneWidget);
+    expect(find.text('이벤트 100'), findsOneWidget);
     expect(find.text('예상 합계'), findsNothing);
     expect(find.text('200'), findsNothing);
     // STAR100 has no catalog bonus, so that row is omitted entirely.
     expect(find.text('기본 보너스'), findsNothing);
+  });
+
+  testWidgets('shows current and expected post-purchase balances per wallet', (
+    tester,
+  ) async {
+    await openConfirmation(
+      tester,
+      product: star200,
+      promotion: doubleCampaign,
+      currentWallet: walletBeforePurchase,
+    );
+
+    expect(find.text('현재 잔액 1,000'), findsOneWidget);
+    expect(find.text('구매 후 예상 1,200'), findsOneWidget);
+    expect(find.text('현재 잔액 500'), findsOneWidget);
+    expect(find.text('구매 후 예상 750'), findsOneWidget);
+
+    for (final key in const [
+      Key('purchase-confirm-star-balance'),
+      Key('purchase-confirm-bonus-balance'),
+    ]) {
+      final projection = find.descendant(
+        of: find.byKey(key),
+        matching: find.byType(FittedBox),
+      );
+      expect(
+        tester.widget<FittedBox>(projection).alignment,
+        AlignmentDirectional.centerStart,
+      );
+    }
+
+    final starAmountRight = tester.getTopRight(find.text('200')).dx;
+    final bonusAmountRight = tester
+        .getTopRight(find.byKey(const Key('purchase-confirm-bonus-total')))
+        .dx;
+    expect(starAmountRight, closeTo(bonusAmountRight, 0.5));
   });
 
   testWidgets('splits catalog bonus from event bonus for STAR200', (
@@ -118,25 +166,34 @@ void main() {
     await openConfirmation(tester, product: star200, promotion: doubleCampaign);
 
     expect(find.text('200'), findsOneWidget);
-    expect(find.text('기본 보너스'), findsOneWidget);
-    expect(find.text('+25'), findsOneWidget);
-    expect(find.text('이벤트 보너스'), findsOneWidget);
-    expect(find.text('+225'), findsOneWidget);
+    expect(find.text('기본 25'), findsOneWidget);
+    expect(find.text('이벤트 225'), findsOneWidget);
     expect(find.text('보너스 스타캔디'), findsOneWidget);
-    expect(find.text('+250'), findsOneWidget);
+    expect(find.text('합계 250'), findsOneWidget);
     expect(find.text('450'), findsNothing);
-    final bonusLabel = tester.renderObject<RenderParagraph>(
-      find.text('보너스 스타캔디'),
+    final baseCapsule = tester.widget<Container>(
+      find.byKey(const Key('purchase-confirm-product-bonus')),
     );
-    final bonusLabelBoxes = bonusLabel.getBoxesForSelection(
-      const TextSelection(baseOffset: 0, extentOffset: 8),
+    final eventCapsule = tester.widget<Container>(
+      find.byKey(const Key('purchase-confirm-event-bonus')),
     );
+    final baseDecoration = baseCapsule.decoration! as BoxDecoration;
+    final eventDecoration = eventCapsule.decoration! as BoxDecoration;
+    expect(baseCapsule.padding, eventCapsule.padding);
+    expect(baseDecoration.borderRadius, eventDecoration.borderRadius);
+    expect(baseDecoration.border, isA<Border>());
+    expect(eventDecoration.border, isA<Border>());
     expect(
-      bonusLabelBoxes.map((box) => box.top).toSet(),
-      hasLength(1),
-      reason: 'the normal-width Korean wallet label should stay readable',
+      (baseDecoration.border! as Border).top.width,
+      (eventDecoration.border! as Border).top.width,
     );
     expect(find.byKey(const Key('purchase-confirm-hero')), findsOneWidget);
+    final hero = tester.widget<Container>(
+      find.byKey(const Key('purchase-confirm-hero')),
+    );
+    final heroDecoration = hero.decoration! as BoxDecoration;
+    expect(heroDecoration.gradient, isNull);
+    expect(heroDecoration.boxShadow, isNull);
     expect(
       find.byKey(const Key('purchase-confirm-star-candy-panel')),
       findsOneWidget,
@@ -145,6 +202,12 @@ void main() {
       find.byKey(const Key('purchase-confirm-bonus-benefit-panel')),
       findsOneWidget,
     );
+    final bonusPanel = tester.widget<Container>(
+      find.byKey(const Key('purchase-confirm-bonus-benefit-panel')),
+    );
+    final bonusDecoration = bonusPanel.decoration! as BoxDecoration;
+    expect(bonusDecoration.gradient, isNull);
+    expect(bonusDecoration.boxShadow, isNull);
     expect(find.byKey(const Key('purchase-confirm-cta')), findsOneWidget);
     expect(
       tester.getSize(find.byKey(const Key('purchase-confirm-cta'))).height,
@@ -158,7 +221,7 @@ void main() {
     await openConfirmation(tester, product: star200, promotion: doubleCampaign);
 
     expect(
-      find.byKey(const Key('purchase-confirm-estimate-note')),
+      find.byKey(const Key('purchase-confirm-estimate-info')),
       findsOneWidget,
     );
   });
@@ -174,7 +237,7 @@ void main() {
 
     expect(find.byKey(const Key('purchase-confirm-hero')), findsOneWidget);
     expect(find.text('캔디 부스트 데이'), findsOneWidget);
-    expect(find.text('+33'), findsOneWidget);
+    expect(find.text('이벤트 33'), findsOneWidget);
   });
 
   testWidgets('shows no event row and no pill without a campaign', (
@@ -186,7 +249,12 @@ void main() {
     expect(find.byKey(const Key('purchase-confirm-event-bonus')), findsNothing);
     expect(find.text('총 2배'), findsNothing);
     expect(find.text('보너스 스타캔디'), findsOneWidget);
-    expect(find.text('+25'), findsNWidgets(2));
+    expect(find.text('합계 25'), findsNothing);
+    expect(
+      find.byKey(const Key('purchase-confirm-product-bonus')),
+      findsNothing,
+    );
+    expect(find.text('25'), findsOneWidget);
     expect(find.text('225'), findsNothing);
   });
 
@@ -229,7 +297,7 @@ void main() {
     expect(tester.takeException(), isNull);
     // The breakdown is reachable by scrolling the dialog body...
     await tester.scrollUntilVisible(find.text('보너스 스타캔디'), 60);
-    expect(find.text('+250'), findsOneWidget);
+    expect(find.text('합계 250'), findsOneWidget);
     expect(find.text('450'), findsNothing);
     // ...and the decision buttons never scroll away with it.
     await tester.tap(find.text('구매'));

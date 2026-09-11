@@ -1878,6 +1878,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get purchase_reward_base => '基本付与';
 
   @override
+  String get purchase_reward_base_short => '基本';
+
+  @override
+  String get purchase_reward_event_short => 'イベント';
+
+  @override
   String get purchase_reward_product_bonus => '基本ボーナス';
 
   @override
@@ -1885,6 +1891,19 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get purchase_reward_expected_total => '予想合計';
+
+  @override
+  String get purchase_reward_total_short => '合計';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '現在の残高 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '購入後の予想 $amount';
+  }
 
   @override
   String purchase_reward_plus_amount(String amount) {
@@ -1923,6 +1942,11 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '現在の保有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '購入後の保有 $amount';
   }
 
   @override

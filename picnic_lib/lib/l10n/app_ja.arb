@@ -2502,9 +2502,14 @@
   "candy_boost_late_purchase_explanation": "認証に時間がかかりましたが、購入は正常に完了しました。",
   "candy_boost_total_multiplier": "イベントボーナス +{multiplier}%",
   "purchase_reward_base": "基本付与",
+  "purchase_reward_base_short": "基本",
+  "purchase_reward_event_short": "イベント",
   "purchase_reward_product_bonus": "基本ボーナス",
   "purchase_reward_event_bonus": "イベントボーナス",
   "purchase_reward_expected_total": "予想合計",
+  "purchase_reward_total_short": "合計",
+  "purchase_current_balance": "現在の残高 {amount}",
+  "purchase_expected_balance": "購入後の予想 {amount}",
   "purchase_reward_plus_amount": "+{amount}",
   "purchase_reward_estimate_note": "予想数量です。最終的な付与数量は決済完了時にサーバー基準で確定します。",
   "candy_reward_receipt_total": "合計{amount}獲得",
@@ -2522,6 +2527,7 @@
     }
   },
   "candy_reward_receipt_balance": "現在の保有 {amount}",
+  "candy_reward_receipt_purchase_balance": "購入後の保有 {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {

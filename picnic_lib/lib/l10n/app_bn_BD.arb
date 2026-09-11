@@ -2446,9 +2446,14 @@
   "candy_boost_late_purchase_explanation": "প্রত্যাশার চেয়ে যাচাইকরণে বেশি সময় লেগেছে, তবে ক্রয়টি সফলভাবে সম্পন্ন হয়েছে।",
   "candy_boost_total_multiplier": "ইভেন্ট বোনাস +{multiplier}%",
   "purchase_reward_base": "মূল পুরস্কার",
+  "purchase_reward_base_short": "মূল",
+  "purchase_reward_event_short": "ইভেন্ট",
   "purchase_reward_product_bonus": "মূল বোনাস",
   "purchase_reward_event_bonus": "ইভেন্ট বোনাস",
   "purchase_reward_expected_total": "আনুমানিক মোট",
+  "purchase_reward_total_short": "মোট",
+  "purchase_current_balance": "বর্তমান ব্যালেন্স {amount}",
+  "purchase_expected_balance": "ক্রয়ের পর প্রত্যাশিত {amount}",
   "purchase_reward_plus_amount": "+{amount}",
   "purchase_reward_estimate_note": "এটি একটি আনুমানিক পরিমাণ। পেমেন্ট সম্পন্ন হলে সার্ভার চূড়ান্ত পরিমাণ নিশ্চিত করবে।",
   "candy_reward_receipt_total": "মোট প্রাপ্ত {amount}",
@@ -2466,6 +2471,7 @@
     }
   },
   "candy_reward_receipt_balance": "বর্তমান ব্যালেন্স {amount}",
+  "candy_reward_receipt_purchase_balance": "নতুন ব্যালেন্স {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {

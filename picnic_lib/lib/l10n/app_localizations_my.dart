@@ -1970,6 +1970,12 @@ class AppLocalizationsMy extends AppLocalizations {
   String get purchase_reward_base => 'အခြေခံဆုလာဘ်';
 
   @override
+  String get purchase_reward_base_short => 'အခြေခံ';
+
+  @override
+  String get purchase_reward_event_short => 'အီဗင့်';
+
+  @override
   String get purchase_reward_product_bonus => 'အခြေခံ ဘောနပ်စ်';
 
   @override
@@ -1977,6 +1983,19 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get purchase_reward_expected_total => 'ခန့်မှန်း စုစုပေါင်း';
+
+  @override
+  String get purchase_reward_total_short => 'စုစုပေါင်း';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'လက်ရှိလက်ကျန် $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'ဝယ်ယူပြီး ခန့်မှန်း $amount';
+  }
 
   @override
   String purchase_reward_plus_amount(String amount) {
@@ -2015,6 +2034,11 @@ class AppLocalizationsMy extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'လက်ရှိလက်ကျန် $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'လက်ကျန်အသစ် $amount';
   }
 
   @override

@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provi
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_confirm_dialog.dart';
@@ -143,6 +144,7 @@ class PurchaseDialogHandler implements PurchaseReceiptDialogs {
     required Map<String, dynamic> serverProduct,
     required List<ProductDetails> storeProducts,
     required ResolvedPaymentBadgePromotion? displayedPromotion,
+    WalletSummaryModel? currentWallet,
   }) async {
     return await showDialog<bool>(
       context: _context,
@@ -151,6 +153,7 @@ class PurchaseDialogHandler implements PurchaseReceiptDialogs {
         serverProduct: serverProduct,
         storeProducts: storeProducts,
         displayedPromotion: displayedPromotion,
+        currentWallet: currentWallet,
       ),
     );
   }
