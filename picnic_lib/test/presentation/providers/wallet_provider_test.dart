@@ -2311,6 +2311,11 @@ void main() {
       await container.read(walletSummaryProvider.future);
 
       applyWallet(_summary(99, snapshotAt: DateTime.utc(2026, 7, 22)));
+      // A session-rotated write is decided a turn later, so the queue has to be
+      // drained before asking - otherwise the assertion passes simply because
+      // nothing has been written yet.
+      await _flush();
+      await _flush();
 
       expect(
         container.read(walletSummaryProvider).value!.cotton,
@@ -2414,6 +2419,96 @@ void main() {
             'the explicit re-read started after the settlement was queued and '
             'answered from the server; a settlement waiting on a later turn '
             'must not roll the balance back over it',
+      );
+    });
+
+    // A refresh that failed answered nothing. It keeps the balance already on
+    // screen, which is the *pre-settlement* one, so treating it as the newer
+    // answer throws away candy the server has already granted - and nothing
+    // else is coming to put it back.
+    // The same undelivered-event window, reached by signing out and back in as
+    // the same person. The id matches at both ends just like the round trip,
+    // and nothing the listener drives has moved yet.
+    test(
+      'a sign-out and back in before the events are delivered is rejected',
+      () async {
+        final repository = _ScriptedWalletRepository([
+          () async => _summary(10),
+          for (var i = 0; i < 6; i++) () async => _summary(20 + i),
+        ]);
+        final gateway = _AsyncAuthGateway('owner-a');
+        final container = ProviderContainer(
+          overrides: [
+            walletRepositoryProvider.overrideWithValue(repository),
+            walletAuthGatewayProvider.overrideWithValue(gateway),
+          ],
+        );
+        addTearDown(container.dispose);
+        addTearDown(gateway.close);
+        container.listen(walletSummaryProvider, (previous, next) {});
+
+        final applyWallet = ContainerWalletSummaryApplier.forContainer(
+          container,
+        );
+        expect(
+          (await container.read(walletSummaryProvider.future)).cotton,
+          BigInt.from(10),
+        );
+
+        gateway.change(null, event: AuthChangeEvent.signedOut);
+        gateway.change('owner-a');
+
+        applyWallet(_summary(99, snapshotAt: DateTime.utc(2099)));
+
+        expect(
+          container.read(walletSummaryProvider).value!.cotton,
+          BigInt.from(10),
+        );
+        await _flush();
+        await _flush();
+        expect(
+          container.read(walletSummaryProvider).value?.cotton,
+          isNot(BigInt.from(99)),
+          reason:
+              'the session that started this settlement ended at sign-out, even '
+              'though the same person signed back in',
+        );
+      },
+    );
+
+    test('a failed re-read does not discard the settlement it raced', () async {
+      final repository = _ScriptedWalletRepository([
+        () async => _summary(10),
+        () async => throw Exception('network went away'),
+      ]);
+      final gateway = _AsyncAuthGateway('owner-a');
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(gateway),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(gateway.close);
+      container.listen(walletSummaryProvider, (previous, next) {});
+
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      await container.read(walletSummaryProvider.future);
+
+      gateway.refreshToken('owner-a');
+      await _flush();
+
+      applyWallet(_summary(88, snapshotAt: DateTime.utc(2026, 7, 25)));
+      await container.read(walletSummaryProvider.notifier).refresh();
+      await _flush();
+
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.from(88),
+        reason:
+            'the candy was granted server-side; a re-read that never answered '
+            'is not a newer answer, and dropping the settlement behind it '
+            'leaves the balance stale with nothing left to correct it',
       );
     });
 

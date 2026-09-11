@@ -196,7 +196,10 @@ class WalletSummary extends _$WalletSummary {
   /// 올리면 그것이 곧 재조회 루프다.
   int _authEpoch = 0;
 
-  /// 지금까지 **명시적 재조회**([refresh])가 상태를 정한 횟수.
+  /// 지금까지 **명시적 재조회**([refresh])가 서버 답으로 상태를 정한 횟수.
+  ///
+  /// 실패한 재조회는 세지 않는다. 그것은 답이 아니라 기존 값을 지킨 것뿐이고,
+  /// 그 값은 아직 정산 이전 잔액이다.
   ///
   /// 재조회는 snapshot 순서 규칙을 거치지 않는다 - 서버에 직접 물은 값이라
   /// 그 자체가 가장 최신이라는 것이 기존 계약이다. 그런데 세션이 교체된
@@ -414,12 +417,15 @@ class WalletSummary extends _$WalletSummary {
             error: error,
             stackTrace: stackTrace,
           );
-          _reReads++;
+          // 실패한 재조회는 **아무것도 답하지 않았다**. 화면에 남겨 두는 값은
+          // 정산 이전의 잔액이므로, 이것을 더 최신 답으로 세면 뒤따르던 정산이
+          // 버려지고 이미 지급된 별사탕이 영영 표시되지 않는다.
           state = AsyncData(keep);
           return;
         }
       }
-      _reReads++;
+      // 서버가 실제로 답했을 때만 센다. 오류로 끝난 재조회도 답이 아니다.
+      if (next is AsyncData<WalletSummaryModel>) _reReads++;
       state = next;
       return;
     }
