@@ -296,6 +296,58 @@ void main() {
     expect(repository.acknowledged, [reference]);
   });
 
+  // The wallet write sits behind the same owner check as the receipt, and it
+  // has to: the pouch is shared app state, so writing owner A's settled
+  // balance while owner B is signed in shows B a balance that is not theirs.
+  //
+  // The switch has to land *after* the reward is queued, which is the only way
+  // to reach this guard - `poll()` already refuses a reward whose owner is not
+  // signed in, so a reward that was foreign from the start never gets this far.
+  // (PICNIC-2664: the purchase and shortform paths needed an explicit owner
+  // token for this; here the reward carries its own `ownerUserId`, which is
+  // stronger, and this test is what keeps that true.)
+  testWidgets('an account switch before the popup never writes the pouch', (
+    tester,
+  ) async {
+    var signedIn = 'user-a';
+    final repository = _Repository();
+    final store = PendingAdRewardStore(_MemoryStorage());
+    final container = ProviderContainer(
+      overrides: [
+        adRewardRepositoryProvider.overrideWithValue(repository),
+        pendingAdRewardStoreProvider.overrideWithValue(store),
+        adRewardOwnerReaderProvider.overrideWithValue(() => signedIn),
+        adRewardDelayProvider.overrideWithValue((_) async {}),
+        adRewardEarnRecorderProvider.overrideWithValue((_) async => true),
+        walletSummaryProvider.overrideWithBuild(
+          (ref, notifier) => Completer<WalletSummaryModel>().future,
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    container.read(walletSummaryProvider);
+    await store.add('user-a', reference);
+    final recovery = container
+        .read(adRewardRecoveryProvider.notifier)
+        .poll(ownerUserId: 'user-a', reference: reference);
+    repository.statusCompleter.complete(granted());
+    await recovery;
+
+    // user-a's reward is queued and settled. Now the account changes.
+    signedIn = 'user-b';
+
+    await tester.pumpWidget(app(container));
+    await tester.pump();
+    await tester.pump();
+
+    expect(
+      container.read(walletSummaryProvider).value,
+      isNull,
+      reason: 'user-a watched this ad; user-b is the one looking at the pouch',
+    );
+    expect(find.text('Candy added!'), findsNothing);
+  });
+
   testWidgets('granted reward renders receipt and acknowledges once', (
     tester,
   ) async {

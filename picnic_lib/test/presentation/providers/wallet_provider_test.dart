@@ -8,6 +8,7 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/data/repositories/wallet_repository.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/wallet_summary_applier.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -237,13 +238,13 @@ class _MutableAuthGateway implements WalletAuthGateway {
   _MutableAuthGateway(String userId) : _session = _FakeSession(userId);
 
   final _changes = StreamController<AuthState>.broadcast(sync: true);
-  Session _session;
+  Session? _session;
 
   @override
   bool get isEnabled => true;
 
   @override
-  Session get currentSession => _session;
+  Session? get currentSession => _session;
 
   @override
   Stream<AuthState> get authStateChanges => _changes.stream;
@@ -253,8 +254,14 @@ class _MutableAuthGateway implements WalletAuthGateway {
   void emitError(Object error) => _changes.addError(error, StackTrace.current);
 
   void signIn(String userId) {
-    _session = _FakeSession(userId);
-    _changes.add(AuthState(AuthChangeEvent.signedIn, _session));
+    final session = _FakeSession(userId);
+    _session = session;
+    _changes.add(AuthState(AuthChangeEvent.signedIn, session));
+  }
+
+  void signOut() {
+    _session = null;
+    _changes.add(const AuthState(AuthChangeEvent.signedOut, null));
   }
 
   Future<void> close() => _changes.close();
@@ -1578,48 +1585,51 @@ void main() {
     // Rejecting it matters just as much: the failure path deliberately restores
     // "the last balance we know of", and after the round trip that balance
     // belongs to a session that is no longer the one on screen.
-    test('a round trip to the same account rejects that read\'s failure', () async {
-      final gateway = _MutableHistoryAuth('owner-a');
-      addTearDown(gateway.changes.close);
-      final stale = Completer<WalletSummaryModel>();
-      final failure = Exception('network went away mid-switch');
-      void roundTrip() {
-        gateway.change('owner-b');
-        gateway.change('owner-a');
-      }
+    test(
+      'a round trip to the same account rejects that read\'s failure',
+      () async {
+        final gateway = _MutableHistoryAuth('owner-a');
+        addTearDown(gateway.changes.close);
+        final stale = Completer<WalletSummaryModel>();
+        final failure = Exception('network went away mid-switch');
+        void roundTrip() {
+          gateway.change('owner-b');
+          gateway.change('owner-a');
+        }
 
-      final repository = _ScriptedWalletRepository([
-        () async => _summary(30),
-        () => _settling(stale.future, roundTrip),
-        () async => _summary(77),
-      ]);
-      final container = sessionAwareContainer(gateway, repository);
-      await container.read(walletSummaryProvider.future);
+        final repository = _ScriptedWalletRepository([
+          () async => _summary(30),
+          () => _settling(stale.future, roundTrip),
+          () async => _summary(77),
+        ]);
+        final container = sessionAwareContainer(gateway, repository);
+        await container.read(walletSummaryProvider.future);
 
-      final logged = <LogEvent>[];
-      void logListener(LogEvent event) => logged.add(event);
-      Logger.addLogListener(logListener);
-      addTearDown(() => Logger.removeLogListener(logListener));
+        final logged = <LogEvent>[];
+        void logListener(LogEvent event) => logged.add(event);
+        Logger.addLogListener(logListener);
+        addTearDown(() => Logger.removeLogListener(logListener));
 
-      unawaited(container.read(walletSummaryProvider.notifier).refresh());
-      await _flush();
+        unawaited(container.read(walletSummaryProvider.notifier).refresh());
+        await _flush();
 
-      stale.completeError(failure, StackTrace.current);
-      await _flush();
-      await container.read(walletSummaryProvider.future);
+        stale.completeError(failure, StackTrace.current);
+        await _flush();
+        await container.read(walletSummaryProvider.future);
 
-      expect(
-        logged.where((event) => identical(event.error, failure)),
-        isEmpty,
-        reason:
-            'a read the current session did not start must not decide what the '
-            'pouch falls back to, successfully or otherwise',
-      );
-      expect(
-        container.read(walletSummaryProvider).value!.cotton,
-        BigInt.from(77),
-      );
-    });
+        expect(
+          logged.where((event) => identical(event.error, failure)),
+          isEmpty,
+          reason:
+              'a read the current session did not start must not decide what the '
+              'pouch falls back to, successfully or otherwise',
+        );
+        expect(
+          container.read(walletSummaryProvider).value!.cotton,
+          BigInt.from(77),
+        );
+      },
+    );
 
     // The session wait is bounded, but it is still up to
     // `kWalletSessionRestoreTimeout` long, and the user can leave the screen
@@ -1738,10 +1748,7 @@ void main() {
         isNot(contains(BigInt.from(11))),
         reason: "owner A's balance must never surface on a signed-out screen",
       );
-      expect(
-        container.read(walletSummaryProvider).value!.cotton,
-        BigInt.zero,
-      );
+      expect(container.read(walletSummaryProvider).value!.cotton, BigInt.zero);
       expect(repository.readOwners, ['owner-a']);
     });
 
@@ -2106,11 +2113,12 @@ void main() {
         await container.read(walletSummaryProvider.future);
         final notifier = container.read(walletSummaryProvider.notifier);
 
-        notifier.setSummary(ad);
+        notifier.setSummary(ad, owner: notifier.captureOwner());
         // The purchase's receipt verification started before the ad and finished
         // after it, so its snapshot predates the reward.
         notifier.setSummary(
           _summary(10, snapshotAt: DateTime.utc(2026, 7, 21, 12, 0, 5)),
+          owner: notifier.captureOwner(),
         );
 
         expect(
@@ -2131,12 +2139,13 @@ void main() {
 
       notifier.setSummary(
         _summary(30, snapshotAt: DateTime.utc(2026, 7, 21, 12, 0, 5)),
+        owner: notifier.captureOwner(),
       );
       final purchase = _summary(
         40,
         snapshotAt: DateTime.utc(2026, 7, 21, 12, 0, 10),
       );
-      notifier.setSummary(purchase);
+      notifier.setSummary(purchase, owner: notifier.captureOwner());
 
       expect(container.read(walletSummaryProvider).value, same(purchase));
     });
@@ -2149,9 +2158,12 @@ void main() {
         await container.read(walletSummaryProvider.future);
         final notifier = container.read(walletSummaryProvider.notifier);
 
-        notifier.setSummary(_summary(30, snapshotAt: stamp));
+        notifier.setSummary(
+          _summary(30, snapshotAt: stamp),
+          owner: notifier.captureOwner(),
+        );
         final second = _summary(40, snapshotAt: stamp);
-        notifier.setSummary(second);
+        notifier.setSummary(second, owner: notifier.captureOwner());
 
         expect(
           container.read(walletSummaryProvider).value,
@@ -2176,9 +2188,357 @@ void main() {
       addTearDown(container.dispose);
 
       final settled = _summary(10, snapshotAt: DateTime.utc(2020));
-      container.read(walletSummaryProvider.notifier).setSummary(settled);
+      final notifier = container.read(walletSummaryProvider.notifier);
+      notifier.setSummary(settled, owner: notifier.captureOwner());
 
       expect(container.read(walletSummaryProvider).value, same(settled));
+    });
+  });
+
+  group('a settlement carries the account it was started for', () {
+    ProviderContainer ownedContainer(
+      _ScriptedWalletRepository repository,
+      WalletAuthGateway gateway,
+    ) {
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(gateway),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.listen(walletSummaryProvider, (previous, next) {});
+      return container;
+    }
+
+    // The purchase adapter is captured while the store is mounted and is
+    // *designed* to outlive the route, because the candy is granted the moment
+    // the receipt verifies. Nothing about that capture says which account
+    // started the purchase, so an account switch does not stop it.
+    test('a verified purchase from owner A never lands on owner B', () async {
+      final repository = _ScriptedWalletRepository([
+        () async => _summary(10),
+        () async => _summary(20),
+      ]);
+      final gateway = _MutableAuthGateway('owner-a');
+      final container = ownedContainer(repository, gateway);
+      addTearDown(gateway.close);
+
+      // Captured in the store's initState, under owner A.
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      expect(
+        (await container.read(walletSummaryProvider.future)).cotton,
+        BigInt.from(10),
+      );
+
+      gateway.signIn('owner-b');
+      expect(
+        (await container.read(walletSummaryProvider.future)).cotton,
+        BigInt.from(20),
+      );
+
+      // A's receipt verification finally answers. Its snapshot is newer, so
+      // the snapshotAt ordering rule waves it through.
+      applyWallet(_summary(99, snapshotAt: DateTime.utc(2026, 7, 22)));
+
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.from(20),
+        reason:
+            'the response was started by owner A; showing it to owner B puts '
+            'another account\'s balance on this screen',
+      );
+    });
+
+    // The failure mode the guard itself can cause. A settlement takes as long
+    // as the network takes, and gotrue swaps in a brand new `Session` object
+    // every time it refreshes the token - same account, different instance.
+    // Judging ownership by instance identity (the way the *read* path must)
+    // would throw away a settlement that is genuinely this user's, and the
+    // candy would never appear.
+    test('a token refresh mid-settlement still applies', () async {
+      final repository = _ScriptedWalletRepository([() async => _summary(10)]);
+      final gateway = _MutableAuthGateway('owner-a');
+      final container = ownedContainer(repository, gateway);
+      addTearDown(gateway.close);
+
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      await container.read(walletSummaryProvider.future);
+
+      // Same account, new Session instance - a refresh, not a switch.
+      gateway.signIn('owner-a');
+      await _flush();
+
+      applyWallet(_summary(40, snapshotAt: DateTime.utc(2026, 7, 22)));
+      // 세션 인스턴스가 갈린 쓰기는 한 턴 뒤에 판정된다. 그 한 턴이 토큰 갱신과
+      // 아직 전달되지 않은 계정 왕복을 가르는 auth 이벤트를 흘려보낸다.
+      await _flush();
+
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.from(40),
+        reason:
+            'the purchase belongs to this account; a token refresh in the '
+            'middle of it is not an account change',
+      );
+      expect(
+        repository.summaryCalls,
+        1,
+        reason: 'a same-account refresh must not re-read either',
+      );
+    });
+
+    // A -> B -> A. The user id at the end is the one the settlement started
+    // under, so comparing ids alone waves it through - but B held the screen in
+    // between and the balance A came back with is stale for the session that is
+    // running now.
+    test('a round trip to the same account rejects the settlement', () async {
+      final repository = _ScriptedWalletRepository([
+        () async => _summary(10),
+        () async => _summary(20),
+        () async => _summary(30),
+      ]);
+      final gateway = _MutableAuthGateway('owner-a');
+      final container = ownedContainer(repository, gateway);
+      addTearDown(gateway.close);
+
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      await container.read(walletSummaryProvider.future);
+
+      gateway.signIn('owner-b');
+      await container.read(walletSummaryProvider.future);
+      gateway.signIn('owner-a');
+      await container.read(walletSummaryProvider.future);
+
+      applyWallet(_summary(99, snapshotAt: DateTime.utc(2026, 7, 22)));
+      // A session-rotated write is decided a turn later, so the queue has to be
+      // drained before asking - otherwise the assertion passes simply because
+      // nothing has been written yet.
+      await _flush();
+      await _flush();
+
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.from(30),
+        reason:
+            'the ids match at both ends, so only the count of observed '
+            'switches can tell this settlement is from a session that ended',
+      );
+    });
+
+    // The window the *read* path already guards, applied to a write. gotrue
+    // swaps `currentSession` in the mutating turn and only queues the event, so
+    // A -> B -> A can complete with no listener having run: the owner id is
+    // back to A and the epoch the listener increments has not moved. Nothing
+    // event-driven has changed at that instant - only the session instance has.
+    test('a round trip completed before its auth events are delivered is '
+        'rejected', () async {
+      final repository = _ScriptedWalletRepository([
+        () async => _summary(10),
+        for (var i = 0; i < 6; i++) () async => _summary(20 + i),
+      ]);
+      final gateway = _AsyncAuthGateway('owner-a');
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(gateway),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(gateway.close);
+      container.listen(walletSummaryProvider, (previous, next) {});
+
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      expect(
+        (await container.read(walletSummaryProvider.future)).cotton,
+        BigInt.from(10),
+      );
+
+      // Both transitions land in the subject; neither listener has run yet.
+      gateway.change('owner-b');
+      gateway.change('owner-a');
+
+      applyWallet(_summary(99, snapshotAt: DateTime.utc(2099)));
+
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.from(10),
+        reason:
+            'owner B held the session in between; the settlement A started '
+            'describes a balance from a session that has ended',
+      );
+
+      // Dropping it a turn later is the same bug with a delay, so the queue has
+      // to be drained and the balance asked again.
+      await _flush();
+      await _flush();
+      expect(
+        container.read(walletSummaryProvider).value?.cotton,
+        isNot(BigInt.from(99)),
+        reason: 'the stale settlement must not surface on a later turn either',
+      );
+    });
+
+    // `refresh` is the explicit re-read and deliberately does not go through
+    // the snapshot ordering rule - it is the newest thing there is. A deferred
+    // settlement must not undo one that finished after it was scheduled.
+    test('a re-read that finishes first is not undone by a deferred '
+        'settlement', () async {
+      final repository = _ScriptedWalletRepository([
+        () async => _summary(10),
+        () async => _summary(70, snapshotAt: DateTime.utc(2026, 7, 25)),
+      ]);
+      final gateway = _AsyncAuthGateway('owner-a');
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(gateway),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(gateway.close);
+      container.listen(walletSummaryProvider, (previous, next) {});
+
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      await container.read(walletSummaryProvider.future);
+
+      // Same account, new Session instance, events drained: the settlement is
+      // this user's and is allowed - only its application is deferred.
+      gateway.refreshToken('owner-a');
+      await _flush();
+
+      applyWallet(_summary(99, snapshotAt: DateTime.utc(2099)));
+      final reread = container.read(walletSummaryProvider.notifier).refresh();
+      await reread;
+      await _flush();
+
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.from(70),
+        reason:
+            'the explicit re-read started after the settlement was queued and '
+            'answered from the server; a settlement waiting on a later turn '
+            'must not roll the balance back over it',
+      );
+    });
+
+    // A refresh that failed answered nothing. It keeps the balance already on
+    // screen, which is the *pre-settlement* one, so treating it as the newer
+    // answer throws away candy the server has already granted - and nothing
+    // else is coming to put it back.
+    // The same undelivered-event window, reached by signing out and back in as
+    // the same person. The id matches at both ends just like the round trip,
+    // and nothing the listener drives has moved yet.
+    test(
+      'a sign-out and back in before the events are delivered is rejected',
+      () async {
+        final repository = _ScriptedWalletRepository([
+          () async => _summary(10),
+          for (var i = 0; i < 6; i++) () async => _summary(20 + i),
+        ]);
+        final gateway = _AsyncAuthGateway('owner-a');
+        final container = ProviderContainer(
+          overrides: [
+            walletRepositoryProvider.overrideWithValue(repository),
+            walletAuthGatewayProvider.overrideWithValue(gateway),
+          ],
+        );
+        addTearDown(container.dispose);
+        addTearDown(gateway.close);
+        container.listen(walletSummaryProvider, (previous, next) {});
+
+        final applyWallet = ContainerWalletSummaryApplier.forContainer(
+          container,
+        );
+        expect(
+          (await container.read(walletSummaryProvider.future)).cotton,
+          BigInt.from(10),
+        );
+
+        gateway.change(null, event: AuthChangeEvent.signedOut);
+        gateway.change('owner-a');
+
+        applyWallet(_summary(99, snapshotAt: DateTime.utc(2099)));
+
+        expect(
+          container.read(walletSummaryProvider).value!.cotton,
+          BigInt.from(10),
+        );
+        await _flush();
+        await _flush();
+        expect(
+          container.read(walletSummaryProvider).value?.cotton,
+          isNot(BigInt.from(99)),
+          reason:
+              'the session that started this settlement ended at sign-out, even '
+              'though the same person signed back in',
+        );
+      },
+    );
+
+    test('a failed re-read does not discard the settlement it raced', () async {
+      final repository = _ScriptedWalletRepository([
+        () async => _summary(10),
+        () async => throw Exception('network went away'),
+      ]);
+      final gateway = _AsyncAuthGateway('owner-a');
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(gateway),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(gateway.close);
+      container.listen(walletSummaryProvider, (previous, next) {});
+
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      await container.read(walletSummaryProvider.future);
+
+      gateway.refreshToken('owner-a');
+      await _flush();
+
+      applyWallet(_summary(88, snapshotAt: DateTime.utc(2026, 7, 25)));
+      await container.read(walletSummaryProvider.notifier).refresh();
+      await _flush();
+
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.from(88),
+        reason:
+            'the candy was granted server-side; a re-read that never answered '
+            'is not a newer answer, and dropping the settlement behind it '
+            'leaves the balance stale with nothing left to correct it',
+      );
+    });
+
+    test('a settlement that arrives after sign-out never lands', () async {
+      final repository = _ScriptedWalletRepository([
+        () async => _summary(10),
+        () async => _summary(0),
+      ]);
+      final gateway = _MutableAuthGateway('owner-a');
+      final container = ownedContainer(repository, gateway);
+      addTearDown(gateway.close);
+
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      await container.read(walletSummaryProvider.future);
+
+      gateway.signOut();
+      await container.read(walletSummaryProvider.future);
+
+      // Stamped past the signed-out snapshot on purpose. The snapshotAt rule
+      // must not be what rejects this - otherwise the test would pass with no
+      // ownership check at all, which is exactly the bug under repair.
+      applyWallet(_summary(99, snapshotAt: DateTime.utc(2099)));
+
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.zero,
+        reason:
+            'nobody is signed in; a balance from the account that just left '
+            'must not be what the pouch shows',
+      );
     });
   });
 }

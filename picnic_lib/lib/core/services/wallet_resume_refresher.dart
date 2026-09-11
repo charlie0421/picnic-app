@@ -190,7 +190,11 @@ final walletResumeRefresherProvider = Provider<WalletResumeRefresher>((ref) {
         ref.exists(walletSummaryProvider) &&
         ref.read(walletSummaryProvider).hasValue,
     readSummary: () => ref.read(walletRepositoryProvider).getSummary(),
-    applySummary: (summary) =>
-        ref.read(walletSummaryProvider.notifier).setSummary(summary),
+    // 소유권은 [WalletResumeRefresher] 가 읽기를 시작할 때 잡은 userId/generation
+    // 으로 이미 확인했고([_isCurrent]), 이 콜백은 그 검사를 통과한 뒤에만 불린다.
+    applySummary: (summary) {
+      final notifier = ref.read(walletSummaryProvider.notifier);
+      notifier.setSummary(summary, owner: notifier.captureOwner());
+    },
   );
 });

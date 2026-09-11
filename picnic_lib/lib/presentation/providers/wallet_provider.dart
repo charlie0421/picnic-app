@@ -132,6 +132,36 @@ final class _ReadIdentity {
   final Session? session;
 }
 
+/// 지갑 쓰기를 **시작한** 계정. [WalletSummary.captureOwner] 로만 만들어진다.
+///
+/// 왜 값이 아니라 타입인지: 정산 응답([WalletSummaryModel])에는 소유자가 없다.
+/// 서버 계약이 `wallet.v1` 이고 거기에 사용자 ID 가 없기 때문이다. 그래서 응답이
+/// 도착한 뒤에 provider 가 "이건 누구 것이냐"를 되짚을 수단이 아예 없고, 시작한
+/// 쪽이 그 사실을 들고 다니는 것 외에 방법이 없다. `snapshotAt` 비교로는 해결되지
+/// 않는다 - 남의 계정 응답도 더 늦은 시각일 수 있다.
+final class WalletWriteToken {
+  const WalletWriteToken._({
+    required this.ownerId,
+    required this.authEpoch,
+    required this.session,
+  });
+
+  /// 쓰기를 시작한 계정. 비로그인이면 null.
+  final String? ownerId;
+
+  /// 그때까지 관측된 계정 전환 횟수. A → B → A 왕복은 ID 로는 보이지 않는다.
+  final int authEpoch;
+
+  /// 쓰기를 시작한 세션 인스턴스.
+  ///
+  /// ID 도 epoch 도 아직 움직이지 않은 순간에 **유일하게 움직여 있는 것**이다.
+  /// gotrue 는 세션을 바꾸는 턴에 `currentSession` 을 즉시 갈고 이벤트는 큐에만
+  /// 넣으므로(`BehaviorSubject`, `sync: false`), 이벤트가 전달되기 전에 끝난
+  /// A → B → A 는 ID 로도 epoch 로도 보이지 않는다. 다만 이것 하나만으로는
+  /// 판정할 수 없다 - 같은 계정의 토큰 갱신도 새 인스턴스이기 때문이다.
+  final Session? session;
+}
+
 /// 파우치 최초 로드 실패에 대한 자동 재시도 정책.
 ///
 /// riverpod 3 은 build 실패를 기본값으로 **10회, 200ms→6.4s 백오프**로 자동
@@ -165,6 +195,17 @@ class WalletSummary extends _$WalletSummary {
   /// 같은 계정의 토큰 갱신이나 리플레이는 전환이 아니므로 올리지 않는다.
   /// 올리면 그것이 곧 재조회 루프다.
   int _authEpoch = 0;
+
+  /// 지금까지 **명시적 재조회**([refresh])가 서버 답으로 상태를 정한 횟수.
+  ///
+  /// 실패한 재조회는 세지 않는다. 그것은 답이 아니라 기존 값을 지킨 것뿐이고,
+  /// 그 값은 아직 정산 이전 잔액이다.
+  ///
+  /// 재조회는 snapshot 순서 규칙을 거치지 않는다 - 서버에 직접 물은 값이라
+  /// 그 자체가 가장 최신이라는 것이 기존 계약이다. 그런데 세션이 교체된
+  /// 정산은 한 턴 미뤄지므로, 그 사이에 끝난 재조회를 뒤늦게 덮을 수 있다.
+  /// 미룰 때 이 값을 함께 잡아 두고, 깨어나서 달라졌으면 손을 뗀다.
+  int _reReads = 0;
 
   @override
   Future<WalletSummaryModel> build() async {
@@ -323,6 +364,7 @@ class WalletSummary extends _$WalletSummary {
     final gateway = ref.read(walletAuthGatewayProvider);
     final owner = _currentOwner(gateway);
     if (gateway.isEnabled && owner == null) {
+      _reReads++;
       state = AsyncData(WalletRepository.signedOut());
       return;
     }
@@ -375,10 +417,15 @@ class WalletSummary extends _$WalletSummary {
             error: error,
             stackTrace: stackTrace,
           );
+          // 실패한 재조회는 **아무것도 답하지 않았다**. 화면에 남겨 두는 값은
+          // 정산 이전의 잔액이므로, 이것을 더 최신 답으로 세면 뒤따르던 정산이
+          // 버려지고 이미 지급된 별사탕이 영영 표시되지 않는다.
           state = AsyncData(keep);
           return;
         }
       }
+      // 서버가 실제로 답했을 때만 센다. 오류로 끝난 재조회도 답이 아니다.
+      if (next is AsyncData<WalletSummaryModel>) _reReads++;
       state = next;
       return;
     }
@@ -408,6 +455,34 @@ class WalletSummary extends _$WalletSummary {
       captured.authEpoch == _authEpoch &&
       identical(captured.session, _currentSession(gateway));
 
+  /// 지금 시작하는 쓰기의 주인을 담아 둔다. 응답이 도착했을 때 [setSummary] 가
+  /// "이건 아직 이 계정의 것인가"를 물을 수 있는 유일한 근거다.
+  ///
+  /// **비동기 작업을 시작하는 자리에서** 불러야 한다. 응답이 도착한 자리에서
+  /// 부르면 그 순간의 계정을 담게 되므로 항상 통과한다 - 검사하지 않는 것과 같다.
+  WalletWriteToken captureOwner() {
+    final gateway = ref.read(walletAuthGatewayProvider);
+    return WalletWriteToken._(
+      ownerId: _currentOwner(gateway),
+      authEpoch: _authEpoch,
+      session: _currentSession(gateway),
+    );
+  }
+
+  /// [token] 으로 시작한 쓰기가 **아직 이 화면의 것인지**.
+  ///
+  /// 읽기 경로의 [_stillOwns] 와 일부러 다르다. 저쪽은 `identical(session)` 까지
+  /// 보지만 여기서 그러면 **과잉 차단**이다 - 정산은 네트워크만큼 걸리고 그 사이
+  /// 토큰이 갱신되면 gotrue 가 같은 계정에 새 `Session` 인스턴스를 끼운다. 그것을
+  /// 남의 것으로 보면 적립이 화면에 영영 반영되지 않는다.
+  ///
+  /// 반대로 사용자 ID 만 보면 A → B → A 왕복을 놓친다. 양쪽 다 같은 ID 이기
+  /// 때문이다. [_authEpoch] 는 **계정 전환에만** 오르므로(같은 계정의 토큰 갱신과
+  /// 리플레이는 올리지 않는다) 둘을 함께 보면 왕복은 잡고 갱신은 통과시킨다.
+  bool _ownsWrite(WalletWriteToken token) =>
+      token.authEpoch == _authEpoch &&
+      token.ownerId == _currentOwner(ref.read(walletAuthGatewayProvider));
+
   /// Applies the balance a settled operation came back with.
   ///
   /// Three call sites write here - a settled vote, a watched rewarded ad, and a
@@ -425,7 +500,64 @@ class WalletSummary extends _$WalletSummary {
   ///
   /// [refresh] deliberately does not come through here: an explicit re-read is
   /// the newest thing there is.
-  void setSummary(WalletSummaryModel summary) {
+  ///
+  /// [owner] 는 이 응답을 **시작한** 계정이다([captureOwner]). 필수 인자인 것이
+  /// 이 가드의 전부다 - 선택 인자였다면 다음 호출처가 빠뜨렸을 때 아무도 모른 채
+  /// 예전 동작으로 돌아간다. 지갑 모델(`wallet.v1`)에는 소유자가 없어서 provider
+  /// 가 응답만 보고 출처를 되짚을 방법이 없다.
+  void setSummary(
+    WalletSummaryModel summary, {
+    required WalletWriteToken owner,
+  }) {
+    if (!_ownsWrite(owner)) {
+      _logRejectedWrite();
+      return;
+    }
+
+    // 세션 인스턴스까지 그대로면 그 사이 아무 일도 없었다. 즉시 쓴다.
+    if (identical(
+      owner.session,
+      _currentSession(ref.read(walletAuthGatewayProvider)),
+    )) {
+      _applySummary(summary);
+      return;
+    }
+
+    // 여기가 애매한 구간이다. 계정도 같고 epoch 도 그대로인데 세션 인스턴스만
+    // 갈렸다. 두 가지가 이 모습을 만든다.
+    //
+    //   * 같은 계정의 토큰 갱신 - 이 정산은 이 화면의 것이므로 **써야 한다**.
+    //   * 이벤트가 아직 전달되지 않은 A → B → A 왕복 - **버려야 한다**.
+    //
+    // 지금은 둘을 가를 수 없다. 그 차이를 아는 것은 아직 큐에 있는 auth 이벤트
+    // 뿐이고, 그것이 전달되면 왕복은 [_authEpoch] 를 올리지만 토큰 갱신은
+    // 올리지 않는다(리스너가 같은 사용자 이벤트를 그냥 지나친다).
+    //
+    // 그래서 한 턴을 흘려보내 큐를 비운 뒤 같은 질문을 다시 한다. 흔한 경우는
+    // 위에서 이미 동기로 끝났으므로 이 지연은 세션이 실제로 교체된 순간에만
+    // 일어난다.
+    final reReadsWhenQueued = _reReads;
+    Future<void>(() {
+      if (!ref.mounted) return;
+      if (!_ownsWrite(owner)) {
+        _logRejectedWrite();
+        return;
+      }
+      // 미뤄 둔 사이에 명시적 재조회가 답을 정했다면 그쪽이 최신이다. 이 정산은
+      // 서버가 이미 반영했으므로 그 재조회 결과에 이미 들어 있다.
+      if (_reReads != reReadsWhenQueued) {
+        logger.i('⏪ 재조회가 먼저 끝난 정산 무시');
+        return;
+      }
+      _applySummary(summary);
+    });
+  }
+
+  /// 폐기 사실만 남긴다. 계정 ID 는 기록하지 않는다 - 이 로그는 정상 동작 중에도
+  /// 찍히고, 운영 로그 수집이 켜진 빌드에서 사용자 식별자를 흘릴 이유가 없다.
+  void _logRejectedWrite() => logger.i('🚫 이전 계정의 정산 무시');
+
+  void _applySummary(WalletSummaryModel summary) {
     final current = state.value;
     if (current != null && summary.snapshotAt.isBefore(current.snapshotAt)) {
       logger.i('⏪ 이전 스냅샷 무시: ${summary.snapshotAt} < ${current.snapshotAt}');
@@ -448,15 +580,12 @@ final walletHistorySessionProvider = Provider.autoDispose<WalletHistorySession>(
     if (!gateway.isEnabled) return WalletHistorySession(null);
     var observedOwner = gateway.currentSession?.user.id;
     final session = WalletHistorySession(observedOwner);
-    final subscription = gateway.authStateChanges.listen(
-      (change) {
-        final nextOwner = change.session?.user.id;
-        if (nextOwner == observedOwner) return;
-        observedOwner = nextOwner;
-        ref.invalidateSelf();
-      },
-      onError: _handleAuthStateStreamError,
-    );
+    final subscription = gateway.authStateChanges.listen((change) {
+      final nextOwner = change.session?.user.id;
+      if (nextOwner == observedOwner) return;
+      observedOwner = nextOwner;
+      ref.invalidateSelf();
+    }, onError: _handleAuthStateStreamError);
     ref.onDispose(subscription.cancel);
     return session;
   },

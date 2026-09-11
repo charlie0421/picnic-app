@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -11,6 +12,7 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/data/repositories/wallet_repository.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/wallet_summary_applier.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../../helpers/test_app.dart';
@@ -192,7 +194,10 @@ void main() {
         expect(repository.summaryCalls, 1);
 
         await AdShortformLogic.applyRewardOutcome(
-          container: container,
+          applyWallet: ContainerWalletSummaryApplier.forContainer(container),
+          refreshWallet: ContainerWalletSummaryRefresher.forContainer(
+            container,
+          ),
           response: await legacyViewResponse(),
         );
 
@@ -222,13 +227,63 @@ void main() {
         snapshotAt: DateTime.utc(2026, 7, 25),
       );
       await AdShortformLogic.applyRewardOutcome(
-        container: container,
+        applyWallet: ContainerWalletSummaryApplier.forContainer(container),
+        refreshWallet: ContainerWalletSummaryRefresher.forContainer(container),
         response: _walletAwareResponse(settled),
       );
 
       // The response already carries the settled balance; no re-read.
       expect(repository.summaryCalls, 1);
       expect(container.read(walletSummaryProvider).value, same(settled));
+    });
+
+    // The reward is credited server-side when the view callback settles, so
+    // this write is designed to outlive the ad route. That is also how another
+    // account's balance reaches the pouch: the user can sign out or switch
+    // while the callback is still in flight.
+    test('a reward watched under owner A never lands on owner B', () async {
+      final repository = _FakeWalletRepository(
+        summaries: [_walletSummary(bonus: 10), _walletSummary(bonus: 20)],
+      );
+      final gateway = _SwitchableAuthGateway('owner-a');
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(gateway),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(gateway.close);
+      container.listen(walletSummaryProvider, (previous, next) {});
+
+      // Captured in initState, where the ad route captures its container.
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      final refreshWallet = ContainerWalletSummaryRefresher.forContainer(
+        container,
+      );
+      await container.read(walletSummaryProvider.future);
+
+      gateway.signIn('owner-b');
+      expect(
+        (await container.read(walletSummaryProvider.future)).bonus,
+        BigInt.from(20),
+      );
+
+      await AdShortformLogic.applyRewardOutcome(
+        applyWallet: applyWallet,
+        refreshWallet: refreshWallet,
+        response: _walletAwareResponse(
+          _walletSummary(bonus: 99, snapshotAt: DateTime.utc(2099)),
+        ),
+      );
+
+      expect(
+        container.read(walletSummaryProvider).value!.bonus,
+        BigInt.from(20),
+        reason:
+            'the ad was watched by owner A; crediting owner B\'s pouch with '
+            'it shows a balance that is not theirs',
+      );
     });
 
     test('a failed legacy response leaves the wallet untouched', () async {
@@ -242,7 +297,8 @@ void main() {
       await container.read(walletSummaryProvider.future);
 
       await AdShortformLogic.applyRewardOutcome(
-        container: container,
+        applyWallet: ContainerWalletSummaryApplier.forContainer(container),
+        refreshWallet: ContainerWalletSummaryRefresher.forContainer(container),
         response: const InternalShortformViewResponse(
           ok: false,
           rewardAdded: 0,
@@ -261,6 +317,43 @@ void main() {
 }
 
 class _UnusedSupabaseClient extends Fake implements SupabaseClient {}
+
+class _FakeUser extends Fake implements User {
+  _FakeUser(this.id);
+  @override
+  final String id;
+}
+
+class _FakeSession extends Fake implements Session {
+  _FakeSession(String userId) : user = _FakeUser(userId);
+  @override
+  final User user;
+}
+
+/// Auth the ad route sees: the account can change while the reward settles.
+class _SwitchableAuthGateway implements WalletAuthGateway {
+  _SwitchableAuthGateway(String userId) : _session = _FakeSession(userId);
+
+  final _changes = StreamController<AuthState>.broadcast(sync: true);
+  Session? _session;
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  Session? get currentSession => _session;
+
+  @override
+  Stream<AuthState> get authStateChanges => _changes.stream;
+
+  void signIn(String userId) {
+    final session = _FakeSession(userId);
+    _session = session;
+    _changes.add(AuthState(AuthChangeEvent.signedIn, session));
+  }
+
+  Future<void> close() => _changes.close();
+}
 
 class _FakeWalletRepository extends WalletRepository {
   _FakeWalletRepository({required this.summaries})

@@ -20,6 +20,7 @@ import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_transaction_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/wallet_summary_applier.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
@@ -551,6 +552,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // (사용자가 다른 탭으로 이동/뒤로가기) catch 블록의 provider 접근이 안전
     // 하도록 함수 시작 시 container 를 보관 (PICNIC-APP-530).
     final container = ProviderScope.containerOf(context);
+    // 같은 자리에서 **이 투표를 하는 계정**도 잡는다(PICNIC-2664). 투표 RPC 는
+    // 네트워크만큼 걸리고, 아래 invokeVotingWithAuthRecovery 는 그 사이 세션을
+    // 갱신해 재시도까지 한다. 그 창에서 계정이 바뀌면 A 의 정산 잔액이 B 화면에
+    // 쓰인다. 여기서 잡아야 의미가 있다 - 응답이 온 뒤에 잡으면 그 순간의
+    // 계정이라 항상 통과한다.
+    final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
     // invoke(2xx) 도달 여부. invoke 자체 실패(=팝업 원인)와, 성공 후 후처리에서
     // throw 된 경우를 텔레메트리에서 구분(vote_fail_phase)하기 위한 플래그.
     bool invokeSucceeded = false;
@@ -594,9 +601,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             },
           ),
         );
-        container
-            .read(walletSummaryProvider.notifier)
-            .setSummary(result.wallet);
+        applyWallet(result.wallet);
         container
             .read(
               asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier,
