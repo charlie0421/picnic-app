@@ -146,6 +146,12 @@ void main() {
     expect(find.text('+200'), findsOneWidget);
     expect(find.text('+250'), findsOneWidget);
     expect(find.byKey(const Key('reward-celebration-hero')), findsOneWidget);
+    final hero = tester.widget<Container>(
+      find.byKey(const Key('reward-celebration-hero')),
+    );
+    final heroDecoration = hero.decoration! as BoxDecoration;
+    expect(heroDecoration.gradient, isNull);
+    expect(heroDecoration.boxShadow, isNull);
     expect(find.byKey(const Key('reward-card-STAR_CANDY')), findsOneWidget);
     expect(
       find.byKey(const Key('reward-card-BONUS_STAR_CANDY')),

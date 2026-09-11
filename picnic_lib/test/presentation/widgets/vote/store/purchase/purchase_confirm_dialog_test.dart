@@ -137,6 +137,12 @@ void main() {
       reason: 'the normal-width Korean wallet label should stay readable',
     );
     expect(find.byKey(const Key('purchase-confirm-hero')), findsOneWidget);
+    final hero = tester.widget<Container>(
+      find.byKey(const Key('purchase-confirm-hero')),
+    );
+    final heroDecoration = hero.decoration! as BoxDecoration;
+    expect(heroDecoration.gradient, isNull);
+    expect(heroDecoration.boxShadow, isNull);
     expect(
       find.byKey(const Key('purchase-confirm-star-candy-panel')),
       findsOneWidget,
@@ -145,6 +151,12 @@ void main() {
       find.byKey(const Key('purchase-confirm-bonus-benefit-panel')),
       findsOneWidget,
     );
+    final bonusPanel = tester.widget<Container>(
+      find.byKey(const Key('purchase-confirm-bonus-benefit-panel')),
+    );
+    final bonusDecoration = bonusPanel.decoration! as BoxDecoration;
+    expect(bonusDecoration.gradient, isNull);
+    expect(bonusDecoration.boxShadow, isNull);
     expect(find.byKey(const Key('purchase-confirm-cta')), findsOneWidget);
     expect(
       tester.getSize(find.byKey(const Key('purchase-confirm-cta'))).height,

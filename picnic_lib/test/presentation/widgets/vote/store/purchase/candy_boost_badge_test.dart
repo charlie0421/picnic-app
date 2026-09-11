@@ -108,16 +108,12 @@ void main() {
         find.byKey(const Key('purchase-star-candy-panel')),
         findsOneWidget,
       );
-      expect(
-        find.byKey(const Key('purchase-bonus-benefit-panel')),
-        findsOneWidget,
-      );
-      expect(find.text('스타캔디'), findsOneWidget);
-      expect(find.text('보너스 스타캔디'), findsOneWidget);
-      expect(find.text('200'), findsOneWidget);
+      expect(find.byKey(const Key('purchase-bonus-total')), findsOneWidget);
+      expect(find.textContaining('스타캔디 200'), findsOneWidget);
+      expect(find.textContaining('보너스 스타캔디 +250'), findsOneWidget);
       expect(find.textContaining('기본 보너스 +25'), findsOneWidget);
       expect(find.textContaining('이벤트 보너스 +225'), findsOneWidget);
-      expect(find.text('+250'), findsOneWidget);
+      expect(find.textContaining('+250'), findsOneWidget);
       expect(find.text('450'), findsNothing);
       expect(find.byKey(const Key('purchase-bonus-total')), findsOneWidget);
       expect(
@@ -146,11 +142,21 @@ void main() {
           ),
         );
 
-        final total = tester.widget<Text>(find.text('+250'));
-        final catalog = tester.widget<Text>(find.text('200'));
+        final total = tester.widget<Text>(
+          find.descendant(
+            of: find.byKey(const Key('purchase-bonus-total')),
+            matching: find.byType(Text),
+          ),
+        );
+        final catalog = tester.widget<Text>(
+          find.descendant(
+            of: find.byKey(const Key('purchase-star-candy-panel')),
+            matching: find.byType(Text),
+          ),
+        );
         expect(
-          total.style!.fontSize!,
-          greaterThan(catalog.style!.fontSize!),
+          total.style!.color,
+          isNot(catalog.style!.color),
           reason: 'the separate bonus-wallet amount must remain prominent',
         );
       },
@@ -172,7 +178,7 @@ void main() {
         ),
       );
 
-      final amount = find.text('+14,200');
+      final amount = find.textContaining('+14,200');
       expect(amount, findsOneWidget);
       final paragraph = tester.renderObject<RenderParagraph>(amount);
       final boxes = paragraph.getBoxesForSelection(
@@ -196,8 +202,8 @@ void main() {
         ),
       );
 
-      expect(find.text('200'), findsOneWidget);
-      expect(find.text('+25'), findsOneWidget);
+      expect(find.textContaining('스타캔디 200'), findsOneWidget);
+      expect(find.textContaining('보너스 스타캔디 +25'), findsOneWidget);
       expect(find.byKey(const Key('purchase-expected-total')), findsNothing);
       expect(find.byKey(const Key('purchase-event-bonus')), findsNothing);
     });

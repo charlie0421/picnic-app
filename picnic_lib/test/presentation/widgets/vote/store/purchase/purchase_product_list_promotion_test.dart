@@ -184,17 +184,23 @@ void main() {
     await pumpStore(tester, promotion: () => doubleCampaign);
 
     expect(tester.takeException(), isNull);
-    expect(find.byKey(const Key('candy-boost-promo-ribbon')), findsNWidgets(2));
+    expect(find.byKey(const Key('candy-boost-purchase-card')), findsNothing);
+    expect(find.byKey(const Key('candy-boost-promo-ribbon')), findsNothing);
+    expect(find.byKey(const Key('candy-boost-inline-badge')), findsNWidgets(2));
     expect(
-      find.byKey(const Key('candy-boost-purchase-card')),
+      find.byKey(const Key('purchase-reward-extension')),
       findsNWidgets(2),
     );
-    expect(find.text('스타캔디'), findsNWidgets(2));
-    expect(find.text('보너스 스타캔디'), findsNWidgets(2));
+    expect(find.textContaining('스타캔디 100'), findsOneWidget);
+    expect(find.textContaining('스타캔디 200'), findsOneWidget);
+    expect(find.textContaining('보너스 스타캔디'), findsNWidgets(2));
 
     final star100Tile = find.byType(StoreListTile).at(0);
     expect(
-      find.descendant(of: star100Tile, matching: find.text('+100')),
+      find.descendant(
+        of: star100Tile,
+        matching: find.byKey(const Key('purchase-bonus-total')),
+      ),
       findsOneWidget,
     );
     expect(
@@ -202,7 +208,10 @@ void main() {
       findsNothing,
     );
     expect(
-      find.descendant(of: star100Tile, matching: find.text('100')),
+      find.descendant(
+        of: star100Tile,
+        matching: find.textContaining('스타캔디 100'),
+      ),
       findsOneWidget,
     );
 
@@ -216,7 +225,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.descendant(of: star200Tile, matching: find.text('+250')),
+      find.descendant(of: star200Tile, matching: find.textContaining('+250')),
       findsOneWidget,
     );
     expect(
@@ -225,19 +234,19 @@ void main() {
     );
   });
 
-  testWidgets('keeps the benefit card when a legacy rate has no exact pill', (
+  testWidgets('keeps the inline benefit when a legacy rate has no exact pill', (
     tester,
   ) async {
     await pumpStore(tester, promotion: () => fractionalLegacyCampaign);
 
     expect(
-      find.byKey(const Key('candy-boost-purchase-card')),
+      find.byKey(const Key('purchase-reward-extension')),
       findsNWidgets(2),
     );
-    expect(find.byKey(const Key('candy-boost-promo-ribbon')), findsNWidgets(2));
+    expect(find.byKey(const Key('candy-boost-inline-badge')), findsNWidgets(2));
     expect(find.byType(CandyBoostBadge), findsNothing);
     expect(find.text('캔디 부스트 데이'), findsNWidgets(3));
-    expect(find.text('+15'), findsOneWidget);
+    expect(find.byKey(const Key('purchase-bonus-total')), findsNWidgets(2));
   });
 
   testWidgets('names the event once above the list, never per row', (
@@ -246,6 +255,12 @@ void main() {
     await pumpStore(tester, promotion: () => doubleCampaign);
 
     expect(find.byKey(const Key('candy-boost-event-header')), findsOneWidget);
+    final eventHeader = tester.widget<Container>(
+      find.byKey(const Key('candy-boost-event-header')),
+    );
+    final headerDecoration = eventHeader.decoration! as BoxDecoration;
+    expect(headerDecoration.gradient, isNull);
+    expect(headerDecoration.boxShadow, isNull);
     expect(find.text('캔디 부스트 데이'), findsOneWidget);
     expect(find.text('내부 테스트 캔디 부스트 캠페인 이름'), findsNothing);
     expect(find.text('CANDY_BOOST_DAY'), findsNothing);
@@ -324,13 +339,10 @@ void main() {
     await tester.pump();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('+250'), findsOneWidget);
+    expect(find.byKey(const Key('purchase-bonus-total')), findsOneWidget);
     expect(find.text('450'), findsNothing);
     expect(find.text('이벤트 보너스 +100%'), findsOneWidget);
-    expect(find.byKey(const Key('purchase-price-cta')), findsOneWidget);
-    expect(
-      tester.getSize(find.byKey(const Key('purchase-price-cta'))).height,
-      greaterThanOrEqualTo(44),
-    );
+    expect(find.byKey(const Key('purchase-price-cta')), findsNothing);
+    expect(find.byType(ElevatedButton), findsOneWidget);
   });
 }

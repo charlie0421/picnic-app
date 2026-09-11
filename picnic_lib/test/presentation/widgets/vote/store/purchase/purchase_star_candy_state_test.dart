@@ -317,8 +317,13 @@ void main() {
         expect(find.text('추석 캔디 부스트'), findsNothing);
         // floor(100 * 15 / 10) = 150, so this row pays 1.5x in total.
         expect(find.text('이벤트 보너스 +50%'), findsOneWidget);
-        expect(find.text('+50'), findsOneWidget);
-        expect(find.text('+50'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byKey(const Key('purchase-bonus-total')),
+            matching: find.textContaining('+50'),
+          ),
+          findsOneWidget,
+        );
         expect(find.text('150'), findsNothing);
         // Selection data must never leak to the UI as raw basis points.
         expect(find.textContaining('bps'), findsNothing);
@@ -339,7 +344,13 @@ void main() {
         expect(find.byType(CandyBoostBadge), findsOneWidget);
         expect(find.text('Chuseok Candy Boost'), findsNothing);
         expect(find.text('+50% EVENT BONUS'), findsOneWidget);
-        expect(find.text('+50'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byKey(const Key('purchase-bonus-total')),
+            matching: find.textContaining('+50'),
+          ),
+          findsOneWidget,
+        );
         expect(find.text('150'), findsNothing);
         expect(find.textContaining('bps'), findsNothing);
         expect(find.textContaining('5000'), findsNothing);
@@ -362,7 +373,13 @@ void main() {
         expect(find.text('캔디 부스트 데이'), findsOneWidget);
         expect(find.text('기본 지급 + 추가 보너스 100%'), findsNothing);
         expect(find.text('이벤트 보너스 +100%'), findsOneWidget);
-        expect(find.text('+100'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byKey(const Key('purchase-bonus-total')),
+            matching: find.textContaining('+100'),
+          ),
+          findsOneWidget,
+        );
         expect(find.text('200'), findsNothing);
         // 10000 bps drives the copy selection but must never render.
         expect(find.textContaining('10000'), findsNothing);
@@ -491,13 +508,16 @@ void main() {
 
       // The row keeps the 100 star candy and +50 bonus star candy separate.
       expect(find.byKey(const Key('purchase-bonus-total')), findsOneWidget);
-      expect(find.text('+50'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('purchase-bonus-total')),
+          matching: find.textContaining('+50'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('150'), findsNothing);
       final buyButton = tester.widget<ElevatedButton>(
-        find.descendant(
-          of: find.byKey(const Key('purchase-price-cta')),
-          matching: find.byType(ElevatedButton),
-        ),
+        find.byKey(const Key('purchase-price-cta')),
       );
       expect(buyButton.onPressed, isNotNull);
 
@@ -559,7 +579,13 @@ void main() {
       await tester.pump();
 
       // The product row follows the new resolution without merging currencies.
-      expect(find.text('+100'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('purchase-bonus-total')),
+          matching: find.textContaining('+100'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('200'), findsNothing);
       // The open confirmation keeps the amounts it was opened with.
       expect(

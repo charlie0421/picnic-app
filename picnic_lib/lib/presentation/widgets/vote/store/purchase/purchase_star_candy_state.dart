@@ -1627,15 +1627,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [kCandyBoostPurple, kCandyBoostPink]),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: kCandyBoostPurple.withValues(alpha: .2),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        color: kCandyBoostPink.withValues(alpha: .08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: kCandyBoostPink.withValues(alpha: .16)),
       ),
       child: Row(
         children: [
@@ -1643,12 +1637,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .18),
+              color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.auto_awesome_rounded,
-              color: Colors.white,
+              color: kCandyBoostPink,
               size: 19,
             ),
           ),
@@ -1658,7 +1652,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
               // A stable localized event name - never the campaign record's
               // own display name, which is internal copy.
               AppLocalizations.of(context).candy_boost_day,
-              style: getTextStyle(AppTypo.body14B, Colors.white),
+              style: getTextStyle(AppTypo.body14B, AppColors.grey900),
             ),
           ),
         ],

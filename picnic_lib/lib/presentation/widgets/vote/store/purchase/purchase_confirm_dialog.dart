@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -54,12 +53,11 @@ class PurchaseConfirmDialog extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       titlePadding: EdgeInsets.zero,
       title: _buildHero(
         context,
         l10n,
-        productId,
         hasEventBonus: preview.hasEventBonus,
         totalMultiplierTenths: totalMultiplierTenths,
       ),
@@ -87,11 +85,8 @@ class PurchaseConfirmDialog extends StatelessWidget {
             key: const Key('purchase-confirm-price'),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
             decoration: BoxDecoration(
-              color: kCandyBoostPurple.withValues(alpha: .08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: kCandyBoostPurple.withValues(alpha: .18),
-              ),
+              color: AppColors.grey100,
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
@@ -126,16 +121,7 @@ class PurchaseConfirmDialog extends StatelessWidget {
         ElevatedButton(
           key: const Key('purchase-confirm-cta'),
           onPressed: () => Navigator.of(context).pop(true),
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(132, 50),
-            backgroundColor: kCandyBoostPurple,
-            foregroundColor: Colors.white,
-            elevation: 4,
-            shadowColor: kCandyBoostPurple.withValues(alpha: .35),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-          ),
+          style: ElevatedButton.styleFrom(minimumSize: const Size(120, 48)),
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
@@ -151,87 +137,37 @@ class PurchaseConfirmDialog extends StatelessWidget {
 
   Widget _buildHero(
     BuildContext context,
-    AppLocalizations l10n,
-    String productId, {
+    AppLocalizations l10n, {
     required bool hasEventBonus,
     required int? totalMultiplierTenths,
   }) {
     return Container(
       key: const Key('purchase-confirm-hero'),
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [kCandyBoostPurple, kCandyBoostPink],
-        ),
-      ),
-      child: Stack(
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 8),
+      decoration: const BoxDecoration(color: Colors.white),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PositionedDirectional(
-            end: -8,
-            top: -12,
-            child: Icon(
-              Icons.auto_awesome_rounded,
-              size: 58,
-              color: Colors.white.withValues(alpha: .16),
+          Text(
+            l10n.purchase_confirm_title,
+            style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+          ),
+          if (hasEventBonus) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 7,
+              runSpacing: 5,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  l10n.candy_boost_day,
+                  style: getTextStyle(AppTypo.caption12B, kCandyBoostPink),
+                ),
+                if (totalMultiplierTenths != null)
+                  CandyBoostBadge(totalMultiplierTenths: totalMultiplierTenths),
+              ],
             ),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 54,
-                height: 54,
-                padding: const EdgeInsets.all(7),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(17),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: .12),
-                      blurRadius: 14,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: _productImage(productId, size: 40.w),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.purchase_confirm_title,
-                      style: getTextStyle(AppTypo.title18B, Colors.white),
-                    ),
-                    if (hasEventBonus) ...[
-                      const SizedBox(height: 7),
-                      Wrap(
-                        spacing: 7,
-                        runSpacing: 5,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text(
-                            l10n.candy_boost_day,
-                            style: getTextStyle(
-                              AppTypo.caption12B,
-                              Colors.white,
-                            ),
-                          ),
-                          if (totalMultiplierTenths != null)
-                            CandyBoostBadge(
-                              totalMultiplierTenths: totalMultiplierTenths,
-                            ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
+          ],
         ],
       ),
     );
@@ -301,11 +237,8 @@ class PurchaseConfirmDialog extends StatelessWidget {
             key: const Key('purchase-confirm-star-candy-panel'),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: kCandyBoostPurple.withValues(alpha: .07),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: kCandyBoostPurple.withValues(alpha: .2),
-              ),
+              color: Colors.white,
+              border: Border(bottom: BorderSide(color: AppColors.grey200)),
             ),
             child: Row(
               key: const Key('purchase-confirm-base'),
@@ -352,19 +285,8 @@ class PurchaseConfirmDialog extends StatelessWidget {
               key: const Key('purchase-confirm-bonus-benefit-panel'),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    kCandyBoostPurple.withValues(alpha: .12),
-                    kCandyBoostPink.withValues(alpha: .14),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: kCandyBoostPink.withValues(alpha: .36),
-                  width: 1.2,
-                ),
+                color: Colors.white,
+                border: Border(bottom: BorderSide(color: AppColors.grey200)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -441,31 +363,21 @@ class PurchaseConfirmDialog extends StatelessWidget {
     required bool emphasized,
   }) {
     final color = emphasized ? kCandyBoostPink : kCandyBoostPurple;
-    return Container(
+    return Row(
       key: rowKey,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: emphasized
-            ? kCandyBoostPink.withValues(alpha: .11)
-            : Colors.white.withValues(alpha: .72),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: .26)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(label, style: getTextStyle(AppTypo.caption12B, color)),
+      children: [
+        Expanded(
+          child: Text(label, style: getTextStyle(AppTypo.caption12B, color)),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            amount,
+            textAlign: TextAlign.end,
+            style: getTextStyle(AppTypo.body14B, color),
           ),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              amount,
-              textAlign: TextAlign.end,
-              style: getTextStyle(AppTypo.body14B, color),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
