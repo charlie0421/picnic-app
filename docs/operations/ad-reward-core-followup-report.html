@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>광고 보상 배선 후속 — WidgetRef dispose 경계</title>
+<style>
+  body{max-width:1080px;margin:40px auto;padding:0 24px;font:16px/1.65 system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;color:#172132}
+  h1,h2,h3{line-height:1.3}
+  h1{border-bottom:3px solid #376ac3;padding-bottom:10px}
+  h2{margin-top:2.4em;border-bottom:1px solid #ccd4df;padding-bottom:6px}
+  table{border-collapse:collapse;width:100%;margin:14px 0}
+  th,td{border:1px solid #ccd4df;padding:9px 10px;text-align:left;vertical-align:top}
+  th{background:#f1f4f8}
+  code{background:#f1f4f8;padding:1px 5px;border-radius:3px;font-size:.92em}
+  pre{background:#f1f4f8;padding:14px;white-space:pre-wrap;border-radius:5px;font-size:.87em}
+  .ok{color:#1a7f42;font-weight:600}
+  .note{border-left:4px solid #376ac3;background:#f7f9fc;padding:12px 16px;margin:16px 0}
+  .bad{border-left:4px solid #b3352c;background:#fdf6f5;padding:12px 16px;margin:16px 0}
+  small{color:#5b6677}
+</style>
+</head>
+<body>
+
+<h1>광고 보상 배선 후속 — WidgetRef dispose 경계</h1>
+<p>
+  2026-09-08 · 워크트리 <code>/Users/charlie.hyun/orca/workspaces/picnic-app/hotfix-ad-reward-recovery-load</code> ·
+  브랜치 <code>hotfix/ad-reward-recovery-load</code>
+</p>
+<p>
+  root 독립 리뷰가 제기한 Medium 지적은 <strong>사실이었고, 재현했다.</strong>
+  “팝업과 독립”이라고 보고했던 통계 경로가 실제 플랫폼 배선에서는
+  <em>광고 화면 수명에 여전히 묶여 있었다.</em> 이 문서는 그 재현·수정·검증만 다룬다
+  (앞선 <code>ad-reward-app-redesign-core-report.html</code> 은 참조용).
+</p>
+
+<h2>1. 결함</h2>
+<p>
+  <code>AdPlatform.ref</code> 는 <code>WidgetRef</code> 다
+  (<code>ad_platform.dart</code> — <code>final WidgetRef ref;</code>).
+  내가 지난 작업에서 넣은 <code>onGrantConfirmed</code> 와 기존 <code>poll</code> 은 둘 다
+  <strong>클로저 안에서 지연 평가되는</strong> <code>ref.read(...)</code> 였다.
+</p>
+<pre>poll:             (owner, ref2) =&gt; ref.read(adRewardRecoveryProvider.notifier).poll(...)
+onGrantConfirmed: (owner, status) =&gt; ref.read(adRewardRecoveryProvider.notifier).recordConfirmedGrant(...)</pre>
+<p>
+  <code>callback-ad-shortform-view</code> 는 네트워크 왕복이고, 그 응답이 돌아올 때
+  사용자는 이미 광고를 닫았을 수 있다. 그러면 이 플랫폼을 만든 Consumer 는 dispose 됐고
+  <code>ref.read</code> 는 던진다. 그리고 그 예외는
+  <code>InternalShortformViewRecoveryFlow._recordConfirmedGrant</code> 가
+  <code>onPollError</code> 로 흘려보낸다 — 보상 흐름을 막지 않기 위한 의도된 처리이지만,
+  결과적으로 <strong>서버가 이미 확정한 GRANTED 가 로그 한 줄만 남기고 사라진다.</strong>
+</p>
+
+<h3>재현 (수정 전 실제 스택)</h3>
+<pre>Bad state: Using "ref" when a widget is about to or has been unmounted is unsafe.
+Ref relies on BuildContext, and BuildContext is unsafe to use when the widget is deactivated.
+#0  ConsumerStatefulElement._assertNotDisposed (package:flutter_riverpod/src/core/consumer.dart:432:7)
+#1  ConsumerStatefulElement.read (package:flutter_riverpod/src/core/consumer.dart:511:5)
+#2  ShortformInternalPlatform.buildViewRecoveryFlow.&lt;anonymous closure&gt;
+      (package:picnic_lib/.../shortform_internal_platform.dart:326:12)
+#3  InternalShortformViewRecoveryFlow._recordConfirmedGrant
+      (package:picnic_lib/.../internal_shortform_reward_flow.dart:236:13)
+#4  InternalShortformViewRecoveryFlow.report
+      (package:picnic_lib/.../internal_shortform_reward_flow.dart:208:27)
+⛔ [internal] Internal reward polling failed        &lt;-- 예외가 여기서 삼켜진다
+
+00:00 +2 -3: Some tests failed.</pre>
+<p>
+  신규 회귀 5건 중 <strong>3건이 RED</strong> 였다: 광고를 닫은 뒤의 GRANTED 기록, 닫은 뒤의 poll 시작,
+  중복 콜백 1회 집계. 나머지 2건(“dispose 된 ref 는 실제로 던진다”, “소유자 변경분 미기록”)은
+  수정 전에도 통과했다 — 각각 전제 확인과 가드 보존이라 그게 정상이다.
+</p>
+
+<h2>2. 수정</h2>
+
+<h3>2-1. <code>shortform_internal_platform.dart</code></h3>
+<p>
+  <code>_callView</code> 안에 인라인돼 있던 배선을
+  <code>buildViewRecoveryFlow(InternalShortformViewFlow view)</code>
+  (<code>@visibleForTesting</code>) 로 뽑고, 그 안에서 <strong>왕복을 시작하기 전에</strong>
+  keepAlive notifier 를 한 번 잡는다.
+</p>
+<pre>// 왕복을 시작하기 전에, Consumer 가 아직 살아 있는 지금 잡는다.
+final recovery = ref.read(adRewardRecoveryProvider.notifier);
+return InternalShortformViewRecoveryFlow(
+  view: view,
+  poll: (ownerUserId, reference) =&gt;
+      recovery.poll(ownerUserId: ownerUserId, reference: reference),
+  onGrantConfirmed: (ownerUserId, status) =&gt;
+      recovery.recordConfirmedGrant(ownerUserId: ownerUserId, status: status),
+  onPollError: ...,
+);</pre>
+<p>
+  <code>adRewardRecoveryProvider</code> 는 <code>keepAlive: true</code> 라 notifier 의 수명은
+  위젯이 아니라 <code>ProviderContainer</code> 다. 잡아 둔 뒤로는 콜백이 언제 돌아오든
+  <code>WidgetRef</code> 를 다시 읽지 않는다. 메서드 추출은 배선을 실제로 테스트에서 태우기 위한
+  것이고, 새 상태·새 API 표면·구조 확장은 없다.
+</p>
+
+<h3>2-2. <code>pangle_platform.dart</code> — 같은 결함</h3>
+<p>
+  Pangle 의 <code>poll</code> 도 동일하게 클로저 안에서 <code>ref.read</code> 를 한다. 이쪽은
+  SDK 시그널 스트림에서 광고 종료 후에 호출되고, 바로 그 자리의 주석이
+  <em>“dispose 된 ref.read 처럼 poll 이 동기로 던지는 경우도 catchError 로 모은다”</em> 라고
+  적혀 있다 — 즉 현재 설계는 이 예외를 <strong>막는 게 아니라 삼키고 있었다.</strong>
+</p>
+<p>
+  같은 캡처를 적용했다. 캡처 지점은 이미 존재하던 두 개의 <code>ref.read</code>
+  (<code>adRewardRepositoryProvider</code>, <code>pendingAdRewardStoreProvider</code>) 와
+  <strong>같은 줄 묶음</strong>이라, 그 지점이 살아 있다는 것은 기존 코드가 이미 전제하고 있다.
+  따라서 이 변경은 기존 동작 대비 추가 위험이 없다.
+</p>
+
+<h2>3. 회귀 테스트</h2>
+<p>
+  신규 <code>picnic_lib/test/.../platforms/shortform_view_recovery_wiring_test.dart</code>.
+  flow 를 단위 테스트하지 않고 <strong>실제 프로덕션 경계</strong>를 태운다:
+</p>
+<ul>
+  <li>실제 <code>Consumer</code> 로 살아 있는 <code>WidgetRef</code>/<code>BuildContext</code> 를 잡아
+      실제 <code>ShortformInternalPlatform</code> 을 만든다
+      (기존 <code>shortform_showad_reentrancy_test.dart</code> 의 하네스 선례와 동일).</li>
+  <li>실제 <code>platform.buildViewRecoveryFlow(...)</code> 로 배선을 만든다 — 테스트가 배선을 흉내내지 않는다.</li>
+  <li><code>tester.pumpWidget(SizedBox)</code> 로 <strong>진짜 dispose</strong> 시킨다.</li>
+  <li>그 뒤에 지연된 시청 응답(Completer)을 완료시킨다.</li>
+</ul>
+<table>
+  <thead><tr><th>테스트</th><th>고정하는 것</th><th>수정 전</th></tr></thead>
+  <tbody>
+    <tr><td>a disposed Consumer really does kill its WidgetRef</td><td>경계가 실재한다는 전제</td><td class="ok">pass</td></tr>
+    <tr><td>a grant confirmed after the ad is closed still reaches the outbox</td><td>GRANTED 통계가 화면 수명과 무관</td><td>FAIL</td></tr>
+    <tr><td>a pending reward still starts polling after the ad is closed</td><td>poll 콜백도 같은 문제였다</td><td>FAIL</td></tr>
+    <tr><td>a grant whose owner changed while the ad closed is not recorded</td><td>소유자 가드 보존</td><td class="ok">pass</td></tr>
+    <tr><td>a repeated confirmation after the ad closed records once</td><td>dedup 보존</td><td>FAIL</td></tr>
+  </tbody>
+</table>
+<p><small>
+  <code>testWidgets</code> 안에서 <code>Future.delayed</code> 를 await 하지 않는다 —
+  가상 시계라 발화하지 않는다. 대기가 필요한 곳은 <code>tester.pump(Duration.zero)</code> 를 쓴다.
+</small></p>
+
+<h2>4. 검증</h2>
+<p><code>picnic_lib/</code> 에서 실행. 로그는 필터 없이 파일로 남겼다.</p>
+<table>
+  <thead><tr><th>명령</th><th>결과</th><th>로그</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>flutter test --no-pub test/.../shortform_view_recovery_wiring_test.dart</code></td>
+      <td class="ok">+5 All tests passed</td>
+      <td><code>scratchpad/green-wiring.log</code></td>
+    </tr>
+    <tr>
+      <td><code>flutter test --no-pub</code> (광고 provider/host/플랫폼/스토리지/통계 전체)</td>
+      <td class="ok">+283 All tests passed</td>
+      <td><code>scratchpad/followup-scoped.log</code></td>
+    </tr>
+    <tr>
+      <td><code>flutter analyze --no-pub</code> (변경 3파일)</td>
+      <td class="ok">No issues found</td>
+      <td>—</td>
+    </tr>
+    <tr><td><code>dart format</code> (변경 3파일만)</td><td class="ok">적용됨</td><td>—</td></tr>
+    <tr><td><code>git diff --check</code></td><td class="ok">clean</td><td>—</td></tr>
+  </tbody>
+</table>
+<p><small>로그 디렉터리:
+<code>/private/tmp/claude-501/-Users-charlie-hyun-orca-workspaces-picnic-app-hotfix-ad-reward-recovery-load/77ba269f-2307-4c9b-94e9-c77b5498a8c6/scratchpad/</code></small></p>
+
+<h3>변경 파일</h3>
+<table>
+  <thead><tr><th>파일</th><th>구분</th></tr></thead>
+  <tbody>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/shortform_internal_platform.dart</code></td><td>수정 (배선 추출 + 캡처)</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/pangle_platform.dart</code></td><td>수정 (동일 캡처)</td></tr>
+    <tr><td><code>picnic_lib/test/presentation/widgets/vote/store/free_charge_station/platforms/shortform_view_recovery_wiring_test.dart</code></td><td>신규</td></tr>
+  </tbody>
+</table>
+<p><small>root 소유(<code>app.dart</code>, <code>ad_reward_lifecycle.dart</code>, <code>wallet_provider.dart</code>, history 파일)는
+건드리지 않았다. build_runner·commit·push·release·서버 쓰기 없음.</small></p>
+
+<div class="bad">
+<strong>사전 존재 실패 2건 (내 변경과 무관, 미수정):</strong>
+<code>test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart</code> →
+“dispose 는 진행 중이던 로딩 오버레이를 내린다”, “dispose 는 자신이 켜지 않은 오버레이는 건드리지 않는다”
+(<code>Expected: exactly one matching candidate / Actual: Found 0 widgets with type "CircularProgressIndicator"</code>).<br>
+<strong>무관하다는 근거:</strong> ① 그 테스트 파일과 대상 코드(<code>ad_platform.dart</code>,
+<code>ad_service.dart</code>)가 모두 이 워크트리에서 <em>수정되지 않았다</em>(마지막 커밋 <code>f1ca739cb</code>).
+② 실패 내용은 전역 로딩 오버레이(<code>OverlayLoadingProgress</code>)이고, 내 변경은 Pangle 클레임
+블록 안의 지역 변수 하나라 이 경로에 도달하지 않는다. ③ 단독 실행에서도 같은 2건이 실패해
+스위트 순서 문제도 아니다(<code>scratchpad/ad-service-alone.log</code>).
+지난 dispatch 의 회귀 범위는 <code>platforms/</code> 하위였고 이 파일은 그 상위 디렉터리라 이번에 처음 실행됐다.
+소유 범위 밖이라 손대지 않았다.
+</div>
+
+<h2>5. 남은 것 / 한계</h2>
+<ul>
+  <li>
+    <strong>Pangle 전용 위젯 회귀는 없다.</strong> 그 배선을 끝까지 태우려면
+    <code>Environment</code> 의 Pangle 배치 ID, <code>PangleAds</code> SDK, <code>supabase</code> 전역이
+    필요해 비용이 과했다. 대신 수정 자체가 숏폼과 <em>동일한 캡처</em>이고, 캡처 지점의 안전성은
+    같은 자리의 기존 <code>ref.read</code> 두 개가 이미 보장한다. 별도 하네스가 필요하면 후속으로 잡는 편이 낫다.
+  </li>
+  <li>
+    <code>_callView</code> 의 나머지 부분(<code>supabase.functions.invoke</code>,
+    <code>supabase.auth.currentUser</code>)은 여전히 전역에 직접 붙어 있어 테스트가 태우지 못한다.
+    이번 회귀가 고정하는 것은 <strong>보상 콜백 배선</strong>이지 시청 콜백의 네트워크 부분이 아니다.
+  </li>
+  <li>
+    앱이 <em>관측하지 못한</em> 서버 지급(앱이 아예 죽은 경우 등)은 여전히 이 경로의 보장 범위 밖이다 —
+    계획서가 명시한 대로 서버 원장 집계가 그 자리를 맡는다.
+  </li>
+  <li>배포 전이므로 운영 호출량·통계 정확도 개선은 실측 전까지 주장하지 않는다.</li>
+  <li>
+    <strong>이전 보고서의 한계 1건은 해소됐다.</strong> 지난 보고서에 적었던
+    <code>analytics_outbox_currency_test.dart</code> 날짜 의존 실패는 root 가 독립 재현한 뒤
+    프로덕션 코드 변경 없이 테스트 픽스처만 고쳤다(기존 <code>enqueueOrMergePurchase</code> API 에
+    <code>createdAt: now</code> 전달). 해당 파일은 root 소유이며 지금은 46건 통과한다.
+  </li>
+</ul>
+
+<p><small>보고서 경로: <code>/Users/charlie.hyun/orca/workspaces/picnic-app/hotfix-ad-reward-recovery-load/ad-reward-core-followup-report.html</code></small></p>
+
+</body>
+</html>

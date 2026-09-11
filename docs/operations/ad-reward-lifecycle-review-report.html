@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>앱 lifecycle 연결 독립 교차 리뷰</title>
+<style>
+  body{max-width:1080px;margin:40px auto;padding:0 24px;font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;color:#172132}
+  h1,h2,h3{line-height:1.3}
+  h1{border-bottom:3px solid #376ac3;padding-bottom:10px}
+  h2{margin-top:44px;border-bottom:1px solid #ccd4df;padding-bottom:6px}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:15px}
+  th,td{border:1px solid #ccd4df;padding:9px 10px;text-align:left;vertical-align:top}
+  th{background:#eef2f7}
+  code{background:#f1f4f8;padding:1px 5px;border-radius:3px;font-size:.92em}
+  pre{background:#f1f4f8;padding:14px;white-space:pre-wrap;border-radius:5px;font-size:14px;overflow-x:auto}
+  .verdict{border-left:5px solid #1e8449;background:#f2f9f5;padding:14px 18px;margin:18px 0}
+  .sev{display:inline-block;padding:2px 9px;border-radius:11px;color:#fff;font-size:12.5px;font-weight:700;white-space:nowrap}
+  .s-low{background:#5b6b80}.s-info{background:#8a94a6}
+  .box{border:1px solid #ccd4df;border-radius:7px;padding:4px 20px 16px;margin:22px 0}
+  .warn{border-left:5px solid #b7791f;background:#fff8e6;padding:14px 18px;margin:18px 0}
+  .meta{font-size:14px;color:#4a5768;margin:6px 0 0}
+  ul.tight li{margin-bottom:5px}
+  .good li{margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<h1>앱 lifecycle 연결 — 독립 Frontier 교차 리뷰</h1>
+
+<p class="meta">
+2026-09-08 · 워크스페이스 <code>/Users/charlie.hyun/orca/workspaces/picnic-app/hotfix-ad-reward-recovery-load</code> ·
+diff <code>ad-reward-lifecycle-review.diff</code> (디스크에서 재독) ·
+대상 3파일: <code>picnic_app/lib/app.dart</code>, <code>picnic_lib/lib/core/services/ad_reward_lifecycle.dart</code>,
+<code>picnic_lib/test/core/services/ad_reward_lifecycle_test.dart</code> ·
+읽기 전용. 코드 수정·commit·push·codegen·릴리스·외부 쓰기 없음.
+</p>
+
+<div class="verdict">
+<strong>판정 — PASS. 남은 차단 지적 없음.</strong><br>
+요구 7항목이 모두 충족되며, 그중 “시작/auth replay/token refresh 0회”와 “dispose 이후 무동작”은 실제 <code>WidgetsBinding</code> 이벤트를 쓰는 테스트로 끝단 검증된다.
+아래 3건은 전부 비차단(Low/Info)이며, 그중 2건은 리뷰 중 임시 프로브로 <strong>실제 동작이 정상임을 실측 확인</strong>했다.
+</div>
+
+<h2>검증 (직접 실행)</h2>
+
+<table>
+<thead><tr><th>검증</th><th>실행 위치·명령</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>lifecycle 테스트</td><td><code>picnic_lib</code> · <code>flutter test --no-pub test/core/services/ad_reward_lifecycle_test.dart</code></td><td><strong>+4: All tests passed</strong> (4개 전부)</td></tr>
+<tr><td>정적 분석 (lib)</td><td><code>picnic_lib</code> · <code>flutter analyze --no-pub lib/core/services/ad_reward_lifecycle.dart test/core/services/ad_reward_lifecycle_test.dart</code></td><td><strong>No issues found</strong> (1.2s)</td></tr>
+<tr><td>정적 분석 (app)</td><td><code>picnic_app</code> · <code>flutter analyze --no-pub lib/app.dart</code></td><td><strong>No issues found</strong> (2.5s)</td></tr>
+<tr><td>목록/과거 폴링 잔존 호출</td><td><code>grep -rn "\.recover(|listUnacknowledged|_pollRecoveredReferences"</code> — <code>picnic_lib/lib</code> + <code>picnic_app/lib</code></td><td>호출부 <strong>0건</strong>. <code>listUnacknowledged</code> 는 repository 정의에만 존재, <code>recover(</code> 는 어디서도 호출되지 않음</td></tr>
+<tr><td>reset 배선 실측 (임시 프로브)</td><td>owner-a 로 참조 1건 park → A→B → B→A</td><td><code>owner=owner-a refs=1</code> → <code>owner=null refs=0</code> → <code>owner=null refs=0</code></td></tr>
+</tbody>
+</table>
+
+<p class="meta">
+※ <strong>diff 갱신 반영.</strong> 리뷰 착수 시점에 읽은 diff 는 <code>_rewardLifecycle = ref.read(...)..start();</code> 한 줄(cascade)이었고 현재 소스와 달랐다.
+이 시점에도 판단은 <strong>현재 소스 기준</strong>으로 진행했다. 이후 조정자 메시지(<code>msg_10e53678b9ee</code>, <code>msg_b8f3908e0780</code>)로
+app analyzer 의 nullable contextual inference 때문에 지역변수 형태(<code>read → start() → 대입</code>)로 교체하고 diff 를 갱신했다는 통보를 받았고,
+완료 직전 <code>ad-reward-lifecycle-review.diff:48-50</code> 을 재확인해 <strong>현재 소스와 일치</strong>함을 확인했다. 동작 변화는 없으며 위 판정에 영향이 없다.
+독립 실행한 <code>picnic_app</code> analyzer 결과(No issues found, 2.5s)도 조정자의 재실행 결과와 일치한다.
+</p>
+
+<h2>요구사항 대조</h2>
+
+<table>
+<thead><tr><th>요구</th><th>판정</th><th>근거</th></tr></thead>
+<tbody>
+
+<tr>
+<td>SDK 준비 후에만 연결. 시작 / 동일 사용자 auth replay / token refresh 에서 목록·과거 로컬 getStatus 0회</td>
+<td>충족</td>
+<td>
+<code>app.dart:153-158</code> — <code>await MainInitializer.sdkReady</code> 뒤에만 <code>ref.read(adRewardLifecycleProvider)</code>·<code>start()</code>.
+<code>_syncOwner</code>(<code>ad_reward_lifecycle.dart:48-53</code>)는 <strong>소유자 문자열이 바뀔 때만</strong> 동작하므로 replay 된 <code>signedIn</code> 과 <code>tokenRefreshed</code> 는 no-op.
+테스트 1이 <code>listCalls/statusCalls/oldRewards.reads/wallet.calls</code> 를 모두 0으로 단언하고,
+추가로 <code>container.exists(walletSummaryProvider) == false</code> 로 <strong>파우치 provider 자체를 만들지 않는 것</strong>까지 못박는다.
+구조적으로도 <code>recover()</code>·<code>listUnacknowledged</code> 호출부가 코드베이스에 0건이다.
+</td>
+</tr>
+
+<tr>
+<td>실제 resumed 에서 <em>이미 로드된</em> 지갑만 <code>refreshOnResume</code> 으로 갱신</td>
+<td>충족</td>
+<td>
+<code>didChangeAppLifecycleState</code>(<code>:56-67</code>)가 <code>state != resumed</code> 를 조기 반환하고 <code>_wallet.refreshOnResume()</code> 만 호출한다.
+“이미 로드된 경우만”은 <code>WalletResumeRefresher</code> 의 <code>_isWalletLoaded</code>(<code>ref.exists</code> + <code>hasValue</code>) 가 담당하며, 이 리뷰는 그 호출 배선만 확인했다(대상 분리).
+테스트 1의 unloaded resume 에서 <code>wallet.calls == 0</code> 으로 끝단 확인된다.
+</td>
+</tr>
+
+<tr>
+<td>60초 성공 cooldown / 6초 읽기 상한 / coalescing 유지</td>
+<td>충족</td>
+<td>
+배선이 <code>refreshOnResume()</code> 단일 창구를 쓰므로 세 특성이 그대로 적용된다
+(<code>wallet_resume_refresher.dart:13</code> 60s, <code>:20</code> <code>kWalletSummaryReadTimeout</code> 재사용, <code>:115-116</code> 단일 비행).
+테스트 2가 연속 resume 2회에 <code>wallet.calls == 1</code>(coalescing), 이어서 tokenRefreshed+resume 에도 <code>1</code>(cooldown) 을 단언한다.
+</td>
+</tr>
+
+<tr>
+<td>owner 변경 / 로그아웃 / A→B→A 에서 pending 응답 폐기</td>
+<td>충족</td>
+<td>
+<code>_syncOwner</code> 가 <strong>모든</strong> 소유자 전이에서 <code>_wallet.reset()</code>(generation++ → 늦은 응답 폐기)과 <code>_resetRewards()</code> 를 부른다.
+테스트 3이 A→logout→A 에서 늦은 <code>_summary(99)</code> 가 버려지고(잔액 1 유지) cooldown 도 해제됨(<code>wallet.calls == 2</code>)을 단언한다.
+리터럴 A→B→A 는 아래 관찰 3 참조 — 프로브로 실측했다.
+</td>
+</tr>
+
+<tr>
+<td>dispose 이후 구독·observer·응답 적용 금지</td>
+<td>충족</td>
+<td>
+<code>dispose()</code>(<code>:69-77</code>)가 <code>_started=false</code> → <code>removeObserver</code> → <code>subscription.cancel</code> → <code>_wallet.reset()</code> 순으로 처리한다.
+테스트 4가 dispose 후 <code>auth.emit('owner-b')</code> 와 resume 을 모두 흘려보내고 in-flight 응답까지 폐기됨을 <code>wallet.calls == 1</code>·잔액 1 로 단언한다.
+이중 dispose(위젯 + <code>ref.onDispose</code>)는 <code>_started</code> 가드로 안전하다.
+</td>
+</tr>
+
+<tr>
+<td>구매 리스너 동작 유지</td>
+<td>충족</td>
+<td>
+<code>initState</code>(<code>app.dart:101</code>)의 <code>_initializeGlobalPurchaseListener()</code>, 콜드스타트 스윕(<code>:162</code> → <code>:298-309</code>),
+resume 스윕(<code>:354-368</code>) 모두 그대로다. 이 경로의 실질 변경은 <strong>로그 호출 줄바꿈 하나뿐</strong>이다.
+</td>
+</tr>
+
+<tr>
+<td>소유권 분리 (WalletResumeRefresher 내부는 별도 리뷰)</td>
+<td>충족</td>
+<td>
+<code>AdRewardLifecycle</code> 은 <code>reset()</code>·<code>refreshOnResume()</code> 두 공개 메서드만 소비한다. 잔액 판단·세대·쿨다운 로직을 재구현하거나 우회하지 않는다.
+</td>
+</tr>
+
+</tbody>
+</table>
+
+<h2>지적 (전부 비차단)</h2>
+
+<div class="box">
+<h3>N1 <span class="sev s-low">Low · 테스트 커버리지</span> <code>_syncOwner</code> 의 광고측 절반(<code>resetRewards</code>)을 4개 테스트 중 어느 것도 단언하지 않는다</h3>
+<p class="meta"><strong>파일</strong> <code>picnic_lib/test/core/services/ad_reward_lifecycle_test.dart</code></p>
+<p><strong>실패 조건</strong>: <code>ad_reward_lifecycle.dart:84</code> 의 <code>resetRewards</code> 가 no-op 이거나 다른 콜백으로 잘못 묶여도 <strong>4개 테스트가 전부 통과한다</strong>.
+테스트들은 지갑 호출 수와 “광고 API 를 부르지 않음”만 검사할 뿐, 소유자 전환에서 광고 복구 상태가 실제로 비워지는지는 보지 않는다.</p>
+<p><strong>현재 동작은 정상</strong> — 임시 프로브로 실측했다. owner-a 로 참조 1건을 park 한 뒤:</p>
+<pre>PROBE before   owner=owner-a refs=1
+PROBE after A->B  owner=null   refs=0
+PROBE after B->A  owner=null   refs=0</pre>
+<p>즉 <code>resetForLogout()</code> 이 두 전이 모두에서 실행되고, B→A 에서 과거 참조가 <em>되살아나지 않는</em> 것(= 과거 보상 재폴링 없음)도 함께 확인된다.
+<code>AdRewardRecovery</code> 가 <code>@Riverpod(keepAlive: true)</code>(<code>ad_reward_recovery_provider.dart:91</code>)라 <code>ref.read(...notifier)</code> 로 잡아둔 tear-off 가 노후화되지 않는 것도 이 결과가 뒷받침한다.</p>
+<p><strong>최소 수정</strong>: 기존 테스트 3의 <code>auth.emit</code> 직후에 한 줄 —
+<code>expect(container.read(adRewardRecoveryProvider).activeUserId, isNull);</code></p>
+</div>
+
+<div class="box">
+<h3>N2 <span class="sev s-low">Low · 견고성</span> provider 가 재빌드되면 lifecycle 이 조용히 무장 해제된다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/core/services/ad_reward_lifecycle.dart:80-88</code></p>
+<p><code>adRewardLifecycleProvider</code> 는 <code>walletAuthGatewayProvider</code>(<code>:82</code>)와 <code>walletResumeRefresherProvider</code>(<code>:83</code>)를 <code>ref.watch</code> 한다.
+이 둘 중 하나라도 재빌드되면 <code>ref.onDispose(lifecycle.dispose)</code> 로 기존 인스턴스가 dispose 되고 <strong>새 인스턴스가 만들어지지만 아무도 <code>start()</code> 를 부르지 않는다.</strong>
+<code>_AppState._rewardLifecycle</code>(<code>app.dart:158</code>)은 이미 dispose 된 옛 인스턴스를 계속 들고 있다.</p>
+<p><strong>실패 조건</strong>: 그 시점 이후 프로세스가 끝날 때까지 resume 잔액 갱신도, 소유자 변경 시 광고 상태 무효화도 <strong>전혀 일어나지 않는다</strong>. 오류도 로그도 남지 않는다.</p>
+<p><strong>현재 도달 불가</strong>: <code>walletAuthGatewayProvider</code>(<code>wallet_provider.dart:67</code>)는 의존성이 없고,
+<code>picnic_lib/lib</code>·<code>picnic_app/lib</code> 전역 grep 에서 <code>invalidate</code>/<code>refresh</code>/프로덕션 override 대상이 아니다.
+따라서 오늘의 결함이 아니라 <strong>미래 회귀에 대한 취약점</strong>이다. 차단하지 않는다.</p>
+<p><strong>최소 수정</strong> (택1): (a) 두 의존성을 <code>ref.read</code> 로 바꿔 재빌드 자체를 없앤다 — 프로덕션에서 override 되지 않으므로 손실이 없다.
+(b) <code>_AppState</code> 가 provider 를 <code>ref.listen</code> 해 새 인스턴스에 <code>start()</code> 를 다시 건다.
+※ provider 본문에서 <code>start()</code> 를 부르는 방식은 “SDK 준비 후” 요구를 깨므로 적절하지 않다.</p>
+</div>
+
+<div class="box">
+<h3>N3 <span class="sev s-info">Info · 커버리지</span> 리터럴 A→B→A 는 지갑측 테스트에 없다 (구조상 동치, 프로브로 실측)</h3>
+<p class="meta"><strong>파일</strong> <code>picnic_lib/test/core/services/ad_reward_lifecycle_test.dart:416-440</code></p>
+<p>요구는 “owner 변경 / 로그아웃 / A→B→A”인데 테스트 3이 다루는 것은 A→null→A 다.
+<code>_syncOwner</code> 는 <code>owner == _owner</code> 문자열 비교뿐이라 <code>null</code> 과 <code>'owner-b'</code> 가 같은 분기를 지나므로 동치이고,
+광고측 리터럴 A→B→A 는 N1 의 프로브에서 실제로 확인했다. 표기상의 공백이며 동작 공백이 아니다.</p>
+</div>
+
+<h2>확인한 잠재 문제 — 결함 아님</h2>
+<ul class="tight">
+<li><strong>startup 에서 <code>adRewardRecoveryProvider</code> 를 즉시 생성</strong>(<code>:84</code>의 <code>ref.read(...notifier)</code>) — <code>AdRewardRecovery.build()</code> 는 <code>const AdRewardRecoveryState()</code> 로 I/O 가 없다(<code>ad_reward_recovery_provider.dart:119-120</code>). 시작 비용 0.</li>
+<li><strong>재마운트 시 재무장</strong> — <code>_isAppInitialized</code> 는 State 인스턴스 필드라 새 <code>_AppState</code> 에서 <code>_initializeAppBasics</code> 가 다시 돌고, keepAlive provider 가 <em>같은</em> 인스턴스를 돌려주며 <code>_started == false</code> 이므로 <code>start()</code> 가 정상 재무장한다.</li>
+<li><strong><code>!mounted</code> 창</strong> — <code>app.dart:154</code> 의 가드로 <code>sdkReady</code> 대기 중 unmount 되면 lifecycle 을 아예 만들지 않는다. <code>_rewardLifecycle</code> 은 null 이라 <code>dispose()</code> 도 무해하다.</li>
+<li><strong>auth 스트림이 죽는 경우</strong> — <code>onError</code> 는 로그만 남기고 <code>cancelOnError:false</code> 로 구독이 유지된다. 게다가 <code>didChangeAppLifecycleState</code> 가 resume 마다 <code>currentSession</code> 을 다시 읽어 <code>_syncOwner</code> 를 돌리므로 스트림이 끊겨도 소유자 변경을 놓치지 않는다.</li>
+<li><strong>resume 시 <code>_syncOwner</code> → <code>refreshOnResume</code> 순서</strong> — 소유자가 바뀐 resume 이면 reset 이 먼저 돌아 이전 계정의 쿨다운·진행 중 읽기를 물려받지 않은 상태에서 새 계정 읽기가 시작된다. 순서가 맞다.</li>
+<li><strong><code>isEnabled == false</code></strong> — 구독을 걸지 않고 observer 만 등록하되 <code>didChangeAppLifecycleState</code> 가 즉시 반환하므로 완전한 no-op 이다.</li>
+</ul>
+
+<h2>잘 된 부분</h2>
+<ul class="good">
+<li><strong>테스트가 소스 문자열 검사가 아니라 실제 바인딩 이벤트를 쓴다.</strong> <code>tester.binding.handleAppLifecycleStateChanged(paused)</code> → <code>(resumed)</code> 쌍으로 Flutter 의 상태 기계가 실제 전이를 내보내게 만들고, <code>AdRewardLifecycle</code> 은 주입 없이 <code>WidgetsBinding.instance</code>(테스트 바인딩)에 등록된다. 요구된 “실제 lifecycle 이벤트” 조건을 정확히 만족한다.</li>
+<li><strong>“0회”를 음성 단언 + 구조 양쪽으로 보장한다.</strong> 테스트가 <code>listCalls</code>/<code>statusCalls</code>/<code>readAll</code> 을 0으로 못박을 뿐 아니라, 페이크가 호출 시 <em>throw</em> 하도록 되어 있어 우회 호출도 즉시 드러난다. 코드베이스에 <code>recover()</code> 호출부가 남아 있지 않은 것과 이중으로 맞물린다.</li>
+<li><strong>dispose 테스트가 세 가지를 한 번에 증명한다</strong> — 구독 해제, observer 해제, in-flight 응답 폐기. 특히 dispose 이후 <code>emit</code> 과 resume 을 모두 흘려보낸 뒤 늦은 응답까지 버려지는지 확인하는 구성이 정확하다.</li>
+<li><strong>책임 분리가 깔끔하다.</strong> <code>_AppState</code> 에 흩어져 있던 auth 구독·owner 추적·resume 훅이 한 클래스로 모였고, app.dart 는 “SDK 준비 후 start, dispose 시 dispose” 두 줄만 안다. <code>WalletResumeRefresher</code> 의 공개 메서드 2개만 소비해 소유권 경계도 지켜진다.</li>
+<li><code>AppLifecycleInitializer.disposeAppListeners(null, _appLinksSubscription)</code> 로 auth 구독 정리 책임을 lifecycle 로 완전히 이관하고 app.dart 에 잔재를 남기지 않았다.</li>
+</ul>
+
+<div class="warn">
+<strong>임시 프로브 파일 (경로 보고).</strong><br>
+과제 지침에 따라 동일 워크스페이스 안에만 만들었다. 이 변경의 일부가 아니므로 커밋 전 제거가 필요하다.
+이 세션의 권한 모드에서 <code>rm</code> 이 차단되어 직접 삭제하지 못했고, 우회하지 않았다.
+<pre>/Users/charlie.hyun/orca/workspaces/picnic-app/hotfix-ad-reward-recovery-load/picnic_lib/test/core/services/zz_tmp_lifecycle_probe_test.dart</pre>
+파일 자체는 통과한다(<code>+1: All tests passed</code>). 위 “검증” 표의 4/4·analyze 수치는 <strong>이 파일을 포함하지 않은</strong> 지정 대상만 실행한 결과다.
+</div>
+
+<h2>범위</h2>
+<ul class="tight">
+<li>판정 대상은 지정된 3파일뿐이다. <code>wallet_resume_refresher.dart</code> 는 호출 계약(<code>reset</code>/<code>refreshOnResume</code>/타임아웃·쿨다운 상수) 확인 목적으로만 읽었고 내부 로직은 판정하지 않았다(별도 리뷰 대상).</li>
+<li><code>ad_reward_recovery_provider.dart</code> 도 인접 인터페이스(<code>build</code> 의 I/O 유무, <code>resetForLogout</code> 의 부작용, keepAlive 여부) 확인 목적으로만 읽었다. root 가 리뷰 중인 파일이므로 내부 지적은 올리지 않는다.</li>
+<li><strong>범위 밖 참고 1건</strong>: 제거된 기계장치를 가리키는 낡은 주석이 두 곳 남아 있다 —
+<code>picnic_lib/lib/core/analytics/earn_analytics_store.dart:21</code>(“앱을 껐다 켜면 <code>recover()</code> 가 서버의 <code>listUnacknowledged</code> 와…”)와
+<code>picnic_lib/lib/presentation/providers/ad_reward_recovery_provider.dart:108</code>(<code>_pollRecoveredReferences</code> 참조, 해당 메서드는 더 이상 존재하지 않음).
+내 3파일 밖이므로 지적이 아니라 root 쪽 라우팅용 참고로만 남긴다.</li>
+<li>코드 수정·commit·push·codegen·릴리스·외부 쓰기는 하지 않았다. 실행한 것은 읽기 전용 검증 3종과 임시 프로브 테스트 1개다.</li>
+</ul>
+
+</body>
+</html>
