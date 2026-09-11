@@ -2362,6 +2362,59 @@ void main() {
             'owner B held the session in between; the settlement A started '
             'describes a balance from a session that has ended',
       );
+
+      // Dropping it a turn later is the same bug with a delay, so the queue has
+      // to be drained and the balance asked again.
+      await _flush();
+      await _flush();
+      expect(
+        container.read(walletSummaryProvider).value?.cotton,
+        isNot(BigInt.from(99)),
+        reason: 'the stale settlement must not surface on a later turn either',
+      );
+    });
+
+    // `refresh` is the explicit re-read and deliberately does not go through
+    // the snapshot ordering rule - it is the newest thing there is. A deferred
+    // settlement must not undo one that finished after it was scheduled.
+    test('a re-read that finishes first is not undone by a deferred '
+        'settlement', () async {
+      final repository = _ScriptedWalletRepository([
+        () async => _summary(10),
+        () async => _summary(70, snapshotAt: DateTime.utc(2026, 7, 25)),
+      ]);
+      final gateway = _AsyncAuthGateway('owner-a');
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(gateway),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(gateway.close);
+      container.listen(walletSummaryProvider, (previous, next) {});
+
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      await container.read(walletSummaryProvider.future);
+
+      // Same account, new Session instance, events drained: the settlement is
+      // this user's and is allowed - only its application is deferred.
+      gateway.refreshToken('owner-a');
+      await _flush();
+
+      applyWallet(_summary(99, snapshotAt: DateTime.utc(2099)));
+      final reread = container.read(walletSummaryProvider.notifier).refresh();
+      await reread;
+      await _flush();
+
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.from(70),
+        reason:
+            'the explicit re-read started after the settlement was queued and '
+            'answered from the server; a settlement waiting on a later turn '
+            'must not roll the balance back over it',
+      );
     });
 
     test('a settlement that arrives after sign-out never lands', () async {

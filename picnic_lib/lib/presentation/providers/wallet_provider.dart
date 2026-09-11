@@ -196,6 +196,14 @@ class WalletSummary extends _$WalletSummary {
   /// 올리면 그것이 곧 재조회 루프다.
   int _authEpoch = 0;
 
+  /// 지금까지 **명시적 재조회**([refresh])가 상태를 정한 횟수.
+  ///
+  /// 재조회는 snapshot 순서 규칙을 거치지 않는다 - 서버에 직접 물은 값이라
+  /// 그 자체가 가장 최신이라는 것이 기존 계약이다. 그런데 세션이 교체된
+  /// 정산은 한 턴 미뤄지므로, 그 사이에 끝난 재조회를 뒤늦게 덮을 수 있다.
+  /// 미룰 때 이 값을 함께 잡아 두고, 깨어나서 달라졌으면 손을 뗀다.
+  int _reReads = 0;
+
   @override
   Future<WalletSummaryModel> build() async {
     final repository = ref.watch(walletRepositoryProvider);
@@ -353,6 +361,7 @@ class WalletSummary extends _$WalletSummary {
     final gateway = ref.read(walletAuthGatewayProvider);
     final owner = _currentOwner(gateway);
     if (gateway.isEnabled && owner == null) {
+      _reReads++;
       state = AsyncData(WalletRepository.signedOut());
       return;
     }
@@ -405,10 +414,12 @@ class WalletSummary extends _$WalletSummary {
             error: error,
             stackTrace: stackTrace,
           );
+          _reReads++;
           state = AsyncData(keep);
           return;
         }
       }
+      _reReads++;
       state = next;
       return;
     }
@@ -519,10 +530,17 @@ class WalletSummary extends _$WalletSummary {
     // 그래서 한 턴을 흘려보내 큐를 비운 뒤 같은 질문을 다시 한다. 흔한 경우는
     // 위에서 이미 동기로 끝났으므로 이 지연은 세션이 실제로 교체된 순간에만
     // 일어난다.
+    final reReadsWhenQueued = _reReads;
     Future<void>(() {
       if (!ref.mounted) return;
       if (!_ownsWrite(owner)) {
         _logRejectedWrite();
+        return;
+      }
+      // 미뤄 둔 사이에 명시적 재조회가 답을 정했다면 그쪽이 최신이다. 이 정산은
+      // 서버가 이미 반영했으므로 그 재조회 결과에 이미 들어 있다.
+      if (_reReads != reReadsWhenQueued) {
+        logger.i('⏪ 재조회가 먼저 끝난 정산 무시');
         return;
       }
       _applySummary(summary);
