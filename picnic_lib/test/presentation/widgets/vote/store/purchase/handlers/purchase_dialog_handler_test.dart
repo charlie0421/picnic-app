@@ -115,9 +115,22 @@ void main() {
       // floor(100 * 15 / 10) = 150, but unlike currencies are not displayed
       // as one total: 100 star candy and 50 bonus star candy stay separate.
       expect(find.text('100'), findsOneWidget);
-      expect(find.text('+50'), findsNWidgets(2));
+      expect(
+        find.byKey(const Key('purchase-confirm-bonus-total')),
+        findsOneWidget,
+      );
+      expect(find.text('Total 50'), findsOneWidget);
+      expect(
+        find.byKey(const Key('purchase-confirm-event-bonus')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('purchase-confirm-product-bonus')),
+        findsNothing,
+      );
+      expect(find.text('Event 50'), findsOneWidget);
       expect(find.text('150'), findsNothing);
-      expect(find.text('+50% EVENT BONUS'), findsOneWidget);
+      expect(find.text('+50%'), findsOneWidget);
       expect(find.text('Selected V2 Candy Boost'), findsNothing);
 
       await tester.tap(
