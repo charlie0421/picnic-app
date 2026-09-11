@@ -2270,6 +2270,9 @@ void main() {
       await _flush();
 
       applyWallet(_summary(40, snapshotAt: DateTime.utc(2026, 7, 22)));
+      // 세션 인스턴스가 갈린 쓰기는 한 턴 뒤에 판정된다. 그 한 턴이 토큰 갱신과
+      // 아직 전달되지 않은 계정 왕복을 가르는 auth 이벤트를 흘려보낸다.
+      await _flush();
 
       expect(
         container.read(walletSummaryProvider).value!.cotton,
@@ -2315,6 +2318,49 @@ void main() {
         reason:
             'the ids match at both ends, so only the count of observed '
             'switches can tell this settlement is from a session that ended',
+      );
+    });
+
+    // The window the *read* path already guards, applied to a write. gotrue
+    // swaps `currentSession` in the mutating turn and only queues the event, so
+    // A -> B -> A can complete with no listener having run: the owner id is
+    // back to A and the epoch the listener increments has not moved. Nothing
+    // event-driven has changed at that instant - only the session instance has.
+    test('a round trip completed before its auth events are delivered is '
+        'rejected', () async {
+      final repository = _ScriptedWalletRepository([
+        () async => _summary(10),
+        for (var i = 0; i < 6; i++) () async => _summary(20 + i),
+      ]);
+      final gateway = _AsyncAuthGateway('owner-a');
+      final container = ProviderContainer(
+        overrides: [
+          walletRepositoryProvider.overrideWithValue(repository),
+          walletAuthGatewayProvider.overrideWithValue(gateway),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(gateway.close);
+      container.listen(walletSummaryProvider, (previous, next) {});
+
+      final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
+      expect(
+        (await container.read(walletSummaryProvider.future)).cotton,
+        BigInt.from(10),
+      );
+
+      // Both transitions land in the subject; neither listener has run yet.
+      gateway.change('owner-b');
+      gateway.change('owner-a');
+
+      applyWallet(_summary(99, snapshotAt: DateTime.utc(2099)));
+
+      expect(
+        container.read(walletSummaryProvider).value!.cotton,
+        BigInt.from(10),
+        reason:
+            'owner B held the session in between; the settlement A started '
+            'describes a balance from a session that has ended',
       );
     });
 

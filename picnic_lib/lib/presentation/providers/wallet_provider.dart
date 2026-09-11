@@ -140,13 +140,26 @@ final class _ReadIdentity {
 /// 쪽이 그 사실을 들고 다니는 것 외에 방법이 없다. `snapshotAt` 비교로는 해결되지
 /// 않는다 - 남의 계정 응답도 더 늦은 시각일 수 있다.
 final class WalletWriteToken {
-  const WalletWriteToken._({required this.ownerId, required this.authEpoch});
+  const WalletWriteToken._({
+    required this.ownerId,
+    required this.authEpoch,
+    required this.session,
+  });
 
   /// 쓰기를 시작한 계정. 비로그인이면 null.
   final String? ownerId;
 
   /// 그때까지 관측된 계정 전환 횟수. A → B → A 왕복은 ID 로는 보이지 않는다.
   final int authEpoch;
+
+  /// 쓰기를 시작한 세션 인스턴스.
+  ///
+  /// ID 도 epoch 도 아직 움직이지 않은 순간에 **유일하게 움직여 있는 것**이다.
+  /// gotrue 는 세션을 바꾸는 턴에 `currentSession` 을 즉시 갈고 이벤트는 큐에만
+  /// 넣으므로(`BehaviorSubject`, `sync: false`), 이벤트가 전달되기 전에 끝난
+  /// A → B → A 는 ID 로도 epoch 로도 보이지 않는다. 다만 이것 하나만으로는
+  /// 판정할 수 없다 - 같은 계정의 토큰 갱신도 새 인스턴스이기 때문이다.
+  final Session? session;
 }
 
 /// 파우치 최초 로드 실패에 대한 자동 재시도 정책.
@@ -430,10 +443,14 @@ class WalletSummary extends _$WalletSummary {
   ///
   /// **비동기 작업을 시작하는 자리에서** 불러야 한다. 응답이 도착한 자리에서
   /// 부르면 그 순간의 계정을 담게 되므로 항상 통과한다 - 검사하지 않는 것과 같다.
-  WalletWriteToken captureOwner() => WalletWriteToken._(
-    ownerId: _currentOwner(ref.read(walletAuthGatewayProvider)),
-    authEpoch: _authEpoch,
-  );
+  WalletWriteToken captureOwner() {
+    final gateway = ref.read(walletAuthGatewayProvider);
+    return WalletWriteToken._(
+      ownerId: _currentOwner(gateway),
+      authEpoch: _authEpoch,
+      session: _currentSession(gateway),
+    );
+  }
 
   /// [token] 으로 시작한 쓰기가 **아직 이 화면의 것인지**.
   ///
@@ -476,10 +493,47 @@ class WalletSummary extends _$WalletSummary {
     required WalletWriteToken owner,
   }) {
     if (!_ownsWrite(owner)) {
-      logger.i('🚫 이전 계정의 정산 무시: ${owner.ownerId}');
+      _logRejectedWrite();
       return;
     }
 
+    // 세션 인스턴스까지 그대로면 그 사이 아무 일도 없었다. 즉시 쓴다.
+    if (identical(
+      owner.session,
+      _currentSession(ref.read(walletAuthGatewayProvider)),
+    )) {
+      _applySummary(summary);
+      return;
+    }
+
+    // 여기가 애매한 구간이다. 계정도 같고 epoch 도 그대로인데 세션 인스턴스만
+    // 갈렸다. 두 가지가 이 모습을 만든다.
+    //
+    //   * 같은 계정의 토큰 갱신 - 이 정산은 이 화면의 것이므로 **써야 한다**.
+    //   * 이벤트가 아직 전달되지 않은 A → B → A 왕복 - **버려야 한다**.
+    //
+    // 지금은 둘을 가를 수 없다. 그 차이를 아는 것은 아직 큐에 있는 auth 이벤트
+    // 뿐이고, 그것이 전달되면 왕복은 [_authEpoch] 를 올리지만 토큰 갱신은
+    // 올리지 않는다(리스너가 같은 사용자 이벤트를 그냥 지나친다).
+    //
+    // 그래서 한 턴을 흘려보내 큐를 비운 뒤 같은 질문을 다시 한다. 흔한 경우는
+    // 위에서 이미 동기로 끝났으므로 이 지연은 세션이 실제로 교체된 순간에만
+    // 일어난다.
+    Future<void>(() {
+      if (!ref.mounted) return;
+      if (!_ownsWrite(owner)) {
+        _logRejectedWrite();
+        return;
+      }
+      _applySummary(summary);
+    });
+  }
+
+  /// 폐기 사실만 남긴다. 계정 ID 는 기록하지 않는다 - 이 로그는 정상 동작 중에도
+  /// 찍히고, 운영 로그 수집이 켜진 빌드에서 사용자 식별자를 흘릴 이유가 없다.
+  void _logRejectedWrite() => logger.i('🚫 이전 계정의 정산 무시');
+
+  void _applySummary(WalletSummaryModel summary) {
     final current = state.value;
     if (current != null && summary.snapshotAt.isBefore(current.snapshotAt)) {
       logger.i('⏪ 이전 스냅샷 무시: ${summary.snapshotAt} < ${current.snapshotAt}');
