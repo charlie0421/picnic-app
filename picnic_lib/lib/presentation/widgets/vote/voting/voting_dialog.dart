@@ -594,9 +594,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             },
           ),
         );
-        container
-            .read(walletSummaryProvider.notifier)
-            .setSummary(result.wallet);
+        // TODO(PICNIC-2664): 투표를 시작한 시점의 소유자를 잡아 전달해야 한다.
+        final walletNotifier = container.read(walletSummaryProvider.notifier);
+        walletNotifier.setSummary(
+          result.wallet,
+          owner: walletNotifier.captureOwner(),
+        );
         container
             .read(
               asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier,

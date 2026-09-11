@@ -132,6 +132,23 @@ final class _ReadIdentity {
   final Session? session;
 }
 
+/// 지갑 쓰기를 **시작한** 계정. [WalletSummary.captureOwner] 로만 만들어진다.
+///
+/// 왜 값이 아니라 타입인지: 정산 응답([WalletSummaryModel])에는 소유자가 없다.
+/// 서버 계약이 `wallet.v1` 이고 거기에 사용자 ID 가 없기 때문이다. 그래서 응답이
+/// 도착한 뒤에 provider 가 "이건 누구 것이냐"를 되짚을 수단이 아예 없고, 시작한
+/// 쪽이 그 사실을 들고 다니는 것 외에 방법이 없다. `snapshotAt` 비교로는 해결되지
+/// 않는다 - 남의 계정 응답도 더 늦은 시각일 수 있다.
+final class WalletWriteToken {
+  const WalletWriteToken._({required this.ownerId, required this.authEpoch});
+
+  /// 쓰기를 시작한 계정. 비로그인이면 null.
+  final String? ownerId;
+
+  /// 그때까지 관측된 계정 전환 횟수. A → B → A 왕복은 ID 로는 보이지 않는다.
+  final int authEpoch;
+}
+
 /// 파우치 최초 로드 실패에 대한 자동 재시도 정책.
 ///
 /// riverpod 3 은 build 실패를 기본값으로 **10회, 200ms→6.4s 백오프**로 자동
@@ -408,6 +425,30 @@ class WalletSummary extends _$WalletSummary {
       captured.authEpoch == _authEpoch &&
       identical(captured.session, _currentSession(gateway));
 
+  /// 지금 시작하는 쓰기의 주인을 담아 둔다. 응답이 도착했을 때 [setSummary] 가
+  /// "이건 아직 이 계정의 것인가"를 물을 수 있는 유일한 근거다.
+  ///
+  /// **비동기 작업을 시작하는 자리에서** 불러야 한다. 응답이 도착한 자리에서
+  /// 부르면 그 순간의 계정을 담게 되므로 항상 통과한다 - 검사하지 않는 것과 같다.
+  WalletWriteToken captureOwner() => WalletWriteToken._(
+    ownerId: _currentOwner(ref.read(walletAuthGatewayProvider)),
+    authEpoch: _authEpoch,
+  );
+
+  /// [token] 으로 시작한 쓰기가 **아직 이 화면의 것인지**.
+  ///
+  /// 읽기 경로의 [_stillOwns] 와 일부러 다르다. 저쪽은 `identical(session)` 까지
+  /// 보지만 여기서 그러면 **과잉 차단**이다 - 정산은 네트워크만큼 걸리고 그 사이
+  /// 토큰이 갱신되면 gotrue 가 같은 계정에 새 `Session` 인스턴스를 끼운다. 그것을
+  /// 남의 것으로 보면 적립이 화면에 영영 반영되지 않는다.
+  ///
+  /// 반대로 사용자 ID 만 보면 A → B → A 왕복을 놓친다. 양쪽 다 같은 ID 이기
+  /// 때문이다. [_authEpoch] 는 **계정 전환에만** 오르므로(같은 계정의 토큰 갱신과
+  /// 리플레이는 올리지 않는다) 둘을 함께 보면 왕복은 잡고 갱신은 통과시킨다.
+  bool _ownsWrite(WalletWriteToken token) =>
+      token.authEpoch == _authEpoch &&
+      token.ownerId == _currentOwner(ref.read(walletAuthGatewayProvider));
+
   /// Applies the balance a settled operation came back with.
   ///
   /// Three call sites write here - a settled vote, a watched rewarded ad, and a
@@ -425,7 +466,20 @@ class WalletSummary extends _$WalletSummary {
   ///
   /// [refresh] deliberately does not come through here: an explicit re-read is
   /// the newest thing there is.
-  void setSummary(WalletSummaryModel summary) {
+  ///
+  /// [owner] 는 이 응답을 **시작한** 계정이다([captureOwner]). 필수 인자인 것이
+  /// 이 가드의 전부다 - 선택 인자였다면 다음 호출처가 빠뜨렸을 때 아무도 모른 채
+  /// 예전 동작으로 돌아간다. 지갑 모델(`wallet.v1`)에는 소유자가 없어서 provider
+  /// 가 응답만 보고 출처를 되짚을 방법이 없다.
+  void setSummary(
+    WalletSummaryModel summary, {
+    required WalletWriteToken owner,
+  }) {
+    if (!_ownsWrite(owner)) {
+      logger.i('🚫 이전 계정의 정산 무시: ${owner.ownerId}');
+      return;
+    }
+
     final current = state.value;
     if (current != null && summary.snapshotAt.isBefore(current.snapshotAt)) {
       logger.i('⏪ 이전 스냅샷 무시: ${summary.snapshotAt} < ${current.snapshotAt}');
@@ -448,15 +502,12 @@ final walletHistorySessionProvider = Provider.autoDispose<WalletHistorySession>(
     if (!gateway.isEnabled) return WalletHistorySession(null);
     var observedOwner = gateway.currentSession?.user.id;
     final session = WalletHistorySession(observedOwner);
-    final subscription = gateway.authStateChanges.listen(
-      (change) {
-        final nextOwner = change.session?.user.id;
-        if (nextOwner == observedOwner) return;
-        observedOwner = nextOwner;
-        ref.invalidateSelf();
-      },
-      onError: _handleAuthStateStreamError,
-    );
+    final subscription = gateway.authStateChanges.listen((change) {
+      final nextOwner = change.session?.user.id;
+      if (nextOwner == observedOwner) return;
+      observedOwner = nextOwner;
+      ref.invalidateSelf();
+    }, onError: _handleAuthStateStreamError);
     ref.onDispose(subscription.cancel);
     return session;
   },

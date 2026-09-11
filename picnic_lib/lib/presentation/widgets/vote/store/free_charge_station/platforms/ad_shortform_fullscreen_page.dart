@@ -132,7 +132,9 @@ class AdShortformLogic {
   }) async {
     final wallet = walletSummaryToApply(response);
     if (wallet != null) {
-      container.read(walletSummaryProvider.notifier).setSummary(wallet);
+      // TODO(PICNIC-2664): 광고 시작 시점의 소유자를 잡아 전달해야 한다.
+      final notifier = container.read(walletSummaryProvider.notifier);
+      notifier.setSummary(wallet, owner: notifier.captureOwner());
       return;
     }
     if (shouldRefreshLegacyProfile(response)) {

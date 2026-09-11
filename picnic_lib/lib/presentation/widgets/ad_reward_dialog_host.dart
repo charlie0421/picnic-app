@@ -98,7 +98,10 @@ class _AdRewardDialogHostState extends ConsumerState<AdRewardDialogHost> {
     // 팝업을 띄우기 전에 공통 지갑 상태에 즉시 반영한다. 별도 재조회보다
     // 정확하고, AdMob/Pangle/내부 숏폼의 복구 팝업 경로를 한 번에 다룬다.
     if (ref.exists(walletSummaryProvider)) {
-      ref.read(walletSummaryProvider.notifier).setSummary(queued.status.wallet);
+      // TODO(PICNIC-2664): 보상을 시청한 시점의 소유자를 잡아 와야 한다. 여기서
+      // 잡으면 검사가 항상 통과하므로 지금은 기존 동작 그대로다.
+      final notifier = ref.read(walletSummaryProvider.notifier);
+      notifier.setSummary(queued.status.wallet, owner: notifier.captureOwner());
     }
 
     _dialogOpen = true;
