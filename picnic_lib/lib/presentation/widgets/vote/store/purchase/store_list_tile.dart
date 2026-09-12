@@ -112,10 +112,9 @@ class StoreListTile extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      height: subtitle != null ? 64 : 48,
-      width: buttonScale,
-      child: content,
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: subtitle != null ? 64 : 48),
+      child: SizedBox(width: buttonScale, child: content),
     );
   }
 }
