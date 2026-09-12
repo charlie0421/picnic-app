@@ -103,6 +103,10 @@ void main() {
 
       expect(find.byType(VoteCardColumnAchieve), findsOneWidget);
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
+      final image = tester.widget<PicnicCachedNetworkImage>(
+        find.byType(PicnicCachedNetworkImage),
+      );
+      expect((image.width, image.height), (45, 45));
     });
 
     testWidgets('reward with null thumbnail renders instead of crashing', (

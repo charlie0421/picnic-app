@@ -20,6 +20,7 @@ import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete_helper.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 Future showVotingCompleteDialog({
@@ -455,6 +456,11 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
             imageUrl: artist.image ?? '',
             width: 60,
             height: 60,
+            placeholder: VoteDetailPortraitCachePlaceholder(
+              imageUrl: artist.image ?? '',
+            ),
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+            priority: ImagePriority.high,
           ),
         ),
       ),
@@ -489,6 +495,11 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
             imageUrl: group.image!,
             width: 60,
             height: 60,
+            placeholder: VoteDetailPortraitCachePlaceholder(
+              imageUrl: group.image!,
+            ),
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+            priority: ImagePriority.high,
           ),
         ),
       ),

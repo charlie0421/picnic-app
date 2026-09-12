@@ -21,6 +21,7 @@ import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart'
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/vote_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -633,6 +634,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                         width: 60.w,
                         height: 60.w,
                         fit: BoxFit.cover,
+                        placeholder: VoteDetailPortraitCachePlaceholder(
+                          imageUrl: imageUrl,
+                        ),
+                        lazyLoadingStrategy: LazyLoadingStrategy.none,
+                        priority: ImagePriority.high,
                       )
                       : Container(
                         width: 60.w,

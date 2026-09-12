@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CandyBoostBanner extends ConsumerWidget {
-  const CandyBoostBanner({super.key, required this.creative});
+  const CandyBoostBanner({
+    super.key,
+    required this.creative,
+    this.imageRequest,
+  });
   final PromotionCreativeModel creative;
+  final PicnicImageRequest? imageRequest;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,7 +36,13 @@ class CandyBoostBanner extends ConsumerWidget {
         fit: StackFit.expand,
         alignment: Alignment.centerLeft,
         children: [
-          PicnicCachedNetworkImage(imageUrl: image, fit: BoxFit.cover),
+          PicnicCachedNetworkImage(
+            imageUrl: image,
+            imageRequest: imageRequest,
+            fit: BoxFit.cover,
+            lazyLoadingStrategy: LazyLoadingStrategy.none,
+            priority: ImagePriority.high,
+          ),
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(

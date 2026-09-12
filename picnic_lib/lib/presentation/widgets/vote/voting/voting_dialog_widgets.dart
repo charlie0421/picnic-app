@@ -6,7 +6,192 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_helper.dart';
 import 'package:picnic_lib/ui/style.dart';
+
+final class _CacheOnlyImageMiss implements Exception {
+  const _CacheOnlyImageMiss();
+}
+
+/// Shows the already-decoded vote-detail portrait, and never fetches it.
+///
+/// This widget is used only as [PicnicCachedNetworkImage.placeholder]. The
+/// popup's full-quality request still starts immediately; a completed 78px
+/// detail entry can cover the loading interval without creating another disk
+/// or network request when that entry is missing, pending, or evicted.
+class VoteDetailPortraitCachePlaceholder extends StatefulWidget {
+  const VoteDetailPortraitCachePlaceholder({
+    super.key,
+    required this.imageUrl,
+    this.fit = BoxFit.cover,
+  });
+
+  final String imageUrl;
+  final BoxFit fit;
+
+  @override
+  State<VoteDetailPortraitCachePlaceholder> createState() =>
+      _VoteDetailPortraitCachePlaceholderState();
+}
+
+class _VoteDetailPortraitCachePlaceholderState
+    extends State<VoteDetailPortraitCachePlaceholder> {
+  ImageInfo? _imageInfo;
+  ImageStreamCompleter? _completer;
+  ImageStreamListener? _listener;
+  int _generation = 0;
+  bool _isStartingLookup = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _startLookup();
+  }
+
+  @override
+  void didUpdateWidget(VoteDetailPortraitCachePlaceholder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      _startLookup();
+    }
+  }
+
+  void _startLookup() {
+    final generation = ++_generation;
+    _releaseCachedImage();
+    if (widget.imageUrl.trim().isEmpty) return;
+
+    _isStartingLookup = true;
+    try {
+      final request = resolveVoteDetailPortraitImageRequest(
+        context: context,
+        imageUrl: widget.imageUrl,
+      );
+      final configuration = createLocalImageConfiguration(
+        context,
+        size: const Size(
+          voteDetailPortraitLogicalSize,
+          voteDetailPortraitLogicalSize,
+        ),
+      );
+      request.obtainKey(configuration).then<void>((key) {
+        if (!_isCurrentGeneration(generation)) return;
+        _adoptCompletedCacheEntry(key, generation);
+      }, onError: (Object _, StackTrace _) {});
+    } on Object {
+      // Invalid sources stay on the same loading placeholder. In particular,
+      // this cache-only path must never fall back to resolving the provider.
+    } finally {
+      _isStartingLookup = false;
+    }
+  }
+
+  void _adoptCompletedCacheEntry(Object key, int generation) {
+    final cache = PaintingBinding.instance.imageCache;
+    final completer = cache.putIfAbsent(
+      key,
+      () => throw const _CacheOnlyImageMiss(),
+      onError: (Object _, StackTrace? _) {},
+    );
+    if (completer == null || !_isCurrentGeneration(generation)) return;
+
+    // Reject pending or uncached entries. putIfAbsent can also promote a
+    // decoded live entry back into keepAlive; that completed image is reusable.
+    final status = cache.statusForKey(key);
+    if (status.pending || !status.keepAlive) return;
+
+    late final ImageStreamListener listener;
+    listener = ImageStreamListener(
+      (info, _) => _acceptImage(info, completer, listener, generation),
+      onError: (Object _, StackTrace? _) {
+        _dropFailedCompleter(completer, listener, generation);
+      },
+    );
+    _completer = completer;
+    _listener = listener;
+    try {
+      completer.addListener(listener);
+    } on StateError {
+      // An entry evicted between lookup and attachment remains a cache miss.
+      if (identical(_completer, completer) && identical(_listener, listener)) {
+        _completer = null;
+        _listener = null;
+      }
+    }
+  }
+
+  void _acceptImage(
+    ImageInfo info,
+    ImageStreamCompleter completer,
+    ImageStreamListener listener,
+    int generation,
+  ) {
+    if (!_isCurrentGeneration(generation) ||
+        !identical(_completer, completer) ||
+        !identical(_listener, listener)) {
+      info.dispose();
+      return;
+    }
+
+    final previous = _imageInfo;
+    if (previous != null && info.isCloneOf(previous)) {
+      info.dispose();
+      return;
+    }
+    _imageInfo = info;
+    previous?.dispose();
+    if (!_isStartingLookup) setState(() {});
+  }
+
+  void _dropFailedCompleter(
+    ImageStreamCompleter completer,
+    ImageStreamListener listener,
+    int generation,
+  ) {
+    if (!_isCurrentGeneration(generation) ||
+        !identical(_completer, completer) ||
+        !identical(_listener, listener)) {
+      return;
+    }
+    _releaseCachedImage();
+    if (!_isStartingLookup) setState(() {});
+  }
+
+  bool _isCurrentGeneration(int generation) =>
+      mounted && generation == _generation;
+
+  void _releaseCachedImage() {
+    final completer = _completer;
+    final listener = _listener;
+    _completer = null;
+    _listener = null;
+    if (completer != null && listener != null) {
+      completer.removeListener(listener);
+    }
+    _imageInfo?.dispose();
+    _imageInfo = null;
+  }
+
+  @override
+  void dispose() {
+    _generation++;
+    _releaseCachedImage();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final imageInfo = _imageInfo;
+    if (imageInfo == null) return buildImageLoadingOverlay();
+
+    return RawImage(
+      image: imageInfo.image,
+      debugImageLabel: imageInfo.debugLabel,
+      scale: imageInfo.scale,
+      fit: widget.fit,
+    );
+  }
+}
 
 /// 아티스트 프로필 이미지
 class VotingArtistImage extends StatelessWidget {
@@ -37,6 +222,11 @@ class VotingArtistImage extends StatelessWidget {
                 width: 80.w,
                 height: 80.w,
                 fit: BoxFit.cover,
+                placeholder: VoteDetailPortraitCachePlaceholder(
+                  imageUrl: imageUrl,
+                ),
+                lazyLoadingStrategy: LazyLoadingStrategy.none,
+                priority: ImagePriority.high,
               )
             : Container(
                 width: 80.w,

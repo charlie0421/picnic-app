@@ -1367,11 +1367,15 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     return PicnicCachedNetworkImage(
       key: ValueKey('cached_image_$imageUrl'), // URL 단위로 고정 (rank 미포함)
       imageUrl: imageUrl,
+      imageRequest: resolveVoteDetailPortraitImageRequest(
+        context: context,
+        imageUrl: imageUrl,
+      ),
       fit: BoxFit.cover,
-      width: 39,
-      height: 39,
-      memCacheWidth: 78, // 2x 해상도로 메모리 캐시 (화면 크기 대비 최적화)
-      memCacheHeight: 78,
+      width: voteDetailPortraitLogicalSize,
+      height: voteDetailPortraitLogicalSize,
+      memCacheWidth: voteDetailPortraitDecodeSize,
+      memCacheHeight: voteDetailPortraitDecodeSize,
       placeholder: _buildImagePlaceholder(),
       lazyLoadingStrategy: LazyLoadingStrategy.none, // sliver 뷰포트가 게이트
       visibilityThreshold: 0.1,
@@ -1383,8 +1387,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       maxRetries: 2,
       // C3: 39x39 썸네일 전용 요청 가중치 축소 (이 리스트에만 적용, 다른 화면 불변).
       // sub-50px 슬롯이라 q55 + dpr 상한 2.0 으로 충분; 글로벌 _getTransformedUrl 미변경.
-      maxQualityOverride: 55,
-      maxResolutionMultiplierCap: 2.0,
+      maxQualityOverride: voteDetailPortraitQuality,
+      maxResolutionMultiplierCap: voteDetailPortraitResolutionMultiplierCap,
       deferDuringFastScroll: true,
     );
   }

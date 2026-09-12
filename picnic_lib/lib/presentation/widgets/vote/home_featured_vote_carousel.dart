@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_prefetch.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/providers/active_featured_votes_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_card.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -63,8 +65,47 @@ abstract final class FeaturedVoteSkeletonKeys {
 
 class _HomeFeaturedVoteCarouselState
     extends ConsumerState<HomeFeaturedVoteCarousel> {
-  late final PageController _controller;
+  late PageController _controller;
   int _page = 0;
+  int? _activeVoteId;
+  String _sequence = '';
+  int _revision = 0;
+  final _prefetchScope = PicnicImagePrefetchScope();
+  String? _prefetchSignature;
+  int _prefetchGeneration = 0;
+
+  void _synchronizeEntries(List<FeaturedVoteEntry> entries) {
+    final sequence = entries.map((e) => e.vote.id).join(',');
+    if (_sequence == sequence) return;
+    final preserved = entries.indexWhere((e) => e.vote.id == _activeVoteId);
+    _page = preserved >= 0 ? preserved : 0;
+    _activeVoteId = entries.isEmpty ? null : entries[_page].vote.id;
+    _sequence = sequence;
+    _revision++;
+    final previousController = _controller;
+    _controller = PageController(
+      initialPage: _page,
+      viewportFraction: HomeFeaturedVoteCarousel.viewportFraction,
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      previousController.dispose();
+    });
+    if (entries.isEmpty) _schedulePrefetch(const []);
+  }
+
+  void _schedulePrefetch(List<PicnicImageRequest> requests) {
+    final signature = requests
+        .map((r) => '${r.url}:${r.decodeWidth}:${r.decodeHeight}')
+        .join('|');
+    if (_prefetchSignature == signature) return;
+    _prefetchSignature = signature;
+    final generation = ++_prefetchGeneration;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && generation == _prefetchGeneration) {
+        _prefetchScope.replace(context, requests);
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -76,6 +117,8 @@ class _HomeFeaturedVoteCarouselState
 
   @override
   void dispose() {
+    _prefetchGeneration++;
+    _prefetchScope.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -85,54 +128,93 @@ class _HomeFeaturedVoteCarouselState
     final entriesAsync = ref.watch(asyncActiveFeaturedVotesProvider);
 
     return entriesAsync.when(
-      loading: () => SizedBox(
-        // data 브랜치의 PageView 는 뷰포트를 가로로 꽉 채운다. 폭 제약이 loose 인
-        // 곳에 놓여도 두 브랜치가 같은 폭을 갖도록 여기서도 최대 폭을 요구한다.
-        width: double.infinity,
-        height: HomeFeaturedVoteCarousel.viewportHeight,
-        // PageView 뷰포트는 자식을 hardEdge 로 자른다. 카드 글로우가 아래쪽에서
-        // 잘리는 모양까지 같아야 데이터 도착 시 테두리가 달라 보이지 않는다.
-        child: ClipRect(
-          // 첫 페이지가 쉬는 위치와 동일한 사각형: 뷰포트 폭 x viewportFraction,
-          // 가운데 정렬(PageView 의 padEnds: true 와 같은 결과).
-          child: FractionallySizedBox(
-            widthFactor: HomeFeaturedVoteCarousel.viewportFraction,
-            child: const Padding(
-              padding: HomeFeaturedVoteCarousel.pageMargin,
-              child: _FeaturedVoteCardSkeleton(),
-            ),
-          ),
-        ),
-      ),
-      error: (e, s) => const SizedBox.shrink(),
-      data: (entries) {
-        if (entries.isEmpty) return const SizedBox.shrink();
-        return Column(
-          children: [
-            SizedBox(
-              height: HomeFeaturedVoteCarousel.viewportHeight,
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: entries.length,
-                padEnds: true,
-                onPageChanged: (i) => setState(() => _page = i),
-                itemBuilder: (context, i) {
-                  final entry = entries[i];
-                  return Padding(
-                    padding: HomeFeaturedVoteCarousel.pageMargin,
-                    child: HomeFeaturedVoteCard(
-                      vote: entry.vote,
-                      percent: entry.topPercent,
-                    ),
-                  );
-                },
+      loading: () {
+        _synchronizeEntries(const []);
+        return SizedBox(
+          // data 브랜치의 PageView 는 뷰포트를 가로로 꽉 채운다. 폭 제약이 loose 인
+          // 곳에 놓여도 두 브랜치가 같은 폭을 갖도록 여기서도 최대 폭을 요구한다.
+          width: double.infinity,
+          height: HomeFeaturedVoteCarousel.viewportHeight,
+          // PageView 뷰포트는 자식을 hardEdge 로 자른다. 카드 글로우가 아래쪽에서
+          // 잘리는 모양까지 같아야 데이터 도착 시 테두리가 달라 보이지 않는다.
+          child: ClipRect(
+            // 첫 페이지가 쉬는 위치와 동일한 사각형: 뷰포트 폭 x viewportFraction,
+            // 가운데 정렬(PageView 의 padEnds: true 와 같은 결과).
+            child: FractionallySizedBox(
+              widthFactor: HomeFeaturedVoteCarousel.viewportFraction,
+              child: const Padding(
+                padding: HomeFeaturedVoteCarousel.pageMargin,
+                child: _FeaturedVoteCardSkeleton(),
               ),
             ),
-            if (entries.length > 1) ...[
-              const SizedBox(height: 12),
-              _Dots(count: entries.length, active: _page),
-            ],
-          ],
+          ),
+        );
+      },
+      error: (e, s) {
+        _synchronizeEntries(const []);
+        return const SizedBox.shrink();
+      },
+      data: (entries) {
+        _synchronizeEntries(entries);
+        if (entries.isEmpty) return const SizedBox.shrink();
+        final revision = _revision;
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final imageWidth = HomeFeaturedVoteCard.heroWidth(
+              constraints.maxWidth * HomeFeaturedVoteCarousel.viewportFraction -
+                  HomeFeaturedVoteCarousel.pageMargin.horizontal,
+            );
+            final requests = [
+              for (final entry in entries)
+                HomeFeaturedVoteCard.imageRequestFor(
+                  context,
+                  entry.vote,
+                  imageWidth,
+                ),
+            ];
+            _schedulePrefetch([
+              for (var i = _page + 1; i <= _page + 2 && i < entries.length; i++)
+                ?requests[i],
+            ]);
+            return Column(
+              children: [
+                SizedBox(
+                  height: HomeFeaturedVoteCarousel.viewportHeight,
+                  child: PageView.builder(
+                    key: ValueKey(revision),
+                    controller: _controller,
+                    itemCount: entries.length,
+                    padEnds: true,
+                    onPageChanged: (i) {
+                      if (!mounted || revision != _revision || i == _page) {
+                        return;
+                      }
+                      setState(() {
+                        _page = i;
+                        _activeVoteId = entries[i].vote.id;
+                      });
+                    },
+                    itemBuilder: (context, i) {
+                      final entry = entries[i];
+                      return Padding(
+                        key: ValueKey(entry.vote.id),
+                        padding: HomeFeaturedVoteCarousel.pageMargin,
+                        child: HomeFeaturedVoteCard(
+                          vote: entry.vote,
+                          percent: entry.topPercent,
+                          heroImageRequest: requests[i],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                if (entries.length > 1) ...[
+                  const SizedBox(height: 12),
+                  _Dots(count: entries.length, active: _page),
+                ],
+              ],
+            );
+          },
         );
       },
     );
@@ -172,14 +254,14 @@ class _FeaturedVoteCardSkeleton extends StatelessWidget {
   const _FeaturedVoteCardSkeleton();
 
   Widget _bar(Key key, double width, double height, double radius) => Container(
-        key: key,
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(radius),
-        ),
-      );
+    key: key,
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(radius),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {

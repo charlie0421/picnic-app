@@ -19,9 +19,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
   final Animation<double> opacityAnimation;
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     const width = 50.0;
     final isAchieve = voteItem.voteTotal! >= rank.amount;
     final barHeight = isAchieve ? rank.order * 20.0 + 60 : 60.0;
@@ -29,19 +27,12 @@ class VoteCardColumnAchieve extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       clipBehavior: Clip.none,
       children: [
-        SizedBox(
-          width: width,
-          height: barHeight,
-        ),
+        SizedBox(width: width, height: barHeight),
         Positioned(
           bottom: 0,
           width: width,
           height: barHeight,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: commonGradient,
-            ),
-          ),
+          child: Container(decoration: BoxDecoration(gradient: commonGradient)),
         ),
         Positioned(
           bottom: (barHeight + width * .7),
@@ -69,10 +60,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
               height: width * .9,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
-                border: Border.all(
-                  color: AppColors.grey00,
-                  width: 1.w,
-                ),
+                border: Border.all(color: AppColors.grey00, width: 1.w),
               ),
               child: FadeTransition(
                 opacity: opacityAnimation,
@@ -86,9 +74,12 @@ class VoteCardColumnAchieve extends StatelessWidget {
                       // reward_dialog.dart / reward_list_section.dart 와 같은
                       // 처리로 맞춘다.
                       child: PicnicCachedNetworkImage(
-                          imageUrl: rank.reward.thumbnail ?? '',
-                          width: 100,
-                          height: 100),
+                        imageUrl: rank.reward.thumbnail ?? '',
+                        width: 45,
+                        height: 45,
+                        lazyLoadingStrategy: LazyLoadingStrategy.none,
+                        priority: ImagePriority.high,
+                      ),
                     ),
                     if (!isAchieve)
                       Positioned(
@@ -112,16 +103,15 @@ class VoteCardColumnAchieve extends StatelessWidget {
             opacity: opacityAnimation,
             child: SizedBox(
               width: width,
-              child: Column(children: [
-                Text(
-                  '${AppLocalizations.of(context).reward} ${rank.order}',
-                  style: getTextStyle(
-                    AppTypo.caption10SB,
-                    AppColors.grey00,
+              child: Column(
+                children: [
+                  Text(
+                    '${AppLocalizations.of(context).reward} ${rank.order}',
+                    style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ]),
+                ],
+              ),
             ),
           ),
         ),

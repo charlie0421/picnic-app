@@ -6,10 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/data/models/common/banner.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/custom_pagination.dart';
 import 'package:picnic_lib/presentation/common/candy_boost_banner.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_prefetch.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
@@ -36,18 +39,6 @@ class CommonBanner extends ConsumerStatefulWidget {
   ConsumerState<CommonBanner> createState() => _CommonBannerState();
 }
 
-/// 캠페인 RPC 대기 상한. 이 시간 안에 응답이 없으면 HOME 배너는 캠페인 없이
-/// 일반 슬라이드로 degrade 렌더한다.
-///
-/// 상한은 반드시 이 위젯 안에서만 적용한다 — HOME 은
-/// `homePromotionCampaignProvider(locale)`, 결제 배지는
-/// `paymentBadgePromotionProvider` 로 서로 다른 provider 를 읽지만, 둘 다 같은
-/// V1/V2 소스 active provider(`activePromotionCampaignV2Provider`,
-/// `activePromotionCampaignProvider`)를 내부적으로 공유한다. 상한을 그
-/// provider/리포지토리 레벨에 걸면 결제 플로우(purchase_star_candy_state)의
-/// 보너스 안내·기록까지 오염된다 (PR #143 회귀의 원인).
-const Duration commonBannerCampaignWaitCap = Duration(seconds: 5);
-
 Duration commonBannerSlideDuration(int milliseconds) =>
     Duration(milliseconds: milliseconds > 0 ? milliseconds : 3000);
 
@@ -58,8 +49,16 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
   int _currentIndex = 0;
   SwiperController? _swiperController;
   CommonBannerScheduledTask? _autoplayTask;
-  CommonBannerScheduledTask? _campaignWaitTask;
-  bool _campaignWaitExpired = false;
+  List<CommonBannerSlide> _slides = const [];
+  String? _activeSlideId;
+  String _slideSequence = '';
+  int _slideRevision = 0;
+  String? _autoplaySlideId;
+  Duration? _autoplayDuration;
+  int _autoplayGeneration = 0;
+  final _prefetchScope = PicnicImagePrefetchScope();
+  String? _prefetchSignature;
+  int _prefetchGeneration = 0;
 
   @override
   void initState() {
@@ -69,79 +68,186 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
 
   @override
   void dispose() {
-    _autoplayTask?.cancel();
-    _campaignWaitTask?.cancel();
+    _cancelAutoplay();
+    _prefetchGeneration++;
+    _prefetchScope.dispose();
     _swiperController?.dispose();
     super.dispose();
   }
 
-  void _armCampaignWaitCap() {
-    if (_campaignWaitTask != null) return;
-    _campaignWaitTask = widget.scheduler.schedule(
-      commonBannerCampaignWaitCap,
-      () {
-        if (mounted) setState(() => _campaignWaitExpired = true);
-      },
+  @override
+  void didUpdateWidget(covariant CommonBanner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.scheduler != widget.scheduler) _cancelAutoplay();
+    if (oldWidget.location != widget.location) _clearSlides();
+  }
+
+  void _cancelAutoplay() {
+    _autoplayGeneration++;
+    _autoplayTask?.cancel();
+    _autoplayTask = null;
+    _autoplaySlideId = null;
+    _autoplayDuration = null;
+  }
+
+  void _clearSlides() {
+    _cancelAutoplay();
+    _slides = const [];
+    _activeSlideId = null;
+    _currentIndex = 0;
+    _slideSequence = '';
+    _slideRevision++;
+    _schedulePrefetch(const []);
+  }
+
+  void _schedulePrefetch(List<PicnicImageRequest> requests) {
+    final signature = requests
+        .map((r) => '${r.url}:${r.decodeWidth}:${r.decodeHeight}')
+        .join('|');
+    if (_prefetchSignature == signature) return;
+    _prefetchSignature = signature;
+    final generation = ++_prefetchGeneration;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && generation == _prefetchGeneration) {
+        _prefetchScope.replace(context, requests);
+      }
+    });
+  }
+
+  PicnicImageRequest _request(String url, Size size) =>
+      PicnicImageRequest.resolve(
+        context: context,
+        imageUrl: url,
+        width: size.width,
+        height: size.height,
+      );
+
+  void _startAutoplay() {
+    if (_slides.length < 2) {
+      _cancelAutoplay();
+      return;
+    }
+    final current = _slides[_currentIndex];
+    if (_autoplayTask != null &&
+        _autoplaySlideId == current.id &&
+        _autoplayDuration == current.duration) {
+      return;
+    }
+    _cancelAutoplay();
+    _autoplaySlideId = current.id;
+    _autoplayDuration = current.duration;
+    final generation = _autoplayGeneration;
+    _autoplayTask = widget.scheduler.schedule(current.duration, () {
+      if (!mounted || generation != _autoplayGeneration || _slides.length < 2) {
+        return;
+      }
+      _autoplayTask = null;
+      _autoplayGeneration++;
+      final nextIndex = (_currentIndex + 1) % _slides.length;
+      widget.onAutoplayMove?.call(nextIndex);
+      unawaited(_swiperController?.move(nextIndex));
+    });
+  }
+
+  void _changeSlide(int index, int revision) {
+    if (!mounted ||
+        revision != _slideRevision ||
+        index < 0 ||
+        index >= _slides.length) {
+      return;
+    }
+    if (_slides[index].id == _activeSlideId) return;
+    setState(() {
+      _currentIndex = index;
+      _activeSlideId = _slides[index].id;
+      _swiperController?.index = index;
+    });
+    _startAutoplay();
+  }
+
+  List<CommonBannerSlide> _ordinarySlides(
+    List<BannerModel> banners,
+    Size size,
+  ) => [for (final item in banners) _ordinarySlide(item, size)];
+
+  CommonBannerSlide _ordinarySlide(BannerModel item, Size size) {
+    final request = _request(getLocaleTextFromJson(item.image), size);
+    return CommonBannerSlide(
+      id: 'ordinary:${item.id}',
+      duration: commonBannerSlideDuration(item.duration),
+      imageRequest: request,
+      child: _buildBannerItem(item, size, request),
     );
   }
-
-  void _clearCampaignWaitCap({required bool resetExpired}) {
-    _campaignWaitTask?.cancel();
-    _campaignWaitTask = null;
-    if (resetExpired) _campaignWaitExpired = false;
-  }
-
-  void _startAutoplay(List<CommonBannerSlide> slides) {
-    _autoplayTask?.cancel();
-    if (slides.length > 1) {
-      _autoplayTask = widget.scheduler.schedule(
-        slides[_currentIndex].duration,
-        () {
-          if (mounted) {
-            final nextIndex = (_currentIndex + 1) % slides.length;
-            widget.onAutoplayMove?.call(nextIndex);
-            _swiperController?.move(nextIndex);
-          }
-        },
-      );
-    }
-  }
-
-  List<CommonBannerSlide> _ordinarySlides(List<BannerModel> banners) => [
-    for (final item in banners)
-      CommonBannerSlide(
-        id: 'ordinary:${item.id}',
-        duration: commonBannerSlideDuration(item.duration),
-        child: _buildBannerItem(item),
-      ),
-  ];
 
   List<CommonBannerSlide> _homeSlides(
     List<BannerModel> ordinary,
     HomePromotionResolution resolved,
+    Size size,
   ) {
     final emitted = <int>{};
     return [
       for (final slide in resolved.slides)
         if (emitted.add(slide.bannerId))
-          CommonBannerSlide(
+          _campaignSlide(
             id: 'campaign:${slide.bannerId}',
             duration: commonBannerSlideDuration(slide.durationMs),
-            child: CandyBoostBanner(creative: slide.creative),
+            creative: slide.creative,
+            size: size,
           ),
       ..._ordinarySlides(
         ordinary
             .where((banner) => !resolved.ownedBannerIds.contains(banner.id))
             .toList(),
+        size,
       ),
     ];
   }
 
+  CommonBannerSlide _campaignSlide({
+    required String id,
+    required Duration duration,
+    required PromotionCreativeModel creative,
+    required Size size,
+  }) {
+    final request = _request(
+      creative.localizedImage(Localizations.localeOf(context).languageCode)!,
+      size,
+    );
+    return CommonBannerSlide(
+      id: id,
+      duration: duration,
+      imageRequest: request,
+      child: CandyBoostBanner(creative: creative, imageRequest: request),
+    );
+  }
+
   Widget _renderSlides(List<CommonBannerSlide> slides) {
-    if (slides.isEmpty) return const SizedBox.shrink();
-    _currentIndex = commonBannerSafeIndex(_currentIndex, slides.length);
+    if (slides.isEmpty) {
+      _clearSlides();
+      return const SizedBox.shrink();
+    }
+    final preservedIndex = slides.indexWhere(
+      (slide) => slide.id == _activeSlideId,
+    );
+    _currentIndex = preservedIndex < 0 ? 0 : preservedIndex;
+    _slides = slides;
+    _activeSlideId = slides[_currentIndex].id;
+    final nextRequest = slides.length > 1
+        ? slides[(_currentIndex + 1) % slides.length].imageRequest
+        : null;
+    _schedulePrefetch([?nextRequest]);
+    final sequence = slides.map((slide) => slide.id).join(',');
+    if (_slideSequence != sequence) {
+      _slideSequence = sequence;
+      _slideRevision++;
+    }
+    final revision = _slideRevision;
+    // Swiper reads this initial index when its slide sequence changes. Keep
+    // ordinary rebuilds uncontrolled so swipes do not recreate its controller.
+    _swiperController?.index = _currentIndex;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _startAutoplay(slides);
+      if (mounted && revision == _slideRevision) _startAutoplay();
     });
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -154,16 +260,14 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
                   child: slides.single.child,
                 )
               : Swiper(
+                  key: ValueKey(revision),
                   controller: _swiperController,
                   itemCount: slides.length,
                   itemBuilder: (_, index) => KeyedSubtree(
                     key: ValueKey(slides[index].id),
                     child: slides[index].child,
                   ),
-                  onIndexChanged: (index) {
-                    setState(() => _currentIndex = index);
-                    _startAutoplay(slides);
-                  },
+                  onIndexChanged: (index) => _changeSlide(index, revision),
                   autoplay: false,
                   duration: 300,
                 ),
@@ -192,7 +296,11 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
     );
   }
 
-  Widget _buildBannerItem(BannerModel item) {
+  Widget _buildBannerItem(
+    BannerModel item,
+    Size size,
+    PicnicImageRequest request,
+  ) {
     String title = getLocaleTextFromJson(item.title);
     String imageUrl = getLocaleTextFromJson(item.image);
     final isGif = imageUrl.toLowerCase().endsWith('.gif');
@@ -225,8 +333,9 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         children: [
           // 베너는 항상 고우선순위로 처리
           PicnicCachedNetworkImage(
-            key: ValueKey('banner_${item.id}_$_currentIndex'),
+            key: ValueKey('banner_${item.id}'),
             imageUrl: imageUrl,
+            imageRequest: request,
             fit: BoxFit.cover,
             // 베너 최적화 설정
             priority: ImagePriority.high, // 베너는 높은 우선순위
@@ -235,31 +344,8 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
             lazyLoadingStrategy: LazyLoadingStrategy.none, // 베너는 즉시 로딩
             timeout: const Duration(seconds: 12), // 베너는 조금 더 긴 타임아웃
             maxRetries: 3, // 베너는 더 많은 재시도
-            // width/height 는 논리 픽셀 렌더 크기 — 없으면 CDN URL 에 w/h
-            // 리사이즈 파라미터가 붙지 않아 원본을 그대로 내려받는다. 공유
-            // 위젯이 w/h 에 DPR 배율(resolutionMultiplier)을 곱해 물리 px
-            // 로 보낸다.
-            //
-            // cdn.picnic.fan 은 Imgix 가 아니라 CloudFront + 커스텀
-            // 리사이저다 (코디네이터 프로덕션 실측 2026-08-07): 요청은
-            // 302 로 /cache/..._w{w}_h{h}_f{format}_q{q}.{ext} 캐시 키에
-            // 리다이렉트되고 (h 미지정 시 _hauto_, 비율 유지 리사이즈),
-            // dpr·fm 파라미터는 완전히 무시되며 (dpr=1 과 dpr=2.5 가 동일
-            // 캐시 키·동일 바이트, fm=webp 도 _fpng_/image/png 로 응답)
-            // fit·auto 는 캐시 키에 포함되지 않는다. dpr 이 무시되므로
-            // 공유 위젯이 물리 px w/h 를 보내는 현행 동작이 옳다.
-            // 원본보다 큰 w 는 업스케일 없이 원본 크기로 클램프되고 q=80
-            // 재인코딩만으로도 절감된다 — vote_home 배너 4개 표본에서 원본
-            // 대비 약 58-60% 감소 (예: banner/18 320,602→132,426 bytes).
-            // webp 전환은 클라이언트 파라미터로는 되지 않으므로 CDN 쪽
-            // 과제다.
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.width / widget.aspectRatio,
-            // 베너 크기에 맞는 메모리 캐시 설정
-            memCacheWidth: MediaQuery.of(context).size.width.toInt(),
-            memCacheHeight:
-                (MediaQuery.of(context).size.width / widget.aspectRatio)
-                    .toInt(),
+            width: size.width,
+            height: size.height,
           ),
           if (title.isNotEmpty)
             Positioned(
@@ -290,64 +376,53 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
     final asyncBannerListState = ref.watch(
       asyncBannerListProvider(location: widget.location),
     );
+    final campaign = widget.location == 'vote_home'
+        ? ref.watch(
+            homePromotionCampaignProvider(
+              Localizations.localeOf(context).languageCode,
+            ),
+          )
+        : null;
     return asyncBannerListState.when(
       skipLoadingOnRefresh: false,
       skipError: false,
-      data: (List<BannerModel> data) {
-        if (widget.location != 'vote_home') {
-          return _renderSlides(_ordinarySlides(data));
-        }
-        // 상한의 의미는 "쿼리 세대당 5초"가 아니라 "같은 위젯 state 가
-        // 유지되는 동안 이 표면이 shimmer 를 연속으로 보여줄 수 있는 시간의
-        // 상한"이다. 같은 state 안에서는 loading 중 provider 가 invalidate
-        // 돼도 상한이 이어서 흐르고, 만료 뒤의 재조회는 shimmer 대신 일반
-        // 슬라이드를 즉시 보여주며, 만료 상태는 캠페인 data 가 도착하면
-        // 해제된다.
-        // 반면 사용자가 pull-to-refresh 를 당기면 vote home 두 구현 모두
-        // UniqueKey 로 이 위젯을 remount 하므로 (vote_home_page.dart:152,
-        // home_page.dart:83) 새 episode 로 새 5초가 시작된다 — 새로고침은
-        // "다시 기다리겠다"는 명시적 의사표시이므로 이는 의도된 동작이다.
-        // (riverpod 은 loading→loading 재조회를 == 동등으로 dedupe 해 위젯에
-        // 통지하지 않고 .future 도 미완료 future 를 재사용하므로, state 내
-        // 세대별 상한은 위젯 레벨에서 구현할 수 없기도 하다.)
-        return ref
-            .watch(
-              homePromotionCampaignProvider(
-                Localizations.localeOf(context).languageCode,
-              ),
-            )
-            .when(
-              skipLoadingOnRefresh: false,
-              skipError: false,
-              data: (resolved) {
-                _clearCampaignWaitCap(resetExpired: true);
-                return _renderSlides(_homeSlides(data, resolved));
-              },
-              loading: () {
-                // 상한 초과 시 캠페인 없이 degrade 렌더. provider 는 건드리지
-                // 않으므로 스토어가 읽는 캠페인 상태는 오염되지 않고, 늦게라도
-                // 응답이 오면 data 분기가 캠페인 슬라이드로 복구한다. ordinary
-                // HOME query는 campaign-owned 행을 이미 제외한 상태다.
-                if (_campaignWaitExpired) {
-                  return _renderSlides(_ordinarySlides(data));
-                }
-                _armCampaignWaitCap();
-                return _buildBannerShimmer();
-              },
-              // 캠페인 조회 실패 시 campaign-owned 행이 query에서 제외된 일반
-              // 배너로만 degrade한다.
-              error: (_, _) {
-                _clearCampaignWaitCap(resetExpired: false);
-                return _renderSlides(_ordinarySlides(data));
-              },
+      data: (data) {
+        // Never reuse account-bound campaign data during a refresh or error.
+        final resolved = campaign?.when<HomePromotionResolution?>(
+          skipLoadingOnRefresh: false,
+          skipError: false,
+          data: (value) => value,
+          loading: () => null,
+          error: (_, _) => null,
+        );
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.hasBoundedWidth
+                ? constraints.maxWidth
+                : MediaQuery.sizeOf(context).width;
+            final size = Size(width, width / widget.aspectRatio);
+            // Ordinary HOME rows exclude campaign-owned banners at the provider
+            // boundary and can display while campaign data loads.
+            return _renderSlides(
+              resolved == null
+                  ? _ordinarySlides(data, size)
+                  : _homeSlides(data, resolved, size),
             );
+          },
+        );
       },
-      loading: _buildBannerShimmer,
-      error: (error, stackTrace) => buildErrorView(
-        context,
-        error: error.toString(),
-        stackTrace: stackTrace,
-      ),
+      loading: () {
+        _clearSlides();
+        return _buildBannerShimmer();
+      },
+      error: (error, stackTrace) {
+        _clearSlides();
+        return buildErrorView(
+          context,
+          error: error.toString(),
+          stackTrace: stackTrace,
+        );
+      },
     );
   }
 }
@@ -357,7 +432,9 @@ class CommonBannerSlide {
     required this.id,
     required this.duration,
     required this.child,
+    this.imageRequest,
   });
+  final PicnicImageRequest? imageRequest;
   final String id;
   final Duration duration;
   final Widget child;

@@ -71,6 +71,8 @@ class VideoListItem extends StatelessWidget {
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
+                  fadeInDuration: Duration.zero,
+                  fadeOutDuration: Duration.zero,
                   placeholder: (context, url) => buildLoadingOverlay(),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),

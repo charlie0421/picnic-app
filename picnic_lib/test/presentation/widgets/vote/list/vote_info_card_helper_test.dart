@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_helper.dart';
 
-VoteItemModel _item({required int id, int voteTotal = 0}) {
+VoteItemModel _item({required int id, int voteTotal = 0, String? image}) {
   return VoteItemModel.fromJson({
     'id': id,
     'vote_id': 1,
@@ -11,8 +12,12 @@ VoteItemModel _item({required int id, int voteTotal = 0}) {
     'artist': {
       'id': id,
       'name': {'ko': 'Artist$id'},
-      'image': null,
-      'artist_group': {'id': 1, 'name': {'ko': 'Group'}, 'image': null},
+      'image': image,
+      'artist_group': {
+        'id': 1,
+        'name': {'ko': 'Group'},
+        'image': null,
+      },
     },
     'artist_group': null,
   });
@@ -23,15 +28,27 @@ VoteItemModel _itemWithGroup({required int id}) {
     'id': id,
     'vote_id': 1,
     'vote_total': 0,
-    'artist': {'id': 0, 'name': {'ko': ''}, 'image': null, 'artist_group': null},
-    'artist_group': {'id': id, 'name': {'ko': 'Group$id'}, 'image': 'group_img.png'},
+    'artist': {
+      'id': 0,
+      'name': {'ko': ''},
+      'image': null,
+      'artist_group': null,
+    },
+    'artist_group': {
+      'id': id,
+      'name': {'ko': 'Group$id'},
+      'image': 'group_img.png',
+    },
   });
 }
 
 void main() {
   group('VoteInfoCardHelper.prepareVoteItems', () {
     test('returns empty list when rawItems is null', () {
-      final result = VoteInfoCardHelper.prepareVoteItems(null, VoteStatus.active);
+      final result = VoteInfoCardHelper.prepareVoteItems(
+        null,
+        VoteStatus.active,
+      );
       expect(result, isEmpty);
     });
 
@@ -47,29 +64,47 @@ void main() {
         _item(id: 3, voteTotal: 300),
       ];
 
-      final result = VoteInfoCardHelper.prepareVoteItems(items, VoteStatus.active);
+      final result = VoteInfoCardHelper.prepareVoteItems(
+        items,
+        VoteStatus.active,
+      );
       expect(result.map((e) => e.voteTotal), [500, 300, 100]);
     });
 
     test('truncates to top 3 for active status', () {
-      final items = List.generate(5, (i) => _item(id: i + 1, voteTotal: (5 - i) * 100));
+      final items = List.generate(
+        5,
+        (i) => _item(id: i + 1, voteTotal: (5 - i) * 100),
+      );
 
-      final result = VoteInfoCardHelper.prepareVoteItems(items, VoteStatus.active);
+      final result = VoteInfoCardHelper.prepareVoteItems(
+        items,
+        VoteStatus.active,
+      );
       expect(result.length, 3);
       expect(result.first.voteTotal, 500);
     });
 
     test('truncates to top 3 for end status', () {
-      final items = List.generate(5, (i) => _item(id: i + 1, voteTotal: (5 - i) * 100));
+      final items = List.generate(
+        5,
+        (i) => _item(id: i + 1, voteTotal: (5 - i) * 100),
+      );
 
       final result = VoteInfoCardHelper.prepareVoteItems(items, VoteStatus.end);
       expect(result.length, 3);
     });
 
     test('returns all items for upcoming status', () {
-      final items = List.generate(5, (i) => _item(id: i + 1, voteTotal: (5 - i) * 100));
+      final items = List.generate(
+        5,
+        (i) => _item(id: i + 1, voteTotal: (5 - i) * 100),
+      );
 
-      final result = VoteInfoCardHelper.prepareVoteItems(items, VoteStatus.upcoming);
+      final result = VoteInfoCardHelper.prepareVoteItems(
+        items,
+        VoteStatus.upcoming,
+      );
       expect(result.length, 5);
       // Still sorted
       expect(result.first.voteTotal, 500);
@@ -82,7 +117,10 @@ void main() {
         _item(id: 2, voteTotal: 200),
       ];
 
-      final result = VoteInfoCardHelper.prepareVoteItems(items, VoteStatus.active);
+      final result = VoteInfoCardHelper.prepareVoteItems(
+        items,
+        VoteStatus.active,
+      );
       expect(result.length, 2);
     });
 
@@ -92,7 +130,10 @@ void main() {
         _item(id: 2, voteTotal: 500),
       ];
 
-      final result = VoteInfoCardHelper.prepareVoteItems(items, VoteStatus.active);
+      final result = VoteInfoCardHelper.prepareVoteItems(
+        items,
+        VoteStatus.active,
+      );
       expect(result.first.voteTotal, 500);
     });
   });
@@ -160,9 +201,16 @@ void main() {
           'image': 'artist_img.png',
           'artist_group': null,
         },
-        'artist_group': {'id': 1, 'name': {'ko': 'G'}, 'image': 'group_img.png'},
+        'artist_group': {
+          'id': 1,
+          'name': {'ko': 'G'},
+          'image': 'group_img.png',
+        },
       });
-      expect(VoteInfoCardHelper.resolveVoteItemImageUrl(item), 'artist_img.png');
+      expect(
+        VoteInfoCardHelper.resolveVoteItemImageUrl(item),
+        'artist_img.png',
+      );
     });
 
     test('returns group image when artist.id is 0', () {
@@ -181,9 +229,114 @@ void main() {
           'image': null,
           'artist_group': null,
         },
-        'artist_group': {'id': 1, 'name': {'ko': 'G'}, 'image': null},
+        'artist_group': {
+          'id': 1,
+          'name': {'ko': 'G'},
+          'image': null,
+        },
       });
       expect(VoteInfoCardHelper.resolveVoteItemImageUrl(item), '');
+    });
+  });
+
+  group('VoteInfoCardHelper image requests', () {
+    test('previewItems returns the rendered top three for active and end', () {
+      final items = [
+        _item(id: 1, voteTotal: 100),
+        _item(id: 2, voteTotal: 500),
+        _item(id: 3, voteTotal: 300),
+        _item(id: 4, voteTotal: 200),
+      ];
+
+      expect(
+        VoteInfoCardHelper.previewItems(
+          items,
+          VoteStatus.active,
+        ).map((item) => item.id),
+        [2, 3, 4],
+      );
+      expect(
+        VoteInfoCardHelper.previewItems(
+          items,
+          VoteStatus.end,
+        ).map((item) => item.id),
+        [2, 3, 4],
+      );
+    });
+
+    test('previewItems retains the two-candidate non-rank default', () {
+      final items = [
+        _item(id: 1, voteTotal: 100),
+        _item(id: 2, voteTotal: 500),
+        _item(id: 3, voteTotal: 300),
+      ];
+
+      expect(
+        VoteInfoCardHelper.previewItems(
+          items,
+          VoteStatus.upcoming,
+        ).map((item) => item.id),
+        [2, 3],
+      );
+      expect(
+        VoteInfoCardHelper.previewItems(
+          items,
+          VoteStatus.debug,
+        ).map((item) => item.id),
+        [2, 3],
+      );
+    });
+
+    test(
+      'previewItems does not replace an invalid top-three image with rank 4',
+      () {
+        final result = VoteInfoCardHelper.previewItems([
+          _item(id: 1, voteTotal: 400, image: 'rank-1.png'),
+          _item(id: 2, voteTotal: 300, image: 'rank-2.png'),
+          _item(id: 3, voteTotal: 200),
+          _item(id: 4, voteTotal: 100, image: 'rank-4.png'),
+        ], VoteStatus.active);
+
+        expect(result.map((item) => item.id), [1, 2, 3]);
+        expect(VoteInfoCardHelper.resolveVoteItemImageUrl(result[2]), isEmpty);
+      },
+    );
+
+    testWidgets('rank and upcoming helpers keep their logical display axes', (
+      tester,
+    ) async {
+      late BuildContext context;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (currentContext) {
+              context = currentContext;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+      final item = VoteItemModel.fromJson({
+        'id': 1,
+        'vote_id': 1,
+        'vote_total': 0,
+        'artist': {
+          'id': 10,
+          'name': {'ko': 'Test'},
+          'image': 'https://images.example.com/artist.png',
+          'artist_group': null,
+        },
+        'artist_group': null,
+      });
+
+      final rank = VoteInfoCardHelper.rankImageRequest(context, item);
+      final thumbnail = VoteInfoCardHelper.thumbnailImageRequest(context, item);
+
+      expect(rank.imageUrl, 'https://images.example.com/artist.png');
+      expect(rank.requestWidth, rank.requestHeight);
+      expect(thumbnail.imageUrl, rank.imageUrl);
+      expect(thumbnail.requestWidth, thumbnail.requestHeight);
+      expect(rank.requestWidth, greaterThan(thumbnail.requestWidth!));
     });
   });
 }

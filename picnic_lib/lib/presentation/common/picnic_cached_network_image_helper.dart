@@ -18,8 +18,8 @@ class PicnicCachedNetworkImageHelper {
     Duration maxBackoffDelay = const Duration(seconds: 30),
   }) {
     final delay = Duration(
-      milliseconds:
-          (baseDelay.inMilliseconds * math.pow(1.5, retryCount)).toInt(),
+      milliseconds: (baseDelay.inMilliseconds * math.pow(1.5, retryCount))
+          .toInt(),
     );
     return delay > maxBackoffDelay ? maxBackoffDelay : delay;
   }
@@ -88,21 +88,11 @@ class PicnicCachedNetworkImageHelper {
     return ImageComplexity.high;
   }
 
-  /// Calculate load delay based on priority and optional base delay.
+  /// Preserve the legacy API without adding an artificial initial delay.
   static Duration calculateLoadDelay(
     ImagePriority priority, {
     Duration? baseDelay,
-  }) {
-    final base = baseDelay ?? Duration.zero;
-    switch (priority) {
-      case ImagePriority.high:
-        return Duration.zero;
-      case ImagePriority.normal:
-        return base;
-      case ImagePriority.low:
-        return base + const Duration(milliseconds: 200);
-    }
-  }
+  }) => Duration.zero;
 
   /// C3: Apply an optional DPR cap for list-scoped thumbnail weight reduction.
   ///

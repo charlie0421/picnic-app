@@ -6,6 +6,7 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_helper.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -26,6 +27,7 @@ class VoteCardColumnVertical extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const width = 80.0;
+    final imageRequest = VoteInfoCardHelper.rankImageRequest(context, voteItem);
     final barHeight = (rank == 1
         ? 220 * .65
         : rank == 2
@@ -104,13 +106,10 @@ class VoteCardColumnVertical extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
                   child: PicnicCachedNetworkImage(
-                    imageUrl:
-                        (voteItem.artist?.id != 0
-                            ? voteItem.artist?.image
-                            : voteItem.artistGroup?.image) ??
-                        '',
-                    width: 100,
-                    height: 100,
+                    imageUrl: imageRequest.imageUrl,
+                    imageRequest: imageRequest,
+                    width: 72,
+                    height: 72,
                     // 리스트 카드에서는 화면에 보일 때 빠르게 로딩되도록 파라미터 명시
                     lazyLoadingStrategy: LazyLoadingStrategy.viewport,
                     visibilityThreshold: 0.05,
