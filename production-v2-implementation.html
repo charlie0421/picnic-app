@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>Candy Boost V2 보완 작업 기록</title><style>body{font:15px/1.7 system-ui;color:#192c45;max-width:1040px;margin:40px auto;padding:0 24px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccd5df;padding:10px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;background:#edf2f8;padding:16px}code{overflow-wrap:anywhere}.hold{background:#fff1e9;padding:18px}</style></head><body>
+<h1>Candy Boost V2 — 승인된 보완 구현 완료</h1><p>2026-09-08 KST · Run <code>run_33426ca9db25</code> · 구현·로컬 검증·교차 리뷰·원 리뷰어 재검증 완료</p>
+<p class="hold">사용자 승인 범위: 최신 main 기반 격리 워크트리에서 코드 보완·로컬 검증·독립 리뷰. 프로덕션 DB 쓰기·배포·플래그 활성화·결제·push/merge는 승인하지 않은 별도 단계다.</p>
+<h2>최신 검증 결과</h2><table><tr><th>범위</th><th>결과</th></tr><tr><td>앱 전체 purchase</td><td>827통과 / 1skip · exit0. 변경18 Dart 분석 No issues found. 독립 리뷰 및 재검증 APPROVE.</td></tr><tr><td>백엔드 신규 Node</td><td>13통과 / 1 DB skip · 전체 오프라인 suite에서도 신규 실패 없음. 선택 DB 통합 케이스는 별도로 실제 PG15에서 PASS(exit0).</td></tr><tr><td>최종 생성 번들</td><td>22/22 PASS(exit0). 단일 transaction 적용, 실패6지점 rollback, drift 거부, flags/이력/권한 보존, 재실행 거부.</td></tr><tr><td>최종 설치본 기능 SQL</td><td>11/11 PASS(exit0). 기능 fixture에서만 cotton OFF. 운영 활성화 준비 완료를 뜻하지 않음.</td></tr><tr><td>전체 backend offline</td><td>316건: 276통과 / 기존9실패 / 31skip(exit1). 변경 전263/9/30 대비 기존9실패 동일.</td></tr><tr><td>실제 잠금 경합</td><td>최종 SQL이 5051ms 후 lock timeout. schema 해시 동일·이력0·CREATE false.</td></tr></table><p>집합이 겹치므로 위 테스트 수는 합산하지 않는다. skipped 테스트 및 기존 실패가 있어 “모든 테스트 통과”는 아니다.</p>
+<h2>요구사항과 구현 계획</h2><p>기준 명세: <a href="production-v2-readiness.html">이전 사전 검증 5절</a>. 기존 지급 가드를 보존하고 적용 권한 오류 및 구매 확인 표시 불일치를 고친다. PostgreSQL 15·Node.js·Flutter/Riverpod를 사용한다. 원본 6개 migration은 변경하지 않고 제한된 적용 SQL을 생성한다.</p>
+<table><tr><th>작업</th><th>입출력·파일 소유</th><th>검증·상태</th></tr>
+<tr><td>A 구매 확인 표시</td><td><a href="../fix-candy-boost-confirmation/task-app-brief.html">앱 작업 명세</a><br><code>/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation</code><br>base 5088edc5889fdb489a58b05bffd70330b5d8aedf<br>branch fix/candy-boost-confirmation<br>Sol/high · task_ab9d30b9d5ff · ctx_7a08433af0ac</td><td>Resolver → 확인창 → 구매 시도 스냅샷. V2-only·충돌 이름·다른 STORE code·fallback·error/loading·대화상자 중 갱신 회귀를 RED→GREEN 검증. 구현·리뷰·재검증 완료.</td></tr>
+<tr><td>B 한정 적용 번들</td><td><a href="../../picnic-supabase/fix-promotion-v2-release-safety/task-backend-brief.html">백엔드 작업 명세</a><br><code>/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety</code><br>base 2caa043a6f69d0483502d7f4e9b2cb0157c72d81<br>branch fix/promotion-v2-release-safety<br>Sol/high · task_491c83474d19 · ctx_9b6fa1924482</td><td>Pin manifest → offline builder → preflight/6원본/권한회수/정확한 이력/postflight. PG15 비슈퍼유저 전체 적용 및 실패 롤백. 구현·리뷰 보완·로컬 검증 완료.</td></tr>
+<tr><td>C 테스트 절대경로</td><td>main ae162e4에 이미 생성 fixture 방식으로 해결됨. 중복 수정 없음.</td><td>새 worktree focused5/5 통과. 전체 baseline은 별도 기록.</td></tr>
+<tr><td>D 독립 리뷰</td><td>Opus/max. 요구사항·diff·테스트 증거만 제공, 구현자 사고 과정/자기평가 제외. A와 B의 소스 쓰기는 서로 겹치지 않음.</td><td>앱·백엔드 모두 APPROVE 및 원 리뷰어 재검증 완료. 백엔드 B1/B2 차단 지적 해소, 새 차단 결함 없음.</td></tr></table>
+<h2>계획 사전 대조</h2><table><tr><th>대조</th><th>판정</th></tr><tr><td>A 내부</td><td>기존 resolver의 표시 선택을 재사용하며 서버 금액 계산·구매 lifecycle 변경 없음. 테스트는 소비자 화면과 고정 스냅샷을 검사.</td></tr><tr><td>B 내부</td><td>원본 보존과 보완 wrapper는 양립함. SQL만으로 원격 project 신원을 증명할 수 없으므로 접속층 검증·운영 writer freeze는 별도 승인 조건.</td></tr><tr><td>A ↔ B</td><td>공유 파일 없음. 공통 계약은 CANDY_BOOST_DAY, V2/V1 선택과 서버 지급 권위이며 새로운 상호 API 없음.</td></tr><tr><td>C ↔ B</td><td>기존 main 수정 재사용. 기존 V1/Google 배포 gate를 V2용으로 무단 완화하지 않음.</td></tr></table>
+<h2>검증 기록</h2><ul>
+<li>앱 flutter pub get --offline --enforce-lockfile 성공. 운영 .env 복사 없이 테스트 준비.</li>
+<li>백엔드 npm ci --ignore-scripts 성공. 원본 main의 미커밋 파일 보존.</li>
+<li>운영 read-only 조회: 대상 9개 함수 지문이 이전 관찰과 동일. V2 테이블/이력 없음. 플래그와 권한 metadata만 읽고 고객 데이터는 복사하지 않음.</li>
+<li>초기 전체 safety 실행에는 최신 main의 자동 로컬 DB 연결 검사도 포함돼 있었다. 코드 확인상 해당 Google hotfix fixture는 BEGIN/ROLLBACK 또는 오류 종료 롤백이다. 이후 실행은 명시적 비접속 offline 대상과 network=none 격리 PG15로 분리한다.</li>
+<li>의존성 설치 후 명시적 비접속 safety baseline: 263통과/9실패/30skip, 총302. 9건은 변경 전 Google hotfix manifest/lineage hash 불일치이며 승인된 V2 범위 밖이다. 해당 검사를 약화하거나 다른 배포 manifest를 수정하지 않는다.</li>
+<li>격리 컨테이너 picnic-v2-implementation-20260908: network none, 포트 없음, cron 실행 OFF, PG15.8 이미지. 이전 로컬 덤프 복제본과 관찰된 함수·권한 metadata로 사전 V2 상태를 재구성했다. 운영 DB 전체 복제본은 아니며 논리적 fixture의 한계가 있다.</li>
+<li>원본 6개를 비슈퍼유저 postgres로 단일 트랜잭션 실행: 두 번째 migration에서 wallet_private CREATE 부족 오류 재현. 실패 전후 schema dump SHA256 동일, V2 이력 0개, CREATE 권한 누출 없음.</li>
+<li>진단용 별도 DB에서 임시 CREATE 부여·마지막 회수로 원본 6개 전체 적용 성공. 아직 최종 생성 번들 검증은 아니며 해당 진단에는 migration 이력을 기록하지 않았다.</li>
+<li>로컬 기능 격리 DB의 기존 V2/V1·구매·환불 SQL 11/11 통과. 운영에서 관찰된 cotton 활성 플래그를 그대로 둔 복제 DB는 로컬 cotton worker health 부족으로 표면 계약 2건이 실패했으며, 기능 격리 DB에서만 cotton을 끄고 재검증했다. 운영 활성화 준비 완료를 뜻하지 않는다.</li>
+<li>앱 consumer RED 첫 시도는 배지 문구를 읽는 허점으로 잘못 통과했다. 실제 구매 콜백을 호출하고 AlertDialog 내부만 검사하도록 보강한 뒤 기존 V1 선택 코드에서 “Selected V2 Candy Boost 0개, 기대 1개”로 실패했다(exit 1). 수정 구현과 전체 회귀 검증을 진행 중이다.</li>
+<li>로딩·오류 상태에 이전 데이터가 남아도 광고하지 않는 공통 선택기 테스트는 신규 API 부재로 실패(exit 1)를 확인했다. 배지와 확인창에 동일한 선택기를 적용했다.</li>
+<li>앱 최종 GREEN: 핵심4파일 122통과/1skip, 필수 프로모션8파일 131통과/1skip, 전체 purchase 디렉터리 827통과/1skip. 각 명령 exit0. 변경18 Dart 파일 정적 분석 No issues found(exit0), diff 공백 검사 통과. 서로 겹치는 테스트 집합이므로 수치를 합산하지 않는다.</li>
+<li>앱 독립 Opus/max 리뷰 APPROVE 및 원 리뷰어 재검증 APPROVE. 차단 결함 없음. 테스트의 record identical 단언을 값 동등 비교로 바꾸고 무효 단언 한 줄을 제거했다. 전체 purchase 재실행 827통과/1skip(exit0). 호출자 없는 기존 함수의 미래 버전 ID 확장은 범위 밖으로 보류했고 원 리뷰어가 동의했다. 실제 기기 결제·배포 검증은 수행하지 않았다.</li>
+<li>정식 생성 번들 검증: 16/16 통과(exit0). 부분 flag/history·함수 source/ACL·schema CREATE drift 거부, 원본6 각각 직후 강제 실패, 전체 rollback, 실제 commit, 정확6이력·기존 flags 동일·V2 OFF·CREATE 회수, 재실행 거부를 검사했다. 실패/rollback마다 schema+flags+history 해시 동일.</li>
+<li>생성 번들 설치 DB에서 파생한 별도 기능 fixture의 SQL 11/11 통과. 정상 플래그 API를 통한 candy OFF와 미준비 ON 거부를 포함한다. 해당 기능 fixture에만 cotton OFF를 설정했으며 실제 설치 검증 DB의 운영형 flags는 그대로 유지했다.</li>
+<li>백엔드 신규 safety: 7통과/0실패/1DBskip(exit0). 전체 offline safety: 270통과/9실패/31skip(총310, exit1). 기존 baseline9실패가 그대로이며 이번 변경으로 추가 실패는 없다.</li>
+<li>별도 PRE-V2 clone에서 migration 이력 테이블 잠금을 유지하자 실제 번들이 5058ms 후 lock timeout으로 중단됐다. schema 해시 동일·이력0·CREATE 없음. 설치 DB의 standalone postflight는 BEGIN READ ONLY/ROLLBACK에서도 통과했다.</li>
+<li>백엔드 독립 Opus/max 리뷰 진행 중: task_2133bbbf708c / ctx_7e0a98c63ea0. 구현자는 종료 처리했으며 source는 동결됐다.</li>
+<li>추가 안전 검사에서 URL fragment 뒤의 libpq query routing을 WHATWG URL 검사가 놓치는 우회를 재현했다. network=none PG15 안에서 BEGIN READ ONLY/ROLLBACK으로만 확인했으며, v2_verify 경로가 실제 postgres DB로 라우팅됐다. 외부 접속이나 운영 쓰기는 없었다. 가짜 psql을 사용한 검증기·리허설 CLI·선택 DB 테스트 3개가 모두 RED(exit1)이며 수정 및 원 리뷰어 재검증 전 완료 처리하지 않는다.</li>
+<li>이후 URL 가드를 수정하고 href를 사용하도록 했다. raw fragment/query/control/backslash·파서 정규화 차이를 거부하며 인코딩된 비밀번호는 허용한다. fake psql marker 회귀와 실제 다른 DB의 SAME-CONNECTION target assertion 거부를 확인했다. 선택 DB 테스트 및 failure/apply 리허설은 disposable 확인값을 요구한다.</li>
+<li>독립 리뷰 B2를 실제 old bundle로 재현: PRE-V2 clone에 추가한 새 권한 키를 기존 번들이 drop/recreate 과정에서 제거하며 COMMIT했다. 수정 후 사전 정의·validated 상태와 최종 제약을 정확히 고정했다. 원본 migration은 바꾸지 않았다.</li>
+<li>search_path 결정성, replica 세션 거부, 불변 함수3개의 postflight, 출력 parent symlink/--root override 가드를 보완했다. 리포 DB 회귀에 각6 실패 지점과 schema+flags+history+CREATE 해시 검사를 이관했다. 정상 API 거부 테스트가 변경한 worker health는 복구한다. 성공적인 운영 ON이나 worker만 단독 실패 원인이라는 증거는 주장하지 않는다.</li>
+<li>최종 PG15 22/22 PASS. 이전 재실행 검사 한 번은 안전하게 거부됐지만 새 제약 오류가 이력 오류보다 먼저 나와 단언에 실패했다. preflight 순서를 정리한 뒤 새 clone에서 전부 재실행해 통과했다. 최종 리포 선택 DB 케이스 자체도 실제 PG15에서 19.8초에 PASS했다.</li>
+<li>백엔드 재검증: task_f24ce7dea1ad / ctx_326fcf8f5e4b APPROVE. 원 리뷰어가 최종 SQL 208,426바이트를 독립적으로 재구성해 SHA256 일치를 확인했다. DB 실행 검증은 root의 격리 PG15 raw 로그에 기반하며, 리뷰어가 DB 테스트를 별도로 실행한 것은 아니다. 네트워크 없는 로컬 검증만 했으며 프로덕션 쓰기·배포·commit/push/merge는 하지 않았다.</li>
+</ul>
+<h2>기술 근거</h2><p>소유권 이전 시 새 소유자의 스키마 CREATE가 필요하다: <a href="https://www.postgresql.org/docs/15/sql-alterfunction.html">PostgreSQL 15 ALTER FUNCTION</a>. <a href="https://supabase.com/docs/guides/deployment/database-migrations">Supabase migration 이력</a>과 실제 운영의 과거 이력 차이를 고려해 광범위한 db push는 하지 않는다.</p>
+<h2>스테이징 생략의 의미와 운영 적용 경계</h2>
+<p>공유 스테이징 서버를 구성하지 않는 방향으로 구현했다. 대신 네트워크가 없는 일회용 PG15 리허설과 앱 회귀 테스트를 수행했다. 이것은 실제 운영 부하·외부 결제·worker 상태까지 검증했다는 뜻이 아니며, 프로덕션 안전성을 무조건 보장하지 않는다.</p>
+<ol><li>운영 적용은 별도 명시 승인 후에만 진행한다. 실제 접속층에서 PICNIC-PROD / xtijtefcycoeqludlngc를 확인하고 복구 가능한 백업 및 writer freeze를 확보해야 한다.</li><li>적용 직전 최신 운영 catalog·flags·migration 이력을 다시 읽고 고정 preflight와 대조한다. drift가 있으면 중단한다.</li><li>승인된 정확한 6개 원본의 한정 번들만 한 트랜잭션으로 적용한다. V2는 OFF이고 기존 flags는 그대로 유지한다. 광범위한 db push나 과거 migration 재실행을 하지 않는다.</li><li>성공 후 이력·소유권·권한 회수·OFF 상태를 검증한다. 실패 주입/rollback 결과는 COMMIT 이전의 원자적 복구 증거일 뿐, COMMIT 이후 운영 역마이그레이션 절차는 아니다.</li><li>플래그 활성화 및 앱 배포는 별도 단계다. 실제 worker health·결제 공급자·기능 readiness를 재확인하고 해당 승인 절차를 따른다.</li></ol>
+<h2>소스 변경 범위</h2>
+<p>앱: 기존 production Dart 4개와 테스트 Dart 14개. <code>promotion_badge_resolver_provider.dart</code>, <code>purchase_dialog_handler.dart</code>, <code>purchase_campaign_attempt.dart</code>, <code>purchase_star_candy_state.dart</code>에서 표시 선택 및 구매 시도 스냅샷 전달만 보완했다. 서버 지급 금액 계산과 결제 lifecycle은 변경하지 않았다. <a href="../fix-candy-boost-confirmation/task-app-independent-review.html">앱 독립 리뷰 및 재검증</a>.</p>
+<p>백엔드: 아래 8개 소스 파일. 원본 migration 6개는 바이트 단위로 불변이다.</p>
+<pre>ops/wallet/promotion-v2-release-manifest.json
+scripts/wallet/build_promotion_v2_apply_sql.mjs
+scripts/wallet/promotion_v2_preflight.sql
+scripts/wallet/promotion_v2_postflight.sql
+scripts/wallet/promotion_v2_local_db.mjs
+scripts/wallet/rehearse_promotion_v2.mjs
+scripts/safety/promotion-v2-release-safety.test.mjs
+supabase/tests/promotion_schedule_v2_grant_snapshot.test.sql</pre>
+<p>실제 PG15 최종 검증에 사용한 정식 apply SQL SHA256: <code>96aabb8083217720e072f21d4a1fdacb322573858d923502869bd3d6322d85e7</code>. 위치: <code>/tmp/picnic-v2-implementation.ffIcrx/bundle-verification-yN2o9L/generated-apply.sql</code>. 이전 c6de5e… 및 95770b… 번들은 최종본이 아니다. SQL 안의 project 이름 또는 GUC는 실제 원격 project 신원 증거가 아니다.</p>
+<h2>재현 자료와 실행 경계</h2><p>전체 raw 기록은 <code>/tmp/picnic-v2-implementation.ffIcrx</code>에 있다. 최종 로그는 <code>generated-reviewed-bundle-final.log</code>, <code>backend-repo-db-effects.log</code>, <code>reviewed-functional-sql.log</code>, <code>reviewed-lock-timeout.log</code>, <code>backend-offline-reviewed-final.log</code>다. 컨테이너는 <code>picnic-v2-implementation-20260908</code>이며 공유 로컬 Supabase와 다른 자체 fixture다. 원본 로컬 덤프·기존 작업 트리·사용자 미커밋 변경은 보존했다.</p>
+<p>선택 DB 테스트 실행에는 <code>PROMOTION_V2_REHEARSAL_DB_URL</code>와 <code>PROMOTION_V2_CONFIRM_DISPOSABLE=v2_verify</code> 둘 다 필요하다. 리허설 CLI의 failure/apply는 <code>--confirm-disposable v2_verify</code>를 요구한다. loopback TCP만으로 터널 부재를 보장하지 않으며 실제 일회용 DB인지 운영자가 확인해야 한다. 운영 접속 URI를 이 로컬 도구에 넣지 않는다.</p>
+<h2>리뷰와 남은 범위</h2><p><a href="../fix-candy-boost-confirmation/task-app-independent-review.html">앱 독립 리뷰·재검증</a> · <a href="../../picnic-supabase/fix-promotion-v2-release-safety/task-backend-independent-review.html#recheck">백엔드 최종 원 리뷰어 재검증 APPROVE</a>.</p><p>남은 비차단 한계는 성공 ON의 전체 readiness fixture 미구축, loopback 터널 신원 한계, 논리적 로컬 fixture의 운영 재현 한계다. postflight는 V2 데이터0행·dark flag version1을 검사하는 <strong>설치 직후 게이트</strong>이며, 실제 가동 후 일반 건강 검사로 재사용하지 않는다. 프로덕션 접속 신원·writer freeze·백업/복구·실행 승인은 후속 운영 단계에서 충족해야 한다.</p>
+<h2>완료 원장</h2><p id="ledger">승인 범위의 구현·로컬 검증·독립 리뷰·원 리뷰어 재검증 완료. 코드 변경은 두 fix 워크트리에 미커밋 상태로 보관했다. 프로덕션 쓰기·배포·commit/push/merge는 하지 않았다. 모든 Orca 작업은 완료 처리하고 worker-release를 실행했다(외부 소유 터미널은 도구 정책상 보존). 활성 접속0을 확인한 자체 검증 컨테이너만 중지하고, fixture와 /tmp/picnic-v2-implementation.ffIcrx의 재현 자료는 삭제하지 않고 보존한다. 생성 전달 문서는 모두 HTML이다.</p>
+</body></html>

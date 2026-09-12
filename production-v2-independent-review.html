@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candy Boost 스케줄 V2 — 독립 결제/보안 리뷰 (정정 2판)</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --card:#fff; --ink:#1a1a18; --muted:#5f5f58; --line:#e0e0da;
+    --crit:#b3261e; --high:#c2410c; --med:#a16207; --low:#3f6212; --info:#1f5f8b;
+    --okbg:#eef7ee; --okline:#bcd9bc; --fixbg:#fdf6e6; --fixline:#e5cf95;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    line-height:1.65; font-size:15px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 24px 96px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:20px;margin-bottom:32px}
+  h1{font-size:27px;margin:0 0 10px;letter-spacing:-.02em;font-weight:700}
+  .sub{color:var(--muted);font-size:14px;margin:0}
+  h2{font-size:20px;margin:44px 0 14px;padding-top:20px;border-top:1px solid var(--line);letter-spacing:-.01em}
+  h2:first-of-type{border-top:none;padding-top:0}
+  h3{font-size:16px;margin:26px 0 8px}
+  p{margin:10px 0}
+  code{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    font-size:12.5px;background:#ecece7;padding:1.5px 5px;border-radius:3px;word-break:break-word;
+  }
+  pre{
+    background:#1e1e1c;color:#e8e8e2;padding:14px 16px;border-radius:6px;
+    overflow-x:auto;font-size:12.5px;line-height:1.6;
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  }
+  pre code{background:none;padding:0;color:inherit;font-size:inherit}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:13.5px;background:var(--card)}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:#efefea;font-weight:600}
+  .tbl-scroll{overflow-x:auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px 20px;margin:18px 0}
+  .finding{background:var(--card);border:1px solid var(--line);border-left-width:5px;border-radius:6px;padding:16px 20px;margin:20px 0}
+  .f-crit{border-left-color:var(--crit)} .f-high{border-left-color:var(--high)}
+  .f-med{border-left-color:var(--med)} .f-low{border-left-color:var(--low)}
+  .f-info{border-left-color:var(--info)}
+  .finding h3{margin-top:0;display:flex;flex-wrap:wrap;gap:9px;align-items:baseline}
+  .tag{
+    display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+    padding:2.5px 8px;border-radius:4px;color:#fff;white-space:nowrap;
+  }
+  .t-crit{background:var(--crit)} .t-high{background:var(--high)}
+  .t-med{background:var(--med)} .t-low{background:var(--low)} .t-info{background:var(--info)}
+  .t-fix{background:#6b21a8}
+  .loc{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--muted);font-weight:400}
+  .lbl{font-weight:600;display:block;margin-top:12px;margin-bottom:2px;font-size:13.5px}
+  .ok{background:var(--okbg);border:1px solid var(--okline);border-radius:8px;padding:16px 20px;margin:18px 0}
+  .fix{background:var(--fixbg);border:1px solid var(--fixline);border-radius:8px;padding:16px 20px;margin:18px 0}
+  .verdict{background:#fff;border:2px solid var(--crit);border-radius:8px;padding:18px 22px;margin:22px 0}
+  .verdict strong{color:var(--crit)}
+  ul,ol{margin:10px 0;padding-left:22px} li{margin:5px 0}
+  .meta{font-size:13px;color:var(--muted)}
+  .foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+  .strike{text-decoration:line-through;color:#9a9a92}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Candy Boost 스케줄 V2 — 독립 결제/보안 리뷰 <span style="color:var(--muted);font-weight:400">(정정 2판)</span></h1>
+  <p class="sub">
+    독립 시니어 결제/보안 리뷰어 · 2026-09-07 · 소스 직접 검증<br>
+    백엔드 <code>picnic-supabase-candy-boost-scheduling</code> @ <code>a620974e</code> ·
+    앱 <code>picnic-app</code> @ <code>ae81fe8c3</code> ·
+    어드민 <code>picnic-admin</code> @ <code>80d8120a</code><br>
+    <strong>2판 변경:</strong> F3 철회·재작성, F2 확장, F5 실질 정정, F4·F7 범위 재조정, 테스트 증거 갱신 (→ §8 정정 로그)
+  </p>
+</header>
+
+<div class="verdict">
+  <p style="margin-top:0"><strong>결론 — 다크 배포 불가 (1판과 동일, 근거 일부 교체).</strong>
+  6개 마이그레이션은 프로덕션 ACL 하의 비-superuser <code>postgres</code> 로 적용할 수 없습니다.
+  첫 실패는 <code>20260821103000:56-57</code> 이며, 이 파일에는 <code>on schema</code> 문이
+  <strong>단 한 줄도 없습니다</strong>(재검증 완료).</p>
+  <p>권한 잔류(fail-open) 결함은 <strong>1개가 아니라 2개 사이트</strong>입니다 —
+  <code>120000:534/541</code> 과 <code>123000:33/891</code>. 둘 다 두 스키마를 빌리고 <code>public</code> 만 반납합니다.</p>
+  <p style="margin-bottom:0"><strong>1판의 F3 은 오류였고 철회합니다.</strong>
+  "123000 에 대여가 없다 / 120000 의 잔류에 의존한다 / 함께 고치지 않으면 깨진다"는 주장은 모두 사실이 아닙니다.
+  <code>123000:33</code> 에 자체 대여가 있어 이 파일은 독립적입니다.</p>
+</div>
+
+<h2>0. 리뷰 범위 · 방법 · 증거 출처 구분</h2>
+<div class="card">
+  <p style="margin-top:0">모든 실질 판단은 <strong>소스 우선</strong>으로 내렸습니다. 본 문서는 증거 출처를 세 종류로 명시 구분합니다.</p>
+  <ul>
+    <li><strong>[소스]</strong> — 내가 직접 열람한 파일. 마이그레이션 6종, 앱 소스,
+      프로덕션 읽기전용 스냅샷 <code>.v2-review-inputs.IARAYY/production-functions.sql</code>(7개 함수) 및
+      <code>production-release-gate.sql</code>. 스냅샷은 <strong>실행하지 않았습니다.</strong></li>
+    <li><strong>[루트 증언]</strong> — 루트가 실행하고 보고한 테스트 결과. 내가 재현하지 않았으며 그대로 인용합니다.</li>
+    <li><strong>[전제]</strong> — 과제가 제시한 프로덕션 ACL 스냅샷 값 등, 내가 검증할 수 없어 전제로 삼은 것.</li>
+  </ul>
+  <p class="meta" style="margin-bottom:0">루트 통합 보고서 <code>production-v2-readiness.html</code> 는 사실 교차확인 용도로만 참조했으며,
+  그 결론을 독립 증거로 채택하지 않았습니다. 소스·DB·원격에 어떤 쓰기도 하지 않았고, 병합된 과거 마이그레이션 파일도 수정하지 않았습니다.
+  산출물은 이 HTML 한 건입니다.</p>
+</div>
+
+<h2>1. 권한 대여/반납 — 6개 파일 전수 대조 <span class="meta" style="font-weight:400;font-size:14px">[소스]</span></h2>
+
+<p>PostgreSQL 은 <code>ALTER ... OWNER TO &lt;role&gt;</code> 시 <strong>새 소유자 역할</strong>이 해당 객체가 속한 스키마에
+CREATE 권한을 보유할 것을 요구합니다. 전제된 프로덕션 ACL 에서
+<code>wallet_command_owner</code> 는 <code>wallet_private</code> 에 대해 <code>CREATE = false</code> 입니다.</p>
+
+<div class="fix">
+  <p style="margin-top:0"><strong>방법론 정정.</strong> 1판은 <code>"create on schema wallet_private"</code> 라는 좁은 패턴으로 검색해
+  <code>"create on schema public, wallet_private"</code> 형태의 <strong>다중 스키마 문법을 놓쳤습니다.</strong>
+  이것이 F3 오류의 직접 원인입니다. 2판은 <code>"on schema"</code> 전수 검색으로 재작성했으며, 아래 표가 그 결과입니다.</p>
+</div>
+
+<div class="tbl-scroll">
+<table>
+  <thead><tr><th>파일</th><th>대여 (라인)</th><th>빌린 스키마</th><th>반납 (라인)</th><th>반납한 스키마</th><th>판정</th></tr></thead>
+  <tbody>
+    <tr><td><code>100000</code></td><td>:83</td><td>public</td><td>:86</td><td>public</td>
+        <td style="color:var(--low)">정상 — wallet_private 소유권 변경 없음</td></tr>
+    <tr><td><code>103000</code></td><td colspan="4" style="text-align:center"><strong><code>on schema</code> 문 전무</strong></td>
+        <td style="color:var(--crit);font-weight:700">F1 — 실패</td></tr>
+    <tr><td><code>110000</code></td><td>:176</td><td>public</td><td>:179</td><td>public</td>
+        <td style="color:var(--crit);font-weight:700">F1 — wallet_private 대여 없음</td></tr>
+    <tr><td><code>113000</code></td><td>:322</td><td>public, <strong>wallet_private</strong><br><span class="meta">(wallet_admin_read_owner)</span></td>
+        <td>:335</td><td>public, <strong>wallet_private</strong></td>
+        <td style="color:var(--low);font-weight:700">정답 레퍼런스</td></tr>
+    <tr><td><code>120000</code></td><td>:534</td><td>public, <strong>wallet_private</strong><br><span class="meta">(wallet_command_owner)</span></td>
+        <td>:541</td><td>public <strong>만</strong></td>
+        <td style="color:var(--high);font-weight:700">F2 — 잔류 ①</td></tr>
+    <tr><td><code>123000</code></td><td><strong>:33</strong></td><td>public, <strong>wallet_private</strong><br><span class="meta">(wallet_command_owner)</span></td>
+        <td>:891</td><td>public <strong>만</strong></td>
+        <td style="color:var(--high);font-weight:700">F3 정정 — 잔류 ②</td></tr>
+    <tr><td><code>123000</code></td><td>:277, :886</td><td>wallet_private<br><span class="meta">(wallet_state_owner)</span></td>
+        <td>:280, :890</td><td>wallet_private</td>
+        <td style="color:var(--low)">정상</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="finding f-crit">
+  <h3><span class="tag t-crit">CRITICAL</span> F1. wallet_private 소유권 변경에 CREATE 대여 누락 — 마이그레이션 중단
+  <span class="loc">103000:56-57, 103000:94-95, 110000:65-67</span></h3>
+
+  <span class="lbl">증거 [소스]</span>
+<pre><code>-- 103000_..._evaluator_and_math.sql — 파일 전체에 "on schema" 문이 0건
+ 1: create or replace function wallet_private.evaluate_campaign_promotion_schedule_v2(...)
+56: alter function wallet_private.evaluate_campaign_promotion_schedule_v2(bigint, timestamptz)
+57:   owner to wallet_command_owner;      -- ← 대여 없음
+94: alter function wallet_private.compute_promotion_reward_v2(bigint, smallint)
+95:   owner to wallet_command_owner;      -- ← 대여 없음
+
+-- 110000_..._read_rpc.sql — public 만 대여(176)/반납(179). wire_item(65-67)은 그 이전이며 wallet_private 대상
+65: alter function wallet_private.promotion_schedule_v2_wire_item(
+66:   public.promotion_campaign_schedule_versions, text
+67: ) owner to wallet_command_owner;      -- ← wallet_private 대여 없음</code></pre>
+
+  <span class="lbl">실패 조건 / 재현</span>
+  <p>타임스탬프 순 적용 시 <code>103000</code> 56행에서
+  <code>ERROR: permission denied for schema wallet_private</code> 로 중단됩니다.
+  <strong>[루트 증언]</strong> 격리 PG15 에서 <code>ALTER FUNCTION ... OWNER TO wallet_command_owner</code> 에 대해 동일 오류 재현.</p>
+
+  <span class="lbl">최소 수정 (역사 재작성 없이)</span>
+  <p>병합된 과거 마이그레이션 파일은 수정하지 않는 것을 전제로, <strong>전진 보정(forward repair)</strong> 방식을 권합니다 — §7 참조.</p>
+</div>
+
+<div class="finding f-high">
+  <h3><span class="tag t-high">HIGH · 보안</span> F2. wallet_private CREATE 권한 잔류 — <strong>2개 사이트</strong>
+  <span class="loc">120000:534/541 · 123000:33/891</span></h3>
+
+  <span class="lbl">증거 [소스]</span>
+<pre><code>-- 사이트 ① 120000_..._admin_write_rpc.sql
+534: grant usage, create on schema public, wallet_private to wallet_command_owner;
+541: revoke create on schema public from wallet_command_owner;          -- wallet_private 미반납
+
+-- 사이트 ② 123000_..._grant_snapshot.sql   ← 1판이 놓친 곳
+ 33: grant usage, create on schema public, wallet_private to wallet_command_owner;
+891: revoke create on schema public from wallet_command_owner;          -- wallet_private 미반납
+
+-- 대조: 같은 릴리스의 올바른 형태
+113000:322 grant  usage, create on schema public, wallet_private to wallet_admin_read_owner;
+113000:335 revoke        create on schema public, wallet_private from wallet_admin_read_owner;</code></pre>
+
+  <span class="lbl">잔류가 영구인가 — 롤아웃 시나리오에 의존 [소스]</span>
+  <p>레포의 <em>후속</em> 마이그레이션들은 파일 끝에서
+  <code>revoke create on schema wallet_private from wallet_command_owner</code> 를 수행합니다
+  (<code>20260824051000:343</code>, <code>20260824060000:379</code>,
+  <code>20260831120000:579</code>, <code>20260902093000:841</code>).</p>
+  <ul>
+    <li><strong>클린 전체 리플레이</strong>라면 <code>20260824051000</code> 이 뒤따르며 잔류가 부수적으로 해소됩니다.</li>
+    <li><strong>선택적 V2 적용</strong>은 다릅니다. 현재 검토 후보는 V2 6개 파일만이며,
+      위 후속 마이그레이션들을 자동 재실행하지 않습니다. 따라서 별도의 권한 회수가 없으면
+      해당 적용 단위 종료 후 CREATE 권한이 남습니다. 운영의 개별 migration ID 적용 여부는
+      이력 번호 차이 때문에 별도 확인 대상입니다. <span class="meta">[root 통합 시 증거 범위 보정]</span></li>
+  </ul>
+
+  <span class="lbl">왜 통과 테스트로는 검증되지 않는가</span>
+  <p>F1 은 <em>fail-closed</em>(즉시 오류)라 실행 즉시 드러납니다. F2 는 <em>fail-open</em> 입니다 —
+  권한이 <strong>남아 있어서</strong> 이후 문장이 오히려 <strong>성공</strong>합니다.
+  따라서 "SQL 파일이 전부 통과했다"는 사실은 F2 의 해소 근거가 되지 못합니다.
+  검증은 적용 후
+  <code>has_schema_privilege('wallet_command_owner','wallet_private','CREATE')</code> 직접 조회로만 가능합니다.</p>
+
+  <span class="lbl">영향 범위 (과장 없이)</span>
+  <p>원격에서 악용 가능한 취약점이 아닙니다. 이미 <code>wallet_command_owner</code> 로 실행 중인 코드에만 의미가 있으며,
+  해당 역할이 <code>wallet_private</code> 에 객체를 생성·교체할 수 있게 되는 <strong>방어심층(defense-in-depth) 경계 침식</strong>입니다.
+  전제된 <code>CREATE=false</code> 불변식과 레포 자체 규율을 위반한다는 점이 핵심입니다.</p>
+</div>
+
+<div class="finding f-high">
+  <h3><span class="tag t-fix">정정됨</span><span class="tag t-high">HIGH</span> F3. <span class="strike">123000 은 대여가 없어 F2 잔류에 의존</span> → <strong>철회. 123000 은 독립적인 두 번째 잔류 사이트</strong></h3>
+
+  <span class="lbl">1판의 오류 (철회)</span>
+  <ul>
+    <li><span class="strike">"123000 에는 wallet_command_owner CREATE 대여문이 없다"</span> — <strong>거짓.</strong>
+      <code>123000:33</code> 에 <code>grant usage, create on schema public, wallet_private to wallet_command_owner;</code> 가 있습니다.</li>
+    <li><span class="strike">"123000 은 120000 의 권한 잔류에 의존해서만 성공한다"</span> — <strong>거짓.</strong> 자체 대여가 있어 독립적입니다.</li>
+    <li><span class="strike">"F2 만 단독 수정하면 123000 이 깨진다 / 한 세트로 고쳐야 한다"</span> — <strong>거짓.</strong>
+      <code>120000:541</code> 을 고쳐도 <code>123000</code> 은 33행에서 다시 빌리므로 영향받지 않습니다.</li>
+  </ul>
+
+  <span class="lbl">정정된 사실</span>
+  <p><code>123000</code> 은 <code>120000</code> 과 <strong>동일한 형태의 결함을 독립적으로 한 번 더</strong> 저지릅니다:
+  33행에서 두 스키마를 빌리고 891행에서 <code>public</code> 만 반납합니다.
+  즉 F3 은 "결합(coupling) 결함"이 아니라 <strong>"F2 의 두 번째 사이트"</strong> 입니다.
+  두 파일은 각각 독립적으로 수정 가능하며, <strong>둘 다 수정해야</strong> 잔류가 사라집니다.</p>
+  <p class="meta">이 정정은 위험도를 낮추지 않습니다 — 잔류 사이트가 1개에서 2개로 <em>늘었고</em>,
+  "함께 고쳐야 한다"는 잘못된 결합 제약만 제거됐습니다.</p>
+</div>
+
+<div class="finding f-low">
+  <h3><span class="tag t-fix">범위 축소</span><span class="tag t-low">LOW · 조건부</span> F4. 부분 적용 위험 — <strong>적용 러너에 조건부</strong></h3>
+  <p><strong>1판은 이 프로젝트의 프로덕션 반영 경로가 문장 단위 비트랜잭션(<code>db query --file</code>)이라고 단정했습니다.
+  이는 내 사전 지식에서 온 것으로, 이번 리뷰에서 증거로 확인한 바 없습니다.</strong>
+  루트 역시 이번 롤아웃의 프로덕션 러너를 선택·확정하지 않았습니다. 따라서 조건부로 낮춰 기술합니다.</p>
+  <p><strong>조건:</strong> <em>만약</em> 트랜잭션으로 감싸지 않는 문장 단위 러너로 적용한다면,
+  F1 발생 시 롤백 없이 부분 상태가 커밋됩니다 — <code>100000</code> 전량(테이블 2, 트리거 6,
+  <code>guard_promotion_schedule_version_has_weekday()</code>, <code>promotion_schedule_v2_enabled=false</code> 행)과
+  <code>103000</code> 의 <code>evaluate_campaign_promotion_schedule_v2</code>(소유자 미변경 상태)가 남습니다.</p>
+  <p><strong>완화:</strong> 6개 파일을 하나의 명시적 트랜잭션으로 감싸 적용하면 이 위험은 소멸합니다.
+  <strong>[root 통합 시 정정]</strong> ROLLBACK으로 실행한 11개 파일은 <em>SQL 테스트</em>이지 6개 마이그레이션이 아닙니다.
+  전체 마이그레이션 번들의 원자적 적용·실패 원복은 아직 검증하지 않았습니다.</p>
+</div>
+
+<h2>2. 플래그 OFF 교체 안전성 · V1 호환성 · 매니페스트 <span class="meta" style="font-weight:400;font-size:14px">[소스]</span></h2>
+
+<div class="ok">
+  <p style="margin-top:0"><strong>이 범위에서는 결함을 발견하지 못했습니다.</strong> 아래는 근거와 함께 확인한 긍정 소견이며, 2판에서 변경 없습니다.</p>
+</div>
+
+<h3>2.1 OID 안정성 — DROP 없음, RENAME 사용</h3>
+<p>6개 파일 전체에 <code>drop function/table/trigger/policy</code> 가 <strong>0건</strong>입니다.
+V1 보존은 <code>ALTER FUNCTION ... RENAME TO</code> 로 수행되어 <code>pg_proc</code> 엔트리와 <strong>OID 를 보존</strong>합니다.</p>
+<pre><code>123000:184-185  alter function wallet_private.build_purchase_result(uuid, boolean)
+                  rename to build_purchase_result_task3_v1;
+123000:849       ... rename to transition_purchase_promotion_resolution_task3_v1;</code></pre>
+
+<h3>2.2 매니페스트 드리프트 없음</h3>
+<p>카탈로그 등록은 <code>public</code> 스키마 함수만 대상입니다(<code>110000:198-201</code>, <code>where n.nspname='public'</code>).
+2.1 의 두 RENAME 은 모두 <code>wallet_private</code> 객체라 식별자에 영향이 없습니다.
+마지막에 <code>assert_wallet_service_rpc_manifest()</code> 로 자기검증합니다(<code>123000:899</code>).</p>
+<p><strong>[루트 증언]</strong> 로컬 픽스처에서 매니페스트 <code>get_artist_paid_votes</code> 2인자→4인자 보정이 필요했으나
+<strong>프로덕션 매니페스트는 클린</strong>. 이는 로컬 픽스처 산물이며 프로덕션 결함이 아닙니다.</p>
+
+<h3>2.3 플래그 OFF 시 V1 경로 보존 · 불변 지급</h3>
+<pre><code>-- 123000:719-727  플래그 OFF → 보존된 V1 리졸버로 위임
+if not wallet_private.promotion_schedule_v2_settlement_enabled() then
+  return wallet_private.resolve_purchase_promotion_locked_task7(...);
+end if;
+
+-- 123000:704-717  ★ 플래그 검사보다 먼저: 기존 V2 지급은 플래그와 무관하게 V2 유지
+if v_grant.id is not null then
+  return wallet_private.resolve_purchase_promotion_schedule_v2_locked(..., v_grant.campaign_version_id);
+end if;</code></pre>
+<p>플래그를 되돌려도 <strong>기존 V2 지급이 소급 V1 로 뒤집히지 않습니다</strong> — 불변 지급 요구사항 충족.
+검증 공급자 시각이 없으면 <code>PROMOTION_TIME_UNVERIFIABLE</code> 로 fail-closed 합니다(<code>123000:728-732</code>,
+평가기 <code>103000:14-18</code>).</p>
+
+<h3>2.4 금액 산술 — 정수 전용, 오버플로 회피</h3>
+<pre><code>-- 103000:83-87
+v_gross_total := greatest(
+  p_base_reward_total + 1,
+  (p_base_reward_total / 10) * p_multiplier_tenths
+    + ((p_base_reward_total % 10) * p_multiplier_tenths) / 10
+);</code></pre>
+<p>몫/나머지 분할로 중간값 오버플로를 피하고 부동소수·<code>numeric</code> 캐스트가 없습니다.
+<code>multiplier_tenths</code> 는 스키마 제약(<code>11..30</code>, <code>100000:10</code>)과 앱 모델에서 이중 강제됩니다.</p>
+
+<h2>3. 활성화 술어 vs 준비도 — <span style="color:var(--high)">실질 정정</span></h2>
+
+<div class="finding f-low">
+  <h3><span class="tag t-fix">정정됨</span><span class="tag t-low">LOW</span> F5. 준비도는 <em>돈이 움직이는 플래그</em>를 정확히 게이팅하고 있음
+  <span class="loc">production-release-gate.sql:9-12, 53-68 · production-functions.sql:136-143 · 123000:540</span></h3>
+
+  <p><strong>1판은 "게이트가 준비도를 전혀 강제하지 않는다"고 서술했습니다. 이는 절반만 맞고,
+  가장 중요한 부분을 놓쳤습니다.</strong> 프로덕션 실제 정의를 읽고 정정합니다.</p>
+
+  <span class="lbl">① 준비도는 네 개의 <em>write</em> 플래그에 묶여 있다 [소스]</span>
+<pre><code>-- production-release-gate.sql:9-12
+write_requested boolean := coalesce((p_values->>'candy_boost_write_enabled')::boolean,false)
+  or coalesce((p_values->>'debt_recovery_enabled')::boolean,false)
+  or coalesce((p_values->>'refund_reversal_enabled')::boolean,false)
+  or coalesce((p_values->>'admin_financial_commands_enabled')::boolean,false);
+
+-- :53-68  write_requested 일 때만 준비도 검사가 발동
+if write_requested and (
+  ... wallet_mutation_route_registry where classification='ACTIVE_MUTATION' and not migrated   -- 미마이그레이션 라우트
+  or  ... wallet_credit_source_coverage where coverage_percent&lt;&gt;100                            -- 크레딧 소스 커버리지
+  or  ... wallet_worker_health ... or (select count(*) from public.wallet_worker_health)&lt;&gt;2    -- 워커 헬스
+  or  ... wallet_release_audit_coverage ... &lt;&gt; 4                                              -- 감사 커버리지
+) then raise ... 'WALLET_RELEASE_GATE_BLOCKED'; end if;</code></pre>
+  <p>따라서 코디네이터가 제시한 준비도 관측치(미마이그레이션 라우트 2, 크레딧 소스 1건 미완,
+  워커 2건 미준비, 감사 커버리지)는 <strong>버려진 검사가 아니라</strong>
+  <code>candy_boost_write_enabled</code> 등 <strong>쓰기 플래그를 켜려 할 때 정확히 차단합니다.</strong></p>
+  <p class="meta">[root 통합 주석] admin cutover evidence는 admin_financial_commands_enabled의 별도 게이트다. 모든 쓰기 플래그에 동일한 admin cutover 조건이 적용된다고 일반화하지 않는다.</p>
+
+  <span class="lbl">② V2 라우팅 플래그는 준비도 검사 대상이 아니다 [소스]</span>
+  <p><code>promotion_surfaces_enabled</code> 와 <code>promotion_schedule_v2_enabled</code> 는
+  <code>write_requested</code> 집합에 <strong>포함되지 않습니다.</strong>
+  그래서 <strong>[루트 증언]</strong> 의 로컬 게이트 프로브(<code>public.set_wallet_runtime_flag</code> 경유, 리플리카 우회 없음)에서
+  네 쓰기 플래그를 false, surfaces/V2 를 true 로 두었을 때
+  <code>promotion_schedule_v2_settlement_enabled()</code> 가 TRUE 를 반환한 것은
+  <strong>이 소스가 예측하는 그대로</strong>입니다. (해당 트랜잭션은 ROLLBACK 됨.)</p>
+
+  <span class="lbl">③ ★ 결정적 — 술어 TRUE 는 실제 지급을 의미하지 않는다 [소스]</span>
+  <p><code>settlement_enabled()</code> 는 <strong>V1/V2 라우팅만</strong> 결정합니다.
+  실제 크레딧은 <strong>별도의 하류 쓰기 게이트</strong>가 막고 있으며, 이 게이트는 V1·V2 <strong>양쪽 모두</strong>에 존재합니다.</p>
+<pre><code>-- 프로덕션 V1 리졸버 [소스] production-functions.sql:136-143
+if not wallet_private.promotion_write_enabled() then
+  perform wallet_private.enqueue_promotion_award(p_snapshot_id);          -- 지급하지 않고 큐에 적재
+  perform wallet_private.fail_provider_event(..., 'PROMOTION_WRITE_PAUSED',
+          wallet_private.fixed_db_now() + interval '5 minutes');
+  return wallet_private.build_purchase_result(p_snapshot_id, false);      -- GRANTED 전이 없음
+end if;
+-- 크레딧(:154 credit_star_bonus_with_debt)은 이 게이트를 통과해야만 도달
+
+-- V2 리졸버도 동일 게이트 보유 [소스] 123000:540-552 (enqueue + PROMOTION_WRITE_PAUSED 동일)
+
+-- 게이트 정의 [소스] 20260721104000:92-96
+create or replace function wallet_private.promotion_write_enabled() returns boolean ... as $$
+ select coalesce((select (value_json#&gt;&gt;'{}')::boolean from public.wallet_runtime_flags
+                  where flag_key='candy_boost_write_enabled'), false)
+$$;</code></pre>
+
+  <span class="lbl">정정된 결론</span>
+  <p>프로덕션 현재 <code>candy_boost_write_enabled = false</code> 이므로,
+  V2 라우팅 플래그를 켜더라도 <strong>실제 구매에서 보너스가 지급되지 않습니다.</strong>
+  평가 후 <code>enqueue_promotion_award</code> 로 적재되고 인박스 이벤트는 5분 재시도로 일시정지되며,
+  결의(resolution)는 <code>GRANTED</code> 로 전이되지 않습니다.
+  그리고 그 <code>candy_boost_write_enabled</code> 를 켜려면 ①의 준비도 검사를 통과해야 합니다 —
+  <strong>준비도 → 돈 이동의 인과 사슬은 온전합니다.</strong></p>
+
+  <p><strong>증거의 한계 (명시):</strong> 위는 <strong>술어와 코드 경로에 대한 증거</strong>입니다.
+  <strong>실제 구매는 시도되지 않았습니다</strong>(루트·나 모두). 따라서 "실구매 시 지급되지 않는다"는
+  코드 경로 판독에 근거한 결론이며 실거래로 실증된 것이 아닙니다.</p>
+
+  <p><strong>[root 후속 실행 증거]</strong> 같은 격리 트랜잭션에서 실제 <code>promotion_write_enabled()</code>는 false였다.
+  정상 API로 candy 쓰기 ON을 시도하자 <code>WALLET_RELEASE_GATE_BLOCKED</code>로 거부됨을 단언했고 ROLLBACK했다.
+  통과한 grant snapshot 테스트 776–811행도 쓰기 OFF에서 financial operation 없음, 고정된 결정과 지급 보류·재시도 유지를 검증한다.
+  이는 로컬 fixture 증거이며 실제 운영 결제는 수행하지 않았다.</p>
+  <span class="lbl">잔여 위험 (결함 아님, 운영 주의)</span>
+  <p>V2 라우팅 ON + <code>candy_boost_write_enabled</code> OFF 상태를 오래 유지하면,
+  적격 구매마다 지급 큐가 쌓이고 인박스 이벤트가 5분 주기로 재시도됩니다.
+  이 조합은 <strong>단기 전환 상태로만</strong> 유지하십시오.</p>
+</div>
+
+<div class="ok">
+  <h3 style="margin-top:0">3.1 긍정 — 킬 스위치는 무조건 열려 있음 [소스]</h3>
+<pre><code>-- 110000:432-444  릴리스 플래그를 끄는 것은 언제나 허용 (어설션 우회)
+-- "Disabling a release flag is the emergency rollback path and must remain
+--  available while readiness checks are unhealthy."</code></pre>
+  <h3>3.2 긍정 — 정산 게이트는 fail-closed [소스]</h3>
+  <p><code>123000:155-170</code> 의 <code>count(*) = 2 and bool_and(...)</code> 는 두 플래그가 모두 존재·boolean·true 일 때만 참입니다.
+  행 누락이나 타입 불일치는 V1 로 안전하게 떨어집니다.</p>
+  <h3>3.3 긍정 — F1 과 활성화 게이트의 fail-closed 정합</h3>
+  <p>V2 어설션(<code>110000:250-259</code>)은 평가기·wire_item 의 소유자가 <code>wallet_command_owner</code> 일 것을 요구합니다.
+  이는 F1 이 실패시키는 바로 그 문장의 결과물이므로, <code>ALTER OWNER</code> 를 건너뛴 반쪽 적용 상태에서는
+  <strong>플래그를 켤 수 없습니다.</strong></p>
+</div>
+
+<h2>4. 앱 측 금액/확인 불일치</h2>
+
+<div class="ok">
+  <p style="margin-top:0"><strong>감사한 구매 정산 경로에 한해, 클라이언트 금액 산술이 존재하지 않습니다.</strong></p>
+<pre><code>// candy_reward_receipt.dart:128-137 — 전부 서버 필드에서만 구성
+final promoBonus = promo?.state == PurchasePromotionState.granted
+    ? promo!.promoBonusAmount : BigInt.zero;
+(WalletCurrency.bonusStarCandy, result.baseBonusAmount + promoBonus)
+
+// purchase_settlement_result.dart:134-137 — 계약 수준 강제
+if (promotion.state != PurchasePromotionState.granted &amp;&amp;
+    promotion.promoBonusAmount != BigInt.zero) throw FormatException(...);</code></pre>
+  <p><strong>범위 한정 (2판 추가):</strong> 이 결론은 내가 읽은
+  <code>receiptFromPurchase</code> / <code>PurchaseSettlementResultModel</code> 경로에 한합니다.
+  앱의 모든 지갑 표시 표면을 전수 감사하지는 않았습니다.
+  또한 프로모션 보너스는 기본 보너스와 <strong>합산되어 한 줄로</strong> 표시되므로(<code>:136</code>),
+  영수증만으로 사용자가 부스트 기여분을 분리해 확인할 수는 없습니다(표현 선택이며 결함 아님).</p>
+</div>
+
+<div class="finding f-med">
+  <h3><span class="tag t-med">MEDIUM</span> F6. 확인 다이얼로그는 V1 전용 — 활성화 후 배지와 불일치
+  <span class="loc">purchase_star_candy_state.dart:1026-1031 vs :1563</span></h3>
+<pre><code>// :1026-1031  확인 다이얼로그용 — V1 프로바이더 직접 읽기
+final campaigns = ref.read(activePromotionCampaignProvider(PromotionSurface.store));
+final displayedCampaign = campaigns.value?.items.where((c) =&gt; c.showInStore).firstOrNull;
+// :1563  배지 — V1/V2 통합 리졸버 (V2 우선)
+final resolved = ref.watch(paymentBadgePromotionProvider).value;</code></pre>
+  <p><strong>실패 조건:</strong> 활성화 후 V1 STORE 행이 회수되면 타일에는 V2 배지(<code>1.5x</code>)가 뜨지만
+  확인 다이얼로그는 <code>displayedCampaign == null</code> 이 되어 캠페인명을 표시하지 않습니다
+  (<code>purchase_dialog_handler.dart:197</code>). 광고 면과 최종 동의 면이 어긋납니다.</p>
+  <p><strong>범위:</strong> 다크 배포(플래그 OFF)에서는 양쪽 모두 V1 을 읽으므로 발현하지 않습니다. <em>활성화 시점</em> 한정.</p>
+</div>
+
+<div class="finding f-med">
+  <h3><span class="tag t-fix">범위 확대</span><span class="tag t-med">MEDIUM</span> F7. 확인 다이얼로그에 캠페인 코드 필터 누락 — <strong>V2 이전, 현재 V1 에서도 발현 가능</strong>
+  <span class="loc">purchase_star_candy_state.dart:1029-1031</span></h3>
+  <p>리졸버는 정확한 코드로 필터링하며 이유를 주석으로 남깁니다:</p>
+<pre><code>// promotion_badge_resolver_provider.dart:116-121
+// settlement still only evaluates CANDY_BOOST_DAY, so any other campaign's badge
+// would advertise a bonus the purchase path cannot honor. Exact code or nothing.
+.where((i) =&gt; i.code == _candyBoostDayCode &amp;&amp; i.showInStore)</code></pre>
+  <p>그러나 확인 다이얼로그 호출부는 <code>showInStore</code> 만 보고 <strong><code>code</code> 필터가 없습니다.</strong></p>
+  <p><strong>2판 정정 — 범위가 활성화 이후가 아닙니다.</strong> 이 호출부는 <em>지금도</em> V1 을 읽습니다.
+  따라서 활성 STORE 캠페인이 2건 이상 존재하는 순간, <strong>V2 와 무관하게 현재 프로덕션에서도</strong>
+  확인 다이얼로그가 정산 불가 캠페인명을 표시할 수 있습니다.
+  V1 봉투는 <code>items</code>/<code>total_count</code>/<code>next_cursor</code> 를 갖는 명시적 다건 구조입니다
+  (<code>promotion_campaign.dart:120-133</code>). 즉 <strong>V2 가 도입한 결함이 아니라 기존 V1 결함</strong>이며,
+  V2 활성화는 이를 악화시킬 뿐입니다.</p>
+  <p><strong>기존 회귀 테스트가 이 위험을 이미 인지하고 있습니다</strong>(리졸버 한정):
+  <code>promotion_badge_resolver_provider_test.dart:745-770</code> — <code>AAA_OTHER_CAMPAIGN</code> 을 앞에 배치한 케이스.
+  동일 불변식이 확인 다이얼로그 호출부에는 적용되지 않았고 테스트도 없습니다.</p>
+  <p><strong>최소 수정:</strong> <code>:1030</code> 을
+  <code>.where((c) =&gt; c.code == 'CANDY_BOOST_DAY' &amp;&amp; c.showInStore)</code> 로 정렬.</p>
+</div>
+
+<div class="finding f-low">
+  <h3><span class="tag t-low">LOW</span> F8. <code>decidePurchaseSuccess</code> 는 테스트 전용 — 커버리지 착시
+  <span class="loc">purchase_dialog_handler.dart:86-106</span></h3>
+  <p>프로덕션 호출자가 없습니다. 유일한 호출처는 <code>purchase_dialog_handler_test.dart</code>(484·498·506·515·520·527).
+  실제 영수증 경로는 <code>presentPurchaseSettlement()</code> → <code>receiptFromPurchase(result)</code> 이며
+  <code>displayedCampaign</code> 을 참조하지 않습니다. 현재 사용자 영향 없음. 다만 향후 실경로에 연결하면 F6 결함을 물려받습니다.</p>
+</div>
+
+<div class="finding f-low">
+  <h3><span class="tag t-low">LOW</span> F9. <code>displayedCampaign</code> 은 영수증 경로에서 무시되는 죽은 파라미터
+  <span class="loc">purchase_campaign_attempt.dart:437-470 · purchase_dialog_handler.dart:420-464</span></h3>
+  <p>필수 인자로 전달되지만 두 구현 모두 본문에서 사용하지 않습니다. 계약을 좁히거나 제거하는 편이 안전합니다.</p>
+</div>
+
+<div class="finding f-info">
+  <h3><span class="tag t-info">INFO</span> F10. 클라이언트 측 플래그 게이트 부재 — 다크 배포 중 상시 실패 RPC
+  <span class="loc">promotion_campaign_v2_provider.dart:12-16</span></h3>
+  <p>V2 RPC 를 무조건 호출하며, V1/V2 전환 기준은 "V2 가 비어 있지 않은 items 를 반환했는가" 뿐입니다.
+  V2 함수 부재 시 <code>PGRST202</code> 로 실패한 뒤 V1 로 폴백합니다 — <strong>동작은 설계대로 올바릅니다</strong>
+  (<code>promotion_badge_resolver_provider.dart:61-66</code> 이 <code>PGRST202</code>·<code>SocketException</code>·
+  <code>TimeoutException</code> 만 폴백 허용, 나머지는 fail-closed 재던짐).
+  다만 해당 표면 요청 수가 2배가 되고 PostgREST 오류 로그가 지속 발생합니다. 마이그레이션 적용 후 빈 봉투 응답으로 해소됩니다.</p>
+</div>
+
+<div class="finding f-info">
+  <h3><span class="tag t-fix">단정 완화</span><span class="tag t-info">INFO</span> F11. 혼합 플릿 — 컷오버 시 V1 회수 시점 주의</h3>
+  <p>V2 리더는 PR177 이후 빌드에만 존재하므로, 그 이전 클라이언트는 V1 만 읽습니다(코드 구조에서 도출).
+  따라서 활성화 시 V1 STORE 의 <code>CANDY_BOOST_DAY</code> 행을 회수하면 구버전 사용자는 배지를 잃습니다.</p>
+  <p><strong>2판 단정 완화:</strong> "V1 을 반드시 유지해야 한다"는 결론의 강도는
+  <strong>실제 설치 기반 버전 분포에 달려 있으며, 나는 이를 측정하지 않았습니다.</strong>
+  구버전 잔존 비율이 무시할 수준이라면 회수 가능합니다. 회수 전 버전 분포 확인을 권합니다.</p>
+</div>
+
+<h2>5. 다크 배포 준비도 vs 활성화 준비도</h2>
+<div class="tbl-scroll">
+<table>
+  <thead><tr><th>구분</th><th>상태</th><th>차단/주의 요인</th></tr></thead>
+  <tbody>
+    <tr><td><strong>다크 배포</strong><br>(마이그레이션 적용, 플래그 OFF)</td>
+        <td style="color:var(--crit);font-weight:700">차단됨</td>
+        <td>F1 (103000:56 하드 실패). 적용 성공 시에도 F2 잔류 2건이 남음. F4 는 러너 선택에 조건부.</td></tr>
+    <tr><td><strong>활성화 — 라우팅</strong><br>(<code>promotion_schedule_v2_enabled</code>)</td>
+        <td style="color:var(--crit);font-weight:700">선행 차단</td>
+        <td>다크 배포 미완. 구조 어설션은 통과 필요, <code>promotion_surfaces_enabled</code> 동반 전환 필요.
+            준비도 검사는 이 플래그에 걸리지 않음(F5 ②).</td></tr>
+    <tr><td><strong>활성화 — 실지급</strong><br>(<code>candy_boost_write_enabled</code>)</td>
+        <td style="color:var(--med);font-weight:700">준비도로 차단 중</td>
+        <td>F5 ①. 미마이그레이션 라우트·크레딧 커버리지·워커 헬스·감사 커버리지가 모두 통과해야 켜짐.
+            현재 false 이므로 지급은 큐 적재로 대기(F5 ③).</td></tr>
+    <tr><td><strong>앱 클라이언트</strong></td>
+        <td style="color:var(--low);font-weight:700">다크 배포 안전</td>
+        <td>F6 은 활성화 시점 한정. <strong>F7 은 현재 V1 에서도 발현 가능.</strong> F10 은 성능/로그.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>6. 테스트 증거 — 출처와 한계 <span class="meta" style="font-weight:400;font-size:14px">[루트 증언]</span></h2>
+<div class="tbl-scroll">
+<table>
+  <thead><tr><th>관측 (전부 루트 실행·보고)</th><th>판정</th><th>해석</th></tr></thead>
+  <tbody>
+    <tr><td>Flutter 8파일 128 pass / 1 skip / exit 0</td>
+        <td style="color:var(--low);font-weight:700">유효, 불완전</td>
+        <td>F7 불변식은 리졸버에만 테스트 존재. 확인 다이얼로그 호출부는 미커버(전 테스트가 <code>displayedCampaign: null</code>)</td></tr>
+    <tr><td>어드민: 임시 클린 <code>80d8120a</code> 아카이브 + <code>npm ci --ignore-scripts</code> →
+            5개 Jest 스위트 <strong>94 tests / 5 suites pass, exit 0</strong></td>
+        <td style="color:var(--low);font-weight:700">유효</td>
+        <td><strong>1판의 "Jest 실행 불가로 어드민 동적 검증 미완" 서술은 철회합니다.</strong>
+            의존성 문제는 해소됐고 어드민 동적 검증이 수행됨</td></tr>
+    <tr><td>SQL: V2 6종 + V1/결제/환불 5종 = 11파일, network-none PG 15.8 컨테이너에서 각 <code>ROLLBACK</code>, exit 0</td>
+        <td style="color:var(--high);font-weight:700">F1 을 해소하지 못함</td>
+        <td><strong>[root 통합 시 정정]</strong> 이미 V2 객체가 있는 로컬 논리 복제본에서 실행한 <em>기능 테스트</em>다.
+            마이그레이션을 적용하지 않으므로 F1의 소유권 이전을 시험하지 않는다.
+            해당 복제본의 wallet_command_owner CREATE는 false였고, 별도 owner-transfer probe에서 F1을 재현했다.
+            PostgreSQL 버전·확장·역할 등 복제 환경 보정의 한계는 통합 보고서에 명시했다.</td></tr>
+    <tr><td>백엔드 안전성 전체 재실행 53 pass / 4 fail</td>
+        <td style="color:var(--info);font-weight:700">테스트 도구 이식성 결함</td>
+        <td>4건 모두 하드코딩된 구식 픽스처 경로 ENOENT. 핵심 V2 정산 실패는 아니나 테스트 코드의 경로 의존을 보완해야 함</td></tr>
+    <tr><td>로컬 매니페스트 <code>get_artist_paid_votes</code> 2→4인자 보정 필요</td>
+        <td style="color:var(--info);font-weight:700">로컬 픽스처 산물</td>
+        <td>루트 보고상 <strong>프로덕션 매니페스트는 클린</strong></td></tr>
+    <tr><td>게이트 프로브: <code>public.set_wallet_runtime_flag</code> 경유(리플리카 우회 없음),
+            쓰기 4플래그 false·surfaces/V2 true → <code>settlement_enabled</code> TRUE, 이후 ROLLBACK</td>
+        <td style="color:var(--med);font-weight:700">술어 증거 (실지급 증거 아님)</td>
+        <td>F5 ②가 예측하는 그대로. 단 <code>settlement_enabled</code> 는 라우팅만 결정하며,
+            실제 크레딧은 <code>promotion_write_enabled()</code> 가 별도 차단(F5 ③).
+            <strong>실구매는 시도되지 않았음</strong></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>7. 권고 — 역사 재작성 없는 전진 보정</h2>
+<div class="card">
+  <p style="margin-top:0">병합된 과거 마이그레이션 파일을 수정하지 않는다는 전제에서, 두 가지 방식을 권합니다.</p>
+  <p><strong>[root 통합 주석] 아래는 미구현·미실행 설계 후보의 의사코드이며 운영 실행용 완성 스크립트가 아니다.</strong>
+  정확한 파일 hash·대상·기존 함수 지문·부분 적용 부재·ACL 전후 동일성·실패 시 원복·마이그레이션 이력 기록을 구현하고
+  전체 적용 테스트와 독립 재검토 후 사용자 승인을 받아야 한다.</p>
+  <ol>
+    <li><strong>고정 대상 적용 래퍼(pinned targeted application wrapper)</strong> — 권장.
+      6개 파일을 <em>있는 그대로</em> 적용하되, 앞뒤에 대여/반납을 감싸는 래퍼 스크립트를 하나 만들어
+      한 트랜잭션으로 실행합니다. F1·F2·F3·F4 를 동시에 해소합니다.
+<pre><code>begin;
+  grant usage, create on schema wallet_private to wallet_command_owner;   -- F1 해소
+  \i 20260821100000_...sql
+  \i 20260821103000_...sql
+  \i 20260821110000_...sql
+  \i 20260821113000_...sql
+  \i 20260821120000_...sql
+  \i 20260821123000_...sql
+  revoke create on schema wallet_private from wallet_command_owner;       -- F2·F3 잔류 반납
+commit;                                                                   -- F4 원자성 확보</code></pre>
+      <p class="meta">래퍼의 마지막 <code>revoke</code> 가 120000:541·123000:891 이 빠뜨린 반납을 대신 수행합니다.
+      과거 파일은 한 글자도 건드리지 않습니다.</p>
+    </li>
+    <li><strong>전진 보정 마이그레이션</strong> — 래퍼를 쓸 수 없다면, V2 6종 뒤에 놓일 신규 마이그레이션 1개를 추가해
+      <code>revoke create on schema wallet_private from wallet_command_owner;</code> 를 수행합니다.
+      단 이 방식만으로는 F1(적용 자체가 중단됨)이 해소되지 않으므로, F1 을 위한 선행 대여가 별도로 필요합니다.</li>
+  </ol>
+  <p><strong>적용 후 필수 검증</strong> —
+  <code>select has_schema_privilege('wallet_command_owner','wallet_private','CREATE');</code> 가
+  <code>false</code> 인지 직접 확인하십시오. F2/F3 는 fail-open 이라 <em>테스트 통과로는 확인되지 않습니다.</em></p>
+  <p><strong>활성화 순서</strong> — ① 다크 배포 완료 및 ACL 검증 → ② 앱 F7(가능하면 F6) 수정 →
+  ③ <code>promotion_surfaces_enabled</code> + <code>promotion_schedule_v2_enabled</code> ON(라우팅만) →
+  ④ 준비도 통과 후 <code>candy_boost_write_enabled</code> ON(실지급). ③↔④ 간격은 짧게 유지(F5 잔여 위험).</p>
+</div>
+
+<h2>8. 정정 로그 (1판 → 2판)</h2>
+<div class="tbl-scroll">
+<table>
+  <thead><tr><th>항목</th><th>1판 서술</th><th>2판 정정</th><th>사유</th></tr></thead>
+  <tbody>
+    <tr><td><strong>F3</strong></td>
+        <td>123000 은 CREATE 대여가 없고 120000 의 잔류에 의존하므로 한 세트로 고쳐야 함</td>
+        <td><strong>전면 철회.</strong> 123000:33 에 자체 대여 존재. 독립적인 두 번째 잔류 사이트로 재작성</td>
+        <td>좁은 grep 패턴이 다중 스키마 문법(<code>public, wallet_private</code>)을 놓침</td></tr>
+    <tr><td><strong>F2</strong></td><td>잔류 사이트 1개(120000)</td>
+        <td>잔류 사이트 2개(120000·123000). 순서 역행 백필이라 후속 revoke 가 없어 영구화된다는 근거 추가</td>
+        <td>F3 재검증 과정에서 확인</td></tr>
+    <tr><td><strong>F5</strong></td><td>게이트가 준비도를 전혀 강제하지 않음 (MEDIUM)</td>
+        <td>준비도는 <em>쓰기 플래그</em>를 정확히 게이팅. 실지급은 <code>promotion_write_enabled()</code> 로 별도 차단 (LOW)</td>
+        <td>프로덕션 실제 정의 <code>production-release-gate.sql</code>·<code>production-functions.sql</code> 열람</td></tr>
+    <tr><td><strong>F4</strong></td><td>비트랜잭션 러너로 단정, MEDIUM</td>
+        <td>러너 미확정 → 조건부, LOW 로 하향</td><td>이번 리뷰에서 러너를 증거로 확인하지 못했고 루트도 미선택</td></tr>
+    <tr><td><strong>F7</strong></td><td>활성화 시점에만 발현</td>
+        <td>현재 V1 에서도 발현 가능한 기존 결함</td><td>확인 다이얼로그는 지금도 V1 을 읽음</td></tr>
+    <tr><td><strong>영수증 단정</strong></td><td>"영수증이 서버 지급액과 어긋날 수 없다"</td>
+        <td>"감사한 구매 정산 경로에 한해" 로 범위 한정, 보너스 합산 표시 사실 추가</td><td>전수 감사하지 않음</td></tr>
+    <tr><td><strong>F11</strong></td><td>V1 을 반드시 유지해야 함</td>
+        <td>설치 기반 버전 분포에 의존 — 미측정임을 명시</td><td>버전 분포를 측정하지 않음</td></tr>
+    <tr><td><strong>Jest</strong></td><td>실행 불가 → 어드민 동적 검증 미완</td>
+        <td><strong>철회.</strong> 94 tests / 5 suites pass, exit 0</td><td>루트 최신 실행 결과</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="meta">변경 없이 유지된 항목: F1(근거 강화), F6, F8, F9, F10, 그리고 §2 전체(플래그 OFF 교체 안전성·V1 호환성·매니페스트).
+전체 지적 건수는 11건으로 동일하며, 그중 3건(F3·F5·F4)이 실질 정정, 3건(F2·F7·F11)이 범위 조정입니다.</p>
+
+<div class="foot">
+  <p><strong>검증 범위와 한계.</strong> 코디네이터가 제공한 git-archive 스냅샷(백엔드·어드민),
+  작업 트리의 앱 소스, 그리고 읽기전용 프로덕션 함수 스냅샷 2종을 직접 열람해 작성했습니다.
+  프로덕션 DB·플래그·배포·원격 상태는 조회를 포함해 일절 변경하지 않았고, 소스도 수정하지 않았으며,
+  프로덕션 스냅샷 SQL 은 실행하지 않았습니다. 산출물은 이 HTML 한 건입니다.</p>
+  <p>DB 실행 검증과 테스트 실행은 전부 루트가 수행했고 본 문서는 이를 <strong>[루트 증언]</strong> 으로 표기해
+  소스 근거와 대조 인용했습니다. 프로덕션 ACL 값은 과제가 제시한 스냅샷을 <strong>[전제]</strong> 로 삼았습니다.
+  실제 구매 거래는 수행되지 않았으므로, 지급 동작에 관한 결론은 코드 경로 판독 수준의 증거입니다.</p>
+</div>
+
+</div>
+</body>
+</html>

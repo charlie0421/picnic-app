@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>지갑 worker 패치 — 배포 준비 및 관리자 이관 사전검증</title>
+<style>body{max-width:1080px;margin:36px auto;padding:0 24px;font:16px/1.7 system-ui,-apple-system,sans-serif;color:#172033}h1{font-size:28px}h2{font-size:21px;margin-top:30px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d3dbe6;padding:10px;text-align:left;vertical-align:top}th{background:#eef3f8}code,pre{font:13px/1.6 ui-monospace,monospace;overflow-wrap:anywhere}pre{padding:14px;background:#f1f4f8;white-space:pre-wrap}a{color:#145da5;overflow-wrap:anywhere}.notice{padding:14px 18px;background:#fff5d9;border-left:4px solid #c78a12}li{margin:7px 0}</style>
+</head>
+<body>
+<h1>지갑 worker 패치 배포 준비</h1>
+<p>2026-09-09 · 운영 관측 12:35–12:37 및 12:48 KST · 사용자 요청 “진행”에 따른 사전검증</p>
+<p class="notice">패치 구현과 배포 준비 검증을 구분한다. 이번 차례에는 운영 조회와 격리 재검증만 수행했다. 새 소스 구현, commit/push/merge, 운영 migration 적용, 플래그·역할·이관값 변경은 하지 않았다. 기능은 여전히 OFF다.</p>
+
+<h2>현재 판단</h2>
+<ul>
+<li>이미 검토된 4개 파일 패치만 최신 main에 적용하는 충돌 검사는 통과했다. 실제 통합·전체 테스트·배포 완료를 뜻하지 않는다.</li>
+<li>핵심 SQL 회귀 4개는 다시 통과했다. 기존 릴리즈 테스트 1개 실패는 재현됐으며, 누락된 플래그 이름 외에 최초 설치 상태와 운영형 테스트 fixture의 차이도 확인했다.</li>
+<li>관리자 한정 Candy Boost 공개와 관리자 재무 명령 활성화는 별개다. 재무 명령을 켜기 위한 UI 증거·관리자 인원 조건을 Candy Boost의 직접 필수조건으로 혼동하지 않는다.</li>
+<li>다만 공통 쓰기 게이트에는 미이관 경로 2개와 promotion-ops 적립 경로 coverage 75%가 남아 있다. worker 패치만 배포해도 자동으로 해소되지 않는다.</li>
+</ul>
+
+<h2>운영 읽기 전용 관측</h2>
+<p>대상 <code>PICNIC-PROD / xtijtefcycoeqludlngc</code>, PostgreSQL 15.8. 모든 쿼리는 <code>BEGIN READ ONLY</code>, <code>lock_timeout=1s</code>, <code>statement_timeout=5s</code>, <code>ROLLBACK</code>을 사용했다. 서비스 RPC 호출·외부 전송·데이터 변경은 하지 않았다.</p>
+<table>
+<thead><tr><th>항목</th><th>2026-09-09 관측값</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td>기능 플래그 · 12:35:14 KST</td><td><code>promotion_v2_rollout_mode=OFF</code>. Candy Boost 쓰기, V2 스케줄, 화면 노출, 채무 회수, 환불 역분개, 관리자 재무 명령 모두 false.</td><td>새 기능 활성화 없음. 과거·다른 wallet/광고 플래그까지 모두 OFF라는 뜻은 아니다.</td></tr>
+<tr><td>후속 migration</td><td><code>20260909030430</code> 이력 없음.</td><td>이번 worker 패치는 아직 운영 미적용.</td></tr>
+<tr><td>expiry worker</td><td>성공 12:35:00 KST, processed 0, clean_scans 0, skip false.</td><td>clean_scans를 기록하지 않는 기존 구현 상태. 이 값을 요구하는 게이트를 이번 패치가 보완한다.</td></tr>
+<tr><td>reconciliation worker</td><td>성공 11:48:00 KST, processed 1000, clean_scans 17, skip false.</td><td>조회 당시 성공 시각은 2시간 이내. 실제 배포·활성화 직전 재조회 필요.</td></tr>
+<tr><td>미이관 경로</td><td><code>admin_adjustment</code>, <code>projection_repair</code> 모두 migrated=false.</td><td>근거 없는 true 변경 금지.</td></tr>
+<tr><td>적립 경로 coverage</td><td>wallet-core 12/12=100%, promotion-ops 3/4=75%.</td><td>현재 wallet-core를 1a-only의 10/12로 가정하면 안 된다.</td></tr>
+<tr><td>관리자 재무 명령 증거 · 12:35:53 KST</td><td>UI command-only / direct writer probe / role matrix 세 항목 모두 verified=false, reference 없음.</td><td>재무 명령 활성화 증거는 미충족. 이것 자체는 Candy Boost 전용 게이트가 아니다.</td></tr>
+<tr><td>유효 RBAC 역할</td><td>Super Admin 1, Finance Admin 4, Operator 0.</td><td>재무 명령 기준 2/1/1에는 미달. 앱 공개 대상의 <code>is_admin OR is_super_admin</code>과는 다른 역할 체계이며 임의로 추가하지 않는다.</td></tr>
+</tbody></table>
+
+<h3>직접 쓰기 권한의 정확한 범위</h3>
+<p>raw-writer 목록의 56개 관계가 모두 존재했다. anon/authenticated/service_role 각각에 대해 테이블 단위 INSERT/UPDATE/DELETE 허용은 0개였다. 컬럼 단위로는 역할마다 557개 컬럼을 확인했고, INSERT 허용은 모두 0개였다. UPDATE 허용은 anon 0개, authenticated 8개, service_role 4개이며 아래 비금융 프로필 필드에 한정됐다.</p>
+<ul>
+<li>authenticated: avatar_url, updated_at, birth_date, gender, open_ages, open_gender, birth_time, language.</li>
+<li>service_role: updated_at, nickname, country_code, last_ip.</li>
+</ul>
+<p>따라서 “모든 컬럼 쓰기 권한이 없다”는 표현은 부정확하다. 이 카탈로그 검사는 실제 쓰기 거절 실행 시험이나 배포된 UI 전환 증거를 대신하지 않으며, 전체 보안 감사 완료 선언도 아니다.</p>
+
+<h3>함수 기준값</h3>
+<table><thead><tr><th>함수</th><th>현재 운영 MD5</th><th>패치 후 격리 PG15 기대 MD5</th></tr></thead><tbody>
+<tr><td>assert_promotion_release_implications(jsonb)</td><td><code>3288ac261c6948cc823c4ecec68a4bf9</code></td><td><code>bee5400333ca899c0b388b81e3d51b28</code></td></tr>
+<tr><td>expire_cotton_candy_batch(integer)</td><td><code>a938891624435c06df59e70312f20553</code></td><td><code>d8dac70e0a5c7f136ebf800241a5a3be</code></td></tr>
+</tbody></table>
+<p>운영의 기존 함수 소유자·SECURITY DEFINER·호출 권한도 패치 전제와 일치했다. migration 실행 역할 postgres는 NOSUPERUSER이며 wallet_command_owner 멤버십과 필요한 schema CREATE 권한이 있다. 이러한 관측은 실제 DDL 성공을 대신하지 않는다.</p>
+
+<h2>이번 차례의 재검증</h2>
+<table><thead><tr><th>검사</th><th>결과</th><th>증거</th></tr></thead><tbody>
+<tr><td>SQL 5개</td><td>worker-specific health, promotion release gates, admin cutover evidence, emergency stop: 4 PASS. 기존 wallet_release_gates: FAIL.</td><td><a href="/tmp/picnic-worker-health.gipaab/release-preparation-results.json">원시 실행 결과</a></td></tr>
+<tr><td>실패 분리 진단</td><td>원본을 수정하지 않고 메모리의 기대 목록에 rollout key만 추가하면, 다음 광고 reward mode 초기값 ASSERT에서 실패. 전후 flags 동일.</td><td><a href="/tmp/picnic-worker-health.gipaab/release-contract-diagnostic.json">한 변수 진단</a></td></tr>
+<tr><td>Node 오프라인 safety</td><td>276 PASS / 31 DB-dependent SKIP / 0 FAIL. 네트워크 EPERM, 운영 자격증명 제외. 12:36:24–12:37:17 KST.</td><td><a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-cQWTEr/result.json">실행 메타데이터</a></td></tr>
+<tr><td>최신 main에 패치 적용 검사</td><td>임시 Git index에 4개 파일 diff만 적용 검사: PASS. 실제 index·소스·refs 변경 없음.</td><td><a href="/tmp/picnic-worker-health.gipaab/main-patch-apply-check.json">검사 결과</a></td></tr>
+</tbody></table>
+<p>기존 테스트는 rollout flag key를 빠뜨렸고 최초 설치 상태를 요구한다. 현재 격리 fixture는 광고 reward mode=star, purchase revenue fields=true인 후속 운영형 상태다. 이 차이를 감추려고 운영 값을 바꾸거나 ASSERT를 제거하지 않았다. cold-install 계약과 runtime 동작 fixture를 구분하는 보완이 필요하다. 전체 SQL suite를 통과했다고 주장할 수 없다.</p>
+<p>이번 재검증에는 전용 네트워크 차단 PG15 컨테이너만 사용했다. 공유 Supabase 54322를 참조하거나 중간 COMMIT을 쓰는 기존 테스트를 그대로 실행하지 않았다. 이전의 실제 잠금 RED/GREEN 및 독립 코드 리뷰는 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/wallet-worker-gate-patch-result.html">기존 패치 결과</a>에 별도로 기록돼 있으며 이번 차례의 신규 실행으로 세지 않는다.</p>
+
+<h2>통합·배포 경계</h2>
+<p>backend 작업 HEAD <code>117f068fd458de92f4e63c3baff8868cc9170c05</code>, 조회한 최신 main <code>217e995663a8ae9786383f7955a96faabb9a37ff</code>. 분기 차이는 작업 branch 2개 / main 4개 commit이다. 최신 main에는 다른 세션의 reconciliation 튜닝과 보안 변경이 있으므로 이전 작업 파일 전체로 덮어쓰지 않고 이번 4개 파일의 정확한 diff만 통합해야 한다.</p>
+<ul>
+<li>기존 <code>wallet-production-rollout.yml</code>은 수동 workflow_dispatch이며 전체 pending migration push와 함수 배포를 포함한다. 이번 두 함수 패치 전용 배포로 실행하지 않았다.</li>
+<li>고정 V2 7개 migration bundle은 이미 설치된 과거 배포물이다. 기존 hash·manifest·staging 증거를 수정하거나 위조해 재사용하지 않는다.</li>
+<li>사용자의 무스테이징 방향은 유지한다. 이번 후속 migration 하나에 한정한 새 배포 전후 검증을 준비해야 한다: 프로젝트·검토된 main SHA·migration SHA 고정, 기존/신규 함수 hash, 소유자·ACL, migration 이력, 제한된 잠금, 전체 트랜잭션 실패 시 rollback, OFF/registry/evidence 보존.</li>
+<li>OFF 상태의 worker 보완 배포와 이후 ADMIN_ONLY 활성화는 별도 단계다. 앱 버전·TestFlight·태그는 이번 작업 범위 밖이며 변경하지 않았다.</li>
+</ul>
+
+<h2>관리자 이관 증거 검토</h2>
+<p id="admin-audit">Opus/max 독립 읽기 전용 감사 완료. Orca run <code>run_3142f27a2430</code>, task <code>task_bc3aa8749b12</code>, dispatch <code>ctx_8e54abef9468</code>, 완료 보고 <code>msg_4b8ee04c5cb1</code>. 소스 근거를 조정자가 대조했으며 아래 확인된 결론만 채택했다. 새 관리자 UI/API 구현이나 운영 migrated 변경은 수행하지 않았다.</p>
+<ul>
+<li>경로 이관 증거에는 command RPC, 검증 테스트, 이관 시각, 외부 호출자 저장소의 commit SHA와 파일 위치가 필요하다. 기존 mobile/web purchase 이관 migration에도 같은 형태의 호출자 근거가 있다.</li>
+<li><code>admin_adjustment</code>는 <code>admin_adjust_star_bonus</code>, <code>projection_repair</code>는 <code>admin_execute_wallet_repair</code> 및 <code>apply_wallet_correction</code>, 적립 source의 <code>admin_adjustment</code>는 채무를 고려하는 credit 경로와 연결돼야 한다. 로컬 함수·테스트 존재만으로 실제 운영 호출자 전환 완료를 선언할 수 없다.</li>
+<li>DB 쪽 wrapper·RBAC·명령 테스트는 존재한다. 현재 worker 회귀 테스트 326–365행도 미이관 경로와 부족한 coverage를 각각 독립적으로 차단하는지 이미 검사한다. 이 테스트가 없다는 과거 지적은 채택하지 않는다.</li>
+<li>조정자가 읽은 관리자 웹 로컬 소스에는 <code>/api/wallet-ops/commands</code>뿐 아니라 별도 <code>/api/wallet/candy-adjust</code> 경로도 있다. 후자도 서버가 확인한 사용자로 RPC를 호출하므로 raw writer라고 단정할 수 없다. 다만 단일 명령 진입점 계약 준수 및 실제 배포 SHA는 추가 확인 대상이다. 이번 감사 worker는 worktree 밖 접근 제한 때문에 해당 웹 소스를 검토하지 못했다.</li>
+<li>실제 <code>set_wallet_runtime_flag</code> 명령으로 올바른 순서의 ADMIN_ONLY 활성화가 성공하는지, 비관리자 차단과 함께 검증하는 통합 양성 테스트는 후속 점검 대상이다. fixture에서 trigger를 우회해 값을 채우는 테스트만으로 운영 전환 성공을 증명할 수 없다.</li>
+</ul>
+<h3>독립 지적 중 채택하지 않은 주장</h3>
+<p>현재 운영이 1a-only여서 wallet-core 10/12라는 주장은 가정이다. 이번 실제 조회는 12/12였고 직접 테이블 쓰기도 차단돼 있었다. 기존 고정 V2 manifest에 새 migration이 없다는 사실은 과거 배포물의 결함이 아니므로 이를 고쳐 재사용하자는 제안은 채택하지 않는다. 공유 54322 reset이나 staging 복귀 제안도 이번 사용자 범위에 포함하지 않는다.</p>
+<p>“쓰기 플래그를 켜면 모든 사용자 백로그가 일제히 지급된다”는 지적 역시 그대로 채택하지 않았다. worker는 최종적으로 <code>resolve_purchase_promotion</code>을 호출하고, 최신 <code>20260908031648</code> wrapper는 동결된 구매 대상 및 현재 OFF를 검사한다. 기존 grant/award 재처리 분기는 별도로 존재하므로 활성화 전 대기 건 확인은 필요하다. 12:48:29 KST 운영 읽기 전용 집계에서 <code>PROMOTION_AWARD</code> 인박스는 모든 상태 합계 0건이었다. 운영 resolver hash는 <code>baca2e76d7e9b2e6dc9882e80e1f0b5b</code>이며 audience/OFF 검사와 기존 grant 분기 존재도 확인했다. 이는 이후 생길 대기 건까지 0이라는 보장이 아니므로 실제 활성화 직전에 다시 조회한다.</p>
+
+<h2>다음 승인 범위</h2>
+<ol>
+<li>기존 SQL 테스트의 rollout-key 및 cold-install/runtime fixture 계약을 보완하고, 공유 DB를 건드리지 않는 실행 경로로 검증한다.</li>
+<li>최신 main의 튜닝·보안 변경을 보존하며 worker 패치를 통합하고, 후속 migration 한 개 전용 배포 검증물을 작성한다. 추가 코드는 독립 교차 리뷰한다.</li>
+<li>미이관 경로 2개와 promotion-ops 잔여 적립 경로의 실제 command 전환 증거를 확보한다. 확인되지 않은 migrated/coverage 값을 올려 게이트를 우회하지 않는다.</li>
+<li>PR/머지와 운영 적용은 정해진 검토·승인 절차를 따른다. UI/API 변경을 main에 합치는 경우 Vercel Preview 확인 질문도 별도로 필요하다. ADMIN_ONLY 활성화는 그 이후다.</li>
+</ol>
+<p class="notice">Superpowers <code>finishing-a-development-branch</code>의 실패 테스트 처리 규칙에 따라 현재 머지·배포 완료 처리는 보류한다. 새 테스트 보완과 패치 전용 배포 절차 작성은 다음 구현 범위로 분리한다.</p>
+
+<h2>정리 및 검증 한계</h2>
+<p>다른 client backend 0개를 확인한 뒤, 이번 재검증에서 재시작했던 전용 컨테이너 <code>828ff561755bc259f6863bb5ba569d6eb40a344afc1892fad7f661b8a2172769</code>를 12:44:36 KST에 다시 중지했다. 합성 fixture DB와 증거 파일은 삭제하지 않았다. 다른 컨테이너와 공유 DB는 변경하지 않았다.</p>
+<p>기존 worker 소스 4개 SHA256은 앞선 리뷰 결과와 동일하고 <code>git diff --check</code> 통과. admin 저장소의 사용자 소유 package.json/.nvmrc/보고서는 수정하지 않았다. 실제 배포된 관리자 웹 SHA·UI E2E는 이번에 검증하지 않았다. 이 문서는 구조·로컬 링크를 검사하며 브라우저 시각 검수는 하지 않는다.</p>
+<p>감사 worker 완료 보고를 수락한 뒤 worker-release 및 메시지 ACK를 처리했다. Orca는 기존 외부 터미널을 retained/external_terminal로 보존했고 프로세스를 종료하지 않았다. 긴 보고 메시지의 권한 오류 때문에 생긴 전달 문제는 소스/DB 접근 권한을 확대하지 않고 종료했다. worker의 가정과 권고를 운영 사실이나 승인으로 취급하지 않았다.</p>
+<p>작업 방식: Superpowers 완료 전 검증·체계적 디버깅·브랜치 마무리, Supabase 읽기 전용 및 최소 권한 검토, Orca 독립 관리자 경계 감사. 테스트 구조 참고: <a href="https://supabase.com/docs/guides/database/testing">Supabase 공식 Database Testing</a>.</p>
+</body>
+</html>
