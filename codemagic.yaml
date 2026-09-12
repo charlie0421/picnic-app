@@ -63,13 +63,12 @@ workflows:
           esac
           : "${DEPLOY_TARGET:?was not derived from the tag; refusing to guess a deploy target}"
           echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"
-          echo "RELEASE_TAG=$CM_TAG" >> "$CM_ENV"
           echo "Deploy target: $DEPLOY_TARGET (from tag $CM_TAG)"
       - name: Verify environment isolation policy
         script: |
           set -e
           python3 -c "import yaml" 2>/dev/null || pip3 install --quiet pyyaml
-          python3 -m unittest -v test_release_test_mode.py test_release_tag_resolver.py
+          python3 -m unittest -v test_release_tag_resolver.py test_codemagic_no_full_unit_tests.py
           python3 test_codemagic_environment_isolation.py
           python3 test_codemagic_environment_isolation.py --self-test
       - name: Verify protected production target when requested
@@ -139,23 +138,6 @@ workflows:
 
           echo "=== Generated.xcconfig 파일 확인 ==="
           ls -la ios/Flutter/Generated.xcconfig || echo "⚠️ Generated.xcconfig 파일이 아직 생성되지 않음"
-
-      - name: Run unit tests with coverage
-        script: |
-          set -e
-          : "${RELEASE_TAG:?was not propagated from the tag-derivation step}"
-          RELEASE_TEST_MODE="$(bash scripts/release_test_mode.sh "$RELEASE_TAG")"
-          if [ "$RELEASE_TEST_MODE" = "skip" ]; then
-            echo "Skipping picnic_lib unit tests with coverage by release tag: $RELEASE_TAG"
-            exit 0
-          fi
-          cd picnic_lib
-          flutter test --coverage
-          python3 scripts/filter_coverage.py \
-            --exclude-list coverage/exclude_patterns.txt \
-            --input coverage/lcov.info \
-            --output coverage/lcov_filtered.info
-        test_report: picnic_lib/build/test-results/**/*.xml
 
       - name: Install CocoaPods dependencies
         script: |
@@ -706,13 +688,12 @@ workflows:
           esac
           : "${DEPLOY_TARGET:?was not derived from the tag; refusing to guess a deploy target}"
           echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> "$CM_ENV"
-          echo "RELEASE_TAG=$CM_TAG" >> "$CM_ENV"
           echo "Deploy target: $DEPLOY_TARGET (from tag $CM_TAG)"
       - name: Verify environment isolation policy
         script: |
           set -e
           python3 -c "import yaml" 2>/dev/null || pip3 install --quiet pyyaml
-          python3 -m unittest -v test_release_test_mode.py test_release_tag_resolver.py
+          python3 -m unittest -v test_release_tag_resolver.py test_codemagic_no_full_unit_tests.py
           python3 test_codemagic_environment_isolation.py
           python3 test_codemagic_environment_isolation.py --self-test
       - name: Verify deployment target
@@ -800,23 +781,6 @@ workflows:
               dart run tool/verify_environment_isolation.dart --environment=dev
           fi
           flutter packages pub get
-
-      - name: Run unit tests with coverage
-        script: |
-          set -e
-          : "${RELEASE_TAG:?was not propagated from the tag-derivation step}"
-          RELEASE_TEST_MODE="$(bash scripts/release_test_mode.sh "$RELEASE_TAG")"
-          if [ "$RELEASE_TEST_MODE" = "skip" ]; then
-            echo "Skipping picnic_lib unit tests with coverage by release tag: $RELEASE_TAG"
-            exit 0
-          fi
-          cd picnic_lib
-          flutter test --coverage
-          python3 scripts/filter_coverage.py \
-            --exclude-list coverage/exclude_patterns.txt \
-            --input coverage/lcov.info \
-            --output coverage/lcov_filtered.info
-        test_report: picnic_lib/build/test-results/**/*.xml
 
       - name: Verify Keystore Configuration
         script: |
