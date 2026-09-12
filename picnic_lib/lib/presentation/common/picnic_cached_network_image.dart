@@ -1,20 +1,18 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/common/image_shimmer_loading.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image_url_resolver.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:universal_platform/universal_platform.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-export 'package:picnic_lib/presentation/common/image_shimmer_loading.dart' show buildImageLoadingOverlay;
+export 'package:picnic_lib/presentation/common/image_shimmer_loading.dart'
+    show buildImageLoadingOverlay;
 
 /// 이미지 복잡도 레벨
 enum ImageComplexity {
@@ -32,22 +30,15 @@ enum LazyLoadingStrategy {
 }
 
 /// 이미지 로딩 우선순위
-enum ImagePriority {
-  low, // 낮은 우선순위 (백그라운드 이미지 등)
-  normal, // 일반 우선순위
-  high, // 높은 우선순위 (사용자가 현재 보고 있는 이미지)
-}
+enum ImagePriority { low, normal, high }
 
 /// 성공적으로 로딩된 이미지 URL을 추적하는 글로벌 Set
-/// 위젯이 재생성되더라도 이미 로딩된 이미지는 즉시 표시됨(로딩 오버레이 스킵)
+/// 위젯이 재생성되더라도 이미 성공한 source는 lazy gate를 즉시 통과한다.
 ///
 /// Flutter의 PaintingBinding.imageCache 로 대체할 수 없다 — 그 캐시는
-/// ImageProvider(오브젝트) 를 키로 쓰고, CachedNetworkImageProvider 의 키에는
-/// 해상된 최종 URL과 같은 cacheKey가 들어간다. 이 Set 은 initState
-/// 시점(_cachedUrls 계산 전, 즉 해상 URL을 아직 모르는 시점)에 원본
-/// imageUrl 만으로 "이 세션에서 한 번은 성공했다"를 묻는
-/// 용도라 프레임워크 캐시와 키 공간이 다르다 — 대체 시 매치 실패로 조용히
-/// 스킵 로직이 죽는 회귀를 안고 가게 된다. 대신 세션 내 무한 누적만 막는다.
+/// ImageProvider(오브젝트) 를 키로 쓰는 반면 이 Set은 원본 imageUrl만으로
+/// "이 세션에서 한 번은 성공했다"를 묻는 lazy 진입 힌트다. 실제 준비 완료와
+/// overlay 제거는 항상 현재 provider의 첫 decoded frame으로 결정한다.
 ///
 /// **LRU, FIFO 아님.** 삽입 순서상 가장 오래 재사용되지 않은(least-recently-
 /// used) 항목을 버린다 — [_rememberSuccessfullyLoadedImageUrl] 이 재사용 시
@@ -124,11 +115,13 @@ class PicnicCachedNetworkImage extends StatefulWidget {
   // Lazy Loading 관련 매개변수
   final LazyLoadingStrategy lazyLoadingStrategy;
   final double visibilityThreshold; // 가시성 임계값 (0.0 ~ 1.0)
-  final Duration? lazyLoadDelay; // 지연 로딩 딜레이
+  // 소스 호환성을 위해 유지한다. 최초 표시를 시간으로 지연하지 않는다.
+  final Duration? lazyLoadDelay;
   final Widget? placeholder; // 커스텀 플레이스홀더
 
   // 성능 최적화 관련 매개변수
-  final ImagePriority priority; // 이미지 로딩 우선순위
+  // 소스 호환성과 호출부 의미 표기를 위해 유지하며 로드 시각은 바꾸지 않는다.
+  final ImagePriority priority;
   final bool enableMemoryOptimization; // 메모리 최적화 활성화
   final bool enableProgressiveLoading; // 점진적 로딩 활성화
 
@@ -141,8 +134,12 @@ class PicnicCachedNetworkImage extends StatefulWidget {
   final int? maxQualityOverride;
   final double? maxResolutionMultiplierCap;
 
-  // C4: 빠른 플링 중에는 실제 이미지 대신 placeholder 를 보여주고, 스크롤이 멎으면 로드.
-  // Scrollable.recommendDeferredLoadingForContext 게이트. 기본 false = 현재 동작.
+  /// Prefetch와 display가 정확히 같은 provider/key를 공유해야 할 때 전달한다.
+  /// null이면 현재 layout과 DPR로 request를 매 build마다 다시 계산한다.
+  final PicnicImageRequest? imageRequest;
+
+  // 기존 public API를 유지한다. 실제 scroll deferral은 Flutter Image가 내부의
+  // ScrollAwareImageProvider로 처리해 warm/pending Image subtree를 보존한다.
   final bool deferDuringFastScroll;
 
   const PicnicCachedNetworkImage({
@@ -167,6 +164,7 @@ class PicnicCachedNetworkImage extends StatefulWidget {
     this.enableProgressiveLoading = true,
     this.maxQualityOverride,
     this.maxResolutionMultiplierCap,
+    this.imageRequest,
     this.deferDuringFastScroll = false,
   });
 
@@ -179,8 +177,15 @@ class PicnicCachedNetworkImage extends StatefulWidget {
       _PicnicCachedNetworkImageState();
 }
 
-class _PicnicCachedNetworkImageState
-    extends State<PicnicCachedNetworkImage> {
+typedef _ImageAttempt = ({int generation, int reloadToken});
+typedef _ImageRequestIdentity = ({
+  String url,
+  int decodeWidth,
+  int decodeHeight,
+  ImageProvider<Object> provider,
+});
+
+class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
   bool _loading = false;
   bool _hasError = false;
   bool _shouldLoadImage = false; // Lazy Loading 제어
@@ -188,10 +193,19 @@ class _PicnicCachedNetworkImageState
   bool _isImageLoaded = false;
   DateTime? _loadStartTime;
   int _retryCount = 0;
-  Timer? _lazyLoadTimer;
   Timer? _retryTimer; // 재시도 백오프 (취소 가능)
   Timer? _imageTimeoutTimer; // 단일 이미지 로딩 타임아웃 — dispose/URL 변경 시 반드시 취소
-  List<String>? _cachedUrls; // 동일 위젯 생명주기 동안 고정된 URL 세트
+  int _imageRequestGeneration = 0;
+  _ImageRequestIdentity? _activeRequestIdentity;
+  ImageConfiguration? _activeImageConfiguration;
+  _ImageAttempt? _requestKeyResolutionScheduledFor;
+  _ImageAttempt? _loadAllowanceCheckScheduledFor;
+  _ImageAttempt? _attemptStartedFor;
+  _ImageAttempt? _successTransitionScheduledFor;
+  _ImageAttempt? _successfulAttempt;
+  _ImageAttempt? _handledErrorAttempt;
+  _ImageRequestIdentity? _cacheProbeIdentity;
+  _ImageRequestIdentity? _cachePromotionScheduledFor;
 
   /// VisibilityDetector 의 Key 는 위젯 식별자일 뿐 아니라 visibility_detector
   /// 패키지의 **전역 static map**(`_updates`, `_lastVisibility`) 의 키로도 쓰인다.
@@ -277,11 +291,8 @@ class _PicnicCachedNetworkImageState
       map.remove(map.keys.first);
     }
   }
-  int _reloadToken = 0;
-  late final DisposableBuildContext<State<PicnicCachedNetworkImage>>
-  _scrollAwareContext;
 
-  bool get isGif => widget.imageUrl.toLowerCase().endsWith('.gif');
+  int _reloadToken = 0;
 
   Duration get effectiveTimeout => widget.timeout ?? _defaultTimeout;
   int get effectiveMaxRetries => widget.maxRetries ?? _defaultMaxRetries;
@@ -295,105 +306,32 @@ class _PicnicCachedNetworkImageState
     return delay > _maxBackoffDelay ? _maxBackoffDelay : delay;
   }
 
-  /// [KNOWN ISSUE — 별도 후속 작업, 이 함수는 아직 고치지 않았다]
-  ///
-  /// 여기서 계산한 값은 `CachedNetworkImage.memCacheWidth/Height` 로 흘러
-  /// 들어가 Flutter 엔진의 `ResizeImage.width/height` 가 된다. Flutter SDK
-  /// 문서(`packages/flutter/lib/src/painting/image_provider.dart`,
-  /// `ResizeImage.width` 1274-1281행, 클래스 문서 1230-1236·1251-1252행)에
-  /// 따르면 이 값은 **디코드해서 캐시할 비트맵의 물리 픽셀(physical pixel)
-  /// 수**다 — 논리(dp) 픽셀이 아니고, devicePixelRatio 를 자동으로 반영하지도
-  /// 않는다. SDK 문서의 예제조차 `MediaQuery.widthOf(context) ~/ 2` 같은
-  /// 논리값을 그대로 넣는 함정을 보여준다.
-  ///
-  /// 그런데 이 함수는 `explicit`(호출부가 넘긴 memCacheWidth/Height)이든
-  /// `fallback`(위젯의 논리 width/height)이든 논리 px 기준값에 1.0 또는 0.5
-  /// 배율만 곱한다 — DPR 을 전혀 반영하지 않는다. 반면 CDN 다운로드 URL 의
-  /// w/h([PicnicCachedNetworkImageUrlResolver])는 `_getResolutionMultiplier`
-  /// (DPR 기반, 최대 2.5~4.0배)로 정확히 물리 픽셀 목표를 계산한다. **두 경로의 단위가
-  /// 불일치한다:** DPR 2.5~4 기기에서 물리 픽셀 기준 100~160px 이미지를
-  /// 내려받고도 여기서는 40px(예: width=40dp) 로만 디코드해 캐시하므로,
-  /// 렌더 시 화면이 요구하는 물리 픽셀로 다시 업스케일되어 흐릿해지고
-  /// 내려받은 고해상도 데이터도 버려진다.
-  ///
-  /// 올바른 정렬 방향은 **CDN 요청은 물리 px 로 유지한 채 이 함수를 물리 px
-  /// 로 끌어올리는 것**이다 — 반대로 CDN w/h 를 논리 px 로 낮추면 레티나
-  /// 선명도 자체를 잃는다.
-  ///
-  /// 지금 고치지 않은 이유: 이 위젯을 쓰는 45곳 중 최소 10곳이 memCacheWidth/
-  /// Height 를 명시적으로 넘기며(`explicit` 경로), 전부 DPR 을 반영하지 않은
-  /// 원시 숫자다 — avatar_container.dart, common_banner.dart,
-  /// vote_detail_page.dart(2곳), vote_detail_achieve_page.dart(2곳),
-  /// vote_home_page.dart, board_list_page.dart, common_artist_widget.dart,
-  /// artist_search_result_item.dart, goonghap_card.dart. `explicit` 값까지
-  /// DPR 을 반영하려면(그래야 실사용 대부분에 효과가 있다) 앱 전역 디코드
-  /// 메모리가 최대 DPR² 배(모바일 캡 2.5 → 6.25배, iPad 캡 4.0 → 16배)까지
-  /// 늘 수 있어, 저사양 기기 OOM 위험을 실기기로 검증하기 전에는 단독으로
-  /// 판단하지 않기로 했다(2026-08-07). 호출부 44곳을 흔드는 변경이라 이번
-  /// PR(서버가 무시하는 CDN 파라미터 제거)과 롤백 단위를 분리한다.
-  int _computeCacheDimension(
-    int? explicit,
-    double? fallback,
-    double multiplier,
-  ) {
-    if (explicit != null) {
-      return math.max(1, (explicit * multiplier).round());
-    }
-    if (fallback != null && fallback.isFinite) {
-      return math.max(1, (fallback * multiplier).round());
-    }
-
-    return math.max(1, (400 * multiplier).round());
-  }
-
-  String _cacheKeyFor(String url) => url;
-
   @override
   void initState() {
     super.initState();
-    _scrollAwareContext =
-        DisposableBuildContext<State<PicnicCachedNetworkImage>>(this);
-
-    // Lazy Loading 전략에 따른 초기화
+    // Visibility gates use post-frame geometry; request throttling stays in
+    // the Image request pipeline.
+    VisibilityDetectorController.instance.updateInterval = Duration.zero;
     _initializeLazyLoading();
 
-    // 메모리 최적화가 활성화된 경우에만 실행
     if (widget.enableMemoryOptimization) {
       _PicnicCachedNetworkImageState._optimizeImageCache();
     }
-
-    if (isGif) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _prepareGifLoading();
-      });
-    }
-    // URL 세트는 최초 계산 후 생명주기 동안 고정하여 캐시 키 변동을 방지
-    // (동시 로딩 수 변화로 dpr/품질 조합이 흔들리며 캐시 미스가 나는 문제 완화)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _cachedUrls ??= _getTransformedUrls(
-          context,
-          _capResolution(_getResolutionMultiplier(context)),
-        );
-      }
-    });
   }
 
   /// Lazy Loading 초기화
   void _initializeLazyLoading() {
     // 이미 성공적으로 로딩된 이미지인지 확인
-    final isAlreadyLoaded = _successfullyLoadedImageUrls.contains(widget.imageUrl);
+    final isAlreadyLoaded = _successfullyLoadedImageUrls.contains(
+      widget.imageUrl,
+    );
 
     if (isAlreadyLoaded) {
-      // 이미 로딩된 이미지는 즉시 표시
+      // Source 성공 이력은 lazy 진입만 앞당긴다. 캐시가 evict됐을 수 있으므로
+      // 실제 첫 frame 전에는 loaded/ready 상태로 간주하지 않는다.
       _shouldLoadImage = true;
-      _isImageLoaded = true;
+      _isImageLoaded = false;
       _loading = false;
-      // 이 분기는 "재사용"의 지배적 경로다 — 이미 로딩된 URL 은 여기서 곧장
-      // return 하므로 _onImageLoadSuccess(따라서 _rememberSuccessfullyLoadedImageUrl)
-      // 가 호출되지 않는다. 여기서 직접 갱신하지 않으면 hot URL 이 최초 삽입
-      // 위치에 고정된 채 밀려나는 FIFO 로 퇴화한다 — LRU 갱신은 반드시 여기서도
-      // 일어나야 한다.
       _rememberSuccessfullyLoadedImageUrl(widget.imageUrl);
       return;
     }
@@ -431,18 +369,7 @@ class _PicnicCachedNetworkImageState
           _loading = true;
           _shouldLoadImage = true;
         });
-      } else if (!isVisible &&
-          _shouldLoadImage &&
-          widget.priority == ImagePriority.low) {
-        _cancelLoading();
       }
-    }
-  }
-
-  /// 로딩 취소
-  void _cancelLoading() {
-    if (_lazyLoadTimer?.isActive == true) {
-      _lazyLoadTimer?.cancel();
     }
   }
 
@@ -458,36 +385,10 @@ class _PicnicCachedNetworkImageState
   /// (3) 카운터를 정확히 만들면 리스트 화면(항상 8개 이상 동시 로딩)에서 무관한
   ///     이미지가 큐에 갇히거나 저대역폭 오판(_isLowBandwidthConnection)이 켜지는
   ///     회귀를 낳았다.
-  /// → 전역 동시성 제어를 제거하고, 우선순위 기반 지연만 유지한다.
+  /// → 전역 동시성 제어와 최초 시간 지연 없이 visibility 진입 즉시 로드한다.
   void _triggerLazyLoad() {
     if (_shouldLoadImage || !mounted) return;
-
-    final delay = _calculateLoadDelay();
-
-    if (delay > Duration.zero) {
-      _lazyLoadTimer?.cancel();
-      _lazyLoadTimer = Timer(delay, () {
-        if (mounted && !_shouldLoadImage) {
-          _startLoading();
-        }
-      });
-    } else {
-      _startLoading();
-    }
-  }
-
-  /// 로딩 지연 시간 계산
-  Duration _calculateLoadDelay() {
-    final baseDelay = widget.lazyLoadDelay ?? Duration.zero;
-
-    switch (widget.priority) {
-      case ImagePriority.high:
-        return Duration.zero;
-      case ImagePriority.normal:
-        return baseDelay;
-      case ImagePriority.low:
-        return baseDelay + Duration(milliseconds: 200);
-    }
+    _startLoading();
   }
 
   /// 로딩 시작
@@ -502,7 +403,6 @@ class _PicnicCachedNetworkImageState
 
   @override
   void dispose() {
-    _lazyLoadTimer?.cancel();
     _retryTimer?.cancel();
     _imageTimeoutTimer?.cancel();
     // visibility_detector 는 RenderObject dispose 시 전역 맵을 정리하지 않고,
@@ -511,22 +411,10 @@ class _PicnicCachedNetworkImageState
     // URL 기반 키일 때는 distinct URL 수만큼 유한했지만, 위의 인스턴스 고유 키는
     // dispose 마다 하나씩 무한히 늘어나므로 반드시 직접 정리해 줘야 한다.
     VisibilityDetectorController.instance.forget(_visibilityKey);
-    _scrollAwareContext.dispose();
     super.dispose();
   }
 
-  // 전역 캐시 최적화 상태 추적
-
   /// Flutter ImageCache 설정 최적화
-  ///
-  /// vote_home_page.dart 의 _optimizeImageCacheForPage() 가 캐시 사용률 70%
-  /// 초과 시 maximumSizeBytes 를 절반으로 낮췄다가 100ms 뒤 원복한다. 그 100ms
-  /// 사이에 이 위젯이 새로 마운트되면(리스트 화면은 항상 새 이미지 위젯을
-  /// 마운트한다) 여기서 즉시 원래 상한으로 되돌리는 것이 기존 동작이었다 —
-  /// enableMemoryOptimization 가 이 재설정을 게이트하므로, initState 밖으로
-  /// 옮기면(과거 5344101fb) vote_home_page 의 임시 축소가 100ms 내내 유지되어
-  /// eviction/메모리 압박 판정이 달라진다. vote_home_page 의 임시 축소 로직과
-  /// 함께 재설계하기 전까지는 위젯 안에 유지한다.
   static void _optimizeImageCache() {
     final imageCache = PaintingBinding.instance.imageCache;
 
@@ -544,106 +432,19 @@ class _PicnicCachedNetworkImageState
     imageCache.pendingImageCount;
   }
 
-  /// 부분적 이미지 캐시 정리 (더 스마트한 정리)
-  void _clearPartialImageCache() {
-    try {
-      final imageCache = PaintingBinding.instance.imageCache;
-      final currentSizeBytes = imageCache.currentSizeBytes;
-      final maxSizeBytes = imageCache.maximumSizeBytes;
-      final currentImageCount = imageCache.liveImageCount;
-      final pendingDecodeCount = imageCache.pendingImageCount;
-
-      if (pendingDecodeCount > 0) {
-        logger.d('이미지 디코딩이 진행 중(pending: $pendingDecodeCount)이라 캐시 정리를 건너뜁니다.');
-        return;
-      }
-
-      // 90% 초과 시에만 정리 (기존 85%에서 상향) - 더 관대한 임계값
-      if (currentSizeBytes > maxSizeBytes * 0.90) {
-        final previousSizeBytes = currentSizeBytes;
-        final previousImageCount = currentImageCount;
-
-        // 20%만 정리 (기존 30%에서 감소) - 더 보수적인 정리
-        final targetSize = (maxSizeBytes * 0.7).round();
-
-        // 더 부드러운 캐시 정리를 위한 배치 처리
-        final originalMaxSize = imageCache.maximumSizeBytes;
-        imageCache.maximumSizeBytes = targetSize;
-
-        // 원래 제한으로 복구 (지연 시간 증가)
-        Future.delayed(Duration(milliseconds: 200), () {
-          if (mounted) {
-            imageCache.maximumSizeBytes = originalMaxSize;
-          }
-        });
-
-        final newSizeBytes = imageCache.currentSizeBytes;
-        final newImageCount = imageCache.liveImageCount;
-
-        final previousSizeMB = previousSizeBytes ~/ (1024 * 1024);
-        final newSizeMB = newSizeBytes ~/ (1024 * 1024);
-
-        logger.d(
-          '이미지 캐시 부분 정리됨: ${previousSizeMB}MB/${(maxSizeBytes ~/ (1024 * 1024))}MB → ${newSizeMB}MB, '
-          '이미지 수: $previousImageCount개 → $newImageCount개',
-        );
-      }
-    } catch (e) {
-      logger.e('이미지 캐시 정리 오류: $e');
-    }
-  }
-
-  void _prepareGifLoading() {
-    try {
-      final currentSizeBytes =
-          PaintingBinding.instance.imageCache.currentSizeBytes;
-
-      // GIF 로딩 전 메모리 사용량이 150MB를 초과하는 경우에만 정리
-      if (currentSizeBytes > 150 * 1024 * 1024) {
-        _clearPartialImageCache();
-
-        logger.d(
-          'GIF 로딩을 위한 부분 캐시 정리: ${currentSizeBytes ~/ (1024 * 1024)}MB → ${PaintingBinding.instance.imageCache.currentSizeBytes ~/ (1024 * 1024)}MB',
-        );
-      }
-    } catch (e) {
-      logger.e('GIF 로딩 준비 오류: $e');
-    }
-  }
-
   @override
   void didUpdateWidget(PicnicCachedNetworkImage oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // URL이 변경된 경우에만 상태 재설정
-    if (oldWidget.imageUrl != widget.imageUrl && mounted) {
-      _lazyLoadTimer?.cancel();
-      _retryTimer?.cancel(); // 이전 URL 로 예약된 재시도가 새 로드를 깨지 않도록
-      // 이전 URL 로 건 타임아웃도 취소한다 — 안 하면 새 URL 로딩 중에 옛 URL
-      // 기준 타임아웃이 발화해 엉뚱한 재시도/에러 처리를 일으킬 수 있다.
-      _imageTimeoutTimer?.cancel();
-      _imageTimeoutTimer = null;
-      // 인스턴스 고유 키를 쓰면서부터 Element 가 재사용되므로, URL 이 바뀌어도
-      // VisibilityDetector 는 가시성 "변화" 가 없다고 보고 콜백을 다시 주지 않는다.
-      // 아래에서 상태를 재설정하고, 이미 보이는 중이면 직접 로드를 재트리거한다.
-      setState(() {
-        // 이전 URL 로 계산된 변환 URL 캐시를 반드시 버려야 한다.
-        // (버리지 않으면 재활용된 리스트 셀이 이전 후보 이미지를 계속 보여준다.)
-        _cachedUrls = null;
-        // CachedNetworkImage의 ValueKey에 쓰는 재시도 토큰도 초기화한다.
-        _reloadToken = 0;
-        _retryCount = 0;
-        _loading = true;
-        _hasError = false;
-        _shouldLoadImage =
-            widget.lazyLoadingStrategy == LazyLoadingStrategy.none;
-        _isImageLoaded = false;
-        _loadStartTime = null;
-      });
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      _resetActiveRequest(incrementGeneration: true);
+      _shouldLoadImage =
+          widget.lazyLoadingStrategy == LazyLoadingStrategy.none ||
+          _successfullyLoadedImageUrls.contains(widget.imageUrl);
+      if (_successfullyLoadedImageUrls.contains(widget.imageUrl)) {
+        _rememberSuccessfullyLoadedImageUrl(widget.imageUrl);
+      }
 
-      // 이미 화면에 보이는 상태에서 URL 만 바뀐 경우: 가시성 콜백이 다시 오지
-      // 않으므로 직접 재트리거한다. (전역 슬롯 기계장치를 제거했으므로 여기서
-      // 재트리거해도 카운터/큐 부작용이 없다.)
       if (!_shouldLoadImage && _isVisible) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && !_shouldLoadImage && _isVisible) {
@@ -651,422 +452,525 @@ class _PicnicCachedNetworkImageState
           }
         });
       }
+    } else if (oldWidget.lazyLoadingStrategy != widget.lazyLoadingStrategy &&
+        widget.lazyLoadingStrategy == LazyLoadingStrategy.none) {
+      _shouldLoadImage = true;
     }
-    // URL이 같다면 기존 상태 유지 (로딩 상태 초기화하지 않음)
+
+    if (oldWidget.timeout != widget.timeout) {
+      _imageTimeoutTimer?.cancel();
+      _imageTimeoutTimer = null;
+      _attemptStartedFor = null;
+    }
   }
 
-  /// 플레이스홀더 빌드
-  Widget _buildPlaceholder() {
+  void _resetActiveRequest({required bool incrementGeneration}) {
+    if (incrementGeneration) _imageRequestGeneration++;
+    _retryTimer?.cancel();
+    _retryTimer = null;
+    _imageTimeoutTimer?.cancel();
+    _imageTimeoutTimer = null;
+    _activeRequestIdentity = null;
+    _activeImageConfiguration = null;
+    _requestKeyResolutionScheduledFor = null;
+    _loadAllowanceCheckScheduledFor = null;
+    _attemptStartedFor = null;
+    _successTransitionScheduledFor = null;
+    _successfulAttempt = null;
+    _handledErrorAttempt = null;
+    _cacheProbeIdentity = null;
+    _cachePromotionScheduledFor = null;
+    _reloadToken = 0;
+    _retryCount = 0;
+    _loading = false;
+    _hasError = false;
+    _isImageLoaded = false;
+    _loadStartTime = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    assert(
+      widget.imageRequest == null ||
+          widget.imageRequest!.imageUrl == widget.imageUrl,
+      'imageRequest.imageUrl must match imageUrl.',
+    );
+
+    if (widget.lazyLoadingStrategy == LazyLoadingStrategy.none) {
+      return _buildForLayout(loadImage: true);
+    }
+
+    return VisibilityDetector(
+      key: _visibilityKey,
+      onVisibilityChanged: _onVisibilityChanged,
+      child: _buildForLayout(loadImage: _shouldLoadImage),
+    );
+  }
+
+  Widget _buildForLayout({required bool loadImage}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = _resolveLayoutDimension(
+          widget.width,
+          constraints.maxWidth,
+          constraints.constrainWidth,
+        );
+        final height = _resolveLayoutDimension(
+          widget.height,
+          constraints.maxHeight,
+          constraints.constrainHeight,
+        );
+        final hasArea = width > 0 && height > 0;
+
+        if (!hasArea || widget.imageUrl.trim().isEmpty) {
+          _unbindActiveRequest();
+          return SizedBox(
+            width: width,
+            height: height,
+            child: _buildPlaceholder(width, height),
+          );
+        }
+
+        if (!loadImage) {
+          _probeCurrentCache(context, width, height);
+          return SizedBox(
+            width: width,
+            height: height,
+            child: _buildPlaceholder(width, height),
+          );
+        }
+
+        try {
+          final request =
+              widget.imageRequest ??
+              _resolveRequestForLayout(context, width, height);
+          if (request.url.trim().isEmpty) {
+            _unbindActiveRequest();
+            return SizedBox(
+              width: width,
+              height: height,
+              child: _buildPlaceholder(width, height),
+            );
+          }
+
+          final configuration = createLocalImageConfiguration(
+            context,
+            size: Size(width, height),
+          );
+          _bindActiveRequest(request, configuration);
+          final attempt = (
+            generation: _imageRequestGeneration,
+            reloadToken: _reloadToken,
+          );
+          _ensureAttemptMonitoring(request, configuration, attempt);
+
+          return SizedBox(
+            width: width,
+            height: height,
+            child: ClipRRect(
+              borderRadius: widget.borderRadius ?? BorderRadius.zero,
+              child: Image(
+                key: ValueKey((
+                  request.url,
+                  request.decodeWidth,
+                  request.decodeHeight,
+                  _reloadToken,
+                )),
+                image: request.provider,
+                width: width,
+                height: height,
+                fit: widget.fit,
+                gaplessPlayback: false,
+                frameBuilder: (context, child, frame, synchronousCall) {
+                  if (frame == null) {
+                    if (_isCurrentAttempt(request, attempt) && _hasError) {
+                      return _buildErrorWidget(width, height);
+                    }
+                    return _buildPlaceholder(width, height);
+                  }
+                  _onImageLoadSuccess(request, attempt);
+                  return child;
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return _handleAttemptError(
+                    request,
+                    attempt,
+                    error,
+                    stackTrace,
+                    width,
+                    height,
+                  );
+                },
+              ),
+            ),
+          );
+        } catch (error, stackTrace) {
+          logger.e('이미지 요청 생성 중 예외 발생: $error (URL: ${widget.imageUrl})');
+          Sentry.captureException(error, stackTrace: stackTrace);
+          _unbindActiveRequest();
+          return _buildErrorWidget(width, height);
+        }
+      },
+    );
+  }
+
+  double _resolveLayoutDimension(
+    double? explicit,
+    double maximum,
+    double Function(double) constrain,
+  ) {
+    final candidate = _isValidDimension(explicit)
+        ? explicit!
+        : maximum.isFinite && maximum >= 0
+        ? maximum
+        : 100.0;
+    return constrain(candidate);
+  }
+
+  bool _isValidDimension(double? value) =>
+      value != null && value.isFinite && value > 0;
+
+  PicnicImageRequest _resolveRequestForLayout(
+    BuildContext context,
+    double renderedWidth,
+    double renderedHeight,
+  ) {
+    final hasExplicitWidth = _isValidDimension(widget.width);
+    final hasExplicitHeight = _isValidDimension(widget.height);
+    final double? requestWidth;
+    final double? requestHeight;
+
+    if (hasExplicitWidth || hasExplicitHeight) {
+      requestWidth = hasExplicitWidth ? renderedWidth : null;
+      requestHeight = hasExplicitHeight ? renderedHeight : null;
+    } else {
+      requestWidth = renderedWidth;
+      requestHeight = widget.fit == BoxFit.cover ? renderedHeight : null;
+    }
+
+    return PicnicImageRequest.resolve(
+      context: context,
+      imageUrl: widget.imageUrl,
+      width: requestWidth,
+      height: requestHeight,
+      memCacheWidth: widget.memCacheWidth,
+      memCacheHeight: widget.memCacheHeight,
+      maxQualityOverride: widget.maxQualityOverride,
+      maxResolutionMultiplierCap: widget.maxResolutionMultiplierCap,
+    );
+  }
+
+  void _probeCurrentCache(BuildContext context, double width, double height) {
+    final PicnicImageRequest request;
+    try {
+      request =
+          widget.imageRequest ??
+          _resolveRequestForLayout(context, width, height);
+    } on FormatException {
+      return;
+    } on ArgumentError {
+      return;
+    }
+    if (request.url.trim().isEmpty) return;
+
+    final identity = (
+      url: request.url,
+      decodeWidth: request.decodeWidth,
+      decodeHeight: request.decodeHeight,
+      provider: request.provider,
+    );
+    if (_cacheProbeIdentity == identity ||
+        _cachePromotionScheduledFor == identity) {
+      return;
+    }
+    _cacheProbeIdentity = identity;
+    final configuration = createLocalImageConfiguration(
+      context,
+      size: Size(width, height),
+    );
+    unawaited(
+      request
+          .obtainKey(configuration)
+          .then<void>(
+            (key) {
+              if (_cacheProbeIdentity != identity ||
+                  !mounted ||
+                  _shouldLoadImage ||
+                  widget.imageUrl != request.imageUrl) {
+                return;
+              }
+              _cacheProbeIdentity = null;
+              if (!PaintingBinding.instance.imageCache.containsKey(key)) return;
+              _cachePromotionScheduledFor = identity;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (_cachePromotionScheduledFor != identity) return;
+                _cachePromotionScheduledFor = null;
+                if (!mounted ||
+                    _shouldLoadImage ||
+                    widget.imageUrl != request.imageUrl) {
+                  return;
+                }
+                setState(() {
+                  _shouldLoadImage = true;
+                });
+              });
+            },
+            onError: (Object _, StackTrace _) {
+              if (_cacheProbeIdentity == identity) _cacheProbeIdentity = null;
+            },
+          ),
+    );
+  }
+
+  Widget _buildPlaceholder(double width, double height) {
     if (widget.placeholder != null) {
-      return SizedBox(
-        width: widget.width,
-        height: widget.height,
-        child: widget.placeholder!,
-      );
+      return SizedBox(width: width, height: height, child: widget.placeholder!);
     }
 
     if (!widget.showLoadingOverlay) {
       return const SizedBox.shrink();
     }
 
-    // Shimmer 로딩으로 변경
     return SizedBox(
-      width: widget.width,
-      height: widget.height,
+      width: width,
+      height: height,
       child: ClipRRect(
         borderRadius: widget.borderRadius ?? BorderRadius.zero,
         child: Container(
-          width: widget.width,
-          height: widget.height,
+          width: width,
+          height: height,
           color: const Color.fromRGBO(158, 158, 158, 0.05),
           child: ShimmerLoading(
             isLoading: true,
-            child: Container(
-              width: widget.width,
-              height: widget.height,
-              color: Colors.white,
-            ),
+            child: Container(width: width, height: height, color: Colors.white),
           ),
         ),
       ),
     );
   }
 
-  /// 메인 위젯 빌드
-  Widget _buildMainWidget() {
-    final imageWidth = widget.width;
-    final imageHeight = widget.height;
-    // 최초 계산된 URL 고정 사용 (빌드마다 변하지 않도록)
-    _cachedUrls ??= _getTransformedUrls(
-      context,
-      _capResolution(_getResolutionMultiplier(context)),
-    );
-    final urls = _cachedUrls!;
-    final primaryUrl = urls.last;
-
-    return SizedBox(
-      width: imageWidth,
-      height: imageHeight,
-      child: ClipRRect(
-        borderRadius: widget.borderRadius ?? BorderRadius.zero,
-        child: Stack(
-          alignment: Alignment.center,
-          fit: StackFit.expand, // Stack이 부모 크기에 맞춤
-          children: [
-            // 배경 컨테이너 (크기 고정)
-            if (widget.showLoadingOverlay)
-              Container(
-                width: imageWidth,
-                height: imageHeight,
-                color: const Color.fromRGBO(158, 158, 158, 0.05),
-              ),
-
-            // 로딩 오버레이 (크기 제한)
-            if (widget.showLoadingOverlay && !_isImageLoaded && !_hasError)
-              SizedBox(
-                width: imageWidth,
-                height: imageHeight,
-                child: buildImageLoadingOverlay(),
-              ),
-
-            _buildCachedNetworkImage(primaryUrl, imageWidth, imageHeight),
-          ],
-        ),
-      ),
-    );
+  void _unbindActiveRequest() {
+    if (_activeRequestIdentity == null) return;
+    _resetActiveRequest(incrementGeneration: true);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // C4: 빠른 플링 중이면 디코드/네트워크를 미루고 placeholder 만 그린다.
-    //
-    // recommendDeferredLoadingForContext 는 inherited 의존성을 **만들지
-    // 않으므로**, 스크롤이 멎어도 이 위젯은 저절로 재빌드되지 않는다 — 재시도
-    // 예약이 없으면 플링 중에 빌드된 아이템이 영구 placeholder 로 남는다
-    // (테스트로 재현: 정지 후 2초가 지나도 복귀하지 않았다). Flutter 의
-    // ScrollAwareImageProvider 가 같은 이유로 같은 패턴을 쓴다.
-    if (widget.deferDuringFastScroll &&
-        Scrollable.recommendDeferredLoadingForContext(context)) {
-      _scheduleDeferredRetry();
-      return _buildSafePlaceholder();
+  void _bindActiveRequest(
+    PicnicImageRequest request,
+    ImageConfiguration configuration,
+  ) {
+    final identity = (
+      url: request.url,
+      decodeWidth: request.decodeWidth,
+      decodeHeight: request.decodeHeight,
+      provider: request.provider,
+    );
+    if (_activeRequestIdentity != null && _activeRequestIdentity != identity) {
+      _resetActiveRequest(incrementGeneration: true);
     }
+    _activeRequestIdentity = identity;
+    _activeImageConfiguration = configuration;
+  }
 
-    // Lazy Loading이 비활성화된 경우 바로 이미지 렌더링
-    if (widget.lazyLoadingStrategy == LazyLoadingStrategy.none) {
-      return _buildSafeMainWidget();
+  void _ensureAttemptMonitoring(
+    PicnicImageRequest request,
+    ImageConfiguration configuration,
+    _ImageAttempt attempt,
+  ) {
+    if (_successfulAttempt == attempt ||
+        _attemptStartedFor == attempt ||
+        _requestKeyResolutionScheduledFor == attempt) {
+      return;
     }
+    _requestKeyResolutionScheduledFor = attempt;
 
-    // 이미지 로드가 필요하지 않은 경우 플레이스홀더 표시
-    if (!_shouldLoadImage) {
-      return VisibilityDetector(
-        key: _visibilityKey,
-        onVisibilityChanged: _onVisibilityChanged,
-        child: _buildSafePlaceholder(),
+    try {
+      unawaited(
+        request
+            .obtainKey(configuration)
+            .then<void>(
+              (key) {
+                if (_requestKeyResolutionScheduledFor == attempt) {
+                  _requestKeyResolutionScheduledFor = null;
+                }
+                if (!_isCurrentAttempt(request, attempt)) return;
+                _startCurrentAttemptWhenAllowed(request, attempt, key);
+              },
+              onError: (Object error, StackTrace stackTrace) {
+                if (_requestKeyResolutionScheduledFor == attempt) {
+                  _requestKeyResolutionScheduledFor = null;
+                }
+                if (!_isCurrentAttempt(request, attempt)) return;
+                _consumeAttemptError(
+                  request,
+                  attempt,
+                  error,
+                  stackTrace,
+                  fromTimeout: false,
+                );
+              },
+            ),
+      );
+    } catch (error, stackTrace) {
+      _requestKeyResolutionScheduledFor = null;
+      _consumeAttemptError(
+        request,
+        attempt,
+        error,
+        stackTrace,
+        fromTimeout: false,
       );
     }
-
-    // 이미지 로드
-    return VisibilityDetector(
-      key: _visibilityKey,
-      onVisibilityChanged: _onVisibilityChanged,
-      child: _buildSafeMainWidget(),
-    );
   }
 
-  /// C4 지연 중 다음 프레임에 재평가를 예약한다.
-  ///
-  /// 플링이 계속이면 다시 placeholder(값싼 경로)로 떨어지고, 멎었으면 실제
-  /// 이미지로 전환된다. 프레임당 한 번만 예약되며, 지연 상태가 아니면 아무
-  /// 비용도 없다.
-  bool _deferredRetryScheduled = false;
+  void _startCurrentAttemptWhenAllowed(
+    PicnicImageRequest request,
+    _ImageAttempt attempt,
+    Object key,
+  ) {
+    if (!mounted) return;
+    _startAttemptWhenAllowed(context, request, attempt, key);
+  }
 
-  void _scheduleDeferredRetry() {
-    if (_deferredRetryScheduled) return;
-    _deferredRetryScheduled = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _deferredRetryScheduled = false;
-      if (mounted) setState(() {});
+  void _startAttemptWhenAllowed(
+    BuildContext context,
+    PicnicImageRequest request,
+    _ImageAttempt attempt,
+    Object key,
+  ) {
+    if (!_isCurrentAttempt(request, attempt) ||
+        _successfulAttempt == attempt ||
+        _attemptStartedFor == attempt) {
+      return;
+    }
+
+    final cacheContainsKey = PaintingBinding.instance.imageCache.containsKey(
+      key,
+    );
+    final shouldDefer =
+        context.mounted &&
+        Scrollable.recommendDeferredLoadingForContext(context);
+    if (!cacheContainsKey && shouldDefer) {
+      _scheduleLoadAllowanceCheck(context, request, attempt, key);
+      return;
+    }
+
+    _attemptStartedFor = attempt;
+    _loading = true;
+    _hasError = false;
+    _isImageLoaded = false;
+    _loadStartTime ??= DateTime.now();
+    if (PicnicCachedNetworkImage.disableTimeoutForTest) return;
+
+    late final Timer timeoutTimer;
+    timeoutTimer = Timer(effectiveTimeout, () {
+      if (!identical(_imageTimeoutTimer, timeoutTimer)) return;
+      _imageTimeoutTimer = null;
+      if (!_isCurrentAttempt(request, attempt) ||
+          _successfulAttempt == attempt ||
+          !_loading ||
+          _hasError ||
+          _isImageLoaded) {
+        return;
+      }
+
+      final now = DateTime.now();
+      final lastLoggedAt = _lastTimeoutLogTimes[request.url];
+      if (lastLoggedAt == null ||
+          now.difference(lastLoggedAt) >= _timeoutLogInterval) {
+        _capTrackedUrlMapSize(_lastTimeoutLogTimes, request.url);
+        _lastTimeoutLogTimes[request.url] = now;
+
+        final lastSweep = _lastTimeoutLogSweep;
+        if (lastSweep == null ||
+            now.difference(lastSweep) >= _timeoutLogSweepInterval) {
+          _lastTimeoutLogSweep = now;
+          _lastTimeoutLogTimes.removeWhere(
+            (url, time) => now.difference(time) >= _timeoutLogRetention,
+          );
+        }
+        logger.w('이미지 로딩 타임아웃: ${request.url}');
+      }
+
+      _consumeAttemptError(
+        request,
+        attempt,
+        'Timeout after ${effectiveTimeout.inSeconds} seconds',
+        StackTrace.current,
+        fromTimeout: true,
+      );
+      if (_isCurrentAttempt(request, attempt)) setState(() {});
+    });
+    _imageTimeoutTimer = timeoutTimer;
+  }
+
+  void _scheduleLoadAllowanceCheck(
+    BuildContext context,
+    PicnicImageRequest request,
+    _ImageAttempt attempt,
+    Object key,
+  ) {
+    if (_loadAllowanceCheckScheduledFor == attempt) return;
+    _loadAllowanceCheckScheduledFor = attempt;
+    SchedulerBinding.instance.scheduleFrameCallback((_) {
+      if (_loadAllowanceCheckScheduledFor != attempt) return;
+      _loadAllowanceCheckScheduledFor = null;
+      if (!_isCurrentAttempt(request, attempt) || !context.mounted) return;
+      _startAttemptWhenAllowed(context, request, attempt, key);
     });
   }
 
-  /// 안전한 플레이스홀더 빌드 (크기 보장)
-  Widget _buildSafePlaceholder() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final safeWidth =
-            widget.width ??
-            (constraints.maxWidth.isFinite ? constraints.maxWidth : 100.0);
-        final safeHeight =
-            widget.height ??
-            (constraints.maxHeight.isFinite ? constraints.maxHeight : 100.0);
-
-        return SizedBox(
-          width: safeWidth,
-          height: safeHeight,
-          child: _buildPlaceholder(),
-        );
-      },
-    );
-  }
-
-  /// 안전한 메인 위젯 빌드 (크기 보장)
-  Widget _buildSafeMainWidget() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final safeWidth =
-            widget.width ??
-            (constraints.maxWidth.isFinite ? constraints.maxWidth : 100.0);
-        final safeHeight =
-            widget.height ??
-            (constraints.maxHeight.isFinite ? constraints.maxHeight : 100.0);
-
-        return SizedBox(
-          width: safeWidth,
-          height: safeHeight,
-          child: _buildMainWidget(),
-        );
-      },
-    );
-  }
-
-  /// C3: 리스트 전용 dpr 상한 적용. 기본(null)이면 변형 없음.
-  double _capResolution(double multiplier) {
-    final cap = widget.maxResolutionMultiplierCap;
-    if (cap == null) return multiplier;
-    return math.min(multiplier, cap);
-  }
-
-  double _getResolutionMultiplier(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final devicePixelRatio = mediaQuery.devicePixelRatio;
-
-    if (UniversalPlatform.isAndroid) {
-      return math.min(devicePixelRatio * 1.1, 2.5);
-    }
-
-    if (isIPad(context)) {
-      return math.min(devicePixelRatio * 1.3, 4.0);
-    }
-
-    return math.min(devicePixelRatio * 1.2, 2.5);
-  }
-
-  // NOTE: 과거에는 "동시 로딩 수 > 최대치의 80%" 를 저대역폭 신호로 보고 해상도를
-  // 낮추고(dpr 강등) 작은 이미지까지 3단계 progressive 로 전환했다. 그러나
-  //   (1) 동시 로딩 수는 대역폭 지표가 아니다 — 리스트 화면에서 8개 이상이 동시에
-  //       로딩되는 건 정상이며 항상 임계를 넘는다,
-  //   (2) 결과가 _cachedUrls 에 `??=` 로 고정되어 이미지가 영구히 블러로 남고,
-  //   (3) 3단계 전환은 혼잡한 상황에서 오히려 요청 수를 3배로 늘린다.
-  // 신뢰할 수 있는 대역폭 신호가 없으므로 이 heuristic 을 제거했다.
-
-  List<String> _getTransformedUrls(
-    BuildContext context,
-    double resolutionMultiplier,
+  Widget _handleAttemptError(
+    PicnicImageRequest request,
+    _ImageAttempt attempt,
+    Object error,
+    StackTrace? stackTrace,
+    double width,
+    double height,
   ) {
-    final finalQuality = switch (_estimateImageComplexity()) {
-      // C3: 리스트가 maxQualityOverride 를 넘기면 그 값을, 아니면 기존 85.
-      ImageComplexity.low => widget.maxQualityOverride ?? 85,
-      ImageComplexity.medium || ImageComplexity.high => 80,
-    };
+    if (!_isCurrentAttempt(request, attempt)) {
+      return SizedBox(width: width, height: height);
+    }
 
-    return PicnicCachedNetworkImageUrlResolver(
-      cdnUrl: Environment.isInitialized ? Environment.cdnUrl : null,
-    ).resolve(
-      imageUrl: widget.imageUrl,
-      width: widget.width,
-      height: widget.height,
-      variants: [
-        PicnicCachedNetworkImageUrlVariant(
-          resolutionMultiplier: resolutionMultiplier,
-          quality: finalQuality,
-        ),
-      ],
+    _consumeAttemptError(
+      request,
+      attempt,
+      error,
+      stackTrace,
+      fromTimeout: false,
     );
+    return _hasError
+        ? _buildErrorWidget(width, height)
+        : _buildPlaceholder(width, height);
   }
 
-  /// 이미지 복잡도를 추정합니다
-  ImageComplexity _estimateImageComplexity() {
-    final width = widget.width ?? 400;
-    final height = widget.height ?? 400;
-    final pixelCount = width * height;
-
-    if (isGif) return ImageComplexity.high;
-
-    if (pixelCount < 50000) return ImageComplexity.low;
-    if (pixelCount < 200000) return ImageComplexity.medium;
-    return ImageComplexity.high;
-  }
-
-  Widget _buildCachedNetworkImage(
-    String url,
-    double? width,
-    double? height,
-  ) {
-    try {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          // _imageTimeoutTimer 는 로컬 변수가 아니라 State 필드다 — 로컬
-          // 변수였을 때는(pre-existing) 이 위젯이 로딩 중에 재빌드될 때마다
-          // (StatefulBuilder 의 builder 클로저가 매번 새로 만들어지므로) 이전
-          // Timer 참조를 잃어버려 dispose 는 물론 정상 재빌드 중에도 취소할
-          // 수 없는 채로 최대 effectiveTimeout 만큼 살아남았다. 필드로 옮기면
-          // 재빌드를 넘나들며 같은 Timer 를 참조하므로 dispose/URL 변경 시
-          // 확실히 취소되고, 이미 예약돼 있으면 중복 예약도 되지 않는다.
-          if (_loading &&
-              _imageTimeoutTimer == null &&
-              !PicnicCachedNetworkImage.disableTimeoutForTest) {
-            _imageTimeoutTimer = Timer(effectiveTimeout, () {
-              _imageTimeoutTimer = null;
-              if (!mounted) return;
-              final stillLoading = _loading && !_hasError && !_isImageLoaded;
-              if (!stillLoading) return;
-
-              final now = DateTime.now();
-              final lastLoggedAt = _lastTimeoutLogTimes[url];
-              if (lastLoggedAt == null ||
-                  now.difference(lastLoggedAt) >= _timeoutLogInterval) {
-                _capTrackedUrlMapSize(_lastTimeoutLogTimes, url);
-                _lastTimeoutLogTimes[url] = now;
-
-                final lastSweep = _lastTimeoutLogSweep;
-                if (lastSweep == null ||
-                    now.difference(lastSweep) >= _timeoutLogSweepInterval) {
-                  _lastTimeoutLogSweep = now;
-                  _lastTimeoutLogTimes.removeWhere(
-                    (key, time) => now.difference(time) >= _timeoutLogRetention,
-                  );
-                }
-                logger.w('이미지 로딩 타임아웃: $url');
-              }
-
-              logger.w('이미지 로딩 타임아웃 후 에러 처리: $url');
-              _handleImageError(
-                url,
-                'Timeout after ${effectiveTimeout.inSeconds} seconds',
-                width,
-                height,
-              );
-            });
-          }
-
-          return CachedNetworkImage(
-            key: ValueKey('${widget.imageUrl}_$_reloadToken'),
-            imageUrl: url,
-            width: width,
-            height: height,
-            fit: widget.fit,
-            cacheManager: null,
-            cacheKey: _cacheKeyFor(url),
-            memCacheWidth: _computeCacheDimension(
-              widget.memCacheWidth,
-              width,
-              1.0,
-            ),
-            memCacheHeight: _computeCacheDimension(
-              widget.memCacheHeight,
-              height,
-              1.0,
-            ),
-            maxWidthDiskCache: 2000,
-            maxHeightDiskCache: 2000,
-            progressIndicatorBuilder: (context, url, progress) {
-              // 진행률 표시기가 호출되면 로딩 중임을 나타냄
-              if (!_loading && mounted) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    setState(() {
-                      _loading = true;
-                      _isImageLoaded = false;
-                      _loadStartTime ??= DateTime.now();
-                    });
-                  }
-                });
-              }
-
-              // 진행률에 관계없이 항상 스켈레톤 표시
-              if (!widget.showLoadingOverlay) {
-                return const SizedBox.shrink();
-              }
-              return SizedBox(
-                width: width,
-                height: height,
-                child: buildImageLoadingOverlay(),
-              );
-            },
-            errorWidget: (context, url, error) {
-              _imageTimeoutTimer?.cancel();
-              _imageTimeoutTimer = null;
-              return _handleImageError(url, error, width, height);
-            },
-            imageBuilder: (context, imageProvider) {
-              _imageTimeoutTimer?.cancel();
-              _imageTimeoutTimer = null;
-
-              // 이미지가 성공적으로 로드되면 즉시 로딩 상태 해제
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  setState(() {
-                    _loading = false;
-                    _hasError = false;
-                  });
-                }
-              });
-
-              final scrollAwareImageProvider = ScrollAwareImageProvider(
-                context: _scrollAwareContext,
-                imageProvider: imageProvider,
-              );
-
-              _onImageLoadSuccess(url);
-              _retryCount = 0;
-
-              return Image(
-                image: scrollAwareImageProvider,
-                fit: widget.fit,
-                width: width,
-                height: height,
-              );
-            },
-          );
-        },
-      );
-    } catch (e, stack) {
-      logger.e('이미지 로드 중 예외 발생: $e (URL: $url)');
-      Sentry.captureException(e, stackTrace: stack);
-
-      return _buildErrorWidget(width, height);
+  void _consumeAttemptError(
+    PicnicImageRequest request,
+    _ImageAttempt attempt,
+    Object error,
+    StackTrace? stackTrace, {
+    required bool fromTimeout,
+  }) {
+    if (!_isCurrentAttempt(request, attempt) ||
+        _handledErrorAttempt == attempt ||
+        _successfulAttempt == attempt) {
+      return;
     }
-  }
+    _handledErrorAttempt = attempt;
+    _imageTimeoutTimer?.cancel();
+    _imageTimeoutTimer = null;
+    _loading = false;
+    _isImageLoaded = false;
 
-  // 이미지 로딩 에러 처리 및 재시도 로직
-  Widget _handleImageError(
-    String url,
-    dynamic error,
-    double? width,
-    double? height,
-  ) {
-    logger.w('이미지 로딩 실패 감지: $url, error: $error');
-    _recordFailure(url);
-
-    if (_shouldRetry(url, error)) {
-      logger.i('이미지 로드 재시도 준비: $url');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _loading = false;
-            _hasError = false;
-            _isImageLoaded = false;
-          });
-        }
-      });
-      _scheduleRetry(url);
-      return widget.showLoadingOverlay
-          ? buildImageLoadingOverlay()
-          : const SizedBox.shrink();
+    logger.w('이미지 로딩 실패 감지: ${request.url}, error: $error');
+    _recordFailure(request.url);
+    if (_shouldRetry(request.url, error)) {
+      _hasError = false;
+      _scheduleRetry(request, attempt, evictFailedKey: !fromTimeout);
+      return;
     }
 
-    _onImageLoadError(url, error);
-    return _buildErrorWidget(width, height);
+    _hasError = true;
+    _onImageLoadError(request.url, error, request, attempt);
   }
 
   // 실패 기록
@@ -1126,31 +1030,56 @@ class _PicnicCachedNetworkImageState
   }
 
   // 재시도 스케줄링
-  void _scheduleRetry(String url) {
+  void _scheduleRetry(
+    PicnicImageRequest request,
+    _ImageAttempt attempt, {
+    required bool evictFailedKey,
+  }) {
     _retryCount++;
     final delay = _calculateBackoffDelay(_retryCount);
 
     logger.i(
-      '이미지 로드 재시도 예정: $url (시도: $_retryCount/$effectiveMaxRetries, 지연: ${delay.inSeconds}초)',
+      '이미지 로드 재시도 예정: ${request.url} '
+      '(시도: $_retryCount/$effectiveMaxRetries, 지연: ${delay.inSeconds}초)',
     );
 
-    // 취소 가능한 Timer 를 쓴다. 예전에는 Future.delayed(취소 불가)라, URL 이
-    // 교체되거나(dispose/didUpdateWidget) 원래 요청이 뒤늦게 성공한 뒤에도
-    // 예약된 재시도가 발화해 _reloadToken 을 올리고 이미 표시된 이미지를 지웠다.
     _retryTimer?.cancel();
-    _retryTimer = Timer(delay, () {
-      if (mounted) {
-        setState(() {
-          _reloadToken++;
-          logger.i('이미지 로드 재시도 시작: $url (토큰: $_reloadToken)');
-          _loading = true;
-          _hasError = false;
-          _isImageLoaded = false;
-          _loadStartTime = null;
-          _shouldLoadImage = true;
-        });
+    late final Timer retryTimer;
+    retryTimer = Timer(delay, () async {
+      if (!identical(_retryTimer, retryTimer)) return;
+      _retryTimer = null;
+      if (!_isCurrentAttempt(request, attempt) ||
+          _successfulAttempt == attempt) {
+        return;
       }
+
+      if (evictFailedKey) {
+        await request.provider.evict(
+          configuration: _activeImageConfiguration ?? ImageConfiguration.empty,
+        );
+        if (!_isCurrentAttempt(request, attempt) ||
+            _successfulAttempt == attempt) {
+          return;
+        }
+      }
+
+      setState(() {
+        _reloadToken++;
+        _requestKeyResolutionScheduledFor = null;
+        _loadAllowanceCheckScheduledFor = null;
+        _attemptStartedFor = null;
+        _successTransitionScheduledFor = null;
+        _successfulAttempt = null;
+        _handledErrorAttempt = null;
+        logger.i('이미지 로드 재시도 시작: ${request.url} (토큰: $_reloadToken)');
+        _loading = false;
+        _hasError = false;
+        _isImageLoaded = false;
+        _loadStartTime = null;
+        _shouldLoadImage = true;
+      });
     });
+    _retryTimer = retryTimer;
   }
 
   // 에러 위젯 생성
@@ -1167,25 +1096,28 @@ class _PicnicCachedNetworkImageState
         height: height,
         color: Colors.grey[200],
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min, // Column 크기 최소화
-            children: [
-              Icon(
-                _retryCount >= effectiveMaxRetries
-                    ? Icons.image_not_supported
-                    : Icons.refresh,
-                color: Colors.grey[600],
-                size: math.min(width ?? 40, height ?? 40) * 0.3,
-              ),
-              if (_retryCount >= effectiveMaxRetries) ...[
-                const SizedBox(height: 4),
-                Text(
-                  '이미지 로드 실패',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 10),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _retryCount >= effectiveMaxRetries
+                      ? Icons.image_not_supported
+                      : Icons.refresh,
+                  color: Colors.grey[600],
+                  size: math.min(width ?? 40, height ?? 40) * 0.3,
                 ),
+                if (_retryCount >= effectiveMaxRetries) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '이미지 로드 실패',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 10),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -1218,32 +1150,49 @@ class _PicnicCachedNetworkImageState
     return false;
   }
 
-  void _onImageLoadSuccess(String url) async {
+  bool _isCurrentAttempt(PicnicImageRequest request, _ImageAttempt attempt) {
+    return mounted &&
+        _imageRequestGeneration == attempt.generation &&
+        _reloadToken == attempt.reloadToken &&
+        widget.imageUrl == request.imageUrl &&
+        _activeRequestIdentity ==
+            (
+              url: request.url,
+              decodeWidth: request.decodeWidth,
+              decodeHeight: request.decodeHeight,
+              provider: request.provider,
+            );
+  }
+
+  void _onImageLoadSuccess(
+    PicnicImageRequest request,
+    _ImageAttempt attempt,
+  ) async {
+    if (!_isCurrentAttempt(request, attempt) ||
+        _successTransitionScheduledFor == attempt ||
+        _successfulAttempt == attempt) {
+      return;
+    }
+    _successTransitionScheduledFor = attempt;
+
+    _imageTimeoutTimer?.cancel();
+    _imageTimeoutTimer = null;
+    _retryTimer?.cancel();
+    _retryTimer = null;
+
     final loadDuration = _loadStartTime != null
         ? DateTime.now().difference(_loadStartTime!)
         : Duration.zero;
     _loadStartTime = null;
-    _lastTimeoutLogTimes.remove(url);
+    _lastTimeoutLogTimes.remove(request.url);
+    _retryCount = 0;
 
-    // 예약된 재시도가 남아 있으면 취소한다. (타임아웃 등으로 재시도를 예약해 둔 뒤
-    // 원래 요청이 뒤늦게 성공하는 경우, 그대로 두면 재시도가 _reloadToken 을 올려
-    // 방금 표시된 이미지를 지우고 처음부터 다시 받는다.)
-    _retryTimer?.cancel();
-    _retryTimer = null;
-
-    // 성공적으로 로딩된 이미지 URL을 글로벌 Set에 추가 (상한 있음)
-    // 다음 번 위젯 재생성 시 즉시 표시됨
-    _rememberSuccessfullyLoadedImageUrl(widget.imageUrl);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-          _hasError = false;
-          _isImageLoaded = true;
-        });
-      }
-    });
+    _rememberSuccessfullyLoadedImageUrl(request.imageUrl);
+    _loading = false;
+    _hasError = false;
+    _isImageLoaded = true;
+    _successfulAttempt = attempt;
+    _successTransitionScheduledFor = null;
 
     final warningThreshold = Environment.imageLoadWarningThreshold;
     final errorThreshold = Environment.imageLoadErrorThreshold;
@@ -1258,7 +1207,7 @@ class _PicnicCachedNetworkImageState
         // 전역적으로 스냅샷 생성 빈도 제한 (최대 15분에 1회)
         if (globalLastSnapshot == null ||
             now.difference(globalLastSnapshot).inMinutes >= 15) {
-          final urlLastSnapshot = _lastSnapshotTimes[url];
+          final urlLastSnapshot = _lastSnapshotTimes[request.url];
 
           // 특정 URL에 대한 스냅샷 생성 빈도 제한 (최대 2시간에 1회)
           if (urlLastSnapshot == null ||
@@ -1266,16 +1215,17 @@ class _PicnicCachedNetworkImageState
             final isMemoryPressured = await _checkMemoryPressure();
 
             if (!isMemoryPressured || loadDuration.inSeconds > 300) {
-              _lastSnapshotTimes[url] = now;
+              _lastSnapshotTimes[request.url] = now;
               _lastGlobalSnapshot = now;
               _snapshotCount++;
 
               logger.i(
-                '느린 이미지 로딩 감지됨 ($_snapshotCount번째): $url - ${loadDuration.inSeconds}초',
+                '느린 이미지 로딩 감지됨 ($_snapshotCount번째): '
+                '${request.url} - ${loadDuration.inSeconds}초',
               );
             } else {
               if (_shouldLogMemoryPressure(now)) {
-                logger.d('메모리 압박으로 로깅 건너뜀: $url');
+                logger.d('메모리 압박으로 로깅 건너뜀: ${request.url}');
               }
             }
           }
@@ -1289,23 +1239,16 @@ class _PicnicCachedNetworkImageState
     }
   }
 
-  void _onImageLoadError(String url, dynamic error) {
+  void _onImageLoadError(
+    String url,
+    Object error,
+    PicnicImageRequest request,
+    _ImageAttempt attempt,
+  ) {
+    if (!_isCurrentAttempt(request, attempt)) return;
+
     logger.e('이미지 로드 에러: $url, error: $error');
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-          _hasError = true;
-          _isImageLoaded = false;
-        });
-      }
-    });
-
     _loadStartTime = null;
-
-    if (kDebugMode) {
-      // logger.throttledWarn('이미지 로딩 오류: $error (URL: $url)', errorKey);
-    }
   }
 
   // 테스트 전용: 실제 네트워크 실패/타임아웃 콜백 없이 _failureHistory/

@@ -186,7 +186,11 @@ HomePromotionResolution resolvedHomeCampaign() {
   final creative = homeCampaign().items.single.homeCreative!;
   return (
     slides: [
-      (bannerId: creative.bannerId, durationMs: creative.duration, creative: creative),
+      (
+        bannerId: creative.bannerId,
+        durationMs: creative.duration,
+        creative: creative,
+      ),
     ],
     ownedBannerIds: {101},
   );
@@ -207,7 +211,11 @@ PromotionCreativeModel v2HomeCreative({int bannerId = 501}) =>
 
 HomePromotionSlideData v2HomeSlide({int bannerId = 501}) {
   final creative = v2HomeCreative(bannerId: bannerId);
-  return (bannerId: bannerId, durationMs: creative.duration, creative: creative);
+  return (
+    bannerId: bannerId,
+    durationMs: creative.duration,
+    creative: creative,
+  );
 }
 
 Map<String, dynamic> _v2HomeItemJson({
@@ -246,8 +254,9 @@ ActivePromotionCampaignsV2Model v2HomeCampaigns({
   'campaign_owned_home_banner_ids': ownedIds,
 });
 
-ActivePromotionCampaignsV2Model emptyV2Campaigns({List<int> ownedIds = const []}) =>
-    v2HomeCampaigns(ownedIds: ownedIds);
+ActivePromotionCampaignsV2Model emptyV2Campaigns({
+  List<int> ownedIds = const [],
+}) => v2HomeCampaigns(ownedIds: ownedIds);
 
 class _Scheduled implements CommonBannerScheduledTask {
   _Scheduled(this.callback);
@@ -435,7 +444,7 @@ void main() {
       expect(find.text('owned ordinary'), findsNothing);
     });
 
-    testWidgets('HOME campaign loading withholds ordinary content', (
+    testWidgets('HOME campaign loading displays ordinary content immediately', (
       tester,
     ) async {
       final pending = Completer<HomePromotionResolution>();
@@ -451,7 +460,7 @@ void main() {
         ),
       );
       await tester.pump();
-      expect(find.text('단일 배너'), findsNothing);
+      expect(find.text('단일 배너'), findsOneWidget);
     });
 
     testWidgets(
@@ -534,6 +543,13 @@ void main() {
           () => container.read(homePromotionCampaignProvider('en').future),
         );
         await tester.pump();
+        // Ordinary content is already visible before the campaign resolves.
+        // Select the campaign before testing that refresh removes its content.
+        unawaited(
+          tester.widget<Swiper>(find.byType(Swiper)).controller!.move(0),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 350));
         expect(find.byType(CandyBoostBanner), findsOneWidget);
 
         container.invalidate(homePromotionCampaignProvider('en'));
@@ -557,13 +573,19 @@ void main() {
       },
     );
 
-    testWidgets('banner image carries its rendered size for CDN resize', (
+    testWidgets('banner image uses its constrained size for CDN resize', (
       tester,
     ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const CommonBanner('pic_home', 16 / 9),
+          const Align(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              width: 240,
+              child: CommonBanner('pic_home', 16 / 9),
+            ),
+          ),
           extraOverrides: [
             asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
           ],
@@ -575,16 +597,14 @@ void main() {
       final image = tester.widget<PicnicCachedNetworkImage>(
         find.byType(PicnicCachedNetworkImage),
       );
-      final expectedWidth = MediaQuery.of(
-        tester.element(find.byType(CommonBanner)),
-      ).size.width;
-      // width/height 가 null 이면 CDN URL 에 w/h 리사이즈 파라미터가 붙지 않아
-      // 원본 크기를 그대로 내려받는다 (_getTransformedUrl 참조).
+      final expectedWidth = tester.getSize(find.byType(CommonBanner)).width;
       expect(image.width, expectedWidth);
       expect(image.height, expectedWidth / (16 / 9));
+      expect(image.memCacheWidth, isNull);
+      expect(image.memCacheHeight, isNull);
     });
 
-    testWidgets('HOME campaign stuck past wait cap degrades to ordinary', (
+    testWidgets('ordinary HOME remains visible while campaign never resolves', (
       tester,
     ) async {
       final pending = Completer<HomePromotionResolution>();
@@ -600,17 +620,13 @@ void main() {
         ),
       );
       await tester.pump();
-      await tester.pump();
-      // 상한 이전에는 기존 보류 동작 유지
-      expect(find.text('단일 배너'), findsNothing);
-
-      await tester.pump(commonBannerCampaignWaitCap);
-      await tester.pump();
+      expect(find.text('단일 배너'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 10));
       drainExpectedImageErrors(tester);
       expect(find.text('단일 배너'), findsOneWidget);
     });
 
-    testWidgets('HOME campaign arriving after cap upgrades from degrade', (
+    testWidgets('late HOME campaign joins the visible ordinary slide', (
       tester,
     ) async {
       final pending = Completer<HomePromotionResolution>();
@@ -627,27 +643,23 @@ void main() {
         ),
       );
       await tester.pump();
-      await tester.pump(commonBannerCampaignWaitCap);
-      await tester.pump();
-      drainExpectedImageErrors(tester);
       expect(find.byType(CandyBoostBanner), findsNothing);
-
       pending.complete(resolvedHomeCampaign());
       await tester.pump();
       await tester.pump();
       drainExpectedImageErrors(tester);
-      expect(find.byType(CandyBoostBanner), findsOneWidget);
+      expect(tester.widget<Swiper>(find.byType(Swiper)).itemCount, 2);
+      expect(
+        tester
+            .widget<CustomPagination>(find.byType(CustomPagination))
+            .activeIndex,
+        1,
+      );
     });
 
-    testWidgets(
-        'refetch without remount does not extend the cap in the same state', (
+    testWidgets('campaign invalidation does not hide ready ordinary data', (
       tester,
     ) async {
-      // 같은 위젯 state 가 유지되는 동안의 보장이다: 상한은 "사용자가
-      // shimmer 를 연속으로 본 시간"을 재므로 loading 중 bare invalidate 가
-      // 있어도 리셋되지 않는다 (riverpod 이 loading→loading 을 dedupe 해
-      // 위젯이 관측할 수도 없다). pull-to-refresh 처럼 UniqueKey remount 를
-      // 동반하는 경로는 새 episode 다 — 아래 remount 테스트가 고정한다.
       await tester.pumpWidget(
         buildTestApp(
           const CommonBanner('vote_home', 16 / 9),
@@ -660,134 +672,159 @@ void main() {
         ),
       );
       await tester.pump();
-      await tester.pump(const Duration(seconds: 4));
+      expect(find.text('단일 배너'), findsOneWidget);
       final container = ProviderScope.containerOf(
         tester.element(find.byType(CommonBanner)),
       );
       container.invalidate(homePromotionCampaignProvider('ko'));
       await tester.pump();
-
-      // 재조회와 무관하게 shimmer 누적 5초 시점에 degrade
-      await tester.pump(const Duration(seconds: 1));
-      await tester.pump();
-      drainExpectedImageErrors(tester);
       expect(find.text('단일 배너'), findsOneWidget);
     });
 
     testWidgets(
-        'degrade persists across refetch in the same state until data arrives',
-        (
-      tester,
-    ) async {
-      final completers = <Completer<HomePromotionResolution>>[];
-      await tester.pumpWidget(
-        buildTestApp(
-          const CommonBanner('vote_home', 16 / 9),
-          locale: const Locale('en'),
-          extraOverrides: [
-            asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
-            homePromotionCampaignProvider('en').overrideWith(
-              (ref) {
-                final completer = Completer<HomePromotionResolution>();
-                completers.add(completer);
-                return completer.future;
-              },
-            ),
-          ],
-        ),
-      );
-      await tester.pump();
-      await tester.pump(commonBannerCampaignWaitCap);
-      await tester.pump();
-      drainExpectedImageErrors(tester);
-      expect(find.text('단일 배너'), findsOneWidget); // 만료 -> degrade
+      'campaign data joins after a refetch without a blank interval',
+      (tester) async {
+        final completers = <Completer<HomePromotionResolution>>[];
+        await tester.pumpWidget(
+          buildTestApp(
+            const CommonBanner('vote_home', 16 / 9),
+            extraOverrides: [
+              asyncBannerListProvider.overrideWith(
+                MockAsyncBannerListSingle.new,
+              ),
+              homePromotionCampaignProvider('ko').overrideWith((ref) {
+                final response = Completer<HomePromotionResolution>();
+                completers.add(response);
+                return response.future;
+              }),
+            ],
+          ),
+        );
+        await tester.pump();
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(CommonBanner)),
+        );
+        container.invalidate(homePromotionCampaignProvider('ko'));
+        await tester.pump();
+        await tester.pump();
+        expect(find.text('단일 배너'), findsOneWidget);
+        completers.last.complete(resolvedHomeCampaign());
+        await tester.pump();
+        await tester.pump();
+        drainExpectedImageErrors(tester);
+        expect(tester.widget<Swiper>(find.byType(Swiper)).itemCount, 2);
+      },
+    );
 
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(CommonBanner)),
-      );
-      container.invalidate(homePromotionCampaignProvider('en'));
-      await tester.pump();
-      await tester.pump();
-      // 만료 뒤 재조회는 shimmer 로 돌아가지 않고 일반 슬라이드를 유지한다
-      expect(find.text('단일 배너'), findsOneWidget);
+    testWidgets(
+      'refresh remount immediately shows available ordinary banners',
+      (tester) async {
+        final pending = Completer<HomePromotionResolution>();
+        final overrides = <dynamic>[
+          asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
+          homePromotionCampaignProvider(
+            'ko',
+          ).overrideWith((ref) => pending.future),
+        ];
+        Widget app(Key key) => buildTestApp(
+          CommonBanner('vote_home', 16 / 9, key: key),
+          extraOverrides: overrides,
+        );
+        await tester.pumpWidget(app(const ValueKey('episode-1')));
+        await tester.pump();
+        expect(find.text('단일 배너'), findsOneWidget);
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(CommonBanner)),
+        );
+        container.invalidate(homePromotionCampaignProvider('ko'));
+        await tester.pumpWidget(app(const ValueKey('episode-2')));
+        await tester.pump();
+        expect(find.text('단일 배너'), findsOneWidget);
+      },
+    );
 
-      // 재조회 세대의 data 가 도착하면 캠페인 슬라이드로 복구된다
-      completers.last.complete(resolvedHomeCampaign());
-      await tester.pump();
-      await tester.pump();
-      drainExpectedImageErrors(tester);
-      expect(find.byType(CandyBoostBanner), findsOneWidget);
-    });
-
-    testWidgets('pull-to-refresh remount starts a fresh cap episode', (
-      tester,
-    ) async {
-      // 실사용 refresh 경로(vote_home_page.dart:152, home_page.dart:83)는
-      // invalidate 직후 UniqueKey 로 CommonBanner 를 remount 한다. 새
-      // state 는 새 episode 로 full cap 을 다시 잰다 — 새로고침은 "다시
-      // 기다리겠다"는 명시적 의사표시이므로 의도된 동작으로 고정한다.
-      final pending = Completer<HomePromotionResolution>();
-      final overrides = <dynamic>[
-        asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
-        homePromotionCampaignProvider(
-          'ko',
-        ).overrideWith((ref) => pending.future),
-      ];
-      Widget app(Key bannerKey) => buildTestApp(
-        CommonBanner('vote_home', 16 / 9, key: bannerKey),
-        extraOverrides: overrides,
-      );
-
-      await tester.pumpWidget(app(const ValueKey('episode-1')));
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 4));
-
-      // t=4s: 사용자 pull-to-refresh 재현 — invalidate + remount
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(CommonBanner)),
-      );
-      container.invalidate(homePromotionCampaignProvider('ko'));
-      await tester.pumpWidget(app(const ValueKey('episode-2')));
-      await tester.pump();
-
-      // 구 episode 의 잔여 시간(1초)로는 degrade 하지 않는다
-      await tester.pump(const Duration(seconds: 1));
-      await tester.pump();
-      expect(find.text('단일 배너'), findsNothing);
-
-      // remount 시점부터 full cap 이 지나면 degrade
-      await tester.pump(commonBannerCampaignWaitCap);
-      await tester.pump();
-      drainExpectedImageErrors(tester);
-      expect(find.text('단일 배너'), findsOneWidget);
-    });
-
-    testWidgets('campaign data before cap cancels the degrade task', (
+    testWidgets('single ordinary banner schedules no campaign wait task', (
       tester,
     ) async {
       final scheduler = _Scheduler();
-      await pumpAndDrain(
-        tester,
+      final pending = Completer<HomePromotionResolution>();
+      await tester.pumpWidget(
         buildTestApp(
           CommonBanner('vote_home', 16 / 9, scheduler: scheduler),
-          locale: const Locale('en'),
           extraOverrides: [
             asyncBannerListProvider.overrideWith(MockAsyncBannerListSingle.new),
             homePromotionCampaignProvider(
-              'en',
-            ).overrideWith((ref) async => resolvedHomeCampaign()),
+              'ko',
+            ).overrideWith((ref) => pending.future),
           ],
         ),
       );
-      await tester.pump(const Duration(milliseconds: 500));
-      final capTasks = [
-        for (var i = 0; i < scheduler.delays.length; i++)
-          if (scheduler.delays[i] == commonBannerCampaignWaitCap)
-            scheduler.tasks[i],
-      ];
-      expect(capTasks, isNotEmpty);
-      expect(capTasks.every((task) => task.cancelled), isTrue);
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('단일 배너'), findsOneWidget);
+      expect(scheduler.tasks, isEmpty);
     });
+
+    testWidgets(
+      'late campaign and rebuilds preserve the current autoplay deadline',
+      (tester) async {
+        final scheduler = _Scheduler();
+        final pending = Completer<HomePromotionResolution>();
+        final moves = <int>[];
+        await tester.pumpWidget(
+          buildTestApp(
+            CommonBanner(
+              'vote_home',
+              16 / 9,
+              scheduler: scheduler,
+              onAutoplayMove: moves.add,
+            ),
+            extraOverrides: [
+              asyncBannerListProvider.overrideWith(
+                MockAsyncBannerListMultiple.new,
+              ),
+              homePromotionCampaignProvider(
+                'ko',
+              ).overrideWith((ref) => pending.future),
+            ],
+          ),
+        );
+        await tester.pump();
+        await tester.pump();
+        final originalTask = scheduler.tasks.single;
+        for (var i = 0; i < 5; i++) {
+          tester.element(find.byType(CommonBanner)).markNeedsBuild();
+          await tester.pump();
+        }
+        expect(scheduler.tasks, hasLength(1));
+        pending.complete(resolvedHomeCampaign());
+        await tester.pump();
+        await tester.pump();
+        expect(
+          tester
+              .widget<CustomPagination>(find.byType(CustomPagination))
+              .activeIndex,
+          1,
+        );
+        expect(scheduler.tasks.single, same(originalTask));
+        expect(originalTask.cancelled, isFalse);
+        originalTask.callback();
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 350));
+        expect(moves, [2]);
+        expect(
+          tester
+              .widget<CustomPagination>(find.byType(CustomPagination))
+              .activeIndex,
+          2,
+        );
+        expect(scheduler.delays.last, const Duration(milliseconds: 5000));
+        originalTask.callback();
+        expect(moves, [
+          2,
+        ], reason: 'an expired callback cannot advance a newer timer');
+      },
+    );
 
     testWidgets('HOME campaign error still renders ordinary content', (
       tester,
@@ -922,8 +959,11 @@ void main() {
         ),
       );
       await tester.pump();
-      expect(scheduler.delays, contains(const Duration(milliseconds: 4500)));
       expect(tester.widget<Swiper>(find.byType(Swiper)).itemCount, 2);
+      scheduler.tasks.last.callback();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+      expect(scheduler.delays, contains(const Duration(milliseconds: 4500)));
     });
 
     testWidgets(
@@ -971,13 +1011,14 @@ void main() {
           locale: const Locale('en'),
           extraOverrides: [
             asyncBannerListProvider.overrideWith(MockOwnedBannerList.new),
-            activePromotionCampaignV2Provider(PromotionSurfaceV2.home)
-                .overrideWith(
-                  (ref) async => v2HomeCampaigns(
-                    items: [_v2HomeItemJson(bannerId: 101)],
-                    ownedIds: [101],
-                  ),
-                ),
+            activePromotionCampaignV2Provider(
+              PromotionSurfaceV2.home,
+            ).overrideWith(
+              (ref) async => v2HomeCampaigns(
+                items: [_v2HomeItemJson(bannerId: 101)],
+                ownedIds: [101],
+              ),
+            ),
             activePromotionCampaignProvider(PromotionSurface.home).overrideWith(
               (ref) async => throw StateError(
                 'V1 must not be read when V2 has an active item',
@@ -991,82 +1032,83 @@ void main() {
       expect(find.text('owned ordinary'), findsNothing);
     });
 
-    testWidgets(
-      'HOME falls back to V1 when the V2 RPC is missing (PGRST202)',
-      (tester) async {
-        await pumpAndDrain(
-          tester,
-          buildTestApp(
-            const CommonBanner('vote_home', 16 / 9),
-            // The thrown PostgrestException is an Exception, so riverpod's
-            // default retry would park the erroring V2 source in a retrying
-            // loading state behind real backoff timers — disable retry so
-            // the terminal error (and the resolver's V1 fallback built on
-            // it) is observable within pumped test time.
-            retry: (_, _) => null,
-            extraOverrides: [
-              asyncBannerListProvider.overrideWith(MockOwnedBannerList.new),
-              activePromotionCampaignV2Provider(PromotionSurfaceV2.home)
-                  .overrideWith(
-                    (ref) async => throw PostgrestException(
-                      message:
-                          'Could not find the function '
-                          'public.get_active_promotion_campaigns_v2'
-                          '(p_surface) in the schema cache',
-                      code: 'PGRST202',
-                    ),
-                  ),
-              activePromotionCampaignProvider(
-                PromotionSurface.home,
-              ).overrideWith((ref) async => homeCampaign()),
-            ],
-          ),
-        );
-        await tester.pump(const Duration(milliseconds: 500));
-        expect(find.byType(CandyBoostBanner), findsOneWidget);
-      },
-    );
+    testWidgets('HOME falls back to V1 when the V2 RPC is missing (PGRST202)', (
+      tester,
+    ) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          // The thrown PostgrestException is an Exception, so riverpod's
+          // default retry would park the erroring V2 source in a retrying
+          // loading state behind real backoff timers — disable retry so
+          // the terminal error (and the resolver's V1 fallback built on
+          // it) is observable within pumped test time.
+          retry: (_, _) => null,
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockOwnedBannerList.new),
+            activePromotionCampaignV2Provider(
+              PromotionSurfaceV2.home,
+            ).overrideWith(
+              (ref) async => throw PostgrestException(
+                message:
+                    'Could not find the function '
+                    'public.get_active_promotion_campaigns_v2'
+                    '(p_surface) in the schema cache',
+                code: 'PGRST202',
+              ),
+            ),
+            activePromotionCampaignProvider(
+              PromotionSurface.home,
+            ).overrideWith((ref) async => homeCampaign()),
+          ],
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(CandyBoostBanner), findsOneWidget);
+    });
 
-    testWidgets(
-      'HOME renders only ordinary banners when V2 fails with a '
-      'non-eligible PostgREST error (fail closed, no V1 campaign revival)',
-      (tester) async {
-        var v1Read = false;
-        await pumpAndDrain(
-          tester,
-          buildTestApp(
-            const CommonBanner('vote_home', 16 / 9),
-            locale: const Locale('en'),
-            retry: (_, _) => null,
-            extraOverrides: [
-              asyncBannerListProvider.overrideWith(MockMixedBannerList.new),
-              activePromotionCampaignV2Provider(PromotionSurfaceV2.home)
-                  .overrideWith(
-                    (ref) async => throw PostgrestException(
-                      message: 'permission denied for function',
-                      code: '42501',
-                    ),
-                  ),
-              activePromotionCampaignProvider(PromotionSurface.home)
-                  .overrideWith((ref) async {
-                    v1Read = true;
-                    return homeCampaign();
-                  }),
-            ],
-          ),
-        );
-        await tester.pump(const Duration(milliseconds: 500));
-        // The resolver rethrows, CommonBanner's error branch renders the
-        // ordinary list without campaign slides or ownership filtering, and
-        // V1 was never consulted. The swiper's current slide is the first
-        // ordinary banner — its unfiltered visibility (compare the success
-        // path, where owned id 101 is suppressed) proves the error branch
-        // ran rather than the list merely still loading.
-        expect(find.byType(CandyBoostBanner), findsNothing);
-        expect(v1Read, isFalse);
-        expect(find.text('owned ordinary'), findsOneWidget);
-      },
-    );
+    testWidgets('HOME renders only ordinary banners when V2 fails with a '
+        'non-eligible PostgREST error (fail closed, no V1 campaign revival)', (
+      tester,
+    ) async {
+      var v1Read = false;
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          const CommonBanner('vote_home', 16 / 9),
+          locale: const Locale('en'),
+          retry: (_, _) => null,
+          extraOverrides: [
+            asyncBannerListProvider.overrideWith(MockMixedBannerList.new),
+            activePromotionCampaignV2Provider(
+              PromotionSurfaceV2.home,
+            ).overrideWith(
+              (ref) async => throw PostgrestException(
+                message: 'permission denied for function',
+                code: '42501',
+              ),
+            ),
+            activePromotionCampaignProvider(PromotionSurface.home).overrideWith(
+              (ref) async {
+                v1Read = true;
+                return homeCampaign();
+              },
+            ),
+          ],
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      // The resolver rethrows, CommonBanner's error branch renders the
+      // ordinary list without campaign slides or ownership filtering, and
+      // V1 was never consulted. The swiper's current slide is the first
+      // ordinary banner — its unfiltered visibility (compare the success
+      // path, where owned id 101 is suppressed) proves the error branch
+      // ran rather than the list merely still loading.
+      expect(find.byType(CandyBoostBanner), findsNothing);
+      expect(v1Read, isFalse);
+      expect(find.text('owned ordinary'), findsOneWidget);
+    });
 
     testWidgets(
       'HOME falls back to V1 when V2 succeeds but has no active item (e.g. flag still off)',
@@ -1102,19 +1144,20 @@ void main() {
             locale: const Locale('en'),
             extraOverrides: [
               asyncBannerListProvider.overrideWith(MockOwnedBannerList.new),
-              activePromotionCampaignV2Provider(PromotionSurfaceV2.home)
-                  .overrideWith(
-                    (ref) async => v2HomeCampaigns(
-                      items: [
-                        _v2HomeItemJson(
-                          bannerId: 101,
-                          title: const {},
-                          image: const {},
-                        ),
-                      ],
-                      ownedIds: [101],
+              activePromotionCampaignV2Provider(
+                PromotionSurfaceV2.home,
+              ).overrideWith(
+                (ref) async => v2HomeCampaigns(
+                  items: [
+                    _v2HomeItemJson(
+                      bannerId: 101,
+                      title: const {},
+                      image: const {},
                     ),
-                  ),
+                  ],
+                  ownedIds: [101],
+                ),
+              ),
               activePromotionCampaignProvider(
                 PromotionSurface.home,
               ).overrideWith(

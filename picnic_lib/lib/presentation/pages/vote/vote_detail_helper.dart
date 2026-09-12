@@ -1,7 +1,35 @@
 import 'dart:math' as math;
 
+import 'package:flutter/widgets.dart';
 import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
+
+const double voteDetailPortraitLogicalSize = 39;
+const int voteDetailPortraitDecodeSize = 78;
+const int voteDetailPortraitQuality = 55;
+const double voteDetailPortraitResolutionMultiplierCap = 2;
+
+/// Resolves the exact request used by vote-detail row portraits.
+///
+/// Popup placeholders also use this request solely to look up an already
+/// decoded row portrait. Keeping the request here prevents either consumer
+/// from silently drifting to a different transformed URL or memory-cache key.
+PicnicImageRequest resolveVoteDetailPortraitImageRequest({
+  required BuildContext context,
+  required String imageUrl,
+}) {
+  return PicnicImageRequest.resolve(
+    context: context,
+    imageUrl: imageUrl,
+    width: voteDetailPortraitLogicalSize,
+    height: voteDetailPortraitLogicalSize,
+    memCacheWidth: voteDetailPortraitDecodeSize,
+    memCacheHeight: voteDetailPortraitDecodeSize,
+    maxQualityOverride: voteDetailPortraitQuality,
+    maxResolutionMultiplierCap: voteDetailPortraitResolutionMultiplierCap,
+  );
+}
 
 /// Pure logic helper for VoteDetailPage.
 /// All methods are static and free of widget/state dependencies.

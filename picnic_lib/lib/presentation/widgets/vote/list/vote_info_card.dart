@@ -13,6 +13,8 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_prefetch.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
@@ -82,11 +84,17 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     }
     if (mounted) setState(() => _isSaving = false);
   }
+
   bool _disposed = false;
   late final PageController _thumbnailPageController;
   int _thumbnailPageIndex = 0;
   late VoteModel _voteData;
   List<VoteItemModel> _voteItems = [];
+  final PicnicImagePrefetchScope _thumbnailImagePrefetchScope =
+      PicnicImagePrefetchScope();
+  int _thumbnailImagePrefetchGeneration = 0;
+  Object? _scheduledThumbnailImageSignature;
+  Object? _appliedThumbnailImageSignature;
   // vote.id 별 랜덤 순서를 캐시해 위젯 수명 동안 안정적으로 유지
   final Map<int, List<int>> _shuffledOrderCache = {};
 
@@ -100,24 +108,16 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
 
   void _initializeAnimations() {
     _controller = AnimationController(
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 180),
       vsync: this,
     )..forward();
 
-    _offsetAnimation =
-        Tween<Offset>(begin: const Offset(0.0, 1.0), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _controller,
-            curve: const Interval(0.0, .5, curve: Curves.easeOut),
-          ),
-        );
+    _offsetAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.05),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
-      ),
-    );
+    _opacityAnimation = const AlwaysStoppedAnimation<double>(1);
   }
 
   void _restartAnimation() {
@@ -143,6 +143,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         ).future,
       );
       if (mounted && refreshed != null) {
+        _clearThumbnailImages();
         safeSetState(() {
           _syncVoteData(refreshed);
         });
@@ -187,8 +188,23 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   @override
   void didUpdateWidget(VoteInfoCard oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.vote != oldWidget.vote ||
+        widget.status != oldWidget.status ||
+        widget.votePortal != oldWidget.votePortal) {
+      _clearThumbnailImages();
+    }
     if (widget.vote != oldWidget.vote || widget.status != oldWidget.status) {
       _syncVoteData(widget.vote);
+      _thumbnailPageIndex = 0;
+      final generation = _thumbnailImagePrefetchGeneration;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || generation != _thumbnailImagePrefetchGeneration) {
+          return;
+        }
+        if (_thumbnailPageController.hasClients) {
+          _thumbnailPageController.jumpToPage(0);
+        }
+      });
     }
   }
 
@@ -201,6 +217,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   @override
   void dispose() {
     _disposed = true;
+    _thumbnailImagePrefetchGeneration++;
+    _thumbnailImagePrefetchScope.dispose();
     _controller.dispose();
     _thumbnailPageController.dispose();
     super.dispose();
@@ -208,15 +226,10 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.grey00,
-      child: _buildCard(context),
-    );
+    return Container(color: AppColors.grey00, child: _buildCard(context));
   }
 
-  Widget _buildCard(
-    BuildContext context,
-  ) {
+  Widget _buildCard(BuildContext context) {
     final vote = _voteData;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -295,11 +308,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       return Container(
         width: ref.watch(globalMediaQueryProvider).size.width,
         height: 260,
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
         margin: const EdgeInsets.only(top: 24),
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
@@ -347,9 +356,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       );
     }
 
-    final paddedItems = <VoteItemModel?>[
-      ...voteItems.take(3),
-    ];
+    final paddedItems = <VoteItemModel?>[...voteItems.take(3)];
     while (paddedItems.length < 3) {
       paddedItems.add(null);
     }
@@ -403,35 +410,13 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       return const SizedBox.shrink();
     }
 
-    final id = widget.vote.id;
-    final needRegen =
-        !_shuffledOrderCache.containsKey(id) ||
-        _shuffledOrderCache[id]!.length != voteItems.length;
-    if (needRegen) {
-      final indices = List<int>.generate(voteItems.length, (i) => i);
-      indices.shuffle(
-        math.Random(DateTime.now().microsecondsSinceEpoch ^ id.hashCode),
-      );
-      _shuffledOrderCache[id] = indices;
-    }
-    final order = _shuffledOrderCache[id]!;
-    final shuffled = [for (final i in order) voteItems[i]];
-
-    final List<List<VoteItemModel>> pages = [];
-    for (int i = 0; i < shuffled.length; i += 12) {
-      pages.add(shuffled.sublist(i, math.min(i + 12, shuffled.length)));
-    }
-
+    final pages = _upcomingThumbnailPages(voteItems);
     final pageCount = pages.length;
+    _scheduleThumbnailImages();
 
     return Container(
       width: ref.watch(globalMediaQueryProvider).size.width,
-      padding: const EdgeInsets.only(
-        left: 12,
-        right: 12,
-        top: 12,
-        bottom: 12,
-      ),
+      padding: const EdgeInsets.only(left: 12, right: 12, top: 12, bottom: 12),
       margin: const EdgeInsets.only(top: 16),
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
@@ -471,11 +456,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                   itemCount: thumbnails.length,
                   itemBuilder: (context, index) {
                     final item = thumbnails[index];
-                    final imageUrl =
-                        (item.artist?.id != 0
-                            ? item.artist?.image
-                            : item.artistGroup?.image) ??
-                        '';
+                    final imageRequest =
+                        VoteInfoCardHelper.thumbnailImageRequest(context, item);
                     final displayName = (item.artist?.id != 0)
                         ? getLocaleTextFromJson(
                             item.artist?.name ?? {},
@@ -501,7 +483,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                           clipBehavior: Clip.hardEdge,
                           child: ClipOval(
                             child: PicnicCachedNetworkImage(
-                              imageUrl: imageUrl,
+                              imageUrl: imageRequest.imageUrl,
+                              imageRequest: imageRequest,
                               width: 56,
                               height: 56,
                             ),
@@ -540,8 +523,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                     children: [
                       IconButton(
                         icon: const Icon(Icons.chevron_left),
-                        color:
-                            isFirst ? AppColors.grey300 : AppColors.grey800,
+                        color: isFirst ? AppColors.grey300 : AppColors.grey800,
                         onPressed: () {
                           if (isFirst) return;
                           _thumbnailPageController.previousPage(
@@ -577,6 +559,133 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         ],
       ),
     );
+  }
+
+  List<List<VoteItemModel>> _upcomingThumbnailPages(
+    List<VoteItemModel> voteItems,
+  ) {
+    final id = widget.vote.id;
+    final needRegen =
+        !_shuffledOrderCache.containsKey(id) ||
+        _shuffledOrderCache[id]!.length != voteItems.length;
+    if (needRegen) {
+      final indices = List<int>.generate(voteItems.length, (i) => i);
+      indices.shuffle(
+        math.Random(DateTime.now().microsecondsSinceEpoch ^ id.hashCode),
+      );
+      _shuffledOrderCache[id] = indices;
+    }
+    final order = _shuffledOrderCache[id]!;
+    final shuffled = [for (final i in order) voteItems[i]];
+
+    return VoteInfoCardHelper.paginateItems(shuffled, 12);
+  }
+
+  void _clearThumbnailImages() {
+    _thumbnailImagePrefetchGeneration++;
+    _scheduledThumbnailImageSignature = null;
+    _appliedThumbnailImageSignature = null;
+    if (mounted) {
+      _thumbnailImagePrefetchScope.replace(
+        context,
+        const <PicnicImageRequest>[],
+      );
+    }
+  }
+
+  void _scheduleThumbnailImages() {
+    if (!mounted) return;
+    final signature = _thumbnailImageSignature();
+    if (signature == _scheduledThumbnailImageSignature ||
+        signature == _appliedThumbnailImageSignature) {
+      return;
+    }
+    _scheduledThumbnailImageSignature = signature;
+    final generation = _thumbnailImagePrefetchGeneration;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          generation != _thumbnailImagePrefetchGeneration ||
+          _scheduledThumbnailImageSignature != signature) {
+        return;
+      }
+      if (_thumbnailImageSignature() != signature) {
+        _scheduledThumbnailImageSignature = null;
+        _scheduleThumbnailImages();
+        return;
+      }
+
+      _thumbnailImagePrefetchScope.replace(
+        context,
+        _nextThumbnailImageRequests(),
+      );
+      _appliedThumbnailImageSignature = signature;
+      _scheduledThumbnailImageSignature = null;
+    });
+  }
+
+  Object _thumbnailImageSignature() {
+    final mediaQuery = MediaQuery.of(context);
+    if (widget.status != VoteStatus.upcoming || _voteItems.isEmpty) {
+      return (
+        _thumbnailImagePrefetchGeneration,
+        widget.vote.id,
+        mediaQuery.devicePixelRatio,
+        mediaQuery.size,
+        null,
+      );
+    }
+    final pages = _upcomingThumbnailPages(_voteItems);
+    final nextPageIndex = _thumbnailPageIndex + 1;
+    if (nextPageIndex >= pages.length) {
+      return (
+        _thumbnailImagePrefetchGeneration,
+        widget.vote.id,
+        mediaQuery.devicePixelRatio,
+        mediaQuery.size,
+        _thumbnailPageIndex,
+        null,
+      );
+    }
+    final nextPage = pages[nextPageIndex];
+    final first = nextPage.isEmpty
+        ? null
+        : _thumbnailRequestSignature(
+            VoteInfoCardHelper.thumbnailImageRequest(context, nextPage[0]),
+          );
+    final second = nextPage.length < 2
+        ? null
+        : _thumbnailRequestSignature(
+            VoteInfoCardHelper.thumbnailImageRequest(context, nextPage[1]),
+          );
+    return (
+      _thumbnailImagePrefetchGeneration,
+      widget.vote.id,
+      mediaQuery.devicePixelRatio,
+      mediaQuery.size,
+      _thumbnailPageIndex,
+      first,
+      second,
+    );
+  }
+
+  Object _thumbnailRequestSignature(PicnicImageRequest request) {
+    return (
+      request.url,
+      request.requestWidth,
+      request.requestHeight,
+      request.decodeWidth,
+      request.decodeHeight,
+    );
+  }
+
+  Iterable<PicnicImageRequest> _nextThumbnailImageRequests() sync* {
+    if (widget.status != VoteStatus.upcoming || _voteItems.isEmpty) return;
+    final pages = _upcomingThumbnailPages(_voteItems);
+    final nextPageIndex = _thumbnailPageIndex + 1;
+    if (nextPageIndex >= pages.length) return;
+    for (final item in pages[nextPageIndex].take(2)) {
+      yield VoteInfoCardHelper.thumbnailImageRequest(context, item);
+    }
   }
 
   Widget _buildAchieveVoteItemList(List<VoteItemModel> voteItems) {

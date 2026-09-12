@@ -67,10 +67,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateNavigation();
 
-      // 이미지 캐시 최적화를 먼저 수행
-      _optimizeImageCacheForPage();
-
-      // 그 다음 페이징 컨트롤러 초기화
       _pagingController.fetchNextPage();
     });
   }
@@ -85,31 +81,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
   void onRoutePopNext() {
     super.onRoutePopNext();
     _updateNavigation();
-  }
-
-  /// 페이지별 이미지 캐시 최적화
-  void _optimizeImageCacheForPage() {
-    try {
-      final imageCache = PaintingBinding.instance.imageCache;
-      final currentUsage =
-          imageCache.currentSizeBytes / imageCache.maximumSizeBytes;
-
-      // 캐시 사용률이 70% 이상이면 부분 정리
-      if (currentUsage > 0.7) {
-        final targetSize = (imageCache.maximumSizeBytes * 0.5).round();
-        final originalMaxSize = imageCache.maximumSizeBytes;
-        imageCache.maximumSizeBytes = targetSize;
-
-        // 원래 크기로 복구
-        Future.delayed(Duration(milliseconds: 100), () {
-          imageCache.maximumSizeBytes = originalMaxSize;
-        });
-
-        logger.d('투표 홈페이지 진입 시 이미지 캐시 최적화 수행');
-      }
-    } catch (e) {
-      logger.e('이미지 캐시 최적화 실패: $e');
-    }
   }
 
   @override
@@ -348,8 +319,9 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
                 // 운영자가 비워두면 널이고, 단언하면 리워드 행 전체가 에러
                 // 박스가 된다. `getLocaleTextFromJson` 은 빈 맵을 '' 로
                 // 처리한다.
-                final title =
-                    getLocaleTextFromJson(data[index].title ?? const {});
+                final title = getLocaleTextFromJson(
+                  data[index].title ?? const {},
+                );
                 final isHighPriority = index < 3;
 
                 return GestureDetector(
@@ -377,8 +349,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
                                   : ImagePriority.normal,
                               enableMemoryOptimization: true,
                               enableProgressiveLoading: !isHighPriority,
-                              memCacheWidth: 120,
-                              memCacheHeight: 100,
                               lazyLoadingStrategy: isHighPriority
                                   ? LazyLoadingStrategy.none
                                   : LazyLoadingStrategy.viewport,

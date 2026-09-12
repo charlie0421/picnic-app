@@ -229,23 +229,23 @@ void main() {
       );
     });
 
-    test('normal priority returns base delay', () {
+    test('normal priority ignores a supplied initial delay', () {
       expect(
         PicnicCachedNetworkImageHelper.calculateLoadDelay(
           ImagePriority.normal,
           baseDelay: const Duration(milliseconds: 50),
         ),
-        const Duration(milliseconds: 50),
+        Duration.zero,
       );
     });
 
-    test('low priority adds 200ms to base', () {
+    test('low priority ignores a supplied initial delay', () {
       expect(
         PicnicCachedNetworkImageHelper.calculateLoadDelay(
           ImagePriority.low,
           baseDelay: const Duration(milliseconds: 50),
         ),
-        const Duration(milliseconds: 250),
+        Duration.zero,
       );
     });
 
@@ -256,10 +256,10 @@ void main() {
       );
     });
 
-    test('low priority with null base delay returns 200ms', () {
+    test('low priority with null base delay returns zero', () {
       expect(
         PicnicCachedNetworkImageHelper.calculateLoadDelay(ImagePriority.low),
-        const Duration(milliseconds: 200),
+        Duration.zero,
       );
     });
   });
