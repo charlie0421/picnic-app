@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Candy Boost V2 production-first 클라이언트 검증</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#5d677a; --line:#d9deea; --bg:#f6f8fc; --card:#fff; --red:#b42318; --redbg:#fff1f0; --amber:#9a6700; --amberbg:#fff8db; --green:#16794a; --greenbg:#edfdf3; --blue:#175cd3; --bluebg:#eff6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.58 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1120px; margin:0 auto; padding:36px 24px 64px; }
+    h1,h2,h3 { line-height:1.25; }
+    h1 { margin:0 0 8px; font-size:30px; }
+    h2 { margin:34px 0 12px; font-size:21px; }
+    h3 { margin:22px 0 8px; font-size:17px; }
+    p { margin:7px 0; }
+    .meta { color:var(--muted); }
+    .verdict { border:1px solid #f2a39d; background:var(--redbg); border-radius:12px; padding:18px 20px; margin:22px 0; }
+    .verdict strong { color:var(--red); font-size:20px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:12px 0; }
+    .good { border-left:5px solid var(--green); }
+    .warn { border-left:5px solid var(--amber); }
+    .bad { border-left:5px solid var(--red); }
+    .info { border-left:5px solid var(--blue); }
+    .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700; margin-right:7px; }
+    .p0 { color:var(--red); background:#fee4e2; }
+    .p1 { color:#9a3412; background:#ffedd5; }
+    .p2 { color:var(--amber); background:var(--amberbg); }
+    .pass { color:var(--green); background:var(--greenbg); }
+    .blocked { color:var(--red); background:var(--redbg); }
+    table { width:100%; border-collapse:collapse; background:var(--card); font-size:14px; }
+    th,td { border:1px solid var(--line); padding:9px 10px; text-align:left; vertical-align:top; }
+    th { background:#eef2f8; }
+    code { font-family:"SFMono-Regular",Consolas,monospace; font-size:.92em; background:#eef1f6; padding:1px 4px; border-radius:4px; }
+    pre { overflow:auto; white-space:pre-wrap; word-break:break-word; background:#111827; color:#e5e7eb; border-radius:9px; padding:13px 15px; font:12.5px/1.52 "SFMono-Regular",Consolas,monospace; }
+    ul,ol { padding-left:22px; }
+    li { margin:5px 0; }
+    .small { font-size:13px; color:var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>클라이언트 검증 — 최신 root 재검증</h1>
+  <section class="card"><p>최신 통합 판정은 <a href="production-v2-readiness.html">프로덕션 사전 검증 보고서</a>를 따른다.</p><ul><li>Root Flutter 재실행: 128 통과, 기존 skip 1, exit 0.</li><li>Admin HEAD 80d8120a의 깨끗한 임시 archive에서 의존성을 잠금 파일대로 설치해 Jest 5 suite / 94 test 통과. 원본 main과 node_modules는 변경하지 않았다.</li><li>운영 캠페인 code는 읽기 전용 조회로 CANDY_BOOST_DAY임을 확인했다. fixture code 차이는 커버리지 공백이며 현재 운영 배지가 반드시 숨겨진다는 증거는 아니다.</li><li>App PR #174는 닫혔으나 대체 PR #177은 main에 병합됐다. 설치된 앱·OTA·Vercel 운영 배포 상태는 별개다.</li><li>백엔드의 V2 정산 배선은 실제 존재하며 격리 SQL 테스트에서 지급·replay·환불을 검증했다. 초기 계획의 후속 배선 메모는 현재 구현을 나타내지 않는다.</li><li>이 파일의 초기 작업자는 Codex이므로 아래 원문 cross-provider 표현은 정정한다. 실제 다른 공급자 리뷰는 별도 Claude Opus 보고서다.</li></ul><p>V2 상품 배지와 V1 확인창의 표시 불일치 가능성은 여전히 보완 대상이다.</p></section>
+  <details><summary>초기 Sol 작업자 기록 — 위 재검증·정정 사항이 우선</summary>
+  <h1>Candy Boost V2 production-first 클라이언트 검증</h1>
+  <p class="meta">검증일 2026-09-07 (Asia/Seoul) · 읽기 전용 cross-provider review · production API/배포/flag 변경 없음</p>
+
+  <section class="verdict">
+    <strong>판정: 조건부 NO-GO</strong>
+    <p>정적 계약과 핵심 구현 방향은 대체로 안전하지만, 사용자가 요구한 로컬 동적 테스트가 이 실행 환경에서 완료되지 않았고 canonical PAYMENT_BADGE fixture와 실제 resolver 선택 규칙 사이에 end-to-end 공백이 있다. 또한 V2 배지와 구매 확인창이 서로 다른 V2/V1 캠페인 소스를 사용하며, 실제 settlement V2 배선은 이 두 클라이언트 저장소만으로 증명할 수 없다.</p>
+  </section>
+
+  <h2>1. 범위와 불변 조건</h2>
+  <table>
+    <thead><tr><th>대상</th><th>검증 기준</th><th>dirty 상태 보존</th></tr></thead>
+    <tbody>
+      <tr><td>picnic-app</td><td><code>ae81fe8c3b8e1ac201875ef3b21d72ec7e08267d</code><br><code>feat/candy-boost-admin-scheduling</code></td><td>시작 시 <code>staging-refresh-handoff.html</code> 미추적. 작업 중 다른 주체가 <code>production-v2-backend-validation.html</code>을 추가했으며 둘 다 건드리지 않음.</td></tr>
+      <tr><td>picnic-admin</td><td><code>80d8120a2219ac28abdb01bc5abd35c9cc0d9732</code><br><code>main</code></td><td>기존 <code>package.json</code> 수정과 <code>.nvmrc</code>, <code>service-role-key-rotation.html</code> 미추적을 그대로 보존. branch 변경/설치/수정 없음.</td></tr>
+    </tbody>
+  </table>
+  <p class="small">소스·tracked 파일, branch, dependency, commit/push/PR, 배포, OTA, runtime flag, production API는 변경하거나 호출하지 않았다. 이 보고서만 지정 경로에 새로 생성했다.</p>
+
+  <h2>2. 차단 및 주요 발견</h2>
+
+  <div class="card bad">
+    <h3><span class="tag p0">GATE BLOCKED</span>필수 Flutter/Jest 동적 테스트가 실행 완료되지 않음</h3>
+    <p>Flutter는 기존 SDK와 <code>--no-pub</code>를 사용했으나 test runner가 각 파일마다 <code>127.0.0.1:0</code> server socket을 만들 때 sandbox의 <code>EPERM</code>으로 막혔다. 결과는 <strong>실행 assertion 0, load error 8</strong>이며 코드 테스트 실패로 해석할 수는 없지만 production gate 통과 증거도 아니다.</p>
+    <p>Admin의 선택 Jest 5개 파일은 모두 mock/fake transport임을 먼저 확인했지만, 기존 <code>node_modules/jest-cli/build/index.js</code>가 누락되어 suite load 전에 종료됐다. <strong>Jest suite 실행 0</strong>이며 dependency 설치는 명시적으로 금지되어 복구하지 않았다.</p>
+  </div>
+
+  <div class="card bad">
+    <h3><span class="tag p1">P1</span>canonical PAYMENT_BADGE fixture가 실제 배지 선택 규칙을 통과하지 않음</h3>
+    <p>backend-canonical <code>promotion_surfaces_payment_badge_v2.json</code>의 item code는 <code>CANDY_BOOST_PAYMENT_V2</code>다. 하지만 앱 resolver는 settlement가 처리하는 유일한 code라며 <code>CANDY_BOOST_DAY</code>만 선택하고, 다른 active V2 item이 하나라도 있으면 V1 fallback 없이 배지를 숨긴다.</p>
+    <ul>
+      <li>fixture: <code>picnic_lib/test/fixtures/wallet_contracts/promotion_surfaces_payment_badge_v2.json:5</code></li>
+      <li>선택 상수/필터: <code>picnic_lib/lib/presentation/providers/promotion_badge_resolver_provider.dart:31-34,101-110</code></li>
+      <li>canonical fixture를 읽는 repository test는 decode만 확인: <code>picnic_lib/test/data/repositories/promotion_campaign_v2_repository_test.dart:477-513</code></li>
+      <li>resolver test는 canonical fixture가 아닌 수제 <code>CANDY_BOOST_DAY</code> item 사용: <code>picnic_lib/test/presentation/providers/promotion_badge_resolver_provider_test.dart:519-565</code></li>
+    </ul>
+    <p><strong>실패 조건:</strong> production V2 read RPC가 canonical fixture와 같은 code를 반환하면 payment badge는 렌더링되지 않는다. canonical 값이 단순 예시라면 fixture→resolver 통합 테스트를 추가하고, 실제 production campaign identity가 <code>CANDY_BOOST_DAY</code>임을 read-only evidence로 확인해야 한다.</p>
+  </div>
+
+  <div class="card warn">
+    <h3><span class="tag p1">P1</span>결제 전 표시는 V2/V1로 분리되어 동일 캠페인을 보장하지 않음</h3>
+    <p>상품 목록 배지는 <code>paymentBadgePromotionProvider</code>(V2 우선)에서 읽지만, 구매 버튼을 누른 뒤 확인창과 attempt snapshot은 <code>activePromotionCampaignProvider(PromotionSurface.store)</code>(V1)에서 별도로 읽는다.</p>
+    <ul>
+      <li>V2 우선 badge: <code>picnic_lib/lib/presentation/widgets/vote/store/purchase/purchase_star_candy_state.dart:1563-1605</code></li>
+      <li>V1 confirmation/attempt: 같은 파일 <code>1025-1047</code></li>
+      <li>확인창의 V1 campaign name 노출: <code>picnic_lib/lib/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler.dart:161-205</code></li>
+    </ul>
+    <p><strong>영향:</strong> V2-only 일정 또는 배수 전환 중 상품 타일은 “1.5배”를 보여도 확인창은 V1 이름을 보여주거나 캠페인 문구를 생략할 수 있다. 이는 과지급 근거는 아니다. 영수증/지갑/analytics 금액은 서버 settlement의 <code>baseBonusAmount + granted promoBonusAmount</code>를 사용한다(<code>purchase_service.dart:1006-1020</code>).</p>
+    <p><strong>최소 조치:</strong> flag-on 시 V1과 V2의 campaign identity/display가 의도적으로 mirror되는지 검증하거나, confirmation도 resolver가 확정한 동일 V2 snapshot을 사용하도록 후속 변경한다.</p>
+  </div>
+
+  <div class="card warn">
+    <h3><span class="tag p1">P1</span>실제 V2 settlement 배선은 클라이언트 범위 밖이며 미검증</h3>
+    <p>구현 계획 자체가 <code>resolve_purchase_promotion</code> 계열 dispatcher 내부의 실제 V2 배선을 후속 작업으로 명시했다(<code>docs/superpowers/plans/2026-08-21-candy-boost-admin-scheduling.md:22</code>). 이번 범위에는 backend repository와 production read가 없고 production API 호출도 금지되어, “배지가 표시된 동일 시각/버전/배수로 결제가 실제 지급된다”는 핵심 조건을 증명할 수 없다.</p>
+    <p><strong>최소 조치:</strong> production flag 변경 전 backend validation 결과에서 dispatcher wiring, flag-off/on, representative KST boundary, settlement snapshot의 campaign_version_id/multiplier/amount 일치를 확인해야 한다.</p>
+  </div>
+
+  <div class="card warn">
+    <h3><span class="tag p2">P2</span>V1 fallback 영문 배지의 알려진 overflow를 테스트가 허용함</h3>
+    <p><code>purchase_star_candy_state_test.dart:362-377</code>은 “Base reward + 100% extra bonus”가 고정 높이 tile에서 약 7px overflow/clip되는 기존 결함을 명시하고 해당 FlutterError를 통과시킨다. V2 짧은 multiplier copy에는 동일 예외 허용이 없지만, fallback은 production-first 전환 중 실제로 사용될 수 있다.</p>
+  </div>
+
+  <div class="card info">
+    <h3><span class="tag p2">P2</span>Admin read/command 경계의 일부 strictness가 Flutter보다 약함</h3>
+    <p>Admin schedule decoder와 command builder는 weekday 값의 1..7 범위 및 비어 있지 않음을 검사하지만 중복/오름차순을 강제하지 않는다(<code>lib/wallet-ops/client.ts:227-272</code>, <code>commands.ts:209-271</code>). 또한 schedule row의 <code>version</code>은 string만 검사한 뒤 UI에서 직접 <code>BigInt</code>로 변환한다(<code>PromotionCampaigns.tsx:60-68,108-128</code>). DB의 PK/정렬이 정상이라면 문제없지만 malformed contract에 대한 fail-closed 위치가 parser가 아니라 UI까지 늦춰지고, 해당 반례 테스트가 없다.</p>
+  </div>
+
+  <h2>3. 확인된 안전 속성</h2>
+  <div class="card good">
+    <ul>
+      <li>V2 model은 envelope/item exact keys, 정수 multiplier 11..30, 비어 있지 않고 unique+ascending인 ISO weekday, 시작&lt;종료, explicit offset RFC3339 및 잘못된 달력/offset을 검증한다(<code>promotion_campaign_v2.dart:15-32,73-119,151-255</code>).</li>
+      <li>repository는 정확한 RPC <code>get_active_promotion_campaigns_v2</code>와 <code>HOME</code>/<code>PAYMENT_BADGE</code> wire value를 사용하며, PAYMENT_BADGE 응답에 HOME creative/ownership이 섞이면 거부한다(<code>promotion_campaign_v2_repository.dart:8-47</code>).</li>
+      <li>V2 active item은 authoritative하고, V2 empty 또는 <code>PGRST202</code>/raw socket/timeout만 V1 fallback 대상이다. permission/domain/decoder/programming 오류는 V1을 되살리지 않고 fail closed한다(<code>promotion_badge_resolver_provider.dart:36-92</code>).</li>
+      <li>HOME은 unreadable V2 creative를 숨기되 ownership을 유지하고, empty V2 fallback 시 V1/V2 owned banner ID를 합쳐 duplicate ordinary banner를 차단한다(<code>promotion_badge_resolver_provider.dart:131-179</code>).</li>
+      <li>HOME과 PAYMENT_BADGE provider family cache key가 분리되고 pull-to-refresh는 두 source provider와 resolver를 모두 invalidate한다(<code>promotion_campaign_v2_provider.dart:12-16</code>, <code>home_page.dart:78-99</code>, <code>vote_home_page.dart:146-169</code>).</li>
+      <li>Admin form은 KST <code>+09:00</code>, 시작&lt;종료, weekday 필수, 1.1x..3.0x 정수 tenths, HOME/banner 결합, 독립 HOME/PAYMENT_BADGE toggle, V2 optimistic baseline을 구성한다(<code>PromotionCampaigns.tsx:44-82,268-305,433-611</code>).</li>
+      <li>Admin command route는 authenticated server actor를 주입하고 allowlist RPC만 호출하며 backend 오류 본문/secret을 노출하지 않는다(<code>command-route-handler.ts:31-70</code>).</li>
+    </ul>
+  </div>
+
+  <h2>4. 계약 fixture 대조</h2>
+  <p>App와 Admin의 공통 fixture는 모두 byte-identical(<code>cmp</code>)이며 Admin 고정 manifest SHA-256과 일치한다. verifier/manifest 자체 pin도 일치했다.</p>
+  <table>
+    <thead><tr><th>fixture</th><th>SHA-256</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>promotion_surfaces_active_v1.json</td><td><code>54a4f19ba64e7f683de8b2fcd8ab4c0b25b18ae62ad0a947c2da7c15f1f8a028</code></td><td>동일</td></tr>
+      <tr><td>promotion_surfaces_active_v2.json</td><td><code>26c0f18ebfaef3d8219af09857845955ca247d79fac0de28e644bde65871adf0</code></td><td>동일</td></tr>
+      <tr><td>promotion_surfaces_empty_v2.json</td><td><code>ef3c8b2d29ee77e31ca3b28bfa7ab4070592e3f22c6ead6cb99bff74e68dde8c</code></td><td>동일</td></tr>
+      <tr><td>promotion_surfaces_payment_badge_v2.json</td><td><code>fbb2dbccbd4cfe960f88278ca2780260391c5b1abdbd4edc5dfefb4a8c4404dc</code></td><td>동일</td></tr>
+      <tr><td>purchase_results_v1.json</td><td><code>7523a45148d014cbb04f828ed8649d522018ea866bfe97e670b56f8355d8e776</code></td><td>동일</td></tr>
+    </tbody>
+  </table>
+  <p>Admin verifier 결과: <strong>15 fixtures verified, checksum mismatches 0, integration constants verified</strong>. Manifest hash <code>9c0ba5…9620</code>, verifier hash <code>f67158…35d</code>도 source pin과 동일.</p>
+
+  <h2>5. 실행 결과</h2>
+  <table>
+    <thead><tr><th>검증</th><th>결과</th><th>수치/제한</th></tr></thead>
+    <tbody>
+      <tr><td>Dart analyzer — V2 source 및 선택 test 15개 파일</td><td><span class="tag pass">PASS</span></td><td>exit 0, “No issues found”</td></tr>
+      <tr><td>Flutter focused test — model/repository/provider/resolver/banner/badge/product surface 8개 파일</td><td><span class="tag blocked">BLOCKED</span></td><td>실행 test 0, load error 8. sandbox가 loopback server socket 생성 거부.</td></tr>
+      <tr><td>Admin pinned contract verifier</td><td><span class="tag pass">PASS</span></td><td>fixture 15/15, mismatch 0, generated integration constants 확인</td></tr>
+      <tr><td>Admin Node contract/env policy tests</td><td><span class="tag pass">PASS</span></td><td>6 tests, pass 6, fail 0</td></tr>
+      <tr><td>Admin offline env guard</td><td><span class="tag pass">PASS</span></td><td>client env를 제거한 <code>--mode=test --allow-offline</code> exit 0</td></tr>
+      <tr><td>Admin hygiene-only guard</td><td><span class="tag pass">PASS</span></td><td>“wallet environment hygiene verified”</td></tr>
+      <tr><td>Admin focused Jest 5개 파일</td><td><span class="tag blocked">BLOCKED</span></td><td><code>jest-cli/build/index.js</code> 누락, suite/test 실행 전 종료</td></tr>
+      <tr><td>Admin 전체 TypeScript check (보조)</td><td><span class="tag blocked">NOT A GATE</span></td><td>sandbox의 <code>tsconfig.tsbuildinfo</code> write 거부와 다수 기존 repo-wide 오류. V2 범위의 독립 pass 근거로 사용하지 않음.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>핵심 명령</h3>
+  <pre>CI=true dart analyze &lt;V2 source/test 15 files&gt;
+
+FLUTTER_ALREADY_LOCKED=true FLUTTER_SUPPRESS_ANALYTICS=true \
+  dart flutter_tools.snapshot test --no-pub \
+  &lt;focused Flutter 8 files&gt;
+
+node scripts/verify-wallet-contracts.mjs
+node --test scripts/verify-wallet-contracts.test.mjs \
+  scripts/wallet-environment-policy.test.mjs
+env -u NEXT_PUBLIC_SUPABASE_URL -u NEXT_PUBLIC_SUPABASE_ANON_KEY \
+  -u SUPABASE_SERVICE_ROLE_KEY -u PICNIC_STAGING_SUPABASE_PROJECT_REF \
+  -u VERCEL_ENV node scripts/verify-wallet-environment.mjs \
+  --mode=test --allow-offline
+node scripts/verify-wallet-environment.mjs --hygiene-only
+./node_modules/.bin/jest --runInBand --ci \
+  __tests__/wallet-ops/ops-dashboard.test.tsx \
+  __tests__/wallet-ops/commands.test.ts \
+  __tests__/wallet-ops/commands-route.test.ts \
+  lib/wallet-ops/__tests__/client.test.ts \
+  lib/wallet-ops/__tests__/errors.test.ts</pre>
+
+  <h2>6. 환경 guard 가정</h2>
+  <div class="card info">
+    <ul>
+      <li><code>prebuild</code>/<code>predev</code>는 현재 <code>--hygiene-only</code>다. tracked env/Supabase link metadata와 browser-exposed service-role 변수는 막지만 production Supabase target 자체는 허용한다(<code>package.json</code>, <code>wallet-environment-policy.mjs:70-83</code>).</li>
+      <li>preview/development의 엄격한 validator는 production ref를 거부하고 approved staging tuple을 요구하지만, 사용자가 shared staging을 생략한 현재 production-first 경로의 Vercel build에는 적용되지 않는다.</li>
+      <li><code>prestart --mode=production</code>은 이 일반 runner에서는 항상 “protected production runner required”로 종료한다(<code>wallet-environment-policy.mjs:64-67</code>). Vercel Next deployment가 <code>npm start</code>를 실행하지 않는다면 production target 안전성은 Vercel 설정과 별도 보호된 배포 절차에 의존한다.</li>
+      <li>따라서 hygiene pass는 “production target이 정확하다/안전하다”가 아니라 “추적 secret 및 공개 service-role 흔적이 없다”만 증명한다.</li>
+    </ul>
+  </div>
+
+  <h2>7. PR merge와 deployment 상태</h2>
+  <table>
+    <thead><tr><th>대상</th><th>merge 상태</th><th>deployment 상태</th><th>근거/한계</th></tr></thead>
+    <tbody>
+      <tr><td>App PR #174</td><td><strong>로컬 기준 미병합</strong></td><td><strong>검증 불가</strong></td><td><code>ae81fe8c3</code>은 2026-09-07의 <code>origin/main</code> <code>5088edc5</code> 조상에 없고 feature branch에만 존재. live GitHub API는 네트워크 차단으로 조회 실패.</td></tr>
+      <tr><td>Admin V2 PR #36</td><td><strong>병합 확인</strong></td><td><strong>검증 불가</strong></td><td>merge commit <code>d2a8941a</code>이 지정 <code>main</code> HEAD와 로컬 <code>origin/main</code> <code>1b736625</code> 모두의 조상. Vercel/live GitHub status는 네트워크 차단으로 조회하지 못함.</td></tr>
+    </tbody>
+  </table>
+  <p class="small">“main에 포함됨”은 “production에 배포됨”을 뜻하지 않는다. 이번 결과는 둘을 의도적으로 분리한다.</p>
+
+  <h2>8. Production-first 최소 재검증 순서</h2>
+  <ol>
+    <li>socket 허용 로컬 환경에서 동일 Flutter 8파일을 <code>--no-pub</code>로 실행해 0 failure를 확보한다.</li>
+    <li>Admin의 기존 dependency tree를 복구한 뒤 설치 변경을 커밋하지 않은 상태에서 선택 Jest 5파일을 실행한다.</li>
+    <li>canonical PAYMENT_BADGE fixture를 resolver까지 흘리는 통합 test를 추가하거나, production RPC가 반환할 정확한 campaign code가 <code>CANDY_BOOST_DAY</code>임을 backend contract로 고정한다.</li>
+    <li>V2 badge와 V1 confirmation의 campaign identity/display가 flag-on 동안 일치하는 정책을 결정하고 테스트한다.</li>
+    <li>backend validation에서 V2 dispatcher wiring과 settlement snapshot을 확인한다. 이 항목 없이 client badge만 먼저 노출하지 않는다.</li>
+    <li>live GitHub에서 App #174 merge, Admin #36 checks를 확인하고, Vercel production deployment가 Admin #36 이후 commit을 실제 제공하는지 별도로 확인한다.</li>
+    <li>위 증거가 갖춰진 뒤에만 production flag 변경을 별도 승인/감사 절차로 수행한다.</li>
+  </ol>
+
+  <h2>9. 결론</h2>
+  <p>현재 client 구현은 strict decoding, surface isolation, narrow fallback, server-authoritative settlement amount라는 좋은 안전 기반을 갖췄다. 그러나 동적 테스트 증거가 없는 상태이며 canonical badge fixture와 resolver code가 맞지 않고 pre-purchase V2/V1 표시가 분리되어 있으므로, production-first 활성화를 즉시 승인할 근거는 부족하다. 위 최소 재검증을 충족할 때까지 schema/RPC 배포가 이미 되어 있더라도 flag는 현 상태를 유지하는 것이 안전하다.</p>
+  </details>
+</main>
+</body>
+</html>
