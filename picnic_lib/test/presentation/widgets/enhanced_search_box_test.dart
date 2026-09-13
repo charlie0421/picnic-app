@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 
@@ -18,6 +19,7 @@ void main() {
     bool autofocus = false,
     bool enabled = true,
     String? initialValue,
+    TextEditingController? controller,
   }) {
     return ScreenUtilInit(
       designSize: const Size(375, 812),
@@ -35,6 +37,7 @@ void main() {
               autofocus: autofocus,
               enabled: enabled,
               initialValue: initialValue,
+              controller: controller,
             ),
           ),
         );
@@ -76,9 +79,9 @@ void main() {
 
     testWidgets('onSearchChanged 디바운싱 콜백', (tester) async {
       String? lastQuery;
-      await tester.pumpWidget(buildTestWidget(
-        onSearchChanged: (q) => lastQuery = q,
-      ));
+      await tester.pumpWidget(
+        buildTestWidget(onSearchChanged: (q) => lastQuery = q),
+      );
       await tester.pump();
 
       await tester.enterText(find.byType(TextField), '테스트');
@@ -86,6 +89,137 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(lastQuery, equals('테스트'));
+    });
+
+    testWidgets('검색 액션은 대기 중인 변경값을 즉시 한 번 전달한다', (tester) async {
+      final changes = <String>[];
+      await tester.pumpWidget(buildTestWidget(onSearchChanged: changes.add));
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), 'Alpha');
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await tester.pump();
+
+      expect(changes, ['Alpha']);
+
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(changes, ['Alpha']);
+    });
+
+    testWidgets('디바운스가 이미 끝난 값은 검색 액션에서 중복 전달하지 않는다', (tester) async {
+      final changes = <String>[];
+      await tester.pumpWidget(buildTestWidget(onSearchChanged: changes.add));
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), 'Alpha');
+      await tester.pump(const Duration(milliseconds: 301));
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await tester.pump();
+
+      expect(changes, ['Alpha']);
+    });
+
+    testWidgets('대기 중 검색 액션은 변경과 제출 콜백을 모두 한 번씩 호출한다', (tester) async {
+      final changes = <String>[];
+      final submissions = <String>[];
+      await tester.pumpWidget(
+        buildTestWidget(
+          onSearchChanged: changes.add,
+          onSearchSubmitted: submissions.add,
+        ),
+      );
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), 'Alpha');
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(changes, ['Alpha']);
+      expect(submissions, ['Alpha']);
+    });
+
+    testWidgets('지우기는 대기 중인 검색어 대신 빈 변경값만 한 번 전달한다', (tester) async {
+      final changes = <String>[];
+      var clears = 0;
+      await tester.pumpWidget(
+        buildTestWidget(onSearchChanged: changes.add, onClear: () => clears++),
+      );
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), 'Alpha');
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tap(find.byType(SvgPicture).last);
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(changes, ['']);
+      expect(clears, 1);
+    });
+
+    testWidgets('외부 컨트롤러는 위젯 해제 후에 변경해도 상태를 갱신하지 않는다', (tester) async {
+      final controller = TextEditingController();
+      await tester.pumpWidget(buildTestWidget(controller: controller));
+      await tester.pump();
+
+      await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+      await tester.pump();
+      controller.text = 'after dispose';
+
+      expect(tester.takeException(), isNull);
+      controller.dispose();
+    });
+
+    testWidgets('외부 컨트롤러 교체 시 리스너를 새 컨트롤러로 옮긴다', (tester) async {
+      final firstController = TextEditingController();
+      final secondController = TextEditingController();
+      final changes = <String>[];
+      late StateSetter setHostState;
+      var activeController = firstController;
+
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            setHostState = setState;
+            return buildTestWidget(
+              controller: activeController,
+              onSearchChanged: changes.add,
+            );
+          },
+        ),
+      );
+      await tester.pump();
+
+      setHostState(() => activeController = secondController);
+      await tester.pump();
+      firstController.text = 'old';
+      secondController.text = 'new';
+      await tester.pump(const Duration(milliseconds: 301));
+
+      expect(changes, ['new']);
+      firstController.dispose();
+      await tester.pumpWidget(const SizedBox.shrink());
+      secondController.dispose();
+    });
+
+    testWidgets('initialValue 변경 리빌드는 사용자 입력을 덮어쓰지 않는다', (tester) async {
+      late StateSetter setHostState;
+      var initialValue = 'Seed';
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            setHostState = setState;
+            return buildTestWidget(initialValue: initialValue);
+          },
+        ),
+      );
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), 'typed');
+      setHostState(() => initialValue = 'replacement');
+      await tester.pump();
+
+      expect(find.text('typed'), findsOneWidget);
+      expect(find.text('replacement'), findsNothing);
     });
 
     testWidgets('초기값 설정', (tester) async {
