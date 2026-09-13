@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/search_result_action_button.dart';
 
+import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
 
@@ -12,7 +14,8 @@ void main() {
 
   group('SearchResultActionButton', () {
     testWidgets('renders loading state', (tester) async {
-      await tester.pumpWidget(
+      await pumpWidgetAndIgnoreErrors(
+        tester,
         buildTestApp(
           SearchResultActionButton(
             shouldShowApplicationButton: false,
@@ -24,9 +27,8 @@ void main() {
           ),
         ),
       );
-      await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(SmallPulseLoadingIndicator), findsOneWidget);
     });
 
     testWidgets('renders apply button when shouldShowApplicationButton is true',
@@ -161,25 +163,5 @@ void main() {
       expect(sizedBoxFinder, findsOneWidget);
     });
 
-    testWidgets('loading indicator has correct color', (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          SearchResultActionButton(
-            shouldShowApplicationButton: false,
-            isSubmitting: false,
-            isAlreadyInVote: false,
-            status: '',
-            onPressed: () {},
-            isLoading: true,
-          ),
-        ),
-      );
-      await tester.pump();
-
-      final indicator = tester.widget<CircularProgressIndicator>(
-        find.byType(CircularProgressIndicator),
-      );
-      expect(indicator.strokeWidth, 1.5);
-    });
   });
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_image_prefetch.dart';
 import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
@@ -37,6 +38,7 @@ class _VoteListState extends ConsumerState<VoteList> {
   bool _isLoading = true;
   bool _isFetchingMore = false;
   bool _noMoreItems = false;
+  bool _hasLoadError = false;
   int _pageKey = 1;
   int _requestGeneration = 0;
   int _currentIndex = 0;
@@ -83,20 +85,28 @@ class _VoteListState extends ConsumerState<VoteList> {
     }
   }
 
-  Future<void> _fetchVotes({bool isInitialLoad = false}) async {
+  Future<void> _fetchVotes({
+    bool isInitialLoad = false,
+    bool isRetry = false,
+  }) async {
     if (!isInitialLoad &&
-        (_isLoading || _isFetchingMore || _noMoreItems || _items.isEmpty)) {
+        (_isLoading ||
+            _isFetchingMore ||
+            _noMoreItems ||
+            _items.isEmpty ||
+            (_hasLoadError && !isRetry))) {
       return;
     }
 
-    if (isInitialLoad) {
-      if (!_isLoading) {
-        _setStateIfMounted(() => _isLoading = true);
+    // 첫 await 전에 guard를 올려 재시도 연타와 page callback을 합친다.
+    _setStateIfMounted(() {
+      _hasLoadError = false;
+      if (isInitialLoad) {
+        _isLoading = true;
+      } else {
+        _isFetchingMore = true;
       }
-    } else {
-      // async 함수의 첫 await 전에 guard를 올려 연속 page callback을 합친다.
-      _setStateIfMounted(() => _isFetchingMore = true);
-    }
+    });
 
     final requestGeneration = _requestGeneration;
     final requestedPage = _pageKey;
@@ -105,6 +115,7 @@ class _VoteListState extends ConsumerState<VoteList> {
     final requestArea = widget.area;
     final requestPortal = widget.portal;
     final hadItemsAtStart = _items.isNotEmpty;
+    var loadingPage = requestedPage;
 
     if (requestStatus == VoteStatus.debug) {
       logger.d('🚨🚨🚨 VoteList._fetchVotes 호출됨 - 디버그 모드');
@@ -122,20 +133,27 @@ class _VoteListState extends ConsumerState<VoteList> {
           ? 'id_${DateTime.now().millisecondsSinceEpoch}'
           : 'id';
 
-      final pageProvider = asyncVoteListProvider(
-        requestedPage,
-        _pageSize,
-        sortKey,
-        'DESC',
-        requestArea,
-        status: requestStatus,
-        category: requestCategory,
-        votePortal: requestPortal,
-      );
-      if (isInitialLoad && requestGeneration > 0) {
-        ref.invalidate(pageProvider);
+      Future<List<VoteModel>> loadPage(int page) {
+        loadingPage = page;
+        final pageProvider = asyncVoteListProvider(
+          page,
+          _pageSize,
+          sortKey,
+          'DESC',
+          requestArea,
+          status: requestStatus,
+          category: requestCategory,
+          votePortal: requestPortal,
+        );
+        // 재시도는 실패 캐시를, 새로고침은 이전 세대의 후속 페이지까지
+        // 무효화해야 실제 새 요청을 한다. 세대 가드만으로는 부족하다.
+        if (isRetry || requestGeneration > 0) {
+          ref.invalidate(pageProvider);
+        }
+        return ref.read(pageProvider.future);
       }
-      final newItems = await ref.read(pageProvider.future);
+
+      final newItems = await loadPage(requestedPage);
       if (!_isCurrentRequest(
         requestGeneration,
         requestStatus,
@@ -155,43 +173,21 @@ class _VoteListState extends ConsumerState<VoteList> {
         var attempts = 0;
         while (attempts < 3 && filteredItems.isEmpty) {
           final nextPage = consumedPage + 1;
-          try {
-            final nextItems = await ref.read(
-              asyncVoteListProvider(
-                nextPage,
-                _pageSize,
-                sortKey,
-                'DESC',
-                requestArea,
-                status: requestStatus,
-                category: requestCategory,
-                votePortal: requestPortal,
-              ).future,
-            );
-            if (!_isCurrentRequest(
-              requestGeneration,
-              requestStatus,
-              requestCategory,
-              requestArea,
-              requestPortal,
-            )) {
-              return;
-            }
-            consumedPage = nextPage;
-            filteredItems = _filterItems(nextItems, requestPortal);
-            attempts++;
-          } catch (_) {
-            if (!_isCurrentRequest(
-              requestGeneration,
-              requestStatus,
-              requestCategory,
-              requestArea,
-              requestPortal,
-            )) {
-              return;
-            }
-            break;
+          // 조회 실패는 목록 끝이 아니다. 바깥 catch가 실패한 페이지를
+          // 보존해 그 지점부터 재시도하도록 한다.
+          final nextItems = await loadPage(nextPage);
+          if (!_isCurrentRequest(
+            requestGeneration,
+            requestStatus,
+            requestCategory,
+            requestArea,
+            requestPortal,
+          )) {
+            return;
           }
+          consumedPage = nextPage;
+          filteredItems = _filterItems(nextItems, requestPortal);
+          attempts++;
         }
         reachedEnd = filteredItems.isEmpty;
       }
@@ -218,7 +214,7 @@ class _VoteListState extends ConsumerState<VoteList> {
         _scheduleAdjacentImages();
         shouldCheckInitialBoundary = isInitialLoad && filteredItems.isNotEmpty;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (!_isCurrentRequest(
         requestGeneration,
         requestStatus,
@@ -228,6 +224,15 @@ class _VoteListState extends ConsumerState<VoteList> {
       )) {
         return;
       }
+      _setStateIfMounted(() {
+        _hasLoadError = true;
+        _pageKey = loadingPage;
+      });
+      logger.w(
+        '투표 목록 조회 실패 (page=$loadingPage)',
+        error: e,
+        stackTrace: stackTrace,
+      );
       if (requestStatus == VoteStatus.debug) {
         logger.d('🚨🚨🚨 VoteList._fetchVotes 오류: $e');
       }
@@ -282,6 +287,7 @@ class _VoteListState extends ConsumerState<VoteList> {
     _currentIndex = 0;
     _pageKey = 1;
     _noMoreItems = false;
+    _hasLoadError = false;
     _isLoading = true;
     _isFetchingMore = false;
   }
@@ -300,6 +306,13 @@ class _VoteListState extends ConsumerState<VoteList> {
     setState(_resetForNewGeneration);
     _resetPageController();
     return _fetchVotes(isInitialLoad: true);
+  }
+
+  Future<void> _retryVotes() {
+    if (!mounted || _isLoading || _isFetchingMore || !_hasLoadError) {
+      return Future.value();
+    }
+    return _items.isEmpty ? _refreshVotes() : _fetchVotes(isRetry: true);
   }
 
   void _scheduleInitialBoundaryCheck(int generation) {
@@ -492,6 +505,9 @@ class _VoteListState extends ConsumerState<VoteList> {
       );
     }
     if (_items.isEmpty) {
+      if (_hasLoadError) {
+        return Center(child: _buildRetryNotice());
+      }
       return VoteNoItem(status: widget.status, context: context);
     }
     return RefreshIndicator(
@@ -530,8 +546,53 @@ class _VoteListState extends ConsumerState<VoteList> {
               right: 0,
               child: Center(child: SmallPulseLoadingIndicator()),
             ),
+          if (_hasLoadError)
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: Material(
+                color: Theme.of(context).colorScheme.surface,
+                elevation: 2,
+                borderRadius: BorderRadius.circular(12),
+                child: _buildRetryNotice(compact: true),
+              ),
+            ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRetryNotice({bool compact = false}) {
+    final l10n = AppLocalizations.of(context);
+    final message = Text(
+      l10n.message_error_occurred,
+      textAlign: compact ? TextAlign.start : TextAlign.center,
+    );
+    final button = TextButton(
+      key: const ValueKey('vote-list-retry'),
+      onPressed: _retryVotes,
+      child: Text(l10n.label_retry),
+    );
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: compact
+          ? Row(
+              children: [
+                Expanded(child: message),
+                button,
+              ],
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, size: 48),
+                const SizedBox(height: 16),
+                message,
+                const SizedBox(height: 8),
+                button,
+              ],
+            ),
     );
   }
 

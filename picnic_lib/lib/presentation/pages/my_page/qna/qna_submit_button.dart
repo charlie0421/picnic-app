@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class QnaSubmitButton {
@@ -34,10 +35,7 @@ class QnaSubmitButton {
           ? const SizedBox(
               width: 14,
               height: 14,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
+              child: SmallPulseLoadingIndicator(),
             )
           : Icon(icon, size: 16),
       label: Text(

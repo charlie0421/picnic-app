@@ -25,6 +25,7 @@ import 'package:picnic_lib/presentation/pages/my_page/privacy_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/terms_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -351,10 +352,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                       ? SizedBox(
                                           width: 24.w,
                                           height: 24.w,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2.w,
-                                            color: AppColors.grey00,
-                                          ),
+                                          child: SmallPulseLoadingIndicator(),
                                         )
                                       : Text(
                                           AppLocalizations.of(sheetContext)

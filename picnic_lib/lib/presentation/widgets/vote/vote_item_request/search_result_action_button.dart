@@ -44,10 +44,7 @@ class SearchResultActionButton extends StatelessWidget {
         child: SizedBox(
           width: 12.w,
           height: 12.h,
-          child: CircularProgressIndicator(
-            strokeWidth: 1.5,
-            color: AppColors.grey400,
-          ),
+          child: SmallPulseLoadingIndicator(),
         ),
       );
     }

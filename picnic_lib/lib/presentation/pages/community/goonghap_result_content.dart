@@ -11,6 +11,7 @@ import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_scor
 import 'package:picnic_lib/presentation/widgets/community/goonghap/goonghap_summary_widget.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/pages/community/goonghap_result_helper.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class GoonghapResultContent extends ConsumerStatefulWidget {
@@ -34,8 +35,7 @@ class GoonghapResultContent extends ConsumerStatefulWidget {
       _GoonghapResultContentState();
 }
 
-class _GoonghapResultContentState
-    extends ConsumerState<GoonghapResultContent> {
+class _GoonghapResultContentState extends ConsumerState<GoonghapResultContent> {
   late final ExpansibleController _styleController;
   late final ExpansibleController _activityController;
   late final ExpansibleController _tipController;
@@ -66,9 +66,7 @@ class _GoonghapResultContentState
           title: Row(
             children: [
               Text(
-                AppLocalizations.of(
-                  context,
-                ).goonghap_purchase_confirm_title,
+                AppLocalizations.of(context).goonghap_purchase_confirm_title,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
             ],
@@ -148,7 +146,7 @@ class _GoonghapResultContentState
     if (localizedResult == null) {
       return const SizedBox(
         height: 300,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: MediumPulseLoadingIndicator()),
       );
     }
 

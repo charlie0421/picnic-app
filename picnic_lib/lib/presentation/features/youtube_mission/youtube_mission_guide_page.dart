@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import '../../../core/services/youtube_mission_service.dart';
 
 class YouTubeMissionGuidePage extends StatefulWidget {
@@ -112,7 +113,7 @@ class _YouTubeMissionGuidePageState extends State<YouTubeMissionGuidePage> {
             if (_loading)
               const Padding(
                 padding: EdgeInsets.only(top: 12),
-                child: LinearProgressIndicator(),
+                child: SmallPulseLoadingIndicator(),
               ),
           ],
         ),

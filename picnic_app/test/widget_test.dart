@@ -5,6 +5,8 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,5 +61,84 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
     await tester.pump(const Duration(seconds: 5));
     await tester.pump();
+  });
+
+  testWidgets('SDK failure UI retries once despite tap spam and then succeeds',
+      (
+    tester,
+  ) async {
+    final retryCompletion = Completer<void>();
+    final attempts = <bool>[];
+
+    Future<void> initialize({required bool retry}) {
+      attempts.add(retry);
+      if (attempts.length == 1) {
+        return Future<void>.error(StateError('sdk unavailable'));
+      }
+      return retryCompletion.future;
+    }
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: App(
+          startupAttempt: initialize,
+          portalBuilder: (_) => const Text('startup-ready'),
+        ),
+      ),
+    );
+    for (var i = 0;
+        i < 20 &&
+            find
+                .byKey(const Key('initialization-error-screen'))
+                .evaluate()
+                .isEmpty;
+        i++) {
+      await tester.pump();
+    }
+
+    expect(
+      find.byKey(const Key('initialization-error-screen')),
+      findsOneWidget,
+    );
+    final retryButton = find.byKey(const Key('initialization-retry-button'));
+    await tester.tap(retryButton);
+    await tester.tap(retryButton);
+    await tester.tap(retryButton);
+    expect(attempts, [false, true]);
+
+    await tester.pump();
+    expect(find.text('startup-ready'), findsNothing);
+    retryCompletion.complete();
+    for (var i = 0;
+        i < 20 && find.text('startup-ready').evaluate().isEmpty;
+        i++) {
+      await tester.pump();
+    }
+
+    expect(find.text('startup-ready'), findsOneWidget);
+    expect(attempts, [false, true]);
+  });
+
+  testWidgets('late startup completion after App dispose is ignored', (
+    tester,
+  ) async {
+    final completion = Completer<void>();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: App(
+          startupAttempt: ({required retry}) => completion.future,
+          portalBuilder: (_) => const Text('must-not-render'),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    completion.complete();
+    await tester.pump();
+
+    expect(find.text('must-not-render'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 }

@@ -12,6 +12,7 @@ import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
 import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
+import 'package:picnic_lib/core/utils/startup_readiness.dart';
 
 import 'package:picnic_lib/core/utils/supabase_health_check.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -23,16 +24,84 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/services/consent_service.dart';
 import 'package:picnic_lib/core/utils/admob_test_device_policy.dart';
 
+/// Prevents Group 2 from immediately repeating a failed Group 1 UMP attempt.
+///
+/// This guard has no retry state. Later ad requests call the underlying
+/// retryable initializer directly and can therefore make a fresh UMP attempt.
+class StartupAdMobInitializationGuard {
+  const StartupAdMobInitializationGuard({
+    required this.didConsentInitializationFail,
+    required this.initializeAdMob,
+    this.onSkipped,
+  });
+
+  final bool Function() didConsentInitializationFail;
+  final Future<bool> Function() initializeAdMob;
+  final void Function()? onSkipped;
+
+  Future<bool> initialize() {
+    if (didConsentInitializationFail()) {
+      onSkipped?.call();
+      return Future<bool>.value(false);
+    }
+    return Future<bool>.sync(initializeAdMob);
+  }
+}
+
+class _AdMobStartupDeferred implements Exception {
+  const _AdMobStartupDeferred();
+}
+
 /// main.dart 파일에서 공통으로 사용되는 초기화 로직을 담은 유틸리티 클래스
 ///
 /// 두 앱(picnic_app, ttja_app)의 main.dart 파일에서 중복되는 초기화 로직을
 /// 추출하여 재사용성을 높이고 코드 중복을 줄입니다.
 class MainInitializer {
-  static final Completer<void> _sdkInitCompleter = Completer<void>();
+  static final StartupReadinessController _sdkReadiness =
+      StartupReadinessController();
+  static final RetryableStartupStages _sdkStages = RetryableStartupStages();
+  static FirebaseOptions? _firebaseOptions;
+  static final RetryableAdMobInitializer _adMobInitializer =
+      RetryableAdMobInitializer(initialize: _initializeAdMobAttempt);
+  static final StartupAdMobInitializationGuard _startupAdMobInitializer =
+      StartupAdMobInitializationGuard(
+        didConsentInitializationFail: () => ConsentService().lastAttemptFailed,
+        initializeAdMob: _adMobInitializer.initialize,
+        onSkipped: () {
+          logger.w('AdMob 스타트업 초기화 보류: Group 1 UMP 시도 실패');
+        },
+      );
+  static final AdRequestReadinessGate _adRequestGate = AdRequestReadinessGate(
+    waitForAdMob: _adMobInitializer.waitForReady,
+    canRequestAds: ConsentService().canRequestAds,
+  );
 
-  /// SDK 초기화 완료를 대기하는 Future
+  /// SDK 초기화의 명시적인 성공/실패 결과를 대기하는 Future
   /// App 위젯에서 await MainInitializer.sdkReady 로 사용
-  static Future<void> get sdkReady => _sdkInitCompleter.future;
+  static Future<StartupReadinessResult> get sdkReady => _sdkReadiness.ready;
+
+  /// Retries only failed SDK stages and joins any authentic work still running.
+  static Future<StartupReadinessResult> retrySdkInitialization() =>
+      _sdkReadiness.run(() => _initializeSDKs(_firebaseOptions));
+
+  /// The unbounded, authentic Mobile Ads initialization attempt.
+  ///
+  /// Splash observes this through a separate timeout. Ad request sites use
+  /// [runAdRequestWhenReady], which joins this attempt and may retry a prior
+  /// transient failure without duplicating an in-flight initialization.
+  static Future<bool> get adMobReady => _adMobInitializer.initialize();
+
+  static Future<T> runAdRequestWhenReady<T>({
+    required Future<T> Function() request,
+    bool Function()? isRequestActive,
+    Duration timeout = const Duration(seconds: 5),
+  }) {
+    return _adRequestGate.run(
+      request: request,
+      isRequestActive: isRequestActive,
+      timeout: timeout,
+    );
+  }
 
   /// 앱 초기화를 위한 main 함수 래퍼
   ///
@@ -43,15 +112,19 @@ class MainInitializer {
     FirebaseOptions? firebaseOptions,
     required Widget Function() appBuilder,
   }) async {
+    _firebaseOptions = firebaseOptions;
     await runZonedGuarded(
       () async {
         try {
           logger.i('앱 초기화 시작...');
 
           // === Phase 1: runApp 전 최소 초기화 (ANR 방지) ===
-          await AppInitializer.initializeBasics();
-          await AppInitializer.initializeEnvironment(environment);
-          await AppInitializer.initializeSentry();
+          await _runStartupStage('basics', AppInitializer.initializeBasics);
+          await _runStartupStage(
+            'environment',
+            () => AppInitializer.initializeEnvironment(environment),
+          );
+          await _runStartupStage('sentry', AppInitializer.initializeSentry);
 
           // 즉시 UI 표시 - SplashImage 위젯이 렌더링됨
           logger.i('앱 시작 중...');
@@ -63,12 +136,16 @@ class MainInitializer {
           logger.i('앱 UI 시작 완료 - SDK 초기화 계속 진행');
 
           // === Phase 2: runApp 후 SDK 병렬 초기화 ===
-          await _initializeSDKs(firebaseOptions);
+          final readiness = await retrySdkInitialization();
+          if (!readiness.isReady) {
+            logger.e(
+              'SDK 초기화 실패 - 앱에서 재시도 가능 상태로 전환',
+              error: readiness.error,
+              stackTrace: readiness.stackTrace,
+            );
+          }
         } catch (e, s) {
           logger.e('초기화 중 오류 발생', error: e, stackTrace: s);
-          if (!_sdkInitCompleter.isCompleted) {
-            _sdkInitCompleter.complete();
-          }
           rethrow;
         }
       },
@@ -84,97 +161,176 @@ class MainInitializer {
   /// Group 1: 독립적인 SDK (Supabase, Firebase, Timezone, Privacy)
   /// Group 2: Group 1에 의존하는 SDK (Auth, Tapjoy, Branch, AdMob)
   static Future<void> _initializeSDKs(FirebaseOptions? firebaseOptions) async {
-    try {
-      // Group 1: 독립적인 SDK 병렬 초기화
-      final group1 = <Future>[];
-      group1.add(initializeSupabase());
-      if (firebaseOptions != null) {
-        group1.add(Firebase.initializeApp(options: firebaseOptions));
-      }
-      if (UniversalPlatform.isMobile) {
-        group1.add(AppInitializer.initializeTimezone());
-        group1.add(AppInitializer.initializePrivacyConsent());
-      }
-      await Future.wait(group1);
-      logger.i('SDK Group 1 초기화 완료 (Supabase, Firebase, Timezone, Privacy)');
+    await initializeCoreSdkGroup(
+      stages: _sdkStages,
+      machineStages: {
+        'supabase': initializeSupabase,
+        if (firebaseOptions != null)
+          'firebase': () async {
+            await Firebase.initializeApp(options: firebaseOptions);
+          },
+        if (UniversalPlatform.isMobile)
+          'timezone': AppInitializer.initializeTimezone,
+      },
+      initializePrivacyConsent: UniversalPlatform.isMobile
+          ? AppInitializer.initializePrivacyConsent
+          : null,
+    );
+    logger.i('SDK Group 1 초기화 완료 (Supabase, Firebase, Timezone, Privacy)');
 
-      // Firebase가 준비된 첫 시점에 이전 프로세스의 미전송 GA4 payload를
-      // 재시도한다. drain은 SDK/화면 초기화를 막지 않으며 각 sink 호출은 자체
-      // timeout을 가진다. auth 항목은 captured user로 보낸 뒤 이 reader의 현재
-      // 사용자(B 또는 logout)를 복원한다.
+    // Firebase가 준비된 첫 시점에 이전 프로세스의 미전송 GA4 payload를
+    // 재시도한다. drain은 SDK/화면 초기화를 막지 않으며 각 sink 호출은 자체
+    // timeout을 가진다. auth 항목은 captured user로 보낸 뒤 이 reader의 현재
+    // 사용자(B 또는 logout)를 복원한다.
+    await _sdkStages.run('analytics-outbox-launch', () async {
       AnalyticsOutbox.configureActiveUserContext(
         userIdReader: () => supabase.auth.currentUser?.id,
         languageReader: Intl.getCurrentLocale,
       );
       unawaited(AnalyticsOutbox.instance.flush());
+    });
 
-      // Supabase 헬스체크 (개발 환경에서만)
-      if (kDebugMode) {
-        await SupabaseHealthCheck.runHealthCheckOnAppStart();
-      }
+    // Debug diagnostics are observed in the background and never hold splash.
+    if (kDebugMode) {
+      await _sdkStages.run('supabase-health-check-launch', () async {
+        unawaited(
+          _runBestEffortStartupStage(
+            'supabase-health-check',
+            SupabaseHealthCheck.runHealthCheckOnAppStart,
+          ),
+        );
+      });
+    }
 
-      // Group 2: Supabase/Firebase에 의존하는 SDK 병렬 초기화
-      // Auth는 다른 SDK와 분리하여, Tapjoy/Branch/AdMob 실패가 인증 복구에 영향주지 않도록 함
-      final authFuture = AppInitializer.initializeAuth();
+    await BoundedNonAuthStartupGate(
+      nonAuthWaitLimit: const Duration(seconds: 5),
+      onNonAuthError: (error, stackTrace) {
+        logger.e(
+          'SDK Group 2 (non-auth) 초기화 실패',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      },
+      onNonAuthTimeout: (limit) {
+        logger.w(
+          '[Startup] stage=non-auth-sdks observation_timeout_ms='
+          '${limit.inMilliseconds}',
+        );
+      },
+    ).wait(
+      initializeAuth: () =>
+          _runRetryableStartupStage('auth', AppInitializer.initializeAuth),
+      initializeNonAuth: () async {
+        if (!UniversalPlatform.isMobile) return;
+        await Future.wait<void>([
+          _runRetryableStartupStage('tapjoy', AppInitializer.initializeTapjoy),
+          _runRetryableStartupStage(
+            'branch',
+            () => FlutterBranchSdk.init(
+              enableLogging: true,
+              branchAttributionLevel: BranchAttributionLevel.NONE,
+            ),
+          ),
+          _runRetryableStartupStage('admob', () async {
+            if (!await _startupAdMobInitializer.initialize()) {
+              throw const _AdMobStartupDeferred();
+            }
+          }),
+        ]);
+      },
+    );
+    logger.i('SDK Group 2 splash gate 완료 (Auth + bounded non-auth)');
 
-      Future<void> otherSdksFuture = Future.value();
-      if (UniversalPlatform.isMobile) {
-        otherSdksFuture =
-            Future.wait([
-              AppInitializer.initializeTapjoy(),
-              FlutterBranchSdk.init(
-                enableLogging: true,
-                branchAttributionLevel: BranchAttributionLevel.NONE,
-              ),
-              _initializeAdMob(),
-            ]).then((_) {}).catchError((e, s) {
-              // 광고/딥링크 SDK 실패는 앱 사용에 치명적이지 않으므로 로깅만
-              logger.e(
-                'SDK Group 2 (non-auth) 초기화 실패',
-                error: e,
-                stackTrace: s,
-              );
-            });
-      }
+    // Analytics 사용자 속성 설정 (Auth 완료 후).
+    //
+    // 여기서는 사용자 속성만 세팅하고 login 이벤트는 보내지 않는다.
+    // 이 경로는 앱 시작 시 "복원된 세션"이라 로그인 통신 시점이 아니다
+    // (택소노미 §2-1 트리거는 로그인 완료 통신 시점). login/sign_up 은
+    // AppInitializer.setupSupabaseAuthListener 가 담당한다.
+    unawaited(
+      _runBestEffortStartupStage(
+        'analytics-user-properties',
+        _configureAnalyticsUserProperties,
+      ),
+    );
 
-      await Future.wait([authFuture, otherSdksFuture]);
-      logger.i('SDK Group 2 초기화 완료 (Auth, Tapjoy, Branch, AdMob)');
+    // Shorebird 패치 체크는 SplashImage 위젯에서 처리됨
 
-      // Analytics 사용자 속성 설정 (Auth 완료 후).
-      //
-      // 여기서는 사용자 속성만 세팅하고 login 이벤트는 보내지 않는다.
-      // 이 경로는 앱 시작 시 "복원된 세션"이라 로그인 통신 시점이 아니다
-      // (택소노미 §2-1 트리거는 로그인 완료 통신 시점). login/sign_up 은
-      // AppInitializer.setupSupabaseAuthListener 가 담당한다.
-      try {
-        final user = supabase.auth.currentUser;
-        final currentLocale = Intl.getCurrentLocale();
-        if (user != null) {
-          await AppAnalytics.setUserAndSessionProperties(
-            userId: user.id,
-            locale: currentLocale,
-            language: currentLocale,
-            isLogin: true,
-          );
-        } else {
-          // 비로그인 세션도 is_login='N' / language 는 세팅돼야 세그먼트가 갈린다.
-          await PicnicAnalytics.instance.setUserProperties(
-            userId: null,
-            isLogin: false,
-            language: currentLocale,
-          );
-        }
-      } catch (_) {}
+    logger.i('모든 SDK 초기화 완료');
+  }
 
-      // Shorebird 패치 체크는 SplashImage 위젯에서 처리됨
+  /// Bounds machine waits while preserving raw SDK work and user consent.
+  @visibleForTesting
+  static Future<void> initializeCoreSdkGroup({
+    required RetryableStartupStages stages,
+    required Map<String, AsyncInitializer> machineStages,
+    AsyncInitializer? initializePrivacyConsent,
+    Duration machineWaitLimit = const Duration(seconds: 10),
+  }) => Future.wait<void>([
+    for (final stage in machineStages.entries)
+      stages.observe(
+        stage.key,
+        () => _runStartupStage(stage.key, stage.value),
+        timeout: machineWaitLimit,
+      ),
+    if (initializePrivacyConsent != null)
+      stages.run(
+        'privacy-consent',
+        () => _runStartupStage('privacy-consent', initializePrivacyConsent),
+      ),
+  ], eagerError: true);
 
-      logger.i('모든 SDK 초기화 완료');
-    } catch (e, s) {
-      logger.e('SDK 초기화 중 오류 발생', error: e, stackTrace: s);
+  static Future<void> _runRetryableStartupStage(
+    String name,
+    AsyncInitializer operation,
+  ) => _sdkStages.run(name, () => _runStartupStage(name, operation));
+
+  static Future<T> _runStartupStage<T>(
+    String name,
+    Future<T> Function() operation,
+  ) async {
+    final stopwatch = Stopwatch()..start();
+    try {
+      return await operation();
     } finally {
-      if (!_sdkInitCompleter.isCompleted) {
-        _sdkInitCompleter.complete();
-      }
+      stopwatch.stop();
+      logger.i(
+        '[Startup] stage=$name elapsed_ms=${stopwatch.elapsedMilliseconds}',
+      );
+    }
+  }
+
+  static Future<void> _runBestEffortStartupStage(
+    String name,
+    Future<void> Function() operation,
+  ) async {
+    try {
+      await _runStartupStage(name, operation);
+    } catch (error, stackTrace) {
+      logger.e(
+        '[Startup] best-effort stage failed: $name',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  static Future<void> _configureAnalyticsUserProperties() async {
+    final user = supabase.auth.currentUser;
+    final currentLocale = Intl.getCurrentLocale();
+    if (user != null) {
+      await AppAnalytics.setUserAndSessionProperties(
+        userId: user.id,
+        locale: currentLocale,
+        language: currentLocale,
+        isLogin: true,
+      );
+    } else {
+      await PicnicAnalytics.instance.setUserProperties(
+        userId: null,
+        isLogin: false,
+        language: currentLocale,
+      );
     }
   }
 
@@ -224,14 +380,26 @@ class MainInitializer {
     }
   }
 
-  /// AdMob 및 미디에이션 초기화
-  static Future<void> _initializeAdMob() async {
+  /// AdMob 및 미디에이션 초기화의 실제 단일 시도.
+  static Future<bool> _initializeAdMobAttempt() async {
+    if (!UniversalPlatform.isMobile) return false;
+
     try {
       logger.i('AdMob 초기화 시작');
 
-      // UMP 동의 확인 (MobileAds 초기화 전에)
-      await ConsentService().initialize();
+      final consentService = ConsentService();
+      final consentInitialized = await consentService.initialize();
+      if (!consentInitialized) {
+        logger.w('AdMob 초기화 보류: UMP 초기화 실패');
+        return false;
+      }
       logger.i('UMP 동의 확인 완료');
+
+      final canRequestAds = await consentService.canRequestAds();
+      if (!canRequestAds) {
+        logger.w('AdMob 초기화 보류: UMP가 광고 요청을 허용하지 않음');
+        return false;
+      }
 
       // 디버그 빌드 전용: --dart-define=ADMOB_TEST_DEVICE_IDS 테스트 디바이스 등록.
       // 릴리스 빌드 또는 미설정 시 no-op (기존 동작 유지).
@@ -250,8 +418,10 @@ class MainInitializer {
       });
 
       logger.i('AdMob 초기화 완료 (어댑터 ${initStatus.adapterStatuses.length}개)');
+      return true;
     } catch (e, s) {
       logger.e('AdMob 초기화 실패', error: e, stackTrace: s);
+      return false;
     }
   }
 }

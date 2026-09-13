@@ -11,6 +11,7 @@ import 'package:picnic_lib/presentation/pages/community/community_post_detail_sc
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
@@ -236,7 +237,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               return _loading
                   ? const Padding(
                       padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: MediumPulseLoadingIndicator()),
                     )
                 : const SizedBox.shrink();
           }

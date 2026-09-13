@@ -18,6 +18,7 @@ import 'package:picnic_lib/core/utils/deep_link_handler.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
+import 'package:picnic_lib/core/utils/startup_readiness.dart';
 import 'package:picnic_lib/core/utils/system_ui_initializer.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
 import 'package:picnic_lib/core/services/app_badge_service.dart';
@@ -28,6 +29,7 @@ import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -37,6 +39,18 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
+
+class StartupCheckOperations {
+  const StartupCheckOperations({
+    required this.checkNetwork,
+    required this.checkUpdate,
+    required this.checkBan,
+  });
+
+  final Future<bool> Function() checkNetwork;
+  final Future<UpdateInfo> Function({required bool forceRefresh}) checkUpdate;
+  final Future<bool> Function() checkBan;
+}
 
 class AppInitializer {
   static Future<void> initializeBasics() async {
@@ -540,11 +554,21 @@ class AppInitializer {
     await Future.wait([initializeApp(context, ref)]);
   }
 
-  static Future<void> initializeApp(BuildContext context, WidgetRef ref) async {
+  static Future<void> initializeApp(
+    BuildContext context,
+    WidgetRef ref, {
+    RetryableStartupStages? startupStages,
+    StartupConnectionChecks<UpdateInfo>? connectionChecks,
+    StartupCheckOperations? startupCheckOperations,
+    bool Function()? isActive,
+  }) async {
+    final stages = startupStages ?? RetryableStartupStages();
+    bool canPublish() => context.mounted && (isActive == null || isActive());
+
     try {
       logger.i('앱 초기화 시작');
 
-      if (!context.mounted) {
+      if (!canPublish()) {
         logger.w('Context가 마운트되지 않아 초기화를 중단합니다.');
         return;
       }
@@ -561,44 +585,57 @@ class AppInitializer {
         logger.w('MediaQuery 데이터 업데이트 중 오류: $e');
       }
 
-      if (!context.mounted) return;
+      if (!canPublish()) return;
 
       // 필수 블로킹 초기화: 네트워크 + 업데이트 + 밴 체크
       // (결과에 따라 화면 전환이 필요하므로 Portal 표시 전에 완료)
       if (isMobile()) {
-        await _initializeMobileApp(ref);
+        await stages.run('app-required-mobile-checks', () async {
+          await _runStartupChecks(
+            ref,
+            connectionChecks: connectionChecks,
+            operations: startupCheckOperations,
+            isActive: canPublish,
+            forceRefresh: true,
+          );
+        });
       }
 
-      if (!context.mounted) return;
+      if (!canPublish()) return;
 
       // Supabase 인증 상태 변경 리스너 설정 (세션 복원 이벤트를 UI에 반영)
-      setupSupabaseAuthListener(ref);
+      await stages.run('app-auth-listener', () async {
+        setupSupabaseAuthListener(ref);
+      });
 
       // 리스너 설정 전에 세션이 이미 복원된 경우, signedIn 이벤트를 놓쳤으므로
       // userInfoProvider를 invalidate하여 로그인 상태를 UI에 반영
       if (isSupabaseLoggedSafely) {
-        logger.i('세션이 이미 복원됨 - userInfoProvider 갱신');
-        ref.invalidate(userInfoProvider);
+        await stages.run('app-restored-session-refresh', () async {
+          logger.i('세션이 이미 복원됨 - userInfoProvider 갱신');
+          ref.invalidate(userInfoProvider);
+        });
       }
 
-      ref
-          .read(appInitializationProvider.notifier)
-          .updateState(isInitialized: true);
+      await stages.run('app-initialized-state', () async {
+        if (!canPublish()) return;
+        ref
+            .read(appInitializationProvider.notifier)
+            .updateState(isInitialized: true);
+      });
 
       // 백그라운드 초기화: Portal 표시 후 비동기로 진행
       // (메인 화면 진입을 블로킹하지 않음)
       if (isMobile()) {
-        _initializeBackgroundTasks(ref);
+        await stages.run('app-background-tasks-launch', () async {
+          if (canPublish()) _initializeBackgroundTasks(ref);
+        });
       }
 
       logger.i('앱 초기화 완료');
     } catch (e, s) {
       logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: s);
-      if (context.mounted) {
-        ref
-            .read(appInitializationProvider.notifier)
-            .updateState(hasNetwork: false, isInitialized: true);
-      }
+      rethrow;
     }
   }
 
@@ -645,37 +682,6 @@ class AppInitializer {
         logger.e('백그라운드 초기화 중 오류 발생', error: e, stackTrace: s);
       }
     });
-  }
-
-  static Future<void> _initializeMobileApp(WidgetRef ref) async {
-    final networkService = NetworkConnectivityService();
-    final hasNetwork = await networkService.checkOnlineStatus();
-    logger.i('네트워크 상태 확인: $hasNetwork');
-
-    ref
-        .read(appInitializationProvider.notifier)
-        .updateState(hasNetwork: hasNetwork);
-
-    if (hasNetwork) {
-      try {
-        // 업데이트 체크와 밴 체크를 병렬로 실행
-        final results = await Future.wait([
-          checkForUpdates(ref),
-          if (!kDebugMode) _checkBanStatus(ref) else Future.value(false),
-        ]);
-
-        final updateInfo = results[0] as dynamic;
-        final isBanned = !kDebugMode ? results[1] as bool : false;
-
-        logger.i('업데이트 정보: $updateInfo, 밴 상태: $isBanned');
-
-        ref
-            .read(appInitializationProvider.notifier)
-            .updateState(updateInfo: updateInfo, isBanned: isBanned);
-      } catch (e, s) {
-        logger.e('모바일 초기화 중 오류 발생:', error: e, stackTrace: s);
-      }
-    }
   }
 
   /// 밴 상태 체크 (VM 감지 + 디바이스 밴 확인)
@@ -739,14 +745,67 @@ class AppInitializer {
     }
   }
 
-  static Future<void> retryConnection(WidgetRef ref) async {
-    final networkService = NetworkConnectivityService();
-    final isOnline = await networkService.checkOnlineStatus();
-    logger.i('Network check: $isOnline');
+  static Future<void> retryConnection(
+    WidgetRef ref, {
+    StartupConnectionChecks<UpdateInfo>? connectionChecks,
+    StartupCheckOperations? operations,
+    bool Function()? isActive,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    await _runStartupChecks(
+      ref,
+      connectionChecks: connectionChecks,
+      operations: operations,
+      isActive: isActive,
+      forceRefresh: true,
+      timeout: timeout,
+    );
+  }
 
-    ref
-        .read(appInitializationProvider.notifier)
-        .updateState(hasNetwork: isOnline);
+  static Future<StartupConnectionResult<UpdateInfo>> _runStartupChecks(
+    WidgetRef ref, {
+    StartupConnectionChecks<UpdateInfo>? connectionChecks,
+    StartupCheckOperations? operations,
+    bool Function()? isActive,
+    required bool forceRefresh,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    final selectedOperations =
+        operations ?? _defaultStartupCheckOperations(ref);
+    final result =
+        await (connectionChecks ?? StartupConnectionChecks<UpdateInfo>()).run(
+          timeout: timeout,
+          checkNetwork: selectedOperations.checkNetwork,
+          checkUpdate: () =>
+              selectedOperations.checkUpdate(forceRefresh: forceRefresh),
+          checkBan: selectedOperations.checkBan,
+          publish: (result) {
+            if (isActive?.call() == false) return;
+            ref
+                .read(appInitializationProvider.notifier)
+                .updateState(
+                  hasNetwork: result.hasNetwork,
+                  updateInfo: result.updateInfo,
+                  isBanned: result.isBanned,
+                );
+          },
+        );
+    logger.i(
+      'Network recovery check: online=${result.hasNetwork}, '
+      'banned=${result.isBanned}, update=${result.updateInfo?.status}',
+    );
+    return result;
+  }
+
+  static StartupCheckOperations _defaultStartupCheckOperations(WidgetRef ref) {
+    final networkService = NetworkConnectivityService();
+    return StartupCheckOperations(
+      checkNetwork: networkService.checkOnlineStatus,
+      checkUpdate: ({required forceRefresh}) =>
+          checkForUpdates(ref, forceRefresh: forceRefresh),
+      checkBan: () =>
+          !kDebugMode ? _checkBanStatus(ref) : Future<bool>.value(false),
+    );
   }
 
   static Future<void> initializeSystemUI() => SystemUIInitializer.initialize();

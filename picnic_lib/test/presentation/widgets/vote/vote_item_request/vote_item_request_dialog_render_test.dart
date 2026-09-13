@@ -8,6 +8,7 @@ import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/current_applications_section.dart'
     hide ArtistNameUtils;
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/search_and_results_section.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 import '../../../../helpers/ignore_image_errors.dart';
 import '../../../../helpers/mock_data.dart';
@@ -123,7 +124,8 @@ void main() {
       (WidgetTester tester) async {
         final service = FailingVoteItemRequestService(failInitial: true);
 
-        await tester.pumpWidget(
+        await pumpAndDrain(
+          tester,
           buildTestAppPage(
             Material(
               child: VoteItemRequestDialog(vote: testVote, service: service),
@@ -132,7 +134,6 @@ void main() {
             locale: const Locale('en'),
           ),
         );
-        await tester.pumpAndSettle();
 
         expect(
           find.text(
@@ -143,7 +144,7 @@ void main() {
           findsOneWidget,
         );
         expect(find.textContaining('internal table detail'), findsNothing);
-        expect(find.byType(CircularProgressIndicator), findsNothing);
+        expect(find.byType(PulseLoadingIndicator), findsNothing);
       },
     );
 
@@ -152,7 +153,8 @@ void main() {
     ) async {
       final service = FailingVoteItemRequestService(failSearch: true);
 
-      await tester.pumpWidget(
+      await pumpAndDrain(
+        tester,
         buildTestAppPage(
           Material(
             child: VoteItemRequestDialog(vote: testVote, service: service),
@@ -161,7 +163,6 @@ void main() {
           locale: const Locale('en'),
         ),
       );
-      await tester.pumpAndSettle();
       await tester.tap(find.byType(TextField), warnIfMissed: false);
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'artist');
@@ -176,7 +177,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.textContaining('internal table detail'), findsNothing);
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(PulseLoadingIndicator), findsNothing);
     });
 
     testWidgets('renders all main sections when logged in', (

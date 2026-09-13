@@ -50,14 +50,14 @@ class PrivacyConsentHelper {
   /// Determines the initialization flow based on platform.
   ///
   /// Returns the ordered steps for privacy consent initialization.
-  /// iOS: ATT first, then UMP, then AdMob
-  /// Android: UMP first, then ATT, then AdMob
+  /// iOS: ATT first, then UMP. Android: UMP only.
+  /// AdMob initialization is owned by MainInitializer after this flow.
   @visibleForTesting
   static List<String> getInitializationOrder({required bool isIOS}) {
     if (isIOS) {
-      return ['att', 'ump', 'admob'];
+      return ['att', 'ump'];
     }
-    return ['ump', 'att', 'admob'];
+    return ['ump'];
   }
 
   /// Determines if platform supports mobile ad features.

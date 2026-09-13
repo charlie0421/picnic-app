@@ -8,10 +8,12 @@ import 'package:picnic_lib/data/repositories/vote_transaction_repository.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_transaction_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
+import '../../../../helpers/ignore_image_errors.dart';
 import '../../../../helpers/mock_data.dart';
 import '../../../../helpers/mock_supabase.dart';
 import '../../../../helpers/test_app.dart';
@@ -139,13 +141,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byType(VotingSubmitButton));
     // The loading overlay animates forever, so never settle mid-vote.
-    await tester.pump();
+    await pumpAndIgnoreErrors(tester);
     await tester.pump(const Duration(milliseconds: 16));
 
     expect(
       find.descendant(
         of: find.byType(VotingSubmitButton),
-        matching: find.byType(CircularProgressIndicator),
+        matching: find.byType(SmallPulseLoadingIndicator),
       ),
       findsOneWidget,
       reason: 'the vote must still be in flight for this test to mean anything',

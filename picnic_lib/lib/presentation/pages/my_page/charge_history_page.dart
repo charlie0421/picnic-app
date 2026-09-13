@@ -4,6 +4,7 @@ import 'package:picnic_lib/data/models/admin/payment_breakdown.dart';
 import 'package:picnic_lib/presentation/providers/admin_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class ChargeHistoryPage extends ConsumerStatefulWidget {
   const ChargeHistoryPage({super.key});
@@ -79,7 +80,7 @@ class _PaymentBreakdownTab extends ConsumerWidget {
       ),
     };
     return breakdown.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: MediumPulseLoadingIndicator()),
       error: (_, _) => const Center(child: Text('충전 내역을 불러오지 못했습니다.')),
       data: (items) {
         if (items.isEmpty) {

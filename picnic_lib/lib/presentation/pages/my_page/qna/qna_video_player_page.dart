@@ -1,5 +1,6 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:video_player/video_player.dart';
 
 class QnaVideoPlayerPage extends StatefulWidget {
@@ -53,7 +54,7 @@ class _QnaVideoPlayerPageState extends State<QnaVideoPlayerPage> {
       ),
       body: Center(
         child: _isLoading
-            ? const CircularProgressIndicator()
+            ? const MediumPulseLoadingIndicator()
             : Chewie(
                 controller: _chewieController,
               ),

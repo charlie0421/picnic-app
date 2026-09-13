@@ -5,6 +5,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/wallet/currency_history_list_item.dart';
 
 const _historyCurrencies = [
@@ -131,7 +132,7 @@ class _CurrencyHistoryTabState extends ConsumerState<_CurrencyHistoryTab> {
     final history = ref.watch(currencyHistoryProvider(widget.currency));
     return history.when(
       skipLoadingOnRefresh: false,
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: MediumPulseLoadingIndicator()),
       error: (error, stackTrace) => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

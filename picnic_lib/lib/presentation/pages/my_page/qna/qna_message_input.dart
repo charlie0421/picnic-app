@@ -5,6 +5,7 @@ import 'package:mime/mime.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class QnaMessageInput extends StatelessWidget {
@@ -208,7 +209,10 @@ class QnaMessageInput extends StatelessWidget {
         if (isSending)
           const Padding(
             padding: EdgeInsets.all(8.0),
-            child: CircularProgressIndicator(),
+            child: SizedBox.square(
+              dimension: 36,
+              child: Center(child: SmallPulseLoadingIndicator()),
+            ),
           )
         else
           IconButton(

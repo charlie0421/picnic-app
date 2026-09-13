@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
+import '../../../../helpers/ignore_image_errors.dart';
 import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_environment.dart';
 
@@ -32,7 +34,8 @@ void main() {
     });
 
     testWidgets('primary renders correctly', (tester) async {
-      await tester.pumpWidget(
+      await pumpWidgetAndIgnoreErrors(
+        tester,
         buildTestApp(
           Builder(
             builder: (context) => QnaSubmitButton.primary(
@@ -48,7 +51,8 @@ void main() {
     });
 
     testWidgets('primary shows loading state', (tester) async {
-      await tester.pumpWidget(
+      await pumpWidgetAndIgnoreErrors(
+        tester,
         buildTestApp(
           Builder(
             builder: (context) => QnaSubmitButton.primary(
@@ -59,9 +63,8 @@ void main() {
           ),
         ),
       );
-      await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(SmallPulseLoadingIndicator), findsOneWidget);
     });
 
     testWidgets('primary with custom icon', (tester) async {

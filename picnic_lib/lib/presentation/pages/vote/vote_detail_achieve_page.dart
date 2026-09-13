@@ -12,6 +12,7 @@ import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/date.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -34,6 +35,8 @@ import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 
+const Duration _kAchieveScrollGateMaxHold = Duration(seconds: 8);
+
 class VoteDetailAchievePage extends ConsumerStatefulWidget {
   final int voteId;
   final VotePortal votePortal;
@@ -53,9 +56,15 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
     with RouteAwareStateMixin<VoteDetailAchievePage>, WidgetsBindingObserver {
   late ScrollController _scrollController;
   Timer? _updateTimer;
+  Timer? _overlayCloseTimer;
   bool _isDisposed = false;
+  bool _isLifecycleActive = true;
+  bool _isScrolling = false;
+  bool _isManualRefreshing = false;
+  DateTime? _scrollGateRaisedAt;
+  int _pollGeneration = 0;
+  int? _activePollGeneration;
   late ConfettiController _confettiController;
-  List<VoteAchieve>? _achievements;
   OverlayEntry? _overlayEntry;
   final List<int> _achievedMilestones = [];
 
@@ -74,14 +83,34 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive) {
+    _isLifecycleActive = state == AppLifecycleState.resumed;
+    if (!_isLifecycleActive) {
       _updateTimer?.cancel();
       _updateTimer = null;
-    } else if (state == AppLifecycleState.resumed) {
+    } else {
       if (_updateTimer == null && !_isDisposed) {
         _setupTimer();
       }
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant VoteDetailAchievePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.voteId == widget.voteId &&
+        oldWidget.votePortal == widget.votePortal) {
+      return;
+    }
+
+    _pollGeneration++;
+    _activePollGeneration = null;
+    _achievedMilestones.clear();
+    _overlayCloseTimer?.cancel();
+    _overlayCloseTimer = null;
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    if (_isLifecycleActive) {
+      _setupTimer();
     }
   }
 
@@ -99,46 +128,137 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
 
   void _setupTimer() {
     _updateTimer?.cancel();
-    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
-      if (!_isDisposed && mounted) {
-        // 폴링은 화면이 watch 하는 것과 **같은** provider 인스턴스를 갱신해야
-        // 한다. votePortal 을 빼면 pic 포털에서 아무도 안 보는 인스턴스를
-        // 새로고침하게 되고 화면은 영원히 갱신되지 않는다.
-        // ignore: unused_result
-        ref.refresh(
-          asyncVoteItemListProvider(
-            voteId: widget.voteId,
-            votePortal: widget.votePortal,
-          ),
-        );
-
-        final voteItemData = ref
-            .read(
-              asyncVoteItemListProvider(
-                voteId: widget.voteId,
-                votePortal: widget.votePortal,
-              ),
-            )
-            .value;
-        if (voteItemData == null || voteItemData.isEmpty) return;
-
-        final firstItem = voteItemData[0];
-        if (firstItem == null) return;
-        final currentVotes = firstItem.voteTotal;
-        if (currentVotes == null) return;
-
-        _achievements ??= await fetchVoteAchieve(ref, voteId: widget.voteId);
-        if (_achievements == null || _achievements!.isEmpty) return;
-
-        _checkMilestoneAchievement(currentVotes, _achievements!);
+    var tick = 0;
+    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!_canRunPoll(_pollGeneration, widget.voteId, widget.votePortal)) {
+        return;
       }
+
+      tick++;
+      final voteDetail = ref
+          .read(
+            asyncVoteDetailProvider(
+              voteId: widget.voteId,
+              votePortal: widget.votePortal,
+            ),
+          )
+          .value;
+      if ((voteDetail?.isEnded == true || voteDetail?.isUpcoming == true) &&
+          tick % 5 != 0) {
+        return;
+      }
+
+      if (_isScrolling) {
+        final raisedAt = _scrollGateRaisedAt;
+        if (raisedAt != null &&
+            DateTime.now().difference(raisedAt) > _kAchieveScrollGateMaxHold) {
+          _isScrolling = false;
+          _scrollGateRaisedAt = null;
+        } else {
+          return;
+        }
+      }
+
+      unawaited(_refreshVoteTotalsAndMilestone());
     });
+  }
+
+  bool _canRunPoll(int generation, int voteId, VotePortal votePortal) {
+    return mounted &&
+        !_isDisposed &&
+        _isLifecycleActive &&
+        generation == _pollGeneration &&
+        voteId == widget.voteId &&
+        votePortal == widget.votePortal;
+  }
+
+  Future<void> _refreshVoteTotalsAndMilestone() async {
+    final generation = _pollGeneration;
+    final voteId = widget.voteId;
+    final votePortal = widget.votePortal;
+    if (!_canRunPoll(generation, voteId, votePortal) ||
+        _activePollGeneration == generation ||
+        _isManualRefreshing) {
+      return;
+    }
+
+    final items = ref
+        .read(asyncVoteItemListProvider(voteId: voteId, votePortal: votePortal))
+        .value;
+    // Totals cannot restore artist records after an initial list failure.
+    // Keep the retry action visible until a full fetch succeeds.
+    if (items == null || items.isEmpty) return;
+
+    _activePollGeneration = generation;
+    try {
+      await ref
+          .read(
+            asyncVoteItemListProvider(
+              voteId: voteId,
+              votePortal: votePortal,
+            ).notifier,
+          )
+          .refreshVoteTotals(voteId: voteId, votePortal: votePortal);
+
+      if (!_canRunPoll(generation, voteId, votePortal)) return;
+      final voteItemData = ref
+          .read(
+            asyncVoteItemListProvider(voteId: voteId, votePortal: votePortal),
+          )
+          .value;
+      if (voteItemData == null || voteItemData.isEmpty) return;
+
+      final currentVotes = voteItemData.first?.voteTotal;
+      if (currentVotes == null) return;
+
+      final achievementProvider = fetchVoteAchieveProvider(voteId: voteId);
+      final achievementState = ref.read(achievementProvider);
+      if (achievementState.isLoading) return;
+
+      final achievements = achievementState.value;
+      if (achievements == null) {
+        // fetchVoteAchieve reports a transient backend failure as null. Drop
+        // only that failed provider value so the watched future retries; a
+        // successful (including empty) result remains cached.
+        ref.invalidate(achievementProvider);
+        return;
+      }
+      if (achievements.isEmpty) return;
+
+      _checkMilestoneAchievement(currentVotes, achievements);
+    } catch (error, stackTrace) {
+      // Poll failures must leave the last rendered totals intact. The next
+      // cadence tick retries after the single-flight guard is released.
+      logger.w(
+        '[AchievePoll] tick failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      if (_activePollGeneration == generation) {
+        _activePollGeneration = null;
+      }
+    }
+  }
+
+  void _onScrollStart() {
+    if (_isScrolling) return;
+    _isScrolling = true;
+    _scrollGateRaisedAt = DateTime.now();
+  }
+
+  void _onScrollSettle() {
+    if (!_isScrolling) return;
+    _isScrolling = false;
+    _scrollGateRaisedAt = null;
+    unawaited(_refreshVoteTotalsAndMilestone());
   }
 
   void _checkMilestoneAchievement(
     int currentVotes,
     List<VoteAchieve> achievements,
   ) {
+    if (!mounted || _isDisposed || !_isLifecycleActive) return;
     final sortedAchievements = List<VoteAchieve>.from(achievements)
       ..sort((a, b) => a.amount.compareTo(b.amount));
 
@@ -161,279 +281,247 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
   }
 
   void _showMilestoneAnimation(List<VoteAchieve> achievements) {
-    if (!mounted || _isDisposed) return;
+    if (!mounted || _isDisposed || !_isLifecycleActive) return;
 
     _confettiController.play();
 
     OverlayState? overlayState = Overlay.of(context);
 
+    _overlayCloseTimer?.cancel();
+    _overlayCloseTimer = null;
     _overlayEntry?.remove();
 
-    Timer? autoCloseTimer;
-
     _overlayEntry = OverlayEntry(
-      builder:
-          (context) => Material(
-            color: Colors.black.withValues(alpha: 0.7),
-            child: Stack(
-              children: [
-                // Confetti effects
-                Positioned.fill(
-                  child: ConfettiWidget(
-                    confettiController: _confettiController,
-                    blastDirection: pi / 2,
-                    maxBlastForce: 8,
-                    minBlastForce: 4,
-                    emissionFrequency: 0.08,
-                    numberOfParticles: 80,
-                    gravity: 0.15,
-                    shouldLoop: false,
-                    colors: const [
-                      Colors.amber,
-                      Colors.amberAccent,
-                      Colors.yellow,
-                      Colors.green,
-                      Colors.blue,
-                      Colors.pink,
-                      Colors.orange,
-                      Colors.purple,
-                      Colors.red,
-                    ],
-                    createParticlePath: (size) {
-                      final path = Path();
-                      if (Random().nextBool()) {
-                        path.addOval(
-                          Rect.fromCircle(center: Offset.zero, radius: 6.0),
-                        );
+      builder: (context) => Material(
+        color: Colors.black.withValues(alpha: 0.7),
+        child: Stack(
+          children: [
+            // Confetti effects
+            Positioned.fill(
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirection: pi / 2,
+                maxBlastForce: 8,
+                minBlastForce: 4,
+                emissionFrequency: 0.08,
+                numberOfParticles: 80,
+                gravity: 0.15,
+                shouldLoop: false,
+                colors: const [
+                  Colors.amber,
+                  Colors.amberAccent,
+                  Colors.yellow,
+                  Colors.green,
+                  Colors.blue,
+                  Colors.pink,
+                  Colors.orange,
+                  Colors.purple,
+                  Colors.red,
+                ],
+                createParticlePath: (size) {
+                  final path = Path();
+                  if (Random().nextBool()) {
+                    path.addOval(
+                      Rect.fromCircle(center: Offset.zero, radius: 6.0),
+                    );
+                  } else {
+                    final star = Path();
+                    for (var i = 0; i < 5; i++) {
+                      final angle = -pi / 2 + (i * 4 * pi / 5);
+                      final point = Offset(cos(angle) * 6, sin(angle) * 6);
+                      if (i == 0) {
+                        star.moveTo(point.dx, point.dy);
                       } else {
-                        final star = Path();
-                        for (var i = 0; i < 5; i++) {
-                          final angle = -pi / 2 + (i * 4 * pi / 5);
-                          final point = Offset(cos(angle) * 6, sin(angle) * 6);
-                          if (i == 0) {
-                            star.moveTo(point.dx, point.dy);
-                          } else {
-                            star.lineTo(point.dx, point.dy);
-                          }
-                        }
-                        path.addPath(star, Offset.zero);
+                        star.lineTo(point.dx, point.dy);
                       }
-                      return path;
-                    },
-                  ),
-                ),
-                // Achievement popup
-                Center(
-                  child: TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    duration: const Duration(milliseconds: 700),
-                    curve: Curves.elasticOut,
-                    onEnd: () {
-                      autoCloseTimer = Timer(const Duration(seconds: 3), () {
-                        if (_overlayEntry?.mounted ?? false) {
-                          _overlayEntry?.remove();
-                          _overlayEntry = null;
-                        }
-                      });
-                    },
-                    builder: (context, value, child) {
-                      return Transform.scale(
-                        scale: value,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 20),
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            gradient: commonGradient,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary500.withValues(
-                                  alpha: 0.4,
-                                ),
-                                blurRadius: 15,
-                                spreadRadius: 3,
-                              ),
-                            ],
+                    }
+                    path.addPath(star, Offset.zero);
+                  }
+                  return path;
+                },
+              ),
+            ),
+            // Achievement popup
+            Center(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 700),
+                curve: Curves.elasticOut,
+                onEnd: () {
+                  _overlayCloseTimer?.cancel();
+                  _overlayCloseTimer = Timer(const Duration(seconds: 3), () {
+                    if (_overlayEntry?.mounted ?? false) {
+                      _overlayEntry?.remove();
+                      _overlayEntry = null;
+                    }
+                  });
+                },
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: commonGradient,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary500.withValues(alpha: 0.4),
+                            blurRadius: 15,
+                            spreadRadius: 3,
                           ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  ).text_achievement(achievements.length),
-                                  style: getTextStyle(
-                                    AppTypo.title18B,
-                                    AppColors.grey00,
-                                  ),
-                                ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              AppLocalizations.of(
+                                context,
+                              ).text_achievement(achievements.length),
+                              style: getTextStyle(
+                                AppTypo.title18B,
+                                AppColors.grey00,
                               ),
-                              const SizedBox(height: 24),
-                              Wrap(
-                                spacing: 16,
-                                runSpacing: 16,
-                                alignment: WrapAlignment.center,
-                                children:
-                                    achievements.asMap().entries.map((entry) {
-                                      final index = entry.key;
-                                      final achievement = entry.value;
-                                      final isNewlyAchieved =
-                                          !_achievedMilestones.contains(
-                                            achievement.amount,
-                                          );
-                                      final isEven = index.isEven;
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 16,
+                            alignment: WrapAlignment.center,
+                            children: achievements.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final achievement = entry.value;
+                              final isNewlyAchieved = !_achievedMilestones
+                                  .contains(achievement.amount);
+                              final isEven = index.isEven;
 
-                                      return TweenAnimationBuilder<double>(
-                                        tween: Tween(begin: 0.0, end: 1.0),
-                                        duration: const Duration(
-                                          milliseconds: 500,
+                              return TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeOutBack,
+                                builder: (context, scale, child) {
+                                  return Transform.scale(
+                                    scale: scale,
+                                    child: Container(
+                                      width: 150,
+                                      margin: EdgeInsets.only(
+                                        top: isEven ? 0 : 20,
+                                        bottom: isEven ? 20 : 0,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.2,
                                         ),
-                                        curve: Curves.easeOutBack,
-                                        builder: (context, scale, child) {
-                                          return Transform.scale(
-                                            scale: scale,
-                                            child: Container(
-                                              width: 150,
-                                              margin: EdgeInsets.only(
-                                                top: isEven ? 0 : 20,
-                                                bottom: isEven ? 20 : 0,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: isNewlyAchieved
+                                              ? AppColors.primary500
+                                              : AppColors.grey00.withValues(
+                                                  alpha: 0.3,
+                                                ),
+                                          width: isNewlyAchieved ? 2 : 1,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          if (achievement.reward.thumbnail !=
+                                              null)
+                                            Container(
+                                              width: 80,
+                                              height: 80,
+                                              margin: const EdgeInsets.only(
+                                                top: 16,
+                                                bottom: 12,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: Colors.black.withValues(
-                                                  alpha: 0.2,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
+                                                shape: BoxShape.circle,
                                                 border: Border.all(
-                                                  color:
-                                                      isNewlyAchieved
-                                                          ? AppColors.primary500
-                                                          : AppColors.grey00
-                                                              .withValues(
-                                                                alpha: 0.3,
-                                                              ),
-                                                  width:
-                                                      isNewlyAchieved ? 2 : 1,
+                                                  color: AppColors.grey00,
+                                                  width: 2,
                                                 ),
-                                              ),
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  if (achievement
-                                                          .reward
-                                                          .thumbnail !=
-                                                      null)
-                                                    Container(
-                                                      width: 80,
-                                                      height: 80,
-                                                      margin:
-                                                          const EdgeInsets.only(
-                                                            top: 16,
-                                                            bottom: 12,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        border: Border.all(
-                                                          color:
-                                                              AppColors.grey00,
-                                                          width: 2,
-                                                        ),
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: AppColors
-                                                                .grey00
-                                                                .withValues(
-                                                                  alpha: 0.2,
-                                                                ),
-                                                            blurRadius: 4,
-                                                            spreadRadius: 1,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              40,
-                                                            ),
-                                                        child:
-                                                            PicnicCachedNetworkImage(
-                                                              imageUrl:
-                                                                  achievement
-                                                                      .reward
-                                                                      .thumbnail!,
-                                                              fit: BoxFit.cover,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  Text(
-                                                    formatNumberWithComma(
-                                                      achievement.amount
-                                                          .toString(),
-                                                    ),
-                                                    style: getTextStyle(
-                                                      AppTypo.body16B,
-                                                      AppColors.grey00,
-                                                    ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: AppColors.grey00
+                                                        .withValues(alpha: 0.2),
+                                                    blurRadius: 4,
+                                                    spreadRadius: 1,
                                                   ),
-                                                  if (achievement
-                                                          .reward
-                                                          .title !=
-                                                      null)
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                            vertical: 8,
-                                                          ),
-                                                      child: Text(
-                                                        getLocaleTextFromJson(
-                                                          achievement
-                                                              .reward
-                                                              .title!,
-                                                        ),
-                                                        style: getTextStyle(
-                                                          AppTypo.caption12R,
-                                                          AppColors.grey00,
-                                                        ),
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        maxLines: 2,
-                                                        overflow:
-                                                            TextOverflow
-                                                                .ellipsis,
-                                                      ),
-                                                    ),
                                                 ],
                                               ),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(40),
+                                                child: PicnicCachedNetworkImage(
+                                                  imageUrl: achievement
+                                                      .reward
+                                                      .thumbnail!,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
                                             ),
-                                          );
-                                        },
-                                      );
-                                    }).toList(),
-                              ),
-                            ],
+                                          Text(
+                                            formatNumberWithComma(
+                                              achievement.amount.toString(),
+                                            ),
+                                            style: getTextStyle(
+                                              AppTypo.body16B,
+                                              AppColors.grey00,
+                                            ),
+                                          ),
+                                          if (achievement.reward.title != null)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
+                                              child: Text(
+                                                getLocaleTextFromJson(
+                                                  achievement.reward.title!,
+                                                ),
+                                                style: getTextStyle(
+                                                  AppTypo.caption12R,
+                                                  AppColors.grey00,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }).toList(),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
+          ],
+        ),
+      ),
     );
 
-    autoCloseTimer?.cancel();
     overlayState.insert(_overlayEntry!);
   }
 
@@ -485,12 +573,11 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
           // 유한한 높이의 부모를 전제하므로, expand 가 무한 제약을 만날
           // 일은 없다.
           loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
-          error:
-              (error, stackTrace) => buildErrorView(
-                context,
-                error: error.toString(),
-                stackTrace: stackTrace,
-              ),
+          error: (error, stackTrace) => buildErrorView(
+            context,
+            error: error.toString(),
+            stackTrace: stackTrace,
+          ),
         );
   }
 
@@ -507,7 +594,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
         )
         .when(
           data: (data) {
-            if (data.isEmpty) return const SizedBox.shrink();
+            if (data.isEmpty) return _buildItemsRetry();
             return Column(
               children: [
                 _buildVoteInfo(voteModel),
@@ -519,12 +606,22 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                     color: AppColors.primary500,
                     backgroundColor: Colors.white,
                     onRefresh: _refreshVoteData,
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      // 사다리가 뷰포트보다 짧아도 당길 수 있어야 한다 —
-                      // 기본 physics 는 내용이 짧으면 오버스크롤 자체가 없다.
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(children: [_buildLevelItem(data[0]!)]),
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (notification is ScrollStartNotification) {
+                          _onScrollStart();
+                        } else if (notification is ScrollEndNotification) {
+                          _onScrollSettle();
+                        }
+                        return false;
+                      },
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        // 사다리가 뷰포트보다 짧아도 당길 수 있어야 한다 —
+                        // 기본 physics 는 내용이 짧으면 오버스크롤 자체가 없다.
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Column(children: [_buildLevelItem(data[0]!)]),
+                      ),
                     ),
                   ),
                 ),
@@ -534,13 +631,28 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
           // 바깥 게이트의 로딩 브랜치와 같은 이유 — 아이템 목록만 늦게 올 때도
           // 셔머가 뷰포트를 가득 채워야 로드 시점에 높이가 점프하지 않는다.
           loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
-          error:
-              (error, stackTrace) => buildErrorView(
-                context,
-                error: error.toString(),
-                stackTrace: stackTrace,
-              ),
+          error: (error, stackTrace) => _buildItemsRetry(),
         );
+  }
+
+  Widget _buildItemsRetry() {
+    final localizations = AppLocalizations.of(context);
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            localizations.message_error_occurred,
+            textAlign: TextAlign.center,
+          ),
+          TextButton(
+            key: const Key('achieve-items-retry'),
+            onPressed: _refreshVoteData,
+            child: Text(localizations.retry),
+          ),
+        ],
+      ),
+    );
   }
 
   /// 당겨서-새로고침: 상세와 아이템 목록을 함께 갱신한다.
@@ -549,24 +661,34 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
   /// 걸어, 네트워크가 죽어 있어도 인디케이터가 영원히 돌지 않게 한다.
   /// (`.future` 를 기다려야 인디케이터가 실제 완료 시점까지 표시된다.)
   Future<void> _refreshVoteData() async {
-    await Future.wait([
-      ref
-          .refresh(
-            asyncVoteDetailProvider(
-              voteId: widget.voteId,
-              votePortal: widget.votePortal,
-            ).future,
-          )
-          .timeout(const Duration(seconds: 8), onTimeout: () => null),
-      ref
-          .refresh(
-            asyncVoteItemListProvider(
-              voteId: widget.voteId,
-              votePortal: widget.votePortal,
-            ).future,
-          )
-          .timeout(const Duration(seconds: 8), onTimeout: () => []),
-    ]);
+    if (_isManualRefreshing) return;
+    _isManualRefreshing = true;
+    // A full fetch invalidates older totals in the provider. Release this
+    // page's old poll too, so it cannot block polling after recovery.
+    _pollGeneration++;
+    _activePollGeneration = null;
+    try {
+      await Future.wait([
+        ref
+            .refresh(
+              asyncVoteDetailProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ).future,
+            )
+            .timeout(const Duration(seconds: 8), onTimeout: () => null),
+        ref
+            .refresh(
+              asyncVoteItemListProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ).future,
+            )
+            .timeout(const Duration(seconds: 8), onTimeout: () => []),
+      ]);
+    } finally {
+      _isManualRefreshing = false;
+    }
   }
 
   Widget _buildVoteInfo(VoteModel voteModel) {
@@ -585,9 +707,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
         const SizedBox(height: 36),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 57.w),
-          child: VoteCommonTitle(
-            title: getLocaleTextFromJson(voteModel.title),
-          ),
+          child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
         ),
         const SizedBox(height: 12),
         SizedBox(
@@ -611,6 +731,12 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
   }
 
   Widget _buildLevelItem(VoteItemModel data) {
+    final generation = _pollGeneration;
+    final voteId = widget.voteId;
+    final votePortal = widget.votePortal;
+    final achievementFuture = ref.watch(
+      fetchVoteAchieveProvider(voteId: voteId).future,
+    );
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20, horizontal: 16.w),
       decoration: BoxDecoration(
@@ -624,21 +750,20 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FutureBuilder<List<VoteAchieve>?>(
-              future: fetchVoteAchieve(ref, voteId: widget.voteId),
+              future: achievementFuture,
               builder: (context, snapshot) {
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Container();
                 }
 
                 final achievements = snapshot.data!;
-                _achievements = achievements; // 캐시를 위해 저장
 
                 final mainMilestones = _generateMilestonesFromAchievements(
                   achievements,
                 );
 
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted && !_isDisposed) {
+                  if (_canRunPoll(generation, voteId, votePortal)) {
                     _checkMilestoneAchievement(data.voteTotal!, achievements);
                   }
                 });
@@ -676,8 +801,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                               currentLevel == 0
                                   ? '0'
                                   : formatNumberWithComma(
-                                    currentLevel.toString(),
-                                  ),
+                                      currentLevel.toString(),
+                                    ),
                               style: getTextStyle(
                                 isMainMilestone
                                     ? AppTypo.caption12B
@@ -693,10 +818,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                           Container(
                             width: 10.w,
                             height: 2,
-                            color:
-                                isAchieved
-                                    ? AppColors.primary500
-                                    : AppColors.grey400,
+                            color: isAchieved
+                                ? AppColors.primary500
+                                : AppColors.grey400,
                           ),
                         ],
                       );
@@ -707,7 +831,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
             ),
             SizedBox(width: 8.w),
             FutureBuilder<List<VoteAchieve>?>(
-              future: fetchVoteAchieve(ref, voteId: widget.voteId),
+              future: achievementFuture,
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Container();
@@ -787,41 +911,40 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                     RichText(
                       overflow: TextOverflow.ellipsis,
                       text: TextSpan(
-                        children:
-                            (item.artist?.id ?? 0) != 0
-                                ? [
+                        children: (item.artist?.id ?? 0) != 0
+                            ? [
+                                TextSpan(
+                                  text: getLocaleTextFromJson(
+                                    item.artist?.name ?? {},
+                                  ),
+                                  style: getTextStyle(
+                                    AppTypo.body14B,
+                                    AppColors.grey900,
+                                  ),
+                                ),
+                                const TextSpan(text: ' '),
+                                if (item.artist?.artistGroup?.name != null)
                                   TextSpan(
                                     text: getLocaleTextFromJson(
-                                      item.artist?.name ?? {},
+                                      item.artist!.artistGroup!.name,
                                     ),
                                     style: getTextStyle(
-                                      AppTypo.body14B,
-                                      AppColors.grey900,
+                                      AppTypo.caption10SB,
+                                      AppColors.grey600,
                                     ),
                                   ),
-                                  const TextSpan(text: ' '),
-                                  if (item.artist?.artistGroup?.name != null)
-                                    TextSpan(
-                                      text: getLocaleTextFromJson(
-                                        item.artist!.artistGroup!.name,
-                                      ),
-                                      style: getTextStyle(
-                                        AppTypo.caption10SB,
-                                        AppColors.grey600,
-                                      ),
-                                    ),
-                                ]
-                                : [
-                                  TextSpan(
-                                    text: getLocaleTextFromJson(
-                                      item.artistGroup?.name ?? {},
-                                    ),
-                                    style: getTextStyle(
-                                      AppTypo.body14B,
-                                      AppColors.grey900,
-                                    ),
+                              ]
+                            : [
+                                TextSpan(
+                                  text: getLocaleTextFromJson(
+                                    item.artistGroup?.name ?? {},
                                   ),
-                                ],
+                                  style: getTextStyle(
+                                    AppTypo.body14B,
+                                    AppColors.grey900,
+                                  ),
+                                ),
+                              ],
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -900,22 +1023,21 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
           height: 20,
           padding: EdgeInsets.only(right: 16.w, bottom: 3),
           alignment: Alignment.centerRight,
-          child:
-              hasChanged
-                  ? AnimatedDigitWidget(
-                    value: item.voteTotal,
-                    enableSeparator: true,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                    textStyle: getTextStyle(
-                      AppTypo.caption10SB,
-                      AppColors.grey00,
-                    ),
-                  )
-                  : Text(
-                    NumberFormat('#,###').format(item.voteTotal),
-                    style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
+          child: hasChanged
+              ? AnimatedDigitWidget(
+                  value: item.voteTotal,
+                  enableSeparator: true,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  textStyle: getTextStyle(
+                    AppTypo.caption10SB,
+                    AppColors.grey00,
                   ),
+                )
+              : Text(
+                  NumberFormat('#,###').format(item.voteTotal),
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
+                ),
         ),
         if (voteCountDiff > 0)
           Positioned(
@@ -1018,14 +1140,16 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: getTextStyle(
-                      AppTypo.caption12B,
-                      isAchieved ? AppColors.primary500 : AppColors.grey400,
-                    ).copyWith(
-                      decoration: TextDecoration.underline,
-                      decorationColor:
+                    style:
+                        getTextStyle(
+                          AppTypo.caption12B,
                           isAchieved ? AppColors.primary500 : AppColors.grey400,
-                    ),
+                        ).copyWith(
+                          decoration: TextDecoration.underline,
+                          decorationColor: isAchieved
+                              ? AppColors.primary500
+                              : AppColors.grey400,
+                        ),
                   ),
                 ],
               ),
@@ -1038,8 +1162,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
-                      color:
-                          isAchieved ? AppColors.primary500 : AppColors.grey400,
+                      color: isAchieved
+                          ? AppColors.primary500
+                          : AppColors.grey400,
                       width: 1.5,
                     ),
                   ),
@@ -1052,7 +1177,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                       // 클라이언트가 채워 주는 값이 아니다). 단언하면 마일스톤
                       // 사다리 전체가 에러 박스로 바뀐다. reward_dialog.dart /
                       // reward_list_section.dart 와 같은 처리로 맞춘다.
-                      imageUrl: achievements[rewardIndex].reward.thumbnail ?? '',
+                      imageUrl:
+                          achievements[rewardIndex].reward.thumbnail ?? '',
                       width: 50,
                       memCacheWidth: 50,
                     ),
@@ -1064,10 +1190,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                   height: 50,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
-                    color:
-                        isAchieved
-                            ? null
-                            : AppColors.grey400.withValues(alpha: 0.5),
+                    color: isAchieved
+                        ? null
+                        : AppColors.grey400.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -1181,8 +1306,12 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _overlayEntry?.remove();
     _isDisposed = true;
+    _isLifecycleActive = false;
+    _pollGeneration++;
+    _activePollGeneration = null;
+    _overlayCloseTimer?.cancel();
+    _overlayEntry?.remove();
     _updateTimer?.cancel();
     _scrollController.dispose();
     _confettiController.dispose();

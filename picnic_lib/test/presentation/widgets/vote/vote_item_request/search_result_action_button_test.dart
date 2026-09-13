@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/search_result_action_button.dart';
 
+import '../../../../helpers/ignore_image_errors.dart';
 import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_environment.dart';
 
@@ -31,13 +33,26 @@ void main() {
   }
 
   group('SearchResultActionButton', () {
-    testWidgets('shows CircularProgressIndicator when isLoading=true', (
+    testWidgets('keeps the pulse loader inside the compact loading badge', (
       tester,
     ) async {
-      await tester.pumpWidget(buildWidget(isLoading: true));
-      await tester.pump();
+      await pumpWidgetAndIgnoreErrors(tester, buildWidget(isLoading: true));
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      final pulse = find.byType(SmallPulseLoadingIndicator);
+      final compactBox = find.ancestor(
+        of: pulse,
+        matching: find.byType(SizedBox),
+      );
+
+      expect(pulse, findsOneWidget);
+      expect(compactBox, findsOneWidget);
+      final badgeBounds = tester.getRect(compactBox);
+      final pulseBounds = tester.getRect(pulse);
+      expect(badgeBounds.left <= pulseBounds.left, isTrue);
+      expect(badgeBounds.top <= pulseBounds.top, isTrue);
+      expect(badgeBounds.right >= pulseBounds.right, isTrue);
+      expect(badgeBounds.bottom >= pulseBounds.bottom, isTrue);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
     testWidgets('shows submit button when shouldShowApplicationButton=true', (
@@ -117,7 +132,7 @@ void main() {
 
       expect(find.byType(SizedBox), findsWidgets);
       expect(find.byType(ElevatedButton), findsNothing);
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(PulseLoadingIndicator), findsNothing);
     });
 
     testWidgets('onPressed callback fires when button tapped', (tester) async {

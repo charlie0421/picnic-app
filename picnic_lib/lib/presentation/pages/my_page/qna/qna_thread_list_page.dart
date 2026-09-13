@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_card.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
@@ -181,9 +182,9 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
     if (title == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
-            pageTitle: title,
-          );
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(pageTitle: title);
     });
   }
 
@@ -235,7 +236,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: CircularProgressIndicator(),
+                  child: MediumPulseLoadingIndicator(),
                 ),
               );
             }

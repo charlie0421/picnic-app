@@ -72,6 +72,8 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
 
 @riverpod
 class AsyncVoteItemList extends _$AsyncVoteItemList {
+  int _fetchGeneration = 0;
+
   @override
   FutureOr<List<VoteItemModel?>> build({
     required int voteId,
@@ -84,6 +86,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
     required int voteId,
     VotePortal votePortal = VotePortal.vote,
   }) async {
+    final generation = ++_fetchGeneration;
     final voteItemTable = votePortal == VotePortal.vote
         ? 'vote_item'
         : 'pic_vote_item';
@@ -104,7 +107,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
       );
 
       // async 작업 후 provider가 dispose되었는지 확인
-      if (!ref.mounted) return voteItemList;
+      if (!ref.mounted || generation != _fetchGeneration) return voteItemList;
 
       state = AsyncValue.data(voteItemList);
       final elapsedMs = DateTime.now().difference(startedAt).inMilliseconds;
@@ -130,6 +133,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
     VotePortal votePortal = VotePortal.vote,
   }) async {
     if (!ref.mounted || state.value == null) return;
+    final generation = _fetchGeneration;
     final voteItemTable = votePortal == VotePortal.vote
         ? 'vote_item'
         : 'pic_vote_item';
@@ -140,7 +144,9 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
           .eq('vote_id', voteId)
           .filter('deleted_at', 'is', null);
 
-      if (!ref.mounted || state.value == null) return;
+      if (!ref.mounted || generation != _fetchGeneration || state.value == null) {
+        return;
+      }
 
       final totalsMap = <int, int>{};
       for (final row in response) {
@@ -163,17 +169,17 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
       // Reuse unchanged item object identities; only copyWith the changed
       // ones. (VoteItemModel is freezed: copyWith allocates a new instance,
       // so we avoid it for items that didn't move.)
-      final updatedList = currentList.map<VoteItemModel>((item) {
-        if (item != null && changedIds.contains(item.id)) {
-          return item.copyWith(voteTotal: totalsMap[item.id]);
-        }
-        return item!;
-      }).toList()
-        ..sort((a, b) {
-          final voteDiff = (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0);
-          if (voteDiff != 0) return voteDiff;
-          return a.id.compareTo(b.id);
-        });
+      final updatedList =
+          currentList.map<VoteItemModel>((item) {
+            if (item != null && changedIds.contains(item.id)) {
+              return item.copyWith(voteTotal: totalsMap[item.id]);
+            }
+            return item!;
+          }).toList()..sort((a, b) {
+            final voteDiff = (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0);
+            if (voteDiff != 0) return voteDiff;
+            return a.id.compareTo(b.id);
+          });
 
       state = AsyncValue.data(updatedList);
     } catch (e, s) {
@@ -185,17 +191,17 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
     try {
       if (!ref.mounted || state.value == null) return;
 
-      final updatedList = state.value!.map<VoteItemModel>((item) {
-        if (item != null && item.id == id) {
-          return item.copyWith(voteTotal: voteTotal);
-        }
-        return item!;
-      }).toList()
-        ..sort((a, b) {
-          final voteDiff = (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0);
-          if (voteDiff != 0) return voteDiff;
-          return a.id.compareTo(b.id);
-        });
+      final updatedList =
+          state.value!.map<VoteItemModel>((item) {
+            if (item != null && item.id == id) {
+              return item.copyWith(voteTotal: voteTotal);
+            }
+            return item!;
+          }).toList()..sort((a, b) {
+            final voteDiff = (b.voteTotal ?? 0).compareTo(a.voteTotal ?? 0);
+            if (voteDiff != 0) return voteDiff;
+            return a.id.compareTo(b.id);
+          });
 
       state = AsyncValue.data(updatedList);
 

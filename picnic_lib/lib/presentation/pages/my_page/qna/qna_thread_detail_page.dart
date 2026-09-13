@@ -14,6 +14,7 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_message_list_view.
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_status_chip.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/loading_view.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
@@ -109,9 +110,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         _errorMessage = null;
       });
 
-      final threadWithMessages = await _repository.getQaThreadById(
-        _thread.id,
-      );
+      final threadWithMessages = await _repository.getQaThreadById(_thread.id);
       setState(() {
         _thread = threadWithMessages.thread;
         _messages = threadWithMessages.messages;
@@ -284,7 +283,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: MediumPulseLoadingIndicator());
     }
     if (_errorMessage != null) {
       return Center(child: Text(_errorMessage!));

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -100,7 +101,7 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
         size: widget.adSize,
         request: const AdRequest(),
         listener: BannerAdListener(
-          onAdLoaded: (_) {
+          onAdLoaded: (ad) {
             if (!_isDisposed) {
               setState(() {
                 _isLoading = false;
@@ -108,8 +109,10 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
                 _hasError = false;
                 _retryCount = 0;
               });
-              completer.complete();
+            } else {
+              unawaited(ad.dispose());
             }
+            if (!completer.isCompleted) completer.complete();
           },
           onAdFailedToLoad: (ad, error) {
             logger.e('Banner ad failed to load: $error');
@@ -122,12 +125,16 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
               });
               _scheduleRetry();
             }
-            completer.complete();
+            if (!completer.isCompleted) completer.complete();
           },
         ),
       );
 
-      await _bannerAd!.load();
+      await MainInitializer.runAdRequestWhenReady<void>(
+        isRequestActive: () => !_isDisposed,
+        request: _bannerAd!.load,
+      );
+      if (_isDisposed) return;
       await completer.future;
     } catch (e, s) {
       logger.e('Error loading banner ad', error: e, stackTrace: s);

@@ -19,6 +19,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_d
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../helpers/load_test_fonts.dart';
+import '../../../../../helpers/host_app_asset_bundle.dart';
 import '../../../../../helpers/mock_providers.dart';
 import '../../../../../helpers/mock_supabase.dart';
 import '../../../../../helpers/test_environment.dart';
@@ -60,7 +61,7 @@ class _GoldenAssetBundle extends CachingAssetBundle {
   @override
   Future<ByteData> load(String key) async {
     if (!key.contains('assets/icons/store/currency_')) {
-      return rootBundle.load(key);
+      return hostAppAssetBundle.load(key);
     }
     final relativePath = key.replaceFirst('packages/picnic_lib/', '');
     final bytes = await File(relativePath).readAsBytes();

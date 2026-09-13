@@ -68,34 +68,83 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
 
   final List<ArtistModel> _items = [];
   final ScrollController _scrollController = ScrollController();
+  ProviderSubscription<String>? _querySubscription;
 
   int _currentPage = 0;
+  int _requestGeneration = 0;
   bool _isLoading = false;
   bool _hasMore = true;
+  bool _isDisposed = false;
   String? _error;
   late String _initialSearchQuery;
+  String _activeQuery = '';
+  String? _activeLanguage;
+  late ArtistSearchScope _activeScope;
   bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _initialSearchQuery = ref.read(widget.searchQueryProvider);
+    _activeScope = widget.config.searchScope;
+    _listenToQuery(widget.searchQueryProvider);
     _scrollController.addListener(_onScroll);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final language = Localizations.localeOf(context).languageCode;
     if (!_isInitialized) {
       _isInitialized = true;
-      _loadInitialData();
+      _loadInitialData(query: _initialSearchQuery, language: language);
+    } else if (_activeLanguage != language) {
+      // SearchService's shared cache key does not include the locale even
+      // though the backend ordering does, so a locale transition must bypass
+      // results ordered for the previous language.
+      SearchService.invalidateCache('artist_fast');
+      _loadInitialData(language: language);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ArtistSelectListView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final providerChanged =
+        oldWidget.searchQueryProvider != widget.searchQueryProvider;
+    final scopeChanged =
+        oldWidget.config.searchScope != widget.config.searchScope;
+
+    if (providerChanged) {
+      _querySubscription?.close();
+      _initialSearchQuery = ref.read(widget.searchQueryProvider);
+      _listenToQuery(widget.searchQueryProvider);
+    }
+
+    if (_isInitialized && (providerChanged || scopeChanged)) {
+      _loadInitialData(
+        query: providerChanged
+            ? _initialSearchQuery
+            : ref.read(widget.searchQueryProvider),
+      );
     }
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
+    _requestGeneration++;
+    _querySubscription?.close();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _listenToQuery(NotifierProvider<Notifier<String>, String> provider) {
+    _querySubscription = ref.listenManual<String>(provider, (previous, next) {
+      if (_isInitialized && previous != next) {
+        _loadInitialData(query: next);
+      }
+    });
   }
 
   void _onScroll() {
@@ -105,8 +154,23 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
     }
   }
 
-  Future<void> _loadInitialData() async {
-    if (_isLoading) return;
+  Future<void> _loadInitialData({String? query, String? language}) async {
+    if (_isDisposed || !mounted) return;
+
+    final generation = ++_requestGeneration;
+    final String requestQuery;
+    if (query != null) {
+      requestQuery = query;
+    } else {
+      requestQuery = ref.read(widget.searchQueryProvider);
+    }
+    final requestLanguage =
+        language ?? Localizations.localeOf(context).languageCode;
+    final requestScope = widget.config.searchScope;
+
+    _activeQuery = requestQuery;
+    _activeLanguage = requestLanguage;
+    _activeScope = requestScope;
 
     setState(() {
       _isLoading = true;
@@ -117,8 +181,20 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
     });
 
     try {
-      final items = await _fetchPage(0);
-      if (!mounted) return;
+      final items = await _fetchPage(
+        page: 0,
+        query: requestQuery,
+        language: requestLanguage,
+        scope: requestScope,
+      );
+      if (!_isCurrentRequest(
+        generation: generation,
+        query: requestQuery,
+        language: requestLanguage,
+        scope: requestScope,
+      )) {
+        return;
+      }
 
       setState(() {
         _items.addAll(items);
@@ -128,7 +204,14 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
       });
     } catch (e, stackTrace) {
       logger.e('Failed to load initial data', error: e, stackTrace: stackTrace);
-      if (!mounted) return;
+      if (!_isCurrentRequest(
+        generation: generation,
+        query: requestQuery,
+        language: requestLanguage,
+        scope: requestScope,
+      )) {
+        return;
+      }
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -137,46 +220,89 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
   }
 
   Future<void> _loadMoreData() async {
-    if (_isLoading || !_hasMore) return;
+    if (_isDisposed || !mounted || _isLoading || !_hasMore) return;
+
+    final generation = _requestGeneration;
+    final requestQuery = _activeQuery;
+    final requestLanguage = _activeLanguage;
+    final requestScope = _activeScope;
+    final page = _currentPage;
+    if (requestLanguage == null) return;
 
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final items = await _fetchPage(_currentPage);
-      if (!mounted) return;
+      final items = await _fetchPage(
+        page: page,
+        query: requestQuery,
+        language: requestLanguage,
+        scope: requestScope,
+      );
+      if (!_isCurrentRequest(
+        generation: generation,
+        query: requestQuery,
+        language: requestLanguage,
+        scope: requestScope,
+      )) {
+        return;
+      }
 
       setState(() {
         _items.addAll(items);
-        _currentPage++;
+        _currentPage = page + 1;
         _hasMore = items.length >= _pageSize;
         _isLoading = false;
       });
     } catch (e, stackTrace) {
       logger.e('Failed to load more data', error: e, stackTrace: stackTrace);
-      if (!mounted) return;
+      if (!_isCurrentRequest(
+        generation: generation,
+        query: requestQuery,
+        language: requestLanguage,
+        scope: requestScope,
+      )) {
+        return;
+      }
       setState(() {
         _isLoading = false;
       });
     }
   }
 
-  Future<List<ArtistModel>> _fetchPage(int pageKey) async {
-    final searchQuery = ref.read(widget.searchQueryProvider);
-    logger.d('Fetching page $pageKey with query: "$searchQuery"');
+  bool _isCurrentRequest({
+    required int generation,
+    required String query,
+    required String language,
+    required ArtistSearchScope scope,
+  }) {
+    return mounted &&
+        !_isDisposed &&
+        generation == _requestGeneration &&
+        query == _activeQuery &&
+        language == _activeLanguage &&
+        scope == _activeScope;
+  }
 
-    final language = Localizations.localeOf(context).languageCode;
+  Future<List<ArtistModel>> _fetchPage({
+    required int page,
+    required String query,
+    required String language,
+    required ArtistSearchScope scope,
+  }) async {
+    logger.d('Fetching page $page with query: "$query"');
+
     final newItems = await SearchService.searchArtistsFast(
-      query: searchQuery,
-      page: pageKey,
+      query: query,
+      page: page,
       limit: _pageSize,
       language: language,
       includeBookmarks: true,
-      scope: widget.config.searchScope,
+      scope: scope,
     );
 
-    logger.d('Received ${newItems.length} items for page $pageKey');
+    logger.d('Received ${newItems.length} items for page $page');
     return newItems;
   }
 
@@ -187,10 +313,14 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
 
   /// 북마크 상태 업데이트 및 위치 이동
   void updateBookmarkState(int artistId, bool isBookmarked) {
-    logger.d('🔖 updateBookmarkState - artistId: $artistId, isBookmarked: $isBookmarked');
+    logger.d(
+      '🔖 updateBookmarkState - artistId: $artistId, isBookmarked: $isBookmarked',
+    );
 
     // 1. 글로벌 상태 업데이트
-    ref.read(bookmarkStateProvider.notifier).updateBookmarkState(artistId, isBookmarked);
+    ref
+        .read(bookmarkStateProvider.notifier)
+        .updateBookmarkState(artistId, isBookmarked);
 
     // 2. 로컬 리스트에서 위치 이동
     final itemIndex = _items.indexWhere((item) => item.id == artistId);
@@ -205,14 +335,20 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
 
       if (isBookmarked) {
         // 북마크 추가: 북마크 섹션 마지막에 삽입
-        final lastBookmarkIndex = _items.lastIndexWhere((i) => i.isBookmarked == true);
+        final lastBookmarkIndex = _items.lastIndexWhere(
+          (i) => i.isBookmarked == true,
+        );
         final insertIndex = lastBookmarkIndex + 1;
         _items.insert(insertIndex, updatedItem);
         logger.d('🔖 북마크 추가 - 새 위치: $insertIndex');
       } else {
         // 북마크 해제: 일반 섹션 첫 번째에 삽입
-        final firstNonBookmarkIndex = _items.indexWhere((i) => i.isBookmarked != true);
-        final insertIndex = firstNonBookmarkIndex == -1 ? _items.length : firstNonBookmarkIndex;
+        final firstNonBookmarkIndex = _items.indexWhere(
+          (i) => i.isBookmarked != true,
+        );
+        final insertIndex = firstNonBookmarkIndex == -1
+            ? _items.length
+            : firstNonBookmarkIndex;
         _items.insert(insertIndex, updatedItem);
         logger.d('🔖 북마크 해제 - 새 위치: $insertIndex');
       }
@@ -230,18 +366,17 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
             initialValue: _initialSearchQuery,
             onSearchChanged: (query) {
               if (mounted) {
-                (ref.read(widget.searchQueryProvider.notifier) as dynamic)
-                    .set(query);
-                // 캐시 무효화 후 새로고침
+                // Invalidate before the provider notification synchronously
+                // starts the next request through [_querySubscription].
                 SearchService.invalidateCache('artist_fast');
-                _loadInitialData();
+                (ref.read(widget.searchQueryProvider.notifier) as dynamic).set(
+                  query,
+                );
               }
             },
           ),
         ),
-        Expanded(
-          child: _buildContent(),
-        ),
+        Expanded(child: _buildContent()),
       ],
     );
   }
@@ -266,8 +401,10 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
       return NoItemContainer(
         message: searchQuery.isEmpty
             ? widget.config.emptyMessage
-            : widget.config.searchEmptyMessageTemplate
-                .replaceAll('{query}', searchQuery),
+            : widget.config.searchEmptyMessageTemplate.replaceAll(
+                '{query}',
+                searchQuery,
+              ),
       );
     }
 
@@ -399,7 +536,8 @@ class _ArtistItemWidgetState extends ConsumerState<_ArtistItemWidget>
             border: isBookmarked
                 ? Border.all(
                     color: AppColors.primary500.withValues(alpha: 0.2),
-                    width: 0.5)
+                    width: 0.5,
+                  )
                 : null,
           ),
           child: ListTile(
@@ -422,11 +560,14 @@ class _ArtistItemWidgetState extends ConsumerState<_ArtistItemWidget>
             trailing: widget.config.showBookmarkToggle
                 ? _buildBookmarkButton(context, isBookmarked)
                 : null,
-            onTap: widget.onArtistTap != null ? () => widget.onArtistTap!(widget.item) : null,
+            onTap: widget.onArtistTap != null
+                ? () => widget.onArtistTap!(widget.item)
+                : null,
           ),
         ),
         // 구분선
-        if (!widget.config.hideSectionHeaderOnSearch || widget.searchQuery.isEmpty)
+        if (!widget.config.hideSectionHeaderOnSearch ||
+            widget.searchQuery.isEmpty)
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Divider(height: 1, color: AppColors.grey200),
@@ -453,7 +594,8 @@ class _ArtistItemWidgetState extends ConsumerState<_ArtistItemWidget>
     return GestureDetector(
       onTap: () {
         logger.i(
-            '🔖 북마크 버튼 탭됨 - Artist: ${getLocaleTextFromJson(widget.item.name)}, isBookmarked: $isBookmarked');
+          '🔖 북마크 버튼 탭됨 - Artist: ${getLocaleTextFromJson(widget.item.name)}, isBookmarked: $isBookmarked',
+        );
         final updatedItem = widget.item.copyWith(isBookmarked: isBookmarked);
         widget.onBookmarkToggle?.call(updatedItem);
       },
@@ -466,7 +608,9 @@ class _ArtistItemWidgetState extends ConsumerState<_ArtistItemWidget>
           borderRadius: BorderRadius.circular(12),
           border: isBookmarked
               ? Border.all(
-                  color: AppColors.primary500.withValues(alpha: 0.3), width: 1)
+                  color: AppColors.primary500.withValues(alpha: 0.3),
+                  width: 1,
+                )
               : Border.all(color: Colors.grey.withValues(alpha: 0.2), width: 1),
         ),
         child: Icon(
@@ -486,8 +630,10 @@ class _ArtistItemWidgetState extends ConsumerState<_ArtistItemWidget>
       );
     }
 
-    final matchingText =
-        KoreanSearchUtils.getMatchingText(widget.item.name, widget.searchQuery);
+    final matchingText = KoreanSearchUtils.getMatchingText(
+      widget.item.name,
+      widget.searchQuery,
+    );
 
     return KoreanSearchUtils.buildConditionalHighlightText(
       matchingText,

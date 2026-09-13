@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
 import 'mock_providers.dart';
+import 'host_app_asset_bundle.dart';
 import 'test_environment.dart';
 
 /// 기존 테스트들이 기대해 온 하네스 기본 디자인 크기.
@@ -74,12 +75,15 @@ Widget buildTestApp(
       child: MaterialApp(
         navigatorKey: navigatorKey,
         locale: locale,
-        builder: textScaler == null
-            ? null
-            : (context, child) => MediaQuery(
-                data: MediaQuery.of(context).copyWith(textScaler: textScaler),
-                child: child!,
-              ),
+        builder: (context, child) => DefaultAssetBundle(
+          bundle: hostAppAssetBundle,
+          child: textScaler == null
+              ? child!
+              : MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+                  child: child!,
+                ),
+        ),
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -136,6 +140,8 @@ Widget buildTestAppPage(
       child: MaterialApp(
         navigatorKey: navigatorKey,
         locale: locale,
+        builder: (context, child) =>
+            DefaultAssetBundle(bundle: hostAppAssetBundle, child: child!),
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,

@@ -4,6 +4,8 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/data/repositories/ad_reward_repository.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/main_initializer.dart';
+import 'package:picnic_lib/core/utils/startup_readiness.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
@@ -106,40 +108,53 @@ class AdmobPlatform extends AdPlatform {
     logger.i('[$id] 광고 로드 시작: $_adUnitId');
 
     try {
-      await RewardedAd.load(
-        adUnitId: _adUnitId,
-        request: const AdRequest(),
-        rewardedAdLoadCallback: RewardedAdLoadCallback(
-          onAdLoaded: (RewardedAd ad) async {
-            if (isDisposed) {
-              ad.dispose();
-              return;
-            }
-            logger.i('[$id] 광고 로드 완료');
-            _setupAdCallbacks(ad);
-            await _showRewardedAd(ad);
-          },
-          onAdFailedToLoad: (LoadAdError error) {
-            logger.e(
-              '[$id] AdMob 광고 로드 실패 상세:\n'
-              '  code: ${error.code}\n'
-              '  message: ${error.message}\n'
-              '  domain: ${error.domain}\n'
-              '  responseInfo: ${error.responseInfo}\n'
-              '  adUnitId: $_adUnitId',
-            );
-            logAdLoadFailure(
-              'AdMob',
-              error,
-              _adUnitId,
-              error.toString(),
-              StackTrace.current,
-            );
-            stopAllAnimations();
-            // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
-          },
+      await MainInitializer.runAdRequestWhenReady<void>(
+        isRequestActive: () => !isDisposed && context.mounted,
+        request: () => RewardedAd.load(
+          adUnitId: _adUnitId,
+          request: const AdRequest(),
+          rewardedAdLoadCallback: RewardedAdLoadCallback(
+            onAdLoaded: (RewardedAd ad) async {
+              if (isDisposed) {
+                ad.dispose();
+                return;
+              }
+              logger.i('[$id] 광고 로드 완료');
+              _setupAdCallbacks(ad);
+              await _showRewardedAd(ad);
+            },
+            onAdFailedToLoad: (LoadAdError error) {
+              logger.e(
+                '[$id] AdMob 광고 로드 실패 상세:\n'
+                '  code: ${error.code}\n'
+                '  message: ${error.message}\n'
+                '  domain: ${error.domain}\n'
+                '  responseInfo: ${error.responseInfo}\n'
+                '  adUnitId: $_adUnitId',
+              );
+              logAdLoadFailure(
+                'AdMob',
+                error,
+                _adUnitId,
+                error.toString(),
+                StackTrace.current,
+              );
+              stopAllAnimations();
+              // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
+            },
+          ),
         ),
       );
+    } on AdsUnavailable catch (e) {
+      // 준비 대기 종료·동의 미허용·화면 닫기는 SDK 로드 오류가 아니다.
+      logger.i('[$id] 광고 요청 보류: $e');
+      stopAllAnimations();
+      if (context.mounted && !isDisposed) {
+        showSimpleDialog(
+          content: AppLocalizations.of(context).label_ads_load_fail,
+          type: DialogType.error,
+        );
+      }
     } catch (e, s) {
       // 분류 근거로 실제 예외 텍스트를 넘긴다 — 일반 라벨을 넘기면 '광고 로드
       // 실패' 키워드에 걸려 모든 예외가 no-fill 로 삼켜진다(pangle 과 동일 함정).
