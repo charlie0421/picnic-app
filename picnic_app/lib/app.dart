@@ -8,6 +8,8 @@ import 'package:picnic_app/presentation/splash/responsive_splash.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/services/app_badge_service.dart';
+import 'package:picnic_lib/core/services/push_token_service.dart';
+import 'package:picnic_lib/core/services/branch_link_service.dart';
 import 'package:picnic_lib/core/services/ad_reward_lifecycle.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -80,6 +82,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   Object? _initializationError;
   _InitializationRetryTarget _retryTarget = _InitializationRetryTarget.startup;
   int _initializationGeneration = 0;
+  int _branchReadinessGeneration = 0;
 
   /// The process-lifetime owner of purchase delivery.
   ///
@@ -95,6 +98,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   // 앱이 이미 초기화되었는지 여부를 추적하는 플래그
   bool _isAppInitialized = false;
+  late final int _branchHandlerOwner;
 
   // 스캐폴드 메신저 키 - SnackbarUtil과 공유하여 전역 토스트 표시 지원
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
@@ -114,6 +118,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     // 라우트 설정
     AppLifecycleInitializer.setupAppRoutes(ref, _appSpecificRoutes);
+    _branchHandlerOwner = BranchLinkService.instance.attachHandler(
+      (url) => AppInitializer.handleDeepLink(ref, url),
+    );
 
     // 구매 스트림 구독을 앱 첫 프레임에 세운다. iOS 는 큐 옵저버가 붙는
     // 순간(= 이 read) 미완료 트랜잭션을 재전달하므로 이보다 늦으면 그 이벤트를
@@ -279,6 +286,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final appSettingState = ref.watch(appSettingProvider);
 
     Widget currentScreen;
+    var isPortalReady = false;
     if (kForceBanScreen) {
       logger.i('임시 강제 - 밴 화면 표시');
       currentScreen = const BanScreen();
@@ -304,6 +312,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       currentScreen = ForceUpdateOverlay(updateInfo: appInitState.updateInfo!);
     } else {
       // logger.i('정상 상태 - 포털 화면 표시');
+      isPortalReady = true;
       currentScreen = widget.portalBuilder?.call(context) ?? const Portal();
     }
 
@@ -314,6 +323,14 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     // 라우트 처리
     final routes = RouteManager.mergeRoutes(_appSpecificRoutes);
+    final branchGeneration = ++_branchReadinessGeneration;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || branchGeneration != _branchReadinessGeneration) return;
+      BranchLinkService.instance.setHandlerReady(
+        _branchHandlerOwner,
+        isPortalReady && navigatorKey.currentContext != null,
+      );
+    });
 
     // AppBuilder를 사용하여 앱 UI 구성
     // PatchRestartDialogListener는 MaterialApp 내부(home)에 배치해야 Navigator context 사용 가능
@@ -327,7 +344,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
           ? currentScreen
           : AdRewardDialogHost(
               child: PatchRestartDialogListener(
-                child: UpdateDialog(child: currentScreen),
+                child: UpdateDialog(
+                  enabled: isPortalReady,
+                  child: currentScreen,
+                ),
               ),
             ),
       localizationsDelegates: [
@@ -426,6 +446,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     _initializationGeneration++;
     WidgetsBinding.instance.removeObserver(this);
     _rewardLifecycle?.dispose();
+    _branchReadinessGeneration++;
+    BranchLinkService.instance.detachHandler(_branchHandlerOwner);
+    unawaited(PushTokenService.dispose());
 
     // 앱 리스너 정리
     AppLifecycleInitializer.disposeAppListeners(null, _appLinksSubscription);
@@ -443,6 +466,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         logger.i('앱이 포그라운드로 복귀');
         // Sync app badge with unread notifications count
         AppBadgeService.syncBadgeWithUnreadCount();
+        unawaited(PushTokenService.resume());
         // 미완료 결제 리컨사일. 콜드 스타트에서는 스토어가 스스로 재전달하지만
         // resume 에는 그런 것이 없다 - Ask to Buy 승인이나 포그라운드에서
         // 실패한 정산이 다음 실행까지 갇혀 있던 자리다. 리스너가 자체

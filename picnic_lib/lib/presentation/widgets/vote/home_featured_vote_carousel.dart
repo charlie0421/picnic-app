@@ -4,7 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/presentation/common/picnic_image_prefetch.dart';
 import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/providers/active_featured_votes_provider.dart';
+import 'package:picnic_lib/presentation/providers/home_view_state_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_card.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -73,15 +75,19 @@ class _HomeFeaturedVoteCarouselState
   final _prefetchScope = PicnicImagePrefetchScope();
   String? _prefetchSignature;
   int _prefetchGeneration = 0;
+  List<FeaturedVoteEntry> _lastEntries = const [];
 
   void _synchronizeEntries(List<FeaturedVoteEntry> entries) {
     final sequence = entries.map((e) => e.vote.id).join(',');
     if (_sequence == sequence) return;
+    _activeVoteId ??= ref.read(homeViewStateProvider).selectedVoteId;
     final preserved = entries.indexWhere((e) => e.vote.id == _activeVoteId);
     _page = preserved >= 0 ? preserved : 0;
     _activeVoteId = entries.isEmpty ? null : entries[_page].vote.id;
     _sequence = sequence;
     _revision++;
+    final revision = _revision;
+    final selectedVoteId = _activeVoteId;
     final previousController = _controller;
     _controller = PageController(
       initialPage: _page,
@@ -89,6 +95,9 @@ class _HomeFeaturedVoteCarouselState
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       previousController.dispose();
+      if (mounted && revision == _revision) {
+        ref.read(homeViewStateProvider.notifier).selectVote(selectedVoteId);
+      }
     });
     if (entries.isEmpty) _schedulePrefetch(const []);
   }
@@ -129,7 +138,7 @@ class _HomeFeaturedVoteCarouselState
 
     return entriesAsync.when(
       loading: () {
-        _synchronizeEntries(const []);
+        if (_lastEntries.isNotEmpty) return _buildEntries(_lastEntries);
         return SizedBox(
           // data 브랜치의 PageView 는 뷰포트를 가로로 꽉 채운다. 폭 제약이 loose 인
           // 곳에 놓여도 두 브랜치가 같은 폭을 갖도록 여기서도 최대 폭을 요구한다.
@@ -151,70 +160,92 @@ class _HomeFeaturedVoteCarouselState
         );
       },
       error: (e, s) {
-        _synchronizeEntries(const []);
-        return const SizedBox.shrink();
+        final retry = Material(
+          color: Colors.transparent,
+          child: TextButton.icon(
+            key: const ValueKey('featured-votes-retry'),
+            onPressed: () => ref.invalidate(asyncActiveFeaturedVotesProvider),
+            icon: const Icon(Icons.refresh),
+            label: Text(AppLocalizations.of(context).label_retry),
+          ),
+        );
+        if (_lastEntries.isEmpty) {
+          return SizedBox(height: 96, child: Center(child: retry));
+        }
+        return Stack(
+          alignment: Alignment.topCenter,
+          children: [_buildEntries(_lastEntries), retry],
+        );
       },
       data: (entries) {
+        _lastEntries = entries;
         _synchronizeEntries(entries);
-        if (entries.isEmpty) return const SizedBox.shrink();
-        final revision = _revision;
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            final imageWidth = HomeFeaturedVoteCard.heroWidth(
-              constraints.maxWidth * HomeFeaturedVoteCarousel.viewportFraction -
-                  HomeFeaturedVoteCarousel.pageMargin.horizontal,
-            );
-            final requests = [
-              for (final entry in entries)
-                HomeFeaturedVoteCard.imageRequestFor(
-                  context,
-                  entry.vote,
-                  imageWidth,
-                ),
-            ];
-            _schedulePrefetch([
-              for (var i = _page + 1; i <= _page + 2 && i < entries.length; i++)
-                ?requests[i],
-            ]);
-            return Column(
-              children: [
-                SizedBox(
-                  height: HomeFeaturedVoteCarousel.viewportHeight,
-                  child: PageView.builder(
-                    key: ValueKey(revision),
-                    controller: _controller,
-                    itemCount: entries.length,
-                    padEnds: true,
-                    onPageChanged: (i) {
-                      if (!mounted || revision != _revision || i == _page) {
-                        return;
-                      }
-                      setState(() {
-                        _page = i;
-                        _activeVoteId = entries[i].vote.id;
-                      });
-                    },
-                    itemBuilder: (context, i) {
-                      final entry = entries[i];
-                      return Padding(
-                        key: ValueKey(entry.vote.id),
-                        padding: HomeFeaturedVoteCarousel.pageMargin,
-                        child: HomeFeaturedVoteCard(
-                          vote: entry.vote,
-                          percent: entry.topPercent,
-                          heroImageRequest: requests[i],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                if (entries.length > 1) ...[
-                  const SizedBox(height: 12),
-                  _Dots(count: entries.length, active: _page),
-                ],
-              ],
-            );
-          },
+        return _buildEntries(entries);
+      },
+    );
+  }
+
+  Widget _buildEntries(List<FeaturedVoteEntry> entries) {
+    if (entries.isEmpty) return const SizedBox.shrink();
+    final revision = _revision;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final imageWidth = HomeFeaturedVoteCard.heroWidth(
+          constraints.maxWidth * HomeFeaturedVoteCarousel.viewportFraction -
+              HomeFeaturedVoteCarousel.pageMargin.horizontal,
+        );
+        final requests = [
+          for (final entry in entries)
+            HomeFeaturedVoteCard.imageRequestFor(
+              context,
+              entry.vote,
+              imageWidth,
+            ),
+        ];
+        _schedulePrefetch([
+          for (var i = _page + 1; i <= _page + 2 && i < entries.length; i++)
+            ?requests[i],
+        ]);
+        return Column(
+          children: [
+            SizedBox(
+              height: HomeFeaturedVoteCarousel.viewportHeight,
+              child: PageView.builder(
+                key: ValueKey(revision),
+                controller: _controller,
+                itemCount: entries.length,
+                padEnds: true,
+                onPageChanged: (i) {
+                  if (!mounted || revision != _revision || i == _page) {
+                    return;
+                  }
+                  setState(() {
+                    _page = i;
+                    _activeVoteId = entries[i].vote.id;
+                  });
+                  ref
+                      .read(homeViewStateProvider.notifier)
+                      .selectVote(_activeVoteId);
+                },
+                itemBuilder: (context, i) {
+                  final entry = entries[i];
+                  return Padding(
+                    key: ValueKey(entry.vote.id),
+                    padding: HomeFeaturedVoteCarousel.pageMargin,
+                    child: HomeFeaturedVoteCard(
+                      vote: entry.vote,
+                      percent: entry.topPercent,
+                      heroImageRequest: requests[i],
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (entries.length > 1) ...[
+              const SizedBox(height: 12),
+              _Dots(count: entries.length, active: _page),
+            ],
+          ],
         );
       },
     );

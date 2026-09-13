@@ -12,15 +12,14 @@ void main() {
     initTestColors();
   });
 
-  Widget buildUpdateDialog({
-    AppInitializationState? initState,
-    Widget? child,
-  }) {
+  Widget buildUpdateDialog({AppInitializationState? initState, Widget? child}) {
     return buildTestApp(
       UpdateDialog(child: child ?? const Text('Child Content')),
       extraOverrides: [
         appInitializationProvider.overrideWithValue(
-          initState ?? const AppInitializationState(),
+          initState?.updateInfo == null
+              ? (initState ?? const AppInitializationState())
+              : initState!.copyWith(isInitialized: true),
         ),
       ],
     );
@@ -55,8 +54,7 @@ void main() {
       expect(find.text('Child Content'), findsOneWidget);
     });
 
-    testWidgets('shows update overlay when updateRecommended',
-        (tester) async {
+    testWidgets('shows update overlay when updateRecommended', (tester) async {
       final updateInfo = UpdateInfo(
         status: UpdateStatus.updateRecommended,
         currentVersion: '1.0.0',
@@ -65,9 +63,11 @@ void main() {
         url: 'https://example.com/update',
       );
 
-      await tester.pumpWidget(buildUpdateDialog(
-        initState: AppInitializationState(updateInfo: updateInfo),
-      ));
+      await tester.pumpWidget(
+        buildUpdateDialog(
+          initState: AppInitializationState(updateInfo: updateInfo),
+        ),
+      );
 
       // Advance past the 2-second Future.delayed in initState
       await tester.pump(const Duration(seconds: 2));
@@ -81,8 +81,9 @@ void main() {
       await drainOverlayTimers(tester);
     });
 
-    testWidgets('does not show notification when no update info',
-        (tester) async {
+    testWidgets('does not show notification when no update info', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildUpdateDialog());
 
       await tester.pump(const Duration(seconds: 2));
@@ -103,9 +104,11 @@ void main() {
         url: 'https://example.com/update',
       );
 
-      await tester.pumpWidget(buildUpdateDialog(
-        initState: AppInitializationState(updateInfo: updateInfo),
-      ));
+      await tester.pumpWidget(
+        buildUpdateDialog(
+          initState: AppInitializationState(updateInfo: updateInfo),
+        ),
+      );
 
       await tester.pump(const Duration(seconds: 2));
       await tester.pump();
@@ -125,9 +128,11 @@ void main() {
         url: 'https://example.com/update',
       );
 
-      await tester.pumpWidget(buildUpdateDialog(
-        initState: AppInitializationState(updateInfo: updateInfo),
-      ));
+      await tester.pumpWidget(
+        buildUpdateDialog(
+          initState: AppInitializationState(updateInfo: updateInfo),
+        ),
+      );
 
       await tester.pump(const Duration(seconds: 2));
       await tester.pump();

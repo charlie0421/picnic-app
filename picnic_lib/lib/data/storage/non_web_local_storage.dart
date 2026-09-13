@@ -10,7 +10,20 @@ class NonWebLocalStorage implements LocalStorage {
   @override
   Future<void> saveData(String key, String value) async {
     final SharedPreferences prefs = await _prefs;
-    await prefs.setString(key, value);
+    final previous = prefs.getString(key);
+    final saved = await prefs.setString(key, value);
+    if (!saved) {
+      try {
+        await prefs.reload();
+      } catch (_) {
+        if (previous == null) {
+          await prefs.remove(key);
+        } else {
+          await prefs.setString(key, previous);
+        }
+      }
+      throw StateError('SharedPreferences failed to persist $key');
+    }
   }
 
   @override

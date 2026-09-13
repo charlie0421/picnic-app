@@ -18,8 +18,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class QnaThreadListPage extends ConsumerStatefulWidget {
   final String userId;
+  final QnaRepository? repository;
 
-  const QnaThreadListPage({super.key, required this.userId});
+  const QnaThreadListPage({super.key, required this.userId, this.repository});
 
   @override
   ConsumerState<QnaThreadListPage> createState() => _QnaThreadListPageState();
@@ -27,15 +28,18 @@ class QnaThreadListPage extends ConsumerStatefulWidget {
 
 class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
     with RouteAwareStateMixin<QnaThreadListPage> {
-  final QnaRepository _repository = QnaRepository();
+  static const int _pageSize = 20;
+  late final QnaRepository _repository = widget.repository ?? QnaRepository();
   final ScrollController _scrollController = ScrollController();
   List<QnaThread> _threadList = [];
   bool _isLoading = true;
+  bool _isRefreshing = false;
   bool _isMoreLoading = false;
   bool _hasMore = true;
   String? _errorMessage;
   String? _currentTitle;
   RealtimeChannel? _threadListChannel;
+  int _loadGeneration = 0;
 
   @override
   void initState() {
@@ -86,6 +90,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
 
   @override
   void dispose() {
+    _loadGeneration++;
     try {
       _threadListChannel?.unsubscribe();
     } catch (_) {}
@@ -115,15 +120,23 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
   }
 
   Future<void> _loadThreads({bool isInitial = false}) async {
-    if (_isMoreLoading || !_hasMore) return;
+    if (!isInitial &&
+        (_isLoading || _isRefreshing || _isMoreLoading || !_hasMore)) {
+      return;
+    }
+
+    final generation = isInitial ? ++_loadGeneration : _loadGeneration;
 
     try {
-      if (isInitial && _threadList.isEmpty) {
+      if (!mounted) return;
+      if (isInitial) {
         setState(() {
-          _isLoading = true;
+          _isLoading = _threadList.isEmpty;
+          _isRefreshing = true;
+          _isMoreLoading = false;
           _errorMessage = null;
         });
-      } else if (!isInitial) {
+      } else {
         setState(() {
           _isMoreLoading = true;
           _errorMessage = null;
@@ -133,25 +146,37 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
       final lastId = isInitial || _threadList.isEmpty
           ? null
           : _threadList.last.id;
+      final lastCreatedAt = isInitial || _threadList.isEmpty
+          ? null
+          : _threadList.last.createdAt;
       final threads = await _repository.getQaThreadList(
         userId: widget.userId,
         lastId: lastId,
+        lastCreatedAt: lastCreatedAt,
+        limit: _pageSize,
       );
 
+      if (!mounted || generation != _loadGeneration) return;
       setState(() {
         if (isInitial) {
           _threadList = threads;
         } else {
-          _threadList.addAll(threads);
+          final existingIds = _threadList.map((thread) => thread.id).toSet();
+          _threadList.addAll(
+            threads.where((thread) => existingIds.add(thread.id)),
+          );
         }
-        _hasMore = threads.isNotEmpty;
+        _hasMore = threads.length == _pageSize;
         _isLoading = false;
+        _isRefreshing = false;
         _isMoreLoading = false;
-        if (isInitial) _errorMessage = null;
+        _errorMessage = null;
       });
     } catch (e) {
+      if (!mounted || generation != _loadGeneration) return;
       setState(() {
         _isLoading = false;
+        _isRefreshing = false;
         _isMoreLoading = false;
         _errorMessage = e.toString();
       });
@@ -163,10 +188,12 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
     if (!mounted) return;
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => QnaThreadCreatePage(userId: widget.userId),
+        builder: (context) =>
+            QnaThreadCreatePage(userId: widget.userId, repository: _repository),
       ),
     );
-    if (result == true) _loadThreads(isInitial: true);
+    if (!mounted) return;
+    if (result == true) await _loadThreads(isInitial: true);
   }
 
   void _navigateToThreadDetail(QnaThread thread) {

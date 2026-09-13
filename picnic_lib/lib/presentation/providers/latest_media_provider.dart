@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/video_info.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -19,7 +21,7 @@ class AsyncLatestMedia extends _$AsyncLatestMedia {
           .order('id', ascending: false)
           .limit(_limit);
 
-      return response.map((data) {
+      final items = response.map((data) {
         final videoId = data['video_id']?.toString() ?? '';
         return VideoInfo(
           id: data['id'] as int,
@@ -35,9 +37,25 @@ class AsyncLatestMedia extends _$AsyncLatestMedia {
           channelThumbnail: '',
         );
       }).toList();
+      _retainSuccessfulResult();
+      return items;
     } catch (e, s) {
       logger.e('latest media load error', error: e, stackTrace: s);
       rethrow;
     }
+  }
+
+  void _retainSuccessfulResult() {
+    final link = ref.keepAlive();
+    Timer? expiry;
+    ref.onCancel(() {
+      expiry?.cancel();
+      expiry = Timer(const Duration(minutes: 2), link.close);
+    });
+    ref.onResume(() {
+      expiry?.cancel();
+      expiry = null;
+    });
+    ref.onDispose(() => expiry?.cancel());
   }
 }

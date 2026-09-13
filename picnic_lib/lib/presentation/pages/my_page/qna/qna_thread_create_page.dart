@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_media_picker.dart';
@@ -40,8 +39,9 @@ bool isCategorySelectionRequired({
 
 class QnaThreadCreatePage extends ConsumerStatefulWidget {
   final String userId;
+  final QnaRepository? repository;
 
-  const QnaThreadCreatePage({super.key, required this.userId});
+  const QnaThreadCreatePage({super.key, required this.userId, this.repository});
 
   @override
   ConsumerState<QnaThreadCreatePage> createState() =>
@@ -53,7 +53,7 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   final _scrollController = ScrollController();
-  final QnaRepository _repository = QnaRepository();
+  late final QnaRepository _repository = widget.repository ?? QnaRepository();
 
   final List<File> _attachments = [];
   bool _isSubmitting = false;
@@ -62,6 +62,7 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
   List<QnaCategory> _categories = [];
   QnaCategory? _selectedCategory;
   bool _categoryError = false;
+  String? _lastAppliedTemplate;
 
   @override
   void dispose() {
@@ -87,6 +88,42 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
     } catch (_) {
       // 카테고리 로드는 실패해도 폼 사용은 가능해야 함
     }
+  }
+
+  void _selectCategory(String? value) {
+    final currentText = _contentController.text;
+    final canApplyTemplate =
+        currentText.isEmpty ||
+        (_lastAppliedTemplate != null && currentText == _lastAppliedTemplate);
+
+    setState(() {
+      if (value == null || value.isEmpty) {
+        _selectedCategory = null;
+        _categoryError = true;
+        if (!canApplyTemplate || currentText.isEmpty) {
+          _lastAppliedTemplate = null;
+        }
+        return;
+      }
+
+      final found = _categories.firstWhere(
+        (category) => category.code == value,
+        orElse: () => _categories.first,
+      );
+      _selectedCategory = found;
+      _categoryError = false;
+
+      final template = found.questionTemplate;
+      if (canApplyTemplate && template != null && template.isNotEmpty) {
+        _contentController.value = TextEditingValue(
+          text: template,
+          selection: TextSelection.collapsed(offset: template.length),
+        );
+        _lastAppliedTemplate = template;
+      } else if (!canApplyTemplate) {
+        _lastAppliedTemplate = null;
+      }
+    });
   }
 
   Future<void> _pickMedia() async {
@@ -227,25 +264,7 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
                         children: [
                           CustomDropdown(
                             value: (_selectedCategory?.code ?? ''),
-                            onChanged: (value) {
-                              setState(() {
-                                if (value == null || value.isEmpty) {
-                                  _selectedCategory = null;
-                                  _categoryError = true;
-                                  _contentController.clear();
-                                } else {
-                                  final found = _categories.firstWhere(
-                                    (c) => c.code == value,
-                                    orElse: () => _categories.first,
-                                  );
-                                  _selectedCategory = found;
-                                  _categoryError = false;
-                                  final tmpl = found.questionTemplate;
-                                  // 템플릿이 없더라도 입력창을 항상 업데이트 (없으면 빈 문자열로 초기화)
-                                  _contentController.text = (tmpl ?? '');
-                                }
-                              });
-                            },
+                            onChanged: _selectCategory,
                             items: [
                               CustomDropdownMenuItem(
                                 value: '',

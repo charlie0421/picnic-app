@@ -3,11 +3,13 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/push_token_initialization_coordinator.dart';
 import 'package:picnic_lib/services/locale_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,6 +21,10 @@ class PushTokenService {
   static bool _notificationsInitialized = false;
   static Function(RemoteMessage)? _onNotificationTap;
   static Function(String)? _onActionUrlTap;
+  static PushTokenInitializationCoordinator? _coordinator;
+  static PushTokenInitializationCoordinator Function()?
+  _debugCoordinatorFactory;
+  static int _ownerGeneration = 0;
 
   static Future<void> initialize({
     Function(RemoteMessage)? onNotificationTap,
@@ -27,162 +33,128 @@ class PushTokenService {
     _onNotificationTap = onNotificationTap;
     _onActionUrlTap = onActionUrlTap;
     if (kIsWeb) return; // Web handled in Next.js app
+    _coordinator ??= (_debugCoordinatorFactory ?? _createCoordinator)();
+    await _coordinator!.initialize();
+  }
 
-    try {
-      final totalSw = Stopwatch()..start();
+  static Future<void> resume() async {
+    if (kIsWeb) return;
+    _coordinator ??= (_debugCoordinatorFactory ?? _createCoordinator)();
+    await _coordinator!.resume();
+  }
 
-      // 로컬 알림 초기화 (포그라운드 알림 표시용)
-      if (!_notificationsInitialized) {
-        await _initializeLocalNotifications();
-        _notificationsInitialized = true;
-      }
+  static Future<void> dispose() async {
+    _ownerGeneration++;
+    final coordinator = _coordinator;
+    _coordinator = null;
+    _onNotificationTap = null;
+    _onActionUrlTap = null;
+    if (coordinator != null) await coordinator.dispose();
+  }
 
-      if (Platform.isIOS) {
-        final permSw = Stopwatch()..start();
-        final settings = await _messaging
-            .requestPermission(alert: true, badge: true, sound: true)
-            .timeout(const Duration(seconds: 5));
-        permSw.stop();
-        logger.i(
-          'iOS notification permission: ${settings.authorizationStatus} (took ${permSw.elapsedMilliseconds}ms)',
-        );
-      } else if (Platform.isAndroid) {
-        final permSw = Stopwatch()..start();
-        final status = await Permission.notification.request().timeout(
-          const Duration(seconds: 5),
-        );
-        permSw.stop();
-        logger.i(
-          'Android notification permission: $status (took ${permSw.elapsedMilliseconds}ms)',
-        );
-      }
-
-      // iOS: APNS 토큰이 준비되기 전에 getToken()을 호출하면 예외가 발생할 수 있음
-      if (Platform.isIOS) {
-        final apnsSw = Stopwatch()..start();
-        final apnsToken = await _awaitAPNSToken(
-          timeout: const Duration(seconds: 10),
-        );
-        apnsSw.stop();
-        logger.i(
-          'APNS token ${apnsToken == null ? 'not ready' : 'ready'} (waited ${apnsSw.elapsedMilliseconds}ms)',
-        );
-        if (apnsToken == null) {
-          // 이후 onTokenRefresh 리스너에서 처리되도록 지연
-          logger.w(
-            'Deferring FCM getToken() until APNS token becomes available',
-          );
-        }
-      }
-
-      final tokenSw = Stopwatch()..start();
-      String? fcmToken;
-      try {
-        fcmToken = await _messaging.getToken().timeout(
-          const Duration(seconds: 8),
-        );
-      } catch (e) {
-        // APNS 미준비 등으로 실패 시, onTokenRefresh에서 후속 처리되도록 넘어간다
-        logger.w(
-          'getToken() failed early; will rely on onTokenRefresh. reason=$e',
-        );
-      }
-      tokenSw.stop();
-      final preview = fcmToken == null
-          ? 'null'
-          : (fcmToken.length > 12
-                ? '${fcmToken.substring(0, 12)}...'
-                : fcmToken);
-      logger.i('FCM token: $preview (took ${tokenSw.elapsedMilliseconds}ms)');
-      if (fcmToken != null) {
-        final sessionReady =
-            supabase.auth.currentSession?.accessToken.isNotEmpty == true;
-        if (sessionReady) {
-          // 초기화 지연을 막기 위해 비동기 호출로 전환
-          // ignore: unawaited_futures
-          registerToken(fcmToken);
-        } else {
-          logger.w(
-            'Auth session not ready; will register push token on sign-in event',
-          );
-          supabase.auth.onAuthStateChange.listen((AuthState state) {
-            if (state.event == AuthChangeEvent.signedIn) {
-              // ignore: unawaited_futures
-              registerToken(fcmToken!);
-            }
+  static PushTokenInitializationCoordinator _createCoordinator() {
+    final owner = _ownerGeneration;
+    return PushTokenInitializationCoordinator(
+      PushInitializationDependencies(
+        initializeLocalNotifications: () async {
+          if (_notificationsInitialized) return;
+          await _initializeLocalNotifications();
+          _notificationsInitialized = true;
+        },
+        requestPermission: () async {
+          if (Platform.isIOS) {
+            final settings = await _messaging.requestPermission(
+              alert: true,
+              badge: true,
+              sound: true,
+            );
+            return _isAuthorized(settings.authorizationStatus)
+                ? PushPermissionStatus.granted
+                : PushPermissionStatus.denied;
+          }
+          if (Platform.isAndroid) {
+            final status = await Permission.notification.request();
+            return status.isGranted
+                ? PushPermissionStatus.granted
+                : PushPermissionStatus.denied;
+          }
+          return PushPermissionStatus.denied;
+        },
+        checkPermission: () async {
+          if (Platform.isIOS) {
+            final settings = await _messaging.getNotificationSettings();
+            return _isAuthorized(settings.authorizationStatus)
+                ? PushPermissionStatus.granted
+                : PushPermissionStatus.denied;
+          }
+          if (Platform.isAndroid) {
+            final status = await Permission.notification.status;
+            return status.isGranted
+                ? PushPermissionStatus.granted
+                : PushPermissionStatus.denied;
+          }
+          return PushPermissionStatus.denied;
+        },
+        getToken: _getTokenForRegistration,
+        subscribeToBroadcastTopic: () => _supportsBroadcastTopics
+            ? _messaging.subscribeToTopic('all')
+            : Future<void>.value(),
+        registerToken: (token) {
+          final userId = supabase.auth.currentUser?.id;
+          if (userId == null) return Future<void>.value();
+          return _registerToken(token, owner: owner, userId: userId);
+        },
+        tokenRefreshes: _messaging.onTokenRefresh,
+        foregroundMessages: FirebaseMessaging.onMessage.cast<Object>(),
+        openedMessages: FirebaseMessaging.onMessageOpenedApp.cast<Object>(),
+        authChanges: supabase.auth.onAuthStateChange.cast<Object>(),
+        isSignedIn: () =>
+            supabase.auth.currentSession?.accessToken.isNotEmpty == true,
+        isSignedInEvent: (event) =>
+            event is AuthState && event.event == AuthChangeEvent.signedIn,
+        onForegroundMessage: (message) async {
+          if (owner != _ownerGeneration) return;
+          await _handleForegroundMessage(message as RemoteMessage);
+        },
+        onOpenedMessage: (message) {
+          if (owner != _ownerGeneration) return;
+          final remoteMessage = message as RemoteMessage;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (owner != _ownerGeneration) return;
+            _handleNotificationTap(remoteMessage);
           });
-        }
-      }
-
-      // Subscribe to broadcast topic 'all' for global notifications (mobile only)
-      try {
-        if (Platform.isIOS || Platform.isAndroid) {
-          await _messaging.subscribeToTopic('all');
-          logger.i('Subscribed to FCM topic: all');
-        }
-      } catch (e, s) {
-        logger.w('Failed to subscribe topic all: $e');
-        logger.d('$s');
-      }
-
-      _messaging.onTokenRefresh.listen((token) async {
-        logger.i('FCM token refreshed');
-        // 토큰 재등록은 실패하더라도 초기화 플로우를 막지 않도록 fire-and-forget
-        // ignore: unawaited_futures
-        registerToken(token);
-      });
-
-      // 앱 포그라운드 수신 처리 및 알림 표시
-      FirebaseMessaging.onMessage.listen((RemoteMessage msg) async {
-        final title =
-            msg.notification?.title ?? msg.data['title'] ?? '(no-title)';
-        final body = msg.notification?.body ?? msg.data['body'] ?? '';
-        logger.i(
-          '[FCM] onMessage (foreground) title="$title" body="$body" data=${msg.data}',
-        );
-
-        // 포그라운드에서 알림 표시
-        if (title != '(no-title)' && body.isNotEmpty) {
-          await _showLocalNotification(
-            title: title,
-            body: body,
-            data: msg.data,
+        },
+        getInitialMessage: () => _messaging.getInitialMessage(),
+        onError: (error, stackTrace) {
+          logger.e(
+            'Push initialization step failed',
+            error: error,
+            stackTrace: stackTrace,
           );
-        }
-      });
+        },
+      ),
+    );
+  }
 
-      // 백그라운드에서 알림 클릭 시 처리
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage msg) {
-        logger.i(
-          '[FCM] onMessageOpenedApp (background tap) title="${msg.notification?.title}" data=${msg.data}',
-        );
-        _handleNotificationTap(msg);
-      });
+  static bool _isAuthorized(AuthorizationStatus status) =>
+      status == AuthorizationStatus.authorized ||
+      status == AuthorizationStatus.provisional;
 
-      // 앱이 종료된 상태에서 알림으로 시작된 경우 처리
-      final initialMessage = await FirebaseMessaging.instance
-          .getInitialMessage();
-      if (initialMessage != null) {
-        logger.i(
-          '[FCM] getInitialMessage (terminated tap) title="${initialMessage.notification?.title}" data=${initialMessage.data}',
-        );
-        // 앱이 완전히 초기화된 후 처리하기 위해 약간의 지연
-        Future.delayed(const Duration(milliseconds: 500), () {
-          _handleNotificationTap(initialMessage);
-        });
-      }
+  static Future<String?> _getTokenForRegistration() async {
+    if (Platform.isIOS) {
+      await _awaitAPNSToken(timeout: const Duration(seconds: 10));
+    }
+    return _messaging.getToken().timeout(const Duration(seconds: 8));
+  }
 
-      totalSw.stop();
-      logger.i(
-        'PushTokenService.initialize completed in ${totalSw.elapsedMilliseconds}ms',
-      );
-    } catch (e, s) {
-      final type = e.runtimeType.toString();
-      logger.e(
-        'PushTokenService initialize failed ($type)',
-        error: e,
-        stackTrace: s,
-      );
+  static Future<void> _handleForegroundMessage(RemoteMessage msg) async {
+    final title = msg.notification?.title ?? msg.data['title'] ?? '(no-title)';
+    final body = msg.notification?.body ?? msg.data['body'] ?? '';
+    logger.i(
+      '[FCM] onMessage (foreground) title="$title" body="$body" data=${msg.data}',
+    );
+    if (title != '(no-title)' && body.isNotEmpty) {
+      await _showLocalNotification(title: title, body: body, data: msg.data);
     }
   }
 
@@ -197,30 +169,45 @@ class PushTokenService {
         await registerToken(token);
       }
     } catch (e, s) {
-      logger.e('Failed to refresh token with language', error: e, stackTrace: s);
+      logger.e(
+        'Failed to refresh token with language',
+        error: e,
+        stackTrace: s,
+      );
     }
   }
 
   static Future<void> registerToken(String token) async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) {
+      logger.w('registerToken skipped: no authenticated user');
+      return;
+    }
+    await _registerToken(token, owner: _ownerGeneration, userId: userId);
+  }
+
+  static Future<void> _registerToken(
+    String token, {
+    required int owner,
+    required String userId,
+  }) async {
+    final platform = Platform.isIOS
+        ? 'ios'
+        : Platform.isAndroid
+        ? 'android'
+        : Platform.isMacOS
+        ? 'macos'
+        : Platform.isWindows
+        ? 'windows'
+        : 'web';
+    final appLanguage = _getAppLanguage();
     try {
       final user = supabase.auth.currentUser;
-      if (user == null) {
-        logger.w('registerToken skipped: no authenticated user');
+      if (user == null ||
+          user.id != userId ||
+          !_isRegistrationOwnerActive(owner, userId)) {
         return;
       }
-
-      final platform = Platform.isIOS
-          ? 'ios'
-          : Platform.isAndroid
-          ? 'android'
-          : Platform.isMacOS
-          ? 'macos'
-          : Platform.isWindows
-          ? 'windows'
-          : 'web';
-
-      // 앱 언어 설정 가져오기
-      final appLanguage = _getAppLanguage();
 
       final uriPreview =
           '${Environment.supabaseUrl}/functions/v1/register-push-token';
@@ -232,7 +219,10 @@ class PushTokenService {
       // 최신 세션 토큰 확보 (v2 API 호환)
       var accessToken = supabase.auth.currentSession?.accessToken;
       if (accessToken == null || accessToken.isEmpty) {
-        final refreshed = await supabase.auth.refreshSession();
+        final refreshed = await supabase.auth.refreshSession().timeout(
+          const Duration(seconds: 12),
+        );
+        if (!_isRegistrationOwnerActive(owner, userId)) return;
         accessToken = refreshed.session?.accessToken ?? accessToken;
       }
       if (accessToken == null || accessToken.isEmpty) {
@@ -242,22 +232,14 @@ class PushTokenService {
         return;
       }
 
-      // 다른 invoke 성공 사례와 동일하게, 명시적으로 클라이언트를 생성해 호출
-      final client = SupabaseClient(
-        Environment.supabaseUrl,
-        Environment.supabaseAnonKey,
+      if (!_isRegistrationOwnerActive(owner, userId)) return;
+      final res = await _invokeRegistration(
+        accessToken: accessToken,
+        platform: platform,
+        token: token,
+        appLanguage: appLanguage,
       );
-      final res = await client.functions
-          .invoke(
-            'register-push-token',
-            headers: {'Authorization': 'Bearer $accessToken'},
-            body: {
-              'platform': platform,
-              'token': token,
-              'device_locale': appLanguage,
-            },
-          )
-          .timeout(const Duration(seconds: 12));
+      if (!_isRegistrationOwnerActive(owner, userId)) return;
       sw.stop();
       if (res.status >= 300) {
         logger.e(
@@ -270,34 +252,22 @@ class PushTokenService {
       logger.e('registerToken timeout after 12s', error: e, stackTrace: s);
       // 1회 재시도 (워밍/일시 지연 대응)
       try {
-        final refreshed = await supabase.auth.refreshSession();
+        if (!_isRegistrationOwnerActive(owner, userId)) return;
+        final refreshed = await supabase.auth.refreshSession().timeout(
+          const Duration(seconds: 12),
+        );
+        if (!_isRegistrationOwnerActive(owner, userId)) return;
         final retryToken =
             refreshed.session?.accessToken ??
             supabase.auth.currentSession?.accessToken;
         if (retryToken != null && retryToken.isNotEmpty) {
-          final client = SupabaseClient(
-            Environment.supabaseUrl,
-            Environment.supabaseAnonKey,
+          final res = await _invokeRegistration(
+            accessToken: retryToken,
+            platform: platform,
+            token: token,
+            appLanguage: appLanguage,
           );
-          final res = await client.functions
-              .invoke(
-                'register-push-token',
-                headers: {'Authorization': 'Bearer $retryToken'},
-                body: {
-                  'platform': Platform.isIOS
-                      ? 'ios'
-                      : Platform.isAndroid
-                      ? 'android'
-                      : Platform.isMacOS
-                      ? 'macos'
-                      : Platform.isWindows
-                      ? 'windows'
-                      : 'web',
-                  'token': token,
-                  'device_locale': _getAppLanguage(),
-                },
-              )
-              .timeout(const Duration(seconds: 12));
+          if (!_isRegistrationOwnerActive(owner, userId)) return;
           if (res.status >= 300) {
             logger.e(
               'Retry after timeout failed: status=${res.status}, data=${res.data}',
@@ -332,30 +302,20 @@ class PushTokenService {
           logger.w(
             'registerToken got 401 -> refreshing session and retrying once',
           );
-          final refreshed = await supabase.auth.refreshSession();
+          if (!_isRegistrationOwnerActive(owner, userId)) return;
+          final refreshed = await supabase.auth.refreshSession().timeout(
+            const Duration(seconds: 12),
+          );
+          if (!_isRegistrationOwnerActive(owner, userId)) return;
           final retryToken = refreshed.session?.accessToken;
           if (retryToken != null && retryToken.isNotEmpty) {
-            final client = SupabaseClient(
-              Environment.supabaseUrl,
-              Environment.supabaseAnonKey,
+            final res = await _invokeRegistration(
+              accessToken: retryToken,
+              platform: platform,
+              token: token,
+              appLanguage: appLanguage,
             );
-            final res = await client.functions.invoke(
-              'register-push-token',
-              headers: {'Authorization': 'Bearer $retryToken'},
-              body: {
-                'platform': Platform.isIOS
-                    ? 'ios'
-                    : Platform.isAndroid
-                    ? 'android'
-                    : Platform.isMacOS
-                    ? 'macos'
-                    : Platform.isWindows
-                    ? 'windows'
-                    : 'web',
-                'token': token,
-                'device_locale': _getAppLanguage(),
-              },
-            );
+            if (!_isRegistrationOwnerActive(owner, userId)) return;
             if (res.status >= 300) {
               logger.e(
                 'Retry failed to register push token: status=${res.status}, data=${res.data}',
@@ -381,22 +341,99 @@ class PushTokenService {
     }
   }
 
+  static bool _isRegistrationOwnerActive(int owner, String userId) =>
+      owner == _ownerGeneration && supabase.auth.currentUser?.id == userId;
+
+  @visibleForTesting
+  static int get debugOwnerGeneration => _ownerGeneration;
+
+  @visibleForTesting
+  static bool debugIsRegistrationOwnerActive(int owner, String userId) =>
+      _isRegistrationOwnerActive(owner, userId);
+
+  static Future<FunctionResponse> _invokeRegistration({
+    required String accessToken,
+    required String platform,
+    required String token,
+    required String appLanguage,
+  }) async {
+    final client = SupabaseClient(
+      Environment.supabaseUrl,
+      Environment.supabaseAnonKey,
+    );
+    try {
+      return await client.functions
+          .invoke(
+            'register-push-token',
+            headers: {'Authorization': 'Bearer $accessToken'},
+            body: {
+              'platform': platform,
+              'token': token,
+              'device_locale': appLanguage,
+            },
+          )
+          .timeout(const Duration(seconds: 12));
+    } finally {
+      await client.dispose();
+    }
+  }
+
   static Future<String?> _awaitAPNSToken({
     Duration timeout = const Duration(seconds: 10),
+    Duration pollInterval = const Duration(milliseconds: 250),
+    Future<String?> Function()? getToken,
   }) async {
     try {
       if (_apnsWaited) return null;
-      _apnsWaited = true;
       final sw = Stopwatch()..start();
       while (sw.elapsed < timeout) {
-        final token = await _messaging.getAPNSToken();
+        final remaining = timeout - sw.elapsed;
+        if (remaining <= Duration.zero) break;
+        final token = await (getToken ?? _messaging.getAPNSToken)().timeout(
+          remaining,
+        );
         if (token != null && token.isNotEmpty) {
+          _apnsWaited = true;
           return token;
         }
-        await Future.delayed(const Duration(milliseconds: 250));
+        final delay = pollInterval < remaining ? pollInterval : remaining;
+        if (delay > Duration.zero) await Future<void>.delayed(delay);
       }
     } catch (_) {}
     return null;
+  }
+
+  static bool get _supportsBroadcastTopics =>
+      Platform.isIOS || Platform.isAndroid;
+
+  @visibleForTesting
+  static bool get debugSupportsBroadcastTopics => _supportsBroadcastTopics;
+
+  @visibleForTesting
+  static void debugUseCoordinatorFactory(
+    PushTokenInitializationCoordinator Function() factory,
+  ) {
+    assert(_coordinator == null);
+    _debugCoordinatorFactory = factory;
+  }
+
+  @visibleForTesting
+  static Future<String?> debugWaitForApnsToken({
+    required Future<String?> Function() getToken,
+    required Duration timeout,
+    Duration pollInterval = Duration.zero,
+  }) => _awaitAPNSToken(
+    timeout: timeout,
+    pollInterval: pollInterval,
+    getToken: getToken,
+  );
+
+  @visibleForTesting
+  static Future<void> debugResetForTest() async {
+    await dispose();
+    _debugCoordinatorFactory = null;
+    _apnsWaited = false;
+    _notificationsInitialized = false;
   }
 
   /// 로컬 알림 초기화
@@ -406,9 +443,9 @@ class PushTokenService {
         '@mipmap/launcher_icon',
       );
       const iosSettings = DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
       );
       const initSettings = InitializationSettings(
         android: androidSettings,

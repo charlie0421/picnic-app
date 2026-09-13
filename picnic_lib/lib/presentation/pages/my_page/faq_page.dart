@@ -13,8 +13,19 @@ import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/presentation/pages/my_page/faq_page_helper.dart';
 
+class FAQContent {
+  const FAQContent({required this.faqs, required this.categories});
+
+  final List<Map<String, dynamic>> faqs;
+  final List<Map<String, dynamic>> categories;
+}
+
+typedef FAQContentLoader = Future<FAQContent> Function();
+
 class FAQPage extends ConsumerStatefulWidget {
-  const FAQPage({super.key});
+  const FAQPage({super.key, this.loadContent});
+
+  final FAQContentLoader? loadContent;
 
   @override
   ConsumerState<FAQPage> createState() => _FAQPageState();
@@ -27,6 +38,9 @@ class _FAQPageState extends ConsumerState<FAQPage>
   List<String> _categories = ['ALL'];
   List<Map<String, dynamic>> _categoriesData = [];
   String? _currentTitle;
+  bool _isLoading = true;
+  Object? _loadError;
+  int _loadGeneration = 0;
 
   String _getLocalizedText(Map<String, dynamic> json, String language) {
     return FAQPageHelper.getLocalizedText(json, language);
@@ -64,9 +78,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
           autoFocus: false,
           expands: false,
           padding: EdgeInsets.zero,
-          embedBuilders: [
-            NetworkImageEmbedBuilder(enableFullScreen: true),
-          ],
+          embedBuilders: [NetworkImageEmbedBuilder(enableFullScreen: true)],
         ),
       );
     } catch (e) {
@@ -86,8 +98,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
 
   // 답변 위젯 빌더
   Widget _buildAnswer(Map<String, dynamic> faq, String language) {
-    final answerDelta =
-        faq['answer_delta'] as Map<String, dynamic>?;
+    final answerDelta = faq['answer_delta'] as Map<String, dynamic>?;
     final delta = _getLocalizedDelta(answerDelta, language);
 
     if (delta != null) {
@@ -136,33 +147,54 @@ class _FAQPageState extends ConsumerState<FAQPage>
   }
 
   Future<void> _fetchPage() async {
-    try {
-      final client = Supabase.instance.client;
-
-      final faqsFuture = client
-          .from('faqs')
-          .select()
-          .eq('status', 'PUBLISHED')
-          .order('order_number');
-
-      final categoriesFuture = client
-          .from('faq_categories')
-          .select('code,label,order_number,active')
-          .eq('active', true)
-          .order('order_number');
-
-      final results = await Future.wait([faqsFuture, categoriesFuture]);
-      final faqsResponse = results[0] as List<dynamic>;
-      final categoriesResponse = results[1] as List<dynamic>;
-
+    final generation = ++_loadGeneration;
+    if (mounted) {
       setState(() {
-        _faqs = faqsResponse.cast<Map<String, dynamic>>();
-        _categoriesData = categoriesResponse.cast<Map<String, dynamic>>();
+        if (_faqs.isEmpty) _isLoading = true;
+        _loadError = null;
+      });
+    }
+    try {
+      final content = await (widget.loadContent?.call() ?? _loadContent());
+
+      if (!mounted || generation != _loadGeneration) return;
+      setState(() {
+        _faqs = content.faqs;
+        _categoriesData = content.categories;
         _categories = FAQPageHelper.buildCategoriesList(_categoriesData);
+        if (!_categories.contains(_selectedCategory)) {
+          _selectedCategory = 'ALL';
+        }
+        _isLoading = false;
       });
     } catch (error) {
       logger.e('FAQ 데이터 가져오기 오류', error: error);
+      if (!mounted || generation != _loadGeneration) return;
+      setState(() {
+        _isLoading = false;
+        _loadError = error;
+      });
     }
+  }
+
+  Future<FAQContent> _loadContent() async {
+    final client = Supabase.instance.client;
+    final results = await Future.wait([
+      client
+          .from('faqs')
+          .select()
+          .eq('status', 'PUBLISHED')
+          .order('order_number'),
+      client
+          .from('faq_categories')
+          .select('code,label,order_number,active')
+          .eq('active', true)
+          .order('order_number'),
+    ]);
+    return FAQContent(
+      faqs: (results[0] as List<dynamic>).cast<Map<String, dynamic>>(),
+      categories: (results[1] as List<dynamic>).cast<Map<String, dynamic>>(),
+    );
   }
 
   List<Map<String, dynamic>> _getFilteredFaqs() {
@@ -176,9 +208,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
       if (!mounted) return;
       ref
           .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(
-            pageTitle: title,
-          );
+          .setMyPageTitle(pageTitle: title);
     });
   }
 
@@ -186,6 +216,11 @@ class _FAQPageState extends ConsumerState<FAQPage>
   Widget build(BuildContext context) {
     final currentLanguage = ref.watch(appSettingProvider).language;
     final filteredFaqs = _getFilteredFaqs();
+
+    if (_isLoading && _faqs.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_loadError != null && _faqs.isEmpty) return _buildError(context);
 
     return Column(
       children: [
@@ -229,56 +264,99 @@ class _FAQPageState extends ConsumerState<FAQPage>
           ),
         ),
         Expanded(
-          child: filteredFaqs.isNotEmpty
-              ? ListView.builder(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 16.h,
-                  ),
-                  itemCount: filteredFaqs.length,
-                  itemBuilder: (context, index) {
-                    final faq = filteredFaqs[index];
-                    return ExpansionTile(
-                      title: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (faq['category'] != null)
+          child: RefreshIndicator(
+            onRefresh: _fetchPage,
+            child: filteredFaqs.isNotEmpty || _loadError != null
+                ? ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 16.h,
+                    ),
+                    itemCount:
+                        filteredFaqs.length + (_loadError == null ? 0 : 1),
+                    itemBuilder: (context, index) {
+                      if (_loadError != null && index == 0) {
+                        return _buildError(context, compact: true);
+                      }
+                      final faqIndex = index - (_loadError == null ? 0 : 1);
+                      final faq = filteredFaqs[faqIndex];
+                      return ExpansionTile(
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (faq['category'] != null)
+                              Text(
+                                _getLocalizedCategoryLabel(
+                                  faq['category'],
+                                  currentLanguage,
+                                ),
+                                style: getTextStyle(
+                                  AppTypo.body14M,
+                                  AppColors.primary500,
+                                ),
+                              ),
+                            SizedBox(height: 4.h),
                             Text(
-                              _getLocalizedCategoryLabel(
-                                faq['category'],
+                              _getLocalizedText(
+                                faq['question'],
                                 currentLanguage,
                               ),
                               style: getTextStyle(
-                                AppTypo.body14M,
-                                AppColors.primary500,
+                                AppTypo.body14B,
+                                AppColors.grey900,
                               ),
                             ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            _getLocalizedText(faq['question'], currentLanguage),
-                            style: getTextStyle(
-                              AppTypo.body14B,
-                              AppColors.grey900,
-                            ),
+                          ],
+                        ),
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(16.w),
+                            child: _buildAnswer(faq, currentLanguage),
                           ),
                         ],
-                      ),
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.all(16.w),
-                          child: _buildAnswer(faq, currentLanguage),
+                      );
+                    },
+                  )
+                : ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.sizeOf(context).height * 0.55,
+                        child: NoItemContainer(
+                          message: AppLocalizations.of(
+                            context,
+                          ).common_text_no_search_result,
                         ),
-                      ],
-                    );
-                  },
-                )
-              : NoItemContainer(
-                  message: AppLocalizations.of(
-                    context,
-                  ).common_text_no_search_result,
-                ),
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildError(BuildContext context, {bool compact = false}) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(compact ? 8 : 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              AppLocalizations.of(context).message_error_occurred,
+              textAlign: TextAlign.center,
+            ),
+            TextButton.icon(
+              key: const ValueKey('faq-retry'),
+              onPressed: _fetchPage,
+              icon: const Icon(Icons.refresh),
+              label: Text(AppLocalizations.of(context).label_retry),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

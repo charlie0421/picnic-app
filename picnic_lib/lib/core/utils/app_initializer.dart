@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:picnic_lib/core/analytics/auth_analytics_reporter.dart';
@@ -21,6 +20,7 @@ import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/core/utils/startup_readiness.dart';
 import 'package:picnic_lib/core/utils/system_ui_initializer.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
+import 'package:picnic_lib/core/services/branch_link_service.dart';
 import 'package:picnic_lib/core/services/app_badge_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
@@ -628,7 +628,9 @@ class AppInitializer {
       // (메인 화면 진입을 블로킹하지 않음)
       if (isMobile()) {
         await stages.run('app-background-tasks-launch', () async {
-          if (canPublish()) _initializeBackgroundTasks(ref);
+          if (canPublish()) {
+            _initializeBackgroundTasks(ref, isActive: canPublish);
+          }
         });
       }
 
@@ -640,17 +642,18 @@ class AppInitializer {
   }
 
   /// Portal 표시 후 백그라운드에서 실행되는 비필수 초기화
-  static void _initializeBackgroundTasks(WidgetRef ref) {
+  static void _initializeBackgroundTasks(
+    WidgetRef ref, {
+    required bool Function() isActive,
+  }) {
     Future.microtask(() async {
-      try {
-        // 제품 프리로드는 푸시 초기화와 독립인데, 푸시의 APNS 토큰 폴링이
-        // 콜드스타트에서 10초 이상 걸릴 수 있어 뒤에 두면 스토어 첫 진입이
-        // 그만큼 shimmer로 비어 보인다. 먼저 시작해 병렬로 진행한다.
-        final productsPreload = _loadProducts(ref);
-
-        // 푸시 토큰 등록
-        await PushTokenService.initialize(
+      await runIndependentBackgroundTasks(
+        isActive: isActive,
+        preloadProducts: () => _loadProducts(ref),
+        syncBadge: AppBadgeService.syncBadgeWithUnreadCount,
+        initializePush: () => PushTokenService.initialize(
           onNotificationTap: (RemoteMessage msg) {
+            if (!isActive()) return;
             final actionUrl = msg.data['action_url'];
             if (actionUrl != null &&
                 actionUrl is String &&
@@ -659,29 +662,67 @@ class AppInitializer {
                 '[AppInitializer] Handling push notification tap: $actionUrl',
               );
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!isActive()) return;
                 handleDeepLink(ref, actionUrl);
               });
             }
           },
           onActionUrlTap: (String actionUrl) {
+            if (!isActive()) return;
             logger.i('[AppInitializer] Handling action URL tap: $actionUrl');
             WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!isActive()) return;
               handleDeepLink(ref, actionUrl);
             });
           },
-        );
-        logger.i('백그라운드: 푸시 토큰 등록 완료');
-
-        // 앱 배지 동기화
-        AppBadgeService.syncBadgeWithUnreadCount();
-
-        // 제품 정보 로드 (위에서 이미 시작한 프리로드 합류)
-        await productsPreload;
-        logger.i('백그라운드: 제품 정보 로드 완료');
-      } catch (e, s) {
-        logger.e('백그라운드 초기화 중 오류 발생', error: e, stackTrace: s);
-      }
+        ),
+      );
     });
+  }
+
+  /// Starts optional startup work independently. In particular, an OS-owned
+  /// notification permission sheet is intentionally unbounded user input and
+  /// must not defer product preload or badge reconciliation.
+  @visibleForTesting
+  static Future<void> runIndependentBackgroundTasks({
+    required bool Function() isActive,
+    required FutureOr<void> Function() preloadProducts,
+    required FutureOr<void> Function() syncBadge,
+    required FutureOr<void> Function() initializePush,
+  }) async {
+    if (!isActive()) return;
+    final operations = <Future<void>>[
+      _runBackgroundOperation(
+        name: 'product preload',
+        isActive: isActive,
+        operation: preloadProducts,
+      ),
+      _runBackgroundOperation(
+        name: 'badge sync',
+        isActive: isActive,
+        operation: syncBadge,
+      ),
+      _runBackgroundOperation(
+        name: 'push initialization',
+        isActive: isActive,
+        operation: initializePush,
+      ),
+    ];
+    await Future.wait(operations);
+  }
+
+  static Future<void> _runBackgroundOperation({
+    required String name,
+    required bool Function() isActive,
+    required FutureOr<void> Function() operation,
+  }) async {
+    if (!isActive()) return;
+    try {
+      await operation();
+      if (isActive()) logger.i('백그라운드: $name 완료');
+    } catch (e, s) {
+      logger.e('백그라운드 $name 오류', error: e, stackTrace: s);
+    }
   }
 
   /// 밴 상태 체크 (VM 감지 + 디바이스 밴 확인)
@@ -1054,29 +1095,20 @@ class AppInitializer {
     });
   }
 
-  static void setupBranchListener(WidgetRef ref) {
-    FlutterBranchSdk.listSession().listen(
-      (data) async {
-        try {
-          logger.i('Incoming Branch link data: $data');
-          if (data.containsKey("+clicked_branch_link") &&
-              data["+clicked_branch_link"] == true) {
-            // 링크 클릭 시 처리 로직
-            final longUrl = data["\$desktop_url"];
-            // longUrl을 사용하여 원하는 페이지로 이동
-            await handleDeepLink(ref, longUrl);
-          }
-        } catch (e, s) {
-          logger.e('Branch link 처리 중 오류:', error: e, stackTrace: s);
-        }
-      },
-      onError: (error) {
-        logger.e('Branch link error: $error');
-      },
-    );
+  /// Attaches a Branch destination handler and returns its ownership token.
+  ///
+  /// Callers must explicitly publish their own navigation readiness with
+  /// [setBranchListenerReady] and detach using [removeBranchListener]. This
+  /// preserves buffering while a Portal/Navigator is not usable and prevents
+  /// a stale remount from detaching the replacement owner.
+  static int setupBranchListener(WidgetRef ref) => BranchLinkService.instance
+      .attachHandler((url) => handleDeepLink(ref, url));
 
-    // 필요한 경우 나중에 구독 취소 로직 추가
-  }
+  static void setBranchListenerReady(int owner, bool ready) =>
+      BranchLinkService.instance.setHandlerReady(owner, ready);
+
+  static void removeBranchListener(int owner) =>
+      BranchLinkService.instance.detachHandler(owner);
 
   /// Deep link URL 라우팅 처리.
   /// 실제 로직은 [DeepLinkHandler]에 위임됩니다.
