@@ -15,11 +15,18 @@ import 'package:url_launcher/url_launcher.dart';
 ///
 /// 리워드 섹션과 동일한 [GridTwoColumn](순수 레이아웃) 규격을 사용한다.
 /// 홈 [ListView] 안에서 중첩 스크롤 없이 여러 줄을 노출한다.
-class LatestMediaSection extends ConsumerWidget {
+class LatestMediaSection extends ConsumerStatefulWidget {
   const LatestMediaSection({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LatestMediaSection> createState() => _LatestMediaSectionState();
+}
+
+class _LatestMediaSectionState extends ConsumerState<LatestMediaSection> {
+  List<VideoInfo> _lastItems = const [];
+
+  @override
+  Widget build(BuildContext context) {
     final mediaAsync = ref.watch(asyncLatestMediaProvider);
 
     return Column(
@@ -34,21 +41,40 @@ class LatestMediaSection extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         mediaAsync.when(
-          loading: () => const SizedBox(height: 100),
-          error: (e, s) => const SizedBox.shrink(),
-          data: (items) => Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: GridTwoColumn(
-              childAspectRatio: 1.45,
+          loading: () {
+            return _lastItems.isNotEmpty
+                ? _mediaGrid(_lastItems)
+                : const SizedBox(height: 100);
+          },
+          error: (e, s) {
+            return Column(
               children: [
-                for (final item in items) _mediaCard(item),
+                if (_lastItems.isNotEmpty) _mediaGrid(_lastItems),
+                TextButton.icon(
+                  key: const ValueKey('latest-media-retry'),
+                  onPressed: () => ref.invalidate(asyncLatestMediaProvider),
+                  icon: const Icon(Icons.refresh),
+                  label: Text(AppLocalizations.of(context).label_retry),
+                ),
               ],
-            ),
-          ),
+            );
+          },
+          data: (items) {
+            _lastItems = items;
+            return _mediaGrid(items);
+          },
         ),
       ],
     );
   }
+
+  Widget _mediaGrid(List<VideoInfo> items) => Padding(
+    padding: EdgeInsets.symmetric(horizontal: 16.w),
+    child: GridTwoColumn(
+      childAspectRatio: 1.45,
+      children: [for (final item in items) _mediaCard(item)],
+    ),
+  );
 
   Widget _mediaCard(VideoInfo item) {
     final title = getLocaleTextFromJson(item.title);

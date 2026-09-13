@@ -1,9 +1,17 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_artist_page.dart';
 import 'package:picnic_lib/presentation/widgets/common/artist_select_list_view.dart';
+import 'package:picnic_lib/supabase_options.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_supabase.dart';
@@ -20,11 +28,13 @@ void main() {
       'artists': <dynamic>[],
     });
     restore = suppressImageErrors();
+    SearchService.clearAllCache();
   });
 
   tearDown(() {
     restore();
     tearDownMockSupabase();
+    SearchService.clearAllCache();
   });
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
@@ -45,9 +55,7 @@ void main() {
     testWidgets('renders with default state', (WidgetTester tester) async {
       await pumpAndDrain(
         tester,
-        wrapWithOverlay(
-          buildTestAppPage(const MyArtistPage()),
-        ),
+        wrapWithOverlay(buildTestAppPage(const MyArtistPage())),
       );
 
       expect(find.byType(MyArtistPage), findsOneWidget);
@@ -58,10 +66,7 @@ void main() {
       await pumpAndDrain(
         tester,
         wrapWithOverlay(
-          buildTestAppPage(
-            const MyArtistPage(),
-            loggedIn: false,
-          ),
+          buildTestAppPage(const MyArtistPage(), loggedIn: false),
         ),
       );
 
@@ -72,10 +77,7 @@ void main() {
       await pumpAndDrain(
         tester,
         wrapWithOverlay(
-          buildTestAppPage(
-            const MyArtistPage(),
-            locale: const Locale('en'),
-          ),
+          buildTestAppPage(const MyArtistPage(), locale: const Locale('en')),
         ),
       );
 
@@ -86,18 +88,16 @@ void main() {
       await pumpAndDrain(
         tester,
         wrapWithOverlay(
-          buildTestAppPage(
-            const MyArtistPage(),
-            locale: const Locale('ja'),
-          ),
+          buildTestAppPage(const MyArtistPage(), locale: const Locale('ja')),
         ),
       );
 
       expect(find.byType(MyArtistPage), findsOneWidget);
     });
 
-    testWidgets('renders with artist data available',
-        (WidgetTester tester) async {
+    testWidgets('renders with artist data available', (
+      WidgetTester tester,
+    ) async {
       setupMockSupabase({
         'artist_user_bookmark': [
           {'artist_id': 1, 'user_id': 'test-user-id'},
@@ -122,12 +122,196 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        wrapWithOverlay(
-          buildTestAppPage(const MyArtistPage()),
-        ),
+        wrapWithOverlay(buildTestAppPage(const MyArtistPage())),
       );
 
       expect(find.byType(MyArtistPage), findsOneWidget);
+    });
+
+    testWidgets(
+      'same scope remount starts with matching empty input and query',
+      (tester) async {
+        final alphaResponse = Completer<http.Response>();
+        final artistQueries = <String>[];
+        testSupabaseClient = SupabaseClient(
+          'http://localhost:54321',
+          'test-anon-key-for-testing-purposes-only',
+          httpClient: MockClient((request) async {
+            if (request.url.path.contains('/auth/')) {
+              return http.Response(
+                jsonEncode({'error': 'not authenticated'}),
+                401,
+                request: request,
+                headers: const {'content-type': 'application/json'},
+              );
+            }
+            final table = request.url.path
+                .split('/rest/v1/')
+                .last
+                .split('?')
+                .first;
+            if (table == 'artist_user_bookmark') {
+              return http.Response(
+                '[]',
+                200,
+                request: request,
+                headers: const {'content-type': 'application/json'},
+              );
+            }
+            if (table == 'artist') {
+              final decodedUrl = Uri.decodeFull(request.url.toString());
+              final query = decodedUrl.contains('Alpha') ? 'Alpha' : '';
+              artistQueries.add(query);
+              if (query == 'Alpha') return alphaResponse.future;
+              return http.Response(
+                '[]',
+                200,
+                request: request,
+                headers: const {'content-type': 'application/json'},
+              );
+            }
+            return http.Response(
+              '[]',
+              200,
+              request: request,
+              headers: const {'content-type': 'application/json'},
+            );
+          }),
+          authOptions: const AuthClientOptions(autoRefreshToken: false),
+        );
+
+        late StateSetter setHostState;
+        var showPage = true;
+        await pumpWidgetAndIgnoreErrors(
+          tester,
+          wrapWithOverlay(
+            buildTestAppPage(
+              StatefulBuilder(
+                builder: (context, setState) {
+                  setHostState = setState;
+                  return showPage
+                      ? const MyArtistPage()
+                      : const SizedBox.shrink();
+                },
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        await tester.enterText(find.byType(TextField), 'Alpha');
+        await tester.pump(const Duration(milliseconds: 301));
+        final firstListContext = tester.element(
+          find.byType(ArtistSelectListView),
+        );
+        final firstContainer = ProviderScope.containerOf(firstListContext);
+        expect(firstContainer.read(myArtistSearchQueryProvider), 'Alpha');
+        expect(find.text('Alpha'), findsOneWidget);
+        expect(artistQueries, contains('Alpha'));
+
+        setHostState(() => showPage = false);
+        await tester.pump();
+        final callsBeforeRemount = artistQueries.length;
+
+        setHostState(() => showPage = true);
+        await tester.pump();
+        await tester.pump();
+
+        final remountedListContext = tester.element(
+          find.byType(ArtistSelectListView),
+        );
+        final remountedContainer = ProviderScope.containerOf(
+          remountedListContext,
+        );
+        expect(
+          tester.widget<TextField>(find.byType(TextField)).controller!.text,
+          '',
+        );
+        expect(remountedContainer.read(myArtistSearchQueryProvider), '');
+        expect(artistQueries.skip(callsBeforeRemount), ['']);
+
+        alphaResponse.complete(
+          http.Response(
+            '[]',
+            200,
+            headers: const {'content-type': 'application/json'},
+          ),
+        );
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('same element rebuild preserves the active search', (
+      tester,
+    ) async {
+      late StateSetter rebuildHost;
+      await pumpWidgetAndIgnoreErrors(
+        tester,
+        wrapWithOverlay(
+          buildTestAppPage(
+            StatefulBuilder(
+              builder: (context, setState) {
+                rebuildHost = setState;
+                return MyArtistPage(
+                  key: const ValueKey('stable-my-artist-page'),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), 'Alpha');
+      await tester.pump(const Duration(milliseconds: 301));
+      await tester.pump();
+
+      final pageElement = tester.element(find.byType(MyArtistPage));
+      final listContext = tester.element(find.byType(ArtistSelectListView));
+      final innerContainer = ProviderScope.containerOf(listContext);
+      expect(innerContainer.read(myArtistSearchQueryProvider), 'Alpha');
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        'Alpha',
+      );
+
+      final artistRequestCount = capturedMockRequests.where((request) {
+        return request.path.endsWith('/rest/v1/artist');
+      }).length;
+
+      rebuildHost(() {});
+      await tester.pump();
+      await tester.pump();
+
+      expect(
+        identical(pageElement, tester.element(find.byType(MyArtistPage))),
+        isTrue,
+        reason: 'the test must rebuild, not remount, MyArtistPage',
+      );
+      final rebuiltListContext = tester.element(
+        find.byType(ArtistSelectListView),
+      );
+      final rebuiltInnerContainer = ProviderScope.containerOf(
+        rebuiltListContext,
+      );
+      expect(identical(innerContainer, rebuiltInnerContainer), isTrue);
+      expect(rebuiltInnerContainer.read(myArtistSearchQueryProvider), 'Alpha');
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        'Alpha',
+      );
+
+      final rebuildRequests = capturedMockRequests
+          .where((request) => request.path.endsWith('/rest/v1/artist'))
+          .skip(artistRequestCount)
+          .toList();
+      expect(
+        rebuildRequests,
+        isEmpty,
+        reason: 'rebuilding must not issue an empty or duplicate HTTP search',
+      );
+      expect(tester.takeException(), isNull);
     });
   });
 

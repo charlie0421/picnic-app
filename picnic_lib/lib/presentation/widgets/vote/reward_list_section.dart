@@ -17,11 +17,18 @@ import 'package:shimmer/shimmer.dart';
 /// 2열 그리드로 렌더링한다. 스크롤러블(GridView)이 아니라 순수 레이아웃
 /// [GridTwoColumn]을 써서, 홈 세로 [ListView] 안에서 중첩 스크롤로 인한
 /// 스크롤 흔들림 없이 여러 줄을 노출한다.
-class RewardListSection extends ConsumerWidget {
+class RewardListSection extends ConsumerStatefulWidget {
   const RewardListSection({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RewardListSection> createState() => _RewardListSectionState();
+}
+
+class _RewardListSectionState extends ConsumerState<RewardListSection> {
+  List<RewardModel> _lastRewards = const [];
+
+  @override
+  Widget build(BuildContext context) {
     final asyncRewardListState = ref.watch(asyncRewardListProvider);
 
     return Column(
@@ -36,44 +43,62 @@ class RewardListSection extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         asyncRewardListState.when(
-          data: (data) => Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: GridTwoColumn(
-              childAspectRatio: 1.45,
-              children: [
-                for (var index = 0; index < data.length; index++)
-                  _rewardCard(context, data[index], index),
-              ],
-            ),
-          ),
-          loading: () => Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Shimmer.fromColors(
-              baseColor: AppColors.grey300,
-              highlightColor: AppColors.grey100,
-              child: GridTwoColumn(
-                childAspectRatio: 1.45,
-                children: List.generate(
-                  4,
-                  (_) => DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.r),
-                      color: Colors.white,
+          data: (data) {
+            _lastRewards = data;
+            return _rewardGrid(context, data);
+          },
+          loading: () => _lastRewards.isNotEmpty
+              ? _rewardGrid(context, _lastRewards)
+              : Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Shimmer.fromColors(
+                    baseColor: AppColors.grey300,
+                    highlightColor: AppColors.grey100,
+                    child: GridTwoColumn(
+                      childAspectRatio: 1.45,
+                      children: List.generate(
+                        4,
+                        (_) => DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.r),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
+          error: (error, stackTrace) {
+            final retry = KeyedSubtree(
+              key: const ValueKey('reward-list-retry'),
+              child: buildErrorView(
+                context,
+                error: error.toString(),
+                stackTrace: stackTrace,
+                retryFunction: () => ref.invalidate(asyncRewardListProvider),
               ),
-            ),
-          ),
-          error: (error, stackTrace) => buildErrorView(
-            context,
-            error: error.toString(),
-            stackTrace: stackTrace,
-          ),
+            );
+            if (_lastRewards.isEmpty) return retry;
+            return Column(
+              children: [_rewardGrid(context, _lastRewards), retry],
+            );
+          },
         ),
       ],
     );
   }
+
+  Widget _rewardGrid(BuildContext context, List<RewardModel> rewards) =>
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: GridTwoColumn(
+          childAspectRatio: 1.45,
+          children: [
+            for (var index = 0; index < rewards.length; index++)
+              _rewardCard(context, rewards[index], index),
+          ],
+        ),
+      );
 
   Widget _rewardCard(BuildContext context, RewardModel reward, int index) {
     // `title` 은 thumbnail 과 같은 순수 nullable 컬럼(`RewardModel.title`)이라
@@ -93,8 +118,9 @@ class RewardListSection extends ConsumerWidget {
               key: ValueKey('reward_${reward.id}'),
               imageUrl: reward.thumbnail ?? '',
               fit: BoxFit.cover,
-              priority:
-                  isHighPriority ? ImagePriority.high : ImagePriority.normal,
+              priority: isHighPriority
+                  ? ImagePriority.high
+                  : ImagePriority.normal,
               enableMemoryOptimization: true,
               enableProgressiveLoading: !isHighPriority,
               lazyLoadingStrategy: isHighPriority
@@ -114,8 +140,10 @@ class RewardListSection extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                 child: Text(
                   title,
-                  style: getTextStyle(AppTypo.body14R, Colors.white)
-                      .copyWith(overflow: TextOverflow.ellipsis),
+                  style: getTextStyle(
+                    AppTypo.body14R,
+                    Colors.white,
+                  ).copyWith(overflow: TextOverflow.ellipsis),
                   maxLines: 1,
                 ),
               ),

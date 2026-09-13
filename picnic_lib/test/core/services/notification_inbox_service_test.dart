@@ -1,12 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/services/notification_inbox_service.dart';
 import 'package:picnic_lib/data/models/user_notification.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/mock_supabase.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('NotificationInboxService', () {
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       setupMockSupabase({
         'user_notifications': [
           {
@@ -58,13 +62,17 @@ void main() {
     });
 
     test('fetch with large offset returns empty', () async {
-      final result = await NotificationInboxService.fetch(from: 1000, limit: 20);
+      final result = await NotificationInboxService.fetch(
+        from: 1000,
+        limit: 20,
+      );
       expect(result, isEmpty);
     });
   });
 
   group('NotificationInboxService without auth', () {
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       setupMockSupabase({
         'user_notifications': [],
         'broadcast_notifications': [
@@ -83,14 +91,18 @@ void main() {
       tearDownMockSupabase();
     });
 
-    test('fetch returns broadcast notifications when not authenticated', () async {
-      final result = await NotificationInboxService.fetch();
-      expect(result, isA<List<UserNotification>>());
-    });
+    test(
+      'fetch returns broadcast notifications when not authenticated',
+      () async {
+        final result = await NotificationInboxService.fetch();
+        expect(result, isA<List<UserNotification>>());
+      },
+    );
   });
 
   group('NotificationInboxService markRead', () {
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       setupMockSupabase({
         'user_notifications': [
           {
@@ -110,19 +122,20 @@ void main() {
       tearDownMockSupabase();
     });
 
-    test('markRead returns true on success', () async {
+    test('markRead without an authenticated session returns false', () async {
       final result = await NotificationInboxService.markRead(1);
-      expect(result, isTrue);
+      expect(result, isFalse);
     });
 
-    test('markRead with invalid id still completes (mock returns success)', () async {
+    test('markRead never reports an invalid id as successful', () async {
       final result = await NotificationInboxService.markRead(9999);
-      expect(result, isTrue);
+      expect(result, isFalse);
     });
   });
 
   group('NotificationInboxService markAllRead', () {
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       setupMockSupabase({
         'user_notifications': [
           {
@@ -151,30 +164,25 @@ void main() {
       tearDownMockSupabase();
     });
 
-    test('markAllRead returns true when user is authenticated', () async {
-      // Note: The mock Supabase does not set up auth sessions,
-      // so currentUser will be null in this mock setup.
-      // markAllRead returns false when user is null.
+    test('markAllRead supports guest broadcast state', () async {
       final result = await NotificationInboxService.markAllRead();
-      // Without a proper auth session, currentUser is null -> returns false
-      expect(result, isFalse);
+      expect(result, isTrue);
     });
   });
 
   group('NotificationInboxService markAllRead without auth', () {
     setUp(() {
-      setupMockSupabase({
-        'user_notifications': [],
-      });
+      SharedPreferences.setMockInitialValues({});
+      setupMockSupabase({'user_notifications': []});
     });
 
     tearDown(() {
       tearDownMockSupabase();
     });
 
-    test('markAllRead returns false when not authenticated', () async {
+    test('markAllRead supports guest broadcast state', () async {
       final result = await NotificationInboxService.markAllRead();
-      expect(result, isFalse);
+      expect(result, isTrue);
     });
   });
 
@@ -182,16 +190,10 @@ void main() {
     // Note: currentUser is null in mock setup (no real auth session),
     // so user_notifications are skipped. Only broadcast_notifications are fetched.
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       setupMockSupabase({
         'user_notifications': <Map<String, dynamic>>[],
         'broadcast_notifications': [
-          {
-            'id': 100,
-            'title': {'ko': '공지1', 'en': 'Announcement 1'},
-            'body': {'ko': '공지내용', 'en': 'Announcement body'},
-            'type': 'broadcast',
-            'created_at': '2026-03-08T10:00:00Z',
-          },
           {
             'id': 101,
             'title': {'ko': '공지2', 'en': 'Announcement 2'},
@@ -206,6 +208,13 @@ void main() {
             'type': 'broadcast',
             'created_at': '2026-03-09T10:00:00Z',
           },
+          {
+            'id': 100,
+            'title': {'ko': '공지1', 'en': 'Announcement 1'},
+            'body': {'ko': '공지내용', 'en': 'Announcement body'},
+            'type': 'broadcast',
+            'created_at': '2026-03-08T10:00:00Z',
+          },
         ],
       });
     });
@@ -214,16 +223,19 @@ void main() {
       tearDownMockSupabase();
     });
 
-    test('broadcast notifications are sorted by created_at descending', () async {
-      final result = await NotificationInboxService.fetch();
-      expect(result.length, 3);
-      // Should be sorted by created_at desc
-      for (int i = 0; i < result.length - 1; i++) {
-        final current = result[i].createdAt ?? '';
-        final next = result[i + 1].createdAt ?? '';
-        expect(current.compareTo(next), greaterThanOrEqualTo(0));
-      }
-    });
+    test(
+      'broadcast notifications are sorted by created_at descending',
+      () async {
+        final result = await NotificationInboxService.fetch();
+        expect(result.length, 3);
+        // Should be sorted by created_at desc
+        for (int i = 0; i < result.length - 1; i++) {
+          final current = result[i].createdAt ?? '';
+          final next = result[i + 1].createdAt ?? '';
+          expect(current.compareTo(next), greaterThanOrEqualTo(0));
+        }
+      },
+    );
 
     test('fetch respects limit parameter', () async {
       final result = await NotificationInboxService.fetch(from: 0, limit: 2);
@@ -250,6 +262,7 @@ void main() {
 
   group('NotificationInboxService with empty broadcast', () {
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       // Without auth, user_notifications are skipped; empty broadcasts = empty result
       setupMockSupabase({
         'user_notifications': <Map<String, dynamic>>[],
@@ -269,6 +282,7 @@ void main() {
 
   group('NotificationInboxService with same created_at broadcasts', () {
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       setupMockSupabase({
         'user_notifications': <Map<String, dynamic>>[],
         'broadcast_notifications': [

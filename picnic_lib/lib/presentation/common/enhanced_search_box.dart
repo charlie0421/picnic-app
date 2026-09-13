@@ -116,40 +116,92 @@ class EnhancedSearchBox extends StatefulWidget {
 class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
+  late bool _ownsController;
+  late bool _ownsFocusNode;
   Timer? _debounceTimer;
+  String? _pendingSearchText;
   String _previousText = '';
 
   @override
   void initState() {
     super.initState();
+    _ownsController = widget.controller == null;
     _controller = widget.controller ?? TextEditingController();
+    _ownsFocusNode = widget.focusNode == null;
     _focusNode = widget.focusNode ?? FocusNode();
 
     // 초기값이 있으면 설정
     if (widget.initialValue != null && widget.initialValue!.isNotEmpty) {
       _controller.text = widget.initialValue!;
-      _previousText = widget.initialValue!;
     }
+    _previousText = _controller.text;
 
     _controller.addListener(_onTextChanged);
 
     if (widget.autofocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _focusNode.requestFocus();
-      });
+      _requestFocusAfterFrame();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant EnhancedSearchBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.controller != widget.controller) {
+      _cancelPendingSearch();
+      _controller.removeListener(_onTextChanged);
+      if (_ownsController) {
+        _controller.dispose();
+      }
+
+      _ownsController = widget.controller == null;
+      _controller =
+          widget.controller ??
+          TextEditingController(text: widget.initialValue ?? '');
+      _previousText = _controller.text;
+      _controller.addListener(_onTextChanged);
+    }
+
+    if (oldWidget.focusNode != widget.focusNode) {
+      if (_ownsFocusNode) {
+        _focusNode.dispose();
+      }
+      _ownsFocusNode = widget.focusNode == null;
+      _focusNode = widget.focusNode ?? FocusNode();
+    }
+
+    if (widget.autofocus &&
+        (!oldWidget.autofocus || oldWidget.focusNode != widget.focusNode)) {
+      _requestFocusAfterFrame();
     }
   }
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
-    if (widget.controller == null) {
+    _cancelPendingSearch();
+    _controller.removeListener(_onTextChanged);
+    if (_ownsController) {
       _controller.dispose();
     }
-    if (widget.focusNode == null) {
+    if (_ownsFocusNode) {
       _focusNode.dispose();
     }
     super.dispose();
+  }
+
+  void _requestFocusAfterFrame() {
+    final focusNode = _focusNode;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && identical(_focusNode, focusNode)) {
+        focusNode.requestFocus();
+      }
+    });
+  }
+
+  void _cancelPendingSearch() {
+    _debounceTimer?.cancel();
+    _debounceTimer = null;
+    _pendingSearchText = null;
   }
 
   void _onTextChanged() {
@@ -157,7 +209,8 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
 
     // 디버깅 로그 추가
     logger.d(
-        '🔥 [EnhancedSearchBox] _onTextChanged called with text: "$currentText"');
+      '🔥 [EnhancedSearchBox] _onTextChanged called with text: "$currentText"',
+    );
     logger.d('🔥 [EnhancedSearchBox] Previous text was: "$_previousText"');
 
     // 텍스트가 실제로 변경된 경우에만 처리
@@ -165,20 +218,26 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
       _previousText = currentText;
 
       logger.d(
-          '🔥 [EnhancedSearchBox] Text actually changed, starting debounce timer');
+        '🔥 [EnhancedSearchBox] Text actually changed, starting debounce timer',
+      );
 
       // 기존 타이머 취소
       _debounceTimer?.cancel();
+      _pendingSearchText = currentText;
 
       // 새로운 타이머 시작
       _debounceTimer = Timer(widget.debounceTime, () {
         logger.d(
-            '🔥 [EnhancedSearchBox] Debounce timer fired, calling onSearchChanged with: "$currentText"');
-        if (mounted && widget.onSearchChanged != null) {
-          widget.onSearchChanged!(currentText);
+          '🔥 [EnhancedSearchBox] Debounce timer fired, calling onSearchChanged with: "$currentText"',
+        );
+        if (mounted && _pendingSearchText == currentText) {
+          _debounceTimer = null;
+          _pendingSearchText = null;
+          widget.onSearchChanged?.call(currentText);
         } else {
           logger.d(
-              '🔥 [EnhancedSearchBox] Widget not mounted or onSearchChanged is null');
+            '🔥 [EnhancedSearchBox] Widget not mounted or onSearchChanged is null',
+          );
         }
       });
 
@@ -190,13 +249,17 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
   }
 
   void _onSubmitted(String value) {
-    _debounceTimer?.cancel();
+    final pendingSearchText = _pendingSearchText;
+    _cancelPendingSearch();
+    if (pendingSearchText != null) {
+      widget.onSearchChanged?.call(pendingSearchText);
+    }
     widget.onSearchSubmitted?.call(value);
   }
 
   void _onClear() {
     _controller.clear();
-    _debounceTimer?.cancel();
+    _cancelPendingSearch();
     widget.onClear?.call();
     widget.onSearchChanged?.call('');
     // 키보드 숨기기
@@ -215,7 +278,8 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
           color: widget.borderColor ?? AppColors.primary500,
           width: 1.r,
         ),
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(boxHeight / 2),
+        borderRadius:
+            widget.borderRadius ?? BorderRadius.circular(boxHeight / 2),
         color: widget.backgroundColor ?? AppColors.grey00,
       ),
       child: Row(
@@ -235,15 +299,16 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
               textInputAction: widget.textInputAction,
               keyboardType: widget.keyboardType,
               textAlignVertical: TextAlignVertical.center,
-              style: widget.style ??
+              style:
+                  widget.style ??
                   getTextStyle(AppTypo.body16R, AppColors.grey900),
               decoration: InputDecoration(
                 hintText: widget.hintText,
-                hintStyle: widget.hintStyle ??
+                hintStyle:
+                    widget.hintStyle ??
                     getTextStyle(AppTypo.body16R, AppColors.grey300),
                 border: InputBorder.none,
-                contentPadding: widget.contentPadding ??
-                    EdgeInsets.zero,
+                contentPadding: widget.contentPadding ?? EdgeInsets.zero,
                 counterText: '',
                 isDense: true,
                 isCollapsed: true,

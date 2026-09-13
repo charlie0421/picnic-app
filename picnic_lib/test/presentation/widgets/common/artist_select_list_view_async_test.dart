@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/presentation/widgets/common/artist_select_list_view.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -41,6 +42,7 @@ Map<String, dynamic> _artistRow(int id, String name) => {
 class _ArtistHttpHarness {
   final Map<String, List<Future<List<Map<String, dynamic>>>>> _plans = {};
   final Map<String, int> calls = {};
+  final Map<String, List<int>> pages = {};
 
   void install() {
     testSupabaseClient = SupabaseClient(
@@ -64,6 +66,11 @@ class _ArtistHttpHarness {
     String query, {
     ArtistSearchScope scope = ArtistSearchScope.kpopOnly,
   }) => calls[_key(query, scope)] ?? 0;
+
+  List<int> pagesFor(
+    String query, {
+    ArtistSearchScope scope = ArtistSearchScope.kpopOnly,
+  }) => pages[_key(query, scope)] ?? const [];
 
   Future<http.Response> _handle(http.Request request) async {
     final path = request.url.path;
@@ -89,6 +96,8 @@ class _ArtistHttpHarness {
         : ArtistSearchScope.kpopOnly;
     final key = _key(query, scope);
     calls[key] = (calls[key] ?? 0) + 1;
+    final offset = int.tryParse(request.url.queryParameters['offset'] ?? '0');
+    pages.putIfAbsent(key, () => []).add((offset ?? 0) ~/ 20);
 
     final queue = _plans[key];
     if (queue == null || queue.isEmpty) {
@@ -285,6 +294,105 @@ void main() {
 
     nextPage.complete(<Map<String, dynamic>>[]);
     await tester.pump();
+    expect(find.byType(MediumPulseLoadingIndicator), findsNothing);
+    await disposeList(tester);
+  });
+
+  testWidgets('append failure keeps rows and suppresses scroll retries', (
+    tester,
+  ) async {
+    final harness = _ArtistHttpHarness();
+    final alphaPage = List.generate(
+      20,
+      (index) => _artistRow(100 + index, 'Alpha $index'),
+    );
+    final failedPage = Completer<List<Map<String, dynamic>>>();
+    harness.enqueue('Alpha', Future.value(alphaPage));
+    harness.enqueue('Alpha', failedPage.future);
+
+    await pumpList(tester, harness);
+    await search(tester, 'Alpha');
+    await tester.drag(find.byType(ListView), const Offset(0, -3000));
+    await tester.pump();
+
+    failedPage.completeError(StateError('raw append failure'));
+    await tester.pump();
+
+    expect(resultText('Alpha 19'), findsOneWidget);
+    expect(find.text('검색 중 오류가 발생했습니다.'), findsOneWidget);
+    expect(find.text('다시 시도'), findsOneWidget);
+    expect(find.textContaining('raw append failure'), findsNothing);
+
+    await tester.drag(find.byType(ListView), const Offset(0, 300));
+    await tester.pump();
+    await tester.drag(find.byType(ListView), const Offset(0, -300));
+    await tester.pump();
+
+    expect(harness.callCount('Alpha'), 2);
+    await disposeList(tester);
+  });
+
+  testWidgets('append retry requests the same page and appends its result', (
+    tester,
+  ) async {
+    final harness = _ArtistHttpHarness();
+    final alphaPage = List.generate(
+      20,
+      (index) => _artistRow(100 + index, 'Alpha $index'),
+    );
+    final failedPage = Completer<List<Map<String, dynamic>>>();
+    harness.enqueue('Alpha', Future.value(alphaPage));
+    harness.enqueue('Alpha', failedPage.future);
+    harness.enqueue(
+      'Alpha',
+      Future.value([_artistRow(999, 'Alpha retry result')]),
+    );
+
+    await pumpList(tester, harness);
+    await search(tester, 'Alpha');
+    await tester.drag(find.byType(ListView), const Offset(0, -3000));
+    await tester.pump();
+    failedPage.completeError(StateError('append failed'));
+    await tester.pump();
+
+    await tester.tap(find.text('다시 시도'));
+    await tester.pump();
+
+    expect(harness.callCount('Alpha'), 3);
+    expect(harness.pagesFor('Alpha'), [0, 1, 1]);
+    expect(resultText('Alpha retry result'), findsOneWidget);
+    expect(find.text('검색 중 오류가 발생했습니다.'), findsNothing);
+    await disposeList(tester);
+  });
+
+  testWidgets('stale append failure cannot replace a new query footer', (
+    tester,
+  ) async {
+    final harness = _ArtistHttpHarness();
+    final alphaPage = List.generate(
+      20,
+      (index) => _artistRow(100 + index, 'Alpha $index'),
+    );
+    final oldPage = Completer<List<Map<String, dynamic>>>();
+    final beta = Completer<List<Map<String, dynamic>>>();
+    harness.enqueue('Alpha', Future.value(alphaPage));
+    harness.enqueue('Alpha', oldPage.future);
+    harness.enqueue('Beta', beta.future);
+
+    await pumpList(tester, harness);
+    await search(tester, 'Alpha');
+    await tester.drag(find.byType(ListView), const Offset(0, -3000));
+    await tester.pump();
+    await search(tester, 'Beta');
+
+    beta.complete([_artistRow(2, 'Beta result')]);
+    await tester.pump();
+    oldPage.completeError(StateError('stale append failure'));
+    await tester.pump();
+
+    expect(resultText('Beta result'), findsOneWidget);
+    expect(find.text('검색 중 오류가 발생했습니다.'), findsNothing);
+    expect(find.text('다시 시도'), findsNothing);
     await disposeList(tester);
   });
 

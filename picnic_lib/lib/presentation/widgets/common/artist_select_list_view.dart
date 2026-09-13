@@ -75,6 +75,7 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
   bool _isLoading = false;
   bool _hasMore = true;
   bool _isDisposed = false;
+  bool _hasAppendError = false;
   String? _error;
   late String _initialSearchQuery;
   String _activeQuery = '';
@@ -175,6 +176,7 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
     setState(() {
       _isLoading = true;
       _error = null;
+      _hasAppendError = false;
       _items.clear();
       _currentPage = 0;
       _hasMore = true;
@@ -219,8 +221,14 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
     }
   }
 
-  Future<void> _loadMoreData() async {
-    if (_isDisposed || !mounted || _isLoading || !_hasMore) return;
+  Future<void> _loadMoreData({bool retryFailedPage = false}) async {
+    if (_isDisposed ||
+        !mounted ||
+        _isLoading ||
+        !_hasMore ||
+        (_hasAppendError && !retryFailedPage)) {
+      return;
+    }
 
     final generation = _requestGeneration;
     final requestQuery = _activeQuery;
@@ -231,6 +239,7 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
 
     setState(() {
       _isLoading = true;
+      _hasAppendError = false;
     });
 
     try {
@@ -266,6 +275,7 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
         return;
       }
       setState(() {
+        _hasAppendError = true;
         _isLoading = false;
       });
     }
@@ -417,7 +427,7 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
       addRepaintBoundaries: true,
       itemBuilder: (context, index) {
         if (index >= _items.length) {
-          return const Center(child: MediumPulseLoadingIndicator());
+          return _buildLoadMoreFooter();
         }
 
         final item = _items[index];
@@ -433,6 +443,35 @@ class ArtistSelectListViewState extends ConsumerState<ArtistSelectListView> {
         );
       },
     );
+  }
+
+  Widget _buildLoadMoreFooter() {
+    if (_hasAppendError) {
+      final localizations = AppLocalizations.of(context);
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              localizations.common_text_search_error,
+              style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+              textAlign: TextAlign.center,
+            ),
+            TextButton(
+              onPressed: () => _loadMoreData(retryFailedPage: true),
+              child: Text(localizations.common_retry_label),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_isLoading) {
+      return const Center(child: MediumPulseLoadingIndicator());
+    }
+
+    return SizedBox(height: 48.h);
   }
 }
 

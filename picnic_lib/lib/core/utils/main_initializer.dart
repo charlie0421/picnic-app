@@ -22,6 +22,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/services/consent_service.dart';
+import 'package:picnic_lib/core/services/branch_link_service.dart';
 import 'package:picnic_lib/core/utils/admob_test_device_policy.dart';
 
 /// Prevents Group 2 from immediately repeating a failed Group 1 UMP attempt.
@@ -224,13 +225,13 @@ class MainInitializer {
         if (!UniversalPlatform.isMobile) return;
         await Future.wait<void>([
           _runRetryableStartupStage('tapjoy', AppInitializer.initializeTapjoy),
-          _runRetryableStartupStage(
-            'branch',
-            () => FlutterBranchSdk.init(
+          _runRetryableStartupStage('branch', () async {
+            await FlutterBranchSdk.init(
               enableLogging: true,
               branchAttributionLevel: BranchAttributionLevel.NONE,
-            ),
-          ),
+            );
+            await BranchLinkService.instance.start();
+          }),
           _runRetryableStartupStage('admob', () async {
             if (!await _startupAdMobInitializer.initialize()) {
               throw const _AdMobStartupDeferred();
