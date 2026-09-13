@@ -2,8 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
@@ -80,6 +84,30 @@ List<VoteModel> _votes(int firstId, int count, {String category = 'birthday'}) {
   );
 }
 
+List<VoteModel> _upcomingVotes(int firstId, int count) {
+  final startAt = DateTime.now().add(const Duration(days: 1));
+  return List.generate(count, (index) {
+    final voteId = firstId + index;
+    return VoteFactory.create(
+      id: voteId,
+      title: {'ko': '예정 투표 $voteId'},
+      isUpcoming: true,
+      startAt: startAt,
+      voteItem: List.generate(
+        24,
+        (candidateIndex) => VoteItemFactory.create(
+          id: voteId * 100 + candidateIndex,
+          voteId: voteId,
+          artist: ArtistModel(
+            id: voteId * 100 + candidateIndex,
+            name: {'ko': '후보 ${candidateIndex + 1}'},
+          ),
+        ),
+      ),
+    );
+  });
+}
+
 Widget _testApp(
   _PageLoader loader, {
   VoteStatus status = VoteStatus.active,
@@ -100,26 +128,32 @@ Future<void> _pumpInitialPage(WidgetTester tester) async {
   await pumpAndIgnoreErrors(tester);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 20));
-  expect(find.byType(PageView), findsOneWidget);
+  expect(_verticalPager, findsOneWidget);
 }
 
 Future<void> _jumpToPage(WidgetTester tester, int index) async {
-  final pageView = tester.widget<PageView>(find.byType(PageView));
+  final pageView = tester.widget<PageView>(_verticalPager);
   pageView.controller!.jumpToPage(index);
   await tester.pump();
 }
 
 int _renderedItemCount(WidgetTester tester) {
-  final pageView = tester.widget<PageView>(find.byType(PageView));
+  final pageView = tester.widget<PageView>(_verticalPager);
   return pageView.childrenDelegate.estimatedChildCount!;
 }
 
 double _currentPage(WidgetTester tester) {
-  final pageView = tester.widget<PageView>(find.byType(PageView));
+  final pageView = tester.widget<PageView>(_verticalPager);
   return pageView.controller!.page!;
 }
 
 final _retryButton = find.byKey(const ValueKey('vote-list-retry'));
+final _verticalPager = find.byWidgetPredicate(
+  (widget) => widget is PageView && widget.scrollDirection == Axis.vertical,
+);
+final _candidatePager = find.byWidgetPredicate(
+  (widget) => widget is PageView && widget.scrollDirection == Axis.horizontal,
+);
 
 Future<void> _settleResponse(WidgetTester tester) async {
   await tester.pump();
@@ -127,7 +161,13 @@ Future<void> _settleResponse(WidgetTester tester) async {
 }
 
 void main() {
-  setUp(initTestColors);
+  setUp(() {
+    initTestColors();
+    PicnicCachedNetworkImage.disableTimeoutForTest = true;
+  });
+  tearDown(() {
+    PicnicCachedNetworkImage.disableTimeoutForTest = false;
+  });
 
   testWidgets('first-page failure offers retry instead of no votes', (
     tester,
@@ -329,4 +369,162 @@ void main() {
     expect(page2Calls, 2);
     expect(_renderedItemCount(tester), 20);
   });
+
+  for (final screen in [const Size(360, 800), const Size(390, 700)]) {
+    for (final firstPageCount in [2, 9, 10]) {
+      testWidgets(
+        'upcoming pagination pulse stays outside candidate pager and actions at $screen with $firstPageCount votes',
+        (tester) async {
+          tester.view.devicePixelRatio = 1;
+          tester.view.physicalSize = screen;
+          addTearDown(tester.view.reset);
+          final nextPage = Completer<List<VoteModel>>();
+          addTearDown(() {
+            if (!nextPage.isCompleted) nextPage.complete(const []);
+          });
+
+          await tester.pumpWidget(
+            _testApp(
+              (request) => request.page == 1
+                  ? Future.value(_upcomingVotes(1, firstPageCount))
+                  : nextPage.future,
+              status: VoteStatus.upcoming,
+            ),
+          );
+          await _pumpInitialPage(tester);
+          await _jumpToPage(tester, firstPageCount == 2 ? 0 : 7);
+          await tester.pump();
+
+          expect(find.byType(SmallPulseLoadingIndicator), findsOneWidget);
+          expect(find.byType(ShareSection), findsOneWidget);
+          expect(_candidatePager, findsOneWidget);
+          final candidatePageView = tester.widget<PageView>(_candidatePager);
+          expect(
+            candidatePageView.childrenDelegate.estimatedChildCount,
+            greaterThan(1),
+          );
+          candidatePageView.controller!.jumpToPage(1);
+          await tester.pump();
+          final candidatePage = tester
+              .widget<PageView>(_candidatePager)
+              .controller!
+              .page!;
+
+          final pulseBounds = tester.getRect(
+            find.byType(SmallPulseLoadingIndicator),
+          );
+          final actionsBounds = tester.getRect(find.byType(ShareSection));
+          final candidateBounds = tester.getRect(_candidatePager);
+          expect(
+            pulseBounds.overlaps(actionsBounds),
+            isFalse,
+            reason:
+                'Pagination loading feedback must not paint over save/share',
+          );
+          expect(
+            pulseBounds.overlaps(candidateBounds),
+            isFalse,
+            reason:
+                'Pagination loading feedback must not paint over candidates',
+          );
+          expect(
+            tester.widget<PageView>(_candidatePager).controller!.page,
+            closeTo(candidatePage, 0.01),
+          );
+
+          nextPage.complete(const []);
+          await _settleResponse(tester);
+          expect(
+            tester.getRect(_candidatePager),
+            candidateBounds,
+            reason: 'Completing pagination must not resize the candidate grid',
+          );
+          expect(
+            tester
+                .widget<PageView>(_candidatePager)
+                .childrenDelegate
+                .estimatedChildCount,
+            candidatePageView.childrenDelegate.estimatedChildCount,
+          );
+          drainExpectedImageErrors(tester);
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pump(const Duration(seconds: 1));
+        },
+      );
+
+      testWidgets(
+        'upcoming pagination retry stays outside candidate pager and actions at $screen with $firstPageCount votes',
+        (tester) async {
+          tester.view.devicePixelRatio = 1;
+          tester.view.physicalSize = screen;
+          addTearDown(tester.view.reset);
+          final nextPage = Completer<List<VoteModel>>();
+
+          await tester.pumpWidget(
+            _testApp(
+              (request) => request.page == 1
+                  ? Future.value(_upcomingVotes(1, firstPageCount))
+                  : nextPage.future,
+              status: VoteStatus.upcoming,
+            ),
+          );
+          await _pumpInitialPage(tester);
+          await _jumpToPage(tester, firstPageCount == 2 ? 0 : 7);
+          await tester.pump();
+
+          final candidatePageView = tester.widget<PageView>(_candidatePager);
+          expect(
+            candidatePageView.childrenDelegate.estimatedChildCount,
+            greaterThan(1),
+          );
+          candidatePageView.controller!.jumpToPage(1);
+          await tester.pump();
+          final boundsWhileLoading = tester.getRect(_candidatePager);
+          nextPage.completeError(Exception('pagination offline'));
+          await _settleResponse(tester);
+
+          expect(_retryButton, findsOneWidget);
+          expect(find.byType(ShareSection), findsOneWidget);
+          expect(_candidatePager, findsOneWidget);
+          expect(
+            tester.getRect(_candidatePager),
+            boundsWhileLoading,
+            reason: 'A pagination error must not resize or re-page candidates',
+          );
+          expect(
+            tester.widget<PageView>(_candidatePager).controller!.page,
+            closeTo(1, 0.01),
+            reason: 'Showing retry must not reset the candidate page',
+          );
+
+          final retryNotice = find.ancestor(
+            of: _retryButton,
+            matching: find.byWidgetPredicate(
+              (widget) => widget is Material && widget.elevation == 2,
+            ),
+          );
+          expect(retryNotice, findsOneWidget);
+          final retryBounds = tester.getRect(retryNotice);
+          final actionsBounds = tester.getRect(find.byType(ShareSection));
+          final candidateBounds = tester.getRect(_candidatePager);
+          expect(
+            retryBounds.overlaps(actionsBounds),
+            isFalse,
+            reason: 'Pagination retry must not cover save/share',
+          );
+          expect(
+            retryBounds.overlaps(candidateBounds),
+            isFalse,
+            reason: 'Pagination retry must not cover candidates',
+          );
+          expect(find.text('저장').hitTestable(), findsOneWidget);
+          expect(find.text('공유').hitTestable(), findsOneWidget);
+
+          drainExpectedImageErrors(tester);
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pump(const Duration(seconds: 1));
+        },
+      );
+    }
+  }
 }

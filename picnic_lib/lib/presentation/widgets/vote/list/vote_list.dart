@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import 'package:picnic_lib/presentation/common/picnic_image_prefetch.dart';
 import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_card_layout.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -499,9 +501,9 @@ class _VoteListState extends ConsumerState<VoteList> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _items.isEmpty) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [VoteCardSkeleton(status: _getSkeletonStatus(null))],
+      return Align(
+        alignment: Alignment.topCenter,
+        child: VoteCardSkeleton(status: _getSkeletonStatus(null)),
       );
     }
     if (_items.isEmpty) {
@@ -514,50 +516,54 @@ class _VoteListState extends ConsumerState<VoteList> {
       color: AppColors.primary500,
       backgroundColor: Colors.white,
       onRefresh: _refreshVotes,
-      child: Stack(
+      notificationPredicate: (notification) =>
+          notification.metrics.axis == Axis.vertical &&
+          (notification.depth == 0 ||
+              (_currentIndex == 0 && notification.depth == 1)),
+      child: Column(
         children: [
-          PageView.builder(
-            controller: _pageController,
-            scrollDirection: Axis.vertical,
-            itemCount: _items.length,
-            onPageChanged: _onPageChanged,
-            itemBuilder: (context, index) {
-              final item = _items[index];
-              final itemStatus = _statusForVote(item);
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              scrollDirection: Axis.vertical,
+              itemCount: _items.length,
+              onPageChanged: _onPageChanged,
+              itemBuilder: (context, index) {
+                final item = _items[index];
+                final itemStatus = _statusForVote(item);
 
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  VoteInfoCard(
-                    context: context,
-                    vote: item,
-                    status: itemStatus,
-                  ),
-                ],
-              );
-            },
+                return VoteInfoCard(
+                  context: context,
+                  vote: item,
+                  status: itemStatus,
+                );
+              },
+            ),
           ),
-          // 추가 로드 중 표시: 카드를 덮는 풀사이즈 스켈레톤 대신 하단 중앙에
-          // 작은 펄스만 띄운다(현재 카드를 가려 회색 잔상처럼 보이던 문제 방지).
-          if (_isFetchingMore)
-            const Positioned(
-              bottom: 16,
-              left: 0,
-              right: 0,
-              child: Center(child: SmallPulseLoadingIndicator()),
+          // 필터를 거친 짧은 응답도 다음 페이지가 있을 수 있다. 안내 영역을
+          // 유지하여 로딩이 끝나거나 실패해도 후보 페이지 구성이 바뀌지 않는다.
+          SizedBox(
+            height: math.max(
+              40,
+              VoteCardLayout.textHeight(
+                    context,
+                    AppLocalizations.of(context).label_retry,
+                    Theme.of(context).textTheme.labelLarge!,
+                    maxWidth: double.infinity,
+                  ) +
+                  8,
             ),
-          if (_hasLoadError)
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: Material(
-                color: Theme.of(context).colorScheme.surface,
-                elevation: 2,
-                borderRadius: BorderRadius.circular(12),
-                child: _buildRetryNotice(compact: true),
-              ),
-            ),
+            child: _hasLoadError
+                ? Material(
+                    color: Theme.of(context).colorScheme.surface,
+                    elevation: 2,
+                    borderRadius: BorderRadius.circular(12),
+                    child: _buildRetryNotice(compact: true),
+                  )
+                : _isFetchingMore
+                ? const Center(child: SmallPulseLoadingIndicator())
+                : null,
+          ),
         ],
       ),
     );
@@ -568,14 +574,26 @@ class _VoteListState extends ConsumerState<VoteList> {
     final message = Text(
       l10n.message_error_occurred,
       textAlign: compact ? TextAlign.start : TextAlign.center,
+      style: compact ? Theme.of(context).textTheme.labelLarge : null,
+      maxLines: compact ? 1 : null,
+      overflow: compact ? TextOverflow.ellipsis : null,
     );
     final button = TextButton(
       key: const ValueKey('vote-list-retry'),
       onPressed: _retryVotes,
+      style: compact
+          ? TextButton.styleFrom(
+              minimumSize: const Size(0, 32),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            )
+          : null,
       child: Text(l10n.label_retry),
     );
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: compact
+          ? const EdgeInsets.symmetric(horizontal: 16)
+          : const EdgeInsets.all(16),
       child: compact
           ? Row(
               children: [
